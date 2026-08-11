@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Android Knowledge OS — Hệ điều hành tri thức Android</title>
+  <meta name="description" content="Nền tảng học tập và tra cứu tri thức chuyên sâu về Android OS: Application Components, Jetpack Compose, Coroutines, WorkManager và Kiến trúc hệ thống." />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Mermaid.js for Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    (function () {
+      var savedTheme = 'dark';
+      try { savedTheme = localStorage.getItem('kos-theme') || 'dark'; } catch (e) {}
+      if (savedTheme === 'light') document.documentElement.classList.add('theme-light');
+      if (window.mermaid) {
+        mermaid.initialize({ startOnLoad: false, theme: savedTheme === 'light' ? 'neutral' : 'dark', fontFamily: 'Inter, sans-serif', fontSize: 13, flowchart: { htmlLabels: true, curve: 'basis' } });
+      }
+    })();
+  </script>
+</head>
+<body>
+
+<div class="layout layout--content" id="layout">
+
+  <!-- ── Header ───────────────────────────────────────────── -->
+  <header class="header">
+    <a class="logo" href="index.html">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="100%" stop-color="#E2E8F0"/>
+            </linearGradient>
+          </defs>
+          <path d="M13 2L4.09 12.96A1 1 0 005 14.5h6.5L10 22l9.91-10.96A1 1 0 0019 9.5h-6.5L13 2z" fill="url(#logoGrad)"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name">Knowledge OS</span>
+        <span class="logo-tagline">Android Knowledge Base</span>
+      </div>
+    </a>
+
+    <div class="header-search">
+      <span class="search-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </span>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Tìm kiếm bài học, khái niệm Android..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
+    <button id="btn-toggle-original" class="btn-toggle-original" style="display:none;" onclick="toggleOriginalContent()">🌐 Xem bản gốc (English)</button>
+
+    <nav class="header-nav">
+      <a class="nav-btn" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Trang chủ Portal
+      </a>
+      <button class="nav-btn active" id="navAndroidDomain" onclick="showDomain('android')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>
+        </svg>
+        Android OS Domain
+      </button>
+      <button id="btn-theme" class="btn-theme" onclick="toggleTheme()" title="Chuyển giao diện"></button>
+    </nav>
+  </header>
+
+  <!-- ── Sidebar ───────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Rendered by JS -->
+  </aside>
+
+  <!-- ── Search Overlay ───────────────────────────────────── -->
+  <div class="search-overlay" id="searchOverlay"></div>
+
+  <!-- ── Main Content ─────────────────────────────────────── -->
+  <main class="main" id="main">
+    <!-- Rendered by JS -->
+  </main>
+
+  <!-- ── TOC ──────────────────────────────────────────────── -->
+  <aside class="toc" id="toc">
+    <!-- Rendered by JS -->
+  </aside>
+
+</div>
+
+<script src="android-content.js"></script>
+<script src="app.js"></script>
+
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash.replace('#', '');
+    const urlParams = new URLSearchParams(window.location.search);
+    const topicParam = urlParams.get('topic') || hash;
+
+    if (topicParam && (typeof TOPIC_CONTENT !== 'undefined' && TOPIC_CONTENT[topicParam] || findTopic(topicParam))) {
+      openTopic(topicParam);
+    } else {
+      openTopic('android-service');
+    }
+  });
+</script>
+</body>
+</html>

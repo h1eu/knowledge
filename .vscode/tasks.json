@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Verify DSA Chapters (All)",
+      "type": "shell",
+      "command": "node",
+      "args": ["tools/verify-chapters.js"],
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Verify DSA Chapters (Ask for chapter)",
+      "type": "shell",
+      "command": "node",
+      "args": ["tools/verify-chapters.js", "${input:chapterFilter}"],
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "chapterFilter",
+      "type": "promptString",
+      "description": "Số chương hoặc tên thư mục cần kiểm tra (vd: 4, hoặc chapter_array_and_linkedlist). Để trống = tất cả.",
+      "default": "all"
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Knowledge OS — Hệ điều hành tri thức IT</title>
+  <meta name="description" content="Knowledge OS là hệ thống quản lý tri thức cá nhân về Công nghệ Thông tin, tổ chức theo Domain → Module → Topic." />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Mermaid.js for Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    (function () {
+      var savedTheme = 'dark';
+      try { savedTheme = localStorage.getItem('kos-theme') || 'dark'; } catch (e) {}
+      if (savedTheme === 'light') document.documentElement.classList.add('theme-light');
+      if (window.mermaid) {
+        mermaid.initialize({ startOnLoad: false, theme: savedTheme === 'light' ? 'neutral' : 'dark', fontFamily: 'Inter, sans-serif', fontSize: 13, flowchart: { htmlLabels: true, curve: 'basis' } });
+      }
+    })();
+  </script>
+</head>
+<body>
+
+<!-- Background removed for light theme -->
+
+<div class="layout layout--home" id="layout">
+
+  <!-- ── Header ───────────────────────────────────────────── -->
+  <header class="header">
+    <a class="logo" href="#" onclick="showHome(); return false;">
+      <div class="logo-icon">
+        <!-- Bolt icon with embedded gradient -->
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="100%" stop-color="#E2E8F0"/>
+            </linearGradient>
+          </defs>
+          <path d="M13 2L4.09 12.96A1 1 0 005 14.5h6.5L10 22l9.91-10.96A1 1 0 0019 9.5h-6.5L13 2z" fill="url(#logoGrad)"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name">Knowledge OS</span>
+        <span class="logo-tagline">Knowledge Operating System</span>
+      </div>
+    </a>
+
+    <div class="header-search">
+      <span class="search-icon">
+        <!-- Magnifying glass -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </span>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Tìm kiếm topic, khái niệm..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
+    <button id="btn-toggle-original" class="btn-toggle-original" style="display:none;" onclick="toggleOriginalContent()">🌐 Xem bản gốc (English)</button>
+
+    <nav class="header-nav">
+      <button class="nav-btn active" id="navHome" onclick="showHome()">
+        <!-- House icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Trang chủ
+      </button>
+      <button class="nav-btn" id="navGraph" onclick="showGraph()">
+        <!-- Share/graph icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        Knowledge Graph
+      </button>
+      <button id="btn-theme" class="btn-theme" onclick="toggleTheme()" title="Chuyển giao diện"></button>
+    </nav>
+  </header>
+
+  <!-- ── Sidebar ───────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Rendered by JS -->
+  </aside>
+
+  <!-- ── Search Overlay ───────────────────────────────────── -->
+  <div class="search-overlay" id="searchOverlay"></div>
+
+  <!-- ── Main Content ─────────────────────────────────────── -->
+  <main class="main" id="main">
+    <!-- Rendered by JS -->
+  </main>
+
+  <!-- ── TOC ──────────────────────────────────────────────── -->
+  <aside class="toc" id="toc">
+    <!-- Rendered by JS -->
+  </aside>
+
+</div>
+
+<script src="dsa-content.js"></script>
+<script src="dsa-content-ch0.js"></script>
+<script src="dsa-content-ch04.js"></script>
+<script src="dsa-content-ch05.js"></script>
+<script src="dsa-content-ch06.js"></script>
+<script src="dsa-content-ch07.js"></script>
+<script src="dsa-content-ch08.js"></script>
+<script src="dsa-content-ch09.js"></script>
+<script src="dsa-content-ch10.js"></script>
+<script src="dsa-content-ch11.js"></script>
+<script src="dsa-sort-frames-ch11.js"></script>
+<script src="dsa-content-ch12.js"></script>
+<script src="dsa-content-ch13.js"></script>
+<script src="dsa-backtrack-frames-ch13.js"></script>
+<script src="dsa-content-ch14.js"></script>
+<script src="dsa-dp-frames-ch14.js"></script>
+<script src="dsa-content-ch15.js"></script>
+<script src="dsa-content-ch16.js"></script>
+<script src="android-content.js"></script>
+<script src="app.js"></script>
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>

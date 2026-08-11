@@ -1,0 +1,55 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    ".agents/rules/*.md",
+    ".agents/context/*.md",
+    ".agents/playbooks/*.md"
+  ],
+  "mcp": {
+    "pencil": {
+      "command": [
+        "/Applications/Pen.app/Contents/Resources/app.asar.unpacked/out/mcp-server-darwin-arm64",
+        "--app",
+        "desktop",
+        "--agent",
+        "openCodeCLI"
+      ],
+      "enabled": true,
+      "type": "local"
+    }
+  },
+  "command": {
+    "practical-topic": {
+      "description": "Tạo bài học thực chiến (What -> When -> Code)",
+      "template": "Bạn là Knowledge OS AI Agent. Đọc và tuân thủ nghiêm ngặt workflow tại `.agents/workflows/practical-topic.md`. Thực hiện từng bước trong workflow, bắt đầu từ Bước khảo sát nhu cầu. Dừng lại và chờ người dùng trả lời khi workflow yêu cầu.\n\nTopic/Nhu cầu từ người dùng: $ARGUMENTS"
+    },
+    "learn-android": {
+      "description": "Tạo bài học Android chuyên sâu",
+      "template": "Bạn là Knowledge OS AI Agent. Đọc và tuân thủ nghiêm ngặt workflow tại `.agents/workflows/learn-android.md`. Thực hiện 7 bước từ Topic Discovery đến Verify. Đảm bảo tạo đầy đủ artifacts: Markdown Source, Website Source Code, Metadata, Website Assets.\n\nTopic của người dùng: $ARGUMENTS"
+    },
+    "refactor-topic": {
+      "description": "Tái cấu trúc Topic không thay đổi kiến thức",
+      "template": "Bạn là Knowledge OS AI Agent. Đọc và tuân thủ nghiêm ngặt workflow tại `.agents/workflows/refactor-topic.md`. Mục tiêu: cải thiện cấu trúc Topic mà không làm mất hoặc thay đổi bản chất kiến thức. Lập kế hoạch trước, thực hiện từng bước nhỏ, cập nhật liên kết nội bộ.\n\nTopic cần refactor: $ARGUMENTS"
+    },
+    "create-quiz": {
+      "description": "Tạo Quiz đánh giá cho một Topic",
+      "template": "Bạn là Knowledge OS AI Agent. Đọc và tuân thủ workflow tại `.agents/workflows/create-quiz.md` và template tại `.agents/templates/quiz.md`. Chỉ sử dụng kiến thức từ Lesson của Topic, không giới thiệu kiến thức mới. Mỗi câu hỏi kiểm tra một khái niệm. Đảm bảo Quiz được liên kết với Topic.\n\nTopic để tạo Quiz: $ARGUMENTS"
+    },
+    "create-diagram": {
+      "description": "Tạo Diagram Mermaid cho một Topic",
+      "template": "Bạn là Knowledge OS AI Agent. Đọc và tuân thủ workflow tại `.agents/workflows/create-diagram.md` và template tại `.agents/templates/diagram.md`. Xác định loại Diagram phù hợp (Flowchart, Sequence, State, Architecture). Đối chiếu với Lesson để không mâu thuẫn. Sử dụng Mermaid.\n\nTopic để tạo Diagram: $ARGUMENTS"
+    },
+    "create-roadmap": {
+      "description": "Tạo Roadmap học tập cho Domain/Module",
+      "template": "Bạn là Knowledge OS AI Agent. Đọc và tuân thủ workflow tại `.agents/workflows/create-roadmap.md` và template tại `.agents/templates/roadmap.md`. Thu thập toàn bộ Topic, xác định quan hệ Prerequisite, sắp xếp từ nền tảng đến nâng cao.\n\nDomain/Module để tạo Roadmap: $ARGUMENTS"
+    },
+    "publish-topic": {
+      "description": "Công bố Topic từ nháp sang chính thức",
+      "template": "Bạn là Knowledge OS AI Agent. Đọc và tuân thủ nghiêm ngặt workflow tại `.agents/workflows/publish-topic.md`. Xác nhận Topic đã qua Review, kiểm tra toàn bộ Resource, Frontmatter, liên kết nội bộ. Cập nhật trạng thái công bố. Bắt buộc chờ con người xác nhận cuối cùng.\n\nTopic cần publish: $ARGUMENTS"
+    },
+    "dsa-hello": {
+      "description": "Chuyển nội dung Hello Algo sang Knowledge OS",
+      "template": "Bạn là Knowledge OS AI Agent. Đọc và tuân thủ nghiêm ngặt workflow tại `.agents/workflows/dsa-hello.md`. Thực hiện 7 bước: xác định chapter, kiểm kê nội dung, dịch toàn bộ (không bỏ sót), đối chiếu checklist, tích hợp originalContent, tạo widget mô phỏng (nếu có), tích hợp hệ thống. Không được dịch code, giữ nguyên asset paths.\n\nChapter keyword: $ARGUMENTS"
+    }
+  }
+}

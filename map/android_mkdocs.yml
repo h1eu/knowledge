@@ -1,0 +1,190 @@
+# Config inheritance
+INHERIT: ../mkdocs.yml
+
+# Project information
+site_name: Plan Android Learning
+site_description: "Android Learning Roadmap and Knowledge Base"
+docs_dir: ../android/docs
+site_dir: ../site/android
+# Repository
+edit_uri: tree/main/android/docs
+version: 1.0.0
+
+# Configuration
+theme:
+  language: vi
+  font:
+    text: Inter
+  palette:
+    - scheme: default
+      primary: white
+      accent: teal
+      toggle:
+        icon: material/theme-light-dark
+        name: Dark mode
+    - scheme: slate
+      primary: black
+      accent: teal
+      toggle:
+        icon: material/theme-light-dark
+        name: Light mode
+
+extra:
+  status:
+    new: Recently Added
+
+# Page tree
+nav:
+  - Overview: index.md
+  - Session 01:
+    - 1.1 Languages:
+      - 1.1.1 Java Android: session_01/languages/java_android.md
+      - 1.1.2 Kotlin: session_01/languages/kotlin.md
+      - 1.1.3 JNI:C/C++: session_01/languages/jni.md
+    - 1.2 Output Packages:
+      - 1.2.1 APK: session_01/output_packages/apk_files.md
+      - 1.2.2 AAB: session_01/output_packages/aab_files.md
+  - Session 02:
+    - 2.1 File Permissions: session_02/file_permissions.md
+    - 2.2 Process Management: session_02/process_management.md
+    - 2.3 Resource Solutions: session_02/resource_solutions.md
+    - 2.4 Multi User OS: session_02/multi_user_os.md
+  - Session 03:
+    - 3.1 Hardware Architecture: session_03/hardware_architecture.md
+    - 3.2 Systems Apps and Kernel: session_03/systems_apps_and_kernel.md
+  - Session 04:
+    - 4.1 Android Manifest:
+      - 4.1.1 Package, build, gradle:
+        - 4.1.1.1 Build Types: session_04/android_manifest/package_build_gradle/build_types.md
+        - 4.1.1.2 Flavor: session_04/android_manifest/package_build_gradle/flavor.md
+        - 4.1.1.3 Plugin: session_04/android_manifest/package_build_gradle/plugin.md
+      - 4.1.2 Manifest Tags (Application, Activity, Services, Broadcast Receiver, Provider, Permission): session_04/android_manifest/tags.md
+    - 4.2 Application Components:
+      - 4.2.1 Activity:
+        - 4.2.1.1 Lifecycle: session_04/components/activity/lifecycle.md
+        - 4.2.1.2 State Changes: session_04/components/activity/state_changes.md
+        - 4.2.1.3 Task and Backstack: session_04/components/activity/task_and_backstack.md
+        - 4.2.1.4 Parcelables(Serialization) and Bundle: session_04/components/activity/parcelables_and_bundle.md
+      - 4.2.2 Fragment:
+        - 4.2.2.1 Lifecycle: session_04/components/fragment/lifecycle.md
+        - 4.2.2.2 State Changes: session_04/components/fragment/state_changes.md
+        - 4.2.2.3 FragmentManager: session_04/components/fragment/fragment_manager.md
+        - 4.2.2.4 Dialog and DialogFragment: session_04/components/fragment/dialog_and_dialogfragment.md
+      - 4.2.3 Android Services:
+        - 4.2.3.1 Android Service: session_04/components/services/android_service.md
+        - 4.2.3.2 Google Service: session_04/components/services/google_service.md
+        - 4.2.3.3 Advertisements: session_04/components/services/advertisements.md
+      - 4.2.4 Broadcast Receiver:
+        - 4.2.4.1 Broadcast Receiver: session_04/components/broadcast/broadcast_receiver.md
+      - 4.2.5 Content Provider: session_04/components/content_provider.md
+      - 4.2.6 Intent:
+        - 4.2.6.1 Explicit Intents: session_04/intent/explicit_intents.md
+        - 4.2.6.2 Implicit Intents: session_04/intent/implicit_intents.md
+        - 4.2.6.3 Intent Filters Value: session_04/intent/intent_filters.md
+        - 4.2.6.4 Handle Intent: session_04/intent/handle_intent.md
+        - 4.2.6.5 Push data and send event via Intent: session_04/intent/push_data_event.md
+        - 4.2.6.6 Pending Intent: session_04/intent/pending_intent.md
+  - Session 05:
+    - 5.0 Session 05 Overview: session_05/overview.md
+    - 5.1 Data Store:
+      - 5.1.1 Key-Value Storage (SharedPreferences & DataStore): session_05/data_store/key_value.md
+      - 5.1.2 Relational Database (Room Architecture): session_05/data_store/room_architecture.md
+      - 5.1.3 Advanced Room (Migration & Indexing): session_05/data_store/room_advanced.md
+      - 5.1.4 Async Transactions & Flow: session_05/data_store/room_transactions.md
+    - 5.2 Working with Thread: session_05/working_with_thread.md
+    - 5.3 Networking (Request API, Handle event network, Handle connection state): session_05/networking.md
+  - Session 06:
+    - 6.1 View Binding: session_06/view_binding.md
+    - 6.2 Data Binding: session_06/data_binding.md
+    - 6.3 LiveData: session_06/livedata.md
+    - 6.4 ViewModel: session_06/viewmodel.md
+    - 6.5 Paging: session_06/paging.md
+  - Session 07:
+    - 7.1 Design Pattern:
+      - 7.1.1 Builder Pattern: session_07/design_pattern/builder_pattern.md
+      - 7.1.2 ViewHolder Pattern: session_07/design_pattern/viewholder_pattern.md
+      - 7.1.3 Singleton Pattern: session_07/design_pattern/singleton_pattern.md
+      - 7.1.4 Observer Pattern:
+        - 7.1.4.1 RxJava / RxAndroid: session_07/design_pattern/observer/rxjava.md
+        - 7.1.4.2 Flow: session_07/design_pattern/observer/flow.md
+        - 7.1.4.3 LiveData: session_07/design_pattern/observer/livedata.md
+      - 7.1.5 Dependency Injection:
+        - 7.1.5.1 Dagger2: session_07/design_pattern/di/dagger2.md
+        - 7.1.5.2 Koin: session_07/design_pattern/di/koin.md
+        - 7.1.5.3 Hilt: session_07/design_pattern/di/hilt.md
+        - 7.1.5.4 Kodein: session_07/design_pattern/di/kodein.md
+    - 7.2 Architecture:
+      - 7.2.1 MVC: session_07/architecture/mvc.md
+      - 7.2.2 MVP: session_07/architecture/mvp.md
+      - 7.2.3 MVVM: session_07/architecture/mvvm.md
+      - 7.2.4 MVI: session_07/architecture/mvi.md
+      - 7.2.5 Clean Architecture: session_07/architecture/clean_architecture.md
+  - Session 08:
+    - 8.1 Networks:
+      - 8.1.1 Retrofit: session_08/networks/retrofit.md
+      - 8.1.2 Gson: session_08/networks/gson.md
+      - 8.1.3 OkHttp: session_08/networks/okhttp.md
+      - 8.1.4 Okio: session_08/networks/okio.md
+      - 8.1.5 Ktor and Apollo Android: session_08/networks/ktor_apollo.md
+    - 8.2 Loading Image:
+      - 8.2.1 Glide: session_08/loading_image/glide.md
+      - 8.2.2 Picasso: session_08/loading_image/picasso.md
+      - 8.2.3 Fresco: session_08/loading_image/fresco.md
+      - 8.2.4 Coil: session_08/loading_image/coil.md
+    - 8.3 Local Storage: session_08/local_storage.md
+    - 8.4 Synchronous / Asynchronous Threads:
+      - 8.4.1 What Sync / Async: session_08/async_threads/sync_async.md
+      - 8.4.2 Thread and Multi-Thread: session_08/async_threads/thread_multithread.md
+      - 8.4.3 Coroutines: session_08/async_threads/coroutines.md
+      - 8.4.4 RxJava, RxAndroid, RxKotlin: session_08/async_threads/rxjava.md
+    - 8.5 View Layout:
+      - 8.5.1 Layouts (ConstraintLayout, MotionLayout, Linear, Frame, Relative, RecyclerView): session_08/view_layout/layouts.md
+      - 8.5.2 View Custom (View lifecycle, Canvas): session_08/view_layout/views.md
+      - 8.5.3 Styles (style view, style input, style themes): session_08/view_layout/styles.md
+      - 8.5.4 Design Guide (Materials, Flat): session_08/view_layout/design_guide.md
+      - 8.5.5 Message (Toast, Snackbar, Notification): session_08/view_layout/message.md
+      - 8.5.6 Animation (Animator, Lotties, Material Motions, AnimationSet): session_08/view_layout/animation.md
+  - Session 09: 
+    - 9.1 Remember and Recomposition: jetpack_compose_ui/remember_and_recomposition.md
+    - 9.2 State and State Hoisting:
+      - 9.2.1 MutableState: jetpack_compose_ui/state/mutable_state.md
+      - 9.2.2 Remember and rememberSaveable: jetpack_compose_ui/state/remember_saveable.md
+    - 9.3 Side-Effects:
+      - 9.3.1 LaunchedEffect: jetpack_compose_ui/side_effects/launched_effect.md
+      - 9.3.2 DisposableEffect: jetpack_compose_ui/side_effects/disposable_effect.md
+      - 9.3.3 ProduceState: jetpack_compose_ui/side_effects/produce_state.md
+      - 9.3.4 DerivedStateOf: jetpack_compose_ui/side_effects/derived_state_of.md
+      - 9.3.5 SnapShotFlow and flowWithSnapshot: jetpack_compose_ui/side_effects/flow_with_snapshot.md
+    - 9.4 Theming:
+      - 9.4.1 Material Design Theme (Color, Typography, Shapes): jetpack_compose_ui/theming/material_design_theme.md
+      - 9.4.2 Custom Theme (Dimens, Factories, Data): jetpack_compose_ui/theming/custom_theme.md
+    - 9.5 Modifier:
+      - 9.5.1 Modifier Order: jetpack_compose_ui/modifier/modifier_order.md
+      - 9.5.2 Chaining: jetpack_compose_ui/modifier/chaining.md
+      - 9.5.3 Composed Modifier: jetpack_compose_ui/modifier/composed.md
+      - 9.5.4 Lazy Column: jetpack_compose_ui/modifier/lazy_column.md
+      - 9.5.5 Lazy Row: jetpack_compose_ui/modifier/lazy_row.md
+      - 9.5.6 Lazy Vertical Grid: jetpack_compose_ui/modifier/lazy_vertical_grid.md
+      - 9.5.7 Lazy Paging Items: jetpack_compose_ui/modifier/lazy_paging_items.md
+    - 9.6 Layout and View (Text, Image, Layout): jetpack_compose_ui/layout_and_view.md
+    - 9.7 Graphics and Animations:
+      - 9.7.1 Surface and Canvas: jetpack_compose_ui/graphics_animations/surface_and_canvas.md
+      - 9.7.2 AnimatedVisibility: jetpack_compose_ui/graphics_animations/animated_visibility.md
+      - 9.7.3 MutableTransitionState: jetpack_compose_ui/graphics_animations/mutable_transition_state.md
+      - 9.7.4 AnimatedContent: jetpack_compose_ui/graphics_animations/animated_content.md
+      - 9.7.5 Crossfade: jetpack_compose_ui/graphics_animations/crossfade.md
+    - 9.8 Gesture and Composition Local:
+      - 9.8.1 Scrolling: jetpack_compose_ui/gesture/scrolling.md
+      - 9.8.2 Dragging: jetpack_compose_ui/gesture/dragging.md
+      - 9.8.3 Swipping: jetpack_compose_ui/gesture/swipping.md
+      - 9.8.4 Zooming: jetpack_compose_ui/gesture/zooming.md
+  - Session 10: 
+    - 10.1 Debugging: coding_analyst_and_testing/debugging.md
+    - 10.2 Unit Testing: coding_analyst_and_testing/unit_testing.md
+    - 10.3 Lint: coding_analyst_and_testing/lint.md
+    - 10.4 Fit / Bug Optimization: coding_analyst_and_testing/fit_bug_optimization.md
+  - Session 11:
+    - 11.1 Jenkins: cicd_and_publish_store/jenkins.md
+    - 11.2 Bitrise: cicd_and_publish_store/bitrise.md
+    - 11.3 Travis CI: cicd_and_publish_store/travis_ci.md
+    - 11.4 Github CI: cicd_and_publish_store/github_ci.md
