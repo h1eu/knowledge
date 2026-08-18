@@ -935,7 +935,10 @@ function markTopicVisited(topicId) {
 }
 
 function dayKey(date) {
-  return date.toISOString().slice(0, 10); // YYYY-MM-DD
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 function addActiveMs(ms) {
@@ -1261,13 +1264,31 @@ function findContext(topicId) {
   return null;
 }
 
-function openTopic(topicId) {
+function triggerMathJax() {
+  if (window.MathJax) {
+    if (typeof window.MathJax.typesetPromise === 'function') {
+      window.MathJax.typesetPromise().catch(e => console.error("MathJax promise error:", e));
+    } else if (typeof window.MathJax.typeset === 'function') {
+      try {
+        window.MathJax.typeset();
+      } catch (e) {
+        console.error("MathJax error:", e);
+      }
+    }
+  }
+}
+
+function openTopic(topicId, updateHash = true) {
   currentTopicId = topicId;
   currentView = 'topic';
   isShowingOriginal = false;
   setActiveNav(null);
   setLayoutMode('content');
   markTopicVisited(topicId);
+
+  if (updateHash && window.location.hash !== `#${topicId}`) {
+    history.pushState(null, '', `#${topicId}`);
+  }
 
   const ctx = findContext(topicId);
   if (!ctx) return;
@@ -1356,13 +1377,7 @@ function openTopic(topicId) {
   }
 
   // Trigger MathJax Typesetting
-  if (window.MathJax && typeof window.MathJax.typeset === 'function') {
-    try {
-      window.MathJax.typeset();
-    } catch (e) {
-      console.error("MathJax error:", e);
-    }
-  }
+  triggerMathJax();
 
   // Trigger Mermaid Diagram Rendering
   if (window.mermaid) {
@@ -1419,14 +1434,7 @@ function toggleOriginalContent() {
   }
 
   renderToc(html);
-
-  if (window.MathJax && typeof window.MathJax.typeset === 'function') {
-    try {
-      window.MathJax.typeset();
-    } catch (e) {
-      console.error('MathJax error:', e);
-    }
-  }
+  triggerMathJax();
 }
 
 function getNextTopic(domain, mod, topic) {
@@ -1495,7 +1503,7 @@ const ROADMAP_ICONS = {
   flame: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>`,
 };
 
-function showHome() {
+function showHome(updateHash = true) {
   const isHomePage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/website/') || window.location.pathname.endsWith('/website');
   if (!isHomePage) {
     window.location.href = 'index.html';
@@ -1509,6 +1517,10 @@ function showHome() {
   hideToc();
   hideOriginalToggle();
   renderSidebar();
+
+  if (updateHash && window.location.hash) {
+    history.pushState(null, '', window.location.pathname + window.location.search);
+  }
 
   // Real learner progress: derived from topics actually visited (localStorage),
   // measured against topics that currently have published content.
@@ -1828,7 +1840,7 @@ searchInput.addEventListener('input', e => {
   ).slice(0, 8);
 
   if (!results.length) {
-    searchOverlay.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:14px;">Không tìm thấy kết quả cho "<strong>${q}</strong>"</div>`;
+    searchOverlay.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:14px;">Không tìm thấy kết quả cho "<strong>${escapeHtml(q)}</strong>"</div>`;
   } else {
     searchOverlay.innerHTML = results.map(r => `
       <div class="search-result" onclick="openTopicFromSearch('${r.id}')">
@@ -1851,9 +1863,24 @@ function openTopicFromSearch(id) {
   openTopic(id);
 }
 
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function highlight(text, query) {
-  const re = new RegExp(`(${query})`, 'gi');
-  return text.replace(re, '<mark style="background:rgba(124,58,237,.15);color:var(--accent-violet);border-radius:2px;padding:0 2px;">$1</mark>');
+  if (!query) return escapeHtml(text);
+  const escapedQuery = escapeRegExp(query);
+  const re = new RegExp(`(${escapedQuery})`, 'gi');
+  return escapeHtml(text).replace(re, '<mark style="background:rgba(124,58,237,.15);color:var(--accent-violet);border-radius:2px;padding:0 2px;">$1</mark>');
 }
 
 document.addEventListener('click', e => {
@@ -5955,11 +5982,33 @@ function toggleTheme() {
 }
 window.toggleTheme = toggleTheme;
 
+// ── Routing & Deep Linking ─────────────────────────────────────────
+function handleUrlRouting() {
+  const hash = window.location.hash.replace(/^#/, '');
+  const urlParams = new URLSearchParams(window.location.search);
+  const topicParam = urlParams.get('topic') || hash;
+
+  if (topicParam && (typeof TOPIC_CONTENT !== 'undefined' && TOPIC_CONTENT[topicParam] || findTopic(topicParam))) {
+    openTopic(topicParam, false);
+    return true;
+  }
+  return false;
+}
+
+window.addEventListener('popstate', () => {
+  const isMain = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/website/') || window.location.pathname.endsWith('/website');
+  if (!handleUrlRouting()) {
+    if (isMain) showHome(false);
+  }
+});
+
 // ── Init ──────────────────────────────────────────────────────────
 applyTheme(getSavedTheme());
 renderSidebar();
 const isMainPortalPage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/website/') || window.location.pathname.endsWith('/website');
 if (isMainPortalPage) {
-  showHome();
+  if (!handleUrlRouting()) {
+    showHome(false);
+  }
 }
 
