@@ -2616,7 +2616,7 @@ function renderKgFrame() {
   if (!kgState || !kgState.ctx) return;
 
   const { ctx, canvas, width, height, transform, activeNodes, activeLinks, hoveredNode, selectedNode, searchQuery, particlePhase } = kgState;
-  const isLight = document.documentElement.classList.contains('theme-light');
+  const isLight = document.documentElement.classList.contains('theme-light') || document.documentElement.classList.contains('theme-editorial') || document.documentElement.classList.contains('theme-matcha');
 
   ctx.save();
   ctx.clearRect(0, 0, width, height);
@@ -7375,10 +7375,59 @@ function setMaxProductCuttingSpeed(val) {
 }
 window.setMaxProductCuttingSpeed = setMaxProductCuttingSpeed;
 
-// ── Theme toggle (Dark / Light) ─────────────────────────────────
+// ── Multi-Theme Engine & Palette Architecture ───────────────────────
 const THEME_STORAGE_KEY = 'kos-theme';
-const ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>';
-const ICON_MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
+const THEMES = [
+  {
+    id: 'dark',
+    name: 'Linear Titanium',
+    desc: 'Tối • $150k Tech SaaS',
+    dotBg: 'linear-gradient(135deg, #0E1017, #8B5CF6)',
+    isLight: false,
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+  },
+  {
+    id: 'light',
+    name: 'Crisp Porcelain',
+    desc: 'Sáng • Minimalist sắc nét',
+    dotBg: 'linear-gradient(135deg, #FFFFFF, #0284C7)',
+    isLight: true,
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>'
+  },
+  {
+    id: 'editorial',
+    name: 'Editorial Luxury',
+    desc: 'Sáng • Kem ngà & Than đen',
+    dotBg: 'linear-gradient(135deg, #FAF8F5, #C2410C)',
+    isLight: true,
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'
+  },
+  {
+    id: 'catppuccin',
+    name: 'Catppuccin Macchiato',
+    desc: 'Tối • Tím nhung & Lavender',
+    dotBg: 'linear-gradient(135deg, #181926, #B7BDF8)',
+    isLight: false,
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M12 6v6l4 2"/></svg>'
+  },
+  {
+    id: 'matcha',
+    name: 'Matcha Zen',
+    desc: 'Sáng • Xanh rừng & Muji',
+    dotBg: 'linear-gradient(135deg, #F5F7F4, #2D6A4F)',
+    isLight: true,
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>'
+  },
+  {
+    id: 'glacier',
+    name: 'Arctic Glacier',
+    desc: 'Tối • Băng tuyết Bắc Âu',
+    dotBg: 'linear-gradient(135deg, #11161D, #38BDF8)',
+    isLight: false,
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/><line x1="19.07" y1="4.93" x2="4.93" y2="19.07"/></svg>'
+  }
+];
 
 function getSavedTheme() {
   try { return localStorage.getItem(THEME_STORAGE_KEY) || 'dark'; } catch (e) { return 'dark'; }
@@ -7386,8 +7435,15 @@ function getSavedTheme() {
 
 function reRenderMermaid() {
   if (!window.mermaid) return;
-  const isLight = document.documentElement.classList.contains('theme-light');
-  mermaid.initialize({ startOnLoad: false, theme: isLight ? 'neutral' : 'dark', fontFamily: 'Inter, sans-serif', fontSize: 13, flowchart: { htmlLabels: true, curve: 'basis' } });
+  const currentThemeId = getSavedTheme();
+  const themeObj = THEMES.find(t => t.id === currentThemeId) || THEMES[0];
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: themeObj.isLight ? 'neutral' : 'dark',
+    fontFamily: 'Plus Jakarta Sans, sans-serif',
+    fontSize: 13,
+    flowchart: { htmlLabels: true, curve: 'basis' }
+  });
   let hasDiagrams = false;
   document.querySelectorAll('#prose-content .mermaid, #prose-content pre.mermaid').forEach(el => {
     const src = el.getAttribute('data-mermaid-source');
@@ -7398,23 +7454,118 @@ function reRenderMermaid() {
   }
 }
 
-function applyTheme(theme) {
-  const isLight = theme === 'light';
-  document.documentElement.classList.toggle('theme-light', isLight);
+function ensureThemePickerElement() {
+  let popover = document.getElementById('themePickerPopover');
+  if (popover) return popover;
+
+  const btn = document.getElementById('btn-theme');
+  if (!btn) return null;
+
+  // Create wrapper if not already wrapped
+  let parent = btn.parentElement;
+  if (!parent.classList.contains('theme-picker-wrapper')) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'theme-picker-wrapper';
+    parent.insertBefore(wrapper, btn);
+    wrapper.appendChild(btn);
+  }
+
+  popover = document.createElement('div');
+  popover.id = 'themePickerPopover';
+  popover.className = 'theme-picker-popover';
+  popover.setAttribute('role', 'menu');
+  popover.innerHTML = `
+    <div class="theme-picker-header">Chọn Giao Diện</div>
+    ${THEMES.map(t => `
+      <button class="theme-option-btn" data-theme-id="${t.id}" onclick="selectTheme('${t.id}')">
+        <span class="theme-preview-dot" style="background: ${t.dotBg};"></span>
+        <span style="display:flex;flex-direction:column;gap:1px;">
+          <span>${t.name}</span>
+          <span style="font-size:10px;font-weight:400;color:var(--text-muted);">${t.desc}</span>
+        </span>
+        <svg class="theme-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </button>
+    `).join('')}
+  `;
+
+  btn.parentElement.appendChild(popover);
+
+  // Outside click listener
+  document.addEventListener('click', (e) => {
+    if (!popover.contains(e.target) && !btn.contains(e.target)) {
+      popover.classList.remove('open');
+    }
+  });
+
+  return popover;
+}
+
+function updateThemePickerActive(activeId) {
+  const popover = document.getElementById('themePickerPopover');
+  if (!popover) return;
+  popover.querySelectorAll('.theme-option-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-theme-id') === activeId);
+  });
+}
+
+function applyTheme(themeId) {
+  const themeObj = THEMES.find(t => t.id === themeId) || THEMES[0];
+  const root = document.documentElement;
+
+  // Clear all theme classes
+  THEMES.forEach(t => {
+    if (t.id !== 'dark') {
+      root.classList.remove(`theme-${t.id}`);
+    }
+  });
+
+  // Apply new theme class
+  if (themeObj.id !== 'dark') {
+    root.classList.add(`theme-${themeObj.id}`);
+  }
+
   const btn = document.getElementById('btn-theme');
   if (btn) {
-    btn.innerHTML = isLight ? ICON_SUN : ICON_MOON;
-    const label = isLight ? 'Chuyển sang giao diện tối' : 'Chuyển sang giao diện sáng';
+    btn.innerHTML = themeObj.icon;
+    const label = `Giao diện: ${themeObj.name} (Nhấn để đổi)`;
     btn.setAttribute('aria-label', label);
     btn.title = label;
   }
-  try { localStorage.setItem(THEME_STORAGE_KEY, theme); } catch (e) {}
+
+  try { localStorage.setItem(THEME_STORAGE_KEY, themeObj.id); } catch (e) {}
+  updateThemePickerActive(themeObj.id);
   reRenderMermaid();
+
+  // If Knowledge Graph is active, re-render frame
+  if (typeof renderKgFrame === 'function') {
+    renderKgFrame();
+  }
 }
 
-function toggleTheme() {
-  const next = document.documentElement.classList.contains('theme-light') ? 'dark' : 'light';
-  applyTheme(next);
+function toggleThemePicker(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  const popover = ensureThemePickerElement();
+  if (popover) {
+    popover.classList.toggle('open');
+    updateThemePickerActive(getSavedTheme());
+  }
+}
+window.toggleThemePicker = toggleThemePicker;
+
+function selectTheme(themeId) {
+  applyTheme(themeId);
+  const popover = document.getElementById('themePickerPopover');
+  if (popover) popover.classList.remove('open');
+}
+window.selectTheme = selectTheme;
+
+function toggleTheme(event) {
+  toggleThemePicker(event);
 }
 window.toggleTheme = toggleTheme;
 

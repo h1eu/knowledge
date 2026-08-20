@@ -18,9 +18,10 @@
     (function () {
       var savedTheme = 'dark';
       try { savedTheme = localStorage.getItem('kos-theme') || 'dark'; } catch (e) {}
-      if (savedTheme === 'light') document.documentElement.classList.add('theme-light');
+      if (savedTheme && savedTheme !== 'dark') document.documentElement.classList.add('theme-' + savedTheme);
+      var isLight = savedTheme === 'light' || savedTheme === 'editorial' || savedTheme === 'matcha';
       if (window.mermaid) {
-        mermaid.initialize({ startOnLoad: false, theme: savedTheme === 'light' ? 'neutral' : 'dark', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 13, flowchart: { htmlLabels: true, curve: 'basis' } });
+        mermaid.initialize({ startOnLoad: false, theme: isLight ? 'neutral' : 'dark', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 13, flowchart: { htmlLabels: true, curve: 'basis' } });
       }
     })();
   </script>
