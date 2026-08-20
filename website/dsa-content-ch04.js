@@ -3727,7 +3727,7 @@ It is important to note that **high cache efficiency does not mean arrays are su
 <p>Nếu việc thêm một phần tử vượt quá độ dài List, List phải được mở rộng trước khi thêm. Hệ thống cấp phát một khối bộ nhớ mới và di chuyển tất cả các phần tử từ List gốc sang đó, trong trường hợp này độ phức tạp thời gian trở thành $O(n)$.</p>
 
 <p><strong>Hỏi:</strong> "Sự xuất hiện của List đã cải thiện đáng kể tính thực tiễn của mảng, nhưng có thể dẫn đến một phần lãng phí không gian bộ nhớ" — sự lãng phí không gian này có phải chỉ bộ nhớ chiếm dụng bởi các biến bổ sung như dung lượng (capacity), độ dài (length) và hệ số mở rộng không?</p>
-<p>Sự lãng phí không gian này chủ yếu có hai khía cạnh: một mặt, List thường thiết lập một độ dài ban đầu mà chúng ta có thể không cần sử dụng hết; mặt khác, để tránh mở rộng thường xuyên, việc mở rộng thường nhân với một hệ số, chẳng hạn $\times 1.5$. Kết quả là sẽ có nhiều vị trí trống mà thông thường chúng ta không thể lấp đầy hoàn toàn.</p>
+<p>Sự lãng phí không gian này chủ yếu có hai khía cạnh: một mặt, List thường thiết lập một độ dài ban đầu mà chúng ta có thể không cần sử dụng hết; mặt khác, để tránh mở rộng thường xuyên, việc mở rộng thường nhân với một hệ số, chẳng hạn $\\times 1.5$. Kết quả là sẽ có nhiều vị trí trống mà thông thường chúng ta không thể lấp đầy hoàn toàn.</p>
 
 <p><strong>Hỏi:</strong> Trong Python, sau khi khởi tạo <code>n = [1, 2, 3]</code>, địa chỉ của 3 phần tử này là liên tục, nhưng khi khởi tạo <code>m = [2, 1, 3]</code> thì id của mỗi phần tử lại không liên tục; thay vào đó, chúng giống với id trong <code>n</code>. Vì địa chỉ của các phần tử này không liên tục, vậy <code>m</code> có còn là một mảng không?</p>
 <p>Nếu chúng ta thay thế các phần tử List bằng các node danh sách liên kết <code>n = [n1, n2, n3, n4, n5]</code>, thông thường 5 đối tượng node này cũng nằm rải rác khắp bộ nhớ. Tuy nhiên, với một chỉ mục List cho trước, chúng ta vẫn có thể lấy được địa chỉ bộ nhớ của node trong thời gian $O(1)$, từ đó truy cập node tương ứng. Điều này là vì mảng lưu trữ các tham chiếu đến node, không phải bản thân các node.</p>
@@ -3808,7 +3808,7 @@ If appending an element exceeds the list length, the list must first be expanded
 
 **Q**: "The emergence of lists has greatly improved the practicality of arrays, but may result in some wasted memory space"—does this space waste refer to the memory occupied by additional variables such as capacity, length, and expansion factor?
 
-This space waste mainly has two aspects: on one hand, lists typically set an initial length, which we may not need to fully utilize; on the other hand, to prevent frequent expansion, expansion generally multiplies by a coefficient, such as $\times 1.5$. As a result, there will be many empty positions that we typically cannot completely fill.
+This space waste mainly has two aspects: on one hand, lists typically set an initial length, which we may not need to fully utilize; on the other hand, to prevent frequent expansion, expansion generally multiplies by a coefficient, such as $\\times 1.5$. As a result, there will be many empty positions that we typically cannot completely fill.
 
 **Q**: In Python, after initializing \`n = [1, 2, 3]\`, the addresses of these 3 elements are contiguous, but initializing \`m = [2, 1, 3]\` reveals that each element's id is not continuous; rather, they are the same as those in \`n\`. Since the addresses of these elements are not contiguous, is \`m\` still an array?
 

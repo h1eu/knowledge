@@ -3,82 +3,119 @@
    ============================================================ */
 
 // ── Data ────────────────────────────────────────────────────────
-// SVG icons for domains with custom multi-stop gradients
+// ── Data ────────────────────────────────────────────────────────
+// SVG icons for domains with precision vector craftsmanship & vivid calibrated gradients
 const DOMAIN_ICONS = {
   backend: `
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <defs>
         <linearGradient id="grad-sky" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#38BDF8" />
-          <stop offset="100%" stop-color="#0EA5E9" />
+          <stop offset="100%" stop-color="#0284C7" />
         </linearGradient>
       </defs>
-      <rect x="2" y="3" width="20" height="14" rx="2" stroke="url(#grad-sky)" />
-      <line x1="8" y1="21" x2="16" y2="21" stroke="url(#grad-sky)" />
-      <line x1="12" y1="17" x2="12" y2="21" stroke="url(#grad-sky)" />
-      <path d="M6 8h.01M10 8h.01M14 8h.01" stroke="url(#grad-sky)" stroke-width="2.5" />
+      <rect x="3" y="3" width="18" height="6" rx="2" stroke="url(#grad-sky)" />
+      <rect x="3" y="15" width="18" height="6" rx="2" stroke="url(#grad-sky)" />
+      <path d="M7 6h.01M10 6h.01M7 18h.01M10 18h.01" stroke="url(#grad-sky)" stroke-width="2.5" />
+      <path d="M12 9v6M9 12h6" stroke="url(#grad-sky)" stroke-width="1.5" stroke-dasharray="2 2" />
     </svg>
   `,
   android: `
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <defs>
         <linearGradient id="grad-emerald" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#34D399" />
-          <stop offset="100%" stop-color="#10B981" />
+          <stop offset="100%" stop-color="#059669" />
         </linearGradient>
       </defs>
-      <rect x="5" y="2" width="14" height="20" rx="2" stroke="url(#grad-emerald)" />
-      <path d="M12 18h.01" stroke="url(#grad-emerald)" stroke-width="2.5" />
-      <path d="M8 2c0-1 1-1.5 2-1.5s2 .5 2 1.5M14 2c0-1 1-1.5 2-1.5s2 .5 2 1.5" stroke="url(#grad-emerald)" stroke-width="1.5" />
+      <!-- Android Head Dome -->
+      <path d="M4 14a8 8 0 0 1 16 0H4z" stroke="url(#grad-emerald)" />
+      <!-- Antennas -->
+      <line x1="7" y1="7" x2="5" y2="4" stroke="url(#grad-emerald)" stroke-width="2" />
+      <line x1="17" y1="7" x2="19" y2="4" stroke="url(#grad-emerald)" stroke-width="2" />
+      <!-- Eyes -->
+      <circle cx="9" cy="11" r="1" fill="#34D399" />
+      <circle cx="15" cy="11" r="1" fill="#34D399" />
+      <!-- Body outline -->
+      <rect x="4" y="16" width="16" height="5" rx="1.5" stroke="url(#grad-emerald)" />
     </svg>
   `,
   devops: `
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <defs>
         <linearGradient id="grad-amber" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#FBBF24" />
-          <stop offset="100%" stop-color="#F59E0B" />
+          <stop offset="100%" stop-color="#D97706" />
         </linearGradient>
       </defs>
-      <circle cx="12" cy="12" r="3" stroke="url(#grad-amber)" />
-      <path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M2 12h2M20 12h2M19.07 19.07l-1.41-1.41M5.34 5.34l-1.41-1.41M12 2v2M12 20v2" stroke="url(#grad-amber)" />
+      <!-- Infinity Continuous Loop -->
+      <path d="M12 12c-2.5-3.5-5-5-8-5a5 5 0 0 0 0 10c3 0 5.5-1.5 8-5zm0 0c2.5 3.5 5 5 8 5a5 5 0 0 0 0-10c-3 0-5.5 1.5-8 5z" stroke="url(#grad-amber)" />
+      <circle cx="7" cy="12" r="1.5" fill="#FBBF24" />
+      <circle cx="17" cy="12" r="1.5" fill="#FBBF24" />
     </svg>
   `,
   database: `
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <defs>
         <linearGradient id="grad-violet" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#C084FC" />
-          <stop offset="100%" stop-color="#A855F7" />
+          <stop offset="100%" stop-color="#7C3AED" />
         </linearGradient>
       </defs>
-      <ellipse cx="12" cy="5" rx="9" ry="3" stroke="url(#grad-violet)" />
-      <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" stroke="url(#grad-violet)" />
-      <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" stroke="url(#grad-violet)" />
+      <ellipse cx="12" cy="5" rx="8" ry="3" stroke="url(#grad-violet)" />
+      <path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5" stroke="url(#grad-violet)" />
+      <path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6" stroke="url(#grad-violet)" />
+      <line x1="8" y1="11" x2="8" y2="13" stroke="url(#grad-violet)" stroke-width="2" />
+      <line x1="8" y1="17" x2="8" y2="19" stroke="url(#grad-violet)" stroke-width="2" />
     </svg>
   `,
   'system-design': `
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <defs>
         <linearGradient id="grad-rose" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#FB7185" />
-          <stop offset="100%" stop-color="#F43F5E" />
+          <stop offset="100%" stop-color="#E11D48" />
         </linearGradient>
       </defs>
-      <rect x="3" y="3" width="18" height="18" rx="2" stroke="url(#grad-rose)" />
-      <path d="M3 9h18M9 21V9" stroke="url(#grad-rose)" />
+      <circle cx="12" cy="5" r="3" stroke="url(#grad-rose)" />
+      <circle cx="5" cy="18" r="3" stroke="url(#grad-rose)" />
+      <circle cx="19" cy="18" r="3" stroke="url(#grad-rose)" />
+      <path d="M12 8v4M12 12l-5 3M12 12l5 3" stroke="url(#grad-rose)" stroke-width="1.5" />
+      <circle cx="12" cy="12" r="1.5" fill="#FB7185" />
     </svg>
   `,
   algorithms: `
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <defs>
         <linearGradient id="grad-fuchsia" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#F472B6" />
-          <stop offset="100%" stop-color="#D946EF" />
+          <stop offset="0%" stop-color="#E879F9" />
+          <stop offset="100%" stop-color="#A21CAF" />
         </linearGradient>
       </defs>
-      <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="url(#grad-fuchsia)" />
-      <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="url(#grad-fuchsia)" />
+      <!-- Binary Tree / Branching Graph -->
+      <circle cx="12" cy="4" r="2.5" stroke="url(#grad-fuchsia)" />
+      <circle cx="6" cy="12" r="2.5" stroke="url(#grad-fuchsia)" />
+      <circle cx="18" cy="12" r="2.5" stroke="url(#grad-fuchsia)" />
+      <circle cx="4" cy="20" r="2" stroke="url(#grad-fuchsia)" />
+      <circle cx="9" cy="20" r="2" stroke="url(#grad-fuchsia)" />
+      <circle cx="15" cy="20" r="2" stroke="url(#grad-fuchsia)" />
+      <circle cx="20" cy="20" r="2" stroke="url(#grad-fuchsia)" />
+      <path d="M10.5 6l-3 4M13.5 6l3 4M5 14.5l-.5 3.5M7 14.5l1.5 3.5M17 14.5l-1.5 3.5M19 14.5l.5 3.5" stroke="url(#grad-fuchsia)" stroke-width="1.3" />
+    </svg>
+  `,
+  ios: `
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <defs>
+        <linearGradient id="grad-ios" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FF6B6B" />
+          <stop offset="100%" stop-color="#FF8E53" />
+        </linearGradient>
+      </defs>
+      <rect x="5" y="2" width="14" height="20" rx="3.5" stroke="url(#grad-ios)" />
+      <!-- Dynamic Island Pill -->
+      <rect x="9.5" y="4.5" width="5" height="1.8" rx="0.9" fill="#FF6B6B" />
+      <!-- Home Indicator -->
+      <line x1="9" y1="19" x2="15" y2="19" stroke="url(#grad-ios)" stroke-width="2" />
     </svg>
   `,
 };
@@ -377,6 +414,154 @@ const KNOWLEDGE_DATA = {
             { id: 'bitrise', title: '11.2 Bitrise', status: 'draft', tags: ['android', 'cicd'] },
             { id: 'travis-ci', title: '11.3 Travis CI', status: 'draft', tags: ['android', 'cicd'] },
             { id: 'github-ci', title: '11.4 Github CI', status: 'draft', tags: ['android', 'cicd'] }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'ios',
+      name: 'iOS Development',
+      icon: 'ios',
+      color: 'rose',
+      description: 'Lộ trình và kiến thức chuyên sâu iOS: Swift, Objective-C, UIKit, AutoLayout, Concurrency GCD, CoreData, Architecture MVVM/Clean, SwiftUI & App Store.',
+      modules: [
+        {
+          id: 'ios-session-01',
+          name: 'Session 01: Languages, Memory & Runtime',
+          topics: [
+            { id: 'ios-session-01-overview', title: 'Session 01 Overview', status: 'published', tags: ['ios', 'overview'] },
+            { id: 'ios-objc-blocks', title: '1.1.1.1 Objective-C Blocks', status: 'published', tags: ['ios', 'objc', 'blocks'] },
+            { id: 'ios-objc-kvc', title: '1.1.1.2 KVC (Key Value Coding)', status: 'published', tags: ['ios', 'objc', 'kvc'] },
+            { id: 'ios-objc-kvo', title: '1.1.1.3 KVO (Key Value Observing)', status: 'published', tags: ['ios', 'objc', 'kvo'] },
+            { id: 'ios-toll-free-bridging', title: '1.1.1.4 Toll-Free Bridging', status: 'published', tags: ['ios', 'objc', 'bridge'] },
+            { id: 'ios-c-cpp', title: '1.1.2 C / C++', status: 'published', tags: ['ios', 'cpp'] },
+            { id: 'ios-swift-for-kotlin-devs', title: '1.1.3.1 Swift for Kotlin Developers', status: 'published', tags: ['ios', 'swift', 'kotlin', 'migration'] },
+            { id: 'ios-swift-closures', title: '1.1.3.2 Swift Closures', status: 'published', tags: ['ios', 'swift'] },
+            { id: 'ios-swift-initializers', title: '1.1.3.3 Initializers', status: 'published', tags: ['ios', 'swift'] },
+            { id: 'ios-swift-generics', title: '1.1.3.4 Generics', status: 'published', tags: ['ios', 'swift'] },
+            { id: 'ios-swift-protocols-structs', title: '1.1.3.5 Protocol, Struct, Enum, Extension', status: 'published', tags: ['ios', 'swift'] },
+            { id: 'ios-stack-queue-heap', title: '1.2.1 Stack, Queue, Heap', status: 'published', tags: ['ios', 'memory'] },
+            { id: 'ios-value-reference-types', title: '1.2.2 Value and Reference Type', status: 'published', tags: ['ios', 'memory'] },
+            { id: 'ios-mrc-arc-retain', title: '1.2.3 MRC, ARC, Retain Cycle', status: 'published', tags: ['ios', 'arc', 'memory'] },
+            { id: 'ios-memory-leaks-copying', title: '1.2.4 Memory Leaks, Shallow & Deep Copy', status: 'published', tags: ['ios', 'memory'] },
+            { id: 'ios-autoreleasepool', title: '1.2.5 AutoReleasePool', status: 'published', tags: ['ios', 'memory'] },
+            { id: 'ios-runtime-messaging', title: '1.3.1 Method Messaging & Dynamic Dispatch', status: 'published', tags: ['ios', 'runtime'] },
+            { id: 'ios-runtime-nszombie-kvo', title: '1.3.2 NSZombie and KVO Implementation', status: 'published', tags: ['ios', 'runtime'] },
+            { id: 'ios-runtime-swizzling', title: '1.3.3 Method Swizzling', status: 'published', tags: ['ios', 'runtime'] }
+          ],
+          sections: [
+            { id: 's01-languages', name: '1.1 Languages', topics: ['ios-objc-blocks', 'ios-objc-kvc', 'ios-objc-kvo', 'ios-toll-free-bridging', 'ios-c-cpp', 'ios-swift-for-kotlin-devs', 'ios-swift-closures', 'ios-swift-initializers', 'ios-swift-generics', 'ios-swift-protocols-structs'] },
+            { id: 's01-memory', name: '1.2 Memory Management', topics: ['ios-stack-queue-heap', 'ios-value-reference-types', 'ios-mrc-arc-retain', 'ios-memory-leaks-copying', 'ios-autoreleasepool'] },
+            { id: 's01-runtime', name: '1.3 Runtime', topics: ['ios-runtime-messaging', 'ios-runtime-nszombie-kvo', 'ios-runtime-swizzling'] }
+          ]
+        },
+        {
+          id: 'ios-session-02',
+          name: 'Session 02: Lifecycle, UIKit & Controls',
+          topics: [
+            { id: 'ios-session-02-overview', title: 'Session 02 Overview', status: 'published', tags: ['ios', 'overview'] },
+            { id: 'ios-app-architect', title: '2.1 Application Architect', status: 'published', tags: ['ios', 'architecture'] },
+            { id: 'ios-app-lifecycle', title: '2.2 Application Lifecycle', status: 'published', tags: ['ios', 'lifecycle'] },
+            { id: 'ios-uikit-autolayout', title: '2.3 UIKit Foundation & AutoLayout', status: 'published', tags: ['ios', 'uikit', 'autolayout'] },
+            { id: 'ios-uiviewcontroller', title: '2.4.1 UIViewController & Containers', status: 'published', tags: ['ios', 'uikit'] },
+            { id: 'ios-gestures', title: '2.4.2 Gestures (Tap, LongPress)', status: 'published', tags: ['ios', 'uikit', 'gesture'] },
+            { id: 'ios-ui-presentation', title: '2.4.3 UI Presentation & Navigation', status: 'published', tags: ['ios', 'uikit'] },
+            { id: 'ios-userdefaults', title: '2.5 UserDefaults', status: 'published', tags: ['ios', 'storage'] },
+            { id: 'ios-variables-constants', title: '2.6 Variables, Optionals & Collections', status: 'published', tags: ['ios', 'swift'] },
+            { id: 'ios-control-flow', title: '2.7 Control Flow (Guard, Switch, Loops)', status: 'published', tags: ['ios', 'swift'] }
+          ]
+        },
+        {
+          id: 'ios-session-03',
+          name: 'Session 03: Cocoa Patterns & Networking',
+          topics: [
+            { id: 'ios-session-03-overview', title: 'Session 03 Overview', status: 'published', tags: ['ios', 'overview'] },
+            { id: 'ios-cocoa-mvc', title: '3.1.1 MVC Pattern', status: 'published', tags: ['ios', 'patterns'] },
+            { id: 'ios-cocoa-singleton', title: '3.1.2 Singleton Pattern', status: 'published', tags: ['ios', 'patterns'] },
+            { id: 'ios-cocoa-delegate', title: '3.1.3 Delegate Pattern', status: 'published', tags: ['ios', 'patterns'] },
+            { id: 'ios-cocoa-responder-chain', title: '3.1.4 Responder Chain', status: 'published', tags: ['ios', 'uikit', 'patterns'] },
+            { id: 'ios-cocoa-observer', title: '3.1.5 Observer Pattern', status: 'published', tags: ['ios', 'patterns'] },
+            { id: 'ios-functions-opaque', title: '3.2 Functions & Opaque Types', status: 'published', tags: ['ios', 'swift'] },
+            { id: 'ios-network-restful', title: '3.3.1 RESTful API & URLSession', status: 'published', tags: ['ios', 'networking'] },
+            { id: 'ios-network-socket', title: '3.3.2 Socket: TCP/IP & WebSocket', status: 'published', tags: ['ios', 'networking'] }
+          ]
+        },
+        {
+          id: 'ios-session-04',
+          name: 'Session 04: GCD, Concurrency & OOP/POP',
+          topics: [
+            { id: 'ios-session-04-overview', title: 'Session 04 Overview', status: 'published', tags: ['ios', 'overview'] },
+            { id: 'ios-arc-mrc-runtime', title: '4.1 Memory Management & Runtime', status: 'published', tags: ['ios', 'memory'] },
+            { id: 'ios-concurrency-programming', title: '4.2 Concurrency Programming', status: 'published', tags: ['ios', 'concurrency'] },
+            { id: 'ios-generic-type', title: '4.3 Generic Type & Constraints', status: 'published', tags: ['ios', 'swift'] },
+            { id: 'ios-gcd-dispatch-queue', title: '4.4 GCD & Dispatch Queue', status: 'published', tags: ['ios', 'gcd'] },
+            { id: 'ios-oop-pop-models', title: '4.5 Class, Struct, Protocol, Extension & Enum', status: 'published', tags: ['ios', 'swift'] },
+            { id: 'ios-handle-error', title: '4.6 Error Handling (Do-Catch & Custom Enum)', status: 'published', tags: ['ios', 'swift'] }
+          ]
+        },
+        {
+          id: 'ios-session-05',
+          name: 'Session 05: Multi-Threading, Data & Instruments',
+          topics: [
+            { id: 'ios-session-05-overview', title: 'Session 05 Overview', status: 'published', tags: ['ios', 'overview'] },
+            { id: 'ios-threads-synchronization', title: '5.1 Threads, DispatchGroup & Semaphore', status: 'published', tags: ['ios', 'concurrency'] },
+            { id: 'ios-data-coredata', title: '5.2.1 CoreData Architecture', status: 'published', tags: ['ios', 'data'] },
+            { id: 'ios-data-realm', title: '5.2.2 Realm Database', status: 'published', tags: ['ios', 'data'] },
+            { id: 'ios-data-keychain-serialization', title: '5.2.3 Keychain, JSON & Serialization', status: 'published', tags: ['ios', 'data', 'security'] },
+            { id: 'ios-data-cloud', title: '5.2.4 Cloud & Third-Party Storage', status: 'published', tags: ['ios', 'data'] },
+            { id: 'ios-instruments-profiling', title: '5.3 Instruments (Allocations, Leaks, Energy)', status: 'published', tags: ['ios', 'profiling'] }
+          ]
+        },
+        {
+          id: 'ios-session-06',
+          name: 'Session 06: Third-Party, BuildSettings & Debugging',
+          topics: [
+            { id: 'ios-session-06-overview', title: 'Session 06 Overview', status: 'published', tags: ['ios', 'overview'] },
+            { id: 'ios-workspace-deps', title: '6.1 CocoaPods, Carthage & SPM', status: 'published', tags: ['ios', 'tools'] },
+            { id: 'ios-build-settings', title: '6.2 Build Configurations, Schemes & Targets', status: 'published', tags: ['ios', 'xcode'] },
+            { id: 'ios-debugging-lldb', title: '6.3 LLDB Debugging, Breakpoints & Visual Debug', status: 'published', tags: ['ios', 'debugging'] }
+          ]
+        },
+        {
+          id: 'ios-session-07',
+          name: 'Session 07: Targets, Architecture & Access Control',
+          topics: [
+            { id: 'ios-session-07-overview', title: 'Session 07 Overview', status: 'published', tags: ['ios', 'overview'] },
+            { id: 'ios-targets-frameworks', title: '7.1 Static vs Dynamic Frameworks', status: 'published', tags: ['ios', 'modularization'] },
+            { id: 'ios-arch-mvvm-clean', title: '7.2 Architecture (MVC, MVP, MVVM, Clean, Coordinator)', status: 'published', tags: ['ios', 'architecture'] },
+            { id: 'ios-access-control', title: '7.3 Access Control (Private, Internal, Public, Open)', status: 'published', tags: ['ios', 'swift'] }
+          ]
+        },
+        {
+          id: 'ios-session-08',
+          name: 'Session 08: CI/CD, Analytics & AppStore',
+          topics: [
+            { id: 'ios-session-08-overview', title: 'Session 08 Overview', status: 'published', tags: ['ios', 'overview'] },
+            { id: 'ios-cicd-fastlane', title: '8.1 CI/CD Pipelines & Fastlane', status: 'published', tags: ['ios', 'cicd'] },
+            { id: 'ios-analytics-crashlytics', title: '8.2 Analytics, Crashlytics & TestFlight', status: 'published', tags: ['ios', 'analytics'] },
+            { id: 'ios-appstore-connect', title: '8.3 App Store Connect & Guidelines', status: 'published', tags: ['ios', 'appstore'] }
+          ]
+        },
+        {
+          id: 'ios-session-09-swiftui',
+          name: 'SwiftUI: Declarative UI & Data Flow',
+          topics: [
+            { id: 'ios-swiftui-overview', title: 'SwiftUI Overview', status: 'published', tags: ['ios', 'swiftui', 'overview'] },
+            { id: 'ios-swiftui-essentials', title: '9.1 SwiftUI Essentials & Layout', status: 'published', tags: ['ios', 'swiftui'] },
+            { id: 'ios-swiftui-views-controls', title: '9.2 Views, Controls & Navigation', status: 'published', tags: ['ios', 'swiftui'] },
+            { id: 'ios-swiftui-state-dataflow', title: '9.3 State & Data Flow (@State, @Binding, @StateObject)', status: 'published', tags: ['ios', 'swiftui', 'state'] },
+            { id: 'ios-swiftui-animations-gestures', title: '9.4 Animations & Gestures', status: 'published', tags: ['ios', 'swiftui'] },
+            { id: 'ios-swiftui-uikit-integration', title: '9.5 UIKit & SwiftUI Integration (UIViewRepresentable)', status: 'published', tags: ['ios', 'swiftui', 'uikit'] },
+            { id: 'ios-swiftui-previews-deploy', title: '9.6 Previews in Xcode & Deployment', status: 'published', tags: ['ios', 'swiftui'] }
+          ]
+        },
+        {
+          id: 'ios-session-10-publish',
+          name: 'Publish Store: Review, Release & Maintenance',
+          topics: [
+            { id: 'ios-publish-store-overview', title: 'Publish Store Overview', status: 'published', tags: ['ios', 'publish', 'overview'] },
+            { id: 'ios-publish-preparation', title: '10.1 Guidelines, Assets & Provisioning Profiles', status: 'published', tags: ['ios', 'publish'] },
+            { id: 'ios-publish-release-management', title: '10.2 Archive, Review Process & Phased Release', status: 'published', tags: ['ios', 'publish'] }
           ]
         }
       ]
@@ -899,6 +1084,11 @@ if (typeof ANDROID_CONTENT !== 'undefined') {
   Object.assign(TOPIC_CONTENT, ANDROID_CONTENT);
 }
 
+// Merge iOS content if loaded
+if (typeof IOS_CONTENT !== 'undefined') {
+  Object.assign(TOPIC_CONTENT, IOS_CONTENT);
+}
+
 // ── State ────────────────────────────────────────────────────────
 let currentDomainId = null;
 let currentTopicId = null;
@@ -1137,6 +1327,7 @@ function toggleModule(id) {
 function showDomain(domainId) {
   const DOMAIN_PAGES = {
     'android': 'android.html',
+    'ios': 'ios.html',
     'backend': 'backend.html',
     'devops': 'devops.html',
     'database': 'database.html',
@@ -1354,6 +1545,73 @@ function openTopic(topicId, updateHash = true) {
         `}
       </div>
 
+      <div class="topic-local-graph-box">
+        <div class="tlg-header">
+          <div class="tlg-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            <span>Mạng lưới tri thức liên quan (Local Knowledge Map)</span>
+          </div>
+          <button class="kg-hud-btn" style="height:30px;padding:0 12px;font-size:11.5px;" onclick="showGraph('${topic.id}')" title="Xem vị trí của bài học này trên Knowledge Graph Atlas">
+            <span>Mở toàn cảnh Atlas ➔</span>
+          </button>
+        </div>
+        <div class="tlg-grid">
+          <div class="tlg-column">
+            <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">Kiến thức tiền đề</div>
+            ${(content?.prerequisites || []).length > 0 ? (content.prerequisites).map(pid => {
+              const pt = findTopic(pid);
+              if (!pt) return '';
+              return `
+                <div class="tlg-node-card" onclick="openTopic('${pid}')">
+                  <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">${pt.title}</div>
+                  <span style="font-size:10px;padding:2px 6px;border-radius:var(--radius-full);background:rgba(167,139,250,0.15);color:var(--accent-violet);">Tiền đề</span>
+                </div>
+              `;
+            }).filter(Boolean).join('') : `<div style="font-size:12px;color:var(--text-muted);padding:8px 0;font-style:italic;">Không có bài tiền đề bắt buộc</div>`}
+          </div>
+
+          <div class="tlg-column">
+            <div class="tlg-node-current">
+              <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:var(--accent-sky);letter-spacing:0.05em;margin-bottom:4px;">Chủ đề hiện tại</div>
+              <div class="title">${content?.title || topic.title}</div>
+              <div style="font-size:11.5px;color:var(--text-secondary);margin-top:6px;">${domain.name} › ${mod.name}</div>
+            </div>
+          </div>
+
+          <div class="tlg-column">
+            <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">Tiếp theo & Liên quan</div>
+            ${(() => {
+              const nextT = getNextTopic(domain, mod, topic);
+              const relatedList = (content?.related || []).map(rid => findTopic(rid)).filter(Boolean);
+              const items = [];
+              if (nextT) {
+                items.push(`
+                  <div class="tlg-node-card" onclick="openTopic('${nextT.id}')" style="border-color:rgba(56,189,248,0.3);">
+                    <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">${nextT.title}</div>
+                    <span style="font-size:10px;padding:2px 6px;border-radius:var(--radius-full);background:rgba(56,189,248,0.15);color:var(--accent-sky);">Bài kế tiếp</span>
+                  </div>
+                `);
+              }
+              relatedList.slice(0, 2).forEach(rt => {
+                if (rt.id !== nextT?.id) {
+                  items.push(`
+                    <div class="tlg-node-card" onclick="openTopic('${rt.id}')">
+                      <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">${rt.title}</div>
+                      <span style="font-size:10px;padding:2px 6px;border-radius:var(--radius-full);background:rgba(255,255,255,0.06);color:var(--text-secondary);">Liên quan</span>
+                    </div>
+                  `);
+                }
+              });
+              return items.length > 0 ? items.join('') : '<div style="font-size:12px;color:var(--text-muted);padding:8px 0;font-style:italic;">Chưa có chủ đề tiếp theo</div>';
+            })()}
+          </div>
+        </div>
+      </div>
+
       <div class="content-nav">
         <button class="content-nav-btn" onclick="showHome()">
           <div class="nav-direction">← Quay lại</div>
@@ -1369,12 +1627,20 @@ function openTopic(topicId, updateHash = true) {
     </div>
   `;
 
+  // Show Header Reading Tools (Zen Mode, Font Scaling, Share Link)
+  const headerReadingTools = document.getElementById('header-reading-tools');
+  if (headerReadingTools) headerReadingTools.style.display = 'flex';
+
   // Render TOC
   if (hasContent) {
     renderToc(content.content);
   } else {
     hideToc();
   }
+
+  // Reset scroll progress rail
+  const rail = document.getElementById('scroll-progress-fill');
+  if (rail) rail.style.width = '0%';
 
   // Trigger MathJax Typesetting
   triggerMathJax();
@@ -1406,12 +1672,71 @@ function openTopic(topicId, updateHash = true) {
   }
 }
 
+// ── Zen Reader & Interactive Helper Actions ───────────────────────
+window.toggleZenMode = function() {
+  const layout = document.getElementById('layout');
+  const isZen = layout.classList.toggle('zen-mode');
+  const btn = document.getElementById('btn-zen-mode');
+  if (btn) btn.classList.toggle('active', isZen);
+  showToast(isZen ? '👁️ Đã kích hoạt Zen Focus Mode' : 'Đã thoát Zen Mode');
+};
+
+let currentFontScaleIndex = 0;
+const FONT_SCALES = [
+  { size: '15px', label: '1x' },
+  { size: '17px', label: '1.2x' },
+  { size: '19.5px', label: '1.4x' }
+];
+
+window.cycleFontSize = function() {
+  currentFontScaleIndex = (currentFontScaleIndex + 1) % FONT_SCALES.length;
+  const current = FONT_SCALES[currentFontScaleIndex];
+  const prose = document.getElementById('prose-content');
+  if (prose) prose.style.fontSize = current.size;
+  const lbl = document.getElementById('zen-font-label');
+  if (lbl) lbl.textContent = `A (${current.label})`;
+  showToast(`Cỡ chữ bài đọc: ${current.label}`);
+};
+
+window.copyCurrentTopicLink = function() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('🔗 Đã sao chép liên kết bài học!');
+  }).catch(() => {
+    showToast('Không thể sao chép liên kết');
+  });
+};
+
+window.scrollToTopicTop = function() {
+  const main = document.getElementById('main');
+  if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.showToast = function(msg) {
+  let toast = document.getElementById('kos-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'kos-toast';
+    toast.className = 'kos-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2200);
+};
+
+
 // ── Original content toggle ("Xem bản gốc") ───────────────────────
 let isShowingOriginal = false;
 
 function hideOriginalToggle() {
   const btn = document.getElementById('btn-toggle-original');
   if (btn) btn.style.display = 'none';
+  const tools = document.getElementById('header-reading-tools');
+  if (tools) tools.style.display = 'none';
 }
 
 function toggleOriginalContent() {
@@ -1606,24 +1931,67 @@ function showHome(updateHash = true) {
   });
   const activePhaseIdx = phases.findIndex(p => p.avgPct < 100);
 
-  const pathCard = (d) => {
-    const isMostRecent = d.lastVisitedTime > 0 && d.lastVisitedTime === maxVisitedTime;
-    const badge = isMostRecent
-      ? { text: 'VỪA HỌC GẦN ĐÂY', cls: 'is-popular' }
-      : (d.availableCount === 0
-        ? { text: 'SẮP RA MẮT', cls: '' }
-        : (d.pct >= 100 ? { text: 'HOÀN THÀNH', cls: 'is-done' } : null));
+  const featured = domainsToDisplay[0];
+  const otherDomains = domainsToDisplay.slice(1);
+
+  const featuredHtml = featured ? `
+    <div class="bento-card-featured laser-beam-card rd-path-card" data-color="${featured.color}">
+      <div class="laser-beam-inner">
+        <div class="rd-path-top">
+          <span class="rd-badge is-popular pulse-glow">⚡ TIÊU ĐIỂM HỌC TẬP</span>
+          <span class="rd-path-meta"><span class="rd-icon">${ROADMAP_ICONS.clock}</span>${featured.modules.length} module · ${featured.visitedCount}/${featured.availableCount} chủ đề</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+          <div style="width:40px;height:40px;color:var(--accent-sky);flex-shrink:0;">${DOMAIN_ICONS[featured.icon] || DOMAIN_ICONS.backend}</div>
+          <div>
+            <h3 class="rd-path-title" style="margin:0;font-size:22px;">${featured.name}</h3>
+            <p class="rd-path-desc" style="margin:0;font-size:13px;">${featured.description}</p>
+          </div>
+        </div>
+
+        <div class="featured-topics-preview">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Chủ đề trọng tâm:</div>
+          ${featured.modules.flatMap(m => m.topics).slice(0, 3).map(t => `
+            <div class="preview-topic-row" onclick="openTopic('${t.id}')">
+              <span class="preview-topic-title">› ${t.title}</span>
+              <span style="font-size:11px;color:var(--accent-sky);font-weight:600;">Học ngay ↗</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="rd-path-progress">
+          <div class="rd-path-progress-head">
+            <span>${featured.stageLabel}</span>
+            <span class="rd-path-progress-pct">${featured.pct}%</span>
+          </div>
+          <div class="rd-progress-track"><div class="rd-progress-fill" style="width:${featured.pct}%"></div></div>
+        </div>
+
+        <div class="rd-path-actions" style="margin-top:10px;">
+          ${featured.continueId ? `<button class="rd-btn-primary" onclick="openTopic('${featured.continueId}')">${ROADMAP_ICONS.play}<span>${featured.continueLabel}</span><span class="btn-icon-bubble" style="width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.15);display:inline-flex;align-items:center;justify-content:center;margin-left:4px;">↗</span></button>` : ''}
+          <button class="rd-btn-ghost" onclick="showDomain('${featured.id}')">Khám phá toàn bộ ${ROADMAP_ICONS.arrowRight}</button>
+        </div>
+      </div>
+    </div>
+  ` : '';
+
+  const otherCardsHtml = otherDomains.map((d, idx) => {
+    const isCompact = idx === 0;
+    const badge = d.pct >= 100 ? { text: 'HOÀN THÀNH', cls: 'is-done' } : (d.availableCount === 0 ? { text: 'SẮP RA MẮT', cls: '' } : null);
     return `
-    <div class="rd-path-card" data-color="${d.color}">
+    <div class="${isCompact ? 'bento-card-compact' : 'bento-card-standard'} bezel-shell rd-path-card" data-color="${d.color}">
       <div class="rd-path-pattern">${DOMAIN_ICONS[d.icon] || DOMAIN_ICONS.backend}</div>
       <div class="rd-path-top">
         ${badge ? `<span class="rd-badge ${badge.cls}">${badge.text}</span>` : '<span></span>'}
-        <span class="rd-path-meta"><span class="rd-icon">${ROADMAP_ICONS.clock}</span>${d.modules.length} module · ${d.visitedCount}/${d.availableCount} chủ đề</span>
+        <span class="rd-path-meta"><span class="rd-icon">${ROADMAP_ICONS.clock}</span>${d.modules.length} mod · ${d.visitedCount}/${d.availableCount} bài</span>
       </div>
-      <h3 class="rd-path-title">${d.name}</h3>
-      <p class="rd-path-desc">${d.description}</p>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <div style="width:28px;height:28px;color:var(--accent-sky);flex-shrink:0;">${DOMAIN_ICONS[d.icon] || DOMAIN_ICONS.backend}</div>
+        <h3 class="rd-path-title" style="font-size:18px;margin:0;">${d.name}</h3>
+      </div>
+      <p class="rd-path-desc" style="font-size:12.5px;margin-bottom:12px;">${d.description}</p>
       <div class="rd-path-tags">
-        ${d.modules.slice(0, 3).map(m => `<span class="rd-tag-chip">${m.name}</span>`).join('')}
+        ${d.modules.slice(0, 2).map(m => `<span class="rd-tag-chip">${m.name}</span>`).join('')}
       </div>
       <div class="rd-path-progress">
         <div class="rd-path-progress-head">
@@ -1633,12 +2001,12 @@ function showHome(updateHash = true) {
         <div class="rd-progress-track"><div class="rd-progress-fill" style="width:${d.pct}%"></div></div>
       </div>
       <div class="rd-path-actions">
-        ${d.continueId ? `<button class="rd-btn-primary" onclick="openTopic('${d.continueId}')">${ROADMAP_ICONS.play}${d.continueLabel}</button>` : ''}
-        <button class="rd-btn-ghost" onclick="showDomain('${d.id}')">Xem chi tiết ${ROADMAP_ICONS.arrowRight}</button>
+        ${d.continueId ? `<button class="rd-btn-primary" onclick="openTopic('${d.continueId}')" style="padding:6px 10px;font-size:11.5px;">${ROADMAP_ICONS.play}<span>Tiếp tục</span></button>` : ''}
+        <button class="rd-btn-ghost" onclick="showDomain('${d.id}')" style="padding:6px 10px;font-size:11.5px;">Xem ${ROADMAP_ICONS.arrowRight}</button>
       </div>
     </div>
   `;
-  };
+  }).join('');
 
   document.getElementById('main').innerHTML = `
     <div class="rd-page fade-in">
@@ -1653,7 +2021,7 @@ function showHome(updateHash = true) {
             ${ROADMAP_ICONS.filter} ${roadmapFilter === 'in-progress' ? 'Đang học' : 'Bộ lọc'}
           </button>
           <button class="rd-btn-primary" onclick="document.getElementById('rd-paths').scrollIntoView({behavior:'smooth'})">
-            ${ROADMAP_ICONS.compass} Khám phá lộ trình
+            ${ROADMAP_ICONS.compass} <span>Khám phá lộ trình</span>
           </button>
         </div>
       </div>
@@ -1680,10 +2048,11 @@ function showHome(updateHash = true) {
       </div>
 
       <div class="rd-section-head" id="rd-paths">
-        <h2>${ROADMAP_ICONS.compass}Lộ trình theo Domain</h2>
+        <h2>${ROADMAP_ICONS.compass}Asymmetric Bento Learning Atlas</h2>
       </div>
-      <div class="rd-grid">
-        ${domainsToDisplay.map(d => pathCard(d)).join('')}
+      <div class="bento-grid">
+        ${featuredHtml}
+        ${otherCardsHtml}
       </div>
 
       <div class="rd-section-head">
@@ -1695,7 +2064,7 @@ function showHome(updateHash = true) {
           return `
           <div class="rd-phase rd-phase--${state}">
             <div class="rd-phase-marker">
-              <span class="rd-phase-dot">${state === 'done' ? ROADMAP_ICONS.check : String(i + 1).padStart(2, '0')}</span>
+              <span class="rd-phase-dot ${state === 'active' ? 'pulse-glow' : ''}">${state === 'done' ? ROADMAP_ICONS.check : String(i + 1).padStart(2, '0')}</span>
               ${i < phases.length - 1 ? '<span class="rd-phase-line"></span>' : ''}
             </div>
             <div class="rd-phase-body">
@@ -1720,94 +2089,1161 @@ function showHome(updateHash = true) {
   `;
 }
 
-// ── Graph View ────────────────────────────────────────────────────
-function showGraph() {
+// ── Graph View 2.0 (Interactive Canvas Force-Directed Engine) ────
+let kgState = null;
+
+const KG_COLOR_MAP = {
+  blue: '#38BDF8',
+  purple: '#A78BFA',
+  green: '#34D399',
+  orange: '#FB923C',
+  pink: '#F472B6',
+  teal: '#2DD4BF',
+  violet: '#A78BFA',
+  sky: '#38BDF8',
+  emerald: '#34D399',
+  amber: '#FBBF24',
+  rose: '#FB7185',
+  fuchsia: '#E879F9'
+};
+
+function getDomainColor(domainId) {
+  const domain = KNOWLEDGE_DATA.domains.find(d => d.id === domainId);
+  if (!domain) return '#38BDF8';
+  return KG_COLOR_MAP[domain.color] || '#38BDF8';
+}
+
+function buildGraphData() {
+  const rawNodes = [];
+  const rawLinks = [];
+  const degreeMap = {};
+
+  // 1. Domains
+  KNOWLEDGE_DATA.domains.forEach(domain => {
+    const col = KG_COLOR_MAP[domain.color] || '#38BDF8';
+    rawNodes.push({
+      id: `domain-${domain.id}`,
+      originalId: domain.id,
+      label: domain.name,
+      type: 'domain',
+      domainId: domain.id,
+      color: col,
+      icon: domain.icon,
+      summary: domain.description,
+      status: 'ready',
+      radius: 26
+    });
+
+    // 2. Modules
+    domain.modules.forEach(mod => {
+      rawNodes.push({
+        id: `mod-${mod.id}`,
+        originalId: mod.id,
+        label: mod.name,
+        type: 'module',
+        domainId: domain.id,
+        color: col,
+        summary: `Module thuộc ${domain.name} (${mod.topics.length} bài học)`,
+        status: 'ready',
+        radius: 15
+      });
+
+      rawLinks.push({
+        source: `domain-${domain.id}`,
+        target: `mod-${mod.id}`,
+        type: 'hierarchy-domain',
+        distance: 85,
+        strength: 0.8
+      });
+
+      // 3. Topics
+      mod.topics.forEach(topic => {
+        const content = TOPIC_CONTENT[topic.id];
+        const isPublished = topic.status === 'published' || !!content;
+        rawNodes.push({
+          id: topic.id,
+          originalId: topic.id,
+          label: topic.title,
+          type: 'topic',
+          domainId: domain.id,
+          moduleId: mod.id,
+          moduleName: mod.name,
+          domainName: domain.name,
+          color: col,
+          tags: topic.tags || [],
+          status: topic.status || (isPublished ? 'published' : 'draft'),
+          summary: content?.summary || `Chủ đề trong module ${mod.name}`,
+          readTime: content?.readTime || '5 min',
+          prerequisites: content?.prerequisites || [],
+          related: content?.related || [],
+          hasContent: !!content,
+          radius: 9
+        });
+
+        rawLinks.push({
+          source: `mod-${mod.id}`,
+          target: topic.id,
+          type: 'hierarchy-module',
+          distance: 45,
+          strength: 0.6
+        });
+      });
+    });
+  });
+
+  // Calculate degrees & connect semantic links (prerequisites & related)
+  const nodeMap = new Map(rawNodes.map(n => [n.id, n]));
+
+  Object.entries(TOPIC_CONTENT).forEach(([id, tc]) => {
+    if (!nodeMap.has(id)) return;
+
+    // Prerequisites
+    (tc.prerequisites || []).forEach(pid => {
+      if (nodeMap.has(pid)) {
+        rawLinks.push({
+          source: pid,
+          target: id,
+          type: 'prerequisite',
+          distance: 70,
+          strength: 0.4
+        });
+        degreeMap[id] = (degreeMap[id] || 0) + 2;
+        degreeMap[pid] = (degreeMap[pid] || 0) + 2;
+      }
+    });
+
+    // Related
+    (tc.related || []).forEach(rid => {
+      if (nodeMap.has(rid)) {
+        // Prevent duplicate reversed related links
+        const exists = rawLinks.some(l => (l.source === id && l.target === rid) || (l.source === rid && l.target === id));
+        if (!exists) {
+          rawLinks.push({
+            source: id,
+            target: rid,
+            type: 'related',
+            distance: 95,
+            strength: 0.25
+          });
+          degreeMap[id] = (degreeMap[id] || 0) + 1;
+          degreeMap[rid] = (degreeMap[rid] || 0) + 1;
+        }
+      }
+    });
+  });
+
+  // Adjust radius based on connectivity degree
+  rawNodes.forEach(node => {
+    if (node.type === 'topic') {
+      const deg = degreeMap[node.id] || 0;
+      node.radius = 8 + Math.min(8, deg * 1.2);
+    }
+  });
+
+  return { nodes: rawNodes, links: rawLinks };
+}
+
+function showGraph(focusTopicId = null) {
   currentView = 'graph';
   setActiveNav('navGraph');
   setLayoutMode('content');
   hideToc();
   hideOriginalToggle();
 
-  // Simple visual knowledge graph representation
-  const nodes = [];
-  const links = [];
+  const container = document.getElementById('main');
+  const domainsList = KNOWLEDGE_DATA.domains;
 
-  KNOWLEDGE_DATA.domains.forEach(domain => {
-    nodes.push({ id: domain.id, label: domain.name, type: 'domain', icon: domain.icon, color: domain.color });
-    domain.modules.forEach(mod => {
-      nodes.push({ id: mod.id, label: mod.name, type: 'module' });
-      links.push({ from: domain.id, to: mod.id });
-      mod.topics.forEach(topic => {
-        nodes.push({ id: topic.id, label: topic.title, type: 'topic' });
-        links.push({ from: mod.id, to: topic.id });
-      });
-    });
-  });
+  container.innerHTML = `
+    <div class="kg-container fade-in" id="kg-container">
+      <!-- Top HUD Control Bar -->
+      <div class="kg-hud">
+        <div class="kg-hud-left">
+          <div class="kg-hud-pills" id="kg-domain-pills">
+            <button class="kg-pill active" onclick="kgFilterDomain('all')">Toàn bộ Atlas</button>
+            ${domainsList.map(d => `
+              <button class="kg-pill" data-domain="${d.id}" onclick="kgFilterDomain('${d.id}')">
+                <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${KG_COLOR_MAP[d.color] || '#38BDF8'};"></span>
+                ${d.name}
+              </button>
+            `).join('')}
+          </div>
 
-  const colorMap = { blue: '#0EA5E9', purple: '#7C3AED', green: '#10B981', orange: '#F59E0B', pink: '#F43F5E', teal: '#10B981', violet: '#7C3AED', sky: '#0EA5E9', emerald: '#10B981', amber: '#F59E0B', rose: '#F43F5E', fuchsia: '#A855F7' };
+          <div class="kg-hud-search-box">
+            <svg class="kg-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="kg-search-input" placeholder="Tìm kiếm node / tag..." oninput="kgSearch(this.value)" autocomplete="off" />
+            <button class="kg-search-clear" id="kg-search-clear" onclick="kgClearSearch()">✕</button>
+          </div>
+        </div>
 
-  document.getElementById('main').innerHTML = `
-    <div class="homepage fade-in">
-      <div style="margin-bottom:32px;">
-        <div class="home-badge">Knowledge Graph</div>
-        <h1 style="font-family:var(--font-heading);font-size:36px;font-weight:800;letter-spacing:-0.02em;margin:16px 0 8px;color:var(--text-primary);">Knowledge Graph</h1>
-        <p style="color:var(--text-secondary);font-size:15px;">Mạng lưới tri thức trong Knowledge OS.</p>
+        <div class="kg-hud-options">
+          <button class="kg-hud-btn" id="kg-btn-prereq-only" onclick="kgTogglePrereqs()" title="Chỉ hiện chuỗi kiến thức tiền đề (Prerequisites)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+            <span>Tiền đề</span>
+          </button>
+          <button class="kg-hud-btn" id="kg-btn-modules" onclick="kgToggleModules()" title="Ẩn/Hiện các node Module trung gian">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Modules</span>
+          </button>
+        </div>
       </div>
 
-      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:32px;">
-        ${KNOWLEDGE_DATA.domains.map(domain => {
-          const col = colorMap[domain.color] || '#58a6ff';
-          return `
-            <div style="
-              flex:1;min-width:200px;
-              background:var(--bg-surface);
-              border:1px solid var(--border);
-              border-top:3px solid ${col};
-              border-radius:var(--radius-lg);
-              padding:20px;
-            ">
-              <div style="width:32px;height:32px;color:${col};margin-bottom:8px;">${DOMAIN_ICONS[domain.icon] || DOMAIN_ICONS.backend}</div>
-              <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">${domain.name}</div>
-              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">${domain.description}</div>
-              <div style="display:flex;flex-direction:column;gap:4px;">
-                ${domain.modules.map(mod => `
-                  <div style="font-size:12px;color:var(--text-secondary);padding:4px 8px;background:var(--bg-overlay);border-radius:var(--radius-sm);">
-                    ${mod.name}
-                    <span style="color:var(--text-muted);margin-left:4px;">· ${mod.topics.length} topics</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          `;
-        }).join('')}
+      <!-- Canvas Wrapper -->
+      <div class="kg-canvas-wrapper" id="kg-canvas-wrapper">
+        <canvas class="kg-canvas" id="kg-canvas"></canvas>
       </div>
 
-      <p class="section-title">Topic Connections</p>
-      <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;">
-        ${Object.entries(TOPIC_CONTENT).map(([id, tc]) => {
-          const related = [...(tc.prerequisites || []), ...(tc.related || [])];
-          if (!related.length) return '';
-          return `
-            <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);">
-              <span style="font-size:13px;font-weight:600;color:var(--text-primary);min-width:200px;cursor:pointer;"
-                    onclick="openTopic('${id}')">${tc.title}</span>
-              <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                ${tc.prerequisites?.map(p => {
-                  const t = findTopic(p);
-                  return t ? `<span style="font-size:11px;padding:2px 8px;border-radius:100px;background:rgba(188,140,255,.1);color:var(--accent-purple);border:1px solid rgba(188,140,255,.2);cursor:pointer;" onclick="openTopic('${p}')">prereq: ${t.title}</span>` : '';
-                }).join('') || ''}
-                ${tc.related?.map(r => {
-                  const t = findTopic(r);
-                  return t ? `<span style="font-size:11px;padding:2px 8px;border-radius:100px;background:rgba(88,166,255,.1);color:var(--accent-blue);border:1px solid rgba(88,166,255,.2);cursor:pointer;" onclick="openTopic('${r}')">related: ${t.title}</span>` : '';
-                }).join('') || ''}
-              </div>
-            </div>
-          `;
-        }).filter(Boolean).join('')}
+      <!-- Floating Controls Dock -->
+      <div class="kg-controls-dock">
+        <button class="kg-control-btn" onclick="kgZoomIn()" title="Phóng to (+)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="kg-control-btn" onclick="kgZoomOut()" title="Thu nhỏ (-)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="kg-control-btn" onclick="kgResetZoom()" title="Căn giữa toàn cảnh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <button class="kg-control-btn" id="kg-btn-physics" onclick="kgTogglePhysics()" title="Bật/Dừng mô phỏng vật lý">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <button class="kg-control-btn" id="kg-btn-fullscreen" onclick="kgToggleFullscreen()" title="Toàn màn hình">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+        </button>
       </div>
+
+      <!-- Footer Meta & Legend -->
+      <div class="kg-footer-meta">
+        <div class="kg-stat-badge">
+          <span class="kg-stat-dot"></span>
+          <span id="kg-stat-counts">Đang tải tri thức...</span>
+        </div>
+        <div class="kg-legend">
+          <div class="kg-legend-item"><span class="kg-legend-dot" style="background:#38BDF8;box-shadow:0 0 6px #38BDF8;"></span> Domain</div>
+          <div class="kg-legend-item"><span class="kg-legend-dot" style="background:#A78BFA;"></span> Module</div>
+          <div class="kg-legend-item"><span class="kg-legend-dot" style="background:#34D399;"></span> Topic</div>
+          <div class="kg-legend-item"><span class="kg-legend-line" style="background:var(--accent-violet);"></span> Tiền đề</div>
+          <div class="kg-legend-item"><span class="kg-legend-line" style="background:var(--accent-sky);"></span> Liên quan</div>
+        </div>
+      </div>
+
+      <!-- Hover Tooltip -->
+      <div class="kg-tooltip" id="kg-tooltip"></div>
+
+      <!-- Topic Inspector Drawer -->
+      <aside class="kg-drawer" id="kg-drawer">
+        <div class="kg-drawer-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="kg-drawer-domain-badge" class="tag" style="font-size:11px;">Domain</span>
+            <span id="kg-drawer-status-badge" class="tag" style="font-size:11px;">Ready</span>
+          </div>
+          <button class="kg-drawer-close" onclick="kgCloseDrawer()" title="Đóng">✕</button>
+        </div>
+        <div class="kg-drawer-body">
+          <h2 class="kg-drawer-title" id="kg-drawer-title">Tên Topic</h2>
+          <p style="font-size:13.5px;color:var(--text-secondary);line-height:1.5;" id="kg-drawer-summary">Tóm tắt nội dung...</p>
+
+          <div id="kg-drawer-tags-wrap">
+            <div class="kg-drawer-section-title">Tags</div>
+            <div class="kg-drawer-chips" id="kg-drawer-tags"></div>
+          </div>
+
+          <div id="kg-drawer-prereqs-wrap">
+            <div class="kg-drawer-section-title">Kiến thức tiền đề (Prerequisites)</div>
+            <div class="kg-drawer-chips" id="kg-drawer-prereqs"></div>
+          </div>
+
+          <div id="kg-drawer-related-wrap">
+            <div class="kg-drawer-section-title">Chủ đề liên quan (Related)</div>
+            <div class="kg-drawer-chips" id="kg-drawer-related"></div>
+          </div>
+        </div>
+        <div class="kg-drawer-footer">
+          <button class="kg-btn-open-topic" id="kg-drawer-btn-open" onclick="kgOpenSelectedTopic()">
+            <span>Đọc bài học ngay</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </aside>
     </div>
   `;
+
+  initKnowledgeGraphEngine(focusTopicId);
 }
+
+function initKnowledgeGraphEngine(focusTopicId = null) {
+  if (typeof d3 === 'undefined') {
+    console.error('D3.js is not loaded.');
+    return;
+  }
+
+  const canvasWrapper = document.getElementById('kg-canvas-wrapper');
+  const canvas = document.getElementById('kg-canvas');
+  if (!canvas || !canvasWrapper) return;
+
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+
+  let width = canvasWrapper.clientWidth || 900;
+  let height = canvasWrapper.clientHeight || 600;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.scale(dpr, dpr);
+
+  const rawGraphData = buildGraphData();
+
+  kgState = {
+    canvas,
+    ctx,
+    width,
+    height,
+    dpr,
+    rawNodes: rawGraphData.nodes,
+    rawLinks: rawGraphData.links,
+    activeNodes: [],
+    activeLinks: [],
+    nodeMap: new Map(),
+    neighborMap: new Map(),
+    transform: d3.zoomIdentity,
+    zoomBehavior: null,
+    simulation: null,
+    hoveredNode: null,
+    selectedNode: null,
+    activeDomain: 'all',
+    filterPrereqsOnly: false,
+    filterHideModules: false,
+    searchQuery: '',
+    isPaused: false,
+    isFullscreen: false,
+    particlePhase: 0,
+    animFrameId: null
+  };
+
+  // Setup D3 Zoom
+  kgState.zoomBehavior = d3.zoom()
+    .scaleExtent([0.15, 6])
+    .on('zoom', (event) => {
+      kgState.transform = event.transform;
+      renderKgFrame();
+    });
+
+  d3.select(canvas)
+    .call(kgState.zoomBehavior)
+    .on('dblclick.zoom', null);
+
+  // Setup D3 Drag
+  d3.select(canvas).call(
+    d3.drag()
+      .container(canvas)
+      .subject(dragSubject)
+      .on('start', dragStarted)
+      .on('drag', dragged)
+      .on('end', dragEnded)
+  );
+
+  // Canvas Mouse Move & Click
+  canvas.addEventListener('mousemove', onKgMouseMove);
+  canvas.addEventListener('mouseleave', () => {
+    if (kgState && kgState.hoveredNode) {
+      kgState.hoveredNode = null;
+      hideKgTooltip();
+      renderKgFrame();
+    }
+  });
+
+  canvas.addEventListener('click', onKgCanvasClick);
+  canvas.addEventListener('dblclick', onKgCanvasDblClick);
+
+  window.addEventListener('resize', onKgResize);
+
+  applyKgFilters();
+
+  if (focusTopicId) {
+    setTimeout(() => {
+      kgFocusNode(focusTopicId);
+    }, 400);
+  }
+}
+
+function applyKgFilters() {
+  if (!kgState) return;
+
+  let nodes = kgState.rawNodes;
+  let links = kgState.rawLinks;
+
+  // Domain Filter
+  if (kgState.activeDomain !== 'all') {
+    nodes = nodes.filter(n => n.domainId === kgState.activeDomain || n.id === `domain-${kgState.activeDomain}`);
+  }
+
+  // Hide Modules Filter
+  if (kgState.filterHideModules) {
+    nodes = nodes.filter(n => n.type !== 'module');
+  }
+
+  // Prereqs Only Filter
+  if (kgState.filterPrereqsOnly) {
+    const prereqNodeIds = new Set();
+    links.forEach(l => {
+      if (l.type === 'prerequisite') {
+        prereqNodeIds.add(typeof l.source === 'object' ? l.source.id : l.source);
+        prereqNodeIds.add(typeof l.target === 'object' ? l.target.id : l.target);
+      }
+    });
+    nodes = nodes.filter(n => n.type === 'domain' || prereqNodeIds.has(n.id));
+  }
+
+  const validNodeIds = new Set(nodes.map(n => n.id));
+  links = links.filter(l => {
+    const s = typeof l.source === 'object' ? l.source.id : l.source;
+    const t = typeof l.target === 'object' ? l.target.id : l.target;
+    return validNodeIds.has(s) && validNodeIds.has(t);
+  });
+
+  // Distribute initial positions in wide angular sectors to prevent initial overlap
+  const { width, height } = kgState;
+  const domainList = KNOWLEDGE_DATA.domains;
+  const domainAngleMap = {};
+  domainList.forEach((d, idx) => {
+    domainAngleMap[d.id] = (idx / domainList.length) * 2 * Math.PI;
+  });
+
+  const isAll = kgState.activeDomain === 'all';
+  nodes.forEach(n => {
+    const baseAngle = domainAngleMap[n.domainId] || (Math.random() * 2 * Math.PI);
+    const angleOffset = (Math.random() - 0.5) * 0.7;
+    const angle = baseAngle + angleOffset;
+
+    let dist = 100;
+    if (n.type === 'domain') dist = isAll ? 320 : 60;
+    else if (n.type === 'module') dist = isAll ? 520 : 220;
+    else dist = isAll ? 720 + (Math.random() * 120 - 60) : 380 + (Math.random() * 80 - 40);
+
+    n.x = (width / 2) + Math.cos(angle) * dist;
+    n.y = (height / 2) + Math.sin(angle) * dist;
+  });
+
+  // Rebuild Neighbor Map for fast lookup
+  const neighborMap = new Map();
+  nodes.forEach(n => neighborMap.set(n.id, new Set()));
+  links.forEach(l => {
+    const s = typeof l.source === 'object' ? l.source.id : l.source;
+    const t = typeof l.target === 'object' ? l.target.id : l.target;
+    if (neighborMap.has(s)) neighborMap.get(s).add(t);
+    if (neighborMap.has(t)) neighborMap.get(t).add(s);
+  });
+
+  kgState.activeNodes = nodes;
+  kgState.activeLinks = links;
+  kgState.nodeMap = new Map(nodes.map(n => [n.id, n]));
+  kgState.neighborMap = neighborMap;
+
+  // Update counts badge
+  const countsEl = document.getElementById('kg-stat-counts');
+  if (countsEl) {
+    const topicCount = nodes.filter(n => n.type === 'topic').length;
+    countsEl.textContent = `${topicCount} Topics · ${links.length} Liên kết`;
+  }
+
+  initKgSimulation();
+
+  // Auto-fit view after physics starts to stabilize
+  setTimeout(() => {
+    kgResetZoom();
+  }, 350);
+}
+
+function initKgSimulation() {
+  if (!kgState) return;
+
+  if (kgState.simulation) {
+    kgState.simulation.stop();
+  }
+
+  const { width, height, activeNodes, activeLinks } = kgState;
+  const isAll = kgState.activeDomain === 'all';
+
+  kgState.simulation = d3.forceSimulation(activeNodes)
+    .force('charge', d3.forceManyBody()
+      .strength(d => {
+        if (d.type === 'domain') return isAll ? -4500 : -2600;
+        if (d.type === 'module') return isAll ? -1100 : -650;
+        return isAll ? -320 : -200;
+      })
+      .distanceMax(1400)
+    )
+    .force('link', d3.forceLink(activeLinks).id(d => d.id).distance(l => {
+      if (l.type === 'hierarchy-domain') return isAll ? 220 : 160;
+      if (l.type === 'hierarchy-module') return isAll ? 110 : 85;
+      if (l.type === 'prerequisite') return isAll ? 130 : 95;
+      return isAll ? 160 : 120;
+    }).strength(l => {
+      if (l.type === 'hierarchy-domain') return 0.55;
+      if (l.type === 'hierarchy-module') return 0.38;
+      return 0.28;
+    }))
+    .force('collide', d3.forceCollide()
+      .radius(d => d.radius + (d.type === 'domain' ? 55 : (d.type === 'module' ? 36 : 24)))
+      .iterations(3)
+    )
+    .force('center', d3.forceCenter(width / 2, height / 2).strength(0.04))
+    .force('radial', d3.forceRadial(d => {
+      if (d.type === 'domain') return isAll ? 380 : 120;
+      if (d.type === 'module') return isAll ? 620 : 260;
+      return isAll ? 820 : 400;
+    }, width / 2, height / 2).strength(isAll ? 0.035 : 0.025))
+    .alphaDecay(0.02)
+    .on('tick', renderKgFrame);
+
+  startKgAnimationLoop();
+}
+
+function startKgAnimationLoop() {
+  if (kgState.animFrameId) cancelAnimationFrame(kgState.animFrameId);
+
+  function loop() {
+    kgState.particlePhase = (kgState.particlePhase + 0.015) % 1;
+    renderKgFrame();
+    kgState.animFrameId = requestAnimationFrame(loop);
+  }
+
+  kgState.animFrameId = requestAnimationFrame(loop);
+}
+
+function renderKgFrame() {
+  if (!kgState || !kgState.ctx) return;
+
+  const { ctx, canvas, width, height, transform, activeNodes, activeLinks, hoveredNode, selectedNode, searchQuery, particlePhase } = kgState;
+  const isLight = document.documentElement.classList.contains('theme-light');
+
+  ctx.save();
+  ctx.clearRect(0, 0, width, height);
+
+  // Background Grid Matrix
+  ctx.save();
+  ctx.translate(transform.x % (40 * transform.k), transform.y % (40 * transform.k));
+  ctx.strokeStyle = isLight ? 'rgba(0, 0, 0, 0.035)' : 'rgba(255, 255, 255, 0.025)';
+  ctx.lineWidth = 1;
+  const gridSize = 40 * transform.k;
+  if (gridSize > 12) {
+    ctx.beginPath();
+    for (let x = -gridSize; x <= width + gridSize; x += gridSize) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+    }
+    for (let y = -gridSize; y <= height + gridSize; y += gridSize) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // World transform for nodes and links
+  ctx.save();
+  ctx.translate(transform.x, transform.y);
+  ctx.scale(transform.k, transform.k);
+
+  const focusNode = hoveredNode || selectedNode;
+  const neighbors = focusNode ? kgState.neighborMap.get(focusNode.id) : null;
+  const hasSearch = searchQuery && searchQuery.trim().length > 0;
+  const searchLower = hasSearch ? searchQuery.trim().toLowerCase() : '';
+
+  // 1. Draw Links
+  activeLinks.forEach(link => {
+    const s = link.source;
+    const t = link.target;
+    if (!s || !t || s.x === undefined || t.x === undefined) return;
+
+    let isHighlighted = false;
+    let isDimmed = false;
+
+    if (focusNode) {
+      if ((s.id === focusNode.id && neighbors?.has(t.id)) || (t.id === focusNode.id && neighbors?.has(s.id))) {
+        isHighlighted = true;
+      } else {
+        isDimmed = true;
+      }
+    }
+
+    ctx.save();
+    if (isDimmed) {
+      ctx.globalAlpha = 0.06;
+    } else if (isHighlighted) {
+      ctx.globalAlpha = 0.95;
+    } else {
+      ctx.globalAlpha = isLight ? 0.35 : 0.22;
+    }
+
+    // Link styling by type
+    if (link.type === 'prerequisite') {
+      ctx.strokeStyle = isHighlighted ? '#C084FC' : '#A78BFA';
+      ctx.lineWidth = isHighlighted ? 2.5 : 1.5;
+      ctx.setLineDash([4, 4]);
+
+      // Draw dashed line
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(t.x, t.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Flowing Energy Particle along prerequisite path
+      if (!isDimmed) {
+        const px = s.x + (t.x - s.x) * particlePhase;
+        const py = s.y + (t.y - s.y) * particlePhase;
+        ctx.fillStyle = '#C084FC';
+        ctx.shadowColor = '#C084FC';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(px, py, isHighlighted ? 3 : 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    } else if (link.type === 'related') {
+      ctx.strokeStyle = isHighlighted ? '#38BDF8' : (isLight ? '#0284C7' : '#38BDF8');
+      ctx.lineWidth = isHighlighted ? 2.2 : 1.2;
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(t.x, t.y);
+      ctx.stroke();
+    } else {
+      // Hierarchy links
+      ctx.strokeStyle = isLight ? '#94A3B8' : '#334155';
+      ctx.lineWidth = link.type === 'hierarchy-domain' ? 1.5 : 0.8;
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(t.x, t.y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  });
+
+  // 2. Draw Nodes
+  activeNodes.forEach(node => {
+    if (node.x === undefined || node.y === undefined) return;
+
+    let isHighlighted = false;
+    let isDimmed = false;
+
+    if (focusNode) {
+      if (node.id === focusNode.id || neighbors?.has(node.id)) {
+        isHighlighted = true;
+      } else {
+        isDimmed = true;
+      }
+    }
+
+    if (hasSearch) {
+      const match = node.label.toLowerCase().includes(searchLower) ||
+                    (node.tags && node.tags.some(tg => tg.toLowerCase().includes(searchLower)));
+      if (match) {
+        isHighlighted = true;
+        isDimmed = false;
+      } else if (!focusNode) {
+        isDimmed = true;
+      }
+    }
+
+    ctx.save();
+    if (isDimmed) {
+      ctx.globalAlpha = 0.15;
+    } else {
+      ctx.globalAlpha = 1.0;
+    }
+
+    const r = node.radius;
+
+    // Node Outer Glow / Rings
+    if (node.type === 'domain') {
+      ctx.strokeStyle = node.color;
+      ctx.lineWidth = isHighlighted ? 3 : 1.5;
+      ctx.fillStyle = node.color + (isLight ? '25' : '18');
+
+      // Outer pulsating orbital halo
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r + (isHighlighted ? 8 : 5), 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fill();
+
+      // Inner Core Circle
+      ctx.fillStyle = node.color;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (node.type === 'module') {
+      ctx.fillStyle = isLight ? '#FFFFFF' : '#1E293B';
+      ctx.strokeStyle = node.color;
+      ctx.lineWidth = isHighlighted ? 2.5 : 1.5;
+
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Center dot
+      ctx.fillStyle = node.color;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Topic Node
+      const isDraft = node.status === 'draft';
+      ctx.fillStyle = isDraft ? (isLight ? '#E2E8F0' : '#1E293B') : (isLight ? '#FFFFFF' : '#0F172A');
+      ctx.strokeStyle = node.color;
+      ctx.lineWidth = isHighlighted ? 2.5 : 1.2;
+
+      if (isHighlighted) {
+        ctx.shadowColor = node.color;
+        ctx.shadowBlur = 14;
+      }
+
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Center core indicator
+      ctx.fillStyle = node.color;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, isDraft ? r * 0.25 : r * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Node Labels
+    const showLabel = node.type === 'domain' ||
+                      (node.type === 'module' && transform.k > 0.55) ||
+                      (node.type === 'topic' && (transform.k > 0.95 || isHighlighted));
+
+    if (showLabel) {
+      ctx.font = node.type === 'domain'
+        ? 'bold 13px Geist, "Plus Jakarta Sans", sans-serif'
+        : (node.type === 'module' ? '600 11px Geist, sans-serif' : '500 10.5px Geist, sans-serif');
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const labelY = node.y + r + (node.type === 'domain' ? 14 : 11);
+      const labelText = node.label.length > 28 ? node.label.substring(0, 26) + '…' : node.label;
+
+      // Label background pill for ultra readability
+      const textWidth = ctx.measureText(labelText).width;
+      ctx.fillStyle = isLight ? 'rgba(255, 255, 255, 0.88)' : 'rgba(10, 15, 29, 0.85)';
+      ctx.fillRect(node.x - textWidth / 2 - 4, labelY - 7, textWidth + 8, 14);
+
+      ctx.fillStyle = isLight ? '#0F172A' : (isHighlighted ? '#FFFFFF' : '#E2E8F0');
+      ctx.fillText(labelText, node.x, labelY);
+    }
+
+    ctx.restore();
+  });
+
+  ctx.restore(); // Restore world transform
+  ctx.restore(); // Restore base transform
+}
+
+// ── Interaction Handlers ──────────────────────────────────────────
+function dragSubject(event) {
+  if (!kgState) return null;
+  const [x, y] = kgState.transform.invert([event.x, event.y]);
+  const node = findNodeAt(x, y);
+  return node || null;
+}
+
+function dragStarted(event) {
+  if (!event.active && kgState.simulation && !kgState.isPaused) kgState.simulation.alphaTarget(0.3).restart();
+  event.subject.fx = event.subject.x;
+  event.subject.fy = event.subject.y;
+}
+
+function dragged(event) {
+  event.subject.fx = event.x;
+  event.subject.fy = event.y;
+  renderKgFrame();
+}
+
+function dragEnded(event) {
+  if (!event.active && kgState.simulation && !kgState.isPaused) kgState.simulation.alphaTarget(0);
+  event.subject.fx = null;
+  event.subject.fy = null;
+}
+
+function findNodeAt(worldX, worldY) {
+  if (!kgState) return null;
+  for (let i = kgState.activeNodes.length - 1; i >= 0; i--) {
+    const node = kgState.activeNodes[i];
+    const dx = worldX - node.x;
+    const dy = worldY - node.y;
+    const hitRadius = Math.max(node.radius + 4, 12);
+    if (dx * dx + dy * dy <= hitRadius * hitRadius) {
+      return node;
+    }
+  }
+  return null;
+}
+
+function onKgMouseMove(event) {
+  if (!kgState) return;
+  const rect = kgState.canvas.getBoundingClientRect();
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+  const [worldX, worldY] = kgState.transform.invert([mouseX, mouseY]);
+
+  const hitNode = findNodeAt(worldX, worldY);
+
+  if (hitNode !== kgState.hoveredNode) {
+    kgState.hoveredNode = hitNode;
+    renderKgFrame();
+
+    if (hitNode) {
+      showKgTooltip(hitNode, event.clientX, event.clientY);
+      kgState.canvas.style.cursor = 'pointer';
+    } else {
+      hideKgTooltip();
+      kgState.canvas.style.cursor = 'grab';
+    }
+  } else if (hitNode) {
+    showKgTooltip(hitNode, event.clientX, event.clientY);
+  }
+}
+
+function onKgCanvasClick(event) {
+  if (!kgState) return;
+  const rect = kgState.canvas.getBoundingClientRect();
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+  const [worldX, worldY] = kgState.transform.invert([mouseX, mouseY]);
+
+  const hitNode = findNodeAt(worldX, worldY);
+  if (hitNode) {
+    kgSelectNode(hitNode);
+  } else {
+    // Click outside deselects
+    kgState.selectedNode = null;
+    kgCloseDrawer();
+    renderKgFrame();
+  }
+}
+
+function onKgCanvasDblClick(event) {
+  if (!kgState) return;
+  const rect = kgState.canvas.getBoundingClientRect();
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+  const [worldX, worldY] = kgState.transform.invert([mouseX, mouseY]);
+
+  const hitNode = findNodeAt(worldX, worldY);
+  if (hitNode && hitNode.type === 'topic') {
+    openTopic(hitNode.id);
+  }
+}
+
+function onKgResize() {
+  if (!kgState || currentView !== 'graph') return;
+  const wrapper = document.getElementById('kg-canvas-wrapper');
+  if (!wrapper) return;
+
+  kgState.width = wrapper.clientWidth;
+  kgState.height = wrapper.clientHeight;
+  kgState.canvas.width = kgState.width * kgState.dpr;
+  kgState.canvas.height = kgState.height * kgState.dpr;
+  kgState.ctx.scale(kgState.dpr, kgState.dpr);
+
+  if (kgState.simulation) {
+    kgState.simulation.force('center', d3.forceCenter(kgState.width / 2, kgState.height / 2));
+    kgState.simulation.alpha(0.2).restart();
+  }
+  renderKgFrame();
+}
+
+// ── Tooltip & Drawer ──────────────────────────────────────────────
+function showKgTooltip(node, clientX, clientY) {
+  const tooltip = document.getElementById('kg-tooltip');
+  if (!tooltip) return;
+
+  const containerRect = document.getElementById('kg-container').getBoundingClientRect();
+  const x = clientX - containerRect.left;
+  const y = clientY - containerRect.top;
+
+  tooltip.style.left = `${x}px`;
+  tooltip.style.top = `${y}px`;
+
+  let typeBadge = 'Topic';
+  if (node.type === 'domain') typeBadge = 'Domain Hub';
+  if (node.type === 'module') typeBadge = 'Module Cluster';
+
+  tooltip.innerHTML = `
+    <div class="kg-tooltip-title">${escapeHtml(node.label)}</div>
+    <div class="kg-tooltip-meta">
+      <span style="color:${node.color};font-weight:700;">● ${typeBadge}</span>
+      ${node.status ? `<span>· ${node.status}</span>` : ''}
+    </div>
+    <div class="kg-tooltip-summary">${escapeHtml(node.summary || '')}</div>
+  `;
+  tooltip.classList.add('visible');
+}
+
+function hideKgTooltip() {
+  const tooltip = document.getElementById('kg-tooltip');
+  if (tooltip) tooltip.classList.remove('visible');
+}
+
+function kgSelectNode(node) {
+  if (!kgState) return;
+  kgState.selectedNode = node;
+  renderKgFrame();
+
+  const drawer = document.getElementById('kg-drawer');
+  if (!drawer) return;
+
+  document.getElementById('kg-drawer-title').textContent = node.label;
+  document.getElementById('kg-drawer-summary').textContent = node.summary || 'Chưa có mô tả chi tiết cho chủ đề này.';
+
+  const domainBadge = document.getElementById('kg-drawer-domain-badge');
+  domainBadge.textContent = node.domainName || node.label;
+  domainBadge.style.color = node.color;
+  domainBadge.style.borderColor = node.color;
+
+  const statusBadge = document.getElementById('kg-drawer-status-badge');
+  statusBadge.textContent = node.status || 'ready';
+
+  // Tags
+  const tagsWrap = document.getElementById('kg-drawer-tags-wrap');
+  const tagsContainer = document.getElementById('kg-drawer-tags');
+  if (node.tags && node.tags.length > 0) {
+    tagsWrap.style.display = 'block';
+    tagsContainer.innerHTML = node.tags.map(t => `<span class="kg-drawer-chip tag">${t}</span>`).join('');
+  } else {
+    tagsWrap.style.display = 'none';
+  }
+
+  // Prerequisites
+  const prereqsWrap = document.getElementById('kg-drawer-prereqs-wrap');
+  const prereqsContainer = document.getElementById('kg-drawer-prereqs');
+  if (node.prerequisites && node.prerequisites.length > 0) {
+    prereqsWrap.style.display = 'block';
+    prereqsContainer.innerHTML = node.prerequisites.map(pid => {
+      const pNode = kgState.rawNodes.find(n => n.id === pid);
+      const title = pNode ? pNode.label : pid;
+      return `<button class="kg-drawer-chip prereq" onclick="kgFocusNode('${pid}')">➔ ${title}</button>`;
+    }).join('');
+  } else {
+    prereqsWrap.style.display = 'none';
+  }
+
+  // Related
+  const relatedWrap = document.getElementById('kg-drawer-related-wrap');
+  const relatedContainer = document.getElementById('kg-drawer-related');
+  if (node.related && node.related.length > 0) {
+    relatedWrap.style.display = 'block';
+    relatedContainer.innerHTML = node.related.map(rid => {
+      const rNode = kgState.rawNodes.find(n => n.id === rid);
+      const title = rNode ? rNode.label : rid;
+      return `<button class="kg-drawer-chip related" onclick="kgFocusNode('${rid}')">✦ ${title}</button>`;
+    }).join('');
+  } else {
+    relatedWrap.style.display = 'none';
+  }
+
+  // Open button state
+  const btnOpen = document.getElementById('kg-drawer-btn-open');
+  if (node.type === 'topic') {
+    btnOpen.style.display = 'flex';
+    btnOpen.onclick = () => openTopic(node.id);
+  } else {
+    btnOpen.style.display = 'none';
+  }
+
+  drawer.classList.add('open');
+}
+
+window.kgCloseDrawer = function() {
+  const drawer = document.getElementById('kg-drawer');
+  if (drawer) drawer.classList.remove('open');
+  if (kgState) {
+    kgState.selectedNode = null;
+    renderKgFrame();
+  }
+};
+
+window.kgOpenSelectedTopic = function() {
+  if (kgState && kgState.selectedNode && kgState.selectedNode.type === 'topic') {
+    openTopic(kgState.selectedNode.id);
+  }
+};
+
+window.kgFocusNode = function(nodeId) {
+  if (!kgState) return;
+  const node = kgState.rawNodes.find(n => n.id === nodeId);
+  if (!node) return;
+
+  // Make sure domain filter matches or reset to all
+  if (kgState.activeDomain !== 'all' && node.domainId !== kgState.activeDomain) {
+    kgFilterDomain('all');
+  }
+
+  kgSelectNode(node);
+
+  // Smooth Zoom Pan to node
+  const canvasWrapper = document.getElementById('kg-canvas-wrapper');
+  if (!canvasWrapper) return;
+
+  const w = canvasWrapper.clientWidth;
+  const h = canvasWrapper.clientHeight;
+  const targetK = 1.6;
+  const targetX = w / 2 - node.x * targetK;
+  const targetY = h / 2 - node.y * targetK;
+
+  d3.select(kgState.canvas)
+    .transition()
+    .duration(750)
+    .call(
+      kgState.zoomBehavior.transform,
+      d3.zoomIdentity.translate(targetX, targetY).scale(targetK)
+    );
+};
+
+// ── HUD & Dock Actions ────────────────────────────────────────────
+window.kgFilterDomain = function(domainId) {
+  if (!kgState) return;
+  kgState.activeDomain = domainId;
+
+  document.querySelectorAll('#kg-domain-pills .kg-pill').forEach(pill => {
+    if (domainId === 'all' && !pill.dataset.domain) {
+      pill.classList.add('active');
+    } else if (pill.dataset.domain === domainId) {
+      pill.classList.add('active');
+    } else {
+      pill.classList.remove('active');
+    }
+  });
+
+  applyKgFilters();
+  kgResetZoom();
+};
+
+window.kgTogglePrereqs = function() {
+  if (!kgState) return;
+  kgState.filterPrereqsOnly = !kgState.filterPrereqsOnly;
+  document.getElementById('kg-btn-prereq-only')?.classList.toggle('active', kgState.filterPrereqsOnly);
+  applyKgFilters();
+};
+
+window.kgToggleModules = function() {
+  if (!kgState) return;
+  kgState.filterHideModules = !kgState.filterHideModules;
+  document.getElementById('kg-btn-modules')?.classList.toggle('active', !kgState.filterHideModules);
+  applyKgFilters();
+};
+
+window.kgSearch = function(query) {
+  if (!kgState) return;
+  kgState.searchQuery = query;
+  const clearBtn = document.getElementById('kg-search-clear');
+  if (clearBtn) clearBtn.classList.toggle('visible', !!query);
+
+  if (query && query.trim().length > 1) {
+    const q = query.trim().toLowerCase();
+    const match = kgState.activeNodes.find(n => n.label.toLowerCase().includes(q));
+    if (match) {
+      kgState.hoveredNode = match;
+    }
+  } else {
+    kgState.hoveredNode = null;
+  }
+  renderKgFrame();
+};
+
+window.kgClearSearch = function() {
+  const input = document.getElementById('kg-search-input');
+  if (input) input.value = '';
+  kgSearch('');
+};
+
+window.kgZoomIn = function() {
+  if (!kgState) return;
+  d3.select(kgState.canvas).transition().duration(300).call(kgState.zoomBehavior.scaleBy, 1.35);
+};
+
+window.kgZoomOut = function() {
+  if (!kgState) return;
+  d3.select(kgState.canvas).transition().duration(300).call(kgState.zoomBehavior.scaleBy, 0.75);
+};
+
+window.kgResetZoom = function() {
+  if (!kgState || !kgState.canvas) return;
+  const canvasWrapper = document.getElementById('kg-canvas-wrapper');
+  if (!canvasWrapper) return;
+  const w = canvasWrapper.clientWidth;
+  const h = canvasWrapper.clientHeight;
+
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  let count = 0;
+  kgState.activeNodes.forEach(n => {
+    if (n.x !== undefined && n.y !== undefined) {
+      if (n.x < minX) minX = n.x;
+      if (n.x > maxX) maxX = n.x;
+      if (n.y < minY) minY = n.y;
+      if (n.y > maxY) maxY = n.y;
+      count++;
+    }
+  });
+
+  if (count > 0 && isFinite(minX)) {
+    const padding = 100;
+    const graphWidth = (maxX - minX) + padding * 2;
+    const graphHeight = (maxY - minY) + padding * 2;
+    const graphCenterX = (minX + maxX) / 2;
+    const graphCenterY = (minY + maxY) / 2;
+
+    const scale = Math.min(1.0, Math.max(0.18, Math.min(w / graphWidth, h / graphHeight)));
+    const targetX = w / 2 - graphCenterX * scale;
+    const targetY = h / 2 - graphCenterY * scale;
+
+    d3.select(kgState.canvas)
+      .transition()
+      .duration(700)
+      .call(
+        kgState.zoomBehavior.transform,
+        d3.zoomIdentity.translate(targetX, targetY).scale(scale)
+      );
+  } else {
+    d3.select(kgState.canvas)
+      .transition()
+      .duration(600)
+      .call(
+        kgState.zoomBehavior.transform,
+        d3.zoomIdentity.translate(w / 2, h / 2).scale(0.7).translate(-w / 2, -h / 2)
+      );
+  }
+};
+
+window.kgTogglePhysics = function() {
+  if (!kgState) return;
+  kgState.isPaused = !kgState.isPaused;
+  const btn = document.getElementById('kg-btn-physics');
+  if (btn) btn.classList.toggle('active', kgState.isPaused);
+
+  if (kgState.isPaused) {
+    kgState.simulation.stop();
+  } else {
+    kgState.simulation.alpha(0.3).restart();
+  }
+};
+
+window.kgToggleFullscreen = function() {
+  const container = document.getElementById('kg-container');
+  if (!container) return;
+  const isFull = container.classList.toggle('fullscreen');
+  document.getElementById('kg-btn-fullscreen')?.classList.toggle('active', isFull);
+  setTimeout(onKgResize, 100);
+};
+
+
+
 
 // ── Nav helpers ───────────────────────────────────────────────────
 function setActiveNav(id) {
@@ -6002,7 +7438,45 @@ window.addEventListener('popstate', () => {
   }
 });
 
-// ── Init ──────────────────────────────────────────────────────────
+// ── Init & Interactive Spotlight Dynamics ───────────────────────────
+// ── Init & Interactive 3D Gyro Dynamics ───────────────────────────
+document.addEventListener('mousemove', (e) => {
+  const card = e.target.closest('.rd-path-card, .rd-stat-card, .bezel-shell, .module-card, .bento-card-featured');
+  if (card) {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+
+    // Subtle 3D perspective tilt
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const rx = ((y - cy) / cy) * -3;
+    const ry = ((x - cx) / cx) * 3;
+    card.style.transform = `perspective(800px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-2px)`;
+  }
+});
+
+document.addEventListener('mouseout', (e) => {
+  const card = e.target.closest('.rd-path-card, .rd-stat-card, .bezel-shell, .module-card, .bento-card-featured');
+  if (card && !card.contains(e.relatedTarget)) {
+    card.style.transform = '';
+  }
+});
+
+// ── Reading Scroll Progress Tracker ───────────────────────────────
+const mainScrollContainer = document.getElementById('main');
+if (mainScrollContainer) {
+  mainScrollContainer.addEventListener('scroll', () => {
+    const rail = document.getElementById('scroll-progress-fill');
+    if (!rail) return;
+    const maxScroll = mainScrollContainer.scrollHeight - mainScrollContainer.clientHeight;
+    const pct = maxScroll > 0 ? (mainScrollContainer.scrollTop / maxScroll) * 100 : 0;
+    rail.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+  }, { passive: true });
+}
+
 applyTheme(getSavedTheme());
 renderSidebar();
 const isMainPortalPage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/website/') || window.location.pathname.endsWith('/website');
@@ -6011,4 +7485,9 @@ if (isMainPortalPage) {
     showHome(false);
   }
 }
+
+
+
+
+
 

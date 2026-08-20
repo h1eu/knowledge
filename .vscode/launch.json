@@ -17,6 +17,40 @@
       "args": ["4"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Verify Android Topics (All)",
+      "program": "${workspaceFolder}/tools/verify-android-topics.js",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Verify iOS Topics (All)",
+      "program": "${workspaceFolder}/tools/verify-ios-topics.js",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Verify iOS Topics (Swift Filter)",
+      "program": "${workspaceFolder}/tools/verify-ios-topics.js",
+      "args": ["swift"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Verify iOS Nav Sync",
+      "program": "${workspaceFolder}/tools/verify-ios-topics.js",
+      "args": ["--check-nav"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
     }
   ]
 }

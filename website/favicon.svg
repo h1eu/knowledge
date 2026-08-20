@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="cubeTop" x1="16" y1="3" x2="16" y2="13" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+    <linearGradient id="cubeLeft" x1="5" y1="10" x2="16" y2="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#4F46E5"/>
+    </linearGradient>
+    <linearGradient id="cubeRight" x1="27" y1="10" x2="16" y2="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#C084FC"/>
+    </linearGradient>
+    <filter id="coreGlow" x="8" y="8" width="16" height="16" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Background Squircle Shell -->
+  <rect width="32" height="32" rx="8" fill="#080E20"/>
+  <rect width="32" height="32" rx="8" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+  <!-- Isometric Faces -->
+  <path d="M16 4.5L26 10.2L16 16L6 10.2L16 4.5Z" fill="url(#cubeTop)" fill-opacity="0.85" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M6 10.2L16 16V27.5L6 21.7V10.2Z" fill="url(#cubeLeft)" fill-opacity="0.9" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M26 10.2L16 16V27.5L26 21.7V10.2Z" fill="url(#cubeRight)" fill-opacity="0.95" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="0.8" stroke-linejoin="round"/>
+  <!-- Inner Quantum Core Node -->
+  <circle cx="16" cy="16" r="3.5" fill="#FFFFFF" filter="url(#coreGlow)"/>
+  <circle cx="16" cy="16" r="1.8" fill="#38BDF8"/>
+</svg>

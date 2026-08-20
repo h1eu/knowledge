@@ -660,7 +660,7 @@ In summary, it is recommended that before diving deep into data structures and a
 
 <h3>2.2.2.1 Vòng lặp For (For Loop)</h3>
 <p>Vòng lặp <code>for</code> phù hợp nhất khi chúng ta đã biết trước số lần lặp.</p>
-<p>Hàm sau tính tổng $1 + 2 + \dots + n$ bằng vòng lặp <code>for</code>:</p>
+<p>Hàm sau tính tổng $1 + 2 + \\dots + n$ bằng vòng lặp <code>for</code>:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def for_loop(n: int) -&gt; int:
     """for loop"""
     res = 0
@@ -761,7 +761,7 @@ end</code></pre></div></div></div>
 
 <h3>2.2.2.2 Vòng lặp While (While Loop)</h3>
 <p>Vòng lặp <code>while</code> có tính linh hoạt cao hơn vòng lặp <code>for</code> vì điều kiện lặp có thể được tùy biến phức tạp hơn ở mỗi bước lặp.</p>
-<p>Hàm tính tổng $1 + 2 + \dots + n$ bằng vòng lặp <code>while</code>:</p>
+<p>Hàm tính tổng $1 + 2 + \\dots + n$ bằng vòng lặp <code>while</code>:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def while_loop(n: int) -&gt; int:
     """while loop"""
     res = 0
@@ -1189,7 +1189,7 @@ end</code></pre></div></div></div>
   <li><strong>Return Value (Giá trị trả về)</strong>: Trả kết quả của tầng hiện tại lên tầng cha.</li>
 </ul>
 
-<p>Hàm tính tổng $1 + 2 + \dots + n$ bằng đệ quy:</p>
+<p>Hàm tính tổng $1 + 2 + \\dots + n$ bằng đệ quy:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def recur(n: int) -&gt; int:
     """Recursion"""
     # Termination condition
@@ -1357,7 +1357,7 @@ end</code></pre></div></div></div>
   <li><strong>Iteration (Vòng lặp)</strong>: Giải quyết bài toán theo hướng "từ dưới lên" (bottom-up). Bắt đầu từ các bước cơ bản nhất, các bước này được thực thi hoặc tích lũy lặp đi lặp lại cho đến khi hoàn thành nhiệm vụ.</li>
   <li><strong>Recursion (Đệ quy)</strong>: Giải quyết bài toán theo hướng "từ trên xuống" (top-down). Bài toán gốc được phân rã thành các bài toán con nhỏ hơn có cùng dạng với bài toán gốc. Các bài toán con này tiếp tục được phân rã thành các bài toán con nhỏ hơn nữa cho đến khi chạm tới trường hợp cơ sở (nơi lời giải đã được biết).</li>
 </ul>
-<p>Lấy lại ví dụ hàm tính tổng ở trên, đặt bài toán là $f(n) = 1 + 2 + \dots + n$.</p>
+<p>Lấy lại ví dụ hàm tính tổng ở trên, đặt bài toán là $f(n) = 1 + 2 + \\dots + n$.</p>
 <ul>
   <li><strong>Iteration (Vòng lặp)</strong>: Mô phỏng quá trình cộng tổng bằng vòng lặp, duyệt từ $1$ đến $n$, thực hiện phép cộng tổng ở mỗi vòng để thu được $f(n)$.</li>
   <li><strong>Recursion (Đệ quy)</strong>: Phân rã bài toán thành bài toán con $f(n) = n + f(n-1)$, tiếp tục phân rã (đệ quy) cho đến khi kết thúc tại trường hợp cơ sở $f(1) = 1$.</li>
@@ -1481,7 +1481,7 @@ end</code></pre></div></div></div>
 <div class="callout callout-note">
   <span class="callout-icon">❓</span>
   <div class="callout-body">
-    Cho một dãy số Fibonacci $0, 1, 1, 2, 3, 5, 8, 13, \dots$, hãy tìm số thứ $n$ trong dãy.
+    Cho một dãy số Fibonacci $0, 1, 1, 2, 3, 5, 8, 13, \\dots$, hãy tìm số thứ $n$ trong dãy.
   </div>
 </div>
 <p>Gọi số thứ $n$ của dãy Fibonacci là $f(n)$. Ta có thể dễ dàng rút ra hai kết luận:</p>
@@ -2207,7 +2207,7 @@ def algorithm(n)
 end</code></pre></div></div></div>
 <p>Theo phương pháp trên, ta có thể tính được thời gian chạy của giải thuật là $(6n + 12)$ ns:</p>
 $$
-1 + 1 + 10 + (1 + 5) \times n = 6n + 12
+1 + 1 + 10 + (1 + 5) \\times n = 6n + 12
 $$
 <p>Tuy nhiên trong thực tế, <strong>việc cố gắng đếm chính xác thời gian chạy của một giải thuật vừa không thực tế vừa khó khả thi</strong>. Thứ nhất, chúng ta không muốn ràng buộc thời gian ước lượng vào một nền tảng chạy cụ thể, vì giải thuật cần chạy được trên nhiều nền tảng khác nhau. Thứ hai, rất khó để biết chính xác thời gian chạy của từng loại phép toán, điều này khiến quá trình ước lượng trở nên cực kỳ khó khăn.</p>
 
@@ -2541,7 +2541,7 @@ $$
   <span class="callout-icon">📝</span>
   <div class="callout-body">
     <strong>Giới hạn trên tiệm cận của hàm số</strong><br/>
-    Nếu tồn tại các số thực dương $c$ và $n_0$ sao cho với mọi $n > n_0$, ta có $T(n) \leq c \cdot f(n)$, thì $f(n)$ có thể được coi là giới hạn trên tiệm cận của $T(n)$, ký hiệu là $T(n) = O(f(n))$.
+    Nếu tồn tại các số thực dương $c$ và $n_0$ sao cho với mọi $n > n_0$, ta có $T(n) \\le c \\cdot f(n)$, thì $f(n)$ có thể được coi là giới hạn trên tiệm cận của $T(n)$, ký hiệu là $T(n) = O(f(n))$.
   </div>
 </div>
 
@@ -2556,7 +2556,7 @@ $$
 <p>Theo định nghĩa, sau khi xác định được $f(n)$, ta có thể thu được độ phức tạp thời gian $O(f(n))$. Vậy làm thế nào để xác định giới hạn trên tiệm cận $f(n)$? Nhìn chung, việc này được chia thành hai bước: đầu tiên đếm số lượng phép toán, sau đó xác định giới hạn trên tiệm cận.</p>
 
 <h3>2.3.4.1 Bước 1: Đếm số lượng phép toán</h3>
-<p>Đối với mã nguồn, hãy đếm từ trên xuống dưới, từng dòng một. Tuy nhiên, vì hệ số hằng số $c$ trong $c \cdot f(n)$ ở trên có thể lớn tùy ý, nên <strong>các hệ số và số hạng hằng số trong số lượng phép toán $T(n)$ đều có thể bỏ qua</strong>. Dựa theo nguyên tắc này, ta có thể tổng kết các kỹ thuật đơn giản hóa việc đếm sau đây.</p>
+<p>Đối với mã nguồn, hãy đếm từ trên xuống dưới, từng dòng một. Tuy nhiên, vì hệ số hằng số $c$ trong $c \\cdot f(n)$ ở trên có thể lớn tùy ý, nên <strong>các hệ số và số hạng hằng số trong số lượng phép toán $T(n)$ đều có thể bỏ qua</strong>. Dựa theo nguyên tắc này, ta có thể tổng kết các kỹ thuật đơn giản hóa việc đếm sau đây.</p>
 <ol>
   <li><strong>Bỏ qua các hằng số trong $T(n)$</strong>. Vì chúng đều không phụ thuộc vào $n$, nên không ảnh hưởng đến độ phức tạp thời gian.</li>
   <li><strong>Bỏ qua tất cả các hệ số</strong>. Ví dụ, lặp $2n$ lần, $5n + 1$ lần, v.v., đều có thể đơn giản hóa thành $n$ lần, vì hệ số đứng trước $n$ không ảnh hưởng đến độ phức tạp thời gian.</li>
@@ -3588,7 +3588,7 @@ end</code></pre></div></div></div>
 
 <p>Tốc độ tăng trưởng của độ phức tạp lũy thừa rất nhanh, thường gặp trong các phương pháp vét cạn (brute force, quay lui, v.v.). Với các bài toán có quy mô dữ liệu lớn, độ phức tạp lũy thừa là không thể chấp nhận được và thường cần giải quyết bằng quy hoạch động hoặc giải thuật tham lam.</p>
 
-<h3>2.3.5.5 Độ phức tạp logarit $O(\log n)$</h3>
+<h3>2.3.5.5 Độ phức tạp logarit $O(\\log n)$</h3>
 <p>Thường xuất hiện trong các giải thuật chia đôi không gian tìm kiếm sau mỗi bước, ví dụ giải thuật tìm kiếm nhị phân (Binary Search):</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def logarithmic(n: int) -&gt; int:
     """Logarithmic order (loop implementation)"""
@@ -3746,7 +3746,7 @@ end</code></pre></div></div></div>
 
 <p>Độ phức tạp logarit thường xuất hiện trong các giải thuật dựa trên chiến lược chia để trị, phản ánh tư duy liên tục chia nhỏ bài toán để đơn giản hóa nó. Tốc độ tăng trưởng của nó rất chậm, và là độ phức tạp thời gian lý tưởng chỉ đứng sau cấp độ hằng số.</p>
 
-<h3>2.3.5.6 Độ phức tạp tuyến tính - logarit $O(n \log n)$</h3>
+<h3>2.3.5.6 Độ phức tạp tuyến tính - logarit $O(n \\log n)$</h3>
 <p>Cấp độ này xuất hiện nhiều trong các giải thuật sắp xếp tối ưu như sắp xếp nhanh (Quick Sort) hoặc sắp xếp trộn (Merge Sort):</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def linear_log_recur(n: int) -&gt; int:
     """Linearithmic order"""
@@ -6278,7 +6278,7 @@ end</code></pre></div></div></div>
 </div>
 
 <h3>2.4.3.3 Không gian bình phương $O(n^2)$</h3>
-<p>Thuật toán khởi tạo ma trận hai chiều có kích thước $n \times n$ để lưu trữ dữ liệu tính toán:</p>
+<p>Thuật toán khởi tạo ma trận hai chiều có kích thước $n \\times n$ để lưu trữ dữ liệu tính toán:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def quadratic(n: int):
     """Quadratic order"""
     # A 2D list occupies O(n^2) space
@@ -6410,7 +6410,7 @@ end</code></pre></div></div></div>
   Array.new(n) { Array.new(n, 0) }
 end</code></pre></div></div></div>
 
-<p>Như minh họa trong hình dưới đây, độ sâu đệ quy của hàm này là $n$, nghĩa là có $n$ hàm <code>quadratic_recur()</code> chưa trả về tồn tại đồng thời, và một mảng được khởi tạo trong mỗi lần gọi đệ quy với độ dài lần lượt là $n$, $n-1$, $\dots$, $2$, $1$, độ dài trung bình là $n / 2$, do đó tổng thể chiếm dụng $O(n^2)$ không gian:</p>
+<p>Như minh họa trong hình dưới đây, độ sâu đệ quy của hàm này là $n$, nghĩa là có $n$ hàm <code>quadratic_recur()</code> chưa trả về tồn tại đồng thời, và một mảng được khởi tạo trong mỗi lần gọi đệ quy với độ dài lần lượt là $n$, $n-1$, $\\dots$, $2$, $1$, độ dài trung bình là $n / 2$, do đó tổng thể chiếm dụng $O(n^2)$ không gian:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def quadratic_recur(n: int) -&gt; int:
     """Quadratic order (recursive implementation)"""
     if n &lt;= 0:
@@ -6599,9 +6599,9 @@ end</code></pre></div></div></div>
   <img src="dsa-assets/space_complexity_exponential.png" alt="Độ phức tạp không gian cấp độ lũy thừa sinh ra bởi cây nhị phân đầy đủ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
-<h3>2.4.3.5 Không gian logarit $O(\log n)$</h3>
-<p>Cấp độ logarit thường xuất hiện trong các giải thuật chia để trị (divide and conquer). Ví dụ, với sắp xếp trộn (Merge Sort): cho một mảng đầu vào có độ dài $n$, mỗi lần đệ quy sẽ chia đôi mảng từ điểm giữa, tạo thành một cây đệ quy có chiều cao $\log n$, sử dụng $O(\log n)$ không gian khung ngăn xếp.</p>
-<p>Một ví dụ khác là chuyển đổi một số thành chuỗi. Cho một số nguyên dương $n$, nó có $\lfloor \log_{10} n \rfloor + 1$ chữ số, tức là độ dài chuỗi tương ứng là $\lfloor \log_{10} n \rfloor + 1$, do đó độ phức tạp không gian là $O(\log_{10} n + 1) = O(\log n)$.</p>
+<h3>2.4.3.5 Không gian logarit $O(\\log n)$</h3>
+<p>Cấp độ logarit thường xuất hiện trong các giải thuật chia để trị (divide and conquer). Ví dụ, với sắp xếp trộn (Merge Sort): cho một mảng đầu vào có độ dài $n$, mỗi lần đệ quy sẽ chia đôi mảng từ điểm giữa, tạo thành một cây đệ quy có chiều cao $\\log n$, sử dụng $O(\\log n)$ không gian khung ngăn xếp.</p>
+<p>Một ví dụ khác là chuyển đổi một số thành chuỗi. Cho một số nguyên dương $n$, nó có $\\lfloor \log_{10} n \\rfloor + 1$ chữ số, tức là độ dài chuỗi tương ứng là $\\lfloor \log_{10} n \\rfloor + 1$, do đó độ phức tạp không gian là $O(\log_{10} n + 1) = O(\\log n)$.</p>
 
 <h2>2.4.4 Đánh đổi Thời gian lấy Không gian</h2>
 <p>Trong điều kiện lý tưởng, chúng ta mong muốn cả độ phức tạp thời gian và độ phức tạp không gian của một giải thuật đều đạt mức tối ưu. Tuy nhiên trong thực tế, việc tối ưu hóa đồng thời cả độ phức tạp thời gian và độ phức tạp không gian thường rất khó khăn.</p>
@@ -7516,7 +7516,7 @@ The choice of which approach depends on which aspect we value more. In most case
   <li>Độ phức tạp thời gian dùng để đo lường <strong>xu hướng tăng trưởng của thời gian chạy</strong> khi quy mô dữ liệu $n$ tăng lên. Nó đánh giá hiệu quả giải thuật một cách khách quan nhưng có thể kém trực quan trong một số trường hợp (ví dụ: khi dữ liệu nhỏ hoặc khi hai thuật toán có cùng độ phức tạp nhưng hằng số thực thi khác nhau).</li>
   <li>Độ phức tạp trong trường hợp xấu nhất được biểu diễn bằng ký hiệu <strong>Big-O (O lớn)</strong>, tương ứng với giới hạn trên tiệm cận của hàm số, phản ánh mức độ tăng trưởng của số lượng phép toán $T(n)$ khi $n$ tiến tới vô cùng.</li>
   <li>Quá trình suy ra độ phức tạp thời gian gồm hai bước: đầu tiên là <strong>đọc và đếm số lượng phép toán</strong>, sau đó <strong>xác định giới hạn trên tiệm cận</strong>.</li>
-  <li>Các cấp độ phức tạp thời gian phổ biến xếp từ thấp đến cao gồm: $O(1)$, $O(\log n)$, $O(n)$, $O(n \log n)$, $O(n^2)$, $O(2^n)$, và $O(n!)$.</li>
+  <li>Các cấp độ phức tạp thời gian phổ biến xếp từ thấp đến cao gồm: $O(1)$, $O(\\log n)$, $O(n)$, $O(n \\log n)$, $O(n^2)$, $O(2^n)$, và $O(n!)$.</li>
   <li>Hiệu năng của một số giải thuật không cố định mà phụ thuộc vào sự phân bố của dữ liệu đầu vào. Do đó, độ phức tạp được chia thành: <strong>Trường hợp xấu nhất (Worst-case)</strong>, <strong>Trường hợp tốt nhất (Best-case)</strong>, và <strong>Trường hợp trung bình (Average-case)</strong>. Độ phức tạp trường hợp tốt nhất ít khi được sử dụng vì dữ liệu đầu vào thường phải thỏa mãn cấu hình đặc thù cực kỳ hiếm gặp.</li>
   <li><strong>Độ phức tạp trung bình</strong> phản ánh hiệu năng chạy của giải thuật dưới dữ liệu ngẫu nhiên, sát nhất với hiệu năng thực tế. Việc tính toán độ phức tạp trung bình đòi hỏi phân tích xác suất phân bố của dữ liệu và kỳ vọng toán học tương ứng.</li>
 </ul>
@@ -7526,7 +7526,7 @@ The choice of which approach depends on which aspect we value more. In most case
   <li>Tương tự như độ phức tạp thời gian, độ phức tạp không gian dùng để đo lường <strong>xu hướng tăng trưởng của không gian bộ nhớ sử dụng</strong> khi quy mô dữ liệu $n$ tăng lên.</li>
   <li>Bộ nhớ sử dụng khi chạy giải thuật được chia thành ba loại: <strong>Không gian đầu vào (Input space)</strong>, <strong>Không gian tạm thời (Temporary space)</strong>, và <strong>Không gian đầu ra (Output space)</strong>. Thông thường, không gian đầu vào không được tính vào độ phức tạp không gian. Không gian tạm thời gồm: dữ liệu tạm thời, không gian ngăn xếp (stack frame), và không gian chứa lệnh thực thi; trong đó không gian ngăn xếp thường chỉ ảnh hưởng tới độ phức tạp không gian của các hàm đệ quy.</li>
   <li>Chúng ta thường chỉ tập trung vào <strong>Độ phức tạp không gian trong trường hợp xấu nhất</strong>, tức là lượng không gian bộ nhớ tối đa mà giải thuật tiêu thụ dưới dữ liệu và đường chạy tệ nhất.</li>
-  <li>Các cấp độ phức tạp không gian phổ biến từ thấp đến cao gồm: $O(1)$, $O(\log n)$, $O(n)$, $O(n^2)$, và $O(2^n)$.</li>
+  <li>Các cấp độ phức tạp không gian phổ biến từ thấp đến cao gồm: $O(1)$, $O(\\log n)$, $O(n)$, $O(n^2)$, và $O(2^n)$.</li>
 </ul>
 
 <h2>2.5.2 Hỏi & Đáp (Q&A)</h2>
@@ -7547,7 +7547,7 @@ The choice of which approach depends on which aspect we value more. In most case
 <p><strong>Hỏi: Có trường hợp nào mà trong thực tế chúng ta chủ động hy sinh thời gian để tiết kiệm không gian bộ nhớ (hoặc ngược lại) không?</strong></p>
 <p><strong>Trả lời:</strong> Có, đây là quá trình đánh đổi không-thời gian phổ biến trong lập trình:</p>
 <ul>
-  <li><strong>Đánh đổi không gian lấy thời gian (Sacrificing space for time):</strong> Là trường hợp phổ biến nhất. Ví dụ với index trong cơ sở dữ liệu, chúng ta chọn xây dựng các cấu trúc cây B+ hoặc bảng Hash. Hành vi này chiếm dụng thêm rất nhiều dung lượng bộ nhớ/đĩa để đổi lấy tốc độ truy vấn cực nhanh ở mức $O(\log n)$ hoặc $O(1)$.</li>
+  <li><strong>Đánh đổi không gian lấy thời gian (Sacrificing space for time):</strong> Là trường hợp phổ biến nhất. Ví dụ với index trong cơ sở dữ liệu, chúng ta chọn xây dựng các cấu trúc cây B+ hoặc bảng Hash. Hành vi này chiếm dụng thêm rất nhiều dung lượng bộ nhớ/đĩa để đổi lấy tốc độ truy vấn cực nhanh ở mức $O(\\log n)$ hoặc $O(1)$.</li>
   <li><strong>Đánh đổi thời gian lấy không gian (Sacrificing time for space):</strong> Thường gặp trong các hệ thống nhúng, thiết bị IoT hoặc các thiết bị di động có dung lượng RAM bị giới hạn ngặt nghèo. Kỹ sư có thể từ bỏ việc sử dụng các cấu trúc dữ liệu tốn bộ nhớ như bảng Hash hay cây tìm kiếm, thay vào đó chấp nhận quét tuần tự trên mảng tĩnh để tiết kiệm từng byte bộ nhớ, dù thời gian tìm kiếm sẽ giảm xuống $O(n)$.</li>
 </ul>
 `,
@@ -7567,7 +7567,7 @@ The choice of which approach depends on which aspect we value more. In most case
 - Time complexity is used to measure the trend of algorithm runtime as data volume increases. It can effectively evaluate algorithm efficiency, but it may be less informative in certain situations, such as when the input data volume is small or when time complexities are identical, making it impossible to precisely compare algorithm efficiency.
 - Worst-case time complexity is represented using Big $O$ notation, corresponding to the asymptotic upper bound of a function, reflecting the growth level of the number of operations $T(n)$ as $n$ approaches positive infinity.
 - Deriving time complexity involves two steps: first, counting the number of operations, then determining the asymptotic upper bound.
-- Common time complexities arranged from low to high include $O(1)$, $O(\log n)$, $O(n)$, $O(n \log n)$, $O(n^2)$, $O(2^n)$, and $O(n!)$.
+- Common time complexities arranged from low to high include $O(1)$, $O(\\log n)$, $O(n)$, $O(n \\log n)$, $O(n^2)$, $O(2^n)$, and $O(n!)$.
 - The time complexity of some algorithms is not fixed, but rather depends on the distribution of input data. Time complexity is divided into worst-case, best-case, and average-case time complexity. Best-case time complexity is rarely used because input data generally needs to satisfy strict conditions to achieve the best case.
 - Average time complexity reflects the algorithm's runtime efficiency under random data input, and is closest to the algorithm's performance in practical applications. Calculating average time complexity requires analyzing the input data distribution and the resulting mathematical expectation.
 
@@ -7576,7 +7576,7 @@ The choice of which approach depends on which aspect we value more. In most case
 - Space complexity serves a similar purpose to time complexity, used to measure the trend of algorithm memory usage as data volume increases.
 - The memory space related to algorithm execution can be divided into input space, temporary space, and output space. Typically, input space is not included in space complexity calculations. Temporary space can be divided into temporary data, stack frame space, and instruction space, where stack frame space usually affects space complexity only in recursive functions.
 - We typically only focus on worst-case space complexity, which is the space complexity of an algorithm under worst-case input data and worst-case runtime.
-- Common space complexities arranged from low to high include $O(1)$, $O(\log n)$, $O(n)$, $O(n^2)$, and $O(2^n)$.
+- Common space complexities arranged from low to high include $O(1)$, $O(\\log n)$, $O(n)$, $O(n^2)$, and $O(2^n)$.
 
 ### Q & A
 
@@ -7604,7 +7604,7 @@ In practice, because we generally do not know the "constant-term" cost of each m
 
 **Q**: Are there situations where algorithms are designed to sacrifice time (or space) based on actual use cases?
 
-In practical applications, most situations choose to sacrifice space for time. For example, with database indexes, we typically choose to build B+ trees or hash indexes, occupying substantial memory space in exchange for efficient queries of $O(\log n)$ or even $O(1)$.
+In practical applications, most situations choose to sacrifice space for time. For example, with database indexes, we typically choose to build B+ trees or hash indexes, occupying substantial memory space in exchange for efficient queries of $O(\\log n)$ or even $O(1)$.
 
 In scenarios where space resources are precious, time may be sacrificed for space. For example, in embedded development, device memory is precious, and engineers may forgo using hash tables and choose to use array sequential search to save memory usage, at the cost of slower searches.
 `

@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Android Knowledge OS — Hệ điều hành tri thức Android</title>
   <meta name="description" content="Nền tảng học tập và tra cứu tri thức chuyên sâu về Android OS: Application Components, Jetpack Compose, Coroutines, WorkManager và Kiến trúc hệ thống." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <!-- D3.js for Interactive Knowledge Graph -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <!-- Mermaid.js for Diagrams -->
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
@@ -14,12 +20,14 @@
       try { savedTheme = localStorage.getItem('kos-theme') || 'dark'; } catch (e) {}
       if (savedTheme === 'light') document.documentElement.classList.add('theme-light');
       if (window.mermaid) {
-        mermaid.initialize({ startOnLoad: false, theme: savedTheme === 'light' ? 'neutral' : 'dark', fontFamily: 'Inter, sans-serif', fontSize: 13, flowchart: { htmlLabels: true, curve: 'basis' } });
+        mermaid.initialize({ startOnLoad: false, theme: savedTheme === 'light' ? 'neutral' : 'dark', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 13, flowchart: { htmlLabels: true, curve: 'basis' } });
       }
     })();
   </script>
 </head>
 <body>
+<div class="ambient-grid-overlay"></div>
+<div class="scroll-progress-rail" id="scroll-progress-rail"><div class="scroll-progress-fill" id="scroll-progress-fill"></div></div>
 
 <div class="layout layout--content" id="layout">
 
@@ -27,14 +35,27 @@
   <header class="header">
     <a class="logo" href="index.html">
       <div class="logo-icon">
+        <!-- Quantum Hypercube Isometric Logo -->
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="logoGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#FFFFFF"/>
-              <stop offset="100%" stop-color="#E2E8F0"/>
+            <linearGradient id="logoTop" x1="12" y1="2" x2="12" y2="10" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#38BDF8"/>
+              <stop offset="100%" stop-color="#818CF8"/>
+            </linearGradient>
+            <linearGradient id="logoLeft" x1="3" y1="7" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#0284C7"/>
+              <stop offset="100%" stop-color="#4F46E5"/>
+            </linearGradient>
+            <linearGradient id="logoRight" x1="21" y1="7" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#818CF8"/>
+              <stop offset="100%" stop-color="#C084FC"/>
             </linearGradient>
           </defs>
-          <path d="M13 2L4.09 12.96A1 1 0 005 14.5h6.5L10 22l9.91-10.96A1 1 0 0019 9.5h-6.5L13 2z" fill="url(#logoGrad)"/>
+          <path d="M12 3L20 7.6L12 12.2L4 7.6L12 3Z" fill="url(#logoTop)" fill-opacity="0.9" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="0.75" stroke-linejoin="round"/>
+          <path d="M4 7.6L12 12.2V21.4L4 16.8V7.6Z" fill="url(#logoLeft)" fill-opacity="0.95" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.75" stroke-linejoin="round"/>
+          <path d="M20 7.6L12 12.2V21.4L20 16.8V7.6Z" fill="url(#logoRight)" fill-opacity="0.95" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.75" stroke-linejoin="round"/>
+          <circle cx="12" cy="12.2" r="2.2" fill="#FFFFFF"/>
+          <circle cx="12" cy="12.2" r="1.2" fill="#38BDF8"/>
         </svg>
       </div>
       <div class="logo-text">
@@ -59,6 +80,23 @@
     </div>
 
     <button id="btn-toggle-original" class="btn-toggle-original" style="display:none;" onclick="toggleOriginalContent()">🌐 Xem bản gốc (English)</button>
+
+    <div id="header-reading-tools" class="header-reading-tools" style="display:none;">
+      <button class="reading-tool-btn" id="btn-zen-mode" onclick="toggleZenMode()" title="Chế độ tập trung (Ẩn Sidebar & TOC)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+        <span>Zen Mode</span>
+      </button>
+      <button class="reading-tool-btn" id="btn-font-scale" onclick="cycleFontSize()" title="Thay đổi cỡ chữ">
+        <span id="zen-font-label">A (1x)</span>
+      </button>
+      <button class="reading-tool-btn" id="btn-share-topic" onclick="copyCurrentTopicLink()" title="Sao chép liên kết bài học">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        <span>Chia sẻ</span>
+      </button>
+      <button class="reading-tool-btn" id="btn-scroll-top" onclick="scrollToTopicTop()" title="Lên đầu trang">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      </button>
+    </div>
 
     <nav class="header-nav">
       <a class="nav-btn" href="index.html">

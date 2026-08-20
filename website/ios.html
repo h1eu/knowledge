@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Database Knowledge OS — Hệ điều hành tri thức Cơ Sở Dữ Liệu</title>
-  <meta name="description" content="Chuyên mục Database: PostgreSQL, Redis, Caching & Indexing Optimization." />
+  <title>iOS Knowledge OS — Hệ điều hành tri thức iOS Development</title>
+  <meta name="description" content="Lộ trình và kho tri thức chuyên sâu về iOS Development: Swift, Objective-C, UIKit, AutoLayout, Concurrency GCD, CoreData, Architecture MVVM/Clean, SwiftUI & App Store." />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,6 +30,8 @@
 <div class="scroll-progress-rail" id="scroll-progress-rail"><div class="scroll-progress-fill" id="scroll-progress-fill"></div></div>
 
 <div class="layout layout--content" id="layout">
+
+  <!-- ── Header ───────────────────────────────────────────── -->
   <header class="header">
     <a class="logo" href="index.html">
       <div class="logo-icon">
@@ -58,7 +60,7 @@
       </div>
       <div class="logo-text">
         <span class="logo-name">Knowledge OS</span>
-        <span class="logo-tagline">Database Domain</span>
+        <span class="logo-tagline">iOS Knowledge Base</span>
       </div>
     </a>
 
@@ -68,7 +70,13 @@
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
       </span>
-      <input type="text" id="searchInput" placeholder="Tìm kiếm bài học Database..." autocomplete="off" spellcheck="false" />
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Tìm kiếm bài học, khái niệm iOS..."
+        autocomplete="off"
+        spellcheck="false"
+      />
     </div>
 
     <button id="btn-toggle-original" class="btn-toggle-original" style="display:none;" onclick="toggleOriginalContent()">🌐 Xem bản gốc (English)</button>
@@ -91,28 +99,65 @@
     </div>
 
     <nav class="header-nav">
-      <a class="nav-btn" href="index.html">Trang chủ Portal</a>
-      <button class="nav-btn active" onclick="showDomain('database')">Database Domain</button>
+      <a class="nav-btn" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Trang chủ Portal
+      </a>
+      <button class="nav-btn active" id="navIosDomain" onclick="showDomain('ios')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 18h.01"/><path d="M9 5h6"/>
+        </svg>
+        iOS Domain
+      </button>
       <button id="btn-theme" class="btn-theme" onclick="toggleTheme()" title="Chuyển giao diện"></button>
     </nav>
   </header>
 
-  <aside class="sidebar" id="sidebar"></aside>
+  <!-- ── Sidebar ───────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Rendered by JS -->
+  </aside>
+
+  <!-- ── Search Overlay ───────────────────────────────────── -->
   <div class="search-overlay" id="searchOverlay"></div>
-  <main class="main" id="main"></main>
-  <aside class="toc" id="toc"></aside>
+
+  <!-- ── Main Content ─────────────────────────────────────── -->
+  <main class="main" id="main">
+    <!-- Rendered by JS -->
+  </main>
+
+  <!-- ── TOC ──────────────────────────────────────────────── -->
+  <aside class="toc" id="toc">
+    <!-- Rendered by JS -->
+  </aside>
+
 </div>
 
+<script src="ios-content.js"></script>
 <script src="app.js"></script>
+
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const hash = window.location.hash.replace('#', '');
     const urlParams = new URLSearchParams(window.location.search);
     const topicParam = urlParams.get('topic') || hash;
-    if (topicParam && findTopic(topicParam)) {
+
+    if (topicParam && (typeof TOPIC_CONTENT !== 'undefined' && TOPIC_CONTENT[topicParam] || findTopic(topicParam))) {
       openTopic(topicParam);
     } else {
-      showDomain('database');
+      showDomain('ios');
     }
   });
 </script>

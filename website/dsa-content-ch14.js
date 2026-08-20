@@ -202,7 +202,7 @@ fun climbingStairsBacktrack(n: Int): Int {
 
 <p>Chúng ta có thể thử phân tích bài toán này từ góc độ phân rã bài toán. Gọi số cách để leo đến bậc thứ $i$ là $dp[i]$, thì $dp[i]$ chính là bài toán gốc, và các bài toán con của nó bao gồm:</p>
 
-<p>$$dp[i-1], dp[i-2], \dots, dp[2], dp[1]$$</p>
+<p>$$dp[i-1], dp[i-2], \\dots, dp[2], dp[1]$$</p>
 
 <p>Vì mỗi vòng chúng ta chỉ có thể leo $1$ hoặc $2$ bậc, nên khi đang đứng ở bậc thứ $i$, ta chỉ có thể đến từ bậc thứ $i-1$ hoặc bậc thứ $i-2$ ở vòng trước. Nói cách khác, ta chỉ có thể đến bậc thứ $i$ từ bậc thứ $i-1$ hoặc bậc thứ $i-2$.</p>
 
@@ -742,7 +742,7 @@ In dynamic programming problems, the current state often depends only on a limit
 
 <p>Gọi $dp[i]$ là chi phí tích lũy để leo đến bậc thứ $i$. Vì bậc thứ $i$ chỉ có thể đến từ bậc thứ $i-1$ hoặc $i-2$, $dp[i]$ chỉ có thể bằng $dp[i-1] + cost[i]$ hoặc $dp[i-2] + cost[i]$. Để tối thiểu hóa chi phí, ta nên chọn giá trị nhỏ hơn trong hai:</p>
 
-<p>$$dp[i] = \min(dp[i-1], dp[i-2]) + cost[i]$$</p>
+<p>$$dp[i] = \\min(dp[i-1], dp[i-2]) + cost[i]$$</p>
 
 <p>Điều này dẫn ta đến ý nghĩa của cấu trúc con tối ưu: <strong>lời giải tối ưu của bài toán gốc được xây dựng từ lời giải tối ưu của các bài toán con</strong>.</p>
 
@@ -920,7 +920,7 @@ fun minCostClimbingStairsDPComp(cost: IntArray): Int {
 
 <p>Không khó để thấy rằng bài toán này không còn thỏa mãn tính không có hậu quả nữa, và phương trình chuyển trạng thái $dp[i] = dp[i-1] + dp[i-2]$ cũng thất bại, vì $dp[i-1]$ đại diện cho việc nhảy $1$ bậc trong vòng này, nhưng nó bao gồm nhiều lời giải mà "vòng trước là một bước nhảy $1$ bậc", những lời giải này không thể được tính trực tiếp vào $dp[i]$ để thỏa mãn ràng buộc.</p>
 
-<p>Vì lý do này, ta cần mở rộng định nghĩa trạng thái: <strong>trạng thái $[i, j]$ đại diện cho việc đang ở bậc thứ $i$ với vòng trước đã nhảy $j$ bậc</strong>, trong đó $j \in \{1, 2\}$. Định nghĩa trạng thái này phân biệt hiệu quả liệu vòng trước có phải là nhảy $1$ bậc hay $2$ bậc, cho phép ta xác định trạng thái hiện tại đến từ đâu.</p>
+<p>Vì lý do này, ta cần mở rộng định nghĩa trạng thái: <strong>trạng thái $[i, j]$ đại diện cho việc đang ở bậc thứ $i$ với vòng trước đã nhảy $j$ bậc</strong>, trong đó $j \\in \{1, 2\}$. Định nghĩa trạng thái này phân biệt hiệu quả liệu vòng trước có phải là nhảy $1$ bậc hay $2$ bậc, cho phép ta xác định trạng thái hiện tại đến từ đâu.</p>
 
 <ul>
   <li>Khi vòng trước nhảy $1$ bậc, vòng trước đó nữa chỉ có thể chọn nhảy $2$ bậc, tức là $dp[i, 1]$ chỉ có thể chuyển từ $dp[i-1, 2]$.</li>
@@ -930,10 +930,10 @@ fun minCostClimbingStairsDPComp(cost: IntArray): Int {
 <p>Như hình dưới đây, dưới định nghĩa này, $dp[i, j]$ đại diện cho số cách của trạng thái $[i, j]$. Phương trình chuyển trạng thái khi đó là:</p>
 
 <p>$$
-\begin{cases}
+\\begin{cases}
 dp[i, 1] = dp[i-1, 2] \\
 dp[i, 2] = dp[i-2, 1] + dp[i-2, 2]
-\end{cases}
+\\end{cases}
 $$</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
@@ -1201,7 +1201,7 @@ In fact, many complex combinatorial optimization problems (such as the traveling
 <div class="callout callout-note">
   <span class="callout-icon">❓</span>
   <div class="callout-body">
-    <p>Cho một lưới hai chiều $n \times m$ <code>grid</code> trong đó mỗi ô chứa một số nguyên không âm đại diện cho chi phí của nó, một robot bắt đầu từ ô trên-trái và chỉ có thể di chuyển xuống hoặc sang phải ở mỗi bước cho đến khi đến ô dưới-phải. Trả về tổng đường đi nhỏ nhất từ trên-trái đến dưới-phải.</p>
+    <p>Cho một lưới hai chiều $n \\times m$ <code>grid</code> trong đó mỗi ô chứa một số nguyên không âm đại diện cho chi phí của nó, một robot bắt đầu từ ô trên-trái và chỉ có thể di chuyển xuống hoặc sang phải ở mỗi bước cho đến khi đến ô dưới-phải. Trả về tổng đường đi nhỏ nhất từ trên-trái đến dưới-phải.</p>
   </div>
 </div>
 
@@ -1237,7 +1237,7 @@ In fact, many complex combinatorial optimization problems (such as the traveling
 
 <p>Dựa trên phân tích trên, ta có thể suy ra phương trình chuyển trạng thái như hình dưới đây:</p>
 
-<p>$$dp[i, j] = \min(dp[i-1, j], dp[i, j-1]) + grid[i, j]$$</p>
+<p>$$dp[i, j] = \\min(dp[i-1, j], dp[i, j-1]) + grid[i, j]$$</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/min_path_sum_solution_state_transition.png" alt="Cấu trúc con tối ưu và phương trình chuyển trạng thái" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
@@ -1269,7 +1269,7 @@ In fact, many complex combinatorial optimization problems (such as the traveling
   </div>
 </div>
 
-<p>Dựa trên phân tích trên, ta có thể viết trực tiếp mã quy hoạch động. Tuy nhiên, phân rã bài toán con là một cách tiếp cận từ trên xuống, vì vậy triển khai theo thứ tự "tìm kiếm vét cạn $\rightarrow$ đệ quy có nhớ $\rightarrow$ quy hoạch động" sẽ phù hợp hơn với thói quen tư duy.</p>
+<p>Dựa trên phân tích trên, ta có thể viết trực tiếp mã quy hoạch động. Tuy nhiên, phân rã bài toán con là một cách tiếp cận từ trên xuống, vì vậy triển khai theo thứ tự "tìm kiếm vét cạn $\\rightarrow$ đệ quy có nhớ $\\rightarrow$ quy hoạch động" sẽ phù hợp hơn với thói quen tư duy.</p>
 
 <h3>Cách 1: Tìm kiếm vét cạn</h3>
 
@@ -1279,7 +1279,7 @@ In fact, many complex combinatorial optimization problems (such as the traveling
   <li><strong>Tham số đệ quy</strong>: trạng thái $[i, j]$.</li>
   <li><strong>Giá trị trả về</strong>: tổng đường đi nhỏ nhất từ $[0, 0]$ đến $[i, j]$, tức là $dp[i, j]$.</li>
   <li><strong>Điều kiện dừng</strong>: khi $i = 0$ và $j = 0$, trả về chi phí $grid[0, 0]$.</li>
-  <li><strong>Cắt tỉa</strong>: khi $i < 0$ hoặc $j < 0$, chỉ số vượt biên, trả về chi phí $+\infty$, đại diện cho tính bất khả thi.</li>
+  <li><strong>Cắt tỉa</strong>: khi $i < 0$ hoặc $j < 0$, chỉ số vượt biên, trả về chi phí $+\\infty$, đại diện cho tính bất khả thi.</li>
 </ul>
 
 <p>Mã triển khai như sau:</p>
@@ -1595,7 +1595,7 @@ fun minPathSumDP(grid: Array&lt;IntArray&gt;): Int {
 
 <p>Hình dưới đây cho thấy quá trình chuyển trạng thái cho tổng đường đi nhỏ nhất, duyệt toàn bộ lưới, <strong>vì vậy độ phức tạp thời gian là $O(nm)$</strong>.</p>
 
-<p>Mảng <code>dp</code> có kích thước $n \times m$, <strong>vì vậy độ phức tạp không gian là $O(nm)$</strong>.</p>
+<p>Mảng <code>dp</code> có kích thước $n \\times m$, <strong>vì vậy độ phức tạp không gian là $O(nm)$</strong>.</p>
 
 <div class="interactive-widget-wrapper" id="min-path-sum-steps-wrapper"><div class="slider-container"><div class="slide active"><img src="dsa-assets/min_path_sum_dp_step1.png" alt="Bước 1: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 1: điền bảng dp theo quy hoạch động</p></div><div class="slide"><img src="dsa-assets/min_path_sum_dp_step2.png" alt="Bước 2: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 2: điền bảng dp theo quy hoạch động</p></div><div class="slide"><img src="dsa-assets/min_path_sum_dp_step3.png" alt="Bước 3: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 3: điền bảng dp theo quy hoạch động</p></div><div class="slide"><img src="dsa-assets/min_path_sum_dp_step4.png" alt="Bước 4: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 4: điền bảng dp theo quy hoạch động</p></div><div class="slide"><img src="dsa-assets/min_path_sum_dp_step5.png" alt="Bước 5: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 5: điền bảng dp theo quy hoạch động</p></div><div class="slide"><img src="dsa-assets/min_path_sum_dp_step6.png" alt="Bước 6: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 6: điền bảng dp theo quy hoạch động</p></div><div class="slide"><img src="dsa-assets/min_path_sum_dp_step7.png" alt="Bước 7: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 7: điền bảng dp theo quy hoạch động</p></div><div class="slide"><img src="dsa-assets/min_path_sum_dp_step8.png" alt="Bước 8: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 8: điền bảng dp theo quy hoạch động</p></div><div class="slide"><img src="dsa-assets/min_path_sum_dp_step9.png" alt="Bước 9: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 9: điền bảng dp theo quy hoạch động</p></div><div class="slide"><img src="dsa-assets/min_path_sum_dp_step10.png" alt="Bước 10: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 10: điền bảng dp theo quy hoạch động</p></div><div class="slide"><img src="dsa-assets/min_path_sum_dp_step11.png" alt="Bước 11: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 11: điền bảng dp theo quy hoạch động</p></div><div class="slide"><img src="dsa-assets/min_path_sum_dp_step12.png" alt="Bước 12: điền bảng dp theo quy hoạch động" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 12: điền bảng dp theo quy hoạch động</p></div><div class="slider-controls"><button onclick="prevSlide('min-path-sum-steps-wrapper')">◀ Trước</button><span class="slider-indicator">Bước 1 / 12</span><button onclick="nextSlide('min-path-sum-steps-wrapper')">Sau ▶</button></div></div></div>
 
@@ -1955,7 +1955,7 @@ Note that since the array \`dp\` can only represent the state of one row, we can
 
 <p>Trạng thái $[i, c]$ tương ứng với bài toán con: <strong>giá trị lớn nhất trong số $i$ vật phẩm đầu tiên với túi có sức chứa $c$</strong>, ký hiệu là $dp[i, c]$.</p>
 
-<p>Điều ta cần tìm là $dp[n, cap]$, vì vậy ta cần một bảng $dp$ hai chiều có kích thước $(n+1) \times (cap+1)$.</p>
+<p>Điều ta cần tìm là $dp[n, cap]$, vì vậy ta cần một bảng $dp$ hai chiều có kích thước $(n+1) \\times (cap+1)$.</p>
 
 <p><strong>Bước 2: Xác định cấu trúc con tối ưu, rồi suy ra phương trình chuyển trạng thái</strong></p>
 
@@ -1968,7 +1968,7 @@ Note that since the array \`dp\` can only represent the state of one row, we can
 
 <p>Phân tích trên tiết lộ cấu trúc con tối ưu của bài toán này: <strong>giá trị lớn nhất $dp[i, c]$ bằng giá trị lớn hơn trong số giá trị thu được khi không đặt vật thứ $i$ vào túi và khi đặt nó vào túi</strong>. Từ đó, ta có thể suy ra phương trình chuyển trạng thái:</p>
 
-<p>$$dp[i, c] = \max(dp[i-1, c], dp[i-1, c - wgt[i-1]] + val[i-1])$$</p>
+<p>$$dp[i, c] = \\max(dp[i-1, c], dp[i-1, c - wgt[i-1]] + val[i-1])$$</p>
 
 <p>Lưu ý rằng nếu trọng lượng của vật phẩm hiện tại $wgt[i-1]$ vượt quá sức chứa còn lại của túi $c$, thì lựa chọn duy nhất là không đặt nó vào túi.</p>
 
@@ -2082,7 +2082,7 @@ fun knapsackDFS(
 
 <p>Để đảm bảo các bài toán con chồng chéo chỉ được tính một lần, ta dùng một danh sách ghi nhớ <code>mem</code> để ghi lại lời giải của các bài toán con, trong đó <code>mem[i][c]</code> tương ứng với $dp[i, c]$.</p>
 
-<p>Sau khi giới thiệu đệ quy có nhớ, <strong>độ phức tạp thời gian phụ thuộc vào số lượng bài toán con</strong>, tức là $O(n \times cap)$. Mã triển khai như sau:</p>
+<p>Sau khi giới thiệu đệ quy có nhớ, <strong>độ phức tạp thời gian phụ thuộc vào số lượng bài toán con</strong>, tức là $O(n \\times cap)$. Mã triển khai như sau:</p>
 
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def knapsack_dfs_mem(
     wgt: list[int], val: list[int], mem: list[list[int]], i: int, c: int
@@ -2294,7 +2294,7 @@ fun knapsackDP(wgt: IntArray, _val: IntArray, cap: Int): Int {
     return dp[n][cap]
 }</code></pre></div></div></div>
 
-<p>Như hình dưới đây, cả độ phức tạp thời gian và không gian đều được xác định bởi kích thước của mảng <code>dp</code>, tức là $O(n \times cap)$.</p>
+<p>Như hình dưới đây, cả độ phức tạp thời gian và không gian đều được xác định bởi kích thước của mảng <code>dp</code>, tức là $O(n \\times cap)$.</p>
 
 <div class="interactive-widget-wrapper" id="knapsack-dp-steps-wrapper"><div class="slider-container"><div class="slide active"><img src="dsa-assets/knapsack_dp_step1.png" alt="Bước 1: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 1: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step2.png" alt="Bước 2: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 2: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step3.png" alt="Bước 3: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 3: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step4.png" alt="Bước 4: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 4: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step5.png" alt="Bước 5: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 5: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step6.png" alt="Bước 6: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 6: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step7.png" alt="Bước 7: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 7: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step8.png" alt="Bước 8: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 8: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step9.png" alt="Bước 9: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 9: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step10.png" alt="Bước 10: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 10: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step11.png" alt="Bước 11: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 11: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step12.png" alt="Bước 12: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 12: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step13.png" alt="Bước 13: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 13: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slide"><img src="dsa-assets/knapsack_dp_step14.png" alt="Bước 14: điền bảng dp 2 chiều cho Cái túi 0-1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Bước 14: điền bảng dp 2 chiều cho Cái túi 0-1</p></div><div class="slider-controls"><button onclick="prevSlide('knapsack-dp-steps-wrapper')">◀ Trước</button><span class="slider-indicator">Bước 1 / 14</span><button onclick="nextSlide('knapsack-dp-steps-wrapper')">Sau ▶</button></div></div></div>
 
@@ -2632,7 +2632,7 @@ In the code implementation, we simply need to delete the first dimension $i$ of 
 
 <p>Do đó, phương trình chuyển trạng thái trở thành:</p>
 
-<p>$$dp[i, c] = \max(dp[i-1, c], dp[i, c - wgt[i-1]] + val[i-1])$$</p>
+<p>$$dp[i, c] = \\max(dp[i-1, c], dp[i, c - wgt[i-1]] + val[i-1])$$</p>
 
 <h3>Triển khai mã</h3>
 
@@ -2863,28 +2863,28 @@ fun unboundedKnapsackDPComp(
 
 <p>Trạng thái $[i, a]$ tương ứng với bài toán con: <strong>số lượng đồng xu ít nhất trong $i$ loại đồng xu đầu tiên có thể tạo thành số tiền $a$</strong>, ký hiệu là $dp[i, a]$.</p>
 
-<p>Bảng $dp$ hai chiều có kích thước $(n+1) \times (amt+1)$.</p>
+<p>Bảng $dp$ hai chiều có kích thước $(n+1) \\times (amt+1)$.</p>
 
 <p><strong>Bước 2: Xác định cấu trúc con tối ưu, rồi suy ra phương trình chuyển trạng thái</strong></p>
 
 <p>Bài toán này khác với bài toán cái túi không giới hạn ở hai khía cạnh sau về phương trình chuyển trạng thái.</p>
 
 <ul>
-  <li>Bài toán này tìm giá trị nhỏ nhất, vì vậy toán tử $\max()$ cần được đổi thành $\min()$.</li>
+  <li>Bài toán này tìm giá trị nhỏ nhất, vì vậy toán tử $\\max()$ cần được đổi thành $\\min()$.</li>
   <li>Mục tiêu tối ưu hóa là số lượng đồng xu chứ không phải giá trị vật phẩm, vì vậy khi một đồng xu được chọn, chỉ cần cộng thêm $1$.</li>
 </ul>
 
-<p>$$dp[i, a] = \min(dp[i-1, a], dp[i, a - coins[i-1]] + 1)$$</p>
+<p>$$dp[i, a] = \\min(dp[i-1, a], dp[i, a - coins[i-1]] + 1)$$</p>
 
 <p><strong>Bước 3: Xác định điều kiện biên và thứ tự chuyển trạng thái</strong></p>
 
 <p>Khi số tiền mục tiêu là $0$, số lượng đồng xu ít nhất cần thiết để tạo thành nó là $0$, vì vậy tất cả $dp[i, 0]$ trong cột đầu tiên bằng $0$.</p>
 
-<p>Khi không có đồng xu nào, <strong>không thể tạo thành bất kỳ số tiền $> 0$ nào</strong>, đây là lời giải không hợp lệ. Để cho phép hàm $\min()$ trong phương trình chuyển trạng thái xác định và lọc bỏ những lời giải không hợp lệ, ta cân nhắc dùng $+\infty$ để đại diện cho chúng, tức là gán tất cả $dp[0, a]$ trong hàng đầu tiên bằng $+\infty$.</p>
+<p>Khi không có đồng xu nào, <strong>không thể tạo thành bất kỳ số tiền $> 0$ nào</strong>, đây là lời giải không hợp lệ. Để cho phép hàm $\\min()$ trong phương trình chuyển trạng thái xác định và lọc bỏ những lời giải không hợp lệ, ta cân nhắc dùng $+\\infty$ để đại diện cho chúng, tức là gán tất cả $dp[0, a]$ trong hàng đầu tiên bằng $+\\infty$.</p>
 
 <h3>Triển khai mã</h3>
 
-<p>Hầu hết các ngôn ngữ lập trình không cung cấp một biến $+\infty$, và chỉ có thể dùng giá trị lớn nhất của kiểu số nguyên <code>int</code> để thay thế. Tuy nhiên, điều này có thể dẫn đến tràn số nguyên: phép toán $+1$ trong phương trình chuyển trạng thái có thể gây tràn.</p>
+<p>Hầu hết các ngôn ngữ lập trình không cung cấp một biến $+\\infty$, và chỉ có thể dùng giá trị lớn nhất của kiểu số nguyên <code>int</code> để thay thế. Tuy nhiên, điều này có thể dẫn đến tràn số nguyên: phép toán $+1$ trong phương trình chuyển trạng thái có thể gây tràn.</p>
 
 <p>Vì lý do này, ta dùng con số $amt + 1$ để đại diện cho lời giải không hợp lệ, vì số lượng đồng xu tối đa cần thiết để tạo thành $amt$ nhiều nhất là $amt$. Trước khi trả về, kiểm tra xem $dp[n, amt]$ có bằng $amt + 1$ không; nếu có, trả về $-1$, cho biết không thể tạo thành số tiền mục tiêu. Mã như sau:</p>
 
@@ -3125,7 +3125,7 @@ fun coinChangeDPComp(coins: IntArray, amt: Int): Int {
 
 <h3>Cách tiếp cận Quy hoạch động</h3>
 
-<p>So với bài toán trước, mục tiêu của bài toán này là tìm số lượng tổ hợp, vì vậy bài toán con trở thành: <strong>số lượng tổ hợp trong $i$ loại đồng xu đầu tiên có thể tạo thành số tiền $a$</strong>. Bảng $dp$ vẫn là một ma trận hai chiều có kích thước $(n+1) \times (amt+1)$.</p>
+<p>So với bài toán trước, mục tiêu của bài toán này là tìm số lượng tổ hợp, vì vậy bài toán con trở thành: <strong>số lượng tổ hợp trong $i$ loại đồng xu đầu tiên có thể tạo thành số tiền $a$</strong>. Bảng $dp$ vẫn là một ma trận hai chiều có kích thước $(n+1) \\times (amt+1)$.</p>
 
 <p>Số lượng tổ hợp cho trạng thái hiện tại bằng tổng của các tổ hợp từ việc không chọn đồng xu hiện tại và chọn đồng xu hiện tại. Phương trình chuyển trạng thái là:</p>
 
@@ -3607,7 +3607,7 @@ The space optimization is handled in the same way, just delete the coin dimensio
 
 <p>Trạng thái $[i, j]$ tương ứng với bài toán con: <strong>số lần chỉnh sửa ít nhất cần thiết để biến đổi $i$ ký tự đầu tiên của $s$ thành $j$ ký tự đầu tiên của $t$</strong>.</p>
 
-<p>Từ đó, ta thu được một bảng $dp$ hai chiều có kích thước $(i+1) \times (j+1)$.</p>
+<p>Từ đó, ta thu được một bảng $dp$ hai chiều có kích thước $(i+1) \\times (j+1)$.</p>
 
 <p><strong>Bước 2: Xác định cấu trúc con tối ưu, rồi suy ra phương trình chuyển trạng thái</strong></p>
 
@@ -3625,7 +3625,7 @@ The space optimization is handled in the same way, just delete the coin dimensio
 
 <p>Dựa trên phân tích trên, ta thu được cấu trúc con tối ưu: số lần chỉnh sửa nhỏ nhất cho $dp[i, j]$ bằng giá trị nhỏ nhất trong $dp[i, j-1]$, $dp[i-1, j]$, và $dp[i-1, j-1]$, cộng thêm chi phí chỉnh sửa hiện tại là $1$. Phương trình chuyển trạng thái tương ứng là:</p>
 
-<p>$$dp[i, j] = \min(dp[i, j-1], dp[i-1, j], dp[i-1, j-1]) + 1$$</p>
+<p>$$dp[i, j] = \\min(dp[i, j-1], dp[i-1, j], dp[i-1, j-1]) + 1$$</p>
 
 <p>Lưu ý rằng <strong>khi $s[i-1]$ và $t[j-1]$ giống nhau, không cần chỉnh sửa ký tự hiện tại</strong>, trong trường hợp đó phương trình chuyển trạng thái là:</p>
 
@@ -4083,15 +4083,15 @@ For this reason, we can use a variable \`leftup\` to temporarily store the upper
   <li>Bài toán cái túi là một trong những bài toán quy hoạch động điển hình nhất, với các biến thể như cái túi 0-1, cái túi không giới hạn, và cái túi bội số.</li>
   <li>Định nghĩa trạng thái cho cái túi 0-1 là giá trị lớn nhất đạt được khi dùng $i$ vật phẩm đầu tiên với túi có sức chứa $c$. Dựa trên hai quyết định không đặt vật phẩm vào túi và đặt nó vào, ta có thể xác định cấu trúc con tối ưu và xây dựng phương trình chuyển trạng thái. Trong tối ưu không gian, vì mỗi trạng thái phụ thuộc vào trạng thái ngay phía trên và trên-trái, danh sách cần được duyệt theo thứ tự ngược để tránh ghi đè trạng thái trên-trái.</li>
   <li>Bài toán cái túi không giới hạn không có giới hạn về số lượng chọn của mỗi loại vật phẩm, vì vậy việc chuyển trạng thái khi chọn đặt một vật phẩm vào khác với bài toán cái túi 0-1. Vì trạng thái phụ thuộc vào trạng thái ngay phía trên và ngay bên trái, tối ưu không gian nên dùng duyệt xuôi.</li>
-  <li>Bài toán đổi tiền là một biến thể của bài toán cái túi không giới hạn. Nó chuyển từ tìm giá trị "lớn nhất" sang tìm số lượng đồng xu "nhỏ nhất", vì vậy $\max()$ trong phương trình chuyển trạng thái nên được đổi thành $\min()$. Nó chuyển từ tìm lời giải "không vượt quá" sức chứa túi sang tìm lời giải "đúng bằng" số tiền mục tiêu, vì vậy $amt + 1$ được dùng để đại diện cho lời giải không hợp lệ "không thể tạo thành số tiền mục tiêu".</li>
-  <li>Bài toán đổi tiền II chuyển từ tìm "số lượng đồng xu nhỏ nhất" sang tìm "số lượng tổ hợp đồng xu", vì vậy phương trình chuyển trạng thái tương ứng chuyển từ $\min()$ sang toán tử tổng.</li>
+  <li>Bài toán đổi tiền là một biến thể của bài toán cái túi không giới hạn. Nó chuyển từ tìm giá trị "lớn nhất" sang tìm số lượng đồng xu "nhỏ nhất", vì vậy $\\max()$ trong phương trình chuyển trạng thái nên được đổi thành $\\min()$. Nó chuyển từ tìm lời giải "không vượt quá" sức chứa túi sang tìm lời giải "đúng bằng" số tiền mục tiêu, vì vậy $amt + 1$ được dùng để đại diện cho lời giải không hợp lệ "không thể tạo thành số tiền mục tiêu".</li>
+  <li>Bài toán đổi tiền II chuyển từ tìm "số lượng đồng xu nhỏ nhất" sang tìm "số lượng tổ hợp đồng xu", vì vậy phương trình chuyển trạng thái tương ứng chuyển từ $\\min()$ sang toán tử tổng.</li>
 </ul>
 
 <p><strong>Bài toán Khoảng cách chỉnh sửa</strong></p>
 
 <ul>
   <li>Khoảng cách chỉnh sửa (khoảng cách Levenshtein) được dùng để đo độ tương đồng giữa hai chuỗi, được định nghĩa là số bước chỉnh sửa ít nhất từ một chuỗi thành chuỗi khác, với các thao tác chỉnh sửa bao gồm chèn, xóa, và thay thế.</li>
-  <li>Định nghĩa trạng thái cho bài toán khoảng cách chỉnh sửa là số bước chỉnh sửa ít nhất cần thiết để biến đổi $i$ ký tự đầu tiên của $s$ thành $j$ ký tự đầu tiên của $t$. Khi $s[i] \ne t[j]$, có ba quyết định: chèn, xóa, thay thế, mỗi quyết định có bài toán con còn lại tương ứng. Từ đó, ta có thể xác định cấu trúc con tối ưu và xây dựng phương trình chuyển trạng thái. Khi $s[i] = t[j]$, không cần chỉnh sửa ký tự hiện tại.</li>
+  <li>Định nghĩa trạng thái cho bài toán khoảng cách chỉnh sửa là số bước chỉnh sửa ít nhất cần thiết để biến đổi $i$ ký tự đầu tiên của $s$ thành $j$ ký tự đầu tiên của $t$. Khi $s[i] \\ne t[j]$, có ba quyết định: chèn, xóa, thay thế, mỗi quyết định có bài toán con còn lại tương ứng. Từ đó, ta có thể xác định cấu trúc con tối ưu và xây dựng phương trình chuyển trạng thái. Khi $s[i] = t[j]$, không cần chỉnh sửa ký tự hiện tại.</li>
   <li>Trong khoảng cách chỉnh sửa, trạng thái phụ thuộc vào trạng thái ngay phía trên, ngay bên trái, và trên-trái, vì vậy sau khi tối ưu không gian, cả duyệt xuôi lẫn duyệt ngược đều không thể chuyển trạng thái đúng. Vì lý do này, ta dùng một biến để tạm thời lưu trữ trạng thái trên-trái, từ đó chuyển thành tình huống tương đương với bài toán cái túi không giới hạn, cho phép duyệt xuôi sau khi tối ưu không gian.</li>
 </ul>
 

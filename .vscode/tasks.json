@@ -18,6 +18,51 @@
       "group": "test",
       "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
       "problemMatcher": []
+    },
+    {
+      "label": "Verify Android Topics (All)",
+      "type": "shell",
+      "command": "node",
+      "args": ["tools/verify-android-topics.js"],
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Verify Android Topics (Ask for filter)",
+      "type": "shell",
+      "command": "node",
+      "args": ["tools/verify-android-topics.js", "${input:androidFilter}"],
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Verify iOS Topics (All)",
+      "type": "shell",
+      "command": "node",
+      "args": ["tools/verify-ios-topics.js"],
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Verify iOS Topics (Ask for filter)",
+      "type": "shell",
+      "command": "node",
+      "args": ["tools/verify-ios-topics.js", "${input:iosFilter}"],
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Verify iOS Nav Sync",
+      "type": "shell",
+      "command": "node",
+      "args": ["tools/verify-ios-topics.js", "--check-nav"],
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
     }
   ],
   "inputs": [
@@ -25,6 +70,18 @@
       "id": "chapterFilter",
       "type": "promptString",
       "description": "Số chương hoặc tên thư mục cần kiểm tra (vd: 4, hoặc chapter_array_and_linkedlist). Để trống = tất cả.",
+      "default": "all"
+    },
+    {
+      "id": "androidFilter",
+      "type": "promptString",
+      "description": "Từ khóa lọc Android topic (vd: lifecycle, fragment). Để trống = tất cả.",
+      "default": "all"
+    },
+    {
+      "id": "iosFilter",
+      "type": "promptString",
+      "description": "Từ khóa lọc iOS topic (vd: swift, session_01, closures). Để trống = tất cả.",
       "default": "all"
     }
   ]
