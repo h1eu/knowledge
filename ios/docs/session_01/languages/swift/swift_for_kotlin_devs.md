@@ -6,13 +6,22 @@ tags: [ios, swift, kotlin, migration, syntax, practical, android-to-ios, arc, op
 domain: iOS
 module: Languages
 topic: Swift for Kotlin Developers
+status: published
+difficulty: intermediate
+estimated_reading_time: 45 phút
 prerequisites: []
 related:
-  - closures
-  - initializers
-  - generics
-  - protocol-struct-enum-extension
-  - value-reference-type
+  - ios.languages.swift.closures
+  - ios.languages.swift.initializers
+  - ios.languages.swift.generics
+  - ios.languages.swift.protocol_struct_enum_extension
+  - ios.memory.value_reference_type
+learning_outcomes:
+  - Phân biệt được `let` deep immutability với `val` và vận dụng `mutating` đúng cho `struct`.
+  - Sử dụng `guard let`, `if let` và nil-coalescing để unwrap Optional an toàn thay vì `!`.
+  - Phân biệt Value Type (`struct` copy) vs Reference Type (`class` share) và chọn đúng cho Model.
+  - Xử lý retain cycle với `[weak self]` và kiểm chứng `deinit` trong closure bất đồng bộ.
+  - Vận dụng Argument Labels, `async/await` và `throws` theo chuẩn Apple API Design Guidelines.
 ---
 
 # Swift for Kotlin Developers: Cú pháp & Thực chiến iOS
@@ -830,6 +839,91 @@ graph TD
 - **Vị trí:** Đây là cửa ngõ - không nắm vững `struct`/`ARC`/`Optional` thì các bài sau (GCD, Memory Leaks, SwiftUI State) sẽ không hiểu sâu.
 - **Tương tác:** `struct` + `protocol` (POP) thay thế `class inheritance` trong Clean Architecture iOS; `async/await` thay thế `DispatchQueue` cũ.
 - **Mở rộng:** Sau bài này, học tiếp `Closures` để hiểu `[weak self]` sâu hơn, rồi `SwiftUI Essentials (9.1)` để áp dụng `@State`/`@ObservedObject`.
+
+---
+
+## 18. Bài tập thực hành
+
+> Mục tiêu: Tự code kiểm chứng 4 bẫy lớn nhất của Kotlin Dev khi sang Swift. Mỗi bài có `Yêu cầu` -> `Gợi ý` -> `Tiêu chí pass`. Chạy trên Xcode Playground hoặc SwiftUI project mới.
+
+### Bài 1 — `let` Deep Immutability & `mutating` (§1.1, §5)
+
+**Yêu cầu:**
+1. Tạo `struct User { var name: String }` và `let user = User(name: "Hazu")`, thử `user.name = "Bob"` — ghi lại lỗi compiler.
+2. Sửa thành `var user2` và đổi tên thành công.
+3. Viết `mutating func rename(to:)` trong `struct`, gọi từ `var` và `let` để thấy khác biệt.
+4. So sánh với `class UserClass` dùng `let instance = UserClass(...)` vẫn đổi được `instance.name`.
+
+**Gợi ý:** `let` với `struct` khóa toàn bộ value (copy), với `class` chỉ khóa reference.
+
+**Tiêu chí pass:**
+- Giải thích được vì sao `let struct` báo `Cannot assign to property` còn `let class` thì không.
+- `mutating` chỉ compile với `var`.
+
+```swift
+// Gợi ý khung
+struct User { var name: String; mutating func rename(to newName: String) { name = newName } }
+let a = User(name: "Hazu")
+// a.rename(to: "Bob") // ❌
+var b = User(name: "Hazu")
+b.rename(to: "Bob") // ✅
+```
+
+### Bài 2 — `guard let` & Optional Chaining (§6)
+
+**Yêu cầu:**
+Viết `func login(token: String?, userId: String?, age: Int?)` chỉ in `"Đăng nhập: \(userId)"` khi cả 3 non-nil, `token` non-empty và `age >= 18`. Nếu fail thì `return` sớm. Không dùng `!`, không dùng pyramid `if let`.
+
+**Gợi ý:** Dùng 1 `guard let` duy nhất kết hợp `where`/`,`:
+```swift
+guard let token = token, !token.isEmpty,
+      let userId = userId,
+      let age = age, age >= 18 else { return }
+```
+
+**Tiêu chí pass:**
+- `login(token: nil, userId: "u1", age: 20)` không crash.
+- `login(token: "", userId: "u1", age: 20)` return sớm.
+- Dùng `??` để cung cấp default khi cần.
+
+### Bài 3 — Retain Cycle & `[weak self]` (§10)
+
+**Yêu cầu:**
+1. Tạo `class ProfileViewModel { var onUpdate: ((String)->Void)?; func fetch() }` mô phỏng `ApiService.shared.getUser(completion:)` bằng `DispatchQueue.global().asyncAfter(deadline: .now()+1)`.
+2. Trong `fetch`, capture `self` mạnh (không `weak`) để tạo retain cycle: `self` -> `onUpdate` closure -> `self`.
+3. Chứng minh leak bằng `deinit { print("deinit") }` không được gọi khi `viewModel = nil`.
+4. Fix bằng `[weak self]` + `guard let self else { return }` và xác nhận `deinit` in ra.
+
+**Gợi ý:** Dùng Playground với `weak var` hoặc `ViewController` chứa `viewModel`.
+
+**Tiêu chí pass:**
+- Bản lỗi: `deinit` không in.
+- Bản fix: `deinit` in ngay sau `viewModel = nil`.
+- Giải thích được `ARC` vs Kotlin `GC`.
+
+```swift
+// Khung fix
+func fetch() {
+    ApiService.shared.getUser { [weak self] result in
+        guard let self = self else { return }
+        self.onUpdate?("done")
+    }
+}
+```
+
+### Bài 4 — Value vs Reference & `Equatable` (§7, §12)
+
+**Yêu cầu:**
+1. Tạo `struct Product: Equatable { let id: String; var price: Double }`, tạo `var p1 = Product(id:"1", price:999)`, `var p2 = p1`, đổi `p2.price = 100`, in `p1.price` — phải vẫn `999`.
+2. Lặp lại với `class ProductClass`, chứng minh `p1.price` cũng đổi thành `100`.
+3. Thêm `mutating func applyDiscount(_ percent: Double)` cho `struct` và thử `let p3 = Product(...)` gọi `applyDiscount` — ghi lại lỗi.
+4. Kiểm tra `p1 == p2` cần `: Equatable`, thử xóa conformance để thấy lỗi.
+
+**Tiêu chí pass:**
+- Giải thích bằng diagram copy vs reference `swift_for_kotlin_devs.md:442`.
+- Nêu quy tắc: Model bắt đầu bằng `struct`, chỉ đổi `class` khi cần identity chia sẻ (ViewModel/Service).
+
+> **Cách tự chấm:** Chạy từng bài trong Xcode Playground, bật Debug Memory Graph để quan sát retain cycle Bài 3. Đáp án tham khảo nằm trong chính các ví dụ §1, §6, §7, §10 của bài học.
 
 ---
 

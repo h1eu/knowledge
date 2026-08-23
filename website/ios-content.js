@@ -74,23 +74,23 @@ graph TD
     summary: 'Cẩm nang thực chiến chuyển đổi từ Kotlin sang Swift dành cho Android Developer — Nắm vững toàn bộ cú pháp nền tảng (biến, hàm, tuples, properties, initializers, optionals, struct/class, ARC, closures, generics, error handling, concurrency) theo chuẩn Apple để code SwiftUI ngay.',
     status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '35 phút',
+    estimatedReadingTime: '45 phút',
     depth: 'deep-dive',
     tags: ['ios', 'swift', 'kotlin', 'migration', 'syntax', 'android-to-ios', 'uikit', 'swiftui', 'arc', 'optionals'],
     domain: 'iOS Development',
     module: 'Session 01: Languages, Memory & Runtime',
     prerequisites: [],
-    related: ['ios-swift-closures', 'ios-swift-initializers', 'ios-swift-protocols-structs', 'ios-mrc-arc-retain'],
+    related: ['ios-swift-closures', 'ios-swift-initializers', 'ios-swift-generics', 'ios-swift-protocol-struct-enum-extension', 'ios-mrc-arc-retain'],
     learningOutcomes: [
-      'Nắm vững toàn bộ cú pháp nền tảng Swift: let/var, Type Inference, Tuples, Range, Properties, Initializers, Access Control, typealias.',
-      'Hiểu sâu sự khác biệt giữa ARC (Swift) và Garbage Collection (Kotlin/JVM) để tránh Memory Leak với [weak self].',
-      'Làm chủ hệ thống Argument Labels, inout, mutating và Optional Handling với guard let/if let/try?/try!.',
-      'Phân biệt Value Types (struct) vs Reference Types (class/data class) và khi nào dùng struct hay class.',
-      'Sử dụng thành thạo Closures, Generics, Error Handling, async/await và viết code UIKit/SwiftUI chuẩn Apple ngay sau khi học xong.'
+      'Phân biệt được let deep immutability với val và vận dụng mutating đúng cho struct.',
+      'Sử dụng guard let, if let và nil-coalescing để unwrap Optional an toàn thay vì !.',
+      'Phân biệt Value Type (struct copy) vs Reference Type (class share) và chọn đúng cho Model.',
+      'Xử lý retain cycle với [weak self] và kiểm chứng deinit trong closure bất đồng bộ.',
+      'Vận dụng Argument Labels, async/await và throws theo chuẩn Apple API Design Guidelines.'
     ],
     knowledgeGap: 'Kotlin dev thường mắc bẫy đem nguyên tư duy Reference Type (class + GC) sang Swift, dẫn đến Retain Cycles trong closures, crash khi dùng Force Unwrap (!) và quên Argument Label khi gọi hàm.',
     updatedAt: '2026-08-20',
-    readTime: '35 phút',
+    readTime: '45 phút',
     content: `
 <h2>Mental Model: Bản đồ chuyển đổi tư duy</h2>
 <p>Cả Kotlin và Swift đều là ngôn ngữ hiện đại, type-safe và null-safe. Tuy nhiên, <strong>kiến trúc thực thi bên dưới có sự khác biệt cốt tử</strong> mà nếu không nắm vững sẽ gây ra lỗi crash và rò rỉ bộ nhớ nghiêm trọng:</p>
@@ -513,7 +513,65 @@ Task { @MainActor in
   <li><strong>Lạm dụng Force Unwrap <code>!</code>:</strong> Dùng <code>guard let</code>, <code>if let</code>, hoặc <code>??</code>. Hạn chế <code>!</code> tối đa để tránh crash runtime.</li>
   <li><strong>So sánh Struct bằng <code>==</code> mà quên <code>Equatable</code>:</strong> Thêm <code>: Equatable</code> vào khai báo struct để compiler tự tổng hợp hàm so sánh.</li>
 </ol>
-`
+
+<h2>13. Bài tập thực hành</h2>
+<p style="background:var(--surface-raised);border-left:4px solid var(--accent);padding:12px 16px;margin:1rem 0;">Mục tiêu: Tự code kiểm chứng 4 bẫy lớn nhất của Kotlin Dev khi sang Swift. Mỗi bài có <strong>Yêu cầu → Gợi ý → Tiêu chí pass</strong>. Chạy trên Xcode Playground hoặc SwiftUI project mới.</p>
+
+<h3>Bài 1 — <code>let</code> Deep Immutability &amp; <code>mutating</code> (§1, §5)</h3>
+<p><strong>Yêu cầu:</strong></p>
+<ol>
+  <li>Tạo <code>struct User { var name: String }</code> và <code>let user = User(name: "Hazu")</code>, thử <code>user.name = "Bob"</code> — ghi lại lỗi compiler.</li>
+  <li>Sửa thành <code>var user2</code> và đổi tên thành công.</li>
+  <li>Viết <code>mutating func rename(to:)</code> trong <code>struct</code>, gọi từ <code>var</code> và <code>let</code> để thấy khác biệt.</li>
+  <li>So sánh với <code>class UserClass</code> dùng <code>let instance</code> vẫn đổi được <code>instance.name</code>.</li>
+</ol>
+<p><strong>Gợi ý:</strong> <code>let</code> với <code>struct</code> khóa toàn bộ value (copy), với <code>class</code> chỉ khóa reference.</p>
+<p><strong>Tiêu chí pass:</strong> Giải thích được vì sao <code>let struct</code> báo <code>Cannot assign to property</code> còn <code>let class</code> thì không. <code>mutating</code> chỉ compile với <code>var</code>.</p>
+<pre><code class="language-swift">struct User { var name: String; mutating func rename(to newName: String) { name = newName } }
+let a = User(name: "Hazu")
+// a.rename(to: "Bob") // ❌ Cannot use mutating member on immutable value
+var b = User(name: "Hazu")
+b.rename(to: "Bob") // ✅</code></pre>
+
+<h3>Bài 2 — <code>guard let</code> &amp; Optional Chaining (§6)</h3>
+<p><strong>Yêu cầu:</strong> Viết <code>func login(token: String?, userId: String?, age: Int?)</code> chỉ in <code>"Đăng nhập: \\(userId)"</code> khi cả 3 non-nil, <code>token</code> non-empty và <code>age &gt;= 18</code>. Nếu fail thì <code>return</code> sớm. Không dùng <code>!</code>, không dùng pyramid <code>if let</code>.</p>
+<p><strong>Gợi ý:</strong> Dùng 1 <code>guard let</code> duy nhất:</p>
+<pre><code class="language-swift">func login(token: String?, userId: String?, age: Int?) {
+    guard let token = token, !token.isEmpty,
+          let userId = userId,
+          let age = age, age >= 18 else { return }
+    print("Đăng nhập: \\(userId) với token \\(token)")
+}</code></pre>
+<p><strong>Tiêu chí pass:</strong> <code>login(token: nil, ...)</code> và <code>login(token: "", ...)</code> đều return sớm không crash. Dùng <code>??</code> khi cần default.</p>
+
+<h3>Bài 3 — Retain Cycle &amp; <code>[weak self]</code> (§10)</h3>
+<p><strong>Yêu cầu:</strong></p>
+<ol>
+  <li>Tạo <code>class ProfileViewModel { var onUpdate: ((String)-&gt;Void)?; func fetch() }</code> mô phỏng <code>ApiService.shared.getUser</code> bằng <code>DispatchQueue.global().asyncAfter</code>.</li>
+  <li>Trong <code>fetch</code>, capture <code>self</code> mạnh để tạo retain cycle: <code>self</code> → <code>onUpdate</code> → <code>self</code>.</li>
+  <li>Chứng minh leak: <code>deinit { print("deinit") }</code> không được gọi khi <code>viewModel = nil</code>.</li>
+  <li>Fix bằng <code>[weak self]</code> + <code>guard let self else { return }</code> và xác nhận <code>deinit</code> in ra.</li>
+</ol>
+<pre><code class="language-swift">func fetch() {
+    ApiService.shared.getUser { [weak self] result in
+        guard let self = self else { return }
+        self.onUpdate?("done")
+    }
+}
+deinit { print("ProfileViewModel deinit - không leak!") }</code></pre>
+<p><strong>Tiêu chí pass:</strong> Bản lỗi <code>deinit</code> không in, bản fix in ngay sau <code>viewModel = nil</code>. Giải thích ARC vs GC.</p>
+
+<h3>Bài 4 — Value vs Reference &amp; <code>Equatable</code> (§7, §12)</h3>
+<p><strong>Yêu cầu:</strong></p>
+<ol>
+  <li>Tạo <code>struct Product: Equatable { let id: String; var price: Double }</code>, <code>var p1 = Product(id:"1", price:999)</code>, <code>var p2 = p1</code>, đổi <code>p2.price = 100</code> → <code>p1.price</code> vẫn <code>999</code>.</li>
+  <li>Lặp lại với <code>class ProductClass</code> → <code>p1.price</code> cũng đổi thành <code>100</code>.</li>
+  <li>Thêm <code>mutating func applyDiscount</code> và thử <code>let p3</code> gọi nó — ghi lỗi.</li>
+  <li>Xóa <code>: Equatable</code> để thấy lỗi <code>p1 == p2</code>.</li>
+</ol>
+<p><strong>Tiêu chí pass:</strong> Giải thích bằng diagram copy vs reference. Nêu quy tắc: Model bắt đầu bằng <code>struct</code>, chỉ đổi <code>class</code> khi cần identity chia sẻ.</p>
+<p style="color:var(--text-muted);font-size:13px;margin-top:1rem;"><em>Cách tự chấm:</em> Chạy từng bài trong Xcode Playground, bật Debug Memory Graph để quan sát retain cycle Bài 3. Đáp án tham khảo nằm trong chính ví dụ §1, §6, §7, §10 của bài học.</p>
+`,
   },
 
   'ios-mrc-arc-retain': {
