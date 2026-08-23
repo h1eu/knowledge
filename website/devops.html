@@ -6,9 +6,8 @@
   <title>DevOps Knowledge OS — Hệ điều hành tri thức DevOps</title>
   <meta name="description" content="Chuyên mục DevOps: Docker, Kubernetes, CI/CD & Infrastructure." />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="preload" href="fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="style.css" />
   <!-- D3.js for Interactive Knowledge Graph -->
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
@@ -21,7 +20,23 @@
       if (savedTheme && savedTheme !== 'dark') document.documentElement.classList.add('theme-' + savedTheme);
       var isLight = savedTheme === 'light' || savedTheme === 'editorial' || savedTheme === 'matcha';
       if (window.mermaid) {
-        mermaid.initialize({ startOnLoad: false, theme: isLight ? 'neutral' : 'dark', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 13, flowchart: { htmlLabels: true, curve: 'basis' } });
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: 'base',
+          fontFamily: 'Plus Jakarta Sans, sans-serif',
+          fontSize: 13,
+          themeVariables: {
+            darkMode: !isLight,
+            fontFamily: 'Plus Jakarta Sans, sans-serif',
+            fontSize: '13px',
+            primaryColor: isLight ? '#f8fafc' : '#0f172a',
+            primaryTextColor: isLight ? '#0f172a' : '#f8fafc',
+            primaryBorderColor: isLight ? 'rgba(15, 23, 42, 0.16)' : 'rgba(255, 255, 255, 0.16)',
+            lineColor: isLight ? '#64748b' : '#94a3b8',
+            mainBkg: isLight ? '#ffffff' : '#0f172a'
+          },
+          flowchart: { htmlLabels: true, curve: 'bumpX', nodeSpacing: 45, rankSpacing: 55, padding: 16 }
+        });
       }
     })();
   </script>
@@ -104,6 +119,7 @@
   <aside class="toc" id="toc"></aside>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
 <script src="app.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {

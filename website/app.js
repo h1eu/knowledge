@@ -118,6 +118,48 @@ const DOMAIN_ICONS = {
       <line x1="9" y1="19" x2="15" y2="19" stroke="url(#grad-ios)" stroke-width="2" />
     </svg>
   `,
+  flutter: `
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <defs>
+        <linearGradient id="grad-flutter" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#54C5F8" />
+          <stop offset="100%" stop-color="#02569B" />
+        </linearGradient>
+      </defs>
+      <path d="M13.9 2.6L5 11.5l2.8 2.8L19.5 2.6h-5.6z" stroke="url(#grad-flutter)" />
+      <path d="M13.9 11.2l-4.4 4.4 2.8 2.8 4.4-4.4-2.8-2.8z" stroke="url(#grad-flutter)" />
+      <path d="M12.3 18.4l2.8 2.8h4.4l-5.8-5.8-2.8 2.8z" stroke="url(#grad-flutter)" />
+    </svg>
+  `,
+  leetcode: `
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <defs>
+        <linearGradient id="grad-lc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFA116" />
+          <stop offset="100%" stop-color="#FF6B00" />
+        </linearGradient>
+      </defs>
+      <rect x="3" y="4" width="18" height="16" rx="2.5" stroke="url(#grad-lc)" />
+      <path d="M7 8h10M7 12h10M7 16h6" stroke="url(#grad-lc)" stroke-width="1.6" />
+      <circle cx="18.5" cy="16" r="1.8" fill="#FFA116" />
+    </svg>
+  `,
+  git: `
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <defs>
+        <linearGradient id="grad-git" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#F97316" />
+          <stop offset="100%" stop-color="#E11D48" />
+        </linearGradient>
+      </defs>
+      <!-- Git branch graph -->
+      <circle cx="6" cy="5" r="2.5" stroke="url(#grad-git)" />
+      <circle cx="6" cy="19" r="2.5" stroke="url(#grad-git)" />
+      <circle cx="18" cy="9" r="2.5" stroke="url(#grad-git)" />
+      <path d="M6 7.5v9" stroke="url(#grad-git)" />
+      <path d="M15.7 10.3c-1.6 1.8-4.2 2.7-7.2 3.1" stroke="url(#grad-git)" />
+    </svg>
+  `,
 };
 
 const KNOWLEDGE_DATA = {
@@ -567,6 +609,228 @@ const KNOWLEDGE_DATA = {
       ]
     },
     {
+      id: 'flutter',
+      name: 'Flutter Development',
+      icon: 'flutter',
+      color: 'sky',
+      description: 'Lộ trình và kiến thức chuyên sâu Flutter: Dart, Widgets, State Management Riverpod/BLoC, Networking, Firebase, Navigation & Architecture, Testing & CI/CD Deployment.',
+      modules: [
+        {
+          id: 'flutter-session-01',
+          name: 'Session 01: Dart Foundations',
+          topics: [
+            { id: 'flutter-session-01-overview', title: 'Session 01 Overview', status: 'published', tags: ['flutter', 'overview'] },
+            { id: 'flutter-dart-for-kotlin-devs', title: '1.1.1 Dart for Kotlin Developers', status: 'published', tags: ['flutter', 'dart', 'kotlin', 'migration'] },
+            { id: 'flutter-dart-variables-types', title: '1.2.1 Variables and Types', status: 'published', tags: ['dart', 'types'] },
+            { id: 'flutter-dart-functions-operators', title: '1.2.2 Functions and Operators', status: 'published', tags: ['dart', 'functions'] },
+            { id: 'flutter-dart-control-flow-patterns', title: '1.2.3 Control Flow and Patterns', status: 'published', tags: ['dart', 'patterns'] },
+            { id: 'flutter-dart-collections-functional', title: '1.2.4 Collections and Functional APIs', status: 'published', tags: ['dart', 'collections'] },
+            { id: 'flutter-dart-classes-mixins-sealed', title: '1.2.5 Classes, Mixins and Sealed Types', status: 'published', tags: ['dart', 'oop', 'sealed'] },
+            { id: 'flutter-language-async-futures', title: '1.3.1 Futures and Async/Await', status: 'published', tags: ['dart', 'async'] },
+            { id: 'flutter-language-async-streams', title: '1.3.2 Streams', status: 'published', tags: ['dart', 'stream'] },
+            { id: 'flutter-language-async-isolates', title: '1.3.3 Isolates', status: 'published', tags: ['dart', 'isolate'] }
+          ],
+          sections: [
+            { id: 'fs01-kotlin', name: '1.1 Dart cho Kotlin Developer', topics: ['flutter-dart-for-kotlin-devs'] },
+            { id: 'fs01-fundamentals', name: '1.2 Dart Fundamentals', topics: ['flutter-dart-variables-types', 'flutter-dart-functions-operators', 'flutter-dart-control-flow-patterns', 'flutter-dart-collections-functional', 'flutter-dart-classes-mixins-sealed'] },
+            { id: 'fs01-async', name: '1.3 Asynchronous Dart', topics: ['flutter-language-async-futures', 'flutter-language-async-streams', 'flutter-language-async-isolates'] }
+          ]
+        },
+        {
+          id: 'flutter-session-02',
+          name: 'Session 02: Environment & Tooling',
+          topics: [
+            { id: 'flutter-session-02-overview', title: 'Session 02 Overview', status: 'draft', tags: ['flutter', 'overview'] },
+            { id: 'flutter-cli-fvm', title: '2.1.1 Flutter CLI and FVM', status: 'draft', tags: ['flutter', 'tooling'] },
+            { id: 'flutter-ides-setup', title: '2.1.2 IDEs and Editor Setup', status: 'draft', tags: ['flutter', 'tooling'] },
+            { id: 'flutter-pub-package-management', title: '2.2.1 pub.dev and Package Management', status: 'draft', tags: ['flutter', 'pub'] },
+            { id: 'flutter-devtools-debugging', title: '2.2.2 DevTools and Debugging', status: 'draft', tags: ['flutter', 'devtools'] }
+          ]
+        },
+        {
+          id: 'flutter-session-03',
+          name: 'Session 03: Widgets & UI Foundations',
+          topics: [
+            { id: 'flutter-session-03-overview', title: 'Session 03 Overview', status: 'draft', tags: ['flutter', 'overview'] },
+            { id: 'flutter-widgets-stateless-stateful', title: '3.1.1 Stateless and Stateful Widgets', status: 'draft', tags: ['flutter', 'widgets'] },
+            { id: 'flutter-inherited-widget', title: '3.1.2 InheritedWidget', status: 'draft', tags: ['flutter', 'widgets'] },
+            { id: 'flutter-responsive-adaptive-layout', title: '3.1.3 Responsive and Adaptive Layout', status: 'draft', tags: ['flutter', 'layout'] },
+            { id: 'flutter-material-cupertino-styling', title: '3.2.1 Material 3 and Cupertino Styling', status: 'draft', tags: ['flutter', 'styling'] },
+            { id: 'flutter-assets-fonts-images', title: '3.2.2 Assets, Fonts and Images', status: 'draft', tags: ['flutter', 'assets'] },
+            { id: 'flutter-localization-i18n', title: '3.2.3 Localization and Internationalization', status: 'draft', tags: ['flutter', 'i18n'] }
+          ]
+        },
+        {
+          id: 'flutter-session-04',
+          name: 'Session 04: State Management & Reactive Programming',
+          topics: [
+            { id: 'flutter-session-04-overview', title: 'Session 04 Overview', status: 'draft', tags: ['flutter', 'overview'] },
+            { id: 'flutter-changenotifier-valuenotifier', title: '4.1.1 ChangeNotifier and ValueNotifier', status: 'draft', tags: ['flutter', 'state'] },
+            { id: 'flutter-provider', title: '4.2.1 Provider', status: 'draft', tags: ['flutter', 'state', 'provider'] },
+            { id: 'flutter-riverpod', title: '4.2.2 Riverpod', status: 'draft', tags: ['flutter', 'state', 'riverpod'] },
+            { id: 'flutter-bloc-cubit', title: '4.2.3 BLoC and Cubit', status: 'draft', tags: ['flutter', 'state', 'bloc'] },
+            { id: 'flutter-state-alternatives', title: '4.2.4 Alternatives: GetX, Redux, MobX', status: 'draft', tags: ['flutter', 'state'] }
+          ]
+        },
+        {
+          id: 'flutter-session-05',
+          name: 'Session 05: Networking & APIs',
+          topics: [
+            { id: 'flutter-session-05-overview', title: 'Session 05 Overview', status: 'draft', tags: ['flutter', 'overview'] },
+            { id: 'flutter-http-rest-dio', title: '5.1.1 REST APIs with http and Dio', status: 'draft', tags: ['flutter', 'networking'] },
+            { id: 'flutter-json-serialization-codegen', title: '5.1.2 JSON Serialization and Codegen', status: 'draft', tags: ['flutter', 'json', 'codegen'] },
+            { id: 'flutter-authentication-tokens', title: '5.1.3 Authentication and Token Handling', status: 'draft', tags: ['flutter', 'auth'] },
+            { id: 'flutter-websockets-graphql', title: '5.1.4 WebSockets and GraphQL', status: 'draft', tags: ['flutter', 'networking'] }
+          ]
+        },
+        {
+          id: 'flutter-session-06',
+          name: 'Session 06: Storage & Persistence',
+          topics: [
+            { id: 'flutter-session-06-overview', title: 'Session 06 Overview', status: 'draft', tags: ['flutter', 'overview'] },
+            { id: 'flutter-preferences-secure-storage', title: '6.1.1 SharedPreferences and Secure Storage', status: 'draft', tags: ['flutter', 'storage'] },
+            { id: 'flutter-sqlite-drift-hive', title: '6.1.2 SQLite, Drift and Hive', status: 'draft', tags: ['flutter', 'storage', 'database'] },
+            { id: 'flutter-files-path-provider', title: '6.1.3 File System and Path Provider', status: 'draft', tags: ['flutter', 'storage'] }
+          ]
+        },
+        {
+          id: 'flutter-session-07',
+          name: 'Session 07: Firebase & Cloud Services',
+          topics: [
+            { id: 'flutter-session-07-overview', title: 'Session 07 Overview', status: 'draft', tags: ['flutter', 'overview'] },
+            { id: 'flutter-firebase-auth-setup', title: '7.1.1 Firebase Setup and Authentication', status: 'draft', tags: ['flutter', 'firebase'] },
+            { id: 'flutter-firestore', title: '7.1.2 Firestore', status: 'draft', tags: ['flutter', 'firebase'] },
+            { id: 'flutter-functions-remote-config', title: '7.1.3 Cloud Functions and Remote Config', status: 'draft', tags: ['flutter', 'firebase'] },
+            { id: 'flutter-push-notifications-fcm', title: '7.1.4 Push Notifications (FCM)', status: 'draft', tags: ['flutter', 'firebase', 'fcm'] },
+            { id: 'flutter-crashlytics-analytics', title: '7.1.5 Crashlytics and Analytics', status: 'draft', tags: ['flutter', 'firebase'] }
+          ]
+        },
+        {
+          id: 'flutter-session-08',
+          name: 'Session 08: Navigation & Architecture',
+          topics: [
+            { id: 'flutter-session-08-overview', title: 'Session 08 Overview', status: 'draft', tags: ['flutter', 'overview'] },
+            { id: 'flutter-go-router-navigator2', title: '8.1.1 GoRouter and Navigator 2.0', status: 'draft', tags: ['flutter', 'navigation'] },
+            { id: 'flutter-app-architecture-layers', title: '8.2.1 App Architecture and Layers', status: 'draft', tags: ['flutter', 'architecture'] },
+            { id: 'flutter-dependency-injection', title: '8.2.2 Dependency Injection', status: 'draft', tags: ['flutter', 'architecture'] },
+            { id: 'flutter-design-patterns-flutter', title: '8.2.3 Design Patterns in Flutter', status: 'draft', tags: ['flutter', 'patterns'] }
+          ]
+        },
+        {
+          id: 'flutter-session-09',
+          name: 'Session 09: Animations',
+          topics: [
+            { id: 'flutter-session-09-overview', title: 'Session 09 Overview', status: 'draft', tags: ['flutter', 'overview'] },
+            { id: 'flutter-controller-curves-ticker', title: '9.1.1 Animation Controller, Curves and Ticker', status: 'draft', tags: ['flutter', 'animation'] },
+            { id: 'flutter-animated-widgets', title: '9.1.2 Implicit and Explicit Animated Widgets', status: 'draft', tags: ['flutter', 'animation'] },
+            { id: 'flutter-hero-custom-transitions', title: '9.1.3 Hero and Custom Transitions', status: 'draft', tags: ['flutter', 'animation'] }
+          ]
+        },
+        {
+          id: 'flutter-session-10',
+          name: 'Session 10: Flutter Internals & Performance',
+          topics: [
+            { id: 'flutter-session-10-overview', title: 'Session 10 Overview', status: 'draft', tags: ['flutter', 'overview'] },
+            { id: 'flutter-three-trees-rendering', title: '10.1.1 Three Trees: Widget, Element, RenderObject', status: 'draft', tags: ['flutter', 'internals'] },
+            { id: 'flutter-render-pipeline', title: '10.1.2 Build, Layout and Paint Pipeline', status: 'draft', tags: ['flutter', 'internals'] },
+            { id: 'flutter-memory-profiling', title: '10.2.1 Memory Management and Profiling', status: 'draft', tags: ['flutter', 'performance'] },
+            { id: 'flutter-build-optimization-const', title: '10.2.2 Build Cost Optimization and Const', status: 'draft', tags: ['flutter', 'performance'] }
+          ]
+        },
+        {
+          id: 'flutter-session-11',
+          name: 'Session 11: Testing & Quality',
+          topics: [
+            { id: 'flutter-session-11-overview', title: 'Session 11 Overview', status: 'draft', tags: ['flutter', 'overview'] },
+            { id: 'flutter-unit-testing-mocking', title: '11.1.1 Unit Testing and Mocking', status: 'draft', tags: ['flutter', 'testing'] },
+            { id: 'flutter-widget-golden-testing', title: '11.1.2 Widget Testing and Golden Tests', status: 'draft', tags: ['flutter', 'testing'] },
+            { id: 'flutter-integration-tdd', title: '11.1.3 Integration Testing and TDD Workflow', status: 'draft', tags: ['flutter', 'testing'] },
+            { id: 'flutter-lints-analysis-style', title: '11.2.1 Lints, Analysis and Code Style', status: 'draft', tags: ['flutter', 'quality'] }
+          ]
+        },
+        {
+          id: 'flutter-session-12',
+          name: 'Session 12: CI/CD & Deployment',
+          topics: [
+            { id: 'flutter-session-12-overview', title: 'Session 12 Overview', status: 'draft', tags: ['flutter', 'overview'] },
+            { id: 'flutter-flavors-environments', title: '12.1.1 Flavors and Environments', status: 'draft', tags: ['flutter', 'release'] },
+            { id: 'flutter-signing-versioning', title: '12.1.2 Signing and Versioning', status: 'draft', tags: ['flutter', 'release'] },
+            { id: 'flutter-cicd-codemagic-fastlane', title: '12.1.3 CI/CD: Codemagic, GitHub Actions, Fastlane', status: 'draft', tags: ['flutter', 'cicd'] },
+            { id: 'flutter-playstore-deployment', title: '12.2.1 Play Store Deployment', status: 'draft', tags: ['flutter', 'deployment'] },
+            { id: 'flutter-appstore-deployment', title: '12.2.2 App Store Deployment', status: 'draft', tags: ['flutter', 'deployment'] }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'git-beginner',
+      name: 'Git & GitHub Beginner',
+      icon: 'git',
+      color: 'orange',
+      description: 'Lộ trình Git & GitHub dành cho người mới theo roadmap.sh: Version Control Foundations, Basic Git Commands, Collaboration với GitHub, More Git và More GitHub.',
+      modules: [
+        {
+          id: 'git-mod-basics',
+          name: 'Module 01: Version Control Foundations',
+          topics: [
+            { id: 'git-what-is-vcs', title: '1.1 Version Control System là gì?', status: 'published', tags: ['git', 'vcs'] },
+            { id: 'git-what-is-git', title: '1.2 Git là gì & vì sao nên dùng?', status: 'published', tags: ['git', 'dvcs'] },
+            { id: 'git-install-git', title: '1.3 Cài đặt Git', status: 'published', tags: ['git', 'install'] },
+            { id: 'git-github-account', title: '1.4 Tạo tài khoản GitHub', status: 'published', tags: ['github', 'ssh'] }
+          ]
+        },
+        {
+          id: 'git-mod-basic-usage',
+          name: 'Module 02: Basic Git Usage',
+          topics: [
+            { id: 'git-init', title: '2.1 git init — Khởi tạo Repository', status: 'published', tags: ['git', 'init'] },
+            { id: 'git-add', title: '2.2 git add — Đưa thay đổi vào Staging', status: 'published', tags: ['git', 'add', 'staging'] },
+            { id: 'git-commit', title: '2.3 git commit — Ghi snapshot vào lịch sử', status: 'published', tags: ['git', 'commit'] },
+            { id: 'git-reset-unstage', title: '2.4 git reset — Rút thay đổi khỏi Staging', status: 'published', tags: ['git', 'reset'] },
+            { id: 'git-gitignore', title: '2.5 .gitignore — Loại trừ file khỏi Git', status: 'published', tags: ['git', 'gitignore'] },
+            { id: 'git-branches-merge', title: '2.6 Branch — Tạo và Merge nhánh', status: 'published', tags: ['git', 'branch', 'merge'] }
+          ]
+        },
+        {
+          id: 'git-mod-collaboration',
+          name: 'Module 03: Collaboration với GitHub',
+          topics: [
+            { id: 'git-create-repository', title: '3.1 Tạo Repository trên GitHub', status: 'published', tags: ['github', 'repository'] },
+            { id: 'git-remote-push', title: '3.2 Remote & Push — Kết nối local với GitHub', status: 'published', tags: ['git', 'remote', 'push'] },
+            { id: 'git-fork-clone', title: '3.3 Fork vs Clone', status: 'published', tags: ['git', 'fork', 'clone'] },
+            { id: 'git-pull-request', title: '3.4 Pull Request — Đề xuất hợp nhất code', status: 'published', tags: ['github', 'pull-request'] },
+            { id: 'git-pull-fetch', title: '3.5 Pull & Fetch — Lấy code mới về máy', status: 'published', tags: ['git', 'pull', 'fetch'] },
+            { id: 'git-merge-conflicts', title: '3.6 Merge Conflicts — Xử lý xung đột', status: 'published', tags: ['git', 'merge', 'conflict'] },
+            { id: 'git-oss-licenses', title: '3.7 Giấy phép nguồn mở phổ biến', status: 'published', tags: ['license', 'open-source'] },
+            { id: 'git-security-secrets', title: '3.8 Lộ secret — Xử lý khẩn cấp & phòng ngừa', status: 'published', tags: ['security', 'secrets'] }
+          ]
+        },
+        {
+          id: 'git-mod-more-git',
+          name: 'Module 04: More Git',
+          topics: [
+            { id: 'git-revert-hard-reset', title: '4.1 Revert & Hard Reset — Sửa sai an toàn', status: 'published', tags: ['git', 'revert', 'reset'] },
+            { id: 'git-rebase-merge-squash', title: '4.2 Rebase vs Merge vs Squash', status: 'published', tags: ['git', 'rebase', 'squash'] },
+            { id: 'git-stash', title: '4.3 git stash — Cất tạm thay đổi', status: 'published', tags: ['git', 'stash'] },
+            { id: 'git-cherry-pick', title: '4.4 git cherry-pick — Chọn một commit riêng', status: 'published', tags: ['git', 'cherry-pick'] },
+            { id: 'git-flow', title: '4.5 Git Flow — Chiến lược phân nhánh cho team', status: 'published', tags: ['git', 'workflow', 'branching'] },
+            { id: 'git-rescue-reflog', title: '4.6 Cứu hộ — Tìm lại commit đã mất (reflog)', status: 'published', tags: ['git', 'reflog', 'recovery'] },
+            { id: 'git-repo-performance', title: '4.7 Repository phình to — Nguyên nhân & xử lý', status: 'published', tags: ['git', 'performance', 'lfs'] }
+          ]
+        },
+        {
+          id: 'git-mod-more-github',
+          name: 'Module 05: More GitHub',
+          topics: [
+            { id: 'git-actions', title: '5.1 GitHub Actions — Tự động hóa CI/CD', status: 'published', tags: ['github', 'actions', 'ci'] },
+            { id: 'git-cli', title: '5.2 GitHub CLI — Thao tác GitHub từ terminal', status: 'published', tags: ['github', 'cli'] },
+            { id: 'git-markdown', title: '5.3 Markdown — Ngôn ngữ viết của GitHub', status: 'published', tags: ['markdown', 'documentation'] },
+            { id: 'git-git-hooks', title: '5.4 Git Hooks — Tự động kiểm tra trước khi push', status: 'published', tags: ['git', 'hooks', 'automation'] }
+          ]
+        }
+      ]
+    },
+    {
       id: 'devops',
       name: 'DevOps',
       icon: 'devops',
@@ -850,6 +1114,316 @@ const KNOWLEDGE_DATA = {
   ]
 };
 
+// ── LeetCode 500 — dynamic domain injection (5 Level / 17 Module) ──
+(function injectLeetCodeDomain() {
+  if (typeof LEETCODE_CONTENT === 'undefined') return;
+  if (KNOWLEDGE_DATA.domains.some(d => d.id === 'leetcode')) return;
+  const LEVEL_META = {
+    1: { name: 'Level 1 — Foundation', desc: 'Array & Hashing, Two Pointers, Sliding Window, Stack, Binary Search', count: 0 },
+    2: { name: 'Level 2 — Linear Structures', desc: 'Linked List, Intervals, Matrix & Sorting', count: 0 },
+    3: { name: 'Level 3 — Hierarchical', desc: 'Trees, Heap, Trie, Segment Tree', count: 0 },
+    4: { name: 'Level 4 — Graph & Search', desc: 'Graph, Backtracking, Advanced Graph', count: 0 },
+    5: { name: 'Level 5 — DP & Math', desc: '1D/2D DP, Greedy, Bit, Math & Hard Mix', count: 0 }
+  };
+  // Build level -> pattern -> topics
+  const levelMap = {};
+  Object.keys(LEETCODE_CONTENT).forEach(tid => {
+    const c = LEETCODE_CONTENT[tid];
+    const lv = c.level;
+    if (!levelMap[lv]) levelMap[lv] = {};
+    if (!levelMap[lv][c.pattern]) levelMap[lv][c.pattern] = [];
+    levelMap[lv][c.pattern].push({
+      id: tid,
+      title: c.title,
+      status: 'published',
+      tags: c.tags,
+      difficulty: c.difficulty,
+      leetcodeId: c.leetcodeId,
+      pattern: c.pattern,
+      level: c.level
+    });
+  });
+  const orderedModules = [];
+  Object.keys(LEVEL_META).sort((a,b)=>a-b).forEach(lvStr => {
+    const lv = parseInt(lvStr,10);
+    const patterns = levelMap[lv] || {};
+    const allTopics = [];
+    const sections = [];
+    Object.keys(patterns).sort().forEach(pattern => {
+      const tlist = patterns[pattern].sort((a,b)=> a.leetcodeId - b.leetcodeId);
+      allTopics.push(...tlist);
+      sections.push({
+        id: 'lc-lv'+lv+'-'+pattern.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),
+        name: pattern + ' (' + tlist.length + ')',
+        topics: tlist.map(t=>t.id)
+      });
+    });
+    LEVEL_META[lv].count = allTopics.length;
+    orderedModules.push({
+      id: 'lc-level-'+lv,
+      name: LEVEL_META[lv].name + ' • ' + allTopics.length + ' bài',
+      description: LEVEL_META[lv].desc,
+      level: lv,
+      topics: allTopics,
+      sections: sections
+    });
+  });
+  const lcTotal = orderedModules.reduce((s,m)=>s+m.topics.length,0);
+  const catTotal = (typeof LEETCODE_PROBLEMS_META !== 'undefined' && LEETCODE_PROBLEMS_META && LEETCODE_PROBLEMS_META.totalFree) || lcTotal;
+  KNOWLEDGE_DATA.domains.push({
+    id: 'leetcode',
+    name: `LeetCode Grind • ${catTotal} Free`,
+    icon: 'leetcode',
+    color: 'amber',
+    description: `${lcTotal} bài học đầy đủ (5 ngôn ngữ C++/Java/Kotlin/Swift/Dart) trong 5 Level / 17 Pattern • Catalog ${catTotal} bài free LeetCode với tag chính thức — duyệt theo Pattern, Tag, Độ khó hoặc kết hợp.`,
+    modules: orderedModules
+  });
+})();
+
+// ── LeetCode Catalog — toàn bộ bài free (metadata từ problems.json) ──
+const LC_CATALOG = {
+  enabled: false,
+  problems: [],
+  tagsMeta: [],
+  byDifficulty: { Easy: 0, Medium: 0, Hard: 0 },
+  totalFree: 0,
+  lessonByProblemId: {}
+};
+(function initLcCatalog() {
+  if (typeof LEETCODE_PROBLEMS_META === 'undefined' || !LEETCODE_PROBLEMS_META || !Array.isArray(LEETCODE_PROBLEMS_META.problems)) return;
+  LC_CATALOG.enabled = true;
+  LC_CATALOG.problems = LEETCODE_PROBLEMS_META.problems;
+  LC_CATALOG.tagsMeta = (typeof LEETCODE_TAGS_META !== 'undefined') ? LEETCODE_TAGS_META : [];
+  LC_CATALOG.byDifficulty = LEETCODE_PROBLEMS_META.byDifficulty || LC_CATALOG.byDifficulty;
+  LC_CATALOG.totalFree = LEETCODE_PROBLEMS_META.totalFree || LC_CATALOG.problems.length;
+  Object.keys(LEETCODE_CONTENT).forEach(tid => {
+    const c = LEETCODE_CONTENT[tid];
+    if (c.leetcodeId && !LC_CATALOG.lessonByProblemId[c.leetcodeId]) LC_CATALOG.lessonByProblemId[c.leetcodeId] = tid;
+  });
+})();
+
+// Trạng thái duyệt catalog
+let lcBrowseMode = 'pattern';   // 'pattern' | 'tag' | 'difficulty' | 'combo'
+let lcCatalogTag = null;        // slug tag đang chọn
+let lcCatalogDiff = null;       // 'Easy' | 'Medium' | 'Hard' | null
+let lcCatalogLimit = 100;       // số dòng bảng hiển thị mỗi lần
+let lcSidebarGroup = 'pattern'; // 'pattern' | 'difficulty' | 'tag'
+
+function ensureLcCatalogProgress() {
+  if (!progressState.lcCatalog) progressState.lcCatalog = {};
+}
+function isLcCatalogDone(problemId) {
+  ensureLcCatalogProgress();
+  return !!progressState.lcCatalog[problemId];
+}
+function toggleLcCatalogDone(problemId) {
+  ensureLcCatalogProgress();
+  if (progressState.lcCatalog[problemId]) delete progressState.lcCatalog[problemId];
+  else progressState.lcCatalog[problemId] = new Date().toISOString();
+  saveProgress();
+  refreshLcCatalogView();
+}
+window.toggleLcCatalogDone = toggleLcCatalogDone;
+
+function setLcBrowseMode(mode) {
+  lcBrowseMode = mode;
+  lcCatalogLimit = 100;
+  if (currentDomainId === 'leetcode') showDomain('leetcode');
+}
+window.setLcBrowseMode = setLcBrowseMode;
+
+function setLcCatalogTag(slug) {
+  lcCatalogTag = (lcCatalogTag === slug) ? null : slug;
+  lcCatalogLimit = 100;
+  if (currentDomainId === 'leetcode') { showDomain('leetcode'); scrollLcCatalogIntoView(); }
+}
+window.setLcCatalogTag = setLcCatalogTag;
+
+function setLcCatalogDiff(diff) {
+  lcCatalogDiff = (lcCatalogDiff === diff) ? null : diff;
+  lcCatalogLimit = 100;
+  if (currentDomainId === 'leetcode') { showDomain('leetcode'); scrollLcCatalogIntoView(); }
+}
+window.setLcCatalogDiff = setLcCatalogDiff;
+
+function applyLcCombo() {
+  const tagSel = document.getElementById('lc-combo-tag');
+  const diffSel = document.getElementById('lc-combo-diff');
+  lcCatalogTag = tagSel && tagSel.value ? tagSel.value : null;
+  lcCatalogDiff = diffSel && diffSel.value ? diffSel.value : null;
+  lcCatalogLimit = 100;
+  refreshLcCatalogView();
+  scrollLcCatalogIntoView();
+}
+window.applyLcCombo = applyLcCombo;
+
+function moreLcCatalog() {
+  lcCatalogLimit += 200;
+  refreshLcCatalogView();
+}
+window.moreLcCatalog = moreLcCatalog;
+
+function refreshLcCatalogView() {
+  const container = document.getElementById('lc-catalog-view');
+  if (container) container.innerHTML = renderLcCatalogView();
+}
+
+function scrollLcCatalogIntoView() {
+  setTimeout(() => {
+    document.getElementById('lc-catalog-view')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 80);
+}
+
+function openLcExternal(problem) {
+  window.open('https://leetcode.com/problems/' + problem.slug + '/', '_blank');
+}
+window.openLcExternal = openLcExternal;
+
+function openLcExternalById(problemId) {
+  const problem = LC_CATALOG.problems.find(x => x.id === problemId);
+  if (problem) openLcExternal(problem);
+}
+window.openLcExternalById = openLcExternalById;
+
+function filterLcProblems() {
+  let list = LC_CATALOG.problems;
+  if (lcCatalogTag) list = list.filter(p => p.topicTags.includes(lcCatalogTag));
+  if (lcCatalogDiff) list = list.filter(p => p.difficulty === lcCatalogDiff);
+  return list;
+}
+
+function renderLcProblemRow(p, idx) {
+  const lessonTid = LC_CATALOG.lessonByProblemId[p.id] || null;
+  const done = lessonTid ? getLcDoneCount(lessonTid) : (isLcCatalogDone(p.id) ? 5 : 0);
+  const full = lessonTid ? isLcFullyDone(lessonTid) : isLcCatalogDone(p.id);
+  const titleClean = escapeHtml(p.title.replace(/^\d+\.\s*/, ''));
+  const tagChips = p.topicTags.slice(0, 3).map(t =>
+    `<span class="lc-cat-tag" onclick="event.stopPropagation(); setLcCatalogTag('${t}')" title="${t}">${t}</span>`
+  ).join('');
+  const action = lessonTid
+    ? `<span class="lc-cat-action lc-cat-action-lesson">Học ›</span>`
+    : `<span class="lc-cat-action" onclick="event.stopPropagation(); openLcExternal(LC_CATALOG.problems.find(x=>x.id===${p.id}))" title="Mở bài gốc trên LeetCode">LeetCode ↗</span>`;
+  return `<div class="lc-cat-row ${full ? 'is-done' : ''}" onclick="${lessonTid ? `openTopic('${lessonTid}')` : `openLcExternal(LC_CATALOG.problems.find(x=>x.id===${p.id}))`}">
+    <button class="lc-premium-check ${full ? 'checked' : ''}" onclick="event.stopPropagation(); ${lessonTid ? `toggleLcAll('${lessonTid}')` : `toggleLcCatalogDone(${p.id})`}" aria-label="toggle done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>
+    <span class="lc-cat-id">#${p.id}</span>
+    <span class="lc-cat-title" title="${titleClean}">${titleClean}</span>
+    <span class="lc-cat-tags">${tagChips}${p.topicTags.length > 3 ? `<span class="lc-cat-tag-more">+${p.topicTags.length - 3}</span>` : ''}</span>
+    <span class="lc-premium-pill lc-premium-${p.difficulty.toLowerCase()}">${p.difficulty}</span>
+    ${action}
+  </div>`;
+}
+
+function renderLcProblemTable(list) {
+  if (!list.length) {
+    return `<div style="padding:28px;text-align:center;color:var(--text-muted);font-size:13px;">Không có bài nào khớp bộ lọc.</div>`;
+  }
+  const shown = list.slice(0, lcCatalogLimit);
+  return `<div class="lc-cat-table">
+    <div class="lc-cat-head"><span></span><span>#</span><span>Tiêu đề</span><span>Tags</span><span>Độ khó</span><span></span></div>
+    ${shown.map((p, i) => renderLcProblemRow(p, i)).join('')}
+    ${list.length > shown.length ? `<button class="lc-cat-more" onclick="moreLcCatalog()">Hiển thị thêm (${list.length - shown.length} còn lại)</button>` : ''}
+  </div>`;
+}
+
+function renderLcBrowseTabs() {
+  const tabs = [
+    ['pattern', 'Theo Pattern'],
+    ['tag', 'Theo Tag'],
+    ['difficulty', 'Theo Độ khó'],
+    ['combo', 'Kết hợp']
+  ];
+  return `<div style="display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px 0;">
+    ${tabs.map(([id, label]) => `<button onclick="setLcBrowseMode('${id}')" style="padding:7px 14px;font-size:12.5px;font-weight:700;border-radius:10px;border:1px solid ${lcBrowseMode === id ? '#FFA116' : 'var(--border-hairline)'};background:${lcBrowseMode === id ? '#FFA116' : 'rgba(255,255,255,0.03)'};color:${lcBrowseMode === id ? '#000' : 'var(--text-secondary)'};cursor:pointer;">${label}</button>`).join('')}
+  </div>`;
+}
+
+function renderLcCatalogView() {
+  if (!LC_CATALOG.enabled) return '';
+  let controls = '';
+  let tableList = [];
+
+  if (lcBrowseMode === 'tag') {
+    const chips = LC_CATALOG.tagsMeta.map(t =>
+      `<button onclick="setLcCatalogTag('${t.slug}')" style="padding:5px 11px;font-size:11.5px;font-weight:600;border-radius:999px;border:1px solid ${lcCatalogTag === t.slug ? '#FFA116' : 'var(--border-hairline)'};background:${lcCatalogTag === t.slug ? '#FFA116' : 'rgba(255,255,255,0.04)'};color:${lcCatalogTag === t.slug ? '#000' : 'var(--text-secondary)'};cursor:pointer;">${escapeHtml(t.name)} <span style="opacity:0.65;">${t.count}</span></button>`
+    ).join('');
+    controls = `<div style="margin:12px 0;padding:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border-hairline);border-radius:12px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:10px;">🔖 ${LC_CATALOG.tagsMeta.length} tags chính thức của LeetCode — click để lọc:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">${chips}</div>
+    </div>`;
+    tableList = filterLcProblems();
+  } else if (lcBrowseMode === 'difficulty') {
+    const cards = ['Easy', 'Medium', 'Hard'].map(d => {
+      const colors = { Easy: '#34D399', Medium: '#FBBF24', Hard: '#FB7185' };
+      const c = colors[d];
+      const active = lcCatalogDiff === d;
+      return `<div onclick="setLcCatalogDiff('${d}')" style="flex:1;min-width:150px;padding:16px;border-radius:14px;border:1px solid ${active ? c : 'var(--border-hairline)'};background:${active ? c + '14' : 'rgba(255,255,255,0.03)'};cursor:pointer;text-align:center;">
+        <div style="font-size:15px;font-weight:800;color:${c};">${d}</div>
+        <div style="font-size:22px;font-weight:800;margin-top:4px;">${LC_CATALOG.byDifficulty[d] || 0}</div>
+        <div style="font-size:11px;color:var(--text-muted);">bài free</div>
+      </div>`;
+    }).join('');
+    controls = `<div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;">${cards}</div>`;
+    tableList = filterLcProblems();
+  } else if (lcBrowseMode === 'combo') {
+    const tagOptions = LC_CATALOG.tagsMeta.map(t =>
+      `<option value="${t.slug}" ${lcCatalogTag === t.slug ? 'selected' : ''}>${escapeHtml(t.name)} (${t.count})</option>`
+    ).join('');
+    const diffOptions = ['Easy', 'Medium', 'Hard'].map(d =>
+      `<option value="${d}" ${lcCatalogDiff === d ? 'selected' : ''}>${d} (${LC_CATALOG.byDifficulty[d] || 0})</option>`
+    ).join('');
+    controls = `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0;padding:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border-hairline);border-radius:12px;">
+      <select id="lc-combo-tag" style="padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;max-width:260px;"><option value="">— Tất cả tags —</option>${tagOptions}</select>
+      <select id="lc-combo-diff" style="padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;"><option value="">— Mọi độ khó —</option>${diffOptions}</select>
+      <button onclick="applyLcCombo()" style="padding:8px 18px;border-radius:10px;border:none;background:#FFA116;color:#000;font-weight:700;font-size:13px;cursor:pointer;">Áp dụng</button>
+    </div>`;
+    tableList = filterLcProblems();
+  }
+
+  const modeLabel = { tag: 'tag', difficulty: 'độ khó', combo: 'tag × độ khó' }[lcBrowseMode] || '';
+  const filterInfo = (lcCatalogTag || lcCatalogDiff)
+    ? `<div style="margin:0 0 10px 0;font-size:12.5px;color:var(--text-muted);">Đang lọc theo ${modeLabel}: <strong style="color:#FFA116;">${escapeHtml(lcCatalogTag || '')} ${lcCatalogTag && lcCatalogDiff ? '×' : ''} ${escapeHtml(lcCatalogDiff || '')}</strong> — ${tableList.length} bài</div>`
+    : `<div style="margin:0 0 10px 0;font-size:12.5px;color:var(--text-muted);">${tableList.length} bài free</div>`;
+
+  return `<div id="lc-catalog-view-inner">
+    ${controls}
+    ${filterInfo}
+    ${renderLcProblemTable(tableList)}
+  </div>`;
+}
+
+// Inject LeetCode Catalog styles once
+(function injectLcCatalogStyles(){
+  if (document.getElementById('lc-catalog-styles')) return;
+  const s = document.createElement('style');
+  s.id = 'lc-catalog-styles';
+  s.textContent = `
+  .lc-cat-table{border:1px solid var(--border-hairline);border-radius:14px;overflow:hidden;background:rgba(255,255,255,0.02);}
+  .lc-cat-head{display:grid;grid-template-columns:34px 64px 1fr 220px 90px 110px;gap:10px;padding:10px 14px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;border-bottom:1px solid var(--border-hairline);background:rgba(255,255,255,0.03);}
+  .lc-cat-row{display:grid;grid-template-columns:34px 64px 1fr 220px 90px 110px;gap:10px;align-items:center;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;}
+  .lc-cat-row:hover{background:rgba(255,161,22,0.07);}
+  .lc-cat-row:last-child{border-bottom:none;}
+  .lc-cat-row.is-done{opacity:0.75;}
+  .lc-cat-row.is-done .lc-cat-title{text-decoration:line-through;color:var(--text-muted);}
+  .lc-cat-id{font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+  .lc-cat-title{font-size:13px;font-weight:600;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lc-cat-tags{display:flex;gap:4px;flex-wrap:wrap;overflow:hidden;}
+  .lc-cat-tag{font-size:10px;padding:2px 8px;border-radius:999px;border:1px solid var(--border-hairline);background:rgba(255,255,255,0.04);color:var(--text-secondary);white-space:nowrap;cursor:pointer;}
+  .lc-cat-tag:hover{border-color:#FFA116;color:#FFA116;}
+  .lc-cat-tag-more{font-size:10px;color:var(--text-muted);}
+  .lc-cat-action{font-size:11.5px;font-weight:700;color:var(--text-muted);justify-self:end;white-space:nowrap;}
+  .lc-cat-action-lesson{color:#FFA116;}
+  .lc-cat-more{display:block;width:100%;padding:12px;border:none;border-top:1px solid var(--border-hairline);background:rgba(255,255,255,0.03);color:#FFA116;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .lc-cat-more:hover{background:rgba(255,161,22,0.08);}
+  @media (max-width: 900px){
+    .lc-cat-head{display:none;}
+    .lc-cat-row{grid-template-columns:30px 1fr auto;grid-auto-rows:auto;row-gap:6px;}
+    .lc-cat-id,.lc-cat-tags{display:none;}
+    .lc-cat-action{grid-column:3;}
+  }
+  `;
+  document.head.appendChild(s);
+})();
+
 // Sample topic content
 const TOPIC_CONTENT = {
   'kotlin-stateflow': {
@@ -1089,7 +1663,30 @@ if (typeof IOS_CONTENT !== 'undefined') {
   Object.assign(TOPIC_CONTENT, IOS_CONTENT);
 }
 
+// Merge Flutter content if loaded
+if (typeof FLUTTER_CONTENT !== 'undefined') {
+  Object.assign(TOPIC_CONTENT, FLUTTER_CONTENT);
+}
+
+// Merge Git Beginner content if loaded
+if (typeof GIT_CONTENT !== 'undefined') {
+  Object.assign(TOPIC_CONTENT, GIT_CONTENT);
+}
+
+// Merge LeetCode content if loaded (must be after other merges)
+if (typeof LEETCODE_CONTENT !== 'undefined') {
+  Object.assign(TOPIC_CONTENT, LEETCODE_CONTENT);
+}
+
 // ── State ────────────────────────────────────────────────────────
+// Reading Enhancers state — khai báo sớm để tránh TDZ (openTopic có thể chạy khi load)
+var rdRevealObserver = null;
+var rdTocObserver = null;
+var RD_REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const rdState = { title: '', pct: 0 };
+let rdPillEl = null;
+let rdLightboxEl = null;
+
 let currentDomainId = null;
 let currentTopicId = null;
 let expandedDomains = new Set(['android']);
@@ -1097,6 +1694,7 @@ let expandedModules = new Set(['kotlin', 'compose']);
 let expandedSections = new Set();
 let currentView = 'home'; // 'home' | 'domain' | 'topic' | 'graph'
 let roadmapFilter = 'all'; // 'all' | 'in-progress'
+let activeTagFilter = null; // current tag filter for domain view
 
 // ── Learning Progress (persisted locally per browser) ─────────────
 const PROGRESS_STORAGE_KEY = 'kos_progress_v1';
@@ -1122,6 +1720,217 @@ function isTopicVisited(topicId) {
 function markTopicVisited(topicId) {
   progressState.visited[topicId] = new Date().toISOString();
   saveProgress();
+}
+
+// ── LeetCode 5-lang progress ───────────────────────────────────────
+const LC_LANGS = ['cpp','java','kotlin','swift','dart'];
+function ensureLcProgress() {
+  if (!progressState.leetcode) progressState.leetcode = {};
+}
+function isLcLangDone(topicId, lang) {
+  ensureLcProgress();
+  return !!(progressState.leetcode[topicId] && progressState.leetcode[topicId][lang]);
+}
+function isLcFullyDone(topicId) {
+  ensureLcProgress();
+  const e = progressState.leetcode[topicId];
+  if (!e) return false;
+  return LC_LANGS.every(l => !!e[l]);
+}
+function getLcDoneCount(topicId) {
+  ensureLcProgress();
+  const e = progressState.leetcode[topicId];
+  if (!e) return 0;
+  return LC_LANGS.filter(l => !!e[l]).length;
+}
+function toggleLcLangDone(topicId, lang) {
+  ensureLcProgress();
+  if (!progressState.leetcode[topicId]) progressState.leetcode[topicId] = {};
+  if (progressState.leetcode[topicId][lang]) {
+    delete progressState.leetcode[topicId][lang];
+    if (Object.keys(progressState.leetcode[topicId]).length === 0) delete progressState.leetcode[topicId];
+  } else {
+    progressState.leetcode[topicId][lang] = new Date().toISOString();
+    // also mark visited
+    progressState.visited[topicId] = new Date().toISOString();
+  }
+  saveProgress();
+  // re-render current views to reflect progress
+  renderSidebar();
+  if (currentTopicId === topicId) {
+    // update checkboxes in open topic
+    document.querySelectorAll('.lc-done-btn').forEach(btn => {
+      const l = btn.getAttribute('data-lang') || btn.textContent.split(' ')[1]?.toLowerCase();
+    });
+    updateLcCheckboxes(topicId);
+  }
+  // refresh domain progress if on domain view
+  if (currentDomainId === 'leetcode' && currentView === 'domain') showDomain('leetcode');
+  showToast(isLcLangDone(topicId, lang) ? '✓ Đã tick ' + lang.toUpperCase() + ' cho ' + topicId : 'Đã bỏ tick ' + lang.toUpperCase());
+}
+function updateLcCheckboxes(topicId) {
+  LC_LANGS.forEach(lang => {
+    const done = isLcLangDone(topicId, lang);
+    document.querySelectorAll(`[data-lc-topic="${topicId}"][data-lc-lang="${lang}"]`).forEach(el => {
+      el.classList.toggle('done', done);
+      el.textContent = (done ? '☑ ' : '☐ ') + lang.toUpperCase() + (done ? ' ✓' : '');
+    });
+    document.querySelectorAll(`.lc-done-btn[data-lang="${lang}"]`).forEach(btn => {
+      if (btn.closest('[data-lc-topic]') && btn.closest('[data-lc-topic]').getAttribute('data-lc-topic') !== topicId) return;
+      // fallback for topic content buttons
+    });
+  });
+  // update in-content panes buttons
+  LC_LANGS.forEach(lang => {
+    const done = isLcLangDone(topicId, lang);
+    const btn = document.querySelector(`.lc-progress-row button[onclick*="'${topicId}','${lang}'"]`);
+    if (btn) {
+      btn.classList.toggle('is-done', done);
+      btn.textContent = (done ? '☑ ' : '☐ ') + lang.toUpperCase() + (done ? ' ✓' : ' xong');
+    }
+  });
+  // sync premium hero progress if visible
+  const heroDots = document.querySelectorAll('.lc-hero-dot');
+  if (heroDots.length) {
+    LC_LANGS.forEach((lang, idx) => {
+      const done = isLcLangDone(topicId, lang);
+      if (heroDots[idx]) heroDots[idx].classList.toggle('on', done);
+    });
+    const pct = Math.round((getLcDoneCount(topicId)/5)*100);
+    const fill = document.querySelector('.lc-hero-fill');
+    if (fill) fill.style.width = pct + '%';
+    const pctLabel = document.querySelector('.lc-hero-pct');
+    if (pctLabel) {
+      const c = getLcDoneCount(topicId);
+      pctLabel.textContent = `${pct}% • ${c===5?'Hoàn thành ✓':c>0?'Đang làm':'Chưa bắt đầu'}`;
+    }
+    const asideCount = document.querySelector('.lc-aside-row strong');
+    // update aside first row if exists
+    const asideRows = document.querySelectorAll('.lc-aside-row strong');
+    if (asideRows[0]) asideRows[0].textContent = getLcDoneCount(topicId) + '/5';
+  }
+}
+function switchLcLang(btn, topicId, lang) {
+  const root = document.getElementById('prose-content') || document;
+  root.querySelectorAll('.lc-lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  root.querySelectorAll('.lc-code-pane').forEach(p => {
+    p.classList.toggle('active', p.getAttribute('data-pane') === lang);
+  });
+}
+function toggleLcAll(topicId) {
+  ensureLcProgress();
+  const fully = isLcFullyDone(topicId);
+  if (fully) {
+    // uncheck all
+    LC_LANGS.forEach(l => { if (progressState.leetcode[topicId] && progressState.leetcode[topicId][l]) delete progressState.leetcode[topicId][l]; });
+    if (progressState.leetcode[topicId] && Object.keys(progressState.leetcode[topicId]).length===0) delete progressState.leetcode[topicId];
+  } else {
+    if (!progressState.leetcode[topicId]) progressState.leetcode[topicId] = {};
+    LC_LANGS.forEach(l => progressState.leetcode[topicId][l] = new Date().toISOString());
+    progressState.visited[topicId] = new Date().toISOString();
+  }
+  saveProgress();
+  renderSidebar();
+  if (currentTopicId===topicId) updateLcCheckboxes(topicId);
+  if (currentDomainId==='leetcode' && currentView==='domain') showDomain('leetcode');
+  showToast(fully ? 'Đã bỏ tick all 5 ngôn ngữ' : '☑ Đã tick đủ 5 ngôn ngữ!');
+}
+window.toggleLcLangDone = toggleLcLangDone;
+window.toggleLcAll = toggleLcAll;
+window.switchLcLang = switchLcLang;
+window.isLcLangDone = isLcLangDone;
+window.isLcFullyDone = isLcFullyDone;
+window.getLcDoneCount = getLcDoneCount;
+window.LC_LANGS = LC_LANGS;
+// Inject LeetCode styles once
+(function injectLcStyles(){
+  if (document.getElementById('lc-styles')) return;
+  const s = document.createElement('style');
+  s.id='lc-styles';
+  s.textContent = `
+  .lc-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.15);display:inline-block;}
+  .lc-dot.on{background:#34D399;box-shadow:0 0 6px rgba(52,211,153,0.6);}
+  .lc-mini-dots{display:flex;gap:3px;align-items:center;}
+  .lc-count{font-size:10px;color:var(--text-muted);margin-left:4px;}
+  .lc-topic.lc-done{opacity:0.85;}
+  .lc-topic.lc-done .lc-title{text-decoration:line-through;color:var(--text-muted);}
+  .lc-check{cursor:pointer;font-size:13px;line-height:1;padding:2px 6px;border-radius:4px;user-select:none;}
+  .lc-check:hover{background:rgba(255,255,255,0.08);}
+  .sidebar-topic.lc-topic{display:flex;align-items:center;gap:6px;font-size:12.5px;padding:5px 8px;}
+  .sidebar-topic.lc-topic:hover{transform:none;background:rgba(255,161,22,0.08);}
+  .sidebar-topic.lc-topic.active{transform:none;}
+  .topic-item-row.lc-row:hover{transform:none;background:rgba(255,161,22,0.06);border-color:rgba(255,161,22,0.2);}
+  .lc-pill{font-size:11px;padding:3px 8px;border-radius:999px;font-weight:600;border:1px solid var(--border);}
+  .lc-pill-easy{background:rgba(52,211,153,0.12);color:#34D399;border-color:rgba(52,211,153,0.25);}
+  .lc-pill-medium{background:rgba(251,191,36,0.12);color:#FBBF24;border-color:rgba(251,191,36,0.25);}
+  .lc-pill-hard{background:rgba(251,113,133,0.12);color:#FB7185;border-color:rgba(251,113,133,0.25);}
+  .lc-pill-pattern{background:rgba(167,139,250,0.12);color:#A78BFA;border-color:rgba(167,139,250,0.25);}
+  .lc-pill-level{background:rgba(56,189,248,0.12);color:#38BDF8;border-color:rgba(56,189,248,0.25);}
+  .lc-pill.tag-clickable{cursor:pointer;transition:transform 0.12s, box-shadow 0.12s, filter 0.12s;}
+  .lc-pill.tag-clickable:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.12);filter:brightness(1.15);}
+  .lc-link{font-size:11px;color:#FFA116;text-decoration:none;font-weight:600;margin-left:8px;}
+  .lc-link:hover{text-decoration:underline;}
+  .lc-lang-btn{padding:6px 12px;font-size:12px;font-weight:600;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text-secondary);cursor:pointer;}
+  .lc-lang-btn.active{background:#FFA116;color:#000;border-color:#FFA116;}
+  .lc-code-pane{display:none;}
+  .lc-code-pane.active{display:block;}
+  .lc-done-btn{padding:6px 10px;font-size:11px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text-secondary);cursor:pointer;}
+  .lc-done-btn.is-done{background:rgba(52,211,153,0.15);color:#34D399;border-color:rgba(52,211,153,0.3);}
+  .topic-item-row.is-done{border-color:rgba(52,211,153,0.25)!important;}
+  .lc-level-card{border-left:3px solid #FFA116;}
+  `;
+  document.head.appendChild(s);
+})();
+
+// ── Tag Filter helpers ─────────────────────────────────────────
+function filterByTag(tag) {
+  // LeetCode dùng chuẩn lọc mới: tag chính thức LC / độ khó
+  if (currentDomainId === 'leetcode') { routeLcFilter(tag); return; }
+  activeTagFilter = tag;
+  // Determine target domain: keep current if possible, else find domain containing tag
+  let targetDomain = currentDomainId;
+  if (!targetDomain || !KNOWLEDGE_DATA.domains.find(d=>d.id===targetDomain && d.modules.some(m=>m.topics.some(t=> (t.tags||[]).includes(tag) || (TOPIC_CONTENT[t.id]?.tags||[]).includes(tag) )))) {
+    // search for domain containing this tag
+    for (const d of KNOWLEDGE_DATA.domains) {
+      const has = d.modules.some(m=> m.topics.some(t=> (t.tags||[]).includes(tag) || (TOPIC_CONTENT[t.id]?.tags||[]).includes(tag) ));
+      if (has) { targetDomain = d.id; break; }
+    }
+  }
+  if (!targetDomain) targetDomain = currentDomainId || 'leetcode';
+  expandedDomains.add(targetDomain);
+  showDomain(targetDomain);
+  showToast('🔖 Lọc theo tag: ' + tag);
+}
+function clearTagFilter() {
+  activeTagFilter = null;
+  if (currentDomainId) showDomain(currentDomainId);
+  else showHome();
+  showToast('Đã xóa bộ lọc tag');
+}
+function isTagActive(tag) { return activeTagFilter === tag; }
+window.filterByTag = filterByTag;
+window.clearTagFilter = clearTagFilter;
+
+// Chuyển hướng nút lọc cũ trong bài học LeetCode sang chuẩn mới
+function routeLcFilter(tag) {
+  const t = (tag || '').toLowerCase();
+  if (['easy', 'medium', 'hard'].includes(t)) {
+    lcBrowseMode = 'difficulty';
+    lcCatalogDiff = t.charAt(0).toUpperCase() + t.slice(1);
+    lcCatalogLimit = 100;
+    showDomain('leetcode');
+    scrollLcCatalogIntoView();
+    showToast('🔖 Lọc theo độ khó: ' + lcCatalogDiff);
+    return;
+  }
+  const official = LC_CATALOG.enabled && LC_CATALOG.tagsMeta.some(x => x.slug === t);
+  lcBrowseMode = 'tag';
+  lcCatalogTag = official ? t : null;
+  lcCatalogLimit = 100;
+  showDomain('leetcode');
+  scrollLcCatalogIntoView();
+  showToast(official ? '🔖 Lọc theo tag: ' + t : 'Đã mở bảng tag chính thức — hãy chọn một tag');
 }
 
 function dayKey(date) {
@@ -1178,6 +1987,57 @@ function setLayoutMode(mode) {
 const CHEVRON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
 
 // ── Render Sidebar ───────────────────────────────────────────────
+function modContainsCurrentTopic(mod) {
+  return !!currentTopicId && mod.topics.some(t => t.id === currentTopicId);
+}
+
+function setLcSidebarGroup(group) {
+  lcSidebarGroup = group;
+  renderSidebar();
+}
+window.setLcSidebarGroup = setLcSidebarGroup;
+
+function getLcSidebarGroupSelector(domain) {
+  if (!domain || domain.id !== 'leetcode' || !LC_CATALOG.enabled || currentDomainId !== 'leetcode') return '';
+  const opts = [['pattern', 'Pattern'], ['difficulty', 'Độ khó'], ['tag', 'Tag']];
+  return `<div style="display:flex;gap:4px;padding:8px 10px 4px 10px;align-items:center;">
+    <span style="font-size:10px;color:var(--text-muted);margin-right:2px;">Nhóm:</span>
+    ${opts.map(([id, label]) => `<button onclick="setLcSidebarGroup('${id}')" style="flex:1;padding:4px 0;font-size:10.5px;font-weight:700;border-radius:7px;border:1px solid ${lcSidebarGroup === id ? '#FFA116' : 'var(--border-hairline)'};background:${lcSidebarGroup === id ? 'rgba(255,161,22,0.15)' : 'transparent'};color:${lcSidebarGroup === id ? '#FFA116' : 'var(--text-muted)'};cursor:pointer;">${label}</button>`).join('')}
+  </div>`;
+}
+
+// Nhóm sidebar cho LeetCode: pattern (mặc định) / độ khó / tag — phủ toàn bộ catalog
+function getSidebarModules(domain) {
+  if (!domain || domain.id !== 'leetcode' || lcSidebarGroup === 'pattern' || !LC_CATALOG.enabled || currentDomainId !== 'leetcode') return domain.modules;
+  const toTopic = (p) => {
+    const lessonTid = LC_CATALOG.lessonByProblemId[p.id];
+    return { id: lessonTid || ('lccat-' + p.id), title: p.id + '. ' + p.title, difficulty: p.difficulty, leetcodeId: p.id, isCatalogOnly: !lessonTid };
+  };
+  if (lcSidebarGroup === 'difficulty') {
+    return ['Easy', 'Medium', 'Hard'].map(d => ({
+      id: 'lc-sb-diff-' + d.toLowerCase(),
+      name: d + ' (' + (LC_CATALOG.byDifficulty[d] || 0) + ')',
+      description: d,
+      topics: LC_CATALOG.problems.filter(p => p.difficulty === d).map(toTopic),
+      sections: []
+    }));
+  }
+  // lcSidebarGroup === 'tag'
+  const byTag = new Map(LC_CATALOG.tagsMeta.map(t => [t.slug, []]));
+  const untagged = [];
+  const allTopics = [];
+  LC_CATALOG.problems.forEach(p => {
+    const t = toTopic(p);
+    allTopics.push(t);
+    if (!p.topicTags.length) { untagged.push(t.id); return; }
+    p.topicTags.forEach(ts => { if (byTag.has(ts)) byTag.get(ts).push(t.id); });
+  });
+  const sections = [...byTag.entries()].filter(([, list]) => list.length)
+    .map(([slug, list]) => ({ id: 'lc-sb-tag-' + slug, name: slug + ' (' + list.length + ')', topics: list }));
+  if (untagged.length) sections.push({ id: 'lc-sb-tag-none', name: 'Không có tag (' + untagged.length + ')', topics: untagged });
+  return [{ id: 'lc-sb-tags', name: 'Tags (' + sections.length + ')', description: 'Nhóm theo tag LeetCode', topics: allTopics, sections }];
+}
+
 function renderSidebar() {
   const sidebar = document.getElementById('sidebar');
   let domainsToRender = KNOWLEDGE_DATA.domains;
@@ -1210,14 +2070,15 @@ function renderSidebar() {
         <span class="domain-chevron">${CHEVRON_SVG}</span>
       </div>
       <div class="sidebar-modules ${expandedDomains.has(domain.id) ? '' : 'collapsed'}">
-        ${domain.modules.map(mod => `
+        ${getLcSidebarGroupSelector(domain)}
+        ${getSidebarModules(domain).map(mod => `
           <div class="sidebar-module ${expandedModules.has(mod.id) ? 'expanded' : ''}"
                onclick="toggleModule('${mod.id}')">
             <span>${mod.name}</span>
             <span class="module-chevron">${CHEVRON_SVG}</span>
           </div>
           <div class="sidebar-tree sidebar-tree--module ${expandedModules.has(mod.id) ? '' : 'collapsed'}">
-            ${renderModuleContent(mod)}
+            ${(expandedModules.has(mod.id) || modContainsCurrentTopic(mod)) ? renderModuleContent(mod) : ''}
           </div>
         `).join('')}
       </div>
@@ -1226,8 +2087,35 @@ function renderSidebar() {
 }
 
 function renderTopicRow(topic) {
+  if (topic.id && topic.id.startsWith('lccat-')) {
+    const pid = parseInt(topic.id.slice(6), 10);
+    const done = isLcCatalogDone(pid);
+    const diffCls = topic.difficulty ? ' diff-' + topic.difficulty.toLowerCase() : '';
+    return `
+    <div class="sidebar-topic lc-topic ${currentTopicId === topic.id ? 'active' : ''} ${done ? 'lc-done' : ''}${diffCls}" onclick="openLcExternalById(${pid})" title="Chưa có bài học — mở trên LeetCode">
+      <span class="lc-check" onclick="event.stopPropagation(); toggleLcCatalogDone(${pid});" title="Đánh dấu đã xong"> ${done ? '☑' : '☐'} </span>
+      <span class="lc-title" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${topic.title}</span>
+      <span class="lc-count" style="color:#FFA116;opacity:0.7;">↗</span>
+    </div>
+  `;
+  }
+  const isLc = topic.id && topic.id.startsWith('lc-');
+  if (isLc) {
+    const doneCount = getLcDoneCount(topic.id);
+    const fullyDone = isLcFullyDone(topic.id);
+    const diffCls = topic.difficulty ? ' diff-' + topic.difficulty.toLowerCase() : '';
+    const dots = LC_LANGS.map(l => `<span class="lc-dot ${isLcLangDone(topic.id,l)?'on':''}" title="${l.toUpperCase()} ${isLcLangDone(topic.id,l)?'✓':'○'}"></span>`).join('');
+    return `
+    <div class="sidebar-topic lc-topic ${currentTopicId === topic.id ? 'active' : ''} ${fullyDone?'lc-done':''}${diffCls}" onclick="openTopic('${topic.id}')">
+      <span class="lc-check" onclick="event.stopPropagation(); toggleLcAll('${topic.id}');" title="Tick đủ 5 ngôn ngữ (toggle all)"> ${fullyDone ? '☑' : '☐'} </span>
+      <span class="lc-title" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${topic.title}</span>
+      <span class="lc-mini-dots">${dots}<span class="lc-count">${doneCount}/5</span></span>
+    </div>
+  `;
+  }
+  const visited = isTopicVisited(topic.id);
   return `
-    <div class="sidebar-topic ${currentTopicId === topic.id ? 'active' : ''}"
+    <div class="sidebar-topic ${currentTopicId === topic.id ? 'active' : ''} ${visited?'visited':''}"
          onclick="openTopic('${topic.id}')">
       ${topic.title}
     </div>
@@ -1277,8 +2165,7 @@ function renderModuleContent(mod) {
         <span class="section-chevron">${CHEVRON_SVG}</span>
       </div>
       <div class="sidebar-tree sidebar-tree--nested ${open ? '' : 'collapsed'}">
-        ${childSections}
-        ${childTopics}
+        ${open ? (childSections + childTopics) : ''}
       </div>
     `;
   };
@@ -1328,11 +2215,13 @@ function showDomain(domainId) {
   const DOMAIN_PAGES = {
     'android': 'android.html',
     'ios': 'ios.html',
+    'flutter': 'flutter.html',
     'backend': 'backend.html',
     'devops': 'devops.html',
     'database': 'database.html',
     'system-design': 'system-design.html',
-    'algorithms': 'dsa.html'
+    'algorithms': 'dsa.html',
+    'leetcode': 'leetcode.html'
   };
 
   const targetPage = DOMAIN_PAGES[domainId];
@@ -1346,6 +2235,7 @@ function showDomain(domainId) {
   currentDomainId = domainId;
   currentTopicId = null;
   currentView = 'domain';
+  if (domainId === 'leetcode') activeTagFilter = null;
   setActiveNav(null);
   setLayoutMode('content');
   hideOriginalToggle();
@@ -1376,29 +2266,142 @@ function showDomain(domainId) {
             </span>
             <span class="pill">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              ${totalTopics} Topics
+              ${totalTopics} ${domain.id === 'leetcode' ? 'Bài học' : 'Topics'}
             </span>
+            ${domain.id === 'leetcode' && LC_CATALOG.enabled ? `<span class="pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              ${LC_CATALOG.totalFree} bài free trong catalog
+            </span>` : ''}
           </div>
         </div>
       </div>
 
+      ${domain.id === 'leetcode' ? renderLcBrowseTabs() : ''}
+      ${domain.id === 'leetcode' && lcBrowseMode !== 'pattern' ? `<div id="lc-catalog-view">${renderLcCatalogView()}</div>` : ''}
+
+      ${(() => {
+        // Tag filter bar cho các domain khác (LeetCode dùng tab lọc chuẩn mới)
+        if (domain.id === 'leetcode') return '';
+        const allTags = {};
+        domain.modules.forEach(m => m.topics.forEach(t => {
+          const tags = t.tags || (TOPIC_CONTENT[t.id]?.tags || []);
+          tags.forEach(tag => { allTags[tag] = (allTags[tag]||0)+1; });
+        }));
+        const sortedTags = Object.entries(allTags).sort((a,b)=> b[1]-a[1]).slice(0, 24);
+        if (!sortedTags.length) return '';
+        return `<div style="margin:16px 0 20px 0;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--border-hairline);border-radius:12px;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:12px;font-weight:700;color:var(--text-muted);">🔖 Lọc theo tag:</span>
+            ${sortedTags.map(([tag,cnt]) => `<button onclick="filterByTag('${tag}')" class="tag-filter-btn ${activeTagFilter===tag?'active':''}" style="padding:4px 10px;font-size:11px;border-radius:999px;border:1px solid ${activeTagFilter===tag?'#FFA116':'var(--border)'};background:${activeTagFilter===tag?'#FFA116':'rgba(255,255,255,0.04)'};color:${activeTagFilter===tag?'#000':'var(--text-secondary)'};cursor:pointer;">${tag} <span style="opacity:0.7;">${cnt}</span></button>`).join('')}
+            ${activeTagFilter ? `<button onclick="clearTagFilter()" style="margin-left:6px;padding:4px 10px;font-size:11px;border-radius:999px;border:1px solid var(--border);background:rgba(251,113,133,0.12);color:#FB7185;cursor:pointer;">✕ Xóa lọc (${activeTagFilter})</button>` : ''}
+          </div>
+          ${activeTagFilter ? `<div style="margin-top:8px;font-size:12px;color:var(--text-muted);">Đang lọc: <strong style="color:#FFA116;">${activeTagFilter}</strong> — chỉ hiện bài chứa tag này</div>` : ''}
+        </div>`;
+      })()}
+
       <div class="section-header" style="margin-bottom: 20px;">
-        <h2 class="section-title">Danh sách chủ đề</h2>
-        <span class="section-subtitle">Chọn một bài học dưới đây để bắt đầu học tập</span>
+        <h2 class="section-title">${domain.id === 'leetcode' && lcBrowseMode !== 'pattern' ? '' : `Danh sách chủ đề ${activeTagFilter ? `<span style="font-size:13px;color:#FFA116;">— lọc: ${activeTagFilter}</span>` : ''}`}</h2>
+        <span class="section-subtitle">${domain.id === 'leetcode' && lcBrowseMode !== 'pattern' ? '' : (activeTagFilter ? 'Đang lọc theo tag — click tag khác hoặc xóa lọc để xem tất cả' : 'Chọn một bài học dưới đây để bắt đầu học tập')}</span>
       </div>
 
       <div class="modules-grid">
-        ${[...domain.modules].sort((a, b) => {
-          const getModuleLastVisited = (mod) => {
-            const times = mod.topics.map(t => progressState.visited[t.id] ? new Date(progressState.visited[t.id]).getTime() : 0);
-            return Math.max(0, ...times);
-          };
-          return getModuleLastVisited(b) - getModuleLastVisited(a);
-        }).map(mod => `
+        ${(() => {
+          // LeetCode domain: show progress bar per module
+          const isLcDomain = domain.id === 'leetcode';
+          if (isLcDomain && lcBrowseMode !== 'pattern') return '';
+          return [...domain.modules].sort((a, b) => {
+            const getModuleLastVisited = (mod) => {
+              const times = mod.topics.map(t => progressState.visited[t.id] ? new Date(progressState.visited[t.id]).getTime() : 0);
+              return Math.max(0, ...times);
+            };
+            return getModuleLastVisited(b) - getModuleLastVisited(a);
+          }).map(mod => {
+            // apply tag filter to topics
+            const topicsForFilter = activeTagFilter ? mod.topics.filter(t => {
+              const tags = t.tags || (TOPIC_CONTENT[t.id]?.tags || []);
+              return tags.includes(activeTagFilter);
+            }) : mod.topics;
+            // if filtered and empty, skip module
+            if (activeTagFilter && topicsForFilter.length===0) return '';
+            // for display, use filtered list for counts but keep original for progress
+            const displayTopics = topicsForFilter;
+            let lcExtra = '';
+            if (isLcDomain) {
+              const total = mod.topics.length;
+              const doneFull = mod.topics.filter(t => isLcFullyDone(t.id)).length;
+              const doneAny = mod.topics.filter(t => getLcDoneCount(t.id) > 0).length;
+              const pct = total ? Math.round((doneFull/total)*100) : 0;
+              lcExtra = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                <div style="flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#FFA116,#FF6B00);"></div></div>
+                <span style="font-size:11px;color:var(--text-muted);">${doneFull}/${total} done • ${doneAny} started • ${pct}%</span>
+              </div>`;
+            }
+            const isLcMod = isLcDomain && mod.id && mod.id.startsWith('lc-level-');
+            if (isLcMod && mod.sections && mod.sections.length) {
+              let sectionsHtml = '';
+              let hasVisibleSection = false;
+              for (const sec of mod.sections) {
+                let secTopics = sec.topics.map(tid => mod.topics.find(t=>t.id===tid)).filter(Boolean);
+                if (activeTagFilter) {
+                  secTopics = secTopics.filter(t => {
+                    const tags = t.tags || (TOPIC_CONTENT[t.id]?.tags || []);
+                    return tags.includes(activeTagFilter);
+                  });
+                  if (secTopics.length===0) continue;
+                }
+                hasVisibleSection = true;
+                const secDone = secTopics.filter(t=>isLcFullyDone(t.id)).length;
+                const secPct = secTopics.length ? Math.round((secDone/secTopics.length)*100) : 0;
+                let secRows = '';
+                for (let i=0; i<secTopics.length; i++) {
+                  const topic = secTopics[i];
+                  const diff = topic.difficulty || 'Medium';
+                  const diffCls = diff.toLowerCase();
+                  const done = getLcDoneCount(topic.id);
+                  const full = isLcFullyDone(topic.id);
+                  const titleClean = topic.title.replace(/^\d+\.\s*/, '');
+                  secRows += '<div class="group lc-premium-row '+(full?'is-done':'')+'" onclick="openTopic(\''+topic.id+'\')" style="animation-delay:'+(i*28)+'ms"><div class="lc-premium-left"><button class="lc-premium-check '+(full?'checked':'')+'" onclick="event.stopPropagation(); toggleLcAll(\''+topic.id+'\')" aria-label="toggle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button><div class="lc-premium-title-wrap"><span class="lc-premium-id">#'+(topic.leetcodeId||'')+'</span><span class="lc-premium-title" title="'+topic.title+'">'+titleClean+'</span></div></div><div class="lc-premium-right"><span class="lc-premium-pill lc-premium-'+diffCls+'">'+diff+'</span><div class="lc-premium-dots">'+LC_LANGS.map(l=>'<span class="lc-premium-dot '+(isLcLangDone(topic.id,l)?'on':'')+'"></span>').join('')+'</div><span class="lc-premium-count">'+done+'/5</span><span class="lc-premium-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div></div>';
+                }
+                sectionsHtml += '<div class="lc-pattern-outer"><div class="lc-pattern-inner"><div class="lc-pattern-head"><div class="lc-pattern-name"><span class="lc-pattern-icon"></span>'+sec.name+'</div><div class="lc-pattern-meta"><span class="lc-pattern-progress">'+secDone+'/'+secTopics.length+'</span><div class="lc-mini-bar"><div class="lc-mini-fill" style="width:'+secPct+'%"></div></div></div></div><div class="lc-premium-list">'+secRows+'</div></div></div>';
+              }
+              if (activeTagFilter && !hasVisibleSection) return '';
+              const total = mod.topics.length;
+              const doneFull = mod.topics.filter(t=>isLcFullyDone(t.id)).length;
+              const pct = total ? Math.round((doneFull/total)*100) : 0;
+              const levelNum = mod.level || 1;
+              const levelColors = {1:'#FFA116',2:'#38BDF8',3:'#A78BFA',4:'#34D399',5:'#FB7185'};
+              const accent = levelColors[levelNum]||'#FFA116';
+              const bentoClass = levelNum===1 ? 'lc-bento-hero' : levelNum===5 ? 'lc-bento-wide' : '';
+              return '<div class="lc-bezel-outer lev-'+levelNum+' '+bentoClass+'" style="--lc-accent:'+accent+'"><div class="lc-bezel-inner"><div class="lc-level-head"><div class="lc-level-eyebrow"><span class="lc-eyebrow-dot" style="background:'+accent+'"></span> Level '+levelNum+' • '+total+' bài • '+pct+'%</div><h3 class="lc-level-title">'+mod.name.replace(/ • \d+ bài/,'')+'</h3><p class="lc-level-desc">'+(mod.description||'')+'</p><div class="lc-level-progress"><div class="lc-level-bar"><div class="lc-level-fill" style="width:'+pct+'%;background:'+accent+'"></div></div><span class="lc-level-pct">'+pct+'% • '+doneFull+'/'+total+' done</span></div></div>'+sectionsHtml+'</div></div>';
+            }
+            return `
           <div class="module-card">
             <h3 class="module-card-title">${mod.name}</h3>
+            ${lcExtra}
             <div class="topics-list">
-              ${mod.topics.map(topic => `
+              ${displayTopics.map(topic => {
+                const isLc = topic.id && topic.id.startsWith('lc-');
+                if (isLc) {
+                  const diff = topic.difficulty || 'Medium';
+                  const diffColor = diff==='Easy' ? '#34D399' : diff==='Hard' ? '#FB7185' : '#FBBF24';
+                  const done = getLcDoneCount(topic.id);
+                  const full = isLcFullyDone(topic.id);
+                  return `
+                <div class="topic-item-row lc-row ${full?'is-done':''}" onclick="openTopic('${topic.id}')" style="${full?'background:rgba(52,211,153,0.06);border-color:rgba(52,211,153,0.2);':''}">
+                  <div class="topic-item-left" style="gap:8px;">
+                    <span class="lc-card-check" onclick="event.stopPropagation(); toggleLcAll('${topic.id}');" title="Tick đủ 5 ngôn ngữ">${full?'☑':'☐'}</span>
+                    <span class="topic-item-row-title" style="font-size:13px;">${topic.title}</span>
+                    <span style="font-size:10px;padding:2px 6px;border-radius:999px;background:${diffColor}18;color:${diffColor};border:1px solid ${diffColor}30;">${diff}</span>
+                  </div>
+                  <div class="topic-item-meta" style="gap:6px;">
+                    <span style="font-size:11px;color:var(--text-muted);">${done}/5</span>
+                    <span style="display:flex;gap:3px;">${LC_LANGS.map(l=>`<span style="width:7px;height:7px;border-radius:50%;background:${isLcLangDone(topic.id,l)?'#34D399':'rgba(255,255,255,0.15)'}"></span>`).join('')}</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--text-muted);"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+              `;
+                }
+                return `
                 <div class="topic-item-row ${topic.status === 'draft' ? 'is-draft' : ''}" onclick="openTopic('${topic.id}')">
                   <div class="topic-item-left">
                     <span class="indicator-dot"></span>
@@ -1409,10 +2412,13 @@ function showDomain(domainId) {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--text-muted);"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
-              `).join('')}
+              `;
+              }).join('')}
             </div>
           </div>
-        `).join('')}
+        `;
+          }).join('');
+        })()}
       </div>
 
       <div style="margin-top: 48px; border-top: 1px solid var(--border); padding-top: 24px;">
@@ -1505,7 +2511,135 @@ function openTopic(topicId, updateHash = true) {
     return t ? `<a href="#" onclick="openTopic('${rid}'); return false;" style="color:var(--accent-blue);">${t.title}</a>` : rid;
   });
 
-  document.getElementById('main').innerHTML = `
+  const isLcTopic = topic.id && topic.id.startsWith('lc-');
+  if (isLcTopic && hasContent) {
+    const diff = (content.difficulty || topic.difficulty || 'Medium');
+    const diffCls = diff.toLowerCase();
+    const accentMap = { easy: '#34D399', medium: '#FBBF24', hard: '#FB7185' };
+    const heroAccent = accentMap[diffCls] || '#FFA116';
+    const levelNum = content.level || topic.level || 1;
+    const doneCount = getLcDoneCount(topic.id);
+    const pct = Math.round((doneCount/5)*100);
+    const dotsHtml = LC_LANGS.map(l => `<span class="lc-hero-dot ${isLcLangDone(topic.id,l)?'on':''}" title="${l.toUpperCase()}"></span>`).join('');
+    const titleClean = (content.title || topic.title).replace(/^\d+\.\s*/, '');
+    const idNum = content.leetcodeId || topic.leetcodeId || '';
+    // Extract pattern for eyebrow
+    const pattern = content.pattern || topic.pattern || mod.name;
+    document.getElementById('main').innerHTML = `
+    <div class="lc-premium-page fade-in" style="--lc-accent:${heroAccent}">
+      <div class="breadcrumb">
+        <a href="#" onclick="showHome(); return false;">Home</a>
+        <span class="breadcrumb-sep">›</span>
+        <a href="#" onclick="expandDomainAndShow('${domain.id}'); return false;">${domain.name}</a>
+        <span class="breadcrumb-sep">›</span>
+        <a href="#" onclick="toggleModule('${mod.id}'); return false;">${mod.name}</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>${topic.title}</span>
+      </div>
+
+      <div class="lc-hero-outer">
+        <div class="lc-hero-inner">
+          <div class="lc-hero-eyebrow">
+            <span class="lc-hero-eyebrow-badge"><span class="lc-hero-eyebrow-dot"></span> Level ${levelNum} • ${pattern}</span>
+            <span class="lc-hero-diff lc-hero-diff-${diffCls}">${diff}</span>
+            <span class="tag tag-${(content.tags||topic.tags||[])[0]||'leetcode'}" style="font-size:10px;cursor:default;">${pattern}</span>
+          </div>
+          <h1 class="lc-hero-title">${titleClean} <span class="lc-hero-title-id">#${idNum} • LC ${idNum}</span></h1>
+          <p class="lc-hero-sub">${content.summary || ''} • Pattern <strong>${pattern}</strong> • Level ${levelNum} • ${diff} • 5 ngôn ngữ C++ / Java / Kotlin / Swift / Dart</p>
+          <div class="lc-hero-actions">
+            <a href="${content.url || '#'}" target="_blank" class="rd-btn-primary" style="background: linear-gradient(135deg, ${heroAccent} 0%, color-mix(in srgb, ${heroAccent} 78%, #000) 100%); border-color: rgba(255,255,255,0.18);">
+              <span>Mở trên LeetCode</span>
+              <span class="btn-icon-bubble">↗</span>
+            </a>
+            <button class="rd-btn-ghost" onclick="copyCurrentTopicLink()" title="Sao chép liên kết">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              <span>Chia sẻ</span>
+            </button>
+            <button class="rd-btn-ghost" onclick="toggleZenMode()" title="Zen Mode">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+              <span>Zen</span>
+            </button>
+            <button class="rd-btn-ghost" onclick="toggleOriginalContent()" title="Đổi ngôn ngữ">
+              <span>EN / VI</span>
+            </button>
+          </div>
+          <div class="lc-hero-progress">
+            <div class="lc-hero-dots">${dotsHtml}</div>
+            <span class="lc-hero-progress-label">${doneCount}/5 ngôn ngữ</span>
+            <div class="lc-hero-bar"><div class="lc-hero-fill" style="width:${pct}%"></div></div>
+            <span class="lc-hero-pct">${pct}% • ${doneCount===5?'Hoàn thành ✓':doneCount>0?'Đang làm':'Chưa bắt đầu'}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lc-detail-grid">
+        <div class="lc-detail-main">
+          <div class="prose" id="prose-content">
+            ${content.content}
+          </div>
+        </div>
+        <aside class="lc-detail-aside">
+          <div class="lc-aside-card-outer">
+            <div class="lc-aside-card-inner">
+              <div class="lc-aside-title">Tiến độ & Độ phức tạp</div>
+              <div class="lc-aside-complexity">
+                <div class="lc-complexity-pill"><div class="k">Mục tiêu Time</div><div class="v">O(n) / O(n log n)</div></div>
+                <div class="lc-complexity-pill"><div class="k">Space</div><div class="v">O(n)</div></div>
+              </div>
+              <div style="margin-top:12px;" class="lc-aside-list">
+                <div class="lc-aside-row"><span>Đã hoàn thành</span><strong>${doneCount}/5</strong></div>
+                <div class="lc-aside-row"><span>Level</span><strong>Level ${levelNum}</strong></div>
+                <div class="lc-aside-row"><span>Pattern</span><strong>${pattern}</strong></div>
+                <div class="lc-aside-row"><span>Độ khó</span><strong style="color:${heroAccent}">${diff}</strong></div>
+              </div>
+              <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="rd-btn-primary" style="flex:1;justify-content:center;padding:8px 12px;font-size:12px;background: ${heroAccent}; color:#000; border-color:${heroAccent};" onclick="toggleLcAll('${topic.id}')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>${doneCount===5?'Bỏ tick All':'Tick đủ 5 ngôn ngữ'}</span>
+                </button>
+              </div>
+              <div style="margin-top:10px; font-size:11px; color:var(--text-muted); line-height:1.5;">
+                Tick đủ 5 ngôn ngữ mới tính là <strong style="color:var(--text-primary)">Done</strong>. Dữ liệu lưu local trên trình duyệt.
+              </div>
+            </div>
+          </div>
+
+          <div class="lc-aside-card-outer">
+            <div class="lc-aside-card-inner">
+              <div class="lc-aside-title">Điều hướng</div>
+              <div class="lc-aside-list">
+                ${(content?.tags || topic.tags || []).slice(0,4).map(t => `<button onclick="filterByTag('${t}')" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;text-align:left;"># ${t} <span style="color:var(--text-muted)">›</span></button>`).join('')}
+              </div>
+              <div style="margin-top:12px; display:flex; gap:8px;">
+                <button class="rd-btn-ghost" style="flex:1;justify-content:center;" onclick="showDomain('${domain.id}')">← ${domain.name}</button>
+                ${getNextTopic(domain, mod, topic) ? `<button class="rd-btn-ghost" style="flex:1;justify-content:center;" onclick="openTopic('${getNextTopic(domain, mod, topic).id}')">Tiếp →</button>` : ''}
+              </div>
+            </div>
+          </div>
+
+          ${(content?.prerequisites?.length || content?.related?.length) ? `
+          <div class="lc-aside-card-outer">
+            <div class="lc-aside-card-inner">
+              <div class="lc-aside-title">Liên kết tri thức</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                ${(content.prerequisites||[]).slice(0,3).map(pid => {
+                  const pt = findTopic(pid);
+                  return pt ? `<button onclick="openTopic('${pid}')" style="text-align:left;padding:8px 12px;border-radius:10px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.18);color:var(--text-primary);font-size:12px;font-weight:600;cursor:pointer;">↳ ${pt.title}</button>` : '';
+                }).join('')}
+                ${(content.related||[]).slice(0,3).map(rid => {
+                  const rt = findTopic(rid);
+                  return rt ? `<button onclick="openTopic('${rid}')" style="text-align:left;padding:8px 12px;border-radius:10px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.18);color:var(--text-primary);font-size:12px;font-weight:600;cursor:pointer;">✦ ${rt.title}</button>` : '';
+                }).join('')}
+                ${(!content.prerequisites?.length && !content.related?.length) ? '<span style="font-size:12px;color:var(--text-muted);font-style:italic;">Chưa có liên kết</span>' : ''}
+              </div>
+            </div>
+          </div>` : ''}
+        </aside>
+      </div>
+    </div>
+    `;
+  } else {
+    document.getElementById('main').innerHTML = `
     <div class="content-view fade-in">
       <div class="breadcrumb">
         <a href="#" onclick="showHome(); return false;">Home</a>
@@ -1519,14 +2653,15 @@ function openTopic(topicId, updateHash = true) {
 
       <div class="content-header">
         <div class="content-tags">
-          ${(content?.tags || topic.tags).map(t => `<span class="tag tag-${t}">${t}</span>`).join('')}
+          ${(content?.tags || topic.tags).map(t => `<span class="tag tag-${t} ${isTagActive(t)?'tag-active':''}" onclick="filterByTag('${t}')" title="Lọc theo tag: ${t}" style="cursor:pointer;">${t}</span>`).join('')}
           ${topic.status === 'draft' ? '<span class="tag" style="background:var(--accent-amber-lt);color:var(--accent-amber);border-color:rgba(245,158,11,.2);">draft</span>' : ''}
         </div>
+        ${activeTagFilter ? `<div style="margin-top:8px;font-size:12px;color:var(--text-muted);">Đang lọc: <span style="color:#FFA116;font-weight:700;">${activeTagFilter}</span> <button onclick="clearTagFilter()" style="margin-left:8px;padding:2px 8px;font-size:11px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--text-secondary);cursor:pointer;">✕ Xóa lọc</button></div>` : ''}
         <h1 class="content-title">${content?.title || topic.title}</h1>
         ${hasContent ? `<p class="content-summary">${content.summary}</p>` : ''}
         <div class="content-meta">
-          ${hasContent ? `<span class="meta-item">⏱ ${content.readTime}</span>` : ''}
-          ${hasContent ? `<span class="meta-item">📅 ${content.updatedAt}</span>` : ''}
+          ${hasContent ? `<span class="meta-item">${content.readTime} đọc</span>` : ''}
+          ${hasContent ? `<span class="meta-item">Cập nhật ${content.updatedAt}</span>` : ''}
           ${prerequisiteTopics.length ? `<span class="meta-item">Yêu cầu: ${prerequisiteTopics.join(', ')}</span>` : ''}
           ${relatedTopics.length ? `<span class="meta-item">Liên quan: ${relatedTopics.join(', ')}</span>` : ''}
         </div>
@@ -1626,6 +2761,7 @@ function openTopic(topicId, updateHash = true) {
       </div>
     </div>
   `;
+  }
 
   // Show Header Reading Tools (Zen Mode, Font Scaling, Share Link)
   const headerReadingTools = document.getElementById('header-reading-tools');
@@ -1645,15 +2781,26 @@ function openTopic(topicId, updateHash = true) {
   // Trigger MathJax Typesetting
   triggerMathJax();
 
+  // Enhance code blocks: language header, copy button, syntax highlighting
+  enhanceProseCodeBlocks();
+  initReadingEnhancers();
+  initReadingExtras();
+
   // Trigger Mermaid Diagram Rendering
   if (window.mermaid) {
     try {
+      if (typeof getMermaidConfig === 'function') mermaid.initialize(getMermaidConfig());
       document.querySelectorAll('#prose-content .mermaid, #prose-content pre.mermaid').forEach(el => {
         el.setAttribute('data-mermaid-source', el.innerHTML);
       });
-      mermaid.run({
+      const mermaidPromise = mermaid.run({
         querySelector: '#prose-content .mermaid, #prose-content pre.mermaid'
       });
+      if (mermaidPromise && typeof mermaidPromise.then === 'function') {
+        mermaidPromise.then(() => setTimeout(enhanceMermaidDiagrams, 80)).catch(e => console.error("Mermaid error:", e));
+      } else {
+        setTimeout(enhanceMermaidDiagrams, 600);
+      }
     } catch (e) {
       console.error("Mermaid error:", e);
     }
@@ -1670,12 +2817,109 @@ function openTopic(topicId, updateHash = true) {
       headerToggleBtn.style.display = 'none';
     }
   }
+
+  // — Premium LeetCode post-enhancements —
+  if (isLcTopic && hasContent) {
+    // Wrap each H2 section into double-bezel shell
+    const proseEl = document.getElementById('prose-content');
+    if (proseEl) {
+      const sectionTitles = {
+        '📋': 'Đề bài',
+        '🎯': 'Tiếp cận Pattern',
+        '💻': 'Code 5 ngôn ngữ',
+        '✅': 'Checklist & Độ phức tạp'
+      };
+      // Group nodes by H2
+      const children = Array.from(proseEl.children);
+      const sections = [];
+      let cur = null;
+      children.forEach(node => {
+        if (node.tagName === 'H2') {
+          if (cur) sections.push(cur);
+          cur = { h2: node, nodes: [] };
+        } else if (cur) {
+          cur.nodes.push(node);
+        } else {
+          // content before first H2 (e.g., stray header) -> create intro section
+          if (!cur) cur = { h2: null, nodes: [] };
+          cur.nodes.push(node);
+        }
+      });
+      if (cur) sections.push(cur);
+      // Clear prose and rebuild with shells
+      proseEl.innerHTML = '';
+      sections.forEach(sec => {
+        const titleText = sec.h2 ? sec.h2.textContent.trim() : '';
+        const iconMatch = Object.keys(sectionTitles).find(k => titleText.includes(k));
+        const icon = iconMatch || '◆';
+        const titleClean = titleText.replace(/^[^\w]*\s*/, '').replace(/^Đề bài|Problem Statement/, 'Đề bài').trim() || 'Nội dung';
+        const subLabel = sec.h2 ? (titleText.includes('Code') ? '5 ngôn ngữ • Chọn tab để xem' : titleText.includes('Checklist') ? 'Mục tiêu O(n)' : titleText.includes('Pattern') ? 'Nhận diện trước khi code' : 'Mô tả chi tiết') : 'Tổng quan';
+        const outer = document.createElement('div');
+        outer.className = 'lc-section-outer';
+        const inner = document.createElement('div');
+        inner.className = 'lc-section-inner';
+        if (sec.h2) {
+          const head = document.createElement('div');
+          head.className = 'lc-section-head';
+          head.innerHTML = `<span class="lc-section-icon">${icon}</span><span class="lc-section-title">${titleClean}</span><span class="lc-section-sub">${subLabel}</span>`;
+          inner.appendChild(head);
+          // keep original h2 hidden but for TOC anchor, re-insert a hidden h2
+          const hiddenH2 = sec.h2.cloneNode(true);
+          hiddenH2.style.display = 'none';
+          hiddenH2.setAttribute('data-lc-hidden', 'true');
+          inner.appendChild(hiddenH2);
+        }
+        sec.nodes.forEach(n => inner.appendChild(n));
+        outer.appendChild(inner);
+        proseEl.appendChild(outer);
+      });
+      // Re-inject visible H2 anchors for TOC scroll (keep hidden ones for TOC generation already done)
+      // Enhance code panes: add copy button & ensure active pane
+      proseEl.querySelectorAll('.lc-code-pane pre').forEach(pre => {
+        if (pre.querySelector('.lc-code-copy')) return;
+        pre.style.position = 'relative';
+        const btn = document.createElement('button');
+        btn.className = 'lc-code-copy';
+        btn.title = 'Sao chép code';
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`;
+        btn.onclick = () => {
+          const code = pre.querySelector('code')?.innerText || pre.innerText;
+          navigator.clipboard.writeText(code).then(()=> showToast('📋 Đã sao chép code!')).catch(()=> showToast('Không thể sao chép'));
+        };
+        pre.appendChild(btn);
+      });
+      // Animate sections entry
+      proseEl.querySelectorAll('.lc-section-outer').forEach((el, i) => {
+        el.style.animation = `lcFadeUp 560ms cubic-bezier(0.32,0.72,0,1) both`;
+        el.style.animationDelay = `${80 + i*90}ms`;
+      });
+      // Ensure hero progress reflects current done state
+      updateLcCheckboxes(topic.id);
+      // Wrap hero progress dots update
+      const heroDots = document.querySelectorAll('.lc-hero-dot');
+      heroDots.forEach((dot, idx) => {
+        const lang = LC_LANGS[idx];
+        if (lang) dot.classList.toggle('on', isLcLangDone(topic.id, lang));
+      });
+      const heroFill = document.querySelector('.lc-hero-fill');
+      if (heroFill) {
+        const pct2 = Math.round((getLcDoneCount(topic.id)/5)*100);
+        heroFill.style.width = pct2 + '%';
+      }
+      const heroPctLabel = document.querySelector('.lc-hero-pct');
+      if (heroPctLabel) {
+        const c = getLcDoneCount(topic.id);
+        heroPctLabel.textContent = `${Math.round((c/5)*100)}% • ${c===5?'Hoàn thành ✓':c>0?'Đang làm':'Chưa bắt đầu'}`;
+      }
+    }
+  }
 }
 
 // ── Zen Reader & Interactive Helper Actions ───────────────────────
 window.toggleZenMode = function() {
   const layout = document.getElementById('layout');
   const isZen = layout.classList.toggle('zen-mode');
+  document.body.classList.toggle('zen-mode', isZen);
   const btn = document.getElementById('btn-zen-mode');
   if (btn) btn.classList.toggle('active', isZen);
   showToast(isZen ? '👁️ Đã kích hoạt Zen Focus Mode' : 'Đã thoát Zen Mode');
@@ -1683,9 +2927,9 @@ window.toggleZenMode = function() {
 
 let currentFontScaleIndex = 0;
 const FONT_SCALES = [
-  { size: '15px', label: '1x' },
-  { size: '17px', label: '1.2x' },
-  { size: '19.5px', label: '1.4x' }
+  { size: '16px', label: '1x' },
+  { size: '18px', label: '1.2x' },
+  { size: '20.5px', label: '1.4x' }
 ];
 
 window.cycleFontSize = function() {
@@ -1711,6 +2955,65 @@ window.scrollToTopicTop = function() {
   const main = document.getElementById('main');
   if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
 };
+
+// ── Prose Code Block Enhancement (shell header + copy + highlight) ──
+const CODE_COPY_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`;
+const CODE_LANG_ALIASES = { kotlin: 'Kotlin', java: 'Java', swift: 'Swift', python: 'Python', javascript: 'JavaScript', typescript: 'TypeScript', cpp: 'C++', c: 'C', csharp: 'C#', go: 'Go', rust: 'Rust', ruby: 'Ruby', dart: 'Dart', bash: 'Shell', shell: 'Shell', xml: 'XML', html: 'XML', yaml: 'YAML', json: 'JSON', toml: 'TOML', groovy: 'Groovy', gradle: 'Gradle', bytecode: 'Bytecode' };
+
+function enhanceProseCodeBlocks() {
+  const proseEl = document.getElementById('prose-content');
+  if (!proseEl) return;
+
+  proseEl.querySelectorAll('pre').forEach(pre => {
+    if (pre.closest('.rd-code') || pre.closest('.lc-code-pane') || pre.closest('.code-tabs')) return;
+    if (pre.closest('.lc-premium-page') || pre.classList.contains('mermaid')) return;
+
+    const codeEl = pre.querySelector('code') || pre;
+    const rawLang = (
+      pre.getAttribute('data-lang') ||
+      codeEl.getAttribute('data-lang') ||
+      ((codeEl.className || '').match(/language-([\w+#-]+)/) || [])[1] ||
+      ''
+    ).toLowerCase();
+
+    // Syntax highlighting (skip plain text)
+    if (window.hljs && rawLang && !['text', 'plaintext', 'none'].includes(rawLang) && !codeEl.dataset.hlDone) {
+      try {
+        delete codeEl.dataset.result;
+        hljs.highlightElement(codeEl);
+        codeEl.dataset.hlDone = '1';
+      } catch (e) { /* non-fatal */ }
+    }
+
+    // Shell wrapper with language header + copy button
+    const shell = document.createElement('div');
+    shell.className = 'rd-code';
+    const head = document.createElement('div');
+    head.className = 'rd-code-head';
+    const langLabel = CODE_LANG_ALIASES[rawLang] || (rawLang ? rawLang.toUpperCase() : 'Code');
+
+    head.innerHTML = `
+      <span class="rd-code-lang">${langLabel}</span>
+      <button class="rd-code-copy" type="button" title="Sao chép code">${CODE_COPY_ICON}<span>Copy</span></button>
+    `;
+    head.querySelector('.rd-code-copy').addEventListener('click', function () {
+      const text = codeEl.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        this.classList.add('copied');
+        this.querySelector('span').textContent = 'Đã copy';
+        setTimeout(() => {
+          this.classList.remove('copied');
+          this.querySelector('span').textContent = 'Copy';
+        }, 1600);
+        showToast('📋 Đã sao chép code!');
+      }).catch(() => showToast('Không thể sao chép code'));
+    });
+
+    pre.parentNode.insertBefore(shell, pre);
+    shell.appendChild(head);
+    shell.appendChild(pre);
+  });
+}
 
 window.showToast = function(msg) {
   let toast = document.getElementById('kos-toast');
@@ -1752,6 +3055,67 @@ function toggleOriginalContent() {
   if (proseEl) {
     proseEl.innerHTML = html;
     proseEl.classList.toggle('raw-markdown', isShowingOriginal);
+    // Re-apply premium wrapping for LC topics
+    if (currentTopicId && currentTopicId.startsWith('lc-')) {
+      // Need to re-wrap after innerHTML set — reuse same logic as openTopic premium enhancement
+      // Simple approach: re-trigger openTopic without hash change to rebuild full page? Instead just re-wrap inline.
+      // Inline re-wrap (duplicate logic minimal — re-run section wrapping)
+      const isLc = true;
+      if (isLc) {
+        const children = Array.from(proseEl.children);
+        const sections = [];
+        let cur = null;
+        children.forEach(node => {
+          if (node.tagName === 'H2') {
+            if (cur) sections.push(cur);
+            cur = { h2: node, nodes: [] };
+          } else if (cur) {
+            cur.nodes.push(node);
+          } else {
+            if (!cur) cur = { h2: null, nodes: [] };
+            cur.nodes.push(node);
+          }
+        });
+        if (cur) sections.push(cur);
+        proseEl.innerHTML = '';
+        sections.forEach(sec => {
+          const titleText = sec.h2 ? sec.h2.textContent.trim() : '';
+          const iconMatch = ['📋','🎯','💻','✅'].find(k => titleText.includes(k));
+          const icon = iconMatch || '◆';
+          const titleClean = sec.h2 ? sec.h2.textContent.replace(/^[^\w]*\s*/, '').trim() : 'Nội dung';
+          const subLabel = titleText.includes('Code') ? '5 ngôn ngữ • Chọn tab để xem' : titleText.includes('Checklist') ? 'Mục tiêu O(n)' : titleText.includes('Pattern') ? 'Nhận diện trước khi code' : 'Mô tả chi tiết';
+          const outer = document.createElement('div');
+          outer.className = 'lc-section-outer';
+          const inner = document.createElement('div');
+          inner.className = 'lc-section-inner';
+          if (sec.h2) {
+            const head = document.createElement('div');
+            head.className = 'lc-section-head';
+            head.innerHTML = `<span class="lc-section-icon">${icon}</span><span class="lc-section-title">${titleClean}</span><span class="lc-section-sub">${subLabel}</span>`;
+            inner.appendChild(head);
+            const hiddenH2 = sec.h2.cloneNode(true);
+            hiddenH2.style.display = 'none';
+            inner.appendChild(hiddenH2);
+          }
+          sec.nodes.forEach(n => inner.appendChild(n));
+          outer.appendChild(inner);
+          proseEl.appendChild(outer);
+        });
+        proseEl.querySelectorAll('.lc-code-pane pre').forEach(pre => {
+          if (pre.querySelector('.lc-code-copy')) return;
+          pre.style.position = 'relative';
+          const b = document.createElement('button');
+          b.className = 'lc-code-copy';
+          b.title = 'Sao chép code';
+          b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`;
+          b.onclick = () => {
+            const code = pre.querySelector('code')?.innerText || pre.innerText;
+            navigator.clipboard.writeText(code).then(()=> showToast('📋 Đã sao chép code!')).catch(()=> showToast('Không thể sao chép'));
+          };
+          pre.appendChild(b);
+        });
+      }
+    }
   }
   if (btn) {
     btn.innerHTML = isShowingOriginal ? '🇻🇳 Xem bản dịch (Tiếng Việt)' : '🌐 Xem bản gốc (English)';
@@ -1760,6 +3124,20 @@ function toggleOriginalContent() {
 
   renderToc(html);
   triggerMathJax();
+  enhanceProseCodeBlocks();
+  initReadingEnhancers();
+  initReadingExtras();
+  if (window.mermaid) {
+    try {
+      if (typeof getMermaidConfig === 'function') mermaid.initialize(getMermaidConfig());
+      document.querySelectorAll('#prose-content .mermaid, #prose-content pre.mermaid').forEach(el => {
+        if (!el.getAttribute('data-mermaid-source')) el.setAttribute('data-mermaid-source', el.innerHTML);
+      });
+      const p = mermaid.run({ querySelector: '#prose-content .mermaid, #prose-content pre.mermaid' });
+      if (p && typeof p.then === 'function') p.then(() => setTimeout(enhanceMermaidDiagrams, 80));
+      else setTimeout(enhanceMermaidDiagrams, 600);
+    } catch (e) { console.error('Mermaid error:', e); }
+  }
 }
 
 function getNextTopic(domain, mod, topic) {
@@ -1777,18 +3155,23 @@ function getNextTopic(domain, mod, topic) {
 }
 
 // ── TOC ───────────────────────────────────────────────────────────
+// Headings eligible for TOC: h2/h3 not nested inside code samples
+function getTocHeadings(root) {
+  return Array.from(root.querySelectorAll('h2, h3')).filter(h => !h.closest('pre, code'));
+}
+
 function renderToc(html) {
   const toc = document.getElementById('toc');
   const parser = new DOMParser();
   const doc = parser.parseFromString(`<div>${html}</div>`, 'text/html');
-  const headings = doc.querySelectorAll('h2, h3');
+  const headings = getTocHeadings(doc.body);
 
   if (headings.length === 0) { hideToc(); return; }
 
   toc.style.display = 'block';
   toc.innerHTML = `
     <div class="toc-title">Nội dung</div>
-    ${Array.from(headings).map((h, i) => `
+    ${headings.map((h, i) => `
       <div class="toc-item ${h.tagName === 'H3' ? 'h3' : ''}"
            onclick="scrollToHeading(${i})">
         ${h.textContent}
@@ -1803,7 +3186,9 @@ function hideToc() {
 }
 
 function scrollToHeading(index) {
-  const headings = document.querySelectorAll('.prose h2, .prose h3');
+  const proseEl = document.getElementById('prose-content');
+  if (!proseEl) return;
+  const headings = getTocHeadings(proseEl);
   if (headings[index]) {
     headings[index].scrollIntoView({ behavior: 'smooth' });
   }
@@ -3275,10 +4660,19 @@ searchInput.addEventListener('input', e => {
     t.modName.toLowerCase().includes(q)
   ).slice(0, 8);
 
-  if (!results.length) {
+  // Catalog LeetCode: bài free chưa có bài học trong repo
+  const catalogResults = LC_CATALOG.enabled ? LC_CATALOG.problems
+    .filter(p => !LC_CATALOG.lessonByProblemId[p.id])
+    .filter(p =>
+      p.title.toLowerCase().includes(q) ||
+      String(p.id) === q ||
+      p.topicTags.some(tag => tag.includes(q))
+    ).slice(0, 6) : [];
+
+  if (!results.length && !catalogResults.length) {
     searchOverlay.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:14px;">Không tìm thấy kết quả cho "<strong>${escapeHtml(q)}</strong>"</div>`;
   } else {
-    searchOverlay.innerHTML = results.map(r => `
+    const lessonHtml = results.map(r => `
       <div class="search-result" onclick="openTopicFromSearch('${r.id}')">
         <div class="search-result-icon">${DOMAIN_ICONS[r.domainIcon] || `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`}</div>
         <div class="search-result-info">
@@ -3288,6 +4682,19 @@ searchInput.addEventListener('input', e => {
         <span class="tag" style="font-size:10px;">${r.status}</span>
       </div>
     `).join('');
+    const catalogHtml = catalogResults.length ? `
+      <div style="padding:8px 16px 4px 16px;font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Catalog LeetCode — chưa có bài học</div>
+      ${catalogResults.map(p => `
+        <div class="search-result" onclick="openLcExternalById(${p.id})">
+          <div class="search-result-icon" style="color:#FFA116;">↗</div>
+          <div class="search-result-info">
+            <div class="search-result-topic">${p.id}. ${highlight(p.title, q)}</div>
+            <div class="search-result-path">${p.topicTags.slice(0, 3).join(' • ')}</div>
+          </div>
+          <span class="lc-premium-pill lc-premium-${p.difficulty.toLowerCase()}" style="font-size:10px;">${p.difficulty}</span>
+        </div>
+      `).join('')}` : '';
+    searchOverlay.innerHTML = lessonHtml + catalogHtml;
   }
 
   searchOverlay.classList.add('visible');
@@ -7433,24 +8840,219 @@ function getSavedTheme() {
   try { return localStorage.getItem(THEME_STORAGE_KEY) || 'dark'; } catch (e) { return 'dark'; }
 }
 
+function getMermaidConfig() {
+  const currentThemeId = getSavedTheme();
+  const themeObj = (typeof THEMES !== 'undefined' && THEMES.find(t => t.id === currentThemeId)) || { isLight: currentThemeId === 'light' || currentThemeId === 'editorial' || currentThemeId === 'matcha' };
+  const isLight = themeObj.isLight;
+  return {
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    fontFamily: 'Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontSize: 13,
+    themeVariables: {
+      darkMode: !isLight,
+      fontFamily: 'Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontSize: '13px',
+      primaryColor: isLight ? '#f8fafc' : '#0f172a',
+      primaryTextColor: isLight ? '#0f172a' : '#f8fafc',
+      primaryBorderColor: isLight ? 'rgba(15, 23, 42, 0.16)' : 'rgba(255, 255, 255, 0.16)',
+      lineColor: isLight ? '#64748b' : '#94a3b8',
+      secondaryColor: isLight ? '#f1f5f9' : '#1e293b',
+      tertiaryColor: isLight ? '#ffffff' : '#090d16',
+      mainBkg: isLight ? '#ffffff' : '#0f172a',
+      nodeBorder: isLight ? 'rgba(15, 23, 42, 0.16)' : 'rgba(255, 255, 255, 0.16)',
+      nodeTextColor: isLight ? '#0f172a' : '#f8fafc',
+      edgeLabelBackground: isLight ? '#ffffff' : '#0f172a',
+      clusterBkg: isLight ? 'rgba(15, 23, 42, 0.02)' : 'rgba(255, 255, 255, 0.02)',
+      clusterBorder: isLight ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.08)',
+      titleColor: isLight ? '#0f172a' : '#f8fafc'
+    },
+    flowchart: {
+      htmlLabels: true,
+      curve: 'bumpX',
+      nodeSpacing: 45,
+      rankSpacing: 55,
+      padding: 16
+    }
+  };
+}
+
 function reRenderMermaid() {
   if (!window.mermaid) return;
-  const currentThemeId = getSavedTheme();
-  const themeObj = THEMES.find(t => t.id === currentThemeId) || THEMES[0];
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: themeObj.isLight ? 'neutral' : 'dark',
-    fontFamily: 'Plus Jakarta Sans, sans-serif',
-    fontSize: 13,
-    flowchart: { htmlLabels: true, curve: 'basis' }
-  });
+  mermaid.initialize(getMermaidConfig());
   let hasDiagrams = false;
   document.querySelectorAll('#prose-content .mermaid, #prose-content pre.mermaid').forEach(el => {
     const src = el.getAttribute('data-mermaid-source');
     if (src) { el.innerHTML = src; el.removeAttribute('data-processed'); hasDiagrams = true; }
   });
   if (hasDiagrams) {
-    mermaid.run({ querySelector: '#prose-content .mermaid, #prose-content pre.mermaid' }).catch(e => console.error('Mermaid error:', e));
+    mermaid.run({ querySelector: '#prose-content .mermaid, #prose-content pre.mermaid' })
+      .then(() => setTimeout(enhanceMermaidDiagrams, 80))
+      .catch(e => console.error('Mermaid error:', e));
+  }
+}
+
+// ── Mermaid UX Enhancement: scroll hint, zoom, pan, fullscreen ────────
+function enhanceMermaidDiagrams() {
+  const diagrams = document.querySelectorAll('#prose-content .mermaid');
+  if (!diagrams.length) return;
+  diagrams.forEach(el => {
+    // Avoid double-wrapping
+    if (el.parentElement && el.parentElement.classList.contains('mermaid-wrapper')) {
+      updateMermaidWrapperState(el.parentElement, el);
+      return;
+    }
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mermaid-wrapper';
+    el.parentNode.insertBefore(wrapper, el);
+    wrapper.appendChild(el);
+
+    // Toolbar
+    const toolbar = document.createElement('div');
+    toolbar.className = 'mermaid-toolbar';
+    toolbar.innerHTML = `
+      <button type="button" class="mermaid-zoom-out" title="Thu nhỏ (Zoom out)" aria-label="Thu nhỏ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><circle cx="12" cy="12" r="9"/></svg>
+      </button>
+      <span class="mermaid-zoom-label">100%</span>
+      <button type="button" class="mermaid-zoom-in" title="Phóng to (Zoom in)" aria-label="Phóng to">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/><circle cx="12" cy="12" r="9"/></svg>
+      </button>
+      <button type="button" class="mermaid-zoom-reset" title="Đặt lại (Reset)" aria-label="Đặt lại">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 3 3 9 9 9"/></svg>
+      </button>
+      <span class="mermaid-divider"></span>
+      <button type="button" class="mermaid-fullscreen-btn" title="Toàn màn hình (Fullscreen)" aria-label="Toàn màn hình">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
+    `;
+    wrapper.appendChild(toolbar);
+
+    // Scroll hint
+    const hint = document.createElement('div');
+    hint.className = 'mermaid-hint';
+    hint.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Kéo để xem &bull; Lăn chuột để cuộn
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    `;
+    wrapper.appendChild(hint);
+
+    // Zoom state per diagram
+    let zoom = 1;
+    const label = toolbar.querySelector('.mermaid-zoom-label');
+    const svgEl = () => el.querySelector('svg');
+    const applyZoom = (next) => {
+      zoom = Math.min(2.4, Math.max(0.5, next));
+      const svg = svgEl();
+      if (svg) svg.style.transform = zoom === 1 ? '' : `scale(${zoom})`;
+      if (label) label.textContent = Math.round(zoom * 100) + '%';
+    };
+    toolbar.querySelector('.mermaid-zoom-in').addEventListener('click', (e) => { e.stopPropagation(); applyZoom(zoom + 0.2); });
+    toolbar.querySelector('.mermaid-zoom-out').addEventListener('click', (e) => { e.stopPropagation(); applyZoom(zoom - 0.2); });
+    toolbar.querySelector('.mermaid-zoom-reset').addEventListener('click', (e) => { e.stopPropagation(); applyZoom(1); el.scrollTo({ left: 0, behavior: 'smooth' }); });
+
+    // Fullscreen
+    const fsBtn = toolbar.querySelector('.mermaid-fullscreen-btn');
+    const toggleFullscreen = (e) => {
+      if (e) e.stopPropagation();
+      if (document.fullscreenElement === wrapper) {
+        document.exitFullscreen().catch(() => wrapper.classList.remove('is-fullscreen'));
+      } else if (wrapper.requestFullscreen) {
+        wrapper.requestFullscreen().catch(() => {
+          wrapper.classList.toggle('is-fullscreen');
+          document.body.style.overflow = wrapper.classList.contains('is-fullscreen') ? 'hidden' : '';
+        });
+      } else {
+        const isFs = wrapper.classList.toggle('is-fullscreen');
+        document.body.style.overflow = isFs ? 'hidden' : '';
+      }
+    };
+    fsBtn.addEventListener('click', toggleFullscreen);
+    // ESC to exit fallback fullscreen
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        document.querySelectorAll('.mermaid-wrapper.is-fullscreen').forEach(w => w.classList.remove('is-fullscreen'));
+        document.body.style.overflow = '';
+      }
+      wrapper.classList.toggle('is-fullscreen', document.fullscreenElement === wrapper);
+    });
+    // Double-click to fullscreen
+    el.addEventListener('dblclick', toggleFullscreen);
+
+    // Drag to scroll (mouse)
+    let isDown = false, startX, scrollLeft, startY, scrollTop;
+    el.addEventListener('mousedown', (e) => {
+      // ignore if clicking toolbar
+      if (e.target.closest('.mermaid-toolbar')) return;
+      isDown = true;
+      el.style.cursor = 'grabbing';
+      startX = e.pageX - el.offsetLeft;
+      scrollLeft = el.scrollLeft;
+      startY = e.pageY - el.offsetTop;
+      scrollTop = el.scrollTop;
+    });
+    el.addEventListener('mouseleave', () => { isDown = false; el.style.cursor = 'grab'; });
+    el.addEventListener('mouseup', () => { isDown = false; el.style.cursor = 'grab'; });
+    el.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - el.offsetLeft;
+      const y = e.pageY - el.offsetTop;
+      el.scrollLeft = scrollLeft - (x - startX);
+      el.scrollTop = scrollTop - (y - startY);
+    });
+    // Wheel: shift+wheel already horizontal, but hint vertical scroll for tall
+    el.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      // allow Ctrl+wheel to zoom
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        applyZoom(zoom + (e.deltaY < 0 ? 0.08 : -0.08));
+      }
+    }, { passive: false });
+
+    // Scroll shadows + hide hint after interaction
+    const onScroll = () => {
+      const canLeft = el.scrollLeft > 4;
+      const canRight = el.scrollLeft + el.clientWidth < el.scrollWidth - 4;
+      wrapper.classList.toggle('can-scroll-left', canLeft);
+      wrapper.classList.toggle('can-scroll-right', canRight);
+      if (canLeft || el.scrollTop > 4) wrapper.classList.add('hint-hidden');
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    // Touch: hide hint after first touch
+    el.addEventListener('touchstart', () => wrapper.classList.add('hint-hidden'), { passive: true });
+
+    updateMermaidWrapperState(wrapper, el);
+    // Re-check after svg layout
+    setTimeout(() => updateMermaidWrapperState(wrapper, el), 400);
+    // Observe resize
+    const ro = new ResizeObserver(() => updateMermaidWrapperState(wrapper, el));
+    ro.observe(el);
+    if (svgEl()) ro.observe(svgEl());
+    el._mermaidRO = ro;
+  });
+}
+
+function updateMermaidWrapperState(wrapper, el) {
+  const hasHScroll = el.scrollWidth > el.clientWidth + 8;
+  const hasVScroll = el.scrollHeight > el.clientHeight + 8;
+  const isTall = el.scrollHeight > 540 || (el.querySelector('svg') && el.querySelector('svg').getBoundingClientRect().height > 520);
+  wrapper.classList.toggle('has-scroll', hasHScroll || hasVScroll);
+  wrapper.classList.toggle('is-tall', isTall);
+  const canLeft = el.scrollLeft > 4;
+  const canRight = el.scrollLeft + el.clientWidth < el.scrollWidth - 4;
+  wrapper.classList.toggle('can-scroll-left', canLeft);
+  wrapper.classList.toggle('can-scroll-right', hasHScroll && !canLeft);
+  // Auto-hide hint after 4s if not interacted
+  clearTimeout(wrapper._hintTimer);
+  if (hasHScroll) {
+    wrapper.classList.remove('hint-hidden');
+    wrapper._hintTimer = setTimeout(() => wrapper.classList.add('hint-hidden'), 4200);
+  } else {
+    wrapper.classList.add('hint-hidden');
   }
 }
 
@@ -7621,10 +9223,13 @@ const mainScrollContainer = document.getElementById('main');
 if (mainScrollContainer) {
   mainScrollContainer.addEventListener('scroll', () => {
     const rail = document.getElementById('scroll-progress-fill');
-    if (!rail) return;
-    const maxScroll = mainScrollContainer.scrollHeight - mainScrollContainer.clientHeight;
-    const pct = maxScroll > 0 ? (mainScrollContainer.scrollTop / maxScroll) * 100 : 0;
-    rail.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+    if (rail) {
+      const maxScroll = mainScrollContainer.scrollHeight - mainScrollContainer.clientHeight;
+      const pct = maxScroll > 0 ? Math.min(100, Math.max(0, (mainScrollContainer.scrollTop / maxScroll) * 100)) : 0;
+      rail.style.width = `${pct}%`;
+      setReaderProgress(pct);
+      if (rdPillEl) rdPillEl.classList.toggle('show', !!currentTopicId && mainScrollContainer.scrollTop > 520);
+    }
   }, { passive: true });
 }
 
@@ -7642,3 +9247,171 @@ if (isMainPortalPage) {
 
 
 
+
+// ── Reading Enhancers: section reveal + TOC active tracking ──────
+function initReadingEnhancers() {
+  const proseEl = document.getElementById('prose-content');
+  if (!proseEl) return;
+
+  // Section reveal on viewport entry (transform/opacity only)
+  if (rdRevealObserver) rdRevealObserver.disconnect();
+  if (!RD_REDUCED_MOTION && 'IntersectionObserver' in window) {
+    rdRevealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('rd-revealed');
+          rdRevealObserver.unobserve(entry.target);
+        }
+      });
+    }, { root: mainScrollContainer, rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+
+    Array.from(proseEl.children).slice(0, 40).forEach(child => {
+      if (child.tagName === 'SCRIPT' || child.classList.contains('rd-revealed')) return;
+      child.classList.add('rd-reveal');
+      rdRevealObserver.observe(child);
+    });
+  }
+
+  // TOC active-section highlight
+  if (rdTocObserver) rdTocObserver.disconnect();
+  const tocEl = document.getElementById('toc');
+  if (!tocEl || tocEl.style.display === 'none') return;
+  if (!('IntersectionObserver' in window)) return;
+
+  const headings = getTocHeadings(proseEl);
+  const tocItems = tocEl.querySelectorAll('.toc-item');
+  let currentActive = -1;
+
+  const setActiveItem = idx => {
+    if (idx === currentActive) return;
+    currentActive = idx;
+    tocItems.forEach((item, i) => item.classList.toggle('active', i === idx));
+  };
+
+  rdTocObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) setActiveItem(Number(entry.target.dataset.rdIdx));
+    });
+  }, { root: mainScrollContainer, rootMargin: '-72px 0px -68% 0px', threshold: 0 });
+
+  headings.forEach((h, i) => {
+    h.dataset.rdIdx = i;
+    rdTocObserver.observe(h);
+  });
+}
+
+// ── Reading Experience v2: deep-links, lightbox, reader pill ──────
+// (rdState / rdPillEl / rdLightboxEl được khai báo sớm ở cụm Reading Enhancers)
+
+function slugifyHeading(text) {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/gi, 'd')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'section';
+}
+
+function hideReaderPill() {
+  if (rdPillEl) rdPillEl.classList.remove('show');
+}
+
+function setReaderProgress(pct) {
+  rdState.pct = pct;
+  if (rdPillEl) {
+    rdPillEl.querySelector('.rd-pill-fill').style.transform = `scaleX(${pct / 100})`;
+    rdPillEl.querySelector('.rd-pill-pct').textContent = `${Math.round(pct)}%`;
+  }
+  document.documentElement.style.setProperty('--rd-progress', (pct / 100).toFixed(4));
+}
+
+function ensureReaderPill() {
+  if (!rdPillEl) {
+    rdPillEl = document.createElement('div');
+    rdPillEl.className = 'rd-reader-pill';
+    rdPillEl.setAttribute('role', 'button');
+    rdPillEl.title = 'Lên đầu trang';
+    rdPillEl.innerHTML = `
+      <div class="rd-pill-progress"><div class="rd-pill-fill"></div></div>
+      <span class="rd-pill-title"></span>
+      <span class="rd-pill-pct">0%</span>
+    `;
+    rdPillEl.addEventListener('click', () => window.scrollToTopicTop());
+    document.body.appendChild(rdPillEl);
+  }
+  rdPillEl.querySelector('.rd-pill-title').textContent = rdState.title;
+  rdPillEl.classList.remove('show');
+}
+
+function ensureLightbox() {
+  if (rdLightboxEl) return;
+  rdLightboxEl = document.createElement('div');
+  rdLightboxEl.className = 'rd-lightbox';
+  rdLightboxEl.innerHTML = '<img alt="Xem ở độ phân giải đầy đủ" />';
+  rdLightboxEl.addEventListener('click', () => rdLightboxEl.classList.remove('open'));
+  document.body.appendChild(rdLightboxEl);
+
+  document.addEventListener('click', e => {
+    const img = e.target.closest('#prose-content img');
+    if (!img || img.naturalWidth < 400) return;
+    rdLightboxEl.querySelector('img').src = img.currentSrc || img.src;
+    rdLightboxEl.classList.add('open');
+  });
+}
+
+function initReadingExtras() {
+  const proseEl = document.getElementById('prose-content');
+  if (!proseEl) { hideReaderPill(); return; }
+
+  const titleEl = document.querySelector('.content-title');
+  rdState.title = titleEl ? titleEl.textContent.trim() : '';
+
+  // Stable ids on doc headings → shareable section links
+  const seen = {};
+  getTocHeadings(proseEl).forEach(h => {
+    const base = slugifyHeading(h.textContent);
+    seen[base] = (seen[base] || 0) + 1;
+    h.id = 's-' + base + (seen[base] > 1 ? '-' + seen[base] : '');
+  });
+
+  // Jump to section hash after render
+  if (location.hash.startsWith('#s-')) {
+    const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 350);
+  }
+
+  // Heading click → update hash + copy section link
+  proseEl.addEventListener('click', e => {
+    const h = e.target.closest('h2, h3');
+    if (!h || !h.id || h.closest('pre, code')) return;
+    const url = location.href.split('#')[0] + '#' + h.id;
+    history.replaceState(null, '', '#' + h.id);
+    navigator.clipboard.writeText(url)
+      .then(() => showToast('🔗 Đã sao chép liên kết section!'))
+      .catch(() => {});
+  });
+
+  ensureLightbox();
+  ensureReaderPill();
+}
+
+// Keyboard: Z = zen toggle (trang đọc), Esc = đóng lightbox / thoát zen
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
+  if (e.key === 'z' || e.key === 'Z') {
+    const tools = document.getElementById('header-reading-tools');
+    if (tools && tools.style.display !== 'none' && window.toggleZenMode) window.toggleZenMode();
+  }
+
+  if (e.key === 'Escape') {
+    if (rdLightboxEl && rdLightboxEl.classList.contains('open')) {
+      rdLightboxEl.classList.remove('open');
+    } else if (document.getElementById('layout')?.classList.contains('zen-mode')) {
+      window.toggleZenMode();
+    }
+  }
+});

@@ -127,6 +127,21 @@ Ví dụ không tốt:
 
 ---
 
+# Danh mục Field
+
+Mỗi field sử dụng trong hệ thống phải được định nghĩa tại đây.
+
+## topic_tags
+
+- Kiểu dữ liệu: Array of String.
+- Mục đích: phân loại bài theo tag chủ đề chính thức của LeetCode.
+- Giá trị: slug chuẩn của LeetCode (ví dụ `array`, `hash-table`, `two-pointers`, `dynamic-programming`).
+- Nguồn dữ liệu: đồng bộ từ LeetCode GraphQL API thông qua công cụ sync chính thức.
+- Phân biệt với `tags`: `tags` mô tả ngữ cảnh nội bộ của Repository (pattern, level, difficulty), `topic_tags` mô tả taxonomy gốc của LeetCode.
+- Bài viết không thuộc LeetCode không cần field này.
+
+---
+
 # Nội dung Field
 
 Metadata cần:

@@ -3,15 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Backend Knowledge OS — Hệ điều hành tri thức Backend</title>
-  <meta name="description" content="Chuyên mục Backend: Spring Framework, Java Core, Authentication, Microservices & Rest API." />
+  <title>LeetCode Grind — 3248 Bài Free • 5 Ngôn Ngữ • Knowledge OS</title>
+  <meta name="description" content="Catalog 3248 bài Free LeetCode với tag chính thức — duyệt theo Tag, Độ khó (Easy/Medium/Hard) hoặc kết hợp. 460 bài học đầy đủ 5 ngôn ngữ C++/Java/Kotlin/Swift/Dart. Tick tiến độ ngay trên web." />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preload" href="fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="style.css" />
-  <!-- D3.js for Interactive Knowledge Graph -->
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-  <!-- Mermaid.js for Diagrams -->
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
     (function () {
@@ -49,7 +47,6 @@
   <header class="header">
     <a class="logo" href="index.html">
       <div class="logo-icon">
-        <!-- Quantum Hypercube Isometric Logo -->
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="logoTop" x1="12" y1="2" x2="12" y2="10" gradientUnits="userSpaceOnUse">
@@ -74,7 +71,7 @@
       </div>
       <div class="logo-text">
         <span class="logo-name">Knowledge OS</span>
-        <span class="logo-tagline">Backend Domain</span>
+        <span class="logo-tagline">LeetCode Grind • 3248 Free</span>
       </div>
     </a>
 
@@ -84,20 +81,20 @@
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
       </span>
-      <input type="text" id="searchInput" placeholder="Tìm kiếm bài học Backend..." autocomplete="off" spellcheck="false" />
+      <input type="text" id="searchInput" placeholder="Tìm bài LeetCode (vd: Two Sum, 1, Two Pointers...)" autocomplete="off" spellcheck="false" />
     </div>
 
     <button id="btn-toggle-original" class="btn-toggle-original" style="display:none;" onclick="toggleOriginalContent()">🌐 Xem bản gốc (English)</button>
 
     <div id="header-reading-tools" class="header-reading-tools" style="display:none;">
-      <button class="reading-tool-btn" id="btn-zen-mode" onclick="toggleZenMode()" title="Chế độ tập trung (Ẩn Sidebar & TOC)">
+      <button class="reading-tool-btn" id="btn-zen-mode" onclick="toggleZenMode()" title="Chế độ tập trung">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
         <span>Zen Mode</span>
       </button>
       <button class="reading-tool-btn" id="btn-font-scale" onclick="cycleFontSize()" title="Thay đổi cỡ chữ">
         <span id="zen-font-label">A (1x)</span>
       </button>
-      <button class="reading-tool-btn" id="btn-share-topic" onclick="copyCurrentTopicLink()" title="Sao chép liên kết bài học">
+      <button class="reading-tool-btn" id="btn-share-topic" onclick="copyCurrentTopicLink()" title="Sao chép liên kết">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
         <span>Chia sẻ</span>
       </button>
@@ -108,7 +105,7 @@
 
     <nav class="header-nav">
       <a class="nav-btn" href="index.html">Trang chủ Portal</a>
-      <button class="nav-btn active" onclick="showDomain('backend')">Backend Domain</button>
+      <button class="nav-btn active" onclick="showDomain('leetcode')">LeetCode 3248</button>
       <button id="btn-theme" class="btn-theme" onclick="toggleTheme()" title="Chuyển giao diện"></button>
     </nav>
   </header>
@@ -119,8 +116,41 @@
   <aside class="toc" id="toc"></aside>
 </div>
 
+<script src="dsa-content.js"></script>
+<script src="dsa-content-ch0.js"></script>
+<script src="dsa-content-ch04.js"></script>
+<script src="dsa-content-ch05.js"></script>
+<script src="dsa-content-ch06.js"></script>
+<script src="dsa-content-ch07.js"></script>
+<script src="dsa-content-ch08.js"></script>
+<script src="dsa-content-ch09.js"></script>
+<script src="dsa-content-ch10.js"></script>
+<script src="dsa-content-ch11.js"></script>
+<script src="dsa-sort-frames-ch11.js"></script>
+<script src="dsa-content-ch12.js"></script>
+<script src="dsa-content-ch13.js"></script>
+<script src="dsa-backtrack-frames-ch13.js"></script>
+<script src="dsa-content-ch14.js"></script>
+<script src="dsa-dp-frames-ch14.js"></script>
+<script src="dsa-content-ch15.js"></script>
+<script src="dsa-content-ch16.js"></script>
+<script src="android-content.js"></script>
+<script src="ios-content.js"></script>
+<script src="leetcode-problems.js"></script>
+<script src="leetcode-content.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
 <script src="app.js"></script>
+
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const hash = window.location.hash.replace('#', '');
@@ -129,7 +159,7 @@
     if (topicParam && findTopic(topicParam)) {
       openTopic(topicParam);
     } else {
-      showDomain('backend');
+      showDomain('leetcode');
     }
   });
 </script>
