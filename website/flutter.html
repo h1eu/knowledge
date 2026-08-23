@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flutter Knowledge OS — Hệ điều hành tri thức Flutter Development</title>
+  <meta name="description" content="Lộ trình và kho tri thức chuyên sâu về Flutter Development: Dart, Widgets, State Management Riverpod/BLoC, Networking, Firebase, Navigation & GoRouter, Testing & CI/CD Deployment." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preload" href="fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- D3.js for Interactive Knowledge Graph -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <!-- Mermaid.js for Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    (function () {
+      var savedTheme = 'dark';
+      try { savedTheme = localStorage.getItem('kos-theme') || 'dark'; } catch (e) {}
+      if (savedTheme && savedTheme !== 'dark') document.documentElement.classList.add('theme-' + savedTheme);
+      var isLight = savedTheme === 'light' || savedTheme === 'editorial' || savedTheme === 'matcha';
+      if (window.mermaid) {
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: 'base',
+          fontFamily: 'Plus Jakarta Sans, sans-serif',
+          fontSize: 13,
+          themeVariables: {
+            darkMode: !isLight,
+            fontFamily: 'Plus Jakarta Sans, sans-serif',
+            fontSize: '13px',
+            primaryColor: isLight ? '#f8fafc' : '#0f172a',
+            primaryTextColor: isLight ? '#0f172a' : '#f8fafc',
+            primaryBorderColor: isLight ? 'rgba(15, 23, 42, 0.16)' : 'rgba(255, 255, 255, 0.16)',
+            lineColor: isLight ? '#64748b' : '#94a3b8',
+            mainBkg: isLight ? '#ffffff' : '#0f172a'
+          },
+          flowchart: { htmlLabels: true, curve: 'bumpX', nodeSpacing: 45, rankSpacing: 55, padding: 16 }
+        });
+      }
+    })();
+  </script>
+</head>
+<body>
+<div class="ambient-grid-overlay"></div>
+<div class="scroll-progress-rail" id="scroll-progress-rail"><div class="scroll-progress-fill" id="scroll-progress-fill"></div></div>
+
+<div class="layout layout--content" id="layout">
+
+  <!-- ── Header ───────────────────────────────────────────── -->
+  <header class="header">
+    <a class="logo" href="index.html">
+      <div class="logo-icon">
+        <!-- Quantum Hypercube Isometric Logo -->
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="logoTop" x1="12" y1="2" x2="12" y2="10" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#38BDF8"/>
+              <stop offset="100%" stop-color="#818CF8"/>
+            </linearGradient>
+            <linearGradient id="logoLeft" x1="3" y1="7" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#0284C7"/>
+              <stop offset="100%" stop-color="#4F46E5"/>
+            </linearGradient>
+            <linearGradient id="logoRight" x1="21" y1="7" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#818CF8"/>
+              <stop offset="100%" stop-color="#C084FC"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 3L20 7.6L12 12.2L4 7.6L12 3Z" fill="url(#logoTop)" fill-opacity="0.9" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="0.75" stroke-linejoin="round"/>
+          <path d="M4 7.6L12 12.2V21.4L4 16.8V7.6Z" fill="url(#logoLeft)" fill-opacity="0.95" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.75" stroke-linejoin="round"/>
+          <path d="M20 7.6L12 12.2V21.4L20 16.8V7.6Z" fill="url(#logoRight)" fill-opacity="0.95" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.75" stroke-linejoin="round"/>
+          <circle cx="12" cy="12.2" r="2.2" fill="#FFFFFF"/>
+          <circle cx="12" cy="12.2" r="1.2" fill="#38BDF8"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name">Knowledge OS</span>
+        <span class="logo-tagline">Flutter Knowledge Base</span>
+      </div>
+    </a>
+
+    <div class="header-search">
+      <span class="search-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </span>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Tìm kiếm bài học, khái niệm Flutter..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
+    <button id="btn-toggle-original" class="btn-toggle-original" style="display:none;" onclick="toggleOriginalContent()">🌐 Xem bản gốc (English)</button>
+
+    <div id="header-reading-tools" class="header-reading-tools" style="display:none;">
+      <button class="reading-tool-btn" id="btn-zen-mode" onclick="toggleZenMode()" title="Chế độ tập trung (Ẩn Sidebar & TOC)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+        <span>Zen Mode</span>
+      </button>
+      <button class="reading-tool-btn" id="btn-font-scale" onclick="cycleFontSize()" title="Thay đổi cỡ chữ">
+        <span id="zen-font-label">A (1x)</span>
+      </button>
+      <button class="reading-tool-btn" id="btn-share-topic" onclick="copyCurrentTopicLink()" title="Sao chép liên kết bài học">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        <span>Chia sẻ</span>
+      </button>
+      <button class="reading-tool-btn" id="btn-scroll-top" onclick="scrollToTopicTop()" title="Lên đầu trang">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      </button>
+    </div>
+
+    <nav class="header-nav">
+      <a class="nav-btn" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Trang chủ Portal
+      </a>
+      <button class="nav-btn active" id="navFlutterDomain" onclick="showDomain('flutter')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13.9 3L6 10.9l2.4 2.4L18.7 3h-4.8z"/><path d="M13.9 11.7l-3.9 3.9 2.4 2.4 3.9-3.9-2.4-2.4z"/><path d="M12.4 18l2.4 2.4h4L13.6 15l-2.4 2.4z"/>
+        </svg>
+        Flutter Domain
+      </button>
+      <button id="btn-theme" class="btn-theme" onclick="toggleTheme()" title="Chuyển giao diện"></button>
+    </nav>
+  </header>
+
+  <!-- ── Sidebar ───────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Rendered by JS -->
+  </aside>
+
+  <!-- ── Search Overlay ───────────────────────────────────── -->
+  <div class="search-overlay" id="searchOverlay"></div>
+
+  <!-- ── Main Content ─────────────────────────────────────── -->
+  <main class="main" id="main">
+    <!-- Rendered by JS -->
+  </main>
+
+  <!-- ── TOC ──────────────────────────────────────────────── -->
+  <aside class="toc" id="toc">
+    <!-- Rendered by JS -->
+  </aside>
+
+</div>
+
+<script src="flutter-content.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+<script src="app.js"></script>
+
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash.replace('#', '');
+    const urlParams = new URLSearchParams(window.location.search);
+    const topicParam = urlParams.get('topic') || hash;
+
+    if (topicParam && (typeof TOPIC_CONTENT !== 'undefined' && TOPIC_CONTENT[topicParam] || findTopic(topicParam))) {
+      openTopic(topicParam);
+    } else {
+      showDomain('flutter');
+    }
+  });
+</script>
+</body>
+</html>
