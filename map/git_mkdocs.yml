@@ -1,0 +1,77 @@
+# Config inheritance
+INHERIT: ../mkdocs.yml
+
+# Project information
+site_name: Git & GitHub Beginner
+site_description: "Lộ trình Git và GitHub dành cho người mới bắt đầu — từ Version Control đến Collaboration và CI/CD"
+docs_dir: ../knowledge/git-beginner
+site_dir: ../site/git-beginner
+# Repository
+edit_uri: tree/main/knowledge/git-beginner
+version: 1.0.0
+
+# Configuration
+theme:
+  language: vi
+  font:
+    text: Inter
+  palette:
+    - scheme: default
+      primary: white
+      accent: teal
+      toggle:
+        icon: material/theme-light-dark
+        name: Dark mode
+    - scheme: slate
+      primary: black
+      accent: teal
+      toggle:
+        icon: material/theme-light-dark
+        name: Light mode
+
+extra:
+  status:
+    new: Recently Added
+
+# Page tree
+nav:
+  - Overview: index.md
+  - Module 01 — Version Control Foundations:
+    - Mục lục: 01-basics/index.md
+    - 1.1 Version Control System là gì?: 01-basics/version-control-systems.md
+    - 1.2 Git là gì & vì sao nên dùng?: 01-basics/what-is-git.md
+    - 1.3 Cài đặt Git: 01-basics/install-git.md
+    - 1.4 Tạo tài khoản GitHub: 01-basics/github-account.md
+  - Module 02 — Basic Git Usage:
+    - Mục lục: 02-basic-git-usage/index.md
+    - 2.1 git init — Khởi tạo Repository: 02-basic-git-usage/git-init.md
+    - 2.2 git add — Đưa thay đổi vào Staging: 02-basic-git-usage/git-add.md
+    - 2.3 git commit — Ghi snapshot vào lịch sử: 02-basic-git-usage/git-commit.md
+    - 2.4 git reset — Rút thay đổi khỏi Staging: 02-basic-git-usage/git-reset.md
+    - 2.5 .gitignore — Loại trừ file khỏi Git: 02-basic-git-usage/gitignore.md
+    - 2.6 Branch — Tạo và Merge nhánh: 02-basic-git-usage/branches-merge.md
+  - Module 03 — Collaboration với GitHub:
+    - Mục lục: 03-collaboration/index.md
+    - 3.1 Tạo Repository trên GitHub: 03-collaboration/create-repository.md
+    - 3.2 Remote & Push — Kết nối local với GitHub: 03-collaboration/remote-push.md
+    - 3.3 Fork vs Clone: 03-collaboration/fork-clone.md
+    - 3.4 Pull Request — Đề xuất hợp nhất code: 03-collaboration/pull-request.md
+    - 3.5 Pull & Fetch — Lấy code mới về máy: 03-collaboration/pull-fetch.md
+    - 3.6 Merge Conflicts — Xử lý xung đột: 03-collaboration/merge-conflicts.md
+    - 3.7 Giấy phép nguồn mở phổ biến: 03-collaboration/oss-licenses.md
+    - 3.8 Lộ secret — Xử lý khẩn cấp & phòng ngừa: 03-collaboration/security-secrets.md
+  - Module 04 — More Git:
+    - Mục lục: 04-more-git/index.md
+    - 4.1 Revert & Hard Reset — Sửa sai an toàn: 04-more-git/revert-hard-reset.md
+    - 4.2 Rebase vs Merge vs Squash: 04-more-git/rebase-merge-squash.md
+    - 4.3 git stash — Cất tạm thay đổi: 04-more-git/stash.md
+    - 4.4 git cherry-pick — Chọn một commit riêng: 04-more-git/cherry-pick.md
+    - 4.5 Git Flow — Chiến lược phân nhánh cho team: 04-more-git/git-flow.md
+    - 4.6 Cứu hộ — Tìm lại commit đã mất (reflog): 04-more-git/rescue-reflog.md
+    - 4.7 Repository phình to — Nguyên nhân & xử lý: 04-more-git/repo-performance.md
+  - Module 05 — More GitHub:
+    - Mục lục: 05-more-github/index.md
+    - 5.1 GitHub Actions — Tự động hóa CI/CD: 05-more-github/github-actions.md
+    - 5.2 GitHub CLI — Thao tác từ terminal: 05-more-github/github-cli.md
+    - 5.3 Markdown — Ngôn ngữ viết của GitHub: 05-more-github/markdown.md
+    - 5.4 Git Hooks — Tự động kiểm tra trước khi push: 05-more-github/git-hooks.md
