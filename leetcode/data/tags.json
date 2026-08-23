@@ -1,0 +1,866 @@
+{
+  "generatedAt": "2026-08-21",
+  "totalTags": 172,
+  "tags": [
+    {
+      "slug": "array",
+      "name": "Array",
+      "count": 1914
+    },
+    {
+      "slug": "string",
+      "name": "String",
+      "count": 769
+    },
+    {
+      "slug": "hash-table",
+      "name": "Hash Table",
+      "count": 705
+    },
+    {
+      "slug": "math",
+      "name": "Math",
+      "count": 612
+    },
+    {
+      "slug": "dynamic-programming",
+      "name": "Dynamic Programming",
+      "count": 595
+    },
+    {
+      "slug": "sorting",
+      "name": "Sorting",
+      "count": 459
+    },
+    {
+      "slug": "greedy",
+      "name": "Greedy",
+      "count": 432
+    },
+    {
+      "slug": "binary-search",
+      "name": "Binary Search",
+      "count": 297
+    },
+    {
+      "slug": "depth-first-search",
+      "name": "Depth-First Search",
+      "count": 265
+    },
+    {
+      "slug": "bit-manipulation",
+      "name": "Bit Manipulation",
+      "count": 260
+    },
+    {
+      "slug": "prefix-sum",
+      "name": "Prefix Sum",
+      "count": 243
+    },
+    {
+      "slug": "matrix",
+      "name": "Matrix",
+      "count": 238
+    },
+    {
+      "slug": "two-pointers",
+      "name": "Two Pointers",
+      "count": 219
+    },
+    {
+      "slug": "breadth-first-search",
+      "name": "Breadth-First Search",
+      "count": 204
+    },
+    {
+      "slug": "tree",
+      "name": "Tree",
+      "count": 201
+    },
+    {
+      "slug": "simulation",
+      "name": "Simulation",
+      "count": 196
+    },
+    {
+      "slug": "counting",
+      "name": "Counting",
+      "count": 188
+    },
+    {
+      "slug": "heap-priority-queue",
+      "name": "Heap (Priority Queue)",
+      "count": 185
+    },
+    {
+      "slug": "enumeration",
+      "name": "Enumeration",
+      "count": 152
+    },
+    {
+      "slug": "graph",
+      "name": "Graph Theory",
+      "count": 151
+    },
+    {
+      "slug": "stack",
+      "name": "Stack",
+      "count": 147
+    },
+    {
+      "slug": "sliding-window",
+      "name": "Sliding Window",
+      "count": 144
+    },
+    {
+      "slug": "binary-tree",
+      "name": "Binary Tree",
+      "count": 131
+    },
+    {
+      "slug": "design",
+      "name": "Design",
+      "count": 99
+    },
+    {
+      "slug": "number-theory",
+      "name": "Number Theory",
+      "count": 95
+    },
+    {
+      "slug": "backtracking",
+      "name": "Backtracking",
+      "count": 94
+    },
+    {
+      "slug": "database",
+      "name": "Database",
+      "count": 94
+    },
+    {
+      "slug": "union-find",
+      "name": "Union-Find",
+      "count": 82
+    },
+    {
+      "slug": "segment-tree",
+      "name": "Segment Tree",
+      "count": 72
+    },
+    {
+      "slug": "linked-list",
+      "name": "Linked List",
+      "count": 66
+    },
+    {
+      "slug": "ordered-set",
+      "name": "Ordered Set",
+      "count": 65
+    },
+    {
+      "slug": "divide-and-conquer",
+      "name": "Divide and Conquer",
+      "count": 61
+    },
+    {
+      "slug": "monotonic-stack",
+      "name": "Monotonic Stack",
+      "count": 58
+    },
+    {
+      "slug": "combinatorics",
+      "name": "Combinatorics",
+      "count": 57
+    },
+    {
+      "slug": "bitmask",
+      "name": "Bitmask",
+      "count": 48
+    },
+    {
+      "slug": "queue",
+      "name": "Queue",
+      "count": 47
+    },
+    {
+      "slug": "trie",
+      "name": "Trie",
+      "count": 46
+    },
+    {
+      "slug": "memoization",
+      "name": "Memoization",
+      "count": 43
+    },
+    {
+      "slug": "recursion",
+      "name": "Recursion",
+      "count": 42
+    },
+    {
+      "slug": "geometry",
+      "name": "Geometry",
+      "count": 40
+    },
+    {
+      "slug": "binary-indexed-tree",
+      "name": "Binary Indexed Tree",
+      "count": 38
+    },
+    {
+      "slug": "hash-function",
+      "name": "Hash Function",
+      "count": 34
+    },
+    {
+      "slug": "shortest-path",
+      "name": "Shortest Path",
+      "count": 34
+    },
+    {
+      "slug": "string-matching",
+      "name": "String Matching",
+      "count": 33
+    },
+    {
+      "slug": "binary-search-tree",
+      "name": "Binary Search Tree",
+      "count": 30
+    },
+    {
+      "slug": "topological-sort",
+      "name": "Topological Sort",
+      "count": 30
+    },
+    {
+      "slug": "game-theory",
+      "name": "Game Theory",
+      "count": 26
+    },
+    {
+      "slug": "rolling-hash",
+      "name": "Rolling Hash",
+      "count": 26
+    },
+    {
+      "slug": "greatest-common-divisor",
+      "name": "Greatest Common Divisor",
+      "count": 24
+    },
+    {
+      "slug": "dp-on-trees",
+      "name": "DP on Trees",
+      "count": 23
+    },
+    {
+      "slug": "monotonic-queue",
+      "name": "Monotonic Queue",
+      "count": 23
+    },
+    {
+      "slug": "euclidean-algorithm",
+      "name": "Euclidean Algorithm",
+      "count": 22
+    },
+    {
+      "slug": "brainteaser",
+      "name": "Brainteaser",
+      "count": 18
+    },
+    {
+      "slug": "data-stream",
+      "name": "Data Stream",
+      "count": 16
+    },
+    {
+      "slug": "knapsack-problem",
+      "name": "Knapsack Problem",
+      "count": 16
+    },
+    {
+      "slug": "bracket-sequences",
+      "name": "Bracket Sequences",
+      "count": 15
+    },
+    {
+      "slug": "minimax-algorithm",
+      "name": "Minimax",
+      "count": 15
+    },
+    {
+      "slug": "directed-acyclic-graph",
+      "name": "Directed Acyclic Graph",
+      "count": 14
+    },
+    {
+      "slug": "merge-sort",
+      "name": "Merge Sort",
+      "count": 13
+    },
+    {
+      "slug": "dijkstra",
+      "name": "Dijkstra's Algorithm",
+      "count": 12
+    },
+    {
+      "slug": "longest-increasing-subsequence",
+      "name": "Longest Increasing Subsequence",
+      "count": 12
+    },
+    {
+      "slug": "prime-factorization",
+      "name": "Prime Factorization",
+      "count": 12
+    },
+    {
+      "slug": "randomized",
+      "name": "Randomized",
+      "count": 12
+    },
+    {
+      "slug": "zero-sum-game",
+      "name": "Zero-Sum Game",
+      "count": 12
+    },
+    {
+      "slug": "z-algorithm",
+      "name": "Z Algorithm",
+      "count": 11
+    },
+    {
+      "slug": "doubly-linked-list",
+      "name": "Doubly-Linked List",
+      "count": 10
+    },
+    {
+      "slug": "fermats-little-theorem",
+      "name": "Fermat's Little Theorem",
+      "count": 10
+    },
+    {
+      "slug": "knuth-morris-pratt-algorithm",
+      "name": "Knuth–Morris–Pratt Algorithm",
+      "count": 10
+    },
+    {
+      "slug": "primality-test",
+      "name": "Primality Test",
+      "count": 10
+    },
+    {
+      "slug": "sieve-theory",
+      "name": "Sieve Theory",
+      "count": 10
+    },
+    {
+      "slug": "counting-sort",
+      "name": "Counting Sort",
+      "count": 9
+    },
+    {
+      "slug": "0-1-knapsack",
+      "name": "0-1 Knapsack",
+      "count": 8
+    },
+    {
+      "slug": "bipartite-graph",
+      "name": "Bipartite Graph",
+      "count": 8
+    },
+    {
+      "slug": "quickselect",
+      "name": "Quickselect",
+      "count": 8
+    },
+    {
+      "slug": "binary-lifting",
+      "name": "Binary Lifting",
+      "count": 7
+    },
+    {
+      "slug": "least-common-multiple",
+      "name": "Least Common Multiple",
+      "count": 7
+    },
+    {
+      "slug": "prime-number-sieve",
+      "name": "Prime Number Sieve",
+      "count": 7
+    },
+    {
+      "slug": "bidirectional-search",
+      "name": "Bidirectional Search",
+      "count": 6
+    },
+    {
+      "slug": "boyer-moore-string-search-algorithm",
+      "name": "Boyer–Moore String-Search Algorithm",
+      "count": 6
+    },
+    {
+      "slug": "bucket-sort",
+      "name": "Bucket Sort",
+      "count": 6
+    },
+    {
+      "slug": "concurrency",
+      "name": "Concurrency",
+      "count": 6
+    },
+    {
+      "slug": "floyds-cycle-finding-algorithm",
+      "name": "Floyd's Cycle Finding Algorithm",
+      "count": 6
+    },
+    {
+      "slug": "longest-common-subsequence",
+      "name": "Longest Common Subsequence",
+      "count": 6
+    },
+    {
+      "slug": "lowest-common-ancestor",
+      "name": "Lowest Common Ancestor",
+      "count": 6
+    },
+    {
+      "slug": "polygons",
+      "name": "Polygons",
+      "count": 6
+    },
+    {
+      "slug": "probability-and-statistics",
+      "name": "Probability and Statistics",
+      "count": 6
+    },
+    {
+      "slug": "quicksort",
+      "name": "Quicksort",
+      "count": 6
+    },
+    {
+      "slug": "suffix-array",
+      "name": "Suffix Array",
+      "count": 6
+    },
+    {
+      "slug": "sweep-line",
+      "name": "Sweep Line",
+      "count": 6
+    },
+    {
+      "slug": "complete-knapsack",
+      "name": "Complete Knapsack",
+      "count": 5
+    },
+    {
+      "slug": "graph-coloring",
+      "name": "Graph Coloring",
+      "count": 5
+    },
+    {
+      "slug": "interactive",
+      "name": "Interactive",
+      "count": 5
+    },
+    {
+      "slug": "iterator",
+      "name": "Iterator",
+      "count": 5
+    },
+    {
+      "slug": "pigeonhole-principle",
+      "name": "Pigeonhole Principle",
+      "count": 5
+    },
+    {
+      "slug": "treap",
+      "name": "Treap",
+      "count": 5
+    },
+    {
+      "slug": "bubble-sort",
+      "name": "Bubble Sort",
+      "count": 4
+    },
+    {
+      "slug": "cartesian-tree",
+      "name": "Cartesian Tree",
+      "count": 4
+    },
+    {
+      "slug": "flow-network",
+      "name": "Flow Network",
+      "count": 4
+    },
+    {
+      "slug": "kosarajus-algorithm",
+      "name": "Kosaraju's Algorithm",
+      "count": 4
+    },
+    {
+      "slug": "matching-graph",
+      "name": "Matching (Graph)",
+      "count": 4
+    },
+    {
+      "slug": "meet-in-the-middle",
+      "name": "Meet in the Middle",
+      "count": 4
+    },
+    {
+      "slug": "reservoir-sampling",
+      "name": "Reservoir Sampling",
+      "count": 4
+    },
+    {
+      "slug": "shell",
+      "name": "Shell",
+      "count": 4
+    },
+    {
+      "slug": "successive-shortest-path-algorithm",
+      "name": "Successive Shortest Path Algorithm",
+      "count": 4
+    },
+    {
+      "slug": "tarjans-scc-algorithm",
+      "name": "Tarjan's SCC Algorithm",
+      "count": 4
+    },
+    {
+      "slug": "algorithm-x",
+      "name": "Algorithm X",
+      "count": 3
+    },
+    {
+      "slug": "boyer-moore-majority-vote-algorithm",
+      "name": "Boyer–Moore Majority Vote Algorithm",
+      "count": 3
+    },
+    {
+      "slug": "eulerian-circuit",
+      "name": "Eulerian Circuit",
+      "count": 3
+    },
+    {
+      "slug": "eulerian-path",
+      "name": "Eulerian Path",
+      "count": 3
+    },
+    {
+      "slug": "hungarian-algorithm",
+      "name": "Hungarian Algorithm",
+      "count": 3
+    },
+    {
+      "slug": "impartial-game",
+      "name": "Impartial Game",
+      "count": 3
+    },
+    {
+      "slug": "inclusion-exclusion-principle",
+      "name": "Inclusion-Exclusion Principle",
+      "count": 3
+    },
+    {
+      "slug": "manacher",
+      "name": "Manacher",
+      "count": 3
+    },
+    {
+      "slug": "minimum-spanning-tree",
+      "name": "Minimum Spanning Tree",
+      "count": 3
+    },
+    {
+      "slug": "nim-game",
+      "name": "Nim Game",
+      "count": 3
+    },
+    {
+      "slug": "radix-sort",
+      "name": "Radix Sort",
+      "count": 3
+    },
+    {
+      "slug": "sqrt-decomposition",
+      "name": "Sqrt Decomposition",
+      "count": 3
+    },
+    {
+      "slug": "suffix-automaton",
+      "name": "Suffix Automaton",
+      "count": 3
+    },
+    {
+      "slug": "suffix-tree",
+      "name": "Suffix Tree",
+      "count": 3
+    },
+    {
+      "slug": "0-1-bfs",
+      "name": "0-1 BFS",
+      "count": 2
+    },
+    {
+      "slug": "a-search",
+      "name": "A* Search",
+      "count": 2
+    },
+    {
+      "slug": "bellman-ford-algorithm",
+      "name": "Bellman–Ford Algorithm",
+      "count": 2
+    },
+    {
+      "slug": "bezouts-lemma",
+      "name": "Bézout's Lemma",
+      "count": 2
+    },
+    {
+      "slug": "boruvkas-algorithm",
+      "name": "Borůvka's Algorithm",
+      "count": 2
+    },
+    {
+      "slug": "brute-force-search",
+      "name": "Brute-Force Search",
+      "count": 2
+    },
+    {
+      "slug": "extended-euclidean-algorithm",
+      "name": "Extended Euclidean Algorithm",
+      "count": 2
+    },
+    {
+      "slug": "floyd-warshall-algorithm",
+      "name": "Floyd–Warshall Algorithm",
+      "count": 2
+    },
+    {
+      "slug": "hamiltonian-path",
+      "name": "Hamiltonian Path",
+      "count": 2
+    },
+    {
+      "slug": "heuristic-search",
+      "name": "Heuristic Search",
+      "count": 2
+    },
+    {
+      "slug": "kruskals-algorithm",
+      "name": "Kruskal's Algorithm",
+      "count": 2
+    },
+    {
+      "slug": "minimum-cost-flow",
+      "name": "Minimum-Cost Flow",
+      "count": 2
+    },
+    {
+      "slug": "multiple-knapsack",
+      "name": "Multiple Knapsack",
+      "count": 2
+    },
+    {
+      "slug": "perfect-matching",
+      "name": "Perfect Matching",
+      "count": 2
+    },
+    {
+      "slug": "prims-algorithm",
+      "name": "Prim's Algorithm",
+      "count": 2
+    },
+    {
+      "slug": "range-minimum-maximum-query",
+      "name": "Range Minimum/Maximum Query",
+      "count": 2
+    },
+    {
+      "slug": "rejection-sampling",
+      "name": "Rejection Sampling",
+      "count": 2
+    },
+    {
+      "slug": "semi-eulerian-graph",
+      "name": "Semi-Eulerian Graph",
+      "count": 2
+    },
+    {
+      "slug": "strongly-connected-component",
+      "name": "Strongly Connected Component",
+      "count": 2
+    },
+    {
+      "slug": "ternary-search",
+      "name": "Ternary Search",
+      "count": 2
+    },
+    {
+      "slug": "aho-corasick-algorithm",
+      "name": "Aho–Corasick Algorithm",
+      "count": 1
+    },
+    {
+      "slug": "articulation-point",
+      "name": "Articulation Point",
+      "count": 1
+    },
+    {
+      "slug": "biconnected-component",
+      "name": "Biconnected Component",
+      "count": 1
+    },
+    {
+      "slug": "bridge-graph",
+      "name": "Bridge (Graph)",
+      "count": 1
+    },
+    {
+      "slug": "convex-hull",
+      "name": "Convex Hull",
+      "count": 1
+    },
+    {
+      "slug": "dancing-links",
+      "name": "Dancing Links",
+      "count": 1
+    },
+    {
+      "slug": "dinics-algorithm",
+      "name": "Dinic's Algorithm",
+      "count": 1
+    },
+    {
+      "slug": "edmonds-karp-algorithm",
+      "name": "Edmonds–Karp Algorithm",
+      "count": 1
+    },
+    {
+      "slug": "eulerian-graph",
+      "name": "Eulerian Graph",
+      "count": 1
+    },
+    {
+      "slug": "eulers-theorem",
+      "name": "Euler's Theorem",
+      "count": 1
+    },
+    {
+      "slug": "eulers-totient-function",
+      "name": "Euler's Totient Function",
+      "count": 1
+    },
+    {
+      "slug": "k-d-tree",
+      "name": "K-D Tree",
+      "count": 1
+    },
+    {
+      "slug": "k-shortest-path",
+      "name": "K Shortest Path",
+      "count": 1
+    },
+    {
+      "slug": "lexicographically-minimal-string-rotation",
+      "name": "Lexicographically Minimal String Rotation",
+      "count": 1
+    },
+    {
+      "slug": "li-chao-tree",
+      "name": "Li Chao Tree",
+      "count": 1
+    },
+    {
+      "slug": "linear-algebra",
+      "name": "Linear Algebra",
+      "count": 1
+    },
+    {
+      "slug": "lyndon-factorization",
+      "name": "Lyndon Factorization",
+      "count": 1
+    },
+    {
+      "slug": "maximum-flow",
+      "name": "Maximum Flow",
+      "count": 1
+    },
+    {
+      "slug": "maximum-matching",
+      "name": "Maximum Matching",
+      "count": 1
+    },
+    {
+      "slug": "minimum-cut",
+      "name": "Minimum Cut",
+      "count": 1
+    },
+    {
+      "slug": "mixed-knapsack",
+      "name": "Mixed Knapsack",
+      "count": 1
+    },
+    {
+      "slug": "mpm-algorithm",
+      "name": "MPM Algorithm",
+      "count": 1
+    },
+    {
+      "slug": "newtons-method",
+      "name": "Newton's Method",
+      "count": 1
+    },
+    {
+      "slug": "palindromic-tree",
+      "name": "Palindromic Tree",
+      "count": 1
+    },
+    {
+      "slug": "persistent-data-structure",
+      "name": "Persistent Data Structure",
+      "count": 1
+    },
+    {
+      "slug": "planar-graph",
+      "name": "Planar Graph",
+      "count": 1
+    },
+    {
+      "slug": "push-relabel-algorithm",
+      "name": "Push-Relabel Algorithm",
+      "count": 1
+    },
+    {
+      "slug": "sort",
+      "name": "Sort",
+      "count": 1
+    },
+    {
+      "slug": "sparse-table",
+      "name": "Sparse Table",
+      "count": 1
+    },
+    {
+      "slug": "sprague-grundy-theorem",
+      "name": "Sprague–Grundy Theorem",
+      "count": 1
+    },
+    {
+      "slug": "timsort",
+      "name": "Timsort",
+      "count": 1
+    },
+    {
+      "slug": "tournament-sort",
+      "name": "Tournament Sort",
+      "count": 1
+    },
+    {
+      "slug": "triangulation",
+      "name": "Triangulation",
+      "count": 1
+    }
+  ]
+}
