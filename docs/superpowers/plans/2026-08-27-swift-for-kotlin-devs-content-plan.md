@@ -171,10 +171,12 @@
 
 **Code ví dụ phải có:**
 ```swift
-// Nested Optional
-let d: [String: Int] = ["a": 1]
-let v = d.map { $0.value } // Int?? - Optional(Optional(1))
-let flat = d.flatMap { $0.value } // Int?
+// Nested Optional - Lưu ý: Dictionary subscript đã trả Optional sẵn,
+// phải dùng Optional bọc ngoài để tạo Int?? (Ruling 2026-08-27: snippet gốc
+// dùng d.map trên dict thường - sai, đã sửa)
+let d: [String: Int]? = ["a": 1]
+let v = d.map { $0["a"] }     // Int?? - Optional(Optional(1))
+let flat = d.flatMap { $0["a"] } // Int?
 ```
 - Bảng 6 công cụ unwrap (cột: Tool | Cú pháp | Kết quả | Khi nào dùng).
 
@@ -226,7 +228,7 @@ b[0] = 1         // LÚC NÀY mới copy thật - a không đổi
 
 **Nội dung lý thuyết phải viết:**
 
-- **`static` trong Swift là property/method của METATYPE:** truy cập qua tên type; lưu ý `static let` lazy + thread-safe (liên hệ §4), `static var` KHÔNG lazy.
+- **`static` trong Swift là property/method của METATYPE:** truy cập qua tên type; **cả `static let` lẫn `static var` đều lazy + thread-safe** (Swift Book: type properties là lazily initialized, đảm bảo bởi runtime — Ruling 2026-08-27: claim cũ "static var KHÔNG lazy" sai, đã sửa).
 - **`static` vs `class` keyword:** `class` cho phép **override ở subclass** (chỉ có nghĩa với class); `static` là `class final`. Kotlin: mọi method companion không override được — nên mặc định dùng `static`, chỉ chuyển `class` khi thiết kế kế thừa.
 - **`companion object` là một object instance thật** (có thể implement interface, có tên); `static` Swift không phải instance — nếu cần polymorphism ở "static" level thì dùng `static let shared = SomeImplementation()`.
 - **Singleton cơ chế:** `static let shared` + `private init()` — giải thích vì sao lazy + thread-safe là của runtime, không cần double-checked locking; Kotlin `object` tương đương nhưng khởi tạo khi lần đầu chạm class.
