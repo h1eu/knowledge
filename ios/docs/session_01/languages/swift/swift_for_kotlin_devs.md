@@ -1,14 +1,14 @@
 ---
 title: Swift for Kotlin Developers - Cú pháp & Thực chiến iOS
 slug: swift-for-kotlin-devs
-summary: Cẩm nang thực chiến chuyển đổi từ Kotlin sang Swift dành cho Android Developer - Nắm vững cú pháp nền tảng (biến, hàm, optionals, struct/class, properties, Codable, scope functions, ARC, error handling, concurrency) qua đối chiếu song song Kotlin <-> Swift để đọc và viết code SwiftUI ngay.
+summary: Cẩm nang thực chiến chuyển đổi từ Kotlin sang Swift dành cho Android Developer - Nắm vững cú pháp nền tảng (biến, hàm, optionals, struct/class, properties, Codable, scope functions, ARC, error handling, concurrency, COW, actor) qua đối chiếu song song Kotlin <-> Swift để đọc và viết code SwiftUI ngay.
 tags: [ios, swift, kotlin, migration, syntax, practical, android-to-ios, arc, optionals, codable, swiftui]
 domain: iOS
 module: Languages
 topic: Swift for Kotlin Developers
 status: published
 difficulty: intermediate
-estimated_reading_time: 45 phút
+estimated_reading_time: 60 phút
 prerequisites: []
 related:
   - ios.languages.swift.closures
@@ -23,6 +23,8 @@ learning_outcomes:
   - Map được `companion object`, scope functions (`let/apply/run/also`) và `defer` của Kotlin sang Swift.
   - Parse JSON bằng `Codable` thay cho `kotlinx.serialization`.
   - Nhận diện retain cycle với `[weak self]`, vận dụng `throws`, `Result` và `async/await` theo chuẩn Apple.
+  - Giải thích được Copy-on-Write (COW) và identity (`===`) khi chọn `struct` hay `class` cho model.
+  - Viết được `actor` bảo vệ mutable state khỏi data race mà không cần lock.
 ---
 
 # Swift for Kotlin Developers: Cú pháp & Thực chiến iOS
@@ -2082,13 +2084,50 @@ func fetch() {
 2. Tạo `struct Profile: Codable` với property `id`, `fullName`, `avatarUrl` — xử lý snake_case bằng `CodingKeys` hoặc `.convertFromSnakeCase`.
 3. Xử lý `extra_field` không có trong struct — xác nhận decode vẫn thành công.
 4. Thử xóa `avatarUrl` khỏi JSON — quan sát hành vi nếu property là non-optional vs optional.
+5. Viết custom `init(from:)` với `decodeIfPresent ?? default` (pattern §9.1): thiếu `full_name` trong JSON thì property `fullName` vẫn non-optional và nhận giá trị mặc định `"Unknown"`.
 
 **Tiêu chí pass:**
 - Decode thành công với JSON dư field.
 - Giải thích được khi nào cần `CodingKeys`, khi nào `.convertFromSnakeCase` đủ.
 - Biết `avatarUrl: String?` vs `avatarUrl: String` khác nhau thế nào khi JSON thiếu field.
+- Custom `init(from:)` hoạt động: JSON thiếu `full_name` không throw, `fullName` không Optional.
 
-> **Cách tự chấm:** Chạy từng bài trong Xcode Playground, bật Debug Memory Graph để quan sát retain cycle Bài 3. Đáp án tham khảo nằm trong chính các ví dụ §1, §5, §6, §9, §14 của bài học.
+### Bài 6 — Actor & Data Race (§16)
+
+**Yêu cầu:**
+1. Viết `actor Inventory` với `private var stock: [String: Int]` khởi tạo là `["iphone": 1]` và `func reserve(_ id: String) -> Bool` — còn hàng thì trừ 1 và trả `true`, hết hàng trả `false`.
+2. Chạy 2 Task song song cùng gọi `await inventory.reserve("iphone")` đồng thời.
+3. In kết quả cả 2 Task — chứng minh không bao giờ cả hai cùng `true` (không oversell).
+4. Chạy lại nhiều lần (vòng lặp tạo `Inventory` mới) để xác nhận kết quả luôn ổn định qua các lần chạy.
+
+**Gợi ý:** state nội bộ của actor chỉ sửa được từ bên trong actor — mọi lời gọi từ ngoài đều vào hàng đợi serial và chạy tuần tự (§16.3), nên 2 lời gọi `reserve` không thể can thiệp vào `stock` cùng lúc:
+
+```swift
+// Khung gợi ý
+actor Inventory {
+    private var stock: [String: Int]
+
+    init(stock: [String: Int]) { self.stock = stock }
+
+    func reserve(_ id: String) -> Bool {
+        guard let remaining = stock[id], remaining > 0 else { return false }
+        stock[id] = remaining - 1
+        return true
+    }
+}
+
+let inventory = Inventory(stock: ["iphone": 1])
+
+async let first = inventory.reserve("iphone")  // Task con 1
+async let second = inventory.reserve("iphone") // Task con 2
+print(await (first, second)) // (true, false) hoặc (false, true) - không bao giờ (true, true)
+```
+
+**Tiêu chí pass:**
+- 2 Task song song: tổng số lần `true` luôn đúng bằng số stock ban đầu — không oversell qua mọi lần chạy.
+- Giải thích được vì sao actor loại bỏ data race mà không cần lock: state nội bộ chỉ truy cập được từ trong actor, mọi lời gọi từ ngoài được xếp vào **hàng đợi serial** của actor (§16.3) — khác Kotlin phải tự nhớ dùng `Mutex`/`synchronized` và quên là race.
+
+> **Cách tự chấm:** Chạy từng bài trong Xcode Playground, bật Debug Memory Graph để quan sát retain cycle Bài 3. Đáp án tham khảo nằm trong chính các ví dụ §1, §5, §6, §9, §14, §16 của bài học.
 
 ---
 
@@ -2098,5 +2137,6 @@ func fetch() {
 - [Apple - Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/)
 - [Apple - Automatic Reference Counting](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/automaticreferencecounting/)
 - [Apple - Swift Concurrency](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/)
+- [Apple - Swift Book: Concurrency/Actors](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency#Actors)
 - [Apple - Encoding and Decoding Custom Types](https://developer.apple.com/documentation/foundation/encoding-and-decoding-custom-types)
 - [Kotlin vs Swift Cheatsheet](https://nilhcem.github.io/swift-is-like-kotlin/)

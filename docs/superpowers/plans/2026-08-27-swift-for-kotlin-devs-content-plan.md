@@ -521,9 +521,9 @@ func later(_ work: @escaping () -> Void) { work() } // sống lâu hơn - cần 
 - **Nguồn tham khảo:** thêm: [Swift Evolution - Sendable](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0302-concurrentvalue-and-nominal-sendable.md) hoặc trang actors chính thức (chọn link docs.swift.org actors), giữ các link cũ, thêm [Swift Book - Opaque/Generics] nếu PAT được nêu.
 
 **Tiêu chí hoàn thành:**
-- [ ] Bài 5 nâng cấp + có Bài 6 actor với tiêu chí pass.
-- [ ] Frontmatter: learning_outcomes + summary + reading time cập nhật.
-- [ ] Nguồn tham khảo có link actors/ official docs.
+- [x] Bài 5 nâng cấp + có Bài 6 actor với tiêu chí pass.
+- [x] Frontmatter: learning_outcomes + summary + reading time cập nhật.
+- [x] Nguồn tham khảo có link actors/ official docs.
 
 ---
 
