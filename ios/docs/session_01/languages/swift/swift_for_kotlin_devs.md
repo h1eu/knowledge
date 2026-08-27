@@ -441,7 +441,19 @@ func demo() {
 
 ## 4. Properties: Stored, Computed, `lazy`, `willSet/didSet`
 
-Kotlin dùng `get()`/`set()` inline. Swift tách rõ hơn và có Property Observers - đặc sản UIKit.
+Kotlin dùng `get()`/`set()` inline và `Delegates.observable`. Swift phân loại property theo **cơ chế lưu trữ** và có Property Observers - đặc sản UIKit.
+
+### Cơ chế bên dưới
+
+Property trong Swift được phân loại theo **cách có giá trị**, không phải theo cú pháp. **Stored property** có ô nhớ riêng và chiếm một **offset cố định trong layout** của instance - compiler xếp field theo thứ tự khai báo, tương tự cách JVM xếp field trong object. **Computed property** không có ô nhớ nào: compiler biên dịch nó thành cặp method get/set, gọi mỗi lần truy cập và **không cache** - vì vậy computed property đắt mà bị đọc trong vòng lặp nóng sẽ tính lại từng lần; khi đó hãy cache kết quả vào một stored property. **Type property (`static`)** có đúng một ô nhớ thuộc về type chứ không thuộc instance. Kotlin xử lý điểm này thế nào? Tương tự ở tầng accessor - `val name` có backing field, `val total get() = ...` cũng tính mỗi lần đọc - nhưng Swift đặt ranh giới bộ nhớ rõ ràng hơn, và chính ranh giới đó giải thích mọi quy tắc bên dưới: `lazy` bắt buộc `var` vì giá trị chuyển từ placeholder sang giá trị thật (cần ô nhớ để ghi), còn observers gắn với stored property vì cần ô nhớ để gán vào.
+
+### 4.1 Ba loại property
+
+| Loại | Ví dụ | Có ô nhớ? | Kotlin đối chiếu |
+|---|---|---|---|
+| Stored | `var price: Double` | ✅ offset cố định trong layout | `val/var` thường |
+| Computed | `var totalPrice: Double { ... }` | ❌ tính lại mỗi lần truy cập | `val total get() = ...` |
+| Type property | `static let shared = ...` | ✅ 1 ô nhớ cho cả type | `companion object` |
 
 ```swift
 struct ProductCard {
@@ -449,14 +461,14 @@ struct ProductCard {
     var price: Double
     var quantity: Int
 
-    // 1. Computed Property - tính toán mỗi khi truy cập
+    // 1. Computed Property - tính toán mỗi khi truy cập, KHÔNG cache
     var totalPrice: Double {
         price * Double(quantity)
     }
-    // Với setter
+    // Computed với setter
     var discountPrice: Double {
         get { price * 0.9 }
-        set { price = newValue / 0.9 } // newValue là keyword
+        set { price = newValue / 0.9 } // newValue là keyword ẩn do compiler cung cấp
     }
 
     // 2. lazy - chỉ khởi tạo khi dùng lần đầu (như Kotlin `by lazy`)
@@ -476,7 +488,65 @@ struct ProductCard {
     }
 }
 
-// UIKit thực chiến:
+var card = ProductCard(name: "iPhone", price: 999, quantity: 2)
+card.stock = 0 // in 2 dòng: willSet rồi didSet ("Hết hàng!")
+card.stock = 0 // observers VẪN chạy - dù giá trị mới == giá trị cũ
+```
+
+> **Khi nào dùng?**
+> - Computed property khi giá trị suy ra từ stored property (không tốn bộ nhớ); nếu phép tính đắt và bị đọc lặp nhiều lần, cache vào stored property thay vì để tính lại.
+> - `lazy` cho object khởi tạo đắt (formatter, pipeline) - như `by lazy` của Kotlin.
+> - `didSet` cực nhiều trong UIKit để auto update UI khi model đổi, thay cho `Delegates.observable` của Kotlin. Trong SwiftUI, vai trò này thuộc về `@State`/`@Published`.
+
+### 4.2 `lazy var` vs `by lazy` - bẫy thread-safe
+
+Hai ngôn ngữ giống nhau về mục đích nhưng **khác nhau hoàn toàn ở thread-safety** - đây là bẫy thật khi chuyển đổi:
+
+- Kotlin `by lazy` **mặc định là `SYNCHRONIZED`**: dùng khóa nội bộ, thread đầu tiên chạy initializer, các thread khác chờ và nhận cùng kết quả.
+- Swift `lazy` **KHÔNG thread-safe**: truy cập từ nhiều thread lần đầu có thể chạy initializer 2 lần - hai thread nhận 2 instance khác nhau, bug rất khó tái hiện.
+- `lazy` bắt buộc `var`, không dùng được với `let`: về cơ chế, stored property bắt đầu là một placeholder rỗng và được ghi giá trị thật vào ô nhớ ở lần truy cập đầu - ghi là mutation, mà `let` cấm mutation.
+
+=== "Kotlin"
+
+```kotlin
+// ✅ Mặc định SYNCHRONIZED - thread-safe
+val parser: Parser by lazy { Parser() }
+
+// Muốn bỏ khóa: by lazy(LazyThreadSafetyMode.NONE) { Parser() }
+```
+
+=== "Swift"
+
+```swift
+final class Parser { let name = "heavy" }
+
+final class Document {
+    // ❌ KHÔNG thread-safe: 2 thread truy cập lần đầu
+    // có thể chạy closure đồng thời 2 lần -> 2 instance khác nhau
+    lazy var parser = Parser()
+
+    // ✅ Lazy + thread-safe: runtime đảm bảo chạy đúng 1 lần
+    // (kế thừa cơ chế dispatch_once cũ - chi tiết ở §7)
+    static let sharedParser = Parser()
+}
+```
+
+> **Quy tắc thực chiến:** `lazy var` của instance chỉ dùng khi truy cập từ 1 thread (thuộc tính của ViewController). Cần lazy mà dùng đa thread → `static let` (nếu phù hợp thuộc về type) hoặc inject qua init.
+
+### 4.3 Property Observers: `willSet` / `didSet`
+
+Observers chạy code mỗi khi stored property **được gán**. Hai quy tắc mà dev Kotlin thường bất ngờ:
+
+1. **KHÔNG chạy trong `init`** (kể cả gán giá trị mặc định lúc khai báo): lúc khởi tạo, property chưa tính là "đang được quan sát" - observers chỉ bắt đầu sống từ lần gán sau đó (từ ngoài hoặc sau init).
+2. **Chạy cả khi gán giá trị bằng nhau**: `stock = 10` khi `stock` đã là 10 vẫn kích hoạt willSet/didSet - observer quan sát **phép gán**, không quan sát sự thay đổi giá trị.
+
+`newValue` và `oldValue` là **keyword ẩn** do compiler cung cấp bên trong closure observer - không cần (và không được) khai báo.
+
+**Cơ chế:** observers là **syntactic sugar cho setter**. Compiler biến stored property có observer thành một setter hoàn chỉnh: chạy khối `willSet`, ghi giá trị mới vào ô nhớ, rồi chạy khối `didSet`. Vì vậy observer không tốn thêm ô nhớ nào và chỉ tồn tại ở tầng cú pháp; computed property thì tự kiểm soát luồng ghi qua `set` của riêng nó. Kotlin xử lý điểm này thế nào? Kotlin đạt cùng hiệu quả bằng `Delegates.observable` - một delegate object bọc quanh property, tốn thêm một cấp chuyển hướng lúc runtime; Swift nhúng observer thẳng vào setter nên callsite nhìn như gán property thường.
+
+```swift
+// import UIKit - pattern didSet phổ biến nhất trong UITableViewCell:
+// model đổi -> UI tự đồng bộ, không cần gọi reload thủ công
 class ProductCell: UITableViewCell {
     var product: ProductCard? {
         didSet {
@@ -488,16 +558,21 @@ class ProductCell: UITableViewCell {
 }
 ```
 
-> **Khi nào dùng?**
-> - Computed property khi giá trị suy ra từ stored property (không tốn bộ nhớ).
-> - `lazy` cho object khởi tạo đắt (formatter, pipeline) - như `by lazy` của Kotlin.
-> - `didSet` cực nhiều trong UIKit để auto update UI khi model đổi, thay cho `Delegates.observable` của Kotlin. Trong SwiftUI, vai trò này thuộc về `@State`/`@Published`.
+### 4.4 `static let` - lazy + thread-safe tự động
+
+Khác `lazy var` của instance, `static let` được **runtime đảm bảo**: khởi tạo đúng một lần ở lần truy cập đầu tiên (lazy) và an toàn đa thread - kế thừa cơ chế `dispatch_once` cũ, không cần double-checked locking. Đây là nền của Singleton chuẩn Apple, chi tiết ở §7. Lưu ý: đảm bảo one-shot là việc của runtime với `static let`; còn mutation sau đó qua `static var` thì bản thân nó không thread-safe.
 
 ---
 
-## 5. Optionals: Bỏ Smart Cast, Làm chủ `guard let`
+## 5. Optionals: Optional là Enum, Không phải `null`
 
 `Optional` trong Swift là `enum` với 2 case `none`/`some` - không có `null` như Kotlin.
+
+### Cơ chế bên dưới
+
+Vì Optional là enum 2 case nên về mặt mô hình nó là một **Sum Type (tagged union)**: một giá trị kiểu `String?` hoặc là `none` hoặc là `some(String)` - không có trạng thái thứ ba. Về **memory layout**, Optional bọc giá trị trực tiếp trong **payload** kèm một tag phân biệt case - **không boxing, không cấp phát Heap**: compiler tận dụng **spare bits** (các bit thừa trong payload) làm tag khi có thể, nên với nhiều kiểu nhỏ Optional **không tốn thêm byte nào** so với `Wrapped` - ví dụ `Optional<String>` có kích thước y hệt `String` vì con trỏ reference luôn còn bit dư để gắn tag; chỉ khi payload dùng hết mọi bit (như `Int`, `Double`) compiler mới thêm một tag byte riêng. Vì vậy nói chung "Optional đắt hơn 1 byte" là khẳng định thiếu chính xác - chi phí nằm giữa 0 và 1 byte tùy kiểu. Kotlin xử lý điểm này thế nào? `String?` của Kotlin là một reference có thể nil - null nằm ở tầng con trỏ và do runtime kiểm tra; Swift Optional là một giá trị enum bình thường nằm ngay trong biến, nên mọi công cụ của enum (switch, map, flatMap) dùng được trên nó và compiler ép xử lý case `none` trước khi dùng - lớp bug NPE được đẩy từ runtime về compile time.
+
+### 5.1 Optional = Sum Type - khác `null` ở mức mô hình
 
 ```swift
 enum Optional<Wrapped> {
@@ -506,7 +581,21 @@ enum Optional<Wrapped> {
 }
 ```
 
-### 5.1 Đối chiếu Unwrapping
+Hai hệ quả trực tiếp của việc Optional là enum:
+
+- **Optional là giá trị bình thường**: map được, switch được, return từ hàm được - `email.map { $0.count }` biến `String?` thành `Int?` mà không cần unwrap tay. Với `null` của Kotlin, các phép biến đổi này phải qua scope function (`?.let { }`).
+- **Compiler ép xử lý case `none`**: truy cập giá trị bên trong bắt buộc qua một trong các công cụ unwrap bên dưới - không còn đường nào "quên check" mà vẫn compile được.
+
+### 5.2 Sáu công cụ unwrap - chọn đúng cho từng tình huống
+
+| # | Tool | Cú pháp | Kết quả | Khi nào dùng |
+|---|---|---|---|---|
+| 1 | Optional Binding | `if let email = email { }` | non-optional trong block | Kiểm tra đơn giản, xử lý trong scope nhỏ |
+| 2 | `guard let` | `guard let email = email else { return }` | non-optional cho mọi code bên dưới | Chuẩn Apple cho hàm - early exit (§3.3) |
+| 3 | Nil-Coalescing | `email ?? "default"` | Giá trị fallback | Có mặc định hợp lệ |
+| 4 | Optional Chaining | `user?.address?.city` | Optional của kết quả cuối | Đi xuống chuỗi property, chấp nhận nil lặng lẽ |
+| 5 | Force Unwrap | `email!` | non-optional hoặc crash | Hạn chế tối đa - chỉ khi invariant đảm bảo non-nil (test, fixture) |
+| 6 | `map` / `flatMap` | `email.map { $0.count }` | Optional mới | Transform giá trị bên trong theo kiểu functional |
 
 === "Kotlin"
 
@@ -522,16 +611,17 @@ val forced = email!!.length
 
 ```swift
 var email: String? = "dev@example.com"
-let length: Int? = email?.count          // Optional Chaining
-let nonNull = email ?? "no-email"        // Nil-Coalescing
-if let email = email {                   // Optional Binding
+let length: Int? = email?.count          // 4. Optional Chaining
+let nonNull = email ?? "no-email"        // 3. Nil-Coalescing
+if let email = email {                   // 1. Optional Binding
     print(email.count) // email là String
 }
 // Swift 5.7+: if let email { print(email.count) }
-let forced = email!.count // ❌ Tránh! Crash nếu nil
+let forced = email!.count                // 5. Force - ❌ Tránh! Crash nếu nil
+let digitCount = email.map { $0.count }  // 6. map -> Int?
 ```
 
-### 5.2 `guard let` - Early Exit chuẩn Apple
+### 5.3 `guard let` - Early Exit chuẩn Apple
 
 ```mermaid
 flowchart TD
@@ -558,7 +648,54 @@ func login(token: String?, user: User?) {
 }
 ```
 
-### 5.3 Failable Initializer: `init?`
+### 5.4 Nested Optional `Int??` - bẫy kinh điển
+
+Các công cụ trên dễ lồng Optional vào Optional (`Int??` = `Optional<Optional<Int>>`). Lưu ý: subscript của Dictionary **đã phẳng sẵn** - `["key": 1]["key"]` trả `Int?`, không bao giờ `Int??`. Lớp lồng xuất hiện khi một phép biến đổi lại trả thêm một Optional nữa, kinh điển nhất là `map` trên Optional:
+
+```swift
+// Nested Optional - Optional bọc Optional
+let d: [String: Int]? = ["a": 1]   // dict có thể nil (từ cache/API)
+let v = d.map { $0["a"] }          // Int?? - Optional(Optional(1))
+let flat = d.flatMap { $0["a"] }   // Int?   - flatMap "phẳng" bớt 1 lớp
+```
+
+`v` có 3 trạng thái chứ không phải 2 - switch với pattern lồng nhau cho thấy rõ:
+
+```swift
+switch v {
+case .some(.some(let value)): print("Có dict, có key: \(value)")
+case .some(.none):            print("Có dict nhưng thiếu key")
+case .none:                   print("Dict là nil")
+}
+```
+
+Cách phẳng thực chiến: dùng `flatMap` (tool 6 ở bảng trên) hoặc unwrap từng lớp bằng `guard let`:
+
+```swift
+func readValue(_ d: [String: Int]?) -> Int? {
+    guard let dict = d, let value = dict["a"] else { return nil }
+    return value
+}
+```
+
+### 5.5 Vì sao Swift không có Smart Cast như Kotlin
+
+Lý do là an toàn đa luồng, không phải cú pháp. Property của class nằm trên Heap: giữa **lúc check** và **lúc dùng**, một thread khác có thể set property về nil - nếu compiler tự ngầm promotion theo phép so sánh, phép check đó sẽ trở thành lời nói dối. Vì vậy Swift chỉ promotion khi **chứng minh được giá trị bất biến**: biến **`let` cục bộ**, và trong phạm vi hạn chế, property `let` truy cập trong cùng file (extension cùng file vẫn được tính - compiler nhìn thấy mọi code có khả năng mutation của file đó); `var` property thì không bao giờ. Từ **Swift 5.7**, cú pháp `if let email { }` rút gọn binding cho biến cùng tên - vẫn là binding tường minh, không phải promotion ngầm sau phép so sánh. Kotlin xử lý điểm này thế nào? Cùng giới hạn: smart cast chỉ áp dụng với `val`/immutable local; `var` property của class không smart cast được - compiler Kotlin cũng lo thread khác đổi giá trị giữa chừng, dev phải copy vào local trước. Khác biệt còn lại: Kotlin promotion sau `!= null`, Swift đòi binding `if let` - hợp đồng rõ ràng hơn nhưng phải gõ thêm một dòng.
+
+### 5.6 IUO - Implicitly Unwrapped Optional (`T!`)
+
+IUO là Optional mà compiler **tự động force unwrap** mỗi lần truy cập, khai báo bằng `T!`. Gặp nhiều nhất ở: IBOutlet nối XIB/Storyboard (lifecycle của nib đảm bảo non-nil trước khi dùng) và bridge từ API ObjC cũ chưa chú thích nullability.
+
+```swift
+// import UIKit - IUO kinh điển trong ViewController:
+class LoginViewController: UIViewController {
+    @IBOutlet weak var titleLabel: UILabel! // nib connect đảm bảo non-nil khi dùng
+}
+```
+
+Vì sao nguy hiểm: mất toàn bộ bảo vệ của Optional - truy cập khi outlet chưa connect là **crash runtime** không có cảnh báo trước, và signature `T!` che mất khả năng nil khỏi người đọc API. **Quy tắc:** chỉ dùng `T!` khi lifecycle đảm bảo non-nil tại mọi thời điểm truy cập; code mới ưu tiên `T?` + `guard let`, hoặc non-optional được gán trong init.
+
+### 5.7 `init?` vs `throws` init - chọn dạng thất bại
 
 Thay vì Kotlin trả `null` từ factory function, Swift cho phép **initializer trả `nil`** - hợp nhất "khởi tạo" và "validate" thành một bước.
 
@@ -582,7 +719,14 @@ let u2 = User(dict: ["name": "Bob"])             // nil
 // Đi kèm: init! (không khuyến nghị) và throwing init - xem §15
 ```
 
-> **Quy tắc:** Dùng `init?` khi dữ liệu đầu vào không đáng tin (parse dictionary, khởi tạo từ ID không tồn tại). Dùng `throws` khi cần báo lý do lỗi cụ thể.
+| Tiêu chí | `init?` (Failable) | `throws` init |
+|---|---|---|
+| Thông tin lỗi | Binary: nil / không nil | Đầy đủ: Error cụ thể kèm ngữ cảnh |
+| Call site | `if let` / `guard let` / `??` | `try` + `do/catch` (§13) |
+| Khi nào dùng | Đầu vào đơn giản, nil tự giải thích (parse dict, lookup ID) | Lỗi cần phân nhánh xử lý / hiển thị cho người dùng |
+| Ví dụ chuẩn | `User(dict:)`, `Int("42")` | `init(from: Decoder) throws` trong Codable (§9) |
+
+> **Quy tắc:** Dùng `init?` khi dữ liệu đầu vào không đáng tin và nil tự giải thích được. Chuyển sang `throws` ngay khi cần báo lý do lỗi cụ thể.
 
 ---
 

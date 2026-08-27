@@ -148,10 +148,10 @@
 - Thêm ví dụ minh họa lazy không thread-safe (pseudo-comment: "// ❌ 2 thread có thể chạy closure đồng thời") và static let thread-safe.
 
 **Tiêu chí hoàn thành:**
-- [ ] Phân loại 3 loại property theo cơ chế có/không ô nhớ.
-- [ ] Nêu rõ lazy Swift không thread-safe vs by lazy Kotlin SYNCHRONIZED.
-- [ ] Nêu 2 quy tắc observers: không chạy trong init, chạy cả khi giá trị bằng.
-- [ ] Có forward-reference static let thread-safe sang §7.
+- [x] Phân loại 3 loại property theo cơ chế có/không ô nhớ.
+- [x] Nêu rõ lazy Swift không thread-safe vs by lazy Kotlin SYNCHRONIZED.
+- [x] Nêu 2 quy tắc observers: không chạy trong init, chạy cả khi giá trị bằng.
+- [x] Có forward-reference static let thread-safe sang §7.
 
 ---
 
@@ -179,12 +179,12 @@ let flat = d.flatMap { $0.value } // Int?
 - Bảng 6 công cụ unwrap (cột: Tool | Cú pháp | Kết quả | Khi nào dùng).
 
 **Tiêu chí hoàn thành:**
-- [ ] Giải thích Optional = sum type, khác null-pointer ở mức mô hình.
-- [ ] Bảng 6 công cụ unwrap đầy đủ.
-- [ ] Có ví dụ nested optional + cách phẳng.
-- [ ] Giải thích vì sao không có smart cast (thread-safety + mutable property).
-- [ ] Có IUO + quy tắc dùng.
-- [ ] Có bảng init? vs throws init.
+- [x] Giải thích Optional = sum type, khác null-pointer ở mức mô hình.
+- [x] Bảng 6 công cụ unwrap đầy đủ.
+- [x] Có ví dụ nested optional + cách phẳng.
+- [x] Giải thích vì sao không có smart cast (thread-safety + mutable property).
+- [x] Có IUO + quy tắc dùng.
+- [x] Có bảng init? vs throws init.
 
 ---
 
