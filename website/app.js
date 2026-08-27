@@ -2783,6 +2783,7 @@ function openTopic(topicId, updateHash = true) {
 
   // Enhance code blocks: language header, copy button, syntax highlighting
   enhanceProseCodeBlocks();
+  applyPreferredDsaLang();
   initReadingEnhancers();
   initReadingExtras();
 
@@ -3125,6 +3126,7 @@ function toggleOriginalContent() {
   renderToc(html);
   triggerMathJax();
   enhanceProseCodeBlocks();
+  applyPreferredDsaLang();
   initReadingEnhancers();
   initReadingExtras();
   if (window.mermaid) {
@@ -4748,13 +4750,15 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Code Tab Switcher
+// Code Tab Switcher — ưu tiên java > kotlin > swift > dart cho DSA
+const DSA_PREFERRED_LANGS = ['java', 'kotlin', 'swift', 'dart'];
+const DSA_LANG_STORAGE_KEY = 'kos-dsa-lang';
 function switchCodeTab(event, lang) {
   event.preventDefault();
   event.stopPropagation();
   const tabContainer = event.target.closest('.code-tabs');
   if (!tabContainer) return;
-  
+  try { localStorage.setItem(DSA_LANG_STORAGE_KEY, lang); } catch (e) {}
   // Update buttons
   tabContainer.querySelectorAll('.code-tab-btn').forEach(btn => {
     if (btn.getAttribute('data-lang') === lang) {
@@ -4763,7 +4767,6 @@ function switchCodeTab(event, lang) {
       btn.classList.remove('active');
     }
   });
-  
   // Update contents
   tabContainer.querySelectorAll('.code-tab-content').forEach(content => {
     if (content.getAttribute('data-lang') === lang) {
@@ -4771,6 +4774,34 @@ function switchCodeTab(event, lang) {
     } else {
       content.classList.remove('active');
     }
+  });
+}
+function getPreferredDsaLang() {
+  try {
+    const saved = localStorage.getItem(DSA_LANG_STORAGE_KEY);
+    if (saved) return saved;
+  } catch (e) {}
+  return DSA_PREFERRED_LANGS[0];
+}
+function applyPreferredDsaLang() {
+  const preferred = getPreferredDsaLang();
+  document.querySelectorAll('.code-tabs').forEach(container => {
+    const available = Array.from(container.querySelectorAll('.code-tab-btn')).map(b => b.getAttribute('data-lang'));
+    let target = null;
+    if (available.includes(preferred)) {
+      target = preferred;
+    } else {
+      for (const lang of DSA_PREFERRED_LANGS) {
+        if (available.includes(lang)) { target = lang; break; }
+      }
+    }
+    if (!target) return;
+    container.querySelectorAll('.code-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === target);
+    });
+    container.querySelectorAll('.code-tab-content').forEach(content => {
+      content.classList.toggle('active', content.getAttribute('data-lang') === target);
+    });
   });
 }
 
