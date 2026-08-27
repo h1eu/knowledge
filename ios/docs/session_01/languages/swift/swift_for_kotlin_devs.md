@@ -44,7 +44,7 @@ Bạn đã thành thạo Kotlin: `val`/`var`, Null Safety `T?`, `data class`, `w
 - **Kotlin sinh ra trên JVM:** mọi object nằm trên Heap, Garbage Collector quản lý vòng đời, và ngôn ngữ được tối ưu cho interop với Java. Vì runtime luôn đứng sau lưng, Kotlin có thể chọn cách làm "thả": object mặc định là reference, null là con trỏ đặc biệt do runtime kiểm tra, GC tự cắt vòng tham chiếu.
 - **Swift sinh ra cho native LLVM:** biên dịch thẳng ra mã máy, **không có GC**. Toàn bộ thiết kế xoay quanh khoảng trống đó: Value Type được đặt làm mặc định (giá trị nằm trên Stack, không cần GC), ARC thay GC cho `class`, và **compiler chịu trách nhiệm an toàn thay vì runtime** - Optional, `let` deep immutability, `guard let` đều là hợp đồng compiler ép bạn ký lúc build.
 
-**Hệ quả:** khác biệt cú pháp chỉ là **bề mặt**; khác biệt **memory model** là gốc của cả 5 bẫy. Đây là câu chủ đề xuyên suốt bài học này - **mỗi section dưới đây sẽ chỉ ra cơ chế bộ nhớ đứng sau cú pháp.**
+**Hệ quả:** khác biệt cú pháp chỉ là **bề mặt**; 4/5 bẫy trên (1, 2, 3, 5) có gốc rễ là khác biệt **memory model/runtime** giữa hai nền tảng. Bẫy 4 (Argument Labels) là ngoại lệ - gốc rễ là **quyết định thiết kế API**, sẽ thấy rõ ở §2. Đây là câu chủ đề xuyên suốt bài học này - **mỗi section dưới đây sẽ chỉ ra cơ chế bộ nhớ đứng sau cú pháp.**
 
 Bài học này trả lời theo đúng tư duy thực chiến: **Nó là gì -> Vì sao tồn tại -> Khi nào dùng -> Code chuẩn Apple như thế nào**, đối chiếu song song Kotlin <-> Swift cho từng phần cú pháp nền tảng.
 
