@@ -274,9 +274,9 @@ b[0] = 1         // LÚC NÀY mới copy thật - a không đổi
   ```
 
 **Tiêu chí hoàn thành:**
-- [ ] Có lý do thiết kế (triết lý tường minh) chứ không chỉ "không có".
-- [ ] Bảng mapping có cột bản chất.
-- [ ] Có ví dụ IIFE thực chiến UIKit/SwiftUI.
+- [x] Có lý do thiết kế (triết lý tường minh) chứ không chỉ "không có".
+- [x] Bảng mapping có cột bản chất.
+- [x] Có ví dụ IIFE thực chiến UIKit/SwiftUI.
 
 ---
 
@@ -312,10 +312,10 @@ struct Settings: Codable {
 - Giữ ví dụ User/CodingKeys hiện có + bảng strategies.
 
 **Tiêu chí hoàn thành:**
-- [ ] Giải thích synthesize không reflection (so kotlinx vs Gson).
-- [ ] Có 3 cách xử lý default value + code pattern `decodeIfPresent ??`.
-- [ ] Bảng strategies với trường hợp thật.
-- [ ] Nêu giới hạn [String: Any].
+- [x] Giải thích synthesize không reflection (so kotlinx vs Gson).
+- [x] Có 3 cách xử lý default value + code pattern `decodeIfPresent ??`.
+- [x] Bảng strategies với trường hợp thật.
+- [x] Nêu giới hạn [String: Any].
 
 ---
 

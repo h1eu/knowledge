@@ -976,15 +976,21 @@ Singleton chuẩn Apple là `static let shared` + `private init()` (ví dụ `Ap
 
 ## 8. Scope Functions: `let`/`apply`/`run`/`also` → Swift
 
-Kotlin có 5 scope functions cực phổ biến. Swift **không có equivalent trực tiếp** - mỗi pattern được thay bằng một cú pháp riêng.
+Kotlin có 5 scope functions cực phổ biến. Swift **không có equivalent trực tiếp** - và đây là **quyết định thiết kế**, không phải thiếu sót. Mỗi scope function của Kotlin mang 2-3 ngữ nghĩa chồng lấn: `let` đồng thời là null-check + transform + kênh side-effect, người đọc phải đoán ý định từ ngữ cảnh. Swift tách từng nhu cầu thành một công cụ riêng **có tên nói rõ mục đích**: unwrap bằng Optional Binding, configure bằng IIFE, transform bằng computed property, side-effect bằng câu lệnh thường. Khung tư duy: **Kotlin tối ưu viết nhanh, Swift tối ưu đọc lại sau 6 tháng.**
 
-| Kotlin | Mục đích | Swift thay thế |
-|---|---|---|
-| `x?.let { }` | Xử lý khi non-null | `if let` / `guard let` / Optional Chaining |
-| `x.apply { }` | Configure object | Khởi tạo với tham số hoặc `var` + gán |
-| `x.run { }` | Transform / tính toán | IIFE `{ }()` hoặc method/computed property |
-| `x.also { }` | Side effect giữa chừng | Câu lệnh thường hoặc closure riêng |
-| `with(x) { }` | Nhóm thao tác trên object | IIFE hoặc method trong type |
+### Cơ chế bên dưới
+
+Về bản chất, 5 scope function của Kotlin không có phép màu gì: chúng chỉ là các **inline higher-order function** - `apply`/`also` nhận lambda rồi trả về receiver, `let`/`run`/`with` trả về kết quả lambda; khác biệt duy nhất là lambda nhận đối tượng qua `it` hay gán đè `this`. Kotlin xử lý điểm này thế nào? Nhờ `inline` lambda không tốn cấp phát Heap, và quan trọng hơn Kotlin cho phép lambda **gán đè `this`** (`apply`, `with`) - rebinding receiver ngay trong block, một năng lực không có sẵn ở chỗ khác trong ngôn ngữ. Swift closure thì không "mượn this" được: `self` bên trong closure vẫn là `self` của context bao ngoài, nên ngữ pháp của `apply` không thể dựng lại - Swift thay bằng **IIFE (Immediately Invoked Function Expression)**: closure được định nghĩa và gọi ngay tại chỗ, trả về instance đã configure (chi tiết ở 8.2). Về triết lý function composition (tổng hợp hàm): Swift khuyến khích **pipeline dữ liệu đọc từ trái sang phải** qua method chain và free functions - `arr.map(f).filter(g).sorted()` - thay vì scope-nesting: đọc `with(with(x) { }) { }` phải đọc từ trong ra ngoài, còn đọc pipeline chỉ cần đọc xuôi. Đây là lý do Swift chọn "tách công cụ có tên" thay vì "gom 5 hàm đa dụng".
+
+### 8.1 Bảng mapping - mỗi nhu cầu một công cụ
+
+| Kotlin | Mục đích | Swift thay thế | Bản chất Swift equivalent |
+|---|---|---|---|
+| `x?.let { }` | Xử lý khi non-null | `if let` / `guard let` / Optional Chaining | Optional Binding - hợp đồng compiler ép xử lý case `none` |
+| `x.apply { }` | Configure object | Khởi tạo với tham số hoặc IIFE | init + IIFE - closure tự gọi, trả instance đã configure |
+| `x.run { }` | Transform / tính toán | IIFE `{ }()` hoặc computed property | Computed property - giá trị tính từ state hiện có |
+| `x.also { }` | Side effect giữa chừng | Câu lệnh thường hoặc closure riêng | Câu lệnh tuần tự - mỗi side effect một dòng tường minh |
+| `with(x) { }` | Nhóm thao tác trên object | Method trong type hoặc IIFE | Method - thao tác "thuộc về" type thay vì scope tạm |
 
 === "Kotlin"
 
@@ -1027,7 +1033,32 @@ var list = ["a"]
 log("Created: \(list)")
 ```
 
-> **Tư duy khác:** Kotlin hướng chức năng (biến đổi qua chain scope functions). Swift ưu tiên **tường minh**: unwrap bằng `guard let`, configure bằng init parameter, tính toán bằng computed property. Đừng tìm cách "nhái" scope functions - hãy viết theo phong cách Swift.
+### 8.2 IIFE - pattern chính thức thay `apply`
+
+IIFE là closure được định nghĩa xong **gọi ngay** bằng cặp `()` cuối. Đây là pattern chính thức của Apple để configure object ngay tại nơi khai báo - bạn sẽ gặp nó trong hầu hết codebase UIKit và SwiftUI:
+
+```swift
+// import UIKit
+private let spinner: UIActivityIndicatorView = {
+    let s = UIActivityIndicatorView(style: .large)
+    s.hidesWhenStopped = true
+    return s
+}()
+```
+
+Nhược điểm cần biết: closure IIFE **vô danh** - không hover xem tài liệu, không rename/refactor như method có tên, và logic configure khó tái sử dụng cho instance thứ hai. Vì vậy IIFE hợp cho configure một-lần; configure lặp lại thì viết init parameter hoặc method.
+
+**`with(x) { }` của Kotlin** chuyển thành **method của type** - nhóm thao tác nên là hành vi của type, không phải scope tạm thời:
+
+```swift
+// Kotlin: with(cart) { addItem(a); addItem(b); return total() }
+// Swift: đặt hành vi vào chính type
+let total = cart.addAndTotal(a, b) // mutating func addAndTotal trong struct Cart
+```
+
+Swift vẫn có vài "scope function" đúng nghĩa trong standard library - `withAnimation { }`, `withCheckedContinuation { }` - nhưng đó là free function đặt tên rõ **một mục đích cụ thể**, không phải method đa dụng trên mọi object.
+
+> **Tư duy khác:** Kotlin hướng chức năng (biến đổi qua chain scope functions). Swift ưu tiên **tường minh**: unwrap bằng `guard let`, configure bằng init parameter hoặc IIFE, tính toán bằng computed property, side-effect bằng câu lệnh. **Đừng tự nhái scope functions bằng extension** (`func apply(_:)`, `func let(_:)`) - ép cú pháp Kotlin vào Swift tạo ra code mà cả hai cộng đồng đều đọc không quen; hãy viết theo phong cách Swift.
 
 ---
 
@@ -1042,6 +1073,10 @@ Mỗi dev Android chuyển sang iOS đều gặp ngay: parse JSON. Kotlin dùng 
 | Encode | `Json.encodeToString(value)` | `JSONEncoder().encode(value)` |
 | Đổi tên field | `@SerialName("user_name")` | `CodingKeys` enum + `String` raw value |
 | Ngày tháng | Custom serializer | `dateDecodingStrategy` |
+
+### Cơ chế bên dưới
+
+`Codable` là protocol rỗng - chỉ là typealias của `Encodable & Decodable` - và tự nó không decode/encode gì cả. Toàn bộ công việc thuộc về **compiler**: type khai báo `Codable` mà không viết tay `init(from:)`/`encode(to:)` thì compiler **synthesize** (tự sinh) hai implementation đó ngay lúc build, đọc trực tiếp danh sách stored properties và `CodingKeys` để biết key nào nạp vào field nào. Đây là **codegen tĩnh**: code được sinh ra tại compile time, runtime không cần metadata nào và không có reflection. Hệ quả: decode chỉ là code thường nên nhanh, và sai kiểu/thiếu key là **throw ngay tại dòng decode** với lỗi chính xác (`keyNotFound`, `typeMismatch` kèm đường path tới key lỗi). Kotlin xử lý điểm này thế nào? `kotlinx.serialization` chọn cùng mô hình - compiler plugin sinh serializer lúc build - nên dev Kotlin nhận ra sự quen thuộc ngay; đối lập là **Gson** dùng runtime reflection đọc field lúc chạy: chậm hơn và lỗi kiểu chỉ nổ ra khi chương trình đi đúng đường code đó.
 
 === "Kotlin"
 
@@ -1076,6 +1111,41 @@ let user = try JSONDecoder().decode(User.self, from: jsonData)
 let json = try JSONEncoder().encode(user)
 ```
 
+### 9.1 Vấn đề default value - 3 cách xử lý
+
+Kotlin xử lý default value ngay tại property - `val theme: String = "light"`: JSON thiếu key là dùng default. Swift synthesized `init(from:)` **đòi đủ mọi field non-optional**: JSON thiếu bất kỳ key nào là throw `keyNotFound`, không có khái niệm default. Ba cách xử lý:
+
+1. **Property Optional** (`var theme: String?`): thiếu key → `nil`. Hợp khi nil tự giải thích được, nhưng ép mọi nơi đọc property phải unwrap (§5).
+2. **Custom `init(from:)`** tự xử lý từng field: toàn quyền, nhưng phải viết tay mọi field.
+3. **Custom `init(from:)` + `decodeIfPresent ?? default`** - pattern phổ biến nhất: property giữ non-optional, phần còn lại của app không phải unwrap gì cả:
+
+```swift
+// Default value - pattern phổ biến nhất
+struct Settings: Codable {
+    var theme: String
+    var notifications: Bool
+
+    enum CodingKeys: String, CodingKey { case theme, notifications }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        theme = try c.decodeIfPresent(String.self, forKey: .theme) ?? "light"
+        notifications = try c.decodeIfPresent(Bool.self, forKey: .notifications) ?? true
+    }
+}
+```
+
+> Khi viết custom `init(from:)`, bạn **đảm nhận** phần Decodable của type - compiler ngừng synthesize init đó (phần `encode(to:)` vẫn được sinh nếu bạn không đụng tới).
+
+### 9.2 `CodingKeys` khi nào cần
+
+Hai trường hợp chính:
+
+- **Tên field lệch**: JSON `avatar_url` vs property `avatarUrl` - map qua raw value của case (ví dụ `User` ở tabs trên).
+- **Ẩn property khỏi JSON**: bỏ property khỏi `CodingKeys` là nó không được decode lẫn encode (ví dụ field cache nội bộ). Lưu ý: property bị bỏ phải là Optional hoặc được gán giá trị mặc định ngay khi khai báo, nếu không compiler không synthesize được conformance.
+
+### 9.3 Decoder strategies - bảng trường hợp thật
+
 ```swift
 // Cấu hình decoder - tương đương Json { } builder của Kotlin
 let decoder = JSONDecoder()
@@ -1088,8 +1158,23 @@ decoder.dateDecodingStrategy = .iso8601
 let user = try decoder.decode(User.self, from: jsonData)
 ```
 
+| Strategy | Giá trị phổ biến | Trường hợp thật |
+|---|---|---|
+| `keyDecodingStrategy` | `.convertFromSnakeCase` | Backend Python/Rails trả `avatar_url`, `created_at` - khỏi viết CodingKeys cho từng field |
+| `dateDecodingStrategy` | `.iso8601` | API REST chuẩn trả `"2026-08-27T10:00:00Z"` |
+| `dateDecodingStrategy` | `.secondsSince1970` | API nội bộ cũ trả timestamp số `1756272000` |
+| `dataDecodingStrategy` | `.base64` | Field ảnh/chữ ký trả chuỗi base64 - decode thẳng thành `Data` |
+
+> Strategy áp dụng cho **toàn bộ** decoder. Nếu cùng một API lẫn nhiều format ngày tháng, không set strategy được - phải decode thủ công từng field.
+
+### 9.4 Giới hạn cần biết
+
+- **Không decode `[String: Any]`:** `Any` không mang thông tin kiểu nên `Codable` không làm việc được với nó - Codable đòi type tĩnh. Dùng struct mô hình hóa JSON, hoặc `JSONSerialization` khi JSON thật sự động.
+- **Enum decode bằng RawRepresentable:** `enum Theme: String, Codable` decode theo raw value tự động, không cần viết tay.
+- **Nested container** (`nestedContainer`) chỉ cần khi JSON lồng sâu nhiều tầng key - hiếm gặp; thường tách struct con là đủ.
+
 > **Khác biệt quan trọng:**
-> - `Codable` **không có ignoreUnknownKeys mặc định** - JSON dư field không sao, nhưng JSON **thiếu** field non-optional sẽ throw. Dùng property optional hoặc giá trị mặc định qua custom `init(from:)`.
+> - JSON dư field không sao - JSON **thiếu** field non-optional sẽ throw; cần default value thì dùng pattern `decodeIfPresent ?? default` ở 9.1.
 > - Kotlin cần plugin `kotlinx.serialization` trong build config; Swift có sẵn trong standard library.
 
 ---
