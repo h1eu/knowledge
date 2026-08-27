@@ -34,7 +34,7 @@ Bạn đã thành thạo Kotlin: `val`/`var`, Null Safety `T?`, `data class`, `w
 1. **Bẫy `let` sâu (Deep Immutability):** `val user` trong Kotlin vẫn cho phép `user.name = "..."` nếu `name` là `var`. `let user` với `struct` trong Swift khóa toàn bộ object. **Gốc rễ:** Kotlin `val` khóa reference vì mọi object nằm trên Heap; Swift `let` + `struct` khóa cả value vì assignment là copy toàn bộ giá trị.
 2. **Bẫy ARC:** Kotlin có Garbage Collector tự cắt vòng tham chiếu. Swift dùng ARC đếm tham chiếu - quên `[weak self]` trong closure async là `ViewModel`/`ViewController` không bao giờ được giải phóng. **Gốc rễ:** GC quét đồ thị tham chiếu lúc runtime nên cycle tự hủy; ARC chèn retain/release lúc compile time nên cycle làm refcount không bao giờ về 0.
 3. **Bẫy Optional:** Kotlin có Smart Cast (`if (x != null) x.length`). Swift bắt buộc `guard let`/`if let` tường minh. **Gốc rễ:** Kotlin null là trạng thái đặc biệt của con trỏ mà runtime kiểm tra - NPE vẫn còn sót; Swift Optional là một giá trị enum bình thường, compiler ép xử lý case `none` trước khi dùng.
-4. **Bẫy Argument Labels:** Kotlin gọi `login("a","b")`, Swift bắt buộc `login(username: "a", password: "b")` hoặc báo lỗi compile. **Gốc rễ:** biên dịch native không có runtime để "đoán" tham số, nên compiler đẩy toàn bộ ngữ nghĩa vào call site - label là hợp đồng tĩnh bắt buộc lúc compile.
+4. **Bẫy Argument Labels:** Kotlin gọi `login("a","b")`, Swift bắt buộc `login(username: "a", password: "b")` hoặc báo lỗi compile. **Gốc rễ:** đây là **quyết định thiết kế API**, không phải hệ quả kỹ thuật của native compile - Swift API Design Guidelines yêu cầu call site phải đọc như câu tiếng Anh (tên hàm + label tạo thành ngữ pháp, §2); Kotlin giải quyết cùng vấn đề đó bằng cách đọc tên hàm dài (`sendNotificationToUser`).
 5. **Bẫy Value Type:** `data class` là Reference Type (copy reference). `struct` là Value Type (copy giá trị) - gán `var b = a; b.name = "Bob"` sẽ không ảnh hưởng `a`. **Gốc rễ:** Kotlin mọi object trên Heap nên gán là copy reference; Swift đặt struct làm mặc định nên gán là copy giá trị.
 
 ### Vì sao hai ngôn ngữ khác nhau đến vậy?
@@ -141,10 +141,15 @@ var user2 = User(name: "Hazu")
 user2.name = "Bob" // ✅ OK vì var
 
 // let với class: chỉ khóa reference - giống val Kotlin
-class UserClass { var name: String }
+class UserClass {
+    var name: String
+    init(name: String) { self.name = name } // class KHÔNG tự sinh memberwise init
+}
 let userC = UserClass(name: "Hazu")
 userC.name = "Bob" // ✅ OK vì class là Reference Type
 ```
+
+> **Điểm dạy từ ví dụ trên:** `struct User` dùng được `User(name:)` ngay - compiler tự sinh **memberwise init**. `class UserClass` thì không: phải tự viết `init(name:)`. Kotlin dễ gây nhầm vì primary constructor (`class UserClass(var name: String)`) sinh sẵn khởi tạo - Swift chỉ dành ưu đãi đó cho `struct`, một phần để giữ `struct` làm mặc định khi tạo model. Chi tiết init ở §15.
 
 > **Vì sao `let` + `struct` khóa được cả property?** Không phải compiler "đặt luật riêng" - mà vì **gán là copy**: `let user = User(...)` giữ toàn bộ value ngay trong biến, không có ô nhớ nào của object bị tham chiếu ra ngoài để sửa. Muốn đổi property phải ghi đè biến - mà `let` cấm ghi đè. Với `class`, value của biến chỉ là con trỏ nên `let` chỉ khóa được con trỏ. Model mặc định của Swift là `struct` - khóa `let` là khóa cả value, loại bỏ cả một lớp bug mutation mà Kotlin phải tự kỷ luật bằng `val` + immutable properties.
 
