@@ -31,11 +31,20 @@ learning_outcomes:
 
 Bạn đã thành thạo Kotlin: `val`/`var`, Null Safety `T?`, `data class`, `when`, `suspend fun`. Khi mở Xcode và tạo project SwiftUI đầu tiên, Swift cho cảm giác "quen thuộc" - nhưng nếu **dịch 1-1 theo thói quen Kotlin, app sẽ crash hoặc leak ngay**:
 
-1. **Bẫy `let` sâu (Deep Immutability):** `val user` trong Kotlin vẫn cho phép `user.name = "..."` nếu `name` là `var`. `let user` với `struct` trong Swift khóa toàn bộ object.
-2. **Bẫy ARC:** Kotlin có Garbage Collector tự cắt vòng tham chiếu. Swift dùng ARC đếm tham chiếu - quên `[weak self]` trong closure async là `ViewModel`/`ViewController` không bao giờ được giải phóng.
-3. **Bẫy Optional:** Kotlin có Smart Cast (`if (x != null) x.length`). Swift bắt buộc `guard let`/`if let` tường minh.
-4. **Bẫy Argument Labels:** Kotlin gọi `login("a","b")`, Swift bắt buộc `login(username: "a", password: "b")` hoặc báo lỗi compile.
-5. **Bẫy Value Type:** `data class` là Reference Type (copy reference). `struct` là Value Type (copy giá trị) - gán `var b = a; b.name = "Bob"` sẽ không ảnh hưởng `a`.
+1. **Bẫy `let` sâu (Deep Immutability):** `val user` trong Kotlin vẫn cho phép `user.name = "..."` nếu `name` là `var`. `let user` với `struct` trong Swift khóa toàn bộ object. **Gốc rễ:** Kotlin `val` khóa reference vì mọi object nằm trên Heap; Swift `let` + `struct` khóa cả value vì assignment là copy toàn bộ giá trị.
+2. **Bẫy ARC:** Kotlin có Garbage Collector tự cắt vòng tham chiếu. Swift dùng ARC đếm tham chiếu - quên `[weak self]` trong closure async là `ViewModel`/`ViewController` không bao giờ được giải phóng. **Gốc rễ:** GC quét đồ thị tham chiếu lúc runtime nên cycle tự hủy; ARC chèn retain/release lúc compile time nên cycle làm refcount không bao giờ về 0.
+3. **Bẫy Optional:** Kotlin có Smart Cast (`if (x != null) x.length`). Swift bắt buộc `guard let`/`if let` tường minh. **Gốc rễ:** Kotlin null là trạng thái đặc biệt của con trỏ mà runtime kiểm tra - NPE vẫn còn sót; Swift Optional là một giá trị enum bình thường, compiler ép xử lý case `none` trước khi dùng.
+4. **Bẫy Argument Labels:** Kotlin gọi `login("a","b")`, Swift bắt buộc `login(username: "a", password: "b")` hoặc báo lỗi compile. **Gốc rễ:** biên dịch native không có runtime để "đoán" tham số, nên compiler đẩy toàn bộ ngữ nghĩa vào call site - label là hợp đồng tĩnh bắt buộc lúc compile.
+5. **Bẫy Value Type:** `data class` là Reference Type (copy reference). `struct` là Value Type (copy giá trị) - gán `var b = a; b.name = "Bob"` sẽ không ảnh hưởng `a`. **Gốc rễ:** Kotlin mọi object trên Heap nên gán là copy reference; Swift đặt struct làm mặc định nên gán là copy giá trị.
+
+### Vì sao hai ngôn ngữ khác nhau đến vậy?
+
+5 bẫy trên không phải ngẫu nhiên - chúng đều suy ra từ **nơi sinh ra** của hai ngôn ngữ.
+
+- **Kotlin sinh ra trên JVM:** mọi object nằm trên Heap, Garbage Collector quản lý vòng đời, và ngôn ngữ được tối ưu cho interop với Java. Vì runtime luôn đứng sau lưng, Kotlin có thể chọn cách làm "thả": object mặc định là reference, null là con trỏ đặc biệt do runtime kiểm tra, GC tự cắt vòng tham chiếu.
+- **Swift sinh ra cho native LLVM:** biên dịch thẳng ra mã máy, **không có GC**. Toàn bộ thiết kế xoay quanh khoảng trống đó: Value Type được đặt làm mặc định (giá trị nằm trên Stack, không cần GC), ARC thay GC cho `class`, và **compiler chịu trách nhiệm an toàn thay vì runtime** - Optional, `let` deep immutability, `guard let` đều là hợp đồng compiler ép bạn ký lúc build.
+
+**Hệ quả:** khác biệt cú pháp chỉ là **bề mặt**; khác biệt **memory model** là gốc của cả 5 bẫy. Đây là câu chủ đề xuyên suốt bài học này - **mỗi section dưới đây sẽ chỉ ra cơ chế bộ nhớ đứng sau cú pháp.**
 
 Bài học này trả lời theo đúng tư duy thực chiến: **Nó là gì -> Vì sao tồn tại -> Khi nào dùng -> Code chuẩn Apple như thế nào**, đối chiếu song song Kotlin <-> Swift cho từng phần cú pháp nền tảng.
 
@@ -53,6 +62,7 @@ graph TD
         K5["OOP: class + interface"]
         K6["Async: suspend / Flow"]
         K7["Hàm: fun foo(a: String)"]
+        K0["Runtime: JVM + GC"]
     end
     subgraph "Swift (iOS / LLVM Native)"
         S1["Biến: let / var (Deep)"]
@@ -62,6 +72,7 @@ graph TD
         S5["POP: protocol + extension + struct"]
         S6["Async: async/await + Task"]
         S7["Hàm: func foo(from label: String)"]
+        S0["Runtime: Native + ARC"]
     end
     K1 -.-> S1
     K2 -.-> S2
@@ -70,19 +81,35 @@ graph TD
     K5 -.-> S5
     K6 -.-> S6
     K7 -.-> S7
+    K4 -.-> K0
+    S4 -.-> S0
+    K0 == "gốc của mọi khác biệt" ==> S0
 ```
+
+> **Đọc diagram:** mỗi cặp `K → S` cùng hàng là một "bản dịch" trực tiếp khi chuyển đổi tư duy - ví dụ `K2` (Smart Cast) dịch sang `S2` (`guard let`). Dòng dày `K0 → S0` là **nền móng**: JVM + GC đối lập Native + ARC, và mọi khác biệt phía trên đều suy ra từ đó.
 
 ---
 
 ## 1. Biến, Hằng, Kiểu & String Interpolation
 
+### Cơ chế bên dưới
+
+Vì sao cùng là "hằng số" mà `let` khóa được cả property còn `val` thì không? Câu trả lời nằm ở cơ chế gán (assignment), không phải cú pháp. Trong Swift, gán một `struct` là **copy toàn bộ value** - hai biến là hai ô nhớ độc lập, nên khóa biến cũng là khóa cả giá trị bên trong. Kotlin xử lý điểm này thế nào? Mọi object đều nằm trên Heap và biến chỉ giữ reference, nên `val` chỉ có thể khóa reference - object bên trong vẫn mutable nếu có `var`. Với `class`, Swift cũng chỉ copy con trỏ 8 byte nên `let` quay về hành vi của `val`. Về mặt lưu trữ: `Int` là platform-width (64-bit trên mọi thiết bị iOS hiện đại - `Int` chính là `Int64`), `Bool` chiếm 1 byte trong layout. `String` là struct mã hóa UTF-8; chuỗi ngắn được tối ưu bằng **Small String Optimization** - lưu trực tiếp trong 16 byte của struct, không cấp phát Heap; chuỗi dài mới nằm trên Heap với Copy-on-Write (sẽ quay lại ở §6 và §10). Kotlin đối chiếu: `String` là immutable reference object trên Heap, mọi chuỗi đều truy cập qua một con trỏ.
+
 ### 1.1 `val` vs `let` và `var` vs `var`
 
-| | Kotlin `val` | Swift `let` |
+Câu hỏi đúng không phải "`val` hay `let`?" mà là **khóa của cái gì**. Có hai loại khóa: khóa **binding** (không gán lại được biến) và khóa **value** (không sửa được property bên trong). Bảng 4 trường hợp:
+
+| Khai báo | Khóa **binding**? (gán lại biến) | Khóa **value**? (sửa property) |
 |---|---|---|
-| **Bản chất** | Read-only reference (object bên trong vẫn mutable) | **Deep immutability** với `struct` |
-| `val user = User(var name)` -> `user.name = "New"` | Cho phép | **Không cho phép** nếu `user` là `let` + `struct` |
-| Khi nào dùng | Mặc định ưu tiên `val` | Mặc định ưu tiên `let` |
+| Kotlin `val user = User(var name)` (data class - Reference) | ✅ Không gán lại được | ❌ `user.name = "New"` vẫn hợp lệ |
+| Kotlin `val user: UserClass` | ✅ | ❌ `val` chỉ khóa reference - giống dòng trên |
+| Swift `let user = User(name)` (struct - Value) | ✅ | ✅ **Deep immutability** - khóa cả property |
+| Swift `let user: UserClass` | ✅ | ❌ chỉ khóa reference - giống hệt `val` Kotlin |
+
+Quy tắc dùng: mặc định ưu tiên `val` (Kotlin) / `let` (Swift) - chỉ `var` khi thực sự cần mutation.
+
+> **Value Semantics (ngữ nghĩa giá trị)** - khái niệm nền của cả bài: sau phép gán, hai biến là **hai thế giới độc lập** - sửa biến này không bao giờ ảnh hưởng biến kia. Chỉ đúng với Value Type (struct/enum); `class` không có tính chất này. Đây là nền cho §6 (struct vs class) và §10 (collections) - chúng ta sẽ quay lại ở §6.
 
 === "Kotlin"
 
@@ -91,6 +118,11 @@ val appName: String = "Knowledge OS"
 var counter: Int = 0
 counter += 1
 val score = 9.5 // Double - Type Inference
+
+// val + class: chỉ khóa reference
+class UserClass(var name: String)
+val u = UserClass("Hazu")
+u.name = "Bob" // ✅ OK - object bên trong vẫn mutable
 ```
 
 === "Swift"
@@ -107,9 +139,14 @@ let user = User(name: "Hazu")
 // user.name = "Bob" // ❌ Compile error: Cannot assign to property
 var user2 = User(name: "Hazu")
 user2.name = "Bob" // ✅ OK vì var
+
+// let với class: chỉ khóa reference - giống val Kotlin
+class UserClass { var name: String }
+let userC = UserClass(name: "Hazu")
+userC.name = "Bob" // ✅ OK vì class là Reference Type
 ```
 
-> **Vì sao Swift "khó chịu" hơn?** Vì model mặc định là `struct` (Value Type) - khóa `let` là khóa cả value, giúp compiler tối ưu và loại cả một lớp bug mutation. Với `class`, `let` chỉ khóa reference giống `val`.
+> **Vì sao `let` + `struct` khóa được cả property?** Không phải compiler "đặt luật riêng" - mà vì **gán là copy**: `let user = User(...)` giữ toàn bộ value ngay trong biến, không có ô nhớ nào của object bị tham chiếu ra ngoài để sửa. Muốn đổi property phải ghi đè biến - mà `let` cấm ghi đè. Với `class`, value của biến chỉ là con trỏ nên `let` chỉ khóa được con trỏ. Model mặc định của Swift là `struct` - khóa `let` là khóa cả value, loại bỏ cả một lớp bug mutation mà Kotlin phải tự kỷ luật bằng `val` + immutable properties.
 
 ### 1.2 Type Annotation & Type Inference
 
@@ -121,6 +158,25 @@ let age = 25              // Inference -> Int
 let price: Double = 99.0  // 99.0 mặc định là Double, muốn Float phải khai báo
 var isActive = true       // Bool
 // var value // ❌ Error: cần giá trị khởi tạo hoặc kiểu khai báo
+```
+
+**Khác biệt inference thật sự mà dev Kotlin cần biết:**
+
+- `9.5` ở Swift **luôn là `Double`** - không có kiểu mặc định `Float`, muốn `Float` phải khai báo tường minh (Kotlin phải viết `9.5f` mới là Float).
+- `Int` là platform-width: 64-bit trên mọi thiết bị iOS hiện đại (`Int` chính là `Int64`).
+- **Arithmetic overflow: Swift TRAP, Kotlin WRAP.** Kotlin `Int.MAX_VALUE + 1` âm thầm quay vòng (wrap-around); Swift crash runtime - compiler coi kết quả sai còn nguy hiểm hơn crash có kiểm soát. Muốn wrap phải dùng toán tử `&+`, tức là khai báo chủ đích ngay tại dòng code.
+
+=== "Kotlin"
+
+```kotlin
+val x = Int.MAX_VALUE + 1 // ✅ Wrap-around im lặng: -9223372036854775808
+```
+
+=== "Swift"
+
+```swift
+let x = Int.max + 1  // ❌ Runtime crash: "Arithmetic overflow"
+let y = Int.max &+ 1 // ✅ Wrap có chủ đích: ra Int.min
 ```
 
 ### 1.3 String Interpolation
@@ -152,6 +208,8 @@ let multiline = """
 ```
 
 > **Lưu ý thực chiến:** Swift không có `"value: $var"` - luôn phải `\(var)`. Quên dấu `\` là tạo ra chuỗi literal thay vì lỗi compile, bug rất khó phát hiện.
+
+**Bản chất `String` khác nhau ở mức nào?** Swift `String` là **Value Type** (struct): gán là copy - với Copy-on-Write nên vẫn rẻ, chi tiết ở §10; Kotlin `String` là immutable reference object trên Heap: gán chỉ copy con trỏ, hai biến trỏ chung một chuỗi. Về interpolation: `\(expr)` gọi property `description` của giá trị - tương đương gọi `toString()` trong template của Kotlin. Vì vậy type nào conform `CustomStringConvertible` là in đẹp được, như override `toString()` trong Kotlin.
 
 ---
 

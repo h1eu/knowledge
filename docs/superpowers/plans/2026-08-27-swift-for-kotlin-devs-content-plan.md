@@ -40,9 +40,9 @@
 - Thêm caption sau diagram: 1 đoạn giải thích đọc diagram (2 dòng).
 
 **Tiêu chí hoàn thành:**
-- [ ] Đọc xong phần mở đầu, người học hiểu gốc rễ khác biệt là memory model/runtime, không chỉ cú pháp.
-- [ ] 5 bẫy giữ nguyên nhưng mỗi bẫy có 1 câu "gốc rễ" trỏ về memory model.
-- [ ] Mermaid hợp lệ (render được), có node runtime nền móng.
+- [x] Đọc xong phần mở đầu, người học hiểu gốc rễ khác biệt là memory model/runtime, không chỉ cú pháp.
+- [x] 5 bẫy giữ nguyên nhưng mỗi bẫy có 1 câu "gốc rễ" trỏ về memory model.
+- [x] Mermaid hợp lệ (render được), có node runtime nền móng.
 
 ---
 
@@ -67,10 +67,10 @@
 - Giữ các ví dụ tabs Kotlin/Swift hiện có (đúng, không cần đổi).
 
 **Tiêu chí hoàn thành:**
-- [ ] Có bảng 4 hàng phân biệt khóa binding vs khóa value.
-- [ ] Có định nghĩa Value Semantics + forward-reference sang §6.
-- [ ] Có ví dụ overflow trap vs wrap.
-- [ ] Giải thích tại sao `let struct` khóa cả property (cơ chế copy), không chỉ "nó bị khóa".
+- [x] Có bảng 4 hàng phân biệt khóa binding vs khóa value.
+- [x] Có định nghĩa Value Semantics + forward-reference sang §6.
+- [x] Có ví dụ overflow trap vs wrap.
+- [x] Giải thích tại sao `let struct` khóa cả property (cơ chế copy), không chỉ "nó bị khóa".
 
 ---
 
