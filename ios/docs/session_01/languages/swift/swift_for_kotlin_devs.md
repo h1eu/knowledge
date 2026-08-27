@@ -1158,6 +1158,8 @@ decoder.dateDecodingStrategy = .iso8601
 let user = try decoder.decode(User.self, from: jsonData)
 ```
 
+> **Bẫy double-conversion:** đừng dùng `.convertFromSnakeCase` cùng `CodingKeys` raw value snake_case cho cùng một field. Cơ chế: strategy convert `"avatar_url"` → `"avatarUrl"` trước khi lookup, nhưng decoder tìm theo raw value `"avatar_url"` của CodingKey → không khớp → field Optional sẽ **silently nil** thay vì báo lỗi. Chọn **một** trong hai cách: với `User` ở tabs trên (đã có `CodingKeys`) thì **không** bật strategy; nếu bật strategy thì bỏ `CodingKeys` cho các field snake_case.
+
 | Strategy | Giá trị phổ biến | Trường hợp thật |
 |---|---|---|
 | `keyDecodingStrategy` | `.convertFromSnakeCase` | Backend Python/Rails trả `avatar_url`, `created_at` - khỏi viết CodingKeys cho từng field |
