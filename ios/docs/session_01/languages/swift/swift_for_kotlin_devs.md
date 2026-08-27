@@ -846,7 +846,7 @@ print(Version(major: 1, minor: 0) == Version(major: 1, minor: 9)) // true - sai 
 
 ### 6.3 `mutating`: thay self bằng bản mới, không phải "mở khóa"
 
-`mutating` không phải là "mở khóa để được sửa". Về cơ chế, compiler biên dịch mutating func thành một hàm nhận **`inout self`**: mọi phép gán property bên trong ghi đè lên vùng nhớ của self - về ngữ nghĩa value type, mỗi mutation là **thay self bằng một giá trị mới tại chỗ**. Hệ quả thứ nhất: mutating func không gọi được trên `let` - mutation là ghi, mà `let` cấm ghi. Hệ quả thứ hai: mutating func không gọi được bên trong closure capture self của struct - self trong closure là một bản copy ẩn dạng `let`. Kotlin xử lý điểm này thế nào? `data class` là reference nên method nào cũng sửa được instance chung, mutation không cần keyword và không có khái niệm "cấm mutation qua binding val" bên trong method.
+`mutating` không phải là "mở khóa để được sửa". Về cơ chế, compiler biên dịch mutating func thành một hàm nhận **`inout self`**: mọi phép gán property bên trong ghi đè lên vùng nhớ của self - về ngữ nghĩa value type, mỗi mutation là **thay self bằng một giá trị mới tại chỗ**. Hệ quả thứ nhất: mutating func không gọi được trên `let` - mutation là ghi, mà `let` cấm ghi. Hệ quả thứ hai: **bên trong method của struct**, `self` mutating không capture được vào closure `@escaping` - closure escaping có thể sống lâu hơn lần gọi method, trong khi `inout self` chỉ tồn tại trong suốt lời gọi, nên compiler cấm ngay ("escaping closure captures mutating 'self'"). Lưu ý phân biệt: capture **biến cục bộ** `var` trong closure là by-reference nên mutate được bình thường (chi tiết ở §14) - giới hạn này chỉ áp dụng cho `self` của struct. Kotlin xử lý điểm này thế nào? `data class` là reference nên method nào cũng sửa được instance chung, mutation không cần keyword và không có khái niệm "cấm mutation qua binding val" bên trong method.
 
 ```swift
 var p = Product(id: "1", name: "iPhone", price: 999)
@@ -855,7 +855,13 @@ p.applyDiscount(10) // ✅ p là var - mutation được phép
 let locked = p
 // locked.applyDiscount(10) // ❌ mutating member không gọi được trên let
 
-// _ = { p.applyDiscount(10) }() // ❌ self trong closure là bản copy let ẩn
+// Bên trong method của struct - self mutating không escape được:
+struct Cart {
+    var items: [String] = []
+    mutating func reload(_ work: @escaping () -> Void) {
+        // work = { items = [] } // ❌ escaping closure captures mutating 'self'
+    }
+}
 ```
 
 > **Quy tắc Apple:** Luôn bắt đầu model bằng `struct`. Chỉ đổi sang `class` khi cần **identity chia sẻ** (ViewModel, Service, Manager, Repository) - đúng tiêu chí `===` ở 6.1. Chi tiết sâu về Value vs Reference ở Topic [1.2.2 Value and Reference Type](../../memory_management/value_reference_type.md).
