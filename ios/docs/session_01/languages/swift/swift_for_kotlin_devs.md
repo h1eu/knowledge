@@ -1,8 +1,8 @@
 ---
 title: Swift for Kotlin Developers - Cú pháp & Thực chiến iOS
 slug: swift-for-kotlin-devs
-summary: Cẩm nang thực chiến chuyển đổi từ Kotlin sang Swift dành cho Android Developer - Nắm vững toàn bộ cú pháp nền tảng (biến, hàm, tuples, properties, initializers, optionals, struct/class, ARC, closures, generics, error handling, concurrency) theo chuẩn Apple để code SwiftUI ngay.
-tags: [ios, swift, kotlin, migration, syntax, practical, android-to-ios, arc, optionals, swiftui]
+summary: Cẩm nang thực chiến chuyển đổi từ Kotlin sang Swift dành cho Android Developer - Nắm vững cú pháp nền tảng (biến, hàm, optionals, struct/class, properties, Codable, scope functions, ARC, error handling, concurrency) qua đối chiếu song song Kotlin <-> Swift để đọc và viết code SwiftUI ngay.
+tags: [ios, swift, kotlin, migration, syntax, practical, android-to-ios, arc, optionals, codable, swiftui]
 domain: iOS
 module: Languages
 topic: Swift for Kotlin Developers
@@ -18,25 +18,26 @@ related:
   - ios.memory.value_reference_type
 learning_outcomes:
   - Phân biệt được `let` deep immutability với `val` và vận dụng `mutating` đúng cho `struct`.
-  - Sử dụng `guard let`, `if let` và nil-coalescing để unwrap Optional an toàn thay vì `!`.
-  - Phân biệt Value Type (`struct` copy) vs Reference Type (`class` share) và chọn đúng cho Model.
-  - Xử lý retain cycle với `[weak self]` và kiểm chứng `deinit` trong closure bất đồng bộ.
-  - Vận dụng Argument Labels, `async/await` và `throws` theo chuẩn Apple API Design Guidelines.
+  - Sử dụng `guard let`, `if let`, `??` và failable initializer để unwrap Optional an toàn thay vì `!`.
+  - Chuyển đổi `data class` sang `struct` với `Equatable`/`Hashable` đúng bản chất Value Type.
+  - Map được `companion object`, scope functions (`let/apply/run/also`) và `defer` của Kotlin sang Swift.
+  - Parse JSON bằng `Codable` thay cho `kotlinx.serialization`.
+  - Nhận diện retain cycle với `[weak self]`, vận dụng `throws`, `Result` và `async/await` theo chuẩn Apple.
 ---
 
 # Swift for Kotlin Developers: Cú pháp & Thực chiến iOS
 
 ## Vấn đề cần giải quyết
 
-Bạn đã thành thạo Kotlin: `val`/`var`, Null Safety `T?`, `data class`, `when`, `suspend fun`. Khi mở Xcode và tạo project SwiftUI đầu tiên, Swift cho cảm giác "quen thuộc" nhưng nếu bạn **dịch 1-1 theo thói quen Kotlin, app sẽ crash hoặc leak ngay**:
+Bạn đã thành thạo Kotlin: `val`/`var`, Null Safety `T?`, `data class`, `when`, `suspend fun`. Khi mở Xcode và tạo project SwiftUI đầu tiên, Swift cho cảm giác "quen thuộc" - nhưng nếu **dịch 1-1 theo thói quen Kotlin, app sẽ crash hoặc leak ngay**:
 
-1. **Bẫy `let` sâu (Deep Immutability):** `val user` trong Kotlin vẫn cho phép `user.name = "..."` nếu `name` là `var`. `let user` với `struct` trong Swift sẽ khóa toàn bộ object.
+1. **Bẫy `let` sâu (Deep Immutability):** `val user` trong Kotlin vẫn cho phép `user.name = "..."` nếu `name` là `var`. `let user` với `struct` trong Swift khóa toàn bộ object.
 2. **Bẫy ARC:** Kotlin có Garbage Collector tự cắt vòng tham chiếu. Swift dùng ARC đếm tham chiếu - quên `[weak self]` trong closure async là `ViewModel`/`ViewController` không bao giờ được giải phóng.
 3. **Bẫy Optional:** Kotlin có Smart Cast (`if (x != null) x.length`). Swift bắt buộc `guard let`/`if let` tường minh.
 4. **Bẫy Argument Labels:** Kotlin gọi `login("a","b")`, Swift bắt buộc `login(username: "a", password: "b")` hoặc báo lỗi compile.
 5. **Bẫy Value Type:** `data class` là Reference Type (copy reference). `struct` là Value Type (copy giá trị) - gán `var b = a; b.name = "Bob"` sẽ không ảnh hưởng `a`.
 
-Bài học này trả lời theo đúng tư duy thực chiến: **Nó là gì -> Vì sao tồn tại -> Khi nào dùng -> Code chuẩn Apple như thế nào**, đối chiếu song song Kotlin <-> Swift.
+Bài học này trả lời theo đúng tư duy thực chiến: **Nó là gì -> Vì sao tồn tại -> Khi nào dùng -> Code chuẩn Apple như thế nào**, đối chiếu song song Kotlin <-> Swift cho từng phần cú pháp nền tảng.
 
 ---
 
@@ -84,6 +85,7 @@ graph TD
 | Khi nào dùng | Mặc định ưu tiên `val` | Mặc định ưu tiên `let` |
 
 === "Kotlin"
+
 ```kotlin
 val appName: String = "Knowledge OS"
 var counter: Int = 0
@@ -92,13 +94,14 @@ val score = 9.5 // Double - Type Inference
 ```
 
 === "Swift"
+
 ```swift
 let appName: String = "Knowledge OS" // immutable
 var counter: Int = 0
 counter += 1
 let score = 9.5 // Double - Type Inference
 
-// let với struct: khóa toàn bộ
+// let với struct: khóa toàn bộ value
 struct User { var name: String }
 let user = User(name: "Hazu")
 // user.name = "Bob" // ❌ Compile error: Cannot assign to property
@@ -106,23 +109,29 @@ var user2 = User(name: "Hazu")
 user2.name = "Bob" // ✅ OK vì var
 ```
 
+> **Vì sao Swift "khó chịu" hơn?** Vì model mặc định là `struct` (Value Type) - khóa `let` là khóa cả value, giúp compiler tối ưu và loại cả một lớp bug mutation. Với `class`, `let` chỉ khóa reference giống `val`.
+
 ### 1.2 Type Annotation & Type Inference
 
-Cả hai ngôn ngữ đều suy luận kiểu, nhưng Swift yêu cầu tường minh hơn khi compiler không suy ra được.
+Cả hai ngôn ngữ đều suy luận kiểu, nhưng Swift yêu cầu tường minh khi compiler không suy ra được (biến chưa khởi tạo, kiểu số nguyên dãy số lớn...).
 
 ```swift
 let name: String = "Hazu" // Annotation
 let age = 25              // Inference -> Int
-let price: Double = 99.0
+let price: Double = 99.0  // 99.0 mặc định là Double, muốn Float phải khai báo
 var isActive = true       // Bool
-// var value // ❌ Error: cần giá trị khởi tạo hoặc kiểu
+// var value // ❌ Error: cần giá trị khởi tạo hoặc kiểu khai báo
 ```
 
 ### 1.3 String Interpolation
 
+Cú pháp khác nhau ngay từ dòng đầu tiên bạn `print`.
+
 === "Kotlin"
+
 ```kotlin
 val name = "Hazu"
+val age = 25
 val greeting = "Xin chào $name, năm sau ${age + 1} tuổi"
 val raw = """
     Dòng 1
@@ -131,6 +140,7 @@ val raw = """
 ```
 
 === "Swift"
+
 ```swift
 let name = "Hazu"
 let age = 25
@@ -141,15 +151,18 @@ let multiline = """
     """
 ```
 
+> **Lưu ý thực chiến:** Swift không có `"value: $var"` - luôn phải `\(var)`. Quên dấu `\` là tạo ra chuỗi literal thay vì lỗi compile, bug rất khó phát hiện.
+
 ---
 
 ## 2. Hàm & Argument Labels - Đặc sản Swift
 
-Swift tách **Argument Label** (tên khi gọi) và **Parameter Name** (tên trong thân hàm) để câu lệnh đọc như tiếng Anh tự nhiên. Đây là khác biệt lớn nhất khi bạn chuyển từ Kotlin.
+Swift tách **Argument Label** (tên khi gọi) và **Parameter Name** (tên trong thân hàm) để câu lệnh đọc như tiếng Anh tự nhiên. Đây là khác biệt lớn nhất khiến dev Kotlin "khó chịu" nhất khi chuyển sang.
 
 ### 2.1 Ba dạng khai báo
 
 === "Kotlin"
+
 ```kotlin
 fun sendNotification(userId: String, message: String, isUrgent: Boolean = false) {}
 sendNotification("user_123", "Họp 9h")
@@ -157,6 +170,7 @@ sendNotification("user_123", "Báo động", isUrgent = true)
 ```
 
 === "Swift"
+
 ```swift
 // 1. Label mặc định = tên parameter
 func sendNotification(userId: String, message: String, isUrgent: Bool = false) {
@@ -185,21 +199,25 @@ log("Error", level: "ERROR", tags: "network", "retry")
 > - Dùng `from`/`into`/`with` khi hàm mô tả hành động tự nhiên (Apple API toàn dùng dạng này: `move(from:to:)`, `insert(_:at:)`).
 > - Dùng `_` khi hàm là phép toán/công thức toán học (`sum`, `max`).
 
-### 2.2 `inout` - Sửa biến gốc (Pass-by-reference)
+### 2.2 `inout` - Sửa biến gốc
 
-Trong Kotlin/Swift, parameter mặc định là `let`/`val`. Muốn sửa trực tiếp biến truyền vào, Swift dùng `inout` + tiền tố `&` khi gọi.
+Trong cả Kotlin lẫn Swift, parameter mặc định là immutable. Kotlin không có cơ chế này (phải return giá trị mới); Swift dùng `inout` + tiền tố `&` khi gọi.
 
 ```swift
 func swapNumbers(_ a: inout Int, _ b: inout Int) {
-    let temp = a; a = b; b = temp
+    let temp = a
+    a = b
+    b = temp
 }
 var x = 10, y = 20
 swapNumbers(&x, &y) // x: 20, y: 10
 ```
 
+> **Khi nào không nên dùng?** `inout` chỉ hợp cho biến cục bộ/Stack. Tránh dùng với property của class vì dễ tạo side effect khó theo dõi - ưu tiên return value như Kotlin.
+
 ---
 
-## 3. Tuples, Range & Control Flow
+## 3. Tuples, Range, Control Flow & `defer`
 
 ### 3.1 Tuples - Không có trong Kotlin
 
@@ -210,12 +228,14 @@ func fetchUser() -> (name: String, age: Int, isActive: Bool) {
     return ("Hazu", 25, true)
 }
 let user = fetchUser()
-print(user.name) // Hazu
+print(user.name) // Hazu - truy cập bằng label
 print(user.0)    // Hazu - truy cập bằng index
 
 // Destructuring
 let (name, age, _) = fetchUser()
 ```
+
+> **Giới hạn:** Tuple không conform `Codable`, không có method, không dùng làm API public phức tạp. Return quá 3 giá trị nên dùng `struct`.
 
 ### 3.2 Range Operators
 
@@ -250,18 +270,48 @@ repeat { n += 1 } while n < 3
 func validate(email: String?, age: Int?) {
     guard let email = email, !email.isEmpty,
           let age = age, age >= 18 else {
-        print("Không hợp lệ"); return
+        print("Không hợp lệ")
+        return
     }
     // email, age là non-optional từ đây
     print("\(email) đủ tuổi")
 }
 ```
 
+### 3.4 `defer` - Dọn dẹp khi thoát scope
+
+Kotlin dùng `try/finally` để đảm bảo dọn dẹp. Swift dùng `defer`: khối code chạy **khi thoát scope**, bất kể return sớm hay throw, và khai báo **ngay sau khi acquire resource**.
+
+=== "Kotlin"
+
+```kotlin
+fun process() {
+    val file = openFile()
+    try {
+        parse(file)
+    } finally {
+        file.close() // dọn dẹp ở cuối, xa nơi mở file
+    }
+}
+```
+
+=== "Swift"
+
+```swift
+func process() throws {
+    let file = openFile()
+    defer { file.close() } // chạy khi thoát scope, kể cả throw
+    try parse(file)        // nhiều defer chạy ngược thứ tự khai báo
+}
+```
+
+> **Khi nào dùng?** Mọi cặp acquire/release (mở file, lock/unlock, begin/end animation) nên viết `defer` ngay cạnh nhau để không quên đường thoát.
+
 ---
 
 ## 4. Properties: Stored, Computed, `lazy`, `willSet/didSet`
 
-Kotlin dùng `get()`/`set()` inline. Swift tách rõ hơn.
+Kotlin dùng `get()`/`set()` inline. Swift tách rõ hơn và có Property Observers - đặc sản UIKit.
 
 ```swift
 struct ProductCard {
@@ -308,72 +358,16 @@ class ProductCell: UITableViewCell {
 }
 ```
 
-> **Khi nào dùng?** `didSet` dùng cực nhiều trong UIKit/`UIView` để auto update UI khi model đổi, thay cho `Delegates.observable` của Kotlin.
+> **Khi nào dùng?**
+> - Computed property khi giá trị suy ra từ stored property (không tốn bộ nhớ).
+> - `lazy` cho object khởi tạo đắt (formatter, pipeline) - như `by lazy` của Kotlin.
+> - `didSet` cực nhiều trong UIKit để auto update UI khi model đổi, thay cho `Delegates.observable` của Kotlin. Trong SwiftUI, vai trò này thuộc về `@State`/`@Published`.
 
 ---
 
-## 5. Initializers, `self` & `deinit`
+## 5. Optionals: Bỏ Smart Cast, Làm chủ `guard let`
 
-Swift không có Primary Constructor như Kotlin. Mọi `class`/`struct` đều dùng `init`.
-
-### 5.1 Struct: Memberwise Init miễn phí
-
-```swift
-struct Product: Equatable, Identifiable {
-    let id: String
-    var name: String
-    var price: Double
-    // Swift tự sinh: init(id:name:price:)
-    mutating func applyDiscount(_ percent: Double) {
-        price *= (1 - percent/100) // mutating bắt buộc khi sửa struct
-    }
-}
-var p = Product(id: "1", name: "iPhone 15", price: 999)
-p.applyDiscount(10) // 899.1
-```
-
-### 5.2 Class: `init` + `deinit`
-
-=== "Kotlin"
-```kotlin
-class User(val name: String, var age: Int) {
-    var email: String? = null
-    constructor(name: String, age: Int, email: String): this(name, age) {
-        this.email = email
-    }
-}
-```
-
-=== "Swift"
-```swift
-class User {
-    let name: String
-    var age: Int
-    var email: String?
-
-    // Designated Initializer
-    init(name: String, age: Int) {
-        self.name = name // self = this trong Kotlin
-        self.age = age
-    }
-    // Convenience
-    convenience init(name: String, age: Int, email: String) {
-        self.init(name: name, age: age)
-        self.email = email
-    }
-    deinit {
-        print("\(name) được giải phóng") // Không có trong Kotlin/JVM
-    }
-}
-```
-
-> `deinit` chỉ có ở `class` (ARC), là nơi kiểm chứng leak: nếu không in ra, bạn đang bị retain cycle.
-
----
-
-## 6. Optionals: Bỏ Smart Cast, Làm chủ `guard let`
-
-`Optional` là `enum` với 2 case `none`/`some`. Không có `null` như Kotlin.
+`Optional` trong Swift là `enum` với 2 case `none`/`some` - không có `null` như Kotlin.
 
 ```swift
 enum Optional<Wrapped> {
@@ -382,9 +376,10 @@ enum Optional<Wrapped> {
 }
 ```
 
-### 6.1 Đối chiếu Unwrapping
+### 5.1 Đối chiếu Unwrapping
 
 === "Kotlin"
+
 ```kotlin
 var email: String? = "dev@example.com"
 val length: Int? = email?.length
@@ -394,6 +389,7 @@ val forced = email!!.length
 ```
 
 === "Swift"
+
 ```swift
 var email: String? = "dev@example.com"
 let length: Int? = email?.count          // Optional Chaining
@@ -405,7 +401,7 @@ if let email = email {                   // Optional Binding
 let forced = email!.count // ❌ Tránh! Crash nếu nil
 ```
 
-### 6.2 `guard let` - Early Exit chuẩn Apple
+### 5.2 `guard let` - Early Exit chuẩn Apple
 
 ```mermaid
 flowchart TD
@@ -418,7 +414,8 @@ flowchart TD
 func submitOrder(productId: String?, quantity: Int?) {
     guard let productId = productId,
           let quantity = quantity, quantity > 0 else {
-        print("Dữ liệu không hợp lệ"); return // BẮT BUỘC thoát scope
+        print("Dữ liệu không hợp lệ")
+        return // BẮT BUỘC thoát scope
     }
     print("Đặt \(productId) x\(quantity)")
 }
@@ -431,104 +428,326 @@ func login(token: String?, user: User?) {
 }
 ```
 
+### 5.3 Failable Initializer: `init?`
+
+Thay vì Kotlin trả `null` từ factory function, Swift cho phép **initializer trả `nil`** - hợp nhất "khởi tạo" và "validate" thành một bước.
+
+```swift
+struct User {
+    let name: String
+    let age: Int
+
+    init?(dict: [String: Any]) {
+        guard let name = dict["name"] as? String,
+              let age = dict["age"] as? Int, age >= 0 else {
+            return nil // dữ liệu không hợp lệ -> init thất bại
+        }
+        self.name = name
+        self.age = age
+    }
+}
+let u1 = User(dict: ["name": "Hazu", "age": 25]) // Optional<User>
+let u2 = User(dict: ["name": "Bob"])             // nil
+
+// Đi kèm: init! (không khuyến nghị) và throwing init - xem §15
+```
+
+> **Quy tắc:** Dùng `init?` khi dữ liệu đầu vào không đáng tin (parse dictionary, khởi tạo từ ID không tồn tại). Dùng `throws` khi cần báo lý do lỗi cụ thể.
+
 ---
 
-## 7. Models: `data class` vs `struct` (Value Type)
+## 6. Models: `data class` vs `struct` (Value Type)
 
-Đây là khác biệt kiến trúc lớn nhất.
+Đây là khác biệt kiến trúc lớn nhất giữa hai ngôn ngữ.
 
 | Tiêu chí | Kotlin `data class` | Swift `struct` |
 |---|---|---|
 | Loại | Reference Type (Heap) | **Value Type** (Stack/Copy-on-Write) |
 | Gán `val b = a` | Cùng trỏ 1 vùng nhớ | **Copy độc lập** |
-| `==` | Tự sinh `equals()` | Cần `: Equatable` |
+| `==` | Tự sinh `equals()` | Cần `: Equatable` (compiler tự sinh) |
+| `hashCode` | Tự sinh `hashCode()` | Cần `: Hashable` (compiler tự sinh) |
 | Tạo bản sao | `copy(price=...)` | `var b = a; b.price = ...` hoặc `mutating func` |
 
 ```mermaid
-sequenceDiagram
-    participant K as Kotlin (Reference)
-    participant S as Swift Struct (Value)
-    Note over K: val u1 = User("Alice")<br/>val u2 = u1<br/>u2.name="Bob"
-    K->>K: u1 và u2 cùng reference -> u1 cũng thành Bob
-    Note over S: var u1 = User("Alice")<br/>var u2 = u1<br/>u2.name="Bob"
-    S->>S: u2 là copy độc lập -> u1 vẫn Alice
+graph LR
+    subgraph "Kotlin data class - Reference"
+        KA["val u1"] --> KH[("Heap: User Alice")]
+        KB["val u2"] --> KH
+    end
+    subgraph "Swift struct - Value Copy"
+        SA["var u1 = Alice"] 
+        SB["var u2 = copy của u1"]
+    end
 ```
 
 === "Kotlin"
+
 ```kotlin
 data class Product(val id: String, val name: String, var price: Double)
-val p1 = Product("1","iPhone",999.0)
-val p2 = p1.copy(price=899.0)
+val p1 = Product("1", "iPhone", 999.0)
+val p2 = p1.copy(price = 899.0)
+// p1 == p2 so sánh value - có sẵn
 ```
 
 === "Swift"
+
 ```swift
-struct Product: Equatable, Identifiable {
-    let id: String; var name: String; var price: Double
-    mutating func applyDiscount(_ p: Double) { price *= (1 - p/100) }
+struct Product: Equatable, Hashable, Identifiable {
+    let id: String
+    var name: String
+    var price: Double
+    mutating func applyDiscount(_ percent: Double) {
+        price *= (1 - percent / 100) // mutating bắt buộc khi sửa struct
+    }
 }
-var p1 = Product(id:"1", name:"iPhone", price:999)
+var p1 = Product(id: "1", name: "iPhone", price: 999)
 var p2 = p1 // copy
 p2.applyDiscount(10)
 print(p1.price) // 999 - không ảnh hưởng
 print(p2.price) // 899.1
-// p1 == p2 cần Equatable
+
+// Equatable & Hashable: compiler tự sinh == và hash(into:)
+// từ TẤT CẢ stored properties - không cần viết tay
+let products: Set<Product> = [p1, p2] // Hashable cho phép dùng làm Set key
 ```
 
-> **Quy tắc Apple:** Luôn bắt đầu model bằng `struct`. Chỉ đổi sang `class` khi cần **identity chia sẻ** (ViewModel, Service, Manager, Repository).
+> **Quy tắc Apple:** Luôn bắt đầu model bằng `struct`. Chỉ đổi sang `class` khi cần **identity chia sẻ** (ViewModel, Service, Manager, Repository). Chi tiết sâu về Value vs Reference ở Topic [1.2.2 Value and Reference Type](../../memory_management/value_reference_type.md).
 
 ---
 
-## 8. Collections: `Array`, `Dictionary`, `Set`
+## 7. Singleton, `static`/`class` Members & `companion object`
 
-Swift không có `List` vs `MutableList` - `let` = immutable, `var` = mutable.
+Kotlin không có `static` - dùng `companion object`. Swift không có `companion object` - dùng `static`/`class` trực tiếp trong type.
+
+| Kotlin | Swift | Ý nghĩa |
+|---|---|---|
+| `companion object { val x }` | `static let/var x` | Thuộc về type, không thuộc instance |
+| `companion object { fun f() }` | `static func f()` | Method tĩnh |
+| - | `class func f()` | Method tĩnh **có thể override** ở subclass |
+| `object Singleton` | `static let shared` + `private init()` | Singleton |
 
 === "Kotlin"
+
 ```kotlin
-val list = listOf("Swift","Kotlin")
-val mutable = mutableListOf("Swift","Kotlin")
-mutable.add("Dart")
-val doubled = numbers.map { it * 2 }
-val map = mapOf("Alice" to 25)
+class AppConfig {
+    companion object {
+        const val VERSION = "1.0"
+        fun reload() { /* ... */ }
+    }
+}
+AppConfig.VERSION
+AppConfig.reload()
+
+object ApiClient {
+    val shared = ApiClient()
+    private fun setup() {}
+}
 ```
 
 === "Swift"
+
 ```swift
-let list: [String] = ["Swift","Kotlin"] // immutable
-var mutable = ["Swift","Kotlin"]
+class AppConfig {
+    static let version = "1.0"   // constant tĩnh
+    static func reload() {}      // không override được
+    class func refresh() {}      // override được ở subclass
+}
+AppConfig.version
+AppConfig.reload()
+
+// Singleton chuẩn Apple:
+final class ApiClient {
+    static let shared = ApiClient() // lazy, thread-safe tự động
+    private init() {}               // chặn tạo instance ngoài
+}
+ApiClient.shared
+```
+
+> **Lưu ý:** `static let shared` trong Swift là **lazy và thread-safe** (đảm bảo bởi runtime) - tương đương `object` trong Kotlin. Không cần viết double-checked locking như Java.
+
+---
+
+## 8. Scope Functions: `let`/`apply`/`run`/`also` → Swift
+
+Kotlin có 5 scope functions cực phổ biến. Swift **không có equivalent trực tiếp** - mỗi pattern được thay bằng một cú pháp riêng.
+
+| Kotlin | Mục đích | Swift thay thế |
+|---|---|---|
+| `x?.let { }` | Xử lý khi non-null | `if let` / `guard let` / Optional Chaining |
+| `x.apply { }` | Configure object | Khởi tạo với tham số hoặc `var` + gán |
+| `x.run { }` | Transform / tính toán | IIFE `{ }()` hoặc method/computed property |
+| `x.also { }` | Side effect giữa chừng | Câu lệnh thường hoặc closure riêng |
+| `with(x) { }` | Nhóm thao tác trên object | IIFE hoặc method trong type |
+
+=== "Kotlin"
+
+```kotlin
+// let: null check + transform
+email?.let { sendTo(it) }
+
+// apply: configure object
+val label = UILabel().apply {
+    text = "Hello"
+    textColor = .red
+}
+
+// run: tính toán trong scope
+val fullName = user.run { "$firstName $lastName" }
+
+// also: side effect
+val list = mutableListOf("a").also { log("Created: $it") }
+```
+
+=== "Swift"
+
+```swift
+// let -> Optional Binding (mục 5)
+if let email = email { sendTo(email) }
+
+// apply -> configure ngay khi khởi tạo, hoặc var + gán
+let label: UILabel = {
+    let l = UILabel()      // IIFE - closure tự chạy
+    l.text = "Hello"
+    l.textColor = .red
+    return l
+}()
+
+// run -> computed property hoặc method
+var fullName: String { "\(firstName) \(lastName)" }
+
+// also -> câu lệnh thường, Swift ưu tiên tường minh
+var list = ["a"]
+log("Created: \(list)")
+```
+
+> **Tư duy khác:** Kotlin hướng chức năng (biến đổi qua chain scope functions). Swift ưu tiên **tường minh**: unwrap bằng `guard let`, configure bằng init parameter, tính toán bằng computed property. Đừng tìm cách "nhái" scope functions - hãy viết theo phong cách Swift.
+
+---
+
+## 9. `Codable` vs `kotlinx.serialization` - Việc đầu tiên khi nhận API
+
+Mỗi dev Android chuyển sang iOS đều gặp ngay: parse JSON. Kotlin dùng `@Serializable` + `kotlinx.serialization`; Swift dùng `Codable` + `JSONDecoder` - **built-in, không cần thư viện**.
+
+| Khái niệm | Kotlin | Swift |
+|---|---|---|
+| Protocol/Annotation | `@Serializable` | `Codable` (= `Encodable` + `Decodable`) |
+| Decode | `Json.decodeFromString<T>(json)` | `JSONDecoder().decode(T.self, from: data)` |
+| Encode | `Json.encodeToString(value)` | `JSONEncoder().encode(value)` |
+| Đổi tên field | `@SerialName("user_name")` | `CodingKeys` enum + `String` raw value |
+| Ngày tháng | Custom serializer | `dateDecodingStrategy` |
+
+=== "Kotlin"
+
+```kotlin
+@Serializable
+data class User(
+    val id: String,
+    val name: String,
+    @SerialName("avatar_url") val avatarUrl: String? = null
+)
+
+val user = Json { ignoreUnknownKeys = true }
+    .decodeFromString<User>(jsonString)
+```
+
+=== "Swift"
+
+```swift
+struct User: Codable {
+    let id: String
+    let name: String
+    let avatarUrl: String?
+
+    // Map tên field JSON khác tên property
+    enum CodingKeys: String, CodingKey {
+        case id, name
+        case avatarUrl = "avatar_url"
+    }
+}
+
+let user = try JSONDecoder().decode(User.self, from: jsonData)
+let json = try JSONEncoder().encode(user)
+```
+
+```swift
+// Cấu hình decoder - tương đương Json { } builder của Kotlin
+let decoder = JSONDecoder()
+decoder.keyDecodingStrategy = .convertFromSnakeCase // user_name -> userName
+decoder.dateDecodingStrategy = .iso8601
+// Lưu ý: JSONDecoder bỏ qua JSON field dư thừa (không khai báo trong struct),
+// nhưng sẽ throw nếu JSON THIẾU field non-optional - khác ignoreUnknownKeys của Kotlin
+// (ignoreUnknownKeys của kotlinx.serialization cũng chỉ bỏ field dư, không điền field thiếu)
+
+let user = try decoder.decode(User.self, from: jsonData)
+```
+
+> **Khác biệt quan trọng:**
+> - `Codable` **không có ignoreUnknownKeys mặc định** - JSON dư field không sao, nhưng JSON **thiếu** field non-optional sẽ throw. Dùng property optional hoặc giá trị mặc định qua custom `init(from:)`.
+> - Kotlin cần plugin `kotlinx.serialization` trong build config; Swift có sẵn trong standard library.
+
+---
+
+## 10. Collections: `Array`, `Dictionary`, `Set`
+
+Swift không có `List` vs `MutableList` - `let` = immutable, `var` = mutable. Bản thân collection cũng là Value Type.
+
+=== "Kotlin"
+
+```kotlin
+val list = listOf("Swift", "Kotlin")
+val mutable = mutableListOf("Swift", "Kotlin")
+mutable.add("Dart")
+
+val numbers = listOf(1, 2, 3, 4, 5)
+val doubled = numbers.map { it * 2 }
+val map = mapOf("Alice" to 25)
+val age = map["Alice"] // Int?
+```
+
+=== "Swift"
+
+```swift
+let list: [String] = ["Swift", "Kotlin"] // immutable
+var mutable = ["Swift", "Kotlin"]
 mutable.append("Dart")
 
-let numbers = [1,2,3,4,5]
+let numbers = [1, 2, 3, 4, 5]
 let doubled = numbers.map { $0 * 2 }      // $0 = it
 let evens = numbers.filter { $0 % 2 == 0 }
 let sum = numbers.reduce(0) { $0 + $1 }
-let validInts = ["1","2","three","4"].compactMap { Int($0) } // [1,2,4] - lọc nil
+let validInts = ["1", "2", "three", "4"].compactMap { Int($0) } // [1,2,4] - lọc nil
+let sorted = numbers.sorted(by: >)        // giống sortedDescending
 
-let userMap: [String:Int] = ["Alice":25, "Bob":30]
-if let age = userMap["Alice"] { print(age) } // Dictionary lookup luôn trả Optional
+let userMap: [String: Int] = ["Alice": 25, "Bob": 30]
+let age = userMap["Alice"]                // Int? - Dictionary lookup luôn Optional
+if let age = userMap["Alice"] { print(age) }
 ```
+
+> **Khác biệt tinh tế:** Truy cập `map["key"]` ở Kotlin trả `Int?`, ở Swift trả `Int?` - giống nhau. Nhưng **mutation** của `Dictionary`/`Array` trong Swift là copy-on-write: gán cho biến mới rồi sửa biến mới không ảnh hưởng biến cũ (khác hẳn `MutableList`).
 
 ---
 
-## 9. Rẽ nhánh & Pattern Matching: `when` vs `switch`
+## 11. Rẽ nhánh & Pattern Matching: `when` vs `switch`
 
-`switch` Swift là **exhaustive**, không cần `break`, hỗ trợ unwrap associated value và `where`.
+`switch` Swift là **exhaustive** (phải đủ mọi case), không cần `break`, hỗ trợ unwrap associated value và `where`.
 
 === "Kotlin"
+
 ```kotlin
 sealed class ViewState {
-    object Loading: ViewState()
-    data class Success(val items: List<String>): ViewState()
-    data class Error(val code:Int, val msg:String): ViewState()
+    object Loading : ViewState()
+    data class Success(val items: List<String>) : ViewState()
+    data class Error(val code: Int, val msg: String) : ViewState()
 }
-when(state) {
+when (state) {
     is ViewState.Loading -> showLoading()
     is ViewState.Success -> display(state.items)
-    is ViewState.Error -> if(state.code==401) login() else error(state.msg)
+    is ViewState.Error -> if (state.code == 401) login() else error(state.msg)
 }
 ```
 
 === "Swift"
+
 ```swift
 enum ViewState {
     case loading
@@ -537,20 +756,178 @@ enum ViewState {
 }
 func render(state: ViewState) {
     switch state {
-    case .loading: showLoading(true)
-    case .success(let items): displayList(items)
-    case .error(code: 401, _): redirectToLogin() // match pattern cụ thể
-    case .error(let code, let msg) where code >= 500: showServerError(msg)
-    case .error(_, let message): showError(message)
+    case .loading:
+        showLoading(true)
+    case .success(let items):
+        displayList(items)
+    case .error(let code, let msg) where code == 401:
+        redirectToLogin()
+    case .error(let code, let msg) where code >= 500:
+        showServerError(msg)
+    case .error(_, let message):
+        showError(message)
     }
 }
 ```
 
+> **Khác biệt then chốt:** Kotlin cần `sealed class` + `is` để pattern matching; Swift dùng `enum` + associated values - gọn hơn, compiler tự hiểu và ép switch phải exhaustive. Đây là nền tảng của SwiftUI State (`.loading`, `.success`...).
+
 ---
 
-## 10. Closures & Bẫy ARC `[weak self]`
+## 12. Enum, Generics, Access Control & `typealias`
 
-Closure = Lambda. Khác biệt cốt lõi là **bộ nhớ**.
+### 12.1 Enum với Associated Values
+
+Mạnh hơn `enum class` Kotlin rất nhiều - mỗi case có thể mang dữ liệu riêng.
+
+```swift
+enum NetworkResult<T> {
+    case success(T)
+    case failure(code: Int, message: String)
+    case loading
+}
+let result: NetworkResult<[String]> = .success(["a", "b"])
+
+// Lấy dữ liệu: switch hoặc if case
+if case .success(let items) = result { print(items) }
+```
+
+### 12.2 Generics
+
+Cú pháp gần giống Kotlin, dùng `where` để ràng buộc.
+
+=== "Kotlin"
+
+```kotlin
+fun <T> first(items: List<T>): T? = items.firstOrNull()
+fun <T> save(value: T, key: String) where T : Comparable<T> { /* ... */ }
+```
+
+=== "Swift"
+
+```swift
+func first<T>(_ items: [T]) -> T? { items.first }
+func save<T: Codable>(_ value: T, key: String) where T: Equatable {}
+
+// Generic struct
+struct Box<T> { var value: T }
+let intBox = Box(value: 10)
+```
+
+Chi tiết sâu ở Topic [1.1.3.4 Generics](generics.md).
+
+### 12.3 Access Control
+
+| Swift | Ý nghĩa | Tương đương Kotlin |
+|---|---|---|
+| `private` | Trong **declaration và extension cùng file** | `private` |
+| `fileprivate` | Trong cùng file | - |
+| `internal` (default) | Trong module (app/target) | `internal` |
+| `public` | Ngoài module, không override/subclass ngoài module | `public` |
+| `open` | Ngoài module, được override/subclass | `open` (Kotlin class mặc định final) |
+
+```swift
+struct NetworkClient {
+    private var session = URLSession() // chỉ NetworkClient thấy được
+    fileprivate func logRequest() {}   // mọi code cùng file thấy
+    internal func fetch() {}           // mặc định - cả app thấy
+}
+
+// private cho phép access từ extension cùng file:
+extension NetworkClient {
+    func reset() { session = URLSession() } // ✅ OK vì cùng file
+}
+```
+
+> **Lưu ý:** Khác với Kotlin, `private` của Swift **không** giới hạn theo file (đó là `fileprivate`). Và `public` của Swift chặn override ngoài module - muốn cho subclass ngoài module phải dùng `open`.
+
+### 12.4 `typealias`
+
+```swift
+typealias UserID = String
+typealias Completion = (Result<User, Error>) -> Void
+func fetchUser(id: UserID, completion: Completion) {}
+```
+
+---
+
+## 13. Error Handling: `throws`/`try`/`try?`/`try!` & `Result`
+
+Kotlin dùng `try/catch` với `Exception` unchecked. Swift dùng `Error` protocol + `throws` - **checked ngay tại signature**: hàm nào throw phải khai báo, caller bắt buộc xử lý.
+
+```swift
+enum AppError: Error, LocalizedError {
+    case network(code: Int)
+    case invalidEmail
+    var errorDescription: String? {
+        switch self {
+        case .network(let c): return "Lỗi mạng \(c)"
+        case .invalidEmail: return "Email không hợp lệ"
+        }
+    }
+}
+func login(email: String) throws -> User {
+    guard email.contains("@") else { throw AppError.invalidEmail }
+    // ...
+    return User(name: "Hazu", age: 25)
+}
+
+// Gọi
+do {
+    let user = try login(email: "hazu@example.com")
+    print(user)
+} catch AppError.invalidEmail {
+    print("Sai email")
+} catch {
+    print(error.localizedDescription) // catch-all
+}
+
+// try? -> trả Optional, nuốt lỗi (dùng khi không quan tâm lỗi)
+let userOrNil = try? login(email: "bad")
+
+// try! -> crash nếu lỗi (chỉ dùng khi chắc chắn không lỗi)
+let userForced = try! login(email: "hazu@example.com")
+```
+
+### 13.1 `Result` - Cho API callback (trước async/await)
+
+Tương đương `Result`/`Either` trong Kotlin, phổ biến trong API cũ của UIKit.
+
+```swift
+func fetchProfile(completion: @escaping (Result<User, AppError>) -> Void) {
+    // ...
+    completion(.success(user))
+    // hoặc completion(.failure(.network(code: 500)))
+}
+fetchProfile { result in
+    switch result {
+    case .success(let user): display(user)
+    case .failure(let error): showError(error)
+    }
+}
+```
+
+> **Thực chiến:** Code mới ưu tiên `async throws` (§14). `Result` chủ yếu gặp khi đọc code cũ hoặc API callback. Dùng `do/catch` cho flow chính, `try?` cho decode JSON optional, **tránh `try!`** trong production.
+
+---
+
+## 14. Closures & Bẫy ARC `[weak self]` (Tổng quan)
+
+Closure = Lambda Kotlin. Chi tiết sâu (syntax đầy đủ, escaping, capture list) ở Topic [1.1.3.2 Closures](closures.md) - phần này chỉ đủ để đọc code và tránh leak.
+
+```swift
+let numbers = [1, 2, 3, 4, 5]
+numbers.map { $0 * 2 }        // $0 = it
+numbers.map { number in number * 2 } // đặt tên rõ ràng
+
+// Trailing Closure chuẩn Apple - closure cuối cùng đặt ngoài ngoặc
+func loadData(completion: (Result<User, Error>) -> Void) {}
+loadData { result in
+    print(result)
+}
+```
+
+**Khác biệt cốt lõi là bộ nhớ** - Kotlin có GC, Swift có ARC:
 
 ```mermaid
 graph LR
@@ -565,8 +942,9 @@ graph LR
 ```
 
 === "Kotlin (GC - không lo cycle)"
+
 ```kotlin
-class UserViewModel: ViewModel() {
+class UserViewModel : ViewModel() {
     val userName = MutableStateFlow("")
     fun fetchProfile() {
         viewModelScope.launch {
@@ -578,6 +956,7 @@ class UserViewModel: ViewModel() {
 ```
 
 === "Swift (ARC - bắt buộc weak)"
+
 ```swift
 class UserViewModel {
     var onStateChanged: ((String) -> Void)?
@@ -595,148 +974,64 @@ class UserViewModel {
     }
     deinit { print("ViewModel deinit - không leak!") }
 }
-
-// Trailing Closure chuẩn Apple:
-func loadData(completion: (Result<User, Error>) -> Void) {}
-loadData { result in // trailing closure - không cần ngoặc
-    print(result)
-}
-numbers.map { $0 * 2 } // $0 là shorthand
 ```
 
-> **Rule:** Bất cứ closure nào `self` giữ closure và closure capture `self` (callback, `URLSession`, `Timer`, `NotificationCenter`) -> luôn `[weak self]`.
+> **Rule:** Bất cứ closure nào mà `self` giữ closure và closure capture `self` (callback, `URLSession`, `Timer`, `NotificationCenter`) -> luôn `[weak self]`.
 
 ---
 
-## 11. Protocol-Oriented Programming & Extensions
+## 15. Initializers: Memberwise & `init` (Tổng quan)
 
-`protocol` = `interface` Kotlin, nhưng kết hợp `extension` để có default implementation và mở rộng kiểu có sẵn.
+Chi tiết sâu (designated, convenience, inheritance rules) ở Topic [1.1.3.3 Initializers](initializers.md) - phần này chỉ những gì cần để bắt đầu.
 
-```swift
-// 1. Protocol + Default Implementation
-protocol BaseViewProtocol: AnyObject {
-    func showLoading(); func hideLoading(); func showError(_ message: String)
-}
-extension BaseViewProtocol {
-    func showError(_ message: String) { print("Alert: \(message)") } // default
-}
-class HomeVC: BaseViewProtocol {
-    func showLoading() { /* custom */ }
-    func hideLoading() {}
-    // showError dùng default
-}
-
-// 2. Mở rộng kiểu có sẵn - như extension function Kotlin
-extension String {
-    var isValidEmail: Bool { contains("@") && contains(".") }
-    func trimmed() -> String { trimmingCharacters(in: .whitespaces) }
-}
-"  hazu@example.com  ".trimmed().isValidEmail // true
-
-// 3. POP với struct
-protocol Identifiable { var id: String { get } }
-extension Identifiable where Self: Equatable {
-    static func == (lhs: Self, rhs: Self) -> Bool { lhs.id == rhs.id }
-}
-```
-
----
-
-## 12. Enum, Generics, Access Control & `typealias`
-
-### 12.1 Enum với Associated Values
-
-Mạnh hơn `enum class` Kotlin rất nhiều.
-
-```swift
-enum NetworkResult<T> {
-    case success(T)
-    case failure(code: Int, message: String)
-    case loading
-}
-let result: NetworkResult<[String]> = .success(["a","b"])
-```
-
-### 12.2 Generics
-
-Cú pháp gần giống Kotlin, dùng `where` để ràng buộc.
+Swift không có Primary Constructor như Kotlin. Mọi `class`/`struct` đều dùng `init`.
 
 === "Kotlin"
+
 ```kotlin
-fun <T> first(items: List<T>): T? = items.firstOrNull()
+class User(val name: String, var age: Int) {
+    var email: String? = null
+    constructor(name: String, age: Int, email: String) : this(name, age) {
+        this.email = email
+    }
+}
 ```
 
 === "Swift"
-```swift
-func first<T>(_ items: [T]) -> T? { items.first }
-func save<T: Codable>(_ value: T, key: String) where T: Equatable {}
-
-// Generic struct
-struct Box<T> { var value: T }
-let intBox = Box(value: 10)
-```
-
-### 12.3 Access Control & `typealias`
-
-| Swift | Ý nghĩa | Tương đương Kotlin |
-|---|---|---|
-| `private` | Chỉ trong file + scope | `private` |
-| `fileprivate` | Trong file | - |
-| `internal` (default) | Trong module (app/target) | `internal` |
-| `public` | Ngoài module, không override | `public` |
-| `open` | Ngoài module, được override | `open` |
 
 ```swift
-typealias UserID = String
-typealias Completion = (Result<User, Error>) -> Void
-func fetchUser(id: UserID, completion: Completion) {}
-```
+struct Product: Identifiable { // Struct: Memberwise Init miễn phí
+    let id: String
+    var name: String
+    var price: Double
+    // Swift tự sinh: init(id:name:price:)
+}
+let p = Product(id: "1", name: "iPhone 15", price: 999)
 
----
+class User {
+    let name: String
+    var age: Int
+    var email: String?
 
-## 13. Error Handling: `throws` / `try` / `try?` / `try!`
-
-Kotlin dùng `try/catch` với `Exception`. Swift dùng `Error` protocol + `throws`.
-
-```swift
-enum AppError: Error, LocalizedError {
-    case network(code: Int)
-    case invalidEmail
-    var errorDescription: String? {
-        switch self {
-        case .network(let c): return "Lỗi mạng \(c)"
-        case .invalidEmail: return "Email không hợp lệ"
-        }
+    init(name: String, age: Int) {   // Designated Initializer
+        self.name = name // self = this trong Kotlin
+        self.age = age
+    }
+    convenience init(name: String, age: Int, email: String) { // delegating
+        self.init(name: name, age: age)
+        self.email = email
+    }
+    deinit {
+        print("\(name) được giải phóng") // Không có trong Kotlin/JVM
     }
 }
-func login(email: String) throws -> User {
-    guard email.isValidEmail else { throw AppError.invalidEmail }
-    // ...
-    return User(name: "Hazu", age: 25)
-}
-
-// Gọi
-do {
-    let user = try login(email: "hazu@example.com")
-    print(user)
-} catch AppError.invalidEmail {
-    print("Sai email")
-} catch {
-    print(error.localizedDescription)
-}
-
-// try? -> trả Optional, nuốt lỗi (dùng khi không quan tâm lỗi)
-let userOrNil = try? login(email: "bad")
-
-// try! -> crash nếu lỗi (chỉ dùng khi chắc chắn không lỗi, như parse file bundle)
-let userForced = try! login(email: "hazu@example.com")
 ```
 
-> **Thực chiến:** Dùng `do/catch` cho flow chính, `try?` cho decode JSON optional, **tránh `try!`** trong production.
+> `deinit` chỉ có ở `class` (ARC), là nơi kiểm chứng leak: nếu không in ra khi dismiss màn hình, bạn đang bị retain cycle (§14).
 
 ---
 
-## 14. Swift Concurrency: `async/await` vs Coroutines
+## 16. Swift Concurrency: `async/await` vs Coroutines
 
 Từ Swift 5.5, mô hình gần như 1-1 với Kotlin Coroutines.
 
@@ -747,20 +1042,28 @@ Từ Swift 5.5, mô hình gần như 1-1 với Kotlin Coroutines.
 | Scope | `viewModelScope.launch {}` | `Task {}` |
 | Về Main | `withContext(Dispatchers.Main)` | `@MainActor` / `Task { @MainActor in }` |
 | Cancellable | `Job.cancel()` | `Task.cancel()` |
+| Stream | `Flow` | `AsyncSequence` |
 
 === "Kotlin"
+
 ```kotlin
 suspend fun loadUserData(userId: String): User = api.getUser(userId)
 viewModelScope.launch {
-    try { val user = loadUserData("123"); updateUI(user) }
-    catch(e: Exception) { showError(e.message) }
+    try {
+        val user = loadUserData("123")
+        updateUI(user)
+    } catch (e: Exception) {
+        showError(e.message)
+    }
 }
 ```
 
 === "Swift"
+
 ```swift
 func loadUserData(userId: String) async throws -> User {
-    let (data, _) = try await URLSession.shared.data(from: URL(string: "https://api.com/users/\(userId)")!)
+    let (data, _) = try await URLSession.shared
+        .data(from: URL(string: "https://api.com/users/\(userId)")!)
     return try JSONDecoder().decode(User.self, from: data)
 }
 // Gọi trong SwiftUI/UIKit
@@ -782,9 +1085,11 @@ class ProfileViewModel: ObservableObject {
 }
 ```
 
+> **Khác biệt cần nhớ:** Swift không có `Dispatchers` chọn thread tùy ý như Kotlin - dùng `@MainActor` cho main thread, compiler quản lý context của `async` function. Closure callback cũ vẫn gặp nhiều, nhưng code mới viết `async/await` hết.
+
 ---
 
-## 15. Bảng tra cứu nhanh Kotlin -> Swift
+## 17. Bảng tra cứu nhanh Kotlin -> Swift
 
 | Nhu cầu | Kotlin | Swift |
 |---|---|---|
@@ -795,32 +1100,41 @@ class ProfileViewModel: ObservableObject {
 | Kiểm tra kiểu | `if (obj is String)` | `if obj is String` |
 | Default value | `str ?: "default"` | `str ?? "default"` |
 | Early return | `val id = id ?: return` | `guard let id = id else { return }` |
+| Dọn dẹp | `try { } finally { }` | `defer { }` |
 | Range | `0 until 5` / `0..5` | `0..<5` / `0...5` |
 | Vòng lặp | `for (i in list)` | `for i in list` |
 | Khi rỗng | `list.isEmpty()` | `list.isEmpty` |
 | In log | `println()` | `print()` |
 | Lambda param | `it` | `$0` |
+| Null check + xử lý | `x?.let { }` | `if let x = x { }` |
+| Configure object | `obj.apply { }` | Init parameter / IIFE |
 | Constructor | `class User(val name: String)` | `init(name: String) { self.name = name }` |
-| Singleton | `object AppManager` | `static let shared = AppManager(); private init() {}` |
+| Companion | `companion object { fun f() }` | `static func f()` |
+| Singleton | `object AppManager` | `static let shared` + `private init()` |
+| Serializable | `@Serializable` + `@SerialName` | `Codable` + `CodingKeys` |
 | Kiểu bất kỳ | `Any` | `Any` / `AnyObject` (chỉ class) |
-| Tuple | `Pair("a",1)` | `("a", 1)` |
+| Tuple | `Pair("a", 1)` | `("a", 1)` |
 | Lazy | `by lazy {}` | `lazy var` |
+| Switch | `when` + `is` | `switch` + associated values |
 
 ---
 
-## 16. 7 Bẫy Kotlin Dev hay mắc phải
+## 18. 10 Bẫy Kotlin Dev hay mắc phải
 
 1. **Quên Argument Label:** `login("a","b")` -> phải `login(username: "a", password: "b")`.
 2. **Dùng `class` cho Model:** Luôn bắt đầu bằng `struct`, chỉ dùng `class` cho ViewModel/Service/Manager.
 3. **Quên `[weak self]`:** Mọi closure async trong ViewController/ViewModel phải `[weak self]`.
 4. **Lạm dụng `!`:** Thay bằng `guard let` / `if let` / `??` để không crash.
 5. **Quên `mutating`:** Sửa property trong `struct` phải thêm `mutating func`.
-6. **Quên `Equatable`:** Muốn `p1 == p2` với struct phải `: Equatable`.
+6. **Quên `Equatable`/`Hashable`:** Muốn `p1 == p2` hoặc dùng làm `Set` key phải khai báo conformance.
 7. **Dùng `try!` bừa bãi:** Chỉ dùng khi chắc chắn không lỗi (bundle file), còn lại dùng `do/catch` hoặc `try?`.
+8. **Nhái scope functions:** Không có `apply`/`let` trong Swift - configure bằng init, null check bằng `guard let`. Ép theo kiểu Kotlin chỉ tạo code lạ.
+9. **Dùng `companion object`:** Swift dùng `static`/`class` trực tiếp - không có khối `companion`.
+10. **Quên `Codable` với snake_case:** JSON `avatar_url` vs property `avatarUrl` - phải khai báo `CodingKeys` hoặc bật `.convertFromSnakeCase`.
 
 ---
 
-## 17. Tư duy hệ thống (System Thinking)
+## 19. Tư duy hệ thống (System Thinking)
 
 Topic này nằm ở **Session 01 - Languages** - tầng nền tảng nhất của iOS.
 
@@ -837,16 +1151,16 @@ graph TD
 ```
 
 - **Vị trí:** Đây là cửa ngõ - không nắm vững `struct`/`ARC`/`Optional` thì các bài sau (GCD, Memory Leaks, SwiftUI State) sẽ không hiểu sâu.
-- **Tương tác:** `struct` + `protocol` (POP) thay thế `class inheritance` trong Clean Architecture iOS; `async/await` thay thế `DispatchQueue` cũ.
-- **Mở rộng:** Sau bài này, học tiếp `Closures` để hiểu `[weak self]` sâu hơn, rồi `SwiftUI Essentials (9.1)` để áp dụng `@State`/`@ObservedObject`.
+- **Tương tác:** `struct` + `protocol` (POP) thay thế `class inheritance` trong Clean Architecture iOS; `async/await` thay thế `DispatchQueue` cũ; `Codable` thay thế Retrofit + Moshi/Gson.
+- **Mở rộng:** Sau bài này, học tiếp `Closures` (1.1.3.2) để hiểu `[weak self]` sâu hơn, rồi `Initializers` (1.1.3.3) để làm chủ designated/convenience init.
 
 ---
 
-## 18. Bài tập thực hành
+## 20. Bài tập thực hành
 
-> Mục tiêu: Tự code kiểm chứng 4 bẫy lớn nhất của Kotlin Dev khi sang Swift. Mỗi bài có `Yêu cầu` -> `Gợi ý` -> `Tiêu chí pass`. Chạy trên Xcode Playground hoặc SwiftUI project mới.
+> Mục tiêu: Tự code kiểm chứng các bẫy lớn nhất của Kotlin Dev khi sang Swift. Mỗi bài có `Yêu cầu` -> `Gợi ý` -> `Tiêu chí pass`. Chạy trên Xcode Playground hoặc SwiftUI project mới.
 
-### Bài 1 — `let` Deep Immutability & `mutating` (§1.1, §5)
+### Bài 1 — `let` Deep Immutability & `mutating` (§1, §6)
 
 **Yêu cầu:**
 1. Tạo `struct User { var name: String }` và `let user = User(name: "Hazu")`, thử `user.name = "Bob"` — ghi lại lỗi compiler.
@@ -862,19 +1176,24 @@ graph TD
 
 ```swift
 // Gợi ý khung
-struct User { var name: String; mutating func rename(to newName: String) { name = newName } }
+struct User {
+    var name: String
+    mutating func rename(to newName: String) { name = newName }
+}
 let a = User(name: "Hazu")
 // a.rename(to: "Bob") // ❌
 var b = User(name: "Hazu")
 b.rename(to: "Bob") // ✅
 ```
 
-### Bài 2 — `guard let` & Optional Chaining (§6)
+### Bài 2 — `guard let` & Failable Init (§5)
 
 **Yêu cầu:**
-Viết `func login(token: String?, userId: String?, age: Int?)` chỉ in `"Đăng nhập: \(userId)"` khi cả 3 non-nil, `token` non-empty và `age >= 18`. Nếu fail thì `return` sớm. Không dùng `!`, không dùng pyramid `if let`.
+1. Viết `func login(token: String?, userId: String?, age: Int?)` chỉ in `"Đăng nhập: \(userId)"` khi cả 3 non-nil, `token` non-empty và `age >= 18`. Nếu fail thì `return` sớm. Không dùng `!`, không dùng pyramid `if let`.
+2. Viết `init?(dict: [String: Any])` cho `struct Session` gồm `token: String`, `expiresAt: Int`. Không hợp lệ thì trả `nil`.
 
-**Gợi ý:** Dùng 1 `guard let` duy nhất kết hợp `where`/`,`:
+**Gợi ý:** Dùng 1 `guard let` duy nhất kết hợp nhiều điều kiện bằng `,`:
+
 ```swift
 guard let token = token, !token.isEmpty,
       let userId = userId,
@@ -884,12 +1203,12 @@ guard let token = token, !token.isEmpty,
 **Tiêu chí pass:**
 - `login(token: nil, userId: "u1", age: 20)` không crash.
 - `login(token: "", userId: "u1", age: 20)` return sớm.
-- Dùng `??` để cung cấp default khi cần.
+- `Session(dict: [:])` trả `nil` không crash; dùng `??` để cung cấp default khi cần.
 
-### Bài 3 — Retain Cycle & `[weak self]` (§10)
+### Bài 3 — Retain Cycle & `[weak self]` (§14)
 
 **Yêu cầu:**
-1. Tạo `class ProfileViewModel { var onUpdate: ((String)->Void)?; func fetch() }` mô phỏng `ApiService.shared.getUser(completion:)` bằng `DispatchQueue.global().asyncAfter(deadline: .now()+1)`.
+1. Tạo `class ProfileViewModel { var onUpdate: ((String) -> Void)?; func fetch() }` mô phỏng `ApiService.shared.getUser(completion:)` bằng `DispatchQueue.global().asyncAfter(deadline: .now() + 1)`.
 2. Trong `fetch`, capture `self` mạnh (không `weak`) để tạo retain cycle: `self` -> `onUpdate` closure -> `self`.
 3. Chứng minh leak bằng `deinit { print("deinit") }` không được gọi khi `viewModel = nil`.
 4. Fix bằng `[weak self]` + `guard let self else { return }` và xác nhận `deinit` in ra.
@@ -911,19 +1230,32 @@ func fetch() {
 }
 ```
 
-### Bài 4 — Value vs Reference & `Equatable` (§7, §12)
+### Bài 4 — Value vs Reference & `Equatable` (§6)
 
 **Yêu cầu:**
-1. Tạo `struct Product: Equatable { let id: String; var price: Double }`, tạo `var p1 = Product(id:"1", price:999)`, `var p2 = p1`, đổi `p2.price = 100`, in `p1.price` — phải vẫn `999`.
+1. Tạo `struct Product: Equatable, Hashable { let id: String; var price: Double }`, tạo `var p1 = Product(id: "1", price: 999)`, `var p2 = p1`, đổi `p2.price = 100`, in `p1.price` — phải vẫn `999`.
 2. Lặp lại với `class ProductClass`, chứng minh `p1.price` cũng đổi thành `100`.
 3. Thêm `mutating func applyDiscount(_ percent: Double)` cho `struct` và thử `let p3 = Product(...)` gọi `applyDiscount` — ghi lại lỗi.
-4. Kiểm tra `p1 == p2` cần `: Equatable`, thử xóa conformance để thấy lỗi.
+4. Tạo `Set<Product>` từ `p1`, `p2` — xác nhận cần `Hashable`; thử xóa conformance để thấy lỗi.
 
 **Tiêu chí pass:**
-- Giải thích bằng diagram copy vs reference `swift_for_kotlin_devs.md:442`.
+- Giải thích được diagram copy vs reference (§6).
 - Nêu quy tắc: Model bắt đầu bằng `struct`, chỉ đổi `class` khi cần identity chia sẻ (ViewModel/Service).
 
-> **Cách tự chấm:** Chạy từng bài trong Xcode Playground, bật Debug Memory Graph để quan sát retain cycle Bài 3. Đáp án tham khảo nằm trong chính các ví dụ §1, §6, §7, §10 của bài học.
+### Bài 5 — `Codable` & API thực chiến (§9)
+
+**Yêu cầu:**
+1. Cho JSON: `{"id":"1","full_name":"Hazu Nguyen","avatar_url":"https://...","extra_field":true}`.
+2. Tạo `struct Profile: Codable` với property `id`, `fullName`, `avatarUrl` — xử lý snake_case bằng `CodingKeys` hoặc `.convertFromSnakeCase`.
+3. Xử lý `extra_field` không có trong struct — xác nhận decode vẫn thành công.
+4. Thử xóa `avatarUrl` khỏi JSON — quan sát hành vi nếu property là non-optional vs optional.
+
+**Tiêu chí pass:**
+- Decode thành công với JSON dư field.
+- Giải thích được khi nào cần `CodingKeys`, khi nào `.convertFromSnakeCase` đủ.
+- Biết `avatarUrl: String?` vs `avatarUrl: String` khác nhau thế nào khi JSON thiếu field.
+
+> **Cách tự chấm:** Chạy từng bài trong Xcode Playground, bật Debug Memory Graph để quan sát retain cycle Bài 3. Đáp án tham khảo nằm trong chính các ví dụ §1, §5, §6, §9, §14 của bài học.
 
 ---
 
@@ -933,4 +1265,5 @@ func fetch() {
 - [Apple - Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/)
 - [Apple - Automatic Reference Counting](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/automaticreferencecounting/)
 - [Apple - Swift Concurrency](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/)
+- [Apple - Encoding and Decoding Custom Types](https://developer.apple.com/documentation/foundation/encoding-and-decoding-custom-types)
 - [Kotlin vs Swift Cheatsheet](https://nilhcem.github.io/swift-is-like-kotlin/)
