@@ -1799,11 +1799,17 @@ let b = Tag(randomLabel: "new")    // init extension cũng có
 
 Từ Swift 5.5, mô hình gần như 1-1 với Kotlin Coroutines.
 
+### Cơ chế bên dưới
+
+Code `async` không chạy trên "thread tùy ý" mà chạy trên một **cooperative thread pool** có độ rộng bằng **số lõi CPU** - thiết kế giống `Dispatchers.Default` của Kotlin (cũng size = cores). Thread trong pool chỉ được "buông ra" tại **suspension point** (`await`), vì vậy **blocking là độc**: một lệnh blocking (I/O đồng bộ, `Thread.sleep`, vòng tính toán nặng không qua `await`) không làm treo thread hệ thống nhưng **chiếm một slot của pool**, khiến các Task khác phải xếp hàng chờ. Kotlin xử lý điểm này thế nào? Cùng nguyên tắc: blocking trên `Dispatchers.Default` là lỗi thiết kế, phải đẩy sang `Dispatchers.IO`; Swift không có pool IO riêng - cần blocking thì chuyển sang GCD cũ hoặc chọn API async. Mỗi Task mang một **priority** (`userInitiated`, `utility`, `background`) mà runtime dùng để sắp thứ tự chạy - vai trò gần với việc chọn Dispatcher + priority bên Kotlin, nhưng **priority không phải thread**: nó chỉ là gợi ý lập lịch, không cam kết chạy trên thread nào.
+
 | Khái niệm | Kotlin | Swift |
 |---|---|---|
 | Hàm async | `suspend fun fetch(): User` | `func fetch() async throws -> User` |
 | Chờ kết quả | `val u = fetch()` trong coroutine | `let u = try await fetch()` |
 | Scope | `viewModelScope.launch {}` | `Task {}` |
+| Chạy song song | `coroutineScope { async { } }` | `async let` |
+| Hủy lan truyền | Hủy scope hủy mọi Job con | Hủy Task cha hủy mọi Task con |
 | Về Main | `withContext(Dispatchers.Main)` | `@MainActor` / `Task { @MainActor in }` |
 | Cancellable | `Job.cancel()` | `Task.cancel()` |
 | Stream | `Flow` | `AsyncSequence` |
@@ -1837,7 +1843,55 @@ Task { @MainActor in
         updateUI(with: user)
     } catch { showError(error.localizedDescription) }
 }
+```
 
+### 16.1 Structured Concurrency: Task cha - con
+
+Mỗi `Task {}` hoặc `async let` là một **Task con** thuộc scope chứa nó - tạo thành cây cha-con. Hủy Task cha tự hủy mọi Task con; Task cha `throws` khi một Task con ném lỗi (các Task con còn lại bị hủy theo). Đây là **structured concurrency** (đồng thời có cấu trúc) - Kotlin xử lý điểm này thế nào? Tương đương `coroutineScope`/`viewModelScope`: coroutine không sống ngoài scope, hủy scope là hủy hết. Khác biệt lớn nằm ở thế hệ trước: GCD (`DispatchQueue.global().async { }`) là **fire-and-forget** - không có quan hệ cha-con, không hủy lan truyền, không ai theo dõi kết quả; `async/await` sinh ra để thay triệt để cách viết đó.
+
+```swift
+// async let: 2 request chạy SONG SONG, là Task con của loadDashboard
+func loadDashboard(userId: String) async throws -> (User, [Post]) {
+    async let user = loadUserData(userId: userId) // Task con 1
+    async let posts = fetchPosts()                // Task con 2
+    return try await (user, posts)                // chờ cả hai tại đây
+}
+```
+
+### 16.2 Cancellation là hợp tác - không ngắt cứng
+
+`Task.cancel()` **không ngắt code giữa chừng** - nó chỉ "bật cờ" cancelled lên Task đó. Code bên trong phải **tự kiểm tra** qua `Task.isCancelled` hoặc `try Task.checkCancellation()` (ném `CancellationError` nếu đã bị hủy); các API chuẩn (URLSession...) tự kiểm tra tại mỗi suspension point `await`. Kotlin xử lý điểm này thế nào? **Cùng mô hình hợp tác**: `Job.cancel()` cũng chỉ đánh dấu trạng thái - coroutine chỉ dừng tại suspension point (vốn là cancellation point), không bao giờ bị "bắn" giữa dòng code. Điểm cần khắc cống khi chuyển đổi: đừng mong `cancel()` ngắt cứng như kill thread - vòng lặp nặng không có `await` lẫn `checkCancellation()` sẽ chạy đến hết dù đã bị hủy.
+
+```swift
+func processOrders(_ ids: [String]) async throws {
+    for id in ids {
+        try Task.checkCancellation() // cancel() chỉ BẬT CỜ - phải tự check
+        // hoặc: if Task.isCancelled { /* dọn dẹp rồi thoát */ }
+        _ = try await fetchOrder(id: id) // API chuẩn tự check tại await
+    }
+}
+```
+
+### 16.3 Actor & `@MainActor`: isolation do compiler kiểm tra
+
+`actor` là **reference type có hàng đợi serial nội bộ**: mọi truy cập state nội bộ từ bên ngoài đều phải vào hàng đợi và chạy tuần tự - data race bị loại bỏ mà không cần lock. Kotlin xử lý điểm này thế nào? Kotlin phải tự bảo vệ mutable state bằng `Mutex`, `synchronized` hoặc dispatcher đơn luồng - đều là kỷ luật runtime dễ quên; Swift đưa cơ chế vào ngôn ngữ và **compiler ép gõ `await`** ở mỗi lần chạm state từ ngoài actor, nhắc bạn rằng đây là lần xếp hàng.
+
+```swift
+actor Counter {
+    private var value = 0
+    func increment() { value += 1 }
+}
+
+let counter = Counter()
+Task {
+    await counter.increment()   // từ ngoài actor: mọi lời gọi đều phải await - xếp hàng đợi
+    let v = await counter.value // đọc state nội bộ cũng qua hàng đợi
+}
+```
+
+`@MainActor` là actor của main thread - nơi duy nhất được đụng UI. So với `Dispatchers.Main` + `withContext` của Kotlin: Kotlin phải **tự nhớ** chuyển context trước khi update UI, quên là crash; Swift đảo ngược trách nhiệm - **compiler kiểm tra isolation**: code không thuộc `@MainActor` mà đụng property UI là lỗi compile, không thể "quên chuyển thread".
+
+```swift
 // Trong ViewModel chuẩn Apple:
 @MainActor
 class ProfileViewModel: ObservableObject {
@@ -1848,6 +1902,10 @@ class ProfileViewModel: ObservableObject {
     }
 }
 ```
+
+### 16.4 `Sendable`: an toàn ở ranh giới concurrency
+
+`Sendable` là protocol đánh dấu một type được coi là an toàn khi **di chuyển qua ranh giới concurrency**; khi capture một class mutable không conform `Sendable` vào Task hoặc closure của actor, compiler sẽ cảnh báo (Swift 6 siết thành lỗi). Kotlin không có cơ chế kiểm tra tương đương - việc truyền state qua coroutine chỉ dựa vào kỷ luật; ở đây chỉ cần nhận diện được warning khi gặp, chi tiết thuộc Topic Concurrency riêng.
 
 > **Khác biệt cần nhớ:** Swift không có `Dispatchers` chọn thread tùy ý như Kotlin - dùng `@MainActor` cho main thread, compiler quản lý context của `async` function. Closure callback cũ vẫn gặp nhiều, nhưng code mới viết `async/await` hết.
 
@@ -1880,21 +1938,31 @@ class ProfileViewModel: ObservableObject {
 | Tuple | `Pair("a", 1)` | `("a", 1)` |
 | Lazy | `by lazy {}` | `lazy var` |
 | Switch | `when` + `is` | `switch` + associated values |
+| Overflow số học | `Int.MAX_VALUE + 1` (wrap im lặng) | `Int.max + 1` (crash) / `&+` (wrap có chủ đích) |
+| Default khi thiếu key | `map.getOrDefault("k", 0)` | `dict["k", default: 0]` |
+| Xóa theo điều kiện | `list.removeAll { ... }` | `list.removeAll(where: { ... })` |
+| Tất cả case của enum | `Color.entries` (trước đây `values()`) | `: CaseIterable` + `Color.allCases` |
+| Bảo vệ state đa luồng | `synchronized` / `Mutex` | `actor` (isolation do compiler kiểm tra) |
+| Optional ngầm unwrap | `lateinit var` (chỉ với `var` của class) | `T!` (IUO - §5.6) |
 
 ---
 
-## 18. 10 Bẫy Kotlin Dev hay mắc phải
+## 18. 12 Bẫy Kotlin Dev hay mắc phải
 
-1. **Quên Argument Label:** `login("a","b")` -> phải `login(username: "a", password: "b")`.
-2. **Dùng `class` cho Model:** Luôn bắt đầu bằng `struct`, chỉ dùng `class` cho ViewModel/Service/Manager.
-3. **Quên `[weak self]`:** Mọi closure async trong ViewController/ViewModel phải `[weak self]`.
-4. **Lạm dụng `!`:** Thay bằng `guard let` / `if let` / `??` để không crash.
-5. **Quên `mutating`:** Sửa property trong `struct` phải thêm `mutating func`.
-6. **Quên `Equatable`/`Hashable`:** Muốn `p1 == p2` hoặc dùng làm `Set` key phải khai báo conformance.
-7. **Dùng `try!` bừa bãi:** Chỉ dùng khi chắc chắn không lỗi (bundle file), còn lại dùng `do/catch` hoặc `try?`.
-8. **Nhái scope functions:** Không có `apply`/`let` trong Swift - configure bằng init, null check bằng `guard let`. Ép theo kiểu Kotlin chỉ tạo code lạ.
-9. **Dùng `companion object`:** Swift dùng `static`/`class` trực tiếp - không có khối `companion`.
-10. **Quên `Codable` với snake_case:** JSON `avatar_url` vs property `avatarUrl` - phải khai báo `CodingKeys` hoặc bật `.convertFromSnakeCase`.
+Mỗi bẫy kèm **cơ chế gốc** - vì sao ngôn ngữ hành xử như vậy - để bạn phòng ngừa thay vì học thuộc.
+
+1. **Quên Argument Label:** `login("a","b")` -> phải `login(username: "a", password: "b")`. **Cơ chế gốc:** label là một phần của định danh hàm trong signature (§2) - gọi thiếu label là gọi một hàm không tồn tại.
+2. **Dùng `class` cho Model:** Luôn bắt đầu bằng `struct`, chỉ dùng `class` cho ViewModel/Service/Manager. **Cơ chế gốc:** class nằm trên Heap qua reference - mất Value Semantics (§1), mutation lan sang mọi biến đang giữ reference; struct copy nên mutation bị chặn tại nguồn.
+3. **Quên `[weak self]`:** Mọi closure async trong ViewController/ViewModel phải `[weak self]`. **Cơ chế gốc:** closure capture self **by reference** (§14) - self giữ closure, closure giữ self, refcount không bao giờ về 0.
+4. **Lạm dụng `!`:** Thay bằng `guard let` / `if let` / `??` để không crash. **Cơ chế gốc:** `!` là ép Optional enum về case `.some` - giá trị đang là `.none` thì crash runtime thay vì báo lỗi compile.
+5. **Quên `mutating`:** Sửa property trong `struct` phải thêm `mutating func`. **Cơ chế gốc:** mutation của struct là thay self bằng bản copy mới (§6) - không khai báo `mutating` thì method không được phép ghi vào self.
+6. **Quên `Equatable`/`Hashable`:** Muốn `p1 == p2` hoặc dùng làm `Set` key phải khai báo conformance. **Cơ chế gốc:** compiler chỉ tự sinh `==`/`hash` khi type khai báo conformance (§6) - không khai báo là không tồn tại hàm so sánh nào để gọi.
+7. **Dùng `try!` bừa bãi:** Chỉ dùng khi chắc chắn không lỗi (bundle file), còn lại dùng `do/catch` hoặc `try?`. **Cơ chế gốc:** hàm throw thực chất **return** giá trị error (§13) - `try!` là khẳng định "không có error để return", sai là crash ngay chỗ assert.
+8. **Nhái scope functions:** Không có `apply`/`let` trong Swift - configure bằng init, null check bằng `guard let`. Ép theo kiểu Kotlin chỉ tạo code lạ. **Cơ chế gốc:** Swift tách mỗi nhu cầu thành công cụ riêng có tên rõ (§8) - nhái scope-nesting là đi ngược thiết kế ngôn ngữ.
+9. **Dùng `companion object`:** Swift dùng `static`/`class` trực tiếp - không có khối `companion`. **Cơ chế gốc:** `static` là member của **metatype** (định danh của type, §7), không phải instance - Swift không có object kèm theo class như companion.
+10. **Quên `Codable` với snake_case:** JSON `avatar_url` vs property `avatarUrl` - phải khai báo `CodingKeys` hoặc bật `.convertFromSnakeCase`. **Cơ chế gốc:** `CodingKeys` là bảng ánh xạ compile-time (§9) - thiếu ánh xạ thì decoder không tìm được key khớp và decode fail lúc runtime.
+11. **Nhầm `@escaping` / non-escaping:** Tham số closure mặc định là **non-escaping** - sống không quá lời gọi hàm (§14); lưu vào property hoặc chạy async mà không khai báo `@escaping` là lỗi compile. Ngược lại, closure đã `@escaping` mà tưởng mình non-escaping (quên `[weak self]`) là retain cycle.
+12. **Mutate collection khi đang duyệt:** Xóa/thêm phần tử trong vòng lặp làm skip phần tử. **Cơ chế gốc:** Array duyệt qua **index nội bộ** (§10) - mutation làm index trượt và index cũ bị invalidate khi buffer đổi; dùng `removeAll(where:)` hoặc duyệt ngược.
 
 ---
 
@@ -1916,7 +1984,7 @@ graph TD
 
 - **Vị trí:** Đây là cửa ngõ - không nắm vững `struct`/`ARC`/`Optional` thì các bài sau (GCD, Memory Leaks, SwiftUI State) sẽ không hiểu sâu.
 - **Tương tác:** `struct` + `protocol` (POP) thay thế `class inheritance` trong Clean Architecture iOS; `async/await` thay thế `DispatchQueue` cũ; `Codable` thay thế Retrofit + Moshi/Gson.
-- **Mở rộng:** Sau bài này, học tiếp `Closures` (1.1.3.2) để hiểu `[weak self]` sâu hơn, rồi `Initializers` (1.1.3.3) để làm chủ designated/convenience init.
+- **Mở rộng:** Sau bài này, học tiếp `Closures` (§14, Topic 1.1.3.2) để hiểu capture, `@escaping` và `[weak self]` sâu hơn, rồi `Initializers` (§15, Topic 1.1.3.3) để làm chủ designated/convenience init; nền tảng bộ nhớ (Value vs Reference, ARC) nằm ở Topic 1.2 Memory.
 
 ---
 

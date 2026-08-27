@@ -483,11 +483,11 @@ func later(_ work: @escaping () -> Void) { work() } // sống lâu hơn - cần 
   ```
 
 **Tiêu chí hoàn thành:**
-- [ ] Structured concurrency cha-con + so coroutine scope.
-- [ ] Cooperative cancellation giải thích đúng (giống Kotlin, không ngắt cứng).
-- [ ] Actor/@MainActor vs Dispatchers bằng cơ chế isolation.
-- [ ] Nêu Sendable 1-2 câu.
-- [ ] Ví dụ actor.
+- [x] Structured concurrency cha-con + so coroutine scope.
+- [x] Cooperative cancellation giải thích đúng (giống Kotlin, không ngắt cứng).
+- [x] Actor/@MainActor vs Dispatchers bằng cơ chế isolation.
+- [x] Nêu Sendable 1-2 câu.
+- [x] Ví dụ actor.
 
 ---
 
@@ -503,9 +503,9 @@ func later(_ work: @escaping () -> Void) { work() } // sống lâu hơn - cần 
 - **§19 System Thinking:** giữ nguyên diagram + 3 bullet, chỉ cập nhật bullet "Mở rộng" trỏ đúng các section mới (Closures §14, Initializers §15, Memory 1.2).
 
 **Tiêu chí hoàn thành:**
-- [ ] Cheat sheet có ≥5 hàng mới.
-- [ ] Mỗi bẫy có 1 câu cơ chế gốc.
-- [ ] §19 nhất quán với cấu trúc mới.
+- [x] Cheat sheet có ≥5 hàng mới.
+- [x] Mỗi bẫy có 1 câu cơ chế gốc.
+- [x] §19 nhất quán với cấu trúc mới.
 
 ---
 
