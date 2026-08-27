@@ -1880,12 +1880,13 @@ func processOrders(_ ids: [String]) async throws {
 actor Counter {
     private var value = 0
     func increment() { value += 1 }
+    func currentValue() -> Int { value }
 }
 
 let counter = Counter()
 Task {
-    await counter.increment()   // từ ngoài actor: mọi lời gọi đều phải await - xếp hàng đợi
-    let v = await counter.value // đọc state nội bộ cũng qua hàng đợi
+    await counter.increment()          // từ ngoài actor: mọi lời gọi đều phải await - xếp hàng đợi
+    let v = await counter.currentValue() // đọc state qua method public - state private không chạm được từ ngoài
 }
 ```
 
