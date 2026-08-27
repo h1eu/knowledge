@@ -282,7 +282,65 @@ It can be seen that **divide and conquer is a "quietly pervasive" algorithmic id
   <img src="dsa-assets/binary_search_recur.png" alt="Quá trình chia để trị của tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Trong mã cài đặt, ta khai báo một hàm đệ quy <code>dfs()</code> để giải bài toán $f(i, j)$:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def dfs(nums: list[int], target: int, i: int, j: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân: bài toán f(i, j) */
+static int dfs(int[] nums, int target, int i, int j) {
+    // Nếu khoảng rỗng, nghĩa là không có phần tử mục tiêu, trả về -1
+    if (i &gt; j) {
+        return -1;
+    }
+    // Tính chỉ mục điểm giữa m
+    int m = (i + j) / 2;
+    if (nums[m] &lt; target) {
+        // Đệ quy bài toán con f(m+1, j)
+        return dfs(nums, target, m + 1, j);
+    } else if (nums[m] &gt; target) {
+        // Đệ quy bài toán con f(i, m-1)
+        return dfs(nums, target, i, m - 1);
+    } else {
+        // Tìm thấy phần tử mục tiêu, trả về chỉ mục của nó
+        return m;
+    }
+}
+
+/* Tìm kiếm nhị phân */
+static int binarySearch(int[] nums, int target) {
+    int n = nums.length;
+    // Giải bài toán f(0, n-1)
+    return dfs(nums, target, 0, n - 1);
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func dfs(preorder: [Int], inorderMap: [Int: Int], i: Int, l: Int, r: Int) -&gt; TreeNode? {
+    // Terminate when the subtree interval is empty
+    if r - l &lt; 0 {
+        return nil
+    }
+    // Initialize the root node
+    let root = TreeNode(x: preorder[i])
+    // Query m to divide the left and right subtrees
+    let m = inorderMap[preorder[i]]!
+    // Subproblem: build the left subtree
+    root.left = dfs(preorder: preorder, inorderMap: inorderMap, i: i + 1, l: l, r: m - 1)
+    // Subproblem: build the right subtree
+    root.right = dfs(preorder: preorder, inorderMap: inorderMap, i: i + 1 + m - l, l: m + 1, r: r)
+    // Return the root node
+    return root
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int dfs(List&lt;int&gt; nums, int target, int i, int j) {
+  // If the interval is empty, it means there is no target element, return -1
+  if (i &gt; j) {
+    return -1;
+  }
+  // Calculate the midpoint index m
+  int m = (i + j) ~/ 2;
+  if (nums[m] &lt; target) {
+    // Recursion subproblem f(m+1, j)
+    return dfs(nums, target, m + 1, j);
+  } else if (nums[m] &gt; target) {
+    // Recursion subproblem f(i, m-1)
+    return dfs(nums, target, i, m - 1);
+  } else {
+    // Found the target element, return its index
+    return m;
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def dfs(nums: list[int], target: int, i: int, j: int) -&gt; int:
     """Tìm kiếm nhị phân: bài toán f(i, j)"""
     # Nếu khoảng rỗng, nghĩa là không có phần tử mục tiêu, trả về -1
     if i &gt; j:
@@ -330,84 +388,6 @@ int binarySearch(vector&lt;int&gt; &amp;nums, int target) {
     int n = nums.size();
     // Giải bài toán f(0, n-1)
     return dfs(nums, target, 0, n - 1);
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân: bài toán f(i, j) */
-static int dfs(int[] nums, int target, int i, int j) {
-    // Nếu khoảng rỗng, nghĩa là không có phần tử mục tiêu, trả về -1
-    if (i &gt; j) {
-        return -1;
-    }
-    // Tính chỉ mục điểm giữa m
-    int m = (i + j) / 2;
-    if (nums[m] &lt; target) {
-        // Đệ quy bài toán con f(m+1, j)
-        return dfs(nums, target, m + 1, j);
-    } else if (nums[m] &gt; target) {
-        // Đệ quy bài toán con f(i, m-1)
-        return dfs(nums, target, i, m - 1);
-    } else {
-        // Tìm thấy phần tử mục tiêu, trả về chỉ mục của nó
-        return m;
-    }
-}
-
-/* Tìm kiếm nhị phân */
-static int binarySearch(int[] nums, int target) {
-    int n = nums.length;
-    // Giải bài toán f(0, n-1)
-    return dfs(nums, target, 0, n - 1);
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm kiếm nhị phân: bài toán f(i, j) */
-function dfs(nums, target, i, j) {
-    // Nếu khoảng rỗng, nghĩa là không có phần tử mục tiêu, trả về -1
-    if (i &gt; j) {
-        return -1;
-    }
-    // Tính chỉ mục điểm giữa m
-    const m = i + ((j - i) &gt;&gt; 1);
-    if (nums[m] &lt; target) {
-        // Đệ quy bài toán con f(m+1, j)
-        return dfs(nums, target, m + 1, j);
-    } else if (nums[m] &gt; target) {
-        // Đệ quy bài toán con f(i, m-1)
-        return dfs(nums, target, i, m - 1);
-    } else {
-        // Tìm thấy phần tử mục tiêu, trả về chỉ mục của nó
-        return m;
-    }
-}
-
-/* Tìm kiếm nhị phân */
-function binarySearch(nums, target) {
-    const n = nums.length;
-    // Giải bài toán f(0, n-1)
-    return dfs(nums, target, 0, n - 1);
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm kiếm nhị phân: bài toán f(i, j) */
-fun dfs(nums: IntArray, target: Int, i: Int, j: Int): Int {
-    // Nếu khoảng rỗng, nghĩa là không có phần tử mục tiêu, trả về -1
-    if (i &gt; j) {
-        return -1
-    }
-    // Tính chỉ mục điểm giữa m
-    val m = (i + j) / 2
-    return if (nums[m] &lt; target) {
-        // Đệ quy bài toán con f(m+1, j)
-        dfs(nums, target, m + 1, j)
-    } else if (nums[m] &gt; target) {
-        // Đệ quy bài toán con f(i, m-1)
-        dfs(nums, target, i, m - 1)
-    } else {
-        // Tìm thấy phần tử mục tiêu, trả về chỉ mục của nó
-        m
-    }
-}
-
-/* Tìm kiếm nhị phân */
-fun binarySearch(nums: IntArray, target: Int): Int {
-    val n = nums.size
-    // Giải bài toán f(0, n-1)
-    return dfs(nums, target, 0, n - 1)
 }
 </code></pre></div></div></div>
 <div class="callout callout-tip">
@@ -567,7 +547,74 @@ In the implementation code, we declare a recursive function \`dfs()\` to solve t
 
 <h3>Cài đặt Code</h3>
 <p>Để cải thiện hiệu quả truy vấn $m$, ta dùng một bảng băm <code>hmap</code> để lưu ánh xạ từ các phần tử trong mảng <code>inorder</code> tới chỉ mục của chúng:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class TreeNode:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Nút của cây nhị phân */
+class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+    TreeNode(int x) { val = x; }
+}
+
+/* Xây dựng cây nhị phân: chia để trị */
+static TreeNode dfs(int[] preorder, Map&lt;Integer, Integer&gt; inorderMap, int i, int l, int r) {
+    // Kết thúc khi khoảng cây con rỗng
+    if (r - l &lt; 0)
+        return null;
+    // Khởi tạo nút gốc
+    TreeNode root = new TreeNode(preorder[i]);
+    // Tra cứu m để chia cây con trái và phải
+    int m = inorderMap.get(preorder[i]);
+    // Bài toán con: xây dựng cây con trái
+    root.left = dfs(preorder, inorderMap, i + 1, l, m - 1);
+    // Bài toán con: xây dựng cây con phải
+    root.right = dfs(preorder, inorderMap, i + 1 + m - l, m + 1, r);
+    // Trả về nút gốc
+    return root;
+}
+
+/* Xây dựng cây nhị phân */
+static TreeNode buildTree(int[] preorder, int[] inorder) {
+    // Khởi tạo hash map, lưu ánh xạ từ phần tử inorder tới chỉ mục
+    Map&lt;Integer, Integer&gt; inorderMap = new HashMap&lt;&gt;();
+    for (int i = 0; i &lt; inorder.length; i++) {
+        inorderMap.put(inorder[i], i);
+    }
+    TreeNode root = dfs(preorder, inorderMap, 0, 0, inorder.length - 1);
+    return root;
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func dfs(preorder: [Int], inorderMap: [Int: Int], i: Int, l: Int, r: Int) -&gt; TreeNode? {
+    // Terminate when the subtree interval is empty
+    if r - l &lt; 0 {
+        return nil
+    }
+    // Initialize the root node
+    let root = TreeNode(x: preorder[i])
+    // Query m to divide the left and right subtrees
+    let m = inorderMap[preorder[i]]!
+    // Subproblem: build the left subtree
+    root.left = dfs(preorder: preorder, inorderMap: inorderMap, i: i + 1, l: l, r: m - 1)
+    // Subproblem: build the right subtree
+    root.right = dfs(preorder: preorder, inorderMap: inorderMap, i: i + 1 + m - l, l: m + 1, r: r)
+    // Return the root node
+    return root
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int dfs(List&lt;int&gt; nums, int target, int i, int j) {
+  // If the interval is empty, it means there is no target element, return -1
+  if (i &gt; j) {
+    return -1;
+  }
+  // Calculate the midpoint index m
+  int m = (i + j) ~/ 2;
+  if (nums[m] &lt; target) {
+    // Recursion subproblem f(m+1, j)
+    return dfs(nums, target, m + 1, j);
+  } else if (nums[m] &gt; target) {
+    // Recursion subproblem f(i, m-1)
+    return dfs(nums, target, i, m - 1);
+  } else {
+    // Found the target element, return its index
+    return m;
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class TreeNode:
     """Nút của cây nhị phân"""
     def __init__(self, val: int):
         self.val: int = val
@@ -638,117 +685,6 @@ TreeNode *buildTree(vector&lt;int&gt; &amp;preorder, vector&lt;int&gt; &amp;inor
     }
     TreeNode *root = dfs(preorder, inorderMap, 0, 0, inorder.size() - 1);
     return root;
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Nút của cây nhị phân */
-class TreeNode {
-    int val;
-    TreeNode left;
-    TreeNode right;
-    TreeNode(int x) { val = x; }
-}
-
-/* Xây dựng cây nhị phân: chia để trị */
-static TreeNode dfs(int[] preorder, Map&lt;Integer, Integer&gt; inorderMap, int i, int l, int r) {
-    // Kết thúc khi khoảng cây con rỗng
-    if (r - l &lt; 0)
-        return null;
-    // Khởi tạo nút gốc
-    TreeNode root = new TreeNode(preorder[i]);
-    // Tra cứu m để chia cây con trái và phải
-    int m = inorderMap.get(preorder[i]);
-    // Bài toán con: xây dựng cây con trái
-    root.left = dfs(preorder, inorderMap, i + 1, l, m - 1);
-    // Bài toán con: xây dựng cây con phải
-    root.right = dfs(preorder, inorderMap, i + 1 + m - l, m + 1, r);
-    // Trả về nút gốc
-    return root;
-}
-
-/* Xây dựng cây nhị phân */
-static TreeNode buildTree(int[] preorder, int[] inorder) {
-    // Khởi tạo hash map, lưu ánh xạ từ phần tử inorder tới chỉ mục
-    Map&lt;Integer, Integer&gt; inorderMap = new HashMap&lt;&gt;();
-    for (int i = 0; i &lt; inorder.length; i++) {
-        inorderMap.put(inorder[i], i);
-    }
-    TreeNode root = dfs(preorder, inorderMap, 0, 0, inorder.length - 1);
-    return root;
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Nút của cây nhị phân */
-class TreeNode {
-    val;
-    left;
-    right;
-    constructor(val, left, right) {
-        this.val = val === undefined ? 0 : val;
-        this.left = left === undefined ? null : left;
-        this.right = right === undefined ? null : right;
-    }
-}
-
-/* Xây dựng cây nhị phân: chia để trị */
-function dfs(preorder, inorderMap, i, l, r) {
-    // Kết thúc khi khoảng cây con rỗng
-    if (r - l &lt; 0) return null;
-    // Khởi tạo nút gốc
-    const root = new TreeNode(preorder[i]);
-    // Tra cứu m để chia cây con trái và phải
-    const m = inorderMap.get(preorder[i]);
-    // Bài toán con: xây dựng cây con trái
-    root.left = dfs(preorder, inorderMap, i + 1, l, m - 1);
-    // Bài toán con: xây dựng cây con phải
-    root.right = dfs(preorder, inorderMap, i + 1 + m - l, m + 1, r);
-    // Trả về nút gốc
-    return root;
-}
-
-/* Xây dựng cây nhị phân */
-function buildTree(preorder, inorder) {
-    // Khởi tạo hash map, lưu ánh xạ từ phần tử inorder tới chỉ mục
-    let inorderMap = new Map();
-    for (let i = 0; i &lt; inorder.length; i++) {
-        inorderMap.set(inorder[i], i);
-    }
-    const root = dfs(preorder, inorderMap, 0, 0, inorder.length - 1);
-    return root;
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Nút của cây nhị phân */
-class TreeNode(val _val: Int) {
-    var left: TreeNode? = null
-    var right: TreeNode? = null
-}
-
-/* Xây dựng cây nhị phân: chia để trị */
-fun dfs(
-    preorder: IntArray,
-    inorderMap: Map&lt;Int?, Int?&gt;,
-    i: Int,
-    l: Int,
-    r: Int
-): TreeNode? {
-    // Kết thúc khi khoảng cây con rỗng
-    if (r - l &lt; 0) return null
-    // Khởi tạo nút gốc
-    val root = TreeNode(preorder[i])
-    // Tra cứu m để chia cây con trái và phải
-    val m = inorderMap[preorder[i]]!!
-    // Bài toán con: xây dựng cây con trái
-    root.left = dfs(preorder, inorderMap, i + 1, l, m - 1)
-    // Bài toán con: xây dựng cây con phải
-    root.right = dfs(preorder, inorderMap, i + 1 + m - l, m + 1, r)
-    // Trả về nút gốc
-    return root
-}
-
-/* Xây dựng cây nhị phân */
-fun buildTree(preorder: IntArray, inorder: IntArray): TreeNode? {
-    // Khởi tạo hash map, lưu ánh xạ từ phần tử inorder tới chỉ mục
-    val inorderMap = HashMap&lt;Int?, Int?&gt;()
-    for (i in inorder.indices) {
-        inorderMap[inorder[i]] = i
-    }
-    val root = dfs(preorder, inorderMap, 0, 0, inorder.size - 1)
-    return root
 }
 </code></pre></div></div></div>
 <p>Hình dưới đây cho thấy quá trình đệ quy xây dựng cây nhị phân. Mỗi nút được thiết lập trong quá trình "đệ quy" đi xuống, trong khi mỗi cạnh (tham chiếu) được thiết lập trong quá trình "trả về" đi lên.</p>
@@ -1067,7 +1003,46 @@ The hash table stores the mapping from \`inorder\` elements to their indices, wi
 
 <h3>Cài đặt Code</h3>
 <p>Trong mã cài đặt, ta khai báo một hàm đệ quy <code>dfs(i, src, buf, tar)</code>, mục đích là di chuyển $i$ đĩa trên cùng từ cột trụ <code>src</code> sang cột trụ đích <code>tar</code> với sự trợ giúp của cột trụ đệm <code>buf</code>:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def move(src: list[int], tar: list[int]):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Di chuyển một đĩa */
+static void move(List&lt;Integer&gt; src, List&lt;Integer&gt; tar) {
+    // Lấy một đĩa ra từ đỉnh src
+    Integer pan = src.remove(src.size() - 1);
+    // Đặt đĩa lên đỉnh tar
+    tar.add(pan);
+}
+
+/* Giải bài toán Tháp Hà Nội f(i) */
+static void dfs(int i, List&lt;Integer&gt; src, List&lt;Integer&gt; buf, List&lt;Integer&gt; tar) {
+    // Nếu chỉ còn một đĩa trong src, di chuyển thẳng nó sang tar
+    if (i == 1) {
+        move(src, tar);
+        return;
+    }
+    // Bài toán con f(i-1): di chuyển i-1 đĩa trên cùng từ src sang buf, dùng tar làm trung gian
+    dfs(i - 1, src, tar, buf);
+    // Bài toán con f(1): di chuyển đĩa còn lại từ src sang tar
+    move(src, tar);
+    // Bài toán con f(i-1): di chuyển i-1 đĩa trên cùng từ buf sang tar, dùng src làm trung gian
+    dfs(i - 1, buf, src, tar);
+}
+
+/* Giải bài toán Tháp Hà Nội */
+static void solveHanota(List&lt;Integer&gt; A, List&lt;Integer&gt; B, List&lt;Integer&gt; C) {
+    int n = A.size();
+    // Di chuyển n đĩa trên cùng từ A sang C, dùng B làm trung gian
+    dfs(n, A, B, C);
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func move(src: inout [Int], tar: inout [Int]) {
+    // Take out a disk from the top of src
+    let pan = src.popLast()!
+    // Place the disk on top of tar
+    tar.append(pan)
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void move(List&lt;int&gt; src, List&lt;int&gt; tar) {
+  // Take out a disk from the top of src
+  int pan = src.removeLast();
+  // Place the disk on top of tar
+  tar.add(pan);
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def move(src: list[int], tar: list[int]):
     """Di chuyển một đĩa"""
     # Lấy một đĩa ra từ đỉnh src
     pan = src.pop()
@@ -1123,93 +1098,6 @@ void solveHanota(vector&lt;int&gt; &amp;A, vector&lt;int&gt; &amp;B, vector&lt;i
     int n = A.size();
     // Di chuyển n đĩa trên cùng từ A sang C, dùng B làm trung gian
     dfs(n, A, B, C);
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Di chuyển một đĩa */
-static void move(List&lt;Integer&gt; src, List&lt;Integer&gt; tar) {
-    // Lấy một đĩa ra từ đỉnh src
-    Integer pan = src.remove(src.size() - 1);
-    // Đặt đĩa lên đỉnh tar
-    tar.add(pan);
-}
-
-/* Giải bài toán Tháp Hà Nội f(i) */
-static void dfs(int i, List&lt;Integer&gt; src, List&lt;Integer&gt; buf, List&lt;Integer&gt; tar) {
-    // Nếu chỉ còn một đĩa trong src, di chuyển thẳng nó sang tar
-    if (i == 1) {
-        move(src, tar);
-        return;
-    }
-    // Bài toán con f(i-1): di chuyển i-1 đĩa trên cùng từ src sang buf, dùng tar làm trung gian
-    dfs(i - 1, src, tar, buf);
-    // Bài toán con f(1): di chuyển đĩa còn lại từ src sang tar
-    move(src, tar);
-    // Bài toán con f(i-1): di chuyển i-1 đĩa trên cùng từ buf sang tar, dùng src làm trung gian
-    dfs(i - 1, buf, src, tar);
-}
-
-/* Giải bài toán Tháp Hà Nội */
-static void solveHanota(List&lt;Integer&gt; A, List&lt;Integer&gt; B, List&lt;Integer&gt; C) {
-    int n = A.size();
-    // Di chuyển n đĩa trên cùng từ A sang C, dùng B làm trung gian
-    dfs(n, A, B, C);
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Di chuyển một đĩa */
-function move(src, tar) {
-    // Lấy một đĩa ra từ đỉnh src
-    const pan = src.pop();
-    // Đặt đĩa lên đỉnh tar
-    tar.push(pan);
-}
-
-/* Giải bài toán Tháp Hà Nội f(i) */
-function dfs(i, src, buf, tar) {
-    // Nếu chỉ còn một đĩa trong src, di chuyển thẳng nó sang tar
-    if (i === 1) {
-        move(src, tar);
-        return;
-    }
-    // Bài toán con f(i-1): di chuyển i-1 đĩa trên cùng từ src sang buf, dùng tar làm trung gian
-    dfs(i - 1, src, tar, buf);
-    // Bài toán con f(1): di chuyển đĩa còn lại từ src sang tar
-    move(src, tar);
-    // Bài toán con f(i-1): di chuyển i-1 đĩa trên cùng từ buf sang tar, dùng src làm trung gian
-    dfs(i - 1, buf, src, tar);
-}
-
-/* Giải bài toán Tháp Hà Nội */
-function solveHanota(A, B, C) {
-    const n = A.length;
-    // Di chuyển n đĩa trên cùng từ A sang C, dùng B làm trung gian
-    dfs(n, A, B, C);
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Di chuyển một đĩa */
-fun move(src: MutableList&lt;Int&gt;, tar: MutableList&lt;Int&gt;) {
-    // Lấy một đĩa ra từ đỉnh src
-    val pan = src.removeAt(src.size - 1)
-    // Đặt đĩa lên đỉnh tar
-    tar.add(pan)
-}
-
-/* Giải bài toán Tháp Hà Nội f(i) */
-fun dfs(i: Int, src: MutableList&lt;Int&gt;, buf: MutableList&lt;Int&gt;, tar: MutableList&lt;Int&gt;) {
-    // Nếu chỉ còn một đĩa trong src, di chuyển thẳng nó sang tar
-    if (i == 1) {
-        move(src, tar)
-        return
-    }
-    // Bài toán con f(i-1): di chuyển i-1 đĩa trên cùng từ src sang buf, dùng tar làm trung gian
-    dfs(i - 1, src, tar, buf)
-    // Bài toán con f(1): di chuyển đĩa còn lại từ src sang tar
-    move(src, tar)
-    // Bài toán con f(i-1): di chuyển i-1 đĩa trên cùng từ buf sang tar, dùng src làm trung gian
-    dfs(i - 1, buf, src, tar)
-}
-
-/* Giải bài toán Tháp Hà Nội */
-fun solveHanota(A: MutableList&lt;Int&gt;, B: MutableList&lt;Int&gt;, C: MutableList&lt;Int&gt;) {
-    val n = A.size
-    // Di chuyển n đĩa trên cùng từ A sang C, dùng B làm trung gian
-    dfs(n, A, B, C)
 }
 </code></pre></div></div></div>
 <div class="callout callout-tip">

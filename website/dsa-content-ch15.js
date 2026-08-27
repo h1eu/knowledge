@@ -80,7 +80,57 @@ Object.assign(DSA_CONTENT, {
 
 <p>Đoạn mã triển khai như sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def coin_change_greedy(coins: list[int], amt: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Đổi tiền: Thuật toán Tham lam */
+static int coinChangeGreedy(int[] coins, int amt) {
+    // Giả sử coins đã được sắp xếp
+    int i = coins.length - 1;
+    int count = 0;
+    // Lặp đưa ra lựa chọn tham lam cho đến khi hết số tiền còn lại
+    while (amt &gt; 0) {
+        // Tìm đồng xu nhỏ hơn và gần nhất với số tiền còn lại
+        while (i &gt; 0 &amp;&amp; coins[i] &gt; amt) {
+            i--;
+        }
+        // Chọn coins[i]
+        amt -= coins[i];
+        count++;
+    }
+    // Nếu không tìm được lời giải khả thi, trả về -1
+    return amt == 0 ? count : -1;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func coinChangeGreedy(coins: [Int], amt: Int) -&gt; Int {
+    // Assume coins list is sorted
+    var i = coins.count - 1
+    var count = 0
+    var amt = amt
+    // Loop to make greedy choices until no remaining amount
+    while amt &gt; 0 {
+        // Find the coin that is less than and closest to the remaining amount
+        while i &gt; 0 &amp;&amp; coins[i] &gt; amt {
+            i -= 1
+        }
+        // Choose coins[i]
+        amt -= coins[i]
+        count += 1
+    }
+    // If no feasible solution is found, return -1
+    return amt == 0 ? count : -1
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int coinChangeGreedy(List&lt;int&gt; coins, int amt) {
+  // Assume coins list is sorted
+  int i = coins.length - 1;
+  int count = 0;
+  // Loop to make greedy choices until no remaining amount
+  while (amt &gt; 0) {
+    // Find the coin that is less than and closest to the remaining amount
+    while (i &gt; 0 &amp;&amp; coins[i] &gt; amt) {
+      i--;
+    }
+    // Choose coins[i]
+    amt -= coins[i];
+    count++;
+  }
+  // If no feasible solution is found, return -1
+  return amt == 0 ? count : -1;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def coin_change_greedy(coins: list[int], amt: int) -&gt; int:
     """Đổi tiền: Thuật toán Tham lam"""
     # Giả sử danh sách coins đã được sắp xếp
     i = len(coins) - 1
@@ -111,58 +161,6 @@ int coinChangeGreedy(vector&lt;int&gt; &amp;coins, int amt) {
     }
     // Nếu không tìm được lời giải khả thi, trả về -1
     return amt == 0 ? count : -1;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Đổi tiền: Thuật toán Tham lam */
-static int coinChangeGreedy(int[] coins, int amt) {
-    // Giả sử coins đã được sắp xếp
-    int i = coins.length - 1;
-    int count = 0;
-    // Lặp đưa ra lựa chọn tham lam cho đến khi hết số tiền còn lại
-    while (amt &gt; 0) {
-        // Tìm đồng xu nhỏ hơn và gần nhất với số tiền còn lại
-        while (i &gt; 0 &amp;&amp; coins[i] &gt; amt) {
-            i--;
-        }
-        // Chọn coins[i]
-        amt -= coins[i];
-        count++;
-    }
-    // Nếu không tìm được lời giải khả thi, trả về -1
-    return amt == 0 ? count : -1;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Đổi tiền: Thuật toán Tham lam */
-function coinChangeGreedy(coins, amt) {
-    // Giả sử coins đã được sắp xếp
-    let i = coins.length - 1;
-    let count = 0;
-    // Lặp đưa ra lựa chọn tham lam cho đến khi hết số tiền còn lại
-    while (amt &gt; 0) {
-        // Tìm đồng xu nhỏ hơn và gần nhất với số tiền còn lại
-        while (i &gt; 0 &amp;&amp; coins[i] &gt; amt) {
-            i--;
-        }
-        // Chọn coins[i]
-        amt -= coins[i];
-        count++;
-    }
-    // Nếu không tìm được lời giải khả thi, trả về -1
-    return amt === 0 ? count : -1;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Đổi tiền: Thuật toán Tham lam */
-fun coinChangeGreedy(coins: IntArray, amt: Int): Int {
-    // Giả sử coins đã được sắp xếp
-    var am = amt
-    var i = coins.size - 1
-    var count = 0
-    // Lặp đưa ra lựa chọn tham lam cho đến khi hết số tiền còn lại
-    while (am &gt; 0) {
-        // Tìm đồng xu nhỏ hơn và gần nhất với số tiền còn lại
-        while (i &gt; 0 &amp;&amp; coins[i] &gt; am) {
-            i--
-        }
-        // Chọn coins[i]
-        am -= coins[i]
-        count++
-    }
-    // Nếu không tìm được lời giải khả thi, trả về -1
-    return if (am == 0) count else -1
 }</code></pre></div></div></div>
 
 <p>Có thể bạn sẽ thốt lên: "Gọn gàng quá!". Thuật toán tham lam giải bài toán đổi tiền chỉ với khoảng mười dòng mã.</p>
@@ -409,7 +407,83 @@ Greedy algorithms are often applied to optimization problems that satisfy greedy
 <h2>15.2.2 Triển khai Mã</h2>
 <p>Ta định nghĩa một lớp <code>Item</code> để có thể sắp xếp các vật phẩm theo giá trị đơn vị. Sau đó ta duyệt tham lam qua các vật phẩm đã sắp xếp, dừng lại khi túi đã đầy và trả về kết quả:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class Item:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Vật phẩm */
+class Item {
+    int w; // Khối lượng vật phẩm
+    int v; // Giá trị vật phẩm
+
+    public Item(int w, int v) {
+        this.w = w;
+        this.v = v;
+    }
+}
+
+/* Cái túi phân số: Thuật toán Tham lam */
+static double fractionalKnapsack(int[] wgt, int[] val, int cap) {
+    // Tạo danh sách vật phẩm, mỗi vật phẩm có 2 thuộc tính: khối lượng, giá trị
+    Item[] items = new Item[wgt.length];
+    for (int i = 0; i &lt; wgt.length; i++) {
+        items[i] = new Item(wgt[i], val[i]);
+    }
+    // Sắp xếp theo giá trị đơn vị item.v / item.w giảm dần
+    Arrays.sort(items, Comparator.comparingDouble(item -&gt; -((double) item.v / item.w)));
+    // Lặp lựa chọn tham lam
+    double res = 0;
+    for (Item item : items) {
+        if (item.w &lt;= cap) {
+            // Nếu sức chứa còn lại đủ, bỏ toàn bộ vật phẩm hiện tại vào túi
+            res += item.v;
+            cap -= item.w;
+        } else {
+            // Nếu sức chứa còn lại không đủ, bỏ một phần vật phẩm hiện tại vào túi
+            res += (double) item.v / item.w * cap;
+            // Sức chứa đã hết, thoát khỏi vòng lặp
+            break;
+        }
+    }
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func fractionalKnapsack(wgt: [Int], val: [Int], cap: Int) -&gt; Double {
+    // Create item list with two attributes: weight, value
+    var items = zip(wgt, val).map { Item(w: $0, v: $1) }
+    // Sort by unit value item.v / item.w from high to low
+    items.sort { -(Double($0.v) / Double($0.w)) &lt; -(Double($1.v) / Double($1.w)) }
+    // Loop for greedy selection
+    var res = 0.0
+    var cap = cap
+    for item in items {
+        if item.w &lt;= cap {
+            // If remaining capacity is sufficient, put the entire current item into the knapsack
+            res += Double(item.v)
+            cap -= item.w
+        } else {
+            // If remaining capacity is insufficient, put part of the current item into the knapsack
+            res += Double(item.v) / Double(item.w) * Double(cap)
+            // No remaining capacity, so break out of the loop
+            break
+        }
+    }
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>double fractionalKnapsack(List&lt;int&gt; wgt, List&lt;int&gt; val, int cap) {
+  // Create item list with two attributes: weight, value
+  List&lt;Item&gt; items = List.generate(wgt.length, (i) =&gt; Item(wgt[i], val[i]));
+  // Sort by unit value item.v / item.w from high to low
+  items.sort((a, b) =&gt; (b.v / b.w).compareTo(a.v / a.w));
+  // Loop for greedy selection
+  double res = 0;
+  for (Item item in items) {
+    if (item.w &lt;= cap) {
+      // If remaining capacity is sufficient, put the entire current item into the knapsack
+      res += item.v;
+      cap -= item.w;
+    } else {
+      // If remaining capacity is insufficient, put part of the current item into the knapsack
+      res += item.v / item.w * cap;
+      // No remaining capacity, so break out of the loop
+      break;
+    }
+  }
+  return res;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class Item:
     """Vật phẩm"""
 
     def __init__(self, w: int, v: int):
@@ -468,101 +542,6 @@ double fractionalKnapsack(vector&lt;int&gt; &amp;wgt, vector&lt;int&gt; &amp;val
         }
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Vật phẩm */
-class Item {
-    int w; // Khối lượng vật phẩm
-    int v; // Giá trị vật phẩm
-
-    public Item(int w, int v) {
-        this.w = w;
-        this.v = v;
-    }
-}
-
-/* Cái túi phân số: Thuật toán Tham lam */
-static double fractionalKnapsack(int[] wgt, int[] val, int cap) {
-    // Tạo danh sách vật phẩm, mỗi vật phẩm có 2 thuộc tính: khối lượng, giá trị
-    Item[] items = new Item[wgt.length];
-    for (int i = 0; i &lt; wgt.length; i++) {
-        items[i] = new Item(wgt[i], val[i]);
-    }
-    // Sắp xếp theo giá trị đơn vị item.v / item.w giảm dần
-    Arrays.sort(items, Comparator.comparingDouble(item -&gt; -((double) item.v / item.w)));
-    // Lặp lựa chọn tham lam
-    double res = 0;
-    for (Item item : items) {
-        if (item.w &lt;= cap) {
-            // Nếu sức chứa còn lại đủ, bỏ toàn bộ vật phẩm hiện tại vào túi
-            res += item.v;
-            cap -= item.w;
-        } else {
-            // Nếu sức chứa còn lại không đủ, bỏ một phần vật phẩm hiện tại vào túi
-            res += (double) item.v / item.w * cap;
-            // Sức chứa đã hết, thoát khỏi vòng lặp
-            break;
-        }
-    }
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Vật phẩm */
-class Item {
-    constructor(w, v) {
-        this.w = w; // Khối lượng vật phẩm
-        this.v = v; // Giá trị vật phẩm
-    }
-}
-
-/* Cái túi phân số: Thuật toán Tham lam */
-function fractionalKnapsack(wgt, val, cap) {
-    // Tạo danh sách vật phẩm, mỗi vật phẩm có 2 thuộc tính: khối lượng, giá trị
-    const items = wgt.map((w, i) =&gt; new Item(w, val[i]));
-    // Sắp xếp theo giá trị đơn vị item.v / item.w giảm dần
-    items.sort((a, b) =&gt; b.v / b.w - a.v / a.w);
-    // Lặp lựa chọn tham lam
-    let res = 0;
-    for (const item of items) {
-        if (item.w &lt;= cap) {
-            // Nếu sức chứa còn lại đủ, bỏ toàn bộ vật phẩm hiện tại vào túi
-            res += item.v;
-            cap -= item.w;
-        } else {
-            // Nếu sức chứa còn lại không đủ, bỏ một phần vật phẩm hiện tại vào túi
-            res += (item.v / item.w) * cap;
-            // Sức chứa đã hết, thoát khỏi vòng lặp
-            break;
-        }
-    }
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Vật phẩm */
-class Item(
-    val w: Int, // Khối lượng vật phẩm
-    val v: Int  // Giá trị vật phẩm
-)
-
-/* Cái túi phân số: Thuật toán Tham lam */
-fun fractionalKnapsack(wgt: IntArray, valArr: IntArray, c: Int): Double {
-    // Tạo danh sách vật phẩm, mỗi vật phẩm có 2 thuộc tính: khối lượng, giá trị
-    var cap = c
-    val items = arrayOfNulls&lt;Item&gt;(wgt.size)
-    for (i in wgt.indices) {
-        items[i] = Item(wgt[i], valArr[i])
-    }
-    // Sắp xếp theo giá trị đơn vị item.v / item.w giảm dần
-    items.sortBy { item: Item? -&gt; -(item!!.v.toDouble() / item.w) }
-    // Lặp lựa chọn tham lam
-    var res = 0.0
-    for (item in items) {
-        if (item!!.w &lt;= cap) {
-            // Nếu sức chứa còn lại đủ, bỏ toàn bộ vật phẩm hiện tại vào túi
-            res += item.v
-            cap -= item.w
-        } else {
-            // Nếu sức chứa còn lại không đủ, bỏ một phần vật phẩm hiện tại vào túi
-            res += item.v.toDouble() / item.w * cap
-            // Sức chứa đã hết, thoát khỏi vòng lặp
-            break
-        }
-    }
-    return res
 }</code></pre></div></div></div>
 
 <p>Các thuật toán sắp xếp có sẵn thường mất thời gian $O(n \\log n)$, và độ phức tạp không gian của chúng thường là $O(\\log n)$ hoặc $O(n)$, tùy vào cách triển khai cụ thể của ngôn ngữ lập trình.</p>
@@ -728,7 +707,62 @@ As shown in the figure below, if we treat item weight and unit value as the hori
 <p>Đoạn mã chạy tối đa $n$ vòng, <strong>vì vậy độ phức tạp thời gian là $O(n)$</strong>.</p>
 <p>Các biến $i$, $j$, và $res$ chỉ dùng một lượng không gian bổ sung không đổi, <strong>vì vậy độ phức tạp không gian là $O(1)$</strong>.</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def max_capacity(ht: list[int]) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Chứa nước nhiều nhất: Thuật toán Tham lam */
+static int maxCapacity(int[] ht) {
+    // Khởi tạo i, j ở hai đầu mảng
+    int i = 0, j = ht.length - 1;
+    // Dung tích lớn nhất ban đầu là 0
+    int res = 0;
+    // Lặp lựa chọn tham lam cho đến khi hai vách gặp nhau
+    while (i &lt; j) {
+        // Cập nhật dung tích lớn nhất
+        int cap = Math.min(ht[i], ht[j]) * (j - i);
+        res = Math.max(res, cap);
+        // Di chuyển vách ngắn hơn vào trong
+        if (ht[i] &lt; ht[j]) {
+            i++;
+        } else {
+            j--;
+        }
+    }
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func maxCapacity(ht: [Int]) -&gt; Int {
+    // Initialize i, j to be at both ends of the array
+    var i = ht.startIndex, j = ht.endIndex - 1
+    // Initial max capacity is 0
+    var res = 0
+    // Loop for greedy selection until the two boards meet
+    while i &lt; j {
+        // Update max capacity
+        let cap = min(ht[i], ht[j]) * (j - i)
+        res = max(res, cap)
+        // Move the shorter board inward
+        if ht[i] &lt; ht[j] {
+            i += 1
+        } else {
+            j -= 1
+        }
+    }
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int maxCapacity(List&lt;int&gt; ht) {
+  // Initialize i, j to be at both ends of the array
+  int i = 0, j = ht.length - 1;
+  // Initial max capacity is 0
+  int res = 0;
+  // Loop for greedy selection until the two boards meet
+  while (i &lt; j) {
+    // Update max capacity
+    int cap = min(ht[i], ht[j]) * (j - i);
+    res = max(res, cap);
+    // Move the shorter board inward
+    if (ht[i] &lt; ht[j]) {
+      i++;
+    } else {
+      j--;
+    }
+  }
+  return res;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def max_capacity(ht: list[int]) -&gt; int:
     """Chứa nước nhiều nhất: Thuật toán Tham lam"""
     # Khởi tạo i, j ở hai đầu mảng
     i, j = 0, len(ht) - 1
@@ -763,65 +797,6 @@ int maxCapacity(vector&lt;int&gt; &amp;ht) {
         }
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Chứa nước nhiều nhất: Thuật toán Tham lam */
-static int maxCapacity(int[] ht) {
-    // Khởi tạo i, j ở hai đầu mảng
-    int i = 0, j = ht.length - 1;
-    // Dung tích lớn nhất ban đầu là 0
-    int res = 0;
-    // Lặp lựa chọn tham lam cho đến khi hai vách gặp nhau
-    while (i &lt; j) {
-        // Cập nhật dung tích lớn nhất
-        int cap = Math.min(ht[i], ht[j]) * (j - i);
-        res = Math.max(res, cap);
-        // Di chuyển vách ngắn hơn vào trong
-        if (ht[i] &lt; ht[j]) {
-            i++;
-        } else {
-            j--;
-        }
-    }
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Chứa nước nhiều nhất: Thuật toán Tham lam */
-function maxCapacity(ht) {
-    // Khởi tạo i, j ở hai đầu mảng
-    let i = 0,
-        j = ht.length - 1;
-    // Dung tích lớn nhất ban đầu là 0
-    let res = 0;
-    // Lặp lựa chọn tham lam cho đến khi hai vách gặp nhau
-    while (i &lt; j) {
-        // Cập nhật dung tích lớn nhất
-        const cap = Math.min(ht[i], ht[j]) * (j - i);
-        res = Math.max(res, cap);
-        // Di chuyển vách ngắn hơn vào trong
-        if (ht[i] &lt; ht[j]) {
-            i += 1;
-        } else {
-            j -= 1;
-        }
-    }
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Chứa nước nhiều nhất: Thuật toán Tham lam */
-fun maxCapacity(ht: IntArray): Int {
-    // Khởi tạo i, j ở hai đầu mảng
-    var i = 0
-    var j = ht.size - 1
-    // Dung tích lớn nhất ban đầu là 0
-    var res = 0
-    // Lặp lựa chọn tham lam cho đến khi hai vách gặp nhau
-    while (i &lt; j) {
-        // Cập nhật dung tích lớn nhất
-        val cap = min(ht[i], ht[j]) * (j - i)
-        res = max(res, cap)
-        // Di chuyển vách ngắn hơn vào trong
-        if (ht[i] &lt; ht[j]) {
-            i++
-        } else {
-            j--
-        }
-    }
-    return res
 }</code></pre></div></div></div>
 
 <h2>15.3.3 Chứng minh Tính đúng đắn</h2>
@@ -1031,7 +1006,62 @@ $$</p>
 <p>$$n = 3 a + b$$</p>
 <p>Lưu ý rằng với trường hợp biên $n \\leq 3$, bắt buộc phải tách ra một số $1$, với tích $1 \\times (n - 1)$.</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def max_product_cutting(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cắt dây thừng: Thuật toán Tham lam */
+public static int maxProductCutting(int n) {
+    // Khi n &lt;= 3, bắt buộc phải cắt ra một đoạn 1
+    if (n &lt;= 3) {
+        return 1 * (n - 1);
+    }
+    // Tham lam cắt ra đoạn 3, a là số lượng đoạn 3, b là phần dư
+    int a = n / 3;
+    int b = n % 3;
+    if (b == 1) {
+        // Khi phần dư là 1, chuyển 1 cặp 1 * 3 thành 2 * 2
+        return (int) Math.pow(3, a - 1) * 2 * 2;
+    }
+    if (b == 2) {
+        // Khi phần dư là 2, không cần làm gì thêm
+        return (int) Math.pow(3, a) * 2;
+    }
+    // Khi phần dư là 0, không cần làm gì thêm
+    return (int) Math.pow(3, a);
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func maxProductCutting(n: Int) -&gt; Int {
+    // When n &lt;= 3, must cut out a 1
+    if n &lt;= 3 {
+        return 1 * (n - 1)
+    }
+    // Greedily cut out 3, a is the number of 3s, b is the remainder
+    let a = n / 3
+    let b = n % 3
+    if b == 1 {
+        // When the remainder is 1, convert a pair of 1 * 3 to 2 * 2
+        return pow(3, a - 1) * 2 * 2
+    }
+    if b == 2 {
+        // When the remainder is 2, do nothing
+        return pow(3, a) * 2
+    }
+    // When the remainder is 0, do nothing
+    return pow(3, a)
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int maxProductCutting(int n) {
+  // When n &lt;= 3, must cut out a 1
+  if (n &lt;= 3) {
+    return 1 * (n - 1);
+  }
+  // Greedily cut out 3, a is the number of 3s, b is the remainder
+  int a = n ~/ 3;
+  int b = n % 3;
+  if (b == 1) {
+    // When the remainder is 1, convert a pair of 1 * 3 to 2 * 2
+    return (pow(3, a - 1) * 2 * 2).toInt();
+  }
+  if (b == 2) {
+    // When the remainder is 2, do nothing
+    return (pow(3, a) * 2).toInt();
+  }
+  // When the remainder is 0, do nothing
+  return pow(3, a).toInt();
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def max_product_cutting(n: int) -&gt; int:
     """Cắt dây thừng: Thuật toán Tham lam"""
     # Khi n &lt;= 3, bắt buộc phải cắt ra một đoạn 1
     if n &lt;= 3:
@@ -1064,63 +1094,6 @@ int maxProductCutting(int n) {
     }
     // Khi phần dư là 0, không cần làm gì thêm
     return (int)pow(3, a);
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Cắt dây thừng: Thuật toán Tham lam */
-public static int maxProductCutting(int n) {
-    // Khi n &lt;= 3, bắt buộc phải cắt ra một đoạn 1
-    if (n &lt;= 3) {
-        return 1 * (n - 1);
-    }
-    // Tham lam cắt ra đoạn 3, a là số lượng đoạn 3, b là phần dư
-    int a = n / 3;
-    int b = n % 3;
-    if (b == 1) {
-        // Khi phần dư là 1, chuyển 1 cặp 1 * 3 thành 2 * 2
-        return (int) Math.pow(3, a - 1) * 2 * 2;
-    }
-    if (b == 2) {
-        // Khi phần dư là 2, không cần làm gì thêm
-        return (int) Math.pow(3, a) * 2;
-    }
-    // Khi phần dư là 0, không cần làm gì thêm
-    return (int) Math.pow(3, a);
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cắt dây thừng: Thuật toán Tham lam */
-function maxProductCutting(n) {
-    // Khi n &lt;= 3, bắt buộc phải cắt ra một đoạn 1
-    if (n &lt;= 3) {
-        return 1 * (n - 1);
-    }
-    // Tham lam cắt ra đoạn 3, a là số lượng đoạn 3, b là phần dư
-    let a = Math.floor(n / 3);
-    let b = n % 3;
-    if (b === 1) {
-        // Khi phần dư là 1, chuyển 1 cặp 1 * 3 thành 2 * 2
-        return Math.pow(3, a - 1) * 2 * 2;
-    }
-    if (b === 2) {
-        // Khi phần dư là 2, không cần làm gì thêm
-        return Math.pow(3, a) * 2;
-    }
-    // Khi phần dư là 0, không cần làm gì thêm
-    return Math.pow(3, a);
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Cắt dây thừng: Thuật toán Tham lam */
-fun maxProductCutting(n: Int): Int {
-    // Khi n &lt;= 3, bắt buộc phải cắt ra một đoạn 1
-    if (n &lt;= 3) {
-        return 1 * (n - 1)
-    }
-    // Tham lam cắt ra đoạn 3, a là số lượng đoạn 3, b là phần dư
-    val a = n / 3
-    val b = n % 3
-    if (b == 1) {
-        // Khi phần dư là 1, chuyển 1 cặp 1 * 3 thành 2 * 2
-        return 3.0.pow((a - 1)).toInt() * 2 * 2
-    }
-    if (b == 2) {
-        // Khi phần dư là 2, không cần làm gì thêm
-        return 3.0.pow(a).toInt() * 2
-    }
-    // Khi phần dư là 0, không cần làm gì thêm
-    return 3.0.pow(a).toInt()
 }</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">

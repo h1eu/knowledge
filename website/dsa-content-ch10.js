@@ -93,7 +93,60 @@ Object.assign(DSA_CONTENT, {
 
 <p>Cần lưu ý rằng do cả $i$ và $j$ đều có kiểu <code>int</code>, <strong>$i + j$ có thể vượt quá phạm vi biểu diễn của kiểu <code>int</code></strong>. Để tránh tràn số nguyên (integer overflow), ta thường dùng công thức $m = \\lfloor {i + (j - i) / 2} \\rfloor$ để tính chỉ mục giữa.</p>
 <p>Đoạn mã minh họa như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def binary_search(nums: list[int], target: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân (khoảng đóng cả hai đầu) */
+static int binarySearch(int[] nums, int target) {
+    // Khởi tạo khoảng đóng [0, n-1], tức i, j trỏ tới phần tử đầu và cuối của mảng
+    int i = 0, j = nums.length - 1;
+    // Lặp, thoát khi khoảng tìm kiếm rỗng (rỗng khi i &gt; j)
+    while (i &lt;= j) {
+        int m = i + (j - i) / 2; // Tính chỉ mục giữa m
+        if (nums[m] &lt; target) // target nằm trong khoảng [m+1, j]
+            i = m + 1;
+        else if (nums[m] &gt; target) // target nằm trong khoảng [i, m-1]
+            j = m - 1;
+        else // Đã tìm thấy target, trả về chỉ mục của nó
+            return m;
+    }
+    // Không tìm thấy target, trả về -1
+    return -1;
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func binarySearch(nums: [Int], target: Int) -&gt; Int {
+    // Initialize closed interval [0, n-1], i.e., i, j point to the first and last elements of the array
+    var i = nums.startIndex
+    var j = nums.endIndex - 1
+    // Loop, exit when the search interval is empty (empty when i &gt; j)
+    while i &lt;= j {
+        let m = i + (j - i) / 2 // Calculate the midpoint index m
+        if nums[m] &lt; target { // This means target is in the interval [m+1, j]
+            i = m + 1
+        } else if nums[m] &gt; target { // This means target is in the interval [i, m-1]
+            j = m - 1
+        } else { // Found the target element, return its index
+            return m
+        }
+    }
+    // Target element not found, return -1
+    return -1
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int binarySearch(List&lt;int&gt; nums, int target) {
+  // Initialize closed interval [0, n-1], i.e., i, j point to the first and last elements of the array
+  int i = 0, j = nums.length - 1;
+  // Loop, exit when the search interval is empty (empty when i &gt; j)
+  while (i &lt;= j) {
+    int m = i + (j - i) ~/ 2; // Calculate the midpoint index m
+    if (nums[m] &lt; target) {
+      // This means target is in the interval [m+1, j]
+      i = m + 1;
+    } else if (nums[m] &gt; target) {
+      // This means target is in the interval [i, m-1]
+      j = m - 1;
+    } else {
+      // Found the target element, return its index
+      return m;
+    }
+  }
+  // Target element not found, return -1
+  return -1;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def binary_search(nums: list[int], target: int) -&gt; int:
     """Tìm kiếm nhị phân (khoảng đóng)"""
     # Khởi tạo khoảng đóng [0, n-1], tức i, j trỏ tới phần tử đầu và cuối của mảng
     i, j = 0, len(nums) - 1
@@ -124,61 +177,6 @@ int binarySearch(vector&lt;int&gt; &amp;nums, int target) {
     // Không tìm thấy target, trả về -1
     return -1;
 }
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân (khoảng đóng cả hai đầu) */
-static int binarySearch(int[] nums, int target) {
-    // Khởi tạo khoảng đóng [0, n-1], tức i, j trỏ tới phần tử đầu và cuối của mảng
-    int i = 0, j = nums.length - 1;
-    // Lặp, thoát khi khoảng tìm kiếm rỗng (rỗng khi i &gt; j)
-    while (i &lt;= j) {
-        int m = i + (j - i) / 2; // Tính chỉ mục giữa m
-        if (nums[m] &lt; target) // target nằm trong khoảng [m+1, j]
-            i = m + 1;
-        else if (nums[m] &gt; target) // target nằm trong khoảng [i, m-1]
-            j = m - 1;
-        else // Đã tìm thấy target, trả về chỉ mục của nó
-            return m;
-    }
-    // Không tìm thấy target, trả về -1
-    return -1;
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm kiếm nhị phân (khoảng đóng cả hai đầu) */
-function binarySearch(nums, target) {
-    // Khởi tạo khoảng đóng [0, n-1], tức i, j trỏ tới phần tử đầu và cuối của mảng
-    let i = 0,
-        j = nums.length - 1;
-    // Lặp, thoát khi khoảng tìm kiếm rỗng (rỗng khi i &gt; j)
-    while (i &lt;= j) {
-        // Tính chỉ mục giữa m, dùng parseInt() để làm tròn xuống
-        const m = parseInt(i + (j - i) / 2);
-        if (nums[m] &lt; target)
-            // target nằm trong khoảng [m+1, j]
-            i = m + 1;
-        else if (nums[m] &gt; target)
-            // target nằm trong khoảng [i, m-1]
-            j = m - 1;
-        else return m; // Đã tìm thấy target, trả về chỉ mục của nó
-    }
-    // Không tìm thấy target, trả về -1
-    return -1;
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm kiếm nhị phân (khoảng đóng cả hai đầu) */
-fun binarySearch(nums: IntArray, target: Int): Int {
-    // Khởi tạo khoảng đóng [0, n-1], tức i, j trỏ tới phần tử đầu và cuối của mảng
-    var i = 0
-    var j = nums.size - 1
-    // Lặp, thoát khi khoảng tìm kiếm rỗng (rỗng khi i &gt; j)
-    while (i &lt;= j) {
-        val m = i + (j - i) / 2 // Tính chỉ mục giữa m
-        if (nums[m] &lt; target) // target nằm trong khoảng [m+1, j]
-            i = m + 1
-        else if (nums[m] &gt; target) // target nằm trong khoảng [i, m-1]
-            j = m - 1
-        else  // Đã tìm thấy target, trả về chỉ mục của nó
-            return m
-    }
-    // Không tìm thấy target, trả về -1
-    return -1
-}
 </code></pre></div></div></div>
 <p><strong>Độ phức tạp thời gian là $O(\\log n)$</strong>: Trong vòng lặp tìm kiếm nhị phân, khoảng tìm kiếm giảm đi một nửa sau mỗi vòng, do đó số lần lặp là $\\log_2 n$.</p>
 <p><strong>Độ phức tạp không gian là $O(1)$</strong>: Các con trỏ $i$ và $j$ sử dụng không gian với kích thước không đổi.</p>
@@ -186,7 +184,60 @@ fun binarySearch(nums: IntArray, target: Int): Int {
 <h2>10.1.2 Các cách biểu diễn khoảng</h2>
 <p>Ngoài khoảng đóng đã đề cập ở trên, một cách biểu diễn khoảng phổ biến khác là khoảng "trái đóng phải mở" (left-closed right-open), được định nghĩa là $[0, n)$, nghĩa là biên trái được bao gồm trong khi biên phải bị loại trừ. Theo cách biểu diễn này, khoảng $[i, j)$ là rỗng khi $i = j$.</p>
 <p>Ta có thể triển khai một thuật toán tìm kiếm nhị phân với chức năng tương tự dựa trên cách biểu diễn này:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def binary_search_lcro(nums: list[int], target: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân (khoảng trái đóng phải mở) */
+static int binarySearchLCRO(int[] nums, int target) {
+    // Khởi tạo khoảng trái đóng phải mở [0, n), tức i, j trỏ tới phần tử đầu và phần tử cuối+1
+    int i = 0, j = nums.length;
+    // Lặp, thoát khi khoảng tìm kiếm rỗng (rỗng khi i = j)
+    while (i &lt; j) {
+        int m = i + (j - i) / 2; // Tính chỉ mục giữa m
+        if (nums[m] &lt; target) // target nằm trong khoảng [m+1, j)
+            i = m + 1;
+        else if (nums[m] &gt; target) // target nằm trong khoảng [i, m)
+            j = m;
+        else // Đã tìm thấy target, trả về chỉ mục của nó
+            return m;
+    }
+    // Không tìm thấy target, trả về -1
+    return -1;
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func binarySearchLCRO(nums: [Int], target: Int) -&gt; Int {
+    // Initialize left-closed right-open interval [0, n), i.e., i, j point to the first element and last element+1
+    var i = nums.startIndex
+    var j = nums.endIndex
+    // Loop, exit when the search interval is empty (empty when i = j)
+    while i &lt; j {
+        let m = i + (j - i) / 2 // Calculate the midpoint index m
+        if nums[m] &lt; target { // This means target is in the interval [m+1, j)
+            i = m + 1
+        } else if nums[m] &gt; target { // This means target is in the interval [i, m)
+            j = m
+        } else { // Found the target element, return its index
+            return m
+        }
+    }
+    // Target element not found, return -1
+    return -1
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int binarySearchLCRO(List&lt;int&gt; nums, int target) {
+  // Initialize left-closed right-open interval [0, n), i.e., i, j point to the first element and last element+1
+  int i = 0, j = nums.length;
+  // Loop, exit when the search interval is empty (empty when i = j)
+  while (i &lt; j) {
+    int m = i + (j - i) ~/ 2; // Calculate the midpoint index m
+    if (nums[m] &lt; target) {
+      // This means target is in the interval [m+1, j)
+      i = m + 1;
+    } else if (nums[m] &gt; target) {
+      // This means target is in the interval [i, m)
+      j = m;
+    } else {
+      // Found the target element, return its index
+      return m;
+    }
+  }
+  // Target element not found, return -1
+  return -1;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def binary_search_lcro(nums: list[int], target: int) -&gt; int:
     """Tìm kiếm nhị phân (khoảng nửa đóng nửa mở, trái đóng phải mở)"""
     # Khởi tạo khoảng nửa đóng nửa mở [0, n), tức i, j trỏ tới phần tử đầu và phần tử cuối+1
     i, j = 0, len(nums)
@@ -216,62 +267,6 @@ int binarySearchLCRO(vector&lt;int&gt; &amp;nums, int target) {
     }
     // Không tìm thấy target, trả về -1
     return -1;
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân (khoảng trái đóng phải mở) */
-static int binarySearchLCRO(int[] nums, int target) {
-    // Khởi tạo khoảng trái đóng phải mở [0, n), tức i, j trỏ tới phần tử đầu và phần tử cuối+1
-    int i = 0, j = nums.length;
-    // Lặp, thoát khi khoảng tìm kiếm rỗng (rỗng khi i = j)
-    while (i &lt; j) {
-        int m = i + (j - i) / 2; // Tính chỉ mục giữa m
-        if (nums[m] &lt; target) // target nằm trong khoảng [m+1, j)
-            i = m + 1;
-        else if (nums[m] &gt; target) // target nằm trong khoảng [i, m)
-            j = m;
-        else // Đã tìm thấy target, trả về chỉ mục của nó
-            return m;
-    }
-    // Không tìm thấy target, trả về -1
-    return -1;
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm kiếm nhị phân (khoảng trái đóng phải mở) */
-function binarySearchLCRO(nums, target) {
-    // Khởi tạo khoảng trái đóng phải mở [0, n), tức i, j trỏ tới phần tử đầu và phần tử cuối+1
-    let i = 0,
-        j = nums.length;
-    // Lặp, thoát khi khoảng tìm kiếm rỗng (rỗng khi i = j)
-    while (i &lt; j) {
-        // Tính chỉ mục giữa m, dùng parseInt() để làm tròn xuống
-        const m = parseInt(i + (j - i) / 2);
-        if (nums[m] &lt; target)
-            // target nằm trong khoảng [m+1, j)
-            i = m + 1;
-        else if (nums[m] &gt; target)
-            // target nằm trong khoảng [i, m)
-            j = m;
-        // Đã tìm thấy target, trả về chỉ mục của nó
-        else return m;
-    }
-    // Không tìm thấy target, trả về -1
-    return -1;
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm kiếm nhị phân (khoảng trái đóng phải mở) */
-fun binarySearchLCRO(nums: IntArray, target: Int): Int {
-    // Khởi tạo khoảng trái đóng phải mở [0, n), tức i, j trỏ tới phần tử đầu và phần tử cuối+1
-    var i = 0
-    var j = nums.size
-    // Lặp, thoát khi khoảng tìm kiếm rỗng (rỗng khi i = j)
-    while (i &lt; j) {
-        val m = i + (j - i) / 2 // Tính chỉ mục giữa m
-        if (nums[m] &lt; target) // target nằm trong khoảng [m+1, j)
-            i = m + 1
-        else if (nums[m] &gt; target) // target nằm trong khoảng [i, m)
-            j = m
-        else  // Đã tìm thấy target, trả về chỉ mục của nó
-            return m
-    }
-    // Không tìm thấy target, trả về -1
-    return -1
 }
 </code></pre></div></div></div>
 <p>Như hình minh họa bên dưới, dưới hai cách biểu diễn khoảng, việc khởi tạo, điều kiện lặp, và thao tác thu hẹp khoảng của thuật toán tìm kiếm nhị phân đều khác nhau.</p>
@@ -432,7 +427,53 @@ However, binary search is not suitable for all situations, mainly for the follow
 <p><strong>Câu hỏi 2</strong>: Khi mảng không chứa <code>target</code>, chỉ mục vị trí chèn là gì?</p>
 <p>Để phân tích sâu hơn, hãy xem xét quá trình tìm kiếm nhị phân: khi <code>nums[m] &lt; target</code>, $i$ di chuyển, nghĩa là con trỏ $i$ đang tiến gần tới các phần tử lớn hơn hoặc bằng <code>target</code>. Tương tự, con trỏ $j$ luôn tiến gần tới các phần tử nhỏ hơn hoặc bằng <code>target</code>.</p>
 <p>Do đó, khi tìm kiếm nhị phân kết thúc, $i$ chắc chắn trỏ tới phần tử đầu tiên lớn hơn <code>target</code>, và $j$ chắc chắn trỏ tới phần tử đầu tiên nhỏ hơn <code>target</code>. <strong>Từ đó suy ra, khi mảng không chứa <code>target</code>, chỉ mục chèn chính là $i$</strong>. Đoạn mã minh họa như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def binary_search_insertion_simple(nums: list[int], target: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân vị trí chèn (không có phần tử trùng lặp) */
+static int binarySearchInsertionSimple(int[] nums, int target) {
+    int i = 0, j = nums.length - 1; // Khởi tạo khoảng đóng [0, n-1]
+    while (i &lt;= j) {
+        int m = i + (j - i) / 2; // Tính chỉ mục giữa m
+        if (nums[m] &lt; target) {
+            i = m + 1; // target nằm trong khoảng [m+1, j]
+        } else if (nums[m] &gt; target) {
+            j = m - 1; // target nằm trong khoảng [i, m-1]
+        } else {
+            return m; // Tìm thấy target, trả về vị trí chèn m
+        }
+    }
+    // Không tìm thấy target, trả về vị trí chèn i
+    return i;
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func binarySearchInsertionSimple(nums: [Int], target: Int) -&gt; Int {
+    // Initialize closed interval [0, n-1]
+    var i = nums.startIndex
+    var j = nums.endIndex - 1
+    while i &lt;= j {
+        let m = i + (j - i) / 2 // Calculate the midpoint index m
+        if nums[m] &lt; target {
+            i = m + 1 // target is in the interval [m+1, j]
+        } else if nums[m] &gt; target {
+            j = m - 1 // target is in the interval [i, m-1]
+        } else {
+            return m // Found target, return insertion point m
+        }
+    }
+    // Target not found, return insertion point i
+    return i
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int binarySearchInsertionSimple(List&lt;int&gt; nums, int target) {
+  int i = 0, j = nums.length - 1; // Initialize closed interval [0, n-1]
+  while (i &lt;= j) {
+    int m = i + (j - i) ~/ 2; // Calculate the midpoint index m
+    if (nums[m] &lt; target) {
+      i = m + 1; // target is in the interval [m+1, j]
+    } else if (nums[m] &gt; target) {
+      j = m - 1; // target is in the interval [i, m-1]
+    } else {
+      return m; // Found target, return insertion point m
+    }
+  }
+  // Target not found, return insertion point i
+  return i;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def binary_search_insertion_simple(nums: list[int], target: int) -&gt; int:
     """Tìm kiếm nhị phân vị trí chèn (không có phần tử trùng lặp)"""
     i, j = 0, len(nums) - 1  # Khởi tạo khoảng đóng [0, n-1]
     while i &lt;= j:
@@ -460,56 +501,6 @@ int binarySearchInsertionSimple(vector&lt;int&gt; &amp;nums, int target) {
     }
     // Không tìm thấy target, trả về vị trí chèn i
     return i;
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân vị trí chèn (không có phần tử trùng lặp) */
-static int binarySearchInsertionSimple(int[] nums, int target) {
-    int i = 0, j = nums.length - 1; // Khởi tạo khoảng đóng [0, n-1]
-    while (i &lt;= j) {
-        int m = i + (j - i) / 2; // Tính chỉ mục giữa m
-        if (nums[m] &lt; target) {
-            i = m + 1; // target nằm trong khoảng [m+1, j]
-        } else if (nums[m] &gt; target) {
-            j = m - 1; // target nằm trong khoảng [i, m-1]
-        } else {
-            return m; // Tìm thấy target, trả về vị trí chèn m
-        }
-    }
-    // Không tìm thấy target, trả về vị trí chèn i
-    return i;
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm kiếm nhị phân vị trí chèn (không có phần tử trùng lặp) */
-function binarySearchInsertionSimple(nums, target) {
-    let i = 0,
-        j = nums.length - 1; // Khởi tạo khoảng đóng [0, n-1]
-    while (i &lt;= j) {
-        const m = Math.floor(i + (j - i) / 2); // Tính chỉ mục giữa m, dùng Math.floor() để làm tròn xuống
-        if (nums[m] &lt; target) {
-            i = m + 1; // target nằm trong khoảng [m+1, j]
-        } else if (nums[m] &gt; target) {
-            j = m - 1; // target nằm trong khoảng [i, m-1]
-        } else {
-            return m; // Tìm thấy target, trả về vị trí chèn m
-        }
-    }
-    // Không tìm thấy target, trả về vị trí chèn i
-    return i;
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm kiếm nhị phân vị trí chèn (không có phần tử trùng lặp) */
-fun binarySearchInsertionSimple(nums: IntArray, target: Int): Int {
-    var i = 0
-    var j = nums.size - 1 // Khởi tạo khoảng đóng [0, n-1]
-    while (i &lt;= j) {
-        val m = i + (j - i) / 2 // Tính chỉ mục giữa m
-        if (nums[m] &lt; target) {
-            i = m + 1 // target nằm trong khoảng [m+1, j]
-        } else if (nums[m] &gt; target) {
-            j = m - 1 // target nằm trong khoảng [i, m-1]
-        } else {
-            return m // Tìm thấy target, trả về vị trí chèn m
-        }
-    }
-    // Không tìm thấy target, trả về vị trí chèn i
-    return i
 }
 </code></pre></div></div></div>
 <h2>10.2.2 Trường hợp có phần tử trùng lặp</h2>
@@ -556,7 +547,37 @@ fun binarySearchInsertionSimple(nums: IntArray, target: Int): Int {
 
 <p>Quan sát đoạn mã sau: hai nhánh <code>nums[m] &gt; target</code> và <code>nums[m] == target</code> thực hiện cùng một thao tác, nên có thể gộp lại.</p>
 <p>Dù vậy, ta vẫn có thể giữ nguyên các nhánh điều kiện tách biệt, vì logic sẽ rõ ràng và dễ đọc hơn.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def binary_search_insertion(nums: list[int], target: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân vị trí chèn (có phần tử trùng lặp) */
+static int binarySearchInsertion(int[] nums, int target) {
+    int i = 0, j = nums.length - 1; // Khởi tạo khoảng đóng [0, n-1]
+    while (i &lt;= j) {
+        int m = i + (j - i) / 2; // Tính chỉ mục giữa m
+        if (nums[m] &lt; target) {
+            i = m + 1; // target nằm trong khoảng [m+1, j]
+        } else if (nums[m] &gt; target) {
+            j = m - 1; // target nằm trong khoảng [i, m-1]
+        } else {
+            j = m - 1; // Phần tử đầu tiên nhỏ hơn target nằm trong khoảng [i, m-1]
+        }
+    }
+    // Trả về vị trí chèn i
+    return i;
+}
+</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int binarySearchInsertion(List&lt;int&gt; nums, int target) {
+  int i = 0, j = nums.length - 1; // Initialize closed interval [0, n-1]
+  while (i &lt;= j) {
+    int m = i + (j - i) ~/ 2; // Calculate the midpoint index m
+    if (nums[m] &lt; target) {
+      i = m + 1; // target is in the interval [m+1, j]
+    } else if (nums[m] &gt; target) {
+      j = m - 1; // target is in the interval [i, m-1]
+    } else {
+      j = m - 1; // The first element less than target is in the interval [i, m-1]
+    }
+  }
+  // Return insertion point i
+  return i;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def binary_search_insertion(nums: list[int], target: int) -&gt; int:
     """Tìm kiếm nhị phân vị trí chèn (có phần tử trùng lặp)"""
     i, j = 0, len(nums) - 1  # Khởi tạo khoảng đóng [0, n-1]
     while i &lt;= j:
@@ -584,56 +605,6 @@ int binarySearchInsertion(vector&lt;int&gt; &amp;nums, int target) {
     }
     // Trả về vị trí chèn i
     return i;
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân vị trí chèn (có phần tử trùng lặp) */
-static int binarySearchInsertion(int[] nums, int target) {
-    int i = 0, j = nums.length - 1; // Khởi tạo khoảng đóng [0, n-1]
-    while (i &lt;= j) {
-        int m = i + (j - i) / 2; // Tính chỉ mục giữa m
-        if (nums[m] &lt; target) {
-            i = m + 1; // target nằm trong khoảng [m+1, j]
-        } else if (nums[m] &gt; target) {
-            j = m - 1; // target nằm trong khoảng [i, m-1]
-        } else {
-            j = m - 1; // Phần tử đầu tiên nhỏ hơn target nằm trong khoảng [i, m-1]
-        }
-    }
-    // Trả về vị trí chèn i
-    return i;
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm kiếm nhị phân vị trí chèn (có phần tử trùng lặp) */
-function binarySearchInsertion(nums, target) {
-    let i = 0,
-        j = nums.length - 1; // Khởi tạo khoảng đóng [0, n-1]
-    while (i &lt;= j) {
-        const m = Math.floor(i + (j - i) / 2); // Tính chỉ mục giữa m, dùng Math.floor() để làm tròn xuống
-        if (nums[m] &lt; target) {
-            i = m + 1; // target nằm trong khoảng [m+1, j]
-        } else if (nums[m] &gt; target) {
-            j = m - 1; // target nằm trong khoảng [i, m-1]
-        } else {
-            j = m - 1; // Phần tử đầu tiên nhỏ hơn target nằm trong khoảng [i, m-1]
-        }
-    }
-    // Trả về vị trí chèn i
-    return i;
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm kiếm nhị phân vị trí chèn (có phần tử trùng lặp) */
-fun binarySearchInsertion(nums: IntArray, target: Int): Int {
-    var i = 0
-    var j = nums.size - 1 // Khởi tạo khoảng đóng [0, n-1]
-    while (i &lt;= j) {
-        val m = i + (j - i) / 2 // Tính chỉ mục giữa m
-        if (nums[m] &lt; target) {
-            i = m + 1 // target nằm trong khoảng [m+1, j]
-        } else if (nums[m] &gt; target) {
-            j = m - 1 // target nằm trong khoảng [i, m-1]
-        } else {
-            j = m - 1 // Phần tử đầu tiên nhỏ hơn target nằm trong khoảng [i, m-1]
-        }
-    }
-    // Trả về vị trí chèn i
-    return i
 }
 </code></pre></div></div></div>
 <div class="callout callout-tip">
@@ -764,7 +735,36 @@ With each iteration of binary search, pointers $i$ and $j$ gradually approach th
   <li>Phần tử <code>nums[i]</code> không bằng <code>target</code>.</li>
 </ul>
 <p>Khi một trong hai tình huống này xảy ra, chỉ cần trả về $-1$. Đoạn mã minh họa như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def binary_search_left_edge(nums: list[int], target: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân ranh giới trái nhất của target */
+static int binarySearchLeftEdge(int[] nums, int target) {
+    // Tương đương với việc tìm vị trí chèn của target
+    int i = binary_search_insertion.binarySearchInsertion(nums, target);
+    // Không tìm thấy target, trả về -1
+    if (i == nums.length || nums[i] != target) {
+        return -1;
+    }
+    // Tìm thấy target, trả về chỉ mục i
+    return i;
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func binarySearchLeftEdge(nums: [Int], target: Int) -&gt; Int {
+    // Equivalent to finding the insertion point of target
+    let i = binarySearchInsertion(nums: nums, target: target)
+    // Target not found, return -1
+    if i == nums.endIndex || nums[i] != target {
+        return -1
+    }
+    // Found target, return index i
+    return i
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int binarySearchLeftEdge(List&lt;int&gt; nums, int target) {
+  // Equivalent to finding the insertion point of target
+  int i = binarySearchInsertion(nums, target);
+  // Target not found, return -1
+  if (i == nums.length || nums[i] != target) {
+    return -1;
+  }
+  // Found target, return index i
+  return i;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def binary_search_left_edge(nums: list[int], target: int) -&gt; int:
     """Tìm kiếm nhị phân ranh giới trái nhất của target"""
     # Tương đương với việc tìm vị trí chèn của target
     i = binary_search_insertion(nums, target)
@@ -784,39 +784,6 @@ int binarySearchLeftEdge(vector&lt;int&gt; &amp;nums, int target) {
     // Tìm thấy target, trả về chỉ mục i
     return i;
 }
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân ranh giới trái nhất của target */
-static int binarySearchLeftEdge(int[] nums, int target) {
-    // Tương đương với việc tìm vị trí chèn của target
-    int i = binary_search_insertion.binarySearchInsertion(nums, target);
-    // Không tìm thấy target, trả về -1
-    if (i == nums.length || nums[i] != target) {
-        return -1;
-    }
-    // Tìm thấy target, trả về chỉ mục i
-    return i;
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm kiếm nhị phân ranh giới trái nhất của target */
-function binarySearchLeftEdge(nums, target) {
-    // Tương đương với việc tìm vị trí chèn của target
-    const i = binarySearchInsertion(nums, target);
-    // Không tìm thấy target, trả về -1
-    if (i === nums.length || nums[i] !== target) {
-        return -1;
-    }
-    // Tìm thấy target, trả về chỉ mục i
-    return i;
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm kiếm nhị phân ranh giới trái nhất của target */
-fun binarySearchLeftEdge(nums: IntArray, target: Int): Int {
-    // Tương đương với việc tìm vị trí chèn của target
-    val i = binarySearchInsertion(nums, target)
-    // Không tìm thấy target, trả về -1
-    if (i == nums.size || nums[i] != target) {
-        return -1
-    }
-    // Tìm thấy target, trả về chỉ mục i
-    return i
-}
 </code></pre></div></div></div>
 <h2>10.3.2 Tìm Ranh giới Phải (Right Boundary)</h2>
 <p>Vậy làm sao để tìm <code>target</code> ngoài cùng bên phải? Cách trực tiếp nhất là sửa đoạn mã và thay thế thao tác thu hẹp con trỏ trong trường hợp <code>nums[m] == target</code>. Đoạn mã này được lược bỏ ở đây; bạn đọc quan tâm có thể tự triển khai.</p>
@@ -829,7 +796,42 @@ fun binarySearchLeftEdge(nums: IntArray, target: Int): Int {
   <img src="dsa-assets/binary_search_right_edge_by_left_edge.png" alt="Chuyển đổi tìm ranh giới phải thành tìm ranh giới trái" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Lưu ý rằng vị trí chèn trả về là $i$, nên ta cần trừ đi $1$ để có được $j$:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def binary_search_right_edge(nums: list[int], target: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân ranh giới phải nhất của target */
+static int binarySearchRightEdge(int[] nums, int target) {
+    // Chuyển thành tìm ranh giới trái nhất của target + 1
+    int i = binary_search_insertion.binarySearchInsertion(nums, target + 1);
+    // j trỏ tới target phải nhất, i trỏ tới phần tử đầu tiên lớn hơn target
+    int j = i - 1;
+    // Không tìm thấy target, trả về -1
+    if (j == -1 || nums[j] != target) {
+        return -1;
+    }
+    // Tìm thấy target, trả về chỉ mục j
+    return j;
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func binarySearchRightEdge(nums: [Int], target: Int) -&gt; Int {
+    // Convert to finding the leftmost target + 1
+    let i = binarySearchInsertion(nums: nums, target: target + 1)
+    // j points to the rightmost target, i points to the first element greater than target
+    let j = i - 1
+    // Target not found, return -1
+    if j == -1 || nums[j] != target {
+        return -1
+    }
+    // Found target, return index j
+    return j
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int binarySearchRightEdge(List&lt;int&gt; nums, int target) {
+  // Convert to finding the leftmost target + 1
+  int i = binarySearchInsertion(nums, target + 1);
+  // j points to the rightmost target, i points to the first element greater than target
+  int j = i - 1;
+  // Target not found, return -1
+  if (j == -1 || nums[j] != target) {
+    return -1;
+  }
+  // Found target, return index j
+  return j;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def binary_search_right_edge(nums: list[int], target: int) -&gt; int:
     """Tìm kiếm nhị phân ranh giới phải nhất của target"""
     # Chuyển thành tìm ranh giới trái nhất của target + 1
     i = binary_search_insertion(nums, target + 1)
@@ -852,45 +854,6 @@ int binarySearchRightEdge(vector&lt;int&gt; &amp;nums, int target) {
     }
     // Tìm thấy target, trả về chỉ mục j
     return j;
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân ranh giới phải nhất của target */
-static int binarySearchRightEdge(int[] nums, int target) {
-    // Chuyển thành tìm ranh giới trái nhất của target + 1
-    int i = binary_search_insertion.binarySearchInsertion(nums, target + 1);
-    // j trỏ tới target phải nhất, i trỏ tới phần tử đầu tiên lớn hơn target
-    int j = i - 1;
-    // Không tìm thấy target, trả về -1
-    if (j == -1 || nums[j] != target) {
-        return -1;
-    }
-    // Tìm thấy target, trả về chỉ mục j
-    return j;
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm kiếm nhị phân ranh giới phải nhất của target */
-function binarySearchRightEdge(nums, target) {
-    // Chuyển thành tìm ranh giới trái nhất của target + 1
-    const i = binarySearchInsertion(nums, target + 1);
-    // j trỏ tới target phải nhất, i trỏ tới phần tử đầu tiên lớn hơn target
-    const j = i - 1;
-    // Không tìm thấy target, trả về -1
-    if (j === -1 || nums[j] !== target) {
-        return -1;
-    }
-    // Tìm thấy target, trả về chỉ mục j
-    return j;
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm kiếm nhị phân ranh giới phải nhất của target */
-fun binarySearchRightEdge(nums: IntArray, target: Int): Int {
-    // Chuyển thành tìm ranh giới trái nhất của target + 1
-    val i = binarySearchInsertion(nums, target + 1)
-    // j trỏ tới target phải nhất, i trỏ tới phần tử đầu tiên lớn hơn target
-    val j = i - 1
-    // Không tìm thấy target, trả về -1
-    if (j == -1 || nums[j] != target) {
-        return -1
-    }
-    // Tìm thấy target, trả về chỉ mục j
-    return j
 }
 </code></pre></div></div></div>
 <h3>10.3.2.2 Chuyển thành Tìm kiếm Phần tử</h3>
@@ -1021,7 +984,38 @@ The code is omitted here, but the following two points are worth noting:
   <img src="dsa-assets/two_sum_brute_force.png" alt="Lời giải tìm kiếm tuyến tính cho Two Sum" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Đoạn mã minh họa như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def two_sum_brute_force(nums: list[int], target: int) -&gt; list[int]:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cách 1: Duyệt vét cạn (Brute force) */
+static int[] twoSumBruteForce(int[] nums, int target) {
+    int size = nums.length;
+    // Hai vòng lặp lồng nhau, độ phức tạp thời gian là O(n^2)
+    for (int i = 0; i &lt; size - 1; i++) {
+        for (int j = i + 1; j &lt; size; j++) {
+            if (nums[i] + nums[j] == target)
+                return new int[] { i, j };
+        }
+    }
+    return new int[0];
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func twoSumBruteForce(nums: [Int], target: Int) -&gt; [Int] {
+    // Two nested loops, time complexity is O(n^2)
+    for i in nums.indices.dropLast() {
+        for j in nums.indices.dropFirst(i + 1) {
+            if nums[i] + nums[j] == target {
+                return [i, j]
+            }
+        }
+    }
+    return [0]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>List&lt;int&gt; twoSumBruteForce(List&lt;int&gt; nums, int target) {
+  int size = nums.length;
+  // Two nested loops, time complexity is O(n^2)
+  for (var i = 0; i &lt; size - 1; i++) {
+    for (var j = i + 1; j &lt; size; j++) {
+      if (nums[i] + nums[j] == target) return [i, j];
+    }
+  }
+  return [0];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def two_sum_brute_force(nums: list[int], target: int) -&gt; list[int]:
     """Cách 1: Duyệt vét cạn (Brute force)"""
     # Hai vòng lặp lồng nhau, độ phức tạp thời gian là O(n^2)
     for i in range(len(nums) - 1):
@@ -1040,42 +1034,6 @@ vector&lt;int&gt; twoSumBruteForce(vector&lt;int&gt; &amp;nums, int target) {
         }
     }
     return {};
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Cách 1: Duyệt vét cạn (Brute force) */
-static int[] twoSumBruteForce(int[] nums, int target) {
-    int size = nums.length;
-    // Hai vòng lặp lồng nhau, độ phức tạp thời gian là O(n^2)
-    for (int i = 0; i &lt; size - 1; i++) {
-        for (int j = i + 1; j &lt; size; j++) {
-            if (nums[i] + nums[j] == target)
-                return new int[] { i, j };
-        }
-    }
-    return new int[0];
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cách 1: Duyệt vét cạn (Brute force) */
-function twoSumBruteForce(nums, target) {
-    const n = nums.length;
-    // Hai vòng lặp lồng nhau, độ phức tạp thời gian là O(n^2)
-    for (let i = 0; i &lt; n; i++) {
-        for (let j = i + 1; j &lt; n; j++) {
-            if (nums[i] + nums[j] === target) {
-                return [i, j];
-            }
-        }
-    }
-    return [];
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Cách 1: Duyệt vét cạn (Brute force) */
-fun twoSumBruteForce(nums: IntArray, target: Int): IntArray {
-    val size = nums.size
-    // Hai vòng lặp lồng nhau, độ phức tạp thời gian là O(n^2)
-    for (i in 0..&lt;size - 1) {
-        for (j in i + 1..&lt;size) {
-            if (nums[i] + nums[j] == target) return intArrayOf(i, j)
-        }
-    }
-    return IntArray(0)
 }
 </code></pre></div></div></div>
 <p>Phương pháp này có độ phức tạp thời gian $O(n^2)$ và độ phức tạp không gian $O(1)$, khiến nó rất tốn thời gian với đầu vào lớn.</p>
@@ -1101,7 +1059,44 @@ fun twoSumBruteForce(nums: IntArray, target: Int): IntArray {
 </div>
 
 <p>Cách triển khai được thể hiện bên dưới và chỉ cần một vòng lặp duy nhất:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def two_sum_hash_table(nums: list[int], target: int) -&gt; list[int]:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cách 2: Dùng Hash Table hỗ trợ */
+static int[] twoSumHashTable(int[] nums, int target) {
+    int size = nums.length;
+    // Hash Table hỗ trợ, độ phức tạp không gian là O(n)
+    Map&lt;Integer, Integer&gt; dic = new HashMap&lt;&gt;();
+    // Một vòng lặp duy nhất, độ phức tạp thời gian là O(n)
+    for (int i = 0; i &lt; size; i++) {
+        if (dic.containsKey(target - nums[i])) {
+            return new int[] { dic.get(target - nums[i]), i };
+        }
+        dic.put(nums[i], i);
+    }
+    return new int[0];
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func twoSumHashTable(nums: [Int], target: Int) -&gt; [Int] {
+    // Auxiliary hash table, space complexity is O(n)
+    var dic: [Int: Int] = [:]
+    // Single loop, time complexity is O(n)
+    for i in nums.indices {
+        if let j = dic[target - nums[i]] {
+            return [j, i]
+        }
+        dic[nums[i]] = i
+    }
+    return [0]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>List&lt;int&gt; twoSumHashTable(List&lt;int&gt; nums, int target) {
+  int size = nums.length;
+  // Auxiliary hash table, space complexity is O(n)
+  Map&lt;int, int&gt; dic = HashMap();
+  // Single loop, time complexity is O(n)
+  for (var i = 0; i &lt; size; i++) {
+    if (dic.containsKey(target - nums[i])) {
+      return [dic[target - nums[i]]!, i];
+    }
+    dic.putIfAbsent(nums[i], () =&gt; i);
+  }
+  return [0];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def two_sum_hash_table(nums: list[int], target: int) -&gt; list[int]:
     """Cách 2: Dùng Hash Table hỗ trợ"""
     # Hash Table hỗ trợ, độ phức tạp không gian là O(n)
     dic = {}
@@ -1124,48 +1119,6 @@ vector&lt;int&gt; twoSumHashTable(vector&lt;int&gt; &amp;nums, int target) {
         dic.emplace(nums[i], i);
     }
     return {};
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Cách 2: Dùng Hash Table hỗ trợ */
-static int[] twoSumHashTable(int[] nums, int target) {
-    int size = nums.length;
-    // Hash Table hỗ trợ, độ phức tạp không gian là O(n)
-    Map&lt;Integer, Integer&gt; dic = new HashMap&lt;&gt;();
-    // Một vòng lặp duy nhất, độ phức tạp thời gian là O(n)
-    for (int i = 0; i &lt; size; i++) {
-        if (dic.containsKey(target - nums[i])) {
-            return new int[] { dic.get(target - nums[i]), i };
-        }
-        dic.put(nums[i], i);
-    }
-    return new int[0];
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cách 2: Dùng Hash Table hỗ trợ */
-function twoSumHashTable(nums, target) {
-    // Hash Table hỗ trợ, độ phức tạp không gian là O(n)
-    let m = {};
-    // Một vòng lặp duy nhất, độ phức tạp thời gian là O(n)
-    for (let i = 0; i &lt; nums.length; i++) {
-        if (m[target - nums[i]] !== undefined) {
-            return [m[target - nums[i]], i];
-        } else {
-            m[nums[i]] = i;
-        }
-    }
-    return [];
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Cách 2: Dùng Hash Table hỗ trợ */
-fun twoSumHashTable(nums: IntArray, target: Int): IntArray {
-    val size = nums.size
-    // Hash Table hỗ trợ, độ phức tạp không gian là O(n)
-    val dic = HashMap&lt;Int, Int&gt;()
-    // Một vòng lặp duy nhất, độ phức tạp thời gian là O(n)
-    for (i in 0..&lt;size) {
-        if (dic.containsKey(target - nums[i])) {
-            return intArrayOf(dic[target - nums[i]]!!, i)
-        }
-        dic[nums[i]] = i
-    }
-    return IntArray(0)
 }
 </code></pre></div></div></div>
 <p>Phương pháp này giảm độ phức tạp thời gian từ $O(n^2)$ xuống $O(n)$ nhờ tìm kiếm dựa trên hash, cải thiện đáng kể hiệu suất thời gian chạy.</p>

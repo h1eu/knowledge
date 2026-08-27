@@ -285,7 +285,103 @@ As shown in the table below, many real-world systems can be modeled using graphs
 
 <p>Đoạn mã sau đây là phần triển khai cho đồ thị được biểu diễn bằng ma trận kề:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class GraphAdjMat:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Đồ thị vô hướng dựa trên ma trận kề */
+class GraphAdjMat {
+    List&lt;Integer&gt; vertices; // Danh sách đỉnh, phần tử biểu diễn "giá trị đỉnh", chỉ số biểu diễn "chỉ số đỉnh"
+    List&lt;List&lt;Integer&gt;&gt; adjMat; // Ma trận kề, chỉ số hàng và cột tương ứng với "chỉ số đỉnh"
+
+    /* Hàm khởi tạo */
+    public GraphAdjMat(int[] vertices, int[][] edges) {
+        this.vertices = new ArrayList&lt;&gt;();
+        this.adjMat = new ArrayList&lt;&gt;();
+        // Thêm đỉnh
+        for (int val : vertices) {
+            addVertex(val);
+        }
+        // Thêm cạnh
+        // Lưu ý các phần tử của edges biểu diễn chỉ số đỉnh, tức tương ứng với chỉ số của phần tử trong vertices
+        for (int[] e : edges) {
+            addEdge(e[0], e[1]);
+        }
+    }
+
+    /* Lấy số lượng đỉnh */
+    public int size() {
+        return vertices.size();
+    }
+
+    /* Thêm đỉnh */
+    public void addVertex(int val) {
+        int n = size();
+        // Thêm giá trị đỉnh mới vào danh sách đỉnh
+        vertices.add(val);
+        // Thêm một hàng vào ma trận kề
+        List&lt;Integer&gt; newRow = new ArrayList&lt;&gt;(n);
+        for (int j = 0; j &lt; n; j++) {
+            newRow.add(0);
+        }
+        adjMat.add(newRow);
+        // Thêm một cột vào ma trận kề
+        for (List&lt;Integer&gt; row : adjMat) {
+            row.add(0);
+        }
+    }
+
+    /* Xóa đỉnh */
+    public void removeVertex(int index) {
+        if (index &gt;= size())
+            throw new IndexOutOfBoundsException();
+        // Xóa đỉnh tại index khỏi danh sách đỉnh
+        vertices.remove(index);
+        // Xóa hàng tại index khỏi ma trận kề
+        adjMat.remove(index);
+        // Xóa cột tại index khỏi ma trận kề
+        for (List&lt;Integer&gt; row : adjMat) {
+            row.remove(index);
+        }
+    }
+
+    /* Thêm cạnh */
+    // Tham số i, j tương ứng với chỉ số của phần tử trong vertices
+    public void addEdge(int i, int j) {
+        // Xử lý trường hợp chỉ số vượt biên và trường hợp bằng nhau
+        if (i &lt; 0 || j &lt; 0 || i &gt;= size() || j &gt;= size() || i == j)
+            throw new IndexOutOfBoundsException();
+        // Đối với đồ thị vô hướng, ma trận kề đối xứng qua đường chéo chính, tức (i, j) == (j, i)
+        adjMat.get(i).set(j, 1);
+        adjMat.get(j).set(i, 1);
+    }
+
+    /* Xóa cạnh */
+    // Tham số i, j tương ứng với chỉ số của phần tử trong vertices
+    public void removeEdge(int i, int j) {
+        // Xử lý trường hợp chỉ số vượt biên và trường hợp bằng nhau
+        if (i &lt; 0 || j &lt; 0 || i &gt;= size() || j &gt;= size() || i == j)
+            throw new IndexOutOfBoundsException();
+        adjMat.get(i).set(j, 0);
+        adjMat.get(j).set(i, 0);
+    }
+
+    /* In ma trận kề */
+    public void print() {
+        System.out.print("Danh sách đỉnh = ");
+        System.out.println(vertices);
+        System.out.println("Ma trận kề =");
+        PrintUtil.printMatrix(adjMat);
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>GraphAdjMat(List&lt;int&gt; vertices, List&lt;List&lt;int&gt;&gt; edges) {
+    this.vertices = [];
+    this.adjMat = [];
+    // Add vertex
+    for (int val in vertices) {
+      addVertex(val);
+    }
+    // Add edge
+    // Note that the edges elements represent vertex indices, i.e., corresponding to the vertices element indices
+    for (List&lt;int&gt; e in edges) {
+      addEdge(e[0], e[1]);
+    }
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class GraphAdjMat:
     """Đồ thị vô hướng dựa trên ma trận kề"""
 
     def __init__(self, vertices: list[int], edges: list[list[int]]):
@@ -435,259 +531,7 @@ class GraphAdjMat {
         cout &lt;&lt; "Ma trận kề =" &lt;&lt; endl;
         printVectorMatrix(adjMat);
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Đồ thị vô hướng dựa trên ma trận kề */
-class GraphAdjMat {
-    List&lt;Integer&gt; vertices; // Danh sách đỉnh, phần tử biểu diễn "giá trị đỉnh", chỉ số biểu diễn "chỉ số đỉnh"
-    List&lt;List&lt;Integer&gt;&gt; adjMat; // Ma trận kề, chỉ số hàng và cột tương ứng với "chỉ số đỉnh"
-
-    /* Hàm khởi tạo */
-    public GraphAdjMat(int[] vertices, int[][] edges) {
-        this.vertices = new ArrayList&lt;&gt;();
-        this.adjMat = new ArrayList&lt;&gt;();
-        // Thêm đỉnh
-        for (int val : vertices) {
-            addVertex(val);
-        }
-        // Thêm cạnh
-        // Lưu ý các phần tử của edges biểu diễn chỉ số đỉnh, tức tương ứng với chỉ số của phần tử trong vertices
-        for (int[] e : edges) {
-            addEdge(e[0], e[1]);
-        }
-    }
-
-    /* Lấy số lượng đỉnh */
-    public int size() {
-        return vertices.size();
-    }
-
-    /* Thêm đỉnh */
-    public void addVertex(int val) {
-        int n = size();
-        // Thêm giá trị đỉnh mới vào danh sách đỉnh
-        vertices.add(val);
-        // Thêm một hàng vào ma trận kề
-        List&lt;Integer&gt; newRow = new ArrayList&lt;&gt;(n);
-        for (int j = 0; j &lt; n; j++) {
-            newRow.add(0);
-        }
-        adjMat.add(newRow);
-        // Thêm một cột vào ma trận kề
-        for (List&lt;Integer&gt; row : adjMat) {
-            row.add(0);
-        }
-    }
-
-    /* Xóa đỉnh */
-    public void removeVertex(int index) {
-        if (index &gt;= size())
-            throw new IndexOutOfBoundsException();
-        // Xóa đỉnh tại index khỏi danh sách đỉnh
-        vertices.remove(index);
-        // Xóa hàng tại index khỏi ma trận kề
-        adjMat.remove(index);
-        // Xóa cột tại index khỏi ma trận kề
-        for (List&lt;Integer&gt; row : adjMat) {
-            row.remove(index);
-        }
-    }
-
-    /* Thêm cạnh */
-    // Tham số i, j tương ứng với chỉ số của phần tử trong vertices
-    public void addEdge(int i, int j) {
-        // Xử lý trường hợp chỉ số vượt biên và trường hợp bằng nhau
-        if (i &lt; 0 || j &lt; 0 || i &gt;= size() || j &gt;= size() || i == j)
-            throw new IndexOutOfBoundsException();
-        // Đối với đồ thị vô hướng, ma trận kề đối xứng qua đường chéo chính, tức (i, j) == (j, i)
-        adjMat.get(i).set(j, 1);
-        adjMat.get(j).set(i, 1);
-    }
-
-    /* Xóa cạnh */
-    // Tham số i, j tương ứng với chỉ số của phần tử trong vertices
-    public void removeEdge(int i, int j) {
-        // Xử lý trường hợp chỉ số vượt biên và trường hợp bằng nhau
-        if (i &lt; 0 || j &lt; 0 || i &gt;= size() || j &gt;= size() || i == j)
-            throw new IndexOutOfBoundsException();
-        adjMat.get(i).set(j, 0);
-        adjMat.get(j).set(i, 0);
-    }
-
-    /* In ma trận kề */
-    public void print() {
-        System.out.print("Danh sách đỉnh = ");
-        System.out.println(vertices);
-        System.out.println("Ma trận kề =");
-        PrintUtil.printMatrix(adjMat);
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Đồ thị vô hướng dựa trên ma trận kề */
-class GraphAdjMat {
-    vertices; // Danh sách đỉnh, phần tử biểu diễn "giá trị đỉnh", chỉ số biểu diễn "chỉ số đỉnh"
-    adjMat; // Ma trận kề, chỉ số hàng và cột tương ứng với "chỉ số đỉnh"
-
-    /* Hàm khởi tạo */
-    constructor(vertices, edges) {
-        this.vertices = [];
-        this.adjMat = [];
-        // Thêm đỉnh
-        for (const val of vertices) {
-            this.addVertex(val);
-        }
-        // Thêm cạnh
-        // Lưu ý các phần tử của edges biểu diễn chỉ số đỉnh, tức tương ứng với chỉ số của phần tử trong vertices
-        for (const e of edges) {
-            this.addEdge(e[0], e[1]);
-        }
-    }
-
-    /* Lấy số lượng đỉnh */
-    size() {
-        return this.vertices.length;
-    }
-
-    /* Thêm đỉnh */
-    addVertex(val) {
-        const n = this.size();
-        // Thêm giá trị đỉnh mới vào danh sách đỉnh
-        this.vertices.push(val);
-        // Thêm một hàng vào ma trận kề
-        const newRow = [];
-        for (let j = 0; j &lt; n; j++) {
-            newRow.push(0);
-        }
-        this.adjMat.push(newRow);
-        // Thêm một cột vào ma trận kề
-        for (const row of this.adjMat) {
-            row.push(0);
-        }
-    }
-
-    /* Xóa đỉnh */
-    removeVertex(index) {
-        if (index &gt;= this.size()) {
-            throw new RangeError('Chỉ số vượt quá giới hạn');
-        }
-        // Xóa đỉnh tại index khỏi danh sách đỉnh
-        this.vertices.splice(index, 1);
-
-        // Xóa hàng tại index khỏi ma trận kề
-        this.adjMat.splice(index, 1);
-        // Xóa cột tại index khỏi ma trận kề
-        for (const row of this.adjMat) {
-            row.splice(index, 1);
-        }
-    }
-
-    /* Thêm cạnh */
-    // Tham số i, j tương ứng với chỉ số của phần tử trong vertices
-    addEdge(i, j) {
-        // Xử lý trường hợp chỉ số vượt biên và trường hợp bằng nhau
-        if (i &lt; 0 || j &lt; 0 || i &gt;= this.size() || j &gt;= this.size() || i === j) {
-            throw new RangeError('Chỉ số vượt quá giới hạn');
-        }
-        // Đối với đồ thị vô hướng, ma trận kề đối xứng qua đường chéo chính, tức (i, j) === (j, i)
-        this.adjMat[i][j] = 1;
-        this.adjMat[j][i] = 1;
-    }
-
-    /* Xóa cạnh */
-    // Tham số i, j tương ứng với chỉ số của phần tử trong vertices
-    removeEdge(i, j) {
-        // Xử lý trường hợp chỉ số vượt biên và trường hợp bằng nhau
-        if (i &lt; 0 || j &lt; 0 || i &gt;= this.size() || j &gt;= this.size() || i === j) {
-            throw new RangeError('Chỉ số vượt quá giới hạn');
-        }
-        this.adjMat[i][j] = 0;
-        this.adjMat[j][i] = 0;
-    }
-
-    /* In ma trận kề */
-    print() {
-        console.log('Danh sách đỉnh = ', this.vertices);
-        console.log('Ma trận kề =', this.adjMat);
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Đồ thị vô hướng dựa trên ma trận kề */
-class GraphAdjMat(vertices: IntArray, edges: Array&lt;IntArray&gt;) {
-    val vertices = mutableListOf&lt;Int&gt;() // Danh sách đỉnh, phần tử biểu diễn "giá trị đỉnh", chỉ số biểu diễn "chỉ số đỉnh"
-    val adjMat = mutableListOf&lt;MutableList&lt;Int&gt;&gt;() // Ma trận kề, chỉ số hàng và cột tương ứng với "chỉ số đỉnh"
-
-    /* Hàm khởi tạo */
-    init {
-        // Thêm đỉnh
-        for (vertex in vertices) {
-            addVertex(vertex)
-        }
-        // Thêm cạnh
-        // Lưu ý các phần tử của edges biểu diễn chỉ số đỉnh, tức tương ứng với chỉ số của phần tử trong vertices
-        for (edge in edges) {
-            addEdge(edge[0], edge[1])
-        }
-    }
-
-    /* Lấy số lượng đỉnh */
-    fun size(): Int {
-        return vertices.size
-    }
-
-    /* Thêm đỉnh */
-    fun addVertex(_val: Int) {
-        val n = size()
-        // Thêm giá trị đỉnh mới vào danh sách đỉnh
-        vertices.add(_val)
-        // Thêm một hàng vào ma trận kề
-        val newRow = mutableListOf&lt;Int&gt;()
-        for (j in 0..&lt;n) {
-            newRow.add(0)
-        }
-        adjMat.add(newRow)
-        // Thêm một cột vào ma trận kề
-        for (row in adjMat) {
-            row.add(0)
-        }
-    }
-
-    /* Xóa đỉnh */
-    fun removeVertex(index: Int) {
-        if (index &gt;= size())
-            throw IndexOutOfBoundsException()
-        // Xóa đỉnh tại index khỏi danh sách đỉnh
-        vertices.removeAt(index)
-        // Xóa hàng tại index khỏi ma trận kề
-        adjMat.removeAt(index)
-        // Xóa cột tại index khỏi ma trận kề
-        for (row in adjMat) {
-            row.removeAt(index)
-        }
-    }
-
-    /* Thêm cạnh */
-    // Tham số i, j tương ứng với chỉ số của phần tử trong vertices
-    fun addEdge(i: Int, j: Int) {
-        // Xử lý trường hợp chỉ số vượt biên và trường hợp bằng nhau
-        if (i &lt; 0 || j &lt; 0 || i &gt;= size() || j &gt;= size() || i == j)
-            throw IndexOutOfBoundsException()
-        // Đối với đồ thị vô hướng, ma trận kề đối xứng qua đường chéo chính, tức (i, j) == (j, i)
-        adjMat[i][j] = 1
-        adjMat[j][i] = 1
-    }
-
-    /* Xóa cạnh */
-    // Tham số i, j tương ứng với chỉ số của phần tử trong vertices
-    fun removeEdge(i: Int, j: Int) {
-        // Xử lý trường hợp chỉ số vượt biên và trường hợp bằng nhau
-        if (i &lt; 0 || j &lt; 0 || i &gt;= size() || j &gt;= size() || i == j)
-            throw IndexOutOfBoundsException()
-        adjMat[i][j] = 0
-        adjMat[j][i] = 0
-    }
-
-    /* In ma trận kề */
-    fun print() {
-        print("Danh sách đỉnh = ")
-        println(vertices)
-        println("Ma trận kề =")
-        printMatrix(adjMat)
-    }
-}</code></pre></div></div></div>
+};</code></pre></div></div></div>
 
 <h2>9.2.2 Triển khai dựa trên Danh sách kề</h2>
 
@@ -712,7 +556,82 @@ class GraphAdjMat(vertices: IntArray, edges: Array&lt;IntArray&gt;) {
 
 <p>Ngoài ra, ta sử dụng lớp <code>Vertex</code> để biểu diễn các đỉnh trong danh sách kề vì lý do sau: nếu ta sử dụng chỉ số danh sách để phân biệt các đỉnh khác nhau, giống như với ma trận kề, thì để xóa đỉnh tại chỉ số $i$, ta sẽ cần duyệt qua toàn bộ danh sách kề và giảm tất cả các chỉ số lớn hơn $i$ đi $1$, điều này rất kém hiệu quả. Tuy nhiên, nếu mỗi đỉnh là một thực thể <code>Vertex</code> duy nhất, việc xóa một đỉnh sẽ không yêu cầu sửa đổi các đỉnh khác.</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class GraphAdjList:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Đồ thị vô hướng dựa trên danh sách kề */
+class GraphAdjList {
+    // Danh sách kề, key: đỉnh, value: danh sách các đỉnh kề của đỉnh đó
+    Map&lt;Vertex, List&lt;Vertex&gt;&gt; adjList;
+
+    /* Hàm khởi tạo */
+    public GraphAdjList(Vertex[][] edges) {
+        this.adjList = new HashMap&lt;&gt;();
+        // Thêm tất cả đỉnh và cạnh
+        for (Vertex[] edge : edges) {
+            addVertex(edge[0]);
+            addVertex(edge[1]);
+            addEdge(edge[0], edge[1]);
+        }
+    }
+
+    /* Lấy số lượng đỉnh */
+    public int size() {
+        return adjList.size();
+    }
+
+    /* Thêm cạnh */
+    public void addEdge(Vertex vet1, Vertex vet2) {
+        if (!adjList.containsKey(vet1) || !adjList.containsKey(vet2) || vet1 == vet2)
+            throw new IllegalArgumentException();
+        // Thêm cạnh vet1 - vet2
+        adjList.get(vet1).add(vet2);
+        adjList.get(vet2).add(vet1);
+    }
+
+    /* Xóa cạnh */
+    public void removeEdge(Vertex vet1, Vertex vet2) {
+        if (!adjList.containsKey(vet1) || !adjList.containsKey(vet2) || vet1 == vet2)
+            throw new IllegalArgumentException();
+        // Xóa cạnh vet1 - vet2
+        adjList.get(vet1).remove(vet2);
+        adjList.get(vet2).remove(vet1);
+    }
+
+    /* Thêm đỉnh */
+    public void addVertex(Vertex vet) {
+        if (adjList.containsKey(vet))
+            return;
+        // Thêm một danh sách liên kết mới vào danh sách kề
+        adjList.put(vet, new ArrayList&lt;&gt;());
+    }
+
+    /* Xóa đỉnh */
+    public void removeVertex(Vertex vet) {
+        if (!adjList.containsKey(vet))
+            throw new IllegalArgumentException();
+        // Xóa danh sách liên kết tương ứng với đỉnh vet khỏi danh sách kề
+        adjList.remove(vet);
+        // Duyệt qua danh sách liên kết của các đỉnh khác và xóa tất cả cạnh chứa vet
+        for (List&lt;Vertex&gt; list : adjList.values()) {
+            list.remove(vet);
+        }
+    }
+
+    /* In danh sách kề */
+    public void print() {
+        System.out.println("Danh sách kề =");
+        for (Map.Entry&lt;Vertex, List&lt;Vertex&gt;&gt; pair : adjList.entrySet()) {
+            List&lt;Integer&gt; tmp = new ArrayList&lt;&gt;();
+            for (Vertex vertex : pair.getValue())
+                tmp.add(vertex.val);
+            System.out.println(pair.getKey().val + ": " + tmp + ",");
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>GraphAdjList(List&lt;List&lt;Vertex&gt;&gt; edges) {
+    for (List&lt;Vertex&gt; edge in edges) {
+      addVertex(edge[0]);
+      addVertex(edge[1]);
+      addEdge(edge[0], edge[1]);
+    }
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class GraphAdjList:
     """Đồ thị vô hướng dựa trên danh sách kề"""
 
     def __init__(self, edges: list[list[Vertex]]):
@@ -847,229 +766,7 @@ class GraphAdjList {
             printVector(vetsToVals(vec));
         }
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Đồ thị vô hướng dựa trên danh sách kề */
-class GraphAdjList {
-    // Danh sách kề, key: đỉnh, value: danh sách các đỉnh kề của đỉnh đó
-    Map&lt;Vertex, List&lt;Vertex&gt;&gt; adjList;
-
-    /* Hàm khởi tạo */
-    public GraphAdjList(Vertex[][] edges) {
-        this.adjList = new HashMap&lt;&gt;();
-        // Thêm tất cả đỉnh và cạnh
-        for (Vertex[] edge : edges) {
-            addVertex(edge[0]);
-            addVertex(edge[1]);
-            addEdge(edge[0], edge[1]);
-        }
-    }
-
-    /* Lấy số lượng đỉnh */
-    public int size() {
-        return adjList.size();
-    }
-
-    /* Thêm cạnh */
-    public void addEdge(Vertex vet1, Vertex vet2) {
-        if (!adjList.containsKey(vet1) || !adjList.containsKey(vet2) || vet1 == vet2)
-            throw new IllegalArgumentException();
-        // Thêm cạnh vet1 - vet2
-        adjList.get(vet1).add(vet2);
-        adjList.get(vet2).add(vet1);
-    }
-
-    /* Xóa cạnh */
-    public void removeEdge(Vertex vet1, Vertex vet2) {
-        if (!adjList.containsKey(vet1) || !adjList.containsKey(vet2) || vet1 == vet2)
-            throw new IllegalArgumentException();
-        // Xóa cạnh vet1 - vet2
-        adjList.get(vet1).remove(vet2);
-        adjList.get(vet2).remove(vet1);
-    }
-
-    /* Thêm đỉnh */
-    public void addVertex(Vertex vet) {
-        if (adjList.containsKey(vet))
-            return;
-        // Thêm một danh sách liên kết mới vào danh sách kề
-        adjList.put(vet, new ArrayList&lt;&gt;());
-    }
-
-    /* Xóa đỉnh */
-    public void removeVertex(Vertex vet) {
-        if (!adjList.containsKey(vet))
-            throw new IllegalArgumentException();
-        // Xóa danh sách liên kết tương ứng với đỉnh vet khỏi danh sách kề
-        adjList.remove(vet);
-        // Duyệt qua danh sách liên kết của các đỉnh khác và xóa tất cả cạnh chứa vet
-        for (List&lt;Vertex&gt; list : adjList.values()) {
-            list.remove(vet);
-        }
-    }
-
-    /* In danh sách kề */
-    public void print() {
-        System.out.println("Danh sách kề =");
-        for (Map.Entry&lt;Vertex, List&lt;Vertex&gt;&gt; pair : adjList.entrySet()) {
-            List&lt;Integer&gt; tmp = new ArrayList&lt;&gt;();
-            for (Vertex vertex : pair.getValue())
-                tmp.add(vertex.val);
-            System.out.println(pair.getKey().val + ": " + tmp + ",");
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Đồ thị vô hướng dựa trên danh sách kề */
-class GraphAdjList {
-    // Danh sách kề, key: đỉnh, value: danh sách các đỉnh kề của đỉnh đó
-    adjList;
-
-    /* Hàm khởi tạo */
-    constructor(edges) {
-        this.adjList = new Map();
-        // Thêm tất cả đỉnh và cạnh
-        for (const edge of edges) {
-            this.addVertex(edge[0]);
-            this.addVertex(edge[1]);
-            this.addEdge(edge[0], edge[1]);
-        }
-    }
-
-    /* Lấy số lượng đỉnh */
-    size() {
-        return this.adjList.size;
-    }
-
-    /* Thêm cạnh */
-    addEdge(vet1, vet2) {
-        if (
-            !this.adjList.has(vet1) ||
-            !this.adjList.has(vet2) ||
-            vet1 === vet2
-        ) {
-            throw new Error('Tham số không hợp lệ');
-        }
-        // Thêm cạnh vet1 - vet2
-        this.adjList.get(vet1).push(vet2);
-        this.adjList.get(vet2).push(vet1);
-    }
-
-    /* Xóa cạnh */
-    removeEdge(vet1, vet2) {
-        if (
-            !this.adjList.has(vet1) ||
-            !this.adjList.has(vet2) ||
-            vet1 === vet2 ||
-            this.adjList.get(vet1).indexOf(vet2) === -1
-        ) {
-            throw new Error('Tham số không hợp lệ');
-        }
-        // Xóa cạnh vet1 - vet2
-        this.adjList.get(vet1).splice(this.adjList.get(vet1).indexOf(vet2), 1);
-        this.adjList.get(vet2).splice(this.adjList.get(vet2).indexOf(vet1), 1);
-    }
-
-    /* Thêm đỉnh */
-    addVertex(vet) {
-        if (this.adjList.has(vet)) return;
-        // Thêm một danh sách liên kết mới vào danh sách kề
-        this.adjList.set(vet, []);
-    }
-
-    /* Xóa đỉnh */
-    removeVertex(vet) {
-        if (!this.adjList.has(vet)) {
-            throw new Error('Tham số không hợp lệ');
-        }
-        // Xóa danh sách liên kết tương ứng với đỉnh vet khỏi danh sách kề
-        this.adjList.delete(vet);
-        // Duyệt qua danh sách liên kết của các đỉnh khác và xóa tất cả cạnh chứa vet
-        for (const set of this.adjList.values()) {
-            const index = set.indexOf(vet);
-            if (index &gt; -1) {
-                set.splice(index, 1);
-            }
-        }
-    }
-
-    /* In danh sách kề */
-    print() {
-        console.log('Danh sách kề =');
-        for (const [key, value] of this.adjList) {
-            const tmp = [];
-            for (const vertex of value) {
-                tmp.push(vertex.val);
-            }
-            console.log(key.val + ': ' + tmp.join());
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Đồ thị vô hướng dựa trên danh sách kề */
-class GraphAdjList(edges: Array&lt;Array&lt;Vertex?&gt;&gt;) {
-    // Danh sách kề, key: đỉnh, value: danh sách các đỉnh kề của đỉnh đó
-    val adjList = HashMap&lt;Vertex, MutableList&lt;Vertex&gt;&gt;()
-
-    /* Hàm khởi tạo */
-    init {
-        // Thêm tất cả đỉnh và cạnh
-        for (edge in edges) {
-            addVertex(edge[0]!!)
-            addVertex(edge[1]!!)
-            addEdge(edge[0]!!, edge[1]!!)
-        }
-    }
-
-    /* Lấy số lượng đỉnh */
-    fun size(): Int {
-        return adjList.size
-    }
-
-    /* Thêm cạnh */
-    fun addEdge(vet1: Vertex, vet2: Vertex) {
-        if (!adjList.containsKey(vet1) || !adjList.containsKey(vet2) || vet1 == vet2)
-            throw IllegalArgumentException()
-        // Thêm cạnh vet1 - vet2
-        adjList[vet1]?.add(vet2)
-        adjList[vet2]?.add(vet1)
-    }
-
-    /* Xóa cạnh */
-    fun removeEdge(vet1: Vertex, vet2: Vertex) {
-        if (!adjList.containsKey(vet1) || !adjList.containsKey(vet2) || vet1 == vet2)
-            throw IllegalArgumentException()
-        // Xóa cạnh vet1 - vet2
-        adjList[vet1]?.remove(vet2)
-        adjList[vet2]?.remove(vet1)
-    }
-
-    /* Thêm đỉnh */
-    fun addVertex(vet: Vertex) {
-        if (adjList.containsKey(vet))
-            return
-        // Thêm một danh sách liên kết mới vào danh sách kề
-        adjList[vet] = mutableListOf()
-    }
-
-    /* Xóa đỉnh */
-    fun removeVertex(vet: Vertex) {
-        if (!adjList.containsKey(vet))
-            throw IllegalArgumentException()
-        // Xóa danh sách liên kết tương ứng với đỉnh vet khỏi danh sách kề
-        adjList.remove(vet)
-        // Duyệt qua danh sách liên kết của các đỉnh khác và xóa tất cả cạnh chứa vet
-        for (list in adjList.values) {
-            list.remove(vet)
-        }
-    }
-
-    /* In danh sách kề */
-    fun print() {
-        println("Danh sách kề =")
-        for (pair in adjList.entries) {
-            val tmp = mutableListOf&lt;Int&gt;()
-            for (vertex in pair.value) {
-                tmp.add(vertex._val)
-            }
-            println("\${pair.key._val}: $tmp,")
-        }
-    }
-}</code></pre></div></div></div>
+};</code></pre></div></div></div>
 
 <h2>9.2.3 So sánh hiệu suất</h2>
 
@@ -1233,7 +930,79 @@ Observing the table above, it appears that the adjacency list (hash table) has t
   </div>
 </div>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def graph_bfs(graph: GraphAdjList, start_vet: Vertex) -&gt; list[Vertex]:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Duyệt theo chiều rộng */
+// Sử dụng danh sách kề để biểu diễn đồ thị, nhằm lấy được tất cả các đỉnh kề của một đỉnh cho trước
+static List&lt;Vertex&gt; graphBFS(GraphAdjList graph, Vertex startVet) {
+    // Chuỗi các đỉnh đã duyệt
+    List&lt;Vertex&gt; res = new ArrayList&lt;&gt;();
+    // Tập hợp băm dùng để ghi lại các đỉnh đã được duyệt
+    Set&lt;Vertex&gt; visited = new HashSet&lt;&gt;();
+    visited.add(startVet);
+    // Hàng đợi dùng để triển khai BFS
+    Queue&lt;Vertex&gt; que = new LinkedList&lt;&gt;();
+    que.offer(startVet);
+    // Bắt đầu từ đỉnh vet, lặp cho đến khi tất cả đỉnh đã được duyệt
+    while (!que.isEmpty()) {
+        Vertex vet = que.poll(); // Đỉnh ở đầu hàng đợi ra khỏi hàng đợi
+        res.add(vet);            // Ghi lại đỉnh đã duyệt
+        // Duyệt tất cả các đỉnh kề của đỉnh này
+        for (Vertex adjVet : graph.adjList.get(vet)) {
+            if (visited.contains(adjVet))
+                continue;        // Bỏ qua các đỉnh đã được duyệt
+            que.offer(adjVet);   // Chỉ đưa vào hàng đợi các đỉnh chưa được duyệt
+            visited.add(adjVet); // Đánh dấu đỉnh này đã được duyệt
+        }
+    }
+    // Trả về chuỗi các đỉnh đã duyệt
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func graphBFS(graph: GraphAdjList, startVet: Vertex) -&gt; [Vertex] {
+    // Vertex traversal sequence
+    var res: [Vertex] = []
+    // Hash set for recording vertices that have been visited
+    var visited: Set&lt;Vertex&gt; = [startVet]
+    // Queue used to implement BFS
+    var que: [Vertex] = [startVet]
+    // Starting from vertex vet, loop until all vertices are visited
+    while !que.isEmpty {
+        let vet = que.removeFirst() // Dequeue the front vertex
+        res.append(vet) // Record visited vertex
+        // Traverse all adjacent vertices of this vertex
+        for adjVet in graph.adjList[vet] ?? [] {
+            if visited.contains(adjVet) {
+                continue // Skip vertices that have been visited
+            }
+            que.append(adjVet) // Only enqueue unvisited vertices
+            visited.insert(adjVet) // Mark this vertex as visited
+        }
+    }
+    // Return vertex traversal sequence
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>List&lt;Vertex&gt; graphBFS(GraphAdjList graph, Vertex startVet) {
+  // Use adjacency list to represent the graph, in order to obtain all adjacent vertices of a specified vertex
+  // Vertex traversal sequence
+  List&lt;Vertex&gt; res = [];
+  // Hash set for recording vertices that have been visited
+  Set&lt;Vertex&gt; visited = {};
+  visited.add(startVet);
+  // Queue used to implement BFS
+  Queue&lt;Vertex&gt; que = Queue();
+  que.add(startVet);
+  // Starting from vertex vet, loop until all vertices are visited
+  while (que.isNotEmpty) {
+    Vertex vet = que.removeFirst(); // Dequeue the front vertex
+    res.add(vet); // Record visited vertex
+    // Traverse all adjacent vertices of this vertex
+    for (Vertex adjVet in graph.adjList[vet]!) {
+      if (visited.contains(adjVet)) {
+        continue; // Skip vertices that have been visited
+      }
+      que.add(adjVet); // Only enqueue unvisited vertices
+      visited.add(adjVet); // Mark this vertex as visited
+    }
+  }
+  // Return vertex traversal sequence
+  return res;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def graph_bfs(graph: GraphAdjList, start_vet: Vertex) -&gt; list[Vertex]:
     """Duyệt theo chiều rộng"""
     # Sử dụng danh sách kề để biểu diễn đồ thị, nhằm lấy được tất cả các đỉnh kề của một đỉnh cho trước
     # Chuỗi các đỉnh đã duyệt
@@ -1278,81 +1047,6 @@ vector&lt;Vertex *&gt; graphBFS(GraphAdjList &amp;graph, Vertex *startVet) {
     }
     // Trả về chuỗi các đỉnh đã duyệt
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Duyệt theo chiều rộng */
-// Sử dụng danh sách kề để biểu diễn đồ thị, nhằm lấy được tất cả các đỉnh kề của một đỉnh cho trước
-static List&lt;Vertex&gt; graphBFS(GraphAdjList graph, Vertex startVet) {
-    // Chuỗi các đỉnh đã duyệt
-    List&lt;Vertex&gt; res = new ArrayList&lt;&gt;();
-    // Tập hợp băm dùng để ghi lại các đỉnh đã được duyệt
-    Set&lt;Vertex&gt; visited = new HashSet&lt;&gt;();
-    visited.add(startVet);
-    // Hàng đợi dùng để triển khai BFS
-    Queue&lt;Vertex&gt; que = new LinkedList&lt;&gt;();
-    que.offer(startVet);
-    // Bắt đầu từ đỉnh vet, lặp cho đến khi tất cả đỉnh đã được duyệt
-    while (!que.isEmpty()) {
-        Vertex vet = que.poll(); // Đỉnh ở đầu hàng đợi ra khỏi hàng đợi
-        res.add(vet);            // Ghi lại đỉnh đã duyệt
-        // Duyệt tất cả các đỉnh kề của đỉnh này
-        for (Vertex adjVet : graph.adjList.get(vet)) {
-            if (visited.contains(adjVet))
-                continue;        // Bỏ qua các đỉnh đã được duyệt
-            que.offer(adjVet);   // Chỉ đưa vào hàng đợi các đỉnh chưa được duyệt
-            visited.add(adjVet); // Đánh dấu đỉnh này đã được duyệt
-        }
-    }
-    // Trả về chuỗi các đỉnh đã duyệt
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Duyệt theo chiều rộng */
-// Sử dụng danh sách kề để biểu diễn đồ thị, nhằm lấy được tất cả các đỉnh kề của một đỉnh cho trước
-function graphBFS(graph, startVet) {
-    // Chuỗi các đỉnh đã duyệt
-    const res = [];
-    // Tập hợp băm dùng để ghi lại các đỉnh đã được duyệt
-    const visited = new Set();
-    visited.add(startVet);
-    // Hàng đợi dùng để triển khai BFS
-    const que = [startVet];
-    // Bắt đầu từ đỉnh vet, lặp cho đến khi tất cả đỉnh đã được duyệt
-    while (que.length) {
-        const vet = que.shift(); // Đỉnh ở đầu hàng đợi ra khỏi hàng đợi
-        res.push(vet); // Ghi lại đỉnh đã duyệt
-        // Duyệt tất cả các đỉnh kề của đỉnh này
-        for (const adjVet of graph.adjList.get(vet) ?? []) {
-            if (visited.has(adjVet)) {
-                continue; // Bỏ qua các đỉnh đã được duyệt
-            }
-            que.push(adjVet); // Chỉ đưa vào hàng đợi các đỉnh chưa được duyệt
-            visited.add(adjVet); // Đánh dấu đỉnh này đã được duyệt
-        }
-    }
-    // Trả về chuỗi các đỉnh đã duyệt
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Duyệt theo chiều rộng */
-// Sử dụng danh sách kề để biểu diễn đồ thị, nhằm lấy được tất cả các đỉnh kề của một đỉnh cho trước
-fun graphBFS(graph: GraphAdjList, startVet: Vertex): MutableList&lt;Vertex?&gt; {
-    // Chuỗi các đỉnh đã duyệt
-    val res = mutableListOf&lt;Vertex?&gt;()
-    // Tập hợp băm dùng để ghi lại các đỉnh đã được duyệt
-    val visited = HashSet&lt;Vertex&gt;()
-    visited.add(startVet)
-    // Hàng đợi dùng để triển khai BFS
-    val que = LinkedList&lt;Vertex&gt;()
-    que.offer(startVet)
-    // Bắt đầu từ đỉnh vet, lặp cho đến khi tất cả đỉnh đã được duyệt
-    while (!que.isEmpty()) {
-        val vet = que.poll() // Đỉnh ở đầu hàng đợi ra khỏi hàng đợi
-        res.add(vet)         // Ghi lại đỉnh đã duyệt
-        // Duyệt tất cả các đỉnh kề của đỉnh này
-        for (adjVet in graph.adjList[vet]!!) {
-            if (visited.contains(adjVet))
-                continue        // Bỏ qua các đỉnh đã được duyệt
-            que.offer(adjVet)   // Chỉ đưa vào hàng đợi các đỉnh chưa được duyệt
-            visited.add(adjVet) // Đánh dấu đỉnh này đã được duyệt
-        }
-    }
-    // Trả về chuỗi các đỉnh đã duyệt
-    return res
 }</code></pre></div></div></div>
 
 <p>Đoạn mã trên tương đối trừu tượng; bạn nên tham khảo hình dưới đây để hiểu sâu hơn.</p>
@@ -1385,7 +1079,40 @@ fun graphBFS(graph: GraphAdjList, startVet: Vertex): MutableList&lt;Vertex?&gt; 
 
 <p>Mô hình thuật toán "đi càng xa càng tốt rồi quay lại" này thường được triển khai bằng đệ quy. Tương tự như duyệt theo chiều rộng, trong duyệt theo chiều sâu ta cũng cần một tập hợp băm <code>visited</code> để ghi lại các đỉnh đã thăm và tránh việc thăm lại.</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def dfs(graph: GraphAdjList, visited: set[Vertex], res: list[Vertex], vet: Vertex):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Hàm hỗ trợ duyệt theo chiều sâu */
+static void dfs(GraphAdjList graph, Set&lt;Vertex&gt; visited, List&lt;Vertex&gt; res, Vertex vet) {
+    res.add(vet);     // Ghi lại đỉnh đã duyệt
+    visited.add(vet); // Đánh dấu đỉnh này đã được duyệt
+    // Duyệt tất cả các đỉnh kề của đỉnh này
+    for (Vertex adjVet : graph.adjList.get(vet)) {
+        if (visited.contains(adjVet))
+            continue; // Bỏ qua các đỉnh đã được duyệt
+        // Đệ quy duyệt các đỉnh kề
+        dfs(graph, visited, res, adjVet);
+    }
+}
+
+/* Duyệt theo chiều sâu */
+// Sử dụng danh sách kề để biểu diễn đồ thị, nhằm lấy được tất cả các đỉnh kề của một đỉnh cho trước
+static List&lt;Vertex&gt; graphDFS(GraphAdjList graph, Vertex startVet) {
+    // Chuỗi các đỉnh đã duyệt
+    List&lt;Vertex&gt; res = new ArrayList&lt;&gt;();
+    // Tập hợp băm dùng để ghi lại các đỉnh đã được duyệt
+    Set&lt;Vertex&gt; visited = new HashSet&lt;&gt;();
+    dfs(graph, visited, res, startVet);
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func dfs(graph: GraphAdjList, visited: inout Set&lt;Vertex&gt;, res: inout [Vertex], vet: Vertex) {
+    res.append(vet) // Record visited vertex
+    visited.insert(vet) // Mark this vertex as visited
+    // Traverse all adjacent vertices of this vertex
+    for adjVet in graph.adjList[vet] ?? [] {
+        if visited.contains(adjVet) {
+            continue // Skip vertices that have been visited
+        }
+        // Recursively visit adjacent vertices
+        dfs(graph: graph, visited: &amp;visited, res: &amp;res, vet: adjVet)
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def dfs(graph: GraphAdjList, visited: set[Vertex], res: list[Vertex], vet: Vertex):
     """Hàm hỗ trợ duyệt theo chiều sâu"""
     res.append(vet)  # Ghi lại đỉnh đã duyệt
     visited.add(vet)  # Đánh dấu đỉnh này đã được duyệt
@@ -1427,79 +1154,6 @@ vector&lt;Vertex *&gt; graphDFS(GraphAdjList &amp;graph, Vertex *startVet) {
     unordered_set&lt;Vertex *&gt; visited;
     dfs(graph, visited, res, startVet);
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Hàm hỗ trợ duyệt theo chiều sâu */
-static void dfs(GraphAdjList graph, Set&lt;Vertex&gt; visited, List&lt;Vertex&gt; res, Vertex vet) {
-    res.add(vet);     // Ghi lại đỉnh đã duyệt
-    visited.add(vet); // Đánh dấu đỉnh này đã được duyệt
-    // Duyệt tất cả các đỉnh kề của đỉnh này
-    for (Vertex adjVet : graph.adjList.get(vet)) {
-        if (visited.contains(adjVet))
-            continue; // Bỏ qua các đỉnh đã được duyệt
-        // Đệ quy duyệt các đỉnh kề
-        dfs(graph, visited, res, adjVet);
-    }
-}
-
-/* Duyệt theo chiều sâu */
-// Sử dụng danh sách kề để biểu diễn đồ thị, nhằm lấy được tất cả các đỉnh kề của một đỉnh cho trước
-static List&lt;Vertex&gt; graphDFS(GraphAdjList graph, Vertex startVet) {
-    // Chuỗi các đỉnh đã duyệt
-    List&lt;Vertex&gt; res = new ArrayList&lt;&gt;();
-    // Tập hợp băm dùng để ghi lại các đỉnh đã được duyệt
-    Set&lt;Vertex&gt; visited = new HashSet&lt;&gt;();
-    dfs(graph, visited, res, startVet);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Duyệt theo chiều sâu */
-// Sử dụng danh sách kề để biểu diễn đồ thị, nhằm lấy được tất cả các đỉnh kề của một đỉnh cho trước
-function dfs(graph, visited, res, vet) {
-    res.push(vet); // Ghi lại đỉnh đã duyệt
-    visited.add(vet); // Đánh dấu đỉnh này đã được duyệt
-    // Duyệt tất cả các đỉnh kề của đỉnh này
-    for (const adjVet of graph.adjList.get(vet)) {
-        if (visited.has(adjVet)) {
-            continue; // Bỏ qua các đỉnh đã được duyệt
-        }
-        // Đệ quy duyệt các đỉnh kề
-        dfs(graph, visited, res, adjVet);
-    }
-}
-
-/* Duyệt theo chiều sâu */
-// Sử dụng danh sách kề để biểu diễn đồ thị, nhằm lấy được tất cả các đỉnh kề của một đỉnh cho trước
-function graphDFS(graph, startVet) {
-    // Chuỗi các đỉnh đã duyệt
-    const res = [];
-    // Tập hợp băm dùng để ghi lại các đỉnh đã được duyệt
-    const visited = new Set();
-    dfs(graph, visited, res, startVet);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Hàm hỗ trợ duyệt theo chiều sâu */
-fun dfs(
-    graph: GraphAdjList,
-    visited: MutableSet&lt;Vertex?&gt;,
-    res: MutableList&lt;Vertex?&gt;,
-    vet: Vertex?
-) {
-    res.add(vet)     // Ghi lại đỉnh đã duyệt
-    visited.add(vet) // Đánh dấu đỉnh này đã được duyệt
-    // Duyệt tất cả các đỉnh kề của đỉnh này
-    for (adjVet in graph.adjList[vet]!!) {
-        if (visited.contains(adjVet))
-            continue  // Bỏ qua các đỉnh đã được duyệt
-        // Đệ quy duyệt các đỉnh kề
-        dfs(graph, visited, res, adjVet)
-    }
-}
-
-/* Duyệt theo chiều sâu */
-// Sử dụng danh sách kề để biểu diễn đồ thị, nhằm lấy được tất cả các đỉnh kề của một đỉnh cho trước
-fun graphDFS(graph: GraphAdjList, startVet: Vertex?): MutableList&lt;Vertex?&gt; {
-    // Chuỗi các đỉnh đã duyệt
-    val res = mutableListOf&lt;Vertex?&gt;()
-    // Tập hợp băm dùng để ghi lại các đỉnh đã được duyệt
-    val visited = HashSet&lt;Vertex?&gt;()
-    dfs(graph, visited, res, startVet)
-    return res
 }</code></pre></div></div></div>
 
 <p>Luồng thuật toán của duyệt theo chiều sâu được thể hiện trong hình dưới đây.</p>

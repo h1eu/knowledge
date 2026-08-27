@@ -74,7 +74,43 @@ Object.assign(DSA_CONTENT, {
 
 <p>Đối với bài toán này, chúng ta thực hiện duyệt tiền thứ tự cây và kiểm tra xem giá trị nút hiện tại có bằng $7$ không. Nếu đúng, ta thêm nút đó vào danh sách kết quả <code>res</code>. Cách triển khai liên quan được minh họa trong hình và đoạn mã sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def pre_order(root):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Duyệt tiền thứ tự: Ví dụ 1 */
+static void preOrder(TreeNode root) {
+    if (root == null) {
+        return;
+    }
+    if (root.val == 7) {
+        // Ghi nhận nghiệm
+        res.add(root);
+    }
+    preOrder(root.left);
+    preOrder(root.right);
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func preOrder(root: TreeNode?) {
+    // Pruning
+    guard let root = root, root.val != 3 else {
+        return
+    }
+    // Attempt
+    path.append(root)
+    if root.val == 7 {
+        // Record solution
+        res.append(path)
+    }
+    preOrder(root: root.left)
+    preOrder(root: root.right)
+    // Backtrack
+    path.removeLast()
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void preOrder(TreeNode? root, List&lt;TreeNode&gt; res) {
+  if (root == null) {
+    return;
+  }
+  if (root.val == 7) {
+    // Record solution
+    res.add(root);
+  }
+  preOrder(root.left, res);
+  preOrder(root.right, res);
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def pre_order(root):
     """Duyệt tiền thứ tự: Ví dụ 1"""
     if root is None:
         return
@@ -93,39 +129,6 @@ void preOrder(TreeNode *root) {
     }
     preOrder(root->left);
     preOrder(root->right);
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Duyệt tiền thứ tự: Ví dụ 1 */
-static void preOrder(TreeNode root) {
-    if (root == null) {
-        return;
-    }
-    if (root.val == 7) {
-        // Ghi nhận nghiệm
-        res.add(root);
-    }
-    preOrder(root.left);
-    preOrder(root.right);
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Duyệt tiền thứ tự: Ví dụ 1 */
-function preOrder(root, res) {
-    if (root === null) {
-        return;
-    }
-    if (root.val === 7) {
-        // Ghi nhận nghiệm
-        res.push(root);
-    }
-    preOrder(root.left, res);
-    preOrder(root.right, res);
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Duyệt tiền thứ tự: Ví dụ 1 */
-fun preOrder(root: TreeNode?) {
-    if (root == null) {
-        return
-    }
-    if (root._val == 7) {
-        // Ghi nhận nghiệm
-        res!!.add(root)
-    }
-    preOrder(root.left)
-    preOrder(root.right)
 }</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
@@ -149,7 +152,47 @@ fun preOrder(root: TreeNode?) {
 
 <p>Dựa trên đoạn mã của Ví dụ 1, chúng ta cần sử dụng một danh sách <code>path</code> để ghi lại đường đi của các nút đã ghé thăm. Khi đến một nút có giá trị $7$, ta sao chép <code>path</code> và thêm vào danh sách kết quả <code>res</code>. Sau khi duyệt xong, <code>res</code> chứa tất cả các nghiệm. Đoạn mã như sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def pre_order(root):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Duyệt tiền thứ tự: Ví dụ 2 */
+static void preOrder(TreeNode root) {
+    if (root == null) {
+        return;
+    }
+    // Thử
+    path.add(root);
+    if (root.val == 7) {
+        // Ghi nhận nghiệm
+        res.add(new ArrayList<>(path));
+    }
+    preOrder(root.left);
+    preOrder(root.right);
+    // Quay lui
+    path.remove(path.size() - 1);
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func preOrder(root: TreeNode?) {
+    // Pruning
+    guard let root = root, root.val != 3 else {
+        return
+    }
+    // Attempt
+    path.append(root)
+    if root.val == 7 {
+        // Record solution
+        res.append(path)
+    }
+    preOrder(root: root.left)
+    preOrder(root: root.right)
+    // Backtrack
+    path.removeLast()
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void preOrder(TreeNode? root, List&lt;TreeNode&gt; res) {
+  if (root == null) {
+    return;
+  }
+  if (root.val == 7) {
+    // Record solution
+    res.add(root);
+  }
+  preOrder(root.left, res);
+  preOrder(root.right, res);
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def pre_order(root):
     """Duyệt tiền thứ tự: Ví dụ 2"""
     if root is None:
         return
@@ -176,51 +219,6 @@ void preOrder(TreeNode *root) {
     preOrder(root->right);
     // Quay lui
     path.pop_back();
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Duyệt tiền thứ tự: Ví dụ 2 */
-static void preOrder(TreeNode root) {
-    if (root == null) {
-        return;
-    }
-    // Thử
-    path.add(root);
-    if (root.val == 7) {
-        // Ghi nhận nghiệm
-        res.add(new ArrayList<>(path));
-    }
-    preOrder(root.left);
-    preOrder(root.right);
-    // Quay lui
-    path.remove(path.size() - 1);
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Duyệt tiền thứ tự: Ví dụ 2 */
-function preOrder(root, path, res) {
-    if (root === null) {
-        return;
-    }
-    // Thử
-    path.push(root);
-    if (root.val === 7) {
-        // Ghi nhận nghiệm
-        res.push([...path]);
-    }
-    preOrder(root.left, path, res);
-    preOrder(root.right, path, res);
-    // Quay lui
-    path.pop();
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Duyệt tiền thứ tự: Ví dụ 2 */
-fun preOrder(root: TreeNode?) {
-    if (root == null) {
-        return
-    }
-    // Thử
-    path!!.add(root)
-    if (root._val == 7) {
-        // Ghi nhận nghiệm
-        res!!.add(path!!.toMutableList())
-    }
-    preOrder(root.left)
-    preOrder(root.right)
-    // Quay lui
-    path!!.removeAt(path!!.size - 1)
 }</code></pre></div></div></div>
 
 <p>Trong mỗi "lần thử", ta ghi lại đường đi bằng cách thêm nút hiện tại vào <code>path</code>; trước khi "quay lui", ta cần loại bỏ nút này khỏi <code>path</code>, <strong>để khôi phục trạng thái trước lần thử này</strong>.</p>
@@ -261,7 +259,48 @@ fun preOrder(root: TreeNode?) {
 
 <p>Để thỏa mãn ràng buộc trên, <strong>chúng ta cần thêm thao tác cắt tỉa</strong>: trong quá trình tìm kiếm, nếu gặp một nút có giá trị $3$, ta trả về ngay lập tức và không tiếp tục tìm kiếm. Đoạn mã như sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def pre_order(root):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Duyệt tiền thứ tự: Ví dụ 3 */
+static void preOrder(TreeNode root) {
+    // Cắt tỉa
+    if (root == null || root.val == 3) {
+        return;
+    }
+    // Thử
+    path.add(root);
+    if (root.val == 7) {
+        // Ghi nhận nghiệm
+        res.add(new ArrayList<>(path));
+    }
+    preOrder(root.left);
+    preOrder(root.right);
+    // Quay lui
+    path.remove(path.size() - 1);
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func preOrder(root: TreeNode?) {
+    // Pruning
+    guard let root = root, root.val != 3 else {
+        return
+    }
+    // Attempt
+    path.append(root)
+    if root.val == 7 {
+        // Record solution
+        res.append(path)
+    }
+    preOrder(root: root.left)
+    preOrder(root: root.right)
+    // Backtrack
+    path.removeLast()
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void preOrder(TreeNode? root, List&lt;TreeNode&gt; res) {
+  if (root == null) {
+    return;
+  }
+  if (root.val == 7) {
+    // Record solution
+    res.add(root);
+  }
+  preOrder(root.left, res);
+  preOrder(root.right, res);
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def pre_order(root):
     """Duyệt tiền thứ tự: Ví dụ 3"""
     # Cắt tỉa
     if root is None or root.val == 3:
@@ -290,54 +329,6 @@ void preOrder(TreeNode *root) {
     preOrder(root->right);
     // Quay lui
     path.pop_back();
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Duyệt tiền thứ tự: Ví dụ 3 */
-static void preOrder(TreeNode root) {
-    // Cắt tỉa
-    if (root == null || root.val == 3) {
-        return;
-    }
-    // Thử
-    path.add(root);
-    if (root.val == 7) {
-        // Ghi nhận nghiệm
-        res.add(new ArrayList<>(path));
-    }
-    preOrder(root.left);
-    preOrder(root.right);
-    // Quay lui
-    path.remove(path.size() - 1);
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Duyệt tiền thứ tự: Ví dụ 3 */
-function preOrder(root, path, res) {
-    // Cắt tỉa
-    if (root === null || root.val === 3) {
-        return;
-    }
-    // Thử
-    path.push(root);
-    if (root.val === 7) {
-        // Ghi nhận nghiệm
-        res.push([...path]);
-    }
-    preOrder(root.left, path, res);
-    preOrder(root.right, path, res);
-    // Quay lui
-    path.pop();
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Duyệt tiền thứ tự: Ví dụ 3 */
-fun preOrder(root: TreeNode?) {
-    // Cắt tỉa
-    if (root == null || root._val == 3) {
-        return
-    }
-    // Thử
-    path!!.add(root)
-    if (root._val == 7) {
-        // Ghi nhận nghiệm
-        res!!.add(path!!.toMutableList())
-    }
-    preOrder(root.left)
-    preOrder(root.right)
-    // Quay lui
-    path!!.removeAt(path!!.size - 1)
 }</code></pre></div></div></div>
 
 <p>"Cắt tỉa" là một thuật ngữ sinh động. Như minh họa trong hình dưới đây, trong quá trình tìm kiếm, <strong>chúng ta "cắt tỉa" các nhánh tìm kiếm không thỏa mãn ràng buộc</strong>, tránh nhiều lần thử vô nghĩa, từ đó cải thiện hiệu quả tìm kiếm.</p>
@@ -379,7 +370,53 @@ fun preOrder(root: TreeNode?) {
 
 <p>Trong đoạn mã khung dưới đây, <code>state</code> đại diện cho trạng thái hiện tại của bài toán, và <code>choices</code> đại diện cho các lựa chọn khả dĩ ở trạng thái hiện tại:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def backtrack(state, choices, res):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khung thuật toán Quay lui */
+void backtrack(State state, List<Choice> choices, List<State> res) {
+    // Kiểm tra xem có phải là nghiệm không
+    if (isSolution(state)) {
+        // Ghi nhận nghiệm
+        recordSolution(state, res);
+        // Dừng tìm kiếm
+        return;
+    }
+    // Duyệt qua tất cả các lựa chọn
+    for (Choice choice : choices) {
+        // Cắt tỉa: kiểm tra lựa chọn có hợp lệ không
+        if (isValid(state, choice)) {
+            // Thử: đưa ra lựa chọn, cập nhật trạng thái
+            makeChoice(state, choice);
+            backtrack(state, choices, res);
+            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
+            undoChoice(state, choice);
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func backtrack(state: inout [Int], target: Int, choices: [Int], start: Int, res: inout [[Int]]) {
+    // When the subset sum equals target, record the solution
+    if target == 0 {
+        res.append(state)
+        return
+    }
+    // Traverse all choices
+    // Pruning 2: start traversing from start to avoid generating duplicate subsets
+    // Pruning 3: start traversing from start to avoid repeatedly selecting the same element
+    for i in choices.indices.dropFirst(start) {
+        // Pruning 1: if the subset sum exceeds target, end the loop directly
+        // This is because the array is sorted, and later elements are larger, so the subset sum will definitely exceed target
+        if target - choices[i] &lt; 0 {
+            break
+        }
+        // Pruning 4: if this element equals the left element, it means this search branch is duplicate, skip it directly
+        if i &gt; start, choices[i] == choices[i - 1] {
+            continue
+        }
+        // Attempt: make choice, update target, start
+        state.append(choices[i])
+        // Proceed to the next round of selection
+        backtrack(state: &amp;state, target: target - choices[i], choices: choices, start: i + 1, res: &amp;res)
+        // Backtrack: undo choice, restore to previous state
+        state.removeLast()
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def backtrack(state, choices, res):
     """Khung thuật toán Quay lui"""
     # Kiểm tra xem có phải là nghiệm không
     if is_solution(state):
@@ -415,71 +452,56 @@ void backtrack(State *state, vector<Choice *> &choices, vector<State *> &res) {
             undoChoice(state, choice);
         }
     }
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Khung thuật toán Quay lui */
-void backtrack(State state, List<Choice> choices, List<State> res) {
-    // Kiểm tra xem có phải là nghiệm không
-    if (isSolution(state)) {
-        // Ghi nhận nghiệm
-        recordSolution(state, res);
-        // Dừng tìm kiếm
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    for (Choice choice : choices) {
-        // Cắt tỉa: kiểm tra lựa chọn có hợp lệ không
-        if (isValid(state, choice)) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            makeChoice(state, choice);
-            backtrack(state, choices, res);
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            undoChoice(state, choice);
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khung thuật toán Quay lui */
-function backtrack(state, choices, res) {
-    // Kiểm tra xem có phải là nghiệm không
-    if (isSolution(state)) {
-        // Ghi nhận nghiệm
-        recordSolution(state, res);
-        // Dừng tìm kiếm
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    for (let choice of choices) {
-        // Cắt tỉa: kiểm tra lựa chọn có hợp lệ không
-        if (isValid(state, choice)) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            makeChoice(state, choice);
-            backtrack(state, choices, res);
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            undoChoice(state, choice);
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khung thuật toán Quay lui */
-fun backtrack(state: State?, choices: List<Choice?>, res: List<State?>?) {
-    // Kiểm tra xem có phải là nghiệm không
-    if (isSolution(state)) {
-        // Ghi nhận nghiệm
-        recordSolution(state, res)
-        // Dừng tìm kiếm
-        return
-    }
-    // Duyệt qua tất cả các lựa chọn
-    for (choice in choices) {
-        // Cắt tỉa: kiểm tra lựa chọn có hợp lệ không
-        if (isValid(state, choice)) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            makeChoice(state, choice)
-            backtrack(state, choices, res)
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            undoChoice(state, choice)
-        }
-    }
 }</code></pre></div></div></div>
 
 <p>Tiếp theo, chúng ta giải Ví dụ 3 dựa trên đoạn mã khung. Trạng thái <code>state</code> là đường đi duyệt nút, các lựa chọn <code>choices</code> là các nút con trái và phải của nút hiện tại, và kết quả <code>res</code> là danh sách các đường đi:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def backtrack(state, choices, res):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Ví dụ 3 */
+static void backtrack(List<TreeNode> state, List<TreeNode> choices, List<List<TreeNode>> res) {
+    // Kiểm tra xem có phải là nghiệm không
+    if (isSolution(state)) {
+        // Ghi nhận nghiệm
+        recordSolution(state, res);
+    }
+    // Duyệt qua tất cả các lựa chọn
+    for (TreeNode choice : choices) {
+        // Cắt tỉa: kiểm tra lựa chọn có hợp lệ không
+        if (isValid(state, choice)) {
+            // Thử: đưa ra lựa chọn, cập nhật trạng thái
+            makeChoice(state, choice);
+            // Tiến hành vòng lựa chọn tiếp theo
+            backtrack(state, Arrays.asList(choice.left, choice.right), res);
+            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
+            undoChoice(state, choice);
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func backtrack(state: inout [Int], target: Int, choices: [Int], start: Int, res: inout [[Int]]) {
+    // When the subset sum equals target, record the solution
+    if target == 0 {
+        res.append(state)
+        return
+    }
+    // Traverse all choices
+    // Pruning 2: start traversing from start to avoid generating duplicate subsets
+    // Pruning 3: start traversing from start to avoid repeatedly selecting the same element
+    for i in choices.indices.dropFirst(start) {
+        // Pruning 1: if the subset sum exceeds target, end the loop directly
+        // This is because the array is sorted, and later elements are larger, so the subset sum will definitely exceed target
+        if target - choices[i] &lt; 0 {
+            break
+        }
+        // Pruning 4: if this element equals the left element, it means this search branch is duplicate, skip it directly
+        if i &gt; start, choices[i] == choices[i - 1] {
+            continue
+        }
+        // Attempt: make choice, update target, start
+        state.append(choices[i])
+        // Proceed to the next round of selection
+        backtrack(state: &amp;state, target: target - choices[i], choices: choices, start: i + 1, res: &amp;res)
+        // Backtrack: undo choice, restore to previous state
+        state.removeLast()
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def backtrack(state, choices, res):
     """Thuật toán Quay lui: Ví dụ 3"""
     # Kiểm tra xem có phải là nghiệm không
     if is_solution(state):
@@ -512,67 +534,6 @@ void backtrack(vector<TreeNode *> &state, vector<TreeNode *> &choices, vector<ve
             backtrack(state, nextChoices, res);
             // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
             undoChoice(state, choice);
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Ví dụ 3 */
-static void backtrack(List<TreeNode> state, List<TreeNode> choices, List<List<TreeNode>> res) {
-    // Kiểm tra xem có phải là nghiệm không
-    if (isSolution(state)) {
-        // Ghi nhận nghiệm
-        recordSolution(state, res);
-    }
-    // Duyệt qua tất cả các lựa chọn
-    for (TreeNode choice : choices) {
-        // Cắt tỉa: kiểm tra lựa chọn có hợp lệ không
-        if (isValid(state, choice)) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            makeChoice(state, choice);
-            // Tiến hành vòng lựa chọn tiếp theo
-            backtrack(state, Arrays.asList(choice.left, choice.right), res);
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            undoChoice(state, choice);
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Thuật toán Quay lui: Ví dụ 3 */
-function backtrack(state, choices, res) {
-    // Kiểm tra xem có phải là nghiệm không
-    if (isSolution(state)) {
-        // Ghi nhận nghiệm
-        recordSolution(state, res);
-    }
-    // Duyệt qua tất cả các lựa chọn
-    for (const choice of choices) {
-        // Cắt tỉa: kiểm tra lựa chọn có hợp lệ không
-        if (isValid(state, choice)) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            makeChoice(state, choice);
-            // Tiến hành vòng lựa chọn tiếp theo
-            backtrack(state, [choice.left, choice.right], res);
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            undoChoice(state);
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Thuật toán Quay lui: Ví dụ 3 */
-fun backtrack(
-    state: MutableList<TreeNode?>,
-    choices: MutableList<TreeNode?>,
-    res: MutableList<MutableList<TreeNode?>?>
-) {
-    // Kiểm tra xem có phải là nghiệm không
-    if (isSolution(state)) {
-        // Ghi nhận nghiệm
-        recordSolution(state, res)
-    }
-    // Duyệt qua tất cả các lựa chọn
-    for (choice in choices) {
-        // Cắt tỉa: kiểm tra lựa chọn có hợp lệ không
-        if (isValid(state, choice)) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            makeChoice(state, choice)
-            // Tiến hành vòng lựa chọn tiếp theo
-            backtrack(state, mutableListOf(choice!!.left, choice.right), res)
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            undoChoice(state, choice)
         }
     }
 }</code></pre></div></div></div>
@@ -1230,7 +1191,62 @@ Note that for many combinatorial optimization problems, backtracking is not the 
 <h3>Triển khai mã</h3>
 <p>Sau khi hiểu các thông tin trên, ta có thể điền vào chỗ trống của mã khung. Để rút gọn toàn bộ mã, ta không triển khai riêng từng hàm trong khung, mà thay vào đó khai triển chúng trong hàm <code>backtrack()</code>:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def backtrack(state, choices, selected, res):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Hoán vị I */
+public static void backtrack(List<Integer> state, int[] choices, boolean[] selected, List<List<Integer>> res) {
+    // Khi độ dài state bằng độ dài choices, ghi nhận nghiệm
+    if (state.size() == choices.length) {
+        res.add(new ArrayList<Integer>(state));
+        return;
+    }
+    // Duyệt qua tất cả các lựa chọn
+    for (int i = 0; i < choices.length; i++) {
+        int choice = choices[i];
+        // Cắt tỉa: không cho phép chọn lại phần tử đã chọn
+        if (!selected[i]) {
+            // Thử: đưa ra lựa chọn, cập nhật trạng thái
+            selected[i] = true;
+            state.add(choice);
+            // Tiến hành vòng lựa chọn tiếp theo
+            backtrack(state, choices, selected, res);
+            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
+            selected[i] = false;
+            state.remove(state.size() - 1);
+        }
+    }
+}
+
+/* Hoán vị I */
+static List<List<Integer>> permutationsI(int[] nums) {
+    List<List<Integer>> res = new ArrayList<List<Integer>>();
+    backtrack(new ArrayList<Integer>(), nums, new boolean[nums.length], res);
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func backtrack(state: inout [Int], target: Int, choices: [Int], start: Int, res: inout [[Int]]) {
+    // When the subset sum equals target, record the solution
+    if target == 0 {
+        res.append(state)
+        return
+    }
+    // Traverse all choices
+    // Pruning 2: start traversing from start to avoid generating duplicate subsets
+    // Pruning 3: start traversing from start to avoid repeatedly selecting the same element
+    for i in choices.indices.dropFirst(start) {
+        // Pruning 1: if the subset sum exceeds target, end the loop directly
+        // This is because the array is sorted, and later elements are larger, so the subset sum will definitely exceed target
+        if target - choices[i] &lt; 0 {
+            break
+        }
+        // Pruning 4: if this element equals the left element, it means this search branch is duplicate, skip it directly
+        if i &gt; start, choices[i] == choices[i - 1] {
+            continue
+        }
+        // Attempt: make choice, update target, start
+        state.append(choices[i])
+        // Proceed to the next round of selection
+        backtrack(state: &amp;state, target: target - choices[i], choices: choices, start: i + 1, res: &amp;res)
+        // Backtrack: undo choice, restore to previous state
+        state.removeLast()
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def backtrack(state, choices, selected, res):
     """Thuật toán Quay lui: Hoán vị I"""
     # Khi độ dài state bằng độ dài choices, ghi nhận nghiệm
     if len(state) == len(choices):
@@ -1285,97 +1301,6 @@ vector<vector<int>> permutationsI(vector<int> nums) {
     vector<vector<int>> res;
     backtrack(state, nums, selected, res);
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Hoán vị I */
-public static void backtrack(List<Integer> state, int[] choices, boolean[] selected, List<List<Integer>> res) {
-    // Khi độ dài state bằng độ dài choices, ghi nhận nghiệm
-    if (state.size() == choices.length) {
-        res.add(new ArrayList<Integer>(state));
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    for (int i = 0; i < choices.length; i++) {
-        int choice = choices[i];
-        // Cắt tỉa: không cho phép chọn lại phần tử đã chọn
-        if (!selected[i]) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            selected[i] = true;
-            state.add(choice);
-            // Tiến hành vòng lựa chọn tiếp theo
-            backtrack(state, choices, selected, res);
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            selected[i] = false;
-            state.remove(state.size() - 1);
-        }
-    }
-}
-
-/* Hoán vị I */
-static List<List<Integer>> permutationsI(int[] nums) {
-    List<List<Integer>> res = new ArrayList<List<Integer>>();
-    backtrack(new ArrayList<Integer>(), nums, new boolean[nums.length], res);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Thuật toán Quay lui: Hoán vị I */
-function backtrack(state, choices, selected, res) {
-    // Khi độ dài state bằng độ dài choices, ghi nhận nghiệm
-    if (state.length === choices.length) {
-        res.push([...state]);
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    choices.forEach((choice, i) => {
-        // Cắt tỉa: không cho phép chọn lại phần tử đã chọn
-        if (!selected[i]) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            selected[i] = true;
-            state.push(choice);
-            // Tiến hành vòng lựa chọn tiếp theo
-            backtrack(state, choices, selected, res);
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            selected[i] = false;
-            state.pop();
-        }
-    });
-}
-
-/* Hoán vị I */
-function permutationsI(nums) {
-    const res = [];
-    backtrack([], nums, Array(nums.length).fill(false), res);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Thuật toán Quay lui: Hoán vị I */
-fun backtrack(
-    state: MutableList<Int>,
-    choices: IntArray,
-    selected: BooleanArray,
-    res: MutableList<MutableList<Int>?>
-) {
-    // Khi độ dài state bằng độ dài choices, ghi nhận nghiệm
-    if (state.size == choices.size) {
-        res.add(state.toMutableList())
-        return
-    }
-    // Duyệt qua tất cả các lựa chọn
-    for (i in choices.indices) {
-        val choice = choices[i]
-        // Cắt tỉa: không cho phép chọn lại phần tử đã chọn
-        if (!selected[i]) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            selected[i] = true
-            state.add(choice)
-            // Tiến hành vòng lựa chọn tiếp theo
-            backtrack(state, choices, selected, res)
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            selected[i] = false
-            state.removeAt(state.size - 1)
-        }
-    }
-}
-
-/* Hoán vị I */
-fun permutationsI(nums: IntArray): MutableList<MutableList<Int>?> {
-    val res = mutableListOf<MutableList<Int>?>()
-    backtrack(mutableListOf(), nums, BooleanArray(nums.size), res)
-    return res
 }</code></pre></div></div></div>
 
 <h2>Trường hợp có phần tử trùng lặp</h2>
@@ -1411,7 +1336,64 @@ fun permutationsI(nums: IntArray): MutableList<MutableList<Int>?> {
 <h3>Triển khai mã</h3>
 <p>Dựa trên mã của bài toán trước, ta khởi tạo một hash set <code>duplicated</code> trong mỗi vòng lựa chọn để ghi lại những phần tử nào đã được thử trong vòng đó, và cắt tỉa các phần tử bằng nhau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def backtrack(state, choices, selected, res):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Hoán vị II */
+static void backtrack(List<Integer> state, int[] choices, boolean[] selected, List<List<Integer>> res) {
+    // Khi độ dài state bằng độ dài choices, ghi nhận nghiệm
+    if (state.size() == choices.length) {
+        res.add(new ArrayList<Integer>(state));
+        return;
+    }
+    // Duyệt qua tất cả các lựa chọn
+    Set<Integer> duplicated = new HashSet<Integer>();
+    for (int i = 0; i < choices.length; i++) {
+        int choice = choices[i];
+        // Cắt tỉa: không chọn lại phần tử đã chọn, và không chọn lại phần tử có giá trị bằng nhau
+        if (!selected[i] && !duplicated.contains(choice)) {
+            // Thử: đưa ra lựa chọn, cập nhật trạng thái
+            duplicated.add(choice); // Ghi nhận giá trị phần tử đã chọn
+            selected[i] = true;
+            state.add(choice);
+            // Tiến hành vòng lựa chọn tiếp theo
+            backtrack(state, choices, selected, res);
+            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
+            selected[i] = false;
+            state.remove(state.size() - 1);
+        }
+    }
+}
+
+/* Hoán vị II */
+static List<List<Integer>> permutationsII(int[] nums) {
+    List<List<Integer>> res = new ArrayList<List<Integer>>();
+    backtrack(new ArrayList<Integer>(), nums, new boolean[nums.length], res);
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func backtrack(state: inout [Int], target: Int, choices: [Int], start: Int, res: inout [[Int]]) {
+    // When the subset sum equals target, record the solution
+    if target == 0 {
+        res.append(state)
+        return
+    }
+    // Traverse all choices
+    // Pruning 2: start traversing from start to avoid generating duplicate subsets
+    // Pruning 3: start traversing from start to avoid repeatedly selecting the same element
+    for i in choices.indices.dropFirst(start) {
+        // Pruning 1: if the subset sum exceeds target, end the loop directly
+        // This is because the array is sorted, and later elements are larger, so the subset sum will definitely exceed target
+        if target - choices[i] &lt; 0 {
+            break
+        }
+        // Pruning 4: if this element equals the left element, it means this search branch is duplicate, skip it directly
+        if i &gt; start, choices[i] == choices[i - 1] {
+            continue
+        }
+        // Attempt: make choice, update target, start
+        state.append(choices[i])
+        // Proceed to the next round of selection
+        backtrack(state: &amp;state, target: target - choices[i], choices: choices, start: i + 1, res: &amp;res)
+        // Backtrack: undo choice, restore to previous state
+        state.removeLast()
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def backtrack(state, choices, selected, res):
     """Thuật toán Quay lui: Hoán vị II"""
     # Khi độ dài state bằng độ dài choices, ghi nhận nghiệm
     if len(state) == len(choices):
@@ -1470,103 +1452,6 @@ vector<vector<int>> permutationsII(vector<int> nums) {
     vector<vector<int>> res;
     backtrack(state, nums, selected, res);
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Hoán vị II */
-static void backtrack(List<Integer> state, int[] choices, boolean[] selected, List<List<Integer>> res) {
-    // Khi độ dài state bằng độ dài choices, ghi nhận nghiệm
-    if (state.size() == choices.length) {
-        res.add(new ArrayList<Integer>(state));
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    Set<Integer> duplicated = new HashSet<Integer>();
-    for (int i = 0; i < choices.length; i++) {
-        int choice = choices[i];
-        // Cắt tỉa: không chọn lại phần tử đã chọn, và không chọn lại phần tử có giá trị bằng nhau
-        if (!selected[i] && !duplicated.contains(choice)) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            duplicated.add(choice); // Ghi nhận giá trị phần tử đã chọn
-            selected[i] = true;
-            state.add(choice);
-            // Tiến hành vòng lựa chọn tiếp theo
-            backtrack(state, choices, selected, res);
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            selected[i] = false;
-            state.remove(state.size() - 1);
-        }
-    }
-}
-
-/* Hoán vị II */
-static List<List<Integer>> permutationsII(int[] nums) {
-    List<List<Integer>> res = new ArrayList<List<Integer>>();
-    backtrack(new ArrayList<Integer>(), nums, new boolean[nums.length], res);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Thuật toán Quay lui: Hoán vị II */
-function backtrack(state, choices, selected, res) {
-    // Khi độ dài state bằng độ dài choices, ghi nhận nghiệm
-    if (state.length === choices.length) {
-        res.push([...state]);
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    const duplicated = new Set();
-    choices.forEach((choice, i) => {
-        // Cắt tỉa: không chọn lại phần tử đã chọn, và không chọn lại phần tử có giá trị bằng nhau
-        if (!selected[i] && !duplicated.has(choice)) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            duplicated.add(choice); // Ghi nhận giá trị phần tử đã chọn
-            selected[i] = true;
-            state.push(choice);
-            // Tiến hành vòng lựa chọn tiếp theo
-            backtrack(state, choices, selected, res);
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            selected[i] = false;
-            state.pop();
-        }
-    });
-}
-
-/* Hoán vị II */
-function permutationsII(nums) {
-    const res = [];
-    backtrack([], nums, Array(nums.length).fill(false), res);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Thuật toán Quay lui: Hoán vị II */
-fun backtrack(
-    state: MutableList<Int>,
-    choices: IntArray,
-    selected: BooleanArray,
-    res: MutableList<MutableList<Int>?>
-) {
-    // Khi độ dài state bằng độ dài choices, ghi nhận nghiệm
-    if (state.size == choices.size) {
-        res.add(state.toMutableList())
-        return
-    }
-    // Duyệt qua tất cả các lựa chọn
-    val duplicated = HashSet<Int>()
-    for (i in choices.indices) {
-        val choice = choices[i]
-        // Cắt tỉa: không chọn lại phần tử đã chọn, và không chọn lại phần tử có giá trị bằng nhau
-        if (!selected[i] && !duplicated.contains(choice)) {
-            // Thử: đưa ra lựa chọn, cập nhật trạng thái
-            duplicated.add(choice) // Ghi nhận giá trị phần tử đã chọn
-            selected[i] = true
-            state.add(choice)
-            // Tiến hành vòng lựa chọn tiếp theo
-            backtrack(state, choices, selected, res)
-            // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-            selected[i] = false
-            state.removeAt(state.size - 1)
-        }
-    }
-}
-
-/* Hoán vị II */
-fun permutationsII(nums: IntArray): MutableList<MutableList<Int>?> {
-    val res = mutableListOf<MutableList<Int>?>()
-    backtrack(mutableListOf(), nums, BooleanArray(nums.size), res)
-    return res
 }</code></pre></div></div></div>
 
 <div class="interactive-widget-wrapper" id="permutations-wrapper">
@@ -1747,7 +1632,62 @@ The figure below shows the effective scope of the two pruning conditions. Note t
 
 <p>Khác với bài toán Hoán vị, <strong>các phần tử trong bài toán này có thể được chọn bất kỳ số lần nào</strong>, nên ta không cần dùng danh sách boolean <code>selected</code> để theo dõi xem một phần tử đã được chọn hay chưa. Với một vài thay đổi nhỏ so với mã Hoán vị, ta có một nghiệm ban đầu:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def backtrack(state, target, total, choices, res):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Tổng tập con I */
+static void backtrack(List<Integer> state, int target, int total, int[] choices, List<List<Integer>> res) {
+    // Khi tổng tập con bằng target, ghi nhận nghiệm
+    if (total == target) {
+        res.add(new ArrayList<>(state));
+        return;
+    }
+    // Duyệt qua tất cả các lựa chọn
+    for (int i = 0; i < choices.length; i++) {
+        // Cắt tỉa: nếu tổng tập con vượt quá target, bỏ qua lựa chọn này
+        if (total + choices[i] > target) {
+            continue;
+        }
+        // Thử: đưa ra lựa chọn, cập nhật tổng total
+        state.add(choices[i]);
+        // Tiến hành vòng lựa chọn tiếp theo
+        backtrack(state, target, total + choices[i], choices, res);
+        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
+        state.remove(state.size() - 1);
+    }
+}
+
+/* Giải bài toán Tổng tập con I (bao gồm cả tập con trùng lặp) */
+static List<List<Integer>> subsetSumINaive(int[] nums, int target) {
+    List<Integer> state = new ArrayList<>(); // Trạng thái (tập con)
+    int total = 0; // Tổng tập con
+    List<List<Integer>> res = new ArrayList<>(); // Danh sách kết quả (danh sách các tập con)
+    backtrack(state, target, total, nums, res);
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func backtrack(state: inout [Int], target: Int, choices: [Int], start: Int, res: inout [[Int]]) {
+    // When the subset sum equals target, record the solution
+    if target == 0 {
+        res.append(state)
+        return
+    }
+    // Traverse all choices
+    // Pruning 2: start traversing from start to avoid generating duplicate subsets
+    // Pruning 3: start traversing from start to avoid repeatedly selecting the same element
+    for i in choices.indices.dropFirst(start) {
+        // Pruning 1: if the subset sum exceeds target, end the loop directly
+        // This is because the array is sorted, and later elements are larger, so the subset sum will definitely exceed target
+        if target - choices[i] &lt; 0 {
+            break
+        }
+        // Pruning 4: if this element equals the left element, it means this search branch is duplicate, skip it directly
+        if i &gt; start, choices[i] == choices[i - 1] {
+            continue
+        }
+        // Attempt: make choice, update target, start
+        state.append(choices[i])
+        // Proceed to the next round of selection
+        backtrack(state: &amp;state, target: target - choices[i], choices: choices, start: i + 1, res: &amp;res)
+        // Backtrack: undo choice, restore to previous state
+        state.removeLast()
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def backtrack(state, target, total, choices, res):
     """Thuật toán Quay lui: Tổng tập con I"""
     # Khi tổng tập con bằng target, ghi nhận nghiệm
     if total == target:
@@ -1801,99 +1741,6 @@ vector<vector<int>> subsetSumINaive(vector<int> &nums, int target) {
     vector<vector<int>> res; // Danh sách kết quả (danh sách các tập con)
     backtrack(state, target, total, nums, res);
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Tổng tập con I */
-static void backtrack(List<Integer> state, int target, int total, int[] choices, List<List<Integer>> res) {
-    // Khi tổng tập con bằng target, ghi nhận nghiệm
-    if (total == target) {
-        res.add(new ArrayList<>(state));
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    for (int i = 0; i < choices.length; i++) {
-        // Cắt tỉa: nếu tổng tập con vượt quá target, bỏ qua lựa chọn này
-        if (total + choices[i] > target) {
-            continue;
-        }
-        // Thử: đưa ra lựa chọn, cập nhật tổng total
-        state.add(choices[i]);
-        // Tiến hành vòng lựa chọn tiếp theo
-        backtrack(state, target, total + choices[i], choices, res);
-        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-        state.remove(state.size() - 1);
-    }
-}
-
-/* Giải bài toán Tổng tập con I (bao gồm cả tập con trùng lặp) */
-static List<List<Integer>> subsetSumINaive(int[] nums, int target) {
-    List<Integer> state = new ArrayList<>(); // Trạng thái (tập con)
-    int total = 0; // Tổng tập con
-    List<List<Integer>> res = new ArrayList<>(); // Danh sách kết quả (danh sách các tập con)
-    backtrack(state, target, total, nums, res);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Thuật toán Quay lui: Tổng tập con I */
-function backtrack(state, target, total, choices, res) {
-    // Khi tổng tập con bằng target, ghi nhận nghiệm
-    if (total === target) {
-        res.push([...state]);
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    for (let i = 0; i < choices.length; i++) {
-        // Cắt tỉa: nếu tổng tập con vượt quá target, bỏ qua lựa chọn này
-        if (total + choices[i] > target) {
-            continue;
-        }
-        // Thử: đưa ra lựa chọn, cập nhật tổng total
-        state.push(choices[i]);
-        // Tiến hành vòng lựa chọn tiếp theo
-        backtrack(state, target, total + choices[i], choices, res);
-        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-        state.pop();
-    }
-}
-
-/* Giải bài toán Tổng tập con I (bao gồm cả tập con trùng lặp) */
-function subsetSumINaive(nums, target) {
-    const state = []; // Trạng thái (tập con)
-    const total = 0; // Tổng tập con
-    const res = []; // Danh sách kết quả (danh sách các tập con)
-    backtrack(state, target, total, nums, res);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Thuật toán Quay lui: Tổng tập con I */
-fun backtrack(
-    state: MutableList<Int>,
-    target: Int,
-    total: Int,
-    choices: IntArray,
-    res: MutableList<MutableList<Int>?>
-) {
-    // Khi tổng tập con bằng target, ghi nhận nghiệm
-    if (total == target) {
-        res.add(state.toMutableList())
-        return
-    }
-    // Duyệt qua tất cả các lựa chọn
-    for (i in choices.indices) {
-        // Cắt tỉa: nếu tổng tập con vượt quá target, bỏ qua lựa chọn này
-        if (total + choices[i] > target) {
-            continue
-        }
-        // Thử: đưa ra lựa chọn, cập nhật tổng total
-        state.add(choices[i])
-        // Tiến hành vòng lựa chọn tiếp theo
-        backtrack(state, target, total + choices[i], choices, res)
-        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-        state.removeAt(state.size - 1)
-    }
-}
-
-/* Giải bài toán Tổng tập con I (bao gồm cả tập con trùng lặp) */
-fun subsetSumINaive(nums: IntArray, target: Int): MutableList<MutableList<Int>?> {
-    val state = mutableListOf<Int>() // Trạng thái (tập con)
-    val total = 0 // Tổng tập con
-    val res = mutableListOf<MutableList<Int>?>() // Danh sách kết quả (danh sách các tập con)
-    backtrack(state, target, total, nums, res)
-    return res
 }</code></pre></div></div></div>
 
 <p>Chạy đoạn mã trên với mảng $[3, 4, 5]$ và giá trị mục tiêu $9$ sẽ cho ra $[3, 3, 3], [4, 5], [5, 4]$. <strong>Mặc dù ta đã tìm thành công tất cả các tập con có tổng bằng $9$, nhưng có các tập con trùng lặp $[4, 5]$ và $[5, 4]$</strong>.</p>
@@ -1939,7 +1786,65 @@ fun subsetSumINaive(nums: IntArray, target: Int): MutableList<MutableList<Int>?>
   <li>Bỏ qua biến tổng phần tử <code>total</code> và <strong>dùng phép trừ trên <code>target</code> để theo dõi tổng các phần tử</strong>. Ghi nhận nghiệm khi <code>target</code> bằng $0$.</li>
 </ul>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def backtrack(state, target, choices, start, res):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Tổng tập con I */
+static void backtrack(List<Integer> state, int target, int[] choices, int start, List<List<Integer>> res) {
+    // Khi tổng tập con bằng target, ghi nhận nghiệm
+    if (target == 0) {
+        res.add(new ArrayList<>(state));
+        return;
+    }
+    // Duyệt qua tất cả các lựa chọn
+    // Cắt tỉa 2: bắt đầu duyệt từ start để tránh sinh ra tập con trùng lặp
+    for (int i = start; i < choices.length; i++) {
+        // Cắt tỉa 1: nếu tổng tập con vượt quá target, dừng vòng lặp ngay
+        // Vì mảng đã được sắp xếp, các phần tử sau lớn hơn nên tổng tập con chắc chắn vượt target
+        if (target - choices[i] < 0) {
+            break;
+        }
+        // Thử: đưa ra lựa chọn, cập nhật target, start
+        state.add(choices[i]);
+        // Tiến hành vòng lựa chọn tiếp theo
+        backtrack(state, target - choices[i], choices, i, res);
+        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
+        state.remove(state.size() - 1);
+    }
+}
+
+/* Giải bài toán Tổng tập con I */
+static List<List<Integer>> subsetSumI(int[] nums, int target) {
+    List<Integer> state = new ArrayList<>(); // Trạng thái (tập con)
+    Arrays.sort(nums); // Sắp xếp nums
+    int start = 0; // Điểm bắt đầu duyệt
+    List<List<Integer>> res = new ArrayList<>(); // Danh sách kết quả (danh sách các tập con)
+    backtrack(state, target, nums, start, res);
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func backtrack(state: inout [Int], target: Int, choices: [Int], start: Int, res: inout [[Int]]) {
+    // When the subset sum equals target, record the solution
+    if target == 0 {
+        res.append(state)
+        return
+    }
+    // Traverse all choices
+    // Pruning 2: start traversing from start to avoid generating duplicate subsets
+    // Pruning 3: start traversing from start to avoid repeatedly selecting the same element
+    for i in choices.indices.dropFirst(start) {
+        // Pruning 1: if the subset sum exceeds target, end the loop directly
+        // This is because the array is sorted, and later elements are larger, so the subset sum will definitely exceed target
+        if target - choices[i] &lt; 0 {
+            break
+        }
+        // Pruning 4: if this element equals the left element, it means this search branch is duplicate, skip it directly
+        if i &gt; start, choices[i] == choices[i - 1] {
+            continue
+        }
+        // Attempt: make choice, update target, start
+        state.append(choices[i])
+        // Proceed to the next round of selection
+        backtrack(state: &amp;state, target: target - choices[i], choices: choices, start: i + 1, res: &amp;res)
+        // Backtrack: undo choice, restore to previous state
+        state.removeLast()
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def backtrack(state, target, choices, start, res):
     """Thuật toán Quay lui: Tổng tập con I"""
     # Khi tổng tập con bằng target, ghi nhận nghiệm
     if target == 0:
@@ -1999,108 +1904,6 @@ vector<vector<int>> subsetSumI(vector<int> &nums, int target) {
     vector<vector<int>> res;        // Danh sách kết quả (danh sách các tập con)
     backtrack(state, target, nums, start, res);
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Tổng tập con I */
-static void backtrack(List<Integer> state, int target, int[] choices, int start, List<List<Integer>> res) {
-    // Khi tổng tập con bằng target, ghi nhận nghiệm
-    if (target == 0) {
-        res.add(new ArrayList<>(state));
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    // Cắt tỉa 2: bắt đầu duyệt từ start để tránh sinh ra tập con trùng lặp
-    for (int i = start; i < choices.length; i++) {
-        // Cắt tỉa 1: nếu tổng tập con vượt quá target, dừng vòng lặp ngay
-        // Vì mảng đã được sắp xếp, các phần tử sau lớn hơn nên tổng tập con chắc chắn vượt target
-        if (target - choices[i] < 0) {
-            break;
-        }
-        // Thử: đưa ra lựa chọn, cập nhật target, start
-        state.add(choices[i]);
-        // Tiến hành vòng lựa chọn tiếp theo
-        backtrack(state, target - choices[i], choices, i, res);
-        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-        state.remove(state.size() - 1);
-    }
-}
-
-/* Giải bài toán Tổng tập con I */
-static List<List<Integer>> subsetSumI(int[] nums, int target) {
-    List<Integer> state = new ArrayList<>(); // Trạng thái (tập con)
-    Arrays.sort(nums); // Sắp xếp nums
-    int start = 0; // Điểm bắt đầu duyệt
-    List<List<Integer>> res = new ArrayList<>(); // Danh sách kết quả (danh sách các tập con)
-    backtrack(state, target, nums, start, res);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Thuật toán Quay lui: Tổng tập con I */
-function backtrack(state, target, choices, start, res) {
-    // Khi tổng tập con bằng target, ghi nhận nghiệm
-    if (target === 0) {
-        res.push([...state]);
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    // Cắt tỉa 2: bắt đầu duyệt từ start để tránh sinh ra tập con trùng lặp
-    for (let i = start; i < choices.length; i++) {
-        // Cắt tỉa 1: nếu tổng tập con vượt quá target, dừng vòng lặp ngay
-        // Vì mảng đã được sắp xếp, các phần tử sau lớn hơn nên tổng tập con chắc chắn vượt target
-        if (target - choices[i] < 0) {
-            break;
-        }
-        // Thử: đưa ra lựa chọn, cập nhật target, start
-        state.push(choices[i]);
-        // Tiến hành vòng lựa chọn tiếp theo
-        backtrack(state, target - choices[i], choices, i, res);
-        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-        state.pop();
-    }
-}
-
-/* Giải bài toán Tổng tập con I */
-function subsetSumI(nums, target) {
-    const state = []; // Trạng thái (tập con)
-    nums.sort((a, b) => a - b); // Sắp xếp nums
-    const start = 0; // Điểm bắt đầu duyệt
-    const res = []; // Danh sách kết quả (danh sách các tập con)
-    backtrack(state, target, nums, start, res);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Thuật toán Quay lui: Tổng tập con I */
-fun backtrack(
-    state: MutableList<Int>,
-    target: Int,
-    choices: IntArray,
-    start: Int,
-    res: MutableList<MutableList<Int>?>
-) {
-    // Khi tổng tập con bằng target, ghi nhận nghiệm
-    if (target == 0) {
-        res.add(state.toMutableList())
-        return
-    }
-    // Duyệt qua tất cả các lựa chọn
-    // Cắt tỉa 2: bắt đầu duyệt từ start để tránh sinh ra tập con trùng lặp
-    for (i in start..<choices.size) {
-        // Cắt tỉa 1: nếu tổng tập con vượt quá target, dừng vòng lặp ngay
-        // Vì mảng đã được sắp xếp, các phần tử sau lớn hơn nên tổng tập con chắc chắn vượt target
-        if (target - choices[i] < 0) {
-            break
-        }
-        // Thử: đưa ra lựa chọn, cập nhật target, start
-        state.add(choices[i])
-        // Tiến hành vòng lựa chọn tiếp theo
-        backtrack(state, target - choices[i], choices, i, res)
-        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-        state.removeAt(state.size - 1)
-    }
-}
-
-/* Giải bài toán Tổng tập con I */
-fun subsetSumI(nums: IntArray, target: Int): MutableList<MutableList<Int>?> {
-    val state = mutableListOf<Int>() // Trạng thái (tập con)
-    nums.sort() // Sắp xếp nums
-    val start = 0 // Điểm bắt đầu duyệt
-    val res = mutableListOf<MutableList<Int>?>() // Danh sách kết quả (danh sách các tập con)
-    backtrack(state, target, nums, start, res)
-    return res
 }</code></pre></div></div></div>
 
 <p>Hình dưới đây cho thấy toàn bộ quá trình Quay lui được sinh ra khi chạy đoạn mã trên với mảng $[3, 4, 5]$ và giá trị mục tiêu $9$.</p>
@@ -2133,7 +1936,70 @@ fun subsetSumI(nums: IntArray, target: Int): MutableList<MutableList<Int>?> {
 
 <h3>Triển khai mã</h3>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def backtrack(state, target, choices, start, res):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Tổng tập con II */
+static void backtrack(List<Integer> state, int target, int[] choices, int start, List<List<Integer>> res) {
+    // Khi tổng tập con bằng target, ghi nhận nghiệm
+    if (target == 0) {
+        res.add(new ArrayList<>(state));
+        return;
+    }
+    // Duyệt qua tất cả các lựa chọn
+    // Cắt tỉa 2: bắt đầu duyệt từ start để tránh sinh ra tập con trùng lặp
+    // Cắt tỉa 3: bắt đầu duyệt từ start để tránh chọn lại cùng một phần tử
+    for (int i = start; i < choices.length; i++) {
+        // Cắt tỉa 1: nếu tổng tập con vượt quá target, dừng vòng lặp ngay
+        // Vì mảng đã được sắp xếp, các phần tử sau lớn hơn nên tổng tập con chắc chắn vượt target
+        if (target - choices[i] < 0) {
+            break;
+        }
+        // Cắt tỉa 4: nếu phần tử này bằng phần tử bên trái, nghĩa là nhánh tìm kiếm này bị trùng, bỏ qua ngay
+        if (i > start && choices[i] == choices[i - 1]) {
+            continue;
+        }
+        // Thử: đưa ra lựa chọn, cập nhật target, start
+        state.add(choices[i]);
+        // Tiến hành vòng lựa chọn tiếp theo
+        backtrack(state, target - choices[i], choices, i + 1, res);
+        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
+        state.remove(state.size() - 1);
+    }
+}
+
+/* Giải bài toán Tổng tập con II */
+static List<List<Integer>> subsetSumII(int[] nums, int target) {
+    List<Integer> state = new ArrayList<>(); // Trạng thái (tập con)
+    Arrays.sort(nums); // Sắp xếp nums
+    int start = 0; // Điểm bắt đầu duyệt
+    List<List<Integer>> res = new ArrayList<>(); // Danh sách kết quả (danh sách các tập con)
+    backtrack(state, target, nums, start, res);
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func backtrack(state: inout [Int], target: Int, choices: [Int], start: Int, res: inout [[Int]]) {
+    // When the subset sum equals target, record the solution
+    if target == 0 {
+        res.append(state)
+        return
+    }
+    // Traverse all choices
+    // Pruning 2: start traversing from start to avoid generating duplicate subsets
+    // Pruning 3: start traversing from start to avoid repeatedly selecting the same element
+    for i in choices.indices.dropFirst(start) {
+        // Pruning 1: if the subset sum exceeds target, end the loop directly
+        // This is because the array is sorted, and later elements are larger, so the subset sum will definitely exceed target
+        if target - choices[i] &lt; 0 {
+            break
+        }
+        // Pruning 4: if this element equals the left element, it means this search branch is duplicate, skip it directly
+        if i &gt; start, choices[i] == choices[i - 1] {
+            continue
+        }
+        // Attempt: make choice, update target, start
+        state.append(choices[i])
+        // Proceed to the next round of selection
+        backtrack(state: &amp;state, target: target - choices[i], choices: choices, start: i + 1, res: &amp;res)
+        // Backtrack: undo choice, restore to previous state
+        state.removeLast()
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def backtrack(state, target, choices, start, res):
     """Thuật toán Quay lui: Tổng tập con II"""
     # Khi tổng tập con bằng target, ghi nhận nghiệm
     if target == 0:
@@ -2202,123 +2068,6 @@ vector<vector<int>> subsetSumII(vector<int> &nums, int target) {
     vector<vector<int>> res;        // Danh sách kết quả (danh sách các tập con)
     backtrack(state, target, nums, start, res);
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: Tổng tập con II */
-static void backtrack(List<Integer> state, int target, int[] choices, int start, List<List<Integer>> res) {
-    // Khi tổng tập con bằng target, ghi nhận nghiệm
-    if (target == 0) {
-        res.add(new ArrayList<>(state));
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    // Cắt tỉa 2: bắt đầu duyệt từ start để tránh sinh ra tập con trùng lặp
-    // Cắt tỉa 3: bắt đầu duyệt từ start để tránh chọn lại cùng một phần tử
-    for (int i = start; i < choices.length; i++) {
-        // Cắt tỉa 1: nếu tổng tập con vượt quá target, dừng vòng lặp ngay
-        // Vì mảng đã được sắp xếp, các phần tử sau lớn hơn nên tổng tập con chắc chắn vượt target
-        if (target - choices[i] < 0) {
-            break;
-        }
-        // Cắt tỉa 4: nếu phần tử này bằng phần tử bên trái, nghĩa là nhánh tìm kiếm này bị trùng, bỏ qua ngay
-        if (i > start && choices[i] == choices[i - 1]) {
-            continue;
-        }
-        // Thử: đưa ra lựa chọn, cập nhật target, start
-        state.add(choices[i]);
-        // Tiến hành vòng lựa chọn tiếp theo
-        backtrack(state, target - choices[i], choices, i + 1, res);
-        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-        state.remove(state.size() - 1);
-    }
-}
-
-/* Giải bài toán Tổng tập con II */
-static List<List<Integer>> subsetSumII(int[] nums, int target) {
-    List<Integer> state = new ArrayList<>(); // Trạng thái (tập con)
-    Arrays.sort(nums); // Sắp xếp nums
-    int start = 0; // Điểm bắt đầu duyệt
-    List<List<Integer>> res = new ArrayList<>(); // Danh sách kết quả (danh sách các tập con)
-    backtrack(state, target, nums, start, res);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Thuật toán Quay lui: Tổng tập con II */
-function backtrack(state, target, choices, start, res) {
-    // Khi tổng tập con bằng target, ghi nhận nghiệm
-    if (target === 0) {
-        res.push([...state]);
-        return;
-    }
-    // Duyệt qua tất cả các lựa chọn
-    // Cắt tỉa 2: bắt đầu duyệt từ start để tránh sinh ra tập con trùng lặp
-    // Cắt tỉa 3: bắt đầu duyệt từ start để tránh chọn lại cùng một phần tử
-    for (let i = start; i < choices.length; i++) {
-        // Cắt tỉa 1: nếu tổng tập con vượt quá target, dừng vòng lặp ngay
-        // Vì mảng đã được sắp xếp, các phần tử sau lớn hơn nên tổng tập con chắc chắn vượt target
-        if (target - choices[i] < 0) {
-            break;
-        }
-        // Cắt tỉa 4: nếu phần tử này bằng phần tử bên trái, nghĩa là nhánh tìm kiếm này bị trùng, bỏ qua ngay
-        if (i > start && choices[i] === choices[i - 1]) {
-            continue;
-        }
-        // Thử: đưa ra lựa chọn, cập nhật target, start
-        state.push(choices[i]);
-        // Tiến hành vòng lựa chọn tiếp theo
-        backtrack(state, target - choices[i], choices, i + 1, res);
-        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-        state.pop();
-    }
-}
-
-/* Giải bài toán Tổng tập con II */
-function subsetSumII(nums, target) {
-    const state = []; // Trạng thái (tập con)
-    nums.sort((a, b) => a - b); // Sắp xếp nums
-    const start = 0; // Điểm bắt đầu duyệt
-    const res = []; // Danh sách kết quả (danh sách các tập con)
-    backtrack(state, target, nums, start, res);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Thuật toán Quay lui: Tổng tập con II */
-fun backtrack(
-    state: MutableList<Int>,
-    target: Int,
-    choices: IntArray,
-    start: Int,
-    res: MutableList<MutableList<Int>?>
-) {
-    // Khi tổng tập con bằng target, ghi nhận nghiệm
-    if (target == 0) {
-        res.add(state.toMutableList())
-        return
-    }
-    // Duyệt qua tất cả các lựa chọn
-    // Cắt tỉa 2: bắt đầu duyệt từ start để tránh sinh ra tập con trùng lặp
-    // Cắt tỉa 3: bắt đầu duyệt từ start để tránh chọn lại cùng một phần tử
-    for (i in start..<choices.size) {
-        // Cắt tỉa 1: nếu tổng tập con vượt quá target, dừng vòng lặp ngay
-        // Vì mảng đã được sắp xếp, các phần tử sau lớn hơn nên tổng tập con chắc chắn vượt target
-        if (target - choices[i] < 0) {
-            break
-        }
-        // Cắt tỉa 4: nếu phần tử này bằng phần tử bên trái, nghĩa là nhánh tìm kiếm này bị trùng, bỏ qua ngay
-        if (i > start && choices[i] == choices[i - 1]) {
-            continue
-        }
-        // Thử: đưa ra lựa chọn, cập nhật target, start
-        state.add(choices[i])
-        // Tiến hành vòng lựa chọn tiếp theo
-        backtrack(state, target - choices[i], choices, i + 1, res)
-        // Quay lui: hoàn tác lựa chọn, khôi phục trạng thái trước đó
-        state.removeAt(state.size - 1)
-    }
-}
-
-/* Giải bài toán Tổng tập con II */
-fun subsetSumII(nums: IntArray, target: Int): MutableList<MutableList<Int>?> {
-    val state = mutableListOf<Int>() // Trạng thái (tập con)
-    nums.sort() // Sắp xếp nums
-    val start = 0 // Điểm bắt đầu duyệt
-    val res = mutableListOf<MutableList<Int>?>() // Danh sách kết quả (danh sách các tập con)
-    backtrack(state, target, nums, start, res)
-    return res
 }</code></pre></div></div></div>
 
 <div class="interactive-widget-wrapper" id="subset-sum-wrapper">
@@ -2523,7 +2272,83 @@ The figure below shows the backtracking process for array $[4, 4, 5]$ with targe
 <h3>Triển khai mã</h3>
 <p>Lưu ý rằng trong một ma trận vuông $n \\times n$, phạm vi của $row - col$ là $[-n + 1, n - 1]$, và phạm vi của $row + col$ là $[0, 2n - 2]$. Do đó, số lượng cả đường chéo chính và đường chéo phụ đều là $2n - 1$, nghĩa là độ dài của cả hai mảng <code>diags1</code> và <code>diags2</code> đều là $2n - 1$.</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def backtrack(row, n, state, res, cols, diags1, diags2):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: N-Hậu */
+public static void backtrack(int row, int n, List<List<String>> state, List<List<List<String>>> res,
+        boolean[] cols, boolean[] diags1, boolean[] diags2) {
+    // Khi đã đặt xong tất cả các hàng, ghi nhận nghiệm
+    if (row == n) {
+        List<List<String>> copyState = new ArrayList<>();
+        for (List<String> sRow : state) {
+            copyState.add(new ArrayList<>(sRow));
+        }
+        res.add(copyState);
+        return;
+    }
+    // Duyệt qua tất cả các cột
+    for (int col = 0; col < n; col++) {
+        // Tính đường chéo chính và đường chéo phụ tương ứng với ô này
+        int diag1 = row - col + n - 1;
+        int diag2 = row + col;
+        // Cắt tỉa: không cho phép hậu tồn tại trên cột, đường chéo chính và đường chéo phụ của ô này
+        if (!cols[col] && !diags1[diag1] && !diags2[diag2]) {
+            // Thử: đặt hậu vào ô này
+            state.get(row).set(col, "Q");
+            cols[col] = diags1[diag1] = diags2[diag2] = true;
+            // Đặt hàng tiếp theo
+            backtrack(row + 1, n, state, res, cols, diags1, diags2);
+            // Quay lui: khôi phục ô này về ô trống
+            state.get(row).set(col, "#");
+            cols[col] = diags1[diag1] = diags2[diag2] = false;
+        }
+    }
+}
+
+/* Giải bài toán N-Hậu */
+public static List<List<List<String>>> nQueens(int n) {
+    // Khởi tạo bàn cờ n*n, trong đó 'Q' đại diện cho quân hậu, '#' đại diện cho ô trống
+    List<List<String>> state = new ArrayList<>();
+    for (int i = 0; i < n; i++) {
+        List<String> row = new ArrayList<>();
+        for (int j = 0; j < n; j++) {
+            row.add("#");
+        }
+        state.add(row);
+    }
+    boolean[] cols = new boolean[n]; // Ghi nhận cột này đã có hậu hay chưa
+    boolean[] diags1 = new boolean[2 * n - 1]; // Ghi nhận đường chéo chính này đã có hậu hay chưa
+    boolean[] diags2 = new boolean[2 * n - 1]; // Ghi nhận đường chéo phụ này đã có hậu hay chưa
+    List<List<List<String>>> res = new ArrayList<>();
+
+    backtrack(0, n, state, res, cols, diags1, diags2);
+
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func backtrack(state: inout [Int], target: Int, choices: [Int], start: Int, res: inout [[Int]]) {
+    // When the subset sum equals target, record the solution
+    if target == 0 {
+        res.append(state)
+        return
+    }
+    // Traverse all choices
+    // Pruning 2: start traversing from start to avoid generating duplicate subsets
+    // Pruning 3: start traversing from start to avoid repeatedly selecting the same element
+    for i in choices.indices.dropFirst(start) {
+        // Pruning 1: if the subset sum exceeds target, end the loop directly
+        // This is because the array is sorted, and later elements are larger, so the subset sum will definitely exceed target
+        if target - choices[i] &lt; 0 {
+            break
+        }
+        // Pruning 4: if this element equals the left element, it means this search branch is duplicate, skip it directly
+        if i &gt; start, choices[i] == choices[i - 1] {
+            continue
+        }
+        // Attempt: make choice, update target, start
+        state.append(choices[i])
+        // Proceed to the next round of selection
+        backtrack(state: &amp;state, target: target - choices[i], choices: choices, start: i + 1, res: &amp;res)
+        // Backtrack: undo choice, restore to previous state
+        state.removeLast()
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def backtrack(row, n, state, res, cols, diags1, diags2):
     """Thuật toán Quay lui: N-Hậu"""
     # Khi đã đặt xong tất cả các hàng, ghi nhận nghiệm
     if row == n:
@@ -2594,154 +2419,6 @@ vector<vector<vector<string>>> nQueens(int n) {
     backtrack(0, n, state, res, cols, diags1, diags2);
 
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Thuật toán Quay lui: N-Hậu */
-public static void backtrack(int row, int n, List<List<String>> state, List<List<List<String>>> res,
-        boolean[] cols, boolean[] diags1, boolean[] diags2) {
-    // Khi đã đặt xong tất cả các hàng, ghi nhận nghiệm
-    if (row == n) {
-        List<List<String>> copyState = new ArrayList<>();
-        for (List<String> sRow : state) {
-            copyState.add(new ArrayList<>(sRow));
-        }
-        res.add(copyState);
-        return;
-    }
-    // Duyệt qua tất cả các cột
-    for (int col = 0; col < n; col++) {
-        // Tính đường chéo chính và đường chéo phụ tương ứng với ô này
-        int diag1 = row - col + n - 1;
-        int diag2 = row + col;
-        // Cắt tỉa: không cho phép hậu tồn tại trên cột, đường chéo chính và đường chéo phụ của ô này
-        if (!cols[col] && !diags1[diag1] && !diags2[diag2]) {
-            // Thử: đặt hậu vào ô này
-            state.get(row).set(col, "Q");
-            cols[col] = diags1[diag1] = diags2[diag2] = true;
-            // Đặt hàng tiếp theo
-            backtrack(row + 1, n, state, res, cols, diags1, diags2);
-            // Quay lui: khôi phục ô này về ô trống
-            state.get(row).set(col, "#");
-            cols[col] = diags1[diag1] = diags2[diag2] = false;
-        }
-    }
-}
-
-/* Giải bài toán N-Hậu */
-public static List<List<List<String>>> nQueens(int n) {
-    // Khởi tạo bàn cờ n*n, trong đó 'Q' đại diện cho quân hậu, '#' đại diện cho ô trống
-    List<List<String>> state = new ArrayList<>();
-    for (int i = 0; i < n; i++) {
-        List<String> row = new ArrayList<>();
-        for (int j = 0; j < n; j++) {
-            row.add("#");
-        }
-        state.add(row);
-    }
-    boolean[] cols = new boolean[n]; // Ghi nhận cột này đã có hậu hay chưa
-    boolean[] diags1 = new boolean[2 * n - 1]; // Ghi nhận đường chéo chính này đã có hậu hay chưa
-    boolean[] diags2 = new boolean[2 * n - 1]; // Ghi nhận đường chéo phụ này đã có hậu hay chưa
-    List<List<List<String>>> res = new ArrayList<>();
-
-    backtrack(0, n, state, res, cols, diags1, diags2);
-
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Thuật toán Quay lui: N-Hậu */
-function backtrack(row, n, state, res, cols, diags1, diags2) {
-    // Khi đã đặt xong tất cả các hàng, ghi nhận nghiệm
-    if (row === n) {
-        res.push(state.map((row) => row.slice()));
-        return;
-    }
-    // Duyệt qua tất cả các cột
-    for (let col = 0; col < n; col++) {
-        // Tính đường chéo chính và đường chéo phụ tương ứng với ô này
-        const diag1 = row - col + n - 1;
-        const diag2 = row + col;
-        // Cắt tỉa: không cho phép hậu tồn tại trên cột, đường chéo chính và đường chéo phụ của ô này
-        if (!cols[col] && !diags1[diag1] && !diags2[diag2]) {
-            // Thử: đặt hậu vào ô này
-            state[row][col] = 'Q';
-            cols[col] = diags1[diag1] = diags2[diag2] = true;
-            // Đặt hàng tiếp theo
-            backtrack(row + 1, n, state, res, cols, diags1, diags2);
-            // Quay lui: khôi phục ô này về ô trống
-            state[row][col] = '#';
-            cols[col] = diags1[diag1] = diags2[diag2] = false;
-        }
-    }
-}
-
-/* Giải bài toán N-Hậu */
-function nQueens(n) {
-    // Khởi tạo bàn cờ n*n, trong đó 'Q' đại diện cho quân hậu, '#' đại diện cho ô trống
-    const state = Array.from({ length: n }, () => Array(n).fill('#'));
-    const cols = Array(n).fill(false); // Ghi nhận cột này đã có hậu hay chưa
-    const diags1 = Array(2 * n - 1).fill(false); // Ghi nhận đường chéo chính này đã có hậu hay chưa
-    const diags2 = Array(2 * n - 1).fill(false); // Ghi nhận đường chéo phụ này đã có hậu hay chưa
-    const res = [];
-
-    backtrack(0, n, state, res, cols, diags1, diags2);
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Thuật toán Quay lui: N-Hậu */
-fun backtrack(
-    row: Int,
-    n: Int,
-    state: MutableList<MutableList<String>>,
-    res: MutableList<MutableList<MutableList<String>>?>,
-    cols: BooleanArray,
-    diags1: BooleanArray,
-    diags2: BooleanArray
-) {
-    // Khi đã đặt xong tất cả các hàng, ghi nhận nghiệm
-    if (row == n) {
-        val copyState = mutableListOf<MutableList<String>>()
-        for (sRow in state) {
-            copyState.add(sRow.toMutableList())
-        }
-        res.add(copyState)
-        return
-    }
-    // Duyệt qua tất cả các cột
-    for (col in 0..<n) {
-        // Tính đường chéo chính và đường chéo phụ tương ứng với ô này
-        val diag1 = row - col + n - 1
-        val diag2 = row + col
-        // Cắt tỉa: không cho phép hậu tồn tại trên cột, đường chéo chính và đường chéo phụ của ô này
-        if (!cols[col] && !diags1[diag1] && !diags2[diag2]) {
-            // Thử: đặt hậu vào ô này
-            state[row][col] = "Q"
-            diags2[diag2] = true
-            diags1[diag1] = diags2[diag2]
-            cols[col] = diags1[diag1]
-            // Đặt hàng tiếp theo
-            backtrack(row + 1, n, state, res, cols, diags1, diags2)
-            // Quay lui: khôi phục ô này về ô trống
-            state[row][col] = "#"
-            diags2[diag2] = false
-            diags1[diag1] = diags2[diag2]
-            cols[col] = diags1[diag1]
-        }
-    }
-}
-
-/* Giải bài toán N-Hậu */
-fun nQueens(n: Int): MutableList<MutableList<MutableList<String>>?> {
-    // Khởi tạo bàn cờ n*n, trong đó 'Q' đại diện cho quân hậu, '#' đại diện cho ô trống
-    val state = mutableListOf<MutableList<String>>()
-    for (i in 0..<n) {
-        val row = mutableListOf<String>()
-        for (j in 0..<n) {
-            row.add("#")
-        }
-        state.add(row)
-    }
-    val cols = BooleanArray(n) // Ghi nhận cột này đã có hậu hay chưa
-    val diags1 = BooleanArray(2 * n - 1) // Ghi nhận đường chéo chính này đã có hậu hay chưa
-    val diags2 = BooleanArray(2 * n - 1) // Ghi nhận đường chéo phụ này đã có hậu hay chưa
-    val res = mutableListOf<MutableList<MutableList<String>>?>()
-
-    backtrack(0, n, state, res, cols, diags1, diags2)
-
-    return res
 }</code></pre></div></div></div>
 
 <div class="interactive-widget-wrapper" id="n-queens-wrapper">

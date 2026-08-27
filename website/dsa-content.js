@@ -661,7 +661,35 @@ In summary, it is recommended that before diving deep into data structures and a
 <h3>2.2.2.1 Vòng lặp For (For Loop)</h3>
 <p>Vòng lặp <code>for</code> phù hợp nhất khi chúng ta đã biết trước số lần lặp.</p>
 <p>Hàm sau tính tổng $1 + 2 + \\dots + n$ bằng vòng lặp <code>for</code>:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def for_loop(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int forLoop(int n) {
+        int res = 0;
+        // Sum 1, 2, ..., n-1, n
+        for (int i = 1; i &lt;= n; i++) {
+            res += i;
+        }
+        return res;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun forLoop(n: Int): Int {
+    var res = 0
+    // Sum 1, 2, ..., n-1, n
+    for (i in 1..n) {
+        res += i
+    }
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func forLoop(n: Int) -&gt; Int {
+    var res = 0
+    // Sum 1, 2, ..., n-1, n
+    for i in 1 ... n {
+        res += i
+    }
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int forLoop(int n) {
+  int res = 0;
+  // Sum 1, 2, ..., n-1, n
+  for (int i = 1; i &lt;= n; i++) {
+    res += i;
+  }
+  return res;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def for_loop(n: int) -&gt; int:
     """for loop"""
     res = 0
     # Sum 1, 2, ..., n-1, n
@@ -674,14 +702,7 @@ In summary, it is recommended that before diving deep into data structures and a
         res += i;
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int forLoop(int n) {
-        int res = 0;
-        // Sum 1, 2, ..., n-1, n
-        for (int i = 1; i &lt;= n; i++) {
-            res += i;
-        }
-        return res;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int ForLoop(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int ForLoop(int n) {
         int res = 0;
         // Sum 1, 2, ..., n-1, n
         for (int i = 1; i &lt;= n; i++) {
@@ -695,13 +716,6 @@ In summary, it is recommended that before diving deep into data structures and a
 		res += i
 	}
 	return res
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func forLoop(n: Int) -&gt; Int {
-    var res = 0
-    // Sum 1, 2, ..., n-1, n
-    for i in 1 ... n {
-        res += i
-    }
-    return res
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function forLoop(n) {
     let res = 0;
     // Sum 1, 2, ..., n-1, n
@@ -716,13 +730,6 @@ In summary, it is recommended that before diving deep into data structures and a
         res += i;
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int forLoop(int n) {
-  int res = 0;
-  // Sum 1, 2, ..., n-1, n
-  for (int i = 1; i &lt;= n; i++) {
-    res += i;
-  }
-  return res;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn for_loop(n: i32) -&gt; i32 {
     let mut res = 0;
     // Sum 1, 2, ..., n-1, n
@@ -737,23 +744,7 @@ In summary, it is recommended that before diving deep into data structures and a
         res += i;
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun forLoop(n: Int): Int {
-    var res = 0
-    // Sum 1, 2, ..., n-1, n
-    for (i in 1..n) {
-        res += i
-    }
-    return res
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def for_loop(n)
-  res = 0
-
-  # Sum 1, 2, ..., n-1, n
-  for i in 1..n
-    res += i
-  end
-
-  res
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/iteration.png" alt="Sơ đồ khối hàm tính tổng bằng vòng lặp" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
@@ -762,7 +753,43 @@ end</code></pre></div></div></div>
 <h3>2.2.2.2 Vòng lặp While (While Loop)</h3>
 <p>Vòng lặp <code>while</code> có tính linh hoạt cao hơn vòng lặp <code>for</code> vì điều kiện lặp có thể được tùy biến phức tạp hơn ở mỗi bước lặp.</p>
 <p>Hàm tính tổng $1 + 2 + \\dots + n$ bằng vòng lặp <code>while</code>:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def while_loop(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int whileLoop(int n) {
+        int res = 0;
+        int i = 1; // Initialize condition variable
+        // Sum 1, 2, ..., n-1, n
+        while (i &lt;= n) {
+            res += i;
+            i++; // Update condition variable
+        }
+        return res;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun whileLoop(n: Int): Int {
+    var res = 0
+    var i = 1 // Initialize condition variable
+    // Sum 1, 2, ..., n-1, n
+    while (i &lt;= n) {
+        res += i
+        i++ // Update condition variable
+    }
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func whileLoop(n: Int) -&gt; Int {
+    var res = 0
+    var i = 1 // Initialize condition variable
+    // Sum 1, 2, ..., n-1, n
+    while i &lt;= n {
+        res += i
+        i += 1 // Update condition variable
+    }
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int whileLoop(int n) {
+  int res = 0;
+  int i = 1; // Initialize condition variable
+  // Sum 1, 2, ..., n-1, n
+  while (i &lt;= n) {
+    res += i;
+    i++; // Update condition variable
+  }
+  return res;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def while_loop(n: int) -&gt; int:
     """while loop"""
     res = 0
     i = 1  # Initialize condition variable
@@ -779,16 +806,7 @@ end</code></pre></div></div></div>
         i++; // Update condition variable
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int whileLoop(int n) {
-        int res = 0;
-        int i = 1; // Initialize condition variable
-        // Sum 1, 2, ..., n-1, n
-        while (i &lt;= n) {
-            res += i;
-            i++; // Update condition variable
-        }
-        return res;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int WhileLoop(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int WhileLoop(int n) {
         int res = 0;
         int i = 1; // Initialize condition variable
         // Sum 1, 2, ..., n-1, n
@@ -808,15 +826,6 @@ end</code></pre></div></div></div>
 		i++
 	}
 	return res
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func whileLoop(n: Int) -&gt; Int {
-    var res = 0
-    var i = 1 // Initialize condition variable
-    // Sum 1, 2, ..., n-1, n
-    while i &lt;= n {
-        res += i
-        i += 1 // Update condition variable
-    }
-    return res
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function whileLoop(n) {
     let res = 0;
     let i = 1; // Initialize condition variable
@@ -835,15 +844,6 @@ end</code></pre></div></div></div>
         i++; // Update condition variable
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int whileLoop(int n) {
-  int res = 0;
-  int i = 1; // Initialize condition variable
-  // Sum 1, 2, ..., n-1, n
-  while (i &lt;= n) {
-    res += i;
-    i++; // Update condition variable
-  }
-  return res;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn while_loop(n: i32) -&gt; i32 {
     let mut res = 0;
     let mut i = 1; // Initialize condition variable
@@ -863,30 +863,54 @@ end</code></pre></div></div></div>
         i++; // Update condition variable
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun whileLoop(n: Int): Int {
-    var res = 0
-    var i = 1 // Initialize condition variable
-    // Sum 1, 2, ..., n-1, n
-    while (i &lt;= n) {
-        res += i
-        i++ // Update condition variable
-    }
-    return res
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def while_loop(n)
-  res = 0
-  i = 1 # Initialize condition variable
-
-  # Sum 1, 2, ..., n-1, n
-  while i &lt;= n
-    res += i
-    i += 1 # Update condition variable
-  end
-
-  res
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Ví dụ sau đây cập nhật biến điều kiện $i$ hai lần mỗi vòng lặp, việc này khó thực hiện thuận tiện bằng vòng lặp <code>for</code>:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def while_loop_ii(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int whileLoopII(int n) {
+        int res = 0;
+        int i = 1; // Initialize condition variable
+        // Sum 1, 4, 10, ...
+        while (i &lt;= n) {
+            res += i;
+            // Update condition variable
+            i++;
+            i *= 2;
+        }
+        return res;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun whileLoopII(n: Int): Int {
+    var res = 0
+    var i = 1 // Initialize condition variable
+    // Sum 1, 4, 10, ...
+    while (i &lt;= n) {
+        res += i
+        // Update condition variable
+        i++
+        i *= 2
+    }
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func whileLoopII(n: Int) -&gt; Int {
+    var res = 0
+    var i = 1 // Initialize condition variable
+    // Sum 1, 4, 10, ...
+    while i &lt;= n {
+        res += i
+        // Update condition variable
+        i += 1
+        i *= 2
+    }
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int whileLoopII(int n) {
+  int res = 0;
+  int i = 1; // Initialize condition variable
+  // Sum 1, 4, 10, ...
+  while (i &lt;= n) {
+    res += i;
+    // Update condition variable
+    i++;
+    i *= 2;
+  }
+  return res;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def while_loop_ii(n: int) -&gt; int:
     """while loop (two updates)"""
     res = 0
     i = 1  # Initialize condition variable
@@ -907,18 +931,7 @@ end</code></pre></div></div></div>
         i *= 2;
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int whileLoopII(int n) {
-        int res = 0;
-        int i = 1; // Initialize condition variable
-        // Sum 1, 4, 10, ...
-        while (i &lt;= n) {
-            res += i;
-            // Update condition variable
-            i++;
-            i *= 2;
-        }
-        return res;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int WhileLoopII(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int WhileLoopII(int n) {
         int res = 0;
         int i = 1; // Initialize condition variable
         // Sum 1, 4, 10, ...
@@ -941,17 +954,6 @@ end</code></pre></div></div></div>
 		i *= 2
 	}
 	return res
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func whileLoopII(n: Int) -&gt; Int {
-    var res = 0
-    var i = 1 // Initialize condition variable
-    // Sum 1, 4, 10, ...
-    while i &lt;= n {
-        res += i
-        // Update condition variable
-        i += 1
-        i *= 2
-    }
-    return res
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function whileLoopII(n) {
     let res = 0;
     let i = 1; // Initialize condition variable
@@ -974,17 +976,6 @@ end</code></pre></div></div></div>
         i *= 2;
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int whileLoopII(int n) {
-  int res = 0;
-  int i = 1; // Initialize condition variable
-  // Sum 1, 4, 10, ...
-  while (i &lt;= n) {
-    res += i;
-    // Update condition variable
-    i++;
-    i *= 2;
-  }
-  return res;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn while_loop_ii(n: i32) -&gt; i32 {
     let mut res = 0;
     let mut i = 1; // Initialize condition variable
@@ -1008,35 +999,51 @@ end</code></pre></div></div></div>
         i *= 2;
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun whileLoopII(n: Int): Int {
-    var res = 0
-    var i = 1 // Initialize condition variable
-    // Sum 1, 4, 10, ...
-    while (i &lt;= n) {
-        res += i
-        // Update condition variable
-        i++
-        i *= 2
-    }
-    return res
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def while_loop_ii(n)
-  res = 0
-  i = 1 # Initialize condition variable
-
-  # Sum 1, 4, 10, ...
-  while i &lt;= n
-    res += i
-    # Update condition variable
-    i += 1
-    i *= 2
-  end
-
-  res
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <h3>2.2.2.3 Vòng lặp lồng nhau (Nested Loop)</h3>
 <p>Chúng ta có thể lồng một vòng lặp này bên trong một vòng lặp khác. Khi lồng hai vòng lặp <code>for</code>, số lần thực thi các phép toán sẽ tỷ lệ thuận với $n^2$ (quan hệ bình phương):</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def nested_for_loop(n: int) -&gt; str:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static String nestedForLoop(int n) {
+        StringBuilder res = new StringBuilder();
+        // Loop i = 1, 2, ..., n-1, n
+        for (int i = 1; i &lt;= n; i++) {
+            // Loop j = 1, 2, ..., n-1, n
+            for (int j = 1; j &lt;= n; j++) {
+                res.append("(" + i + ", " + j + "), ");
+            }
+        }
+        return res.toString();
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun nestedForLoop(n: Int): String {
+    val res = StringBuilder()
+    // Loop i = 1, 2, ..., n-1, n
+    for (i in 1..n) {
+        // Loop j = 1, 2, ..., n-1, n
+        for (j in 1..n) {
+            res.append(" ($i, $j), ")
+        }
+    }
+    return res.toString()
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func nestedForLoop(n: Int) -&gt; String {
+    var res = ""
+    // Loop i = 1, 2, ..., n-1, n
+    for i in 1 ... n {
+        // Loop j = 1, 2, ..., n-1, n
+        for j in 1 ... n {
+            res.append("(\(i), \(j)), ")
+        }
+    }
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>String nestedForLoop(int n) {
+  String res = "";
+  // Loop i = 1, 2, ..., n-1, n
+  for (int i = 1; i &lt;= n; i++) {
+    // Loop j = 1, 2, ..., n-1, n
+    for (int j = 1; j &lt;= n; j++) {
+      res += "($i, $j), ";
+    }
+  }
+  return res;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def nested_for_loop(n: int) -&gt; str:
     """Nested for loop"""
     res = ""
     # Loop i = 1, 2, ..., n-1, n
@@ -1054,17 +1061,7 @@ end</code></pre></div></div></div>
         }
     }
     return res.str();
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static String nestedForLoop(int n) {
-        StringBuilder res = new StringBuilder();
-        // Loop i = 1, 2, ..., n-1, n
-        for (int i = 1; i &lt;= n; i++) {
-            // Loop j = 1, 2, ..., n-1, n
-            for (int j = 1; j &lt;= n; j++) {
-                res.append("(" + i + ", " + j + "), ");
-            }
-        }
-        return res.toString();
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    string NestedForLoop(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    string NestedForLoop(int n) {
         StringBuilder res = new();
         // Loop i = 1, 2, ..., n-1, n
         for (int i = 1; i &lt;= n; i++) {
@@ -1084,16 +1081,6 @@ end</code></pre></div></div></div>
 		}
 	}
 	return res
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func nestedForLoop(n: Int) -&gt; String {
-    var res = ""
-    // Loop i = 1, 2, ..., n-1, n
-    for i in 1 ... n {
-        // Loop j = 1, 2, ..., n-1, n
-        for j in 1 ... n {
-            res.append("(\(i), \(j)), ")
-        }
-    }
-    return res
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function nestedForLoop(n) {
     let res = '';
     // Loop i = 1, 2, ..., n-1, n
@@ -1114,16 +1101,6 @@ end</code></pre></div></div></div>
         }
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>String nestedForLoop(int n) {
-  String res = "";
-  // Loop i = 1, 2, ..., n-1, n
-  for (int i = 1; i &lt;= n; i++) {
-    // Loop j = 1, 2, ..., n-1, n
-    for (int j = 1; j &lt;= n; j++) {
-      res += "($i, $j), ";
-    }
-  }
-  return res;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn nested_for_loop(n: i32) -&gt; String {
     let mut res = vec![];
     // Loop i = 1, 2, ..., n-1, n
@@ -1148,29 +1125,7 @@ end</code></pre></div></div></div>
         }
     }
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun nestedForLoop(n: Int): String {
-    val res = StringBuilder()
-    // Loop i = 1, 2, ..., n-1, n
-    for (i in 1..n) {
-        // Loop j = 1, 2, ..., n-1, n
-        for (j in 1..n) {
-            res.append(" ($i, $j), ")
-        }
-    }
-    return res.toString()
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def nested_for_loop(n)
-  res = ""
-
-  # Loop i = 1, 2, ..., n-1, n
-  for i in 1..n
-    # Loop j = 1, 2, ..., n-1, n
-    for j in 1..n
-      res += "(#{i}, #{j}), "
-    end
-  end
-
-  res
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/nested_iteration.png" alt="Sơ đồ khối vòng lặp lồng nhau" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
@@ -1190,7 +1145,39 @@ end</code></pre></div></div></div>
 </ul>
 
 <p>Hàm tính tổng $1 + 2 + \\dots + n$ bằng đệ quy:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def recur(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int recur(int n) {
+        // Termination condition
+        if (n == 1)
+            return 1;
+        // Recurse: recursive call
+        int res = recur(n - 1);
+        // Return: return result
+        return n + res;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun recur(n: Int): Int {
+    // Termination condition
+    if (n == 1)
+        return 1
+    // Descend: recursive call
+    val res = recur(n - 1)
+    // Return: return result
+    return n + res
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func recur(n: Int) -&gt; Int {
+    // Termination condition
+    if n == 1 {
+        return 1
+    }
+    // Recurse: recursive call
+    let res = recur(n: n - 1)
+    // Return: return result
+    return n + res
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int recur(int n) {
+  // Termination condition
+  if (n == 1) return 1;
+  // Recurse: recursive call
+  int res = recur(n - 1);
+  // Return: return result
+  return n + res;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def recur(n: int) -&gt; int:
     """Recursion"""
     # Termination condition
     if n == 1:
@@ -1206,15 +1193,7 @@ end</code></pre></div></div></div>
     int res = recur(n - 1);
     // Return: return result
     return n + res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int recur(int n) {
-        // Termination condition
-        if (n == 1)
-            return 1;
-        // Recurse: recursive call
-        int res = recur(n - 1);
-        // Return: return result
-        return n + res;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Recur(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Recur(int n) {
         // Termination condition
         if (n == 1)
             return 1;
@@ -1231,15 +1210,6 @@ end</code></pre></div></div></div>
 	res := recur(n - 1)
 	// Return: return result
 	return n + res
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func recur(n: Int) -&gt; Int {
-    // Termination condition
-    if n == 1 {
-        return 1
-    }
-    // Recurse: recursive call
-    let res = recur(n: n - 1)
-    // Return: return result
-    return n + res
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function recur(n) {
     // Termination condition
     if (n === 1) return 1;
@@ -1254,13 +1224,6 @@ end</code></pre></div></div></div>
     const res = recur(n - 1);
     // Return: return result
     return n + res;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int recur(int n) {
-  // Termination condition
-  if (n == 1) return 1;
-  // Recurse: recursive call
-  int res = recur(n - 1);
-  // Return: return result
-  return n + res;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn recur(n: i32) -&gt; i32 {
     // Termination condition
     if n == 1 {
@@ -1278,22 +1241,7 @@ end</code></pre></div></div></div>
     int res = recur(n - 1);
     // Return: return result
     return n + res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun recur(n: Int): Int {
-    // Termination condition
-    if (n == 1)
-        return 1
-    // Descend: recursive call
-    val res = recur(n - 1)
-    // Return: return result
-    return n + res
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def recur(n)
-  # Termination condition
-  return 1 if n == 1
-  # Recurse: recursive call
-  res = recur(n - 1)
-  # Return: return result
-  n + res
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <div class="interactive-widget-wrapper" id="recur-iter-wrapper">
   <div class="widget-tabs">
@@ -1381,7 +1329,32 @@ end</code></pre></div></div></div>
   <li><strong>Đệ quy thông thường</strong>: Khi hàm trả về tầng trước đó, nó cần tiếp tục thực thi mã lệnh, do đó hệ thống cần lưu lại ngữ cảnh gọi hàm của tầng trước.</li>
   <li><strong>Đệ quy đuôi</strong>: Lời gọi đệ quy là thao tác cuối cùng trước khi hàm trả về, nghĩa là sau khi quay về tầng trước, không cần thực thi thêm thao tác nào khác, nên hệ thống không cần lưu lại ngữ cảnh của hàm ở tầng trước.</li>
 </ul>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def tail_recur(n, res):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int tailRecur(int n, int res) {
+        // Termination condition
+        if (n == 0)
+            return res;
+        // Tail recursive call
+        return tailRecur(n - 1, res + n);
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>tailrec fun tailRecur(n: Int, res: Int): Int {
+    // Add tailrec keyword to enable tail recursion optimization
+    // Termination condition
+    if (n == 0)
+        return res
+    // Tail recursive call
+    return tailRecur(n - 1, res + n)
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func tailRecur(n: Int, res: Int) -&gt; Int {
+    // Termination condition
+    if n == 0 {
+        return res
+    }
+    // Tail recursive call
+    return tailRecur(n: n - 1, res: res + n)
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int tailRecur(int n, int res) {
+  // Termination condition
+  if (n == 0) return res;
+  // Tail recursive call
+  return tailRecur(n - 1, res + n);
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def tail_recur(n, res):
     """Tail recursion"""
     # Termination condition
     if n == 0:
@@ -1393,13 +1366,7 @@ end</code></pre></div></div></div>
         return res;
     // Tail recursive call
     return tailRecur(n - 1, res + n);
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int tailRecur(int n, int res) {
-        // Termination condition
-        if (n == 0)
-            return res;
-        // Tail recursive call
-        return tailRecur(n - 1, res + n);
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int TailRecur(int n, int res) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int TailRecur(int n, int res) {
         // Termination condition
         if (n == 0)
             return res;
@@ -1412,13 +1379,6 @@ end</code></pre></div></div></div>
 	}
 	// Tail recursive call
 	return tailRecur(n-1, res+n)
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func tailRecur(n: Int, res: Int) -&gt; Int {
-    // Termination condition
-    if n == 0 {
-        return res
-    }
-    // Tail recursive call
-    return tailRecur(n: n - 1, res: res + n)
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function tailRecur(n, res) {
     // Termination condition
     if (n === 0) return res;
@@ -1429,11 +1389,6 @@ end</code></pre></div></div></div>
     if (n === 0) return res;
     // Tail recursive call
     return tailRecur(n - 1, res + n);
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int tailRecur(int n, int res) {
-  // Termination condition
-  if (n == 0) return res;
-  // Tail recursive call
-  return tailRecur(n - 1, res + n);
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn tail_recur(n: i32, res: i32) -&gt; i32 {
     // Termination condition
     if n == 0 {
@@ -1447,19 +1402,7 @@ end</code></pre></div></div></div>
         return res;
     // Tail recursive call
     return tailRecur(n - 1, res + n);
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>tailrec fun tailRecur(n: Int, res: Int): Int {
-    // Add tailrec keyword to enable tail recursion optimization
-    // Termination condition
-    if (n == 0)
-        return res
-    // Tail recursive call
-    return tailRecur(n - 1, res + n)
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def tail_recur(n, res)
-  # Termination condition
-  return res if n == 0
-  # Tail recursive call
-  tail_recur(n - 1, res + n)
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Quá trình thực thi của đệ quy đuôi được minh họa trong hình dưới đây. So sánh đệ quy thông thường và đệ quy đuôi, ta thấy phép cộng tổng được thực hiện ở những thời điểm khác nhau.</p>
 <ul>
@@ -1490,7 +1433,39 @@ end</code></pre></div></div></div>
   <li>Mỗi số trong dãy bằng tổng hai số liền trước nó, tức là $f(n) = f(n - 1) + f(n - 2)$.</li>
 </ul>
 <p>Dựa theo công thức truy hồi để thực hiện các lời gọi đệ quy, với hai số đầu tiên làm điều kiện dừng, ta có thể viết mã đệ quy như sau. Gọi <code>fib(n)</code> sẽ cho ta số thứ $n$ của dãy Fibonacci:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def fib(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int fib(int n) {
+        // Termination condition f(1) = 0, f(2) = 1
+        if (n == 1 || n == 2)
+            return n - 1;
+        // Recursive call f(n) = f(n-1) + f(n-2)
+        int res = fib(n - 1) + fib(n - 2);
+        // Return result f(n)
+        return res;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun fib(n: Int): Int {
+    // Termination condition f(1) = 0, f(2) = 1
+    if (n == 1 || n == 2)
+        return n - 1
+    // Recursive call f(n) = f(n-1) + f(n-2)
+    val res = fib(n - 1) + fib(n - 2)
+    // Return result f(n)
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func fib(n: Int) -&gt; Int {
+    // Termination condition f(1) = 0, f(2) = 1
+    if n == 1 || n == 2 {
+        return n - 1
+    }
+    // Recursive call f(n) = f(n-1) + f(n-2)
+    let res = fib(n: n - 1) + fib(n: n - 2)
+    // Return result f(n)
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int fib(int n) {
+  // Termination condition f(1) = 0, f(2) = 1
+  if (n == 1 || n == 2) return n - 1;
+  // Recursive call f(n) = f(n-1) + f(n-2)
+  int res = fib(n - 1) + fib(n - 2);
+  // Return result f(n)
+  return res;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def fib(n: int) -&gt; int:
     """Fibonacci sequence: recursion"""
     # Termination condition f(1) = 0, f(2) = 1
     if n == 1 or n == 2:
@@ -1506,15 +1481,7 @@ end</code></pre></div></div></div>
     int res = fib(n - 1) + fib(n - 2);
     // Return result f(n)
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int fib(int n) {
-        // Termination condition f(1) = 0, f(2) = 1
-        if (n == 1 || n == 2)
-            return n - 1;
-        // Recursive call f(n) = f(n-1) + f(n-2)
-        int res = fib(n - 1) + fib(n - 2);
-        // Return result f(n)
-        return res;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Fib(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Fib(int n) {
         // Termination condition f(1) = 0, f(2) = 1
         if (n == 1 || n == 2)
             return n - 1;
@@ -1531,15 +1498,6 @@ end</code></pre></div></div></div>
 	res := fib(n-1) + fib(n-2)
 	// Return result f(n)
 	return res
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func fib(n: Int) -&gt; Int {
-    // Termination condition f(1) = 0, f(2) = 1
-    if n == 1 || n == 2 {
-        return n - 1
-    }
-    // Recursive call f(n) = f(n-1) + f(n-2)
-    let res = fib(n: n - 1) + fib(n: n - 2)
-    // Return result f(n)
-    return res
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function fib(n) {
     // Termination condition f(1) = 0, f(2) = 1
     if (n === 1 || n === 2) return n - 1;
@@ -1554,13 +1512,6 @@ end</code></pre></div></div></div>
     const res = fib(n - 1) + fib(n - 2);
     // Return result f(n)
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int fib(int n) {
-  // Termination condition f(1) = 0, f(2) = 1
-  if (n == 1 || n == 2) return n - 1;
-  // Recursive call f(n) = f(n-1) + f(n-2)
-  int res = fib(n - 1) + fib(n - 2);
-  // Return result f(n)
-  return res;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn fib(n: i32) -&gt; i32 {
     // Termination condition f(1) = 0, f(2) = 1
     if n == 1 || n == 2 {
@@ -1578,22 +1529,7 @@ end</code></pre></div></div></div>
     int res = fib(n - 1) + fib(n - 2);
     // Return result f(n)
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun fib(n: Int): Int {
-    // Termination condition f(1) = 0, f(2) = 1
-    if (n == 1 || n == 2)
-        return n - 1
-    // Recursive call f(n) = f(n-1) + f(n-2)
-    val res = fib(n - 1) + fib(n - 2)
-    // Return result f(n)
-    return res
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def fib(n)
-  # Termination condition f(1) = 0, f(2) = 1
-  return n - 1 if n == 1 || n == 2
-  # Recursive call f(n) = f(n-1) + f(n-2)
-  res = fib(n - 1) + fib(n - 2)
-  # Return result f(n)
-  res
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Quan sát đoạn mã trên, hàm thực hiện hai lời gọi đệ quy trong một lượt, <strong>nghĩa là một lời gọi sẽ sinh ra hai nhánh gọi con</strong>. Như minh họa trong hình dưới đây, việc gọi đệ quy lặp đi lặp lại này cuối cùng tạo ra một <strong>cây đệ quy (recursion tree)</strong> với $n$ tầng.</p>
 
@@ -1655,7 +1591,71 @@ end</code></pre></div></div></div>
   <li><strong>Đi lên (Ascend)</strong>: Khi hàm hoàn tất thực thi và trả về, khung ngăn xếp tương ứng sẽ bị loại bỏ khỏi "ngăn xếp cuộc gọi", khôi phục lại môi trường thực thi của hàm trước đó.</li>
 </ol>
 <p>Do đó, <strong>chúng ta có thể dùng một ngăn xếp tường minh (explicit stack) để mô phỏng hành vi của ngăn xếp cuộc gọi</strong>, từ đó chuyển đổi đệ quy thành dạng vòng lặp:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def for_loop_recur(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int forLoopRecur(int n) {
+        // Use an explicit stack to simulate the system call stack
+        Stack&lt;Integer&gt; stack = new Stack&lt;&gt;();
+        int res = 0;
+        // Recurse: recursive call
+        for (int i = n; i &gt; 0; i--) {
+            // Simulate "recurse" with "push"
+            stack.push(i);
+        }
+        // Return: return result
+        while (!stack.isEmpty()) {
+            // Simulate "return" with "pop"
+            res += stack.pop();
+        }
+        // res = 1+2+3+...+n
+        return res;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun forLoopRecur(n: Int): Int {
+    // Use an explicit stack to simulate the system call stack
+    val stack = Stack&lt;Int&gt;()
+    var res = 0
+    // Recurse: recursive call
+    for (i in n downTo 0) {
+        // Simulate "recurse" with "push"
+        stack.push(i)
+    }
+    // Return: return result
+    while (stack.isNotEmpty()) {
+        // Simulate "return" with "pop"
+        res += stack.pop()
+    }
+    // res = 1+2+3+...+n
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func forLoopRecur(n: Int) -&gt; Int {
+    // Use an explicit stack to simulate the system call stack
+    var stack: [Int] = []
+    var res = 0
+    // Recurse: recursive call
+    for i in (1 ... n).reversed() {
+        // Simulate "recurse" with "push"
+        stack.append(i)
+    }
+    // Return: return result
+    while !stack.isEmpty {
+        // Simulate "return" with "pop"
+        res += stack.removeLast()
+    }
+    // res = 1+2+3+...+n
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int forLoopRecur(int n) {
+  // Use an explicit stack to simulate the system call stack
+  List&lt;int&gt; stack = [];
+  int res = 0;
+  // Recurse: recursive call
+  for (int i = n; i &gt; 0; i--) {
+    // Simulate "recurse" with "push"
+    stack.add(i);
+  }
+  // Return: return result
+  while (!stack.isEmpty) {
+    // Simulate "return" with "pop"
+    res += stack.removeLast();
+  }
+  // res = 1+2+3+...+n
+  return res;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def for_loop_recur(n: int) -&gt; int:
     """Simulate recursion using iteration"""
     # Use an explicit stack to simulate the system call stack
     stack = []
@@ -1686,23 +1686,7 @@ end</code></pre></div></div></div>
     }
     // res = 1+2+3+...+n
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int forLoopRecur(int n) {
-        // Use an explicit stack to simulate the system call stack
-        Stack&lt;Integer&gt; stack = new Stack&lt;&gt;();
-        int res = 0;
-        // Recurse: recursive call
-        for (int i = n; i &gt; 0; i--) {
-            // Simulate "recurse" with "push"
-            stack.push(i);
-        }
-        // Return: return result
-        while (!stack.isEmpty()) {
-            // Simulate "return" with "pop"
-            res += stack.pop();
-        }
-        // res = 1+2+3+...+n
-        return res;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int ForLoopRecur(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int ForLoopRecur(int n) {
         // Use an explicit stack to simulate the system call stack
         Stack&lt;int&gt; stack = new();
         int res = 0;
@@ -1735,22 +1719,6 @@ end</code></pre></div></div></div>
 	}
 	// res = 1+2+3+...+n
 	return res
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func forLoopRecur(n: Int) -&gt; Int {
-    // Use an explicit stack to simulate the system call stack
-    var stack: [Int] = []
-    var res = 0
-    // Recurse: recursive call
-    for i in (1 ... n).reversed() {
-        // Simulate "recurse" with "push"
-        stack.append(i)
-    }
-    // Return: return result
-    while !stack.isEmpty {
-        // Simulate "return" with "pop"
-        res += stack.removeLast()
-    }
-    // res = 1+2+3+...+n
-    return res
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function forLoopRecur(n) {
     // Use an explicit stack to simulate the system call stack
     const stack = [];
@@ -1783,22 +1751,6 @@ end</code></pre></div></div></div>
     }
     // res = 1+2+3+...+n
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int forLoopRecur(int n) {
-  // Use an explicit stack to simulate the system call stack
-  List&lt;int&gt; stack = [];
-  int res = 0;
-  // Recurse: recursive call
-  for (int i = n; i &gt; 0; i--) {
-    // Simulate "recurse" with "push"
-    stack.add(i);
-  }
-  // Return: return result
-  while (!stack.isEmpty) {
-    // Simulate "return" with "pop"
-    res += stack.removeLast();
-  }
-  // res = 1+2+3+...+n
-  return res;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn for_loop_recur(n: i32) -&gt; i32 {
     // Use an explicit stack to simulate the system call stack
     let mut stack = Vec::new();
@@ -1831,40 +1783,7 @@ end</code></pre></div></div></div>
     }
     // res = 1+2+3+...+n
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun forLoopRecur(n: Int): Int {
-    // Use an explicit stack to simulate the system call stack
-    val stack = Stack&lt;Int&gt;()
-    var res = 0
-    // Recurse: recursive call
-    for (i in n downTo 0) {
-        // Simulate "recurse" with "push"
-        stack.push(i)
-    }
-    // Return: return result
-    while (stack.isNotEmpty()) {
-        // Simulate "return" with "pop"
-        res += stack.pop()
-    }
-    // res = 1+2+3+...+n
-    return res
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def for_loop_recur(n)
-  # Use an explicit stack to simulate the system call stack
-  stack = []
-  res = 0
-
-  # Recurse: recursive call
-  for i in n.downto(0)
-    # Simulate "recurse" with "push"
-    stack &lt;&lt; i
-  end
-  # Return: return result
-  while !stack.empty?
-    res += stack.pop
-  end
-
-  # res = 1+2+3+...+n
-  res
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Quan sát đoạn mã trên, khi đệ quy được chuyển thành vòng lặp, mã nguồn trở nên phức tạp hơn. Mặc dù vòng lặp và đệ quy có thể chuyển đổi qua lại lẫn nhau trong nhiều trường hợp, nhưng việc này có thể không đáng để thực hiện vì hai lý do sau:</p>
 <ul>
@@ -2089,7 +2008,43 @@ In summary, **choosing between iteration and recursion depends on the nature of 
   <li><strong>Đếm tất cả các phép toán trong mã</strong>, rồi cộng dồn thời gian thực thi của tất cả các phép toán để có được tổng thời gian chạy.</li>
 </ol>
 <p>Ví dụ, trong đoạn mã sau, kích thước dữ liệu đầu vào là $n$:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># On a certain running platform
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>// On a certain running platform
+void algorithm(int n) {
+    int a = 2;  // 1 ns
+    a = a + 1;  // 1 ns
+    a = a * 2;  // 10 ns
+    // Loop n times
+    for (int i = 0; i &lt; n; i++) {  // 1 ns
+        System.out.println(0);     // 5 ns
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>// On a certain running platform
+fun algorithm(n: Int) {
+    var a = 2 // 1 ns
+    a = a + 1 // 1 ns
+    a = a * 2 // 10 ns
+    // Loop n times
+    for (i in 0..&lt;n) {  // 1 ns
+        println(0)      // 5 ns
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>// On a certain running platform
+func algorithm(n: Int) {
+    var a = 2 // 1 ns
+    a = a + 1 // 1 ns
+    a = a * 2 // 10 ns
+    // Loop n times
+    for _ in 0 ..&lt; n { // 1 ns
+        print(0) // 5 ns
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>// On a certain running platform
+void algorithm(int n) {
+  int a = 2; // 1 ns
+  a = a + 1; // 1 ns
+  a = a * 2; // 10 ns
+  // Loop n times
+  for (int i = 0; i &lt; n; i++) { // 1 ns
+    print(0); // 5 ns
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># On a certain running platform
 def algorithm(n: int):
     a = 2      # 1 ns
     a = a + 1  # 1 ns
@@ -2104,15 +2059,6 @@ void algorithm(int n) {
     // Loop n times
     for (int i = 0; i &lt; n; i++) {  // 1 ns
         cout &lt;&lt; 0 &lt;&lt; endl;         // 5 ns
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>// On a certain running platform
-void algorithm(int n) {
-    int a = 2;  // 1 ns
-    a = a + 1;  // 1 ns
-    a = a * 2;  // 10 ns
-    // Loop n times
-    for (int i = 0; i &lt; n; i++) {  // 1 ns
-        System.out.println(0);     // 5 ns
     }
 }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>// On a certain running platform
 void Algorithm(int n) {
@@ -2132,15 +2078,6 @@ func algorithm(n int) {
 	for i := 0; i &lt; n; i++ {  // 1 ns
 		fmt.Println(a)        // 5 ns
 	}
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>// On a certain running platform
-func algorithm(n: Int) {
-    var a = 2 // 1 ns
-    a = a + 1 // 1 ns
-    a = a * 2 // 10 ns
-    // Loop n times
-    for _ in 0 ..&lt; n { // 1 ns
-        print(0) // 5 ns
-    }
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>// On a certain running platform
 function algorithm(n) {
     var a = 2; // 1 ns
@@ -2159,15 +2096,6 @@ function algorithm(n: number): void {
     for(let i = 0; i &lt; n; i++) { // 1 ns
         console.log(0); // 5 ns
     }
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>// On a certain running platform
-void algorithm(int n) {
-  int a = 2; // 1 ns
-  a = a + 1; // 1 ns
-  a = a * 2; // 10 ns
-  // Loop n times
-  for (int i = 0; i &lt; n; i++) { // 1 ns
-    print(0); // 5 ns
-  }
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>// On a certain running platform
 fn algorithm(n: i32) {
     let mut a = 2;      // 1 ns
@@ -2186,25 +2114,7 @@ void algorithm(int n) {
     for (int i = 0; i &lt; n; i++) {   // 1 ns
         printf("%d", 0);            // 5 ns
     }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>// On a certain running platform
-fun algorithm(n: Int) {
-    var a = 2 // 1 ns
-    a = a + 1 // 1 ns
-    a = a * 2 // 10 ns
-    // Loop n times
-    for (i in 0..&lt;n) {  // 1 ns
-        println(0)      // 5 ns
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code># On a certain running platform
-def algorithm(n)
-    a = 2       # 1 ns
-    a = a + 1   # 1 ns
-    a = a * 2   # 10 ns
-    # Loop n times
-    (0...n).each do # 1 ns
-        puts 0      # 5 ns
-    end
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 <p>Theo phương pháp trên, ta có thể tính được thời gian chạy của giải thuật là $(6n + 12)$ ns:</p>
 $$
 1 + 1 + 10 + (1 + 5) \\times n = 6n + 12
@@ -2214,7 +2124,69 @@ $$
 <h2>2.3.2 Đếm xu hướng tăng trưởng thời gian</h2>
 <p>Phân tích độ phức tạp thời gian <strong>không đếm thời gian chạy thực tế của giải thuật, mà đếm xu hướng tăng trưởng của thời gian chạy khi khối lượng dữ liệu tăng lên</strong>.</p>
 <p>Khái niệm "xu hướng tăng trưởng thời gian" khá trừu tượng; hãy cùng tìm hiểu qua một ví dụ. Giả sử kích thước dữ liệu đầu vào là $n$, và cho ba giải thuật <code>A</code>, <code>B</code>, <code>C</code>:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Time complexity of algorithm A: constant order
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>// Time complexity of algorithm A: constant order
+void algorithm_A(int n) {
+    System.out.println(0);
+}
+// Time complexity of algorithm B: linear order
+void algorithm_B(int n) {
+    for (int i = 0; i &lt; n; i++) {
+        System.out.println(0);
+    }
+}
+// Time complexity of algorithm C: constant order
+void algorithm_C(int n) {
+    for (int i = 0; i &lt; 1000000; i++) {
+        System.out.println(0);
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>// Time complexity of algorithm A: constant order
+fun algoritm_A(n: Int) {
+    println(0)
+}
+// Time complexity of algorithm B: linear order
+fun algorithm_B(n: Int) {
+    for (i in 0..&lt;n){
+        println(0)
+    }
+}
+// Time complexity of algorithm C: constant order
+fun algorithm_C(n: Int) {
+    for (i in 0..&lt;1000000) {
+        println(0)
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>// Time complexity of algorithm A: constant order
+func algorithmA(n: Int) {
+    print(0)
+}
+
+// Time complexity of algorithm B: linear order
+func algorithmB(n: Int) {
+    for _ in 0 ..&lt; n {
+        print(0)
+    }
+}
+
+// Time complexity of algorithm C: constant order
+func algorithmC(n: Int) {
+    for _ in 0 ..&lt; 1_000_000 {
+        print(0)
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>// Time complexity of algorithm A: constant order
+void algorithmA(int n) {
+  print(0);
+}
+// Time complexity of algorithm B: linear order
+void algorithmB(int n) {
+  for (int i = 0; i &lt; n; i++) {
+    print(0);
+  }
+}
+// Time complexity of algorithm C: constant order
+void algorithmC(int n) {
+  for (int i = 0; i &lt; 1000000; i++) {
+    print(0);
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Time complexity of algorithm A: constant order
 def algorithm_A(n: int):
     print(0)
 # Time complexity of algorithm B: linear order
@@ -2238,21 +2210,6 @@ void algorithm_B(int n) {
 void algorithm_C(int n) {
     for (int i = 0; i &lt; 1000000; i++) {
         cout &lt;&lt; 0 &lt;&lt; endl;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>// Time complexity of algorithm A: constant order
-void algorithm_A(int n) {
-    System.out.println(0);
-}
-// Time complexity of algorithm B: linear order
-void algorithm_B(int n) {
-    for (int i = 0; i &lt; n; i++) {
-        System.out.println(0);
-    }
-}
-// Time complexity of algorithm C: constant order
-void algorithm_C(int n) {
-    for (int i = 0; i &lt; 1000000; i++) {
-        System.out.println(0);
     }
 }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>// Time complexity of algorithm A: constant order
 void AlgorithmA(int n) {
@@ -2284,23 +2241,6 @@ func algorithm_C(n int) {
     for i := 0; i &lt; 1000000; i++ {
         fmt.Println(0)
     }
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>// Time complexity of algorithm A: constant order
-func algorithmA(n: Int) {
-    print(0)
-}
-
-// Time complexity of algorithm B: linear order
-func algorithmB(n: Int) {
-    for _ in 0 ..&lt; n {
-        print(0)
-    }
-}
-
-// Time complexity of algorithm C: constant order
-func algorithmC(n: Int) {
-    for _ in 0 ..&lt; 1_000_000 {
-        print(0)
-    }
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>// Time complexity of algorithm A: constant order
 function algorithm_A(n) {
     console.log(0);
@@ -2331,21 +2271,6 @@ function algorithm_C(n: number): void {
     for (let i = 0; i &lt; 1000000; i++) {
         console.log(0);
     }
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>// Time complexity of algorithm A: constant order
-void algorithmA(int n) {
-  print(0);
-}
-// Time complexity of algorithm B: linear order
-void algorithmB(int n) {
-  for (int i = 0; i &lt; n; i++) {
-    print(0);
-  }
-}
-// Time complexity of algorithm C: constant order
-void algorithmC(int n) {
-  for (int i = 0; i &lt; 1000000; i++) {
-    print(0);
-  }
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>// Time complexity of algorithm A: constant order
 fn algorithm_A(n: i32) {
     println!("{}", 0);
@@ -2376,35 +2301,7 @@ void algorithm_C(int n) {
     for (int i = 0; i &lt; 1000000; i++) {
         printf("%d", 0);
     }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>// Time complexity of algorithm A: constant order
-fun algoritm_A(n: Int) {
-    println(0)
-}
-// Time complexity of algorithm B: linear order
-fun algorithm_B(n: Int) {
-    for (i in 0..&lt;n){
-        println(0)
-    }
-}
-// Time complexity of algorithm C: constant order
-fun algorithm_C(n: Int) {
-    for (i in 0..&lt;1000000) {
-        println(0)
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code># Time complexity of algorithm A: constant order
-def algorithm_A(n)
-    puts 0
-end
-
-# Time complexity of algorithm B: linear order
-def algorithm_B(n)
-    (0...n).each { puts 0 }
-end
-
-# Time complexity of algorithm C: constant order
-def algorithm_C(n)
-    (0...1_000_000).each { puts 0 }
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 <p>Hình dưới đây thể hiện độ phức tạp thời gian của ba giải thuật trên.</p>
 <ul>
   <li>Giải thuật <code>A</code> chỉ có $1$ thao tác in, và thời gian chạy của giải thuật không tăng khi $n$ tăng. Ta gọi độ phức tạp thời gian của giải thuật này là "cấp độ hằng số" (constant order).</li>
@@ -2425,7 +2322,39 @@ end</code></pre></div></div></div>
 
 <h2>2.3.3 Giới hạn trên tiệm cận của hàm số</h2>
 <p>Cho một hàm số với kích thước đầu vào $n$:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def algorithm(n: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>void algorithm(int n) {
+    int a = 1;  // +1
+    a = a + 1;  // +1
+    a = a * 2;  // +1
+    // Loop n times
+    for (int i = 0; i &lt; n; i++) { // +1 (i++ is executed each round)
+        System.out.println(0);    // +1
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun algorithm(n: Int) {
+    var a = 1 // +1
+    a = a + 1 // +1
+    a = a * 2 // +1
+    // Loop n times
+    for (i in 0..&lt;n) { // +1 (i++ is executed each round)
+        println(0) // +1
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func algorithm(n: Int) {
+    var a = 1 // +1
+    a = a + 1 // +1
+    a = a * 2 // +1
+    // Loop n times
+    for _ in 0 ..&lt; n { // +1
+        print(0) // +1
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void algorithm(int n) {
+  int a = 1; // +1
+  a = a + 1; // +1
+  a = a * 2; // +1
+  // Loop n times
+  for (int i = 0; i &lt; n; i++) { // +1 (i++ is executed each round)
+    print(0); // +1
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def algorithm(n: int):
     a = 1      # +1
     a = a + 1  # +1
     a = a * 2  # +1
@@ -2438,14 +2367,6 @@ end</code></pre></div></div></div>
     // Loop n times
     for (int i = 0; i &lt; n; i++) { // +1 (i++ is executed each round)
         cout &lt;&lt; 0 &lt;&lt; endl;    // +1
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>void algorithm(int n) {
-    int a = 1;  // +1
-    a = a + 1;  // +1
-    a = a * 2;  // +1
-    // Loop n times
-    for (int i = 0; i &lt; n; i++) { // +1 (i++ is executed each round)
-        System.out.println(0);    // +1
     }
 }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>void Algorithm(int n) {
     int a = 1;  // +1
@@ -2463,14 +2384,6 @@ end</code></pre></div></div></div>
     for i := 0; i &lt; n; i++ {   // +1
         fmt.Println(a)         // +1
     }
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func algorithm(n: Int) {
-    var a = 1 // +1
-    a = a + 1 // +1
-    a = a * 2 // +1
-    // Loop n times
-    for _ in 0 ..&lt; n { // +1
-        print(0) // +1
-    }
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function algorithm(n) {
     var a = 1; // +1
     a += 1; // +1
@@ -2487,14 +2400,6 @@ end</code></pre></div></div></div>
     for(let i = 0; i &lt; n; i++){ // +1 (i++ is executed each round)
         console.log(0); // +1
     }
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void algorithm(int n) {
-  int a = 1; // +1
-  a = a + 1; // +1
-  a = a * 2; // +1
-  // Loop n times
-  for (int i = 0; i &lt; n; i++) { // +1 (i++ is executed each round)
-    print(0); // +1
-  }
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn algorithm(n: i32) {
     let mut a = 1;   // +1
     a = a + 1;      // +1
@@ -2512,23 +2417,7 @@ end</code></pre></div></div></div>
     for (int i = 0; i &lt; n; i++) {   // +1 (i++ is executed each round)
         printf("%d", 0);            // +1
     }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun algorithm(n: Int) {
-    var a = 1 // +1
-    a = a + 1 // +1
-    a = a * 2 // +1
-    // Loop n times
-    for (i in 0..&lt;n) { // +1 (i++ is executed each round)
-        println(0) // +1
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def algorithm(n)
-    a = 1       # +1
-    a = a + 1   # +1
-    a = a * 2   # +1
-    # Loop n times
-    (0...n).each do # +1
-        puts 0      # +1
-    end
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 <p>Gọi số lượng phép toán của giải thuật là một hàm theo kích thước dữ liệu đầu vào $n$, ký hiệu là $T(n)$. Khi đó số lượng phép toán của hàm trên là:</p>
 $$
 T(n) = 3 + 2n
@@ -2563,7 +2452,59 @@ $$
   <li><strong>Dùng phép nhân cho các vòng lặp lồng nhau</strong>. Tổng số lượng phép toán bằng tích của số lượng phép toán ở vòng lặp ngoài và vòng lặp trong, mỗi tầng vòng lặp vẫn có thể áp dụng riêng kỹ thuật \`1.\` và \`2.\`.</li>
 </ol>
 <p>Cho một hàm số, ta có thể dùng các kỹ thuật trên để đếm số lượng phép toán:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def algorithm(n: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>void algorithm(int n) {
+    int a = 1;  // +0 (Technique 1)
+    a = a + n;  // +0 (Technique 1)
+    // +n (Technique 2)
+    for (int i = 0; i &lt; 5 * n + 1; i++) {
+        System.out.println(0);
+    }
+    // +n*n (Technique 3)
+    for (int i = 0; i &lt; 2 * n; i++) {
+        for (int j = 0; j &lt; n + 1; j++) {
+            System.out.println(0);
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun algorithm(n: Int) {
+    var a = 1   // +0 (Technique 1)
+    a = a + n   // +0 (Technique 1)
+    // +n (Technique 2)
+    for (i in 0..&lt;5 * n + 1) {
+        println(0)
+    }
+    // +n*n (Technique 3)
+    for (i in 0..&lt;2 * n) {
+        for (j in 0..&lt;n + 1) {
+            println(0)
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func algorithm(n: Int) {
+    var a = 1 // +0 (Technique 1)
+    a = a + n // +0 (Technique 1)
+    // +n (Technique 2)
+    for _ in 0 ..&lt; (5 * n + 1) {
+        print(0)
+    }
+    // +n*n (Technique 3)
+    for _ in 0 ..&lt; (2 * n) {
+        for _ in 0 ..&lt; (n + 1) {
+            print(0)
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void algorithm(int n) {
+  int a = 1; // +0 (Technique 1)
+  a = a + n; // +0 (Technique 1)
+  // +n (Technique 2)
+  for (int i = 0; i &lt; 5 * n + 1; i++) {
+    print(0);
+  }
+  // +n*n (Technique 3)
+  for (int i = 0; i &lt; 2 * n; i++) {
+    for (int j = 0; j &lt; n + 1; j++) {
+      print(0);
+    }
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def algorithm(n: int):
     a = 1      # +0 (Technique 1)
     a = a + n  # +0 (Technique 1)
     # +n (Technique 2)
@@ -2583,19 +2524,6 @@ $$
     for (int i = 0; i &lt; 2 * n; i++) {
         for (int j = 0; j &lt; n + 1; j++) {
             cout &lt;&lt; 0 &lt;&lt; endl;
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>void algorithm(int n) {
-    int a = 1;  // +0 (Technique 1)
-    a = a + n;  // +0 (Technique 1)
-    // +n (Technique 2)
-    for (int i = 0; i &lt; 5 * n + 1; i++) {
-        System.out.println(0);
-    }
-    // +n*n (Technique 3)
-    for (int i = 0; i &lt; 2 * n; i++) {
-        for (int j = 0; j &lt; n + 1; j++) {
-            System.out.println(0);
         }
     }
 }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>void Algorithm(int n) {
@@ -2624,19 +2552,6 @@ $$
             fmt.Println(0)
         }
     }
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func algorithm(n: Int) {
-    var a = 1 // +0 (Technique 1)
-    a = a + n // +0 (Technique 1)
-    // +n (Technique 2)
-    for _ in 0 ..&lt; (5 * n + 1) {
-        print(0)
-    }
-    // +n*n (Technique 3)
-    for _ in 0 ..&lt; (2 * n) {
-        for _ in 0 ..&lt; (n + 1) {
-            print(0)
-        }
-    }
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function algorithm(n) {
     let a = 1;  // +0 (Technique 1)
     a = a + n;  // +0 (Technique 1)
@@ -2663,19 +2578,6 @@ $$
             console.log(0);
         }
     }
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void algorithm(int n) {
-  int a = 1; // +0 (Technique 1)
-  a = a + n; // +0 (Technique 1)
-  // +n (Technique 2)
-  for (int i = 0; i &lt; 5 * n + 1; i++) {
-    print(0);
-  }
-  // +n*n (Technique 3)
-  for (int i = 0; i &lt; 2 * n; i++) {
-    for (int j = 0; j &lt; n + 1; j++) {
-      print(0);
-    }
-  }
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn algorithm(n: i32) {
     let mut a = 1;     // +0 (Technique 1)
     a = a + n;        // +0 (Technique 1)
@@ -2704,29 +2606,7 @@ $$
             printf("%d", 0);
         }
     }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun algorithm(n: Int) {
-    var a = 1   // +0 (Technique 1)
-    a = a + n   // +0 (Technique 1)
-    // +n (Technique 2)
-    for (i in 0..&lt;5 * n + 1) {
-        println(0)
-    }
-    // +n*n (Technique 3)
-    for (i in 0..&lt;2 * n) {
-        for (j in 0..&lt;n + 1) {
-            println(0)
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def algorithm(n)
-    a = 1       # +0 (Technique 1)
-    a = a + n   # +0 (Technique 1)
-    # +n (Technique 2)
-    (0...(5 * n + 1)).each do { puts 0 }
-    # +n*n (Technique 3)
-    (0...(2 * n)).each do
-        (0...(n + 1)).each do { puts 0 }
-    end
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 <p>Công thức dưới đây cho thấy kết quả đếm trước và sau khi áp dụng các kỹ thuật trên; cả hai đều suy ra độ phức tạp thời gian $O(n^2)$.</p>
 $$
 \\begin{aligned}
@@ -2785,7 +2665,33 @@ $$
 
 <h3>2.3.5.1 Độ phức tạp hằng số $O(1)$</h3>
 <p>Số lượng phép toán không phụ thuộc vào kích thước dữ liệu đầu vào $n$:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def constant(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int constant(int n) {
+        int count = 0;
+        int size = 100000;
+        for (int i = 0; i &lt; size; i++)
+            count++;
+        return count;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun constant(n: Int): Int {
+    var count = 0
+    val size = 100000
+    for (i in 0..&lt;size)
+        count++
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func constant(n: Int) -&gt; Int {
+    var count = 0
+    let size = 100_000
+    for _ in 0 ..&lt; size {
+        count += 1
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int constant(int n) {
+  int count = 0;
+  int size = 100000;
+  for (var i = 0; i &lt; size; i++) {
+    count++;
+  }
+  return count;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def constant(n: int) -&gt; int:
     """Constant order"""
     count = 0
     size = 100000
@@ -2797,13 +2703,7 @@ $$
     for (int i = 0; i &lt; size; i++)
         count++;
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int constant(int n) {
-        int count = 0;
-        int size = 100000;
-        for (int i = 0; i &lt; size; i++)
-            count++;
-        return count;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Constant(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Constant(int n) {
         int count = 0;
         int size = 100000;
         for (int i = 0; i &lt; size; i++)
@@ -2816,13 +2716,6 @@ $$
 		count++
 	}
 	return count
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func constant(n: Int) -&gt; Int {
-    var count = 0
-    let size = 100_000
-    for _ in 0 ..&lt; size {
-        count += 1
-    }
-    return count
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function constant(n) {
     let count = 0;
     const size = 100000;
@@ -2833,13 +2726,6 @@ $$
     const size = 100000;
     for (let i = 0; i &lt; size; i++) count++;
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int constant(int n) {
-  int count = 0;
-  int size = 100000;
-  for (var i = 0; i &lt; size; i++) {
-    count++;
-  }
-  return count;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn constant(n: i32) -&gt; i32 {
     _ = n;
     let mut count = 0;
@@ -2856,24 +2742,33 @@ $$
         count++;
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun constant(n: Int): Int {
-    var count = 0
-    val size = 100000
-    for (i in 0..&lt;size)
-        count++
-    return count
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def constant(n)
-  count = 0
-  size = 100000
-
-  (0...size).each { count += 1 }
-
-  count
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <h3>2.3.5.2 Độ phức tạp tuyến tính $O(n)$</h3>
 <p>Số lượng phép toán tăng tuyến tính theo kích thước dữ liệu $n$, thường xuất hiện trong các vòng lặp đơn để duyệt qua mảng:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def linear(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int linear(int n) {
+        int count = 0;
+        for (int i = 0; i &lt; n; i++)
+            count++;
+        return count;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun linear(n: Int): Int {
+    var count = 0
+    for (i in 0..&lt;n)
+        count++
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func linear(n: Int) -&gt; Int {
+    var count = 0
+    for _ in 0 ..&lt; n {
+        count += 1
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int linear(int n) {
+  int count = 0;
+  for (var i = 0; i &lt; n; i++) {
+    count++;
+  }
+  return count;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def linear(n: int) -&gt; int:
     """Linear order"""
     count = 0
     for _ in range(n):
@@ -2883,12 +2778,7 @@ end</code></pre></div></div></div>
     for (int i = 0; i &lt; n; i++)
         count++;
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int linear(int n) {
-        int count = 0;
-        for (int i = 0; i &lt; n; i++)
-            count++;
-        return count;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Linear(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Linear(int n) {
         int count = 0;
         for (int i = 0; i &lt; n; i++)
             count++;
@@ -2899,12 +2789,6 @@ end</code></pre></div></div></div>
 		count++
 	}
 	return count
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func linear(n: Int) -&gt; Int {
-    var count = 0
-    for _ in 0 ..&lt; n {
-        count += 1
-    }
-    return count
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function linear(n) {
     let count = 0;
     for (let i = 0; i &lt; n; i++) count++;
@@ -2913,12 +2797,6 @@ end</code></pre></div></div></div>
     let count = 0;
     for (let i = 0; i &lt; n; i++) count++;
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int linear(int n) {
-  int count = 0;
-  for (var i = 0; i &lt; n; i++) {
-    count++;
-  }
-  return count;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn linear(n: i32) -&gt; i32 {
     let mut count = 0;
     for _ in 0..n {
@@ -2931,19 +2809,38 @@ end</code></pre></div></div></div>
         count++;
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun linear(n: Int): Int {
-    var count = 0
-    for (i in 0..&lt;n)
-        count++
-    return count
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def linear(n)
-  count = 0
-  (0...n).each { count += 1 }
-  count
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Các thao tác như duyệt mảng và duyệt danh sách liên kết đều có độ phức tạp thời gian $O(n)$, trong đó $n$ là độ dài của mảng hoặc danh sách liên kết:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def array_traversal(nums: list[int]) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int arrayTraversal(int[] nums) {
+        int count = 0;
+        // Number of iterations is proportional to the array length
+        for (int num : nums) {
+            count++;
+        }
+        return count;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun arrayTraversal(nums: IntArray): Int {
+    var count = 0
+    // Number of iterations is proportional to the array length
+    for (num in nums) {
+        count++
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func arrayTraversal(nums: [Int]) -&gt; Int {
+    var count = 0
+    // Number of iterations is proportional to the array length
+    for _ in nums {
+        count += 1
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int arrayTraversal(List&lt;int&gt; nums) {
+  int count = 0;
+  // Number of iterations is proportional to the array length
+  for (var _num in nums) {
+    count++;
+  }
+  return count;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def array_traversal(nums: list[int]) -&gt; int:
     """Linear order (traversing array)"""
     count = 0
     # Number of iterations is proportional to the array length
@@ -2956,14 +2853,7 @@ end</code></pre></div></div></div>
         count++;
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int arrayTraversal(int[] nums) {
-        int count = 0;
-        // Number of iterations is proportional to the array length
-        for (int num : nums) {
-            count++;
-        }
-        return count;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int ArrayTraversal(int[] nums) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int ArrayTraversal(int[] nums) {
         int count = 0;
         // Number of iterations is proportional to the array length
         foreach (int num in nums) {
@@ -2977,13 +2867,6 @@ end</code></pre></div></div></div>
 		count++
 	}
 	return count
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func arrayTraversal(nums: [Int]) -&gt; Int {
-    var count = 0
-    // Number of iterations is proportional to the array length
-    for _ in nums {
-        count += 1
-    }
-    return count
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function arrayTraversal(nums) {
     let count = 0;
     // Number of iterations is proportional to the array length
@@ -2998,13 +2881,6 @@ end</code></pre></div></div></div>
         count++;
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int arrayTraversal(List&lt;int&gt; nums) {
-  int count = 0;
-  // Number of iterations is proportional to the array length
-  for (var _num in nums) {
-    count++;
-  }
-  return count;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn array_traversal(nums: &amp;[i32]) -&gt; i32 {
     let mut count = 0;
     // Number of iterations is proportional to the array length
@@ -3019,29 +2895,49 @@ end</code></pre></div></div></div>
         count++;
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun arrayTraversal(nums: IntArray): Int {
-    var count = 0
-    // Number of iterations is proportional to the array length
-    for (num in nums) {
-        count++
-    }
-    return count
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def array_traversal(nums)
-  count = 0
-
-  # Number of iterations is proportional to the array length
-  for num in nums
-    count += 1
-  end
-
-  count
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Cần lưu ý rằng <strong>kích thước dữ liệu đầu vào $n$ cần được xác định tùy theo loại dữ liệu đầu vào</strong>. Ví dụ, trong ví dụ đầu tiên, biến $n$ chính là kích thước dữ liệu đầu vào; còn trong ví dụ thứ hai, độ dài mảng $n$ mới là kích thước dữ liệu.</p>
 
 <h3>2.3.5.3 Độ phức tạp bình phương $O(n^2)$</h3>
 <p>Thường xuất hiện trong các thuật toán có hai vòng lặp lồng nhau duyệt qua dữ liệu, ví dụ thuật toán sắp xếp nổi bọt (Bubble Sort):</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def quadratic(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int quadratic(int n) {
+        int count = 0;
+        // Number of iterations is quadratically related to the data size n
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                count++;
+            }
+        }
+        return count;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun quadratic(n: Int): Int {
+    var count = 0
+    // Number of iterations is quadratically related to the data size n
+    for (i in 0..&lt;n) {
+        for (j in 0..&lt;n) {
+            count++
+        }
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func quadratic(n: Int) -&gt; Int {
+    var count = 0
+    // Number of iterations is quadratically related to the data size n
+    for _ in 0 ..&lt; n {
+        for _ in 0 ..&lt; n {
+            count += 1
+        }
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int quadratic(int n) {
+  int count = 0;
+  // Number of iterations is quadratically related to the data size n
+  for (int i = 0; i &lt; n; i++) {
+    for (int j = 0; j &lt; n; j++) {
+      count++;
+    }
+  }
+  return count;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def quadratic(n: int) -&gt; int:
     """Quadratic order"""
     count = 0
     # Number of iterations is quadratically related to the data size n
@@ -3057,16 +2953,7 @@ end</code></pre></div></div></div>
         }
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int quadratic(int n) {
-        int count = 0;
-        // Number of iterations is quadratically related to the data size n
-        for (int i = 0; i &lt; n; i++) {
-            for (int j = 0; j &lt; n; j++) {
-                count++;
-            }
-        }
-        return count;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Quadratic(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Quadratic(int n) {
         int count = 0;
         // Number of iterations is quadratically related to the data size n
         for (int i = 0; i &lt; n; i++) {
@@ -3084,15 +2971,6 @@ end</code></pre></div></div></div>
 		}
 	}
 	return count
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func quadratic(n: Int) -&gt; Int {
-    var count = 0
-    // Number of iterations is quadratically related to the data size n
-    for _ in 0 ..&lt; n {
-        for _ in 0 ..&lt; n {
-            count += 1
-        }
-    }
-    return count
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function quadratic(n) {
     let count = 0;
     // Number of iterations is quadratically related to the data size n
@@ -3111,15 +2989,6 @@ end</code></pre></div></div></div>
         }
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int quadratic(int n) {
-  int count = 0;
-  // Number of iterations is quadratically related to the data size n
-  for (int i = 0; i &lt; n; i++) {
-    for (int j = 0; j &lt; n; j++) {
-      count++;
-    }
-  }
-  return count;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn quadratic(n: i32) -&gt; i32 {
     let mut count = 0;
     // Number of iterations is quadratically related to the data size n
@@ -3138,27 +3007,7 @@ end</code></pre></div></div></div>
         }
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun quadratic(n: Int): Int {
-    var count = 0
-    // Number of iterations is quadratically related to the data size n
-    for (i in 0..&lt;n) {
-        for (j in 0..&lt;n) {
-            count++
-        }
-    }
-    return count
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def quadratic(n)
-  count = 0
-
-  # Number of iterations is quadratically related to the data size n
-  for i in 0...n
-    for j in 0...n
-      count += 1
-    end
-  end
-
-  count
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Hình dưới đây so sánh độ phức tạp thời gian hằng số, tuyến tính và bình phương.</p>
 
@@ -3167,7 +3016,71 @@ end</code></pre></div></div></div>
 </div>
 
 <p>Lấy sắp xếp nổi bọt (bubble sort) làm ví dụ, vòng lặp ngoài thực thi $n - 1$ lần, còn vòng lặp trong thực thi $n-1, n-2, \\dots, 2, 1$ lần, trung bình $n / 2$ lần, cho ra độ phức tạp thời gian $O((n - 1) n / 2) = O(n^2)$:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def bubble_sort(nums: list[int]) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int bubbleSort(int[] nums) {
+        int count = 0; // Counter
+        // Outer loop: unsorted range is [0, i]
+        for (int i = nums.length - 1; i &gt; 0; i--) {
+            // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
+            for (int j = 0; j &lt; i; j++) {
+                if (nums[j] &gt; nums[j + 1]) {
+                    // Swap nums[j] and nums[j + 1]
+                    int tmp = nums[j];
+                    nums[j] = nums[j + 1];
+                    nums[j + 1] = tmp;
+                    count += 3; // Element swap includes 3 unit operations
+                }
+            }
+        }
+        return count;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun bubbleSort(nums: IntArray): Int {
+    var count = 0 // Counter
+    // Outer loop: unsorted range is [0, i]
+    for (i in nums.size - 1 downTo 1) {
+        // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
+        for (j in 0..&lt;i) {
+            if (nums[j] &gt; nums[j + 1]) {
+                // Swap nums[j] and nums[j + 1]
+                val temp = nums[j]
+                nums[j] = nums[j + 1]
+                nums[j + 1] = temp
+                count += 3 // Element swap includes 3 unit operations
+            }
+        }
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func bubbleSort(nums: inout [Int]) -&gt; Int {
+    var count = 0 // Counter
+    // Outer loop: unsorted range is [0, i]
+    for i in nums.indices.dropFirst().reversed() {
+        // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
+        for j in 0 ..&lt; i {
+            if nums[j] &gt; nums[j + 1] {
+                // Swap nums[j] and nums[j + 1]
+                let tmp = nums[j]
+                nums[j] = nums[j + 1]
+                nums[j + 1] = tmp
+                count += 3 // Element swap includes 3 unit operations
+            }
+        }
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int bubbleSort(List&lt;int&gt; nums) {
+  int count = 0; // Counter
+  // Outer loop: unsorted range is [0, i]
+  for (var i = nums.length - 1; i &gt; 0; i--) {
+    // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
+    for (var j = 0; j &lt; i; j++) {
+      if (nums[j] &gt; nums[j + 1]) {
+        // Swap nums[j] and nums[j + 1]
+        int tmp = nums[j];
+        nums[j] = nums[j + 1];
+        nums[j + 1] = tmp;
+        count += 3; // Element swap includes 3 unit operations
+      }
+    }
+  }
+  return count;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def bubble_sort(nums: list[int]) -&gt; int:
     """Quadratic order (bubble sort)"""
     count = 0  # Counter
     # Outer loop: unsorted range is [0, i]
@@ -3196,23 +3109,7 @@ end</code></pre></div></div></div>
         }
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int bubbleSort(int[] nums) {
-        int count = 0; // Counter
-        // Outer loop: unsorted range is [0, i]
-        for (int i = nums.length - 1; i &gt; 0; i--) {
-            // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
-            for (int j = 0; j &lt; i; j++) {
-                if (nums[j] &gt; nums[j + 1]) {
-                    // Swap nums[j] and nums[j + 1]
-                    int tmp = nums[j];
-                    nums[j] = nums[j + 1];
-                    nums[j + 1] = tmp;
-                    count += 3; // Element swap includes 3 unit operations
-                }
-            }
-        }
-        return count;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int BubbleSort(int[] nums) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int BubbleSort(int[] nums) {
         int count = 0;  // Counter
         // Outer loop: unsorted range is [0, i]
         for (int i = nums.Length - 1; i &gt; 0; i--) {
@@ -3242,22 +3139,6 @@ end</code></pre></div></div></div>
 		}
 	}
 	return count
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func bubbleSort(nums: inout [Int]) -&gt; Int {
-    var count = 0 // Counter
-    // Outer loop: unsorted range is [0, i]
-    for i in nums.indices.dropFirst().reversed() {
-        // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
-        for j in 0 ..&lt; i {
-            if nums[j] &gt; nums[j + 1] {
-                // Swap nums[j] and nums[j + 1]
-                let tmp = nums[j]
-                nums[j] = nums[j + 1]
-                nums[j + 1] = tmp
-                count += 3 // Element swap includes 3 unit operations
-            }
-        }
-    }
-    return count
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function bubbleSort(nums) {
     let count = 0; // Counter
     // Outer loop: unsorted range is [0, i]
@@ -3290,22 +3171,6 @@ end</code></pre></div></div></div>
         }
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int bubbleSort(List&lt;int&gt; nums) {
-  int count = 0; // Counter
-  // Outer loop: unsorted range is [0, i]
-  for (var i = nums.length - 1; i &gt; 0; i--) {
-    // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
-    for (var j = 0; j &lt; i; j++) {
-      if (nums[j] &gt; nums[j + 1]) {
-        // Swap nums[j] and nums[j + 1]
-        int tmp = nums[j];
-        nums[j] = nums[j + 1];
-        nums[j + 1] = tmp;
-        count += 3; // Element swap includes 3 unit operations
-      }
-    }
-  }
-  return count;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn bubble_sort(nums: &amp;mut [i32]) -&gt; i32 {
     let mut count = 0; // Counter
 
@@ -3339,45 +3204,57 @@ end</code></pre></div></div></div>
         }
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun bubbleSort(nums: IntArray): Int {
-    var count = 0 // Counter
-    // Outer loop: unsorted range is [0, i]
-    for (i in nums.size - 1 downTo 1) {
-        // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
-        for (j in 0..&lt;i) {
-            if (nums[j] &gt; nums[j + 1]) {
-                // Swap nums[j] and nums[j + 1]
-                val temp = nums[j]
-                nums[j] = nums[j + 1]
-                nums[j + 1] = temp
-                count += 3 // Element swap includes 3 unit operations
-            }
-        }
-    }
-    return count
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def bubble_sort(nums)
-  count = 0 # Counter
-
-  # Outer loop: unsorted range is [0, i]
-  for i in (nums.length - 1).downto(0)
-    # Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
-    for j in 0...i
-      if nums[j] &gt; nums[j + 1]
-        # Swap nums[j] and nums[j + 1]
-        tmp = nums[j]
-        nums[j] = nums[j + 1]
-        nums[j + 1] = tmp
-        count += 3 # Element swap includes 3 unit operations
-      end
-    end
-  end
-
-  count
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <h3>2.3.5.4 Độ phức tạp lũy thừa $O(2^n)$</h3>
 <p>Thường xuất hiện trong các hàm đệ quy phân nhánh đôi mà không được tối ưu hóa bộ nhớ đệm (caching), ví dụ tính số Fibonacci theo cách đệ quy thông thường:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def exponential(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int exponential(int n) {
+        int count = 0, base = 1;
+        // Cells divide into two every round, forming sequence 1, 2, 4, 8, ..., 2^(n-1)
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = 0; j &lt; base; j++) {
+                count++;
+            }
+            base *= 2;
+        }
+        // count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
+        return count;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun exponential(n: Int): Int {
+    var count = 0
+    var base = 1
+    // Cells divide into two every round, forming sequence 1, 2, 4, 8, ..., 2^(n-1)
+    for (i in 0..&lt;n) {
+        for (j in 0..&lt;base) {
+            count++
+        }
+        base *= 2
+    }
+    // count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func exponential(n: Int) -&gt; Int {
+    var count = 0
+    var base = 1
+    // Cells divide into two every round, forming sequence 1, 2, 4, 8, ..., 2^(n-1)
+    for _ in 0 ..&lt; n {
+        for _ in 0 ..&lt; base {
+            count += 1
+        }
+        base *= 2
+    }
+    // count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int exponential(int n) {
+  int count = 0, base = 1;
+  // Cells divide into two every round, forming sequence 1, 2, 4, 8, ..., 2^(n-1)
+  for (var i = 0; i &lt; n; i++) {
+    for (var j = 0; j &lt; base; j++) {
+      count++;
+    }
+    base *= 2;
+  }
+  // count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
+  return count;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def exponential(n: int) -&gt; int:
     """Exponential order (loop implementation)"""
     count = 0
     base = 1
@@ -3398,18 +3275,7 @@ end</code></pre></div></div></div>
     }
     // count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int exponential(int n) {
-        int count = 0, base = 1;
-        // Cells divide into two every round, forming sequence 1, 2, 4, 8, ..., 2^(n-1)
-        for (int i = 0; i &lt; n; i++) {
-            for (int j = 0; j &lt; base; j++) {
-                count++;
-            }
-            base *= 2;
-        }
-        // count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
-        return count;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Exponential(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Exponential(int n) {
         int count = 0, bas = 1;
         // Cells divide into two every round, forming sequence 1, 2, 4, 8, ..., 2^(n-1)
         for (int i = 0; i &lt; n; i++) {
@@ -3431,18 +3297,6 @@ end</code></pre></div></div></div>
 	}
 	// count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
 	return count
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func exponential(n: Int) -&gt; Int {
-    var count = 0
-    var base = 1
-    // Cells divide into two every round, forming sequence 1, 2, 4, 8, ..., 2^(n-1)
-    for _ in 0 ..&lt; n {
-        for _ in 0 ..&lt; base {
-            count += 1
-        }
-        base *= 2
-    }
-    // count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
-    return count
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function exponential(n) {
     let count = 0,
         base = 1;
@@ -3467,17 +3321,6 @@ end</code></pre></div></div></div>
     }
     // count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int exponential(int n) {
-  int count = 0, base = 1;
-  // Cells divide into two every round, forming sequence 1, 2, 4, 8, ..., 2^(n-1)
-  for (var i = 0; i &lt; n; i++) {
-    for (var j = 0; j &lt; base; j++) {
-      count++;
-    }
-    base *= 2;
-  }
-  // count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
-  return count;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn exponential(n: i32) -&gt; i32 {
     let mut count = 0;
     let mut base = 1;
@@ -3502,37 +3345,31 @@ end</code></pre></div></div></div>
     }
     // count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun exponential(n: Int): Int {
-    var count = 0
-    var base = 1
-    // Cells divide into two every round, forming sequence 1, 2, 4, 8, ..., 2^(n-1)
-    for (i in 0..&lt;n) {
-        for (j in 0..&lt;base) {
-            count++
-        }
-        base *= 2
-    }
-    // count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
-    return count
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def exponential(n)
-  count, base = 0, 1
-
-  # Cells divide into two every round, forming sequence 1, 2, 4, 8, ..., 2^(n-1)
-  (0...n).each do
-    (0...base).each { count += 1 }
-    base *= 2
-  end
-
-  # count = 1 + 2 + 4 + 8 + .. + 2^(n-1) = 2^n - 1
-  count
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/time_complexity_exponential.png" alt="Độ phức tạp thời gian cấp độ lũy thừa" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Trong các giải thuật thực tế, độ phức tạp lũy thừa thường xuất hiện trong các hàm đệ quy. Ví dụ, đoạn mã dưới đây thực hiện phân nhánh đôi một cách đệ quy, và dừng lại sau $n$ lần phân nhánh:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def exp_recur(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int expRecur(int n) {
+        if (n == 1)
+            return 1;
+        return expRecur(n - 1) + expRecur(n - 1) + 1;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun expRecur(n: Int): Int {
+    if (n == 1) {
+        return 1
+    }
+    return expRecur(n - 1) + expRecur(n - 1) + 1
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func expRecur(n: Int) -&gt; Int {
+    if n == 1 {
+        return 1
+    }
+    return expRecur(n: n - 1) + expRecur(n: n - 1) + 1
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int expRecur(int n) {
+  if (n == 1) return 1;
+  return expRecur(n - 1) + expRecur(n - 1) + 1;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def exp_recur(n: int) -&gt; int:
     """Exponential order (recursive implementation)"""
     if n == 1:
         return 1
@@ -3540,11 +3377,7 @@ end</code></pre></div></div></div>
     if (n == 1)
         return 1;
     return expRecur(n - 1) + expRecur(n - 1) + 1;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int expRecur(int n) {
-        if (n == 1)
-            return 1;
-        return expRecur(n - 1) + expRecur(n - 1) + 1;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int ExpRecur(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int ExpRecur(int n) {
         if (n == 1) return 1;
         return ExpRecur(n - 1) + ExpRecur(n - 1) + 1;
     }</code></pre></div><div class="code-tab-content" data-lang="go"><pre data-lang="go"><code>func expRecur(n int) int {
@@ -3552,20 +3385,12 @@ end</code></pre></div></div></div>
 		return 1
 	}
 	return expRecur(n-1) + expRecur(n-1) + 1
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func expRecur(n: Int) -&gt; Int {
-    if n == 1 {
-        return 1
-    }
-    return expRecur(n: n - 1) + expRecur(n: n - 1) + 1
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function expRecur(n) {
     if (n === 1) return 1;
     return expRecur(n - 1) + expRecur(n - 1) + 1;
 }</code></pre></div><div class="code-tab-content" data-lang="typescript"><pre data-lang="typescript"><code>function expRecur(n: number): number {
     if (n === 1) return 1;
     return expRecur(n - 1) + expRecur(n - 1) + 1;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int expRecur(int n) {
-  if (n == 1) return 1;
-  return expRecur(n - 1) + expRecur(n - 1) + 1;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn exp_recur(n: i32) -&gt; i32 {
     if n == 1 {
         return 1;
@@ -3575,22 +3400,43 @@ end</code></pre></div></div></div>
     if (n == 1)
         return 1;
     return expRecur(n - 1) + expRecur(n - 1) + 1;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun expRecur(n: Int): Int {
-    if (n == 1) {
-        return 1
-    }
-    return expRecur(n - 1) + expRecur(n - 1) + 1
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def exp_recur(n)
-  return 1 if n == 1
-
-  exp_recur(n - 1) + exp_recur(n - 1) + 1
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Tốc độ tăng trưởng của độ phức tạp lũy thừa rất nhanh, thường gặp trong các phương pháp vét cạn (brute force, quay lui, v.v.). Với các bài toán có quy mô dữ liệu lớn, độ phức tạp lũy thừa là không thể chấp nhận được và thường cần giải quyết bằng quy hoạch động hoặc giải thuật tham lam.</p>
 
 <h3>2.3.5.5 Độ phức tạp logarit $O(\\log n)$</h3>
 <p>Thường xuất hiện trong các giải thuật chia đôi không gian tìm kiếm sau mỗi bước, ví dụ giải thuật tìm kiếm nhị phân (Binary Search):</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def logarithmic(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int logarithmic(int n) {
+        int count = 0;
+        while (n &gt; 1) {
+            n = n / 2;
+            count++;
+        }
+        return count;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun logarithmic(n: Int): Int {
+    var n1 = n
+    var count = 0
+    while (n1 &gt; 1) {
+        n1 /= 2
+        count++
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func logarithmic(n: Int) -&gt; Int {
+    var count = 0
+    var n = n
+    while n &gt; 1 {
+        n = n / 2
+        count += 1
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int logarithmic(int n) {
+  int count = 0;
+  while (n &gt; 1) {
+    n = n ~/ 2;
+    count++;
+  }
+  return count;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def logarithmic(n: int) -&gt; int:
     """Logarithmic order (loop implementation)"""
     count = 0
     while n &gt; 1:
@@ -3603,14 +3449,7 @@ end</code></pre></div></div></div>
         count++;
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int logarithmic(int n) {
-        int count = 0;
-        while (n &gt; 1) {
-            n = n / 2;
-            count++;
-        }
-        return count;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Logarithmic(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int Logarithmic(int n) {
         int count = 0;
         while (n &gt; 1) {
             n /= 2;
@@ -3624,14 +3463,6 @@ end</code></pre></div></div></div>
 		count++
 	}
 	return count
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func logarithmic(n: Int) -&gt; Int {
-    var count = 0
-    var n = n
-    while n &gt; 1 {
-        n = n / 2
-        count += 1
-    }
-    return count
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function logarithmic(n) {
     let count = 0;
     while (n &gt; 1) {
@@ -3646,13 +3477,6 @@ end</code></pre></div></div></div>
         count++;
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int logarithmic(int n) {
-  int count = 0;
-  while (n &gt; 1) {
-    n = n ~/ 2;
-    count++;
-  }
-  return count;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn logarithmic(mut n: i32) -&gt; i32 {
     let mut count = 0;
     while n &gt; 1 {
@@ -3667,31 +3491,30 @@ end</code></pre></div></div></div>
         count++;
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun logarithmic(n: Int): Int {
-    var n1 = n
-    var count = 0
-    while (n1 &gt; 1) {
-        n1 /= 2
-        count++
-    }
-    return count
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def logarithmic(n)
-  count = 0
-
-  while n &gt; 1
-    n /= 2
-    count += 1
-  end
-
-  count
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/time_complexity_logarithmic.png" alt="Độ phức tạp thời gian cấp độ logarit" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Tương tự cấp độ lũy thừa, cấp độ logarit cũng thường xuất hiện trong các hàm đệ quy. Đoạn mã dưới đây tạo thành một cây đệ quy có chiều cao $\\log_2 n$:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def log_recur(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int logRecur(int n) {
+        if (n &lt;= 1)
+            return 0;
+        return logRecur(n / 2) + 1;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun logRecur(n: Int): Int {
+    if (n &lt;= 1)
+        return 0
+    return logRecur(n / 2) + 1
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func logRecur(n: Int) -&gt; Int {
+    if n &lt;= 1 {
+        return 0
+    }
+    return logRecur(n: n / 2) + 1
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int logRecur(int n) {
+  if (n &lt;= 1) return 0;
+  return logRecur(n ~/ 2) + 1;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def log_recur(n: int) -&gt; int:
     """Logarithmic order (recursive implementation)"""
     if n &lt;= 1:
         return 0
@@ -3699,11 +3522,7 @@ end</code></pre></div></div></div>
     if (n &lt;= 1)
         return 0;
     return logRecur(n / 2) + 1;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int logRecur(int n) {
-        if (n &lt;= 1)
-            return 0;
-        return logRecur(n / 2) + 1;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int LogRecur(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int LogRecur(int n) {
         if (n &lt;= 1) return 0;
         return LogRecur(n / 2) + 1;
     }</code></pre></div><div class="code-tab-content" data-lang="go"><pre data-lang="go"><code>func logRecur(n int) int {
@@ -3711,20 +3530,12 @@ end</code></pre></div></div></div>
 		return 0
 	}
 	return logRecur(n/2) + 1
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func logRecur(n: Int) -&gt; Int {
-    if n &lt;= 1 {
-        return 0
-    }
-    return logRecur(n: n / 2) + 1
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function logRecur(n) {
     if (n &lt;= 1) return 0;
     return logRecur(n / 2) + 1;
 }</code></pre></div><div class="code-tab-content" data-lang="typescript"><pre data-lang="typescript"><code>function logRecur(n: number): number {
     if (n &lt;= 1) return 0;
     return logRecur(n / 2) + 1;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int logRecur(int n) {
-  if (n &lt;= 1) return 0;
-  return logRecur(n ~/ 2) + 1;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn log_recur(n: i32) -&gt; i32 {
     if n &lt;= 1 {
         return 0;
@@ -3734,21 +3545,45 @@ end</code></pre></div></div></div>
     if (n &lt;= 1)
         return 0;
     return logRecur(n / 2) + 1;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun logRecur(n: Int): Int {
-    if (n &lt;= 1)
-        return 0
-    return logRecur(n / 2) + 1
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def log_recur(n)
-  return 0 unless n &gt; 1
-
-  log_recur(n / 2) + 1
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Độ phức tạp logarit thường xuất hiện trong các giải thuật dựa trên chiến lược chia để trị, phản ánh tư duy liên tục chia nhỏ bài toán để đơn giản hóa nó. Tốc độ tăng trưởng của nó rất chậm, và là độ phức tạp thời gian lý tưởng chỉ đứng sau cấp độ hằng số.</p>
 
 <h3>2.3.5.6 Độ phức tạp tuyến tính - logarit $O(n \\log n)$</h3>
 <p>Cấp độ này xuất hiện nhiều trong các giải thuật sắp xếp tối ưu như sắp xếp nhanh (Quick Sort) hoặc sắp xếp trộn (Merge Sort):</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def linear_log_recur(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int linearLogRecur(int n) {
+        if (n &lt;= 1)
+            return 1;
+        int count = linearLogRecur(n / 2) + linearLogRecur(n / 2);
+        for (int i = 0; i &lt; n; i++) {
+            count++;
+        }
+        return count;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun linearLogRecur(n: Int): Int {
+    if (n &lt;= 1)
+        return 1
+    var count = linearLogRecur(n / 2) + linearLogRecur(n / 2)
+    for (i in 0..&lt;n) {
+        count++
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func linearLogRecur(n: Int) -&gt; Int {
+    if n &lt;= 1 {
+        return 1
+    }
+    var count = linearLogRecur(n: n / 2) + linearLogRecur(n: n / 2)
+    for _ in stride(from: 0, to: n, by: 1) {
+        count += 1
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int linearLogRecur(int n) {
+  if (n &lt;= 1) return 1;
+  int count = linearLogRecur(n ~/ 2) + linearLogRecur(n ~/ 2);
+  for (var i = 0; i &lt; n; i++) {
+    count++;
+  }
+  return count;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def linear_log_recur(n: int) -&gt; int:
     """Linearithmic order"""
     if n &lt;= 1:
         return 1
@@ -3765,15 +3600,7 @@ end</code></pre></div></div></div>
         count++;
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int linearLogRecur(int n) {
-        if (n &lt;= 1)
-            return 1;
-        int count = linearLogRecur(n / 2) + linearLogRecur(n / 2);
-        for (int i = 0; i &lt; n; i++) {
-            count++;
-        }
-        return count;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int LinearLogRecur(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int LinearLogRecur(int n) {
         if (n &lt;= 1) return 1;
         int count = LinearLogRecur(n / 2) + LinearLogRecur(n / 2);
         for (int i = 0; i &lt; n; i++) {
@@ -3789,15 +3616,6 @@ end</code></pre></div></div></div>
 		count++
 	}
 	return count
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func linearLogRecur(n: Int) -&gt; Int {
-    if n &lt;= 1 {
-        return 1
-    }
-    var count = linearLogRecur(n: n / 2) + linearLogRecur(n: n / 2)
-    for _ in stride(from: 0, to: n, by: 1) {
-        count += 1
-    }
-    return count
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function linearLogRecur(n) {
     if (n &lt;= 1) return 1;
     let count = linearLogRecur(n / 2) + linearLogRecur(n / 2);
@@ -3812,13 +3630,6 @@ end</code></pre></div></div></div>
         count++;
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int linearLogRecur(int n) {
-  if (n &lt;= 1) return 1;
-  int count = linearLogRecur(n ~/ 2) + linearLogRecur(n ~/ 2);
-  for (var i = 0; i &lt; n; i++) {
-    count++;
-  }
-  return count;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn linear_log_recur(n: i32) -&gt; i32 {
     if n &lt;= 1 {
         return 1;
@@ -3836,22 +3647,7 @@ end</code></pre></div></div></div>
         count++;
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun linearLogRecur(n: Int): Int {
-    if (n &lt;= 1)
-        return 1
-    var count = linearLogRecur(n / 2) + linearLogRecur(n / 2)
-    for (i in 0..&lt;n) {
-        count++
-    }
-    return count
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def linear_log_recur(n)
-  return 1 unless n &gt; 1
-
-  count = linear_log_recur(n / 2) + linear_log_recur(n / 2)
-  (0...n).each { count += 1 }
-
-  count
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Hình dưới đây minh họa cách độ phức tạp tuyến tính - logarit hình thành. Mỗi tầng của cây nhị phân có tổng cộng $n$ phép toán, và cây có $\\log_2 n + 1$ tầng, cho ra độ phức tạp thời gian $O(n \\log n)$.</p>
 
@@ -3863,7 +3659,43 @@ end</code></pre></div></div></div>
 
 <h3>2.3.5.7 Độ phức tạp giai thừa $O(n!)$</h3>
 <p>Đây là tốc độ tăng trưởng cực kỳ nhanh, xuất hiện khi giải bài toán tìm mọi hoán vị của một tập hợp:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def factorial_recur(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int factorialRecur(int n) {
+        if (n == 0)
+            return 1;
+        int count = 0;
+        // Split from 1 into n
+        for (int i = 0; i &lt; n; i++) {
+            count += factorialRecur(n - 1);
+        }
+        return count;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun factorialRecur(n: Int): Int {
+    if (n == 0)
+        return 1
+    var count = 0
+    // Split from 1 into n
+    for (i in 0..&lt;n) {
+        count += factorialRecur(n - 1)
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func factorialRecur(n: Int) -&gt; Int {
+    if n == 0 {
+        return 1
+    }
+    var count = 0
+    // Split from 1 into n
+    for _ in 0 ..&lt; n {
+        count += factorialRecur(n: n - 1)
+    }
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int factorialRecur(int n) {
+  if (n == 0) return 1;
+  int count = 0;
+  // Split from 1 into n
+  for (var i = 0; i &lt; n; i++) {
+    count += factorialRecur(n - 1);
+  }
+  return count;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def factorial_recur(n: int) -&gt; int:
     """Factorial order (recursive implementation)"""
     if n == 0:
         return 1
@@ -3880,16 +3712,7 @@ end</code></pre></div></div></div>
         count += factorialRecur(n - 1);
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int factorialRecur(int n) {
-        if (n == 0)
-            return 1;
-        int count = 0;
-        // Split from 1 into n
-        for (int i = 0; i &lt; n; i++) {
-            count += factorialRecur(n - 1);
-        }
-        return count;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int FactorialRecur(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int FactorialRecur(int n) {
         if (n == 0) return 1;
         int count = 0;
         // Split from 1 into n
@@ -3907,16 +3730,6 @@ end</code></pre></div></div></div>
 		count += factorialRecur(n - 1)
 	}
 	return count
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func factorialRecur(n: Int) -&gt; Int {
-    if n == 0 {
-        return 1
-    }
-    var count = 0
-    // Split from 1 into n
-    for _ in 0 ..&lt; n {
-        count += factorialRecur(n: n - 1)
-    }
-    return count
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function factorialRecur(n) {
     if (n === 0) return 1;
     let count = 0;
@@ -3933,14 +3746,6 @@ end</code></pre></div></div></div>
         count += factorialRecur(n - 1);
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int factorialRecur(int n) {
-  if (n == 0) return 1;
-  int count = 0;
-  // Split from 1 into n
-  for (var i = 0; i &lt; n; i++) {
-    count += factorialRecur(n - 1);
-  }
-  return count;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn factorial_recur(n: i32) -&gt; i32 {
     if n == 0 {
         return 1;
@@ -3959,24 +3764,7 @@ end</code></pre></div></div></div>
         count += factorialRecur(n - 1);
     }
     return count;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun factorialRecur(n: Int): Int {
-    if (n == 0)
-        return 1
-    var count = 0
-    // Split from 1 into n
-    for (i in 0..&lt;n) {
-        count += factorialRecur(n - 1)
-    }
-    return count
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def factorial_recur(n)
-  return 1 if n == 0
-
-  count = 0
-  # Split from 1 into n
-  (0...n).each { count += factorial_recur(n - 1) }
-
-  count
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/time_complexity_factorial.png" alt="Độ phức tạp thời gian cấp độ giai thừa" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
@@ -3991,7 +3779,40 @@ end</code></pre></div></div></div>
   <li><strong>Worst-case Time Complexity (Trường hợp xấu nhất)</strong>: Phần tử nằm ở cuối mảng hoặc không tồn tại ($O(n)$). Đây là độ phức tạp thực tế quan trọng nhất vì nó đảm bảo an toàn cho hệ thống.</li>
   <li><strong>Average-case Time Complexity (Trường hợp trung bình)</strong>: Kỳ vọng số bước thực thi trên mọi phân bố dữ liệu đầu vào.</li>
 </ul>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def find_one(nums: list[int]) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int findOne(int[] nums) {
+        for (int i = 0; i &lt; nums.length; i++) {
+            // When element 1 is at the head of the array, best time complexity O(1) is achieved
+            // When element 1 is at the tail of the array, worst time complexity O(n) is achieved
+            if (nums[i] == 1)
+                return i;
+        }
+        return -1;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun findOne(nums: Array&lt;Int?&gt;): Int {
+    for (i in nums.indices) {
+        // When element 1 is at the head of the array, best time complexity O(1) is achieved
+        // When element 1 is at the tail of the array, worst time complexity O(n) is achieved
+        if (nums[i] == 1)
+            return i
+    }
+    return -1
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func findOne(nums: [Int]) -&gt; Int {
+    for i in nums.indices {
+        // When element 1 is at the head of the array, best time complexity O(1) is achieved
+        // When element 1 is at the tail of the array, worst time complexity O(n) is achieved
+        if nums[i] == 1 {
+            return i
+        }
+    }
+    return -1
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int findOne(List&lt;int&gt; nums) {
+  for (var i = 0; i &lt; nums.length; i++) {
+    // When element 1 is at the head of the array, best time complexity O(1) is achieved
+    // When element 1 is at the tail of the array, worst time complexity O(n) is achieved
+    if (nums[i] == 1) return i;
+  }
+
+  return -1;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def find_one(nums: list[int]) -&gt; int:
     """Find the index of number 1 in array nums"""
     for i in range(len(nums)):
         # When element 1 is at the head of the array, best time complexity O(1) is achieved
@@ -4006,15 +3827,7 @@ end</code></pre></div></div></div>
             return i;
     }
     return -1;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int findOne(int[] nums) {
-        for (int i = 0; i &lt; nums.length; i++) {
-            // When element 1 is at the head of the array, best time complexity O(1) is achieved
-            // When element 1 is at the tail of the array, worst time complexity O(n) is achieved
-            if (nums[i] == 1)
-                return i;
-        }
-        return -1;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int FindOne(int[] nums) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int FindOne(int[] nums) {
         for (int i = 0; i &lt; nums.Length; i++) {
             // When element 1 is at the head of the array, best time complexity O(1) is achieved
             // When element 1 is at the tail of the array, worst time complexity O(n) is achieved
@@ -4031,15 +3844,6 @@ end</code></pre></div></div></div>
 		}
 	}
 	return -1
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func findOne(nums: [Int]) -&gt; Int {
-    for i in nums.indices {
-        // When element 1 is at the head of the array, best time complexity O(1) is achieved
-        // When element 1 is at the tail of the array, worst time complexity O(n) is achieved
-        if nums[i] == 1 {
-            return i
-        }
-    }
-    return -1
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function findOne(nums) {
     for (let i = 0; i &lt; nums.length; i++) {
         // When element 1 is at the head of the array, best time complexity O(1) is achieved
@@ -4058,14 +3862,6 @@ end</code></pre></div></div></div>
         }
     }
     return -1;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int findOne(List&lt;int&gt; nums) {
-  for (var i = 0; i &lt; nums.length; i++) {
-    // When element 1 is at the head of the array, best time complexity O(1) is achieved
-    // When element 1 is at the tail of the array, worst time complexity O(n) is achieved
-    if (nums[i] == 1) return i;
-  }
-
-  return -1;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn find_one(nums: &amp;[i32]) -&gt; Option&lt;usize&gt; {
     for i in 0..nums.len() {
         // When element 1 is at the head of the array, best time complexity O(1) is achieved
@@ -4083,23 +3879,7 @@ end</code></pre></div></div></div>
             return i;
     }
     return -1;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun findOne(nums: Array&lt;Int?&gt;): Int {
-    for (i in nums.indices) {
-        // When element 1 is at the head of the array, best time complexity O(1) is achieved
-        // When element 1 is at the tail of the array, worst time complexity O(n) is achieved
-        if (nums[i] == 1)
-            return i
-    }
-    return -1
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def find_one(nums)
-  for i in 0...nums.length
-    # When element 1 is at the head of the array, best time complexity O(1) is achieved
-    # When element 1 is at the tail of the array, worst time complexity O(n) is achieved
-    return i if nums[i] == 1
-  end
-
-  -1
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 `,
     originalContent: `
 # Time Complexity
@@ -5288,7 +5068,84 @@ But for more complex algorithms, calculating average time complexity is often qu
 </div>
 
 <p>Đoạn mã liên quan như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class Node:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Class */
+class Node {
+    int val;
+    Node next;
+    Node(int x) { val = x; }
+}
+
+/* Function */
+int function() {
+    // Perform some operations...
+    return 0;
+}
+
+int algorithm(int n) {        // Input data
+    final int a = 0;          // Temporary data (constant)
+    int b = 0;                // Temporary data (variable)
+    Node node = new Node(0);  // Temporary data (object)
+    int c = function();       // Stack frame space (function call)
+    return a + b + c;         // Output data
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Class */
+class Node(var _val: Int) {
+    var next: Node? = null
+}
+
+/* Function */
+fun function(): Int {
+    // Perform some operations...
+    return 0
+}
+
+fun algorithm(n: Int): Int { // Input data
+    val a = 0                // Temporary data (constant)
+    var b = 0                // Temporary data (variable)
+    val node = Node(0)       // Temporary data (object)
+    val c = function()       // Stack frame space (function call)
+    return a + b + c         // Output data
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>/* Class */
+class Node {
+    var val: Int
+    var next: Node?
+
+    init(x: Int) {
+        val = x
+    }
+}
+
+/* Function */
+func function() -&gt; Int {
+    // Perform some operations...
+    return 0
+}
+
+func algorithm(n: Int) -&gt; Int { // Input data
+    let a = 0             // Temporary data (constant)
+    var b = 0             // Temporary data (variable)
+    let node = Node(x: 0) // Temporary data (object)
+    let c = function()    // Stack frame space (function call)
+    return a + b + c      // Output data
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>/* Class */
+class Node {
+  int val;
+  Node next;
+  Node(this.val, [this.next]);
+}
+
+/* Function */
+int function() {
+  // Perform some operations...
+  return 0;
+}
+
+int algorithm(int n) {  // Input data
+  const int a = 0;      // Temporary data (constant)
+  int b = 0;            // Temporary data (variable)
+  Node node = Node(0);  // Temporary data (object)
+  int c = function();   // Stack frame space (function call)
+  return a + b + c;     // Output data
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class Node:
     """Class"""
     def __init__(self, x: int):
         self.val: int = x              # Node value
@@ -5322,25 +5179,6 @@ int algorithm(int n) {        // Input data
     int b = 0;                // Temporary data (variable)
     Node* node = new Node(0); // Temporary data (object)
     int c = func();           // Stack frame space (function call)
-    return a + b + c;         // Output data
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Class */
-class Node {
-    int val;
-    Node next;
-    Node(int x) { val = x; }
-}
-
-/* Function */
-int function() {
-    // Perform some operations...
-    return 0;
-}
-
-int algorithm(int n) {        // Input data
-    final int a = 0;          // Temporary data (constant)
-    int b = 0;                // Temporary data (variable)
-    Node node = new Node(0);  // Temporary data (object)
-    int c = function();       // Stack frame space (function call)
     return a + b + c;         // Output data
 }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>/* Class */
 class Node(int x) {
@@ -5383,28 +5221,6 @@ func algorithm(n int) int { // Input data
     newNode(0)              // Temporary data (object)
     c := function()         // Stack frame space (function call)
     return a + b + c        // Output data
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>/* Class */
-class Node {
-    var val: Int
-    var next: Node?
-
-    init(x: Int) {
-        val = x
-    }
-}
-
-/* Function */
-func function() -&gt; Int {
-    // Perform some operations...
-    return 0
-}
-
-func algorithm(n: Int) -&gt; Int { // Input data
-    let a = 0             // Temporary data (constant)
-    var b = 0             // Temporary data (variable)
-    let node = Node(x: 0) // Temporary data (object)
-    let c = function()    // Stack frame space (function call)
-    return a + b + c      // Output data
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Class */
 class Node {
     val;
@@ -5449,25 +5265,6 @@ function algorithm(n: number): number { // Input data
     const node = new Node(0);           // Temporary data (object)
     const c = constFunc();              // Stack frame space (function call)
     return a + b + c;                   // Output data
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>/* Class */
-class Node {
-  int val;
-  Node next;
-  Node(this.val, [this.next]);
-}
-
-/* Function */
-int function() {
-  // Perform some operations...
-  return 0;
-}
-
-int algorithm(int n) {  // Input data
-  const int a = 0;      // Temporary data (constant)
-  int b = 0;            // Temporary data (variable)
-  Node node = Node(0);  // Temporary data (object)
-  int c = function();   // Stack frame space (function call)
-  return a + b + c;     // Output data
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>use std::rc::Rc;
 use std::cell::RefCell;
 
@@ -5507,47 +5304,7 @@ int algorithm(int n) { // Input data
     int b = 0;         // Temporary data (variable)
     int c = func();    // Stack frame space (function call)
     return a + b + c;  // Output data
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Class */
-class Node(var _val: Int) {
-    var next: Node? = null
-}
-
-/* Function */
-fun function(): Int {
-    // Perform some operations...
-    return 0
-}
-
-fun algorithm(n: Int): Int { // Input data
-    val a = 0                // Temporary data (constant)
-    var b = 0                // Temporary data (variable)
-    val node = Node(0)       // Temporary data (object)
-    val c = function()       // Stack frame space (function call)
-    return a + b + c         // Output data
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>### Class ###
-class Node
-    attr_accessor :val      # Node value
-    attr_accessor :next     # Reference to the next node
-
-    def initialize(x)
-        @val = x
-    end
-end
-
-### Function ###
-def function
-    # Perform some operations...
-    0
-end
-
-### Algorithm ###
-def algorithm(n)        # Input data
-    a = 0               # Temporary data (constant)
-    b = 0               # Temporary data (variable)
-    node = Node.new(0)  # Temporary data (object)
-    c = function        # Stack frame space (function call)
-    a + b + c           # Output data
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <h2>2.4.2 Phương pháp tính toán</h2>
 <p>Phương pháp tính độ phức tạp không gian nhìn chung tương tự như độ phức tạp thời gian, chỉ khác ở chỗ đại lượng đo lường chuyển từ "số lượng phép toán" sang "dung lượng không gian sử dụng".</p>
@@ -5557,7 +5314,30 @@ end</code></pre></div></div></div>
   <li><strong>Dựa trên dữ liệu đầu vào tệ nhất</strong>: Khi $n < 10$, độ phức tạp không gian là $O(1)$; nhưng khi $n > 10$, mảng <code>nums</code> được khởi tạo chiếm $O(n)$ không gian, nên độ phức tạp không gian trường hợp xấu nhất là $O(n)$.</li>
   <li><strong>Dựa trên mức đỉnh bộ nhớ trong quá trình thực thi giải thuật</strong>: Ví dụ, trước khi thực thi dòng cuối cùng, chương trình chiếm $O(1)$ không gian; khi khởi tạo mảng <code>nums</code>, chương trình chiếm $O(n)$ không gian, nên độ phức tạp không gian trường hợp xấu nhất là $O(n)$.</li>
 </ol>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def algorithm(n: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>void algorithm(int n) {
+    int a = 0;                   // O(1)
+    int[] b = new int[10000];    // O(1)
+    if (n &gt; 10)
+        int[] nums = new int[n]; // O(n)
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun algorithm(n: Int) {
+    val a = 0                    // O(1)
+    val b = IntArray(10000)      // O(1)
+    if (n &gt; 10) {
+        val nums = IntArray(n)   // O(n)
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func algorithm(n: Int) {
+    let a = 0 // O(1)
+    let b = Array(repeating: 0, count: 10000) // O(1)
+    if n &gt; 10 {
+        let nums = Array(repeating: 0, count: n) // O(n)
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void algorithm(int n) {
+  int a = 0;                            // O(1)
+  List&lt;int&gt; b = List.filled(10000, 0);  // O(1)
+  if (n &gt; 10) {
+    List&lt;int&gt; nums = List.filled(n, 0); // O(n)
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def algorithm(n: int):
     a = 0               # O(1)
     b = [0] * 10000     # O(1)
     if n &gt; 10:
@@ -5566,11 +5346,6 @@ end</code></pre></div></div></div>
     vector&lt;int&gt; b(10000);    // O(1)
     if (n &gt; 10)
         vector&lt;int&gt; nums(n); // O(n)
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>void algorithm(int n) {
-    int a = 0;                   // O(1)
-    int[] b = new int[10000];    // O(1)
-    if (n &gt; 10)
-        int[] nums = new int[n]; // O(n)
 }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>void Algorithm(int n) {
     int a = 0;                   // O(1)
     int[] b = new int[10000];    // O(1)
@@ -5585,12 +5360,6 @@ end</code></pre></div></div></div>
         nums := make([]int, n)  // O(n)
     }
     fmt.Println(a, b, nums)
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func algorithm(n: Int) {
-    let a = 0 // O(1)
-    let b = Array(repeating: 0, count: 10000) // O(1)
-    if n &gt; 10 {
-        let nums = Array(repeating: 0, count: n) // O(n)
-    }
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function algorithm(n) {
     const a = 0;                   // O(1)
     const b = new Array(10000);    // O(1)
@@ -5603,12 +5372,6 @@ end</code></pre></div></div></div>
     if (n &gt; 10) {
         const nums = new Array(n); // O(n)
     }
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void algorithm(int n) {
-  int a = 0;                            // O(1)
-  List&lt;int&gt; b = List.filled(10000, 0);  // O(1)
-  if (n &gt; 10) {
-    List&lt;int&gt; nums = List.filled(n, 0); // O(n)
-  }
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn algorithm(n: i32) {
     let a = 0;                              // O(1)
     let b = [0; 10000];                     // O(1)
@@ -5620,19 +5383,70 @@ end</code></pre></div></div></div>
     int b[10000];            // O(1)
     if (n &gt; 10)
         int nums[n] = {0};   // O(n)
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun algorithm(n: Int) {
-    val a = 0                    // O(1)
-    val b = IntArray(10000)      // O(1)
-    if (n &gt; 10) {
-        val nums = IntArray(n)   // O(n)
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def algorithm(n)
-    a = 0                           # O(1)
-    b = Array.new(10000)            # O(1)
-    nums = Array.new(n) if n &gt; 10   # O(n)
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 <p><strong>Đối với các hàm đệ quy, cần phải tính cả không gian khung ngăn xếp</strong>. Quan sát đoạn mã dưới đây:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def function() -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>int function() {
+    // Perform some operations
+    return 0;
+}
+/* Loop has space complexity of O(1) */
+void loop(int n) {
+    for (int i = 0; i &lt; n; i++) {
+        function();
+    }
+}
+/* Recursion has space complexity of O(n) */
+void recur(int n) {
+    if (n == 1) return;
+    recur(n - 1);
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun function(): Int {
+    // Perform some operations
+    return 0
+}
+/* Loop has space complexity of O(1) */
+fun loop(n: Int) {
+    for (i in 0..&lt;n) {
+        function()
+    }
+}
+/* Recursion has space complexity of O(n) */
+fun recur(n: Int) {
+    if (n == 1) return
+    return recur(n - 1)
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>@discardableResult
+func function() -&gt; Int {
+    // Perform some operations
+    return 0
+}
+
+/* Loop has space complexity of O(1) */
+func loop(n: Int) {
+    for _ in 0 ..&lt; n {
+        function()
+    }
+}
+
+/* Recursion has space complexity of O(n) */
+func recur(n: Int) {
+    if n == 1 {
+        return
+    }
+    recur(n: n - 1)
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int function() {
+  // Perform some operations
+  return 0;
+}
+/* Loop has space complexity of O(1) */
+void loop(int n) {
+  for (int i = 0; i &lt; n; i++) {
+    function();
+  }
+}
+/* Recursion has space complexity of O(n) */
+void recur(int n) {
+  if (n == 1) return;
+  recur(n - 1);
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def function() -&gt; int:
     # Perform some operations
     return 0
 
@@ -5653,20 +5467,6 @@ def recur(n: int):
 void loop(int n) {
     for (int i = 0; i &lt; n; i++) {
         func();
-    }
-}
-/* Recursion has space complexity of O(n) */
-void recur(int n) {
-    if (n == 1) return;
-    recur(n - 1);
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>int function() {
-    // Perform some operations
-    return 0;
-}
-/* Loop has space complexity of O(1) */
-void loop(int n) {
-    for (int i = 0; i &lt; n; i++) {
-        function();
     }
 }
 /* Recursion has space complexity of O(n) */
@@ -5705,25 +5505,6 @@ func recur(n int) {
         return
     }
     recur(n - 1)
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>@discardableResult
-func function() -&gt; Int {
-    // Perform some operations
-    return 0
-}
-
-/* Loop has space complexity of O(1) */
-func loop(n: Int) {
-    for _ in 0 ..&lt; n {
-        function()
-    }
-}
-
-/* Recursion has space complexity of O(n) */
-func recur(n: Int) {
-    if n == 1 {
-        return
-    }
-    recur(n: n - 1)
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function constFunc() {
     // Perform some operations
     return 0;
@@ -5752,20 +5533,6 @@ function loop(n: number): void {
 function recur(n: number): void {
     if (n === 1) return;
     return recur(n - 1);
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int function() {
-  // Perform some operations
-  return 0;
-}
-/* Loop has space complexity of O(1) */
-void loop(int n) {
-  for (int i = 0; i &lt; n; i++) {
-    function();
-  }
-}
-/* Recursion has space complexity of O(n) */
-void recur(int n) {
-  if (n == 1) return;
-  recur(n - 1);
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn function() -&gt; i32 {
     // Perform some operations
     return 0;
@@ -5796,35 +5563,7 @@ void loop(int n) {
 void recur(int n) {
     if (n == 1) return;
     recur(n - 1);
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun function(): Int {
-    // Perform some operations
-    return 0
-}
-/* Loop has space complexity of O(1) */
-fun loop(n: Int) {
-    for (i in 0..&lt;n) {
-        function()
-    }
-}
-/* Recursion has space complexity of O(n) */
-fun recur(n: Int) {
-    if (n == 1) return
-    return recur(n - 1)
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def function
-    # Perform some operations
-    0
-end
-
-### Loop has space complexity of O(1) ###
-def loop(n)
-    (0...n).each { function }
-end
-
-### Recursion has space complexity of O(n) ###
-def recur(n)
-    return if n == 1
-    recur(n - 1)
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 <p>Độ phức tạp thời gian của cả hai hàm <code>loop()</code> và <code>recur()</code> đều là $O(n)$, nhưng độ phức tạp không gian của chúng khác nhau.</p>
 <ul>
   <li>Hàm <code>loop()</code> gọi <code>function()</code> $n$ lần trong một vòng lặp. Ở mỗi lần lặp, <code>function()</code> trả về và giải phóng không gian khung ngăn xếp của nó, nên độ phức tạp không gian vẫn là $O(1)$.</li>
@@ -5847,7 +5586,63 @@ $$
 <h3>2.4.3.1 Không gian hằng số $O(1)$</h3>
 
 <p>Thuật toán chỉ sử dụng một số lượng biến cố định độc lập với kích thước dữ liệu đầu vào $n$:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def constant(n: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static void constant(int n) {
+        // Constants, variables, objects occupy O(1) space
+        final int a = 0;
+        int b = 0;
+        int[] nums = new int[10000];
+        ListNode node = new ListNode(0);
+        // Variables in the loop occupy O(1) space
+        for (int i = 0; i &lt; n; i++) {
+            int c = 0;
+        }
+        // Functions in the loop occupy O(1) space
+        for (int i = 0; i &lt; n; i++) {
+            function();
+        }
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun constant(n: Int) {
+    // Constants, variables, objects occupy O(1) space
+    val a = 0
+    var b = 0
+    val nums = Array(10000) { 0 }
+    val node = ListNode(0)
+    // Variables in the loop occupy O(1) space
+    for (i in 0..&lt;n) {
+        val c = 0
+    }
+    // Functions in the loop occupy O(1) space
+    for (i in 0..&lt;n) {
+        function()
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func constant(n: Int) {
+    // Constants, variables, objects occupy O(1) space
+    let a = 0
+    var b = 0
+    let nums = Array(repeating: 0, count: 10000)
+    let node = ListNode(x: 0)
+    // Variables in the loop occupy O(1) space
+    for _ in 0 ..&lt; n {
+        let c = 0
+    }
+    // Functions in the loop occupy O(1) space
+    for _ in 0 ..&lt; n {
+        function()
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void constant(int n) {
+  // Constants, variables, objects occupy O(1) space
+  final int a = 0;
+  int b = 0;
+  List&lt;int&gt; nums = List.filled(10000, 0);
+  ListNode node = ListNode(0);
+  // Variables in the loop occupy O(1) space
+  for (var i = 0; i &lt; n; i++) {
+    int c = 0;
+  }
+  // Functions in the loop occupy O(1) space
+  for (var i = 0; i &lt; n; i++) {
+    function();
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def constant(n: int):
     """Constant order"""
     # Constants, variables, objects occupy O(1) space
     a = 0
@@ -5872,21 +5667,7 @@ $$
     for (int i = 0; i &lt; n; i++) {
         func();
     }
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static void constant(int n) {
-        // Constants, variables, objects occupy O(1) space
-        final int a = 0;
-        int b = 0;
-        int[] nums = new int[10000];
-        ListNode node = new ListNode(0);
-        // Variables in the loop occupy O(1) space
-        for (int i = 0; i &lt; n; i++) {
-            int c = 0;
-        }
-        // Functions in the loop occupy O(1) space
-        for (int i = 0; i &lt; n; i++) {
-            function();
-        }
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    void Constant(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    void Constant(int n) {
         // Constants, variables, objects occupy O(1) space
         int a = 0;
         int b = 0;
@@ -5919,20 +5700,6 @@ $$
     c += 0
     nums[0] = 0
     node.val = 0
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func constant(n: Int) {
-    // Constants, variables, objects occupy O(1) space
-    let a = 0
-    var b = 0
-    let nums = Array(repeating: 0, count: 10000)
-    let node = ListNode(x: 0)
-    // Variables in the loop occupy O(1) space
-    for _ in 0 ..&lt; n {
-        let c = 0
-    }
-    // Functions in the loop occupy O(1) space
-    for _ in 0 ..&lt; n {
-        function()
-    }
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function constant(n) {
     // Constants, variables, objects occupy O(1) space
     const a = 0;
@@ -5961,20 +5728,6 @@ $$
     for (let i = 0; i &lt; n; i++) {
         constFunc();
     }
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void constant(int n) {
-  // Constants, variables, objects occupy O(1) space
-  final int a = 0;
-  int b = 0;
-  List&lt;int&gt; nums = List.filled(10000, 0);
-  ListNode node = ListNode(0);
-  // Variables in the loop occupy O(1) space
-  for (var i = 0; i &lt; n; i++) {
-    int c = 0;
-  }
-  // Functions in the loop occupy O(1) space
-  for (var i = 0; i &lt; n; i++) {
-    function();
-  }
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn constant(n: i32) {
     // Constants, variables, objects occupy O(1) space
     const A: i32 = 0;
@@ -6004,35 +5757,57 @@ $$
     for (int i = 0; i &lt; n; i++) {
         func();
     }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun constant(n: Int) {
-    // Constants, variables, objects occupy O(1) space
-    val a = 0
-    var b = 0
-    val nums = Array(10000) { 0 }
-    val node = ListNode(0)
-    // Variables in the loop occupy O(1) space
-    for (i in 0..&lt;n) {
-        val c = 0
-    }
-    // Functions in the loop occupy O(1) space
-    for (i in 0..&lt;n) {
-        function()
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def constant(n)
-  # Constants, variables, objects occupy O(1) space
-  a = 0
-  nums = [0] * 10000
-  node = ListNode.new
-
-  # Variables in the loop occupy O(1) space
-  (0...n).each { c = 0 }
-  # Functions in the loop occupy O(1) space
-  (0...n).each { function }
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <h3>2.4.3.2 Không gian tuyến tính $O(n)$</h3>
 <p>Thuật toán khởi tạo các mảng hoặc danh sách có kích thước tỷ lệ thuận với dữ liệu đầu vào, hoặc có độ sâu đệ quy gọi hàm tỷ lệ thuận với $n$:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def linear(n: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static void linear(int n) {
+        // Array of length n uses O(n) space
+        int[] nums = new int[n];
+        // A list of length n occupies O(n) space
+        List&lt;ListNode&gt; nodes = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; n; i++) {
+            nodes.add(new ListNode(i));
+        }
+        // A hash table of length n occupies O(n) space
+        Map&lt;Integer, String&gt; map = new HashMap&lt;&gt;();
+        for (int i = 0; i &lt; n; i++) {
+            map.put(i, String.valueOf(i));
+        }
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun linear(n: Int) {
+    // Array of length n uses O(n) space
+    val nums = Array(n) { 0 }
+    // A list of length n occupies O(n) space
+    val nodes = mutableListOf&lt;ListNode&gt;()
+    for (i in 0..&lt;n) {
+        nodes.add(ListNode(i))
+    }
+    // A hash table of length n occupies O(n) space
+    val map = mutableMapOf&lt;Int, String&gt;()
+    for (i in 0..&lt;n) {
+        map[i] = i.toString()
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func linear(n: Int) {
+    // Array of length n uses O(n) space
+    let nums = Array(repeating: 0, count: n)
+    // A list of length n occupies O(n) space
+    let nodes = (0 ..&lt; n).map { ListNode(x: $0) }
+    // A hash table of length n occupies O(n) space
+    let map = Dictionary(uniqueKeysWithValues: (0 ..&lt; n).map { ($0, "\($0)") })
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void linear(int n) {
+  // Array of length n uses O(n) space
+  List&lt;int&gt; nums = List.filled(n, 0);
+  // A list of length n occupies O(n) space
+  List&lt;ListNode&gt; nodes = [];
+  for (var i = 0; i &lt; n; i++) {
+    nodes.add(ListNode(i));
+  }
+  // A hash table of length n occupies O(n) space
+  Map&lt;int, String&gt; map = HashMap();
+  for (var i = 0; i &lt; n; i++) {
+    map.putIfAbsent(i, () =&gt; i.toString());
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def linear(n: int):
     """Linear order"""
     # A list of length n occupies O(n) space
     nums = [0] * n
@@ -6052,20 +5827,7 @@ end</code></pre></div></div></div>
     for (int i = 0; i &lt; n; i++) {
         map[i] = to_string(i);
     }
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static void linear(int n) {
-        // Array of length n uses O(n) space
-        int[] nums = new int[n];
-        // A list of length n occupies O(n) space
-        List&lt;ListNode&gt; nodes = new ArrayList&lt;&gt;();
-        for (int i = 0; i &lt; n; i++) {
-            nodes.add(new ListNode(i));
-        }
-        // A hash table of length n occupies O(n) space
-        Map&lt;Integer, String&gt; map = new HashMap&lt;&gt;();
-        for (int i = 0; i &lt; n; i++) {
-            map.put(i, String.valueOf(i));
-        }
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    void Linear(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    void Linear(int n) {
         // Array of length n uses O(n) space
         int[] nums = new int[n];
         // A list of length n occupies O(n) space
@@ -6091,13 +5853,6 @@ end</code></pre></div></div></div>
     for i := 0; i &lt; n; i++ {
         m[i] = strconv.Itoa(i)
     }
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func linear(n: Int) {
-    // Array of length n uses O(n) space
-    let nums = Array(repeating: 0, count: n)
-    // A list of length n occupies O(n) space
-    let nodes = (0 ..&lt; n).map { ListNode(x: $0) }
-    // A hash table of length n occupies O(n) space
-    let map = Dictionary(uniqueKeysWithValues: (0 ..&lt; n).map { ($0, "\($0)") })
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function linear(n) {
     // Array of length n uses O(n) space
     const nums = new Array(n);
@@ -6124,19 +5879,6 @@ end</code></pre></div></div></div>
     for (let i = 0; i &lt; n; i++) {
         map.set(i, i.toString());
     }
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void linear(int n) {
-  // Array of length n uses O(n) space
-  List&lt;int&gt; nums = List.filled(n, 0);
-  // A list of length n occupies O(n) space
-  List&lt;ListNode&gt; nodes = [];
-  for (var i = 0; i &lt; n; i++) {
-    nodes.add(ListNode(i));
-  }
-  // A hash table of length n occupies O(n) space
-  Map&lt;int, String&gt; map = HashMap();
-  for (var i = 0; i &lt; n; i++) {
-    map.putIfAbsent(i, () =&gt; i.toString());
-  }
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn linear(n: i32) {
     // Array of length n uses O(n) space
     let mut nums = vec![0; n as usize];
@@ -6181,32 +5923,30 @@ end</code></pre></div></div></div>
         HASH_DEL(h, curr);
         free(curr);
     }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun linear(n: Int) {
-    // Array of length n uses O(n) space
-    val nums = Array(n) { 0 }
-    // A list of length n occupies O(n) space
-    val nodes = mutableListOf&lt;ListNode&gt;()
-    for (i in 0..&lt;n) {
-        nodes.add(ListNode(i))
-    }
-    // A hash table of length n occupies O(n) space
-    val map = mutableMapOf&lt;Int, String&gt;()
-    for (i in 0..&lt;n) {
-        map[i] = i.toString()
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def linear(n)
-  # A list of length n occupies O(n) space
-  nums = Array.new(n, 0)
-
-  # A hash table of length n occupies O(n) space
-  hmap = {}
-  for i in 0...n
-    hmap[i] = i.to_s
-  end
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Ví dụ đệ quy tuyến tính sử dụng không gian ngăn xếp $O(n)$:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def linear_recur(n: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static void linearRecur(int n) {
+        System.out.println("Recursion n = " + n);
+        if (n == 1)
+            return;
+        linearRecur(n - 1);
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun linearRecur(n: Int) {
+    println("Recursion n = $n")
+    if (n == 1)
+        return
+    linearRecur(n - 1)
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func linearRecur(n: Int) {
+    print("Recursion n = \(n)")
+    if n == 1 {
+        return
+    }
+    linearRecur(n: n - 1)
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void linearRecur(int n) {
+  print('Recursion n = $n');
+  if (n == 1) return;
+  linearRecur(n - 1);
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def linear_recur(n: int):
     """Linear order (recursive implementation)"""
     print("Recursion n =", n)
     if n == 1:
@@ -6216,12 +5956,7 @@ end</code></pre></div></div></div>
     if (n == 1)
         return;
     linearRecur(n - 1);
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static void linearRecur(int n) {
-        System.out.println("Recursion n = " + n);
-        if (n == 1)
-            return;
-        linearRecur(n - 1);
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    void LinearRecur(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    void LinearRecur(int n) {
         Console.WriteLine("Recursion n = " + n);
         if (n == 1) return;
         LinearRecur(n - 1);
@@ -6231,12 +5966,6 @@ end</code></pre></div></div></div>
 		return
 	}
 	spaceLinearRecur(n - 1)
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func linearRecur(n: Int) {
-    print("Recursion n = \(n)")
-    if n == 1 {
-        return
-    }
-    linearRecur(n: n - 1)
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function linearRecur(n) {
     console.log(\`Recursion n = \${n}\`);
     if (n === 1) return;
@@ -6245,10 +5974,6 @@ end</code></pre></div></div></div>
     console.log(\`Recursion n = \${n}\`);
     if (n === 1) return;
     linearRecur(n - 1);
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void linearRecur(int n) {
-  print('Recursion n = $n');
-  if (n == 1) return;
-  linearRecur(n - 1);
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn linear_recur(n: i32) {
     println!("Recursion n = {}", n);
     if n == 1 {
@@ -6260,16 +5985,7 @@ end</code></pre></div></div></div>
     if (n == 1)
         return;
     linearRecur(n - 1);
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun linearRecur(n: Int) {
-    println("Recursion n = $n")
-    if (n == 1)
-        return
-    linearRecur(n - 1)
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def linear_recur(n)
-  puts "Recursion n = #{n}"
-  return if n == 1
-  linear_recur(n - 1)
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Như minh họa trong hình dưới đây, độ sâu đệ quy của hàm này là $n$, nghĩa là có $n$ hàm <code>linear_recur()</code> chưa trả về tồn tại đồng thời tại một thời điểm, sử dụng $O(n)$ không gian khung ngăn xếp:</p>
 
@@ -6279,7 +5995,46 @@ end</code></pre></div></div></div>
 
 <h3>2.4.3.3 Không gian bình phương $O(n^2)$</h3>
 <p>Thuật toán khởi tạo ma trận hai chiều có kích thước $n \\times n$ để lưu trữ dữ liệu tính toán:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def quadratic(n: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static void quadratic(int n) {
+        // Matrix uses O(n^2) space
+        int[][] numMatrix = new int[n][n];
+        // 2D list uses O(n^2) space
+        List&lt;List&lt;Integer&gt;&gt; numList = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; n; i++) {
+            List&lt;Integer&gt; tmp = new ArrayList&lt;&gt;();
+            for (int j = 0; j &lt; n; j++) {
+                tmp.add(0);
+            }
+            numList.add(tmp);
+        }
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun quadratic(n: Int) {
+    // Matrix uses O(n^2) space
+    val numMatrix = arrayOfNulls&lt;Array&lt;Int&gt;?&gt;(n)
+    // 2D list uses O(n^2) space
+    val numList = mutableListOf&lt;MutableList&lt;Int&gt;&gt;()
+    for (i in 0..&lt;n) {
+        val tmp = mutableListOf&lt;Int&gt;()
+        for (j in 0..&lt;n) {
+            tmp.add(0)
+        }
+        numList.add(tmp)
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func quadratic(n: Int) {
+    // 2D list uses O(n^2) space
+    let numList = Array(repeating: Array(repeating: 0, count: n), count: n)
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void quadratic(int n) {
+  // Matrix uses O(n^2) space
+  List&lt;List&lt;int&gt;&gt; numMatrix = List.generate(n, (_) =&gt; List.filled(n, 0));
+  // 2D list uses O(n^2) space
+  List&lt;List&lt;int&gt;&gt; numList = [];
+  for (var i = 0; i &lt; n; i++) {
+    List&lt;int&gt; tmp = [];
+    for (int j = 0; j &lt; n; j++) {
+      tmp.add(0);
+    }
+    numList.add(tmp);
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def quadratic(n: int):
     """Quadratic order"""
     # A 2D list occupies O(n^2) space
     num_matrix = [[0] * n for _ in range(n)]</code></pre></div><div class="code-tab-content" data-lang="cpp"><pre data-lang="cpp"><code>void quadratic(int n) {
@@ -6292,19 +6047,7 @@ end</code></pre></div></div></div>
         }
         numMatrix.push_back(tmp);
     }
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static void quadratic(int n) {
-        // Matrix uses O(n^2) space
-        int[][] numMatrix = new int[n][n];
-        // 2D list uses O(n^2) space
-        List&lt;List&lt;Integer&gt;&gt; numList = new ArrayList&lt;&gt;();
-        for (int i = 0; i &lt; n; i++) {
-            List&lt;Integer&gt; tmp = new ArrayList&lt;&gt;();
-            for (int j = 0; j &lt; n; j++) {
-                tmp.add(0);
-            }
-            numList.add(tmp);
-        }
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    void Quadratic(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    void Quadratic(int n) {
         // Matrix uses O(n^2) space
         int[,] numMatrix = new int[n, n];
         // 2D list uses O(n^2) space
@@ -6322,9 +6065,6 @@ end</code></pre></div></div></div>
     for i := 0; i &lt; n; i++ {
         numMatrix[i] = make([]int, n)
     }
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func quadratic(n: Int) {
-    // 2D list uses O(n^2) space
-    let numList = Array(repeating: Array(repeating: 0, count: n), count: n)
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function quadratic(n) {
     // Matrix uses O(n^2) space
     const numMatrix = Array(n)
@@ -6353,18 +6093,6 @@ end</code></pre></div></div></div>
         }
         numList.push(tmp);
     }
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void quadratic(int n) {
-  // Matrix uses O(n^2) space
-  List&lt;List&lt;int&gt;&gt; numMatrix = List.generate(n, (_) =&gt; List.filled(n, 0));
-  // 2D list uses O(n^2) space
-  List&lt;List&lt;int&gt;&gt; numList = [];
-  for (var i = 0; i &lt; n; i++) {
-    List&lt;int&gt; tmp = [];
-    for (int j = 0; j &lt; n; j++) {
-      tmp.add(0);
-    }
-    numList.add(tmp);
-  }
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn quadratic(n: i32) {
     // Matrix uses O(n^2) space
     let num_matrix = vec![vec![0; n as usize]; n as usize];
@@ -6393,25 +6121,37 @@ end</code></pre></div></div></div>
         free(numMatrix[i]);
     }
     free(numMatrix);
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun quadratic(n: Int) {
-    // Matrix uses O(n^2) space
-    val numMatrix = arrayOfNulls&lt;Array&lt;Int&gt;?&gt;(n)
-    // 2D list uses O(n^2) space
-    val numList = mutableListOf&lt;MutableList&lt;Int&gt;&gt;()
-    for (i in 0..&lt;n) {
-        val tmp = mutableListOf&lt;Int&gt;()
-        for (j in 0..&lt;n) {
-            tmp.add(0)
-        }
-        numList.add(tmp)
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def quadratic(n)
-  # 2D list uses O(n^2) space
-  Array.new(n) { Array.new(n, 0) }
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <p>Như minh họa trong hình dưới đây, độ sâu đệ quy của hàm này là $n$, nghĩa là có $n$ hàm <code>quadratic_recur()</code> chưa trả về tồn tại đồng thời, và một mảng được khởi tạo trong mỗi lần gọi đệ quy với độ dài lần lượt là $n$, $n-1$, $\\dots$, $2$, $1$, độ dài trung bình là $n / 2$, do đó tổng thể chiếm dụng $O(n^2)$ không gian:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def quadratic_recur(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static int quadraticRecur(int n) {
+        if (n &lt;= 0)
+            return 0;
+        // Array nums has lengths n, n-1, ..., 2, 1
+        int[] nums = new int[n];
+        System.out.println("Recursion n = " + n + ", nums length = " + nums.length);
+        return quadraticRecur(n - 1);
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>tailrec fun quadraticRecur(n: Int): Int {
+    if (n &lt;= 0)
+        return 0
+    // Array nums has lengths n, n-1, ..., 2, 1
+    val nums = Array(n) { 0 }
+    println("Recursion n = $n, nums length = \${nums.size}")
+    return quadraticRecur(n - 1)
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func quadraticRecur(n: Int) -&gt; Int {
+    if n &lt;= 0 {
+        return 0
+    }
+    // Array nums has lengths n, n-1, ..., 2, 1
+    let nums = Array(repeating: 0, count: n)
+    print("Recursion n = \(n), nums length = \(nums.count)")
+    return quadraticRecur(n: n - 1)
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int quadraticRecur(int n) {
+  if (n &lt;= 0) return 0;
+  List&lt;int&gt; nums = List.filled(n, 0);
+  print('Recursion n = $n, nums length = \${nums.length}');
+  return quadraticRecur(n - 1);
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def quadratic_recur(n: int) -&gt; int:
     """Quadratic order (recursive implementation)"""
     if n &lt;= 0:
         return 0
@@ -6423,14 +6163,7 @@ end</code></pre></div></div></div>
     vector&lt;int&gt; nums(n);
     cout &lt;&lt; "Recursion n = " &lt;&lt; n &lt;&lt; ", nums length = " &lt;&lt; nums.size() &lt;&lt; endl;
     return quadraticRecur(n - 1);
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static int quadraticRecur(int n) {
-        if (n &lt;= 0)
-            return 0;
-        // Array nums has lengths n, n-1, ..., 2, 1
-        int[] nums = new int[n];
-        System.out.println("Recursion n = " + n + ", nums length = " + nums.length);
-        return quadraticRecur(n - 1);
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int QuadraticRecur(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    int QuadraticRecur(int n) {
         if (n &lt;= 0) return 0;
         int[] nums = new int[n];
         Console.WriteLine("Recursion n = " + n + ", nums length = " + nums.Length);
@@ -6442,14 +6175,6 @@ end</code></pre></div></div></div>
     nums := make([]int, n)
     fmt.Printf("Recursion n = %d, nums length = %d \n", n, len(nums))
     return spaceQuadraticRecur(n - 1)
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func quadraticRecur(n: Int) -&gt; Int {
-    if n &lt;= 0 {
-        return 0
-    }
-    // Array nums has lengths n, n-1, ..., 2, 1
-    let nums = Array(repeating: 0, count: n)
-    print("Recursion n = \(n), nums length = \(nums.count)")
-    return quadraticRecur(n: n - 1)
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function quadraticRecur(n) {
     if (n &lt;= 0) return 0;
     const nums = new Array(n);
@@ -6460,11 +6185,6 @@ end</code></pre></div></div></div>
     const nums = new Array(n);
     console.log(\`Recursion n = \${n}, nums length = \${nums.length}\`);
     return quadraticRecur(n - 1);
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int quadraticRecur(int n) {
-  if (n &lt;= 0) return 0;
-  List&lt;int&gt; nums = List.filled(n, 0);
-  print('Recursion n = $n, nums length = \${nums.length}');
-  return quadraticRecur(n - 1);
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn quadratic_recur(n: i32) -&gt; i32 {
     if n &lt;= 0 {
         return 0;
@@ -6481,20 +6201,7 @@ end</code></pre></div></div></div>
     int res = quadraticRecur(n - 1);
     free(nums);
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>tailrec fun quadraticRecur(n: Int): Int {
-    if (n &lt;= 0)
-        return 0
-    // Array nums has lengths n, n-1, ..., 2, 1
-    val nums = Array(n) { 0 }
-    println("Recursion n = $n, nums length = \${nums.size}")
-    return quadraticRecur(n - 1)
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def quadratic_recur(n)
-  return 0 unless n &gt; 0
-
-  # Array nums has lengths n, n-1, ..., 2, 1
-  nums = Array.new(n, 0)
-  quadratic_recur(n - 1)
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/space_complexity_recursive_quadratic.png" alt="Độ phức tạp không gian cấp độ bình phương sinh ra bởi hàm đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
@@ -6502,7 +6209,35 @@ end</code></pre></div></div></div>
 
 <h3>2.4.3.4 Không gian lũy thừa $O(2^n)$</h3>
 <p>Cấp độ lũy thừa thường xuất hiện trong cây nhị phân. Hãy quan sát hình dưới đây: một "cây nhị phân đầy đủ" (full binary tree) với $n$ tầng có $2^n - 1$ nút, chiếm dụng $O(2^n)$ không gian:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def build_tree(n: int) -&gt; TreeNode | None:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>    static TreeNode buildTree(int n) {
+        if (n == 0)
+            return null;
+        TreeNode root = new TreeNode(0);
+        root.left = buildTree(n - 1);
+        root.right = buildTree(n - 1);
+        return root;
+    }</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun buildTree(n: Int): TreeNode? {
+    if (n == 0)
+        return null
+    val root = TreeNode(0)
+    root.left = buildTree(n - 1)
+    root.right = buildTree(n - 1)
+    return root
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func buildTree(n: Int) -&gt; TreeNode? {
+    if n == 0 {
+        return nil
+    }
+    let root = TreeNode(x: 0)
+    root.left = buildTree(n: n - 1)
+    root.right = buildTree(n: n - 1)
+    return root
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>TreeNode? buildTree(int n) {
+  if (n == 0) return null;
+  TreeNode root = TreeNode(0);
+  root.left = buildTree(n - 1);
+  root.right = buildTree(n - 1);
+  return root;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def build_tree(n: int) -&gt; TreeNode | None:
     """Exponential order (build a full binary tree)"""
     if n == 0:
         return None
@@ -6516,14 +6251,7 @@ end</code></pre></div></div></div>
     root-&gt;left = buildTree(n - 1);
     root-&gt;right = buildTree(n - 1);
     return root;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>    static TreeNode buildTree(int n) {
-        if (n == 0)
-            return null;
-        TreeNode root = new TreeNode(0);
-        root.left = buildTree(n - 1);
-        root.right = buildTree(n - 1);
-        return root;
-    }</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    TreeNode? BuildTree(int n) {
+}</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>    TreeNode? BuildTree(int n) {
         if (n == 0) return null;
         TreeNode root = new(0) {
             left = BuildTree(n - 1),
@@ -6538,14 +6266,6 @@ end</code></pre></div></div></div>
     root.Left = buildTree(n - 1)
     root.Right = buildTree(n - 1)
     return root
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func buildTree(n: Int) -&gt; TreeNode? {
-    if n == 0 {
-        return nil
-    }
-    let root = TreeNode(x: 0)
-    root.left = buildTree(n: n - 1)
-    root.right = buildTree(n: n - 1)
-    return root
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function buildTree(n) {
     if (n === 0) return null;
     const root = new TreeNode(0);
@@ -6558,12 +6278,6 @@ end</code></pre></div></div></div>
     root.left = buildTree(n - 1);
     root.right = buildTree(n - 1);
     return root;
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>TreeNode? buildTree(int n) {
-  if (n == 0) return null;
-  TreeNode root = TreeNode(0);
-  root.left = buildTree(n - 1);
-  root.right = buildTree(n - 1);
-  return root;
 }</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>fn build_tree(n: i32) -&gt; Option&lt;Rc&lt;RefCell&lt;TreeNode&gt;&gt;&gt; {
     if n == 0 {
         return None;
@@ -6579,21 +6293,7 @@ end</code></pre></div></div></div>
     root-&gt;left = buildTree(n - 1);
     root-&gt;right = buildTree(n - 1);
     return root;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>fun buildTree(n: Int): TreeNode? {
-    if (n == 0)
-        return null
-    val root = TreeNode(0)
-    root.left = buildTree(n - 1)
-    root.right = buildTree(n - 1)
-    return root
-}</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code>def build_tree(n)
-  return if n == 0
-
-  TreeNode.new.tap do |root|
-    root.left = build_tree(n - 1)
-    root.right = build_tree(n - 1)
-  end
-end</code></pre></div></div></div>
+}</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/space_complexity_exponential.png" alt="Độ phức tạp không gian cấp độ lũy thừa sinh ra bởi cây nhị phân đầy đủ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
@@ -7875,7 +7575,23 @@ After initialization, linked lists can still adjust their length during program 
 <p>Vậy, mối quan hệ giữa kiểu dữ liệu cơ bản và cấu trúc dữ liệu là gì? Chúng ta đã biết rằng cấu trúc dữ liệu là những cách thức tổ chức và lưu trữ dữ liệu trong máy tính. Ở đây, trọng tâm nằm ở "cấu trúc" (structure), chứ không phải "dữ liệu" (data).</p>
 <p>Nếu muốn biểu diễn "một dãy số", chúng ta tự nhiên nghĩ đến việc dùng mảng (array). Đó là vì cấu trúc tuyến tính của mảng có thể biểu diễn mối quan hệ liền kề và trật tự của các con số, nhưng nội dung được lưu trữ là số nguyên <code>int</code>, số thực <code>float</code>, hay ký tự <code>char</code> thì không liên quan gì đến "cấu trúc dữ liệu".</p>
 <p>Nói cách khác, <strong>kiểu dữ liệu cơ bản cung cấp "loại nội dung" của dữ liệu, còn cấu trúc dữ liệu cung cấp "phương thức tổ chức" của dữ liệu</strong>. Ví dụ, trong đoạn mã dưới đây, chúng ta sử dụng cùng một cấu trúc dữ liệu (mảng) để lưu trữ và biểu diễn nhiều kiểu dữ liệu cơ bản khác nhau, bao gồm <code>int</code>, <code>float</code>, <code>char</code>, <code>bool</code>, v.v.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="csharp" onclick="switchCodeTab(event, 'csharp')">C#</button><button class="code-tab-btn" data-lang="go" onclick="switchCodeTab(event, 'go')">Go</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="typescript" onclick="switchCodeTab(event, 'typescript')">TypeScript</button><button class="code-tab-btn" data-lang="rust" onclick="switchCodeTab(event, 'rust')">Rust</button><button class="code-tab-btn" data-lang="c" onclick="switchCodeTab(event, 'c')">C</button><button class="code-tab-btn" data-lang="ruby" onclick="switchCodeTab(event, 'ruby')">Ruby</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
+int[] numbers = new int[5];
+float[] decimals = new float[5];
+char[] characters = new char[5];
+boolean[] bools = new boolean[5];</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
+val numbers = IntArray(5)
+val decinals = FloatArray(5)
+val characters = CharArray(5)
+val bools = BooleanArray(5)</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
+let numbers = Array(repeating: 0, count: 5)
+let decimals = Array(repeating: 0.0, count: 5)
+let characters: [Character] = Array(repeating: "a", count: 5)
+let bools = Array(repeating: false, count: 5)</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
+List&lt;int&gt; numbers = List.filled(5, 0);
+List&lt;double&gt; decimals = List.filled(5, 0.0);
+List&lt;String&gt; characters = List.filled(5, 'a');
+List&lt;bool&gt; bools = List.filled(5, false);</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
 numbers: list[int] = [0] * 5
 decimals: list[float] = [0.0] * 5
 # Trong Python, ký tự thực chất là chuỗi có độ dài 1
@@ -7886,11 +7602,7 @@ data = [0, 0.0, 'a', False, ListNode(0)]</code></pre></div><div class="code-tab-
 int numbers[5];
 float decimals[5];
 char characters[5];
-bool bools[5];</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
-int[] numbers = new int[5];
-float[] decimals = new float[5];
-char[] characters = new char[5];
-boolean[] bools = new boolean[5];</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
+bool bools[5];</code></pre></div><div class="code-tab-content" data-lang="csharp"><pre data-lang="csharp"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
 int[] numbers = new int[5];
 float[] decimals = new float[5];
 char[] characters = new char[5];
@@ -7898,19 +7610,11 @@ bool[] bools = new bool[5];</code></pre></div><div class="code-tab-content" data
 var numbers = [5]int{}
 var decimals = [5]float64{}
 var characters = [5]byte{}
-var bools = [5]bool{}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
-let numbers = Array(repeating: 0, count: 5)
-let decimals = Array(repeating: 0.0, count: 5)
-let characters: [Character] = Array(repeating: "a", count: 5)
-let bools = Array(repeating: false, count: 5)</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>// Mảng trong JavaScript có thể tự do lưu trữ nhiều kiểu dữ liệu cơ bản và đối tượng khác nhau
+var bools = [5]bool{}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>// Mảng trong JavaScript có thể tự do lưu trữ nhiều kiểu dữ liệu cơ bản và đối tượng khác nhau
 const array = [0, 0.0, 'a', false];</code></pre></div><div class="code-tab-content" data-lang="typescript"><pre data-lang="typescript"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
 const numbers: number[] = [];
 const characters: string[] = [];
-const bools: boolean[] = [];</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
-List&lt;int&gt; numbers = List.filled(5, 0);
-List&lt;double&gt; decimals = List.filled(5, 0.0);
-List&lt;String&gt; characters = List.filled(5, 'a');
-List&lt;bool&gt; bools = List.filled(5, false);</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
+const bools: boolean[] = [];</code></pre></div><div class="code-tab-content" data-lang="rust"><pre data-lang="rust"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
 let numbers: Vec&lt;i32&gt; = vec![0; 5];
 let decimals: Vec&lt;f32&gt; = vec![0.0; 5];
 let characters: Vec&lt;char&gt; = vec!['0'; 5];
@@ -7918,12 +7622,7 @@ let bools: Vec&lt;bool&gt; = vec![false; 5];</code></pre></div><div class="code-
 int numbers[10];
 float decimals[10];
 char characters[10];
-bool bools[10];</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>// Khởi tạo mảng bằng nhiều kiểu dữ liệu cơ bản khác nhau
-val numbers = IntArray(5)
-val decinals = FloatArray(5)
-val characters = CharArray(5)
-val bools = BooleanArray(5)</code></pre></div><div class="code-tab-content" data-lang="ruby"><pre data-lang="ruby"><code># List trong Ruby có thể tự do lưu trữ nhiều kiểu dữ liệu cơ bản và tham chiếu đối tượng khác nhau
-data = [0, 0.0, 'a', false, ListNode(0)]</code></pre></div></div></div>
+bool bools[10];</code></pre></div></div></div>
 `,
     originalContent: `
 # Basic Data Types

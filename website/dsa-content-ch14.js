@@ -76,7 +76,59 @@ Object.assign(DSA_CONTENT, {
 
 <p>Mục tiêu của bài toán này là xác định số cách đi, vì vậy <strong>chúng ta có thể xem xét dùng quay lui để liệt kê tất cả khả năng</strong>. Cụ thể, hãy tưởng tượng việc leo cầu thang như một quá trình chọn lựa nhiều vòng: bắt đầu từ mặt đất, mỗi vòng chọn leo lên $1$ hoặc $2$ bậc, tăng số đếm lên $1$ mỗi khi lên đến đỉnh cầu thang, và cắt tỉa khi vượt quá đỉnh. Đoạn mã như sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def backtrack(choices: list[int], state: int, n: int, res: list[int]) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Quay lui */
+public static void backtrack(List&lt;Integer&gt; choices, int state, int n, List&lt;Integer&gt; res) {
+    // Khi leo đến bậc thứ n, cộng thêm 1 vào số lời giải
+    if (state == n)
+        res.set(0, res.get(0) + 1);
+    // Duyệt qua tất cả lựa chọn
+    for (Integer choice : choices) {
+        // Cắt tỉa: không được vượt quá bậc thứ n
+        if (state + choice &gt; n)
+            continue;
+        // Thử: đưa ra lựa chọn, cập nhật trạng thái
+        backtrack(choices, state + choice, n, res);
+        // Quay lui
+    }
+}
+
+/* Leo cầu thang: Quay lui */
+public static int climbingStairsBacktrack(int n) {
+    List&lt;Integer&gt; choices = Arrays.asList(1, 2); // Có thể chọn leo 1 hoặc 2 bậc
+    int state = 0; // Bắt đầu leo từ bậc thứ 0
+    List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
+    res.add(0); // Dùng res[0] để ghi lại số lời giải
+    backtrack(choices, state, n, res);
+    return res.get(0);
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func backtrack(choices: [Int], state: Int, n: Int, res: inout [Int]) {
+    // When climbing to the n-th stair, add 1 to the solution count
+    if state == n {
+        res[0] += 1
+    }
+    // Traverse all choices
+    for choice in choices {
+        // Pruning: not allowed to go beyond the n-th stair
+        if state + choice &gt; n {
+            continue
+        }
+        // Attempt: make choice, update state
+        backtrack(choices: choices, state: state + choice, n: n, res: &amp;res)
+        // Backtrack
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void backtrack(List&lt;int&gt; choices, int state, int n, List&lt;int&gt; res) {
+  // When climbing to the n-th stair, add 1 to the solution count
+  if (state == n) {
+    res[0]++;
+  }
+  // Traverse all choices
+  for (int choice in choices) {
+    // Pruning: not allowed to go beyond the n-th stair
+    if (state + choice &gt; n) continue;
+    // Attempt: make choice, update state
+    backtrack(choices, state + choice, n, res);
+    // Backtrack
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def backtrack(choices: list[int], state: int, n: int, res: list[int]) -&gt; int:
     """Quay lui"""
     # Khi leo đến bậc thứ n, cộng thêm 1 vào số lời giải
     if state == n:
@@ -120,80 +172,6 @@ int climbingStairsBacktrack(int n) {
     vector&lt;int&gt; res = {0};        // Dùng res[0] để ghi lại số lời giải
     backtrack(choices, state, n, res);
     return res[0];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Quay lui */
-public static void backtrack(List&lt;Integer&gt; choices, int state, int n, List&lt;Integer&gt; res) {
-    // Khi leo đến bậc thứ n, cộng thêm 1 vào số lời giải
-    if (state == n)
-        res.set(0, res.get(0) + 1);
-    // Duyệt qua tất cả lựa chọn
-    for (Integer choice : choices) {
-        // Cắt tỉa: không được vượt quá bậc thứ n
-        if (state + choice &gt; n)
-            continue;
-        // Thử: đưa ra lựa chọn, cập nhật trạng thái
-        backtrack(choices, state + choice, n, res);
-        // Quay lui
-    }
-}
-
-/* Leo cầu thang: Quay lui */
-public static int climbingStairsBacktrack(int n) {
-    List&lt;Integer&gt; choices = Arrays.asList(1, 2); // Có thể chọn leo 1 hoặc 2 bậc
-    int state = 0; // Bắt đầu leo từ bậc thứ 0
-    List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
-    res.add(0); // Dùng res[0] để ghi lại số lời giải
-    backtrack(choices, state, n, res);
-    return res.get(0);
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Quay lui */
-function backtrack(choices, state, n, res) {
-    // Khi leo đến bậc thứ n, cộng thêm 1 vào số lời giải
-    if (state === n) res.set(0, res.get(0) + 1);
-    // Duyệt qua tất cả lựa chọn
-    for (const choice of choices) {
-        // Cắt tỉa: không được vượt quá bậc thứ n
-        if (state + choice &gt; n) continue;
-        // Thử: đưa ra lựa chọn, cập nhật trạng thái
-        backtrack(choices, state + choice, n, res);
-        // Quay lui
-    }
-}
-
-/* Leo cầu thang: Quay lui */
-function climbingStairsBacktrack(n) {
-    const choices = [1, 2]; // Có thể chọn leo 1 hoặc 2 bậc
-    const state = 0; // Bắt đầu leo từ bậc thứ 0
-    const res = new Map();
-    res.set(0, 0); // Dùng res[0] để ghi lại số lời giải
-    backtrack(choices, state, n, res);
-    return res.get(0);
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Quay lui */
-fun backtrack(
-    choices: MutableList&lt;Int&gt;,
-    state: Int,
-    n: Int,
-    res: MutableList&lt;Int&gt;
-) {
-    // Khi leo đến bậc thứ n, cộng thêm 1 vào số lời giải
-    if (state == n)
-        res[0] = res[0] + 1
-    // Duyệt qua tất cả lựa chọn
-    for (choice in choices) {
-        // Cắt tỉa: không được vượt quá bậc thứ n
-        if (state + choice &gt; n) continue
-        // Thử: đưa ra lựa chọn, cập nhật trạng thái
-        backtrack(choices, state + choice, n, res)
-        // Quay lui
-    }
-}
-
-/* Leo cầu thang: Quay lui */
-fun climbingStairsBacktrack(n: Int): Int {
-    val choices = mutableListOf(1, 2) // Có thể chọn leo 1 hoặc 2 bậc
-    val state = 0 // Bắt đầu leo từ bậc thứ 0
-    val res = mutableListOf&lt;Int&gt;()
-    res.add(0) // Dùng res[0] để ghi lại số lời giải
-    backtrack(choices, state, n, res)
-    return res[0]
 }</code></pre></div></div></div>
 
 <h2>Cách 1: Tìm kiếm vét cạn</h2>
@@ -220,7 +198,44 @@ fun climbingStairsBacktrack(n: Int): Int {
 
 <p>Quan sát đoạn mã dưới đây: giống như mã quay lui tiêu chuẩn, nó cũng dùng tìm kiếm theo chiều sâu nhưng ngắn gọn hơn:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def dfs(i: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm */
+public static int dfs(int i) {
+    // Đã biết dp[1] và dp[2], trả về luôn
+    if (i == 1 || i == 2)
+        return i;
+    // dp[i] = dp[i-1] + dp[i-2]
+    int count = dfs(i - 1) + dfs(i - 2);
+    return count;
+}
+
+/* Leo cầu thang: Tìm kiếm */
+public static int climbingStairsDFS(int n) {
+    return dfs(n);
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func dfs(i: Int, mem: inout [Int]) -&gt; Int {
+    // Known dp[1] and dp[2], return them
+    if i == 1 || i == 2 {
+        return i
+    }
+    // If record dp[i] exists, return it directly
+    if mem[i] != -1 {
+        return mem[i]
+    }
+    // dp[i] = dp[i-1] + dp[i-2]
+    let count = dfs(i: i - 1, mem: &amp;mem) + dfs(i: i - 2, mem: &amp;mem)
+    // Record dp[i]
+    mem[i] = count
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int dfs(int i, List&lt;int&gt; mem) {
+  // Known dp[1] and dp[2], return them
+  if (i == 1 || i == 2) return i;
+  // If record dp[i] exists, return it directly
+  if (mem[i] != -1) return mem[i];
+  // dp[i] = dp[i-1] + dp[i-2]
+  int count = dfs(i - 1, mem) + dfs(i - 2, mem);
+  // Record dp[i]
+  mem[i] = count;
+  return count;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def dfs(i: int) -&gt; int:
     """Tìm kiếm"""
     # Đã biết dp[1] và dp[2], trả về luôn
     if i == 1 or i == 2:
@@ -245,43 +260,6 @@ int dfs(int i) {
 /* Leo cầu thang: Tìm kiếm */
 int climbingStairsDFS(int n) {
     return dfs(n);
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm */
-public static int dfs(int i) {
-    // Đã biết dp[1] và dp[2], trả về luôn
-    if (i == 1 || i == 2)
-        return i;
-    // dp[i] = dp[i-1] + dp[i-2]
-    int count = dfs(i - 1) + dfs(i - 2);
-    return count;
-}
-
-/* Leo cầu thang: Tìm kiếm */
-public static int climbingStairsDFS(int n) {
-    return dfs(n);
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm kiếm */
-function dfs(i) {
-    // Đã biết dp[1] và dp[2], trả về luôn
-    if (i === 1 || i === 2) return i;
-    // dp[i] = dp[i-1] + dp[i-2]
-    const count = dfs(i - 1) + dfs(i - 2);
-    return count;
-}
-
-/* Leo cầu thang: Tìm kiếm */
-function climbingStairsDFS(n) {
-    return dfs(n);
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm kiếm */
-fun dfs(i: Int): Int {
-    // Đã biết dp[1] và dp[2], trả về luôn
-    if (i == 1 || i == 2) return i
-    // dp[i] = dp[i-1] + dp[i-2]
-    val count = dfs(i - 1) + dfs(i - 2)
-    return count
-}
-
-/* Leo cầu thang: Tìm kiếm */
-fun climbingStairsDFS(n: Int): Int {
-    return dfs(n)
 }</code></pre></div></div></div>
 
 <p>Hình dưới đây cho thấy cây đệ quy hình thành từ tìm kiếm vét cạn. Với bài toán $dp[n]$, độ sâu của cây đệ quy là $n$, với độ phức tạp thời gian $O(2^n)$. Sự tăng trưởng theo hàm mũ là bùng nổ; nếu ta nhập một $n$ tương đối lớn, thời gian chờ có thể rất lâu.</p>
@@ -305,7 +283,52 @@ fun climbingStairsDFS(n: Int): Int {
 
 <p>Đoạn mã như sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def dfs(i: int, mem: list[int]) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm có nhớ */
+public static int dfs(int i, int[] mem) {
+    // Đã biết dp[1] và dp[2], trả về luôn
+    if (i == 1 || i == 2)
+        return i;
+    // Nếu đã có bản ghi dp[i], trả về luôn
+    if (mem[i] != -1)
+        return mem[i];
+    // dp[i] = dp[i-1] + dp[i-2]
+    int count = dfs(i - 1, mem) + dfs(i - 2, mem);
+    // Ghi lại dp[i]
+    mem[i] = count;
+    return count;
+}
+
+/* Leo cầu thang: Tìm kiếm có nhớ */
+public static int climbingStairsDFSMem(int n) {
+    // mem[i] ghi lại tổng số lời giải để leo đến bậc thứ i, -1 nghĩa là chưa có bản ghi
+    int[] mem = new int[n + 1];
+    Arrays.fill(mem, -1);
+    return dfs(n, mem);
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func dfs(i: Int, mem: inout [Int]) -&gt; Int {
+    // Known dp[1] and dp[2], return them
+    if i == 1 || i == 2 {
+        return i
+    }
+    // If record dp[i] exists, return it directly
+    if mem[i] != -1 {
+        return mem[i]
+    }
+    // dp[i] = dp[i-1] + dp[i-2]
+    let count = dfs(i: i - 1, mem: &amp;mem) + dfs(i: i - 2, mem: &amp;mem)
+    // Record dp[i]
+    mem[i] = count
+    return count
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int dfs(int i, List&lt;int&gt; mem) {
+  // Known dp[1] and dp[2], return them
+  if (i == 1 || i == 2) return i;
+  // If record dp[i] exists, return it directly
+  if (mem[i] != -1) return mem[i];
+  // dp[i] = dp[i-1] + dp[i-2]
+  int count = dfs(i - 1, mem) + dfs(i - 2, mem);
+  // Record dp[i]
+  mem[i] = count;
+  return count;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def dfs(i: int, mem: list[int]) -&gt; int:
     """Tìm kiếm có nhớ (Memoization)"""
     # Đã biết dp[1] và dp[2], trả về luôn
     if i == 1 or i == 2:
@@ -344,64 +367,6 @@ int climbingStairsDFSMem(int n) {
     // mem[i] ghi lại tổng số lời giải để leo đến bậc thứ i, -1 nghĩa là chưa có bản ghi
     vector&lt;int&gt; mem(n + 1, -1);
     return dfs(n, mem);
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm có nhớ */
-public static int dfs(int i, int[] mem) {
-    // Đã biết dp[1] và dp[2], trả về luôn
-    if (i == 1 || i == 2)
-        return i;
-    // Nếu đã có bản ghi dp[i], trả về luôn
-    if (mem[i] != -1)
-        return mem[i];
-    // dp[i] = dp[i-1] + dp[i-2]
-    int count = dfs(i - 1, mem) + dfs(i - 2, mem);
-    // Ghi lại dp[i]
-    mem[i] = count;
-    return count;
-}
-
-/* Leo cầu thang: Tìm kiếm có nhớ */
-public static int climbingStairsDFSMem(int n) {
-    // mem[i] ghi lại tổng số lời giải để leo đến bậc thứ i, -1 nghĩa là chưa có bản ghi
-    int[] mem = new int[n + 1];
-    Arrays.fill(mem, -1);
-    return dfs(n, mem);
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm kiếm có nhớ */
-function dfs(i, mem) {
-    // Đã biết dp[1] và dp[2], trả về luôn
-    if (i === 1 || i === 2) return i;
-    // Nếu đã có bản ghi dp[i], trả về luôn
-    if (mem[i] != -1) return mem[i];
-    // dp[i] = dp[i-1] + dp[i-2]
-    const count = dfs(i - 1, mem) + dfs(i - 2, mem);
-    // Ghi lại dp[i]
-    mem[i] = count;
-    return count;
-}
-
-/* Leo cầu thang: Tìm kiếm có nhớ */
-function climbingStairsDFSMem(n) {
-    // mem[i] ghi lại tổng số lời giải để leo đến bậc thứ i, -1 nghĩa là chưa có bản ghi
-    const mem = new Array(n + 1).fill(-1);
-    return dfs(n, mem);
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm kiếm có nhớ */
-fun dfs(i: Int, mem: IntArray): Int {
-    // Đã biết dp[1] và dp[2], trả về luôn
-    if (i == 1 || i == 2) return i
-    // Nếu đã có bản ghi dp[i], trả về luôn
-    if (mem[i] != -1) return mem[i]
-    // dp[i] = dp[i-1] + dp[i-2]
-    val count = dfs(i - 1, mem) + dfs(i - 2, mem)
-    // Ghi lại dp[i]
-    mem[i] = count
-    return count
-}
-
-/* Leo cầu thang: Tìm kiếm có nhớ */
-fun climbingStairsDFSMem(n: Int): Int {
-    // mem[i] ghi lại tổng số lời giải để leo đến bậc thứ i, -1 nghĩa là chưa có bản ghi
-    val mem = IntArray(n + 1)
-    mem.fill(-1)
-    return dfs(n, mem)
 }</code></pre></div></div></div>
 
 <p>Quan sát hình dưới: <strong>sau khi áp dụng đệ quy có nhớ, tất cả các bài toán con chồng chéo chỉ cần tính một lần, giảm độ phức tạp thời gian xuống còn $O(n)$</strong>, đây là một bước nhảy vọt to lớn.</p>
@@ -418,7 +383,47 @@ fun climbingStairsDFSMem(n: Int): Int {
 
 <p>Vì quy hoạch động không bao gồm quá trình quay lui, nó chỉ cần dùng vòng lặp để triển khai và không cần đệ quy. Trong đoạn mã sau, ta khởi tạo một mảng <code>dp</code> để lưu lời giải của các bài toán con, đóng vai trò ghi nhận giống như mảng <code>mem</code> trong đệ quy có nhớ:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def climbing_stairs_dp(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Leo cầu thang: Quy hoạch động */
+public static int climbingStairsDP(int n) {
+    if (n == 1 || n == 2)
+        return n;
+    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
+    int[] dp = new int[n + 1];
+    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
+    dp[1] = 1;
+    dp[2] = 2;
+    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
+    for (int i = 3; i &lt;= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    return dp[n];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func climbingStairsDP(n: Int) -&gt; Int {
+    if n == 1 || n == 2 {
+        return n
+    }
+    // Initialize dp table, used to store solutions to subproblems
+    var dp = Array(repeating: 0, count: n + 1)
+    // Initial state: preset the solution to the smallest subproblem
+    dp[1] = 1
+    dp[2] = 2
+    // State transition: gradually solve larger subproblems from smaller ones
+    for i in 3 ... n {
+        dp[i] = dp[i - 1] + dp[i - 2]
+    }
+    return dp[n]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int climbingStairsDP(int n) {
+  if (n == 1 || n == 2) return n;
+  // Initialize dp table, used to store solutions to subproblems
+  List&lt;int&gt; dp = List.filled(n + 1, 0);
+  // Initial state: preset the solution to the smallest subproblem
+  dp[1] = 1;
+  dp[2] = 2;
+  // State transition: gradually solve larger subproblems from smaller ones
+  for (int i = 3; i &lt;= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
+  }
+  return dp[n];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def climbing_stairs_dp(n: int) -&gt; int:
     """Leo cầu thang: Quy hoạch động"""
     if n == 1 or n == 2:
         return n
@@ -443,46 +448,6 @@ int climbingStairsDP(int n) {
         dp[i] = dp[i - 1] + dp[i - 2];
     }
     return dp[n];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Leo cầu thang: Quy hoạch động */
-public static int climbingStairsDP(int n) {
-    if (n == 1 || n == 2)
-        return n;
-    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
-    int[] dp = new int[n + 1];
-    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
-    dp[1] = 1;
-    dp[2] = 2;
-    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
-    for (int i = 3; i &lt;= n; i++) {
-        dp[i] = dp[i - 1] + dp[i - 2];
-    }
-    return dp[n];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Leo cầu thang: Quy hoạch động */
-function climbingStairsDP(n) {
-    if (n === 1 || n === 2) return n;
-    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
-    const dp = new Array(n + 1).fill(-1);
-    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
-    dp[1] = 1;
-    dp[2] = 2;
-    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
-    for (let i = 3; i &lt;= n; i++) {
-        dp[i] = dp[i - 1] + dp[i - 2];
-    }
-    return dp[n];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Leo cầu thang: Quy hoạch động */
-fun climbingStairsDP(n: Int): Int {
-    if (n == 1 || n == 2) return n
-    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
-    val dp = IntArray(n + 1)
-    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
-    dp[1] = 1
-    dp[2] = 2
-    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
-    for (i in 3..n) {
-        dp[i] = dp[i - 1] + dp[i - 2]
-    }
-    return dp[n]
 }</code></pre></div></div></div>
 
 <p>Hình dưới đây mô phỏng quá trình thực thi của đoạn mã trên.</p>
@@ -505,7 +470,37 @@ fun climbingStairsDP(n: Int): Int {
 
 <p>Người đọc tinh ý có thể nhận thấy rằng **vì $dp[i]$ chỉ liên quan đến $dp[i-1]$ và $dp[i-2]$**, ta không cần dùng một mảng <code>dp</code> để lưu lời giải của tất cả các bài toán con, mà có thể dùng hai biến trượt dần lên. Đoạn mã như sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def climbing_stairs_dp_comp(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Leo cầu thang: Quy hoạch động tối ưu không gian */
+public static int climbingStairsDPComp(int n) {
+    if (n == 1 || n == 2)
+        return n;
+    int a = 1, b = 2;
+    for (int i = 3; i &lt;= n; i++) {
+        int tmp = b;
+        b = a + b;
+        a = tmp;
+    }
+    return b;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func climbingStairsDPComp(n: Int) -&gt; Int {
+    if n == 1 || n == 2 {
+        return n
+    }
+    var a = 1
+    var b = 2
+    for _ in 3 ... n {
+        (a, b) = (b, a + b)
+    }
+    return b
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int climbingStairsDPComp(int n) {
+  if (n == 1 || n == 2) return n;
+  int a = 1, b = 2;
+  for (int i = 3; i &lt;= n; i++) {
+    int tmp = b;
+    b = a + b;
+    a = tmp;
+  }
+  return b;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def climbing_stairs_dp_comp(n: int) -&gt; int:
     """Leo cầu thang: Quy hoạch động tối ưu không gian"""
     if n == 1 or n == 2:
         return n
@@ -523,39 +518,6 @@ int climbingStairsDPComp(int n) {
         a = tmp;
     }
     return b;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Leo cầu thang: Quy hoạch động tối ưu không gian */
-public static int climbingStairsDPComp(int n) {
-    if (n == 1 || n == 2)
-        return n;
-    int a = 1, b = 2;
-    for (int i = 3; i &lt;= n; i++) {
-        int tmp = b;
-        b = a + b;
-        a = tmp;
-    }
-    return b;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Leo cầu thang: Quy hoạch động tối ưu không gian */
-function climbingStairsDPComp(n) {
-    if (n === 1 || n === 2) return n;
-    let a = 1,
-        b = 2;
-    for (let i = 3; i &lt;= n; i++) {
-        const tmp = b;
-        b = a + b;
-        a = tmp;
-    }
-    return b;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Leo cầu thang: Quy hoạch động tối ưu không gian */
-fun climbingStairsDPComp(n: Int): Int {
-    if (n == 1 || n == 2) return n
-    var a = 1
-    var b = 2
-    for (i in 3..n) {
-        val temp = b
-        b += a
-        a = temp
-    }
-    return b
 }</code></pre></div></div></div>
 
 <p>Như đoạn mã trên cho thấy, bằng cách loại bỏ không gian chiếm bởi mảng <code>dp</code>, độ phức tạp không gian giảm từ $O(n)$ xuống $O(1)$.</p>
@@ -752,7 +714,50 @@ In dynamic programming problems, the current state often depends only on a limit
 
 <p>Theo phương trình chuyển trạng thái và các trạng thái khởi tạo $dp[1] = cost[1]$ và $dp[2] = cost[2]$, ta có thể thu được đoạn mã quy hoạch động:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def min_cost_climbing_stairs_dp(cost: list[int]) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Leo cầu thang chi phí nhỏ nhất: Quy hoạch động */
+public static int minCostClimbingStairsDP(int[] cost) {
+    int n = cost.length - 1;
+    if (n == 1 || n == 2)
+        return cost[n];
+    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
+    int[] dp = new int[n + 1];
+    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
+    dp[1] = cost[1];
+    dp[2] = cost[2];
+    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
+    for (int i = 3; i &lt;= n; i++) {
+        dp[i] = Math.min(dp[i - 1], dp[i - 2]) + cost[i];
+    }
+    return dp[n];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func minCostClimbingStairsDP(cost: [Int]) -&gt; Int {
+    let n = cost.count - 1
+    if n == 1 || n == 2 {
+        return cost[n]
+    }
+    // Initialize dp table, used to store solutions to subproblems
+    var dp = Array(repeating: 0, count: n + 1)
+    // Initial state: preset the solution to the smallest subproblem
+    dp[1] = cost[1]
+    dp[2] = cost[2]
+    // State transition: gradually solve larger subproblems from smaller ones
+    for i in 3 ... n {
+        dp[i] = min(dp[i - 1], dp[i - 2]) + cost[i]
+    }
+    return dp[n]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int minCostClimbingStairsDP(List&lt;int&gt; cost) {
+  int n = cost.length - 1;
+  if (n == 1 || n == 2) return cost[n];
+  // Initialize dp table, used to store solutions to subproblems
+  List&lt;int&gt; dp = List.filled(n + 1, 0);
+  // Initial state: preset the solution to the smallest subproblem
+  dp[1] = cost[1];
+  dp[2] = cost[2];
+  // State transition: gradually solve larger subproblems from smaller ones
+  for (int i = 3; i &lt;= n; i++) {
+    dp[i] = min(dp[i - 1], dp[i - 2]) + cost[i];
+  }
+  return dp[n];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def min_cost_climbing_stairs_dp(cost: list[int]) -&gt; int:
     """Leo cầu thang chi phí nhỏ nhất: Quy hoạch động"""
     n = len(cost) - 1
     if n == 1 or n == 2:
@@ -779,51 +784,6 @@ int minCostClimbingStairsDP(vector&lt;int&gt; &amp;cost) {
         dp[i] = min(dp[i - 1], dp[i - 2]) + cost[i];
     }
     return dp[n];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Leo cầu thang chi phí nhỏ nhất: Quy hoạch động */
-public static int minCostClimbingStairsDP(int[] cost) {
-    int n = cost.length - 1;
-    if (n == 1 || n == 2)
-        return cost[n];
-    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
-    int[] dp = new int[n + 1];
-    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
-    dp[1] = cost[1];
-    dp[2] = cost[2];
-    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
-    for (int i = 3; i &lt;= n; i++) {
-        dp[i] = Math.min(dp[i - 1], dp[i - 2]) + cost[i];
-    }
-    return dp[n];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Leo cầu thang chi phí nhỏ nhất: Quy hoạch động */
-function minCostClimbingStairsDP(cost) {
-    const n = cost.length - 1;
-    if (n === 1 || n === 2) {
-        return cost[n];
-    }
-    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
-    const dp = new Array(n + 1);
-    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
-    dp[1] = cost[1];
-    dp[2] = cost[2];
-    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
-    for (let i = 3; i &lt;= n; i++) {
-        dp[i] = Math.min(dp[i - 1], dp[i - 2]) + cost[i];
-    }
-    return dp[n];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Leo cầu thang chi phí nhỏ nhất: Quy hoạch động */
-fun minCostClimbingStairsDP(cost: IntArray): Int {
-    val n = cost.size - 1
-    if (n == 1 || n == 2) return cost[n]
-    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
-    val dp = IntArray(n + 1)
-    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
-    dp[1] = cost[1]
-    dp[2] = cost[2]
-    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
-    for (i in 3..n) {
-        dp[i] = min(dp[i - 1], dp[i - 2]) + cost[i]
-    }
-    return dp[n]
 }</code></pre></div></div></div>
 
 <p>Hình dưới đây cho thấy quá trình quy hoạch động cho đoạn mã trên.</p>
@@ -834,7 +794,39 @@ fun minCostClimbingStairsDP(cost: IntArray): Int {
 
 <p>Bài toán này cũng có thể được tối ưu không gian, nén từ một chiều xuống không chiều, giảm độ phức tạp không gian từ $O(n)$ xuống $O(1)$:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def min_cost_climbing_stairs_dp_comp(cost: list[int]) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Leo cầu thang chi phí nhỏ nhất: Quy hoạch động tối ưu không gian */
+public static int minCostClimbingStairsDPComp(int[] cost) {
+    int n = cost.length - 1;
+    if (n == 1 || n == 2)
+        return cost[n];
+    int a = cost[1], b = cost[2];
+    for (int i = 3; i &lt;= n; i++) {
+        int tmp = b;
+        b = Math.min(a, tmp) + cost[i];
+        a = tmp;
+    }
+    return b;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func minCostClimbingStairsDPComp(cost: [Int]) -&gt; Int {
+    let n = cost.count - 1
+    if n == 1 || n == 2 {
+        return cost[n]
+    }
+    var (a, b) = (cost[1], cost[2])
+    for i in 3 ... n {
+        (a, b) = (b, min(a, b) + cost[i])
+    }
+    return b
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int minCostClimbingStairsDPComp(List&lt;int&gt; cost) {
+  int n = cost.length - 1;
+  if (n == 1 || n == 2) return cost[n];
+  int a = cost[1], b = cost[2];
+  for (int i = 3; i &lt;= n; i++) {
+    int tmp = b;
+    b = min(a, tmp) + cost[i];
+    a = tmp;
+  }
+  return b;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def min_cost_climbing_stairs_dp_comp(cost: list[int]) -&gt; int:
     """Leo cầu thang chi phí nhỏ nhất: Quy hoạch động tối ưu không gian"""
     n = len(cost) - 1
     if n == 1 or n == 2:
@@ -854,44 +846,6 @@ int minCostClimbingStairsDPComp(vector&lt;int&gt; &amp;cost) {
         a = tmp;
     }
     return b;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Leo cầu thang chi phí nhỏ nhất: Quy hoạch động tối ưu không gian */
-public static int minCostClimbingStairsDPComp(int[] cost) {
-    int n = cost.length - 1;
-    if (n == 1 || n == 2)
-        return cost[n];
-    int a = cost[1], b = cost[2];
-    for (int i = 3; i &lt;= n; i++) {
-        int tmp = b;
-        b = Math.min(a, tmp) + cost[i];
-        a = tmp;
-    }
-    return b;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Leo cầu thang chi phí nhỏ nhất: Quy hoạch động tối ưu không gian */
-function minCostClimbingStairsDPComp(cost) {
-    const n = cost.length - 1;
-    if (n === 1 || n === 2) {
-        return cost[n];
-    }
-    let a = cost[1],
-        b = cost[2];
-    for (let i = 3; i &lt;= n; i++) {
-        const tmp = b;
-        b = Math.min(a, tmp) + cost[i];
-        a = tmp;
-    }
-    return b;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Leo cầu thang chi phí nhỏ nhất: Quy hoạch động tối ưu không gian */
-fun minCostClimbingStairsDPComp(cost: IntArray): Int {
-    val n = cost.size - 1
-    if (n == 1 || n == 2) return cost[n]
-    var a = cost[1]
-    var b = cost[2]
-    for (i in 3..n) {
-        val tmp = b
-        b = min(a, tmp) + cost[i]
-        a = tmp
-    }
-    return b
 }</code></pre></div></div></div>
 
 <h2>Không có hậu quả (No Aftereffects)</h2>
@@ -942,7 +896,59 @@ $$</p>
 
 <p>Cuối cùng, trả về $dp[n, 1] + dp[n, 2]$, trong đó tổng của hai giá trị đại diện cho tổng số cách để leo đến bậc thứ $n$:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def climbing_stairs_constraint_dp(n: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Leo cầu thang có ràng buộc: Quy hoạch động */
+static int climbingStairsConstraintDP(int n) {
+    if (n == 1 || n == 2) {
+        return 1;
+    }
+    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
+    int[][] dp = new int[n + 1][3];
+    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
+    dp[1][1] = 1;
+    dp[1][2] = 0;
+    dp[2][1] = 0;
+    dp[2][2] = 1;
+    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
+    for (int i = 3; i &lt;= n; i++) {
+        dp[i][1] = dp[i - 1][2];
+        dp[i][2] = dp[i - 2][1] + dp[i - 2][2];
+    }
+    return dp[n][1] + dp[n][2];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func climbingStairsConstraintDP(n: Int) -&gt; Int {
+    if n == 1 || n == 2 {
+        return 1
+    }
+    // Initialize dp table, used to store solutions to subproblems
+    var dp = Array(repeating: Array(repeating: 0, count: 3), count: n + 1)
+    // Initial state: preset the solution to the smallest subproblem
+    dp[1][1] = 1
+    dp[1][2] = 0
+    dp[2][1] = 0
+    dp[2][2] = 1
+    // State transition: gradually solve larger subproblems from smaller ones
+    for i in 3 ... n {
+        dp[i][1] = dp[i - 1][2]
+        dp[i][2] = dp[i - 2][1] + dp[i - 2][2]
+    }
+    return dp[n][1] + dp[n][2]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int climbingStairsConstraintDP(int n) {
+  if (n == 1 || n == 2) {
+    return 1;
+  }
+  // Initialize dp table, used to store solutions to subproblems
+  List&lt;List&lt;int&gt;&gt; dp = List.generate(n + 1, (index) =&gt; List.filled(3, 0));
+  // Initial state: preset the solution to the smallest subproblem
+  dp[1][1] = 1;
+  dp[1][2] = 0;
+  dp[2][1] = 0;
+  dp[2][2] = 1;
+  // State transition: gradually solve larger subproblems from smaller ones
+  for (int i = 3; i &lt;= n; i++) {
+    dp[i][1] = dp[i - 1][2];
+    dp[i][2] = dp[i - 2][1] + dp[i - 2][2];
+  }
+  return dp[n][1] + dp[n][2];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def climbing_stairs_constraint_dp(n: int) -&gt; int:
     """Leo cầu thang có ràng buộc: Quy hoạch động"""
     if n == 1 or n == 2:
         return 1
@@ -973,60 +979,6 @@ int climbingStairsConstraintDP(int n) {
         dp[i][2] = dp[i - 2][1] + dp[i - 2][2];
     }
     return dp[n][1] + dp[n][2];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Leo cầu thang có ràng buộc: Quy hoạch động */
-static int climbingStairsConstraintDP(int n) {
-    if (n == 1 || n == 2) {
-        return 1;
-    }
-    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
-    int[][] dp = new int[n + 1][3];
-    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
-    dp[1][1] = 1;
-    dp[1][2] = 0;
-    dp[2][1] = 0;
-    dp[2][2] = 1;
-    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
-    for (int i = 3; i &lt;= n; i++) {
-        dp[i][1] = dp[i - 1][2];
-        dp[i][2] = dp[i - 2][1] + dp[i - 2][2];
-    }
-    return dp[n][1] + dp[n][2];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Leo cầu thang có ràng buộc: Quy hoạch động */
-function climbingStairsConstraintDP(n) {
-    if (n === 1 || n === 2) {
-        return 1;
-    }
-    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
-    const dp = Array.from(new Array(n + 1), () =&gt; new Array(3));
-    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
-    dp[1][1] = 1;
-    dp[1][2] = 0;
-    dp[2][1] = 0;
-    dp[2][2] = 1;
-    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
-    for (let i = 3; i &lt;= n; i++) {
-        dp[i][1] = dp[i - 1][2];
-        dp[i][2] = dp[i - 2][1] + dp[i - 2][2];
-    }
-    return dp[n][1] + dp[n][2];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Leo cầu thang có ràng buộc: Quy hoạch động */
-fun climbingStairsConstraintDP(n: Int): Int {
-    if (n == 1 || n == 2) {
-        return 1
-    }
-    // Khởi tạo bảng dp, dùng để lưu lời giải của các bài toán con
-    val dp = Array(n + 1) { IntArray(3) }
-    // Trạng thái khởi tạo: gán trước lời giải của bài toán con nhỏ nhất
-    dp[1][1] = 1
-    dp[1][2] = 0
-    dp[2][1] = 0
-    dp[2][2] = 1
-    // Chuyển trạng thái: giải dần các bài toán con lớn hơn từ những bài toán con nhỏ hơn
-    for (i in 3..n) {
-        dp[i][1] = dp[i - 1][2]
-        dp[i][2] = dp[i - 2][1] + dp[i - 2][2]
-    }
-    return dp[n][1] + dp[n][2]
 }</code></pre></div></div></div>
 
 <p>Trong trường hợp trên, vì ta chỉ cần xét thêm một trạng thái trước đó, ta vẫn có thể làm cho bài toán thỏa mãn tính không có hậu quả bằng cách mở rộng định nghĩa trạng thái. Tuy nhiên, một số bài toán có "hậu quả" rất nghiêm trọng.</p>
@@ -1284,7 +1236,51 @@ In fact, many complex combinatorial optimization problems (such as the traveling
 
 <p>Mã triển khai như sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def min_path_sum_dfs(grid: list[list[int]], i: int, j: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tổng đường đi nhỏ nhất: Tìm kiếm vét cạn */
+static int minPathSumDFS(int[][] grid, int i, int j) {
+    // Nếu là ô trên-trái, dừng tìm kiếm
+    if (i == 0 &amp;&amp; j == 0) {
+        return grid[0][0];
+    }
+    // Nếu chỉ số hàng hoặc cột vượt biên, trả về chi phí +∞
+    if (i &lt; 0 || j &lt; 0) {
+        return Integer.MAX_VALUE;
+    }
+    // Tính chi phí đường đi nhỏ nhất từ trên-trái đến (i-1, j) và (i, j-1)
+    int up = minPathSumDFS(grid, i - 1, j);
+    int left = minPathSumDFS(grid, i, j - 1);
+    // Trả về chi phí đường đi nhỏ nhất từ trên-trái đến (i, j)
+    return Math.min(left, up) + grid[i][j];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func minPathSumDFS(grid: [[Int]], i: Int, j: Int) -&gt; Int {
+    // If it's the top-left cell, terminate the search
+    if i == 0, j == 0 {
+        return grid[0][0]
+    }
+    // If row or column index is out of bounds, return +∞ cost
+    if i &lt; 0 || j &lt; 0 {
+        return .max
+    }
+    // Calculate the minimum path cost from top-left to (i-1, j) and (i, j-1)
+    let up = minPathSumDFS(grid: grid, i: i - 1, j: j)
+    let left = minPathSumDFS(grid: grid, i: i, j: j - 1)
+    // Return the minimum path cost from top-left to (i, j)
+    return min(left, up) + grid[i][j]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int minPathSumDFS(List&lt;List&lt;int&gt;&gt; grid, int i, int j) {
+  // If it's the top-left cell, terminate the search
+  if (i == 0 &amp;&amp; j == 0) {
+    return grid[0][0];
+  }
+  // If row or column index is out of bounds, return +∞ cost
+  if (i &lt; 0 || j &lt; 0) {
+    // In Dart, int type is fixed-range integer, no value representing "infinity"
+    return BigInt.from(2).pow(31).toInt();
+  }
+  // Calculate the minimum path cost from top-left to (i-1, j) and (i, j-1)
+  int up = minPathSumDFS(grid, i - 1, j);
+  int left = minPathSumDFS(grid, i, j - 1);
+  // Return the minimum path cost from top-left to (i, j)
+  return min(left, up) + grid[i][j];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def min_path_sum_dfs(grid: list[list[int]], i: int, j: int) -&gt; int:
     """Tổng đường đi nhỏ nhất: Tìm kiếm vét cạn"""
     # Nếu là ô trên-trái, dừng tìm kiếm
     if i == 0 and j == 0:
@@ -1311,51 +1307,6 @@ int minPathSumDFS(vector&lt;vector&lt;int&gt;&gt; &amp;grid, int i, int j) {
     int left = minPathSumDFS(grid, i, j - 1);
     // Trả về chi phí đường đi nhỏ nhất từ trên-trái đến (i, j)
     return min(left, up) != INT_MAX ? min(left, up) + grid[i][j] : INT_MAX;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tổng đường đi nhỏ nhất: Tìm kiếm vét cạn */
-static int minPathSumDFS(int[][] grid, int i, int j) {
-    // Nếu là ô trên-trái, dừng tìm kiếm
-    if (i == 0 &amp;&amp; j == 0) {
-        return grid[0][0];
-    }
-    // Nếu chỉ số hàng hoặc cột vượt biên, trả về chi phí +∞
-    if (i &lt; 0 || j &lt; 0) {
-        return Integer.MAX_VALUE;
-    }
-    // Tính chi phí đường đi nhỏ nhất từ trên-trái đến (i-1, j) và (i, j-1)
-    int up = minPathSumDFS(grid, i - 1, j);
-    int left = minPathSumDFS(grid, i, j - 1);
-    // Trả về chi phí đường đi nhỏ nhất từ trên-trái đến (i, j)
-    return Math.min(left, up) + grid[i][j];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tổng đường đi nhỏ nhất: Tìm kiếm vét cạn */
-function minPathSumDFS(grid, i, j) {
-    // Nếu là ô trên-trái, dừng tìm kiếm
-    if (i === 0 &amp;&amp; j === 0) {
-        return grid[0][0];
-    }
-    // Nếu chỉ số hàng hoặc cột vượt biên, trả về chi phí +∞
-    if (i &lt; 0 || j &lt; 0) {
-        return Infinity;
-    }
-    // Tính chi phí đường đi nhỏ nhất từ trên-trái đến (i-1, j) và (i, j-1)
-    const up = minPathSumDFS(grid, i - 1, j);
-    const left = minPathSumDFS(grid, i, j - 1);
-    // Trả về chi phí đường đi nhỏ nhất từ trên-trái đến (i, j)
-    return Math.min(left, up) + grid[i][j];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tổng đường đi nhỏ nhất: Tìm kiếm vét cạn */
-fun minPathSumDFS(grid: Array&lt;IntArray&gt;, i: Int, j: Int): Int {
-    // Nếu là ô trên-trái, dừng tìm kiếm
-    if (i == 0 &amp;&amp; j == 0) {
-        return grid[0][0]
-    }
-    // Nếu chỉ số hàng hoặc cột vượt biên, trả về chi phí +∞
-    if (i &lt; 0 || j &lt; 0) {
-        return Int.MAX_VALUE
-    }
-    // Tính chi phí đường đi nhỏ nhất từ trên-trái đến (i-1, j) và (i, j-1)
-    val up = minPathSumDFS(grid, i - 1, j)
-    val left = minPathSumDFS(grid, i, j - 1)
-    // Trả về chi phí đường đi nhỏ nhất từ trên-trái đến (i, j)
-    return min(left, up) + grid[i][j]
 }</code></pre></div></div></div>
 
 <p>Hình dưới đây cho thấy cây đệ quy có gốc là $dp[2, 1]$, bao gồm một số bài toán con chồng chéo, số lượng của chúng sẽ tăng mạnh khi kích thước của lưới <code>grid</code> tăng lên.</p>
@@ -1372,7 +1323,66 @@ fun minPathSumDFS(grid: Array&lt;IntArray&gt;, i: Int, j: Int): Int {
 
 <p>Ta giới thiệu một danh sách ghi nhớ <code>mem</code> có cùng kích thước với lưới <code>grid</code> để ghi lại lời giải của các bài toán con và cắt tỉa các bài toán con chồng chéo:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def min_path_sum_dfs_mem(
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tổng đường đi nhỏ nhất: Tìm kiếm có nhớ */
+static int minPathSumDFSMem(int[][] grid, int[][] mem, int i, int j) {
+    // Nếu là ô trên-trái, dừng tìm kiếm
+    if (i == 0 &amp;&amp; j == 0) {
+        return grid[0][0];
+    }
+    // Nếu chỉ số hàng hoặc cột vượt biên, trả về chi phí +∞
+    if (i &lt; 0 || j &lt; 0) {
+        return Integer.MAX_VALUE;
+    }
+    // Nếu đã có bản ghi, trả về luôn
+    if (mem[i][j] != -1) {
+        return mem[i][j];
+    }
+    // Chi phí đường đi nhỏ nhất của ô bên trái và ô phía trên
+    int up = minPathSumDFSMem(grid, mem, i - 1, j);
+    int left = minPathSumDFSMem(grid, mem, i, j - 1);
+    // Ghi lại và trả về chi phí đường đi nhỏ nhất từ trên-trái đến (i, j)
+    mem[i][j] = Math.min(left, up) + grid[i][j];
+    return mem[i][j];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func minPathSumDFSMem(grid: [[Int]], mem: inout [[Int]], i: Int, j: Int) -&gt; Int {
+    // If it's the top-left cell, terminate the search
+    if i == 0, j == 0 {
+        return grid[0][0]
+    }
+    // If row or column index is out of bounds, return +∞ cost
+    if i &lt; 0 || j &lt; 0 {
+        return .max
+    }
+    // If there's a record, return it directly
+    if mem[i][j] != -1 {
+        return mem[i][j]
+    }
+    // Minimum path cost for left and upper cells
+    let up = minPathSumDFSMem(grid: grid, mem: &amp;mem, i: i - 1, j: j)
+    let left = minPathSumDFSMem(grid: grid, mem: &amp;mem, i: i, j: j - 1)
+    // Record and return the minimum path cost from top-left to (i, j)
+    mem[i][j] = min(left, up) + grid[i][j]
+    return mem[i][j]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int minPathSumDFSMem(List&lt;List&lt;int&gt;&gt; grid, List&lt;List&lt;int&gt;&gt; mem, int i, int j) {
+  // If it's the top-left cell, terminate the search
+  if (i == 0 &amp;&amp; j == 0) {
+    return grid[0][0];
+  }
+  // If row or column index is out of bounds, return +∞ cost
+  if (i &lt; 0 || j &lt; 0) {
+    // In Dart, int type is fixed-range integer, no value representing "infinity"
+    return BigInt.from(2).pow(31).toInt();
+  }
+  // If there's a record, return it directly
+  if (mem[i][j] != -1) {
+    return mem[i][j];
+  }
+  // Minimum path cost for left and upper cells
+  int up = minPathSumDFSMem(grid, mem, i - 1, j);
+  int left = minPathSumDFSMem(grid, mem, i, j - 1);
+  // Record and return the minimum path cost from top-left to (i, j)
+  mem[i][j] = min(left, up) + grid[i][j];
+  return mem[i][j];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def min_path_sum_dfs_mem(
     grid: list[list[int]], mem: list[list[int]], i: int, j: int
 ) -&gt; int:
     """Tổng đường đi nhỏ nhất: Tìm kiếm có nhớ"""
@@ -1410,71 +1420,6 @@ int minPathSumDFSMem(vector&lt;vector&lt;int&gt;&gt; &amp;grid, vector&lt;vector
     // Ghi lại và trả về chi phí đường đi nhỏ nhất từ trên-trái đến (i, j)
     mem[i][j] = min(left, up) != INT_MAX ? min(left, up) + grid[i][j] : INT_MAX;
     return mem[i][j];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tổng đường đi nhỏ nhất: Tìm kiếm có nhớ */
-static int minPathSumDFSMem(int[][] grid, int[][] mem, int i, int j) {
-    // Nếu là ô trên-trái, dừng tìm kiếm
-    if (i == 0 &amp;&amp; j == 0) {
-        return grid[0][0];
-    }
-    // Nếu chỉ số hàng hoặc cột vượt biên, trả về chi phí +∞
-    if (i &lt; 0 || j &lt; 0) {
-        return Integer.MAX_VALUE;
-    }
-    // Nếu đã có bản ghi, trả về luôn
-    if (mem[i][j] != -1) {
-        return mem[i][j];
-    }
-    // Chi phí đường đi nhỏ nhất của ô bên trái và ô phía trên
-    int up = minPathSumDFSMem(grid, mem, i - 1, j);
-    int left = minPathSumDFSMem(grid, mem, i, j - 1);
-    // Ghi lại và trả về chi phí đường đi nhỏ nhất từ trên-trái đến (i, j)
-    mem[i][j] = Math.min(left, up) + grid[i][j];
-    return mem[i][j];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tổng đường đi nhỏ nhất: Tìm kiếm có nhớ */
-function minPathSumDFSMem(grid, mem, i, j) {
-    // Nếu là ô trên-trái, dừng tìm kiếm
-    if (i === 0 &amp;&amp; j === 0) {
-        return grid[0][0];
-    }
-    // Nếu chỉ số hàng hoặc cột vượt biên, trả về chi phí +∞
-    if (i &lt; 0 || j &lt; 0) {
-        return Infinity;
-    }
-    // Nếu đã có bản ghi, trả về luôn
-    if (mem[i][j] !== -1) {
-        return mem[i][j];
-    }
-    // Chi phí đường đi nhỏ nhất của ô bên trái và ô phía trên
-    const up = minPathSumDFSMem(grid, mem, i - 1, j);
-    const left = minPathSumDFSMem(grid, mem, i, j - 1);
-    // Ghi lại và trả về chi phí đường đi nhỏ nhất từ trên-trái đến (i, j)
-    mem[i][j] = Math.min(left, up) + grid[i][j];
-    return mem[i][j];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tổng đường đi nhỏ nhất: Tìm kiếm có nhớ */
-fun minPathSumDFSMem(
-    grid: Array&lt;IntArray&gt;,
-    mem: Array&lt;IntArray&gt;,
-    i: Int,
-    j: Int
-): Int {
-    // Nếu là ô trên-trái, dừng tìm kiếm
-    if (i == 0 &amp;&amp; j == 0) {
-        return grid[0][0]
-    }
-    // Nếu chỉ số hàng hoặc cột vượt biên, trả về chi phí +∞
-    if (i &lt; 0 || j &lt; 0) {
-        return Int.MAX_VALUE
-    }
-    // Nếu đã có bản ghi, trả về luôn
-    if (mem[i][j] != -1) {
-        return mem[i][j]
-    }
-    // Chi phí đường đi nhỏ nhất của ô bên trái và ô phía trên
-    val up = minPathSumDFSMem(grid, mem, i - 1, j)
-    val left = minPathSumDFSMem(grid, mem, i, j - 1)
-    // Ghi lại và trả về chi phí đường đi nhỏ nhất từ trên-trái đến (i, j)
-    mem[i][j] = min(left, up) + grid[i][j]
-    return mem[i][j]
 }</code></pre></div></div></div>
 
 <p>Như hình dưới đây, sau khi giới thiệu đệ quy có nhớ, tất cả lời giải bài toán con chỉ cần được tính một lần, vì vậy độ phức tạp thời gian phụ thuộc vào tổng số trạng thái, tức là kích thước lưới $O(nm)$.</p>
@@ -1487,7 +1432,69 @@ fun minPathSumDFSMem(
 
 <p>Triển khai lời giải quy hoạch động dựa trên vòng lặp, như đoạn mã dưới đây:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def min_path_sum_dp(grid: list[list[int]]) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tổng đường đi nhỏ nhất: Quy hoạch động */
+static int minPathSumDP(int[][] grid) {
+    int n = grid.length, m = grid[0].length;
+    // Khởi tạo bảng dp
+    int[][] dp = new int[n][m];
+    dp[0][0] = grid[0][0];
+    // Chuyển trạng thái: hàng đầu tiên
+    for (int j = 1; j &lt; m; j++) {
+        dp[0][j] = dp[0][j - 1] + grid[0][j];
+    }
+    // Chuyển trạng thái: cột đầu tiên
+    for (int i = 1; i &lt; n; i++) {
+        dp[i][0] = dp[i - 1][0] + grid[i][0];
+    }
+    // Chuyển trạng thái: các hàng và cột còn lại
+    for (int i = 1; i &lt; n; i++) {
+        for (int j = 1; j &lt; m; j++) {
+            dp[i][j] = Math.min(dp[i][j - 1], dp[i - 1][j]) + grid[i][j];
+        }
+    }
+    return dp[n - 1][m - 1];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func minPathSumDP(grid: [[Int]]) -&gt; Int {
+    let n = grid.count
+    let m = grid[0].count
+    // Initialize dp table
+    var dp = Array(repeating: Array(repeating: 0, count: m), count: n)
+    dp[0][0] = grid[0][0]
+    // State transition: first row
+    for j in 1 ..&lt; m {
+        dp[0][j] = dp[0][j - 1] + grid[0][j]
+    }
+    // State transition: first column
+    for i in 1 ..&lt; n {
+        dp[i][0] = dp[i - 1][0] + grid[i][0]
+    }
+    // State transition: rest of the rows and columns
+    for i in 1 ..&lt; n {
+        for j in 1 ..&lt; m {
+            dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + grid[i][j]
+        }
+    }
+    return dp[n - 1][m - 1]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int minPathSumDP(List&lt;List&lt;int&gt;&gt; grid) {
+  int n = grid.length, m = grid[0].length;
+  // Initialize dp table
+  List&lt;List&lt;int&gt;&gt; dp = List.generate(n, (i) =&gt; List.filled(m, 0));
+  dp[0][0] = grid[0][0];
+  // State transition: first row
+  for (int j = 1; j &lt; m; j++) {
+    dp[0][j] = dp[0][j - 1] + grid[0][j];
+  }
+  // State transition: first column
+  for (int i = 1; i &lt; n; i++) {
+    dp[i][0] = dp[i - 1][0] + grid[i][0];
+  }
+  // State transition: rest of the rows and columns
+  for (int i = 1; i &lt; n; i++) {
+    for (int j = 1; j &lt; m; j++) {
+      dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + grid[i][j];
+    }
+  }
+  return dp[n - 1][m - 1];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def min_path_sum_dp(grid: list[list[int]]) -&gt; int:
     """Tổng đường đi nhỏ nhất: Quy hoạch động"""
     n, m = len(grid), len(grid[0])
     # Khởi tạo bảng dp
@@ -1524,73 +1531,6 @@ int minPathSumDP(vector&lt;vector&lt;int&gt;&gt; &amp;grid) {
         }
     }
     return dp[n - 1][m - 1];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tổng đường đi nhỏ nhất: Quy hoạch động */
-static int minPathSumDP(int[][] grid) {
-    int n = grid.length, m = grid[0].length;
-    // Khởi tạo bảng dp
-    int[][] dp = new int[n][m];
-    dp[0][0] = grid[0][0];
-    // Chuyển trạng thái: hàng đầu tiên
-    for (int j = 1; j &lt; m; j++) {
-        dp[0][j] = dp[0][j - 1] + grid[0][j];
-    }
-    // Chuyển trạng thái: cột đầu tiên
-    for (int i = 1; i &lt; n; i++) {
-        dp[i][0] = dp[i - 1][0] + grid[i][0];
-    }
-    // Chuyển trạng thái: các hàng và cột còn lại
-    for (int i = 1; i &lt; n; i++) {
-        for (int j = 1; j &lt; m; j++) {
-            dp[i][j] = Math.min(dp[i][j - 1], dp[i - 1][j]) + grid[i][j];
-        }
-    }
-    return dp[n - 1][m - 1];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tổng đường đi nhỏ nhất: Quy hoạch động */
-function minPathSumDP(grid) {
-    const n = grid.length,
-        m = grid[0].length;
-    // Khởi tạo bảng dp
-    const dp = Array.from({ length: n }, () =&gt;
-        Array.from({ length: m }, () =&gt; 0)
-    );
-    dp[0][0] = grid[0][0];
-    // Chuyển trạng thái: hàng đầu tiên
-    for (let j = 1; j &lt; m; j++) {
-        dp[0][j] = dp[0][j - 1] + grid[0][j];
-    }
-    // Chuyển trạng thái: cột đầu tiên
-    for (let i = 1; i &lt; n; i++) {
-        dp[i][0] = dp[i - 1][0] + grid[i][0];
-    }
-    // Chuyển trạng thái: các hàng và cột còn lại
-    for (let i = 1; i &lt; n; i++) {
-        for (let j = 1; j &lt; m; j++) {
-            dp[i][j] = Math.min(dp[i][j - 1], dp[i - 1][j]) + grid[i][j];
-        }
-    }
-    return dp[n - 1][m - 1];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tổng đường đi nhỏ nhất: Quy hoạch động */
-fun minPathSumDP(grid: Array&lt;IntArray&gt;): Int {
-    val n = grid.size
-    val m = grid[0].size
-    // Khởi tạo bảng dp
-    val dp = Array(n) { IntArray(m) }
-    dp[0][0] = grid[0][0]
-    // Chuyển trạng thái: hàng đầu tiên
-    for (j in 1..&lt;m) {
-        dp[0][j] = dp[0][j - 1] + grid[0][j]
-    }
-    // Chuyển trạng thái: cột đầu tiên
-    for (i in 1..&lt;n) {
-        dp[i][0] = dp[i - 1][0] + grid[i][0]
-    }
-    // Chuyển trạng thái: các hàng và cột còn lại
-    for (i in 1..&lt;n) {
-        for (j in 1..&lt;m) {
-            dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + grid[i][j]
-        }
-    }
-    return dp[n - 1][m - 1]
 }</code></pre></div></div></div>
 
 <p>Hình dưới đây cho thấy quá trình chuyển trạng thái cho tổng đường đi nhỏ nhất, duyệt toàn bộ lưới, <strong>vì vậy độ phức tạp thời gian là $O(nm)$</strong>.</p>
@@ -1605,7 +1545,65 @@ fun minPathSumDP(grid: Array&lt;IntArray&gt;): Int {
 
 <p>Lưu ý rằng vì mảng <code>dp</code> chỉ có thể đại diện cho trạng thái của một hàng, ta không thể khởi tạo trước trạng thái cột đầu tiên, mà phải cập nhật nó khi duyệt từng hàng:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def min_path_sum_dp_comp(grid: list[list[int]]) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tổng đường đi nhỏ nhất: Quy hoạch động tối ưu không gian */
+static int minPathSumDPComp(int[][] grid) {
+    int n = grid.length, m = grid[0].length;
+    // Khởi tạo bảng dp
+    int[] dp = new int[m];
+    // Chuyển trạng thái: hàng đầu tiên
+    dp[0] = grid[0][0];
+    for (int j = 1; j &lt; m; j++) {
+        dp[j] = dp[j - 1] + grid[0][j];
+    }
+    // Chuyển trạng thái: các hàng còn lại
+    for (int i = 1; i &lt; n; i++) {
+        // Chuyển trạng thái: cột đầu tiên
+        dp[0] = dp[0] + grid[i][0];
+        // Chuyển trạng thái: các cột còn lại
+        for (int j = 1; j &lt; m; j++) {
+            dp[j] = Math.min(dp[j - 1], dp[j]) + grid[i][j];
+        }
+    }
+    return dp[m - 1];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func minPathSumDPComp(grid: [[Int]]) -&gt; Int {
+    let n = grid.count
+    let m = grid[0].count
+    // Initialize dp table
+    var dp = Array(repeating: 0, count: m)
+    // State transition: first row
+    dp[0] = grid[0][0]
+    for j in 1 ..&lt; m {
+        dp[j] = dp[j - 1] + grid[0][j]
+    }
+    // State transition: rest of the rows
+    for i in 1 ..&lt; n {
+        // State transition: first column
+        dp[0] = dp[0] + grid[i][0]
+        // State transition: rest of the columns
+        for j in 1 ..&lt; m {
+            dp[j] = min(dp[j - 1], dp[j]) + grid[i][j]
+        }
+    }
+    return dp[m - 1]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int minPathSumDPComp(List&lt;List&lt;int&gt;&gt; grid) {
+  int n = grid.length, m = grid[0].length;
+  // Initialize dp table
+  List&lt;int&gt; dp = List.filled(m, 0);
+  dp[0] = grid[0][0];
+  for (int j = 1; j &lt; m; j++) {
+    dp[j] = dp[j - 1] + grid[0][j];
+  }
+  // State transition: rest of the rows
+  for (int i = 1; i &lt; n; i++) {
+    // State transition: first column
+    dp[0] = dp[0] + grid[i][0];
+    // State transition: rest of the columns
+    for (int j = 1; j &lt; m; j++) {
+      dp[j] = min(dp[j - 1], dp[j]) + grid[i][j];
+    }
+  }
+  return dp[m - 1];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def min_path_sum_dp_comp(grid: list[list[int]]) -&gt; int:
     """Tổng đường đi nhỏ nhất: Quy hoạch động tối ưu không gian"""
     n, m = len(grid), len(grid[0])
     # Khởi tạo bảng dp
@@ -1641,68 +1639,6 @@ int minPathSumDPComp(vector&lt;vector&lt;int&gt;&gt; &amp;grid) {
         }
     }
     return dp[m - 1];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tổng đường đi nhỏ nhất: Quy hoạch động tối ưu không gian */
-static int minPathSumDPComp(int[][] grid) {
-    int n = grid.length, m = grid[0].length;
-    // Khởi tạo bảng dp
-    int[] dp = new int[m];
-    // Chuyển trạng thái: hàng đầu tiên
-    dp[0] = grid[0][0];
-    for (int j = 1; j &lt; m; j++) {
-        dp[j] = dp[j - 1] + grid[0][j];
-    }
-    // Chuyển trạng thái: các hàng còn lại
-    for (int i = 1; i &lt; n; i++) {
-        // Chuyển trạng thái: cột đầu tiên
-        dp[0] = dp[0] + grid[i][0];
-        // Chuyển trạng thái: các cột còn lại
-        for (int j = 1; j &lt; m; j++) {
-            dp[j] = Math.min(dp[j - 1], dp[j]) + grid[i][j];
-        }
-    }
-    return dp[m - 1];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tổng đường đi nhỏ nhất: Quy hoạch động tối ưu không gian */
-function minPathSumDPComp(grid) {
-    const n = grid.length,
-        m = grid[0].length;
-    // Khởi tạo bảng dp
-    const dp = new Array(m);
-    // Chuyển trạng thái: hàng đầu tiên
-    dp[0] = grid[0][0];
-    for (let j = 1; j &lt; m; j++) {
-        dp[j] = dp[j - 1] + grid[0][j];
-    }
-    // Chuyển trạng thái: các hàng còn lại
-    for (let i = 1; i &lt; n; i++) {
-        // Chuyển trạng thái: cột đầu tiên
-        dp[0] = dp[0] + grid[i][0];
-        // Chuyển trạng thái: các cột còn lại
-        for (let j = 1; j &lt; m; j++) {
-            dp[j] = Math.min(dp[j - 1], dp[j]) + grid[i][j];
-        }
-    }
-    return dp[m - 1];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tổng đường đi nhỏ nhất: Quy hoạch động tối ưu không gian */
-fun minPathSumDPComp(grid: Array&lt;IntArray&gt;): Int {
-    val n = grid.size
-    val m = grid[0].size
-    // Khởi tạo bảng dp
-    val dp = IntArray(m)
-    // Chuyển trạng thái: hàng đầu tiên
-    dp[0] = grid[0][0]
-    for (j in 1..&lt;m) {
-        dp[j] = dp[j - 1] + grid[0][j]
-    }
-    // Chuyển trạng thái: các hàng còn lại
-    for (i in 1..&lt;n) {
-        // Chuyển trạng thái: cột đầu tiên
-        dp[0] = dp[0] + grid[i][0]
-        // Chuyển trạng thái: các cột còn lại
-        for (j in 1..&lt;m) {
-            dp[j] = min(dp[j - 1], dp[j]) + grid[i][j]
-        }
-    }
-    return dp[m - 1]
 }</code></pre></div></div></div>
 
 <div class="interactive-widget-wrapper" id="min-path-sum-wrapper">
@@ -1991,7 +1927,50 @@ Note that since the array \`dp\` can only represent the state of one row, we can
   <li><strong>Cắt tỉa</strong>: nếu trọng lượng của vật phẩm hiện tại vượt quá sức chứa túi còn lại, chỉ có lựa chọn không đặt nó vào túi.</li>
 </ul>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def knapsack_dfs(wgt: list[int], val: list[int], i: int, c: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cái túi 0-1: Tìm kiếm vét cạn */
+static int knapsackDFS(int[] wgt, int[] val, int i, int c) {
+    // Nếu đã xét hết vật hoặc túi không còn sức chứa, trả về giá trị 0
+    if (i == 0 || c == 0) {
+        return 0;
+    }
+    // Nếu vượt quá sức chứa túi, chỉ có thể chọn không lấy
+    if (wgt[i - 1] &gt; c) {
+        return knapsackDFS(wgt, val, i - 1, c);
+    }
+    // Tính giá trị lớn nhất giữa việc không lấy và lấy vật i
+    int no = knapsackDFS(wgt, val, i - 1, c);
+    int yes = knapsackDFS(wgt, val, i - 1, c - wgt[i - 1]) + val[i - 1];
+    // Trả về giá trị lớn hơn trong 2 lựa chọn
+    return Math.max(no, yes);
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func knapsackDFS(wgt: [Int], val: [Int], i: Int, c: Int) -&gt; Int {
+    // If all items have been selected or knapsack has no remaining capacity, return value 0
+    if i == 0 || c == 0 {
+        return 0
+    }
+    // If exceeds knapsack capacity, can only choose not to put it in
+    if wgt[i - 1] &gt; c {
+        return knapsackDFS(wgt: wgt, val: val, i: i - 1, c: c)
+    }
+    // Calculate the maximum value of not putting in and putting in item i
+    let no = knapsackDFS(wgt: wgt, val: val, i: i - 1, c: c)
+    let yes = knapsackDFS(wgt: wgt, val: val, i: i - 1, c: c - wgt[i - 1]) + val[i - 1]
+    // Return the larger value of the two options
+    return max(no, yes)
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int knapsackDFS(List&lt;int&gt; wgt, List&lt;int&gt; val, int i, int c) {
+  // If all items have been selected or knapsack has no remaining capacity, return value 0
+  if (i == 0 || c == 0) {
+    return 0;
+  }
+  // If exceeds knapsack capacity, can only choose not to put it in
+  if (wgt[i - 1] &gt; c) {
+    return knapsackDFS(wgt, val, i - 1, c);
+  }
+  // Calculate the maximum value of not putting in and putting in item i
+  int no = knapsackDFS(wgt, val, i - 1, c);
+  int yes = knapsackDFS(wgt, val, i - 1, c - wgt[i - 1]) + val[i - 1];
+  // Return the larger value of the two options
+  return max(no, yes);
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def knapsack_dfs(wgt: list[int], val: list[int], i: int, c: int) -&gt; int:
     """Cái túi 0-1: Tìm kiếm vét cạn"""
     # Nếu đã xét hết vật hoặc túi không còn sức chứa, trả về giá trị 0
     if i == 0 or c == 0:
@@ -2018,56 +1997,6 @@ int knapsackDFS(vector&lt;int&gt; &amp;wgt, vector&lt;int&gt; &amp;val, int i, i
     int yes = knapsackDFS(wgt, val, i - 1, c - wgt[i - 1]) + val[i - 1];
     // Trả về giá trị lớn hơn trong 2 lựa chọn
     return max(no, yes);
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Cái túi 0-1: Tìm kiếm vét cạn */
-static int knapsackDFS(int[] wgt, int[] val, int i, int c) {
-    // Nếu đã xét hết vật hoặc túi không còn sức chứa, trả về giá trị 0
-    if (i == 0 || c == 0) {
-        return 0;
-    }
-    // Nếu vượt quá sức chứa túi, chỉ có thể chọn không lấy
-    if (wgt[i - 1] &gt; c) {
-        return knapsackDFS(wgt, val, i - 1, c);
-    }
-    // Tính giá trị lớn nhất giữa việc không lấy và lấy vật i
-    int no = knapsackDFS(wgt, val, i - 1, c);
-    int yes = knapsackDFS(wgt, val, i - 1, c - wgt[i - 1]) + val[i - 1];
-    // Trả về giá trị lớn hơn trong 2 lựa chọn
-    return Math.max(no, yes);
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cái túi 0-1: Tìm kiếm vét cạn */
-function knapsackDFS(wgt, val, i, c) {
-    // Nếu đã xét hết vật hoặc túi không còn sức chứa, trả về giá trị 0
-    if (i === 0 || c === 0) {
-        return 0;
-    }
-    // Nếu vượt quá sức chứa túi, chỉ có thể chọn không lấy
-    if (wgt[i - 1] &gt; c) {
-        return knapsackDFS(wgt, val, i - 1, c);
-    }
-    // Tính giá trị lớn nhất giữa việc không lấy và lấy vật i
-    const no = knapsackDFS(wgt, val, i - 1, c);
-    const yes = knapsackDFS(wgt, val, i - 1, c - wgt[i - 1]) + val[i - 1];
-    // Trả về giá trị lớn hơn trong 2 lựa chọn
-    return Math.max(no, yes);
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Cái túi 0-1: Tìm kiếm vét cạn */
-fun knapsackDFS(
-    wgt: IntArray,
-    _val: IntArray,
-    i: Int,
-    c: Int
-): Int {
-    // Nếu đã xét hết vật hoặc túi không còn sức chứa, trả về giá trị 0
-    if (i == 0 || c == 0) {
-        return 0
-    }
-    // Nếu vượt quá sức chứa túi, chỉ có thể chọn không lấy
-    if (wgt[i - 1] &gt; c) {
-        return knapsackDFS(wgt, _val, i - 1, c)
-    }
-    // Tính giá trị lớn nhất giữa việc không lấy và lấy vật i
-    val no = knapsackDFS(wgt, _val, i - 1, c)
-    val yes = knapsackDFS(wgt, _val, i - 1, c - wgt[i - 1]) + _val[i - 1]
-    // Trả về giá trị lớn hơn trong 2 lựa chọn
-    return max(no, yes)
 }</code></pre></div></div></div>
 
 <p>Như hình dưới đây, vì mỗi vật phẩm sinh ra hai nhánh tìm kiếm, loại trừ nó và bao gồm nó, độ phức tạp thời gian là $O(2^n)$.</p>
@@ -2084,7 +2013,46 @@ fun knapsackDFS(
 
 <p>Sau khi giới thiệu đệ quy có nhớ, <strong>độ phức tạp thời gian phụ thuộc vào số lượng bài toán con</strong>, tức là $O(n \\times cap)$. Mã triển khai như sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def knapsack_dfs_mem(
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cái túi 0-1: Tìm kiếm có nhớ */
+static int knapsackDFSMem(int[] wgt, int[] val, int[][] mem, int i, int c) {
+    // Nếu đã xét hết vật hoặc túi không còn sức chứa, trả về giá trị 0
+    if (i == 0 || c == 0) {
+        return 0;
+    }
+    // Nếu đã có bản ghi, trả về luôn
+    if (mem[i][c] != -1) {
+        return mem[i][c];
+    }
+    // Nếu vượt quá sức chứa túi, chỉ có thể chọn không lấy
+    if (wgt[i - 1] &gt; c) {
+        return knapsackDFSMem(wgt, val, mem, i - 1, c);
+    }
+    // Tính giá trị lớn nhất giữa việc không lấy và lấy vật i
+    int no = knapsackDFSMem(wgt, val, mem, i - 1, c);
+    int yes = knapsackDFSMem(wgt, val, mem, i - 1, c - wgt[i - 1]) + val[i - 1];
+    // Ghi lại và trả về giá trị lớn hơn trong 2 lựa chọn
+    mem[i][c] = Math.max(no, yes);
+    return mem[i][c];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func knapsackDFSMem(wgt: [Int], val: [Int], mem: inout [[Int]], i: Int, c: Int) -&gt; Int {
+    // If all items have been selected or knapsack has no remaining capacity, return value 0
+    if i == 0 || c == 0 {
+        return 0
+    }
+    // If there's a record, return it directly
+    if mem[i][c] != -1 {
+        return mem[i][c]
+    }
+    // If exceeds knapsack capacity, can only choose not to put it in
+    if wgt[i - 1] &gt; c {
+        return knapsackDFSMem(wgt: wgt, val: val, mem: &amp;mem, i: i - 1, c: c)
+    }
+    // Calculate the maximum value of not putting in and putting in item i
+    let no = knapsackDFSMem(wgt: wgt, val: val, mem: &amp;mem, i: i - 1, c: c)
+    let yes = knapsackDFSMem(wgt: wgt, val: val, mem: &amp;mem, i: i - 1, c: c - wgt[i - 1]) + val[i - 1]
+    // Record and return the larger value of the two options
+    mem[i][c] = max(no, yes)
+    return mem[i][c]
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def knapsack_dfs_mem(
     wgt: list[int], val: list[int], mem: list[list[int]], i: int, c: int
 ) -&gt; int:
     """Cái túi 0-1: Tìm kiếm có nhớ"""
@@ -2122,73 +2090,6 @@ int knapsackDFSMem(vector&lt;int&gt; &amp;wgt, vector&lt;int&gt; &amp;val, vecto
     // Ghi lại và trả về giá trị lớn hơn trong 2 lựa chọn
     mem[i][c] = max(no, yes);
     return mem[i][c];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Cái túi 0-1: Tìm kiếm có nhớ */
-static int knapsackDFSMem(int[] wgt, int[] val, int[][] mem, int i, int c) {
-    // Nếu đã xét hết vật hoặc túi không còn sức chứa, trả về giá trị 0
-    if (i == 0 || c == 0) {
-        return 0;
-    }
-    // Nếu đã có bản ghi, trả về luôn
-    if (mem[i][c] != -1) {
-        return mem[i][c];
-    }
-    // Nếu vượt quá sức chứa túi, chỉ có thể chọn không lấy
-    if (wgt[i - 1] &gt; c) {
-        return knapsackDFSMem(wgt, val, mem, i - 1, c);
-    }
-    // Tính giá trị lớn nhất giữa việc không lấy và lấy vật i
-    int no = knapsackDFSMem(wgt, val, mem, i - 1, c);
-    int yes = knapsackDFSMem(wgt, val, mem, i - 1, c - wgt[i - 1]) + val[i - 1];
-    // Ghi lại và trả về giá trị lớn hơn trong 2 lựa chọn
-    mem[i][c] = Math.max(no, yes);
-    return mem[i][c];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cái túi 0-1: Tìm kiếm có nhớ */
-function knapsackDFSMem(wgt, val, mem, i, c) {
-    // Nếu đã xét hết vật hoặc túi không còn sức chứa, trả về giá trị 0
-    if (i === 0 || c === 0) {
-        return 0;
-    }
-    // Nếu đã có bản ghi, trả về luôn
-    if (mem[i][c] !== -1) {
-        return mem[i][c];
-    }
-    // Nếu vượt quá sức chứa túi, chỉ có thể chọn không lấy
-    if (wgt[i - 1] &gt; c) {
-        return knapsackDFSMem(wgt, val, mem, i - 1, c);
-    }
-    // Tính giá trị lớn nhất giữa việc không lấy và lấy vật i
-    const no = knapsackDFSMem(wgt, val, mem, i - 1, c);
-    const yes =
-        knapsackDFSMem(wgt, val, mem, i - 1, c - wgt[i - 1]) + val[i - 1];
-    // Ghi lại và trả về giá trị lớn hơn trong 2 lựa chọn
-    mem[i][c] = Math.max(no, yes);
-    return mem[i][c];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Cái túi 0-1: Tìm kiếm có nhớ */
-fun knapsackDFSMem(
-    wgt: IntArray,
-    _val: IntArray,
-    mem: Array&lt;IntArray&gt;,
-    i: Int,
-    c: Int
-): Int {
-    // Nếu đã xét hết vật hoặc túi không còn sức chứa, trả về giá trị 0
-    if (i == 0 || c == 0) {
-        return 0
-    }
-    // Nếu đã có bản ghi, trả về luôn
-    if (mem[i][c] != -1) {
-        return mem[i][c]
-    }
-    // Nếu vượt quá sức chứa túi, chỉ có thể chọn không lấy
-    if (wgt[i - 1] &gt; c) {
-        return knapsackDFSMem(wgt, _val, mem, i - 1, c)
-    }
-    // Tính giá trị lớn nhất giữa việc không lấy và lấy vật i
-    val no = knapsackDFSMem(wgt, _val, mem, i - 1, c)
-    val yes = knapsackDFSMem(wgt, _val, mem, i - 1, c - wgt[i - 1]) + _val[i - 1]
-    // Ghi lại và trả về giá trị lớn hơn trong 2 lựa chọn
-    mem[i][c] = max(no, yes)
-    return mem[i][c]
 }</code></pre></div></div></div>
 
 <p>Hình dưới đây cho thấy các nhánh tìm kiếm bị cắt tỉa trong đệ quy có nhớ.</p>
@@ -2201,7 +2102,59 @@ fun knapsackDFSMem(
 
 <p>Quy hoạch động về bản chất là quá trình điền bảng $dp$ trong quá trình chuyển trạng thái. Mã như sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def knapsack_dp(wgt: list[int], val: list[int], cap: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cái túi 0-1: Quy hoạch động */
+static int knapsackDP(int[] wgt, int[] val, int cap) {
+    int n = wgt.length;
+    // Khởi tạo bảng dp
+    int[][] dp = new int[n + 1][cap + 1];
+    // Chuyển trạng thái
+    for (int i = 1; i &lt;= n; i++) {
+        for (int c = 1; c &lt;= cap; c++) {
+            if (wgt[i - 1] &gt; c) {
+                // Nếu vượt quá sức chứa túi, không chọn vật i
+                dp[i][c] = dp[i - 1][c];
+            } else {
+                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
+                dp[i][c] = Math.max(dp[i - 1][c], dp[i - 1][c - wgt[i - 1]] + val[i - 1]);
+            }
+        }
+    }
+    return dp[n][cap];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func knapsackDP(wgt: [Int], val: [Int], cap: Int) -&gt; Int {
+    let n = wgt.count
+    // Initialize dp table
+    var dp = Array(repeating: Array(repeating: 0, count: cap + 1), count: n + 1)
+    // State transition
+    for i in 1 ... n {
+        for c in 1 ... cap {
+            if wgt[i - 1] &gt; c {
+                // If exceeds knapsack capacity, don't select item i
+                dp[i][c] = dp[i - 1][c]
+            } else {
+                // The larger value between not selecting and selecting item i
+                dp[i][c] = max(dp[i - 1][c], dp[i - 1][c - wgt[i - 1]] + val[i - 1])
+            }
+        }
+    }
+    return dp[n][cap]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int knapsackDP(List&lt;int&gt; wgt, List&lt;int&gt; val, int cap) {
+  int n = wgt.length;
+  // Initialize dp table
+  List&lt;List&lt;int&gt;&gt; dp = List.generate(n + 1, (index) =&gt; List.filled(cap + 1, 0));
+  // State transition
+  for (int i = 1; i &lt;= n; i++) {
+    for (int c = 1; c &lt;= cap; c++) {
+      if (wgt[i - 1] &gt; c) {
+        // If exceeds knapsack capacity, don't select item i
+        dp[i][c] = dp[i - 1][c];
+      } else {
+        // The larger value between not selecting and selecting item i
+        dp[i][c] = max(dp[i - 1][c], dp[i - 1][c - wgt[i - 1]] + val[i - 1]);
+      }
+    }
+  }
+  return dp[n][cap];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def knapsack_dp(wgt: list[int], val: list[int], cap: int) -&gt; int:
     """Cái túi 0-1: Quy hoạch động"""
     n = len(wgt)
     # Khởi tạo bảng dp
@@ -2233,65 +2186,6 @@ int knapsackDP(vector&lt;int&gt; &amp;wgt, vector&lt;int&gt; &amp;val, int cap) 
         }
     }
     return dp[n][cap];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Cái túi 0-1: Quy hoạch động */
-static int knapsackDP(int[] wgt, int[] val, int cap) {
-    int n = wgt.length;
-    // Khởi tạo bảng dp
-    int[][] dp = new int[n + 1][cap + 1];
-    // Chuyển trạng thái
-    for (int i = 1; i &lt;= n; i++) {
-        for (int c = 1; c &lt;= cap; c++) {
-            if (wgt[i - 1] &gt; c) {
-                // Nếu vượt quá sức chứa túi, không chọn vật i
-                dp[i][c] = dp[i - 1][c];
-            } else {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[i][c] = Math.max(dp[i - 1][c], dp[i - 1][c - wgt[i - 1]] + val[i - 1]);
-            }
-        }
-    }
-    return dp[n][cap];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cái túi 0-1: Quy hoạch động */
-function knapsackDP(wgt, val, cap) {
-    const n = wgt.length;
-    // Khởi tạo bảng dp
-    const dp = Array(n + 1)
-        .fill(0)
-        .map(() =&gt; Array(cap + 1).fill(0));
-    // Chuyển trạng thái
-    for (let i = 1; i &lt;= n; i++) {
-        for (let c = 1; c &lt;= cap; c++) {
-            if (wgt[i - 1] &gt; c) {
-                // Nếu vượt quá sức chứa túi, không chọn vật i
-                dp[i][c] = dp[i - 1][c];
-            } else {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[i][c] = Math.max(
-                    dp[i - 1][c],
-                    dp[i - 1][c - wgt[i - 1]] + val[i - 1]
-                );
-            }
-        }
-    }
-    return dp[n][cap];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Cái túi 0-1: Quy hoạch động */
-fun knapsackDP(wgt: IntArray, _val: IntArray, cap: Int): Int {
-    val n = wgt.size
-    // Khởi tạo bảng dp
-    val dp = Array(n + 1) { IntArray(cap + 1) }
-    // Chuyển trạng thái
-    for (i in 1..n) {
-        for (c in 1..cap) {
-            if (wgt[i - 1] &gt; c) {
-                // Nếu vượt quá sức chứa túi, không chọn vật i
-                dp[i][c] = dp[i - 1][c]
-            } else {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[i][c] = max(dp[i - 1][c], dp[i - 1][c - wgt[i - 1]] + _val[i - 1])
-            }
-        }
-    }
-    return dp[n][cap]
 }</code></pre></div></div></div>
 
 <p>Như hình dưới đây, cả độ phức tạp thời gian và không gian đều được xác định bởi kích thước của mảng <code>dp</code>, tức là $O(n \\times cap)$.</p>
@@ -2315,7 +2209,53 @@ fun knapsackDP(wgt: IntArray, _val: IntArray, cap: Int): Int {
 
 <p>Trong triển khai mã, ta chỉ cần xóa chiều thứ nhất $i$ của mảng <code>dp</code> và đổi vòng lặp bên trong thành duyệt ngược:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def knapsack_dp_comp(wgt: list[int], val: list[int], cap: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cái túi 0-1: Quy hoạch động tối ưu không gian */
+static int knapsackDPComp(int[] wgt, int[] val, int cap) {
+    int n = wgt.length;
+    // Khởi tạo bảng dp
+    int[] dp = new int[cap + 1];
+    // Chuyển trạng thái
+    for (int i = 1; i &lt;= n; i++) {
+        // Duyệt theo thứ tự ngược
+        for (int c = cap; c &gt;= 1; c--) {
+            if (wgt[i - 1] &lt;= c) {
+                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
+                dp[c] = Math.max(dp[c], dp[c - wgt[i - 1]] + val[i - 1]);
+            }
+        }
+    }
+    return dp[cap];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func knapsackDPComp(wgt: [Int], val: [Int], cap: Int) -&gt; Int {
+    let n = wgt.count
+    // Initialize dp table
+    var dp = Array(repeating: 0, count: cap + 1)
+    // State transition
+    for i in 1 ... n {
+        // Traverse in reverse order
+        for c in (1 ... cap).reversed() {
+            if wgt[i - 1] &lt;= c {
+                // The larger value between not selecting and selecting item i
+                dp[c] = max(dp[c], dp[c - wgt[i - 1]] + val[i - 1])
+            }
+        }
+    }
+    return dp[cap]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int knapsackDPComp(List&lt;int&gt; wgt, List&lt;int&gt; val, int cap) {
+  int n = wgt.length;
+  // Initialize dp table
+  List&lt;int&gt; dp = List.filled(cap + 1, 0);
+  // State transition
+  for (int i = 1; i &lt;= n; i++) {
+    // Traverse in reverse order
+    for (int c = cap; c &gt;= 1; c--) {
+      if (wgt[i - 1] &lt;= c) {
+        // The larger value between not selecting and selecting item i
+        dp[c] = max(dp[c], dp[c - wgt[i - 1]] + val[i - 1]);
+      }
+    }
+  }
+  return dp[cap];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def knapsack_dp_comp(wgt: list[int], val: list[int], cap: int) -&gt; int:
     """Cái túi 0-1: Quy hoạch động tối ưu không gian"""
     n = len(wgt)
     # Khởi tạo bảng dp
@@ -2341,54 +2281,6 @@ int knapsackDPComp(vector&lt;int&gt; &amp;wgt, vector&lt;int&gt; &amp;val, int c
         }
     }
     return dp[cap];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Cái túi 0-1: Quy hoạch động tối ưu không gian */
-static int knapsackDPComp(int[] wgt, int[] val, int cap) {
-    int n = wgt.length;
-    // Khởi tạo bảng dp
-    int[] dp = new int[cap + 1];
-    // Chuyển trạng thái
-    for (int i = 1; i &lt;= n; i++) {
-        // Duyệt theo thứ tự ngược
-        for (int c = cap; c &gt;= 1; c--) {
-            if (wgt[i - 1] &lt;= c) {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[c] = Math.max(dp[c], dp[c - wgt[i - 1]] + val[i - 1]);
-            }
-        }
-    }
-    return dp[cap];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cái túi 0-1: Quy hoạch động tối ưu không gian */
-function knapsackDPComp(wgt, val, cap) {
-    const n = wgt.length;
-    // Khởi tạo bảng dp
-    const dp = Array(cap + 1).fill(0);
-    // Chuyển trạng thái
-    for (let i = 1; i &lt;= n; i++) {
-        // Duyệt theo thứ tự ngược
-        for (let c = cap; c &gt;= 1; c--) {
-            if (wgt[i - 1] &lt;= c) {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[c] = Math.max(dp[c], dp[c - wgt[i - 1]] + val[i - 1]);
-            }
-        }
-    }
-    return dp[cap];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Cái túi 0-1: Quy hoạch động tối ưu không gian */
-fun knapsackDPComp(wgt: IntArray, _val: IntArray, cap: Int): Int {
-    val n = wgt.size
-    // Khởi tạo bảng dp
-    val dp = IntArray(cap + 1)
-    // Chuyển trạng thái
-    for (i in 1..n) {
-        // Duyệt theo thứ tự ngược
-        for (c in cap downTo 1) {
-            if (wgt[i - 1] &lt;= c) {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[c] = max(dp[c], dp[c - wgt[i - 1]] + _val[i - 1])
-            }
-        }
-    }
-    return dp[cap]
 }</code></pre></div></div></div>
 
 <div class="interactive-widget-wrapper" id="knapsack-dp-comp-wrapper">
@@ -2638,7 +2530,59 @@ In the code implementation, we simply need to delete the first dimension $i$ of 
 
 <p>So sánh mã của hai bài toán, có một thay đổi trong chuyển trạng thái từ $i-1$ sang $i$, mọi thứ khác đều giống hệt:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def unbounded_knapsack_dp(wgt: list[int], val: list[int], cap: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cái túi không giới hạn: Quy hoạch động */
+static int unboundedKnapsackDP(int[] wgt, int[] val, int cap) {
+    int n = wgt.length;
+    // Khởi tạo bảng dp
+    int[][] dp = new int[n + 1][cap + 1];
+    // Chuyển trạng thái
+    for (int i = 1; i &lt;= n; i++) {
+        for (int c = 1; c &lt;= cap; c++) {
+            if (wgt[i - 1] &gt; c) {
+                // Nếu vượt quá sức chứa túi, không chọn vật i
+                dp[i][c] = dp[i - 1][c];
+            } else {
+                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
+                dp[i][c] = Math.max(dp[i - 1][c], dp[i][c - wgt[i - 1]] + val[i - 1]);
+            }
+        }
+    }
+    return dp[n][cap];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func unboundedKnapsackDP(wgt: [Int], val: [Int], cap: Int) -&gt; Int {
+    let n = wgt.count
+    // Initialize dp table
+    var dp = Array(repeating: Array(repeating: 0, count: cap + 1), count: n + 1)
+    // State transition
+    for i in 1 ... n {
+        for c in 1 ... cap {
+            if wgt[i - 1] &gt; c {
+                // If exceeds knapsack capacity, don't select item i
+                dp[i][c] = dp[i - 1][c]
+            } else {
+                // The larger value between not selecting and selecting item i
+                dp[i][c] = max(dp[i - 1][c], dp[i][c - wgt[i - 1]] + val[i - 1])
+            }
+        }
+    }
+    return dp[n][cap]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int unboundedKnapsackDP(List&lt;int&gt; wgt, List&lt;int&gt; val, int cap) {
+  int n = wgt.length;
+  // Initialize dp table
+  List&lt;List&lt;int&gt;&gt; dp = List.generate(n + 1, (index) =&gt; List.filled(cap + 1, 0));
+  // State transition
+  for (int i = 1; i &lt;= n; i++) {
+    for (int c = 1; c &lt;= cap; c++) {
+      if (wgt[i - 1] &gt; c) {
+        // If exceeds knapsack capacity, don't select item i
+        dp[i][c] = dp[i - 1][c];
+      } else {
+        // The larger value between not selecting and selecting item i
+        dp[i][c] = max(dp[i - 1][c], dp[i][c - wgt[i - 1]] + val[i - 1]);
+      }
+    }
+  }
+  return dp[n][cap];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def unbounded_knapsack_dp(wgt: list[int], val: list[int], cap: int) -&gt; int:
     """Cái túi không giới hạn: Quy hoạch động"""
     n = len(wgt)
     # Khởi tạo bảng dp
@@ -2670,65 +2614,6 @@ int unboundedKnapsackDP(vector&lt;int&gt; &amp;wgt, vector&lt;int&gt; &amp;val, 
         }
     }
     return dp[n][cap];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Cái túi không giới hạn: Quy hoạch động */
-static int unboundedKnapsackDP(int[] wgt, int[] val, int cap) {
-    int n = wgt.length;
-    // Khởi tạo bảng dp
-    int[][] dp = new int[n + 1][cap + 1];
-    // Chuyển trạng thái
-    for (int i = 1; i &lt;= n; i++) {
-        for (int c = 1; c &lt;= cap; c++) {
-            if (wgt[i - 1] &gt; c) {
-                // Nếu vượt quá sức chứa túi, không chọn vật i
-                dp[i][c] = dp[i - 1][c];
-            } else {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[i][c] = Math.max(dp[i - 1][c], dp[i][c - wgt[i - 1]] + val[i - 1]);
-            }
-        }
-    }
-    return dp[n][cap];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cái túi không giới hạn: Quy hoạch động */
-function unboundedKnapsackDP(wgt, val, cap) {
-    const n = wgt.length;
-    // Khởi tạo bảng dp
-    const dp = Array.from({ length: n + 1 }, () =&gt;
-        Array.from({ length: cap + 1 }, () =&gt; 0)
-    );
-    // Chuyển trạng thái
-    for (let i = 1; i &lt;= n; i++) {
-        for (let c = 1; c &lt;= cap; c++) {
-            if (wgt[i - 1] &gt; c) {
-                // Nếu vượt quá sức chứa túi, không chọn vật i
-                dp[i][c] = dp[i - 1][c];
-            } else {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[i][c] = Math.max(
-                    dp[i - 1][c],
-                    dp[i][c - wgt[i - 1]] + val[i - 1]
-                );
-            }
-        }
-    }
-    return dp[n][cap];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Cái túi không giới hạn: Quy hoạch động */
-fun unboundedKnapsackDP(wgt: IntArray, _val: IntArray, cap: Int): Int {
-    val n = wgt.size
-    // Khởi tạo bảng dp
-    val dp = Array(n + 1) { IntArray(cap + 1) }
-    // Chuyển trạng thái
-    for (i in 1..n) {
-        for (c in 1..cap) {
-            if (wgt[i - 1] &gt; c) {
-                // Nếu vượt quá sức chứa túi, không chọn vật i
-                dp[i][c] = dp[i - 1][c]
-            } else {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[i][c] = max(dp[i - 1][c], dp[i][c - wgt[i - 1]] + _val[i - 1])
-            }
-        }
-    }
-    return dp[n][cap]
 }</code></pre></div></div></div>
 
 <h3>Tối ưu Không gian</h3>
@@ -2741,7 +2626,59 @@ fun unboundedKnapsackDP(wgt: IntArray, _val: IntArray, cap: Int): Int {
 
 <p>Việc triển khai mã tương đối đơn giản, chỉ cần xóa chiều thứ nhất của mảng <code>dp</code>:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def unbounded_knapsack_dp_comp(wgt: list[int], val: list[int], cap: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cái túi không giới hạn: Quy hoạch động tối ưu không gian */
+static int unboundedKnapsackDPComp(int[] wgt, int[] val, int cap) {
+    int n = wgt.length;
+    // Khởi tạo bảng dp
+    int[] dp = new int[cap + 1];
+    // Chuyển trạng thái
+    for (int i = 1; i &lt;= n; i++) {
+        for (int c = 1; c &lt;= cap; c++) {
+            if (wgt[i - 1] &gt; c) {
+                // Nếu vượt quá sức chứa túi, không chọn vật i
+                dp[c] = dp[c];
+            } else {
+                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
+                dp[c] = Math.max(dp[c], dp[c - wgt[i - 1]] + val[i - 1]);
+            }
+        }
+    }
+    return dp[cap];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func unboundedKnapsackDPComp(wgt: [Int], val: [Int], cap: Int) -&gt; Int {
+    let n = wgt.count
+    // Initialize dp table
+    var dp = Array(repeating: 0, count: cap + 1)
+    // State transition
+    for i in 1 ... n {
+        for c in 1 ... cap {
+            if wgt[i - 1] &gt; c {
+                // If exceeds knapsack capacity, don't select item i
+                dp[c] = dp[c]
+            } else {
+                // The larger value between not selecting and selecting item i
+                dp[c] = max(dp[c], dp[c - wgt[i - 1]] + val[i - 1])
+            }
+        }
+    }
+    return dp[cap]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int unboundedKnapsackDPComp(List&lt;int&gt; wgt, List&lt;int&gt; val, int cap) {
+  int n = wgt.length;
+  // Initialize dp table
+  List&lt;int&gt; dp = List.filled(cap + 1, 0);
+  // State transition
+  for (int i = 1; i &lt;= n; i++) {
+    for (int c = 1; c &lt;= cap; c++) {
+      if (wgt[i - 1] &gt; c) {
+        // If exceeds knapsack capacity, don't select item i
+        dp[c] = dp[c];
+      } else {
+        // The larger value between not selecting and selecting item i
+        dp[c] = max(dp[c], dp[c - wgt[i - 1]] + val[i - 1]);
+      }
+    }
+  }
+  return dp[cap];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def unbounded_knapsack_dp_comp(wgt: list[int], val: list[int], cap: int) -&gt; int:
     """Cái túi không giới hạn: Quy hoạch động tối ưu không gian"""
     n = len(wgt)
     # Khởi tạo bảng dp
@@ -2774,64 +2711,6 @@ int unboundedKnapsackDPComp(vector&lt;int&gt; &amp;wgt, vector&lt;int&gt; &amp;v
         }
     }
     return dp[cap];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Cái túi không giới hạn: Quy hoạch động tối ưu không gian */
-static int unboundedKnapsackDPComp(int[] wgt, int[] val, int cap) {
-    int n = wgt.length;
-    // Khởi tạo bảng dp
-    int[] dp = new int[cap + 1];
-    // Chuyển trạng thái
-    for (int i = 1; i &lt;= n; i++) {
-        for (int c = 1; c &lt;= cap; c++) {
-            if (wgt[i - 1] &gt; c) {
-                // Nếu vượt quá sức chứa túi, không chọn vật i
-                dp[c] = dp[c];
-            } else {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[c] = Math.max(dp[c], dp[c - wgt[i - 1]] + val[i - 1]);
-            }
-        }
-    }
-    return dp[cap];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cái túi không giới hạn: Quy hoạch động tối ưu không gian */
-function unboundedKnapsackDPComp(wgt, val, cap) {
-    const n = wgt.length;
-    // Khởi tạo bảng dp
-    const dp = Array.from({ length: cap + 1 }, () =&gt; 0);
-    // Chuyển trạng thái
-    for (let i = 1; i &lt;= n; i++) {
-        for (let c = 1; c &lt;= cap; c++) {
-            if (wgt[i - 1] &gt; c) {
-                // Nếu vượt quá sức chứa túi, không chọn vật i
-                dp[c] = dp[c];
-            } else {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[c] = Math.max(dp[c], dp[c - wgt[i - 1]] + val[i - 1]);
-            }
-        }
-    }
-    return dp[cap];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Cái túi không giới hạn: Quy hoạch động tối ưu không gian */
-fun unboundedKnapsackDPComp(
-    wgt: IntArray,
-    _val: IntArray,
-    cap: Int
-): Int {
-    val n = wgt.size
-    // Khởi tạo bảng dp
-    val dp = IntArray(cap + 1)
-    // Chuyển trạng thái
-    for (i in 1..n) {
-        for (c in 1..cap) {
-            if (wgt[i - 1] &gt; c) {
-                // Nếu vượt quá sức chứa túi, không chọn vật i
-                dp[c] = dp[c]
-            } else {
-                // Giá trị lớn hơn giữa việc không chọn và chọn vật i
-                dp[c] = max(dp[c], dp[c - wgt[i - 1]] + _val[i - 1])
-            }
-        }
-    }
-    return dp[cap]
 }</code></pre></div></div></div>
 
 <h2>Bài toán Đổi tiền</h2>
@@ -2888,7 +2767,74 @@ fun unboundedKnapsackDPComp(
 
 <p>Vì lý do này, ta dùng con số $amt + 1$ để đại diện cho lời giải không hợp lệ, vì số lượng đồng xu tối đa cần thiết để tạo thành $amt$ nhiều nhất là $amt$. Trước khi trả về, kiểm tra xem $dp[n, amt]$ có bằng $amt + 1$ không; nếu có, trả về $-1$, cho biết không thể tạo thành số tiền mục tiêu. Mã như sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def coin_change_dp(coins: list[int], amt: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Đổi tiền: Quy hoạch động */
+static int coinChangeDP(int[] coins, int amt) {
+    int n = coins.length;
+    int MAX = amt + 1;
+    // Khởi tạo bảng dp
+    int[][] dp = new int[n + 1][amt + 1];
+    // Chuyển trạng thái: hàng đầu tiên và cột đầu tiên
+    for (int a = 1; a &lt;= amt; a++) {
+        dp[0][a] = MAX;
+    }
+    // Chuyển trạng thái: các hàng và cột còn lại
+    for (int i = 1; i &lt;= n; i++) {
+        for (int a = 1; a &lt;= amt; a++) {
+            if (coins[i - 1] &gt; a) {
+                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
+                dp[i][a] = dp[i - 1][a];
+            } else {
+                // Giá trị nhỏ hơn giữa việc không chọn và chọn đồng xu i
+                dp[i][a] = Math.min(dp[i - 1][a], dp[i][a - coins[i - 1]] + 1);
+            }
+        }
+    }
+    return dp[n][amt] != MAX ? dp[n][amt] : -1;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func coinChangeDP(coins: [Int], amt: Int) -&gt; Int {
+    let n = coins.count
+    let MAX = amt + 1
+    // Initialize dp table
+    var dp = Array(repeating: Array(repeating: 0, count: amt + 1), count: n + 1)
+    // State transition: first row and first column
+    for a in 1 ... amt {
+        dp[0][a] = MAX
+    }
+    // State transition: rest of the rows and columns
+    for i in 1 ... n {
+        for a in 1 ... amt {
+            if coins[i - 1] &gt; a {
+                // If exceeds target amount, don't select coin i
+                dp[i][a] = dp[i - 1][a]
+            } else {
+                // The smaller value between not selecting and selecting coin i
+                dp[i][a] = min(dp[i - 1][a], dp[i][a - coins[i - 1]] + 1)
+            }
+        }
+    }
+    return dp[n][amt] != MAX ? dp[n][amt] : -1
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int coinChangeDP(List&lt;int&gt; coins, int amt) {
+  int n = coins.length;
+  int MAX = amt + 1;
+  // Initialize dp table
+  List&lt;List&lt;int&gt;&gt; dp = List.generate(n + 1, (index) =&gt; List.filled(amt + 1, 0));
+  // State transition: first row and first column
+  for (int a = 1; a &lt;= amt; a++) {
+    dp[0][a] = MAX;
+  }
+  // State transition: rest of the rows and columns
+  for (int i = 1; i &lt;= n; i++) {
+    for (int a = 1; a &lt;= amt; a++) {
+      if (coins[i - 1] &gt; a) {
+        // If exceeds target amount, don't select coin i
+        dp[i][a] = dp[i - 1][a];
+      } else {
+        // The smaller value between not selecting and selecting coin i
+        dp[i][a] = min(dp[i - 1][a], dp[i][a - coins[i - 1]] + 1);
+      }
+    }
+  }
+  return dp[n][amt] != MAX ? dp[n][amt] : -1;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def coin_change_dp(coins: list[int], amt: int) -&gt; int:
     """Đổi tiền: Quy hoạch động"""
     n = len(coins)
     MAX = amt + 1
@@ -2929,77 +2875,6 @@ int coinChangeDP(vector&lt;int&gt; &amp;coins, int amt) {
         }
     }
     return dp[n][amt] != MAX ? dp[n][amt] : -1;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Đổi tiền: Quy hoạch động */
-static int coinChangeDP(int[] coins, int amt) {
-    int n = coins.length;
-    int MAX = amt + 1;
-    // Khởi tạo bảng dp
-    int[][] dp = new int[n + 1][amt + 1];
-    // Chuyển trạng thái: hàng đầu tiên và cột đầu tiên
-    for (int a = 1; a &lt;= amt; a++) {
-        dp[0][a] = MAX;
-    }
-    // Chuyển trạng thái: các hàng và cột còn lại
-    for (int i = 1; i &lt;= n; i++) {
-        for (int a = 1; a &lt;= amt; a++) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[i][a] = dp[i - 1][a];
-            } else {
-                // Giá trị nhỏ hơn giữa việc không chọn và chọn đồng xu i
-                dp[i][a] = Math.min(dp[i - 1][a], dp[i][a - coins[i - 1]] + 1);
-            }
-        }
-    }
-    return dp[n][amt] != MAX ? dp[n][amt] : -1;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Đổi tiền: Quy hoạch động */
-function coinChangeDP(coins, amt) {
-    const n = coins.length;
-    const MAX = amt + 1;
-    // Khởi tạo bảng dp
-    const dp = Array.from({ length: n + 1 }, () =&gt;
-        Array.from({ length: amt + 1 }, () =&gt; 0)
-    );
-    // Chuyển trạng thái: hàng đầu tiên và cột đầu tiên
-    for (let a = 1; a &lt;= amt; a++) {
-        dp[0][a] = MAX;
-    }
-    // Chuyển trạng thái: các hàng và cột còn lại
-    for (let i = 1; i &lt;= n; i++) {
-        for (let a = 1; a &lt;= amt; a++) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[i][a] = dp[i - 1][a];
-            } else {
-                // Giá trị nhỏ hơn giữa việc không chọn và chọn đồng xu i
-                dp[i][a] = Math.min(dp[i - 1][a], dp[i][a - coins[i - 1]] + 1);
-            }
-        }
-    }
-    return dp[n][amt] !== MAX ? dp[n][amt] : -1;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Đổi tiền: Quy hoạch động */
-fun coinChangeDP(coins: IntArray, amt: Int): Int {
-    val n = coins.size
-    val MAX = amt + 1
-    // Khởi tạo bảng dp
-    val dp = Array(n + 1) { IntArray(amt + 1) }
-    // Chuyển trạng thái: hàng đầu tiên và cột đầu tiên
-    for (a in 1..amt) {
-        dp[0][a] = MAX
-    }
-    // Chuyển trạng thái: các hàng và cột còn lại
-    for (i in 1..n) {
-        for (a in 1..amt) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[i][a] = dp[i - 1][a]
-            } else {
-                // Giá trị nhỏ hơn giữa việc không chọn và chọn đồng xu i
-                dp[i][a] = min(dp[i - 1][a], dp[i][a - coins[i - 1]] + 1)
-            }
-        }
-    }
-    return if (dp[n][amt] != MAX) dp[n][amt] else -1
 }</code></pre></div></div></div>
 
 <p>Hình dưới đây cho thấy quá trình quy hoạch động cho đổi tiền, rất giống với bài toán cái túi không giới hạn.</p>
@@ -3010,7 +2885,66 @@ fun coinChangeDP(coins: IntArray, amt: Int): Int {
 
 <p>Tối ưu không gian cho bài toán đổi tiền được xử lý giống như bài toán cái túi không giới hạn:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def coin_change_dp_comp(coins: list[int], amt: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Đổi tiền: Quy hoạch động tối ưu không gian */
+static int coinChangeDPComp(int[] coins, int amt) {
+    int n = coins.length;
+    int MAX = amt + 1;
+    // Khởi tạo bảng dp
+    int[] dp = new int[amt + 1];
+    Arrays.fill(dp, MAX);
+    dp[0] = 0;
+    // Chuyển trạng thái
+    for (int i = 1; i &lt;= n; i++) {
+        for (int a = 1; a &lt;= amt; a++) {
+            if (coins[i - 1] &gt; a) {
+                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
+                dp[a] = dp[a];
+            } else {
+                // Giá trị nhỏ hơn giữa việc không chọn và chọn đồng xu i
+                dp[a] = Math.min(dp[a], dp[a - coins[i - 1]] + 1);
+            }
+        }
+    }
+    return dp[amt] != MAX ? dp[amt] : -1;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func coinChangeDPComp(coins: [Int], amt: Int) -&gt; Int {
+    let n = coins.count
+    let MAX = amt + 1
+    // Initialize dp table
+    var dp = Array(repeating: MAX, count: amt + 1)
+    dp[0] = 0
+    // State transition
+    for i in 1 ... n {
+        for a in 1 ... amt {
+            if coins[i - 1] &gt; a {
+                // If exceeds target amount, don't select coin i
+                dp[a] = dp[a]
+            } else {
+                // The smaller value between not selecting and selecting coin i
+                dp[a] = min(dp[a], dp[a - coins[i - 1]] + 1)
+            }
+        }
+    }
+    return dp[amt] != MAX ? dp[amt] : -1
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int coinChangeDPComp(List&lt;int&gt; coins, int amt) {
+  int n = coins.length;
+  int MAX = amt + 1;
+  // Initialize dp table
+  List&lt;int&gt; dp = List.filled(amt + 1, MAX);
+  dp[0] = 0;
+  // State transition
+  for (int i = 1; i &lt;= n; i++) {
+    for (int a = 1; a &lt;= amt; a++) {
+      if (coins[i - 1] &gt; a) {
+        // If exceeds target amount, don't select coin i
+        dp[a] = dp[a];
+      } else {
+        // The smaller value between not selecting and selecting coin i
+        dp[a] = min(dp[a], dp[a - coins[i - 1]] + 1);
+      }
+    }
+  }
+  return dp[amt] != MAX ? dp[amt] : -1;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def coin_change_dp_comp(coins: list[int], amt: int) -&gt; int:
     """Đổi tiền: Quy hoạch động tối ưu không gian"""
     n = len(coins)
     MAX = amt + 1
@@ -3046,68 +2980,6 @@ int coinChangeDPComp(vector&lt;int&gt; &amp;coins, int amt) {
         }
     }
     return dp[amt] != MAX ? dp[amt] : -1;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Đổi tiền: Quy hoạch động tối ưu không gian */
-static int coinChangeDPComp(int[] coins, int amt) {
-    int n = coins.length;
-    int MAX = amt + 1;
-    // Khởi tạo bảng dp
-    int[] dp = new int[amt + 1];
-    Arrays.fill(dp, MAX);
-    dp[0] = 0;
-    // Chuyển trạng thái
-    for (int i = 1; i &lt;= n; i++) {
-        for (int a = 1; a &lt;= amt; a++) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[a] = dp[a];
-            } else {
-                // Giá trị nhỏ hơn giữa việc không chọn và chọn đồng xu i
-                dp[a] = Math.min(dp[a], dp[a - coins[i - 1]] + 1);
-            }
-        }
-    }
-    return dp[amt] != MAX ? dp[amt] : -1;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Đổi tiền: Quy hoạch động tối ưu không gian */
-function coinChangeDPComp(coins, amt) {
-    const n = coins.length;
-    const MAX = amt + 1;
-    // Khởi tạo bảng dp
-    const dp = Array.from({ length: amt + 1 }, () =&gt; MAX);
-    dp[0] = 0;
-    // Chuyển trạng thái
-    for (let i = 1; i &lt;= n; i++) {
-        for (let a = 1; a &lt;= amt; a++) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[a] = dp[a];
-            } else {
-                // Giá trị nhỏ hơn giữa việc không chọn và chọn đồng xu i
-                dp[a] = Math.min(dp[a], dp[a - coins[i - 1]] + 1);
-            }
-        }
-    }
-    return dp[amt] !== MAX ? dp[amt] : -1;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Đổi tiền: Quy hoạch động tối ưu không gian */
-fun coinChangeDPComp(coins: IntArray, amt: Int): Int {
-    val n = coins.size
-    val MAX = amt + 1
-    // Khởi tạo bảng dp
-    val dp = IntArray(amt + 1)
-    dp.fill(MAX)
-    dp[0] = 0
-    // Chuyển trạng thái
-    for (i in 1..n) {
-        for (a in 1..amt) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[a] = dp[a]
-            } else {
-                // Giá trị nhỏ hơn giữa việc không chọn và chọn đồng xu i
-                dp[a] = min(dp[a], dp[a - coins[i - 1]] + 1)
-            }
-        }
-    }
-    return if (dp[amt] != MAX) dp[amt] else -1
 }</code></pre></div></div></div>
 
 <h2>Bài toán Đổi tiền II</h2>
@@ -3135,7 +3007,71 @@ fun coinChangeDPComp(coins: IntArray, amt: Int): Int {
 
 <h3>Triển khai mã</h3>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def coin_change_ii_dp(coins: list[int], amt: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Đổi tiền II: Quy hoạch động */
+static int coinChangeIIDP(int[] coins, int amt) {
+    int n = coins.length;
+    // Khởi tạo bảng dp
+    int[][] dp = new int[n + 1][amt + 1];
+    // Khởi tạo cột đầu tiên
+    for (int i = 0; i &lt;= n; i++) {
+        dp[i][0] = 1;
+    }
+    // Chuyển trạng thái
+    for (int i = 1; i &lt;= n; i++) {
+        for (int a = 1; a &lt;= amt; a++) {
+            if (coins[i - 1] &gt; a) {
+                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
+                dp[i][a] = dp[i - 1][a];
+            } else {
+                // Tổng của 2 lựa chọn: không chọn và chọn đồng xu i
+                dp[i][a] = dp[i - 1][a] + dp[i][a - coins[i - 1]];
+            }
+        }
+    }
+    return dp[n][amt];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func coinChangeIIDP(coins: [Int], amt: Int) -&gt; Int {
+    let n = coins.count
+    // Initialize dp table
+    var dp = Array(repeating: Array(repeating: 0, count: amt + 1), count: n + 1)
+    // Initialize first column
+    for i in 0 ... n {
+        dp[i][0] = 1
+    }
+    // State transition
+    for i in 1 ... n {
+        for a in 1 ... amt {
+            if coins[i - 1] &gt; a {
+                // If exceeds target amount, don't select coin i
+                dp[i][a] = dp[i - 1][a]
+            } else {
+                // Sum of the two options: not selecting and selecting coin i
+                dp[i][a] = dp[i - 1][a] + dp[i][a - coins[i - 1]]
+            }
+        }
+    }
+    return dp[n][amt]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int coinChangeIIDP(List&lt;int&gt; coins, int amt) {
+  int n = coins.length;
+  // Initialize dp table
+  List&lt;List&lt;int&gt;&gt; dp = List.generate(n + 1, (index) =&gt; List.filled(amt + 1, 0));
+  // Initialize first column
+  for (int i = 0; i &lt;= n; i++) {
+    dp[i][0] = 1;
+  }
+  // State transition
+  for (int i = 1; i &lt;= n; i++) {
+    for (int a = 1; a &lt;= amt; a++) {
+      if (coins[i - 1] &gt; a) {
+        // If exceeds target amount, don't select coin i
+        dp[i][a] = dp[i - 1][a];
+      } else {
+        // Sum of the two options: not selecting and selecting coin i
+        dp[i][a] = dp[i - 1][a] + dp[i][a - coins[i - 1]];
+      }
+    }
+  }
+  return dp[n][amt];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def coin_change_ii_dp(coins: list[int], amt: int) -&gt; int:
     """Đổi tiền II: Quy hoạch động"""
     n = len(coins)
     # Khởi tạo bảng dp
@@ -3174,81 +3110,68 @@ int coinChangeIIDP(vector&lt;int&gt; &amp;coins, int amt) {
         }
     }
     return dp[n][amt];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Đổi tiền II: Quy hoạch động */
-static int coinChangeIIDP(int[] coins, int amt) {
-    int n = coins.length;
-    // Khởi tạo bảng dp
-    int[][] dp = new int[n + 1][amt + 1];
-    // Khởi tạo cột đầu tiên
-    for (int i = 0; i &lt;= n; i++) {
-        dp[i][0] = 1;
-    }
-    // Chuyển trạng thái
-    for (int i = 1; i &lt;= n; i++) {
-        for (int a = 1; a &lt;= amt; a++) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[i][a] = dp[i - 1][a];
-            } else {
-                // Tổng của 2 lựa chọn: không chọn và chọn đồng xu i
-                dp[i][a] = dp[i - 1][a] + dp[i][a - coins[i - 1]];
-            }
-        }
-    }
-    return dp[n][amt];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Đổi tiền II: Quy hoạch động */
-function coinChangeIIDP(coins, amt) {
-    const n = coins.length;
-    // Khởi tạo bảng dp
-    const dp = Array.from({ length: n + 1 }, () =&gt;
-        Array.from({ length: amt + 1 }, () =&gt; 0)
-    );
-    // Khởi tạo cột đầu tiên
-    for (let i = 0; i &lt;= n; i++) {
-        dp[i][0] = 1;
-    }
-    // Chuyển trạng thái
-    for (let i = 1; i &lt;= n; i++) {
-        for (let a = 1; a &lt;= amt; a++) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[i][a] = dp[i - 1][a];
-            } else {
-                // Tổng của 2 lựa chọn: không chọn và chọn đồng xu i
-                dp[i][a] = dp[i - 1][a] + dp[i][a - coins[i - 1]];
-            }
-        }
-    }
-    return dp[n][amt];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Đổi tiền II: Quy hoạch động */
-fun coinChangeIIDP(coins: IntArray, amt: Int): Int {
-    val n = coins.size
-    // Khởi tạo bảng dp
-    val dp = Array(n + 1) { IntArray(amt + 1) }
-    // Khởi tạo cột đầu tiên
-    for (i in 0..n) {
-        dp[i][0] = 1
-    }
-    // Chuyển trạng thái
-    for (i in 1..n) {
-        for (a in 1..amt) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[i][a] = dp[i - 1][a]
-            } else {
-                // Tổng của 2 lựa chọn: không chọn và chọn đồng xu i
-                dp[i][a] = dp[i - 1][a] + dp[i][a - coins[i - 1]]
-            }
-        }
-    }
-    return dp[n][amt]
 }</code></pre></div></div></div>
 
 <h3>Tối ưu Không gian</h3>
 
 <p>Tối ưu không gian được xử lý giống hệt, chỉ cần xóa chiều đồng xu:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def coin_change_ii_dp_comp(coins: list[int], amt: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Đổi tiền II: Quy hoạch động tối ưu không gian */
+static int coinChangeIIDPComp(int[] coins, int amt) {
+    int n = coins.length;
+    // Khởi tạo bảng dp
+    int[] dp = new int[amt + 1];
+    dp[0] = 1;
+    // Chuyển trạng thái
+    for (int i = 1; i &lt;= n; i++) {
+        for (int a = 1; a &lt;= amt; a++) {
+            if (coins[i - 1] &gt; a) {
+                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
+                dp[a] = dp[a];
+            } else {
+                // Tổng của 2 lựa chọn: không chọn và chọn đồng xu i
+                dp[a] = dp[a] + dp[a - coins[i - 1]];
+            }
+        }
+    }
+    return dp[amt];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func coinChangeIIDPComp(coins: [Int], amt: Int) -&gt; Int {
+    let n = coins.count
+    // Initialize dp table
+    var dp = Array(repeating: 0, count: amt + 1)
+    dp[0] = 1
+    // State transition
+    for i in 1 ... n {
+        for a in 1 ... amt {
+            if coins[i - 1] &gt; a {
+                // If exceeds target amount, don't select coin i
+                dp[a] = dp[a]
+            } else {
+                // Sum of the two options: not selecting and selecting coin i
+                dp[a] = dp[a] + dp[a - coins[i - 1]]
+            }
+        }
+    }
+    return dp[amt]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int coinChangeIIDPComp(List&lt;int&gt; coins, int amt) {
+  int n = coins.length;
+  // Initialize dp table
+  List&lt;int&gt; dp = List.filled(amt + 1, 0);
+  dp[0] = 1;
+  // State transition
+  for (int i = 1; i &lt;= n; i++) {
+    for (int a = 1; a &lt;= amt; a++) {
+      if (coins[i - 1] &gt; a) {
+        // If exceeds target amount, don't select coin i
+        dp[a] = dp[a];
+      } else {
+        // Sum of the two options: not selecting and selecting coin i
+        dp[a] = dp[a] + dp[a - coins[i - 1]];
+      }
+    }
+  }
+  return dp[amt];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def coin_change_ii_dp_comp(coins: list[int], amt: int) -&gt; int:
     """Đổi tiền II: Quy hoạch động tối ưu không gian"""
     n = len(coins)
     # Khởi tạo bảng dp
@@ -3282,63 +3205,6 @@ int coinChangeIIDPComp(vector&lt;int&gt; &amp;coins, int amt) {
         }
     }
     return dp[amt];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Đổi tiền II: Quy hoạch động tối ưu không gian */
-static int coinChangeIIDPComp(int[] coins, int amt) {
-    int n = coins.length;
-    // Khởi tạo bảng dp
-    int[] dp = new int[amt + 1];
-    dp[0] = 1;
-    // Chuyển trạng thái
-    for (int i = 1; i &lt;= n; i++) {
-        for (int a = 1; a &lt;= amt; a++) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[a] = dp[a];
-            } else {
-                // Tổng của 2 lựa chọn: không chọn và chọn đồng xu i
-                dp[a] = dp[a] + dp[a - coins[i - 1]];
-            }
-        }
-    }
-    return dp[amt];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Đổi tiền II: Quy hoạch động tối ưu không gian */
-function coinChangeIIDPComp(coins, amt) {
-    const n = coins.length;
-    // Khởi tạo bảng dp
-    const dp = Array.from({ length: amt + 1 }, () =&gt; 0);
-    dp[0] = 1;
-    // Chuyển trạng thái
-    for (let i = 1; i &lt;= n; i++) {
-        for (let a = 1; a &lt;= amt; a++) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[a] = dp[a];
-            } else {
-                // Tổng của 2 lựa chọn: không chọn và chọn đồng xu i
-                dp[a] = dp[a] + dp[a - coins[i - 1]];
-            }
-        }
-    }
-    return dp[amt];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Đổi tiền II: Quy hoạch động tối ưu không gian */
-fun coinChangeIIDPComp(coins: IntArray, amt: Int): Int {
-    val n = coins.size
-    // Khởi tạo bảng dp
-    val dp = IntArray(amt + 1)
-    dp[0] = 1
-    // Chuyển trạng thái
-    for (i in 1..n) {
-        for (a in 1..amt) {
-            if (coins[i - 1] &gt; a) {
-                // Nếu vượt quá số tiền mục tiêu, không chọn đồng xu i
-                dp[a] = dp[a]
-            } else {
-                // Tổng của 2 lựa chọn: không chọn và chọn đồng xu i
-                dp[a] = dp[a] + dp[a - coins[i - 1]]
-            }
-        }
-    }
-    return dp[amt]
 }</code></pre></div></div></div>
 `,
     originalContent: `
@@ -3639,7 +3505,78 @@ The space optimization is handled in the same way, just delete the coin dimensio
 
 <h3>Triển khai mã</h3>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def edit_distance_dp(s: str, t: str) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khoảng cách chỉnh sửa: Quy hoạch động */
+static int editDistanceDP(String s, String t) {
+    int n = s.length(), m = t.length();
+    int[][] dp = new int[n + 1][m + 1];
+    // Chuyển trạng thái: hàng đầu tiên và cột đầu tiên
+    for (int i = 1; i &lt;= n; i++) {
+        dp[i][0] = i;
+    }
+    for (int j = 1; j &lt;= m; j++) {
+        dp[0][j] = j;
+    }
+    // Chuyển trạng thái: các hàng và cột còn lại
+    for (int i = 1; i &lt;= n; i++) {
+        for (int j = 1; j &lt;= m; j++) {
+            if (s.charAt(i - 1) == t.charAt(j - 1)) {
+                // Nếu 2 ký tự bằng nhau, bỏ qua cả 2 ký tự
+                dp[i][j] = dp[i - 1][j - 1];
+            } else {
+                // Số bước chỉnh sửa nhỏ nhất = số bước nhỏ nhất của chèn, xóa, thay thế + 1
+                dp[i][j] = Math.min(Math.min(dp[i][j - 1], dp[i - 1][j]), dp[i - 1][j - 1]) + 1;
+            }
+        }
+    }
+    return dp[n][m];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func editDistanceDP(s: String, t: String) -&gt; Int {
+    let n = s.utf8CString.count
+    let m = t.utf8CString.count
+    var dp = Array(repeating: Array(repeating: 0, count: m + 1), count: n + 1)
+    // State transition: first row and first column
+    for i in 1 ... n {
+        dp[i][0] = i
+    }
+    for j in 1 ... m {
+        dp[0][j] = j
+    }
+    // State transition: rest of the rows and columns
+    for i in 1 ... n {
+        for j in 1 ... m {
+            if s.utf8CString[i - 1] == t.utf8CString[j - 1] {
+                // If two characters are equal, skip both characters
+                dp[i][j] = dp[i - 1][j - 1]
+            } else {
+                // Minimum edit steps = minimum edit steps of insert, delete, replace + 1
+                dp[i][j] = min(min(dp[i][j - 1], dp[i - 1][j]), dp[i - 1][j - 1]) + 1
+            }
+        }
+    }
+    return dp[n][m]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int editDistanceDP(String s, String t) {
+  int n = s.length, m = t.length;
+  List&lt;List&lt;int&gt;&gt; dp = List.generate(n + 1, (_) =&gt; List.filled(m + 1, 0));
+  // State transition: first row and first column
+  for (int i = 1; i &lt;= n; i++) {
+    dp[i][0] = i;
+  }
+  for (int j = 1; j &lt;= m; j++) {
+    dp[0][j] = j;
+  }
+  // State transition: rest of the rows and columns
+  for (int i = 1; i &lt;= n; i++) {
+    for (int j = 1; j &lt;= m; j++) {
+      if (s[i - 1] == t[j - 1]) {
+        // If two characters are equal, skip both characters
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        // Minimum edit steps = minimum edit steps of insert, delete, replace + 1
+        dp[i][j] = min(min(dp[i][j - 1], dp[i - 1][j]), dp[i - 1][j - 1]) + 1;
+      }
+    }
+  }
+  return dp[n][m];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def edit_distance_dp(s: str, t: str) -&gt; int:
     """Khoảng cách chỉnh sửa: Quy hoạch động"""
     n, m = len(s), len(t)
     dp = [[0] * (m + 1) for _ in range(n + 1)]
@@ -3681,81 +3618,6 @@ int editDistanceDP(string s, string t) {
         }
     }
     return dp[n][m];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Khoảng cách chỉnh sửa: Quy hoạch động */
-static int editDistanceDP(String s, String t) {
-    int n = s.length(), m = t.length();
-    int[][] dp = new int[n + 1][m + 1];
-    // Chuyển trạng thái: hàng đầu tiên và cột đầu tiên
-    for (int i = 1; i &lt;= n; i++) {
-        dp[i][0] = i;
-    }
-    for (int j = 1; j &lt;= m; j++) {
-        dp[0][j] = j;
-    }
-    // Chuyển trạng thái: các hàng và cột còn lại
-    for (int i = 1; i &lt;= n; i++) {
-        for (int j = 1; j &lt;= m; j++) {
-            if (s.charAt(i - 1) == t.charAt(j - 1)) {
-                // Nếu 2 ký tự bằng nhau, bỏ qua cả 2 ký tự
-                dp[i][j] = dp[i - 1][j - 1];
-            } else {
-                // Số bước chỉnh sửa nhỏ nhất = số bước nhỏ nhất của chèn, xóa, thay thế + 1
-                dp[i][j] = Math.min(Math.min(dp[i][j - 1], dp[i - 1][j]), dp[i - 1][j - 1]) + 1;
-            }
-        }
-    }
-    return dp[n][m];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khoảng cách chỉnh sửa: Quy hoạch động */
-function editDistanceDP(s, t) {
-    const n = s.length,
-        m = t.length;
-    const dp = Array.from({ length: n + 1 }, () =&gt; new Array(m + 1).fill(0));
-    // Chuyển trạng thái: hàng đầu tiên và cột đầu tiên
-    for (let i = 1; i &lt;= n; i++) {
-        dp[i][0] = i;
-    }
-    for (let j = 1; j &lt;= m; j++) {
-        dp[0][j] = j;
-    }
-    // Chuyển trạng thái: các hàng và cột còn lại
-    for (let i = 1; i &lt;= n; i++) {
-        for (let j = 1; j &lt;= m; j++) {
-            if (s.charAt(i - 1) === t.charAt(j - 1)) {
-                // Nếu 2 ký tự bằng nhau, bỏ qua cả 2 ký tự
-                dp[i][j] = dp[i - 1][j - 1];
-            } else {
-                // Số bước chỉnh sửa nhỏ nhất = số bước nhỏ nhất của chèn, xóa, thay thế + 1
-                dp[i][j] =
-                    Math.min(dp[i][j - 1], dp[i - 1][j], dp[i - 1][j - 1]) + 1;
-            }
-        }
-    }
-    return dp[n][m];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khoảng cách chỉnh sửa: Quy hoạch động */
-fun editDistanceDP(s: String, t: String): Int {
-    val n = s.length
-    val m = t.length
-    val dp = Array(n + 1) { IntArray(m + 1) }
-    // Chuyển trạng thái: hàng đầu tiên và cột đầu tiên
-    for (i in 1..n) {
-        dp[i][0] = i
-    }
-    for (j in 1..m) {
-        dp[0][j] = j
-    }
-    // Chuyển trạng thái: các hàng và cột còn lại
-    for (i in 1..n) {
-        for (j in 1..m) {
-            if (s[i - 1] == t[j - 1]) {
-                // Nếu 2 ký tự bằng nhau, bỏ qua cả 2 ký tự
-                dp[i][j] = dp[i - 1][j - 1]
-            } else {
-                // Số bước chỉnh sửa nhỏ nhất = số bước nhỏ nhất của chèn, xóa, thay thế + 1
-                dp[i][j] = min(min(dp[i][j - 1], dp[i - 1][j]), dp[i - 1][j - 1]) + 1
-            }
-        }
-    }
-    return dp[n][m]
 }</code></pre></div></div></div>
 
 <p>Như hình dưới đây, quá trình chuyển trạng thái cho bài toán khoảng cách chỉnh sửa rất giống với bài toán cái túi; cả hai đều có thể được xem như quá trình điền một lưới hai chiều.</p>
@@ -3768,7 +3630,86 @@ fun editDistanceDP(s: String, t: String): Int {
 
 <p>Vì lý do này, ta có thể dùng một biến <code>leftup</code> để tạm thời lưu trữ lời giải trên-trái $dp[i-1, j-1]$, vì vậy ta chỉ cần xem xét các lời giải bên trái và phía trên. Tình huống này giống với bài toán cái túi không giới hạn, vì vậy ta có thể dùng duyệt xuôi. Mã như sau:</p>
 
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def edit_distance_dp_comp(s: str, t: str) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khoảng cách chỉnh sửa: Quy hoạch động tối ưu không gian */
+static int editDistanceDPComp(String s, String t) {
+    int n = s.length(), m = t.length();
+    int[] dp = new int[m + 1];
+    // Chuyển trạng thái: hàng đầu tiên
+    for (int j = 1; j &lt;= m; j++) {
+        dp[j] = j;
+    }
+    // Chuyển trạng thái: các hàng còn lại
+    for (int i = 1; i &lt;= n; i++) {
+        int leftup = dp[0]; // Lưu tạm dp[i-1, j-1]
+        dp[0] = i;
+        // Chuyển trạng thái: các cột còn lại
+        for (int j = 1; j &lt;= m; j++) {
+            int temp = dp[j];
+            if (s.charAt(i - 1) == t.charAt(j - 1)) {
+                // Nếu 2 ký tự bằng nhau, bỏ qua cả 2 ký tự
+                dp[j] = leftup;
+            } else {
+                // Số bước chỉnh sửa nhỏ nhất = số bước nhỏ nhất của chèn, xóa, thay thế + 1
+                dp[j] = Math.min(Math.min(dp[j - 1], dp[j]), leftup) + 1;
+            }
+            leftup = temp; // Cập nhật cho dp[i-1, j-1] của vòng lặp tiếp theo
+        }
+    }
+    return dp[m];
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func editDistanceDPComp(s: String, t: String) -&gt; Int {
+    let n = s.utf8CString.count
+    let m = t.utf8CString.count
+    var dp = Array(repeating: 0, count: m + 1)
+    // State transition: first row
+    for j in 1 ... m {
+        dp[j] = j
+    }
+    // State transition: rest of the rows
+    for i in 1 ... n {
+        // State transition: first column
+        var leftup = dp[0] // Temporarily store dp[i-1, j-1]
+        dp[0] = i
+        // State transition: rest of the columns
+        for j in 1 ... m {
+            let temp = dp[j]
+            if s.utf8CString[i - 1] == t.utf8CString[j - 1] {
+                // If two characters are equal, skip both characters
+                dp[j] = leftup
+            } else {
+                // Minimum edit steps = minimum edit steps of insert, delete, replace + 1
+                dp[j] = min(min(dp[j - 1], dp[j]), leftup) + 1
+            }
+            leftup = temp // Update for next round's dp[i-1, j-1]
+        }
+    }
+    return dp[m]
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int editDistanceDPComp(String s, String t) {
+  int n = s.length, m = t.length;
+  List&lt;int&gt; dp = List.filled(m + 1, 0);
+  // State transition: first row
+  for (int j = 1; j &lt;= m; j++) {
+    dp[j] = j;
+  }
+  // State transition: rest of the rows
+  for (int i = 1; i &lt;= n; i++) {
+    // State transition: first column
+    int leftup = dp[0]; // Temporarily store dp[i-1, j-1]
+    dp[0] = i;
+    // State transition: rest of the columns
+    for (int j = 1; j &lt;= m; j++) {
+      int temp = dp[j];
+      if (s[i - 1] == t[j - 1]) {
+        // If two characters are equal, skip both characters
+        dp[j] = leftup;
+      } else {
+        // Minimum edit steps = minimum edit steps of insert, delete, replace + 1
+        dp[j] = min(min(dp[j - 1], dp[j]), leftup) + 1;
+      }
+      leftup = temp; // Update for next round's dp[i-1, j-1]
+    }
+  }
+  return dp[m];
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def edit_distance_dp_comp(s: str, t: str) -&gt; int:
     """Khoảng cách chỉnh sửa: Quy hoạch động tối ưu không gian"""
     n, m = len(s), len(t)
     dp = [0] * (m + 1)
@@ -3814,86 +3755,6 @@ int editDistanceDPComp(string s, string t) {
         }
     }
     return dp[m];
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Khoảng cách chỉnh sửa: Quy hoạch động tối ưu không gian */
-static int editDistanceDPComp(String s, String t) {
-    int n = s.length(), m = t.length();
-    int[] dp = new int[m + 1];
-    // Chuyển trạng thái: hàng đầu tiên
-    for (int j = 1; j &lt;= m; j++) {
-        dp[j] = j;
-    }
-    // Chuyển trạng thái: các hàng còn lại
-    for (int i = 1; i &lt;= n; i++) {
-        int leftup = dp[0]; // Lưu tạm dp[i-1, j-1]
-        dp[0] = i;
-        // Chuyển trạng thái: các cột còn lại
-        for (int j = 1; j &lt;= m; j++) {
-            int temp = dp[j];
-            if (s.charAt(i - 1) == t.charAt(j - 1)) {
-                // Nếu 2 ký tự bằng nhau, bỏ qua cả 2 ký tự
-                dp[j] = leftup;
-            } else {
-                // Số bước chỉnh sửa nhỏ nhất = số bước nhỏ nhất của chèn, xóa, thay thế + 1
-                dp[j] = Math.min(Math.min(dp[j - 1], dp[j]), leftup) + 1;
-            }
-            leftup = temp; // Cập nhật cho dp[i-1, j-1] của vòng lặp tiếp theo
-        }
-    }
-    return dp[m];
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khoảng cách chỉnh sửa: Quy hoạch động tối ưu không gian */
-function editDistanceDPComp(s, t) {
-    const n = s.length,
-        m = t.length;
-    const dp = new Array(m + 1).fill(0);
-    // Chuyển trạng thái: hàng đầu tiên
-    for (let j = 1; j &lt;= m; j++) {
-        dp[j] = j;
-    }
-    // Chuyển trạng thái: các hàng còn lại
-    for (let i = 1; i &lt;= n; i++) {
-        let leftup = dp[0]; // Lưu tạm dp[i-1, j-1]
-        dp[0] = i;
-        // Chuyển trạng thái: các cột còn lại
-        for (let j = 1; j &lt;= m; j++) {
-            const temp = dp[j];
-            if (s.charAt(i - 1) === t.charAt(j - 1)) {
-                // Nếu 2 ký tự bằng nhau, bỏ qua cả 2 ký tự
-                dp[j] = leftup;
-            } else {
-                // Số bước chỉnh sửa nhỏ nhất = số bước nhỏ nhất của chèn, xóa, thay thế + 1
-                dp[j] = Math.min(dp[j - 1], dp[j], leftup) + 1;
-            }
-            leftup = temp; // Cập nhật cho dp[i-1, j-1] của vòng lặp tiếp theo
-        }
-    }
-    return dp[m];
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khoảng cách chỉnh sửa: Quy hoạch động tối ưu không gian */
-fun editDistanceDPComp(s: String, t: String): Int {
-    val n = s.length
-    val m = t.length
-    val dp = IntArray(m + 1)
-    // Chuyển trạng thái: hàng đầu tiên
-    for (j in 1..m) {
-        dp[j] = j
-    }
-    // Chuyển trạng thái: các hàng còn lại
-    for (i in 1..n) {
-        var leftup = dp[0] // Lưu tạm dp[i-1, j-1]
-        dp[0] = i
-        // Chuyển trạng thái: các cột còn lại
-        for (j in 1..m) {
-            val temp = dp[j]
-            if (s[i - 1] == t[j - 1]) {
-                // Nếu 2 ký tự bằng nhau, bỏ qua cả 2 ký tự
-                dp[j] = leftup
-            } else {
-                // Số bước chỉnh sửa nhỏ nhất = số bước nhỏ nhất của chèn, xóa, thay thế + 1
-                dp[j] = min(min(dp[j - 1], dp[j]), leftup) + 1
-            }
-            leftup = temp // Cập nhật cho dp[i-1, j-1] của vòng lặp tiếp theo
-        }
-    }
-    return dp[m]
 }</code></pre></div></div></div>
 
 <div class="interactive-widget-wrapper" id="edit-distance-wrapper">

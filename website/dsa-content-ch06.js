@@ -85,7 +85,24 @@ Object.assign(DSA_CONTENT, {
 
 <h2>6.1.1 Các thao tác thường dùng trên Bảng băm</h2>
 <p>Các thao tác thường dùng trên bảng băm bao gồm: khởi tạo, thao tác truy vấn, thêm cặp khóa-giá trị và xóa cặp khóa-giá trị. Đoạn mã ví dụ như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Khởi tạo bảng băm
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo bảng băm */
+Map&lt;Integer, String&gt; map = new HashMap&lt;&gt;();
+
+/* Thao tác thêm */
+// Thêm cặp khóa-giá trị (key, value) vào bảng băm
+map.put(12836, "XiaoHa");
+map.put(15937, "XiaoLuo");
+map.put(16750, "XiaoSuan");
+map.put(13276, "XiaoFa");
+map.put(10583, "XiaoYa");
+
+/* Thao tác truy vấn */
+// Đưa key vào bảng băm để lấy value
+String name = map.get(15937);
+
+/* Thao tác xóa */
+// Xóa cặp khóa-giá trị (key, value) khỏi bảng băm
+map.remove(10583);</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Khởi tạo bảng băm
 hmap: dict = {}
 
 # Thao tác thêm
@@ -119,24 +136,7 @@ string name = map[15937];
 
 /* Thao tác xóa */
 // Xóa cặp khóa-giá trị (key, value) khỏi bảng băm
-map.erase(10583);</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo bảng băm */
-Map&lt;Integer, String&gt; map = new HashMap&lt;&gt;();
-
-/* Thao tác thêm */
-// Thêm cặp khóa-giá trị (key, value) vào bảng băm
-map.put(12836, "XiaoHa");
-map.put(15937, "XiaoLuo");
-map.put(16750, "XiaoSuan");
-map.put(13276, "XiaoFa");
-map.put(10583, "XiaoYa");
-
-/* Thao tác truy vấn */
-// Đưa key vào bảng băm để lấy value
-String name = map.get(15937);
-
-/* Thao tác xóa */
-// Xóa cặp khóa-giá trị (key, value) khỏi bảng băm
-map.remove(10583);</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo bảng băm */
+map.erase(10583);</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo bảng băm */
 const map = new Map();
 /* Thao tác thêm */
 // Thêm cặp khóa-giá trị (key, value) vào bảng băm
@@ -152,26 +152,21 @@ let name = map.get(15937);
 
 /* Thao tác xóa */
 // Xóa cặp khóa-giá trị (key, value) khỏi bảng băm
-map.delete(10583);</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khởi tạo bảng băm */
-val map = HashMap&lt;Int,String&gt;()
-
-/* Thao tác thêm */
-// Thêm cặp khóa-giá trị (key, value) vào bảng băm
-map[12836] = "XiaoHa"
-map[15937] = "XiaoLuo"
-map[16750] = "XiaoSuan"
-map[13276] = "XiaoFa"
-map[10583] = "XiaoYa"
-
-/* Thao tác truy vấn */
-// Đưa key vào bảng băm để lấy value
-val name = map[15937]
-
-/* Thao tác xóa */
-// Xóa cặp khóa-giá trị (key, value) khỏi bảng băm
-map.remove(10583)</code></pre></div></div></div>
+map.delete(10583);</code></pre></div></div></div>
 <p>Có ba cách phổ biến để duyệt qua một bảng băm: duyệt cặp khóa-giá trị, chỉ duyệt khóa, và chỉ duyệt giá trị. Đoạn mã ví dụ như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Duyệt bảng băm
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Duyệt bảng băm */
+// Duyệt cặp key-&gt;value
+for (Map.Entry&lt;Integer, String&gt; kv: map.entrySet()) {
+    System.out.println(kv.getKey() + " -&gt; " + kv.getValue());
+}
+// Chỉ duyệt key
+for (int key: map.keySet()) {
+    System.out.println(key);
+}
+// Chỉ duyệt value
+for (String val: map.values()) {
+    System.out.println(val);
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Duyệt bảng băm
 # Duyệt cặp key-&gt;value
 for key, value in hmap.items():
     print(key, "-&gt;", value)
@@ -188,18 +183,6 @@ for (auto kv: map) {
 // Duyệt bằng iterator key-&gt;value
 for (auto iter = map.begin(); iter != map.end(); iter++) {
     cout &lt;&lt; iter-&gt;first &lt;&lt; "-&gt;" &lt;&lt; iter-&gt;second &lt;&lt; endl;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Duyệt bảng băm */
-// Duyệt cặp key-&gt;value
-for (Map.Entry&lt;Integer, String&gt; kv: map.entrySet()) {
-    System.out.println(kv.getKey() + " -&gt; " + kv.getValue());
-}
-// Chỉ duyệt key
-for (int key: map.keySet()) {
-    System.out.println(key);
-}
-// Chỉ duyệt value
-for (String val: map.values()) {
-    System.out.println(val);
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Duyệt bảng băm */
 console.info('\\nDuyệt cặp key-&gt;value');
 for (const [k, v] of map.entries()) {
@@ -212,18 +195,6 @@ for (const k of map.keys()) {
 console.info('\\nChỉ duyệt value');
 for (const v of map.values()) {
     console.info(v);
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Duyệt bảng băm */
-// Duyệt cặp key-&gt;value
-for ((key, value) in map) {
-    println("$key -&gt; $value")
-}
-// Chỉ duyệt key
-for (key in map.keys) {
-    println(key)
-}
-// Chỉ duyệt value
-for (_val in map.values) {
-    println(_val)
 }</code></pre></div></div></div>
 
 <h2>6.1.2 Triển khai Bảng băm đơn giản</h2>
@@ -241,7 +212,95 @@ for (_val in map.values) {
   <img src="dsa-assets/hash_function.png" alt="Nguyên lý hoạt động của hàm băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Đoạn mã sau đây triển khai một bảng băm đơn giản. Ở đây, chúng ta đóng gói <code>key</code> và <code>value</code> vào một lớp <code>Pair</code> để biểu diễn một cặp khóa-giá trị.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class Pair:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cặp khóa-giá trị */
+class Pair {
+    public int key;
+    public String val;
+
+    public Pair(int key, String val) {
+        this.key = key;
+        this.val = val;
+    }
+}
+
+/* Bảng băm triển khai dựa trên mảng */
+class ArrayHashMap {
+    private List&lt;Pair&gt; buckets;
+
+    public ArrayHashMap() {
+        // Khởi tạo mảng với 100 bucket
+        buckets = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; 100; i++) {
+            buckets.add(null);
+        }
+    }
+
+    /* Hàm băm */
+    private int hashFunc(int key) {
+        int index = key % 100;
+        return index;
+    }
+
+    /* Thao tác truy vấn */
+    public String get(int key) {
+        int index = hashFunc(key);
+        Pair pair = buckets.get(index);
+        if (pair == null)
+            return null;
+        return pair.val;
+    }
+
+    /* Thao tác thêm */
+    public void put(int key, String val) {
+        Pair pair = new Pair(key, val);
+        int index = hashFunc(key);
+        buckets.set(index, pair);
+    }
+
+    /* Thao tác xóa */
+    public void remove(int key) {
+        int index = hashFunc(key);
+        // Đặt về null để biểu thị việc đã xóa
+        buckets.set(index, null);
+    }
+
+    /* Lấy tất cả cặp khóa-giá trị */
+    public List&lt;Pair&gt; pairSet() {
+        List&lt;Pair&gt; pairSet = new ArrayList&lt;&gt;();
+        for (Pair pair : buckets) {
+            if (pair != null)
+                pairSet.add(pair);
+        }
+        return pairSet;
+    }
+
+    /* Lấy tất cả khóa */
+    public List&lt;Integer&gt; keySet() {
+        List&lt;Integer&gt; keySet = new ArrayList&lt;&gt;();
+        for (Pair pair : buckets) {
+            if (pair != null)
+                keySet.add(pair.key);
+        }
+        return keySet;
+    }
+
+    /* Lấy tất cả giá trị */
+    public List&lt;String&gt; valueSet() {
+        List&lt;String&gt; valueSet = new ArrayList&lt;&gt;();
+        for (Pair pair : buckets) {
+            if (pair != null)
+                valueSet.add(pair.val);
+        }
+        return valueSet;
+    }
+
+    /* In bảng băm */
+    public void print() {
+        for (Pair kv : pairSet()) {
+            System.out.println(kv.key + " -&gt; " + kv.val);
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class Pair:
     """Cặp khóa-giá trị"""
 
     def __init__(self, key: int, val: str):
@@ -409,95 +468,7 @@ class ArrayHashMap {
             cout &lt;&lt; kv-&gt;key &lt;&lt; " -&gt; " &lt;&lt; kv-&gt;val &lt;&lt; endl;
         }
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Cặp khóa-giá trị */
-class Pair {
-    public int key;
-    public String val;
-
-    public Pair(int key, String val) {
-        this.key = key;
-        this.val = val;
-    }
-}
-
-/* Bảng băm triển khai dựa trên mảng */
-class ArrayHashMap {
-    private List&lt;Pair&gt; buckets;
-
-    public ArrayHashMap() {
-        // Khởi tạo mảng với 100 bucket
-        buckets = new ArrayList&lt;&gt;();
-        for (int i = 0; i &lt; 100; i++) {
-            buckets.add(null);
-        }
-    }
-
-    /* Hàm băm */
-    private int hashFunc(int key) {
-        int index = key % 100;
-        return index;
-    }
-
-    /* Thao tác truy vấn */
-    public String get(int key) {
-        int index = hashFunc(key);
-        Pair pair = buckets.get(index);
-        if (pair == null)
-            return null;
-        return pair.val;
-    }
-
-    /* Thao tác thêm */
-    public void put(int key, String val) {
-        Pair pair = new Pair(key, val);
-        int index = hashFunc(key);
-        buckets.set(index, pair);
-    }
-
-    /* Thao tác xóa */
-    public void remove(int key) {
-        int index = hashFunc(key);
-        // Đặt về null để biểu thị việc đã xóa
-        buckets.set(index, null);
-    }
-
-    /* Lấy tất cả cặp khóa-giá trị */
-    public List&lt;Pair&gt; pairSet() {
-        List&lt;Pair&gt; pairSet = new ArrayList&lt;&gt;();
-        for (Pair pair : buckets) {
-            if (pair != null)
-                pairSet.add(pair);
-        }
-        return pairSet;
-    }
-
-    /* Lấy tất cả khóa */
-    public List&lt;Integer&gt; keySet() {
-        List&lt;Integer&gt; keySet = new ArrayList&lt;&gt;();
-        for (Pair pair : buckets) {
-            if (pair != null)
-                keySet.add(pair.key);
-        }
-        return keySet;
-    }
-
-    /* Lấy tất cả giá trị */
-    public List&lt;String&gt; valueSet() {
-        List&lt;String&gt; valueSet = new ArrayList&lt;&gt;();
-        for (Pair pair : buckets) {
-            if (pair != null)
-                valueSet.add(pair.val);
-        }
-        return valueSet;
-    }
-
-    /* In bảng băm */
-    public void print() {
-        for (Pair kv : pairSet()) {
-            System.out.println(kv.key + " -&gt; " + kv.val);
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cặp khóa-giá trị Number -&gt; String */
+};</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cặp khóa-giá trị Number -&gt; String */
 class Pair {
     constructor(key, val) {
         this.key = key;
@@ -577,82 +548,6 @@ class ArrayHashMap {
         let pairSet = this.entries();
         for (const pair of pairSet) {
             console.info(\`\${pair.key} -&gt; \${pair.val}\`);
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Cặp khóa-giá trị */
-class Pair(
-    var key: Int,
-    var _val: String
-)
-
-/* Bảng băm triển khai dựa trên mảng */
-class ArrayHashMap {
-    // Khởi tạo mảng với 100 bucket
-    private val buckets = arrayOfNulls&lt;Pair&gt;(100)
-
-    /* Hàm băm */
-    fun hashFunc(key: Int): Int {
-        val index = key % 100
-        return index
-    }
-
-    /* Thao tác truy vấn */
-    fun get(key: Int): String? {
-        val index = hashFunc(key)
-        val pair = buckets[index] ?: return null
-        return pair._val
-    }
-
-    /* Thao tác thêm */
-    fun put(key: Int, _val: String) {
-        val pair = Pair(key, _val)
-        val index = hashFunc(key)
-        buckets[index] = pair
-    }
-
-    /* Thao tác xóa */
-    fun remove(key: Int) {
-        val index = hashFunc(key)
-        // Đặt về null để biểu thị việc đã xóa
-        buckets[index] = null
-    }
-
-    /* Lấy tất cả cặp khóa-giá trị */
-    fun pairSet(): MutableList&lt;Pair&gt; {
-        val pairSet = mutableListOf&lt;Pair&gt;()
-        for (pair in buckets) {
-            if (pair != null)
-                pairSet.add(pair)
-        }
-        return pairSet
-    }
-
-    /* Lấy tất cả khóa */
-    fun keySet(): MutableList&lt;Int&gt; {
-        val keySet = mutableListOf&lt;Int&gt;()
-        for (pair in buckets) {
-            if (pair != null)
-                keySet.add(pair.key)
-        }
-        return keySet
-    }
-
-    /* Lấy tất cả giá trị */
-    fun valueSet(): MutableList&lt;String&gt; {
-        val valueSet = mutableListOf&lt;String&gt;()
-        for (pair in buckets) {
-            if (pair != null)
-                valueSet.add(pair._val)
-        }
-        return valueSet
-    }
-
-    /* In bảng băm */
-    fun print() {
-        for (kv in pairSet()) {
-            val key = kv.key
-            val _val = kv._val
-            println("$key -&gt; $_val")
         }
     }
 }</code></pre></div></div></div>
@@ -1338,7 +1233,121 @@ The <u>load factor</u> is an important concept in hash tables. It is defined as 
   <li>Danh sách (mảng động) được sử dụng thay cho danh sách liên kết để đơn giản hóa mã nguồn. Trong thiết lập này, bảng băm (mảng) chứa nhiều bucket, mỗi bucket là một danh sách.</li>
   <li>Triển khai này bao gồm phương thức mở rộng bảng băm. Khi hệ số tải vượt quá $\\frac{2}{3}$, chúng ta mở rộng bảng băm lên $2$ lần kích thước ban đầu.</li>
 </ul>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class HashMapChaining:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Bảng băm giải quyết xung đột bằng Separate Chaining (móc xích riêng biệt) */
+class HashMapChaining {
+    int size; // Số lượng cặp khóa-giá trị
+    int capacity; // Dung lượng bảng băm
+    double loadThres; // Ngưỡng hệ số tải để kích hoạt mở rộng
+    int extendRatio; // Hệ số nhân khi mở rộng
+    List&lt;List&lt;Pair&gt;&gt; buckets; // Mảng các bucket
+
+    /* Hàm khởi tạo */
+    public HashMapChaining() {
+        size = 0;
+        capacity = 4;
+        loadThres = 2.0 / 3.0;
+        extendRatio = 2;
+        buckets = new ArrayList&lt;&gt;(capacity);
+        for (int i = 0; i &lt; capacity; i++) {
+            buckets.add(new ArrayList&lt;&gt;());
+        }
+    }
+
+    /* Hàm băm */
+    int hashFunc(int key) {
+        return key % capacity;
+    }
+
+    /* Hệ số tải */
+    double loadFactor() {
+        return (double) size / capacity;
+    }
+
+    /* Thao tác truy vấn */
+    String get(int key) {
+        int index = hashFunc(key);
+        List&lt;Pair&gt; bucket = buckets.get(index);
+        // Duyệt bucket, nếu tìm thấy key thì trả về val tương ứng
+        for (Pair pair : bucket) {
+            if (pair.key == key) {
+                return pair.val;
+            }
+        }
+        // Nếu không tìm thấy key, trả về null
+        return null;
+    }
+
+    /* Thao tác thêm */
+    void put(int key, String val) {
+        // Khi hệ số tải vượt ngưỡng, thực hiện mở rộng
+        if (loadFactor() &gt; loadThres) {
+            extend();
+        }
+        int index = hashFunc(key);
+        List&lt;Pair&gt; bucket = buckets.get(index);
+        // Duyệt bucket, nếu gặp key đã chỉ định thì cập nhật val tương ứng rồi return
+        for (Pair pair : bucket) {
+            if (pair.key == key) {
+                pair.val = val;
+                return;
+            }
+        }
+        // Nếu key chưa tồn tại, thêm cặp khóa-giá trị vào cuối
+        Pair pair = new Pair(key, val);
+        bucket.add(pair);
+        size++;
+    }
+
+    /* Thao tác xóa */
+    void remove(int key) {
+        int index = hashFunc(key);
+        List&lt;Pair&gt; bucket = buckets.get(index);
+        // Duyệt bucket và xóa cặp khóa-giá trị khỏi đó
+        for (Pair pair : bucket) {
+            if (pair.key == key) {
+                bucket.remove(pair);
+                size--;
+                break;
+            }
+        }
+    }
+
+    /* Mở rộng bảng băm */
+    void extend() {
+        // Lưu tạm bảng băm gốc
+        List&lt;List&lt;Pair&gt;&gt; bucketsTmp = buckets;
+        // Khởi tạo bảng băm mới đã được mở rộng
+        capacity *= extendRatio;
+        buckets = new ArrayList&lt;&gt;(capacity);
+        for (int i = 0; i &lt; capacity; i++) {
+            buckets.add(new ArrayList&lt;&gt;());
+        }
+        size = 0;
+        // Di chuyển các cặp khóa-giá trị từ bảng gốc sang bảng mới
+        for (List&lt;Pair&gt; bucket : bucketsTmp) {
+            for (Pair pair : bucket) {
+                put(pair.key, pair.val);
+            }
+        }
+    }
+
+    /* In bảng băm */
+    void print() {
+        for (List&lt;Pair&gt; bucket : buckets) {
+            List&lt;String&gt; res = new ArrayList&lt;&gt;();
+            for (Pair pair : bucket) {
+                res.add(pair.key + " -&gt; " + pair.val);
+            }
+            System.out.println(res);
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>HashMapChaining() {
+    size = 0;
+    capacity = 4;
+    loadThres = 2.0 / 3.0;
+    extendRatio = 2;
+    buckets = List.generate(capacity, (_) =&gt; []);
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class HashMapChaining:
     """Bảng băm giải quyết xung đột bằng Separate Chaining (móc xích riêng biệt)"""
 
     def __init__(self):
@@ -1527,333 +1536,7 @@ class HashMapChaining {
             cout &lt;&lt; "]\\n";
         }
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Bảng băm giải quyết xung đột bằng Separate Chaining (móc xích riêng biệt) */
-class HashMapChaining {
-    int size; // Số lượng cặp khóa-giá trị
-    int capacity; // Dung lượng bảng băm
-    double loadThres; // Ngưỡng hệ số tải để kích hoạt mở rộng
-    int extendRatio; // Hệ số nhân khi mở rộng
-    List&lt;List&lt;Pair&gt;&gt; buckets; // Mảng các bucket
-
-    /* Hàm khởi tạo */
-    public HashMapChaining() {
-        size = 0;
-        capacity = 4;
-        loadThres = 2.0 / 3.0;
-        extendRatio = 2;
-        buckets = new ArrayList&lt;&gt;(capacity);
-        for (int i = 0; i &lt; capacity; i++) {
-            buckets.add(new ArrayList&lt;&gt;());
-        }
-    }
-
-    /* Hàm băm */
-    int hashFunc(int key) {
-        return key % capacity;
-    }
-
-    /* Hệ số tải */
-    double loadFactor() {
-        return (double) size / capacity;
-    }
-
-    /* Thao tác truy vấn */
-    String get(int key) {
-        int index = hashFunc(key);
-        List&lt;Pair&gt; bucket = buckets.get(index);
-        // Duyệt bucket, nếu tìm thấy key thì trả về val tương ứng
-        for (Pair pair : bucket) {
-            if (pair.key == key) {
-                return pair.val;
-            }
-        }
-        // Nếu không tìm thấy key, trả về null
-        return null;
-    }
-
-    /* Thao tác thêm */
-    void put(int key, String val) {
-        // Khi hệ số tải vượt ngưỡng, thực hiện mở rộng
-        if (loadFactor() &gt; loadThres) {
-            extend();
-        }
-        int index = hashFunc(key);
-        List&lt;Pair&gt; bucket = buckets.get(index);
-        // Duyệt bucket, nếu gặp key đã chỉ định thì cập nhật val tương ứng rồi return
-        for (Pair pair : bucket) {
-            if (pair.key == key) {
-                pair.val = val;
-                return;
-            }
-        }
-        // Nếu key chưa tồn tại, thêm cặp khóa-giá trị vào cuối
-        Pair pair = new Pair(key, val);
-        bucket.add(pair);
-        size++;
-    }
-
-    /* Thao tác xóa */
-    void remove(int key) {
-        int index = hashFunc(key);
-        List&lt;Pair&gt; bucket = buckets.get(index);
-        // Duyệt bucket và xóa cặp khóa-giá trị khỏi đó
-        for (Pair pair : bucket) {
-            if (pair.key == key) {
-                bucket.remove(pair);
-                size--;
-                break;
-            }
-        }
-    }
-
-    /* Mở rộng bảng băm */
-    void extend() {
-        // Lưu tạm bảng băm gốc
-        List&lt;List&lt;Pair&gt;&gt; bucketsTmp = buckets;
-        // Khởi tạo bảng băm mới đã được mở rộng
-        capacity *= extendRatio;
-        buckets = new ArrayList&lt;&gt;(capacity);
-        for (int i = 0; i &lt; capacity; i++) {
-            buckets.add(new ArrayList&lt;&gt;());
-        }
-        size = 0;
-        // Di chuyển các cặp khóa-giá trị từ bảng gốc sang bảng mới
-        for (List&lt;Pair&gt; bucket : bucketsTmp) {
-            for (Pair pair : bucket) {
-                put(pair.key, pair.val);
-            }
-        }
-    }
-
-    /* In bảng băm */
-    void print() {
-        for (List&lt;Pair&gt; bucket : buckets) {
-            List&lt;String&gt; res = new ArrayList&lt;&gt;();
-            for (Pair pair : bucket) {
-                res.add(pair.key + " -&gt; " + pair.val);
-            }
-            System.out.println(res);
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Cặp khóa-giá trị Number -&gt; String */
-class Pair {
-    constructor(key, val) {
-        this.key = key;
-        this.val = val;
-    }
-}
-
-/* Bảng băm giải quyết xung đột bằng Separate Chaining (móc xích riêng biệt) */
-class HashMapChaining {
-    #size; // Số lượng cặp khóa-giá trị
-    #capacity; // Dung lượng bảng băm
-    #loadThres; // Ngưỡng hệ số tải để kích hoạt mở rộng
-    #extendRatio; // Hệ số nhân khi mở rộng
-    #buckets; // Mảng các bucket
-
-    /* Hàm khởi tạo */
-    constructor() {
-        this.#size = 0;
-        this.#capacity = 4;
-        this.#loadThres = 2.0 / 3.0;
-        this.#extendRatio = 2;
-        this.#buckets = new Array(this.#capacity).fill(null).map((x) =&gt; []);
-    }
-
-    /* Hàm băm */
-    #hashFunc(key) {
-        return key % this.#capacity;
-    }
-
-    /* Hệ số tải */
-    #loadFactor() {
-        return this.#size / this.#capacity;
-    }
-
-    /* Thao tác truy vấn */
-    get(key) {
-        const index = this.#hashFunc(key);
-        const bucket = this.#buckets[index];
-        // Duyệt bucket, nếu tìm thấy key thì trả về val tương ứng
-        for (const pair of bucket) {
-            if (pair.key === key) {
-                return pair.val;
-            }
-        }
-        // Nếu không tìm thấy key, trả về null
-        return null;
-    }
-
-    /* Thao tác thêm */
-    put(key, val) {
-        // Khi hệ số tải vượt ngưỡng, thực hiện mở rộng
-        if (this.#loadFactor() &gt; this.#loadThres) {
-            this.#extend();
-        }
-        const index = this.#hashFunc(key);
-        const bucket = this.#buckets[index];
-        // Duyệt bucket, nếu gặp key đã chỉ định thì cập nhật val tương ứng rồi return
-        for (const pair of bucket) {
-            if (pair.key === key) {
-                pair.val = val;
-                return;
-            }
-        }
-        // Nếu key chưa tồn tại, thêm cặp khóa-giá trị vào cuối
-        const pair = new Pair(key, val);
-        bucket.push(pair);
-        this.#size++;
-    }
-
-    /* Thao tác xóa */
-    remove(key) {
-        const index = this.#hashFunc(key);
-        let bucket = this.#buckets[index];
-        // Duyệt bucket và xóa cặp khóa-giá trị khỏi đó
-        for (let i = 0; i &lt; bucket.length; i++) {
-            if (bucket[i].key === key) {
-                bucket.splice(i, 1);
-                this.#size--;
-                break;
-            }
-        }
-    }
-
-    /* Mở rộng bảng băm */
-    #extend() {
-        // Lưu tạm bảng băm gốc
-        const bucketsTmp = this.#buckets;
-        // Khởi tạo bảng băm mới đã được mở rộng
-        this.#capacity *= this.#extendRatio;
-        this.#buckets = new Array(this.#capacity).fill(null).map((x) =&gt; []);
-        this.#size = 0;
-        // Di chuyển các cặp khóa-giá trị từ bảng gốc sang bảng mới
-        for (const bucket of bucketsTmp) {
-            for (const pair of bucket) {
-                this.put(pair.key, pair.val);
-            }
-        }
-    }
-
-    /* In bảng băm */
-    print() {
-        for (const bucket of this.#buckets) {
-            let res = [];
-            for (const pair of bucket) {
-                res.push(pair.key + ' -&gt; ' + pair.val);
-            }
-            console.log(res);
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Bảng băm giải quyết xung đột bằng Separate Chaining (móc xích riêng biệt) */
-class HashMapChaining {
-    var size: Int // Số lượng cặp khóa-giá trị
-    var capacity: Int // Dung lượng bảng băm
-    val loadThres: Double // Ngưỡng hệ số tải để kích hoạt mở rộng
-    val extendRatio: Int // Hệ số nhân khi mở rộng
-    var buckets: MutableList&lt;MutableList&lt;Pair&gt;&gt; // Mảng các bucket
-
-    /* Hàm khởi tạo */
-    init {
-        size = 0
-        capacity = 4
-        loadThres = 2.0 / 3.0
-        extendRatio = 2
-        buckets = mutableListOf()
-        for (i in 0..&lt;capacity) {
-            buckets.add(mutableListOf())
-        }
-    }
-
-    /* Hàm băm */
-    fun hashFunc(key: Int): Int {
-        return key % capacity
-    }
-
-    /* Hệ số tải */
-    fun loadFactor(): Double {
-        return (size / capacity).toDouble()
-    }
-
-    /* Thao tác truy vấn */
-    fun get(key: Int): String? {
-        val index = hashFunc(key)
-        val bucket = buckets[index]
-        // Duyệt bucket, nếu tìm thấy key thì trả về val tương ứng
-        for (pair in bucket) {
-            if (pair.key == key) return pair._val
-        }
-        // Nếu không tìm thấy key, trả về null
-        return null
-    }
-
-    /* Thao tác thêm */
-    fun put(key: Int, _val: String) {
-        // Khi hệ số tải vượt ngưỡng, thực hiện mở rộng
-        if (loadFactor() &gt; loadThres) {
-            extend()
-        }
-        val index = hashFunc(key)
-        val bucket = buckets[index]
-        // Duyệt bucket, nếu gặp key đã chỉ định thì cập nhật val tương ứng rồi return
-        for (pair in bucket) {
-            if (pair.key == key) {
-                pair._val = _val
-                return
-            }
-        }
-        // Nếu key chưa tồn tại, thêm cặp khóa-giá trị vào cuối
-        val pair = Pair(key, _val)
-        bucket.add(pair)
-        size++
-    }
-
-    /* Thao tác xóa */
-    fun remove(key: Int) {
-        val index = hashFunc(key)
-        val bucket = buckets[index]
-        // Duyệt bucket và xóa cặp khóa-giá trị khỏi đó
-        for (pair in bucket) {
-            if (pair.key == key) {
-                bucket.remove(pair)
-                size--
-                break
-            }
-        }
-    }
-
-    /* Mở rộng bảng băm */
-    fun extend() {
-        // Lưu tạm bảng băm gốc
-        val bucketsTmp = buckets
-        // Khởi tạo bảng băm mới đã được mở rộng
-        capacity *= extendRatio
-        buckets = mutableListOf()
-        for (i in 0..&lt;capacity) {
-            buckets.add(mutableListOf())
-        }
-        size = 0
-        // Di chuyển các cặp khóa-giá trị từ bảng gốc sang bảng mới
-        for (bucket in bucketsTmp) {
-            for (pair in bucket) {
-                put(pair.key, pair._val)
-            }
-        }
-    }
-
-    /* In bảng băm */
-    fun print() {
-        for (bucket in buckets) {
-            val res = mutableListOf&lt;String&gt;()
-            for (pair in bucket) {
-                val k = pair.key
-                val v = pair._val
-                res.add("$k -&gt; $v")
-            }
-            println(res)
-        }
-    }
-}</code></pre></div></div></div>
+};</code></pre></div></div></div>
 <p>Đáng chú ý là khi danh sách liên kết trở nên rất dài, thời gian truy vấn $O(n)$ là kém. <strong>Trong trường hợp này, danh sách liên kết có thể được chuyển thành cây AVL hoặc cây Đỏ-Đen (red-black tree)</strong>, giúp giảm độ phức tạp thời gian tra cứu xuống còn $O(\\log n)$.</p>
 
 <div class="interactive-widget-wrapper" id="hash-chaining-wrapper">
@@ -1904,7 +1587,131 @@ class HashMapChaining {
 <p>Tuy nhiên, <strong>xóa lười có thể làm tăng tốc độ suy giảm hiệu năng của bảng băm</strong>. Mỗi lần xóa để lại một dấu vết, và khi số lượng <code>TOMBSTONE</code> tăng lên, thời gian tìm kiếm cũng tăng theo, vì thăm dò tuyến tính có thể phải bỏ qua nhiều bia mộ trước khi tìm được phần tử mục tiêu.</p>
 <p>Để khắc phục điều này, chúng ta có thể ghi lại chỉ mục của <code>TOMBSTONE</code> đầu tiên gặp được trong quá trình thăm dò tuyến tính, và hoán đổi phần tử mục tiêu tìm được vào vị trí đó. Lợi ích là mỗi lần truy vấn hoặc chèn có thể đưa các phần tử về gần vị trí lý tưởng hơn, tức là gần điểm bắt đầu thăm dò hơn, giúp cải thiện hiệu quả tra cứu.</p>
 <p>Đoạn mã dưới đây triển khai một bảng băm định vị mở (thăm dò tuyến tính) với xóa lười. Để tận dụng tốt hơn không gian của bảng băm, chúng ta coi bảng băm như một "mảng vòng tròn". Khi vượt quá cuối mảng, ta quay lại đầu và tiếp tục duyệt.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class HashMapOpenAddressing:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Bảng băm giải quyết xung đột bằng Open Addressing (định vị mở) */
+class HashMapOpenAddressing {
+    private int size; // Số lượng cặp khóa-giá trị
+    private int capacity = 4; // Dung lượng bảng băm
+    private final double loadThres = 2.0 / 3.0; // Ngưỡng hệ số tải để kích hoạt mở rộng
+    private final int extendRatio = 2; // Hệ số nhân khi mở rộng
+    private Pair[] buckets; // Mảng các bucket
+    private final Pair TOMBSTONE = new Pair(-1, "-1"); // Ký hiệu đánh dấu đã xóa
+
+    /* Hàm khởi tạo */
+    public HashMapOpenAddressing() {
+        size = 0;
+        buckets = new Pair[capacity];
+    }
+
+    /* Hàm băm */
+    private int hashFunc(int key) {
+        return key % capacity;
+    }
+
+    /* Hệ số tải */
+    private double loadFactor() {
+        return (double) size / capacity;
+    }
+
+    /* Tìm chỉ mục bucket tương ứng với key */
+    private int findBucket(int key) {
+        int index = hashFunc(key);
+        int firstTombstone = -1;
+        // Thăm dò tuyến tính, dừng khi gặp bucket trống
+        while (buckets[index] != null) {
+            // Nếu gặp key, trả về chỉ mục bucket tương ứng
+            if (buckets[index].key == key) {
+                // Nếu trước đó đã gặp TOMBSTONE, di chuyển cặp khóa-giá trị về đó
+                if (firstTombstone != -1) {
+                    buckets[firstTombstone] = buckets[index];
+                    buckets[index] = TOMBSTONE;
+                    return firstTombstone; // Trả về chỉ mục bucket đã di chuyển
+                }
+                return index; // Trả về chỉ mục bucket
+            }
+            // Ghi nhớ TOMBSTONE đầu tiên gặp được
+            if (firstTombstone == -1 &amp;&amp; buckets[index] == TOMBSTONE) {
+                firstTombstone = index;
+            }
+            // Tính chỉ mục bucket tiếp theo, quay về đầu nếu vượt quá cuối mảng
+            index = (index + 1) % capacity;
+        }
+        // Nếu key không tồn tại, trả về chỉ mục để chèn
+        return firstTombstone == -1 ? index : firstTombstone;
+    }
+
+    /* Thao tác truy vấn */
+    public String get(int key) {
+        // Tìm chỉ mục bucket tương ứng với key
+        int index = findBucket(key);
+        // Nếu tìm thấy cặp khóa-giá trị, trả về val tương ứng
+        if (buckets[index] != null &amp;&amp; buckets[index] != TOMBSTONE) {
+            return buckets[index].val;
+        }
+        // Nếu cặp khóa-giá trị không tồn tại, trả về null
+        return null;
+    }
+
+    /* Thao tác thêm */
+    public void put(int key, String val) {
+        // Khi hệ số tải vượt ngưỡng, thực hiện mở rộng
+        if (loadFactor() &gt; loadThres) {
+            extend();
+        }
+        // Tìm chỉ mục bucket tương ứng với key
+        int index = findBucket(key);
+        // Nếu tìm thấy cặp khóa-giá trị, ghi đè val rồi return
+        if (buckets[index] != null &amp;&amp; buckets[index] != TOMBSTONE) {
+            buckets[index].val = val;
+            return;
+        }
+        // Nếu cặp khóa-giá trị không tồn tại, thêm cặp khóa-giá trị
+        buckets[index] = new Pair(key, val);
+        size++;
+    }
+
+    /* Thao tác xóa */
+    public void remove(int key) {
+        // Tìm chỉ mục bucket tương ứng với key
+        int index = findBucket(key);
+        // Nếu tìm thấy cặp khóa-giá trị, ghi đè bằng ký hiệu TOMBSTONE
+        if (buckets[index] != null &amp;&amp; buckets[index] != TOMBSTONE) {
+            buckets[index] = TOMBSTONE;
+            size--;
+        }
+    }
+
+    /* Mở rộng bảng băm */
+    private void extend() {
+        // Lưu tạm bảng băm gốc
+        Pair[] bucketsTmp = buckets;
+        // Khởi tạo bảng băm mới đã được mở rộng
+        capacity *= extendRatio;
+        buckets = new Pair[capacity];
+        size = 0;
+        // Di chuyển các cặp khóa-giá trị từ bảng gốc sang bảng mới
+        for (Pair pair : bucketsTmp) {
+            if (pair != null &amp;&amp; pair != TOMBSTONE) {
+                put(pair.key, pair.val);
+            }
+        }
+    }
+
+    /* In bảng băm */
+    public void print() {
+        for (Pair pair : buckets) {
+            if (pair == null) {
+                System.out.println("null");
+            } else if (pair == TOMBSTONE) {
+                System.out.println("TOMBSTONE");
+            } else {
+                System.out.println(pair.key + " -&gt; " + pair.val);
+            }
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>HashMapOpenAddressing() {
+    _size = 0;
+    _buckets = List.generate(_capacity, (index) =&gt; null);
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class HashMapOpenAddressing:
     """Bảng băm giải quyết xung đột bằng Open Addressing (định vị mở)"""
 
     def __init__(self):
@@ -2134,390 +1941,7 @@ class HashMapOpenAddressing {
             }
         }
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Bảng băm giải quyết xung đột bằng Open Addressing (định vị mở) */
-class HashMapOpenAddressing {
-    private int size; // Số lượng cặp khóa-giá trị
-    private int capacity = 4; // Dung lượng bảng băm
-    private final double loadThres = 2.0 / 3.0; // Ngưỡng hệ số tải để kích hoạt mở rộng
-    private final int extendRatio = 2; // Hệ số nhân khi mở rộng
-    private Pair[] buckets; // Mảng các bucket
-    private final Pair TOMBSTONE = new Pair(-1, "-1"); // Ký hiệu đánh dấu đã xóa
-
-    /* Hàm khởi tạo */
-    public HashMapOpenAddressing() {
-        size = 0;
-        buckets = new Pair[capacity];
-    }
-
-    /* Hàm băm */
-    private int hashFunc(int key) {
-        return key % capacity;
-    }
-
-    /* Hệ số tải */
-    private double loadFactor() {
-        return (double) size / capacity;
-    }
-
-    /* Tìm chỉ mục bucket tương ứng với key */
-    private int findBucket(int key) {
-        int index = hashFunc(key);
-        int firstTombstone = -1;
-        // Thăm dò tuyến tính, dừng khi gặp bucket trống
-        while (buckets[index] != null) {
-            // Nếu gặp key, trả về chỉ mục bucket tương ứng
-            if (buckets[index].key == key) {
-                // Nếu trước đó đã gặp TOMBSTONE, di chuyển cặp khóa-giá trị về đó
-                if (firstTombstone != -1) {
-                    buckets[firstTombstone] = buckets[index];
-                    buckets[index] = TOMBSTONE;
-                    return firstTombstone; // Trả về chỉ mục bucket đã di chuyển
-                }
-                return index; // Trả về chỉ mục bucket
-            }
-            // Ghi nhớ TOMBSTONE đầu tiên gặp được
-            if (firstTombstone == -1 &amp;&amp; buckets[index] == TOMBSTONE) {
-                firstTombstone = index;
-            }
-            // Tính chỉ mục bucket tiếp theo, quay về đầu nếu vượt quá cuối mảng
-            index = (index + 1) % capacity;
-        }
-        // Nếu key không tồn tại, trả về chỉ mục để chèn
-        return firstTombstone == -1 ? index : firstTombstone;
-    }
-
-    /* Thao tác truy vấn */
-    public String get(int key) {
-        // Tìm chỉ mục bucket tương ứng với key
-        int index = findBucket(key);
-        // Nếu tìm thấy cặp khóa-giá trị, trả về val tương ứng
-        if (buckets[index] != null &amp;&amp; buckets[index] != TOMBSTONE) {
-            return buckets[index].val;
-        }
-        // Nếu cặp khóa-giá trị không tồn tại, trả về null
-        return null;
-    }
-
-    /* Thao tác thêm */
-    public void put(int key, String val) {
-        // Khi hệ số tải vượt ngưỡng, thực hiện mở rộng
-        if (loadFactor() &gt; loadThres) {
-            extend();
-        }
-        // Tìm chỉ mục bucket tương ứng với key
-        int index = findBucket(key);
-        // Nếu tìm thấy cặp khóa-giá trị, ghi đè val rồi return
-        if (buckets[index] != null &amp;&amp; buckets[index] != TOMBSTONE) {
-            buckets[index].val = val;
-            return;
-        }
-        // Nếu cặp khóa-giá trị không tồn tại, thêm cặp khóa-giá trị
-        buckets[index] = new Pair(key, val);
-        size++;
-    }
-
-    /* Thao tác xóa */
-    public void remove(int key) {
-        // Tìm chỉ mục bucket tương ứng với key
-        int index = findBucket(key);
-        // Nếu tìm thấy cặp khóa-giá trị, ghi đè bằng ký hiệu TOMBSTONE
-        if (buckets[index] != null &amp;&amp; buckets[index] != TOMBSTONE) {
-            buckets[index] = TOMBSTONE;
-            size--;
-        }
-    }
-
-    /* Mở rộng bảng băm */
-    private void extend() {
-        // Lưu tạm bảng băm gốc
-        Pair[] bucketsTmp = buckets;
-        // Khởi tạo bảng băm mới đã được mở rộng
-        capacity *= extendRatio;
-        buckets = new Pair[capacity];
-        size = 0;
-        // Di chuyển các cặp khóa-giá trị từ bảng gốc sang bảng mới
-        for (Pair pair : bucketsTmp) {
-            if (pair != null &amp;&amp; pair != TOMBSTONE) {
-                put(pair.key, pair.val);
-            }
-        }
-    }
-
-    /* In bảng băm */
-    public void print() {
-        for (Pair pair : buckets) {
-            if (pair == null) {
-                System.out.println("null");
-            } else if (pair == TOMBSTONE) {
-                System.out.println("TOMBSTONE");
-            } else {
-                System.out.println(pair.key + " -&gt; " + pair.val);
-            }
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Bảng băm giải quyết xung đột bằng Open Addressing (định vị mở) */
-class HashMapOpenAddressing {
-    #size; // Số lượng cặp khóa-giá trị
-    #capacity; // Dung lượng bảng băm
-    #loadThres; // Ngưỡng hệ số tải để kích hoạt mở rộng
-    #extendRatio; // Hệ số nhân khi mở rộng
-    #buckets; // Mảng các bucket
-    #TOMBSTONE; // Ký hiệu đánh dấu đã xóa
-
-    /* Hàm khởi tạo */
-    constructor() {
-        this.#size = 0;
-        this.#capacity = 4;
-        this.#loadThres = 2.0 / 3.0;
-        this.#extendRatio = 2;
-        this.#buckets = Array(this.#capacity).fill(null);
-        this.#TOMBSTONE = new Pair(-1, '-1');
-    }
-
-    /* Hàm băm */
-    #hashFunc(key) {
-        return key % this.#capacity;
-    }
-
-    /* Hệ số tải */
-    #loadFactor() {
-        return this.#size / this.#capacity;
-    }
-
-    /* Tìm chỉ mục bucket tương ứng với key */
-    #findBucket(key) {
-        let index = this.#hashFunc(key);
-        let firstTombstone = -1;
-        // Thăm dò tuyến tính, dừng khi gặp bucket trống
-        while (this.#buckets[index] !== null) {
-            // Nếu gặp key, trả về chỉ mục bucket tương ứng
-            if (this.#buckets[index].key === key) {
-                // Nếu trước đó đã gặp TOMBSTONE, di chuyển cặp khóa-giá trị về đó
-                if (firstTombstone !== -1) {
-                    this.#buckets[firstTombstone] = this.#buckets[index];
-                    this.#buckets[index] = this.#TOMBSTONE;
-                    return firstTombstone; // Trả về chỉ mục bucket đã di chuyển
-                }
-                return index; // Trả về chỉ mục bucket
-            }
-            // Ghi nhớ TOMBSTONE đầu tiên gặp được
-            if (
-                firstTombstone === -1 &amp;&amp;
-                this.#buckets[index] === this.#TOMBSTONE
-            ) {
-                firstTombstone = index;
-            }
-            // Tính chỉ mục bucket tiếp theo, quay về đầu nếu vượt quá cuối mảng
-            index = (index + 1) % this.#capacity;
-        }
-        // Nếu key không tồn tại, trả về chỉ mục để chèn
-        return firstTombstone === -1 ? index : firstTombstone;
-    }
-
-    /* Thao tác truy vấn */
-    get(key) {
-        // Tìm chỉ mục bucket tương ứng với key
-        const index = this.#findBucket(key);
-        // Nếu tìm thấy cặp khóa-giá trị, trả về val tương ứng
-        if (
-            this.#buckets[index] !== null &amp;&amp;
-            this.#buckets[index] !== this.#TOMBSTONE
-        ) {
-            return this.#buckets[index].val;
-        }
-        // Nếu cặp khóa-giá trị không tồn tại, trả về null
-        return null;
-    }
-
-    /* Thao tác thêm */
-    put(key, val) {
-        // Khi hệ số tải vượt ngưỡng, thực hiện mở rộng
-        if (this.#loadFactor() &gt; this.#loadThres) {
-            this.#extend();
-        }
-        // Tìm chỉ mục bucket tương ứng với key
-        const index = this.#findBucket(key);
-        // Nếu tìm thấy cặp khóa-giá trị, ghi đè val rồi return
-        if (
-            this.#buckets[index] !== null &amp;&amp;
-            this.#buckets[index] !== this.#TOMBSTONE
-        ) {
-            this.#buckets[index].val = val;
-            return;
-        }
-        // Nếu cặp khóa-giá trị không tồn tại, thêm cặp khóa-giá trị
-        this.#buckets[index] = new Pair(key, val);
-        this.#size++;
-    }
-
-    /* Thao tác xóa */
-    remove(key) {
-        // Tìm chỉ mục bucket tương ứng với key
-        const index = this.#findBucket(key);
-        // Nếu tìm thấy cặp khóa-giá trị, ghi đè bằng ký hiệu TOMBSTONE
-        if (
-            this.#buckets[index] !== null &amp;&amp;
-            this.#buckets[index] !== this.#TOMBSTONE
-        ) {
-            this.#buckets[index] = this.#TOMBSTONE;
-            this.#size--;
-        }
-    }
-
-    /* Mở rộng bảng băm */
-    #extend() {
-        // Lưu tạm bảng băm gốc
-        const bucketsTmp = this.#buckets;
-        // Khởi tạo bảng băm mới đã được mở rộng
-        this.#capacity *= this.#extendRatio;
-        this.#buckets = Array(this.#capacity).fill(null);
-        this.#size = 0;
-        // Di chuyển các cặp khóa-giá trị từ bảng gốc sang bảng mới
-        for (const pair of bucketsTmp) {
-            if (pair !== null &amp;&amp; pair !== this.#TOMBSTONE) {
-                this.put(pair.key, pair.val);
-            }
-        }
-    }
-
-    /* In bảng băm */
-    print() {
-        for (const pair of this.#buckets) {
-            if (pair === null) {
-                console.log('null');
-            } else if (pair === this.#TOMBSTONE) {
-                console.log('TOMBSTONE');
-            } else {
-                console.log(pair.key + ' -&gt; ' + pair.val);
-            }
-        }
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Bảng băm giải quyết xung đột bằng Open Addressing (định vị mở) */
-class HashMapOpenAddressing {
-    private var size: Int               // Số lượng cặp khóa-giá trị
-    private var capacity: Int           // Dung lượng bảng băm
-    private val loadThres: Double       // Ngưỡng hệ số tải để kích hoạt mở rộng
-    private val extendRatio: Int        // Hệ số nhân khi mở rộng
-    private var buckets: Array&lt;Pair?&gt;   // Mảng các bucket
-    private val TOMBSTONE: Pair         // Ký hiệu đánh dấu đã xóa
-
-    /* Hàm khởi tạo */
-    init {
-        size = 0
-        capacity = 4
-        loadThres = 2.0 / 3.0
-        extendRatio = 2
-        buckets = arrayOfNulls(capacity)
-        TOMBSTONE = Pair(-1, "-1")
-    }
-
-    /* Hàm băm */
-    fun hashFunc(key: Int): Int {
-        return key % capacity
-    }
-
-    /* Hệ số tải */
-    fun loadFactor(): Double {
-        return (size / capacity).toDouble()
-    }
-
-    /* Tìm chỉ mục bucket tương ứng với key */
-    fun findBucket(key: Int): Int {
-        var index = hashFunc(key)
-        var firstTombstone = -1
-        // Thăm dò tuyến tính, dừng khi gặp bucket trống
-        while (buckets[index] != null) {
-            // Nếu gặp key, trả về chỉ mục bucket tương ứng
-            if (buckets[index]?.key == key) {
-                // Nếu trước đó đã gặp TOMBSTONE, di chuyển cặp khóa-giá trị về đó
-                if (firstTombstone != -1) {
-                    buckets[firstTombstone] = buckets[index]
-                    buckets[index] = TOMBSTONE
-                    return firstTombstone // Trả về chỉ mục bucket đã di chuyển
-                }
-                return index // Trả về chỉ mục bucket
-            }
-            // Ghi nhớ TOMBSTONE đầu tiên gặp được
-            if (firstTombstone == -1 &amp;&amp; buckets[index] == TOMBSTONE) {
-                firstTombstone = index
-            }
-            // Tính chỉ mục bucket tiếp theo, quay về đầu nếu vượt quá cuối mảng
-            index = (index + 1) % capacity
-        }
-        // Nếu key không tồn tại, trả về chỉ mục để chèn
-        return if (firstTombstone == -1) index else firstTombstone
-    }
-
-    /* Thao tác truy vấn */
-    fun get(key: Int): String? {
-        // Tìm chỉ mục bucket tương ứng với key
-        val index = findBucket(key)
-        // Nếu tìm thấy cặp khóa-giá trị, trả về val tương ứng
-        if (buckets[index] != null &amp;&amp; buckets[index] != TOMBSTONE) {
-            return buckets[index]?._val
-        }
-        // Nếu cặp khóa-giá trị không tồn tại, trả về null
-        return null
-    }
-
-    /* Thao tác thêm */
-    fun put(key: Int, _val: String) {
-        // Khi hệ số tải vượt ngưỡng, thực hiện mở rộng
-        if (loadFactor() &gt; loadThres) {
-            extend()
-        }
-        // Tìm chỉ mục bucket tương ứng với key
-        val index = findBucket(key)
-        // Nếu tìm thấy cặp khóa-giá trị, ghi đè val rồi return
-        if (buckets[index] != null &amp;&amp; buckets[index] != TOMBSTONE) {
-            buckets[index]!!._val = _val
-            return
-        }
-        // Nếu cặp khóa-giá trị không tồn tại, thêm cặp khóa-giá trị
-        buckets[index] = Pair(key, _val)
-        size++
-    }
-
-    /* Thao tác xóa */
-    fun remove(key: Int) {
-        // Tìm chỉ mục bucket tương ứng với key
-        val index = findBucket(key)
-        // Nếu tìm thấy cặp khóa-giá trị, ghi đè bằng ký hiệu TOMBSTONE
-        if (buckets[index] != null &amp;&amp; buckets[index] != TOMBSTONE) {
-            buckets[index] = TOMBSTONE
-            size--
-        }
-    }
-
-    /* Mở rộng bảng băm */
-    fun extend() {
-        // Lưu tạm bảng băm gốc
-        val bucketsTmp = buckets
-        // Khởi tạo bảng băm mới đã được mở rộng
-        capacity *= extendRatio
-        buckets = arrayOfNulls(capacity)
-        size = 0
-        // Di chuyển các cặp khóa-giá trị từ bảng gốc sang bảng mới
-        for (pair in bucketsTmp) {
-            if (pair != null &amp;&amp; pair != TOMBSTONE) {
-                put(pair.key, pair._val)
-            }
-        }
-    }
-
-    /* In bảng băm */
-    fun print() {
-        for (pair in buckets) {
-            if (pair == null) {
-                println("null")
-            } else if (pair == TOMBSTONE) {
-                println("TOMBSTONE")
-            } else {
-                println("\${pair.key} -&gt; \${pair._val}")
-            }
-        }
-    }
-}</code></pre></div></div></div>
+};</code></pre></div></div></div>
 
 <div class="interactive-widget-wrapper" id="hash-open-addressing-wrapper">
   <div class="widget-tabs">
@@ -2743,7 +2167,31 @@ Different programming languages adopt different hash table implementation strate
   <li><strong>Băm XOR (XOR hash)</strong>: Cộng dồn giá trị băm bằng cách thực hiện XOR trên từng phần tử của dữ liệu đầu vào.</li>
   <li><strong>Băm xoay bit (Rotating hash)</strong>: Cộng dồn mã ASCII của từng ký tự vào một giá trị băm, thực hiện phép xoay bit trên giá trị băm trước mỗi lần cộng dồn.</li>
 </ul>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def rot_hash(key: str) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Băm xoay bit (Rotational hash) */
+static int rotHash(String key) {
+    long hash = 0;
+    final int MODULUS = 1000000007;
+    for (char c : key.toCharArray()) {
+        hash = ((hash &lt;&lt; 4) ^ (hash &gt;&gt; 28) ^ (int) c) % MODULUS;
+    }
+    return (int) hash;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func rotHash(key: String) -&gt; Int {
+    var hash = 0
+    let MODULUS = 1_000_000_007
+    for c in key {
+        for scalar in c.unicodeScalars {
+            hash = ((hash &lt;&lt; 4) ^ (hash &gt;&gt; 28) ^ Int(scalar.value)) % MODULUS
+        }
+    }
+    return hash
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int rotHash(String key) {
+  int hash = 0;
+  final int MODULUS = 1000000007;
+  for (int i = 0; i &lt; key.length; i++) {
+    hash = ((hash &lt;&lt; 4) ^ (hash &gt;&gt; 28) ^ key.codeUnitAt(i)) % MODULUS;
+  }
+  return hash;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def rot_hash(key: str) -&gt; int:
     """Băm xoay bit (Rotational hash)"""
     hash = 0
     modulus = 1000000007
@@ -2757,30 +2205,6 @@ int rotHash(string key) {
         hash = ((hash &lt;&lt; 4) ^ (hash &gt;&gt; 28) ^ (int)c) % MODULUS;
     }
     return (int)hash;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Băm xoay bit (Rotational hash) */
-static int rotHash(String key) {
-    long hash = 0;
-    final int MODULUS = 1000000007;
-    for (char c : key.toCharArray()) {
-        hash = ((hash &lt;&lt; 4) ^ (hash &gt;&gt; 28) ^ (int) c) % MODULUS;
-    }
-    return (int) hash;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Băm xoay bit (Rotational hash) */
-function rotHash(key) {
-    let hash = 0;
-    const MODULUS = 1000000007;
-    for (const c of key) {
-        hash = ((hash &lt;&lt; 4) ^ (hash &gt;&gt; 28) ^ c.charCodeAt(0)) % MODULUS;
-    }
-    return hash;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Băm xoay bit (Rotational hash) */
-fun rotHash(key: String): Int {
-    var hash = 0L
-    val MODULUS = 1000000007
-    for (c in key.toCharArray()) {
-        hash = ((hash shl 4) xor (hash shr 28) xor c.code.toLong()) % MODULUS
-    }
-    return hash.toInt()
 }</code></pre></div></div></div>
 <p>Chúng ta có thể quan sát thấy bước cuối cùng của mỗi thuật toán băm là lấy kết quả chia lấy dư cho số nguyên tố lớn $1000000007$, đảm bảo giá trị băm nằm trong một phạm vi phù hợp. Điều này tự nhiên đặt ra một câu hỏi: tại sao lại nhấn mạnh việc dùng modulo là số nguyên tố, và những nhược điểm của việc dùng modulo là hợp số là gì?</p>
 <p>Nói ngắn gọn: <strong>dùng một số nguyên tố lớn làm modulo giúp tối đa hóa sự đồng đều của các giá trị băm</strong>. Vì một số nguyên tố không có ước số chung với các số khác, nó có thể giảm bớt các quy luật chu kỳ do phép chia lấy dư gây ra, từ đó giảm thiểu xung đột băm.</p>
@@ -2850,7 +2274,29 @@ $$
     <p>Cần lưu ý rằng định nghĩa và cách triển khai hàm tính giá trị băm dựng sẵn ở các ngôn ngữ lập trình khác nhau có thể khác nhau.</p>
   </div>
 </div>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>num = 3
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>int num = 3;
+int hashNum = Integer.hashCode(num);
+// Giá trị băm của số nguyên 3 là 3
+
+boolean bol = true;
+int hashBol = Boolean.hashCode(bol);
+// Giá trị băm của boolean true là 1231
+
+double dec = 3.14159;
+int hashDec = Double.hashCode(dec);
+// Giá trị băm của số thực 3.14159 là -1340954729
+
+String str = "Hello 算法";
+int hashStr = str.hashCode();
+// Giá trị băm của chuỗi "Hello 算法" là -727081396
+
+Object[] arr = { 12836, "小哈" };
+int hashTup = Arrays.hashCode(arr);
+// Giá trị băm của mảng [12836, 小哈] là 1151158
+
+ListNode obj = new ListNode(0);
+int hashObj = obj.hashCode();
+// Giá trị băm của đối tượng ListNode utils.ListNode@7dc5e7b4 là 2110121908</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>num = 3
 hash_num = hash(num)
 # Giá trị băm của số nguyên 3 là 3
 
@@ -2889,51 +2335,7 @@ size_t hashStr = hash&lt;string&gt;()(str);
 // Giá trị băm của chuỗi "Hello 算法" là 15466937326284535026
 
 // Trong C++, std::hash() có sẵn chỉ cung cấp giá trị băm cho các kiểu dữ liệu cơ bản
-// Giá trị băm cho mảng và đối tượng cần được triển khai riêng</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>int num = 3;
-int hashNum = Integer.hashCode(num);
-// Giá trị băm của số nguyên 3 là 3
-
-boolean bol = true;
-int hashBol = Boolean.hashCode(bol);
-// Giá trị băm của boolean true là 1231
-
-double dec = 3.14159;
-int hashDec = Double.hashCode(dec);
-// Giá trị băm của số thực 3.14159 là -1340954729
-
-String str = "Hello 算法";
-int hashStr = str.hashCode();
-// Giá trị băm của chuỗi "Hello 算法" là -727081396
-
-Object[] arr = { 12836, "小哈" };
-int hashTup = Arrays.hashCode(arr);
-// Giá trị băm của mảng [12836, 小哈] là 1151158
-
-ListNode obj = new ListNode(0);
-int hashObj = obj.hashCode();
-// Giá trị băm của đối tượng ListNode utils.ListNode@7dc5e7b4 là 2110121908</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>// JavaScript không cung cấp sẵn hàm tính mã băm (hash code)</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>val num = 3
-val hashNum = num.hashCode()
-// Giá trị băm của số nguyên 3 là 3
-
-val bol = true
-val hashBol = bol.hashCode()
-// Giá trị băm của boolean true là 1231
-
-val dec = 3.14159
-val hashDec = dec.hashCode()
-// Giá trị băm của số thực 3.14159 là -1340954729
-
-val str = "Hello 算法"
-val hashStr = str.hashCode()
-// Giá trị băm của chuỗi "Hello 算法" là -727081396
-
-val arr = arrayOf&lt;Any&gt;(12836, "小哈")
-val hashTup = arr.hashCode()
-// Giá trị băm của mảng [12836, 小哈] là 189568618
-
-val obj = ListNode(0)
-val hashObj = obj.hashCode()
-// Giá trị băm của đối tượng ListNode utils.ListNode@1d81eb93 là 495053715</code></pre></div></div></div>
+// Giá trị băm cho mảng và đối tượng cần được triển khai riêng</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>// JavaScript không cung cấp sẵn hàm tính mã băm (hash code)</code></pre></div></div></div>
 <p>Trong nhiều ngôn ngữ lập trình, <strong>chỉ những đối tượng bất biến (immutable objects) mới có thể được dùng làm khóa trong bảng băm</strong>. Nếu nội dung của một đối tượng có thể thay đổi (như danh sách trong Python), giá trị băm của nó cũng sẽ thay đổi, khiến việc tra cứu lại phần tử đó trong bảng băm trở nên không đáng tin cậy.</p>
 
 `,

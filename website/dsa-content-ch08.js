@@ -89,7 +89,39 @@ Object.assign(DSA_CONTENT, {
 </table>
 <p>Trong các ứng dụng thực tế, ta có thể trực tiếp sử dụng lớp heap (hoặc lớp priority queue) mà ngôn ngữ lập trình cung cấp sẵn.</p>
 <p>Tương tự như khái niệm "tăng dần" và "giảm dần" trong các thuật toán sắp xếp, ta có thể triển khai việc chuyển đổi giữa "Min Heap" và "Max Heap" bằng cách thiết lập một cờ (<code>flag</code>) hoặc sửa đổi <code>Comparator</code>. Đoạn mã như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>import heapq
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo heap */
+// Khởi tạo Min Heap
+Queue&lt;Integer&gt; minHeap = new PriorityQueue&lt;&gt;();
+// Khởi tạo Max Heap (dùng lambda expression để sửa Comparator)
+Queue&lt;Integer&gt; maxHeap = new PriorityQueue&lt;&gt;((a, b) -&gt; b - a);
+
+/* Đẩy phần tử vào heap */
+maxHeap.offer(1);
+maxHeap.offer(3);
+maxHeap.offer(2);
+maxHeap.offer(5);
+maxHeap.offer(4);
+
+/* Lấy đỉnh heap */
+int peek = maxHeap.peek(); // 5
+
+/* Xóa đỉnh heap */
+// Các phần tử bị xóa sẽ tạo thành một dãy giảm dần
+peek = maxHeap.poll(); // 5
+peek = maxHeap.poll(); // 4
+peek = maxHeap.poll(); // 3
+peek = maxHeap.poll(); // 2
+peek = maxHeap.poll(); // 1
+
+/* Lấy kích thước heap */
+int size = maxHeap.size();
+
+/* Kiểm tra heap rỗng */
+boolean isEmpty = maxHeap.isEmpty();
+
+/* Xây dựng heap từ một danh sách có sẵn */
+minHeap = new PriorityQueue&lt;&gt;(Arrays.asList(1, 3, 2, 5, 4));
+</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>import heapq
 
 # Khởi tạo Min Heap
 min_heap, flag = [], 1
@@ -160,71 +192,7 @@ bool isEmpty = maxHeap.empty();
 /* Xây dựng heap từ một danh sách có sẵn */
 vector&lt;int&gt; input{1, 3, 2, 5, 4};
 priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; minHeap(input.begin(), input.end());
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo heap */
-// Khởi tạo Min Heap
-Queue&lt;Integer&gt; minHeap = new PriorityQueue&lt;&gt;();
-// Khởi tạo Max Heap (dùng lambda expression để sửa Comparator)
-Queue&lt;Integer&gt; maxHeap = new PriorityQueue&lt;&gt;((a, b) -&gt; b - a);
-
-/* Đẩy phần tử vào heap */
-maxHeap.offer(1);
-maxHeap.offer(3);
-maxHeap.offer(2);
-maxHeap.offer(5);
-maxHeap.offer(4);
-
-/* Lấy đỉnh heap */
-int peek = maxHeap.peek(); // 5
-
-/* Xóa đỉnh heap */
-// Các phần tử bị xóa sẽ tạo thành một dãy giảm dần
-peek = maxHeap.poll(); // 5
-peek = maxHeap.poll(); // 4
-peek = maxHeap.poll(); // 3
-peek = maxHeap.poll(); // 2
-peek = maxHeap.poll(); // 1
-
-/* Lấy kích thước heap */
-int size = maxHeap.size();
-
-/* Kiểm tra heap rỗng */
-boolean isEmpty = maxHeap.isEmpty();
-
-/* Xây dựng heap từ một danh sách có sẵn */
-minHeap = new PriorityQueue&lt;&gt;(Arrays.asList(1, 3, 2, 5, 4));
 </code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>// JavaScript không cung cấp sẵn class Heap
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khởi tạo heap */
-// Khởi tạo Min Heap
-var minHeap = PriorityQueue&lt;Int&gt;()
-// Khởi tạo Max Heap (dùng lambda expression để sửa Comparator)
-val maxHeap = PriorityQueue { a: Int, b: Int -&gt; b - a }
-
-/* Đẩy phần tử vào heap */
-maxHeap.offer(1)
-maxHeap.offer(3)
-maxHeap.offer(2)
-maxHeap.offer(5)
-maxHeap.offer(4)
-
-/* Lấy đỉnh heap */
-var peek = maxHeap.peek() // 5
-
-/* Xóa đỉnh heap */
-// Các phần tử bị xóa sẽ tạo thành một dãy giảm dần
-peek = maxHeap.poll() // 5
-peek = maxHeap.poll() // 4
-peek = maxHeap.poll() // 3
-peek = maxHeap.poll() // 2
-peek = maxHeap.poll() // 1
-
-/* Lấy kích thước heap */
-val size = maxHeap.size
-
-/* Kiểm tra heap rỗng */
-val isEmpty = maxHeap.isEmpty()
-
-/* Xây dựng heap từ một danh sách có sẵn */
-minHeap = PriorityQueue(mutableListOf(1, 3, 2, 5, 4))
 </code></pre></div></div></div>
 
 <h2>8.1.2 Triển khai Heap</h2>
@@ -238,7 +206,21 @@ minHeap = PriorityQueue(mutableListOf(1, 3, 2, 5, 4))
   <img src="dsa-assets/representation_of_heap.png" alt="Biểu diễn và lưu trữ Heap" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Ta có thể đóng gói công thức ánh xạ chỉ số thành các hàm để tiện sử dụng về sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def left(self, i: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Lấy chỉ số của nút con trái */
+private int left(int i) {
+    return 2 * i + 1;
+}
+
+/* Lấy chỉ số của nút con phải */
+private int right(int i) {
+    return 2 * i + 2;
+}
+
+/* Lấy chỉ số của nút cha */
+private int parent(int i) {
+    return (i - 1) / 2; // Chia lấy phần nguyên (làm tròn xuống)
+}
+</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def left(self, i: int) -&gt; int:
     """Lấy chỉ số của nút con trái"""
     return 2 * i + 1
 
@@ -263,20 +245,6 @@ int right(int i) {
 int parent(int i) {
     return (i - 1) / 2; // Chia lấy phần nguyên (làm tròn xuống)
 }
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Lấy chỉ số của nút con trái */
-private int left(int i) {
-    return 2 * i + 1;
-}
-
-/* Lấy chỉ số của nút con phải */
-private int right(int i) {
-    return 2 * i + 2;
-}
-
-/* Lấy chỉ số của nút cha */
-private int parent(int i) {
-    return (i - 1) / 2; // Chia lấy phần nguyên (làm tròn xuống)
-}
 </code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Lấy chỉ số của nút con trái */
 #left(i) {
     return 2 * i + 1;
@@ -291,42 +259,24 @@ private int parent(int i) {
 #parent(i) {
     return Math.floor((i - 1) / 2); // Chia lấy phần nguyên (làm tròn xuống)
 }
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Lấy chỉ số của nút con trái */
-private fun left(i: Int): Int {
-    return 2 * i + 1
-}
-
-/* Lấy chỉ số của nút con phải */
-private fun right(i: Int): Int {
-    return 2 * i + 2
-}
-
-/* Lấy chỉ số của nút cha */
-private fun parent(i: Int): Int {
-    return (i - 1) / 2 // Chia lấy phần nguyên (làm tròn xuống)
-}
 </code></pre></div></div></div>
 
 <h3>8.1.2.2 Truy cập đỉnh Heap</h3>
 <p>Đỉnh đống chính là nút gốc của cây nhị phân, cũng đồng thời là phần tử đầu tiên của danh sách:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def peek(self) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Truy cập đỉnh heap */
+public int peek() {
+    return maxHeap.get(0);
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func peek() -&gt; Int {
+        maxHeap[0]
+    }</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int peek() {
+    return _minHeap[0];
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def peek(self) -&gt; int:
     """Truy cập đỉnh heap"""
     return self.max_heap[0]
 </code></pre></div><div class="code-tab-content" data-lang="cpp"><pre data-lang="cpp"><code>/* Truy cập đỉnh heap */
 int peek() {
     return maxHeap[0];
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Truy cập đỉnh heap */
-public int peek() {
-    return maxHeap.get(0);
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Truy cập đỉnh heap */
-peek() {
-    return this.#maxHeap[0];
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Truy cập đỉnh heap */
-fun peek(): Int {
-    return maxHeap[0]
 }
 </code></pre></div></div></div>
 
@@ -352,7 +302,34 @@ fun peek(): Int {
   </div>
 </div>
 <p>Với tổng cộng $n$ nút, chiều cao cây là $O(\\log n)$. Do đó, số lần lặp tối đa của thao tác heapify là $O(\\log n)$, <strong>làm cho độ phức tạp thời gian của thao tác chèn phần tử là $O(\\log n)$</strong>. Đoạn mã như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def sift_up(self, i: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Bắt đầu từ nút i, heapify từ dưới lên trên */
+private void siftUp(int i) {
+    while (true) {
+        // Lấy nút cha của nút i
+        int p = parent(i);
+        // Khi "vượt qua nút gốc" hoặc "nút không cần sửa chữa nữa" thì kết thúc heapify
+        if (p &lt; 0 || maxHeap.get(i) &lt;= maxHeap.get(p))
+            break;
+        // Hoán đổi hai nút
+        swap(i, p);
+        // Vòng lặp heapify hướng lên trên
+        i = p;
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void siftUp(int i) {
+    while (true) {
+      // Get parent node of node i
+      int p = _parent(i);
+      // When "crossing root node" or "node needs no repair", end heapify
+      if (p &lt; 0 || _minHeap[i] &gt;= _minHeap[p]) {
+        break;
+      }
+      // Swap two nodes
+      _swap(i, p);
+      // Loop upward heapify
+      i = p;
+    }
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def sift_up(self, i: int):
     """Bắt đầu từ nút i, heapify từ dưới lên trên"""
     while True:
         # Lấy nút cha của nút i
@@ -376,47 +353,6 @@ void siftUp(int i) {
         swap(maxHeap[i], maxHeap[p]);
         // Vòng lặp heapify hướng lên trên
         i = p;
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Bắt đầu từ nút i, heapify từ dưới lên trên */
-private void siftUp(int i) {
-    while (true) {
-        // Lấy nút cha của nút i
-        int p = parent(i);
-        // Khi "vượt qua nút gốc" hoặc "nút không cần sửa chữa nữa" thì kết thúc heapify
-        if (p &lt; 0 || maxHeap.get(i) &lt;= maxHeap.get(p))
-            break;
-        // Hoán đổi hai nút
-        swap(i, p);
-        // Vòng lặp heapify hướng lên trên
-        i = p;
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Bắt đầu từ nút i, heapify từ dưới lên trên */
-#siftUp(i) {
-    while (true) {
-        // Lấy nút cha của nút i
-        const p = this.#parent(i);
-        // Khi "vượt qua nút gốc" hoặc "nút không cần sửa chữa nữa" thì kết thúc heapify
-        if (p &lt; 0 || this.#maxHeap[i] &lt;= this.#maxHeap[p]) break;
-        // Hoán đổi hai nút
-        this.#swap(i, p);
-        // Vòng lặp heapify hướng lên trên
-        i = p;
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Bắt đầu từ nút i, heapify từ dưới lên trên */
-private fun siftUp(it: Int) {
-    var i = it
-    while (true) {
-        // Lấy nút cha của nút i
-        val p = parent(i)
-        // Khi "vượt qua nút gốc" hoặc "nút không cần sửa chữa nữa" thì kết thúc heapify
-        if (p &lt; 0 || maxHeap[i] &lt;= maxHeap[p]) break
-        // Hoán đổi hai nút
-        swap(i, p)
-        // Vòng lặp heapify hướng lên trên
-        i = p
     }
 }
 </code></pre></div></div></div>
@@ -449,7 +385,40 @@ private fun siftUp(it: Int) {
   </div>
 </div>
 <p>Tương tự thao tác chèn phần tử, độ phức tạp thời gian của thao tác xóa đỉnh heap cũng là $O(\\log n)$. Đoạn mã như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def sift_down(self, i: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Bắt đầu từ nút i, heapify từ trên xuống dưới */
+private void siftDown(int i) {
+    while (true) {
+        // Nếu nút i là lớn nhất hoặc chỉ số l, r vượt biên, không cần heapify tiếp, thoát
+        int l = left(i), r = right(i), ma = i;
+        if (l &lt; size() &amp;&amp; maxHeap.get(l) &gt; maxHeap.get(ma))
+            ma = l;
+        if (r &lt; size() &amp;&amp; maxHeap.get(r) &gt; maxHeap.get(ma))
+            ma = r;
+        // Hoán đổi hai nút
+        if (ma == i)
+            break;
+        // Hoán đổi hai nút
+        swap(i, ma);
+        // Vòng lặp heapify hướng xuống dưới
+        i = ma;
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void siftDown(int i) {
+    while (true) {
+      // If node i is largest or indices l, r are out of bounds, no need to continue heapify, break
+      int l = _left(i);
+      int r = _right(i);
+      int mi = i;
+      if (l &lt; size() &amp;&amp; _minHeap[l] &lt; _minHeap[mi]) mi = l;
+      if (r &lt; size() &amp;&amp; _minHeap[r] &lt; _minHeap[mi]) mi = r;
+      // Swap two nodes
+      if (mi == i) break;
+      // Swap two nodes
+      _swap(i, mi);
+      // Loop downwards heapification
+      i = mi;
+    }
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def sift_down(self, i: int):
     """Bắt đầu từ nút i, heapify từ trên xuống dưới"""
     while True:
         # Tìm nút có giá trị lớn nhất trong số i, l, r, gọi là ma
@@ -480,59 +449,6 @@ void siftDown(int i) {
         swap(maxHeap[i], maxHeap[ma]);
         // Vòng lặp heapify hướng xuống dưới
         i = ma;
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Bắt đầu từ nút i, heapify từ trên xuống dưới */
-private void siftDown(int i) {
-    while (true) {
-        // Nếu nút i là lớn nhất hoặc chỉ số l, r vượt biên, không cần heapify tiếp, thoát
-        int l = left(i), r = right(i), ma = i;
-        if (l &lt; size() &amp;&amp; maxHeap.get(l) &gt; maxHeap.get(ma))
-            ma = l;
-        if (r &lt; size() &amp;&amp; maxHeap.get(r) &gt; maxHeap.get(ma))
-            ma = r;
-        // Hoán đổi hai nút
-        if (ma == i)
-            break;
-        // Hoán đổi hai nút
-        swap(i, ma);
-        // Vòng lặp heapify hướng xuống dưới
-        i = ma;
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Bắt đầu từ nút i, heapify từ trên xuống dưới */
-#siftDown(i) {
-    while (true) {
-        // Nếu nút i là lớn nhất hoặc chỉ số l, r vượt biên, không cần heapify tiếp, thoát
-        const l = this.#left(i),
-            r = this.#right(i);
-        let ma = i;
-        if (l &lt; this.size() &amp;&amp; this.#maxHeap[l] &gt; this.#maxHeap[ma]) ma = l;
-        if (r &lt; this.size() &amp;&amp; this.#maxHeap[r] &gt; this.#maxHeap[ma]) ma = r;
-        // Hoán đổi hai nút
-        if (ma === i) break;
-        // Hoán đổi hai nút
-        this.#swap(i, ma);
-        // Vòng lặp heapify hướng xuống dưới
-        i = ma;
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Bắt đầu từ nút i, heapify từ trên xuống dưới */
-private fun siftDown(it: Int) {
-    var i = it
-    while (true) {
-        // Nếu nút i là lớn nhất hoặc chỉ số l, r vượt biên, không cần heapify tiếp, thoát
-        val l = left(i)
-        val r = right(i)
-        var ma = i
-        if (l &lt; size() &amp;&amp; maxHeap[l] &gt; maxHeap[ma]) ma = l
-        if (r &lt; size() &amp;&amp; maxHeap[r] &gt; maxHeap[ma]) ma = r
-        // Hoán đổi hai nút
-        if (ma == i) break
-        // Hoán đổi hai nút
-        swap(i, ma)
-        // Vòng lặp heapify hướng xuống dưới
-        i = ma
     }
 }
 </code></pre></div></div></div>
@@ -1134,7 +1050,16 @@ Similar to the element insertion operation, the time complexity of the heap top 
 <p><strong>Sau khi heapify một nút, cây con có gốc là nút đó trở thành một sub-heap hợp lệ</strong>. Vì ta duyệt theo thứ tự ngược lại, heap được xây dựng "từ dưới lên trên".</p>
 <p>Sở dĩ chọn duyệt theo thứ tự ngược lại là vì điều đó đảm bảo các cây con bên dưới nút hiện tại đã là các sub-heap hợp lệ, nên việc heapify nút hiện tại mới thực sự có hiệu quả.</p>
 <p>Đáng chú ý là <strong>vì các nút lá không có con, nên chúng vốn dĩ đã là các sub-heap hợp lệ và không cần heapify</strong>. Như trong đoạn mã dưới đây, nút không phải nút lá cuối cùng chính là nút cha của nút cuối cùng; ta bắt đầu từ nút đó và heapify trong khi duyệt ngược lại:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def __init__(self, nums: list[int]):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Hàm khởi tạo, xây dựng heap dựa trên danh sách đầu vào */
+public MaxHeap(List&lt;Integer&gt; nums) {
+    // Thêm các phần tử của danh sách vào heap giữ nguyên như ban đầu
+    maxHeap = new ArrayList&lt;&gt;(nums);
+    // Heapify hóa tất cả các nút, ngoại trừ nút lá
+    for (int i = parent(size() - 1); i &gt;= 0; i--) {
+        siftDown(i);
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def __init__(self, nums: list[int]):
     """Hàm khởi tạo, xây dựng heap dựa trên danh sách đầu vào"""
     # Thêm các phần tử của danh sách vào heap giữ nguyên như ban đầu
     self.max_heap = nums
@@ -1150,15 +1075,6 @@ MaxHeap(vector&lt;int&gt; nums) {
         siftDown(i);
     }
 }
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Hàm khởi tạo, xây dựng heap dựa trên danh sách đầu vào */
-public MaxHeap(List&lt;Integer&gt; nums) {
-    // Thêm các phần tử của danh sách vào heap giữ nguyên như ban đầu
-    maxHeap = new ArrayList&lt;&gt;(nums);
-    // Heapify hóa tất cả các nút, ngoại trừ nút lá
-    for (int i = parent(size() - 1); i &gt;= 0; i--) {
-        siftDown(i);
-    }
-}
 </code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Hàm khởi tạo, xây dựng heap rỗng hoặc từ danh sách đầu vào */
 constructor(nums) {
     // Thêm các phần tử của danh sách vào heap giữ nguyên như ban đầu
@@ -1166,15 +1082,6 @@ constructor(nums) {
     // Heapify hóa tất cả các nút, ngoại trừ nút lá
     for (let i = this.#parent(this.size() - 1); i &gt;= 0; i--) {
         this.#siftDown(i);
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Hàm khởi tạo, xây dựng heap dựa trên danh sách đầu vào */
-init {
-    // Thêm các phần tử của danh sách vào heap giữ nguyên như ban đầu
-    maxHeap.addAll(nums!!)
-    // Heapify hóa tất cả các nút, ngoại trừ nút lá
-    for (i in parent(size() - 1) downTo 0) {
-        siftDown(i)
     }
 }
 </code></pre></div></div></div>
@@ -1386,7 +1293,49 @@ Furthermore, a perfect binary tree with height $h$ has $n = 2^{h+1} - 1$ nodes, 
   </div>
 </div>
 <p>Đoạn mã ví dụ như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def top_k_heap(nums: list[int], k: int) -&gt; list[int]:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Dựa vào heap để tìm k phần tử lớn nhất trong mảng */
+static Queue&lt;Integer&gt; topKHeap(int[] nums, int k) {
+    // Module heapq của Python mặc định triển khai Min Heap
+    Queue&lt;Integer&gt; heap = new PriorityQueue&lt;Integer&gt;();
+    // Đưa k phần tử đầu tiên của mảng vào heap
+    for (int i = 0; i &lt; k; i++) {
+        heap.offer(nums[i]);
+    }
+    // Bắt đầu từ phần tử thứ (k+1), duy trì độ dài heap luôn là k
+    for (int i = k; i &lt; nums.length; i++) {
+        // Nếu phần tử hiện tại lớn hơn đỉnh heap, đỉnh heap rời khỏi heap, phần tử hiện tại vào heap
+        if (nums[i] &gt; heap.peek()) {
+            heap.poll();
+            heap.offer(nums[i]);
+        }
+    }
+    return heap;
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func topKHeap(nums: [Int], k: Int) -&gt; [Int] {
+    // Initialize min heap and build heap with first k elements
+    var heap = Heap(nums.prefix(k))
+    // Starting from the (k+1)th element, maintain heap length as k
+    for i in nums.indices.dropFirst(k) {
+        // If current element is greater than top element, top element exits heap, current element enters heap
+        if nums[i] &gt; heap.min()! {
+            _ = heap.removeMin()
+            heap.insert(nums[i])
+        }
+    }
+    return heap.unordered
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>MinHeap topKHeap(List&lt;int&gt; nums, int k) {
+  // Initialize min heap, push first k elements of array to heap
+  MinHeap heap = MinHeap(nums.sublist(0, k));
+  // Starting from the (k+1)th element, maintain heap length as k
+  for (int i = k; i &lt; nums.length; i++) {
+    // If current element is greater than top element, top element exits heap, current element enters heap
+    if (nums[i] &gt; heap.peek()) {
+      heap.pop();
+      heap.push(nums[i]);
+    }
+  }
+  return heap;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def top_k_heap(nums: list[int], k: int) -&gt; list[int]:
     """Dựa vào heap để tìm k phần tử lớn nhất trong mảng"""
     # Khởi tạo Min Heap
     heap = []
@@ -1417,86 +1366,6 @@ priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; topKHeap(vector
         }
     }
     return heap;
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Dựa vào heap để tìm k phần tử lớn nhất trong mảng */
-static Queue&lt;Integer&gt; topKHeap(int[] nums, int k) {
-    // Module heapq của Python mặc định triển khai Min Heap
-    Queue&lt;Integer&gt; heap = new PriorityQueue&lt;Integer&gt;();
-    // Đưa k phần tử đầu tiên của mảng vào heap
-    for (int i = 0; i &lt; k; i++) {
-        heap.offer(nums[i]);
-    }
-    // Bắt đầu từ phần tử thứ (k+1), duy trì độ dài heap luôn là k
-    for (int i = k; i &lt; nums.length; i++) {
-        // Nếu phần tử hiện tại lớn hơn đỉnh heap, đỉnh heap rời khỏi heap, phần tử hiện tại vào heap
-        if (nums[i] &gt; heap.peek()) {
-            heap.poll();
-            heap.offer(nums[i]);
-        }
-    }
-    return heap;
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Phần tử vào Min Heap (mô phỏng bằng Max Heap đã đổi dấu) */
-function pushMinHeap(maxHeap, val) {
-    // Đảo dấu phần tử
-    maxHeap.push(-val);
-}
-
-/* Phần tử rời khỏi Min Heap */
-function popMinHeap(maxHeap) {
-    // Đảo dấu phần tử
-    return -maxHeap.pop();
-}
-
-/* Truy cập đỉnh Min Heap */
-function peekMinHeap(maxHeap) {
-    // Đảo dấu phần tử
-    return -maxHeap.peek();
-}
-
-/* Trích xuất phần tử từ Min Heap */
-function getMinHeap(maxHeap) {
-    // Đảo dấu phần tử
-    return maxHeap.getMaxHeap().map((num) =&gt; -num);
-}
-
-/* Dựa vào heap để tìm k phần tử lớn nhất trong mảng */
-function topKHeap(nums, k) {
-    // Module heapq của Python mặc định triển khai Min Heap
-    // Lưu ý: ta đảo dấu tất cả phần tử trong heap để mô phỏng Min Heap bằng Max Heap
-    const maxHeap = new MaxHeap([]);
-    // Đưa k phần tử đầu tiên của mảng vào heap
-    for (let i = 0; i &lt; k; i++) {
-        pushMinHeap(maxHeap, nums[i]);
-    }
-    // Bắt đầu từ phần tử thứ (k+1), duy trì độ dài heap luôn là k
-    for (let i = k; i &lt; nums.length; i++) {
-        // Nếu phần tử hiện tại lớn hơn đỉnh heap, đỉnh heap rời khỏi heap, phần tử hiện tại vào heap
-        if (nums[i] &gt; peekMinHeap(maxHeap)) {
-            popMinHeap(maxHeap);
-            pushMinHeap(maxHeap, nums[i]);
-        }
-    }
-    // Trả về các phần tử trong heap
-    return getMinHeap(maxHeap);
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Dựa vào heap để tìm k phần tử lớn nhất trong mảng */
-fun topKHeap(nums: IntArray, k: Int): Queue&lt;Int&gt; {
-    // Module heapq của Python mặc định triển khai Min Heap
-    val heap = PriorityQueue&lt;Int&gt;()
-    // Đưa k phần tử đầu tiên của mảng vào heap
-    for (i in 0..&lt;k) {
-        heap.offer(nums[i])
-    }
-    // Bắt đầu từ phần tử thứ (k+1), duy trì độ dài heap luôn là k
-    for (i in k..&lt;nums.size) {
-        // Nếu phần tử hiện tại lớn hơn đỉnh heap, đỉnh heap rời khỏi heap, phần tử hiện tại vào heap
-        if (nums[i] &gt; heap.peek()) {
-            heap.poll()
-            heap.offer(nums[i])
-        }
-    }
-    return heap
 }
 </code></pre></div></div></div>
 <p>Tổng cộng có $n$ vòng thêm và xóa phần tử trên heap được thực hiện, với độ dài tối đa của heap là $k$, do đó độ phức tạp thời gian là $O(n \\log k)$. Phương pháp này rất hiệu quả; khi $k$ nhỏ, độ phức tạp thời gian gần tiệm cận $O(n)$; khi $k$ lớn, độ phức tạp thời gian không vượt quá $O(n \\log n)$.</p>

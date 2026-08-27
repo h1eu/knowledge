@@ -176,7 +176,51 @@ Next, we will examine various sorting algorithms and analyze their advantages an
 </div>
 
 <p>Trong đoạn mã, ta dùng $k$ để theo dõi phần tử nhỏ nhất trong khoảng chưa sắp xếp:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def selection_sort(nums: list[int]):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp chọn */
+static void selectionSort(int[] nums) {
+    int n = nums.length;
+    // Vòng lặp ngoài: khoảng chưa sắp xếp là [i, n-1]
+    for (int i = 0; i &lt; n - 1; i++) {
+        // Vòng lặp trong: tìm phần tử nhỏ nhất trong khoảng chưa sắp xếp
+        int k = i;
+        for (int j = i + 1; j &lt; n; j++) {
+            if (nums[j] &lt; nums[k])
+                k = j; // Ghi nhớ chỉ mục của phần tử nhỏ nhất
+        }
+        // Hoán đổi phần tử nhỏ nhất với phần tử đầu tiên của khoảng chưa sắp xếp
+        int temp = nums[i];
+        nums[i] = nums[k];
+        nums[k] = temp;
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func selectionSort(nums: inout [Int]) {
+    // Outer loop: unsorted interval is [i, n-1]
+    for i in nums.indices.dropLast() {
+        // Inner loop: find the smallest element within the unsorted interval
+        var k = i
+        for j in nums.indices.dropFirst(i + 1) {
+            if nums[j] &lt; nums[k] {
+                k = j // Record the index of the smallest element
+            }
+        }
+        // Swap the smallest element with the first element of the unsorted interval
+        nums.swapAt(i, k)
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void selectionSort(List&lt;int&gt; nums) {
+  int n = nums.length;
+  // Outer loop: unsorted interval is [i, n-1]
+  for (int i = 0; i &lt; n - 1; i++) {
+    // Inner loop: find the smallest element within the unsorted interval
+    int k = i;
+    for (int j = i + 1; j &lt; n; j++) {
+      if (nums[j] &lt; nums[k]) k = j; // Record the index of the smallest element
+    }
+    // Swap the smallest element with the first element of the unsorted interval
+    int temp = nums[i];
+    nums[i] = nums[k];
+    nums[k] = temp;
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def selection_sort(nums: list[int]):
     """Sắp xếp chọn"""
     n = len(nums)
     # Vòng lặp ngoài: khoảng chưa sắp xếp là [i, n-1]
@@ -201,56 +245,6 @@ void selectionSort(vector&lt;int&gt; &amp;nums) {
         }
         // Hoán đổi phần tử nhỏ nhất với phần tử đầu tiên của khoảng chưa sắp xếp
         swap(nums[i], nums[k]);
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp chọn */
-static void selectionSort(int[] nums) {
-    int n = nums.length;
-    // Vòng lặp ngoài: khoảng chưa sắp xếp là [i, n-1]
-    for (int i = 0; i &lt; n - 1; i++) {
-        // Vòng lặp trong: tìm phần tử nhỏ nhất trong khoảng chưa sắp xếp
-        int k = i;
-        for (int j = i + 1; j &lt; n; j++) {
-            if (nums[j] &lt; nums[k])
-                k = j; // Ghi nhớ chỉ mục của phần tử nhỏ nhất
-        }
-        // Hoán đổi phần tử nhỏ nhất với phần tử đầu tiên của khoảng chưa sắp xếp
-        int temp = nums[i];
-        nums[i] = nums[k];
-        nums[k] = temp;
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Sắp xếp chọn */
-function selectionSort(nums) {
-    let n = nums.length;
-    // Vòng lặp ngoài: khoảng chưa sắp xếp là [i, n-1]
-    for (let i = 0; i &lt; n - 1; i++) {
-        // Vòng lặp trong: tìm phần tử nhỏ nhất trong khoảng chưa sắp xếp
-        let k = i;
-        for (let j = i + 1; j &lt; n; j++) {
-            if (nums[j] &lt; nums[k]) {
-                k = j; // Ghi nhớ chỉ mục của phần tử nhỏ nhất
-            }
-        }
-        // Hoán đổi phần tử nhỏ nhất với phần tử đầu tiên của khoảng chưa sắp xếp
-        [nums[i], nums[k]] = [nums[k], nums[i]];
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Sắp xếp chọn */
-fun selectionSort(nums: IntArray) {
-    val n = nums.size
-    // Vòng lặp ngoài: khoảng chưa sắp xếp là [i, n-1]
-    for (i in 0..&lt;n - 1) {
-        var k = i
-        // Vòng lặp trong: tìm phần tử nhỏ nhất trong khoảng chưa sắp xếp
-        for (j in i + 1..&lt;n) {
-            if (nums[j] &lt; nums[k])
-                k = j // Ghi nhớ chỉ mục của phần tử nhỏ nhất
-        }
-        // Hoán đổi phần tử nhỏ nhất với phần tử đầu tiên của khoảng chưa sắp xếp
-        val temp = nums[i]
-        nums[i] = nums[k]
-        nums[k] = temp
     }
 }
 </code></pre></div></div></div>
@@ -392,21 +386,91 @@ In the code, we use $k$ to track the smallest element within the unsorted interv
   <img src="dsa-assets/bubble_sort_overview.png" alt="Quy trình sắp xếp nổi bọt" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Đoạn mã ví dụ như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def bubble_sort(nums: list[int]):
-    """Sắp xếp nổi bọt"""
-    n = len(nums)
-    # Vòng lặp ngoài: khoảng chưa sắp xếp là [0, i]
-    for i in range(n - 1, 0, -1):
-        # Vòng lặp trong: đẩy phần tử lớn nhất trong khoảng [0, i] về cuối khoảng đó
-        for j in range(i):
-            if nums[j] &gt; nums[j + 1]:
-                # Hoán đổi nums[j] và nums[j + 1]
-                nums[j], nums[j + 1] = nums[j + 1], nums[j]
-</code></pre></div></div></div>
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="swift"><pre data-lang="swift"><code>func bubbleSort(nums: inout [Int]) {
+    // Outer loop: unsorted range is [0, i]
+    for i in nums.indices.dropFirst().reversed() {
+        // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
+        for j in 0 ..&lt; i {
+            if nums[j] &gt; nums[j + 1] {
+                // Swap nums[j] and nums[j + 1]
+                nums.swapAt(j, j + 1)
+            }
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void bubbleSort(List&lt;int&gt; nums) {
+  // Outer loop: unsorted range is [0, i]
+  for (int i = nums.length - 1; i &gt; 0; i--) {
+    // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
+    for (int j = 0; j &lt; i; j++) {
+      if (nums[j] &gt; nums[j + 1]) {
+        // Swap nums[j] and nums[j + 1]
+        int tmp = nums[j];
+        nums[j] = nums[j + 1];
+        nums[j + 1] = tmp;
+      }
+    }
+  }
+}</code></pre></div></div></div>
 <h2>11.3.2 Tối ưu hóa Hiệu suất</h2>
 <p>Ta có thể quan sát thấy rằng nếu không có hoán đổi nào xảy ra trong một vòng "nổi bọt", mảng đã được sắp xếp và thuật toán có thể trả về ngay lập tức. Do đó, ta có thể thêm một cờ <code>flag</code> để phát hiện tình huống này và dừng lại ngay khi nó xảy ra.</p>
 <p>Sau khi tối ưu này, độ phức tạp thời gian trường hợp xấu nhất và trung bình của sắp xếp nổi bọt vẫn là $O(n^2)$; tuy nhiên, khi mảng đầu vào đã được sắp xếp sẵn, độ phức tạp thời gian trường hợp tốt nhất trở thành $O(n)$.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def bubble_sort(nums: list[int]):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp nổi bọt */
+static void bubbleSort(int[] nums) {
+    // Vòng lặp ngoài: khoảng chưa sắp xếp là [0, i]
+    for (int i = nums.length - 1; i &gt; 0; i--) {
+        // Vòng lặp trong: đẩy phần tử lớn nhất trong khoảng [0, i] về cuối khoảng đó
+        for (int j = 0; j &lt; i; j++) {
+            if (nums[j] &gt; nums[j + 1]) {
+                int tmp = nums[j];
+                nums[j] = nums[j + 1];
+                nums[j + 1] = tmp;
+            }
+        }
+    }
+}
+
+/* Sắp xếp nổi bọt (tối ưu bằng flag) */
+static void bubbleSortWithFlag(int[] nums) {
+    // Vòng lặp ngoài: khoảng chưa sắp xếp là [0, i]
+    for (int i = nums.length - 1; i &gt; 0; i--) {
+        boolean flag = false; // Khởi tạo flag
+        for (int j = 0; j &lt; i; j++) {
+            if (nums[j] &gt; nums[j + 1]) {
+                int tmp = nums[j];
+                nums[j] = nums[j + 1];
+                nums[j + 1] = tmp;
+                flag = true; // Ghi nhận có hoán đổi
+            }
+        }
+        if (!flag)
+            break; // Vòng "nổi bọt" này không có hoán đổi nào, thoát ngay
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func bubbleSort(nums: inout [Int]) {
+    // Outer loop: unsorted range is [0, i]
+    for i in nums.indices.dropFirst().reversed() {
+        // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
+        for j in 0 ..&lt; i {
+            if nums[j] &gt; nums[j + 1] {
+                // Swap nums[j] and nums[j + 1]
+                nums.swapAt(j, j + 1)
+            }
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void bubbleSort(List&lt;int&gt; nums) {
+  // Outer loop: unsorted range is [0, i]
+  for (int i = nums.length - 1; i &gt; 0; i--) {
+    // Inner loop: swap the largest element in the unsorted range [0, i] to the rightmost end of that range
+    for (int j = 0; j &lt; i; j++) {
+      if (nums[j] &gt; nums[j + 1]) {
+        // Swap nums[j] and nums[j + 1]
+        int tmp = nums[j];
+        nums[j] = nums[j + 1];
+        nums[j + 1] = tmp;
+      }
+    }
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def bubble_sort(nums: list[int]):
     """Sắp xếp nổi bọt"""
     n = len(nums)
     # Vòng lặp ngoài: khoảng chưa sắp xếp là [0, i]
@@ -460,100 +524,6 @@ void bubbleSortWithFlag(vector&lt;int&gt; &amp;nums) {
         }
         if (!flag)
             break; // Vòng "nổi bọt" này không có hoán đổi nào, thoát ngay
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp nổi bọt */
-static void bubbleSort(int[] nums) {
-    // Vòng lặp ngoài: khoảng chưa sắp xếp là [0, i]
-    for (int i = nums.length - 1; i &gt; 0; i--) {
-        // Vòng lặp trong: đẩy phần tử lớn nhất trong khoảng [0, i] về cuối khoảng đó
-        for (int j = 0; j &lt; i; j++) {
-            if (nums[j] &gt; nums[j + 1]) {
-                int tmp = nums[j];
-                nums[j] = nums[j + 1];
-                nums[j + 1] = tmp;
-            }
-        }
-    }
-}
-
-/* Sắp xếp nổi bọt (tối ưu bằng flag) */
-static void bubbleSortWithFlag(int[] nums) {
-    // Vòng lặp ngoài: khoảng chưa sắp xếp là [0, i]
-    for (int i = nums.length - 1; i &gt; 0; i--) {
-        boolean flag = false; // Khởi tạo flag
-        for (int j = 0; j &lt; i; j++) {
-            if (nums[j] &gt; nums[j + 1]) {
-                int tmp = nums[j];
-                nums[j] = nums[j + 1];
-                nums[j + 1] = tmp;
-                flag = true; // Ghi nhận có hoán đổi
-            }
-        }
-        if (!flag)
-            break; // Vòng "nổi bọt" này không có hoán đổi nào, thoát ngay
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Sắp xếp nổi bọt */
-function bubbleSort(nums) {
-    // Vòng lặp ngoài: khoảng chưa sắp xếp là [0, i]
-    for (let i = nums.length - 1; i &gt; 0; i--) {
-        // Vòng lặp trong: đẩy phần tử lớn nhất trong khoảng [0, i] về cuối khoảng đó
-        for (let j = 0; j &lt; i; j++) {
-            if (nums[j] &gt; nums[j + 1]) {
-                let tmp = nums[j];
-                nums[j] = nums[j + 1];
-                nums[j + 1] = tmp;
-            }
-        }
-    }
-}
-
-/* Sắp xếp nổi bọt (tối ưu bằng flag) */
-function bubbleSortWithFlag(nums) {
-    // Vòng lặp ngoài: khoảng chưa sắp xếp là [0, i]
-    for (let i = nums.length - 1; i &gt; 0; i--) {
-        let flag = false; // Khởi tạo flag
-        for (let j = 0; j &lt; i; j++) {
-            if (nums[j] &gt; nums[j + 1]) {
-                let tmp = nums[j];
-                nums[j] = nums[j + 1];
-                nums[j + 1] = tmp;
-                flag = true; // Ghi nhận có hoán đổi
-            }
-        }
-        if (!flag) break; // Vòng "nổi bọt" này không có hoán đổi nào, thoát ngay
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Sắp xếp nổi bọt */
-fun bubbleSort(nums: IntArray) {
-    // Vòng lặp ngoài: khoảng chưa sắp xếp là [0, i]
-    for (i in nums.size - 1 downTo 1) {
-        // Vòng lặp trong: đẩy phần tử lớn nhất trong khoảng [0, i] về cuối khoảng đó
-        for (j in 0..&lt;i) {
-            if (nums[j] &gt; nums[j + 1]) {
-                val temp = nums[j]
-                nums[j] = nums[j + 1]
-                nums[j + 1] = temp
-            }
-        }
-    }
-}
-
-/* Sắp xếp nổi bọt (tối ưu bằng flag) */
-fun bubbleSortWithFlag(nums: IntArray) {
-    // Vòng lặp ngoài: khoảng chưa sắp xếp là [0, i]
-    for (i in nums.size - 1 downTo 1) {
-        var flag = false // Khởi tạo flag
-        for (j in 0..&lt;i) {
-            if (nums[j] &gt; nums[j + 1]) {
-                val temp = nums[j]
-                nums[j] = nums[j + 1]
-                nums[j + 1] = temp
-                flag = true // Ghi nhận có hoán đổi
-            }
-        }
-        if (!flag) break // Vòng "nổi bọt" này không có hoán đổi nào, thoát ngay
     }
 }
 </code></pre></div></div></div>
@@ -680,7 +650,43 @@ After this optimization, the worst-case and average-case time complexities of bu
   <img src="dsa-assets/insertion_sort_overview.png" alt="Quy trình sắp xếp chèn" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Đoạn mã ví dụ như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def insertion_sort(nums: list[int]):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp chèn */
+static void insertionSort(int[] nums) {
+    // Vòng lặp ngoài: khoảng đã sắp xếp là [0, i-1]
+    for (int i = 1; i &lt; nums.length; i++) {
+        int base = nums[i], j = i - 1;
+        // Vòng lặp trong: chèn base vào đúng vị trí trong khoảng đã sắp xếp [0, i-1]
+        while (j &gt;= 0 &amp;&amp; nums[j] &gt; base) {
+            nums[j + 1] = nums[j]; // Dịch nums[j] sang phải một vị trí
+            j--;
+        }
+        nums[j + 1] = base;        // Gán base vào đúng vị trí
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func insertionSort(nums: inout [Int]) {
+    // Outer loop: sorted interval is [0, i-1]
+    for i in nums.indices.dropFirst() {
+        let base = nums[i]
+        var j = i - 1
+        // Inner loop: insert base into the correct position within the sorted interval [0, i-1]
+        while j &gt;= 0, nums[j] &gt; base {
+            nums[j + 1] = nums[j] // Move nums[j] to the right by one position
+            j -= 1
+        }
+        nums[j + 1] = base // Assign base to the correct position
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void insertionSort(List&lt;int&gt; nums) {
+  // Outer loop: sorted interval is [0, i-1]
+  for (int i = 1; i &lt; nums.length; i++) {
+    int base = nums[i], j = i - 1;
+    // Inner loop: insert base into the correct position within the sorted interval [0, i-1]
+    while (j &gt;= 0 &amp;&amp; nums[j] &gt; base) {
+      nums[j + 1] = nums[j]; // Move nums[j] to the right by one position
+      j--;
+    }
+    nums[j + 1] = base; // Assign base to the correct position
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def insertion_sort(nums: list[int]):
     """Sắp xếp chèn"""
     # Vòng lặp ngoài: khoảng đã sắp xếp là [0, i-1]
     for i in range(1, len(nums)):
@@ -702,47 +708,6 @@ void insertionSort(vector&lt;int&gt; &amp;nums) {
             j--;
         }
         nums[j + 1] = base; // Gán base vào đúng vị trí
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp chèn */
-static void insertionSort(int[] nums) {
-    // Vòng lặp ngoài: khoảng đã sắp xếp là [0, i-1]
-    for (int i = 1; i &lt; nums.length; i++) {
-        int base = nums[i], j = i - 1;
-        // Vòng lặp trong: chèn base vào đúng vị trí trong khoảng đã sắp xếp [0, i-1]
-        while (j &gt;= 0 &amp;&amp; nums[j] &gt; base) {
-            nums[j + 1] = nums[j]; // Dịch nums[j] sang phải một vị trí
-            j--;
-        }
-        nums[j + 1] = base;        // Gán base vào đúng vị trí
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Sắp xếp chèn */
-function insertionSort(nums) {
-    // Vòng lặp ngoài: khoảng đã sắp xếp là [0, i-1]
-    for (let i = 1; i &lt; nums.length; i++) {
-        let base = nums[i],
-            j = i - 1;
-        // Vòng lặp trong: chèn base vào đúng vị trí trong khoảng đã sắp xếp [0, i-1]
-        while (j &gt;= 0 &amp;&amp; nums[j] &gt; base) {
-            nums[j + 1] = nums[j]; // Dịch nums[j] sang phải một vị trí
-            j--;
-        }
-        nums[j + 1] = base; // Gán base vào đúng vị trí
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Sắp xếp chèn */
-fun insertionSort(nums: IntArray) {
-    // Vòng lặp ngoài: khoảng đã sắp xếp là [0, i-1]
-    for (i in nums.indices) {
-        val base = nums[i]
-        var j = i - 1
-        // Vòng lặp trong: chèn base vào đúng vị trí trong khoảng đã sắp xếp [0, i-1]
-        while (j &gt;= 0 &amp;&amp; nums[j] &gt; base) {
-            nums[j + 1] = nums[j] // Dịch nums[j] sang phải một vị trí
-            j--
-        }
-        nums[j + 1] = base        // Gán base vào đúng vị trí
     }
 }
 </code></pre></div></div></div>
@@ -883,7 +848,36 @@ Although bubble sort, selection sort, and insertion sort all have a time complex
     <p>Bản chất của phân vùng lính canh là đơn giản hóa bài toán sắp xếp một mảng dài thành bài toán sắp xếp hai mảng ngắn hơn.</p>
   </div>
 </div>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def partition(self, nums: list[int], left: int, right: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Phân vùng lính canh (Sentinel partition) */
+static int partition(int[] nums, int left, int right) {
+    // Dùng nums[left] làm pivot
+    int i = left, j = right;
+    while (i &lt; j) {
+        while (i &lt; j &amp;&amp; nums[j] &gt;= nums[left])
+            j--;          // Tìm từ phải sang trái phần tử đầu tiên nhỏ hơn pivot
+        while (i &lt; j &amp;&amp; nums[i] &lt;= nums[left])
+            i++;          // Tìm từ trái sang phải phần tử đầu tiên lớn hơn pivot
+        swap(nums, i, j); // Hoán đổi hai phần tử
+    }
+    swap(nums, i, left);  // Hoán đổi pivot vào ranh giới giữa hai mảng con
+    return i;             // Trả về chỉ mục của pivot
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func partition(nums: inout [Int], left: Int, right: Int) -&gt; Int {
+    // Use nums[left] as the pivot
+    var i = left
+    var j = right
+    while i &lt; j {
+        while i &lt; j, nums[j] &gt;= nums[left] {
+            j -= 1 // Search from right to left for the first element smaller than the pivot
+        }
+        while i &lt; j, nums[i] &lt;= nums[left] {
+            i += 1 // Search from left to right for the first element greater than the pivot
+        }
+        nums.swapAt(i, j) // Swap these two elements
+    }
+    nums.swapAt(i, left) // Swap the pivot to the boundary between the two subarrays
+    return i // Return the index of the pivot
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def partition(self, nums: list[int], left: int, right: int) -&gt; int:
     """Phân vùng lính canh (Sentinel partition)"""
     # Dùng nums[left] làm pivot
     i, j = left, right
@@ -911,52 +905,6 @@ int partition(vector&lt;int&gt; &amp;nums, int left, int right) {
     swap(nums[i], nums[left]);  // Hoán đổi pivot vào ranh giới giữa hai mảng con
     return i;                   // Trả về chỉ mục của pivot
 }
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Phân vùng lính canh (Sentinel partition) */
-static int partition(int[] nums, int left, int right) {
-    // Dùng nums[left] làm pivot
-    int i = left, j = right;
-    while (i &lt; j) {
-        while (i &lt; j &amp;&amp; nums[j] &gt;= nums[left])
-            j--;          // Tìm từ phải sang trái phần tử đầu tiên nhỏ hơn pivot
-        while (i &lt; j &amp;&amp; nums[i] &lt;= nums[left])
-            i++;          // Tìm từ trái sang phải phần tử đầu tiên lớn hơn pivot
-        swap(nums, i, j); // Hoán đổi hai phần tử
-    }
-    swap(nums, i, left);  // Hoán đổi pivot vào ranh giới giữa hai mảng con
-    return i;             // Trả về chỉ mục của pivot
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Phân vùng lính canh (Sentinel partition) */
-partition(nums, left, right) {
-    // Dùng nums[left] làm pivot
-    let i = left,
-        j = right;
-    while (i &lt; j) {
-        while (i &lt; j &amp;&amp; nums[j] &gt;= nums[left]) {
-            j -= 1; // Tìm từ phải sang trái phần tử đầu tiên nhỏ hơn pivot
-        }
-        while (i &lt; j &amp;&amp; nums[i] &lt;= nums[left]) {
-            i += 1; // Tìm từ trái sang phải phần tử đầu tiên lớn hơn pivot
-        }
-        this.swap(nums, i, j); // Hoán đổi hai phần tử
-    }
-    this.swap(nums, i, left); // Hoán đổi pivot vào ranh giới giữa hai mảng con
-    return i; // Trả về chỉ mục của pivot
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Phân vùng lính canh (Sentinel partition) */
-fun partition(nums: IntArray, left: Int, right: Int): Int {
-    // Dùng nums[left] làm pivot
-    var i = left
-    var j = right
-    while (i &lt; j) {
-        while (i &lt; j &amp;&amp; nums[j] &gt;= nums[left])
-            j--           // Tìm từ phải sang trái phần tử đầu tiên nhỏ hơn pivot
-        while (i &lt; j &amp;&amp; nums[i] &lt;= nums[left])
-            i++           // Tìm từ trái sang phải phần tử đầu tiên lớn hơn pivot
-        swap(nums, i, j)  // Hoán đổi hai phần tử
-    }
-    swap(nums, i, left)   // Hoán đổi pivot vào ranh giới giữa hai mảng con
-    return i              // Trả về chỉ mục của pivot
-}
 </code></pre></div></div></div>
 <h2>11.5.1 Quy trình Thuật toán</h2>
 <p>Quy trình tổng thể của sắp xếp nhanh được thể hiện trong hình bên dưới.</p>
@@ -968,7 +916,42 @@ fun partition(nums: IntArray, left: Int, right: Int): Int {
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/quick_sort_overview.png" alt="Quy trình sắp xếp nhanh" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def quick_sort(self, nums: list[int], left: int, right: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp nhanh */
+public static void quickSort(int[] nums, int left, int right) {
+    // Dừng đệ quy khi độ dài mảng con là 1
+    if (left &gt;= right)
+        return;
+    // Phân vùng lính canh
+    int pivot = partition(nums, left, right);
+    // Đệ quy xử lý mảng con trái và mảng con phải
+    quickSort(nums, left, pivot - 1);
+    quickSort(nums, pivot + 1, right);
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func quickSort(nums: inout [Int], left: Int, right: Int) {
+    // Terminate recursion when subarray length is 1
+    if left &gt;= right {
+        return
+    }
+    // Sentinel partition
+    let pivot = partition(nums: &amp;nums, left: left, right: right)
+    // Recursively process the left subarray and right subarray
+    quickSort(nums: &amp;nums, left: left, right: pivot - 1)
+    quickSort(nums: &amp;nums, left: pivot + 1, right: right)
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>static void quickSort(List&lt;int&gt; nums, int left, int right) {
+    // Terminate when subarray length is 1
+    while (left &lt; right) {
+      // Sentinel partition operation
+      int pivot = _partition(nums, left, right);
+      // Perform quick sort on the shorter of the two subarrays
+      if (pivot - left &lt; right - pivot) {
+        quickSort(nums, left, pivot - 1); // Recursively sort the left subarray
+        left = pivot + 1; // Remaining unsorted interval is [pivot + 1, right]
+      } else {
+        quickSort(nums, pivot + 1, right); // Recursively sort the right subarray
+        right = pivot - 1; // Remaining unsorted interval is [left, pivot - 1]
+      }
+    }
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def quick_sort(self, nums: list[int], left: int, right: int):
     """Sắp xếp nhanh"""
     # Dừng đệ quy khi độ dài mảng con là 1
     if left &gt;= right:
@@ -988,37 +971,6 @@ void quickSort(vector&lt;int&gt; &amp;nums, int left, int right) {
     // Đệ quy xử lý mảng con trái và mảng con phải
     quickSort(nums, left, pivot - 1);
     quickSort(nums, pivot + 1, right);
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp nhanh */
-public static void quickSort(int[] nums, int left, int right) {
-    // Dừng đệ quy khi độ dài mảng con là 1
-    if (left &gt;= right)
-        return;
-    // Phân vùng lính canh
-    int pivot = partition(nums, left, right);
-    // Đệ quy xử lý mảng con trái và mảng con phải
-    quickSort(nums, left, pivot - 1);
-    quickSort(nums, pivot + 1, right);
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Sắp xếp nhanh */
-quickSort(nums, left, right) {
-    // Dừng đệ quy khi độ dài mảng con là 1
-    if (left &gt;= right) return;
-    // Phân vùng lính canh
-    const pivot = this.partition(nums, left, right);
-    // Đệ quy xử lý mảng con trái và mảng con phải
-    this.quickSort(nums, left, pivot - 1);
-    this.quickSort(nums, pivot + 1, right);
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Sắp xếp nhanh */
-fun quickSort(nums: IntArray, left: Int, right: Int) {
-    // Dừng đệ quy khi độ dài mảng con là 1
-    if (left &gt;= right) return
-    // Phân vùng lính canh
-    val pivot = partition(nums, left, right)
-    // Đệ quy xử lý mảng con trái và mảng con phải
-    quickSort(nums, left, pivot - 1)
-    quickSort(nums, pivot + 1, right)
 }
 </code></pre></div></div></div>
 <h2>11.5.2 Đặc điểm Thuật toán</h2>
@@ -1042,7 +994,46 @@ fun quickSort(nums: IntArray, left: Int, right: Int) {
 <p>Cần lưu ý rằng các ngôn ngữ lập trình thường tạo ra "số giả ngẫu nhiên" (pseudo-random numbers). Nếu ta xây dựng một trường hợp kiểm thử cụ thể nhằm vào dãy giả ngẫu nhiên đó, sắp xếp nhanh vẫn có thể bị suy giảm hiệu suất.</p>
 <p>Để cải thiện hơn nữa, ta có thể chọn ba phần tử ứng viên từ mảng, thường là phần tử đầu, cuối, và giữa, <strong>và dùng số trung vị của ba phần tử này làm pivot</strong>. Điều này làm tăng đáng kể khả năng pivot "không quá nhỏ cũng không quá lớn". Ta cũng có thể chọn nhiều phần tử ứng viên hơn để cải thiện thêm độ ổn định của thuật toán. Với phương pháp này, xác suất độ phức tạp thời gian suy biến xuống $O(n^2)$ giảm đi đáng kể.</p>
 <p>Đoạn mã ví dụ như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def median_three(self, nums: list[int], left: int, mid: int, right: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Chọn số trung vị của 3 phần tử ứng viên */
+static int medianThree(int[] nums, int left, int mid, int right) {
+    int l = nums[left], m = nums[mid], r = nums[right];
+    if ((l &lt;= m &amp;&amp; m &lt;= r) || (r &lt;= m &amp;&amp; m &lt;= l))
+        return mid; // m nằm giữa l và r
+    if ((m &lt;= l &amp;&amp; l &lt;= r) || (r &lt;= l &amp;&amp; l &lt;= m))
+        return left; // l nằm giữa m và r
+    return right;
+}
+
+/* Phân vùng lính canh (dùng số trung vị của 3) */
+static int partition(int[] nums, int left, int right) {
+    // Chọn số trung vị của 3 phần tử ứng viên
+    int med = medianThree(nums, left, (left + right) / 2, right);
+    // Hoán đổi số trung vị vào vị trí ngoài cùng bên trái của mảng
+    swap(nums, left, med);
+    // Dùng nums[left] làm pivot
+    int i = left, j = right;
+    while (i &lt; j) {
+        while (i &lt; j &amp;&amp; nums[j] &gt;= nums[left])
+            j--;
+        while (i &lt; j &amp;&amp; nums[i] &lt;= nums[left])
+            i++;
+        swap(nums, i, j);
+    }
+    swap(nums, i, left);
+    return i;
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func medianThree(nums: [Int], left: Int, mid: Int, right: Int) -&gt; Int {
+    let l = nums[left]
+    let m = nums[mid]
+    let r = nums[right]
+    if (l &lt;= m &amp;&amp; m &lt;= r) || (r &lt;= m &amp;&amp; m &lt;= l) {
+        return mid // m is between l and r
+    }
+    if (m &lt;= l &amp;&amp; l &lt;= r) || (r &lt;= l &amp;&amp; l &lt;= m) {
+        return left // l is between m and r
+    }
+    return right
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def median_three(self, nums: list[int], left: int, mid: int, right: int) -&gt; int:
     """Chọn số trung vị của 3 phần tử ứng viên"""
     l, m, r = nums[left], nums[mid], nums[right]
     if (l &lt;= m &lt;= r) or (r &lt;= m &lt;= l):
@@ -1095,96 +1086,51 @@ int partition(vector&lt;int&gt; &amp;nums, int left, int right) {
     swap(nums[i], nums[left]);
     return i;
 }
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Chọn số trung vị của 3 phần tử ứng viên */
-static int medianThree(int[] nums, int left, int mid, int right) {
-    int l = nums[left], m = nums[mid], r = nums[right];
-    if ((l &lt;= m &amp;&amp; m &lt;= r) || (r &lt;= m &amp;&amp; m &lt;= l))
-        return mid; // m nằm giữa l và r
-    if ((m &lt;= l &amp;&amp; l &lt;= r) || (r &lt;= l &amp;&amp; l &lt;= m))
-        return left; // l nằm giữa m và r
-    return right;
-}
-
-/* Phân vùng lính canh (dùng số trung vị của 3) */
-static int partition(int[] nums, int left, int right) {
-    // Chọn số trung vị của 3 phần tử ứng viên
-    int med = medianThree(nums, left, (left + right) / 2, right);
-    // Hoán đổi số trung vị vào vị trí ngoài cùng bên trái của mảng
-    swap(nums, left, med);
-    // Dùng nums[left] làm pivot
-    int i = left, j = right;
-    while (i &lt; j) {
-        while (i &lt; j &amp;&amp; nums[j] &gt;= nums[left])
-            j--;
-        while (i &lt; j &amp;&amp; nums[i] &lt;= nums[left])
-            i++;
-        swap(nums, i, j);
-    }
-    swap(nums, i, left);
-    return i;
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Chọn số trung vị của 3 phần tử ứng viên */
-medianThree(nums, left, mid, right) {
-    let l = nums[left], m = nums[mid], r = nums[right];
-    // m nằm giữa l và r
-    if ((l &lt;= m &amp;&amp; m &lt;= r) || (r &lt;= m &amp;&amp; m &lt;= l)) return mid;
-    // l nằm giữa m và r
-    if ((m &lt;= l &amp;&amp; l &lt;= r) || (r &lt;= l &amp;&amp; l &lt;= m)) return left;
-    return right;
-}
-
-/* Phân vùng lính canh (dùng số trung vị của 3) */
-partition(nums, left, right) {
-    // Chọn số trung vị của 3 phần tử ứng viên
-    let med = this.medianThree(nums, left, Math.floor((left + right) / 2), right);
-    // Hoán đổi số trung vị vào vị trí ngoài cùng bên trái của mảng
-    this.swap(nums, left, med);
-    // Dùng nums[left] làm pivot
-    let i = left, j = right;
-    while (i &lt; j) {
-        while (i &lt; j &amp;&amp; nums[j] &gt;= nums[left]) j--;
-        while (i &lt; j &amp;&amp; nums[i] &lt;= nums[left]) i++;
-        this.swap(nums, i, j);
-    }
-    this.swap(nums, i, left);
-    return i;
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Chọn số trung vị của 3 phần tử ứng viên */
-fun medianThree(nums: IntArray, left: Int, mid: Int, right: Int): Int {
-    val l = nums[left]
-    val m = nums[mid]
-    val r = nums[right]
-    if ((m in l..r) || (m in r..l))
-        return mid  // m nằm giữa l và r
-    if ((l in m..r) || (l in r..m))
-        return left // l nằm giữa m và r
-    return right
-}
-
-/* Phân vùng lính canh (dùng số trung vị của 3) */
-fun partitionMedian(nums: IntArray, left: Int, right: Int): Int {
-    // Chọn số trung vị của 3 phần tử ứng viên
-    val med = medianThree(nums, left, (left + right) / 2, right)
-    // Hoán đổi số trung vị vào vị trí ngoài cùng bên trái của mảng
-    swap(nums, left, med)
-    // Dùng nums[left] làm pivot
-    var i = left
-    var j = right
-    while (i &lt; j) {
-        while (i &lt; j &amp;&amp; nums[j] &gt;= nums[left])
-            j--
-        while (i &lt; j &amp;&amp; nums[i] &lt;= nums[left])
-            i++
-        swap(nums, i, j)
-    }
-    swap(nums, i, left)
-    return i
-}
 </code></pre></div></div></div>
 <h2>11.5.5 Tối ưu Độ sâu Đệ quy</h2>
 <p><strong>Sắp xếp nhanh cũng có thể tốn nhiều không gian hơn với một số đầu vào nhất định</strong>. Xem xét một mảng đầu vào đã được sắp xếp hoàn toàn. Gọi độ dài của mảng con hiện tại trong đệ quy là $m$. Mỗi vòng phân vùng lính canh tạo ra mảng con trái độ dài $0$ và mảng con phải độ dài $m - 1$, nghĩa là mỗi lần gọi đệ quy chỉ giảm kích thước bài toán đi một phần tử. Cây đệ quy do đó có thể đạt chiều cao $n - 1$, cần $O(n)$ không gian ngăn xếp.</p>
 <p>Để ngăn các khung ngăn xếp (stack frame) tích lũy, ta có thể so sánh độ dài của hai mảng con sau mỗi vòng phân vùng lính canh, <strong>và chỉ đệ quy trên mảng con ngắn hơn</strong>. Vì mảng con ngắn hơn có độ dài tối đa $n / 2$, phương pháp này đảm bảo độ sâu đệ quy không vượt quá $\\log n$, giảm độ phức tạp không gian xấu nhất xuống $O(\\log n)$. Đoạn mã được thể hiện bên dưới:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def quick_sort(self, nums: list[int], left: int, right: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp nhanh (tối ưu độ sâu đệ quy) */
+public static void quickSort(int[] nums, int left, int right) {
+    // Dừng khi độ dài mảng con là 1
+    while (left &lt; right) {
+        // Thao tác phân vùng lính canh
+        int pivot = partition(nums, left, right);
+        // Chỉ đệ quy trên mảng con NGẮN HƠN trong hai mảng con
+        if (pivot - left &lt; right - pivot) {
+            quickSort(nums, left, pivot - 1); // Đệ quy sắp xếp mảng con trái
+            left = pivot + 1; // Khoảng chưa sắp xếp còn lại là [pivot + 1, right]
+        } else {
+            quickSort(nums, pivot + 1, right); // Đệ quy sắp xếp mảng con phải
+            right = pivot - 1; // Khoảng chưa sắp xếp còn lại là [left, pivot - 1]
+        }
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func quickSort(nums: inout [Int], left: Int, right: Int) {
+    // Terminate recursion when subarray length is 1
+    if left &gt;= right {
+        return
+    }
+    // Sentinel partition
+    let pivot = partition(nums: &amp;nums, left: left, right: right)
+    // Recursively process the left subarray and right subarray
+    quickSort(nums: &amp;nums, left: left, right: pivot - 1)
+    quickSort(nums: &amp;nums, left: pivot + 1, right: right)
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>static void quickSort(List&lt;int&gt; nums, int left, int right) {
+    // Terminate when subarray length is 1
+    while (left &lt; right) {
+      // Sentinel partition operation
+      int pivot = _partition(nums, left, right);
+      // Perform quick sort on the shorter of the two subarrays
+      if (pivot - left &lt; right - pivot) {
+        quickSort(nums, left, pivot - 1); // Recursively sort the left subarray
+        left = pivot + 1; // Remaining unsorted interval is [pivot + 1, right]
+      } else {
+        quickSort(nums, pivot + 1, right); // Recursively sort the right subarray
+        right = pivot - 1; // Remaining unsorted interval is [left, pivot - 1]
+      }
+    }
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def quick_sort(self, nums: list[int], left: int, right: int):
     """Sắp xếp nhanh (tối ưu độ sâu đệ quy)"""
     # Dừng khi độ dài mảng con là 1
     while left &lt; right:
@@ -1210,56 +1156,6 @@ void quickSort(vector&lt;int&gt; &amp;nums, int left, int right) {
         } else {
             quickSort(nums, pivot + 1, right); // Đệ quy sắp xếp mảng con phải
             right = pivot - 1;                 // Khoảng chưa sắp xếp còn lại là [left, pivot - 1]
-        }
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp nhanh (tối ưu độ sâu đệ quy) */
-public static void quickSort(int[] nums, int left, int right) {
-    // Dừng khi độ dài mảng con là 1
-    while (left &lt; right) {
-        // Thao tác phân vùng lính canh
-        int pivot = partition(nums, left, right);
-        // Chỉ đệ quy trên mảng con NGẮN HƠN trong hai mảng con
-        if (pivot - left &lt; right - pivot) {
-            quickSort(nums, left, pivot - 1); // Đệ quy sắp xếp mảng con trái
-            left = pivot + 1; // Khoảng chưa sắp xếp còn lại là [pivot + 1, right]
-        } else {
-            quickSort(nums, pivot + 1, right); // Đệ quy sắp xếp mảng con phải
-            right = pivot - 1; // Khoảng chưa sắp xếp còn lại là [left, pivot - 1]
-        }
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Sắp xếp nhanh (tối ưu độ sâu đệ quy) */
-quickSort(nums, left, right) {
-    // Dừng khi độ dài mảng con là 1
-    while (left &lt; right) {
-        // Thao tác phân vùng lính canh
-        let pivot = this.partition(nums, left, right);
-        // Chỉ đệ quy trên mảng con NGẮN HƠN trong hai mảng con
-        if (pivot - left &lt; right - pivot) {
-            this.quickSort(nums, left, pivot - 1); // Đệ quy sắp xếp mảng con trái
-            left = pivot + 1; // Khoảng chưa sắp xếp còn lại là [pivot + 1, right]
-        } else {
-            this.quickSort(nums, pivot + 1, right); // Đệ quy sắp xếp mảng con phải
-            right = pivot - 1; // Khoảng chưa sắp xếp còn lại là [left, pivot - 1]
-        }
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Sắp xếp nhanh (tối ưu độ sâu đệ quy) */
-fun quickSortTailCall(nums: IntArray, left: Int, right: Int) {
-    // Dừng khi độ dài mảng con là 1
-    var l = left
-    var r = right
-    while (l &lt; r) {
-        // Thao tác phân vùng lính canh
-        val pivot = partition(nums, l, r)
-        // Chỉ đệ quy trên mảng con NGẮN HƠN trong hai mảng con
-        if (pivot - l &lt; r - pivot) {
-            quickSort(nums, l, pivot - 1) // Đệ quy sắp xếp mảng con trái
-            l = pivot + 1 // Khoảng chưa sắp xếp còn lại là [pivot + 1, right]
-        } else {
-            quickSort(nums, pivot + 1, r) // Đệ quy sắp xếp mảng con phải
-            r = pivot - 1 // Khoảng chưa sắp xếp còn lại là [left, pivot - 1]
         }
     }
 }
@@ -1445,7 +1341,102 @@ To prevent stack frames from accumulating, we can compare the lengths of the two
   <li><strong>Sắp xếp trộn</strong>: Trước tiên đệ quy xử lý mảng con trái, sau đó đệ quy xử lý mảng con phải, và cuối cùng thực hiện trộn.</li>
 </ul>
 <p>Cách triển khai sắp xếp trộn được thể hiện trong đoạn mã bên dưới. Lưu ý rằng khoảng cần trộn trong <code>nums</code> là <code>[left, right]</code>, trong khi khoảng tương ứng trong <code>tmp</code> là <code>[0, right - left]</code>.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def merge(nums: list[int], left: int, mid: int, right: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Trộn mảng con trái và mảng con phải */
+static void merge(int[] nums, int left, int mid, int right) {
+    // Khoảng mảng con trái là [left, mid], khoảng mảng con phải là [mid+1, right]
+    // Tạo mảng tạm tmp để lưu kết quả trộn
+    int[] tmp = new int[right - left + 1];
+    // Khởi tạo chỉ mục bắt đầu của mảng con trái và phải
+    int i = left, j = mid + 1, k = 0;
+    // Khi cả hai mảng con vẫn còn phần tử, so sánh và sao chép phần tử nhỏ hơn vào mảng tạm
+    while (i &lt;= mid &amp;&amp; j &lt;= right) {
+        if (nums[i] &lt;= nums[j])
+            tmp[k++] = nums[i++];
+        else
+            tmp[k++] = nums[j++];
+    }
+    // Sao chép các phần tử còn lại của mảng con trái và phải vào mảng tạm
+    while (i &lt;= mid) {
+        tmp[k++] = nums[i++];
+    }
+    while (j &lt;= right) {
+        tmp[k++] = nums[j++];
+    }
+    // Sao chép các phần tử từ mảng tạm tmp trở lại mảng gốc nums ở khoảng tương ứng
+    for (k = 0; k &lt; tmp.length; k++) {
+        nums[left + k] = tmp[k];
+    }
+}
+
+/* Sắp xếp trộn */
+static void mergeSort(int[] nums, int left, int right) {
+    // Điều kiện dừng
+    if (left &gt;= right)
+        return; // Dừng đệ quy khi độ dài mảng con là 1
+    // Giai đoạn chia
+    int mid = left + (right - left) / 2; // Tính điểm giữa
+    mergeSort(nums, left, mid); // Đệ quy xử lý mảng con trái
+    mergeSort(nums, mid + 1, right); // Đệ quy xử lý mảng con phải
+    // Giai đoạn trộn
+    merge(nums, left, mid, right);
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func merge(nums: inout [Int], left: Int, mid: Int, right: Int) {
+    // Left subarray interval is [left, mid], right subarray interval is [mid+1, right]
+    // Create a temporary array tmp to store the merged results
+    var tmp = Array(repeating: 0, count: right - left + 1)
+    // Initialize the start indices of the left and right subarrays
+    var i = left, j = mid + 1, k = 0
+    // While both subarrays still have elements, compare and copy the smaller element into the temporary array
+    while i &lt;= mid, j &lt;= right {
+        if nums[i] &lt;= nums[j] {
+            tmp[k] = nums[i]
+            i += 1
+        } else {
+            tmp[k] = nums[j]
+            j += 1
+        }
+        k += 1
+    }
+    // Copy the remaining elements of the left and right subarrays into the temporary array
+    while i &lt;= mid {
+        tmp[k] = nums[i]
+        i += 1
+        k += 1
+    }
+    while j &lt;= right {
+        tmp[k] = nums[j]
+        j += 1
+        k += 1
+    }
+    // Copy the elements from the temporary array tmp back to the original array nums at the corresponding interval
+    for k in tmp.indices {
+        nums[left + k] = tmp[k]
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void merge(List&lt;int&gt; nums, int left, int mid, int right) {
+  // Left subarray interval is [left, mid], right subarray interval is [mid+1, right]
+  // Create a temporary array tmp to store the merged results
+  List&lt;int&gt; tmp = List.filled(right - left + 1, 0);
+  // Initialize the start indices of the left and right subarrays
+  int i = left, j = mid + 1, k = 0;
+  // While both subarrays still have elements, compare and copy the smaller element into the temporary array
+  while (i &lt;= mid &amp;&amp; j &lt;= right) {
+    if (nums[i] &lt;= nums[j])
+      tmp[k++] = nums[i++];
+    else
+      tmp[k++] = nums[j++];
+  }
+  // Copy the remaining elements of the left and right subarrays into the temporary array
+  while (i &lt;= mid) {
+    tmp[k++] = nums[i++];
+  }
+  while (j &lt;= right) {
+    tmp[k++] = nums[j++];
+  }
+  // Copy the elements from the temporary array tmp back to the original array nums at the corresponding interval
+  for (k = 0; k &lt; tmp.length; k++) {
+    nums[left + k] = tmp[k];
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def merge(nums: list[int], left: int, mid: int, right: int):
     """Trộn mảng con trái và mảng con phải"""
     # Khoảng mảng con trái là [left, mid], khoảng mảng con phải là [mid+1, right]
     # Tạo mảng tạm tmp để lưu kết quả trộn
@@ -1524,124 +1515,6 @@ void mergeSort(vector&lt;int&gt; &amp;nums, int left, int right) {
     mergeSort(nums, mid + 1, right); // Đệ quy xử lý mảng con phải
     // Giai đoạn trộn
     merge(nums, left, mid, right);
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Trộn mảng con trái và mảng con phải */
-static void merge(int[] nums, int left, int mid, int right) {
-    // Khoảng mảng con trái là [left, mid], khoảng mảng con phải là [mid+1, right]
-    // Tạo mảng tạm tmp để lưu kết quả trộn
-    int[] tmp = new int[right - left + 1];
-    // Khởi tạo chỉ mục bắt đầu của mảng con trái và phải
-    int i = left, j = mid + 1, k = 0;
-    // Khi cả hai mảng con vẫn còn phần tử, so sánh và sao chép phần tử nhỏ hơn vào mảng tạm
-    while (i &lt;= mid &amp;&amp; j &lt;= right) {
-        if (nums[i] &lt;= nums[j])
-            tmp[k++] = nums[i++];
-        else
-            tmp[k++] = nums[j++];
-    }
-    // Sao chép các phần tử còn lại của mảng con trái và phải vào mảng tạm
-    while (i &lt;= mid) {
-        tmp[k++] = nums[i++];
-    }
-    while (j &lt;= right) {
-        tmp[k++] = nums[j++];
-    }
-    // Sao chép các phần tử từ mảng tạm tmp trở lại mảng gốc nums ở khoảng tương ứng
-    for (k = 0; k &lt; tmp.length; k++) {
-        nums[left + k] = tmp[k];
-    }
-}
-
-/* Sắp xếp trộn */
-static void mergeSort(int[] nums, int left, int right) {
-    // Điều kiện dừng
-    if (left &gt;= right)
-        return; // Dừng đệ quy khi độ dài mảng con là 1
-    // Giai đoạn chia
-    int mid = left + (right - left) / 2; // Tính điểm giữa
-    mergeSort(nums, left, mid); // Đệ quy xử lý mảng con trái
-    mergeSort(nums, mid + 1, right); // Đệ quy xử lý mảng con phải
-    // Giai đoạn trộn
-    merge(nums, left, mid, right);
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Trộn mảng con trái và mảng con phải */
-function merge(nums, left, mid, right) {
-    // Khoảng mảng con trái là [left, mid], khoảng mảng con phải là [mid+1, right]
-    // Tạo mảng tạm tmp để lưu kết quả trộn
-    const tmp = new Array(right - left + 1);
-    // Khởi tạo chỉ mục bắt đầu của mảng con trái và phải
-    let i = left, j = mid + 1, k = 0;
-    // Khi cả hai mảng con vẫn còn phần tử, so sánh và sao chép phần tử nhỏ hơn vào mảng tạm
-    while (i &lt;= mid &amp;&amp; j &lt;= right) {
-        if (nums[i] &lt;= nums[j]) {
-            tmp[k++] = nums[i++];
-        } else {
-            tmp[k++] = nums[j++];
-        }
-    }
-    // Sao chép các phần tử còn lại của mảng con trái và phải vào mảng tạm
-    while (i &lt;= mid) {
-        tmp[k++] = nums[i++];
-    }
-    while (j &lt;= right) {
-        tmp[k++] = nums[j++];
-    }
-    // Sao chép các phần tử từ mảng tạm tmp trở lại mảng gốc nums ở khoảng tương ứng
-    for (k = 0; k &lt; tmp.length; k++) {
-        nums[left + k] = tmp[k];
-    }
-}
-
-/* Sắp xếp trộn */
-function mergeSort(nums, left, right) {
-    // Điều kiện dừng
-    if (left &gt;= right) return; // Dừng đệ quy khi độ dài mảng con là 1
-    // Giai đoạn chia
-    let mid = Math.floor(left + (right - left) / 2); // Tính điểm giữa
-    mergeSort(nums, left, mid); // Đệ quy xử lý mảng con trái
-    mergeSort(nums, mid + 1, right); // Đệ quy xử lý mảng con phải
-    // Giai đoạn trộn
-    merge(nums, left, mid, right);
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Trộn mảng con trái và mảng con phải */
-fun merge(nums: IntArray, left: Int, mid: Int, right: Int) {
-    // Khoảng mảng con trái là [left, mid], khoảng mảng con phải là [mid+1, right]
-    // Tạo mảng tạm tmp để lưu kết quả trộn
-    val tmp = IntArray(right - left + 1)
-    // Khởi tạo chỉ mục bắt đầu của mảng con trái và phải
-    var i = left
-    var j = mid + 1
-    var k = 0
-    // Khi cả hai mảng con vẫn còn phần tử, so sánh và sao chép phần tử nhỏ hơn vào mảng tạm
-    while (i &lt;= mid &amp;&amp; j &lt;= right) {
-        if (nums[i] &lt;= nums[j])
-            tmp[k++] = nums[i++]
-        else
-            tmp[k++] = nums[j++]
-    }
-    // Sao chép các phần tử còn lại của mảng con trái và phải vào mảng tạm
-    while (i &lt;= mid) {
-        tmp[k++] = nums[i++]
-    }
-    while (j &lt;= right) {
-        tmp[k++] = nums[j++]
-    }
-    // Sao chép các phần tử từ mảng tạm tmp trở lại mảng gốc nums ở khoảng tương ứng
-    for (l in tmp.indices) {
-        nums[left + l] = tmp[l]
-    }
-}
-
-/* Sắp xếp trộn */
-fun mergeSort(nums: IntArray, left: Int, right: Int) {
-    // Điều kiện dừng
-    if (left &gt;= right) return  // Dừng đệ quy khi độ dài mảng con là 1
-    // Giai đoạn chia
-    val mid = left + (right - left) / 2 // Tính điểm giữa
-    mergeSort(nums, left, mid) // Đệ quy xử lý mảng con trái
-    mergeSort(nums, mid + 1, right) // Đệ quy xử lý mảng con phải
-    // Giai đoạn trộn
-    merge(nums, left, mid, right)
 }
 </code></pre></div></div></div>
 <h2>11.6.2 Đặc điểm Thuật toán</h2>
@@ -1821,7 +1694,83 @@ The specific implementation details are quite complex, and interested readers ca
 </div>
 
 <p>Trong đoạn mã bên dưới, ta dùng cùng hàm <code>sift_down()</code> để heapify từ trên xuống như trong chương "Heap". Cần lưu ý rằng vì độ dài heap giảm khi phần tử lớn nhất được trích xuất, ta cần thêm một tham số độ dài $n$ vào <code>sift_down()</code> để chỉ định độ dài hiệu lực hiện tại của heap. Đoạn mã như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def sift_down(nums: list[int], n: int, i: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Độ dài heap là n, heapify nút i từ trên xuống */
+public static void siftDown(int[] nums, int n, int i) {
+    while (true) {
+        int l = 2 * i + 1;
+        int r = 2 * i + 2;
+        int ma = i;
+        if (l &lt; n &amp;&amp; nums[l] &gt; nums[ma])
+            ma = l;
+        if (r &lt; n &amp;&amp; nums[r] &gt; nums[ma])
+            ma = r;
+        // Nếu nút i là lớn nhất hoặc chỉ mục l, r vượt ngoài phạm vi, không cần heapify tiếp, thoát
+        if (ma == i)
+            break;
+        // Hoán đổi hai nút
+        int temp = nums[i];
+        nums[i] = nums[ma];
+        nums[ma] = temp;
+        // Vòng lặp heapify đi xuống
+        i = ma;
+    }
+}
+
+/* Sắp xếp vun đống */
+public static void heapSort(int[] nums) {
+    // Thao tác xây heap: heapify tất cả các nút trừ lá
+    for (int i = nums.length / 2 - 1; i &gt;= 0; i--) {
+        siftDown(nums, nums.length, i);
+    }
+    // Trích xuất phần tử lớn nhất từ heap và lặp lại tổng cộng n-1 vòng
+    for (int i = nums.length - 1; i &gt; 0; i--) {
+        int tmp = nums[0];
+        nums[0] = nums[i];
+        nums[i] = tmp;
+        // Bắt đầu heapify nút gốc, từ trên xuống
+        siftDown(nums, i, 0);
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func siftDown(nums: inout [Int], n: Int, i: Int) {
+    var i = i
+    while true {
+        // If node i is largest or indices l, r are out of bounds, no need to continue heapify, break
+        let l = 2 * i + 1
+        let r = 2 * i + 2
+        var ma = i
+        if l &lt; n, nums[l] &gt; nums[ma] {
+            ma = l
+        }
+        if r &lt; n, nums[r] &gt; nums[ma] {
+            ma = r
+        }
+        // Swap two nodes
+        if ma == i {
+            break
+        }
+        // Swap two nodes
+        nums.swapAt(i, ma)
+        // Loop downwards heapification
+        i = ma
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void siftDown(List&lt;int&gt; nums, int n, int i) {
+  while (true) {
+    // If node i is largest or indices l, r are out of bounds, no need to continue heapify, break
+    int l = 2 * i + 1;
+    int r = 2 * i + 2;
+    int ma = i;
+    if (l &lt; n &amp;&amp; nums[l] &gt; nums[ma]) ma = l;
+    if (r &lt; n &amp;&amp; nums[r] &gt; nums[ma]) ma = r;
+    // Swap two nodes
+    if (ma == i) break;
+    // Swap two nodes
+    int temp = nums[i];
+    nums[i] = nums[ma];
+    nums[ma] = temp;
+    // Loop downwards heapification
+    i = ma;
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def sift_down(nums: list[int], n: int, i: int):
     """Độ dài heap là n, heapify nút i từ trên xuống"""
     while True:
         # Xác định nút lớn nhất trong i, l, r, ký hiệu là ma
@@ -1885,117 +1834,6 @@ void heapSort(vector&lt;int&gt; &amp;nums) {
         swap(nums[0], nums[i]);
         // Bắt đầu heapify nút gốc, từ trên xuống
         siftDown(nums, i, 0);
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Độ dài heap là n, heapify nút i từ trên xuống */
-public static void siftDown(int[] nums, int n, int i) {
-    while (true) {
-        int l = 2 * i + 1;
-        int r = 2 * i + 2;
-        int ma = i;
-        if (l &lt; n &amp;&amp; nums[l] &gt; nums[ma])
-            ma = l;
-        if (r &lt; n &amp;&amp; nums[r] &gt; nums[ma])
-            ma = r;
-        // Nếu nút i là lớn nhất hoặc chỉ mục l, r vượt ngoài phạm vi, không cần heapify tiếp, thoát
-        if (ma == i)
-            break;
-        // Hoán đổi hai nút
-        int temp = nums[i];
-        nums[i] = nums[ma];
-        nums[ma] = temp;
-        // Vòng lặp heapify đi xuống
-        i = ma;
-    }
-}
-
-/* Sắp xếp vun đống */
-public static void heapSort(int[] nums) {
-    // Thao tác xây heap: heapify tất cả các nút trừ lá
-    for (int i = nums.length / 2 - 1; i &gt;= 0; i--) {
-        siftDown(nums, nums.length, i);
-    }
-    // Trích xuất phần tử lớn nhất từ heap và lặp lại tổng cộng n-1 vòng
-    for (int i = nums.length - 1; i &gt; 0; i--) {
-        int tmp = nums[0];
-        nums[0] = nums[i];
-        nums[i] = tmp;
-        // Bắt đầu heapify nút gốc, từ trên xuống
-        siftDown(nums, i, 0);
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Độ dài heap là n, heapify nút i từ trên xuống */
-function siftDown(nums, n, i) {
-    while (true) {
-        let l = 2 * i + 1;
-        let r = 2 * i + 2;
-        let ma = i;
-        if (l &lt; n &amp;&amp; nums[l] &gt; nums[ma]) {
-            ma = l;
-        }
-        if (r &lt; n &amp;&amp; nums[r] &gt; nums[ma]) {
-            ma = r;
-        }
-        // Nếu nút i là lớn nhất hoặc chỉ mục l, r vượt ngoài phạm vi, không cần heapify tiếp, thoát
-        if (ma === i) {
-            break;
-        }
-        // Hoán đổi hai nút
-        [nums[i], nums[ma]] = [nums[ma], nums[i]];
-        // Vòng lặp heapify đi xuống
-        i = ma;
-    }
-}
-
-/* Sắp xếp vun đống */
-function heapSort(nums) {
-    // Thao tác xây heap: heapify tất cả các nút trừ lá
-    for (let i = Math.floor(nums.length / 2) - 1; i &gt;= 0; i--) {
-        siftDown(nums, nums.length, i);
-    }
-    // Trích xuất phần tử lớn nhất từ heap và lặp lại tổng cộng n-1 vòng
-    for (let i = nums.length - 1; i &gt; 0; i--) {
-        [nums[0], nums[i]] = [nums[i], nums[0]];
-        // Bắt đầu heapify nút gốc, từ trên xuống
-        siftDown(nums, i, 0);
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Độ dài heap là n, heapify nút i từ trên xuống */
-fun siftDown(nums: IntArray, n: Int, li: Int) {
-    var i = li
-    while (true) {
-        val l = 2 * i + 1
-        val r = 2 * i + 2
-        var ma = i
-        if (l &lt; n &amp;&amp; nums[l] &gt; nums[ma])
-            ma = l
-        if (r &lt; n &amp;&amp; nums[r] &gt; nums[ma])
-            ma = r
-        // Nếu nút i là lớn nhất hoặc chỉ mục l, r vượt ngoài phạm vi, không cần heapify tiếp, thoát
-        if (ma == i)
-            break
-        // Hoán đổi hai nút
-        val temp = nums[i]
-        nums[i] = nums[ma]
-        nums[ma] = temp
-        // Vòng lặp heapify đi xuống
-        i = ma
-    }
-}
-
-/* Sắp xếp vun đống */
-fun heapSort(nums: IntArray) {
-    // Thao tác xây heap: heapify tất cả các nút trừ lá
-    for (i in nums.size / 2 - 1 downTo 0) {
-        siftDown(nums, nums.size, i)
-    }
-    // Trích xuất phần tử lớn nhất từ heap và lặp lại tổng cộng n-1 vòng
-    for (i in nums.size - 1 downTo 1) {
-        val temp = nums[0]
-        nums[0] = nums[i]
-        nums[i] = temp
-        // Bắt đầu heapify nút gốc, từ trên xuống
-        siftDown(nums, i, 0)
     }
 }
 </code></pre></div></div></div>
@@ -2131,7 +1969,82 @@ In the code below, we use the same \`sift_down()\` function for top-to-bottom he
   <img src="dsa-assets/bucket_sort_overview.png" alt="Quy trình thuật toán sắp xếp xô" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Đoạn mã như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def bucket_sort(nums: list[float]):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp xô (bucket) */
+static void bucketSort(float[] nums) {
+    // Khởi tạo k = n/2 bucket, kỳ vọng phân bổ 2 phần tử mỗi bucket
+    int k = nums.length / 2;
+    List&lt;List&lt;Float&gt;&gt; buckets = new ArrayList&lt;&gt;();
+    for (int i = 0; i &lt; k; i++) {
+        buckets.add(new ArrayList&lt;&gt;());
+    }
+    // 1. Phân phối các phần tử của mảng vào các bucket
+    for (float num : nums) {
+        // Dữ liệu đầu vào nằm trong khoảng [0, 1), dùng num * k để ánh xạ sang chỉ mục [0, k-1]
+        int i = (int) (num * k);
+        // Thêm num vào bucket i
+        buckets.get(i).add(num);
+    }
+    // 2. Sắp xếp riêng từng bucket
+    for (List&lt;Float&gt; bucket : buckets) {
+        // Dùng hàm sắp xếp có sẵn, cũng có thể thay bằng thuật toán sắp xếp khác
+        Collections.sort(bucket);
+    }
+    // 3. Duyệt các bucket để nối kết quả
+    int i = 0;
+    for (List&lt;Float&gt; bucket : buckets) {
+        for (float num : bucket) {
+            nums[i++] = num;
+        }
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func bucketSort(nums: inout [Double]) {
+    // Initialize k = n/2 buckets, expected to allocate 2 elements per bucket
+    let k = nums.count / 2
+    var buckets = (0 ..&lt; k).map { _ in [Double]() }
+    // 1. Distribute array elements into various buckets
+    for num in nums {
+        // Input data range is [0, 1), use num * k to map to index range [0, k-1]
+        let i = Int(num * Double(k))
+        // Add num to bucket i
+        buckets[i].append(num)
+    }
+    // 2. Sort each bucket
+    for i in buckets.indices {
+        // Use built-in sorting function, can also replace with other sorting algorithms
+        buckets[i].sort()
+    }
+    // 3. Traverse buckets to merge results
+    var i = nums.startIndex
+    for bucket in buckets {
+        for num in bucket {
+            nums[i] = num
+            i += 1
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void bucketSort(List&lt;double&gt; nums) {
+  // Initialize k = n/2 buckets, expected to allocate 2 elements per bucket
+  int k = nums.length ~/ 2;
+  List&lt;List&lt;double&gt;&gt; buckets = List.generate(k, (index) =&gt; []);
+
+  // 1. Distribute array elements into various buckets
+  for (double _num in nums) {
+    // Input data range is [0, 1), use _num * k to map to index range [0, k-1]
+    int i = (_num * k).toInt();
+    // Add _num to bucket bucket_idx
+    buckets[i].add(_num);
+  }
+  // 2. Sort each bucket
+  for (List&lt;double&gt; bucket in buckets) {
+    bucket.sort();
+  }
+  // 3. Traverse buckets to merge results
+  int i = 0;
+  for (List&lt;double&gt; bucket in buckets) {
+    for (double _num in bucket) {
+      nums[i++] = _num;
+    }
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def bucket_sort(nums: list[float]):
     """Sắp xếp xô (bucket)"""
     # Khởi tạo k = n/2 bucket, kỳ vọng phân bổ 2 phần tử mỗi bucket
     k = len(nums) // 2
@@ -2174,90 +2087,6 @@ void bucketSort(vector&lt;float&gt; &amp;nums) {
     for (vector&lt;float&gt; &amp;bucket : buckets) {
         for (float num : bucket) {
             nums[i++] = num;
-        }
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp xô (bucket) */
-static void bucketSort(float[] nums) {
-    // Khởi tạo k = n/2 bucket, kỳ vọng phân bổ 2 phần tử mỗi bucket
-    int k = nums.length / 2;
-    List&lt;List&lt;Float&gt;&gt; buckets = new ArrayList&lt;&gt;();
-    for (int i = 0; i &lt; k; i++) {
-        buckets.add(new ArrayList&lt;&gt;());
-    }
-    // 1. Phân phối các phần tử của mảng vào các bucket
-    for (float num : nums) {
-        // Dữ liệu đầu vào nằm trong khoảng [0, 1), dùng num * k để ánh xạ sang chỉ mục [0, k-1]
-        int i = (int) (num * k);
-        // Thêm num vào bucket i
-        buckets.get(i).add(num);
-    }
-    // 2. Sắp xếp riêng từng bucket
-    for (List&lt;Float&gt; bucket : buckets) {
-        // Dùng hàm sắp xếp có sẵn, cũng có thể thay bằng thuật toán sắp xếp khác
-        Collections.sort(bucket);
-    }
-    // 3. Duyệt các bucket để nối kết quả
-    int i = 0;
-    for (List&lt;Float&gt; bucket : buckets) {
-        for (float num : bucket) {
-            nums[i++] = num;
-        }
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Sắp xếp xô (bucket) */
-function bucketSort(nums) {
-    // Khởi tạo k = n/2 bucket, kỳ vọng phân bổ 2 phần tử mỗi bucket
-    const k = nums.length / 2;
-    const buckets = [];
-    for (let i = 0; i &lt; k; i++) {
-        buckets.push([]);
-    }
-    // 1. Phân phối các phần tử của mảng vào các bucket
-    for (const num of nums) {
-        // Dữ liệu đầu vào nằm trong khoảng [0, 1), dùng num * k để ánh xạ sang chỉ mục [0, k-1]
-        const i = Math.floor(num * k);
-        // Thêm num vào bucket i
-        buckets[i].push(num);
-    }
-    // 2. Sắp xếp riêng từng bucket
-    for (const bucket of buckets) {
-        // Dùng hàm sắp xếp có sẵn, cũng có thể thay bằng thuật toán sắp xếp khác
-        bucket.sort((a, b) =&gt; a - b);
-    }
-    // 3. Duyệt các bucket để nối kết quả
-    let i = 0;
-    for (const bucket of buckets) {
-        for (const num of bucket) {
-            nums[i++] = num;
-        }
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Sắp xếp xô (bucket) */
-fun bucketSort(nums: FloatArray) {
-    // Khởi tạo k = n/2 bucket, kỳ vọng phân bổ 2 phần tử mỗi bucket
-    val k = nums.size / 2
-    val buckets = mutableListOf&lt;MutableList&lt;Float&gt;&gt;()
-    for (i in 0..&lt;k) {
-        buckets.add(mutableListOf())
-    }
-    // 1. Phân phối các phần tử của mảng vào các bucket
-    for (num in nums) {
-        // Dữ liệu đầu vào nằm trong khoảng [0, 1), dùng num * k để ánh xạ sang chỉ mục [0, k-1]
-        val i = (num * k).toInt()
-        // Thêm num vào bucket i
-        buckets[i].add(num)
-    }
-    // 2. Sắp xếp riêng từng bucket
-    for (bucket in buckets) {
-        // Dùng hàm sắp xếp có sẵn, cũng có thể thay bằng thuật toán sắp xếp khác
-        bucket.sort()
-    }
-    // 3. Duyệt các bucket để nối kết quả
-    var i = 0
-    for (bucket in buckets) {
-        for (num in bucket) {
-            nums[i++] = num
         }
     }
 }
@@ -2379,7 +2208,64 @@ As shown in the figure below, we assume that product prices follow a normal dist
   <img src="dsa-assets/counting_sort_overview.png" alt="Quy trình sắp xếp đếm" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Đoạn mã như sau:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def counting_sort_naive(nums: list[int]):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp đếm */
+// Triển khai đơn giản, không dùng để sắp xếp đối tượng được
+static void countingSortNaive(int[] nums) {
+    // 1. Đếm phần tử lớn nhất m trong mảng
+    int m = 0;
+    for (int num : nums) {
+        m = Math.max(m, num);
+    }
+    // 2. Đếm số lần xuất hiện của mỗi số
+    int[] counter = new int[m + 1];
+    for (int num : nums) {
+        counter[num]++;
+    }
+    // 3. Duyệt counter, ghi từng phần tử trở lại mảng gốc nums
+    int i = 0;
+    for (int num = 0; num &lt; m + 1; num++) {
+        for (int j = 0; j &lt; counter[num]; j++, i++) {
+            nums[i] = num;
+        }
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func countingSortNaive(nums: inout [Int]) {
+    // 1. Count the maximum element m in the array
+    let m = nums.max()!
+    // 2. Count the occurrence of each number
+    // counter[num] represents the occurrence of num
+    var counter = Array(repeating: 0, count: m + 1)
+    for num in nums {
+        counter[num] += 1
+    }
+    // 3. Traverse counter, filling each element back into the original array nums
+    var i = 0
+    for num in 0 ..&lt; m + 1 {
+        for _ in 0 ..&lt; counter[num] {
+            nums[i] = num
+            i += 1
+        }
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void countingSortNaive(List&lt;int&gt; nums) {
+  // 1. Count the maximum element m in the array
+  int m = 0;
+  for (int _num in nums) {
+    m = max(m, _num);
+  }
+  // 2. Count the occurrence of each number
+  // counter[_num] represents occurrence count of _num
+  List&lt;int&gt; counter = List.filled(m + 1, 0);
+  for (int _num in nums) {
+    counter[_num]++;
+  }
+  // 3. Traverse counter, filling each element back into the original array nums
+  int i = 0;
+  for (int _num = 0; _num &lt; m + 1; _num++) {
+    for (int j = 0; j &lt; counter[_num]; j++, i++) {
+      nums[i] = _num;
+    }
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def counting_sort_naive(nums: list[int]):
     """Sắp xếp đếm"""
     # Triển khai đơn giản, không dùng để sắp xếp đối tượng được
     # 1. Đếm phần tử lớn nhất m trong mảng
@@ -2416,69 +2302,6 @@ void countingSortNaive(vector&lt;int&gt; &amp;nums) {
     for (int num = 0; num &lt; m + 1; num++) {
         for (int j = 0; j &lt; counter[num]; j++, i++) {
             nums[i] = num;
-        }
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp đếm */
-// Triển khai đơn giản, không dùng để sắp xếp đối tượng được
-static void countingSortNaive(int[] nums) {
-    // 1. Đếm phần tử lớn nhất m trong mảng
-    int m = 0;
-    for (int num : nums) {
-        m = Math.max(m, num);
-    }
-    // 2. Đếm số lần xuất hiện của mỗi số
-    int[] counter = new int[m + 1];
-    for (int num : nums) {
-        counter[num]++;
-    }
-    // 3. Duyệt counter, ghi từng phần tử trở lại mảng gốc nums
-    int i = 0;
-    for (int num = 0; num &lt; m + 1; num++) {
-        for (int j = 0; j &lt; counter[num]; j++, i++) {
-            nums[i] = num;
-        }
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Sắp xếp đếm */
-// Triển khai đơn giản, không dùng để sắp xếp đối tượng được
-function countingSortNaive(nums) {
-    // 1. Đếm phần tử lớn nhất m trong mảng
-    let m = Math.max(...nums);
-    // 2. Đếm số lần xuất hiện của mỗi số
-    const counter = new Array(m + 1).fill(0);
-    for (const num of nums) {
-        counter[num]++;
-    }
-    // 3. Duyệt counter, ghi từng phần tử trở lại mảng gốc nums
-    let i = 0;
-    for (let num = 0; num &lt; m + 1; num++) {
-        for (let j = 0; j &lt; counter[num]; j++, i++) {
-            nums[i] = num;
-        }
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Sắp xếp đếm */
-// Triển khai đơn giản, không dùng để sắp xếp đối tượng được
-fun countingSortNaive(nums: IntArray) {
-    // 1. Đếm phần tử lớn nhất m trong mảng
-    var m = 0
-    for (num in nums) {
-        m = max(m, num)
-    }
-    // 2. Đếm số lần xuất hiện của mỗi số
-    val counter = IntArray(m + 1)
-    for (num in nums) {
-        counter[num]++
-    }
-    // 3. Duyệt counter, ghi từng phần tử trở lại mảng gốc nums
-    var i = 0
-    for (num in 0..&lt;m + 1) {
-        var j = 0
-        while (j &lt; counter[num]) {
-            nums[i] = num
-            j++
-            i++
         }
     }
 }
@@ -2525,7 +2348,91 @@ $$
 </div>
 
 <p>Cách triển khai sắp xếp đếm được thể hiện bên dưới:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def counting_sort(nums: list[int]):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp đếm */
+// Triển khai đầy đủ, có thể sắp xếp đối tượng và là thuật toán ổn định
+static void countingSort(int[] nums) {
+    // 1. Đếm phần tử lớn nhất m trong mảng
+    int m = 0;
+    for (int num : nums) {
+        m = Math.max(m, num);
+    }
+    // 2. Đếm số lần xuất hiện của mỗi số
+    int[] counter = new int[m + 1];
+    for (int num : nums) {
+        counter[num]++;
+    }
+    // 3. Tính tổng tiền tố của counter, chuyển "số lần xuất hiện" thành "chỉ mục cuối"
+    for (int i = 0; i &lt; m; i++) {
+        counter[i + 1] += counter[i];
+    }
+    // 4. Duyệt ngược nums, đặt từng phần tử vào mảng kết quả res
+    int n = nums.length;
+    int[] res = new int[n];
+    for (int i = n - 1; i &gt;= 0; i--) {
+        int num = nums[i];
+        res[counter[num] - 1] = num; // Đặt num vào chỉ mục tương ứng
+        counter[num]--; // Giảm tổng tiền tố đi 1
+    }
+    // Dùng mảng kết quả res để ghi đè mảng gốc nums
+    for (int i = 0; i &lt; n; i++) {
+        nums[i] = res[i];
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func countingSort(nums: inout [Int]) {
+    // 1. Count the maximum element m in the array
+    let m = nums.max()!
+    // 2. Count the occurrence of each number
+    // counter[num] represents the occurrence of num
+    var counter = Array(repeating: 0, count: m + 1)
+    for num in nums {
+        counter[num] += 1
+    }
+    // 3. Calculate the prefix sum of counter, converting "occurrence count" to "tail index"
+    // counter[num]-1 is the last index where num appears in res
+    for i in 0 ..&lt; m {
+        counter[i + 1] += counter[i]
+    }
+    // 4. Traverse nums in reverse order, placing each element into the result array res
+    // Initialize the array res to record results
+    var res = Array(repeating: 0, count: nums.count)
+    for i in nums.indices.reversed() {
+        let num = nums[i]
+        res[counter[num] - 1] = num // Place num at the corresponding index
+        counter[num] -= 1 // Decrement the prefix sum by 1, getting the next index to place num
+    }
+    // Use result array res to overwrite the original array nums
+    for i in nums.indices {
+        nums[i] = res[i]
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void countingSort(List&lt;int&gt; nums) {
+  // 1. Count the maximum element m in the array
+  int m = 0;
+  for (int _num in nums) {
+    m = max(m, _num);
+  }
+  // 2. Count the occurrence of each number
+  // counter[_num] represents occurrence count of _num
+  List&lt;int&gt; counter = List.filled(m + 1, 0);
+  for (int _num in nums) {
+    counter[_num]++;
+  }
+  // 3. Calculate the prefix sum of counter, converting "occurrence count" to "tail index"
+  // That is, counter[_num]-1 is the last occurrence index of _num in res
+  for (int i = 0; i &lt; m; i++) {
+    counter[i + 1] += counter[i];
+  }
+  // 4. Traverse nums in reverse order, placing each element into the result array res
+  // Initialize the array res to record results
+  int n = nums.length;
+  List&lt;int&gt; res = List.filled(n, 0);
+  for (int i = n - 1; i &gt;= 0; i--) {
+    int _num = nums[i];
+    res[counter[_num] - 1] = _num; // Place _num at corresponding index
+    counter[_num]--; // Decrement prefix sum by 1 to get next placement index for _num
+  }
+  // Use result array res to overwrite the original array nums
+  nums.setAll(0, res);
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def counting_sort(nums: list[int]):
     """Sắp xếp đếm"""
     # Triển khai đầy đủ, có thể sắp xếp đối tượng và là thuật toán ổn định
     # 1. Đếm phần tử lớn nhất m trong mảng
@@ -2577,93 +2484,6 @@ void countingSort(vector&lt;int&gt; &amp;nums) {
     }
     // Dùng mảng kết quả res để ghi đè mảng gốc nums
     nums = res;
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp đếm */
-// Triển khai đầy đủ, có thể sắp xếp đối tượng và là thuật toán ổn định
-static void countingSort(int[] nums) {
-    // 1. Đếm phần tử lớn nhất m trong mảng
-    int m = 0;
-    for (int num : nums) {
-        m = Math.max(m, num);
-    }
-    // 2. Đếm số lần xuất hiện của mỗi số
-    int[] counter = new int[m + 1];
-    for (int num : nums) {
-        counter[num]++;
-    }
-    // 3. Tính tổng tiền tố của counter, chuyển "số lần xuất hiện" thành "chỉ mục cuối"
-    for (int i = 0; i &lt; m; i++) {
-        counter[i + 1] += counter[i];
-    }
-    // 4. Duyệt ngược nums, đặt từng phần tử vào mảng kết quả res
-    int n = nums.length;
-    int[] res = new int[n];
-    for (int i = n - 1; i &gt;= 0; i--) {
-        int num = nums[i];
-        res[counter[num] - 1] = num; // Đặt num vào chỉ mục tương ứng
-        counter[num]--; // Giảm tổng tiền tố đi 1
-    }
-    // Dùng mảng kết quả res để ghi đè mảng gốc nums
-    for (int i = 0; i &lt; n; i++) {
-        nums[i] = res[i];
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Sắp xếp đếm */
-// Triển khai đầy đủ, có thể sắp xếp đối tượng và là thuật toán ổn định
-function countingSort(nums) {
-    // 1. Đếm phần tử lớn nhất m trong mảng
-    let m = Math.max(...nums);
-    // 2. Đếm số lần xuất hiện của mỗi số
-    const counter = new Array(m + 1).fill(0);
-    for (const num of nums) {
-        counter[num]++;
-    }
-    // 3. Tính tổng tiền tố của counter, chuyển "số lần xuất hiện" thành "chỉ mục cuối"
-    for (let i = 0; i &lt; m; i++) {
-        counter[i + 1] += counter[i];
-    }
-    // 4. Duyệt ngược nums, đặt từng phần tử vào mảng kết quả res
-    const n = nums.length;
-    const res = new Array(n);
-    for (let i = n - 1; i &gt;= 0; i--) {
-        const num = nums[i];
-        res[counter[num] - 1] = num; // Đặt num vào chỉ mục tương ứng
-        counter[num]--; // Giảm tổng tiền tố đi 1
-    }
-    // Dùng mảng kết quả res để ghi đè mảng gốc nums
-    for (let i = 0; i &lt; n; i++) {
-        nums[i] = res[i];
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Sắp xếp đếm */
-// Triển khai đầy đủ, có thể sắp xếp đối tượng và là thuật toán ổn định
-fun countingSort(nums: IntArray) {
-    // 1. Đếm phần tử lớn nhất m trong mảng
-    var m = 0
-    for (num in nums) {
-        m = max(m, num)
-    }
-    // 2. Đếm số lần xuất hiện của mỗi số
-    val counter = IntArray(m + 1)
-    for (num in nums) {
-        counter[num]++
-    }
-    // 3. Tính tổng tiền tố của counter, chuyển "số lần xuất hiện" thành "chỉ mục cuối"
-    for (i in 0..&lt;m) {
-        counter[i + 1] += counter[i]
-    }
-    // 4. Duyệt ngược nums, đặt từng phần tử vào mảng kết quả res
-    val n = nums.size
-    val res = IntArray(n)
-    for (i in n - 1 downTo 0) {
-        val num = nums[i]
-        res[counter[num] - 1] = num // Đặt num vào chỉ mục tương ứng
-        counter[num]-- // Giảm tổng tiền tố đi 1
-    }
-    // Dùng mảng kết quả res để ghi đè mảng gốc nums
-    for (i in 0..&lt;n) {
-        nums[i] = res[i]
-    }
 }
 </code></pre></div></div></div>
 <h2>11.9.3 Đặc điểm Thuật toán</h2>
@@ -2821,7 +2641,59 @@ $$
 </div>
 <p>Trong đó, $\\lfloor a \\rfloor$ biểu thị làm tròn xuống số thực dấu phẩy động $a$, và $\\bmod \\: d$ biểu thị lấy phần dư khi chia cho $d$. Với dữ liệu mã số sinh viên, $d = 10$ và $k \\in [1, 8]$.</p>
 <p>Ngoài ra, ta cần chỉnh sửa một chút đoạn mã sắp xếp đếm để nó sắp xếp dựa trên chữ số thứ $k$ của số:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def digit(num: int, exp: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Lấy chữ số thứ k của phần tử num, với exp = 10^(k-1) */
+static int digit(int num, int exp) {
+    // Truyền exp thay vì k để tránh phải tính lũy thừa nhiều lần (tốn kém)
+    return (num / exp) % 10;
+}
+
+/* Sắp xếp đếm (dựa trên chữ số thứ k của nums) */
+static void countingSortDigit(int[] nums, int exp) {
+    // Phạm vi chữ số thập phân là 0~9, do đó cần mảng bucket độ dài 10
+    int[] counter = new int[10];
+    int n = nums.length;
+    // Đếm số lần xuất hiện của các chữ số 0~9
+    for (int i = 0; i &lt; n; i++) {
+        int d = digit(nums[i], exp); // Lấy chữ số thứ k của nums[i], ký hiệu là d
+        counter[d]++;                // Đếm số lần xuất hiện của chữ số d
+    }
+    // Tính tổng tiền tố, chuyển "số lần xuất hiện" thành "chỉ mục mảng"
+    for (int i = 1; i &lt; 10; i++) {
+        counter[i] += counter[i - 1];
+    }
+    // Duyệt ngược, dựa vào thống kê bucket, đặt từng phần tử vào res
+    int[] res = new int[n];
+    for (int i = n - 1; i &gt;= 0; i--) {
+        int d = digit(nums[i], exp);
+        int j = counter[d] - 1; // Lấy chỉ mục j cho d trong mảng
+        res[j] = nums[i];       // Đặt phần tử hiện tại vào chỉ mục j
+        counter[d]--;           // Giảm số đếm của d đi 1
+    }
+    // Dùng res để ghi đè mảng gốc nums
+    for (int i = 0; i &lt; n; i++)
+        nums[i] = res[i];
+}
+
+/* Sắp xếp cơ số */
+static void radixSort(int[] nums) {
+    // Lấy phần tử lớn nhất của mảng, dùng để xác định số chữ số tối đa
+    int m = Integer.MIN_VALUE;
+    for (int num : nums)
+        if (num &gt; m)
+            m = num;
+    // Duyệt từ chữ số thấp nhất đến cao nhất
+    for (int exp = 1; exp &lt;= m; exp *= 10) {
+        // Thực hiện sắp xếp đếm trên chữ số thứ k của các phần tử mảng
+        countingSortDigit(nums, exp);
+    }
+}
+</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func digit(num: Int, exp: Int) -&gt; Int {
+    // Passing exp instead of k can avoid repeated expensive exponentiation here
+    (num / exp) % 10
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int digit(int _num, int exp) {
+  // Passing exp instead of k can avoid repeated expensive exponentiation here
+  return (_num ~/ exp) % 10;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def digit(num: int, exp: int) -&gt; int:
     """Lấy chữ số thứ k của phần tử num, với exp = 10^(k-1)"""
     # Truyền exp thay vì k để tránh phải tính lũy thừa nhiều lần (tốn kém)
     return (num // exp) % 10
@@ -2905,142 +2777,6 @@ void radixSort(vector&lt;int&gt; &amp;nums) {
     for (int exp = 1; exp &lt;= m; exp *= 10)
         // Thực hiện sắp xếp đếm trên chữ số thứ k của các phần tử mảng
         countingSortDigit(nums, exp);
-}
-</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Lấy chữ số thứ k của phần tử num, với exp = 10^(k-1) */
-static int digit(int num, int exp) {
-    // Truyền exp thay vì k để tránh phải tính lũy thừa nhiều lần (tốn kém)
-    return (num / exp) % 10;
-}
-
-/* Sắp xếp đếm (dựa trên chữ số thứ k của nums) */
-static void countingSortDigit(int[] nums, int exp) {
-    // Phạm vi chữ số thập phân là 0~9, do đó cần mảng bucket độ dài 10
-    int[] counter = new int[10];
-    int n = nums.length;
-    // Đếm số lần xuất hiện của các chữ số 0~9
-    for (int i = 0; i &lt; n; i++) {
-        int d = digit(nums[i], exp); // Lấy chữ số thứ k của nums[i], ký hiệu là d
-        counter[d]++;                // Đếm số lần xuất hiện của chữ số d
-    }
-    // Tính tổng tiền tố, chuyển "số lần xuất hiện" thành "chỉ mục mảng"
-    for (int i = 1; i &lt; 10; i++) {
-        counter[i] += counter[i - 1];
-    }
-    // Duyệt ngược, dựa vào thống kê bucket, đặt từng phần tử vào res
-    int[] res = new int[n];
-    for (int i = n - 1; i &gt;= 0; i--) {
-        int d = digit(nums[i], exp);
-        int j = counter[d] - 1; // Lấy chỉ mục j cho d trong mảng
-        res[j] = nums[i];       // Đặt phần tử hiện tại vào chỉ mục j
-        counter[d]--;           // Giảm số đếm của d đi 1
-    }
-    // Dùng res để ghi đè mảng gốc nums
-    for (int i = 0; i &lt; n; i++)
-        nums[i] = res[i];
-}
-
-/* Sắp xếp cơ số */
-static void radixSort(int[] nums) {
-    // Lấy phần tử lớn nhất của mảng, dùng để xác định số chữ số tối đa
-    int m = Integer.MIN_VALUE;
-    for (int num : nums)
-        if (num &gt; m)
-            m = num;
-    // Duyệt từ chữ số thấp nhất đến cao nhất
-    for (int exp = 1; exp &lt;= m; exp *= 10) {
-        // Thực hiện sắp xếp đếm trên chữ số thứ k của các phần tử mảng
-        countingSortDigit(nums, exp);
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Lấy chữ số thứ k của phần tử num, với exp = 10^(k-1) */
-function digit(num, exp) {
-    // Truyền exp thay vì k để tránh phải tính lũy thừa nhiều lần (tốn kém)
-    return Math.floor(num / exp) % 10;
-}
-
-/* Sắp xếp đếm (dựa trên chữ số thứ k của nums) */
-function countingSortDigit(nums, exp) {
-    // Phạm vi chữ số thập phân là 0~9, do đó cần mảng bucket độ dài 10
-    const counter = new Array(10).fill(0);
-    const n = nums.length;
-    // Đếm số lần xuất hiện của các chữ số 0~9
-    for (let i = 0; i &lt; n; i++) {
-        const d = digit(nums[i], exp); // Lấy chữ số thứ k của nums[i], ký hiệu là d
-        counter[d]++; // Đếm số lần xuất hiện của chữ số d
-    }
-    // Tính tổng tiền tố, chuyển "số lần xuất hiện" thành "chỉ mục mảng"
-    for (let i = 1; i &lt; 10; i++) {
-        counter[i] += counter[i - 1];
-    }
-    // Duyệt ngược, dựa vào thống kê bucket, đặt từng phần tử vào res
-    const res = new Array(n).fill(0);
-    for (let i = n - 1; i &gt;= 0; i--) {
-        const d = digit(nums[i], exp);
-        const j = counter[d] - 1; // Lấy chỉ mục j cho d trong mảng
-        res[j] = nums[i]; // Đặt phần tử hiện tại vào chỉ mục j
-        counter[d]--; // Giảm số đếm của d đi 1
-    }
-    // Dùng res để ghi đè mảng gốc nums
-    for (let i = 0; i &lt; n; i++) {
-        nums[i] = res[i];
-    }
-}
-
-/* Sắp xếp cơ số */
-function radixSort(nums) {
-    // Lấy phần tử lớn nhất của mảng, dùng để xác định số chữ số tối đa
-    let m = Math.max(...nums);
-    // Duyệt từ chữ số thấp nhất đến cao nhất
-    for (let exp = 1; exp &lt;= m; exp *= 10) {
-        // Thực hiện sắp xếp đếm trên chữ số thứ k của các phần tử mảng
-        countingSortDigit(nums, exp);
-    }
-}
-</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Lấy chữ số thứ k của phần tử num, với exp = 10^(k-1) */
-fun digit(num: Int, exp: Int): Int {
-    // Truyền exp thay vì k để tránh phải tính lũy thừa nhiều lần (tốn kém)
-    return (num / exp) % 10
-}
-
-/* Sắp xếp đếm (dựa trên chữ số thứ k của nums) */
-fun countingSortDigit(nums: IntArray, exp: Int) {
-    // Phạm vi chữ số thập phân là 0~9, do đó cần mảng bucket độ dài 10
-    val counter = IntArray(10)
-    val n = nums.size
-    // Đếm số lần xuất hiện của các chữ số 0~9
-    for (i in 0..&lt;n) {
-        val d = digit(nums[i], exp) // Lấy chữ số thứ k của nums[i], ký hiệu là d
-        counter[d]++                // Đếm số lần xuất hiện của chữ số d
-    }
-    // Tính tổng tiền tố, chuyển "số lần xuất hiện" thành "chỉ mục mảng"
-    for (i in 1..9) {
-        counter[i] += counter[i - 1]
-    }
-    // Duyệt ngược, dựa vào thống kê bucket, đặt từng phần tử vào res
-    val res = IntArray(n)
-    for (i in n - 1 downTo 0) {
-        val d = digit(nums[i], exp)
-        val j = counter[d] - 1 // Lấy chỉ mục j cho d trong mảng
-        res[j] = nums[i]       // Đặt phần tử hiện tại vào chỉ mục j
-        counter[d]--           // Giảm số đếm của d đi 1
-    }
-    // Dùng res để ghi đè mảng gốc nums
-    for (i in 0..&lt;n)
-        nums[i] = res[i]
-}
-
-/* Sắp xếp cơ số */
-fun radixSort(nums: IntArray) {
-    // Lấy phần tử lớn nhất của mảng, dùng để xác định số chữ số tối đa
-    var m = Int.MIN_VALUE
-    for (num in nums) if (num &gt; m) m = num
-    var exp = 1
-    // Duyệt từ chữ số thấp nhất đến cao nhất
-    while (exp &lt;= m) {
-        // Thực hiện sắp xếp đếm trên chữ số thứ k của các phần tử mảng
-        countingSortDigit(nums, exp)
-        exp *= 10
-    }
 }
 </code></pre></div></div></div>
 <div class="callout callout-question">

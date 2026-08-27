@@ -76,7 +76,27 @@ Object.assign(DSA_CONTENT, {
   </tbody>
 </table>
 <p>Thông thường, ta có thể trực tiếp dùng class ngăn xếp dựng sẵn của ngôn ngữ lập trình. Tuy nhiên, một số ngôn ngữ có thể không cung cấp class ngăn xếp riêng biệt. Trong trường hợp đó, ta có thể dùng "mảng" hoặc "danh sách liên kết" của ngôn ngữ đó làm ngăn xếp, và chỉ đơn giản là tránh dùng các thao tác không liên quan đến hành vi của ngăn xếp.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Khởi tạo ngăn xếp
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo ngăn xếp */
+Stack&lt;Integer&gt; stack = new Stack&lt;&gt;();
+
+/* Đẩy phần tử vào ngăn xếp */
+stack.push(1);
+stack.push(3);
+stack.push(2);
+stack.push(5);
+stack.push(4);
+
+/* Truy cập phần tử đỉnh ngăn xếp */
+int peek = stack.peek();
+
+/* Lấy phần tử ra khỏi ngăn xếp */
+int pop = stack.pop();
+
+/* Lấy độ dài ngăn xếp */
+int size = stack.size();
+
+/* Kiểm tra rỗng */
+boolean isEmpty = stack.isEmpty();</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Khởi tạo ngăn xếp
 # Python không có class ngăn xếp dựng sẵn, có thể dùng list làm ngăn xếp
 stack: list[int] = []
 
@@ -117,27 +137,7 @@ stack.pop(); // Không có giá trị trả về
 int size = stack.size();
 
 /* Kiểm tra rỗng */
-bool empty = stack.empty();</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo ngăn xếp */
-Stack&lt;Integer&gt; stack = new Stack&lt;&gt;();
-
-/* Đẩy phần tử vào ngăn xếp */
-stack.push(1);
-stack.push(3);
-stack.push(2);
-stack.push(5);
-stack.push(4);
-
-/* Truy cập phần tử đỉnh ngăn xếp */
-int peek = stack.peek();
-
-/* Lấy phần tử ra khỏi ngăn xếp */
-int pop = stack.pop();
-
-/* Lấy độ dài ngăn xếp */
-int size = stack.size();
-
-/* Kiểm tra rỗng */
-boolean isEmpty = stack.isEmpty();</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo ngăn xếp */
+bool empty = stack.empty();</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo ngăn xếp */
 // JavaScript không có class ngăn xếp dựng sẵn, có thể dùng Array làm ngăn xếp
 const stack = [];
 
@@ -158,27 +158,7 @@ const pop = stack.pop();
 const size = stack.length;
 
 /* Kiểm tra rỗng */
-const isEmpty = stack.length === 0;</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khởi tạo ngăn xếp */
-val stack = Stack&lt;Int&gt;()
-
-/* Đẩy phần tử vào ngăn xếp */
-stack.push(1)
-stack.push(3)
-stack.push(2)
-stack.push(5)
-stack.push(4)
-
-/* Truy cập phần tử đỉnh ngăn xếp */
-val peek = stack.peek()
-
-/* Lấy phần tử ra khỏi ngăn xếp */
-val pop = stack.pop()
-
-/* Lấy độ dài ngăn xếp */
-val size = stack.size
-
-/* Kiểm tra rỗng */
-val isEmpty = stack.isEmpty()</code></pre></div></div></div>
+const isEmpty = stack.length === 0;</code></pre></div></div></div>
 
 <h2>5.1.3 Triển khai Stack</h2>
 <p>Để hiểu sâu hơn về cách một ngăn xếp hoạt động, hãy cùng thử tự triển khai một class ngăn xếp.</p>
@@ -211,7 +191,61 @@ val isEmpty = stack.isEmpty()</code></pre></div></div></div>
   </div>
 </div>
 <p>Dưới đây là mã ví dụ triển khai ngăn xếp dựa trên danh sách liên kết:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class LinkedListStack:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Ngăn xếp triển khai bằng danh sách liên kết */
+class LinkedListStack {
+    private ListNode stackPeek; // Dùng node đầu làm đỉnh ngăn xếp
+    private int stkSize = 0; // Độ dài ngăn xếp
+
+    public LinkedListStack() {
+        stackPeek = null;
+    }
+
+    /* Lấy độ dài ngăn xếp */
+    public int size() {
+        return stkSize;
+    }
+
+    /* Kiểm tra ngăn xếp có rỗng không */
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    /* Đẩy vào ngăn xếp */
+    public void push(int num) {
+        ListNode node = new ListNode(num);
+        node.next = stackPeek;
+        stackPeek = node;
+        stkSize++;
+    }
+
+    /* Lấy ra khỏi ngăn xếp */
+    public int pop() {
+        int num = peek();
+        stackPeek = stackPeek.next;
+        stkSize--;
+        return num;
+    }
+
+    /* Truy cập phần tử đỉnh ngăn xếp */
+    public int peek() {
+        if (isEmpty())
+            throw new IndexOutOfBoundsException();
+        return stackPeek.val;
+    }
+
+    /* Chuyển đổi danh sách liên kết sang mảng và trả về */
+    public int[] toArray() {
+        ListNode node = stackPeek;
+        int[] res = new int[size()];
+        for (int i = res.length - 1; i &gt;= 0; i--) {
+            res[i] = node.val;
+            node = node.next;
+        }
+        return res;
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>LinkedListStack() {
+    _stackPeek = null;
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class LinkedListStack:
     """Ngăn xếp triển khai bằng danh sách liên kết"""
 
     def __init__(self):
@@ -318,157 +352,7 @@ class LinkedListStack {
         }
         return res;
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Ngăn xếp triển khai bằng danh sách liên kết */
-class LinkedListStack {
-    private ListNode stackPeek; // Dùng node đầu làm đỉnh ngăn xếp
-    private int stkSize = 0; // Độ dài ngăn xếp
-
-    public LinkedListStack() {
-        stackPeek = null;
-    }
-
-    /* Lấy độ dài ngăn xếp */
-    public int size() {
-        return stkSize;
-    }
-
-    /* Kiểm tra ngăn xếp có rỗng không */
-    public boolean isEmpty() {
-        return size() == 0;
-    }
-
-    /* Đẩy vào ngăn xếp */
-    public void push(int num) {
-        ListNode node = new ListNode(num);
-        node.next = stackPeek;
-        stackPeek = node;
-        stkSize++;
-    }
-
-    /* Lấy ra khỏi ngăn xếp */
-    public int pop() {
-        int num = peek();
-        stackPeek = stackPeek.next;
-        stkSize--;
-        return num;
-    }
-
-    /* Truy cập phần tử đỉnh ngăn xếp */
-    public int peek() {
-        if (isEmpty())
-            throw new IndexOutOfBoundsException();
-        return stackPeek.val;
-    }
-
-    /* Chuyển đổi danh sách liên kết sang mảng và trả về */
-    public int[] toArray() {
-        ListNode node = stackPeek;
-        int[] res = new int[size()];
-        for (int i = res.length - 1; i &gt;= 0; i--) {
-            res[i] = node.val;
-            node = node.next;
-        }
-        return res;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Ngăn xếp triển khai bằng danh sách liên kết */
-class LinkedListStack {
-    #stackPeek; // Dùng node đầu làm đỉnh ngăn xếp
-    #stkSize = 0; // Độ dài ngăn xếp
-
-    constructor() {
-        this.#stackPeek = null;
-    }
-
-    /* Lấy độ dài ngăn xếp */
-    get size() {
-        return this.#stkSize;
-    }
-
-    /* Kiểm tra ngăn xếp có rỗng không */
-    isEmpty() {
-        return this.size === 0;
-    }
-
-    /* Đẩy vào ngăn xếp */
-    push(num) {
-        const node = new ListNode(num);
-        node.next = this.#stackPeek;
-        this.#stackPeek = node;
-        this.#stkSize++;
-    }
-
-    /* Lấy ra khỏi ngăn xếp */
-    pop() {
-        const num = this.peek();
-        this.#stackPeek = this.#stackPeek.next;
-        this.#stkSize--;
-        return num;
-    }
-
-    /* Truy cập phần tử đỉnh ngăn xếp */
-    peek() {
-        if (!this.#stackPeek) throw new Error('Ngăn xếp rỗng');
-        return this.#stackPeek.val;
-    }
-
-    /* Chuyển đổi danh sách liên kết sang mảng và trả về */
-    toArray() {
-        let node = this.#stackPeek;
-        const res = new Array(this.size);
-        for (let i = res.length - 1; i &gt;= 0; i--) {
-            res[i] = node.val;
-            node = node.next;
-        }
-        return res;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Ngăn xếp triển khai bằng danh sách liên kết */
-class LinkedListStack(
-    private var stackPeek: ListNode? = null, // Dùng node đầu làm đỉnh ngăn xếp
-    private var stkSize: Int = 0 // Độ dài ngăn xếp
-) {
-    /* Lấy độ dài ngăn xếp */
-    fun size(): Int {
-        return stkSize
-    }
-
-    /* Kiểm tra ngăn xếp có rỗng không */
-    fun isEmpty(): Boolean {
-        return size() == 0
-    }
-
-    /* Đẩy vào ngăn xếp */
-    fun push(num: Int) {
-        val node = ListNode(num)
-        node.next = stackPeek
-        stackPeek = node
-        stkSize++
-    }
-
-    /* Lấy ra khỏi ngăn xếp */
-    fun pop(): Int? {
-        val num = peek()
-        stackPeek = stackPeek?.next
-        stkSize--
-        return num
-    }
-
-    /* Truy cập phần tử đỉnh ngăn xếp */
-    fun peek(): Int? {
-        if (isEmpty()) throw IndexOutOfBoundsException()
-        return stackPeek?._val
-    }
-
-    /* Chuyển đổi danh sách liên kết sang mảng và trả về */
-    fun toArray(): IntArray {
-        var node = stackPeek
-        val res = IntArray(size())
-        for (i in res.size - 1 downTo 0) {
-            res[i] = node?._val!!
-            node = node.next
-        }
-        return res
-    }
-}</code></pre></div></div></div>
+};</code></pre></div></div></div>
 
 <h3>5.1.3.2 Triển khai bằng Mảng</h3>
 <p>Khi triển khai ngăn xếp bằng mảng, ta có thể coi phần cuối mảng là đỉnh ngăn xếp. Như minh họa trong hình dưới đây, thao tác đẩy vào và lấy ra tương ứng với việc thêm và xóa phần tử ở cuối mảng, cả hai đều có độ phức tạp thời gian $O(1)$.</p>
@@ -496,7 +380,51 @@ class LinkedListStack(
   </div>
 </div>
 <p>Vì số phần tử được đẩy vào ngăn xếp có thể liên tục tăng lên, ta có thể dùng mảng động, giúp không phải tự xử lý việc mở rộng mảng. Dưới đây là mã ví dụ:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class ArrayStack:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Ngăn xếp triển khai bằng mảng */
+class ArrayStack {
+    private ArrayList&lt;Integer&gt; stack;
+
+    public ArrayStack() {
+        // Khởi tạo list (mảng động)
+        stack = new ArrayList&lt;&gt;();
+    }
+
+    /* Lấy độ dài ngăn xếp */
+    public int size() {
+        return stack.size();
+    }
+
+    /* Kiểm tra ngăn xếp có rỗng không */
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    /* Đẩy vào ngăn xếp */
+    public void push(int num) {
+        stack.add(num);
+    }
+
+    /* Lấy ra khỏi ngăn xếp */
+    public int pop() {
+        if (isEmpty())
+            throw new IndexOutOfBoundsException();
+        return stack.remove(size() - 1);
+    }
+
+    /* Truy cập phần tử đỉnh ngăn xếp */
+    public int peek() {
+        if (isEmpty())
+            throw new IndexOutOfBoundsException();
+        return stack.get(size() - 1);
+    }
+
+    /* Chuyển đổi List sang mảng và trả về */
+    public Object[] toArray() {
+        return stack.toArray();
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>ArrayStack() {
+    _stack = [];
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class ArrayStack:
     """Ngăn xếp triển khai bằng mảng"""
 
     def __init__(self):
@@ -568,123 +496,7 @@ class ArrayStack {
     vector&lt;int&gt; toVector() {
         return stack;
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Ngăn xếp triển khai bằng mảng */
-class ArrayStack {
-    private ArrayList&lt;Integer&gt; stack;
-
-    public ArrayStack() {
-        // Khởi tạo list (mảng động)
-        stack = new ArrayList&lt;&gt;();
-    }
-
-    /* Lấy độ dài ngăn xếp */
-    public int size() {
-        return stack.size();
-    }
-
-    /* Kiểm tra ngăn xếp có rỗng không */
-    public boolean isEmpty() {
-        return size() == 0;
-    }
-
-    /* Đẩy vào ngăn xếp */
-    public void push(int num) {
-        stack.add(num);
-    }
-
-    /* Lấy ra khỏi ngăn xếp */
-    public int pop() {
-        if (isEmpty())
-            throw new IndexOutOfBoundsException();
-        return stack.remove(size() - 1);
-    }
-
-    /* Truy cập phần tử đỉnh ngăn xếp */
-    public int peek() {
-        if (isEmpty())
-            throw new IndexOutOfBoundsException();
-        return stack.get(size() - 1);
-    }
-
-    /* Chuyển đổi List sang mảng và trả về */
-    public Object[] toArray() {
-        return stack.toArray();
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Ngăn xếp triển khai bằng mảng */
-class ArrayStack {
-    #stack;
-    constructor() {
-        this.#stack = [];
-    }
-
-    /* Lấy độ dài ngăn xếp */
-    get size() {
-        return this.#stack.length;
-    }
-
-    /* Kiểm tra ngăn xếp có rỗng không */
-    isEmpty() {
-        return this.#stack.length === 0;
-    }
-
-    /* Đẩy vào ngăn xếp */
-    push(num) {
-        this.#stack.push(num);
-    }
-
-    /* Lấy ra khỏi ngăn xếp */
-    pop() {
-        if (this.isEmpty()) throw new Error('Ngăn xếp rỗng');
-        return this.#stack.pop();
-    }
-
-    /* Truy cập phần tử đỉnh ngăn xếp */
-    top() {
-        if (this.isEmpty()) throw new Error('Ngăn xếp rỗng');
-        return this.#stack[this.#stack.length - 1];
-    }
-
-    /* Trả về mảng */
-    toArray() {
-        return this.#stack;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Ngăn xếp triển khai bằng mảng */
-class ArrayStack {
-    // Khởi tạo list (mảng động)
-    private val stack = mutableListOf&lt;Int&gt;()
-
-    /* Lấy độ dài ngăn xếp */
-    fun size(): Int {
-        return stack.size
-    }
-
-    /* Kiểm tra ngăn xếp có rỗng không */
-    fun isEmpty(): Boolean {
-        return size() == 0
-    }
-
-    /* Đẩy vào ngăn xếp */
-    fun push(num: Int) {
-        stack.add(num)
-    }
-
-    /* Lấy ra khỏi ngăn xếp */
-    fun pop(): Int {
-        if (isEmpty()) throw IndexOutOfBoundsException()
-        return stack.removeAt(size() - 1)
-    }
-
-    /* Truy cập phần tử đỉnh ngăn xếp */
-    fun peek(): Int {
-        if (isEmpty()) throw IndexOutOfBoundsException()
-        return stack[size() - 1]
-    }
-
-    /* Chuyển đổi List sang mảng và trả về */
-    fun toArray(): Array&lt;Any&gt; {
-        return stack.toTypedArray()
-    }
-}</code></pre></div></div></div>
+};</code></pre></div></div></div>
 
 <h3>5.1.3.3 Mô phỏng tương tác</h3>
 <div class="interactive-widget-wrapper" id="stack-ops-wrapper">
@@ -1212,7 +1024,27 @@ In summary, we cannot simply determine which implementation is more memory-effic
   </tbody>
 </table>
 <p>Ta có thể trực tiếp dùng các class hàng đợi do ngôn ngữ lập trình cung cấp:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>from collections import deque
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo hàng đợi */
+Queue&lt;Integer&gt; queue = new LinkedList&lt;&gt;();
+
+/* Thêm phần tử vào hàng đợi */
+queue.offer(1);
+queue.offer(3);
+queue.offer(2);
+queue.offer(5);
+queue.offer(4);
+
+/* Truy cập phần tử đầu hàng đợi */
+int peek = queue.peek();
+
+/* Lấy phần tử ra khỏi hàng đợi */
+int pop = queue.poll();
+
+/* Lấy độ dài hàng đợi */
+int size = queue.size();
+
+/* Kiểm tra hàng đợi có rỗng không */
+boolean isEmpty = queue.isEmpty();</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>from collections import deque
 
 # Khởi tạo hàng đợi
 # Trong Python, thường dùng class deque (hàng đợi hai đầu) làm hàng đợi
@@ -1256,27 +1088,7 @@ queue.pop();
 int size = queue.size();
 
 /* Kiểm tra hàng đợi có rỗng không */
-bool empty = queue.empty();</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo hàng đợi */
-Queue&lt;Integer&gt; queue = new LinkedList&lt;&gt;();
-
-/* Thêm phần tử vào hàng đợi */
-queue.offer(1);
-queue.offer(3);
-queue.offer(2);
-queue.offer(5);
-queue.offer(4);
-
-/* Truy cập phần tử đầu hàng đợi */
-int peek = queue.peek();
-
-/* Lấy phần tử ra khỏi hàng đợi */
-int pop = queue.poll();
-
-/* Lấy độ dài hàng đợi */
-int size = queue.size();
-
-/* Kiểm tra hàng đợi có rỗng không */
-boolean isEmpty = queue.isEmpty();</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo hàng đợi */
+bool empty = queue.empty();</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo hàng đợi */
 // JavaScript không có class hàng đợi dựng sẵn, có thể dùng Array làm hàng đợi
 const queue = [];
 
@@ -1298,27 +1110,7 @@ const pop = queue.shift();
 const size = queue.length;
 
 /* Kiểm tra hàng đợi có rỗng không */
-const empty = queue.length === 0;</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khởi tạo hàng đợi */
-val queue = LinkedList&lt;Int&gt;()
-
-/* Thêm phần tử vào hàng đợi */
-queue.offer(1)
-queue.offer(3)
-queue.offer(2)
-queue.offer(5)
-queue.offer(4)
-
-/* Truy cập phần tử đầu hàng đợi */
-val peek = queue.peek()
-
-/* Lấy phần tử ra khỏi hàng đợi */
-val pop = queue.poll()
-
-/* Lấy độ dài hàng đợi */
-val size = queue.size
-
-/* Kiểm tra hàng đợi có rỗng không */
-val isEmpty = queue.isEmpty()</code></pre></div></div></div>
+const empty = queue.length === 0;</code></pre></div></div></div>
 
 <h2>5.2.3 Triển khai Queue</h2>
 <p>Để triển khai một hàng đợi, ta cần một cấu trúc dữ liệu cho phép thêm phần tử ở một đầu và xóa phần tử ở đầu còn lại. Cả danh sách liên kết và mảng đều đáp ứng được yêu cầu này.</p>
@@ -1349,7 +1141,72 @@ val isEmpty = queue.isEmpty()</code></pre></div></div></div>
   </div>
 </div>
 <p>Dưới đây là mã triển khai hàng đợi bằng danh sách liên kết:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class LinkedListQueue:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Hàng đợi triển khai bằng danh sách liên kết */
+class LinkedListQueue {
+    private ListNode front, rear; // Node đầu front, node cuối rear
+    private int queSize = 0;
+
+    public LinkedListQueue() {
+        front = null;
+        rear = null;
+    }
+
+    /* Lấy độ dài hàng đợi */
+    public int size() {
+        return queSize;
+    }
+
+    /* Kiểm tra hàng đợi có rỗng không */
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    /* Thêm vào hàng đợi */
+    public void push(int num) {
+        // Thêm num vào sau node cuối
+        ListNode node = new ListNode(num);
+        // Nếu hàng đợi rỗng, cho cả front và rear trỏ đến node này
+        if (front == null) {
+            front = node;
+            rear = node;
+        // Nếu hàng đợi không rỗng, thêm node vào sau node cuối
+        } else {
+            rear.next = node;
+            rear = node;
+        }
+        queSize++;
+    }
+
+    /* Lấy ra khỏi hàng đợi */
+    public int pop() {
+        int num = peek();
+        // Xóa node đầu
+        front = front.next;
+        queSize--;
+        return num;
+    }
+
+    /* Truy cập phần tử đầu hàng đợi */
+    public int peek() {
+        if (isEmpty())
+            throw new IndexOutOfBoundsException();
+        return front.val;
+    }
+
+    /* Chuyển đổi danh sách liên kết sang mảng và trả về */
+    public int[] toArray() {
+        ListNode node = front;
+        int[] res = new int[size()];
+        for (int i = 0; i &lt; res.length; i++) {
+            res[i] = node.val;
+            node = node.next;
+        }
+        return res;
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>LinkedListQueue() {
+    _front = null;
+    _rear = null;
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class LinkedListQueue:
     """Hàng đợi triển khai bằng danh sách liên kết"""
 
     def __init__(self):
@@ -1475,189 +1332,7 @@ class LinkedListQueue {
         }
         return res;
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Hàng đợi triển khai bằng danh sách liên kết */
-class LinkedListQueue {
-    private ListNode front, rear; // Node đầu front, node cuối rear
-    private int queSize = 0;
-
-    public LinkedListQueue() {
-        front = null;
-        rear = null;
-    }
-
-    /* Lấy độ dài hàng đợi */
-    public int size() {
-        return queSize;
-    }
-
-    /* Kiểm tra hàng đợi có rỗng không */
-    public boolean isEmpty() {
-        return size() == 0;
-    }
-
-    /* Thêm vào hàng đợi */
-    public void push(int num) {
-        // Thêm num vào sau node cuối
-        ListNode node = new ListNode(num);
-        // Nếu hàng đợi rỗng, cho cả front và rear trỏ đến node này
-        if (front == null) {
-            front = node;
-            rear = node;
-        // Nếu hàng đợi không rỗng, thêm node vào sau node cuối
-        } else {
-            rear.next = node;
-            rear = node;
-        }
-        queSize++;
-    }
-
-    /* Lấy ra khỏi hàng đợi */
-    public int pop() {
-        int num = peek();
-        // Xóa node đầu
-        front = front.next;
-        queSize--;
-        return num;
-    }
-
-    /* Truy cập phần tử đầu hàng đợi */
-    public int peek() {
-        if (isEmpty())
-            throw new IndexOutOfBoundsException();
-        return front.val;
-    }
-
-    /* Chuyển đổi danh sách liên kết sang mảng và trả về */
-    public int[] toArray() {
-        ListNode node = front;
-        int[] res = new int[size()];
-        for (int i = 0; i &lt; res.length; i++) {
-            res[i] = node.val;
-            node = node.next;
-        }
-        return res;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Hàng đợi triển khai bằng danh sách liên kết */
-class LinkedListQueue {
-    #front; // Node đầu front
-    #rear; // Node cuối rear
-    #queSize = 0;
-
-    constructor() {
-        this.#front = null;
-        this.#rear = null;
-    }
-
-    /* Lấy độ dài hàng đợi */
-    get size() {
-        return this.#queSize;
-    }
-
-    /* Kiểm tra hàng đợi có rỗng không */
-    isEmpty() {
-        return this.size === 0;
-    }
-
-    /* Thêm vào hàng đợi */
-    push(num) {
-        // Thêm num vào sau node cuối
-        const node = new ListNode(num);
-        // Nếu hàng đợi rỗng, cho cả front và rear trỏ đến node này
-        if (!this.#front) {
-            this.#front = node;
-            this.#rear = node;
-            // Nếu hàng đợi không rỗng, thêm node vào sau node cuối
-        } else {
-            this.#rear.next = node;
-            this.#rear = node;
-        }
-        this.#queSize++;
-    }
-
-    /* Lấy ra khỏi hàng đợi */
-    pop() {
-        const num = this.peek();
-        // Xóa node đầu
-        this.#front = this.#front.next;
-        this.#queSize--;
-        return num;
-    }
-
-    /* Truy cập phần tử đầu hàng đợi */
-    peek() {
-        if (this.size === 0) throw new Error('Hàng đợi rỗng');
-        return this.#front.val;
-    }
-
-    /* Chuyển đổi danh sách liên kết sang mảng và trả về */
-    toArray() {
-        let node = this.#front;
-        const res = new Array(this.size);
-        for (let i = 0; i &lt; res.length; i++) {
-            res[i] = node.val;
-            node = node.next;
-        }
-        return res;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Hàng đợi triển khai bằng danh sách liên kết */
-class LinkedListQueue(
-    // Node đầu front, node cuối rear
-    private var front: ListNode? = null,
-    private var rear: ListNode? = null,
-    private var queSize: Int = 0
-) {
-    /* Lấy độ dài hàng đợi */
-    fun size(): Int {
-        return queSize
-    }
-
-    /* Kiểm tra hàng đợi có rỗng không */
-    fun isEmpty(): Boolean {
-        return size() == 0
-    }
-
-    /* Thêm vào hàng đợi */
-    fun push(num: Int) {
-        // Thêm num vào sau node cuối
-        val node = ListNode(num)
-        // Nếu hàng đợi rỗng, cho cả front và rear trỏ đến node này
-        if (front == null) {
-            front = node
-            rear = node
-            // Nếu hàng đợi không rỗng, thêm node vào sau node cuối
-        } else {
-            rear?.next = node
-            rear = node
-        }
-        queSize++
-    }
-
-    /* Lấy ra khỏi hàng đợi */
-    fun pop(): Int {
-        val num = peek()
-        // Xóa node đầu
-        front = front?.next
-        queSize--
-        return num
-    }
-
-    /* Truy cập phần tử đầu hàng đợi */
-    fun peek(): Int {
-        if (isEmpty()) throw IndexOutOfBoundsException()
-        return front!!._val
-    }
-
-    /* Chuyển đổi danh sách liên kết sang mảng và trả về */
-    fun toArray(): IntArray {
-        var node = front
-        val res = IntArray(size())
-        for (i in res.indices) {
-            res[i] = node!!._val
-            node = node.next
-        }
-        return res
-    }
-}</code></pre></div></div></div>
+};</code></pre></div></div></div>
 
 <h3>5.2.3.2 Triển khai bằng Mảng</h3>
 <p>Việc xóa phần tử đầu tiên trong mảng có độ phức tạp thời gian $O(n)$, điều này sẽ khiến thao tác lấy ra khỏi hàng đợi kém hiệu quả. Tuy nhiên, ta có thể dùng phương pháp khéo léo sau để tránh vấn đề này.</p>
@@ -1693,7 +1368,74 @@ class LinkedListQueue(
 </div>
 <p>Có thể bạn nhận thấy một vấn đề: khi ta liên tục thêm vào và lấy ra, cả <code>front</code> và <code>rear</code> đều di chuyển sang phải. <strong>Khi chúng chạm đến cuối mảng, chúng không thể tiếp tục di chuyển được nữa</strong>. Để giải quyết vấn đề này, ta có thể coi mảng như một "mảng vòng" (circular array) với đầu và cuối được nối liền nhau.</p>
 <p>Đối với một mảng vòng, ta cần để <code>front</code> hoặc <code>rear</code> quay vòng về đầu mảng khi chúng vượt qua cuối mảng. Quy luật tuần hoàn này có thể được triển khai bằng "phép chia lấy dư" (modulo), như đoạn mã dưới đây:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class ArrayQueue:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Hàng đợi triển khai bằng mảng vòng (circular array) */
+class ArrayQueue {
+    private int[] nums; // Mảng dùng để lưu phần tử hàng đợi
+    private int front; // Con trỏ đầu, trỏ đến phần tử ở đầu hàng đợi
+    private int queSize; // Độ dài hàng đợi
+
+    public ArrayQueue(int capacity) {
+        nums = new int[capacity];
+        front = queSize = 0;
+    }
+
+    /* Lấy dung lượng hàng đợi */
+    public int capacity() {
+        return nums.length;
+    }
+
+    /* Lấy độ dài hàng đợi */
+    public int size() {
+        return queSize;
+    }
+
+    /* Kiểm tra hàng đợi có rỗng không */
+    public boolean isEmpty() {
+        return queSize == 0;
+    }
+
+    /* Thêm vào hàng đợi */
+    public void push(int num) {
+        if (queSize == capacity()) {
+            System.out.println("Hàng đợi đầy");
+            return;
+        }
+        // Dùng phép chia lấy dư để rear quay về đầu mảng sau khi vượt qua cuối mảng
+        // Thêm num vào cuối hàng đợi
+        int rear = (front + queSize) % capacity();
+        // Con trỏ đầu dịch về sau một vị trí
+        nums[rear] = num;
+        queSize++;
+    }
+
+    /* Lấy ra khỏi hàng đợi */
+    public int pop() {
+        int num = peek();
+        // Con trỏ đầu dịch về sau một vị trí, nếu vượt qua cuối thì quay lại đầu mảng
+        front = (front + 1) % capacity();
+        queSize--;
+        return num;
+    }
+
+    /* Truy cập phần tử đầu hàng đợi */
+    public int peek() {
+        if (isEmpty())
+            throw new IndexOutOfBoundsException();
+        return nums[front];
+    }
+
+    /* Trả về mảng */
+    public int[] toArray() {
+        int[] res = new int[queSize];
+        for (int i = 0, j = front; i &lt; queSize; i++, j++) {
+            res[i] = nums[j % capacity()];
+        }
+        return res;
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>ArrayQueue(int capacity) {
+    _nums = List.filled(capacity, 0);
+    _front = _queSize = 0;
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class ArrayQueue:
     """Hàng đợi triển khai bằng mảng vòng (circular array)"""
 
     def __init__(self, size: int):
@@ -1819,193 +1561,7 @@ class ArrayQueue {
         }
         return arr;
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Hàng đợi triển khai bằng mảng vòng (circular array) */
-class ArrayQueue {
-    private int[] nums; // Mảng dùng để lưu phần tử hàng đợi
-    private int front; // Con trỏ đầu, trỏ đến phần tử ở đầu hàng đợi
-    private int queSize; // Độ dài hàng đợi
-
-    public ArrayQueue(int capacity) {
-        nums = new int[capacity];
-        front = queSize = 0;
-    }
-
-    /* Lấy dung lượng hàng đợi */
-    public int capacity() {
-        return nums.length;
-    }
-
-    /* Lấy độ dài hàng đợi */
-    public int size() {
-        return queSize;
-    }
-
-    /* Kiểm tra hàng đợi có rỗng không */
-    public boolean isEmpty() {
-        return queSize == 0;
-    }
-
-    /* Thêm vào hàng đợi */
-    public void push(int num) {
-        if (queSize == capacity()) {
-            System.out.println("Hàng đợi đầy");
-            return;
-        }
-        // Dùng phép chia lấy dư để rear quay về đầu mảng sau khi vượt qua cuối mảng
-        // Thêm num vào cuối hàng đợi
-        int rear = (front + queSize) % capacity();
-        // Con trỏ đầu dịch về sau một vị trí
-        nums[rear] = num;
-        queSize++;
-    }
-
-    /* Lấy ra khỏi hàng đợi */
-    public int pop() {
-        int num = peek();
-        // Con trỏ đầu dịch về sau một vị trí, nếu vượt qua cuối thì quay lại đầu mảng
-        front = (front + 1) % capacity();
-        queSize--;
-        return num;
-    }
-
-    /* Truy cập phần tử đầu hàng đợi */
-    public int peek() {
-        if (isEmpty())
-            throw new IndexOutOfBoundsException();
-        return nums[front];
-    }
-
-    /* Trả về mảng */
-    public int[] toArray() {
-        int[] res = new int[queSize];
-        for (int i = 0, j = front; i &lt; queSize; i++, j++) {
-            res[i] = nums[j % capacity()];
-        }
-        return res;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Hàng đợi triển khai bằng mảng vòng (circular array) */
-class ArrayQueue {
-    #nums; // Mảng dùng để lưu phần tử hàng đợi
-    #front = 0; // Con trỏ đầu, trỏ đến phần tử ở đầu hàng đợi
-    #queSize = 0; // Độ dài hàng đợi
-
-    constructor(capacity) {
-        this.#nums = new Array(capacity);
-    }
-
-    /* Lấy dung lượng hàng đợi */
-    get capacity() {
-        return this.#nums.length;
-    }
-
-    /* Lấy độ dài hàng đợi */
-    get size() {
-        return this.#queSize;
-    }
-
-    /* Kiểm tra hàng đợi có rỗng không */
-    isEmpty() {
-        return this.#queSize === 0;
-    }
-
-    /* Thêm vào hàng đợi */
-    push(num) {
-        if (this.size === this.capacity) {
-            console.log('Hàng đợi đầy');
-            return;
-        }
-        // Dùng phép chia lấy dư để rear quay về đầu mảng sau khi vượt qua cuối mảng
-        const rear = (this.#front + this.size) % this.capacity;
-        // Con trỏ đầu dịch về sau một vị trí
-        this.#nums[rear] = num;
-        this.#queSize++;
-    }
-
-    /* Lấy ra khỏi hàng đợi */
-    pop() {
-        const num = this.peek();
-        // Con trỏ đầu dịch về sau một vị trí, nếu vượt qua cuối thì quay lại đầu mảng
-        this.#front = (this.#front + 1) % this.capacity;
-        this.#queSize--;
-        return num;
-    }
-
-    /* Truy cập phần tử đầu hàng đợi */
-    peek() {
-        if (this.isEmpty()) throw new Error('Hàng đợi rỗng');
-        return this.#nums[this.#front];
-    }
-
-    /* Trả về mảng */
-    toArray() {
-        const arr = new Array(this.size);
-        for (let i = 0, j = this.#front; i &lt; this.size; i++, j++) {
-            arr[i] = this.#nums[j % this.capacity];
-        }
-        return arr;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Hàng đợi triển khai bằng mảng vòng (circular array) */
-class ArrayQueue(capacity: Int) {
-    private val nums: IntArray = IntArray(capacity) // Mảng dùng để lưu phần tử hàng đợi
-    private var front: Int = 0 // Con trỏ đầu, trỏ đến phần tử ở đầu hàng đợi
-    private var queSize: Int = 0 // Độ dài hàng đợi
-
-    /* Lấy dung lượng hàng đợi */
-    fun capacity(): Int {
-        return nums.size
-    }
-
-    /* Lấy độ dài hàng đợi */
-    fun size(): Int {
-        return queSize
-    }
-
-    /* Kiểm tra hàng đợi có rỗng không */
-    fun isEmpty(): Boolean {
-        return queSize == 0
-    }
-
-    /* Thêm vào hàng đợi */
-    fun push(num: Int) {
-        if (queSize == capacity()) {
-            println("Hàng đợi đầy")
-            return
-        }
-        // Dùng phép chia lấy dư để rear quay về đầu mảng sau khi vượt qua cuối mảng
-        val rear = (front + queSize) % capacity()
-        // Con trỏ đầu dịch về sau một vị trí
-        nums[rear] = num
-        queSize++
-    }
-
-    /* Lấy ra khỏi hàng đợi */
-    fun pop(): Int {
-        val num = peek()
-        // Con trỏ đầu dịch về sau một vị trí, nếu vượt qua cuối thì quay lại đầu mảng
-        front = (front + 1) % capacity()
-        queSize--
-        return num
-    }
-
-    /* Truy cập phần tử đầu hàng đợi */
-    fun peek(): Int {
-        if (isEmpty()) throw IndexOutOfBoundsException()
-        return nums[front]
-    }
-
-    /* Trả về mảng */
-    fun toArray(): IntArray {
-        val res = IntArray(queSize)
-        var i = 0
-        var j = front
-        while (i &lt; queSize) {
-            res[i] = nums[j % capacity()]
-            i++
-            j++
-        }
-        return res
-    }
-}</code></pre></div></div></div>
+};</code></pre></div></div></div>
 <p>Hàng đợi được triển khai ở trên vẫn còn hạn chế: độ dài của nó là bất biến. Tuy nhiên, vấn đề này không khó giải quyết. Ta có thể thay mảng bằng một mảng động để tích hợp cơ chế mở rộng. Bạn đọc quan tâm có thể tự thử triển khai điều này.</p>
 <p>Các kết luận so sánh cho hai cách triển khai đều nhất quán với ngăn xếp và sẽ không được nhắc lại ở đây.</p>
 
@@ -2514,7 +2070,29 @@ The comparison conclusions for the two implementations are consistent with those
   </tbody>
 </table>
 <p>Tương tự, ta có thể trực tiếp dùng các class hàng đợi hai đầu do ngôn ngữ lập trình cung cấp:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>from collections import deque
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo hàng đợi hai đầu */
+Deque&lt;Integer&gt; deque = new LinkedList&lt;&gt;();
+
+/* Thêm phần tử vào hàng đợi */
+deque.offerLast(2);   // Thêm vào cuối
+deque.offerLast(5);
+deque.offerLast(4);
+deque.offerFirst(3);  // Thêm vào đầu
+deque.offerFirst(1);
+
+/* Truy cập phần tử */
+int peekFirst = deque.peekFirst();  // Phần tử đầu
+int peekLast = deque.peekLast();    // Phần tử cuối
+
+/* Lấy phần tử ra khỏi hàng đợi */
+int popFirst = deque.pollFirst();  // Lấy phần tử đầu ra
+int popLast = deque.pollLast();    // Lấy phần tử cuối ra
+
+/* Lấy độ dài hàng đợi hai đầu */
+int size = deque.size();
+
+/* Kiểm tra hàng đợi hai đầu có rỗng không */
+boolean isEmpty = deque.isEmpty();</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>from collections import deque
 
 # Khởi tạo hàng đợi hai đầu
 deq: deque[int] = deque()
@@ -2560,29 +2138,7 @@ deque.pop_back();   // Lấy phần tử cuối ra
 int size = deque.size();
 
 /* Kiểm tra hàng đợi hai đầu có rỗng không */
-bool empty = deque.empty();</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo hàng đợi hai đầu */
-Deque&lt;Integer&gt; deque = new LinkedList&lt;&gt;();
-
-/* Thêm phần tử vào hàng đợi */
-deque.offerLast(2);   // Thêm vào cuối
-deque.offerLast(5);
-deque.offerLast(4);
-deque.offerFirst(3);  // Thêm vào đầu
-deque.offerFirst(1);
-
-/* Truy cập phần tử */
-int peekFirst = deque.peekFirst();  // Phần tử đầu
-int peekLast = deque.peekLast();    // Phần tử cuối
-
-/* Lấy phần tử ra khỏi hàng đợi */
-int popFirst = deque.pollFirst();  // Lấy phần tử đầu ra
-int popLast = deque.pollLast();    // Lấy phần tử cuối ra
-
-/* Lấy độ dài hàng đợi hai đầu */
-int size = deque.size();
-
-/* Kiểm tra hàng đợi hai đầu có rỗng không */
-boolean isEmpty = deque.isEmpty();</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo hàng đợi hai đầu */
+bool empty = deque.empty();</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo hàng đợi hai đầu */
 // JavaScript không có class hàng đợi hai đầu dựng sẵn, chỉ có thể dùng Array
 const deque = [];
 
@@ -2607,29 +2163,7 @@ const popBack = deque.pop();
 const size = deque.length;
 
 /* Kiểm tra hàng đợi hai đầu có rỗng không */
-const isEmpty = size === 0;</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khởi tạo hàng đợi hai đầu */
-val deque = LinkedList&lt;Int&gt;()
-
-/* Thêm phần tử vào hàng đợi */
-deque.offerLast(2)  // Thêm vào cuối
-deque.offerLast(5)
-deque.offerLast(4)
-deque.offerFirst(3) // Thêm vào đầu
-deque.offerFirst(1)
-
-/* Truy cập phần tử */
-val peekFirst = deque.peekFirst() // Phần tử đầu
-val peekLast = deque.peekLast()   // Phần tử cuối
-
-/* Lấy phần tử ra khỏi hàng đợi */
-val popFirst = deque.pollFirst() // Lấy phần tử đầu ra
-val popLast = deque.pollLast()   // Lấy phần tử cuối ra
-
-/* Lấy độ dài hàng đợi hai đầu */
-val size = deque.size
-
-/* Kiểm tra hàng đợi hai đầu có rỗng không */
-val isEmpty = deque.isEmpty()</code></pre></div></div></div>
+const isEmpty = size === 0;</code></pre></div></div></div>
 
 <h2>5.3.3 Triển khai Deque *</h2>
 <p>Cách triển khai hàng đợi hai đầu tương tự như hàng đợi thông thường. Ta có thể chọn danh sách liên kết hoặc mảng làm cấu trúc dữ liệu nền.</p>
@@ -2648,7 +2182,134 @@ val isEmpty = deque.isEmpty()</code></pre></div></div></div>
   <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/linkedlist_deque_step5_pop_first.png" alt="Bước 5" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">pop_first()</p></div>
 </div>
 <p>Mã triển khai được thể hiện dưới đây:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class ListNode:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Node danh sách liên kết đôi */
+class ListNode {
+    int val; // Giá trị node
+    ListNode next; // Tham chiếu tới node kế tiếp
+    ListNode prev; // Tham chiếu tới node liền trước
+
+    ListNode(int val) {
+        this.val = val;
+        prev = next = null;
+    }
+}
+
+/* Hàng đợi hai đầu triển khai bằng danh sách liên kết đôi */
+class LinkedListDeque {
+    private ListNode front, rear; // Node đầu front, node cuối rear
+    private int queSize = 0; // Độ dài hàng đợi hai đầu
+
+    public LinkedListDeque() {
+        front = rear = null;
+    }
+
+    /* Lấy độ dài hàng đợi hai đầu */
+    public int size() {
+        return queSize;
+    }
+
+    /* Kiểm tra hàng đợi hai đầu có rỗng không */
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    /* Thao tác thêm vào hàng đợi */
+    private void push(int num, boolean isFront) {
+        ListNode node = new ListNode(num);
+        // Nếu danh sách liên kết rỗng, cho cả front và rear trỏ đến node
+        if (isEmpty())
+            front = rear = node;
+        // Thao tác thêm vào đầu hàng đợi
+        else if (isFront) {
+            // Thêm node vào đầu danh sách liên kết
+            front.prev = node;
+            node.next = front;
+            front = node; // Cập nhật node đầu
+        // Thao tác thêm vào cuối hàng đợi
+        } else {
+            // Thêm node vào cuối danh sách liên kết
+            rear.next = node;
+            node.prev = rear;
+            rear = node; // Cập nhật node cuối
+        }
+        queSize++; // Cập nhật độ dài hàng đợi
+    }
+
+    /* Thêm vào đầu hàng đợi */
+    public void pushFirst(int num) {
+        push(num, true);
+    }
+
+    /* Thêm vào cuối hàng đợi */
+    public void pushLast(int num) {
+        push(num, false);
+    }
+
+    /* Thao tác lấy ra khỏi hàng đợi */
+    private int pop(boolean isFront) {
+        if (isEmpty())
+            throw new IndexOutOfBoundsException();
+        int val;
+        // Thao tác lấy ra từ đầu hàng đợi
+        if (isFront) {
+            val = front.val; // Lưu tạm giá trị node đầu
+            // Xóa node đầu
+            ListNode fNext = front.next;
+            if (fNext != null) {
+                fNext.prev = null;
+                front.next = null;
+            }
+            front = fNext; // Cập nhật node đầu
+        // Thao tác lấy ra từ cuối hàng đợi
+        } else {
+            val = rear.val; // Lưu tạm giá trị node cuối
+            // Cập nhật node cuối
+            ListNode rPrev = rear.prev;
+            if (rPrev != null) {
+                rPrev.next = null;
+                rear.prev = null;
+            }
+            rear = rPrev; // Cập nhật node cuối
+        }
+        queSize--; // Cập nhật độ dài hàng đợi
+        return val;
+    }
+
+    /* Lấy ra từ đầu hàng đợi */
+    public int popFirst() {
+        return pop(true);
+    }
+
+    /* Lấy ra từ cuối hàng đợi */
+    public int popLast() {
+        return pop(false);
+    }
+
+    /* Truy cập phần tử đầu hàng đợi */
+    public int peekFirst() {
+        if (isEmpty())
+            throw new IndexOutOfBoundsException();
+        return front.val;
+    }
+
+    /* Truy cập phần tử cuối hàng đợi */
+    public int peekLast() {
+        if (isEmpty())
+            throw new IndexOutOfBoundsException();
+        return rear.val;
+    }
+
+    /* Trả về mảng để in ra */
+    public int[] toArray() {
+        ListNode node = front;
+        int[] res = new int[size()];
+        for (int i = 0; i &lt; res.length; i++) {
+            res[i] = node.val;
+            node = node.next;
+        }
+        return res;
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class ListNode:
     """Node danh sách liên kết đôi"""
 
     def __init__(self, val: int):
@@ -2894,134 +2555,7 @@ class LinkedListDeque {
         }
         return res;
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Node danh sách liên kết đôi */
-class ListNode {
-    int val; // Giá trị node
-    ListNode next; // Tham chiếu tới node kế tiếp
-    ListNode prev; // Tham chiếu tới node liền trước
-
-    ListNode(int val) {
-        this.val = val;
-        prev = next = null;
-    }
-}
-
-/* Hàng đợi hai đầu triển khai bằng danh sách liên kết đôi */
-class LinkedListDeque {
-    private ListNode front, rear; // Node đầu front, node cuối rear
-    private int queSize = 0; // Độ dài hàng đợi hai đầu
-
-    public LinkedListDeque() {
-        front = rear = null;
-    }
-
-    /* Lấy độ dài hàng đợi hai đầu */
-    public int size() {
-        return queSize;
-    }
-
-    /* Kiểm tra hàng đợi hai đầu có rỗng không */
-    public boolean isEmpty() {
-        return size() == 0;
-    }
-
-    /* Thao tác thêm vào hàng đợi */
-    private void push(int num, boolean isFront) {
-        ListNode node = new ListNode(num);
-        // Nếu danh sách liên kết rỗng, cho cả front và rear trỏ đến node
-        if (isEmpty())
-            front = rear = node;
-        // Thao tác thêm vào đầu hàng đợi
-        else if (isFront) {
-            // Thêm node vào đầu danh sách liên kết
-            front.prev = node;
-            node.next = front;
-            front = node; // Cập nhật node đầu
-        // Thao tác thêm vào cuối hàng đợi
-        } else {
-            // Thêm node vào cuối danh sách liên kết
-            rear.next = node;
-            node.prev = rear;
-            rear = node; // Cập nhật node cuối
-        }
-        queSize++; // Cập nhật độ dài hàng đợi
-    }
-
-    /* Thêm vào đầu hàng đợi */
-    public void pushFirst(int num) {
-        push(num, true);
-    }
-
-    /* Thêm vào cuối hàng đợi */
-    public void pushLast(int num) {
-        push(num, false);
-    }
-
-    /* Thao tác lấy ra khỏi hàng đợi */
-    private int pop(boolean isFront) {
-        if (isEmpty())
-            throw new IndexOutOfBoundsException();
-        int val;
-        // Thao tác lấy ra từ đầu hàng đợi
-        if (isFront) {
-            val = front.val; // Lưu tạm giá trị node đầu
-            // Xóa node đầu
-            ListNode fNext = front.next;
-            if (fNext != null) {
-                fNext.prev = null;
-                front.next = null;
-            }
-            front = fNext; // Cập nhật node đầu
-        // Thao tác lấy ra từ cuối hàng đợi
-        } else {
-            val = rear.val; // Lưu tạm giá trị node cuối
-            // Cập nhật node cuối
-            ListNode rPrev = rear.prev;
-            if (rPrev != null) {
-                rPrev.next = null;
-                rear.prev = null;
-            }
-            rear = rPrev; // Cập nhật node cuối
-        }
-        queSize--; // Cập nhật độ dài hàng đợi
-        return val;
-    }
-
-    /* Lấy ra từ đầu hàng đợi */
-    public int popFirst() {
-        return pop(true);
-    }
-
-    /* Lấy ra từ cuối hàng đợi */
-    public int popLast() {
-        return pop(false);
-    }
-
-    /* Truy cập phần tử đầu hàng đợi */
-    public int peekFirst() {
-        if (isEmpty())
-            throw new IndexOutOfBoundsException();
-        return front.val;
-    }
-
-    /* Truy cập phần tử cuối hàng đợi */
-    public int peekLast() {
-        if (isEmpty())
-            throw new IndexOutOfBoundsException();
-        return rear.val;
-    }
-
-    /* Trả về mảng để in ra */
-    public int[] toArray() {
-        ListNode node = front;
-        int[] res = new int[size()];
-        for (int i = 0; i &lt; res.length; i++) {
-            res[i] = node.val;
-            node = node.next;
-        }
-        return res;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Node danh sách liên kết đôi */
+};</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Node danh sách liên kết đôi */
 class ListNode {
     prev; // Tham chiếu tới node liền trước
     next; // Tham chiếu tới node kế tiếp
@@ -3131,124 +2665,6 @@ class LinkedListDeque {
     isEmpty() {
         return this.#queSize === 0;
     }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Node danh sách liên kết đôi */
-class ListNode(var _val: Int) {
-    // Giá trị node
-    var next: ListNode? = null // Tham chiếu tới node kế tiếp
-    var prev: ListNode? = null // Tham chiếu tới node liền trước
-}
-
-/* Hàng đợi hai đầu triển khai bằng danh sách liên kết đôi */
-class LinkedListDeque {
-    private var front: ListNode? = null // Node đầu front
-    private var rear: ListNode? = null // Node cuối rear
-    private var queSize: Int = 0 // Độ dài hàng đợi hai đầu
-
-    /* Lấy độ dài hàng đợi hai đầu */
-    fun size(): Int {
-        return queSize
-    }
-
-    /* Kiểm tra hàng đợi hai đầu có rỗng không */
-    fun isEmpty(): Boolean {
-        return size() == 0
-    }
-
-    /* Thao tác thêm vào hàng đợi */
-    fun push(num: Int, isFront: Boolean) {
-        val node = ListNode(num)
-        // Nếu danh sách liên kết rỗng, cho cả front và rear trỏ đến node
-        if (isEmpty()) {
-            rear = node
-            front = rear
-            // Thao tác thêm vào đầu hàng đợi
-        } else if (isFront) {
-            // Thêm node vào đầu danh sách liên kết
-            front?.prev = node
-            node.next = front
-            front = node // Cập nhật node đầu
-            // Thao tác thêm vào cuối hàng đợi
-        } else {
-            // Thêm node vào cuối danh sách liên kết
-            rear?.next = node
-            node.prev = rear
-            rear = node // Cập nhật node cuối
-        }
-        queSize++ // Cập nhật độ dài hàng đợi
-    }
-
-    /* Thêm vào đầu hàng đợi */
-    fun pushFirst(num: Int) {
-        push(num, true)
-    }
-
-    /* Thêm vào cuối hàng đợi */
-    fun pushLast(num: Int) {
-        push(num, false)
-    }
-
-    /* Thao tác lấy ra khỏi hàng đợi */
-    fun pop(isFront: Boolean): Int {
-        if (isEmpty())
-            throw IndexOutOfBoundsException()
-        val _val: Int
-        // Thao tác lấy ra từ đầu hàng đợi
-        if (isFront) {
-            _val = front!!._val // Lưu tạm giá trị node đầu
-            // Xóa node đầu
-            val fNext = front!!.next
-            if (fNext != null) {
-                fNext.prev = null
-                front!!.next = null
-            }
-            front = fNext // Cập nhật node đầu
-            // Thao tác lấy ra từ cuối hàng đợi
-        } else {
-            _val = rear!!._val // Lưu tạm giá trị node cuối
-            // Cập nhật node cuối
-            val rPrev = rear!!.prev
-            if (rPrev != null) {
-                rPrev.next = null
-                rear!!.prev = null
-            }
-            rear = rPrev // Cập nhật node cuối
-        }
-        queSize-- // Cập nhật độ dài hàng đợi
-        return _val
-    }
-
-    /* Lấy ra từ đầu hàng đợi */
-    fun popFirst(): Int {
-        return pop(true)
-    }
-
-    /* Lấy ra từ cuối hàng đợi */
-    fun popLast(): Int {
-        return pop(false)
-    }
-
-    /* Truy cập phần tử đầu hàng đợi */
-    fun peekFirst(): Int {
-        if (isEmpty()) throw IndexOutOfBoundsException()
-        return front!!._val
-    }
-
-    /* Truy cập phần tử cuối hàng đợi */
-    fun peekLast(): Int {
-        if (isEmpty()) throw IndexOutOfBoundsException()
-        return rear!!._val
-    }
-
-    /* Trả về mảng để in ra */
-    fun toArray(): IntArray {
-        var node = front
-        val res = IntArray(size())
-        for (i in res.indices) {
-            res[i] = node!!._val
-            node = node.next
-        }
-        return res
-    }
 }</code></pre></div></div></div>
 
 <h3>5.3.3.2 Triển khai bằng Mảng</h3>
@@ -3263,7 +2679,112 @@ class LinkedListDeque {
   <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/array_deque_step5_pop_first.png" alt="Bước 5" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">pop_first()</p></div>
 </div>
 <p>Dựa trên cách triển khai hàng đợi, ta chỉ cần thêm các phương thức "thêm vào đầu" và "lấy ra từ cuối":</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class ArrayDeque:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Hàng đợi hai đầu triển khai bằng mảng vòng (circular array) */
+class ArrayDeque {
+    private int[] nums; // Mảng dùng để lưu phần tử hàng đợi hai đầu
+    private int front; // Con trỏ đầu, trỏ đến phần tử ở đầu hàng đợi
+    private int queSize; // Độ dài hàng đợi hai đầu
+
+    /* Hàm khởi tạo */
+    public ArrayDeque(int capacity) {
+        this.nums = new int[capacity];
+        front = queSize = 0;
+    }
+
+    /* Lấy dung lượng hàng đợi hai đầu */
+    public int capacity() {
+        return nums.length;
+    }
+
+    /* Lấy độ dài hàng đợi hai đầu */
+    public int size() {
+        return queSize;
+    }
+
+    /* Kiểm tra hàng đợi hai đầu có rỗng không */
+    public boolean isEmpty() {
+        return queSize == 0;
+    }
+
+    /* Tính chỉ mục trong mảng vòng */
+    private int index(int i) {
+        // Dùng phép chia lấy dư để nối liền đầu và cuối mảng
+        // Khi i vượt qua cuối mảng, quay lại đầu mảng
+        // Khi i vượt qua đầu mảng, quay lại cuối mảng
+        return (i + capacity()) % capacity();
+    }
+
+    /* Thêm vào đầu hàng đợi */
+    public void pushFirst(int num) {
+        if (queSize == capacity()) {
+            System.out.println("Hàng đợi hai đầu đã đầy");
+            return;
+        }
+        // Dùng phép chia lấy dư để front quay về cuối mảng sau khi vượt qua đầu mảng
+        // Thêm num vào đầu hàng đợi
+        front = index(front - 1);
+        // Thêm num vào đầu hàng đợi
+        nums[front] = num;
+        queSize++;
+    }
+
+    /* Thêm vào cuối hàng đợi */
+    public void pushLast(int num) {
+        if (queSize == capacity()) {
+            System.out.println("Hàng đợi hai đầu đã đầy");
+            return;
+        }
+        // Dùng phép chia lấy dư để rear quay về đầu mảng sau khi vượt qua cuối mảng
+        int rear = index(front + queSize);
+        // Con trỏ đầu dịch về sau một vị trí
+        nums[rear] = num;
+        queSize++;
+    }
+
+    /* Lấy ra từ đầu hàng đợi */
+    public int popFirst() {
+        int num = peekFirst();
+        // Con trỏ đầu dịch về sau một vị trí
+        front = index(front + 1);
+        queSize--;
+        return num;
+    }
+
+    /* Lấy ra từ cuối hàng đợi */
+    public int popLast() {
+        int num = peekLast();
+        queSize--;
+        return num;
+    }
+
+    /* Truy cập phần tử đầu hàng đợi */
+    public int peekFirst() {
+        if (isEmpty())
+            throw new IndexOutOfBoundsException();
+        return nums[front];
+    }
+
+    /* Truy cập phần tử cuối hàng đợi */
+    public int peekLast() {
+        if (isEmpty())
+            throw new IndexOutOfBoundsException();
+        // Tính chỉ mục phần tử cuối
+        int last = index(front + queSize - 1);
+        return nums[last];
+    }
+
+    /* Trả về mảng để in ra */
+    public int[] toArray() {
+        int[] res = new int[queSize];
+        for (int i = 0, j = front; i &lt; queSize; i++, j++) {
+            res[i] = nums[index(j)];
+        }
+        return res;
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>ArrayDeque(int capacity) {
+    this._nums = List.filled(capacity, 0);
+    this._front = this._queSize = 0;
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class ArrayDeque:
     """Hàng đợi hai đầu triển khai bằng mảng vòng (circular array)"""
 
     def __init__(self, capacity: int):
@@ -3452,306 +2973,7 @@ class ArrayDeque {
         }
         return res;
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Hàng đợi hai đầu triển khai bằng mảng vòng (circular array) */
-class ArrayDeque {
-    private int[] nums; // Mảng dùng để lưu phần tử hàng đợi hai đầu
-    private int front; // Con trỏ đầu, trỏ đến phần tử ở đầu hàng đợi
-    private int queSize; // Độ dài hàng đợi hai đầu
-
-    /* Hàm khởi tạo */
-    public ArrayDeque(int capacity) {
-        this.nums = new int[capacity];
-        front = queSize = 0;
-    }
-
-    /* Lấy dung lượng hàng đợi hai đầu */
-    public int capacity() {
-        return nums.length;
-    }
-
-    /* Lấy độ dài hàng đợi hai đầu */
-    public int size() {
-        return queSize;
-    }
-
-    /* Kiểm tra hàng đợi hai đầu có rỗng không */
-    public boolean isEmpty() {
-        return queSize == 0;
-    }
-
-    /* Tính chỉ mục trong mảng vòng */
-    private int index(int i) {
-        // Dùng phép chia lấy dư để nối liền đầu và cuối mảng
-        // Khi i vượt qua cuối mảng, quay lại đầu mảng
-        // Khi i vượt qua đầu mảng, quay lại cuối mảng
-        return (i + capacity()) % capacity();
-    }
-
-    /* Thêm vào đầu hàng đợi */
-    public void pushFirst(int num) {
-        if (queSize == capacity()) {
-            System.out.println("Hàng đợi hai đầu đã đầy");
-            return;
-        }
-        // Dùng phép chia lấy dư để front quay về cuối mảng sau khi vượt qua đầu mảng
-        // Thêm num vào đầu hàng đợi
-        front = index(front - 1);
-        // Thêm num vào đầu hàng đợi
-        nums[front] = num;
-        queSize++;
-    }
-
-    /* Thêm vào cuối hàng đợi */
-    public void pushLast(int num) {
-        if (queSize == capacity()) {
-            System.out.println("Hàng đợi hai đầu đã đầy");
-            return;
-        }
-        // Dùng phép chia lấy dư để rear quay về đầu mảng sau khi vượt qua cuối mảng
-        int rear = index(front + queSize);
-        // Con trỏ đầu dịch về sau một vị trí
-        nums[rear] = num;
-        queSize++;
-    }
-
-    /* Lấy ra từ đầu hàng đợi */
-    public int popFirst() {
-        int num = peekFirst();
-        // Con trỏ đầu dịch về sau một vị trí
-        front = index(front + 1);
-        queSize--;
-        return num;
-    }
-
-    /* Lấy ra từ cuối hàng đợi */
-    public int popLast() {
-        int num = peekLast();
-        queSize--;
-        return num;
-    }
-
-    /* Truy cập phần tử đầu hàng đợi */
-    public int peekFirst() {
-        if (isEmpty())
-            throw new IndexOutOfBoundsException();
-        return nums[front];
-    }
-
-    /* Truy cập phần tử cuối hàng đợi */
-    public int peekLast() {
-        if (isEmpty())
-            throw new IndexOutOfBoundsException();
-        // Tính chỉ mục phần tử cuối
-        int last = index(front + queSize - 1);
-        return nums[last];
-    }
-
-    /* Trả về mảng để in ra */
-    public int[] toArray() {
-        int[] res = new int[queSize];
-        for (int i = 0, j = front; i &lt; queSize; i++, j++) {
-            res[i] = nums[index(j)];
-        }
-        return res;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Hàng đợi hai đầu triển khai bằng mảng vòng (circular array) */
-class ArrayDeque {
-    #nums; // Mảng dùng để lưu phần tử hàng đợi hai đầu
-    #front; // Con trỏ đầu, trỏ đến phần tử ở đầu hàng đợi
-    #queSize; // Độ dài hàng đợi hai đầu
-
-    /* Hàm khởi tạo */
-    constructor(capacity) {
-        this.#nums = new Array(capacity);
-        this.#front = 0;
-        this.#queSize = 0;
-    }
-
-    /* Lấy dung lượng hàng đợi hai đầu */
-    capacity() {
-        return this.#nums.length;
-    }
-
-    /* Lấy độ dài hàng đợi hai đầu */
-    size() {
-        return this.#queSize;
-    }
-
-    /* Kiểm tra hàng đợi hai đầu có rỗng không */
-    isEmpty() {
-        return this.#queSize === 0;
-    }
-
-    /* Tính chỉ mục trong mảng vòng */
-    index(i) {
-        // Dùng phép chia lấy dư để nối liền đầu và cuối mảng
-        // Khi i vượt qua cuối mảng, quay lại đầu mảng
-        // Khi i vượt qua đầu mảng, quay lại cuối mảng
-        return (i + this.capacity()) % this.capacity();
-    }
-
-    /* Thêm vào đầu hàng đợi */
-    pushFirst(num) {
-        if (this.#queSize === this.capacity()) {
-            console.log('Hàng đợi hai đầu đã đầy');
-            return;
-        }
-        // Dùng phép chia lấy dư để front quay về cuối mảng sau khi vượt qua đầu mảng
-        this.#front = this.index(this.#front - 1);
-        // Thêm num vào đầu hàng đợi
-        this.#nums[this.#front] = num;
-        this.#queSize++;
-    }
-
-    /* Thêm vào cuối hàng đợi */
-    pushLast(num) {
-        if (this.#queSize === this.capacity()) {
-            console.log('Hàng đợi hai đầu đã đầy');
-            return;
-        }
-        // Dùng phép chia lấy dư để rear quay về đầu mảng sau khi vượt qua cuối mảng
-        const rear = this.index(this.#front + this.#queSize);
-        // Con trỏ đầu dịch về sau một vị trí
-        this.#nums[rear] = num;
-        this.#queSize++;
-    }
-
-    /* Lấy ra từ đầu hàng đợi */
-    popFirst() {
-        const num = this.peekFirst();
-        // Con trỏ đầu dịch về sau một vị trí
-        this.#front = this.index(this.#front + 1);
-        this.#queSize--;
-        return num;
-    }
-
-    /* Lấy ra từ cuối hàng đợi */
-    popLast() {
-        const num = this.peekLast();
-        this.#queSize--;
-        return num;
-    }
-
-    /* Truy cập phần tử đầu hàng đợi */
-    peekFirst() {
-        if (this.isEmpty()) throw new Error('Hàng đợi hai đầu rỗng');
-        return this.#nums[this.#front];
-    }
-
-    /* Truy cập phần tử cuối hàng đợi */
-    peekLast() {
-        if (this.isEmpty()) throw new Error('Hàng đợi hai đầu rỗng');
-        // Tính chỉ mục phần tử cuối
-        const last = this.index(this.#front + this.#queSize - 1);
-        return this.#nums[last];
-    }
-
-    /* Trả về mảng để in ra */
-    toArray() {
-        const res = [];
-        for (let i = 0, j = this.#front; i &lt; this.#queSize; i++, j++) {
-            res[i] = this.#nums[this.index(j)];
-        }
-        return res;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Hàng đợi hai đầu triển khai bằng mảng vòng (circular array) */
-class ArrayDeque(capacity: Int) {
-    private var nums: IntArray = IntArray(capacity) // Mảng dùng để lưu phần tử hàng đợi hai đầu
-    private var front: Int = 0 // Con trỏ đầu, trỏ đến phần tử ở đầu hàng đợi
-    private var queSize: Int = 0 // Độ dài hàng đợi hai đầu
-
-    /* Lấy dung lượng hàng đợi hai đầu */
-    fun capacity(): Int {
-        return nums.size
-    }
-
-    /* Lấy độ dài hàng đợi hai đầu */
-    fun size(): Int {
-        return queSize
-    }
-
-    /* Kiểm tra hàng đợi hai đầu có rỗng không */
-    fun isEmpty(): Boolean {
-        return queSize == 0
-    }
-
-    /* Tính chỉ mục trong mảng vòng */
-    private fun index(i: Int): Int {
-        // Dùng phép chia lấy dư để nối liền đầu và cuối mảng
-        // Khi i vượt qua cuối mảng, quay lại đầu mảng
-        // Khi i vượt qua đầu mảng, quay lại cuối mảng
-        return (i + capacity()) % capacity()
-    }
-
-    /* Thêm vào đầu hàng đợi */
-    fun pushFirst(num: Int) {
-        if (queSize == capacity()) {
-            println("Hàng đợi hai đầu đã đầy")
-            return
-        }
-        // Dùng phép chia lấy dư để front quay về cuối mảng sau khi vượt qua đầu mảng
-        front = index(front - 1)
-        // Thêm num vào đầu hàng đợi
-        nums[front] = num
-        queSize++
-    }
-
-    /* Thêm vào cuối hàng đợi */
-    fun pushLast(num: Int) {
-        if (queSize == capacity()) {
-            println("Hàng đợi hai đầu đã đầy")
-            return
-        }
-        // Dùng phép chia lấy dư để rear quay về đầu mảng sau khi vượt qua cuối mảng
-        val rear = index(front + queSize)
-        // Con trỏ đầu dịch về sau một vị trí
-        nums[rear] = num
-        queSize++
-    }
-
-    /* Lấy ra từ đầu hàng đợi */
-    fun popFirst(): Int {
-        val num = peekFirst()
-        // Con trỏ đầu dịch về sau một vị trí
-        front = index(front + 1)
-        queSize--
-        return num
-    }
-
-    /* Lấy ra từ cuối hàng đợi */
-    fun popLast(): Int {
-        val num = peekLast()
-        queSize--
-        return num
-    }
-
-    /* Truy cập phần tử đầu hàng đợi */
-    fun peekFirst(): Int {
-        if (isEmpty()) throw IndexOutOfBoundsException()
-        return nums[front]
-    }
-
-    /* Truy cập phần tử cuối hàng đợi */
-    fun peekLast(): Int {
-        if (isEmpty()) throw IndexOutOfBoundsException()
-        // Tính chỉ mục phần tử cuối
-        val last = index(front + queSize - 1)
-        return nums[last]
-    }
-
-    /* Trả về mảng để in ra */
-    fun toArray(): IntArray {
-        val res = IntArray(queSize)
-        var i = 0
-        var j = front
-        while (i &lt; queSize) {
-            res[i] = nums[index(j)]
-            i++
-            j++
-        }
-        return res
-    }
-}</code></pre></div></div></div>
+};</code></pre></div></div></div>
 
 <h3>5.3.3.3 Mô phỏng tương tác</h3>
 <div class="interactive-widget-wrapper" id="deque-ops-wrapper">

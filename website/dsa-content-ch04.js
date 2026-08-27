@@ -63,7 +63,9 @@ Object.assign(DSA_CONTENT, {
 
 <h3>4.1.2.1 Khởi tạo Mảng</h3>
 <p>Chúng ta có thể chọn giữa hai cách khởi tạo mảng tùy theo nhu cầu: có hoặc không có giá trị ban đầu. Khi không chỉ định giá trị ban đầu, hầu hết các ngôn ngữ lập trình sẽ khởi tạo các phần tử mảng về $0$:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Khởi tạo mảng
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo mảng */
+int[] arr = new int[5]; // { 0, 0, 0, 0, 0 }
+int[] nums = { 1, 3, 2, 5, 4 };</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Khởi tạo mảng
 arr: list[int] = [0] * 5  # [ 0, 0, 0, 0, 0 ]
 nums: list[int] = [1, 3, 2, 5, 4]</code></pre></div><div class="code-tab-content" data-lang="cpp"><pre data-lang="cpp"><code>/* Khởi tạo mảng */
 // Lưu trên stack
@@ -71,13 +73,9 @@ int arr[5];
 int nums[5] = { 1, 3, 2, 5, 4 };
 // Lưu trên heap (cần giải phóng bộ nhớ thủ công)
 int* arr1 = new int[5];
-int* nums1 = new int[5] { 1, 3, 2, 5, 4 };</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo mảng */
-int[] arr = new int[5]; // { 0, 0, 0, 0, 0 }
-int[] nums = { 1, 3, 2, 5, 4 };</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo mảng */
+int* nums1 = new int[5] { 1, 3, 2, 5, 4 };</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo mảng */
 var arr = new Array(5).fill(0);
-var nums = [1, 3, 2, 5, 4];</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khởi tạo mảng */
-var arr = IntArray(5) // { 0, 0, 0, 0, 0 }
-var nums = intArrayOf(1, 3, 2, 5, 4)</code></pre></div></div></div>
+var nums = [1, 3, 2, 5, 4];</code></pre></div></div></div>
 
 <h3>4.1.2.2 Truy cập phần tử</h3>
 <p>Các phần tử mảng được lưu trữ trong vùng nhớ liên tục, điều này có nghĩa là việc tính toán địa chỉ bộ nhớ của các phần tử mảng rất dễ dàng. Cho trước địa chỉ bộ nhớ của mảng (địa chỉ bộ nhớ của phần tử đầu tiên) và chỉ mục của một phần tử, chúng ta có thể sử dụng công thức như hình dưới đây để tính trực tiếp địa chỉ bộ nhớ của phần tử đó và truy cập nó.</p>
@@ -86,7 +84,26 @@ var nums = intArrayOf(1, 3, 2, 5, 4)</code></pre></div></div></div>
 </div>
 <p>Quan sát hình trên, chúng ta nhận thấy phần tử đầu tiên của mảng có chỉ mục là $0$, điều này có vẻ phản trực giác vì đếm từ $1$ sẽ tự nhiên hơn. Tuy nhiên, xét từ góc độ công thức tính địa chỉ, <strong>chỉ mục thực chất là độ lệch (offset) so với địa chỉ bộ nhớ gốc</strong>. Độ lệch địa chỉ của phần tử đầu tiên là $0$, vì vậy chỉ mục của nó là $0$ là hoàn toàn hợp lý.</p>
 <p>Việc truy cập các phần tử trong mảng có hiệu suất rất cao; chúng ta có thể truy cập ngẫu nhiên bất kỳ phần tử nào trong mảng trong thời gian $O(1)$.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def random_access(nums: list[int]) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Truy cập ngẫu nhiên phần tử */
+static int randomAccess(int[] nums) {
+    // Chọn ngẫu nhiên một chỉ mục trong khoảng [0, nums.length)
+    int randomIndex = ThreadLocalRandom.current().nextInt(0, nums.length);
+    // Lấy và trả về phần tử ngẫu nhiên
+    int randomNum = nums[randomIndex];
+    return randomNum;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func randomAccess(nums: [Int]) -&gt; Int {
+    // Randomly select a number in interval [0, nums.count)
+    let randomIndex = nums.indices.randomElement()!
+    // Retrieve and return the random element
+    let randomNum = nums[randomIndex]
+    return randomNum
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int randomAccess(List&lt;int&gt; nums) {
+  // Randomly select a number in the interval [0, nums.length)
+  int randomIndex = Random().nextInt(nums.length);
+  // Retrieve and return the random element
+  int randomNum = nums[randomIndex];
+  return randomNum;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def random_access(nums: list[int]) -&gt; int:
     """Truy cập ngẫu nhiên phần tử"""
     # Chọn ngẫu nhiên một chỉ mục trong khoảng [0, len(nums)-1]
     random_index = random.randint(0, len(nums) - 1)
@@ -99,27 +116,6 @@ int randomAccess(int *nums, int size) {
     // Lấy và trả về phần tử ngẫu nhiên
     int randomNum = nums[randomIndex];
     return randomNum;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Truy cập ngẫu nhiên phần tử */
-static int randomAccess(int[] nums) {
-    // Chọn ngẫu nhiên một chỉ mục trong khoảng [0, nums.length)
-    int randomIndex = ThreadLocalRandom.current().nextInt(0, nums.length);
-    // Lấy và trả về phần tử ngẫu nhiên
-    int randomNum = nums[randomIndex];
-    return randomNum;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Truy cập ngẫu nhiên phần tử */
-function randomAccess(nums) {
-    // Chọn ngẫu nhiên một chỉ mục trong khoảng [0, nums.length)
-    const random_index = Math.floor(Math.random() * nums.length);
-    // Lấy và trả về phần tử ngẫu nhiên
-    const random_num = nums[random_index];
-    return random_num;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Truy cập ngẫu nhiên phần tử */
-fun randomAccess(nums: IntArray): Int {
-    // Chọn ngẫu nhiên một chỉ mục trong khoảng [0, nums.size)
-    val randomIndex = ThreadLocalRandom.current().nextInt(0, nums.size)
-    // Lấy và trả về phần tử ngẫu nhiên
-    val randomNum = nums[randomIndex]
-    return randomNum
 }</code></pre></div></div></div>
 
 <h3>4.1.2.3 Chèn phần tử</h3>
@@ -128,7 +124,41 @@ fun randomAccess(nums: IntArray): Int {
   <img src="dsa-assets/array_insert_element.png" alt="Ví dụ chèn phần tử vào mảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Cần lưu ý rằng do độ dài mảng là cố định, việc chèn phần tử chắc chắn sẽ đẩy phần tử cuối cùng ra ngoài mảng. Chúng ta sẽ để giải pháp cho vấn đề này trong phần thảo luận ở mục "List".</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def insert(nums: list[int], num: int, index: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Chèn phần tử num vào chỉ mục index trong mảng */
+static void insert(int[] nums, int num, int index) {
+    // Dịch chuyển tất cả phần tử từ chỉ mục index trở đi sang phải một vị trí
+    for (int i = nums.length - 1; i &gt; index; i--) {
+        nums[i] = nums[i - 1];
+    }
+    // Gán num cho phần tử tại chỉ mục index
+    nums[index] = num;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func insert(index: Int, num: Int) {
+        if index &lt; 0 || index &gt;= size() {
+            fatalError("Index out of bounds")
+        }
+        // When the number of elements exceeds capacity, trigger the extension mechanism
+        if size() == capacity() {
+            extendCapacity()
+        }
+        // Move all elements after index index forward by one position
+        for j in (index ..&lt; size()).reversed() {
+            arr[j + 1] = arr[j]
+        }
+        arr[index] = num
+        // Update the number of elements
+        _size += 1
+    }</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void insert(int index, int _num) {
+    if (index &gt;= _size) throw RangeError('Index out of bounds');
+    // When the number of elements exceeds capacity, trigger the extension mechanism
+    if (_size == _capacity) extendCapacity();
+    // Move all elements after index index forward by one position
+    for (var j = _size - 1; j &gt;= index; j--) {
+      _arr[j + 1] = _arr[j];
+    }
+    _arr[index] = _num;
+    // Update the number of elements
+    _size++;
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def insert(nums: list[int], num: int, index: int):
     """Chèn phần tử num vào chỉ mục index trong mảng"""
     # Dịch chuyển tất cả phần tử từ chỉ mục index trở đi sang phải một vị trí
     for i in range(len(nums) - 1, index, -1):
@@ -142,30 +172,6 @@ void insert(int *nums, int size, int num, int index) {
     }
     // Gán num cho phần tử tại chỉ mục index
     nums[index] = num;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Chèn phần tử num vào chỉ mục index trong mảng */
-static void insert(int[] nums, int num, int index) {
-    // Dịch chuyển tất cả phần tử từ chỉ mục index trở đi sang phải một vị trí
-    for (int i = nums.length - 1; i &gt; index; i--) {
-        nums[i] = nums[i - 1];
-    }
-    // Gán num cho phần tử tại chỉ mục index
-    nums[index] = num;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Chèn phần tử num vào chỉ mục index trong mảng */
-function insert(nums, num, index) {
-    // Dịch chuyển tất cả phần tử từ chỉ mục index trở đi sang phải một vị trí
-    for (let i = nums.length - 1; i &gt; index; i--) {
-        nums[i] = nums[i - 1];
-    }
-    // Gán num cho phần tử tại chỉ mục index
-    nums[index] = num;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Chèn phần tử num vào chỉ mục index trong mảng */
-fun insert(nums: IntArray, num: Int, index: Int) {
-    // Dịch chuyển tất cả phần tử từ chỉ mục index trở đi sang phải một vị trí
-    for (i in nums.size - 1 downTo index + 1) {
-        nums[i] = nums[i - 1]
-    }
-    // Gán num cho phần tử tại chỉ mục index
-    nums[index] = num
 }</code></pre></div></div></div>
 
 <h3>4.1.2.4 Xóa phần tử</h3>
@@ -174,7 +180,37 @@ fun insert(nums: IntArray, num: Int, index: Int) {
   <img src="dsa-assets/array_remove_element.png" alt="Ví dụ xóa phần tử khỏi mảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Lưu ý rằng sau khi xóa xong, phần tử cuối cùng ban đầu không còn ý nghĩa, vì vậy chúng ta không cần phải sửa đổi nó một cách tường minh.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def remove(nums: list[int], index: int):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Xóa phần tử tại chỉ mục index */
+static void remove(int[] nums, int index) {
+    // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
+    for (int i = index; i &lt; nums.length - 1; i++) {
+        nums[i] = nums[i + 1];
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func remove(index: Int) -&gt; Int {
+        if index &lt; 0 || index &gt;= size() {
+            fatalError("Index out of bounds")
+        }
+        let num = arr[index]
+        // Move all elements after index forward by one position
+        for j in index ..&lt; (size() - 1) {
+            arr[j] = arr[j + 1]
+        }
+        // Update the number of elements
+        _size -= 1
+        // Return the removed element
+        return num
+    }</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int remove(int index) {
+    if (index &gt;= _size) throw RangeError('Index out of bounds');
+    int _num = _arr[index];
+    // Move all elements after index forward by one position
+    for (var j = index; j &lt; _size - 1; j++) {
+      _arr[j] = _arr[j + 1];
+    }
+    // Update the number of elements
+    _size--;
+    // Return the removed element
+    return _num;
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def remove(nums: list[int], index: int):
     """Xóa phần tử tại chỉ mục index"""
     # Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
     for i in range(index, len(nums) - 1):
@@ -183,24 +219,6 @@ void remove(int *nums, int size, int index) {
     // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
     for (int i = index; i &lt; size - 1; i++) {
         nums[i] = nums[i + 1];
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Xóa phần tử tại chỉ mục index */
-static void remove(int[] nums, int index) {
-    // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
-    for (int i = index; i &lt; nums.length - 1; i++) {
-        nums[i] = nums[i + 1];
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Xóa phần tử tại chỉ mục index */
-function remove(nums, index) {
-    // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
-    for (let i = index; i &lt; nums.length - 1; i++) {
-        nums[i] = nums[i + 1];
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Xóa phần tử tại chỉ mục index */
-fun remove(nums: IntArray, index: Int) {
-    // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
-    for (i in index..&lt;nums.size - 1) {
-        nums[i] = nums[i + 1]
     }
 }</code></pre></div></div></div>
 <p>Nhìn chung, các thao tác chèn và xóa trên mảng có những nhược điểm sau:</p>
@@ -250,7 +268,47 @@ fun remove(nums: IntArray, index: Int) {
 
 <h3>4.1.2.5 Duyệt Mảng</h3>
 <p>Trong hầu hết các ngôn ngữ lập trình, chúng ta có thể duyệt mảng bằng chỉ mục hoặc bằng cách lặp trực tiếp qua từng phần tử trong mảng:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def traverse(nums: list[int]):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Duyệt mảng */
+static void traverse(int[] nums) {
+    int count = 0;
+    // Duyệt mảng theo chỉ mục
+    for (int i = 0; i &lt; nums.length; i++) {
+        count += nums[i];
+    }
+    // Duyệt trực tiếp các phần tử mảng
+    for (int num : nums) {
+        count += num;
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func traverse(nums: [Int]) {
+    var count = 0
+    // Traverse array by index
+    for i in nums.indices {
+        count += nums[i]
+    }
+    // Direct traversal of array elements
+    for num in nums {
+        count += num
+    }
+    // Traverse simultaneously data index and elements
+    for (i, num) in nums.enumerated() {
+        count += nums[i]
+        count += num
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void traverse(List&lt;int&gt; nums) {
+  int count = 0;
+  // Traverse array by index
+  for (var i = 0; i &lt; nums.length; i++) {
+    count += nums[i];
+  }
+  // Direct traversal of array elements
+  for (int _num in nums) {
+    count += _num;
+  }
+  // Traverse array using forEach method
+  nums.forEach((_num) {
+    count += _num;
+  });
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def traverse(nums: list[int]):
     """Duyệt mảng"""
     count = 0
     # Duyệt mảng theo chỉ mục
@@ -269,45 +327,40 @@ void traverse(int *nums, int size) {
     for (int i = 0; i &lt; size; i++) {
         count += nums[i];
     }
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Duyệt mảng */
-static void traverse(int[] nums) {
-    int count = 0;
-    // Duyệt mảng theo chỉ mục
-    for (int i = 0; i &lt; nums.length; i++) {
-        count += nums[i];
-    }
-    // Duyệt trực tiếp các phần tử mảng
-    for (int num : nums) {
-        count += num;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Duyệt mảng */
-function traverse(nums) {
-    let count = 0;
-    // Duyệt mảng theo chỉ mục
-    for (let i = 0; i &lt; nums.length; i++) {
-        count += nums[i];
-    }
-    // Duyệt trực tiếp các phần tử mảng
-    for (const num of nums) {
-        count += num;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Duyệt mảng */
-fun traverse(nums: IntArray) {
-    var count = 0
-    // Duyệt mảng theo chỉ mục
-    for (i in nums.indices) {
-        count += nums[i]
-    }
-    // Duyệt trực tiếp các phần tử mảng
-    for (j in nums) {
-        count += j
-    }
 }</code></pre></div></div></div>
 
 <h3>4.1.2.6 Tìm kiếm phần tử</h3>
 <p>Để tìm một phần tử cụ thể trong mảng, cần duyệt qua mảng và kiểm tra xem giá trị phần tử có khớp không trong mỗi lần lặp; nếu khớp, xuất chỉ mục tương ứng.</p>
 <p>Vì mảng là cấu trúc dữ liệu tuyến tính, thao tác tìm kiếm trên được gọi là <strong>"tìm kiếm tuyến tính" (linear search)</strong>.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def find(nums: list[int], target: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm phần tử được chỉ định trong mảng */
+static int find(int[] nums, int target) {
+    for (int i = 0; i &lt; nums.length; i++) {
+        if (nums[i] == target)
+            return i;
+    }
+    return -1;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func find(head: ListNode, target: Int) -&gt; Int {
+    var head: ListNode? = head
+    var index = 0
+    while head != nil {
+        if head?.val == target {
+            return index
+        }
+        head = head?.next
+        index += 1
+    }
+    return -1
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int find(ListNode? head, int target) {
+  int index = 0;
+  while (head != null) {
+    if (head.val == target) {
+      return index;
+    }
+    head = head.next;
+    index++;
+  }
+  return -1;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def find(nums: list[int], target: int) -&gt; int:
     """Tìm phần tử được chỉ định trong mảng"""
     for i in range(len(nums)):
         if nums[i] == target:
@@ -319,32 +372,40 @@ int find(int *nums, int size, int target) {
             return i;
     }
     return -1;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tìm phần tử được chỉ định trong mảng */
-static int find(int[] nums, int target) {
-    for (int i = 0; i &lt; nums.length; i++) {
-        if (nums[i] == target)
-            return i;
-    }
-    return -1;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm phần tử được chỉ định trong mảng */
-function find(nums, target) {
-    for (let i = 0; i &lt; nums.length; i++) {
-        if (nums[i] === target) return i;
-    }
-    return -1;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm phần tử được chỉ định trong mảng */
-fun find(nums: IntArray, target: Int): Int {
-    for (i in nums.indices) {
-        if (nums[i] == target)
-            return i
-    }
-    return -1
 }</code></pre></div></div></div>
 
 <h3>4.1.2.7 Mở rộng Mảng</h3>
 <p>Trong môi trường hệ thống phức tạp, chương trình không thể đảm bảo vùng nhớ sau mảng là khả dụng, khiến việc mở rộng dung lượng mảng trở nên không an toàn. Do đó, trong hầu hết các ngôn ngữ lập trình, <strong>độ dài mảng là bất biến</strong>.</p>
 <p>Nếu muốn mở rộng mảng, chúng ta cần tạo một mảng mới lớn hơn rồi sao chép từng phần tử từ mảng gốc sang mảng mới. Đây là thao tác $O(n)$, rất tốn thời gian khi mảng lớn. Đoạn mã dưới đây minh họa việc này:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def extend(nums: list[int], enlarge: int) -&gt; list[int]:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Mở rộng độ dài mảng */
+static int[] extend(int[] nums, int enlarge) {
+    // Khởi tạo một mảng có độ dài đã mở rộng
+    int[] res = new int[nums.length + enlarge];
+    // Sao chép tất cả phần tử từ mảng gốc sang mảng mới
+    for (int i = 0; i &lt; nums.length; i++) {
+        res[i] = nums[i];
+    }
+    // Trả về mảng mới đã mở rộng
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func extend(nums: [Int], enlarge: Int) -&gt; [Int] {
+    // Initialize an array with extended length
+    var res = Array(repeating: 0, count: nums.count + enlarge)
+    // Copy all elements from the original array to the new array
+    for i in nums.indices {
+        res[i] = nums[i]
+    }
+    // Return the extended new array
+    return res
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>List&lt;int&gt; extend(List&lt;int&gt; nums, int enlarge) {
+  // Initialize an array with extended length
+  List&lt;int&gt; res = List.filled(nums.length + enlarge, 0);
+  // Copy all elements from the original array to the new array
+  for (var i = 0; i &lt; nums.length; i++) {
+    res[i] = nums[i];
+  }
+  // Return the extended new array
+  return res;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def extend(nums: list[int], enlarge: int) -&gt; list[int]:
     """Mở rộng độ dài mảng"""
     # Khởi tạo một mảng có độ dài đã mở rộng
     res = [0] * (len(nums) + enlarge)
@@ -364,36 +425,6 @@ int *extend(int *nums, int size, int enlarge) {
     delete[] nums;
     // Trả về mảng mới đã mở rộng
     return res;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Mở rộng độ dài mảng */
-static int[] extend(int[] nums, int enlarge) {
-    // Khởi tạo một mảng có độ dài đã mở rộng
-    int[] res = new int[nums.length + enlarge];
-    // Sao chép tất cả phần tử từ mảng gốc sang mảng mới
-    for (int i = 0; i &lt; nums.length; i++) {
-        res[i] = nums[i];
-    }
-    // Trả về mảng mới đã mở rộng
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Mở rộng độ dài mảng */
-function extend(nums, enlarge) {
-    // Khởi tạo một mảng có độ dài đã mở rộng
-    const res = new Array(nums.length + enlarge).fill(0);
-    // Sao chép tất cả phần tử từ mảng gốc sang mảng mới
-    for (let i = 0; i &lt; nums.length; i++) {
-        res[i] = nums[i];
-    }
-    // Trả về mảng mới đã mở rộng
-    return res;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Mở rộng độ dài mảng */
-fun extend(nums: IntArray, enlarge: Int): IntArray {
-    // Khởi tạo một mảng có độ dài đã mở rộng
-    val res = IntArray(nums.size + enlarge)
-    // Sao chép tất cả phần tử từ mảng gốc sang mảng mới
-    for (i in nums.indices) {
-        res[i] = nums[i]
-    }
-    // Trả về mảng mới đã mở rộng
-    return res
 }</code></pre></div></div></div>
 
 <h2>4.1.3 Ưu điểm và hạn chế của Mảng</h2>
@@ -679,7 +710,12 @@ Arrays are a fundamental and common data structure, frequently used in various a
   <li>Trong các ngôn ngữ hỗ trợ con trỏ như C, C++, Go và Rust, "tham chiếu" nói trên nên được thay bằng "con trỏ".</li>
 </ul>
 <p>Như đoạn mã dưới đây, một node danh sách liên kết <code>ListNode</code> không chỉ chứa giá trị mà còn chứa thêm một tham chiếu (con trỏ). Do đó, <strong>danh sách liên kết chiếm nhiều không gian bộ nhớ hơn mảng khi lưu trữ cùng một lượng dữ liệu</strong>.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class ListNode:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Lớp node của danh sách liên kết */
+class ListNode {
+    int val;        // Giá trị của node
+    ListNode next;  // Tham chiếu đến node kế tiếp
+    ListNode(int x) { val = x; }  // Hàm khởi tạo
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class ListNode:
     """Lớp node của danh sách liên kết"""
     def __init__(self, val: int):
         self.val: int = val               # Giá trị của node
@@ -688,29 +724,30 @@ struct ListNode {
     int val;         // Giá trị của node
     ListNode *next;  // Con trỏ đến node kế tiếp
     ListNode(int x) : val(x), next(nullptr) {}  // Hàm khởi tạo
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Lớp node của danh sách liên kết */
-class ListNode {
-    int val;        // Giá trị của node
-    ListNode next;  // Tham chiếu đến node kế tiếp
-    ListNode(int x) { val = x; }  // Hàm khởi tạo
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Lớp node của danh sách liên kết */
+};</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Lớp node của danh sách liên kết */
 class ListNode {
     constructor(val, next) {
         this.val = (val === undefined ? 0 : val);       // Giá trị của node
         this.next = (next === undefined ? null : next); // Tham chiếu đến node kế tiếp
     }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Lớp node của danh sách liên kết */
-// Hàm khởi tạo
-class ListNode(x: Int) {
-    val _val: Int = x          // Giá trị của node
-    val next: ListNode? = null // Tham chiếu đến node kế tiếp
 }</code></pre></div></div></div>
 
 <h2>4.2.2 Các thao tác phổ biến trên Danh sách liên kết</h2>
 
 <h3>4.2.2.1 Khởi tạo Danh sách liên kết</h3>
 <p>Việc xây dựng một danh sách liên kết gồm hai bước: đầu tiên, khởi tạo từng đối tượng node; thứ hai, xây dựng các mối quan hệ tham chiếu giữa các node. Sau khi khởi tạo xong, chúng ta có thể duyệt qua tất cả các node bắt đầu từ node đầu của danh sách liên kết thông qua tham chiếu <code>next</code>.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Khởi tạo danh sách liên kết 1 -&gt; 3 -&gt; 2 -&gt; 5 -&gt; 4
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo danh sách liên kết 1 -&gt; 3 -&gt; 2 -&gt; 5 -&gt; 4 */
+// Khởi tạo từng node
+ListNode n0 = new ListNode(1);
+ListNode n1 = new ListNode(3);
+ListNode n2 = new ListNode(2);
+ListNode n3 = new ListNode(5);
+ListNode n4 = new ListNode(4);
+// Xây dựng tham chiếu giữa các node
+n0.next = n1;
+n1.next = n2;
+n2.next = n3;
+n3.next = n4;</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Khởi tạo danh sách liên kết 1 -&gt; 3 -&gt; 2 -&gt; 5 -&gt; 4
 # Khởi tạo từng node
 n0 = ListNode(1)
 n1 = ListNode(3)
@@ -732,18 +769,7 @@ ListNode* n4 = new ListNode(4);
 n0-&gt;next = n1;
 n1-&gt;next = n2;
 n2-&gt;next = n3;
-n3-&gt;next = n4;</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo danh sách liên kết 1 -&gt; 3 -&gt; 2 -&gt; 5 -&gt; 4 */
-// Khởi tạo từng node
-ListNode n0 = new ListNode(1);
-ListNode n1 = new ListNode(3);
-ListNode n2 = new ListNode(2);
-ListNode n3 = new ListNode(5);
-ListNode n4 = new ListNode(4);
-// Xây dựng tham chiếu giữa các node
-n0.next = n1;
-n1.next = n2;
-n2.next = n3;
-n3.next = n4;</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo danh sách liên kết 1 -&gt; 3 -&gt; 2 -&gt; 5 -&gt; 4 */
+n3-&gt;next = n4;</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo danh sách liên kết 1 -&gt; 3 -&gt; 2 -&gt; 5 -&gt; 4 */
 // Khởi tạo từng node
 const n0 = new ListNode(1);
 const n1 = new ListNode(3);
@@ -754,18 +780,7 @@ const n4 = new ListNode(4);
 n0.next = n1;
 n1.next = n2;
 n2.next = n3;
-n3.next = n4;</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khởi tạo danh sách liên kết 1 -&gt; 3 -&gt; 2 -&gt; 5 -&gt; 4 */
-// Khởi tạo từng node
-val n0 = ListNode(1)
-val n1 = ListNode(3)
-val n2 = ListNode(2)
-val n3 = ListNode(5)
-val n4 = ListNode(4)
-// Xây dựng tham chiếu giữa các node
-n0.next = n1
-n1.next = n2
-n2.next = n3
-n3.next = n4</code></pre></div></div></div>
+n3.next = n4;</code></pre></div></div></div>
 <p>Một mảng là một biến duy nhất; ví dụ, mảng <code>nums</code> chứa các phần tử <code>nums[0]</code>, <code>nums[1]</code>, v.v. Ngược lại, một danh sách liên kết được cấu thành từ nhiều đối tượng node độc lập. <strong>Chúng ta thường dùng node đầu để đại diện cho toàn bộ danh sách liên kết</strong>; ví dụ, danh sách liên kết trong đoạn mã trên có thể được gọi là danh sách liên kết <code>n0</code>.</p>
 
 <h3>4.2.2.2 Chèn Node</h3>
@@ -774,7 +789,38 @@ n3.next = n4</code></pre></div></div></div>
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/linkedlist_insert_node.png" alt="Ví dụ chèn node vào danh sách liên kết" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def insert(n0: ListNode, P: ListNode):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Chèn node P vào sau node n0 trong danh sách liên kết */
+static void insert(ListNode n0, ListNode P) {
+    ListNode n1 = n0.next;
+    P.next = n1;
+    n0.next = P;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func insert(index: Int, num: Int) {
+        if index &lt; 0 || index &gt;= size() {
+            fatalError("Index out of bounds")
+        }
+        // When the number of elements exceeds capacity, trigger the extension mechanism
+        if size() == capacity() {
+            extendCapacity()
+        }
+        // Move all elements after index index forward by one position
+        for j in (index ..&lt; size()).reversed() {
+            arr[j + 1] = arr[j]
+        }
+        arr[index] = num
+        // Update the number of elements
+        _size += 1
+    }</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void insert(int index, int _num) {
+    if (index &gt;= _size) throw RangeError('Index out of bounds');
+    // When the number of elements exceeds capacity, trigger the extension mechanism
+    if (_size == _capacity) extendCapacity();
+    // Move all elements after index index forward by one position
+    for (var j = _size - 1; j &gt;= index; j--) {
+      _arr[j + 1] = _arr[j];
+    }
+    _arr[index] = _num;
+    // Update the number of elements
+    _size++;
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def insert(n0: ListNode, P: ListNode):
     """Chèn node P vào sau node n0 trong danh sách liên kết"""
     n1 = n0.next
     P.next = n1
@@ -783,21 +829,6 @@ void insert(ListNode *n0, ListNode *P) {
     ListNode *n1 = n0-&gt;next;
     P-&gt;next = n1;
     n0-&gt;next = P;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Chèn node P vào sau node n0 trong danh sách liên kết */
-static void insert(ListNode n0, ListNode P) {
-    ListNode n1 = n0.next;
-    P.next = n1;
-    n0.next = P;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Chèn node P vào sau node n0 trong danh sách liên kết */
-function insert(n0, P) {
-    const n1 = n0.next;
-    P.next = n1;
-    n0.next = P;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Chèn node P vào sau node n0 trong danh sách liên kết */
-fun insert(n0: ListNode?, p: ListNode?) {
-    val n1 = n0?.next
-    p?.next = n1
-    n0?.next = p
 }</code></pre></div></div></div>
 
 <h3>4.2.2.3 Xóa Node</h3>
@@ -806,7 +837,39 @@ fun insert(n0: ListNode?, p: ListNode?) {
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/linkedlist_remove_node.png" alt="Xóa node khỏi danh sách liên kết" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def remove(n0: ListNode):
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Xóa node đứng ngay sau node n0 trong danh sách liên kết */
+static void remove(ListNode n0) {
+    if (n0.next == null)
+        return;
+    // n0 -&gt; P -&gt; n1
+    ListNode P = n0.next;
+    ListNode n1 = P.next;
+    n0.next = n1;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func remove(index: Int) -&gt; Int {
+        if index &lt; 0 || index &gt;= size() {
+            fatalError("Index out of bounds")
+        }
+        let num = arr[index]
+        // Move all elements after index forward by one position
+        for j in index ..&lt; (size() - 1) {
+            arr[j] = arr[j + 1]
+        }
+        // Update the number of elements
+        _size -= 1
+        // Return the removed element
+        return num
+    }</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int remove(int index) {
+    if (index &gt;= _size) throw RangeError('Index out of bounds');
+    int _num = _arr[index];
+    // Move all elements after index forward by one position
+    for (var j = index; j &lt; _size - 1; j++) {
+      _arr[j] = _arr[j + 1];
+    }
+    // Update the number of elements
+    _size--;
+    // Return the removed element
+    return _num;
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def remove(n0: ListNode):
     """Xóa node đứng ngay sau node n0 trong danh sách liên kết"""
     if not n0.next:
         return
@@ -823,29 +886,6 @@ void remove(ListNode *n0) {
     n0-&gt;next = n1;
     // Giải phóng bộ nhớ
     delete P;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Xóa node đứng ngay sau node n0 trong danh sách liên kết */
-static void remove(ListNode n0) {
-    if (n0.next == null)
-        return;
-    // n0 -&gt; P -&gt; n1
-    ListNode P = n0.next;
-    ListNode n1 = P.next;
-    n0.next = n1;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Xóa node đứng ngay sau node n0 trong danh sách liên kết */
-function remove(n0) {
-    if (!n0.next) return;
-    // n0 -&gt; P -&gt; n1
-    const P = n0.next;
-    const n1 = P.next;
-    n0.next = n1;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Xóa node đứng ngay sau node n0 trong danh sách liên kết */
-fun remove(n0: ListNode?) {
-    if (n0?.next == null)
-        return
-    // n0 -&gt; P -&gt; n1
-    val p = n0.next
-    val n1 = p?.next
-    n0.next = n1
 }</code></pre></div></div></div>
 
 
@@ -888,7 +928,24 @@ fun remove(n0: ListNode?) {
 
 <h3>4.2.2.4 Truy cập Node</h3>
 <p><strong>Việc truy cập node trong danh sách liên kết kém hiệu quả hơn</strong>. Như đã đề cập ở phần trước, chúng ta có thể truy cập bất kỳ phần tử nào trong mảng với thời gian $O(1)$. Điều này không đúng với danh sách liên kết. Chương trình cần bắt đầu từ node đầu và duyệt lùi từng node một cho đến khi tìm thấy node mục tiêu. Nghĩa là, để truy cập node thứ $i$ trong danh sách liên kết cần $i - 1$ lần lặp, với độ phức tạp thời gian là $O(n)$.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def access(head: ListNode, index: int) -&gt; ListNode | None:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Truy cập node tại chỉ mục index trong danh sách liên kết */
+static ListNode access(ListNode head, int index) {
+    for (int i = 0; i &lt; index; i++) {
+        if (head == null)
+            return null;
+        head = head.next;
+    }
+    return head;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func access(head: ListNode, index: Int) -&gt; ListNode? {
+    var head: ListNode? = head
+    for _ in 0 ..&lt; index {
+        if head == nil {
+            return nil
+        }
+        head = head?.next
+    }
+    return head
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def access(head: ListNode, index: int) -&gt; ListNode | None:
     """Truy cập node tại chỉ mục index trong danh sách liên kết"""
     for _ in range(index):
         if not head:
@@ -902,37 +959,42 @@ ListNode *access(ListNode *head, int index) {
         head = head-&gt;next;
     }
     return head;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Truy cập node tại chỉ mục index trong danh sách liên kết */
-static ListNode access(ListNode head, int index) {
-    for (int i = 0; i &lt; index; i++) {
-        if (head == null)
-            return null;
-        head = head.next;
-    }
-    return head;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Truy cập node tại chỉ mục index trong danh sách liên kết */
-function access(head, index) {
-    for (let i = 0; i &lt; index; i++) {
-        if (!head) {
-            return null;
-        }
-        head = head.next;
-    }
-    return head;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Truy cập node tại chỉ mục index trong danh sách liên kết */
-fun access(head: ListNode?, index: Int): ListNode? {
-    var h = head
-    for (i in 0..&lt;index) {
-        if (h == null)
-            return null
-        h = h.next
-    }
-    return h
 }</code></pre></div></div></div>
 
 <h3>4.2.2.5 Tìm kiếm Node</h3>
 <p>Duyệt danh sách liên kết để tìm node có giá trị <code>target</code>, và xuất ra chỉ mục của node đó trong danh sách liên kết. Quá trình này cũng là một phép tìm kiếm tuyến tính. Đoạn mã dưới đây minh họa việc này:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>def find(head: ListNode, target: int) -&gt; int:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm node đầu tiên có giá trị target trong danh sách liên kết */
+static int find(ListNode head, int target) {
+    int index = 0;
+    while (head != null) {
+        if (head.val == target)
+            return index;
+        head = head.next;
+        index++;
+    }
+    return -1;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func find(head: ListNode, target: Int) -&gt; Int {
+    var head: ListNode? = head
+    var index = 0
+    while head != nil {
+        if head?.val == target {
+            return index
+        }
+        head = head?.next
+        index += 1
+    }
+    return -1
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int find(ListNode? head, int target) {
+  int index = 0;
+  while (head != null) {
+    if (head.val == target) {
+      return index;
+    }
+    head = head.next;
+    index++;
+  }
+  return -1;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def find(head: ListNode, target: int) -&gt; int:
     """Tìm node đầu tiên có giá trị target trong danh sách liên kết"""
     index = 0
     while head:
@@ -950,38 +1012,6 @@ int find(ListNode *head, int target) {
         index++;
     }
     return -1;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Tìm node đầu tiên có giá trị target trong danh sách liên kết */
-static int find(ListNode head, int target) {
-    int index = 0;
-    while (head != null) {
-        if (head.val == target)
-            return index;
-        head = head.next;
-        index++;
-    }
-    return -1;
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm node đầu tiên có giá trị target trong danh sách liên kết */
-function find(head, target) {
-    let index = 0;
-    while (head !== null) {
-        if (head.val === target) {
-            return index;
-        }
-        head = head.next;
-        index += 1;
-    }
-    return -1;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm node đầu tiên có giá trị target trong danh sách liên kết */
-fun find(head: ListNode?, target: Int): Int {
-    var index = 0
-    var h = head
-    while (h != null) {
-        if (h._val == target)
-            return index
-        h = h.next
-        index++
-    }
-    return -1
 }</code></pre></div></div></div>
 
 <h2>4.2.3 Mảng so với Danh sách liên kết</h2>
@@ -1035,7 +1065,13 @@ fun find(head: ListNode?, target: Int): Int {
   <li><strong>Danh sách liên kết vòng (circular linked list):</strong> Nếu chúng ta cho node cuối của một danh sách liên kết đơn trỏ về node đầu (nối đuôi với đầu), chúng ta có một danh sách liên kết vòng. Trong danh sách liên kết vòng, bất kỳ node nào cũng có thể được xem là node đầu.</li>
   <li><strong>Danh sách liên kết đôi (doubly linked list):</strong> So với danh sách liên kết đơn, danh sách liên kết đôi ghi lại tham chiếu theo cả hai chiều. Định nghĩa node của danh sách liên kết đôi bao gồm cả tham chiếu đến node kế tiếp (successor) và node trước đó (predecessor). So với danh sách liên kết đơn, danh sách liên kết đôi linh hoạt hơn, có thể duyệt danh sách theo cả hai chiều, nhưng cũng đòi hỏi nhiều không gian bộ nhớ hơn.</li>
 </ul>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class ListNode:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Lớp node của danh sách liên kết đôi */
+class ListNode {
+    int val;        // Giá trị của node
+    ListNode next;  // Tham chiếu đến node kế tiếp (successor)
+    ListNode prev;  // Tham chiếu đến node trước đó (predecessor)
+    ListNode(int x) { val = x; }  // Hàm khởi tạo
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class ListNode:
     """Lớp node của danh sách liên kết đôi"""
     def __init__(self, val: int):
         self.val: int = val                # Giá trị của node
@@ -1046,25 +1082,13 @@ struct ListNode {
     ListNode *next;  // Con trỏ đến node kế tiếp (successor)
     ListNode *prev;  // Con trỏ đến node trước đó (predecessor)
     ListNode(int x) : val(x), next(nullptr), prev(nullptr) {}  // Hàm khởi tạo
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Lớp node của danh sách liên kết đôi */
-class ListNode {
-    int val;        // Giá trị của node
-    ListNode next;  // Tham chiếu đến node kế tiếp (successor)
-    ListNode prev;  // Tham chiếu đến node trước đó (predecessor)
-    ListNode(int x) { val = x; }  // Hàm khởi tạo
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Lớp node của danh sách liên kết đôi */
+};</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Lớp node của danh sách liên kết đôi */
 class ListNode {
     constructor(val, next, prev) {
         this.val = val === undefined ? 0 : val;        // Giá trị của node
         this.next = next === undefined ? null : next;  // Tham chiếu đến node kế tiếp (successor)
         this.prev = prev === undefined ? null : prev;  // Tham chiếu đến node trước đó (predecessor)
     }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Lớp node của danh sách liên kết đôi */
-// Hàm khởi tạo
-class ListNode(x: Int) {
-    val _val: Int = x           // Giá trị của node
-    val next: ListNode? = null  // Tham chiếu đến node kế tiếp (successor)
-    val prev: ListNode? = null  // Tham chiếu đến node trước đó (predecessor)
 }</code></pre></div></div></div>
 <div style="text-align: center; margin: 1.5em 0;">
   <img src="dsa-assets/linkedlist_common_types.png" alt="Các loại danh sách liên kết phổ biến" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
@@ -1823,7 +1847,12 @@ Circular linked lists are commonly used in scenarios that require periodic opera
 
 <h3>4.3.2.1 Khởi tạo List</h3>
 <p>Chúng ta thường khởi tạo List theo một trong hai cách: rỗng hoặc với các giá trị được xác định trước:</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Khởi tạo List
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo List */
+// Không có giá trị ban đầu
+List&lt;Integer&gt; nums1 = new ArrayList&lt;&gt;();
+// Có giá trị ban đầu (lưu ý các phần tử mảng nên dùng lớp bọc Integer[] thay vì int[])
+Integer[] numbers = new Integer[] { 1, 3, 2, 5, 4 };
+List&lt;Integer&gt; nums = new ArrayList&lt;&gt;(Arrays.asList(numbers));</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Khởi tạo List
 # Không có giá trị ban đầu
 nums1: list[int] = []
 # Có giá trị ban đầu
@@ -1832,25 +1861,19 @@ nums: list[int] = [1, 3, 2, 5, 4]</code></pre></div><div class="code-tab-content
 // Không có giá trị ban đầu
 vector&lt;int&gt; nums1;
 // Có giá trị ban đầu
-vector&lt;int&gt; nums = { 1, 3, 2, 5, 4 };</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo List */
-// Không có giá trị ban đầu
-List&lt;Integer&gt; nums1 = new ArrayList&lt;&gt;();
-// Có giá trị ban đầu (lưu ý các phần tử mảng nên dùng lớp bọc Integer[] thay vì int[])
-Integer[] numbers = new Integer[] { 1, 3, 2, 5, 4 };
-List&lt;Integer&gt; nums = new ArrayList&lt;&gt;(Arrays.asList(numbers));</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo List */
+vector&lt;int&gt; nums = { 1, 3, 2, 5, 4 };</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Khởi tạo List */
 // Không có giá trị ban đầu
 const nums1 = [];
 // Có giá trị ban đầu
-const nums = [1, 3, 2, 5, 4];</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khởi tạo List */
-// Không có giá trị ban đầu
-var nums1 = listOf&lt;Int&gt;()
-// Có giá trị ban đầu
-var numbers = arrayOf(1, 3, 2, 5, 4)
-var nums = numbers.toMutableList()</code></pre></div></div></div>
+const nums = [1, 3, 2, 5, 4];</code></pre></div></div></div>
 
 <h3>4.3.2.2 Truy cập phần tử</h3>
 <p>Vì List về bản chất là một mảng, chúng ta có thể truy cập và cập nhật phần tử với độ phức tạp thời gian $O(1)$, rất hiệu quả.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Truy cập phần tử
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Truy cập phần tử */
+int num = nums.get(1);  // Truy cập phần tử tại chỉ mục 1
+
+/* Cập nhật phần tử */
+nums.set(1, 0);  // Cập nhật phần tử tại chỉ mục 1 thành 0</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Truy cập phần tử
 num: int = nums[1]  # Truy cập phần tử tại chỉ mục 1
 
 # Cập nhật phần tử
@@ -1858,22 +1881,29 @@ nums[1] = 0    # Cập nhật phần tử tại chỉ mục 1 thành 0</code></p
 int num = nums[1];  // Truy cập phần tử tại chỉ mục 1
 
 /* Cập nhật phần tử */
-nums[1] = 0;  // Cập nhật phần tử tại chỉ mục 1 thành 0</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Truy cập phần tử */
-int num = nums.get(1);  // Truy cập phần tử tại chỉ mục 1
-
-/* Cập nhật phần tử */
-nums.set(1, 0);  // Cập nhật phần tử tại chỉ mục 1 thành 0</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Truy cập phần tử */
+nums[1] = 0;  // Cập nhật phần tử tại chỉ mục 1 thành 0</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Truy cập phần tử */
 const num = nums[1];  // Truy cập phần tử tại chỉ mục 1
 
 /* Cập nhật phần tử */
-nums[1] = 0;  // Cập nhật phần tử tại chỉ mục 1 thành 0</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Truy cập phần tử */
-val num = nums[1]       // Truy cập phần tử tại chỉ mục 1
-/* Cập nhật phần tử */
-nums[1] = 0             // Cập nhật phần tử tại chỉ mục 1 thành 0</code></pre></div></div></div>
+nums[1] = 0;  // Cập nhật phần tử tại chỉ mục 1 thành 0</code></pre></div></div></div>
 
 <h3>4.3.2.3 Chèn và Xóa phần tử</h3>
 <p>So với mảng, List có thể tự do thêm và xóa phần tử. Thêm một phần tử vào cuối List có độ phức tạp thời gian $O(1)$, nhưng chèn và xóa phần tử vẫn có hiệu suất giống như mảng, với độ phức tạp thời gian $O(n)$.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Xóa toàn bộ List
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Xóa toàn bộ List */
+nums.clear();
+
+/* Thêm phần tử ở cuối */
+nums.add(1);
+nums.add(3);
+nums.add(2);
+nums.add(5);
+nums.add(4);
+
+/* Chèn phần tử vào giữa */
+nums.add(3, 6);  // Chèn số 6 vào chỉ mục 3
+
+/* Xóa một phần tử */
+nums.remove(3);  // Xóa phần tử tại chỉ mục 3</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Xóa toàn bộ List
 nums.clear()
 
 # Thêm phần tử ở cuối
@@ -1901,21 +1931,7 @@ nums.push_back(4);
 nums.insert(nums.begin() + 3, 6);  // Chèn số 6 vào chỉ mục 3
 
 /* Xóa một phần tử */
-nums.erase(nums.begin() + 3);      // Xóa phần tử tại chỉ mục 3</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Xóa toàn bộ List */
-nums.clear();
-
-/* Thêm phần tử ở cuối */
-nums.add(1);
-nums.add(3);
-nums.add(2);
-nums.add(5);
-nums.add(4);
-
-/* Chèn phần tử vào giữa */
-nums.add(3, 6);  // Chèn số 6 vào chỉ mục 3
-
-/* Xóa một phần tử */
-nums.remove(3);  // Xóa phần tử tại chỉ mục 3</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Xóa toàn bộ List */
+nums.erase(nums.begin() + 3);      // Xóa phần tử tại chỉ mục 3</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Xóa toàn bộ List */
 nums.length = 0;
 
 /* Thêm phần tử ở cuối */
@@ -1929,25 +1945,20 @@ nums.push(4);
 nums.splice(3, 0, 6); // Chèn số 6 vào chỉ mục 3
 
 /* Xóa một phần tử */
-nums.splice(3, 1);  // Xóa phần tử tại chỉ mục 3</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Xóa toàn bộ List */
-nums.clear()
-
-/* Thêm phần tử ở cuối */
-nums.add(1)
-nums.add(3)
-nums.add(2)
-nums.add(5)
-nums.add(4)
-
-/* Chèn phần tử vào giữa */
-nums.add(3, 6)  // Chèn số 6 vào chỉ mục 3
-
-/* Xóa một phần tử */
-nums.removeAt(3)  // Xóa phần tử tại chỉ mục 3</code></pre></div></div></div>
+nums.splice(3, 1);  // Xóa phần tử tại chỉ mục 3</code></pre></div></div></div>
 
 <h3>4.3.2.4 Duyệt List</h3>
 <p>Giống như mảng, List có thể được duyệt theo chỉ mục hoặc bằng cách lặp trực tiếp qua các phần tử.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Duyệt List theo chỉ mục
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Duyệt List theo chỉ mục */
+int count = 0;
+for (int i = 0; i &lt; nums.size(); i++) {
+    count += nums.get(i);
+}
+
+/* Duyệt trực tiếp các phần tử List */
+for (int num : nums) {
+    count += num;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Duyệt List theo chỉ mục
 count = 0
 for i in range(len(nums)):
     count += nums[i]
@@ -1964,15 +1975,6 @@ for (int i = 0; i &lt; nums.size(); i++) {
 count = 0;
 for (int num : nums) {
     count += num;
-}</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Duyệt List theo chỉ mục */
-int count = 0;
-for (int i = 0; i &lt; nums.size(); i++) {
-    count += nums.get(i);
-}
-
-/* Duyệt trực tiếp các phần tử List */
-for (int num : nums) {
-    count += num;
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Duyệt List theo chỉ mục */
 let count = 0;
 for (let i = 0; i &lt; nums.length; i++) {
@@ -1983,40 +1985,28 @@ for (let i = 0; i &lt; nums.length; i++) {
 count = 0;
 for (const num of nums) {
     count += num;
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Duyệt List theo chỉ mục */
-var count = 0
-for (i in nums.indices) {
-    count += nums[i]
-}
-
-/* Duyệt trực tiếp các phần tử List */
-for (num in nums) {
-    count += num
 }</code></pre></div></div></div>
 
 <h3>4.3.2.5 Nối List</h3>
 <p>Cho một List mới <code>nums1</code>, chúng ta có thể nối nó vào cuối List gốc.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Nối hai List
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Nối hai List */
+List&lt;Integer&gt; nums1 = new ArrayList&lt;&gt;(Arrays.asList(new Integer[] { 6, 8, 7, 10, 9 }));
+nums.addAll(nums1);  // Nối List nums1 vào cuối nums</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Nối hai List
 nums1: list[int] = [6, 8, 7, 10, 9]
 nums += nums1  # Nối List nums1 vào cuối nums</code></pre></div><div class="code-tab-content" data-lang="cpp"><pre data-lang="cpp"><code>/* Nối hai List */
 vector&lt;int&gt; nums1 = { 6, 8, 7, 10, 9 };
 // Nối List nums1 vào cuối nums
-nums.insert(nums.end(), nums1.begin(), nums1.end());</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Nối hai List */
-List&lt;Integer&gt; nums1 = new ArrayList&lt;&gt;(Arrays.asList(new Integer[] { 6, 8, 7, 10, 9 }));
-nums.addAll(nums1);  // Nối List nums1 vào cuối nums</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Nối hai List */
+nums.insert(nums.end(), nums1.begin(), nums1.end());</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Nối hai List */
 const nums1 = [6, 8, 7, 10, 9];
-nums.push(...nums1);  // Nối List nums1 vào cuối nums</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Nối hai List */
-val nums1 = intArrayOf(6, 8, 7, 10, 9).toMutableList()
-nums.addAll(nums1)  // Nối List nums1 vào cuối nums</code></pre></div></div></div>
+nums.push(...nums1);  // Nối List nums1 vào cuối nums</code></pre></div></div></div>
 
 <h3>4.3.2.6 Sắp xếp List</h3>
 <p>Sau khi sắp xếp List, chúng ta có thể sử dụng các giải thuật "tìm kiếm nhị phân" và "hai con trỏ" — những giải thuật thường được kiểm tra trong các bài toán về mảng.</p>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code># Sắp xếp List
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp List */
+Collections.sort(nums);  // Sau khi sắp xếp, các phần tử List được xếp theo thứ tự từ nhỏ đến lớn</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Sắp xếp List
 nums.sort()  # Sau khi sắp xếp, các phần tử List được xếp theo thứ tự từ nhỏ đến lớn</code></pre></div><div class="code-tab-content" data-lang="cpp"><pre data-lang="cpp"><code>/* Sắp xếp List */
-sort(nums.begin(), nums.end());  // Sau khi sắp xếp, các phần tử List được xếp theo thứ tự từ nhỏ đến lớn</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp List */
-Collections.sort(nums);  // Sau khi sắp xếp, các phần tử List được xếp theo thứ tự từ nhỏ đến lớn</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Sắp xếp List */
-nums.sort((a, b) =&gt; a - b);  // Sau khi sắp xếp, các phần tử List được xếp theo thứ tự từ nhỏ đến lớn</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Sắp xếp List */
-nums.sort() // Sau khi sắp xếp, các phần tử List được xếp theo thứ tự từ nhỏ đến lớn</code></pre></div></div></div>
+sort(nums.begin(), nums.end());  // Sau khi sắp xếp, các phần tử List được xếp theo thứ tự từ nhỏ đến lớn</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Sắp xếp List */
+nums.sort((a, b) =&gt; a - b);  // Sau khi sắp xếp, các phần tử List được xếp theo thứ tự từ nhỏ đến lớn</code></pre></div></div></div>
 
 
 <div class="interactive-widget-wrapper" id="list-ops-wrapper">
@@ -2050,7 +2040,104 @@ nums.sort() // Sau khi sắp xếp, các phần tử List được xếp theo th
   <li><strong>Theo dõi kích thước:</strong> Khai báo một biến <code>size</code> để ghi lại số lượng phần tử hiện tại trong List và cập nhật nó theo thời gian thực khi phần tử được chèn và xóa. Dựa vào biến này, chúng ta có thể xác định vị trí cuối của List và biết khi nào cần mở rộng.</li>
   <li><strong>Cơ chế mở rộng:</strong> Khi dung lượng List đã đầy lúc chèn một phần tử, chúng ta cần mở rộng. Chúng ta tạo một mảng lớn hơn dựa trên hệ số mở rộng, sau đó di chuyển tất cả các phần tử từ mảng hiện tại sang mảng mới theo đúng thứ tự. Trong ví dụ này, chúng ta quy định mảng sẽ được mở rộng gấp $2$ lần kích thước trước đó mỗi lần.</li>
 </ul>
-<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="python"><pre data-lang="python"><code>class MyList:
+<div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Lớp List tự triển khai */
+class MyList {
+    private int[] arr;         // Mảng (lưu trữ các phần tử List)
+    private int capacity = 10; // Dung lượng List
+    private int size = 0;      // Độ dài List (số phần tử hiện tại)
+    private int extendRatio = 2; // Hệ số mở rộng dung lượng List mỗi lần
+
+    /* Hàm khởi tạo */
+    public MyList() {
+        arr = new int[capacity];
+    }
+
+    /* Lấy độ dài List (số phần tử hiện tại) */
+    public int size() {
+        return size;
+    }
+
+    /* Lấy dung lượng List */
+    public int capacity() {
+        return capacity;
+    }
+
+    /* Truy cập phần tử */
+    public int get(int index) {
+        // Nếu chỉ mục vượt phạm vi, ném ngoại lệ như dưới đây
+        if (index &lt; 0 || index &gt;= size)
+            throw new IndexOutOfBoundsException("Chỉ mục vượt phạm vi");
+        return arr[index];
+    }
+
+    /* Cập nhật phần tử */
+    public void set(int index, int num) {
+        if (index &lt; 0 || index &gt;= size)
+            throw new IndexOutOfBoundsException("Chỉ mục vượt phạm vi");
+        arr[index] = num;
+    }
+
+    /* Thêm phần tử ở cuối */
+    public void add(int num) {
+        // Khi số lượng phần tử vượt quá dung lượng, kích hoạt cơ chế mở rộng
+        if (size == capacity())
+            extendCapacity();
+        arr[size] = num;
+        // Cập nhật số lượng phần tử
+        size++;
+    }
+
+    /* Chèn phần tử vào giữa */
+    public void insert(int index, int num) {
+        if (index &lt; 0 || index &gt;= size)
+            throw new IndexOutOfBoundsException("Chỉ mục vượt phạm vi");
+        // Khi số lượng phần tử vượt quá dung lượng, kích hoạt cơ chế mở rộng
+        if (size == capacity())
+            extendCapacity();
+        // Dịch chuyển tất cả phần tử sau chỉ mục index sang phải một vị trí
+        for (int j = size - 1; j &gt;= index; j--) {
+            arr[j + 1] = arr[j];
+        }
+        arr[index] = num;
+        // Cập nhật số lượng phần tử
+        size++;
+    }
+
+    /* Xóa phần tử */
+    public int remove(int index) {
+        if (index &lt; 0 || index &gt;= size)
+            throw new IndexOutOfBoundsException("Chỉ mục vượt phạm vi");
+        int num = arr[index];
+        // Dịch chuyển tất cả phần tử sau chỉ mục forward một vị trí
+        for (int j = index; j &lt; size - 1; j++) {
+            arr[j] = arr[j + 1];
+        }
+        // Cập nhật số lượng phần tử
+        size--;
+        // Trả về phần tử vừa bị xóa
+        return num;
+    }
+
+    /* Mở rộng dung lượng List */
+    public void extendCapacity() {
+        // Tạo mảng mới có độ dài gấp extendRatio lần mảng gốc và sao chép mảng gốc sang mảng mới
+        arr = Arrays.copyOf(arr, capacity() * extendRatio);
+        // Cập nhật dung lượng List
+        capacity = arr.length;
+    }
+
+    /* Chuyển List thành mảng */
+    public int[] toArray() {
+        int size = size();
+        int[] arr = new int[size];
+        for (int i = 0; i &lt; size; i++) {
+            arr[i] = get(i);
+        }
+        return arr;
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>MyList() {
+    _arr = List.filled(_capacity, 0);
+  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>class MyList:
     """Lớp List tự triển khai"""
 
     def __init__(self):
@@ -2233,290 +2320,7 @@ class MyList {
         }
         return vec;
     }
-};</code></pre></div><div class="code-tab-content" data-lang="java"><pre data-lang="java"><code>/* Lớp List tự triển khai */
-class MyList {
-    private int[] arr;         // Mảng (lưu trữ các phần tử List)
-    private int capacity = 10; // Dung lượng List
-    private int size = 0;      // Độ dài List (số phần tử hiện tại)
-    private int extendRatio = 2; // Hệ số mở rộng dung lượng List mỗi lần
-
-    /* Hàm khởi tạo */
-    public MyList() {
-        arr = new int[capacity];
-    }
-
-    /* Lấy độ dài List (số phần tử hiện tại) */
-    public int size() {
-        return size;
-    }
-
-    /* Lấy dung lượng List */
-    public int capacity() {
-        return capacity;
-    }
-
-    /* Truy cập phần tử */
-    public int get(int index) {
-        // Nếu chỉ mục vượt phạm vi, ném ngoại lệ như dưới đây
-        if (index &lt; 0 || index &gt;= size)
-            throw new IndexOutOfBoundsException("Chỉ mục vượt phạm vi");
-        return arr[index];
-    }
-
-    /* Cập nhật phần tử */
-    public void set(int index, int num) {
-        if (index &lt; 0 || index &gt;= size)
-            throw new IndexOutOfBoundsException("Chỉ mục vượt phạm vi");
-        arr[index] = num;
-    }
-
-    /* Thêm phần tử ở cuối */
-    public void add(int num) {
-        // Khi số lượng phần tử vượt quá dung lượng, kích hoạt cơ chế mở rộng
-        if (size == capacity())
-            extendCapacity();
-        arr[size] = num;
-        // Cập nhật số lượng phần tử
-        size++;
-    }
-
-    /* Chèn phần tử vào giữa */
-    public void insert(int index, int num) {
-        if (index &lt; 0 || index &gt;= size)
-            throw new IndexOutOfBoundsException("Chỉ mục vượt phạm vi");
-        // Khi số lượng phần tử vượt quá dung lượng, kích hoạt cơ chế mở rộng
-        if (size == capacity())
-            extendCapacity();
-        // Dịch chuyển tất cả phần tử sau chỉ mục index sang phải một vị trí
-        for (int j = size - 1; j &gt;= index; j--) {
-            arr[j + 1] = arr[j];
-        }
-        arr[index] = num;
-        // Cập nhật số lượng phần tử
-        size++;
-    }
-
-    /* Xóa phần tử */
-    public int remove(int index) {
-        if (index &lt; 0 || index &gt;= size)
-            throw new IndexOutOfBoundsException("Chỉ mục vượt phạm vi");
-        int num = arr[index];
-        // Dịch chuyển tất cả phần tử sau chỉ mục forward một vị trí
-        for (int j = index; j &lt; size - 1; j++) {
-            arr[j] = arr[j + 1];
-        }
-        // Cập nhật số lượng phần tử
-        size--;
-        // Trả về phần tử vừa bị xóa
-        return num;
-    }
-
-    /* Mở rộng dung lượng List */
-    public void extendCapacity() {
-        // Tạo mảng mới có độ dài gấp extendRatio lần mảng gốc và sao chép mảng gốc sang mảng mới
-        arr = Arrays.copyOf(arr, capacity() * extendRatio);
-        // Cập nhật dung lượng List
-        capacity = arr.length;
-    }
-
-    /* Chuyển List thành mảng */
-    public int[] toArray() {
-        int size = size();
-        int[] arr = new int[size];
-        for (int i = 0; i &lt; size; i++) {
-            arr[i] = get(i);
-        }
-        return arr;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Lớp List tự triển khai */
-class MyList {
-    #arr = new Array();   // Mảng (lưu trữ các phần tử List)
-    #capacity = 10;       // Dung lượng List
-    #size = 0;            // Độ dài List (số phần tử hiện tại)
-    #extendRatio = 2;     // Hệ số mở rộng dung lượng List mỗi lần
-
-    /* Hàm khởi tạo */
-    constructor() {
-        this.#arr = new Array(this.#capacity);
-    }
-
-    /* Lấy độ dài List (số phần tử hiện tại) */
-    size() {
-        return this.#size;
-    }
-
-    /* Lấy dung lượng List */
-    capacity() {
-        return this.#capacity;
-    }
-
-    /* Truy cập phần tử */
-    get(index) {
-        // Nếu chỉ mục vượt phạm vi, ném ngoại lệ như dưới đây
-        if (index &lt; 0 || index &gt;= this.#size) throw new Error('Chỉ mục vượt phạm vi');
-        return this.#arr[index];
-    }
-
-    /* Cập nhật phần tử */
-    set(index, num) {
-        if (index &lt; 0 || index &gt;= this.#size) throw new Error('Chỉ mục vượt phạm vi');
-        this.#arr[index] = num;
-    }
-
-    /* Thêm phần tử ở cuối */
-    add(num) {
-        // Nếu độ dài bằng dung lượng, cần mở rộng
-        if (this.#size === this.#capacity) {
-            this.extendCapacity();
-        }
-        // Thêm phần tử mới vào cuối List
-        this.#arr[this.#size] = num;
-        this.#size++;
-    }
-
-    /* Chèn phần tử vào giữa */
-    insert(index, num) {
-        if (index &lt; 0 || index &gt;= this.#size) throw new Error('Chỉ mục vượt phạm vi');
-        // Khi số lượng phần tử vượt quá dung lượng, kích hoạt cơ chế mở rộng
-        if (this.#size === this.#capacity) {
-            this.extendCapacity();
-        }
-        // Dịch chuyển tất cả phần tử sau chỉ mục index sang phải một vị trí
-        for (let j = this.#size - 1; j &gt;= index; j--) {
-            this.#arr[j + 1] = this.#arr[j];
-        }
-        // Cập nhật số lượng phần tử
-        this.#arr[index] = num;
-        this.#size++;
-    }
-
-    /* Xóa phần tử */
-    remove(index) {
-        if (index &lt; 0 || index &gt;= this.#size) throw new Error('Chỉ mục vượt phạm vi');
-        let num = this.#arr[index];
-        // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
-        for (let j = index; j &lt; this.#size - 1; j++) {
-            this.#arr[j] = this.#arr[j + 1];
-        }
-        // Cập nhật số lượng phần tử
-        this.#size--;
-        // Trả về phần tử vừa bị xóa
-        return num;
-    }
-
-    /* Mở rộng dung lượng List */
-    extendCapacity() {
-        // Tạo mảng mới có độ dài gấp extendRatio lần mảng gốc và sao chép mảng gốc sang mảng mới
-        this.#arr = this.#arr.concat(
-            new Array(this.capacity() * (this.#extendRatio - 1))
-        );
-        // Cập nhật dung lượng List
-        this.#capacity = this.#arr.length;
-    }
-
-    /* Chuyển List thành mảng */
-    toArray() {
-        let size = this.size();
-        const arr = new Array(size);
-        for (let i = 0; i &lt; size; i++) {
-            arr[i] = this.get(i);
-        }
-        return arr;
-    }
-}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Lớp List tự triển khai */
-class MyList {
-    private var arr: IntArray = intArrayOf() // Mảng (lưu trữ các phần tử List)
-    private var capacity: Int = 10 // Dung lượng List
-    private var size: Int = 0      // Độ dài List (số phần tử hiện tại)
-    private var extendRatio: Int = 2 // Hệ số mở rộng dung lượng List mỗi lần
-
-    /* Hàm khởi tạo */
-    init {
-        arr = IntArray(capacity)
-    }
-
-    /* Lấy độ dài List (số phần tử hiện tại) */
-    fun size(): Int {
-        return size
-    }
-
-    /* Lấy dung lượng List */
-    fun capacity(): Int {
-        return capacity
-    }
-
-    /* Truy cập phần tử */
-    fun get(index: Int): Int {
-        // Nếu chỉ mục vượt phạm vi, ném ngoại lệ như dưới đây
-        if (index &lt; 0 || index &gt;= size)
-            throw IndexOutOfBoundsException("Chỉ mục vượt phạm vi")
-        return arr[index]
-    }
-
-    /* Cập nhật phần tử */
-    fun set(index: Int, num: Int) {
-        if (index &lt; 0 || index &gt;= size)
-            throw IndexOutOfBoundsException("Chỉ mục vượt phạm vi")
-        arr[index] = num
-    }
-
-    /* Thêm phần tử ở cuối */
-    fun add(num: Int) {
-        // Khi số lượng phần tử vượt quá dung lượng, kích hoạt cơ chế mở rộng
-        if (size == capacity())
-            extendCapacity()
-        arr[size] = num
-        // Cập nhật số lượng phần tử
-        size++
-    }
-
-    /* Chèn phần tử vào giữa */
-    fun insert(index: Int, num: Int) {
-        if (index &lt; 0 || index &gt;= size)
-            throw IndexOutOfBoundsException("Chỉ mục vượt phạm vi")
-        // Khi số lượng phần tử vượt quá dung lượng, kích hoạt cơ chế mở rộng
-        if (size == capacity())
-            extendCapacity()
-        // Dịch chuyển tất cả phần tử sau chỉ mục index sang phải một vị trí
-        for (j in size - 1 downTo index)
-            arr[j + 1] = arr[j]
-        arr[index] = num
-        // Cập nhật số lượng phần tử
-        size++
-    }
-
-    /* Xóa phần tử */
-    fun remove(index: Int): Int {
-        if (index &lt; 0 || index &gt;= size)
-            throw IndexOutOfBoundsException("Chỉ mục vượt phạm vi")
-        val num = arr[index]
-        // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
-        for (j in index..&lt;size - 1)
-            arr[j] = arr[j + 1]
-        // Cập nhật số lượng phần tử
-        size--
-        // Trả về phần tử vừa bị xóa
-        return num
-    }
-
-    /* Mở rộng dung lượng List */
-    fun extendCapacity() {
-        // Tạo mảng mới có độ dài gấp extendRatio lần mảng gốc và sao chép mảng gốc sang mảng mới
-        arr = arr.copyOf(capacity() * extendRatio)
-        // Cập nhật dung lượng List
-        capacity = arr.size
-    }
-
-    /* Chuyển List thành mảng */
-    fun toArray(): IntArray {
-        val size = size()
-        val arr = IntArray(size)
-        for (i in 0..&lt;size) {
-            arr[i] = get(i)
-        }
-        return arr
-    }
-}</code></pre></div></div></div>
+};</code></pre></div></div></div>
 
 `,
     originalContent: `
