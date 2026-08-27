@@ -342,11 +342,11 @@ nums.removeAll(where: { $0 % 2 == 0 }) // ✅
 - Giữ ví dụ tabs hiện có + thêm `default:` subscript.
 
 **Tiêu chí hoàn thành:**
-- [ ] COW cho collections + hệ quả hiệu năng.
-- [ ] Ví dụ index invalidation + cách đúng.
-- [ ] `dict["k", default:]` xuất hiện.
-- [ ] Phân biệt compactMap vs flatMap vs mapNotNull Kotlin.
-- [ ] 2 câu Sequence vs Collection.
+- [x] COW cho collections + hệ quả hiệu năng.
+- [x] Ví dụ index invalidation + cách đúng.
+- [x] `dict["k", default:]` xuất hiện.
+- [x] Phân biệt compactMap vs flatMap vs mapNotNull Kotlin.
+- [x] 2 câu Sequence vs Collection.
 
 ---
 
@@ -391,11 +391,11 @@ let ok = [1, 2] is Array<Int> // ✅ true - không erasure
 ```
 
 **Tiêu chí hoàn thành:**
-- [ ] switch: nêu fallthrough + hệ thống pattern (if case, for case).
-- [ ] Enum = sum type so sealed class, kèm raw value/CaseIterable/indirect.
-- [ ] Generics: monomorphization vs erasure + 2 ví dụ đối chiếu.
-- [ ] PAT 1 ví dụ + link sibling.
-- [ ] Bảng access control có hàng final.
+- [x] switch: nêu fallthrough + hệ thống pattern (if case, for case).
+- [x] Enum = sum type so sealed class, kèm raw value/CaseIterable/indirect.
+- [x] Generics: monomorphization vs erasure + 2 ví dụ đối chiếu.
+- [x] PAT 1 ví dụ + link sibling.
+- [x] Bảng access control có hàng final.
 
 ---
 

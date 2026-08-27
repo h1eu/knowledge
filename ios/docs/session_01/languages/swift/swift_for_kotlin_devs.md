@@ -1185,6 +1185,10 @@ let user = try decoder.decode(User.self, from: jsonData)
 
 Swift không có `List` vs `MutableList` - `let` = immutable, `var` = mutable. Bản thân collection cũng là Value Type.
 
+### Cơ chế bên dưới
+
+`Array`, `Dictionary`, `Set`, `String` đều là **struct + Copy-on-Write (COW)** - mở rộng cơ chế đã thấy ở §6: phần struct chỉ là descriptor nhỏ, buffer dữ liệu thật nằm trên Heap và được chia sẻ qua refcount. Gán hay pass vào hàm chỉ copy descriptor - **gần như miễn phí**; chỉ khi có mutation, Swift mới kiểm tra `isKnownUniquelyReferenced` (cơ chế nội bộ trả lời câu hỏi "chỉ mình ta đang giữ buffer này?") và chỉ copy buffer thật khi có người chia sẻ. Hệ quả hiệu năng: truyền `let` mảng vào hàm không tốn chi phí đáng kể, và vì `let` cấm mutation nên hoàn toàn không kích hoạt copy. Kotlin xử lý điểm này thế nào? `listOf` cũng chia sẻ an toàn vì immutable, nhưng `MutableList` khi pass vào hàm là **chia sẻ reference thật** - hàm sửa thì data của caller đổi theo, muốn an toàn phải copy tường minh (`toList()`). Về mô hình duyệt, Swift tách hai protocol: **Sequence** = duyệt được một lần (có thể lazy, không đảm bảo duyệt lại được), **Collection** = Sequence + index + duyệt lại được nhiều lần - `map`/`filter` được định nghĩa trên Sequence, còn subscript/index trên Collection; phân biệt này cần khi đọc signature chuẩn của stdlib.
+
 === "Kotlin"
 
 ```kotlin
@@ -1219,11 +1223,79 @@ if let age = userMap["Alice"] { print(age) }
 
 > **Khác biệt tinh tế:** Truy cập `map["key"]` ở Kotlin trả `Int?`, ở Swift trả `Int?` - giống nhau. Nhưng **mutation** của `Dictionary`/`Array` trong Swift là copy-on-write: gán cho biến mới rồi sửa biến mới không ảnh hưởng biến cũ (khác hẳn `MutableList`).
 
+### 10.1 Bẫy index invalidation - xóa phần tử khi đang duyệt
+
+Xóa phần tử giữa chừng làm các phần tử phía sau **dồn index về trước**; vòng lặp vẫn tăng `i` nên sẽ bỏ sót phần tử đứng ngay sau vị trí vừa xóa. Bẫy này Kotlin cũng có (`for (i in 0 until list.size) list.removeAt(i)` cùng lỗi), nhưng Swift có công cụ idiom giải quyết gọn:
+
+```swift
+// Bẫy xóa trong loop
+var nums = [1, 2, 3, 4]
+// for i in 0..<nums.count { nums.remove(at: i) } // ❌ skip phần tử - index dồn sau mỗi lần xóa
+nums.removeAll(where: { $0 % 2 == 0 }) // ✅ [1, 3]
+
+// Cách đúng thứ hai: duyệt ngược - xóa cuối không ảnh hưởng index chưa duyệt
+var scores = [10, 20, 30, 40]
+for i in scores.indices.reversed() where scores[i] >= 30 {
+    scores.remove(at: i)
+}
+print(scores) // [10, 20]
+```
+
+> **Quy tắc:** mutate collection khi đang duyệt theo index là lỗi thiết kế - dùng `removeAll(where:)`, hoặc duyệt ngược, hoặc `filter` tạo collection mới (giống Kotlin `removeIf`/`filterNot`).
+
+### 10.2 Dictionary: subscript, `default:` và `updateValue`
+
+=== "Kotlin"
+
+```kotlin
+val scores = mutableMapOf("Alice" to 85)
+val a = scores["Bob"]                  // Int? - lookup trả nullable
+val b = scores.getOrDefault("Bob", 0)  // Int  - fallback khi thiếu key
+scores.put("Alice", 90)
+```
+
+=== "Swift"
+
+```swift
+var scores = ["Alice": 85]
+
+let a = scores["Bob"]                  // Int? - lookup luôn Optional
+let b = scores["Bob", default: 0]      // Int  - tương đương getOrDefault
+
+scores["Bob", default: 0] += 10        // ✅ tăng giá trị kể cả khi key chưa tồn tại
+let old = scores.updateValue(90, forKey: "Alice") // trả giá trị CŨ (Int?) rồi mới ghi
+
+let c = scores["Alice"]!               // ✅ chỉ khi CHẮC CHẮN key tồn tại - không thì crash
+```
+
+> **Khác biệt tiện dụng:** subscript với `default:` vừa đọc vừa **ghi được** (`+= 10`) - Kotlin phải `scores["Bob"] = (scores["Bob"] ?: 0) + 10`. `updateValue` trả giá trị cũ trước khi ghi - hữu ích khi cần biết giá trị bị thay thế.
+
+### 10.3 `compactMap` vs `flatMap` - hai tên cho một ý của Kotlin
+
+Kotlin dùng **một** tên `flatMap` cho cả hai ngữ nghĩa: transform rồi flatten, và transform rồi bỏ nil (thường kết hợp `mapNotNull`). Swift tách thành **hai** tên riêng:
+
+- `compactMap` = `mapNotNull` của Kotlin: transform từng phần tử, **bỏ** kết quả nil.
+- `flatMap` chỉ còn nghĩa **flatten**: transform trả về một Sequence rồi ghép phẳng lại.
+
+```swift
+let rows = [[1, 2, 3], [4, 5]]
+let flattened = rows.flatMap { $0 }                 // [1, 2, 3, 4, 5] - flatten
+
+let parsed = ["1", "x", "3"].compactMap { Int($0) } // [1, 3] - transform rồi bỏ nil
+// ["1", "x"].flatMap { Int($0) } // ❌ compiler bắt đổi thành compactMap (SE-0187)
+```
+
+Vì sao tách tên: trước Swift 4.1, `flatMap` làm cả hai việc - dev lạm dụng nó cho ngữ nghĩa bỏ nil, che mất ý định thật. Đổi tên là quyết định API design: tên gọi nói rõ ngữ nghĩa, đúng tinh thần "tường minh" của Swift (§8).
+
 ---
 
 ## 11. Rẽ nhánh & Pattern Matching: `when` vs `switch`
 
 `switch` Swift là **exhaustive** (phải đủ mọi case), không cần `break`, hỗ trợ unwrap associated value và `where`.
+
+### Cơ chế bên dưới
+
+`switch` trên enum được compiler biên dịch thành phép match trên **discriminant** của giá trị (tag byte - chi tiết layout ở §12). Mỗi case là một scope tự kết thúc: **không implicit fallthrough** như Java/C - muốn rơi xuống case sau phải viết `fallthrough` tường minh, và vì `fallthrough` **bỏ qua kiểm tra pattern** của case phía dưới (nhảy thẳng vào thân case) nên gần như luôn là dấu hiệu thiết kế sai. Mạnh hơn nữa, pattern matching là **một hệ thống pattern** dùng được ở nhiều vị trí, không chỉ trong switch: value binding (`let`), điều kiện phụ (`where`), tuple pattern `(0, 0)`, `if case` (switch 1 nhánh không cần viết cả hàm), `for case` (lọc + destructure ngay trong loop). Kotlin xử lý điểm này thế nào? Kotlin gói cùng năng lực vào `when` + `sealed class` + smart cast `is` - nhưng "match" chỉ tồn tại trong cú pháp `when` riêng, không có `if case`/`for case` tương đương để dùng rải rác. Về mô hình, enum + associated values chính là **Sum Type** (đã định nghĩa ở §5): cùng năng lực `sealed class`, nhưng Swift enum là **value type** - copy rẻ, an toàn khi làm state trong SwiftUI - và compiler ép switch **exhaustive**: thêm case mới là mọi switch thiếu case đều lỗi compile. Associated value "ẩn" bên trong case - khi destructure phải tự đặt tên (`let code, let msg`), không có tên field sẵn như constructor của `data class`.
 
 === "Kotlin"
 
@@ -1266,9 +1338,42 @@ func render(state: ViewState) {
 
 > **Khác biệt then chốt:** Kotlin cần `sealed class` + `is` để pattern matching; Swift dùng `enum` + associated values - gọn hơn, compiler tự hiểu và ép switch phải exhaustive. Đây là nền tảng của SwiftUI State (`.loading`, `.success`...).
 
+### 11.1 Hệ thống pattern - `switch` chỉ là một trong các nơi dùng
+
+```swift
+// if case - switch 1 nhánh, không cần viết cả hàm
+let state: ViewState = .success(items: ["a", "b"])
+if case .success(let items) = state { displayList(items) }
+
+// for case - destructure + lọc ngay trong loop
+let events: [ViewState] = [
+    .error(code: 500, message: "Internal"),
+    .success(items: []),
+    .error(code: 503, message: "Service Down")
+]
+for case .error(let code, _) in events where code >= 500 { showServerError("HTTP \(code)") }
+
+// Tuple pattern - match theo cấu trúc dữ liệu
+let (dx, dy) = (0, 3)
+switch (dx, dy) {
+case (0, 0): print("đứng yên")
+case (0, _): print("di chuyển dọc")
+case (_, 0): print("di chuyển ngang")
+default:     print("di chuyển chéo")
+}
+```
+
+> **Tư duy chuyển đổi:** đừng dịch `when` của Kotlin thành chỉ `switch` - hãy xem `when` là một "case" của hệ thống pattern. Cùng một pattern (`let`, `where`, destructure) dùng được trong `switch`, `if case`, `for case`, `while case` và thậm chí catch clause (§13).
+
 ---
 
 ## 12. Enum, Generics, Access Control & `typealias`
+
+### Cơ chế bên dưới
+
+**Enum layout:** một enum Swift là một vùng nhớ liền khối gồm **discriminant (tag byte)** phân biệt case + **payload** chứa associated value. Compiler cấp phát đủ chỗ cho case lớn nhất - kích thước enum = max(payload các case) + tag, không phải tổng của mọi case - nên enum có nhiều case vẫn rất rẻ, và case không mang associated value không tốn thêm gì. Kotlin xử lý điểm này thế nào? `sealed class` là N class riêng trên Heap, mỗi instance một lần cấp phát; Swift enum là một giá trị nằm ngay trong biến, copy là memcpy - một trong những lý do SwiftUI chọn enum làm state. Hệ quả của layout: payload có thể chứa reference (con trỏ Heap) nên enum **đệ quy** - case chứa chính nó - khiến compiler không tính được kích thước lúc compile; phải khai báo `indirect`, khi đó compiler bọc case đó vào một box cấp phát trên Heap (ví dụ ở 12.1).
+
+**Generics - monomorphization vs erasure:** Swift biên dịch generic bằng **compile-time specialization (monomorphization)** - compiler sinh bản code thật cho từng kiểu cụ thể được dùng, nên kiểu giữ nguyên tại runtime. Kotlin xử lý điểm này thế nào? JVM áp **type erasure**: `List<Int>` trở thành `List` lúc runtime nên `obj is List<Int>` không kiểm tra được; Kotlin phải dùng `inline fun` + `reified` để "chống xóa kiểu" - Swift không cần cơ chế đó vì không có erasure ngay từ đầu.
 
 ### 12.1 Enum với Associated Values
 
@@ -1285,6 +1390,27 @@ let result: NetworkResult<[String]> = .success(["a", "b"])
 // Lấy dữ liệu: switch hoặc if case
 if case .success(let items) = result { print(items) }
 ```
+
+**Ba mở rộng Kotlin không có trọn vẹn:**
+
+```swift
+// 1. Raw value - mỗi case mang giá trị cố định; init(rawValue:) trả Optional
+enum Planet: Int, CaseIterable {
+    case mercury = 1, venus, earth
+}
+let earth = Planet(rawValue: 3)   // Optional<Planet> - nil nếu không khớp case nào
+let all = Planet.allCases         // [mercury, venus, earth] - tương đương values()
+// (enum không có raw value vẫn conform CaseIterable được)
+
+// 2. indirect - enum đệ quy: case chứa chính nó phải nằm trong Heap box
+indirect enum Node {
+    case value(Int, next: Node)
+    case end
+}
+let list = Node.value(1, next: .value(2, next: .end))
+```
+
+> **Đối chiếu Kotlin:** `enum class` có sẵn `values()` nhưng không mang dữ liệu riêng mỗi case; `sealed class` mang dữ liệu nhưng không có raw value. Swift enum gộp cả ba: associated values + raw value + `allCases` - vì thế nó thay thế được cả `enum class` lẫn `sealed class`.
 
 ### 12.2 Generics
 
@@ -1308,9 +1434,45 @@ struct Box<T> { var value: T }
 let intBox = Box(value: 10)
 ```
 
-Chi tiết sâu ở Topic [1.1.3.4 Generics](generics.md).
+**Monomorphization vs erasure - đối chiếu trực tiếp:**
+
+=== "Kotlin"
+
+```kotlin
+// Kotlin generics bị erasure trên JVM
+fun check(obj: Any) = obj is List<Int> // ❌ compile error: cannot check for instance of erased type
+// List<Int>::class cũng không tồn tại - runtime chỉ còn List::class
+```
+
+=== "Swift"
+
+```swift
+// Swift giữ nguyên kiểu tại runtime
+let ok = [1, 2] is Array<Int> // ✅ true - không erasure
+print(ok)
+```
+
+**Protocol với associatedtype (PAT - Protocol with Associated Types):** `associatedtype` là cách Swift làm "generic protocol" - Kotlin phải viết generic interface (`interface Container<T>`), còn Swift để protocol tự khai báo kiểu của nó và dùng `Item` như một type thật bên trong:
+
+```swift
+protocol Container {
+    associatedtype Item
+    mutating func append(_ item: Item)
+    var count: Int { get }
+}
+
+struct IntStack: Container {
+    private var items: [Int] = []
+    mutating func append(_ item: Int) { items.append(item) } // compiler suy ra Item = Int
+    var count: Int { items.count }
+}
+```
+
+PAT kết hợp với witness table (§6): struct conform protocol được dispatch tĩnh qua bảng sinh lúc compile, cho phép specialization - đây là một trụ cột của kiến trúc POP. Chi tiết sâu ở Topic [1.1.3.4 Generics](generics.md) và [1.1.3.5 Protocol, Struct, Enum & Extension](protocol_struct_enum_extension.md).
 
 ### 12.3 Access Control
+
+**Rationale:** Swift đặt `internal` làm mặc định vì mô hình **"một app = một module"** - mọi code trong target thấy nhau là chuyện bình thường, chỉ cần che khỏi bên ngoài module. Và Swift `class` **mặc định final**: compiler tự do dispatch tĩnh/inline cho tới khi bạn khai báo `open` (mở kế thừa qua module) hoặc `final class` (khóa cứng). Kotlin xử lý điểm này thế nào? Kotlin cũng final class mặc định nhưng không có từ khóa phân tầng `public`/`open` - một `class` trong Kotlin vừa là "public" vừa final; Swift tách hai ý đó thành hai từ khóa riêng.
 
 | Swift | Ý nghĩa | Tương đương Kotlin |
 |---|---|---|
@@ -1318,7 +1480,8 @@ Chi tiết sâu ở Topic [1.1.3.4 Generics](generics.md).
 | `fileprivate` | Trong cùng file | - |
 | `internal` (default) | Trong module (app/target) | `internal` |
 | `public` | Ngoài module, không override/subclass ngoài module | `public` |
-| `open` | Ngoài module, được override/subclass | `open` (Kotlin class mặc định final) |
+| `open` | Ngoài module, được override/subclass | `open` |
+| `final class` | Cấm subclass ở **mọi nơi** - compiler dispatch tĩnh tối đa | `class` (Kotlin class mặc định final) |
 
 ```swift
 struct NetworkClient {
