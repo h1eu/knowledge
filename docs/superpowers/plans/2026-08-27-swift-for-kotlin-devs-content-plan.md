@@ -213,11 +213,11 @@ b[0] = 1         // LÚC NÀY mới copy thật - a không đổi
 - Giữ ví dụ Product hiện có + ví dụ `===` chỉ với class.
 
 **Tiêu chí hoàn thành:**
-- [ ] Giải thích Stack vs Heap + memcpy vs con trỏ.
-- [ ] Giải thích COW và vì sao gán collection lớn vẫn rẻ.
-- [ ] Giải thích identity `===` như tiêu chí chọn loại.
-- [ ] Cơ chế synthesis Equatable/Hashable + bẫy mất synthesis khi tự viết ==.
-- [ ] Giải thích mutating = thay self, không phải "mở khóa".
+- [x] Giải thích Stack vs Heap + memcpy vs con trỏ.
+- [x] Giải thích COW và vì sao gán collection lớn vẫn rẻ.
+- [x] Giải thích identity `===` như tiêu chí chọn loại.
+- [x] Cơ chế synthesis Equatable/Hashable + bẫy mất synthesis khi tự viết ==.
+- [x] Giải thích mutating = thay self, không phải "mở khóa".
 
 ---
 
@@ -243,10 +243,10 @@ b[0] = 1         // LÚC NÀY mới copy thật - a không đổi
   ```
 
 **Tiêu chí hoàn thành:**
-- [ ] static vs class giải thích qua khả năng override.
-- [ ] Nêu companion là instance thật vs static là metatype member.
-- [ ] Giải thích lazy + thread-safe của static let là runtime đảm bảo.
-- [ ] Có trade-off singleton về testability.
+- [x] static vs class giải thích qua khả năng override.
+- [x] Nêu companion là instance thật vs static là metatype member.
+- [x] Giải thích lazy + thread-safe của static let là runtime đảm bảo.
+- [x] Có trade-off singleton về testability.
 
 ---
 

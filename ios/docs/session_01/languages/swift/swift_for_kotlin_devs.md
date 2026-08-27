@@ -738,6 +738,7 @@ let u2 = User(dict: ["name": "Bob"])             // nil
 |---|---|---|
 | Loại | Reference Type (Heap) | **Value Type** (Stack/Copy-on-Write) |
 | Gán `val b = a` | Cùng trỏ 1 vùng nhớ | **Copy độc lập** |
+| Copy mỗi lần gán có đắt không? | Rẻ - chỉ copy reference | Struct nhỏ rẻ (memcpy); collection lớn có COW |
 | `==` | Tự sinh `equals()` | Cần `: Equatable` (compiler tự sinh) |
 | `hashCode` | Tự sinh `hashCode()` | Cần `: Hashable` (compiler tự sinh) |
 | Tạo bản sao | `copy(price=...)` | `var b = a; b.price = ...` hoặc `mutating func` |
@@ -753,6 +754,19 @@ graph LR
         SB["var u2 = copy của u1"]
     end
 ```
+
+### Cơ chế bên dưới
+
+**Struct nhỏ nằm trên Stack (inline), class luôn nằm trên Heap.** Struct nhỏ có các field nằm trực tiếp trong ô nhớ của biến, nên gán `var b = a` là **memcpy** - copy từng byte, chi phí tỉ lệ với tổng kích thước field, struct nhỏ thì gần như miễn phí. `class` có layout trên Heap gồm **isa pointer + refcount + các field**, còn biến chỉ giữ một con trỏ 8 byte - gán là copy con trỏ, hai biến từ đó trỏ chung một instance. Collection (`Array`/`Dictionary`/`String`) là struct nhưng dữ liệu lớn nằm trên Heap kèm cơ chế **Copy-on-Write (COW)**: phép gán chỉ copy phần struct "đầu" và hai biến tạm thời chia sẻ buffer phía sau; **chỉ khi có ai đó viết** (mutate) một trong hai biến, buffer mới được copy thật - vì vậy gán mảng một triệu phần tử vẫn gần như miễn phí. Chi tiết COW ở §10 và Topic [1.2.2 Value and Reference Type](../../memory_management/value_reference_type.md). Kotlin xử lý điểm này thế nào? Mọi object đều nằm trên Heap nên gán luôn là copy reference - không bao giờ có "copy giá trị" tự động, muốn copy phải gọi tường minh `copy()` của data class.
+
+```swift
+// COW minh họa
+var a = Array(repeating: 0, count: 1_000_000)
+var b = a        // rẻ: chưa copy (chỉ tăng ref count nội bộ)
+b[0] = 1         // LÚC NÀY mới copy thật - a không đổi
+```
+
+**Witness table vs vtable** - cơ chế dispatch cũng khác nhau giữa struct và class. Struct conform protocol dùng **witness table**: compiler sinh một bảng tĩnh chứa con trỏ tới đúng implementation của type đó, lời gọi được phân giải tĩnh và có thể **specialization/inline** vì compiler biết chính xác type tại compile time. `class` dispatch method qua **vtable** trỏ từ isa pointer - mỗi class một bảng method, lời gọi đi qua một bước gián tiếp và không specialization tự do được vì subclass có thể override. Đây là lý do kiến trúc POP (protocol + struct) thường nhanh hơn inheritance - sẽ quay lại ở §12 và Topic 1.1.3.5.
 
 === "Kotlin"
 
@@ -785,7 +799,66 @@ print(p2.price) // 899.1
 let products: Set<Product> = [p1, p2] // Hashable cho phép dùng làm Set key
 ```
 
-> **Quy tắc Apple:** Luôn bắt đầu model bằng `struct`. Chỉ đổi sang `class` khi cần **identity chia sẻ** (ViewModel, Service, Manager, Repository). Chi tiết sâu về Value vs Reference ở Topic [1.2.2 Value and Reference Type](../../memory_management/value_reference_type.md).
+### 6.1 Identity: `===` chỉ có nghĩa với class
+
+`===` so sánh **identity** - hai biến có trỏ cùng một instance trên Heap hay không. `struct` không có identity: hai struct cùng giá trị là một, khái niệm "cùng một object" đơn giản không tồn tại với value type. Đây chính là tiêu chí chọn loại model: cần identity chia sẻ (ViewModel, Service, Cache) → `class`; cần độc lập giá trị → `struct`. Kotlin xử lý điểm này thế nào? Mọi object đều có identity nên `===` dùng được cả với `data class` - object Kotlin đồng thời mang value equality (`==`) và reference equality (`===`), còn struct Swift chỉ có giá trị, không có định danh.
+
+```swift
+final class Session {
+    let id: String
+    init(id: String) { self.id = id }
+}
+let s1 = Session(id: "a")
+let s2 = s1
+print(s1 === s2) // true - cùng một instance trên Heap
+let s3 = Session(id: "a")
+print(s1 === s3) // false - 2 instance khác nhau dù cùng giá trị
+
+struct Point { var x: Int }
+let p1 = Point(x: 1)
+let p2 = p1
+// p1 === p2 // ❌ Compile error: struct không có identity
+```
+
+### 6.2 `Equatable`/`Hashable`: cơ chế synthesis và bẫy mất synthesis
+
+Khai báo `: Equatable` khi **tất cả stored properties đều conform `Equatable`** là đủ: compiler tự sinh `==` so từng property theo thứ tự khai báo - giống hệt `equals()` tự sinh của `data class`. Với `Hashable`, compiler sinh `hash(into:)` gộp hasher của từng property. **Bẫy:** chỉ cần tự khai báo `static func ==` là compiler **ngừng synthesis ngay** - nó coi bạn chịu trách nhiệm toàn bộ, nên tự viết mà sót property thì `==` sai logic mà không một cảnh báo nào. Kotlin xử lý điểm này thế nào? `data class` sinh `equals()`/`hashCode()` từ primary constructor và không thể tự sửa một nửa - không có đường "mất synthesis".
+
+```swift
+struct Tag: Equatable, Hashable {
+    let id: String
+    var name: String
+    // Mọi stored properties đều Equatable/Hashable
+    // -> compiler tự sinh == (so từng property) và hash(into:)
+}
+print(Tag(id: "1", name: "ios") == Tag(id: "1", name: "ios")) // true
+
+// ❌ Bẫy: tự viết == là MẤT synthesis - compiler không báo lỗi nếu sót trường
+struct Version: Equatable {
+    let major: Int
+    let minor: Int
+    static func == (lhs: Version, rhs: Version) -> Bool {
+        lhs.major == rhs.major // sót minor - bug khó phát hiện
+    }
+}
+print(Version(major: 1, minor: 0) == Version(major: 1, minor: 9)) // true - sai logic
+```
+
+### 6.3 `mutating`: thay self bằng bản mới, không phải "mở khóa"
+
+`mutating` không phải là "mở khóa để được sửa". Về cơ chế, compiler biên dịch mutating func thành một hàm nhận **`inout self`**: mọi phép gán property bên trong ghi đè lên vùng nhớ của self - về ngữ nghĩa value type, mỗi mutation là **thay self bằng một giá trị mới tại chỗ**. Hệ quả thứ nhất: mutating func không gọi được trên `let` - mutation là ghi, mà `let` cấm ghi. Hệ quả thứ hai: mutating func không gọi được bên trong closure capture self của struct - self trong closure là một bản copy ẩn dạng `let`. Kotlin xử lý điểm này thế nào? `data class` là reference nên method nào cũng sửa được instance chung, mutation không cần keyword và không có khái niệm "cấm mutation qua binding val" bên trong method.
+
+```swift
+var p = Product(id: "1", name: "iPhone", price: 999)
+p.applyDiscount(10) // ✅ p là var - mutation được phép
+
+let locked = p
+// locked.applyDiscount(10) // ❌ mutating member không gọi được trên let
+
+// _ = { p.applyDiscount(10) }() // ❌ self trong closure là bản copy let ẩn
+```
+
+> **Quy tắc Apple:** Luôn bắt đầu model bằng `struct`. Chỉ đổi sang `class` khi cần **identity chia sẻ** (ViewModel, Service, Manager, Repository) - đúng tiêu chí `===` ở 6.1. Chi tiết sâu về Value vs Reference ở Topic [1.2.2 Value and Reference Type](../../memory_management/value_reference_type.md).
 
 ---
 
@@ -799,6 +872,10 @@ Kotlin không có `static` - dùng `companion object`. Swift không có `compani
 | `companion object { fun f() }` | `static func f()` | Method tĩnh |
 | - | `class func f()` | Method tĩnh **có thể override** ở subclass |
 | `object Singleton` | `static let shared` + `private init()` | Singleton |
+
+### Cơ chế bên dưới
+
+`static` trong Swift là property/method của **METATYPE** - mỗi type có một không gian member riêng, truy cập qua tên type chứ không qua instance nào. Cơ chế quan trọng nhất: **cả `static let` lẫn `static var` đều được khởi tạo lazy và thread-safe** - Swift Book quy định type properties được khởi tạo đúng một lần ở lần truy cập đầu tiên và điều này được **runtime đảm bảo** (kế thừa cơ chế `dispatch_once`), không cần double-checked locking; khác biệt duy nhất của `var` nằm ở sau khởi tạo: nhiều thread **ghi** đồng thời vào `static var` vẫn là data race. Kotlin xử lý điểm này thế nào? `companion object` không phải "member tĩnh" mà là **một object instance thật** - một singleton lồng trong class, có tên, implement interface được và truyền được như object thường; nó cũng lazy (khởi tạo khi lần đầu chạm class) nhưng bản chất là một instance, trong khi Swift `static` chỉ là member của metatype.
 
 === "Kotlin"
 
@@ -836,6 +913,56 @@ final class ApiClient {
 }
 ApiClient.shared
 ```
+
+### 7.1 `static` vs `class` - khác nhau ở khả năng override
+
+`class func` (chỉ có nghĩa trên class) cho phép subclass **override**; `static` chính là `class final` - chặn override. Kotlin xử lý điểm này thế nào? Mọi method trong companion object đều không override được, vì vậy Kotlin dev có thể mặc định dùng `static` và chỉ chuyển sang `class` khi thiết kế có kế thừa ở tầng type:
+
+```swift
+class Handler { class func kind() -> String { "base" } }
+class HttpHandler: Handler { override class func kind() -> String { "http" } }
+
+Handler.kind()     // "base"
+HttpHandler.kind() // "http" - override được vì khai báo `class func`
+// Nếu Handler dùng `static func` thì `override` là lỗi compile ngay
+```
+
+### 7.2 `companion object` là instance thật - `static` không phải instance
+
+`companion object` có thể implement interface, có tên riêng, và được truyền như một object bình thường - đó là năng lực polymorphism ở tầng "static" mà Kotlin có sẵn. Swift `static` không phải instance nào cả; khi cần tương đương, gán một instance vào member của metatype: `static let shared = SomeImplementation()`.
+
+```kotlin
+interface ParserFactory { fun create(): String }
+
+class Api {
+    companion object Default : ParserFactory { // có tên + implement interface
+        override fun create() = "default"
+    }
+}
+fun boot(factory: ParserFactory) = factory.create()
+// Api.Default là một object thật - truyền được như object thường
+boot(Api.Default)
+```
+
+```swift
+protocol ParserFactory { func create() -> String }
+struct DefaultParserFactory: ParserFactory {
+    func create() -> String { "default" }
+}
+
+// static là member của metatype - không implement interface được.
+// Cần polymorphism ở tầng tĩnh: gán một instance vào static let
+enum ParserModule {
+    static let factory: ParserFactory = DefaultParserFactory()
+}
+print(ParserModule.factory.create()) // "default"
+```
+
+### 7.3 Singleton: lazy + thread-safe là việc của runtime
+
+Singleton chuẩn Apple là `static let shared` + `private init()` (ví dụ `ApiClient` ở tabs trên): `private init()` chặn mọi đường tạo instance khác, còn `static let` nhận lazy + thread-safe từ runtime như đã giải thích ở phần Cơ chế bên dưới - không cần double-checked locking như Java, không cần khóa tay nào. Kotlin `object` tương đương về kết quả: runtime cũng khởi tạo đúng một lần khi lần đầu chạm class; khác biệt chỉ nằm ở mô hình bên dưới - companion/instance thật đối lập metatype member.
+
+**Trade-off cần biết trước khi dùng:** singleton là global state - mọi test chia sẻ cùng một instance nên khó reset giữa các test case, và dependency bị ẩn vì nhìn signature không thấy hàm nào phụ thuộc `ApiClient.shared`. Với code mới, ưu tiên inject qua init; chỉ dùng singleton cho stateless utility thực sự toàn cục (logging, analytics).
 
 > **Lưu ý:** `static let shared` trong Swift là **lazy và thread-safe** (đảm bảo bởi runtime) - tương đương `object` trong Kotlin. Không cần viết double-checked locking như Java.
 
