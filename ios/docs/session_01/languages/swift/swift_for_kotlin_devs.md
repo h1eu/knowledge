@@ -222,6 +222,10 @@ let multiline = """
 
 Swift tách **Argument Label** (tên khi gọi) và **Parameter Name** (tên trong thân hàm) để câu lệnh đọc như tiếng Anh tự nhiên. Đây là khác biệt lớn nhất khiến dev Kotlin "khó chịu" nhất khi chuyển sang.
 
+### Cơ chế bên dưới
+
+Argument label không chỉ là "cách đặt tên đẹp" - nó là **một phần của định danh hàm** trong hệ thống kiểu Swift: `move(from:to:)` và `move(from:)` là hai hàm hoàn toàn khác nhau, có thể overload trên chính label. Toàn bộ việc "ghép label vào call site" được giải quyết lúc compile time, nên gọi hàm không tốn thêm chi phí runtime nào. Kotlin xử lý điểm này thế nào? Kotlin chỉ có **một** thành phần định danh là tên hàm - hai hàm overload được nếu khác kiểu tham số, còn "khác tên tham số" không tạo được overload vì label không tồn tại trong signature. Vì vậy cùng một nhu cầu "call site tự giải thích được", Kotlin phải giải quyết ở tầng naming (kéo dài tên hàm - xem 2.1 bên dưới), còn Swift giải quyết ở tầng type system.
+
 ### 2.1 Ba dạng khai báo
 
 === "Kotlin"
@@ -258,6 +262,8 @@ log("App started")
 log("Error", level: "ERROR", tags: "network", "retry")
 ```
 
+**Vì sao Swift tách label?** [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/) đặt nguyên tắc số một: **call site phải đọc như một câu tiếng Anh** - tên hàm + label kết hợp thành ngữ pháp hoàn chỉnh, `move(from:to:)` đọc lên đúng nghĩa "move from ... to ..." mà không cần mở định nghĩa hàm. Kotlin xử lý điểm này thế nào? Cùng một mục tiêu đó, Kotlin giải quyết bằng cách kéo dài **tên hàm** - `sendNotificationToUser(userId, message)` - vì named argument chỉ là công cụ tùy chọn để tăng khả năng đọc, không phải hợp đồng bắt buộc. Swift biến nó thành hợp đồng compile: thiếu label là lỗi, gọi sai label là lỗi - call site không bao giờ "lạc ngữ pháp".
+
 > **Khi nào dùng gì?**
 > - Dùng `from`/`into`/`with` khi hàm mô tả hành động tự nhiên (Apple API toàn dùng dạng này: `move(from:to:)`, `insert(_:at:)`).
 > - Dùng `_` khi hàm là phép toán/công thức toán học (`sum`, `max`).
@@ -265,6 +271,8 @@ log("Error", level: "ERROR", tags: "network", "retry")
 ### 2.2 `inout` - Sửa biến gốc
 
 Trong cả Kotlin lẫn Swift, parameter mặc định là immutable. Kotlin không có cơ chế này (phải return giá trị mới); Swift dùng `inout` + tiền tố `&` khi gọi.
+
+**Cơ chế copy-in copy-out:** `inout` **không phải** pass-by-reference như con trỏ C. Khi gọi hàm, compiler copy giá trị của biến gốc **vào** parameter (copy-in); khi hàm return, nó copy giá trị cuối cùng **ra** ghi đè lên biến gốc (copy-out). Với một biến cục bộ, kết quả quan sát giống hệt "sửa trực tiếp" - nhưng bản chất là copy. Hệ quả: parameter `inout` **không thể** được capture bởi closure async/@escaping (giá trị gốc có thể đã đổi trước khi copy-out kịp chạy), và dấu `&` chính là tín hiệu compiler bật **kiểm tra exclusivity** - cùng một vùng bộ nhớ không được truy cập đồng thời từ hai nơi, vi phạm là lỗi ngay lúc build. Kotlin xử lý điểm này thế nào? Kotlin không có cơ chế tương đương - tham số luôn là `val` readonly, mọi "sửa biến gốc" phải qua return giá trị mới hoặc mutation trên class.
 
 ```swift
 func swapNumbers(_ a: inout Int, _ b: inout Int) {
@@ -274,13 +282,50 @@ func swapNumbers(_ a: inout Int, _ b: inout Int) {
 }
 var x = 10, y = 20
 swapNumbers(&x, &y) // x: 20, y: 10
+// Cơ chế: x, y được copy vào hàm khi gọi (copy-in),
+// kết quả cuối được copy ra ghi đè biến gốc khi return (copy-out)
 ```
 
 > **Khi nào không nên dùng?** `inout` chỉ hợp cho biến cục bộ/Stack. Tránh dùng với property của class vì dễ tạo side effect khó theo dõi - ưu tiên return value như Kotlin.
 
+### 2.3 Function Type là First-Class & Nested Function
+
+Cả hai ngôn ngữ đều coi hàm là **first-class citizen** - gán được vào biến, truyền làm tham số, return từ hàm khác. Kiểu của hàm là function type `(Int, Int) -> Int`, cú pháp hai bên gần như trùng khớp:
+
+=== "Kotlin"
+
+```kotlin
+val operation: (Int, Int) -> Int = { a, b -> a + b }
+println(operation(3, 4)) // 7
+```
+
+=== "Swift"
+
+```swift
+let operation: (Int, Int) -> Int = { $0 + $1 }
+print(operation(3, 4)) // 7
+```
+
+Hàm cũng có thể khai báo **lồng trong hàm khác** và truy cập biến cục bộ của hàm cha - khả năng "capture" này chính là cầu nối sang Closure (§14):
+
+```swift
+func processData() {
+    var attempts = 0
+    func retry() { attempts += 1 } // hàm con truy cập biến cục bộ của hàm cha
+    retry()
+    print(attempts) // 1
+}
+```
+
+> **Nền tảng cho §14:** tham số closure mặc định là **non-escaping** - được đảm bảo sống không quá lời gọi hàm, nhờ đó compiler có thể **inline toàn bộ closure** vào call site: abstraction **zero-cost**. Kotlin xử lý điểm này thế nào? Lambda Kotlin mà capture biến cục bộ thì luôn được đóng gói thành object cấp phát trên Heap; Swift giữ non-escaping làm mặc định để phần lớn closure không phải cấp phát gì cả. Khi closure cần sống lâu hơn (lưu vào property, chạy async) mới phải khai báo `@escaping` - và lúc đó câu chuyện bộ nhớ ARC bắt đầu (§14).
+
 ---
 
 ## 3. Tuples, Range, Control Flow & `defer`
+
+### Cơ chế bên dưới
+
+Tuple và Range trong Swift không phải cú pháp đường - chúng là những **type thật** trong hệ thống kiểu. Tuple là **Product Type** không có identity: nó không có tên type, nên hai tuple cùng cấu trúc là cùng một kiểu bất kể khai báo ở đâu (**structural typing**), và vì không có tên nên nó không thể conform `Codable`/`Equatable` qua conformance. Kotlin xử lý điểm này thế nào? Kotlin không có tuple built-in - dev dùng `Pair<A, B>`/`Triple`, tức là class có tên type thật, đổi lại bị đóng khung cứng số lượng trường. Range cũng là type thật: `0..<5` tạo `Range<Int>`, `0...5` tạo `ClosedRange<Int>` - hai kiểu khác nhau, mỗi kiểu có method riêng, không phải toán tử "đường" chỉ phục vụ vòng lặp.
 
 ### 3.1 Tuples - Không có trong Kotlin
 
@@ -298,7 +343,7 @@ print(user.0)    // Hazu - truy cập bằng index
 let (name, age, _) = fetchUser()
 ```
 
-> **Giới hạn:** Tuple không conform `Codable`, không có method, không dùng làm API public phức tạp. Return quá 3 giá trị nên dùng `struct`.
+> **Giới hạn:** Tuple không conform `Codable`, không có method, không dùng làm API public phức tạp. Return quá 3 giá trị nên dùng `struct` - không chỉ vì khó đọc: **tuple không có tên type** (structural typing), nên API trả tuple rất khó tái sử dụng - không thể thêm extension, không thể conform thêm protocol, không thể gọi tên trong tài liệu. Kotlin đối chiếu: `Pair<A, B>`/`Triple` là class có tên type thật, nhưng bị đóng khung cứng số lượng trường.
 
 ### 3.2 Range Operators
 
@@ -314,6 +359,8 @@ for i in 0...3 { print(i) } // 0,1,2,3
 let range = 1...5
 if range.contains(3) { print("Có 3") }
 ```
+
+**Vì sao half-open là mặc định?** `0..<arr.count` đếm đúng số phần tử và **không bao giờ truy cập `upperBound`**, nên dùng làm index của Array (0-based) luôn an toàn - trong khi `0...arr.count` vượt quá index cuối cùng. Half-open còn biểu thị được range rỗng (`5..<5`) - điều closed range không làm được. Toán tử `~=` được định nghĩa trên Range nên range dùng được trong case pattern (gặp ở §12). Kotlin xử lý điểm này thế nào? Kotlin cũng có `IntRange` là type thật và tách `..` với `until`, nhưng Swift đi xa hơn khi chọn half-open làm **mặc định** trong hầu hết API (`indices`, `prefix`, `dropLast`...).
 
 ### 3.3 Control Flow: `for-in`, `while`, `guard`, `where`
 
@@ -341,6 +388,8 @@ func validate(email: String?, age: Int?) {
 }
 ```
 
+**`guard` là hợp đồng scope, không chỉ là style "đẹp hơn":** cú pháp ép block `else` **phải** thoát scope (`return`, `throw`, `continue`, `break`) - thiếu một trong các lệnh đó là lỗi compile. Chính nhờ hợp đồng này, compiler **biết chắc** rằng đoạn code bên dưới `guard` chỉ chạy khi mọi điều kiện đã pass, nên các biến được unwrap sẵn sàng dùng luôn mà không tạo scope mới. Ngược lại `if let` chỉ unwrap biến **trong block** của nó - mọi logic xử lý phải thụt vào trong, dồn thành pyramid. Kotlin xử lý điểm này thế nào? Kotlin có `val email = email ?: return` (Elvis + return sớm) đạt hiệu quả tương tự cho từng biến, nhưng không gộp được nhiều unwrap + điều kiện phụ trong một câu như `guard let a = a, !a.isEmpty, ...`. Vì vậy "guard làm phẳng code" không phải cảm tính thẩm mỹ - nó là hệ quả trực tiếp của hợp đồng exit-scope mà compiler kiểm tra.
+
 ### 3.4 `defer` - Dọn dẹp khi thoát scope
 
 Kotlin dùng `try/finally` để đảm bảo dọn dẹp. Swift dùng `defer`: khối code chạy **khi thoát scope**, bất kể return sớm hay throw, và khai báo **ngay sau khi acquire resource**.
@@ -367,6 +416,24 @@ func process() throws {
     try parse(file)        // nhiều defer chạy ngược thứ tự khai báo
 }
 ```
+
+**Cơ chế:** mỗi `defer` push khối lệnh vào một stack của scope hiện tại; khi scope thoát - bất kể bằng `return`, `break` hay `throw` - các khối được pop và chạy **ngược thứ tự khai báo (LIFO)**. Thứ tự ngược là chủ đích: resource mở sau phải được đóng trước, đúng thứ tự lồng nhau tự nhiên. Compiler cấm `return`, `break`, `continue`, `throw` bên trong `defer` - defer vốn đã là đường thoát, không được thay đổi luồng thêm lần nữa. Kotlin xử lý điểm này thế nào? `try/finally` gắn với block `try` chứ không gắn với scope: bạn phải nhớ bao trọn đoạn code có đường thoát vào `try`, còn `defer` bảo vệ **mọi đường thoát của scope** kể từ dòng nó xuất hiện.
+
+```swift
+// defer chạy LIFO - như stack dọn dẹp:
+func demo() {
+    defer { print("1") }
+    defer { print("2") }
+    print("3")
+} // in: 3, 2, 1
+```
+
+| Tiêu chí | Kotlin `try/finally` | Swift `defer` |
+|---|---|---|
+| Vị trí khai báo | Ở cuối block - xa nơi acquire resource | Ngay cạnh nơi acquire |
+| Đường thoát được bảo vệ | Chỉ các đường thoát nằm trong block `try` | Mọi đường thoát của scope (return sớm, throw) |
+| Nguy cơ quên | Cao - thêm đường return mới sau này dễ quên cập nhật `finally` | Thấp - viết ngay lúc acquire |
+| Nhiều resource | Nhiều tầng `try` lồng nhau | Nhiều `defer` tuần tự, tự sắp LIFO |
 
 > **Khi nào dùng?** Mọi cặp acquire/release (mở file, lock/unlock, begin/end animation) nên viết `defer` ngay cạnh nhau để không quên đường thoát.
 

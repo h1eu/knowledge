@@ -92,10 +92,10 @@
 - Giữ ví dụ `swapNumbers` + thêm comment cơ chế copy-in copy-out.
 
 **Tiêu chí hoàn thành:**
-- [ ] Có đoạn rationale trỏ về API Design Guidelines (kèm link Nguồn tham khảo đã có).
-- [ ] Giải thích cơ chế inout là copy-in copy-out, không phải reference thật.
-- [ ] Có ví dụ function type first-class.
-- [ ] Có nested function ngắn dẫn link sang §14.
+- [x] Có đoạn rationale trỏ về API Design Guidelines (kèm link Nguồn tham khảo đã có).
+- [x] Giải thích cơ chế inout là copy-in copy-out, không phải reference thật.
+- [x] Có ví dụ function type first-class.
+- [x] Có nested function ngắn dẫn link sang §14.
 
 ---
 
@@ -124,10 +124,10 @@
 - Ví dụ `if case`/`~=` không cần ở đây (thuộc §12).
 
 **Tiêu chí hoàn thành:**
-- [ ] Tuple có lý do "structural typing, không có tên type".
-- [ ] Range giải thích 2 type + lý do half-open.
-- [ ] `guard` giải thích bằng hợp đồng scope + compiler knowledge, không phải "đẹp hơn".
-- [ ] `defer` có ví dụ LIFO + bảng so với try/finally.
+- [x] Tuple có lý do "structural typing, không có tên type".
+- [x] Range giải thích 2 type + lý do half-open.
+- [x] `guard` giải thích bằng hợp đồng scope + compiler knowledge, không phải "đẹp hơn".
+- [x] `defer` có ví dụ LIFO + bảng so với try/finally.
 
 ---
 
