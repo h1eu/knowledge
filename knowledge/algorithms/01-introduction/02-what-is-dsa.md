@@ -46,13 +46,13 @@ Cấu trúc dữ liệu và giải thuật không tồn tại độc lập mà c
 2. **Giải thuật thổi hồn vào dữ liệu**: Bản thân cấu trúc dữ liệu chỉ là nơi chứa thông tin tĩnh; giải thuật chính là phần logic xử lý, chuyển hóa dữ liệu tĩnh thành giải pháp giải quyết bài toán.
 3. **Mối quan hệ hiệu năng**: Một giải thuật có thể triển khai trên nhiều cấu trúc dữ liệu khác nhau, nhưng hiệu quả thực thi sẽ rất khác biệt. Lựa chọn cấu trúc dữ liệu phù hợp là chìa khóa để tối ưu hiệu năng.
 
-![Mối quan hệ giữa cấu trúc dữ liệu và giải thuật](../../website/dsa-assets/relationship_between_data_structure_and_algorithm.png)
+![Mối quan hệ giữa cấu trúc dữ liệu và giải thuật](../../../website/dsa-assets/relationship_between_data_structure_and_algorithm.png)
 
 ### 1.2.3.1 Phép ẩn dụ: Trò chơi lắp ráp Lego
 
 Chúng ta có thể ví Cấu trúc dữ liệu và Giải thuật giống như việc chơi lắp ráp khối hình Lego:
 
-![Lắp ráp Lego](../../website/dsa-assets/assembling_blocks.png)
+![Lắp ráp Lego](../../../website/dsa-assets/assembling_blocks.png)
 
 Một bộ đồ chơi Lego bao gồm các mảnh ghép (thành phần dữ liệu) và sách hướng dẫn lắp ráp (giải thuật). Bằng cách đi theo từng bước trong sách hướng dẫn, bạn sẽ lắp ghép các mảnh thành một mô hình hoàn chỉnh.
 

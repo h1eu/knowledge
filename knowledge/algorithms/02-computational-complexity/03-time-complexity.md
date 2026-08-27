@@ -16,7 +16,7 @@ previous: "dsa-iteration-recursion"
 
 Chúng ta ký hiệu độ phức tạp bằng **Big-O Notation (Ký hiệu O lớn)**, đại diện cho tiệm cận giới hạn trên của tốc độ tăng trưởng.
 
-![Các đường cong độ phức tạp thời gian phổ biến](../../dsa-assets/time_complexity_curves.png)
+![Các đường cong độ phức tạp thời gian phổ biến](../../../website/dsa-assets/time_complexity_common_types.png)
 
 ## Các cấp độ phức tạp thời gian phổ biến
 

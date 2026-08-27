@@ -11,7 +11,7 @@ previous: "dsa-intro-summary"
 
 # Phân tích Độ phức tạp
 
-![Phân tích Độ phức tạp](../../website/dsa-assets/chapter_complexity_analysis.jpg)
+![Phân tích Độ phức tạp](../../../website/dsa-assets/chapter_complexity_analysis.jpg)
 
 > [!NOTE]
 > Phân tích độ phức tạp giống như một bản hướng dẫn không-thời gian trong vũ trụ bao la của giải thuật.

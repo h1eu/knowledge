@@ -26,7 +26,7 @@ Thông thường, chúng ta sẽ thực hiện theo các bước sau:
 2. Vì chữ **$r$** đứng sau **$m$** trong bảng chữ cái, bạn có thể loại bỏ hoàn toàn nửa đầu cuốn từ điển và thu hẹp phạm vi tìm kiếm vào nửa sau.
 3. Lặp lại bước 1 và 2 đối với nửa sau cuốn sách cho đến khi bạn tìm thấy đúng trang chứa từ bắt đầu bằng chữ **$r$**.
 
-![Quy trình tra từ điển](../../website/dsa-assets/binary_search_dictionary_step1.png)
+![Quy trình tra từ điển](../../../website/dsa-assets/binary_search_dictionary_step1.png)
 
 Hành động tra cứu từ điển quen thuộc này chính là giải thuật **Binary Search (Tìm kiếm nhị phân)** nổi tiếng.
 - Ở góc độ **Cấu trúc dữ liệu**: Cuốn từ điển đóng vai trò là một **Mảng (Array)** đã được sắp xếp thứ tự.
@@ -42,7 +42,7 @@ Khi chơi bài tây, để dễ nhìn, chúng ta thường sắp xếp các quâ
 2. Rút một quân bài từ phần chưa sắp xếp, so sánh và chèn nó vào vị trí thích hợp trong phần đã sắp xếp.
 3. Lặp lại bước 2 cho đến khi không còn quân bài nào ở phần chưa sắp xếp.
 
-![Sắp xếp quân bài](../../website/dsa-assets/playing_cards_sorting.png)
+![Sắp xếp quân bài](../../../website/dsa-assets/playing_cards_sorting.png)
 
 Quy trình sắp xếp quân bài này chính là nguyên lý của giải thuật **Insertion Sort (Sắp xếp chèn)**. Đây là một giải thuật cực kỳ hiệu quả đối với các tập dữ liệu nhỏ và thường được sử dụng làm lõi tối ưu hóa trong các hàm sắp xếp tích hợp của nhiều ngôn ngữ lập trình.
 
@@ -58,7 +58,7 @@ Giả sử bạn mua hàng hết 69.000đ tại siêu thị. Bạn đưa cho thu
 4. Chọn tờ tiền lớn nhất có thể tiếp theo, đó là tờ **1.000đ** (còn thiếu $1.000 - 1.000 = 0đ$).
 5. Hoàn tất quá trình thối tiền với kết quả gồm: 1 tờ 20.000đ, 1 tờ 10.000đ và 1 tờ 1.000đ.
 
-![Thối tiền thừa](../../website/dsa-assets/greedy_change.png)
+![Thối tiền thừa](../../../website/dsa-assets/greedy_change.png)
 
 Bằng cách luôn chọn phương án tốt nhất ở mỗi bước nhỏ (rút mệnh giá lớn nhất có thể), chúng ta thu được kết quả tối ưu cho toàn bộ bài toán. Trong lập trình, cách tiếp cận này được gọi là **Greedy Algorithm (Giải thuật tham lam)**.
 

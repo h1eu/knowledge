@@ -11,7 +11,7 @@ previous: ""
 
 # Gặp gỡ Giải thuật
 
-![Gặp gỡ Giải thuật](../../website/dsa-assets/chapter_introduction.jpg)
+![Gặp gỡ Giải thuật](../../../website/dsa-assets/chapter_introduction.jpg)
 
 Một cô bé nhảy múa uyển chuyển, hòa quyện cùng các dòng dữ liệu, tà váy của cô bay bổng theo giai điệu của các giải thuật.
 
