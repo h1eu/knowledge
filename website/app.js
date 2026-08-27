@@ -4751,6 +4751,8 @@ document.addEventListener('keydown', e => {
 });
 
 // Code Tab Switcher — ưu tiên java > kotlin > swift > dart cho DSA
+// Tạm thời ẩn các ngôn ngữ không dùng — chỉ giữ Java, Kotlin, Swift, Dart, C++
+const DSA_VISIBLE_LANGS = ['java', 'kotlin', 'swift', 'dart', 'cpp'];
 const DSA_PREFERRED_LANGS = ['java', 'kotlin', 'swift', 'dart'];
 const DSA_LANG_STORAGE_KEY = 'kos-dsa-lang';
 function switchCodeTab(event, lang) {
@@ -4786,7 +4788,23 @@ function getPreferredDsaLang() {
 function applyPreferredDsaLang() {
   const preferred = getPreferredDsaLang();
   document.querySelectorAll('.code-tabs').forEach(container => {
-    const available = Array.from(container.querySelectorAll('.code-tab-btn')).map(b => b.getAttribute('data-lang'));
+    const allBtns = Array.from(container.querySelectorAll('.code-tab-btn'));
+    const allContents = Array.from(container.querySelectorAll('.code-tab-content'));
+    const visibleLangs = allBtns
+      .map(b => b.getAttribute('data-lang'))
+      .filter(lang => DSA_VISIBLE_LANGS.includes(lang));
+    // Nếu nhóm không có ngôn ngữ nào trong danh sách hiển thị thì giữ nguyên nhóm
+    if (visibleLangs.length > 0) {
+      allBtns.forEach(btn => {
+        btn.style.display = DSA_VISIBLE_LANGS.includes(btn.getAttribute('data-lang')) ? '' : 'none';
+      });
+      allContents.forEach(content => {
+        content.style.display = DSA_VISIBLE_LANGS.includes(content.getAttribute('data-lang')) ? '' : 'none';
+      });
+    }
+    const available = Array.from(container.querySelectorAll('.code-tab-btn'))
+      .filter(b => b.style.display !== 'none')
+      .map(b => b.getAttribute('data-lang'));
     let target = null;
     if (available.includes(preferred)) {
       target = preferred;
@@ -4795,6 +4813,7 @@ function applyPreferredDsaLang() {
         if (available.includes(lang)) { target = lang; break; }
       }
     }
+    if (!target && available.length > 0) target = available[0];
     if (!target) return;
     container.querySelectorAll('.code-tab-btn').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-lang') === target);
