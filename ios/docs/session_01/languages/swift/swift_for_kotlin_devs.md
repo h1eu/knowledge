@@ -1510,7 +1510,19 @@ func fetchUser(id: UserID, completion: Completion) {}
 
 ## 13. Error Handling: `throws`/`try`/`try?`/`try!` & `Result`
 
-Kotlin dùng `try/catch` với `Exception` unchecked. Swift dùng `Error` protocol + `throws` - **checked ngay tại signature**: hàm nào throw phải khai báo, caller bắt buộc xử lý.
+Kotlin dùng `try/catch` với `Exception` unchecked. Swift dùng `Error` protocol + `throws` - **checked ngay tại signature**: hàm nào throw phải khai báo, caller bắt buộc xử lý. Swift không chọn theo Kotlin (unchecked hết) cũng không theo Java (checked mọi loại) mà lấy điểm trung gian: **compiler bắt buộc khai báo và bắt buộc `try`, nhưng caller được chọn 1 trong 3 mức xử lý**.
+
+### Cơ chế bên dưới
+
+**`throws` không phải exception.** Cơ chế thật: hàm Swift throw thực chất **return một giá trị đặc biệt** - error được mang theo trên **register/return path** của lệnh gọi hàm, **không unwinding stack** như Java/Kotlin. Hệ quả hai chiều: happy path không có lỗi thì **zero-cost** (không chèn code dọn dẹp như try/catch), còn khi có lỗi chi phí cũng thấp vì Swift **không capture stack trace lúc throw**. Kotlin xử lý điểm này thế nào? `Exception` là object thật và **stack trace được capture ngay lúc exception được construct** - kể cả khi nó bị nuốt, chi phí điền stack vẫn đã trả; vì vậy "throw làm control flow" ở Kotlin đắt thật sự, còn ở Swift thì rẻ.
+
+**Checked - middle ground.** Java checked exception quá mức (ai cũng `catch` cho xong hoặc `throws` lan cả hệ thống) nên Kotlin bỏ hẳn; nhưng unchecked khiến lỗi tiềm ẩn không thấy trên signature. Swift chọn: compiler ghi nhớ hàm nào throw, còn caller có **3 lựa chọn** với hệ quả khác nhau:
+
+| Cách gọi | Kết quả | Hệ quả | Khi nào dùng |
+|---|---|---|---|
+| `do { try f() } catch {}` | Bắt và xử lý lỗi | Compiler ép xử lý mọi đường lỗi | Flow chính của business logic |
+| `try? f()` | Lỗi → `nil` (trả `Optional`) | Mất thông tin lỗi - chỉ biết thất bại | Lỗi không quan trọng (cache, decode phụ) |
+| `try! f()` | Lỗi → **crash runtime** | Vô hiệu hóa an toàn - lỗi nghĩa là bug | Logic chứng minh không thể lỗi (test, fixture) |
 
 ```swift
 enum AppError: Error, LocalizedError {
@@ -1546,9 +1558,37 @@ let userOrNil = try? login(email: "bad")
 let userForced = try! login(email: "hazu@example.com")
 ```
 
-### 13.1 `Result` - Cho API callback (trước async/await)
+### 13.1 `rethrows` - hàm chỉ throw khi closure throw
+
+`rethrows` là lời hứa của API nhận closure: hàm nhận closure `throws` nhưng **chỉ throw nếu chính closure đó throw**. Nếu caller truyền closure không throw, hàm được coi như không throw - caller **không cần `try`**. Kotlin xử lý điểm này thế nào? Không có khái niệm tương ứng: vì mọi exception đều unchecked, `map` của Kotlin có thể ném lỗi bất cứ lúc nào mà signature không nói gì - Swift nói rõ hơn trên chính signature.
+
+```swift
+func customMap<T>(_ array: [Int], _ transform: (Int) throws -> T) rethrows -> [T] {
+    var result: [T] = []
+    for element in array {
+        result.append(try transform(element))
+    }
+    return result
+}
+
+// 1. Closure không throw -> customMap coi như hàm thường, không cần try
+let doubled = customMap([1, 2, 3]) { $0 * 2 }   // [2, 4, 6]
+
+// 2. Closure throw -> customMap trở thành throwing, caller bắt buộc try
+enum MapError: Error { case negativeInput(Int) }
+let validated = try customMap([1, -2, 3]) { value in
+    guard value >= 0 else { throw MapError.negativeInput(value) }
+    return value
+}
+```
+
+Đây là lý do `map`, `filter`, `compactMap` của Swift "đôi khi cần `try` đôi khi không" - signature không đổi, compiler tự quyết theo closure bạn truyền.
+
+### 13.2 `Result` - Cho API callback (trước async/await)
 
 Tương đương `Result`/`Either` trong Kotlin, phổ biến trong API cũ của UIKit.
+
+**Quy tắc chọn `Result` vs `do/catch`:** `do/catch` cho **flow tuyến tính** - lỗi dừng dòng chảy, caller xử lý ngay tại chỗ; `Result` khi cần **model hóa kết quả như một value** - lưu vào property, chuyển qua callback, gom nhiều kết quả rồi xử lý một lần. Với `async/await`, vai trò của `Result` thu hẹp: flow chính dùng `async throws` (§16), chỉ khi cần kiểm soát error path thủ công (API callback cũ, gom lỗi batch) mới dùng `Result`.
 
 ```swift
 func fetchProfile(completion: @escaping (Result<User, AppError>) -> Void) {
@@ -1581,6 +1621,40 @@ numbers.map { number in number * 2 } // đặt tên rõ ràng
 func loadData(completion: (Result<User, Error>) -> Void) {}
 loadData { result in
     print(result)
+}
+```
+
+### Cơ chế bên dưới
+
+**Capture là by-reference.** Swift closure **capture biến chứ không copy giá trị** - closure và scope bên ngoài cùng nhìn vào một biến; sửa trong closure thì bên ngoài thấy ngay. Kotlin xử lý điểm này thế nào? Kotlin lambda cũng capture by-reference (biến mutable bị bọc vào một `Ref` cell trên Heap), Java thì cứng nhắc hơn - biến phải effectively final. Điểm cần nhớ: closure **kéo dài vòng đời** của biến nó capture - biến cục bộ bị closure nắm giữ sẽ không chết khi ra khỏi scope.
+
+```swift
+// Capture by reference - closure viết thẳng vào biến bên ngoài
+var count = 0
+let inc = { count += 1 }
+inc()
+inc()
+print(count) // 2 - biến `count` thật bị tăng, không phải bản copy
+```
+
+**Quy tắc nhận diện retain cycle:** cycle chỉ xảy ra khi **2 bên đều reference type**. `self` (class) giữ closure + closure capture `self` strongly → cycle. Capture `let` của struct/enum chỉ là copy value - không bao giờ tạo cycle. Vì thế `[weak self]` chỉ có ý nghĩa khi self là **class**.
+
+**`@escaping` là mấu chốt của bẫy:**
+
+| | non-escaping (mặc định) | `@escaping` |
+|---|---|---|
+| Vòng đời | Không sống quá lời gọi hàm | Sống lâu hơn lời gọi (lưu property, async) |
+| Capture `self` (class) | Chạy xong giải phóng - không tạo cycle | Capture strongly sẽ tạo cycle → cần `[weak self]` |
+| Compiler | Có thể inline tại call site - zero-cost | Được bọc vào object trên Heap |
+| Gặp ở đâu | `map`, `filter`, hàm sync | Completion handler, stored property, `Task {}` |
+
+```swift
+// non-escaping - mặc định: closure phải "chết" trước khi hàm return
+func now(_ work: () -> Void) { work() }
+
+// @escaping - closure sống sau khi hàm return -> mới có nguy cơ cycle
+func later(_ work: @escaping () -> Void) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: work)
 }
 ```
 
@@ -1685,6 +1759,39 @@ class User {
 ```
 
 > `deinit` chỉ có ở `class` (ARC), là nơi kiểm chứng leak: nếu không in ra khi dismiss màn hình, bạn đang bị retain cycle (§14).
+
+### Cơ chế bên dưới
+
+**Two-phase initialization.** Khởi tạo class diễn ra 2 pha: **Phase 1** - mọi stored property phải được gán giá trị; **Phase 2** - tùy chỉnh sau khi tất cả đã có giá trị. Vì pha 1 chưa xong thì object "chưa đủ dữ liệu", compiler chặn mọi truy cập tới `self` trước khi toàn bộ property có giá trị - và đó là nguồn của lỗi kinh điển *"Return from initializer without initializing all stored properties"*: bạn quên gán một property, compiler không cho phép một object nửa vời tồn tại. Kotlin xử lý điểm này thế nào? Không có pha tường minh - primary constructor gán property ngay tại khai báo, init block chạy theo thứ tự khai báo; cùng nguyên tắc "chưa đủ dữ liệu thì chưa dùng được" nhưng Swift ép thành 2 pha bắt buộc.
+
+**Bẫy mất memberwise init:** chỉ cần tự viết **một** `init` trong body của struct là memberwise init tự sinh **biến mất ngay**. Kotlin xử lý điểm này thế nào? Primary constructor của Kotlin luôn tồn tại, không bao giờ mất. Fix của Swift: đặt init bổ sung vào `extension` - memberwise init được giữ nguyên.
+
+```swift
+struct Tag {
+    let id: String
+    var label: String
+}
+
+// ❌ Tự viết init trong body -> memberwise init biến mất
+struct TagDraft {
+    let id: String
+    var label: String
+    init(label: String) {
+        self.id = UUID().uuidString
+        self.label = label
+    }
+}
+// let t = TagDraft(id: "x", label: "new") // ❌ compile error - init này không còn
+
+// ✅ Fix: đặt init bổ sung vào extension - memberwise init được giữ nguyên
+extension Tag {
+    init(randomLabel: String) {
+        self.init(id: UUID().uuidString, label: randomLabel)
+    }
+}
+let a = Tag(id: "x", label: "new") // memberwise vẫn sống
+let b = Tag(randomLabel: "new")    // init extension cũng có
+```
 
 ---
 

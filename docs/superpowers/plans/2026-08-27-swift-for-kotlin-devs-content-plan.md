@@ -419,10 +419,10 @@ func customMap<T>(_ transform: (Int) throws -> T) rethrows -> [T] { ... }
 ```
 
 **Tiêu chí hoàn thành:**
-- [ ] Giải thích cơ chế throw = return path, không unwinding.
-- [ ] Bảng 3 lựa chọn try với hệ quả từng loại.
-- [ ] Có rethrows + ví dụ.
-- [ ] Nêu khi nào Result vs do/catch.
+- [x] Giải thích cơ chế throw = return path, không unwinding.
+- [x] Bảng 3 lựa chọn try với hệ quả từng loại.
+- [x] Có rethrows + ví dụ.
+- [x] Nêu khi nào Result vs do/catch.
 
 ---
 
@@ -457,9 +457,9 @@ func later(_ work: @escaping () -> Void) { work() } // sống lâu hơn - cần 
 ```
 
 **Tiêu chí hoàn thành:**
-- [ ] Capture by-reference + quy tắc "cycle cần 2 bên reference type".
-- [ ] Bảng @escaping vs non-escaping gắn với weak self.
-- [ ] Two-phase init + bẫy mất memberwise init.
+- [x] Capture by-reference + quy tắc "cycle cần 2 bên reference type".
+- [x] Bảng @escaping vs non-escaping gắn với weak self.
+- [x] Two-phase init + bẫy mất memberwise init.
 
 ---
 
