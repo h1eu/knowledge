@@ -1862,7 +1862,7 @@ func loadDashboard(userId: String) async throws -> (User, [Post]) {
 
 ### 16.2 Cancellation là hợp tác - không ngắt cứng
 
-`Task.cancel()` **không ngắt code giữa chừng** - nó chỉ "bật cờ" cancelled lên Task đó. Code bên trong phải **tự kiểm tra** qua `Task.isCancelled` hoặc `try Task.checkCancellation()` (ném `CancellationError` nếu đã bị hủy); các API chuẩn (URLSession...) tự kiểm tra tại mỗi suspension point `await`. Kotlin xử lý điểm này thế nào? **Cùng mô hình hợp tác**: `Job.cancel()` cũng chỉ đánh dấu trạng thái - coroutine chỉ dừng tại suspension point (vốn là cancellation point), không bao giờ bị "bắn" giữa dòng code. Điểm cần khắc cống khi chuyển đổi: đừng mong `cancel()` ngắt cứng như kill thread - vòng lặp nặng không có `await` lẫn `checkCancellation()` sẽ chạy đến hết dù đã bị hủy.
+`Task.cancel()` **không ngắt code giữa chừng** - nó chỉ "bật cờ" cancelled lên Task đó. Code bên trong phải **tự kiểm tra** qua `Task.isCancelled` hoặc `try Task.checkCancellation()` (ném `CancellationError` nếu đã bị hủy); các API chuẩn (URLSession...) tự kiểm tra tại mỗi suspension point `await`. Kotlin xử lý điểm này thế nào? **Cùng mô hình hợp tác**: `Job.cancel()` cũng chỉ đánh dấu trạng thái - coroutine chỉ dừng tại suspension point (vốn là cancellation point), không bao giờ bị "bắn" giữa dòng code. Điểm cần ghi nhớ khi chuyển đổi: đừng mong `cancel()` ngắt cứng như kill thread - vòng lặp nặng không có `await` lẫn `checkCancellation()` sẽ chạy đến hết dù đã bị hủy.
 
 ```swift
 func processOrders(_ ids: [String]) async throws {
@@ -2084,7 +2084,7 @@ func fetch() {
 2. Tạo `struct Profile: Codable` với property `id`, `fullName`, `avatarUrl` — xử lý snake_case bằng `CodingKeys` hoặc `.convertFromSnakeCase`.
 3. Xử lý `extra_field` không có trong struct — xác nhận decode vẫn thành công.
 4. Thử xóa `avatarUrl` khỏi JSON — quan sát hành vi nếu property là non-optional vs optional.
-5. Viết custom `init(from:)` với `decodeIfPresent ?? default` (pattern §9.1): thiếu `full_name` trong JSON thì property `fullName` vẫn non-optional và nhận giá trị mặc định `"Unknown"`.
+5. Viết custom `init(from:)` với `decodeIfPresent ?? default` (pattern §9.1): thiếu `full_name` trong JSON thì property `fullName` vẫn non-optional và nhận giá trị mặc định `"Unknown"`. Lưu ý: khi viết custom `init(from:)`, compiler ngừng synthesize — bạn phải decode **đủ mọi field** (`id`, `avatarUrl`), xem pattern đầy đủ ở §9.1.
 
 **Tiêu chí pass:**
 - Decode thành công với JSON dư field.
