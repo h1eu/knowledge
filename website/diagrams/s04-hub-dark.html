@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Session 04: một Activity, tám cộng sự</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ TỔNG QUAN · SESSION 04</p>
+  <h1>Session 04: một Activity, tám cộng sự</h1>
+  <p class="sub">Mọi component trong app đều bắt đầu hoặc kết thúc ở Activity.</p>
+<svg viewBox="0 0 800 488" role="img" aria-labelledby="s04-hub-dark-title s04-hub-dark-desc" font-family="'Geist', sans-serif">
+<title id="s04-hub-dark-title">Session 04: một Activity, tám cộng sự</title>
+<desc id="s04-hub-dark-desc">User tới Activity, Activity tới Fragment Service Intent ContentProvider, Intent tới Activity khác và Broadcast, Service và Broadcast về lại Activity.</desc>
+<defs>
+<marker id="s04-hub-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="488" fill="#060913"/>
+<!-- arrows -->
+<path d="M 240,76 H 320" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s04-hub-dark-arrow)"/>
+<rect x="248" y="56" width="64" height="12" rx="2" fill="#060913"/>
+<text x="280" y="65" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">TƯƠNG TÁC</text>
+<path d="M 340,108 V 150 H 132 Q 124,150 124,158 V 200" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s04-hub-dark-arrow)"/>
+<rect x="188" y="130" width="96" height="12" rx="2" fill="#060913"/>
+<text x="236" y="139" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHỨA · HIỆN</text>
+<path d="M 380,108 V 164 H 321 Q 313,164 313,172 V 200" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s04-hub-dark-arrow)"/>
+<rect x="310" y="144" width="80" height="12" rx="2" fill="#060913"/>
+<text x="350" y="153" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHỞI ĐỘNG NỀN</text>
+<path d="M 420,108 V 178 H 494 Q 502,178 502,186 V 200" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s04-hub-dark-arrow)"/>
+<rect x="405" y="158" width="104" height="12" rx="2" fill="#060913"/>
+<text x="457" y="167" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">TRUYỀN DỮ LIỆU</text>
+<path d="M 460,108 V 192 H 683 Q 691,192 691,200 V 200" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s04-hub-dark-arrow)"/>
+<rect x="540" y="172" width="72" height="12" rx="2" fill="#060913"/>
+<text x="576" y="181" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐỌC · GHI</text>
+<path d="M 502,260 V 296 H 178 Q 170,296 170,304 V 348" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s04-hub-dark-arrow)"/>
+<rect x="304" y="276" width="72" height="12" rx="2" fill="#060913"/>
+<text x="340" y="285" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KÍCH HOẠT</text>
+<path d="M 502,260 V 316 H 418 Q 410,316 410,324 V 348" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s04-hub-dark-arrow)"/>
+<rect x="434" y="320" width="72" height="12" rx="2" fill="#060913"/>
+<text x="470" y="329" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KÍCH HOẠT</text>
+<path d="M 313,260 V 330 H 402 Q 410,330 410,338 V 348" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s04-hub-dark-arrow)"/>
+<rect x="313" y="310" width="88" height="12" rx="2" fill="#060913"/>
+<text x="357" y="319" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BÁO KẾT QUẢ</text>
+<path d="M 410,404 V 440 H 32 Q 24,440 24,432 V 40 H 412 Q 420,40 420,48" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s04-hub-dark-arrow)"/>
+<rect x="48" y="270" width="64" height="12" rx="2" fill="#060913"/>
+<text x="80" y="279" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CẬP NHẬT</text>
+<!-- nodes -->
+<rect x="80" y="48" width="160" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="48" width="160" height="56" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="160" y="82" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">User</text>
+<rect x="320" y="48" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="320" y="48" width="200" height="60" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="328" y="54" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="354" y="63" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HUB</text>
+<text x="420" y="86" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity</text>
+<rect x="40" y="200" width="168" height="56" rx="6" fill="#060913"/>
+<rect x="40" y="200" width="168" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="124" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Fragment</text>
+<rect x="229" y="200" width="168" height="56" rx="6" fill="#060913"/>
+<rect x="229" y="200" width="168" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="313" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Service</text>
+<rect x="418" y="200" width="168" height="56" rx="6" fill="#060913"/>
+<rect x="418" y="200" width="168" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="502" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Intent</text>
+<rect x="607" y="200" width="168" height="56" rx="6" fill="#060913"/>
+<rect x="607" y="200" width="168" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="691" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ContentProvider</text>
+<rect x="80" y="348" width="180" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="348" width="180" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="170" y="382" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity khác</text>
+<rect x="320" y="348" width="180" height="56" rx="6" fill="#060913"/>
+<rect x="320" y="348" width="180" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="410" y="382" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">BroadcastReceiver</text>
+<!-- legend -->
+<line x1="32" y1="464" x2="768" y2="464" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="480" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="476" r="4" fill="#38BDF8"/>
+<text x="162" y="480" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRUNG TÂM · ACTIVITY</text>
+<line x1="420" y1="476" x2="452" y2="476" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s04-hub-dark-arrow)"/>
+<text x="460" y="480" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">RA NGOÀI · VỀ LẠI</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · HUB · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

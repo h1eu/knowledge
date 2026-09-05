@@ -17,7 +17,7 @@ Object.assign(DSA_CONTENT, {
     content: `
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_hashing.jpg" alt="Bảng băm (Hashing)" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_hashing.jpg" alt="Bảng băm (Hashing)" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <div class="callout callout-note">
   <span class="callout-icon">✨</span>
@@ -57,7 +57,7 @@ Object.assign(DSA_CONTENT, {
 <p><strong>Bảng băm (Hash table)</strong>, hay còn gọi là <strong>Hash map</strong>, lưu trữ các ánh xạ từ khóa (<code>key</code>) đến giá trị (<code>value</code>), cho phép tra cứu hiệu quả. Cụ thể, khi có một khóa <code>key</code>, chúng ta có thể truy xuất giá trị <code>value</code> tương ứng từ bảng băm trong thời gian $O(1)$.</p>
 <p>Như hình dưới đây, giả sử chúng ta có $n$ học sinh, mỗi người có hai thông tin: tên và mã số học sinh (ID). Nếu chúng ta muốn hỗ trợ truy vấn "nhập mã số học sinh, trả về tên tương ứng", chúng ta có thể sử dụng bảng băm như bên dưới.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hash_table_lookup.png" alt="Biểu diễn trừu tượng của bảng băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hash_table_lookup.png" alt="Biểu diễn trừu tượng của bảng băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Ngoài bảng băm, mảng và danh sách liên kết cũng có thể triển khai chức năng truy vấn. So sánh hiệu quả của chúng được thể hiện trong bảng sau:</p>
 <ul>
@@ -209,7 +209,7 @@ for (const v of map.values()) {
 <p>Sau đó chúng ta có thể dùng <code>index</code> để truy cập bucket tương ứng trong bảng băm và lấy ra <code>value</code>.</p>
 <p>Giả sử chiều dài mảng là <code>capacity = 100</code> và thuật toán băm là <code>hash(key) = key</code>. Khi đó hàm băm là <code>key % 100</code>. Hình dưới đây minh họa cách hàm băm này hoạt động, sử dụng mã số sinh viên làm <code>key</code> và tên làm <code>value</code>.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hash_function.png" alt="Nguyên lý hoạt động của hàm băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hash_function.png" alt="Nguyên lý hoạt động của hàm băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Đoạn mã sau đây triển khai một bảng băm đơn giản. Ở đây, chúng ta đóng gói <code>key</code> và <code>value</code> vào một lớp <code>Pair</code> để biểu diễn một cặp khóa-giá trị.</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cặp khóa-giá trị */
@@ -559,12 +559,12 @@ class ArrayHashMap {
 20336 % 100 = 36</code></pre>
 <p>Như hình dưới đây, hai mã số sinh viên hiện đang trỏ đến cùng một tên, điều này rõ ràng là không đúng. Chúng ta gọi tình huống này, khi nhiều đầu vào ánh xạ đến cùng một đầu ra, là <u>xung đột băm (hash collision)</u>.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hash_collision.png" alt="Ví dụ về xung đột băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hash_collision.png" alt="Ví dụ về xung đột băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Dễ thấy rằng, dung lượng bảng băm $n$ càng lớn thì xác suất nhiều <code>key</code> được gán vào cùng một bucket càng thấp, và xung đột càng ít. Do đó, <strong>chúng ta có thể giảm xung đột băm bằng cách mở rộng bảng băm</strong>.</p>
 <p>Như hình dưới đây, trước khi mở rộng, các cặp khóa-giá trị <code>(136, A)</code> và <code>(236, D)</code> bị xung đột, nhưng sau khi mở rộng, xung đột biến mất.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hash_table_reshash.png" alt="Mở rộng bảng băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hash_table_reshash.png" alt="Mở rộng bảng băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Tương tự như mở rộng mảng, việc mở rộng bảng băm đòi hỏi phải di chuyển tất cả các cặp khóa-giá trị từ bảng gốc sang bảng mới, điều này rất tốn kém. Ngoài ra, vì dung lượng bảng băm <code>capacity</code> thay đổi, chúng ta phải tính toán lại vị trí lưu trữ của mọi cặp khóa-giá trị bằng hàm băm, điều này càng làm tăng chi phí mở rộng. Vì lý do này, các ngôn ngữ lập trình thường cấp phát sẵn một dung lượng bảng băm đủ lớn để tránh việc mở rộng diễn ra quá thường xuyên.</p>
 <p><u>Hệ số tải (load factor)</u> là một khái niệm quan trọng của bảng băm. Nó được định nghĩa là số phần tử trong bảng băm chia cho số lượng bucket, dùng để đo mức độ nghiêm trọng của xung đột băm. <strong>Nó cũng thường được dùng làm ngưỡng để kích hoạt việc mở rộng bảng băm</strong>. Ví dụ, trong Java, khi hệ số tải vượt quá $0.75$, hệ thống sẽ mở rộng bảng băm lên gấp đôi kích thước ban đầu.</p>
@@ -577,7 +577,7 @@ class ArrayHashMap {
   <div class="widget-tab-content active" data-tab="tab-static">
     <p style="font-size:14px; color:var(--text-secondary); margin: 0 0 10px;">Bảng băm dựa trên mảng (dung lượng nhỏ minh họa) và cách xung đột băm gây ra kết quả SAI khi ghi đè trực tiếp.</p>
     <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hash_collision.png" alt="Ví dụ về xung đột băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hash_collision.png" alt="Ví dụ về xung đột băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
@@ -1215,7 +1215,7 @@ The <u>load factor</u> is an important concept in hash tables. It is defined as 
 <h2>6.2.1 Separate Chaining</h2>
 <p>Trong bảng băm ban đầu, mỗi bucket chỉ có thể lưu trữ một cặp khóa-giá trị. <u>Separate chaining</u> thay thế phần tử đơn lẻ trong mỗi bucket bằng một danh sách liên kết, coi mỗi cặp khóa-giá trị là một node và lưu trữ tất cả các cặp khóa-giá trị bị xung đột trong cùng một danh sách. Hình dưới đây minh họa một ví dụ về bảng băm sử dụng separate chaining.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hash_table_chaining.png" alt="Bảng băm sử dụng Separate Chaining" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hash_table_chaining.png" alt="Bảng băm sử dụng Separate Chaining" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Trong bảng băm triển khai bằng separate chaining, các thao tác cơ bản hoạt động như sau:</p>
 <ul>
@@ -1546,7 +1546,7 @@ class HashMapChaining {
   </div>
   <div class="widget-tab-content active" data-tab="tab-static">
     <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hash_table_chaining.png" alt="Bảng băm sử dụng Separate Chaining" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hash_table_chaining.png" alt="Bảng băm sử dụng Separate Chaining" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
@@ -1576,12 +1576,12 @@ class HashMapChaining {
 </ul>
 <p>Hình dưới đây thể hiện sự phân bố các cặp khóa-giá trị trong một bảng băm định vị mở sử dụng thăm dò tuyến tính. Với hàm băm này, các khóa có cùng hai chữ số cuối được ánh xạ vào cùng một bucket. Thăm dò tuyến tính sau đó đặt chúng vào bucket đó và các bucket kế tiếp.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hash_table_linear_probing.png" alt="Phân bố cặp khóa-giá trị trong bảng băm định vị mở (thăm dò tuyến tính)" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hash_table_linear_probing.png" alt="Phân bố cặp khóa-giá trị trong bảng băm định vị mở (thăm dò tuyến tính)" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Tuy nhiên, <strong>thăm dò tuyến tính rất dễ dẫn đến hiện tượng cụm dữ liệu (clustering)</strong>. Cụ thể, vùng bị chiếm liên tục trong mảng càng dài thì càng có nhiều khả năng xảy ra xung đột mới trong vùng đó. Điều này lại khiến cụm càng phình to hơn, tạo ra một vòng luẩn quẩn làm suy giảm dần hiệu suất của các thao tác chèn, xóa, tra cứu và cập nhật.</p>
 <p>Cần lưu ý rằng <strong>chúng ta không thể trực tiếp xóa phần tử khỏi bảng băm định vị mở</strong>. Việc xóa một phần tử sẽ tạo ra một bucket trống <code>None</code> trong mảng. Trong quá trình tìm kiếm, khi thăm dò tuyến tính đến bucket trống đó, nó sẽ dừng lại — điều này có nghĩa là bất kỳ phần tử nào được lưu xa hơn trên chuỗi thăm dò sẽ trở nên không thể truy cập được. Kết quả là, chương trình có thể kết luận sai rằng những phần tử đó không tồn tại, như minh họa trong hình dưới đây.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hash_table_open_addressing_deletion.png" alt="Vấn đề truy vấn gây ra bởi việc xóa phần tử trong định vị mở" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hash_table_open_addressing_deletion.png" alt="Vấn đề truy vấn gây ra bởi việc xóa phần tử trong định vị mở" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Để giải quyết vấn đề này, chúng ta có thể áp dụng <u>lazy deletion (xóa lười)</u>: thay vì trực tiếp xóa một phần tử khỏi bảng băm, ta <strong>dùng một hằng số <code>TOMBSTONE</code> để đánh dấu bucket đó</strong>. Theo cơ chế này, cả <code>None</code> và <code>TOMBSTONE</code> đều biểu thị các bucket có thể tiếp nhận cặp khóa-giá trị mới. Điểm khác biệt là khi thăm dò tuyến tính gặp <code>TOMBSTONE</code>, nó phải tiếp tục thăm dò, vì các cặp khóa-giá trị vẫn có thể tồn tại xa hơn trên chuỗi.</p>
 <p>Tuy nhiên, <strong>xóa lười có thể làm tăng tốc độ suy giảm hiệu năng của bảng băm</strong>. Mỗi lần xóa để lại một dấu vết, và khi số lượng <code>TOMBSTONE</code> tăng lên, thời gian tìm kiếm cũng tăng theo, vì thăm dò tuyến tính có thể phải bỏ qua nhiều bia mộ trước khi tìm được phần tử mục tiêu.</p>
@@ -1950,7 +1950,7 @@ class HashMapOpenAddressing {
   </div>
   <div class="widget-tab-content active" data-tab="tab-static">
     <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hash_table_linear_probing.png" alt="Phân bố cặp khóa-giá trị trong bảng băm định vị mở (thăm dò tuyến tính)" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hash_table_linear_probing.png" alt="Phân bố cặp khóa-giá trị trong bảng băm định vị mở (thăm dò tuyến tính)" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
@@ -2132,7 +2132,7 @@ Different programming languages adopt different hash table implementation strate
 <p>Hai phần trước đã giới thiệu nguyên lý hoạt động của bảng băm và các phương pháp xử lý xung đột băm. Tuy nhiên, cả định vị mở lẫn separate chaining <strong>chỉ có thể đảm bảo bảng băm hoạt động bình thường khi xảy ra xung đột băm, nhưng không thể làm giảm tần suất xảy ra xung đột băm</strong>.</p>
 <p>Nếu xung đột băm xảy ra quá thường xuyên, hiệu năng của bảng băm sẽ suy giảm nghiêm trọng. Như hình dưới đây, đối với một bảng băm dùng separate chaining, trong trường hợp lý tưởng, các cặp khóa-giá trị được phân bố đều trên các bucket, đạt hiệu quả truy vấn tối ưu; trong trường hợp xấu nhất, tất cả các cặp khóa-giá trị đều được lưu trong cùng một bucket, khiến độ phức tạp thời gian suy giảm xuống $O(n)$.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hash_collision_best_worst_condition.png" alt="Trường hợp lý tưởng và xấu nhất của xung đột băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hash_collision_best_worst_condition.png" alt="Trường hợp lý tưởng và xấu nhất của xung đột băm" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p><strong>Sự phân bố của các cặp khóa-giá trị được quyết định bởi hàm băm</strong>. Nhắc lại các bước của hàm băm: đầu tiên tính giá trị băm, sau đó lấy giá trị đó chia lấy dư cho chiều dài mảng:</p>
 <pre><code>index = hash(key) % capacity</code></pre>

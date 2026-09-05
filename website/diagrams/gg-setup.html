@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Năm bước cắm Firebase vào app</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · FIREBASE</p>
+  <h1>Năm bước cắm Firebase vào app</h1>
+  <p class="sub">Từ console tới gradle tới SDK — sai package name là làm lại từ đầu.</p>
+<svg viewBox="0 0 800 272" role="img" aria-labelledby="gg-setup-title gg-setup-desc" font-family="'Geist', sans-serif">
+<title id="gg-setup-title">Năm bước cắm Firebase vào app</title>
+<desc id="gg-setup-desc">Tạo project, thêm app, tải file json, khai báo Gradle rồi dùng SDK Firebase.</desc>
+<defs>
+<marker id="gg-setup-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="272" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 160,152 H 184" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
+<path d="M 312,152 H 336" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
+<path d="M 464,152 H 488" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
+<path d="M 616,152 H 640" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
+<!-- nodes -->
+<rect x="32" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="32" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="40" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="50" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1</text>
+<text x="96" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Tạo project</text>
+<text x="96" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">console</text>
+<rect x="184" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="184" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="192" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="202" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">2</text>
+<text x="248" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Thêm app</text>
+<text x="248" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">package · sha-1</text>
+<rect x="336" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="336" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="344" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="354" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">3</text>
+<text x="400" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Tải json</text>
+<text x="400" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app/ folder</text>
+<rect x="488" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="488" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="496" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="506" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">4</text>
+<text x="552" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Khai báo Gradle</text>
+<text x="552" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">plugin · bom</text>
+<rect x="640" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="640" y="120" width="128" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="648" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="658" y="138" fill="rgba(2,132,199,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">5</text>
+<text x="704" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Dùng SDK</text>
+<text x="704" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">firebase sdk</text>
+<!-- legend -->
+<line x1="32" y1="248" x2="768" y2="248" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="264" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="260" r="4" fill="#0284C7"/>
+<text x="162" y="264" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">XONG · DÙNG ĐƯỢC</text>
+<line x1="380" y1="260" x2="412" y2="260" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
+<text x="420" y="264" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐÚNG THỨ TỰ 1→5</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

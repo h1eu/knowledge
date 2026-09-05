@@ -16,7 +16,7 @@ Object.assign(DSA_CONTENT, {
     readTime: '1 phút',
     content: `
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_searching.jpg" alt="Tìm kiếm" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_searching.jpg" alt="Tìm kiếm" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <div class="callout callout-note">
   <span class="callout-icon">✨</span>
@@ -58,7 +58,7 @@ Object.assign(DSA_CONTENT, {
   </div>
 </div>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_search_example.png" alt="Dữ liệu ví dụ cho Tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/binary_search_example.png" alt="Dữ liệu ví dụ cho Tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Như hình minh họa bên dưới, đầu tiên ta khởi tạo hai con trỏ $i = 0$ và $j = n - 1$, lần lượt trỏ tới phần tử đầu tiên và cuối cùng của mảng, đại diện cho khoảng tìm kiếm $[0, n - 1]$. Lưu ý dấu ngoặc vuông biểu thị một <strong>khoảng đóng</strong>, tức bao gồm cả các giá trị biên.</p>
 <p>Tiếp theo, thực hiện lặp lại hai bước sau:</p>
@@ -76,13 +76,13 @@ Object.assign(DSA_CONTENT, {
 
 <div class="interactive-widget-wrapper" id="binary-search-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/binary_search_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Khởi tạo $i$, $j$ lần lượt trỏ tới phần tử đầu và cuối của mảng, đại diện cho khoảng đóng $[i, j]$.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 4$.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] &gt; target</code> (12 &gt; 6) nên thực hiện $j = m - 1 = 3$ để thu hẹp khoảng tìm kiếm.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 1$.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] &lt; target</code> (3 &lt; 6) nên thực hiện $i = m + 1 = 2$ để thu hẹp khoảng tìm kiếm.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 2$.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] == target</code> (6 == 6) nên trả về chỉ mục $m = 2$.</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/binary_search_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Khởi tạo $i$, $j$ lần lượt trỏ tới phần tử đầu và cuối của mảng, đại diện cho khoảng đóng $[i, j]$.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 4$.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] &gt; target</code> (12 &gt; 6) nên thực hiện $j = m - 1 = 3$ để thu hẹp khoảng tìm kiếm.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 1$.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] &lt; target</code> (3 &lt; 6) nên thực hiện $i = m + 1 = 2$ để thu hẹp khoảng tìm kiếm.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 2$.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] == target</code> (6 == 6) nên trả về chỉ mục $m = 2$.</p></div>
     <div class="slider-controls">
       <button class="slider-btn" onclick="prevSlide('binary-search-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 7</span>
@@ -272,7 +272,7 @@ int binarySearchLCRO(vector&lt;int&gt; &amp;nums, int target) {
 <p>Như hình minh họa bên dưới, dưới hai cách biểu diễn khoảng, việc khởi tạo, điều kiện lặp, và thao tác thu hẹp khoảng của thuật toán tìm kiếm nhị phân đều khác nhau.</p>
 <p>Do cả biên trái và biên phải trong biểu diễn "khoảng đóng" đều được định nghĩa là đóng, các thao tác thu hẹp khoảng thông qua con trỏ $i$ và $j$ cũng đối xứng với nhau. Điều này khiến nó ít gây lỗi hơn, <strong>vì vậy cách tiếp cận "khoảng đóng" thường được khuyến nghị sử dụng</strong>.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_search_ranges.png" alt="Hai cách định nghĩa khoảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/binary_search_ranges.png" alt="Hai cách định nghĩa khoảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>10.1.3 Ưu điểm và Hạn chế</h2>
@@ -419,7 +419,7 @@ However, binary search is not suitable for all situations, mainly for the follow
   </div>
 </div>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_search_insertion_example.png" alt="Ví dụ dữ liệu vị trí chèn Tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/binary_search_insertion_example.png" alt="Ví dụ dữ liệu vị trí chèn Tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Nếu muốn tái sử dụng đoạn mã tìm kiếm nhị phân ở bài trước, ta cần trả lời hai câu hỏi sau.</p>
 <p><strong>Câu hỏi 1</strong>: Khi mảng chứa <code>target</code>, chỉ mục vị trí chèn có giống với chỉ mục của phần tử đó không?</p>
@@ -517,7 +517,7 @@ int binarySearchInsertionSimple(vector&lt;int&gt; &amp;nums, int target) {
   <li>Bắt đầu từ chỉ mục $k$, thực hiện duyệt tuyến tính sang trái, và trả về khi tìm thấy <code>target</code> ngoài cùng bên trái.</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_search_insertion_naive.png" alt="Tìm kiếm tuyến tính vị trí chèn khi có phần tử trùng lặp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/binary_search_insertion_naive.png" alt="Tìm kiếm tuyến tính vị trí chèn khi có phần tử trùng lặp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Mặc dù cách này hoạt động, nhưng nó bao gồm tìm kiếm tuyến tính, dẫn tới độ phức tạp thời gian $O(n)$. Khi mảng chứa nhiều phần tử <code>target</code> trùng lặp, cách này rất kém hiệu quả.</p>
 <p>Bây giờ hãy xem xét việc mở rộng đoạn mã tìm kiếm nhị phân. Như hình bên dưới, quy trình tổng thể vẫn giữ nguyên: trong mỗi vòng lặp, đầu tiên ta tính chỉ mục giữa $m$, sau đó so sánh <code>target</code> với <code>nums[m]</code>, dẫn tới các trường hợp sau:</p>
@@ -529,14 +529,14 @@ int binarySearchInsertionSimple(vector&lt;int&gt; &amp;nums, int target) {
 
 <div class="interactive-widget-wrapper" id="binary-search-insertion-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/binary_search_insertion_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Khởi tạo $i$, $j$ lần lượt trỏ tới phần tử đầu và cuối của mảng, đại diện cho khoảng đóng $[i, j]$.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_insertion_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 4$.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_insertion_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] == target</code> (6 == 6) nên thực hiện $j = m - 1 = 3$ để tiếp tục thu hẹp về bên trái.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_insertion_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 1$.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_insertion_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] &lt; target</code> (3 &lt; 6) nên thực hiện $i = m + 1 = 2$.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_insertion_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 2$.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_insertion_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] == target</code> (6 == 6) nên thực hiện $j = m - 1 = 1$ để tiếp tục thu hẹp.</p></div>
-    <div class="slide"><img src="dsa-assets/binary_search_insertion_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Không còn thỏa điều kiện lặp $i \\le j$ (vì $i=2 &gt; j=1$). Thoát vòng lặp, trả về chỉ mục $i = 2$ — đây chính là vị trí chèn.</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/binary_search_insertion_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Khởi tạo $i$, $j$ lần lượt trỏ tới phần tử đầu và cuối của mảng, đại diện cho khoảng đóng $[i, j]$.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_insertion_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 4$.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_insertion_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] == target</code> (6 == 6) nên thực hiện $j = m - 1 = 3$ để tiếp tục thu hẹp về bên trái.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_insertion_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 1$.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_insertion_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] &lt; target</code> (3 &lt; 6) nên thực hiện $i = m + 1 = 2$.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_insertion_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Tính chỉ mục giữa $m = (i + j) / 2 = 2$.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_insertion_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Vì <code>nums[m] == target</code> (6 == 6) nên thực hiện $j = m - 1 = 1$ để tiếp tục thu hẹp.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/binary_search_insertion_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Không còn thỏa điều kiện lặp $i \\le j$ (vì $i=2 &gt; j=1$). Thoát vòng lặp, trả về chỉ mục $i = 2$ — đây chính là vị trí chèn.</p></div>
     <div class="slider-controls">
       <button class="slider-btn" onclick="prevSlide('binary-search-insertion-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 8</span>
@@ -793,7 +793,7 @@ int binarySearchLeftEdge(vector&lt;int&gt; &amp;nums, int target) {
 <p>Thực tế, ta có thể dùng hàm tìm <code>target</code> ngoài cùng bên trái để tìm <code>target</code> ngoài cùng bên phải. Phương pháp cụ thể là: <strong>chuyển bài toán tìm <code>target</code> ngoài cùng bên phải thành tìm <code>target + 1</code> ngoài cùng bên trái</strong>.</p>
 <p>Như hình minh họa bên dưới, sau khi tìm kiếm hoàn tất, con trỏ $i$ trỏ tới <code>target + 1</code> ngoài cùng bên trái (nếu tồn tại), trong khi $j$ trỏ tới <code>target</code> ngoài cùng bên phải, <strong>do đó ta có thể trả về $j$</strong>.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_search_right_edge_by_left_edge.png" alt="Chuyển đổi tìm ranh giới phải thành tìm ranh giới trái" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/binary_search_right_edge_by_left_edge.png" alt="Chuyển đổi tìm ranh giới phải thành tìm ranh giới trái" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Lưu ý rằng vị trí chèn trả về là $i$, nên ta cần trừ đi $1$ để có được $j$:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân ranh giới phải nhất của target */
@@ -864,7 +864,7 @@ int binarySearchRightEdge(vector&lt;int&gt; &amp;nums, int target) {
   <li>Tìm <code>target</code> ngoài cùng bên phải: có thể chuyển thành tìm <code>target + 0.5</code> và trả về con trỏ $j$.</li>
 </ul>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_search_edge_by_element.png" alt="Chuyển đổi tìm ranh giới thành tìm kiếm phần tử" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/binary_search_edge_by_element.png" alt="Chuyển đổi tìm ranh giới thành tìm kiếm phần tử" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Đoạn mã được lược bỏ ở đây, nhưng hai điểm sau đáng được lưu ý:</p>
 <ul>
@@ -981,7 +981,7 @@ The code is omitted here, but the following two points are worth noting:
 <h2>10.4.1 Tìm kiếm tuyến tính: Đánh đổi Thời gian lấy Không gian</h2>
 <p>Xem xét việc duyệt trực tiếp qua tất cả các tổ hợp có thể. Như hình minh họa bên dưới, ta dùng hai vòng lặp lồng nhau và kiểm tra ở mỗi vòng lặp xem tổng của hai số nguyên có bằng <code>target</code> hay không. Nếu có, trả về chỉ mục của chúng.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/two_sum_brute_force.png" alt="Lời giải tìm kiếm tuyến tính cho Two Sum" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/two_sum_brute_force.png" alt="Lời giải tìm kiếm tuyến tính cho Two Sum" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Đoạn mã minh họa như sau:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Cách 1: Duyệt vét cạn (Brute force) */
@@ -1047,9 +1047,9 @@ vector&lt;int&gt; twoSumBruteForce(vector&lt;int&gt; &amp;nums, int target) {
 
 <div class="interactive-widget-wrapper" id="two-sum-hashtable-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/two_sum_hashtable_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Với $i=0$, <code>nums[0]=2</code>: $13 - 2 = 11$ không có trong <code>map</code> → thêm phần tử $2$ vào <code>map</code>.</p></div>
-    <div class="slide"><img src="dsa-assets/two_sum_hashtable_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Với $i=1$, <code>nums[1]=7</code>: $13 - 7 = 6$ không có trong <code>map</code> → thêm phần tử $7$ vào <code>map</code>.</p></div>
-    <div class="slide"><img src="dsa-assets/two_sum_hashtable_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Với $i=2$, <code>nums[2]=11</code>: $13 - 11 = 2$ đã có trong <code>map</code> → trả về tổ hợp chỉ mục $[0, 2]$.</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/two_sum_hashtable_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Với $i=0$, <code>nums[0]=2</code>: $13 - 2 = 11$ không có trong <code>map</code> → thêm phần tử $2$ vào <code>map</code>.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/two_sum_hashtable_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Với $i=1$, <code>nums[1]=7</code>: $13 - 7 = 6$ không có trong <code>map</code> → thêm phần tử $7$ vào <code>map</code>.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/two_sum_hashtable_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Với $i=2$, <code>nums[2]=11</code>: $13 - 11 = 2$ đã có trong <code>map</code> → trả về tổ hợp chỉ mục $[0, 2]$.</p></div>
     <div class="slider-controls">
       <button class="slider-btn" onclick="prevSlide('two-sum-hashtable-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 3</span>
@@ -1245,7 +1245,7 @@ Since an additional hash table needs to be maintained, the space complexity is $
 <h2>10.5.3 Lựa chọn Phương pháp Tìm kiếm</h2>
 <p>Với một tập dữ liệu kích thước $n$, ta có thể dùng tìm kiếm tuyến tính, tìm kiếm nhị phân, tìm kiếm cây, tìm kiếm dựa trên hash, và các phương pháp khác để tìm kiếm phần tử mục tiêu. Nguyên lý hoạt động của từng phương pháp được thể hiện trong hình bên dưới.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/searching_algorithms.png" alt="Nhiều chiến lược tìm kiếm" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/searching_algorithms.png" alt="Nhiều chiến lược tìm kiếm" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Hiệu quả và đặc điểm của các phương pháp này được tổng hợp trong bảng dưới đây.</p>
 <p style="text-align:center; font-size: 0.9em; color: var(--text-secondary);">Bảng: So sánh hiệu quả các thuật toán tìm kiếm</p>

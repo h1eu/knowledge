@@ -16,7 +16,7 @@ Object.assign(DSA_CONTENT, {
     readTime: '1 phút',
     content: `
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_heap.jpg" alt="Heap" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_heap.jpg" alt="Heap" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <div class="callout callout-note">
   <span class="callout-icon">✨</span>
@@ -57,7 +57,7 @@ Object.assign(DSA_CONTENT, {
   <li><strong>Max Heap (Đống lớn nhất)</strong>: Giá trị của bất kỳ nút nào cũng $\\geq$ giá trị của các nút con của nó.</li>
 </ul>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/min_heap_and_max_heap.png" alt="Min Heap và Max Heap" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/min_heap_and_max_heap.png" alt="Min Heap và Max Heap" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Vì là một trường hợp đặc biệt của cây nhị phân hoàn chỉnh, Heap có các đặc điểm sau.</p>
 <ul>
@@ -203,7 +203,7 @@ priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; minHeap(input.b
 <p>Khi biểu diễn cây nhị phân bằng mảng, các phần tử đại diện cho giá trị nút, còn chỉ số đại diện cho vị trí của nút trong cây nhị phân. <strong>Quan hệ cha - con được biểu diễn thông qua công thức ánh xạ chỉ số</strong>.</p>
 <p>Như hình minh họa dưới đây, cho một chỉ số $i$, chỉ số của nút con trái là $2i + 1$, chỉ số của nút con phải là $2i + 2$, và chỉ số của nút cha là $(i - 1) / 2$ (chia lấy phần nguyên, làm tròn xuống). Khi chỉ số vượt quá giới hạn, điều đó cho biết đây là một nút rỗng hoặc nút không tồn tại.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/representation_of_heap.png" alt="Biểu diễn và lưu trữ Heap" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/representation_of_heap.png" alt="Biểu diễn và lưu trữ Heap" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Ta có thể đóng gói công thức ánh xạ chỉ số thành các hàm để tiện sử dụng về sau:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Lấy chỉ số của nút con trái */
@@ -285,15 +285,15 @@ int peek() {
 <p>Bắt đầu từ nút vừa chèn, ta <strong>thực hiện heapify từ dưới lên trên</strong>. Như hình minh họa dưới đây, ta so sánh nút vừa chèn với nút cha của nó, nếu nút vừa chèn lớn hơn thì hoán đổi chúng. Ta lặp lại quá trình này từ dưới lên trên cho đến khi vượt qua nút gốc hoặc gặp một nút không cần hoán đổi nữa.</p>
 <div class="interactive-widget-wrapper" id="heap-push-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/heap_push_step1.png" alt="heap_push_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
-    <div class="slide"><img src="dsa-assets/heap_push_step2.png" alt="heap_push_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
-    <div class="slide"><img src="dsa-assets/heap_push_step3.png" alt="heap_push_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
-    <div class="slide"><img src="dsa-assets/heap_push_step4.png" alt="heap_push_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
-    <div class="slide"><img src="dsa-assets/heap_push_step5.png" alt="heap_push_step5" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 5</p></div>
-    <div class="slide"><img src="dsa-assets/heap_push_step6.png" alt="heap_push_step6" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 6</p></div>
-    <div class="slide"><img src="dsa-assets/heap_push_step7.png" alt="heap_push_step7" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 7</p></div>
-    <div class="slide"><img src="dsa-assets/heap_push_step8.png" alt="heap_push_step8" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 8</p></div>
-    <div class="slide"><img src="dsa-assets/heap_push_step9.png" alt="heap_push_step9" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 9</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/heap_push_step1.png" alt="heap_push_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_push_step2.png" alt="heap_push_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_push_step3.png" alt="heap_push_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_push_step4.png" alt="heap_push_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_push_step5.png" alt="heap_push_step5" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 5</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_push_step6.png" alt="heap_push_step6" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 6</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_push_step7.png" alt="heap_push_step7" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 7</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_push_step8.png" alt="heap_push_step8" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 8</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_push_step9.png" alt="heap_push_step9" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 9</p></div>
     <div class="slider-controls">
       <button class="control-btn" onclick="prevSlide('heap-push-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 9</span>
@@ -367,16 +367,16 @@ void siftUp(int i) {
 <p>Như hình minh họa dưới đây, <strong>hướng của "heapify từ trên xuống dưới" ngược lại với "heapify từ dưới lên trên"</strong>. Ta so sánh giá trị của nút gốc với hai nút con của nó, rồi hoán đổi với nút con lớn nhất. Sau đó lặp lại thao tác này cho đến khi vượt qua một nút lá hoặc gặp một nút không cần hoán đổi nữa.</p>
 <div class="interactive-widget-wrapper" id="heap-pop-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/heap_pop_step1.png" alt="heap_pop_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
-    <div class="slide"><img src="dsa-assets/heap_pop_step2.png" alt="heap_pop_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
-    <div class="slide"><img src="dsa-assets/heap_pop_step3.png" alt="heap_pop_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
-    <div class="slide"><img src="dsa-assets/heap_pop_step4.png" alt="heap_pop_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
-    <div class="slide"><img src="dsa-assets/heap_pop_step5.png" alt="heap_pop_step5" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 5</p></div>
-    <div class="slide"><img src="dsa-assets/heap_pop_step6.png" alt="heap_pop_step6" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 6</p></div>
-    <div class="slide"><img src="dsa-assets/heap_pop_step7.png" alt="heap_pop_step7" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 7</p></div>
-    <div class="slide"><img src="dsa-assets/heap_pop_step8.png" alt="heap_pop_step8" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 8</p></div>
-    <div class="slide"><img src="dsa-assets/heap_pop_step9.png" alt="heap_pop_step9" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 9</p></div>
-    <div class="slide"><img src="dsa-assets/heap_pop_step10.png" alt="heap_pop_step10" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 10</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/heap_pop_step1.png" alt="heap_pop_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_pop_step2.png" alt="heap_pop_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_pop_step3.png" alt="heap_pop_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_pop_step4.png" alt="heap_pop_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_pop_step5.png" alt="heap_pop_step5" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 5</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_pop_step6.png" alt="heap_pop_step6" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 6</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_pop_step7.png" alt="heap_pop_step7" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 7</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_pop_step8.png" alt="heap_pop_step8" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 8</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_pop_step9.png" alt="heap_pop_step9" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 9</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_pop_step10.png" alt="heap_pop_step10" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 10</p></div>
     <div class="slider-controls">
       <button class="control-btn" onclick="prevSlide('heap-pop-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 10</span>
@@ -1121,7 +1121,7 @@ constructor(nums) {
 <p>Nhân hai giá trị này với nhau, ta được độ phức tạp thời gian của quá trình xây dựng heap là $O(n \\log n)$. <strong>Tuy nhiên, ước lượng này không chính xác vì nó không tính đến đặc điểm cây nhị phân có số nút ở các tầng dưới nhiều hơn hẳn so với các tầng trên</strong>.</p>
 <p>Hãy thực hiện một phép tính chính xác hơn. Để đơn giản hóa việc phân tích, giả sử ta có một "cây nhị phân hoàn hảo (perfect binary tree)" với $n$ nút và chiều cao $h$; giả định này không ảnh hưởng đến tính đúng đắn của kết quả.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/heapify_operations_count.png" alt="Số lượng nút ở mỗi tầng của một cây nhị phân hoàn hảo" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/heapify_operations_count.png" alt="Số lượng nút ở mỗi tầng của một cây nhị phân hoàn hảo" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Như hình minh họa ở trên, số lần lặp tối đa của thao tác heapify "từ trên xuống dưới" của một nút bằng khoảng cách từ nút đó đến một nút lá, và đó chính xác là chiều cao của nút. Do đó, ta có thể tính tổng "số lượng nút $\\times$ chiều cao nút" ở mỗi tầng để <strong>thu được tổng số lần lặp heapify của toàn bộ các nút</strong>.</p>
 <p>$$
@@ -1249,7 +1249,7 @@ Furthermore, a perfect binary tree with height $h$ has $n = 2^{h+1} - 1$ nodes, 
 <h2>8.3.1 Cách 1: Chọn lọc lặp lại</h2>
 <p>Ta có thể thực hiện $k$ vòng duyệt như minh họa trong hình dưới đây, mỗi vòng trích ra phần tử lớn thứ $1, 2, \\dots, k$, với độ phức tạp thời gian $O(nk)$.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/top_k_traversal.png" alt="Duyệt mảng để tìm k phần tử lớn nhất" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/top_k_traversal.png" alt="Duyệt mảng để tìm k phần tử lớn nhất" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Phương pháp này chỉ phù hợp khi $k \\ll n$, vì khi $k$ tiệm cận $n$, độ phức tạp thời gian tiến gần đến $O(n^2)$, khiến nó trở nên rất kém hiệu quả.</p>
 <div class="callout callout-tip">
@@ -1262,7 +1262,7 @@ Furthermore, a perfect binary tree with height $h$ has $n = 2^{h+1} - 1$ nodes, 
 <h2>8.3.2 Cách 2: Sắp xếp</h2>
 <p>Như minh họa trong hình dưới đây, ta có thể sắp xếp mảng <code>nums</code> trước, sau đó trả về $k$ phần tử ngoài cùng bên phải, với độ phức tạp thời gian $O(n \\log n)$.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/top_k_sorting.png" alt="Sắp xếp để tìm k phần tử lớn nhất" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/top_k_sorting.png" alt="Sắp xếp để tìm k phần tử lớn nhất" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Rõ ràng, phương pháp này làm nhiều việc hơn mức cần thiết, vì ta chỉ cần tìm $k$ phần tử lớn nhất chứ không cần sắp xếp toàn bộ các phần tử còn lại.</p>
 
@@ -1276,15 +1276,15 @@ Furthermore, a perfect binary tree with height $h$ has $n = 2^{h+1} - 1$ nodes, 
 </ol>
 <div class="interactive-widget-wrapper" id="top-k-heap-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/top_k_heap_step1.png" alt="top_k_heap_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
-    <div class="slide"><img src="dsa-assets/top_k_heap_step2.png" alt="top_k_heap_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
-    <div class="slide"><img src="dsa-assets/top_k_heap_step3.png" alt="top_k_heap_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
-    <div class="slide"><img src="dsa-assets/top_k_heap_step4.png" alt="top_k_heap_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
-    <div class="slide"><img src="dsa-assets/top_k_heap_step5.png" alt="top_k_heap_step5" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 5</p></div>
-    <div class="slide"><img src="dsa-assets/top_k_heap_step6.png" alt="top_k_heap_step6" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 6</p></div>
-    <div class="slide"><img src="dsa-assets/top_k_heap_step7.png" alt="top_k_heap_step7" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 7</p></div>
-    <div class="slide"><img src="dsa-assets/top_k_heap_step8.png" alt="top_k_heap_step8" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 8</p></div>
-    <div class="slide"><img src="dsa-assets/top_k_heap_step9.png" alt="top_k_heap_step9" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 9</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/top_k_heap_step1.png" alt="top_k_heap_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/top_k_heap_step2.png" alt="top_k_heap_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/top_k_heap_step3.png" alt="top_k_heap_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/top_k_heap_step4.png" alt="top_k_heap_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/top_k_heap_step5.png" alt="top_k_heap_step5" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 5</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/top_k_heap_step6.png" alt="top_k_heap_step6" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 6</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/top_k_heap_step7.png" alt="top_k_heap_step7" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 7</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/top_k_heap_step8.png" alt="top_k_heap_step8" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 8</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/top_k_heap_step9.png" alt="top_k_heap_step9" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 9</p></div>
     <div class="slider-controls">
       <button class="control-btn" onclick="prevSlide('top-k-heap-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 9</span>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chồng transaction: vào trước nằm dưới</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ NGĂN XẾP · BACK STACK</p>
+  <h1>Chồng transaction: vào trước nằm dưới</h1>
+  <p class="sub">Transaction nào commit trước nằm dưới, đỉnh stack là thứ Back sẽ gỡ.</p>
+<svg viewBox="0 0 800 428" role="img" aria-labelledby="fmg-tx-title fmg-tx-desc" font-family="'Geist', sans-serif">
+<title id="fmg-tx-title">Chồng transaction: vào trước nằm dưới</title>
+<desc id="fmg-tx-desc">Ba transaction xếp chồng lên nhau, Transaction 3 ở đỉnh stack.</desc>
+<defs>
+<marker id="fmg-tx-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="428" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,92 V 128" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-tx-arrow)"/>
+<path d="M 400,184 V 220" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-tx-arrow)"/>
+<path d="M 400,276 V 312" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-tx-arrow)"/>
+<!-- nodes -->
+<rect x="290" y="32" width="220" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="290" y="32" width="220" height="60" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Transaction 1</text>
+<text x="400" y="84" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đáy stack</text>
+<rect x="290" y="128" width="220" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="290" y="128" width="220" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="162" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Transaction 2</text>
+<rect x="290" y="220" width="220" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="290" y="220" width="220" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="254" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Transaction 3</text>
+<rect x="290" y="312" width="220" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="290" y="312" width="220" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="298" y="318" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="324" y="327" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TOP</text>
+<text x="400" y="350" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Top of Stack</text>
+<text x="400" y="368" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đỉnh · gỡ trước</text>
+<!-- legend -->
+<line x1="32" y1="404" x2="768" y2="404" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="420" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="416" r="4" fill="#0284C7"/>
+<text x="162" y="420" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐỈNH · GỠ TRƯỚC</text>
+<line x1="380" y1="416" x2="412" y2="416" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-tx-arrow)"/>
+<text x="420" y="420" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">XẾP CHỒNG THEO THỨ TỰ</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · STACK · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

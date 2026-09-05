@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ngăn xếp iOS: ngôn ngữ → thực thi → framework</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ KIẾN TRÚC · SESSION 01</p>
+  <h1>Ngăn xếp iOS: ngôn ngữ → thực thi → framework</h1>
+  <p class="sub">Bảy thành phần, ba tầng. Runtime là điểm hội tụ duy nhất.</p>
+<svg viewBox="0 0 800 628" role="img" aria-labelledby="ios-stack-title ios-stack-desc" font-family="'Geist', sans-serif">
+<title id="ios-stack-title">Ngăn xếp iOS: ngôn ngữ, thực thi, framework</title>
+<desc id="ios-stack-desc">Sơ đồ tầng kiến trúc iOS: Swift và Objective-C hội tụ vào Obj-C Runtime, qua ARC tới Stack và Heap, rồi lên Foundation và UIKit.</desc>
+<defs>
+<marker id="ios-stack-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="628" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="736" height="140" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="112" height="12" rx="2" fill="#F8FAFC"/>
+<text x="104" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">LANGUAGE · SYNTAX</text>
+<rect x="32" y="192" width="736" height="228" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="196" width="120" height="12" rx="2" fill="#F8FAFC"/>
+<text x="108" y="205" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">EXECUTION · MEMORY</text>
+<rect x="32" y="448" width="736" height="140" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="452" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="84" y="461" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">FRAMEWORK</text>
+<!-- arrows -->
+<path d="M 216,128 V 172 H 332 Q 340,172 340,180 V 228" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<path d="M 584,128 V 172 H 488 Q 480,172 480,180 V 228" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<path d="M 400,296 V 312 H 224 Q 216,312 216,320 V 332" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<path d="M 368,364 H 432" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<path d="M 584,396 V 432 H 308 Q 300,432 300,440 V 488" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<path d="M 368,520 H 432" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<!-- nodes -->
+<rect x="64" y="64" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="64" width="304" height="64" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<rect x="72" y="70" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="98" y="79" fill="rgba(100,116,139,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LANG</text>
+<text x="216" y="102" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Swift 5.x / 6.0</text>
+<text x="216" y="118" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">type safety · value semantics</text>
+<rect x="432" y="64" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="432" y="64" width="304" height="64" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<rect x="440" y="70" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="466" y="79" fill="rgba(100,116,139,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LANG</text>
+<text x="584" y="102" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Objective-C / C++</text>
+<text x="584" y="118" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">dynamic messaging</text>
+<rect x="220" y="228" width="360" height="68" rx="6" fill="#F8FAFC"/>
+<rect x="220" y="228" width="360" height="68" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="228" y="234" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="254" y="243" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
+<text x="400" y="268" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Obj-C Runtime / Swift Metadata</text>
+<text x="400" y="286" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">dynamic dispatch · swizzling</text>
+<rect x="64" y="332" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="332" width="304" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="72" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="98" y="347" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">ARC</text>
+<text x="216" y="370" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ARC Engine</text>
+<text x="216" y="386" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">reference counting</text>
+<rect x="432" y="332" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="432" y="332" width="304" height="64" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<rect x="440" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="466" y="347" fill="rgba(100,116,139,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MEM</text>
+<text x="584" y="370" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Stack / Heap</text>
+<text x="584" y="386" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">values · objects</text>
+<rect x="64" y="488" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="488" width="304" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="72" y="494" width="52" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="98" y="503" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">FW</text>
+<text x="216" y="526" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Foundation</text>
+<text x="216" y="542" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">toll-free bridging</text>
+<rect x="432" y="488" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="432" y="488" width="304" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="440" y="494" width="52" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="466" y="503" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">UI</text>
+<text x="584" y="526" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UIKit · CoreGraphics</text>
+<text x="584" y="542" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ui framework</text>
+<!-- legend -->
+<line x1="32" y1="604" x2="768" y2="604" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="620" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="616" r="4" fill="#0284C7"/>
+<text x="162" y="620" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · RUNTIME</text>
+<line x1="330" y1="616" x2="362" y2="616" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<text x="370" y="620" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">LUỒNG ĐIỀU KHIỂN</text>
+<rect x="540" y="608" width="40" height="16" rx="4" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<text x="588" y="620" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TẦNG KIẾN TRÚC</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · ARCHITECTURE · DOC-WIDE · BALANCED · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

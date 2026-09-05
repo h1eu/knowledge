@@ -10,9 +10,9 @@
   <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="style.css" />
   <!-- D3.js for Interactive Knowledge Graph -->
-  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <!-- Mermaid.js for Diagrams -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
     (function () {
       var savedTheme = 'dark';
@@ -23,19 +23,39 @@
         mermaid.initialize({
           startOnLoad: false,
           theme: 'base',
-          fontFamily: 'Plus Jakarta Sans, sans-serif',
-          fontSize: 13,
+          fontFamily: 'Geist, \'Plus Jakarta Sans\', sans-serif',
+          fontSize: 14,
           themeVariables: {
             darkMode: !isLight,
-            fontFamily: 'Plus Jakarta Sans, sans-serif',
-            fontSize: '13px',
-            primaryColor: isLight ? '#f8fafc' : '#0f172a',
+            fontFamily: 'Geist, \'Plus Jakarta Sans\', sans-serif',
+            fontSize: '14px',
+            primaryColor: isLight ? '#ffffff' : '#13224C',
             primaryTextColor: isLight ? '#0f172a' : '#f8fafc',
-            primaryBorderColor: isLight ? 'rgba(15, 23, 42, 0.16)' : 'rgba(255, 255, 255, 0.16)',
-            lineColor: isLight ? '#64748b' : '#94a3b8',
-            mainBkg: isLight ? '#ffffff' : '#0f172a'
+            primaryBorderColor: isLight ? '#0284C7' : '#38BDF8',
+            lineColor: isLight ? '#0284C7' : '#38BDF8',
+            secondaryColor: isLight ? '#f1f5f9' : '#1e293b',
+            tertiaryColor: isLight ? '#ffffff' : '#090d16',
+            mainBkg: isLight ? '#ffffff' : '#13224C',
+            nodeBorder: isLight ? '#0284C7' : '#38BDF8',
+            nodeTextColor: isLight ? '#0f172a' : '#f8fafc',
+            edgeLabelBackground: isLight ? '#ffffff' : '#0B132B',
+            clusterBkg: isLight ? 'rgba(2, 132, 199, 0.05)' : 'rgba(56, 189, 248, 0.05)',
+            clusterBorder: isLight ? 'rgba(2, 132, 199, 0.28)' : 'rgba(56, 189, 248, 0.28)',
+            titleColor: isLight ? '#0f172a' : '#f8fafc',
+            actorBkg: isLight ? '#ffffff' : '#13224C',
+            actorBorder: isLight ? '#0284C7' : '#38BDF8',
+            actorTextColor: isLight ? '#0f172a' : '#f8fafc',
+            actorLineColor: isLight ? 'rgba(2, 132, 199, 0.45)' : 'rgba(56, 189, 248, 0.45)',
+            signalColor: isLight ? '#0f172a' : '#E2E8F0',
+            signalTextColor: isLight ? '#0f172a' : '#E2E8F0',
+            labelBoxBkgColor: isLight ? '#0284C7' : '#38BDF8',
+            labelBoxBorderColor: isLight ? '#0284C7' : '#38BDF8',
+            labelTextColor: '#ffffff',
+            noteBkgColor: isLight ? '#FEF9C3' : 'rgba(251, 191, 36, 0.14)',
+            noteBorderColor: isLight ? '#D97706' : '#FBBF24',
+            noteTextColor: isLight ? '#78350F' : '#FDE68A'
           },
-          flowchart: { htmlLabels: true, curve: 'bumpX', nodeSpacing: 45, rankSpacing: 55, padding: 16 }
+          flowchart: { htmlLabels: true, curve: 'basis', nodeSpacing: 50, rankSpacing: 65, padding: 20 }
         });
       }
     })();
@@ -156,32 +176,9 @@
 
 </div>
 
-<script src="dsa-content.js"></script>
-<script src="dsa-content-ch0.js"></script>
-<script src="dsa-content-ch04.js"></script>
-<script src="dsa-content-ch05.js"></script>
-<script src="dsa-content-ch06.js"></script>
-<script src="dsa-content-ch07.js"></script>
-<script src="dsa-content-ch08.js"></script>
-<script src="dsa-content-ch09.js"></script>
-<script src="dsa-content-ch10.js"></script>
-<script src="dsa-content-ch11.js"></script>
-<script src="dsa-sort-frames-ch11.js"></script>
-<script src="dsa-content-ch12.js"></script>
-<script src="dsa-content-ch13.js"></script>
-<script src="dsa-backtrack-frames-ch13.js"></script>
-<script src="dsa-content-ch14.js"></script>
-<script src="dsa-dp-frames-ch14.js"></script>
-<script src="dsa-content-ch15.js"></script>
-<script src="dsa-content-ch16.js"></script>
-<script src="android-content.js"></script>
-<script src="ios-content.js"></script>
-<script src="flutter-content.js"></script>
-<script src="git-content.js"></script>
-<script src="leetcode-problems.js"></script>
-<script src="leetcode-content.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
-<script src="app.js"></script>
+<!-- Content nạp lazy theo domain qua openTopic (DOMAIN_CONTENT_FILES trong app.js) -->
+<script defer src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+<script defer src="app.js"></script>
 <script>
   window.MathJax = {
     tex: {

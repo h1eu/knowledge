@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FragmentManager: một đầu mối, bốn việc</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · FRAGMENT</p>
+  <h1>FragmentManager: một đầu mối, bốn việc</h1>
+  <p class="sub">Thêm gỡ, quản lý, điều phối lifecycle, giữ state — tất cả qua một cửa.</p>
+<svg viewBox="0 0 800 388" role="img" aria-labelledby="frag-fm-title frag-fm-desc" font-family="'Geist', sans-serif">
+<title id="frag-fm-title">FragmentManager: một đầu mối, bốn việc</title>
+<desc id="frag-fm-desc">Activity sở hữu FragmentManager, quản lý hai Fragment, điều phối lifecycle và giữ state khi xoay màn hình.</desc>
+<defs>
+<marker id="frag-fm-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="388" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,92 V 132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#frag-fm-arrow)"/>
+<rect x="412" y="102" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="440" y="111" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SỞ HỮU</text>
+<path d="M 340,196 V 228 H 136 Q 128,228 128,236 V 280" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#frag-fm-arrow)"/>
+<rect x="186" y="208" width="104" height="12" rx="2" fill="#F8FAFC"/>
+<text x="238" y="217" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ADD · REPLACE</text>
+<path d="M 380,196 V 252 H 328 Q 320,252 320,260 V 280" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#frag-fm-arrow)"/>
+<rect x="318" y="258" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="354" y="267" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">QUẢN LÝ</text>
+<path d="M 420,196 V 228 H 504 Q 512,228 512,236 V 280" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#frag-fm-arrow)"/>
+<rect x="418" y="208" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="454" y="217" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐIỀU PHỐI</text>
+<path d="M 460,196 V 252 H 696 Q 704,252 704,260 V 280" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#frag-fm-arrow)"/>
+<rect x="556" y="258" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="592" y="267" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">LƯU STATE</text>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity</text>
+<text x="400" y="84" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chủ sở hữu</text>
+<rect x="280" y="132" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="132" width="240" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="288" y="138" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="314" y="147" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HUB</text>
+<text x="400" y="174" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FragmentManager</text>
+<rect x="48" y="280" width="160" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="48" y="280" width="160" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="128" y="314" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Fragment A</text>
+<rect x="240" y="280" width="160" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="280" width="160" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="320" y="314" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Fragment B</text>
+<rect x="432" y="280" width="160" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="432" y="280" width="160" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="512" y="314" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Lifecycle</text>
+<text x="512" y="332" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">từng fragment</text>
+<rect x="624" y="280" width="160" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="624" y="280" width="160" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="704" y="314" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">State</text>
+<text x="704" y="332" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">khi xoay</text>
+<!-- legend -->
+<line x1="32" y1="364" x2="768" y2="364" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="380" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="376" r="4" fill="#0284C7"/>
+<text x="162" y="380" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐẦU MỐI · MANAGER</text>
+<line x1="380" y1="376" x2="412" y2="376" stroke="#64748B" stroke-width="1.2" marker-end="url(#frag-fm-arrow)"/>
+<text x="420" y="380" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỘT CỬA · BỐN VIỆC</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

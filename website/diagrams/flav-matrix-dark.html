@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ma trận flavor nhân build type</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · FLAVOR</p>
+  <h1>Ma trận flavor nhân build type</h1>
+  <p class="sub">Hai flavor nhân hai build type ra bốn variant, cùng đổ về một đầu ra.</p>
+<svg viewBox="0 0 800 436" role="img" aria-labelledby="flav-matrix-dark-title flav-matrix-dark-desc" font-family="'Geist', sans-serif">
+<title id="flav-matrix-dark-title">Ma trận flavor nhân build type</title>
+<desc id="flav-matrix-dark-desc">Flavor free và paid kết hợp build type debug và release thành bốn variant freeDebug, freeRelease, paidDebug, paidRelease, tất cả ra APK hoặc AAB.</desc>
+<defs>
+<marker id="flav-matrix-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="436" fill="#060913"/>
+<!-- arrows: rows -->
+<path d="M 158,168 H 300" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<path d="M 158,168 V 100 H 520 Q 528,100 528,108 V 140" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<path d="M 158,328 H 300" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<path d="M 158,328 V 372 H 532 Q 540,372 540,364 V 356" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<!-- arrows: columns -->
+<path d="M 360,80 V 92 a 8,8 0 0,0 0,16 V 140" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<path d="M 400,80 V 116 H 450 V 270 H 318 Q 310,270 310,278 V 300" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<path d="M 540,80 V 140" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<path d="M 560,80 V 116 H 630 V 202 a 8,8 0 0,0 0,16 V 270 H 598 Q 590,270 590,278 V 300" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<!-- arrows: variants to output -->
+<path d="M 420,168 V 210 H 632 Q 640,210 640,218 V 248 Q 640,256 648,256" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<path d="M 600,168 H 648" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<path d="M 360,356 V 388 H 692 Q 700,388 700,380 V 356" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<path d="M 600,328 H 648" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<!-- headers -->
+<rect x="48" y="140" width="110" height="56" rx="6" fill="#060913"/>
+<rect x="48" y="140" width="110" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="103" y="174" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">free</text>
+<rect x="48" y="300" width="110" height="56" rx="6" fill="#060913"/>
+<rect x="48" y="300" width="110" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="103" y="334" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">paid</text>
+<rect x="300" y="32" width="120" height="48" rx="6" fill="#060913"/>
+<rect x="300" y="32" width="120" height="48" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="360" y="62" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">debug</text>
+<rect x="480" y="32" width="120" height="48" rx="6" fill="#060913"/>
+<rect x="480" y="32" width="120" height="48" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="540" y="62" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">release</text>
+<!-- cells -->
+<rect x="300" y="140" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="300" y="140" width="120" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="360" y="174" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">freeDebug</text>
+<rect x="480" y="140" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="480" y="140" width="120" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="540" y="174" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">freeRelease</text>
+<rect x="300" y="300" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="300" y="300" width="120" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="360" y="334" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">paidDebug</text>
+<rect x="480" y="300" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="480" y="300" width="120" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="540" y="334" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">paidRelease</text>
+<rect x="648" y="140" width="104" height="216" rx="6" fill="#060913"/>
+<rect x="648" y="140" width="104" height="216" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="656" y="146" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="682" y="155" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OUT</text>
+<text x="700" y="244" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">APK</text>
+<text x="700" y="262" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">AAB</text>
+<!-- legend -->
+<line x1="32" y1="412" x2="768" y2="412" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="428" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="424" r="4" fill="#38BDF8"/>
+<text x="162" y="428" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐẦU RA · GÓI CÀI</text>
+<line x1="340" y1="424" x2="372" y2="424" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flav-matrix-dark-arrow)"/>
+<text x="380" y="428" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">HÀNG = FLAVOR · CỘT = TYPE</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

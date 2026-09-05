@@ -16,7 +16,7 @@ Object.assign(DSA_CONTENT, {
     readTime: '1 phút',
     content: `
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_appendix.jpg" alt="Phụ lục" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_appendix.jpg" alt="Phụ lục" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Chương này tổng hợp các nội dung hỗ trợ đi kèm với cuốn sách: hướng dẫn cài đặt môi trường lập trình, cách thức tham gia đóng góp cho dự án mã nguồn mở, và bảng thuật ngữ Anh-Việt được sử dụng xuyên suốt tài liệu.</p>
 `,
@@ -44,13 +44,13 @@ Object.assign(DSA_CONTENT, {
 <p>Chúng tôi khuyến nghị sử dụng <strong>VS Code</strong> — một IDE mã nguồn mở, nhẹ — làm môi trường phát triển tích hợp cục bộ. Hãy truy cập <a href="https://code.visualstudio.com/" target="_blank">trang chủ VS Code</a>, sau đó tải và cài đặt phiên bản phù hợp với hệ điều hành của bạn.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/vscode_installation.png" alt="Tải VS Code từ trang chủ chính thức" style="max-width: 90%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/vscode_installation.webp" alt="Tải VS Code từ trang chủ chính thức" style="max-width: 90%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>VS Code sở hữu một hệ sinh thái Extension mạnh mẽ, hỗ trợ chạy và debug hầu hết các ngôn ngữ lập trình. Ví dụ, sau khi cài đặt extension "Python Extension Pack", bạn có thể debug code Python. Các bước cài đặt được minh họa trong hình dưới đây.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/vscode_extension_installation.png" alt="Cài đặt Extension cho VS Code" style="max-width: 90%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/vscode_extension_installation.webp" alt="Cài đặt Extension cho VS Code" style="max-width: 90%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>16.1.2 Cài đặt môi trường theo ngôn ngữ</h2>
@@ -226,7 +226,7 @@ VS Code has a powerful ecosystem of extensions that supports running and debuggi
 </ol>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/edit_markdown.png" alt="Nút chỉnh sửa trang" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/edit_markdown.webp" alt="Nút chỉnh sửa trang" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Hình ảnh không thể chỉnh sửa trực tiếp. Vui lòng mô tả vấn đề bằng cách tạo một <a href="https://github.com/krahets/hello-algo/issues" target="_blank">Issue</a> mới hoặc để lại bình luận. Chúng tôi sẽ nhanh chóng vẽ lại và thay thế hình ảnh.</p>

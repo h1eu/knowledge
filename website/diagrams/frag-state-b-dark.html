@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Đi xuống: hủy view giữ instance · 2/2</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ TRẠNG THÁI · FRAGMENT · 2/2</p>
+  <h1>Đi xuống: hủy view giữ instance</h1>
+  <p class="sub">Hủy view chưa phải hủy Fragment — quay lại thì tạo view mới trên instance cũ.</p>
+<svg viewBox="0 0 800 632" role="img" aria-labelledby="frag-state-b-dark-title frag-state-b-dark-desc" font-family="'Geist', sans-serif">
+<title id="frag-state-b-dark-title">Đi xuống: hủy view giữ instance</title>
+<desc id="frag-state-b-dark-desc">Từ resume qua pause stop tới hủy view, rồi hoặc quay lại tạo view mới hoặc hủy hẳn và tách khỏi Activity.</desc>
+<defs>
+<marker id="frag-state-b-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="632" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,84 V 108" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-state-b-dark-arrow)"/>
+<path d="M 400,160 V 184" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-state-b-dark-arrow)"/>
+<path d="M 400,236 V 256" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-state-b-dark-arrow)"/>
+<path d="M 330,300 H 240" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#frag-state-b-dark-arrow)"/>
+<rect x="178" y="280" width="72" height="12" rx="2" fill="#060913"/>
+<text x="214" y="289" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">QUAY LẠI</text>
+<path d="M 400,344 V 404" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-state-b-dark-arrow)"/>
+<rect x="412" y="366" width="40" height="12" rx="2" fill="#060913"/>
+<text x="432" y="375" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HỦY</text>
+<path d="M 400,456 V 480" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-state-b-dark-arrow)"/>
+<path d="M 400,532 V 572" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-state-b-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="52" rx="6" fill="#060913"/>
+<rect x="280" y="32" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="64" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onResume · phần A</text>
+<rect x="280" y="108" width="240" height="52" rx="6" fill="#060913"/>
+<rect x="280" y="108" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="140" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onPause</text>
+<rect x="280" y="184" width="240" height="52" rx="6" fill="#060913"/>
+<rect x="280" y="184" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="216" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onStop</text>
+<polygon points="400,256 470,300 400,344 330,300" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="304" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">BACKSTACK?</text>
+<rect x="80" y="276" width="160" height="48" rx="8" fill="transparent" stroke="#94A3B8" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="160" y="298" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">↩ onCreateView</text>
+<text x="160" y="312" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">(phần A)</text>
+<rect x="280" y="404" width="240" height="52" rx="6" fill="#060913"/>
+<rect x="280" y="404" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="436" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onDestroy</text>
+<rect x="280" y="480" width="240" height="52" rx="6" fill="#060913"/>
+<rect x="280" y="480" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="512" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onDetach</text>
+<circle cx="400" cy="578" r="6" fill="#F8FAFC"/>
+<!-- legend -->
+<line x1="32" y1="602" x2="768" y2="602" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="618" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="614" r="4" fill="#38BDF8"/>
+<text x="162" y="618" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NGÃ RẼ SỐNG CÒN</text>
+<line x1="380" y1="614" x2="412" y2="614" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#frag-state-b-dark-arrow)"/>
+<text x="420" y="618" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · VỀ PHẦN A</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · STATE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

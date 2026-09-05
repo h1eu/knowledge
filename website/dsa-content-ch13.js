@@ -21,7 +21,7 @@ Object.assign(DSA_CONTENT, {
     content: `
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_backtracking.jpg" alt="Quay lui" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_backtracking.jpg" alt="Quay lui" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <div class="callout callout-note">
@@ -132,7 +132,7 @@ void preOrder(TreeNode *root) {
 }</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/preorder_find_nodes.png" alt="Tìm kiếm nút trong duyệt tiền thứ tự" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/preorder_find_nodes.png" alt="Tìm kiếm nút trong duyệt tiền thứ tự" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>Thử và Quay lui</h2>
@@ -227,17 +227,17 @@ void preOrder(TreeNode *root) {
 
 <div class="interactive-widget-wrapper" id="preorder-find-paths-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/preorder_find_paths_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Bước 1: Bắt đầu từ nút gốc, thử thêm nút vào <code>path</code>.</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_find_paths_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2: Đi xuống nhánh trái, tiếp tục thêm nút vào <code>path</code>.</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_find_paths_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3: Gặp nút giá trị 7, ghi nhận bản sao của <code>path</code> vào <code>res</code>.</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_find_paths_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4: Tiếp tục đi xuống các nút con của nút vừa ghi nhận.</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_find_paths_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5: Gặp nút lá (null), không thể đi tiếp.</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_find_paths_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6: Quay lui — gỡ nút khỏi <code>path</code>, thử nhánh phải.</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_find_paths_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7: Tiếp tục thử nhánh phải, thêm nút vào <code>path</code>.</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_find_paths_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8: Quay lui nhiều lần cho đến khi trở lại nút gốc.</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_find_paths_step9.png" alt="Bước 9" style="max-width:100%;" /><p class="slide-caption">Bước 9: Chuyển sang nhánh phải của nút gốc, thử tiếp.</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_find_paths_step10.png" alt="Bước 10" style="max-width:100%;" /><p class="slide-caption">Bước 10: Gặp lại nút giá trị 7 ở nhánh phải, ghi nhận đường đi thứ hai.</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_find_paths_step11.png" alt="Bước 11" style="max-width:100%;" /><p class="slide-caption">Bước 11: Quay lui về nút gốc, hoàn tất duyệt toàn bộ cây. Kết quả: 2 đường đi.</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/preorder_find_paths_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Bước 1: Bắt đầu từ nút gốc, thử thêm nút vào <code>path</code>.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_find_paths_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2: Đi xuống nhánh trái, tiếp tục thêm nút vào <code>path</code>.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_find_paths_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3: Gặp nút giá trị 7, ghi nhận bản sao của <code>path</code> vào <code>res</code>.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_find_paths_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4: Tiếp tục đi xuống các nút con của nút vừa ghi nhận.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_find_paths_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5: Gặp nút lá (null), không thể đi tiếp.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_find_paths_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6: Quay lui — gỡ nút khỏi <code>path</code>, thử nhánh phải.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_find_paths_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7: Tiếp tục thử nhánh phải, thêm nút vào <code>path</code>.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_find_paths_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8: Quay lui nhiều lần cho đến khi trở lại nút gốc.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_find_paths_step9.png" alt="Bước 9" style="max-width:100%;" /><p class="slide-caption">Bước 9: Chuyển sang nhánh phải của nút gốc, thử tiếp.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_find_paths_step10.png" alt="Bước 10" style="max-width:100%;" /><p class="slide-caption">Bước 10: Gặp lại nút giá trị 7 ở nhánh phải, ghi nhận đường đi thứ hai.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_find_paths_step11.png" alt="Bước 11" style="max-width:100%;" /><p class="slide-caption">Bước 11: Quay lui về nút gốc, hoàn tất duyệt toàn bộ cây. Kết quả: 2 đường đi.</p></div>
     <div class="slider-controls">
       <button class="control-btn" onclick="prevSlide('preorder-find-paths-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 11</span>
@@ -334,7 +334,7 @@ void preOrder(TreeNode *root) {
 <p>"Cắt tỉa" là một thuật ngữ sinh động. Như minh họa trong hình dưới đây, trong quá trình tìm kiếm, <strong>chúng ta "cắt tỉa" các nhánh tìm kiếm không thỏa mãn ràng buộc</strong>, tránh nhiều lần thử vô nghĩa, từ đó cải thiện hiệu quả tìm kiếm.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/preorder_find_constrained_paths.png" alt="Cắt tỉa theo ràng buộc" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/preorder_find_constrained_paths.png" alt="Cắt tỉa theo ràng buộc" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <div class="interactive-widget-wrapper" id="backtracking-dfs-wrapper">
@@ -541,7 +541,7 @@ void backtrack(vector<TreeNode *> &state, vector<TreeNode *> &choices, vector<ve
 <p>Theo đề bài, ta nên tiếp tục tìm kiếm sau khi tìm thấy một nút có giá trị $7$. <strong>Do đó, ta cần loại bỏ câu lệnh <code>return</code> sau khi ghi nhận nghiệm</strong>. Hình dưới đây so sánh quá trình tìm kiếm khi có và không có câu lệnh <code>return</code>.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/backtrack_remove_return_or_not.png" alt="So sánh có và không có return" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/backtrack_remove_return_or_not.png" alt="So sánh có và không có return" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>So với mã dựa trên duyệt tiền thứ tự, mã dựa trên khung thuật toán Quay lui trông có vẻ dài dòng hơn, nhưng lại tổng quát hơn. Thực tế, <strong>nhiều bài toán Quay lui có thể được giải quyết trong khung này</strong>. Ta chỉ cần định nghĩa <code>state</code> và <code>choices</code> cho bài toán cụ thể và triển khai từng phương thức trong khung.</p>
@@ -1170,7 +1170,7 @@ Note that for many combinatorial optimization problems, backtracking is not the 
 <p>Như hình dưới đây, ta có thể triển khai quá trình tìm kiếm thành một cây đệ quy, trong đó mỗi nút trong cây đại diện cho trạng thái <code>state</code> hiện tại. Bắt đầu từ nút gốc, sau ba vòng lựa chọn, ta đến một nút lá, và mỗi nút lá tương ứng với một hoán vị.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/permutations_i.png" alt="Cây đệ quy hoán vị" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/permutations_i.png" alt="Cây đệ quy hoán vị" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h3>Cắt tỉa lựa chọn trùng lặp</h3>
@@ -1183,7 +1183,7 @@ Note that for many combinatorial optimization problems, backtracking is not the 
 <p>Như hình dưới đây, giả sử ta chọn $1$ ở vòng đầu tiên, $3$ ở vòng thứ hai, và $2$ ở vòng thứ ba. Khi đó ta cần cắt tỉa nhánh phần tử $1$ ở vòng thứ hai và cắt tỉa nhánh các phần tử $1$ và $3$ ở vòng thứ ba.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/permutations_i_pruning.png" alt="Ví dụ cắt tỉa hoán vị" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/permutations_i_pruning.png" alt="Ví dụ cắt tỉa hoán vị" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Quan sát hình trên, ta thấy rằng thao tác cắt tỉa này giảm kích thước không gian tìm kiếm từ $O(n^n)$ xuống còn $O(n!)$.</p>
@@ -1317,7 +1317,7 @@ vector<vector<int>> permutationsI(vector<int> nums) {
 <p>Như hình dưới đây, một nửa số hoán vị được sinh ra bởi phương pháp trên là trùng lặp.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/permutations_ii.png" alt="Hoán vị trùng lặp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/permutations_ii.png" alt="Hoán vị trùng lặp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Vậy làm sao để loại bỏ các hoán vị trùng lặp? Cách tiếp cận trực tiếp nhất là dùng một hash set để khử trùng lặp trực tiếp kết quả hoán vị. Tuy nhiên, cách này không thanh lịch vì <strong>các nhánh tìm kiếm sinh ra hoán vị trùng lặp là không cần thiết và nên được nhận diện và cắt tỉa sớm</strong>, điều này có thể cải thiện hơn nữa hiệu quả thuật toán.</p>
@@ -1330,7 +1330,7 @@ vector<vector<int>> permutationsI(vector<int> nums) {
 <p>Về bản chất, <strong>mục tiêu của ta là đảm bảo nhiều phần tử bằng nhau chỉ được chọn một lần trong một vòng lựa chọn nhất định</strong>.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/permutations_ii_pruning.png" alt="Cắt tỉa hoán vị trùng lặp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/permutations_ii_pruning.png" alt="Cắt tỉa hoán vị trùng lặp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h3>Triển khai mã</h3>
@@ -1496,7 +1496,7 @@ vector<vector<int>> permutationsII(vector<int> nums) {
 <p>Hình dưới đây cho thấy phạm vi hiệu lực của hai điều kiện cắt tỉa. Lưu ý rằng mỗi nút trong cây đại diện cho một lựa chọn, và các nút trên đường từ gốc đến một nút lá tạo thành một hoán vị.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/permutations_ii_pruning_summary.png" alt="Phạm vi hiệu lực hai điều kiện cắt tỉa" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/permutations_ii_pruning_summary.png" alt="Phạm vi hiệu lực hai điều kiện cắt tỉa" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 `,
@@ -1748,7 +1748,7 @@ vector<vector<int>> subsetSumINaive(vector<int> &nums, int target) {
 <p>Điều này là do quá trình tìm kiếm phân biệt thứ tự các lựa chọn, nhưng các tập con thì không phân biệt thứ tự chọn. Như hình dưới đây, chọn $4$ trước rồi $5$ so với chọn $5$ trước rồi $4$ là các nhánh khác nhau, nhưng chúng tương ứng với cùng một tập con.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/subset_sum_i_naive.png" alt="Tìm kiếm tập con và cắt tỉa biên" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/subset_sum_i_naive.png" alt="Tìm kiếm tập con và cắt tỉa biên" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Để loại bỏ các tập con trùng lặp, <strong>một ý tưởng đơn giản là khử trùng lặp danh sách kết quả</strong>. Tuy nhiên, cách này rất kém hiệu quả vì hai lý do:</p>
@@ -1772,7 +1772,7 @@ vector<vector<int>> subsetSumINaive(vector<int> &nums, int target) {
 </ol>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/subset_sum_i_pruning.png" alt="Các thứ tự chọn khác nhau dẫn đến tập con trùng lặp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/subset_sum_i_pruning.png" alt="Các thứ tự chọn khác nhau dẫn đến tập con trùng lặp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Tóm lại, cho mảng đầu vào $[x_1, x_2, \\dots, x_n]$, gọi chuỗi lựa chọn trong quá trình tìm kiếm là $[x_{i_1}, x_{i_2}, \\dots, x_{i_m}]$. Chuỗi lựa chọn này phải thỏa mãn $i_1 \\leq i_2 \\leq \\dots \\leq i_m$; <strong>bất kỳ chuỗi lựa chọn nào không thỏa mãn điều kiện này sẽ gây trùng lặp và cần được cắt tỉa</strong>.</p>
@@ -1909,7 +1909,7 @@ vector<vector<int>> subsetSumI(vector<int> &nums, int target) {
 <p>Hình dưới đây cho thấy toàn bộ quá trình Quay lui được sinh ra khi chạy đoạn mã trên với mảng $[3, 4, 5]$ và giá trị mục tiêu $9$.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/subset_sum_i.png" alt="Quá trình Quay lui Tổng tập con I" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/subset_sum_i.png" alt="Quá trình Quay lui Tổng tập con I" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>Mảng có phần tử trùng lặp</h2>
@@ -1926,7 +1926,7 @@ vector<vector<int>> subsetSumI(vector<int> &nums, int target) {
 <p><strong>Lý do gây ra sự trùng lặp này là các phần tử bằng nhau được chọn nhiều lần trong cùng một vòng</strong>. Trong hình dưới đây, vòng đầu tiên có ba lựa chọn, hai trong số đó là $4$, tạo ra hai nhánh tìm kiếm trùng lặp và xuất ra các tập con trùng lặp. Tương tự, hai số $4$ ở vòng thứ hai cũng sinh ra các tập con trùng lặp.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/subset_sum_ii_repeat.png" alt="Tập con trùng lặp do phần tử bằng nhau" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/subset_sum_ii_repeat.png" alt="Tập con trùng lặp do phần tử bằng nhau" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h3>Cắt tỉa các phần tử bằng nhau</h3>
@@ -2101,7 +2101,7 @@ vector<vector<int>> subsetSumII(vector<int> &nums, int target) {
 <p>Hình dưới đây cho thấy quá trình Quay lui cho mảng $[4, 4, 5]$ với giá trị mục tiêu $9$, bao gồm bốn loại thao tác cắt tỉa. Kết hợp hình minh họa với các chú thích trong mã để hiểu toàn bộ quá trình tìm kiếm và cách mỗi thao tác cắt tỉa hoạt động.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/subset_sum_ii.png" alt="Quá trình Quay lui Tổng tập con II" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/subset_sum_ii.png" alt="Quá trình Quay lui Tổng tập con II" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 `,
@@ -2227,13 +2227,13 @@ The figure below shows the backtracking process for array $[4, 4, 5]$ with targe
 <p>Như hình dưới đây, khi $n = 4$, có hai nghiệm có thể tìm thấy. Theo góc nhìn của thuật toán Quay lui, bàn cờ $n \\times n$ có $n^2$ ô, cung cấp tất cả các lựa chọn <code>choices</code>. Trong quá trình đặt hậu lần lượt, trạng thái bàn cờ liên tục thay đổi, và bàn cờ tại mỗi thời điểm đại diện cho trạng thái <code>state</code>.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/solution_4_queens.png" alt="Nghiệm bài toán 4 hậu" style="max-width: 80%; margin: 0 auto; display: block; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/solution_4_queens.png" alt="Nghiệm bài toán 4 hậu" style="max-width: 80%; margin: 0 auto; display: block; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Hình dưới đây minh họa ba ràng buộc của bài toán này: <strong>nhiều quân hậu không thể ở cùng hàng, cùng cột, hoặc cùng đường chéo</strong>. Cần lưu ý rằng đường chéo được chia thành hai loại: đường chéo chính <code>\\</code> và đường chéo phụ <code>/</code>.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/n_queens_constraints.png" alt="Ràng buộc bài toán N-Hậu" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/n_queens_constraints.png" alt="Ràng buộc bài toán N-Hậu" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h3>Chiến lược Đặt theo từng hàng</h3>
@@ -2244,7 +2244,7 @@ The figure below shows the backtracking process for array $[4, 4, 5]$ with targe
 <p>Hình dưới đây cho thấy quá trình đặt theo từng hàng của bài toán 4-hậu. Do giới hạn không gian, hình chỉ khai triển một nhánh tìm kiếm của hàng đầu tiên, và tất cả các phương án vi phạm ràng buộc cột hoặc đường chéo đều bị cắt tỉa.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/n_queens_placing.png" alt="Chiến lược đặt theo từng hàng" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/n_queens_placing.png" alt="Chiến lược đặt theo từng hàng" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Về bản chất, <strong>chiến lược đặt theo từng hàng đóng vai trò cắt tỉa</strong>, vì nó tránh tất cả các nhánh tìm kiếm mà nhiều quân hậu xuất hiện trên cùng một hàng.</p>
@@ -2266,7 +2266,7 @@ The figure below shows the backtracking process for array $[4, 4, 5]$ with targe
 <p>Tương tự, <strong>đối với tất cả các ô trên một đường chéo phụ, tổng $row + col$ là một hằng số</strong>. Ta cũng có thể dùng mảng <code>diags2</code> để xử lý ràng buộc đường chéo phụ.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/n_queens_cols_diagonals.png" alt="Xử lý ràng buộc cột và đường chéo" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/n_queens_cols_diagonals.png" alt="Xử lý ràng buộc cột và đường chéo" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h3>Triển khai mã</h3>

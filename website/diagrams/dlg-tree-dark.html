@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DialogFragment: một nút, hai ngả</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ CÂY · DIALOG</p>
+  <h1>DialogFragment: một nút, hai ngả</h1>
+  <p class="sub">Một ngả ra cửa sổ dialog, một ngả vào lifecycle callbacks.</p>
+<svg viewBox="0 0 800 568" role="img" aria-labelledby="dlg-tree-dark-title dlg-tree-dark-desc" font-family="'Geist', sans-serif">
+<title id="dlg-tree-dark-title">DialogFragment: một nút, hai ngả</title>
+<desc id="dlg-tree-dark-desc">Activity qua FragmentManager tới DialogFragment, rẽ ra cửa sổ dialog và view hoặc vào lifecycle callbacks.</desc>
+<defs>
+<marker id="dlg-tree-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="568" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,92 V 132" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-tree-dark-arrow)"/>
+<path d="M 400,192 V 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-tree-dark-arrow)"/>
+<path d="M 340,292 V 312 H 188 Q 180,312 180,320 V 360" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-tree-dark-arrow)"/>
+<path d="M 400,292 V 360" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-tree-dark-arrow)"/>
+<path d="M 460,292 V 312 H 612 Q 620,312 620,320 V 360" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-tree-dark-arrow)"/>
+<path d="M 180,420 V 464" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-tree-dark-arrow)"/>
+<path d="M 400,420 V 464" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-tree-dark-arrow)"/>
+<path d="M 620,420 V 464" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-tree-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity</text>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="166" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FragmentManager</text>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="288" y="238" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="314" y="247" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
+<text x="400" y="270" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">DialogFragment</text>
+<rect x="80" y="360" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="80" y="360" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="180" y="394" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Dialog Window</text>
+<text x="180" y="412" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">cửa sổ dialog</text>
+<rect x="300" y="360" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="300" y="360" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="394" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Dialog View</text>
+<rect x="520" y="360" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="520" y="360" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="620" y="394" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Callbacks</text>
+<text x="620" y="412" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lifecycle</text>
+<rect x="80" y="464" width="200" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="464" width="200" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="180" y="498" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onCreateDialog</text>
+<rect x="300" y="464" width="200" height="56" rx="6" fill="#060913"/>
+<rect x="300" y="464" width="200" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="498" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onCreateView</text>
+<rect x="520" y="464" width="200" height="56" rx="6" fill="#060913"/>
+<rect x="520" y="464" width="200" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="620" y="498" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onStart · onStop</text>
+<!-- legend -->
+<line x1="32" y1="544" x2="768" y2="544" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="560" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="556" r="4" fill="#38BDF8"/>
+<text x="162" y="560" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÚT TRUNG TÂM · DIALOG</text>
+<line x1="400" y1="556" x2="432" y2="556" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-tree-dark-arrow)"/>
+<text x="440" y="560" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">RẼ HAI NGẢ · GỌI XUỐNG</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · TREE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bốn nguồn gộp về một variant</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · FLAVOR</p>
+  <h1>Bốn nguồn gộp về một variant</h1>
+  <p class="sub">Mỗi nguồn vào một đỉnh riêng của nút gộp — nguồn sau ghi đè nguồn trước.</p>
+<svg viewBox="0 0 800 376" role="img" aria-labelledby="flav-merge-title flav-merge-desc" font-family="'Geist', sans-serif">
+<title id="flav-merge-title">Bốn nguồn gộp về một variant</title>
+<desc id="flav-merge-desc">Mã chung src main, mã riêng flavor free, mã riêng build type debug và mã riêng variant freeDebug gộp lại, nguồn sau ghi đè nguồn trước, ra variant freeDebug.</desc>
+<defs>
+<marker id="flav-merge-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="376" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 228,60 V 100 H 412 Q 420,100 420,108 V 128" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flav-merge-arrow)"/>
+<path d="M 228,140 H 350" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flav-merge-arrow)"/>
+<path d="M 228,220 V 260 H 412 Q 420,260 420,252 V 232" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flav-merge-arrow)"/>
+<path d="M 228,300 H 482 Q 490,300 490,292 V 180" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flav-merge-arrow)"/>
+<path d="M 490,180 H 560" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flav-merge-arrow)"/>
+<rect x="493" y="160" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="525" y="169" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GHI ĐÈ</text>
+<!-- nodes -->
+<rect x="48" y="32" width="180" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="48" y="32" width="180" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="138" y="64" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">src/main</text>
+<text x="138" y="80" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chung</text>
+<rect x="48" y="112" width="180" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="48" y="112" width="180" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="138" y="144" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">src/free</text>
+<text x="138" y="160" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">riêng free</text>
+<rect x="48" y="192" width="180" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="48" y="192" width="180" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="138" y="224" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">src/debug</text>
+<text x="138" y="240" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">riêng debug</text>
+<rect x="48" y="272" width="180" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="48" y="272" width="180" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="138" y="304" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">src/freeDebug</text>
+<text x="138" y="320" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ưu tiên nhất</text>
+<polygon points="420,128 490,180 420,232 350,180" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="420" y="184" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">GỘP?</text>
+<rect x="560" y="148" width="160" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="560" y="148" width="160" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="640" y="182" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">freeDebug variant</text>
+<text x="640" y="200" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đầu ra</text>
+<!-- legend -->
+<line x1="32" y1="352" x2="768" y2="352" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="368" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="364" r="4" fill="#0284C7"/>
+<text x="162" y="368" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐIỂM GỘP QUYẾT ĐỊNH</text>
+<line x1="360" y1="364" x2="392" y2="364" stroke="#64748B" stroke-width="1.2" marker-end="url(#flav-merge-arrow)"/>
+<text x="400" y="368" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỖI ĐỈNH MỘT NGUỒN</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

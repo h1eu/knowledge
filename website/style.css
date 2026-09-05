@@ -2165,13 +2165,41 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 4px 10px rgba(5, 150, 105, 0.2);
 }
 
+/* ── Diagram-Design inline SVG (editorial, code-drawn) ──────────── */
+.dd-diagram {
+  margin: 24px 0;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-card), var(--inner-highlight-subtle);
+}
+
+.dd-diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.dd-svg-light { display: none; }
+
+.theme-light .dd-svg-dark,
+.theme-editorial .dd-svg-dark,
+.theme-matcha .dd-svg-dark { display: none; }
+
+.theme-light .dd-svg-light,
+.theme-editorial .dd-svg-light,
+.theme-matcha .dd-svg-light { display: block; }
+
 /* ── Mermaid Diagrams Custom Styling — Enhanced UX for large / wide diagrams ─ */
 .mermaid-wrapper {
   position: relative;
   margin: 24px 0;
   border-radius: var(--radius-lg);
-  background: var(--code-block-bg);
-  border: 1px solid var(--border-hairline);
+  background:
+    radial-gradient(480px 160px at 50% -40px, var(--accent-sky-glow), transparent 70%),
+    var(--bg-surface);
+  border: 1px solid var(--border-strong);
   box-shadow: var(--shadow-card), var(--inner-highlight-subtle);
   overflow: hidden;
 }
@@ -2179,8 +2207,10 @@ h1, h2, h3, h4, h5, h6 {
 .mermaid {
   display: block;
   margin: 0;
-  padding: 42px 16px 28px;
+  padding: 54px 20px 30px;
   background: transparent;
+  background-image: radial-gradient(var(--border-subtle) 1px, transparent 1px);
+  background-size: 22px 22px;
   border: none;
   border-radius: 0;
   box-shadow: none;
@@ -2191,6 +2221,53 @@ h1, h2, h3, h4, h5, h6 {
   scrollbar-color: rgba(255,255,255,0.18) transparent;
   cursor: grab;
   position: relative;
+}
+
+/* Diagram header bar — distinguishes code-drawn diagrams from code blocks */
+.mermaid-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--bg-surface) 72%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.mermaid-head-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mermaid-head-dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  display: block;
+}
+
+.mermaid-head-dots i:first-child { background: var(--accent-rose); }
+.mermaid-head-dots i:nth-child(2) { background: var(--accent-amber); }
+.mermaid-head-dots i:nth-child(3) { background: var(--accent-emerald); }
+
+.mermaid-head-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .mermaid:active {
@@ -2212,26 +2289,38 @@ h1, h2, h3, h4, h5, h6 {
   height: auto;
   margin: 0 auto;
   font-family: var(--font-body) !important;
-  transform-origin: top left;
+  transform-origin: center top;
   transition: transform 0.18s var(--ease-fluid);
 }
 
-/* ── High-End Mermaid SVG Architecture (Apple / Linear tier) ── */
-.mermaid .node rect,
+/* ── High-End Mermaid SVG Architecture (Apple / Linear tier) ──
+   Shape-semantic coloring: process (rect) = sky, decision (polygon) = amber,
+   terminal (circle/ellipse) = emerald. No content changes required. */
+.mermaid .node rect {
+  rx: 12px !important;
+  ry: 12px !important;
+  fill: var(--bg-card-inner) !important;
+  stroke: var(--accent-sky) !important;
+  stroke-opacity: 0.55 !important;
+  stroke-width: 1.5px !important;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.22));
+  transition: all 0.2s var(--ease-fluid);
+}
+
 .mermaid .node polygon {
-  rx: 10px !important;
-  ry: 10px !important;
-  fill: var(--bg-surface) !important;
-  stroke: var(--border-strong) !important;
-  stroke-width: 1.25px !important;
+  fill: var(--accent-amber-lt) !important;
+  stroke: var(--accent-amber) !important;
+  stroke-opacity: 0.8 !important;
+  stroke-width: 1.5px !important;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.22));
   transition: all 0.2s var(--ease-fluid);
 }
 
 .mermaid .node circle,
 .mermaid .node ellipse {
-  fill: var(--bg-surface) !important;
-  stroke: var(--border-strong) !important;
+  fill: var(--accent-emerald-lt) !important;
+  stroke: var(--accent-emerald) !important;
+  stroke-opacity: 0.8 !important;
   stroke-width: 1.5px !important;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.22));
   transition: all 0.2s var(--ease-fluid);
@@ -2241,7 +2330,7 @@ h1, h2, h3, h4, h5, h6 {
 .mermaid .node:hover polygon,
 .mermaid .node:hover circle,
 .mermaid .node:hover ellipse {
-  stroke: var(--accent-sky) !important;
+  stroke-opacity: 1 !important;
   filter: drop-shadow(0 0 14px var(--accent-sky-glow)) drop-shadow(0 4px 14px rgba(0, 0, 0, 0.35));
 }
 
@@ -2249,24 +2338,24 @@ h1, h2, h3, h4, h5, h6 {
 .mermaid .node foreignObject div,
 .mermaid .node text {
   font-family: var(--font-body) !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
   color: var(--text-primary) !important;
   fill: var(--text-primary) !important;
-  line-height: 1.4 !important;
+  line-height: 1.45 !important;
   letter-spacing: -0.01em;
   text-align: center;
 }
 
-/* Edges & Connectors */
+/* Edges & Connectors — slate flow, sky arrowheads for direction */
 .mermaid .edgePath path.path,
 .mermaid .edge-path-main,
 .mermaid path.flowchart-link {
-  stroke: var(--text-muted) !important;
-  stroke-width: 1.75px !important;
+  stroke: var(--text-secondary) !important;
+  stroke-width: 2px !important;
   stroke-linecap: round !important;
   stroke-linejoin: round !important;
-  opacity: 0.85;
+  opacity: 0.9;
   transition: stroke 0.2s ease, opacity 0.2s ease;
 }
 
@@ -2277,62 +2366,144 @@ h1, h2, h3, h4, h5, h6 {
 
 .mermaid marker path,
 .mermaid .arrowheadPath {
-  fill: var(--text-muted) !important;
-  stroke: var(--text-muted) !important;
+  fill: var(--accent-sky) !important;
+  stroke: var(--accent-sky) !important;
   stroke-width: 1px !important;
+  opacity: 0.9;
 }
 
 .mermaid .edgePath:hover marker path,
 .mermaid .edgePath:hover .arrowheadPath {
   fill: var(--accent-sky) !important;
   stroke: var(--accent-sky) !important;
+  opacity: 1;
 }
 
-/* Edge Labels */
+/* Edge Labels — solid pill, high contrast */
 .mermaid .edgeLabel {
   background-color: transparent !important;
-  color: var(--text-muted) !important;
-  fill: var(--text-muted) !important;
+  color: var(--text-primary) !important;
+  fill: var(--text-primary) !important;
   font-family: var(--font-mono) !important;
-  font-size: 11px !important;
-  font-weight: 600 !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
   padding: 3px 8px !important;
 }
 
 .mermaid .edgeLabel rect {
   fill: var(--bg-surface) !important;
-  stroke: var(--border-hairline) !important;
-  rx: 6px !important;
-  ry: 6px !important;
-  opacity: 0.95 !important;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+  stroke: var(--accent-sky) !important;
+  stroke-opacity: 0.35 !important;
+  rx: 7px !important;
+  ry: 7px !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
 }
 
-/* Subgraphs / Clusters */
+/* Subgraphs / Clusters — tinted canvas with accent frame */
 .mermaid .cluster rect {
-  fill: rgba(255, 255, 255, 0.015) !important;
-  stroke: var(--border-hairline) !important;
-  stroke-width: 1px !important;
-  stroke-dasharray: 4 4;
-  rx: 14px !important;
-  ry: 14px !important;
+  fill: var(--accent-sky-lt) !important;
+  stroke: var(--accent-sky) !important;
+  stroke-opacity: 0.32 !important;
+  stroke-width: 1.25px !important;
+  stroke-dasharray: 6 4;
+  rx: 16px !important;
+  ry: 16px !important;
 }
 
 .theme-light .mermaid .cluster rect,
 .theme-editorial .mermaid .cluster rect {
-  fill: rgba(15, 23, 42, 0.015) !important;
-  stroke: rgba(15, 23, 42, 0.08) !important;
+  fill: rgba(2, 132, 199, 0.05) !important;
+  stroke: rgba(2, 132, 199, 0.32) !important;
 }
 
 .mermaid .cluster text,
 .mermaid .cluster span {
   font-family: var(--font-mono) !important;
   font-size: 11px !important;
-  font-weight: 700 !important;
+  font-weight: 800 !important;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  fill: var(--text-muted) !important;
-  color: var(--text-muted) !important;
+  letter-spacing: 0.1em;
+  fill: var(--accent-sky) !important;
+  color: var(--accent-sky) !important;
+}
+
+/* ── Sequence / Class / State Diagrams ── */
+.mermaid .actor {
+  fill: var(--bg-card-inner) !important;
+  stroke: var(--accent-sky) !important;
+  stroke-opacity: 0.6 !important;
+  stroke-width: 1.5px !important;
+  rx: 10px !important;
+  ry: 10px !important;
+}
+
+.mermaid text.actor {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  fill: var(--text-primary) !important;
+}
+
+.mermaid line.actor-line,
+.mermaid .actor-line {
+  stroke: var(--accent-sky) !important;
+  stroke-opacity: 0.4 !important;
+  stroke-width: 1.5px !important;
+  stroke-dasharray: 5 5 !important;
+}
+
+.mermaid .messageLine0,
+.mermaid .messageLine1 {
+  stroke: var(--text-primary) !important;
+  stroke-width: 1.75px !important;
+}
+
+.mermaid .messageText {
+  font-family: var(--font-mono) !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  fill: var(--text-primary) !important;
+}
+
+.mermaid .labelBox {
+  fill: var(--accent-sky) !important;
+  stroke: var(--accent-sky) !important;
+}
+
+.mermaid .labelText,
+.mermaid .loopText {
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  fill: #ffffff !important;
+}
+
+.mermaid .loopLine {
+  stroke: var(--accent-sky) !important;
+  stroke-opacity: 0.5 !important;
+  stroke-width: 1.5px !important;
+}
+
+.mermaid .note {
+  fill: var(--accent-amber-lt) !important;
+  stroke: var(--accent-amber) !important;
+  stroke-width: 1.25px !important;
+  rx: 8px !important;
+  ry: 8px !important;
+}
+
+.mermaid .noteText {
+  font-size: 12px !important;
+  fill: var(--text-primary) !important;
+}
+
+.mermaid .activation0,
+.mermaid .activation1,
+.mermaid .activation2 {
+  fill: var(--accent-sky-lt) !important;
+  stroke: var(--accent-sky) !important;
+  stroke-width: 1.25px !important;
 }
 
 /* ── Semantic Git & Architecture Classes ── */
@@ -2405,7 +2576,7 @@ h1, h2, h3, h4, h5, h6 {
 .mermaid-wrapper.has-scroll::after {
   content: '';
   position: absolute;
-  top: 42px;
+  top: 44px;
   bottom: 12px;
   width: 28px;
   pointer-events: none;
@@ -2415,38 +2586,36 @@ h1, h2, h3, h4, h5, h6 {
 }
 .mermaid-wrapper.has-scroll::before {
   left: 0;
-  background: linear-gradient(90deg, var(--code-block-bg) 30%, transparent 100%);
+  background: linear-gradient(90deg, var(--bg-surface) 30%, transparent 100%);
 }
 .mermaid-wrapper.has-scroll::after {
   right: 0;
-  background: linear-gradient(-90deg, var(--code-block-bg) 30%, transparent 100%);
+  background: linear-gradient(-90deg, var(--bg-surface) 30%, transparent 100%);
 }
 .mermaid-wrapper.has-scroll.can-scroll-left::before { opacity: 1; }
 .mermaid-wrapper.has-scroll.can-scroll-right::after { opacity: 1; }
 
-/* Toolbar */
+/* Toolbar — docked into the diagram header bar */
 .mermaid-toolbar {
   position: absolute;
-  top: 8px;
+  top: 1px;
   right: 8px;
+  height: 34px;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px;
-  background: rgba(15,23,42,0.82);
-  backdrop-filter: blur(12px) saturate(1.5);
-  -webkit-backdrop-filter: blur(12px) saturate(1.5);
-  border: 1px solid var(--border-subtle);
+  gap: 2px;
+  padding: 0 2px;
+  background: transparent;
+  border: 1px solid transparent;
   border-radius: var(--radius-full);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.28);
-  z-index: 3;
+  z-index: 4;
 }
 .theme-light .mermaid-toolbar,
 .theme-editorial .mermaid-toolbar,
 .theme-matcha .mermaid-toolbar {
-  background: rgba(255,255,255,0.92);
-  border-color: rgba(15,23,42,0.08);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .mermaid-toolbar button {
@@ -2558,9 +2727,10 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Mobile tweaks */
 @media (max-width: 768px) {
-  .mermaid { padding: 44px 12px 32px; }
-  .mermaid-toolbar { top: 6px; right: 6px; padding: 3px; }
+  .mermaid { padding: 52px 12px 32px; }
+  .mermaid-toolbar { top: 1px; right: 6px; }
   .mermaid-toolbar button { width: 26px; height: 26px; }
+  .mermaid-head-label { font-size: 9.5px; }
   .mermaid-wrapper.is-tall .mermaid { max-height: 420px; }
 }
 

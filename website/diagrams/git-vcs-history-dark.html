@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mỗi commit là một điểm quay về</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LỊCH SỬ · VCS</p>
+  <h1>Mỗi commit là một điểm quay về</h1>
+  <p class="sub">Lịch sử là chuỗi snapshot — restore được về bất kỳ mốc nào.</p>
+<svg viewBox="0 0 800 404" role="img" aria-labelledby="git-vcs-history-dark-title git-vcs-history-dark-desc" font-family="'Geist', sans-serif">
+<title id="git-vcs-history-dark-title">Mỗi commit là một điểm quay về</title>
+<desc id="git-vcs-history-dark-desc">Chuỗi bốn commit từ khởi tạo tới hiện tại, có thể restore ngược về bất kỳ commit nào trước đó.</desc>
+<defs>
+<marker id="git-vcs-history-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="404" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,84 V 108" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-vcs-history-dark-arrow)"/>
+<path d="M 400,164 V 188" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-vcs-history-dark-arrow)"/>
+<path d="M 400,244 V 268" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-vcs-history-dark-arrow)"/>
+<path d="M 400,324 V 352 H 572 Q 580,352 580,344 V 144 Q 580,136 572,136 H 520" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#git-vcs-history-dark-arrow)"/>
+<rect x="424" y="346" width="152" height="12" rx="2" fill="#060913"/>
+<text x="500" y="355" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">RESTORE VỀ BẤT KỲ LÚC NÀO</text>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="52" rx="20" fill="#060913"/>
+<rect x="280" y="32" width="240" height="52" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="63" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">commit 1 · Khởi tạo</text>
+<rect x="280" y="108" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="108" width="240" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="142" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">commit 2 · Thêm API tasks</text>
+<rect x="280" y="188" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="188" width="240" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="222" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">commit 3 · Sửa bug drag-drop</text>
+<rect x="280" y="268" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="268" width="240" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="302" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">commit 4 · Hiện tại</text>
+<!-- legend -->
+<line x1="32" y1="380" x2="768" y2="380" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="396" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="392" r="4" fill="#38BDF8"/>
+<text x="162" y="396" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐANG ĐỨNG · HIỆN TẠI</text>
+<line x1="400" y1="392" x2="432" y2="392" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#git-vcs-history-dark-arrow)"/>
+<text x="440" y="396" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">RESTORE NGƯỢC LỊCH SỬ</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

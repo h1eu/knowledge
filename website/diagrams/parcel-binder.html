@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Intent đi nhờ Binder, giới hạn 1MB</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ TRÌNH TỰ · PARCELABLE</p>
+  <h1>Intent đi nhờ Binder, giới hạn 1MB</h1>
+  <p class="sub">Object thành Parcel, Parcel qua buffer, buffer đầy là crash.</p>
+<svg viewBox="0 0 800 416" role="img" aria-labelledby="parcel-binder-title parcel-binder-desc" font-family="'Geist', sans-serif">
+<title id="parcel-binder-title">Intent đi nhờ Binder, giới hạn 1MB</title>
+<desc id="parcel-binder-desc">Activity serialize Bundle thành Parcel ghi vào Binder buffer, gọi AMS qua IPC, AMS kiểm tra rồi gọi Activity B, B deserialize đọc extras.</desc>
+<defs>
+<marker id="parcel-binder-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+<marker id="parcel-binder-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
+</marker>
+</defs>
+<rect width="800" height="416" fill="#F8FAFC"/>
+<!-- lifelines -->
+<line x1="110" y1="84" x2="110" y2="368" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="310" y1="84" x2="310" y2="368" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="510" y1="84" x2="510" y2="368" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="710" y1="84" x2="710" y2="368" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="106" y="112" width="8" height="40" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="306" y="160" width="8" height="24" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="506" y="192" width="8" height="72" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="706" y="272" width="8" height="72" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 110,120 H 134 V 144 H 110" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-binder-arrow)"/>
+<rect x="146" y="122" width="72" height="16" rx="2" fill="#F8FAFC"/>
+<text x="154" y="134" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">SERIALIZE</text>
+<path d="M 110,168 H 310" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#parcel-binder-accent)"/>
+<rect x="162" y="148" width="88" height="12" rx="2" fill="#F8FAFC"/>
+<text x="206" y="157" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GHI PARCEL</text>
+<path d="M 110,200 H 510" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-binder-arrow)"/>
+<rect x="362" y="180" width="88" height="12" rx="2" fill="#F8FAFC"/>
+<text x="406" y="189" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">IPC LAUNCH</text>
+<rect x="322" y="208" width="110" height="12" rx="2" fill="#F8FAFC"/>
+<text x="377" y="217" fill="#FBBF24" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GIỚI HẠN ~1MB</text>
+<path d="M 510,232 H 534 V 256 H 510" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-binder-arrow)"/>
+<rect x="546" y="234" width="72" height="16" rx="2" fill="#F8FAFC"/>
+<text x="554" y="246" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">KIỂM TRA</text>
+<path d="M 510,280 H 710" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-binder-arrow)"/>
+<rect x="562" y="260" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="610" y="269" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">IPC ONCREATE</text>
+<path d="M 710,312 H 734 V 336 H 710" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-binder-arrow)"/>
+<rect x="622" y="314" width="76" height="12" rx="2" fill="#F8FAFC"/>
+<text x="690" y="323" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="end" letter-spacing="0.06em">DESERIALIZE</text>
+<!-- actors -->
+<rect x="35" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="35" y="32" width="150" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="110" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity A</text>
+<text x="110" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app process</text>
+<rect x="235" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="235" y="32" width="150" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="310" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Binder Buffer</text>
+<text x="310" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">~1mb</text>
+<rect x="435" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="435" y="32" width="150" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="510" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">AMS</text>
+<text x="510" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">system_server</text>
+<rect x="635" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="635" y="32" width="150" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="710" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity B</text>
+<text x="710" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app process</text>
+<!-- legend -->
+<line x1="32" y1="392" x2="768" y2="392" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="408" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="404" r="4" fill="#0284C7"/>
+<text x="162" y="408" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">BƯỚC GIỚI HẠN · 1MB</text>
+<line x1="380" y1="404" x2="412" y2="404" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-binder-arrow)"/>
+<text x="420" y="408" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">IPC QUA BINDER</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · SEQUENCE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

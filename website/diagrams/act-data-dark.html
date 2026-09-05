@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chuỗi dữ liệu một chiều về Repository</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · ACTIVITY OVERVIEW</p>
+  <h1>Chuỗi dữ liệu một chiều về Repository</h1>
+  <p class="sub">Bốn tầng gọi nhau theo đúng một hướng, Repository là nguồn duy nhất.</p>
+<svg viewBox="0 0 800 552" role="img" aria-labelledby="act-data-dark-title act-data-dark-desc" font-family="'Geist', sans-serif">
+<title id="act-data-dark-title">Chuỗi dữ liệu một chiều về Repository</title>
+<desc id="act-data-dark-desc">Activity gọi ViewModel, ViewModel gọi UseCase, UseCase gọi Repository, Repository đọc các nguồn dữ liệu Room, Retrofit và DataStore.</desc>
+<defs>
+<marker id="act-data-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="552" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,92 V 132" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#act-data-dark-arrow)"/>
+<path d="M 400,192 V 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#act-data-dark-arrow)"/>
+<path d="M 400,292 V 332" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#act-data-dark-arrow)"/>
+<path d="M 400,392 V 420" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#act-data-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="288" y="38" width="52" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="314" y="47" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">VIEW</text>
+<text x="400" y="70" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity · View</text>
+<text x="400" y="85" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">view layer</text>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="288" y="138" width="52" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="314" y="147" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">VM</text>
+<text x="400" y="170" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<text x="400" y="185" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ui state</text>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="288" y="238" width="52" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="314" y="247" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">UC</text>
+<text x="400" y="270" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">UseCase</text>
+<text x="400" y="285" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">business logic</text>
+<rect x="280" y="332" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="332" width="240" height="60" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="288" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="314" y="347" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
+<text x="400" y="370" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
+<text x="400" y="385" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">single source</text>
+<path d="M 280,432 V 490 A 120,12 0 0,1 520,490 V 432" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<ellipse cx="400" cy="432" rx="120" ry="12" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="400" y="470" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Data Sources</text>
+<text x="400" y="488" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">room · retrofit · datastore</text>
+<!-- legend -->
+<line x1="32" y1="528" x2="768" y2="528" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="544" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="540" r="4" fill="#38BDF8"/>
+<text x="162" y="544" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · REPOSITORY</text>
+<line x1="370" y1="540" x2="402" y2="540" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#act-data-dark-arrow)"/>
+<text x="410" y="544" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">LUỒNG DỮ LIỆU</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

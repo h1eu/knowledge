@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ẩn dialog: dỡ ngược từng nấc · 2/2</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ TRÌNH TỰ · DIALOG · 2/2</p>
+  <h1>Ẩn dialog: dỡ ngược từng nấc</h1>
+  <p class="sub">Pause trước hide sau, destroy view rồi mới detach — đúng thứ tự dựng.</p>
+<svg viewBox="0 0 800 348" role="img" aria-labelledby="dlg-show-b-dark-title dlg-show-b-dark-desc" font-family="'Geist', sans-serif">
+<title id="dlg-show-b-dark-title">Ẩn dialog: dỡ ngược từng nấc</title>
+<desc id="dlg-show-b-dark-desc">Tạm dừng rồi ẩn dialog, dừng hẳn rồi hủy view hủy instance và tách ra.</desc>
+<defs>
+<marker id="dlg-show-b-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="dlg-show-b-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="348" fill="#060913"/>
+<!-- lifelines -->
+<line x1="150" y1="84" x2="150" y2="300" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="400" y1="84" x2="400" y2="300" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="650" y1="84" x2="650" y2="300" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="396" y="112" width="8" height="164" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="646" y="144" width="8" height="40" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 150,120 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-show-b-dark-arrow)"/>
+<rect x="235" y="100" width="80" height="12" rx="2" fill="#060913"/>
+<text x="275" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONPAUSE</text>
+<path d="M 650,152 H 674 V 176 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-show-b-dark-arrow)"/>
+<rect x="566" y="154" width="72" height="12" rx="2" fill="#060913"/>
+<text x="602" y="163" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HIDE</text>
+<path d="M 150,192 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-show-b-dark-arrow)"/>
+<rect x="235" y="172" width="80" height="12" rx="2" fill="#060913"/>
+<text x="275" y="181" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONSTOP</text>
+<path d="M 150,224 H 400" fill="none" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#dlg-show-b-dark-accent)"/>
+<rect x="227" y="204" width="96" height="12" rx="2" fill="#060913"/>
+<text x="275" y="213" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONDESTROYVIEW</text>
+<path d="M 150,256 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-show-b-dark-arrow)"/>
+<rect x="231" y="236" width="88" height="12" rx="2" fill="#060913"/>
+<text x="275" y="245" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONDESTROY</text>
+<path d="M 150,288 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-show-b-dark-arrow)"/>
+<rect x="235" y="268" width="80" height="12" rx="2" fill="#060913"/>
+<text x="275" y="277" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONDETACH</text>
+<!-- actors -->
+<rect x="65" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="65" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="150" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FragmentManager</text>
+<text x="150" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">điều phối</text>
+<rect x="315" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="315" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">DialogFragment</text>
+<text x="400" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fragment dialog</text>
+<rect x="565" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="565" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="650" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Dialog</text>
+<text x="650" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">cửa sổ</text>
+<!-- legend -->
+<line x1="32" y1="324" x2="768" y2="324" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="340" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="336" r="4" fill="#38BDF8"/>
+<text x="162" y="340" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐIỂM HỦY VIEW · TIẾP PHẦN 1</text>
+<line x1="440" y1="336" x2="472" y2="336" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#dlg-show-b-dark-arrow)"/>
+<text x="480" y="340" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">DỠ NGƯỢC THỨ TỰ DỰNG</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · SEQUENCE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

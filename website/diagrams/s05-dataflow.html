@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dòng dữ liệu offline-first về Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · SESSION 05</p>
+  <h1>Dòng dữ liệu offline-first về Room</h1>
+  <p class="sub">Mất mạng cũng không trắng màn hình: cache Room nuôi UI qua Flow.</p>
+<svg viewBox="0 0 800 584" role="img" aria-labelledby="s05-dataflow-title s05-dataflow-desc" font-family="'Geist', sans-serif">
+<title id="s05-dataflow-title">Dòng dữ liệu offline-first về Room</title>
+<desc id="s05-dataflow-desc">UI thread yêu cầu dữ liệu, logic app gọi API, response JSON qua background thread ghi vào Room, Room đẩy dữ liệu mới về UI qua Flow; khi mất mạng đọc thẳng cache Room.</desc>
+<defs>
+<marker id="s05-dataflow-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="584" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,92 V 132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s05-dataflow-arrow)"/>
+<rect x="412" y="104" width="64" height="16" rx="2" fill="#F8FAFC"/>
+<text x="420" y="116" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">YÊU CẦU</text>
+<path d="M 400,192 V 232" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s05-dataflow-arrow)"/>
+<rect x="412" y="204" width="56" height="16" rx="2" fill="#F8FAFC"/>
+<text x="420" y="216" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">GỌI API</text>
+<path d="M 400,292 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s05-dataflow-arrow)"/>
+<rect x="412" y="314" width="48" height="16" rx="2" fill="#F8FAFC"/>
+<text x="420" y="326" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">JSON</text>
+<path d="M 400,412 V 472" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s05-dataflow-arrow)"/>
+<rect x="412" y="434" width="72" height="16" rx="2" fill="#F8FAFC"/>
+<text x="420" y="446" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">GHI CACHE</text>
+<path d="M 280,504 H 208 Q 200,504 200,496 V 70 Q 200,62 208,62 H 280" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s05-dataflow-arrow)"/>
+<rect x="96" y="270" width="92" height="16" rx="2" fill="#F8FAFC"/>
+<text x="104" y="282" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">FLOW · ĐẨY DATA</text>
+<path d="M 520,262 H 648 Q 656,262 656,270 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s05-dataflow-arrow)"/>
+<rect x="544" y="242" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="584" y="251" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">MẤT MẠNG?</text>
+<path d="M 656,412 V 440 H 488 Q 480,440 480,448 V 472" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s05-dataflow-arrow)"/>
+<rect x="513" y="420" width="110" height="12" rx="2" fill="#F8FAFC"/>
+<text x="568" y="429" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OFFLINE · CACHE</text>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UI Thread</text>
+<text x="400" y="84" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">hiển thị</text>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="166" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Logic App</text>
+<text x="400" y="184" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">gọi api</text>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="266" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Networking</text>
+<text x="400" y="284" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">retrofit · api</text>
+<rect x="280" y="352" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="352" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Background Thread</text>
+<text x="400" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">parse · cache</text>
+<rect x="280" y="472" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="472" width="240" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="288" y="478" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="314" y="487" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
+<text x="400" y="510" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Room Database</text>
+<text x="400" y="528" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">cache local</text>
+<rect x="560" y="352" width="192" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="560" y="352" width="192" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="656" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Connection State</text>
+<text x="656" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">mất mạng?</text>
+<!-- legend -->
+<line x1="32" y1="560" x2="768" y2="560" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="572" r="4" fill="#0284C7"/>
+<text x="162" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · ROOM</text>
+<line x1="330" y1="572" x2="362" y2="572" stroke="#64748B" stroke-width="1.2" marker-end="url(#s05-dataflow-arrow)"/>
+<text x="370" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">LUỒNG DỮ LIỆU</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

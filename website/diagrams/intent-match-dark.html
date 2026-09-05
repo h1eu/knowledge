@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ba bài kiểm tra của intent-filter</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ TRÌNH TỰ · INTENT FILTER</p>
+  <h1>Ba bài kiểm tra của intent-filter</h1>
+  <p class="sub">Trượt một trong ba là loại — đúng một thì mở, nhiều thì hỏi, không có thì nổ lỗi.</p>
+<svg viewBox="0 0 800 552" role="img" aria-labelledby="intent-match-dark-title intent-match-dark-desc" font-family="'Geist', sans-serif">
+<title id="intent-match-dark-title">Ba bài kiểm tra của intent-filter</title>
+<desc id="intent-match-dark-desc">Kiểm tra action data category, khớp thì vào danh sách, rồi mở thẳng hoặc hỏi hoặc báo lỗi theo số lượng.</desc>
+<defs>
+<marker id="intent-match-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="intent-match-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="552" fill="#060913"/>
+<!-- lifelines -->
+<line x1="150" y1="84" x2="150" y2="504" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="400" y1="84" x2="400" y2="504" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="650" y1="84" x2="650" y2="504" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="396" y="112" width="8" height="352" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="646" y="144" width="8" height="160" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="146" y="384" width="8" height="96" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 150,120 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#intent-match-dark-arrow)"/>
+<rect x="227" y="100" width="96" height="12" rx="2" fill="#060913"/>
+<text x="275" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GỌI NGẦM</text>
+<path d="M 400,152 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#intent-match-dark-arrow)"/>
+<rect x="485" y="132" width="80" height="12" rx="2" fill="#060913"/>
+<text x="525" y="141" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">MATCH 3 TEST</text>
+<!-- alt frame 1 -->
+<rect x="138" y="184" width="524" height="128" rx="4" fill="rgba(248,250,252,0.04)" stroke="rgba(248,250,252,0.22)" stroke-width="1"/>
+<rect x="138" y="184" width="48" height="16" rx="2" fill="#060913" stroke="rgba(248,250,252,0.22)" stroke-width="1"/>
+<text x="162" y="196" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.12em">ALT</text>
+<text x="150" y="216" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.04em">[3 test khớp]</text>
+<path d="M 650,236 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#intent-match-dark-arrow)"/>
+<rect x="481" y="216" width="88" height="12" rx="2" fill="#060913"/>
+<text x="525" y="225" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VÀO DANH SÁCH</text>
+<line x1="146" y1="260" x2="654" y2="260" stroke="rgba(248,250,252,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="150" y="276" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.04em">[1 test trượt]</text>
+<path d="M 650,292 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#intent-match-dark-arrow)"/>
+<rect x="481" y="272" width="88" height="12" rx="2" fill="#060913"/>
+<text x="525" y="281" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BỎ QUA FILTER</text>
+<!-- alt frame 2 -->
+<rect x="138" y="336" width="274" height="152" rx="4" fill="rgba(248,250,252,0.04)" stroke="rgba(248,250,252,0.22)" stroke-width="1"/>
+<rect x="138" y="336" width="48" height="16" rx="2" fill="#060913" stroke="rgba(248,250,252,0.22)" stroke-width="1"/>
+<text x="162" y="348" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.12em">ALT</text>
+<text x="150" y="368" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.04em">[đúng 1]</text>
+<path d="M 400,388 H 150" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#intent-match-dark-accent)"/>
+<rect x="227" y="368" width="96" height="12" rx="2" fill="#060913"/>
+<text x="275" y="377" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">MỞ THẲNG</text>
+<line x1="146" y1="412" x2="404" y2="412" stroke="rgba(248,250,252,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="150" y="428" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.04em">[0 khớp →]</text>
+<path d="M 400,444 H 150" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#intent-match-dark-arrow)"/>
+<rect x="227" y="424" width="96" height="12" rx="2" fill="#060913"/>
+<text x="275" y="433" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">EXCEPTION</text>
+<text x="150" y="456" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.04em">[nhiều →]</text>
+<path d="M 400,472 H 150" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#intent-match-dark-arrow)"/>
+<rect x="227" y="452" width="96" height="12" rx="2" fill="#060913"/>
+<text x="275" y="461" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHOOSER</text>
+<!-- actors -->
+<rect x="65" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="65" y="32" width="170" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="150" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng gọi</text>
+<text x="150" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app</text>
+<rect x="315" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="315" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">PackageManager</text>
+<text x="400" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ams</text>
+<rect x="565" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="565" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="650" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Intent Filter</text>
+<text x="650" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app B</text>
+<!-- legend -->
+<line x1="32" y1="528" x2="768" y2="528" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="544" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="540" r="4" fill="#38BDF8"/>
+<text x="162" y="544" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐÚNG MỘT · MỞ THẲNG</text>
+<line x1="430" y1="540" x2="462" y2="540" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#intent-match-dark-arrow)"/>
+<text x="470" y="544" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · TRẢ VỀ THEO NHÁNH</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · SEQUENCE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

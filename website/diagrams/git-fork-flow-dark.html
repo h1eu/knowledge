@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fork trước, PR sau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ CỘNG TÁC · FORK &amp; PR</p>
+  <h1>Fork trước, PR sau</h1>
+  <p class="sub">Fork về làm của mình, clone xuống máy, push lên rồi mở PR về gốc.</p>
+<svg viewBox="0 0 800 480" role="img" aria-labelledby="git-fork-flow-dark-title git-fork-flow-dark-desc" font-family="'Geist', sans-serif">
+<title id="git-fork-flow-dark-title">Fork trước, PR sau</title>
+<desc id="git-fork-flow-dark-desc">Fork từ upstream về origin, clone xuống local, làm xong push lên origin rồi mở pull request về upstream.</desc>
+<defs>
+<marker id="git-fork-flow-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="480" fill="#060913"/>
+<!-- arrows -->
+<path d="M 540,64 H 572 Q 580,64 580,72 V 224 Q 580,232 572,232 H 540" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-fork-flow-dark-arrow)"/>
+<rect x="524" y="140" width="112" height="12" rx="2" fill="#060913"/>
+<text x="580" y="149" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">1. FORK (TRÊN WEB)</text>
+<path d="M 260,232 H 228 Q 220,232 220,240 V 392 Q 220,400 228,400 H 260" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-fork-flow-dark-arrow)"/>
+<rect x="164" y="312" width="72" height="12" rx="2" fill="#060913"/>
+<text x="200" y="321" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">2. CLONE</text>
+<path d="M 400,368 V 264" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-fork-flow-dark-arrow)"/>
+<rect x="412" y="308" width="136" height="12" rx="2" fill="#060913"/>
+<text x="480" y="317" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">3. BRANCH + COMMIT + PUSH</text>
+<path d="M 400,200 V 96" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-fork-flow-dark-arrow)"/>
+<rect x="412" y="140" width="96" height="12" rx="2" fill="#060913"/>
+<text x="460" y="149" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">4. PULL REQUEST</text>
+<!-- nodes -->
+<rect x="260" y="32" width="280" height="64" rx="6" fill="#060913"/>
+<rect x="260" y="32" width="280" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Upstream</text>
+<text x="400" y="80" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">owner/repo</text>
+<rect x="260" y="200" width="280" height="64" rx="6" fill="#060913"/>
+<rect x="260" y="200" width="280" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Origin</text>
+<text x="400" y="248" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">you/repo</text>
+<rect x="260" y="368" width="280" height="64" rx="6" fill="#060913"/>
+<rect x="260" y="368" width="280" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="402" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Local</text>
+<text x="400" y="416" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">máy bạn</text>
+<!-- legend -->
+<line x1="32" y1="456" x2="768" y2="456" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="472" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="468" r="4" fill="#38BDF8"/>
+<text x="162" y="472" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRUNG TÂM · ORIGIN (YOU/REPO)</text>
+<line x1="430" y1="468" x2="462" y2="468" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-fork-flow-dark-arrow)"/>
+<text x="470" y="472" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">FORK / CLONE / PUSH / PR</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

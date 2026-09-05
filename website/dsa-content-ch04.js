@@ -16,7 +16,7 @@ Object.assign(DSA_CONTENT, {
     content: `
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_array_and_linkedlist.jpg" alt="Mảng & Danh sách liên kết" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_array_and_linkedlist.jpg" alt="Mảng & Danh sách liên kết" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <div class="callout callout-note">
   <span class="callout-icon">✨</span>
@@ -56,7 +56,7 @@ Object.assign(DSA_CONTENT, {
 <h2>4.1.1 Định nghĩa Mảng</h2>
 <p><strong>Mảng (Array)</strong> là một cấu trúc dữ liệu tuyến tính lưu trữ các phần tử cùng kiểu trong vùng nhớ liên tục. Vị trí của một phần tử trong mảng được gọi là <strong>chỉ mục (index)</strong> của phần tử đó. Hình dưới đây minh họa các khái niệm chính và phương thức lưu trữ của mảng.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/array_definition.png" alt="Định nghĩa và phương thức lưu trữ của mảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/array_definition.png" alt="Định nghĩa và phương thức lưu trữ của mảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>4.1.2 Các thao tác phổ biến trên Mảng</h2>
@@ -80,7 +80,7 @@ var nums = [1, 3, 2, 5, 4];</code></pre></div></div></div>
 <h3>4.1.2.2 Truy cập phần tử</h3>
 <p>Các phần tử mảng được lưu trữ trong vùng nhớ liên tục, điều này có nghĩa là việc tính toán địa chỉ bộ nhớ của các phần tử mảng rất dễ dàng. Cho trước địa chỉ bộ nhớ của mảng (địa chỉ bộ nhớ của phần tử đầu tiên) và chỉ mục của một phần tử, chúng ta có thể sử dụng công thức như hình dưới đây để tính trực tiếp địa chỉ bộ nhớ của phần tử đó và truy cập nó.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/array_memory_location_calculation.png" alt="Tính toán địa chỉ bộ nhớ của phần tử mảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/array_memory_location_calculation.png" alt="Tính toán địa chỉ bộ nhớ của phần tử mảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Quan sát hình trên, chúng ta nhận thấy phần tử đầu tiên của mảng có chỉ mục là $0$, điều này có vẻ phản trực giác vì đếm từ $1$ sẽ tự nhiên hơn. Tuy nhiên, xét từ góc độ công thức tính địa chỉ, <strong>chỉ mục thực chất là độ lệch (offset) so với địa chỉ bộ nhớ gốc</strong>. Độ lệch địa chỉ của phần tử đầu tiên là $0$, vì vậy chỉ mục của nó là $0$ là hoàn toàn hợp lý.</p>
 <p>Việc truy cập các phần tử trong mảng có hiệu suất rất cao; chúng ta có thể truy cập ngẫu nhiên bất kỳ phần tử nào trong mảng trong thời gian $O(1)$.</p>
@@ -121,7 +121,7 @@ int randomAccess(int *nums, int size) {
 <h3>4.1.2.3 Chèn phần tử</h3>
 <p>Các phần tử mảng được xếp chặt sít nhau trong bộ nhớ, không có khoảng trống thừa giữa chúng để chứa thêm dữ liệu. Như minh họa trong hình dưới đây, nếu chúng ta muốn chèn một phần tử vào giữa mảng, chúng ta cần dịch chuyển tất cả các phần tử phía sau sang phải một vị trí rồi mới gán giá trị tại chỉ mục đó.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/array_insert_element.png" alt="Ví dụ chèn phần tử vào mảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/array_insert_element.png" alt="Ví dụ chèn phần tử vào mảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Cần lưu ý rằng do độ dài mảng là cố định, việc chèn phần tử chắc chắn sẽ đẩy phần tử cuối cùng ra ngoài mảng. Chúng ta sẽ để giải pháp cho vấn đề này trong phần thảo luận ở mục "List".</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Chèn phần tử num vào chỉ mục index trong mảng */
@@ -177,7 +177,7 @@ void insert(int *nums, int size, int num, int index) {
 <h3>4.1.2.4 Xóa phần tử</h3>
 <p>Tương tự, như hình dưới đây, để xóa phần tử tại chỉ mục $i$, chúng ta cần dịch chuyển tất cả các phần tử sau chỉ mục $i$ về phía trước một vị trí.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/array_remove_element.png" alt="Ví dụ xóa phần tử khỏi mảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/array_remove_element.png" alt="Ví dụ xóa phần tử khỏi mảng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Lưu ý rằng sau khi xóa xong, phần tử cuối cùng ban đầu không còn ý nghĩa, vì vậy chúng ta không cần phải sửa đổi nó một cách tường minh.</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Xóa phần tử tại chỉ mục index */
@@ -238,11 +238,11 @@ void remove(int *nums, int size, int index) {
   <div class="widget-tab-content active" data-tab="tab-static">
     <div style="display:flex; gap: 1em; flex-wrap: wrap; justify-content: center;">
       <div style="flex: 1 1 260px; text-align:center;">
-        <img src="dsa-assets/array_insert_element.png" alt="Ví dụ chèn phần tử vào mảng" style="max-width:100%; border-radius: var(--radius-md);" />
+        <img loading="lazy" src="dsa-assets/array_insert_element.png" alt="Ví dụ chèn phần tử vào mảng" style="max-width:100%; border-radius: var(--radius-md);" />
         <p style="font-size: 13px; color: var(--text-secondary);">Chèn phần tử vào mảng</p>
       </div>
       <div style="flex: 1 1 260px; text-align:center;">
-        <img src="dsa-assets/array_remove_element.png" alt="Ví dụ xóa phần tử khỏi mảng" style="max-width:100%; border-radius: var(--radius-md);" />
+        <img loading="lazy" src="dsa-assets/array_remove_element.png" alt="Ví dụ xóa phần tử khỏi mảng" style="max-width:100%; border-radius: var(--radius-md);" />
         <p style="font-size: 13px; color: var(--text-secondary);">Xóa phần tử khỏi mảng</p>
       </div>
     </div>
@@ -701,7 +701,7 @@ Arrays are a fundamental and common data structure, frequently used in various a
 <p>Một <strong>danh sách liên kết (linked list)</strong> là một cấu trúc dữ liệu tuyến tính, trong đó mỗi phần tử là một đối tượng node, và các node được kết nối với nhau thông qua "tham chiếu". Một tham chiếu ghi lại địa chỉ bộ nhớ của node kế tiếp, nhờ đó có thể truy cập node kế tiếp từ node hiện tại.</p>
 <p>Thiết kế này cho phép các node của danh sách liên kết được lưu trữ tại nhiều vị trí khác nhau trong bộ nhớ, và địa chỉ của chúng không cần phải liên tục.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/linkedlist_definition.png" alt="Định nghĩa và phương thức lưu trữ của danh sách liên kết" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/linkedlist_definition.png" alt="Định nghĩa và phương thức lưu trữ của danh sách liên kết" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Quan sát hình trên, đơn vị cơ bản của danh sách liên kết là đối tượng <strong>node (nút)</strong>. Mỗi node chứa hai phần dữ liệu: "giá trị" của node và "tham chiếu" đến node kế tiếp.</p>
 <ul>
@@ -787,7 +787,7 @@ n3.next = n4;</code></pre></div></div></div>
 <p>Việc chèn một node vào danh sách liên kết rất dễ dàng. Như hình dưới đây, giả sử chúng ta muốn chèn một node mới <code>P</code> vào giữa hai node liền kề <code>n0</code> và <code>n1</code>. <strong>Chúng ta chỉ cần thay đổi hai tham chiếu (con trỏ) node</strong>, với độ phức tạp thời gian là $O(1)$.</p>
 <p>Ngược lại, độ phức tạp thời gian của việc chèn một phần tử trong mảng là $O(n)$, kém hiệu quả khi xử lý lượng dữ liệu lớn.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/linkedlist_insert_node.png" alt="Ví dụ chèn node vào danh sách liên kết" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/linkedlist_insert_node.png" alt="Ví dụ chèn node vào danh sách liên kết" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Chèn node P vào sau node n0 trong danh sách liên kết */
 static void insert(ListNode n0, ListNode P) {
@@ -835,7 +835,7 @@ void insert(ListNode *n0, ListNode *P) {
 <p>Như hình dưới đây, việc xóa một node trong danh sách liên kết cũng rất thuận tiện. <strong>Chúng ta chỉ cần thay đổi tham chiếu (con trỏ) của một node</strong>.</p>
 <p>Lưu ý rằng mặc dù node <code>P</code> vẫn trỏ đến <code>n1</code> sau khi thao tác xóa hoàn tất, danh sách liên kết không còn có thể truy cập <code>P</code> khi duyệt, nghĩa là <code>P</code> không còn thuộc về danh sách liên kết này nữa.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/linkedlist_remove_node.png" alt="Xóa node khỏi danh sách liên kết" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/linkedlist_remove_node.png" alt="Xóa node khỏi danh sách liên kết" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Xóa node đứng ngay sau node n0 trong danh sách liên kết */
 static void remove(ListNode n0) {
@@ -898,11 +898,11 @@ void remove(ListNode *n0) {
   <div class="widget-tab-content active" data-tab="tab-static">
     <div style="display:flex; gap: 1em; flex-wrap: wrap; justify-content: center;">
       <div style="flex: 1 1 260px; text-align:center;">
-        <img src="dsa-assets/linkedlist_insert_node.png" alt="Ví dụ chèn node vào danh sách liên kết" style="max-width:100%; border-radius: var(--radius-md);" />
+        <img loading="lazy" src="dsa-assets/linkedlist_insert_node.png" alt="Ví dụ chèn node vào danh sách liên kết" style="max-width:100%; border-radius: var(--radius-md);" />
         <p style="font-size: 13px; color: var(--text-secondary);">Chèn node vào danh sách liên kết</p>
       </div>
       <div style="flex: 1 1 260px; text-align:center;">
-        <img src="dsa-assets/linkedlist_remove_node.png" alt="Ví dụ xóa node khỏi danh sách liên kết" style="max-width:100%; border-radius: var(--radius-md);" />
+        <img loading="lazy" src="dsa-assets/linkedlist_remove_node.png" alt="Ví dụ xóa node khỏi danh sách liên kết" style="max-width:100%; border-radius: var(--radius-md);" />
         <p style="font-size: 13px; color: var(--text-secondary);">Xóa node khỏi danh sách liên kết</p>
       </div>
     </div>
@@ -1091,7 +1091,7 @@ class ListNode {
     }
 }</code></pre></div></div></div>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/linkedlist_common_types.png" alt="Các loại danh sách liên kết phổ biến" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/linkedlist_common_types.png" alt="Các loại danh sách liên kết phổ biến" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>4.2.5 Ứng dụng điển hình của Danh sách liên kết</h2>
@@ -3354,7 +3354,7 @@ To deepen our understanding of how lists work, we attempt to implement a simple 
   <li><strong>Cache không thể vừa có dung lượng lớn vừa có tốc độ cao.</strong> Khi dung lượng cache L1, L2, L3 tăng lên, kích thước vật lý của chúng trở nên lớn hơn, và khoảng cách vật lý giữa chúng với lõi CPU tăng lên, dẫn đến thời gian truyền dữ liệu lâu hơn và độ trễ truy cập phần tử cao hơn. Với công nghệ hiện tại, cấu trúc cache nhiều lớp đại diện cho điểm cân bằng tốt nhất giữa dung lượng, tốc độ và chi phí.</li>
 </ul>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/storage_pyramid.png" alt="Hệ thống lưu trữ của máy tính" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/storage_pyramid.png" alt="Hệ thống lưu trữ của máy tính" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <div class="callout callout-tip">
   <span class="callout-icon">💡</span>
@@ -3365,7 +3365,7 @@ To deepen our understanding of how lists work, we attempt to implement a simple 
 <p>Tóm lại, <strong>ổ đĩa cứng được dùng để lưu trữ dài hạn lượng lớn dữ liệu, RAM được dùng để lưu trữ tạm thời dữ liệu đang được xử lý trong khi chương trình chạy, và cache được dùng để lưu trữ dữ liệu và lệnh được truy cập thường xuyên</strong>, từ đó cải thiện hiệu suất thực thi chương trình. Cả ba phối hợp với nhau để giữ cho hệ thống máy tính hoạt động hiệu quả.</p>
 <p>Như sơ đồ dưới đây, trong quá trình chạy chương trình, dữ liệu được đọc từ ổ đĩa cứng vào RAM để CPU tính toán. Cache có thể được xem là một phần của CPU. <strong>Bằng cách nạp dữ liệu một cách thông minh từ RAM</strong>, nó cung cấp cho CPU khả năng truy cập dữ liệu tốc độ cao, cải thiện đáng kể hiệu suất thực thi chương trình và giảm sự phụ thuộc vào RAM chậm hơn.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/computer_storage_devices.png" alt="Luồng dữ liệu giữa Ổ đĩa cứng, RAM và Cache" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/computer_storage_devices.png" alt="Luồng dữ liệu giữa Ổ đĩa cứng, RAM và Cache" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>4.4.2 Hiệu suất bộ nhớ của các cấu trúc dữ liệu</h2>

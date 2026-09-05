@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gửi sự kiện kiểu nào cho đúng việc</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ PHÂN LOẠI · INTENT</p>
+  <h1>Gửi sự kiện kiểu nào cho đúng việc</h1>
+  <p class="sub">Trong app thì Flow, điểm-điểm thì PendingIntent, một-nhiều thì Broadcast.</p>
+<svg viewBox="0 0 800 516" role="img" aria-labelledby="intent-taxonomy-title intent-taxonomy-desc" font-family="'Geist', sans-serif">
+<title id="intent-taxonomy-title">Gửi sự kiện kiểu nào cho đúng việc</title>
+<desc id="intent-taxonomy-desc">Sự kiện UI dùng SharedFlow, đẩy dữ liệu điểm-điểm kèm PendingIntent, gửi một-nhiều qua Broadcast Receiver.</desc>
+<defs>
+<marker id="intent-taxonomy-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="516" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 248,76 H 480" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#intent-taxonomy-arrow)"/>
+<rect x="324" y="56" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="360" y="65" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">TRONG APP</text>
+<path d="M 248,168 H 480" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#intent-taxonomy-arrow)"/>
+<rect x="316" y="148" width="88" height="12" rx="2" fill="#F8FAFC"/>
+<text x="360" y="157" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BUNDLE ĐIỂM-ĐIỂM</text>
+<path d="M 248,260 H 480" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#intent-taxonomy-arrow)"/>
+<rect x="320" y="240" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="360" y="249" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BROADCAST</text>
+<path d="M 248,352 H 480" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#intent-taxonomy-arrow)"/>
+<path d="M 580,196 V 220 H 372 Q 364,220 364,228 V 432 H 472 Q 480,432 480,440" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#intent-taxonomy-arrow)"/>
+<path d="M 580,288 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#intent-taxonomy-arrow)"/>
+<!-- nodes -->
+<rect x="48" y="48" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="48" y="48" width="200" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="148" y="82" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UiEvent</text>
+<text x="148" y="98" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">navigate · snackbar</text>
+<rect x="480" y="48" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="480" y="48" width="200" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="488" y="54" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="514" y="63" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">NÊN</text>
+<text x="580" y="86" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">SharedFlow</text>
+<rect x="48" y="140" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="48" y="140" width="200" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="148" y="174" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Intent Push</text>
+<text x="148" y="190" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">startactivity</text>
+<rect x="480" y="140" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="480" y="140" width="200" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="580" y="174" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Điểm-điểm</text>
+<rect x="48" y="232" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="48" y="232" width="200" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="148" y="266" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Intent Send</text>
+<text x="148" y="282" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">sendbroadcast</text>
+<rect x="480" y="232" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="480" y="232" width="200" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="580" y="266" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Một-nhiều</text>
+<rect x="48" y="324" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="48" y="324" width="200" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="148" y="358" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">System Event</text>
+<text x="148" y="374" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">boot_completed</text>
+<rect x="480" y="324" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="480" y="324" width="200" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="580" y="358" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">BroadcastReceiver</text>
+<text x="580" y="374" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhận hệ thống</text>
+<rect x="480" y="412" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="480" y="412" width="200" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="580" y="446" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">PendingIntent</text>
+<text x="580" y="462" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ủy quyền os</text>
+<!-- legend -->
+<line x1="32" y1="492" x2="768" y2="492" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="508" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="504" r="4" fill="#0284C7"/>
+<text x="162" y="508" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐÚNG VIỆC · TRONG APP</text>
+<line x1="430" y1="504" x2="462" y2="504" stroke="#64748B" stroke-width="1.2" marker-end="url(#intent-taxonomy-arrow)"/>
+<text x="470" y="508" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỖI HÀNG MỘT KIỂU</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · TAXONOMY · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

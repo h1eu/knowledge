@@ -16,7 +16,7 @@ Object.assign(DSA_CONTENT, {
     readTime: '1 phút',
     content: `
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_sorting.jpg" alt="Sắp xếp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_sorting.jpg" alt="Sắp xếp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <div class="callout callout-note">
   <span class="callout-icon">✨</span>
@@ -52,7 +52,7 @@ Object.assign(DSA_CONTENT, {
 <p>Một <u>thuật toán sắp xếp (sorting algorithm)</u> sắp xếp một tập dữ liệu theo một thứ tự cụ thể. Thuật toán sắp xếp có ứng dụng rộng rãi vì dữ liệu có thứ tự thường có thể được tìm kiếm, phân tích và xử lý hiệu quả hơn.</p>
 <p>Như hình minh họa bên dưới, dữ liệu được sắp xếp có thể là số nguyên, số thực dấu phẩy động, ký tự, chuỗi, v.v. Quy tắc sắp xếp có thể được định nghĩa tùy theo nhu cầu, chẳng hạn theo thứ tự số học, thứ tự ASCII, hoặc một quy tắc tùy chỉnh.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/sorting_examples.png" alt="Ví dụ về kiểu dữ liệu và tiêu chí sắp xếp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/sorting_examples.png" alt="Ví dụ về kiểu dữ liệu và tiêu chí sắp xếp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>11.1.1 Các Chiều kích Đánh giá</h2>
@@ -156,17 +156,17 @@ Next, we will examine various sorting algorithms and analyze their advantages an
 
 <div class="interactive-widget-wrapper" id="selection-sort-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/selection_sort_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Bước 1: khởi tạo, khoảng chưa sắp xếp là toàn bộ mảng.</p></div>
-    <div class="slide"><img src="dsa-assets/selection_sort_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
-    <div class="slide"><img src="dsa-assets/selection_sort_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
-    <div class="slide"><img src="dsa-assets/selection_sort_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
-    <div class="slide"><img src="dsa-assets/selection_sort_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
-    <div class="slide"><img src="dsa-assets/selection_sort_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
-    <div class="slide"><img src="dsa-assets/selection_sort_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7.</p></div>
-    <div class="slide"><img src="dsa-assets/selection_sort_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8.</p></div>
-    <div class="slide"><img src="dsa-assets/selection_sort_step9.png" alt="Bước 9" style="max-width:100%;" /><p class="slide-caption">Bước 9.</p></div>
-    <div class="slide"><img src="dsa-assets/selection_sort_step10.png" alt="Bước 10" style="max-width:100%;" /><p class="slide-caption">Bước 10.</p></div>
-    <div class="slide"><img src="dsa-assets/selection_sort_step11.png" alt="Bước 11" style="max-width:100%;" /><p class="slide-caption">Bước 11: hoàn tất, mảng đã được sắp xếp.</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/selection_sort_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Bước 1: khởi tạo, khoảng chưa sắp xếp là toàn bộ mảng.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/selection_sort_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/selection_sort_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/selection_sort_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/selection_sort_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/selection_sort_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/selection_sort_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/selection_sort_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/selection_sort_step9.png" alt="Bước 9" style="max-width:100%;" /><p class="slide-caption">Bước 9.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/selection_sort_step10.png" alt="Bước 10" style="max-width:100%;" /><p class="slide-caption">Bước 10.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/selection_sort_step11.png" alt="Bước 11" style="max-width:100%;" /><p class="slide-caption">Bước 11: hoàn tất, mảng đã được sắp xếp.</p></div>
     <div class="slider-controls">
       <button class="slider-btn" onclick="prevSlide('selection-sort-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 11</span>
@@ -255,7 +255,7 @@ void selectionSort(vector&lt;int&gt; &amp;nums) {
   <li><strong>Sắp xếp không ổn định</strong>: Như hình bên dưới, phần tử <code>nums[i]</code> có thể bị hoán đổi sang bên phải của một phần tử bằng nó, khiến thứ tự tương đối của chúng thay đổi.</li>
 </ul>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/selection_sort_instability.png" alt="Ví dụ tính không ổn định của sắp xếp chọn" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/selection_sort_instability.png" alt="Ví dụ tính không ổn định của sắp xếp chọn" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>11.2.2 Mô phỏng tương tác</h2>
@@ -359,13 +359,13 @@ In the code, we use $k$ to track the smallest element within the unsorted interv
 
 <div class="interactive-widget-wrapper" id="bubble-sort-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/bubble_operation_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Mô phỏng "nổi bọt" bằng cách hoán đổi phần tử — bước 1.</p></div>
-    <div class="slide"><img src="dsa-assets/bubble_operation_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
-    <div class="slide"><img src="dsa-assets/bubble_operation_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
-    <div class="slide"><img src="dsa-assets/bubble_operation_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
-    <div class="slide"><img src="dsa-assets/bubble_operation_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
-    <div class="slide"><img src="dsa-assets/bubble_operation_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
-    <div class="slide"><img src="dsa-assets/bubble_operation_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7: phần tử lớn nhất đã nổi lên đầu bên phải.</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/bubble_operation_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Mô phỏng "nổi bọt" bằng cách hoán đổi phần tử — bước 1.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bubble_operation_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bubble_operation_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bubble_operation_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bubble_operation_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bubble_operation_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bubble_operation_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7: phần tử lớn nhất đã nổi lên đầu bên phải.</p></div>
     <div class="slider-controls">
       <button class="slider-btn" onclick="prevSlide('bubble-sort-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 7</span>
@@ -383,7 +383,7 @@ In the code, we use $k$ to track the smallest element within the unsorted interv
   <li>Phần tử duy nhất còn lại chắc chắn là phần tử nhỏ nhất, không cần sắp xếp, vậy nên việc sắp xếp mảng đã hoàn tất.</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/bubble_sort_overview.png" alt="Quy trình sắp xếp nổi bọt" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/bubble_sort_overview.png" alt="Quy trình sắp xếp nổi bọt" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Đoạn mã ví dụ như sau:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="swift"><pre data-lang="swift"><code>func bubbleSort(nums: inout [Int]) {
@@ -635,7 +635,7 @@ After this optimization, the worst-case and average-case time complexities of bu
 <p>Cụ thể, ta chọn một phần tử cơ sở (base) từ phần chưa sắp xếp, so sánh nó lần lượt với các phần tử trong phần đã sắp xếp ở bên trái, và chèn nó vào đúng vị trí.</p>
 <p>Hình bên dưới minh họa cách một phần tử được chèn vào mảng. Gọi phần tử cơ sở là <code>base</code>. Ta cần dịch tất cả các phần tử giữa chỉ mục mục tiêu và <code>base</code> sang phải một vị trí, sau đó gán <code>base</code> vào chỉ mục mục tiêu.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/insertion_operation.png" alt="Thao tác chèn đơn lẻ" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/insertion_operation.png" alt="Thao tác chèn đơn lẻ" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>11.4.1 Quy trình Thuật toán</h2>
@@ -647,7 +647,7 @@ After this optimization, the worst-case and average-case time complexities of bu
   <li>Tiếp tục như vậy. Ở vòng cuối cùng, chọn phần tử cuối cùng làm <code>base</code>, và sau khi chèn nó vào đúng vị trí, <strong>tất cả các phần tử đã được sắp xếp</strong>.</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/insertion_sort_overview.png" alt="Quy trình sắp xếp chèn" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/insertion_sort_overview.png" alt="Quy trình sắp xếp chèn" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Đoạn mã ví dụ như sau:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp chèn */
@@ -823,15 +823,15 @@ Although bubble sort, selection sort, and insertion sort all have a time complex
 
 <div class="interactive-widget-wrapper" id="quick-sort-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/pivot_division_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Các bước phân vùng lính canh — bước 1.</p></div>
-    <div class="slide"><img src="dsa-assets/pivot_division_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
-    <div class="slide"><img src="dsa-assets/pivot_division_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
-    <div class="slide"><img src="dsa-assets/pivot_division_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
-    <div class="slide"><img src="dsa-assets/pivot_division_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
-    <div class="slide"><img src="dsa-assets/pivot_division_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
-    <div class="slide"><img src="dsa-assets/pivot_division_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7.</p></div>
-    <div class="slide"><img src="dsa-assets/pivot_division_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8.</p></div>
-    <div class="slide"><img src="dsa-assets/pivot_division_step9.png" alt="Bước 9" style="max-width:100%;" /><p class="slide-caption">Bước 9: pivot đã ở đúng vị trí ranh giới.</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/pivot_division_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Các bước phân vùng lính canh — bước 1.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/pivot_division_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/pivot_division_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/pivot_division_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/pivot_division_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/pivot_division_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/pivot_division_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/pivot_division_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/pivot_division_step9.png" alt="Bước 9" style="max-width:100%;" /><p class="slide-caption">Bước 9: pivot đã ở đúng vị trí ranh giới.</p></div>
     <div class="slider-controls">
       <button class="slider-btn" onclick="prevSlide('quick-sort-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 9</span>
@@ -914,7 +914,7 @@ int partition(vector&lt;int&gt; &amp;nums, int left, int right) {
   <li>Tiếp tục đệ quy cho đến khi độ dài mảng con là 1, lúc đó việc sắp xếp toàn bộ mảng đã hoàn tất.</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/quick_sort_overview.png" alt="Quy trình sắp xếp nhanh" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/quick_sort_overview.png" alt="Quy trình sắp xếp nhanh" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp nhanh */
 public static void quickSort(int[] nums, int left, int right) {
@@ -1304,7 +1304,7 @@ To prevent stack frames from accumulating, we can compare the lengths of the two
   <li><strong>Giai đoạn trộn (Merge)</strong>: Khi một mảng con có độ dài 1, dừng chia và bắt đầu trộn, liên tục kết hợp các mảng con đã sắp xếp bên trái và phải thành một mảng dài hơn đã sắp xếp cho tới khi hoàn tất.</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/merge_sort_overview.png" alt="Giai đoạn chia và trộn của sắp xếp trộn" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/merge_sort_overview.png" alt="Giai đoạn chia và trộn của sắp xếp trộn" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>11.6.1 Quy trình Thuật toán</h2>
@@ -1317,16 +1317,16 @@ To prevent stack frames from accumulating, we can compare the lengths of the two
 
 <div class="interactive-widget-wrapper" id="merge-sort-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/merge_sort_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Các bước sắp xếp trộn — bước 1.</p></div>
-    <div class="slide"><img src="dsa-assets/merge_sort_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
-    <div class="slide"><img src="dsa-assets/merge_sort_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
-    <div class="slide"><img src="dsa-assets/merge_sort_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
-    <div class="slide"><img src="dsa-assets/merge_sort_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
-    <div class="slide"><img src="dsa-assets/merge_sort_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
-    <div class="slide"><img src="dsa-assets/merge_sort_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7.</p></div>
-    <div class="slide"><img src="dsa-assets/merge_sort_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8.</p></div>
-    <div class="slide"><img src="dsa-assets/merge_sort_step9.png" alt="Bước 9" style="max-width:100%;" /><p class="slide-caption">Bước 9.</p></div>
-    <div class="slide"><img src="dsa-assets/merge_sort_step10.png" alt="Bước 10" style="max-width:100%;" /><p class="slide-caption">Bước 10: hoàn tất, mảng đã được trộn và sắp xếp.</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/merge_sort_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Các bước sắp xếp trộn — bước 1.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/merge_sort_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/merge_sort_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/merge_sort_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/merge_sort_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/merge_sort_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/merge_sort_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/merge_sort_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/merge_sort_step9.png" alt="Bước 9" style="max-width:100%;" /><p class="slide-caption">Bước 9.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/merge_sort_step10.png" alt="Bước 10" style="max-width:100%;" /><p class="slide-caption">Bước 10: hoàn tất, mảng đã được trộn và sắp xếp.</p></div>
     <div class="slider-controls">
       <button class="slider-btn" onclick="prevSlide('merge-sort-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 10</span>
@@ -1673,18 +1673,18 @@ The specific implementation details are quite complex, and interested readers ca
 
 <div class="interactive-widget-wrapper" id="heap-sort-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/heap_sort_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Các bước sắp xếp vun đống — bước 1.</p></div>
-    <div class="slide"><img src="dsa-assets/heap_sort_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
-    <div class="slide"><img src="dsa-assets/heap_sort_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
-    <div class="slide"><img src="dsa-assets/heap_sort_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
-    <div class="slide"><img src="dsa-assets/heap_sort_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
-    <div class="slide"><img src="dsa-assets/heap_sort_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
-    <div class="slide"><img src="dsa-assets/heap_sort_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7.</p></div>
-    <div class="slide"><img src="dsa-assets/heap_sort_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8.</p></div>
-    <div class="slide"><img src="dsa-assets/heap_sort_step9.png" alt="Bước 9" style="max-width:100%;" /><p class="slide-caption">Bước 9.</p></div>
-    <div class="slide"><img src="dsa-assets/heap_sort_step10.png" alt="Bước 10" style="max-width:100%;" /><p class="slide-caption">Bước 10.</p></div>
-    <div class="slide"><img src="dsa-assets/heap_sort_step11.png" alt="Bước 11" style="max-width:100%;" /><p class="slide-caption">Bước 11.</p></div>
-    <div class="slide"><img src="dsa-assets/heap_sort_step12.png" alt="Bước 12" style="max-width:100%;" /><p class="slide-caption">Bước 12: hoàn tất, mảng đã được sắp xếp.</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/heap_sort_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Các bước sắp xếp vun đống — bước 1.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_sort_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_sort_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_sort_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_sort_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_sort_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_sort_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_sort_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_sort_step9.png" alt="Bước 9" style="max-width:100%;" /><p class="slide-caption">Bước 9.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_sort_step10.png" alt="Bước 10" style="max-width:100%;" /><p class="slide-caption">Bước 10.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_sort_step11.png" alt="Bước 11" style="max-width:100%;" /><p class="slide-caption">Bước 11.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/heap_sort_step12.png" alt="Bước 12" style="max-width:100%;" /><p class="slide-caption">Bước 12: hoàn tất, mảng đã được sắp xếp.</p></div>
     <div class="slider-controls">
       <button class="slider-btn" onclick="prevSlide('heap-sort-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 12</span>
@@ -1966,7 +1966,7 @@ In the code below, we use the same \`sift_down()\` function for top-to-bottom he
   <li>Nối kết quả theo thứ tự từ bucket nhỏ nhất tới lớn nhất.</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/bucket_sort_overview.png" alt="Quy trình thuật toán sắp xếp xô" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/bucket_sort_overview.png" alt="Quy trình thuật toán sắp xếp xô" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Đoạn mã như sau:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp xô (bucket) */
@@ -2104,12 +2104,12 @@ void bucketSort(vector&lt;float&gt; &amp;nums) {
 <p>Để đạt được phân phối đồng đều hơn, trước tiên ta có thể chọn một ranh giới thô và chia dữ liệu thành 3 bucket. <strong>Sau đó, các bucket chứa nhiều sản phẩm hơn có thể được chia tiếp thành 3 bucket nữa cho tới khi số lượng phần tử trong tất cả các bucket gần bằng nhau</strong>.</p>
 <p>Như hình bên dưới, phương pháp này về bản chất xây dựng một cây đệ quy với mục tiêu làm cho các nút lá càng cân bằng càng tốt. Tất nhiên, dữ liệu không nhất thiết phải chia thành 3 bucket ở mỗi vòng; chiến lược phân chia cụ thể có thể được chọn linh hoạt dựa trên đặc điểm của dữ liệu.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/scatter_in_buckets_recursively.png" alt="Chia bucket đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/scatter_in_buckets_recursively.png" alt="Chia bucket đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Nếu ta biết trước phân phối xác suất của giá sản phẩm, <strong>ta có thể thiết lập ranh giới giá cho mỗi bucket theo phân phối đó</strong>. Đáng chú ý, phân phối dữ liệu không cần được đo lường chính xác; nó cũng có thể được xấp xỉ bằng một mô hình xác suất được chọn phù hợp với đặc điểm của dữ liệu.</p>
 <p>Như hình bên dưới, ta giả sử giá sản phẩm tuân theo phân phối chuẩn, điều này cho phép ta thiết lập hợp lý các khoảng giá để phân phối đều sản phẩm vào từng bucket.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/scatter_in_buckets_distribution.png" alt="Chia bucket dựa trên phân phối xác suất" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/scatter_in_buckets_distribution.png" alt="Chia bucket dựa trên phân phối xác suất" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>11.8.4 Mô phỏng tương tác</h2>
@@ -2205,7 +2205,7 @@ As shown in the figure below, we assume that product prices follow a normal dist
   <li><strong>Vì các chỉ mục của <code>counter</code> tự nhiên đã có thứ tự, các số về cơ bản đã được sắp xếp</strong>. Tiếp theo, duyệt <code>counter</code> và ghi các số trở lại <code>nums</code> theo thứ tự tăng dần dựa trên số lần xuất hiện của chúng.</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/counting_sort_overview.png" alt="Quy trình sắp xếp đếm" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/counting_sort_overview.png" alt="Quy trình sắp xếp đếm" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Đoạn mã như sau:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Sắp xếp đếm */
@@ -2331,14 +2331,14 @@ $$
 
 <div class="interactive-widget-wrapper" id="counting-sort-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/counting_sort_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Các bước sắp xếp đếm — bước 1.</p></div>
-    <div class="slide"><img src="dsa-assets/counting_sort_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
-    <div class="slide"><img src="dsa-assets/counting_sort_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
-    <div class="slide"><img src="dsa-assets/counting_sort_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
-    <div class="slide"><img src="dsa-assets/counting_sort_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
-    <div class="slide"><img src="dsa-assets/counting_sort_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
-    <div class="slide"><img src="dsa-assets/counting_sort_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7.</p></div>
-    <div class="slide"><img src="dsa-assets/counting_sort_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8: hoàn tất, res chứa kết quả đã sắp xếp.</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/counting_sort_step1.png" alt="Bước 1" style="max-width:100%;" /><p class="slide-caption">Các bước sắp xếp đếm — bước 1.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/counting_sort_step2.png" alt="Bước 2" style="max-width:100%;" /><p class="slide-caption">Bước 2.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/counting_sort_step3.png" alt="Bước 3" style="max-width:100%;" /><p class="slide-caption">Bước 3.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/counting_sort_step4.png" alt="Bước 4" style="max-width:100%;" /><p class="slide-caption">Bước 4.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/counting_sort_step5.png" alt="Bước 5" style="max-width:100%;" /><p class="slide-caption">Bước 5.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/counting_sort_step6.png" alt="Bước 6" style="max-width:100%;" /><p class="slide-caption">Bước 6.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/counting_sort_step7.png" alt="Bước 7" style="max-width:100%;" /><p class="slide-caption">Bước 7.</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/counting_sort_step8.png" alt="Bước 8" style="max-width:100%;" /><p class="slide-caption">Bước 8: hoàn tất, res chứa kết quả đã sắp xếp.</p></div>
     <div class="slider-controls">
       <button class="slider-btn" onclick="prevSlide('counting-sort-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 8</span>
@@ -2631,7 +2631,7 @@ At this point, you might think counting sort is quite ingenious because it achie
   <li>Tăng $k$ lên $1$, sau đó quay lại bước <code>2.</code> và tiếp tục lặp cho đến khi tất cả các chữ số đã được sắp xếp, lúc đó quy trình kết thúc.</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/radix_sort_overview.png" alt="Quy trình thuật toán sắp xếp cơ số" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/radix_sort_overview.png" alt="Quy trình thuật toán sắp xếp cơ số" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Tiếp theo, hãy xem đoạn mã. Với một số $x$ ở cơ số $d$, chữ số thứ $k$ của nó, $x_k$, có thể được tính bằng công thức sau:</p>
 <div style="overflow-x:auto; margin:1em 0;">
@@ -2887,7 +2887,7 @@ Compared with counting sort, radix sort is suitable for larger value ranges, **b
   <li>Hình bên dưới so sánh các thuật toán sắp xếp phổ biến về hiệu suất, tính ổn định, tính tại chỗ, và khả năng thích ứng.</li>
 </ul>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/sorting_algorithms_comparison.png" alt="So sánh các thuật toán sắp xếp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/sorting_algorithms_comparison.png" alt="So sánh các thuật toán sắp xếp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>Hỏi & Đáp</h2>

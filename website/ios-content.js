@@ -31,31 +31,171 @@ Object.assign(IOS_CONTENT, {
 <h2>Bản chất nền tảng của hệ sinh thái iOS</h2>
 <p>Phát triển iOS không chỉ đơn thuần là viết code giao diện, mà đòi hỏi sự thấu hiểu sâu sắc về kiến trúc runtime bên dưới của Apple — nơi mà <strong>Objective-C Runtime</strong> và <strong>Swift ABI</strong> cùng chung sống và vận hành trên nền <strong>Darwin / XNU Kernel</strong>.</p>
 
-<div class="mermaid">
-graph TD
-    subgraph "Language & Syntax Layer"
-        Swift["Swift 5.x / 6.0<br/>(Type Safety, Value Semantics)"]
-        ObjC["Objective-C / C++<br/>(Dynamic Messaging)"]
-    end
-
-    subgraph "Execution & Memory Model"
-        ARC["ARC Engine<br/>(Reference Counting)"]
-        Runtime["Obj-C Runtime / Swift Metadata<br/>(Dynamic Dispatch, Swizzling)"]
-        Memory["Stack (Values) / Heap (Objects)"]
-    end
-
-    subgraph "Framework Layer"
-        Foundation["Foundation / CoreFoundation<br/>(Toll-Free Bridging)"]
-        UIKit["UIKit & CoreGraphics"]
-    end
-
-    Swift --> Runtime
-    ObjC --> Runtime
-    Runtime --> ARC
-    ARC --> Memory
-    Memory --> Foundation
-    Foundation --> UIKit
+<div class="dd-diagram" data-dd="ios-stack">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 628" role="img" aria-labelledby="ios-stack-dark-title ios-stack-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-stack-dark-title">Ngăn xếp iOS: ngôn ngữ, thực thi, framework</title>
+<desc id="ios-stack-dark-desc">Sơ đồ tầng kiến trúc iOS: Swift và Objective-C hội tụ vào Obj-C Runtime, qua ARC tới Stack và Heap, rồi lên Foundation và UIKit.</desc>
+<defs>
+<marker id="ios-stack-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="628" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="736" height="140" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="112" height="12" rx="2" fill="#060913"/>
+<text x="104" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">LANGUAGE · SYNTAX</text>
+<rect x="32" y="192" width="736" height="228" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="196" width="120" height="12" rx="2" fill="#060913"/>
+<text x="108" y="205" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">EXECUTION · MEMORY</text>
+<rect x="32" y="448" width="736" height="140" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="452" width="72" height="12" rx="2" fill="#060913"/>
+<text x="84" y="461" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">FRAMEWORK</text>
+<!-- arrows -->
+<path d="M 216,128 V 172 H 332 Q 340,172 340,180 V 228" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-stack-dark-arrow)"/>
+<path d="M 584,128 V 172 H 488 Q 480,172 480,180 V 228" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-stack-dark-arrow)"/>
+<path d="M 400,296 V 312 H 224 Q 216,312 216,320 V 332" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-stack-dark-arrow)"/>
+<path d="M 368,364 H 432" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-stack-dark-arrow)"/>
+<path d="M 584,396 V 432 H 308 Q 300,432 300,440 V 488" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-stack-dark-arrow)"/>
+<path d="M 368,520 H 432" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-stack-dark-arrow)"/>
+<!-- nodes -->
+<rect x="64" y="64" width="304" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="64" width="304" height="64" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<rect x="72" y="70" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="98" y="79" fill="rgba(100,116,139,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LANG</text>
+<text x="216" y="102" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Swift 5.x / 6.0</text>
+<text x="216" y="118" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">type safety · value semantics</text>
+<rect x="432" y="64" width="304" height="64" rx="6" fill="#060913"/>
+<rect x="432" y="64" width="304" height="64" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<rect x="440" y="70" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="466" y="79" fill="rgba(100,116,139,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LANG</text>
+<text x="584" y="102" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Objective-C / C++</text>
+<text x="584" y="118" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">dynamic messaging</text>
+<rect x="220" y="228" width="360" height="68" rx="6" fill="#060913"/>
+<rect x="220" y="228" width="360" height="68" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="228" y="234" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="254" y="243" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
+<text x="400" y="268" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Obj-C Runtime / Swift Metadata</text>
+<text x="400" y="286" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">dynamic dispatch · swizzling</text>
+<rect x="64" y="332" width="304" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="332" width="304" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="72" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="98" y="347" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">ARC</text>
+<text x="216" y="370" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ARC Engine</text>
+<text x="216" y="386" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">reference counting</text>
+<rect x="432" y="332" width="304" height="64" rx="6" fill="#060913"/>
+<rect x="432" y="332" width="304" height="64" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<rect x="440" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(148,163,184,0.40)" stroke-width="0.8"/>
+<text x="466" y="347" fill="rgba(148,163,184,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MEM</text>
+<text x="584" y="370" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Stack / Heap</text>
+<text x="584" y="386" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">values · objects</text>
+<rect x="64" y="488" width="304" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="488" width="304" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="72" y="494" width="52" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="98" y="503" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">FW</text>
+<text x="216" y="526" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Foundation</text>
+<text x="216" y="542" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">toll-free bridging</text>
+<rect x="432" y="488" width="304" height="64" rx="6" fill="#060913"/>
+<rect x="432" y="488" width="304" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="440" y="494" width="52" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="466" y="503" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">UI</text>
+<text x="584" y="526" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">UIKit · CoreGraphics</text>
+<text x="584" y="542" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ui framework</text>
+<!-- legend -->
+<line x1="32" y1="604" x2="768" y2="604" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="620" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="616" r="4" fill="#38BDF8"/>
+<text x="162" y="620" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · RUNTIME</text>
+<line x1="330" y1="616" x2="362" y2="616" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-stack-dark-arrow)"/>
+<text x="370" y="620" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">LUỒNG ĐIỀU KHIỂN</text>
+<rect x="540" y="608" width="40" height="16" rx="4" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<text x="588" y="620" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TẦNG KIẾN TRÚC</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 628" role="img" aria-labelledby="ios-stack-title ios-stack-desc" font-family="'Geist', sans-serif">
+<title id="ios-stack-title">Ngăn xếp iOS: ngôn ngữ, thực thi, framework</title>
+<desc id="ios-stack-desc">Sơ đồ tầng kiến trúc iOS: Swift và Objective-C hội tụ vào Obj-C Runtime, qua ARC tới Stack và Heap, rồi lên Foundation và UIKit.</desc>
+<defs>
+<marker id="ios-stack-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="628" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="736" height="140" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="112" height="12" rx="2" fill="#F8FAFC"/>
+<text x="104" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">LANGUAGE · SYNTAX</text>
+<rect x="32" y="192" width="736" height="228" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="196" width="120" height="12" rx="2" fill="#F8FAFC"/>
+<text x="108" y="205" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">EXECUTION · MEMORY</text>
+<rect x="32" y="448" width="736" height="140" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="452" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="84" y="461" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">FRAMEWORK</text>
+<!-- arrows -->
+<path d="M 216,128 V 172 H 332 Q 340,172 340,180 V 228" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<path d="M 584,128 V 172 H 488 Q 480,172 480,180 V 228" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<path d="M 400,296 V 312 H 224 Q 216,312 216,320 V 332" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<path d="M 368,364 H 432" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<path d="M 584,396 V 432 H 308 Q 300,432 300,440 V 488" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<path d="M 368,520 H 432" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<!-- nodes -->
+<rect x="64" y="64" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="64" width="304" height="64" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<rect x="72" y="70" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="98" y="79" fill="rgba(100,116,139,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LANG</text>
+<text x="216" y="102" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Swift 5.x / 6.0</text>
+<text x="216" y="118" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">type safety · value semantics</text>
+<rect x="432" y="64" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="432" y="64" width="304" height="64" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<rect x="440" y="70" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="466" y="79" fill="rgba(100,116,139,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LANG</text>
+<text x="584" y="102" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Objective-C / C++</text>
+<text x="584" y="118" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">dynamic messaging</text>
+<rect x="220" y="228" width="360" height="68" rx="6" fill="#F8FAFC"/>
+<rect x="220" y="228" width="360" height="68" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="228" y="234" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="254" y="243" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
+<text x="400" y="268" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Obj-C Runtime / Swift Metadata</text>
+<text x="400" y="286" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">dynamic dispatch · swizzling</text>
+<rect x="64" y="332" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="332" width="304" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="72" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="98" y="347" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">ARC</text>
+<text x="216" y="370" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ARC Engine</text>
+<text x="216" y="386" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">reference counting</text>
+<rect x="432" y="332" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="432" y="332" width="304" height="64" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<rect x="440" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="466" y="347" fill="rgba(100,116,139,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MEM</text>
+<text x="584" y="370" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Stack / Heap</text>
+<text x="584" y="386" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">values · objects</text>
+<rect x="64" y="488" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="488" width="304" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="72" y="494" width="52" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="98" y="503" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">FW</text>
+<text x="216" y="526" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Foundation</text>
+<text x="216" y="542" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">toll-free bridging</text>
+<rect x="432" y="488" width="304" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="432" y="488" width="304" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="440" y="494" width="52" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="466" y="503" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">UI</text>
+<text x="584" y="526" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UIKit · CoreGraphics</text>
+<text x="584" y="542" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ui framework</text>
+<!-- legend -->
+<line x1="32" y1="604" x2="768" y2="604" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="620" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="616" r="4" fill="#0284C7"/>
+<text x="162" y="620" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · RUNTIME</text>
+<line x1="330" y1="616" x2="362" y2="616" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-stack-arrow)"/>
+<text x="370" y="620" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">LUỒNG ĐIỀU KHIỂN</text>
+<rect x="540" y="608" width="40" height="16" rx="4" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<text x="588" y="620" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TẦNG KIẾN TRÚC</text>
+</svg>
+</div>
+</div>
+
 
 <h2>Nội dung trọng tâm của Session 01</h2>
 <ul>
@@ -95,33 +235,167 @@ graph TD
 <h2>Mental Model: Bản đồ chuyển đổi tư duy</h2>
 <p>Cả Kotlin và Swift đều là ngôn ngữ hiện đại, type-safe và null-safe. Tuy nhiên, <strong>kiến trúc thực thi bên dưới có sự khác biệt cốt tử</strong> mà nếu không nắm vững sẽ gây ra lỗi crash và rò rỉ bộ nhớ nghiêm trọng:</p>
 
-<div class="mermaid">
-graph TD
-    subgraph "Kotlin / Android"
-        K1["val / var"]
-        K2["Null: T? + Smart Cast (x != null)"]
-        K3["Data Model: data class (Reference Type)"]
-        K4["Memory: JVM Garbage Collector"]
-        K5["OOP: Class + Interface"]
-        K6["Async: Coroutines (suspend / Flow)"]
-    end
-
-    subgraph "Swift / iOS"
-        S1["let / var"]
-        S2["Null: Optional + guard let / if let / ??"]
-        S3["Data Model: struct (Value Type, Copy-on-Write)"]
-        S4["Memory: ARC (weak self trong closure)"]
-        S5["POP: Protocol + Struct + Extension"]
-        S6["Async: async/await + Task + @MainActor"]
-    end
-
-    K1 -.-> S1
-    K2 -.-> S2
-    K3 -.-> S3
-    K4 -.-> S4
-    K5 -.-> S5
-    K6 -.-> S6
+<div class="dd-diagram" data-dd="ios-kotlinmap">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 596" role="img" aria-labelledby="ios-kotlinmap-dark-title ios-kotlinmap-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-kotlinmap-dark-title">Kotlin sang Swift: sáu cặp song sinh</title>
+<desc id="ios-kotlinmap-dark-desc">Sáu khái niệm Kotlin ánh xạ sang Swift: biến, null, model, bộ nhớ, OOP và bất đồng bộ.</desc>
+<defs>
+<marker id="ios-kotlinmap-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="596" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="360" height="516" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="160" height="12" rx="2" fill="#060913"/>
+<text x="128" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">KOTLIN · ANDROID</text>
+<rect x="408" y="24" width="360" height="516" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<rect x="424" y="28" width="144" height="12" rx="2" fill="#060913"/>
+<text x="496" y="37" fill="#38BDF8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SWIFT · ĐÍCH ĐẾN</text>
+<!-- rungs -->
+<path d="M 360,92 H 440" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 360,172 H 440" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 360,252 H 440" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 360,332 H 440" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 360,412 H 440" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 360,492 H 440" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<!-- kotlin -->
+<rect x="80" y="64" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="64" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="220" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">val / var</text>
+<rect x="80" y="144" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="144" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="220" y="172" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Null: T?</text>
+<text x="220" y="190" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">smart cast</text>
+<rect x="80" y="224" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="224" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="220" y="252" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">data class</text>
+<text x="220" y="270" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">reference</text>
+<rect x="80" y="304" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="304" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="220" y="332" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">GC</text>
+<text x="220" y="350" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">jvm dọn rác</text>
+<rect x="80" y="384" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="384" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="220" y="412" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Class + Interface</text>
+<rect x="80" y="464" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="464" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="220" y="492" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Coroutines</text>
+<text x="220" y="510" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">suspend · flow</text>
+<!-- swift -->
+<rect x="440" y="64" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="440" y="64" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="580" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">let / var</text>
+<rect x="440" y="144" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="440" y="144" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="580" y="172" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Optional</text>
+<text x="580" y="190" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">guard · if-let</text>
+<rect x="440" y="224" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="440" y="224" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="580" y="252" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">struct</text>
+<text x="580" y="270" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">value · cow</text>
+<rect x="440" y="304" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="440" y="304" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="580" y="332" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ARC</text>
+<text x="580" y="350" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">weak self</text>
+<rect x="440" y="384" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="440" y="384" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="580" y="412" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Protocol + Struct</text>
+<rect x="440" y="464" width="280" height="56" rx="6" fill="#060913"/>
+<rect x="440" y="464" width="280" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="580" y="492" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">async/await</text>
+<text x="580" y="510" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">task · mainactor</text>
+<!-- legend -->
+<line x1="32" y1="564" x2="768" y2="564" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="580" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="150" y="572" width="40" height="16" rx="4" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<text x="198" y="580" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VÙNG ĐÍCH · SWIFT</text>
+<line x1="420" y1="580" x2="452" y2="580" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="460" y="584" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · CẶP TƯƠNG ĐƯƠNG</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 596" role="img" aria-labelledby="ios-kotlinmap-title ios-kotlinmap-desc" font-family="'Geist', sans-serif">
+<title id="ios-kotlinmap-title">Kotlin sang Swift: sáu cặp song sinh</title>
+<desc id="ios-kotlinmap-desc">Sáu khái niệm Kotlin ánh xạ sang Swift: biến, null, model, bộ nhớ, OOP và bất đồng bộ.</desc>
+<defs>
+<marker id="ios-kotlinmap-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="596" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="360" height="516" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="160" height="12" rx="2" fill="#F8FAFC"/>
+<text x="128" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">KOTLIN · ANDROID</text>
+<rect x="408" y="24" width="360" height="516" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<rect x="424" y="28" width="144" height="12" rx="2" fill="#F8FAFC"/>
+<text x="496" y="37" fill="#0284C7" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SWIFT · ĐÍCH ĐẾN</text>
+<!-- rungs -->
+<path d="M 360,92 H 440" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 360,172 H 440" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 360,252 H 440" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 360,332 H 440" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 360,412 H 440" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 360,492 H 440" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<!-- kotlin -->
+<rect x="80" y="64" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="64" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="220" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">val / var</text>
+<rect x="80" y="144" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="144" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="220" y="172" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Null: T?</text>
+<text x="220" y="190" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">smart cast</text>
+<rect x="80" y="224" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="224" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="220" y="252" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">data class</text>
+<text x="220" y="270" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">reference</text>
+<rect x="80" y="304" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="304" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="220" y="332" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">GC</text>
+<text x="220" y="350" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">jvm dọn rác</text>
+<rect x="80" y="384" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="384" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="220" y="412" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Class + Interface</text>
+<rect x="80" y="464" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="464" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="220" y="492" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Coroutines</text>
+<text x="220" y="510" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">suspend · flow</text>
+<!-- swift -->
+<rect x="440" y="64" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="440" y="64" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="580" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">let / var</text>
+<rect x="440" y="144" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="440" y="144" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="580" y="172" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Optional</text>
+<text x="580" y="190" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">guard · if-let</text>
+<rect x="440" y="224" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="440" y="224" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="580" y="252" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">struct</text>
+<text x="580" y="270" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">value · cow</text>
+<rect x="440" y="304" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="440" y="304" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="580" y="332" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ARC</text>
+<text x="580" y="350" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">weak self</text>
+<rect x="440" y="384" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="440" y="384" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="580" y="412" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Protocol + Struct</text>
+<rect x="440" y="464" width="280" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="440" y="464" width="280" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="580" y="492" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">async/await</text>
+<text x="580" y="510" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">task · mainactor</text>
+<!-- legend -->
+<line x1="32" y1="564" x2="768" y2="564" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="580" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="150" y="572" width="40" height="16" rx="4" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<text x="198" y="580" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VÙNG ĐÍCH · SWIFT</text>
+<line x1="420" y1="580" x2="452" y2="580" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="460" y="584" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · CẶP TƯƠNG ĐƯƠNG</text>
+</svg>
+</div>
+</div>
+
 
 <h2>1. Khai báo Biến, Hằng & String Interpolation</h2>
 
@@ -209,13 +483,99 @@ let multiline = """
   </tbody>
 </table>
 
-<div class="mermaid">
-flowchart TD
-    Start["Bắt đầu hàm"] --> Check{"guard let token = userToken else"}
-    Check -- "token == nil" --> Fail["Log lỗi / Alert UI\n-> return / throw"]
-    Check -- "token != nil" --> Unwrap["token là non-optional trong toàn bộ scope phía dưới"]
-    Unwrap --> Logic["Xử lý API / Business Logic với token"]
+<div class="dd-diagram" data-dd="ios-guard">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 460" role="img" aria-labelledby="ios-guard-dark-title ios-guard-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-guard-dark-title">guard let: hỏi một lần, yên tâm cả hàm</title>
+<desc id="ios-guard-dark-desc">Kiểm tra token nil thì báo lỗi thoát, có token thì unwrap dùng cho toàn hàm.</desc>
+<defs>
+<marker id="ios-guard-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="460" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,92 V 120" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-guard-dark-arrow)"/>
+<path d="M 325,164 V 210 H 188 Q 180,210 180,218 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-guard-dark-arrow)"/>
+<rect x="232" y="190" width="56" height="12" rx="2" fill="#060913"/>
+<text x="260" y="199" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NIL</text>
+<path d="M 475,164 V 210 H 612 Q 620,210 620,218 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-guard-dark-arrow)"/>
+<rect x="502" y="190" width="64" height="12" rx="2" fill="#060913"/>
+<text x="534" y="199" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ TOKEN</text>
+<path d="M 620,308 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-guard-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="20" fill="#060913"/>
+<rect x="280" y="32" width="240" height="60" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Bắt đầu hàm</text>
+<polygon points="400,120 475,164 400,208 325,164" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="168" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">GUARD LET?</text>
+<rect x="80" y="248" width="200" height="60" rx="20" fill="#060913"/>
+<rect x="80" y="248" width="200" height="60" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="180" y="282" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Log lỗi · return</text>
+<rect x="520" y="248" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="520" y="248" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="620" y="282" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Unwrap xong</text>
+<text x="620" y="300" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">non-optional</text>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="620" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Xử lý API</text>
+<text x="620" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">business logic</text>
+<!-- legend -->
+<line x1="32" y1="436" x2="768" y2="436" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="448" r="4" fill="#38BDF8"/>
+<text x="162" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CÂU HỎI GÁC CỔNG</text>
+<line x1="400" y1="448" x2="432" y2="448" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-guard-dark-arrow)"/>
+<text x="440" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NIL THOÁT · CÓ ĐI TIẾP</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 460" role="img" aria-labelledby="ios-guard-title ios-guard-desc" font-family="'Geist', sans-serif">
+<title id="ios-guard-title">guard let: hỏi một lần, yên tâm cả hàm</title>
+<desc id="ios-guard-desc">Kiểm tra token nil thì báo lỗi thoát, có token thì unwrap dùng cho toàn hàm.</desc>
+<defs>
+<marker id="ios-guard-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="460" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,92 V 120" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-guard-arrow)"/>
+<path d="M 325,164 V 210 H 188 Q 180,210 180,218 V 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-guard-arrow)"/>
+<rect x="232" y="190" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="260" y="199" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NIL</text>
+<path d="M 475,164 V 210 H 612 Q 620,210 620,218 V 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-guard-arrow)"/>
+<rect x="502" y="190" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="534" y="199" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ TOKEN</text>
+<path d="M 620,308 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-guard-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="20" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="60" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Bắt đầu hàm</text>
+<polygon points="400,120 475,164 400,208 325,164" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="400" y="168" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">GUARD LET?</text>
+<rect x="80" y="248" width="200" height="60" rx="20" fill="#F8FAFC"/>
+<rect x="80" y="248" width="200" height="60" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="180" y="282" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Log lỗi · return</text>
+<rect x="520" y="248" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="520" y="248" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="620" y="282" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Unwrap xong</text>
+<text x="620" y="300" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">non-optional</text>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="620" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Xử lý API</text>
+<text x="620" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">business logic</text>
+<!-- legend -->
+<line x1="32" y1="436" x2="768" y2="436" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="448" r="4" fill="#0284C7"/>
+<text x="162" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CÂU HỎI GÁC CỔNG</text>
+<line x1="400" y1="448" x2="432" y2="448" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-guard-arrow)"/>
+<text x="440" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NIL THOÁT · CÓ ĐI TIẾP</text>
+</svg>
+</div>
+</div>
+
 
 <pre><code class="language-swift">func submitOrder(productId: String?, quantity: Int?) {
     // Kiểm tra đồng thời nhiều optionals + điều kiện logic
@@ -255,19 +615,143 @@ swapValues(&x, &y) // x: 20, y: 10
 <h2>4. data class (Kotlin) vs struct (Swift): Value Type Semantics</h2>
 <p>Trong Kotlin, <code>data class</code> là <strong>Reference Type</strong> (phân bổ trên Heap, truyền theo con trỏ tham chiếu). Trong Swift, <code>struct</code> là <strong>Value Type</strong> — khi gán hoặc truyền vào hàm, nó <strong>sao chép giá trị độc lập</strong>.</p>
 
-<div class="mermaid">
-graph LR
-    subgraph "Kotlin: Reference Type"
-        u1k["var u1 = User('Alice')"] --> heap["User('Alice') trên Heap"]
-        u2k["var u2 = u1"] --> heap
-        note1["u2.name = 'Bob' => u1.name cũng thành 'Bob'!"]
-    end
-    subgraph "Swift: Value Type (Struct)"
-        u1s["var u1 = User('Alice')"] --> mem1["Bản copy 1: Alice"]
-        u2s["var u2 = u1"] --> mem2["Bản copy 2: Alice (độc lập)"]
-        note2["u2.name = 'Bob' => u1.name vẫn là 'Alice'"]
-    end
+<div class="dd-diagram" data-dd="ios-valuesem">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 312" role="img" aria-labelledby="ios-valuesem-dark-title ios-valuesem-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-valuesem-dark-title">Reference chung heap, value mỗi người một bản</title>
+<desc id="ios-valuesem-dark-desc">Kotlin reference cùng trỏ một object trên heap, Swift struct thì mỗi biến một bản copy độc lập.</desc>
+<defs>
+<marker id="ios-valuesem-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="312" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="360" height="240" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="168" height="12" rx="2" fill="#060913"/>
+<text x="132" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">KOTLIN · REFERENCE</text>
+<rect x="408" y="24" width="360" height="240" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<rect x="424" y="28" width="152" height="12" rx="2" fill="#060913"/>
+<text x="500" y="37" fill="#38BDF8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SWIFT · VALUE</text>
+<!-- arrows -->
+<path d="M 136,116 V 140" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-valuesem-dark-arrow)"/>
+<path d="M 280,116 V 140" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-valuesem-dark-arrow)"/>
+<path d="M 208,192 V 216" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 512,116 V 140" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-valuesem-dark-arrow)"/>
+<path d="M 660,116 V 140" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-valuesem-dark-arrow)"/>
+<path d="M 508,192 V 216" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 668,192 V 216" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<!-- nodes -->
+<rect x="64" y="64" width="144" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="64" width="144" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="136" y="96" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">u1 = User</text>
+<text x="136" y="110" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">'Alice'</text>
+<rect x="208" y="64" width="144" height="52" rx="6" fill="#060913"/>
+<rect x="208" y="64" width="144" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="280" y="96" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">u2 = u1</text>
+<text x="280" y="110" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chung ref</text>
+<rect x="64" y="140" width="288" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="140" width="288" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="208" y="172" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Heap: Alice</text>
+<text x="208" y="186" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">1 object · 2 refs</text>
+<rect x="64" y="216" width="288" height="20" rx="6" fill="#060913"/>
+<rect x="64" y="216" width="288" height="20" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="208" y="230" fill="#F8FAFC" font-size="11" font-weight="600" text-anchor="middle">u2 đổi tên → u1 đổi theo!</text>
+<rect x="440" y="64" width="144" height="52" rx="6" fill="#060913"/>
+<rect x="440" y="64" width="144" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="512" y="96" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">u1 = User</text>
+<text x="512" y="110" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">'Alice'</text>
+<rect x="588" y="64" width="144" height="52" rx="6" fill="#060913"/>
+<rect x="588" y="64" width="144" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="660" y="96" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">u2 = u1</text>
+<text x="660" y="110" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">copy mới</text>
+<rect x="444" y="140" width="136" height="52" rx="6" fill="#060913"/>
+<rect x="444" y="140" width="136" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="512" y="172" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Copy 1: Alice</text>
+<rect x="592" y="140" width="136" height="52" rx="6" fill="#060913"/>
+<rect x="592" y="140" width="136" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="660" y="172" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Copy 2: Alice</text>
+<rect x="440" y="216" width="296" height="20" rx="6" fill="#060913"/>
+<rect x="440" y="216" width="296" height="20" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="588" y="230" fill="#F8FAFC" font-size="11" font-weight="600" text-anchor="middle">u1 vẫn là Alice ✓</text>
+<!-- legend -->
+<line x1="32" y1="288" x2="768" y2="288" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="304" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="300" r="4" fill="#38BDF8"/>
+<text x="162" y="304" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MỖI NGƯỜI MỘT BẢN · VALUE</text>
+<line x1="450" y1="300" x2="482" y2="300" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="490" y="304" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · HỆ QUẢ</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 312" role="img" aria-labelledby="ios-valuesem-title ios-valuesem-desc" font-family="'Geist', sans-serif">
+<title id="ios-valuesem-title">Reference chung heap, value mỗi người một bản</title>
+<desc id="ios-valuesem-desc">Kotlin reference cùng trỏ một object trên heap, Swift struct thì mỗi biến một bản copy độc lập.</desc>
+<defs>
+<marker id="ios-valuesem-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="312" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="360" height="240" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="168" height="12" rx="2" fill="#F8FAFC"/>
+<text x="132" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">KOTLIN · REFERENCE</text>
+<rect x="408" y="24" width="360" height="240" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<rect x="424" y="28" width="152" height="12" rx="2" fill="#F8FAFC"/>
+<text x="500" y="37" fill="#0284C7" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SWIFT · VALUE</text>
+<!-- arrows -->
+<path d="M 136,116 V 140" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-valuesem-arrow)"/>
+<path d="M 280,116 V 140" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-valuesem-arrow)"/>
+<path d="M 208,192 V 216" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 512,116 V 140" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-valuesem-arrow)"/>
+<path d="M 660,116 V 140" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-valuesem-arrow)"/>
+<path d="M 508,192 V 216" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<path d="M 668,192 V 216" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<!-- nodes -->
+<rect x="64" y="64" width="144" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="64" width="144" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="136" y="96" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">u1 = User</text>
+<text x="136" y="110" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">'Alice'</text>
+<rect x="208" y="64" width="144" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="208" y="64" width="144" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="280" y="96" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">u2 = u1</text>
+<text x="280" y="110" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chung ref</text>
+<rect x="64" y="140" width="288" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="140" width="288" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="208" y="172" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Heap: Alice</text>
+<text x="208" y="186" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">1 object · 2 refs</text>
+<rect x="64" y="216" width="288" height="20" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="216" width="288" height="20" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="208" y="230" fill="#0F172A" font-size="11" font-weight="600" text-anchor="middle">u2 đổi tên → u1 đổi theo!</text>
+<rect x="440" y="64" width="144" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="440" y="64" width="144" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="512" y="96" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">u1 = User</text>
+<text x="512" y="110" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">'Alice'</text>
+<rect x="588" y="64" width="144" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="588" y="64" width="144" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="660" y="96" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">u2 = u1</text>
+<text x="660" y="110" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">copy mới</text>
+<rect x="444" y="140" width="136" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="444" y="140" width="136" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="512" y="172" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Copy 1: Alice</text>
+<rect x="592" y="140" width="136" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="592" y="140" width="136" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="660" y="172" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Copy 2: Alice</text>
+<rect x="440" y="216" width="296" height="20" rx="6" fill="#F8FAFC"/>
+<rect x="440" y="216" width="296" height="20" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="588" y="230" fill="#0F172A" font-size="11" font-weight="600" text-anchor="middle">u1 vẫn là Alice ✓</text>
+<!-- legend -->
+<line x1="32" y1="288" x2="768" y2="288" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="304" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="300" r="4" fill="#0284C7"/>
+<text x="162" y="304" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỖI NGƯỜI MỘT BẢN · VALUE</text>
+<line x1="450" y1="300" x2="482" y2="300" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="490" y="304" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · HỆ QUẢ</text>
+</svg>
+</div>
+</div>
+
 
 <pre><code class="language-swift">struct Product: Equatable, Identifiable {
     let id: String
@@ -351,17 +835,123 @@ func render(state: ViewState) {
 <h2>7. Closures & Bẫy bộ nhớ ARC [weak self]</h2>
 <p>Kotlin dùng JVM Garbage Collector — chu trình tham chiếu vòng vẫn được dọn dẹp tự động. Swift dùng <strong>ARC</strong> — nếu <code>self</code> giữ closure và closure capture <code>self</code> mạnh (strong), tạo ra <strong>Retain Cycle</strong>: đối tượng không bao giờ được giải phóng khỏi RAM.</p>
 
-<div class="mermaid">
-graph LR
-    subgraph "Retain Cycle (Memory Leak)"
-        VM1["ViewModel"] -- "strong ref" --> CB1["Closure Callback"]
-        CB1 -- "capture self (strong)" --> VM1
-    end
-    subgraph "Giải pháp: [weak self]"
-        VM2["ViewModel"] -- "strong ref" --> CB2["Closure Callback"]
-        CB2 -. "weak ref (không tăng RC)" .-> VM2
-    end
+<div class="dd-diagram" data-dd="ios-weakself">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 328" role="img" aria-labelledby="ios-weakself-dark-title ios-weakself-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-weakself-dark-title">Quên weak self là rò rỉ cả màn hình</title>
+<desc id="ios-weakself-dark-desc">Closure giữ self mạnh tạo vòng retain, thêm weak self thì vòng đứt và bộ nhớ được giải phóng.</desc>
+<defs>
+<marker id="ios-weakself-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="ios-weakself-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="328" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="360" height="256" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="128" height="12" rx="2" fill="#060913"/>
+<text x="112" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">RÒ RỈ · LEAK</text>
+<rect x="408" y="24" width="360" height="256" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<rect x="424" y="28" width="128" height="12" rx="2" fill="#060913"/>
+<text x="488" y="37" fill="#38BDF8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">FIX · WEAK SELF</text>
+<!-- left cycle -->
+<path d="M 164,160 V 220" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-weakself-dark-arrow)"/>
+<rect x="176" y="178" width="80" height="12" rx="2" fill="#060913"/>
+<text x="216" y="187" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STRONG REF</text>
+<path d="M 264,250 H 292 Q 300,250 300,242 V 130 H 272 Q 264,130 264,138 V 160" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-weakself-dark-arrow)"/>
+<rect x="312" y="182" width="96" height="12" rx="2" fill="#060913"/>
+<text x="360" y="191" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CAPTURE SELF</text>
+<!-- right fixed -->
+<path d="M 540,160 V 220" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-weakself-dark-arrow)"/>
+<rect x="552" y="178" width="80" height="12" rx="2" fill="#060913"/>
+<text x="592" y="187" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STRONG REF</text>
+<path d="M 640,250 H 668 Q 676,250 676,242 V 138 Q 676,130 668,130 H 640" fill="none" stroke="#38BDF8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#ios-weakself-dark-accent)"/>
+<rect x="616" y="182" width="128" height="12" rx="2" fill="#060913"/>
+<text x="680" y="191" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">WEAK · KHÔNG RC</text>
+<!-- nodes left -->
+<rect x="64" y="100" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="64" y="100" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="164" y="134" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<rect x="64" y="220" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="64" y="220" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="164" y="254" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Closure Callback</text>
+<!-- nodes right -->
+<rect x="440" y="100" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="440" y="100" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="540" y="134" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<rect x="440" y="220" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="440" y="220" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="540" y="254" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Closure Callback</text>
+<!-- legend -->
+<line x1="32" y1="304" x2="768" y2="304" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="316" r="4" fill="#38BDF8"/>
+<text x="162" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐỨT VÒNG · WEAK SELF</text>
+<line x1="430" y1="316" x2="462" y2="316" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-weakself-dark-arrow)"/>
+<text x="470" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GIỮ CHẶT · STRONG</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 328" role="img" aria-labelledby="ios-weakself-title ios-weakself-desc" font-family="'Geist', sans-serif">
+<title id="ios-weakself-title">Quên weak self là rò rỉ cả màn hình</title>
+<desc id="ios-weakself-desc">Closure giữ self mạnh tạo vòng retain, thêm weak self thì vòng đứt và bộ nhớ được giải phóng.</desc>
+<defs>
+<marker id="ios-weakself-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+<marker id="ios-weakself-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
+</marker>
+</defs>
+<rect width="800" height="328" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="360" height="256" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="128" height="12" rx="2" fill="#F8FAFC"/>
+<text x="112" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">RÒ RỈ · LEAK</text>
+<rect x="408" y="24" width="360" height="256" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<rect x="424" y="28" width="128" height="12" rx="2" fill="#F8FAFC"/>
+<text x="488" y="37" fill="#0284C7" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">FIX · WEAK SELF</text>
+<!-- left cycle -->
+<path d="M 164,160 V 220" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-weakself-arrow)"/>
+<rect x="176" y="178" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="216" y="187" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STRONG REF</text>
+<path d="M 264,250 H 292 Q 300,250 300,242 V 130 H 272 Q 264,130 264,138 V 160" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-weakself-arrow)"/>
+<rect x="312" y="182" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="360" y="191" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CAPTURE SELF</text>
+<!-- right fixed -->
+<path d="M 540,160 V 220" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-weakself-arrow)"/>
+<rect x="552" y="178" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="592" y="187" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STRONG REF</text>
+<path d="M 640,250 H 668 Q 676,250 676,242 V 138 Q 676,130 668,130 H 640" fill="none" stroke="#0284C7" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#ios-weakself-accent)"/>
+<rect x="616" y="182" width="128" height="12" rx="2" fill="#F8FAFC"/>
+<text x="680" y="191" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">WEAK · KHÔNG RC</text>
+<!-- nodes left -->
+<rect x="64" y="100" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="100" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="164" y="134" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<rect x="64" y="220" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="220" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="164" y="254" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Closure Callback</text>
+<!-- nodes right -->
+<rect x="440" y="100" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="440" y="100" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="540" y="134" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<rect x="440" y="220" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="440" y="220" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="540" y="254" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Closure Callback</text>
+<!-- legend -->
+<line x1="32" y1="304" x2="768" y2="304" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="320" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="316" r="4" fill="#0284C7"/>
+<text x="162" y="320" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐỨT VÒNG · WEAK SELF</text>
+<line x1="430" y1="316" x2="462" y2="316" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-weakself-arrow)"/>
+<text x="470" y="320" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GIỮ CHẶT · STRONG</text>
+</svg>
+</div>
+</div>
+
 
 <pre><code class="language-swift">class UserViewModel {
     var onStateChanged: ((String) -> Void)?
@@ -602,14 +1192,111 @@ deinit { print("ProfileViewModel deinit - không leak!") }</code></pre>
 <h2>Cơ chế hoạt động của ARC</h2>
 <p>ARC là một tính năng của <strong>Clang Compiler</strong> kết hợp với <strong>Swift Runtime</strong>. Trình biên dịch sẽ tự động chèn các lời gọi <code>retain</code> (tăng count) và <code>release</code> (giảm count) vào đúng thời điểm mã thực thi.</p>
 
-<div class="mermaid">
-flowchart LR
-    A["Object Allocation<br/>(RC = 1)"] --> B["Strong Reference Added<br/>(RC = 2)"]
-    B --> C["Strong Reference Removed<br/>(RC = 1)"]
-    C --> D["Last Strong Ref Removed<br/>(RC = 0)"]
-    D --> E["deinit called"]
-    E --> F["Memory Deallocated"]
+<div class="dd-diagram" data-dd="ios-arc">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 560" role="img" aria-labelledby="ios-arc-dark-title ios-arc-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-arc-dark-title">Đếm tham chiếu: về không là chết</title>
+<desc id="ios-arc-dark-desc">Cấp phát đếm một, thêm bớt tham chiếu, về không thì deinit và giải phóng bộ nhớ.</desc>
+<defs>
+<marker id="ios-arc-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="560" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,88 V 112" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-arc-dark-arrow)"/>
+<path d="M 400,168 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-arc-dark-arrow)"/>
+<rect x="412" y="170" width="64" height="12" rx="2" fill="#060913"/>
+<text x="444" y="179" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">+STRONG</text>
+<path d="M 400,248 V 272" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-arc-dark-arrow)"/>
+<rect x="412" y="250" width="64" height="12" rx="2" fill="#060913"/>
+<text x="444" y="259" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">-STRONG</text>
+<path d="M 400,328 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-arc-dark-arrow)"/>
+<path d="M 400,408 V 432" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-arc-dark-arrow)"/>
+<path d="M 400,488 V 512" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-arc-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="56" rx="20" fill="#060913"/>
+<rect x="280" y="32" width="240" height="56" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Allocation · RC = 1</text>
+<rect x="280" y="112" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="112" width="240" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="146" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Strong Added · RC = 2</text>
+<rect x="280" y="192" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="192" width="240" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Strong Removed · RC = 1</text>
+<rect x="280" y="272" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="272" width="240" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="288" y="278" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="314" y="287" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CHẾT</text>
+<text x="400" y="306" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Last Removed · RC = 0</text>
+<rect x="280" y="352" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="352" width="240" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">deinit called</text>
+<rect x="280" y="432" width="240" height="56" rx="20" fill="#060913"/>
+<rect x="280" y="432" width="240" height="56" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="466" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Deallocated</text>
+<!-- legend -->
+<line x1="32" y1="512" x2="768" y2="512" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="528" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="524" r="4" fill="#38BDF8"/>
+<text x="162" y="528" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VỀ KHÔNG · CHẾT</text>
+<line x1="380" y1="524" x2="412" y2="524" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-arc-dark-arrow)"/>
+<text x="420" y="528" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CỘNG TRỪ THEO REF</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 560" role="img" aria-labelledby="ios-arc-title ios-arc-desc" font-family="'Geist', sans-serif">
+<title id="ios-arc-title">Đếm tham chiếu: về không là chết</title>
+<desc id="ios-arc-desc">Cấp phát đếm một, thêm bớt tham chiếu, về không thì deinit và giải phóng bộ nhớ.</desc>
+<defs>
+<marker id="ios-arc-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="560" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,88 V 112" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-arc-arrow)"/>
+<path d="M 400,168 V 192" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-arc-arrow)"/>
+<rect x="412" y="170" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="444" y="179" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">+STRONG</text>
+<path d="M 400,248 V 272" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-arc-arrow)"/>
+<rect x="412" y="250" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="444" y="259" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">-STRONG</text>
+<path d="M 400,328 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-arc-arrow)"/>
+<path d="M 400,408 V 432" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-arc-arrow)"/>
+<path d="M 400,488 V 512" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-arc-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="56" rx="20" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="56" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Allocation · RC = 1</text>
+<rect x="280" y="112" width="240" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="112" width="240" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="146" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Strong Added · RC = 2</text>
+<rect x="280" y="192" width="240" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="192" width="240" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Strong Removed · RC = 1</text>
+<rect x="280" y="272" width="240" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="272" width="240" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="288" y="278" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="314" y="287" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CHẾT</text>
+<text x="400" y="306" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Last Removed · RC = 0</text>
+<rect x="280" y="352" width="240" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="352" width="240" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">deinit called</text>
+<rect x="280" y="432" width="240" height="56" rx="20" fill="#F8FAFC"/>
+<rect x="280" y="432" width="240" height="56" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="466" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Deallocated</text>
+<!-- legend -->
+<line x1="32" y1="512" x2="768" y2="512" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="524" r="4" fill="#0284C7"/>
+<text x="162" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VỀ KHÔNG · CHẾT</text>
+<line x1="380" y1="524" x2="412" y2="524" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-arc-arrow)"/>
+<text x="420" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CỘNG TRỪ THEO REF</text>
+</svg>
+</div>
+</div>
+
 
 <h2>Strong vs Weak vs Unowned Reference</h2>
 <table style="width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:14px;">
@@ -701,18 +1388,171 @@ class ProfileViewController: UIViewController {
 <pre><code class="language-objc">objc_msgSend(receiver, selector, arg1, arg2, ...);
 </code></pre>
 
-<div class="mermaid">
-flowchart TD
-    A["objc_msgSend(receiver, @selector(doWork))"] --> B{"Tìm thấy method trong Cache / Dispatch Table?"}
-    B -- Có --> C["Thực thi IMP con trỏ hàm"]
-    B -- Không --> D["1. Dynamic Method Resolution<br/>(resolveInstanceMethod:)"]
-    D -- Đã xử lý --> C
-    D -- Không --> E["2. Fast Forwarding<br/>(forwardingTargetForSelector:)"]
-    E -- Có Target khác --> F["Gửi tin nhắn sang Target mới"]
-    E -- Không --> G["3. Normal Forwarding<br/>(methodSignatureForSelector: & forwardInvocation:)"]
-    G -- Xử lý xong --> H["Hoàn tất"]
-    G -- Không --> I["Crash: unrecognized selector sent to instance"]
+<div class="dd-diagram" data-dd="ios-msgdispatch">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 664" role="img" aria-labelledby="ios-msgdispatch-dark-title ios-msgdispatch-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-msgdispatch-dark-title">Ba cơ hội cứu trước khi crash</title>
+<desc id="ios-msgdispatch-dark-desc">objc_msgSend tra cache trước, rồi qua ba nấc dynamic resolution, fast forwarding, normal forwarding, hết đường thì crash.</desc>
+<defs>
+<marker id="ios-msgdispatch-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="664" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,88 V 128" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-msgdispatch-dark-arrow)"/>
+<path d="M 530,168 H 580" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-msgdispatch-dark-arrow)"/>
+<rect x="534" y="162" width="32" height="12" rx="2" fill="#060913"/>
+<text x="550" y="171" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 400,208 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-msgdispatch-dark-arrow)"/>
+<rect x="412" y="222" width="48" height="12" rx="2" fill="#060913"/>
+<text x="436" y="231" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 520,280 H 632 Q 640,280 640,272 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-msgdispatch-dark-arrow)"/>
+<rect x="528" y="274" width="72" height="12" rx="2" fill="#060913"/>
+<text x="564" y="283" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐÃ XỬ LÝ</text>
+<path d="M 400,312 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-msgdispatch-dark-arrow)"/>
+<rect x="412" y="326" width="48" height="12" rx="2" fill="#060913"/>
+<text x="436" y="335" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 520,384 H 580" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-msgdispatch-dark-arrow)"/>
+<rect x="522" y="378" width="56" height="12" rx="2" fill="#060913"/>
+<text x="550" y="387" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ TARGET</text>
+<path d="M 400,416 V 456" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-msgdispatch-dark-arrow)"/>
+<rect x="412" y="430" width="48" height="12" rx="2" fill="#060913"/>
+<text x="436" y="439" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 520,488 H 580" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-msgdispatch-dark-arrow)"/>
+<rect x="522" y="482" width="56" height="12" rx="2" fill="#060913"/>
+<text x="550" y="491" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">XỬ LÝ XONG</text>
+<path d="M 400,520 V 560" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-msgdispatch-dark-arrow)"/>
+<rect x="412" y="534" width="48" height="12" rx="2" fill="#060913"/>
+<text x="436" y="543" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="56" rx="20" fill="#060913"/>
+<rect x="280" y="32" width="240" height="56" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="64" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">objc_msgSend</text>
+<text x="400" y="78" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">receiver · @selector(doWork)</text>
+<polygon points="400,128 530,168 400,208 270,168" fill="#060913"/>
+<polygon points="400,128 530,168 400,208 270,168" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="164" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Có trong Cache?</text>
+<text x="400" y="178" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">dispatch table</text>
+<rect x="580" y="128" width="220" height="64" rx="6" fill="#060913"/>
+<rect x="580" y="128" width="220" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="690" y="162" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Thực thi IMP</text>
+<text x="690" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">con trỏ hàm · IMP</text>
+<rect x="280" y="248" width="240" height="64" rx="6" fill="#060913"/>
+<rect x="280" y="248" width="240" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="282" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">1. Dynamic Method Resolution</text>
+<text x="400" y="296" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">resolveInstanceMethod:</text>
+<rect x="280" y="352" width="240" height="64" rx="6" fill="#060913"/>
+<rect x="280" y="352" width="240" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">2. Fast Forwarding</text>
+<text x="400" y="400" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">forwardingTargetForSelector:</text>
+<rect x="580" y="352" width="220" height="64" rx="6" fill="#060913"/>
+<rect x="580" y="352" width="220" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="690" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Gửi sang Target mới</text>
+<text x="690" y="400" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">tiếp tục dispatch</text>
+<rect x="280" y="456" width="240" height="64" rx="6" fill="#060913"/>
+<rect x="280" y="456" width="240" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="490" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">3. Normal Forwarding</text>
+<text x="400" y="504" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">forwardInvocation:</text>
+<rect x="580" y="456" width="220" height="52" rx="20" fill="#060913"/>
+<rect x="580" y="456" width="220" height="52" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="690" y="487" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Hoàn tất</text>
+<rect x="280" y="560" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="560" width="240" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="592" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Crash: unrecognized selector</text>
+<text x="400" y="606" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">sent to instance</text>
+<!-- legend -->
+<line x1="32" y1="640" x2="768" y2="640" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="656" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="652" r="4" fill="#38BDF8"/>
+<text x="162" y="656" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">RƠI CUỐI · CRASH</text>
+<line x1="370" y1="652" x2="402" y2="652" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-msgdispatch-dark-arrow)"/>
+<text x="410" y="656" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">RẼ NHÁNH THEO KẾT QUẢ</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 664" role="img" aria-labelledby="ios-msgdispatch-title ios-msgdispatch-desc" font-family="'Geist', sans-serif">
+<title id="ios-msgdispatch-title">Ba cơ hội cứu trước khi crash</title>
+<desc id="ios-msgdispatch-desc">objc_msgSend tra cache trước, rồi qua ba nấc dynamic resolution, fast forwarding, normal forwarding, hết đường thì crash.</desc>
+<defs>
+<marker id="ios-msgdispatch-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="664" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,88 V 128" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-msgdispatch-arrow)"/>
+<path d="M 530,168 H 580" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-msgdispatch-arrow)"/>
+<rect x="534" y="162" width="32" height="12" rx="2" fill="#F8FAFC"/>
+<text x="550" y="171" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 400,208 V 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-msgdispatch-arrow)"/>
+<rect x="412" y="222" width="48" height="12" rx="2" fill="#F8FAFC"/>
+<text x="436" y="231" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 520,280 H 632 Q 640,280 640,272 V 192" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-msgdispatch-arrow)"/>
+<rect x="528" y="274" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="564" y="283" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐÃ XỬ LÝ</text>
+<path d="M 400,312 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-msgdispatch-arrow)"/>
+<rect x="412" y="326" width="48" height="12" rx="2" fill="#F8FAFC"/>
+<text x="436" y="335" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 520,384 H 580" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-msgdispatch-arrow)"/>
+<rect x="522" y="378" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="550" y="387" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ TARGET</text>
+<path d="M 400,416 V 456" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-msgdispatch-arrow)"/>
+<rect x="412" y="430" width="48" height="12" rx="2" fill="#F8FAFC"/>
+<text x="436" y="439" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 520,488 H 580" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-msgdispatch-arrow)"/>
+<rect x="522" y="482" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="550" y="491" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">XỬ LÝ XONG</text>
+<path d="M 400,520 V 560" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-msgdispatch-arrow)"/>
+<rect x="412" y="534" width="48" height="12" rx="2" fill="#F8FAFC"/>
+<text x="436" y="543" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="56" rx="20" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="56" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="64" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">objc_msgSend</text>
+<text x="400" y="78" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">receiver · @selector(doWork)</text>
+<polygon points="400,128 530,168 400,208 270,168" fill="#F8FAFC"/>
+<polygon points="400,128 530,168 400,208 270,168" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="164" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Có trong Cache?</text>
+<text x="400" y="178" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">dispatch table</text>
+<rect x="580" y="128" width="220" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="580" y="128" width="220" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="690" y="162" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Thực thi IMP</text>
+<text x="690" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">con trỏ hàm · IMP</text>
+<rect x="280" y="248" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="248" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="282" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">1. Dynamic Method Resolution</text>
+<text x="400" y="296" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">resolveInstanceMethod:</text>
+<rect x="280" y="352" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="352" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">2. Fast Forwarding</text>
+<text x="400" y="400" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">forwardingTargetForSelector:</text>
+<rect x="580" y="352" width="220" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="580" y="352" width="220" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="690" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Gửi sang Target mới</text>
+<text x="690" y="400" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">tiếp tục dispatch</text>
+<rect x="280" y="456" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="456" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="490" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">3. Normal Forwarding</text>
+<text x="400" y="504" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">forwardInvocation:</text>
+<rect x="580" y="456" width="220" height="52" rx="20" fill="#F8FAFC"/>
+<rect x="580" y="456" width="220" height="52" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="690" y="487" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Hoàn tất</text>
+<rect x="280" y="560" width="240" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="560" width="240" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="400" y="592" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Crash: unrecognized selector</text>
+<text x="400" y="606" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">sent to instance</text>
+<!-- legend -->
+<line x1="32" y1="640" x2="768" y2="640" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="656" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="652" r="4" fill="#0284C7"/>
+<text x="162" y="656" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">RƠI CUỐI · CRASH</text>
+<line x1="370" y1="652" x2="402" y2="652" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-msgdispatch-arrow)"/>
+<text x="410" y="656" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">RẼ NHÁNH THEO KẾT QUẢ</text>
+</svg>
+</div>
+</div>
+
 
 <h2>Method Swizzling (Đổi ruột phương thức tại Runtime)</h2>
 <p>Method Swizzling cho phép hoán đổi con trỏ <code>IMP</code> của hai selector trong quá trình runtime:</p>
@@ -770,14 +1610,87 @@ flowchart TD
   <li><strong>Content Compression Resistance Priority (CCRP):</strong> "Đừng bóp nghẹt tôi!" — Quyết định độ ưu tiên ngăn không cho View bị co nhỏ hơn nội dung bên trong (tránh bị cắt chữ <code>...</code>).</li>
 </ul>
 
-<div class="mermaid">
-graph LR
-    subgraph "Intrinsic Content Size"
-        Text["Label Text Content"]
-    end
-    CHP["Content Hugging (Chống kéo dãn)"] --> Text
-    CCRP["Compression Resistance (Chống co nhỏ)"] --> Text
+<div class="dd-diagram" data-dd="ios-autolayout">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 176" role="img" aria-labelledby="ios-autolayout-dark-title ios-autolayout-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-autolayout-dark-title">Chữ muốn phình, layout muốn ép</title>
+<desc id="ios-autolayout-dark-desc">Content Hugging chống kéo dãn và Compression Resistance chống co nhỏ cùng giữ intrinsic content size của label.</desc>
+<defs>
+<marker id="ios-autolayout-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="176" fill="#060913"/>
+<!-- arrows -->
+<path d="M 240,96 H 300" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-autolayout-dark-arrow)"/>
+<rect x="242" y="90" width="56" height="12" rx="2" fill="#060913"/>
+<text x="270" y="99" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHỐNG DÃN</text>
+<path d="M 560,96 H 500" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-autolayout-dark-arrow)"/>
+<rect x="502" y="90" width="56" height="12" rx="2" fill="#060913"/>
+<text x="530" y="99" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHỐNG NÉN</text>
+<!-- nodes -->
+<rect x="40" y="64" width="200" height="64" rx="6" fill="#060913"/>
+<rect x="40" y="64" width="200" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="140" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Content Hugging</text>
+<text x="140" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chống kéo dãn</text>
+<rect x="300" y="64" width="200" height="64" rx="6" fill="#060913"/>
+<rect x="300" y="64" width="200" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Label Text</text>
+<text x="400" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">intrinsic content size</text>
+<rect x="560" y="64" width="200" height="64" rx="6" fill="#060913"/>
+<rect x="560" y="64" width="200" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="660" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Compression Resistance</text>
+<text x="660" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chống co nhỏ</text>
+<!-- legend -->
+<line x1="32" y1="152" x2="768" y2="152" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="168" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="164" r="4" fill="#38BDF8"/>
+<text x="162" y="168" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">SIZE THẬT · INTRINSIC</text>
+<line x1="400" y1="164" x2="432" y2="164" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-autolayout-dark-arrow)"/>
+<text x="440" y="168" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">LỰC GIỮ · PRIORITY</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 176" role="img" aria-labelledby="ios-autolayout-title ios-autolayout-desc" font-family="'Geist', sans-serif">
+<title id="ios-autolayout-title">Chữ muốn phình, layout muốn ép</title>
+<desc id="ios-autolayout-desc">Content Hugging chống kéo dãn và Compression Resistance chống co nhỏ cùng giữ intrinsic content size của label.</desc>
+<defs>
+<marker id="ios-autolayout-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="176" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 240,96 H 300" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-autolayout-arrow)"/>
+<rect x="242" y="90" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="270" y="99" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHỐNG DÃN</text>
+<path d="M 560,96 H 500" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-autolayout-arrow)"/>
+<rect x="502" y="90" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="530" y="99" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHỐNG NÉN</text>
+<!-- nodes -->
+<rect x="40" y="64" width="200" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="40" y="64" width="200" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="140" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Content Hugging</text>
+<text x="140" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chống kéo dãn</text>
+<rect x="300" y="64" width="200" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="300" y="64" width="200" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="400" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Label Text</text>
+<text x="400" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">intrinsic content size</text>
+<rect x="560" y="64" width="200" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="560" y="64" width="200" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="660" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Compression Resistance</text>
+<text x="660" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chống co nhỏ</text>
+<!-- legend -->
+<line x1="32" y1="152" x2="768" y2="152" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="168" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="164" r="4" fill="#0284C7"/>
+<text x="162" y="168" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">SIZE THẬT · INTRINSIC</text>
+<line x1="400" y1="164" x2="432" y2="164" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-autolayout-arrow)"/>
+<text x="440" y="168" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">LỰC GIỮ · PRIORITY</text>
+</svg>
+</div>
+</div>
+
 `
   },
 
@@ -806,22 +1719,117 @@ graph LR
 <h2>Nguyên lý cốt lõi của GCD</h2>
 <p>GCD trừu tượng hóa khái niệm quản lý Thread trực tiếp bằng <strong>Dispatch Queues</strong>. Bạn chỉ cần đưa Block công việc vào Queue, hệ thống sẽ tự động cấp phát và tái sử dụng Thread Pool tối ưu nhất cho CPU.</p>
 
-<div class="mermaid">
-flowchart TD
-    subgraph "Queue Types"
-        Main["DispatchQueue.main<br/>(Serial, UI Thread)"]
-        Global["DispatchQueue.global(qos:)<br/>(Concurrent, Background)"]
-        Custom["Custom DispatchQueue<br/>(Serial or Concurrent)"]
-    end
-
-    subgraph "Execution Modes"
-        Sync["sync: Chặn luồng hiện tại cho tới khi hoàn tất"]
-        Async["async: Trả quyền thực thi ngay lập tức, chạy song song"]
-    end
-
-    Global --> Async
-    Async --> Main
+<div class="dd-diagram" data-dd="ios-gcd">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 392" role="img" aria-labelledby="ios-gcd-dark-title ios-gcd-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-gcd-dark-title">Việc nặng ra nền, xong về main</title>
+<desc id="ios-gcd-dark-desc">Hàng đợi global concurrent thực thi async dưới nền, sau đó quay về hàng đợi main serial để cập nhật giao diện.</desc>
+<defs>
+<marker id="ios-gcd-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="392" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="340" height="320" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="120" height="12" rx="2" fill="#060913"/>
+<text x="108" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">QUEUE TYPES</text>
+<rect x="428" y="24" width="340" height="320" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="444" y="28" width="136" height="12" rx="2" fill="#060913"/>
+<text x="512" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">EXECUTION MODES</text>
+<!-- arrows -->
+<path d="M 340,112 H 396 Q 404,112 404,120 V 236 H 452 Q 460,236 460,244" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-gcd-dark-arrow)"/>
+<rect x="340" y="106" width="60" height="12" rx="2" fill="#060913"/>
+<text x="370" y="115" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHẠY NỀN</text>
+<path d="M 460,244 H 308 Q 300,244 300,252 V 256" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-gcd-dark-arrow)"/>
+<rect x="372" y="238" width="64" height="12" rx="2" fill="#060913"/>
+<text x="404" y="247" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VỀ UI</text>
+<!-- nodes -->
+<rect x="64" y="80" width="276" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="80" width="276" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="114" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">DispatchQueue.global(qos:)</text>
+<text x="202" y="128" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">concurrent · background</text>
+<rect x="64" y="168" width="276" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="168" width="276" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="202" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Custom DispatchQueue</text>
+<text x="202" y="216" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">serial hoặc concurrent</text>
+<rect x="64" y="256" width="276" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="256" width="276" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="290" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">DispatchQueue.main</text>
+<text x="202" y="304" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">serial · UI thread</text>
+<rect x="460" y="80" width="276" height="64" rx="6" fill="#060913"/>
+<rect x="460" y="80" width="276" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="598" y="114" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">sync</text>
+<text x="598" y="128" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chặn luồng tới khi xong</text>
+<rect x="460" y="212" width="276" height="64" rx="6" fill="#060913"/>
+<rect x="460" y="212" width="276" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="598" y="246" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">async</text>
+<text x="598" y="260" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trả quyền ngay · song song</text>
+<!-- legend -->
+<line x1="32" y1="368" x2="768" y2="368" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="380" r="4" fill="#38BDF8"/>
+<text x="162" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐƯỜNG VỀ UI · ASYNC</text>
+<line x1="400" y1="380" x2="432" y2="380" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-gcd-dark-arrow)"/>
+<text x="440" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CHUYỂN QUEUE / MODE</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 392" role="img" aria-labelledby="ios-gcd-title ios-gcd-desc" font-family="'Geist', sans-serif">
+<title id="ios-gcd-title">Việc nặng ra nền, xong về main</title>
+<desc id="ios-gcd-desc">Hàng đợi global concurrent thực thi async dưới nền, sau đó quay về hàng đợi main serial để cập nhật giao diện.</desc>
+<defs>
+<marker id="ios-gcd-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="392" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="340" height="320" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="120" height="12" rx="2" fill="#F8FAFC"/>
+<text x="108" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">QUEUE TYPES</text>
+<rect x="428" y="24" width="340" height="320" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="444" y="28" width="136" height="12" rx="2" fill="#F8FAFC"/>
+<text x="512" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">EXECUTION MODES</text>
+<!-- arrows -->
+<path d="M 340,112 H 396 Q 404,112 404,120 V 236 H 452 Q 460,236 460,244" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-gcd-arrow)"/>
+<rect x="340" y="106" width="60" height="12" rx="2" fill="#F8FAFC"/>
+<text x="370" y="115" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHẠY NỀN</text>
+<path d="M 460,244 H 308 Q 300,244 300,252 V 256" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-gcd-arrow)"/>
+<rect x="372" y="238" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="404" y="247" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VỀ UI</text>
+<!-- nodes -->
+<rect x="64" y="80" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="80" width="276" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="114" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">DispatchQueue.global(qos:)</text>
+<text x="202" y="128" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">concurrent · background</text>
+<rect x="64" y="168" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="168" width="276" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="202" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Custom DispatchQueue</text>
+<text x="202" y="216" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">serial hoặc concurrent</text>
+<rect x="64" y="256" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="256" width="276" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="290" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">DispatchQueue.main</text>
+<text x="202" y="304" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">serial · UI thread</text>
+<rect x="460" y="80" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="460" y="80" width="276" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="598" y="114" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">sync</text>
+<text x="598" y="128" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chặn luồng tới khi xong</text>
+<rect x="460" y="212" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="460" y="212" width="276" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="598" y="246" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">async</text>
+<text x="598" y="260" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trả quyền ngay · song song</text>
+<!-- legend -->
+<line x1="32" y1="368" x2="768" y2="368" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="380" r="4" fill="#0284C7"/>
+<text x="162" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐƯỜNG VỀ UI · ASYNC</text>
+<line x1="400" y1="380" x2="432" y2="380" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-gcd-arrow)"/>
+<text x="440" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CHUYỂN QUEUE / MODE</text>
+</svg>
+</div>
+</div>
+
 
 <h2>QoS (Quality of Service) Levels</h2>
 <ol>
@@ -859,20 +1867,107 @@ flowchart TD
 <h2>Vấn đề của Apple MVC: "Massive View Controller"</h2>
 <p>Trong kiến trúc MVC nguyên bản của Apple, <code>UIViewController</code> vừa nắm giữ View hierarchy, vừa xử lý User Interaction, vừa gọi Network, vừa quản lý Navigation. Hậu quả là class phình to hàng nghìn dòng, không thể test được logic.</p>
 
-<div class="mermaid">
-graph LR
-    subgraph "MVVM + Coordinator Flow"
-        View["ViewController<br/>(Chỉ render UI & nhận input)"]
-        VM["ViewModel<br/>(Biến đổi dữ liệu & State)"]
-        Coord["Coordinator<br/>(Quản lý chuyển màn hình)"]
-        UseCase["UseCase / Repository<br/>(Nghiệp vụ cốt lõi)"]
-    end
-
-    View -->|User Action| VM
-    VM -->|Data Binding / State| View
-    View -->|Yêu cầu chuyển màn| Coord
-    VM -->|Yêu cầu dữ liệu| UseCase
+<div class="dd-diagram" data-dd="ios-mvvmcoord">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 368" role="img" aria-labelledby="ios-mvvmcoord-dark-title ios-mvvmcoord-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-mvvmcoord-dark-title">Màn hình không tự dẫn đường</title>
+<desc id="ios-mvvmcoord-dark-desc">ViewController gửi user action sang ViewModel và nhận data binding về, nhờ Coordinator chuyển màn và UseCase Repository lo nghiệp vụ.</desc>
+<defs>
+<marker id="ios-mvvmcoord-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="368" fill="#060913"/>
+<!-- arrows -->
+<path d="M 344,88 H 456" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-mvvmcoord-dark-arrow)"/>
+<rect x="366" y="82" width="72" height="12" rx="2" fill="#060913"/>
+<text x="402" y="91" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">USER ACTION</text>
+<path d="M 456,108 H 344" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-mvvmcoord-dark-arrow)"/>
+<rect x="366" y="112" width="72" height="12" rx="2" fill="#060913"/>
+<text x="402" y="121" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DATA BINDING</text>
+<path d="M 204,128 V 256" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-mvvmcoord-dark-arrow)"/>
+<rect x="216" y="182" width="72" height="12" rx="2" fill="#060913"/>
+<text x="252" y="191" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHUYỂN MÀN</text>
+<path d="M 596,128 V 256" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-mvvmcoord-dark-arrow)"/>
+<rect x="608" y="182" width="64" height="12" rx="2" fill="#060913"/>
+<text x="640" y="191" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DỮ LIỆU</text>
+<!-- nodes -->
+<rect x="64" y="64" width="280" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="64" width="280" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="204" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewController</text>
+<text x="204" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">render UI · nhận input</text>
+<rect x="456" y="64" width="280" height="64" rx="6" fill="#060913"/>
+<rect x="456" y="64" width="280" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="596" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<text x="596" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">biến đổi dữ liệu · state</text>
+<rect x="64" y="256" width="280" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="256" width="280" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="204" y="290" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Coordinator</text>
+<text x="204" y="304" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">quản lý chuyển màn hình</text>
+<rect x="456" y="256" width="280" height="64" rx="6" fill="#060913"/>
+<rect x="456" y="256" width="280" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="596" y="290" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">UseCase / Repository</text>
+<text x="596" y="304" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nghiệp vụ cốt lõi</text>
+<!-- legend -->
+<line x1="32" y1="344" x2="768" y2="344" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="356" r="4" fill="#38BDF8"/>
+<text x="162" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRUNG TÂM · VIEWMODEL</text>
+<line x1="400" y1="356" x2="432" y2="356" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-mvvmcoord-dark-arrow)"/>
+<text x="440" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">YÊU CẦU / DỮ LIỆU</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 368" role="img" aria-labelledby="ios-mvvmcoord-title ios-mvvmcoord-desc" font-family="'Geist', sans-serif">
+<title id="ios-mvvmcoord-title">Màn hình không tự dẫn đường</title>
+<desc id="ios-mvvmcoord-desc">ViewController gửi user action sang ViewModel và nhận data binding về, nhờ Coordinator chuyển màn và UseCase Repository lo nghiệp vụ.</desc>
+<defs>
+<marker id="ios-mvvmcoord-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="368" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 344,88 H 456" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-mvvmcoord-arrow)"/>
+<rect x="366" y="82" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="402" y="91" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">USER ACTION</text>
+<path d="M 456,108 H 344" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-mvvmcoord-arrow)"/>
+<rect x="366" y="112" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="402" y="121" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DATA BINDING</text>
+<path d="M 204,128 V 256" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-mvvmcoord-arrow)"/>
+<rect x="216" y="182" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="252" y="191" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHUYỂN MÀN</text>
+<path d="M 596,128 V 256" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-mvvmcoord-arrow)"/>
+<rect x="608" y="182" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="640" y="191" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DỮ LIỆU</text>
+<!-- nodes -->
+<rect x="64" y="64" width="280" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="64" width="280" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="204" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewController</text>
+<text x="204" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">render UI · nhận input</text>
+<rect x="456" y="64" width="280" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="456" y="64" width="280" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="596" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<text x="596" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">biến đổi dữ liệu · state</text>
+<rect x="64" y="256" width="280" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="256" width="280" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="204" y="290" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Coordinator</text>
+<text x="204" y="304" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">quản lý chuyển màn hình</text>
+<rect x="456" y="256" width="280" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="456" y="256" width="280" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="596" y="290" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UseCase / Repository</text>
+<text x="596" y="304" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nghiệp vụ cốt lõi</text>
+<!-- legend -->
+<line x1="32" y1="344" x2="768" y2="344" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="356" r="4" fill="#0284C7"/>
+<text x="162" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRUNG TÂM · VIEWMODEL</text>
+<line x1="400" y1="356" x2="432" y2="356" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-mvvmcoord-arrow)"/>
+<text x="440" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">YÊU CẦU / DỮ LIỆU</text>
+</svg>
+</div>
+</div>
+
 `
   },
 
@@ -901,12 +1996,101 @@ graph LR
 <h2>Triết lý: Single Source of Truth trong SwiftUI</h2>
 <p>Khác với UIKit (Imperative — bạn tự tìm view và thay đổi text), SwiftUI là <strong>Declarative</strong>. Bạn mô tả giao diện dựa trên State. Khi State thay đổi, SwiftUI tự động so sánh (diffing) và render lại phần giao diện cần thiết.</p>
 
-<div class="mermaid">
-graph TD
-    State["@State / @StateObject<br/>(Source of Truth)"] -->|Data Binding $val| Binding["@Binding<br/>(Child Views)"]
-    State -->|Render| UI["SwiftUI Body (View)"]
-    User["User Interaction"] -->|Cập nhật| State
+<div class="dd-diagram" data-dd="ios-swiftui">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 368" role="img" aria-labelledby="ios-swiftui-dark-title ios-swiftui-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-swiftui-dark-title">Một sự thật, mọi view cùng nghe</title>
+<desc id="ios-swiftui-dark-desc">User interaction cập nhật State là source of truth, State chia data binding cho child views và render ra SwiftUI Body.</desc>
+<defs>
+<marker id="ios-swiftui-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="368" fill="#060913"/>
+<!-- arrows -->
+<path d="M 304,96 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-swiftui-dark-arrow)"/>
+<rect x="312" y="90" width="64" height="12" rx="2" fill="#060913"/>
+<text x="344" y="99" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CẬP NHẬT</text>
+<path d="M 520,128 V 184 H 192 Q 184,184 184,192 V 256" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-swiftui-dark-arrow)"/>
+<rect x="300" y="178" width="96" height="12" rx="2" fill="#060913"/>
+<text x="348" y="187" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DATA BINDING $VAL</text>
+<path d="M 560,128 V 256" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-swiftui-dark-arrow)"/>
+<rect x="572" y="182" width="56" height="12" rx="2" fill="#060913"/>
+<text x="600" y="191" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">RENDER</text>
+<!-- nodes -->
+<rect x="64" y="64" width="240" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="64" width="240" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="184" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">User Interaction</text>
+<text x="184" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">tap · scroll · type</text>
+<rect x="400" y="64" width="240" height="64" rx="6" fill="#060913"/>
+<rect x="400" y="64" width="240" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="520" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">@State / @StateObject</text>
+<text x="520" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">source of truth</text>
+<rect x="64" y="256" width="240" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="256" width="240" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="184" y="290" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">@Binding</text>
+<text x="184" y="304" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">child views · $val</text>
+<rect x="400" y="256" width="240" height="64" rx="6" fill="#060913"/>
+<rect x="400" y="256" width="240" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="520" y="290" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">SwiftUI Body</text>
+<text x="520" y="304" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">view · render</text>
+<!-- legend -->
+<line x1="32" y1="344" x2="768" y2="344" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="356" r="4" fill="#38BDF8"/>
+<text x="162" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỐC SỰ THẬT · STATE</text>
+<line x1="400" y1="356" x2="432" y2="356" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-swiftui-dark-arrow)"/>
+<text x="440" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">LUỒNG DỮ LIỆU</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 368" role="img" aria-labelledby="ios-swiftui-title ios-swiftui-desc" font-family="'Geist', sans-serif">
+<title id="ios-swiftui-title">Một sự thật, mọi view cùng nghe</title>
+<desc id="ios-swiftui-desc">User interaction cập nhật State là source of truth, State chia data binding cho child views và render ra SwiftUI Body.</desc>
+<defs>
+<marker id="ios-swiftui-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="368" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 304,96 H 400" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-swiftui-arrow)"/>
+<rect x="312" y="90" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="344" y="99" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CẬP NHẬT</text>
+<path d="M 520,128 V 184 H 192 Q 184,184 184,192 V 256" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-swiftui-arrow)"/>
+<rect x="300" y="178" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="348" y="187" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DATA BINDING $VAL</text>
+<path d="M 560,128 V 256" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-swiftui-arrow)"/>
+<rect x="572" y="182" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="600" y="191" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">RENDER</text>
+<!-- nodes -->
+<rect x="64" y="64" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="64" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="184" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">User Interaction</text>
+<text x="184" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">tap · scroll · type</text>
+<rect x="400" y="64" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="400" y="64" width="240" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="520" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">@State / @StateObject</text>
+<text x="520" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">source of truth</text>
+<rect x="64" y="256" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="256" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="184" y="290" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">@Binding</text>
+<text x="184" y="304" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">child views · $val</text>
+<rect x="400" y="256" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="400" y="256" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="520" y="290" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">SwiftUI Body</text>
+<text x="520" y="304" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">view · render</text>
+<!-- legend -->
+<line x1="32" y1="344" x2="768" y2="344" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="356" r="4" fill="#0284C7"/>
+<text x="162" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GỐC SỰ THẬT · STATE</text>
+<line x1="400" y1="356" x2="432" y2="356" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-swiftui-arrow)"/>
+<text x="440" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">LUỒNG DỮ LIỆU</text>
+</svg>
+</div>
+</div>
+
 
 <h2>Bảng phân loại Property Wrappers</h2>
 <table style="width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:14px;">
@@ -977,15 +2161,123 @@ graph TD
     readTime: '25 phút',
     content: `
 <h2>Quy trình phát hành chuẩn trên iOS</h2>
-<div class="mermaid">
-flowchart LR
-    A["Code Freeze & Testing"] --> B["TestFlight Internal / External"]
-    B --> C["App Store Connect Metadata"]
-    C --> D["Submit for Review"]
-    D --> E{"Apple Review Status"}
-    E -- Approved --> F["Phased Release (1% -> 100% in 7 days)"]
-    E -- Rejected --> G["Fix & Submit Resolution"]
+<div class="dd-diagram" data-dd="ios-publish">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 624" role="img" aria-labelledby="ios-publish-dark-title ios-publish-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-publish-dark-title">Apple gật đầu thì mới lên kệ</title>
+<desc id="ios-publish-dark-desc">Chuỗi phát hành iOS từ code freeze qua TestFlight và App Store Connect tới review, duyệt thì phased release, bị từ chối thì sửa và nộp lại.</desc>
+<defs>
+<marker id="ios-publish-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="624" fill="#060913"/>
+<!-- arrows -->
+<path d="M 360,88 V 112" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-publish-dark-arrow)"/>
+<path d="M 360,176 V 200" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-publish-dark-arrow)"/>
+<path d="M 360,264 V 288" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-publish-dark-arrow)"/>
+<path d="M 360,344 V 368" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-publish-dark-arrow)"/>
+<path d="M 490,408 H 560" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-publish-dark-arrow)"/>
+<rect x="494" y="402" width="62" height="12" rx="2" fill="#060913"/>
+<text x="525" y="411" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">APPROVED</text>
+<path d="M 360,448 V 512" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-publish-dark-arrow)"/>
+<rect x="372" y="474" width="64" height="12" rx="2" fill="#060913"/>
+<text x="404" y="483" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">REJECTED</text>
+<!-- nodes -->
+<rect x="240" y="32" width="240" height="56" rx="20" fill="#060913"/>
+<rect x="240" y="32" width="240" height="56" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="360" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Code Freeze &amp; Testing</text>
+<rect x="240" y="112" width="240" height="64" rx="6" fill="#060913"/>
+<rect x="240" y="112" width="240" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="360" y="146" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">TestFlight</text>
+<text x="360" y="160" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">internal · external</text>
+<rect x="240" y="200" width="240" height="64" rx="6" fill="#060913"/>
+<rect x="240" y="200" width="240" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="360" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">App Store Connect</text>
+<text x="360" y="248" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">metadata</text>
+<rect x="240" y="288" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="240" y="288" width="240" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="360" y="321" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Submit for Review</text>
+<polygon points="360,368 490,408 360,448 230,408" fill="#060913"/>
+<polygon points="360,368 490,408 360,448 230,408" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="360" y="404" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Apple duyệt?</text>
+<text x="360" y="418" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">review status</text>
+<rect x="560" y="368" width="208" height="64" rx="6" fill="#060913"/>
+<rect x="560" y="368" width="208" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="664" y="402" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Phased Release</text>
+<text x="664" y="416" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">1% → 100% · 7 days</text>
+<rect x="240" y="512" width="240" height="64" rx="6" fill="#060913"/>
+<rect x="240" y="512" width="240" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="360" y="546" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Fix &amp; Submit Resolution</text>
+<text x="360" y="560" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">sửa rồi nộp lại</text>
+<!-- legend -->
+<line x1="32" y1="600" x2="768" y2="600" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="616" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="612" r="4" fill="#38BDF8"/>
+<text x="162" y="616" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐÍCH ĐẾN · PHASED RELEASE</text>
+<line x1="420" y1="612" x2="452" y2="612" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-publish-dark-arrow)"/>
+<text x="460" y="616" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">QUYẾT ĐỊNH REVIEW</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 624" role="img" aria-labelledby="ios-publish-title ios-publish-desc" font-family="'Geist', sans-serif">
+<title id="ios-publish-title">Apple gật đầu thì mới lên kệ</title>
+<desc id="ios-publish-desc">Chuỗi phát hành iOS từ code freeze qua TestFlight và App Store Connect tới review, duyệt thì phased release, bị từ chối thì sửa và nộp lại.</desc>
+<defs>
+<marker id="ios-publish-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="624" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 360,88 V 112" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-publish-arrow)"/>
+<path d="M 360,176 V 200" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-publish-arrow)"/>
+<path d="M 360,264 V 288" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-publish-arrow)"/>
+<path d="M 360,344 V 368" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-publish-arrow)"/>
+<path d="M 490,408 H 560" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-publish-arrow)"/>
+<rect x="494" y="402" width="62" height="12" rx="2" fill="#F8FAFC"/>
+<text x="525" y="411" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">APPROVED</text>
+<path d="M 360,448 V 512" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-publish-arrow)"/>
+<rect x="372" y="474" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="404" y="483" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">REJECTED</text>
+<!-- nodes -->
+<rect x="240" y="32" width="240" height="56" rx="20" fill="#F8FAFC"/>
+<rect x="240" y="32" width="240" height="56" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="360" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Code Freeze &amp; Testing</text>
+<rect x="240" y="112" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="112" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="360" y="146" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">TestFlight</text>
+<text x="360" y="160" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">internal · external</text>
+<rect x="240" y="200" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="200" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="360" y="234" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">App Store Connect</text>
+<text x="360" y="248" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">metadata</text>
+<rect x="240" y="288" width="240" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="288" width="240" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="360" y="321" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Submit for Review</text>
+<polygon points="360,368 490,408 360,448 230,408" fill="#F8FAFC"/>
+<polygon points="360,368 490,408 360,448 230,408" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="360" y="404" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Apple duyệt?</text>
+<text x="360" y="418" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">review status</text>
+<rect x="560" y="368" width="208" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="560" y="368" width="208" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="664" y="402" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Phased Release</text>
+<text x="664" y="416" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">1% → 100% · 7 days</text>
+<rect x="240" y="512" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="512" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="360" y="546" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Fix &amp; Submit Resolution</text>
+<text x="360" y="560" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">sửa rồi nộp lại</text>
+<!-- legend -->
+<line x1="32" y1="600" x2="768" y2="600" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="616" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="612" r="4" fill="#0284C7"/>
+<text x="162" y="616" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐÍCH ĐẾN · PHASED RELEASE</text>
+<line x1="420" y1="612" x2="452" y2="612" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-publish-arrow)"/>
+<text x="460" y="616" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">QUYẾT ĐỊNH REVIEW</text>
+</svg>
+</div>
+</div>
+
 
 <h2>Chiến lược Phased Release (7 Ngày)</h2>
 <p>Tính năng Phased Release của App Store cho phép phát hành bản cập nhật dần dần theo tỷ lệ phần trăm người dùng tự động update:</p>

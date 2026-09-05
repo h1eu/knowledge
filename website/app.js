@@ -228,7 +228,7 @@ const KNOWLEDGE_DATA = {
           name: 'Session 02: Hệ điều hành & Quyền',
           topics: [
             { id: 'session-02-overview', title: 'Session 02 Overview', status: 'draft', tags: ['android', 'overview'] },
-            { id: 'file-permissions', title: '2.1 File Permissions', status: 'draft', tags: ['android', 'security'] },
+            { id: 'file-permissions', title: '2.1 File Permissions', status: 'published', tags: ['android', 'security'] },
             { id: 'process-management', title: '2.2 Process Management', status: 'draft', tags: ['android', 'os'] },
             { id: 'resource-solutions', title: '2.3 Resource Solutions', status: 'draft', tags: ['android', 'resources'] },
             { id: 'multi-user-os', title: '2.4 Multi User OS', status: 'draft', tags: ['android', 'os'] }
@@ -1115,7 +1115,8 @@ const KNOWLEDGE_DATA = {
 };
 
 // ── LeetCode 500 — dynamic domain injection (5 Level / 17 Module) ──
-(function injectLeetCodeDomain() {
+// Đặt tên để gọi lại sau lazy-load (index.html không nạp sẵn content).
+function injectLeetCodeDomain() {
   if (typeof LEETCODE_CONTENT === 'undefined') return;
   if (KNOWLEDGE_DATA.domains.some(d => d.id === 'leetcode')) return;
   const LEVEL_META = {
@@ -1178,7 +1179,8 @@ const KNOWLEDGE_DATA = {
     description: `${lcTotal} bài học đầy đủ (5 ngôn ngữ C++/Java/Kotlin/Swift/Dart) trong 5 Level / 17 Pattern • Catalog ${catTotal} bài free LeetCode với tag chính thức — duyệt theo Pattern, Tag, Độ khó hoặc kết hợp.`,
     modules: orderedModules
   });
-})();
+}
+injectLeetCodeDomain();
 
 // ── LeetCode Catalog — toàn bộ bài free (metadata từ problems.json) ──
 const LC_CATALOG = {
@@ -1189,8 +1191,9 @@ const LC_CATALOG = {
   totalFree: 0,
   lessonByProblemId: {}
 };
-(function initLcCatalog() {
+function initLcCatalog() {
   if (typeof LEETCODE_PROBLEMS_META === 'undefined' || !LEETCODE_PROBLEMS_META || !Array.isArray(LEETCODE_PROBLEMS_META.problems)) return;
+  if (typeof LEETCODE_CONTENT === 'undefined') return;
   LC_CATALOG.enabled = true;
   LC_CATALOG.problems = LEETCODE_PROBLEMS_META.problems;
   LC_CATALOG.tagsMeta = (typeof LEETCODE_TAGS_META !== 'undefined') ? LEETCODE_TAGS_META : [];
@@ -1200,7 +1203,8 @@ const LC_CATALOG = {
     const c = LEETCODE_CONTENT[tid];
     if (c.leetcodeId && !LC_CATALOG.lessonByProblemId[c.leetcodeId]) LC_CATALOG.lessonByProblemId[c.leetcodeId] = tid;
   });
-})();
+}
+initLcCatalog();
 
 // Trạng thái duyệt catalog
 let lcBrowseMode = 'pattern';   // 'pattern' | 'tag' | 'difficulty' | 'combo'
@@ -1648,35 +1652,41 @@ class UserViewModel : ViewModel() {
   }
 };
 
-// Merge DSA content if loaded
-if (typeof DSA_CONTENT !== 'undefined') {
-  Object.assign(TOPIC_CONTENT, DSA_CONTENT);
-}
+// Merge content từng domain vào TOPIC_CONTENT — bọc thành hàm để gọi lại
+// sau lazy-load (index.html). Các file chapter tự Object.assign vào object
+// gốc (vd DSA_CONTENT) nên merge lại là đủ, không cần nạp lại.
+function mergeDomainContent() {
+  // Merge DSA content if loaded
+  if (typeof DSA_CONTENT !== 'undefined') {
+    Object.assign(TOPIC_CONTENT, DSA_CONTENT);
+  }
 
-// Merge Android content if loaded
-if (typeof ANDROID_CONTENT !== 'undefined') {
-  Object.assign(TOPIC_CONTENT, ANDROID_CONTENT);
-}
+  // Merge Android content if loaded
+  if (typeof ANDROID_CONTENT !== 'undefined') {
+    Object.assign(TOPIC_CONTENT, ANDROID_CONTENT);
+  }
 
-// Merge iOS content if loaded
-if (typeof IOS_CONTENT !== 'undefined') {
-  Object.assign(TOPIC_CONTENT, IOS_CONTENT);
-}
+  // Merge iOS content if loaded
+  if (typeof IOS_CONTENT !== 'undefined') {
+    Object.assign(TOPIC_CONTENT, IOS_CONTENT);
+  }
 
-// Merge Flutter content if loaded
-if (typeof FLUTTER_CONTENT !== 'undefined') {
-  Object.assign(TOPIC_CONTENT, FLUTTER_CONTENT);
-}
+  // Merge Flutter content if loaded
+  if (typeof FLUTTER_CONTENT !== 'undefined') {
+    Object.assign(TOPIC_CONTENT, FLUTTER_CONTENT);
+  }
 
-// Merge Git Beginner content if loaded
-if (typeof GIT_CONTENT !== 'undefined') {
-  Object.assign(TOPIC_CONTENT, GIT_CONTENT);
-}
+  // Merge Git Beginner content if loaded
+  if (typeof GIT_CONTENT !== 'undefined') {
+    Object.assign(TOPIC_CONTENT, GIT_CONTENT);
+  }
 
-// Merge LeetCode content if loaded (must be after other merges)
-if (typeof LEETCODE_CONTENT !== 'undefined') {
-  Object.assign(TOPIC_CONTENT, LEETCODE_CONTENT);
-}
+  // Merge LeetCode content if loaded (must be after other merges)
+  if (typeof LEETCODE_CONTENT !== 'undefined') {
+    Object.assign(TOPIC_CONTENT, LEETCODE_CONTENT);
+  }
+  }
+mergeDomainContent();
 
 // ── State ────────────────────────────────────────────────────────
 // Reading Enhancers state — khai báo sớm để tránh TDZ (openTopic có thể chạy khi load)
@@ -2441,6 +2451,83 @@ function expandDomainAndShow(domainId) {
 }
 
 // ── Topic View ────────────────────────────────────────────────────
+// Domain → trang đọc bài đầy đủ (mỗi trang chỉ nạp content domain mình,
+// xem script defer từng file HTML). Dùng cho graceful link khi topic thiếu content.
+const DOMAIN_READER_PAGE = {
+  'android': 'android.html',
+  'ios': 'ios.html',
+  'flutter': 'flutter.html',
+  'algorithms': 'dsa.html',
+  'leetcode': 'leetcode.html',
+  'git-beginner': 'index.html'
+};
+function getReaderPageUrl(topicId, domainId) {
+  const page = DOMAIN_READER_PAGE[domainId];
+  if (!page) return null;
+  const cur = (window.location.pathname.split('/').pop() || 'index.html');
+  if (cur === page) return null;
+  return `${page}?topic=${encodeURIComponent(topicId)}`;
+}
+
+// ── Lazy-load content theo domain ──
+// index.html không nạp sẵn file content (11.73MB); các trang domain vẫn nạp
+// tĩnh như cũ. Mọi đường vào bài học (sidebar, search, KG, deep-link) đều đi
+// qua openTopic nên chỉ cần chặn ở một điểm.
+const DOMAIN_CONTENT_FILES = {
+  'android': ['android-content.js'],
+  'ios': ['ios-content.js'],
+  'flutter': ['flutter-content.js'],
+  'git-beginner': ['git-content.js'],
+  'algorithms': ['dsa-content.js', 'dsa-content-ch0.js', 'dsa-content-ch04.js', 'dsa-content-ch05.js', 'dsa-content-ch06.js', 'dsa-content-ch07.js', 'dsa-content-ch08.js', 'dsa-content-ch09.js', 'dsa-content-ch10.js', 'dsa-content-ch11.js', 'dsa-sort-frames-ch11.js', 'dsa-content-ch12.js', 'dsa-content-ch13.js', 'dsa-backtrack-frames-ch13.js', 'dsa-content-ch14.js', 'dsa-dp-frames-ch14.js', 'dsa-content-ch15.js', 'dsa-content-ch16.js'],
+  'leetcode': ['leetcode-problems.js', 'leetcode-content.js']
+};
+// typeof-guard theo closure (const ở top-level classic script không nằm trên window).
+const DOMAIN_CONTENT_READY = {
+  'android': () => typeof ANDROID_CONTENT !== 'undefined',
+  'ios': () => typeof IOS_CONTENT !== 'undefined',
+  'flutter': () => typeof FLUTTER_CONTENT !== 'undefined',
+  'git-beginner': () => typeof GIT_CONTENT !== 'undefined',
+  'algorithms': () => typeof DSA_CONTENT !== 'undefined',
+  'leetcode': () => typeof LEETCODE_CONTENT !== 'undefined' && typeof LEETCODE_PROBLEMS_META !== 'undefined'
+};
+const domainContentPromise = {};
+function loadScriptsSequential(files) {
+  return files.reduce((p, src) => p.then(() => new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('content load failed: ' + src));
+    document.head.appendChild(s);
+  })), Promise.resolve());
+}
+function ensureDomainContent(domainId) {
+  if (!DOMAIN_CONTENT_FILES[domainId]) return Promise.resolve(true);
+  try {
+    if (DOMAIN_CONTENT_READY[domainId]()) return Promise.resolve(true);
+  } catch (e) { /* typeof-guard không bao giờ throw, giữ cho chắc */ }
+  if (!domainContentPromise[domainId]) {
+    domainContentPromise[domainId] = loadScriptsSequential(DOMAIN_CONTENT_FILES[domainId]).then(() => {
+      mergeDomainContent();
+      injectLeetCodeDomain();
+      initLcCatalog();
+      return true;
+    }).catch(e => {
+      console.error('[content-loader]', e);
+      delete domainContentPromise[domainId];
+      return false;
+    });
+  }
+  return domainContentPromise[domainId];
+}
+function showContentLoading(topicTitle) {
+  const main = document.getElementById('main');
+  if (main) {
+    main.innerHTML = `<div class="fade-in" style="max-width:640px;margin:8vh auto;text-align:center;color:var(--text-secondary);">`
+      + `<div style="font-size:15px;font-weight:700;">Đang tải bài học…</div>`
+      + `<div style="font-size:13px;margin-top:6px;">${topicTitle}</div></div>`;
+  }
+}
+
 function findTopic(topicId) {
   for (const domain of KNOWLEDGE_DATA.domains) {
     for (const mod of domain.modules) {
@@ -2475,7 +2562,7 @@ function triggerMathJax() {
   }
 }
 
-function openTopic(topicId, updateHash = true) {
+function openTopic(topicId, updateHash = true, triedLoad = false) {
   currentTopicId = topicId;
   currentView = 'topic';
   isShowingOriginal = false;
@@ -2493,6 +2580,22 @@ function openTopic(topicId, updateHash = true) {
 
   const content = TOPIC_CONTENT[topicId];
   const hasContent = !!content;
+  const readerPageUrl = getReaderPageUrl(topicId, domain.id);
+
+  // index.html không nạp sẵn content: tải đúng domain rồi render lại.
+  // triedLoad chống lặp vô hạn khi tải thất bại (rơi xuống note + reader link).
+  if (!hasContent && !triedLoad && DOMAIN_CONTENT_FILES[domain.id]) {
+    let needLoad = true;
+    try { needLoad = !DOMAIN_CONTENT_READY[domain.id](); } catch (e) { needLoad = true; }
+    if (needLoad) {
+      showContentLoading(topic.title);
+      ensureDomainContent(domain.id).then(() => {
+        if (currentTopicId !== topicId || currentView !== 'topic') return;
+        openTopic(topicId, false, true);
+      });
+      return;
+    }
+  }
 
   // Set current domain and expand sidebar
   currentDomainId = domain.id;
@@ -2674,6 +2777,7 @@ function openTopic(topicId, updateHash = true) {
             <div class="callout-body">
               <strong>${topic.title}</strong> đang được biên soạn.
               Nội dung sẽ sớm được cập nhật vào Knowledge OS.
+              ${readerPageUrl ? `<br><a href="${readerPageUrl}" style="color:var(--accent-blue);font-weight:700;">Đọc bài đầy đủ tại trang ${domain.name} →</a>` : ''}
             </div>
           </div>
           <p>Topic này nằm trong module <strong>${mod.name}</strong> của domain <strong>${domain.name}</strong>.</p>
@@ -3518,7 +3622,7 @@ function buildGraphData() {
       icon: domain.icon,
       summary: domain.description,
       status: 'ready',
-      radius: 26
+      radius: 22
     });
 
     // 2. Modules
@@ -3532,7 +3636,7 @@ function buildGraphData() {
         color: col,
         summary: `Module thuộc ${domain.name} (${mod.topics.length} bài học)`,
         status: 'ready',
-        radius: 15
+        radius: 14
       });
 
       rawLinks.push({
@@ -3623,7 +3727,7 @@ function buildGraphData() {
   rawNodes.forEach(node => {
     if (node.type === 'topic') {
       const deg = degreeMap[node.id] || 0;
-      node.radius = 8 + Math.min(8, deg * 1.2);
+      node.radius = 9 + Math.min(7, deg * 1.2);
     }
   });
 
@@ -3708,8 +3812,8 @@ function showGraph(focusTopicId = null) {
         </div>
         <div class="kg-legend">
           <div class="kg-legend-item"><span class="kg-legend-dot" style="background:#38BDF8;box-shadow:0 0 6px #38BDF8;"></span> Domain</div>
-          <div class="kg-legend-item"><span class="kg-legend-dot" style="background:#A78BFA;"></span> Module</div>
-          <div class="kg-legend-item"><span class="kg-legend-dot" style="background:#34D399;"></span> Topic</div>
+          <div class="kg-legend-item"><span class="kg-legend-dot" style="background:transparent;border:2px solid #A78BFA;"></span> Module</div>
+          <div class="kg-legend-item"><span class="kg-legend-dot" style="background:transparent;border:1.5px solid #34D399;width:7px;height:7px;"></span> Topic</div>
           <div class="kg-legend-item"><span class="kg-legend-line" style="background:var(--accent-violet);"></span> Tiền đề</div>
           <div class="kg-legend-item"><span class="kg-legend-line" style="background:var(--accent-sky);"></span> Liên quan</div>
         </div>
@@ -3999,6 +4103,32 @@ function startKgAnimationLoop() {
   kgState.animFrameId = requestAnimationFrame(loop);
 }
 
+// Directional arrowhead for semantic links (prerequisite / related).
+// Drawn just outside the target node so learning-path direction is readable.
+function drawKgArrow(ctx, s, t, color) {
+  const dx = t.x - s.x;
+  const dy = t.y - s.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len;
+  const uy = dy / len;
+  const targetR = (t.radius || 9) + 3;
+  const tipX = t.x - ux * targetR;
+  const tipY = t.y - uy * targetR;
+  const arrowLen = 7;
+  const arrowW = 3.4;
+  const baseX = tipX - ux * arrowLen;
+  const baseY = tipY - uy * arrowLen;
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(tipX, tipY);
+  ctx.lineTo(baseX + (-uy) * arrowW, baseY + ux * arrowW);
+  ctx.lineTo(baseX + uy * arrowW, baseY - ux * arrowW);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
 function renderKgFrame() {
   if (!kgState || !kgState.ctx) return;
 
@@ -4061,7 +4191,7 @@ function renderKgFrame() {
     } else if (isHighlighted) {
       ctx.globalAlpha = 0.95;
     } else {
-      ctx.globalAlpha = isLight ? 0.35 : 0.22;
+      ctx.globalAlpha = isLight ? 0.45 : 0.32;
     }
 
     // Link styling by type
@@ -4088,6 +4218,7 @@ function renderKgFrame() {
         ctx.arc(px, py, isHighlighted ? 3 : 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
+        drawKgArrow(ctx, s, t, isHighlighted ? '#C084FC' : '#A78BFA');
       }
     } else if (link.type === 'related') {
       ctx.strokeStyle = isHighlighted ? '#38BDF8' : (isLight ? '#0284C7' : '#38BDF8');
@@ -4096,10 +4227,13 @@ function renderKgFrame() {
       ctx.moveTo(s.x, s.y);
       ctx.lineTo(t.x, t.y);
       ctx.stroke();
+      if (!isDimmed) {
+        drawKgArrow(ctx, s, t, isHighlighted ? '#38BDF8' : (isLight ? '#0284C7' : '#38BDF8'));
+      }
     } else {
       // Hierarchy links
-      ctx.strokeStyle = isLight ? '#94A3B8' : '#334155';
-      ctx.lineWidth = link.type === 'hierarchy-domain' ? 1.5 : 0.8;
+      ctx.strokeStyle = isLight ? '#94A3B8' : '#475569';
+      ctx.lineWidth = link.type === 'hierarchy-domain' ? 1.75 : 1;
       ctx.beginPath();
       ctx.moveTo(s.x, s.y);
       ctx.lineTo(t.x, t.y);
@@ -4200,26 +4334,39 @@ function renderKgFrame() {
       ctx.fill();
     }
 
-    // Node Labels
+    // Node Labels — hub topics stay labeled even when zoomed out
     const showLabel = node.type === 'domain' ||
                       (node.type === 'module' && transform.k > 0.55) ||
-                      (node.type === 'topic' && (transform.k > 0.95 || isHighlighted));
+                      (node.type === 'topic' && (transform.k > 0.7 || isHighlighted || (node.radius || 0) >= 11));
 
     if (showLabel) {
       ctx.font = node.type === 'domain'
         ? 'bold 13px Geist, "Plus Jakarta Sans", sans-serif'
-        : (node.type === 'module' ? '600 11px Geist, sans-serif' : '500 10.5px Geist, sans-serif');
+        : (node.type === 'module' ? '600 11px Geist, sans-serif' : '600 11px Geist, sans-serif');
 
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      const labelY = node.y + r + (node.type === 'domain' ? 14 : 11);
+      const labelY = node.y + r + (node.type === 'domain' ? 14 : 12);
       const labelText = node.label.length > 28 ? node.label.substring(0, 26) + '…' : node.label;
 
       // Label background pill for ultra readability
       const textWidth = ctx.measureText(labelText).width;
-      ctx.fillStyle = isLight ? 'rgba(255, 255, 255, 0.88)' : 'rgba(10, 15, 29, 0.85)';
-      ctx.fillRect(node.x - textWidth / 2 - 4, labelY - 7, textWidth + 8, 14);
+      const padX = 6;
+      const pillH = 16;
+      const pillX = node.x - textWidth / 2 - padX;
+      const pillY = labelY - pillH / 2;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(pillX, pillY, textWidth + padX * 2, pillH, 8);
+      else ctx.rect(pillX, pillY, textWidth + padX * 2, pillH);
+      ctx.fillStyle = isLight ? 'rgba(255, 255, 255, 0.92)' : 'rgba(10, 15, 29, 0.88)';
+      ctx.fill();
+      ctx.save();
+      ctx.globalAlpha = isDimmed ? 0.15 : 0.45;
+      ctx.strokeStyle = node.color;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
 
       ctx.fillStyle = isLight ? '#0F172A' : (isHighlighted ? '#FFFFFF' : '#E2E8F0');
       ctx.fillText(labelText, node.x, labelY);
@@ -8898,32 +9045,62 @@ function getMermaidConfig() {
     startOnLoad: false,
     securityLevel: 'loose',
     theme: 'base',
-    fontFamily: 'Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    fontSize: 13,
+    fontFamily: 'Geist, "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontSize: 14,
     themeVariables: {
       darkMode: !isLight,
-      fontFamily: 'Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      fontSize: '13px',
-      primaryColor: isLight ? '#f8fafc' : '#0f172a',
+      fontFamily: 'Geist, "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontSize: '14px',
+      primaryColor: isLight ? '#ffffff' : '#13224C',
       primaryTextColor: isLight ? '#0f172a' : '#f8fafc',
-      primaryBorderColor: isLight ? 'rgba(15, 23, 42, 0.16)' : 'rgba(255, 255, 255, 0.16)',
-      lineColor: isLight ? '#64748b' : '#94a3b8',
+      primaryBorderColor: isLight ? '#0284C7' : '#38BDF8',
+      lineColor: isLight ? '#0284C7' : '#38BDF8',
       secondaryColor: isLight ? '#f1f5f9' : '#1e293b',
       tertiaryColor: isLight ? '#ffffff' : '#090d16',
-      mainBkg: isLight ? '#ffffff' : '#0f172a',
-      nodeBorder: isLight ? 'rgba(15, 23, 42, 0.16)' : 'rgba(255, 255, 255, 0.16)',
+      mainBkg: isLight ? '#ffffff' : '#13224C',
+      nodeBorder: isLight ? '#0284C7' : '#38BDF8',
       nodeTextColor: isLight ? '#0f172a' : '#f8fafc',
-      edgeLabelBackground: isLight ? '#ffffff' : '#0f172a',
-      clusterBkg: isLight ? 'rgba(15, 23, 42, 0.02)' : 'rgba(255, 255, 255, 0.02)',
-      clusterBorder: isLight ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.08)',
-      titleColor: isLight ? '#0f172a' : '#f8fafc'
+      edgeLabelBackground: isLight ? '#ffffff' : '#0B132B',
+      clusterBkg: isLight ? 'rgba(2, 132, 199, 0.05)' : 'rgba(56, 189, 248, 0.05)',
+      clusterBorder: isLight ? 'rgba(2, 132, 199, 0.28)' : 'rgba(56, 189, 248, 0.28)',
+      titleColor: isLight ? '#0f172a' : '#f8fafc',
+      // Sequence diagram — previously missing, rendered with clashing defaults
+      actorBkg: isLight ? '#ffffff' : '#13224C',
+      actorBorder: isLight ? '#0284C7' : '#38BDF8',
+      actorTextColor: isLight ? '#0f172a' : '#f8fafc',
+      actorLineColor: isLight ? 'rgba(2, 132, 199, 0.45)' : 'rgba(56, 189, 248, 0.45)',
+      signalColor: isLight ? '#0f172a' : '#E2E8F0',
+      signalTextColor: isLight ? '#0f172a' : '#E2E8F0',
+      labelBoxBkgColor: isLight ? '#0284C7' : '#38BDF8',
+      labelBoxBorderColor: isLight ? '#0284C7' : '#38BDF8',
+      labelTextColor: '#ffffff',
+      loopTextColor: isLight ? '#0f172a' : '#f8fafc',
+      noteBkgColor: isLight ? '#FEF9C3' : 'rgba(251, 191, 36, 0.14)',
+      noteBorderColor: isLight ? '#D97706' : '#FBBF24',
+      noteTextColor: isLight ? '#78350F' : '#FDE68A',
+      activationBkgColor: isLight ? 'rgba(2, 132, 199, 0.12)' : 'rgba(56, 189, 248, 0.18)',
+      activationBorderColor: isLight ? '#0284C7' : '#38BDF8',
+      sequenceNumberColor: '#ffffff',
+      // Class / state / er
+      classText: isLight ? '#0f172a' : '#f8fafc',
+      labelColor: isLight ? '#0f172a' : '#f8fafc'
     },
     flowchart: {
       htmlLabels: true,
-      curve: 'bumpX',
-      nodeSpacing: 45,
-      rankSpacing: 55,
-      padding: 16
+      curve: 'basis',
+      nodeSpacing: 50,
+      rankSpacing: 65,
+      padding: 20
+    },
+    sequence: {
+      diagramMarginX: 24,
+      diagramMarginY: 16,
+      actorMargin: 60,
+      boxMargin: 12,
+      messageMargin: 40,
+      mirrorActors: false,
+      rightAngles: false,
+      showSequenceNumbers: false
     }
   };
 }
@@ -8950,6 +9127,7 @@ function enhanceMermaidDiagrams() {
   diagrams.forEach(el => {
     // Avoid double-wrapping
     if (el.parentElement && el.parentElement.classList.contains('mermaid-wrapper')) {
+      ensureMermaidHead(el.parentElement, el);
       updateMermaidWrapperState(el.parentElement, el);
       return;
     }
@@ -8957,6 +9135,7 @@ function enhanceMermaidDiagrams() {
     wrapper.className = 'mermaid-wrapper';
     el.parentNode.insertBefore(wrapper, el);
     wrapper.appendChild(el);
+    ensureMermaidHead(wrapper, el);
 
     // Toolbar
     const toolbar = document.createElement('div');
@@ -9084,6 +9263,33 @@ function enhanceMermaidDiagrams() {
     if (svgEl()) ro.observe(svgEl());
     el._mermaidRO = ro;
   });
+}
+
+function ensureMermaidHead(wrapper, el) {
+  if (wrapper.querySelector(':scope > .mermaid-head')) return;
+  const src = (el.getAttribute && el.getAttribute('data-mermaid-source')) || '';
+  const kind = detectMermaidKind(src);
+  const head = document.createElement('div');
+  head.className = 'mermaid-head';
+  head.setAttribute('aria-hidden', 'true');
+  head.innerHTML = '<span class="mermaid-head-dots"><i></i><i></i><i></i></span>' +
+    '<span class="mermaid-head-label">Sơ đồ &bull; ' + kind + '</span>';
+  wrapper.insertBefore(head, wrapper.firstChild);
+}
+
+function detectMermaidKind(src) {
+  const s = (src || '').toLowerCase();
+  if (s.includes('sequencediagram')) return 'trình tự';
+  if (s.includes('classdiagram')) return 'lớp';
+  if (s.includes('statediagram')) return 'trạng thái';
+  if (s.includes('erdiagram')) return 'quan hệ';
+  if (s.includes('gantt')) return 'tiến độ';
+  if (s.includes('journey')) return 'hành trình';
+  if (s.includes('gitgraph')) return 'git';
+  if (s.includes('pie')) return 'tỷ lệ';
+  if (s.includes('mindmap')) return 'tư duy';
+  if (s.includes('timeline')) return 'dòng thời gian';
+  return 'luồng';
 }
 
 function updateMermaidWrapperState(wrapper, el) {
@@ -9398,7 +9604,7 @@ function ensureLightbox() {
   if (rdLightboxEl) return;
   rdLightboxEl = document.createElement('div');
   rdLightboxEl.className = 'rd-lightbox';
-  rdLightboxEl.innerHTML = '<img alt="Xem ở độ phân giải đầy đủ" />';
+  rdLightboxEl.innerHTML = '<img loading="lazy" alt="Xem ở độ phân giải đầy đủ" />';
   rdLightboxEl.addEventListener('click', () => rdLightboxEl.classList.remove('open'));
   document.body.appendChild(rdLightboxEl);
 

@@ -16,7 +16,7 @@ Object.assign(DSA_CONTENT, {
     readTime: '1 phút',
     content: `
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_tree.jpg" alt="Cây (Tree)" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_tree.jpg" alt="Cây (Tree)" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <div class="callout callout-note">
   <span class="callout-icon">✨</span>
@@ -84,7 +84,7 @@ class TreeNode {
 <p>Mỗi nút có hai tham chiếu (con trỏ), trỏ lần lượt tới <u>nút con trái (left-child node)</u> và <u>nút con phải (right-child node)</u>. Nút này được gọi là <u>nút cha (parent node)</u> của hai nút con đó. Khi cho một nút bất kỳ của cây nhị phân, ta gọi cây được tạo thành từ nút con trái của nút đó và tất cả các nút bên dưới nó là <u>cây con trái (left subtree)</u> của nút này. Tương tự, <u>cây con phải (right subtree)</u> cũng được định nghĩa như vậy.</p>
 <p><strong>Trong cây nhị phân, mọi nút không phải nút lá đều có nút con, do đó có cây con khác rỗng.</strong> Như hình dưới đây, nếu coi "Nút 2" là một nút cha, thì nút con trái và phải của nó lần lượt là "Nút 4" và "Nút 5". Cây con trái được tạo thành bởi "Nút 4" và tất cả các nút bên dưới nó, còn cây con phải được tạo thành bởi "Nút 5" và tất cả các nút bên dưới nó.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_tree_definition.png" alt="Nút cha, nút con, cây con" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/binary_tree_definition.png" alt="Nút cha, nút con, cây con" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>7.1.1 Thuật ngữ thường dùng của Cây nhị phân</h2>
@@ -100,7 +100,7 @@ class TreeNode {
   <li><u>Chiều cao (height)</u> của một nút: Số cạnh từ nút lá xa nhất tới nút đó.</li>
 </ul>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_tree_terminology.png" alt="Thuật ngữ thường dùng của Cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/binary_tree_terminology.png" alt="Thuật ngữ thường dùng của Cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <div class="callout callout-tip">
   <span class="callout-icon">💡</span>
@@ -161,7 +161,7 @@ n2.right = n5;</code></pre></div></div></div>
 <h3>7.1.2.2 Chèn và xóa nút</h3>
 <p>Tương tự như danh sách liên kết, việc chèn và xóa nút trong cây nhị phân có thể được thực hiện bằng cách chỉnh sửa con trỏ. Hình dưới đây minh họa một ví dụ.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_tree_add_remove.png" alt="Chèn và xóa nút trong cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/binary_tree_add_remove.png" alt="Chèn và xóa nút trong cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>TreeNode P = new TreeNode(0);
 // Chèn nút P vào giữa n1 và n2
@@ -205,25 +205,25 @@ n1.left = n2;</code></pre></div></div></div>
   </div>
 </div>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/perfect_binary_tree.png" alt="Cây nhị phân hoàn hảo" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/perfect_binary_tree.png" alt="Cây nhị phân hoàn hảo" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>7.1.3.2 Cây nhị phân đầy đủ (Complete Binary Tree)</h3>
 <p>Như hình dưới đây, một <u>cây nhị phân đầy đủ (complete binary tree)</u> chỉ cho phép tầng dưới cùng chưa được lấp đầy hoàn toàn, và các nút ở tầng dưới cùng đó phải được lấp liên tục từ trái sang phải. Lưu ý rằng một cây nhị phân hoàn hảo cũng đồng thời là một cây nhị phân đầy đủ.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/complete_binary_tree.png" alt="Cây nhị phân đầy đủ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/complete_binary_tree.png" alt="Cây nhị phân đầy đủ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>7.1.3.3 Cây nhị phân toàn phần (Full Binary Tree)</h3>
 <p>Như hình dưới đây, trong một <u>cây nhị phân toàn phần (full binary tree)</u>, tất cả các nút ngoại trừ nút lá đều có hai nút con.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/full_binary_tree.png" alt="Cây nhị phân toàn phần" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/full_binary_tree.png" alt="Cây nhị phân toàn phần" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>7.1.3.4 Cây nhị phân cân bằng (Balanced Binary Tree)</h3>
 <p>Như hình dưới đây, trong một <u>cây nhị phân cân bằng (balanced binary tree)</u>, hiệu số tuyệt đối giữa chiều cao cây con trái và cây con phải của bất kỳ nút nào cũng không vượt quá 1.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/balanced_binary_tree.png" alt="Cây nhị phân cân bằng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/balanced_binary_tree.png" alt="Cây nhị phân cân bằng" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>7.1.4 Sự suy biến của Cây nhị phân</h2>
@@ -233,7 +233,7 @@ n1.left = n2;</code></pre></div></div></div>
   <li>Danh sách liên kết đại diện cho trường hợp cực đoan ngược lại, khi mọi thao tác đều trở thành thao tác tuyến tính với độ phức tạp thời gian suy giảm còn $O(n)$.</li>
 </ul>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_tree_best_worst_cases.png" alt="Cấu trúc tốt nhất và tệ nhất của Cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/binary_tree_best_worst_cases.png" alt="Cấu trúc tốt nhất và tệ nhất của Cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Như bảng dưới đây, trong cấu trúc tốt nhất và tệ nhất, cây nhị phân đạt giá trị lớn nhất hoặc nhỏ nhất về số lượng nút lá, tổng số nút và chiều cao.</p>
 <p align="center">Bảng &nbsp; Cấu trúc tốt nhất và tệ nhất của Cây nhị phân</p>
@@ -947,7 +947,7 @@ As shown in the table below, in the best and worst structures, the binary tree a
 <p>Như hình dưới đây, <u>duyệt theo tầng (level-order traversal)</u> duyệt cây nhị phân từ trên xuống dưới, tầng qua tầng. Trong mỗi tầng, nó ghé thăm các nút từ trái sang phải.</p>
 <p>Duyệt theo tầng về bản chất là <u>duyệt theo chiều rộng (breadth-first traversal)</u>, còn được gọi là <u>tìm kiếm theo chiều rộng (breadth-first search - BFS)</u>, mở rộng dần ra ngoài theo từng tầng.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_tree_bfs.png" alt="Duyệt theo tầng của cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/binary_tree_bfs.png" alt="Duyệt theo tầng của cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>7.2.1.1 Triển khai mã nguồn</h3>
@@ -1040,7 +1040,7 @@ vector&lt;int&gt; levelOrder(TreeNode *root) {
 <p>Tương ứng, duyệt tiền thứ tự, trung thứ tự và hậu thứ tự đều thuộc <u>duyệt theo chiều sâu (depth-first traversal)</u>, còn được gọi là <u>tìm kiếm theo chiều sâu (depth-first search - DFS)</u>, đi càng sâu càng tốt trước khi quay lui.</p>
 <p>Hình dưới đây cho thấy cách duyệt theo chiều sâu hoạt động trên một cây nhị phân. <strong>Duyệt theo chiều sâu giống như việc "đi bộ" quanh toàn bộ chu vi của cây nhị phân</strong>, gặp ba vị trí tại mỗi nút, tương ứng với duyệt tiền thứ tự, trung thứ tự và hậu thứ tự.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_tree_dfs.png" alt="Duyệt tiền thứ tự, trung thứ tự và hậu thứ tự của cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/binary_tree_dfs.png" alt="Duyệt tiền thứ tự, trung thứ tự và hậu thứ tự của cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>7.2.2.1 Triển khai mã nguồn</h3>
@@ -1096,17 +1096,17 @@ void postOrder(TreeNode *root) {
 </ol>
 <div class="interactive-widget-wrapper" id="preorder-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/preorder_step1.png" alt="preorder_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_step2.png" alt="preorder_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_step3.png" alt="preorder_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_step4.png" alt="preorder_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_step5.png" alt="preorder_step5" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 5</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_step6.png" alt="preorder_step6" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 6</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_step7.png" alt="preorder_step7" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 7</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_step8.png" alt="preorder_step8" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 8</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_step9.png" alt="preorder_step9" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 9</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_step10.png" alt="preorder_step10" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 10</p></div>
-    <div class="slide"><img src="dsa-assets/preorder_step11.png" alt="preorder_step11" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 11</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/preorder_step1.png" alt="preorder_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_step2.png" alt="preorder_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_step3.png" alt="preorder_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_step4.png" alt="preorder_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_step5.png" alt="preorder_step5" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 5</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_step6.png" alt="preorder_step6" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 6</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_step7.png" alt="preorder_step7" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 7</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_step8.png" alt="preorder_step8" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 8</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_step9.png" alt="preorder_step9" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 9</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_step10.png" alt="preorder_step10" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 10</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/preorder_step11.png" alt="preorder_step11" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 11</p></div>
     <div class="slider-controls">
       <button class="control-btn" onclick="prevSlide('preorder-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 11</span>
@@ -1265,7 +1265,7 @@ The figure below shows the recursive process of preorder traversal of a binary t
 <p>Trước tiên hãy phân tích một trường hợp đơn giản. Cho một cây nhị phân hoàn hảo, ta lưu tất cả các nút vào một mảng theo thứ tự duyệt theo tầng, trong đó mỗi nút tương ứng với một chỉ số mảng duy nhất.</p>
 <p>Dựa trên đặc điểm của duyệt theo tầng, ta có thể suy ra một "công thức ánh xạ" giữa chỉ số nút cha và chỉ số các nút con: <strong>Nếu chỉ số của một nút là $i$, thì chỉ số nút con trái của nó là $2i + 1$ và chỉ số nút con phải là $2i + 2$</strong>. Hình dưới đây thể hiện mối quan hệ ánh xạ giữa các chỉ số nút khác nhau.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/array_representation_binary_tree.png" alt="Biểu diễn bằng mảng của một cây nhị phân hoàn hảo" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/array_representation_binary_tree.png" alt="Biểu diễn bằng mảng của một cây nhị phân hoàn hảo" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p><strong>Công thức ánh xạ đóng vai trò tương tự như các tham chiếu nút (con trỏ) trong danh sách liên kết</strong>. Cho một nút bất kỳ trong mảng, ta có thể truy cập nút con trái (phải) của nó bằng công thức ánh xạ.</p>
 
@@ -1273,7 +1273,7 @@ The figure below shows the recursive process of preorder traversal of a binary t
 <p>Cây nhị phân hoàn hảo là một trường hợp đặc biệt; ở các tầng giữa của một cây nhị phân, thường có nhiều giá trị <code>None</code>. Vì chuỗi duyệt theo tầng không bao gồm các giá trị <code>None</code> này, ta không thể suy ra số lượng và cách phân bố các giá trị <code>None</code> chỉ dựa vào chuỗi này. <strong>Điều này có nghĩa là nhiều cấu trúc cây nhị phân khác nhau có thể tương ứng với cùng một chuỗi duyệt theo tầng</strong>.</p>
 <p>Như hình dưới đây, cho một cây nhị phân không hoàn hảo, phương pháp biểu diễn bằng mảng ở trên sẽ thất bại.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/array_representation_without_empty.png" alt="Chuỗi duyệt theo tầng tương ứng với nhiều khả năng cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/array_representation_without_empty.png" alt="Chuỗi duyệt theo tầng tương ứng với nhiều khả năng cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Để giải quyết vấn đề này, <strong>ta có thể ghi rõ ràng tất cả các giá trị <code>None</code> trong chuỗi duyệt theo tầng</strong>. Như hình dưới đây, một khi làm vậy, chuỗi duyệt theo tầng có thể biểu diễn duy nhất một cây nhị phân. Đoạn mã ví dụ như sau:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Biểu diễn cây nhị phân bằng mảng */
@@ -1286,12 +1286,12 @@ vector&lt;int&gt; tree = {1, 2, 3, 4, INT_MAX, 6, 7, 8, 9, INT_MAX, INT_MAX, 12,
 // Dùng null để biểu diễn các vị trí trống
 let tree = [1, 2, 3, 4, null, 6, 7, 8, 9, null, null, 12, null, null, 15];</code></pre></div></div></div>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/array_representation_with_empty.png" alt="Biểu diễn bằng mảng của một cây nhị phân bất kỳ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/array_representation_with_empty.png" alt="Biểu diễn bằng mảng của một cây nhị phân bất kỳ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Đáng chú ý là <strong>cây nhị phân đầy đủ rất phù hợp để biểu diễn bằng mảng</strong>. Nhớ lại định nghĩa của cây nhị phân đầy đủ, <code>None</code> chỉ xuất hiện ở tầng dưới cùng và về phía bên phải, <strong>nghĩa là tất cả các giá trị <code>None</code> đều phải xuất hiện ở cuối chuỗi duyệt theo tầng</strong>.</p>
 <p>Điều này có nghĩa là khi dùng một mảng để biểu diễn một cây nhị phân đầy đủ, ta hoàn toàn có thể bỏ qua việc lưu trữ tất cả các giá trị <code>None</code>, điều này rất tiện lợi. Hình dưới đây minh họa một ví dụ.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/array_representation_complete_binary_tree.png" alt="Biểu diễn bằng mảng của một cây nhị phân đầy đủ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/array_representation_complete_binary_tree.png" alt="Biểu diễn bằng mảng của một cây nhị phân đầy đủ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Đoạn mã dưới đây triển khai một cây nhị phân theo cách biểu diễn bằng mảng, bao gồm các thao tác sau:</p>
 <ul>
@@ -1822,7 +1822,7 @@ However, the array representation also has some limitations:
   <li>Cây con trái và cây con phải của bất kỳ nút nào cũng đều là cây tìm kiếm nhị phân, tức là chúng cũng thỏa mãn điều kiện <code>1.</code></li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_search_tree.png" alt="Cây tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/binary_search_tree.png" alt="Cây tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>7.4.1 Các thao tác trên Cây tìm kiếm nhị phân</h2>
@@ -1837,10 +1837,10 @@ However, the array representation also has some limitations:
 </ul>
 <div class="interactive-widget-wrapper" id="bst-search-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/bst_search_step1.png" alt="bst_search_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
-    <div class="slide"><img src="dsa-assets/bst_search_step2.png" alt="bst_search_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
-    <div class="slide"><img src="dsa-assets/bst_search_step3.png" alt="bst_search_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
-    <div class="slide"><img src="dsa-assets/bst_search_step4.png" alt="bst_search_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/bst_search_step1.png" alt="bst_search_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bst_search_step2.png" alt="bst_search_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bst_search_step3.png" alt="bst_search_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bst_search_step4.png" alt="bst_search_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
     <div class="slider-controls">
       <button class="control-btn" onclick="prevSlide('bst-search-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 4</span>
@@ -1925,7 +1925,7 @@ TreeNode *search(int num) {
   <li><strong>Chèn nút tại vị trí đó</strong>: Tạo một nút cho <code>num</code> và đặt nó vào vị trí <code>None</code>.</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/bst_insert.png" alt="Chèn một nút vào cây tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/bst_insert.png" alt="Chèn một nút vào cây tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Trong quá trình triển khai mã nguồn, cần lưu ý hai điểm sau:</p>
 <ul>
@@ -2074,11 +2074,11 @@ void insert(int num) {
 <p>Trước tiên, tìm nút mục tiêu trong cây tìm kiếm nhị phân, sau đó xóa nó. Tương tự như chèn nút, ta cần đảm bảo rằng sau khi hoàn thành thao tác xóa, tính chất "cây con trái $&lt;$ nút gốc $&lt;$ cây con phải" của cây tìm kiếm nhị phân vẫn được duy trì. Do đó, tùy theo số lượng nút con mà nút mục tiêu có, ta xét ba trường hợp: bậc $0$, bậc $1$ và bậc $2$, và thực hiện thao tác xóa tương ứng.</p>
 <p>Như hình dưới đây, khi bậc của nút cần xóa là $0$, nghĩa là nút đó là một nút lá và có thể xóa trực tiếp.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/bst_remove_case1.png" alt="Xóa một nút trong cây tìm kiếm nhị phân (bậc 0)" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/bst_remove_case1.png" alt="Xóa một nút trong cây tìm kiếm nhị phân (bậc 0)" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Như hình dưới đây, khi bậc của nút cần xóa là $1$, chỉ cần thay thế nút cần xóa bằng nút con của nó là đủ.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/bst_remove_case2.png" alt="Xóa một nút trong cây tìm kiếm nhị phân (bậc 1)" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/bst_remove_case2.png" alt="Xóa một nút trong cây tìm kiếm nhị phân (bậc 1)" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Khi bậc của nút cần xóa là $2$, ta không thể xóa nó trực tiếp; thay vào đó, ta cần dùng một nút khác để thay thế nó. Để duy trì tính chất "cây con trái $&lt;$ nút gốc $&lt;$ cây con phải" của cây tìm kiếm nhị phân, <strong>nút này có thể là nút nhỏ nhất trong cây con phải hoặc nút lớn nhất trong cây con trái</strong>.</p>
 <p>Giả sử ta chọn nút nhỏ nhất trong cây con phải, tức là nút kế tiếp theo thứ tự trung thứ tự (inorder successor), quá trình xóa được thể hiện trong hình dưới đây.</p>
@@ -2088,10 +2088,10 @@ void insert(int num) {
 </ol>
 <div class="interactive-widget-wrapper" id="bst-remove-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/bst_remove_case3_step1.png" alt="bst_remove_case3_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
-    <div class="slide"><img src="dsa-assets/bst_remove_case3_step2.png" alt="bst_remove_case3_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
-    <div class="slide"><img src="dsa-assets/bst_remove_case3_step3.png" alt="bst_remove_case3_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
-    <div class="slide"><img src="dsa-assets/bst_remove_case3_step4.png" alt="bst_remove_case3_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/bst_remove_case3_step1.png" alt="bst_remove_case3_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bst_remove_case3_step2.png" alt="bst_remove_case3_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bst_remove_case3_step3.png" alt="bst_remove_case3_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/bst_remove_case3_step4.png" alt="bst_remove_case3_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
     <div class="slider-controls">
       <button class="control-btn" onclick="prevSlide('bst-remove-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 4</span>
@@ -2352,7 +2352,7 @@ void remove(int num) {
 <p>Điều này có nghĩa là khi thực hiện duyệt trung thứ tự trong một cây tìm kiếm nhị phân, nút nhỏ nhất tiếp theo luôn được duyệt qua trước, từ đó tạo ra một tính chất quan trọng: <strong>Chuỗi duyệt trung thứ tự của cây tìm kiếm nhị phân là tăng dần</strong>.</p>
 <p>Sử dụng tính chất duyệt trung thứ tự tăng dần này, ta có thể lấy được dữ liệu có thứ tự trong một cây tìm kiếm nhị phân chỉ trong thời gian $O(n)$, mà không cần thêm bất kỳ thao tác sắp xếp nào, điều này rất hiệu quả.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/bst_inorder_traversal.png" alt="Chuỗi duyệt trung thứ tự của cây tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/bst_inorder_traversal.png" alt="Chuỗi duyệt trung thứ tự của cây tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>7.4.2 Hiệu quả của Cây tìm kiếm nhị phân</h2>
@@ -2375,7 +2375,7 @@ void remove(int num) {
 <p>Trong trường hợp lý tưởng, một cây tìm kiếm nhị phân là cân bằng, nên bất kỳ nút nào cũng có thể được tìm thấy trong $O(\\\\log n)$ lần lặp vòng lặp.</p>
 <p>Tuy nhiên, nếu ta liên tục chèn và xóa nút trong một cây tìm kiếm nhị phân, nó có thể suy biến thành một danh sách liên kết như hình dưới đây, khi đó độ phức tạp thời gian của các thao tác cũng suy giảm còn $O(n)$.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/bst_degradation.png" alt="Sự suy biến của cây tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/bst_degradation.png" alt="Sự suy biến của cây tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>7.4.3 Các ứng dụng phổ biến của Cây tìm kiếm nhị phân</h2>
@@ -2559,11 +2559,11 @@ However, if we continuously insert and remove nodes in a binary search tree, it 
 <p>Trong phần "Cây tìm kiếm nhị phân", ta đã đề cập rằng sau nhiều thao tác chèn và xóa, một cây tìm kiếm nhị phân có thể suy biến thành một danh sách liên kết. Trong trường hợp đó, độ phức tạp thời gian của tất cả các thao tác suy giảm từ $O(\\\\log n)$ xuống $O(n)$.</p>
 <p>Như hình dưới đây, sau hai thao tác xóa nút, cây tìm kiếm nhị phân này sẽ suy biến thành một danh sách liên kết.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/avltree_degradation_from_removing_node.png" alt="Sự suy biến của cây AVL sau khi xóa nút" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/avltree_degradation_from_removing_node.png" alt="Sự suy biến của cây AVL sau khi xóa nút" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Ví dụ, trong cây nhị phân hoàn hảo được thể hiện trong hình dưới đây, sau khi chèn hai nút, cây sẽ nghiêng hẳn về bên trái, và độ phức tạp thời gian của thao tác tìm kiếm cũng suy giảm theo.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/avltree_degradation_from_inserting_node.png" alt="Sự suy biến của cây AVL sau khi chèn nút" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/avltree_degradation_from_inserting_node.png" alt="Sự suy biến của cây AVL sau khi chèn nút" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Năm 1962, G. M. Adelson-Velsky và E. M. Landis đã đề xuất <u>cây AVL (AVL tree)</u> trong bài báo "An algorithm for the organization of information". Bài báo mô tả một loạt thao tác giúp ngăn cây AVL suy biến khi các nút được chèn và xóa, từ đó giữ độ phức tạp thời gian của các thao tác luôn ở mức $O(\\\\log n)$. Nói cách khác, trong các tình huống đòi hỏi thao tác chèn, xóa, tra cứu và cập nhật thường xuyên, cây AVL có thể duy trì hiệu suất ổn định và hiệu quả, do đó có giá trị thực tiễn rất lớn.</p>
 
@@ -2693,10 +2693,10 @@ int balanceFactor(TreeNode *node) {
 <p>Như hình dưới đây, giá trị bên dưới nút là hệ số cân bằng. Từ dưới lên trên, nút mất cân bằng đầu tiên trong cây nhị phân là "nút 3". Ta tập trung vào cây con có nút mất cân bằng này làm gốc, ký hiệu nút đó là <code>node</code> và nút con trái của nó là <code>child</code>, rồi thực hiện thao tác "xoay phải". Sau khi xoay phải xong, cây con khôi phục lại cân bằng và vẫn duy trì tính chất của một cây tìm kiếm nhị phân.</p>
 <div class="interactive-widget-wrapper" id="avl-right-rotate-steps-wrapper">
   <div class="slider-container">
-    <div class="slide active"><img src="dsa-assets/avltree_right_rotate_step1.png" alt="avltree_right_rotate_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
-    <div class="slide"><img src="dsa-assets/avltree_right_rotate_step2.png" alt="avltree_right_rotate_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
-    <div class="slide"><img src="dsa-assets/avltree_right_rotate_step3.png" alt="avltree_right_rotate_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
-    <div class="slide"><img src="dsa-assets/avltree_right_rotate_step4.png" alt="avltree_right_rotate_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
+    <div class="slide active"><img loading="lazy" src="dsa-assets/avltree_right_rotate_step1.png" alt="avltree_right_rotate_step1" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 1</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/avltree_right_rotate_step2.png" alt="avltree_right_rotate_step2" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 2</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/avltree_right_rotate_step3.png" alt="avltree_right_rotate_step3" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 3</p></div>
+    <div class="slide"><img loading="lazy" src="dsa-assets/avltree_right_rotate_step4.png" alt="avltree_right_rotate_step4" style="max-width:100%; border-radius: var(--radius-md);" /><p class="slide-caption">Bước 4</p></div>
     <div class="slider-controls">
       <button class="control-btn" onclick="prevSlide('avl-right-rotate-steps-wrapper')">◀ Trước</button>
       <span class="slider-indicator">Bước 1 / 4</span>
@@ -2706,7 +2706,7 @@ int balanceFactor(TreeNode *node) {
 </div>
 <p>Như hình dưới đây, khi nút <code>child</code> có một nút con phải (ký hiệu là <code>grand_child</code>), cần thêm một bước trong thao tác xoay phải: đặt <code>grand_child</code> làm nút con trái của <code>node</code>.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/avltree_right_rotate_with_grandchild.png" alt="Xoay phải khi có grand_child" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/avltree_right_rotate_with_grandchild.png" alt="Xoay phải khi có grand_child" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>"Xoay phải" là một cách gọi hình tượng; trong thực tế, nó được thực hiện bằng cách chỉnh sửa con trỏ nút, như đoạn mã sau:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Thao tác xoay phải */
@@ -2761,11 +2761,11 @@ TreeNode *rightRotate(TreeNode *node) {
 <h3>7.5.2.2 Xoay trái</h3>
 <p>Tương ứng, nếu xét "ảnh gương" của cây nhị phân mất cân bằng ở trên, ta cần thực hiện thao tác "xoay trái" như hình dưới đây.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/avltree_left_rotate.png" alt="Thao tác xoay trái" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/avltree_left_rotate.png" alt="Thao tác xoay trái" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Tương tự, như hình dưới đây, khi nút <code>child</code> có một nút con trái (ký hiệu là <code>grand_child</code>), cần thêm một bước trong thao tác xoay trái: đặt <code>grand_child</code> làm nút con phải của <code>node</code>.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/avltree_left_rotate_with_grandchild.png" alt="Xoay trái khi có grand_child" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/avltree_left_rotate_with_grandchild.png" alt="Xoay trái khi có grand_child" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Có thể nhận thấy rằng <strong>thao tác xoay phải và xoay trái đối xứng nhau về logic (tựa như ảnh gương), và hai tình huống mất cân bằng mà chúng giải quyết cũng đối xứng nhau</strong>. Dựa trên tính đối xứng này, ta chỉ cần thay tất cả các từ <code>left</code> trong mã xoay phải bằng <code>right</code>, và tất cả <code>right</code> bằng <code>left</code>, là có được mã triển khai xoay trái:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Thao tác xoay trái */
@@ -2820,19 +2820,19 @@ TreeNode *leftRotate(TreeNode *node) {
 <h3>7.5.2.3 Xoay trái rồi xoay phải</h3>
 <p>Đối với nút 3 mất cân bằng trong hình dưới đây, chỉ dùng riêng xoay trái hoặc xoay phải đều không thể khôi phục cân bằng cho cây con. Trong trường hợp này, cần thực hiện "xoay trái" trên <code>child</code> trước, sau đó "xoay phải" trên <code>node</code>.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/avltree_left_right_rotate.png" alt="Xoay trái rồi xoay phải" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/avltree_left_right_rotate.png" alt="Xoay trái rồi xoay phải" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>7.5.2.4 Xoay phải rồi xoay trái</h3>
 <p>Như hình dưới đây, đối với trường hợp ảnh gương của cây nhị phân mất cân bằng ở trên, cần thực hiện "xoay phải" trên <code>child</code> trước, sau đó "xoay trái" trên <code>node</code>.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/avltree_right_left_rotate.png" alt="Xoay phải rồi xoay trái" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/avltree_right_left_rotate.png" alt="Xoay phải rồi xoay trái" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>7.5.2.5 Lựa chọn phép xoay</h3>
 <p>Bốn tình huống mất cân bằng thể hiện trong hình dưới đây tương ứng một-một với các trường hợp ở trên, lần lượt cần xoay phải, xoay trái rồi xoay phải, xoay phải rồi xoay trái, và xoay trái.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/avltree_rotation_cases.png" alt="Bốn trường hợp xoay của cây AVL" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/avltree_rotation_cases.png" alt="Bốn trường hợp xoay của cây AVL" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Như bảng dưới đây, ta xác định nút mất cân bằng thuộc trường hợp nào bằng cách xét dấu của hệ số cân bằng của nút mất cân bằng và hệ số cân bằng của nút con ở phía cao hơn của nó.</p>
 <p align="center">Bảng &nbsp; Điều kiện lựa chọn giữa bốn trường hợp xoay</p>

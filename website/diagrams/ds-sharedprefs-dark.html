@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SharedPreferences: đọc cả file, ghi cả file</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ KIẾN TRÚC · DATASTORE</p>
+  <h1>SharedPreferences: đọc cả file, ghi cả file</h1>
+  <p class="sub">Singleton ôm cả map trong RAM — đọc thì nhanh, ghi thì nặng, mất điện thì toang.</p>
+<svg viewBox="0 0 800 416" role="img" aria-labelledby="ds-sharedprefs-dark-title ds-sharedprefs-dark-desc" font-family="'Geist', sans-serif">
+<title id="ds-sharedprefs-dark-title">SharedPreferences: đọc cả file, ghi cả file</title>
+<desc id="ds-sharedprefs-dark-desc">App gọi singleton đọc toàn bộ file XML vào memory, đọc ghi trên memory, ghi thì chép lại toàn bộ file.</desc>
+<defs>
+<marker id="ds-sharedprefs-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="416" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="400" height="344" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="64" height="12" rx="2" fill="#060913"/>
+<text x="80" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">APP</text>
+<rect x="464" y="24" width="304" height="344" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="480" y="28" width="64" height="12" rx="2" fill="#060913"/>
+<text x="512" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">Ổ ĐĨA</text>
+<!-- arrows -->
+<path d="M 232,116 V 140" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-sharedprefs-dark-arrow)"/>
+<path d="M 232,192 V 216" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-sharedprefs-dark-arrow)"/>
+<rect x="244" y="194" width="88" height="12" rx="2" fill="#060913"/>
+<text x="288" y="203" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐỌC NHANH</text>
+<path d="M 400,166 H 404 Q 412,166 412,174 V 284 H 392 Q 384,284 384,292" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-sharedprefs-dark-arrow)"/>
+<rect x="424" y="238" width="64" height="12" rx="2" fill="#060913"/>
+<text x="456" y="247" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GHI NẶNG</text>
+<path d="M 360,116 V 124 H 412 Q 420,124 420,132 V 190 H 488 Q 496,190 496,190" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-sharedprefs-dark-arrow)"/>
+<rect x="428" y="170" width="56" height="12" rx="2" fill="#060913"/>
+<text x="456" y="179" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐỌC FILE</text>
+<path d="M 400,318 V 360 H 592 Q 600,360 600,352 V 220" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-sharedprefs-dark-arrow)"/>
+<rect x="496" y="340" width="88" height="12" rx="2" fill="#060913"/>
+<text x="540" y="349" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GHI LẠI CẢ FILE</text>
+<path d="M 116,268 V 220 H 108 Q 100,220 100,212 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-sharedprefs-dark-arrow)"/>
+<!-- nodes -->
+<rect x="64" y="64" width="336" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="64" width="336" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="232" y="96" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">getSharedPreferences</text>
+<rect x="64" y="140" width="336" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="140" width="336" height="52" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="72" y="146" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="98" y="155" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">RAM</text>
+<text x="232" y="174" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Singleton Map</text>
+<rect x="64" y="216" width="336" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="216" width="336" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="232" y="250" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Đọc prefs</text>
+<rect x="64" y="292" width="336" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="292" width="336" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="232" y="326" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Ghi prefs</text>
+<rect x="496" y="160" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="496" y="160" width="240" height="60" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="616" y="194" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">File XML</text>
+<text x="616" y="212" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">shared_prefs</text>
+<!-- legend -->
+<line x1="32" y1="392" x2="768" y2="392" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="408" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="404" r="4" fill="#38BDF8"/>
+<text x="162" y="408" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ÔM RAM · NHANH NHƯNG NẶNG</text>
+<line x1="430" y1="404" x2="462" y2="404" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-sharedprefs-dark-arrow)"/>
+<text x="470" y="408" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐỌC NHANH · GHI CHẬM</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · ARCHITECTURE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

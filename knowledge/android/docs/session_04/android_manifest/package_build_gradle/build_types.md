@@ -31,7 +31,7 @@ Trong quá trình phát triển một ứng dụng Android, bạn không chỉ t
 
 - Một phiên bản để Developer lập trình, có thể debug, build nhanh, log lỗi chi tiết.
 - Một phiên bản để QA/Tester kiểm thử nội bộ trên môi trường server giả lập (Staging/QA).
-- Một phiên bản hoàn chỉnh để phát hành lên Google Play (Production) — phiên bản này cần được mã hóa, nén code, loại bỏ log để bảo mật và tối ưu dung lượng.
+- Một phiên bản hoàn chỉnh để phát hành lên Google Play (Production) — phiên bản này cần được rút gọn và làm rối code (minify/obfuscate bằng R8/ProGuard), loại bỏ log để bảo mật và tối ưu dung lượng.
 
 Nếu không có một cơ chế quản lý, bạn sẽ phải liên tục thay đổi code (ví dụ: đổi URL server, bật/tắt biến `DEBUG`, thay đổi chữ ký chứng chỉ - signing config) mỗi khi muốn tạo ra một phiên bản khác nhau. Điều này rất dễ dẫn đến sai sót (ví dụ: quên tắt log khi release app).
 
@@ -43,7 +43,7 @@ Trước khi đi sâu vào Build Type, cần hiểu rõ bốn khái niệm nền
 
 ### Gradle là gì?
 
-**Gradle** là một hệ thống build (build system) tổng quát, viết bằng Groovy/Kotlin, dùng để tự động hóa quá trình biên dịch, đóng gói và triển khai phần mềm. Nó không chỉ dành cho Android — bạn có thể dùng Gradle để build bất kỳ dự án nào.
+**Gradle** là một hệ thống build (build system) tổng quát, viết bằng Java/Groovy, dùng để tự động hóa quá trình biên dịch, đóng gói và triển khai phần mềm. Ngôn ngữ viết *build script* là Groovy (`build.gradle`) hoặc Kotlin (`build.gradle.kts`). Nó không chỉ dành cho Android — bạn có thể dùng Gradle để build bất kỳ dự án nào.
 
 Gradle hoạt động dựa trên **Task Graph** (đồ thị nhiệm vụ): mỗi công việc là một Task, các Task có quan hệ phụ thuộc nhau. Khi bạn chạy `./gradlew assembleDebug`, Gradle sẽ tính toán thứ tự các Task cần chạy dựa trên graph này.
 
@@ -129,6 +129,17 @@ flowchart TD
 > [!TIP]
 > **Quy tắc ngón tay cái:** Nếu thay đổi cấu hình mà người dùng cuối không (hoặc không nên) quan tâm (ví dụ: khóa ký, R8, log debug), đó là **Build Type**. Nếu thay đổi tính năng, icon, server URL cho đối tượng khách hàng khác nhau, đó thường là **Flavor**. Mặc dù URL server có thể được đổi theo Build Type (Staging vs Prod), nhưng đổi URL theo khách hàng là Flavor.
 
+> [!WARNING]
+> **Khi nào KHÔNG tạo Build Type mới:** cần biến thể về nội dung, khách hàng hoặc giao diện (free/paid, màu sắc, icon, server theo từng khách hàng) thì dùng **Product Flavors**, đừng đẻ thêm Build Type. Build Type chỉ dành cho debug/signing/minify theo giai đoạn. Mỗi Build Type mới làm tăng thời gian Gradle Sync và số variant phải kiểm thử.
+
+**Build Variant** là kết quả kết hợp một Flavor với một Build Type:
+
+```
+Build Variant = Product Flavor × Build Type
+```
+
+Ví dụ: 2 flavor (`free`, `paid`) × 3 build type (`debug`, `staging`, `release`) = 6 variant (`freeDebug`, `freeStaging`, `paidRelease`...). Chi tiết xem thêm ở topic Product Flavors.
+
 ## Các thuộc tính quan trọng của một Build Type
 
 Trước khi cấu hình, cần nắm các thuộc tính hay dùng nhất:
@@ -157,7 +168,7 @@ Trước khi cấu hình, cần nắm các thuộc tính hay dùng nhất:
 | Đổi URL theo môi trường | Phải sửa code, build lại | Tự động đổi theo Build Type |
 | Lọt secret ra ngoài | Có thể bị đọc trong APK | Vẫn có thể bị đọc (xem lưu ý) |
 | Tách biệt config | Không | Có, tập trung ở 1 nơi |
-| Build nhanh | Không đổi được nếu không sửa code | Đổi được khi chọn Build Type |
+| Đổi giá trị theo variant | Sửa code + commit lại | Chọn variant rồi build, không sửa code |
 
 ### Lưu ý quan trọng về bảo mật
 
@@ -198,6 +209,30 @@ object AppConfig {
 > }
 > ```
 
+### manifestPlaceholders: đưa biến vào AndroidManifest
+
+Cùng pattern như `BASE_URL` ở trên, nhưng biến được chèn vào `AndroidManifest.xml` thay vì `BuildConfig`:
+
+```kotlin
+buildTypes {
+    getByName("debug") {
+        manifestPlaceholders["deepLinkHost"] = "staging.example.com"
+    }
+    getByName("release") {
+        manifestPlaceholders["deepLinkHost"] = "api.example.com"
+    }
+}
+```
+
+```xml
+<data android:host="${deepLinkHost}" android:scheme="https" />
+```
+
+Chi tiết tách `manifestPlaceholders` theo từng Flavor (free/paid, dev/prod) xem thêm ở topic Product Flavors.
+
+> [!NOTE]
+> `buildConfigField` top-level trong `buildTypes` như các ví dụ trên vẫn chạy ở AGP 8/9, nhưng là eager API đã deprecated theo migration roadmap. API lazy thay thế là `variant.buildConfigFields.put(...)` qua `androidComponents` — bài này giữ cú pháp cũ để dễ đọc, khi nào cần tối ưu Configuration Cache hãy migrate.
+
 ## initWith: Kế thừa cấu hình giữa các Build Type
 
 **initWith** cho phép một Build Type kế thừa toàn bộ cấu hình từ một Build Type khác, sau đó ghi đè các thuộc tính cần thiết.
@@ -236,12 +271,13 @@ Trong thực tế dự án lớn, `debug` và `release` là không đủ. Đội
 ```kotlin
 android {
     // 1. Cấu hình Signing (Bảo mật)
+    // Không hardcode password. Đọc từ biến môi trường hoặc local.properties (đã gitignore).
     signingConfigs {
         create("staging") {
             storeFile = file("staging-keystore.jks")
-            storePassword = "staging_password"
-            keyAlias = "staging_key"
-            keyPassword = "staging_password"
+            storePassword = System.getenv("STAGING_STORE_PASSWORD")
+            keyAlias = System.getenv("STAGING_KEY_ALIAS")
+            keyPassword = System.getenv("STAGING_KEY_PASSWORD")
         }
         create("release") {
             storeFile = file("release-keystore.jks")
@@ -264,36 +300,38 @@ android {
             buildConfigField("String", "BASE_URL", "\"https://dev.api.example.com/\"")
             isDebuggable = true
         }
-        
-        // Build Type cho môi trường Staging/QA
-        create("staging") {
-            // Giúp cài song song bản Staging và Prod trên cùng 1 máy
-            applicationIdSuffix = ".staging" 
-            versionNameSuffix = "-STG"
-            
-            // Kế thừa thuộc tính từ release để test giống thật nhất
-            initWith(getByName("release")) 
-            
-            buildConfigField("String", "BASE_URL", "\"https://staging.api.example.com/\"")
-            
-            // Gán signing config riêng để nhận diện
-            signingConfig = signingConfigs.getByName("staging")
-            
-            // Có thể muốn vẫn cho phép debug trên staging đôi chút (tuỳ team)
-            isDebuggable = true 
-        }
 
-        // Build Type cho Production
+        // Build Type cho Production — khai báo TRƯỚC để staging kế thừa đúng minify/proguard/signing
         getByName("release") {
             buildConfigField("String", "BASE_URL", "\"https://api.example.com/\"")
             isMinifyEnabled = true // Bật R8/ProGuard
             isShrinkResources = true // Loại bỏ resource thừa
-            
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+        }
+
+        // Build Type cho môi trường Staging/QA
+        create("staging") {
+            // QUAN TRỌNG: initWith phải gọi TRƯỚC khi ghi đè.
+            // Mọi dòng sau initWith sẽ thay thế giá trị đã kế thừa.
+            // Kế thừa thuộc tính từ release để test giống thật nhất (minify/proguard/signing)
+            initWith(getByName("release"))
+
+            // Giúp cài song song bản Staging và Prod trên cùng 1 máy
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-STG"
+
+            buildConfigField("String", "BASE_URL", "\"https://staging.api.example.com/\"")
+
+            // Gán signing config riêng để nhận diện
+            signingConfig = signingConfigs.getByName("staging")
+
+            // Có thể muốn vẫn cho phép debug trên staging đôi chút (tuỳ team)
+            isDebuggable = true
         }
     }
 }
@@ -302,41 +340,158 @@ android {
 > [!NOTE]
 > Bằng cách cấu hình `applicationIdSuffix`, bạn có thể cài cả 3 app: `com.example.app.dev`, `com.example.app.staging`, và `com.example.app` lên cùng một thiết bị!
 
+> [!WARNING]
+> Staging bật đồng thời `isMinifyEnabled = true` và `isDebuggable = true` chỉ dùng nội bộ cho QA. Bản `debuggable` bị Google Play từ chối khi upload, và R8 + debuggable làm stacktrace khó đọc hơn bản release thật.
+
+> [!NOTE]
+> File `*-keystore.jks` thật không commit lên Git. Tên file trong ví dụ chỉ minh họa; password đọc từ biến môi trường hoặc CI secrets như đoạn code trên.
+
+Ngoài `buildConfigField`, AGP còn tự động merge Source Set theo Build Type: file trong `src/staging/` ghi đè file cùng đường dẫn trong `src/main` (đúng Build Flow ở trên). Ví dụ đổi tên app của bản staging mà không đụng bản release:
+
+```xml
+<!-- app/src/staging/res/values/strings.xml -->
+<resources>
+    <string name="app_name">App STG</string>
+</resources>
+```
+
 ### Đặt tên file output theo môi trường
 
-Mặc định, file APK/AAB sẽ có tên kiểu `app-debug.apk`, `app-staging-release.apk`... Muốn đặt tên rõ ràng hơn theo môi trường, dùng `setProperty("archivesBaseName", ...)` hoặc chỉnh `applicationVariants`:
+Mặc định, file APK/AAB sẽ có tên kiểu `app-debug.apk`, `app-staging.apk`... Muốn đặt tên rõ ràng hơn theo môi trường, ưu tiên đổi tên gốc (Cách 1). Chỉ khi cần tùy biến hoàn toàn tên file theo từng variant mới dùng Variant API (Cách 2 mới). Cách dùng `applicationVariants` (Cách cũ) đã deprecated từ AGP 4.2 và bị xóa khỏi AGP 9 nên không còn được gợi ý trong Android Studio mới.
 
-Cách 1 — Đặt tên gốc trong `defaultConfig`:
+Cách 1 — Đổi tên gốc (chỉ đổi phần base name, AGP vẫn ghép thêm `-debug` / `-staging` / `-release` phía sau):
+
+| Gradle | Cú pháp | Ghi chú |
+|---|---|---|
+| Gradle 8 trở xuống | `setProperty("archivesBaseName", ...)` trong `defaultConfig` | Vẫn chạy nhưng đã deprecated |
+| Gradle 9+ (AGP 9) | `base { archivesName = ... }` ngoài `android { }` | Bắt buộc, `archivesBaseName` đã bị xóa |
+
+Gradle 9+ (AGP 9, khuyến nghị):
+
+```kotlin
+// app/build.gradle.kts — nằm NGOÀI và NGANG CẤP với android { }
+base {
+    // Tên file output sẽ là: MyApp-debug.apk, MyApp-staging.apk, MyApp-release.apk
+    archivesName = "MyApp"
+}
+```
+
+> [!WARNING]
+> Từ Gradle 9, `archivesBaseName` đã bị xóa. Viết `setProperty("archivesBaseName", ...)` sẽ lỗi:
+> `Could not set unknown property 'archivesBaseName' for project ':app'`.
+> Lỗi này nghĩa là bạn đang set property lên `Project` nhưng property đó không còn tồn tại — hãy chuyển sang `base { archivesName = ... }` như trên. Check version trong `gradle/wrapper/gradle-wrapper.properties`.
+
+<details>
+<summary>Gradle 8 trở xuống — `archivesBaseName` (Legacy, chỉ để bảo trì project cũ)</summary>
 
 ```kotlin
 android {
     defaultConfig {
-        // Tên file output sẽ là: MyApp-dev.apk, MyApp-staging.apk, MyApp-release.apk
+        // Tên file output sẽ là: MyApp-debug.apk, MyApp-staging.apk, MyApp-release.apk
         setProperty("archivesBaseName", "MyApp")
     }
 }
 ```
 
-Cách 2 — Tùy biến hoàn toàn tên file theo từng variant:
+</details>
+
+Cách 2 mới — Tùy biến hoàn toàn tên file với Variant API (AGP 8/9, khuyến nghị khi cần custom):
 
 ```kotlin
-android {
-    applicationVariants.all {
-        val variant = this
-        outputs.all {
-            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            output.outputFileName = "MyApp-${variant.name}-${variant.versionName}.apk"
+// Lưu ý: androidComponents nằm NGOÀI và NGANG CẤP với android { }, không nằm trong đó.
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            output.outputFileName.set("MyApp-${variant.name}-${variant.versionName.getOrElse("1.0")}.apk")
+        }
+    }
+}
+```
+
+Chỉ đổi tên một Build Type cụ thể:
+
+```kotlin
+androidComponents {
+    onVariants(selector().withBuildType("staging")) { variant ->
+        variant.outputs.forEach { output ->
+            output.outputFileName.set("MyApp-${variant.name}-${variant.versionName.getOrElse("1.0")}.apk")
         }
     }
 }
 ```
 
 > [!NOTE]
-> Tên `variant.name` sẽ là `debug`, `staging` hoặc `release` (hoặc `stagingRelease`... khi kết hợp Flavor + Build Type). Kết quả với cách 2: `MyApp-staging-1.0.0-STG.apk`.
+> - `outputFileName` là `Property<String>` nên phải dùng `.set(...)`, không gán `=` như API cũ.
+> - `variant.name` sẽ là `debug`, `staging` hoặc `release` (hoặc `freeStaging`, `paidRelease`... khi kết hợp Flavor + Build Type). Kết quả: `MyApp-staging-1.0.0-STG.apk`. Dùng `getOrElse` để không crash khi variant chưa set versionName.
+> - Cách này tương thích Configuration Cache và Gradle 9, trong khi API cũ thì không. Rename này áp dụng cho cả APK/AAB; tên file AAB khi upload Play dùng cơ chế khác, kiểm tra Play Console nếu cần.
+
+<details>
+<summary>Cách cũ — `applicationVariants` (Legacy, chỉ AGP &lt; 8, không nên dùng mới)</summary>
+
+> [!WARNING]
+> `applicationVariants` là Legacy Variant API. Từ AGP 7 đã deprecated, từ AGP 8.13 cần opt-in, từ AGP 9 bị xóa hẳn (`android.newDsl=true` mặc định). Đó là lý do Android Studio mới không gợi ý `applicationVariants`. Đoạn code dưới chỉ để tham khảo khi bảo trì project cũ, và dùng internal API `BaseVariantOutputImpl` vốn đã bị Google cấm.
+
+```kotlin
+android {
+    applicationVariants.all {
+        val variant = this
+        outputs.all {
+            val output = this as com.android.build.gradle.api.ApkVariantOutput
+            output.outputFileName = "MyApp-${variant.name}-${variant.versionName}.apk"
+        }
+    }
+}
+```
+
+</details>
 
 ## Quản lý ProGuard và R8 Rule cho từng môi trường
 
 Khi bật `isMinifyEnabled = true`, R8 (công cụ biên dịch thế hệ mới của Android thay thế ProGuard) sẽ tiến hành làm rối mã (obfuscate) và loại bỏ các class/method không dùng tới.
+
+Vấn đề R8 giải quyết: APK release không xử lý vừa **to** (dead code, thư viện thừa làm tăng dung lượng tải) vừa **dễ bị decompile đọc gần như nguyên code** (lộ logic nghiệp vụ, endpoint, cách xử lý dữ liệu). R8 xử cả hai trong một lần chạy: gói nhỏ lại + khó đọc ngược.
+
+### R8 làm gì trong bản build của bạn
+
+R8 chạy đúng bước minify trong Build Flow ở trên: **sau biên dịch, trước đóng gói**. Một lần chạy làm 3 việc:
+
+1. **Shrink (lược bỏ):** xóa class/method không ai gọi tới (tree-shaking) cho APK nhẹ đi. `isShrinkResources = true` dọn tiếp phần resource thừa đi kèm.
+2. **Optimize (tối ưu):** viết lại bytecode cho gọn (inline hàm, gộp code...), app chạy nhanh hơn.
+3. **Obfuscate (làm rối):** đổi tên `com.example.LoginManager` thành `a.b.c` để decompile khó đọc. Đây **không phải mã hóa** — app vẫn chạy bình thường, chỉ khó đọc ngược.
+
+Điểm gãy duy nhất: R8 chỉ nhìn thấy lời gọi **trực tiếp**. Code gọi qua **Reflection** — Gson/Moshi parse JSON, Retrofit tạo implementation, Hilt/Navigation sinh code lúc chạy — R8 tưởng không ai dùng nên xóa nhầm. Kết quả: app **chỉ crash ở bản release/staging** (`ClassNotFoundException`, `NoSuchMethodError`) trong khi bản debug chạy ngon. Đó chính là lý do đội QA phải test trên bản staging bật R8 thay vì bản debug.
+
+### Đọc crash bản release: mapping.txt
+
+Mỗi lần build có minify, AGP sinh file `app/build/outputs/mapping/<variant>/mapping.txt` — bảng tra cứu tên thật ↔ tên rối. Không có file này, stacktrace crash toàn `a.b.c` và vô dụng. Quy tắc:
+
+- Lưu `mapping.txt` của **mỗi** bản release/staging (đúng variant, đúng versionCode).
+- Upload lên Play Console / Crashlytics để tự động giải mã crash.
+- Hoặc giải tay trong Android Studio bằng Analyze Stack Trace với đúng file mapping đó.
+
+### Cú pháp rule tối thiểu
+
+Rule là file `.pro` nói cho R8 biết "đừng đụng vào chỗ này". Chỉ cần 4 câu lệnh là đủ dùng hàng ngày:
+
+| Cú pháp | Ý nghĩa | Khi nào dùng |
+|---|---|---|
+| `-keep class com.example.model.** { *; }` | Giữ nguyên cả class + member | Model parse JSON (Gson), API interface |
+| `-keepnames class com.example.api.**` | Giữ tên class, cho tối ưu bên trong | Ít dùng, khi chỉ cần stacktrace đọc được |
+| `-keepclassmembers class * extends ... { <fields>; }` | Chỉ giữ member, không giữ cả class | Message protobuf (xem ví dụ Proto DataStore ở dưới) |
+| `-dontwarn org.conscrypt.**` | Bỏ qua warning của thư viện | Thư viện lớn báo warning không liên quan; không dùng để che lỗi thật |
+
+Mặc định AGP đã kèm `proguard-android-optimize.txt` (rule chuẩn của Google), nên file của bạn chỉ chứa rule cho **code của mình**.
+
+### Quy trình dùng R8 cho bản release/staging
+
+1. **Bật R8:** `isMinifyEnabled = true` (+ `isShrinkResources = true`) trong `release`, `staging` kế thừa qua `initWith` — như ví dụ 3 môi trường ở trên.
+2. **Viết rule:** thêm rule cho chỗ dùng Reflection của mình (model Gson, message Proto — xem mục rule mẫu ở dưới). Thư viện Jetpack hiện đại tự kèm rule nên không viết thừa.
+3. **Kiểm chứng mỗi bản build:**
+   - File `app/build/outputs/mapping/<variant>/mapping.txt` có sinh ra không — không có nghĩa là R8 chưa chạy thật.
+   - Cài bản staging/release lên máy, đi qua các màn hình dùng API, database, parse JSON. Crash `ClassNotFoundException` / `NoSuchMethodError` mà bản debug không bị = thiếu `-keep`, thêm rule rồi build lại.
+
+> [!WARNING]
+> 3 sai lầm phổ biến: viết `-keep ** { *; }` giữ hết cho "chắc ăn" (R8 thành vô dụng, APK không nhỏ đi — giữ hẹp từng package); copy rule Stack Overflow cũ có `-dontoptimize` / `-dontobfuscate` vào bản release (tắt luôn tác dụng R8); test R8 bằng bản debug (vô nghĩa vì R8 chỉ chạy khi `isMinifyEnabled = true`).
 
 Đôi khi, bạn muốn sử dụng các rules riêng biệt cho `staging` (để giữ lại một số log crash nội bộ hoặc SDK tracking ẩn) và `release`.
 
@@ -389,6 +544,49 @@ android {
     }
 }
 ```
+
+### Rule mẫu cho stack Lifecycle + Room + Retrofit + Hilt + DataStore
+
+Nguyên tắc: thư viện Jetpack hiện đại (2024+) tự kèm rule qua `consumerProguardFiles`, nên **chỉ viết rule cho code của mình**. Bảng tra nhanh:
+
+| Thư viện | Cần rule tay? | Vì sao |
+|---|---|---|
+| Lifecycle, Room, Hilt, Preferences DataStore, Navigation, WorkManager | Không | Tự kèm consumer rules; code sinh (generated) không dùng Reflection |
+| Retrofit (interface, suspend) | Không | Retrofit tự kèm rule giữ `Signature`/`InnerClasses` |
+| Gson models (dùng kèm Retrofit) | **Có** | Gson đọc field qua Reflection, R8 không thấy ai gọi nên xóa nhầm |
+| Proto DataStore | **Có** | Message protobuf cần giữ schema/parser |
+| Moshi codegen (KSP) | Không | Code sinh sẵn; chỉ Moshi reflection mới cần keep model như Gson |
+
+`proguard-rules.pro` dùng chung cho cả staging và release:
+
+```pro
+# Gson: giữ model parse JSON (đổi com.example.data.model thành package model của bạn)
+-keepattributes Signature, *Annotation*
+-keep class com.example.data.model.** { *; }
+
+# Proto DataStore: giữ message protobuf (Preferences DataStore không cần dòng này)
+-keepclassmembers class * extends com.google.protobuf.GeneratedMessageLite {
+  <fields>;
+}
+
+# Bỏ warning của thư viện, không che lỗi thật
+-dontwarn org.conscrypt.**
+```
+
+`src/staging/proguard-rules-staging.pro` — staging giữ log để QA gửi logcat kèm crash, release strip log cho nhẹ và sạch:
+
+```pro
+# Staging: KHÔNG strip Log.
+# File release thêm các dòng dưới để xóa log d/v/i khỏi APK:
+# -assumenosideeffects class android.util.Log {
+#     public static *** d(...);
+#     public static *** v(...);
+#     public static *** i(...);
+# }
+```
+
+> [!WARNING]
+> `-assumenosideeffects` chỉ dùng cho hàm không có side effect. Đừng strip `Log.e/wtf` (cần khi đọc crash), và đừng viết `Log.d(TAG, expensiveCall())` — R8 xóa cả lời gọi hàm lẫn đối số, hành vi sẽ khác nhau giữa các variant.
 
 ## Kết hợp Build Type với CI/CD
 
@@ -443,7 +641,7 @@ Trong `build.gradle.kts` (project root — block `plugins`):
 ```kotlin
 plugins {
     id("com.android.application") version "8.x" apply false
-    id("com.google.firebase.appdistribution") version "4.x" apply false
+    id("com.google.firebase.appdistribution") version "5.3.0" apply false
 }
 ```
 
@@ -458,7 +656,11 @@ plugins {
 
 ### Bước 2: Cấu hình nhóm tester cho từng Build Type
 
+Bắt buộc import extension từ plugin 5.x, nếu không Gradle dùng nhầm receiver và nhận sai credentials theo build type:
+
 ```kotlin
+import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
+
 buildTypes {
     getByName("debug") {
         // Không cần đẩy lên Firebase
@@ -494,6 +696,9 @@ Chạy lệnh:
 > [!NOTE]
 > `serviceCredentialsFile` nên đọc từ **biến môi trường** (như ví dụ trên) chứ không hardcode đường dẫn, để tránh lộ credential khi commit lên Git. File credential thường là JSON của Service Account từ Firebase Console.
 
+> [!NOTE]
+> Plugin 5.2.0 đã fix lỗi nhận sai credentials theo build type. Nếu vẫn gặp (đặc biệt khi kết hợp Flavor), dùng `configure<AppDistributionExtension>` thay cho block `firebaseAppDistribution` trong `buildTypes`.
+
 > [!TIP]
 > Kết hợp CI/CD + Firebase App Distribution: thay vì chạy tay, bạn có thể để pipeline CI (GitHub Actions, GitLab CI, Jenkins...) tự động chạy `appDistributionUploadStaging` mỗi khi có commit mới trên nhánh `staging`. Đây là pattern phổ biến để QA luôn có bản mới nhất mà không cần developer build thủ công.
 
@@ -504,6 +709,9 @@ Chạy lệnh:
 3. **Quá nhiều Build Types dư thừa:** Sử dụng Build Type để định nghĩa giao diện (ví dụ `redTheme`, `blueTheme`). Việc này làm chậm quá trình Gradle Sync và sai mục đích. **Giải pháp:** Dùng Product Flavors cho các biến thể về mặt nội dung/giao diện sản phẩm.
 4. **Quên bật `buildConfig = true`:** Với AGP 8+, dùng `BuildConfig.BASE_URL` mà quên khai báo `buildFeatures { buildConfig = true }` sẽ báo lỗi không tìm thấy field. **Giải pháp:** Bật `buildConfig` khi dùng `buildConfigField`.
 5. **Đặt secret thật sự vào `buildConfigField`:** Dù không hiển thị trên UI, mọi giá trị BuildConfig vẫn nằm trong APK và có thể bị decompile. **Giải pháp:** Chỉ đặt config không nhạy cảm; secret phải nằm ở server.
+6. **Quên `applicationIdSuffix`:** Bản staging đè mất bản production trên máy QA vì cùng application ID. **Giải pháp:** Luôn set `applicationIdSuffix` (`.staging`, `.dev`) như ví dụ ở trên để cài song song.
+7. **Trùng `versionCode` giữa các variant:** Cài bản staging đè bản release nhưng versionCode bằng nhau gây lỗi update hoặc nhầm bản khi đối chiếu crash. **Giải pháp:** Kết hợp `versionNameSuffix` và quản `versionCode` riêng theo variant khi cần phân biệt.
+8. **Quên upload `mapping.txt`:** Bật R8 mà không lưu/upload file mapping thì crash bản release không giải được stacktrace. **Giải pháp:** Lưu `app/build/outputs/mapping/<variant>/mapping.txt` mỗi bản release và upload lên Play Console / Crashlytics.
 
 ## Tổng kết
 
@@ -519,6 +727,8 @@ Build Type giúp hệ thống hóa quy trình từ lúc viết code đến lúc 
 
 - [Android Developers — Configure build variants](https://developer.android.com/build/build-variants)
 - [Android Developers — Configure build types](https://developer.android.com/build/build-types)
+- [Android Developers — AGP DSL/API migration timeline (applicationVariants → androidComponents)](https://developer.android.com/build/releases/gradle-plugin-roadmap)
+- [Android Developers — Gradle recipes (rename APK với AGP 9)](https://developer.android.com/agents/skills/build/agp/agp-9-upgrade/references/recipes)
 - [Android Developers — BuildConfig](https://developer.android.com/build/releases/gradle-plugin#build-config)
 - [Gradle Documentation — Build System](https://docs.gradle.org/current/userguide/what_is_gradle.html)
 - [Firebase App Distribution](https://firebase.google.com/docs/app-distribution)

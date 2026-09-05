@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Việc nền đừng tin Broadcast</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · WORKMANAGER</p>
+  <h1>Việc nền đừng tin Broadcast</h1>
+  <p class="sub">Upload cần đảm bảo thì WorkManager, receiver chỉ sống được 10 giây.</p>
+<svg viewBox="0 0 800 288" role="img" aria-labelledby="br-upload-dark-title br-upload-dark-desc" font-family="'Geist', sans-serif">
+<title id="br-upload-dark-title">Việc nền đừng tin Broadcast</title>
+<desc id="br-upload-dark-desc">Tải ảnh khi có WiFi thì WorkManager đảm bảo xong việc, Broadcast Receiver không đảm bảo.</desc>
+<defs>
+<marker id="br-upload-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="288" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,92 V 140 H 188 Q 180,140 180,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#br-upload-dark-arrow)"/>
+<path d="M 400,92 V 140 H 612 Q 620,140 620,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-upload-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Upload ảnh · WiFi</text>
+<text x="400" y="84" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app đã đóng</text>
+<rect x="80" y="192" width="200" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="192" width="200" height="56" rx="6" fill="transparent" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<rect x="88" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="114" y="207" fill="rgba(100,116,139,0.9)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THUA</text>
+<text x="180" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">BroadcastReceiver</text>
+<text x="180" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">max 10s · hên xui</text>
+<rect x="520" y="192" width="200" height="56" rx="6" fill="#060913"/>
+<rect x="520" y="192" width="200" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="528" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="554" y="207" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THẮNG</text>
+<text x="620" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
+<text x="620" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">persist · đúng hẹn</text>
+<!-- legend -->
+<line x1="32" y1="264" x2="768" y2="264" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="276" r="4" fill="#38BDF8"/>
+<text x="162" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THẮNG · ĐẢM BẢO XONG</text>
+<line x1="400" y1="276" x2="432" y2="276" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="440" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THUA · KHÔNG ĐẢM BẢO</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · VERSUS · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

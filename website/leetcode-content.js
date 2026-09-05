@@ -790,7 +790,7 @@ const LEETCODE_CONTENT = {
 
 <p>&nbsp;</p>
 <p><strong class="example">Ví dụ 1:</strong></p>
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/250px-Sudoku-by-L2G-20050714.svg.png" style="height:250px; width:250px" />
+<img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/250px-Sudoku-by-L2G-20050714.svg.png" style="height:250px; width:250px" />
 <pre>
 <strong>Đầu vào:</strong> board = 
 [[&quot;5&quot;,&quot;3&quot;,&quot;.&quot;,&quot;.&quot;,&quot;7&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;]
@@ -893,7 +893,7 @@ const LEETCODE_CONTENT = {
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/250px-Sudoku-by-L2G-20050714.svg.png" style="height:250px; width:250px" />
+<img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/250px-Sudoku-by-L2G-20050714.svg.png" style="height:250px; width:250px" />
 <pre>
 <strong>Input:</strong> board = 
 [[&quot;5&quot;,&quot;3&quot;,&quot;.&quot;,&quot;.&quot;,&quot;7&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;]
@@ -2885,7 +2885,7 @@ Total profit is 4.
 
 <p>&nbsp;</p>
 <p><strong class="example">Ví dụ 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
 <pre>
 <strong>Đầu vào:</strong> height = [0,1,0,2,1,0,1,3,2,1,2,1]
 <strong>Đầu ra:</strong> 6
@@ -2957,7 +2957,7 @@ Total profit is 4.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
 <pre>
 <strong>Input:</strong> height = [0,1,0,2,1,0,1,3,2,1,2,1]
 <strong>Output:</strong> 6
@@ -3612,14 +3612,14 @@ allOne.getMinKey(); // return &quot;leet&quot;
 <p>Danh sách được biểu diễn ở đầu vào/đầu ra như danh sách <code>n</code> node, mỗi node là cặp <code>[val, random_index]</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e1.png" style="width: 700px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e1.png" style="width: 700px; height: 142px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
 <strong>Đầu ra:</strong> [[7,null],[13,0],[11,4],[10,2],[1,0]]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e2.png" style="width: 700px; height: 114px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e2.png" style="width: 700px; height: 114px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [[1,1],[2,1]]
 <strong>Đầu ra:</strong> [[1,1],[2,1]]
@@ -3627,7 +3627,7 @@ allOne.getMinKey(); // return &quot;leet&quot;
 
 <p><strong class="example">Ví dụ 3:</strong></p>
 
-<p><strong><img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e3.png" style="width: 700px; height: 122px;" /></strong></p>
+<p><strong><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e3.png" style="width: 700px; height: 122px;" /></strong></p>
 
 <pre>
 <strong>Đầu vào:</strong> head = [[3,null],[3,0],[3,null]]
@@ -3707,14 +3707,14 @@ allOne.getMinKey(); // return &quot;leet&quot;
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e1.png" style="width: 700px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e1.png" style="width: 700px; height: 142px;" />
 <pre>
 <strong>Input:</strong> head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
 <strong>Output:</strong> [[7,null],[13,0],[11,4],[10,2],[1,0]]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e2.png" style="width: 700px; height: 114px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e2.png" style="width: 700px; height: 114px;" />
 <pre>
 <strong>Input:</strong> head = [[1,1],[2,1]]
 <strong>Output:</strong> [[1,1],[2,1]]
@@ -3722,7 +3722,7 @@ allOne.getMinKey(); // return &quot;leet&quot;
 
 <p><strong class="example">Example 3:</strong></p>
 
-<p><strong><img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e3.png" style="width: 700px; height: 122px;" /></strong></p>
+<p><strong><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e3.png" style="width: 700px; height: 122px;" /></strong></p>
 
 <pre>
 <strong>Input:</strong> head = [[3,null],[3,0],[3,null]]
@@ -5796,14 +5796,14 @@ rotate 2 steps to the right: [3,99,-1,-100]
 <div class=\"lc-description\"><p>Cho mảng các điểm <code>points</code> với <code>points[i] = [xi, yi]</code> trên mặt phẳng 2D, hãy trả về số điểm tối đa cùng nằm trên một đường thẳng.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane1.jpg" style="width: 300px; height: 294px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane1.jpg" style="width: 300px; height: 294px;" />
 <pre>
 <strong>Đầu vào:</strong> points = [[1,1],[2,2],[3,3]]
 <strong>Đầu ra:</strong> 3
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane2.jpg" style="width: 300px; height: 294px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane2.jpg" style="width: 300px; height: 294px;" />
 <pre>
 <strong>Đầu vào:</strong> points = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
 <strong>Đầu ra:</strong> 4
@@ -5868,14 +5868,14 @@ rotate 2 steps to the right: [3,99,-1,-100]
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane1.jpg" style="width: 300px; height: 294px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane1.jpg" style="width: 300px; height: 294px;" />
 <pre>
 <strong>Input:</strong> points = [[1,1],[2,2],[3,3]]
 <strong>Output:</strong> 3
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane2.jpg" style="width: 300px; height: 294px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane2.jpg" style="width: 300px; height: 294px;" />
 <pre>
 <strong>Input:</strong> points = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
 <strong>Output:</strong> 4
@@ -5954,14 +5954,14 @@ rotate 2 steps to the right: [3,99,-1,-100]
 <div class=\"lc-description\"><p>Cho ma trận nguyên <code>m x n</code> <code>matrix</code>, nếu một phần tử là <code>0</code>, hãy đặt toàn bộ hàng và cột của nó thành <code>0</code>. Thực hiện <strong>in-place</strong>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat1.jpg" style="width: 450px; height: 169px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat1.jpg" style="width: 450px; height: 169px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,1,1],[1,0,1],[1,1,1]]
 <strong>Đầu ra:</strong> [[1,0,1],[0,0,0],[1,0,1]]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat2.jpg" style="width: 450px; height: 137px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat2.jpg" style="width: 450px; height: 137px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]]
 <strong>Đầu ra:</strong> [[0,0,0,0],[0,4,5,0],[0,3,1,0]]
@@ -6037,14 +6037,14 @@ rotate 2 steps to the right: [3,99,-1,-100]
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat1.jpg" style="width: 450px; height: 169px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat1.jpg" style="width: 450px; height: 169px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,1,1],[1,0,1],[1,1,1]]
 <strong>Output:</strong> [[1,0,1],[0,0,0],[1,0,1]]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat2.jpg" style="width: 450px; height: 137px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat2.jpg" style="width: 450px; height: 137px;" />
 <pre>
 <strong>Input:</strong> matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]]
 <strong>Output:</strong> [[0,0,0,0],[0,4,5,0],[0,3,1,0]]
@@ -6132,14 +6132,14 @@ rotate 2 steps to the right: [3,99,-1,-100]
 <div class=\"lc-description\"><p>Cho ma trận <code>n x n</code> biểu diễn ảnh, hãy xoay ảnh <strong>90 độ theo chiều kim đồng hồ</strong> ngay tại chỗ (in-place).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,2,3],[4,5,6],[7,8,9]]
 <strong>Đầu ra:</strong> [[7,4,1],[8,5,2],[9,6,3]]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]
 <strong>Đầu ra:</strong> [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
@@ -6205,14 +6205,14 @@ rotate 2 steps to the right: [3,99,-1,-100]
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,2,3],[4,5,6],[7,8,9]]
 <strong>Output:</strong> [[7,4,1],[8,5,2],[9,6,3]]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
 <pre>
 <strong>Input:</strong> matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]
 <strong>Output:</strong> [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
@@ -6290,14 +6290,14 @@ rotate 2 steps to the right: [3,99,-1,-100]
 <div class=\"lc-description\"><p>Cho ma trận <code>m x n</code> <code>matrix</code>, hãy trả về tất cả phần tử của ma trận theo thứ tự <strong>xoắn ốc (spiral order)</strong>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral1.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral1.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,2,3],[4,5,6],[7,8,9]]
 <strong>Đầu ra:</strong> [1,2,3,6,9,8,7,4,5]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
 <strong>Đầu ra:</strong> [1,2,3,4,8,12,11,10,9,5,6,7]
@@ -6362,14 +6362,14 @@ rotate 2 steps to the right: [3,99,-1,-100]
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral1.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral1.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,2,3],[4,5,6],[7,8,9]]
 <strong>Output:</strong> [1,2,3,6,9,8,7,4,5]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
 <strong>Output:</strong> [1,2,3,4,8,12,11,10,9,5,6,7]
@@ -6448,7 +6448,7 @@ rotate 2 steps to the right: [3,99,-1,-100]
 <div class=\"lc-description\"><p>Cho số nguyên <code>n</code>, hãy tạo ma trận <code>n x n</code> chứa các số từ <code>1</code> đến <code>n<sup>2</sup></code> theo thứ tự xoắn ốc.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiraln.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiraln.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 3
 <strong>Đầu ra:</strong> [[1,2,3],[8,9,4],[7,6,5]]
@@ -6517,7 +6517,7 @@ rotate 2 steps to the right: [3,99,-1,-100]
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiraln.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiraln.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Input:</strong> n = 3
 <strong>Output:</strong> [[1,2,3],[8,9,4],[7,6,5]]
@@ -6608,14 +6608,14 @@ rotate 2 steps to the right: [3,99,-1,-100]
 <p>Yêu cầu cập nhật in-place.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/26/grid1.jpg" style="width: 562px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/26/grid1.jpg" style="width: 562px; height: 322px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[0,1,0],[0,0,1],[1,1,1],[0,0,0]]
 <strong>Đầu ra:</strong> [[0,0,0],[1,0,1],[0,1,1],[0,1,0]]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/26/grid2.jpg" style="width: 402px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/26/grid2.jpg" style="width: 402px; height: 162px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[1,1],[1,0]]
 <strong>Đầu ra:</strong> [[1,1],[1,1]]
@@ -6703,14 +6703,14 @@ rotate 2 steps to the right: [3,99,-1,-100]
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/26/grid1.jpg" style="width: 562px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/26/grid1.jpg" style="width: 562px; height: 322px;" />
 <pre>
 <strong>Input:</strong> board = [[0,1,0],[0,0,1],[1,1,1],[0,0,0]]
 <strong>Output:</strong> [[0,0,0],[1,0,1],[0,1,1],[0,1,0]]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/26/grid2.jpg" style="width: 402px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/26/grid2.jpg" style="width: 402px; height: 162px;" />
 <pre>
 <strong>Input:</strong> board = [[1,1],[1,0]]
 <strong>Output:</strong> [[1,1],[1,1]]
@@ -6798,7 +6798,7 @@ rotate 2 steps to the right: [3,99,-1,-100]
 
 <p>Trong tam giác Pascal, mỗi số là tổng của hai số ngay phía trên nó (như hình).</p>
 
-<p><img alt="" src="https://upload.wikimedia.org/wikipedia/commons/0/0d/PascalTriangleAnimated2.gif" style="height:240px; width:260px" /></p>
+<p><img loading="lazy" alt="" src="https://upload.wikimedia.org/wikipedia/commons/0/0d/PascalTriangleAnimated2.gif" style="height:240px; width:260px" /></p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
 <pre><strong>Đầu vào:</strong> numRows = 5
@@ -6862,7 +6862,7 @@ rotate 2 steps to the right: [3,99,-1,-100]
 <p>Given an integer <code>numRows</code>, return the first numRows of <strong>Pascal&#39;s triangle</strong>.</p>
 
 <p>In <strong>Pascal&#39;s triangle</strong>, each number is the sum of the two numbers directly above it as shown:</p>
-<img alt="" src="https://upload.wikimedia.org/wikipedia/commons/0/0d/PascalTriangleAnimated2.gif" style="height:240px; width:260px" />
+<img loading="lazy" alt="" src="https://upload.wikimedia.org/wikipedia/commons/0/0d/PascalTriangleAnimated2.gif" style="height:240px; width:260px" />
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
 <pre><strong>Input:</strong> numRows = 5
@@ -7010,7 +7010,7 @@ rotate 2 steps to the right: [3,99,-1,-100]
 <p>Given an integer <code>rowIndex</code>, return the <code>rowIndex<sup>th</sup></code> (<strong>0-indexed</strong>) row of the <strong>Pascal&#39;s triangle</strong>.</p>
 
 <p>In <strong>Pascal&#39;s triangle</strong>, each number is the sum of the two numbers directly above it as shown:</p>
-<img alt="" src="https://upload.wikimedia.org/wikipedia/commons/0/0d/PascalTriangleAnimated2.gif" style="height:240px; width:260px" />
+<img loading="lazy" alt="" src="https://upload.wikimedia.org/wikipedia/commons/0/0d/PascalTriangleAnimated2.gif" style="height:240px; width:260px" />
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
 <pre><strong>Input:</strong> rowIndex = 3
@@ -7983,7 +7983,7 @@ Notice that the order of the output and the order of the triplets does not matte
 <p>Lượng nước = min(height[i], height[j]) * (j - i). Hãy trả về lượng lớn nhất.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/07/17/question_11.jpg" style="width: 600px; height: 287px;" />
+<img loading="lazy" alt="" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/07/17/question_11.jpg" style="width: 600px; height: 287px;" />
 <pre>
 <strong>Đầu vào:</strong> height = [1,8,6,2,5,4,8,3,7]
 <strong>Đầu ra:</strong> 49
@@ -8061,7 +8061,7 @@ Notice that the order of the output and the order of the triplets does not matte
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/07/17/question_11.jpg" style="width: 600px; height: 287px;" />
+<img loading="lazy" alt="" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/07/17/question_11.jpg" style="width: 600px; height: 287px;" />
 <pre>
 <strong>Input:</strong> height = [1,8,6,2,5,4,8,3,7]
 <strong>Output:</strong> 49
@@ -8149,7 +8149,7 @@ Notice that the order of the output and the order of the triplets does not matte
 <p>(Bản này thuộc module Two Pointers – cùng đề với Array & Hashing nhưng tiếp cận bằng hai con trỏ.)</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
 <pre>
 <strong>Đầu vào:</strong> height = [0,1,0,2,1,0,1,3,2,1,2,1]
 <strong>Đầu ra:</strong> 6
@@ -8221,7 +8221,7 @@ Notice that the order of the output and the order of the triplets does not matte
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
 <pre>
 <strong>Input:</strong> height = [0,1,0,2,1,0,1,3,2,1,2,1]
 <strong>Output:</strong> 6
@@ -14246,7 +14246,7 @@ There is only one car, hence there is only one fleet.</div>
 <div class=\"lc-description\"><p>Cho mảng <code>heights</code> là chiều cao các cột của histogram (mỗi cột rộng 1), hãy trả về diện tích hình chữ nhật lớn nhất có thể tạo trong histogram.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram.jpg" style="width: 522px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram.jpg" style="width: 522px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> heights = [2,1,5,6,2,3]
 <strong>Đầu ra:</strong> 10
@@ -14255,7 +14255,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram-1.jpg" style="width: 202px; height: 362px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram-1.jpg" style="width: 202px; height: 362px;" />
 <pre>
 <strong>Đầu vào:</strong> heights = [2,4]
 <strong>Đầu ra:</strong> 4
@@ -14318,7 +14318,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram.jpg" style="width: 522px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram.jpg" style="width: 522px; height: 242px;" />
 <pre>
 <strong>Input:</strong> heights = [2,1,5,6,2,3]
 <strong>Output:</strong> 10
@@ -14327,7 +14327,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram-1.jpg" style="width: 202px; height: 362px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram-1.jpg" style="width: 202px; height: 362px;" />
 <pre>
 <strong>Input:</strong> heights = [2,4]
 <strong>Output:</strong> 4
@@ -14404,7 +14404,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 <div class=\"lc-description\"><p>Cho ma trận nhị phân <code>rows x cols</code> chỉ chứa <code>'0'</code> và <code>'1'</code>, hãy tìm hình chữ nhật lớn nhất chỉ chứa <code>'1'</code> và trả về diện tích.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/14/maximal.jpg" style="width: 402px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/14/maximal.jpg" style="width: 402px; height: 322px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;]]
 <strong>Đầu ra:</strong> 6
@@ -14484,7 +14484,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/14/maximal.jpg" style="width: 402px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/14/maximal.jpg" style="width: 402px; height: 322px;" />
 <pre>
 <strong>Input:</strong> matrix = [[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;]]
 <strong>Output:</strong> 6
@@ -17479,14 +17479,14 @@ The best way is to split it into [1,2,3] and [4,5], where the largest sum among 
 <p>Cho số nguyên <code>target</code>, hãy trả về <code>true</code> nếu <code>target</code> nằm trong ma trận, ngược lại <code>false</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat2.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat2.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13
 <strong>Đầu ra:</strong> false
@@ -17560,14 +17560,14 @@ The best way is to split it into [1,2,3] and [4,5], where the largest sum among 
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat2.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat2.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13
 <strong>Output:</strong> false
@@ -17651,14 +17651,14 @@ The best way is to split it into [1,2,3] and [4,5], where the largest sum among 
 </ul>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid2.jpg" style="width: 300px; height: 300px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid2.jpg" style="width: 300px; height: 300px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 5
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid.jpg" style="width: 300px; height: 300px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid.jpg" style="width: 300px; height: 300px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 20
 <strong>Đầu ra:</strong> false
@@ -17731,14 +17731,14 @@ The best way is to split it into [1,2,3] and [4,5], where the largest sum among 
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid2.jpg" style="width: 300px; height: 300px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid2.jpg" style="width: 300px; height: 300px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 5
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid.jpg" style="width: 300px; height: 300px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid.jpg" style="width: 300px; height: 300px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 20
 <strong>Output:</strong> false
@@ -19037,14 +19037,14 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 <div class=\"lc-description\"><p>Cho đầu danh sách liên kết đơn <code>head</code>, hãy đảo ngược danh sách và trả về đầu mới.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev1ex1.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev1ex1.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2,3,4,5]
 <strong>Đầu ra:</strong> [5,4,3,2,1]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev1ex2.jpg" style="width: 182px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev1ex2.jpg" style="width: 182px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2]
 <strong>Đầu ra:</strong> [2,1]
@@ -19117,14 +19117,14 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev1ex1.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev1ex1.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Input:</strong> head = [1,2,3,4,5]
 <strong>Output:</strong> [5,4,3,2,1]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev1ex2.jpg" style="width: 182px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev1ex2.jpg" style="width: 182px; height: 222px;" />
 <pre>
 <strong>Input:</strong> head = [1,2]
 <strong>Output:</strong> [2,1]
@@ -19211,7 +19211,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 <div class=\"lc-description\"><p>Cho đầu hai danh sách đã sắp xếp <code>list1</code> và <code>list2</code>, hãy gộp thành một danh sách đã sắp xếp bằng cách nối các node của hai danh sách.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/03/merge_ex1.jpg" style="width: 662px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/03/merge_ex1.jpg" style="width: 662px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> list1 = [1,2,4], list2 = [1,3,4]
 <strong>Đầu ra:</strong> [1,1,2,3,4,4]
@@ -19293,7 +19293,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/03/merge_ex1.jpg" style="width: 662px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/03/merge_ex1.jpg" style="width: 662px; height: 302px;" />
 <pre>
 <strong>Input:</strong> list1 = [1,2,4], list2 = [1,3,4]
 <strong>Output:</strong> [1,1,2,3,4,4]
@@ -19385,7 +19385,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 <div class=\"lc-description\"><p>Cho đầu danh sách liên kết <code>head</code>, hãy xác định danh sách có <strong>chu trình (cycle)</strong> hay không. Có chu trình nếu có node mà <code>next</code> trỏ lại node trước đó.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist.png" style="width: 300px; height: 97px; margin-top: 8px; margin-bottom: 8px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist.png" style="width: 300px; height: 97px; margin-top: 8px; margin-bottom: 8px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [3,2,0,-4], pos = 1
 <strong>Đầu ra:</strong> true
@@ -19393,7 +19393,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test2.png" style="width: 141px; height: 74px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test2.png" style="width: 141px; height: 74px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2], pos = 0
 <strong>Đầu ra:</strong> true
@@ -19401,7 +19401,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test3.png" style="width: 45px; height: 45px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test3.png" style="width: 45px; height: 45px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1], pos = -1
 <strong>Đầu ra:</strong> false
@@ -19473,7 +19473,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist.png" style="width: 300px; height: 97px; margin-top: 8px; margin-bottom: 8px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist.png" style="width: 300px; height: 97px; margin-top: 8px; margin-bottom: 8px;" />
 <pre>
 <strong>Input:</strong> head = [3,2,0,-4], pos = 1
 <strong>Output:</strong> true
@@ -19481,7 +19481,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test2.png" style="width: 141px; height: 74px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test2.png" style="width: 141px; height: 74px;" />
 <pre>
 <strong>Input:</strong> head = [1,2], pos = 0
 <strong>Output:</strong> true
@@ -19489,7 +19489,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test3.png" style="width: 45px; height: 45px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test3.png" style="width: 45px; height: 45px;" />
 <pre>
 <strong>Input:</strong> head = [1], pos = -1
 <strong>Output:</strong> false
@@ -19573,7 +19573,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 <p>Không dùng thêm bộ nhớ phụ đáng kể.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist.png" style="height: 145px; width: 450px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist.png" style="height: 145px; width: 450px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [3,2,0,-4], pos = 1
 <strong>Đầu ra:</strong> tail connects to node index 1
@@ -19581,7 +19581,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test2.png" style="height: 105px; width: 201px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test2.png" style="height: 105px; width: 201px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2], pos = 0
 <strong>Đầu ra:</strong> tail connects to node index 0
@@ -19589,7 +19589,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test3.png" style="height: 65px; width: 65px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test3.png" style="height: 65px; width: 65px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1], pos = -1
 <strong>Đầu ra:</strong> no cycle
@@ -19661,7 +19661,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist.png" style="height: 145px; width: 450px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist.png" style="height: 145px; width: 450px;" />
 <pre>
 <strong>Input:</strong> head = [3,2,0,-4], pos = 1
 <strong>Output:</strong> tail connects to node index 1
@@ -19669,7 +19669,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test2.png" style="height: 105px; width: 201px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test2.png" style="height: 105px; width: 201px;" />
 <pre>
 <strong>Input:</strong> head = [1,2], pos = 0
 <strong>Output:</strong> tail connects to node index 0
@@ -19677,7 +19677,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test3.png" style="height: 65px; width: 65px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test3.png" style="height: 65px; width: 65px;" />
 <pre>
 <strong>Input:</strong> head = [1], pos = -1
 <strong>Output:</strong> no cycle
@@ -19759,7 +19759,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 <div class=\"lc-description\"><p>Cho đầu danh sách liên kết <code>head</code>, hãy xóa node thứ <code>n</code> tính từ cuối danh sách và trả về đầu danh sách mới.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/03/remove_ex1.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/03/remove_ex1.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2,3,4,5], n = 2
 <strong>Đầu ra:</strong> [1,2,3,5]
@@ -19841,7 +19841,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/03/remove_ex1.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/03/remove_ex1.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Input:</strong> head = [1,2,3,4,5], n = 2
 <strong>Output:</strong> [1,2,3,5]
@@ -19937,14 +19937,14 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 <div class=\"lc-description\"><p>Cho danh sách liên kết độ dài <code>n</code> với con trỏ <code>random</code> có thể trỏ tới bất kỳ node nào hoặc <code>null</code>, hãy tạo bản sao sâu (deep copy) gồm <code>n</code> node mới, giữ nguyên quan hệ <code>next</code> và <code>random</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e1.png" style="width: 700px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e1.png" style="width: 700px; height: 142px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
 <strong>Đầu ra:</strong> [[7,null],[13,0],[11,4],[10,2],[1,0]]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e2.png" style="width: 700px; height: 114px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e2.png" style="width: 700px; height: 114px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [[1,1],[2,1]]
 <strong>Đầu ra:</strong> [[1,1],[2,1]]
@@ -19952,7 +19952,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 
 <p><strong class="example">Ví dụ 3:</strong></p>
 
-<p><strong><img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e3.png" style="width: 700px; height: 122px;" /></strong></p>
+<p><strong><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e3.png" style="width: 700px; height: 122px;" /></strong></p>
 
 <pre>
 <strong>Đầu vào:</strong> head = [[3,null],[3,0],[3,null]]
@@ -20032,14 +20032,14 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e1.png" style="width: 700px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e1.png" style="width: 700px; height: 142px;" />
 <pre>
 <strong>Input:</strong> head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
 <strong>Output:</strong> [[7,null],[13,0],[11,4],[10,2],[1,0]]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e2.png" style="width: 700px; height: 114px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e2.png" style="width: 700px; height: 114px;" />
 <pre>
 <strong>Input:</strong> head = [[1,1],[2,1]]
 <strong>Output:</strong> [[1,1],[2,1]]
@@ -20047,7 +20047,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 
 <p><strong class="example">Example 3:</strong></p>
 
-<p><strong><img alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e3.png" style="width: 700px; height: 122px;" /></strong></p>
+<p><strong><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/12/18/e3.png" style="width: 700px; height: 122px;" /></strong></p>
 
 <pre>
 <strong>Input:</strong> head = [[3,null],[3,0],[3,null]]
@@ -20126,7 +20126,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 <div class=\"lc-description\"><p>Cho hai danh sách liên kết không rỗng <code>l1</code> và <code>l2</code> biểu diễn hai số nguyên không âm, các chữ số lưu theo thứ tự ngược (ví dụ <code>2→4→3</code> là 342). Hãy cộng hai số và trả về tổng dưới dạng danh sách liên kết.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/02/addtwonumber1.jpg" style="width: 483px; height: 342px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/02/addtwonumber1.jpg" style="width: 483px; height: 342px;" />
 <pre>
 <strong>Đầu vào:</strong> l1 = [2,4,3], l2 = [5,6,4]
 <strong>Đầu ra:</strong> [7,0,8]
@@ -20207,7 +20207,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/02/addtwonumber1.jpg" style="width: 483px; height: 342px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/02/addtwonumber1.jpg" style="width: 483px; height: 342px;" />
 <pre>
 <strong>Input:</strong> l1 = [2,4,3], l2 = [5,6,4]
 <strong>Output:</strong> [7,0,8]
@@ -20302,7 +20302,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 <p>Không được đảo ngược danh sách đầu vào.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/09/sumii-linked-list.jpg" style="width: 523px; height: 342px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/09/sumii-linked-list.jpg" style="width: 523px; height: 342px;" />
 <pre>
 <strong>Đầu vào:</strong> l1 = [7,2,4,3], l2 = [5,6,4]
 <strong>Đầu ra:</strong> [7,8,0,7]
@@ -20385,7 +20385,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/09/sumii-linked-list.jpg" style="width: 523px; height: 342px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/09/sumii-linked-list.jpg" style="width: 523px; height: 342px;" />
 <pre>
 <strong>Input:</strong> l1 = [7,2,4,3], l2 = [5,6,4]
 <strong>Output:</strong> [7,8,0,7]
@@ -20480,7 +20480,7 @@ timeMap.get(&quot;foo&quot;, 5);         // return &quot;bar2&quot;
 <div class=\"lc-description\"><p>Cho đầu hai danh sách liên kết đơn <code>headA</code> và <code>headB</code>, hãy trả về node giao nhau (node mà hai danh sách cùng tham chiếu). Nếu không giao, trả về <code>null</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_1_1.png" style="width: 500px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_1_1.png" style="width: 500px; height: 162px;" />
 <pre>
 <strong>Đầu vào:</strong> intersectVal = 8, listA = [4,1,8,4,5], listB = [5,6,1,8,4,5], skipA = 2, skipB = 3
 <strong>Đầu ra:</strong> Intersected at &#39;8&#39;
@@ -20490,7 +20490,7 @@ From the head of A, it reads as [4,1,8,4,5]. From the head of B, it reads as [5,
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_2.png" style="width: 500px; height: 194px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_2.png" style="width: 500px; height: 194px;" />
 <pre>
 <strong>Đầu vào:</strong> intersectVal = 2, listA = [1,9,1,2,4], listB = [3,2,4], skipA = 3, skipB = 1
 <strong>Đầu ra:</strong> Intersected at &#39;2&#39;
@@ -20499,7 +20499,7 @@ From the head of A, it reads as [1,9,1,2,4]. From the head of B, it reads as [3,
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_3.png" style="width: 300px; height: 189px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_3.png" style="width: 300px; height: 189px;" />
 <pre>
 <strong>Đầu vào:</strong> intersectVal = 0, listA = [2,6,4], listB = [1,5], skipA = 3, skipB = 2
 <strong>Đầu ra:</strong> No intersection
@@ -20571,7 +20571,7 @@ Explanation: The two lists do not intersect, so return null.
 <p>Given the heads of two singly linked-lists <code>headA</code> and <code>headB</code>, return <em>the node at which the two lists intersect</em>. If the two linked lists have no intersection at all, return <code>null</code>.</p>
 
 <p>For example, the following two linked lists begin to intersect at node <code>c1</code>:</p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_statement.png" style="width: 500px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_statement.png" style="width: 500px; height: 162px;" />
 <p>The test cases are generated such that there are no cycles anywhere in the entire linked structure.</p>
 
 <p><strong>Note</strong> that the linked lists must <strong>retain their original structure</strong> after the function returns.</p>
@@ -20592,7 +20592,7 @@ Explanation: The two lists do not intersect, so return null.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_1_1.png" style="width: 500px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_1_1.png" style="width: 500px; height: 162px;" />
 <pre>
 <strong>Input:</strong> intersectVal = 8, listA = [4,1,8,4,5], listB = [5,6,1,8,4,5], skipA = 2, skipB = 3
 <strong>Output:</strong> Intersected at &#39;8&#39;
@@ -20602,7 +20602,7 @@ From the head of A, it reads as [4,1,8,4,5]. From the head of B, it reads as [5,
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_2.png" style="width: 500px; height: 194px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_2.png" style="width: 500px; height: 194px;" />
 <pre>
 <strong>Input:</strong> intersectVal = 2, listA = [1,9,1,2,4], listB = [3,2,4], skipA = 3, skipB = 1
 <strong>Output:</strong> Intersected at &#39;2&#39;
@@ -20611,7 +20611,7 @@ From the head of A, it reads as [1,9,1,2,4]. From the head of B, it reads as [3,
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_3.png" style="width: 300px; height: 189px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/05/160_example_3.png" style="width: 300px; height: 189px;" />
 <pre>
 <strong>Input:</strong> intersectVal = 0, listA = [2,6,4], listB = [1,5], skipA = 3, skipB = 2
 <strong>Output:</strong> No intersection
@@ -20892,14 +20892,14 @@ merging them into one sorted linked list:
 <div class=\"lc-description\"><p>Cho đầu danh sách liên kết <code>head</code> và số nguyên <code>k</code>, hãy đảo ngược mỗi nhóm <code>k</code> node liên tiếp. Nếu số node còn lại &lt; <code>k</code> thì giữ nguyên.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/03/reverse_ex1.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/03/reverse_ex1.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2,3,4,5], k = 2
 <strong>Đầu ra:</strong> [2,1,4,3,5]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/03/reverse_ex2.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/03/reverse_ex2.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2,3,4,5], k = 3
 <strong>Đầu ra:</strong> [3,2,1,4,5]
@@ -20970,14 +20970,14 @@ merging them into one sorted linked list:
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/03/reverse_ex1.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/03/reverse_ex1.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Input:</strong> head = [1,2,3,4,5], k = 2
 <strong>Output:</strong> [2,1,4,3,5]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/03/reverse_ex2.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/03/reverse_ex2.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Input:</strong> head = [1,2,3,4,5], k = 3
 <strong>Output:</strong> [3,2,1,4,5]
@@ -21058,7 +21058,7 @@ merging them into one sorted linked list:
 <div class=\"lc-description\"><p>Cho đầu danh sách liên kết <code>head</code> và hai số nguyên <code>left</code>, <code>right</code> (1-indexed), hãy đảo ngược đoạn từ vị trí <code>left</code> đến <code>right</code> và trả về đầu danh sách.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev2ex2.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev2ex2.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2,3,4,5], left = 2, right = 4
 <strong>Đầu ra:</strong> [1,4,3,2,5]
@@ -21132,7 +21132,7 @@ merging them into one sorted linked list:
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev2ex2.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/rev2ex2.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Input:</strong> head = [1,2,3,4,5], left = 2, right = 4
 <strong>Output:</strong> [1,4,3,2,5]
@@ -21220,14 +21220,14 @@ merging them into one sorted linked list:
 <div class=\"lc-description\"><p>Cho đầu danh sách đã sắp xếp <code>head</code>, hãy xóa mọi node trùng sao cho mỗi giá trị chỉ xuất hiện <strong>một lần</strong> (giữ lại một bản). Trả về đầu danh sách đã xóa.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/linkedlist1.jpg" style="width: 500px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/linkedlist1.jpg" style="width: 500px; height: 142px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2,3,3,4,4,5]
 <strong>Đầu ra:</strong> [1,2,5]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/linkedlist2.jpg" style="width: 500px; height: 205px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/linkedlist2.jpg" style="width: 500px; height: 205px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,1,1,2,3]
 <strong>Đầu ra:</strong> [2,3]
@@ -21291,14 +21291,14 @@ merging them into one sorted linked list:
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/linkedlist1.jpg" style="width: 500px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/linkedlist1.jpg" style="width: 500px; height: 142px;" />
 <pre>
 <strong>Input:</strong> head = [1,2,3,3,4,4,5]
 <strong>Output:</strong> [1,2,5]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/linkedlist2.jpg" style="width: 500px; height: 205px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/linkedlist2.jpg" style="width: 500px; height: 205px;" />
 <pre>
 <strong>Input:</strong> head = [1,1,1,2,3]
 <strong>Output:</strong> [2,3]
@@ -21376,14 +21376,14 @@ merging them into one sorted linked list:
 <div class=\"lc-description\"><p>Cho đầu danh sách đã sắp xếp <code>head</code>, hãy xóa mọi node có giá trị trùng lặp, chỉ giữ các node có giá trị <strong>khác nhau hoàn toàn</strong> (xóa hết nếu trùng). Trả về đầu danh sách.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/list1.jpg" style="width: 302px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/list1.jpg" style="width: 302px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,1,2]
 <strong>Đầu ra:</strong> [1,2]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/list2.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/list2.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,1,2,3,3]
 <strong>Đầu ra:</strong> [1,2,3]
@@ -21447,14 +21447,14 @@ merging them into one sorted linked list:
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/list1.jpg" style="width: 302px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/list1.jpg" style="width: 302px; height: 242px;" />
 <pre>
 <strong>Input:</strong> head = [1,1,2]
 <strong>Output:</strong> [1,2]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/list2.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/list2.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Input:</strong> head = [1,1,2,3,3]
 <strong>Output:</strong> [1,2,3]
@@ -21532,7 +21532,7 @@ merging them into one sorted linked list:
 <div class=\"lc-description\"><p>Cho đầu danh sách liên kết <code>head</code> và số nguyên <code>x</code>, hãy phân hoạch danh sách sao cho mọi node có giá trị &lt; <code>x</code> đứng trước node ≥ <code>x</code>, giữ nguyên thứ tự tương đối trong mỗi phần.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/partition.jpg" style="width: 662px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/partition.jpg" style="width: 662px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,4,3,2,5,2], x = 3
 <strong>Đầu ra:</strong> [1,2,2,4,3,5]
@@ -21605,7 +21605,7 @@ merging them into one sorted linked list:
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/partition.jpg" style="width: 662px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/partition.jpg" style="width: 662px; height: 222px;" />
 <pre>
 <strong>Input:</strong> head = [1,4,3,2,5,2], x = 3
 <strong>Output:</strong> [1,2,2,4,3,5]
@@ -21690,14 +21690,14 @@ merging them into one sorted linked list:
 <div class=\"lc-description\"><p>Cho đầu danh sách liên kết <code>head</code>, hãy sắp xếp danh sách theo thứ tự tăng dần và trả về đầu danh sách đã sắp xếp. Yêu cầu <code>O(n log n)</code> và <code>O(1)</code> bộ nhớ phụ (không tính đệ quy).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/14/sort_list_1.jpg" style="width: 450px; height: 194px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/14/sort_list_1.jpg" style="width: 450px; height: 194px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [4,2,1,3]
 <strong>Đầu ra:</strong> [1,2,3,4]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/14/sort_list_2.jpg" style="width: 550px; height: 184px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/14/sort_list_2.jpg" style="width: 550px; height: 184px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [-1,5,3,4,0]
 <strong>Đầu ra:</strong> [-1,0,3,4,5]
@@ -21770,14 +21770,14 @@ merging them into one sorted linked list:
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/14/sort_list_1.jpg" style="width: 450px; height: 194px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/14/sort_list_1.jpg" style="width: 450px; height: 194px;" />
 <pre>
 <strong>Input:</strong> head = [4,2,1,3]
 <strong>Output:</strong> [1,2,3,4]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/14/sort_list_2.jpg" style="width: 550px; height: 184px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/14/sort_list_2.jpg" style="width: 550px; height: 184px;" />
 <pre>
 <strong>Input:</strong> head = [-1,5,3,4,0]
 <strong>Output:</strong> [-1,0,3,4,5]
@@ -21864,14 +21864,14 @@ merging them into one sorted linked list:
 <div class=\"lc-description\"><p>Cho đầu danh sách liên kết <code>head</code>, hãy sắp xếp lại danh sách theo dạng <code>L0 → Ln → L1 → Ln-1 → L2 → Ln-2 → ...</code> ngay tại chỗ, không thay đổi giá trị node.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/04/reorder1linked-list.jpg" style="width: 422px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/04/reorder1linked-list.jpg" style="width: 422px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2,3,4]
 <strong>Đầu ra:</strong> [1,4,2,3]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/09/reorder2-linked-list.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/09/reorder2-linked-list.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2,3,4,5]
 <strong>Đầu ra:</strong> [1,5,2,4,3]
@@ -21946,14 +21946,14 @@ L<sub>0</sub> &rarr; L<sub>n</sub> &rarr; L<sub>1</sub> &rarr; L<sub>n - 1</sub>
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/04/reorder1linked-list.jpg" style="width: 422px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/04/reorder1linked-list.jpg" style="width: 422px; height: 222px;" />
 <pre>
 <strong>Input:</strong> head = [1,2,3,4]
 <strong>Output:</strong> [1,4,2,3]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/09/reorder2-linked-list.jpg" style="width: 542px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/09/reorder2-linked-list.jpg" style="width: 542px; height: 222px;" />
 <pre>
 <strong>Input:</strong> head = [1,2,3,4,5]
 <strong>Output:</strong> [1,5,2,4,3]
@@ -22030,14 +22030,14 @@ L<sub>0</sub> &rarr; L<sub>n</sub> &rarr; L<sub>1</sub> &rarr; L<sub>n - 1</sub>
 <div class=\"lc-description\"><p>Cho đầu danh sách liên kết đơn <code>head</code>, hãy trả về <code>true</code> nếu danh sách là palindrome, ngược lại <code>false</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/03/pal1linked-list.jpg" style="width: 422px; height: 62px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/03/pal1linked-list.jpg" style="width: 422px; height: 62px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2,2,1]
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/03/pal2linked-list.jpg" style="width: 182px; height: 62px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/03/pal2linked-list.jpg" style="width: 182px; height: 62px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2]
 <strong>Đầu ra:</strong> false
@@ -22102,14 +22102,14 @@ L<sub>0</sub> &rarr; L<sub>n</sub> &rarr; L<sub>1</sub> &rarr; L<sub>n - 1</sub>
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/03/pal1linked-list.jpg" style="width: 422px; height: 62px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/03/pal1linked-list.jpg" style="width: 422px; height: 62px;" />
 <pre>
 <strong>Input:</strong> head = [1,2,2,1]
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/03/pal2linked-list.jpg" style="width: 182px; height: 62px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/03/pal2linked-list.jpg" style="width: 182px; height: 62px;" />
 <pre>
 <strong>Input:</strong> head = [1,2]
 <strong>Output:</strong> false
@@ -23086,7 +23086,7 @@ lRUCache.get(4);    // return 4
 <div class=\"lc-description\"><p>Cho hai danh sách khoảng không chồng lấn và đã sắp xếp <code>firstList</code> và <code>secondList</code>, hãy trả về giao của chúng (các khoảng chung).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/01/30/interval1.png" style="width: 700px; height: 194px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/01/30/interval1.png" style="width: 700px; height: 194px;" />
 <pre>
 <strong>Đầu vào:</strong> firstList = [[0,2],[5,10],[13,23],[24,25]], secondList = [[1,5],[8,12],[15,24],[25,26]]
 <strong>Đầu ra:</strong> [[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]
@@ -23166,7 +23166,7 @@ lRUCache.get(4);    // return 4
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/01/30/interval1.png" style="width: 700px; height: 194px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/01/30/interval1.png" style="width: 700px; height: 194px;" />
 <pre>
 <strong>Input:</strong> firstList = [[0,2],[5,10],[13,23],[24,25]], secondList = [[1,5],[8,12],[15,24],[25,26]]
 <strong>Output:</strong> [[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]
@@ -23922,7 +23922,7 @@ rangeModule.queryRange(16, 17); // return True, (The number 16 in [16, 17) is st
 <div class=\"lc-description\"><p>Cho mảng các điểm <code>points</code> với <code>points[i] = [xi, yi]</code>, hãy trả về <code>k</code> điểm gần gốc tọa độ <code>(0,0)</code> nhất. Khoảng cách Euclid.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/03/closestplane1.jpg" style="width: 400px; height: 400px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/03/closestplane1.jpg" style="width: 400px; height: 400px;" />
 <pre>
 <strong>Đầu vào:</strong> points = [[1,3],[-2,2]], k = 1
 <strong>Đầu ra:</strong> [[-2,2]]
@@ -24002,7 +24002,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/03/closestplane1.jpg" style="width: 400px; height: 400px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/03/closestplane1.jpg" style="width: 400px; height: 400px;" />
 <pre>
 <strong>Input:</strong> points = [[1,3],[-2,2]], k = 1
 <strong>Output:</strong> [[-2,2]]
@@ -24268,14 +24268,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho ma trận <code>n x n</code> biểu diễn ảnh, hãy xoay 90 độ theo chiều kim đồng hồ in-place (bản Matrix & Sorting).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,2,3],[4,5,6],[7,8,9]]
 <strong>Đầu ra:</strong> [[7,4,1],[8,5,2],[9,6,3]]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]
 <strong>Đầu ra:</strong> [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
@@ -24341,14 +24341,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,2,3],[4,5,6],[7,8,9]]
 <strong>Output:</strong> [[7,4,1],[8,5,2],[9,6,3]]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
 <pre>
 <strong>Input:</strong> matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]
 <strong>Output:</strong> [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
@@ -24426,14 +24426,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho ma trận <code>m x n</code>, hãy trả về các phần tử theo thứ tự xoắn ốc (bản Matrix & Sorting).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral1.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral1.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,2,3],[4,5,6],[7,8,9]]
 <strong>Đầu ra:</strong> [1,2,3,6,9,8,7,4,5]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
 <strong>Đầu ra:</strong> [1,2,3,4,8,12,11,10,9,5,6,7]
@@ -24498,14 +24498,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral1.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral1.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,2,3],[4,5,6],[7,8,9]]
 <strong>Output:</strong> [1,2,3,6,9,8,7,4,5]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/spiral.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
 <strong>Output:</strong> [1,2,3,4,8,12,11,10,9,5,6,7]
@@ -24584,14 +24584,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho ma trận <code>m x n</code>, nếu một phần tử là <code>0</code>, hãy đặt toàn bộ hàng và cột của nó thành <code>0</code> in-place.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat1.jpg" style="width: 450px; height: 169px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat1.jpg" style="width: 450px; height: 169px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,1,1],[1,0,1],[1,1,1]]
 <strong>Đầu ra:</strong> [[1,0,1],[0,0,0],[1,0,1]]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat2.jpg" style="width: 450px; height: 137px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat2.jpg" style="width: 450px; height: 137px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]]
 <strong>Đầu ra:</strong> [[0,0,0,0],[0,4,5,0],[0,3,1,0]]
@@ -24667,14 +24667,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat1.jpg" style="width: 450px; height: 169px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat1.jpg" style="width: 450px; height: 169px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,1,1],[1,0,1],[1,1,1]]
 <strong>Output:</strong> [[1,0,1],[0,0,0],[1,0,1]]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat2.jpg" style="width: 450px; height: 137px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/17/mat2.jpg" style="width: 450px; height: 137px;" />
 <pre>
 <strong>Input:</strong> matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]]
 <strong>Output:</strong> [[0,0,0,0],[0,4,5,0],[0,3,1,0]]
@@ -24762,21 +24762,21 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho bảng <code>m x n</code> <code>board</code> và chuỗi <code>word</code>, hãy trả về <code>true</code> nếu <code>word</code> tồn tại bằng cách nối các ô kề nhau (ngang/dọc), mỗi ô chỉ dùng một lần.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word2.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word2.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;ABCCED&quot;
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word-1.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word-1.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;SEE&quot;
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/15/word3.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/15/word3.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;ABCB&quot;
 <strong>Đầu ra:</strong> false
@@ -24847,21 +24847,21 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word2.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word2.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;ABCCED&quot;
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word-1.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word-1.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;SEE&quot;
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/15/word3.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/15/word3.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;ABCB&quot;
 <strong>Output:</strong> false
@@ -25126,14 +25126,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho ma trận <code>m x n</code> với mỗi hàng và mỗi cột đều sắp xếp tăng dần, hãy tìm <code>target</code> có tồn tại không (bản Matrix & Sorting).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid2.jpg" style="width: 300px; height: 300px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid2.jpg" style="width: 300px; height: 300px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 5
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid.jpg" style="width: 300px; height: 300px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid.jpg" style="width: 300px; height: 300px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 20
 <strong>Đầu ra:</strong> false
@@ -25206,14 +25206,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid2.jpg" style="width: 300px; height: 300px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid2.jpg" style="width: 300px; height: 300px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 5
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid.jpg" style="width: 300px; height: 300px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/24/searchgrid.jpg" style="width: 300px; height: 300px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 20
 <strong>Output:</strong> false
@@ -25295,14 +25295,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho ma trận <code>m x n</code> thỏa mỗi hàng sắp xếp tăng và phần tử đầu hàng sau lớn hơn cuối hàng trước, hãy tìm <code>target</code> có tồn tại không.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat2.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat2.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13
 <strong>Đầu ra:</strong> false
@@ -25376,14 +25376,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat2.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/mat2.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13
 <strong>Output:</strong> false
@@ -25462,7 +25462,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Robot ở góc trên-trái lưới <code>m x n</code>, chỉ được di chuyển xuống hoặc sang phải. Hãy trả về số đường đi khác nhau để tới góc dưới-phải.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/22/robot_maze.png" style="width: 400px; height: 183px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/22/robot_maze.png" style="width: 400px; height: 183px;" />
 <pre>
 <strong>Đầu vào:</strong> m = 3, n = 7
 <strong>Đầu ra:</strong> 28
@@ -25539,7 +25539,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/22/robot_maze.png" style="width: 400px; height: 183px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/22/robot_maze.png" style="width: 400px; height: 183px;" />
 <pre>
 <strong>Input:</strong> m = 3, n = 7
 <strong>Output:</strong> 28
@@ -25626,7 +25626,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho lưới <code>m x n</code> <code>grid</code> với mỗi ô chứa số nguyên không âm, tìm đường đi từ trên-trái tới dưới-phải (chỉ xuống/phải) có tổng nhỏ nhất.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/05/minpath.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/05/minpath.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[1,3,1],[1,5,1],[4,2,1]]
 <strong>Đầu ra:</strong> 7
@@ -25701,7 +25701,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/05/minpath.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/05/minpath.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Input:</strong> grid = [[1,3,1],[1,5,1],[4,2,1]]
 <strong>Output:</strong> 7
@@ -25788,14 +25788,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho ma trận nhị phân <code>m x n</code> chỉ chứa <code>'0'</code> và <code>'1'</code>, hãy tìm hình vuông lớn nhất chỉ chứa <code>'1'</code> và trả về diện tích của nó.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max1grid.jpg" style="width: 400px; height: 319px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max1grid.jpg" style="width: 400px; height: 319px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;]]
 <strong>Đầu ra:</strong> 4
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max2grid.jpg" style="width: 165px; height: 165px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max2grid.jpg" style="width: 165px; height: 165px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[&quot;0&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;0&quot;]]
 <strong>Đầu ra:</strong> 1
@@ -25867,14 +25867,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max1grid.jpg" style="width: 400px; height: 319px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max1grid.jpg" style="width: 400px; height: 319px;" />
 <pre>
 <strong>Input:</strong> matrix = [[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;]]
 <strong>Output:</strong> 4
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max2grid.jpg" style="width: 165px; height: 165px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max2grid.jpg" style="width: 165px; height: 165px;" />
 <pre>
 <strong>Input:</strong> matrix = [[&quot;0&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;0&quot;]]
 <strong>Output:</strong> 1
@@ -25960,14 +25960,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho ma trận <code>n x n</code>, hãy xoay 90 độ theo chiều kim đồng hồ in-place (bản thứ 2, tiếp cận khác).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[1,2,3],[4,5,6],[7,8,9]]
 <strong>Đầu ra:</strong> [[7,4,1],[8,5,2],[9,6,3]]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]
 <strong>Đầu ra:</strong> [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
@@ -26033,14 +26033,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat1.jpg" style="width: 500px; height: 188px;" />
 <pre>
 <strong>Input:</strong> matrix = [[1,2,3],[4,5,6],[7,8,9]]
 <strong>Output:</strong> [[7,4,1],[8,5,2],[9,6,3]]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/28/mat2.jpg" style="width: 500px; height: 201px;" />
 <pre>
 <strong>Input:</strong> matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]
 <strong>Output:</strong> [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
@@ -26118,7 +26118,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code>, hãy trả về độ sâu tối đa (số node trên đường dài nhất từ gốc tới lá).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/26/tmp-tree.jpg" style="width: 400px; height: 277px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/26/tmp-tree.jpg" style="width: 400px; height: 277px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,9,20,null,null,15,7]
 <strong>Đầu ra:</strong> 3
@@ -26190,7 +26190,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/26/tmp-tree.jpg" style="width: 400px; height: 277px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/26/tmp-tree.jpg" style="width: 400px; height: 277px;" />
 <pre>
 <strong>Input:</strong> root = [3,9,20,null,null,15,7]
 <strong>Output:</strong> 3
@@ -26274,21 +26274,21 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc hai cây nhị phân <code>p</code> và <code>q</code>, hãy kiểm tra chúng có giống nhau không (cấu trúc và giá trị node đều bằng nhau).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex1.jpg" style="width: 622px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex1.jpg" style="width: 622px; height: 182px;" />
 <pre>
 <strong>Đầu vào:</strong> p = [1,2,3], q = [1,2,3]
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex2.jpg" style="width: 382px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex2.jpg" style="width: 382px; height: 182px;" />
 <pre>
 <strong>Đầu vào:</strong> p = [1,2], q = [1,null,2]
 <strong>Đầu ra:</strong> false
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex3.jpg" style="width: 622px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex3.jpg" style="width: 622px; height: 182px;" />
 <pre>
 <strong>Đầu vào:</strong> p = [1,2,1], q = [1,1,2]
 <strong>Đầu ra:</strong> false
@@ -26353,21 +26353,21 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex1.jpg" style="width: 622px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex1.jpg" style="width: 622px; height: 182px;" />
 <pre>
 <strong>Input:</strong> p = [1,2,3], q = [1,2,3]
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex2.jpg" style="width: 382px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex2.jpg" style="width: 382px; height: 182px;" />
 <pre>
 <strong>Input:</strong> p = [1,2], q = [1,null,2]
 <strong>Output:</strong> false
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex3.jpg" style="width: 622px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/ex3.jpg" style="width: 622px; height: 182px;" />
 <pre>
 <strong>Input:</strong> p = [1,2,1], q = [1,1,2]
 <strong>Output:</strong> false
@@ -26444,14 +26444,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code>, hãy đảo ngược cây (đổi chỗ cây con trái/phải của mọi node) và trả về gốc mới.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/invert1-tree.jpg" style="width: 500px; height: 165px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/invert1-tree.jpg" style="width: 500px; height: 165px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [4,2,7,1,3,6,9]
 <strong>Đầu ra:</strong> [4,7,2,9,6,3,1]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/invert2-tree.jpg" style="width: 500px; height: 120px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/invert2-tree.jpg" style="width: 500px; height: 120px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [2,1,3]
 <strong>Đầu ra:</strong> [2,3,1]
@@ -26521,14 +26521,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/invert1-tree.jpg" style="width: 500px; height: 165px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/invert1-tree.jpg" style="width: 500px; height: 165px;" />
 <pre>
 <strong>Input:</strong> root = [4,2,7,1,3,6,9]
 <strong>Output:</strong> [4,7,2,9,6,3,1]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/invert2-tree.jpg" style="width: 500px; height: 120px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/invert2-tree.jpg" style="width: 500px; height: 120px;" />
 <pre>
 <strong>Input:</strong> root = [2,1,3]
 <strong>Output:</strong> [2,3,1]
@@ -26612,14 +26612,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code>, hãy kiểm tra cây có đối xứng qua trục giữa không (gương).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/symtree1.jpg" style="width: 354px; height: 291px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/symtree1.jpg" style="width: 354px; height: 291px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,2,3,4,4,3]
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/symtree2.jpg" style="width: 308px; height: 258px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/symtree2.jpg" style="width: 308px; height: 258px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,2,null,3,null,3]
 <strong>Đầu ra:</strong> false
@@ -26684,14 +26684,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/symtree1.jpg" style="width: 354px; height: 291px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/symtree1.jpg" style="width: 354px; height: 291px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,2,3,4,4,3]
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/symtree2.jpg" style="width: 308px; height: 258px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/symtree2.jpg" style="width: 308px; height: 258px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,2,null,3,null,3]
 <strong>Output:</strong> false
@@ -26770,14 +26770,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân, hãy xác định cây có cân bằng chiều cao không (độ sâu hai cây con của mọi node chênh lệch không quá 1).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/06/balance_1.jpg" style="width: 342px; height: 221px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/06/balance_1.jpg" style="width: 342px; height: 221px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,9,20,null,null,15,7]
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/06/balance_2.jpg" style="width: 452px; height: 301px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/06/balance_2.jpg" style="width: 452px; height: 301px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,2,3,3,null,null,4,4]
 <strong>Đầu ra:</strong> false
@@ -26847,14 +26847,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/06/balance_1.jpg" style="width: 342px; height: 221px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/06/balance_1.jpg" style="width: 342px; height: 221px;" />
 <pre>
 <strong>Input:</strong> root = [3,9,20,null,null,15,7]
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/06/balance_2.jpg" style="width: 452px; height: 301px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/06/balance_2.jpg" style="width: 452px; height: 301px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,2,3,3,null,null,4,4]
 <strong>Output:</strong> false
@@ -26938,7 +26938,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code>, hãy trả về <strong>đường kính</strong> của cây — độ dài đường đi dài nhất giữa hai node bất kỳ (tính bằng số cạnh).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/06/diamtree.jpg" style="width: 292px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/06/diamtree.jpg" style="width: 292px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3,4,5]
 <strong>Đầu ra:</strong> 3
@@ -27013,7 +27013,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/06/diamtree.jpg" style="width: 292px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/06/diamtree.jpg" style="width: 292px; height: 302px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3,4,5]
 <strong>Output:</strong> 3
@@ -27098,14 +27098,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc hai cây <code>root</code> và <code>subRoot</code>, hãy trả về <code>true</code> nếu <code>subRoot</code> là cây con của <code>root</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/28/subtree1-tree.jpg" style="width: 532px; height: 400px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/28/subtree1-tree.jpg" style="width: 532px; height: 400px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,4,5,1,2], subRoot = [4,1,2]
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/28/subtree2-tree.jpg" style="width: 502px; height: 458px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/28/subtree2-tree.jpg" style="width: 502px; height: 458px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,4,5,1,2,null,null,null,null,0], subRoot = [4,1,2]
 <strong>Đầu ra:</strong> false
@@ -27172,14 +27172,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/28/subtree1-tree.jpg" style="width: 532px; height: 400px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/28/subtree1-tree.jpg" style="width: 532px; height: 400px;" />
 <pre>
 <strong>Input:</strong> root = [3,4,5,1,2], subRoot = [4,1,2]
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/28/subtree2-tree.jpg" style="width: 502px; height: 458px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/28/subtree2-tree.jpg" style="width: 502px; height: 458px;" />
 <pre>
 <strong>Input:</strong> root = [3,4,5,1,2,null,null,null,null,0], subRoot = [4,1,2]
 <strong>Output:</strong> false
@@ -27258,7 +27258,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho BST và hai node <code>p</code>, <code>q</code>, hãy tìm tổ tiên chung thấp nhất (LCA) của chúng.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarysearchtree_improved.png" style="width: 200px; height: 190px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarysearchtree_improved.png" style="width: 200px; height: 190px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
 <strong>Đầu ra:</strong> 6
@@ -27266,7 +27266,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarysearchtree_improved.png" style="width: 200px; height: 190px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarysearchtree_improved.png" style="width: 200px; height: 190px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
 <strong>Đầu ra:</strong> 2
@@ -27342,7 +27342,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarysearchtree_improved.png" style="width: 200px; height: 190px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarysearchtree_improved.png" style="width: 200px; height: 190px;" />
 <pre>
 <strong>Input:</strong> root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
 <strong>Output:</strong> 6
@@ -27350,7 +27350,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarysearchtree_improved.png" style="width: 200px; height: 190px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarysearchtree_improved.png" style="width: 200px; height: 190px;" />
 <pre>
 <strong>Input:</strong> root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
 <strong>Output:</strong> 2
@@ -27438,7 +27438,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho cây nhị phân thường (không phải BST) và hai node <code>p</code>, <code>q</code>, hãy tìm tổ tiên chung thấp nhất (LCA).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarytree.png" style="width: 200px; height: 190px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarytree.png" style="width: 200px; height: 190px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
 <strong>Đầu ra:</strong> 3
@@ -27446,7 +27446,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarytree.png" style="width: 200px; height: 190px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarytree.png" style="width: 200px; height: 190px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
 <strong>Đầu ra:</strong> 5
@@ -27522,7 +27522,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarytree.png" style="width: 200px; height: 190px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarytree.png" style="width: 200px; height: 190px;" />
 <pre>
 <strong>Input:</strong> root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
 <strong>Output:</strong> 3
@@ -27530,7 +27530,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarytree.png" style="width: 200px; height: 190px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/14/binarytree.png" style="width: 200px; height: 190px;" />
 <pre>
 <strong>Input:</strong> root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
 <strong>Output:</strong> 5
@@ -27618,7 +27618,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code>, hãy trả về duyệt theo mức (level order) — các node theo từng tầng từ trái sang phải.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,9,20,null,null,15,7]
 <strong>Đầu ra:</strong> [[3],[9,20],[15,7]]
@@ -27695,7 +27695,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Input:</strong> root = [3,9,20,null,null,15,7]
 <strong>Output:</strong> [[3],[9,20],[15,7]]
@@ -27794,7 +27794,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Giải thích:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/11/24/tmpd5jn43fs-1.png" style="width: 400px; height: 207px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/11/24/tmpd5jn43fs-1.png" style="width: 400px; height: 207px;" /></p>
 </div>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -27806,7 +27806,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/11/24/tmpkpe40xeh-1.png" style="width: 400px; height: 214px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/11/24/tmpkpe40xeh-1.png" style="width: 400px; height: 214px;" /></p>
 </div>
 
 <p><strong class="example">Example 3:</strong></p>
@@ -27890,7 +27890,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/11/24/tmpd5jn43fs-1.png" style="width: 400px; height: 207px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/11/24/tmpd5jn43fs-1.png" style="width: 400px; height: 207px;" /></p>
 </div>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -27902,7 +27902,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/11/24/tmpkpe40xeh-1.png" style="width: 400px; height: 214px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/11/24/tmpkpe40xeh-1.png" style="width: 400px; height: 214px;" /></p>
 </div>
 
 <p><strong class="example">Example 3:</strong></p>
@@ -28000,7 +28000,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Giải thích:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
 </div>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -28012,7 +28012,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
 </div>
 
 <p><strong class="example">Example 3:</strong></p>
@@ -28099,7 +28099,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
 </div>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -28111,7 +28111,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
 </div>
 
 <p><strong class="example">Example 3:</strong></p>
@@ -28212,7 +28212,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Giải thích:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
 </div>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -28224,7 +28224,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
 </div>
 
 <p><strong class="example">Example 3:</strong></p>
@@ -28310,7 +28310,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
 </div>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -28322,7 +28322,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
 </div>
 
 <p><strong class="example">Example 3:</strong></p>
@@ -28422,7 +28422,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Giải thích:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
 </div>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -28434,7 +28434,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
 </div>
 
 <p><strong class="example">Example 3:</strong></p>
@@ -28520,7 +28520,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/screenshot-2024-08-29-202743.png" style="width: 200px; height: 264px;" /></p>
 </div>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -28532,7 +28532,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2024/08/29/tree_2.png" style="width: 350px; height: 286px;" /></p>
 </div>
 
 <p><strong class="example">Example 3:</strong></p>
@@ -28624,7 +28624,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho hai mảng <code>preorder</code> và <code>inorder</code> của cây nhị phân, hãy xây dựng và trả về cây gốc. Giả định không có giá trị trùng.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
 <strong>Đầu ra:</strong> [3,9,20,null,null,15,7]
@@ -28699,7 +28699,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Input:</strong> preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
 <strong>Output:</strong> [3,9,20,null,null,15,7]
@@ -28788,7 +28788,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho hai mảng <code>inorder</code> và <code>postorder</code> của cây nhị phân, hãy xây dựng và trả về cây gốc.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]
 <strong>Đầu ra:</strong> [3,9,20,null,null,15,7]
@@ -28863,7 +28863,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Input:</strong> inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]
 <strong>Output:</strong> [3,9,20,null,null,15,7]
@@ -28952,16 +28952,16 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho mảng số nguyên <code>nums</code> đã sắp xếp tăng dần, hãy chuyển thành cây tìm kiếm nhị phân <strong>cân bằng chiều cao (height-balanced)</strong>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree1.jpg" style="width: 302px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree1.jpg" style="width: 302px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> nums = [-10,-3,0,5,9]
 <strong>Đầu ra:</strong> [0,-3,9,-10,null,5]
 <strong>Giải thích:</strong> [0,-10,5,null,-3,null,9] is also accepted:
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree2.jpg" style="width: 302px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree2.jpg" style="width: 302px; height: 222px;" />
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree.jpg" style="width: 342px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree.jpg" style="width: 342px; height: 142px;" />
 <pre>
 <strong>Đầu vào:</strong> nums = [1,3]
 <strong>Đầu ra:</strong> [3,1]
@@ -29026,16 +29026,16 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree1.jpg" style="width: 302px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree1.jpg" style="width: 302px; height: 222px;" />
 <pre>
 <strong>Input:</strong> nums = [-10,-3,0,5,9]
 <strong>Output:</strong> [0,-3,9,-10,null,5]
 <strong>Explanation:</strong> [0,-10,5,null,-3,null,9] is also accepted:
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree2.jpg" style="width: 302px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree2.jpg" style="width: 302px; height: 222px;" />
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree.jpg" style="width: 342px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/18/btree.jpg" style="width: 342px; height: 142px;" />
 <pre>
 <strong>Input:</strong> nums = [1,3]
 <strong>Output:</strong> [3,1]
@@ -29114,14 +29114,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code>, hãy xác định có phải là BST hợp lệ không (cây con trái mọi node &lt; node &lt; cây con phải).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/01/tree1.jpg" style="width: 302px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/01/tree1.jpg" style="width: 302px; height: 182px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [2,1,3]
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/01/tree2.jpg" style="width: 422px; height: 292px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/01/tree2.jpg" style="width: 422px; height: 292px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [5,1,4,null,null,3,6]
 <strong>Đầu ra:</strong> false
@@ -29193,14 +29193,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/01/tree1.jpg" style="width: 302px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/01/tree1.jpg" style="width: 302px; height: 182px;" />
 <pre>
 <strong>Input:</strong> root = [2,1,3]
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/01/tree2.jpg" style="width: 422px; height: 292px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/01/tree2.jpg" style="width: 422px; height: 292px;" />
 <pre>
 <strong>Input:</strong> root = [5,1,4,null,null,3,6]
 <strong>Output:</strong> false
@@ -29278,14 +29278,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc cây tìm kiếm nhị phân (BST) <code>root</code> và số nguyên <code>k</code>, hãy trả về phần tử nhỏ thứ <code>k</code> (1-indexed) trong BST.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/28/kthtree1.jpg" style="width: 212px; height: 301px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/28/kthtree1.jpg" style="width: 212px; height: 301px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,1,4,null,2], k = 1
 <strong>Đầu ra:</strong> 1
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/28/kthtree2.jpg" style="width: 382px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/28/kthtree2.jpg" style="width: 382px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [5,3,6,2,4,null,null,1], k = 3
 <strong>Đầu ra:</strong> 3
@@ -29352,14 +29352,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/28/kthtree1.jpg" style="width: 212px; height: 301px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/28/kthtree1.jpg" style="width: 212px; height: 301px;" />
 <pre>
 <strong>Input:</strong> root = [3,1,4,null,2], k = 1
 <strong>Output:</strong> 1
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/28/kthtree2.jpg" style="width: 382px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/28/kthtree2.jpg" style="width: 382px; height: 302px;" />
 <pre>
 <strong>Input:</strong> root = [5,3,6,2,4,null,null,1], k = 3
 <strong>Output:</strong> 3
@@ -29440,12 +29440,12 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc BST <code>root</code> và giá trị <code>val</code>, hãy chèn <code>val</code> vào BST sao cho BST vẫn hợp lệ và trả về gốc.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/insertbst.jpg" style="width: 752px; height: 221px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/insertbst.jpg" style="width: 752px; height: 221px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [4,2,7,1,3], val = 5
 <strong>Đầu ra:</strong> [4,2,7,1,3,5]
 <strong>Giải thích:</strong> Another accepted tree is:
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/bst.jpg" style="width: 352px; height: 301px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/bst.jpg" style="width: 352px; height: 301px;" />
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
@@ -29524,12 +29524,12 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/insertbst.jpg" style="width: 752px; height: 221px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/insertbst.jpg" style="width: 752px; height: 221px;" />
 <pre>
 <strong>Input:</strong> root = [4,2,7,1,3], val = 5
 <strong>Output:</strong> [4,2,7,1,3,5]
 <strong>Explanation:</strong> Another accepted tree is:
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/05/bst.jpg" style="width: 352px; height: 301px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/05/bst.jpg" style="width: 352px; height: 301px;" />
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -29620,14 +29620,14 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 <div class=\"lc-description\"><p>Cho gốc BST <code>root</code> và khóa <code>key</code>, hãy xóa node có giá trị <code>key</code> (nếu tồn tại) và đảm bảo BST vẫn hợp lệ, trả về gốc mới.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/04/del_node_1.jpg" style="width: 800px; height: 214px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/04/del_node_1.jpg" style="width: 800px; height: 214px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [5,3,6,2,4,null,7], key = 3
 <strong>Đầu ra:</strong> [5,4,6,2,null,null,7]
 <strong>Giải thích:</strong> Given key to delete is 3. So we find the node with value 3 and delete it.
 One valid answer is [5,4,6,2,null,null,7], shown in the above BST.
 Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s also accepted.
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/04/del_node_supp.jpg" style="width: 350px; height: 255px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/04/del_node_supp.jpg" style="width: 350px; height: 255px;" />
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
@@ -29715,14 +29715,14 @@ Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s al
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/04/del_node_1.jpg" style="width: 800px; height: 214px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/04/del_node_1.jpg" style="width: 800px; height: 214px;" />
 <pre>
 <strong>Input:</strong> root = [5,3,6,2,4,null,7], key = 3
 <strong>Output:</strong> [5,4,6,2,null,null,7]
 <strong>Explanation:</strong> Given key to delete is 3. So we find the node with value 3 and delete it.
 One valid answer is [5,4,6,2,null,null,7], shown in the above BST.
 Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s also accepted.
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/04/del_node_supp.jpg" style="width: 350px; height: 255px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/04/del_node_supp.jpg" style="width: 350px; height: 255px;" />
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -29817,7 +29817,7 @@ Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s al
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code>, đường đi là dãy node liên tiếp qua cạnh cha-con, mỗi node chỉ xuất hiện một lần. Hãy tìm đường đi có tổng lớn nhất (không nhất thiết qua gốc).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx1.jpg" style="width: 322px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx1.jpg" style="width: 322px; height: 182px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3]
 <strong>Đầu ra:</strong> 6
@@ -29825,7 +29825,7 @@ Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s al
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx2.jpg" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx2.jpg" />
 <pre>
 <strong>Đầu vào:</strong> root = [-10,9,20,null,null,15,7]
 <strong>Đầu ra:</strong> 42
@@ -29893,7 +29893,7 @@ Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s al
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx1.jpg" style="width: 322px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx1.jpg" style="width: 322px; height: 182px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3]
 <strong>Output:</strong> 6
@@ -29901,7 +29901,7 @@ Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s al
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx2.jpg" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx2.jpg" />
 <pre>
 <strong>Input:</strong> root = [-10,9,20,null,null,15,7]
 <strong>Output:</strong> 42
@@ -29979,7 +29979,7 @@ Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s al
 <div class=\"lc-description\"><p>Thiết kế thuật toán tuần tự hóa (serialize) và giải tuần tự (deserialize) cây nhị phân. Không giới hạn cách biểu diễn, chỉ cần đảm bảo cây sau khi deserialize giống cây gốc.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/15/serdeser.jpg" style="width: 442px; height: 324px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/15/serdeser.jpg" style="width: 442px; height: 324px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3,null,null,4,5]
 <strong>Đầu ra:</strong> [1,2,3,null,null,4,5]
@@ -30053,7 +30053,7 @@ Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s al
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/15/serdeser.jpg" style="width: 442px; height: 324px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/15/serdeser.jpg" style="width: 442px; height: 324px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3,null,null,4,5]
 <strong>Output:</strong> [1,2,3,null,null,4,5]
@@ -30137,7 +30137,7 @@ Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s al
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code>, hãy trả về tất cả các đường đi gốc→lá, mỗi đường biểu diễn dạng <code>"1-&gt;2-&gt;5"</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/12/paths-tree.jpg" style="width: 207px; height: 293px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/12/paths-tree.jpg" style="width: 207px; height: 293px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3,null,5]
 <strong>Đầu ra:</strong> [&quot;1-&gt;2-&gt;5&quot;,&quot;1-&gt;3&quot;]
@@ -30209,7 +30209,7 @@ Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s al
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/12/paths-tree.jpg" style="width: 207px; height: 293px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/12/paths-tree.jpg" style="width: 207px; height: 293px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3,null,5]
 <strong>Output:</strong> [&quot;1-&gt;2-&gt;5&quot;,&quot;1-&gt;3&quot;]
@@ -30293,7 +30293,7 @@ Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s al
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code> và số nguyên <code>targetSum</code>, hãy trả về <code>true</code> nếu tồn tại đường đi từ gốc tới lá có tổng bằng <code>targetSum</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum1.jpg" style="width: 500px; height: 356px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum1.jpg" style="width: 500px; height: 356px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22
 <strong>Đầu ra:</strong> true
@@ -30301,7 +30301,7 @@ Please notice that another valid answer is [5,2,6,null,4,null,7] and it&#39;s al
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum2.jpg" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum2.jpg" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3], targetSum = 5
 <strong>Đầu ra:</strong> false
@@ -30379,7 +30379,7 @@ There is no root-to-leaf path with sum = 5.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum1.jpg" style="width: 500px; height: 356px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum1.jpg" style="width: 500px; height: 356px;" />
 <pre>
 <strong>Input:</strong> root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22
 <strong>Output:</strong> true
@@ -30387,7 +30387,7 @@ There is no root-to-leaf path with sum = 5.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum2.jpg" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum2.jpg" />
 <pre>
 <strong>Input:</strong> root = [1,2,3], targetSum = 5
 <strong>Output:</strong> false
@@ -30477,7 +30477,7 @@ There is no root-to-leaf path with sum = 5.
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân và số nguyên <code>targetSum</code>, hãy trả về tất cả các đường đi gốc→lá có tổng bằng <code>targetSum</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsumii1.jpg" style="width: 500px; height: 356px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsumii1.jpg" style="width: 500px; height: 356px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22
 <strong>Đầu ra:</strong> [[5,4,11,2],[5,8,4,5]]
@@ -30487,7 +30487,7 @@ There is no root-to-leaf path with sum = 5.
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum2.jpg" style="width: 212px; height: 181px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum2.jpg" style="width: 212px; height: 181px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3], targetSum = 5
 <strong>Đầu ra:</strong> []
@@ -30560,7 +30560,7 @@ There is no root-to-leaf path with sum = 5.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsumii1.jpg" style="width: 500px; height: 356px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsumii1.jpg" style="width: 500px; height: 356px;" />
 <pre>
 <strong>Input:</strong> root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22
 <strong>Output:</strong> [[5,4,11,2],[5,8,4,5]]
@@ -30570,7 +30570,7 @@ There is no root-to-leaf path with sum = 5.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum2.jpg" style="width: 212px; height: 181px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/18/pathsum2.jpg" style="width: 212px; height: 181px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3], targetSum = 5
 <strong>Output:</strong> []
@@ -30655,7 +30655,7 @@ There is no root-to-leaf path with sum = 5.
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân với mỗi node chứa chữ số <code>0-9</code>, mỗi đường gốc→lá tạo thành một số. Hãy trả về tổng của tất cả các số đó.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/num1tree.jpg" style="width: 212px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/num1tree.jpg" style="width: 212px; height: 182px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3]
 <strong>Đầu ra:</strong> 25
@@ -30666,7 +30666,7 @@ Therefore, sum = 12 + 13 = <code>25</code>.
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/num2tree.jpg" style="width: 292px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/num2tree.jpg" style="width: 292px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [4,9,0,5,1]
 <strong>Đầu ra:</strong> 1026
@@ -30745,7 +30745,7 @@ Therefore, sum = 495 + 491 + 40 = <code>1026</code>.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/num1tree.jpg" style="width: 212px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/num1tree.jpg" style="width: 212px; height: 182px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3]
 <strong>Output:</strong> 25
@@ -30756,7 +30756,7 @@ Therefore, sum = 12 + 13 = <code>25</code>.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/num2tree.jpg" style="width: 292px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/num2tree.jpg" style="width: 292px; height: 302px;" />
 <pre>
 <strong>Input:</strong> root = [4,9,0,5,1]
 <strong>Output:</strong> 1026
@@ -30839,7 +30839,7 @@ Therefore, sum = 495 + 491 + 40 = <code>1026</code>.
 <div class=\"lc-description\"><p>Cho cây nhị phân hoàn hảo (perfect binary tree) với mỗi node có thêm con trỏ <code>next</code>, hãy nối mỗi node tới node kế tiếp bên phải trên cùng mức. Nếu không có thì <code>next = null</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/02/14/116_sample.png" style="width: 500px; height: 171px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/02/14/116_sample.png" style="width: 500px; height: 171px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3,4,5,6,7]
 <strong>Đầu ra:</strong> [1,#,2,3,#,4,5,6,7,#]
@@ -30931,7 +30931,7 @@ struct Node {
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/02/14/116_sample.png" style="width: 500px; height: 171px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/02/14/116_sample.png" style="width: 500px; height: 171px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3,4,5,6,7]
 <strong>Output:</strong> [1,#,2,3,#,4,5,6,7,#]
@@ -31024,7 +31024,7 @@ struct Node {
 <div class=\"lc-description\"><p>Cho cây nhị phân bất kỳ (không nhất thiết hoàn hảo) với con trỏ <code>next</code>, hãy nối mỗi node tới node kế tiếp bên phải trên cùng mức.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/02/15/117_sample.png" style="width: 500px; height: 171px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/02/15/117_sample.png" style="width: 500px; height: 171px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3,4,5,null,7]
 <strong>Đầu ra:</strong> [1,#,2,3,#,4,5,7,#]
@@ -31116,7 +31116,7 @@ struct Node {
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/02/15/117_sample.png" style="width: 500px; height: 171px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/02/15/117_sample.png" style="width: 500px; height: 171px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3,4,5,null,7]
 <strong>Output:</strong> [1,#,2,3,#,4,5,7,#]
@@ -31209,7 +31209,7 @@ struct Node {
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <strong>hoàn chỉnh (complete)</strong> <code>root</code>, hãy đếm số node. Yêu cầu thời gian tốt hơn <code>O(n)</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/14/complete.jpg" style="width: 372px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/14/complete.jpg" style="width: 372px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3,4,5,6]
 <strong>Đầu ra:</strong> 6
@@ -31291,7 +31291,7 @@ struct Node {
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/14/complete.jpg" style="width: 372px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/14/complete.jpg" style="width: 372px; height: 302px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3,4,5,6]
 <strong>Output:</strong> 6
@@ -31383,7 +31383,7 @@ struct Node {
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code>, hãy trả về <strong>chiều rộng lớn nhất</strong> của cây (khoảng cách giữa node trái nhất và phải nhất mỗi mức, tính cả vị trí null ở giữa).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/03/width1-tree.jpg" style="width: 359px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/03/width1-tree.jpg" style="width: 359px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,3,2,5,3,null,9]
 <strong>Đầu ra:</strong> 4
@@ -31391,7 +31391,7 @@ struct Node {
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/14/maximum-width-of-binary-tree-v3.jpg" style="width: 442px; height: 422px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/14/maximum-width-of-binary-tree-v3.jpg" style="width: 442px; height: 422px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,3,2,5,null,null,9,6,null,7]
 <strong>Đầu ra:</strong> 7
@@ -31399,7 +31399,7 @@ struct Node {
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/03/width3-tree.jpg" style="width: 289px; height: 299px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/03/width3-tree.jpg" style="width: 289px; height: 299px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,3,2,5]
 <strong>Đầu ra:</strong> 2
@@ -31469,7 +31469,7 @@ struct Node {
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/03/width1-tree.jpg" style="width: 359px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/03/width1-tree.jpg" style="width: 359px; height: 302px;" />
 <pre>
 <strong>Input:</strong> root = [1,3,2,5,3,null,9]
 <strong>Output:</strong> 4
@@ -31477,7 +31477,7 @@ struct Node {
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/14/maximum-width-of-binary-tree-v3.jpg" style="width: 442px; height: 422px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/14/maximum-width-of-binary-tree-v3.jpg" style="width: 442px; height: 422px;" />
 <pre>
 <strong>Input:</strong> root = [1,3,2,5,null,null,9,6,null,7]
 <strong>Output:</strong> 7
@@ -31485,7 +31485,7 @@ struct Node {
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/03/width3-tree.jpg" style="width: 289px; height: 299px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/03/width3-tree.jpg" style="width: 289px; height: 299px;" />
 <pre>
 <strong>Input:</strong> root = [1,3,2,5]
 <strong>Output:</strong> 2
@@ -31563,7 +31563,7 @@ struct Node {
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code>, hãy kiểm tra cây có phải <strong>complete</strong> không (mọi mức trừ mức cuối đều đầy, mức cuối lấp từ trái sang).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/15/complete-binary-tree-1.png" style="width: 180px; height: 145px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/15/complete-binary-tree-1.png" style="width: 180px; height: 145px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3,4,5,6]
 <strong>Đầu ra:</strong> true
@@ -31571,7 +31571,7 @@ struct Node {
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/15/complete-binary-tree-2.png" style="width: 200px; height: 145px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/15/complete-binary-tree-2.png" style="width: 200px; height: 145px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3,4,5,null,7]
 <strong>Đầu ra:</strong> false
@@ -31637,7 +31637,7 @@ struct Node {
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/15/complete-binary-tree-1.png" style="width: 180px; height: 145px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/15/complete-binary-tree-1.png" style="width: 180px; height: 145px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3,4,5,6]
 <strong>Output:</strong> true
@@ -31645,7 +31645,7 @@ struct Node {
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2018/12/15/complete-binary-tree-2.png" style="width: 200px; height: 145px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2018/12/15/complete-binary-tree-2.png" style="width: 200px; height: 145px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3,4,5,null,7]
 <strong>Output:</strong> false
@@ -31723,7 +31723,7 @@ struct Node {
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân, hãy trả về duyệt zigzag theo mức: mức 0 trái→phải, mức 1 phải→trái, xen kẽ.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,9,20,null,null,15,7]
 <strong>Đầu ra:</strong> [[3],[20,9],[15,7]]
@@ -31800,7 +31800,7 @@ struct Node {
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Input:</strong> root = [3,9,20,null,null,15,7]
 <strong>Output:</strong> [[3],[20,9],[15,7]]
@@ -31891,7 +31891,7 @@ struct Node {
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân, hãy trả về duyệt theo mức từ dưới lên (bottom-up level order).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,9,20,null,null,15,7]
 <strong>Đầu ra:</strong> [[15,7],[9,20],[3]]
@@ -31968,7 +31968,7 @@ struct Node {
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Input:</strong> root = [3,9,20,null,null,15,7]
 <strong>Output:</strong> [[15,7],[9,20],[3]]
@@ -32059,7 +32059,7 @@ struct Node {
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân, hãy trả về duyệt theo cột dọc (vertical order): sắp xếp theo cột, rồi theo hàng, nếu cùng vị trí thì theo giá trị.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree1.jpg" style="width: 431px; height: 304px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree1.jpg" style="width: 431px; height: 304px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,9,20,null,null,15,7]
 <strong>Đầu ra:</strong> [[9],[3,15],[20],[7]]
@@ -32070,7 +32070,7 @@ Column 1: Only node 20 is in this column.
 Column 2: Only node 7 is in this column.</pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree2.jpg" style="width: 512px; height: 304px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree2.jpg" style="width: 512px; height: 304px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3,4,5,6,7]
 <strong>Đầu ra:</strong> [[4],[2],[1,5,6],[3],[7]]
@@ -32085,7 +32085,7 @@ Column 2: Only node 7 is in this column.
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree3.jpg" style="width: 512px; height: 304px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree3.jpg" style="width: 512px; height: 304px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3,4,6,5,7]
 <strong>Đầu ra:</strong> [[4],[2],[1,5,6],[3],[7]]
@@ -32157,7 +32157,7 @@ Note that the solution remains the same since 5 and 6 are in the same location a
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree1.jpg" style="width: 431px; height: 304px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree1.jpg" style="width: 431px; height: 304px;" />
 <pre>
 <strong>Input:</strong> root = [3,9,20,null,null,15,7]
 <strong>Output:</strong> [[9],[3,15],[20],[7]]
@@ -32168,7 +32168,7 @@ Column 1: Only node 20 is in this column.
 Column 2: Only node 7 is in this column.</pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree2.jpg" style="width: 512px; height: 304px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree2.jpg" style="width: 512px; height: 304px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3,4,5,6,7]
 <strong>Output:</strong> [[4],[2],[1,5,6],[3],[7]]
@@ -32183,7 +32183,7 @@ Column 2: Only node 7 is in this column.
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree3.jpg" style="width: 512px; height: 304px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/29/vtree3.jpg" style="width: 512px; height: 304px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3,4,6,5,7]
 <strong>Output:</strong> [[4],[2],[1,5,6],[3],[7]]
@@ -32407,7 +32407,7 @@ Note that the solution remains the same since 5 and 6 are in the same location a
 <div class=\"lc-description\"><p>Cho mảng điểm <code>points</code>, hãy trả về <code>k</code> điểm gần gốc <code>(0,0)</code> nhất (bản Heap).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/03/closestplane1.jpg" style="width: 400px; height: 400px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/03/closestplane1.jpg" style="width: 400px; height: 400px;" />
 <pre>
 <strong>Đầu vào:</strong> points = [[1,3],[-2,2]], k = 1
 <strong>Đầu ra:</strong> [[-2,2]]
@@ -32487,7 +32487,7 @@ We only want the closest k = 1 points from the origin, so the answer is just [[-
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/03/closestplane1.jpg" style="width: 400px; height: 400px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/03/closestplane1.jpg" style="width: 400px; height: 400px;" />
 <pre>
 <strong>Input:</strong> points = [[1,3],[-2,2]], k = 1
 <strong>Output:</strong> [[-2,2]]
@@ -35376,14 +35376,14 @@ trie.search(&quot;app&quot;);     // return True
 <div class=\"lc-description\"><p>Thiết kế cấu trúc hỗ trợ thêm từ và tìm kiếm với ký tự đại diện <code>'.'</code> (khớp bất kỳ chữ cái nào). Hiện thực <code>WordDictionary</code> với <code>addWord</code> và <code>search</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;o&quot;,&quot;a&quot;,&quot;a&quot;,&quot;n&quot;],[&quot;e&quot;,&quot;t&quot;,&quot;a&quot;,&quot;e&quot;],[&quot;i&quot;,&quot;h&quot;,&quot;k&quot;,&quot;r&quot;],[&quot;i&quot;,&quot;f&quot;,&quot;l&quot;,&quot;v&quot;]], words = [&quot;oath&quot;,&quot;pea&quot;,&quot;eat&quot;,&quot;rain&quot;]
 <strong>Đầu ra:</strong> [&quot;eat&quot;,&quot;oath&quot;]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;a&quot;,&quot;b&quot;],[&quot;c&quot;,&quot;d&quot;]], words = [&quot;abcb&quot;]
 <strong>Đầu ra:</strong> []
@@ -35454,14 +35454,14 @@ trie.search(&quot;app&quot;);     // return True
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;o&quot;,&quot;a&quot;,&quot;a&quot;,&quot;n&quot;],[&quot;e&quot;,&quot;t&quot;,&quot;a&quot;,&quot;e&quot;],[&quot;i&quot;,&quot;h&quot;,&quot;k&quot;,&quot;r&quot;],[&quot;i&quot;,&quot;f&quot;,&quot;l&quot;,&quot;v&quot;]], words = [&quot;oath&quot;,&quot;pea&quot;,&quot;eat&quot;,&quot;rain&quot;]
 <strong>Output:</strong> [&quot;eat&quot;,&quot;oath&quot;]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;a&quot;,&quot;b&quot;],[&quot;c&quot;,&quot;d&quot;]], words = [&quot;abcb&quot;]
 <strong>Output:</strong> []
@@ -37256,7 +37256,7 @@ To the right of 1 there is <b>0</b> smaller element.
 <div class=\"lc-description\"><p>Trên trục vô hạn, các hình vuông rơi lần lượt với <code>positions[i] = [left, sideLength]</code>. Mỗi hình vuông rơi từ trên xuống, đáy chạm vào đỉnh cao nhất trong khoảng của nó. Hãy trả về chiều cao tối đa sau mỗi lần rơi.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/28/fallingsq1-plane.jpg" style="width: 500px; height: 505px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/28/fallingsq1-plane.jpg" style="width: 500px; height: 505px;" />
 <pre>
 <strong>Đầu vào:</strong> positions = [[1,2],[2,3],[6,1]]
 <strong>Đầu ra:</strong> [2,5,5]
@@ -37345,7 +37345,7 @@ Note that square 2 only brushes the right side of square 1, which does not count
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/28/fallingsq1-plane.jpg" style="width: 500px; height: 505px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/28/fallingsq1-plane.jpg" style="width: 500px; height: 505px;" />
 <pre>
 <strong>Input:</strong> positions = [[1,2],[2,3],[6,1]]
 <strong>Output:</strong> [2,5,5]
@@ -38130,7 +38130,7 @@ myCalendarThree.book(25, 55); // return 3
 <div class=\"lc-description\"><p>Cho danh sách hình chữ nhật song song trục <code>rectangles</code> với <code>[x1,y1,x2,y2]</code>, hãy tính tổng diện tích được phủ bởi các hình chữ nhật (phần giao chỉ tính một lần), trả về modulo <code>10<sup>9</sup>+7</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/06/06/rectangle_area_ii_pic.png" style="width: 600px; height: 450px;" />
+<img loading="lazy" alt="" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/06/06/rectangle_area_ii_pic.png" style="width: 600px; height: 450px;" />
 <pre>
 <strong>Đầu vào:</strong> rectangles = [[0,0,2,2],[1,0,2,3],[1,0,3,1]]
 <strong>Đầu ra:</strong> 6
@@ -38212,7 +38212,7 @@ From (1,0) to (2,3), all three rectangles overlap.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/06/06/rectangle_area_ii_pic.png" style="width: 600px; height: 450px;" />
+<img loading="lazy" alt="" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/06/06/rectangle_area_ii_pic.png" style="width: 600px; height: 450px;" />
 <pre>
 <strong>Input:</strong> rectangles = [[0,0,2,2],[1,0,2,3],[1,0,3,1]]
 <strong>Output:</strong> 6
@@ -38484,7 +38484,7 @@ From (1,0) to (2,3), all three rectangles overlap.
 <div class=\"lc-description\"><p>Cho tham chiếu tới một node trong đồ thị vô hướng liên thông, hãy trả về bản sao sâu của đồ thị.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/11/04/133_clone_graph_question.png" style="width: 454px; height: 500px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/11/04/133_clone_graph_question.png" style="width: 454px; height: 500px;" />
 <pre>
 <strong>Đầu vào:</strong> adjList = [[2,4],[1,3],[2,4],[1,3]]
 <strong>Đầu ra:</strong> [[2,4],[1,3],[2,4],[1,3]]
@@ -38496,7 +38496,7 @@ From (1,0) to (2,3), all three rectangles overlap.
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/01/07/graph.png" style="width: 163px; height: 148px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/01/07/graph.png" style="width: 163px; height: 148px;" />
 <pre>
 <strong>Đầu vào:</strong> adjList = [[]]
 <strong>Đầu ra:</strong> [[]]
@@ -38592,7 +38592,7 @@ class Node {
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/11/04/133_clone_graph_question.png" style="width: 454px; height: 500px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/11/04/133_clone_graph_question.png" style="width: 454px; height: 500px;" />
 <pre>
 <strong>Input:</strong> adjList = [[2,4],[1,3],[2,4],[1,3]]
 <strong>Output:</strong> [[2,4],[1,3],[2,4],[1,3]]
@@ -38604,7 +38604,7 @@ class Node {
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/01/07/graph.png" style="width: 163px; height: 148px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/01/07/graph.png" style="width: 163px; height: 148px;" />
 <pre>
 <strong>Input:</strong> adjList = [[]]
 <strong>Output:</strong> [[]]
@@ -39055,7 +39055,7 @@ So one correct course order is [0,1,2,3]. Another correct ordering is [0,2,1,3].
 <div class=\"lc-description\"><p>Cho ma trận <code>heights</code> với độ cao mỗi ô, nước chảy từ ô cao xuống ô thấp hơn hoặc bằng ở 4 hướng. Hãy tìm tất cả ô mà nước có thể chảy tới cả Thái Bình Dương (biên trái/trên) và Đại Tây Dương (biên phải/dưới).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/06/08/waterflow-grid.jpg" style="width: 400px; height: 400px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/06/08/waterflow-grid.jpg" style="width: 400px; height: 400px;" />
 <pre>
 <strong>Đầu vào:</strong> heights = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]
 <strong>Đầu ra:</strong> [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]
@@ -39150,7 +39150,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/06/08/waterflow-grid.jpg" style="width: 400px; height: 400px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/06/08/waterflow-grid.jpg" style="width: 400px; height: 400px;" />
 <pre>
 <strong>Input:</strong> heights = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]
 <strong>Output:</strong> [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]
@@ -39260,7 +39260,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 <p><strong>Đầu ra:</strong> <span class="example-io">[[&quot;X&quot;,&quot;X&quot;,&quot;X&quot;,&quot;X&quot;],[&quot;X&quot;,&quot;X&quot;,&quot;X&quot;,&quot;X&quot;],[&quot;X&quot;,&quot;X&quot;,&quot;X&quot;,&quot;X&quot;],[&quot;X&quot;,&quot;O&quot;,&quot;X&quot;,&quot;X&quot;]]</span></p>
 
 <p><strong>Giải thích:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/xogrid.jpg" style="width: 367px; height: 158px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/xogrid.jpg" style="width: 367px; height: 158px;" />
 <p>In the above diagram, the bottom region is not captured because it is on the edge of the board and cannot be surrounded.</p>
 </div>
 
@@ -39346,7 +39346,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 <p><strong>Output:</strong> <span class="example-io">[[&quot;X&quot;,&quot;X&quot;,&quot;X&quot;,&quot;X&quot;],[&quot;X&quot;,&quot;X&quot;,&quot;X&quot;,&quot;X&quot;],[&quot;X&quot;,&quot;X&quot;,&quot;X&quot;,&quot;X&quot;],[&quot;X&quot;,&quot;O&quot;,&quot;X&quot;,&quot;X&quot;]]</span></p>
 
 <p><strong>Explanation:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/19/xogrid.jpg" style="width: 367px; height: 158px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/19/xogrid.jpg" style="width: 367px; height: 158px;" />
 <p>In the above diagram, the bottom region is not captured because it is on the edge of the board and cannot be surrounded.</p>
 </div>
 
@@ -39431,7 +39431,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 <div class=\"lc-description\"><p>Cho lưới <code>grid</code> với <code>0</code> là ô trống, <code>1</code> là cam tươi, <code>2</code> là cam thối, mỗi phút cam thối làm thối 4 ô kề. Hãy tính số phút ít nhất để không còn cam tươi, nếu không thể trả về <code>-1</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/02/16/oranges.png" style="width: 650px; height: 137px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/02/16/oranges.png" style="width: 650px; height: 137px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[2,1,1],[1,1,0],[0,1,1]]
 <strong>Đầu ra:</strong> 4
@@ -39522,7 +39522,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/02/16/oranges.png" style="width: 650px; height: 137px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/02/16/oranges.png" style="width: 650px; height: 137px;" />
 <pre>
 <strong>Input:</strong> grid = [[2,1,1],[1,1,0],[0,1,1]]
 <strong>Output:</strong> 4
@@ -39617,14 +39617,14 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 <div class=\"lc-description\"><p>Cho ma trận <code>isConnected</code> với <code>isConnected[i][j]=1</code> nghĩa là thành phố <code>i</code> và <code>j</code> nối trực tiếp, hãy trả về số tỉnh (thành phần liên thông).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/24/graph1.jpg" style="width: 222px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/24/graph1.jpg" style="width: 222px; height: 142px;" />
 <pre>
 <strong>Đầu vào:</strong> isConnected = [[1,1,0],[1,1,0],[0,0,1]]
 <strong>Đầu ra:</strong> 2
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/24/graph2.jpg" style="width: 222px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/24/graph2.jpg" style="width: 222px; height: 142px;" />
 <pre>
 <strong>Đầu vào:</strong> isConnected = [[1,0,0],[0,1,0],[0,0,1]]
 <strong>Đầu ra:</strong> 3
@@ -39697,14 +39697,14 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/24/graph1.jpg" style="width: 222px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/24/graph1.jpg" style="width: 222px; height: 142px;" />
 <pre>
 <strong>Input:</strong> isConnected = [[1,1,0],[1,1,0],[0,0,1]]
 <strong>Output:</strong> 2
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/24/graph2.jpg" style="width: 222px; height: 142px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/24/graph2.jpg" style="width: 222px; height: 142px;" />
 <pre>
 <strong>Input:</strong> isConnected = [[1,0,0],[0,1,0],[0,0,1]]
 <strong>Output:</strong> 3
@@ -39785,7 +39785,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 <div class=\"lc-description\"><p>Cho lưới <code>grid</code> với <code>1</code> là đất, hãy tìm diện tích đảo lớn nhất.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/01/maxarea1-grid.jpg" style="width: 500px; height: 310px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/01/maxarea1-grid.jpg" style="width: 500px; height: 310px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0],[0,1,0,0,1,1,0,0,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]]
 <strong>Đầu ra:</strong> 6
@@ -39862,7 +39862,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/01/maxarea1-grid.jpg" style="width: 500px; height: 310px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/01/maxarea1-grid.jpg" style="width: 500px; height: 310px;" />
 <pre>
 <strong>Input:</strong> grid = [[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0],[0,1,0,0,1,1,0,0,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]]
 <strong>Output:</strong> 6
@@ -39949,7 +39949,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 <div class=\"lc-description\"><p>Cho lưới <code>grid</code> với <code>1</code> là đất và <code>0</code> là nước, có đúng một đảo, hãy tính chu vi của đảo.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/12/island.png" style="width: 221px; height: 213px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/12/island.png" style="width: 221px; height: 213px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]
 <strong>Đầu ra:</strong> 16
@@ -40034,7 +40034,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/12/island.png" style="width: 221px; height: 213px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/12/island.png" style="width: 221px; height: 213px;" />
 <pre>
 <strong>Input:</strong> grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]
 <strong>Output:</strong> 16
@@ -40129,7 +40129,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 <div class=\"lc-description\"><p>Cho mạng <code>times</code> <code>[u,v,w]</code> và node bắt đầu <code>k</code>, hãy tính thời gian để tất cả node nhận tín hiệu, nếu không thể trả về <code>-1</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/05/23/931_example_1.png" style="width: 217px; height: 239px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/05/23/931_example_1.png" style="width: 217px; height: 239px;" />
 <pre>
 <strong>Đầu vào:</strong> times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2
 <strong>Đầu ra:</strong> 2
@@ -40213,7 +40213,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/05/23/931_example_1.png" style="width: 217px; height: 239px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/05/23/931_example_1.png" style="width: 217px; height: 239px;" />
 <pre>
 <strong>Input:</strong> times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2
 <strong>Output:</strong> 2
@@ -40309,7 +40309,7 @@ Note that there are other possible paths for these cells to flow to the Pacific 
 <div class=\"lc-description\"><p>Cho <code>n</code> thành phố và chuyến bay <code>[from,to,price]</code>, hãy tìm giá rẻ nhất từ <code>src</code> tới <code>dst</code> với tối đa <code>k</code> điểm dừng.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-3drawio.png" style="width: 332px; height: 392px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-3drawio.png" style="width: 332px; height: 392px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
 <strong>Đầu ra:</strong> 700
@@ -40320,7 +40320,7 @@ Note that the path through cities [0,1,2,3] is cheaper but is invalid because it
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-1drawio.png" style="width: 332px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-1drawio.png" style="width: 332px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1
 <strong>Đầu ra:</strong> 200
@@ -40330,7 +40330,7 @@ The optimal path with at most 1 stop from city 0 to 2 is marked in red and has c
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-2drawio.png" style="width: 332px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-2drawio.png" style="width: 332px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 0
 <strong>Đầu ra:</strong> 500
@@ -40405,7 +40405,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-3drawio.png" style="width: 332px; height: 392px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-3drawio.png" style="width: 332px; height: 392px;" />
 <pre>
 <strong>Input:</strong> n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
 <strong>Output:</strong> 700
@@ -40416,7 +40416,7 @@ Note that the path through cities [0,1,2,3] is cheaper but is invalid because it
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-1drawio.png" style="width: 332px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-1drawio.png" style="width: 332px; height: 242px;" />
 <pre>
 <strong>Input:</strong> n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1
 <strong>Output:</strong> 200
@@ -40426,7 +40426,7 @@ The optimal path with at most 1 stop from city 0 to 2 is marked in red and has c
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-2drawio.png" style="width: 332px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-2drawio.png" style="width: 332px; height: 242px;" />
 <pre>
 <strong>Input:</strong> n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 0
 <strong>Output:</strong> 500
@@ -40513,7 +40513,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 <div class=\"lc-description\"><p>Cho cây vô hướng với <code>n</code> node, hãy tìm tất cả gốc cho chiều cao nhỏ nhất.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e1.jpg" style="width: 800px; height: 213px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e1.jpg" style="width: 800px; height: 213px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 4, edges = [[1,0],[1,2],[1,3]]
 <strong>Đầu ra:</strong> [1]
@@ -40521,7 +40521,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e2.jpg" style="width: 800px; height: 321px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e2.jpg" style="width: 800px; height: 321px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 6, edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]
 <strong>Đầu ra:</strong> [3,4]
@@ -40594,7 +40594,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e1.jpg" style="width: 800px; height: 213px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e1.jpg" style="width: 800px; height: 213px;" />
 <pre>
 <strong>Input:</strong> n = 4, edges = [[1,0],[1,2],[1,3]]
 <strong>Output:</strong> [1]
@@ -40602,7 +40602,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e2.jpg" style="width: 800px; height: 321px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e2.jpg" style="width: 800px; height: 321px;" />
 <pre>
 <strong>Input:</strong> n = 6, edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]
 <strong>Output:</strong> [3,4]
@@ -40683,14 +40683,14 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 <div class=\"lc-description\"><p>Cho vé <code>tickets</code> <code>[from, to]</code>, hãy xây dựng hành trình từ <code>JFK</code> dùng hết vé, thứ tự từ điển nhỏ nhất.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary1-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary1-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> tickets = [[&quot;MUC&quot;,&quot;LHR&quot;],[&quot;JFK&quot;,&quot;MUC&quot;],[&quot;SFO&quot;,&quot;SJC&quot;],[&quot;LHR&quot;,&quot;SFO&quot;]]
 <strong>Đầu ra:</strong> [&quot;JFK&quot;,&quot;MUC&quot;,&quot;LHR&quot;,&quot;SFO&quot;,&quot;SJC&quot;]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary2-graph.jpg" style="width: 222px; height: 230px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary2-graph.jpg" style="width: 222px; height: 230px;" />
 <pre>
 <strong>Đầu vào:</strong> tickets = [[&quot;JFK&quot;,&quot;SFO&quot;],[&quot;JFK&quot;,&quot;ATL&quot;],[&quot;SFO&quot;,&quot;ATL&quot;],[&quot;ATL&quot;,&quot;JFK&quot;],[&quot;ATL&quot;,&quot;SFO&quot;]]
 <strong>Đầu ra:</strong> [&quot;JFK&quot;,&quot;ATL&quot;,&quot;JFK&quot;,&quot;SFO&quot;,&quot;ATL&quot;,&quot;SFO&quot;]
@@ -40766,14 +40766,14 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary1-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary1-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Input:</strong> tickets = [[&quot;MUC&quot;,&quot;LHR&quot;],[&quot;JFK&quot;,&quot;MUC&quot;],[&quot;SFO&quot;,&quot;SJC&quot;],[&quot;LHR&quot;,&quot;SFO&quot;]]
 <strong>Output:</strong> [&quot;JFK&quot;,&quot;MUC&quot;,&quot;LHR&quot;,&quot;SFO&quot;,&quot;SJC&quot;]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary2-graph.jpg" style="width: 222px; height: 230px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary2-graph.jpg" style="width: 222px; height: 230px;" />
 <pre>
 <strong>Input:</strong> tickets = [[&quot;JFK&quot;,&quot;SFO&quot;],[&quot;JFK&quot;,&quot;ATL&quot;],[&quot;SFO&quot;,&quot;ATL&quot;],[&quot;ATL&quot;,&quot;JFK&quot;],[&quot;ATL&quot;,&quot;SFO&quot;]]
 <strong>Output:</strong> [&quot;JFK&quot;,&quot;ATL&quot;,&quot;JFK&quot;,&quot;SFO&quot;,&quot;ATL&quot;,&quot;SFO&quot;]
@@ -41585,7 +41585,7 @@ Since we were able to visit every room, we return true.
 <div class=\"lc-description\"><p>Cho đồ thị có hướng, một node là an toàn nếu mọi đường đi từ nó đều tới node kết thúc (không có chu trình). Hãy trả về tất cả các node an toàn.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="Illustration of graph" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/03/17/picture1.png" style="height: 171px; width: 600px;" />
+<img loading="lazy" alt="Illustration of graph" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/03/17/picture1.png" style="height: 171px; width: 600px;" />
 <pre>
 <strong>Đầu vào:</strong> graph = [[1,2],[2,3],[5],[0],[5],[],[]]
 <strong>Đầu ra:</strong> [2,4,5,6]
@@ -41668,7 +41668,7 @@ Only node 4 is a terminal node, and every path starting at node 4 leads to node 
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="Illustration of graph" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/03/17/picture1.png" style="height: 171px; width: 600px;" />
+<img loading="lazy" alt="Illustration of graph" src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/03/17/picture1.png" style="height: 171px; width: 600px;" />
 <pre>
 <strong>Input:</strong> graph = [[1,2],[2,3],[5],[0],[5],[],[]]
 <strong>Output:</strong> [2,4,5,6]
@@ -42125,14 +42125,14 @@ note: x is undefined =&gt; -1.0</pre>
 <div class=\"lc-description\"><p>Cho đồ thị ban đầu là cây với <code>n</code> cạnh, thêm một cạnh thừa tạo chu trình, hãy tìm cạnh có thể xóa để thành cây (trả về cạnh xuất hiện cuối nếu nhiều).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-1-graph.jpg" style="width: 222px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-1-graph.jpg" style="width: 222px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> edges = [[1,2],[1,3],[2,3]]
 <strong>Đầu ra:</strong> [2,3]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-2-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-2-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]
 <strong>Đầu ra:</strong> [1,4]
@@ -42204,14 +42204,14 @@ note: x is undefined =&gt; -1.0</pre>
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-1-graph.jpg" style="width: 222px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-1-graph.jpg" style="width: 222px; height: 222px;" />
 <pre>
 <strong>Input:</strong> edges = [[1,2],[1,3],[2,3]]
 <strong>Output:</strong> [2,3]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-2-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-2-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Input:</strong> edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]
 <strong>Output:</strong> [1,4]
@@ -42293,14 +42293,14 @@ note: x is undefined =&gt; -1.0</pre>
 <div class=\"lc-description\"><p>Cho đồ thị có hướng với <code>n</code> node, ban đầu là cây có gốc, thêm một cạnh thừa, hãy tìm cạnh có thể xóa để thành cây có gốc.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph1.jpg" style="width: 222px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph1.jpg" style="width: 222px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> edges = [[1,2],[1,3],[2,3]]
 <strong>Đầu ra:</strong> [2,3]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph2.jpg" style="width: 222px; height: 382px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph2.jpg" style="width: 222px; height: 382px;" />
 <pre>
 <strong>Đầu vào:</strong> edges = [[1,2],[2,3],[3,4],[4,1],[1,5]]
 <strong>Đầu ra:</strong> [4,1]
@@ -42372,14 +42372,14 @@ note: x is undefined =&gt; -1.0</pre>
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph1.jpg" style="width: 222px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph1.jpg" style="width: 222px; height: 222px;" />
 <pre>
 <strong>Input:</strong> edges = [[1,2],[1,3],[2,3]]
 <strong>Output:</strong> [2,3]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph2.jpg" style="width: 222px; height: 382px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph2.jpg" style="width: 222px; height: 382px;" />
 <pre>
 <strong>Input:</strong> edges = [[1,2],[2,3],[3,4],[4,1],[1,5]]
 <strong>Output:</strong> [4,1]
@@ -42459,7 +42459,7 @@ note: x is undefined =&gt; -1.0</pre>
 <div class=\"lc-description\"><p>Cho mạng với <code>n</code> server và danh sách kết nối <code>connections</code>, hãy tìm tất cả các cầu (critical connections) — cạnh mà nếu xóa sẽ làm mạng mất liên thông.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/09/03/1537_ex1_2.png" style="width: 198px; height: 248px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/09/03/1537_ex1_2.png" style="width: 198px; height: 248px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 4, connections = [[0,1],[1,2],[2,0],[1,3]]
 <strong>Đầu ra:</strong> [[1,3]]
@@ -42537,7 +42537,7 @@ note: x is undefined =&gt; -1.0</pre>
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/09/03/1537_ex1_2.png" style="width: 198px; height: 248px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/09/03/1537_ex1_2.png" style="width: 198px; height: 248px;" />
 <pre>
 <strong>Input:</strong> n = 4, connections = [[0,1],[1,2],[2,0],[1,3]]
 <strong>Output:</strong> [[1,3]]
@@ -42969,7 +42969,7 @@ There is no way to assign the variables to satisfy both equations.
 <div class=\"lc-description\"><p>Cho mạng với <code>n</code> máy tính và danh sách cáp <code>connections</code>, hãy trả về số lần đổi cáp ít nhất để nối tất cả máy tính, nếu không thể trả về <code>-1</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/01/02/sample_1_1677.png" style="width: 500px; height: 148px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/01/02/sample_1_1677.png" style="width: 500px; height: 148px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 4, connections = [[0,1],[0,2],[1,2]]
 <strong>Đầu ra:</strong> 1
@@ -42977,7 +42977,7 @@ There is no way to assign the variables to satisfy both equations.
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/01/02/sample_2_1677.png" style="width: 500px; height: 129px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/01/02/sample_2_1677.png" style="width: 500px; height: 129px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 6, connections = [[0,1],[0,2],[0,3],[1,2],[1,3]]
 <strong>Đầu ra:</strong> 2
@@ -43057,7 +43057,7 @@ There is no way to assign the variables to satisfy both equations.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/01/02/sample_1_1677.png" style="width: 500px; height: 148px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/01/02/sample_1_1677.png" style="width: 500px; height: 148px;" />
 <pre>
 <strong>Input:</strong> n = 4, connections = [[0,1],[0,2],[1,2]]
 <strong>Output:</strong> 1
@@ -43065,7 +43065,7 @@ There is no way to assign the variables to satisfy both equations.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/01/02/sample_2_1677.png" style="width: 500px; height: 129px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/01/02/sample_2_1677.png" style="width: 500px; height: 129px;" />
 <pre>
 <strong>Input:</strong> n = 6, connections = [[0,1],[0,2],[0,3],[1,2],[1,3]]
 <strong>Output:</strong> 2
@@ -43155,12 +43155,12 @@ There is no way to assign the variables to satisfy both equations.
 <div class=\"lc-description\"><p>Cho mảng điểm <code>points</code>, chi phí nối hai điểm là khoảng cách Manhattan, hãy tìm chi phí nhỏ nhất để nối tất cả điểm (MST).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/26/d.png" style="width: 214px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/26/d.png" style="width: 214px; height: 268px;" />
 <pre>
 <strong>Đầu vào:</strong> points = [[0,0],[2,2],[3,10],[5,2],[7,0]]
 <strong>Đầu ra:</strong> 20
 <strong>Giải thích:</strong> 
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/26/c.png" style="width: 214px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/26/c.png" style="width: 214px; height: 268px;" />
 We can connect the points as shown above to get the minimum cost of 20.
 Notice that there is a unique path between every pair of points.
 </pre>
@@ -43234,12 +43234,12 @@ Notice that there is a unique path between every pair of points.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/26/d.png" style="width: 214px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/26/d.png" style="width: 214px; height: 268px;" />
 <pre>
 <strong>Input:</strong> points = [[0,0],[2,2],[3,10],[5,2],[7,0]]
 <strong>Output:</strong> 20
 <strong>Explanation:</strong> 
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/26/c.png" style="width: 214px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/26/c.png" style="width: 214px; height: 268px;" />
 We can connect the points as shown above to get the minimum cost of 20.
 Notice that there is a unique path between every pair of points.
 </pre>
@@ -44719,7 +44719,7 @@ Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be
 <p>Given a string containing digits from <code>2-9</code> inclusive, return all possible letter combinations that the number could represent. Return the answer in <strong>any order</strong>.</p>
 
 <p>A mapping of digits to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.</p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/15/1200px-telephone-keypad2svg.png" style="width: 300px; height: 243px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/15/1200px-telephone-keypad2svg.png" style="width: 300px; height: 243px;" />
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
 
@@ -45084,21 +45084,21 @@ Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be
 <div class=\"lc-description\"><p>Cho bảng <code>board</code> và chuỗi <code>word</code>, hãy kiểm tra <code>word</code> có tồn tại trên bảng bằng cách nối các ô kề nhau (mỗi ô dùng một lần) không.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word2.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word2.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;ABCCED&quot;
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word-1.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word-1.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;SEE&quot;
 <strong>Đầu ra:</strong> true
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/15/word3.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/15/word3.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;ABCB&quot;
 <strong>Đầu ra:</strong> false
@@ -45169,21 +45169,21 @@ Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word2.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word2.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;ABCCED&quot;
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word-1.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/word-1.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;SEE&quot;
 <strong>Output:</strong> true
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/15/word3.jpg" style="width: 322px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/15/word3.jpg" style="width: 322px; height: 242px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],[&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],[&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]], word = &quot;ABCB&quot;
 <strong>Output:</strong> false
@@ -45266,14 +45266,14 @@ Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be
 <div class=\"lc-description\"><p>Cho bảng <code>board</code> và danh sách từ <code>words</code>, hãy tìm tất cả từ có thể tạo trên bảng (bản Backtracking + Trie).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;o&quot;,&quot;a&quot;,&quot;a&quot;,&quot;n&quot;],[&quot;e&quot;,&quot;t&quot;,&quot;a&quot;,&quot;e&quot;],[&quot;i&quot;,&quot;h&quot;,&quot;k&quot;,&quot;r&quot;],[&quot;i&quot;,&quot;f&quot;,&quot;l&quot;,&quot;v&quot;]], words = [&quot;oath&quot;,&quot;pea&quot;,&quot;eat&quot;,&quot;rain&quot;]
 <strong>Đầu ra:</strong> [&quot;eat&quot;,&quot;oath&quot;]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;a&quot;,&quot;b&quot;],[&quot;c&quot;,&quot;d&quot;]], words = [&quot;abcb&quot;]
 <strong>Đầu ra:</strong> []
@@ -45344,14 +45344,14 @@ Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;o&quot;,&quot;a&quot;,&quot;a&quot;,&quot;n&quot;],[&quot;e&quot;,&quot;t&quot;,&quot;a&quot;,&quot;e&quot;],[&quot;i&quot;,&quot;h&quot;,&quot;k&quot;,&quot;r&quot;],[&quot;i&quot;,&quot;f&quot;,&quot;l&quot;,&quot;v&quot;]], words = [&quot;oath&quot;,&quot;pea&quot;,&quot;eat&quot;,&quot;rain&quot;]
 <strong>Output:</strong> [&quot;eat&quot;,&quot;oath&quot;]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;a&quot;,&quot;b&quot;],[&quot;c&quot;,&quot;d&quot;]], words = [&quot;abcb&quot;]
 <strong>Output:</strong> []
@@ -45434,7 +45434,7 @@ Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be
 <div class=\"lc-description\"><p>Bài toán N-Queens: đặt <code>n</code> quân hậu trên bàn cờ <code>n x n</code> sao cho không có hai hậu nào tấn công nhau. Hãy trả về tất cả các cách đặt.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/queens.jpg" style="width: 600px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/queens.jpg" style="width: 600px; height: 268px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 4
 <strong>Đầu ra:</strong> [[&quot;.Q..&quot;,&quot;...Q&quot;,&quot;Q...&quot;,&quot;..Q.&quot;],[&quot;..Q.&quot;,&quot;Q...&quot;,&quot;...Q&quot;,&quot;.Q..&quot;]]
@@ -45508,7 +45508,7 @@ Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/queens.jpg" style="width: 600px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/queens.jpg" style="width: 600px; height: 268px;" />
 <pre>
 <strong>Input:</strong> n = 4
 <strong>Output:</strong> [[&quot;.Q..&quot;,&quot;...Q&quot;,&quot;Q...&quot;,&quot;..Q.&quot;],[&quot;..Q.&quot;,&quot;Q...&quot;,&quot;...Q&quot;,&quot;.Q..&quot;]]
@@ -45592,7 +45592,7 @@ Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be
 <div class=\"lc-description\"><p>Cho số nguyên <code>n</code>, hãy trả về số lượng cách đặt <code>n</code> hậu trên bàn <code>n x n</code> không tấn công nhau.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/queens.jpg" style="width: 600px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/queens.jpg" style="width: 600px; height: 268px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 4
 <strong>Đầu ra:</strong> 2
@@ -45664,7 +45664,7 @@ Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/queens.jpg" style="width: 600px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/queens.jpg" style="width: 600px; height: 268px;" />
 <pre>
 <strong>Input:</strong> n = 4
 <strong>Output:</strong> 2
@@ -45748,13 +45748,13 @@ Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be
 <div class=\"lc-description\"><p>Viết chương trình giải Sudoku <code>9x9</code>: điền các ô <code>'.'</code> sao cho mỗi hàng, cột và ô <code>3x3</code> đều chứa <code>1-9</code> không lặp.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/250px-Sudoku-by-L2G-20050714.svg.png" style="height:250px; width:250px" />
+<img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/250px-Sudoku-by-L2G-20050714.svg.png" style="height:250px; width:250px" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;5&quot;,&quot;3&quot;,&quot;.&quot;,&quot;.&quot;,&quot;7&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;],[&quot;6&quot;,&quot;.&quot;,&quot;.&quot;,&quot;1&quot;,&quot;9&quot;,&quot;5&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;],[&quot;.&quot;,&quot;9&quot;,&quot;8&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;6&quot;,&quot;.&quot;],[&quot;8&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;6&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;3&quot;],[&quot;4&quot;,&quot;.&quot;,&quot;.&quot;,&quot;8&quot;,&quot;.&quot;,&quot;3&quot;,&quot;.&quot;,&quot;.&quot;,&quot;1&quot;],[&quot;7&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;2&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;6&quot;],[&quot;.&quot;,&quot;6&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;2&quot;,&quot;8&quot;,&quot;.&quot;],[&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;4&quot;,&quot;1&quot;,&quot;9&quot;,&quot;.&quot;,&quot;.&quot;,&quot;5&quot;],[&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;8&quot;,&quot;.&quot;,&quot;.&quot;,&quot;7&quot;,&quot;9&quot;]]
 <strong>Đầu ra:</strong> [[&quot;5&quot;,&quot;3&quot;,&quot;4&quot;,&quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;1&quot;,&quot;2&quot;],[&quot;6&quot;,&quot;7&quot;,&quot;2&quot;,&quot;1&quot;,&quot;9&quot;,&quot;5&quot;,&quot;3&quot;,&quot;4&quot;,&quot;8&quot;],[&quot;1&quot;,&quot;9&quot;,&quot;8&quot;,&quot;3&quot;,&quot;4&quot;,&quot;2&quot;,&quot;5&quot;,&quot;6&quot;,&quot;7&quot;],[&quot;8&quot;,&quot;5&quot;,&quot;9&quot;,&quot;7&quot;,&quot;6&quot;,&quot;1&quot;,&quot;4&quot;,&quot;2&quot;,&quot;3&quot;],[&quot;4&quot;,&quot;2&quot;,&quot;6&quot;,&quot;8&quot;,&quot;5&quot;,&quot;3&quot;,&quot;7&quot;,&quot;9&quot;,&quot;1&quot;],[&quot;7&quot;,&quot;1&quot;,&quot;3&quot;,&quot;9&quot;,&quot;2&quot;,&quot;4&quot;,&quot;8&quot;,&quot;5&quot;,&quot;6&quot;],[&quot;9&quot;,&quot;6&quot;,&quot;1&quot;,&quot;5&quot;,&quot;3&quot;,&quot;7&quot;,&quot;2&quot;,&quot;8&quot;,&quot;4&quot;],[&quot;2&quot;,&quot;8&quot;,&quot;7&quot;,&quot;4&quot;,&quot;1&quot;,&quot;9&quot;,&quot;6&quot;,&quot;3&quot;,&quot;5&quot;],[&quot;3&quot;,&quot;4&quot;,&quot;5&quot;,&quot;2&quot;,&quot;8&quot;,&quot;6&quot;,&quot;1&quot;,&quot;7&quot;,&quot;9&quot;]]
 <strong>Giải thích:</strong>&nbsp;The input board is shown above and the only valid solution is shown below:
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Sudoku-by-L2G-20050714_solution.svg/250px-Sudoku-by-L2G-20050714_solution.svg.png" style="height:250px; width:250px" />
+<img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Sudoku-by-L2G-20050714_solution.svg/250px-Sudoku-by-L2G-20050714_solution.svg.png" style="height:250px; width:250px" />
 </pre>
 
 <p>&nbsp;</p>
@@ -45826,13 +45826,13 @@ Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/250px-Sudoku-by-L2G-20050714.svg.png" style="height:250px; width:250px" />
+<img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/250px-Sudoku-by-L2G-20050714.svg.png" style="height:250px; width:250px" />
 <pre>
 <strong>Input:</strong> board = [[&quot;5&quot;,&quot;3&quot;,&quot;.&quot;,&quot;.&quot;,&quot;7&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;],[&quot;6&quot;,&quot;.&quot;,&quot;.&quot;,&quot;1&quot;,&quot;9&quot;,&quot;5&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;],[&quot;.&quot;,&quot;9&quot;,&quot;8&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;6&quot;,&quot;.&quot;],[&quot;8&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;6&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;3&quot;],[&quot;4&quot;,&quot;.&quot;,&quot;.&quot;,&quot;8&quot;,&quot;.&quot;,&quot;3&quot;,&quot;.&quot;,&quot;.&quot;,&quot;1&quot;],[&quot;7&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;2&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;6&quot;],[&quot;.&quot;,&quot;6&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;2&quot;,&quot;8&quot;,&quot;.&quot;],[&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;4&quot;,&quot;1&quot;,&quot;9&quot;,&quot;.&quot;,&quot;.&quot;,&quot;5&quot;],[&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;.&quot;,&quot;8&quot;,&quot;.&quot;,&quot;.&quot;,&quot;7&quot;,&quot;9&quot;]]
 <strong>Output:</strong> [[&quot;5&quot;,&quot;3&quot;,&quot;4&quot;,&quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;1&quot;,&quot;2&quot;],[&quot;6&quot;,&quot;7&quot;,&quot;2&quot;,&quot;1&quot;,&quot;9&quot;,&quot;5&quot;,&quot;3&quot;,&quot;4&quot;,&quot;8&quot;],[&quot;1&quot;,&quot;9&quot;,&quot;8&quot;,&quot;3&quot;,&quot;4&quot;,&quot;2&quot;,&quot;5&quot;,&quot;6&quot;,&quot;7&quot;],[&quot;8&quot;,&quot;5&quot;,&quot;9&quot;,&quot;7&quot;,&quot;6&quot;,&quot;1&quot;,&quot;4&quot;,&quot;2&quot;,&quot;3&quot;],[&quot;4&quot;,&quot;2&quot;,&quot;6&quot;,&quot;8&quot;,&quot;5&quot;,&quot;3&quot;,&quot;7&quot;,&quot;9&quot;,&quot;1&quot;],[&quot;7&quot;,&quot;1&quot;,&quot;3&quot;,&quot;9&quot;,&quot;2&quot;,&quot;4&quot;,&quot;8&quot;,&quot;5&quot;,&quot;6&quot;],[&quot;9&quot;,&quot;6&quot;,&quot;1&quot;,&quot;5&quot;,&quot;3&quot;,&quot;7&quot;,&quot;2&quot;,&quot;8&quot;,&quot;4&quot;],[&quot;2&quot;,&quot;8&quot;,&quot;7&quot;,&quot;4&quot;,&quot;1&quot;,&quot;9&quot;,&quot;6&quot;,&quot;3&quot;,&quot;5&quot;],[&quot;3&quot;,&quot;4&quot;,&quot;5&quot;,&quot;2&quot;,&quot;8&quot;,&quot;6&quot;,&quot;1&quot;,&quot;7&quot;,&quot;9&quot;]]
 <strong>Explanation:</strong>&nbsp;The input board is shown above and the only valid solution is shown below:
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Sudoku-by-L2G-20050714_solution.svg/250px-Sudoku-by-L2G-20050714_solution.svg.png" style="height:250px; width:250px" />
+<img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Sudoku-by-L2G-20050714_solution.svg/250px-Sudoku-by-L2G-20050714_solution.svg.png" style="height:250px; width:250px" />
 </pre>
 
 <p>&nbsp;</p>
@@ -47451,7 +47451,7 @@ Letter &quot;e&quot; can only be used once.</pre>
 <div class=\"lc-description\"><p>Cho lưới <code>grid</code> với <code>1</code> là điểm bắt đầu, <code>2</code> là điểm kết thúc, <code>0</code> là ô đi được và <code>-1</code> là chướng ngại, hãy đếm số đường đi từ <code>1</code> tới <code>2</code> đi qua tất cả ô <code>0</code> đúng một lần.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique1.jpg" style="width: 324px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique1.jpg" style="width: 324px; height: 245px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[1,0,0,0],[0,0,0,0],[0,0,2,-1]]
 <strong>Đầu ra:</strong> 2
@@ -47461,7 +47461,7 @@ Letter &quot;e&quot; can only be used once.</pre>
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique2.jpg" style="width: 324px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique2.jpg" style="width: 324px; height: 245px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[1,0,0,0],[0,0,0,0],[0,0,0,2]]
 <strong>Đầu ra:</strong> 4
@@ -47473,7 +47473,7 @@ Letter &quot;e&quot; can only be used once.</pre>
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique3-.jpg" style="width: 164px; height: 165px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique3-.jpg" style="width: 164px; height: 165px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[0,1],[2,0]]
 <strong>Đầu ra:</strong> 0
@@ -47551,7 +47551,7 @@ Note that the starting and ending square can be anywhere in the grid.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique1.jpg" style="width: 324px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique1.jpg" style="width: 324px; height: 245px;" />
 <pre>
 <strong>Input:</strong> grid = [[1,0,0,0],[0,0,0,0],[0,0,2,-1]]
 <strong>Output:</strong> 2
@@ -47561,7 +47561,7 @@ Note that the starting and ending square can be anywhere in the grid.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique2.jpg" style="width: 324px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique2.jpg" style="width: 324px; height: 245px;" />
 <pre>
 <strong>Input:</strong> grid = [[1,0,0,0],[0,0,0,0],[0,0,0,2]]
 <strong>Output:</strong> 4
@@ -47573,7 +47573,7 @@ Note that the starting and ending square can be anywhere in the grid.
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique3-.jpg" style="width: 164px; height: 165px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/08/02/lc-unique3-.jpg" style="width: 164px; height: 165px;" />
 <pre>
 <strong>Input:</strong> grid = [[0,1],[2,0]]
 <strong>Output:</strong> 0
@@ -48193,7 +48193,7 @@ Note that the starting and ending square can be anywhere in the grid.
 <div class=\"lc-description\"><p>Cho cây vô hướng với <code>n</code> node và các cạnh <code>edges</code>, hãy tìm tất cả gốc sao cho chiều cao cây là nhỏ nhất (Minimum Height Trees).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e1.jpg" style="width: 800px; height: 213px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e1.jpg" style="width: 800px; height: 213px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 4, edges = [[1,0],[1,2],[1,3]]
 <strong>Đầu ra:</strong> [1]
@@ -48201,7 +48201,7 @@ Note that the starting and ending square can be anywhere in the grid.
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e2.jpg" style="width: 800px; height: 321px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e2.jpg" style="width: 800px; height: 321px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 6, edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]
 <strong>Đầu ra:</strong> [3,4]
@@ -48274,7 +48274,7 @@ Note that the starting and ending square can be anywhere in the grid.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e1.jpg" style="width: 800px; height: 213px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e1.jpg" style="width: 800px; height: 213px;" />
 <pre>
 <strong>Input:</strong> n = 4, edges = [[1,0],[1,2],[1,3]]
 <strong>Output:</strong> [1]
@@ -48282,7 +48282,7 @@ Note that the starting and ending square can be anywhere in the grid.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e2.jpg" style="width: 800px; height: 321px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/01/e2.jpg" style="width: 800px; height: 321px;" />
 <pre>
 <strong>Input:</strong> n = 6, edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]
 <strong>Output:</strong> [3,4]
@@ -48725,14 +48725,14 @@ To take course 1 you should have finished course 0, and to take course 0 you sho
 <div class=\"lc-description\"><p>Cho đồ thị ban đầu là cây có <code>n</code> node (1-indexed) với <code>n</code> cạnh, trong đó một cạnh thừa tạo thành chu trình. Hãy tìm cạnh có thể xóa để đồ thị lại thành cây, nếu nhiều thì trả về cạnh xuất hiện cuối.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-1-graph.jpg" style="width: 222px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-1-graph.jpg" style="width: 222px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> edges = [[1,2],[1,3],[2,3]]
 <strong>Đầu ra:</strong> [2,3]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-2-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-2-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]
 <strong>Đầu ra:</strong> [1,4]
@@ -48804,14 +48804,14 @@ To take course 1 you should have finished course 0, and to take course 0 you sho
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-1-graph.jpg" style="width: 222px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-1-graph.jpg" style="width: 222px; height: 222px;" />
 <pre>
 <strong>Input:</strong> edges = [[1,2],[1,3],[2,3]]
 <strong>Output:</strong> [2,3]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-2-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-2-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Input:</strong> edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]
 <strong>Output:</strong> [1,4]
@@ -48893,14 +48893,14 @@ To take course 1 you should have finished course 0, and to take course 0 you sho
 <div class=\"lc-description\"><p>Cho đồ thị có hướng với <code>n</code> node, ban đầu là cây có gốc có hướng, thêm một cạnh có hướng thừa. Hãy tìm cạnh có thể xóa để đồ thị lại thành cây có gốc.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph1.jpg" style="width: 222px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph1.jpg" style="width: 222px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> edges = [[1,2],[1,3],[2,3]]
 <strong>Đầu ra:</strong> [2,3]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph2.jpg" style="width: 222px; height: 382px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph2.jpg" style="width: 222px; height: 382px;" />
 <pre>
 <strong>Đầu vào:</strong> edges = [[1,2],[2,3],[3,4],[4,1],[1,5]]
 <strong>Đầu ra:</strong> [4,1]
@@ -48972,14 +48972,14 @@ To take course 1 you should have finished course 0, and to take course 0 you sho
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph1.jpg" style="width: 222px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph1.jpg" style="width: 222px; height: 222px;" />
 <pre>
 <strong>Input:</strong> edges = [[1,2],[1,3],[2,3]]
 <strong>Output:</strong> [2,3]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph2.jpg" style="width: 222px; height: 382px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/20/graph2.jpg" style="width: 222px; height: 382px;" />
 <pre>
 <strong>Input:</strong> edges = [[1,2],[2,3],[3,4],[4,1],[1,5]]
 <strong>Output:</strong> [4,1]
@@ -49233,12 +49233,12 @@ We could return these lists in any order, for example the answer [[&#39;Mary&#39
 <div class=\"lc-description\"><p>Cho mảng điểm <code>points</code> với <code>points[i] = [xi, yi]</code>, chi phí nối hai điểm là khoảng cách Manhattan. Hãy tìm chi phí nhỏ nhất để nối tất cả điểm (cây khung nhỏ nhất).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/26/d.png" style="width: 214px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/26/d.png" style="width: 214px; height: 268px;" />
 <pre>
 <strong>Đầu vào:</strong> points = [[0,0],[2,2],[3,10],[5,2],[7,0]]
 <strong>Đầu ra:</strong> 20
 <strong>Giải thích:</strong> 
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/26/c.png" style="width: 214px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/26/c.png" style="width: 214px; height: 268px;" />
 We can connect the points as shown above to get the minimum cost of 20.
 Notice that there is a unique path between every pair of points.
 </pre>
@@ -49312,12 +49312,12 @@ Notice that there is a unique path between every pair of points.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/26/d.png" style="width: 214px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/26/d.png" style="width: 214px; height: 268px;" />
 <pre>
 <strong>Input:</strong> points = [[0,0],[2,2],[3,10],[5,2],[7,0]]
 <strong>Output:</strong> 20
 <strong>Explanation:</strong> 
-<img alt="" src="https://assets.leetcode.com/uploads/2020/08/26/c.png" style="width: 214px; height: 268px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/08/26/c.png" style="width: 214px; height: 268px;" />
 We can connect the points as shown above to get the minimum cost of 20.
 Notice that there is a unique path between every pair of points.
 </pre>
@@ -49401,14 +49401,14 @@ Notice that there is a unique path between every pair of points.
 <div class=\"lc-description\"><p>Cho danh sách vé máy bay <code>tickets</code> với <code>[from, to]</code>, hãy xây dựng hành trình bắt đầu từ <code>"JFK"</code>, dùng hết vé đúng một lần, nếu có nhiều hành trình thì chọn thứ tự từ điển nhỏ nhất.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary1-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary1-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> tickets = [[&quot;MUC&quot;,&quot;LHR&quot;],[&quot;JFK&quot;,&quot;MUC&quot;],[&quot;SFO&quot;,&quot;SJC&quot;],[&quot;LHR&quot;,&quot;SFO&quot;]]
 <strong>Đầu ra:</strong> [&quot;JFK&quot;,&quot;MUC&quot;,&quot;LHR&quot;,&quot;SFO&quot;,&quot;SJC&quot;]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary2-graph.jpg" style="width: 222px; height: 230px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary2-graph.jpg" style="width: 222px; height: 230px;" />
 <pre>
 <strong>Đầu vào:</strong> tickets = [[&quot;JFK&quot;,&quot;SFO&quot;],[&quot;JFK&quot;,&quot;ATL&quot;],[&quot;SFO&quot;,&quot;ATL&quot;],[&quot;ATL&quot;,&quot;JFK&quot;],[&quot;ATL&quot;,&quot;SFO&quot;]]
 <strong>Đầu ra:</strong> [&quot;JFK&quot;,&quot;ATL&quot;,&quot;JFK&quot;,&quot;SFO&quot;,&quot;ATL&quot;,&quot;SFO&quot;]
@@ -49484,14 +49484,14 @@ Notice that there is a unique path between every pair of points.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary1-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary1-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Input:</strong> tickets = [[&quot;MUC&quot;,&quot;LHR&quot;],[&quot;JFK&quot;,&quot;MUC&quot;],[&quot;SFO&quot;,&quot;SJC&quot;],[&quot;LHR&quot;,&quot;SFO&quot;]]
 <strong>Output:</strong> [&quot;JFK&quot;,&quot;MUC&quot;,&quot;LHR&quot;,&quot;SFO&quot;,&quot;SJC&quot;]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary2-graph.jpg" style="width: 222px; height: 230px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/14/itinerary2-graph.jpg" style="width: 222px; height: 230px;" />
 <pre>
 <strong>Input:</strong> tickets = [[&quot;JFK&quot;,&quot;SFO&quot;],[&quot;JFK&quot;,&quot;ATL&quot;],[&quot;SFO&quot;,&quot;ATL&quot;],[&quot;ATL&quot;,&quot;JFK&quot;],[&quot;ATL&quot;,&quot;SFO&quot;]]
 <strong>Output:</strong> [&quot;JFK&quot;,&quot;ATL&quot;,&quot;JFK&quot;,&quot;SFO&quot;,&quot;ATL&quot;,&quot;SFO&quot;]
@@ -49941,7 +49941,7 @@ because the wheels of the lock become stuck after the display becomes the dead e
 <div class=\"lc-description\"><p>Cho lưới <code>m x n</code> với <code>0</code> là ô trống và <code>1</code> là chướng ngại, bạn có thể loại bỏ tối đa <code>k</code> chướng ngại. Hãy tìm đường đi ngắn nhất từ <code>(0,0)</code> tới <code>(m-1,n-1)</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short1-grid.jpg" style="width: 244px; height: 405px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short1-grid.jpg" style="width: 244px; height: 405px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]], k = 1
 <strong>Đầu ra:</strong> 6
@@ -49951,7 +49951,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short2-grid.jpg" style="width: 244px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short2-grid.jpg" style="width: 244px; height: 245px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[0,1,1],[1,1,1],[1,0,0]], k = 1
 <strong>Đầu ra:</strong> -1
@@ -50021,7 +50021,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short1-grid.jpg" style="width: 244px; height: 405px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short1-grid.jpg" style="width: 244px; height: 405px;" />
 <pre>
 <strong>Input:</strong> grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]], k = 1
 <strong>Output:</strong> 6
@@ -50031,7 +50031,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short2-grid.jpg" style="width: 244px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short2-grid.jpg" style="width: 244px; height: 245px;" />
 <pre>
 <strong>Input:</strong> grid = [[0,1,1],[1,1,1],[1,0,0]], k = 1
 <strong>Output:</strong> -1
@@ -50113,7 +50113,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 <div class=\"lc-description\"><p>Cho đồ thị vô hướng với <code>n</code> node, hãy tìm đường đi ngắn nhất thăm tất cả node (có thể thăm lại node/cạnh).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest1-graph.jpg" style="width: 222px; height: 183px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest1-graph.jpg" style="width: 222px; height: 183px;" />
 <pre>
 <strong>Đầu vào:</strong> graph = [[1,2,3],[0],[0],[0]]
 <strong>Đầu ra:</strong> 4
@@ -50121,7 +50121,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest2-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest2-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> graph = [[1],[0,2,4],[1,3,4],[2],[1,2]]
 <strong>Đầu ra:</strong> 4
@@ -50191,7 +50191,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest1-graph.jpg" style="width: 222px; height: 183px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest1-graph.jpg" style="width: 222px; height: 183px;" />
 <pre>
 <strong>Input:</strong> graph = [[1,2,3],[0],[0],[0]]
 <strong>Output:</strong> 4
@@ -50199,7 +50199,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest2-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest2-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Input:</strong> graph = [[1],[0,2,4],[1,3,4],[2],[1,2]]
 <strong>Output:</strong> 4
@@ -50281,7 +50281,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 <div class=\"lc-description\"><p>Cho lưới <code>grid</code> với <code>'@'</code> là điểm bắt đầu, <code>'.'</code> là ô trống, <code>'#'</code> là tường, <code>'a'-'f'</code> là khóa và <code>'A'-'F'</code> là ổ khóa, hãy tìm số bước ít nhất để nhặt hết khóa.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys2.jpg" style="width: 404px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys2.jpg" style="width: 404px; height: 245px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [&quot;@.a..&quot;,&quot;###.#&quot;,&quot;b.A.B&quot;]
 <strong>Đầu ra:</strong> 8
@@ -50289,14 +50289,14 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-key2.jpg" style="width: 404px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-key2.jpg" style="width: 404px; height: 245px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [&quot;@..aA&quot;,&quot;..B#.&quot;,&quot;....b&quot;]
 <strong>Đầu ra:</strong> 6
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys3.jpg" style="width: 244px; height: 85px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys3.jpg" style="width: 244px; height: 85px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [&quot;@Aa&quot;]
 <strong>Đầu ra:</strong> -1
@@ -50381,7 +50381,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys2.jpg" style="width: 404px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys2.jpg" style="width: 404px; height: 245px;" />
 <pre>
 <strong>Input:</strong> grid = [&quot;@.a..&quot;,&quot;###.#&quot;,&quot;b.A.B&quot;]
 <strong>Output:</strong> 8
@@ -50389,14 +50389,14 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-key2.jpg" style="width: 404px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-key2.jpg" style="width: 404px; height: 245px;" />
 <pre>
 <strong>Input:</strong> grid = [&quot;@..aA&quot;,&quot;..B#.&quot;,&quot;....b&quot;]
 <strong>Output:</strong> 6
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys3.jpg" style="width: 244px; height: 85px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys3.jpg" style="width: 244px; height: 85px;" />
 <pre>
 <strong>Input:</strong> grid = [&quot;@Aa&quot;]
 <strong>Output:</strong> -1
@@ -50479,7 +50479,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 <div class=\"lc-description\"><p>Cho <code>n</code> thành phố, các chuyến bay <code>flights</code> với <code>[from, to, price]</code> và số điểm dừng tối đa <code>k</code>, hãy tìm giá rẻ nhất từ <code>src</code> tới <code>dst</code> với tối đa <code>k</code> điểm dừng.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-3drawio.png" style="width: 332px; height: 392px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-3drawio.png" style="width: 332px; height: 392px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
 <strong>Đầu ra:</strong> 700
@@ -50490,7 +50490,7 @@ Note that the path through cities [0,1,2,3] is cheaper but is invalid because it
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-1drawio.png" style="width: 332px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-1drawio.png" style="width: 332px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1
 <strong>Đầu ra:</strong> 200
@@ -50500,7 +50500,7 @@ The optimal path with at most 1 stop from city 0 to 2 is marked in red and has c
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-2drawio.png" style="width: 332px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-2drawio.png" style="width: 332px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 0
 <strong>Đầu ra:</strong> 500
@@ -50575,7 +50575,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-3drawio.png" style="width: 332px; height: 392px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-3drawio.png" style="width: 332px; height: 392px;" />
 <pre>
 <strong>Input:</strong> n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
 <strong>Output:</strong> 700
@@ -50586,7 +50586,7 @@ Note that the path through cities [0,1,2,3] is cheaper but is invalid because it
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-1drawio.png" style="width: 332px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-1drawio.png" style="width: 332px; height: 242px;" />
 <pre>
 <strong>Input:</strong> n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1
 <strong>Output:</strong> 200
@@ -50596,7 +50596,7 @@ The optimal path with at most 1 stop from city 0 to 2 is marked in red and has c
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-2drawio.png" style="width: 332px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/03/18/cheapest-flights-within-k-stops-2drawio.png" style="width: 332px; height: 242px;" />
 <pre>
 <strong>Input:</strong> n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 0
 <strong>Output:</strong> 500
@@ -50683,7 +50683,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 <div class=\"lc-description\"><p>Cho mạng có <code>n</code> node và các cạnh có hướng <code>times</code> với <code>[u, v, w]</code> là thời gian tín hiệu từ <code>u</code> tới <code>v</code>, hãy tính thời gian để tất cả node nhận được tín hiệu từ <code>k</code>, nếu không thể trả về <code>-1</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/05/23/931_example_1.png" style="width: 217px; height: 239px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/05/23/931_example_1.png" style="width: 217px; height: 239px;" />
 <pre>
 <strong>Đầu vào:</strong> times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2
 <strong>Đầu ra:</strong> 2
@@ -50767,7 +50767,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/05/23/931_example_1.png" style="width: 217px; height: 239px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/05/23/931_example_1.png" style="width: 217px; height: 239px;" />
 <pre>
 <strong>Input:</strong> times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2
 <strong>Output:</strong> 2
@@ -50864,7 +50864,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
 
-<p><strong><img alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex1.png" style="width: 187px; height: 186px;" /></strong></p>
+<p><strong><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex1.png" style="width: 187px; height: 186px;" /></strong></p>
 
 <pre>
 <strong>Đầu vào:</strong> n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.2], start = 0, end = 2
@@ -50874,7 +50874,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 
 <p><strong class="example">Ví dụ 2:</strong></p>
 
-<p><strong><img alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex2.png" style="width: 189px; height: 186px;" /></strong></p>
+<p><strong><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex2.png" style="width: 189px; height: 186px;" /></strong></p>
 
 <pre>
 <strong>Đầu vào:</strong> n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.3], start = 0, end = 2
@@ -50883,7 +50883,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 
 <p><strong class="example">Ví dụ 3:</strong></p>
 
-<p><strong><img alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex3.png" style="width: 215px; height: 191px;" /></strong></p>
+<p><strong><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex3.png" style="width: 215px; height: 191px;" /></strong></p>
 
 <pre>
 <strong>Đầu vào:</strong> n = 3, edges = [[0,1]], succProb = [0.5], start = 0, end = 2
@@ -50959,7 +50959,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
 
-<p><strong><img alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex1.png" style="width: 187px; height: 186px;" /></strong></p>
+<p><strong><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex1.png" style="width: 187px; height: 186px;" /></strong></p>
 
 <pre>
 <strong>Input:</strong> n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.2], start = 0, end = 2
@@ -50969,7 +50969,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 
 <p><strong class="example">Example 2:</strong></p>
 
-<p><strong><img alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex2.png" style="width: 189px; height: 186px;" /></strong></p>
+<p><strong><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex2.png" style="width: 189px; height: 186px;" /></strong></p>
 
 <pre>
 <strong>Input:</strong> n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.3], start = 0, end = 2
@@ -50978,7 +50978,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 
 <p><strong class="example">Example 3:</strong></p>
 
-<p><strong><img alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex3.png" style="width: 215px; height: 191px;" /></strong></p>
+<p><strong><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/09/20/1558_ex3.png" style="width: 215px; height: 191px;" /></strong></p>
 
 <pre>
 <strong>Input:</strong> n = 3, edges = [[0,1]], succProb = [0.5], start = 0, end = 2
@@ -51063,7 +51063,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 <div class=\"lc-description\"><p>Cho đồ thị vô hướng với <code>n</code> node và danh sách cạnh <code>edges</code>, hãy xác định có đường đi từ <code>source</code> tới <code>destination</code> không.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/08/14/validpath-ex1.png" style="width: 141px; height: 121px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/08/14/validpath-ex1.png" style="width: 141px; height: 121px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2
 <strong>Đầu ra:</strong> true
@@ -51073,7 +51073,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/08/14/validpath-ex2.png" style="width: 281px; height: 141px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/08/14/validpath-ex2.png" style="width: 281px; height: 141px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5
 <strong>Đầu ra:</strong> false
@@ -51147,7 +51147,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/08/14/validpath-ex1.png" style="width: 141px; height: 121px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/08/14/validpath-ex1.png" style="width: 141px; height: 121px;" />
 <pre>
 <strong>Input:</strong> n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2
 <strong>Output:</strong> true
@@ -51157,7 +51157,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/08/14/validpath-ex2.png" style="width: 281px; height: 141px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/08/14/validpath-ex2.png" style="width: 281px; height: 141px;" />
 <pre>
 <strong>Input:</strong> n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5
 <strong>Output:</strong> false
@@ -51241,7 +51241,7 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
 <div class=\"lc-description\"><p>Cho lưới <code>m x n</code> với <code>0</code> là ô trống và <code>1</code> là chướng ngại, hãy tìm số chướng ngại ít nhất cần loại bỏ để đi từ <code>(0,0)</code> tới <code>(m-1,n-1)</code>.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/04/06/example1drawio-1.png" style="width: 605px; height: 246px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/04/06/example1drawio-1.png" style="width: 605px; height: 246px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[0,1,1],[1,1,0],[1,1,0]]
 <strong>Đầu ra:</strong> 2
@@ -51251,7 +51251,7 @@ Note that there may be other ways to remove 2 obstacles to create a path.
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/04/06/example1drawio.png" style="width: 405px; height: 246px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/04/06/example1drawio.png" style="width: 405px; height: 246px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[0,1,0,0,0],[0,1,0,1,0],[0,0,0,1,0]]
 <strong>Đầu ra:</strong> 0
@@ -51328,7 +51328,7 @@ Note that there may be other ways to remove 2 obstacles to create a path.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/04/06/example1drawio-1.png" style="width: 605px; height: 246px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/04/06/example1drawio-1.png" style="width: 605px; height: 246px;" />
 <pre>
 <strong>Input:</strong> grid = [[0,1,1],[1,1,0],[1,1,0]]
 <strong>Output:</strong> 2
@@ -51338,7 +51338,7 @@ Note that there may be other ways to remove 2 obstacles to create a path.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2022/04/06/example1drawio.png" style="width: 405px; height: 246px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2022/04/06/example1drawio.png" style="width: 405px; height: 246px;" />
 <pre>
 <strong>Input:</strong> grid = [[0,1,0,0,0],[0,1,0,1,0],[0,0,0,1,0]]
 <strong>Output:</strong> 0
@@ -56575,7 +56575,7 @@ M             1000</pre>
 
 <p><strong>Giải thích:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2020/10/03/swap_ex1.jpg" style="width: 422px; height: 222px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/03/swap_ex1.jpg" style="width: 422px; height: 222px;" /></p>
 </div>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -56667,7 +56667,7 @@ M             1000</pre>
 
 <p><strong>Explanation:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2020/10/03/swap_ex1.jpg" style="width: 422px; height: 222px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/03/swap_ex1.jpg" style="width: 422px; height: 222px;" /></p>
 </div>
 
 <p><strong class="example">Example 2:</strong></p>
@@ -57442,7 +57442,7 @@ countAndSay(4) = RLE of &quot;21&quot; = &quot;1211&quot;
 <div class=\"lc-description\"><p>Cho lưới <code>m x n</code>, robot chỉ đi xuống/phải, hãy đếm số đường đi từ trên-trái tới dưới-phải (bản 2D DP).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/22/robot_maze.png" style="width: 400px; height: 183px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/22/robot_maze.png" style="width: 400px; height: 183px;" />
 <pre>
 <strong>Đầu vào:</strong> m = 3, n = 7
 <strong>Đầu ra:</strong> 28
@@ -57519,7 +57519,7 @@ countAndSay(4) = RLE of &quot;21&quot; = &quot;1211&quot;
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/22/robot_maze.png" style="width: 400px; height: 183px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/22/robot_maze.png" style="width: 400px; height: 183px;" />
 <pre>
 <strong>Input:</strong> m = 3, n = 7
 <strong>Output:</strong> 28
@@ -57606,7 +57606,7 @@ countAndSay(4) = RLE of &quot;21&quot; = &quot;1211&quot;
 <div class=\"lc-description\"><p>Cho lưới <code>obstacleGrid</code> với <code>1</code> là chướng ngại, hãy đếm số đường đi từ trên-trái tới dưới-phải tránh chướng ngại.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/robot1.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/robot1.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> obstacleGrid = [[0,0,0],[0,1,0],[0,0,0]]
 <strong>Đầu ra:</strong> 2
@@ -57617,7 +57617,7 @@ There are two ways to reach the bottom-right corner:
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/robot2.jpg" style="width: 162px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/robot2.jpg" style="width: 162px; height: 162px;" />
 <pre>
 <strong>Đầu vào:</strong> obstacleGrid = [[0,1],[0,0]]
 <strong>Đầu ra:</strong> 1
@@ -57688,7 +57688,7 @@ There are two ways to reach the bottom-right corner:
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/robot1.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/robot1.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Input:</strong> obstacleGrid = [[0,0,0],[0,1,0],[0,0,0]]
 <strong>Output:</strong> 2
@@ -57699,7 +57699,7 @@ There are two ways to reach the bottom-right corner:
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/04/robot2.jpg" style="width: 162px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/04/robot2.jpg" style="width: 162px; height: 162px;" />
 <pre>
 <strong>Input:</strong> obstacleGrid = [[0,1],[0,0]]
 <strong>Output:</strong> 1
@@ -57778,7 +57778,7 @@ There are two ways to reach the bottom-right corner:
 <div class=\"lc-description\"><p>Cho lưới <code>grid</code> với số không âm, hãy tìm đường đi từ trên-trái tới dưới-phải có tổng nhỏ nhất (bản 2D DP).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/05/minpath.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/05/minpath.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[1,3,1],[1,5,1],[4,2,1]]
 <strong>Đầu ra:</strong> 7
@@ -57853,7 +57853,7 @@ There are two ways to reach the bottom-right corner:
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/05/minpath.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/05/minpath.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Input:</strong> grid = [[1,3,1],[1,5,1],[4,2,1]]
 <strong>Output:</strong> 7
@@ -58116,14 +58116,14 @@ The minimum path sum from top to bottom is 2 + 3 + 5 + 1 = 11 (underlined above)
 <div class=\"lc-description\"><p>Cho ma trận nhị phân, hãy tìm hình vuông lớn nhất chỉ chứa <code>'1'</code> (bản 2D DP).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max1grid.jpg" style="width: 400px; height: 319px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max1grid.jpg" style="width: 400px; height: 319px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;]]
 <strong>Đầu ra:</strong> 4
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max2grid.jpg" style="width: 165px; height: 165px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max2grid.jpg" style="width: 165px; height: 165px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[&quot;0&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;0&quot;]]
 <strong>Đầu ra:</strong> 1
@@ -58195,14 +58195,14 @@ The minimum path sum from top to bottom is 2 + 3 + 5 + 1 = 11 (underlined above)
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max1grid.jpg" style="width: 400px; height: 319px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max1grid.jpg" style="width: 400px; height: 319px;" />
 <pre>
 <strong>Input:</strong> matrix = [[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;]]
 <strong>Output:</strong> 4
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max2grid.jpg" style="width: 165px; height: 165px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/26/max2grid.jpg" style="width: 165px; height: 165px;" />
 <pre>
 <strong>Input:</strong> matrix = [[&quot;0&quot;,&quot;1&quot;],[&quot;1&quot;,&quot;0&quot;]]
 <strong>Output:</strong> 1
@@ -59018,7 +59018,7 @@ exection -&gt; execution (insert &#39;u&#39;)
 <div class=\"lc-description\"><p>Cho ba chuỗi <code>s1, s2, s3</code>, hãy xác định <code>s3</code> có được tạo bằng cách xen kẽ <code>s1</code> và <code>s2</code> không (giữ nguyên thứ tự trong mỗi chuỗi).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/02/interleave.jpg" style="width: 561px; height: 203px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/02/interleave.jpg" style="width: 561px; height: 203px;" />
 <pre>
 <strong>Đầu vào:</strong> s1 = &quot;aabcc&quot;, s2 = &quot;dbbca&quot;, s3 = &quot;aadbbcbcac&quot;
 <strong>Đầu ra:</strong> true
@@ -59115,7 +59115,7 @@ Since s3 can be obtained by interleaving s1 and s2, we return true.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/02/interleave.jpg" style="width: 561px; height: 203px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/02/interleave.jpg" style="width: 561px; height: 203px;" />
 <pre>
 <strong>Input:</strong> s1 = &quot;aabcc&quot;, s2 = &quot;dbbca&quot;, s3 = &quot;aadbbcbcac&quot;
 <strong>Output:</strong> true
@@ -60067,7 +60067,7 @@ Since s3 can be obtained by interleaving s1 and s2, we return true.
 <div class=\"lc-description\"><p>Cho ma trận <code>m x n</code>, hãy tìm độ dài đường đi tăng dài nhất (di chuyển 4 hướng, giá trị tăng nghiêm ngặt).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/05/grid1.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/05/grid1.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[9,9,4],[6,6,8],[2,1,1]]
 <strong>Đầu ra:</strong> 4
@@ -60075,7 +60075,7 @@ Since s3 can be obtained by interleaving s1 and s2, we return true.
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/27/tmp-grid.jpg" style="width: 253px; height: 253px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/27/tmp-grid.jpg" style="width: 253px; height: 253px;" />
 <pre>
 <strong>Đầu vào:</strong> matrix = [[3,4,5],[3,2,6],[2,2,1]]
 <strong>Đầu ra:</strong> 4
@@ -60150,7 +60150,7 @@ Since s3 can be obtained by interleaving s1 and s2, we return true.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/05/grid1.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/05/grid1.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Input:</strong> matrix = [[9,9,4],[6,6,8],[2,1,1]]
 <strong>Output:</strong> 4
@@ -60158,7 +60158,7 @@ Since s3 can be obtained by interleaving s1 and s2, we return true.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/27/tmp-grid.jpg" style="width: 253px; height: 253px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/27/tmp-grid.jpg" style="width: 253px; height: 253px;" />
 <pre>
 <strong>Input:</strong> matrix = [[3,4,5],[3,2,6],[2,2,1]]
 <strong>Output:</strong> 4
@@ -60245,7 +60245,7 @@ Since s3 can be obtained by interleaving s1 and s2, we return true.
 <div class=\"lc-description\"><p>Cho lưới <code>grid</code> với <code>1</code> là cherry, <code>-1</code> là gai, hai người cùng đi từ <code>(0,0)</code> tới <code>(n-1,n-1)</code> chỉ đi xuống/phải, hãy tìm số cherry tối đa thu thập.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/14/grid.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/14/grid.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[0,1,-1],[1,0,-1],[1,1,1]]
 <strong>Đầu ra:</strong> 5
@@ -60338,7 +60338,7 @@ The total number of cherries picked up is 5, and this is the maximum possible.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/12/14/grid.jpg" style="width: 242px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/12/14/grid.jpg" style="width: 242px; height: 242px;" />
 <pre>
 <strong>Input:</strong> grid = [[0,1,-1],[1,0,-1],[1,1,1]]
 <strong>Output:</strong> 5
@@ -60430,7 +60430,7 @@ The total number of cherries picked up is 5, and this is the maximum possible.
 <div class=\"lc-description\"><p>Cho lưới <code>grid</code> với số cherry mỗi ô, hai robot bắt đầu ở hàng đầu cùng cột 0 và cột cuối, mỗi bước đi xuống và có thể sang trái/phải. Hãy tìm số cherry tối đa thu thập được.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/04/29/sample_1_1802.png" style="width: 374px; height: 501px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/04/29/sample_1_1802.png" style="width: 374px; height: 501px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[3,1,1],[2,5,1],[1,5,5],[2,1,1]]
 <strong>Đầu ra:</strong> 24
@@ -60441,7 +60441,7 @@ Total of cherries: 12 + 12 = 24.
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/04/23/sample_2_1802.png" style="width: 500px; height: 452px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/04/23/sample_2_1802.png" style="width: 500px; height: 452px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[1,0,0,0,0,0,1],[2,0,0,0,0,3,0],[2,0,9,0,0,0,0],[0,3,0,5,4,0,0],[1,0,2,3,0,0,6]]
 <strong>Đầu ra:</strong> 28
@@ -60527,7 +60527,7 @@ Total of cherries: 17 + 11 = 28.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/04/29/sample_1_1802.png" style="width: 374px; height: 501px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/04/29/sample_1_1802.png" style="width: 374px; height: 501px;" />
 <pre>
 <strong>Input:</strong> grid = [[3,1,1],[2,5,1],[1,5,5],[2,1,1]]
 <strong>Output:</strong> 24
@@ -60538,7 +60538,7 @@ Total of cherries: 12 + 12 = 24.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/04/23/sample_2_1802.png" style="width: 500px; height: 452px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/04/23/sample_2_1802.png" style="width: 500px; height: 452px;" />
 <pre>
 <strong>Input:</strong> grid = [[1,0,0,0,0,0,1],[2,0,0,0,0,3,0],[2,0,9,0,0,0,0],[0,3,0,5,4,0,0],[1,0,2,3,0,0,6]]
 <strong>Output:</strong> 28
@@ -63570,14 +63570,14 @@ AB -&gt; 28
 <div class=\"lc-description\"><p>Cho đầu danh sách liên kết <code>head</code>, hãy xoay danh sách sang phải <code>k</code> vị trí.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/rotate1.jpg" style="width: 450px; height: 191px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/rotate1.jpg" style="width: 450px; height: 191px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [1,2,3,4,5], k = 2
 <strong>Đầu ra:</strong> [4,5,1,2,3]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/roate2.jpg" style="width: 305px; height: 350px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/roate2.jpg" style="width: 305px; height: 350px;" />
 <pre>
 <strong>Đầu vào:</strong> head = [0,1,2], k = 4
 <strong>Đầu ra:</strong> [2,0,1]
@@ -63641,14 +63641,14 @@ AB -&gt; 28
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/rotate1.jpg" style="width: 450px; height: 191px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/rotate1.jpg" style="width: 450px; height: 191px;" />
 <pre>
 <strong>Input:</strong> head = [1,2,3,4,5], k = 2
 <strong>Output:</strong> [4,5,1,2,3]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/13/roate2.jpg" style="width: 305px; height: 350px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/13/roate2.jpg" style="width: 305px; height: 350px;" />
 <pre>
 <strong>Input:</strong> head = [0,1,2], k = 4
 <strong>Output:</strong> [2,0,1]
@@ -63726,7 +63726,7 @@ AB -&gt; 28
 <div class=\"lc-description\"><p>Cho số nguyên <code>n</code>, hãy đếm số lượng BST khác nhau có thể tạo với <code>n</code> node (giá trị 1..n).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/18/uniquebstn3.jpg" style="width: 600px; height: 148px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/18/uniquebstn3.jpg" style="width: 600px; height: 148px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 3
 <strong>Đầu ra:</strong> 5
@@ -63795,7 +63795,7 @@ AB -&gt; 28
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/18/uniquebstn3.jpg" style="width: 600px; height: 148px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/18/uniquebstn3.jpg" style="width: 600px; height: 148px;" />
 <pre>
 <strong>Input:</strong> n = 3
 <strong>Output:</strong> 5
@@ -64060,7 +64060,7 @@ AB -&gt; 28
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân <code>root</code>, hãy trả về tổng của tất cả các <strong>lá trái</strong> (node lá là con trái của cha).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/08/leftsum-tree.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/08/leftsum-tree.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [3,9,20,null,null,15,7]
 <strong>Đầu ra:</strong> 24
@@ -64133,7 +64133,7 @@ AB -&gt; 28
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/08/leftsum-tree.jpg" style="width: 277px; height: 302px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/08/leftsum-tree.jpg" style="width: 277px; height: 302px;" />
 <pre>
 <strong>Input:</strong> root = [3,9,20,null,null,15,7]
 <strong>Output:</strong> 24
@@ -71860,14 +71860,14 @@ Thus, the result should be [1,0].
 <div class=\"lc-description\"><p>Cho mảng điểm, hãy tìm số điểm tối đa cùng nằm trên một đường thẳng (bản Math).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane1.jpg" style="width: 300px; height: 294px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane1.jpg" style="width: 300px; height: 294px;" />
 <pre>
 <strong>Đầu vào:</strong> points = [[1,1],[2,2],[3,3]]
 <strong>Đầu ra:</strong> 3
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane2.jpg" style="width: 300px; height: 294px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane2.jpg" style="width: 300px; height: 294px;" />
 <pre>
 <strong>Đầu vào:</strong> points = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
 <strong>Đầu ra:</strong> 4
@@ -71932,14 +71932,14 @@ Thus, the result should be [1,0].
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane1.jpg" style="width: 300px; height: 294px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane1.jpg" style="width: 300px; height: 294px;" />
 <pre>
 <strong>Input:</strong> points = [[1,1],[2,2],[3,3]]
 <strong>Output:</strong> 3
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane2.jpg" style="width: 300px; height: 294px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/02/25/plane2.jpg" style="width: 300px; height: 294px;" />
 <pre>
 <strong>Input:</strong> points = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
 <strong>Output:</strong> 4
@@ -72516,7 +72516,7 @@ Thus, the result should be [1,0].
 <div class=\"lc-description\"><p>Cho hai hình chữ nhật song song trục với <code>[x1,y1,x2,y2]</code>, hãy tính tổng diện tích phủ (phần giao chỉ tính một lần).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="Rectangle Area" src="https://assets.leetcode.com/uploads/2021/05/08/rectangle-plane.png" style="width: 700px; height: 365px;" />
+<img loading="lazy" alt="Rectangle Area" src="https://assets.leetcode.com/uploads/2021/05/08/rectangle-plane.png" style="width: 700px; height: 365px;" />
 <pre>
 <strong>Đầu vào:</strong> ax1 = -3, ay1 = 0, ax2 = 3, ay2 = 4, bx1 = 0, by1 = -1, bx2 = 9, by2 = 2
 <strong>Đầu ra:</strong> 45
@@ -72592,7 +72592,7 @@ Thus, the result should be [1,0].
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="Rectangle Area" src="https://assets.leetcode.com/uploads/2021/05/08/rectangle-plane.png" style="width: 700px; height: 365px;" />
+<img loading="lazy" alt="Rectangle Area" src="https://assets.leetcode.com/uploads/2021/05/08/rectangle-plane.png" style="width: 700px; height: 365px;" />
 <pre>
 <strong>Input:</strong> ax1 = -3, ay1 = 0, ax2 = 3, ay2 = 4, bx1 = 0, by1 = -1, bx2 = 9, by2 = 2
 <strong>Output:</strong> 45
@@ -72832,7 +72832,7 @@ Thus, the result should be [1,0].
 <div class=\"lc-description\"><p>Có <code>n</code> bóng đèn ban đầu tắt, vòng <code>i</code> bật/tắt mọi bóng có chỉ số chia hết cho <code>i</code>. Sau <code>n</code> vòng, hãy đếm số bóng đang bật.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/05/bulb.jpg" style="width: 421px; height: 321px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/05/bulb.jpg" style="width: 421px; height: 321px;" />
 <pre>
 <strong>Đầu vào:</strong> n = 3
 <strong>Đầu ra:</strong> 1
@@ -72916,7 +72916,7 @@ So you should return 1 because there is only one bulb is on.</pre>
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/05/bulb.jpg" style="width: 421px; height: 321px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/05/bulb.jpg" style="width: 421px; height: 321px;" />
 <pre>
 <strong>Input:</strong> n = 3
 <strong>Output:</strong> 1
@@ -73390,7 +73390,7 @@ and so on.
 <div class=\"lc-description\"><p>Cho đầu danh sách liên kết, hãy thiết kế lớp với <code>getRandom()</code> trả về giá trị node ngẫu nhiên với xác suất đều.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/16/getrand-linked-list.jpg" style="width: 302px; height: 62px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/16/getrand-linked-list.jpg" style="width: 302px; height: 62px;" />
 <pre>
 <strong>Đầu vào</strong>
 [&quot;Solution&quot;, &quot;getRandom&quot;, &quot;getRandom&quot;, &quot;getRandom&quot;, &quot;getRandom&quot;, &quot;getRandom&quot;]
@@ -73481,7 +73481,7 @@ solution.getRandom(); // return 3
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/03/16/getrand-linked-list.jpg" style="width: 302px; height: 62px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/03/16/getrand-linked-list.jpg" style="width: 302px; height: 62px;" />
 <pre>
 <strong>Input</strong>
 [&quot;Solution&quot;, &quot;getRandom&quot;, &quot;getRandom&quot;, &quot;getRandom&quot;, &quot;getRandom&quot;, &quot;getRandom&quot;]
@@ -73932,7 +73932,7 @@ lRUCache.get(4);    // return 4
 <div class=\"lc-description\"><p>Thiết kế serialize/deserialize cây nhị phân (bản Hard Mix).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/15/serdeser.jpg" style="width: 442px; height: 324px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/15/serdeser.jpg" style="width: 442px; height: 324px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3,null,null,4,5]
 <strong>Đầu ra:</strong> [1,2,3,null,null,4,5]
@@ -74006,7 +74006,7 @@ lRUCache.get(4);    // return 4
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/09/15/serdeser.jpg" style="width: 442px; height: 324px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/09/15/serdeser.jpg" style="width: 442px; height: 324px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3,null,null,4,5]
 <strong>Output:</strong> [1,2,3,null,null,4,5]
@@ -74859,14 +74859,14 @@ lRUCache.get(4);    // return 4
 <div class=\"lc-description\"><p>Cho bảng và danh sách từ, hãy tìm tất cả từ trên bảng (bản Hard Mix).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;o&quot;,&quot;a&quot;,&quot;a&quot;,&quot;n&quot;],[&quot;e&quot;,&quot;t&quot;,&quot;a&quot;,&quot;e&quot;],[&quot;i&quot;,&quot;h&quot;,&quot;k&quot;,&quot;r&quot;],[&quot;i&quot;,&quot;f&quot;,&quot;l&quot;,&quot;v&quot;]], words = [&quot;oath&quot;,&quot;pea&quot;,&quot;eat&quot;,&quot;rain&quot;]
 <strong>Đầu ra:</strong> [&quot;eat&quot;,&quot;oath&quot;]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [[&quot;a&quot;,&quot;b&quot;],[&quot;c&quot;,&quot;d&quot;]], words = [&quot;abcb&quot;]
 <strong>Đầu ra:</strong> []
@@ -74937,14 +74937,14 @@ lRUCache.get(4);    // return 4
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;o&quot;,&quot;a&quot;,&quot;a&quot;,&quot;n&quot;],[&quot;e&quot;,&quot;t&quot;,&quot;a&quot;,&quot;e&quot;],[&quot;i&quot;,&quot;h&quot;,&quot;k&quot;,&quot;r&quot;],[&quot;i&quot;,&quot;f&quot;,&quot;l&quot;,&quot;v&quot;]], words = [&quot;oath&quot;,&quot;pea&quot;,&quot;eat&quot;,&quot;rain&quot;]
 <strong>Output:</strong> [&quot;eat&quot;,&quot;oath&quot;]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
 <pre>
 <strong>Input:</strong> board = [[&quot;a&quot;,&quot;b&quot;],[&quot;c&quot;,&quot;d&quot;]], words = [&quot;abcb&quot;]
 <strong>Output:</strong> []
@@ -75391,7 +75391,7 @@ Window position                Max
 <div class=\"lc-description\"><p>Cho mảng chiều cao histogram, hãy tìm diện tích hình chữ nhật lớn nhất (bản Hard Mix).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram.jpg" style="width: 522px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram.jpg" style="width: 522px; height: 242px;" />
 <pre>
 <strong>Đầu vào:</strong> heights = [2,1,5,6,2,3]
 <strong>Đầu ra:</strong> 10
@@ -75400,7 +75400,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram-1.jpg" style="width: 202px; height: 362px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram-1.jpg" style="width: 202px; height: 362px;" />
 <pre>
 <strong>Đầu vào:</strong> heights = [2,4]
 <strong>Đầu ra:</strong> 4
@@ -75463,7 +75463,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram.jpg" style="width: 522px; height: 242px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram.jpg" style="width: 522px; height: 242px;" />
 <pre>
 <strong>Input:</strong> heights = [2,1,5,6,2,3]
 <strong>Output:</strong> 10
@@ -75472,7 +75472,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram-1.jpg" style="width: 202px; height: 362px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/01/04/histogram-1.jpg" style="width: 202px; height: 362px;" />
 <pre>
 <strong>Input:</strong> heights = [2,4]
 <strong>Output:</strong> 4
@@ -75549,7 +75549,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 <div class=\"lc-description\"><p>Cho <code>n</code> số nguyên biểu diễn bản đồ độ cao, hãy tính lượng nước giữ lại (bản Hard Mix).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
 <pre>
 <strong>Đầu vào:</strong> height = [0,1,0,2,1,0,1,3,2,1,2,1]
 <strong>Đầu ra:</strong> 6
@@ -75621,7 +75621,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" style="width: 412px; height: 161px;" />
 <pre>
 <strong>Input:</strong> height = [0,1,0,2,1,0,1,3,2,1,2,1]
 <strong>Output:</strong> 6
@@ -75707,7 +75707,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 <div class=\"lc-description\"><p>Cho gốc cây nhị phân, hãy tìm đường đi có tổng lớn nhất (bản Hard Mix).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx1.jpg" style="width: 322px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx1.jpg" style="width: 322px; height: 182px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,2,3]
 <strong>Đầu ra:</strong> 6
@@ -75715,7 +75715,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx2.jpg" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx2.jpg" />
 <pre>
 <strong>Đầu vào:</strong> root = [-10,9,20,null,null,15,7]
 <strong>Đầu ra:</strong> 42
@@ -75783,7 +75783,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx1.jpg" style="width: 322px; height: 182px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx1.jpg" style="width: 322px; height: 182px;" />
 <pre>
 <strong>Input:</strong> root = [1,2,3]
 <strong>Output:</strong> 6
@@ -75791,7 +75791,7 @@ The largest rectangle is shown in the red area, which has an area = 10 units.
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx2.jpg" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/10/13/exx2.jpg" />
 <pre>
 <strong>Input:</strong> root = [-10,9,20,null,null,15,7]
 <strong>Output:</strong> 42
@@ -77649,7 +77649,7 @@ Window position                Median
 <div class=\"lc-description\"><p>Cho lưới với khóa và ổ khóa, hãy tìm số bước ít nhất để nhặt hết khóa (bản Hard Mix).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys2.jpg" style="width: 404px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys2.jpg" style="width: 404px; height: 245px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [&quot;@.a..&quot;,&quot;###.#&quot;,&quot;b.A.B&quot;]
 <strong>Đầu ra:</strong> 8
@@ -77657,14 +77657,14 @@ Window position                Median
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-key2.jpg" style="width: 404px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-key2.jpg" style="width: 404px; height: 245px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [&quot;@..aA&quot;,&quot;..B#.&quot;,&quot;....b&quot;]
 <strong>Đầu ra:</strong> 6
 </pre>
 
 <p><strong class="example">Ví dụ 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys3.jpg" style="width: 244px; height: 85px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys3.jpg" style="width: 244px; height: 85px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [&quot;@Aa&quot;]
 <strong>Đầu ra:</strong> -1
@@ -77749,7 +77749,7 @@ Window position                Median
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys2.jpg" style="width: 404px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys2.jpg" style="width: 404px; height: 245px;" />
 <pre>
 <strong>Input:</strong> grid = [&quot;@.a..&quot;,&quot;###.#&quot;,&quot;b.A.B&quot;]
 <strong>Output:</strong> 8
@@ -77757,14 +77757,14 @@ Window position                Median
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-key2.jpg" style="width: 404px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-key2.jpg" style="width: 404px; height: 245px;" />
 <pre>
 <strong>Input:</strong> grid = [&quot;@..aA&quot;,&quot;..B#.&quot;,&quot;....b&quot;]
 <strong>Output:</strong> 6
 </pre>
 
 <p><strong class="example">Example 3:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys3.jpg" style="width: 244px; height: 85px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/07/23/lc-keys3.jpg" style="width: 244px; height: 85px;" />
 <pre>
 <strong>Input:</strong> grid = [&quot;@Aa&quot;]
 <strong>Output:</strong> -1
@@ -77847,7 +77847,7 @@ Window position                Median
 <div class=\"lc-description\"><p>Cho đồ thị vô hướng, hãy tìm đường đi ngắn nhất thăm tất cả node (bản Hard Mix).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest1-graph.jpg" style="width: 222px; height: 183px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest1-graph.jpg" style="width: 222px; height: 183px;" />
 <pre>
 <strong>Đầu vào:</strong> graph = [[1,2,3],[0],[0],[0]]
 <strong>Đầu ra:</strong> 4
@@ -77855,7 +77855,7 @@ Window position                Median
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest2-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest2-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Đầu vào:</strong> graph = [[1],[0,2,4],[1,3,4],[2],[1,2]]
 <strong>Đầu ra:</strong> 4
@@ -77925,7 +77925,7 @@ Window position                Median
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest1-graph.jpg" style="width: 222px; height: 183px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest1-graph.jpg" style="width: 222px; height: 183px;" />
 <pre>
 <strong>Input:</strong> graph = [[1,2,3],[0],[0],[0]]
 <strong>Output:</strong> 4
@@ -77933,7 +77933,7 @@ Window position                Median
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest2-graph.jpg" style="width: 382px; height: 222px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/05/12/shortest2-graph.jpg" style="width: 382px; height: 222px;" />
 <pre>
 <strong>Input:</strong> graph = [[1],[0,2,4],[1,3,4],[2],[1,2]]
 <strong>Output:</strong> 4
@@ -78015,7 +78015,7 @@ Window position                Median
 <div class=\"lc-description\"><p>Cho lưới với chướng ngại và <code>k</code> lần loại bỏ, hãy tìm đường đi ngắn nhất (bản Hard Mix).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short1-grid.jpg" style="width: 244px; height: 405px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short1-grid.jpg" style="width: 244px; height: 405px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]], k = 1
 <strong>Đầu ra:</strong> 6
@@ -78025,7 +78025,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short2-grid.jpg" style="width: 244px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short2-grid.jpg" style="width: 244px; height: 245px;" />
 <pre>
 <strong>Đầu vào:</strong> grid = [[0,1,1],[1,1,1],[1,0,0]], k = 1
 <strong>Đầu ra:</strong> -1
@@ -78095,7 +78095,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short1-grid.jpg" style="width: 244px; height: 405px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short1-grid.jpg" style="width: 244px; height: 405px;" />
 <pre>
 <strong>Input:</strong> grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]], k = 1
 <strong>Output:</strong> 6
@@ -78105,7 +78105,7 @@ The shortest path with one obstacle elimination at position (3,2) is 6. Such pat
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short2-grid.jpg" style="width: 244px; height: 245px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/09/30/short2-grid.jpg" style="width: 244px; height: 245px;" />
 <pre>
 <strong>Input:</strong> grid = [[0,1,1],[1,1,1],[1,0,0]], k = 1
 <strong>Output:</strong> -1
@@ -79685,14 +79685,14 @@ So the maximum possible sum is 4.</pre>
 <div class=\"lc-description\"><p>Cho ma trận <code>mat</code> kích thước <code>m x n</code> và hai số nguyên <code>r, c</code>, hãy định hình lại ma trận thành <code>r x c</code> giữ nguyên thứ tự duyệt theo hàng. Nếu không thể, trả về ma trận gốc.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/24/reshape1-grid.jpg" style="width: 613px; height: 173px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/24/reshape1-grid.jpg" style="width: 613px; height: 173px;" />
 <pre>
 <strong>Đầu vào:</strong> mat = [[1,2],[3,4]], r = 1, c = 4
 <strong>Đầu ra:</strong> [[1,2,3,4]]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/24/reshape2-grid.jpg" style="width: 453px; height: 173px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/24/reshape2-grid.jpg" style="width: 453px; height: 173px;" />
 <pre>
 <strong>Đầu vào:</strong> mat = [[1,2],[3,4]], r = 2, c = 4
 <strong>Đầu ra:</strong> [[1,2],[3,4]]
@@ -79764,14 +79764,14 @@ So the maximum possible sum is 4.</pre>
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/24/reshape1-grid.jpg" style="width: 613px; height: 173px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/24/reshape1-grid.jpg" style="width: 613px; height: 173px;" />
 <pre>
 <strong>Input:</strong> mat = [[1,2],[3,4]], r = 1, c = 4
 <strong>Output:</strong> [[1,2,3,4]]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2021/04/24/reshape2-grid.jpg" style="width: 453px; height: 173px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2021/04/24/reshape2-grid.jpg" style="width: 453px; height: 173px;" />
 <pre>
 <strong>Input:</strong> mat = [[1,2],[3,4]], r = 2, c = 4
 <strong>Output:</strong> [[1,2],[3,4]]
@@ -80034,7 +80034,7 @@ So the maximum possible sum is 4.</pre>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
 
-<p><img src="https://assets.leetcode.com/uploads/2018/10/12/narytreeexample.png" style="width: 100%; max-width: 300px;" /></p>
+<p><img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/12/narytreeexample.png" style="width: 100%; max-width: 300px;" /></p>
 
 <pre>
 <strong>Đầu vào:</strong> root = [1,null,3,2,4,null,5,6]
@@ -80043,7 +80043,7 @@ So the maximum possible sum is 4.</pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2019/11/08/sample_4_964.png" style="width: 296px; height: 241px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/11/08/sample_4_964.png" style="width: 296px; height: 241px;" /></p>
 
 <pre>
 <strong>Đầu vào:</strong> root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]
@@ -80114,7 +80114,7 @@ So the maximum possible sum is 4.</pre>
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
 
-<p><img src="https://assets.leetcode.com/uploads/2018/10/12/narytreeexample.png" style="width: 100%; max-width: 300px;" /></p>
+<p><img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/12/narytreeexample.png" style="width: 100%; max-width: 300px;" /></p>
 
 <pre>
 <strong>Input:</strong> root = [1,null,3,2,4,null,5,6]
@@ -80123,7 +80123,7 @@ So the maximum possible sum is 4.</pre>
 
 <p><strong class="example">Example 2:</strong></p>
 
-<p><img alt="" src="https://assets.leetcode.com/uploads/2019/11/08/sample_4_964.png" style="width: 296px; height: 241px;" /></p>
+<p><img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/11/08/sample_4_964.png" style="width: 296px; height: 241px;" /></p>
 
 <pre>
 <strong>Input:</strong> root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]
@@ -80205,14 +80205,14 @@ So the maximum possible sum is 4.</pre>
 <div class=\"lc-description\"><p>Cho gốc cây N-ary <code>root</code>, hãy trả về duyệt hậu thứ tự.</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/12/narytreeexample.png" style="width: 100%; max-width: 300px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/12/narytreeexample.png" style="width: 100%; max-width: 300px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,null,3,2,4,null,5,6]
 <strong>Đầu ra:</strong> [5,6,3,2,4,1]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/11/08/sample_4_964.png" style="width: 296px; height: 241px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/11/08/sample_4_964.png" style="width: 296px; height: 241px;" />
 <pre>
 <strong>Đầu vào:</strong> root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]
 <strong>Đầu ra:</strong> [2,6,14,11,7,3,12,8,4,13,9,10,5,1]
@@ -80281,14 +80281,14 @@ So the maximum possible sum is 4.</pre>
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-<img src="https://assets.leetcode.com/uploads/2018/10/12/narytreeexample.png" style="width: 100%; max-width: 300px;" />
+<img loading="lazy" src="https://assets.leetcode.com/uploads/2018/10/12/narytreeexample.png" style="width: 100%; max-width: 300px;" />
 <pre>
 <strong>Input:</strong> root = [1,null,3,2,4,null,5,6]
 <strong>Output:</strong> [5,6,3,2,4,1]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2019/11/08/sample_4_964.png" style="width: 296px; height: 241px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2019/11/08/sample_4_964.png" style="width: 296px; height: 241px;" />
 <pre>
 <strong>Input:</strong> root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]
 <strong>Output:</strong> [2,6,14,11,7,3,12,8,4,13,9,10,5,1]
@@ -80775,14 +80775,14 @@ public:
 <div class="lc-description"><p>Cho bảng <code>m x n</code> <code>board</code> và danh sách từ <code>words</code>, hãy trả về tất cả từ có thể tạo bằng cách nối các ô kề nhau (mỗi ô dùng tối đa một lần).</p>
 
 <p>&nbsp;</p><p><strong class="example">Ví dụ 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [["o","a","a","n"],["e","t","a","e"],["i","h","k","r"],["i","f","l","v"]], words = ["oath","pea","eat","rain"]
 <strong>Đầu ra:</strong> ["eat","oath"]
 </pre>
 
 <p><strong class="example">Ví dụ 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
 <pre>
 <strong>Đầu vào:</strong> board = [["a","b"],["c","d"]], words = ["abcb"]
 <strong>Đầu ra:</strong> []
@@ -80867,14 +80867,14 @@ public:
 <p>Each word must be constructed from letters of sequentially adjacent cells, where <strong>adjacent cells are horizontally or vertically neighboring</strong>. The same letter cell may not be used more than once in a word.</p>
 
 <p>&nbsp;</p><p><strong class="example">Example 1:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search1.jpg" style="width: 322px; height: 322px;" />
 <pre>
 <strong>Input:</strong> board = [["o","a","a","n"],["e","t","a","e"],["i","h","k","r"],["i","f","l","v"]], words = ["oath","pea","eat","rain"]
 <strong>Output:</strong> ["eat","oath"]
 </pre>
 
 <p><strong class="example">Example 2:</strong></p>
-<img alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
+<img loading="lazy" alt="" src="https://assets.leetcode.com/uploads/2020/11/07/search2.jpg" style="width: 162px; height: 162px;" />
 <pre>
 <strong>Input:</strong> board = [["a","b"],["c","d"]], words = ["abcb"]
 <strong>Output:</strong> []

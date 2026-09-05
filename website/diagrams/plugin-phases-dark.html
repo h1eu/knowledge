@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ba phase build: đọc, dựng, chạy</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ TRÌNH TỰ · GRADLE BUILD</p>
+  <h1>Ba phase build: đọc, dựng, chạy</h1>
+  <p class="sub">Đọc settings trước, áp plugin giữa, chạy task cuối — đúng thứ tự mới ra APK.</p>
+<svg viewBox="0 0 800 392" role="img" aria-labelledby="plugin-phases-dark-title plugin-phases-dark-desc" font-family="'Geist', sans-serif">
+<title id="plugin-phases-dark-title">Ba phase build: đọc, dựng, chạy</title>
+<desc id="plugin-phases-dark-desc">Developer gọi assembleDebug, Gradle đọc settings, áp plugin sinh task graph, chạy xong báo thành công.</desc>
+<defs>
+<marker id="plugin-phases-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="plugin-phases-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="392" fill="#060913"/>
+<!-- lifelines -->
+<line x1="150" y1="84" x2="150" y2="344" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="400" y1="84" x2="400" y2="344" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="650" y1="84" x2="650" y2="344" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="396" y="144" width="8" height="120" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="646" y="184" width="8" height="80" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="396" y="288" width="8" height="32" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="146" y="312" width="8" height="16" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 150,120 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#plugin-phases-dark-arrow)"/>
+<rect x="227" y="100" width="96" height="12" rx="2" fill="#060913"/>
+<text x="275" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ASSEMBLEDEBUG</text>
+<path d="M 400,152 H 424 V 176 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#plugin-phases-dark-arrow)"/>
+<rect x="436" y="154" width="104" height="16" rx="2" fill="#060913"/>
+<text x="488" y="166" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PHASE 1 · SETTINGS</text>
+<path d="M 400,200 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#plugin-phases-dark-arrow)"/>
+<rect x="477" y="180" width="96" height="12" rx="2" fill="#060913"/>
+<text x="525" y="189" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PHASE 2 · PLUGIN</text>
+<path d="M 650,224 H 674 V 248 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#plugin-phases-dark-arrow)"/>
+<rect x="550" y="226" width="96" height="16" rx="2" fill="#060913"/>
+<text x="598" y="238" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ANDROID{} + GRAPH</text>
+<path d="M 400,256 H 424 V 280 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#plugin-phases-dark-arrow)"/>
+<rect x="288" y="258" width="100" height="16" rx="2" fill="#060913"/>
+<text x="338" y="270" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PHASE 3 · CHẠY</text>
+<path d="M 650,296 H 674 V 312 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#plugin-phases-dark-arrow)"/>
+<rect x="550" y="294" width="88" height="16" rx="2" fill="#060913"/>
+<text x="594" y="306" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">MERGE · DEX · KÍ</text>
+<path d="M 650,328 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#plugin-phases-dark-arrow)"/>
+<rect x="477" y="308" width="96" height="12" rx="2" fill="#060913"/>
+<text x="525" y="317" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">APP-DEBUG.APK</text>
+<path d="M 400,352 H 150" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#plugin-phases-dark-accent)"/>
+<rect x="227" y="332" width="96" height="12" rx="2" fill="#060913"/>
+<text x="275" y="341" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SUCCESSFUL</text>
+<!-- actors -->
+<rect x="65" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="65" y="32" width="170" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="150" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Developer</text>
+<text x="150" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">gõ lệnh</text>
+<rect x="315" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="315" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Gradle Engine</text>
+<text x="400" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bộ máy build</text>
+<rect x="565" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="565" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="650" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">AGP</text>
+<text x="650" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">plugin android</text>
+<!-- legend -->
+<line x1="32" y1="368" x2="768" y2="368" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="380" r="4" fill="#38BDF8"/>
+<text x="162" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">BUILD XONG · SUCCESS</text>
+<line x1="440" y1="380" x2="472" y2="380" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#plugin-phases-dark-arrow)"/>
+<text x="480" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · TRẢ VỀ</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · SEQUENCE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Commit rồi mới yên tâm</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ VÙNG · GIT THREE AREAS</p>
+  <h1>Commit rồi mới yên tâm</h1>
+  <p class="sub">Add gom vào staging, commit khắc vào lịch sử, restore lôi về khi cần.</p>
+<svg viewBox="0 0 800 368" role="img" aria-labelledby="git-three-areas-title git-three-areas-desc" font-family="'Geist', sans-serif">
+<title id="git-three-areas-title">Commit rồi mới yên tâm</title>
+<desc id="git-three-areas-desc">Ba vùng working directory, staging area và repository xoay vòng qua git add, git commit và restore checkout.</desc>
+<defs>
+<marker id="git-three-areas-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="368" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 304,96 H 496" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#git-three-areas-arrow)"/>
+<rect x="364" y="90" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="400" y="99" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GIT ADD</text>
+<path d="M 616,128 V 192 H 528 Q 520,192 520,200 V 256" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#git-three-areas-arrow)"/>
+<rect x="524" y="186" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="560" y="195" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GIT COMMIT</text>
+<path d="M 280,288 H 192 Q 184,288 184,280 V 128" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#git-three-areas-arrow)"/>
+<rect x="196" y="282" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="224" y="291" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">RESTORE</text>
+<!-- nodes -->
+<rect x="64" y="64" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="64" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="184" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Working Directory</text>
+<text x="184" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">file bạn đang sửa</text>
+<rect x="496" y="64" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="496" y="64" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="616" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Staging Area</text>
+<text x="616" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chọn nội dung cho commit</text>
+<rect x="280" y="256" width="240" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="256" width="240" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="400" y="290" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Repository (.git)</text>
+<text x="400" y="304" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lịch sử vĩnh viễn</text>
+<!-- legend -->
+<line x1="32" y1="344" x2="768" y2="344" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="356" r="4" fill="#0284C7"/>
+<text x="162" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">LƯU VĨNH VIỄN · REPOSITORY</text>
+<line x1="430" y1="356" x2="462" y2="356" stroke="#64748B" stroke-width="1.2" marker-end="url(#git-three-areas-arrow)"/>
+<text x="470" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">KHÔI PHỤC · RESTORE / CHECKOUT</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

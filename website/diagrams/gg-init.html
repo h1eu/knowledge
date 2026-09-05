@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Khởi tạo Firebase: bốn bước một chiều</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · FIREBASE</p>
+  <h1>Khởi tạo Firebase: bốn bước một chiều</h1>
+  <p class="sub">Đọc file json, dựng SDK, nghe sự kiện, nhận dữ liệu — xong.</p>
+<svg viewBox="0 0 800 440" role="img" aria-labelledby="gg-init-title gg-init-desc" font-family="'Geist', sans-serif">
+<title id="gg-init-title">Khởi tạo Firebase: bốn bước một chiều</title>
+<desc id="gg-init-desc">FirebaseApp đọc file cấu hình, SDK khởi tạo, đăng ký nghe sự kiện rồi nhận dữ liệu về máy.</desc>
+<defs>
+<marker id="gg-init-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="440" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,92 V 132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-init-arrow)"/>
+<path d="M 400,192 V 232" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-init-arrow)"/>
+<path d="M 400,292 V 332" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-init-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="288" y="38" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="314" y="47" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">GỐC</text>
+<text x="400" y="70" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">initializeApp</text>
+<text x="400" y="86" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">google-services.json</text>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="166" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">SDK khởi tạo</text>
+<text x="400" y="184" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fcm · realtime</text>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="266" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Nghe sự kiện</text>
+<text x="400" y="284" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đăng ký server</text>
+<rect x="280" y="332" width="240" height="60" rx="20" fill="#F8FAFC"/>
+<rect x="280" y="332" width="240" height="60" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="366" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Nhận dữ liệu</text>
+<text x="400" y="384" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">cập nhật local</text>
+<!-- legend -->
+<line x1="32" y1="416" x2="768" y2="416" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="428" r="4" fill="#0284C7"/>
+<text x="162" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">BẮT ĐẦU · INIT APP</text>
+<line x1="400" y1="428" x2="432" y2="428" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-init-arrow)"/>
+<text x="440" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỘT CHIỀU XUỐNG</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

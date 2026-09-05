@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chữ muốn phình, layout muốn ép</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LIÊN KẾT · AUTOLAYOUT</p>
+  <h1>Chữ muốn phình, layout muốn ép</h1>
+  <p class="sub">Hugging chống kéo dãn, Resistance chống co nhỏ — cả hai giữ size thật.</p>
+<svg viewBox="0 0 800 176" role="img" aria-labelledby="ios-autolayout-dark-title ios-autolayout-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-autolayout-dark-title">Chữ muốn phình, layout muốn ép</title>
+<desc id="ios-autolayout-dark-desc">Content Hugging chống kéo dãn và Compression Resistance chống co nhỏ cùng giữ intrinsic content size của label.</desc>
+<defs>
+<marker id="ios-autolayout-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="176" fill="#060913"/>
+<!-- arrows -->
+<path d="M 240,96 H 300" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-autolayout-dark-arrow)"/>
+<rect x="242" y="90" width="56" height="12" rx="2" fill="#060913"/>
+<text x="270" y="99" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHỐNG DÃN</text>
+<path d="M 560,96 H 500" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-autolayout-dark-arrow)"/>
+<rect x="502" y="90" width="56" height="12" rx="2" fill="#060913"/>
+<text x="530" y="99" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHỐNG NÉN</text>
+<!-- nodes -->
+<rect x="40" y="64" width="200" height="64" rx="6" fill="#060913"/>
+<rect x="40" y="64" width="200" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="140" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Content Hugging</text>
+<text x="140" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chống kéo dãn</text>
+<rect x="300" y="64" width="200" height="64" rx="6" fill="#060913"/>
+<rect x="300" y="64" width="200" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Label Text</text>
+<text x="400" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">intrinsic content size</text>
+<rect x="560" y="64" width="200" height="64" rx="6" fill="#060913"/>
+<rect x="560" y="64" width="200" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="660" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Compression Resistance</text>
+<text x="660" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chống co nhỏ</text>
+<!-- legend -->
+<line x1="32" y1="152" x2="768" y2="152" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="168" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="164" r="4" fill="#38BDF8"/>
+<text x="162" y="168" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">SIZE THẬT · INTRINSIC</text>
+<line x1="400" y1="164" x2="432" y2="164" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-autolayout-dark-arrow)"/>
+<text x="440" y="168" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">LỰC GIỮ · PRIORITY</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · COMPARISON · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

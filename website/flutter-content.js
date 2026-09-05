@@ -31,12 +31,87 @@ Object.assign(FLUTTER_CONTENT, {
 <p>Flutter framework được xây dựng gần như 100% bằng Dart. Mọi Widget bạn viết là một class Dart, mọi state là một biến Dart, mọi API call chạy trên event loop của Dart. Không nắm nền tảng ngôn ngữ thì mọi bug sau này đều thành "ma thuật khó hiểu".</p>
 <p>Lộ trình này còn cố tình khác nhiều roadmap phổ biến ở hai điểm: <strong>Async được đưa lên trước Networking</strong> vì gọi API đòi hỏi hiểu bất đồng bộ trước, và Session mở đầu bằng <strong>Dart for Kotlin Developers</strong> làm cửa ngõ cho Android Developer chuyển sang.</p>
 
-<div class="mermaid">
-graph TD
-    B["1.1 Dart for Kotlin Devs<br/>cửa ngõ cho Android Dev"] --> F["1.2 Fundamentals<br/>Biến, Hàm, Control Flow,<br/>Collections, OOP"]
-    F --> A["1.3 Asynchronous<br/>Futures, Streams, Isolates"]
-    A --> W["Session 03+: Widgets & UI"]
+<div class="dd-diagram" data-dd="flutter-learning-path">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 400" role="img" aria-labelledby="flutter-learning-path-dark-title flutter-learning-path-dark-desc" font-family="'Geist', sans-serif">
+<title id="flutter-learning-path-dark-title">Đi từ Dart tới giao diện</title>
+<desc id="flutter-learning-path-dark-desc">Lộ trình từ Dart cho Kotlin dev qua fundamentals và asynchronous tới widgets và UI.</desc>
+<defs>
+<marker id="flutter-learning-path-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="400" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,96 V 120" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-learning-path-dark-arrow)"/>
+<path d="M 400,184 V 208" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-learning-path-dark-arrow)"/>
+<path d="M 400,272 V 296" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-learning-path-dark-arrow)"/>
+<!-- nodes -->
+<rect x="240" y="32" width="320" height="64" rx="6" fill="#060913"/>
+<rect x="240" y="32" width="320" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">1.1 Dart for Kotlin Devs</text>
+<text x="400" y="80" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">cửa ngõ cho Android Dev</text>
+<rect x="240" y="120" width="320" height="64" rx="6" fill="#060913"/>
+<rect x="240" y="120" width="320" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="154" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">1.2 Fundamentals</text>
+<text x="400" y="168" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">biến · hàm · flow · collections · OOP</text>
+<rect x="240" y="208" width="320" height="64" rx="6" fill="#060913"/>
+<rect x="240" y="208" width="320" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="242" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">1.3 Asynchronous</text>
+<text x="400" y="256" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">futures · streams · isolates</text>
+<rect x="240" y="296" width="320" height="56" rx="6" fill="#060913"/>
+<rect x="240" y="296" width="320" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="330" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Session 03+: Widgets &amp; UI</text>
+<!-- legend -->
+<line x1="32" y1="376" x2="768" y2="376" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="392" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="388" r="4" fill="#38BDF8"/>
+<text x="162" y="392" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐÍCH ĐẾN · WIDGETS &amp; UI</text>
+<line x1="400" y1="388" x2="432" y2="388" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-learning-path-dark-arrow)"/>
+<text x="440" y="392" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐI THEO THỨ TỰ</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 400" role="img" aria-labelledby="flutter-learning-path-title flutter-learning-path-desc" font-family="'Geist', sans-serif">
+<title id="flutter-learning-path-title">Đi từ Dart tới giao diện</title>
+<desc id="flutter-learning-path-desc">Lộ trình từ Dart cho Kotlin dev qua fundamentals và asynchronous tới widgets và UI.</desc>
+<defs>
+<marker id="flutter-learning-path-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="400" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,96 V 120" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-learning-path-arrow)"/>
+<path d="M 400,184 V 208" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-learning-path-arrow)"/>
+<path d="M 400,272 V 296" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-learning-path-arrow)"/>
+<!-- nodes -->
+<rect x="240" y="32" width="320" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="32" width="320" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">1.1 Dart for Kotlin Devs</text>
+<text x="400" y="80" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">cửa ngõ cho Android Dev</text>
+<rect x="240" y="120" width="320" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="120" width="320" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="154" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">1.2 Fundamentals</text>
+<text x="400" y="168" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">biến · hàm · flow · collections · OOP</text>
+<rect x="240" y="208" width="320" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="208" width="320" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="242" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">1.3 Asynchronous</text>
+<text x="400" y="256" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">futures · streams · isolates</text>
+<rect x="240" y="296" width="320" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="296" width="320" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="400" y="330" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Session 03+: Widgets &amp; UI</text>
+<!-- legend -->
+<line x1="32" y1="376" x2="768" y2="376" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="392" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="388" r="4" fill="#0284C7"/>
+<text x="162" y="392" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐÍCH ĐẾN · WIDGETS &amp; UI</text>
+<line x1="400" y1="388" x2="432" y2="388" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-learning-path-arrow)"/>
+<text x="440" y="392" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐI THEO THỨ TỰ</text>
+</svg>
+</div>
+</div>
+
 
 <h2>Nội dung trọng tâm</h2>
 <ul>
@@ -111,34 +186,91 @@ graph TD
   <li><strong>Bẫy Stream:</strong> mặc định single-subscription - listen lần hai crash <code>StateError</code>.</li>
 </ol>
 
-<div class="mermaid">
-graph TD
-    subgraph "Kotlin (Android / JVM / ART)"
-        K1["val / var / const val"]
-        K2["Null: T? + Smart Cast"]
-        K3["Data: data class"]
-        K4["Async: suspend + Flow + Dispatchers"]
-        K5["OOP: class final mặc định"]
-        K6["when + sealed class"]
-        K7["Gradle, Maven, KSP"]
-    end
-    subgraph "Dart (Flutter / Dart VM)"
-        D1["final / var / const compile-time"]
-        D2["Null: T? + Promotion locals only"]
-        D3["Data: Record / Freezed codegen"]
-        D4["Async: Future + Stream + Isolate"]
-        D5["OOP: class mở mặc định + modifiers"]
-        D6["switch expression + Patterns Dart 3"]
-        D7["pub, pub.dev, build_runner"]
-    end
-    K1 -.-> D1
-    K2 -.-> D2
-    K3 -.-> D3
-    K4 -.-> D4
-    K5 -.-> D5
-    K6 -.-> D6
-    K7 -.-> D7
+<div class="dd-diagram" data-dd="flutter-kotlin-dart-map">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 540" role="img" aria-labelledby="flutter-kotlin-dart-map-dark-title flutter-kotlin-dart-map-dark-desc" font-family="'Geist', sans-serif">
+<title id="flutter-kotlin-dart-map-dark-title">Bảy cặp song sinh Kotlin–Dart</title>
+<desc id="flutter-kotlin-dart-map-dark-desc">Bảy cặp khái niệm tương đương giữa Kotlin và Dart từ khai báo biến tới hệ sinh thái build.</desc>
+<defs>
+<marker id="flutter-kotlin-dart-map-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="540" fill="#060913"/>
+<!-- nodes -->
+<rect x="120" y="32" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="32" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="63" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">val / var / const val → final / var / const</text>
+<rect x="120" y="100" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="100" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="131" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">T? + Smart Cast → T? + Promotion locals only</text>
+<rect x="120" y="168" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="168" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="199" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">data class → Record / Freezed codegen</text>
+<rect x="120" y="236" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="236" width="560" height="52" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="267" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">suspend + Flow + Dispatchers → Future + Stream + Isolate</text>
+<rect x="120" y="304" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="304" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="335" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">class final mặc định → class mở + modifiers</text>
+<rect x="120" y="372" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="372" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="403" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">when + sealed class → switch expression + Patterns</text>
+<rect x="120" y="440" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="440" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="471" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Gradle · Maven · KSP → pub · pub.dev · build_runner</text>
+<!-- legend -->
+<line x1="32" y1="516" x2="768" y2="516" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="532" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="528" r="4" fill="#38BDF8"/>
+<text x="162" y="532" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">BƯỚC NHẢY LỚN · ASYNC MODEL</text>
+<line x1="430" y1="528" x2="462" y2="528" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-kotlin-dart-map-dark-arrow)"/>
+<text x="470" y="532" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐỌC TRÁI → PHẢI · KOTLIN → DART</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 540" role="img" aria-labelledby="flutter-kotlin-dart-map-title flutter-kotlin-dart-map-desc" font-family="'Geist', sans-serif">
+<title id="flutter-kotlin-dart-map-title">Bảy cặp song sinh Kotlin–Dart</title>
+<desc id="flutter-kotlin-dart-map-desc">Bảy cặp khái niệm tương đương giữa Kotlin và Dart từ khai báo biến tới hệ sinh thái build.</desc>
+<defs>
+<marker id="flutter-kotlin-dart-map-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="540" fill="#F8FAFC"/>
+<!-- nodes -->
+<rect x="120" y="32" width="560" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="120" y="32" width="560" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="63" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">val / var / const val → final / var / const</text>
+<rect x="120" y="100" width="560" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="120" y="100" width="560" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="131" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">T? + Smart Cast → T? + Promotion locals only</text>
+<rect x="120" y="168" width="560" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="120" y="168" width="560" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="199" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">data class → Record / Freezed codegen</text>
+<rect x="120" y="236" width="560" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="120" y="236" width="560" height="52" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="400" y="267" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">suspend + Flow + Dispatchers → Future + Stream + Isolate</text>
+<rect x="120" y="304" width="560" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="120" y="304" width="560" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="335" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">class final mặc định → class mở + modifiers</text>
+<rect x="120" y="372" width="560" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="120" y="372" width="560" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="403" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">when + sealed class → switch expression + Patterns</text>
+<rect x="120" y="440" width="560" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="120" y="440" width="560" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="471" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Gradle · Maven · KSP → pub · pub.dev · build_runner</text>
+<!-- legend -->
+<line x1="32" y1="516" x2="768" y2="516" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="532" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="528" r="4" fill="#0284C7"/>
+<text x="162" y="532" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">BƯỚC NHẢY LỚN · ASYNC MODEL</text>
+<line x1="430" y1="528" x2="462" y2="528" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-kotlin-dart-map-arrow)"/>
+<text x="470" y="532" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐỌC TRÁI → PHẢI · KOTLIN → DART</text>
+</svg>
+</div>
+</div>
+
 
 <h2>1. Bản chất Runtime: ART/JVM vs Dart VM</h2>
 <ul>
@@ -147,18 +279,135 @@ graph TD
   <li><strong>Hệ quả:</strong> AOT loại bỏ reflection (<code>dart:mirrors</code>). Mọi việc Kotlin làm bằng reflection - JSON parsing, DI runtime như Hilt/Koin - ở Flutter chuyển sang <strong>code generation</strong> bằng build_runner.</li>
 </ul>
 
-<div class="mermaid">
-graph TD
-    subgraph "Kotlin trên Android"
-        A[".kt source"] -->|kotlinc| B["JVM Bytecode"]
-        B -->|"D8 / R8"| C[".dex"]
-        C --> D["ART Runtime"]
-    end
-    subgraph "Dart trên Flutter"
-        E[".dart source"] -->|"JIT dev"| F["Dart VM + Hot Reload"]
-        E -->|"AOT release"| G["Native ARM Code"]
-    end
+<div class="dd-diagram" data-dd="flutter-build-pipeline">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 460" role="img" aria-labelledby="flutter-build-pipeline-dark-title flutter-build-pipeline-dark-desc" font-family="'Geist', sans-serif">
+<title id="flutter-build-pipeline-dark-title">Dart bỏ qua cả JVM</title>
+<desc id="flutter-build-pipeline-dark-desc">Kotlin biên dịch qua bytecode và dex tới ART, Dart chạy JIT với hot reload khi dev và AOT ra native ARM khi release.</desc>
+<defs>
+<marker id="flutter-build-pipeline-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="460" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="340" height="388" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="168" height="12" rx="2" fill="#060913"/>
+<text x="132" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">KOTLIN TRÊN ANDROID</text>
+<rect x="428" y="24" width="340" height="388" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="444" y="28" width="152" height="12" rx="2" fill="#060913"/>
+<text x="520" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DART TRÊN FLUTTER</text>
+<!-- arrows -->
+<path d="M 202,132 V 160" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<rect x="214" y="138" width="64" height="12" rx="2" fill="#060913"/>
+<text x="246" y="147" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KOTLINC</text>
+<path d="M 202,216 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<rect x="214" y="226" width="64" height="12" rx="2" fill="#060913"/>
+<text x="246" y="235" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">D8 / R8</text>
+<path d="M 202,300 V 336" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<path d="M 598,136 V 200" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<rect x="548" y="158" width="64" height="12" rx="2" fill="#060913"/>
+<text x="580" y="167" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JIT DEV</text>
+<path d="M 736,108 H 744 Q 752,108 752,116 V 320 Q 752,328 744,328 H 736" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<rect x="684" y="272" width="72" height="12" rx="2" fill="#060913"/>
+<text x="720" y="281" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">AOT RELEASE</text>
+<!-- nodes -->
+<rect x="64" y="80" width="276" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="80" width="276" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="111" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">.kt source</text>
+<rect x="64" y="160" width="276" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="160" width="276" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="194" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">JVM Bytecode</text>
+<rect x="64" y="248" width="276" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="248" width="276" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="279" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">.dex</text>
+<rect x="64" y="336" width="276" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="336" width="276" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="367" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ART Runtime</text>
+<rect x="460" y="80" width="276" height="56" rx="6" fill="#060913"/>
+<rect x="460" y="80" width="276" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="598" y="114" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">.dart source</text>
+<rect x="460" y="200" width="276" height="64" rx="6" fill="#060913"/>
+<rect x="460" y="200" width="276" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="598" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Dart VM + Hot Reload</text>
+<rect x="460" y="296" width="276" height="64" rx="6" fill="#060913"/>
+<rect x="460" y="296" width="276" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="598" y="330" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Native ARM Code</text>
+<text x="598" y="344" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">AOT release</text>
+<!-- legend -->
+<line x1="32" y1="436" x2="768" y2="436" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="448" r="4" fill="#38BDF8"/>
+<text x="162" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐÍCH RELEASE · NATIVE ARM</text>
+<line x1="430" y1="448" x2="462" y2="448" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<text x="470" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · AOT RELEASE BUILD</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 460" role="img" aria-labelledby="flutter-build-pipeline-title flutter-build-pipeline-desc" font-family="'Geist', sans-serif">
+<title id="flutter-build-pipeline-title">Dart bỏ qua cả JVM</title>
+<desc id="flutter-build-pipeline-desc">Kotlin biên dịch qua bytecode và dex tới ART, Dart chạy JIT với hot reload khi dev và AOT ra native ARM khi release.</desc>
+<defs>
+<marker id="flutter-build-pipeline-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="460" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="340" height="388" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="168" height="12" rx="2" fill="#F8FAFC"/>
+<text x="132" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">KOTLIN TRÊN ANDROID</text>
+<rect x="428" y="24" width="340" height="388" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="444" y="28" width="152" height="12" rx="2" fill="#F8FAFC"/>
+<text x="520" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DART TRÊN FLUTTER</text>
+<!-- arrows -->
+<path d="M 202,132 V 160" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-arrow)"/>
+<rect x="214" y="138" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="246" y="147" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KOTLINC</text>
+<path d="M 202,216 V 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-arrow)"/>
+<rect x="214" y="226" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="246" y="235" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">D8 / R8</text>
+<path d="M 202,300 V 336" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-arrow)"/>
+<path d="M 598,136 V 200" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-arrow)"/>
+<rect x="548" y="158" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="580" y="167" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JIT DEV</text>
+<path d="M 736,108 H 744 Q 752,108 752,116 V 320 Q 752,328 744,328 H 736" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#flutter-build-pipeline-arrow)"/>
+<rect x="684" y="272" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="720" y="281" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">AOT RELEASE</text>
+<!-- nodes -->
+<rect x="64" y="80" width="276" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="80" width="276" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="111" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">.kt source</text>
+<rect x="64" y="160" width="276" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="160" width="276" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="194" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">JVM Bytecode</text>
+<rect x="64" y="248" width="276" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="248" width="276" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="279" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">.dex</text>
+<rect x="64" y="336" width="276" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="336" width="276" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="367" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ART Runtime</text>
+<rect x="460" y="80" width="276" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="460" y="80" width="276" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="598" y="114" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">.dart source</text>
+<rect x="460" y="200" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="460" y="200" width="276" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="598" y="234" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Dart VM + Hot Reload</text>
+<rect x="460" y="296" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="460" y="296" width="276" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="598" y="330" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Native ARM Code</text>
+<text x="598" y="344" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">AOT release</text>
+<!-- legend -->
+<line x1="32" y1="436" x2="768" y2="436" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="448" r="4" fill="#0284C7"/>
+<text x="162" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐÍCH RELEASE · NATIVE ARM</text>
+<line x1="430" y1="448" x2="462" y2="448" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#flutter-build-pipeline-arrow)"/>
+<text x="470" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · AOT RELEASE BUILD</text>
+</svg>
+</div>
+</div>
+
 
 <h2>2. Biến, Hằng, Kiểu</h2>
 <table style="width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:14px;">
@@ -301,19 +550,125 @@ final screen = switch (state) {
 }; // exhaustive - thiếu case là lỗi compile!</code></pre>
 
 <h2>10. Concurrency: Coroutines -> Event Loop + Isolates</h2>
-<div class="mermaid">
-graph TD
-    subgraph "Kotlin - Multi-threaded"
-        T1["suspend fun"] --> T2["CoroutineScope"]
-        T2 --> T3["Dispatchers.Main / IO / Default"]
-        T3 --> T4["Nhiều thread chia sẻ memory"]
-    end
-    subgraph "Dart - Single event loop + Isolates"
-        D1["async fun"] --> D2["Event Loop main isolate"]
-        D2 --> D3["CPU-heavy → Isolate.run()"]
-        D3 --> D4["Isolate riêng - message passing"]
-    end
+<div class="dd-diagram" data-dd="flutter-threads-isolates">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 440" role="img" aria-labelledby="flutter-threads-isolates-dark-title flutter-threads-isolates-dark-desc" font-family="'Geist', sans-serif">
+<title id="flutter-threads-isolates-dark-title">Một vòng lặp, nhiều isolate</title>
+<desc id="flutter-threads-isolates-dark-desc">Kotlin coroutine nhiều thread chia sẻ memory, Dart async một event loop và việc nặng tách sang isolate riêng.</desc>
+<defs>
+<marker id="flutter-threads-isolates-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="440" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="340" height="368" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="136" height="12" rx="2" fill="#060913"/>
+<text x="116" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">KOTLIN · MULTI-THREADED</text>
+<rect x="428" y="24" width="340" height="368" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="444" y="28" width="152" height="12" rx="2" fill="#060913"/>
+<text x="520" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DART · EVENT LOOP + ISOLATES</text>
+<!-- arrows -->
+<path d="M 202,132 V 156" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-dark-arrow)"/>
+<path d="M 202,208 V 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-dark-arrow)"/>
+<path d="M 202,288 V 312" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-dark-arrow)"/>
+<path d="M 598,132 V 156" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-dark-arrow)"/>
+<path d="M 598,208 V 236" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-dark-arrow)"/>
+<path d="M 598,292 V 316" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-dark-arrow)"/>
+<!-- nodes -->
+<rect x="64" y="80" width="276" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="80" width="276" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="111" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">suspend fun</text>
+<rect x="64" y="156" width="276" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="156" width="276" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="187" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">CoroutineScope</text>
+<rect x="64" y="232" width="276" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="232" width="276" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="266" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Dispatchers.Main / IO / Default</text>
+<rect x="64" y="312" width="276" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="312" width="276" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="346" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Nhiều thread chia sẻ memory</text>
+<rect x="460" y="80" width="276" height="52" rx="6" fill="#060913"/>
+<rect x="460" y="80" width="276" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="598" y="111" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">async fun</text>
+<rect x="460" y="156" width="276" height="52" rx="6" fill="#060913"/>
+<rect x="460" y="156" width="276" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="598" y="187" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Event Loop main isolate</text>
+<rect x="460" y="236" width="276" height="56" rx="6" fill="#060913"/>
+<rect x="460" y="236" width="276" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="598" y="270" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">CPU-heavy → Isolate.run()</text>
+<rect x="460" y="316" width="276" height="56" rx="6" fill="#060913"/>
+<rect x="460" y="316" width="276" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="598" y="350" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Isolate riêng · message passing</text>
+<!-- legend -->
+<line x1="32" y1="416" x2="768" y2="416" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="432" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="428" r="4" fill="#38BDF8"/>
+<text x="162" y="432" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THOÁT NẶNG · ISOLATE.RUN()</text>
+<line x1="430" y1="428" x2="462" y2="428" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-dark-arrow)"/>
+<text x="470" y="432" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CHUYỂN TẦNG THỰC THI</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 440" role="img" aria-labelledby="flutter-threads-isolates-title flutter-threads-isolates-desc" font-family="'Geist', sans-serif">
+<title id="flutter-threads-isolates-title">Một vòng lặp, nhiều isolate</title>
+<desc id="flutter-threads-isolates-desc">Kotlin coroutine nhiều thread chia sẻ memory, Dart async một event loop và việc nặng tách sang isolate riêng.</desc>
+<defs>
+<marker id="flutter-threads-isolates-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="440" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="340" height="368" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="136" height="12" rx="2" fill="#F8FAFC"/>
+<text x="116" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">KOTLIN · MULTI-THREADED</text>
+<rect x="428" y="24" width="340" height="368" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="444" y="28" width="152" height="12" rx="2" fill="#F8FAFC"/>
+<text x="520" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DART · EVENT LOOP + ISOLATES</text>
+<!-- arrows -->
+<path d="M 202,132 V 156" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-arrow)"/>
+<path d="M 202,208 V 232" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-arrow)"/>
+<path d="M 202,288 V 312" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-arrow)"/>
+<path d="M 598,132 V 156" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-arrow)"/>
+<path d="M 598,208 V 236" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-arrow)"/>
+<path d="M 598,292 V 316" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-arrow)"/>
+<!-- nodes -->
+<rect x="64" y="80" width="276" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="80" width="276" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="111" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">suspend fun</text>
+<rect x="64" y="156" width="276" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="156" width="276" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="187" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">CoroutineScope</text>
+<rect x="64" y="232" width="276" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="232" width="276" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="266" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Dispatchers.Main / IO / Default</text>
+<rect x="64" y="312" width="276" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="312" width="276" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="346" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Nhiều thread chia sẻ memory</text>
+<rect x="460" y="80" width="276" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="460" y="80" width="276" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="598" y="111" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">async fun</text>
+<rect x="460" y="156" width="276" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="460" y="156" width="276" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="598" y="187" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Event Loop main isolate</text>
+<rect x="460" y="236" width="276" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="460" y="236" width="276" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="598" y="270" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">CPU-heavy → Isolate.run()</text>
+<rect x="460" y="316" width="276" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="460" y="316" width="276" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="598" y="350" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Isolate riêng · message passing</text>
+<!-- legend -->
+<line x1="32" y1="416" x2="768" y2="416" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="428" r="4" fill="#0284C7"/>
+<text x="162" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">THOÁT NẶNG · ISOLATE.RUN()</text>
+<line x1="430" y1="428" x2="462" y2="428" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-threads-isolates-arrow)"/>
+<text x="470" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CHUYỂN TẦNG THỰC THI</text>
+</svg>
+</div>
+</div>
+
 <table style="width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:14px;">
   <thead>
     <tr style="border-bottom:2px solid var(--border);">
@@ -771,15 +1126,95 @@ Widget build(AuthState state) => switch (state) {
     readTime: '25 phút',
     content: `
 <h2>Event Loop - trái tim của Dart</h2>
-<div class="mermaid">
-graph TD
-    subgraph "Main Isolate"
-        UI["UI / code đang chạy"] -->|"yield (await)"| EL[Event Loop]
-        EL --> MQ["Microtask Queue<br/>ưu tiên tuyệt đối"]
-        MQ --> EQ["Event Queue<br/>I/O, timer, gesture, paint"]
-        EQ -->|xử lý xong| UI
-    end
+<div class="dd-diagram" data-dd="flutter-event-loop">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 392" role="img" aria-labelledby="flutter-event-loop-dark-title flutter-event-loop-dark-desc" font-family="'Geist', sans-serif">
+<title id="flutter-event-loop-dark-title">Microtask chen hàng trước</title>
+<desc id="flutter-event-loop-dark-desc">UI yield qua await tới event loop, microtask ưu tiên tuyệt đối chạy trước event queue rồi quay về UI.</desc>
+<defs>
+<marker id="flutter-event-loop-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="392" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,88 V 112" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-event-loop-dark-arrow)"/>
+<rect x="412" y="92" width="96" height="12" rx="2" fill="#060913"/>
+<text x="460" y="101" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">YIELD (AWAIT)</text>
+<path d="M 400,168 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-event-loop-dark-arrow)"/>
+<path d="M 400,256 V 280" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-event-loop-dark-arrow)"/>
+<path d="M 240,312 H 208 Q 200,312 200,304 V 68 Q 200,60 208,60 H 240" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-event-loop-dark-arrow)"/>
+<rect x="144" y="258" width="72" height="12" rx="2" fill="#060913"/>
+<text x="180" y="267" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">XỬ LÝ XONG</text>
+<!-- nodes -->
+<rect x="240" y="32" width="320" height="56" rx="6" fill="#060913"/>
+<rect x="240" y="32" width="320" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">UI / code đang chạy</text>
+<rect x="240" y="112" width="320" height="56" rx="6" fill="#060913"/>
+<rect x="240" y="112" width="320" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="146" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Event Loop</text>
+<rect x="240" y="192" width="320" height="64" rx="6" fill="#060913"/>
+<rect x="240" y="192" width="320" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Microtask Queue</text>
+<text x="400" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ưu tiên tuyệt đối</text>
+<rect x="240" y="280" width="320" height="64" rx="6" fill="#060913"/>
+<rect x="240" y="280" width="320" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="314" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Event Queue</text>
+<text x="400" y="328" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">I/O · timer · gesture · paint</text>
+<!-- legend -->
+<line x1="32" y1="368" x2="768" y2="368" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="380" r="4" fill="#38BDF8"/>
+<text x="162" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ƯU TIÊN TUYỆT ĐỐI · MICROTASK</text>
+<line x1="440" y1="380" x2="472" y2="380" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-event-loop-dark-arrow)"/>
+<text x="480" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VÒNG XỬ LÝ KHÉP KÍN</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 392" role="img" aria-labelledby="flutter-event-loop-title flutter-event-loop-desc" font-family="'Geist', sans-serif">
+<title id="flutter-event-loop-title">Microtask chen hàng trước</title>
+<desc id="flutter-event-loop-desc">UI yield qua await tới event loop, microtask ưu tiên tuyệt đối chạy trước event queue rồi quay về UI.</desc>
+<defs>
+<marker id="flutter-event-loop-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="392" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,88 V 112" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-event-loop-arrow)"/>
+<rect x="412" y="92" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="460" y="101" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">YIELD (AWAIT)</text>
+<path d="M 400,168 V 192" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-event-loop-arrow)"/>
+<path d="M 400,256 V 280" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-event-loop-arrow)"/>
+<path d="M 240,312 H 208 Q 200,312 200,304 V 68 Q 200,60 208,60 H 240" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-event-loop-arrow)"/>
+<rect x="144" y="258" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="180" y="267" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">XỬ LÝ XONG</text>
+<!-- nodes -->
+<rect x="240" y="32" width="320" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="32" width="320" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UI / code đang chạy</text>
+<rect x="240" y="112" width="320" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="112" width="320" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="146" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Event Loop</text>
+<rect x="240" y="192" width="320" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="192" width="320" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="400" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Microtask Queue</text>
+<text x="400" y="240" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ưu tiên tuyệt đối</text>
+<rect x="240" y="280" width="320" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="240" y="280" width="320" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="314" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Event Queue</text>
+<text x="400" y="328" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">I/O · timer · gesture · paint</text>
+<!-- legend -->
+<line x1="32" y1="368" x2="768" y2="368" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="380" r="4" fill="#0284C7"/>
+<text x="162" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ƯU TIÊN TUYỆT ĐỐI · MICROTASK</text>
+<line x1="440" y1="380" x2="472" y2="380" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-event-loop-arrow)"/>
+<text x="480" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VÒNG XỬ LÝ KHÉP KÍN</text>
+</svg>
+</div>
+</div>
+
 <p>Code đồng bộ dài chặn cả hai hàng đợi - frame mới không vẽ được thành jank. <code>await</code> là điểm nhường quyền: hàm dừng, event loop xử việc khác, quay lại khi có kết quả.</p>
 
 <h2>Future & async/await</h2>
@@ -919,17 +1354,103 @@ void dispose() {
     readTime: '20 phút',
     content: `
 <h2>Mô hình Isolate</h2>
-<div class="mermaid">
-graph TD
-    subgraph "Main Isolate"
-        UI["UI + Event Loop"]
-    end
-    subgraph "Worker Isolate"
-        W["parseBigJson()"] --> R["Kết quả"]
-    end
-    UI -- "gửi input (copy)" --> W
-    R -- "gửi kết quả (copy)" --> UI
+<div class="dd-diagram" data-dd="flutter-isolate-msg">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 352" role="img" aria-labelledby="flutter-isolate-msg-dark-title flutter-isolate-msg-dark-desc" font-family="'Geist', sans-serif">
+<title id="flutter-isolate-msg-dark-title">Nặng thì quăng sang isolate khác</title>
+<desc id="flutter-isolate-msg-dark-desc">Main isolate gửi input copy sang worker isolate parse JSON nặng rồi nhận kết quả copy gửi về.</desc>
+<defs>
+<marker id="flutter-isolate-msg-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="352" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="320" height="280" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="112" height="12" rx="2" fill="#060913"/>
+<text x="104" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">MAIN ISOLATE</text>
+<rect x="448" y="24" width="320" height="280" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="464" y="28" width="120" height="12" rx="2" fill="#060913"/>
+<text x="524" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">WORKER ISOLATE</text>
+<!-- arrows -->
+<path d="M 320,128 H 400 Q 408,128 408,120 V 96 H 480" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-dark-arrow)"/>
+<rect x="324" y="122" width="72" height="12" rx="2" fill="#060913"/>
+<text x="360" y="131" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">INPUT (COPY)</text>
+<path d="M 608,128 V 200" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-dark-arrow)"/>
+<path d="M 480,232 H 408 Q 400,232 400,224 V 160" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-dark-arrow)"/>
+<rect x="400" y="226" width="76" height="12" rx="2" fill="#060913"/>
+<text x="438" y="235" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KẾT QUẢ (COPY)</text>
+<!-- nodes -->
+<rect x="64" y="96" width="256" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="96" width="256" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="192" y="130" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">UI + Event Loop</text>
+<text x="192" y="144" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">main isolate</text>
+<rect x="480" y="64" width="256" height="64" rx="6" fill="#060913"/>
+<rect x="480" y="64" width="256" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="608" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">parseBigJson()</text>
+<text x="608" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">việc nặng · worker</text>
+<rect x="480" y="200" width="256" height="64" rx="6" fill="#060913"/>
+<rect x="480" y="200" width="256" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="608" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Kết quả</text>
+<text x="608" y="248" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trả về bản copy</text>
+<!-- legend -->
+<line x1="32" y1="328" x2="768" y2="328" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="344" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="340" r="4" fill="#38BDF8"/>
+<text x="162" y="344" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VIỆC NẶNG · WORKER ISOLATE</text>
+<line x1="440" y1="340" x2="472" y2="340" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-dark-arrow)"/>
+<text x="480" y="344" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỬI BẢN COPY HAI CHIỀU</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 352" role="img" aria-labelledby="flutter-isolate-msg-title flutter-isolate-msg-desc" font-family="'Geist', sans-serif">
+<title id="flutter-isolate-msg-title">Nặng thì quăng sang isolate khác</title>
+<desc id="flutter-isolate-msg-desc">Main isolate gửi input copy sang worker isolate parse JSON nặng rồi nhận kết quả copy gửi về.</desc>
+<defs>
+<marker id="flutter-isolate-msg-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="352" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="320" height="280" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="112" height="12" rx="2" fill="#F8FAFC"/>
+<text x="104" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">MAIN ISOLATE</text>
+<rect x="448" y="24" width="320" height="280" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="464" y="28" width="120" height="12" rx="2" fill="#F8FAFC"/>
+<text x="524" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">WORKER ISOLATE</text>
+<!-- arrows -->
+<path d="M 320,128 H 400 Q 408,128 408,120 V 96 H 480" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-arrow)"/>
+<rect x="324" y="122" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="360" y="131" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">INPUT (COPY)</text>
+<path d="M 608,128 V 200" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-arrow)"/>
+<path d="M 480,232 H 408 Q 400,232 400,224 V 160" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-arrow)"/>
+<rect x="400" y="226" width="76" height="12" rx="2" fill="#F8FAFC"/>
+<text x="438" y="235" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KẾT QUẢ (COPY)</text>
+<!-- nodes -->
+<rect x="64" y="96" width="256" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="96" width="256" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="192" y="130" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UI + Event Loop</text>
+<text x="192" y="144" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">main isolate</text>
+<rect x="480" y="64" width="256" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="480" y="64" width="256" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="608" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">parseBigJson()</text>
+<text x="608" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">việc nặng · worker</text>
+<rect x="480" y="200" width="256" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="480" y="200" width="256" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="608" y="234" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Kết quả</text>
+<text x="608" y="248" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trả về bản copy</text>
+<!-- legend -->
+<line x1="32" y1="328" x2="768" y2="328" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="344" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="340" r="4" fill="#0284C7"/>
+<text x="162" y="344" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VIỆC NẶNG · WORKER ISOLATE</text>
+<line x1="440" y1="340" x2="472" y2="340" stroke="#64748B" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-arrow)"/>
+<text x="480" y="344" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GỬI BẢN COPY HAI CHIỀU</text>
+</svg>
+</div>
+</div>
+
 <p>Không biến dùng chung -> không lock, không race condition. Cái giá: dữ liệu qua lại đều copy.</p>
 
 <h2>Isolate.run - một dòng tách tính toán</h2>

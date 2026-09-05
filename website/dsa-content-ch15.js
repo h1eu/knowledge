@@ -18,7 +18,7 @@ Object.assign(DSA_CONTENT, {
     content: `
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_greedy.jpg" alt="Tham lam" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_greedy.jpg" alt="Tham lam" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <div class="callout callout-note">
@@ -75,7 +75,7 @@ Object.assign(DSA_CONTENT, {
 <p>Chiến lược tham lam cho bài toán này được minh họa trong hình dưới đây. Với một số tiền mục tiêu cho trước, <strong>ta tham lam chọn đồng xu không vượt quá số tiền đó và gần với nó nhất</strong>, lặp lại bước này cho đến khi tạo đủ số tiền mục tiêu.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/coin_change_greedy_strategy.png" alt="Chiến lược tham lam cho bài toán đổi tiền" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/coin_change_greedy_strategy.png" alt="Chiến lược tham lam cho bài toán đổi tiền" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Đoạn mã triển khai như sau:</p>
@@ -175,7 +175,7 @@ int coinChangeGreedy(vector&lt;int&gt; &amp;coins, int amt) {
 </ul>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/coin_change_greedy_vs_dp.png" alt="Ví dụ thuật toán tham lam không tìm được lời giải tối ưu" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/coin_change_greedy_vs_dp.png" alt="Ví dụ thuật toán tham lam không tìm được lời giải tối ưu" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Nói cách khác, đối với bài toán đổi tiền, thuật toán tham lam không thể đảm bảo lời giải tối ưu toàn cục và thậm chí có thể cho ra kết quả rất tệ. Bài toán này nên được giải bằng quy hoạch động thì tốt hơn.</p>
@@ -378,7 +378,7 @@ Greedy algorithms are often applied to optimization problems that satisfy greedy
 </div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/fractional_knapsack_example.png" alt="Dữ liệu ví dụ cho bài toán cái túi phân số" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/fractional_knapsack_example.png" alt="Dữ liệu ví dụ cho bài toán cái túi phân số" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Bài toán cái túi phân số nhìn chung khá giống với bài toán cái túi 0-1, với trạng thái bao gồm vật phẩm hiện tại $i$ và sức chứa $c$, và mục tiêu là tối đa hóa giá trị trong giới hạn sức chứa của túi.</p>
@@ -389,7 +389,7 @@ Greedy algorithms are often applied to optimization problems that satisfy greedy
 </ol>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/fractional_knapsack_unit_value.png" alt="Giá trị của vật phẩm trên mỗi đơn vị khối lượng" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/fractional_knapsack_unit_value.png" alt="Giá trị của vật phẩm trên mỗi đơn vị khối lượng" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>15.2.1 Xác định Chiến lược Tham lam</h2>
@@ -401,7 +401,7 @@ Greedy algorithms are often applied to optimization problems that satisfy greedy
 </ol>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/fractional_knapsack_greedy_strategy.png" alt="Chiến lược tham lam cho bài toán cái túi phân số" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/fractional_knapsack_greedy_strategy.png" alt="Chiến lược tham lam cho bài toán cái túi phân số" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>15.2.2 Triển khai Mã</h2>
@@ -555,7 +555,7 @@ double fractionalKnapsack(vector&lt;int&gt; &amp;wgt, vector&lt;int&gt; &amp;val
 <p>Như minh họa trong hình dưới đây, nếu ta coi khối lượng vật phẩm và giá trị đơn vị là trục hoành và trục tung của một biểu đồ hai chiều, thì bài toán cái túi phân số có thể được xem như "tìm diện tích lớn nhất được bao trong một khoảng giới hạn trên trục hoành". Phép tương tự này giúp giải thích tính hiệu quả của chiến lược tham lam từ góc độ hình học.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/fractional_knapsack_area_chart.png" alt="Biểu diễn hình học của bài toán cái túi phân số" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/fractional_knapsack_area_chart.png" alt="Biểu diễn hình học của bài toán cái túi phân số" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>15.2.4 Mô phỏng tương tác</h2>
@@ -662,7 +662,7 @@ As shown in the figure below, if we treat item weight and unit value as the hori
 </div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/max_capacity_example.png" alt="Dữ liệu ví dụ cho bài toán chứa nước nhiều nhất" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/max_capacity_example.png" alt="Dữ liệu ví dụ cho bài toán chứa nước nhiều nhất" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Thùng chứa được tạo bởi bất kỳ hai vách ngăn nào, <strong>vì vậy trạng thái của bài toán này là chỉ số của hai vách ngăn, ký hiệu là $[i, j]$</strong>.</p>
@@ -674,20 +674,20 @@ As shown in the figure below, if we treat item weight and unit value as the hori
 <p>Bài toán này có một lời giải hiệu quả hơn. Như minh họa trong hình dưới đây, xét trạng thái $[i, j]$ với $i < j$ và $ht[i] < ht[j]$. Trong trường hợp này, $i$ là vách ngăn ngắn hơn và $j$ là vách ngăn cao hơn.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/max_capacity_initial_state.png" alt="Trạng thái ban đầu" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/max_capacity_initial_state.png" alt="Trạng thái ban đầu" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Như minh họa trong hình dưới đây, <strong>nếu bây giờ ta di chuyển vách ngăn cao hơn $j$ vào trong hướng về phía vách ngăn ngắn hơn $i$, dung tích chắc chắn sẽ giảm</strong>.</p>
 <p>Đó là vì sau khi di chuyển vách ngăn cao hơn $j$, chiều rộng $j-i$ chắc chắn giảm. Vì chiều cao được xác định bởi vách ngăn ngắn hơn, chiều cao chỉ có thể giữ nguyên ($i$ vẫn là vách ngăn ngắn hơn) hoặc giảm ($j$ trở thành vách ngăn ngắn hơn sau khi di chuyển).</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/max_capacity_moving_long_board.png" alt="Trạng thái sau khi di chuyển vách dài vào trong" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/max_capacity_moving_long_board.png" alt="Trạng thái sau khi di chuyển vách dài vào trong" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Ngược lại, <strong>chỉ bằng cách di chuyển vách ngăn ngắn hơn $i$ vào trong thì dung tích mới có thể tăng lên</strong>. Mặc dù chiều rộng chắc chắn sẽ giảm, <strong>nhưng chiều cao có thể tăng lên</strong> (vách ngăn được di chuyển tại $i$ có thể cao hơn). Ví dụ, trong hình dưới đây, diện tích tăng lên sau khi di chuyển vách ngăn ngắn hơn.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/max_capacity_moving_short_board.png" alt="Trạng thái sau khi di chuyển vách ngắn vào trong" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/max_capacity_moving_short_board.png" alt="Trạng thái sau khi di chuyển vách ngắn vào trong" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Từ đó, ta có thể suy ra chiến lược tham lam cho bài toán này: khởi tạo hai con trỏ ở hai đầu, và ở mỗi vòng di chuyển con trỏ tương ứng với vách ngăn ngắn hơn vào trong cho đến khi hai con trỏ gặp nhau.</p>
@@ -700,7 +700,7 @@ As shown in the figure below, if we treat item weight and unit value as the hori
 </ol>
 
 <div class="interactive-widget-wrapper" id="max-capacity-steps-wrapper">
-<div class="slider-container"><div class="slide active"><img src="dsa-assets/max_capacity_greedy_step1.png" alt="Bước 1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Khởi tạo i=0, j=7 ở hai đầu mảng ht=[3,8,5,2,7,7,3,4].</p></div><div class="slide"><img src="dsa-assets/max_capacity_greedy_step2.png" alt="Bước 2" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Tính cap[0,7] = min(3,4) × 7 = 21, cập nhật res=21. ht[0]=3 < ht[7]=4 → di chuyển i vào trong.</p></div><div class="slide"><img src="dsa-assets/max_capacity_greedy_step3.png" alt="Bước 3" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">i=1: cap[1,7] = min(8,4) × 6 = 24, cập nhật res=24. ht[1]=8 > ht[7]=4 → di chuyển j vào trong.</p></div><div class="slide"><img src="dsa-assets/max_capacity_greedy_step4.png" alt="Bước 4" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=6: cap[1,6] = min(8,3) × 5 = 15. ht[1]=8 > ht[6]=3 → di chuyển j vào trong.</p></div><div class="slide"><img src="dsa-assets/max_capacity_greedy_step5.png" alt="Bước 5" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=5: cap[1,5] = min(8,7) × 4 = 28, cập nhật res=28. ht[1]=8 > ht[5]=7 → di chuyển j vào trong.</p></div><div class="slide"><img src="dsa-assets/max_capacity_greedy_step6.png" alt="Bước 6" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=4: cap[1,4] = min(8,7) × 3 = 21. ht[1]=8 > ht[4]=7 → di chuyển j vào trong.</p></div><div class="slide"><img src="dsa-assets/max_capacity_greedy_step7.png" alt="Bước 7" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=3: cap[1,3] = min(8,2) × 2 = 4. ht[1]=8 > ht[3]=2 → di chuyển j vào trong.</p></div><div class="slide"><img src="dsa-assets/max_capacity_greedy_step8.png" alt="Bước 8" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=2: cap[1,2] = min(8,5) × 1 = 5. ht[1]=8 > ht[2]=5 → di chuyển j vào trong.</p></div><div class="slide"><img src="dsa-assets/max_capacity_greedy_step9.png" alt="Bước 9" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=1: i=j nên dừng lại. Dung tích lớn nhất là res=28.</p></div><div class="slider-controls"><button class="slider-btn" onclick="prevSlide('max-capacity-steps-wrapper')">◀ Trước</button><span class="slider-indicator">Bước 1 / 9</span><button class="slider-btn" onclick="nextSlide('max-capacity-steps-wrapper')">Sau ▶</button></div></div>
+<div class="slider-container"><div class="slide active"><img loading="lazy" src="dsa-assets/max_capacity_greedy_step1.png" alt="Bước 1" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Khởi tạo i=0, j=7 ở hai đầu mảng ht=[3,8,5,2,7,7,3,4].</p></div><div class="slide"><img loading="lazy" src="dsa-assets/max_capacity_greedy_step2.png" alt="Bước 2" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">Tính cap[0,7] = min(3,4) × 7 = 21, cập nhật res=21. ht[0]=3 < ht[7]=4 → di chuyển i vào trong.</p></div><div class="slide"><img loading="lazy" src="dsa-assets/max_capacity_greedy_step3.png" alt="Bước 3" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">i=1: cap[1,7] = min(8,4) × 6 = 24, cập nhật res=24. ht[1]=8 > ht[7]=4 → di chuyển j vào trong.</p></div><div class="slide"><img loading="lazy" src="dsa-assets/max_capacity_greedy_step4.png" alt="Bước 4" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=6: cap[1,6] = min(8,3) × 5 = 15. ht[1]=8 > ht[6]=3 → di chuyển j vào trong.</p></div><div class="slide"><img loading="lazy" src="dsa-assets/max_capacity_greedy_step5.png" alt="Bước 5" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=5: cap[1,5] = min(8,7) × 4 = 28, cập nhật res=28. ht[1]=8 > ht[5]=7 → di chuyển j vào trong.</p></div><div class="slide"><img loading="lazy" src="dsa-assets/max_capacity_greedy_step6.png" alt="Bước 6" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=4: cap[1,4] = min(8,7) × 3 = 21. ht[1]=8 > ht[4]=7 → di chuyển j vào trong.</p></div><div class="slide"><img loading="lazy" src="dsa-assets/max_capacity_greedy_step7.png" alt="Bước 7" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=3: cap[1,3] = min(8,2) × 2 = 4. ht[1]=8 > ht[3]=2 → di chuyển j vào trong.</p></div><div class="slide"><img loading="lazy" src="dsa-assets/max_capacity_greedy_step8.png" alt="Bước 8" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=2: cap[1,2] = min(8,5) × 1 = 5. ht[1]=8 > ht[2]=5 → di chuyển j vào trong.</p></div><div class="slide"><img loading="lazy" src="dsa-assets/max_capacity_greedy_step9.png" alt="Bước 9" style="max-width:100%;height:auto;border-radius:var(--radius-md);" /><p class="slide-caption">j=1: i=j nên dừng lại. Dung tích lớn nhất là res=28.</p></div><div class="slider-controls"><button class="slider-btn" onclick="prevSlide('max-capacity-steps-wrapper')">◀ Trước</button><span class="slider-indicator">Bước 1 / 9</span><button class="slider-btn" onclick="nextSlide('max-capacity-steps-wrapper')">Sau ▶</button></div></div>
 </div>
 
 <h2>15.3.2 Triển khai Mã</h2>
@@ -805,7 +805,7 @@ int maxCapacity(vector&lt;int&gt; &amp;ht) {
 <p>$$cap[i, i+1], cap[i, i+2], \\dots, cap[i, j-2], cap[i, j-1]$$</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/max_capacity_skipped_states.png" alt="Các trạng thái bị bỏ qua khi di chuyển vách ngắn" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/max_capacity_skipped_states.png" alt="Các trạng thái bị bỏ qua khi di chuyển vách ngắn" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Xem xét kỹ hơn cho thấy <strong>những trạng thái bị bỏ qua này chính xác là các trạng thái thu được khi di chuyển vách ngăn cao hơn $j$ vào trong</strong>. Ta đã chứng minh rằng di chuyển vách ngăn cao hơn vào trong chắc chắn sẽ làm giảm dung tích. Do đó, không trạng thái nào bị bỏ qua có thể là lời giải tối ưu, <strong>vì vậy việc bỏ qua chúng không khiến ta bỏ lỡ giá trị tối ưu</strong>.</p>
@@ -960,7 +960,7 @@ The above analysis shows that moving the shorter partition is a "safe" operation
 </div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/max_product_cutting_definition.png" alt="Định nghĩa bài toán cắt tích lớn nhất" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/max_product_cutting_definition.png" alt="Định nghĩa bài toán cắt tích lớn nhất" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Giả sử ta tách $n$ thành $m$ thừa số nguyên, trong đó thừa số thứ $i$ ký hiệu là $n_i$, tức là</p>
@@ -982,7 +982,7 @@ $$</p>
 <p><strong>Chiến lược tham lam một</strong>: Nếu phương án tách chứa một thừa số $\\geq 4$, nó nên được tách thêm nữa. Phương án tách cuối cùng chỉ nên chứa các thừa số $1$, $2$, và $3$.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/max_product_cutting_greedy_infer1.png" alt="Việc tách làm tăng tích" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/max_product_cutting_greedy_infer1.png" alt="Việc tách làm tăng tích" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Tiếp theo, xét xem thừa số nào là tối ưu. Trong ba thừa số $1$, $2$, và $3$, rõ ràng $1$ là tệ nhất, vì $1 \\times (n-1) < n$ luôn đúng, nghĩa là tách ra $1$ thực sự làm giảm tích.</p>
@@ -990,7 +990,7 @@ $$</p>
 <p><strong>Chiến lược tham lam hai</strong>: Trong phương án tách, nên có tối đa hai số $2$, vì ba số $2$ luôn có thể được thay bằng hai số $3$ để có tích lớn hơn.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/max_product_cutting_greedy_infer2.png" alt="Thừa số tách tối ưu" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/max_product_cutting_greedy_infer2.png" alt="Thừa số tách tối ưu" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p>Tóm lại, ta có thể suy ra các chiến lược tham lam sau.</p>
@@ -1097,7 +1097,7 @@ int maxProductCutting(int n) {
 }</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/max_product_cutting_greedy_calculation.png" alt="Phương pháp tính toán cho bài toán cắt tích lớn nhất" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/max_product_cutting_greedy_calculation.png" alt="Phương pháp tính toán cho bài toán cắt tích lớn nhất" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <p><strong>Độ phức tạp thời gian phụ thuộc vào cách lũy thừa được triển khai trong ngôn ngữ lập trình</strong>. Lấy Python làm ví dụ, có ba cách thường dùng để tính lũy thừa.</p>

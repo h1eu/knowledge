@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mỗi thay đổi đều bị máy kiểm tra</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ TẦNG · CI PIPELINE</p>
+  <h1>Mỗi thay đổi đều bị máy kiểm tra</h1>
+  <p class="sub">Event khởi phát workflow, workflow chứa job, job chạy step trên runner.</p>
+<svg viewBox="0 0 800 448" role="img" aria-labelledby="git-ci-pipeline-dark-title git-ci-pipeline-dark-desc" font-family="'Geist', sans-serif">
+<title id="git-ci-pipeline-dark-title">Mỗi thay đổi đều bị máy kiểm tra</title>
+<desc id="git-ci-pipeline-dark-desc">Sự kiện push hoặc pull request khởi phát workflow, workflow chạy job trên runner VM qua từng step.</desc>
+<defs>
+<marker id="git-ci-pipeline-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="448" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,88 V 112" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-ci-pipeline-dark-arrow)"/>
+<path d="M 400,176 V 200" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-ci-pipeline-dark-arrow)"/>
+<path d="M 400,264 V 304 H 168 Q 160,304 160,312 V 344" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-ci-pipeline-dark-arrow)"/>
+<path d="M 268,372 H 292" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-ci-pipeline-dark-arrow)"/>
+<path d="M 508,372 H 532" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-ci-pipeline-dark-arrow)"/>
+<!-- nodes -->
+<rect x="250" y="32" width="300" height="56" rx="20" fill="#060913"/>
+<rect x="250" y="32" width="300" height="56" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Event</text>
+<text x="400" y="74" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">push · pull_request ···</text>
+<rect x="250" y="112" width="300" height="64" rx="6" fill="#060913"/>
+<rect x="250" y="112" width="300" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="146" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Workflow</text>
+<text x="400" y="160" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.yml trong repo</text>
+<rect x="250" y="200" width="300" height="64" rx="6" fill="#060913"/>
+<rect x="250" y="200" width="300" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Job</text>
+<text x="400" y="248" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chạy trên runner VM</text>
+<rect x="52" y="344" width="216" height="56" rx="6" fill="#060913"/>
+<rect x="52" y="344" width="216" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="160" y="377" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Step</text>
+<rect x="292" y="344" width="216" height="56" rx="6" fill="#060913"/>
+<rect x="292" y="344" width="216" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="377" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Step</text>
+<rect x="532" y="344" width="216" height="56" rx="6" fill="#060913"/>
+<rect x="532" y="344" width="216" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="640" y="377" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Step</text>
+<!-- legend -->
+<line x1="32" y1="424" x2="768" y2="424" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="440" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="436" r="4" fill="#38BDF8"/>
+<text x="162" y="440" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NƠI CHẠY · RUNNER VM</text>
+<line x1="380" y1="436" x2="412" y2="436" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#git-ci-pipeline-dark-arrow)"/>
+<text x="420" y="440" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">KÍCH HOẠT THEO TẦNG</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ba vùng quyền: app, data, system</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ KIẾN TRÚC · PERMISSION</p>
+  <h1>Ba vùng quyền: app, data, system</h1>
+  <p class="sub">Màn hình gọi repo một cửa, repo rẽ ba nguồn, system gác cổng cuối.</p>
+<svg viewBox="0 0 800 552" role="img" aria-labelledby="perm-sum-title perm-sum-desc" font-family="'Geist', sans-serif">
+<title id="perm-sum-title">Ba vùng quyền: app, data, system</title>
+<desc id="perm-sum-desc">Màn hình qua ViewModel tới repository rẽ ba nguồn, PackageManager hỏi Linux UID.</desc>
+<defs>
+<marker id="perm-sum-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="552" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="368" height="184" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="112" height="12" rx="2" fill="#F8FAFC"/>
+<text x="104" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">PRESENTATION</text>
+<rect x="416" y="24" width="352" height="232" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<rect x="432" y="28" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="468" y="37" fill="#0284C7" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DATA</text>
+<rect x="416" y="280" width="352" height="224" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="432" y="284" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="472" y="293" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SYSTEM</text>
+<!-- arrows -->
+<path d="M 216,108 V 132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-sum-arrow)"/>
+<path d="M 368,158 V 90 H 440 Q 448,90 448,82" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-sum-arrow)"/>
+<rect x="380" y="70" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="408" y="79" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">INJECT</text>
+<path d="M 560,108 V 124 H 524 Q 516,124 516,132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-sum-arrow)"/>
+<path d="M 640,108 V 124 H 660 Q 668,124 668,132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-sum-arrow)"/>
+<path d="M 736,82 H 744 Q 752,82 752,90 V 290 H 600 Q 592,290 592,298 V 312" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-sum-arrow)"/>
+<rect x="648" y="270" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="676" y="279" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HỎI QUYỀN</text>
+<path d="M 592,364 V 388" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-sum-arrow)"/>
+<!-- nodes -->
+<rect x="64" y="56" width="304" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="56" width="304" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="216" y="88" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ProfileScreen</text>
+<rect x="64" y="132" width="304" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="132" width="304" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="216" y="164" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ProfileViewModel</text>
+<rect x="448" y="56" width="288" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="56" width="288" height="52" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="456" y="62" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="482" y="71" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HUB</text>
+<text x="592" y="90" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FileRepository</text>
+<rect x="448" y="132" width="136" height="48" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="132" width="136" height="48" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="516" y="161" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Internal</text>
+<rect x="600" y="132" width="136" height="48" rx="6" fill="#F8FAFC"/>
+<rect x="600" y="132" width="136" height="48" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="668" y="161" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">MediaStore</text>
+<rect x="448" y="312" width="288" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="312" width="288" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="592" y="346" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">PackageManager</text>
+<text x="592" y="362" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">appops</text>
+<rect x="448" y="388" width="288" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="388" width="288" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="592" y="422" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Linux UID</text>
+<text x="592" y="438" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">sandbox</text>
+<!-- legend -->
+<line x1="32" y1="520" x2="768" y2="520" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="536" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="532" r="4" fill="#0284C7"/>
+<text x="162" y="536" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỘT CỬA · REPO</text>
+<line x1="380" y1="532" x2="412" y2="532" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-sum-arrow)"/>
+<text x="420" y="536" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">RẼ BA NGẢ · CÓ GÁC</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · ARCHITECTURE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

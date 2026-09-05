@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dart bỏ qua cả JVM</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ BIÊN DỊCH · BUILD PIPELINE</p>
+  <h1>Dart bỏ qua cả JVM</h1>
+  <p class="sub">Kotlin đi qua bytecode–dex tới ART, Dart JIT lúc dev và AOT thẳng ARM lúc release.</p>
+<svg viewBox="0 0 800 460" role="img" aria-labelledby="flutter-build-pipeline-dark-title flutter-build-pipeline-dark-desc" font-family="'Geist', sans-serif">
+<title id="flutter-build-pipeline-dark-title">Dart bỏ qua cả JVM</title>
+<desc id="flutter-build-pipeline-dark-desc">Kotlin biên dịch qua bytecode và dex tới ART, Dart chạy JIT với hot reload khi dev và AOT ra native ARM khi release.</desc>
+<defs>
+<marker id="flutter-build-pipeline-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="460" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="340" height="388" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="168" height="12" rx="2" fill="#060913"/>
+<text x="132" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">KOTLIN TRÊN ANDROID</text>
+<rect x="428" y="24" width="340" height="388" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="444" y="28" width="152" height="12" rx="2" fill="#060913"/>
+<text x="520" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DART TRÊN FLUTTER</text>
+<!-- arrows -->
+<path d="M 202,132 V 160" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<rect x="214" y="138" width="64" height="12" rx="2" fill="#060913"/>
+<text x="246" y="147" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KOTLINC</text>
+<path d="M 202,216 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<rect x="214" y="226" width="64" height="12" rx="2" fill="#060913"/>
+<text x="246" y="235" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">D8 / R8</text>
+<path d="M 202,300 V 336" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<path d="M 598,136 V 200" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<rect x="548" y="158" width="64" height="12" rx="2" fill="#060913"/>
+<text x="580" y="167" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JIT DEV</text>
+<path d="M 736,108 H 744 Q 752,108 752,116 V 320 Q 752,328 744,328 H 736" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<rect x="684" y="272" width="72" height="12" rx="2" fill="#060913"/>
+<text x="720" y="281" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">AOT RELEASE</text>
+<!-- nodes -->
+<rect x="64" y="80" width="276" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="80" width="276" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="111" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">.kt source</text>
+<rect x="64" y="160" width="276" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="160" width="276" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="194" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">JVM Bytecode</text>
+<rect x="64" y="248" width="276" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="248" width="276" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="279" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">.dex</text>
+<rect x="64" y="336" width="276" height="52" rx="6" fill="#060913"/>
+<rect x="64" y="336" width="276" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="202" y="367" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ART Runtime</text>
+<rect x="460" y="80" width="276" height="56" rx="6" fill="#060913"/>
+<rect x="460" y="80" width="276" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="598" y="114" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">.dart source</text>
+<rect x="460" y="200" width="276" height="64" rx="6" fill="#060913"/>
+<rect x="460" y="200" width="276" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="598" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Dart VM + Hot Reload</text>
+<rect x="460" y="296" width="276" height="64" rx="6" fill="#060913"/>
+<rect x="460" y="296" width="276" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="598" y="330" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Native ARM Code</text>
+<text x="598" y="344" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">AOT release</text>
+<!-- legend -->
+<line x1="32" y1="436" x2="768" y2="436" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="448" r="4" fill="#38BDF8"/>
+<text x="162" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐÍCH RELEASE · NATIVE ARM</text>
+<line x1="430" y1="448" x2="462" y2="448" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#flutter-build-pipeline-dark-arrow)"/>
+<text x="470" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · AOT RELEASE BUILD</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · COMPARISON · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

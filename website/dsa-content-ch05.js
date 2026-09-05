@@ -16,7 +16,7 @@ Object.assign(DSA_CONTENT, {
     content: `
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_stack_and_queue.jpg" alt="Ngăn xếp & Hàng đợi" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_stack_and_queue.jpg" alt="Ngăn xếp & Hàng đợi" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <div class="callout callout-note">
   <span class="callout-icon">✨</span>
@@ -59,7 +59,7 @@ Object.assign(DSA_CONTENT, {
 <p>Chúng ta có thể ví ngăn xếp như một chồng đĩa đặt trên bàn. Nếu quy định chỉ được di chuyển một đĩa mỗi lần, thì để lấy được đĩa dưới cùng, ta phải lần lượt bỏ các đĩa phía trên ra trước. Nếu thay các đĩa bằng các loại phần tử khác nhau (số nguyên, ký tự, đối tượng, v.v.), ta sẽ có cấu trúc dữ liệu ngăn xếp.</p>
 <p>Như minh họa trong hình dưới đây, ta gọi đỉnh của chồng phần tử là "đỉnh" (top) và đáy là "đáy" (bottom). Thao tác thêm một phần tử vào đỉnh được gọi là "đẩy vào ngăn xếp" (push), và thao tác lấy phần tử ở đỉnh ra được gọi là "lấy ra khỏi ngăn xếp" (pop).</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/stack_operations.png" alt="Quy tắc LIFO của ngăn xếp" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/stack_operations.png" alt="Quy tắc LIFO của ngăn xếp" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>5.1.2 Các thao tác phổ biến trên Stack</h2>
@@ -171,15 +171,15 @@ const isEmpty = stack.length === 0;</code></pre></div></div></div>
   <div class="slider-container">
     <div class="slider-slides">
       <div class="slide active" data-step="1">
-        <img src="dsa-assets/linkedlist_stack_step1.png" alt="Bước 1" />
+        <img loading="lazy" src="dsa-assets/linkedlist_stack_step1.png" alt="Bước 1" />
         <p class="slide-caption"><strong>Bước 1:</strong> Trạng thái ban đầu — node đầu danh sách liên kết là đỉnh ngăn xếp.</p>
       </div>
       <div class="slide" data-step="2">
-        <img src="dsa-assets/linkedlist_stack_step2_push.png" alt="Bước 2 — push" />
+        <img loading="lazy" src="dsa-assets/linkedlist_stack_step2_push.png" alt="Bước 2 — push" />
         <p class="slide-caption"><strong>Bước 2 — push:</strong> Chèn node mới vào đầu danh sách liên kết (head insertion).</p>
       </div>
       <div class="slide" data-step="3">
-        <img src="dsa-assets/linkedlist_stack_step3_pop.png" alt="Bước 3 — pop" />
+        <img loading="lazy" src="dsa-assets/linkedlist_stack_step3_pop.png" alt="Bước 3 — pop" />
         <p class="slide-caption"><strong>Bước 3 — pop:</strong> Xóa node ở đầu danh sách liên kết.</p>
       </div>
     </div>
@@ -360,15 +360,15 @@ class LinkedListStack {
   <div class="slider-container">
     <div class="slider-slides">
       <div class="slide active" data-step="1">
-        <img src="dsa-assets/array_stack_step1.png" alt="Bước 1" />
+        <img loading="lazy" src="dsa-assets/array_stack_step1.png" alt="Bước 1" />
         <p class="slide-caption"><strong>Bước 1:</strong> Trạng thái ban đầu — phần tử cuối mảng là đỉnh ngăn xếp.</p>
       </div>
       <div class="slide" data-step="2">
-        <img src="dsa-assets/array_stack_step2_push.png" alt="Bước 2 — push" />
+        <img loading="lazy" src="dsa-assets/array_stack_step2_push.png" alt="Bước 2 — push" />
         <p class="slide-caption"><strong>Bước 2 — push:</strong> Thêm phần tử vào cuối mảng.</p>
       </div>
       <div class="slide" data-step="3">
-        <img src="dsa-assets/array_stack_step3_pop.png" alt="Bước 3 — pop" />
+        <img loading="lazy" src="dsa-assets/array_stack_step3_pop.png" alt="Bước 3 — pop" />
         <p class="slide-caption"><strong>Bước 3 — pop:</strong> Xóa phần tử ở cuối mảng.</p>
       </div>
     </div>
@@ -507,11 +507,11 @@ class ArrayStack {
   <div class="widget-tab-content active" data-tab="tab-static">
     <div style="display:flex; gap: 1em; flex-wrap: wrap; justify-content: center;">
       <div style="flex: 1 1 260px; text-align:center;">
-        <img src="dsa-assets/array_stack_step2_push.png" alt="Thao tác push trên ngăn xếp mảng" style="max-width:100%; border-radius: var(--radius-md);" />
+        <img loading="lazy" src="dsa-assets/array_stack_step2_push.png" alt="Thao tác push trên ngăn xếp mảng" style="max-width:100%; border-radius: var(--radius-md);" />
         <p style="font-size: 13px; color: var(--text-secondary);">Đẩy phần tử vào ngăn xếp (push)</p>
       </div>
       <div style="flex: 1 1 260px; text-align:center;">
-        <img src="dsa-assets/array_stack_step3_pop.png" alt="Thao tác pop trên ngăn xếp mảng" style="max-width:100%; border-radius: var(--radius-md);" />
+        <img loading="lazy" src="dsa-assets/array_stack_step3_pop.png" alt="Thao tác pop trên ngăn xếp mảng" style="max-width:100%; border-radius: var(--radius-md);" />
         <p style="font-size: 13px; color: var(--text-secondary);">Lấy phần tử ra khỏi ngăn xếp (pop)</p>
       </div>
     </div>
@@ -1007,7 +1007,7 @@ In summary, we cannot simply determine which implementation is more memory-effic
 <p><u>Hàng đợi (Queue)</u> là một cấu trúc dữ liệu tuyến tính tuân theo nguyên tắc Vào trước, Ra trước (FIFO — First In, First Out). Đúng như tên gọi, nó mô phỏng việc xếp hàng: người mới đến liên tục gia nhập vào cuối hàng, trong khi những người ở đầu hàng lần lượt rời đi.</p>
 <p>Như minh họa trong hình dưới đây, ta gọi đầu của hàng đợi là "đầu" (front) và cuối là "cuối" (rear). Thao tác thêm một phần tử vào cuối gọi là "thêm vào hàng đợi" (enqueue), và thao tác lấy phần tử ở đầu ra gọi là "lấy ra khỏi hàng đợi" (dequeue).</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/queue_operations.png" alt="Quy tắc FIFO của hàng đợi" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/queue_operations.png" alt="Quy tắc FIFO của hàng đợi" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>5.2.2 Các thao tác phổ biến trên Queue</h2>
@@ -1121,15 +1121,15 @@ const empty = queue.length === 0;</code></pre></div></div></div>
   <div class="slider-container">
     <div class="slider-slides">
       <div class="slide active" data-step="1">
-        <img src="dsa-assets/linkedlist_queue_step1.png" alt="Bước 1" />
+        <img loading="lazy" src="dsa-assets/linkedlist_queue_step1.png" alt="Bước 1" />
         <p class="slide-caption"><strong>Bước 1:</strong> Trạng thái ban đầu — node đầu là "đầu hàng đợi", node cuối là "cuối hàng đợi".</p>
       </div>
       <div class="slide" data-step="2">
-        <img src="dsa-assets/linkedlist_queue_step2_push.png" alt="Bước 2 — push" />
+        <img loading="lazy" src="dsa-assets/linkedlist_queue_step2_push.png" alt="Bước 2 — push" />
         <p class="slide-caption"><strong>Bước 2 — enqueue:</strong> Thêm node mới vào cuối danh sách liên kết.</p>
       </div>
       <div class="slide" data-step="3">
-        <img src="dsa-assets/linkedlist_queue_step3_pop.png" alt="Bước 3 — pop" />
+        <img loading="lazy" src="dsa-assets/linkedlist_queue_step3_pop.png" alt="Bước 3 — pop" />
         <p class="slide-caption"><strong>Bước 3 — dequeue:</strong> Xóa node ở đầu danh sách liên kết.</p>
       </div>
     </div>
@@ -1347,15 +1347,15 @@ class LinkedListQueue {
   <div class="slider-container">
     <div class="slider-slides">
       <div class="slide active" data-step="1">
-        <img src="dsa-assets/array_queue_step1.png" alt="Bước 1" />
+        <img loading="lazy" src="dsa-assets/array_queue_step1.png" alt="Bước 1" />
         <p class="slide-caption"><strong>Bước 1:</strong> Trạng thái ban đầu — <code>front</code> trỏ tới phần tử đầu, <code>rear = front + size</code>.</p>
       </div>
       <div class="slide" data-step="2">
-        <img src="dsa-assets/array_queue_step2_push.png" alt="Bước 2 — push" />
+        <img loading="lazy" src="dsa-assets/array_queue_step2_push.png" alt="Bước 2 — push" />
         <p class="slide-caption"><strong>Bước 2 — enqueue:</strong> Gán phần tử mới vào chỉ mục <code>rear</code>, tăng <code>size</code> lên 1.</p>
       </div>
       <div class="slide" data-step="3">
-        <img src="dsa-assets/array_queue_step3_pop.png" alt="Bước 3 — pop" />
+        <img loading="lazy" src="dsa-assets/array_queue_step3_pop.png" alt="Bước 3 — pop" />
         <p class="slide-caption"><strong>Bước 3 — dequeue:</strong> Tăng <code>front</code> lên 1, giảm <code>size</code> đi 1.</p>
       </div>
     </div>
@@ -1574,11 +1574,11 @@ class ArrayQueue {
   <div class="widget-tab-content active" data-tab="tab-static">
     <div style="display:flex; gap: 1em; flex-wrap: wrap; justify-content: center;">
       <div style="flex: 1 1 260px; text-align:center;">
-        <img src="dsa-assets/array_queue_step2_push.png" alt="Thao tác push trên hàng đợi mảng" style="max-width:100%; border-radius: var(--radius-md);" />
+        <img loading="lazy" src="dsa-assets/array_queue_step2_push.png" alt="Thao tác push trên hàng đợi mảng" style="max-width:100%; border-radius: var(--radius-md);" />
         <p style="font-size: 13px; color: var(--text-secondary);">Thêm phần tử vào hàng đợi (enqueue)</p>
       </div>
       <div style="flex: 1 1 260px; text-align:center;">
-        <img src="dsa-assets/array_queue_step3_pop.png" alt="Thao tác pop trên hàng đợi mảng" style="max-width:100%; border-radius: var(--radius-md);" />
+        <img loading="lazy" src="dsa-assets/array_queue_step3_pop.png" alt="Thao tác pop trên hàng đợi mảng" style="max-width:100%; border-radius: var(--radius-md);" />
         <p style="font-size: 13px; color: var(--text-secondary);">Lấy phần tử ra khỏi hàng đợi (dequeue)</p>
       </div>
     </div>
@@ -2050,7 +2050,7 @@ The comparison conclusions for the two implementations are consistent with those
 <h2>5.3.1 Định nghĩa Deque (Hàng đợi hai đầu)</h2>
 <p>Trong một hàng đợi thông thường, ta chỉ có thể lấy phần tử ra ở đầu hoặc thêm phần tử vào ở cuối. Như minh họa trong hình dưới đây, <u>hàng đợi hai đầu (double-ended queue, deque)</u> mang lại sự linh hoạt hơn, cho phép thêm hoặc xóa phần tử ở cả đầu lẫn cuối.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/deque_operations.png" alt="Các thao tác của hàng đợi hai đầu" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/deque_operations.png" alt="Các thao tác của hàng đợi hai đầu" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>5.3.2 Các thao tác phổ biến trên Deque</h2>
@@ -2173,13 +2173,13 @@ const isEmpty = size === 0;</code></pre></div></div></div>
 <p>Đối với hàng đợi hai đầu, cả đầu và cuối đều có thể thực hiện thao tác thêm vào và lấy ra. Nói cách khác, hàng đợi hai đầu cần triển khai các thao tác theo cả chiều ngược lại. Vì lý do này, ta dùng "danh sách liên kết đôi" (doubly linked list) làm cấu trúc dữ liệu nền cho hàng đợi hai đầu.</p>
 <p>Như minh họa trong hình dưới đây, ta coi node đầu và node cuối của danh sách liên kết đôi lần lượt là đầu và cuối của hàng đợi hai đầu, triển khai chức năng thêm và xóa node ở cả hai đầu.</p>
 <div style="display:flex; gap: 1em; flex-wrap: wrap; justify-content: center; margin: 1.5em 0;">
-  <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/linkedlist_deque_step1.png" alt="Bước 1" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">Trạng thái ban đầu</p></div>
-  <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/linkedlist_deque_step2_push_last.png" alt="Bước 2" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">push_last()</p></div>
-  <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/linkedlist_deque_step3_push_first.png" alt="Bước 3" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">push_first()</p></div>
+  <div style="flex: 1 1 260px; text-align:center;"><img loading="lazy" src="dsa-assets/linkedlist_deque_step1.png" alt="Bước 1" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">Trạng thái ban đầu</p></div>
+  <div style="flex: 1 1 260px; text-align:center;"><img loading="lazy" src="dsa-assets/linkedlist_deque_step2_push_last.png" alt="Bước 2" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">push_last()</p></div>
+  <div style="flex: 1 1 260px; text-align:center;"><img loading="lazy" src="dsa-assets/linkedlist_deque_step3_push_first.png" alt="Bước 3" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">push_first()</p></div>
 </div>
 <div style="display:flex; gap: 1em; flex-wrap: wrap; justify-content: center; margin: 1.5em 0;">
-  <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/linkedlist_deque_step4_pop_last.png" alt="Bước 4" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">pop_last()</p></div>
-  <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/linkedlist_deque_step5_pop_first.png" alt="Bước 5" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">pop_first()</p></div>
+  <div style="flex: 1 1 260px; text-align:center;"><img loading="lazy" src="dsa-assets/linkedlist_deque_step4_pop_last.png" alt="Bước 4" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">pop_last()</p></div>
+  <div style="flex: 1 1 260px; text-align:center;"><img loading="lazy" src="dsa-assets/linkedlist_deque_step5_pop_first.png" alt="Bước 5" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">pop_first()</p></div>
 </div>
 <p>Mã triển khai được thể hiện dưới đây:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Node danh sách liên kết đôi */
@@ -2670,13 +2670,13 @@ class LinkedListDeque {
 <h3>5.3.3.2 Triển khai bằng Mảng</h3>
 <p>Như minh họa trong hình dưới đây, tương tự việc triển khai hàng đợi dựa trên mảng, ta cũng có thể dùng mảng vòng (circular array) để triển khai hàng đợi hai đầu.</p>
 <div style="display:flex; gap: 1em; flex-wrap: wrap; justify-content: center; margin: 1.5em 0;">
-  <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/array_deque_step1.png" alt="Bước 1" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">Trạng thái ban đầu</p></div>
-  <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/array_deque_step2_push_last.png" alt="Bước 2" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">push_last()</p></div>
-  <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/array_deque_step3_push_first.png" alt="Bước 3" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">push_first()</p></div>
+  <div style="flex: 1 1 260px; text-align:center;"><img loading="lazy" src="dsa-assets/array_deque_step1.png" alt="Bước 1" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">Trạng thái ban đầu</p></div>
+  <div style="flex: 1 1 260px; text-align:center;"><img loading="lazy" src="dsa-assets/array_deque_step2_push_last.png" alt="Bước 2" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">push_last()</p></div>
+  <div style="flex: 1 1 260px; text-align:center;"><img loading="lazy" src="dsa-assets/array_deque_step3_push_first.png" alt="Bước 3" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">push_first()</p></div>
 </div>
 <div style="display:flex; gap: 1em; flex-wrap: wrap; justify-content: center; margin: 1.5em 0;">
-  <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/array_deque_step4_pop_last.png" alt="Bước 4" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">pop_last()</p></div>
-  <div style="flex: 1 1 260px; text-align:center;"><img src="dsa-assets/array_deque_step5_pop_first.png" alt="Bước 5" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">pop_first()</p></div>
+  <div style="flex: 1 1 260px; text-align:center;"><img loading="lazy" src="dsa-assets/array_deque_step4_pop_last.png" alt="Bước 4" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">pop_last()</p></div>
+  <div style="flex: 1 1 260px; text-align:center;"><img loading="lazy" src="dsa-assets/array_deque_step5_pop_first.png" alt="Bước 5" style="max-width:100%; border-radius: var(--radius-md);" /><p style="font-size: 13px; color: var(--text-secondary);">pop_first()</p></div>
 </div>
 <p>Dựa trên cách triển khai hàng đợi, ta chỉ cần thêm các phương thức "thêm vào đầu" và "lấy ra từ cuối":</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Hàng đợi hai đầu triển khai bằng mảng vòng (circular array) */
@@ -2984,11 +2984,11 @@ class ArrayDeque {
   <div class="widget-tab-content active" data-tab="tab-static">
     <div style="display:flex; gap: 1em; flex-wrap: wrap; justify-content: center;">
       <div style="flex: 1 1 260px; text-align:center;">
-        <img src="dsa-assets/array_deque_step3_push_first.png" alt="Thao tác push_first trên hàng đợi hai đầu" style="max-width:100%; border-radius: var(--radius-md);" />
+        <img loading="lazy" src="dsa-assets/array_deque_step3_push_first.png" alt="Thao tác push_first trên hàng đợi hai đầu" style="max-width:100%; border-radius: var(--radius-md);" />
         <p style="font-size: 13px; color: var(--text-secondary);">Thêm phần tử vào đầu (push_first)</p>
       </div>
       <div style="flex: 1 1 260px; text-align:center;">
-        <img src="dsa-assets/array_deque_step4_pop_last.png" alt="Thao tác pop_last trên hàng đợi hai đầu" style="max-width:100%; border-radius: var(--radius-md);" />
+        <img loading="lazy" src="dsa-assets/array_deque_step4_pop_last.png" alt="Thao tác pop_last trên hàng đợi hai đầu" style="max-width:100%; border-radius: var(--radius-md);" />
         <p style="font-size: 13px; color: var(--text-secondary);">Lấy phần tử ra khỏi cuối (pop_last)</p>
       </div>
     </div>

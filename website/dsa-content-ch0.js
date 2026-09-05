@@ -42,7 +42,7 @@ Object.assign(DSA_CONTENT, {
   <li><strong>Thuật toán (Algorithms):</strong> Các phương pháp giải quyết bài toán (Tìm kiếm, Sắp xếp, Chia để trị, Quay lui, Quy hoạch động, Tham lam).</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hello_algo_mindmap.png" alt="Sơ đồ tư duy nội dung cuốn sách" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/hello_algo_mindmap.webp" alt="Sơ đồ tư duy nội dung cuốn sách" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>Lời cảm ơn</h2>
@@ -96,7 +96,7 @@ Acknowledgements to open-source contributors.
   <li><strong>Giai đoạn 3: Xây dựng hệ thống tri thức.</strong> Đọc thêm các bài viết chuyên sâu, học các Pattern (khuôn mẫu) giải quyết bài toán. Thử nghiệm "1 bài nhiều cách giải" hoặc "1 cách giải áp dụng cho nhiều bài".</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/learning_route.png" alt="Lộ trình học tập" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/learning_route.png" alt="Lộ trình học tập" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 `,
     originalContent: `

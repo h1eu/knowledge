@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dữ liệu cất ở đâu cho đúng chỗ</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · FRAGMENT STATE</p>
+  <h1>Dữ liệu cất ở đâu cho đúng chỗ</h1>
+  <p class="sub">Từ ngoài vào thì Arguments, nặng thì ViewModel, nhẹ thì SavedStateHandle.</p>
+<svg viewBox="0 0 800 700" role="img" aria-labelledby="fsc-decide-dark-title fsc-decide-dark-desc" font-family="'Geist', sans-serif">
+<title id="fsc-decide-dark-title">Dữ liệu cất ở đâu cho đúng chỗ</title>
+<desc id="fsc-decide-dark-desc">Dữ liệu từ ngoài vào thì dùng Arguments, dữ liệu nặng thì ViewModel, nhỏ và serializable thì SavedStateHandle, lớn thì kết hợp cả hai.</desc>
+<defs>
+<marker id="fsc-decide-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="700" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,92 V 120" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
+<path d="M 325,164 V 200 H 188 Q 180,200 180,208 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
+<rect x="232" y="180" width="40" height="12" rx="2" fill="#060913"/>
+<text x="252" y="189" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 400,208 V 292" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
+<rect x="412" y="242" width="56" height="12" rx="2" fill="#060913"/>
+<text x="440" y="251" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 325,336 V 390 H 188 Q 180,390 180,398 V 444" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
+<rect x="232" y="370" width="56" height="12" rx="2" fill="#060913"/>
+<text x="260" y="379" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 475,336 V 390 H 612 Q 620,390 620,398 V 444" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
+<rect x="502" y="370" width="40" height="12" rx="2" fill="#060913"/>
+<text x="522" y="379" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 105,488 V 544 H 132 Q 140,544 140,552 V 592" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
+<rect x="29" y="508" width="40" height="12" rx="2" fill="#060913"/>
+<text x="49" y="517" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 180,532 V 592" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
+<rect x="192" y="552" width="56" height="12" rx="2" fill="#060913"/>
+<text x="220" y="561" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 620,532 V 592" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
+<rect x="632" y="552" width="40" height="12" rx="2" fill="#060913"/>
+<text x="652" y="561" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 545,488 V 560 H 408 Q 400,560 400,568 V 616" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
+<rect x="452" y="540" width="56" height="12" rx="2" fill="#060913"/>
+<text x="480" y="549" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<!-- diamonds -->
+<polygon points="400,120 475,164 400,208 325,164" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="168" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">TỪ NGOÀI?</text>
+<polygon points="400,292 475,336 400,380 325,336" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="340" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">SURVIVE DEATH?</text>
+<polygon points="180,444 255,488 180,532 105,488" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
+<text x="180" y="492" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">NẶNG?</text>
+<polygon points="620,444 695,488 620,532 545,488" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
+<text x="620" y="492" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">SERI ĐƯỢC?</text>
+<!-- outcomes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Cần lưu dữ liệu gì?</text>
+<rect x="80" y="248" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="80" y="248" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="180" y="282" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Arguments</text>
+<text x="180" y="300" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">từ bên ngoài</text>
+<rect x="80" y="592" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="80" y="592" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="180" y="626" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<text x="180" y="644" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">data nặng</text>
+<rect x="520" y="592" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="520" y="592" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="620" y="622" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">SavedStateHandle</text>
+<text x="620" y="640" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhỏ · seri được</text>
+<rect x="300" y="616" width="200" height="28" rx="6" fill="#060913"/>
+<rect x="300" y="616" width="200" height="28" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="634" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">VM + Handle</text>
+<!-- legend -->
+<line x1="32" y1="676" x2="768" y2="676" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="688" r="4" fill="#38BDF8"/>
+<text x="162" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CÂU HỎI ĐẦU TIÊN</text>
+<line x1="370" y1="688" x2="402" y2="688" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
+<text x="410" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐI THEO NHÁNH ĐÚNG</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

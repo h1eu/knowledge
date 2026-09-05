@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Việc nặng ra nền, xong về main</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ HÀNG ĐỢI · GCD</p>
+  <h1>Việc nặng ra nền, xong về main</h1>
+  <p class="sub">Global concurrent chạy nền bằng async, xong nhảy về main cập nhật UI.</p>
+<svg viewBox="0 0 800 392" role="img" aria-labelledby="ios-gcd-title ios-gcd-desc" font-family="'Geist', sans-serif">
+<title id="ios-gcd-title">Việc nặng ra nền, xong về main</title>
+<desc id="ios-gcd-desc">Hàng đợi global concurrent thực thi async dưới nền, sau đó quay về hàng đợi main serial để cập nhật giao diện.</desc>
+<defs>
+<marker id="ios-gcd-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="392" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="340" height="320" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="120" height="12" rx="2" fill="#F8FAFC"/>
+<text x="108" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">QUEUE TYPES</text>
+<rect x="428" y="24" width="340" height="320" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="444" y="28" width="136" height="12" rx="2" fill="#F8FAFC"/>
+<text x="512" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">EXECUTION MODES</text>
+<!-- arrows -->
+<path d="M 340,112 H 396 Q 404,112 404,120 V 236 H 452 Q 460,236 460,244" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-gcd-arrow)"/>
+<rect x="340" y="106" width="60" height="12" rx="2" fill="#F8FAFC"/>
+<text x="370" y="115" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHẠY NỀN</text>
+<path d="M 460,244 H 308 Q 300,244 300,252 V 256" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-gcd-arrow)"/>
+<rect x="372" y="238" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="404" y="247" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VỀ UI</text>
+<!-- nodes -->
+<rect x="64" y="80" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="80" width="276" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="114" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">DispatchQueue.global(qos:)</text>
+<text x="202" y="128" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">concurrent · background</text>
+<rect x="64" y="168" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="168" width="276" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="202" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Custom DispatchQueue</text>
+<text x="202" y="216" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">serial hoặc concurrent</text>
+<rect x="64" y="256" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="256" width="276" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="202" y="290" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">DispatchQueue.main</text>
+<text x="202" y="304" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">serial · UI thread</text>
+<rect x="460" y="80" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="460" y="80" width="276" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="598" y="114" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">sync</text>
+<text x="598" y="128" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chặn luồng tới khi xong</text>
+<rect x="460" y="212" width="276" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="460" y="212" width="276" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="598" y="246" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">async</text>
+<text x="598" y="260" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trả quyền ngay · song song</text>
+<!-- legend -->
+<line x1="32" y1="368" x2="768" y2="368" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="380" r="4" fill="#0284C7"/>
+<text x="162" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐƯỜNG VỀ UI · ASYNC</text>
+<line x1="400" y1="380" x2="432" y2="380" stroke="#64748B" stroke-width="1.2" marker-end="url(#ios-gcd-arrow)"/>
+<text x="440" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CHUYỂN QUEUE / MODE</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

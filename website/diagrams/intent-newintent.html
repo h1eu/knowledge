@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Intent mới bay tới lúc đang chạy</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ TRÌNH TỰ · INTENT</p>
+  <h1>Intent mới bay tới lúc đang chạy</h1>
+  <p class="sub">Không tạo Activity mới — hệ thống gọi onNewIntent trên instance đang foreground.</p>
+<svg viewBox="0 0 800 264" role="img" aria-labelledby="intent-newintent-title intent-newintent-desc" font-family="'Geist', sans-serif">
+<title id="intent-newintent-title">Intent mới bay tới lúc đang chạy</title>
+<desc id="intent-newintent-desc">Intent mới tới thì Activity pause, nhận intent trong onNewIntent rồi resume lại.</desc>
+<defs>
+<marker id="intent-newintent-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+<marker id="intent-newintent-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
+</marker>
+</defs>
+<rect width="800" height="264" fill="#F8FAFC"/>
+<!-- lifelines -->
+<line x1="250" y1="84" x2="250" y2="216" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="550" y1="84" x2="550" y2="216" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="546" y="120" width="8" height="72" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<!-- messages -->
+<text x="48" y="104" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">INTENT MỚI · ID=100</text>
+<path d="M 250,128 H 550" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#intent-newintent-arrow)"/>
+<rect x="362" y="108" width="76" height="12" rx="2" fill="#F8FAFC"/>
+<text x="400" y="117" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONPAUSE</text>
+<path d="M 250,160 H 550" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#intent-newintent-accent)"/>
+<rect x="362" y="140" width="76" height="12" rx="2" fill="#F8FAFC"/>
+<text x="400" y="149" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONNEWINTENT</text>
+<rect x="562" y="152" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="610" y="161" fill="#FBBF24" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NHẬN TẠI ĐÂY</text>
+<path d="M 250,192 H 550" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#intent-newintent-arrow)"/>
+<rect x="362" y="172" width="76" height="12" rx="2" fill="#F8FAFC"/>
+<text x="400" y="181" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONRESUME</text>
+<!-- actors -->
+<rect x="150" y="32" width="200" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="150" y="32" width="200" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="250" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Android OS</text>
+<text x="250" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">hệ thống</text>
+<rect x="450" y="32" width="200" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="450" y="32" width="200" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="550" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity</text>
+<text x="550" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">foreground</text>
+<!-- legend -->
+<line x1="32" y1="240" x2="768" y2="240" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="256" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="252" r="4" fill="#0284C7"/>
+<text x="162" y="256" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NHẬN INTENT · KHÔNG TẠO MỚI</text>
+<line x1="460" y1="252" x2="492" y2="252" stroke="#64748B" stroke-width="1.2" marker-end="url(#intent-newintent-arrow)"/>
+<text x="500" y="256" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TẠM DỪNG · TIẾP TỤC</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · SEQUENCE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

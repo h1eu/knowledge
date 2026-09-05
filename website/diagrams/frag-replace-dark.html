@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Thay Fragment: view chết, instance sống</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ TRÌNH TỰ · FRAGMENT</p>
+  <h1>Thay Fragment: view chết, instance sống</h1>
+  <p class="sub">Quay lại màn hình cũ thì view tạo mới trên đúng instance cũ — Back mới hủy hẳn.</p>
+<svg viewBox="0 0 800 536" role="img" aria-labelledby="frag-replace-dark-title frag-replace-dark-desc" font-family="'Geist', sans-serif">
+<title id="frag-replace-dark-title">Thay Fragment: view chết, instance sống</title>
+<desc id="frag-replace-dark-desc">Thay A bằng B thì view của A bị hủy nhưng instance còn, Back thì B hủy hẳn và A tạo lại view trên instance cũ.</desc>
+<defs>
+<marker id="frag-replace-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="frag-replace-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="536" fill="#060913"/>
+<!-- lifelines -->
+<line x1="150" y1="84" x2="150" y2="488" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="400" y1="84" x2="400" y2="488" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="650" y1="84" x2="650" y2="488" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="146" y="120" width="8" height="80" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="646" y="216" width="8" height="64" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="646" y="336" width="8" height="40" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="146" y="408" width="8" height="64" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- messages -->
+<text x="48" y="104" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">HIỆN · A</text>
+<path d="M 400,128 H 150" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-replace-dark-arrow)"/>
+<rect x="222" y="108" width="56" height="12" rx="2" fill="#060913"/>
+<text x="250" y="117" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PAUSE</text>
+<path d="M 400,152 H 150" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-replace-dark-arrow)"/>
+<rect x="222" y="132" width="56" height="12" rx="2" fill="#060913"/>
+<text x="250" y="141" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STOP</text>
+<path d="M 400,176 H 150" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-replace-dark-arrow)"/>
+<rect x="202" y="156" width="96" height="12" rx="2" fill="#060913"/>
+<text x="250" y="165" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DESTROYVIEW</text>
+<text x="48" y="200" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">VIEW HỦY</text>
+<path d="M 400,224 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-replace-dark-arrow)"/>
+<rect x="493" y="204" width="64" height="12" rx="2" fill="#060913"/>
+<text x="525" y="213" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ATTACH</text>
+<path d="M 400,248 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-replace-dark-arrow)"/>
+<rect x="485" y="228" width="80" height="12" rx="2" fill="#060913"/>
+<text x="525" y="237" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CREATEVIEW</text>
+<path d="M 400,272 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-replace-dark-arrow)"/>
+<rect x="477" y="252" width="96" height="12" rx="2" fill="#060913"/>
+<text x="525" y="261" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">START · RESUME</text>
+<text x="48" y="296" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">HIỆN · B</text>
+<text x="48" y="320" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">NHẤN BACK</text>
+<path d="M 400,344 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-replace-dark-arrow)"/>
+<rect x="485" y="324" width="80" height="12" rx="2" fill="#060913"/>
+<text x="525" y="333" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PAUSE · STOP</text>
+<path d="M 400,368 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-replace-dark-arrow)"/>
+<rect x="485" y="348" width="80" height="12" rx="2" fill="#060913"/>
+<text x="525" y="357" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HỦY HẲN</text>
+<text x="48" y="392" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">B HỦY HẲN</text>
+<path d="M 400,416 H 150" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-replace-dark-arrow)"/>
+<rect x="222" y="396" width="56" height="12" rx="2" fill="#060913"/>
+<text x="250" y="405" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CREATE</text>
+<path d="M 400,440 H 150" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-replace-dark-arrow)"/>
+<rect x="222" y="420" width="56" height="12" rx="2" fill="#060913"/>
+<text x="250" y="429" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CREATED</text>
+<path d="M 400,464 H 150" fill="none" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#frag-replace-dark-accent)"/>
+<rect x="202" y="444" width="96" height="12" rx="2" fill="#060913"/>
+<text x="250" y="453" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">TẠO LẠI · CŨ</text>
+<text x="48" y="484" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">VIEW MỚI</text>
+<!-- actors -->
+<rect x="65" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="65" y="32" width="170" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="150" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Fragment A</text>
+<text x="150" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình 1</text>
+<rect x="315" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="315" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FragmentManager</text>
+<text x="400" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">điều phối</text>
+<rect x="565" y="32" width="170" height="52" rx="6" fill="#060913"/>
+<rect x="565" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="650" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Fragment B</text>
+<text x="650" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình 2</text>
+<!-- legend -->
+<line x1="32" y1="512" x2="768" y2="512" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="528" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="524" r="4" fill="#38BDF8"/>
+<text x="162" y="528" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">BƯỚC CHỐT · VIEW MỚI</text>
+<line x1="400" y1="524" x2="432" y2="524" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#frag-replace-dark-arrow)"/>
+<text x="440" y="528" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">FM GỌI · MỘT CHIỀU</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · SEQUENCE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

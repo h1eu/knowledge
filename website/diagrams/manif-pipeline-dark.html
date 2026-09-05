@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Từ manifest tới hệ thống lúc build và runtime</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ KIẾN TRÚC · MANIFEST</p>
+  <h1>Từ manifest tới hệ thống lúc build và runtime</h1>
+  <p class="sub">Merger gộp ba nguồn, APK mang theo, hai service chia nhau đọc.</p>
+<svg viewBox="0 0 800 492" role="img" aria-labelledby="manif-pipeline-dark-title manif-pipeline-dark-desc" font-family="'Geist', sans-serif">
+<title id="manif-pipeline-dark-title">Từ manifest tới hệ thống lúc build và runtime</title>
+<desc id="manif-pipeline-dark-desc">Manifest của app và hai module thư viện gộp qua Manifest Merger vào APK, PackageManagerService đọc lúc cài đặt và ActivityManagerService đọc lúc runtime.</desc>
+<defs>
+<marker id="manif-pipeline-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="492" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="336" height="116" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="72" height="12" rx="2" fill="#060913"/>
+<text x="84" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">APP</text>
+<rect x="400" y="24" width="368" height="116" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="416" y="28" width="96" height="12" rx="2" fill="#060913"/>
+<text x="464" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">THƯ VIỆN</text>
+<!-- arrows -->
+<path d="M 200,120 V 168" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#manif-pipeline-dark-arrow)"/>
+<path d="M 584,84 V 128 H 268 Q 260,128 260,136 V 168" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#manif-pipeline-dark-arrow)"/>
+<path d="M 728,110 V 198 H 280" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#manif-pipeline-dark-arrow)"/>
+<path d="M 200,228 V 276" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#manif-pipeline-dark-arrow)"/>
+<path d="M 200,336 V 384" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#manif-pipeline-dark-arrow)"/>
+<path d="M 200,336 V 356 H 472 Q 480,356 480,364 V 384" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#manif-pipeline-dark-arrow)"/>
+<!-- nodes -->
+<rect x="64" y="64" width="272" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="64" width="272" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="200" y="96" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">AndroidManifest.xml</text>
+<text x="200" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app module</text>
+<rect x="440" y="48" width="288" height="36" rx="6" fill="#060913"/>
+<rect x="440" y="48" width="288" height="36" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="584" y="71" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">:feature:cart</text>
+<rect x="440" y="92" width="288" height="36" rx="6" fill="#060913"/>
+<rect x="440" y="92" width="288" height="36" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="584" y="115" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">:core:network</text>
+<rect x="120" y="168" width="160" height="60" rx="6" fill="#060913"/>
+<rect x="120" y="168" width="160" height="60" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="128" y="174" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="154" y="183" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
+<text x="200" y="206" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Merger</text>
+<text x="200" y="221" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lúc build</text>
+<rect x="120" y="276" width="160" height="60" rx="6" fill="#060913"/>
+<rect x="120" y="276" width="160" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="200" y="310" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">APK / AAB</text>
+<text x="200" y="328" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">binary đã gộp</text>
+<rect x="120" y="384" width="160" height="60" rx="6" fill="#060913"/>
+<rect x="120" y="384" width="160" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="200" y="418" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">PMS</text>
+<text x="200" y="436" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lúc cài đặt</text>
+<rect x="400" y="384" width="160" height="60" rx="6" fill="#060913"/>
+<rect x="400" y="384" width="160" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="480" y="418" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">AMS</text>
+<text x="480" y="436" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lúc runtime</text>
+<!-- legend -->
+<line x1="32" y1="468" x2="768" y2="468" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="484" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="480" r="4" fill="#38BDF8"/>
+<text x="162" y="484" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐIỂM GỘP · MERGER</text>
+<line x1="350" y1="480" x2="382" y2="480" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#manif-pipeline-dark-arrow)"/>
+<text x="390" y="484" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỘP → ĐÓNG GÓI → ĐỌC</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · ARCHITECTURE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

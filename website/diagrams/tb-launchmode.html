@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ba câu hỏi chọn launchMode</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · LAUNCH MODE</p>
+  <h1>Ba câu hỏi chọn launchMode</h1>
+  <p class="sub">Cần intent mới không, sợ trùng không, muốn làm gốc không — trả lời xong là ra mode.</p>
+<svg viewBox="0 0 800 700" role="img" aria-labelledby="tb-launchmode-title tb-launchmode-desc" font-family="'Geist', sans-serif">
+<title id="tb-launchmode-title">Ba câu hỏi chọn launchMode</title>
+<desc id="tb-launchmode-desc">Không cần intent mới thì standard, cần mà không sợ trùng thì singleTop, sợ trùng mà cần làm gốc thì singleTask, cần cách ly thì singleInstance.</desc>
+<defs>
+<marker id="tb-launchmode-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="700" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 325,100 V 150 H 208 Q 200,150 200,158 V 220" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-launchmode-arrow)"/>
+<rect x="234" y="130" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="262" y="139" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 475,100 V 150 H 592 Q 600,150 600,158 V 220" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-launchmode-arrow)"/>
+<rect x="502" y="130" width="40" height="12" rx="2" fill="#F8FAFC"/>
+<text x="522" y="139" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 530,264 V 320 H 488 Q 480,320 480,328 V 384" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-launchmode-arrow)"/>
+<rect x="481" y="300" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="509" y="309" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 600,308 V 360 H 568 Q 560,360 560,368 V 428" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-launchmode-arrow)"/>
+<rect x="608" y="326" width="40" height="12" rx="2" fill="#F8FAFC"/>
+<text x="628" y="335" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 490,472 V 540 H 248 Q 240,540 240,548 V 592" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-launchmode-arrow)"/>
+<rect x="345" y="520" width="40" height="12" rx="2" fill="#F8FAFC"/>
+<text x="365" y="529" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 630,472 V 540 H 652 Q 660,540 660,548 V 592" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-launchmode-arrow)"/>
+<rect x="638" y="496" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="666" y="505" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<!-- diamonds -->
+<polygon points="400,50 485,100 400,150 315,100" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="400" y="104" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">INTENT MỚI?</text>
+<polygon points="600,220 670,264 600,308 530,264" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
+<text x="600" y="268" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">TRÙNG?</text>
+<polygon points="560,428 630,472 560,516 490,472" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
+<text x="560" y="476" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">GỐC TASK?</text>
+<!-- outcomes -->
+<rect x="80" y="220" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="220" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="200" y="254" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">standard</text>
+<text x="200" y="272" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">mặc định</text>
+<rect x="360" y="384" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="360" y="384" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="480" y="418" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">singleTop</text>
+<text x="480" y="436" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">không trùng đỉnh</text>
+<rect x="120" y="592" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="120" y="592" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="240" y="626" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">singleTask</text>
+<text x="240" y="644" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">gốc của task</text>
+<rect x="560" y="592" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="560" y="592" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="660" y="626" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">singleInstance</text>
+<text x="660" y="644" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">cách ly hoàn toàn</text>
+<!-- legend -->
+<line x1="32" y1="676" x2="768" y2="676" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="688" r="4" fill="#0284C7"/>
+<text x="162" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CÂU HỎI ĐẦU TIÊN</text>
+<line x1="370" y1="688" x2="402" y2="688" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-launchmode-arrow)"/>
+<text x="410" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỌI NHÁNH ĐỀU CÓ NHÃN</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

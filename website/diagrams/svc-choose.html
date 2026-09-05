@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ba câu hỏi chọn đúng Service</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · SERVICE</p>
+  <h1>Ba câu hỏi chọn đúng Service</h1>
+  <p class="sub">Thấy tiến trình không, cần ngay không, nói chuyện hai chiều không — hết ba câu là ra loại.</p>
+<svg viewBox="0 0 800 700" role="img" aria-labelledby="svc-choose-title svc-choose-desc" font-family="'Geist', sans-serif">
+<title id="svc-choose-title">Ba câu hỏi chọn đúng Service</title>
+<desc id="svc-choose-desc">Thấy tiến trình thì Foreground Service, không cần ngay thì WorkManager, cần hai chiều thì Bound Service, còn lại Started Service.</desc>
+<defs>
+<marker id="svc-choose-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="700" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 325,140 V 190 H 188 Q 180,190 180,198 V 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="232" y="170" width="40" height="12" rx="2" fill="#F8FAFC"/>
+<text x="252" y="179" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 400,184 V 240" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="412" y="204" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="440" y="213" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 325,284 V 334 H 188 Q 180,334 180,342 V 392" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="232" y="314" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="260" y="323" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 400,328 V 436" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="412" y="374" width="40" height="12" rx="2" fill="#F8FAFC"/>
+<text x="432" y="383" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 325,480 V 530 H 188 Q 180,530 180,538 V 588" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="232" y="510" width="40" height="12" rx="2" fill="#F8FAFC"/>
+<text x="252" y="519" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 475,480 V 530 H 612 Q 620,530 620,538 V 588" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="502" y="510" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="530" y="519" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<!-- diamonds -->
+<polygon points="400,96 475,140 400,184 325,140" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="400" y="144" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">THẤY TIẾN TRÌNH?</text>
+<polygon points="400,240 475,284 400,328 325,284" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="288" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">CHẠY NGAY?</text>
+<polygon points="400,436 475,480 400,524 325,480" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="484" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">2 CHIỀU?</text>
+<!-- outcomes -->
+<rect x="280" y="32" width="240" height="52" rx="20" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="52" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="64" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Tác vụ nền cần làm</text>
+<rect x="80" y="248" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="248" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="180" y="282" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Foreground</text>
+<text x="180" y="300" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">+ notification</text>
+<rect x="80" y="392" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="392" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="180" y="426" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
+<text x="180" y="444" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đặt lịch</text>
+<rect x="80" y="588" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="588" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="180" y="622" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Bound Service</text>
+<text x="180" y="640" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">2 chiều · binder</text>
+<rect x="520" y="588" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="520" y="588" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="620" y="622" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Started Service</text>
+<text x="620" y="640" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">+ coroutine</text>
+<!-- legend -->
+<line x1="32" y1="676" x2="768" y2="676" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="688" r="4" fill="#0284C7"/>
+<text x="162" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CÂU HỎI ĐẦU TIÊN</text>
+<line x1="370" y1="688" x2="402" y2="688" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<text x="410" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỌI NHÁNH ĐỀU CÓ NHÃN</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

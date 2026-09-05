@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Đăng nhập xong đốt cầu Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ TRÌNH TỰ · BACK STACK</p>
+  <h1>Đăng nhập xong đốt cầu Login</h1>
+  <p class="sub">Xóa Login khỏi stack để nút Back thoát app thay vì quay lại màn hình đăng nhập.</p>
+<svg viewBox="0 0 800 276" role="img" aria-labelledby="tb-loginclear-title tb-loginclear-desc" font-family="'Geist', sans-serif">
+<title id="tb-loginclear-title">Đăng nhập xong đốt cầu Login</title>
+<desc id="tb-loginclear-desc">Đăng nhập xong mở Home với cờ xóa task, stack chỉ còn Home nên Back thoát app.</desc>
+<defs>
+<marker id="tb-loginclear-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+<marker id="tb-loginclear-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
+</marker>
+</defs>
+<rect width="800" height="276" fill="#F8FAFC"/>
+<!-- lifelines -->
+<line x1="150" y1="84" x2="150" y2="228" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="400" y1="84" x2="400" y2="228" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="650" y1="84" x2="650" y2="228" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="396" y="124" width="8" height="80" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="646" y="156" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<!-- messages -->
+<rect x="422" y="100" width="64" height="16" rx="2" fill="#F8FAFC"/>
+<text x="454" y="112" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">[LOGIN]</text>
+<path d="M 150,132 H 400" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-loginclear-arrow)"/>
+<rect x="215" y="112" width="120" height="12" rx="2" fill="#F8FAFC"/>
+<text x="275" y="121" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NEW_TASK · CLEAR</text>
+<path d="M 400,164 H 650" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#tb-loginclear-accent)"/>
+<rect x="485" y="144" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="525" y="153" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">XÓA LOGIN</text>
+<path d="M 400,196 H 650" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-loginclear-arrow)"/>
+<rect x="485" y="176" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="525" y="185" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PUSH HOME</text>
+<rect x="422" y="208" width="150" height="12" rx="2" fill="#F8FAFC"/>
+<text x="497" y="217" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">[HOME] · BACK THOÁT APP</text>
+<!-- actors -->
+<rect x="65" y="32" width="170" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="65" y="32" width="170" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="150" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">LoginActivity</text>
+<text x="150" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đăng nhập</text>
+<rect x="315" y="32" width="170" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="315" y="32" width="170" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">HomeActivity</text>
+<text x="400" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình chính</text>
+<rect x="565" y="32" width="170" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="565" y="32" width="170" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="650" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Back Stack</text>
+<text x="650" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ngăn xếp</text>
+<!-- legend -->
+<line x1="32" y1="252" x2="768" y2="252" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="268" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="264" r="4" fill="#0284C7"/>
+<text x="162" y="268" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">BƯỚC XÓA STACK</text>
+<line x1="370" y1="264" x2="402" y2="264" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-loginclear-arrow)"/>
+<text x="410" y="268" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GỌI THƯỜNG</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · SEQUENCE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

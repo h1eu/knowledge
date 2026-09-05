@@ -17,7 +17,7 @@ Object.assign(DSA_CONTENT, {
     content: `
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_divide_and_conquer.jpg" alt="Chia để trị" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_divide_and_conquer.jpg" alt="Chia để trị" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <div class="callout callout-note">
   <span class="callout-icon">✨</span>
@@ -65,7 +65,7 @@ Object.assign(DSA_CONTENT, {
   <li><strong>Trị:</strong> Gộp các mảng con đã sắp xếp (nghiệm của bài toán con) từ dưới lên trên để thu được mảng gốc đã sắp xếp (nghiệm của bài toán gốc).</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/divide_and_conquer_merge_sort.png" alt="Chiến lược chia để trị của sắp xếp trộn" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/divide_and_conquer_merge_sort.png" alt="Chiến lược chia để trị của sắp xếp trộn" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>Làm sao để xác định bài toán Chia để trị?</h2>
@@ -92,7 +92,7 @@ $$
 O(n + (\\frac{n}{2})^2 \\times 2 + n) = O(\\frac{n^2}{2} + 2n)
 $$
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/divide_and_conquer_bubble_sort.png" alt="Mảng trước và sau khi chia trong sắp xếp nổi bọt" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/divide_and_conquer_bubble_sort.png" alt="Mảng trước và sau khi chia trong sắp xếp nổi bọt" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Tiếp theo, ta tính bất đẳng thức sau, trong đó vế trái và vế phải lần lượt biểu diễn tổng số phép tính trước và sau khi chia:</p>
 $$
@@ -111,7 +111,7 @@ $$
 <p>Tối ưu song song đặc biệt hiệu quả trong môi trường đa lõi hoặc đa bộ xử lý, vì hệ thống có thể xử lý đồng thời nhiều bài toán con, tận dụng đầy đủ hơn tài nguyên tính toán và giảm đáng kể tổng thời gian chạy.</p>
 <p>Ví dụ, trong "sắp xếp theo xô" như hình dưới đây, ta phân phối đều một lượng lớn dữ liệu vào các xô khác nhau, và các tác vụ sắp xếp cho tất cả các xô có thể được phân phối cho các đơn vị tính toán khác nhau. Sau khi hoàn thành, kết quả sẽ được gộp lại.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/divide_and_conquer_parallel_computing.png" alt="Tính toán song song trong sắp xếp theo xô" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/divide_and_conquer_parallel_computing.png" alt="Tính toán song song trong sắp xếp theo xô" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h2>Các ứng dụng phổ biến của Chia để trị</h2>
@@ -279,7 +279,7 @@ It can be seen that **divide and conquer is a "quietly pervasive" algorithmic id
 </ol>
 <p>Hình dưới đây cho thấy quá trình chia để trị của tìm kiếm nhị phân cho phần tử $6$ trong một mảng.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/binary_search_recur.png" alt="Quá trình chia để trị của tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/binary_search_recur.png" alt="Quá trình chia để trị của tìm kiếm nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p>Trong mã cài đặt, ta khai báo một hàm đệ quy <code>dfs()</code> để giải bài toán $f(i, j)$:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Tìm kiếm nhị phân: bài toán f(i, j) */
@@ -490,7 +490,7 @@ In the implementation code, we declare a recursive function \`dfs()\` to solve t
   </div>
 </div>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/build_tree_example.png" alt="Dữ liệu ví dụ cho bài toán xây dựng cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/build_tree_example.png" alt="Dữ liệu ví dụ cho bài toán xây dựng cây nhị phân" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h3>Xác định đây có phải Bài toán Chia để trị không</h3>
@@ -515,7 +515,7 @@ In the implementation code, we declare a recursive function \`dfs()\` to solve t
   <li>Dựa trên kết quả chia của <code>inorder</code>, dễ dàng xác định cây con trái và cây con phải lần lượt có 1 và 3 nút, cho phép ta chia <code>preorder</code> thành <code>[ 3 | 9 | 2 1 7 ]</code>.</li>
 </ol>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/build_tree_preorder_inorder_division.png" alt="Chia cây con trong duyệt tiền thứ tự và trung thứ tự" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/build_tree_preorder_inorder_division.png" alt="Chia cây con trong duyệt tiền thứ tự và trung thứ tự" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h3>Mô tả khoảng Cây con dựa trên Biến số</h3>
@@ -542,7 +542,7 @@ In the implementation code, we declare a recursive function \`dfs()\` to solve t
 </table>
 <p>Lưu ý rằng $(m-l)$ trong chỉ mục nút gốc của cây con phải có nghĩa là "số lượng nút trong cây con trái". Nên hiểu điều này kết hợp với hình dưới đây.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/build_tree_division_pointers.png" alt="Biểu diễn khoảng chỉ mục của nút gốc và cây con trái, phải" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/build_tree_division_pointers.png" alt="Biểu diễn khoảng chỉ mục của nút gốc và cây con trái, phải" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h3>Cài đặt Code</h3>
@@ -691,39 +691,39 @@ TreeNode *buildTree(vector&lt;int&gt; &amp;preorder, vector&lt;int&gt; &amp;inor
 <div class="interactive-widget-wrapper" id="build-tree-steps-wrapper">
   <div class="slider-container">
     <div class="slide active">
-      <img src="dsa-assets/built_tree_step1.png" alt="built_tree_step1" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/built_tree_step1.png" alt="built_tree_step1" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">Bước 1: Gọi <code>dfs(i=0, l=0, r=4)</code> cho toàn bộ cây. Nút gốc = <code>preorder[0]</code> = 3.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/built_tree_step2.png" alt="built_tree_step2" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/built_tree_step2.png" alt="built_tree_step2" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">Bước 2: Tra <code>inorder_map[3]</code> = <code>m</code> = 1 → cây con trái có khoảng <code>inorder</code> [0, 0], cây con phải có khoảng [2, 4].</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/built_tree_step3.png" alt="built_tree_step3" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/built_tree_step3.png" alt="built_tree_step3" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">Bước 3: Gọi <code>dfs(i=1, l=0, r=0)</code> để xây cây con trái. Nút gốc = <code>preorder[1]</code> = 9.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/built_tree_step4.png" alt="built_tree_step4" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/built_tree_step4.png" alt="built_tree_step4" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">Bước 4: Khoảng <code>inorder</code> [0, 0] chỉ có 1 phần tử → node 9 là lá, không có con. Đệ quy trả về, liên kết 3.left = 9.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/built_tree_step5.png" alt="built_tree_step5" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/built_tree_step5.png" alt="built_tree_step5" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">Bước 5: Gọi <code>dfs(i=2, l=2, r=4)</code> để xây cây con phải. Nút gốc = <code>preorder[2]</code> = 2.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/built_tree_step6.png" alt="built_tree_step6" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/built_tree_step6.png" alt="built_tree_step6" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">Bước 6: Tra <code>inorder_map[2]</code> = <code>m</code> = 3 → cây con trái của node 2 có khoảng [2, 2], cây con phải có khoảng [4, 4].</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/built_tree_step7.png" alt="built_tree_step7" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/built_tree_step7.png" alt="built_tree_step7" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">Bước 7: Gọi <code>dfs(i=3, l=2, r=2)</code> — khoảng chỉ có 1 phần tử → node 1 là lá. Liên kết 2.left = 1.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/built_tree_step8.png" alt="built_tree_step8" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/built_tree_step8.png" alt="built_tree_step8" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">Bước 8: Gọi <code>dfs(i=4, l=4, r=4)</code> — khoảng chỉ có 1 phần tử → node 7 là lá. Liên kết 2.right = 7.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/built_tree_step9.png" alt="built_tree_step9" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/built_tree_step9.png" alt="built_tree_step9" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">Bước 9: Đệ quy trả về hết, liên kết 3.right = 2. Cây nhị phân đã được xây dựng hoàn chỉnh!</p>
     </div>
     <div class="slider-controls">
@@ -735,7 +735,7 @@ TreeNode *buildTree(vector&lt;int&gt; &amp;preorder, vector&lt;int&gt; &amp;inor
 </div>
 <p>Kết quả chia của duyệt tiền thứ tự <code>preorder</code> và duyệt trung thứ tự <code>inorder</code> trong mỗi lần gọi hàm đệ quy được thể hiện trong hình dưới đây.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/built_tree_overall.png" alt="Kết quả chia trong mỗi hàm đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/built_tree_overall.png" alt="Kết quả chia trong mỗi hàm đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <div class="callout callout-tip">
@@ -900,7 +900,7 @@ The hash table stores the mapping from \`inorder\` elements to their indices, wi
   </div>
 </div>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hanota_example.png" alt="Ví dụ về bài toán Tháp Hà Nội" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/hanota_example.png" alt="Ví dụ về bài toán Tháp Hà Nội" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <p><strong>Ta ký hiệu bài toán Tháp Hà Nội có kích thước $i$ là $f(i)$</strong>. Ví dụ, $f(3)$ biểu diễn việc di chuyển $3$ đĩa từ <code>A</code> sang <code>C</code>.</p>
 
@@ -909,11 +909,11 @@ The hash table stores the mapping from \`inorder\` elements to their indices, wi
 <div class="interactive-widget-wrapper" id="hanota-f1-steps-wrapper">
   <div class="slider-container">
     <div class="slide active">
-      <img src="dsa-assets/hanota_f1_step1.png" alt="hanota_f1_step1" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/hanota_f1_step1.png" alt="hanota_f1_step1" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">$f(1)$ — Bước 1: Chỉ có 1 đĩa trên cột A.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/hanota_f1_step2.png" alt="hanota_f1_step2" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/hanota_f1_step2.png" alt="hanota_f1_step2" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">$f(1)$ — Bước 2: Di chuyển thẳng đĩa đó từ A sang C.</p>
     </div>
     <div class="slider-controls">
@@ -932,19 +932,19 @@ The hash table stores the mapping from \`inorder\` elements to their indices, wi
 <div class="interactive-widget-wrapper" id="hanota-f2-steps-wrapper">
   <div class="slider-container">
     <div class="slide active">
-      <img src="dsa-assets/hanota_f2_step1.png" alt="hanota_f2_step1" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/hanota_f2_step1.png" alt="hanota_f2_step1" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">$f(2)$ — Bước 1: Có 2 đĩa trên cột A.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/hanota_f2_step2.png" alt="hanota_f2_step2" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/hanota_f2_step2.png" alt="hanota_f2_step2" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">$f(2)$ — Bước 2: Di chuyển đĩa nhỏ từ A sang B.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/hanota_f2_step3.png" alt="hanota_f2_step3" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/hanota_f2_step3.png" alt="hanota_f2_step3" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">$f(2)$ — Bước 3: Di chuyển đĩa lớn từ A sang C.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/hanota_f2_step4.png" alt="hanota_f2_step4" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/hanota_f2_step4.png" alt="hanota_f2_step4" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">$f(2)$ — Bước 4: Di chuyển đĩa nhỏ từ B sang C. Hoàn tất!</p>
     </div>
     <div class="slider-controls">
@@ -967,19 +967,19 @@ The hash table stores the mapping from \`inorder\` elements to their indices, wi
 <div class="interactive-widget-wrapper" id="hanota-f3-steps-wrapper">
   <div class="slider-container">
     <div class="slide active">
-      <img src="dsa-assets/hanota_f3_step1.png" alt="hanota_f3_step1" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/hanota_f3_step1.png" alt="hanota_f3_step1" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">$f(3)$ — Bước 1: Có 3 đĩa trên cột A.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/hanota_f3_step2.png" alt="hanota_f3_step2" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/hanota_f3_step2.png" alt="hanota_f3_step2" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">$f(3)$ — Bước 2: Di chuyển khối 2 đĩa trên cùng từ A sang B (dùng C làm đệm).</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/hanota_f3_step3.png" alt="hanota_f3_step3" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/hanota_f3_step3.png" alt="hanota_f3_step3" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">$f(3)$ — Bước 3: Di chuyển đĩa lớn nhất còn lại từ A sang C.</p>
     </div>
     <div class="slide">
-      <img src="dsa-assets/hanota_f3_step4.png" alt="hanota_f3_step4" style="max-width:100%; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/hanota_f3_step4.png" alt="hanota_f3_step4" style="max-width:100%; border-radius: var(--radius-md);" />
       <p class="slide-caption">$f(3)$ — Bước 4: Di chuyển khối 2 đĩa từ B sang C (dùng A làm đệm). Hoàn tất!</p>
     </div>
     <div class="slider-controls">
@@ -998,7 +998,7 @@ The hash table stores the mapping from \`inorder\` elements to their indices, wi
 </ol>
 <p>Đối với hai bài toán con $f(n-1)$ này, <strong>ta có thể tiếp tục chia đệ quy theo cùng một cách</strong> cho đến khi đạt được bài toán con nhỏ nhất $f(1)$. Nghiệm của $f(1)$ đã biết và chỉ cần một thao tác di chuyển.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hanota_divide_and_conquer.png" alt="Chiến lược chia để trị để giải bài toán Tháp Hà Nội" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/hanota_divide_and_conquer.png" alt="Chiến lược chia để trị để giải bài toán Tháp Hà Nội" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <h3>Cài đặt Code</h3>
@@ -1131,7 +1131,7 @@ void solveHanota(vector&lt;int&gt; &amp;A, vector&lt;int&gt; &amp;B, vector&lt;i
 
 <p>Như hình dưới đây, bài toán Tháp Hà Nội tạo thành một cây đệ quy có chiều cao $n$, trong đó mỗi nút đại diện cho một bài toán con tương ứng với một lần gọi hàm <code>dfs()</code>, <strong>do đó độ phức tạp thời gian là $O(2^n)$ và độ phức tạp không gian là $O(n)$</strong>.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/hanota_recursive_tree.png" alt="Cây đệ quy của bài toán Tháp Hà Nội" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/hanota_recursive_tree.png" alt="Cây đệ quy của bài toán Tháp Hà Nội" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 
 <div class="callout callout-note">

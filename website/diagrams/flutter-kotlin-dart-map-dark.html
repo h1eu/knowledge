@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bảy cặp song sinh Kotlin–Dart</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ ÁNH XẠ · KOTLIN → DART</p>
+  <h1>Bảy cặp song sinh Kotlin–Dart</h1>
+  <p class="sub">Mỗi hàng một cặp tương đương — đọc từ trái (cái đã biết) sang phải (cái cần học).</p>
+<svg viewBox="0 0 800 540" role="img" aria-labelledby="flutter-kotlin-dart-map-dark-title flutter-kotlin-dart-map-dark-desc" font-family="'Geist', sans-serif">
+<title id="flutter-kotlin-dart-map-dark-title">Bảy cặp song sinh Kotlin–Dart</title>
+<desc id="flutter-kotlin-dart-map-dark-desc">Bảy cặp khái niệm tương đương giữa Kotlin và Dart từ khai báo biến tới hệ sinh thái build.</desc>
+<defs>
+<marker id="flutter-kotlin-dart-map-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="540" fill="#060913"/>
+<!-- nodes -->
+<rect x="120" y="32" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="32" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="63" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">val / var / const val → final / var / const</text>
+<rect x="120" y="100" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="100" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="131" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">T? + Smart Cast → T? + Promotion locals only</text>
+<rect x="120" y="168" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="168" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="199" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">data class → Record / Freezed codegen</text>
+<rect x="120" y="236" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="236" width="560" height="52" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="267" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">suspend + Flow + Dispatchers → Future + Stream + Isolate</text>
+<rect x="120" y="304" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="304" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="335" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">class final mặc định → class mở + modifiers</text>
+<rect x="120" y="372" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="372" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="403" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">when + sealed class → switch expression + Patterns</text>
+<rect x="120" y="440" width="560" height="52" rx="6" fill="#060913"/>
+<rect x="120" y="440" width="560" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="471" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Gradle · Maven · KSP → pub · pub.dev · build_runner</text>
+<!-- legend -->
+<line x1="32" y1="516" x2="768" y2="516" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="532" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="528" r="4" fill="#38BDF8"/>
+<text x="162" y="532" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">BƯỚC NHẢY LỚN · ASYNC MODEL</text>
+<line x1="430" y1="528" x2="462" y2="528" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-kotlin-dart-map-dark-arrow)"/>
+<text x="470" y="532" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐỌC TRÁI → PHẢI · KOTLIN → DART</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · MAPPING · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

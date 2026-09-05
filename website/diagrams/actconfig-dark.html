@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Xoay màn hình: chết đi sống lại của Activity</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · ACTIVITY</p>
+  <h1>Xoay màn hình: chết đi sống lại của Activity</h1>
+  <p class="sub">Đổi config là cả vòng đời chạy lại — onSaveInstanceState là phao cứu sinh duy nhất.</p>
+<svg viewBox="0 0 800 700" role="img" aria-labelledby="actconfig-dark-title actconfig-dark-desc" font-family="'Geist', sans-serif">
+<title id="actconfig-dark-title">Xoay màn hình: chết đi sống lại của Activity</title>
+<desc id="actconfig-dark-desc">Activity đang resume gặp đổi cấu hình, đi qua pause stop, lưu state, destroy, tạo mới, restore rồi resume với cấu hình mới.</desc>
+<defs>
+<marker id="actconfig-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="700" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,88 V 112" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#actconfig-dark-arrow)"/>
+<path d="M 400,168 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#actconfig-dark-arrow)"/>
+<path d="M 400,248 V 272" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#actconfig-dark-arrow)"/>
+<path d="M 400,328 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#actconfig-dark-arrow)"/>
+<path d="M 400,408 V 432" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#actconfig-dark-arrow)"/>
+<path d="M 400,488 V 512" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#actconfig-dark-arrow)"/>
+<path d="M 400,568 V 592" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#actconfig-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="56" rx="20" fill="#060913"/>
+<rect x="280" y="32" width="240" height="56" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">RESUME config cũ</text>
+<rect x="280" y="112" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="112" width="240" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="146" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Xoay · theme · locale</text>
+<rect x="280" y="192" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="192" width="240" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="222" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onPause → onStop</text>
+<text x="400" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">dừng hiển thị</text>
+<rect x="280" y="272" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="272" width="240" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="288" y="278" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="314" y="287" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SAVE</text>
+<text x="400" y="306" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onSaveInstanceState</text>
+<text x="400" y="320" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lưu vào bundle</text>
+<rect x="280" y="352" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="352" width="240" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onDestroy</text>
+<text x="400" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">hủy instance cũ</text>
+<rect x="280" y="432" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="432" width="240" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="462" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onCreate(bundle?)</text>
+<text x="400" y="480" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">instance mới</text>
+<rect x="280" y="512" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="512" width="240" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="542" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">onStart → … → onResume</text>
+<text x="400" y="560" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">restore state</text>
+<rect x="280" y="592" width="240" height="56" rx="20" fill="#060913"/>
+<rect x="280" y="592" width="240" height="56" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="626" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">RESUME config mới</text>
+<!-- legend -->
+<line x1="32" y1="672" x2="768" y2="672" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="688" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="684" r="4" fill="#38BDF8"/>
+<text x="162" y="688" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">PHAO CỨU SINH · SAVE STATE</text>
+<line x1="420" y1="684" x2="452" y2="684" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#actconfig-dark-arrow)"/>
+<text x="460" y="688" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VÒNG ĐỜI CHẠY LẠI</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

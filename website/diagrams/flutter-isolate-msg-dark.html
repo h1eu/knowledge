@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nặng thì quăng sang isolate khác</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ NHẮN TIN · ISOLATES</p>
+  <h1>Nặng thì quăng sang isolate khác</h1>
+  <p class="sub">Main giữ UI, worker nhai JSON nặng, hai bên chỉ gửi bản copy.</p>
+<svg viewBox="0 0 800 352" role="img" aria-labelledby="flutter-isolate-msg-dark-title flutter-isolate-msg-dark-desc" font-family="'Geist', sans-serif">
+<title id="flutter-isolate-msg-dark-title">Nặng thì quăng sang isolate khác</title>
+<desc id="flutter-isolate-msg-dark-desc">Main isolate gửi input copy sang worker isolate parse JSON nặng rồi nhận kết quả copy gửi về.</desc>
+<defs>
+<marker id="flutter-isolate-msg-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="352" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="320" height="280" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="112" height="12" rx="2" fill="#060913"/>
+<text x="104" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">MAIN ISOLATE</text>
+<rect x="448" y="24" width="320" height="280" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="464" y="28" width="120" height="12" rx="2" fill="#060913"/>
+<text x="524" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">WORKER ISOLATE</text>
+<!-- arrows -->
+<path d="M 320,128 H 400 Q 408,128 408,120 V 96 H 480" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-dark-arrow)"/>
+<rect x="324" y="122" width="72" height="12" rx="2" fill="#060913"/>
+<text x="360" y="131" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">INPUT (COPY)</text>
+<path d="M 608,128 V 200" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-dark-arrow)"/>
+<path d="M 480,232 H 408 Q 400,232 400,224 V 160" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-dark-arrow)"/>
+<rect x="400" y="226" width="76" height="12" rx="2" fill="#060913"/>
+<text x="438" y="235" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KẾT QUẢ (COPY)</text>
+<!-- nodes -->
+<rect x="64" y="96" width="256" height="64" rx="6" fill="#060913"/>
+<rect x="64" y="96" width="256" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="192" y="130" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">UI + Event Loop</text>
+<text x="192" y="144" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">main isolate</text>
+<rect x="480" y="64" width="256" height="64" rx="6" fill="#060913"/>
+<rect x="480" y="64" width="256" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="608" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">parseBigJson()</text>
+<text x="608" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">việc nặng · worker</text>
+<rect x="480" y="200" width="256" height="64" rx="6" fill="#060913"/>
+<rect x="480" y="200" width="256" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="608" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Kết quả</text>
+<text x="608" y="248" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trả về bản copy</text>
+<!-- legend -->
+<line x1="32" y1="328" x2="768" y2="328" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="344" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="340" r="4" fill="#38BDF8"/>
+<text x="162" y="344" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VIỆC NẶNG · WORKER ISOLATE</text>
+<line x1="440" y1="340" x2="472" y2="340" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#flutter-isolate-msg-dark-arrow)"/>
+<text x="480" y="344" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỬI BẢN COPY HAI CHIỀU</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · COMPARISON · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

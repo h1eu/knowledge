@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Activity host Fragment qua FragmentManager</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · ACTIVITY OVERVIEW</p>
+  <h1>Activity host Fragment qua FragmentManager</h1>
+  <p class="sub">Một Activity, một người quản lý, ba màn hình con.</p>
+<svg viewBox="0 0 800 352" role="img" aria-labelledby="act-frag-dark-title act-frag-dark-desc" font-family="'Geist', sans-serif">
+<title id="act-frag-dark-title">Activity host Fragment qua FragmentManager</title>
+<desc id="act-frag-dark-desc">MainActivity giao FragmentManager quản lý ba Fragment: Home, Detail và Profile.</desc>
+<defs>
+<marker id="act-frag-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="352" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,96 V 140" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#act-frag-dark-arrow)"/>
+<path d="M 350,196 V 212 H 208 Q 200,212 200,220 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#act-frag-dark-arrow)"/>
+<path d="M 400,196 V 216 H 428 Q 436,216 436,224 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#act-frag-dark-arrow)"/>
+<path d="M 450,196 V 212 H 664 Q 672,212 672,220 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#act-frag-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="64" rx="20" fill="#060913"/>
+<rect x="280" y="32" width="240" height="64" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="68" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">MainActivity</text>
+<text x="400" y="86" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">entry</text>
+<rect x="310" y="140" width="180" height="56" rx="6" fill="#060913"/>
+<rect x="310" y="140" width="180" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="318" y="146" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="344" y="155" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
+<text x="400" y="176" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FragmentManager</text>
+<text x="400" y="190" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">back stack</text>
+<rect x="116" y="248" width="168" height="56" rx="20" fill="#060913"/>
+<rect x="116" y="248" width="168" height="56" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="200" y="282" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">HomeFragment</text>
+<rect x="352" y="248" width="168" height="56" rx="20" fill="#060913"/>
+<rect x="352" y="248" width="168" height="56" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="436" y="282" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">DetailFragment</text>
+<rect x="588" y="248" width="168" height="56" rx="20" fill="#060913"/>
+<rect x="588" y="248" width="168" height="56" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="672" y="282" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ProfileFragment</text>
+<!-- legend -->
+<line x1="32" y1="328" x2="768" y2="328" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="344" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="340" r="4" fill="#38BDF8"/>
+<text x="162" y="344" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · MANAGER</text>
+<line x1="360" y1="340" x2="392" y2="340" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#act-frag-dark-arrow)"/>
+<text x="400" y="344" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">LUỒNG ĐIỀU KHIỂN</text>
+<rect x="566" y="332" width="44" height="16" rx="8" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="618" y="344" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐIỂM ĐẦU · CUỐI</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

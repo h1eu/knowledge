@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Service nào ở tầng nào</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ KIẾN TRÚC · SERVICE</p>
+  <h1>Service nào ở tầng nào</h1>
+  <p class="sub">Foreground giữ trải nghiệm, Bound nối thiết bị, WorkManager lo việc định kỳ.</p>
+<svg viewBox="0 0 800 524" role="img" aria-labelledby="svc-layers-dark-title svc-layers-dark-desc" font-family="'Geist', sans-serif">
+<title id="svc-layers-dark-title">Service nào ở tầng nào</title>
+<desc id="svc-layers-dark-desc">Activity gọi service, Foreground phát sự kiện về ViewModel, Bound giao tiếp Binder, WorkManager chạy định kỳ vào Repository đọc Room và API.</desc>
+<defs>
+<marker id="svc-layers-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="524" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="352" height="180" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="128" height="12" rx="2" fill="#060913"/>
+<text x="112" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">PRESENTATION</text>
+<rect x="416" y="24" width="352" height="180" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<rect x="432" y="28" width="96" height="12" rx="2" fill="#060913"/>
+<text x="480" y="37" fill="#38BDF8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SERVICE</text>
+<rect x="32" y="228" width="352" height="116" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="232" width="112" height="12" rx="2" fill="#060913"/>
+<text x="104" y="241" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">BACKGROUND</text>
+<rect x="416" y="228" width="352" height="248" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="432" y="232" width="72" height="12" rx="2" fill="#060913"/>
+<text x="468" y="241" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DATA</text>
+<!-- arrows -->
+<path d="M 320,92 H 448" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<rect x="336" y="72" width="96" height="12" rx="2" fill="#060913"/>
+<text x="384" y="81" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BIND · START</text>
+<path d="M 448,92 V 130 H 328 Q 320,130 320,138 V 164" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<rect x="352" y="110" width="64" height="12" rx="2" fill="#060913"/>
+<text x="384" y="119" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">EVENTS</text>
+<path d="M 448,164 V 200 H 64 Q 56,200 56,192 V 92 H 64" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<rect x="140" y="208" width="88" height="12" rx="2" fill="#060913"/>
+<text x="184" y="217" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BINDER IPC</text>
+<path d="M 320,298 V 292 H 440 Q 448,292 448,288" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<rect x="348" y="272" width="72" height="12" rx="2" fill="#060913"/>
+<text x="384" y="281" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PERIODIC</text>
+<path d="M 574,316 V 332" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<path d="M 574,384 V 408" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<!-- nodes -->
+<rect x="64" y="64" width="256" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="64" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="192" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
+<text x="192" y="114" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình</text>
+<rect x="64" y="136" width="256" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="136" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="192" y="170" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<rect x="448" y="64" width="256" height="56" rx="6" fill="#060913"/>
+<rect x="448" y="64" width="256" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="456" y="70" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="482" y="79" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HOT</text>
+<text x="576" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Foreground Svc</text>
+<text x="576" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhạc · gps · upload</text>
+<rect x="448" y="136" width="256" height="56" rx="6" fill="#060913"/>
+<rect x="448" y="136" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="576" y="170" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Bound Service</text>
+<text x="576" y="186" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bluetooth · audio</text>
+<rect x="64" y="268" width="256" height="60" rx="6" fill="#060913"/>
+<rect x="64" y="268" width="256" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="192" y="302" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
+<text x="192" y="320" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">sync · backup</text>
+<rect x="448" y="260" width="256" height="56" rx="6" fill="#060913"/>
+<rect x="448" y="260" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="576" y="294" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
+<rect x="448" y="332" width="256" height="52" rx="6" fill="#060913"/>
+<rect x="448" y="332" width="256" height="52" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="576" y="364" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Room DB</text>
+<rect x="448" y="400" width="256" height="52" rx="6" fill="#060913"/>
+<rect x="448" y="400" width="256" height="52" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="576" y="432" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Retrofit API</text>
+<!-- legend -->
+<line x1="32" y1="500" x2="768" y2="500" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="516" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="512" r="4" fill="#38BDF8"/>
+<text x="162" y="516" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GIỮ TRẢI NGHIỆM · FG</text>
+<line x1="400" y1="512" x2="432" y2="512" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<text x="440" y="516" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỌI · ĐẨY · ĐỒNG BỘ</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · ARCHITECTURE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

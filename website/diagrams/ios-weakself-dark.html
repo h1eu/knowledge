@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quên weak self là rò rỉ cả màn hình</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ BỘ NHỚ · RETAIN CYCLE</p>
+  <h1>Quên weak self là rò rỉ cả màn hình</h1>
+  <p class="sub">Closure giữ chặt self, self giữ chặt closure — ARC không gỡ nổi vòng này.</p>
+<svg viewBox="0 0 800 328" role="img" aria-labelledby="ios-weakself-dark-title ios-weakself-dark-desc" font-family="'Geist', sans-serif">
+<title id="ios-weakself-dark-title">Quên weak self là rò rỉ cả màn hình</title>
+<desc id="ios-weakself-dark-desc">Closure giữ self mạnh tạo vòng retain, thêm weak self thì vòng đứt và bộ nhớ được giải phóng.</desc>
+<defs>
+<marker id="ios-weakself-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="ios-weakself-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="328" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="360" height="256" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="128" height="12" rx="2" fill="#060913"/>
+<text x="112" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">RÒ RỈ · LEAK</text>
+<rect x="408" y="24" width="360" height="256" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<rect x="424" y="28" width="128" height="12" rx="2" fill="#060913"/>
+<text x="488" y="37" fill="#38BDF8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">FIX · WEAK SELF</text>
+<!-- left cycle -->
+<path d="M 164,160 V 220" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-weakself-dark-arrow)"/>
+<rect x="176" y="178" width="80" height="12" rx="2" fill="#060913"/>
+<text x="216" y="187" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STRONG REF</text>
+<path d="M 264,250 H 292 Q 300,250 300,242 V 130 H 272 Q 264,130 264,138 V 160" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-weakself-dark-arrow)"/>
+<rect x="312" y="182" width="96" height="12" rx="2" fill="#060913"/>
+<text x="360" y="191" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CAPTURE SELF</text>
+<!-- right fixed -->
+<path d="M 540,160 V 220" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-weakself-dark-arrow)"/>
+<rect x="552" y="178" width="80" height="12" rx="2" fill="#060913"/>
+<text x="592" y="187" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STRONG REF</text>
+<path d="M 640,250 H 668 Q 676,250 676,242 V 138 Q 676,130 668,130 H 640" fill="none" stroke="#38BDF8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#ios-weakself-dark-accent)"/>
+<rect x="616" y="182" width="128" height="12" rx="2" fill="#060913"/>
+<text x="680" y="191" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">WEAK · KHÔNG RC</text>
+<!-- nodes left -->
+<rect x="64" y="100" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="64" y="100" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="164" y="134" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<rect x="64" y="220" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="64" y="220" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="164" y="254" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Closure Callback</text>
+<!-- nodes right -->
+<rect x="440" y="100" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="440" y="100" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="540" y="134" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<rect x="440" y="220" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="440" y="220" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="540" y="254" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Closure Callback</text>
+<!-- legend -->
+<line x1="32" y1="304" x2="768" y2="304" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="316" r="4" fill="#38BDF8"/>
+<text x="162" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐỨT VÒNG · WEAK SELF</text>
+<line x1="430" y1="316" x2="462" y2="316" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ios-weakself-dark-arrow)"/>
+<text x="470" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GIỮ CHẶT · STRONG</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · COMPARISON · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

@@ -15,7 +15,7 @@ const DSA_CONTENT = {
     readTime: '2 phút',
     content: `
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_introduction.jpg" alt="Gặp gỡ Giải thuật" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_introduction.jpg" alt="Gặp gỡ Giải thuật" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <div class="callout callout-note">
   <span class="callout-icon">✨</span>
@@ -85,14 +85,14 @@ const DSA_CONTENT = {
 </ul>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/relationship_between_data_structure_and_algorithm.png" alt="Mối quan hệ giữa cấu trúc dữ liệu và giải thuật" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/relationship_between_data_structure_and_algorithm.png" alt="Mối quan hệ giữa cấu trúc dữ liệu và giải thuật" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>1.2.3.1 Phép ẩn dụ: Trò chơi lắp ráp Lego</h3>
 <p>Chúng ta có thể hình dung Cấu trúc dữ liệu và Giải thuật giống như bộ trò chơi lắp ráp Lego. Ngoài các mảnh ghép nhiều hình thù khác nhau (các khối dữ liệu), bộ đồ chơi luôn đi kèm một cuốn sách hướng dẫn chi tiết từng bước lắp ráp (giải thuật). Làm theo hướng dẫn, ta sẽ thu được mô hình đẹp mắt.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/assembling_blocks.png" alt="Lắp ráp Lego" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/assembling_blocks.webp" alt="Lắp ráp Lego" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <table style="width:100%; border-collapse:collapse; font-size:14px; margin:1.5em 0; border: 1px solid var(--border-color);">
@@ -224,23 +224,23 @@ It is worth noting that data structures and algorithms are independent of progra
     <div class="slider-container">
       <div class="slider-slides">
         <div class="slide active" data-step="1">
-          <img src="dsa-assets/binary_search_dictionary_step1.png" alt="Bước 1" />
+          <img loading="lazy" src="dsa-assets/binary_search_dictionary_step1.png" alt="Bước 1" />
           <p class="slide-caption"><strong>Bước 1:</strong> Mở từ điển ở giữa (trang chữ M). R đứng sau M, loại bỏ nửa bên trái (A-M).</p>
         </div>
         <div class="slide" data-step="2">
-          <img src="dsa-assets/binary_search_dictionary_step2.png" alt="Bước 2" />
+          <img loading="lazy" src="dsa-assets/binary_search_dictionary_step2.png" alt="Bước 2" />
           <p class="slide-caption"><strong>Bước 2:</strong> Tìm tiếp ở nửa sau. Mở giữa (trang chữ T). R đứng trước T, loại bỏ nửa bên phải (T-Z).</p>
         </div>
         <div class="slide" data-step="3">
-          <img src="dsa-assets/binary_search_dictionary_step3.png" alt="Bước 3" />
+          <img loading="lazy" src="dsa-assets/binary_search_dictionary_step3.png" alt="Bước 3" />
           <p class="slide-caption"><strong>Bước 3:</strong> Mở trang ở giữa phân đoạn còn lại (trang chữ P). R đứng sau P, loại bỏ nửa bên trái (P-Q).</p>
         </div>
         <div class="slide" data-step="4">
-          <img src="dsa-assets/binary_search_dictionary_step4.png" alt="Bước 4" />
+          <img loading="lazy" src="dsa-assets/binary_search_dictionary_step4.png" alt="Bước 4" />
           <p class="slide-caption"><strong>Bước 4:</strong> Mở trang ở giữa phân đoạn còn lại (trang chữ R). Đã tìm thấy đúng chữ R!</p>
         </div>
         <div class="slide" data-step="5">
-          <img src="dsa-assets/binary_search_dictionary_step5.png" alt="Bước 5" />
+          <img loading="lazy" src="dsa-assets/binary_search_dictionary_step5.png" alt="Bước 5" />
           <p class="slide-caption"><strong>Kết quả:</strong> Bằng cách chia đôi phạm vi tìm kiếm ở mỗi bước, ta tìm ra trang cần tìm rất nhanh chóng.</p>
         </div>
       </div>
@@ -295,7 +295,7 @@ It is worth noting that data structures and algorithms are independent of progra
   
   <div class="widget-tab-content active" data-tab="tab-static">
     <div style="text-align: center; margin: 1em 0;">
-      <img src="dsa-assets/playing_cards_sorting.png" alt="Sắp xếp quân bài" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/playing_cards_sorting.png" alt="Sắp xếp quân bài" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
     </div>
   </div>
   
@@ -338,7 +338,7 @@ It is worth noting that data structures and algorithms are independent of progra
   
   <div class="widget-tab-content active" data-tab="tab-static">
     <div style="text-align: center; margin: 1em 0;">
-      <img src="dsa-assets/greedy_change.png" alt="Thối tiền thừa siêu thị" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/greedy_change.png" alt="Thối tiền thừa siêu thị" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
     </div>
   </div>
   
@@ -509,7 +509,7 @@ In engineering, many problems are difficult to solve optimally, and many others 
     readTime: '2 phút',
     content: `
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_complexity_analysis.jpg" alt="Phân tích Độ phức tạp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_complexity_analysis.jpg" alt="Phân tích Độ phức tạp" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <div class="callout callout-note">
   <span class="callout-icon">✨</span>
@@ -747,7 +747,7 @@ In summary, it is recommended that before diving deep into data structures and a
 }</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/iteration.png" alt="Sơ đồ khối hàm tính tổng bằng vòng lặp" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/iteration.png" alt="Sơ đồ khối hàm tính tổng bằng vòng lặp" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>2.2.2.2 Vòng lặp While (While Loop)</h3>
@@ -1128,7 +1128,7 @@ In summary, it is recommended that before diving deep into data structures and a
 }</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/nested_iteration.png" alt="Sơ đồ khối vòng lặp lồng nhau" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/nested_iteration.png" alt="Sơ đồ khối vòng lặp lồng nhau" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>2.2.3 Đệ quy (Recursion)</h2>
@@ -1251,7 +1251,7 @@ In summary, it is recommended that before diving deep into data structures and a
   
   <div class="widget-tab-content active" data-tab="tab-images">
     <div style="text-align: center; margin: 1.5em 0;">
-      <img src="dsa-assets/recursion_sum.png" alt="Quá trình thực thi đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+      <img loading="lazy" src="dsa-assets/recursion_sum.png" alt="Quá trình thực thi đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
     </div>
   </div>
   
@@ -1319,7 +1319,7 @@ In summary, it is recommended that before diving deep into data structures and a
 </ul>
 <p>Như minh họa trong hình dưới đây, trước khi điều kiện dừng được kích hoạt, có $n$ hàm đệ quy chưa trả về tồn tại đồng thời, với <strong>độ sâu đệ quy là $n$</strong>.</p>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/recursion_sum_depth.png" alt="Độ sâu ngăn xếp cuộc gọi đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/recursion_sum_depth.png" alt="Độ sâu ngăn xếp cuộc gọi đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <p>Trong thực tế, độ sâu đệ quy cho phép của các ngôn ngữ lập trình thường bị giới hạn, và đệ quy quá sâu có thể dẫn đến lỗi tràn ngăn xếp (stack overflow).</p>
 
@@ -1410,7 +1410,7 @@ In summary, it is recommended that before diving deep into data structures and a
   <li><strong>Đệ quy đuôi</strong>: Phép cộng tổng được thực hiện trong quá trình "đi xuống" (descending); quá trình "đi lên" chỉ cần trả về tuần tự qua từng tầng.</li>
 </ul>
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/tail_recursion_sum.png" alt="Quá trình thực thi đệ quy đuôi" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/tail_recursion_sum.png" alt="Quá trình thực thi đệ quy đuôi" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 <div class="callout callout-tip">
   <span class="callout-icon">💡</span>
@@ -1534,7 +1534,7 @@ In summary, it is recommended that before diving deep into data structures and a
 <p>Quan sát đoạn mã trên, hàm thực hiện hai lời gọi đệ quy trong một lượt, <strong>nghĩa là một lời gọi sẽ sinh ra hai nhánh gọi con</strong>. Như minh họa trong hình dưới đây, việc gọi đệ quy lặp đi lặp lại này cuối cùng tạo ra một <strong>cây đệ quy (recursion tree)</strong> với $n$ tầng.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/recursion_tree.png" alt="Cây đệ quy tính số Fibonacci" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/recursion_tree.png" alt="Cây đệ quy tính số Fibonacci" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Về bản chất, đệ quy thể hiện tư duy "phân rã bài toán thành các bài toán con nhỏ hơn", và chiến lược chia để trị này đóng vai trò then chốt.</p>
@@ -2310,7 +2310,7 @@ void algorithm_C(int n) {
 </ul>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/time_complexity_simple_example.png" alt="Xu hướng tăng trưởng thời gian của giải thuật A, B và C" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/time_complexity_simple_example.png" alt="Xu hướng tăng trưởng thời gian của giải thuật A, B và C" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>So với việc đếm trực tiếp thời gian chạy của giải thuật, phân tích độ phức tạp thời gian có những đặc điểm gì?</p>
@@ -2437,7 +2437,7 @@ $$
 <p>Như minh họa trong hình dưới đây, việc tính giới hạn trên tiệm cận chính là tìm một hàm $f(n)$ sao cho khi $n$ tiến tới vô cùng, $T(n)$ và $f(n)$ ở cùng một mức độ tăng trưởng, chỉ khác nhau bởi một hệ số hằng số $c$.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/asymptotic_upper_bound.png" alt="Giới hạn trên tiệm cận của một hàm số" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/asymptotic_upper_bound.png" alt="Giới hạn trên tiệm cận của một hàm số" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>2.3.4 Phương pháp suy luận</h2>
@@ -2660,7 +2660,7 @@ $$
 $$
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/time_complexity_common_types.png" alt="Các cấp độ phức tạp thời gian phổ biến" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/time_complexity_common_types.png" alt="Các cấp độ phức tạp thời gian phổ biến" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>2.3.5.1 Độ phức tạp hằng số $O(1)$</h3>
@@ -3012,7 +3012,7 @@ $$
 <p>Hình dưới đây so sánh độ phức tạp thời gian hằng số, tuyến tính và bình phương.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/time_complexity_constant_linear_quadratic.png" alt="Độ phức tạp thời gian của các cấp độ hằng số, tuyến tính và bình phương" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/time_complexity_constant_linear_quadratic.png" alt="Độ phức tạp thời gian của các cấp độ hằng số, tuyến tính và bình phương" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Lấy sắp xếp nổi bọt (bubble sort) làm ví dụ, vòng lặp ngoài thực thi $n - 1$ lần, còn vòng lặp trong thực thi $n-1, n-2, \\dots, 2, 1$ lần, trung bình $n / 2$ lần, cho ra độ phức tạp thời gian $O((n - 1) n / 2) = O(n^2)$:</p>
@@ -3348,7 +3348,7 @@ $$
 }</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/time_complexity_exponential.png" alt="Độ phức tạp thời gian cấp độ lũy thừa" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/time_complexity_exponential.png" alt="Độ phức tạp thời gian cấp độ lũy thừa" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Trong các giải thuật thực tế, độ phức tạp lũy thừa thường xuất hiện trong các hàm đệ quy. Ví dụ, đoạn mã dưới đây thực hiện phân nhánh đôi một cách đệ quy, và dừng lại sau $n$ lần phân nhánh:</p>
@@ -3494,7 +3494,7 @@ $$
 }</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/time_complexity_logarithmic.png" alt="Độ phức tạp thời gian cấp độ logarit" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/time_complexity_logarithmic.png" alt="Độ phức tạp thời gian cấp độ logarit" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Tương tự cấp độ lũy thừa, cấp độ logarit cũng thường xuất hiện trong các hàm đệ quy. Đoạn mã dưới đây tạo thành một cây đệ quy có chiều cao $\\log_2 n$:</p>
@@ -3652,7 +3652,7 @@ $$
 <p>Hình dưới đây minh họa cách độ phức tạp tuyến tính - logarit hình thành. Mỗi tầng của cây nhị phân có tổng cộng $n$ phép toán, và cây có $\\log_2 n + 1$ tầng, cho ra độ phức tạp thời gian $O(n \\log n)$.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/time_complexity_logarithmic_linear.png" alt="Độ phức tạp thời gian cấp độ tuyến tính - logarit" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/time_complexity_logarithmic_linear.png" alt="Độ phức tạp thời gian cấp độ tuyến tính - logarit" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Các giải thuật sắp xếp phổ biến thường có độ phức tạp thời gian $O(n \\log n)$, ví dụ sắp xếp nhanh (Quick Sort), sắp xếp trộn (Merge Sort) và sắp xếp vun đống (Heap Sort).</p>
@@ -3767,7 +3767,7 @@ $$
 }</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/time_complexity_factorial.png" alt="Độ phức tạp thời gian cấp độ giai thừa" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/time_complexity_factorial.png" alt="Độ phức tạp thời gian cấp độ giai thừa" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Cần lưu ý rằng vì khi $n \\geq 4$ luôn có $n! > 2^n$, nên độ phức tạp giai thừa tăng trưởng nhanh hơn độ phức tạp lũy thừa, và cũng không thể chấp nhận được với các giá trị $n$ lớn.</p>
@@ -5064,7 +5064,7 @@ But for more complex algorithms, calculating average time complexity is often qu
 <p>Khi phân tích độ phức tạp không gian của một chương trình, <strong>chúng ta thường xét ba phần: dữ liệu tạm thời, không gian khung ngăn xếp, và dữ liệu đầu ra</strong>, như minh họa trong hình dưới đây.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/space_types.png" alt="Các loại không gian bộ nhớ trong giải thuật" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/space_types.png" alt="Các loại không gian bộ nhớ trong giải thuật" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Đoạn mã liên quan như sau:</p>
@@ -5580,7 +5580,7 @@ $$
 $$
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/space_complexity_common_types.png" alt="Các cấp độ phức tạp không gian phổ biến" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/space_complexity_common_types.png" alt="Các cấp độ phức tạp không gian phổ biến" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>2.4.3.1 Không gian hằng số $O(1)$</h3>
@@ -5990,7 +5990,7 @@ $$
 <p>Như minh họa trong hình dưới đây, độ sâu đệ quy của hàm này là $n$, nghĩa là có $n$ hàm <code>linear_recur()</code> chưa trả về tồn tại đồng thời tại một thời điểm, sử dụng $O(n)$ không gian khung ngăn xếp:</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/space_complexity_recursive_linear.png" alt="Độ phức tạp không gian cấp độ tuyến tính sinh ra bởi hàm đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/space_complexity_recursive_linear.png" alt="Độ phức tạp không gian cấp độ tuyến tính sinh ra bởi hàm đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>2.4.3.3 Không gian bình phương $O(n^2)$</h3>
@@ -6204,7 +6204,7 @@ $$
 }</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/space_complexity_recursive_quadratic.png" alt="Độ phức tạp không gian cấp độ bình phương sinh ra bởi hàm đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/space_complexity_recursive_quadratic.png" alt="Độ phức tạp không gian cấp độ bình phương sinh ra bởi hàm đệ quy" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>2.4.3.4 Không gian lũy thừa $O(2^n)$</h3>
@@ -6296,7 +6296,7 @@ $$
 }</code></pre></div></div></div>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/space_complexity_exponential.png" alt="Độ phức tạp không gian cấp độ lũy thừa sinh ra bởi cây nhị phân đầy đủ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/space_complexity_exponential.png" alt="Độ phức tạp không gian cấp độ lũy thừa sinh ra bởi cây nhị phân đầy đủ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h3>2.4.3.5 Không gian logarit $O(\\log n)$</h3>
@@ -7321,7 +7321,7 @@ In scenarios where space resources are precious, time may be sacrificed for spac
     readTime: '1 phút',
     content: `
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/chapter_data_structure.jpg" alt="Cấu trúc dữ liệu" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
+  <img loading="lazy" src="dsa-assets/chapter_data_structure.jpg" alt="Cấu trúc dữ liệu" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);" />
 </div>
 <div class="callout callout-note">
   <span class="callout-icon">✨</span>
@@ -7370,7 +7370,7 @@ In scenarios where space resources are precious, time may be sacrificed for spac
 </ul>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/classification_logic_structure.png" alt="Cấu trúc dữ liệu tuyến tính và phi tuyến" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/classification_logic_structure.png" alt="Cấu trúc dữ liệu tuyến tính và phi tuyến" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <h2>3.1.2 Cấu trúc vật lý: Liên tục và Phân tán</h2>
@@ -7378,7 +7378,7 @@ In scenarios where space resources are precious, time may be sacrificed for spac
 <p><strong>Hệ thống truy cập dữ liệu tại vị trí đích thông qua địa chỉ bộ nhớ (memory address).</strong> Như hình minh họa dưới đây, máy tính gán cho mỗi ô trong bảng tính một con số theo những quy tắc nhất định, đảm bảo mỗi không gian bộ nhớ có một địa chỉ bộ nhớ duy nhất. Nhờ có các địa chỉ này, chương trình mới có thể truy cập dữ liệu trong bộ nhớ.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/computer_memory_location.png" alt="Thanh bộ nhớ, không gian bộ nhớ, địa chỉ bộ nhớ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/computer_memory_location.webp" alt="Thanh bộ nhớ, không gian bộ nhớ, địa chỉ bộ nhớ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <div class="callout callout-tip">
@@ -7392,7 +7392,7 @@ In scenarios where space resources are precious, time may be sacrificed for spac
 <p>Như hình minh họa dưới đây, <strong>cấu trúc vật lý phản ánh cách dữ liệu được lưu trữ trong bộ nhớ máy tính.</strong> Nó có thể được chia thành lưu trữ không gian liên tục (mảng) và lưu trữ không gian phân tán (danh sách liên kết). Ở tầng thấp, cấu trúc vật lý quyết định cách dữ liệu được truy cập, cập nhật, chèn và xóa. Hai loại cấu trúc vật lý này thể hiện các đặc tính bổ sung cho nhau về hiệu quả thời gian và hiệu quả không gian.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/classification_phisical_structure.png" alt="Lưu trữ không gian liên tục và lưu trữ không gian phân tán" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/classification_phisical_structure.png" alt="Lưu trữ không gian liên tục và lưu trữ không gian phân tán" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Điều đáng chú ý là <strong>mọi cấu trúc dữ liệu đều được triển khai dựa trên mảng, danh sách liên kết, hoặc sự kết hợp của cả hai.</strong> Ví dụ, ngăn xếp và hàng đợi có thể được triển khai bằng cả mảng lẫn danh sách liên kết; trong khi việc triển khai bảng băm có thể bao gồm cả mảng lẫn danh sách liên kết.</p>
@@ -7830,7 +7830,7 @@ In other words, **basic data types provide the "content type" of data, while dat
 </ul>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/1s_2s_complement.png" alt="Chuyển đổi giữa dấu-độ lớn, bù 1 và bù 2" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/1s_2s_complement.png" alt="Chuyển đổi giữa dấu-độ lớn, bù 1 và bù 2" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p><u>Dấu-độ lớn</u>, tuy trực quan nhất, nhưng lại có một số hạn chế. Một mặt, <strong>dạng dấu-độ lớn của số âm không thể sử dụng trực tiếp trong các phép toán</strong>. Ví dụ, tính $1 + (-2)$ theo dạng dấu-độ lớn cho ra kết quả $-3$, rõ ràng là sai.</p>
@@ -7937,7 +7937,7 @@ $$
 $$
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/ieee_754_float.png" alt="Ví dụ tính toán float theo chuẩn IEEE 754" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/ieee_754_float.png" alt="Ví dụ tính toán float theo chuẩn IEEE 754" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Quan sát hình trên, với dữ liệu ví dụ $\\mathrm{S} = 0$, $\\mathrm{E} = 124$, $\\mathrm{N} = 2^{-2} + 2^{-3} = 0.375$, ta có:</p>
@@ -8157,7 +8157,7 @@ Double-precision \`double\` also uses a representation method similar to \`float
 <p><u>Mã ASCII</u> là bộ ký tự sớm nhất, tên đầy đủ là American Standard Code for Information Interchange (Chuẩn Mã hóa Trao đổi Thông tin Hoa Kỳ). Nó sử dụng 7 bit nhị phân (7 bit thấp của một byte) để biểu diễn một ký tự, và có thể biểu diễn tối đa 128 ký tự khác nhau. Như hình dưới đây, mã ASCII bao gồm chữ cái tiếng Anh hoa và thường, các chữ số 0 ~ 9, một số dấu câu, và một số ký tự điều khiển (như xuống dòng và tab).</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/ascii_table.png" alt="Mã ASCII" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/ascii_table.png" alt="Mã ASCII" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Tuy nhiên, <strong>mã ASCII chỉ có thể biểu diễn tiếng Anh</strong>. Cùng với sự toàn cầu hóa của máy tính, một bộ ký tự có tên <u>EASCII</u> có thể biểu diễn nhiều ngôn ngữ hơn đã xuất hiện. Nó mở rộng từ nền tảng 7-bit của ASCII lên 8 bit, và có thể biểu diễn 256 ký tự khác nhau.</p>
@@ -8175,7 +8175,7 @@ Double-precision \`double\` also uses a representation method similar to \`float
 <p>Đối với vấn đề trên, <strong>một giải pháp đơn giản là lưu trữ tất cả ký tự dưới dạng mã hóa có độ dài bằng nhau</strong>. Như hình dưới đây, mỗi ký tự trong "Hello" chiếm 1 byte, và mỗi ký tự trong "算法" (giải thuật) chiếm 2 byte. Chúng ta có thể mã hóa tất cả ký tự trong "Hello 算法" với độ dài 2 byte bằng cách đệm thêm số 0 vào các bit cao. Bằng cách này, hệ thống có thể phân tích một ký tự sau mỗi 2 byte và khôi phục nội dung của cụm từ này.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/unicode_hello_algo.png" alt="Ví dụ mã hóa Unicode" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/unicode_hello_algo.png" alt="Ví dụ mã hóa Unicode" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Tuy nhiên, mã ASCII đã chứng minh với chúng ta rằng mã hóa tiếng Anh chỉ cần 1 byte. Nếu áp dụng lược đồ trên, kích thước văn bản tiếng Anh sẽ gấp đôi so với khi dùng mã hóa ASCII, rất lãng phí không gian bộ nhớ. Do đó, chúng ta cần một phương thức mã hóa Unicode hiệu quả hơn.</p>
@@ -8192,7 +8192,7 @@ Double-precision \`double\` also uses a representation method similar to \`float
 <p>Lý do sử dụng $10$ làm ký hiệu kiểm tra là vì theo quy tắc mã hóa UTF-8, không thể có chuyện 2 bit cao nhất của một ký tự là $10$. Kết luận này có thể được chứng minh bằng phản chứng: giả sử 2 bit cao nhất của một ký tự là $10$, nghĩa là độ dài ký tự đó là $1$, tương ứng với mã ASCII. Tuy nhiên, bit cao nhất của mã ASCII phải là $0$, mâu thuẫn với giả thiết.</p>
 
 <div style="text-align: center; margin: 1.5em 0;">
-  <img src="dsa-assets/utf-8_hello_algo.png" alt="Ví dụ mã hóa UTF-8" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
+  <img loading="lazy" src="dsa-assets/utf-8_hello_algo.png" alt="Ví dụ mã hóa UTF-8" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
 
 <p>Ngoài UTF-8, các phương thức mã hóa phổ biến khác còn bao gồm hai loại sau.</p>
