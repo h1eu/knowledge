@@ -1127,27 +1127,32 @@ void postOrder(TreeNode *root) {
     <button class="widget-tab-btn" onclick="switchIntroTab(event, 'tree-traversal-wrapper', 'tab-interactive'); initTreeTraversalDemo()">⚡ Mô phỏng tương tác</button>
   </div>
   <div class="widget-tab-content active" data-tab="tab-static">
-    <p style="text-align:center; color:var(--text-secondary); font-size:14px;">Xem tab "Mô phỏng tương tác" để theo dõi từng bước duyệt BFS, tiền thứ tự, trung thứ tự và hậu thứ tự trên cùng một cây nhị phân mẫu.</p>
+    <p style="text-align:center; color:var(--text-secondary); font-size:14px;">Xem tab "Mô phỏng tương tác" để theo dõi từng bước duyệt BFS, tiền thứ tự, trung thứ tự và hậu thứ tự.</p>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
-    <div style="display:flex; gap:8px; justify-content:center; margin-bottom:12px; flex-wrap:wrap;">
-      <button class="control-btn" onclick="setTreeTraversalMode('level')">Duyệt theo tầng (BFS)</button>
-      <button class="control-btn" onclick="setTreeTraversalMode('pre')">Tiền thứ tự</button>
-      <button class="control-btn" onclick="setTreeTraversalMode('in')">Trung thứ tự</button>
-      <button class="control-btn" onclick="setTreeTraversalMode('post')">Hậu thứ tự</button>
+    <!-- Operation Pills -->
+    <div id="tree-traversal-pills" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;">
+      <button class="op-pill active" data-mode="level" onclick="setTreeTraversalMode('level')">🔵 BFS (Theo tầng)</button>
+      <button class="op-pill" data-mode="pre" onclick="setTreeTraversalMode('pre')">🔺 Tiền thứ tự</button>
+      <button class="op-pill" data-mode="in" onclick="setTreeTraversalMode('in')">🔸 Trung thứ tự</button>
+      <button class="op-pill" data-mode="post" onclick="setTreeTraversalMode('post')">🔻 Hậu thứ tự</button>
     </div>
-    <div id="tree-traversal-canvas" style="min-height:220px;"></div>
-    <div class="simulator-controls" style="display:flex; gap:10px; justify-content:center; margin:12px 0;">
+    <!-- Kinetic Stage -->
+    <div class="kinetic-stage" style="min-height:200px;padding:16px;overflow:auto;">
+      <div id="tree-traversal-canvas"></div>
+    </div>
+    <!-- HUD Card -->
+    <div id="tree-traversal-hud" class="simulator-hud" style="margin-top:12px;"></div>
+    <!-- Controls -->
+    <div class="simulator-controls">
+      <button id="tree-traversal-btn-prev" class="control-btn btn-secondary" onclick="prevTreeTraversal()" disabled>◀ Trước</button>
       <button id="tree-traversal-btn-autorun" class="control-btn" onclick="autoRunTreeTraversal()">▶ Auto Run</button>
-      <button id="tree-traversal-btn-step" class="control-btn" onclick="stepTreeTraversal()">Bước tiếp theo ▶</button>
+      <button id="tree-traversal-btn-step" class="control-btn" onclick="stepTreeTraversal()">Bước tiếp ▶</button>
       <button id="tree-traversal-btn-pause" class="control-btn btn-secondary" onclick="pauseRunTreeTraversal()" disabled>⏸ Dừng</button>
-      <button id="tree-traversal-btn-reset" class="control-btn btn-secondary" onclick="initTreeTraversalDemo()">↺ Reset</button>
+      <button class="control-btn btn-secondary" onclick="initTreeTraversalDemo()">↺ Đặt lại</button>
     </div>
-    <div id="tree-traversal-speed-control" style="text-align:center; margin-bottom:10px;">
-      Tốc độ: <input type="range" min="200" max="2000" value="800" step="200" oninput="setTreeTraversalSpeed(this.value)" /> <span id="tree-traversal-speed-label">800ms</span>
-    </div>
-    <div id="tree-traversal-status" class="simulator-status" style="text-align:center; min-height:24px;">
-      Chọn kiểu duyệt rồi nhấp "Auto Run" để bắt đầu mô phỏng tự động.
+    <div style="text-align:center;margin-top:8px;color:var(--text-muted);font-size:12px;">
+      Tốc độ: <input type="range" min="200" max="2000" value="800" step="200" oninput="setTreeTraversalSpeed(this.value)" style="vertical-align:middle;"/> <span id="tree-traversal-speed-label">800ms</span>
     </div>
   </div>
 </div>
@@ -2391,21 +2396,31 @@ void remove(int num) {
     <button class="widget-tab-btn" onclick="switchIntroTab(event, 'bst-ops-wrapper', 'tab-interactive'); initBstOpsDemo()">⚡ Mô phỏng tương tác</button>
   </div>
   <div class="widget-tab-content active" data-tab="tab-static">
-    <p style="text-align:center; color:var(--text-secondary); font-size:14px;">Xem tab "Mô phỏng tương tác" để theo dõi từng bước tìm kiếm, chèn và xóa nút trên một cây tìm kiếm nhị phân mẫu.</p>
+    <p style="text-align:center; color:var(--text-secondary); font-size:14px;">Xem tab "Mô phỏng tương tác" để theo dõi từng bước tìm kiếm, chèn và xóa nút trên cây tìm kiếm nhị phân mẫu.</p>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
-    <div id="bst-ops-canvas" style="min-height:260px;"></div>
-    <div class="simulator-controls" style="display:flex; gap:10px; justify-content:center; margin:12px 0;">
+    <!-- Operation Pills -->
+    <div id="bst-ops-pills" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;">
+      <button class="op-pill active" data-op="search" onclick="setBstOpsPreset('search')">🔍 Tìm kiếm (search)</button>
+      <button class="op-pill" data-op="insert" onclick="setBstOpsPreset('insert')">➕ Chèn (insert)</button>
+      <button class="op-pill" data-op="remove" onclick="setBstOpsPreset('remove')">🗑 Xóa (remove)</button>
+    </div>
+    <!-- Kinetic Stage -->
+    <div class="kinetic-stage" style="min-height:240px;padding:16px;overflow:auto;">
+      <div id="bst-ops-canvas"></div>
+    </div>
+    <!-- HUD Card -->
+    <div id="bst-ops-hud" class="simulator-hud" style="margin-top:12px;"></div>
+    <!-- Controls -->
+    <div class="simulator-controls">
+      <button id="bst-ops-btn-prev" class="control-btn btn-secondary" onclick="prevBstOps()" disabled>◀ Trước</button>
       <button id="bst-ops-btn-autorun" class="control-btn" onclick="autoRunBstOps()">▶ Auto Run</button>
-      <button id="bst-ops-btn-step" class="control-btn" onclick="stepBstOps()">Bước tiếp theo ▶</button>
+      <button id="bst-ops-btn-step" class="control-btn" onclick="stepBstOps()">Bước tiếp ▶</button>
       <button id="bst-ops-btn-pause" class="control-btn btn-secondary" onclick="pauseRunBstOps()" disabled>⏸ Dừng</button>
-      <button id="bst-ops-btn-reset" class="control-btn btn-secondary" onclick="initBstOpsDemo()">↺ Reset</button>
+      <button class="control-btn btn-secondary" onclick="initBstOpsDemo()">↺ Đặt lại</button>
     </div>
-    <div id="bst-ops-speed-control" style="text-align:center; margin-bottom:10px;">
-      Tốc độ: <input type="range" min="200" max="2000" value="800" step="200" oninput="setBstOpsSpeed(this.value)" /> <span id="bst-ops-speed-label">800ms</span>
-    </div>
-    <div id="bst-ops-status" class="simulator-status" style="text-align:center; min-height:24px;">
-      Nhấp "Auto Run" để bắt đầu mô phỏng: tìm kiếm 7 → chèn 9 → xóa nút bậc 0 → xóa nút bậc 1 → xóa nút bậc 2.
+    <div style="text-align:center;margin-top:8px;color:var(--text-muted);font-size:12px;">
+      Tốc độ: <input type="range" min="200" max="2000" value="800" step="200" oninput="setBstOpsSpeed(this.value)" style="vertical-align:middle;"/> <span id="bst-ops-speed-label">800ms</span>
     </div>
   </div>
 </div>
@@ -3387,21 +3402,32 @@ TreeNode *search(int val) {
     <button class="widget-tab-btn" onclick="switchIntroTab(event, 'avl-rotate-wrapper', 'tab-interactive'); initAvlRotateDemo()">⚡ Mô phỏng tương tác</button>
   </div>
   <div class="widget-tab-content active" data-tab="tab-static">
-    <p style="text-align:center; color:var(--text-secondary); font-size:14px;">Xem tab "Mô phỏng tương tác" để theo dõi từng bước chèn liên tiếp các nút và cách cây AVL tự động xoay để khôi phục cân bằng.</p>
+    <p style="text-align:center; color:var(--text-secondary); font-size:14px;">Xem tab "Mô phỏng tương tác" để quan sát cả 4 trường hợp xoay AVL (LL, RR, LR, RL) với balance factor trực quan.</p>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
-    <div id="avl-rotate-canvas" style="min-height:260px;"></div>
-    <div class="simulator-controls" style="display:flex; gap:10px; justify-content:center; margin:12px 0;">
+    <!-- Operation Pills -->
+    <div id="avl-rotate-pills" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;">
+      <button class="op-pill active" data-op="right" onclick="setAvlRotatePreset('right')">↩ LL → Xoay Phải</button>
+      <button class="op-pill" data-op="left" onclick="setAvlRotatePreset('left')">↪ RR → Xoay Trái</button>
+      <button class="op-pill" data-op="lr" onclick="setAvlRotatePreset('lr')">↩↪ LR → Xoay Trái-Phải</button>
+      <button class="op-pill" data-op="rl" onclick="setAvlRotatePreset('rl')">↪↩ RL → Xoay Phải-Trái</button>
+    </div>
+    <!-- Kinetic Stage -->
+    <div class="kinetic-stage" style="min-height:180px;padding:16px;overflow:auto;">
+      <div id="avl-rotate-canvas"></div>
+    </div>
+    <!-- HUD Card -->
+    <div id="avl-rotate-hud" class="simulator-hud" style="margin-top:12px;"></div>
+    <!-- Controls -->
+    <div class="simulator-controls">
+      <button id="avl-rotate-btn-prev" class="control-btn btn-secondary" onclick="prevAvlRotate()" disabled>◀ Trước</button>
       <button id="avl-rotate-btn-autorun" class="control-btn" onclick="autoRunAvlRotate()">▶ Auto Run</button>
-      <button id="avl-rotate-btn-step" class="control-btn" onclick="stepAvlRotate()">Bước tiếp theo ▶</button>
+      <button id="avl-rotate-btn-step" class="control-btn" onclick="stepAvlRotate()">Bước tiếp ▶</button>
       <button id="avl-rotate-btn-pause" class="control-btn btn-secondary" onclick="pauseRunAvlRotate()" disabled>⏸ Dừng</button>
-      <button id="avl-rotate-btn-reset" class="control-btn btn-secondary" onclick="initAvlRotateDemo()">↺ Reset</button>
+      <button class="control-btn btn-secondary" onclick="initAvlRotateDemo()">↺ Đặt lại</button>
     </div>
-    <div id="avl-rotate-speed-control" style="text-align:center; margin-bottom:10px;">
-      Tốc độ: <input type="range" min="200" max="2000" value="1000" step="200" oninput="setAvlRotateSpeed(this.value)" /> <span id="avl-rotate-speed-label">1000ms</span>
-    </div>
-    <div id="avl-rotate-status" class="simulator-status" style="text-align:center; min-height:24px;">
-      Nhấp "Auto Run" để lần lượt chèn các nút 3, 2, 1 và quan sát cây AVL tự xoay phải để khôi phục cân bằng.
+    <div style="text-align:center;margin-top:8px;color:var(--text-muted);font-size:12px;">
+      Tốc độ: <input type="range" min="200" max="2000" value="1000" step="200" oninput="setAvlRotateSpeed(this.value)" style="vertical-align:middle;"/> <span id="avl-rotate-speed-label">1000ms</span>
     </div>
   </div>
 </div>

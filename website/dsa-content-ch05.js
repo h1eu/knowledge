@@ -517,18 +517,37 @@ class ArrayStack {
     </div>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
-    <div id="stack-ops-canvas" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; min-height: 70px; align-items:flex-end; padding: 10px;"></div>
-    <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+    <!-- Operation Pills -->
+    <div class="sim-op-pills" id="stack-op-pills">
+      <button class="sim-op-pill active" onclick="selectStackOp('all')">✨ Toàn bộ quy trình</button>
+      <button class="sim-op-pill" onclick="selectStackOp('push')">📥 Đẩy vào đỉnh (Push)</button>
+      <button class="sim-op-pill" onclick="selectStackOp('pop')">📤 Lấy khỏi đỉnh (Pop)</button>
+      <button class="sim-op-pill" onclick="selectStackOp('peek')">👁 Xem đỉnh (Peek)</button>
+    </div>
+
+    <!-- Kinetic Vertical Chamber Stage -->
+    <div id="stack-ops-canvas" class="stack-stage"></div>
+
+    <!-- HUD Info Panel -->
+    <div class="sim-hud-card" id="stack-ops-hud" style="margin-top: 14px;">
+      <div class="sim-hud-top">
+        <span class="sim-step-badge" id="stack-ops-badge">Bước 1 / 8</span>
+        <span class="sim-complexity-badge" id="stack-ops-complexity">Push / Pop: O(1)</span>
+      </div>
+      <div class="sim-hud-desc" id="stack-ops-status"></div>
+      <div class="sim-hud-math" id="stack-ops-math"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px;">
+      <button class="control-btn btn-secondary" id="stack-ops-btn-prev" onclick="prevStackOps()" disabled>◀ Bước trước</button>
       <button class="control-btn" id="stack-ops-btn-autorun" onclick="autoRunStackOps()">▶ Auto Run</button>
-      <button class="control-btn" id="stack-ops-btn-step" onclick="stepStackOps()">Bước tiếp theo ▶</button>
+      <button class="control-btn" id="stack-ops-btn-step" onclick="stepStackOps()">Bước tiếp ▶</button>
       <button class="control-btn" id="stack-ops-btn-pause" onclick="pauseRunStackOps()" disabled>⏸ Dừng</button>
-      <button class="control-btn btn-secondary" id="stack-ops-btn-reset" onclick="initStackOpsDemo()">↺ Reset</button>
+      <button class="control-btn btn-secondary" id="stack-ops-btn-reset" onclick="initStackOpsDemo()">↺ Đặt lại</button>
     </div>
     <div id="stack-ops-speed-control" style="text-align:center; font-size: 13px; color: var(--text-secondary); margin-top: 12px;">
-      Tốc độ: <input type="range" min="200" max="2000" value="900" step="200" oninput="setStackOpsSpeed(this.value)" /> <span id="stack-ops-speed-label">900ms</span>
-    </div>
-    <div id="stack-ops-status" class="simulator-status" style="margin-top: 12px; font-size: 14px; text-align: center; color: var(--text-secondary);">
-      Nhấp "Auto Run" hoặc "Bước tiếp theo" để xem mô phỏng push/peek/pop trên ngăn xếp.
+      Tốc độ mô phỏng: <input type="range" min="200" max="2000" value="900" step="100" oninput="setStackOpsSpeed(this.value)" /> <span id="stack-ops-speed-label">900ms</span>
     </div>
   </div>
 </div>
@@ -1584,18 +1603,37 @@ class ArrayQueue {
     </div>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
-    <div id="queue-ops-canvas" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; min-height: 70px; align-items:flex-end; padding: 10px;"></div>
-    <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+    <!-- Operation Pills -->
+    <div class="sim-op-pills" id="queue-op-pills">
+      <button class="sim-op-pill active" onclick="selectQueueOp('all')">✨ Toàn bộ quy trình</button>
+      <button class="sim-op-pill" onclick="selectQueueOp('push')">📥 Thêm cuối (Enqueue)</button>
+      <button class="sim-op-pill" onclick="selectQueueOp('pop')">📤 Lấy khỏi đầu (Dequeue)</button>
+      <button class="sim-op-pill" onclick="selectQueueOp('peek')">👁 Xem đầu hàng (Peek)</button>
+    </div>
+
+    <!-- Kinetic Conveyor Tunnel Stage -->
+    <div id="queue-ops-canvas" class="queue-stage"></div>
+
+    <!-- HUD Info Panel -->
+    <div class="sim-hud-card" id="queue-ops-hud" style="margin-top: 14px;">
+      <div class="sim-hud-top">
+        <span class="sim-step-badge" id="queue-ops-badge">Bước 1 / 9</span>
+        <span class="sim-complexity-badge" id="queue-ops-complexity">FIFO: O(1)</span>
+      </div>
+      <div class="sim-hud-desc" id="queue-ops-status"></div>
+      <div class="sim-hud-math" id="queue-ops-math"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px;">
+      <button class="control-btn btn-secondary" id="queue-ops-btn-prev" onclick="prevQueueOps()" disabled>◀ Bước trước</button>
       <button class="control-btn" id="queue-ops-btn-autorun" onclick="autoRunQueueOps()">▶ Auto Run</button>
-      <button class="control-btn" id="queue-ops-btn-step" onclick="stepQueueOps()">Bước tiếp theo ▶</button>
+      <button class="control-btn" id="queue-ops-btn-step" onclick="stepQueueOps()">Bước tiếp ▶</button>
       <button class="control-btn" id="queue-ops-btn-pause" onclick="pauseRunQueueOps()" disabled>⏸ Dừng</button>
-      <button class="control-btn btn-secondary" id="queue-ops-btn-reset" onclick="initQueueOpsDemo()">↺ Reset</button>
+      <button class="control-btn btn-secondary" id="queue-ops-btn-reset" onclick="initQueueOpsDemo()">↺ Đặt lại</button>
     </div>
     <div id="queue-ops-speed-control" style="text-align:center; font-size: 13px; color: var(--text-secondary); margin-top: 12px;">
-      Tốc độ: <input type="range" min="200" max="2000" value="900" step="200" oninput="setQueueOpsSpeed(this.value)" /> <span id="queue-ops-speed-label">900ms</span>
-    </div>
-    <div id="queue-ops-status" class="simulator-status" style="margin-top: 12px; font-size: 14px; text-align: center; color: var(--text-secondary);">
-      Nhấp "Auto Run" hoặc "Bước tiếp theo" để xem mô phỏng push/peek/pop trên hàng đợi.
+      Tốc độ mô phỏng: <input type="range" min="200" max="2000" value="900" step="100" oninput="setQueueOpsSpeed(this.value)" /> <span id="queue-ops-speed-label">900ms</span>
     </div>
   </div>
 </div>
@@ -2994,18 +3032,38 @@ class ArrayDeque {
     </div>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
-    <div id="deque-ops-canvas" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; min-height: 70px; align-items:flex-end; padding: 10px;"></div>
-    <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+    <!-- Operation Pills -->
+    <div class="sim-op-pills" id="deque-op-pills">
+      <button class="sim-op-pill active" onclick="selectDequeOp('all')">✨ Toàn bộ quy trình</button>
+      <button class="sim-op-pill" onclick="selectDequeOp('push_first')">📥 Thêm đầu (push_first)</button>
+      <button class="sim-op-pill" onclick="selectDequeOp('push_last')">📥 Thêm cuối (push_last)</button>
+      <button class="sim-op-pill" onclick="selectDequeOp('pop_first')">📤 Lấy đầu (pop_first)</button>
+      <button class="sim-op-pill" onclick="selectDequeOp('pop_last')">📤 Lấy cuối (pop_last)</button>
+    </div>
+
+    <!-- Kinetic 2-Way Conveyor Stage -->
+    <div id="deque-ops-canvas" class="queue-stage"></div>
+
+    <!-- HUD Info Panel -->
+    <div class="sim-hud-card" id="deque-ops-hud" style="margin-top: 14px;">
+      <div class="sim-hud-top">
+        <span class="sim-step-badge" id="deque-ops-badge">Bước 1 / 8</span>
+        <span class="sim-complexity-badge" id="deque-ops-complexity">Hai đầu: O(1)</span>
+      </div>
+      <div class="sim-hud-desc" id="deque-ops-status"></div>
+      <div class="sim-hud-math" id="deque-ops-math"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px;">
+      <button class="control-btn btn-secondary" id="deque-ops-btn-prev" onclick="prevDequeOps()" disabled>◀ Bước trước</button>
       <button class="control-btn" id="deque-ops-btn-autorun" onclick="autoRunDequeOps()">▶ Auto Run</button>
-      <button class="control-btn" id="deque-ops-btn-step" onclick="stepDequeOps()">Bước tiếp theo ▶</button>
+      <button class="control-btn" id="deque-ops-btn-step" onclick="stepDequeOps()">Bước tiếp ▶</button>
       <button class="control-btn" id="deque-ops-btn-pause" onclick="pauseRunDequeOps()" disabled>⏸ Dừng</button>
-      <button class="control-btn btn-secondary" id="deque-ops-btn-reset" onclick="initDequeOpsDemo()">↺ Reset</button>
+      <button class="control-btn btn-secondary" id="deque-ops-btn-reset" onclick="initDequeOpsDemo()">↺ Đặt lại</button>
     </div>
     <div id="deque-ops-speed-control" style="text-align:center; font-size: 13px; color: var(--text-secondary); margin-top: 12px;">
-      Tốc độ: <input type="range" min="200" max="2000" value="900" step="200" oninput="setDequeOpsSpeed(this.value)" /> <span id="deque-ops-speed-label">900ms</span>
-    </div>
-    <div id="deque-ops-status" class="simulator-status" style="margin-top: 12px; font-size: 14px; text-align: center; color: var(--text-secondary);">
-      Nhấp "Auto Run" hoặc "Bước tiếp theo" để xem mô phỏng push_first/push_last/pop_first/pop_last.
+      Tốc độ mô phỏng: <input type="range" min="200" max="2000" value="900" step="100" oninput="setDequeOpsSpeed(this.value)" /> <span id="deque-ops-speed-label">900ms</span>
     </div>
   </div>
 </div>

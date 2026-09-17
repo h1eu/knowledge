@@ -65,7 +65,9 @@ Object.assign(DSA_CONTENT, {
 <p>Chúng ta có thể chọn giữa hai cách khởi tạo mảng tùy theo nhu cầu: có hoặc không có giá trị ban đầu. Khi không chỉ định giá trị ban đầu, hầu hết các ngôn ngữ lập trình sẽ khởi tạo các phần tử mảng về $0$:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Khởi tạo mảng */
 int[] arr = new int[5]; // { 0, 0, 0, 0, 0 }
-int[] nums = { 1, 3, 2, 5, 4 };</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Khởi tạo mảng
+int[] nums = { 1, 3, 2, 5, 4 };</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Khởi tạo mảng */
+val arr = IntArray(5) // { 0, 0, 0, 0, 0 }
+val nums = intArrayOf(1, 3, 2, 5, 4)</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code># Khởi tạo mảng
 arr: list[int] = [0] * 5  # [ 0, 0, 0, 0, 0 ]
 nums: list[int] = [1, 3, 2, 5, 4]</code></pre></div><div class="code-tab-content" data-lang="cpp"><pre data-lang="cpp"><code>/* Khởi tạo mảng */
 // Lưu trên stack
@@ -91,16 +93,25 @@ static int randomAccess(int[] nums) {
     // Lấy và trả về phần tử ngẫu nhiên
     int randomNum = nums[randomIndex];
     return randomNum;
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func randomAccess(nums: [Int]) -&gt; Int {
-    // Randomly select a number in interval [0, nums.count)
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Truy cập ngẫu nhiên phần tử */
+fun randomAccess(nums: IntArray): Int {
+    // Chọn ngẫu nhiên một chỉ mục trong khoảng [0, nums.size)
+    val randomIndex = ThreadLocalRandom.current().nextInt(0, nums.size)
+    // Lấy và trả về phần tử ngẫu nhiên
+    val randomNum = nums[randomIndex]
+    return randomNum
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>/* Truy cập ngẫu nhiên phần tử */
+func randomAccess(nums: [Int]) -&gt; Int {
+    // Chọn ngẫu nhiên một chỉ mục trong khoảng [0, nums.count)
     let randomIndex = nums.indices.randomElement()!
-    // Retrieve and return the random element
+    // Lấy và trả về phần tử ngẫu nhiên
     let randomNum = nums[randomIndex]
     return randomNum
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int randomAccess(List&lt;int&gt; nums) {
-  // Randomly select a number in the interval [0, nums.length)
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>/* Truy cập ngẫu nhiên phần tử */
+int randomAccess(List&lt;int&gt; nums) {
+  // Chọn ngẫu nhiên một chỉ mục trong khoảng [0, nums.length)
   int randomIndex = Random().nextInt(nums.length);
-  // Retrieve and return the random element
+  // Lấy và trả về phần tử ngẫu nhiên
   int randomNum = nums[randomIndex];
   return randomNum;
 }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def random_access(nums: list[int]) -&gt; int:
@@ -116,6 +127,13 @@ int randomAccess(int *nums, int size) {
     // Lấy và trả về phần tử ngẫu nhiên
     int randomNum = nums[randomIndex];
     return randomNum;
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Truy cập ngẫu nhiên phần tử */
+function randomAccess(nums) {
+    // Chọn ngẫu nhiên một chỉ mục trong khoảng [0, nums.length)
+    const random_index = Math.floor(Math.random() * nums.length);
+    // Lấy và trả về phần tử ngẫu nhiên
+    const random_num = nums[random_index];
+    return random_num;
 }</code></pre></div></div></div>
 
 <h3>4.1.2.3 Chèn phần tử</h3>
@@ -132,33 +150,31 @@ static void insert(int[] nums, int num, int index) {
     }
     // Gán num cho phần tử tại chỉ mục index
     nums[index] = num;
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func insert(index: Int, num: Int) {
-        if index &lt; 0 || index &gt;= size() {
-            fatalError("Index out of bounds")
-        }
-        // When the number of elements exceeds capacity, trigger the extension mechanism
-        if size() == capacity() {
-            extendCapacity()
-        }
-        // Move all elements after index index forward by one position
-        for j in (index ..&lt; size()).reversed() {
-            arr[j + 1] = arr[j]
-        }
-        arr[index] = num
-        // Update the number of elements
-        _size += 1
-    }</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void insert(int index, int _num) {
-    if (index &gt;= _size) throw RangeError('Index out of bounds');
-    // When the number of elements exceeds capacity, trigger the extension mechanism
-    if (_size == _capacity) extendCapacity();
-    // Move all elements after index index forward by one position
-    for (var j = _size - 1; j &gt;= index; j--) {
-      _arr[j + 1] = _arr[j];
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Chèn phần tử num vào chỉ mục index trong mảng */
+fun insert(nums: IntArray, num: Int, index: Int) {
+    // Dịch chuyển tất cả phần tử từ chỉ mục index trở đi sang phải một vị trí
+    for (i in nums.size - 1 downTo index + 1) {
+        nums[i] = nums[i - 1]
     }
-    _arr[index] = _num;
-    // Update the number of elements
-    _size++;
-  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def insert(nums: list[int], num: int, index: int):
+    // Gán num cho phần tử tại chỉ mục index
+    nums[index] = num
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>/* Chèn phần tử num vào chỉ mục index trong mảng */
+func insert(nums: inout [Int], num: Int, index: Int) {
+    // Dịch chuyển tất cả phần tử từ chỉ mục index trở đi sang phải một vị trí
+    for i in nums.indices.dropFirst(index).reversed() {
+        nums[i] = nums[i - 1]
+    }
+    // Gán num cho phần tử tại chỉ mục index
+    nums[index] = num
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>/* Chèn phần tử _num vào chỉ mục index trong mảng */
+void insert(List&lt;int&gt; nums, int _num, int index) {
+  // Dịch chuyển tất cả phần tử từ chỉ mục index trở đi sang phải một vị trí
+  for (var i = nums.length - 1; i &gt;= index; i--) {
+    nums[i] = nums[i - 1];
+  }
+  // Gán _num cho phần tử tại chỉ mục index
+  nums[index] = _num;
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def insert(nums: list[int], num: int, index: int):
     """Chèn phần tử num vào chỉ mục index trong mảng"""
     # Dịch chuyển tất cả phần tử từ chỉ mục index trở đi sang phải một vị trí
     for i in range(len(nums) - 1, index, -1):
@@ -168,6 +184,14 @@ static void insert(int[] nums, int num, int index) {
 void insert(int *nums, int size, int num, int index) {
     // Dịch chuyển tất cả phần tử từ chỉ mục index trở đi sang phải một vị trí
     for (int i = size - 1; i &gt; index; i--) {
+        nums[i] = nums[i - 1];
+    }
+    // Gán num cho phần tử tại chỉ mục index
+    nums[index] = num;
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Chèn phần tử num vào chỉ mục index trong mảng */
+function insert(nums, num, index) {
+    // Dịch chuyển tất cả phần tử từ chỉ mục index trở đi sang phải một vị trí
+    for (let i = nums.length - 1; i &gt; index; i--) {
         nums[i] = nums[i - 1];
     }
     // Gán num cho phần tử tại chỉ mục index
@@ -186,31 +210,25 @@ static void remove(int[] nums, int index) {
     for (int i = index; i &lt; nums.length - 1; i++) {
         nums[i] = nums[i + 1];
     }
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func remove(index: Int) -&gt; Int {
-        if index &lt; 0 || index &gt;= size() {
-            fatalError("Index out of bounds")
-        }
-        let num = arr[index]
-        // Move all elements after index forward by one position
-        for j in index ..&lt; (size() - 1) {
-            arr[j] = arr[j + 1]
-        }
-        // Update the number of elements
-        _size -= 1
-        // Return the removed element
-        return num
-    }</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int remove(int index) {
-    if (index &gt;= _size) throw RangeError('Index out of bounds');
-    int _num = _arr[index];
-    // Move all elements after index forward by one position
-    for (var j = index; j &lt; _size - 1; j++) {
-      _arr[j] = _arr[j + 1];
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Xóa phần tử tại chỉ mục index */
+fun remove(nums: IntArray, index: Int) {
+    // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
+    for (i in index..&lt;nums.size - 1) {
+        nums[i] = nums[i + 1]
     }
-    // Update the number of elements
-    _size--;
-    // Return the removed element
-    return _num;
-  }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def remove(nums: list[int], index: int):
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>/* Xóa phần tử tại chỉ mục index */
+func remove(nums: inout [Int], index: Int) {
+    // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
+    for i in nums.indices.dropFirst(index).dropLast() {
+        nums[i] = nums[i + 1]
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>/* Xóa phần tử tại chỉ mục index */
+void remove(List&lt;int&gt; nums, int index) {
+  // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
+  for (var i = index; i &lt; nums.length - 1; i++) {
+    nums[i] = nums[i + 1];
+  }
+}</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def remove(nums: list[int], index: int):
     """Xóa phần tử tại chỉ mục index"""
     # Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
     for i in range(index, len(nums) - 1):
@@ -218,6 +236,12 @@ static void remove(int[] nums, int index) {
 void remove(int *nums, int size, int index) {
     // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
     for (int i = index; i &lt; size - 1; i++) {
+        nums[i] = nums[i + 1];
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Xóa phần tử tại chỉ mục index */
+function remove(nums, index) {
+    // Dịch chuyển tất cả phần tử sau chỉ mục index sang trái một vị trí
+    for (let i = index; i &lt; nums.length - 1; i++) {
         nums[i] = nums[i + 1];
     }
 }</code></pre></div></div></div>
@@ -249,18 +273,47 @@ void remove(int *nums, int size, int index) {
   </div>
 
   <div class="widget-tab-content" data-tab="tab-interactive">
-    <div id="array-ops-canvas" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; min-height: 70px; align-items:flex-end; padding: 10px;"></div>
-    <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
-      <button class="control-btn" id="array-ops-btn-autorun" onclick="autoRunArrayOps()">▶ Auto Run</button>
-      <button class="control-btn" id="array-ops-btn-step" onclick="stepArrayOps()">Bước tiếp theo ▶</button>
-      <button class="control-btn" id="array-ops-btn-pause" onclick="pauseRunArrayOps()" disabled>⏸ Dừng</button>
-      <button class="control-btn btn-secondary" id="array-ops-btn-reset" onclick="initArrayOpsDemo()">↺ Reset</button>
-    </div>
-    <div id="array-ops-speed-control" style="text-align:center; font-size: 13px; color: var(--text-secondary); margin-top: 12px;">
-      Tốc độ: <input type="range" min="200" max="2000" value="900" step="200" oninput="setArrayOpsSpeed(this.value)" /> <span id="array-ops-speed-label">900ms</span>
-    </div>
-    <div id="array-ops-status" class="simulator-status" style="margin-top: 12px; font-size: 14px; text-align: center; color: var(--text-secondary);">
-      Nhấp "Auto Run" hoặc "Bước tiếp theo" để xem mô phỏng mở rộng, chèn và xóa phần tử trên mảng nums = [1, 3, 2, 5, 4].
+    <div class="array-sim-panel">
+      <!-- Operation switcher pills -->
+      <div class="array-op-pills" id="array-op-pills">
+        <button class="array-op-pill active" onclick="selectArrayOp('all')">✨ Toàn bộ quy trình</button>
+        <button class="array-op-pill" onclick="selectArrayOp('insert')">➕ Chèn (Insert)</button>
+        <button class="array-op-pill" onclick="selectArrayOp('remove')">➖ Xóa (Remove)</button>
+        <button class="array-op-pill" onclick="selectArrayOp('find')">🔍 Tìm kiếm (Find)</button>
+        <button class="array-op-pill" onclick="selectArrayOp('extend')">📐 Mở rộng (Extend)</button>
+      </div>
+
+      <!-- Animated Physical Stage -->
+      <div class="array-stage">
+        <div id="array-ops-canvas" class="array-slots-track"></div>
+      </div>
+
+      <!-- Live HUD Card with status, memory address and complexity -->
+      <div id="array-ops-hud" class="array-hud-card">
+        <div class="array-hud-top">
+          <div class="array-step-badge" id="array-ops-badge">Bước 1 / 7</div>
+          <div class="array-complexity-badge" id="array-ops-complexity">Độ phức tạp: O(1) - O(n)</div>
+        </div>
+        <div id="array-ops-status" class="array-hud-desc">
+          Nhấp "Auto Run" hoặc "Bước tiếp" để xem hoạt cảnh di chuyển phần tử và định vị địa chỉ bộ nhớ.
+        </div>
+        <div id="array-ops-math" class="array-hud-math">
+          Address(i) = Base (0x1000) + i × 4 bytes
+        </div>
+      </div>
+
+      <!-- Interactive Simulator Controls -->
+      <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 4px;">
+        <button class="control-btn btn-secondary" id="array-ops-btn-prev" onclick="prevArrayOps()" disabled>◀ Bước trước</button>
+        <button class="control-btn" id="array-ops-btn-autorun" onclick="autoRunArrayOps()">▶ Auto Run</button>
+        <button class="control-btn" id="array-ops-btn-step" onclick="stepArrayOps()">Bước tiếp ▶</button>
+        <button class="control-btn btn-secondary" id="array-ops-btn-pause" onclick="pauseRunArrayOps()" disabled>⏸ Dừng</button>
+        <button class="control-btn btn-secondary" id="array-ops-btn-reset" onclick="initArrayOpsDemo()">↺ Đặt lại</button>
+      </div>
+
+      <div id="array-ops-speed-control" style="text-align:center; font-size: 12.5px; color: var(--text-secondary); margin-top: 6px;">
+        Tốc độ mô phỏng: <input type="range" min="300" max="1800" value="800" step="100" oninput="setArrayOpsSpeed(this.value)" /> <span id="array-ops-speed-label">800ms</span>
+      </div>
     </div>
   </div>
 </div>
@@ -278,6 +331,17 @@ static void traverse(int[] nums) {
     // Duyệt trực tiếp các phần tử mảng
     for (int num : nums) {
         count += num;
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Duyệt mảng */
+fun traverse(nums: IntArray) {
+    var count = 0
+    // Duyệt mảng theo chỉ mục
+    for (i in nums.indices) {
+        count += nums[i]
+    }
+    // Duyệt trực tiếp các phần tử mảng
+    for (j in nums) {
+        count += j
     }
 }</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func traverse(nums: [Int]) {
     var count = 0
@@ -327,6 +391,17 @@ void traverse(int *nums, int size) {
     for (int i = 0; i &lt; size; i++) {
         count += nums[i];
     }
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Duyệt mảng */
+function traverse(nums) {
+    let count = 0;
+    // Duyệt mảng theo chỉ mục
+    for (let i = 0; i &lt; nums.length; i++) {
+        count += nums[i];
+    }
+    // Duyệt trực tiếp các phần tử mảng
+    for (const num of nums) {
+        count += num;
+    }
 }</code></pre></div></div></div>
 
 <h3>4.1.2.6 Tìm kiếm phần tử</h3>
@@ -339,25 +414,25 @@ static int find(int[] nums, int target) {
             return i;
     }
     return -1;
-}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func find(head: ListNode, target: Int) -&gt; Int {
-    var head: ListNode? = head
-    var index = 0
-    while head != nil {
-        if head?.val == target {
-            return index
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm phần tử được chỉ định trong mảng */
+fun find(nums: IntArray, target: Int): Int {
+    for (i in nums.indices) {
+        if (nums[i] == target)
+            return i
+    }
+    return -1;
+}</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>/* Tìm phần tử được chỉ định trong mảng */
+func find(nums: [Int], target: Int) -&gt; Int {
+    for i in nums.indices {
+        if nums[i] == target {
+            return i
         }
-        head = head?.next
-        index += 1
     }
     return -1
-}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int find(ListNode? head, int target) {
-  int index = 0;
-  while (head != null) {
-    if (head.val == target) {
-      return index;
-    }
-    head = head.next;
-    index++;
+}</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>/* Tìm phần tử được chỉ định trong mảng */
+int find(List&lt;int&gt; nums, int target) {
+  for (var i = 0; i &lt; nums.length; i++) {
+    if (nums[i] == target) return i;
   }
   return -1;
 }</code></pre></div><div class="code-tab-content" data-lang="python"><pre data-lang="python"><code>def find(nums: list[int], target: int) -&gt; int:
@@ -370,6 +445,12 @@ int find(int *nums, int size, int target) {
     for (int i = 0; i &lt; size; i++) {
         if (nums[i] == target)
             return i;
+    }
+    return -1;
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm phần tử được chỉ định trong mảng */
+function find(nums, target) {
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (nums[i] === target) return i;
     }
     return -1;
 }</code></pre></div></div></div>
@@ -387,6 +468,16 @@ static int[] extend(int[] nums, int enlarge) {
     }
     // Trả về mảng mới đã mở rộng
     return res;
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Mở rộng độ dài mảng */
+fun extend(nums: IntArray, enlarge: Int): IntArray {
+    // Khởi tạo một mảng có độ dài đã mở rộng
+    val res = IntArray(nums.size + enlarge)
+    // Sao chép tất cả phần tử từ mảng gốc sang mảng mới
+    for (i in nums.indices) {
+        res[i] = nums[i]
+    }
+    // Trả về mảng mới đã mở rộng
+    return res
 }</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func extend(nums: [Int], enlarge: Int) -&gt; [Int] {
     // Initialize an array with extended length
     var res = Array(repeating: 0, count: nums.count + enlarge)
@@ -423,6 +514,16 @@ int *extend(int *nums, int size, int enlarge) {
     }
     // Giải phóng bộ nhớ
     delete[] nums;
+    // Trả về mảng mới đã mở rộng
+    return res;
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Mở rộng độ dài mảng */
+function extend(nums, enlarge) {
+    // Khởi tạo một mảng có độ dài đã mở rộng
+    const res = new Array(nums.length + enlarge).fill(0);
+    // Sao chép tất cả phần tử từ mảng gốc sang mảng mới
+    for (let i = 0; i &lt; nums.length; i++) {
+        res[i] = nums[i];
+    }
     // Trả về mảng mới đã mở rộng
     return res;
 }</code></pre></div></div></div>
@@ -909,18 +1010,37 @@ void remove(ListNode *n0) {
   </div>
 
   <div class="widget-tab-content" data-tab="tab-interactive">
-    <div id="linked-list-ops-canvas" style="display:flex; gap:4px; flex-wrap:wrap; justify-content:center; min-height: 70px; align-items:center; padding: 10px;"></div>
-    <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+    <!-- Operation Pills -->
+    <div class="sim-op-pills" id="linked-list-op-pills">
+      <button class="sim-op-pill active" onclick="selectLinkedListOp('all')">✨ Toàn bộ quy trình</button>
+      <button class="sim-op-pill" onclick="selectLinkedListOp('insert')">➕ Chèn Node P</button>
+      <button class="sim-op-pill" onclick="selectLinkedListOp('remove')">➖ Xóa Node P</button>
+      <button class="sim-op-pill" onclick="selectLinkedListOp('find')">🔍 Tìm kiếm / Truy cập</button>
+    </div>
+
+    <!-- Kinetic Stage Canvas -->
+    <div id="linked-list-ops-canvas" class="linkedlist-stage"></div>
+
+    <!-- HUD Info Panel -->
+    <div class="sim-hud-card" id="linked-list-ops-hud" style="margin-top: 14px;">
+      <div class="sim-hud-top">
+        <span class="sim-step-badge" id="linked-list-ops-badge">Bước 1 / 5</span>
+        <span class="sim-complexity-badge" id="linked-list-ops-complexity">Chèn: O(1)</span>
+      </div>
+      <div class="sim-hud-desc" id="linked-list-ops-status"></div>
+      <div class="sim-hud-math" id="linked-list-ops-math"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px;">
+      <button class="control-btn btn-secondary" id="linked-list-ops-btn-prev" onclick="prevLinkedListOps()" disabled>◀ Bước trước</button>
       <button class="control-btn" id="linked-list-ops-btn-autorun" onclick="autoRunLinkedListOps()">▶ Auto Run</button>
-      <button class="control-btn" id="linked-list-ops-btn-step" onclick="stepLinkedListOps()">Bước tiếp theo ▶</button>
+      <button class="control-btn" id="linked-list-ops-btn-step" onclick="stepLinkedListOps()">Bước tiếp ▶</button>
       <button class="control-btn" id="linked-list-ops-btn-pause" onclick="pauseRunLinkedListOps()" disabled>⏸ Dừng</button>
-      <button class="control-btn btn-secondary" id="linked-list-ops-btn-reset" onclick="initLinkedListOpsDemo()">↺ Reset</button>
+      <button class="control-btn btn-secondary" id="linked-list-ops-btn-reset" onclick="initLinkedListOpsDemo()">↺ Đặt lại</button>
     </div>
     <div id="linked-list-ops-speed-control" style="text-align:center; font-size: 13px; color: var(--text-secondary); margin-top: 12px;">
-      Tốc độ: <input type="range" min="200" max="2000" value="900" step="200" oninput="setLinkedListOpsSpeed(this.value)" /> <span id="linked-list-ops-speed-label">900ms</span>
-    </div>
-    <div id="linked-list-ops-status" class="simulator-status" style="margin-top: 12px; font-size: 14px; text-align: center; color: var(--text-secondary);">
-      Nhấp "Auto Run" hoặc "Bước tiếp theo" để xem mô phỏng chèn, xóa, truy cập và tìm kiếm node trên danh sách liên kết n0(1) → n1(3) → n2(2) → n3(5) → n4(4).
+      Tốc độ mô phỏng: <input type="range" min="200" max="2000" value="900" step="100" oninput="setLinkedListOpsSpeed(this.value)" /> <span id="linked-list-ops-speed-label">900ms</span>
     </div>
   </div>
 </div>
@@ -2014,19 +2134,51 @@ nums.sort((a, b) =&gt; a - b);  // Sau khi sắp xếp, các phần tử List đ
     <button class="widget-tab-btn active" onclick="switchIntroTab(event, 'list-ops-wrapper', 'tab-interactive'); initListOpsDemo()">⚡ Mô phỏng tương tác</button>
   </div>
   <div class="widget-tab-content active" data-tab="tab-interactive">
-    <p style="font-size: 14px; margin-bottom: 10px; color: var(--text-secondary);">Mảng động (dynamic array) bên dưới the List bắt đầu với <code>capacity = 10</code>. Các ô đã sử dụng (size) tô màu, các ô trống hiển thị mờ. Theo dõi thời điểm List tự động <strong>mở rộng dung lượng</strong> khi đầy.</p>
-    <div id="list-ops-canvas" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; min-height: 70px; align-items:flex-end; padding: 10px;"></div>
-    <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+    <!-- Operation Pills -->
+    <div class="sim-op-pills" id="list-op-pills">
+      <button class="sim-op-pill active" onclick="selectListOp('all')">✨ Toàn bộ quy trình</button>
+      <button class="sim-op-pill" onclick="selectListOp('append')">➕ Thêm cuối (Append)</button>
+      <button class="sim-op-pill" onclick="selectListOp('extend')">📐 Tự động mở rộng (Extend)</button>
+      <button class="sim-op-pill" onclick="selectListOp('insert_remove')">🔀 Chèn & Xóa (Insert/Remove)</button>
+    </div>
+
+    <!-- Dynamic List Stage -->
+    <div class="dynlist-stage">
+      <!-- Capacity & Length Meter -->
+      <div class="dynlist-capacity-meter">
+        <div class="dynlist-meter-header">
+          <span>Độ dài (Length / Size): <b id="dynlist-size-val">5</b></span>
+          <span>Dung lượng (Capacity): <b id="dynlist-cap-val">10</b></span>
+        </div>
+        <div class="dynlist-meter-track">
+          <div class="dynlist-meter-fill" id="dynlist-meter-fill" style="width: 50%;"></div>
+        </div>
+      </div>
+
+      <!-- Canvas Track -->
+      <div id="list-ops-canvas" class="dynlist-track-wrapper"></div>
+    </div>
+
+    <!-- HUD Info Panel -->
+    <div class="sim-hud-card" id="list-ops-hud" style="margin-top: 14px;">
+      <div class="sim-hud-top">
+        <span class="sim-step-badge" id="list-ops-badge">Bước 1 / 8</span>
+        <span class="sim-complexity-badge" id="list-ops-complexity">Append: O(1) amortized</span>
+      </div>
+      <div class="sim-hud-desc" id="list-ops-status"></div>
+      <div class="sim-hud-math" id="list-ops-math"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="simulator-controls" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px;">
+      <button class="control-btn btn-secondary" id="list-ops-btn-prev" onclick="prevListOps()" disabled>◀ Bước trước</button>
       <button class="control-btn" id="list-ops-btn-autorun" onclick="autoRunListOps()">▶ Auto Run</button>
-      <button class="control-btn" id="list-ops-btn-step" onclick="stepListOps()">Bước tiếp theo ▶</button>
+      <button class="control-btn" id="list-ops-btn-step" onclick="stepListOps()">Bước tiếp ▶</button>
       <button class="control-btn" id="list-ops-btn-pause" onclick="pauseRunListOps()" disabled>⏸ Dừng</button>
-      <button class="control-btn btn-secondary" id="list-ops-btn-reset" onclick="initListOpsDemo()">↺ Reset</button>
+      <button class="control-btn btn-secondary" id="list-ops-btn-reset" onclick="initListOpsDemo()">↺ Đặt lại</button>
     </div>
     <div id="list-ops-speed-control" style="text-align:center; font-size: 13px; color: var(--text-secondary); margin-top: 12px;">
-      Tốc độ: <input type="range" min="200" max="2000" value="700" step="200" oninput="setListOpsSpeed(this.value)" /> <span id="list-ops-speed-label">700ms</span>
-    </div>
-    <div id="list-ops-status" class="simulator-status" style="margin-top: 12px; font-size: 14px; text-align: center; color: var(--text-secondary);">
-      Nhấp "Auto Run" hoặc "Bước tiếp theo" để xem quá trình thêm, chèn, xóa phần tử và cơ chế tự động mở rộng dung lượng của List.
+      Tốc độ mô phỏng: <input type="range" min="200" max="2000" value="700" step="100" oninput="setListOpsSpeed(this.value)" /> <span id="list-ops-speed-label">700ms</span>
     </div>
   </div>
 </div>

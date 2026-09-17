@@ -5714,36 +5714,609 @@ function renderOpsCell(value, index, opts) {
 }
 
 // ------------------------------------------------------------------
-// 4.1 Array: insert / remove / find simulator
+// 4.1 Array: True Sliding Kinetic Physical Simulator (FLIP Architecture)
 // ------------------------------------------------------------------
-const arrayOpsFrames = [
-  { arr: [1, 3, 2, 5, 4], highlight: [], desc: 'Mảng ban đầu: nums = [1, 3, 2, 5, 4].' },
-  { arr: [1, 3, 2, 5, 4, 0, 0, 0], highlight: [5, 6, 7], desc: 'Mở rộng mảng (extend): tạo mảng mới độ dài 8, sao chép phần tử cũ sang, phần dư khởi tạo bằng 0.' },
-  { arr: [1, 3, 2, 5, 5, 4, 0, 0], highlight: [4, 5], desc: 'Chèn 6 vào chỉ mục 3 — bước 1: dịch các phần tử từ chỉ mục 3 trở đi sang phải một vị trí.' },
-  { arr: [1, 3, 2, 6, 5, 4, 0, 0], highlight: [3], desc: 'Chèn 6 vào chỉ mục 3 — bước 2: gán giá trị 6 vào chỉ mục 3. Kết quả: nums = [1, 3, 2, 6, 5, 4, 0, 0].' },
-  { arr: [1, 3, 6, 6, 5, 4, 0, 0], highlight: [2], desc: 'Xóa phần tử tại chỉ mục 2 — bước 1: chuẩn bị dịch các phần tử phía sau sang trái một vị trí.' },
-  { arr: [1, 3, 6, 5, 4, 0, 0, 0], highlight: [2, 3, 4, 5], desc: 'Xóa phần tử tại chỉ mục 2 — hoàn tất: nums = [1, 3, 6, 5, 4, 0, 0, 0]. Phần tử cuối không còn ý nghĩa.' },
-  { arr: [1, 3, 6, 5, 4, 0, 0, 0], highlight: [1], desc: 'Tìm kiếm tuyến tính giá trị 3 trong mảng → tìm thấy tại chỉ mục 1.' },
-];
+
+const arrayOpsPresets = {
+  // 1. All sequence
+  all: [
+    {
+      title: 'Mảng ban đầu (nums)',
+      capacity: 8,
+      baseAddr: 0x1000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2 },
+        { id: 't5', val: 5, slot: 3 },
+        { id: 't4', val: 4, slot: 4 }
+      ],
+      desc: 'Mảng gồm 5 phần tử nằm trên các ô nhớ liên tiếp: <code>nums = [1, 3, 2, 5, 4]</code>. Dung lượng cấp phát ban đầu là 8.',
+      math: 'Address(i) = 0x1000 + i × 4 bytes',
+      complexity: 'Truy cập ngẫu nhiên: O(1)'
+    },
+    {
+      title: 'Chuẩn bị Chèn: Xác định vị trí mục tiêu',
+      capacity: 8,
+      baseAddr: 0x1000,
+      targetIndex: 3,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2 },
+        { id: 't5', val: 5, slot: 3, state: 'state-target' },
+        { id: 't4', val: 4, slot: 4, state: 'state-target' }
+      ],
+      desc: 'Yêu cầu: Chèn giá trị <strong>6</strong> vào chỉ mục <strong>3</strong>. Do mảng liền kề, ta phải dịch chuyển các phần tử từ chỉ mục 3 sang phải để tạo khoảng trống.',
+      math: 'Target index = 3 | Giá trị chèn = 6',
+      complexity: 'Độ phức tạp: O(n)'
+    },
+    {
+      title: 'Chèn: Dịch phần tử 4 sang phải',
+      capacity: 8,
+      baseAddr: 0x1000,
+      targetIndex: 3,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2 },
+        { id: 't5', val: 5, slot: 3, state: 'state-target' },
+        { id: 't4', val: 4, slot: 5, state: 'state-target' }
+      ],
+      desc: 'Bước 1: Phần tử <code>4</code> trượt ngang từ chỉ mục 4 sang chỉ mục 5.',
+      math: 'nums[5] = nums[4] (Trượt phải 64px)',
+      complexity: 'Dịch chuyển n - index phần tử'
+    },
+    {
+      title: 'Chèn: Dịch tiếp phần tử 5 sang phải',
+      capacity: 8,
+      baseAddr: 0x1000,
+      targetIndex: 3,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2 },
+        { id: 't5', val: 5, slot: 4, state: 'state-target' },
+        { id: 't4', val: 4, slot: 5 }
+      ],
+      desc: 'Bước 2: Phần tử <code>5</code> trượt ngang từ chỉ mục 3 sang chỉ mục 4. Vị trí chỉ mục 3 hiện đã hoàn toàn trống và sẵn sàng.',
+      math: 'nums[4] = nums[3] | Ô 3 sẵn sàng',
+      complexity: 'Khoảng trống đã được tạo'
+    },
+    {
+      title: 'Chèn: Thả phần tử mới vào ô trống',
+      capacity: 8,
+      baseAddr: 0x1000,
+      targetIndex: 3,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2 },
+        { id: 't6', val: 6, slot: 3, isNew: true, state: 'state-success' },
+        { id: 't5', val: 5, slot: 4 },
+        { id: 't4', val: 4, slot: 5 }
+      ],
+      desc: 'Bước 3: Gán <code>nums[3] = 6</code>. Phần tử mới rơi êm ái từ trên xuống ô nhớ <code>0x100C</code>. Mảng mới: <code>[1, 3, 2, 6, 5, 4]</code>.',
+      math: 'nums[3] = 6 (Chèn thành công)',
+      complexity: 'O(n) thời gian, O(1) phụ nhớ'
+    },
+    {
+      title: 'Chuẩn bị Xóa: Xác định phần tử tại vị trí 2',
+      capacity: 8,
+      baseAddr: 0x1000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2, yOffset: -30, opacity: 0.1, state: 'state-danger' },
+        { id: 't6', val: 6, slot: 3, state: 'state-target' },
+        { id: 't5', val: 5, slot: 4 },
+        { id: 't4', val: 4, slot: 5 }
+      ],
+      desc: 'Yêu cầu: Xóa phần tử tại chỉ mục <strong>2</strong> (giá trị <strong>2</strong>). Phần tử được nhấc bổng lên và tan biến.',
+      math: 'Target index = 2 | Xóa giá trị 2',
+      complexity: 'Độ phức tạp: O(n)'
+    },
+    {
+      title: 'Xóa: Dịch phần tử 6 sang trái',
+      capacity: 8,
+      baseAddr: 0x1000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't6', val: 6, slot: 2, state: 'state-target' },
+        { id: 't5', val: 5, slot: 4, state: 'state-target' },
+        { id: 't4', val: 4, slot: 5, state: 'state-target' }
+      ],
+      desc: 'Phần tử <code>6</code> trượt ngang sang trái vào vị trí chỉ mục 2.',
+      math: 'nums[2] = nums[3] = 6 (Trượt trái)',
+      complexity: 'Bù khoảng trống'
+    },
+    {
+      title: 'Xóa: Dịch tiếp các phần tử 5 và 4',
+      capacity: 8,
+      baseAddr: 0x1000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't6', val: 6, slot: 2, state: 'state-success' },
+        { id: 't5', val: 5, slot: 3, state: 'state-success' },
+        { id: 't4', val: 4, slot: 4, state: 'state-success' }
+      ],
+      desc: 'Các phần tử <code>5</code> và <code>4</code> tiếp tục trượt sang trái vào các chỉ mục 3 và 4. Mảng sau khi xóa: <code>nums = [1, 3, 6, 5, 4]</code>.',
+      math: 'nums = [1, 3, 6, 5, 4]',
+      complexity: 'Thời gian: O(n) — Bộ nhớ: O(1)'
+    },
+    {
+      title: 'Tìm kiếm tuyến tính: Bắt đầu quét',
+      capacity: 8,
+      baseAddr: 0x1000,
+      scannerIndex: 0,
+      tokens: [
+        { id: 't1', val: 1, slot: 0, state: 'state-highlight' },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't6', val: 6, slot: 2 },
+        { id: 't5', val: 5, slot: 3 },
+        { id: 't4', val: 4, slot: 4 }
+      ],
+      desc: 'Yêu cầu: Tìm giá trị <strong>3</strong> trong mảng. Con trỏ laser quét chỉ mục 0: <code>nums[0] = 1 ≠ 3</code>. Không khớp, tiếp tục.',
+      math: 'So sánh: nums[0] == 3 ? Sai',
+      complexity: 'Duyệt tuần tự O(n)'
+    },
+    {
+      title: 'Tìm kiếm: Khớp mục tiêu thành công!',
+      capacity: 8,
+      baseAddr: 0x1000,
+      scannerIndex: 1,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1, state: 'state-success' },
+        { id: 't6', val: 6, slot: 2 },
+        { id: 't5', val: 5, slot: 3 },
+        { id: 't4', val: 4, slot: 4 }
+      ],
+      desc: 'Con trỏ laser lướt sang chỉ mục 1: <code>nums[1] = 3 == 3</code>. Khớp mục tiêu tại địa chỉ bộ nhớ <code>0x1004</code>!',
+      math: 'nums[1] == 3 ➔ Tìm thấy tại index 1!',
+      complexity: 'O(1) tốt nhất, O(n) xấu nhất'
+    }
+  ],
+
+  // 2. Insert only
+  insert: [
+    {
+      title: 'Khởi tạo mảng',
+      capacity: 8,
+      baseAddr: 0x1000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2 },
+        { id: 't5', val: 5, slot: 3 },
+        { id: 't4', val: 4, slot: 4 }
+      ],
+      desc: 'Mảng ban đầu <code>nums = [1, 3, 2, 5, 4]</code> (kích thước = 5). Mục tiêu: Chèn <strong>6</strong> vào chỉ mục <strong>3</strong>.',
+      math: 'Mục tiêu: nums.insert(index=3, val=6)',
+      complexity: 'Độ phức tạp O(n)'
+    },
+    {
+      title: 'Bước 1: Dịch phần tử 4 sang phải',
+      capacity: 8,
+      baseAddr: 0x1000,
+      targetIndex: 3,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2 },
+        { id: 't5', val: 5, slot: 3, state: 'state-target' },
+        { id: 't4', val: 4, slot: 5, state: 'state-target' }
+      ],
+      desc: 'Phần tử <code>4</code> trượt ngang từ chỉ mục 4 sang chỉ mục 5.',
+      math: 'nums[5] = nums[4] = 4 (Trượt phải 64px)',
+      complexity: 'Dịch chuyển 1/2'
+    },
+    {
+      title: 'Bước 2: Dịch phần tử 5 sang phải',
+      capacity: 8,
+      baseAddr: 0x1000,
+      targetIndex: 3,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2 },
+        { id: 't5', val: 5, slot: 4, state: 'state-target' },
+        { id: 't4', val: 4, slot: 5 }
+      ],
+      desc: 'Phần tử <code>5</code> trượt ngang sang chỉ mục 4. Vị trí chỉ mục 3 giờ đã trống hoàn toàn.',
+      math: 'nums[4] = nums[3] = 5 (Trượt phải 64px)',
+      complexity: 'Dịch chuyển 2/2'
+    },
+    {
+      title: 'Bước 3: Thả phần tử mới vào ô trống',
+      capacity: 8,
+      baseAddr: 0x1000,
+      targetIndex: 3,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2 },
+        { id: 't6', val: 6, slot: 3, isNew: true, state: 'state-success' },
+        { id: 't5', val: 5, slot: 4 },
+        { id: 't4', val: 4, slot: 5 }
+      ],
+      desc: 'Gán <code>nums[3] = 6</code>. Phần tử mới rơi êm ái xuống ô nhớ <code>0x100C</code>. Hoàn tất!',
+      math: 'nums[3] = 6 (Chèn thành công)',
+      complexity: 'Thời gian: O(n) — Bộ nhớ: O(1)'
+    }
+  ],
+
+  // 3. Remove only
+  remove: [
+    {
+      title: 'Mảng trước khi xóa',
+      capacity: 8,
+      baseAddr: 0x1000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2 },
+        { id: 't6', val: 6, slot: 3 },
+        { id: 't5', val: 5, slot: 4 },
+        { id: 't4', val: 4, slot: 5 }
+      ],
+      desc: 'Mảng hiện tại <code>nums = [1, 3, 2, 6, 5, 4]</code>. Mục tiêu: Xóa phần tử tại chỉ mục <strong>2</strong> (giá trị <strong>2</strong>).',
+      math: 'Mục tiêu: nums.remove(index=2)',
+      complexity: 'Độ phức tạp O(n)'
+    },
+    {
+      title: 'Bước 1: Nhấc phần tử 2 ra khỏi mảng',
+      capacity: 8,
+      baseAddr: 0x1000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't2', val: 2, slot: 2, yOffset: -30, opacity: 0.1, state: 'state-danger' },
+        { id: 't6', val: 6, slot: 3, state: 'state-target' },
+        { id: 't5', val: 5, slot: 4 },
+        { id: 't4', val: 4, slot: 5 }
+      ],
+      desc: 'Phần tử <code>nums[2] = 2</code> được nhấc lên và mờ dần khỏi mảng.',
+      math: 'Xóa nums[2] ➔ Tạo khoảng trống tại index 2',
+      complexity: 'Bắt đầu dồn mảng'
+    },
+    {
+      title: 'Bước 2: Dịch phần tử 6 sang trái',
+      capacity: 8,
+      baseAddr: 0x1000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't6', val: 6, slot: 2, state: 'state-target' },
+        { id: 't5', val: 5, slot: 4, state: 'state-target' },
+        { id: 't4', val: 4, slot: 5, state: 'state-target' }
+      ],
+      desc: 'Phần tử <code>6</code> trượt ngang sang trái vào chỉ mục 2.',
+      math: 'nums[2] = nums[3] = 6 (Trượt trái)',
+      complexity: 'Dịch chuyển bù khoảng trống'
+    },
+    {
+      title: 'Bước 3: Dịch tiếp các phần tử 5 và 4',
+      capacity: 8,
+      baseAddr: 0x1000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't6', val: 6, slot: 2, state: 'state-success' },
+        { id: 't5', val: 5, slot: 3, state: 'state-success' },
+        { id: 't4', val: 4, slot: 4, state: 'state-success' }
+      ],
+      desc: 'Các phần tử <code>5</code> và <code>4</code> tiếp tục trượt sang trái vào các chỉ mục 3 và 4. Xóa hoàn tất!',
+      math: 'nums = [1, 3, 6, 5, 4]',
+      complexity: 'Thời gian: O(n) — Bộ nhớ: O(1)'
+    }
+  ],
+
+  // 4. Find only
+  find: [
+    {
+      title: 'Tìm kiếm tuyến tính: Khởi tạo',
+      capacity: 8,
+      baseAddr: 0x1000,
+      scannerIndex: null,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't6', val: 6, slot: 2 },
+        { id: 't5', val: 5, slot: 3 },
+        { id: 't4', val: 4, slot: 4 }
+      ],
+      desc: 'Tìm giá trị <code>target = 3</code> trong mảng. Con trỏ laser chuẩn bị duyệt từng chỉ mục từ trái sang phải.',
+      math: 'Target = 3 | Khởi tạo con trỏ i = 0',
+      complexity: 'Độ phức tạp O(n)'
+    },
+    {
+      title: 'Quét chỉ mục 0',
+      capacity: 8,
+      baseAddr: 0x1000,
+      scannerIndex: 0,
+      tokens: [
+        { id: 't1', val: 1, slot: 0, state: 'state-highlight' },
+        { id: 't3', val: 3, slot: 1 },
+        { id: 't6', val: 6, slot: 2 },
+        { id: 't5', val: 5, slot: 3 },
+        { id: 't4', val: 4, slot: 4 }
+      ],
+      desc: 'Kiểm tra <code>nums[0] = 1</code>: so sánh <code>1 == 3</code> ➔ Không khớp. Tăng con trỏ lên <code>i = 1</code>.',
+      math: 'nums[0] = 1 ≠ 3 (Next i = 1)',
+      complexity: 'Đang quét...'
+    },
+    {
+      title: 'Quét chỉ mục 1: Tìm thấy!',
+      capacity: 8,
+      baseAddr: 0x1000,
+      scannerIndex: 1,
+      tokens: [
+        { id: 't1', val: 1, slot: 0 },
+        { id: 't3', val: 3, slot: 1, state: 'state-success' },
+        { id: 't6', val: 6, slot: 2 },
+        { id: 't5', val: 5, slot: 3 },
+        { id: 't4', val: 4, slot: 4 }
+      ],
+      desc: 'Con trỏ laser lướt sang chỉ mục 1: <code>nums[1] = 3 == 3</code> ➔ Khớp chính xác! Trả về chỉ mục <strong>1</strong>.',
+      math: 'nums[1] == 3 ➔ Match tại index 1! (0x1004)',
+      complexity: 'Tìm thấy sau 2 phép so sánh'
+    }
+  ],
+
+  // 5. Extend only
+  extend: [
+    {
+      title: 'Mảng đầy dung lượng (100%)',
+      capacity: 5,
+      baseAddr: 0x1000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0, state: 'state-target' },
+        { id: 't3', val: 3, slot: 1, state: 'state-target' },
+        { id: 't2', val: 2, slot: 2, state: 'state-target' },
+        { id: 't5', val: 5, slot: 3, state: 'state-target' },
+        { id: 't4', val: 4, slot: 4, state: 'state-target' }
+      ],
+      desc: 'Mảng có dung lượng cố định là 5 và đã lưu đủ 5 phần tử. Không thể ghi thêm vì không gian bộ nhớ sau <code>0x1010</code> có thể thuộc về chương trình khác.',
+      math: 'Dung lượng: 5/5 (Đầy)',
+      complexity: 'Hạn chế của mảng cố định'
+    },
+    {
+      title: 'Cấp phát vùng nhớ mới (Gấp đôi)',
+      capacity: 8,
+      baseAddr: 0x2000,
+      tokens: [],
+      desc: 'Hệ điều hành cấp phát một khối nhớ liên tục mới với dung lượng 8 (địa chỉ từ <code>0x2000</code> đến <code>0x201C</code>).',
+      math: 'Cấp phát new_nums[8] tại 0x2000',
+      complexity: 'Cấp phát bộ nhớ: O(1)'
+    },
+    {
+      title: 'Sao chép phần tử cũ sang mảng mới',
+      capacity: 8,
+      baseAddr: 0x2000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0, isNew: true, state: 'state-target' },
+        { id: 't3', val: 3, slot: 1, isNew: true, state: 'state-target' },
+        { id: 't2', val: 2, slot: 2, isNew: true, state: 'state-target' },
+        { id: 't5', val: 5, slot: 3, isNew: true, state: 'state-target' },
+        { id: 't4', val: 4, slot: 4, isNew: true, state: 'state-target' }
+      ],
+      desc: 'Sao chép lần lượt 5 phần tử từ mảng cũ sang mảng mới. Thao tác này mất $O(n)$ thời gian.',
+      math: 'new_nums[i] = nums[i] (Copy n phần tử)',
+      complexity: 'Độ phức tạp sao chép: O(n)'
+    },
+    {
+      title: 'Giải phóng mảng cũ & Hoàn tất mở rộng',
+      capacity: 8,
+      baseAddr: 0x2000,
+      tokens: [
+        { id: 't1', val: 1, slot: 0, state: 'state-success' },
+        { id: 't3', val: 3, slot: 1, state: 'state-success' },
+        { id: 't2', val: 2, slot: 2, state: 'state-success' },
+        { id: 't5', val: 5, slot: 3, state: 'state-success' },
+        { id: 't4', val: 4, slot: 4, state: 'state-success' }
+      ],
+      desc: 'Vùng nhớ mảng cũ (<code>0x1000</code>) được giải phóng. Mảng mới có 3 ô nhớ trống sẵn sàng cho các thao tác chèn tiếp theo!',
+      math: 'Dung lượng mới: 8 | Sẵn sàng',
+      complexity: 'Chi phí mở rộng: O(n)'
+    }
+  ]
+};
+
+let currentArrayOp = 'all';
 let arrayOpsIndex = 0;
 let arrayOpsTimer = null;
-let arrayOpsSpeed = 900;
+let arrayOpsSpeed = 800;
+
+function getActiveArrayFrames() {
+  return arrayOpsPresets[currentArrayOp] || arrayOpsPresets.all;
+}
+
+function selectArrayOp(opKey) {
+  if (!arrayOpsPresets[opKey]) return;
+  pauseRunArrayOps();
+  currentArrayOp = opKey;
+  arrayOpsIndex = 0;
+  
+  // Clear tokens layer for fresh animation in the new mode
+  const tokensLayer = document.getElementById('array-tokens-layer');
+  if (tokensLayer) tokensLayer.innerHTML = '';
+
+  // Update pill buttons
+  const container = document.getElementById('array-op-pills');
+  if (container) {
+    container.querySelectorAll('.array-op-pill').forEach(btn => {
+      const onclickAttr = btn.getAttribute('onclick') || '';
+      if (onclickAttr.includes("'" + opKey + "'")) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  renderArrayOps();
+}
+window.selectArrayOp = selectArrayOp;
 
 function renderArrayOps() {
-  const frame = arrayOpsFrames[arrayOpsIndex];
+  const frames = getActiveArrayFrames();
+  const frame = frames[arrayOpsIndex] || frames[0];
   const container = document.getElementById('array-ops-canvas');
   if (!container) return;
-  container.innerHTML = frame.arr.map((v, i) => renderOpsCell(v, i, { highlighted: frame.highlight.includes(i) })).join('');
+
+  const capacity = frame.capacity || 8;
+  const baseAddr = frame.baseAddr || 0x1000;
+  const targetSlot = frame.targetIndex !== undefined ? frame.targetIndex : null;
+  const scannerIndex = frame.scannerIndex !== undefined ? frame.scannerIndex : null;
+  const tokens = frame.tokens || [];
+
+  // 1. Ensure Background Slots Track exists and matches capacity/baseAddr
+  let bgTrack = container.querySelector('.array-slots-bg');
+  if (!bgTrack || bgTrack.dataset.capacity !== String(capacity) || bgTrack.dataset.base !== String(baseAddr)) {
+    let bgHtml = '';
+    for (let i = 0; i < capacity; i++) {
+      const addrHex = '0x' + (baseAddr + i * 4).toString(16).toUpperCase();
+      bgHtml += '<div class="array-slot-container" data-slot="' + i + '">' +
+        '<span class="array-slot-addr">' + addrHex + '</span>' +
+        '<div class="array-slot-box" id="array-slot-box-' + i + '"></div>' +
+        '<span class="array-slot-index">[' + i + ']</span>' +
+      '</div>';
+    }
+    if (!bgTrack) {
+      bgTrack = document.createElement('div');
+      bgTrack.className = 'array-slots-bg';
+      container.appendChild(bgTrack);
+    }
+    bgTrack.dataset.capacity = String(capacity);
+    bgTrack.dataset.base = String(baseAddr);
+    bgTrack.innerHTML = bgHtml;
+  }
+
+  // Update target slot highlight on background boxes
+  for (let i = 0; i < capacity; i++) {
+    const box = document.getElementById('array-slot-box-' + i);
+    if (box) {
+      if (targetSlot === i) {
+        box.classList.add('target-slot');
+      } else {
+        box.classList.remove('target-slot');
+      }
+    }
+  }
+
+  // 2. Ensure Tokens Layer exists
+  let tokensLayer = container.querySelector('#array-tokens-layer');
+  if (!tokensLayer) {
+    tokensLayer = document.createElement('div');
+    tokensLayer.id = 'array-tokens-layer';
+    tokensLayer.className = 'array-tokens-layer';
+    container.appendChild(tokensLayer);
+  }
+
+  // Reconcile active tokens (Persistent Keyed DOM for smooth CSS transitions)
+  const activeIds = new Set();
+  tokens.forEach(t => {
+    activeIds.add(t.id);
+    let el = tokensLayer.querySelector('[data-token-id="' + t.id + '"]');
+    const posX = t.slot * 64;
+    const posY = 28 + (t.yOffset || 0);
+    const targetOpacity = t.opacity !== undefined ? t.opacity : 1;
+
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'array-cell-token ' + (t.state || '');
+      el.dataset.tokenId = t.id;
+      el.textContent = t.val;
+      if (t.isNew) {
+        el.style.opacity = '0';
+        el.style.transform = 'translate3d(' + posX + 'px, -24px, 0) scale(0.8)';
+        tokensLayer.appendChild(el);
+        // Force reflow for enter transition
+        el.getBoundingClientRect();
+      } else {
+        tokensLayer.appendChild(el);
+      }
+    }
+
+    // Apply updated transform and classes
+    el.className = 'array-cell-token ' + (t.state || '');
+    el.style.opacity = targetOpacity;
+    el.style.transform = 'translate3d(' + posX + 'px, ' + posY + 'px, 0) scale(' + (targetOpacity === 0 ? 0.7 : 1) + ')';
+  });
+
+  // Fade out and remove tokens that left the array
+  tokensLayer.querySelectorAll('.array-cell-token').forEach(el => {
+    const id = el.dataset.tokenId;
+    if (!activeIds.has(id)) {
+      el.style.opacity = '0';
+      el.style.transform = el.style.transform.replace(/translate3d\(([^,]+),\s*[^,]+,\s*0\)/, 'translate3d($1, -30px, 0) scale(0.6)');
+      setTimeout(() => {
+        if (el.parentNode && !activeIds.has(el.dataset.tokenId)) {
+          el.parentNode.removeChild(el);
+        }
+      }, 450);
+    }
+  });
+
+  // 3. Ensure Scanner Pointer exists
+  let scanner = container.querySelector('#array-scanner-pointer');
+  if (!scanner) {
+    scanner = document.createElement('div');
+    scanner.id = 'array-scanner-pointer';
+    scanner.className = 'array-scanner-pointer';
+    scanner.innerHTML = '<span class="array-scanner-badge" id="array-scanner-badge">i = 0</span><div class="array-scanner-arrow"></div>';
+    container.appendChild(scanner);
+  }
+
+  if (scannerIndex !== null && scannerIndex !== undefined && scannerIndex >= 0 && scannerIndex < capacity) {
+    scanner.style.opacity = '1';
+    scanner.style.transform = 'translate3d(' + (scannerIndex * 64) + 'px, 0, 0)';
+    const badge = document.getElementById('array-scanner-badge');
+    if (badge) badge.textContent = 'i = ' + scannerIndex;
+  } else {
+    scanner.style.opacity = '0';
+  }
+
+  // 4. Update HUD
+  const badgeEl = document.getElementById('array-ops-badge');
+  if (badgeEl) badgeEl.textContent = 'Bước ' + (arrayOpsIndex + 1) + ' / ' + frames.length;
+
+  const complexityEl = document.getElementById('array-ops-complexity');
+  if (complexityEl && frame.complexity) {
+    complexityEl.textContent = frame.complexity;
+  }
+
   const statusEl = document.getElementById('array-ops-status');
-  if (statusEl) statusEl.innerHTML = '<strong>Bước ' + (arrayOpsIndex + 1) + '/' + arrayOpsFrames.length + ':</strong> ' + frame.desc;
+  if (statusEl) {
+    statusEl.innerHTML = '<strong>' + (frame.title || ('Bước ' + (arrayOpsIndex + 1))) + ':</strong> ' + frame.desc;
+  }
+
+  const mathEl = document.getElementById('array-ops-math');
+  if (mathEl) {
+    if (frame.math) {
+      mathEl.style.display = 'inline-block';
+      mathEl.textContent = frame.math;
+    } else {
+      mathEl.textContent = 'Address(i) = 0x' + baseAddr.toString(16).toUpperCase() + ' + i × 4 bytes';
+    }
+  }
+
+  // Update controls disabled state
+  const btnPrev = document.getElementById('array-ops-btn-prev');
+  if (btnPrev) btnPrev.disabled = (arrayOpsIndex <= 0);
+
   const btnStep = document.getElementById('array-ops-btn-step');
-  if (btnStep) btnStep.disabled = arrayOpsIndex >= arrayOpsFrames.length - 1;
+  if (btnStep) btnStep.disabled = (arrayOpsIndex >= frames.length - 1);
 }
 
 function initArrayOpsDemo() {
-  clearInterval(arrayOpsTimer);
-  arrayOpsTimer = null;
+  pauseRunArrayOps();
   arrayOpsIndex = 0;
+  const tokensLayer = document.getElementById('array-tokens-layer');
+  if (tokensLayer) tokensLayer.innerHTML = '';
   renderArrayOps();
   const btnPause = document.getElementById('array-ops-btn-pause');
   if (btnPause) btnPause.disabled = true;
@@ -5752,8 +6325,16 @@ function initArrayOpsDemo() {
 }
 window.initArrayOpsDemo = initArrayOpsDemo;
 
+function prevArrayOps() {
+  if (arrayOpsIndex <= 0) return;
+  arrayOpsIndex--;
+  renderArrayOps();
+}
+window.prevArrayOps = prevArrayOps;
+
 function stepArrayOps() {
-  if (arrayOpsIndex >= arrayOpsFrames.length - 1) return;
+  const frames = getActiveArrayFrames();
+  if (arrayOpsIndex >= frames.length - 1) return;
   arrayOpsIndex++;
   renderArrayOps();
 }
@@ -5764,8 +6345,16 @@ function autoRunArrayOps() {
   const btnPause = document.getElementById('array-ops-btn-pause');
   if (btnAuto) btnAuto.disabled = true;
   if (btnPause) btnPause.disabled = false;
+  
+  const frames = getActiveArrayFrames();
+  if (arrayOpsIndex >= frames.length - 1) {
+    arrayOpsIndex = 0;
+    renderArrayOps();
+  }
+
   arrayOpsTimer = setInterval(() => {
-    if (arrayOpsIndex >= arrayOpsFrames.length - 1) {
+    const currentFrames = getActiveArrayFrames();
+    if (arrayOpsIndex >= currentFrames.length - 1) {
       pauseRunArrayOps();
       return;
     }
@@ -5775,8 +6364,10 @@ function autoRunArrayOps() {
 window.autoRunArrayOps = autoRunArrayOps;
 
 function pauseRunArrayOps() {
-  clearInterval(arrayOpsTimer);
-  arrayOpsTimer = null;
+  if (arrayOpsTimer) {
+    clearInterval(arrayOpsTimer);
+    arrayOpsTimer = null;
+  }
   const btnAuto = document.getElementById('array-ops-btn-autorun');
   const btnPause = document.getElementById('array-ops-btn-pause');
   if (btnAuto) btnAuto.disabled = false;
@@ -5796,40 +6387,692 @@ function setArrayOpsSpeed(val) {
 window.setArrayOpsSpeed = setArrayOpsSpeed;
 
 // ------------------------------------------------------------------
-// 4.2 Linked List: insert / remove / access / find simulator
+// 4.2 Linked List: True Kinetic Pointer Redirection Simulator
 // ------------------------------------------------------------------
-const linkedListOpsFrames = [
-  { nodes: [1, 3, 2, 5, 4], highlight: [], desc: 'Danh sách liên kết ban đầu: n0(1) → n1(3) → n2(2) → n3(5) → n4(4) → null.' },
-  { nodes: [1, 0, 3, 2, 5, 4], highlight: [1], desc: 'Chèn node P (giá trị 0) vào ngay sau n0: chỉ cần đổi 2 tham chiếu — P.next = n0.next; n0.next = P. Độ phức tạp O(1).' },
-  { nodes: [1, 3, 2, 5, 4], highlight: [], desc: 'Xóa node đứng ngay sau n0 (node P): chỉ cần đổi n0.next = n1. Độ phức tạp O(1).' },
-  { nodes: [1, 3, 2, 5, 4], highlight: [3], desc: 'Truy cập node tại chỉ mục 3: duyệt tuần tự từ head qua 3 bước → giá trị 5. Độ phức tạp O(n).' },
-  { nodes: [1, 3, 2, 5, 4], highlight: [2], desc: 'Tìm node có giá trị 2: duyệt tuần tự từ head → tìm thấy tại chỉ mục 2.' },
-];
+
+const linkedListOpsPresets = {
+  all: [
+    {
+      title: 'Danh sách liên kết ban đầu',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35 },
+        { id: 'n1', val: 3, name: 'n1', x: 140, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 260, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 380, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 500, y: 35 }
+      ],
+      nullPos: { x: 620, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Danh sách liên kết gồm 5 node: <code>n0(1) → n1(3) → n2(2) → n3(5) → n4(4) → null</code>. Mỗi node gồm giá trị và con trỏ <code>next</code>.',
+      math: 'head = n0 | n0.val = 1, n0.next = &n1',
+      complexity: 'Khởi tạo: O(n)'
+    },
+    {
+      title: 'Chuẩn bị chèn node P (giá trị 0) sau n0',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35, state: 'state-target' },
+        { id: 'nP', val: 0, name: 'node P', x: 140, y: -25, isNew: true, state: 'state-target' },
+        { id: 'n1', val: 3, name: 'n1', x: 260, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 380, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 500, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 620, y: 35 }
+      ],
+      nullPos: { x: 740, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Cấp phát node mới <code>P = new ListNode(0)</code> lơ lửng phía trên vị trí cần chèn. Các node phía sau dời nhẹ sang phải để chừa không gian.',
+      math: 'P = new ListNode(0) | Target: sau n0',
+      complexity: 'Cấp phát node: O(1)'
+    },
+    {
+      title: 'Chèn bước 1: Nối con trỏ P.next = n0.next',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35, state: 'state-target' },
+        { id: 'nP', val: 0, name: 'node P', x: 140, y: -25, state: 'state-target' },
+        { id: 'n1', val: 3, name: 'n1', x: 260, y: 35, state: 'state-target' },
+        { id: 'n2', val: 2, name: 'n2', x: 380, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 500, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 620, y: 35 }
+      ],
+      nullPos: { x: 740, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'nP', to: 'n1', style: 'emerald-dash' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Thiết lập con trỏ của node P trỏ tới node đứng sau n0 (chính là n1): <code>P.next = n0.next</code>. Danh sách ban đầu vẫn chưa bị gián đoạn.',
+      math: 'P.next = n0.next (= &n1)',
+      complexity: 'Gán tham chiếu: O(1)'
+    },
+    {
+      title: 'Chèn bước 2: Chuyển hướng con trỏ n0.next = P',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35, state: 'state-target' },
+        { id: 'nP', val: 0, name: 'node P', x: 140, y: -25, state: 'state-success' },
+        { id: 'n1', val: 3, name: 'n1', x: 260, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 380, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 500, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 620, y: 35 }
+      ],
+      nullPos: { x: 740, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'nP', style: 'sky-glow' },
+        { from: 'nP', to: 'n1', style: 'emerald' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Bẻ lái con trỏ của n0 hướng lên node mới P: <code>n0.next = P</code>. Node P đã chính thức được ghép vào chuỗi liên kết!',
+      math: 'n0.next = P (= &nP)',
+      complexity: 'Gán tham chiếu: O(1)'
+    },
+    {
+      title: 'Chèn hoàn tất: Node P hạ cánh vào chuỗi',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35 },
+        { id: 'nP', val: 0, name: 'node P', x: 140, y: 35, state: 'state-success' },
+        { id: 'n1', val: 3, name: 'n1', x: 260, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 380, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 500, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 620, y: 35 }
+      ],
+      nullPos: { x: 740, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'nP' },
+        { from: 'nP', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Node P hạ cánh êm ái xuống cùng hàng. Chỉ với 2 phép gán con trỏ và không cần dịch chuyển bất kỳ mảng nhớ nào, chi phí là $O(1)$!',
+      math: 'n0 → P(0) → n1(3) → n2(2) → n3(5) → n4(4)',
+      complexity: 'Thời gian: O(1) | Bộ nhớ: O(1)'
+    },
+    {
+      title: 'Chuẩn bị xóa node P sau n0',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35, state: 'state-target' },
+        { id: 'nP', val: 0, name: 'node P', x: 140, y: 35, state: 'state-danger' },
+        { id: 'n1', val: 3, name: 'n1', x: 260, y: 35, state: 'state-target' },
+        { id: 'n2', val: 2, name: 'n2', x: 380, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 500, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 620, y: 35 }
+      ],
+      nullPos: { x: 740, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'nP' },
+        { from: 'nP', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Yêu cầu: Xóa node P đứng ngay sau n0. Ta cần bỏ qua P và nối trực tiếp n0 sang n1.',
+      math: 'Target remove: node P (sau n0)',
+      complexity: 'Xóa node: O(1)'
+    },
+    {
+      title: 'Xóa bước 1: Bắt cầu n0.next = P.next',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35, state: 'state-target' },
+        { id: 'nP', val: 0, name: 'node P', x: 140, y: -25, opacity: 0.25, state: 'state-danger' },
+        { id: 'n1', val: 3, name: 'n1', x: 260, y: 35, state: 'state-target' },
+        { id: 'n2', val: 2, name: 'n2', x: 380, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 500, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 620, y: 35 }
+      ],
+      nullPos: { x: 740, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'n1', style: 'curve-bypass' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Gán <code>n0.next = n0.next.next</code> (hoặc <code>P.next</code>). Con trỏ từ n0 bắc cầu cầu vồng vượt qua node P tới thẳng n1. Node P bị ngắt kết nối.',
+      math: 'n0.next = P.next (= &n1)',
+      complexity: 'Đổi con trỏ bắc cầu: O(1)'
+    },
+    {
+      title: 'Xóa hoàn tất: Giải phóng P & Khép hàng',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35 },
+        { id: 'n1', val: 3, name: 'n1', x: 140, y: 35, state: 'state-success' },
+        { id: 'n2', val: 2, name: 'n2', x: 260, y: 35, state: 'state-success' },
+        { id: 'n3', val: 5, name: 'n3', x: 380, y: 35, state: 'state-success' },
+        { id: 'n4', val: 4, name: 'n4', x: 500, y: 35, state: 'state-success' }
+      ],
+      nullPos: { x: 620, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Bộ thu gom rác (Garbage Collector) giải phóng vùng nhớ node P. Các node phía sau trượt nhẹ sang trái để hàng thẳng tắp như ban đầu.',
+      math: 'n0(1) → n1(3) → n2(2) → n3(5) → n4(4) → null',
+      complexity: 'Thời gian: O(1) | Bộ nhớ: O(1)'
+    },
+    {
+      title: 'Truy cập / Tìm kiếm: Quét tuần tự từ head',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35, state: 'state-target' },
+        { id: 'n1', val: 3, name: 'n1', x: 140, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 260, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 380, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 500, y: 35 }
+      ],
+      nullPos: { x: 620, y: 35 },
+      scannerNode: 'n0',
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Yêu cầu: Truy cập node tại chỉ mục 3 (giá trị 5). Do không có chỉ mục ngẫu nhiên, con trỏ laser <code>curr</code> bắt đầu từ <code>head</code>.',
+      math: 'curr = head (index = 0)',
+      complexity: 'Duyệt tuần tự: O(n)'
+    },
+    {
+      title: 'Duyệt tiếp: curr = curr.next',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35 },
+        { id: 'n1', val: 3, name: 'n1', x: 140, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 260, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 380, y: 35, state: 'state-success' },
+        { id: 'n4', val: 4, name: 'n4', x: 500, y: 35 }
+      ],
+      nullPos: { x: 620, y: 35 },
+      scannerNode: 'n3',
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Lần theo 3 liên kết <code>next</code>: n0 → n1 → n2 → n3. Con trỏ laser dừng chính xác tại node có giá trị 5!',
+      math: 'curr = n3 | val = 5 (Tìm thấy sau 3 bước)',
+      complexity: 'O(n) thời gian duyệt'
+    }
+  ],
+
+  insert: [
+    {
+      title: 'Khởi tạo danh sách',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35 },
+        { id: 'n1', val: 3, name: 'n1', x: 140, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 260, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 380, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 500, y: 35 }
+      ],
+      nullPos: { x: 620, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Mục tiêu: Chèn node P (giá trị 0) vào ngay sau node n0.',
+      math: 'n0.val = 1 → n1.val = 3',
+      complexity: 'Mục tiêu O(1)'
+    },
+    {
+      title: 'Bước 1: Cấp phát node P',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35, state: 'state-target' },
+        { id: 'nP', val: 0, name: 'node P', x: 140, y: -25, isNew: true, state: 'state-target' },
+        { id: 'n1', val: 3, name: 'n1', x: 260, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 380, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 500, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 620, y: 35 }
+      ],
+      nullPos: { x: 740, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Node mới P lơ lửng sẵn sàng. Các node phía sau dạt sang phải.',
+      math: 'P = new ListNode(0)',
+      complexity: 'Cấp phát O(1)'
+    },
+    {
+      title: 'Bước 2: Nối P.next = n0.next',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35, state: 'state-target' },
+        { id: 'nP', val: 0, name: 'node P', x: 140, y: -25, state: 'state-target' },
+        { id: 'n1', val: 3, name: 'n1', x: 260, y: 35, state: 'state-target' },
+        { id: 'n2', val: 2, name: 'n2', x: 380, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 500, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 620, y: 35 }
+      ],
+      nullPos: { x: 740, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'nP', to: 'n1', style: 'emerald-dash' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Con trỏ P.next nối vào n1 (node đứng sau n0).',
+      math: 'P.next = n0.next (= &n1)',
+      complexity: 'Phép gán 1/2'
+    },
+    {
+      title: 'Bước 3: Nối n0.next = P',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35, state: 'state-target' },
+        { id: 'nP', val: 0, name: 'node P', x: 140, y: 35, state: 'state-success' },
+        { id: 'n1', val: 3, name: 'n1', x: 260, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 380, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 500, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 620, y: 35 }
+      ],
+      nullPos: { x: 740, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'nP', style: 'sky-glow' },
+        { from: 'nP', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Con trỏ n0 trỏ sang P. Node P hạ cánh vào chuỗi. Chèn hoàn tất!',
+      math: 'n0.next = P (= &nP) | Xong!',
+      complexity: 'Thời gian: O(1) — Cực nhanh'
+    }
+  ],
+
+  remove: [
+    {
+      title: 'Danh sách có node P',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35 },
+        { id: 'nP', val: 0, name: 'node P', x: 140, y: 35 },
+        { id: 'n1', val: 3, name: 'n1', x: 260, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 380, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 500, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 620, y: 35 }
+      ],
+      nullPos: { x: 740, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'nP' },
+        { from: 'nP', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Mục tiêu: Xóa node P đứng ngay sau node n0.',
+      math: 'Xóa node P (giá trị 0)',
+      complexity: 'Mục tiêu O(1)'
+    },
+    {
+      title: 'Bước 1: Bắc cầu n0.next = P.next',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35, state: 'state-target' },
+        { id: 'nP', val: 0, name: 'node P', x: 140, y: -25, opacity: 0.25, state: 'state-danger' },
+        { id: 'n1', val: 3, name: 'n1', x: 260, y: 35, state: 'state-target' },
+        { id: 'n2', val: 2, name: 'n2', x: 380, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 500, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 620, y: 35 }
+      ],
+      nullPos: { x: 740, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'n1', style: 'curve-bypass' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Con trỏ n0 bắc cầu cầu vồng vượt qua P để trỏ thẳng tới n1.',
+      math: 'n0.next = P.next (= &n1)',
+      complexity: 'Ngắt kết nối O(1)'
+    },
+    {
+      title: 'Bước 2: Giải phóng & Khép kín danh sách',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35 },
+        { id: 'n1', val: 3, name: 'n1', x: 140, y: 35, state: 'state-success' },
+        { id: 'n2', val: 2, name: 'n2', x: 260, y: 35, state: 'state-success' },
+        { id: 'n3', val: 5, name: 'n3', x: 380, y: 35, state: 'state-success' },
+        { id: 'n4', val: 4, name: 'n4', x: 500, y: 35, state: 'state-success' }
+      ],
+      nullPos: { x: 620, y: 35 },
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Node P được giải phóng. Các node phía sau trượt sang trái khép kín.',
+      math: 'n0 → n1 → n2 → n3 → n4 → null',
+      complexity: 'Thời gian: O(1)'
+    }
+  ],
+
+  find: [
+    {
+      title: 'Khởi tạo tìm kiếm: curr = head',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35, state: 'state-target' },
+        { id: 'n1', val: 3, name: 'n1', x: 140, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 260, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 380, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 500, y: 35 }
+      ],
+      nullPos: { x: 620, y: 35 },
+      scannerNode: 'n0',
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Tìm kiếm node có giá trị <strong>5</strong>. Laser scanner đặt tại node đầu <code>head (n0)</code>.',
+      math: 'curr = head | So sánh curr.val == 5 ? 1 != 5',
+      complexity: 'Bắt đầu quét O(n)'
+    },
+    {
+      title: 'Quét bước 1: curr = curr.next (n1)',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35 },
+        { id: 'n1', val: 3, name: 'n1', x: 140, y: 35, state: 'state-target' },
+        { id: 'n2', val: 2, name: 'n2', x: 260, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 380, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 500, y: 35 }
+      ],
+      nullPos: { x: 620, y: 35 },
+      scannerNode: 'n1',
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Laser lướt sang n1: <code>curr.val = 3 ≠ 5</code>. Tiếp tục.',
+      math: 'curr = curr.next | val = 3 != 5',
+      complexity: 'Bước 1/3'
+    },
+    {
+      title: 'Quét bước 2: curr = curr.next (n2)',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35 },
+        { id: 'n1', val: 3, name: 'n1', x: 140, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 260, y: 35, state: 'state-target' },
+        { id: 'n3', val: 5, name: 'n3', x: 380, y: 35 },
+        { id: 'n4', val: 4, name: 'n4', x: 500, y: 35 }
+      ],
+      nullPos: { x: 620, y: 35 },
+      scannerNode: 'n2',
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Laser lướt sang n2: <code>curr.val = 2 ≠ 5</code>. Tiếp tục.',
+      math: 'curr = curr.next | val = 2 != 5',
+      complexity: 'Bước 2/3'
+    },
+    {
+      title: 'Khớp mục tiêu: Tìm thấy node có giá trị 5!',
+      nodes: [
+        { id: 'n0', val: 1, name: 'head / n0', x: 20, y: 35 },
+        { id: 'n1', val: 3, name: 'n1', x: 140, y: 35 },
+        { id: 'n2', val: 2, name: 'n2', x: 260, y: 35 },
+        { id: 'n3', val: 5, name: 'n3', x: 380, y: 35, state: 'state-success' },
+        { id: 'n4', val: 4, name: 'n4', x: 500, y: 35 }
+      ],
+      nullPos: { x: 620, y: 35 },
+      scannerNode: 'n3',
+      pointers: [
+        { from: 'n0', to: 'n1' },
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n4' },
+        { from: 'n4', to: 'null' }
+      ],
+      desc: 'Laser lướt sang n3: <code>curr.val = 5 == 5</code> ➔ Khớp chính xác! Trả về tham chiếu tới <code>n3</code>.',
+      math: 'curr.val == 5 ➔ Tìm thấy tại n3 (index 3)',
+      complexity: 'Tìm thấy sau 3 bước duyệt'
+    }
+  ]
+};
+
+let currentLinkedListOp = 'all';
 let linkedListOpsIndex = 0;
 let linkedListOpsTimer = null;
 let linkedListOpsSpeed = 900;
 
+function getActiveLinkedListFrames() {
+  return linkedListOpsPresets[currentLinkedListOp] || linkedListOpsPresets.all;
+}
+
+function selectLinkedListOp(opKey) {
+  if (!linkedListOpsPresets[opKey]) return;
+  pauseRunLinkedListOps();
+  currentLinkedListOp = opKey;
+  linkedListOpsIndex = 0;
+
+  const container = document.getElementById('linked-list-op-pills');
+  if (container) {
+    container.querySelectorAll('.sim-op-pill').forEach(btn => {
+      const onclickAttr = btn.getAttribute('onclick') || '';
+      if (onclickAttr.includes("'" + opKey + "'")) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  // Reset stage
+  const stage = document.getElementById('linked-list-ops-canvas');
+  if (stage) stage.innerHTML = '';
+  renderLinkedListOps();
+}
+window.selectLinkedListOp = selectLinkedListOp;
+
 function renderLinkedListOps() {
-  const frame = linkedListOpsFrames[linkedListOpsIndex];
+  const frames = getActiveLinkedListFrames();
+  const frame = frames[linkedListOpsIndex] || frames[0];
   const container = document.getElementById('linked-list-ops-canvas');
   if (!container) return;
-  let html = frame.nodes.map((v, i) => {
-    const cell = renderOpsCell(v, 'n' + i, { highlighted: frame.highlight.includes(i) });
-    return cell;
-  }).join('<div style="align-self:center;color:var(--text-muted);font-size:18px;margin:0 2px;">→</div>');
-  html += '<div style="align-self:center;color:var(--text-muted);font-size:18px;margin:0 2px;">→</div>' +
-    '<div style="display:flex;flex-direction:column;align-items:center;"><div style="width:42px;height:42px;display:flex;align-items:center;justify-content:center;border:2px dashed var(--border-subtle);border-radius:6px;color:var(--text-muted);font-family:var(--font-mono);font-size:12px;">null</div></div>';
-  container.innerHTML = html;
+
+  // Ensure track exists
+  let track = container.querySelector('.ll-nodes-track');
+  if (!track) {
+    track = document.createElement('div');
+    track.className = 'll-nodes-track';
+    container.appendChild(track);
+  }
+
+  // Ensure SVG pointers layer exists
+  let svg = track.querySelector('.ll-pointers-svg');
+  if (!svg) {
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'll-pointers-svg');
+    svg.innerHTML = '<defs>' +
+      '<marker id="arrow-sky" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M1,1 L7,4 L1,7 Z" fill="#38bdf8" /></marker>' +
+      '<marker id="arrow-emerald" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M1,1 L7,4 L1,7 Z" fill="#34d399" /></marker>' +
+      '<marker id="arrow-rose" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M1,1 L7,4 L1,7 Z" fill="#fb7185" /></marker>' +
+      '<marker id="arrow-muted" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M1,1 L7,4 L1,7 Z" fill="#64748b" /></marker>' +
+      '</defs>' +
+      '<g id="ll-svg-paths-group"></g>';
+    track.appendChild(svg);
+  }
+
+  const nodes = frame.nodes || [];
+  const activeIds = new Set();
+  const nodeCoords = {};
+
+  nodes.forEach(n => {
+    activeIds.add(n.id);
+    nodeCoords[n.id] = { x: n.x, y: n.y };
+    let el = track.querySelector('[data-node-id="' + n.id + '"]');
+    const targetOpacity = n.opacity !== undefined ? n.opacity : 1;
+
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'll-node-token ' + (n.state || '');
+      el.dataset.nodeId = n.id;
+      el.innerHTML = '<span class="ll-node-label">' + n.name + '</span>' +
+        '<div class="ll-val-part">' + n.val + '</div>' +
+        '<div class="ll-ptr-part">• →</div>';
+      if (n.isNew) {
+        el.style.opacity = '0';
+        el.style.transform = 'translate3d(' + n.x + 'px, -50px, 0) scale(0.8)';
+        track.appendChild(el);
+        el.getBoundingClientRect(); // Force reflow
+      } else {
+        track.appendChild(el);
+      }
+    }
+
+    el.className = 'll-node-token ' + (n.state || '');
+    el.style.opacity = targetOpacity;
+    el.style.transform = 'translate3d(' + n.x + 'px, ' + n.y + 'px, 0) scale(' + (targetOpacity === 0 ? 0.6 : 1) + ')';
+    const label = el.querySelector('.ll-node-label');
+    if (label) label.textContent = n.name;
+  });
+
+  // Remove dead nodes
+  track.querySelectorAll('.ll-node-token').forEach(el => {
+    const id = el.dataset.nodeId;
+    if (!activeIds.has(id)) {
+      el.style.opacity = '0';
+      el.style.transform = el.style.transform.replace(/translate3d\(([^,]+),\s*[^,]+,\s*0\)/, 'translate3d($1, -50px, 0) scale(0.6)');
+      setTimeout(() => {
+        if (el.parentNode && !activeIds.has(el.dataset.nodeId)) {
+          el.parentNode.removeChild(el);
+        }
+      }, 450);
+    }
+  });
+
+  // Ensure NULL node exists
+  let nullEl = track.querySelector('.ll-null-token');
+  if (!nullEl) {
+    nullEl = document.createElement('div');
+    nullEl.className = 'll-null-token';
+    nullEl.textContent = 'null';
+    track.appendChild(nullEl);
+  }
+  const nullPos = frame.nullPos || { x: 620, y: 35 };
+  nodeCoords['null'] = { x: nullPos.x, y: nullPos.y };
+  nullEl.style.transform = 'translate3d(' + nullPos.x + 'px, ' + nullPos.y + 'px, 0)';
+
+  // Render SVG Pointer Paths
+  const pathsGroup = svg.querySelector('#ll-svg-paths-group');
+  if (pathsGroup) {
+    let pathMarkup = '';
+    (frame.pointers || []).forEach(p => {
+      const fromPos = nodeCoords[p.from];
+      const toPos = nodeCoords[p.to];
+      if (fromPos && toPos) {
+        const startX = fromPos.x + 80;
+        const startY = fromPos.y + 24;
+        const endX = toPos.x - 2;
+        const endY = toPos.y + 24;
+
+        if (p.style === 'curve-bypass') {
+          // Rainbow arch bypass curve
+          const midX = (startX + endX) / 2;
+          const ctrlY = Math.min(startY, endY) - 50;
+          pathMarkup += '<path d="M ' + startX + ' ' + startY + ' Q ' + midX + ' ' + ctrlY + ' ' + endX + ' ' + endY + '" stroke="#fb7185" stroke-width="2.5" fill="none" stroke-dasharray="6,4" marker-end="url(#arrow-rose)" />';
+        } else if (p.style === 'emerald-dash') {
+          const midX = (startX + endX) / 2;
+          pathMarkup += '<path d="M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ' ' + midX + ' ' + endY + ' ' + endX + ' ' + endY + '" stroke="#34d399" stroke-width="2.5" fill="none" stroke-dasharray="4,4" marker-end="url(#arrow-emerald)" />';
+        } else if (p.style === 'sky-glow') {
+          const midX = (startX + endX) / 2;
+          pathMarkup += '<path d="M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ' ' + midX + ' ' + endY + ' ' + endX + ' ' + endY + '" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#arrow-sky)" />';
+        } else {
+          pathMarkup += '<path d="M ' + startX + ' ' + startY + ' L ' + endX + ' ' + endY + '" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrow-muted)" />';
+        }
+      }
+    });
+    pathsGroup.innerHTML = pathMarkup;
+  }
+
+  // Scanner pointer
+  let scanner = track.querySelector('#ll-scanner-pointer');
+  if (!scanner) {
+    scanner = document.createElement('div');
+    scanner.id = 'll-scanner-pointer';
+    scanner.className = 'll-scanner-pointer';
+    scanner.innerHTML = '<span class="array-scanner-badge" id="ll-scanner-badge">curr</span><div class="array-scanner-arrow"></div>';
+    track.appendChild(scanner);
+  }
+
+  if (frame.scannerNode && nodeCoords[frame.scannerNode]) {
+    const scPos = nodeCoords[frame.scannerNode];
+    scanner.style.opacity = '1';
+    scanner.style.transform = 'translate3d(' + scPos.x + 'px, ' + (scPos.y - 48) + 'px, 0)';
+  } else {
+    scanner.style.opacity = '0';
+  }
+
+  // HUD updates
+  const badgeEl = document.getElementById('linked-list-ops-badge');
+  if (badgeEl) badgeEl.textContent = 'Bước ' + (linkedListOpsIndex + 1) + ' / ' + frames.length;
+
+  const compEl = document.getElementById('linked-list-ops-complexity');
+  if (compEl && frame.complexity) compEl.textContent = frame.complexity;
+
   const statusEl = document.getElementById('linked-list-ops-status');
-  if (statusEl) statusEl.innerHTML = '<strong>Bước ' + (linkedListOpsIndex + 1) + '/' + linkedListOpsFrames.length + ':</strong> ' + frame.desc;
+  if (statusEl) {
+    statusEl.innerHTML = '<strong>' + (frame.title || '') + ':</strong> ' + frame.desc;
+  }
+
+  const mathEl = document.getElementById('linked-list-ops-math');
+  if (mathEl && frame.math) {
+    mathEl.style.display = 'inline-block';
+    mathEl.textContent = frame.math;
+  }
+
+  // Buttons disabled state
+  const btnPrev = document.getElementById('linked-list-ops-btn-prev');
+  if (btnPrev) btnPrev.disabled = linkedListOpsIndex <= 0;
+
   const btnStep = document.getElementById('linked-list-ops-btn-step');
-  if (btnStep) btnStep.disabled = linkedListOpsIndex >= linkedListOpsFrames.length - 1;
+  if (btnStep) btnStep.disabled = linkedListOpsIndex >= frames.length - 1;
 }
 
 function initLinkedListOpsDemo() {
-  clearInterval(linkedListOpsTimer);
-  linkedListOpsTimer = null;
+  pauseRunLinkedListOps();
   linkedListOpsIndex = 0;
+  const stage = document.getElementById('linked-list-ops-canvas');
+  if (stage) stage.innerHTML = '';
   renderLinkedListOps();
   const btnPause = document.getElementById('linked-list-ops-btn-pause');
   if (btnPause) btnPause.disabled = true;
@@ -5839,11 +7082,19 @@ function initLinkedListOpsDemo() {
 window.initLinkedListOpsDemo = initLinkedListOpsDemo;
 
 function stepLinkedListOps() {
-  if (linkedListOpsIndex >= linkedListOpsFrames.length - 1) return;
+  const frames = getActiveLinkedListFrames();
+  if (linkedListOpsIndex >= frames.length - 1) return;
   linkedListOpsIndex++;
   renderLinkedListOps();
 }
 window.stepLinkedListOps = stepLinkedListOps;
+
+function prevLinkedListOps() {
+  if (linkedListOpsIndex <= 0) return;
+  linkedListOpsIndex--;
+  renderLinkedListOps();
+}
+window.prevLinkedListOps = prevLinkedListOps;
 
 function autoRunLinkedListOps() {
   const btnAuto = document.getElementById('linked-list-ops-btn-autorun');
@@ -5851,7 +7102,8 @@ function autoRunLinkedListOps() {
   if (btnAuto) btnAuto.disabled = true;
   if (btnPause) btnPause.disabled = false;
   linkedListOpsTimer = setInterval(() => {
-    if (linkedListOpsIndex >= linkedListOpsFrames.length - 1) {
+    const frames = getActiveLinkedListFrames();
+    if (linkedListOpsIndex >= frames.length - 1) {
       pauseRunLinkedListOps();
       return;
     }
@@ -5882,43 +7134,465 @@ function setLinkedListOpsSpeed(val) {
 window.setLinkedListOpsSpeed = setLinkedListOpsSpeed;
 
 // ------------------------------------------------------------------
-// 4.3 List (dynamic array): add / insert / remove / capacity expansion simulator
+// 4.3 List (dynamic array): True Dynamic Capacity Expansion Simulator
 // ------------------------------------------------------------------
-const EMPTY = null;
-const listOpsFrames = [
-  { arr: new Array(10).fill(EMPTY), size: 0, capacity: 10, highlight: [], desc: 'Khởi tạo List rỗng với capacity = 10.' },
-  { arr: [1, 3, 2, 5, 4, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY], size: 5, capacity: 10, highlight: [0, 1, 2, 3, 4], desc: 'Thêm 5 phần tử vào cuối bằng add(): nums = [1, 3, 2, 5, 4], length = 5, capacity = 10.' },
-  { arr: [1, 3, 2, 6, 5, 4, EMPTY, EMPTY, EMPTY, EMPTY], size: 6, capacity: 10, highlight: [3, 4, 5], desc: 'Chèn 6 vào chỉ mục 3 bằng insert(): dịch phải các phần tử phía sau → length = 6.' },
-  { arr: [1, 3, 2, 5, 4, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY], size: 5, capacity: 10, highlight: [3, 4], desc: 'Xóa phần tử tại chỉ mục 3 bằng remove(): dịch trái các phần tử phía sau → length = 5.' },
-  { arr: [1, 0, 2, 5, 4, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY], size: 5, capacity: 10, highlight: [1], desc: 'Truy cập get(1) = 3, sau đó cập nhật set(1, 0) → phần tử tại chỉ mục 1 trở thành 0.' },
-  { arr: [1, 0, 2, 5, 4, 0, 1, 2, 3, 4], size: 10, capacity: 10, highlight: [5, 6, 7, 8, 9], desc: 'Kiểm tra cơ chế mở rộng: gọi add() liên tiếp với i = 0, 1, 2, 3, 4 → length chạm capacity = 10 (chưa cần mở rộng).' },
-  { arr: [1, 0, 2, 5, 4, 0, 1, 2, 3, 4, 5, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY], size: 11, capacity: 20, highlight: [10], desc: 'Thêm i = 5: length (10) đã bằng capacity (10) → List tự động MỞ RỘNG dung lượng gấp đôi thành 20, rồi mới thêm phần tử.' },
-  { arr: [1, 0, 2, 5, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY], size: 15, capacity: 20, highlight: [11, 12, 13, 14], desc: 'Thêm nốt i = 6, 7, 8, 9 → length = 15, capacity = 20.' },
-];
+
+const listOpsPresets = {
+  all: [
+    {
+      title: 'Khởi tạo mảng động (List) rỗng',
+      capacity: 10,
+      size: 0,
+      tokens: [],
+      desc: 'Khởi tạo List rỗng với dung lượng ban đầu <code>capacity = 10</code> và kích thước hiện tại <code>size = 0</code>.',
+      math: 'size = 0, capacity = 10 (0% đầy)',
+      complexity: 'Khởi tạo mảng: O(1)'
+    },
+    {
+      title: 'Thêm 5 phần tử bằng add()',
+      capacity: 10,
+      size: 5,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l5', val: 5, slot: 3 },
+        { id: 'l4', val: 4, slot: 4 }
+      ],
+      desc: 'Gọi <code>add()</code> liên tiếp 5 lần: các phần tử được ghi trực tiếp vào cuối mảng tại chỉ mục 0 đến 4.',
+      math: 'nums = [1, 3, 2, 5, 4] | size = 5/10 (50%)',
+      complexity: 'Mỗi lần add(): O(1)'
+    },
+    {
+      title: 'Chèn 6 vào chỉ mục 3 (insert)',
+      capacity: 10,
+      size: 6,
+      targetIndex: 3,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l6', val: 6, slot: 3, isNew: true, state: 'state-success' },
+        { id: 'l5', val: 5, slot: 4, state: 'state-target' },
+        { id: 'l4', val: 4, slot: 5, state: 'state-target' }
+      ],
+      desc: 'Gọi <code>insert(3, 6)</code>: các phần tử 5 và 4 trượt phải 1 ô, giá trị 6 thả vào ô 3. Kích thước tăng lên 6.',
+      math: 'size: 5 → 6 / capacity: 10 (60%)',
+      complexity: 'Chèn giữa mảng: O(n)'
+    },
+    {
+      title: 'Xóa phần tử tại chỉ mục 3 (remove)',
+      capacity: 10,
+      size: 5,
+      targetIndex: 3,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l5', val: 5, slot: 3, state: 'state-success' },
+        { id: 'l4', val: 4, slot: 4, state: 'state-success' }
+      ],
+      desc: 'Gọi <code>remove(3)</code>: phần tử 6 bị loại bỏ, các phần tử phía sau trượt trái 1 ô. Kích thước giảm về 5.',
+      math: 'size: 6 → 5 / capacity: 10 (50%)',
+      complexity: 'Xóa phần tử: O(n)'
+    },
+    {
+      title: 'Thêm liên tục: Đạt 100% dung lượng',
+      capacity: 10,
+      size: 10,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l5', val: 5, slot: 3 },
+        { id: 'l4', val: 4, slot: 4 },
+        { id: 'la', val: 7, slot: 5, state: 'state-target' },
+        { id: 'lb', val: 8, slot: 6, state: 'state-target' },
+        { id: 'lc', val: 9, slot: 7, state: 'state-target' },
+        { id: 'ld', val: 0, slot: 8, state: 'state-target' },
+        { id: 'le', val: 2, slot: 9, state: 'state-target' }
+      ],
+      desc: 'Gọi <code>add()</code> thêm 5 lần nữa: toàn bộ 10 ô nhớ đều đã có dữ liệu (size = 10 / 10). Mảng chạm ngưỡng 100% dung lượng!',
+      math: 'size = 10, capacity = 10 (100% ĐẦY)',
+      complexity: 'Đạt giới hạn dung lượng'
+    },
+    {
+      title: 'Kích hoạt mở rộng: Cấp phát mảng gấp đôi (capacity = 20)',
+      capacity: 20,
+      size: 10,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0, state: 'state-target' },
+        { id: 'l3', val: 3, slot: 1, state: 'state-target' },
+        { id: 'l2', val: 2, slot: 2, state: 'state-target' },
+        { id: 'l5', val: 5, slot: 3, state: 'state-target' },
+        { id: 'l4', val: 4, slot: 4, state: 'state-target' },
+        { id: 'la', val: 7, slot: 5, state: 'state-target' },
+        { id: 'lb', val: 8, slot: 6, state: 'state-target' },
+        { id: 'lc', val: 9, slot: 7, state: 'state-target' },
+        { id: 'ld', val: 0, slot: 8, state: 'state-target' },
+        { id: 'le', val: 2, slot: 9, state: 'state-target' }
+      ],
+      desc: 'Khi có thêm phần tử mới, List tự động nhân đôi dung lượng: <code>capacity 10 → 20</code>. Toàn bộ 10 phần tử cũ được sao chép sang không gian mới.',
+      math: 'new_capacity = capacity × 2 = 20',
+      complexity: 'Sao chép mảng: O(n)'
+    },
+    {
+      title: 'Thêm phần tử vào mảng mới đã mở rộng',
+      capacity: 20,
+      size: 11,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l5', val: 5, slot: 3 },
+        { id: 'l4', val: 4, slot: 4 },
+        { id: 'la', val: 7, slot: 5 },
+        { id: 'lb', val: 8, slot: 6 },
+        { id: 'lc', val: 9, slot: 7 },
+        { id: 'ld', val: 0, slot: 8 },
+        { id: 'le', val: 2, slot: 9 },
+        { id: 'lf', val: 99, slot: 10, isNew: true, state: 'state-success' }
+      ],
+      desc: 'Phần tử mới <code>99</code> được thả vào ô chỉ mục 10 an toàn. List hiện còn tới 9 ô nhớ dự trữ!',
+      math: 'size = 11, capacity = 20 (55% đầy)',
+      complexity: 'Chi phí khấu hao (Amortized): O(1)'
+    }
+  ],
+
+  append: [
+    {
+      title: 'Khởi tạo List',
+      capacity: 10,
+      size: 3,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 }
+      ],
+      desc: 'List ban đầu có 3 phần tử <code>[1, 3, 2]</code>. Dung lượng còn 7 ô trống.',
+      math: 'size = 3 / capacity = 10',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'Thêm cuối: add(5)',
+      capacity: 10,
+      size: 4,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l5', val: 5, slot: 3, isNew: true, state: 'state-success' }
+      ],
+      desc: 'Ghi trực tiếp giá trị 5 vào ô nhớ tiếp theo <code>nums[size]</code>. Tăng size lên 4.',
+      math: 'nums[3] = 5 | size: 3 → 4',
+      complexity: 'Thêm cuối: O(1)'
+    },
+    {
+      title: 'Thêm cuối: add(4)',
+      capacity: 10,
+      size: 5,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l5', val: 5, slot: 3 },
+        { id: 'l4', val: 4, slot: 4, isNew: true, state: 'state-success' }
+      ],
+      desc: 'Ghi trực tiếp giá trị 4 vào chỉ mục 4. Tăng size lên 5.',
+      math: 'nums[4] = 4 | size: 4 → 5',
+      complexity: 'Thêm cuối: O(1)'
+    }
+  ],
+
+  extend: [
+    {
+      title: 'List chạm ngưỡng đầy (10/10)',
+      capacity: 10,
+      size: 10,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l5', val: 5, slot: 3 },
+        { id: 'l4', val: 4, slot: 4 },
+        { id: 'la', val: 7, slot: 5 },
+        { id: 'lb', val: 8, slot: 6 },
+        { id: 'lc', val: 9, slot: 7 },
+        { id: 'ld', val: 0, slot: 8 },
+        { id: 'le', val: 2, slot: 9 }
+      ],
+      desc: 'Mọi ô nhớ của mảng 10 phần tử đã kín chỗ. Cần thêm phần tử mới sẽ kích hoạt cơ chế mở rộng.',
+      math: 'size == capacity == 10',
+      complexity: 'Ngưỡng mở rộng'
+    },
+    {
+      title: 'Nhân đôi dung lượng: Cấp phát capacity = 20',
+      capacity: 20,
+      size: 10,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0, state: 'state-target' },
+        { id: 'l3', val: 3, slot: 1, state: 'state-target' },
+        { id: 'l2', val: 2, slot: 2, state: 'state-target' },
+        { id: 'l5', val: 5, slot: 3, state: 'state-target' },
+        { id: 'l4', val: 4, slot: 4, state: 'state-target' },
+        { id: 'la', val: 7, slot: 5, state: 'state-target' },
+        { id: 'lb', val: 8, slot: 6, state: 'state-target' },
+        { id: 'lc', val: 9, slot: 7, state: 'state-target' },
+        { id: 'ld', val: 0, slot: 8, state: 'state-target' },
+        { id: 'le', val: 2, slot: 9, state: 'state-target' }
+      ],
+      desc: 'List cấp phát mảng mới dài 20 ô và sao chép 10 phần tử cũ sang. Vùng nhớ cũ được thu hồi.',
+      math: 'new_arr = new int[20]',
+      complexity: 'Sao chép: O(n)'
+    },
+    {
+      title: 'Hoàn tất mở rộng: Sẵn sàng 10 ô trống mới',
+      capacity: 20,
+      size: 11,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l5', val: 5, slot: 3 },
+        { id: 'l4', val: 4, slot: 4 },
+        { id: 'la', val: 7, slot: 5 },
+        { id: 'lb', val: 8, slot: 6 },
+        { id: 'lc', val: 9, slot: 7 },
+        { id: 'ld', val: 0, slot: 8 },
+        { id: 'le', val: 2, slot: 9 },
+        { id: 'lf', val: 99, slot: 10, isNew: true, state: 'state-success' }
+      ],
+      desc: 'Thêm phần tử 99 vào ô 10. List hiện có thể tiếp tục thêm 9 phần tử nữa với chi phí $O(1)$ trước lần mở rộng tiếp theo.',
+      math: 'size = 11, capacity = 20',
+      complexity: 'Amortized O(1)'
+    }
+  ],
+
+  insert_remove: [
+    {
+      title: 'Mảng trước thao tác',
+      capacity: 10,
+      size: 5,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l5', val: 5, slot: 3 },
+        { id: 'l4', val: 4, slot: 4 }
+      ],
+      desc: 'Mảng hiện tại <code>[1, 3, 2, 5, 4]</code>.',
+      math: 'size = 5, capacity = 10',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'Chèn 6 vào chỉ mục 3: Dịch phải',
+      capacity: 10,
+      size: 6,
+      targetIndex: 3,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l6', val: 6, slot: 3, isNew: true, state: 'state-success' },
+        { id: 'l5', val: 5, slot: 4, state: 'state-target' },
+        { id: 'l4', val: 4, slot: 5, state: 'state-target' }
+      ],
+      desc: 'Chèn giá trị 6: các phần tử từ chỉ mục 3 trượt sang phải 1 vị trí.',
+      math: 'insert(3, 6) ➔ size: 5 → 6',
+      complexity: 'Dịch chuyển O(n)'
+    },
+    {
+      title: 'Xóa phần tử tại chỉ mục 3: Dịch trái',
+      capacity: 10,
+      size: 5,
+      targetIndex: 3,
+      tokens: [
+        { id: 'l1', val: 1, slot: 0 },
+        { id: 'l3', val: 3, slot: 1 },
+        { id: 'l2', val: 2, slot: 2 },
+        { id: 'l5', val: 5, slot: 3, state: 'state-success' },
+        { id: 'l4', val: 4, slot: 4, state: 'state-success' }
+      ],
+      desc: 'Xóa tại chỉ mục 3: các phần tử phía sau trượt sang trái lấp khoảng trống.',
+      math: 'remove(3) ➔ size: 6 → 5',
+      complexity: 'Dịch chuyển O(n)'
+    }
+  ]
+};
+
+let currentListOp = 'all';
 let listOpsIndex = 0;
 let listOpsTimer = null;
 let listOpsSpeed = 700;
 
+function getActiveListFrames() {
+  return listOpsPresets[currentListOp] || listOpsPresets.all;
+}
+
+function selectListOp(opKey) {
+  if (!listOpsPresets[opKey]) return;
+  pauseRunListOps();
+  currentListOp = opKey;
+  listOpsIndex = 0;
+
+  const container = document.getElementById('list-op-pills');
+  if (container) {
+    container.querySelectorAll('.sim-op-pill').forEach(btn => {
+      const onclickAttr = btn.getAttribute('onclick') || '';
+      if (onclickAttr.includes("'" + opKey + "'")) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  const stage = document.getElementById('list-ops-canvas');
+  if (stage) stage.innerHTML = '';
+  renderListOps();
+}
+window.selectListOp = selectListOp;
+
 function renderListOps() {
-  const frame = listOpsFrames[listOpsIndex];
+  const frames = getActiveListFrames();
+  const frame = frames[listOpsIndex] || frames[0];
   const container = document.getElementById('list-ops-canvas');
   if (!container) return;
-  container.innerHTML = frame.arr.map((v, i) => {
-    const empty = v === EMPTY || i >= frame.size;
-    return renderOpsCell(empty ? '' : v, i, { highlighted: frame.highlight.includes(i), empty: empty });
-  }).join('');
+
+  const capacity = frame.capacity || 10;
+  const size = frame.size !== undefined ? frame.size : 0;
+  const tokens = frame.tokens || [];
+  const targetSlot = frame.targetIndex !== undefined ? frame.targetIndex : null;
+
+  // 1. Capacity & Meter Updates
+  const sizeVal = document.getElementById('dynlist-size-val');
+  if (sizeVal) sizeVal.textContent = size;
+  const capVal = document.getElementById('dynlist-cap-val');
+  if (capVal) capVal.textContent = capacity;
+  const meterFill = document.getElementById('dynlist-meter-fill');
+  if (meterFill) {
+    const pct = Math.min(100, Math.round((size / capacity) * 100));
+    meterFill.style.width = pct + '%';
+    if (pct >= 100) {
+      meterFill.classList.add('warn');
+    } else {
+      meterFill.classList.remove('warn');
+    }
+  }
+
+  // 2. Track Background Slots
+  let bgTrack = container.querySelector('.array-slots-bg');
+  if (!bgTrack || bgTrack.dataset.capacity !== String(capacity)) {
+    let bgHtml = '';
+    for (let i = 0; i < capacity; i++) {
+      bgHtml += '<div class="array-slot-container" data-slot="' + i + '">' +
+        '<span class="array-slot-addr">[' + i + ']</span>' +
+        '<div class="array-slot-box" id="dynlist-box-' + i + '"></div>' +
+        '<span class="array-slot-index">' + (i < size ? 'used' : 'empty') + '</span>' +
+      '</div>';
+    }
+    if (!bgTrack) {
+      bgTrack = document.createElement('div');
+      bgTrack.className = 'array-slots-bg';
+      container.appendChild(bgTrack);
+    }
+    bgTrack.dataset.capacity = String(capacity);
+    bgTrack.innerHTML = bgHtml;
+  }
+
+  // Update target slot highlight & used state
+  for (let i = 0; i < capacity; i++) {
+    const box = document.getElementById('dynlist-box-' + i);
+    if (box) {
+      if (targetSlot === i) {
+        box.classList.add('target-slot');
+      } else {
+        box.classList.remove('target-slot');
+      }
+    }
+  }
+
+  // 3. Tokens Layer
+  let tokensLayer = container.querySelector('#dynlist-tokens-layer');
+  if (!tokensLayer) {
+    tokensLayer = document.createElement('div');
+    tokensLayer.id = 'dynlist-tokens-layer';
+    tokensLayer.className = 'array-tokens-layer';
+    container.appendChild(tokensLayer);
+  }
+
+  const activeIds = new Set();
+  tokens.forEach(t => {
+    activeIds.add(t.id);
+    let el = tokensLayer.querySelector('[data-token-id="' + t.id + '"]');
+    const posX = t.slot * 64;
+    const posY = 28;
+
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'array-cell-token ' + (t.state || '');
+      el.dataset.tokenId = t.id;
+      el.textContent = t.val;
+      if (t.isNew) {
+        el.style.opacity = '0';
+        el.style.transform = 'translate3d(' + posX + 'px, -30px, 0) scale(0.7)';
+        tokensLayer.appendChild(el);
+        el.getBoundingClientRect(); // Force reflow
+      } else {
+        tokensLayer.appendChild(el);
+      }
+    }
+
+    el.className = 'array-cell-token ' + (t.state || '');
+    el.style.opacity = '1';
+    el.style.transform = 'translate3d(' + posX + 'px, ' + posY + 'px, 0) scale(1)';
+  });
+
+  // Remove dead tokens
+  tokensLayer.querySelectorAll('.array-cell-token').forEach(el => {
+    const id = el.dataset.tokenId;
+    if (!activeIds.has(id)) {
+      el.style.opacity = '0';
+      el.style.transform = el.style.transform.replace(/translate3d\(([^,]+),\s*[^,]+,\s*0\)/, 'translate3d($1, -30px, 0) scale(0.6)');
+      setTimeout(() => {
+        if (el.parentNode && !activeIds.has(el.dataset.tokenId)) {
+          el.parentNode.removeChild(el);
+        }
+      }, 450);
+    }
+  });
+
+  // 4. HUD
+  const badgeEl = document.getElementById('list-ops-badge');
+  if (badgeEl) badgeEl.textContent = 'Bước ' + (listOpsIndex + 1) + ' / ' + frames.length;
+
+  const compEl = document.getElementById('list-ops-complexity');
+  if (compEl && frame.complexity) compEl.textContent = frame.complexity;
+
   const statusEl = document.getElementById('list-ops-status');
   if (statusEl) {
-    statusEl.innerHTML = '<strong>Bước ' + (listOpsIndex + 1) + '/' + listOpsFrames.length + ' (length=' + frame.size + ', capacity=' + frame.capacity + '):</strong> ' + frame.desc;
+    statusEl.innerHTML = '<strong>' + (frame.title || '') + ':</strong> ' + frame.desc;
   }
+
+  const mathEl = document.getElementById('list-ops-math');
+  if (mathEl && frame.math) {
+    mathEl.style.display = 'inline-block';
+    mathEl.textContent = frame.math;
+  }
+
+  // Buttons disabled state
+  const btnPrev = document.getElementById('list-ops-btn-prev');
+  if (btnPrev) btnPrev.disabled = listOpsIndex <= 0;
+
   const btnStep = document.getElementById('list-ops-btn-step');
-  if (btnStep) btnStep.disabled = listOpsIndex >= listOpsFrames.length - 1;
+  if (btnStep) btnStep.disabled = listOpsIndex >= frames.length - 1;
 }
 
 function initListOpsDemo() {
-  clearInterval(listOpsTimer);
-  listOpsTimer = null;
+  pauseRunListOps();
   listOpsIndex = 0;
+  const stage = document.getElementById('list-ops-canvas');
+  if (stage) stage.innerHTML = '';
   renderListOps();
   const btnPause = document.getElementById('list-ops-btn-pause');
   if (btnPause) btnPause.disabled = true;
@@ -5928,11 +7602,19 @@ function initListOpsDemo() {
 window.initListOpsDemo = initListOpsDemo;
 
 function stepListOps() {
-  if (listOpsIndex >= listOpsFrames.length - 1) return;
+  const frames = getActiveListFrames();
+  if (listOpsIndex >= frames.length - 1) return;
   listOpsIndex++;
   renderListOps();
 }
 window.stepListOps = stepListOps;
+
+function prevListOps() {
+  if (listOpsIndex <= 0) return;
+  listOpsIndex--;
+  renderListOps();
+}
+window.prevListOps = prevListOps;
 
 function autoRunListOps() {
   const btnAuto = document.getElementById('list-ops-btn-autorun');
@@ -5940,7 +7622,8 @@ function autoRunListOps() {
   if (btnAuto) btnAuto.disabled = true;
   if (btnPause) btnPause.disabled = false;
   listOpsTimer = setInterval(() => {
-    if (listOpsIndex >= listOpsFrames.length - 1) {
+    const frames = getActiveListFrames();
+    if (listOpsIndex >= frames.length - 1) {
       pauseRunListOps();
       return;
     }
@@ -5974,41 +7657,365 @@ window.setListOpsSpeed = setListOpsSpeed;
 // ==================================================================
 
 // ------------------------------------------------------------------
-// 5.1 Stack: push / peek / pop simulator
 // ------------------------------------------------------------------
-const stackOpsFrames = [
-  { arr: [], highlight: [], desc: 'Ngăn xếp rỗng ban đầu.' },
-  { arr: [1], highlight: [0], desc: 'push(1): đẩy 1 vào ngăn xếp.' },
-  { arr: [1, 3], highlight: [1], desc: 'push(3): đẩy 3 vào ngăn xếp.' },
-  { arr: [1, 3, 2], highlight: [2], desc: 'push(2): đẩy 2 vào ngăn xếp.' },
-  { arr: [1, 3, 2, 5], highlight: [3], desc: 'push(5): đẩy 5 vào ngăn xếp.' },
-  { arr: [1, 3, 2, 5, 4], highlight: [4], desc: 'push(4): đẩy 4 vào ngăn xếp. Đỉnh ngăn xếp hiện tại là 4.' },
-  { arr: [1, 3, 2, 5, 4], highlight: [4], desc: 'peek(): truy cập phần tử đỉnh → trả về 4 (không xóa phần tử).' },
-  { arr: [1, 3, 2, 5], highlight: [3], desc: 'pop(): lấy phần tử đỉnh ra khỏi ngăn xếp → trả về 4. Đỉnh ngăn xếp bây giờ là 5.' },
-];
+// 5.1 Stack: True Kinetic Vertical Chamber Simulator (LIFO)
+// ------------------------------------------------------------------
+
+const stackOpsPresets = {
+  all: [
+    {
+      title: 'Ngăn xếp rỗng ban đầu',
+      tokens: [],
+      topSlot: null,
+      topVal: null,
+      desc: 'Ngăn xếp (Stack) rỗng ban đầu. Tuân theo nguyên tắc LIFO (Last In, First Out — Vào sau, Ra trước).',
+      math: 'size = 0 | top = null',
+      complexity: 'Khởi tạo: O(1)'
+    },
+    {
+      title: 'push(1): Đẩy 1 vào ngăn xếp',
+      tokens: [{ id: 's1', val: 1, slot: 0, isNew: true, state: 'state-success' }],
+      topSlot: 0,
+      topVal: 1,
+      desc: 'Phần tử <code>1</code> rơi từ trên xuống đáy ngăn xếp. Đỉnh ngăn xếp hiện tại là <code>1</code>.',
+      math: 'push(1) ➔ top = nums[0] = 1',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push(3): Đẩy 3 vào ngăn xếp',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1, isNew: true, state: 'state-success' }
+      ],
+      topSlot: 1,
+      topVal: 3,
+      desc: 'Phần tử <code>3</code> rơi chồng lên phần tử 1. Đỉnh ngăn xếp nâng lên chỉ mục 1.',
+      math: 'push(3) ➔ top = nums[1] = 3',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push(2): Đẩy 2 vào ngăn xếp',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2, isNew: true, state: 'state-success' }
+      ],
+      topSlot: 2,
+      topVal: 2,
+      desc: 'Phần tử <code>2</code> rơi vào ngăn xếp. Đỉnh hiện tại là <code>2</code>.',
+      math: 'push(2) ➔ top = nums[2] = 2',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push(5): Đẩy 5 vào ngăn xếp',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2 },
+        { id: 's5', val: 5, slot: 3, isNew: true, state: 'state-success' }
+      ],
+      topSlot: 3,
+      topVal: 5,
+      desc: 'Phần tử <code>5</code> rơi tiếp vào ngăn xếp. Đỉnh hiện tại là <code>5</code>.',
+      math: 'push(5) ➔ top = nums[3] = 5',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push(4): Đẩy 4 vào ngăn xếp',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2 },
+        { id: 's5', val: 5, slot: 3 },
+        { id: 's4', val: 4, slot: 4, isNew: true, state: 'state-success' }
+      ],
+      topSlot: 4,
+      topVal: 4,
+      desc: 'Phần tử <code>4</code> chạm đỉnh ngăn xếp. Ngăn xếp hiện có 5 phần tử: <code>[1, 3, 2, 5, 4]</code>.',
+      math: 'push(4) ➔ top = nums[4] = 4 (size = 5)',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'peek(): Truy cập phần tử đỉnh',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2 },
+        { id: 's5', val: 5, slot: 3 },
+        { id: 's4', val: 4, slot: 4, state: 'state-target' }
+      ],
+      topSlot: 4,
+      topVal: 4,
+      desc: 'Gọi <code>peek()</code>: trả về giá trị đỉnh <code>4</code> mà KHÔNG xóa phần tử khỏi ngăn xếp.',
+      math: 'peek() == 4 (Không thay đổi size)',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'pop(): Lấy phần tử đỉnh ra khỏi ngăn xếp',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2 },
+        { id: 's5', val: 5, slot: 3, state: 'state-success' }
+      ],
+      topSlot: 3,
+      topVal: 5,
+      desc: 'Gọi <code>pop()</code>: phần tử đỉnh <code>4</code> nhấc bổng bay lên và biến mất. Đỉnh mới hạ xuống <code>5</code>.',
+      math: 'pop() ➔ trả về 4 | Đỉnh mới: top = 5',
+      complexity: 'Thời gian: O(1)'
+    }
+  ],
+
+  push: [
+    {
+      title: 'Ngăn xếp ban đầu (3 phần tử)',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2 }
+      ],
+      topSlot: 2,
+      topVal: 2,
+      desc: 'Ngăn xếp hiện có 3 phần tử. Đỉnh là <code>2</code>.',
+      math: 'size = 3 | top = 2',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'push(5): Thả vào đỉnh',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2 },
+        { id: 's5', val: 5, slot: 3, isNew: true, state: 'state-success' }
+      ],
+      topSlot: 3,
+      topVal: 5,
+      desc: 'Phần tử 5 rơi từ trên xuống đỉnh ngăn xếp.',
+      math: 'push(5) ➔ top = 5',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'push(4): Thả tiếp vào đỉnh',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2 },
+        { id: 's5', val: 5, slot: 3 },
+        { id: 's4', val: 4, slot: 4, isNew: true, state: 'state-success' }
+      ],
+      topSlot: 4,
+      topVal: 4,
+      desc: 'Phần tử 4 rơi vào đỉnh.',
+      math: 'push(4) ➔ top = 4',
+      complexity: 'O(1)'
+    }
+  ],
+
+  pop: [
+    {
+      title: 'Ngăn xếp trước khi pop',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2 },
+        { id: 's5', val: 5, slot: 3 },
+        { id: 's4', val: 4, slot: 4, state: 'state-danger' }
+      ],
+      topSlot: 4,
+      topVal: 4,
+      desc: 'Chuẩn bị pop(): phần tử đỉnh 4 phát sáng đỏ chuẩn bị xuất kho.',
+      math: 'Target pop: nums[4] = 4',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'pop(): Nhấc 4 ra khỏi đỉnh',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2 },
+        { id: 's5', val: 5, slot: 3, state: 'state-success' }
+      ],
+      topSlot: 3,
+      topVal: 5,
+      desc: 'Phần tử 4 bay lên tan biến. Đỉnh mới là 5.',
+      math: 'pop() == 4 | top = 5',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'pop() lần nữa: Nhấc 5 ra khỏi đỉnh',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2, state: 'state-success' }
+      ],
+      topSlot: 2,
+      topVal: 2,
+      desc: 'Tiếp tục pop(): phần tử 5 bay ra. Đỉnh mới là 2.',
+      math: 'pop() == 5 | top = 2',
+      complexity: 'O(1)'
+    }
+  ],
+
+  peek: [
+    {
+      title: 'peek(): Soi phần tử đỉnh',
+      tokens: [
+        { id: 's1', val: 1, slot: 0 },
+        { id: 's3', val: 3, slot: 1 },
+        { id: 's2', val: 2, slot: 2 },
+        { id: 's5', val: 5, slot: 3 },
+        { id: 's4', val: 4, slot: 4, state: 'state-target' }
+      ],
+      topSlot: 4,
+      topVal: 4,
+      desc: 'peek(): Truy cập trực tiếp ô đỉnh. Dữ liệu ngăn xếp được bảo toàn nguyên vẹn.',
+      math: 'peek() == 4',
+      complexity: 'O(1)'
+    }
+  ]
+};
+
+let currentStackOp = 'all';
 let stackOpsIndex = 0;
 let stackOpsTimer = null;
 let stackOpsSpeed = 900;
 
+function getActiveStackFrames() {
+  return stackOpsPresets[currentStackOp] || stackOpsPresets.all;
+}
+
+function selectStackOp(opKey) {
+  if (!stackOpsPresets[opKey]) return;
+  pauseRunStackOps();
+  currentStackOp = opKey;
+  stackOpsIndex = 0;
+
+  const container = document.getElementById('stack-op-pills');
+  if (container) {
+    container.querySelectorAll('.sim-op-pill').forEach(btn => {
+      const onclickAttr = btn.getAttribute('onclick') || '';
+      if (onclickAttr.includes("'" + opKey + "'")) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  const stage = document.getElementById('stack-ops-canvas');
+  if (stage) stage.innerHTML = '';
+  renderStackOps();
+}
+window.selectStackOp = selectStackOp;
+
 function renderStackOps() {
-  const frame = stackOpsFrames[stackOpsIndex];
+  const frames = getActiveStackFrames();
+  const frame = frames[stackOpsIndex] || frames[0];
   const container = document.getElementById('stack-ops-canvas');
   if (!container) return;
-  if (frame.arr.length === 0) {
-    container.innerHTML = '<div style="color:var(--text-muted); font-size:13px; padding: 20px 0;">(ngăn xếp rỗng)</div>';
-  } else {
-    container.innerHTML = frame.arr.map((v, i) => renderOpsCell(v, i, { highlighted: frame.highlight.includes(i) })).join('');
+
+  // 1. Ensure vertical chamber exists
+  let chamber = container.querySelector('.stack-chamber');
+  if (!chamber) {
+    chamber = document.createElement('div');
+    chamber.className = 'stack-chamber';
+    chamber.innerHTML = '<span class="stack-chamber-label">ĐỈNH (TOP) ⬇</span>' +
+      '<div id="stack-tokens-layer" style="position:relative;width:100%;height:100%;"></div>' +
+      '<div class="stack-top-pointer" id="stack-top-pointer">◀ <span id="stack-top-pointer-text">top</span></div>';
+    container.appendChild(chamber);
   }
+
+  const tokensLayer = chamber.querySelector('#stack-tokens-layer');
+  const tokens = frame.tokens || [];
+  const activeIds = new Set();
+
+  tokens.forEach(t => {
+    activeIds.add(t.id);
+    let el = tokensLayer.querySelector('[data-token-id="' + t.id + '"]');
+    const posBottom = 12 + t.slot * 44;
+
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'stack-item-token ' + (t.state || '');
+      el.dataset.tokenId = t.id;
+      el.textContent = t.val;
+      el.style.left = '14px';
+      el.style.bottom = posBottom + 'px';
+      if (t.isNew) {
+        el.style.opacity = '0';
+        el.style.transform = 'translate3d(0, -90px, 0) scale(0.7)';
+        tokensLayer.appendChild(el);
+        el.getBoundingClientRect(); // Force reflow
+      } else {
+        tokensLayer.appendChild(el);
+      }
+    }
+
+    el.className = 'stack-item-token ' + (t.state || '');
+    el.style.bottom = posBottom + 'px';
+    el.style.opacity = '1';
+    el.style.transform = 'translate3d(0, 0, 0) scale(1)';
+  });
+
+  // Remove dead tokens (lifting out)
+  tokensLayer.querySelectorAll('.stack-item-token').forEach(el => {
+    const id = el.dataset.tokenId;
+    if (!activeIds.has(id)) {
+      el.style.opacity = '0';
+      el.style.transform = 'translate3d(0, -140px, 0) scale(0.6)';
+      setTimeout(() => {
+        if (el.parentNode && !activeIds.has(el.dataset.tokenId)) {
+          el.parentNode.removeChild(el);
+        }
+      }, 450);
+    }
+  });
+
+  // Top Pointer indicator
+  const pointer = chamber.querySelector('#stack-top-pointer');
+  const pointerText = chamber.querySelector('#stack-top-pointer-text');
+  if (pointer && pointerText) {
+    if (frame.topSlot !== null && frame.topSlot !== undefined) {
+      const pBottom = 16 + frame.topSlot * 44;
+      pointer.style.opacity = '1';
+      pointer.style.bottom = pBottom + 'px';
+      pointerText.textContent = 'top = ' + frame.topVal;
+    } else {
+      pointer.style.opacity = '0';
+    }
+  }
+
+  // HUD
+  const badgeEl = document.getElementById('stack-ops-badge');
+  if (badgeEl) badgeEl.textContent = 'Bước ' + (stackOpsIndex + 1) + ' / ' + frames.length;
+
+  const compEl = document.getElementById('stack-ops-complexity');
+  if (compEl && frame.complexity) compEl.textContent = frame.complexity;
+
   const statusEl = document.getElementById('stack-ops-status');
-  if (statusEl) statusEl.innerHTML = '<strong>Bước ' + (stackOpsIndex + 1) + '/' + stackOpsFrames.length + ':</strong> ' + frame.desc;
+  if (statusEl) {
+    statusEl.innerHTML = '<strong>' + (frame.title || '') + ':</strong> ' + frame.desc;
+  }
+
+  const mathEl = document.getElementById('stack-ops-math');
+  if (mathEl && frame.math) {
+    mathEl.style.display = 'inline-block';
+    mathEl.textContent = frame.math;
+  }
+
+  // Buttons disabled state
+  const btnPrev = document.getElementById('stack-ops-btn-prev');
+  if (btnPrev) btnPrev.disabled = stackOpsIndex <= 0;
+
   const btnStep = document.getElementById('stack-ops-btn-step');
-  if (btnStep) btnStep.disabled = stackOpsIndex >= stackOpsFrames.length - 1;
+  if (btnStep) btnStep.disabled = stackOpsIndex >= frames.length - 1;
 }
 
 function initStackOpsDemo() {
-  clearInterval(stackOpsTimer);
-  stackOpsTimer = null;
+  pauseRunStackOps();
   stackOpsIndex = 0;
+  const stage = document.getElementById('stack-ops-canvas');
+  if (stage) stage.innerHTML = '';
   renderStackOps();
   const btnPause = document.getElementById('stack-ops-btn-pause');
   if (btnPause) btnPause.disabled = true;
@@ -6018,11 +8025,19 @@ function initStackOpsDemo() {
 window.initStackOpsDemo = initStackOpsDemo;
 
 function stepStackOps() {
-  if (stackOpsIndex >= stackOpsFrames.length - 1) return;
+  const frames = getActiveStackFrames();
+  if (stackOpsIndex >= frames.length - 1) return;
   stackOpsIndex++;
   renderStackOps();
 }
 window.stepStackOps = stepStackOps;
+
+function prevStackOps() {
+  if (stackOpsIndex <= 0) return;
+  stackOpsIndex--;
+  renderStackOps();
+}
+window.prevStackOps = prevStackOps;
 
 function autoRunStackOps() {
   const btnAuto = document.getElementById('stack-ops-btn-autorun');
@@ -6030,7 +8045,8 @@ function autoRunStackOps() {
   if (btnAuto) btnAuto.disabled = true;
   if (btnPause) btnPause.disabled = false;
   stackOpsTimer = setInterval(() => {
-    if (stackOpsIndex >= stackOpsFrames.length - 1) {
+    const frames = getActiveStackFrames();
+    if (stackOpsIndex >= frames.length - 1) {
       pauseRunStackOps();
       return;
     }
@@ -6061,42 +8077,310 @@ function setStackOpsSpeed(val) {
 window.setStackOpsSpeed = setStackOpsSpeed;
 
 // ------------------------------------------------------------------
-// 5.2 Queue: push / pop simulator (logical FIFO order, front = leftmost)
+// 5.2 Queue: True Kinetic Conveyor Tunnel Simulator (FIFO)
 // ------------------------------------------------------------------
-const queueOpsFrames = [
-  { arr: [], highlight: [], desc: 'Hàng đợi rỗng ban đầu.' },
-  { arr: [1], highlight: [0], desc: 'push(1): thêm 1 vào cuối hàng đợi.' },
-  { arr: [1, 3], highlight: [1], desc: 'push(3): thêm 3 vào cuối hàng đợi.' },
-  { arr: [1, 3, 2], highlight: [2], desc: 'push(2): thêm 2 vào cuối hàng đợi.' },
-  { arr: [1, 3, 2, 5], highlight: [3], desc: 'push(5): thêm 5 vào cuối hàng đợi.' },
-  { arr: [1, 3, 2, 5, 4], highlight: [4], desc: 'push(4): thêm 4 vào cuối hàng đợi. Đầu hàng đợi vẫn là 1.' },
-  { arr: [1, 3, 2, 5, 4], highlight: [0], desc: 'peek(): truy cập phần tử đầu → trả về 1 (không xóa phần tử).' },
-  { arr: [3, 2, 5, 4], highlight: [0], desc: 'pop(): lấy phần tử đầu ra khỏi hàng đợi → trả về 1. Đầu hàng đợi bây giờ là 3.' },
-  { arr: [2, 5, 4], highlight: [0], desc: 'pop(): lấy phần tử đầu ra khỏi hàng đợi → trả về 3. Đầu hàng đợi bây giờ là 2.' },
-];
+
+const queueOpsPresets = {
+  all: [
+    {
+      title: 'Hàng đợi rỗng ban đầu',
+      tokens: [],
+      desc: 'Hàng đợi (Queue) rỗng ban đầu. Tuân theo nguyên tắc FIFO (First In, First Out — Vào trước, Ra trước).',
+      math: 'front = null, rear = null | size = 0',
+      complexity: 'Khởi tạo: O(1)'
+    },
+    {
+      title: 'push(1): Thêm 1 vào cuối hàng đợi (rear)',
+      tokens: [{ id: 'q1', val: 1, slot: 0, isNew: true, state: 'state-success' }],
+      desc: 'Phần tử <code>1</code> trượt vào từ cửa REAR bên phải, tiến thẳng tới vị trí đầu FRONT.',
+      math: 'enqueue(1) ➔ front = 1, rear = 1',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push(3): Thêm 3 vào cuối hàng đợi',
+      tokens: [
+        { id: 'q1', val: 1, slot: 0 },
+        { id: 'q3', val: 3, slot: 1, isNew: true, state: 'state-success' }
+      ],
+      desc: 'Phần tử <code>3</code> trượt vào xếp sau phần tử 1.',
+      math: 'enqueue(3) ➔ rear = 3',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push(2): Thêm 2 vào cuối hàng đợi',
+      tokens: [
+        { id: 'q1', val: 1, slot: 0 },
+        { id: 'q3', val: 3, slot: 1 },
+        { id: 'q2', val: 2, slot: 2, isNew: true, state: 'state-success' }
+      ],
+      desc: 'Phần tử <code>2</code> trượt vào xếp ở vị trí thứ 3.',
+      math: 'enqueue(2) ➔ rear = 2',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push(5): Thêm 5 vào cuối hàng đợi',
+      tokens: [
+        { id: 'q1', val: 1, slot: 0 },
+        { id: 'q3', val: 3, slot: 1 },
+        { id: 'q2', val: 2, slot: 2 },
+        { id: 'q5', val: 5, slot: 3, isNew: true, state: 'state-success' }
+      ],
+      desc: 'Phần tử <code>5</code> trượt vào.',
+      math: 'enqueue(5) ➔ rear = 5',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push(4): Thêm 4 vào cuối hàng đợi',
+      tokens: [
+        { id: 'q1', val: 1, slot: 0 },
+        { id: 'q3', val: 3, slot: 1 },
+        { id: 'q2', val: 2, slot: 2 },
+        { id: 'q5', val: 5, slot: 3 },
+        { id: 'q4', val: 4, slot: 4, isNew: true, state: 'state-success' }
+      ],
+      desc: 'Phần tử <code>4</code> trượt vào. Hàng đợi có 5 phần tử: FRONT là 1, REAR là 4.',
+      math: 'front = 1, rear = 4 (size = 5)',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'peek(): Truy cập phần tử đầu hàng (front)',
+      tokens: [
+        { id: 'q1', val: 1, slot: 0, state: 'state-target' },
+        { id: 'q3', val: 3, slot: 1 },
+        { id: 'q2', val: 2, slot: 2 },
+        { id: 'q5', val: 5, slot: 3 },
+        { id: 'q4', val: 4, slot: 4 }
+      ],
+      desc: 'Gọi <code>peek()</code>: xem giá trị đầu hàng FRONT <code>1</code> (không xóa khỏi hàng).',
+      math: 'peek() == 1 (front)',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'pop(): Lấy phần tử đầu ra khỏi hàng đợi',
+      tokens: [
+        { id: 'q3', val: 3, slot: 0, state: 'state-success' },
+        { id: 'q2', val: 2, slot: 1, state: 'state-success' },
+        { id: 'q5', val: 5, slot: 2, state: 'state-success' },
+        { id: 'q4', val: 4, slot: 3, state: 'state-success' }
+      ],
+      desc: 'Gọi <code>pop()</code>: phần tử <code>1</code> trượt ra khỏi cửa FRONT bên trái. Toàn bộ các phần tử phía sau trượt sang trái 1 vị trí. Đầu hàng mới là <code>3</code>!',
+      math: 'dequeue() ➔ trả về 1 | front mới = 3',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'pop() lần nữa: Lấy 3 ra khỏi hàng đợi',
+      tokens: [
+        { id: 'q2', val: 2, slot: 0, state: 'state-success' },
+        { id: 'q5', val: 5, slot: 1, state: 'state-success' },
+        { id: 'q4', val: 4, slot: 2, state: 'state-success' }
+      ],
+      desc: 'Phần tử <code>3</code> tiếp tục trượt ra ngoài. Các phần tử còn lại dồn sang trái. Đầu hàng mới là <code>2</code>.',
+      math: 'dequeue() ➔ trả về 3 | front mới = 2',
+      complexity: 'Thời gian: O(1)'
+    }
+  ],
+
+  push: [
+    {
+      title: 'Hàng đợi ban đầu (2 phần tử)',
+      tokens: [
+        { id: 'q1', val: 1, slot: 0 },
+        { id: 'q3', val: 3, slot: 1 }
+      ],
+      desc: 'Hàng đợi có 2 phần tử.',
+      math: 'front = 1, rear = 3',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'push(2): Nhập hàng từ REAR',
+      tokens: [
+        { id: 'q1', val: 1, slot: 0 },
+        { id: 'q3', val: 3, slot: 1 },
+        { id: 'q2', val: 2, slot: 2, isNew: true, state: 'state-success' }
+      ],
+      desc: 'Phần tử 2 trượt vào từ cửa REAR bên phải.',
+      math: 'rear = 2',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'push(5): Tiếp tục nhập hàng',
+      tokens: [
+        { id: 'q1', val: 1, slot: 0 },
+        { id: 'q3', val: 3, slot: 1 },
+        { id: 'q2', val: 2, slot: 2 },
+        { id: 'q5', val: 5, slot: 3, isNew: true, state: 'state-success' }
+      ],
+      desc: 'Phần tử 5 trượt vào.',
+      math: 'rear = 5',
+      complexity: 'O(1)'
+    }
+  ],
+
+  pop: [
+    {
+      title: 'Hàng đợi trước khi pop',
+      tokens: [
+        { id: 'q1', val: 1, slot: 0, state: 'state-danger' },
+        { id: 'q3', val: 3, slot: 1 },
+        { id: 'q2', val: 2, slot: 2 },
+        { id: 'q5', val: 5, slot: 3 }
+      ],
+      desc: 'Chuẩn bị pop(): phần tử đầu hàng 1 sẵn sàng xuất.',
+      math: 'Target dequeue: 1',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'pop(): Xuất hàng & Dồn hàng',
+      tokens: [
+        { id: 'q3', val: 3, slot: 0, state: 'state-success' },
+        { id: 'q2', val: 2, slot: 1, state: 'state-success' },
+        { id: 'q5', val: 5, slot: 2, state: 'state-success' }
+      ],
+      desc: 'Phần tử 1 trượt ra khỏi cửa trái. Các phần tử phía sau trượt tiến lên lấp chỗ trống.',
+      math: 'dequeue() == 1 | front = 3',
+      complexity: 'O(1)'
+    }
+  ],
+
+  peek: [
+    {
+      title: 'peek(): Xem phần tử đầu hàng',
+      tokens: [
+        { id: 'q1', val: 1, slot: 0, state: 'state-target' },
+        { id: 'q3', val: 3, slot: 1 },
+        { id: 'q2', val: 2, slot: 2 }
+      ],
+      desc: 'peek(): Đọc giá trị tại FRONT mà không xóa.',
+      math: 'peek() == 1',
+      complexity: 'O(1)'
+    }
+  ]
+};
+
+let currentQueueOp = 'all';
 let queueOpsIndex = 0;
 let queueOpsTimer = null;
 let queueOpsSpeed = 900;
 
+function getActiveQueueFrames() {
+  return queueOpsPresets[currentQueueOp] || queueOpsPresets.all;
+}
+
+function selectQueueOp(opKey) {
+  if (!queueOpsPresets[opKey]) return;
+  pauseRunQueueOps();
+  currentQueueOp = opKey;
+  queueOpsIndex = 0;
+
+  const container = document.getElementById('queue-op-pills');
+  if (container) {
+    container.querySelectorAll('.sim-op-pill').forEach(btn => {
+      const onclickAttr = btn.getAttribute('onclick') || '';
+      if (onclickAttr.includes("'" + opKey + "'")) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  const stage = document.getElementById('queue-ops-canvas');
+  if (stage) stage.innerHTML = '';
+  renderQueueOps();
+}
+window.selectQueueOp = selectQueueOp;
+
 function renderQueueOps() {
-  const frame = queueOpsFrames[queueOpsIndex];
+  const frames = getActiveQueueFrames();
+  const frame = frames[queueOpsIndex] || frames[0];
   const container = document.getElementById('queue-ops-canvas');
   if (!container) return;
-  if (frame.arr.length === 0) {
-    container.innerHTML = '<div style="color:var(--text-muted); font-size:13px; padding: 20px 0;">(hàng đợi rỗng)</div>';
-  } else {
-    container.innerHTML = frame.arr.map((v, i) => renderOpsCell(v, i, { highlighted: frame.highlight.includes(i) })).join('');
+
+  // 1. Ensure conveyor tunnel exists
+  let conveyor = container.querySelector('.queue-conveyor');
+  if (!conveyor) {
+    conveyor = document.createElement('div');
+    conveyor.className = 'queue-conveyor';
+    conveyor.innerHTML = '<span class="queue-gate front">FRONT (Xuất ◀)</span>' +
+      '<span class="queue-gate rear">REAR (◀ Nhập)</span>' +
+      '<div id="queue-tokens-layer" style="position:relative;width:100%;height:100%;"></div>';
+    container.appendChild(conveyor);
   }
+
+  const tokensLayer = conveyor.querySelector('#queue-tokens-layer');
+  const tokens = frame.tokens || [];
+  const activeIds = new Set();
+
+  tokens.forEach(t => {
+    activeIds.add(t.id);
+    let el = tokensLayer.querySelector('[data-token-id="' + t.id + '"]');
+    const posX = 70 + t.slot * 66;
+
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'queue-cell-token ' + (t.state || '');
+      el.dataset.tokenId = t.id;
+      el.textContent = t.val;
+      if (t.isNew) {
+        el.style.opacity = '0';
+        el.style.transform = 'translate3d(560px, 0, 0) scale(0.7)';
+        tokensLayer.appendChild(el);
+        el.getBoundingClientRect(); // Force reflow
+      } else {
+        tokensLayer.appendChild(el);
+      }
+    }
+
+    el.className = 'queue-cell-token ' + (t.state || '');
+    el.style.opacity = '1';
+    el.style.transform = 'translate3d(' + posX + 'px, 0, 0) scale(1)';
+  });
+
+  // Remove dead tokens (gliding out to the left)
+  tokensLayer.querySelectorAll('.queue-cell-token').forEach(el => {
+    const id = el.dataset.tokenId;
+    if (!activeIds.has(id)) {
+      el.style.opacity = '0';
+      el.style.transform = 'translate3d(-80px, 0, 0) scale(0.6)';
+      setTimeout(() => {
+        if (el.parentNode && !activeIds.has(el.dataset.tokenId)) {
+          el.parentNode.removeChild(el);
+        }
+      }, 450);
+    }
+  });
+
+  // HUD
+  const badgeEl = document.getElementById('queue-ops-badge');
+  if (badgeEl) badgeEl.textContent = 'Bước ' + (queueOpsIndex + 1) + ' / ' + frames.length;
+
+  const compEl = document.getElementById('queue-ops-complexity');
+  if (compEl && frame.complexity) compEl.textContent = frame.complexity;
+
   const statusEl = document.getElementById('queue-ops-status');
-  if (statusEl) statusEl.innerHTML = '<strong>Bước ' + (queueOpsIndex + 1) + '/' + queueOpsFrames.length + ':</strong> ' + frame.desc;
+  if (statusEl) {
+    statusEl.innerHTML = '<strong>' + (frame.title || '') + ':</strong> ' + frame.desc;
+  }
+
+  const mathEl = document.getElementById('queue-ops-math');
+  if (mathEl && frame.math) {
+    mathEl.style.display = 'inline-block';
+    mathEl.textContent = frame.math;
+  }
+
+  // Buttons disabled state
+  const btnPrev = document.getElementById('queue-ops-btn-prev');
+  if (btnPrev) btnPrev.disabled = queueOpsIndex <= 0;
+
   const btnStep = document.getElementById('queue-ops-btn-step');
-  if (btnStep) btnStep.disabled = queueOpsIndex >= queueOpsFrames.length - 1;
+  if (btnStep) btnStep.disabled = queueOpsIndex >= frames.length - 1;
 }
 
 function initQueueOpsDemo() {
-  clearInterval(queueOpsTimer);
-  queueOpsTimer = null;
+  pauseRunQueueOps();
   queueOpsIndex = 0;
+  const stage = document.getElementById('queue-ops-canvas');
+  if (stage) stage.innerHTML = '';
   renderQueueOps();
   const btnPause = document.getElementById('queue-ops-btn-pause');
   if (btnPause) btnPause.disabled = true;
@@ -6106,11 +8390,19 @@ function initQueueOpsDemo() {
 window.initQueueOpsDemo = initQueueOpsDemo;
 
 function stepQueueOps() {
-  if (queueOpsIndex >= queueOpsFrames.length - 1) return;
+  const frames = getActiveQueueFrames();
+  if (queueOpsIndex >= frames.length - 1) return;
   queueOpsIndex++;
   renderQueueOps();
 }
 window.stepQueueOps = stepQueueOps;
+
+function prevQueueOps() {
+  if (queueOpsIndex <= 0) return;
+  queueOpsIndex--;
+  renderQueueOps();
+}
+window.prevQueueOps = prevQueueOps;
 
 function autoRunQueueOps() {
   const btnAuto = document.getElementById('queue-ops-btn-autorun');
@@ -6118,7 +8410,8 @@ function autoRunQueueOps() {
   if (btnAuto) btnAuto.disabled = true;
   if (btnPause) btnPause.disabled = false;
   queueOpsTimer = setInterval(() => {
-    if (queueOpsIndex >= queueOpsFrames.length - 1) {
+    const frames = getActiveQueueFrames();
+    if (queueOpsIndex >= frames.length - 1) {
       pauseRunQueueOps();
       return;
     }
@@ -6149,41 +8442,325 @@ function setQueueOpsSpeed(val) {
 window.setQueueOpsSpeed = setQueueOpsSpeed;
 
 // ------------------------------------------------------------------
-// 5.3 Deque: push_first / push_last / pop_first / pop_last simulator
+// 5.3 Deque: True Double-Ended Conveyor Simulator
 // ------------------------------------------------------------------
-const dequeOpsFrames = [
-  { arr: [], highlight: [], desc: 'Hàng đợi hai đầu rỗng ban đầu.' },
-  { arr: [3], highlight: [0], desc: 'push_last(3): thêm 3 vào cuối.' },
-  { arr: [3, 2], highlight: [1], desc: 'push_last(2): thêm 2 vào cuối.' },
-  { arr: [3, 2, 5], highlight: [2], desc: 'push_last(5): thêm 5 vào cuối.' },
-  { arr: [1, 3, 2, 5], highlight: [0], desc: 'push_first(1): thêm 1 vào đầu.' },
-  { arr: [1, 3, 2, 5, 4], highlight: [4], desc: 'push_last(4): thêm 4 vào cuối.' },
-  { arr: [1, 3, 2, 5], highlight: [3], desc: 'pop_last(): lấy phần tử cuối ra → trả về 4.' },
-  { arr: [3, 2, 5], highlight: [0], desc: 'pop_first(): lấy phần tử đầu ra → trả về 1.' },
-];
+
+const dequeOpsPresets = {
+  all: [
+    {
+      title: 'Hàng đợi hai đầu rỗng ban đầu',
+      tokens: [],
+      desc: 'Hàng đợi hai đầu (Deque) cho phép thêm và xóa phần tử linh hoạt ở cả hai đầu (Front và Rear) với chi phí O(1).',
+      math: 'size = 0 | Hai đầu đều rỗng',
+      complexity: 'Khởi tạo: O(1)'
+    },
+    {
+      title: 'push_last(3): Thêm 3 vào cuối (Rear)',
+      tokens: [{ id: 'd3', val: 3, slot: 2, isNew: 'rear', state: 'state-success' }],
+      desc: 'Phần tử <code>3</code> trượt vào từ cửa REAR bên phải.',
+      math: 'push_last(3) ➔ nums = [3]',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push_last(2): Thêm 2 vào cuối (Rear)',
+      tokens: [
+        { id: 'd3', val: 3, slot: 2 },
+        { id: 'd2', val: 2, slot: 3, isNew: 'rear', state: 'state-success' }
+      ],
+      desc: 'Phần tử <code>2</code> trượt vào tiếp từ cửa REAR.',
+      math: 'push_last(2) ➔ nums = [3, 2]',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push_last(5): Thêm 5 vào cuối (Rear)',
+      tokens: [
+        { id: 'd3', val: 3, slot: 2 },
+        { id: 'd2', val: 2, slot: 3 },
+        { id: 'd5', val: 5, slot: 4, isNew: 'rear', state: 'state-success' }
+      ],
+      desc: 'Phần tử <code>5</code> trượt vào cuối.',
+      math: 'push_last(5) ➔ nums = [3, 2, 5]',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push_first(1): Thêm 1 vào đầu (Front)',
+      tokens: [
+        { id: 'd1', val: 1, slot: 1, isNew: 'front', state: 'state-success' },
+        { id: 'd3', val: 3, slot: 2 },
+        { id: 'd2', val: 2, slot: 3 },
+        { id: 'd5', val: 5, slot: 4 }
+      ],
+      desc: 'Phần tử <code>1</code> trượt vào từ cửa FRONT bên trái! Hàng đợi được mở rộng sang trái mà không cần dịch chuyển mảng.',
+      math: 'push_first(1) ➔ nums = [1, 3, 2, 5]',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'push_last(4): Thêm 4 vào cuối (Rear)',
+      tokens: [
+        { id: 'd1', val: 1, slot: 1 },
+        { id: 'd3', val: 3, slot: 2 },
+        { id: 'd2', val: 2, slot: 3 },
+        { id: 'd5', val: 5, slot: 4 },
+        { id: 'd4', val: 4, slot: 5, isNew: 'rear', state: 'state-success' }
+      ],
+      desc: 'Phần tử <code>4</code> tiếp tục trượt vào từ đầu phải.',
+      math: 'push_last(4) ➔ nums = [1, 3, 2, 5, 4]',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'pop_last(): Lấy phần tử cuối ra khỏi Deque',
+      tokens: [
+        { id: 'd1', val: 1, slot: 1 },
+        { id: 'd3', val: 3, slot: 2 },
+        { id: 'd2', val: 2, slot: 3 },
+        { id: 'd5', val: 5, slot: 4, state: 'state-success' }
+      ],
+      exitDir: 'rear',
+      desc: 'Gọi <code>pop_last()</code>: phần tử cuối <code>4</code> trượt ra khỏi cửa REAR bên phải và biến mất.',
+      math: 'pop_last() ➔ trả về 4',
+      complexity: 'Thời gian: O(1)'
+    },
+    {
+      title: 'pop_first(): Lấy phần tử đầu ra khỏi Deque',
+      tokens: [
+        { id: 'd3', val: 3, slot: 2, state: 'state-success' },
+        { id: 'd2', val: 2, slot: 3 },
+        { id: 'd5', val: 5, slot: 4 }
+      ],
+      exitDir: 'front',
+      desc: 'Gọi <code>pop_first()</code>: phần tử đầu <code>1</code> trượt ra khỏi cửa FRONT bên trái. Cả hai đầu đều hoạt động độc lập và cực nhanh!',
+      math: 'pop_first() ➔ trả về 1',
+      complexity: 'Thời gian: O(1)'
+    }
+  ],
+
+  push_first: [
+    {
+      title: 'Hàng đợi ban đầu',
+      tokens: [
+        { id: 'd3', val: 3, slot: 2 },
+        { id: 'd2', val: 2, slot: 3 }
+      ],
+      desc: 'Deque hiện có [3, 2].',
+      math: 'nums = [3, 2]',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'push_first(1): Trượt vào từ đầu trái',
+      tokens: [
+        { id: 'd1', val: 1, slot: 1, isNew: 'front', state: 'state-success' },
+        { id: 'd3', val: 3, slot: 2 },
+        { id: 'd2', val: 2, slot: 3 }
+      ],
+      desc: 'Phần tử 1 trượt vào từ cửa FRONT.',
+      math: 'push_first(1) ➔ nums = [1, 3, 2]',
+      complexity: 'O(1)'
+    }
+  ],
+
+  push_last: [
+    {
+      title: 'Hàng đợi ban đầu',
+      tokens: [
+        { id: 'd3', val: 3, slot: 2 },
+        { id: 'd2', val: 2, slot: 3 }
+      ],
+      desc: 'Deque hiện có [3, 2].',
+      math: 'nums = [3, 2]',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'push_last(5): Trượt vào từ đầu phải',
+      tokens: [
+        { id: 'd3', val: 3, slot: 2 },
+        { id: 'd2', val: 2, slot: 3 },
+        { id: 'd5', val: 5, slot: 4, isNew: 'rear', state: 'state-success' }
+      ],
+      desc: 'Phần tử 5 trượt vào từ cửa REAR.',
+      math: 'push_last(5) ➔ nums = [3, 2, 5]',
+      complexity: 'O(1)'
+    }
+  ],
+
+  pop_first: [
+    {
+      title: 'Chuẩn bị pop_first()',
+      tokens: [
+        { id: 'd1', val: 1, slot: 1, state: 'state-danger' },
+        { id: 'd3', val: 3, slot: 2 },
+        { id: 'd2', val: 2, slot: 3 }
+      ],
+      desc: 'Phần tử đầu 1 phát sáng chuẩn bị xuất cửa FRONT.',
+      math: 'Target pop_first: 1',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'pop_first(): Trượt ra cửa trái',
+      tokens: [
+        { id: 'd3', val: 3, slot: 2, state: 'state-success' },
+        { id: 'd2', val: 2, slot: 3 }
+      ],
+      exitDir: 'front',
+      desc: 'Phần tử 1 trượt ra ngoài qua cửa trái.',
+      math: 'pop_first() == 1',
+      complexity: 'O(1)'
+    }
+  ],
+
+  pop_last: [
+    {
+      title: 'Chuẩn bị pop_last()',
+      tokens: [
+        { id: 'd3', val: 3, slot: 2 },
+        { id: 'd2', val: 2, slot: 3, state: 'state-danger' }
+      ],
+      desc: 'Phần tử cuối 2 phát sáng chuẩn bị xuất cửa REAR.',
+      math: 'Target pop_last: 2',
+      complexity: 'O(1)'
+    },
+    {
+      title: 'pop_last(): Trượt ra cửa phải',
+      tokens: [
+        { id: 'd3', val: 3, slot: 2, state: 'state-success' }
+      ],
+      exitDir: 'rear',
+      desc: 'Phần tử 2 trượt ra ngoài qua cửa phải.',
+      math: 'pop_last() == 2',
+      complexity: 'O(1)'
+    }
+  ]
+};
+
+let currentDequeOp = 'all';
 let dequeOpsIndex = 0;
 let dequeOpsTimer = null;
 let dequeOpsSpeed = 900;
 
+function getActiveDequeFrames() {
+  return dequeOpsPresets[currentDequeOp] || dequeOpsPresets.all;
+}
+
+function selectDequeOp(opKey) {
+  if (!dequeOpsPresets[opKey]) return;
+  pauseRunDequeOps();
+  currentDequeOp = opKey;
+  dequeOpsIndex = 0;
+
+  const container = document.getElementById('deque-op-pills');
+  if (container) {
+    container.querySelectorAll('.sim-op-pill').forEach(btn => {
+      const onclickAttr = btn.getAttribute('onclick') || '';
+      if (onclickAttr.includes("'" + opKey + "'")) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  const stage = document.getElementById('deque-ops-canvas');
+  if (stage) stage.innerHTML = '';
+  renderDequeOps();
+}
+window.selectDequeOp = selectDequeOp;
+
 function renderDequeOps() {
-  const frame = dequeOpsFrames[dequeOpsIndex];
+  const frames = getActiveDequeFrames();
+  const frame = frames[dequeOpsIndex] || frames[0];
   const container = document.getElementById('deque-ops-canvas');
   if (!container) return;
-  if (frame.arr.length === 0) {
-    container.innerHTML = '<div style="color:var(--text-muted); font-size:13px; padding: 20px 0;">(hàng đợi hai đầu rỗng)</div>';
-  } else {
-    container.innerHTML = frame.arr.map((v, i) => renderOpsCell(v, i, { highlighted: frame.highlight.includes(i) })).join('');
+
+  // 1. Ensure conveyor exists
+  let conveyor = container.querySelector('.queue-conveyor');
+  if (!conveyor) {
+    conveyor = document.createElement('div');
+    conveyor.className = 'queue-conveyor';
+    conveyor.innerHTML = '<span class="queue-gate front">FRONT (◀ Đầu trái)</span>' +
+      '<span class="queue-gate rear">REAR (Đầu phải ▶)</span>' +
+      '<div id="deque-tokens-layer" style="position:relative;width:100%;height:100%;"></div>';
+    container.appendChild(conveyor);
   }
+
+  const tokensLayer = conveyor.querySelector('#deque-tokens-layer');
+  const tokens = frame.tokens || [];
+  const activeIds = new Set();
+
+  tokens.forEach(t => {
+    activeIds.add(t.id);
+    let el = tokensLayer.querySelector('[data-token-id="' + t.id + '"]');
+    const posX = 70 + t.slot * 66;
+
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'queue-cell-token ' + (t.state || '');
+      el.dataset.tokenId = t.id;
+      el.textContent = t.val;
+      if (t.isNew === 'front') {
+        el.style.opacity = '0';
+        el.style.transform = 'translate3d(-60px, 0, 0) scale(0.7)';
+        tokensLayer.appendChild(el);
+        el.getBoundingClientRect();
+      } else if (t.isNew === 'rear') {
+        el.style.opacity = '0';
+        el.style.transform = 'translate3d(560px, 0, 0) scale(0.7)';
+        tokensLayer.appendChild(el);
+        el.getBoundingClientRect();
+      } else {
+        tokensLayer.appendChild(el);
+      }
+    }
+
+    el.className = 'queue-cell-token ' + (t.state || '');
+    el.style.opacity = '1';
+    el.style.transform = 'translate3d(' + posX + 'px, 0, 0) scale(1)';
+  });
+
+  // Remove dead tokens
+  const exitDir = frame.exitDir || 'rear';
+  tokensLayer.querySelectorAll('.queue-cell-token').forEach(el => {
+    const id = el.dataset.tokenId;
+    if (!activeIds.has(id)) {
+      el.style.opacity = '0';
+      el.style.transform = exitDir === 'front' ? 'translate3d(-80px, 0, 0) scale(0.6)' : 'translate3d(560px, 0, 0) scale(0.6)';
+      setTimeout(() => {
+        if (el.parentNode && !activeIds.has(el.dataset.tokenId)) {
+          el.parentNode.removeChild(el);
+        }
+      }, 450);
+    }
+  });
+
+  // HUD
+  const badgeEl = document.getElementById('deque-ops-badge');
+  if (badgeEl) badgeEl.textContent = 'Bước ' + (dequeOpsIndex + 1) + ' / ' + frames.length;
+
+  const compEl = document.getElementById('deque-ops-complexity');
+  if (compEl && frame.complexity) compEl.textContent = frame.complexity;
+
   const statusEl = document.getElementById('deque-ops-status');
-  if (statusEl) statusEl.innerHTML = '<strong>Bước ' + (dequeOpsIndex + 1) + '/' + dequeOpsFrames.length + ':</strong> ' + frame.desc;
+  if (statusEl) {
+    statusEl.innerHTML = '<strong>' + (frame.title || '') + ':</strong> ' + frame.desc;
+  }
+
+  const mathEl = document.getElementById('deque-ops-math');
+  if (mathEl && frame.math) {
+    mathEl.style.display = 'inline-block';
+    mathEl.textContent = frame.math;
+  }
+
+  // Buttons disabled state
+  const btnPrev = document.getElementById('deque-ops-btn-prev');
+  if (btnPrev) btnPrev.disabled = dequeOpsIndex <= 0;
+
   const btnStep = document.getElementById('deque-ops-btn-step');
-  if (btnStep) btnStep.disabled = dequeOpsIndex >= dequeOpsFrames.length - 1;
+  if (btnStep) btnStep.disabled = dequeOpsIndex >= frames.length - 1;
 }
 
 function initDequeOpsDemo() {
-  clearInterval(dequeOpsTimer);
-  dequeOpsTimer = null;
+  pauseRunDequeOps();
   dequeOpsIndex = 0;
+  const stage = document.getElementById('deque-ops-canvas');
+  if (stage) stage.innerHTML = '';
   renderDequeOps();
   const btnPause = document.getElementById('deque-ops-btn-pause');
   if (btnPause) btnPause.disabled = true;
@@ -6193,11 +8770,19 @@ function initDequeOpsDemo() {
 window.initDequeOpsDemo = initDequeOpsDemo;
 
 function stepDequeOps() {
-  if (dequeOpsIndex >= dequeOpsFrames.length - 1) return;
+  const frames = getActiveDequeFrames();
+  if (dequeOpsIndex >= frames.length - 1) return;
   dequeOpsIndex++;
   renderDequeOps();
 }
 window.stepDequeOps = stepDequeOps;
+
+function prevDequeOps() {
+  if (dequeOpsIndex <= 0) return;
+  dequeOpsIndex--;
+  renderDequeOps();
+}
+window.prevDequeOps = prevDequeOps;
 
 function autoRunDequeOps() {
   const btnAuto = document.getElementById('deque-ops-btn-autorun');
@@ -6205,7 +8790,8 @@ function autoRunDequeOps() {
   if (btnAuto) btnAuto.disabled = true;
   if (btnPause) btnPause.disabled = false;
   dequeOpsTimer = setInterval(() => {
-    if (dequeOpsIndex >= dequeOpsFrames.length - 1) {
+    const frames = getActiveDequeFrames();
+    if (dequeOpsIndex >= frames.length - 1) {
       pauseRunDequeOps();
       return;
     }
@@ -6244,19 +8830,23 @@ function renderHashBucketCell(index, pair, opts) {
   const highlighted = !!opts.highlighted;
   const isTombstone = pair === 'TOMBSTONE';
   const isEmpty = pair === null || pair === undefined;
-  const border = highlighted ? 'var(--accent-sky)' : (isEmpty ? 'var(--border-subtle)' : (isTombstone ? 'var(--accent-rose, #f43f5e)' : 'var(--border)'));
-  const bg = highlighted ? 'rgba(56, 189, 248, 0.12)' : (isEmpty ? 'transparent' : (isTombstone ? 'rgba(244, 63, 94, 0.08)' : 'var(--bg-overlay)'));
-  const color = isEmpty ? 'var(--text-muted)' : 'var(--text-primary)';
-  const styleBorder = isEmpty ? 'dashed' : 'solid';
-  let label = '';
-  if (isTombstone) label = 'TOMBSTONE';
-  else if (!isEmpty) label = pair.key + '<br>→ ' + pair.val;
-  return '<div style="display:flex;flex-direction:column;align-items:center;">' +
-    '<div style="width:76px;min-height:48px;display:flex;align-items:center;justify-content:center;text-align:center;' +
-    'border:2px ' + styleBorder + ' ' + border + ';border-radius:6px;background:' + bg + ';color:' + color + ';' +
-    'font-family:var(--font-mono);font-weight:600;font-size:12px;line-height:1.4;padding:4px;transition:all 0.2s ease;">' +
-    label + '</div>' +
-    '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;font-family:var(--font-mono);">' + index + '</div>' +
+  const isCollision = !!opts.collision;
+  
+  let boxClasses = 'hash-cell-box';
+  if (highlighted) boxClasses += ' highlight';
+  if (isCollision) boxClasses += ' collision-alert';
+  if (!isEmpty && !isTombstone) boxClasses += ' occupied';
+
+  let contentHtml = '<span style="color:var(--text-muted);font-style:italic;">(rỗng)</span>';
+  if (isTombstone) {
+    contentHtml = '<span style="color:var(--accent-rose);font-weight:700;font-size:10px;">⚰️ TOMB</span>';
+  } else if (!isEmpty) {
+    contentHtml = '<div class="hash-cell-key">' + pair.key + '</div><div class="hash-cell-val">' + pair.val + '</div>';
+  }
+
+  return '<div class="hash-bucket-cell">' +
+    '<div class="' + boxClasses + '">' + contentHtml + '</div>' +
+    '<div class="hash-cell-index">[' + index + ']</div>' +
     '</div>';
 }
 
@@ -6265,58 +8855,164 @@ function renderHashBucketCell(index, pair, opts) {
 // erroneous overwrite caused by an unresolved hash collision.
 // ------------------------------------------------------------------
 const hashMapBasicFrames = [
-  { buckets: new Array(10).fill(null), highlight: [], desc: 'Khởi tạo bảng băm dạng mảng với 10 bucket rỗng (dùng dung lượng nhỏ để minh họa, bản triển khai thật dùng capacity = 100). hash(key) = key % 10.' },
-  { buckets: [null, null, { key: 12, val: 'An' }, null, null, null, null, null, null, null], highlight: [2], desc: 'put(12, "An"): hash(12) = 12 % 10 = 2 → lưu vào bucket 2.' },
-  { buckets: [null, null, { key: 12, val: 'An' }, { key: 23, val: 'Binh' }, null, null, null, null, null, null], highlight: [3], desc: 'put(23, "Binh"): hash(23) = 23 % 10 = 3 → lưu vào bucket 3.' },
-  { buckets: [null, null, { key: 12, val: 'An' }, { key: 23, val: 'Binh' }, null, { key: 35, val: 'Chi' }, null, null, null, null], highlight: [5], desc: 'put(35, "Chi"): hash(35) = 35 % 10 = 5 → lưu vào bucket 5.' },
-  { buckets: [null, null, { key: 12, val: 'An' }, { key: 23, val: 'Binh' }, null, { key: 35, val: 'Chi' }, null, { key: 7, val: 'Dung' }, null, null], highlight: [7], desc: 'put(7, "Dung"): hash(7) = 7 % 10 = 7 → lưu vào bucket 7.' },
-  { buckets: [null, null, { key: 42, val: 'Em' }, { key: 23, val: 'Binh' }, null, { key: 35, val: 'Chi' }, null, { key: 7, val: 'Dung' }, null, null], highlight: [2], desc: '⚠️ put(42, "Em"): hash(42) = 42 % 10 = 2 → XUNG ĐỘT với key 12 tại bucket 2! Bảng dựa trên mảng đơn giản này GHI ĐÈ trực tiếp, làm mất vĩnh viễn cặp (12, "An").' },
-  { buckets: [null, null, { key: 42, val: 'Em' }, { key: 23, val: 'Binh' }, null, { key: 35, val: 'Chi' }, null, { key: 7, val: 'Dung' }, null, null], highlight: [2], desc: '❌ get(12): hash(12) = 2 → bucket 2 hiện chứa (42, "Em") → trả về SAI kết quả "Em" thay vì "An". Đây chính là hậu quả của xung đột băm khi không được xử lý.' },
-  { buckets: [null, null, { key: 42, val: 'Em' }, { key: 23, val: 'Binh' }, null, null, null, { key: 7, val: 'Dung' }, null, null], highlight: [5], desc: 'remove(35): hash(35) = 5 → xóa bucket 5, đặt về rỗng (None).' },
-  { buckets: [null, null, { key: 42, val: 'Em' }, { key: 23, val: 'Binh' }, null, null, null, { key: 7, val: 'Dung' }, null, null], highlight: [7], desc: '✅ get(7): hash(7) = 7 → bucket 7 chứa (7, "Dung") → tìm thấy, trả về "Dung".' },
+  {
+    buckets: new Array(10).fill(null),
+    highlight: [],
+    math: 'hash(key) = key % 10 (capacity = 10)',
+    complexity: 'O(1) khởi tạo',
+    desc: 'Khởi tạo bảng băm dạng mảng với 10 bucket rỗng. hash(key) = key % 10.'
+  },
+  {
+    buckets: [null, null, { key: 12, val: 'An' }, null, null, null, null, null, null, null],
+    highlight: [2],
+    math: 'hash(12) = 12 % 10 = 2 → slot 2',
+    complexity: 'O(1) ghi',
+    desc: 'put(12, "An"): hash(12) = 12 % 10 = 2 → lưu vào bucket 2.'
+  },
+  {
+    buckets: [null, null, { key: 12, val: 'An' }, { key: 23, val: 'Binh' }, null, null, null, null, null, null],
+    highlight: [3],
+    math: 'hash(23) = 23 % 10 = 3 → slot 3',
+    complexity: 'O(1) ghi',
+    desc: 'put(23, "Binh"): hash(23) = 23 % 10 = 3 → lưu vào bucket 3.'
+  },
+  {
+    buckets: [null, null, { key: 12, val: 'An' }, { key: 23, val: 'Binh' }, null, { key: 35, val: 'Chi' }, null, null, null, null],
+    highlight: [5],
+    math: 'hash(35) = 35 % 10 = 5 → slot 5',
+    complexity: 'O(1) ghi',
+    desc: 'put(35, "Chi"): hash(35) = 35 % 10 = 5 → lưu vào bucket 5.'
+  },
+  {
+    buckets: [null, null, { key: 12, val: 'An' }, { key: 23, val: 'Binh' }, null, { key: 35, val: 'Chi' }, null, { key: 7, val: 'Dung' }, null, null],
+    highlight: [7],
+    math: 'hash(7) = 7 % 10 = 7 → slot 7',
+    complexity: 'O(1) ghi',
+    desc: 'put(7, "Dung"): hash(7) = 7 % 10 = 7 → lưu vào bucket 7.'
+  },
+  {
+    buckets: [null, null, { key: 42, val: 'Em' }, { key: 23, val: 'Binh' }, null, { key: 35, val: 'Chi' }, null, { key: 7, val: 'Dung' }, null, null],
+    highlight: [2],
+    collision: true,
+    math: 'hash(42) = 42 % 10 = 2 ⚠️ XUNG ĐỘT VỚI 12 (BỊ ĐÈ MẤT)',
+    complexity: 'LỖI: Ghi đè dữ liệu',
+    desc: '⚠️ put(42, "Em"): hash(42) = 42 % 10 = 2 → XUNG ĐỘT với key 12 tại bucket 2! Bảng dựa trên mảng đơn giản này GHI ĐÈ trực tiếp, làm mất vĩnh viễn cặp (12, "An").'
+  },
+  {
+    buckets: [null, null, { key: 42, val: 'Em' }, { key: 23, val: 'Binh' }, null, { key: 35, val: 'Chi' }, null, { key: 7, val: 'Dung' }, null, null],
+    highlight: [2],
+    error: true,
+    math: 'get(12) → bucket 2 chứa (42, "Em") ≠ 12 ❌',
+    complexity: 'LỖI: Trả về sai kết quả',
+    desc: '❌ get(12): hash(12) = 2 → bucket 2 hiện chứa (42, "Em") → trả về SAI kết quả "Em" thay vì "An". Đây chính là hậu quả nghiêm trọng của xung đột băm khi không xử lý.'
+  },
+  {
+    buckets: [null, null, { key: 42, val: 'Em' }, { key: 23, val: 'Binh' }, null, null, null, { key: 7, val: 'Dung' }, null, null],
+    highlight: [5],
+    math: 'remove(35): hash(35) = 5 → gán null',
+    complexity: 'O(1) xóa',
+    desc: 'remove(35): hash(35) = 5 → xóa bucket 5, đặt về rỗng (null).'
+  },
+  {
+    buckets: [null, null, { key: 42, val: 'Em' }, { key: 23, val: 'Binh' }, null, null, null, { key: 7, val: 'Dung' }, null, null],
+    highlight: [7],
+    success: true,
+    math: 'get(7): hash(7) = 7 → khớp (7, "Dung") ✅',
+    complexity: 'O(1) truy vấn',
+    desc: '✅ get(7): hash(7) = 7 → bucket 7 chứa (7, "Dung") → tìm thấy, trả về "Dung".'
+  }
 ];
-let hashMapBasicIndex = 0;
+
+const hashMapBasicPresets = {
+  all: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  put_collision: [0, 1, 2, 3, 4, 5],
+  get_error: [5, 6],
+  remove: [6, 7, 8]
+};
+
+let hashMapBasicOp = 'all';
+let hashMapBasicStepIdx = 0;
 let hashMapBasicTimer = null;
-let hashMapBasicSpeed = 900;
+let hashMapBasicSpeed = 800;
+
+function selectHashMapBasicOp(op) {
+  if (!hashMapBasicPresets[op]) return;
+  hashMapBasicOp = op;
+  hashMapBasicStepIdx = 0;
+  
+  const pills = document.querySelectorAll('#hash-map-basic-op-pills .sim-op-pill');
+  pills.forEach(p => {
+    p.classList.toggle('active', p.getAttribute('onclick').includes("'" + op + "'"));
+  });
+
+  pauseRunHashMapBasic();
+  renderHashMapBasic();
+}
+window.selectHashMapBasicOp = selectHashMapBasicOp;
 
 function renderHashMapBasic() {
-  const frame = hashMapBasicFrames[hashMapBasicIndex];
+  const stepList = hashMapBasicPresets[hashMapBasicOp] || hashMapBasicPresets.all;
+  const frameIdx = stepList[Math.min(hashMapBasicStepIdx, stepList.length - 1)];
+  const frame = hashMapBasicFrames[frameIdx];
+
   const container = document.getElementById('hash-map-basic-canvas');
   if (container) {
-    container.innerHTML = frame.buckets.map((p, i) => renderHashBucketCell(i, p, { highlighted: frame.highlight.includes(i) })).join('');
+    container.innerHTML = frame.buckets.map((p, i) => renderHashBucketCell(i, p, {
+      highlighted: frame.highlight.includes(i),
+      collision: frame.collision && frame.highlight.includes(i)
+    })).join('');
   }
+
+  const stepBadge = document.getElementById('hash-map-basic-step-badge');
+  if (stepBadge) stepBadge.textContent = 'Bước ' + (hashMapBasicStepIdx + 1) + ' / ' + stepList.length;
+
+  const compBadge = document.getElementById('hash-map-basic-complexity');
+  if (compBadge) compBadge.textContent = frame.complexity || 'O(1)';
+
   const statusEl = document.getElementById('hash-map-basic-status');
-  if (statusEl) statusEl.innerHTML = '<strong>Bước ' + (hashMapBasicIndex + 1) + '/' + hashMapBasicFrames.length + ':</strong> ' + frame.desc;
+  if (statusEl) statusEl.textContent = frame.desc;
+
+  const mathEl = document.getElementById('hash-map-basic-math');
+  if (mathEl) mathEl.textContent = frame.math || 'hash(key) = key % 10';
+
   const btnStep = document.getElementById('hash-map-basic-btn-step');
-  if (btnStep) btnStep.disabled = hashMapBasicIndex >= hashMapBasicFrames.length - 1;
+  if (btnStep) btnStep.disabled = hashMapBasicStepIdx >= stepList.length - 1;
+
+  const btnPrev = document.getElementById('hash-map-basic-btn-prev');
+  if (btnPrev) btnPrev.disabled = hashMapBasicStepIdx === 0;
 }
 
 function initHashMapBasicDemo() {
-  clearInterval(hashMapBasicTimer);
-  hashMapBasicTimer = null;
-  hashMapBasicIndex = 0;
+  pauseRunHashMapBasic();
+  hashMapBasicStepIdx = 0;
   renderHashMapBasic();
-  const btnPause = document.getElementById('hash-map-basic-btn-pause');
-  if (btnPause) btnPause.disabled = true;
-  const btnAuto = document.getElementById('hash-map-basic-btn-autorun');
-  if (btnAuto) btnAuto.disabled = false;
 }
 window.initHashMapBasicDemo = initHashMapBasicDemo;
 
 function stepHashMapBasic() {
-  if (hashMapBasicIndex >= hashMapBasicFrames.length - 1) return;
-  hashMapBasicIndex++;
+  const stepList = hashMapBasicPresets[hashMapBasicOp] || hashMapBasicPresets.all;
+  if (hashMapBasicStepIdx >= stepList.length - 1) return;
+  hashMapBasicStepIdx++;
   renderHashMapBasic();
 }
 window.stepHashMapBasic = stepHashMapBasic;
+
+function prevHashMapBasic() {
+  if (hashMapBasicStepIdx <= 0) return;
+  hashMapBasicStepIdx--;
+  renderHashMapBasic();
+}
+window.prevHashMapBasic = prevHashMapBasic;
 
 function autoRunHashMapBasic() {
   const btnAuto = document.getElementById('hash-map-basic-btn-autorun');
   const btnPause = document.getElementById('hash-map-basic-btn-pause');
   if (btnAuto) btnAuto.disabled = true;
   if (btnPause) btnPause.disabled = false;
+
   hashMapBasicTimer = setInterval(() => {
-    if (hashMapBasicIndex >= hashMapBasicFrames.length - 1) {
+    const stepList = hashMapBasicPresets[hashMapBasicOp] || hashMapBasicPresets.all;
+    if (hashMapBasicStepIdx >= stepList.length - 1) {
       pauseRunHashMapBasic();
       return;
     }
@@ -6350,72 +9046,240 @@ window.setHashMapBasicSpeed = setHashMapBasicSpeed;
 // 6.2.1 Separate chaining: insert / expand / query / remove simulator
 // ------------------------------------------------------------------
 const hashChainingFrames = [
-  { capacity: 4, size: 0, buckets: [[], [], [], []], highlight: [], desc: 'Khởi tạo bảng băm với capacity = 4, mỗi bucket là một danh sách (mảng động) rỗng. Ngưỡng hệ số tải = 2/3.' },
-  { capacity: 4, size: 1, buckets: [[{ key: 12836, val: 'XiaoHa' }], [], [], []], highlight: [0], desc: 'put(12836, "XiaoHa"): hash = 12836 % 4 = 0 → thêm vào bucket 0. Hệ số tải = 1/4 = 0.25.' },
-  { capacity: 4, size: 2, buckets: [[{ key: 12836, val: 'XiaoHa' }], [{ key: 15937, val: 'XiaoLuo' }], [], []], highlight: [1], desc: 'put(15937, "XiaoLuo"): hash = 15937 % 4 = 1 → thêm vào bucket 1. Hệ số tải = 2/4 = 0.5.' },
-  { capacity: 4, size: 3, buckets: [[{ key: 12836, val: 'XiaoHa' }], [{ key: 15937, val: 'XiaoLuo' }], [{ key: 16750, val: 'XiaoSuan' }], []], highlight: [2], desc: 'put(16750, "XiaoSuan"): hash = 16750 % 4 = 2 → thêm vào bucket 2. Hệ số tải = 3/4 = 0.75 (đã vượt ngưỡng, nhưng chỉ kiểm tra TRƯỚC lần put tiếp theo).' },
-  { capacity: 8, size: 4, buckets: [[], [{ key: 15937, val: 'XiaoLuo' }], [], [], [{ key: 12836, val: 'XiaoHa' }, { key: 13276, val: 'XiaoFa' }], [], [{ key: 16750, val: 'XiaoSuan' }], []], highlight: [4], desc: '⚙️ put(13276, "XiaoFa"): hệ số tải hiện tại (3/4 = 0.75) > 2/3 → MỞ RỘNG: capacity 4 → 8, băm lại toàn bộ 3 cặp cũ. Sau đó chèn 13276 (hash = 13276 % 8 = 4) → xung đột với 12836 tại bucket 4 → nối thêm vào chuỗi.' },
-  { capacity: 8, size: 5, buckets: [[], [{ key: 15937, val: 'XiaoLuo' }], [], [], [{ key: 12836, val: 'XiaoHa' }, { key: 13276, val: 'XiaoFa' }], [], [{ key: 16750, val: 'XiaoSuan' }], [{ key: 10583, val: 'XiaoYa' }]], highlight: [7], desc: 'put(10583, "XiaoYa"): hash = 10583 % 8 = 7 → thêm vào bucket 7. Hệ số tải = 5/8 = 0.625 (chưa vượt ngưỡng).' },
-  { capacity: 8, size: 5, buckets: [[], [{ key: 15937, val: 'XiaoLuo' }], [], [], [{ key: 12836, val: 'XiaoHa' }, { key: 13276, val: 'XiaoFa' }], [], [{ key: 16750, val: 'XiaoSuan' }], [{ key: 10583, val: 'XiaoYa' }]], highlight: [4], desc: '✅ get(13276): hash = 4 → duyệt chuỗi tại bucket 4: so sánh 12836 (không khớp) → so sánh 13276 (khớp) → trả về "XiaoFa".' },
-  { capacity: 8, size: 4, buckets: [[], [{ key: 15937, val: 'XiaoLuo' }], [], [], [{ key: 13276, val: 'XiaoFa' }], [], [{ key: 16750, val: 'XiaoSuan' }], [{ key: 10583, val: 'XiaoYa' }]], highlight: [4], desc: 'remove(12836): hash = 4 → duyệt chuỗi tại bucket 4, tìm thấy 12836, xóa khỏi danh sách. Bucket 4 giờ chỉ còn (13276, "XiaoFa").' },
+  {
+    capacity: 4, size: 0,
+    buckets: [[], [], [], []],
+    activeBucket: -1,
+    math: 'capacity = 4, size = 0, λ = 0 / 4 = 0.00',
+    complexity: 'O(1)',
+    desc: 'Khởi tạo bảng băm với capacity = 4, mỗi bucket là một danh sách rỗng. Ngưỡng hệ số tải = 2/3 ≈ 0.67.'
+  },
+  {
+    capacity: 4, size: 1,
+    buckets: [[{ key: 12836, val: 'XiaoHa' }], [], [], []],
+    activeBucket: 0,
+    math: 'hash(12836) = 12836 % 4 = 0 | λ = 1/4 = 0.25',
+    complexity: 'O(1)',
+    desc: 'put(12836, "XiaoHa"): hash = 12836 % 4 = 0 → thêm vào bucket 0. Hệ số tải = 1/4 = 0.25.'
+  },
+  {
+    capacity: 4, size: 2,
+    buckets: [[{ key: 12836, val: 'XiaoHa' }], [{ key: 15937, val: 'XiaoLuo' }], [], []],
+    activeBucket: 1,
+    math: 'hash(15937) = 15937 % 4 = 1 | λ = 2/4 = 0.50',
+    complexity: 'O(1)',
+    desc: 'put(15937, "XiaoLuo"): hash = 15937 % 4 = 1 → thêm vào bucket 1. Hệ số tải = 2/4 = 0.5.'
+  },
+  {
+    capacity: 4, size: 3,
+    buckets: [[{ key: 12836, val: 'XiaoHa' }], [{ key: 15937, val: 'XiaoLuo' }], [{ key: 16750, val: 'XiaoSuan' }], []],
+    activeBucket: 2,
+    math: 'hash(16750) = 16750 % 4 = 2 | λ = 3/4 = 0.75 > 0.67 ⚠️',
+    complexity: 'O(1) [vượt ngưỡng λ]',
+    desc: 'put(16750, "XiaoSuan"): hash = 16750 % 4 = 2 → thêm vào bucket 2. Hệ số tải = 3/4 = 0.75 (đã vượt ngưỡng 2/3, chuẩn bị rehash ở lần chèn tiếp theo).'
+  },
+  {
+    capacity: 8, size: 4,
+    buckets: [
+      [],
+      [{ key: 15937, val: 'XiaoLuo' }],
+      [],
+      [],
+      [{ key: 12836, val: 'XiaoHa' }, { key: 13276, val: 'XiaoFa' }],
+      [],
+      [{ key: 16750, val: 'XiaoSuan' }],
+      []
+    ],
+    activeBucket: 4,
+    math: 'REHASH: cap 4 → 8 | 13276 % 8 = 4 (nối chuỗi bucket 4)',
+    complexity: 'O(n) Mở rộng & Tái băm',
+    desc: '⚙️ put(13276, "XiaoFa"): λ = 0.75 > 2/3 → MỞ RỘNG: capacity 4 → 8, băm lại toàn bộ cặp cũ. Sau đó chèn 13276 (hash = 4) → xung đột với 12836 tại bucket 4 → NỐI THÊM VÀO CHUỖI LIÊN KẾT.'
+  },
+  {
+    capacity: 8, size: 5,
+    buckets: [
+      [],
+      [{ key: 15937, val: 'XiaoLuo' }],
+      [],
+      [],
+      [{ key: 12836, val: 'XiaoHa' }, { key: 13276, val: 'XiaoFa' }],
+      [],
+      [{ key: 16750, val: 'XiaoSuan' }],
+      [{ key: 10583, val: 'XiaoYa' }]
+    ],
+    activeBucket: 7,
+    math: 'hash(10583) = 10583 % 8 = 7 | λ = 5/8 = 0.625',
+    complexity: 'O(1)',
+    desc: 'put(10583, "XiaoYa"): hash = 10583 % 8 = 7 → thêm vào bucket 7. Hệ số tải = 5/8 = 0.625 (chưa vượt ngưỡng).'
+  },
+  {
+    capacity: 8, size: 5,
+    buckets: [
+      [],
+      [{ key: 15937, val: 'XiaoLuo' }],
+      [],
+      [],
+      [{ key: 12836, val: 'XiaoHa' }, { key: 13276, val: 'XiaoFa' }],
+      [],
+      [{ key: 16750, val: 'XiaoSuan' }],
+      [{ key: 10583, val: 'XiaoYa' }]
+    ],
+    activeBucket: 4,
+    nodeStates: { 4: { 0: 'state-target', 1: 'state-matched' } },
+    math: 'get(13276): duyệt bucket 4: 12836 ≠ 13276 → 13276 == 13276 ✅',
+    complexity: 'O(k) với k là chiều dài chuỗi',
+    desc: '✅ get(13276): hash = 4 → duyệt chuỗi tại bucket 4: so sánh 12836 (không khớp) → so sánh 13276 (khớp!) → trả về "XiaoFa".'
+  },
+  {
+    capacity: 8, size: 4,
+    buckets: [
+      [],
+      [{ key: 15937, val: 'XiaoLuo' }],
+      [],
+      [],
+      [{ key: 13276, val: 'XiaoFa' }],
+      [],
+      [{ key: 16750, val: 'XiaoSuan' }],
+      [{ key: 10583, val: 'XiaoYa' }]
+    ],
+    activeBucket: 4,
+    nodeStates: { 4: { 0: 'state-danger' } },
+    math: 'remove(12836): hash = 4 → tìm thấy node đầu → xóa và cập nhật head',
+    complexity: 'O(k) tìm và ngắt node',
+    desc: 'remove(12836): hash = 4 → duyệt chuỗi tại bucket 4, tìm thấy 12836, xóa khỏi danh sách liên kết. Bucket 4 giờ chỉ còn 13276.'
+  }
 ];
-let hashChainingIndex = 0;
-let hashChainingTimer = null;
-let hashChainingSpeed = 900;
 
-function renderHashChainBucket(index, list, highlighted) {
-  const border = highlighted ? 'var(--accent-sky)' : 'var(--border)';
-  const bg = highlighted ? 'rgba(56, 189, 248, 0.12)' : 'var(--bg-overlay)';
-  const items = list.length
-    ? list.map((p) => '<div style="font-family:var(--font-mono); font-size:11px; padding:2px 4px;">' + p.key + ' → ' + p.val + '</div>').join('<div style="height:1px;background:var(--border-subtle);"></div>')
-    : '<div style="font-size:11px; color:var(--text-muted); padding:2px 4px;">(rỗng)</div>';
-  return '<div style="display:flex;flex-direction:column;align-items:center;">' +
-    '<div style="min-width:100px;min-height:40px;border:2px solid ' + border + ';border-radius:6px;background:' + bg + ';color:var(--text-primary);overflow:hidden;">' +
-    items + '</div>' +
-    '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;font-family:var(--font-mono);">bucket ' + index + '</div>' +
-    '</div>';
+const hashChainingPresets = {
+  all: [0, 1, 2, 3, 4, 5, 6, 7],
+  put_chain: [0, 1, 2, 3],
+  expand: [3, 4, 5],
+  get: [5, 6],
+  remove: [6, 7]
+};
+
+let hashChainingOp = 'all';
+let hashChainingStepIdx = 0;
+let hashChainingTimer = null;
+let hashChainingSpeed = 800;
+
+function selectHashChainingOp(op) {
+  if (!hashChainingPresets[op]) return;
+  hashChainingOp = op;
+  hashChainingStepIdx = 0;
+
+  const pills = document.querySelectorAll('#hash-chaining-op-pills .sim-op-pill');
+  pills.forEach(p => {
+    p.classList.toggle('active', p.getAttribute('onclick').includes("'" + op + "'"));
+  });
+
+  pauseRunHashChaining();
+  renderHashChaining();
 }
+window.selectHashChainingOp = selectHashChainingOp;
 
 function renderHashChaining() {
-  const frame = hashChainingFrames[hashChainingIndex];
+  const stepList = hashChainingPresets[hashChainingOp] || hashChainingPresets.all;
+  const frameIdx = stepList[Math.min(hashChainingStepIdx, stepList.length - 1)];
+  const frame = hashChainingFrames[frameIdx];
+
   const container = document.getElementById('hash-chaining-canvas');
   if (container) {
-    container.innerHTML = frame.buckets.map((list, i) => renderHashChainBucket(i, list, frame.highlight.includes(i))).join('');
+    container.innerHTML = frame.buckets.map((list, bIdx) => {
+      const isActive = frame.activeBucket === bIdx;
+      let headerClass = 'hash-chain-header';
+      if (isActive) headerClass += ' active';
+
+      let nodesHtml = '';
+      if (!list || list.length === 0) {
+        nodesHtml = '<div class="hash-chain-empty">null</div>';
+      } else {
+        nodesHtml = list.map((item, nIdx) => {
+          let nodeClass = 'hash-chain-node-token';
+          if (frame.nodeStates && frame.nodeStates[bIdx] && frame.nodeStates[bIdx][nIdx]) {
+            nodeClass += ' ' + frame.nodeStates[bIdx][nIdx];
+          } else if (isActive && list.length > 1 && nIdx === list.length - 1 && frameIdx === 4) {
+            nodeClass += ' state-matched';
+          }
+          return '<div class="hash-chain-link-arrow">↓</div>' +
+            '<div class="' + nodeClass + '">' +
+            '<strong style="color:var(--accent-sky);">' + item.key + '</strong>' +
+            '<span style="font-size:10px; color:var(--text-secondary);">' + item.val + '</span>' +
+            '</div>';
+        }).join('');
+      }
+
+      return '<div class="hash-chain-col">' +
+        '<div class="' + headerClass + '">[' + bIdx + ']</div>' +
+        '<div class="hash-chain-nodes">' + nodesHtml + '</div>' +
+        '</div>';
+    }).join('');
   }
+
+  // Update meter
+  const capEl = document.getElementById('hash-chaining-cap');
+  if (capEl) capEl.textContent = frame.capacity;
+  const sizeEl = document.getElementById('hash-chaining-size');
+  if (sizeEl) sizeEl.textContent = frame.size;
+  const loadEl = document.getElementById('hash-chaining-load');
+  const loadFactor = (frame.size / frame.capacity).toFixed(2);
+  if (loadEl) loadEl.textContent = loadFactor;
+  const fillEl = document.getElementById('hash-chaining-load-fill');
+  if (fillEl) {
+    const pct = Math.min(100, Math.round((frame.size / frame.capacity) * 100));
+    fillEl.style.width = pct + '%';
+    fillEl.className = 'hash-load-meter-fill';
+    if (loadFactor >= 0.75) fillEl.classList.add('danger');
+    else if (loadFactor >= 0.67) fillEl.classList.add('warning');
+  }
+
+  // Update HUD
+  const stepBadge = document.getElementById('hash-chaining-step-badge');
+  if (stepBadge) stepBadge.textContent = 'Bước ' + (hashChainingStepIdx + 1) + ' / ' + stepList.length;
+  const compBadge = document.getElementById('hash-chaining-complexity');
+  if (compBadge) compBadge.textContent = frame.complexity || 'O(1)';
   const statusEl = document.getElementById('hash-chaining-status');
-  if (statusEl) {
-    statusEl.innerHTML = '<strong>Bước ' + (hashChainingIndex + 1) + '/' + hashChainingFrames.length + ' (capacity=' + frame.capacity + ', size=' + frame.size + '):</strong> ' + frame.desc;
-  }
+  if (statusEl) statusEl.textContent = frame.desc;
+  const mathEl = document.getElementById('hash-chaining-math');
+  if (mathEl) mathEl.textContent = frame.math || 'index = hash(key) % capacity';
+
   const btnStep = document.getElementById('hash-chaining-btn-step');
-  if (btnStep) btnStep.disabled = hashChainingIndex >= hashChainingFrames.length - 1;
+  if (btnStep) btnStep.disabled = hashChainingStepIdx >= stepList.length - 1;
+  const btnPrev = document.getElementById('hash-chaining-btn-prev');
+  if (btnPrev) btnPrev.disabled = hashChainingStepIdx === 0;
 }
 
 function initHashChainingDemo() {
-  clearInterval(hashChainingTimer);
-  hashChainingTimer = null;
-  hashChainingIndex = 0;
+  pauseRunHashChaining();
+  hashChainingStepIdx = 0;
   renderHashChaining();
-  const btnPause = document.getElementById('hash-chaining-btn-pause');
-  if (btnPause) btnPause.disabled = true;
-  const btnAuto = document.getElementById('hash-chaining-btn-autorun');
-  if (btnAuto) btnAuto.disabled = false;
 }
 window.initHashChainingDemo = initHashChainingDemo;
 
 function stepHashChaining() {
-  if (hashChainingIndex >= hashChainingFrames.length - 1) return;
-  hashChainingIndex++;
+  const stepList = hashChainingPresets[hashChainingOp] || hashChainingPresets.all;
+  if (hashChainingStepIdx >= stepList.length - 1) return;
+  hashChainingStepIdx++;
   renderHashChaining();
 }
 window.stepHashChaining = stepHashChaining;
+
+function prevHashChaining() {
+  if (hashChainingStepIdx <= 0) return;
+  hashChainingStepIdx--;
+  renderHashChaining();
+}
+window.prevHashChaining = prevHashChaining;
 
 function autoRunHashChaining() {
   const btnAuto = document.getElementById('hash-chaining-btn-autorun');
   const btnPause = document.getElementById('hash-chaining-btn-pause');
   if (btnAuto) btnAuto.disabled = true;
   if (btnPause) btnPause.disabled = false;
+
   hashChainingTimer = setInterval(() => {
-    if (hashChainingIndex >= hashChainingFrames.length - 1) {
+    const stepList = hashChainingPresets[hashChainingOp] || hashChainingPresets.all;
+    if (hashChainingStepIdx >= stepList.length - 1) {
       pauseRunHashChaining();
       return;
     }
@@ -6449,58 +9313,194 @@ window.setHashChainingSpeed = setHashChainingSpeed;
 // 6.2.2.1 Open addressing (linear probing) with lazy deletion (TOMBSTONE)
 // ------------------------------------------------------------------
 const hashOpenAddrFrames = [
-  { buckets: new Array(8).fill(null), highlight: [], desc: 'Khởi tạo bảng băm định vị mở với capacity = 8, hash(key) = key % 8.' },
-  { buckets: [null, null, null, null, { key: 12836, val: 'XiaoHa' }, null, null, null], highlight: [4], desc: 'put(12836, "XiaoHa"): hash = 12836 % 8 = 4 → bucket 4 trống → chèn trực tiếp.' },
-  { buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, { key: 12836, val: 'XiaoHa' }, null, null, null], highlight: [1], desc: 'put(15937, "XiaoLuo"): hash = 15937 % 8 = 1 → bucket 1 trống → chèn trực tiếp.' },
-  { buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, { key: 12836, val: 'XiaoHa' }, null, { key: 16750, val: 'XiaoSuan' }, null], highlight: [6], desc: 'put(16750, "XiaoSuan"): hash = 16750 % 8 = 6 → bucket 6 trống → chèn trực tiếp.' },
-  { buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, { key: 12836, val: 'XiaoHa' }, { key: 13276, val: 'XiaoFa' }, { key: 16750, val: 'XiaoSuan' }, null], highlight: [4, 5], desc: '⚠️ put(13276, "XiaoFa"): hash = 13276 % 8 = 4 → bucket 4 đã bị chiếm (xung đột)! Thăm dò tuyến tính sang bucket 5 (trống) → chèn vào đó.' },
-  { buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, { key: 12836, val: 'XiaoHa' }, { key: 13276, val: 'XiaoFa' }, { key: 16750, val: 'XiaoSuan' }, { key: 10583, val: 'XiaoYa' }], highlight: [7], desc: 'put(10583, "XiaoYa"): hash = 10583 % 8 = 7 → bucket 7 trống → chèn trực tiếp.' },
-  { buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, 'TOMBSTONE', { key: 13276, val: 'XiaoFa' }, { key: 16750, val: 'XiaoSuan' }, { key: 10583, val: 'XiaoYa' }], highlight: [4], desc: 'remove(12836): tìm thấy tại bucket 4 → KHÔNG xóa hẳn, mà đánh dấu TOMBSTONE (xóa lười) để không phá vỡ chuỗi thăm dò của các phần tử phía sau (như 13276).' },
-  { buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, 'TOMBSTONE', { key: 13276, val: 'XiaoFa' }, { key: 16750, val: 'XiaoSuan' }, { key: 10583, val: 'XiaoYa' }], highlight: [4, 5], desc: '✅ get(13276): hash = 4 → bucket 4 là TOMBSTONE (không phải trống!) → tiếp tục thăm dò sang bucket 5 → khớp key 13276 → trả về "XiaoFa". (Nếu bucket 4 là None thay vì TOMBSTONE, thuật toán sẽ dừng ngay và báo SAI là "không tìm thấy".)' },
-  { buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, { key: 20340, val: 'XiaoMoi' }, { key: 13276, val: 'XiaoFa' }, { key: 16750, val: 'XiaoSuan' }, { key: 10583, val: 'XiaoYa' }], highlight: [4], desc: '♻️ put(20340, "XiaoMoi"): hash = 20340 % 8 = 4 → gặp TOMBSTONE tại bucket 4, tiếp tục thăm dò (5,6,7 đều có key khác, 0 trống) → không tìm thấy key trùng → tái sử dụng vị trí TOMBSTONE đầu tiên (bucket 4) để chèn phần tử mới.' },
+  {
+    buckets: new Array(8).fill(null),
+    highlight: [],
+    probeInfo: null,
+    math: 'capacity = 8, hash(key) = key % 8',
+    complexity: 'O(1) khởi tạo',
+    desc: 'Khởi tạo bảng băm định vị mở với capacity = 8, hash(key) = key % 8.'
+  },
+  {
+    buckets: [null, null, null, null, { key: 12836, val: 'XiaoHa' }, null, null, null],
+    highlight: [4],
+    probeInfo: { index: 4, label: '0 bước nhảy' },
+    math: 'hash(12836) = 12836 % 8 = 4 → ô 4 trống',
+    complexity: 'O(1) chèn trực tiếp',
+    desc: 'put(12836, "XiaoHa"): hash = 12836 % 8 = 4 → bucket 4 trống → chèn trực tiếp.'
+  },
+  {
+    buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, { key: 12836, val: 'XiaoHa' }, null, null, null],
+    highlight: [1],
+    probeInfo: { index: 1, label: '0 bước nhảy' },
+    math: 'hash(15937) = 15937 % 8 = 1 → ô 1 trống',
+    complexity: 'O(1) chèn trực tiếp',
+    desc: 'put(15937, "XiaoLuo"): hash = 15937 % 8 = 1 → bucket 1 trống → chèn trực tiếp.'
+  },
+  {
+    buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, { key: 12836, val: 'XiaoHa' }, null, { key: 16750, val: 'XiaoSuan' }, null],
+    highlight: [6],
+    probeInfo: { index: 6, label: '0 bước nhảy' },
+    math: 'hash(16750) = 16750 % 8 = 6 → ô 6 trống',
+    complexity: 'O(1) chèn trực tiếp',
+    desc: 'put(16750, "XiaoSuan"): hash = 16750 % 8 = 6 → bucket 6 trống → chèn trực tiếp.'
+  },
+  {
+    buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, { key: 12836, val: 'XiaoHa' }, { key: 13276, val: 'XiaoFa' }, { key: 16750, val: 'XiaoSuan' }, null],
+    highlight: [4, 5],
+    probeInfo: { index: 5, label: 'xung đột ô 4 → nhảy +1' },
+    math: 'hash(13276) = 4 (bận) → (4+1)%8 = 5 (trống)',
+    complexity: 'O(1+k) 1 lần thăm dò',
+    desc: '⚠️ put(13276, "XiaoFa"): hash = 13276 % 8 = 4 → bucket 4 đã bị chiếm (xung đột)! Thăm dò tuyến tính sang bucket 5 (trống) → chèn vào đó.'
+  },
+  {
+    buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, { key: 12836, val: 'XiaoHa' }, { key: 13276, val: 'XiaoFa' }, { key: 16750, val: 'XiaoSuan' }, { key: 10583, val: 'XiaoYa' }],
+    highlight: [7],
+    probeInfo: { index: 7, label: '0 bước nhảy' },
+    math: 'hash(10583) = 10583 % 8 = 7 → ô 7 trống',
+    complexity: 'O(1) chèn trực tiếp',
+    desc: 'put(10583, "XiaoYa"): hash = 10583 % 8 = 7 → bucket 7 trống → chèn trực tiếp.'
+  },
+  {
+    buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, 'TOMBSTONE', { key: 13276, val: 'XiaoFa' }, { key: 16750, val: 'XiaoSuan' }, { key: 10583, val: 'XiaoYa' }],
+    highlight: [4],
+    probeInfo: { index: 4, label: '⚰️ TOMBSTONE' },
+    math: 'remove(12836): ô 4 = TOMBSTONE (không gán null)',
+    complexity: 'O(1) xóa lười',
+    desc: 'remove(12836): tìm thấy tại bucket 4 → KHÔNG xóa hẳn thành null, mà đánh dấu TOMBSTONE (xóa lười) để không phá vỡ chuỗi thăm dò của các phần tử phía sau (như 13276).'
+  },
+  {
+    buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, 'TOMBSTONE', { key: 13276, val: 'XiaoFa' }, { key: 16750, val: 'XiaoSuan' }, { key: 10583, val: 'XiaoYa' }],
+    highlight: [4, 5],
+    probeInfo: { index: 5, label: 'khớp key 13276' },
+    math: 'get(13276): hash=4 (TOMBSTONE → tiếp tục) → ô 5 khớp ✅',
+    complexity: 'O(1+k) đi qua TOMBSTONE',
+    desc: '✅ get(13276): hash = 4 → bucket 4 là TOMBSTONE (không phải null!) → tiếp tục thăm dò sang bucket 5 → khớp key 13276 → trả về "XiaoFa". (Nếu bucket 4 là null, thuật toán sẽ dừng sai).'
+  },
+  {
+    buckets: [null, { key: 15937, val: 'XiaoLuo' }, null, null, { key: 20340, val: 'XiaoMoi' }, { key: 13276, val: 'XiaoFa' }, { key: 16750, val: 'XiaoSuan' }, { key: 10583, val: 'XiaoYa' }],
+    highlight: [4],
+    probeInfo: { index: 4, label: '♻️ tái sử dụng TOMBSTONE' },
+    math: 'put(20340): hash=4 gặp TOMBSTONE → quét không trùng → ghi vào ô 4 ♻️',
+    complexity: 'O(1+k) tái sử dụng ô xóa',
+    desc: '♻️ put(20340, "XiaoMoi"): hash = 20340 % 8 = 4 → gặp TOMBSTONE tại bucket 4, tiếp tục thăm dò (5,6,7 đều có key khác, 0 trống) → không tìm thấy key trùng → tái sử dụng vị trí TOMBSTONE đầu tiên (bucket 4) để chèn phần tử mới.'
+  }
 ];
-let hashOpenAddrIndex = 0;
+
+const hashOpenAddrPresets = {
+  all: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  put_probe: [0, 1, 2, 3, 4, 5],
+  remove_tombstone: [5, 6],
+  get_tombstone: [6, 7],
+  reuse_tombstone: [7, 8]
+};
+
+let hashOpenAddrOp = 'all';
+let hashOpenAddrStepIdx = 0;
 let hashOpenAddrTimer = null;
-let hashOpenAddrSpeed = 900;
+let hashOpenAddrSpeed = 800;
+
+function selectHashOpenAddrOp(op) {
+  if (!hashOpenAddrPresets[op]) return;
+  hashOpenAddrOp = op;
+  hashOpenAddrStepIdx = 0;
+
+  const pills = document.querySelectorAll('#hash-open-addressing-op-pills .sim-op-pill');
+  pills.forEach(p => {
+    p.classList.toggle('active', p.getAttribute('onclick').includes("'" + op + "'"));
+  });
+
+  pauseRunHashOpenAddr();
+  renderHashOpenAddr();
+}
+window.selectHashOpenAddrOp = selectHashOpenAddrOp;
 
 function renderHashOpenAddr() {
-  const frame = hashOpenAddrFrames[hashOpenAddrIndex];
+  const stepList = hashOpenAddrPresets[hashOpenAddrOp] || hashOpenAddrPresets.all;
+  const frameIdx = stepList[Math.min(hashOpenAddrStepIdx, stepList.length - 1)];
+  const frame = hashOpenAddrFrames[frameIdx];
+
   const container = document.getElementById('hash-open-addressing-canvas');
   if (container) {
-    container.innerHTML = frame.buckets.map((p, i) => renderHashBucketCell(i, p, { highlighted: frame.highlight.includes(i) })).join('');
+    container.innerHTML = frame.buckets.map((p, i) => {
+      const isHighlighted = frame.highlight.includes(i);
+      const isTombstone = p === 'TOMBSTONE';
+      const isEmpty = p === null || p === undefined;
+
+      let cellClass = 'hash-open-cell-box';
+      if (isTombstone) cellClass += ' tombstone';
+      else if (!isEmpty) cellClass += ' occupied';
+      if (isHighlighted) cellClass += ' probing';
+
+      let probeBadgeHtml = '';
+      if (frame.probeInfo && frame.probeInfo.index === i) {
+        probeBadgeHtml = '<div class="hash-probe-badge">' + frame.probeInfo.label + '</div>';
+      }
+
+      let contentHtml = '<span style="color:var(--text-muted);font-style:italic;">(null)</span>';
+      if (isTombstone) {
+        contentHtml = '<span style="color:var(--accent-rose);font-weight:700;font-size:10px;">⚰️ TOMB</span>';
+      } else if (!isEmpty) {
+        contentHtml = '<strong style="color:var(--accent-sky);">' + p.key + '</strong><br><span style="color:var(--text-secondary);font-size:10px;">' + p.val + '</span>';
+      }
+
+      return '<div class="hash-bucket-cell">' +
+        '<div class="' + cellClass + '">' +
+        probeBadgeHtml +
+        contentHtml +
+        '</div>' +
+        '<div class="hash-cell-index">[' + i + ']</div>' +
+        '</div>';
+    }).join('');
   }
+
+  // Update HUD
+  const capapBadge = document.getElementById('hash-open-addressing-step-badge');
+  if (capapBadge) capapBadge.textContent = 'Bước ' + (hashOpenAddrStepIdx + 1) + ' / ' + stepList.length;
+  const compBadge = document.getElementById('hash-open-addressing-complexity');
+  if (compBadge) compBadge.textContent = frame.complexity || 'Linear Probing';
   const statusEl = document.getElementById('hash-open-addressing-status');
-  if (statusEl) statusEl.innerHTML = '<strong>Bước ' + (hashOpenAddrIndex + 1) + '/' + hashOpenAddrFrames.length + ':</strong> ' + frame.desc;
+  if (statusEl) statusEl.textContent = frame.desc;
+  const mathEl = document.getElementById('hash-open-addressing-math');
+  if (mathEl) mathEl.textContent = frame.math || 'index = (hash(key) + i) % capacity';
+
   const btnStep = document.getElementById('hash-open-addressing-btn-step');
-  if (btnStep) btnStep.disabled = hashOpenAddrIndex >= hashOpenAddrFrames.length - 1;
+  if (btnStep) btnStep.disabled = hashOpenAddrStepIdx >= stepList.length - 1;
+  const btnPrev = document.getElementById('hash-open-addressing-btn-prev');
+  if (btnPrev) btnPrev.disabled = hashOpenAddrStepIdx === 0;
 }
 
 function initHashOpenAddrDemo() {
-  clearInterval(hashOpenAddrTimer);
-  hashOpenAddrTimer = null;
-  hashOpenAddrIndex = 0;
+  pauseRunHashOpenAddr();
+  hashOpenAddrStepIdx = 0;
   renderHashOpenAddr();
-  const btnPause = document.getElementById('hash-open-addressing-btn-pause');
-  if (btnPause) btnPause.disabled = true;
-  const btnAuto = document.getElementById('hash-open-addressing-btn-autorun');
-  if (btnAuto) btnAuto.disabled = false;
 }
 window.initHashOpenAddrDemo = initHashOpenAddrDemo;
 
 function stepHashOpenAddr() {
-  if (hashOpenAddrIndex >= hashOpenAddrFrames.length - 1) return;
-  hashOpenAddrIndex++;
+  const stepList = hashOpenAddrPresets[hashOpenAddrOp] || hashOpenAddrPresets.all;
+  if (hashOpenAddrStepIdx >= stepList.length - 1) return;
+  hashOpenAddrStepIdx++;
   renderHashOpenAddr();
 }
 window.stepHashOpenAddr = stepHashOpenAddr;
+
+function prevHashOpenAddr() {
+  if (hashOpenAddrStepIdx <= 0) return;
+  hashOpenAddrStepIdx--;
+  renderHashOpenAddr();
+}
+window.prevHashOpenAddr = prevHashOpenAddr;
 
 function autoRunHashOpenAddr() {
   const btnAuto = document.getElementById('hash-open-addressing-btn-autorun');
   const btnPause = document.getElementById('hash-open-addressing-btn-pause');
   if (btnAuto) btnAuto.disabled = true;
   if (btnPause) btnPause.disabled = false;
+
   hashOpenAddrTimer = setInterval(() => {
-    if (hashOpenAddrIndex >= hashOpenAddrFrames.length - 1) {
+    const stepList = hashOpenAddrPresets[hashOpenAddrOp] || hashOpenAddrPresets.all;
+    if (hashOpenAddrStepIdx >= stepList.length - 1) {
       pauseRunHashOpenAddr();
       return;
     }
@@ -6534,42 +9534,115 @@ window.setHashOpenAddrSpeed = setHashOpenAddrSpeed;
 // ── Interactive Widgets Logic for Chapter 7 (Tree) ──────────────────
 // ==================================================================
 
-// Shared indented-outline renderer for binary tree nodes (no new CSS
-// classes needed — inline styles only, per established convention).
-function renderTreeNodeLine(node, depth, highlightSet, label) {
-  if (!node) return '';
-  let valHtml = String(node.val);
-  if (highlightSet.has(node.val)) {
-    valHtml = '<span style="background:var(--accent-sky, #38bdf8); color:#000; padding:1px 8px; border-radius:4px; font-weight:700;">' + valHtml + '</span>';
-  }
-  const prefixLabel = label ? '<span style="color:var(--text-muted); font-size:11px; margin-right:8px;">' + label + '</span>' : '';
-  let html = '<div style="margin-left:' + (depth * 26) + 'px; padding:3px 0; font-family:var(--font-mono); font-size:14px;">' + prefixLabel + valHtml + '</div>';
-  html += renderTreeNodeLine(node.left, depth + 1, highlightSet, 'L');
-  html += renderTreeNodeLine(node.right, depth + 1, highlightSet, 'R');
-  return html;
-}
-
-function renderTreeWidget(containerId, root, highlightArr) {
+// ── SVG Binary Tree Renderer ─────────────────────────────────────────
+// Assigns coordinates using in-order traversal (Reingold-Tilford light).
+// highlightArr: values to accent (cyan glow); visitedArr: already-visited (dim).
+// balanceMap: { val: bf } → shows small bf badge on node (for AVL).
+function renderTreeSVG(containerId, root, highlightArr, visitedArr, balanceMap) {
   const container = document.getElementById(containerId);
   if (!container) return;
+  if (!root) {
+    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:180px;color:var(--text-muted);font-size:15px;">(cây rỗng)</div>';
+    return;
+  }
+
   const hs = new Set(highlightArr || []);
-  container.innerHTML = '<div style="padding:10px; display:inline-block; min-width:220px;">' +
-    (root ? renderTreeNodeLine(root, 0, hs, null) : '<span style="color:var(--text-muted);">(cây rỗng)</span>') +
-    '</div>';
+  const vs = new Set(visitedArr || []);
+  const bm = balanceMap || {};
+
+  // Assign _x via in-order (each node gets unique integer x-slot)
+  let counter = 0;
+  function assignX(node) {
+    if (!node) return;
+    assignX(node.left);
+    node._x = counter++;
+    assignX(node.right);
+  }
+  function assignY(node, depth) {
+    if (!node) return;
+    node._y = depth;
+    assignY(node.left, depth + 1);
+    assignY(node.right, depth + 1);
+  }
+  assignX(root);
+  assignY(root, 0);
+
+  // Collect all nodes with their parent references
+  const nodes = [];
+  function collect(node, parent) {
+    if (!node) return;
+    nodes.push({ node, parent });
+    collect(node.left, node);
+    collect(node.right, node);
+  }
+  collect(root, null);
+
+  const maxX = Math.max(...nodes.map(n => n.node._x));
+  const maxY = Math.max(...nodes.map(n => n.node._y));
+  const R = 20;
+  const hGap = 50;
+  const vGap = 58;
+  const padX = 32, padY = 30;
+  const svgW = Math.max(maxX * hGap + padX * 2, 240);
+  const svgH = Math.max(maxY * vGap + padY * 2, 130);
+
+  const cx = node => node._x * hGap + padX;
+  const cy = node => node._y * vGap + padY;
+
+  let edgesHtml = '';
+  let nodesHtml = '';
+
+  nodes.forEach(({ node, parent }) => {
+    if (parent) {
+      edgesHtml += `<line x1="${cx(parent)}" y1="${cy(parent)}" x2="${cx(node)}" y2="${cy(node)}" stroke="#334155" stroke-width="2" stroke-linecap="round"/>`;
+    }
+
+    const x = cx(node), y = cy(node);
+    const isHL = hs.has(node.val);
+    const isVS = vs.has(node.val);
+    const fill   = isHL ? '#38bdf8' : isVS ? '#1e3a5f' : '#1e293b';
+    const stroke = isHL ? '#0ea5e9' : isVS ? '#334a6b' : '#334155';
+    const color  = isHL ? '#0c0f16' : isVS ? '#64a4d4' : '#e2e8f0';
+    const fw     = isHL ? '700' : '500';
+
+    const glow = isHL ? `<circle cx="${x}" cy="${y}" r="${R + 6}" fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.35"/>` : '';
+
+    // Balance-factor badge (for AVL)
+    let bfBadge = '';
+    if (bm[node.val] !== undefined) {
+      const bf = bm[node.val];
+      const bfColor = Math.abs(bf) > 1 ? '#f87171' : (bf !== 0 ? '#fbbf24' : '#34d399');
+      bfBadge = `<text x="${x + R - 1}" y="${y - R + 1}" text-anchor="middle" fill="${bfColor}" font-size="10" font-family="monospace" font-weight="700">${bf > 0 ? '+' : ''}${bf}</text>`;
+    }
+
+    nodesHtml += `${glow}<circle cx="${x}" cy="${y}" r="${R}" fill="${fill}" stroke="${stroke}" stroke-width="2"/><text x="${x}" y="${y + 5}" text-anchor="middle" fill="${color}" font-size="13" font-family="var(--font-mono,monospace)" font-weight="${fw}">${node.val}</text>${bfBadge}`;
+  });
+
+  container.innerHTML = `<svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" style="display:block;margin:0 auto;overflow:visible;"><g>${edgesHtml}</g><g>${nodesHtml}</g></svg>`;
+}
+
+// Backward-compat alias (used by Ch08 Heap which calls renderTreeWidget)
+function renderTreeWidget(containerId, root, highlightArr) {
+  renderTreeSVG(containerId, root, highlightArr, []);
 }
 
 // ------------------------------------------------------------------
 // 7.2 Binary tree traversal: level-order (BFS), preorder, inorder,
 // postorder on the same sample complete binary tree [1,2,3,4,5,6,7].
 // ------------------------------------------------------------------
-const TREE_TRAVERSAL_ROOT = { val: 1, left: { val: 2, left: { val: 4 }, right: { val: 5 } }, right: { val: 3, left: { val: 6 }, right: { val: 7 } } };
+const TREE_TRAVERSAL_ROOT = { val:1, left:{ val:2, left:{ val:4 }, right:{ val:5 } }, right:{ val:3, left:{ val:6 }, right:{ val:7 } } };
 const TREE_TRAVERSAL_ORDERS = {
   level: [1, 2, 3, 4, 5, 6, 7],
-  pre: [1, 2, 4, 5, 3, 6, 7],
-  in: [4, 2, 5, 1, 6, 3, 7],
-  post: [4, 5, 2, 6, 7, 3, 1],
+  pre:   [1, 2, 4, 5, 3, 6, 7],
+  in:    [4, 2, 5, 1, 6, 3, 7],
+  post:  [4, 5, 2, 6, 7, 3, 1],
 };
-const TREE_TRAVERSAL_LABELS = { level: 'Duyệt theo tầng (BFS)', pre: 'Tiền thứ tự', in: 'Trung thứ tự', post: 'Hậu thứ tự' };
+const TREE_TRAVERSAL_LABELS = {
+  level: 'Duyệt theo tầng (BFS)',
+  pre:   'Tiền thứ tự (Pre-order)',
+  in:    'Trung thứ tự (In-order)',
+  post:  'Hậu thứ tự (Post-order)',
+};
 let treeTraversalMode = 'level';
 let treeTraversalIndex = -1;
 let treeTraversalTimer = null;
@@ -6578,25 +9651,42 @@ let treeTraversalSpeed = 800;
 function renderTreeTraversal() {
   const order = TREE_TRAVERSAL_ORDERS[treeTraversalMode];
   const idx = treeTraversalIndex;
-  renderTreeWidget('tree-traversal-canvas', TREE_TRAVERSAL_ROOT, idx >= 0 ? [order[idx]] : []);
+  const visited = idx >= 0 ? order.slice(0, idx) : [];
+  const highlight = idx >= 0 ? [order[idx]] : [];
+  renderTreeSVG('tree-traversal-canvas', TREE_TRAVERSAL_ROOT, highlight, visited);
+
   const modeLabel = TREE_TRAVERSAL_LABELS[treeTraversalMode];
-  const statusEl = document.getElementById('tree-traversal-status');
-  if (statusEl) {
-    if (idx < 0) {
-      statusEl.innerHTML = '<strong>' + modeLabel + ':</strong> Nhấp "Auto Run" hoặc "Bước tiếp theo" để bắt đầu.';
-    } else {
-      const visited = order.slice(0, idx + 1);
-      statusEl.innerHTML = '<strong>' + modeLabel + ' — Bước ' + (idx + 1) + '/' + order.length + ':</strong> Ghé thăm nút <strong>' + order[idx] + '</strong>. Thứ tự đã duyệt: [' + visited.join(', ') + ']';
-    }
+  const stepNum = idx >= 0 ? idx + 1 : 0;
+  const total = order.length;
+  const visitedStr = visited.concat(highlight).join(' → ');
+  const desc = idx < 0
+    ? `Chọn kiểu duyệt và nhấn <strong>▶ Auto Run</strong> hoặc <strong>Bước tiếp ▶</strong>.`
+    : `Ghé thăm nút <strong style="color:#38bdf8;">${order[idx]}</strong>. Thứ tự đã duyệt: <span style="color:#94a3b8;">${visitedStr}</span>`;
+
+  const hudEl = document.getElementById('tree-traversal-hud');
+  if (hudEl) {
+    hudEl.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <span style="background:rgba(56,189,248,.12);border:1px solid #38bdf844;color:#38bdf8;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">Bước ${stepNum} / ${total}</span>
+        <span style="background:rgba(52,211,153,.12);border:1px solid #34d39944;color:#34d399;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">⏱ O(n)</span>
+        <span style="background:rgba(139,92,246,.12);border:1px solid #8b5cf644;color:#a78bfa;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">${modeLabel}</span>
+      </div>
+      <div style="color:#cbd5e1;font-size:13px;line-height:1.6;">${desc}</div>`;
   }
+
   const btnStep = document.getElementById('tree-traversal-btn-step');
   if (btnStep) btnStep.disabled = idx >= order.length - 1;
+  const btnPrev = document.getElementById('tree-traversal-btn-prev');
+  if (btnPrev) btnPrev.disabled = idx <= -1;
 }
 
 function setTreeTraversalMode(mode) {
   pauseRunTreeTraversal();
   treeTraversalMode = mode;
   treeTraversalIndex = -1;
+  document.querySelectorAll('#tree-traversal-pills .op-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
   renderTreeTraversal();
 }
 window.setTreeTraversalMode = setTreeTraversalMode;
@@ -6621,6 +9711,13 @@ function stepTreeTraversal() {
 }
 window.stepTreeTraversal = stepTreeTraversal;
 
+function prevTreeTraversal() {
+  if (treeTraversalIndex <= -1) return;
+  treeTraversalIndex--;
+  renderTreeTraversal();
+}
+window.prevTreeTraversal = prevTreeTraversal;
+
 function autoRunTreeTraversal() {
   const btnAuto = document.getElementById('tree-traversal-btn-autorun');
   const btnPause = document.getElementById('tree-traversal-btn-pause');
@@ -6628,10 +9725,7 @@ function autoRunTreeTraversal() {
   if (btnPause) btnPause.disabled = false;
   treeTraversalTimer = setInterval(() => {
     const order = TREE_TRAVERSAL_ORDERS[treeTraversalMode];
-    if (treeTraversalIndex >= order.length - 1) {
-      pauseRunTreeTraversal();
-      return;
-    }
+    if (treeTraversalIndex >= order.length - 1) { pauseRunTreeTraversal(); return; }
     stepTreeTraversal();
   }, treeTraversalSpeed);
 }
@@ -6651,47 +9745,80 @@ function setTreeTraversalSpeed(val) {
   treeTraversalSpeed = parseInt(val, 10);
   const label = document.getElementById('tree-traversal-speed-label');
   if (label) label.textContent = val + 'ms';
-  if (treeTraversalTimer) {
-    pauseRunTreeTraversal();
-    autoRunTreeTraversal();
-  }
+  if (treeTraversalTimer) { pauseRunTreeTraversal(); autoRunTreeTraversal(); }
 }
 window.setTreeTraversalSpeed = setTreeTraversalSpeed;
 
 // ------------------------------------------------------------------
-// 7.4 Binary search tree: search / insert / remove (degree 0, 1, 2)
-// on the perfect BST built from [8,4,12,2,6,10,14,1,3,5,7,9,11,13,15]
-// — mirrors the exact demo sequence from hello-algo's own driver code.
+// 7.4 Binary search tree operations: search, insert, remove
 // ------------------------------------------------------------------
-const BST_OPS_TREE_SEARCH = { val: 8, left: { val: 4, left: { val: 2, left: { val: 1 }, right: { val: 3 } }, right: { val: 6, left: { val: 5 }, right: { val: 7 } } }, right: { val: 12, left: { val: 10, left: { val: 9 }, right: { val: 11 } }, right: { val: 14, left: { val: 13 }, right: { val: 15 } } } };
-const BST_OPS_TREE_INSERTED = { val: 8, left: { val: 4, left: { val: 2, left: { val: 1 }, right: { val: 3 } }, right: { val: 6, left: { val: 5 }, right: { val: 7 } } }, right: { val: 12, left: { val: 10, left: { val: 9 }, right: { val: 11 } }, right: { val: 14, left: { val: 13 }, right: { val: 15, right: { val: 16 } } } } };
-const BST_OPS_TREE_REMOVED_1 = { val: 8, left: { val: 4, left: { val: 2, right: { val: 3 } }, right: { val: 6, left: { val: 5 }, right: { val: 7 } } }, right: { val: 12, left: { val: 10, left: { val: 9 }, right: { val: 11 } }, right: { val: 14, left: { val: 13 }, right: { val: 15, right: { val: 16 } } } } };
-const BST_OPS_TREE_REMOVED_2 = { val: 8, left: { val: 4, left: { val: 3 }, right: { val: 6, left: { val: 5 }, right: { val: 7 } } }, right: { val: 12, left: { val: 10, left: { val: 9 }, right: { val: 11 } }, right: { val: 14, left: { val: 13 }, right: { val: 15, right: { val: 16 } } } } };
-const BST_OPS_TREE_REMOVED_4 = { val: 8, left: { val: 5, left: { val: 3 }, right: { val: 6, right: { val: 7 } } }, right: { val: 12, left: { val: 10, left: { val: 9 }, right: { val: 11 } }, right: { val: 14, left: { val: 13 }, right: { val: 15, right: { val: 16 } } } } };
+const BST_OPS_TREE_BASE     = { val:8, left:{ val:4, left:{ val:2, left:{ val:1 }, right:{ val:3 } }, right:{ val:6, left:{ val:5 }, right:{ val:7 } } }, right:{ val:12, left:{ val:10, left:{ val:9 }, right:{ val:11 } }, right:{ val:14, left:{ val:13 }, right:{ val:15 } } } };
+const BST_OPS_TREE_INS16    = { val:8, left:{ val:4, left:{ val:2, left:{ val:1 }, right:{ val:3 } }, right:{ val:6, left:{ val:5 }, right:{ val:7 } } }, right:{ val:12, left:{ val:10, left:{ val:9 }, right:{ val:11 } }, right:{ val:14, left:{ val:13 }, right:{ val:15, right:{ val:16 } } } } };
+const BST_OPS_TREE_REM1     = { val:8, left:{ val:4, left:{ val:2, right:{ val:3 } }, right:{ val:6, left:{ val:5 }, right:{ val:7 } } }, right:{ val:12, left:{ val:10, left:{ val:9 }, right:{ val:11 } }, right:{ val:14, left:{ val:13 }, right:{ val:15, right:{ val:16 } } } } };
+const BST_OPS_TREE_REM2     = { val:8, left:{ val:4, left:{ val:3 }, right:{ val:6, left:{ val:5 }, right:{ val:7 } } }, right:{ val:12, left:{ val:10, left:{ val:9 }, right:{ val:11 } }, right:{ val:14, left:{ val:13 }, right:{ val:15, right:{ val:16 } } } } };
+const BST_OPS_TREE_REM4     = { val:8, left:{ val:5, left:{ val:3 }, right:{ val:6, right:{ val:7 } } }, right:{ val:12, left:{ val:10, left:{ val:9 }, right:{ val:11 } }, right:{ val:14, left:{ val:13 }, right:{ val:15, right:{ val:16 } } } } };
 
-const bstOpsFrames = [
-  { tree: BST_OPS_TREE_SEARCH, highlight: [], desc: 'Cây tìm kiếm nhị phân ban đầu, được xây dựng từ dãy chèn [8, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15] (một cây hoàn hảo).' },
-  { tree: BST_OPS_TREE_SEARCH, highlight: [8], desc: 'search(7): tại nút 8, vì 8 &gt; 7 nên đi sang cây con trái.' },
-  { tree: BST_OPS_TREE_SEARCH, highlight: [4], desc: 'search(7): tại nút 4, vì 4 &lt; 7 nên đi sang cây con phải.' },
-  { tree: BST_OPS_TREE_SEARCH, highlight: [6], desc: 'search(7): tại nút 6, vì 6 &lt; 7 nên đi sang cây con phải.' },
-  { tree: BST_OPS_TREE_SEARCH, highlight: [7], desc: 'search(7): tại nút 7, vì 7 = 7 nên đã tìm thấy nút mục tiêu!' },
-  { tree: BST_OPS_TREE_INSERTED, highlight: [16], desc: 'insert(16): tìm vị trí chèn theo đường đi 8 → 12 → 14 → 15, rồi chèn 16 làm con phải của 15.' },
-  { tree: BST_OPS_TREE_REMOVED_1, highlight: [2], desc: 'remove(1): nút 1 là nút lá (bậc 0) → xóa trực tiếp, con trái của nút 2 trở thành rỗng.' },
-  { tree: BST_OPS_TREE_REMOVED_2, highlight: [3], desc: 'remove(2): nút 2 chỉ có 1 con (bậc 1) → thay thế trực tiếp nút 2 bằng con của nó là 3.' },
-  { tree: BST_OPS_TREE_REMOVED_4, highlight: [5], desc: 'remove(4): nút 4 có 2 con (bậc 2) → tìm nút kế tiếp theo thứ tự trung thứ tự (nút nhỏ nhất trong cây con phải) là 5, thay giá trị của 4 bằng 5, rồi đệ quy xóa nút 5 gốc.' },
-];
+const bstOpsPresets = {
+  search: [
+    { tree:BST_OPS_TREE_BASE, hl:[], vs:[], op:'search(7)', complexity:'O(log n)', desc:'Cây BST ban đầu. Bắt đầu tìm kiếm giá trị <strong style="color:#38bdf8;">7</strong> từ nút gốc.' },
+    { tree:BST_OPS_TREE_BASE, hl:[8], vs:[], op:'search(7)', complexity:'O(log n)', desc:'Tại <strong style="color:#38bdf8;">8</strong>: 8 > 7 → đi sang <strong>cây con trái</strong>.' },
+    { tree:BST_OPS_TREE_BASE, hl:[4], vs:[8], op:'search(7)', complexity:'O(log n)', desc:'Tại <strong style="color:#38bdf8;">4</strong>: 4 < 7 → đi sang <strong>cây con phải</strong>.' },
+    { tree:BST_OPS_TREE_BASE, hl:[6], vs:[8,4], op:'search(7)', complexity:'O(log n)', desc:'Tại <strong style="color:#38bdf8;">6</strong>: 6 < 7 → đi sang <strong>cây con phải</strong>.' },
+    { tree:BST_OPS_TREE_BASE, hl:[7], vs:[8,4,6], op:'search(7)', complexity:'O(log n)', desc:'✅ Tìm thấy <strong style="color:#38bdf8;">7</strong>! Mất 4 bước so sánh = O(log n) = chiều cao cây.' },
+  ],
+  insert: [
+    { tree:BST_OPS_TREE_BASE, hl:[], vs:[], op:'insert(16)', complexity:'O(log n)', desc:'Chèn giá trị <strong style="color:#38bdf8;">16</strong>. Bắt đầu tìm vị trí từ gốc.' },
+    { tree:BST_OPS_TREE_BASE, hl:[8],  vs:[], op:'insert(16)', complexity:'O(log n)', desc:'Tại <strong style="color:#38bdf8;">8</strong>: 16 > 8 → đi sang cây con phải.' },
+    { tree:BST_OPS_TREE_BASE, hl:[12], vs:[8], op:'insert(16)', complexity:'O(log n)', desc:'Tại <strong style="color:#38bdf8;">12</strong>: 16 > 12 → đi sang cây con phải.' },
+    { tree:BST_OPS_TREE_BASE, hl:[14], vs:[8,12], op:'insert(16)', complexity:'O(log n)', desc:'Tại <strong style="color:#38bdf8;">14</strong>: 16 > 14 → đi sang cây con phải.' },
+    { tree:BST_OPS_TREE_BASE, hl:[15], vs:[8,12,14], op:'insert(16)', complexity:'O(log n)', desc:'Tại <strong style="color:#38bdf8;">15</strong>: 16 > 15, con phải = null → đây là vị trí chèn.' },
+    { tree:BST_OPS_TREE_INS16, hl:[16], vs:[8,12,14,15], op:'insert(16)', complexity:'O(log n)', desc:'✅ Chèn thành công! Nút <strong style="color:#38bdf8;">16</strong> là con phải của 15. Tính chất BST bảo toàn.' },
+  ],
+  remove: [
+    { tree:BST_OPS_TREE_INS16, hl:[], vs:[], op:'remove(1,2,4)', complexity:'O(log n)', desc:'Sẽ xóa 3 nút với bậc khác nhau: <strong>1</strong> (bậc 0 – lá), <strong>2</strong> (bậc 1), <strong>4</strong> (bậc 2 – 2 con).' },
+    { tree:BST_OPS_TREE_INS16, hl:[1], vs:[], op:'remove(1)', complexity:'O(log n)', desc:'Xóa nút <strong style="color:#38bdf8;">1</strong> — bậc 0 (nút lá): xóa trực tiếp, không cần tái cấu trúc.' },
+    { tree:BST_OPS_TREE_REM1, hl:[2], vs:[1], op:'remove(2)', complexity:'O(log n)', desc:'Xóa nút <strong style="color:#38bdf8;">2</strong> — bậc 1 (1 con): thay thế trực tiếp bằng con của nó là 3.' },
+    { tree:BST_OPS_TREE_REM2, hl:[4], vs:[1,2], op:'remove(4)', complexity:'O(log n)', desc:'Xóa nút <strong style="color:#38bdf8;">4</strong> — bậc 2 (2 con): tìm nút kế tiếp trung thứ tự (nhỏ nhất cây phải = 5), thay giá trị 4→5, rồi xóa nút 5 gốc.' },
+    { tree:BST_OPS_TREE_REM4, hl:[5], vs:[1,2,4], op:'remove(4) done', complexity:'O(log n)', desc:'✅ Xóa hoàn tất. Nút <strong style="color:#38bdf8;">5</strong> thay thế 4. Tính chất BST: con trái (3) < 5 < con phải (6, 7).' },
+  ],
+};
+
+let bstOpsPreset = 'search';
 let bstOpsIndex = 0;
 let bstOpsTimer = null;
 let bstOpsSpeed = 800;
 
 function renderBstOps() {
-  const frame = bstOpsFrames[bstOpsIndex];
-  renderTreeWidget('bst-ops-canvas', frame.tree, frame.highlight);
-  const statusEl = document.getElementById('bst-ops-status');
-  if (statusEl) statusEl.innerHTML = '<strong>Bước ' + (bstOpsIndex + 1) + '/' + bstOpsFrames.length + ':</strong> ' + frame.desc;
+  const frames = bstOpsPresets[bstOpsPreset];
+  const frame = frames[bstOpsIndex];
+  renderTreeSVG('bst-ops-canvas', frame.tree, frame.hl, frame.vs);
+
+  const hudEl = document.getElementById('bst-ops-hud');
+  if (hudEl) {
+    hudEl.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <span style="background:rgba(56,189,248,.12);border:1px solid #38bdf844;color:#38bdf8;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">Bước ${bstOpsIndex + 1} / ${frames.length}</span>
+        <span style="background:rgba(52,211,153,.12);border:1px solid #34d39944;color:#34d399;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">⏱ ${frame.complexity}</span>
+        <span style="background:rgba(251,191,36,.12);border:1px solid #fbbf2444;color:#fbbf24;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">${frame.op}</span>
+      </div>
+      <div style="color:#cbd5e1;font-size:13px;line-height:1.6;">${frame.desc}</div>`;
+  }
   const btnStep = document.getElementById('bst-ops-btn-step');
-  if (btnStep) btnStep.disabled = bstOpsIndex >= bstOpsFrames.length - 1;
+  if (btnStep) btnStep.disabled = bstOpsIndex >= frames.length - 1;
+  const btnPrev = document.getElementById('bst-ops-btn-prev');
+  if (btnPrev) btnPrev.disabled = bstOpsIndex <= 0;
 }
+
+function setBstOpsPreset(preset) {
+  pauseRunBstOps();
+  bstOpsPreset = preset;
+  bstOpsIndex = 0;
+  document.querySelectorAll('#bst-ops-pills .op-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.op === preset);
+  });
+  renderBstOps();
+}
+window.setBstOpsPreset = setBstOpsPreset;
 
 function initBstOpsDemo() {
   clearInterval(bstOpsTimer);
@@ -6706,11 +9833,19 @@ function initBstOpsDemo() {
 window.initBstOpsDemo = initBstOpsDemo;
 
 function stepBstOps() {
-  if (bstOpsIndex >= bstOpsFrames.length - 1) return;
+  const frames = bstOpsPresets[bstOpsPreset];
+  if (bstOpsIndex >= frames.length - 1) return;
   bstOpsIndex++;
   renderBstOps();
 }
 window.stepBstOps = stepBstOps;
+
+function prevBstOps() {
+  if (bstOpsIndex <= 0) return;
+  bstOpsIndex--;
+  renderBstOps();
+}
+window.prevBstOps = prevBstOps;
 
 function autoRunBstOps() {
   const btnAuto = document.getElementById('bst-ops-btn-autorun');
@@ -6718,10 +9853,8 @@ function autoRunBstOps() {
   if (btnAuto) btnAuto.disabled = true;
   if (btnPause) btnPause.disabled = false;
   bstOpsTimer = setInterval(() => {
-    if (bstOpsIndex >= bstOpsFrames.length - 1) {
-      pauseRunBstOps();
-      return;
-    }
+    const frames = bstOpsPresets[bstOpsPreset];
+    if (bstOpsIndex >= frames.length - 1) { pauseRunBstOps(); return; }
     stepBstOps();
   }, bstOpsSpeed);
 }
@@ -6741,36 +9874,84 @@ function setBstOpsSpeed(val) {
   bstOpsSpeed = parseInt(val, 10);
   const label = document.getElementById('bst-ops-speed-label');
   if (label) label.textContent = val + 'ms';
-  if (bstOpsTimer) {
-    pauseRunBstOps();
-    autoRunBstOps();
-  }
+  if (bstOpsTimer) { pauseRunBstOps(); autoRunBstOps(); }
 }
 window.setBstOpsSpeed = setBstOpsSpeed;
 
 // ------------------------------------------------------------------
-// 7.5 AVL tree: inserting 3, 2, 1 (descending) triggers a right
-// rotation — the exact case illustrated in section 7.5.2.1.
+// 7.5 AVL tree: 4 rotation scenarios
 // ------------------------------------------------------------------
-const avlRotateFrames = [
-  { tree: null, highlight: [], desc: 'Cây AVL rỗng ban đầu.' },
-  { tree: { val: 3 }, highlight: [3], desc: 'insert(3): cây rỗng → 3 trở thành nút gốc.' },
-  { tree: { val: 3, left: { val: 2 } }, highlight: [2], desc: 'insert(2): 2 &lt; 3 → chèn làm con trái của 3. Hệ số cân bằng của nút 3 là 1 (vẫn cân bằng).' },
-  { tree: { val: 3, left: { val: 2, left: { val: 1 } } }, highlight: [1], desc: 'insert(1): 1 &lt; 3 → trái; 1 &lt; 2 → trái → chèn làm con trái của 2. Nút 3 có hệ số cân bằng = 2 (mất cân bằng, nghiêng trái).' },
-  { tree: { val: 2, left: { val: 1 }, right: { val: 3 } }, highlight: [2], desc: 'Hệ số cân bằng của con (nút 2) là ≥ 0 → thực hiện XOAY PHẢI tại nút 3. Nút 2 trở thành gốc mới, 1 là con trái, 3 là con phải → cây khôi phục cân bằng hoàn toàn.' },
-];
+const avlRotatePresets = {
+  right: [
+    { tree:null, hl:[], bf:{}, complexity:'O(log n)', desc:'AVL rỗng. Chèn 3, 2, 1 → LL case → <strong>xoay phải</strong>.' },
+    { tree:{ val:3 }, hl:[3], bf:{ 3:0 }, complexity:'O(log n)', desc:'insert(3): nút gốc. bf(3) = 0.' },
+    { tree:{ val:3, left:{ val:2 } }, hl:[2], bf:{ 3:1, 2:0 }, complexity:'O(log n)', desc:'insert(2): con trái. bf(3) = <strong style="color:#fbbf24;">1</strong> (hợp lệ).' },
+    { tree:{ val:3, left:{ val:2, left:{ val:1 } } }, hl:[1], bf:{ 3:2, 2:1, 1:0 }, complexity:'O(log n)', desc:'insert(1): LL path. bf(3) = <strong style="color:#f87171;">2 ❗ MẤT CÂN BẰNG!</strong> Thực hiện xoay phải tại 3.' },
+    { tree:{ val:2, left:{ val:1 }, right:{ val:3 } }, hl:[2], bf:{ 2:0, 1:0, 3:0 }, complexity:'O(log n)', desc:'✅ <strong>Xoay phải (Right Rotation)</strong> tại 3: nút 2 thành gốc mới, 1 con trái, 3 con phải. bf tất cả = 0.' },
+  ],
+  left: [
+    { tree:null, hl:[], bf:{}, complexity:'O(log n)', desc:'AVL rỗng. Chèn 1, 2, 3 → RR case → <strong>xoay trái</strong>.' },
+    { tree:{ val:1 }, hl:[1], bf:{ 1:0 }, complexity:'O(log n)', desc:'insert(1): nút gốc. bf(1) = 0.' },
+    { tree:{ val:1, right:{ val:2 } }, hl:[2], bf:{ 1:-1, 2:0 }, complexity:'O(log n)', desc:'insert(2): con phải. bf(1) = <strong style="color:#fbbf24;">−1</strong> (hợp lệ).' },
+    { tree:{ val:1, right:{ val:2, right:{ val:3 } } }, hl:[3], bf:{ 1:-2, 2:-1, 3:0 }, complexity:'O(log n)', desc:'insert(3): RR path. bf(1) = <strong style="color:#f87171;">−2 ❗ MẤT CÂN BẰNG!</strong> Thực hiện xoay trái tại 1.' },
+    { tree:{ val:2, left:{ val:1 }, right:{ val:3 } }, hl:[2], bf:{ 2:0, 1:0, 3:0 }, complexity:'O(log n)', desc:'✅ <strong>Xoay trái (Left Rotation)</strong> tại 1: nút 2 thành gốc mới, 1 con trái, 3 con phải.' },
+  ],
+  lr: [
+    { tree:null, hl:[], bf:{}, complexity:'O(log n)', desc:'AVL rỗng. Chèn 3, 1, 2 → LR case → <strong>xoay trái-phải</strong>.' },
+    { tree:{ val:3 }, hl:[3], bf:{ 3:0 }, complexity:'O(log n)', desc:'insert(3): nút gốc.' },
+    { tree:{ val:3, left:{ val:1 } }, hl:[1], bf:{ 3:1, 1:0 }, complexity:'O(log n)', desc:'insert(1): con trái. bf(3) = 1 (hợp lệ).' },
+    { tree:{ val:3, left:{ val:1, right:{ val:2 } } }, hl:[2], bf:{ 3:2, 1:-1, 2:0 }, complexity:'O(log n)', desc:'insert(2): LR path. bf(3) = <strong style="color:#f87171;">2 ❗</strong>. Con trái (1) lệch phải (bf = −1). Bước 1: xoay trái tại 1.' },
+    { tree:{ val:3, left:{ val:2, left:{ val:1 } } }, hl:[2], bf:{ 3:2, 2:1, 1:0 }, complexity:'O(log n)', desc:'Sau xoay trái tại 1: biến thành LL case (bf(3) vẫn = 2). Bước 2: xoay phải tại 3.' },
+    { tree:{ val:2, left:{ val:1 }, right:{ val:3 } }, hl:[2], bf:{ 2:0, 1:0, 3:0 }, complexity:'O(log n)', desc:'✅ <strong>Xoay trái-phải (LR Rotation)</strong> hoàn tất! Nút 2 là gốc mới. bf tất cả = 0.' },
+  ],
+  rl: [
+    { tree:null, hl:[], bf:{}, complexity:'O(log n)', desc:'AVL rỗng. Chèn 1, 3, 2 → RL case → <strong>xoay phải-trái</strong>.' },
+    { tree:{ val:1 }, hl:[1], bf:{ 1:0 }, complexity:'O(log n)', desc:'insert(1): nút gốc.' },
+    { tree:{ val:1, right:{ val:3 } }, hl:[3], bf:{ 1:-1, 3:0 }, complexity:'O(log n)', desc:'insert(3): con phải. bf(1) = −1 (hợp lệ).' },
+    { tree:{ val:1, right:{ val:3, left:{ val:2 } } }, hl:[2], bf:{ 1:-2, 3:1, 2:0 }, complexity:'O(log n)', desc:'insert(2): RL path. bf(1) = <strong style="color:#f87171;">−2 ❗</strong>. Con phải (3) lệch trái (bf = 1). Bước 1: xoay phải tại 3.' },
+    { tree:{ val:1, right:{ val:2, right:{ val:3 } } }, hl:[2], bf:{ 1:-2, 2:-1, 3:0 }, complexity:'O(log n)', desc:'Sau xoay phải tại 3: biến thành RR case. Bước 2: xoay trái tại 1.' },
+    { tree:{ val:2, left:{ val:1 }, right:{ val:3 } }, hl:[2], bf:{ 2:0, 1:0, 3:0 }, complexity:'O(log n)', desc:'✅ <strong>Xoay phải-trái (RL Rotation)</strong> hoàn tất! Nút 2 là gốc mới. bf tất cả = 0.' },
+  ],
+};
+
+let avlRotatePreset = 'right';
 let avlRotateIndex = 0;
 let avlRotateTimer = null;
 let avlRotateSpeed = 1000;
 
 function renderAvlRotate() {
-  const frame = avlRotateFrames[avlRotateIndex];
-  renderTreeWidget('avl-rotate-canvas', frame.tree, frame.highlight);
-  const statusEl = document.getElementById('avl-rotate-status');
-  if (statusEl) statusEl.innerHTML = '<strong>Bước ' + (avlRotateIndex + 1) + '/' + avlRotateFrames.length + ':</strong> ' + frame.desc;
+  const frames = avlRotatePresets[avlRotatePreset];
+  const frame = frames[avlRotateIndex];
+  renderTreeSVG('avl-rotate-canvas', frame.tree, frame.hl, [], frame.bf);
+
+  const presetLabel = { right:'LL → Xoay Phải', left:'RR → Xoay Trái', lr:'LR → Xoay Trái-Phải', rl:'RL → Xoay Phải-Trái' }[avlRotatePreset];
+  const hudEl = document.getElementById('avl-rotate-hud');
+  if (hudEl) {
+    hudEl.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <span style="background:rgba(56,189,248,.12);border:1px solid #38bdf844;color:#38bdf8;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">Bước ${avlRotateIndex + 1} / ${frames.length}</span>
+        <span style="background:rgba(52,211,153,.12);border:1px solid #34d39944;color:#34d399;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">⏱ ${frame.complexity}</span>
+        <span style="background:rgba(139,92,246,.12);border:1px solid #8b5cf644;color:#a78bfa;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">${presetLabel}</span>
+        <span style="background:rgba(248,113,113,.12);border:1px solid #f8717144;color:#fca5a5;font-size:10px;padding:2px 8px;border-radius:20px;">bf = số nhỏ trên node</span>
+      </div>
+      <div style="color:#cbd5e1;font-size:13px;line-height:1.6;">${frame.desc}</div>`;
+  }
   const btnStep = document.getElementById('avl-rotate-btn-step');
-  if (btnStep) btnStep.disabled = avlRotateIndex >= avlRotateFrames.length - 1;
+  if (btnStep) btnStep.disabled = avlRotateIndex >= frames.length - 1;
+  const btnPrev = document.getElementById('avl-rotate-btn-prev');
+  if (btnPrev) btnPrev.disabled = avlRotateIndex <= 0;
 }
+
+function setAvlRotatePreset(preset) {
+  pauseRunAvlRotate();
+  avlRotatePreset = preset;
+  avlRotateIndex = 0;
+  document.querySelectorAll('#avl-rotate-pills .op-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.op === preset);
+  });
+  renderAvlRotate();
+}
+window.setAvlRotatePreset = setAvlRotatePreset;
 
 function initAvlRotateDemo() {
   clearInterval(avlRotateTimer);
@@ -6785,11 +9966,19 @@ function initAvlRotateDemo() {
 window.initAvlRotateDemo = initAvlRotateDemo;
 
 function stepAvlRotate() {
-  if (avlRotateIndex >= avlRotateFrames.length - 1) return;
+  const frames = avlRotatePresets[avlRotatePreset];
+  if (avlRotateIndex >= frames.length - 1) return;
   avlRotateIndex++;
   renderAvlRotate();
 }
 window.stepAvlRotate = stepAvlRotate;
+
+function prevAvlRotate() {
+  if (avlRotateIndex <= 0) return;
+  avlRotateIndex--;
+  renderAvlRotate();
+}
+window.prevAvlRotate = prevAvlRotate;
 
 function autoRunAvlRotate() {
   const btnAuto = document.getElementById('avl-rotate-btn-autorun');
@@ -6797,10 +9986,8 @@ function autoRunAvlRotate() {
   if (btnAuto) btnAuto.disabled = true;
   if (btnPause) btnPause.disabled = false;
   avlRotateTimer = setInterval(() => {
-    if (avlRotateIndex >= avlRotateFrames.length - 1) {
-      pauseRunAvlRotate();
-      return;
-    }
+    const frames = avlRotatePresets[avlRotatePreset];
+    if (avlRotateIndex >= frames.length - 1) { pauseRunAvlRotate(); return; }
     stepAvlRotate();
   }, avlRotateSpeed);
 }
@@ -6820,10 +10007,7 @@ function setAvlRotateSpeed(val) {
   avlRotateSpeed = parseInt(val, 10);
   const label = document.getElementById('avl-rotate-speed-label');
   if (label) label.textContent = val + 'ms';
-  if (avlRotateTimer) {
-    pauseRunAvlRotate();
-    autoRunAvlRotate();
-  }
+  if (avlRotateTimer) { pauseRunAvlRotate(); autoRunAvlRotate(); }
 }
 window.setAvlRotateSpeed = setAvlRotateSpeed;
 

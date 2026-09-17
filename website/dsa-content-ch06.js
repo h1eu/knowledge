@@ -581,17 +581,40 @@ class ArrayHashMap {
 </div>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
-    <div id="hash-map-basic-canvas" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin: 1em 0;"></div>
+    <!-- Operation Pills -->
+    <div class="sim-op-pills" id="hash-map-basic-op-pills" style="margin-bottom:12px;">
+      <button class="sim-op-pill active" onclick="selectHashMapBasicOp('all')">Toàn bộ kịch bản</button>
+      <button class="sim-op-pill" onclick="selectHashMapBasicOp('put_collision')">Chèn & Xung đột ghi đè</button>
+      <button class="sim-op-pill" onclick="selectHashMapBasicOp('get_error')">Truy vấn sai dữ liệu</button>
+      <button class="sim-op-pill" onclick="selectHashMapBasicOp('remove')">Xóa & Truy vấn chuẩn</button>
+    </div>
+
+    <!-- Hash Table Array Canvas Stage -->
+    <div class="hash-stage" id="hash-map-basic-stage">
+      <div id="hash-map-basic-canvas" class="hash-array-grid"></div>
+    </div>
+
+    <!-- Dynamic HUD Card -->
+    <div class="sim-hud-card" id="hash-map-basic-hud" style="margin: 14px 0 12px;">
+      <div class="sim-hud-top">
+        <span class="sim-step-badge" id="hash-map-basic-step-badge">Bước 1 / 9</span>
+        <span class="sim-complexity-badge" id="hash-map-basic-complexity">Mảng băm thô O(1)</span>
+      </div>
+      <div class="sim-hud-desc" id="hash-map-basic-status">Khởi tạo bảng băm dạng mảng với 10 bucket rỗng. hash(key) = key % 10.</div>
+      <div class="sim-hud-math" id="hash-map-basic-math">hash(key) = key % 10</div>
+    </div>
+
+    <!-- Standardized Controls -->
     <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin: 1em 0;">
+      <button id="hash-map-basic-btn-prev" class="control-btn btn-secondary" onclick="prevHashMapBasic()">◀ Trước</button>
       <button id="hash-map-basic-btn-autorun" class="control-btn" onclick="autoRunHashMapBasic()">▶ Auto Run</button>
-      <button id="hash-map-basic-btn-step" class="control-btn" onclick="stepHashMapBasic()">Bước tiếp theo ▶</button>
+      <button id="hash-map-basic-btn-step" class="control-btn" onclick="stepHashMapBasic()">Bước tiếp ▶</button>
       <button id="hash-map-basic-btn-pause" class="control-btn btn-secondary" onclick="pauseRunHashMapBasic()" disabled>⏸ Dừng</button>
-      <button id="hash-map-basic-btn-reset" class="control-btn btn-secondary" onclick="initHashMapBasicDemo()">↺ Reset</button>
+      <button id="hash-map-basic-btn-reset" class="control-btn btn-secondary" onclick="initHashMapBasicDemo()">↺ Đặt lại</button>
     </div>
-    <div style="text-align:center; margin: 0.5em 0;">
-      Tốc độ: <input type="range" min="200" max="2000" value="800" step="200" oninput="setHashMapBasicSpeed(this.value)" /> <span id="hash-map-basic-speed-label">800ms</span>
+    <div style="text-align:center; margin: 0.5em 0; font-size:13px; color:var(--text-secondary);">
+      Tốc độ: <input type="range" min="200" max="2000" value="800" step="200" oninput="setHashMapBasicSpeed(this.value)" /> <span id="hash-map-basic-speed-label" style="font-family:var(--font-mono); font-weight:700; color:var(--accent-sky);">800ms</span>
     </div>
-    <p id="hash-map-basic-status" style="text-align:center; font-size:14px; color:var(--text-secondary);">Nhấp "Auto Run" để bắt đầu mô phỏng tự động.</p>
   </div>
 </div>
 
@@ -1550,17 +1573,50 @@ class HashMapChaining {
 </div>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
-    <div id="hash-chaining-canvas" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin: 1em 0;"></div>
+    <!-- Operation Pills -->
+    <div class="sim-op-pills" id="hash-chaining-op-pills" style="margin-bottom:12px;">
+      <button class="sim-op-pill active" onclick="selectHashChainingOp('all')">Toàn bộ kịch bản</button>
+      <button class="sim-op-pill" onclick="selectHashChainingOp('put_chain')">Chèn & Nối chuỗi liên kết</button>
+      <button class="sim-op-pill" onclick="selectHashChainingOp('expand')">Mở rộng dung lượng & Rehash</button>
+      <button class="sim-op-pill" onclick="selectHashChainingOp('get')">Truy vấn dọc theo chuỗi</button>
+      <button class="sim-op-pill" onclick="selectHashChainingOp('remove')">Xóa node khỏi chuỗi</button>
+    </div>
+
+    <!-- Capacity & Load Factor Meter -->
+    <div class="hash-load-meter-container">
+      <div><span>Dung lượng: </span><strong id="hash-chaining-cap" style="color:var(--accent-sky);">4</strong> &nbsp;|&nbsp; <span>Số phần tử: </span><strong id="hash-chaining-size" style="color:var(--accent-sky);">0</strong></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span>Hệ số tải λ: <strong id="hash-chaining-load">0.00</strong> (ngưỡng 0.67)</span>
+        <div class="hash-load-meter-track"><div class="hash-load-meter-fill" id="hash-chaining-load-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Separate Chaining Stage -->
+    <div class="hash-stage" id="hash-chaining-stage">
+      <div id="hash-chaining-canvas" class="hash-chaining-stage"></div>
+    </div>
+
+    <!-- Dynamic HUD Card -->
+    <div class="sim-hud-card" id="hash-chaining-hud" style="margin: 14px 0 12px;">
+      <div class="sim-hud-top">
+        <span class="sim-step-badge" id="hash-chaining-step-badge">Bước 1 / 8</span>
+        <span class="sim-complexity-badge" id="hash-chaining-complexity">O(1) kỳ vọng</span>
+      </div>
+      <div class="sim-hud-desc" id="hash-chaining-status">Khởi tạo bảng băm với capacity = 4, mỗi bucket là một danh sách rỗng. Ngưỡng hệ số tải = 2/3.</div>
+      <div class="sim-hud-math" id="hash-chaining-math">index = hash(key) % capacity</div>
+    </div>
+
+    <!-- Standardized Controls -->
     <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin: 1em 0;">
+      <button id="hash-chaining-btn-prev" class="control-btn btn-secondary" onclick="prevHashChaining()">◀ Trước</button>
       <button id="hash-chaining-btn-autorun" class="control-btn" onclick="autoRunHashChaining()">▶ Auto Run</button>
-      <button id="hash-chaining-btn-step" class="control-btn" onclick="stepHashChaining()">Bước tiếp theo ▶</button>
+      <button id="hash-chaining-btn-step" class="control-btn" onclick="stepHashChaining()">Bước tiếp ▶</button>
       <button id="hash-chaining-btn-pause" class="control-btn btn-secondary" onclick="pauseRunHashChaining()" disabled>⏸ Dừng</button>
-      <button id="hash-chaining-btn-reset" class="control-btn btn-secondary" onclick="initHashChainingDemo()">↺ Reset</button>
+      <button id="hash-chaining-btn-reset" class="control-btn btn-secondary" onclick="initHashChainingDemo()">↺ Đặt lại</button>
     </div>
-    <div style="text-align:center; margin: 0.5em 0;">
-      Tốc độ: <input type="range" min="200" max="2000" value="800" step="200" oninput="setHashChainingSpeed(this.value)" /> <span id="hash-chaining-speed-label">800ms</span>
+    <div style="text-align:center; margin: 0.5em 0; font-size:13px; color:var(--text-secondary);">
+      Tốc độ: <input type="range" min="200" max="2000" value="800" step="200" oninput="setHashChainingSpeed(this.value)" /> <span id="hash-chaining-speed-label" style="font-family:var(--font-mono); font-weight:700; color:var(--accent-sky);">800ms</span>
     </div>
-    <p id="hash-chaining-status" style="text-align:center; font-size:14px; color:var(--text-secondary);">Nhấp "Auto Run" để xem quá trình chèn/xung đột/mở rộng dung lượng.</p>
   </div>
 </div>
 
@@ -1954,17 +2010,41 @@ class HashMapOpenAddressing {
 </div>
   </div>
   <div class="widget-tab-content" data-tab="tab-interactive">
-    <div id="hash-open-addressing-canvas" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin: 1em 0;"></div>
+    <!-- Operation Pills -->
+    <div class="sim-op-pills" id="hash-open-addressing-op-pills" style="margin-bottom:12px;">
+      <button class="sim-op-pill active" onclick="selectHashOpenAddrOp('all')">Toàn bộ kịch bản</button>
+      <button class="sim-op-pill" onclick="selectHashOpenAddrOp('put_probe')">Chèn & Thăm dò tuyến tính</button>
+      <button class="sim-op-pill" onclick="selectHashOpenAddrOp('remove_tombstone')">Xóa lười (TOMBSTONE)</button>
+      <button class="sim-op-pill" onclick="selectHashOpenAddrOp('get_tombstone')">Truy vấn qua TOMBSTONE</button>
+      <button class="sim-op-pill" onclick="selectHashOpenAddrOp('reuse_tombstone')">Tái sử dụng ô TOMBSTONE</button>
+    </div>
+
+    <!-- Linear Probing Stage -->
+    <div class="hash-stage" id="hash-open-addressing-stage">
+      <div id="hash-open-addressing-canvas" class="hash-open-row"></div>
+    </div>
+
+    <!-- Dynamic HUD Card -->
+    <div class="sim-hud-card" id="hash-open-addressing-hud" style="margin: 14px 0 12px;">
+      <div class="sim-hud-top">
+        <span class="sim-step-badge" id="hash-open-addressing-step-badge">Bước 1 / 9</span>
+        <span class="sim-complexity-badge" id="hash-open-addressing-complexity">Linear Probing: step = 1</span>
+      </div>
+      <div class="sim-hud-desc" id="hash-open-addressing-status">Khởi tạo bảng băm định vị mở với capacity = 8, hash(key) = key % 8.</div>
+      <div class="sim-hud-math" id="hash-open-addressing-math">index = (hash(key) + i) % capacity</div>
+    </div>
+
+    <!-- Standardized Controls -->
     <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin: 1em 0;">
+      <button id="hash-open-addressing-btn-prev" class="control-btn btn-secondary" onclick="prevHashOpenAddr()">◀ Trước</button>
       <button id="hash-open-addressing-btn-autorun" class="control-btn" onclick="autoRunHashOpenAddr()">▶ Auto Run</button>
-      <button id="hash-open-addressing-btn-step" class="control-btn" onclick="stepHashOpenAddr()">Bước tiếp theo ▶</button>
+      <button id="hash-open-addressing-btn-step" class="control-btn" onclick="stepHashOpenAddr()">Bước tiếp ▶</button>
       <button id="hash-open-addressing-btn-pause" class="control-btn btn-secondary" onclick="pauseRunHashOpenAddr()" disabled>⏸ Dừng</button>
-      <button id="hash-open-addressing-btn-reset" class="control-btn btn-secondary" onclick="initHashOpenAddrDemo()">↺ Reset</button>
+      <button id="hash-open-addressing-btn-reset" class="control-btn btn-secondary" onclick="initHashOpenAddrDemo()">↺ Đặt lại</button>
     </div>
-    <div style="text-align:center; margin: 0.5em 0;">
-      Tốc độ: <input type="range" min="200" max="2000" value="800" step="200" oninput="setHashOpenAddrSpeed(this.value)" /> <span id="hash-open-addressing-speed-label">800ms</span>
+    <div style="text-align:center; margin: 0.5em 0; font-size:13px; color:var(--text-secondary);">
+      Tốc độ: <input type="range" min="200" max="2000" value="800" step="200" oninput="setHashOpenAddrSpeed(this.value)" /> <span id="hash-open-addressing-speed-label" style="font-family:var(--font-mono); font-weight:700; color:var(--accent-sky);">800ms</span>
     </div>
-    <p id="hash-open-addressing-status" style="text-align:center; font-size:14px; color:var(--text-secondary);">Nhấp "Auto Run" để xem thăm dò tuyến tính, TOMBSTONE và tái sử dụng bucket đã xóa.</p>
   </div>
 </div>
 
