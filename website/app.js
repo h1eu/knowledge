@@ -160,6 +160,20 @@ const DOMAIN_ICONS = {
       <path d="M15.7 10.3c-1.6 1.8-4.2 2.7-7.2 3.1" stroke="url(#grad-git)" />
     </svg>
   `,
+  'design-principles': `
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <defs>
+        <linearGradient id="grad-oodp" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#6366F1" />
+          <stop offset="100%" stop-color="#A855F7" />
+        </linearGradient>
+      </defs>
+      <!-- Polymorphic modular layered blocks -->
+      <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="url(#grad-oodp)" />
+      <path d="M2 17l10 5 10-5" stroke="url(#grad-oodp)" />
+      <path d="M2 12l10 5 10-5" stroke="url(#grad-oodp)" />
+    </svg>
+  `,
 };
 
 const KNOWLEDGE_DATA = {
@@ -895,6 +909,61 @@ const KNOWLEDGE_DATA = {
             { id: 'cap-theorem', title: 'CAP Theorem', status: 'published', tags: ['backend'] },
             { id: 'load-balancing', title: 'Load Balancing', status: 'published', tags: ['backend'] },
             { id: 'caching-patterns', title: 'Caching Patterns', status: 'published', tags: ['backend'] },
+          ]
+        }
+      ]
+    },
+    {
+      id: 'design-principles',
+      name: 'OOP Design Principles',
+      icon: 'design-principles',
+      color: 'indigo',
+      description: 'Nguyên lý thiết kế hướng đối tượng: Core Heuristics, SOLID, GRASP, Anti-patterns & Refactoring',
+      modules: [
+        {
+          id: 'oodp-foundations',
+          name: 'Module 01: Foundations & Core Heuristics',
+          topics: [
+            { id: 'oodp-essence', title: '1.1 Bản chất OOP & Chi phí thay đổi', status: 'published', tags: ['oop', 'design-principles', 'architecture'] },
+            { id: 'encapsulate-what-varies', title: '1.2 Encapsulate What Varies', status: 'published', tags: ['oop', 'design-principles', 'encapsulation'] },
+            { id: 'composition-over-inheritance', title: '1.3 Composition over Inheritance', status: 'published', tags: ['oop', 'design-principles', 'composition'] },
+            { id: 'program-to-interfaces', title: '1.4 Program to Interfaces', status: 'published', tags: ['oop', 'design-principles', 'interface'] },
+            { id: 'law-of-demeter', title: '1.5 Law of Demeter', status: 'published', tags: ['oop', 'design-principles', 'coupling'] },
+            { id: 'dry-kiss-yagni-oop', title: '1.6 DRY, KISS & YAGNI trong OOP', status: 'published', tags: ['oop', 'design-principles', 'clean-code'] }
+          ]
+        },
+        {
+          id: 'oodp-solid',
+          name: 'Module 02: SOLID Principles',
+          topics: [
+            { id: 'solid-srp', title: '2.1 Single Responsibility Principle (SRP)', status: 'published', tags: ['solid', 'srp', 'cohesion'] },
+            { id: 'solid-ocp', title: '2.2 Open/Closed Principle (OCP)', status: 'published', tags: ['solid', 'ocp', 'polymorphism'] },
+            { id: 'solid-lsp', title: '2.3 Liskov Substitution Principle (LSP)', status: 'published', tags: ['solid', 'lsp', 'inheritance'] },
+            { id: 'solid-isp', title: '2.4 Interface Segregation Principle (ISP)', status: 'published', tags: ['solid', 'isp', 'interface'] },
+            { id: 'solid-dip', title: '2.5 Dependency Inversion Principle (DIP)', status: 'published', tags: ['solid', 'dip', 'dependency-injection'] }
+          ]
+        },
+        {
+          id: 'oodp-grasp',
+          name: 'Module 03: GRASP Principles',
+          topics: [
+            { id: 'grasp-overview', title: '3.1 GRASP vs SOLID: Hệ thống Gán Trách Nhiệm', status: 'published', tags: ['grasp', 'design-principles', 'responsibilities'] },
+            { id: 'grasp-information-expert', title: '3.2 Information Expert', status: 'published', tags: ['grasp', 'information-expert', 'encapsulation'] },
+            { id: 'grasp-creator', title: '3.3 Creator', status: 'published', tags: ['grasp', 'creator', 'factory'] },
+            { id: 'grasp-controller', title: '3.4 Controller', status: 'published', tags: ['grasp', 'controller', 'architecture'] },
+            { id: 'grasp-coupling-cohesion', title: '3.5 Low Coupling & High Cohesion', status: 'published', tags: ['grasp', 'coupling', 'cohesion'] },
+            { id: 'grasp-pure-fabrication-indirection', title: '3.6 Pure Fabrication & Indirection', status: 'published', tags: ['grasp', 'pure-fabrication', 'indirection'] },
+            { id: 'grasp-protected-variations', title: '3.7 Protected Variations', status: 'published', tags: ['grasp', 'protected-variations', 'information-hiding'] }
+          ]
+        },
+        {
+          id: 'oodp-code-smells',
+          name: 'Module 04: Code Smells & Refactoring',
+          topics: [
+            { id: 'smell-god-object', title: '4.1 The God Object (The Blob)', status: 'published', tags: ['code-smell', 'anti-pattern', 'god-object'] },
+            { id: 'smell-feature-envy-shotgun', title: '4.2 Feature Envy & Shotgun Surgery', status: 'published', tags: ['code-smell', 'refactoring', 'cohesion'] },
+            { id: 'smell-anemic-domain', title: '4.3 Anemic vs Rich Domain Model', status: 'published', tags: ['ddd', 'anemic-domain-model', 'rich-domain-model'] },
+            { id: 'refactoring-clean-oop', title: '4.4 Chiến Lược Refactoring Sang Chuẩn OOP', status: 'published', tags: ['refactoring', 'clean-code', 'tdd'] }
           ]
         }
       ]
@@ -1681,6 +1750,11 @@ function mergeDomainContent() {
     Object.assign(TOPIC_CONTENT, GIT_CONTENT);
   }
 
+  // Merge OODP content if loaded
+  if (typeof OODP_CONTENT !== 'undefined') {
+    Object.assign(TOPIC_CONTENT, OODP_CONTENT);
+  }
+
   // Merge LeetCode content if loaded (must be after other merges)
   if (typeof LEETCODE_CONTENT !== 'undefined') {
     Object.assign(TOPIC_CONTENT, LEETCODE_CONTENT);
@@ -2459,7 +2533,8 @@ const DOMAIN_READER_PAGE = {
   'flutter': 'flutter.html',
   'algorithms': 'dsa.html',
   'leetcode': 'leetcode.html',
-  'git-beginner': 'index.html'
+  'git-beginner': 'index.html',
+  'design-principles': 'design-principles.html'
 };
 function getReaderPageUrl(topicId, domainId) {
   const page = DOMAIN_READER_PAGE[domainId];
@@ -2478,6 +2553,7 @@ const DOMAIN_CONTENT_FILES = {
   'ios': ['ios-content.js'],
   'flutter': ['flutter-content.js'],
   'git-beginner': ['git-content.js'],
+  'design-principles': ['oodp-content.js'],
   'algorithms': ['dsa-content.js', 'dsa-content-ch0.js', 'dsa-content-ch04.js', 'dsa-content-ch05.js', 'dsa-content-ch06.js', 'dsa-content-ch07.js', 'dsa-content-ch08.js', 'dsa-content-ch09.js', 'dsa-content-ch10.js', 'dsa-content-ch11.js', 'dsa-sort-frames-ch11.js', 'dsa-content-ch12.js', 'dsa-content-ch13.js', 'dsa-backtrack-frames-ch13.js', 'dsa-content-ch14.js', 'dsa-dp-frames-ch14.js', 'dsa-content-ch15.js', 'dsa-content-ch16.js'],
   'leetcode': ['leetcode-problems.js', 'leetcode-content.js']
 };
@@ -2487,6 +2563,7 @@ const DOMAIN_CONTENT_READY = {
   'ios': () => typeof IOS_CONTENT !== 'undefined',
   'flutter': () => typeof FLUTTER_CONTENT !== 'undefined',
   'git-beginner': () => typeof GIT_CONTENT !== 'undefined',
+  'design-principles': () => typeof OODP_CONTENT !== 'undefined',
   'algorithms': () => typeof DSA_CONTENT !== 'undefined',
   'leetcode': () => typeof LEETCODE_CONTENT !== 'undefined' && typeof LEETCODE_PROBLEMS_META !== 'undefined'
 };

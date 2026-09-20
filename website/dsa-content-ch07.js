@@ -80,6 +80,10 @@ class TreeNode {
         this.left = left === undefined ? null : left;
         this.right = right === undefined ? null : right;
     }
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Nút của cây nhị phân */
+class TreeNode(var _val: Int) {  // Giá trị nút
+    var left: TreeNode? = null   // Tham chiếu tới nút con trái
+    var right: TreeNode? = null  // Tham chiếu tới nút con phải
 }</code></pre></div></div></div>
 <p>Mỗi nút có hai tham chiếu (con trỏ), trỏ lần lượt tới <u>nút con trái (left-child node)</u> và <u>nút con phải (right-child node)</u>. Nút này được gọi là <u>nút cha (parent node)</u> của hai nút con đó. Khi cho một nút bất kỳ của cây nhị phân, ta gọi cây được tạo thành từ nút con trái của nút đó và tất cả các nút bên dưới nó là <u>cây con trái (left subtree)</u> của nút này. Tương tự, <u>cây con phải (right subtree)</u> cũng được định nghĩa như vậy.</p>
 <p><strong>Trong cây nhị phân, mọi nút không phải nút lá đều có nút con, do đó có cây con khác rỗng.</strong> Như hình dưới đây, nếu coi "Nút 2" là một nút cha, thì nút con trái và phải của nó lần lượt là "Nút 4" và "Nút 5". Cây con trái được tạo thành bởi "Nút 4" và tất cả các nút bên dưới nó, còn cây con phải được tạo thành bởi "Nút 5" và tất cả các nút bên dưới nó.</p>
@@ -156,7 +160,17 @@ let n1 = new TreeNode(1),
 n1.left = n2;
 n1.right = n3;
 n2.left = n4;
-n2.right = n5;</code></pre></div></div></div>
+n2.right = n5;</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>// Khởi tạo các nút
+val n1 = TreeNode(1)
+val n2 = TreeNode(2)
+val n3 = TreeNode(3)
+val n4 = TreeNode(4)
+val n5 = TreeNode(5)
+// Liên kết tham chiếu (con trỏ) giữa các nút
+n1.left = n2
+n1.right = n3
+n2.left = n4
+n2.right = n5</code></pre></div></div></div>
 
 <h3>7.1.2.2 Chèn và xóa nút</h3>
 <p>Tương tự như danh sách liên kết, việc chèn và xóa nút trong cây nhị phân có thể được thực hiện bằng cách chỉnh sửa con trỏ. Hình dưới đây minh họa một ví dụ.</p>
@@ -186,7 +200,12 @@ let P = new TreeNode(0);
 n1.left = P;
 P.left = n2;
 // Xóa nút P
-n1.left = n2;</code></pre></div></div></div>
+n1.left = n2;</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>val P = TreeNode(0)
+// Chèn nút P vào giữa n1 và n2
+n1.left = P
+P.left = n2
+// Xóa nút P
+n1.left = n2</code></pre></div></div></div>
 <div class="callout callout-tip">
   <span class="callout-icon">💡</span>
   <div class="callout-body">
@@ -1028,6 +1047,35 @@ vector&lt;int&gt; levelOrder(TreeNode *root) {
             queue.push(node-&gt;right); // Nhập hàng đợi nút con phải
     }
     return vec;
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Duyệt theo tầng (level-order) */
+fun levelOrder(root: TreeNode?): MutableList&lt;Int&gt; {
+    // Khởi tạo hàng đợi, thêm nút gốc
+    val queue = LinkedList&lt;TreeNode?&gt;()
+    queue.add(root)
+    // Khởi tạo một danh sách để lưu chuỗi duyệt
+    val list = mutableListOf&lt;Int&gt;()
+    while (queue.isNotEmpty()) {
+        val node = queue.poll() ?: break // Xuất hàng đợi
+        list.add(node._val)              // Lưu giá trị nút
+        node.left?.let { queue.offer(it) }  // Nhập hàng đợi nút con trái
+        node.right?.let { queue.offer(it) } // Nhập hàng đợi nút con phải
+    }
+    return list
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Duyệt theo tầng (level-order) */
+function levelOrder(root) {
+    // Khởi tạo hàng đợi, thêm nút gốc
+    const queue = [root];
+    // Khởi tạo một danh sách để lưu chuỗi duyệt
+    const list = [];
+    while (queue.length) {
+        const node = queue.shift();  // Xuất hàng đợi
+        list.push(node.val);         // Lưu giá trị nút
+        if (node.left)
+            queue.push(node.left);   // Nhập hàng đợi nút con trái
+        if (node.right)
+            queue.push(node.right);  // Nhập hàng đợi nút con phải
+    }
+    return list;
 }</code></pre></div></div></div>
 
 <h3>7.2.1.2 Phân tích độ phức tạp</h3>
@@ -1082,6 +1130,22 @@ void postOrder(TreeNode *root) {
     postOrder(root-&gt;left);
     postOrder(root-&gt;right);
     vec.push_back(root-&gt;val);
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Duyệt hậu thứ tự (post-order) */
+fun postOrder(root: TreeNode?) {
+    if (root == null)
+        return
+    // Thứ tự truy cập: cây con trái -&gt; cây con phải -&gt; nút gốc
+    postOrder(root.left)
+    postOrder(root.right)
+    list.add(root._val)
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Duyệt hậu thứ tự (post-order) */
+function postOrder(root) {
+    if (root === null)
+        return;
+    // Thứ tự truy cập: cây con trái -&gt; cây con phải -&gt; nút gốc
+    postOrder(root.left);
+    postOrder(root.right);
+    list.push(root.val);
 }</code></pre></div></div></div>
 <div class="callout callout-tip">
   <span class="callout-icon">💡</span>
@@ -1289,7 +1353,9 @@ tree = [1, 2, 3, 4, None, 6, 7, 8, 9, None, None, 12, None, None, 15]</code></pr
 // Dùng giá trị số nguyên lớn nhất INT_MAX để đánh dấu vị trí trống
 vector&lt;int&gt; tree = {1, 2, 3, 4, INT_MAX, 6, 7, 8, 9, INT_MAX, INT_MAX, 12, INT_MAX, INT_MAX, 15};</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Biểu diễn cây nhị phân bằng mảng */
 // Dùng null để biểu diễn các vị trí trống
-let tree = [1, 2, 3, 4, null, 6, 7, 8, 9, null, null, 12, null, null, 15];</code></pre></div></div></div>
+let tree = [1, 2, 3, 4, null, 6, 7, 8, 9, null, null, 12, null, null, 15];</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Biểu diễn cây nhị phân bằng mảng */
+// Dùng kiểu Int? để có thể dùng null đánh dấu vị trí trống
+val tree = arrayOf&lt;Int?&gt;(1, 2, 3, 4, null, 6, 7, 8, 9, null, null, 12, null, null, 15)</code></pre></div></div></div>
 <div style="text-align: center; margin: 1.5em 0;">
   <img loading="lazy" src="dsa-assets/array_representation_with_empty.png" alt="Biểu diễn bằng mảng của một cây nhị phân bất kỳ" style="max-width: 100%; height: auto; border-radius: var(--radius-md);" />
 </div>
@@ -1628,6 +1694,85 @@ class ArrayBinaryTree {
         this.#dfs(0, 'post', res);
         return res;
     }
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Lớp cây nhị phân biểu diễn bằng mảng */
+class ArrayBinaryTree(arr: List&lt;Int?&gt;) {
+    private val tree: MutableList&lt;Int?&gt; = arr.toMutableList()
+
+    /* Kích thước danh sách */
+    fun size(): Int {
+        return tree.size
+    }
+
+    /* Lấy giá trị của nút tại chỉ số i */
+    fun \`val\`(i: Int): Int? {
+        // Nếu chỉ số vượt ngoài phạm vi, trả về null biểu thị vị trí trống
+        if (i &lt; 0 || i &gt;= size())
+            return null
+        return tree[i]
+    }
+
+    /* Lấy chỉ số của nút con trái của nút tại chỉ số i */
+    fun left(i: Int): Int {
+        return 2 * i + 1
+    }
+
+    /* Lấy chỉ số của nút con phải của nút tại chỉ số i */
+    fun right(i: Int): Int {
+        return 2 * i + 2
+    }
+
+    /* Lấy chỉ số của nút cha của nút tại chỉ số i */
+    fun parent(i: Int): Int {
+        return (i - 1) / 2
+    }
+
+    /* Duyệt theo tầng (level-order) */
+    fun levelOrder(): MutableList&lt;Int&gt; {
+        val res = mutableListOf&lt;Int&gt;()
+        // Duyệt mảng trực tiếp
+        for (i in 0 until size()) {
+            \`val\`(i)?.let { res.add(it) }
+        }
+        return res
+    }
+
+    /* Duyệt theo chiều sâu (depth-first) */
+    private fun dfs(i: Int, order: String, res: MutableList&lt;Int&gt;) {
+        // Nếu là vị trí trống thì trả về
+        val v = \`val\`(i) ?: return
+        // Duyệt tiền thứ tự
+        if (order == "pre")
+            res.add(v)
+        dfs(left(i), order, res)
+        // Duyệt trung thứ tự
+        if (order == "in")
+            res.add(v)
+        dfs(right(i), order, res)
+        // Duyệt hậu thứ tự
+        if (order == "post")
+            res.add(v)
+    }
+
+    /* Duyệt tiền thứ tự (pre-order) */
+    fun preOrder(): MutableList&lt;Int&gt; {
+        val res = mutableListOf&lt;Int&gt;()
+        dfs(0, "pre", res)
+        return res
+    }
+
+    /* Duyệt trung thứ tự (in-order) */
+    fun inOrder(): MutableList&lt;Int&gt; {
+        val res = mutableListOf&lt;Int&gt;()
+        dfs(0, "in", res)
+        return res
+    }
+
+    /* Duyệt hậu thứ tự (post-order) */
+    fun postOrder(): MutableList&lt;Int&gt; {
+        val res = mutableListOf&lt;Int&gt;()
+        dfs(0, "post", res)
+        return res
+    }
 }</code></pre></div></div></div>
 
 <h2>7.3.3 Ưu điểm và hạn chế</h2>
@@ -1921,6 +2066,41 @@ TreeNode *search(int num) {
     }
     // Trả về nút mục tiêu
     return cur;
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm kiếm nút */
+fun search(num: Int): TreeNode? {
+    var cur = root
+    // Vòng lặp tìm kiếm, thoát sau khi đi qua nút lá
+    while (cur != null) {
+        // Nút mục tiêu nằm trong cây con phải của cur
+        cur = if (cur._val &lt; num) {
+            cur.right
+        } else if (cur._val &gt; num) {
+            // Nút mục tiêu nằm trong cây con trái của cur
+            cur.left
+        } else {
+            // Tìm thấy nút mục tiêu, thoát vòng lặp
+            break
+        }
+    }
+    // Trả về nút mục tiêu
+    return cur
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm kiếm nút */
+search(num) {
+    let cur = this.root;
+    // Vòng lặp tìm kiếm, thoát sau khi đi qua nút lá
+    while (cur !== null) {
+        // Nút mục tiêu nằm trong cây con phải của cur
+        if (cur.val &lt; num)
+            cur = cur.right;
+        // Nút mục tiêu nằm trong cây con trái của cur
+        else if (cur.val &gt; num)
+            cur = cur.left;
+        // Tìm thấy nút mục tiêu, thoát vòng lặp
+        else
+            break;
+    }
+    // Trả về nút mục tiêu
+    return cur;
 }</code></pre></div></div></div>
 
 <h3>7.4.1.2 Chèn nút</h3>
@@ -2072,6 +2252,61 @@ void insert(int num) {
         pre-&gt;right = node;
     else
         pre-&gt;left = node;
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Chèn nút */
+fun insert(num: Int) {
+    // Nếu cây rỗng, khởi tạo nút gốc
+    if (root == null) {
+        root = TreeNode(num)
+        return
+    }
+    var cur = root
+    var pre: TreeNode? = null
+    // Vòng lặp tìm kiếm, thoát sau khi đi qua nút lá
+    while (cur != null) {
+        // Tìm thấy nút trùng lặp, trả về ngay
+        if (cur._val == num)
+            return
+        pre = cur
+        // Vị trí chèn nằm trong cây con phải của cur
+        if (cur._val &lt; num)
+            cur = cur.right
+        // Vị trí chèn nằm trong cây con trái của cur
+        else
+            cur = cur.left
+    }
+    // Chèn nút
+    val node = TreeNode(num)
+    if (pre!!._val &lt; num)
+        pre.right = node
+    else
+        pre.left = node
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Chèn nút */
+insert(num) {
+    // Nếu cây rỗng, khởi tạo nút gốc
+    if (this.root === null) {
+        this.root = new TreeNode(num);
+        return;
+    }
+    let cur = this.root, pre = null;
+    // Vòng lặp tìm kiếm, thoát sau khi đi qua nút lá
+    while (cur !== null) {
+        // Tìm thấy nút trùng lặp, trả về ngay
+        if (cur.val === num)
+            return;
+        pre = cur;
+        // Vị trí chèn nằm trong cây con phải của cur
+        if (cur.val &lt; num)
+            cur = cur.right;
+        // Vị trí chèn nằm trong cây con trái của cur
+        else
+            cur = cur.left;
+    }
+    // Chèn nút
+    const node = new TreeNode(num);
+    if (pre.val &lt; num)
+        pre.right = node;
+    else
+        pre.left = node;
 }</code></pre></div></div></div>
 <p>Tương tự như tìm kiếm nút, việc chèn một nút mất thời gian $O(\\\\log n)$.</p>
 
@@ -2350,6 +2585,105 @@ void remove(int num) {
         // Thay thế cur bằng tmp
         cur-&gt;val = tmpVal;
     }
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Xóa nút */
+fun remove(num: Int) {
+    // Nếu cây rỗng, trả về ngay
+    if (root == null)
+        return
+    var cur = root
+    var pre: TreeNode? = null
+    // Vòng lặp tìm kiếm, thoát sau khi đi qua nút lá
+    while (cur != null) {
+        // Tìm thấy nút cần xóa, thoát vòng lặp
+        if (cur._val == num)
+            break
+        pre = cur
+        // Nút cần xóa nằm trong cây con phải của cur
+        if (cur._val &lt; num)
+            cur = cur.right
+        // Nút cần xóa nằm trong cây con trái của cur
+        else
+            cur = cur.left
+    }
+    // Nếu không có nút cần xóa, trả về ngay
+    if (cur == null)
+        return
+    // Số lượng nút con = 0 hoặc 1
+    if (cur.left == null || cur.right == null) {
+        // Khi số lượng nút con = 0 / 1, child = null / nút con đó
+        val child = if (cur.left != null) cur.left else cur.right
+        // Xóa nút cur
+        if (cur != root) {
+            if (pre!!.left == cur)
+                pre.left = child
+            else
+                pre.right = child
+        } else {
+            // Nếu nút bị xóa là nút gốc, gán lại nút gốc
+            root = child
+        }
+    }
+    // Số lượng nút con = 2
+    else {
+        // Lấy nút tiếp theo của cur trong duyệt trung thứ tự
+        var tmp = cur.right
+        while (tmp!!.left != null) {
+            tmp = tmp.left
+        }
+        // Đệ quy xóa nút tmp
+        remove(tmp._val)
+        // Thay thế cur bằng tmp
+        cur._val = tmp._val
+    }
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Xóa nút */
+remove(num) {
+    // Nếu cây rỗng, trả về ngay
+    if (this.root === null)
+        return;
+    let cur = this.root, pre = null;
+    // Vòng lặp tìm kiếm, thoát sau khi đi qua nút lá
+    while (cur !== null) {
+        // Tìm thấy nút cần xóa, thoát vòng lặp
+        if (cur.val === num)
+            break;
+        pre = cur;
+        // Nút cần xóa nằm trong cây con phải của cur
+        if (cur.val &lt; num)
+            cur = cur.right;
+        // Nút cần xóa nằm trong cây con trái của cur
+        else
+            cur = cur.left;
+    }
+    // Nếu không có nút cần xóa, trả về ngay
+    if (cur === null)
+        return;
+    // Số lượng nút con = 0 hoặc 1
+    if (cur.left === null || cur.right === null) {
+        // Khi số lượng nút con = 0 / 1, child = null / nút con đó
+        const child = cur.left !== null ? cur.left : cur.right;
+        // Xóa nút cur
+        if (cur !== this.root) {
+            if (pre.left === cur)
+                pre.left = child;
+            else
+                pre.right = child;
+        } else {
+            // Nếu nút bị xóa là nút gốc, gán lại nút gốc
+            this.root = child;
+        }
+    }
+    // Số lượng nút con = 2
+    else {
+        // Lấy nút tiếp theo của cur trong duyệt trung thứ tự
+        let tmp = cur.right;
+        while (tmp.left !== null) {
+            tmp = tmp.left;
+        }
+        // Đệ quy xóa nút tmp
+        this.remove(tmp.val);
+        // Thay thế cur bằng tmp
+        cur.val = tmp.val;
+    }
 }</code></pre></div></div></div>
 
 <h3>7.4.1.4 Duyệt trung thứ tự cho kết quả có thứ tự</h3>
@@ -2620,6 +2954,11 @@ class TreeNode {
         this.left = left === undefined ? null : left;
         this.right = right === undefined ? null : right;
     }
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Nút của cây AVL */
+class TreeNode(var _val: Int) {      // Giá trị nút
+    var height: Int = 0              // Chiều cao nút
+    var left: TreeNode? = null       // Con trỏ tới nút con trái
+    var right: TreeNode? = null      // Con trỏ tới nút con phải
 }</code></pre></div></div></div>
 <p>"Chiều cao nút" là khoảng cách từ nút đó tới nút lá xa nhất, tức là số cạnh trên đường đi. Cần lưu ý rằng chiều cao của một nút lá là $0$, và chiều cao của một nút rỗng là $-1$. Ta sẽ tạo hai hàm tiện ích để lấy và cập nhật chiều cao của một nút:</p>
 <div class="code-tabs"><div class="code-tab-header"><button class="code-tab-btn active" data-lang="java" onclick="switchCodeTab(event, 'java')">Java</button><button class="code-tab-btn" data-lang="kotlin" onclick="switchCodeTab(event, 'kotlin')">Kotlin</button><button class="code-tab-btn" data-lang="swift" onclick="switchCodeTab(event, 'swift')">Swift</button><button class="code-tab-btn" data-lang="dart" onclick="switchCodeTab(event, 'dart')">Dart</button><button class="code-tab-btn" data-lang="python" onclick="switchCodeTab(event, 'python')">Python</button><button class="code-tab-btn" data-lang="cpp" onclick="switchCodeTab(event, 'cpp')">C++</button><button class="code-tab-btn" data-lang="javascript" onclick="switchCodeTab(event, 'javascript')">JavaScript</button></div><div class="code-tab-body"><div class="code-tab-content active" data-lang="java"><pre data-lang="java"><code>/* Lấy chiều cao nút */
@@ -2658,6 +2997,26 @@ int height(TreeNode *node) {
 void updateHeight(TreeNode *node) {
     // Chiều cao nút bằng chiều cao của cây con cao nhất + 1
     node-&gt;height = max(height(node-&gt;left), height(node-&gt;right)) + 1;
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Lấy chiều cao nút */
+fun height(node: TreeNode?): Int {
+    // Chiều cao nút rỗng là -1, chiều cao nút lá là 0
+    return node?.height ?: -1
+}
+
+/* Cập nhật chiều cao nút */
+private fun updateHeight(node: TreeNode?) {
+    // Chiều cao nút bằng chiều cao của cây con cao nhất + 1
+    node?.height = maxOf(height(node?.left), height(node?.right)) + 1
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Lấy chiều cao nút */
+height(node) {
+    // Chiều cao nút rỗng là -1, chiều cao nút lá là 0
+    return node === null ? -1 : node.height;
+}
+
+/* Cập nhật chiều cao nút */
+updateHeight(node) {
+    // Chiều cao nút bằng chiều cao của cây con cao nhất + 1
+    node.height = Math.max(this.height(node.left), this.height(node.right)) + 1;
 }</code></pre></div></div></div>
 
 <h3>7.5.1.2 Hệ số cân bằng của nút</h3>
@@ -2692,6 +3051,20 @@ int balanceFactor(TreeNode *node) {
         return 0;
     // Hệ số cân bằng nút = chiều cao cây con trái - chiều cao cây con phải
     return height(node-&gt;left) - height(node-&gt;right);
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Lấy hệ số cân bằng */
+fun balanceFactor(node: TreeNode?): Int {
+    // Hệ số cân bằng của nút rỗng là 0
+    if (node == null)
+        return 0
+    // Hệ số cân bằng nút = chiều cao cây con trái - chiều cao cây con phải
+    return height(node.left) - height(node.right)
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Lấy hệ số cân bằng */
+balanceFactor(node) {
+    // Hệ số cân bằng của nút rỗng là 0
+    if (node === null)
+        return 0;
+    // Hệ số cân bằng nút = chiều cao cây con trái - chiều cao cây con phải
+    return this.height(node.left) - this.height(node.right);
 }</code></pre></div></div></div>
 <div class="callout callout-tip">
   <span class="callout-icon">💡</span>
@@ -2771,6 +3144,18 @@ TreeNode *rightRotate(TreeNode *node) {
     this.#updateHeight(child);
     // Trả về nút gốc của cây con sau khi xoay
     return child;
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Thao tác xoay phải */
+private fun rightRotate(node: TreeNode): TreeNode {
+    val child = node.left!!
+    val grandChild = child.right
+    // Lấy child làm điểm tựa, xoay node sang phải
+    child.right = node
+    node.left = grandChild
+    // Cập nhật chiều cao nút
+    updateHeight(node)
+    updateHeight(child)
+    // Trả về nút gốc của cây con sau khi xoay
+    return child
 }</code></pre></div></div></div>
 
 <h3>7.5.2.2 Xoay trái</h3>
@@ -2830,6 +3215,18 @@ TreeNode *leftRotate(TreeNode *node) {
     this.#updateHeight(child);
     // Trả về nút gốc của cây con sau khi xoay
     return child;
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Thao tác xoay trái */
+private fun leftRotate(node: TreeNode): TreeNode {
+    val child = node.right!!
+    val grandChild = child.left
+    // Lấy child làm điểm tựa, xoay node sang trái
+    child.left = node
+    node.right = grandChild
+    // Cập nhật chiều cao nút
+    updateHeight(node)
+    updateHeight(child)
+    // Trả về nút gốc của cây con sau khi xoay
+    return child
 }</code></pre></div></div></div>
 
 <h3>7.5.2.3 Xoay trái rồi xoay phải</h3>
@@ -2974,6 +3371,34 @@ TreeNode *rotate(TreeNode *node) {
     }
     // Cây cân bằng, không cần xoay, trả về ngay
     return node;
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Thực hiện thao tác xoay để khôi phục cân bằng cho cây con này */
+private fun rotate(node: TreeNode): TreeNode {
+    // Lấy hệ số cân bằng của node
+    val balanceFactor = balanceFactor(node)
+    // Cây nghiêng trái
+    if (balanceFactor &gt; 1) {
+        return if (balanceFactor(node.left) &gt;= 0) {
+            // Xoay phải
+            rightRotate(node)
+        } else {
+            // Xoay trái trước rồi xoay phải
+            node.left = leftRotate(node.left!!)
+            rightRotate(node)
+        }
+    }
+    // Cây nghiêng phải
+    if (balanceFactor &lt; -1) {
+        return if (balanceFactor(node.right) &lt;= 0) {
+            // Xoay trái
+            leftRotate(node)
+        } else {
+            // Xoay phải trước rồi xoay trái
+            node.right = rightRotate(node.right!!)
+            leftRotate(node)
+        }
+    }
+    // Cây cân bằng, không cần xoay, trả về ngay
+    return node
 }</code></pre></div></div></div>
 
 <h2>7.5.3 Các thao tác thường dùng trong Cây AVL</h2>
@@ -3096,6 +3521,47 @@ TreeNode *insertHelper(TreeNode *node, int val) {
     updateHeight(node); // Cập nhật chiều cao nút
     /* 2. Thực hiện thao tác xoay để khôi phục cân bằng cho cây con này */
     node = rotate(node);
+    // Trả về nút gốc của cây con
+    return node;
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Chèn nút */
+fun insert(num: Int) {
+    root = insertHelper(root, num)
+}
+
+/* Đệ quy chèn nút (hàm hỗ trợ) */
+private fun insertHelper(node: TreeNode?, num: Int): TreeNode {
+    var n = node ?: return TreeNode(num)
+    /* 1. Tìm vị trí chèn và chèn nút */
+    if (num &lt; n._val)
+        n.left = insertHelper(n.left, num)
+    else if (num &gt; n._val)
+        n.right = insertHelper(n.right, num)
+    else
+        return n // Nút trùng lặp không được chèn, trả về ngay
+    updateHeight(n) // Cập nhật chiều cao nút
+    /* 2. Thực hiện thao tác xoay để khôi phục cân bằng cho cây con này */
+    n = rotate(n)
+    // Trả về nút gốc của cây con
+    return n
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Chèn nút */
+insert(val) {
+    this.root = this.#insertHelper(this.root, val);
+}
+
+/* Đệ quy chèn nút (hàm hỗ trợ) */
+#insertHelper(node, val) {
+    if (node === null)
+        return new TreeNode(val);
+    /* 1. Tìm vị trí chèn và chèn nút */
+    if (val &lt; node.val)
+        node.left = this.#insertHelper(node.left, val);
+    else if (val &gt; node.val)
+        node.right = this.#insertHelper(node.right, val);
+    else
+        return node; // Nút trùng lặp không được chèn, trả về ngay
+    this.updateHeight(node); // Cập nhật chiều cao nút
+    /* 2. Thực hiện thao tác xoay để khôi phục cân bằng cho cây con này */
+    node = this.rotate(node);
     // Trả về nút gốc của cây con
     return node;
 }</code></pre></div></div></div>
@@ -3315,6 +3781,81 @@ TreeNode *removeHelper(TreeNode *node, int val) {
 /* Xóa nút */
 void remove(int val) {
     root = removeHelper(root, val);
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Xóa nút */
+fun remove(num: Int) {
+    root = removeHelper(root, num)
+}
+
+/* Đệ quy xóa nút (hàm hỗ trợ) */
+private fun removeHelper(node: TreeNode?, num: Int): TreeNode? {
+    var n = node ?: return null
+    /* 1. Tìm nút và xóa */
+    if (num &lt; n._val)
+        n.left = removeHelper(n.left, num)
+    else if (num &gt; n._val)
+        n.right = removeHelper(n.right, num)
+    else {
+        if (n.left == null || n.right == null) {
+            val child = if (n.left != null) n.left else n.right
+            // Số lượng nút con = 0, xóa nút trực tiếp và trả về
+            if (child == null)
+                return null
+            // Số lượng nút con = 1, xóa nút trực tiếp
+            else
+                n = child
+        } else {
+            // Số lượng nút con = 2, xóa nút tiếp theo trong duyệt trung thứ tự và thay thế nút hiện tại bằng nó
+            var temp = n.right
+            while (temp?.left != null) {
+                temp = temp.left
+            }
+            n.right = removeHelper(n.right, temp!!._val)
+            n._val = temp._val
+        }
+    }
+    updateHeight(n) // Cập nhật chiều cao nút
+    /* 2. Thực hiện thao tác xoay để khôi phục cân bằng cho cây con này */
+    n = rotate(n)
+    // Trả về nút gốc của cây con
+    return n
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Xóa nút */
+remove(val) {
+    this.root = this.#removeHelper(this.root, val);
+}
+
+/* Đệ quy xóa nút (hàm hỗ trợ) */
+#removeHelper(node, val) {
+    if (node === null)
+        return null;
+    /* 1. Tìm nút và xóa */
+    if (val &lt; node.val)
+        node.left = this.#removeHelper(node.left, val);
+    else if (val &gt; node.val)
+        node.right = this.#removeHelper(node.right, val);
+    else {
+        if (node.left === null || node.right === null) {
+            const child = node.left !== null ? node.left : node.right;
+            // Số lượng nút con = 0, xóa nút trực tiếp và trả về
+            if (child === null)
+                return null;
+            // Số lượng nút con = 1, xóa nút trực tiếp
+            else
+                node = child;
+        } else {
+            // Số lượng nút con = 2, xóa nút tiếp theo trong duyệt trung thứ tự và thay thế nút hiện tại bằng nó
+            let temp = node.right;
+            while (temp.left !== null) {
+                temp = temp.left;
+            }
+            node.right = this.#removeHelper(node.right, temp.val);
+            node.val = temp.val;
+        }
+    }
+    this.updateHeight(node); // Cập nhật chiều cao nút
+    /* 2. Thực hiện thao tác xoay để khôi phục cân bằng cho cây con này */
+    node = this.rotate(node);
+    // Trả về nút gốc của cây con
+    return node;
 }</code></pre></div></div></div>
 
 <h3>7.5.3.3 Tìm kiếm nút</h3>
@@ -3381,6 +3922,41 @@ TreeNode *search(int val) {
         // Nút mục tiêu nằm trong cây con trái của cur
         else if (cur-&gt;val &gt; val)
             cur = cur-&gt;left;
+        // Tìm thấy nút mục tiêu, thoát vòng lặp
+        else
+            break;
+    }
+    // Trả về nút mục tiêu
+    return cur;
+}</code></pre></div><div class="code-tab-content" data-lang="kotlin"><pre data-lang="kotlin"><code>/* Tìm kiếm nút */
+fun search(num: Int): TreeNode? {
+    var cur = root
+    // Vòng lặp tìm kiếm, thoát sau khi đi qua nút lá
+    while (cur != null) {
+        // Nút mục tiêu nằm trong cây con phải của cur
+        cur = if (cur._val &lt; num) {
+            cur.right
+        } else if (cur._val &gt; num) {
+            // Nút mục tiêu nằm trong cây con trái của cur
+            cur.left
+        } else {
+            // Tìm thấy nút mục tiêu, thoát vòng lặp
+            break
+        }
+    }
+    // Trả về nút mục tiêu
+    return cur
+}</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>/* Tìm kiếm nút */
+search(val) {
+    let cur = this.root;
+    // Vòng lặp tìm kiếm, thoát sau khi đi qua nút lá
+    while (cur !== null) {
+        // Nút mục tiêu nằm trong cây con phải của cur
+        if (cur.val &lt; val)
+            cur = cur.right;
+        // Nút mục tiêu nằm trong cây con trái của cur
+        else if (cur.val &gt; val)
+            cur = cur.left;
         // Tìm thấy nút mục tiêu, thoát vòng lặp
         else
             break;
