@@ -320,8 +320,8 @@ const KNOWLEDGE_DATA = {
             { id: 'data-store-room-arch', title: '5.1.2 Relational Database (Room Architecture)', status: 'published', tags: ['android', 'datastore', 'room', 'sqlite'] },
             { id: 'data-store-room-adv', title: '5.1.3 Advanced Room (Migration & Indexing)', status: 'published', tags: ['android', 'datastore', 'room', 'sqlite'] },
             { id: 'data-store-room-trans', title: '5.1.4 Async Transactions & Flow', status: 'published', tags: ['android', 'datastore', 'room', 'sqlite'] },
-            { id: 'working-with-thread', title: '5.2 Working with Thread', status: 'draft', tags: ['android', 'threading'] },
-            { id: 'networking-basics', title: '5.3 Networking (Request API, Handle event network, Handle connection state)', status: 'draft', tags: ['android', 'network'] }
+            { id: 'working-with-thread', title: '5.2 Working with Thread', status: 'published', tags: ['android', 'threading'] },
+            { id: 'networking-basics', title: '5.3 Networking (Request API, Handle event network, Handle connection state)', status: 'published', tags: ['android', 'network'] }
           ],
           sections: [
             { id: 's05-data', name: '5.1 Data Store', topics: ['data-store-key-value', 'data-store-room-arch', 'data-store-room-adv', 'data-store-room-trans'] }

@@ -31110,9 +31110,1244 @@ fun saveAvatar_updatesUiState() = runTest {
 
 </ul>
 `
+  },
+
+  'working-with-thread': {
+    title: '5.2 Working with Thread in Android',
+    summary: 'Cẩm nang toàn diện về Multithreading trong Android từ bản chất đến thực chiến. Phân tích Process vs Thread từ góc nhìn Linux và ART, Main Thread và lỗi ANR, giải mã bộ ba Looper - MessageQueue - Handler, quản lý luồng với ThreadPoolExecutor, phòng ngừa Race Condition, Deadlock, Memory Leak, mối liên hệ với Kotlin Coroutines và xây dựng Image Pipeline thực tế.',
+    status: 'published',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '40 phút',
+    depth: 'deep-dive',
+    tags: ['android', 'threading', 'multithreading', 'concurrency', 'looper', 'handler', 'thread-pool', 'coroutines'],
+    domain: 'Android',
+    module: 'Session 05: Data Store & Networking',
+    prerequisites: ['session-05-overview'],
+    related: ['data-store-room-trans', 'networking-basics'],
+    learningOutcomes: [
+      'Hiểu rõ bản chất Process vs Thread, cấu trúc Heap vs Stack và chi phí tạo luồng của Linux/ART.',
+      'Giải thích cơ chế Main Thread, chu kỳ 16.6ms và nguyên nhân gây lỗi ANR trong Android.',
+      'Làm chủ kiến trúc Looper, MessageQueue, Handler và HandlerThread để giao tiếp luồng an toàn.',
+      'Biết cách cấu hình ThreadPoolExecutor chuẩn công nghiệp cho tác vụ CPU-bound và I/O-bound.',
+      'Nhận diện và phòng chống Race Condition (Atomic, Volatile, Sync), Deadlock và Memory Leak.',
+      'Hiểu mối liên hệ giữa Coroutine Dispatchers (Main, IO, Default) và hệ thống Thread bên dưới.',
+      'Xây dựng Concurrent Image Processing Pipeline bằng Kotlin hoàn chỉnh với WeakReference và cancellation.'
+    ],
+    knowledgeGap: 'Nhiều developer chỉ dùng Coroutines mà không hiểu Thread bên dưới, dẫn đến việc dùng sai Dispatchers, rò rỉ bộ nhớ qua Handler/Thread ngầm, hoặc gặp lỗi ANR và Race Condition khó debug.',
+    updatedAt: '2026-09-22',
+    readTime: '40 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+<p>Trong phát triển ứng dụng Android, mọi trải nghiệm mượt mà của người dùng — từ thao tác vuốt chạm 120 FPS không giật lag, tải dữ liệu nền êm ái đến việc nén ảnh không làm đóng băng màn hình — đều phụ thuộc trực tiếp vào cách bạn làm việc với <strong>Thread (Luồng)</strong>.</p>
+<p>Nhiều lập trình viên hiện đại bắt đầu ngay với Kotlin Coroutines mà bỏ qua việc tìm hiểu Thread. Tuy nhiên, Coroutines không thay thế Thread; Coroutines <strong>chạy trên nền tảng các Thread</strong>. Nếu không hiểu bản chất của hệ điều hành, cơ chế Message Loop, mô hình phân chia bộ nhớ và các cạm bẫy tranh chấp tài nguyên (Concurrency Pitfalls), bạn sẽ sớm đối mặt với những lỗi nghiêm trọng trong môi trường production: <strong>ANR (Application Not Responding)</strong>, <strong>Memory Leak</strong>, <strong>Race Condition</strong> hay <strong>Deadlock</strong>.</p>
+
+<h2>Sau khi học xong</h2>
+<ul>
+  <li>Hiểu rõ bản chất Process vs Thread, cấu trúc Heap vs Stack và chi phí tạo luồng của Linux/ART.</li>
+  <li>Giải thích cơ chế Main Thread, chu kỳ 16.6ms và nguyên nhân gây lỗi ANR trong Android.</li>
+  <li>Làm chủ kiến trúc Looper, MessageQueue, Handler và HandlerThread để giao tiếp luồng an toàn.</li>
+  <li>Biết cách cấu hình ThreadPoolExecutor chuẩn công nghiệp cho tác vụ CPU-bound và I/O-bound.</li>
+  <li>Nhận diện và phòng chống Race Condition (Atomic, Volatile, Sync), Deadlock và Memory Leak.</li>
+  <li>Hiểu mối liên hệ giữa Coroutine Dispatchers (Main, IO, Default) và hệ thống Thread bên dưới.</li>
+  <li>Xây dựng Concurrent Image Processing Pipeline bằng Kotlin hoàn chỉnh với WeakReference và cancellation.</li>
+</ul>
+
+<h2>1. Bản chất cốt lõi: Process vs Thread dưới lăng kính Hệ điều hành & ART</h2>
+<p>Để hiểu đa luồng, trước hết phải hiểu đơn vị vận hành của hệ điều hành.</p>
+<pre data-lang="text"><code>+-----------------------------------------------------------------------+
+| LINUX PROCESS (App Sandbox - UID riêng)                                |
+|                                                                       |
+|  +-----------------------------------------------------------------+  |
+|  | HEAP MEMORY DÙNG CHUNG (Objects, Bitmaps, Static Variables)     |  |
+|  +-----------------------------------------------------------------+  |
+|                                                                       |
+|  +-------------------+  +-------------------+  +-------------------+  |
+|  | THREAD 1 (Main)   |  | THREAD 2 (Worker) |  | THREAD 3 (Worker) |  |
+|  | - Call Stack (1MB)|  | - Call Stack (1MB)|  | - Call Stack (1MB)|  |
+|  | - Program Counter |  | - Program Counter |  | - Program Counter |  |
+|  | - CPU Registers   |  | - CPU Registers   |  | - CPU Registers   |  |
+|  +-------------------+  +-------------------+  +-------------------+  |
++-----------------------------------------------------------------------+</code></pre>
+
+<h3>1.1 Process (Tiến trình) là gì?</h3>
+<ul>
+  <li>Khi người dùng chạm vào biểu tượng app để mở, hệ thống Linux sẽ fork ra một <strong>Process</strong> mới độc lập thông qua <code>Zygote</code>.</li>
+  <li>Mỗi Process có một không gian địa chỉ bộ nhớ ảo (Virtual Address Space) hoàn toàn cô lập, được gán một <strong>Linux User ID (UID)</strong> riêng biệt để đảm bảo tính bảo mật (Sandbox).</li>
+  <li>Hai Process khác nhau không thể trực tiếp đọc hay ghi vào vùng nhớ của nhau (nếu muốn chia sẻ dữ liệu thì bắt buộc phải dùng IPC - Inter-Process Communication như Binder, AIDL, Messenger, Socket).</li>
+</ul>
+
+<h3>1.2 Thread (Luồng) là gì?</h3>
+<ul>
+  <li><strong>Thread</strong> là đơn vị thực thi nhỏ nhất được hệ điều hành (CPU Scheduler) phân bổ thời gian CPU để xử lý lệnh.</li>
+  <li>Một Process luôn có ít nhất một Thread (gọi là <strong>Main Thread</strong> trong Android). Một Process có thể sinh ra nhiều Thread con (Worker Threads).</li>
+  <li><strong>Vùng nhớ dùng chung (Shared Memory):</strong> Tất cả các Thread trong cùng một Process đều dùng chung <strong>Heap Memory</strong>, các biến static, và các vùng nhớ tài nguyên của Process đó.</li>
+  <li><strong>Vùng nhớ riêng biệt (Thread-local Memory):</strong> Mỗi Thread sở hữu riêng:
+    <ul>
+      <li><strong>Call Stack:</strong> Chứa các biến cục bộ nguyên thủy (primitive local variables), con trỏ tham chiếu hàm và stack frames khi thực hiện lời gọi hàm.</li>
+      <li><strong>Program Counter (PC):</strong> Con trỏ lưu vị trí lệnh máy tiếp theo cần thực thi.</li>
+      <li><strong>Registers:</strong> Tập hợp các thanh ghi CPU lưu trạng thái tính toán tạm thời.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>1.3 Chi phí thực sự khi tạo một Thread</h3>
+<p>Một sai lầm kinh điển của người mới là nghĩ rằng Thread rất "nhẹ":</p>
+<ol>
+  <li><strong>Chi phí bộ nhớ (Memory Footprint):</strong> Mỗi Thread trong Android Runtime (ART) khi khởi tạo ngầm cấp phát một vùng Call Stack cố định (thường từ <strong>1MB đến 2MB</strong> trong không gian bộ nhớ ảo). Tạo 100 Thread đồng nghĩa bạn đã đốt sạch 100MB - 200MB bộ nhớ chỉ riêng cho Stack!</li>
+  <li><strong>Chi phí chuyển ngữ cảnh (Context Switching):</strong> CPU chỉ có một số lượng nhân vật lý hữu hạn (ví dụ: chip 8 nhân). Khi có hàng trăm Thread cùng đòi chạy, CPU phải liên tục dừng luồng này, lưu trạng thái thanh ghi/stack pointer ra RAM, rồi tải trạng thái của luồng khác vào thanh ghi. Hiện tượng này làm tiêu tốn chu kỳ CPU vô ích, gây nóng máy và tụt pin trầm trọng.</li>
+  <li><strong>Kernel System Call Overhead:</strong> Lệnh tạo Thread (<code>pthread_create</code> trong C/Linux) phải gọi xuống Kernel space, tốn hàng trăm microsecond đến millisecond.</li>
+</ol>
+
+<blockquote><strong>Quy tắc vàng 1:</strong> Tuyệt đối không tự do gọi <code>Thread { ... }.start()</code> một cách vô tội vạ. Hãy luôn quản lý luồng thông qua <strong>Thread Pool</strong> có kiểm soát kích thước.</blockquote>
+
+<h2>2. Main Thread (UI Thread) trong Android: Trọng trách, Giới hạn và ANR</h2>
+
+<h3>2.1 Tại sao Android áp dụng mô hình "Single-Threaded UI Model"?</h3>
+<p>Hầu hết các hệ điều hành đồ họa (Android, iOS, Swing, Web DOM) đều thiết kế UI framework theo mô hình <strong>Đơn Luồng (Single-Threaded)</strong>.</p>
+<p>Giả sử nếu hai Thread khác nhau cùng được phép chỉnh sửa một nút bấm (<code>Button</code>):</p>
+<ul>
+  <li>Thread A đang tính toán đổi kích thước của Button (<code>measure()</code> &amp; <code>layout()</code>).</li>
+  <li>Thread B nhảy vào xóa Button đó khỏi ViewGroup.</li>
+  <li>Hệ quả: Giao diện sẽ rơi vào trạng thái không nhất quán (Corrupted UI State) hoặc crash ngay lập tức vì xung đột bộ nhớ.</li>
+</ul>
+<p>Để giải quyết, Android quy định: <strong>Chỉ có một Thread duy nhất được phép khởi tạo, đo đạc, vẽ và tương tác với cây giao diện (View Hierarchy) — đó chính là Main Thread (còn gọi là UI Thread).</strong></p>
+<p>Nếu bạn cố tình cập nhật View từ một Background Thread:</p>
+<pre data-lang="kotlin"><code>thread {
+    // CRASH NGAY LẬP TỨC!
+    textView.text = "Hello World"
+}</code></pre>
+<p>Hệ thống sẽ ném ra ngoại lệ nổi tiếng:</p>
+<pre data-lang="text"><code>android.view.ViewRootImpl$CalledFromWrongThreadException: 
+Only the original thread that created a view hierarchy can touch its views.</code></pre>
+<p>Cơ chế kiểm tra nằm trong hàm nội bộ của Android Framework (<code>ViewRootImpl.java</code>):</p>
+<pre data-lang="java"><code>void checkThread() {
+    if (mThread != Thread.currentThread()) {
+        throw new CalledFromWrongThreadException(
+            "Only the original thread that created a view hierarchy can touch its views.");
+    }
+}</code></pre>
+
+<h3>2.2 Vòng lặp Frame 16.6ms / 8.3ms và sự hình thành của Lag</h3>
+<p>Màn hình thiết bị Android làm mới (refresh) theo tần số quét:</p>
+<ul>
+  <li>Màn hình <strong>60Hz</strong>: Cứ sau <strong>16.6ms</strong>, phần cứng GPU/Choreographer sẽ gửi tín hiệu <strong>Vsync</strong>. Main Thread phải hoàn thành việc đo (<code>measure</code>), sắp xếp (<code>layout</code>) và vẽ (<code>draw</code>) toàn bộ cây View trong chưa đầy 16.6ms.</li>
+  <li>Màn hình <strong>120Hz</strong>: Thời gian giới hạn chỉ còn <strong>8.3ms</strong>.</li>
+</ul>
+<p>Nếu Main Thread bận thực hiện một phép tính toán nặng (ví dụ: giải mã file JSON 5MB mất 100ms), nó sẽ bỏ lỡ (drop) nhiều khung hình Vsync. Người dùng sẽ thấy màn hình bị giật cục (Jank/Stutter).</p>
+
+<h3>2.3 ANR (Application Not Responding)</h3>
+<p>Khi Main Thread bị chặn (block) quá lâu và không thể tiếp nhận tương tác người dùng, hệ điều hành sẽ kích hoạt hộp thoại <strong>ANR</strong>.</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Thành phần</th>
+      <th style="padding:8px 12px;text-align:left;">Ngưỡng thời gian gây ANR</th>
+      <th style="padding:8px 12px;text-align:left;">Hành động kích hoạt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Input Event</td>
+      <td style="padding:8px 12px;color:#f87171;">5 giây</td>
+      <td style="padding:8px 12px;">Người dùng chạm vào màn hình hoặc bấm phím cứng nhưng Main Thread không phản hồi.</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">BroadcastReceiver</td>
+      <td style="padding:8px 12px;color:#f87171;">10 giây (Foreground) / 60 giây (Background)</td>
+      <td style="padding:8px 12px;">Hàm onReceive() chạy quá thời gian cho phép.</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;font-weight:600;">Service</td>
+      <td style="padding:8px 12px;color:#f87171;">20 giây (Foreground) / 200 giây (Background)</td>
+      <td style="padding:8px 12px;">Các hàm lifecycle (onCreate, onStartCommand) của Service chặn Main Thread.</td>
+    </tr>
+  </tbody>
+</table>
+<blockquote><strong>Lưu ý:</strong> Bất kỳ thao tác nào liên quan đến <strong>Disk I/O</strong> (đọc ghi file, SQLite), <strong>Network I/O</strong> (gọi API HTTP, Socket), hoặc <strong>CPU-bound calculation</strong> (nén ảnh, giải mã mã hóa) đều <strong>BẮT BUỘC PHẢI CHUYỂN SANG BACKGROUND THREAD</strong>. Gọi HTTP trên Main Thread sẽ gây lỗi <code>android.os.NetworkOnMainThreadException</code> ngay lập tức!</blockquote>
+
+<h2>3. Tạo và khởi chạy Thread cơ bản trong Kotlin</h2>
+<p>Trong Kotlin / Java, có các cách cơ bản để khởi tạo và chạy một Thread:</p>
+
+<h3>3.1 Sử dụng Kotlin DSL thread { ... }</h3>
+<pre data-lang="kotlin"><code>import kotlin.concurrent.thread
+
+fun runTask() {
+    thread(start = true, name = "MySimpleWorker") {
+        println("Đang chạy trên luồng: \${Thread.currentThread().name}")
+        // Thực hiện tính toán nặng...
+    }
+}</code></pre>
+
+<h3>3.2 Triển khai interface Runnable</h3>
+<pre data-lang="kotlin"><code>class HeavyCalculationTask(private val data: List&lt;Int&gt;) : Runnable {
+    override fun run() {
+        val result = data.sumOf { it * 2 }
+        println("Kết quả tính toán: \$result trên luồng \${Thread.currentThread().name}")
+    }
+}
+
+// Khởi chạy
+val task = HeavyCalculationTask(listOf(1, 2, 3, 4, 5))
+val workerThread = Thread(task, "CalculationWorker")
+workerThread.start()</code></pre>
+
+<h3>Vì sao không nên kế thừa class MyThread : Thread()?</h3>
+<ul>
+  <li>Kotlin/Java chỉ hỗ trợ đơn kế thừa, làm mất khả năng kế thừa class khác.</li>
+  <li>Vi phạm nguyên lý Single Responsibility (SRP): Trộn lẫn logic công việc với cơ chế quản lý vòng đời luồng.</li>
+  <li>Không thể tái sử dụng cho ThreadPool hoặc ExecutorService.</li>
+</ul>
+
+<h2>4. Trái tim giao tiếp bất đồng bộ của Android: Looper, MessageQueue và Handler</h2>
+<p>Đây là kiến trúc cốt lõi nhất của toàn bộ Android OS. Mọi tương tác chạm, hiển thị, lifecycle của Activity hay Coroutines <code>Dispatchers.Main</code> đều chạy trên nền tảng của bộ ba này.</p>
+
+<pre data-lang="text"><code>+-------------------+     sendMessage(msg)      +-----------------------------+
+| Background Thread | ------------------------&gt; |        MessageQueue         |
++-------------------+                           | (Hàng đợi sắp xếp theo time)|
+                                                +-----------------------------+
+                                                               |
+                                                          next()
+                                                               v
++-------------------+    dispatchMessage(msg)   +-----------------------------+
+|    UI View        | &lt;------------------------ |     Looper (for (;;) loop)  |
+| (Main UI Thread)  |                           |  Chạy vĩnh cửu trên Main    |
++-------------------+                           +-----------------------------+</code></pre>
+
+<h3>4.1 Mổ xẻ từng thành phần</h3>
+<ol>
+  <li><strong>Message:</strong> Đối tượng mang thông điệp cần chuyển giao giữa các luồng. Chứa <code>what</code> (mã sự kiện), <code>arg1</code>, <code>arg2</code>, <code>obj</code> (dữ liệu bất kỳ) và <code>target</code> (Handler đích).
+  <br><em>Tip:</em> Luôn dùng <code>handler.obtainMessage()</code> thay vì <code>new Message()</code> để tái sử dụng từ Object Pool, giảm áp lực Garbage Collection.</li>
+  <li><strong>MessageQueue:</strong> Hàng đợi liên kết đơn sắp xếp tin nhắn theo thời gian kích hoạt (<code>when</code>). Dùng cơ chế <code>epoll</code> của nhân Linux: khi hàng đợi rỗng, luồng rơi vào trạng thái ngủ sâu (sleep) mà không tốn CPU.</li>
+  <li><strong>Looper:</strong> Động cơ chạy vòng lặp vô tận <code>for (;;)</code> trong <code>Looper.loop()</code>, liên tục lấy tin nhắn từ MessageQueue và phân phối về Handler đích.</li>
+  <li><strong>Handler:</strong> Bộ điều phối hai chiều: đẩy Message/Runnable vào Queue (qua <code>post()</code>, <code>sendMessage()</code>) và xử lý dữ liệu khi Looper gọi lại (qua <code>handleMessage()</code>).</li>
+</ol>
+
+<h3>4.2 Code thực tế: Giao tiếp Background Thread -&gt; Main Thread</h3>
+<pre data-lang="kotlin"><code>import android.os.Handler
+import android.os.Looper
+import android.os.Message
+import kotlin.concurrent.thread
+
+class DataFetcher(private val onResult: (String) -&gt; Unit) {
+
+    // 1. Tạo Handler gắn chặt với Main Looper
+    private val mainHandler = object : Handler(Looper.getMainLooper()) {
+        override fun handleMessage(msg: Message) {
+            when (msg.what) {
+                MSG_SUCCESS -&gt; {
+                    val data = msg.obj as String
+                    onResult(data) // Chạy an toàn 100% trên Main Thread!
+                }
+                MSG_ERROR -&gt; {
+                    // Xử lý lỗi UI
+                }
+            }
+        }
+    }
+
+    companion object {
+        const val MSG_SUCCESS = 1
+        const val MSG_ERROR = 2
+    }
+
+    fun fetchDataAsync() {
+        // 2. Chạy tác vụ trên Background Thread
+        thread(name = "NetworkFetcher") {
+            try {
+                Thread.sleep(2000) // Giả lập I/O
+                val responseData = "Dữ liệu máy chủ: { id: 100, name: 'Knowledge OS' }"
+
+                // 3. Tái sử dụng Message từ Pool và gửi về Main Thread
+                val msg = mainHandler.obtainMessage(MSG_SUCCESS, responseData)
+                mainHandler.sendMessage(msg)
+            } catch (e: Exception) {
+                mainHandler.sendEmptyMessage(MSG_ERROR)
+            }
+        }
+    }
+}</code></pre>
+
+<h3>4.3 HandlerThread: Background Thread sở hữu riêng một Looper</h3>
+<p>Nếu bạn muốn một Background Thread sống lâu dài, có hàng đợi công việc riêng để xử lý tuần tự từng task ngầm (ghi log file, kết nối Serial/Bluetooth):</p>
+<pre data-lang="kotlin"><code>import android.os.Handler
+import android.os.HandlerThread
+
+class SequentialBackgroundWorker {
+    private val handlerThread = HandlerThread("FileWriterThread").apply { start() }
+    private val backgroundHandler = Handler(handlerThread.looper)
+
+    fun postTask(taskName: String) {
+        backgroundHandler.post {
+            println("Đang ghi: \$taskName trên \${Thread.currentThread().name}")
+            Thread.sleep(500)
+        }
+    }
+
+    fun stop() {
+        handlerThread.quitSafely() // Giải phóng luồng, tránh leak
+    }
+}</code></pre>
+
+<h2>5. Quản lý luồng công nghiệp: ThreadPoolExecutor &amp; ExecutorService</h2>
+<p>Khi xây dựng ứng dụng quy mô lớn, việc tạo Thread tự do bị cấm. Ta phải sử dụng <strong>Thread Pool</strong> để tái sử dụng luồng có kiểm soát.</p>
+
+<h3>5.1 Công thức tính kích thước Thread Pool tối ưu</h3>
+<ul>
+  <li><strong>CPU-bound tasks (Nén ảnh, mã hóa, thuật toán):</strong>
+    $$\text{Pool Size} = N_{\text{cpu}} + 1$$
+    <em>(Với $N_{\text{cpu}}$ là số nhân CPU của thiết bị: <code>Runtime.getRuntime().availableProcessors()</code>).</em>
+  </li>
+  <li><strong>I/O-bound tasks (Mạng, File, SQLite):</strong>
+    $$\text{Pool Size} = N_{\text{cpu}} \times \left(1 + \frac{\text{Wait Time}}{\text{Compute Time}}\right)$$
+    <em>(Trong thực tế Android, thường cấu hình từ 4 đến 32 luồng).</em>
+  </li>
+</ul>
+
+<h3>5.2 Triển khai AppExecutors Singleton chuẩn Android</h3>
+<pre data-lang="kotlin"><code>import android.os.Handler
+import android.os.Looper
+import java.util.concurrent.*
+
+object AppExecutors {
+
+    private val NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors()
+
+    // 1. Pool cho CPU-bound: Nén ảnh, giải thuật
+    val cpuExecutor: ExecutorService = ThreadPoolExecutor(
+        NUMBER_OF_CORES,
+        NUMBER_OF_CORES * 2,
+        30L, TimeUnit.SECONDS,
+        LinkedBlockingQueue&lt;Runnable&gt;(128),
+        NamedThreadFactory("CPU-Worker")
+    )
+
+    // 2. Pool cho Network &amp; Disk I/O
+    val ioExecutor: ExecutorService = ThreadPoolExecutor(
+        4,
+        32,
+        60L, TimeUnit.SECONDS,
+        LinkedBlockingQueue&lt;Runnable&gt;(256),
+        NamedThreadFactory("IO-Worker")
+    )
+
+    // 3. Executor điều phối về Main Thread
+    val mainThread = MainThreadExecutor()
+
+    class MainThreadExecutor : Executor {
+        private val handler = Handler(Looper.getMainLooper())
+        override fun execute(command: Runnable) {
+            handler.post(command)
+        }
+    }
+
+    private class NamedThreadFactory(private val prefix: String) : ThreadFactory {
+        private var count = 0
+        override fun newThread(r: Runnable): Thread {
+            return Thread(r, "\$prefix-\${++count}")
+        }
+    }
+}</code></pre>
+
+<h2>6. Hiểm họa đa luồng: Race Condition, Deadlock &amp; Memory Leak</h2>
+
+<h3>6.1 Race Condition (Xung đột dữ liệu)</h3>
+<p>Xảy ra khi nhiều luồng cùng đọc và ghi vào biến dùng chung. Phép toán <code>count++</code> gồm 3 bước: đọc từ RAM -&gt; tăng giá trị -&gt; ghi lại vào RAM. Khi 2 luồng xen kẽ, giá trị sẽ bị ghi đè sai lệch.</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Giải pháp</th>
+      <th style="padding:8px 12px;text-align:left;">Cơ chế</th>
+      <th style="padding:8px 12px;text-align:left;">Khi nào nên dùng</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">AtomicInteger / AtomicReference</td>
+      <td style="padding:8px 12px;">Dùng lệnh phần cứng CPU CAS (Compare-And-Swap), Lock-free</td>
+      <td style="padding:8px 12px;">Biến đếm, flag trạng thái, tham chiếu đơn lẻ (tối ưu nhất)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">@Volatile</td>
+      <td style="padding:8px 12px;">Đảm bảo Visibility (đọc/ghi thẳng RAM, bỏ qua CPU cache)</td>
+      <td style="padding:8px 12px;">Biến cờ dừng luồng boolean (KHÔNG đảm bảo atomicity cho count++)</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;font-weight:600;">synchronized block / ReentrantLock</td>
+      <td style="padding:8px 12px;">Khóa loại trừ tương hỗ (Mutual Exclusion)</td>
+      <td style="padding:8px 12px;">Cụm logic nhiều bước, chỉnh sửa cấu trúc dữ liệu List/Map</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>6.2 Deadlock (Khóa chết)</h3>
+<p>Deadlock xảy ra khi Thread 1 giữ Khóa A và chờ Khóa B, còn Thread 2 giữ Khóa B và chờ Khóa A. Cả 2 luồng dừng vĩnh viễn.</p>
+<pre data-lang="text"><code>Thread 1 [Đã giữ Lock A] ----đang chờ xin----&gt; [Lock B]
+                                                   ^
+                                                   | đang giữ
+Thread 2 [Lock A] &lt;----đang chờ xin---- [Đã giữ Lock B]</code></pre>
+<p><strong>Cách phòng ngừa:</strong></p>
+<ul>
+  <li><strong>Lock Ordering:</strong> Toàn bộ ứng dụng bắt buộc phải xin khóa theo cùng một thứ tự duy nhất (Lock A trước, Lock B sau).</li>
+  <li><strong>tryLock với Timeout:</strong> Dùng <code>lock.tryLock(1000, TimeUnit.MILLISECONDS)</code> thay vì khóa chặn vô hạn.</li>
+</ul>
+
+<h3>6.3 Memory Leak trong Threading</h3>
+<p>Non-static inner class hoặc lambda trong Java/Kotlin luôn giữ một <strong>Strong Reference</strong> đến Outer Class (Activity/Fragment). Nếu Thread chạy ngầm lâu hơn vòng đời Activity, toàn bộ cây View và Bitmap của Activity sẽ bị giữ lại trong RAM, gây Memory Leak nghiêm trọng.</p>
+<pre data-lang="kotlin"><code>class SafeActivity : AppCompatActivity() {
+    private var workerFuture: Future&lt;*&gt;? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        workerFuture = AppExecutors.ioExecutor.submit {
+            if (!Thread.currentThread().isInterrupted) {
+                // Tác vụ ngầm
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        workerFuture?.cancel(true) // Ngắt luồng ngay lập tức khi Activity hủy!
+    }
+}</code></pre>
+
+<h2>7. Bản đồ 5 Use Cases thực chiến trong ứng dụng Android</h2>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Use Case</th>
+      <th style="padding:8px 12px;text-align:left;">Đặc trưng tài nguyên</th>
+      <th style="padding:8px 12px;text-align:left;">Loại Pool đề xuất</th>
+      <th style="padding:8px 12px;text-align:left;">Cơ chế điều phối</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">1. File Downloader &amp; Storage Writer</td>
+      <td style="padding:8px 12px;">I/O-bound</td>
+      <td style="padding:8px 12px;">ioExecutor (8 - 16 threads)</td>
+      <td style="padding:8px 12px;">Báo cáo tiến độ % qua Handler theo từng chunk buffer.</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">2. Image Processing &amp; Filters</td>
+      <td style="padding:8px 12px;">CPU-bound</td>
+      <td style="padding:8px 12px;">cpuExecutor (N_cpu threads)</td>
+      <td style="padding:8px 12px;">Áp dụng bộ lọc ma trận điểm ảnh trên luồng riêng biệt.</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">3. Large JSON Bulk Import</td>
+      <td style="padding:8px 12px;">Hỗn hợp CPU &amp; Disk</td>
+      <td style="padding:8px 12px;">SingleThreadExecutor / ioExecutor</td>
+      <td style="padding:8px 12px;">Parse streaming và insert SQLite Transaction trọn gói.</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">4. Realtime Socket / Bluetooth</td>
+      <td style="padding:8px 12px;">Liên tục, lâu dài</td>
+      <td style="padding:8px 12px;">Dedicated HandlerThread</td>
+      <td style="padding:8px 12px;">Vòng lặp đọc InputStream ngầm liên tục.</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;font-weight:600;">5. Periodic Polling / Heartbeat</td>
+      <td style="padding:8px 12px;">Định kỳ ngắn hạn</td>
+      <td style="padding:8px 12px;">ScheduledThreadPoolExecutor</td>
+      <td style="padding:8px 12px;">scheduleAtFixedRate() gửi ping định kỳ.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>8. Cầu nối thế hệ: Từ Thread thuần đến Kotlin Coroutines &amp; WorkManager</h2>
+<p>Coroutine không phải phép thuật. Nó là những đoạn mã có khả năng tạm ngừng (suspension) chạy trên các <strong>Java Thread Pool</strong> có sẵn:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Coroutine Dispatcher</th>
+      <th style="padding:8px 12px;text-align:left;">Bản chất Thread Pool bên dưới</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Dispatchers.Main</td>
+      <td style="padding:8px 12px;">Được gửi qua MainLooper Handler của Android</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Dispatchers.IO</td>
+      <td style="padding:8px 12px;">ThreadPool co giãn đàn hồi (mặc định tối đa 64 threads)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Dispatchers.Default</td>
+      <td style="padding:8px 12px;">ThreadPool cố định gắn liền với số nhân CPU ($N_{cpu}$)</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;font-weight:600;">Dispatchers.Unconfined</td>
+      <td style="padding:8px 12px;">Chạy tiếp trên luồng hiện tại mà không đổi context</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>9. Mini-Project thực chiến: Concurrent Image Processing Pipeline</h2>
+<p>Dưới đây là kiến trúc một Pipeline xử lý ảnh kết hợp cả <strong>I/O Pool</strong> (tải ảnh) và <strong>CPU Pool</strong> (lọc Grayscale), giao tiếp an toàn về UI qua <strong>Main Handler</strong> và ngăn ngừa 100% rò rỉ bộ nhớ bằng <strong>WeakReference</strong> và <strong>Cancellation</strong>.</p>
+
+<h3>Bước 1: Khai báo Contract và State</h3>
+<pre data-lang="kotlin"><code>package com.knowledge.threading.pipeline
+
+import android.graphics.Bitmap
+
+sealed class PipelineState {
+    data class Progress(val imageUrl: String, val percent: Int) : PipelineState()
+    data class Success(val imageUrl: String, val resultBitmap: Bitmap) : PipelineState()
+    data class Error(val imageUrl: String, val throwable: Throwable) : PipelineState()
+}
+
+interface PipelineCallback {
+    fun onStateUpdate(state: PipelineState)
+}</code></pre>
+
+<h3>Bước 2: Xây dựng ImagePipelineManager</h3>
+<pre data-lang="kotlin"><code>package com.knowledge.threading.pipeline
+
+import android.graphics.*
+import android.os.Handler
+import android.os.Looper
+import java.io.InputStream
+import java.lang.ref.WeakReference
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.concurrent.*
+
+class ImagePipelineManager(callback: PipelineCallback) {
+
+    private val callbackRef = WeakReference(callback)
+    private val mainHandler = Handler(Looper.getMainLooper())
+
+    // I/O Pool tải ảnh
+    private val downloadExecutor = ThreadPoolExecutor(
+        2, 4, 30L, TimeUnit.SECONDS,
+        LinkedBlockingQueue&lt;Runnable&gt;()
+    )
+
+    // CPU Pool xử lý điểm ảnh
+    private val filterExecutor = ThreadPoolExecutor(
+        Runtime.getRuntime().availableProcessors(),
+        Runtime.getRuntime().availableProcessors(),
+        0L, TimeUnit.MILLISECONDS,
+        LinkedBlockingQueue&lt;Runnable&gt;()
+    )
+
+    private val runningFutures = CopyOnWriteArrayList&lt;Future&lt;*&gt;&gt;()
+
+    fun processImage(imageUrl: String) {
+        val future = downloadExecutor.submit {
+            try {
+                notifyState(PipelineState.Progress(imageUrl, 20))
+                val rawBitmap = downloadBitmap(imageUrl)
+
+                notifyState(PipelineState.Progress(imageUrl, 60))
+
+                // Chuyển tiếp sang CPU Pool để lọc màu
+                filterExecutor.execute {
+                    try {
+                        val filteredBitmap = applyGrayscaleFilter(rawBitmap)
+                        notifyState(PipelineState.Progress(imageUrl, 100))
+                        notifyState(PipelineState.Success(imageUrl, filteredBitmap))
+                    } catch (e: Throwable) {
+                        notifyState(PipelineState.Error(imageUrl, e))
+                    }
+                }
+            } catch (e: Throwable) {
+                notifyState(PipelineState.Error(imageUrl, e))
+            }
+        }
+        runningFutures.add(future)
+    }
+
+    private fun downloadBitmap(urlString: String): Bitmap {
+        val url = URL(urlString)
+        val connection = url.openConnection() as HttpURLConnection
+        connection.connectTimeout = 5000
+        connection.readTimeout = 5000
+        connection.connect()
+
+        val input: InputStream = connection.inputStream
+        val bitmap = BitmapFactory.decodeStream(input)
+            ?: throw IllegalStateException("Không thể decode dữ liệu ảnh")
+        input.close()
+        connection.disconnect()
+        return bitmap
+    }
+
+    private fun applyGrayscaleFilter(src: Bitmap): Bitmap {
+        val dest = Bitmap.createBitmap(src.width, src.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(dest)
+        val paint = Paint()
+        val colorMatrix = ColorMatrix().apply { setSaturation(0f) }
+        paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
+        canvas.drawBitmap(src, 0f, 0f, paint)
+        return dest
+    }
+
+    private fun notifyState(state: PipelineState) {
+        mainHandler.post {
+            callbackRef.get()?.onStateUpdate(state)
+        }
+    }
+
+    fun release() {
+        for (future in runningFutures) {
+            future.cancel(true)
+        }
+        runningFutures.clear()
+        downloadExecutor.shutdownNow()
+        filterExecutor.shutdownNow()
+    }
+}</code></pre>
+
+<h3>Bước 3: Tích hợp vào Activity với Cleanup Lifecycle</h3>
+<pre data-lang="kotlin"><code>class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
+
+    private lateinit var progressBar: ProgressBar
+    private lateinit var statusText: TextView
+    private var pipelineManager: ImagePipelineManager? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pipelineManager = ImagePipelineManager(this)
+        pipelineManager?.processImage("https://example.com/sample.jpg")
+    }
+
+    override fun onStateUpdate(state: PipelineState) {
+        when (state) {
+            is PipelineState.Progress -&gt; {
+                progressBar.progress = state.percent
+                statusText.text = "Đang xử lý: \${state.percent}%"
+            }
+            is PipelineState.Success -&gt; {
+                statusText.text = "Hoàn tất!"
+            }
+            is PipelineState.Error -&gt; {
+                statusText.text = "Lỗi: \${state.throwable.localizedMessage}"
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        pipelineManager?.release() // Dọn dẹp triệt để luồng, chống memory leak
+        pipelineManager = null
+    }
+}</code></pre>
+
+<h2>10. Giám sát &amp; Debugging Đa luồng chuyên nghiệp</h2>
+<ul>
+  <li><strong>Android Studio CPU Profiler:</strong> Mở tab Profiler -&gt; CPU -&gt; Record System Trace.
+    <ul>
+      <li><strong>Màu xanh lá cây (Running):</strong> Luồng đang thực thi trên CPU.</li>
+      <li><strong>Màu xanh da trời (Sleeping):</strong> Luồng đang ngủ chờ MessageQueue.</li>
+      <li><strong>Màu vàng (Waiting):</strong> Đang chờ tài nguyên hoặc notify.</li>
+      <li><strong>Màu đỏ (Blocked):</strong> Luồng bị chặn bởi khóa đồng bộ. Nếu Main Thread có vạch đỏ kéo dài -&gt; Báo động ANR!</li>
+    </ul>
+  </li>
+  <li><strong>StrictMode:</strong> Bật trong <code>Application.onCreate()</code> lúc Debug để phát hiện vi phạm I/O trên Main Thread:
+<pre data-lang="kotlin"><code>if (BuildConfig.DEBUG) {
+    StrictMode.setThreadPolicy(
+        StrictMode.ThreadPolicy.Builder()
+            .detectDiskReads()
+            .detectDiskWrites()
+            .detectNetwork()
+            .penaltyLog()
+            .penaltyFlashScreen()
+            .build()
+    )
+}</code></pre>
+  </li>
+</ul>
+
+<h2>11. Tư duy hệ thống (System Thinking) &amp; Phân tầng kiến trúc</h2>
+<p>Trong Clean Architecture, nguyên tắc tối thượng là <strong>Main-Safety</strong>:</p>
+<ul>
+  <li><strong>UI Layer (Activity / Composable):</strong> Thụ động lắng nghe UI State, 100% chạy trên Main Thread.</li>
+  <li><strong>ViewModel:</strong> Điều phối qua <code>viewModelScope</code>, khởi phát chuyển luồng.</li>
+  <li><strong>Domain Layer (UseCases):</strong> Thực thi nghiệp vụ, hoàn toàn Thread-Safe.</li>
+  <li><strong>Data Layer (Repository / DataSource):</strong> Phải chủ động chuyển sang Background Thread (I/O Pool hoặc Dispatchers.IO) trước khi thực hiện truy vấn. Bất kỳ hàm nào public ra ngoài đều phải Main-Safe.</li>
+</ul>
+
+<h2>12. Checklist Best Practices khi làm việc với Thread</h2>
+<ul>
+  <li>[ ] <strong>Không new Thread() tùy tiện:</strong> Mọi tác vụ nền phải đi qua ThreadPoolExecutor hoặc Coroutines.</li>
+  <li>[ ] <strong>Đặt tên cho Thread:</strong> Luôn dùng ThreadFactory để đặt tên rõ ràng phục vụ Debug và Profiling.</li>
+  <li>[ ] <strong>Đảm bảo Main-Safety:</strong> Không để lọt bất kỳ tác vụ I/O hay tính toán nặng nào lên Main Thread.</li>
+  <li>[ ] <strong>Chống Memory Leak:</strong> Không giữ tham chiếu Context/View trong Worker Thread; giải phóng và hủy task trong <code>onDestroy()</code>.</li>
+  <li>[ ] <strong>Tái sử dụng Message:</strong> Dùng <code>Message.obtain()</code> thay vì <code>new Message()</code>.</li>
+  <li>[ ] <strong>Kiểm tra ngắt luồng (Cancellation):</strong> Thường xuyên kiểm tra <code>Thread.currentThread().isInterrupted</code> trong vòng lặp nặng.</li>
+  <li>[ ] <strong>Phòng chống Deadlock:</strong> Tuân thủ thứ tự xin khóa đồng nhất và ưu tiên các collection Concurrent không khóa.</li>
+</ul>
+
+<h2>13. Nguồn tham khảo (References)</h2>
+<ul>
+  <li><a href="https://developer.android.com/guide/components/processes-and-threads">Processes and threads overview — Android Developers</a></li>
+  <li><a href="https://developer.android.com/topic/performance/vitals/anr">Keep your app responsive (ANR prevention) — Android Developers</a></li>
+  <li><a href="https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/os/Looper.java">Handler and Looper source code — AOSP</a></li>
+  <li><a href="https://jcip.net/">Java Concurrency in Practice — Brian Goetz</a></li>
+  <li><a href="https://developer.android.com/kotlin/coroutines">Kotlin Coroutines on Android: Best Practices</a></li>
+</ul>
+`
+  },
+
+  'networking-basics': {
+    title: '5.3 Networking in Android (Request API, Handle Event Network, Handle Connection State)',
+    summary: 'Cẩm nang toàn diện và chuyên sâu về Networking trong Android. Đi từ tầng vật lý Socket, TLS Handshake, mổ xẻ kiến trúc OkHttp Interceptor Chain & Connection Pool, giải quyết triệt để bài toán kinh điển Concurrent 401 Refresh Token, thiết kế Error Handling chuẩn Clean Architecture, Retry với Exponential Backoff, bảo mật SSL Pinning, Multipart Upload có Progress Tracking chống OOM, giám sát kết nối tầng OS với ConnectivityManager & Flow, so sánh & thực chiến song song Retrofit vs Ktor Client (KMP), và Unit Test với MockWebServer.',
+    status: 'published',
+    difficulty: 'advanced',
+    estimatedReadingTime: '45 phút',
+    depth: 'deep-dive',
+    tags: ['android', 'networking', 'retrofit', 'okhttp', 'ktor', 'coroutines', 'flow', 'connectivity-manager', 'ssl-pinning', 'clean-architecture'],
+    domain: 'Android',
+    module: 'Session 05: Data Store & Networking',
+    prerequisites: ['working-with-thread', 'session-05-overview'],
+    related: ['data-store-room-trans', 'working-with-thread'],
+    learningOutcomes: [
+      'Giải thích được bản chất Socket, DNS, TCP Handshake, TLS 1.3 và lý do cấm NetworkOnMainThreadException.',
+      'Làm chủ kiến trúc Interceptor Chain (Chain of Responsibility) và ConnectionPool trong OkHttp.',
+      'Xử lý triệt để bài toán Concurrent 401 Refresh Token không bị race condition bằng OkHttp Authenticator.',
+      'Thiết kế mô hình Error Handling và Result Pattern phân tầng chuẩn Clean Architecture.',
+      'Triển khai chiến lược Retry với Exponential Backoff & Jitter phòng chống Thundering Herd.',
+      'Bảo vệ kết nối ứng dụng bằng SSL / Certificate Pinning và phòng chống rủi ro app bricking.',
+      'Tối ưu upload file lớn với CountingRequestBody có Progress Tracking realtime chống tràn RAM (OOM).',
+      'Giám sát trạng thái mạng tầng OS bằng ConnectivityManager, NetworkCapabilities và Kotlin Flow.',
+      'So sánh kiến trúc và triển khai thực tế Ktor Client song song với Retrofit trong dự án KMP.'
+    ],
+    knowledgeGap: 'Nhiều lập trình viên chỉ biết gọi API đơn giản qua Retrofit mà không nắm cơ chế bên dưới của OkHttp, lúng túng khi xử lý token refresh đồng thời, gặp lỗi crash OOM khi upload file lớn, hoặc chỉ check mạng sơ sài bằng INTERNET capability thay vì VALIDATED.',
+    updatedAt: '2026-09-22',
+    readTime: '45 phút',
+    content: `<h2>Vấn đề cần giải quyết</h2>
+<p>Trong bất kỳ ứng dụng di động nào, tầng mạng (Networking) là huyết mạch kết nối người dùng với hệ thống backend. Tuy nhiên, môi trường mạng di động vốn dĩ không ổn định: thiết bị chuyển đổi liên tục giữa Wi-Fi và 4G/5G, đi vào vùng sóng yếu, hoặc kết nối vào các điểm Wi-Fi công cộng (Captive Portal) không có Internet thực sự.</p>
+<p>Một ứng dụng xử lý mạng sơ sài sẽ nhanh chóng bộc lộ các lỗi nghiêm trọng:</p>
+<ul>
+  <li><strong>Treo ứng dụng (ANR) hoặc Crash:</strong> Do thực hiện gọi mạng trên Main Thread (<code>NetworkOnMainThreadException</code>) hoặc để rò rỉ ngoại lệ mạng cấp thấp lên UI.</li>
+  <li><strong>Tràn bộ nhớ (OutOfMemoryError):</strong> Đọc toàn bộ file dung lượng lớn vào mảng byte trong RAM khi upload multipart.</li>
+  <li><strong>Văng đăng nhập hàng loạt:</strong> Khi Access Token hết hạn, nhiều request đồng thời cùng nhận lỗi 401 và cùng gọi refresh token, gây xung đột và vô hiệu hóa session.</li>
+  <li><strong>Lỗ hổng bảo mật Man-in-the-Middle (MITM):</strong> Bị tin tặc can thiệp và đánh cắp dữ liệu tài chính/thông tin cá nhân thông qua proxy độc hại.</li>
+  <li><strong>Lãng phí băng thông và cạn kiệt pin:</strong> Không có cơ chế Connection Pooling và HTTP Cache hợp lý.</li>
+</ul>
+
+<h2>Sau khi học xong</h2>
+<ul>
+  <li>Giải thích được bản chất Socket, DNS, TCP Handshake, TLS 1.3 và lý do cấm <code>NetworkOnMainThreadException</code>.</li>
+  <li>Làm chủ kiến trúc Interceptor Chain (Chain of Responsibility) và ConnectionPool trong OkHttp.</li>
+  <li>Xử lý triệt để bài toán Concurrent 401 Refresh Token không bị race condition bằng OkHttp <code>Authenticator</code>.</li>
+  <li>Thiết kế mô hình Error Handling và Result Pattern phân tầng chuẩn Clean Architecture.</li>
+  <li>Triển khai chiến lược Retry với Exponential Backoff &amp; Jitter phòng chống Thundering Herd.</li>
+  <li>Bảo vệ kết nối ứng dụng bằng SSL / Certificate Pinning và phòng chống rủi ro app bricking.</li>
+  <li>Tối ưu upload file lớn với <code>CountingRequestBody</code> có Progress Tracking realtime chống tràn RAM (OOM).</li>
+  <li>Giám sát trạng thái mạng tầng OS bằng <code>ConnectivityManager</code>, <code>NetworkCapabilities</code> và Kotlin Flow.</li>
+  <li>So sánh kiến trúc và triển khai thực tế Ktor Client song song với Retrofit trong dự án KMP.</li>
+</ul>
+
+<h2>1. Bản chất tầng mạng: Từ Click nút UI đến Kernel Socket &amp; TLS Handshake</h2>
+<p>Khi người dùng bấm một nút trên màn hình để gửi dữ liệu, hệ điều hành và phần cứng mạng phải trải qua một chuỗi các bước phối hợp chặt chẽ:</p>
+<ul>
+  <li><strong>1. Main-Safety:</strong> Lời gọi API phải được điều phối sang Background Thread (<code>Dispatchers.IO</code>). Nếu thực thi trên Main Thread, Android sẽ ném ngay <code>NetworkOnMainThreadException</code> để bảo vệ chu kỳ vẽ màn hình 16.6ms (60-120 FPS).</li>
+  <li><strong>2. DNS Lookup:</strong> Phân giải domain (ví dụ <code>api.example.com</code>) thành địa chỉ IP (IPv4 hoặc IPv6).</li>
+  <li><strong>3. TCP 3-Way Handshake:</strong> Gửi gói tin SYN, nhận SYN-ACK, gửi ACK để thiết lập luồng truyền tin tin cậy. Tốn 1 RTT (Round Trip Time).</li>
+  <li><strong>4. TLS 1.3 Handshake:</strong> Gửi <code>ClientHello</code>, nhận <code>ServerHello</code> kèm chứng chỉ số và trao đổi khóa đối xứng (AES-GCM). Tốn thêm 1 RTT.</li>
+  <li><strong>5. HTTP Request &amp; Response:</strong> Gửi Header, Body và nhận stream dữ liệu phản hồi từ máy chủ.</li>
+</ul>
+
+<div class="callout callout-important">
+  <div class="callout-title">Chi phí kết nối rất đắt đỏ</div>
+  <p>Tổng thời gian thiết lập một kết nối HTTPS mới trên sóng di động có thể mất từ <strong>300ms đến 800ms</strong> trước khi byte đầu tiên của API được gửi đi. Vì vậy, ứng dụng bắt buộc phải tái sử dụng Socket qua <strong>Connection Pooling</strong> và <strong>HTTP/2 Multiplexing</strong> thay vì tạo kết nối mới mỗi lần gọi.</p>
+</div>
+
+<h2>2. Kiến trúc nội bộ OkHttp: Trái tim của Networking Android</h2>
+<p>OkHttp là thư viện mạng tiêu chuẩn trong Android. Trọng tâm thiết kế của OkHttp là chuỗi <strong>Interceptor Chain</strong> áp dụng mẫu thiết kế <strong>Chain of Responsibility</strong>:</p>
+<ul>
+  <li><strong>Application Interceptors:</strong> Nơi gắn các logic ứng dụng (chèn Bearer Token, Tracking ID, Custom Header).</li>
+  <li><strong>RetryAndFollowUpInterceptor:</strong> Tự động phục hồi kết nối khi đứt mạng nhẹ hoặc chuyển hướng 3xx.</li>
+  <li><strong>BridgeInterceptor:</strong> Tự động thêm header <code>Host</code>, <code>Keep-Alive</code>, <code>Accept-Encoding: gzip</code> và giải nén gzip dữ liệu trả về.</li>
+  <li><strong>CacheInterceptor:</strong> Kiểm tra bộ nhớ đệm trên đĩa, gửi ETag/If-None-Match và xử lý mã <code>304 Not Modified</code>.</li>
+  <li><strong>ConnectInterceptor:</strong> Lấy Socket từ <code>ConnectionPool</code> hoặc mở TCP Socket và bắt tay TLS mới.</li>
+  <li><strong>CallServerInterceptor:</strong> Trực tiếp ghi HTTP request ra Socket và đọc dữ liệu trả về từ máy chủ.</li>
+</ul>
+
+<h2>3. Custom Interceptors chuẩn Production</h2>
+
+<h3>3.1 Dynamic Header &amp; Tracing Interceptor</h3>
+<p>Tự động inject thông tin thiết bị, phiên bản app và Trace ID duy nhất cho mỗi request để backend dễ truy vết log:</p>
+<pre data-lang="kotlin"><code>import okhttp3.Interceptor
+import okhttp3.Response
+import java.util.UUID
+
+class HeaderInterceptor(
+    private val tokenProvider: () -&gt; String?,
+    private val appVersion: String
+) : Interceptor {
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val originalRequest = chain.request()
+        
+        val requestBuilder = originalRequest.newBuilder()
+            .header("X-App-Version", appVersion)
+            .header("X-Platform", "Android")
+            .header("X-Request-ID", UUID.randomUUID().toString())
+            .header("Accept", "application/json")
+
+        val token = tokenProvider()
+        if (!token.isNullOrBlank() &amp;&amp; originalRequest.header("Authorization") == null) {
+            requestBuilder.header("Authorization", "Bearer $token")
+        }
+
+        return chain.proceed(requestBuilder.build())
+    }
+}</code></pre>
+
+<h3>3.2 Sanitized Logging Interceptor (Bảo vệ thông tin cá nhân PII)</h3>
+<p>Ghi log đầy đủ lúc Debug nhưng che giấu mật khẩu, thẻ ngân hàng và mã OTP:</p>
+<pre data-lang="kotlin"><code>import okhttp3.logging.HttpLoggingInterceptor
+import android.util.Log
+
+object SafeLoggingInterceptorFactory {
+    fun create(isDebug: Boolean): HttpLoggingInterceptor {
+        val logging = HttpLoggingInterceptor { message -&gt;
+            val sanitized = message
+                .replace(Regex("\"password\"\\s*:\\s*\"[^\"]+\""), "\"password\":\"***\"")
+                .replace(Regex("\"cardNumber\"\\s*:\\s*\"[^\"]+\""), "\"cardNumber\":\"***\"")
+                .replace(Regex("\"cvv\"\\s*:\\s*\"[^\"]+\""), "\"cvv\":\"***\"")
+            Log.d("OkHttp", sanitized)
+        }
+        
+        logging.level = if (isDebug) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+        logging.redactHeader("Authorization")
+        logging.redactHeader("Cookie")
+        return logging
+    }
+}</code></pre>
+
+<h2>4. Giải quyết bài toán kinh điển: Concurrent 401 &amp; Auto Refresh Token</h2>
+<p>Khi Access Token hết hạn, nếu 3 API đồng thời bắn ra và cùng nhận mã 401, việc gọi refresh token không đồng bộ sẽ làm vô hiệu hóa Refresh Token của nhau, khiến người dùng bị văng khỏi app.</p>
+<p>Giải pháp chuẩn là dùng <code>okhttp3.Authenticator</code> kết hợp cơ chế kiểm tra token hai lớp (Double-check) và khóa đồng bộ <code>@Synchronized</code>:</p>
+
+<pre data-lang="kotlin"><code>import okhttp3.Authenticator
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.Route
+
+class TokenManager(
+    private var accessToken: String?,
+    private var refreshToken: String?,
+    private val refreshApiCall: (String) -&gt; Pair&lt;String, String&gt;?
+) {
+    @Synchronized
+    fun getAccessToken(): String? = accessToken
+
+    @Synchronized
+    fun refreshTokens(failedToken: String): String? {
+        // Nếu token đã được một request trước đó cập nhật, dùng ngay không cần gọi lại API
+        if (accessToken != null &amp;&amp; accessToken != failedToken) {
+            return accessToken
+        }
+
+        val currentRefresh = refreshToken ?: return null
+        val newTokens = refreshApiCall(currentRefresh) ?: return null
+
+        accessToken = newTokens.first
+        refreshToken = newTokens.second
+        return accessToken
+    }
+
+    @Synchronized
+    fun clearTokens() {
+        accessToken = null
+        refreshToken = null
+    }
+}
+
+class TokenAuthenticator(
+    private val tokenManager: TokenManager
+) : Authenticator {
+
+    override fun authenticate(route: Route?, response: Response): Request? {
+        if (responseCount(response) &gt;= 3) {
+            tokenManager.clearTokens()
+            return null
+        }
+
+        val failedToken = response.request.header("Authorization")
+            ?.removePrefix("Bearer ")
+            ?.trim() ?: ""
+
+        val newAccessToken = tokenManager.refreshTokens(failedToken) ?: run {
+            tokenManager.clearTokens()
+            return null
+        }
+
+        return response.request.newBuilder()
+            .header("Authorization", "Bearer $newAccessToken")
+            .build()
+    }
+
+    private fun responseCount(response: Response): Int {
+        var count = 1
+        var prior = response.priorResponse
+        while (prior != null) {
+            count++
+            prior = prior.priorResponse
+        }
+        return count
+    }
+}</code></pre>
+
+<h2>5. Chuẩn hóa Error Handling &amp; Result Pattern trong Clean Architecture</h2>
+<p>Không bao giờ để lộ các exception cấp thấp như <code>SocketTimeoutException</code> hay <code>HttpException</code> lên tầng UI. Hãy đóng gói tất cả vào <code>NetworkResult&lt;T&gt;</code>:</p>
+
+<pre data-lang="kotlin"><code>import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import retrofit2.HttpException
+
+sealed interface NetworkResult&lt;out T&gt; {
+    data class Success&lt;out T&gt;(val data: T) : NetworkResult&lt;T&gt;
+    
+    sealed interface Error : NetworkResult&lt;Nothing&gt; {
+        data class Http(val code: Int, val message: String?, val errorBody: String?) : Error
+        data class NetworkTimeout(val message: String = "Kết nối quá thời gian") : Error
+        data class NoInternet(val message: String = "Không có kết nối Internet") : Error
+        data class Serialization(val cause: Throwable) : Error
+        data class Unknown(val cause: Throwable) : Error
+    }
+}
+
+suspend fun &lt;T&gt; safeApiCall(apiCall: suspend () -&gt; T): NetworkResult&lt;T&gt; {
+    return try {
+        NetworkResult.Success(apiCall())
+    } catch (e: HttpException) {
+        val code = e.code()
+        val errorBody = e.response()?.errorBody()?.string()
+        NetworkResult.Error.Http(code = code, message = e.message(), errorBody = errorBody)
+    } catch (e: SocketTimeoutException) {
+        NetworkResult.Error.NetworkTimeout()
+    } catch (e: UnknownHostException) {
+        NetworkResult.Error.NoInternet()
+    } catch (e: IOException) {
+        NetworkResult.Error.NoInternet(e.localizedMessage ?: "Lỗi kết nối mạng")
+    } catch (e: Exception) {
+        NetworkResult.Error.Unknown(e)
+    }
+}</code></pre>
+
+<h2>6. Retry Policy với Exponential Backoff &amp; Jitter</h2>
+<p>Tránh thử lại tức thì làm quá tải server (Thundering Herd). Áp dụng Exponential Backoff kết hợp ngẫu nhiên hóa (Jitter):</p>
+
+<pre data-lang="kotlin"><code>import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.retryWhen
+import java.io.IOException
+import kotlin.math.min
+import kotlin.math.pow
+import kotlin.random.Random
+
+fun &lt;T&gt; Flow&lt;T&gt;.retryWithExponentialBackoff(
+    maxAttempts: Int = 3,
+    initialDelayMs: Long = 1000L,
+    maxDelayMs: Long = 10000L,
+    factor: Double = 2.0
+): Flow&lt;T&gt; {
+    return this.retryWhen { cause, attempt -&gt;
+        if (attempt &lt; maxAttempts &amp;&amp; cause is IOException) {
+            val exponentialDelay = (initialDelayMs * factor.pow(attempt.toDouble())).toLong()
+            val cappedDelay = min(exponentialDelay, maxDelayMs)
+            val jitteredDelay = Random.nextLong(0, cappedDelay + 1)
+            delay(jitteredDelay)
+            true
+        } else {
+            false
+        }
+    }
+}</code></pre>
+
+<h2>7. Bảo mật cao cấp: SSL / Certificate Pinning &amp; Phòng thủ MITM</h2>
+<p>Chống tấn công trung gian (Man-in-the-Middle) bằng cách ghim mã băm Public Key (SPKI) của máy chủ vào app:</p>
+
+<pre data-lang="kotlin"><code>import okhttp3.CertificatePinner
+import okhttp3.OkHttpClient
+
+val certificatePinner = CertificatePinner.Builder()
+    .add("api.example.com", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+    // BẮT BUỘC: Luôn có mã Pin dự phòng (Backup Pin) để tránh gạch app khi đổi chứng chỉ
+    .add("api.example.com", "sha256/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=")
+    .build()
+
+val okHttpClient = OkHttpClient.Builder()
+    .certificatePinner(certificatePinner)
+    .build()</code></pre>
+
+<h2>8. Multipart Upload &amp; Tracking Tiến Độ (%) Realtime chống OOM</h2>
+<p>Tuyệt đối không đọc toàn bộ file vào RAM bằng <code>file.readBytes()</code>. Hãy bao bọc <code>ForwardingSink</code> để stream từng khối nhỏ từ đĩa ra Socket và đếm byte đã ghi:</p>
+
+<pre data-lang="kotlin"><code>import okhttp3.MediaType
+import okhttp3.RequestBody
+import okio.Buffer
+import okio.BufferedSink
+import okio.ForwardingSink
+import java.io.File
+
+class CountingRequestBody(
+    private val file: File,
+    private val contentType: MediaType?,
+    private val onProgressUpdate: (bytesWritten: Long, totalBytes: Long, percent: Int) -&gt; Unit
+) : RequestBody() {
+
+    override fun contentType(): MediaType? = contentType
+    override fun contentLength(): Long = file.length()
+
+    override fun writeTo(sink: BufferedSink) {
+        val totalBytes = contentLength()
+        var bytesWritten = 0L
+
+        val countingSink = object : ForwardingSink(sink) {
+            override fun write(source: Buffer, byteCount: Long) {
+                super.write(source, byteCount)
+                bytesWritten += byteCount
+                val percent = ((bytesWritten * 100) / totalBytes).toInt()
+                onProgressUpdate(bytesWritten, totalBytes, percent)
+            }
+        }
+
+        okio.Okio.source(file).use { source -&gt;
+            val bufferedSink = okio.Okio.buffer(countingSink)
+            bufferedSink.writeAll(source)
+            bufferedSink.flush()
+        }
+    }
+}</code></pre>
+
+<h2>9. Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager &amp; NetworkCallback</h2>
+<p>Lắng nghe thay đổi kết nối mạng theo cách reactive, phân biệt rõ <code>NET_CAPABILITY_INTERNET</code> (chỉ là kết nối IP) và <code>NET_CAPABILITY_VALIDATED</code> (thực sự truy cập được Internet):</p>
+
+<pre data-lang="kotlin"><code>import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+
+sealed interface NetworkStatus {
+    object Available : NetworkStatus
+    object Lost : NetworkStatus
+    object Unavailable : NetworkStatus
+}
+
+interface NetworkMonitor {
+    val networkStatus: Flow&lt;NetworkStatus&gt;
+}
+
+class ConnectivityManagerNetworkMonitor(
+    context: Context
+) : NetworkMonitor {
+
+    private val connectivityManager = 
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    override val networkStatus: Flow&lt;NetworkStatus&gt; = callbackFlow {
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
+                val hasInternet = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                val isValidated = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+
+                if (hasInternet &amp;&amp; isValidated) {
+                    trySend(NetworkStatus.Available)
+                } else {
+                    trySend(NetworkStatus.Lost)
+                }
+            }
+
+            override fun onLost(network: Network) {
+                trySend(NetworkStatus.Lost)
+            }
+
+            override fun onUnavailable() {
+                trySend(NetworkStatus.Unavailable)
+            }
+        }
+
+        val request = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+            .build()
+
+        connectivityManager.registerNetworkCallback(request, callback)
+
+        awaitClose {
+            connectivityManager.unregisterNetworkCallback(callback)
+        }
+    }.distinctUntilChanged()
+}</code></pre>
+
+<h2>10. Chiến lược Caching: HTTP Cache (OkHttp) vs Local Database (Room)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Tiêu chí</th>
+      <th>OkHttp HTTP Cache</th>
+      <th>Local Database (Room / SQLite)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Bản chất</strong></td>
+      <td>Cache file byte thô dựa trên HTTP Headers</td>
+      <td>Cơ sở dữ liệu quan hệ, bảng biểu, khóa chính/ngoại</td>
+    </tr>
+    <tr>
+      <td><strong>Tìm kiếm &amp; Lọc</strong></td>
+      <td>Chỉ tra cứu chính xác theo URL endpoint</td>
+      <td>Hỗ trợ truy vấn phức tạp: WHERE, LIKE, JOIN, ORDER BY</td>
+    </tr>
+    <tr>
+      <td><strong>Phản ứng thay đổi</strong></td>
+      <td>Thụ động (phải gọi lại request để đọc cache)</td>
+      <td>Chủ động qua Flow&lt;List&lt;T&gt;&gt;, cập nhật UI tự động</td>
+    </tr>
+    <tr>
+      <td><strong>Use Case</strong></td>
+      <td>Ảnh tĩnh, config JSON nhỏ, ít thay đổi</td>
+      <td>Dữ liệu nghiệp vụ cốt lõi: Giỏ hàng, Danh sách tin, Chat</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>11. Ktor Client vs Retrofit: Lựa chọn cho tương lai KMP</h2>
+<p>Ktor Client được xây dựng từ đầu cho <strong>Kotlin Multiplatform (KMP)</strong>, hoạt động hoàn toàn bằng Coroutines và không sử dụng Reflection:</p>
+
+<pre data-lang="kotlin"><code>import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.get
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+
+@Serializable
+data class UserDto(val id: Long, val name: String, val email: String)
+
+class KtorApiClient(private val tokenProvider: () -&gt; String?) {
+    val client = HttpClient(OkHttp) {
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true; isLenient = true })
+        }
+        install(Logging) { level = LogLevel.INFO }
+        install(Auth) {
+            bearer {
+                loadTokens { BearerTokens(tokenProvider() ?: "", "") }
+            }
+        }
+    }
+
+    suspend fun getUserProfile(userId: Long): UserDto {
+        return client.get("https://api.example.com/users/$userId").body()
+    }
+}</code></pre>
+
+<h2>12. Tích hợp Clean Architecture: End-to-End E-Commerce Example</h2>
+<p>Triển khai mô hình Single Source of Truth (SSOT): UI quan sát Room Database qua Flow, Repository tự động đồng bộ API khi có mạng:</p>
+
+<pre data-lang="kotlin"><code>// ViewModel điều phối luồng dữ liệu và trạng thái mạng
+class ProductViewModel(
+    private val repository: ProductRepository,
+    private val networkMonitor: NetworkMonitor
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow&lt;ProductUiState&gt;(ProductUiState.Loading)
+    val uiState: StateFlow&lt;ProductUiState&gt; = _uiState.asStateFlow()
+
+    init {
+        // 1. Tải ngay dữ liệu từ cache DB ra UI
+        viewModelScope.launch {
+            repository.getProducts().collect { products -&gt;
+                _uiState.update { ProductUiState.Success(products, isOffline = false) }
+            }
+        }
+
+        // 2. Theo dõi mạng để tự động đồng bộ khi có kết nối
+        viewModelScope.launch {
+            networkMonitor.networkStatus.collect { status -&gt;
+                if (status is NetworkStatus.Available) {
+                    repository.syncProducts()
+                } else {
+                    _uiState.update { current -&gt;
+                        if (current is ProductUiState.Success) current.copy(isOffline = true) else current
+                    }
+                }
+            }
+        }
+    }
+}</code></pre>
+
+<h2>13. Testing Tầng Network với MockWebServer</h2>
+<p>Sử dụng <code>MockWebServer</code> để kiểm thử toàn bộ đường ống xử lý (Interceptors, Deserialization, Mã lỗi HTTP) mà không cần server thật:</p>
+
+<pre data-lang="kotlin"><code>import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+
+class NetworkIntegrationTest {
+    private lateinit var server: MockWebServer
+
+    @Before
+    fun setup() {
+        server = MockWebServer()
+        server.start()
+    }
+
+    @After
+    fun tearDown() {
+        server.shutdown()
+    }
+
+    @Test
+    fun fetchProducts_success_returns_data() = runBlocking {
+        server.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("""[{"id": 1, "name": "Bàn phím", "price": 100.0}]""")
+        )
+
+        val result = safeApiCall { apiService.fetchProducts() }
+        assertTrue(result is NetworkResult.Success)
+    }
+}</code></pre>
+
+<h2>14. Checklist Best Practices &amp; Anti-patterns</h2>
+<ul>
+  <li>[ ] <strong>Singleton OkHttpClient:</strong> Luôn dùng 1 instance duy nhất để chia sẻ ConnectionPool và Cache.</li>
+  <li>[ ] <strong>Main-Safety:</strong> Không bao giờ thực thi network call trên Main Thread.</li>
+  <li>[ ] <strong>VALIDATED Capability:</strong> Luôn kiểm tra <code>NET_CAPABILITY_VALIDATED</code> thay vì chỉ <code>NET_CAPABILITY_INTERNET</code>.</li>
+  <li>[ ] <strong>Chống OOM:</strong> Sử dụng Streaming/Chunk buffer khi upload multipart file lớn.</li>
+  <li>[ ] <strong>Backup SSL Pin:</strong> Luôn khai báo ít nhất 1 backup pin để phòng ngừa rủi ro đổi chứng chỉ.</li>
+  <li>[ ] <strong>Không nuốt Exception:</strong> Không bắt <code>catch (e: Exception) {}</code> mà không xử lý hoặc thông báo lên UI.</li>
+</ul>
+
+<h2>15. Nguồn tham khảo (References)</h2>
+<ul>
+  <li><a href="https://developer.android.com/training/basics/network-ops/connecting">Connect to the network — Android Developers</a></li>
+  <li><a href="https://square.github.io/okhttp/">OkHttp Official Documentation &amp; Recipes — Square</a></li>
+  <li><a href="https://square.github.io/retrofit/">Retrofit Architecture Guide — Square</a></li>
+  <li><a href="https://ktor.io/docs/client-create-new-application.html">Ktor Client Documentation — JetBrains</a></li>
+  <li><a href="https://www.rfc-editor.org/rfc/rfc9110.html">IETF RFC 9110 — HTTP Semantics &amp; Status Codes</a></li>
+  <li><a href="https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/">Exponential Backoff And Jitter — AWS Architecture</a></li>
+</ul>`
   }
 
 });
-
-
-
