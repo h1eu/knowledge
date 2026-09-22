@@ -1029,7 +1029,7 @@ In summary, it is recommended that before diving deep into data structures and a
     for i in 1 ... n {
         // Loop j = 1, 2, ..., n-1, n
         for j in 1 ... n {
-            res.append("(\(i), \(j)), ")
+            res.append("(\\(i), \\(j)), ")
         }
     }
     return res
@@ -1112,7 +1112,7 @@ In summary, it is recommended that before diving deep into data structures and a
     }
     res.join("")
 }</code></pre></div><div class="code-tab-content" data-lang="c"><pre data-lang="c"><code>char *nestedForLoop(int n) {
-    // n * n is the number of points, "(i, j), " string max length is 6+10*2, plus extra space for null character \0
+    // n * n is the number of points, "(i, j), " string max length is 6+10*2, plus extra space for null character \\0
     int size = n * n * 26 + 1;
     char *res = malloc(size * sizeof(char));
     // Loop i = 1, 2, ..., n-1, n
@@ -5793,7 +5793,7 @@ $$
     // A list of length n occupies O(n) space
     let nodes = (0 ..&lt; n).map { ListNode(x: $0) }
     // A hash table of length n occupies O(n) space
-    let map = Dictionary(uniqueKeysWithValues: (0 ..&lt; n).map { ($0, "\($0)") })
+    let map = Dictionary(uniqueKeysWithValues: (0 ..&lt; n).map { ($0, "\\($0)") })
 }</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>void linear(int n) {
   // Array of length n uses O(n) space
   List&lt;int&gt; nums = List.filled(n, 0);
@@ -5937,7 +5937,7 @@ $$
         return
     linearRecur(n - 1)
 }</code></pre></div><div class="code-tab-content" data-lang="swift"><pre data-lang="swift"><code>func linearRecur(n: Int) {
-    print("Recursion n = \(n)")
+    print("Recursion n = \\(n)")
     if n == 1 {
         return
     }
@@ -5981,7 +5981,7 @@ $$
     };
     linear_recur(n - 1);
 }</code></pre></div><div class="code-tab-content" data-lang="c"><pre data-lang="c"><code>void linearRecur(int n) {
-    printf("Recursion n = %d\r\n", n);
+    printf("Recursion n = %d\\r\\n", n);
     if (n == 1)
         return;
     linearRecur(n - 1);
@@ -6144,7 +6144,7 @@ $$
     }
     // Array nums has lengths n, n-1, ..., 2, 1
     let nums = Array(repeating: 0, count: n)
-    print("Recursion n = \(n), nums length = \(nums.count)")
+    print("Recursion n = \\(n), nums length = \\(nums.count)")
     return quadraticRecur(n: n - 1)
 }</code></pre></div><div class="code-tab-content" data-lang="dart"><pre data-lang="dart"><code>int quadraticRecur(int n) {
   if (n &lt;= 0) return 0;
@@ -6173,7 +6173,7 @@ $$
         return 0
     }
     nums := make([]int, n)
-    fmt.Printf("Recursion n = %d, nums length = %d \n", n, len(nums))
+    fmt.Printf("Recursion n = %d, nums length = %d \\n", n, len(nums))
     return spaceQuadraticRecur(n - 1)
 }</code></pre></div><div class="code-tab-content" data-lang="javascript"><pre data-lang="javascript"><code>function quadraticRecur(n) {
     if (n &lt;= 0) return 0;
@@ -6197,7 +6197,7 @@ $$
     if (n &lt;= 0)
         return 0;
     int *nums = malloc(sizeof(int) * n);
-    printf("Recursion n = %d, nums length = %d\r\n", n, n);
+    printf("Recursion n = %d, nums length = %d\\r\\n", n, n);
     int res = quadraticRecur(n - 1);
     free(nums);
     return res;

@@ -420,8 +420,8 @@ Object.assign(IOS_CONTENT, {
     </tr>
     <tr style="border-bottom:1px solid var(--border);">
       <td style="padding:10px;"><code>"Xin chào $name"</code></td>
-      <td style="padding:10px;"><code>"Xin chào \(name)"</code></td>
-      <td style="padding:10px;">String Interpolation, Swift dùng cú pháp <code>\(expression)</code></td>
+      <td style="padding:10px;"><code>"Xin chào \\(name)"</code></td>
+      <td style="padding:10px;">String Interpolation, Swift dùng cú pháp <code>\\(expression)</code></td>
     </tr>
     <tr style="border-bottom:1px solid var(--border);">
       <td style="padding:10px;"><code>Boolean</code> / <code>Unit</code></td>
@@ -440,7 +440,7 @@ counter += 1
 // String Interpolation
 let name = "Hazu"
 let age = 25
-let greeting = "Xin chào \(name), năm sau bạn \(age + 1) tuổi"
+let greeting = "Xin chào \\(name), năm sau bạn \\(age + 1) tuổi"
 
 // Multiline String
 let multiline = """
@@ -585,7 +585,7 @@ let multiline = """
         return // BẮT BUỘC return, throw hoặc break
     }
     // Từ đây: productId và quantity là non-optional
-    print("Đặt hàng \(productId) x\(quantity)")
+    print("Đặt hàng \\(productId) x\\(quantity)")
 }
 </code></pre>
 
@@ -594,7 +594,7 @@ let multiline = """
 
 <pre><code class="language-swift">// 1. Nhãn ngoài (to) vs tên trong (recipient)
 func sendNotification(to recipient: String, message: String, isUrgent: Bool = false) {
-    print("Gửi tới \(recipient): \(message)")
+    print("Gửi tới \\(recipient): \\(message)")
 }
 // Khi gọi — đọc như câu tiếng Anh:
 sendNotification(to: "user_123", message: "Họp lúc 9h")
@@ -797,7 +797,7 @@ let ints     = strings.compactMap { Int($0) }  // [1, 2, 4]
 // Dictionary — truy cập key luôn trả về Optional (Int?)
 let scores: [String: Int] = ["Alice": 95, "Bob": 80]
 if let aliceScore = scores["Alice"] {
-    print("Điểm Alice: \(aliceScore)")
+    print("Điểm Alice: \\(aliceScore)")
 }
 let bobScore = scores["Bob"] ?? 0    // Nil-Coalescing
 </code></pre>
@@ -966,7 +966,7 @@ func render(state: ViewState) {
                 self.userName = user.name
                 self.onStateChanged?(self.userName)
             case .failure(let error):
-                print("Lỗi: \(error)")
+                print("Lỗi: \\(error)")
             }
         }
     }
@@ -990,7 +990,7 @@ protocol BaseViewProtocol: AnyObject {
 // 2. Default Implementation qua Protocol Extension
 extension BaseViewProtocol {
     func showError(message: String) {
-        print("Alert mặc định: \(message)")
+        print("Alert mặc định: \\(message)")
     }
 }
 
@@ -1055,7 +1055,7 @@ print("hazu@ios.dev".isValidEmail) // true
 </table>
 
 <pre><code class="language-swift">func loadUserData(userId: String) async throws -> User {
-    let (data, _) = try await URLSession.shared.data(from: URL(string: "https://api.example.com/users/\(userId)")!)
+    let (data, _) = try await URLSession.shared.data(from: URL(string: "https://api.example.com/users/\\(userId)")!)
     return try JSONDecoder().decode(User.self, from: data)
 }
 

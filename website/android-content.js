@@ -27203,475 +27203,2235 @@ try {
   },
   'data-store-room-arch': {
     title: 'Relational Database (Room Architecture)',
-    summary: 'Room Database bản chất là gì? Hiểu cách Room giao tiếp với SQLite C API bên dưới và cách triển khai kiến trúc Single Source of Truth để cache data lớn từ API dùng cho offline.',
+    summary: 'Khám phá toàn diện kiến trúc Room Database từ bản chất giao tiếp SQLite C API, KSP codegen, InvalidationTracker, mô hình quan hệ 1-1/1-N/N-N, kiến trúc Offline-first SSOT, Migration an toàn, tối ưu Indexing đến Testing thực chiến trên dự án Todo & Task Manager.',
     status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '15 phút',
+    estimatedReadingTime: '25 phút',
     depth: 'deep-dive',
-    tags: ['android', 'practical'],
+    tags: ['android', 'room', 'sqlite', 'database', 'offline-first', 'flow', 'architecture'],
     domain: 'Android',
     module: 'Session 05: Data Store & Networking',
-    prerequisites: [],
-    related: [],
-    learningOutcomes: [],
-    knowledgeGap: '',
-    updatedAt: '2026-07-30',
-    readTime: '15 phút',
+    prerequisites: ['data-store-key-value'],
+    related: ['data-store-room-adv', 'data-store-room-trans'],
+    learningOutcomes: [
+      'Giải thích được bản chất của Room Database và cơ chế tương tác với SQLite C API qua KSP.',
+      'Thiết kế được các mô hình quan hệ 1-1, 1-N, N-N trong Room bằng POJO, @Embedded và @Relation.',
+      'Triển khai được kiến trúc Offline-first và Single Source of Truth (SSOT) kết hợp Room với Flow.',
+      'Thực hiện được Database Migration an toàn với AutoMigration và Manual Migration.',
+      'Tối ưu được hiệu năng truy vấn với Indexing và kiểm thử toàn diện với In-Memory Database.'
+    ],
+    knowledgeGap: 'Nhiều lập trình viên chỉ biết dùng Room cơ bản mà không hiểu cơ chế InvalidationTracker ngầm, dẫn đến crash ANR vì query main thread, vỡ dữ liệu khi thiếu @Transaction, hoặc crash production khi migrate sai schema.',
+    updatedAt: '2026-09-21',
+    readTime: '25 phút',
     content: `
-<h2>Vấn đề cần giải quyết</h2>
+<h2>1. Bản chất & Sự ra đời của Room Database</h2>
 
-<p>DataStore (Key-Value) chỉ dành cho cấu hình đơn giản. Nhưng khi ứng dụng của bạn làm việc với dữ liệu có cấu trúc phức tạp và số lượng lớn: Danh sách 10,000 tin nhắn chat, giỏ hàng thương mại điện tử với hàng chục sản phẩm, hay lưu cache danh sách bài báo để đọc offline.</p>
+<h3>Vấn đề cốt lõi của SQLite thuần</h3>
 
-<p>Để làm được việc này, thiết bị di động cần một Hệ quản trị cơ sở dữ liệu quan hệ (RDBMS). Android đã tích hợp sẵn <strong>SQLite</strong> (viết bằng C) trực tiếp vào nhân hệ điều hành.</p>
+<p>Hệ điều hành Android từ phiên bản 1.0 đã tích hợp sẵn cơ sở dữ liệu quan hệ <strong>SQLite</strong> (viết bằng ngôn ngữ C) trực tiếp vào nhân hệ thống. Ở giai đoạn đầu, các lập trình viên Android phải làm việc với SQLite thông qua <code>SQLiteOpenHelper</code> và <code>SQLiteDatabase</code>. </p>
 
-<p>Tuy nhiên, sử dụng SQLite API thuần trên Android là một ác mộng:<br>- Bạn phải tự viết câu query SQL dạng <code>String</code> (dễ gõ sai, chỉ biết lỗi khi chạy app - runtime error).<br>- Phải tự map (chuyển đổi) từ con trỏ <code>Cursor</code> sang Object của Java/Kotlin vô cùng dài dòng.<br>- Không hỗ trợ lắng nghe sự thay đổi của Database (Observability) một cách dễ dàng.</p>
-
-<strong>Room Database</strong> sinh ra để giải quyết nỗi đau này.
-
-<h2>Room Database thực chất là gì?</h2>
-
-<p>Room <strong>KHÔNG PHẢI</strong> là một database mới. Nó là một lớp <strong>Abstraction Layer</strong> (Lớp trừu tượng) bọc bên ngoài SQLite.</p>
-
-<p>Nói cách khác, dữ liệu cuối cùng vẫn được lưu vào file <code>.db</code> bằng SQLite C API. Nhưng thay vì bạn phải nói chuyện trực tiếp với SQLite bằng những câu lệnh thô sơ, bạn nói chuyện với Room bằng các Object Kotlin (ORM - Object Relational Mapping). Room sẽ tự động dịch các Object đó thành câu query SQL và ngược lại.</p>
-
-<h2>Vì sao Room an toàn hơn SQLite thuần?</h2>
-
-<p>- <strong>Compile-time verification:</strong> Nếu bạn gõ sai tên cột trong câu query <code>@Query("SELECT * FROM uses")</code> (sai chữ user), Room sẽ báo lỗi <strong>ngay lúc bạn ấn nút Build app</strong>. Bạn không bao giờ bị dính crash khi đem lên Production.<br>- <strong>Tự động Map:</strong> Nó tự động biến kết quả từ DB thành <code>List<User></code>.<br>- <strong>Hỗ trợ Coroutines/Flow:</strong> Truy vấn bất đồng bộ chỉ với từ khóa <code>suspend</code>, hoặc lắng nghe thay đổi tự động với <code>Flow</code>.</p>
-
-<h2>3 Thành phần cốt lõi của Room</h2>
-
-<p>Kiến trúc Room chia làm 3 lớp rất rõ ràng:</p>
+<p>Cách tiếp cận truyền thống này bộc lộ những nhược điểm chí mạng:</p>
 
 <ol>
-  <li><strong>Entity (Thực thể):</strong> Các Data Class định nghĩa cấu trúc bảng (Table).</li>
-  <li><strong>DAO (Data Access Object):</strong> Interface chứa các hàm để tương tác (CRUD) với dữ liệu. (Lớp mapping).</li>
-  <li><strong>Database:</strong> Lớp abstract kết nối Entities và DAOs lại với nhau, quản lý kết nối xuống file SQLite dưới đĩa.</li>
+
+<li><strong>Truy vấn String không an toàn (Raw SQL Strings):</strong> Mọi câu lệnh SQL đều được viết dưới dạng chuỗi ký tự (<code>"SELECT * FROM tasks WHERE status = 1"</code>). Trình biên dịch Java/Kotlin hoàn toàn "mù" trước nội dung này. Nếu bạn gõ nhầm tên cột (<code>stauts</code> thay vì <code>status</code>) hoặc sai kiểu dữ liệu, lỗi chỉ xuất hiện khi người dùng mở ứng dụng và kích hoạt tính năng đó (Runtime Exception / Crash).</li>
+
+<li><strong>Boilerplate Mapping thủ công qua <code>Cursor</code>:</strong> Bạn phải tự quản lý con trỏ <code>Cursor</code>, đọc từng chỉ mục cột (<code>cursor.getColumnIndexOrThrow("title")</code>), ép kiểu dữ liệu thủ công, duyệt vòng lặp <code>while (cursor.moveToNext())</code> và bắt buộc phải nhớ đóng <code>cursor.close()</code> để tránh rò rỉ bộ nhớ (memory leak). Hàng trăm dòng code lặp đi lặp lại chỉ để biến dữ liệu dạng bảng thành một danh sách đối tượng (Object List).</li>
+
+<li><strong>Thiếu khả năng phản ứng (Lack of Observability):</strong> SQLite thuần là một hệ thống thụ động (pull-based). Khi dữ liệu dưới bảng thay đổi, giao diện người dùng (UI) không có cách nào tự động biết được trừ khi bạn tự viết logic broadcast hoặc thủ công gọi truy vấn lại từ đầu.</li>
+
+<li><strong>Nguy cơ Block Main Thread:</strong> Việc quản lý đa luồng thủ công khi đọc/ghi SQLite rất dễ dẫn đến lỗi ANR (Application Not Responding) hoặc xung đột tài nguyên (Database Locking).</li>
+
 </ol>
 
-<div class="dd-diagram" data-dd="room-arch">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 516" role="img" aria-labelledby="room-arch-dark-title room-arch-dark-desc" font-family="'Geist', sans-serif">
-<title id="room-arch-dark-title">Room: ba lớp mỏng trên SQLite</title>
-<desc id="room-arch-dark-desc">Ứng dụng qua DAO tới Database tới hai Entity, Database dựa trên SQLite C API.</desc>
-<defs>
-<marker id="room-arch-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="516" fill="#060913"/>
-<!-- arrows -->
-<path d="M 400,84 V 128" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#room-arch-dark-arrow)"/>
-<path d="M 400,180 V 224" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#room-arch-dark-arrow)"/>
-<path d="M 360,276 V 300 H 268 Q 260,300 260,308 V 320" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#room-arch-dark-arrow)"/>
-<path d="M 440,276 V 300 H 532 Q 540,300 540,308 V 320" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#room-arch-dark-arrow)"/>
-<path d="M 400,276 V 384 H 268 Q 260,384 260,392 V 404" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#room-arch-dark-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="32" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="64" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">App · Repository</text>
-<rect x="280" y="128" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="128" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">DAO</text>
-<text x="400" y="174" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">data access</text>
-<rect x="280" y="224" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="224" width="240" height="52" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="288" y="230" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="314" y="239" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HUB</text>
-<text x="400" y="258" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Database</text>
-<rect x="160" y="320" width="200" height="52" rx="6" fill="#060913"/>
-<rect x="160" y="320" width="200" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="260" y="352" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Entity: User</text>
-<rect x="440" y="320" width="200" height="52" rx="6" fill="#060913"/>
-<rect x="440" y="320" width="200" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="540" y="352" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Entity: Product</text>
-<path d="M 160,404 V 456 A 100,12 0 0,1 360,456 V 404" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
-<ellipse cx="260" cy="404" rx="100" ry="12" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
-<text x="260" y="442" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">SQLite C API</text>
-<text x="260" y="460" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">thư viện gốc</text>
-<!-- legend -->
-<line x1="32" y1="492" x2="768" y2="492" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="508" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="504" r="4" fill="#38BDF8"/>
-<text x="162" y="508" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRUNG TÂM · DATABASE</text>
-<line x1="430" y1="504" x2="462" y2="504" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#room-arch-dark-arrow)"/>
-<text x="470" y="508" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · DỰA TRÊN C</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 516" role="img" aria-labelledby="room-arch-title room-arch-desc" font-family="'Geist', sans-serif">
-<title id="room-arch-title">Room: ba lớp mỏng trên SQLite</title>
-<desc id="room-arch-desc">Ứng dụng qua DAO tới Database tới hai Entity, Database dựa trên SQLite C API.</desc>
-<defs>
-<marker id="room-arch-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="516" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 400,84 V 128" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#room-arch-arrow)"/>
-<path d="M 400,180 V 224" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#room-arch-arrow)"/>
-<path d="M 360,276 V 300 H 268 Q 260,300 260,308 V 320" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#room-arch-arrow)"/>
-<path d="M 440,276 V 300 H 532 Q 540,300 540,308 V 320" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#room-arch-arrow)"/>
-<path d="M 400,276 V 384 H 268 Q 260,384 260,392 V 404" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#room-arch-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="32" width="240" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="64" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">App · Repository</text>
-<rect x="280" y="128" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="128" width="240" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">DAO</text>
-<text x="400" y="174" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">data access</text>
-<rect x="280" y="224" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="224" width="240" height="52" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="288" y="230" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="314" y="239" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HUB</text>
-<text x="400" y="258" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Database</text>
-<rect x="160" y="320" width="200" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="160" y="320" width="200" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="260" y="352" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Entity: User</text>
-<rect x="440" y="320" width="200" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="440" y="320" width="200" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="540" y="352" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Entity: Product</text>
-<path d="M 160,404 V 456 A 100,12 0 0,1 360,456 V 404" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
-<ellipse cx="260" cy="404" rx="100" ry="12" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
-<text x="260" y="442" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">SQLite C API</text>
-<text x="260" y="460" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">thư viện gốc</text>
-<!-- legend -->
-<line x1="32" y1="492" x2="768" y2="492" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="508" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="504" r="4" fill="#0284C7"/>
-<text x="162" y="508" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRUNG TÂM · DATABASE</text>
-<line x1="430" y1="504" x2="462" y2="504" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#room-arch-arrow)"/>
-<text x="470" y="508" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · DỰA TRÊN C</text>
-</svg>
-</div>
+<h3>Room Database thực chất là gì?</h3>
+
+<p>Google giới thiệu <strong>Room Persistence Library</strong> tại Google I/O 2017 như một phần của Android Architecture Components (Jetpack).</p>
+
+<blockquote><strong>Bản chất kỹ thuật:</strong> Room <strong>KHÔNG PHẢI</strong> là một database engine mới. Room là một <strong>Lớp Trừu Tượng (Abstraction Layer)</strong> hay một <strong>Object-Relational Mapping (ORM)</strong> mỏng, mạnh mẽ và an toàn kiểu (type-safe) được xây dựng bọc lấy SQLite.</blockquote>
+
+<p>Dữ liệu cuối cùng trong ứng dụng Android của bạn vẫn được lưu trữ trong các tệp nhị phân <code>.db</code> do engine SQLite C bên dưới quản lý. Nhưng với Room:</p>
+
+<ul>
+
+<li>SQL được kiểm tra tính hợp lệ ngay tại thời điểm biên dịch (<strong>Compile-Time Verification</strong>).</li>
+
+<li>Dữ liệu dạng bảng được tự động chuyển đổi hai chiều với Data Class của Kotlin.</li>
+
+<li>Hỗ trợ trực tiếp các luồng dữ liệu phản ứng bất đồng bộ (<strong>Kotlin Coroutines & Flow</strong>).</li>
+
+</ul>
+
+<table style="width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:14px;">
+<thead>
+<tr style="border-bottom:2px solid var(--border);"><th style="text-align:left;padding:10px;">Tiêu chí</th><th style="text-align:left;padding:10px;">SQLite thuần (<code>SQLiteOpenHelper</code>)</th><th style="text-align:left;padding:10px;">Room Persistence Library</th></tr>
+</thead>
+<tbody>
+<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Kiểm tra cú pháp SQL</strong></td><td style="padding:10px;">Lúc chạy (Runtime - Dễ crash production)</td><td style="padding:10px;">Lúc build (Compile-time via KSP - An toàn tuyệt đối)</td></tr>
+<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Data Mapping</strong></td><td style="padding:10px;">Thủ công qua <code>Cursor</code> (Boilerplate cực lớn)</td><td style="padding:10px;">Tự động sinh mã mapping sang Kotlin Data Class</td></tr>
+<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Hỗ trợ Reactive</strong></td><td style="padding:10px;">Không (Phải tự xây dựng Notification/ContentObserver)</td><td style="padding:10px;">Native First-Class (Kotlin <code>Flow</code>, LiveData, RxJava)</td></tr>
+<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Migration</strong></td><td style="padding:10px;">Tự viết script SQL thô, khó kiểm thử</td><td style="padding:10px;">Hỗ trợ <code>AutoMigration</code> và <code>MigrationTestHelper</code></td></tr>
+<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Xử lý Threading</strong></td><td style="padding:10px;">Thủ công quản lý Thread/Executor</td><td style="padding:10px;">Tự động chạy trên background dispatcher với <code>suspend</code> & <code>Flow</code></td></tr>
+</tbody>
+</table>
+
+<hr/>
+
+<h2>2. Kiến trúc nội tại & Cơ chế hoạt động (Under the Hood)</h2>
+
+<p>Để trở thành một Senior Android Engineer, bạn không thể chỉ dừng lại ở các annotation <code>@Entity</code> hay <code>@Dao</code>. Bạn cần hiểu Room thực sự hoạt động như thế nào bên dưới nắp ca-pô.</p>
+
+<h3>Mô hình phân tầng kiến trúc</h3>
+
+<p>Room được chia thành các tầng kiến trúc rõ ràng, nối liền từ mã nguồn Kotlin của bạn xuống thư viện C của Android OS:</p>
+
+<div class="mermaid">
+graph TD
+    subgraph "Tầng Ứng Dụng (Developer Code)"
+        Entity["@Entity (Data Class)"]
+        DAO["@Dao (Interface / Abstract Class)"]
+        DB["@Database (RoomDatabase)"]
+    end
+
+    subgraph "Tầng Biên Dịch (KSP - Kotlin Symbol Processing)"
+        KSP[Room Compiler Processor]
+        GenDB["AppDatabase_Impl.kt"]
+        GenDAO["TaskDao_Impl.kt"]
+    end
+
+    subgraph "Tầng Thực Thi (Room Runtime)"
+        RoomRuntime["Room Runtime Engine"]
+        InvalidationTracker["InvalidationTracker (Quan sát bảng)"]
+        SQLiteDriver["SupportSQLite Framework (android.database.sqlite)"]
+    end
+
+    subgraph "Tầng Hệ Điều Hành (OS Layer)"
+        NDK["NDK JNI Bridge"]
+        SQLiteC["SQLite C Engine (/system/lib/libsqlite.so)"]
+        DBFile[("File CSDL: app_database.db")]
+    end
+
+    DAO -.->|Định nghĩa| KSP
+    DB -.->|Định nghĩa| KSP
+    KSP -->|Sinh mã| GenDB
+    KSP -->|Sinh mã| GenDAO
+    GenDB --> RoomRuntime
+    GenDAO --> RoomRuntime
+    RoomRuntime --> InvalidationTracker
+    RoomRuntime --> SQLiteDriver
+    SQLiteDriver --> NDK
+    NDK --> SQLiteC
+    SQLiteC --> DBFile
 </div>
 
+<h3>Bí mật của KSP (Kotlin Symbol Processing) và các file <code>_Impl</code></h3>
 
-<h2>Tư duy hệ thống: Single Source of Truth (SSOT)</h2>
+<p>Khi bạn bấm nút Build trong Android Studio, Room Compiler (chạy thông qua KSP) sẽ phân tích các Annotation:</p>
 
-<p>Trong kiến trúc hiện đại, Room thường được dùng làm <strong>Nguồn chân lý duy nhất (Single Source of Truth)</strong>.</p>
+<ol>
 
-<p>Nghĩa là: Khi UI yêu cầu dữ liệu, Repository sẽ <strong>KHÔNG</strong> trả data từ API về thẳng cho UI. Thay vào đó:<br>1. Repository fetch data từ API.<br>2. Lưu thẳng data đó vào Room Database.<br>3. UI chỉ <code>collect</code> một cái <code>Flow</code> đang lắng nghe từ Room Database.</p>
+<li><strong>Xác thực Schema:</strong> Room lấy câu lệnh bên trong <code>@Query("SELECT * FROM tasks WHERE id = :id")</code>, phân tích cú pháp SQL (SQL Lexer/Parser) đối chiếu với bảng <code>tasks</code> được khai báo trong <code>@Entity</code>. Nếu tên cột không tồn tại, KSP sẽ ngắt quá trình build ngay lập tức và ném lỗi rõ ràng.</li>
 
-<strong>Lợi ích khổng lồ:</strong>
-- Ứng dụng <strong>tự động có chế độ Offline</strong>. Nếu mất mạng, UI vẫn hiển thị data đang có trong Room.
-- Có mạng lại, API load xong ghi vào Room, Flow tự động "bắn" data mới lên UI mượt mà.
+<li><strong>Sinh mã thực thi (<code>_Impl</code>):</strong></li>
 
-<h2>Hướng dẫn triển khai thực tế (MVVM + Flow)</h2>
+</ol>
 
-<h2>1. Định nghĩa Entity (Table)</h2>
+<p>   - Với interface <code>TaskDao</code>, Room sinh ra class <code>TaskDao_Impl.kt</code>.</p>
 
-<pre data-lang="kotlin"><code>@Entity(tableName = "articles")<br>data class ArticleEntity(<br>    @PrimaryKey val id: String, // Khóa chính<br>    val title: String,<br>    val content: String,<br>    val timestamp: Long<br>)</code></pre>
+<p>   - Với abstract class <code>AppDatabase</code>, Room sinh ra <code>AppDatabase_Impl.kt</code>.</p>
 
-<h2>2. Định nghĩa DAO (Query)</h2>
+<p>Hãy nhìn vào đoạn mã mô phỏng cách <code>TaskDao_Impl</code> do Room sinh ra xử lý câu truy vấn:</p>
 
-<p>Trọng tâm: Sử dụng <code>Flow</code> cho truy vấn đọc để UI tự động cập nhật, dùng <code>suspend</code> cho thao tác Ghi để chạy ngầm không block Main Thread.</p>
-
-<pre data-lang="kotlin"><code>@Dao
-interface ArticleDao {
-    // Trả về Flow -&gt; Bất cứ khi nào bảng articles có sự thay đổi, 
-    // Flow sẽ tự động emit List mới. UI không cần gọi lại hàm này!
-    @Query("SELECT * FROM articles ORDER BY timestamp DESC")
-    fun getAllArticles(): Flow&lt;List&lt;ArticleEntity&gt;&gt;
-
-// Insert một list. REPLACE nghĩa là nếu trùng ID thì ghi đè bản mới
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertArticles(articles: List&lt;ArticleEntity&gt;)
+<pre data-lang="kotlin"><code>// [Code sinh tự động bởi Room KSP - TaskDao_Impl]
+public class TaskDao_Impl(private val __db: RoomDatabase) : TaskDao {
+    private val __insertionAdapterOfTaskEntity: EntityInsertionAdapter&lt;TaskEntity&gt;
     
-    @Query("DELETE FROM articles")
-    suspend fun clearAll()
-}</code></pre></p>
-
-<h2>3. Khởi tạo Database</h2>
-
-<p>Dùng Singleton (qua Hilt/Dagger) để đảm bảo chỉ có 1 instance mở kết nối (kết nối DB rất tốn tài nguyên).</p>
-
-<pre data-lang="kotlin"><code>@Database(entities = [ArticleEntity::class], version = 1, exportSchema = false)
-abstract class AppDatabase : RoomDatabase() {
-    abstract fun articleDao(): ArticleDao
-    
-    // Khởi tạo bằng Builder thường đặt trong Dependency Injection module
-    // Room.databaseBuilder(context, AppDatabase::class.java, "my_database.db").build()
-}</code></pre>
-
-<h2>4. Repository: Mảnh ghép SSOT (Offline First)</h2>
-
-<pre data-lang="kotlin"><code>class ArticleRepository(
-    private val api: ArticleApi,
-    private val dao: ArticleDao
-) {
-    // UI Lắng nghe luồng này
-    val articles: Flow&lt;List&lt;ArticleEntity&gt;&gt; = dao.getAllArticles()
-
-// Hàm gọi khi user vuốt pull-to-refresh hoặc mở app
-    suspend fun syncDataFromApi() {
-        try {
-            // 1. Lấy từ mạng
-            val networkArticles = api.fetchArticles()
-            
-            // 2. Chuyển đổi DTO -&gt; Entity (nếu cần)
-            val entities = networkArticles.map { /<em> mapping </em>/ }
-            
-            // 3. Ghi vào Room. 
-            // Vừa ghi xong, biến 'articles' Flow ở trên sẽ lập tức chớp data mới lên UI!
-            dao.insertArticles(entities)
-            
-        } catch (e: Exception) {
-            // Lỗi mạng, không sao cả, UI vẫn đang hiển thị data cũ từ Room
+    init {
+        this.__insertionAdapterOfTaskEntity = object : EntityInsertionAdapter&lt;TaskEntity&gt;(__db) {
+            override fun createQuery(): String {
+                // Tự động dịch Entity thành câu lệnh PreparedStatement
+                return "INSERT OR REPLACE INTO \`tasks\` (\`id\`,\`title\`,\`status\`) VALUES (?,?,?)"
+            }
+            override fun bind(statement: SupportSQLiteStatement, entity: TaskEntity) {
+                statement.bindString(1, entity.id)
+                statement.bindString(2, entity.title)
+                statement.bindLong(3, if (entity.isCompleted) 1L else 0L)
+            }
         }
     }
-}</code></pre></p>
 
-<h2>Tổng kết</h2>
+    override suspend fun getTaskById(id: String): TaskEntity? {
+        val _sql = "SELECT * FROM tasks WHERE id = ?"
+        val _statement = RoomSQLiteQuery.acquire(_sql, 1)
+        _statement.bindString(1, id)
+        
+        // Room tự động chuyển execution sang Background Dispatcher
+        return CoroutinesRoom.execute(__db, false, null) {
+            val _cursor = DBUtil.query(__db, _statement, false, null)
+            try {
+                val _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id")
+                val _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title")
+                val _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "status")
+                
+                if (_cursor.moveToFirst()) {
+                    TaskEntity(
+                        id = _cursor.getString(_cursorIndexOfId),
+                        title = _cursor.getString(_cursorIndexOfTitle),
+                        isCompleted = _cursor.getLong(_cursorIndexOfStatus) != 0L
+                    )
+                } else null
+            } finally {
+                _cursor.close()
+                _statement.release()
+            }
+        }
+    }
+}</code></pre>
 
-<p>Room Database không phải để thay thế SQLite, mà nó <strong>nâng cấp trải nghiệm</strong> sử dụng SQLite. Việc kết hợp Room với Kotlin Flow và mô hình <strong>Single Source of Truth</strong> là "tiêu chuẩn vàng" để xây dựng một ứng dụng Android mượt mà, phản hồi nhanh và hoạt động trơn tru cả khi không có kết nối mạng.</p>
+<blockquote><strong>Bài học rút ra:</strong> Room không dùng Reflection (vốn rất chậm trên Android Runtime). Room sinh mã thuần túy bằng code Java/Kotlin hiệu năng cao tương đương với code mà một kỹ sư tỉ mỉ nhất tự tay viết, nhưng không có nguy cơ sai sót.</blockquote>
+
+<hr/>
+
+<h2>3. Bộ Ba Cốt Lõi Trong Bối Cảnh Smart Task Manager</h2>
+
+<p>Để áp dụng chuẩn mực, chúng ta xây dựng hệ thống lưu trữ cho ứng dụng <strong>Smart Task & Project Manager</strong> bao gồm các thực thể: <code>Category</code> (Danh mục dự án), <code>Task</code> (Nhiệm vụ), <code>Subtask</code> (Nhiệm vụ con), và <code>Tag</code> (Nhãn dán).</p>
+
+<div class="mermaid">
+erDiagram
+    CATEGORY ||--o{ TASK : "1 chứa nhiều (1-N)"
+    TASK ||--o{ SUBTASK : "1 có nhiều (1-N)"
+    TASK }|--|{ TAG : "Nhiều - Nhiều qua TaskTagCrossRef"
+    TASK ||--o| TASK_REMINDER : "1 kèm 1 (1-1)"
+
+    CATEGORY {
+        string id PK
+        string name
+        string colorHex
+    }
+    TASK {
+        string id PK
+        string categoryId FK
+        string title
+        string priority
+        int status
+        int syncStatus
+        int createdAt
+    }
+    SUBTASK {
+        string id PK
+        string taskId FK
+        string title
+        boolean isDone
+    }
+    TAG {
+        string id PK
+        string tagName
+    }
+    TASK_REMINDER {
+        string taskId PK,FK
+        int triggerAt
+        boolean isVibrate
+    }
+</div>
+
+<h3>3.1. Thiết kế Entity chuẩn mực (<code>@Entity</code>)</h3>
+
+<p>Khi thiết kế Entity trong Room, có 4 quy tắc bắt buộc:</p>
+
+<ol>
+
+<li><strong>Primary Key có chủ đích:</strong> Với ứng dụng cần đồng bộ dữ liệu (Offline-first), tránh dùng <code>autoGenerate = true</code> dạng <code>Int/Long</code> tự tăng nếu bảng đó sẽ đồng bộ lên Server. Hãy dùng <code>UUID</code> dạng <code>String</code> làm khóa chính do Client sinh ra để tránh xung đột định danh khi tạo dữ liệu offline.</li>
+
+<li><strong>Khai báo Index cho Foreign Key:</strong> SQLite không tự động đánh Index cho cột Foreign Key. Nếu bạn không khai báo <code>@Index</code>, các thao tác <code>JOIN</code> hoặc xóa bảng cha có ràng buộc <code>CASCADE</code> sẽ quét toàn bộ bảng (Table Scan), gây suy giảm nghiêm trọng hiệu năng.</li>
+
+<li><strong>Ràng buộc toàn vẹn dữ liệu (ForeignKey Cascading):</strong> Khi một <code>Category</code> bị xóa, các <code>Task</code> thuộc danh mục đó sẽ được xử lý ra sao? <code>ForeignKey.CASCADE</code> giúp tự động dọn dẹp dữ liệu con.</li>
+
+</ol>
+
+<pre data-lang="kotlin"><code>package com.example.taskmanager.data.local.entity
+
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "categories")
+data class CategoryEntity(
+    @PrimaryKey
+    @ColumnInfo(name = "id")
+    val id: String,
+    
+    @ColumnInfo(name = "name")
+    val name: String,
+    
+    @ColumnInfo(name = "color_hex")
+    val colorHex: String
+)
+
+@Entity(
+    tableName = "tasks",
+    foreignKeys = [
+        ForeignKey(
+            entity = CategoryEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["category_id"],
+            onDelete = ForeignKey.CASCADE // Xóa Category -&gt; Tự xóa sạch Task liên quan
+        )
+    ],
+    indices = [
+        Index(value = ["category_id"]), // BẮT BUỘC để tối ưu Foreign Key
+        Index(value = ["created_at"]),   // Tối ưu sắp xếp theo thời gian
+        Index(value = ["sync_status"])   // Tối ưu lọc dữ liệu chưa đồng bộ
+    ]
+)
+data class TaskEntity(
+    @PrimaryKey
+    @ColumnInfo(name = "id")
+    val id: String,
+
+    @ColumnInfo(name = "category_id")
+    val categoryId: String,
+
+    @ColumnInfo(name = "title")
+    val title: String,
+
+    @ColumnInfo(name = "priority")
+    val priority: PriorityLevel, // Cần TypeConverter
+
+    @ColumnInfo(name = "status")
+    val status: TaskStatus,
+
+    @ColumnInfo(name = "sync_status", defaultValue = "0")
+    val syncStatus: SyncStatus,
+
+    @ColumnInfo(name = "created_at")
+    val createdAt: Long = System.currentTimeMillis()
+)
+
+enum class PriorityLevel { LOW, MEDIUM, HIGH, URGENT }
+enum class TaskStatus { TODO, IN_PROGRESS, COMPLETED }
+enum class SyncStatus { SYNCED, PENDING_INSERT, PENDING_UPDATE, PENDING_DELETE }</code></pre>
+
+<h3>3.2. Thiết kế DAO (<code>@Dao</code>)</h3>
+
+<p>Data Access Object là nơi định nghĩa toàn bộ "hợp đồng" truy vấn dữ liệu:</p>
+
+<ul>
+
+<li><strong>Thao tác Đọc (Read):</strong> Trả về <code>Flow&lt;T&gt;</code> để UI liên tục nhận dữ liệu mới khi database thay đổi. Hàm trả về <code>Flow</code> <strong>KHÔNG</strong> được thêm từ khóa <code>suspend</code> vì bản thân <code>Flow</code> đã là luồng bất đồng bộ.</li>
+
+<li><strong>Thao tác Ghi (CUD - Create/Update/Delete):</strong> Bắt buộc sử dụng <code>suspend fun</code> để đảm bảo thực thi trên Background Thread mà không làm đứng giao diện.</li>
+
+</ul>
+
+<pre data-lang="kotlin"><code>package com.example.taskmanager.data.local.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import com.example.taskmanager.data.local.entity.SyncStatus
+import com.example.taskmanager.data.local.entity.TaskEntity
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface TaskDao {
+    // 1. Reactive Read: Bất cứ khi nào bảng tasks thay đổi, Flow này tự emit danh sách mới
+    @Query("SELECT * FROM tasks WHERE category_id = :categoryId ORDER BY created_at DESC")
+    fun getTasksByCategory(categoryId: String): Flow&lt;List&lt;TaskEntity&gt;&gt;
+
+    @Query("SELECT * FROM tasks WHERE id = :taskId LIMIT 1")
+    suspend fun getTaskById(taskId: String): TaskEntity?
+
+    @Query("SELECT * FROM tasks WHERE sync_status != :syncedStatus")
+    suspend fun getPendingSyncTasks(syncedStatus: SyncStatus = SyncStatus.SYNCED): List&lt;TaskEntity&gt;
+
+    // 2. Write Operations: Luôn dùng suspend
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertTask(task: TaskEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertTasks(tasks: List&lt;TaskEntity&gt;)
+
+    @Update
+    suspend fun updateTask(task: TaskEntity)
+
+    @Query("DELETE FROM tasks WHERE id = :taskId")
+    suspend fun deleteTaskById(taskId: String)
+
+    @Query("UPDATE tasks SET sync_status = :status WHERE id = :taskId")
+    suspend fun updateSyncStatus(taskId: String, status: SyncStatus)
+}</code></pre>
+
+<h3>3.3. Cấu hình Database (<code>@Database</code>)</h3>
+
+<pre data-lang="kotlin"><code>package com.example.taskmanager.data.local
+
+import androidx.room.Database
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.example.taskmanager.data.local.converter.AppTypeConverters
+import com.example.taskmanager.data.local.dao.TaskDao
+import com.example.taskmanager.data.local.entity.CategoryEntity
+import com.example.taskmanager.data.local.entity.SubtaskEntity
+import com.example.taskmanager.data.local.entity.TagEntity
+import com.example.taskmanager.data.local.entity.TaskEntity
+import com.example.taskmanager.data.local.entity.TaskReminderEntity
+import com.example.taskmanager.data.local.entity.TaskTagCrossRef
+
+@Database(
+    entities = [
+        CategoryEntity::class,
+        TaskEntity::class,
+        SubtaskEntity::class,
+        TagEntity::class,
+        TaskTagCrossRef::class,
+        TaskReminderEntity::class
+    ],
+    version = 1,
+    exportSchema = true // Luôn bật exportSchema = true để phục vụ Migration &amp; Testing
+)
+@TypeConverters(AppTypeConverters::class)
+abstract class TaskManagerDatabase : RoomDatabase() {
+    abstract fun taskDao(): TaskDao
+}</code></pre>
+
+<hr/>
+
+<h2>4. Mô Hình Hóa Quan Hệ Trong Room (Relationships)</h2>
+
+<h3>Tại sao Room cấm Entity chứa trực tiếp Entity khác?</h3>
+
+<p>Nhiều lập trình viên từ các nền tảng Backend (như Hibernate / JPA) sang Android thường thắc mắc: <em>Tại sao không thể viết <code>data class Task(val subtasks: List&lt;Subtask&gt;)</code>?</em></p>
+
+<blockquote><strong>Nguyên nhân cốt lõi:</strong> Các ORM truyền thống dùng kỹ thuật <strong>Lazy Loading</strong> (khi truy cập <code>task.subtasks</code>, ORM sẽ âm thầm chạy thêm một câu query xuống DB). Trên Android, nếu code UI tình cờ truy cập thuộc tính này trên Main Thread, một truy vấn đĩa bất ngờ sẽ xảy ra, làm rớt khung hình (drop frames) hoặc gây crash ANR. Do đó, Room <strong>cấm hoàn toàn</strong> việc nhúng thực thể con trực tiếp vào thực thể cha để triệt tiêu nguy cơ giật lag UI.</blockquote>
+
+<p>Thay vào đó, Room cung cấp các class POJO trung gian kết hợp annotation <code>@Relation</code> và <code>@Embedded</code>.</p>
+
+<h3>4.1. Quan hệ 1 - 1 (Task & TaskReminder)</h3>
+
+<p>Mỗi Task chỉ có tối đa 1 nhắc nhở (Reminder).</p>
+
+<pre data-lang="kotlin"><code>// 1. Entity Reminder
+@Entity(
+    tableName = "task_reminders",
+    foreignKeys = [
+        ForeignKey(
+            entity = TaskEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["task_id"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
+data class TaskReminderEntity(
+    @PrimaryKey
+    @ColumnInfo(name = "task_id")
+    val taskId: String,
+    @ColumnInfo(name = "trigger_at")
+    val triggerAt: Long,
+    @ColumnInfo(name = "is_vibrate")
+    val isVibrate: Boolean
+)
+
+// 2. Data Class kết hợp (POJO)
+data class TaskWithReminder(
+    @Embedded val task: TaskEntity,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "task_id"
+    )
+    val reminder: TaskReminderEntity?
+)</code></pre>
+
+<h3>4.2. Quan hệ 1 - N (Category & Tasks, Task & Subtasks)</h3>
+
+<p>Một Category chứa nhiều Task:</p>
+
+<pre data-lang="kotlin"><code>// Data class gom nhóm 1 Category và danh sách Tasks thuộc về nó
+data class CategoryWithTasks(
+    @Embedded val category: CategoryEntity,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "category_id"
+    )
+    val tasks: List&lt;TaskEntity&gt;
+)</code></pre>
+
+<h3>4.3. Quan hệ N - N (Task & Tag qua Junction Table)</h3>
+
+<p>Một Task có thể gắn nhiều Tag, và một Tag có thể gắn cho nhiều Task. Ta tạo bảng chéo <code>TaskTagCrossRef</code>:</p>
+
+<pre data-lang="kotlin"><code>// 1. Entity Tag
+@Entity(tableName = "tags")
+data class TagEntity(
+    @PrimaryKey
+    val id: String,
+    @ColumnInfo(name = "tag_name")
+    val tagName: String
+)
+
+// 2. Bảng liên kết trung gian (Junction Table)
+@Entity(
+    tableName = "task_tag_cross_ref",
+    primaryKeys = ["task_id", "tag_id"],
+    indices = [
+        Index(value = ["tag_id"]) // Cần thiết để query ngược từ Tag ra Task
+    ],
+    foreignKeys = [
+        ForeignKey(entity = TaskEntity::class, parentColumns = ["id"], childColumns = ["task_id"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = TagEntity::class, parentColumns = ["id"], childColumns = ["tag_id"], onDelete = ForeignKey.CASCADE)
+    ]
+)
+data class TaskTagCrossRef(
+    @ColumnInfo(name = "task_id") val taskId: String,
+    @ColumnInfo(name = "tag_id") val tagId: String
+)
+
+// 3. POJO lấy Task kèm danh sách Tag
+data class TaskWithTags(
+    @Embedded val task: TaskEntity,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = androidx.room.Junction(
+            value = TaskTagCrossRef::class,
+            parentColumn = "task_id",
+            entityColumn = "tag_id"
+        )
+    )
+    val tags: List&lt;TagEntity&gt;
+)</code></pre>
+
+<h3>Quy tắc sống còn: Luôn dùng <code>@Transaction</code> khi truy vấn <code>@Relation</code></h3>
+
+<p>Khi Room thực hiện truy vấn một class có chứa <code>@Relation</code>, bên dưới nó phải chạy <strong>ít nhất 2 câu lệnh SQL riêng biệt</strong>:</p>
+
+<ol>
+
+<li><code>SELECT * FROM tasks WHERE id = ?</code></li>
+
+<li><code>SELECT * FROM tags INNER JOIN task_tag_cross_ref ...</code></li>
+
+</ol>
+
+<p>Nếu không bọc trong một Transaction, dữ liệu giữa 2 câu query có thể bị biến đổi bởi một tác vụ ghi khác xen ngang, dẫn đến dữ liệu trả về bị mâu thuẫn (Inconsistent State).</p>
+
+<pre data-lang="kotlin"><code>@Dao
+interface TaskRelationDao {
+    // BẮT BUỘC PHẢI CÓ @Transaction
+    @androidx.room.Transaction
+    @Query("SELECT * FROM tasks WHERE id = :taskId")
+    fun getTaskWithTags(taskId: String): Flow&lt;TaskWithTags&gt;
+
+    @androidx.room.Transaction
+    @Query("SELECT * FROM categories")
+    fun getCategoriesWithTasks(): Flow&lt;List&lt;CategoryWithTasks&gt;&gt;
+}</code></pre>
+
+<hr/>
+
+<h2>5. TypeConverter: Vũ Khí Hai Lưỡi</h2>
+
+<h3>Bản chất của TypeConverter</h3>
+
+<p>SQLite trong nhân Android chỉ hỗ trợ tự nhiên 5 kiểu dữ liệu lưu trữ:</p>
+
+<ul>
+
+<li><code>NULL</code></li>
+
+<li><code>INTEGER</code> (1, 2, 3, 4, 6, 8 bytes)</li>
+
+<li><code>REAL</code> (số thực 8-byte floating point)</li>
+
+<li><code>TEXT</code> (chuỗi ký tự mã hóa UTF-8 hoặc UTF-16)</li>
+
+<li><code>BLOB</code> (dữ liệu nhị phân nguyên bản)</li>
+
+</ul>
+
+<p>Kotlin có rất nhiều kiểu dữ liệu phong phú như <code>Enum</code>, <code>Instant</code>, <code>UUID</code>, <code>BigDecimal</code>. Room cung cấp <code>@TypeConverter</code> để lập trình viên định nghĩa quy tắc hoán chuyển 2 chiều giữa kiểu dữ liệu Kotlin và kiểu dữ liệu SQLite hỗ trợ.</p>
+
+<pre data-lang="kotlin"><code>package com.example.taskmanager.data.local.converter
+
+import androidx.room.TypeConverter
+import com.example.taskmanager.data.local.entity.PriorityLevel
+import com.example.taskmanager.data.local.entity.SyncStatus
+import com.example.taskmanager.data.local.entity.TaskStatus
+
+class AppTypeConverters {
+    // 1. Chuyển Enum sang String và ngược lại
+    @TypeConverter
+    fun fromPriority(priority: PriorityLevel): String = priority.name
+
+    @TypeConverter
+    fun toPriority(value: String): PriorityLevel = 
+        runCatching { PriorityLevel.valueOf(value) }.getOrDefault(PriorityLevel.MEDIUM)
+
+    @TypeConverter
+    fun fromTaskStatus(status: TaskStatus): Int = status.ordinal
+
+    @TypeConverter
+    fun toTaskStatus(value: Int): TaskStatus = 
+        TaskStatus.entries.getOrElse(value) { TaskStatus.TODO }
+
+    @TypeConverter
+    fun fromSyncStatus(status: SyncStatus): Int = status.ordinal
+
+    @TypeConverter
+    fun toSyncStatus(value: Int): SyncStatus = 
+        SyncStatus.entries.getOrElse(value) { SyncStatus.SYNCED }
+}</code></pre>
+
+<h3>Khi nào TypeConverter trở thành Anti-Pattern?</h3>
+
+<blockquote>⚠️ <strong>Cảnh báo Anti-Pattern (Json in Column):</strong> Rất nhiều lập trình viên lười tạo bảng quan hệ đã dùng Gson/Moshi viết một <code>@TypeConverter</code> để biến <code>List&lt;Subtask&gt;</code> thành một chuỗi JSON String và nhét vào 1 cột <code>TEXT</code> trong bảng <code>tasks</code>.</blockquote>
+
+<p><strong>Hậu quả khôn lường:</strong></p>
+
+<ol>
+
+<li><strong>Phá vỡ chuẩn hóa 1NF (First Normal Form):</strong> Dữ liệu không còn tính nguyên tử.</li>
+
+<li><strong>Không thể Index và Query:</strong> Bạn không thể viết SQL: <code>SELECT * FROM tasks WHERE subtasks.isDone = false</code>.</li>
+
+<li><strong>Hiệu năng suy giảm:</strong> Mỗi lần đọc một <code>TaskEntity</code>, Room phải khởi tạo JSON parser để parse toàn bộ chuỗi string thành danh sách object trong RAM, gây lãng phí chu kỳ CPU và ép Garbage Collector (GC) làm việc liên tục.</li>
+
+</ol>
+
+<p><strong>Quy tắc:</strong> Chỉ dùng TypeConverter cho các giá trị <strong>đơn lẻ</strong> (Single Scalar Values) như Date/Timestamp, UUID, hoặc Enum. Với tập hợp danh sách dữ liệu con, luôn tạo bảng riêng và dùng <code>@Relation</code>.</p>
+
+<hr/>
+
+<h2>6. Reactive Database & Cơ Chế InvalidationTracker</h2>
+
+<p>Khi bạn khai báo một hàm trong DAO trả về <code>Flow&lt;List&lt;TaskEntity&gt;&gt;</code>, làm thế nào Room biết khi nào bảng <code>tasks</code> bị thay đổi để tự động phát ra (emit) danh sách mới?</p>
+
+<h3>Nguyên lý hoạt động của <code>InvalidationTracker</code></h3>
+
+<p>Bí mật nằm ở <strong><code>InvalidationTracker</code></strong> - thành phần cốt lõi của Room Runtime Engine:</p>
+
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant UI as UI Layer (Compose/Collector)
+    participant Flow as Room Flow Observer
+    participant Tracker as InvalidationTracker
+    participant DB as SQLite Engine
+    participant Writer as Background Sync / DAO Write
+
+    UI->>Flow: collect { displayTasks(it) }
+    Flow->>Tracker: Đăng ký observer theo dõi bảng "tasks"
+    Tracker->>DB: Thiết lập SQLite Triggers trên bảng "tasks"
+    Flow->>DB: Thực thi truy vấn ban đầu: SELECT * FROM tasks
+    DB-->>Flow: Trả về kết quả ban đầu
+    Flow-->>UI: emit(initialList)
+
+    Note over Writer, DB: Tác vụ ghi diễn ra
+    Writer->>DB: DAO.upsertTask(newTask)
+    DB->>DB: SQLite Trigger kích hoạt, ghi cờ 1 vào "room_table_modification_tracker"
+    
+    Tracker->>DB: Quét bảng tracker định kỳ / sau lệnh commit
+    DB-->>Tracker: Báo bảng "tasks" đã bị DIRTY (thay đổi)
+    Tracker->>Flow: Thông báo onInvalidated("tasks")
+    
+    Flow->>DB: Tự động chạy lại câu query: SELECT * FROM tasks
+    DB-->>Flow: Trả về kết quả mới
+    Flow-->>UI: emit(updatedList)
+    UI->>UI: Tự động re-compose cập nhật màn hình
+</div>
+
+<h3>Cơ chế kỹ thuật bên dưới:</h3>
+
+<ol>
+
+<li><strong>Tạo Trigger ẩn:</strong> Khi database mở, Room tự động tạo các Trigger SQLite nội bộ trên các bảng được theo dõi:</li>
+
+</ol>
+
+<p>   \`\`\`sql</p>
+
+<p>   CREATE TEMP TRIGGER IF NOT EXISTS room_table_modification_trigger_tasks_INSERT</p>
+
+<p>   AFTER INSERT ON tasks BEGIN</p>
+
+<p>       UPDATE room_table_modification_tracker SET invalidated = 1 WHERE table_id = 1 AND invalidated = 0;</p>
+
+<p>   END;</p>
+
+<p>   \`\`\`</p>
+
+<ol>
+
+<li><strong>Bảng tạm theo dõi:</strong> Room duy trì một bảng trong bộ nhớ có tên <code>room_table_modification_tracker</code> lưu trạng thái <code>invalidated</code> của từng bảng.</li>
+
+<li><strong>Phát hiện Dirty Table:</strong> Khi bất kỳ câu lệnh <code>INSERT</code>, <code>UPDATE</code>, hoặc <code>DELETE</code> nào được thực thi trên bảng <code>tasks</code>, Trigger SQLite sẽ đánh dấu bảng đó là "dirty" (<code>invalidated = 1</code>).</li>
+
+<li><strong>Tái kích hoạt luồng Flow:</strong> <code>InvalidationTracker</code> phát hiện bảng bị dirty, chuyển việc re-query sang background dispatcher của Room, lấy dữ liệu mới nhất và phát ra qua <code>Flow</code>.</li>
+
+</ol>
+
+<blockquote>💡 <strong>Điểm cần lưu ý:</strong> Room theo dõi thay đổi ở <strong>CẤP ĐỘ BẢNG (Table level)</strong> chứ không phải từng hàng (Row level). Nghĩa là bất cứ thao tác ghi nào trên bảng <code>tasks</code> cũng sẽ khiến toàn bộ các câu truy vấn <code>Flow</code> đang lắng nghe trên bảng đó chạy lại. Do đó, hãy giữ các câu query trong DAO càng tinh gọn càng tốt.</blockquote>
+
+<hr/>
+
+<h2>7. Threading, Executor & An Toàn Concurrency</h2>
+
+<h3>Cấm tuyệt đối <code>allowMainThreadQueries()</code> trên Production</h3>
+
+<p>SQLite thực hiện các thao tác đọc và ghi trực tiếp lên ổ cứng Flash (Disk I/O). Tốc độ đọc/ghi Flash Disk phụ thuộc vào trạng thái chip nhớ, dung lượng file DB và tải của hệ thống. Một câu query SQL tưởng chừng đơn giản có thể mất từ vài mili-giây đến vài trăm mili-giây nếu bị phân mảnh đĩa.</p>
+
+<ul>
+
+<li>Nếu chạy trên <strong>Main Thread (UI Thread)</strong>: Mỗi khung hình Android phải render trong vòng <strong>16.6ms</strong> (60fps) hoặc <strong>8.3ms</strong> (120fps). Bất kỳ độ trễ I/O nào vượt quá ngưỡng này sẽ gây rớt khung hình (Jank) và nếu vượt quá 5 giây sẽ lập tức xuất hiện hộp thoại <strong>ANR (Application Not Responding)</strong>.</li>
+
+<li>Vì lý do này, Room mặc định <strong>ném ngoại lệ <code>IllegalStateException</code></strong> nếu phát hiện bất kỳ câu truy vấn nào kích hoạt trên Main Thread.</li>
+
+<li>Bạn chỉ được phép bật <code>.allowMainThreadQueries()</code> trong các bài kiểm thử đơn giản (Unit Test), tuyệt đối không bao giờ dùng trong code Production.</li>
+
+</ul>
+
+<h3>Cơ chế phân bổ Thread Pool của Room</h3>
+
+<p>Room quản lý 2 Thread Pool riêng biệt:</p>
+
+<ol>
+
+<li><strong>Query Executor:</strong> Dùng cho các câu lệnh đọc dữ liệu (<code>SELECT</code>). Mặc định sử dụng một pool gồm nhiều luồng để cho phép đọc song song.</li>
+
+<li><strong>Transaction Executor:</strong> Dùng cho các câu lệnh bọc <code>@Transaction</code> hoặc các thao tác ghi tuần tự. Executor này hoạt động theo cơ chế <strong>Single Thread (Tuần tự)</strong> để đảm bảo thứ tự các giao dịch ghi không bị tranh chấp lẫn nhau.</li>
+
+</ol>
+
+<h3>Write-Ahead Logging (WAL Mode) - Bí quyết tối ưu đọc ghi đồng thời</h3>
+
+<p>Mặc định ở các phiên bản Android cũ, SQLite sử dụng chế độ <strong>Rollback Journal</strong>:</p>
+
+<ul>
+
+<li>Khi có một tác vụ Ghi (Write), toàn bộ file database bị khóa độc quyền (Exclusive Lock).</li>
+
+<li>Mọi tác vụ Đọc (Read) khác phải đứng chờ cho đến khi tác vụ ghi hoàn tất. Điều này làm nghẽn UI nếu đang có tiến trình đồng bộ dữ liệu ngầm từ API.</li>
+
+</ul>
+
+<p>Từ Android 9.0+, Room mặc định kích hoạt chế độ <strong>Write-Ahead Logging (WAL)</strong>:</p>
+
+<ul>
+
+<li>Thay vì ghi trực tiếp vào file chính <code>app_database.db</code>, các lệnh ghi mới sẽ được lưu tạm vào một file nhật ký riêng: <code>app_database.db-wal</code>.</li>
+
+<li>File gốc vẫn giữ nguyên để các tác vụ Đọc truy cập song song.</li>
+
+<li><strong>Kết quả:</strong> Reader không block Writer, và Writer không block Reader! Tốc độ truy vấn của ứng dụng tăng lên gấp nhiều lần. Định kỳ, Room sẽ chạy thao tác "Checkpoint" để gom dữ liệu từ file WAL về lại file DB chính.</li>
+
+</ul>
+
+<hr/>
+
+<h2>8. Triển Khai Kiến Trúc Single Source of Truth (SSOT) & Offline-First</h2>
+
+<p>Trong ứng dụng hiện đại, Room đóng vai trò là <strong>Nguồn Chân Lý Duy Nhất (Single Source of Truth)</strong>.</p>
+
+<div class="mermaid">
+flowchart LR
+    subgraph Remote
+        API[Remote Server / API]
+    end
+
+    subgraph "Data Layer (Repository)"
+        Repo[TaskRepositoryImpl]
+        RoomDB[(Room Local DB)]
+    end
+
+    subgraph "UI Layer"
+        VM[TaskViewModel]
+        UI[Compose Screen]
+    end
+
+    API -->|Fetch Data| Repo
+    Repo -->|1. Lưu dữ liệu mới| RoomDB
+    RoomDB -->|2. Emit Flow tự động| Repo
+    Repo -->|3. UI State Flow| VM
+    VM -->|4. State| UI
+    UI -.->|User Action: Tạo Task| VM
+    VM -.->|Lưu Local trước| Repo
+    Repo -.->|Ghi vào DB với PENDING_INSERT| RoomDB
+    Repo -.->|Đồng bộ ngầm lên Server| API
+</div>
+
+<h3>Quy tắc triển khai Offline-First:</h3>
+
+<ol>
+
+<li><strong>Giao diện người dùng (UI) KHÔNG BAO GIỜ chờ API mạng.</strong> UI chỉ quan sát duy nhất <code>Flow</code> phát ra từ Room.</li>
+
+<li>Khi người dùng tạo một Task mới:</li>
+
+</ol>
+
+<p>   - Lưu ngay lập tức vào Room với trạng thái <code>SyncStatus.PENDING_INSERT</code>.</p>
+
+<p>   - UI cập nhật tức thì (Độ trễ = 0ms).</p>
+
+<p>   - Khởi chạy một Coroutine ngầm gửi dữ liệu lên Server. Nếu thành công, cập nhật trạng thái trong Room thành <code>SyncStatus.SYNCED</code>. Nếu mất mạng, dữ liệu vẫn an toàn trong Room và sẽ được sync lại khi có mạng.</p>
+
+<h3>Triển khai Code Thực Chiến <code>TaskRepositoryImpl</code></h3>
+
+<pre data-lang="kotlin"><code>package com.example.taskmanager.data.repository
+
+import com.example.taskmanager.data.local.dao.TaskDao
+import com.example.taskmanager.data.local.entity.SyncStatus
+import com.example.taskmanager.data.local.entity.TaskEntity
+import com.example.taskmanager.data.remote.TaskApiService
+import com.example.taskmanager.data.remote.dto.TaskDto
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
+
+interface TaskRepository {
+    fun getTasksByCategory(categoryId: String): Flow&lt;List&lt;TaskEntity&gt;&gt;
+    suspend fun createTask(categoryId: String, title: String): Result&lt;Unit&gt;
+    suspend fun syncPendingTasks(): Result&lt;Unit&gt;
+}
+
+@Singleton
+class TaskRepositoryImpl @Inject constructor(
+    private val taskDao: TaskDao,
+    private val apiService: TaskApiService
+) : TaskRepository {
+
+    // 1. UI chỉ lắng nghe luồng này
+    override fun getTasksByCategory(categoryId: String): Flow&lt;List&lt;TaskEntity&gt;&gt; {
+        return taskDao.getTasksByCategory(categoryId)
+    }
+
+    // 2. Tạo task: Lưu Local trước (Optimistic UI Update)
+    override suspend fun createTask(categoryId: String, title: String): Result&lt;Unit&gt; {
+        val localTask = TaskEntity(
+            id = java.util.UUID.randomUUID().toString(),
+            categoryId = categoryId,
+            title = title,
+            priority = com.example.taskmanager.data.local.entity.PriorityLevel.MEDIUM,
+            status = com.example.taskmanager.data.local.entity.TaskStatus.TODO,
+            syncStatus = SyncStatus.PENDING_INSERT
+        )
+
+        // Lưu vào Room -&gt; UI lập tức hiển thị task mới nhờ Flow
+        taskDao.upsertTask(localTask)
+
+        // Thử đồng bộ lên Server
+        return try {
+            val response = apiService.createTask(
+                TaskDto(
+                    id = localTask.id,
+                    categoryId = localTask.categoryId,
+                    title = localTask.title
+                )
+            )
+            if (response.isSuccessful) {
+                // Đánh dấu đã sync thành công
+                taskDao.updateSyncStatus(localTask.id, SyncStatus.SYNCED)
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            // Mất mạng: Không sao cả, task vẫn ở trạng thái PENDING_INSERT để sync sau
+            Result.success(Unit)
+        }
+    }
+
+    // 3. Tiến trình đồng bộ dữ liệu ngầm (Chạy qua WorkManager hoặc khi có mạng lại)
+    override suspend fun syncPendingTasks(): Result&lt;Unit&gt; {
+        return try {
+            val pendingTasks = taskDao.getPendingSyncTasks()
+            for (task in pendingTasks) {
+                when (task.syncStatus) {
+                    SyncStatus.PENDING_INSERT -&gt; {
+                        val res = apiService.createTask(TaskDto(task.id, task.categoryId, task.title))
+                        if (res.isSuccessful) taskDao.updateSyncStatus(task.id, SyncStatus.SYNCED)
+                    }
+                    SyncStatus.PENDING_UPDATE -&gt; {
+                        val res = apiService.updateTask(task.id, TaskDto(task.id, task.categoryId, task.title))
+                        if (res.isSuccessful) taskDao.updateSyncStatus(task.id, SyncStatus.SYNCED)
+                    }
+                    SyncStatus.PENDING_DELETE -&gt; {
+                        val res = apiService.deleteTask(task.id)
+                        if (res.isSuccessful) taskDao.deleteTaskById(task.id)
+                    }
+                    SyncStatus.SYNCED -&gt; Unit
+                }
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+}</code></pre>
+
+<hr/>
+
+<h2>9. Database Migration: Sống Còn Trong Môi Trường Production</h2>
+
+<p>Khi ứng dụng của bạn đã có hàng ngàn người dùng tải về máy, bạn không thể xóa database và cài lại mỗi khi cần thêm một cột mới. Nếu bạn tăng <code>version = 2</code> trong <code>@Database</code> mà không cung cấp quy trình Migration, Room sẽ ném ngoại lệ:</p>
+
+<pre data-lang="text"><code>java.lang.IllegalStateException: A migration from 1 to 2 was required but not found. 
+Please provide the necessary Migration path via RoomDatabase.Builder.addMigration(Migration ...)</code></pre>
+
+<p>Và ứng dụng của người dùng sẽ <strong>bị crash ngay lập tức khi mở app</strong>.</p>
+
+<h3>9.1. AutoMigration (Khuyên dùng từ Room 2.4+)</h3>
+
+<p>Với các thay đổi đơn giản (thêm bảng mới, thêm cột có giá trị mặc định hoặc cho phép null), Room có thể tự động phân tích 2 file JSON schema được xuất ra và tự sinh code migration:</p>
+
+<pre data-lang="kotlin"><code>@Database(
+    entities = [TaskEntity::class, CategoryEntity::class],
+    version = 2,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ],
+    exportSchema = true
+)
+abstract class TaskManagerDatabase : RoomDatabase()</code></pre>
+
+<p>Nếu bạn đổi tên cột hoặc xóa một cột, bạn phải cung cấp thêm chỉ dẫn <code>@DeleteColumn</code> hoặc <code>@RenameColumn</code> thông qua <code>AutoMigrationSpec</code>:</p>
+
+<pre data-lang="kotlin"><code>@Database(
+    entities = [TaskEntity::class],
+    version = 3,
+    autoMigrations = [
+        AutoMigration(from = 2, to = 3, spec = TaskManagerDatabase.Migration2To3Spec::class)
+    ],
+    exportSchema = true
+)
+abstract class TaskManagerDatabase : RoomDatabase() {
+    @RenameColumn(tableName = "tasks", fromColumnName = "desc", toColumnName = "description")
+    class Migration2To3Spec : AutoMigrationSpec
+}</code></pre>
+
+<h3>9.2. Manual Migration (Khi logic phức tạp)</h3>
+
+<p>Khi bạn cần thay đổi kiểu dữ liệu của một cột, gộp 2 bảng lại, hoặc tách dữ liệu phức tạp, bạn phải viết Manual Migration bằng câu lệnh SQL thô.</p>
+
+<blockquote><strong>Quy trình 5 bước chuẩn của SQLite khi sửa đổi cấu trúc bảng (Table Alteration):</strong></blockquote>
+
+<blockquote>SQLite không hỗ trợ lệnh <code>ALTER TABLE ALTER COLUMN</code>. Do đó quy trình chuẩn luôn là:</blockquote>
+
+<blockquote>1. Tạo bảng tạm với cấu trúc mới (<code>tasks_new</code>).</blockquote>
+
+<blockquote>2. Copy dữ liệu từ bảng cũ sang bảng tạm (<code>INSERT INTO tasks_new SELECT ...</code>).</blockquote>
+
+<blockquote>3. Xóa bảng cũ (<code>DROP TABLE tasks</code>).</blockquote>
+
+<blockquote>4. Đổi tên bảng tạm thành tên bảng chính (<code>ALTER TABLE tasks_new RENAME TO tasks</code>).</blockquote>
+
+<blockquote>5. Tạo lại các Index.</blockquote>
+
+<pre data-lang="kotlin"><code>val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // Ví dụ: Thêm cột priority dạng TEXT với giá trị mặc định 'MEDIUM'
+        database.execSQL(
+            "ALTER TABLE tasks ADD COLUMN priority TEXT NOT NULL DEFAULT 'MEDIUM'"
+        )
+    }
+}
+
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 1. Tạo bảng tạm
+        database.execSQL("""
+            CREATE TABLE IF NOT EXISTS \`tasks_new\` (
+                \`id\` TEXT NOT NULL PRIMARY KEY,
+                \`category_id\` TEXT NOT NULL,
+                \`title\` TEXT NOT NULL,
+                \`priority\` TEXT NOT NULL,
+                \`status\` INTEGER NOT NULL,
+                \`sync_status\` INTEGER NOT NULL,
+                \`created_at\` INTEGER NOT NULL,
+                FOREIGN KEY(\`category_id\`) REFERENCES \`categories\`(\`id\`) ON DELETE CASCADE
+            )
+        """.trimIndent())
+
+        // 2. Sao chép dữ liệu cũ
+        database.execSQL("""
+            INSERT INTO \`tasks_new\` (\`id\`, \`category_id\`, \`title\`, \`priority\`, \`status\`, \`sync_status\`, \`created_at\`)
+            SELECT \`id\`, \`category_id\`, \`title\`, \`priority\`, 0, 0, 1600000000000 FROM \`tasks\`
+        """.trimIndent())
+
+        // 3. Drop bảng cũ
+        database.execSQL("DROP TABLE \`tasks\`")
+
+        // 4. Đổi tên bảng
+        database.execSQL("ALTER TABLE \`tasks_new\` RENAME TO \`tasks\`")
+
+        // 5. Tái tạo Index
+        database.execSQL("CREATE INDEX IF NOT EXISTS \`index_tasks_category_id\` ON \`tasks\` (\`category_id\`)")
+    }
+}</code></pre>
+
+<p>Cấu hình vào Database Builder:</p>
+
+<pre data-lang="kotlin"><code>Room.databaseBuilder(context, TaskManagerDatabase::class.java, "task_manager.db")
+    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+    // .fallbackToDestructiveMigration() // TUYỆT ĐỐI KHÔNG BẬT Ở RELEASE VÌ SẼ XÓA TOÀN BỘ DATA CỦA USER!
+    .build()</code></pre>
+
+<hr/>
+
+<h2>10. Tối Ưu Hiệu Năng & Indexing (@Index)</h2>
+
+<h3>Bản chất của Index trong CSDL quan hệ</h3>
+
+<p>Mặc định nếu một cột không được đánh Index, khi bạn thực hiện câu lệnh:</p>
+
+<pre data-lang="sql"><code>SELECT * FROM tasks WHERE category_id = 'cat_123'</code></pre>
+
+<p>SQLite buộc phải thực hiện thao tác <strong>Full Table Scan</strong>: Duyệt qua từng bản ghi từ đầu đến cuối bảng trên ổ đĩa để so sánh chuỗi. Nếu bảng có 50,000 bản ghi, thao tác này sẽ cực kỳ chậm (<code>O(N)</code>).</p>
+
+<p>Khi bạn thêm annotation <code>indices = [Index(value = ["category_id"])]</code>, Room yêu cầu SQLite xây dựng một cấu trúc cây cân bằng <strong>B-Tree</strong> riêng cho cột đó.</p>
+
+<ul>
+
+<li>Khi tìm kiếm: Độ phức tạp giảm từ <code>O(N)</code> xuống <code>O(log N)</code>. Thay vì quét 50,000 hàng, SQLite chỉ cần thực hiện khoảng 15 phép so sánh trên B-Tree.</li>
+
+</ul>
+
+<h3>Đánh đổi (Trade-offs) của Indexing</h3>
+
+<p>Index không phải là "miễn phí". Mọi Index đều đi kèm chi phí:</p>
+
+<ol>
+
+<li><strong>Dung lượng lưu trữ tăng lên:</strong> Tệp <code>.db</code> sẽ phình to hơn vì phải lưu trữ thêm các cấu trúc cây B-Tree.</li>
+
+<li><strong>Làm chậm thao tác Ghi (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>):</strong> Mỗi khi có một hàng mới được thêm vào, SQLite không chỉ ghi dữ liệu vào bảng chính mà còn phải duyệt và tái cân bằng lại toàn bộ các cây Index liên quan.</li>
+
+</ol>
+
+<blockquote><strong>Quy tắc vàng:</strong> Chỉ đánh Index trên các cột:</blockquote>
+
+<blockquote>- Nằm trong mệnh đề <code>WHERE</code> được gọi thường xuyên.</blockquote>
+
+<blockquote>- Cột dùng để <code>JOIN</code> (đặc biệt là Foreign Keys).</blockquote>
+
+<blockquote>- Cột dùng trong mệnh đề <code>ORDER BY</code> (ví dụ <code>created_at</code>).</blockquote>
+
+<blockquote>Tránh đánh Index trên các cột có độ phân tán thấp (ví dụ: cột <code>Boolean</code> chỉ có 2 giá trị true/false).</blockquote>
+
+<hr/>
+
+<h2>11. Sai Lầm Phổ Biến (Pitfalls & Anti-patterns) Thực Tế</h2>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Anti-pattern 1: N+1 Query Problem với vòng lặp DAO</strong><br/>\`\`\`kotlin<br/>// SAI LẦM: Làm treo UI vì gọi hàng trăm câu query liên tục<br/>val tasks = taskDao.getAllTasks()<br/>for (task in tasks) {<br/>    val tags = tagDao.getTagsForTask(task.id) // N câu query bổ sung!<br/>}<br/>\`\`\`<br/><strong>Khắc phục:</strong> Sử dụng <code>@Relation</code> hoặc viết một câu lệnh <code>JOIN</code> duy nhất trong DAO để SQLite xử lý gom nhóm trong 1 lần truy vấn.</div></div>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Anti-pattern 2: Đặt tên bảng hoặc cột trùng từ khóa SQL</strong><br/>Đặt tên cột là <code>order</code>, <code>group</code>, <code>index</code>, <code>where</code>, <code>desc</code> mà không bọc trong dấu backtick (\\\`) sẽ khiến Room sinh mã SQL lỗi cú pháp hoặc gây ra các bug tiềm ẩn cực kỳ khó debug.</div></div>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Anti-pattern 3: Quên <code>@Transaction</code> trên các phương thức DAO tổng hợp</strong><br/>Nếu một hàm DAO thực hiện nhiều câu lệnh (ví dụ: Xóa dữ liệu cũ -> Chèn dữ liệu mới từ API), bạn bắt buộc phải gắn <code>@Transaction</code>. Nếu không gắn, lỡ app bị tắt đột ngột giữa chừng, database sẽ rơi vào trạng thái "dở dang" (dữ liệu cũ đã bị xóa sạch nhưng dữ liệu mới chưa kịp chèn vào).</div></div>
+
+<div class="callout callout-warn"><span class="callout-icon">🛑</span><div class="callout-body"><strong>Anti-pattern 4: Lạm dụng <code>fallbackToDestructiveMigration()</code></strong><br/>Nhiều lập trình viên thường gắn <code>.fallbackToDestructiveMigration()</code> vào Builder để "tiện" khi test app. Khi đẩy phiên bản này lên Google Play, mọi người dùng cập nhật app sẽ <strong>bị xóa sạch toàn bộ dữ liệu offline cá nhân</strong>. Chỉ dùng phương thức này trong môi trường Debug hoặc cho bảng Cache tạm thời!</div></div>
+
+<hr/>
+
+<h2>12. Kiểm Thử Cơ Sở Dữ Liệu (Testing Strategy)</h2>
+
+<h3>12.1. Kiểm thử DAO với In-Memory Database</h3>
+
+<p>Để đảm bảo Unit Test chạy nhanh, độc lập và không để lại rác trên ổ cứng sau mỗi lần test, hãy sử dụng <code>Room.inMemoryDatabaseBuilder</code>. Database này chỉ tồn tại trong RAM của tiến trình test và sẽ tự động biến mất khi hoàn thành.</p>
+
+<pre data-lang="kotlin"><code>package com.example.taskmanager.data.local
+
+import android.content.Context
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.taskmanager.data.local.dao.TaskDao
+import com.example.taskmanager.data.local.entity.CategoryEntity
+import com.example.taskmanager.data.local.entity.PriorityLevel
+import com.example.taskmanager.data.local.entity.SyncStatus
+import com.example.taskmanager.data.local.entity.TaskEntity
+import com.example.taskmanager.data.local.entity.TaskStatus
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.io.IOException
+
+@RunWith(AndroidJUnit4::class)
+class TaskDaoTest {
+
+    private lateinit var db: TaskManagerDatabase
+    private lateinit var taskDao: TaskDao
+
+    @Before
+    fun createDb() {
+        val context = ApplicationProvider.getApplicationContext&lt;Context&gt;()
+        // Khởi tạo Database trong RAM, cho phép main thread để phục vụ test nhanh
+        db = Room.inMemoryDatabaseBuilder(context, TaskManagerDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        taskDao = db.taskDao()
+    }
+
+    @After
+    @Throws(IOException::class)
+    fun closeDb() {
+        db.close()
+    }
+
+    @Test
+    fun insertAndReadTaskSuccess() = runTest {
+        // Given: Chuẩn bị Category và Task
+        val category = CategoryEntity(id = "cat_1", name = "Công việc", colorHex = "#FF0000")
+        db.openHelper.writableDatabase.execSQL(
+            "INSERT INTO categories (id, name, color_hex) VALUES ('\${category.id}', '\${category.name}', '\${category.colorHex}')"
+        )
+
+        val task = TaskEntity(
+            id = "task_1",
+            categoryId = "cat_1",
+            title = "Hoàn thành tài liệu Room Architecture",
+            priority = PriorityLevel.URGENT,
+            status = TaskStatus.IN_PROGRESS,
+            syncStatus = SyncStatus.SYNCED
+        )
+
+        // When: Ghi vào DB
+        taskDao.upsertTask(task)
+
+        // Then: Đọc từ Flow
+        val tasks = taskDao.getTasksByCategory("cat_1").first()
+        assertEquals(1, tasks.size)
+        assertEquals("Hoàn thành tài liệu Room Architecture", tasks[0].title)
+        assertEquals(PriorityLevel.URGENT, tasks[0].priority)
+    }
+
+    @Test
+    fun cascadeDelete_whenCategoryDeleted_tasksShouldBeRemoved() = runTest {
+        // Given: Tạo Category và 2 Task thuộc category đó
+        db.openHelper.writableDatabase.execSQL(
+            "INSERT INTO categories (id, name, color_hex) VALUES ('cat_test', 'Test', '#00FF00')"
+        )
+        taskDao.upsertTask(TaskEntity("t1", "cat_test", "Task 1", PriorityLevel.LOW, TaskStatus.TODO, SyncStatus.SYNCED))
+        taskDao.upsertTask(TaskEntity("t2", "cat_test", "Task 2", PriorityLevel.LOW, TaskStatus.TODO, SyncStatus.SYNCED))
+
+        // When: Xóa Category cha
+        db.openHelper.writableDatabase.execSQL("DELETE FROM categories WHERE id = 'cat_test'")
+
+        // Then: Ràng buộc CASCADE tự động dọn sạch 2 Task con
+        val remainingTasks = taskDao.getTasksByCategory("cat_test").first()
+        assertEquals(0, remainingTasks.size)
+    }
+}</code></pre>
+
+<h3>12.2. Kiểm thử Migration an toàn với <code>MigrationTestHelper</code></h3>
+
+<p>Không có gì tồi tệ hơn việc phát hành bản cập nhật app và khiến người dùng mất toàn bộ dữ liệu vì câu lệnh SQL migration bị lỗi cú pháp. Thư viện <code>androidx.room:room-testing</code> cung cấp <code>MigrationTestHelper</code> để giả lập mở phiên bản DB cũ (Version 1), chèn dữ liệu thực, thực hiện migration lên Version 2 và đối chiếu schema tự động:</p>
+
+<pre data-lang="kotlin"><code>@RunWith(AndroidJUnit4::class)
+class MigrationTest {
+    private val TEST_DB = "migration-test"
+
+    @get:Rule
+    val helper: MigrationTestHelper = MigrationTestHelper(
+        InstrumentationRegistry.getInstrumentation(),
+        TaskManagerDatabase::class.java
+    )
+
+    @Test
+    fun migrate1To2_containsAllData() {
+        // 1. Tạo Database ở Version 1 và chèn dữ liệu cũ
+        var db = helper.createDatabase(TEST_DB, 1).apply {
+            execSQL("INSERT INTO categories (id, name, color_hex) VALUES ('c1', 'Work', '#FFFFFF')")
+            execSQL("INSERT INTO tasks (id, category_id, title, status, sync_status, created_at) VALUES ('t1', 'c1', 'Old Task', 0, 0, 1000)")
+            close()
+        }
+
+        // 2. Chạy Migration lên Version 2 và tự động kiểm tra Schema
+        db = helper.runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2)
+
+        // 3. Kiểm tra dữ liệu cũ vẫn nguyên vẹn và cột mới có giá trị default
+        val cursor = db.query("SELECT * FROM tasks WHERE id = 't1'")
+        cursor.moveToFirst()
+        val priorityIndex = cursor.getColumnIndex("priority")
+        assertEquals("MEDIUM", cursor.getString(priorityIndex))
+        cursor.close()
+    }
+}</code></pre>
+
+<hr/>
+
+<h2>13. Khi Nào Dùng vs Không Nên Dùng Room (Trade-Off Matrix)</h2>
+
+<p>Để đưa ra quyết định kiến trúc chuẩn xác khi phỏng vấn hoặc thiết kế dự án, hãy tham chiếu bảng phân loại nhu cầu lưu trữ:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:14px;">
+<thead>
+<tr style="border-bottom:2px solid var(--border);"><th style="text-align:left;padding:10px;">Công nghệ</th><th style="text-align:left;padding:10px;">Loại dữ liệu phù hợp</th><th style="text-align:left;padding:10px;">Ưu điểm cốt lõi</th><th style="text-align:left;padding:10px;">Nhược điểm / Hạn chế</th><th style="text-align:left;padding:10px;">Khi nào NÊN dùng?</th></tr>
+</thead>
+<tbody>
+<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Preferences DataStore</strong></td><td style="padding:10px;">Dữ liệu Key-Value đơn giản (Cấu hình app, cờ đăng nhập, Dark mode)</td><td style="padding:10px;">Nhẹ, an toàn luồng, không cần schema phức tạp</td><td style="padding:10px;">Không hỗ trợ quan hệ bảng, không hỗ trợ truy vấn lọc phức tạp</td><td style="padding:10px;">Thiết lập cấu hình người dùng, Token xác thực</td></tr>
+<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Proto DataStore</strong></td><td style="padding:10px;">Dữ liệu đối tượng có cấu trúc nhỏ (Typed Objects)</td><td style="padding:10px;">An toàn kiểu dữ liệu, bảo đảm tính bất biến</td><td style="padding:10px;">Phải định nghĩa Protobuf schema, không query lọc được</td><td style="padding:10px;">Lưu UserProfile nhỏ gọn, cấu hình đa tham số</td></tr>
+<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>Room Database</strong></td><td style="padding:10px;">Dữ liệu quan hệ, số lượng lớn (Hàng chục ngàn dòng), cần lọc, sort</td><td style="padding:10px;">RDBMS hoàn chỉnh, Compile-time safety, Reactive Flow, Offline-first</td><td style="padding:10px;">Tốn dung lượng app hơn, cần viết schema và quản lý migration</td><td style="padding:10px;">Ứng dụng Quản lý công việc, Thương mại điện tử, Chat offline</td></tr>
+<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><strong>NoSQL (Realm / ObjectBox)</strong></td><td style="padding:10px;">Đồ thị đối tượng phức tạp (Complex Object Graphs)</td><td style="padding:10px;">Tốc độ ghi cực nhanh, làm việc trực tiếp với Live Object</td><td style="padding:10px;">Không chuẩn hóa SQL, tăng dung lượng file APK lớn, khó migrate</td><td style="padding:10px;">App yêu cầu hiệu năng đọc/ghi siêu tốc độ cao</td></tr>
+</tbody>
+</table>
+
+<hr/>
+
+<h2>14. Tư Duy Hệ Thống & Vị Trí Trong Clean Architecture</h2>
+
+<p>Trong mô hình kiến trúc chuẩn của Android (Guide to App Architecture):</p>
+
+<ul>
+
+<li><strong>Tầng UI (UI Layer):</strong> Bao gồm Composable functions hoặc Activities/Fragments kết hợp với <code>ViewModel</code>. UI không bao giờ biết đến sự tồn tại của Room. UI chỉ hiển thị dữ liệu nhận được từ StateFlow.</li>
+
+<li><strong>Tầng Domain (Domain Layer - UseCases):</strong> Chứa các luật nghiệp vụ (Business Rules). Ví dụ: <code>GetPendingTasksUseCase</code>, <code>CreateTaskUseCase</code>.</li>
+
+<li><strong>Tầng Dữ Liệu (Data Layer):</strong></li>
+
+</ul>
+
+<p>  - <strong>Local Data Source:</strong> Chính là Room Database (<code>TaskDao</code>).</p>
+
+<p>  - <strong>Remote Data Source:</strong> Retrofit / Ktor Client.</p>
+
+<p>  - <strong>Repository (<code>TaskRepositoryImpl</code>):</strong> Đứng làm nhạc trưởng điều phối. Repository quyết định khi nào đọc từ Room, khi nào gọi API lên Remote và khi nào kích hoạt tiến trình đồng bộ dữ liệu.</p>
+
+<div class="mermaid">
+graph TD
+    subgraph UI_Layer["Tầng Giao Diện (UI Layer)"]
+        Screen[Compose Screen]
+        VM[TaskViewModel]
+    end
+
+    subgraph Domain_Layer["Tầng Nghiệp Vụ (Domain Layer)"]
+        UseCase[GetTasksUseCase / SyncUseCase]
+    end
+
+    subgraph Data_Layer["Tầng Dữ Liệu (Data Layer)"]
+        Repo[TaskRepositoryImpl]
+        LocalDS[Local Data Source: TaskDao]
+        RemoteDS[Remote Data Source: TaskApiService]
+        Room[Room Database]
+        SQLite[(SQLite Engine)]
+        Server[(Remote Server)]
+    end
+
+    Screen -->|Collect State| VM
+    VM -->|Gọi nghiệp vụ| UseCase
+    UseCase -->|Yêu cầu dữ liệu| Repo
+    Repo -->|1. Quan sát Flow / Ghi Local| LocalDS
+    Repo -->|2. Đồng bộ mạng| RemoteDS
+    LocalDS --> Room
+    Room --> SQLite
+    RemoteDS --> Server
+</div>
+
+<hr/>
+
+<h2>15. Câu Hỏi Phỏng Vấn Kinh Điển (Interview Cheat Sheet)</h2>
+
+<ol>
+
+<li><strong>Câu hỏi:</strong> <em>Room khác gì so với SQLite thuần?</em></li>
+
+</ol>
+
+<p>   - <strong>Trả lời:</strong> Room là lớp ORM trừu tượng trên SQLite. Room mang lại 3 ưu điểm vượt trội: Compile-time query verification (kiểm tra lỗi SQL lúc build bằng KSP), loại bỏ boilerplate mapping từ Cursor sang Kotlin object, và hỗ trợ trực tiếp Kotlin Coroutines & Flow để xây dựng Reactive UI.</p>
+
+<ol>
+
+<li><strong>Câu hỏi:</strong> <em>Tại sao Room cấm thực thi truy vấn trên Main Thread?</em></li>
+
+</ol>
+
+<p>   - <strong>Trả lời:</strong> Thao tác đọc/ghi cơ sở dữ liệu là Disk I/O, thời gian phản hồi không thể đoán trước. Nếu chạy trên Main Thread, nó sẽ chặn luồng giao diện, gây rớt khung hình (Jank) và dẫn đến lỗi ANR (Application Not Responding).</p>
+
+<ol>
+
+<li><strong>Câu hỏi:</strong> <em>Cơ chế hoạt động của <code>Flow</code> trong Room như thế nào?</em></li>
+
+</ol>
+
+<p>   - <strong>Trả lời:</strong> Dựa trên <code>InvalidationTracker</code>. Room tạo các trigger SQLite ngầm trên các bảng được theo dõi. Khi có thao tác INSERT/UPDATE/DELETE, trigger kích hoạt và đánh dấu bảng bị dirty. <code>InvalidationTracker</code> phát hiện bảng dirty sẽ tự động kích hoạt truy vấn lại ngầm trên background dispatcher và emit danh sách mới qua <code>Flow</code>.</p>
+
+<ol>
+
+<li><strong>Câu hỏi:</strong> <em>Khi nào nên dùng <code>@Transaction</code>?</em></li>
+
+</ol>
+
+<p>   - <strong>Trả lời:</strong> Bắt buộc dùng <code>@Transaction</code> khi một hàm DAO gọi các câu truy vấn quan hệ chứa <code>@Relation</code> (vì Room phải chạy nhiều câu SQL riêng biệt) hoặc khi thực hiện một chuỗi thao tác CUD liên tiếp cần tính nguyên tử (Atomic - hoặc tất cả cùng thành công hoặc rollback toàn bộ khi có lỗi).</p>
+
+<ol>
+
+<li><strong>Câu hỏi:</strong> <em>Sự khác nhau giữa <code>AutoMigration</code> và <code>Manual Migration</code>?</em></li>
+
+</ol>
+
+<p>   - <strong>Trả lời:</strong> <code>AutoMigration</code> (từ Room 2.4+) tự động phân tích schema JSON để sinh mã cho các thay đổi đơn giản (thêm cột, thêm bảng). <code>Manual Migration</code> đòi hỏi lập trình viên tự viết các lệnh SQL thô bằng <code>Migration(from, to)</code>, bắt buộc phải dùng khi cần đổi kiểu dữ liệu cột, chia tách hoặc gộp bảng phức tạp.</p>
+
+<hr/>
+
+<h2>Tài Liệu Tham Khảo (References)</h2>
+
+<ol>
+
+<li><a href="https://developer.android.com/training/data-storage/room" target="_blank" rel="noopener">Android Developers — Save data in a local database using Room</a></li>
+
+<li><a href="https://developer.android.com/training/data-storage/room/defining-data" target="_blank" rel="noopener">Android Developers — Defining data using Room entities</a></li>
+
+<li><a href="https://developer.android.com/training/data-storage/room/accessing-data" target="_blank" rel="noopener">Android Developers — Accessing data using Room DAOs</a></li>
+
+<li><a href="https://developer.android.com/training/data-storage/room/migrating-db" target="_blank" rel="noopener">Android Developers — Migrating Room databases</a></li>
+
+<li><a href="https://developer.android.com/training/data-storage/room/testing-db" target="_blank" rel="noopener">Android Developers — Testing and debugging your database</a></li>
+
+<li><a href="https://developer.android.com/topic/architecture/data-layer/offline-first" target="_blank" rel="noopener">Android Developers — Guide to app architecture (Offline-first)</a></li>
+
+<li><a href="https://www.sqlite.org/wal.html" target="_blank" rel="noopener">SQLite Official Documentation — Write-Ahead Logging (WAL)</a></li>
+
+</ol>
     `
   },
   'data-store-room-adv': {
     title: 'Advanced Room (Migration & Indexing)',
-    summary: 'Kỹ thuật nâng cao trong Room Database. Hiểu cách viết Migration để bảo toàn dữ liệu người dùng khi cập nhật cấu trúc bảng, và kỹ thuật đánh Index tối ưu tốc độ truy vấn SQLite.',
+    summary: 'Chuyên sâu về Room Database nâng cao: Cơ chế Identity Hash (room_master_table), chiến lược Manual Migration 3 bước vàng, AutoMigration với AutoMigrationSpec, giải quyết các ca khó (tách bảng, đổi kiểu dữ liệu, bảng triệu dòng), cấu trúc B-Tree Indexing, Composite Index Leftmost Prefix, EXPLAIN QUERY PLAN và Unit Testing với MigrationTestHelper.',
     status: 'published',
-    difficulty: 'intermediate',
-    estimatedReadingTime: '15 phút',
+    difficulty: 'advanced',
+    estimatedReadingTime: '25 phút',
     depth: 'deep-dive',
-    tags: ['android', 'practical'],
+    tags: ['android', 'room', 'sqlite', 'migration', 'indexing', 'b-tree', 'performance', 'testing'],
     domain: 'Android',
     module: 'Session 05: Data Store & Networking',
-    prerequisites: [],
-    related: [],
-    learningOutcomes: [],
-    knowledgeGap: '',
-    updatedAt: '2026-07-30',
-    readTime: '15 phút',
+    prerequisites: ['data-store-room-arch'],
+    related: ['data-store-room-trans'],
+    learningOutcomes: [
+      'Giải thích được bản chất của room_master_table và cơ chế kiểm tra Identity Hash khi mở Room Database.',
+      'Triển khai an toàn các kịch bản Migration với AutoMigration, AutoMigrationSpec và Manual Migration 3 bước (Table Recreation Pattern).',
+      'Xử lý thành công các bài toán phức tạp: thêm cột NOT NULL bảng triệu dòng, đổi kiểu dữ liệu, tách bảng quan hệ 1-N và skip-version migration.',
+      'Phân tích được cấu trúc B-Tree bên dưới SQLite và áp dụng chính xác quy tắc Leftmost Prefix cho Composite Index.',
+      'Đo lường, debug hiệu năng truy vấn với EXPLAIN QUERY PLAN và viết Unit Test tự động cho Migration với MigrationTestHelper.'
+    ],
+    knowledgeGap: 'Nhiều lập trình viên lạm dụng fallbackToDestructiveMigration gây mất trắng dữ liệu người dùng trên production, hoặc đánh index vô tội vạ làm tê liệt hiệu năng ghi (Write Penalty) và hiểu sai thứ tự cột trong Composite Index.',
+    updatedAt: '2026-09-21',
+    readTime: '25 phút',
     content: `
-<h2>1. Bài toán Migration (Bảo toàn dữ liệu)</h2>
+<h2>1. Bản chất & Cơ chế xác thực tính toàn vẹn (Room Internals)</h2>
 
-<h2>Vấn đề cần giải quyết</h2>
+<p>Trong các ứng dụng Android thực tế ở quy mô Production, cơ sở dữ liệu không bao giờ đứng yên. Để viết migration chuẩn xác và tự tin trả lời phỏng vấn Senior, bạn cần hiểu chính xác Room làm gì khi khởi tạo kết nối cơ sở dữ liệu.</p>
 
-<p>Bạn phát hành App version 1. Người dùng đang sử dụng bình thường và đã lưu rất nhiều ghi chú (Notes) vào Room Database.<br>Tháng sau, bạn ra mắt App version 2. Bạn quyết định thêm một tính năng mới, yêu cầu phải thêm cột <code>is_pinned</code> vào bảng <code>notes</code>.</p>
+<h3>Bảng bí mật <code>room_master_table</code> & <code>identity_hash</code></h3>
 
-<p>Nếu bạn chỉ sửa Code Entity rồi chạy app: <strong>App sẽ Crash ngay lập tức!</strong></p>
+<p>Khi bạn khai báo <code>@Database(entities = [UserEntity::class], version = 2)</code>, Room Compiler (KSP) thực hiện các bước sau tại thời điểm build:</p>
 
-<p>Lý do: Cấu trúc Table khai báo trong Code (Version 2) không khớp với cấu trúc Table đang lưu thực tế trên đĩa của người dùng (Version 1). SQLite không cho phép điều này.</p>
+<ol>
+  <li>Thu thập toàn bộ định nghĩa bảng: tên bảng, tên cột, kiểu dữ liệu, ràng buộc <code>NOT NULL</code>, Primary Key, Foreign Key, Indices.</li>
+  <li>Tạo ra một chuỗi đại diện (Schema Definition String) và tính toán mã băm <strong>Identity Hash</strong> (chuỗi MD5/SHA-256).</li>
+  <li>Nhúng mã băm này trực tiếp vào mã nguồn sinh tự động <code>AppDatabase_Impl.kt</code>.</li>
+</ol>
 
-<h2>Giải pháp: Migration</h2>
+<p>Bên dưới SQLite, Room tự động tạo một bảng hệ thống đặc biệt có tên là <strong><code>room_master_table</code></strong>:</p>
 
-<p>Để giải quyết, bạn phải viết một kịch bản <strong>Migration</strong> (Di chuyển/Nâng cấp cấu trúc).<br>Migration là việc bạn ra lệnh cho SQLite: <em>"Này, hãy sửa cái bảng cũ, cắm thêm cột này vào cho tôi, và <strong>giữ nguyên dữ liệu cũ</strong> nhé."</em></p>
+<pre data-lang="sql"><code>CREATE TABLE IF NOT EXISTS room_master_table (
+    id INTEGER PRIMARY KEY,
+    identity_hash TEXT
+);</code></pre>
 
-<h2>Hướng dẫn triển khai (Manual Migration)</h2>
+<p>Khi ứng dụng mở database lần đầu, luồng xác thực diễn ra như sau:</p>
 
-<p>Giả sử nâng cấp từ Version 1 lên Version 2, thêm cột <code>is_pinned</code>.</p>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant App as App Code
+    participant Room as Room OpenHelper
+    participant Master as room_master_table
+    participant SQLite as SQLite DB
 
-<strong>Bước 1: Sửa Entity và đổi Version</strong>
-<pre data-lang="kotlin"><code>@Entity(tableName = "notes")
-data class NoteEntity(
-    @PrimaryKey val id: Int,
-    val content: String,
-    // CỘT MỚI THÊM VÀO
-    @ColumnInfo(defaultValue = "0") // Phải có defaultValue để SQLite biết điền gì cho các dòng cũ
-    val is_pinned: Boolean 
+    App->>Room: Yêu cầu kết nối AppDatabase
+    Room->>SQLite: Đọc user_version từ SQLite Header
+    alt user_version cũ hơn phiên bản trong Code
+        Room->>Room: Tìm kịch bản Migration phù hợp
+        Room->>SQLite: Thực thi Migration Scripts
+        Room->>SQLite: Cập nhật PRAGMA user_version mới
+    end
+    Room->>Master: SELECT identity_hash FROM room_master_table WHERE id = 42
+    Master-->>Room: Trả về stored_hash trên đĩa
+    Room->>Room: So sánh stored_hash với code_hash
+    alt stored_hash giống code_hash
+        Room-->>App: Kết nối thành công (Database Ready)
+    else stored_hash khác code_hash
+        Room-->>App: CRASH! Ném IllegalStateException
+    end
+</div>
+
+<p>Nếu bạn thay đổi bất kỳ thuộc tính nào của Entity mà cấu trúc SQLite thực tế sau khi migrate không khớp chính xác 100% với Schema mà Room mong đợi:</p>
+
+<pre data-lang="text"><code>java.lang.IllegalStateException: Room cannot verify the data integrity. 
+Looks like you've changed schema but forgot to update the version number. 
+You can simply fix this by increasing the version number.
+Expected identity hash: 8f3d4... Found: a1b2c...</code></pre>
+
+<div class="callout callout-danger"><span class="callout-icon">🚨</span><div class="callout-body"><strong>Bản chất của lỗi "Data integrity failure":</strong> Không phải Room bị lỗi, mà là câu lệnh SQL Migration bạn viết đã tạo ra cấu trúc bảng khác biệt so với định nghĩa <code>@Entity</code> trong code Kotlin. Room chủ động ngắt kết nối để ngăn chặn tình trạng hỏng dữ liệu âm thầm (silent data corruption).</div></div>
+
+<h3>Cảnh báo về <code>fallbackToDestructiveMigration()</code></h3>
+
+<p>Khi gặp lỗi integrity hoặc quên viết migration, nhiều lập trình viên sử dụng giải pháp "tiện tay":</p>
+
+<pre data-lang="kotlin"><code>// ⚠️ NGUY HIỂM CHÍ MẠNG TRÊN PRODUCTION!
+Room.databaseBuilder(context, AppDatabase::class.java, "app.db")
+    .fallbackToDestructiveMigration()
+    .build()</code></pre>
+
+<h4>Hậu quả trên Production</h4>
+<p>Khi Room phát hiện phiên bản database tăng lên nhưng không tìm thấy kịch bản <code>Migration</code> phù hợp, Room sẽ chạy lệnh <code>DROP TABLE</code> cho <strong>TOÀN BỘ</strong> các bảng trong CSDL. Toàn bộ dữ liệu của người dùng lưu trữ offline (ghi chú, tin nhắn chưa đồng bộ, lịch sử giao dịch, token định danh) bị <strong>XÓA SẠCH VĨNH VIỄN</strong>.</p>
+
+<p>Chỉ được dùng khi app thuần Cache (100% dữ liệu fetch lại từ server) hoặc môi trường develop nội bộ. Nếu muốn bảo vệ dữ liệu production nhưng xóa sạch các bản beta cũ:</p>
+
+<pre data-lang="kotlin"><code>Room.databaseBuilder(context, AppDatabase::class.java, "app.db")
+    .fallbackToDestructiveMigrationFrom(1, 2) // Chỉ drop từ bản thử nghiệm v1, v2
+    .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
+    .build()</code></pre>
+
+<h3>Kịch bản "Nhảy cóc phiên bản" (Skip-Version Migrations)</h3>
+
+<p>Người dùng ở bản v1 nâng thẳng lên v4 (bỏ qua v2, v3):</p>
+
+<div class="mermaid">
+graph LR
+    V1((Version 1)) -->|MIGRATION_1_2| V2((Version 2))
+    V2 -->|MIGRATION_2_3| V3((Version 3))
+    V3 -->|MIGRATION_3_4| V4((Version 4))
+    V1 ==>|"MIGRATION_1_4 Fast-path"| V4
+</div>
+
+<p>Room sử dụng thuật toán tìm đường đi ngắn nhất (Breadth-First Search). Nếu có <code>Migration(1, 4)</code>, Room sẽ chọn trực tiếp. Nếu không, Room sẽ chạy tuần tự <code>1 -&gt; 2 -&gt; 3 -&gt; 4</code>.</p>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Best Practice:</strong> Luôn duy trì các migration tuần tự (<code>1-&gt;2</code>, <code>2-&gt;3</code>). Chỉ bổ sung migration trực tiếp (fast-path) khi kịch bản tuần tự có các thao tác biến đổi dữ liệu nặng (I/O) làm người dùng cũ phải chờ quá lâu khi mở app lần đầu.</div></div>
+
+<hr>
+
+<h2>2. AutoMigration vs Manual Migration Thực Chiến</h2>
+
+<p>Từ Room 2.4.0+, Google bổ sung <strong>AutoMigration</strong>. Để sử dụng, cần cấu hình xuất Schema JSON trong build Gradle:</p>
+
+<pre data-lang="kotlin"><code>// build.gradle.kts
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}</code></pre>
+
+<h3>Thêm cột hoặc thêm bảng đơn giản với AutoMigration</h3>
+
+<pre data-lang="kotlin"><code>@Database(
+    entities = [UserEntity::class, OrderEntity::class],
+    version = 2,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ]
 )
+abstract class AppDatabase : RoomDatabase() { ... }</code></pre>
 
-// Tăng version lên 2
-@Database(entities = [NoteEntity::class], version = 2) 
-abstract class AppDatabase : RoomDatabase() { ... }</code></pre></p>
+<h3>Khi nào bắt buộc dùng <code>AutoMigrationSpec</code>?</h3>
 
-<strong>Bước 2: Viết kịch bản Migration (SQL thuần)</strong>
+<p>Khi bạn <strong>đổi tên cột</strong>, <strong>xóa cột</strong>, <strong>đổi tên bảng</strong>, hoặc <strong>xóa bảng</strong>, Room không thể tự đoán biết ý đồ của lập trình viên nên bắt buộc phải khai báo Spec:</p>
+
+<pre data-lang="kotlin"><code>@RenameColumn(tableName = "users", fromColumnName = "phone", toColumnName = "phone_number")
+@DeleteColumn(tableName = "users", columnName = "fax")
+class MigrationSpec2To3 : AutoMigrationSpec
+
+@Database(
+    entities = [UserEntity::class],
+    version = 3,
+    autoMigrations = [
+        AutoMigration(from = 2, to = 3, spec = MigrationSpec2To3::class)
+    ]
+)
+abstract class AppDatabase : RoomDatabase() { ... }</code></pre>
+
+<h3>Bảng so sánh: AutoMigration vs Manual Migration</h3>
+
+<table style="width:100%; border-collapse: collapse; margin: 16px 0;">
+  <thead>
+    <tr style="background: rgba(148, 163, 184, 0.1); text-align: left;">
+      <th style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Nghiệp vụ thay đổi</th>
+      <th style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Phương pháp</th>
+      <th style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Lý do kỹ thuật</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>Thêm bảng mới</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><code>AutoMigration</code></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Room tự tạo <code>CREATE TABLE</code> chính xác tuyệt đối.</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>Thêm cột có Default hoặc Nullable</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><code>AutoMigration</code></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Room tự sinh <code>ALTER TABLE ... ADD COLUMN</code>.</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>Đổi tên cột / Xóa cột</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><code>AutoMigrationSpec</code></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Rõ ràng, không cần viết SQL tay.</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>Đổi kiểu dữ liệu cột</strong> (vd: Int -&gt; String)</td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>Manual Migration</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Bắt buộc chuyển đổi dữ liệu đang có qua logic SQL.</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>Tách 1 bảng thành 2 bảng quan hệ</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>Manual Migration</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Cần truy vấn INSERT chọn lọc dữ liệu từ bảng cũ sang bảng mới.</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>Đổi Primary Key / Foreign Key</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>Manual Migration</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">SQLite không hỗ trợ sửa PK trực tiếp qua <code>ALTER TABLE</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>3. Các Ca Migration Khó: Kỹ Thuật 3 Bước Vàng (Table Recreation Pattern)</h2>
+
+<p>Trước SQLite 3.35 (Android 12), SQLite không hỗ trợ cú pháp <code>ALTER TABLE DROP COLUMN</code> và không thể đổi kiểu cột trực tiếp. Bất kỳ lệnh sửa cấu trúc sâu nào trên Android cũ đều dẫn đến crash cú pháp SQL.</p>
+
+<p>Quy trình chuẩn được SQLite Documentation khuyến nghị là <strong>Table Recreation Pattern</strong>:</p>
+
+<div class="mermaid">
+flowchart TD
+    Step1["Bước 1: Tạo bảng tạm với cấu trúc mới<br/><code>CREATE TABLE users_temp (...)</code>"]
+    Step2["Bước 2: Copy dữ liệu đã biến đổi sang bảng tạm<br/><code>INSERT INTO users_temp (...) SELECT ... FROM users</code>"]
+    Step3["Bước 3: Xóa bảng cũ<br/><code>DROP TABLE users</code>"]
+    Step4["Bước 4: Đổi tên bảng tạm thành bảng chính thức<br/><code>ALTER TABLE users_temp RENAME TO users</code>"]
+    Step5["Bước 5: Tạo lại Index & Triggers<br/><code>CREATE INDEX ...</code>"]
+
+    Step1 --> Step2 --> Step3 --> Step4 --> Step5
+</div>
+
+<h3>Case Study 1: Thêm cột <code>NOT NULL</code> vào bảng có hàng triệu dòng</h3>
+
 <pre data-lang="kotlin"><code>val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        // Dùng câu lệnh ALTER TABLE của SQL để cắm thêm cột
-        db.execSQL("ALTER TABLE notes ADD COLUMN is_pinned INTEGER NOT NULL DEFAULT 0")
+        // BẮT BUỘC phải có DEFAULT 0 khi thêm cột NOT NULL vào bảng đã có dữ liệu!
+        db.execSQL("ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL DEFAULT 0")
     }
 }</code></pre>
 
-<strong>Bước 3: Nhúng vào Builder</strong>
-<pre data-lang="kotlin"><code>Room.databaseBuilder(context, AppDatabase::class.java, "my_db.db")
-    .addMigrations(MIGRATION_1_2) // Thêm kịch bản vào đây
-    .build()</code></pre>
+<h3>Case Study 2: Đổi kiểu dữ liệu của cột</h3>
+<p>Đổi <code>created_at</code> từ Unix Timestamp milliseconds (<code>INTEGER</code>) sang chuỗi ISO-8601 UTC (<code>TEXT</code>):</p>
 
-<div class="callout callout-success"><span class="callout-icon">💡</span><div class="callout-body"><strong>AutoMigration (Từ Room 2.4.0):</strong> Nếu bạn chỉ thêm cột đơn giản, Room hỗ trợ <code>@AutoMigration</code>. Bạn không cần tự viết câu SQL <code>ALTER TABLE</code> nữa, Room sẽ tự Gen cho bạn. Nhưng với những thay đổi phức tạp (đổi tên cột, tách bảng), bạn vẫn bắt buộc phải viết Manual Migration.</div></div>
----
+<pre data-lang="kotlin"><code>val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // 1. Tạo bảng tạm với kiểu TEXT
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS orders_temp (
+                id TEXT NOT NULL PRIMARY KEY,
+                amount REAL NOT NULL,
+                created_at TEXT NOT NULL
+            )
+        """.trimIndent())
 
-<h2>2. Bài toán Indexing (Tối ưu tốc độ)</h2>
+        // 2. Copy dữ liệu và biến đổi bằng SQLite Date/Time functions
+        db.execSQL("""
+            INSERT INTO orders_temp (id, amount, created_at)
+            SELECT 
+                id, 
+                amount, 
+                datetime(created_at / 1000, 'unixepoch') || 'Z' AS created_at
+            FROM orders
+        """.trimIndent())
 
-<h2>Vấn đề cần giải quyết</h2>
+        // 3. Xóa bảng cũ & đổi tên bảng tạm
+        db.execSQL("DROP TABLE orders")
+        db.execSQL("ALTER TABLE orders_temp RENAME TO orders")
+    }
+}</code></pre>
 
-<p>Bạn có bảng <code>users</code> chứa <strong>1 triệu dòng</strong>.<br>Bạn muốn tìm tất cả những người có họ tên là "Nguyen Van A":<br><code>SELECT * FROM users WHERE full_name = 'Nguyen Van A'</code></p>
+<h3>Case Study 3: Tách 1 Entity thành 2 Entity có quan hệ (1 - N)</h3>
+<p>Tách bảng <code>users (id, name, email, company_name, company_tax_code)</code> thành <code>users (id, name, email)</code> và <code>companies (id, user_id, name, tax_code)</code>:</p>
 
-<p>Theo mặc định, SQLite sẽ làm hành động <strong>Full Table Scan</strong>: Nó phải lật từng dòng từ dòng 1 đến dòng 1.000.000 để tìm chữ "Nguyen Van A". Việc này vô cùng chậm và tốn CPU.</p>
+<pre data-lang="kotlin"><code>val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // 1. Tạo bảng mới companies với Foreign Key
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS companies (
+                id TEXT NOT NULL PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                name TEXT NOT NULL,
+                tax_code TEXT NOT NULL,
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+        """.trimIndent())
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_companies_user_id ON companies (user_id)")
 
-<h2>Giải pháp: Index (Chỉ mục)</h2>
+        // 2. Copy dữ liệu công ty sang bảng mới
+        db.execSQL("""
+            INSERT INTO companies (id, user_id, name, tax_code)
+            SELECT 
+                'comp_' || id AS id,
+                id AS user_id,
+                company_name AS name,
+                COALESCE(company_tax_code, 'N/A') AS tax_code
+            FROM users
+            WHERE company_name IS NOT NULL
+        """.trimIndent())
 
-<p>Index giống như <strong>Mục lục của một cuốn sách</strong>. <br>Thay vì phải lật từng trang sách để tìm một từ, bạn lật ra mục lục ở cuối sách (đã được sắp xếp theo bảng chữ cái ABC), tìm từ đó, và mục lục sẽ chỉ cho bạn chính xác từ đó nằm ở trang số mấy.</p>
+        // 3. Tái tạo bảng users mới gọn gàng hơn
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS users_new (
+                id TEXT NOT NULL PRIMARY KEY,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL
+            )
+        """.trimIndent())
 
-<p>Khi bạn đánh Index cho cột <code>full_name</code>, SQLite sẽ ngầm tạo ra một "Bảng mục lục" dạng Tree (B-Tree). Khi tìm kiếm, nó dò trên B-Tree chỉ tốn vài tích tắc (O(log n)), thay vì phải duyệt 1 triệu dòng (O(n)).</p>
+        db.execSQL("INSERT INTO users_new (id, name, email) SELECT id, name, email FROM users")
+        db.execSQL("DROP TABLE users")
+        db.execSQL("ALTER TABLE users_new RENAME TO users")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_users_email ON users (email)")
+    }
+}</code></pre>
 
-<h2>Hướng dẫn triển khai</h2>
+<hr>
 
-<p>Chỉ cần thêm khai báo <code>indices</code> trong Entity:</p>
+<h2>4. Indexing, B-Tree & Tối Ưu Hóa Truy Vấn CSDL Lớn</h2>
+
+<h3>Bản chất của Index bên dưới đĩa cứng: Cấu trúc B-Tree</h3>
+
+<p>Trong SQLite, bảng dữ liệu mặc định được tổ chức dưới dạng <strong>Table B-Tree</strong> được định danh bởi số nguyên 64-bit gọi là <code>ROWID</code>. Nếu không có Index, câu truy vấn <code>WHERE email = '...'</code> buộc SQLite phải thực hiện <strong>Full Table Scan</strong> duyệt tuần tự từng trang đĩa, độ phức tạp O(N). Với bảng 500.000 dòng, thao tác này mất từ 200ms - 1500ms, gây giật lag giao diện (ANR).</p>
+
+<p>Khi bạn khai báo Index trong Entity:</p>
 
 <pre data-lang="kotlin"><code>@Entity(
     tableName = "users",
-    indices = [
-        Index(value = ["full_name"]), // Đánh index cho 1 cột tìm kiếm nhiều
-        Index(value = ["email"], unique = true) // Đánh index và bắt buộc Email không được trùng nhau
-    ]
+    indices = [Index(value = ["email"], unique = true)]
 )
 data class UserEntity(
-    @PrimaryKey val id: Int,
-    val full_name: String,
-    val email: String,
-    val address: String
+    @PrimaryKey val id: String,
+    val name: String,
+    val email: String
 )</code></pre>
 
-<h2>Đánh đổi (Trade-off) - Khi nào KHÔNG NÊN đánh Index?</h2>
+<p>SQLite tạo riêng một <strong>Index B-Tree</strong> trên đĩa cứng:</p>
 
-<p>Đừng bao giờ đánh Index cho TẤT CẢ các cột.</p>
+<div class="mermaid">
+graph TD
+    subgraph "Index B-Tree (Sắp xếp theo email)"
+        Root["Node Gốc: ['m@...']"]
+        Leaf1["Leaf Node A-L: ['a@...', 'hazu@example.com'] -> ROWID #402"]
+        Leaf2["Leaf Node M-Z: ['n@...', 'z@...'] -> ROWID #981"]
+        Root --> Leaf1
+        Root --> Leaf2
+    end
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Nhược điểm của Index:</strong><br>Mặc dù Index làm tốc độ <strong>Đọc (SELECT)</strong> cực kỳ nhanh, nhưng nó lại làm tốc độ <strong>Ghi (INSERT/UPDATE/DELETE)</strong> chậm đi. <br>Lý do: Cứ mỗi lần bạn chèn thêm 1 User mới vào bảng, SQLite phải tốn thời gian "cập nhật lại cái bảng Mục lục (Index)". <br>Ngoài ra, Index cũng làm file <code>.db</code> nặng hơn (tốn dung lượng lưu trữ).</div></div>
-<strong>Best Practice:</strong>
-- <strong>NÊN:</strong> Đánh index cho những cột thường xuyên xuất hiện sau chữ <code>WHERE</code> (tìm kiếm/lọc), <code>ORDER BY</code> (sắp xếp).
-- <strong>KHÔNG NÊN:</strong> Đánh index cho những bảng quá nhỏ (dưới vài trăm dòng - lật từng trang sách mỏng còn nhanh hơn đi tìm mục lục), hoặc những bảng tần suất ghi/xóa dữ liệu quá nhiều nhưng lại ít khi đọc (Log table).
+    subgraph "Main Table (Lưu trên Disk)"
+        Row402["ROWID #402: {id: 'u_1', name: 'Nguyen Van A', email: 'hazu@example.com'}"]
+        Row981["ROWID #981: {id: 'u_2', name: 'Tran Thi B', email: 'z@example.com'}"]
+    end
+
+    Leaf1 -.->|Truy xuất trực tiếp qua ROWID| Row402
+    Leaf2 -.->|Truy xuất trực tiếp qua ROWID| Row981
+</div>
+
+<p>Độ phức tạp giảm xuống <strong>O(log N)</strong>, thời gian tìm kiếm giảm từ hàng giây xuống còn <strong>dưới 2 mili-giây</strong>!</p>
+
+<h3>Composite Index & Quy tắc "Leftmost Prefix" (Tiền tố bên trái)</h3>
+
+<p>Khi cần lọc theo nhiều điều kiện đồng thời:</p>
+
+<pre data-lang="kotlin"><code>@Entity(
+    tableName = "orders",
+    indices = [Index(value = ["user_id", "status", "created_at"])]
+)
+data class OrderEntity(...)</code></pre>
+
+<table style="width:100%; border-collapse: collapse; margin: 16px 0;">
+  <thead>
+    <tr style="background: rgba(148, 163, 184, 0.1); text-align: left;">
+      <th style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Mệnh đề WHERE</th>
+      <th style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Dùng được Index?</th>
+      <th style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Giải thích</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><code>WHERE user_id = ?</code></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>CÓ</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Khớp tiền tố ngoài cùng bên trái.</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><code>WHERE user_id = ? AND status = ?</code></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>CÓ</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Khớp 2 cột đầu của Index.</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><code>WHERE user_id = ? AND status = ? AND created_at &gt; ?</code></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>CÓ (Tối ưu tuyệt đối)</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Sử dụng trọn vẹn cả 3 cột của B-Tree.</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><code>WHERE status = ?</code></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>KHÔNG</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Bỏ qua cột <code>user_id</code> đầu tiên! SQLite không thể nhảy vào giữa cây.</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><code>WHERE user_id = ? AND created_at &gt; ?</code></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);"><strong>MỘT PHẦN</strong></td>
+      <td style="padding: 10px; border: 1px solid rgba(148, 163, 184, 0.2);">Chỉ dùng index cho <code>user_id</code>. Cột <code>created_at</code> phải lọc thủ công.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Thứ tự chuẩn trong Composite Index:</strong> Cột so sánh bằng (<code>=</code>) có độ chọn lọc cao nhất đặt ở đầu &rarr; Các cột bằng phụ ở giữa &rarr; Cột so sánh khoảng (<code>&lt;</code>, <code>&gt;</code>) hoặc sắp xếp (<code>ORDER BY</code>) bắt buộc phải nằm ở <strong>cuối cùng</strong>.</div></div>
+
+<h3>Đánh đổi (Trade-off): The Write Penalty & Storage Bloat</h3>
+<ol>
+  <li><strong>Hình phạt ghi dữ liệu (The Write Penalty):</strong> Mỗi lệnh <code>INSERT/UPDATE/DELETE</code> buộc SQLite phải cập nhật lại bảng chính và tái cân bằng (Rebalance) tất cả các cây B-Tree Index gắn liền. Đánh 5 index trên 1 bảng có thể làm tốc độ ghi chậm đi từ 3x đến 8x!</li>
+  <li><strong>Dung lượng đĩa phình to:</strong> Các cây B-Tree Index có thể chiếm tới 40% - 60% tổng dung lượng file <code>.db</code>.</li>
+</ol>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Khi nào KHÔNG NÊN đánh Index:</strong><br>
+1. Cột có độ chọn lọc thấp (Selectivity thấp): Cờ Boolean (<code>is_active</code>), Enum có 2-3 giá trị. Chi phí duyệt Index rồi Random I/O về đĩa còn tốn thời gian hơn đọc tuần tự bảng chính!<br>
+2. Bảng dữ liệu nhỏ (&lt; vài trăm dòng): Quét trong RAM chỉ tốn một phần nhỏ của mili-giây.<br>
+3. Bảng chỉ ghi (Write-heavy / Log / Analytics): Rất ít khi đọc nhưng liên tục bị chèn dữ liệu.
+</div></div>
+
+<h3>Đo lường chính xác bằng <code>EXPLAIN QUERY PLAN</code></h3>
+
+<pre data-lang="kotlin"><code>@Dao
+interface OrderDao {
+    @Query("EXPLAIN QUERY PLAN SELECT * FROM orders WHERE user_id = :userId AND status = :status")
+    suspend fun explainOrderQuery(userId: String, status: String): List&lt;QueryPlanItem&gt;
+}
+
+data class QueryPlanItem(val id: Int, val parent: Int, val notused: Int, val detail: String)</code></pre>
+
+<p><strong>Giải mã kết quả từ <code>detail</code>:</strong></p>
+<ul>
+  <li><code>SCAN TABLE orders</code>: 🚨 Báo động đỏ! Đang bị Full Table Scan.</li>
+  <li><code>SEARCH TABLE orders USING INDEX index_orders_user_id_status (...)</code>: ✅ Tối ưu chuẩn xác với Index.</li>
+  <li><code>SEARCH TABLE orders USING COVERING INDEX ...</code>: 🌟 Đỉnh cao nhất! Toàn bộ cột trong <code>SELECT</code>, <code>WHERE</code>, <code>ORDER BY</code> đều nằm trọn trong Index, SQLite không cần đọc bảng chính một lần nào.</li>
+</ul>
+
+<hr>
+
+<h2>5. Testing Migration với <code>MigrationTestHelper</code></h2>
+
+<p>Không bao giờ đẩy migration lên production nếu chưa có Unit Test tự động chứng minh nó an toàn:</p>
+
+<pre data-lang="kotlin"><code>package com.example.app.data.local
+
+import androidx.room.testing.MigrationTestHelper
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.io.IOException
+
+@RunWith(AndroidJUnit4::class)
+class AppDatabaseMigrationTest {
+
+    private val TEST_DB = "migration-test.db"
+
+    @get:Rule
+    val helper: MigrationTestHelper = MigrationTestHelper(
+        InstrumentationRegistry.getInstrumentation(),
+        AppDatabase::class.java.canonicalName,
+        FrameworkSQLiteOpenHelperFactory()
+    )
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate1To2_containsCorrectDataAndNewColumnDefault() {
+        // GIAI ĐOẠN 1: Tạo database ở Version 1 và chèn dữ liệu mẫu
+        var db = helper.createDatabase(TEST_DB, 1).apply {
+            execSQL("INSERT INTO users (id, name, email) VALUES ('u1', 'Hazu Nguyen', 'hazu@example.com')")
+            close()
+        }
+
+        // GIAI ĐOẠN 2: Thực thi migration lên Version 2 và tự động kiểm tra Schema Hash
+        db = helper.runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2)
+
+        // GIAI ĐOẠN 3: Kiểm tra tính toàn vẹn của dữ liệu sau khi migrate
+        val cursor = db.query("SELECT id, name, email, is_verified FROM users WHERE id = 'u1'")
+        assertTrue("Bản ghi người dùng cũ phải còn tồn tại", cursor.moveToFirst())
+
+        assertEquals("Hazu Nguyen", cursor.getString(cursor.getColumnIndexOrThrow("name")))
+        assertEquals("hazu@example.com", cursor.getString(cursor.getColumnIndexOrThrow("email")))
+        assertEquals(0, cursor.getInt(cursor.getColumnIndexOrThrow("is_verified")))
+
+        cursor.close()
+        db.close()
+    }
+}</code></pre>
+
+<hr>
+
+<h2>6. Tư Duy Hệ Thống: Vị Trí Của Migration Trong Clean Architecture</h2>
+
+<div class="mermaid">
+graph TD
+    subgraph "Tầng Khởi Tạo Ứng Dụng (Application / Splash Screen)"
+        AppInit["Application.onCreate() / AppStartupInitializer"]
+        DBWarmUp["Database Warm-up Worker (Background Dispatcher)"]
+    end
+
+    subgraph "Data Layer (Room Database)"
+        OpenHelper["RoomOpenHelper (Chạy Migration ngầm)"]
+        SQLiteFile[("app_database.db")]
+    end
+
+    subgraph "Domain Layer / UseCases"
+        GetUsersUseCase["GetUsersUseCase"]
+    end
+
+    AppInit --> DBWarmUp
+    DBWarmUp -->|Kích hoạt kết nối trước| OpenHelper
+    OpenHelper --> SQLiteFile
+    GetUsersUseCase -.->|Được gọi khi UI mở| OpenHelper
+</div>
+
+<ol>
+  <li><strong>Khởi tạo và Migration trên Background Thread:</strong> Migration diễn ra vào đúng thời điểm kết nối DB đầu tiên được mở. Nếu ViewModel ở Main Thread kích hoạt Flow đầu tiên trên bảng triệu dòng đang migrate, app sẽ bị ANR ngay lập tức. Cần sử dụng App Startup để warm-up kết nối trên <code>Dispatchers.IO</code> từ Splash Screen.</li>
+  <li><strong>Chiến lược Phục hồi Thảm họa (Graceful Degradation):</strong> Với dữ liệu tài chính tối quan trọng, copy tệp <code>app_database.db</code> sang <code>app_database.db.bak</code> trước khi migrate. Nếu có ngoại lệ bất ngờ, khôi phục lại bản backup và báo log về Crashlytics thay vì để mất trắng dữ liệu của người dùng.</li>
+</ol>
+
+<hr>
+
+<h2>7. Tổng Kết & Câu Hỏi Phỏng Vấn Senior (Cheat Sheet)</h2>
+
+<div class="callout callout-info"><span class="callout-icon">ℹ️</span><div class="callout-body">
+<strong>Top 5 Câu Hỏi Phỏng Vấn Senior:</strong>
+<br><br>
+<strong>1. Khi nào Room ném lỗi <code>Room cannot verify the data integrity</code>?</strong><br>
+<em>Trả lời:</em> Khi mã băm <code>identity_hash</code> tính từ class <code>@Entity</code> không khớp với hash lưu trong bảng <code>room_master_table</code> dưới SQLite. Do quên tăng version hoặc câu lệnh SQL migration tạo ra cấu trúc lệch so với Entity Kotlin.
+<br><br>
+<strong>2. Khi nào bắt buộc phải dùng Manual Migration thay vì AutoMigration?</strong><br>
+<em>Trả lời:</em> Khi đổi kiểu dữ liệu của cột, tách hoặc gộp dữ liệu giữa các bảng (quan hệ 1-1, 1-N), hoặc thay đổi Primary Key / Foreign Key phức tạp.
+<br><br>
+<strong>3. Tại sao gọi <code>fallbackToDestructiveMigration()</code> là thảm họa trên Production?</strong><br>
+<em>Trả lời:</em> Vì Room sẽ chạy <code>DROP TABLE</code> toàn bộ cơ sở dữ liệu, xóa sạch toàn bộ dữ liệu offline của người dùng mà không thể phục hồi.
+<br><br>
+<strong>4. Tại sao không nên đánh Index cho mọi cột?</strong><br>
+<em>Trả lời:</em> Vì Write Penalty (mỗi lệnh INSERT/UPDATE/DELETE phải tái cân bằng tất cả các cây B-Tree Index), phình to dung lượng file <code>.db</code>, và vô dụng đối với các cột có độ chọn lọc thấp (Low Selectivity như Boolean).
+<br><br>
+<strong>5. Quy tắc Leftmost Prefix trong Composite Index là gì?</strong><br>
+<em>Trả lời:</em> Composite Index <code>(A, B, C)</code> chỉ được SQLite kích hoạt nếu câu truy vấn lọc bắt đầu từ cột ngoài cùng bên trái (<code>A</code>). Nếu bỏ qua <code>A</code> và chỉ tìm theo <code>B</code> hoặc <code>C</code>, SQLite buộc phải Full Table Scan.
+</div></div>
+
+<hr>
+
+<h2>8. Nguồn Tham Khảo Chính Thức (References)</h2>
+
+<ol>
+  <li><a href="https://developer.android.com/training/data-storage/room/migrating-db-versions" target="_blank" rel="noopener">Android Developers — Migrate Room databases</a></li>
+  <li><a href="https://developer.android.com/training/data-storage/room/testing-db#test-migrations" target="_blank" rel="noopener">Android Developers — Testing your Room migrations</a></li>
+  <li><a href="https://developer.android.com/training/data-storage/room/defining-data#indices" target="_blank" rel="noopener">Android Developers — Defining data using Room entities (Indices)</a></li>
+  <li><a href="https://www.sqlite.org/eqp.html" target="_blank" rel="noopener">SQLite Documentation — The SQLite Query Optimizer & EXPLAIN QUERY PLAN</a></li>
+  <li><a href="https://www.sqlite.org/lang_altertable.html#otheralter" target="_blank" rel="noopener">SQLite Documentation — Making Other Kinds Of Table Schema Changes (Table Recreation Pattern)</a></li>
+  <li><a href="https://www.sqlite.org/queryplanner.html" target="_blank" rel="noopener">SQLite Documentation — Query Planning & B-Tree Structure</a></li>
+</ol>
     `
   },
   'data-store-room-trans': {
     title: 'Async Transactions & Flow',
-    summary: 'Giải quyết bài toán ghi dữ liệu phức tạp. Cách gom nhóm nhiều tác vụ bất đồng bộ (Coroutines) vào một Transaction để đảm bảo tính toàn vẹn dữ liệu (ACID) - Thành công tất cả hoặc Hủy toàn bộ.',
+    summary: 'Chuyen sau ve Room Database bat dong bo. Boc tach co che ThreadLocal cua SQLite, TransactionDispatcher, @Transaction vs withTransaction, co che InvalidationTracker phia duoi Flow, N+1 query problem cua @Relation, va cac pattern thuc chien cho Data Sync, E-commerce, Banking cung Testing voi Turbine.',
     status: 'published',
-    difficulty: 'intermediate',
-    estimatedReadingTime: '15 phút',
+    difficulty: 'advanced',
+    estimatedReadingTime: '45 phut',
     depth: 'deep-dive',
-    tags: ['android', 'practical'],
+    tags: ['android', 'practical', 'room', 'coroutines', 'flow', 'transaction', 'sqlite', 'concurrency'],
     domain: 'Android',
     module: 'Session 05: Data Store & Networking',
-    prerequisites: [],
-    related: [],
-    learningOutcomes: [],
-    knowledgeGap: '',
-    updatedAt: '2026-07-30',
-    readTime: '15 phút',
+    prerequisites: ['data-store-room-arch', 'data-store-room-adv'],
+    related: ['data-store-room-adv', 'data-store-room-arch'],
+    learningOutcomes: [
+      'Hieu tai sao SQLite ThreadLocal la van de voi Coroutines va cach Room dung TransactionDispatcher.',
+      'Phan biet ro @Transaction (DAO-level) va withTransaction (Repository-level).',
+      'Hieu co che InvalidationTracker: SQLite trigger va room_table_modification_log va Flow emit.',
+      'Nam duoc N+1 query problem cua @Relation va cach tranh bang manual JOIN.',
+      'Ap dung cac pattern: Data Sync khong empty flash, Checkout, Banking Transfer.',
+      'Viet Unit Test cho Transaction rollback va Flow emission bang Turbine.'
+    ],
+    knowledgeGap: 'Developers biet dung Room co ban nhung khong hieu tai sao Transaction trong Coroutines phuc tap, tai sao Flow tu update, va hay gap loi SQLiteDatabaseLockedException.',
+    updatedAt: '2026-09-21',
+    readTime: '45 phut',
     content: `
-<h2>Vấn đề cần giải quyết</h2>
+<h2>1. Van de nen tang: Tai sao SQLite nguy hiem voi Coroutines?</h2>
 
-<p>Trong thực tế dự án, hiếm khi bạn chỉ lưu dữ liệu vào 1 bảng duy nhất. Hãy xét bài toán <strong>Lưu đơn hàng (Checkout)</strong>:<br>1. Bạn phải trừ tiền trong bảng <code>Wallet</code>.<br>2. Bạn thêm 1 dòng vào bảng <code>Orders</code>.<br>3. Bạn thêm 5 dòng vào bảng <code>OrderDetails</code> (chi tiết sản phẩm mua).</p>
+<h3>1.1 SQLite connection la ThreadLocal</h3>
+<p>SQLite khong phai la thread-safe theo cach ban nghi. Moi ket noi SQLite (<code>SQLiteDatabase</code>) trong Android duoc rang buoc voi <strong>thread da mo no</strong> thong qua co che <code>ThreadLocal</code>.</p>
+<pre data-lang="text"><code>Thread A mo connection → Thread A co SQLite session
+Thread B co dung connection cua Thread A → SQLite bao loi: "database locked"</code></pre>
+<p>Truoc khi co Coroutines, day khong phai van de. Nhung Coroutines thay doi luat choi hoan toan.</p>
 
-<p>Nếu làm theo cách thông thường, bạn chạy 3 hàm <code>insert/update</code> liên tiếp. <br>Nhưng nếu: Trừ tiền thành công, Lưu Order thành công, nhưng đến lúc lưu OrderDetails thì... <strong>Lỗi (điện thoại hết dung lượng hoặc sập nguồn)!</strong></p>
+<h3>1.2 Coroutine suspension: ke pha vo rang buoc Thread</h3>
+<p>Khi mot Coroutine <code>suspend</code>, no nhuong thread hien tai. Khi duoc resume, no co the tiep tuc tren <strong>mot thread khac</strong>:</p>
+<pre data-lang="kotlin"><code>// NGUY HIEM — dung bao gio lam the nay
+suspend fun badTransaction() {
+    db.beginTransaction()           // Thread A mo transaction
+    val result = networkCall()      // suspend → Thread A tra ve pool, resume tren Thread B
+    dao.insertData(result)          // Thread B dung connection cua Thread A → CRASH!
+    db.setTransactionSuccessful()
+    db.endTransaction()
+}</code></pre>
 
-<p>Kết quả: Tiền của User đã bị trừ, Đơn hàng có tạo ra, nhưng không có thông tin sản phẩm. Dữ liệu bị rác, mâu thuẫn.</p>
+<h3>1.3 Room giai quyet bang TransactionDispatcher</h3>
+<p>Room tao ra mot <strong>single-thread executor</strong> rieng biet: <code>TransactionDispatcher</code>. Chi co dung <strong>1 thread</strong>, dat ten theo pattern <code>room-X-trans</code>.</p>
+<p>Khi goi <code>db.withTransaction { ... }</code>, Room lam 3 viec:</p>
+<ol>
+  <li><strong>Switch</strong> Coroutine sang <code>TransactionDispatcher</code> (single thread).</li>
+  <li><strong>Mo</strong> SQLite connection va goi <code>beginTransaction()</code>.</li>
+  <li><strong>Cai</strong> <code>TransactionElement</code> vao <code>CoroutineContext</code> — "the nhan dien" de moi DAO call ben trong reuse chinh connection do.</li>
+</ol>
+<pre data-lang="kotlin"><code>// Cau truc noi bo Room (simplified)
+internal class TransactionElement(
+    private val transactionThreadControlJob: Job,
+    val transactionDispatcher: CancellableContinuation&lt;Unit&gt;
+) : CoroutineContext.Element {
+    companion object Key : CoroutineContext.Key&lt;TransactionElement&gt;
+    override val key = Key
+}</code></pre>
+<blockquote><strong>Interview insight:</strong> "Room xu ly concurrency trong Coroutines the nao?" → <code>TransactionDispatcher</code> la single-thread executor duoc pin vao <code>CoroutineContext</code> thong qua <code>TransactionElement</code>, dam bao connection khong bi share giua cac thread trong suot vong doi transaction.</blockquote>
 
-<h2>Giải pháp: Transaction (Giao dịch)</h2>
+<h2>2. @Transaction vs withTransaction: Hai cong cu, hai tang kien truc</h2>
 
-<p>Database cung cấp cơ chế Transaction để đảm bảo tính nguyên vẹn (Nguyên lý ACID - All or Nothing). <br>Khi bạn bọc 3 bước trên vào 1 Transaction, hệ thống cam kết: <strong>Hoặc là cả 3 cùng thành công, hoặc nếu lỗi ở bất kỳ bước nào, toàn bộ quá trình sẽ bị Rollback (Quay ngược thời gian), tiền sẽ được cộng lại như chưa có gì xảy ra.</strong></p>
-
-<h2>Vấn đề với Coroutines (Bất đồng bộ)</h2>
-
-<p>Trước đây, khi code bằng Java, code chạy tuần tự nên Transaction rất dễ viết.<br>Nhưng với Kotlin Coroutines, các hàm suspend chạy bất đồng bộ (Thread bị tạm ngưng và nhường chỗ, thậm chí nhảy sang Thread khác). Việc đảm bảo Transaction trên môi trường Multi-threading là cực kỳ phức tạp (vì SQLite lock database theo từng Thread).</p>
-
-<p>May mắn thay, Room Database đã giải quyết triệt để bài toán này cho bạn!</p>
-
-<h2>Hướng dẫn triển khai</h2>
-
-<p>Trong Room DAO, bạn chỉ cần dùng Annotation <code>@Transaction</code> đặt trước một hàm <code>suspend</code>. Room sẽ tự động bọc toàn bộ code bên trong hàm đó vào một Transaction an toàn của SQLite.</p>
-
-<pre data-lang="kotlin"><code>@Dao
-interface OrderDao {
-
-// Các hàm lẻ
-    @Update
-    suspend fun updateWallet(wallet: WalletEntity)
-
-@Insert
-    suspend fun insertOrder(order: OrderEntity): Long // Trả về ID vừa tạo
-
-@Insert
-    suspend fun insertOrderDetails(details: List&lt;OrderDetailEntity&gt;)
-
-// ==========================================
-    // HÀM TRANSACTION GOM NHÓM
-    // ==========================================
-    @Transaction
-    suspend fun processCheckout(
-        wallet: WalletEntity, 
-        order: OrderEntity, 
-        details: List&lt;OrderDetailEntity&gt;
-    ) {
-        // Bước 1: Trừ tiền
-        updateWallet(wallet)
-
-// Bước 2: Tạo order
-        val orderId = insertOrder(order)
-
-// Bước 3: Gắn OrderId vào từng detail rồi lưu
-        val detailsWithId = details.map { it.copy(orderId = orderId) }
-        insertOrderDetails(detailsWithId)
-        
-        // NẾU CÓ BẤT KỲ EXCEPTION NÀO XẢY RA TRONG KHỐI NÀY, 
-        // ROOM SẼ TỰ ĐỘNG ROLLBACK TẤT CẢ!
+<h3>2.1 @Transaction tren DAO: Room-generated code</h3>
+<p><code>@Transaction</code> la annotation tai tang DAO. Room Compiler sinh code xap xi:</p>
+<pre data-lang="kotlin"><code>// Room-generated (AppDatabase_Impl.kt — simplified)
+override suspend fun processCheckout(...) {
+    __db.assertNotSuspendingTransaction()
+    __db.beginTransactionAsync()           // Chuyen sang TransactionDispatcher
+    try {
+        __originalImpl.processCheckout(...)
+        __db.setTransactionSuccessful()
+    } finally {
+        __db.endTransactionAsync()         // Luon duoc goi du thanh cong hay loi
     }
-}</code></pre></p>
+}</code></pre>
+<p><strong>Gioi han:</strong> scope bi gioi han trong noi bo DAO; khong kiem soat duoc business logic; kho test.</p>
 
-<h2>Cách sử dụng trong Repository / ViewModel</h2>
-
-<p>Dưới góc độ ViewModel, bạn chỉ gọi đúng 1 hàm <code>processCheckout</code>. Việc xử lý Transaction nặng nhọc đã được Room ẩn giấu (Encapsulation).</p>
-
-<pre data-lang="kotlin"><code>class CheckoutViewModel(private val dao: OrderDao) : ViewModel() {
-
-fun checkout(cartItems: List&lt;CartItem&gt;) {
-        viewModelScope.launch {
-            try {
-                // Tạo data models...
-                val wallet = WalletEntity(balance = 500)
-                val order = OrderEntity(total = 100)
-                val details = cartItems.map { OrderDetailEntity(...) }
-
-// Gọi hàm Transaction
-                dao.processCheckout(wallet, order, details)
-
-// Nếu xuống được dòng này nghĩa là TẤT CẢ đã thành công!
-                _uiState.value = CheckoutState.Success
-
-} catch (e: Exception) {
-                // Nếu lỗi, Room đã tự động Rollback Database. 
-                // Ta chỉ việc báo lỗi lên UI.
-                _uiState.value = CheckoutState.Error(e.message)
-            }
+<h3>2.2 withTransaction { } tren RoomDatabase: Cach Google khuyen nghi</h3>
+<pre data-lang="kotlin"><code>class OrderRepository(
+    private val db: AppDatabase,
+    private val orderDao: OrderDao
+) {
+    suspend fun processCheckout(wallet: WalletEntity, order: OrderEntity, items: List&lt;CartItem&gt;) {
+        db.withTransaction {
+            orderDao.updateWallet(wallet)
+            val orderId = orderDao.insertOrder(order)
+            val details = items.map { OrderDetailEntity(orderId = orderId) }
+            orderDao.insertOrderDetails(details)
         }
     }
-}</code></pre></p>
-
-<h2>Bonus: Kết hợp Flow lắng nghe nhiều bảng (Relational Fetching)</h2>
-
-<p>Khi bạn muốn hiển thị một Đơn hàng KÈM theo Chi tiết đơn hàng, thay vì viết 2 câu Query rồi tự ghép lại bằng tay, bạn có thể định nghĩa một lớp Data Class bọc (Wrapper) chứa <code>@Relation</code>.</p>
-
-<pre data-lang="kotlin"><code>// Data class này KHÔNG phải là @Entity, nó chỉ dùng để query
-data class OrderWithDetails(
-    @Embedded val order: OrderEntity, // Lấy toàn bộ info của Order
-    
-    @Relation(
-        parentColumn = "id", // Khóa chính bảng Order
-        entityColumn = "orderId" // Khóa ngoại bảng OrderDetail
-    )
-    val details: List&lt;OrderDetailEntity&gt; // Lấy danh sách Detail tương ứng
-)</code></pre>
-
-<strong>Trong DAO:</strong>
-<pre data-lang="kotlin"><code>@Dao
-interface OrderDao {
-    // Phải có @Transaction vì Room chạy ngầm 2 câu query riêng biệt 
-    // (1 cho Order, 1 cho Details). Cần Transaction để tránh dữ liệu bị 
-    // chênh lệch trong lúc đang query.
-    @Transaction
-    @Query("SELECT * FROM orders WHERE id = :orderId")
-    fun getOrderWithDetailsFlow(orderId: Long): Flow&lt;OrderWithDetails&gt;
 }</code></pre>
-Lợi ích: Chỉ với 1 Flow, UI của bạn sẽ tự động cập nhật ngay lập tức nếu dữ liệu của bảng <code>Order</code> HOẶC bảng <code>OrderDetail</code> bị thay đổi!
 
-<h2>Tổng kết</h2>
+<h3>2.3 Khi nao dung cai nao?</h3>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead><tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+    <th style="padding:8px 12px;">Tieu chi</th>
+    <th style="padding:8px 12px;">@Transaction tren DAO</th>
+    <th style="padding:8px 12px;">withTransaction {} o Repository</th>
+  </tr></thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>Scope kiem soat</strong></td><td style="padding:8px 12px;">Chi trong DAO method</td><td style="padding:8px 12px;">Toan bo block, bat ky tang nao</td></tr>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>Business logic</strong></td><td style="padding:8px 12px;">Khong nen co</td><td style="padding:8px 12px;">Co the validate, compute</td></tr>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>Ket hop nhieu DAO</strong></td><td style="padding:8px 12px;">Khong truc tiep</td><td style="padding:8px 12px;">De dang: dao1.x(), dao2.y()</td></tr>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>Testability</strong></td><td style="padding:8px 12px;">Kho test rieng</td><td style="padding:8px 12px;">De mock, test tung buoc</td></tr>
+    <tr><td style="padding:8px 12px;"><strong>Dung khi nao</strong></td><td style="padding:8px 12px;">@Relation, simple write</td><td style="padding:8px 12px;">Multi-DAO write, Data Sync, Checkout</td></tr>
+  </tbody>
+</table>
 
-<p>Đừng bao giờ chạy nhiều câu lệnh Insert/Update rời rạc nếu chúng thuộc về cùng một nghiệp vụ (Business Logic). Bọc chúng trong <code>@Transaction</code> để tránh rác dữ liệu. Kết hợp <code>@Transaction</code> cùng <code>suspend</code> và <code>Flow</code> biến Room trở thành công cụ xử lý bất đồng bộ Database mạnh mẽ nhất trên Android hiện nay.</p>
+<h3>2.4 Nested Transaction</h3>
+<p>SQLite chi ho tro 1 level transaction thuc su. Room xu ly thong minh: neu Coroutine da co <code>TransactionElement</code> trong <code>CoroutineContext</code>, goi <code>withTransaction { }</code> lan thu 2 se <strong>reuse connection hien tai</strong>.</p>
+<pre data-lang="kotlin"><code>db.withTransaction {                    // Outer: BEGIN TRANSACTION
+    dao.insertA()
+    db.withTransaction {               // Inner: reuse connection, khong mo moi
+        dao.insertB()
+        // Neu throw exception: ROLLBACK toan bo outer transaction
+    }
+    dao.insertC()
+}                                       // COMMIT</code></pre>
+<blockquote><strong>Canh bao:</strong> Trong Room, khong co cach rollback inner transaction ma giu outer transaction — khac voi PostgreSQL co SAVEPOINT.</blockquote>
+
+<h2>3. Rollback va CancellationException: Bay it ai biet</h2>
+
+<p>Room rollback khi <strong>bat ky Throwable nao</strong> duoc nem ra: <code>Exception</code>, <code>Error</code>, va ca <strong>CancellationException</strong>.</p>
+<pre data-lang="kotlin"><code>viewModelScope.launch {
+    db.withTransaction {
+        dao.updateWallet(wallet)        // Thanh cong
+        dao.insertOrder(order)          // Thanh cong
+        // User thoat man hinh → CancellationException
+        dao.insertOrderDetails(details) // Khong bao gio chay
+        // Room → ROLLBACK toan bo
+    }
+}</code></pre>
+<p><strong>Room dam bao Rollback ngay ca khi bi cancel</strong> nho <code>try-finally</code> luon goi <code>endTransaction()</code>. Neu ban co operation critical, tach no khoi lifecycle-bound scope:</p>
+<pre data-lang="kotlin"><code>class OrderRepository(
+    private val db: AppDatabase,
+    private val dao: OrderDao,
+    private val externalScope: CoroutineScope  // ApplicationScope: song lau hon Screen
+) {
+    suspend fun submitOrder(order: OrderEntity, items: List&lt;CartItem&gt;) {
+        externalScope.launch {
+            db.withTransaction {
+                dao.insertOrder(order)
+                dao.insertOrderDetails(items.map { it.toEntity() })
+            }
+        }.join()
+    }
+}</code></pre>
+
+<h2>4. Flow tu Room: Co che InvalidationTracker</h2>
+
+<h3>4.1 Flow khong phai la polling</h3>
+<p>Room <strong>khong</strong> dung polling. Thay vao do, Room dung <strong>SQLite trigger</strong> thong qua <code>InvalidationTracker</code>.</p>
+
+<h3>4.2 Co che SQLite Trigger</h3>
+<p>Khi Room khoi tao database, no tu dong tao bang an <code>room_table_modification_log</code> va voi moi bang duoc track, tao 3 trigger (INSERT, UPDATE, DELETE):</p>
+<pre data-lang="sql"><code>CREATE TEMP TRIGGER IF NOT EXISTS
+  room_table_modification_trigger_products_INSERT
+AFTER INSERT ON products BEGIN
+    UPDATE room_table_modification_log
+    SET invalidated = 1
+    WHERE table_id = 5 AND invalidated = 0;
+END;</code></pre>
+
+<h3>4.3 Chuoi su kien tu Write den Flow emit</h3>
+<ol>
+  <li>DAO goi <code>INSERT INTO products</code></li>
+  <li>SQLite Engine kich hoat trigger, cap nhat <code>room_table_modification_log</code></li>
+  <li><code>InvalidationTracker</code> (chay background, batched) phat hien table_id = 5 bi invalidate</li>
+  <li>Thong bao cho Flow observer: table "products" da thay doi</li>
+  <li>Flow re-execute SELECT query va emit ket qua moi len UI</li>
+</ol>
+<blockquote><strong>Quan trong:</strong> Co the co do tre rat nho (vai milliseconds) giua write va Flow emit vi InvalidationTracker dung batched polling.</blockquote>
+
+<h3>4.4 Table-level invalidation: Van de over-emission</h3>
+<p><code>InvalidationTracker</code> hoat dong o <strong>table-level</strong>, khong phai row-level. Neu bang <code>products</code> co 10,000 dong va ban chi update 1 dong, Flow van re-emit toan bo 10,000 dong.</p>
+<pre data-lang="kotlin"><code>// Giai phap 1: chan neu data khong thay doi
+fun getProducts(): Flow&lt;List&lt;ProductEntity&gt;&gt; =
+    dao.getAllProducts().distinctUntilChanged()
+
+// Giai phap 2 (tot hon): query hep hon
+@Query("SELECT id, name, price FROM products WHERE category = :category")
+fun getProductsByCategory(category: String): Flow&lt;List&lt;ProductSummary&gt;&gt;</code></pre>
+
+<h3>4.5 Flow&lt;List&lt;T&gt;&gt; vs Flow&lt;T?&gt;: Interview trap</h3>
+<pre data-lang="kotlin"><code>@Query("SELECT * FROM products")
+fun getAllProducts(): Flow&lt;List&lt;ProductEntity&gt;&gt;
+// Bang empty → emit emptyList() NGAY LAP TUC khi collect
+
+@Query("SELECT * FROM products WHERE id = :id")
+fun getProductById(id: Long): Flow&lt;ProductEntity?&gt;
+// Khong tim thay → emit null NGAY LAP TUC khi collect</code></pre>
+<p><strong>Co.</strong> Room emit gia tri dau tien ngay khi Flow duoc collect (khac voi SharedFlow khong co replay).</p>
+
+<h2>5. @Relation: N+1 Query Problem</h2>
+
+<h3>5.1 @Relation khong dung JOIN</h3>
+<p>Hieu lam pho bien nhat. Room <strong>khong</strong> sinh SQL JOIN. Thay vao do, Room chay <strong>N+1 queries</strong>:</p>
+<pre data-lang="kotlin"><code>data class OrderWithDetails(
+    @Embedded val order: OrderEntity,
+    @Relation(parentColumn = "id", entityColumn = "orderId")
+    val details: List&lt;OrderDetailEntity&gt;
+)
+
+@Transaction
+@Query("SELECT * FROM orders")
+fun getAllOrdersWithDetails(): Flow&lt;List&lt;OrderWithDetails&gt;&gt;</code></pre>
+<p>Room sinh code tuong duong (simplified):</p>
+<pre data-lang="kotlin"><code>val orders = query("SELECT * FROM orders")   // Query 1
+val detailsMap = orders.associate { order -&gt;
+    order.id to query("SELECT * FROM order_details WHERE orderId = ?", order.id)
+}   // Query 2..N (1 query per order)
+return orders.map { OrderWithDetails(it, detailsMap[it.id] ?: emptyList()) }</code></pre>
+<p>100 orders → 101 queries. 1000 orders → 1001 queries.</p>
+
+<h3>5.2 Tai sao bat buoc phai co @Transaction?</h3>
+<p>Neu khong co @Transaction: Room query parent xong, Coroutine suspend, thread khac DELETE mot so children, roi Room query children → ket qua khong nhat quan. @Transaction dam bao toan bo N+1 queries chay trong 1 SQLite read snapshot.</p>
+
+<h3>5.3 Giai phap thay the: Manual JOIN</h3>
+<pre data-lang="kotlin"><code>@Query("SELECT o.id AS orderId, o.total AS orderTotal, COUNT(d.id) AS itemCount FROM orders o LEFT JOIN order_details d ON o.id = d.orderId GROUP BY o.id")
+fun getOrderSummaries(): Flow&lt;List&lt;OrderSummary&gt;&gt;</code></pre>
+<p>1 query duy nhat, khong N+1, khong can @Transaction.</p>
+
+<h2>6. Pattern thuc chien</h2>
+
+<h3>6.1 Data Sync: Khong de UI thay man hinh trong</h3>
+<pre data-lang="kotlin"><code>// SAI: gay empty flash
+suspend fun syncProducts(serverData: List&lt;ProductDto&gt;) {
+    dao.deleteAll()          // UI thay emptyList()
+    dao.insertAll(serverData.map { it.toEntity() })
+}
+
+// DUNG: atomic, UI chi thay trang thai cuoi
+suspend fun syncProducts(serverData: List&lt;ProductDto&gt;) {
+    db.withTransaction {
+        dao.deleteAll()
+        dao.insertAll(serverData.map { it.toEntity() })
+    }   // Flow chi emit 1 lan SAU KHI ca 2 buoc hoan thanh (sau COMMIT)
+}</code></pre>
+<p>InvalidationTracker chi notify Flow sau khi transaction COMMIT. Trong suot thoi gian transaction chay, Flow khong nhan notification nao.</p>
+
+<h3>6.2 E-commerce Checkout: Multi-table atomic write</h3>
+<pre data-lang="kotlin"><code>class CheckoutRepository(
+    private val db: AppDatabase,
+    private val walletDao: WalletDao,
+    private val orderDao: OrderDao,
+    private val inventoryDao: InventoryDao
+) {
+    suspend fun checkout(userId: Long, cartItems: List&lt;CartItem&gt;): Result&lt;Long&gt; = runCatching {
+        db.withTransaction {
+            val wallet = walletDao.getWallet(userId) ?: error("Wallet not found")
+            val total = cartItems.sumOf { it.price * it.quantity }
+            if (wallet.balance &lt; total) throw InsufficientFundsException()
+            walletDao.deductBalance(userId, total)
+
+            cartItems.forEach { item -&gt;
+                val stock = inventoryDao.getStock(item.productId)
+                if (stock &lt; item.quantity) throw OutOfStockException(item.productId)
+                inventoryDao.reduceStock(item.productId, item.quantity)
+            }
+
+            val orderId = orderDao.insertOrder(
+                OrderEntity(userId = userId, total = total, status = "PENDING")
+            )
+            orderDao.insertOrderDetails(
+                cartItems.map { OrderDetailEntity(orderId = orderId, productId = it.productId) }
+            )
+            orderId
+        }
+    }
+}</code></pre>
+
+<h3>6.3 WAL Mode: Tai sao Room bat theo mac dinh</h3>
+<p>Room tu dong bat <strong>Write-Ahead Logging (WAL)</strong> tu phien ban 2.0+. WAL cho phep Writer ghi vao file WAL rieng biet trong khi Readers doc tu DB chinh — khong block nhau. Ket qua: Flow (reader) va dao.insert() (writer) chay song song, UI luon muot ma.</p>
+<pre data-lang="text"><code>Journal Mode:  Reader1 - wait - wait - Writer - wait - Reader2
+WAL Mode:      Reader1 ----------- parallel ----------------
+               Reader2 ----------- parallel ----------------
+               Writer  -- WAL file -------------------------</code></pre>
+
+<h2>7. Testing: Transaction va Flow</h2>
+
+<h3>7.1 Setup In-memory Database</h3>
+<pre data-lang="kotlin"><code>@RunWith(AndroidJUnit4::class)
+class CheckoutRepositoryTest {
+    private lateinit var db: AppDatabase
+    private lateinit var repo: CheckoutRepository
+
+    @Before fun setup() {
+        val context = ApplicationProvider.getApplicationContext&lt;Context&gt;()
+        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        repo = CheckoutRepository(db, db.walletDao(), db.orderDao(), db.inventoryDao())
+    }
+    @After fun teardown() { db.close() }
+}</code></pre>
+
+<h3>7.2 Test Transaction Rollback</h3>
+<pre data-lang="kotlin"><code>@Test
+fun checkout_insufficientFunds_shouldRollbackAll() = runTest {
+    db.walletDao().insert(WalletEntity(userId = 1, balance = 50.0))
+    val cartItems = listOf(CartItem(productId = 1, price = 100.0, quantity = 1))
+
+    val result = repo.checkout(userId = 1, cartItems = cartItems)
+
+    assertTrue(result.isFailure)
+    assertIs&lt;InsufficientFundsException&gt;(result.exceptionOrNull())
+    assertEquals(50.0, db.walletDao().getWallet(1)!!.balance, 0.001)  // Vi khong bi tru
+    assertTrue(db.orderDao().getAllOrders().isEmpty())                   // Khong co order
+}</code></pre>
+
+<h3>7.3 Test Flow voi Turbine</h3>
+<pre data-lang="kotlin"><code>// build.gradle.kts
+testImplementation("app.cash.turbine:turbine:1.1.0")</code></pre>
+<pre data-lang="kotlin"><code>@Test
+fun flow_emitsUpdatedList_afterInsert() = runTest {
+    db.productDao().insertAll(listOf(ProductEntity(id = 1, name = "Laptop")))
+
+    db.productDao().getAllProducts().test {
+        assertEquals(1, awaitItem().size)                              // Emission dau tien
+        db.productDao().insert(ProductEntity(id = 2, name = "Phone"))
+        assertEquals(2, awaitItem().size)                              // Emission thu 2
+        cancelAndIgnoreRemainingEvents()
+    }
+}</code></pre>
+
+<h3>7.4 Test Empty Flash Prevention</h3>
+<pre data-lang="kotlin"><code>@Test
+fun sync_shouldNotEmitEmptyList_betweenDeleteAndInsert() = runTest {
+    db.productDao().insertAll(listOf(ProductEntity(id = 1, name = "Old Product")))
+
+    db.productDao().getAllProducts().test {
+        awaitItem()  // Consume initial emission
+
+        db.withTransaction {
+            db.productDao().deleteAll()
+            db.productDao().insertAll(listOf(
+                ProductEntity(id = 2, name = "New A"),
+                ProductEntity(id = 3, name = "New B"),
+            ))
+        }
+
+        val result = awaitItem()  // CHI 1 emission — khong co emptyList() o giua
+        assertEquals(2, result.size)
+        assertTrue(result.none { it.name == "Old Product" })
+        cancelAndIgnoreRemainingEvents()
+    }
+}</code></pre>
+
+<h2>8. Tong ket: Mental Model</h2>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead><tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+    <th style="padding:8px 12px;">Khai niem</th>
+    <th style="padding:8px 12px;">Cot loi can nho</th>
+  </tr></thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>TransactionDispatcher</strong></td><td style="padding:8px 12px;">Single-thread executor, pin SQLite connection vao 1 thread</td></tr>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>TransactionElement</strong></td><td style="padding:8px 12px;">"Passport" trong CoroutineContext, giup DAO calls reuse connection</td></tr>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>@Transaction vs withTransaction</strong></td><td style="padding:8px 12px;">DAO-level vs Repository-level; withTransaction linh hoat hon</td></tr>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>Nested Transaction</strong></td><td style="padding:8px 12px;">Room reuse connection, khong mo transaction moi</td></tr>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>Rollback</strong></td><td style="padding:8px 12px;">Trigger boi bat ky Throwable, ke ca CancellationException</td></tr>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>InvalidationTracker</strong></td><td style="padding:8px 12px;">SQLite trigger → room_table_modification_log → Flow emit</td></tr>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>Table-level invalidation</strong></td><td style="padding:8px 12px;">Ca table re-emit du chi 1 row thay doi → dung distinctUntilChanged()</td></tr>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>@Relation N+1</strong></td><td style="padding:8px 12px;">Room chay N+1 queries, can @Transaction de dam bao consistency</td></tr>
+    <tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 12px;"><strong>WAL mode</strong></td><td style="padding:8px 12px;">Reader/Writer khong block nhau → Flow va Insert song song</td></tr>
+    <tr><td style="padding:8px 12px;"><strong>Empty flash prevention</strong></td><td style="padding:8px 12px;">withTransaction { delete + insert } → chi emit sau COMMIT</td></tr>
+  </tbody>
+</table>
+
+<h2>Tham khao</h2>
+<ol>
+  <li><a href="https://developer.android.com/training/data-storage/room/async-queries" target="_blank" rel="noopener">Write asynchronous DAO queries — Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/kotlin/androidx/room/package-summary#(androidx.room.RoomDatabase).withTransaction(kotlin.coroutines.SuspendFunction1)" target="_blank" rel="noopener">RoomDatabase.withTransaction — AndroidX Room KTX</a></li>
+  <li><a href="https://developer.android.com/reference/androidx/room/Transaction" target="_blank" rel="noopener">Room @Transaction annotation</a></li>
+  <li><a href="https://developer.android.com/reference/androidx/room/InvalidationTracker" target="_blank" rel="noopener">InvalidationTracker — Android Reference</a></li>
+  <li><a href="https://developer.android.com/training/data-storage/room/relationships" target="_blank" rel="noopener">Define relationships between objects — Android Developers</a></li>
+  <li><a href="https://www.sqlite.org/wal.html" target="_blank" rel="noopener">SQLite Write-Ahead Logging — sqlite.org</a></li>
+  <li><a href="https://github.com/cashapp/turbine" target="_blank" rel="noopener">Turbine — Testing Kotlin Flows (Square)</a></li>
+  <li><a href="https://developer.android.com/training/data-storage/room/testing-db" target="_blank" rel="noopener">Test your Room database — Android Developers</a></li>
+</ol>
     `
   },
+
 
 });
 
