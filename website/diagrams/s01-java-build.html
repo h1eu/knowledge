@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Java trên Android không dừng ở .class</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ BIÊN DỊCH · JAVA ANDROID</p>
+  <h1>Java trên Android không dừng ở .class</h1>
+  <p class="sub">javac ra bytecode JVM, D8/R8 (kèm desugaring) đổi sang .dex, ART biên dịch tiếp trên thiết bị.</p>
+<svg viewBox="0 0 800 344" role="img" aria-labelledby="s01-java-build-title s01-java-build-desc" font-family="'Geist', sans-serif">
+<title id="s01-java-build-title">Java trên Android không dừng ở .class</title>
+<desc id="s01-java-build-desc">javac biên dịch mã nguồn .java thành Java bytecode .class, D8/R8 (bên trong có bước desugaring) chuyển thành .dex, gói APK/AAB được cài lên thiết bị, rồi ART chạy JIT để ghi profile và khi máy rảnh, đang sạc thì biên dịch AOT những method thường dùng.</desc>
+<defs>
+<marker id="s01-java-build-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="344" fill="#F8FAFC"/>
+<!-- zone -->
+<rect x="216" y="184" width="552" height="104" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="248" y="180" width="112" height="12" rx="2" fill="#F8FAFC"/>
+<text x="304" y="189" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">ART · ANDROID 7.0+</text>
+<!-- arrows -->
+<path d="M 136,88 H 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<rect x="168" y="68" width="48" height="12" rx="2" fill="#F8FAFC"/>
+<text x="192" y="77" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JAVAC</text>
+<path d="M 368,88 H 448" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<path d="M 568,88 H 648" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<path d="M 708,116 V 156 Q 708,164 700,164 H 92 Q 84,164 84,172 V 212" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<rect x="336" y="144" width="112" height="12" rx="2" fill="#F8FAFC"/>
+<text x="392" y="153" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐÓNG GÓI APK / AAB</text>
+<path d="M 136,240 H 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<path d="M 432,240 H 560" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<rect x="448" y="220" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="496" y="229" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">RẢNH · ĐANG SẠC</text>
+<!-- nodes: build -->
+<rect x="32" y="60" width="104" height="56" rx="20" fill="#F8FAFC"/>
+<rect x="32" y="60" width="104" height="56" rx="20" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="84" y="84" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Mã nguồn</text>
+<text x="84" y="100" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.java</text>
+<rect x="248" y="60" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="248" y="60" width="120" height="56" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<text x="308" y="84" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">.class</text>
+<text x="308" y="100" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Java bytecode</text>
+<rect x="448" y="48" width="120" height="80" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="48" width="120" height="80" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="508" y="72" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">D8 / R8</text>
+<text x="508" y="88" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">stack → register</text>
+<rect x="468" y="100" width="80" height="16" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="508" y="111" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">+ DESUGARING</text>
+<rect x="648" y="60" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="648" y="60" width="120" height="56" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<text x="708" y="84" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">.dex</text>
+<text x="708" y="100" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Dalvik Executable</text>
+<!-- nodes: device -->
+<rect x="32" y="212" width="104" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="32" y="212" width="104" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="84" y="236" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Cài đặt</text>
+<text x="84" y="252" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lên thiết bị</text>
+<rect x="248" y="212" width="184" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="248" y="212" width="184" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="340" y="236" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">JIT profiling</text>
+<text x="340" y="252" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ghi method hay dùng</text>
+<rect x="560" y="212" width="184" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="560" y="212" width="184" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="652" y="236" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">AOT profile-guided</text>
+<text x="652" y="252" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chỉ method thường dùng</text>
+<!-- legend -->
+<line x1="32" y1="320" x2="768" y2="320" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="120" y="328" width="12" height="8" rx="4" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="140" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MÃ NGUỒN</text>
+<rect x="216" y="328" width="12" height="8" rx="2" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="0.8"/>
+<text x="236" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">KẾT QUẢ BIÊN DỊCH</text>
+<rect x="352" y="328" width="12" height="8" rx="2" fill="#FFFFFF" stroke="#0F172A" stroke-width="0.8"/>
+<text x="372" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRÊN THIẾT BỊ</text>
+<rect x="472" y="328" width="12" height="8" rx="2" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="0.8"/>
+<text x="492" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · D8/R8</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

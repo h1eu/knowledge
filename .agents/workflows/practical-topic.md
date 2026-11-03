@@ -23,7 +23,7 @@ Người dùng có thể cung cấp **Topic Name** (Tên chủ đề) hoặc **C
 
 ### Bước 0: Map định tuyến từ MkDocs (Nếu có Chapter ID)
 Nếu người dùng yêu cầu bắt đầu bằng một Chapter ID (ví dụ: `/practical-topic 4.1.1.1`):
-1. AI phải tự động đọc file bản đồ: `map/android_mkdocs.yml`.
+1. AI phải tự động đọc file bản đồ của domain tương ứng: `map/<domain>_mkdocs.yml` (ví dụ `map/android_mkdocs.yml`). File Markdown nằm trong thư mục `docs_dir` khai báo ở file map đó (Android: `knowledge/android/docs/`).
 2. Tìm dòng chứa Chapter ID đó để lấy ra **Tên Topic** và **Đường dẫn file**. (Ví dụ: `4.1.1.1 Build Types: session_04/.../build_types.md`).
 3. Xác nhận lại với người dùng: *"Tôi đã lấy được topic **[Tên Topic]** từ chapter **[ID]**, file lưu tại `[Path]`. Bây giờ chúng ta hãy khảo sát nhu cầu nhé!"*
 
@@ -169,7 +169,7 @@ Nếu có, đặt ở **cuối bài viết** (trước References) và trả l�
 
 ### Bước 4: Kiểm chứng (Verify)
 - Kiểm tra xem cấu trúc bài đã đúng hướng "What -> When -> Code" chưa.
-- Chạy lệnh verify syntax cho file JS website (`node -c <file.js>`).
+- Chạy lệnh verify syntax cho file JS website (`node -c <file.js>`) và guard escaping (`node tools/check_content_escapes.js`).
 - **Bắt buộc tự động kiểm tra trang `index.html`** (bằng Puppeteer hoặc test script) để đảm bảo không có lỗi thực thi Javascript (runtime errors) làm crash UI (ví dụ: lỗi nội suy biến `${...}` trong JS template literal).
 - Tuyệt đối không sửa Navigation (`mkdocs.yml`), nếu có nghi vấn thì hỏi user.
 

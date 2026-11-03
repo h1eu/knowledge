@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "AAB → Split APK: mỗi thiết bị chỉ tải phần nó cần",
+    "output": "website/archify/android/aab-split-delivery.html",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "emphasis": { "label": "luồng chính" },
+        "default": { "label": "luồng dữ liệu" },
+        "database": { "label": "file đầu vào" }
+      }
+    }
+  },
+  "stages": [
+    { "label": "Developer" },
+    { "label": "Google Play" },
+    { "label": "Split APK" },
+    { "label": "Thiết bị" }
+  ],
+  "nodes": [
+    { "id": "aab", "type": "database", "label": "app-release.aab", "sublabel": "ký bằng upload key", "stage": 0, "row": 1, "tag": "protobuf" },
+    { "id": "bundletool", "type": "cloud", "label": "bundletool", "sublabel": "chạy trên Google Play", "stage": 1, "row": 1, "tag": "app signing key" },
+    { "id": "base", "type": "backend", "label": "base.apk", "sublabel": "code + tài nguyên chung", "stage": 2, "row": 0 },
+    { "id": "abi", "type": "backend", "label": "config.arm64_v8a", "sublabel": "thư viện .so", "stage": 2, "row": 1 },
+    { "id": "density", "type": "backend", "label": "config.xxhdpi", "sublabel": "ảnh xxhdpi", "stage": 2, "row": 2 },
+    { "id": "language", "type": "backend", "label": "config.vi", "sublabel": "chuỗi tiếng Việt", "stage": 2, "row": 3 },
+    { "id": "device", "type": "external", "label": "Điện thoại", "sublabel": "arm64, xxhdpi, tiếng Việt", "stage": 3, "row": 1 }
+  ],
+  "flows": [
+    { "id": "upload", "from": "aab", "to": "bundletool", "label": "upload", "variant": "emphasis" },
+    { "id": "split-base", "from": "bundletool", "to": "base", "label": "phần chung" },
+    { "id": "split-abi", "from": "bundletool", "to": "abi", "label": "theo ABI" },
+    { "id": "split-density", "from": "bundletool", "to": "density", "label": "theo mật độ" },
+    { "id": "split-language", "from": "bundletool", "to": "language", "label": "theo ngôn ngữ" },
+    { "id": "install-base", "from": "base", "to": "device", "label": "tải về", "variant": "emphasis" },
+    { "id": "install-abi", "from": "abi", "to": "device", "label": "tải về" },
+    { "id": "install-density", "from": "density", "to": "device", "label": "tải về" },
+    { "id": "install-language", "from": "language", "to": "device", "label": "tải về" }
+  ],
+  "cards": [
+    { "dot": "amber", "title": "Thiết bị này không tải", "items": [".so cho armeabi-v7a, x86, x86_64", "Ảnh cho mdpi, hdpi, xxxhdpi...", "Chuỗi của các ngôn ngữ khác"] },
+    { "dot": "rose", "title": "Hai loại key", "items": ["Upload key: developer giữ, ký file AAB", "App signing key: Google giữ, ký các APK cài lên máy"] },
+    { "dot": "slate", "title": "Thiết bị cũ", "items": ["Split APK cần Android 5.0 (API 21) trở lên", "Máy cũ hơn nhận standalone APK theo nhóm cấu hình"] }
+  ]
+}

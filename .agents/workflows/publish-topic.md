@@ -10,14 +10,14 @@ description: Quy trình đưa một Topic từ trạng thái soạn thảo sang 
 
 ## Khi nào sử dụng
 
-- Khi một Topic đã hoàn thành Workflow Create Topic hoặc Update Topic.
+- Khi một Topic đã hoàn thành Workflow Learn Android, Practical Topic, DSA Hello hoặc Refactor Topic.
 - Khi một Topic đã được Review và đạt yêu cầu chất lượng.
 - Khi cần đưa nội dung từ trạng thái nháp sang trạng thái chính thức trong Repository.
 
 ## Input
 
 - Topic đã hoàn thành soạn thảo.
-- Kết quả từ Workflow Review Topic.
+- Kết quả từ Workflow Review Topic (`.agents/workflows/review-topic.md`).
 
 ## Output
 

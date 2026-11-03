@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kotlin trên Android</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ DÒNG THỜI GIAN · KOTLIN</p>
+  <h1>Kotlin trên Android</h1>
+  <p class="sub">Từ ngôn ngữ của JetBrains tới hướng Kotlin-first mà Google tuyên bố năm 2019.</p>
+<svg viewBox="0 0 800 476" role="img" aria-labelledby="s01-kotlin-history-dark-title s01-kotlin-history-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-kotlin-history-dark-title">Kotlin trên Android</title>
+<desc id="s01-kotlin-history-dark-desc">Dòng thời gian 2011–2024 của Kotlin trên Android: JetBrains công bố Kotlin, Kotlin 1.0, Google hỗ trợ chính thức năm 2017, Coroutines stable, Kotlin-first năm 2019, Compose 1.0 và KSP, Kotlin Multiplatform stable, Kotlin 2.0 với K2.</desc>
+<rect width="800" height="476" fill="#060913"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="420" stroke="rgba(148,163,184,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="68" x2="408" y2="68" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="96" x2="408" y2="96" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="124" x2="408" y2="124" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="152" x2="408" y2="152" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="292" x2="408" y2="292" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="348" x2="408" y2="348" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="44" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2011</text>
+<text x="468" y="44" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">JetBrains công bố Kotlin</text>
+<circle cx="400" cy="180" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="184" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2016</text>
+<text x="332" y="184" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Kotlin 1.0 phát hành</text>
+<circle cx="400" cy="208" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="212" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2017</text>
+<text x="468" y="212" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Google I/O công bố hỗ trợ chính thức</text>
+<text x="468" y="228" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Kotlin cho Android</text>
+<circle cx="400" cy="236" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="240" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2018</text>
+<text x="332" y="240" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Kotlin 1.3 - Coroutines stable</text>
+<circle cx="400" cy="264" r="8" fill="#060913"/>
+<circle cx="400" cy="264" r="6" fill="#38BDF8"/>
+<text x="420" y="268" fill="#38BDF8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2019</text>
+<text x="468" y="268" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Google I/O tuyên bố Android Kotlin-first</text>
+<circle cx="400" cy="320" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="324" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2021</text>
+<text x="332" y="324" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Jetpack Compose 1.0 (chỉ Kotlin)</text>
+<text x="332" y="340" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">KSP 1.0</text>
+<circle cx="400" cy="376" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="380" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2023</text>
+<text x="468" y="380" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Kotlin Multiplatform stable</text>
+<circle cx="400" cy="404" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="408" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2024</text>
+<text x="332" y="408" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Kotlin 2.0 - compiler K2 stable</text>
+<!-- legend -->
+<line x1="32" y1="444" x2="768" y2="444" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="460" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="456" r="4" fill="#38BDF8"/>
+<text x="140" y="460" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · KOTLIN-FIRST</text>
+<circle cx="328" cy="456" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="340" y="460" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="456" x2="456" y2="456" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="464" y="460" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · TIMELINE · DOC-INLINE · MIXED · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

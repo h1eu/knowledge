@@ -657,7 +657,7 @@ lifecycleScope.launch {
     title: 'Java Android trong Hệ sinh thái Android',
     summary: 'Nền tảng ngôn ngữ khởi nguồn của Android SDK. Hiểu rõ kiến trúc biên dịch Java, sự khác biệt giữa JVM (Stack-based) và ART/Dalvik (Register-based), Java Desugaring internals, memory leak do inner class và Java-Kotlin Interoperability.',
     status: 'published',
-    difficulty: 'beginner',
+    difficulty: 'intermediate',
     estimatedReadingTime: '30 phút',
     depth: 'deep-dive',
     tags: ['android', 'java', 'JVM', 'ART', 'dalvik', 'desugaring', 'interop'],
@@ -666,46 +666,55 @@ lifecycleScope.launch {
     prerequisites: [],
     related: ['android.languages.kotlin', 'android.languages.jni', 'android.output_packages.apk_files'],
     learningOutcomes: [
-      'Giải thích được luồng biên dịch Java từ bytecode .class qua D8/R8 sang register-based opcode .dex chạy trên ART.',
-      'Phân biệt được sự khác biệt bản chất giữa Stack-based JVM và Register-based Dalvik/ART Virtual Machine.',
-      'Xử lý được rò rỉ bộ nhớ (Memory Leak) tạo ra bởi Anonymous Inner Classes và Handler trong Java.',
-      'Biết khi nào dùng Java Desugaring (coreLibraryDesugaring) để backport tính năng Java 8+ trên Android OS đời cũ.',
-      'Phân biệt được Platform Types trong Java-Kotlin Interop để phòng tránh NullPointerException ở runtime.',
-      'Cấu hình đúng Gradle compileOptions và coreLibraryDesugaring cho Java Android project.'
+      'Giải thích được luồng biên dịch Java từ .class qua D8/R8 sang .dex và cách ART thực thi .dex trên thiết bị.',
+      'Phân biệt được kiến trúc Stack-based của JVM và Register-based của Dalvik/ART, và biết khác biệt đó còn quan trọng ở đâu.',
+      'Xử lý được rò rỉ bộ nhớ do Anonymous Inner Class và Handler giữ tham chiếu ngầm tới Activity.',
+      'Biết khi nào cần bật Core Library Desugaring để dùng API Java 8+ trên Android đời cũ.',
+      'Xử lý được NullPointerException khi Kotlin gọi Java bằng Nullability Annotations.'
     ],
-    knowledgeGap: 'Thiếu hiểu biết về Java Android khiến lập trình viên bất lực khi đọc mã nguồn AOSP Framework (AMS, WMS), gặp sự cố rò rỉ bộ nhớ nghiêm trọng do implicit reference trong Inner Class, và dễ bị crash NullPointerException khi tương tác giữa Kotlin và Java legacy code.',
-    updatedAt: '2026-07-23',
+    knowledgeGap: 'Thiếu hiểu biết về Java Android khiến lập trình viên khó đọc mã nguồn AOSP Framework (AMS, WMS), gây rò rỉ bộ nhớ do tham chiếu ngầm trong Inner Class, và dễ bị crash NullPointerException khi Kotlin gọi vào code Java cũ.',
+    updatedAt: '2026-11-03',
+    readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
-<p>Khi Andy Rubin và nhóm sáng lập khởi chạy dự án Android năm 2003 (sau đó được Google mua lại năm 2005), hệ điều hành di động đối mặt với thách thức sinh tử: <strong>Làm sao thu hút hàng triệu lập trình viên xây dựng ứng dụng trên một phần cứng cực kỳ giới hạn về RAM (16MB - 64MB) và CPU (200MHz)?</strong></p>
+
+<p>Khi Andy Rubin và nhóm sáng lập khởi chạy dự án Android năm 2003 (sau đó được Google mua lại năm 2005), hệ điều hành di động đối mặt với một bài toán khó: <strong>Làm sao thu hút đông đảo lập trình viên xây dựng ứng dụng trên phần cứng rất hạn chế?</strong> Điện thoại Android đầu tiên (HTC Dream / T-Mobile G1, 2008) chỉ có 192MB RAM và CPU 528MHz, chia sẻ cho cả hệ điều hành lẫn nhiều ứng dụng cùng lúc.</p>
+
 <p>Nếu Android chọn C/C++ làm ngôn ngữ ứng dụng chính:</p>
+
 <ul>
   <li>Tốc độ phát triển cực chậm, lập trình viên phải tự quản lý bộ nhớ (<code>malloc</code>/<code>free</code>), dẫn đến rủi ro crash ứng dụng tràn RAM (<code>Segmentation Fault</code>) liên tục.</li>
   <li>Ứng dụng phải biên dịch lại cho từng kiến trúc CPU (ARM, x86, MIPS), phá vỡ mục tiêu hệ sinh thái mở.</li>
 </ul>
+
 <p>Năm 2007, Google chọn Java. Tuy nhiên, thay vì sử dụng tiêu chuẩn Java SE với Java Virtual Machine (JVM) của Sun Microsystems, Google đã tự thiết kế lại toàn bộ Execution Runtime bằng cách tạo ra <strong>Dalvik VM</strong> (sau này là <strong>ART</strong>).</p>
+
 <p>Nếu không nắm vững Java Android bản chất:</p>
+
 <ul>
-  <li><strong>Không thể đọc mã nguồn Android Framework (AOSP)</strong> — 80% tầng Android OS Framework (<code>ActivityManagerService</code>, <code>WindowManagerService</code>, <code>PackageManagerService</code>) được viết bằng Java và C++.</li>
-  <li><strong>Gặp thảm họa Rò rỉ bộ nhớ (Memory Leak)</strong> — Các lớp ẩn danh (Anonymous Inner Class) và <code>Handler</code> trong Java tự động giữ một tham chiếu ngầm (<em>implicit reference</em>) tới Outer Class (Activity/Fragment), khiến Garbage Collector không thể thu hồi Activity khi đã destroyed.</li>
-  <li><strong>Rủi ro Crash NullPointerException (NPE) khi Java-Kotlin Interop</strong> — Khi Kotlin gọi code Java không có annotation <code>@Nullable</code>/<code>@NonNull</code>, Kotlin Compiler sẽ gán kiểu <strong>Platform Type</strong> (<code>T!</code>), vô hiệu hóa cơ chế Null Safety compile-time.</li>
+  <li><strong>Khó đọc mã nguồn Android Framework (AOSP)</strong>: các system service cốt lõi (<code>ActivityManagerService</code>, <code>WindowManagerService</code>, <code>PackageManagerService</code>) được viết bằng Java, phía dưới là các native service C++.</li>
+  <li><strong>Dễ gây Rò rỉ bộ nhớ (Memory Leak)</strong>: Anonymous Inner Class (lớp ẩn danh) và Non-Static Inner Class trong Java tự động giữ một tham chiếu ngầm (implicit reference) tới Outer Class (Activity/Fragment). Nếu object đó sống lâu hơn Activity, Garbage Collector không thể thu hồi Activity dù nó đã bị destroy.</li>
+  <li><strong>Rủi ro Crash NullPointerException (NPE) khi Kotlin gọi Java</strong>: Khi code Java không có annotation <code>@Nullable</code>/<code>@NonNull</code>, Kotlin hiểu kiểu trả về là <strong>Platform Type</strong> (<code>T!</code>) và không bắt kiểm tra null.</li>
 </ul>
 
 <h2>Sau khi học xong</h2>
+
 <ul>
-  <li>Giải thích được luồng biên dịch Java từ bytecode <code>.class</code> qua D8/R8 sang register-based opcode <code>.dex</code> chạy trên ART.</li>
-  <li>Phân biệt được sự khác biệt bản chất giữa Stack-based JVM và Register-based Dalvik/ART Virtual Machine.</li>
-  <li>Xử lý được rò rỉ bộ nhớ (Memory Leak) tạo ra bởi Anonymous Inner Classes và Handler trong Java.</li>
-  <li>Biết khi nào dùng Java Desugaring (<code>coreLibraryDesugaring</code>) để backport tính năng Java 8+ trên Android OS đời cũ.</li>
-  <li>Phân biệt được Platform Types trong Java-Kotlin Interop để phòng tránh NullPointerException ở runtime.</li>
-  <li>Cấu hình đúng Gradle <code>compileOptions</code> và <code>coreLibraryDesugaring</code> cho Java Android project.</li>
+  <li>Giải thích được luồng biên dịch Java từ .class qua D8/R8 sang .dex và cách ART thực thi .dex trên thiết bị.</li>
+  <li>Phân biệt được kiến trúc Stack-based của JVM và Register-based của Dalvik/ART, và biết khác biệt đó còn quan trọng ở đâu.</li>
+  <li>Xử lý được rò rỉ bộ nhớ do Anonymous Inner Class và Handler giữ tham chiếu ngầm tới Activity.</li>
+  <li>Biết khi nào cần bật Core Library Desugaring để dùng API Java 8+ trên Android đời cũ.</li>
+  <li>Xử lý được NullPointerException khi Kotlin gọi Java bằng Nullability Annotations.</li>
 </ul>
 
 <h2>Java Android là gì?</h2>
+
 <p><strong>Java Android</strong> là việc sử dụng ngôn ngữ lập trình Java kết hợp với <strong>Android SDK (Software Development Kit)</strong> để xây dựng ứng dụng di động chạy trên nền tảng Android.</p>
+
 <p>Điểm mấu chốt cần hiểu: Java Android <strong>không phải</strong> Java SE (Standard Edition) chạy trên JVM thông thường.</p>
 
 <h3>Mental Model: Java SE vs Java Android</h3>
+
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
     <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
@@ -716,43 +725,46 @@ lifecycleScope.launch {
   </thead>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Runtime</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Runtime</strong></td>
       <td style="padding:8px 12px;">JVM (Java Virtual Machine)</td>
       <td style="padding:8px 12px;">ART (Android Runtime) / Dalvik VM</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Kiến trúc VM</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Kiến trúc VM</strong></td>
       <td style="padding:8px 12px;">Stack-based</td>
       <td style="padding:8px 12px;">Register-based</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Executable</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Executable</strong></td>
       <td style="padding:8px 12px;"><code>.class</code> → <code>.jar</code> / <code>.war</code></td>
       <td style="padding:8px 12px;"><code>.class</code> → <code>.dex</code> → <code>.apk</code> / <code>.aab</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">UI Framework</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>UI Framework</strong></td>
       <td style="padding:8px 12px;"><code>java.awt.*</code>, <code>javax.swing.*</code></td>
       <td style="padding:8px 12px;"><code>android.widget.*</code>, <code>android.view.*</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Thư viện chuẩn</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Thư viện chuẩn</strong></td>
       <td style="padding:8px 12px;">Full Java SE API</td>
       <td style="padding:8px 12px;">Subset của Java SE + Android SDK API</td>
     </tr>
-    <tr>
-      <td style="padding:8px 12px;font-weight:600;">Garbage Collector</td>
-      <td style="padding:8px 12px;">G1 GC, ZGC (high throughput)</td>
-      <td style="padding:8px 12px;">Concurrent Copying GC (low latency, mobile-optimized)</td>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Garbage Collector</strong></td>
+      <td style="padding:8px 12px;">G1 (mặc định), ZGC / Shenandoah (ưu tiên độ trễ thấp)</td>
+      <td style="padding:8px 12px;">Concurrent Copying GC (từ Android 8.0), có generational từ Android 10</td>
     </tr>
   </tbody>
 </table>
+
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý:</strong> Khi nói "viết Java cho Android", thực chất bạn viết Java syntax, nhưng code sẽ chạy trên một runtime engine hoàn toàn khác biệt so với JVM trên máy tính.</div></div>
 
 <h2>Cách hoạt động</h2>
 
-<h3>1. JVM (Stack-based) vs ART/Dalvik (Register-based)</h3>
-<p>Mô hình ảo hóa của Java Standard Edition (JVM) và Android Virtual Machine (ART/Dalvik) hoàn toàn khác biệt ở cấp độ kiến trúc phần cứng giả lập:</p>
+<h3>1. Bản chất sự khác biệt: JVM (Stack-based) vs ART/Dalvik (Register-based)</h3>
+
+<p>Bytecode của JVM và bytecode của Dalvik/ART mô tả cùng một chương trình theo hai kiểu "máy ảo" khác nhau:</p>
+
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
     <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
@@ -763,94 +775,388 @@ lifecycleScope.launch {
   </thead>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Kiến trúc VM</td>
-      <td style="padding:8px 12px;">Stack-based (Dựa trên Operand Stack)</td>
-      <td style="padding:8px 12px;">Register-based (Dựa trên thanh ghi ảo)</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Kiến trúc VM</strong></td>
+      <td style="padding:8px 12px;"><strong>Stack-based</strong> (dựa trên Operand Stack)</td>
+      <td style="padding:8px 12px;"><strong>Register-based</strong> (dựa trên thanh ghi ảo)</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Định dạng Executable</td>
-      <td style="padding:8px 12px;">Nhiều tập tin <code>.class</code> phân tán</td>
-      <td style="padding:8px 12px;">Một tập tin hợp nhất <code>classes.dex</code></td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Định dạng Executable</strong></td>
+      <td style="padding:8px 12px;">Nhiều tập tin <code>.class</code>, mỗi file một Constant Pool</td>
+      <td style="padding:8px 12px;"><code>classes.dex</code> hợp nhất, Constant Pool dùng chung</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Kích thước Opcode</td>
-      <td style="padding:8px 12px;">1 Byte (256 instructions)</td>
-      <td style="padding:8px 12px;">16-bit / 32-bit variable length</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Độ dài lệnh</strong></td>
+      <td style="padding:8px 12px;">Opcode 1 byte, toán hạng lấy từ stack</td>
+      <td style="padding:8px 12px;">Đơn vị lệnh 16-bit, mỗi lệnh dài 1–5 đơn vị (ghi rõ số thanh ghi)</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Số lượng lệnh thực thi</td>
-      <td style="padding:8px 12px;">Nhiều lệnh hơn (phải push/pop liên tục)</td>
-      <td style="padding:8px 12px;">Ít hơn 30-50% số lệnh so với JVM</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Số lệnh cho cùng một đoạn code</strong></td>
+      <td style="padding:8px 12px;">Nhiều hơn (phải push/pop liên tục)</td>
+      <td style="padding:8px 12px;">Ít hơn, khoảng 47% theo nghiên cứu của Shi và cộng sự (2008)</td>
     </tr>
-    <tr>
-      <td style="padding:8px 12px;font-weight:600;">Mức tiêu thụ RAM</td>
-      <td style="padding:8px 12px;">Cao (nhiều stack frame overhead)</td>
-      <td style="padding:8px 12px;">Thấp (tối ưu cho Mobile)</td>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Kích thước bytecode</strong></td>
+      <td style="padding:8px 12px;">Nhỏ hơn</td>
+      <td style="padding:8px 12px;">Lớn hơn, khoảng 25% theo cùng nghiên cứu</td>
     </tr>
   </tbody>
 </table>
 
-<h4>Tại sao Register-based nhanh hơn trên Mobile?</h4>
-<p>CPU thật sự trên điện thoại (ARM) sử dụng kiến trúc register. Khi Virtual Machine cũng dùng register-based instructions, việc mapping từ virtual register sang physical register sẽ hiệu quả hơn, giảm số lần truy cập bộ nhớ stack.</p>
+<h4>Register-based nhanh hơn ở đâu?</h4>
+
+<p>Lợi thế nằm ở <strong>interpreter</strong>. Khi thông dịch, mỗi lệnh bytecode tốn một lần "dispatch": đọc opcode, giải mã, nhảy tới đoạn xử lý tương ứng. Register-based cần ít lệnh hơn cho cùng một phép tính, nên ít lần dispatch hơn. Cái giá là mỗi lệnh dài hơn vì phải ghi số thanh ghi, làm bytecode to hơn.</p>
+
+<p>Lựa chọn này hợp lý cho Dalvik năm 2008, khi app chủ yếu chạy bằng interpreter. Ngày nay, ART biên dịch phần lớn code "nóng" sang mã máy (JIT/AOT) với bộ phân bổ thanh ghi riêng, nên khác biệt stack-based và register-based gần như không còn ảnh hưởng tới tốc độ code đã biên dịch. Nó vẫn có ý nghĩa với phần code còn chạy bằng interpreter và với thiết kế định dạng <code>.dex</code>.</p>
 
 <h4>So sánh Bytecode cấp độ Assembly: Phép cộng <code>a = b + c</code></h4>
-<p><strong>JVM (Stack-based Execution)</strong> — Cần 4 câu lệnh và 4 lần truy cập bộ nhớ stack:</p>
+
+<ul>
+  <li><strong>JVM (Stack-based Execution)</strong>:</li>
+</ul>
+
 <pre data-lang="bytecode"><code>iload_1          ; Push giá trị b vào Operand Stack
 iload_2          ; Push giá trị c vào Operand Stack
 iadd             ; Pop 2 giá trị, cộng lại, push kết quả vào Stack
 istore_3         ; Pop kết quả từ Stack lưu vào biến a (slot 3)</code></pre>
 
-<p><strong>Dalvik / ART (Register-based Execution)</strong> — Chỉ cần 1 câu lệnh duy nhất:</p>
+<p><em>(4 lệnh, nghĩa là 4 lần dispatch khi thông dịch)</em></p>
+
+<ul>
+  <li><strong>Dalvik / ART (Register-based Execution)</strong>:</li>
+</ul>
+
 <pre data-lang="bytecode"><code>add-int v0, v1, v2   ; Lấy thanh ghi v1 + v2, ghi trực tiếp kết quả vào thanh ghi v0</code></pre>
 
-<div style="text-align:center;margin:1.5em 0;">
-  <div style="display:inline-block;background:var(--bg-card,#161b22);border:1px solid var(--border,#30363d);border-radius:12px;padding:1.5em;font-family:monospace;font-size:13px;line-height:2.0;text-align:left;">
-    <div style="display:flex;gap:2em;flex-wrap:wrap;justify-content:center;">
-      <div style="border:1px dashed #30363d;padding:12px 16px;border-radius:8px;">
-        <div style="text-align:center;font-weight:bold;color:#d29922;margin-bottom:8px;">JVM Stack-based (4 steps)</div>
-        <div style="color:#8b949e;">1. Push b → Stack</div>
-        <div style="color:#8b949e;">2. Push c → Stack</div>
-        <div style="color:#8b949e;">3. iadd (Pop &amp; Add)</div>
-        <div style="color:#8b949e;">4. Store result → a</div>
-      </div>
-      <div style="border:1px dashed #30363d;padding:12px 16px;border-radius:8px;">
-        <div style="text-align:center;font-weight:bold;color:#3fb950;margin-bottom:8px;">ART Register-based (1 step)</div>
-        <div style="color:#58a6ff;font-weight:600;">add-int v0, v1, v2</div>
-        <div style="color:#8b949e;font-size:12px;margin-top:4px;">Single instruction, zero stack access</div>
-      </div>
-    </div>
-  </div>
+<p><em>(1 lệnh, 1 lần dispatch; đổi lại lệnh dài hơn vì phải mã hoá 3 số thanh ghi)</em></p>
+
+<div class="dd-diagram" data-dd="s01-stack-vs-register">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 512" role="img" aria-labelledby="s01-stack-vs-register-dark-title s01-stack-vs-register-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-stack-vs-register-dark-title">Phép cộng a = b + c: stack-based và register-based</title>
+<desc id="s01-stack-vs-register-dark-desc">JVM stack-based cần bốn lệnh iload_1, iload_2, iadd, istore_3 để push b, push c, pop rồi cộng và lưu vào a; Dalvik/ART register-based chỉ cần một lệnh add-int v0, v1, v2, nên ít lần dispatch hơn nhưng mỗi lệnh dài hơn.</desc>
+<defs>
+<marker id="s01-stack-vs-register-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="512" fill="#060913"/>
+<!-- zones -->
+<rect x="40" y="32" width="344" height="432" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.12)" stroke-width="1"/>
+<text x="56" y="52" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">JVM · STACK-BASED</text>
+<text x="368" y="52" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em" text-anchor="end">OPERAND STACK</text>
+<rect x="416" y="32" width="344" height="432" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.12)" stroke-width="1"/>
+<text x="432" y="52" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">DALVIK / ART · REGISTER-BASED</text>
+<text x="744" y="52" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em" text-anchor="end">THANH GHI ẢO</text>
+<!-- arrows -->
+<path d="M 212,128 V 156" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-stack-vs-register-dark-arrow)"/>
+<path d="M 212,212 V 240" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-stack-vs-register-dark-arrow)"/>
+<path d="M 212,296 V 324" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-stack-vs-register-dark-arrow)"/>
+<!-- JVM nodes -->
+<rect x="64" y="72" width="296" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="72" width="296" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="72" y="78" width="44" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="94" y="87" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LỆNH 1</text>
+<text x="212" y="104" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Push b vào Operand Stack</text>
+<text x="212" y="119" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">iload_1</text>
+<rect x="64" y="156" width="296" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="156" width="296" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="72" y="162" width="44" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="94" y="171" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LỆNH 2</text>
+<text x="212" y="188" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Push c vào Operand Stack</text>
+<text x="212" y="203" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">iload_2</text>
+<rect x="64" y="240" width="296" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="240" width="296" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="72" y="246" width="44" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="94" y="255" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LỆNH 3</text>
+<text x="212" y="272" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Pop 2 giá trị, cộng, push kết quả</text>
+<text x="212" y="287" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">iadd</text>
+<rect x="64" y="324" width="296" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="324" width="296" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="72" y="330" width="44" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="94" y="339" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LỆNH 4</text>
+<text x="212" y="356" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Pop kết quả, lưu vào a (slot 3)</text>
+<text x="212" y="371" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">istore_3</text>
+<!-- ART focal node -->
+<rect x="440" y="188" width="296" height="76" rx="6" fill="#060913"/>
+<rect x="440" y="188" width="296" height="76" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="448" y="194" width="44" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="470" y="203" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LỆNH 1</text>
+<text x="588" y="232" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Cộng v1 + v2, ghi thẳng vào v0</text>
+<text x="588" y="248" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">add-int v0, v1, v2</text>
+<!-- summaries -->
+<line x1="64" y1="404" x2="360" y2="404" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="64" y="428" fill="#F8FAFC" font-size="12" font-weight="600">4 lệnh · 4 lần dispatch</text>
+<text x="64" y="444" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">opcode 1 byte · toán hạng lấy từ stack</text>
+<rect x="296" y="416" width="12" height="12" rx="2" fill="#94A3B8"/>
+<rect x="312" y="416" width="12" height="12" rx="2" fill="#94A3B8"/>
+<rect x="328" y="416" width="12" height="12" rx="2" fill="#94A3B8"/>
+<rect x="344" y="416" width="12" height="12" rx="2" fill="#94A3B8"/>
+<line x1="440" y1="404" x2="736" y2="404" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="440" y="428" fill="#F8FAFC" font-size="12" font-weight="600">1 lệnh · 1 lần dispatch</text>
+<text x="440" y="444" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">lệnh dài hơn · mã hoá 3 số thanh ghi</text>
+<rect x="724" y="416" width="12" height="12" rx="2" fill="#94A3B8"/>
+<!-- legend -->
+<line x1="40" y1="488" x2="760" y2="488" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="40" y="504" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="148" cy="500" r="4" fill="#38BDF8"/>
+<text x="160" y="504" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · 1 LỆNH REGISTER</text>
+<line x1="356" y1="500" x2="388" y2="500" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-stack-vs-register-dark-arrow)"/>
+<text x="396" y="504" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">LỆNH KẾ TIẾP</text>
+<rect x="528" y="496" width="8" height="8" rx="2" fill="#94A3B8"/>
+<text x="544" y="504" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">1 LẦN DISPATCH KHI THÔNG DỊCH</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 512" role="img" aria-labelledby="s01-stack-vs-register-title s01-stack-vs-register-desc" font-family="'Geist', sans-serif">
+<title id="s01-stack-vs-register-title">Phép cộng a = b + c: stack-based và register-based</title>
+<desc id="s01-stack-vs-register-desc">JVM stack-based cần bốn lệnh iload_1, iload_2, iadd, istore_3 để push b, push c, pop rồi cộng và lưu vào a; Dalvik/ART register-based chỉ cần một lệnh add-int v0, v1, v2, nên ít lần dispatch hơn nhưng mỗi lệnh dài hơn.</desc>
+<defs>
+<marker id="s01-stack-vs-register-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="512" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="40" y="32" width="344" height="432" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.12)" stroke-width="1"/>
+<text x="56" y="52" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">JVM · STACK-BASED</text>
+<text x="368" y="52" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em" text-anchor="end">OPERAND STACK</text>
+<rect x="416" y="32" width="344" height="432" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.12)" stroke-width="1"/>
+<text x="432" y="52" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">DALVIK / ART · REGISTER-BASED</text>
+<text x="744" y="52" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em" text-anchor="end">THANH GHI ẢO</text>
+<!-- arrows -->
+<path d="M 212,128 V 156" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-stack-vs-register-arrow)"/>
+<path d="M 212,212 V 240" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-stack-vs-register-arrow)"/>
+<path d="M 212,296 V 324" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-stack-vs-register-arrow)"/>
+<!-- JVM nodes -->
+<rect x="64" y="72" width="296" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="72" width="296" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="72" y="78" width="44" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="94" y="87" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LỆNH 1</text>
+<text x="212" y="104" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Push b vào Operand Stack</text>
+<text x="212" y="119" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">iload_1</text>
+<rect x="64" y="156" width="296" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="156" width="296" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="72" y="162" width="44" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="94" y="171" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LỆNH 2</text>
+<text x="212" y="188" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Push c vào Operand Stack</text>
+<text x="212" y="203" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">iload_2</text>
+<rect x="64" y="240" width="296" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="240" width="296" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="72" y="246" width="44" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="94" y="255" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LỆNH 3</text>
+<text x="212" y="272" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Pop 2 giá trị, cộng, push kết quả</text>
+<text x="212" y="287" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">iadd</text>
+<rect x="64" y="324" width="296" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="324" width="296" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="72" y="330" width="44" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="94" y="339" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LỆNH 4</text>
+<text x="212" y="356" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Pop kết quả, lưu vào a (slot 3)</text>
+<text x="212" y="371" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">istore_3</text>
+<!-- ART focal node -->
+<rect x="440" y="188" width="296" height="76" rx="6" fill="#F8FAFC"/>
+<rect x="440" y="188" width="296" height="76" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="448" y="194" width="44" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="470" y="203" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LỆNH 1</text>
+<text x="588" y="232" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Cộng v1 + v2, ghi thẳng vào v0</text>
+<text x="588" y="248" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">add-int v0, v1, v2</text>
+<!-- summaries -->
+<line x1="64" y1="404" x2="360" y2="404" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="64" y="428" fill="#0F172A" font-size="12" font-weight="600">4 lệnh · 4 lần dispatch</text>
+<text x="64" y="444" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace">opcode 1 byte · toán hạng lấy từ stack</text>
+<rect x="296" y="416" width="12" height="12" rx="2" fill="#64748B"/>
+<rect x="312" y="416" width="12" height="12" rx="2" fill="#64748B"/>
+<rect x="328" y="416" width="12" height="12" rx="2" fill="#64748B"/>
+<rect x="344" y="416" width="12" height="12" rx="2" fill="#64748B"/>
+<line x1="440" y1="404" x2="736" y2="404" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="440" y="428" fill="#0F172A" font-size="12" font-weight="600">1 lệnh · 1 lần dispatch</text>
+<text x="440" y="444" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace">lệnh dài hơn · mã hoá 3 số thanh ghi</text>
+<rect x="724" y="416" width="12" height="12" rx="2" fill="#64748B"/>
+<!-- legend -->
+<line x1="40" y1="488" x2="760" y2="488" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="40" y="504" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="148" cy="500" r="4" fill="#0284C7"/>
+<text x="160" y="504" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · 1 LỆNH REGISTER</text>
+<line x1="356" y1="500" x2="388" y2="500" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-stack-vs-register-arrow)"/>
+<text x="396" y="504" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">LỆNH KẾ TIẾP</text>
+<rect x="528" y="496" width="8" height="8" rx="2" fill="#64748B"/>
+<text x="544" y="504" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">1 LẦN DISPATCH KHI THÔNG DỊCH</text>
+</svg>
+</div>
 </div>
 
 <h3>2. Luồng biên dịch Android Java: Từ <code>.java</code> đến <code>.dex</code></h3>
+
 <p>Quá trình dịch code Java trên Android không dừng lại ở tệp <code>.class</code> như trên máy tính thông thường:</p>
 
-<div style="text-align:center;margin:1.5em 0;">
-  <div style="display:inline-block;background:var(--bg-card,#161b22);border:1px solid var(--border,#30363d);border-radius:12px;padding:1.5em;font-family:monospace;font-size:13px;line-height:2;text-align:left;">
-    <div><span style="color:#79c0ff;font-weight:600;">1. Source Code (.java)</span> → <span style="color:#d29922;">javac</span> → <span style="color:#79c0ff;">Bytecode (.class)</span></div>
-    <div><span style="color:#79c0ff;font-weight:600;">2. Bytecode (.class)</span> → <span style="color:#d29922;">D8 / R8 &amp; Desugaring</span> → <span style="color:#7546c8;font-weight:bold;">classes.dex</span></div>
-    <div><span style="color:#7546c8;font-weight:bold;">3. classes.dex</span> → <span style="color:#d29922;">Packaging</span> → <span style="color:#34d399;font-weight:bold;">APK / AAB</span></div>
-    <div><span style="color:#34d399;font-weight:bold;">4. ART Runtime Execution</span> → <span style="color:#8b949e;">AOT (Install time) + JIT (Runtime)</span></div>
-  </div>
+<div class="dd-diagram" data-dd="s01-java-build">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 344" role="img" aria-labelledby="s01-java-build-dark-title s01-java-build-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-java-build-dark-title">Java trên Android không dừng ở .class</title>
+<desc id="s01-java-build-dark-desc">javac biên dịch mã nguồn .java thành Java bytecode .class, D8/R8 (bên trong có bước desugaring) chuyển thành .dex, gói APK/AAB được cài lên thiết bị, rồi ART chạy JIT để ghi profile và khi máy rảnh, đang sạc thì biên dịch AOT những method thường dùng.</desc>
+<defs>
+<marker id="s01-java-build-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="344" fill="#060913"/>
+<!-- zone -->
+<rect x="216" y="184" width="552" height="104" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="248" y="180" width="112" height="12" rx="2" fill="#060913"/>
+<text x="304" y="189" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">ART · ANDROID 7.0+</text>
+<!-- arrows -->
+<path d="M 136,88 H 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-java-build-dark-arrow)"/>
+<rect x="168" y="68" width="48" height="12" rx="2" fill="#060913"/>
+<text x="192" y="77" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JAVAC</text>
+<path d="M 368,88 H 448" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-java-build-dark-arrow)"/>
+<path d="M 568,88 H 648" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-java-build-dark-arrow)"/>
+<path d="M 708,116 V 156 Q 708,164 700,164 H 92 Q 84,164 84,172 V 212" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-java-build-dark-arrow)"/>
+<rect x="336" y="144" width="112" height="12" rx="2" fill="#060913"/>
+<text x="392" y="153" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐÓNG GÓI APK / AAB</text>
+<path d="M 136,240 H 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-java-build-dark-arrow)"/>
+<path d="M 432,240 H 560" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-java-build-dark-arrow)"/>
+<rect x="448" y="220" width="96" height="12" rx="2" fill="#060913"/>
+<text x="496" y="229" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">RẢNH · ĐANG SẠC</text>
+<!-- nodes: build -->
+<rect x="32" y="60" width="104" height="56" rx="20" fill="#060913"/>
+<rect x="32" y="60" width="104" height="56" rx="20" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="84" y="84" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Mã nguồn</text>
+<text x="84" y="100" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.java</text>
+<rect x="248" y="60" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="248" y="60" width="120" height="56" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="308" y="84" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">.class</text>
+<text x="308" y="100" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Java bytecode</text>
+<rect x="448" y="48" width="120" height="80" rx="6" fill="#060913"/>
+<rect x="448" y="48" width="120" height="80" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="508" y="72" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">D8 / R8</text>
+<text x="508" y="88" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">stack → register</text>
+<rect x="468" y="100" width="80" height="16" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="508" y="111" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">+ DESUGARING</text>
+<rect x="648" y="60" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="648" y="60" width="120" height="56" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="708" y="84" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">.dex</text>
+<text x="708" y="100" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Dalvik Executable</text>
+<!-- nodes: device -->
+<rect x="32" y="212" width="104" height="56" rx="6" fill="#060913"/>
+<rect x="32" y="212" width="104" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="84" y="236" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Cài đặt</text>
+<text x="84" y="252" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lên thiết bị</text>
+<rect x="248" y="212" width="184" height="56" rx="6" fill="#060913"/>
+<rect x="248" y="212" width="184" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="340" y="236" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">JIT profiling</text>
+<text x="340" y="252" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ghi method hay dùng</text>
+<rect x="560" y="212" width="184" height="56" rx="6" fill="#060913"/>
+<rect x="560" y="212" width="184" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="652" y="236" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">AOT profile-guided</text>
+<text x="652" y="252" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chỉ method thường dùng</text>
+<!-- legend -->
+<line x1="32" y1="320" x2="768" y2="320" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="336" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="120" y="328" width="12" height="8" rx="4" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<text x="140" y="336" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MÃ NGUỒN</text>
+<rect x="216" y="328" width="12" height="8" rx="2" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="236" y="336" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">KẾT QUẢ BIÊN DỊCH</text>
+<rect x="352" y="328" width="12" height="8" rx="2" fill="#0B132B" stroke="#F8FAFC" stroke-width="0.8"/>
+<text x="372" y="336" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRÊN THIẾT BỊ</text>
+<rect x="472" y="328" width="12" height="8" rx="2" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="0.8"/>
+<text x="492" y="336" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · D8/R8</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 344" role="img" aria-labelledby="s01-java-build-title s01-java-build-desc" font-family="'Geist', sans-serif">
+<title id="s01-java-build-title">Java trên Android không dừng ở .class</title>
+<desc id="s01-java-build-desc">javac biên dịch mã nguồn .java thành Java bytecode .class, D8/R8 (bên trong có bước desugaring) chuyển thành .dex, gói APK/AAB được cài lên thiết bị, rồi ART chạy JIT để ghi profile và khi máy rảnh, đang sạc thì biên dịch AOT những method thường dùng.</desc>
+<defs>
+<marker id="s01-java-build-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="344" fill="#F8FAFC"/>
+<!-- zone -->
+<rect x="216" y="184" width="552" height="104" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="248" y="180" width="112" height="12" rx="2" fill="#F8FAFC"/>
+<text x="304" y="189" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">ART · ANDROID 7.0+</text>
+<!-- arrows -->
+<path d="M 136,88 H 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<rect x="168" y="68" width="48" height="12" rx="2" fill="#F8FAFC"/>
+<text x="192" y="77" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JAVAC</text>
+<path d="M 368,88 H 448" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<path d="M 568,88 H 648" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<path d="M 708,116 V 156 Q 708,164 700,164 H 92 Q 84,164 84,172 V 212" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<rect x="336" y="144" width="112" height="12" rx="2" fill="#F8FAFC"/>
+<text x="392" y="153" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐÓNG GÓI APK / AAB</text>
+<path d="M 136,240 H 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<path d="M 432,240 H 560" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-java-build-arrow)"/>
+<rect x="448" y="220" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="496" y="229" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">RẢNH · ĐANG SẠC</text>
+<!-- nodes: build -->
+<rect x="32" y="60" width="104" height="56" rx="20" fill="#F8FAFC"/>
+<rect x="32" y="60" width="104" height="56" rx="20" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="84" y="84" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Mã nguồn</text>
+<text x="84" y="100" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.java</text>
+<rect x="248" y="60" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="248" y="60" width="120" height="56" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<text x="308" y="84" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">.class</text>
+<text x="308" y="100" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Java bytecode</text>
+<rect x="448" y="48" width="120" height="80" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="48" width="120" height="80" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="508" y="72" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">D8 / R8</text>
+<text x="508" y="88" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">stack → register</text>
+<rect x="468" y="100" width="80" height="16" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="508" y="111" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">+ DESUGARING</text>
+<rect x="648" y="60" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="648" y="60" width="120" height="56" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<text x="708" y="84" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">.dex</text>
+<text x="708" y="100" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Dalvik Executable</text>
+<!-- nodes: device -->
+<rect x="32" y="212" width="104" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="32" y="212" width="104" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="84" y="236" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Cài đặt</text>
+<text x="84" y="252" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lên thiết bị</text>
+<rect x="248" y="212" width="184" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="248" y="212" width="184" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="340" y="236" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">JIT profiling</text>
+<text x="340" y="252" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ghi method hay dùng</text>
+<rect x="560" y="212" width="184" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="560" y="212" width="184" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="652" y="236" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">AOT profile-guided</text>
+<text x="652" y="252" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">chỉ method thường dùng</text>
+<!-- legend -->
+<line x1="32" y1="320" x2="768" y2="320" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="120" y="328" width="12" height="8" rx="4" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="140" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MÃ NGUỒN</text>
+<rect x="216" y="328" width="12" height="8" rx="2" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="0.8"/>
+<text x="236" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">KẾT QUẢ BIÊN DỊCH</text>
+<rect x="352" y="328" width="12" height="8" rx="2" fill="#FFFFFF" stroke="#0F172A" stroke-width="0.8"/>
+<text x="372" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRÊN THIẾT BỊ</text>
+<rect x="472" y="328" width="12" height="8" rx="2" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="0.8"/>
+<text x="492" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · D8/R8</text>
+</svg>
+</div>
 </div>
 
 <ol>
-  <li><strong>Java Compiler (<code>javac</code>)</strong>: Chuyển đổi mã nguồn <code>.java</code> thành Java Bytecode chuẩn dạng <code>.class</code>. Bước này giống hệt Java SE.</li>
+  <li><strong><code>javac</code> (Java Compiler)</strong>: Biên dịch mã nguồn <code>.java</code> thành Java Bytecode tiêu chuẩn <code>.class</code>. Bước này giống hệt Java SE.</li>
   <li><strong>D8 / R8 Compiler</strong>:
-    <ul>
-      <li><strong>D8</strong>: Đọc các tệp <code>.class</code>, gộp toàn bộ Constant Pools trùng lặp từ hàng trăm class thành một Constant Pool duy nhất. Chuyển đổi từ Stack-based instructions sang Register-based Dalvik Bytecode (<code>.dex</code>).</li>
-      <li><strong>R8</strong>: Thay thế ProGuard, thực hiện toàn bộ chức năng của D8 cộng thêm code shrinking, obfuscation và optimization.</li>
-    </ul>
-  </li>
-  <li><strong>Desugaring</strong>: Chuyển đổi các tính năng cú pháp Java 8+ thành bytecode tương thích với các Android OS cũ hơn.</li>
+<ul>
+  <li><strong>D8</strong>: Đọc các tệp <code>.class</code>, gộp toàn bộ Constant Pools trùng lặp từ hàng trăm class thành một Constant Pool duy nhất. Chuyển đổi từ Stack-based instructions sang Register-based Dalvik Bytecode (<code>.dex</code>).</li>
+  <li><strong>R8</strong>: Thay thế ProGuard (mặc định từ AGP 3.4, năm 2019), thực hiện toàn bộ chức năng của D8 cộng thêm code shrinking (loại bỏ code không dùng), obfuscation (đổi tên class/method) và optimization. R8 thường chỉ bật cho bản release (<code>isMinifyEnabled = true</code>).</li>
+</ul></li>
+  <li><strong>Desugaring</strong>: Chuyển đổi các tính năng cú pháp Java 8+ thành bytecode tương thích với các Android OS cũ hơn. Bước này chạy bên trong D8/R8. Xem chi tiết phần bên dưới.</li>
 </ol>
 
 <h3>3. Java Desugaring — Backport Java 8+ cho Android cũ</h3>
+
 <h4>Vấn đề: API Level Fragmentation</h4>
+
 <p>Android có hàng trăm phiên bản OS đang hoạt động đồng thời. Thiết bị chạy Android 5.0 (API 21) không có sẵn các class như <code>java.time.LocalDate</code> hay <code>java.util.stream.Stream</code> — những API chỉ tồn tại trên JVM 8+ nhưng chưa được đưa vào Android runtime cũ.</p>
 
 <h4>Hai tầng Desugaring</h4>
+
 <p><strong>Tầng 1 — Syntactic Desugaring (D8 tự xử lý):</strong></p>
+
+<p>Chuyển đổi cú pháp Java 8 thành bytecode tương đương mà Android runtime cũ hiểu được:</p>
+
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
     <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
@@ -860,71 +1166,86 @@ istore_3         ; Pop kết quả từ Stack lưu vào biến a (slot 3)</code>
   </thead>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Lambda expressions</td>
-      <td style="padding:8px 12px;">Sinh ra anonymous inner class tương đương</td>
+      <td style="padding:8px 12px;font-weight:600;">Lambda expressions</td>
+      <td style="padding:8px 12px;">Sinh một synthetic class implement functional interface (tương tự anonymous class)</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Method references</td>
-      <td style="padding:8px 12px;">Chuyển thành static method call</td>
+      <td style="padding:8px 12px;font-weight:600;">Method references</td>
+      <td style="padding:8px 12px;">Xử lý giống lambda: cũng sinh synthetic class</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Default interface methods</td>
-      <td style="padding:8px 12px;">Copy method body vào implementing class</td>
+      <td style="padding:8px 12px;font-weight:600;">Default / static interface methods</td>
+      <td style="padding:8px 12px;">Chuyển body sang một companion class (hậu tố <code>$-CC</code>), class implement gọi sang đó</td>
     </tr>
-    <tr>
-      <td style="padding:8px 12px;"><code>try-with-resources</code></td>
-      <td style="padding:8px 12px;">Chuyển thành <code>try-finally</code> block</td>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>try-with-resources</code></td>
+      <td style="padding:8px 12px;">Với <code>minSdk</code> &lt; 19: viết lại bằng <code>try-finally</code> và xử lý <code>addSuppressed</code> cho runtime cũ</td>
     </tr>
   </tbody>
 </table>
 
 <p><strong>Tầng 2 — Core Library Desugaring (cần cấu hình thêm):</strong></p>
-<p>Backport toàn bộ Java 8+ API (<code>java.time.*</code>, <code>java.util.stream.*</code>, <code>java.util.Optional</code>) cho thiết bị cũ bằng cách nhúng một thư viện hỗ trợ vào APK:</p>
-<pre data-lang="groovy"><code>// build.gradle (Module: app)
+
+<p>Backport toàn bộ <strong>Java 8+ API</strong> (<code>java.time.*</code>, <code>java.util.stream.*</code>, <code>java.util.Optional</code>) cho thiết bị cũ bằng cách nhúng một thư viện hỗ trợ vào APK:</p>
+
+<pre data-lang="kotlin"><code>// build.gradle.kts (Module: app)
 android {
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-        // BẬT Core Library Desugaring
-        coreLibraryDesugaringEnabled true
+        // Phiên bản ngôn ngữ Java của source code
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        // Bật Core Library Desugaring
+        isCoreLibraryDesugaringEnabled = true
     }
 }
 
 dependencies {
-    // Thư viện backport java.time, java.util.stream cho API &lt; 26
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    // Thư viện backport java.time, java.util.stream... cho thiết bị cũ
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }</code></pre>
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Cảnh báo:</strong> Nếu không bật <code>coreLibraryDesugaringEnabled</code> mà gọi <code>java.time.LocalDate.now()</code> trên thiết bị Android 7.0 (API 24) trở xuống, ứng dụng sẽ crash với <code>NoClassDefFoundError</code> ngay khi runtime cố tìm class <code>LocalDate</code>.</div></div>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Cảnh báo:</strong> <code>java.time</code> chỉ có sẵn từ Android 8.0 (API 26). Nếu <code>minSdk</code> thấp hơn và không bật Core Library Desugaring, Android Lint sẽ báo lỗi <code>NewApi</code>. Nếu bỏ qua lỗi đó, app crash với <code>NoClassDefFoundError</code> khi gọi <code>java.time.LocalDate.now()</code> trên thiết bị API 25 trở xuống.</div></div>
 
 <h3>4. ART Runtime Execution</h3>
-<p>Khi ứng dụng được cài đặt và chạy trên thiết bị, ART thực thi <code>.dex</code> bytecode qua cơ chế kết hợp:</p>
 
-<h4>Dalvik VM (Android 1.0 — 4.4): JIT thuần túy</h4>
+<p>Cách thiết bị thực thi <code>.dex</code> đã thay đổi nhiều lần qua các phiên bản Android:</p>
+
+<h4>Dalvik VM (Android 1.0 — 4.4): Interpreter, rồi thêm JIT</h4>
+
 <ul>
-  <li><strong>JIT (Just-In-Time)</strong>: Mỗi lần chạy, Dalvik VM biên dịch bytecode <code>.dex</code> sang mã máy ngay tại thời điểm thực thi.</li>
-  <li><strong>Nhược điểm</strong>: Tốn CPU và pin mỗi lần khởi chạy app. App mở chậm.</li>
+  <li><strong>Android 1.0 — 2.1</strong>: Dalvik chỉ <strong>thông dịch</strong> (interpreter) bytecode. Khi cài app, công cụ <code>dexopt</code> tối ưu sẵn file <code>.dex</code> cho thiết bị.</li>
+  <li><strong>Android 2.2+</strong>: Dalvik thêm <strong>trace-based JIT</strong>: chỉ những đoạn code chạy lặp nhiều lần ("hot trace") mới được biên dịch sang mã máy, và kết quả mất đi khi process kết thúc.</li>
+  <li><strong>Nhược điểm</strong>: lần chạy nào cũng phải thông dịch và JIT lại từ đầu, tốn CPU và pin.</li>
 </ul>
 
-<h4>ART (Android 5.0+): AOT + JIT + Profile-Guided</h4>
+<h4>ART (tuỳ chọn ở 4.4, mặc định từ 5.0): AOT, JIT và Profile-Guided</h4>
+
 <ul>
-  <li><strong>AOT (Ahead-Of-Time)</strong>: Khi cài đặt app, ART biên dịch toàn bộ <code>.dex</code> thành mã máy (<code>.oat</code> / <code>.art</code> files). App mở nhanh hơn vì code đã sẵn sàng.</li>
-  <li><strong>JIT (Android 7.0+)</strong>: ART kết hợp lại JIT để giảm thời gian cài đặt. JIT biên dịch các đoạn code "hot" (chạy thường xuyên) và ghi lại <strong>profile</strong>.</li>
-  <li><strong>Profile-Guided Compilation</strong>: Dựa trên profile thu thập từ JIT, ART biên dịch AOT chỉ những method thực sự được dùng (khi thiết bị idle và đang sạc).</li>
+  <li><strong>Android 5.0 — 6.0, AOT toàn bộ</strong>: khi cài app, <code>dex2oat</code> biên dịch toàn bộ <code>.dex</code> sang mã máy (file <code>.oat</code>). App chạy nhanh, nhưng cài đặt và cập nhật hệ thống rất lâu, và tốn bộ nhớ cho cả code không bao giờ chạy.</li>
+  <li><strong>Android 7.0+, kết hợp</strong>: app cài nhanh, chạy bằng interpreter và JIT trước. JIT ghi lại <strong>profile</strong> những method hay dùng.</li>
+  <li><strong>Profile-Guided Compilation</strong>: khi thiết bị rảnh và đang sạc, ART dùng profile để biên dịch AOT <strong>chỉ những method thường dùng</strong>.</li>
+  <li><strong>Profile có sẵn từ lần cài đầu</strong>: từ Android 9, Google Play gửi kèm <strong>Cloud Profiles</strong> gom từ người dùng khác. Nhà phát triển cũng có thể tự đóng gói <strong>Baseline Profiles</strong> (Jetpack, hoạt động từ Android 7.0) để những luồng quan trọng như khởi động app được biên dịch sẵn ngay từ lần mở đầu tiên.</li>
 </ul>
 
 <h4>ART Garbage Collector</h4>
-<p>ART sử dụng <strong>Concurrent Copying GC</strong> được thiết kế riêng cho mobile:</p>
+
+<p>Từ Android 8.0, GC mặc định của ART là <strong>Concurrent Copying (CC)</strong>:</p>
+
 <ul>
-  <li><strong>Concurrent</strong>: GC chạy song song với application threads, giảm thiểu Stop-The-World pause (thường &lt; 1ms).</li>
-  <li><strong>Generational</strong>: Chia Heap thành Young Generation (đối tượng mới) và Old Generation (đối tượng sống lâu).</li>
-  <li><strong>Compacting</strong>: Sau khi thu hồi, GC dồn các object lại gần nhau để giảm memory fragmentation — quan trọng trên thiết bị có RAM hạn chế.</li>
+  <li><strong>Concurrent</strong>: phần lớn công việc GC chạy song song với các thread của app, thời gian dừng app (pause) rất ngắn.</li>
+  <li><strong>Compacting</strong>: GC copy các object còn sống lại gần nhau, giảm phân mảnh bộ nhớ. Điều này quan trọng trên thiết bị RAM hạn chế.</li>
+  <li><strong>Generational (từ Android 10)</strong>: tách object mới tạo (thu hồi thường xuyên) với object sống lâu (thu hồi ít hơn), giảm chi phí cho mỗi lần GC.</li>
 </ul>
+
+<p>Trước Android 8.0, ART dùng Concurrent Mark Sweep (CMS).</p>
 
 <h2>Ví dụ thực tế</h2>
 
-<h3>1. Thảm họa Memory Leak với Implicit Outer Reference</h3>
-<p>Trong Java, mọi <strong>Non-Static Inner Class</strong> và <strong>Anonymous Inner Class</strong> luôn âm thầm giữ một pointer <code>OuterClass.this</code>.</p>
-<pre data-lang="java"><code>// ❌ BAD PRACTICE: Gây rò rỉ bộ nhớ Activity nghiêm trọng!
+<h3>1. Memory Leak do tham chiếu ngầm tới Outer Class</h3>
+
+<p>Trong Java, mọi <strong>Non-Static Inner Class</strong> và <strong>Anonymous Inner Class</strong> luôn âm thầm giữ một tham chiếu <code>OuterClass.this</code>.</p>
+
+<pre data-lang="java"><code>// ❌ BAD PRACTICE: Runnable ẩn danh giữ Activity sống thêm 10 giây sau khi bị destroy
 public class ProfileActivity extends AppCompatActivity {
 
     @Override
@@ -936,158 +1257,354 @@ public class ProfileActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
+                // Giả định tác vụ chạy sau 10 giây
                 updateUI();
             }
         }, 10000);
     }
 
-    private void updateUI() { /* ... */ }
+    private void updateUI() {
+        // ...
+    }
 }</code></pre>
 
 <h4>Điều gì xảy ra dưới bộ nhớ khi người dùng xoay màn hình?</h4>
+
 <ol>
   <li>Người dùng bấm Back hoặc xoay màn hình sau 1 giây.</li>
-  <li>Android OS gọi <code>onDestroy()</code> trên <code>ProfileActivity</code>.</li>
-  <li><code>Handler</code> trong <code>Looper</code> vẫn giữ <code>Runnable</code>. <code>Runnable</code> lại giữ ngầm <code>ProfileActivity.this</code>.</li>
-  <li><strong>GC</strong> duyệt cây đối tượng (GC Root) → Thấy <code>ProfileActivity</code> vẫn được tham chiếu → <strong>Không thể thu hồi!</strong></li>
-  <li>Kết quả: Toàn bộ View Hierarchy (RAM vài MB đến vài chục MB) bị kẹt lại trong bộ nhớ.</li>
+  <li>Android OS gọi <code>onDestroy()</code> trên <code>ProfileActivity</code>. Khi xoay màn hình, một instance Activity mới được tạo.</li>
+  <li>Tuy nhiên, <code>MessageQueue</code> của main thread vẫn giữ một <code>Message</code> chứa <code>Runnable</code>. <code>Runnable</code> lại giữ ngầm <code>ProfileActivity.this</code>.</li>
+  <li><strong>Garbage Collector (GC)</strong> đi từ GC Root (main thread) theo chuỗi tham chiếu → thấy <code>ProfileActivity</code> cũ vẫn được tham chiếu → <strong>không thể thu hồi</strong>.</li>
+  <li>Kết quả: Activity cũ cùng toàn bộ View Hierarchy của nó nằm lại trong bộ nhớ <strong>cho tới khi Runnable chạy xong</strong> (10 giây). Mỗi lần xoay màn hình lại tạo thêm một bản như vậy.</li>
 </ol>
 
-<div style="text-align:center;margin:1.5em 0;">
-  <div style="display:inline-block;background:var(--bg-card,#161b22);border:1px solid var(--border,#30363d);border-radius:12px;padding:1.5em;font-family:monospace;font-size:13px;line-height:2;text-align:left;">
-    <div><span style="color:#f85149;font-weight:600;">GC Root (Main Looper)</span> → <span style="color:#d29922;">Handler</span> → <span style="color:#d29922;">Anonymous Runnable</span></div>
-    <div style="padding-left:2em;"><span style="color:#d29922;">↳</span> <span style="color:#8b949e;">implicit reference →</span> <span style="color:#f85149;font-weight:bold;">ProfileActivity (DESTROYED) → View Hierarchy (LEAKED!)</span></div>
-  </div>
+<p>Leak này là tạm thời. Nhưng cùng một lỗi với delay dài hơn, với tác vụ lặp lại (post lại chính nó), hoặc với <code>Thread</code> chạy lâu sẽ giữ Activity rất lâu. Ngoài ra, <code>updateUI()</code> chạy trên một Activity đã chết có thể gây crash.</p>
+
+<div class="dd-diagram" data-dd="s01-leak-chain">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 444" role="img" aria-labelledby="s01-leak-chain-dark-title s01-leak-chain-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-leak-chain-dark-title">Chuỗi tham chiếu giữ Activity cũ khi xoay màn hình</title>
+<desc id="s01-leak-chain-dark-desc">Từ GC Root là main thread, MessageQueue giữ Message, Message giữ Anonymous Runnable qua callback, Runnable giữ ngầm ProfileActivity cũ đã destroy, nên Activity và View Hierarchy của nó không được thu hồi; removeCallbacks() gỡ Message để cắt chuỗi.</desc>
+<defs>
+<marker id="s01-leak-chain-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="s01-leak-chain-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="444" fill="#060913"/>
+<!-- zone: destroyed but still reachable -->
+<rect x="564" y="176" width="200" height="220" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="580" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">ĐÃ DESTROY · KHÔNG THU HỒI</text>
+<!-- arrows -->
+<path d="M 184,68 H 216" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-leak-chain-dark-arrow)"/>
+<path d="M 344,68 H 392" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-leak-chain-dark-arrow)"/>
+<path d="M 520,68 H 584" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-leak-chain-dark-arrow)"/>
+<rect x="528" y="48" width="48" height="12" rx="2" fill="#060913"/>
+<text x="552" y="57" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CALLBACK</text>
+<path d="M 664,96 V 208" fill="none" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#s01-leak-chain-dark-accent)"/>
+<rect x="540" y="124" width="116" height="28" rx="2" fill="#060913"/>
+<text x="652" y="135" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="end" letter-spacing="0.06em">THAM CHIẾU NGẦM</text>
+<text x="652" y="148" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="end">ProfileActivity.this</text>
+<path d="M 664,264 V 304" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-leak-chain-dark-arrow)"/>
+<!-- fix callout -->
+<path d="M 368,156 V 72" fill="none" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+<circle cx="368" cy="68" r="2" fill="#94A3B8"/>
+<text x="56" y="180" fill="#94A3B8" font-size="14" font-style="italic" font-weight="600" font-family="'Plus Jakarta Sans', sans-serif">removeCallbacks() gỡ Message khỏi MessageQueue,</text>
+<text x="56" y="200" fill="#94A3B8" font-size="14" font-style="italic" font-weight="600" font-family="'Plus Jakarta Sans', sans-serif">cắt chuỗi tham chiếu từ GC Root.</text>
+<!-- nodes -->
+<rect x="56" y="40" width="128" height="56" rx="6" fill="#060913"/>
+<rect x="56" y="40" width="128" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="120" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">GC Root</text>
+<text x="120" y="81" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">main thread</text>
+<rect x="216" y="40" width="128" height="56" rx="6" fill="#060913"/>
+<rect x="216" y="40" width="128" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="280" y="72" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">MessageQueue</text>
+<rect x="392" y="40" width="128" height="56" rx="6" fill="#060913"/>
+<rect x="392" y="40" width="128" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="456" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Message</text>
+<text x="456" y="81" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">postDelayed · 10 s</text>
+<rect x="584" y="40" width="160" height="56" rx="6" fill="#060913"/>
+<rect x="584" y="40" width="160" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="664" y="72" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Anonymous Runnable</text>
+<rect x="584" y="208" width="160" height="56" rx="6" fill="#060913"/>
+<rect x="584" y="208" width="160" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="664" y="234" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ProfileActivity cũ</text>
+<text x="664" y="249" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đã destroy</text>
+<rect x="584" y="304" width="160" height="56" rx="6" fill="#060913"/>
+<rect x="584" y="304" width="160" height="56" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="664" y="330" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">View Hierarchy</text>
+<text x="664" y="345" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bị giữ lại</text>
+<!-- legend -->
+<line x1="40" y1="420" x2="760" y2="420" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="40" y="436" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="148" cy="432" r="4" fill="#38BDF8"/>
+<text x="160" y="436" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · THAM CHIẾU NGẦM</text>
+<line x1="348" y1="432" x2="380" y2="432" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-leak-chain-dark-arrow)"/>
+<text x="388" y="436" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GIỮ THAM CHIẾU</text>
+<rect x="492" y="424" width="24" height="12" rx="2" fill="none" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="524" y="436" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐÃ DESTROY</text>
+<line x1="608" y1="432" x2="632" y2="432" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="640" y="436" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CÁCH SỬA</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 444" role="img" aria-labelledby="s01-leak-chain-title s01-leak-chain-desc" font-family="'Geist', sans-serif">
+<title id="s01-leak-chain-title">Chuỗi tham chiếu giữ Activity cũ khi xoay màn hình</title>
+<desc id="s01-leak-chain-desc">Từ GC Root là main thread, MessageQueue giữ Message, Message giữ Anonymous Runnable qua callback, Runnable giữ ngầm ProfileActivity cũ đã destroy, nên Activity và View Hierarchy của nó không được thu hồi; removeCallbacks() gỡ Message để cắt chuỗi.</desc>
+<defs>
+<marker id="s01-leak-chain-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+<marker id="s01-leak-chain-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
+</marker>
+</defs>
+<rect width="800" height="444" fill="#F8FAFC"/>
+<!-- zone: destroyed but still reachable -->
+<rect x="564" y="176" width="200" height="220" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="580" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">ĐÃ DESTROY · KHÔNG THU HỒI</text>
+<!-- arrows -->
+<path d="M 184,68 H 216" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-leak-chain-arrow)"/>
+<path d="M 344,68 H 392" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-leak-chain-arrow)"/>
+<path d="M 520,68 H 584" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-leak-chain-arrow)"/>
+<rect x="528" y="48" width="48" height="12" rx="2" fill="#F8FAFC"/>
+<text x="552" y="57" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CALLBACK</text>
+<path d="M 664,96 V 208" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#s01-leak-chain-accent)"/>
+<rect x="540" y="124" width="116" height="28" rx="2" fill="#F8FAFC"/>
+<text x="652" y="135" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="end" letter-spacing="0.06em">THAM CHIẾU NGẦM</text>
+<text x="652" y="148" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="end">ProfileActivity.this</text>
+<path d="M 664,264 V 304" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-leak-chain-arrow)"/>
+<!-- fix callout -->
+<path d="M 368,156 V 72" fill="none" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+<circle cx="368" cy="68" r="2" fill="#64748B"/>
+<text x="56" y="180" fill="#64748B" font-size="14" font-style="italic" font-weight="600" font-family="'Plus Jakarta Sans', sans-serif">removeCallbacks() gỡ Message khỏi MessageQueue,</text>
+<text x="56" y="200" fill="#64748B" font-size="14" font-style="italic" font-weight="600" font-family="'Plus Jakarta Sans', sans-serif">cắt chuỗi tham chiếu từ GC Root.</text>
+<!-- nodes -->
+<rect x="56" y="40" width="128" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="56" y="40" width="128" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="120" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">GC Root</text>
+<text x="120" y="81" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">main thread</text>
+<rect x="216" y="40" width="128" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="216" y="40" width="128" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="280" y="72" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">MessageQueue</text>
+<rect x="392" y="40" width="128" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="392" y="40" width="128" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="456" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Message</text>
+<text x="456" y="81" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">postDelayed · 10 s</text>
+<rect x="584" y="40" width="160" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="584" y="40" width="160" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="664" y="72" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Anonymous Runnable</text>
+<rect x="584" y="208" width="160" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="584" y="208" width="160" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="664" y="234" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ProfileActivity cũ</text>
+<text x="664" y="249" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đã destroy</text>
+<rect x="584" y="304" width="160" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="584" y="304" width="160" height="56" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<text x="664" y="330" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">View Hierarchy</text>
+<text x="664" y="345" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bị giữ lại</text>
+<!-- legend -->
+<line x1="40" y1="420" x2="760" y2="420" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="40" y="436" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="148" cy="432" r="4" fill="#0284C7"/>
+<text x="160" y="436" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · THAM CHIẾU NGẦM</text>
+<line x1="348" y1="432" x2="380" y2="432" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-leak-chain-arrow)"/>
+<text x="388" y="436" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GIỮ THAM CHIẾU</text>
+<rect x="492" y="424" width="24" height="12" rx="2" fill="none" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="524" y="436" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐÃ DESTROY</text>
+<line x1="608" y1="432" x2="632" y2="432" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="640" y="436" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CÁCH SỬA</text>
+</svg>
+</div>
 </div>
 
-<h4>Giải pháp chuẩn: Static Inner Class + WeakReference</h4>
-<pre data-lang="java"><code>// ✅ GOOD PRACTICE: Giải phóng hoàn toàn Memory Leak
+<h4>Giải pháp: huỷ tác vụ theo vòng đời, và không giữ tham chiếu mạnh</h4>
+
+<pre data-lang="java"><code>// ✅ GOOD PRACTICE
 public class ProfileActivity extends AppCompatActivity {
 
-    private final MyHandler mHandler = new MyHandler(this);
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable refreshTask = new RefreshTask(this);
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_profile);
+        handler.postDelayed(refreshTask, 10_000);
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mHandler.removeCallbacksAndMessages(null);
+        // Cách chính: huỷ tác vụ đang chờ khi Activity bị destroy
+        handler.removeCallbacks(refreshTask);
     }
 
-    // Static Inner Class KHÔNG giữ implicit reference tới Outer Class
-    private static class MyHandler extends Handler {
-        private final WeakReference&lt;ProfileActivity&gt; mActivityRef;
+    // Static nested class: KHÔNG giữ tham chiếu ngầm tới ProfileActivity
+    private static class RefreshTask implements Runnable {
+        private final WeakReference&lt;ProfileActivity&gt; activityRef;
 
-        MyHandler(ProfileActivity activity) {
-            super(Looper.getMainLooper());
-            mActivityRef = new WeakReference&lt;&gt;(activity);
+        RefreshTask(ProfileActivity activity) {
+            activityRef = new WeakReference&lt;&gt;(activity);
         }
 
         @Override
-        public void handleMessage(Message msg) {
-            ProfileActivity activity = mActivityRef.get();
+        public void run() {
+            ProfileActivity activity = activityRef.get();
             if (activity != null &amp;&amp; !activity.isFinishing() &amp;&amp; !activity.isDestroyed()) {
                 activity.updateUI();
             }
         }
     }
 
-    private void updateUI() { /* Safe UI Update */ }
-}</code></pre>
-<div class="callout callout-success"><span class="callout-icon">✅</span><div class="callout-body"><strong>Tại sao giải pháp này hoạt động:</strong> <code>static class</code> không giữ implicit reference. <code>WeakReference</code> cho phép GC thu hồi Activity. <code>removeCallbacksAndMessages(null)</code> dọn dẹp message queue khi Activity bị destroy.</div></div>
-
-<h3>2. Cạm bẫy Java-Kotlin Interop: Platform Types &amp; Nullability</h3>
-<p>Khi gọi mã Java từ Kotlin, nếu mã Java không được đánh dấu Annotation Nullability:</p>
-<pre data-lang="java"><code>// Java Repository (Legacy) — KHÔNG CÓ ANNOTATION
-public class UserRepository {
-    public String getUserName(int userId) {
-        if (userId &lt;= 0) return null;
-        return "Alex";
+    private void updateUI() {
+        // Cập nhật giao diện
     }
 }</code></pre>
-<pre data-lang="kotlin"><code>// Kotlin Code
-val repo = UserRepository()
-val name = repo.getUserName(-1) // Kiểu: String! (Platform Type)
 
-// Kotlin Compiler KHÔNG bắt buộc check null!
-// Runtime crash: NullPointerException!
-println(name.length)</code></pre>
+<p><strong>Tại sao giải pháp này hoạt động:</strong></p>
 
-<h4>Tại sao Platform Type nguy hiểm?</h4>
-<p>Khi Kotlin nhìn thấy <code>String!</code> (Platform Type), nó <strong>không biết</strong> giá trị có thể null hay không. Kotlin Compiler sẽ không báo lỗi compile-time, không ép check null, âm thầm cho gọi <code>.length</code> → <code>NullPointerException</code> ở runtime.</p>
+<ul>
+  <li><code>removeCallbacks(refreshTask)</code> gỡ <code>Message</code> khỏi <code>MessageQueue</code>, cắt chuỗi tham chiếu từ GC Root. Chỉ riêng bước này đã đủ sửa leak trong ví dụ.</li>
+  <li><code>static class</code> + <code>WeakReference</code> là lớp bảo vệ thứ hai: kể cả khi quên huỷ, tác vụ cũng không giữ được Activity, và kiểm tra <code>isDestroyed()</code> tránh cập nhật UI trên Activity đã chết.</li>
+</ul>
 
-<h4>Giải pháp: Nullability Annotations</h4>
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Mẹo:</strong> Với code Kotlin, <code>lifecycleScope.launch { delay(10_000); updateUI() }</code> tự huỷ khi Activity bị destroy, nên không cần tự viết hai bước trên.</div></div>
+
+<h3>2. Viết Java API an toàn cho Kotlin: Nullability Annotations</h3>
+
+<p>Java không có khái niệm nullable trong kiểu dữ liệu. Khi Kotlin gọi một method Java không có annotation, Kotlin hiểu kiểu trả về là <strong>Platform Type</strong> (<code>String!</code>) và <strong>không bắt kiểm tra null</strong>. Nếu method trả về <code>null</code>, code Kotlin crash <code>NullPointerException</code> ở runtime. Cơ chế Platform Type và cách xử lý phía Kotlin được trình bày trong <code>android.languages.kotlin</code>.</p>
+
+<p>Phía Java, cách sửa tận gốc là bổ sung Nullability Annotations (<code>@Nullable</code> / <code>@NonNull</code> từ <code>androidx.annotation</code>) cho mọi API công khai:</p>
+
 <pre data-lang="java"><code>import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class UserRepository {
-    @Nullable // Kotlin hiểu: String?
+    @Nullable // Giúp Kotlin Compiler hiểu chính xác kiểu dữ liệu là String?
     public String getUserName(int userId) {
         if (userId &lt;= 0) return null;
-        return "Alex";
+        return "Lan";
     }
 
-    @NonNull // Kotlin hiểu: String (không nullable)
+    @NonNull // Kotlin hiểu đây là String (không nullable)
     public String getDefaultName() {
         return "Guest";
     }
 }</code></pre>
 
+<p>Sau khi thêm annotation, Kotlin sẽ hiểu:</p>
+
+<ul>
+  <li><code>getUserName()</code> → trả về <code>String?</code> → buộc check null.</li>
+  <li><code>getDefaultName()</code> → trả về <code>String</code> → an toàn.</li>
+</ul>
+
 <h3>3. Cấu hình Gradle cho Java Android Project</h3>
-<pre data-lang="groovy"><code>// build.gradle (Module: app)
+
+<pre data-lang="kotlin"><code>// build.gradle.kts (Module: app)
 plugins {
-    id 'com.android.application'
+    id("com.android.application")
 }
 
 android {
-    namespace 'com.example.myapp'
-    compileSdk 34
+    namespace = "com.example.shop"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId "com.example.myapp"
-        minSdk 21
-        targetSdk 34
-        multiDexEnabled true
+        applicationId = "com.example.shop"
+        // Từ API 21, ART hỗ trợ multidex sẵn, không cần multiDexEnabled
+        minSdk = 21
+        targetSdk = 35
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-        coreLibraryDesugaringEnabled true
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        // Backport java.time, java.util.stream... cho API &lt; 26
+        isCoreLibraryDesugaringEnabled = true
     }
 }
 
 dependencies {
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.annotation:annotation:1.9.1'
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    // Nullability Annotations cho code Kotlin gọi vào
+    implementation("androidx.annotation:annotation:1.9.1")
 }</code></pre>
 
+<p>Dự án mới dùng Gradle Kotlin DSL (<code>build.gradle.kts</code>) theo mặc định. Dự án cũ có thể vẫn dùng Groovy (<code>build.gradle</code>), cú pháp khác nhưng các thuộc tính tương đương.</p>
+
 <h2>Sai lầm thường gặp</h2>
+
+<ol>
+  <li><strong>Cho rằng Java trên Android giống hệt Java SE trên PC</strong>:
 <ul>
-  <li><strong>Cho rằng Java trên Android giống hệt Java SE</strong> — Android Java không có AWT/Swing, không chạy <code>.jar</code> trực tiếp, và sử dụng GC riêng được tinh chỉnh cho mobile.</li>
-  <li><strong>Lạm dụng Anonymous Callbacks cho Async Tasks</strong> — Dùng <code>AsyncTask</code> (đã deprecated từ API 30) bằng anonymous class trong Activity dẫn tới Memory Leak và Crash khi Activity bị recreate.</li>
-  <li><strong>Bỏ qua Java Desugaring khi cấu hình Gradle</strong> — Không bật <code>coreLibraryDesugaringEnabled</code> gây crash <code>NoClassDefFoundError</code> trên thiết bị Android cũ.</li>
-  <li><strong>Không thêm Nullability Annotations</strong> — Gây Platform Types khi Kotlin gọi vào, dẫn đến NPE ở runtime.</li>
-  <li><strong>Sử dụng <code>Serializable</code> thay vì <code>Parcelable</code></strong> — <code>Serializable</code> dùng reflection, chậm gấp 10 lần so với <code>Parcelable</code> trên Android.</li>
-  <li><strong>Giữ Activity reference trong Singleton/static field</strong> — Giữ toàn bộ Activity trong bộ nhớ vĩnh viễn. Luôn dùng <code>applicationContext</code> khi cần context trong singleton.</li>
-</ul>
+  <li>Android Java <strong>không có</strong> thư viện GUI AWT/Swing.</li>
+  <li>Android Java <strong>không chạy</strong> tập tin <code>.jar</code> trực tiếp mà phải chuyển đổi qua bytecode <code>.dex</code>.</li>
+  <li>Android Runtime sử dụng cơ chế Garbage Collection riêng (Concurrent Copying GC) được tinh chỉnh cho độ trễ di động.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Lạm dụng Anonymous Callbacks cho Network/Async Tasks</strong>:
+<ul>
+  <li>Sử dụng Java <code>Thread</code> hoặc <code>AsyncTask</code> (đã bị deprecated từ API 30) bằng anonymous class trong Activity dẫn tới Memory Leak và Crash khi Activity bị recreate.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Bỏ qua Java Desugaring khi cấu hình Gradle</strong>:
+<ul>
+  <li>Không bật Core Library Desugaring nhưng vẫn dùng API Java 8+ như <code>java.time.LocalDate</code> với <code>minSdk</code> &lt; 26, rồi tắt cảnh báo Lint <code>NewApi</code>. App crash <code>NoClassDefFoundError</code> trên thiết bị API 25 trở xuống.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Không thêm Nullability Annotations khi viết Java API</strong>:
+<ul>
+  <li>Gây Platform Types khi Kotlin gọi vào, dẫn đến <code>NullPointerException</code> ở runtime — đặc biệt nguy hiểm trong dự án mixed Java/Kotlin.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Sử dụng Java <code>Serializable</code> thay vì <code>Parcelable</code></strong>:
+<ul>
+  <li><code>Serializable</code> dùng reflection và tạo nhiều object tạm, chậm hơn đáng kể so với <code>Parcelable</code> trên Android. Khi truyền dữ liệu qua <code>Intent</code> hoặc <code>Bundle</code>, ưu tiên <code>Parcelable</code>.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Giữ reference tới Context trong Singleton hoặc static field</strong>:
+<ul>
+  <li>Lưu <code>Activity</code> context vào <code>static</code> variable sẽ giữ toàn bộ Activity trong bộ nhớ vĩnh viễn. Luôn dùng <code>applicationContext</code> khi cần context trong singleton.</li>
+</ul></li>
+</ol>
 
 <h2>Trade-offs khi chọn Java cho Android</h2>
+
 <h3>Ưu điểm</h3>
+
 <ul>
-  <li><strong>Tốc độ biên dịch nhanh</strong> — Java compiler đơn giản hơn Kotlin compiler (ít bước static analysis hơn). Incremental build Java có thể nhanh hơn trong dự án lớn.</li>
-  <li><strong>Tương thích 100% với AOSP</strong> — Toàn bộ Android SDK, System Services và mã nguồn mở AOSP đều viết bằng Java.</li>
-  <li><strong>Tài nguyên học tập phong phú</strong> — Hàng triệu hướng dẫn, ví dụ và thư viện Java Android tích lũy từ 2007.</li>
-  <li><strong>Không cần migration cost</strong> — Các dự án legacy Java lớn không cần chi phí chuyển đổi sang Kotlin.</li>
+  <li><strong>Tốc độ biên dịch nhanh</strong>: Java compiler đơn giản hơn Kotlin compiler (ít bước static analysis và metadata generation hơn). Trong các dự án lớn, incremental build Java có thể nhanh hơn.</li>
+  <li><strong>Tương thích 100% với AOSP</strong>: Toàn bộ Android SDK, System Services và mã nguồn mở AOSP đều viết bằng Java. Đọc và debug framework code rất tự nhiên.</li>
+  <li><strong>Tài nguyên học tập phong phú</strong>: Hàng triệu hướng dẫn, ví dụ, và thư viện Java Android tích lũy từ 2007.</li>
+  <li><strong>Không cần migration cost</strong>: Các dự án legacy Java lớn không cần chi phí chuyển đổi sang Kotlin.</li>
 </ul>
+
 <h3>Nhược điểm</h3>
+
 <ul>
-  <li><strong>Cú pháp dài dòng (Boilerplate)</strong> — Phải viết Getters, Setters, <code>equals()</code>, <code>hashCode()</code> thủ công. Kotlin giải quyết bằng <code>data class</code>.</li>
-  <li><strong>Thiếu tính năng hiện đại</strong> — Không có Coroutines, Extension Functions, Smart Casts, Sealed Classes.</li>
-  <li><strong>Null Safety hoàn toàn không có</strong> — Mọi reference type đều có thể null.</li>
-  <li><strong>Không còn là ưu tiên của Google</strong> — Từ 2019, tài liệu và Jetpack libraries đều ưu tiên Kotlin. Compose chỉ hỗ trợ Kotlin.</li>
+  <li><strong>Cú pháp dài dòng (Boilerplate)</strong>: Phải viết Getters, Setters, <code>equals()</code>, <code>hashCode()</code>, <code>toString()</code> thủ công. Kotlin giải quyết bằng <code>data class</code>.</li>
+  <li><strong>Tính năng mới đến chậm</strong>: Java không có Coroutines, Extension Functions hay Null Safety. Các tính năng Java mới (records, sealed classes...) chỉ dùng được trên Android khi D8 hỗ trợ desugar, thường chậm hơn Java SE vài năm.</li>
+  <li><strong>Null Safety hoàn toàn không có</strong>: Mọi reference type đều có thể null. Phải tự kiểm tra <code>if (obj != null)</code> thủ công.</li>
+  <li><strong>Không còn là ưu tiên của Google</strong>: Từ 2019, tài liệu chính thức, Jetpack libraries, và code samples đều ưu tiên Kotlin. Compose chỉ hỗ trợ Kotlin.</li>
 </ul>
 
 <h3>So sánh nhanh Java vs Kotlin trên Android</h3>
+
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
     <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
@@ -1098,42 +1615,42 @@ dependencies {
   </thead>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Null Safety</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Null Safety</strong></td>
       <td style="padding:8px 12px;">Không có (mọi biến có thể null)</td>
       <td style="padding:8px 12px;">Có (<code>String</code> vs <code>String?</code>)</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Coroutines</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Coroutines</strong></td>
       <td style="padding:8px 12px;">Không (phải dùng Thread/RxJava)</td>
       <td style="padding:8px 12px;">Có (structured concurrency)</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Data Class</td>
-      <td style="padding:8px 12px;">Viết thủ công 50+ dòng</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Data Class</strong></td>
+      <td style="padding:8px 12px;">Viết tay hàng chục dòng (hoặc <code>record</code> nếu toolchain hỗ trợ)</td>
       <td style="padding:8px 12px;">1 dòng <code>data class User(...)</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Extension Functions</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Extension Functions</strong></td>
       <td style="padding:8px 12px;">Không</td>
       <td style="padding:8px 12px;">Có</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Jetpack Compose</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Jetpack Compose</strong></td>
       <td style="padding:8px 12px;">Không hỗ trợ</td>
       <td style="padding:8px 12px;">Hỗ trợ đầy đủ</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Google khuyến nghị</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Google khuyến nghị</strong></td>
       <td style="padding:8px 12px;">Legacy support</td>
       <td style="padding:8px 12px;">First-class, Kotlin-first</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Build Speed</td>
-      <td style="padding:8px 12px;">Nhanh hơn</td>
-      <td style="padding:8px 12px;">Chậm hơn (do KAPT/KSP)</td>
+      <td style="padding:8px 12px;font-weight:600;"><strong>Build Speed</strong></td>
+      <td style="padding:8px 12px;">Thường nhanh hơn</td>
+      <td style="padding:8px 12px;">Chậm hơn; compiler K2 (Kotlin 2.0) đã cải thiện</td>
     </tr>
-    <tr>
-      <td style="padding:8px 12px;">AOSP Compatibility</td>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>AOSP Compatibility</strong></td>
       <td style="padding:8px 12px;">100%</td>
       <td style="padding:8px 12px;">100% (interop)</td>
     </tr>
@@ -1141,6 +1658,128 @@ dependencies {
 </table>
 
 <h2>Lịch sử phát triển</h2>
+
+<div class="dd-diagram" data-dd="s01-java-history">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 492" role="img" aria-labelledby="s01-java-history-dark-title s01-java-history-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-java-history-dark-title">Hành trình tiến hóa của Java trong Hệ điều hành Android</title>
+<desc id="s01-java-history-dark-desc">Dòng thời gian 2007–2020 của Java trên Android: Dalvik, JIT, ART thay Dalvik năm 2014, ART kết hợp JIT và AOT, hỗ trợ Kotlin, D8, R8 và Core Library Desugaring.</desc>
+<rect width="800" height="492" fill="#060913"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="436" stroke="rgba(148,163,184,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="68" x2="408" y2="68" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="96" x2="408" y2="96" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="152" x2="408" y2="152" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="180" x2="408" y2="180" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="264" x2="408" y2="264" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="44" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2007</text>
+<text x="468" y="44" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Ra mắt Android SDK (Java 5/6)</text>
+<text x="468" y="60" fill="#94A3B8" font-size="12" text-anchor="start">Dalvik VM với kiến trúc Register-based</text>
+<circle cx="400" cy="124" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="128" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2010</text>
+<text x="332" y="128" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Android 2.2 thêm JIT cho Dalvik</text>
+<text x="332" y="144" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Oracle kiện Google về Java API</text>
+<circle cx="400" cy="208" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="212" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2013</text>
+<text x="468" y="212" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Android 4.4 thêm ART dạng tuỳ chọn</text>
+<circle cx="400" cy="236" r="8" fill="#060913"/>
+<circle cx="400" cy="236" r="6" fill="#38BDF8"/>
+<text x="380" y="240" fill="#38BDF8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2014</text>
+<text x="332" y="240" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Android 5.0 - ART thay Dalvik</text>
+<text x="332" y="256" fill="#94A3B8" font-size="12" text-anchor="end">AOT toàn bộ khi cài</text>
+<circle cx="400" cy="292" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="296" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2016</text>
+<text x="468" y="296" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Android 7.0 - ART kết hợp JIT, AOT</text>
+<text x="468" y="312" fill="#94A3B8" font-size="12" text-anchor="start">Profile-guided compilation</text>
+<circle cx="400" cy="320" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="324" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2017</text>
+<text x="332" y="324" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Google công bố hỗ trợ Kotlin</text>
+<circle cx="400" cy="348" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="352" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2018</text>
+<text x="468" y="352" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">D8 thay DX làm dex compiler mặc định</text>
+<circle cx="400" cy="376" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="380" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2019</text>
+<text x="332" y="380" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">R8 thay ProGuard</text>
+<text x="332" y="396" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Google tuyên bố Kotlin-first</text>
+<circle cx="400" cy="404" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="408" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2020</text>
+<text x="468" y="408" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Core Library Desugaring (AGP 4.0)</text>
+<text x="468" y="424" fill="#94A3B8" font-size="12" text-anchor="start">Dùng java.time trên thiết bị cũ</text>
+<!-- legend -->
+<line x1="32" y1="460" x2="768" y2="460" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="476" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="472" r="4" fill="#38BDF8"/>
+<text x="140" y="476" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · ART THAY DALVIK</text>
+<circle cx="328" cy="472" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="340" y="476" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="472" x2="456" y2="472" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="464" y="476" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 492" role="img" aria-labelledby="s01-java-history-title s01-java-history-desc" font-family="'Geist', sans-serif">
+<title id="s01-java-history-title">Hành trình tiến hóa của Java trong Hệ điều hành Android</title>
+<desc id="s01-java-history-desc">Dòng thời gian 2007–2020 của Java trên Android: Dalvik, JIT, ART thay Dalvik năm 2014, ART kết hợp JIT và AOT, hỗ trợ Kotlin, D8, R8 và Core Library Desugaring.</desc>
+<rect width="800" height="492" fill="#F8FAFC"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="436" stroke="rgba(100,116,139,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="68" x2="408" y2="68" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="96" x2="408" y2="96" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="152" x2="408" y2="152" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="180" x2="408" y2="180" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="264" x2="408" y2="264" stroke="#64748B" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="44" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2007</text>
+<text x="468" y="44" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Ra mắt Android SDK (Java 5/6)</text>
+<text x="468" y="60" fill="#64748B" font-size="12" text-anchor="start">Dalvik VM với kiến trúc Register-based</text>
+<circle cx="400" cy="124" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="128" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2010</text>
+<text x="332" y="128" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 2.2 thêm JIT cho Dalvik</text>
+<text x="332" y="144" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Oracle kiện Google về Java API</text>
+<circle cx="400" cy="208" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="212" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2013</text>
+<text x="468" y="212" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Android 4.4 thêm ART dạng tuỳ chọn</text>
+<circle cx="400" cy="236" r="8" fill="#F8FAFC"/>
+<circle cx="400" cy="236" r="6" fill="#0284C7"/>
+<text x="380" y="240" fill="#0284C7" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2014</text>
+<text x="332" y="240" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 5.0 - ART thay Dalvik</text>
+<text x="332" y="256" fill="#64748B" font-size="12" text-anchor="end">AOT toàn bộ khi cài</text>
+<circle cx="400" cy="292" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="296" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2016</text>
+<text x="468" y="296" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Android 7.0 - ART kết hợp JIT, AOT</text>
+<text x="468" y="312" fill="#64748B" font-size="12" text-anchor="start">Profile-guided compilation</text>
+<circle cx="400" cy="320" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="324" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2017</text>
+<text x="332" y="324" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Google công bố hỗ trợ Kotlin</text>
+<circle cx="400" cy="348" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="352" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2018</text>
+<text x="468" y="352" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">D8 thay DX làm dex compiler mặc định</text>
+<circle cx="400" cy="376" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="380" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2019</text>
+<text x="332" y="380" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">R8 thay ProGuard</text>
+<text x="332" y="396" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Google tuyên bố Kotlin-first</text>
+<circle cx="400" cy="404" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="408" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2020</text>
+<text x="468" y="408" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Core Library Desugaring (AGP 4.0)</text>
+<text x="468" y="424" fill="#64748B" font-size="12" text-anchor="start">Dùng java.time trên thiết bị cũ</text>
+<!-- legend -->
+<line x1="32" y1="460" x2="768" y2="460" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="476" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="472" r="4" fill="#0284C7"/>
+<text x="140" y="476" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · ART THAY DALVIK</text>
+<circle cx="328" cy="472" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="340" y="476" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="472" x2="456" y2="472" stroke="#64748B" stroke-width="0.8"/>
+<text x="464" y="476" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+</svg>
+</div>
+</div>
+
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
     <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
@@ -1152,118 +1791,299 @@ dependencies {
   </thead>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Android 1.0 — 4.4</td>
-      <td style="padding:8px 12px;">Java 5 / 6</td>
+      <td style="padding:8px 12px;font-weight:600;">Android 1.0 — 4.4</td>
+      <td style="padding:8px 12px;">Java 5 / 6 (một phần Java 7 từ 4.4)</td>
       <td style="padding:8px 12px;">Dalvik VM</td>
-      <td style="padding:8px 12px;">JIT Compilation, kiến trúc Bytecode <code>.dex</code>.</td>
+      <td style="padding:8px 12px;">Interpreter, thêm trace-based JIT từ 2.2</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Android 5.0 — 6.0</td>
+      <td style="padding:8px 12px;font-weight:600;">Android 5.0 — 6.0</td>
       <td style="padding:8px 12px;">Java 7</td>
       <td style="padding:8px 12px;">ART</td>
-      <td style="padding:8px 12px;">Giới thiệu ART với AOT Ahead-Of-Time compilation.</td>
+      <td style="padding:8px 12px;">AOT toàn bộ khi cài đặt</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;">Android 7.0 — 11</td>
-      <td style="padding:8px 12px;">Java 8 Desugaring</td>
+      <td style="padding:8px 12px;font-weight:600;">Android 7.0 — 12</td>
+      <td style="padding:8px 12px;">Java 8 (một phần có sẵn, phần còn lại qua desugaring)</td>
       <td style="padding:8px 12px;">ART (JIT + AOT)</td>
-      <td style="padding:8px 12px;">Hỗ trợ Lambda, Stream API qua D8 desugaring.</td>
+      <td style="padding:8px 12px;">Profile-guided compilation</td>
     </tr>
-    <tr>
-      <td style="padding:8px 12px;">Android 12 — 15+</td>
-      <td style="padding:8px 12px;">Java 11 / 17</td>
-      <td style="padding:8px 12px;">ART Core Modularized</td>
-      <td style="padding:8px 12px;">Cập nhật ART độc lập qua Google Play System Updates.</td>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Android 13 — 14+</td>
+      <td style="padding:8px 12px;">API của Java 11 (Android 13), Java 17 (Android 14)</td>
+      <td style="padding:8px 12px;">ART cập nhật qua Mainline</td>
+      <td style="padding:8px 12px;">ART là module cập nhật qua Google Play system updates từ Android 12</td>
     </tr>
   </tbody>
 </table>
 
 <h2>Edge Cases</h2>
+
 <h3>Multidex: Giới hạn 64K Methods</h3>
-<p>Mỗi file <code>.dex</code> chỉ có thể tham chiếu tối đa 65,536 methods. Khi vượt quá:</p>
+
+<p>Mỗi file <code>.dex</code> chỉ có thể tham chiếu tối đa 65,536 methods (bao gồm cả mã ứng dụng và thư viện Java). Khi vượt quá:</p>
+
 <ul>
-  <li>Build tool tự động tách ra nhiều file <code>.dex</code> (<code>classes.dex</code>, <code>classes2.dex</code>).</li>
-  <li>Trên Android 5.0+ (ART): Multidex được hỗ trợ native.</li>
-  <li>Trên Android 4.4 trở xuống (Dalvik): Cần thêm <code>androidx.multidex:multidex</code> và extends <code>MultiDexApplication</code>.</li>
+  <li>Build tool tự động tách ra nhiều file <code>.dex</code> (<code>classes.dex</code>, <code>classes2.dex</code>, <code>classes3.dex</code>).</li>
+  <li>Trên Android 5.0+ (ART): Multidex được hỗ trợ native, không cần cấu hình thêm.</li>
+  <li>Trên Android 4.4 trở xuống (Dalvik): Cần thêm <code>androidx.multidex:multidex</code> và extends <code>MultiDexApplication</code>. App khởi động chậm hơn do phải load nhiều <code>.dex</code> files.</li>
 </ul>
 
 <h3>ProGuard/R8 loại bỏ quá nhiều code</h3>
-<p>Khi bật minification bằng R8, nếu không cấu hình <code>proguard-rules.pro</code> đúng cách, R8 có thể xóa các class/method được gọi qua reflection (JSON serialization, JNI calls), gây crash <code>ClassNotFoundException</code> ở runtime.</p>
+
+<p>Khi bật minification bằng R8, nếu không cấu hình <code>proguard-rules.pro</code> đúng cách, R8 có thể xóa các class/method được gọi qua reflection (như JSON serialization, JNI calls), gây crash <code>ClassNotFoundException</code> ở runtime.</p>
 
 <h2>Kết nối hệ thống</h2>
+
 <ul>
   <li><strong>Prerequisites</strong>: Cấu trúc hệ điều hành máy tính cơ bản (Stack vs Heap memory, Process, Thread).</li>
   <li><strong>Related Topics</strong>:
-    <ul>
-      <li><code>android.languages.kotlin</code>: Ngôn ngữ First-Class kế thừa và tương tác trực tiếp với Java.</li>
-      <li><code>android.languages.jni</code>: Cầu nối giữa Java/ART với mã nguồn C/C++.</li>
-      <li><code>android.output_packages.apk_files</code>: Nơi chứa tập tin <code>classes.dex</code> sau khi biên dịch Java.</li>
-    </ul>
-  </li>
+<ul>
+  <li><code>android.languages.kotlin</code>: Ngôn ngữ First-Class kế thừa và tương tác trực tiếp với Java.</li>
+  <li><code>android.languages.jni</code>: Cầu nối giữa Java/ART với mã nguồn C/C++.</li>
+  <li><code>android.output_packages.apk_files</code>: Nơi chứa tập tin <code>classes.dex</code> sau khi biên dịch Java.</li>
+</ul></li>
   <li><strong>Downstream Topics</strong>:
-    <ul>
-      <li><code>android.component.activity.lifecycle</code>: Nơi các Java Object references cần được dọn dẹp để tránh Memory Leak.</li>
-    </ul>
-  </li>
+<ul>
+  <li><code>android.component.activity.lifecycle</code>: Nơi các sự kiện vắng bóng Java Object references cần được dọn dẹp để tránh Memory Leak.</li>
+</ul></li>
 </ul>
 
 <h2>Developer Curiosity Checklist</h2>
+
 <ol>
   <li><strong>Why was this created?</strong> Để mang lại ngôn ngữ hướng đối tượng an toàn bộ nhớ, đa nền tảng cho hệ điều hành di động mở đầu tiên năm 2007.</li>
   <li><strong>What problem does it solve?</strong> Giải quyết rủi ro Memory Leak thủ công (<code>malloc</code>/<code>free</code>) của C/C++ và khả năng portable trên nhiều phần cứng.</li>
-  <li><strong>What happens if it doesn't exist?</strong> Android Framework (AOSP) không có tầng ngôn ngữ cấp cao để kết nối kernel C/C++ với ứng dụng người dùng.</li>
-  <li><strong>How does Android implement it internally?</strong> <code>javac</code> → <code>.class</code> → <code>D8/R8</code> → <code>.dex</code> → ART với JIT/AOT profile compilation.</li>
+  <li><strong>What happens if it doesn't exist?</strong> Android Framework (AOSP) không có tầng ngôn ngữ cấp cao để kết nối các driver C/C++ kernel với ứng dụng người dùng.</li>
+  <li><strong>How does Android implement it internally?</strong> Biên dịch qua <code>javac</code> → <code>.class</code> → <code>D8/R8</code> → <code>.dex</code> (Register-based instructions) → Chạy trên ART với JIT/AOT profile compilation.</li>
   <li><strong>What misconceptions do developers have?</strong> Nghĩ Java Android chạy trên JVM tiêu chuẩn và giống hệt Java SE.</li>
-  <li><strong>What trade-offs does it introduce?</strong> Tốn RAM cho GC so với native C/C++, nhưng phát triển nhanh hơn. Kotlin hiện đại hơn nhưng Java cần cho AOSP/legacy.</li>
-  <li><strong>What are the edge cases?</strong> 64K Method Limit và <code>NoClassDefFoundError</code> do thiếu Desugaring.</li>
-  <li><strong>What are the real-world problems?</strong> Memory Leak qua Anonymous Handlers và NPE khi interop với Kotlin.</li>
-  <li><strong>How is it connected to the Android system?</strong> Ngôn ngữ gốc của toàn bộ AOSP System Services (<code>AMS</code>, <code>WMS</code>, <code>PMS</code>).</li>
-  <li><strong>What should developers learn next?</strong> <code>android.languages.kotlin</code> để khai thác Null Safety và Coroutines.</li>
+  <li><strong>What trade-offs does it introduce?</strong> Tốn tài nguyên RAM cho Garbage Collector so với Native C/C++, nhưng phát triển nhanh hơn. Kotlin hiện đại hơn nhưng Java vẫn cần cho AOSP và legacy code.</li>
+  <li><strong>What are the edge cases?</strong> Chạm ngưỡng 64K Method Limit trong file <code>.dex</code> và lỗi <code>NoClassDefFoundError</code> do thiếu Desugaring.</li>
+  <li><strong>What are the real-world problems developers encounter?</strong> Rò rỉ bộ nhớ Activity qua Anonymous Handlers và NullPointerExceptions khi interop với Kotlin.</li>
+  <li><strong>How is it connected to the Android system?</strong> Là ngôn ngữ gốc của toàn bộ AOSP System Services (<code>AMS</code>, <code>WMS</code>, <code>PMS</code>).</li>
+  <li><strong>What should developers learn next?</strong> Chuyển dịch lên <code>android.languages.kotlin</code> để khai thác Null Safety và Coroutines.</li>
 </ol>
 
+<h2>Tham khảo</h2>
+
+<ul>
+  <li>Android Developers: <a href="https://developer.android.com/studio/write/java8-support" target="_blank" rel="noopener">Java 8+ APIs available through desugaring</a></li>
+  <li>Android Open Source Project: <a href="https://source.android.com/docs/core/runtime" target="_blank" rel="noopener">ART and Dalvik</a></li>
+  <li>Android Developers: <a href="https://developer.android.com/topic/performance/baselineprofiles/overview" target="_blank" rel="noopener">Baseline Profiles overview</a></li>
+  <li>Shi, Gregg, Beatty, Ertl (2008): <em>Virtual Machine Showdown: Stack Versus Registers</em>, ACM TACO. Nguồn của số liệu 47% ít lệnh hơn và 25% bytecode lớn hơn.</li>
+</ul>
     `
   },
 
   'session-01-overview': {
     title: 'Session 01 Overview: Ngôn ngữ & Gói ứng dụng',
-    summary: 'Tổng quan kiến thức nền móng về các ngôn ngữ phát triển Android (Java, Kotlin, JNI) và cơ chế đóng gói, xuất bản ứng dụng (APK, AAB).',
+    summary: 'Tổng quan Session 01 — ngôn ngữ lập trình Android (Java, Kotlin, JNI/C++) và định dạng đóng gói ứng dụng (APK, AAB).',
     status: 'published',
     difficulty: 'beginner',
-    estimatedReadingTime: '5 phút',
+    estimatedReadingTime: '10 phút',
     depth: 'overview',
-    tags: ['android', 'session01', 'overview', 'languages', 'build'],
+    tags: ['android', 'overview', 'session-01', 'languages', 'output-packages'],
     domain: 'Android',
     module: 'Session 01: Ngôn ngữ & Gói ứng dụng',
     prerequisites: [],
     related: ['android.languages.java_android', 'android.languages.kotlin', 'android.languages.jni', 'android.output_packages.apk_files', 'android.output_packages.aab_files'],
     learningOutcomes: [
-      'Nắm bắt lộ trình phát triển ngôn ngữ trên Android từ Java đến Kotlin và Native C++.',
-      'Hiểu rõ sự khác biệt giữa hai định dạng đóng gói APK truyền thống và Android App Bundle (AAB).',
-      'Định hướng thứ tự học tập hiệu quả trong Session 01.'
+      'Giải thích được vai trò của Java, Kotlin và C/C++ (qua JNI) trong một ứng dụng Android.',
+      'Giải thích được chuỗi biến đổi từ mã nguồn tới file .dex, .so và gói cài đặt trên thiết bị.',
+      'Phân biệt được APK (định dạng cài đặt) và AAB (định dạng xuất bản lên Google Play).'
     ],
-    knowledgeGap: 'Bỏ qua phần tổng quan sẽ khiến học viên mất cái nhìn toàn cục về mối liên hệ giữa cú pháp ngôn ngữ, trình biên dịch bytecode và định dạng xuất bản gói ứng dụng.',
-    updatedAt: '2026-07-22',
+    knowledgeGap: 'Bắt đầu học Android mà không nắm rõ vai trò của từng ngôn ngữ và định dạng đóng gói dễ dẫn đến nhầm lẫn khi lựa chọn công nghệ, khi đọc lỗi build và khi phát hành ứng dụng.',
+    updatedAt: '2026-11-03',
+    readTime: '10 phút',
     content: `
-<h2>Tổng quan Session 01</h2>
-<p>Session 01 là bước đệm đầu tiên và quan trọng nhất trong lộ trình làm chủ phát triển ứng dụng Android OS. Nơi đây cung cấp cái nhìn toàn diện về <strong>Lập trình ngôn ngữ</strong> và <strong>Quy trình đóng gói phần mềm</strong>.</p>
+<h2>Giới thiệu</h2>
 
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1em;margin:1.5em 0;">
-  <div style="background:var(--bg-card,#161b22);border:1px solid var(--border,#30363d);border-radius:10px;padding:1.2em;">
-    <h3 style="margin-top:0;color:#58a6ff;">1. Ngôn ngữ Lập trình</h3>
-    <ul style="padding-left:1.2em;margin-bottom:0;">
-      <li><strong>Java Android</strong> — Nền tảng khởi đầu, AOSP Framework.</li>
-      <li><strong>Kotlin Core</strong> — Ngôn ngữ First-Class hiện đại, Null Safety.</li>
-      <li><strong>JNI & C/C++ Native</strong> — Giao tiếp native hiệu năng cao qua NDK.</li>
-    </ul>
-  </div>
-  <div style="background:var(--bg-card,#161b22);border:1px solid var(--border,#30363d);border-radius:10px;padding:1.2em;">
-    <h3 style="margin-top:0;color:#3fb950;">2. Gói Ứng dụng & Xuất bản</h3>
-    <ul style="padding-left:1.2em;margin-bottom:0;">
-      <li><strong>Gói ứng dụng APK</strong> — Cấu trúc ZIP, DEX, Signature Schemes.</li>
-      <li><strong>Android App Bundle (AAB)</strong> — Dynamic Delivery, Split APKs.</li>
-    </ul>
-  </div>
+<p>Session 01 trả lời hai câu hỏi nền tảng: <strong>ứng dụng Android được viết bằng gì</strong> và <strong>mã nguồn biến thành thứ gì để chạy được trên điện thoại</strong>.</p>
+
+<div class="dd-diagram" data-dd="s01-build-map">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 448" role="img" aria-labelledby="s01-build-map-dark-title s01-build-map-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-build-map-dark-title">Từ mã nguồn tới thiết bị</title>
+<desc id="s01-build-map-dark-desc">Java và Kotlin được javac và kotlinc biên dịch ra .class, D8/R8 chuyển thành classes.dex; C/C++ qua NDK và CMake thành lib*.so; cả hai được đóng gói vào APK hoặc AAB, cài qua Google Play hoặc adb lên thiết bị, nơi ART chạy .dex và nạp .so qua JNI.</desc>
+<defs>
+<marker id="s01-build-map-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="s01-build-map-dark-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="448" fill="#060913"/>
+<!-- arrows -->
+<path d="M 136,68 H 212 Q 220,68 220,76 V 88 Q 220,96 228,96 H 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-build-map-dark-arrow)"/>
+<rect x="152" y="48" width="44" height="12" rx="2" fill="#060913"/>
+<text x="174" y="57" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JAVAC</text>
+<path d="M 136,148 H 212 Q 220,148 220,140 V 128 Q 220,120 228,120 H 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-build-map-dark-arrow)"/>
+<rect x="148" y="156" width="52" height="12" rx="2" fill="#060913"/>
+<text x="174" y="165" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KOTLINC</text>
+<path d="M 368,108 H 448" fill="none" stroke="#38BDF8" stroke-width="1.2" marker-end="url(#s01-build-map-dark-arrow-accent)"/>
+<rect x="380" y="88" width="56" height="12" rx="2" fill="#060913"/>
+<text x="408" y="97" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">D8 / R8</text>
+<path d="M 136,260 H 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-build-map-dark-arrow)"/>
+<rect x="156" y="240" width="72" height="12" rx="2" fill="#060913"/>
+<text x="192" y="249" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NDK + CMAKE</text>
+<path d="M 568,108 H 592 Q 600,108 600,116 V 164 Q 600,172 608,172 H 648" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-build-map-dark-arrow)"/>
+<path d="M 368,260 H 608 Q 616,260 616,252 V 204 Q 616,196 624,196 H 648" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-build-map-dark-arrow)"/>
+<path d="M 708,212 V 320" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-build-map-dark-arrow)"/>
+<rect x="596" y="276" width="104" height="12" rx="2" fill="#060913"/>
+<text x="648" y="285" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GOOGLE PLAY / ADB</text>
+<!-- nodes: sources -->
+<rect x="32" y="40" width="104" height="56" rx="20" fill="#060913"/>
+<rect x="32" y="40" width="104" height="56" rx="20" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="84" y="64" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Java</text>
+<text x="84" y="80" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.java</text>
+<rect x="32" y="120" width="104" height="56" rx="20" fill="#060913"/>
+<rect x="32" y="120" width="104" height="56" rx="20" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="84" y="144" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Kotlin</text>
+<text x="84" y="160" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.kt</text>
+<rect x="32" y="232" width="104" height="56" rx="20" fill="#060913"/>
+<rect x="32" y="232" width="104" height="56" rx="20" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="84" y="256" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">C/C++</text>
+<text x="84" y="272" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">native code</text>
+<!-- nodes: build outputs -->
+<rect x="248" y="80" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="248" y="80" width="120" height="56" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="308" y="104" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">.class</text>
+<text x="308" y="120" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Java bytecode</text>
+<rect x="448" y="80" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="448" y="80" width="120" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="508" y="104" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">classes.dex</text>
+<text x="508" y="120" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Dalvik Executable</text>
+<rect x="248" y="232" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="248" y="232" width="120" height="56" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="308" y="256" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">lib*.so</text>
+<text x="308" y="272" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">thư viện native</text>
+<!-- nodes: package + device -->
+<rect x="648" y="156" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="648" y="156" width="120" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="708" y="180" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">APK / AAB</text>
+<text x="708" y="196" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">gói cài đặt</text>
+<rect x="448" y="320" width="320" height="72" rx="6" fill="#060913"/>
+<rect x="448" y="320" width="320" height="72" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="608" y="352" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Thiết bị</text>
+<text x="608" y="368" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ART chạy .dex · nạp .so qua JNI</text>
+<!-- legend -->
+<line x1="32" y1="424" x2="768" y2="424" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="440" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="120" y="432" width="12" height="8" rx="4" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<text x="140" y="440" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MÃ NGUỒN</text>
+<rect x="216" y="432" width="12" height="8" rx="2" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="236" y="440" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">KẾT QUẢ BIÊN DỊCH</text>
+<rect x="352" y="432" width="12" height="8" rx="2" fill="#0B132B" stroke="#F8FAFC" stroke-width="0.8"/>
+<text x="372" y="440" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GÓI · THIẾT BỊ</text>
+<line x1="472" y1="436" x2="504" y2="436" stroke="#38BDF8" stroke-width="1.2" marker-end="url(#s01-build-map-dark-arrow-accent)"/>
+<text x="512" y="440" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · D8/R8 RA CLASSES.DEX</text>
+</svg>
 </div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 448" role="img" aria-labelledby="s01-build-map-title s01-build-map-desc" font-family="'Geist', sans-serif">
+<title id="s01-build-map-title">Từ mã nguồn tới thiết bị</title>
+<desc id="s01-build-map-desc">Java và Kotlin được javac và kotlinc biên dịch ra .class, D8/R8 chuyển thành classes.dex; C/C++ qua NDK và CMake thành lib*.so; cả hai được đóng gói vào APK hoặc AAB, cài qua Google Play hoặc adb lên thiết bị, nơi ART chạy .dex và nạp .so qua JNI.</desc>
+<defs>
+<marker id="s01-build-map-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+<marker id="s01-build-map-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
+</marker>
+</defs>
+<rect width="800" height="448" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 136,68 H 212 Q 220,68 220,76 V 88 Q 220,96 228,96 H 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-build-map-arrow)"/>
+<rect x="152" y="48" width="44" height="12" rx="2" fill="#F8FAFC"/>
+<text x="174" y="57" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JAVAC</text>
+<path d="M 136,148 H 212 Q 220,148 220,140 V 128 Q 220,120 228,120 H 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-build-map-arrow)"/>
+<rect x="148" y="156" width="52" height="12" rx="2" fill="#F8FAFC"/>
+<text x="174" y="165" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KOTLINC</text>
+<path d="M 368,108 H 448" fill="none" stroke="#0284C7" stroke-width="1.2" marker-end="url(#s01-build-map-arrow-accent)"/>
+<rect x="380" y="88" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="408" y="97" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">D8 / R8</text>
+<path d="M 136,260 H 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-build-map-arrow)"/>
+<rect x="156" y="240" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="192" y="249" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NDK + CMAKE</text>
+<path d="M 568,108 H 592 Q 600,108 600,116 V 164 Q 600,172 608,172 H 648" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-build-map-arrow)"/>
+<path d="M 368,260 H 608 Q 616,260 616,252 V 204 Q 616,196 624,196 H 648" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-build-map-arrow)"/>
+<path d="M 708,212 V 320" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-build-map-arrow)"/>
+<rect x="596" y="276" width="104" height="12" rx="2" fill="#F8FAFC"/>
+<text x="648" y="285" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GOOGLE PLAY / ADB</text>
+<!-- nodes: sources -->
+<rect x="32" y="40" width="104" height="56" rx="20" fill="#F8FAFC"/>
+<rect x="32" y="40" width="104" height="56" rx="20" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="84" y="64" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Java</text>
+<text x="84" y="80" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.java</text>
+<rect x="32" y="120" width="104" height="56" rx="20" fill="#F8FAFC"/>
+<rect x="32" y="120" width="104" height="56" rx="20" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="84" y="144" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Kotlin</text>
+<text x="84" y="160" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.kt</text>
+<rect x="32" y="232" width="104" height="56" rx="20" fill="#F8FAFC"/>
+<rect x="32" y="232" width="104" height="56" rx="20" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="84" y="256" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">C/C++</text>
+<text x="84" y="272" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">native code</text>
+<!-- nodes: build outputs -->
+<rect x="248" y="80" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="248" y="80" width="120" height="56" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<text x="308" y="104" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">.class</text>
+<text x="308" y="120" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Java bytecode</text>
+<rect x="448" y="80" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="80" width="120" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="508" y="104" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">classes.dex</text>
+<text x="508" y="120" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Dalvik Executable</text>
+<rect x="248" y="232" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="248" y="232" width="120" height="56" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<text x="308" y="256" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">lib*.so</text>
+<text x="308" y="272" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">thư viện native</text>
+<!-- nodes: package + device -->
+<rect x="648" y="156" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="648" y="156" width="120" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="708" y="180" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">APK / AAB</text>
+<text x="708" y="196" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">gói cài đặt</text>
+<rect x="448" y="320" width="320" height="72" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="320" width="320" height="72" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="608" y="352" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Thiết bị</text>
+<text x="608" y="368" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ART chạy .dex · nạp .so qua JNI</text>
+<!-- legend -->
+<line x1="32" y1="424" x2="768" y2="424" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="440" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="120" y="432" width="12" height="8" rx="4" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="140" y="440" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MÃ NGUỒN</text>
+<rect x="216" y="432" width="12" height="8" rx="2" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="0.8"/>
+<text x="236" y="440" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">KẾT QUẢ BIÊN DỊCH</text>
+<rect x="352" y="432" width="12" height="8" rx="2" fill="#FFFFFF" stroke="#0F172A" stroke-width="0.8"/>
+<text x="372" y="440" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GÓI · THIẾT BỊ</text>
+<line x1="472" y1="436" x2="504" y2="436" stroke="#0284C7" stroke-width="1.2" marker-end="url(#s01-build-map-arrow-accent)"/>
+<text x="512" y="440" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · D8/R8 RA CLASSES.DEX</text>
+</svg>
+</div>
+</div>
+
+<h2>Nội dung Session</h2>
+
+<ul>
+  <li><strong>1.1 Languages</strong> — Ngôn ngữ lập trình:
+<ul>
+  <li><a href="languages/java_android.md" target="_blank" rel="noopener">1.1.1 Java Android</a>: Java trên Android khác Java SE ở đâu, chuỗi <code>javac</code> → D8/R8 → <code>.dex</code>, Dalvik và ART, desugaring, memory leak do inner class.</li>
+  <li><a href="languages/kotlin.md" target="_blank" rel="noopener">1.1.2 Kotlin</a>: Kotlin chạy trên ART thế nào, Null Safety, Java và Kotlin gọi nhau, KAPT và KSP.</li>
+  <li><a href="languages/jni.md" target="_blank" rel="noopener">1.1.3 JNI: C/C++</a>: khi nào cần C/C++, chi phí gọi JNI, NDK và CMake, quản lý reference và bộ nhớ native.</li>
+</ul></li>
+  <li><strong>1.2 Output Packages</strong> — Định dạng đóng gói:
+<ul>
+  <li><a href="output_packages/apk_files.md" target="_blank" rel="noopener">1.2.1 APK</a>: cấu trúc APK, chữ ký v1–v4, <code>zipalign</code>, các yêu cầu căn chỉnh.</li>
+  <li><a href="output_packages/aab_files.md" target="_blank" rel="noopener">1.2.2 AAB</a>: AAB và Split APK, Dynamic Feature Module, Play App Signing, test bằng <code>bundletool</code>.</li>
+</ul></li>
+</ul>
+
+<h2>Thứ tự học đề xuất</h2>
+
+<p>Java Android → Kotlin → APK → AAB → JNI. JNI khó nhất và cần hiểu cả ngôn ngữ lẫn cấu trúc APK, nên có thể học sau cùng.</p>
+
+<h2>Học tiếp</h2>
+
+<p>Sau Session 01, Session 02 đi vào cách hệ điều hành Android cài đặt, cấp quyền và cô lập ứng dụng (File Permissions, Process Management).</p>
     `
   },
 
@@ -1932,91 +2752,583 @@ connectivityManager.registerDefaultNetworkCallback(networkCallback)</code></pre>
   },
 
   'android.languages.kotlin': {
-    title: 'Kotlin trong Phát triển Ứng dụng Android',
-    summary: 'Ngôn ngữ First-Class chính thức cho Android. Tìm hiểu bản chất Null Safety bytecode intrinsics, Extension Functions dưới dạng static call, Inline Functions / Reified types, và kỹ thuật Java Interop nâng cao.',
-    status: 'published',
+    title: 'Kotlin trong Android',
+    summary: 'Kotlin chạy trên Android như thế nào khi không có máy ảo riêng, Null Safety được thực thi ở compile-time và runtime ra sao, cách Java và Kotlin gọi nhau trong cùng dự án, KAPT và KSP, và những chi phí ẩn của các tính năng Kotlin.',
+    status: 'reviewing',
     difficulty: 'beginner',
     estimatedReadingTime: '25 phút',
-    depth: 'deep-dive',
-    tags: ['android', 'kotlin', 'null-safety', 'inline', 'extension-functions', 'interop'],
+    depth: 'standard',
+    tags: ['android', 'kotlin', 'kotlinc', 'null-safety', 'interop', 'ksp'],
     domain: 'Android',
     module: 'Session 01: Ngôn ngữ & Gói ứng dụng',
     prerequisites: ['android.languages.java_android'],
     related: ['android.languages.jni', 'android.output_packages.apk_files'],
     learningOutcomes: [
-      'Giải thích được cơ chế Null Safety của Kotlin dưới cấp độ bytecode thông qua Intrinsics.checkNotNull.',
-      'Phân biệt được cơ chế biên dịch của Extension Functions, Inline Functions và Reified Type Parameters.',
-      'Xử lý được tương tác hai chiều với Java (Java Interop) sử dụng @JvmStatic, @JvmOverloads và @JvmField.',
-      'Biết khi nào dùng inline functions để tránh overhead tạo đối tượng Lambda và khi nào nên tránh để không phình Bytecode.'
+      'Giải thích được vì sao Kotlin chạy trên ART mà không cần máy ảo riêng, và vai trò của kotlinc trong chuỗi build.',
+      'Giải thích được Null Safety được thực thi ở compile-time và các kiểm tra null mà kotlinc chèn vào bytecode.',
+      'Xử lý được các điểm ma sát khi Java và Kotlin gọi nhau, gồm Platform Types, @JvmOverloads, @JvmStatic và @file:JvmName.',
+      'Phân biệt được KAPT và KSP, và chọn đúng công cụ annotation processing cho dự án mới.',
+      'Nhận diện được chi phí ẩn của lambda, by lazy và Collection operators để dùng đúng chỗ.'
     ],
-    knowledgeGap: 'Không hiểu sâu bản chất biên dịch của Kotlin sẽ khiến lập trình viên lạm dụng inline functions gây phình file DEX, bị crash bối rối khi interop với Java code, và viết mã Kotlin bằng tư duy "Java chuyển cú pháp" làm lãng phí sức mạnh của ngôn ngữ.',
-    updatedAt: '2026-07-22',
+    knowledgeGap: 'Dùng Kotlin mà không hiểu nó được biên dịch thế nào khiến lập trình viên tin rằng Null Safety bảo vệ mọi chỗ (trong khi Platform Type từ Java vẫn gây NullPointerException), không biết vì sao build chậm khi còn dùng KAPT, và viết API Kotlin mà phía Java gọi rất khó khăn.',
+    updatedAt: '2026-11-03',
+    readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
-<p>Trước năm 2017, Java là ngôn ngữ thống trị trên Android nhưng tồn tại những hạn chế như thảm họa NullPointerException, mã nguồn dài dòng (verbosity) và thiếu các tính năng lập trình chức năng hiện đại.</p>
+
+<p>Trong gần 10 năm đầu, ứng dụng Android được viết bằng Java. Ba vấn đề lặp đi lặp lại trong các dự án Java Android:</p>
+
+<ul>
+  <li><strong><code>NullPointerException</code> (NPE)</strong>: mọi biến tham chiếu trong Java đều có thể <code>null</code>, và compiler không bắt buộc kiểm tra. NPE là một trong những nguyên nhân crash phổ biến nhất của ứng dụng Android.</li>
+  <li><strong>Boilerplate</strong>: một model đơn giản cần getter, setter, <code>equals()</code>, <code>hashCode()</code>, <code>toString()</code> viết tay; callback lồng nhau khi xử lý bất đồng bộ.</li>
+  <li><strong>Ngôn ngữ bị khoá theo runtime</strong>: tính năng Java mới chỉ dùng được khi D8 hỗ trợ desugar, nên dự án Android luôn chậm hơn Java SE vài phiên bản.</li>
+</ul>
+
+<p>Kotlin, ngôn ngữ của JetBrains, giải quyết các vấn đề này ở <strong>tầng compiler</strong>: kiểu dữ liệu phân biệt nullable và non-null, data class, coroutines. Năm 2017 Google công bố hỗ trợ chính thức Kotlin, năm 2019 tuyên bố Android phát triển theo hướng <strong>Kotlin-first</strong>.</p>
+
+<p>Nếu chỉ học cú pháp mà không hiểu Kotlin được biên dịch thế nào, bạn sẽ gặp:</p>
+
+<ul>
+  <li>NPE vẫn xảy ra khi gọi code Java, dù "Kotlin có Null Safety".</li>
+  <li>Build chậm vì vẫn dùng KAPT cho Room/Hilt.</li>
+  <li>API viết bằng Kotlin mà đồng nghiệp viết Java gọi rất khó (<code>Companion</code>, <code>UtilsKt</code>, phải truyền đủ tham số mặc định).</li>
+</ul>
 
 <h2>Sau khi học xong</h2>
+
 <ul>
-  <li>Giải thích được cơ chế Null Safety của Kotlin và cách tránh NullPointerException ở compile-time.</li>
-  <li>Triển khai được Extension Functions và High-Order Functions để tối ưu hóa mã nguồn.</li>
-  <li>Xử lý được tương tác hai chiều với Java (Java Interop) sử dụng các Annotation Kotlin chuẩn.</li>
-  <li>Biết khi nào dùng inline functions và reified type parameters trong Kotlin.</li>
+  <li>Giải thích được vì sao Kotlin chạy trên ART mà không cần máy ảo riêng, và vai trò của kotlinc trong chuỗi build.</li>
+  <li>Giải thích được Null Safety được thực thi ở compile-time và các kiểm tra null mà kotlinc chèn vào bytecode.</li>
+  <li>Xử lý được các điểm ma sát khi Java và Kotlin gọi nhau, gồm Platform Types, @JvmOverloads, @JvmStatic và @file:JvmName.</li>
+  <li>Phân biệt được KAPT và KSP, và chọn đúng công cụ annotation processing cho dự án mới.</li>
+  <li>Nhận diện được chi phí ẩn của lambda, by lazy và Collection operators để dùng đúng chỗ.</li>
 </ul>
 
 <h2>Kotlin là gì?</h2>
-<p><strong>Kotlin</strong> là ngôn ngữ tĩnh (statically typed), hiện đại chạy trên JVM được JetBrains phát triển và Google lựa chọn làm ngôn ngữ <strong>Kotlin-First</strong> chính thức cho Android.</p>
+
+<p><strong>Kotlin</strong> là ngôn ngữ kiểu tĩnh (statically typed) do JetBrains phát triển. Kotlin có nhiều target: JVM, Native, JS và Wasm. <strong>Trên Android, Kotlin dùng target JVM</strong>: mã nguồn <code>.kt</code> được biên dịch thành Java bytecode <code>.class</code>, giống hệt đầu ra của <code>javac</code>.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý:</strong> Không có "máy ảo Kotlin" trên Android. Khi app chạy, ART không biết và không cần biết một class ban đầu được viết bằng Java hay Kotlin.</div></div>
 
 <h2>Cách hoạt động</h2>
-<h3>1. Hệ thống Null Safety</h3>
-<p>Kotlin phân biệt giữa Non-Nullable Type (<code>String</code>) và Nullable Type (<code>String?</code>) ở cấp độ Compiler.</p>
 
-<h3>2. Cơ chế Extension Functions</h3>
-<p>Extension Functions được <code>kotlinc</code> biên dịch thành các hàm <code>public static final</code> trong Java Bytecode, nhận instance làm tham số đầu tiên.</p>
+<h3>1. Từ <code>.kt</code> đến <code>.dex</code></h3>
+
+<div class="dd-diagram" data-dd="s01-kotlin-build">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 336" role="img" aria-labelledby="s01-kotlin-build-dark-title s01-kotlin-build-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-kotlin-build-dark-title">Kotlin và Java gặp nhau ở .class</title>
+<desc id="s01-kotlin-build-dark-desc">kotlinc chạy trước biên dịch .kt, javac chạy sau biên dịch .java, cả hai ra Java bytecode .class; D8/R8 gộp các .class cùng kotlin-stdlib thành classes.dex, đóng gói APK hoặc AAB rồi chạy bằng ART trên thiết bị.</desc>
+<defs>
+<marker id="s01-kotlin-build-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="336" fill="#060913"/>
+<!-- arrows -->
+<path d="M 136,68 H 212 Q 220,68 220,76 V 88 Q 220,96 228,96 H 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-kotlin-build-dark-arrow)"/>
+<rect x="140" y="48" width="68" height="12" rx="2" fill="#060913"/>
+<text x="174" y="57" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">1 · KOTLINC</text>
+<path d="M 136,148 H 212 Q 220,148 220,140 V 128 Q 220,120 228,120 H 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-kotlin-build-dark-arrow)"/>
+<rect x="144" y="156" width="60" height="12" rx="2" fill="#060913"/>
+<text x="174" y="165" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">2 · JAVAC</text>
+<path d="M 368,108 H 448" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-kotlin-build-dark-arrow)"/>
+<path d="M 368,228 H 500 Q 508,228 508,220 V 136" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-kotlin-build-dark-arrow)"/>
+<path d="M 568,108 H 648" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-kotlin-build-dark-arrow)"/>
+<path d="M 708,136 V 224" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-kotlin-build-dark-arrow)"/>
+<rect x="588" y="172" width="112" height="12" rx="2" fill="#060913"/>
+<text x="644" y="181" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐÓNG GÓI APK / AAB</text>
+<!-- nodes: sources -->
+<rect x="32" y="40" width="104" height="56" rx="20" fill="#060913"/>
+<rect x="32" y="40" width="104" height="56" rx="20" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="84" y="64" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Kotlin</text>
+<text x="84" y="80" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.kt</text>
+<rect x="32" y="120" width="104" height="56" rx="20" fill="#060913"/>
+<rect x="32" y="120" width="104" height="56" rx="20" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="84" y="144" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Java</text>
+<text x="84" y="160" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.java</text>
+<!-- nodes: bytecode + library -->
+<rect x="248" y="80" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="248" y="80" width="120" height="56" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="308" y="104" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">.class</text>
+<text x="308" y="120" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Java bytecode</text>
+<rect x="248" y="200" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="248" y="200" width="120" height="56" rx="6" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="308" y="224" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">kotlin-stdlib</text>
+<text x="308" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.jar · thư viện</text>
+<!-- nodes: dex pipeline -->
+<rect x="448" y="80" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="448" y="80" width="120" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="508" y="104" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">D8 / R8</text>
+<text x="508" y="120" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">gộp mọi .class</text>
+<rect x="648" y="80" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="648" y="80" width="120" height="56" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="708" y="104" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">classes.dex</text>
+<text x="708" y="120" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Dalvik Executable</text>
+<rect x="648" y="224" width="120" height="56" rx="6" fill="#060913"/>
+<rect x="648" y="224" width="120" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="708" y="248" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ART</text>
+<text x="708" y="264" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trên thiết bị</text>
+<!-- legend -->
+<line x1="32" y1="312" x2="768" y2="312" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="328" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="120" y="320" width="12" height="8" rx="4" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<text x="140" y="328" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MÃ NGUỒN</text>
+<rect x="216" y="320" width="12" height="8" rx="2" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="236" y="328" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">KẾT QUẢ BIÊN DỊCH</text>
+<rect x="352" y="320" width="12" height="8" rx="2" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.40)" stroke-width="0.8" stroke-dasharray="2,2"/>
+<text x="372" y="328" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THƯ VIỆN</text>
+<rect x="448" y="320" width="12" height="8" rx="2" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="0.8"/>
+<text x="468" y="328" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · D8/R8</text>
+<text x="600" y="328" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">1, 2 · THỨ TỰ CHẠY</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 336" role="img" aria-labelledby="s01-kotlin-build-title s01-kotlin-build-desc" font-family="'Geist', sans-serif">
+<title id="s01-kotlin-build-title">Kotlin và Java gặp nhau ở .class</title>
+<desc id="s01-kotlin-build-desc">kotlinc chạy trước biên dịch .kt, javac chạy sau biên dịch .java, cả hai ra Java bytecode .class; D8/R8 gộp các .class cùng kotlin-stdlib thành classes.dex, đóng gói APK hoặc AAB rồi chạy bằng ART trên thiết bị.</desc>
+<defs>
+<marker id="s01-kotlin-build-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="336" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 136,68 H 212 Q 220,68 220,76 V 88 Q 220,96 228,96 H 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-kotlin-build-arrow)"/>
+<rect x="140" y="48" width="68" height="12" rx="2" fill="#F8FAFC"/>
+<text x="174" y="57" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">1 · KOTLINC</text>
+<path d="M 136,148 H 212 Q 220,148 220,140 V 128 Q 220,120 228,120 H 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-kotlin-build-arrow)"/>
+<rect x="144" y="156" width="60" height="12" rx="2" fill="#F8FAFC"/>
+<text x="174" y="165" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">2 · JAVAC</text>
+<path d="M 368,108 H 448" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-kotlin-build-arrow)"/>
+<path d="M 368,228 H 500 Q 508,228 508,220 V 136" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-kotlin-build-arrow)"/>
+<path d="M 568,108 H 648" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-kotlin-build-arrow)"/>
+<path d="M 708,136 V 224" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-kotlin-build-arrow)"/>
+<rect x="588" y="172" width="112" height="12" rx="2" fill="#F8FAFC"/>
+<text x="644" y="181" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐÓNG GÓI APK / AAB</text>
+<!-- nodes: sources -->
+<rect x="32" y="40" width="104" height="56" rx="20" fill="#F8FAFC"/>
+<rect x="32" y="40" width="104" height="56" rx="20" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="84" y="64" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Kotlin</text>
+<text x="84" y="80" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.kt</text>
+<rect x="32" y="120" width="104" height="56" rx="20" fill="#F8FAFC"/>
+<rect x="32" y="120" width="104" height="56" rx="20" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="84" y="144" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Java</text>
+<text x="84" y="160" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.java</text>
+<!-- nodes: bytecode + library -->
+<rect x="248" y="80" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="248" y="80" width="120" height="56" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<text x="308" y="104" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">.class</text>
+<text x="308" y="120" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Java bytecode</text>
+<rect x="248" y="200" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="248" y="200" width="120" height="56" rx="6" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="308" y="224" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">kotlin-stdlib</text>
+<text x="308" y="240" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">.jar · thư viện</text>
+<!-- nodes: dex pipeline -->
+<rect x="448" y="80" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="80" width="120" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="508" y="104" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">D8 / R8</text>
+<text x="508" y="120" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">gộp mọi .class</text>
+<rect x="648" y="80" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="648" y="80" width="120" height="56" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<text x="708" y="104" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">classes.dex</text>
+<text x="708" y="120" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Dalvik Executable</text>
+<rect x="648" y="224" width="120" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="648" y="224" width="120" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="708" y="248" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ART</text>
+<text x="708" y="264" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trên thiết bị</text>
+<!-- legend -->
+<line x1="32" y1="312" x2="768" y2="312" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="328" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="120" y="320" width="12" height="8" rx="4" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="140" y="328" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MÃ NGUỒN</text>
+<rect x="216" y="320" width="12" height="8" rx="2" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="0.8"/>
+<text x="236" y="328" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">KẾT QUẢ BIÊN DỊCH</text>
+<rect x="352" y="320" width="12" height="8" rx="2" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.40)" stroke-width="0.8" stroke-dasharray="2,2"/>
+<text x="372" y="328" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">THƯ VIỆN</text>
+<rect x="448" y="320" width="12" height="8" rx="2" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="0.8"/>
+<text x="468" y="328" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · D8/R8</text>
+<text x="600" y="328" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">1, 2 · THỨ TỰ CHẠY</text>
+</svg>
+</div>
+</div>
+
+<p>Trong một module có cả Java và Kotlin, Gradle chạy theo thứ tự:</p>
+
+<ol>
+  <li><strong><code>kotlinc</code> chạy trước.</strong> Nó đọc được cả file <code>.java</code> trong module để resolve symbol, nhưng chỉ sinh <code>.class</code> cho file <code>.kt</code>.</li>
+  <li><strong><code>javac</code> chạy sau</strong>, với các <code>.class</code> Kotlin vừa sinh nằm trên classpath. Nhờ vậy Java gọi được Kotlin và ngược lại trong cùng module.</li>
+  <li><strong>D8/R8</strong> gộp <code>.class</code> của cả hai ngôn ngữ cùng thư viện (gồm <code>kotlin-stdlib</code>) thành <code>classes.dex</code>. Từ bước này trở đi, quy trình giống hệt dự án Java thuần (xem <code>android.languages.java_android</code>).</li>
+</ol>
+
+<p>Hệ quả của thiết kế này:</p>
+
+<ul>
+  <li>Dùng được mọi thư viện Java trong dự án Kotlin, và ngược lại.</li>
+  <li>App viết bằng Kotlin chạy được trên Android đời cũ; giới hạn là <code>minSdk</code> của dự án, không phải Kotlin.</li>
+  <li>APK phải mang theo <code>kotlin-stdlib</code>. R8 loại bỏ phần không dùng nên phần tăng thêm thường nhỏ.</li>
+</ul>
+
+<p>Mỗi class Kotlin còn được gắn annotation <code>@kotlin.Metadata</code>. Annotation này lưu thông tin mà bytecode JVM không biểu diễn được (nullability, tham số mặc định, <code>data</code>, extension function...). Compiler Kotlin đọc nó khi bạn dùng một thư viện Kotlin đã biên dịch; <code>kotlin-reflect</code> cũng đọc nó.</p>
+
+<h3>2. Null Safety: compile-time trước, runtime sau</h3>
+
+<p><strong>Ở compile-time</strong>, <code>String</code> và <code>String?</code> là hai kiểu khác nhau. Compiler không cho gán <code>null</code> vào <code>String</code> và không cho gọi <code>.length</code> trên <code>String?</code> khi chưa kiểm tra.</p>
+
+<pre data-lang="kotlin"><code>var name: String = "Lan"
+// name = null            // Lỗi compile: Null can not be a value of a non-null type String
+
+var nickname: String? = null
+// nickname.length         // Lỗi compile: phải dùng ?. hoặc kiểm tra null
+val length = nickname?.length ?: 0</code></pre>
+
+<p><strong>Ở runtime</strong>, <code>kotlinc</code> chèn thêm kiểm tra vào bytecode ở các "cửa ngõ" mà code Java có thể đi vào:</p>
+
+<ul>
+  <li>Tham số non-null của hàm <code>public</code>: đầu hàm có lời gọi <code>Intrinsics.checkNotNullParameter(...)</code>. Nếu code Java truyền <code>null</code> vào, app ném <code>NullPointerException</code> ngay tại đó, kèm tên tham số, thay vì crash ở một chỗ xa hơn. (Trước Kotlin 1.4, ngoại lệ này là <code>IllegalArgumentException</code>.)</li>
+  <li>Toán tử <code>!!</code> biên dịch thành một phép kiểm tra và ném <code>NullPointerException</code> nếu giá trị là <code>null</code>.</li>
+</ul>
+
+<p>Ngoài ra, <code>kotlinc</code> gắn annotation <code>@NotNull</code> / <code>@Nullable</code> (<code>org.jetbrains.annotations</code>) lên chữ ký hàm, để IDE và code Java gọi vào biết hàm nhận và trả về gì.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý:</strong> Null Safety chỉ chắc chắn khi <strong>cả hai phía</strong> đều là Kotlin. Giá trị đi từ Java sang không có thông tin nullability, đó là Platform Type (xem mục 4).</div></div>
+
+<h3>3. Data class: compiler sinh ra gì?</h3>
+
+<pre data-lang="kotlin"><code>data class CartItem(val productId: Long, val name: String, var quantity: Int)</code></pre>
+
+<p>Từ khoá <code>data</code> yêu cầu compiler sinh thêm: <code>equals()</code>, <code>hashCode()</code>, <code>toString()</code>, <code>copy()</code> và <code>component1()</code>... <code>componentN()</code> (để destructuring <code>val (id, name) = item</code>).</p>
+
+<p>Getter và setter <strong>không</strong> đến từ <code>data</code>: chúng là accessor của property. <code>val</code> chỉ có getter; <code>var</code> có cả getter và setter.</p>
+
+<p>Vì vậy một data class có <strong>nhiều method hơn</strong> class Java tương đương viết tay (thêm <code>copy</code>, <code>componentN</code> và hàm phụ cho tham số mặc định). Bạn viết ít code hơn, nhưng số method trong DEX không giảm.</p>
+
+<h3>4. Java và Kotlin gọi nhau</h3>
+
+<h4>Kotlin gọi Java</h4>
+
+<ul>
+  <li>Getter/setter Java được dùng như property: <code>user.name = "Lan"</code> gọi <code>setName("Lan")</code>.</li>
+  <li>Interface Java có một method trừu tượng (SAM) nhận lambda Kotlin: <code>button.setOnClickListener { openCart() }</code>.</li>
+  <li><strong>Platform Type</strong>: kiểu trả về của Java không có annotation nullability được Kotlin hiểu là <code>String!</code>, nghĩa là "không biết có null hay không". Compiler cho phép dùng nó như <code>String</code> hoặc <code>String?</code>, <strong>không bắt kiểm tra null</strong>. Nếu giá trị thật là <code>null</code> và bạn dùng như <code>String</code>, app crash NPE tại runtime.</li>
+</ul>
+
+<p>Platform Type là chỗ duy nhất Null Safety của Kotlin "thủng" một cách hợp lệ. Có hai cách bịt:</p>
+
+<ol>
+  <li>Phía Kotlin: <strong>khai báo kiểu tường minh</strong> ngay khi nhận giá trị từ Java (<code>val name: String? = repo.getUserName(id)</code>).</li>
+  <li>Phía Java: thêm <code>@Nullable</code> / <code>@NonNull</code> (<code>androidx.annotation</code>) cho API. Cách này được trình bày trong <code>android.languages.java_android</code>.</li>
+</ol>
+
+<h4>Java gọi Kotlin</h4>
+
+<p>Một số cấu trúc Kotlin không có tương đương trực tiếp trong Java. Compiler sinh bytecode theo quy ước, và bạn dùng annotation <code>@Jvm...</code> để API thân thiện hơn với Java:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Cấu trúc Kotlin</th>
+      <th style="padding:8px 12px;text-align:left;">Java thấy mặc định</th>
+      <th style="padding:8px 12px;text-align:left;">Annotation để gọi tự nhiên hơn</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Hàm top-level trong <code>PriceFormatter.kt</code></td>
+      <td style="padding:8px 12px;">Static method của class <code>PriceFormatterKt</code></td>
+      <td style="padding:8px 12px;"><code>@file:JvmName("PriceFormatter")</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Tham số mặc định</td>
+      <td style="padding:8px 12px;">Một method duy nhất, phải truyền đủ tham số</td>
+      <td style="padding:8px 12px;"><code>@JvmOverloads</code> sinh thêm các overload</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Hàm trong <code>companion object</code></td>
+      <td style="padding:8px 12px;"><code>CartRepository.Companion.getInstance()</code></td>
+      <td style="padding:8px 12px;"><code>@JvmStatic</code> → <code>CartRepository.getInstance()</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Property</td>
+      <td style="padding:8px 12px;">Getter/setter (<code>getName()</code>)</td>
+      <td style="padding:8px 12px;"><code>@JvmField</code> → field public, không có getter</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Hàm ném exception</td>
+      <td style="padding:8px 12px;">Java không bị buộc <code>catch</code></td>
+      <td style="padding:8px 12px;"><code>@Throws(IOException::class)</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>5. Annotation Processing: KAPT và KSP</h3>
+
+<p>Room, Hilt, Moshi sinh code từ annotation trong lúc build.</p>
+
+<ul>
+  <li><strong>KAPT (Kotlin Annotation Processing Tool)</strong>: annotation processor viết cho Java (APT) không đọc được mã Kotlin. KAPT giải quyết bằng cách sinh <strong>Java stub</strong> từ mã Kotlin, rồi chạy processor Java trên stub đó. Bước sinh stub tốn thời gian và chạy lại mỗi khi code đổi.</li>
+  <li><strong>KSP (Kotlin Symbol Processing)</strong>: API do Google phát triển, cho processor đọc trực tiếp cấu trúc mã Kotlin mà không cần stub. Google công bố KSP có thể nhanh tới khoảng 2 lần so với KAPT.</li>
+</ul>
+
+<p>KAPT hiện ở chế độ bảo trì. <strong>Dự án mới nên dùng KSP</strong> cho mọi thư viện đã hỗ trợ (Room, Hilt, Moshi...).</p>
+
+<h3>6. Chi phí ẩn của tính năng Kotlin</h3>
+
+<p>Các tính năng sau giúp code gọn, nhưng sinh thêm object hoặc vòng lặp mà bạn không thấy trong source:</p>
+
+<ul>
+  <li><strong>Lambda truyền vào hàm thường (không <code>inline</code>)</strong>: lambda có capture biến sẽ thành một object mới mỗi lần gọi. Các hàm của stdlib như <code>forEach</code>, <code>map</code>, <code>filter</code> là <code>inline</code> nên không có chi phí này.</li>
+  <li><strong><code>by lazy</code></strong>: tạo một object <code>Lazy</code> và mặc định dùng <code>synchronized</code> (<code>LazyThreadSafetyMode.SYNCHRONIZED</code>). Nếu chắc chắn chỉ truy cập từ main thread, có thể dùng <code>lazy(LazyThreadSafetyMode.NONE) { ... }</code>.</li>
+  <li><strong>Collection operators</strong>: <code>list.filter { }.map { }</code> chạy <strong>eager</strong>, mỗi bước tạo một <code>List</code> trung gian. Với danh sách lớn và chuỗi nhiều bước, <code>asSequence()</code> xử lý lần lượt từng phần tử và tránh các list trung gian.</li>
+</ul>
+
+<p>Đây không phải lý do để tránh các tính năng trên. Chỉ cần để ý khi chúng nằm trong code chạy rất thường xuyên: <code>onDraw()</code>, adapter, vòng lặp lớn.</p>
 
 <h2>Ví dụ thực tế</h2>
-<pre data-lang="kotlin"><code>data class UserProfile(val id: String, val name: String, val email: String? = null)
 
-fun Context.showToast(message: String) {
-    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-}
+<h3>1. Platform Type trong dự án Java và Kotlin chung</h3>
 
-fun process(context: Context, user: UserProfile) {
-    user.email?.let { email ->
-        context.showToast("Email: $email")
-    } ?: run {
-        context.showToast("Không có email")
+<pre data-lang="java"><code>// UserRepository.java — code Java cũ, chưa có annotation
+public class UserRepository {
+    public String getUserName(int userId) {
+        if (userId &lt;= 0) return null;
+        return "Lan";
     }
 }</code></pre>
 
-<h2>Nâng cao</h2>
-<p>Dùng từ khóa <code>inline</code> và <code>reified</code> để tránh tạo ra đối tượng Function tạm thời và giữ thông tin kiểu dữ liệu Generic tại runtime:</p>
-<pre data-lang="kotlin"><code>inline fun &lt;reified T : Activity&gt; Context.launchActivity() {
-    startActivity(Intent(this, T::class.java))
+<pre data-lang="kotlin"><code>// ProfileViewModel.kt
+val repo = UserRepository()
+
+val name = repo.getUserName(-1)   // Kiểu suy ra: String! (Platform Type)
+println(name.length)              // Compile được, nhưng crash NullPointerException ở runtime
+
+val safeName: String? = repo.getUserName(-1)  // Khai báo tường minh
+println(safeName?.length ?: 0)                // Compiler buộc xử lý null</code></pre>
+
+<p>Quy tắc thực tế: <strong>ở ranh giới gọi sang Java, luôn khai báo kiểu tường minh</strong> và đi thêm annotation cho Java API khi có thể.</p>
+
+<h3>2. Viết API Kotlin để code Java gọi dễ dàng</h3>
+
+<pre data-lang="kotlin"><code>// PriceFormatter.kt
+@file:JvmName("PriceFormatter")
+
+package com.example.shop.util
+
+@JvmOverloads
+fun formatPrice(amount: Long, currency: String = "VND"): String =
+    "%,d %s".format(amount, currency)</code></pre>
+
+<pre data-lang="kotlin"><code>// CartRepository.kt
+package com.example.shop.cart
+
+class CartRepository private constructor() {
+    companion object {
+        private val instance = CartRepository()
+
+        @JvmStatic
+        fun getInstance(): CartRepository = instance
+    }
 }</code></pre>
 
+<pre data-lang="java"><code>// CheckoutActivity.java
+String total = PriceFormatter.formatPrice(150000);          // nhờ @JvmOverloads
+String totalUsd = PriceFormatter.formatPrice(12, "USD");
+CartRepository cart = CartRepository.getInstance();          // nhờ @JvmStatic</code></pre>
+
+<p>Nếu bỏ các annotation trên, phía Java phải viết <code>PriceFormatterKt.formatPrice(150000, "VND")</code> và <code>CartRepository.Companion.getInstance()</code>.</p>
+
+<h3>3. Chuyển Room từ KAPT sang KSP</h3>
+
+<pre data-lang="kotlin"><code>// build.gradle.kts (Module: app)
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")   // thay cho id("kotlin-kapt")
+}
+
+dependencies {
+    implementation("androidx.room:room-runtime:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")   // thay cho kapt(...)
+}</code></pre>
+
+<p>Phiên bản plugin KSP phải khớp với phiên bản Kotlin của dự án. Khai báo nó ở <code>build.gradle.kts</code> gốc hoặc trong version catalog.</p>
+
 <h2>Sai lầm thường gặp</h2>
+
+<ol>
+  <li><strong>Dùng <code>!!</code> để cho qua lỗi compile.</strong> <code>!!</code> không làm biến an toàn hơn; nó chỉ chuyển lỗi từ compile-time sang crash runtime. Dùng <code>?.</code>, <code>?:</code>, <code>let</code> hoặc sửa lại thiết kế để biến không nullable.</li>
+  <li><strong>Để Kotlin tự suy kiểu từ Java API.</strong> Platform Type <code>T!</code> lan khắp codebase, và NPE xuất hiện ở chỗ cách xa nơi gọi Java.</li>
+  <li><strong>Lạm dụng <code>lateinit</code>.</strong> Truy cập trước khi gán ném <code>UninitializedPropertyAccessException</code>. Chỉ dùng cho property chắc chắn được gán trước khi dùng (ví dụ view binding trong <code>onCreate</code>).</li>
+  <li><strong>Vẫn dùng KAPT cho dự án mới</strong>, làm build chậm hơn cần thiết.</li>
+  <li><strong>Nghĩ Kotlin cần Android mới hoặc có máy ảo riêng.</strong> Kotlin chạy trên ART như Java; giới hạn là <code>minSdk</code> và API Android bạn gọi.</li>
+  <li><strong>Viết API Kotlin mà quên người gọi Java</strong> trong dự án chung: thiếu <code>@JvmStatic</code>, <code>@JvmOverloads</code>, khiến code Java phải gọi qua <code>Companion</code> và truyền đủ mọi tham số.</li>
+</ol>
+
+<h2>Trade-offs</h2>
+
+<p><strong>Ưu điểm</strong></p>
+
 <ul>
-  <li>Lạm dụng Not-Null Assertion Operator (<code>!!</code>) gây crash bất ngờ.</li>
-  <li>Lồng quá nhiều Scope Functions (<code>let</code>, <code>apply</code>, <code>also</code>, <code>with</code>) làm rối mã nguồn.</li>
+  <li>Null Safety ở compile-time giảm mạnh NPE trong code Kotlin.</li>
+  <li>Ít boilerplate: data class, extension function, sealed class/interface để mô tả state UI.</li>
+  <li>Coroutines cho code bất đồng bộ viết theo kiểu tuần tự.</li>
+  <li>Google ưu tiên: Jetpack, tài liệu chính thức và <strong>Jetpack Compose chỉ hỗ trợ Kotlin</strong>.</li>
+</ul>
+
+<p><strong>Nhược điểm</strong></p>
+
+<ul>
+  <li><strong>Build time</strong>: <code>kotlinc</code> làm nhiều việc hơn <code>javac</code> (suy luận kiểu, inline, sinh code cho data class). Kotlin 2.0 (2024) đưa compiler K2 vào stable và cải thiện tốc độ biên dịch, nhưng dự án lớn vẫn cần cấu hình build cẩn thận.</li>
+  <li><strong>Kích thước APK</strong>: thêm <code>kotlin-stdlib</code>; R8 giảm phần lớn nhưng không về 0.</li>
+  <li><strong>Ma sát trong dự án Java và Kotlin chung</strong>: Platform Type, cần annotation <code>@Jvm...</code>, hai bộ quy ước code.</li>
 </ul>
 
 <h2>Lịch sử phát triển</h2>
-<p>Google I/O 2017 công bố hỗ trợ Kotlin → Google I/O 2019 chính thức chuyển sang Kotlin-First → Jetpack Compose 1.0 (2021) viết hoàn toàn bằng Kotlin.</p>
+
+<div class="dd-diagram" data-dd="s01-kotlin-history">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 476" role="img" aria-labelledby="s01-kotlin-history-dark-title s01-kotlin-history-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-kotlin-history-dark-title">Kotlin trên Android</title>
+<desc id="s01-kotlin-history-dark-desc">Dòng thời gian 2011–2024 của Kotlin trên Android: JetBrains công bố Kotlin, Kotlin 1.0, Google hỗ trợ chính thức năm 2017, Coroutines stable, Kotlin-first năm 2019, Compose 1.0 và KSP, Kotlin Multiplatform stable, Kotlin 2.0 với K2.</desc>
+<rect width="800" height="476" fill="#060913"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="420" stroke="rgba(148,163,184,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="68" x2="408" y2="68" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="96" x2="408" y2="96" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="124" x2="408" y2="124" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="152" x2="408" y2="152" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="292" x2="408" y2="292" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="348" x2="408" y2="348" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="44" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2011</text>
+<text x="468" y="44" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">JetBrains công bố Kotlin</text>
+<circle cx="400" cy="180" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="184" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2016</text>
+<text x="332" y="184" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Kotlin 1.0 phát hành</text>
+<circle cx="400" cy="208" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="212" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2017</text>
+<text x="468" y="212" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Google I/O công bố hỗ trợ chính thức</text>
+<text x="468" y="228" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Kotlin cho Android</text>
+<circle cx="400" cy="236" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="240" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2018</text>
+<text x="332" y="240" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Kotlin 1.3 - Coroutines stable</text>
+<circle cx="400" cy="264" r="8" fill="#060913"/>
+<circle cx="400" cy="264" r="6" fill="#38BDF8"/>
+<text x="420" y="268" fill="#38BDF8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2019</text>
+<text x="468" y="268" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Google I/O tuyên bố Android Kotlin-first</text>
+<circle cx="400" cy="320" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="324" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2021</text>
+<text x="332" y="324" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Jetpack Compose 1.0 (chỉ Kotlin)</text>
+<text x="332" y="340" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">KSP 1.0</text>
+<circle cx="400" cy="376" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="380" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2023</text>
+<text x="468" y="380" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Kotlin Multiplatform stable</text>
+<circle cx="400" cy="404" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="408" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2024</text>
+<text x="332" y="408" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Kotlin 2.0 - compiler K2 stable</text>
+<!-- legend -->
+<line x1="32" y1="444" x2="768" y2="444" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="460" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="456" r="4" fill="#38BDF8"/>
+<text x="140" y="460" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · KOTLIN-FIRST</text>
+<circle cx="328" cy="456" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="340" y="460" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="456" x2="456" y2="456" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="464" y="460" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 476" role="img" aria-labelledby="s01-kotlin-history-title s01-kotlin-history-desc" font-family="'Geist', sans-serif">
+<title id="s01-kotlin-history-title">Kotlin trên Android</title>
+<desc id="s01-kotlin-history-desc">Dòng thời gian 2011–2024 của Kotlin trên Android: JetBrains công bố Kotlin, Kotlin 1.0, Google hỗ trợ chính thức năm 2017, Coroutines stable, Kotlin-first năm 2019, Compose 1.0 và KSP, Kotlin Multiplatform stable, Kotlin 2.0 với K2.</desc>
+<rect width="800" height="476" fill="#F8FAFC"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="420" stroke="rgba(100,116,139,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="68" x2="408" y2="68" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="96" x2="408" y2="96" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="124" x2="408" y2="124" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="152" x2="408" y2="152" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="292" x2="408" y2="292" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="348" x2="408" y2="348" stroke="#64748B" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="44" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2011</text>
+<text x="468" y="44" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">JetBrains công bố Kotlin</text>
+<circle cx="400" cy="180" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="184" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2016</text>
+<text x="332" y="184" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Kotlin 1.0 phát hành</text>
+<circle cx="400" cy="208" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="212" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2017</text>
+<text x="468" y="212" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Google I/O công bố hỗ trợ chính thức</text>
+<text x="468" y="228" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Kotlin cho Android</text>
+<circle cx="400" cy="236" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="240" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2018</text>
+<text x="332" y="240" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Kotlin 1.3 - Coroutines stable</text>
+<circle cx="400" cy="264" r="8" fill="#F8FAFC"/>
+<circle cx="400" cy="264" r="6" fill="#0284C7"/>
+<text x="420" y="268" fill="#0284C7" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2019</text>
+<text x="468" y="268" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Google I/O tuyên bố Android Kotlin-first</text>
+<circle cx="400" cy="320" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="324" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2021</text>
+<text x="332" y="324" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Jetpack Compose 1.0 (chỉ Kotlin)</text>
+<text x="332" y="340" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">KSP 1.0</text>
+<circle cx="400" cy="376" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="380" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2023</text>
+<text x="468" y="380" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Kotlin Multiplatform stable</text>
+<circle cx="400" cy="404" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="408" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2024</text>
+<text x="332" y="408" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Kotlin 2.0 - compiler K2 stable</text>
+<!-- legend -->
+<line x1="32" y1="444" x2="768" y2="444" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="460" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="456" r="4" fill="#0284C7"/>
+<text x="140" y="460" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · KOTLIN-FIRST</text>
+<circle cx="328" cy="456" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="340" y="460" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="456" x2="456" y2="456" stroke="#64748B" stroke-width="0.8"/>
+<text x="464" y="460" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+</svg>
+</div>
+</div>
 
 <h2>Kết nối hệ thống</h2>
+
 <ul>
-  <li><strong>Prerequisites</strong>: <code>android.languages.java_android</code></li>
-  <li><strong>Related Topics</strong>: <code>android.languages.jni</code>, <code>android.output_packages.apk_files</code></li>
+  <li><strong>Prerequisites</strong>: <code>android.languages.java_android</code> (chuỗi build <code>.class</code> → <code>.dex</code>, ART).</li>
+  <li><strong>Related Topics</strong>:
+<ul>
+  <li><code>android.languages.jni</code>: hàm <code>external fun</code> trong Kotlin là điểm vào code C/C++.</li>
+  <li><code>android.output_packages.apk_files</code>: nơi <code>classes.dex</code> (gồm cả code Kotlin và <code>kotlin-stdlib</code>) được đóng gói.</li>
+</ul></li>
+  <li><strong>Downstream Topics</strong> (chưa có bài): Coroutines (8.4.3), Jetpack Compose, Room với KSP.</li>
 </ul>
+
+<h2>Developer Curiosity Checklist</h2>
+
+<ol>
+  <li><strong>Why was this created?</strong> JetBrains cần một ngôn ngữ hiện đại hơn Java nhưng tương thích hoàn toàn với hệ sinh thái JVM.</li>
+  <li><strong>What problem does it solve?</strong> NPE, boilerplate và code bất đồng bộ khó đọc trong Java Android.</li>
+  <li><strong>What happens if it doesn't exist?</strong> Android vẫn chạy được, nhưng mất Null Safety ở compile-time, coroutines và Jetpack Compose.</li>
+  <li><strong>How does Android implement it internally?</strong> Không có gì riêng: <code>kotlinc</code> sinh <code>.class</code>, D8/R8 chuyển sang <code>.dex</code>, ART chạy như Java.</li>
+  <li><strong>What misconceptions do developers have?</strong> Kotlin có máy ảo riêng; Null Safety bảo vệ cả giá trị đến từ Java.</li>
+  <li><strong>What trade-offs does it introduce?</strong> Build lâu hơn, thêm <code>kotlin-stdlib</code>, ma sát interop.</li>
+  <li><strong>What are the edge cases?</strong> Platform Type, <code>lateinit</code> chưa khởi tạo, <code>@JvmOverloads</code> chỉ sinh overload bỏ tham số từ cuối danh sách.</li>
+  <li><strong>What are the real-world problems developers encounter?</strong> NPE ở ranh giới Java, build chậm do KAPT.</li>
+  <li><strong>How is it connected to the Android system?</strong> Chạy trên cùng ART, dùng cùng Android SDK như Java.</li>
+  <li><strong>What should developers learn next?</strong> Coroutines, sau đó là Jetpack Compose.</li>
+</ol>
     `
   },
 
   'android.languages.jni': {
     title: 'JNI & C/C++ Native Code trong Android',
-    summary: 'Giao tiếp hiệu năng cao giữa Java/Kotlin và mã nguồn C/C++ native qua Java Native Interface (JNI), NDK, CMake, RegisterNatives, và cơ chế quản lý bộ nhớ Native vs Managed Heap.',
+    summary: 'Cách Java/Kotlin gọi mã C/C++ qua Java Native Interface (JNI), NDK và CMake; chi phí của mỗi lần gọi JNI; đăng ký hàm native tĩnh và động; quản lý Local/Global Reference và bộ nhớ Native Heap; yêu cầu page size 16KB.',
     status: 'published',
     difficulty: 'advanced',
-    estimatedReadingTime: '25 phút',
+    estimatedReadingTime: '30 phút',
     depth: 'deep-dive',
     tags: ['android', 'jni', 'cpp', 'ndk', 'cmake', 'native', 'memory'],
     domain: 'Android',
@@ -2024,63 +3336,428 @@ fun process(context: Context, user: UserProfile) {
     prerequisites: ['android.languages.java_android', 'android.languages.kotlin'],
     related: ['android.output_packages.apk_files', 'android.output_packages.aab_files'],
     learningOutcomes: [
-      'Giải thích được kiến trúc Java Native Interface (JNI) và chi phí chuyển đổi ngữ cảnh (Context Switching Overhead) giữa Managed Heap và Native Heap.',
-      'Phân biệt được cơ chế đăng ký hàm Native tĩnh (Name Mangling) và đăng ký hàm động (RegisterNatives).',
-      'Xử lý được rò rỉ bộ nhớ JNI Reference Leaks (Local Reference Table limit 512 entries vs Global Reference).',
-      'Triển khai được liên kết mã nguồn C/C++ với Android NDK và CMake trong môi trường Android Studio.'
+      'Giải thích được kiến trúc JNI và chi phí chuyển trạng thái mỗi lần code Java/Kotlin gọi sang C/C++.',
+      'Phân biệt được đăng ký hàm native tĩnh (theo quy tắc đặt tên) và đăng ký động (RegisterNatives).',
+      'Xử lý được rò rỉ JNI Reference bằng cách giải phóng Local Reference trong vòng lặp và quản lý Global Reference.',
+      'Triển khai được thư viện C/C++ trong dự án Android với NDK, CMake và external fun.'
     ],
-    knowledgeGap: 'Không hiểu sâu JNI sẽ khiến lập trình viên lạm dụng Native code gây chậm ứng dụng do JNI Call Overhead, gặp rủi ro crash ứng dụng ngắt ngập (SIGSEGV) không thể catch bằng try-catch Kotlin/Java, và bị lọt rò rỉ bộ nhớ nghiêm trọng trong Local Reference Table.',
-    updatedAt: '2026-07-22',
+    knowledgeGap: 'Không hiểu JNI khiến lập trình viên viết code native chậm hơn cả Kotlin do gọi JNI quá nhiều lần, gặp crash SIGSEGV mà try-catch Java/Kotlin không bắt được, rò rỉ bộ nhớ Native Heap mà GC không thấy, và bị Google Play chặn cập nhật vì thư viện .so chưa hỗ trợ page size 16KB.',
+    updatedAt: '2026-11-03',
+    readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
-<p>Nhiều bài toán xử lý tính toán cực nặng (xử lý hình ảnh, video, mã hóa bảo mật, AI/ML inference) yêu cầu hiệu năng native của C/C++ mà Garbage Collector của Java/Kotlin không đáp ứng tốt.</p>
 
-<h2>Sau khi học xong</h2>
+<p>Kotlin và Java đáp ứng phần lớn nhu cầu của ứng dụng Android. Nhưng có những bài toán mà mã C/C++ là lựa chọn tốt hơn hoặc là lựa chọn duy nhất:</p>
+
+<ol>
+  <li><strong>Tính toán nặng, cần kiểm soát bộ nhớ và CPU</strong>: xử lý ảnh/video thời gian thực (OpenCV, FFmpeg), game engine (Unreal, Unity, engine C++ tự viết), AI/ML inference (TensorFlow Lite, ONNX Runtime). Code C/C++ không bị GC tạm dừng, cấp phát bộ nhớ theo ý muốn và dùng được lệnh SIMD (ARM NEON) trực tiếp.</li>
+  <li><strong>Tái sử dụng thư viện C/C++ sẵn có</strong>: OpenSSL, SQLite, WebRTC, FFmpeg đã được tối ưu qua hàng chục năm. Viết lại bằng Kotlin vừa tốn công vừa khó đạt cùng hiệu năng.</li>
+  <li><strong>Gây khó cho việc dịch ngược</strong>: bytecode trong <code>.dex</code> có thể dịch ngược thành mã gần giống source bằng <code>jadx</code>. Mã C/C++ biên dịch thành mã máy (<code>.so</code>) khó đọc hơn nhiều. Tuy vậy, công cụ như Ghidra hay IDA vẫn disassemble và phân tích được, nên đây chỉ là <strong>tăng chi phí</strong> cho người dịch ngược, không phải bảo vệ tuyệt đối.</li>
+</ol>
+
+<p>Nếu không nắm vững JNI:</p>
+
 <ul>
-  <li>Giải thích được kiến trúc Java Native Interface (JNI) và luồng gọi phương thức giữa Java/Kotlin và C/C++.</li>
-  <li>Triển khai được liên kết C/C++ native vào dự án Android sử dụng NDK và CMake.</li>
-  <li>Xử lý được rò rỉ bộ nhớ native và JNI Reference Leaks.</li>
-  <li>Phân biệt được khi nào nên sử dụng C/C++ Native Code.</li>
+  <li><strong>Crash SIGSEGV (signal 11)</strong>: truy cập bộ nhớ sai trong C/C++ giết cả process ngay lập tức. <code>try-catch</code> của Java/Kotlin không bắt được.</li>
+  <li><strong>Native code chạy chậm hơn Kotlin</strong>: gọi JNI hàng nghìn lần cho những việc nhỏ, chi phí chuyển trạng thái lấn át phần tính toán.</li>
+  <li><strong>Rò rỉ bộ nhớ mà GC không thấy</strong>: bộ nhớ cấp phát bằng <code>malloc</code>/<code>new</code> và Global Reference quên giải phóng.</li>
 </ul>
 
-<h2>JNI & Native Code là gì?</h2>
-<p><strong>JNI (Java Native Interface)</strong> là cầu nối chuẩn cho phép Java/Kotlin giao tiếp với thư viện C/C++ native được biên dịch bởi Android NDK.</p>
+<h2>Sau khi học xong</h2>
 
-<h2>Cách hoạt động</h2>
-<p>Con trỏ <code>JNIEnv* env</code> đại diện cho môi trường JNI của thread. Tên hàm C++ tuân theo quy tắc Name Mangling: <code>Java_Package_Class_Method</code>.</p>
-
-<h2>Ví dụ thực tế</h2>
-<pre data-lang="cpp"><code>#include &lt;jni.h&gt;
-#include &lt;string&gt;
-
-extern "C" JNIEXPORT jstring JNICALL
-Java_com_example_knowledgeos_MainActivity_stringFromJNI(JNIEnv* env, jobject thiz) {
-    return env-&gt;NewStringUTF("Hello từ C++ Native Code!");
-}</code></pre>
-
-<h2>Nâng cao</h2>
-<p>Cần xóa Local Reference thủ công trong vòng lặp lớn bằng <code>env-&gt;DeleteLocalRef(str)</code> để tránh tràn JNI Local Reference Table (tối đa 512 refs).</p>
-
-<h2>Sai lầm thường gặp</h2>
 <ul>
-  <li>Dùng con trỏ <code>JNIEnv*</code> trên thread khác chưa được <code>AttachCurrentThread()</code>.</li>
-  <li>Quên cấu hình ABI Filters cho các dòng chip CPU khác nhau.</li>
+  <li>Giải thích được kiến trúc JNI và chi phí chuyển trạng thái mỗi lần code Java/Kotlin gọi sang C/C++.</li>
+  <li>Phân biệt được đăng ký hàm native tĩnh (theo quy tắc đặt tên) và đăng ký động (RegisterNatives).</li>
+  <li>Xử lý được rò rỉ JNI Reference bằng cách giải phóng Local Reference trong vòng lặp và quản lý Global Reference.</li>
+  <li>Triển khai được thư viện C/C++ trong dự án Android với NDK, CMake và external fun.</li>
+</ul>
+
+<h2>JNI và NDK là gì?</h2>
+
+<ul>
+  <li><strong>JNI (Java Native Interface)</strong>: chuẩn giao tiếp giữa code chạy trên máy ảo Java và code native C/C++. JNI có từ JDK 1.1; ART cài đặt chuẩn này.</li>
+  <li><strong>NDK (Native Development Kit)</strong>: bộ công cụ của Android để biên dịch C/C++ thành thư viện <code>.so</code> cho từng ABI (<code>arm64-v8a</code>, <code>armeabi-v7a</code>, <code>x86_64</code>, <code>x86</code>): trình biên dịch Clang, header của Android, và các thư viện hệ thống được phép dùng.</li>
+  <li><strong>CMake</strong>: hệ thống build mà Android Studio dùng để gọi NDK biên dịch phần C/C++.</li>
 </ul>
 
 <h2>Lịch sử phát triển</h2>
-<p>Từ <code>ndk-build</code> (Android.mk) cũ sang <code>CMake</code> và <code>LLVM Clang</code> hiện đại được tích hợp trực tiếp vào Android Studio.</p>
+
+<div class="dd-diagram" data-dd="s01-jni-history">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 544" role="img" aria-labelledby="s01-jni-history-dark-title s01-jni-history-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-jni-history-dark-title">NDK và Native Development trên Android</title>
+<desc id="s01-jni-history-dark-desc">Dòng thời gian 1997–2024 của native development: JDK 1.1 ra mắt JNI, NDK r1 năm 2009, CMake thay dần ndk-build, NDK r17 bỏ MIPS và armeabi, RenderScript bị deprecated, Android 15 hỗ trợ page size 16KB.</desc>
+<rect width="800" height="544" fill="#060913"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="52" stroke="rgba(148,163,184,0.40)" stroke-width="1.2"/>
+<line x1="400" y1="52" x2="400" y2="100" stroke="rgba(148,163,184,0.40)" stroke-width="1.2" stroke-dasharray="2,4"/>
+<line x1="400" y1="100" x2="400" y2="488" stroke="rgba(148,163,184,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="136" x2="408" y2="136" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="160" x2="408" y2="160" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="184" x2="408" y2="184" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="208" x2="408" y2="208" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="232" x2="408" y2="232" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="256" x2="408" y2="256" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="304" x2="408" y2="304" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="352" x2="408" y2="352" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="376" x2="408" y2="376" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="424" x2="408" y2="424" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="448" x2="408" y2="448" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="44" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">1997</text>
+<text x="468" y="44" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">JDK 1.1 ra mắt JNI</text>
+<circle cx="400" cy="112" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="116" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2009</text>
+<text x="332" y="116" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Android NDK r1</text>
+<circle cx="400" cy="280" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="284" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2016</text>
+<text x="468" y="284" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Android Studio 2.2 hỗ trợ CMake</text>
+<text x="468" y="300" fill="#94A3B8" font-size="12" text-anchor="start">Thay dần ndk-build (Android.mk)</text>
+<circle cx="400" cy="328" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="332" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2018</text>
+<text x="332" y="332" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">NDK r17 bỏ MIPS và armeabi (ARMv5)</text>
+<circle cx="400" cy="400" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="404" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2021</text>
+<text x="468" y="404" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">RenderScript bị deprecated</text>
+<text x="468" y="420" fill="#94A3B8" font-size="12" text-anchor="start">Khuyến nghị Vulkan hoặc thư viện thay thế</text>
+<circle cx="400" cy="472" r="8" fill="#060913"/>
+<circle cx="400" cy="472" r="6" fill="#38BDF8"/>
+<text x="380" y="476" fill="#38BDF8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2024</text>
+<text x="332" y="476" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Android 15 hỗ trợ page size 16KB</text>
+<!-- legend -->
+<line x1="32" y1="512" x2="768" y2="512" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="528" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="524" r="4" fill="#38BDF8"/>
+<text x="140" y="528" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · PAGE SIZE 16KB</text>
+<circle cx="328" cy="524" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="340" y="528" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="524" x2="456" y2="524" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="464" y="528" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+<line x1="560" y1="524" x2="592" y2="524" stroke="rgba(148,163,184,0.40)" stroke-width="1.2" stroke-dasharray="2,4"/>
+<text x="600" y="528" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỤC RÚT GỌN 1997–2009</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 544" role="img" aria-labelledby="s01-jni-history-title s01-jni-history-desc" font-family="'Geist', sans-serif">
+<title id="s01-jni-history-title">NDK và Native Development trên Android</title>
+<desc id="s01-jni-history-desc">Dòng thời gian 1997–2024 của native development: JDK 1.1 ra mắt JNI, NDK r1 năm 2009, CMake thay dần ndk-build, NDK r17 bỏ MIPS và armeabi, RenderScript bị deprecated, Android 15 hỗ trợ page size 16KB.</desc>
+<rect width="800" height="544" fill="#F8FAFC"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="52" stroke="rgba(100,116,139,0.40)" stroke-width="1.2"/>
+<line x1="400" y1="52" x2="400" y2="100" stroke="rgba(100,116,139,0.40)" stroke-width="1.2" stroke-dasharray="2,4"/>
+<line x1="400" y1="100" x2="400" y2="488" stroke="rgba(100,116,139,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="136" x2="408" y2="136" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="160" x2="408" y2="160" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="184" x2="408" y2="184" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="208" x2="408" y2="208" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="232" x2="408" y2="232" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="256" x2="408" y2="256" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="304" x2="408" y2="304" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="352" x2="408" y2="352" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="376" x2="408" y2="376" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="424" x2="408" y2="424" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="448" x2="408" y2="448" stroke="#64748B" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="44" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">1997</text>
+<text x="468" y="44" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">JDK 1.1 ra mắt JNI</text>
+<circle cx="400" cy="112" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="116" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2009</text>
+<text x="332" y="116" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android NDK r1</text>
+<circle cx="400" cy="280" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="284" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2016</text>
+<text x="468" y="284" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Android Studio 2.2 hỗ trợ CMake</text>
+<text x="468" y="300" fill="#64748B" font-size="12" text-anchor="start">Thay dần ndk-build (Android.mk)</text>
+<circle cx="400" cy="328" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="332" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2018</text>
+<text x="332" y="332" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">NDK r17 bỏ MIPS và armeabi (ARMv5)</text>
+<circle cx="400" cy="400" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="404" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2021</text>
+<text x="468" y="404" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">RenderScript bị deprecated</text>
+<text x="468" y="420" fill="#64748B" font-size="12" text-anchor="start">Khuyến nghị Vulkan hoặc thư viện thay thế</text>
+<circle cx="400" cy="472" r="8" fill="#F8FAFC"/>
+<circle cx="400" cy="472" r="6" fill="#0284C7"/>
+<text x="380" y="476" fill="#0284C7" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2024</text>
+<text x="332" y="476" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 15 hỗ trợ page size 16KB</text>
+<!-- legend -->
+<line x1="32" y1="512" x2="768" y2="512" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="524" r="4" fill="#0284C7"/>
+<text x="140" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · PAGE SIZE 16KB</text>
+<circle cx="328" cy="524" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="340" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="524" x2="456" y2="524" stroke="#64748B" stroke-width="0.8"/>
+<text x="464" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+<line x1="560" y1="524" x2="592" y2="524" stroke="rgba(100,116,139,0.40)" stroke-width="1.2" stroke-dasharray="2,4"/>
+<text x="600" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỤC RÚT GỌN 1997–2009</text>
+</svg>
+</div>
+</div>
+
+<h2>Cách hoạt động</h2>
+
+<h3>1. Hai vùng bộ nhớ: Managed Heap và Native Heap</h3>
+
+<p>Một app có code native dùng hai vùng bộ nhớ độc lập:</p>
+
+<div class="archify-embed" data-src="archify/android/jni-memory.html" data-title="JNI: Managed Heap và Native Heap">
+  <a class="archify-full" href="archify/android/jni-memory.html" target="_blank" rel="noopener">Mở toàn màn hình ↗</a>
+</div>
+
+<ul>
+  <li><strong>Managed Heap</strong>: do ART quản lý. GC có thể <strong>di chuyển</strong> object để chống phân mảnh. Vì vậy C/C++ không giữ con trỏ trực tiếp tới object Java, mà giữ <strong>reference</strong> (<code>jobject</code>) do JNI quản lý.</li>
+  <li><strong>Native Heap</strong>: C/C++ tự quản lý bằng <code>malloc</code>/<code>free</code>, <code>new</code>/<code>delete</code>. GC không thấy và không thu hồi vùng nhớ này.</li>
+</ul>
+
+<h3>2. Chi phí mỗi lần gọi JNI</h3>
+
+<p>Một lời gọi JNI <strong>không phải system call</strong>: không chuyển sang kernel mode. Nhưng nó đắt hơn nhiều so với một lời gọi hàm Kotlin thông thường (vốn có thể được inline). Khi Kotlin gọi <code>external fun</code>:</p>
+
+<ol>
+  <li>ART lưu trạng thái và chuyển thread từ trạng thái <strong>Runnable</strong> sang <strong>Native</strong>. Ở trạng thái Native, GC có thể chạy mà không cần chờ thread này.</li>
+  <li>Các object truyền vào được chuyển thành <strong>Local Reference</strong> trong bảng tham chiếu của thread; C/C++ nhận <code>jobject</code>, <code>jstring</code>, <code>jintArray</code>... là các "tay cầm" gián tiếp.</li>
+  <li>Nhảy vào hàm C/C++.</li>
+  <li>Khi hàm trả về, thread chuyển lại Runnable. Nếu GC đang yêu cầu dừng các thread, thread phải chờ. ART cũng kiểm tra xem C/C++ có để lại exception Java nào không.</li>
+</ol>
+
+<div class="archify-embed" data-src="archify/android/jni-call.html" data-title="Một lần gọi JNI: từ Kotlin sang C++ và quay về">
+  <a class="archify-full" href="archify/android/jni-call.html" target="_blank" rel="noopener">Mở toàn màn hình ↗</a>
+</div>
+
+<p>Mỗi lần gọi tốn cỡ hàng chục tới hàng trăm nanosecond tuỳ thiết bị, và truy cập dữ liệu Java từ C/C++ (đọc field, copy mảng) tốn thêm. Tốn kém nhất là gọi JNI <strong>rất nhiều lần cho mỗi phần việc nhỏ</strong>, ví dụ mỗi pixel một lần.</p>
+
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Quy tắc thực tế:</strong> Gom việc lại để <strong>một lần gọi JNI xử lý cả khối dữ liệu</strong> (cả bức ảnh, cả buffer), thay vì gọi trong vòng lặp. Framework Android còn dùng nội bộ các annotation như <code>@FastNative</code> / <code>@CriticalNative</code> để giảm chi phí chuyển trạng thái, nhưng với app, giảm số lần gọi là cách hiệu quả nhất.</div></div>
+
+<h3>3. Đăng ký hàm Native: tĩnh và động</h3>
+
+<h4>Cách 1: Đăng ký tĩnh (theo quy tắc đặt tên)</h4>
+
+<p>ART tìm hàm C++ theo tên ghép từ package, class và method: <code>Java_&lt;package&gt;_&lt;Class&gt;_&lt;method&gt;</code>. Dấu <code>.</code> trong package thành <code>_</code>; dấu <code>_</code> có sẵn trong tên được mã hoá thành <code>_1</code>.</p>
+
+<pre data-lang="cpp"><code>// C++ (đăng ký tĩnh)
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_example_shop_MainActivity_stringFromJNI(JNIEnv* env, jobject thiz) {
+    return env-&gt;NewStringUTF("Hello from C++");
+}</code></pre>
+
+<p><em>Nhược điểm</em>: tên hàm dài và phải khớp chính xác (đổi tên package là phải đổi theo), lộ tên class/method trong bảng symbol của <code>.so</code>, và ART phải tra symbol (<code>dlsym</code>) ở lần gọi đầu tiên.</p>
+
+<h4>Cách 2: Đăng ký động với <code>RegisterNatives</code></h4>
+
+<p>Đăng ký con trỏ hàm C++ với ART ngay khi thư viện <code>.so</code> được nạp, trong <code>JNI_OnLoad</code>:</p>
+
+<pre data-lang="cpp"><code>// C++ (đăng ký động)
+static jstring native_getMessage(JNIEnv* env, jobject thiz) {
+    return env-&gt;NewStringUTF("Dynamic Registered Native String");
+}
+
+static const JNINativeMethod gMethods[] = {
+    {"getMessageFromNative", "()Ljava/lang/String;", (void*) native_getMessage}
+};
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
+    JNIEnv* env;
+    if (vm-&gt;GetEnv((void**) &amp;env, JNI_VERSION_1_6) != JNI_OK) return JNI_ERR;
+
+    jclass clazz = env-&gt;FindClass("com/example/shop/MainActivity");
+    if (clazz == nullptr) return JNI_ERR;
+
+    if (env-&gt;RegisterNatives(clazz, gMethods, 1) != JNI_OK) return JNI_ERR;
+    return JNI_VERSION_1_6;
+}</code></pre>
+
+<p><em>Ưu điểm</em>: không cần tra symbol ở lần gọi đầu (tốc độ các lần gọi sau thì như nhau); tên hàm C++ tuỳ ý và có thể để <code>static</code> nên không lộ ra bảng symbol; sai chữ ký method bị phát hiện ngay khi nạp thư viện thay vì lúc gọi.</p>
+
+<h3>4. Local Reference và Global Reference</h3>
+
+<ul>
+  <li><strong>Local Reference</strong>: mọi <code>jobject</code> mà C/C++ nhận được hoặc tạo ra (<code>NewStringUTF</code>, <code>GetObjectArrayElement</code>...) mặc định là local. Chúng <strong>tự giải phóng khi hàm native trả về</strong>, và chỉ dùng được trên thread hiện tại.</li>
+  <li><strong>Global Reference</strong>: tạo bằng <code>NewGlobalRef</code> khi cần giữ object qua nhiều lần gọi hoặc dùng ở thread khác. Global Reference <strong>chỉ được giải phóng khi gọi <code>DeleteGlobalRef</code></strong>. Quên giải phóng là rò rỉ thật sự: object Java đó không bao giờ được GC thu hồi.</li>
+</ul>
+
+<p>Giới hạn số Local Reference:</p>
+
+<ul>
+  <li><strong>Trước Android 8.0</strong>: số Local Reference mỗi thread bị giới hạn (512 trên nhiều phiên bản). Vượt quá thì app crash với lỗi <code>local reference table overflow</code>.</li>
+  <li><strong>Từ Android 8.0 (API 26)</strong>: không còn giới hạn cứng. Nhưng mọi object còn được tham chiếu vẫn bị giữ trong bộ nhớ cho tới khi hàm native trả về.</li>
+</ul>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>1. Thêm thư viện C++ vào dự án với NDK và CMake</h3>
+
+<p>Bài toán: làm nét ảnh sản phẩm bằng C++. Toàn bộ mảng pixel được xử lý trong <strong>một</strong> lần gọi JNI.</p>
+
+<pre data-lang="kotlin"><code>// ImageFilter.kt
+package com.example.shop.image
+
+class ImageFilter {
+    external fun sharpen(pixels: IntArray, width: Int, height: Int)
+
+    companion object {
+        init {
+            System.loadLibrary("imagefilter") // nạp libimagefilter.so
+        }
+    }
+}</code></pre>
+
+<pre data-lang="cpp"><code>// src/main/cpp/image_filter.cpp
+#include &lt;jni.h&gt;
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_shop_image_ImageFilter_sharpen(JNIEnv* env, jobject thiz,
+                                                jintArray pixels, jint width, jint height) {
+    jint* data = env-&gt;GetIntArrayElements(pixels, nullptr);
+    if (data == nullptr) return; // hết bộ nhớ, JNI đã đặt sẵn exception
+
+    // Xử lý width * height pixel trực tiếp trên data
+
+    env-&gt;ReleaseIntArrayElements(pixels, data, 0); // 0: ghi kết quả về mảng Java và giải phóng
+}</code></pre>
+
+<p>File <code>src/main/cpp/CMakeLists.txt</code>:</p>
+
+<pre data-lang="cmake"><code>cmake_minimum_required(VERSION 3.22.1)
+project("imagefilter")
+
+add_library(imagefilter SHARED image_filter.cpp)
+target_link_libraries(imagefilter log)</code></pre>
+
+<pre data-lang="kotlin"><code>// build.gradle.kts (Module: app)
+android {
+    defaultConfig {
+        ndk {
+            // Chỉ build các ABI cần thiết
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+}</code></pre>
+
+<p>Khi build, Gradle gọi CMake và NDK để biên dịch <code>libimagefilter.so</code> cho từng ABI, rồi đặt vào thư mục <code>lib/&lt;abi&gt;/</code> trong APK/AAB.</p>
+
+<h3>2. Rò rỉ Local Reference trong vòng lặp</h3>
+
+<pre data-lang="cpp"><code>// ❌ BAD PRACTICE: tạo Local Reference trong vòng lặp mà không giải phóng
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_shop_image_ImageProcessor_processBatch(JNIEnv* env, jobject thiz, jobjectArray images) {
+    jsize count = env-&gt;GetArrayLength(images);
+    for (jsize i = 0; i &lt; count; i++) {
+        jobject image = env-&gt;GetObjectArrayElement(images, i); // 1 Local Reference mới
+        // Xử lý image...
+        // Không giải phóng:
+        // - Android &lt; 8.0: crash "local reference table overflow" khi vượt giới hạn
+        // - Android 8.0+: mọi image bị giữ trong bộ nhớ tới khi hàm trả về
+    }
+}</code></pre>
+
+<pre data-lang="cpp"><code>// ✅ GOOD PRACTICE: giải phóng ngay khi dùng xong
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_shop_image_ImageProcessor_processBatch(JNIEnv* env, jobject thiz, jobjectArray images) {
+    jsize count = env-&gt;GetArrayLength(images);
+    for (jsize i = 0; i &lt; count; i++) {
+        jobject image = env-&gt;GetObjectArrayElement(images, i);
+        // Xử lý image...
+        env-&gt;DeleteLocalRef(image);
+    }
+}</code></pre>
+
+<p>Với đoạn code tạo nhiều reference cùng lúc, có thể bọc bằng <code>PushLocalFrame</code> / <code>PopLocalFrame</code> để giải phóng cả nhóm.</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<ol>
+  <li><strong>Nghĩ rằng viết C/C++ luôn làm app chạy nhanh hơn</strong>:
+<ul>
+  <li>Đoạn xử lý nhỏ gọi qua JNI nhiều lần có thể <strong>chậm hơn</strong> viết hoàn toàn bằng Kotlin, vì chi phí chuyển trạng thái lấn át phần tính toán.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Dùng chung <code>JNIEnv*</code> giữa nhiều thread</strong>:
+<ul>
+  <li><code>JNIEnv*</code> chỉ hợp lệ trên <strong>thread đã cấp nó</strong>. Dùng ở thread khác gây lỗi hoặc crash.</li>
+  <li><em>Giải pháp</em>: lưu <code>JavaVM*</code> (dùng được mọi thread), gọi <code>AttachCurrentThread()</code> trên thread mới để lấy <code>JNIEnv*</code> riêng, và gọi <code>DetachCurrentThread()</code> trước khi thread kết thúc.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Quên giải phóng bộ nhớ native và Global Reference</strong>:
+<ul>
+  <li>GC không thấy bộ nhớ cấp phát bằng <code>malloc</code>/<code>new</code>. Quên <code>free</code>/<code>delete</code> thì bộ nhớ của process tăng dần cho tới khi hệ thống (low memory killer) dừng app.</li>
+  <li>Quên <code>DeleteGlobalRef</code> giữ object Java sống mãi.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Giữ con trỏ lấy từ <code>GetIntArrayElements</code> / <code>GetStringUTFChars</code> mà không <code>Release...</code></strong>: rò rỉ bộ nhớ, và với mảng, kết quả có thể không được ghi về phía Java.</li>
+</ol>
+
+<h2>Trade-offs và Edge Cases</h2>
+
+<h3>Trade-offs</h3>
+
+<ul>
+  <li><strong>Độ phức tạp dự án</strong>: phải duy trì toolchain NDK, CMake, build cho nhiều ABI. Thời gian build tăng rõ rệt.</li>
+  <li><strong>Kích thước APK</strong>: mỗi thư viện <code>.so</code> có một bản cho mỗi ABI. APK universal chứa tất cả; AAB giúp mỗi thiết bị chỉ tải bản đúng ABI của nó.</li>
+  <li><strong>An toàn bộ nhớ</strong>: mất các bảo vệ của ART (kiểm tra biên mảng, GC). Lỗi C/C++ có thể thành lỗ hổng bảo mật.</li>
+</ul>
+
+<h3>Edge Cases</h3>
+
+<ul>
+  <li><strong>SIGSEGV và tombstone</strong>: lỗi con trỏ treo (dangling pointer) hoặc con trỏ null trong C++ gây signal <code>SIGSEGV</code>, không đi qua cơ chế exception của ART. Debug bằng file tombstone (lấy qua <code>adb bugreport</code>) và công cụ <code>ndk-stack</code> để đổi địa chỉ thành dòng code.</li>
+  <li><strong>Page size 16KB</strong>: từ Android 15, thiết bị có thể dùng page size 16KB thay vì 4KB. Thư viện <code>.so</code> phải được link với căn chỉnh 16KB (mặc định từ NDK r28, hoặc thêm cờ linker <code>-Wl,-z,max-page-size=16384</code> với NDK cũ hơn). Google Play yêu cầu app nhắm tới Android 15+ có code native phải hỗ trợ 16KB, áp dụng cho app mới và bản cập nhật từ 1/11/2025.</li>
+</ul>
 
 <h2>Kết nối hệ thống</h2>
+
 <ul>
-  <li><strong>Prerequisites</strong>: <code>android.languages.java_android</code>, <code>android.languages.kotlin</code></li>
-  <li><strong>Related Topics</strong>: <code>android.output_packages.apk_files</code>, <code>android.output_packages.aab_files</code></li>
+  <li><strong>Prerequisites</strong>: <code>android.languages.java_android</code>, <code>android.languages.kotlin</code> (Managed Heap, GC, <code>external fun</code>).</li>
+  <li><strong>Related Topics</strong>:
+<ul>
+  <li><code>android.output_packages.apk_files</code>: thư viện <code>.so</code> nằm trong <code>lib/&lt;abi&gt;/</code> của APK.</li>
+  <li><code>android.output_packages.aab_files</code>: ABI split giúp mỗi thiết bị chỉ tải <code>.so</code> đúng kiến trúc CPU của nó.</li>
+</ul></li>
+  <li><strong>Downstream Topics</strong> (chưa có bài): kiến trúc CPU và ABI, Vulkan, tối ưu hiệu năng native.</li>
+</ul>
+
+<h2>Developer Curiosity Checklist</h2>
+
+<ol>
+  <li><strong>Why was this created?</strong> Để code chạy trên máy ảo Java gọi được thư viện C/C++ hiệu năng cao và tương tác với phần cứng.</li>
+  <li><strong>What problem does it solve?</strong> Xử lý ảnh/video/AI nặng và tái sử dụng kho thư viện C/C++ có sẵn.</li>
+  <li><strong>What happens if it doesn't exist?</strong> Android không chạy được game engine 3D, các thư viện media và ML phổ biến.</li>
+  <li><strong>How does Android implement it internally?</strong> <code>JNIEnv*</code> riêng cho mỗi thread, chuyển trạng thái thread giữa Runnable và Native, bảng Local/Global Reference, nạp thư viện bằng <code>dlopen</code> và tìm hàm bằng <code>dlsym</code> hoặc <code>RegisterNatives</code>.</li>
+  <li><strong>What misconceptions do developers have?</strong> Tưởng C++ luôn nhanh hơn Kotlin; tưởng mã native không thể dịch ngược.</li>
+  <li><strong>What trade-offs does it introduce?</strong> Build phức tạp, APK lớn hơn, mất an toàn bộ nhớ.</li>
+  <li><strong>What are the edge cases?</strong> SIGSEGV không bắt được, <code>JNIEnv*</code> dùng sai thread, <code>.so</code> chưa hỗ trợ page size 16KB.</li>
+  <li><strong>What are the real-world problems developers encounter?</strong> Rò rỉ Native Heap và Global Reference, crash native khó debug.</li>
+  <li><strong>How is it connected to the Android system?</strong> Nhiều thành phần lõi của Android (ART, đồ hoạ, media) viết bằng C/C++, và framework Java gọi xuống chúng qua JNI.</li>
+  <li><strong>What should developers learn next?</strong> <code>android.output_packages.apk_files</code> để hiểu cách <code>.dex</code> và <code>.so</code> được đóng gói vào app.</li>
+</ol>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li>Android Developers: <a href="https://developer.android.com/training/articles/perf-jni" target="_blank" rel="noopener">JNI tips</a></li>
+  <li>Android Developers: <a href="https://developer.android.com/ndk/guides" target="_blank" rel="noopener">Get started with the NDK</a></li>
+  <li>Android Developers: <a href="https://developer.android.com/guide/practices/page-sizes" target="_blank" rel="noopener">Support 16 KB page sizes</a></li>
 </ul>
     `
   },
 
   'android.output_packages.apk_files': {
     title: 'Gói ứng dụng APK (Android Package)',
-    summary: 'Cấu trúc chi tiết file APK, cơ chế biên dịch Binary XML, resources.arsc, APK Signature Schemes v1 đến v4, và kỹ thuật tối ưu bộ nhớ mmap với zipalign 4-byte boundary.',
+    summary: 'Cấu trúc file APK, Binary XML và resources.arsc, APK Signature Schemes v1 đến v4, vì sao zipalign cần thiết cho mmap, thứ tự zipalign và ký, và các yêu cầu căn chỉnh mới (resources.arsc, thư viện .so với page size 16KB).',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '25 phút',
@@ -2091,74 +3768,688 @@ Java_com_example_knowledgeos_MainActivity_stringFromJNI(JNIEnv* env, jobject thi
     prerequisites: ['android.languages.java_android', 'android.languages.kotlin'],
     related: ['android.output_packages.aab_files', 'android.languages.jni'],
     learningOutcomes: [
-      'Giải thích được cấu trúc giải nén của một file APK tiêu chuẩn và vai trò của từng thành phần (classes.dex, resources.arsc, Binary XML).',
-      'Phân biệt được sự tiến hóa của APK Signature Schemes từ v1 (JAR signing), v2 (Signing Block), v3 (Key Rotation) đến v4 (fs-verity).',
-      'Giải thích được cơ chế tối ưu bộ nhớ RAM của zipalign dựa trên kỹ thuật Memory Mapping (mmap) 4-byte boundary alignment.',
-      'Xử lý được các sự cố biên dịch APK common như INSTALL_FAILED_INVALID_APK hay INSTALL_PARSE_FAILED_NO_CERTIFICATES.'
+      'Giải thích được cấu trúc của một file APK và vai trò của từng thành phần (classes.dex, resources.arsc, Binary XML, lib, META-INF).',
+      'Phân biệt được các APK Signature Scheme từ v1 (JAR signing), v2 (APK Signing Block), v3 (Key Rotation) đến v4 (cài đặt tăng dần).',
+      'Giải thích được vì sao zipalign giúp hệ thống mmap dữ liệu trực tiếp từ APK thay vì copy vào bộ nhớ.',
+      'Xử lý được các lỗi cài đặt APK thường gặp như INSTALL_PARSE_FAILED_NO_CERTIFICATES và lỗi căn chỉnh khi targetSdk 30+.'
     ],
-    knowledgeGap: 'Thiếu hiểu biết về cấu trúc APK sẽ khiến lập trình viên bất lực khi tối ưu dung lượng app, không hiểu tại sao zipalign giúp tiết kiệm RAM, lúng túng khi xử lý lỗi signing v1/v2/v3/v4 trên các thiết bị Android OS khác nhau, và dễ bị lỗ hổng bảo mật khi phân tích Reverse Engineering.',
-    updatedAt: '2026-07-22',
+    knowledgeGap: 'Thiếu hiểu biết về cấu trúc APK khiến lập trình viên khó tối ưu dung lượng app, không hiểu vì sao zipalign quan trọng, lúng túng khi gặp lỗi chữ ký v1/v2/v3 trên các phiên bản Android khác nhau, và làm hỏng chữ ký khi tự viết script ký trong CI.',
+    updatedAt: '2026-11-03',
+    readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
-<p>Ứng dụng Android cần được đóng gói thành tập tin cài đặt chuẩn APK chứa toàn bộ bytecode <code>classes.dex</code>, tài nguyên biên dịch và chữ ký xác thực.</p>
+
+<p>Khi hoàn tất lập trình một ứng dụng Android, hàng trăm tệp mã nguồn (<code>.kt</code>, <code>.java</code>), tệp giao diện XML, hình ảnh, thư viện native C/C++ (<code>.so</code>) và tệp cấu hình phải được gói thành <strong>một tệp duy nhất</strong> để phân phối tới thiết bị.</p>
+
+<p>Tệp đó là <strong>APK (Android Package)</strong>, về bản chất là một file ZIP với cấu trúc quy ước riêng.</p>
+
+<p>Nếu chỉ nén ZIP thông thường như trên máy tính:</p>
+
+<ol>
+  <li><strong>Tốn RAM và chậm khi đọc</strong>: mỗi lần đọc một tài nguyên bị nén, hệ thống phải giải nén nó vào bộ nhớ. Tài nguyên không nén nhưng nằm lệch vị trí trong file cũng không thể ánh xạ (mmap) trực tiếp.</li>
+  <li><strong>Không chống được sửa đổi</strong>: kẻ xấu có thể giải nén APK, chèn mã độc vào <code>.dex</code> rồi nén lại để lừa người dùng cài đặt.</li>
+  <li><strong>Phân giải tài nguyên chậm</strong>: đọc file XML dạng văn bản (<code>strings.xml</code>, layout) ở runtime tốn nhiều CPU để parse chuỗi.</li>
+</ol>
+
+<p>Vì vậy APK có các thành phần đã biên dịch sẵn sang dạng nhị phân, cơ chế ký số (Signature Scheme v1–v4), và quy tắc căn chỉnh dữ liệu bằng <code>zipalign</code>.</p>
 
 <h2>Sau khi học xong</h2>
+
 <ul>
-  <li>Giải thích được cấu trúc chi tiết bên trong một file APK sau khi giải nén ZIP.</li>
-  <li>Phân biệt được sự khác nhau giữa các cơ chế ký APK Signature Scheme v1, v2, v3, và v4.</li>
-  <li>Xử lý được lỗi 64K Method Limit (Multidex).</li>
-  <li>Hiểu được vai trò của công cụ zipalign.</li>
+  <li>Giải thích được cấu trúc của một file APK và vai trò của từng thành phần (classes.dex, resources.arsc, Binary XML, lib, META-INF).</li>
+  <li>Phân biệt được các APK Signature Scheme từ v1 (JAR signing), v2 (APK Signing Block), v3 (Key Rotation) đến v4 (cài đặt tăng dần).</li>
+  <li>Giải thích được vì sao zipalign giúp hệ thống mmap dữ liệu trực tiếp từ APK thay vì copy vào bộ nhớ.</li>
+  <li>Xử lý được các lỗi cài đặt APK thường gặp như INSTALL_PARSE_FAILED_NO_CERTIFICATES và lỗi căn chỉnh khi targetSdk 30+.</li>
 </ul>
 
-<h2>APK là gì?</h2>
-<p><strong>APK (Android Package)</strong> thực chất là một tập tin nén định dạng ZIP chứa <code>AndroidManifest.xml</code>, <code>classes.dex</code>, <code>res/</code>, <code>resources.arsc</code>, <code>lib/</code> và <code>META-INF/</code>.</p>
+<h2>Lịch sử phát triển</h2>
+
+<div class="dd-diagram" data-dd="s01-apk-history">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 512" role="img" aria-labelledby="s01-apk-history-dark-title s01-apk-history-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-apk-history-dark-title">Tiến hóa của cơ chế đóng gói và ký APK</title>
+<desc id="s01-apk-history-dark-desc">Dòng thời gian 2008–2024 của APK: Signature v1 dựa trên JAR Signing, v2 ký toàn bộ APK năm 2016, v3 hỗ trợ Key Rotation, v4 cài đặt tăng dần, Google Play bắt buộc AAB cho app mới, Android 15 hỗ trợ page size 16KB.</desc>
+<rect width="800" height="512" fill="#060913"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="456" stroke="rgba(148,163,184,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="64" x2="408" y2="64" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="88" x2="408" y2="88" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="112" x2="408" y2="112" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="136" x2="408" y2="136" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="160" x2="408" y2="160" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="184" x2="408" y2="184" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="208" x2="408" y2="208" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="256" x2="408" y2="256" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="304" x2="408" y2="304" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="376" x2="408" y2="376" stroke="#94A3B8" stroke-width="0.8"/>
+<line x1="392" y1="400" x2="408" y2="400" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="44" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2008</text>
+<text x="468" y="44" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">APK và Signature v1</text>
+<text x="468" y="60" fill="#94A3B8" font-size="12" text-anchor="start">Dựa trên JAR Signing, ký từng file</text>
+<circle cx="400" cy="232" r="8" fill="#060913"/>
+<circle cx="400" cy="232" r="6" fill="#38BDF8"/>
+<text x="380" y="236" fill="#38BDF8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2016</text>
+<text x="332" y="236" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Android 7.0 - Signature v2</text>
+<text x="332" y="252" fill="#94A3B8" font-size="12" text-anchor="end">Ký toàn bộ APK bằng APK Signing Block</text>
+<circle cx="400" cy="280" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="284" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2018</text>
+<text x="468" y="284" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Android 9 - Signature v3</text>
+<text x="468" y="300" fill="#94A3B8" font-size="12" text-anchor="start">Hỗ trợ Key Rotation</text>
+<circle cx="400" cy="328" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="332" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2020</text>
+<text x="332" y="332" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Android 11 - Signature v4</text>
+<text x="332" y="348" fill="#94A3B8" font-size="12" text-anchor="end">Cài đặt tăng dần qua ADB</text>
+<circle cx="400" cy="352" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="356" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2021</text>
+<text x="468" y="356" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Google Play bắt buộc AAB cho app mới</text>
+<text x="468" y="372" fill="#94A3B8" font-size="12" text-anchor="start">APK do Play sinh ra cho từng thiết bị</text>
+<circle cx="400" cy="424" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="428" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2024</text>
+<text x="332" y="428" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Android 15 hỗ trợ page size 16KB</text>
+<text x="332" y="444" fill="#94A3B8" font-size="12" text-anchor="end">Thư viện .so cần căn chỉnh 16KB</text>
+<!-- legend -->
+<line x1="32" y1="480" x2="768" y2="480" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="496" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="492" r="4" fill="#38BDF8"/>
+<text x="140" y="496" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · SIGNATURE V2</text>
+<circle cx="328" cy="492" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="340" y="496" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="492" x2="456" y2="492" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="464" y="496" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 512" role="img" aria-labelledby="s01-apk-history-title s01-apk-history-desc" font-family="'Geist', sans-serif">
+<title id="s01-apk-history-title">Tiến hóa của cơ chế đóng gói và ký APK</title>
+<desc id="s01-apk-history-desc">Dòng thời gian 2008–2024 của APK: Signature v1 dựa trên JAR Signing, v2 ký toàn bộ APK năm 2016, v3 hỗ trợ Key Rotation, v4 cài đặt tăng dần, Google Play bắt buộc AAB cho app mới, Android 15 hỗ trợ page size 16KB.</desc>
+<rect width="800" height="512" fill="#F8FAFC"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="456" stroke="rgba(100,116,139,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="64" x2="408" y2="64" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="88" x2="408" y2="88" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="112" x2="408" y2="112" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="136" x2="408" y2="136" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="160" x2="408" y2="160" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="184" x2="408" y2="184" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="208" x2="408" y2="208" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="256" x2="408" y2="256" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="304" x2="408" y2="304" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="376" x2="408" y2="376" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="400" x2="408" y2="400" stroke="#64748B" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="44" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2008</text>
+<text x="468" y="44" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">APK và Signature v1</text>
+<text x="468" y="60" fill="#64748B" font-size="12" text-anchor="start">Dựa trên JAR Signing, ký từng file</text>
+<circle cx="400" cy="232" r="8" fill="#F8FAFC"/>
+<circle cx="400" cy="232" r="6" fill="#0284C7"/>
+<text x="380" y="236" fill="#0284C7" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2016</text>
+<text x="332" y="236" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 7.0 - Signature v2</text>
+<text x="332" y="252" fill="#64748B" font-size="12" text-anchor="end">Ký toàn bộ APK bằng APK Signing Block</text>
+<circle cx="400" cy="280" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="284" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2018</text>
+<text x="468" y="284" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Android 9 - Signature v3</text>
+<text x="468" y="300" fill="#64748B" font-size="12" text-anchor="start">Hỗ trợ Key Rotation</text>
+<circle cx="400" cy="328" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="332" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2020</text>
+<text x="332" y="332" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 11 - Signature v4</text>
+<text x="332" y="348" fill="#64748B" font-size="12" text-anchor="end">Cài đặt tăng dần qua ADB</text>
+<circle cx="400" cy="352" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="356" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2021</text>
+<text x="468" y="356" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Google Play bắt buộc AAB cho app mới</text>
+<text x="468" y="372" fill="#64748B" font-size="12" text-anchor="start">APK do Play sinh ra cho từng thiết bị</text>
+<circle cx="400" cy="424" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="428" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2024</text>
+<text x="332" y="428" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 15 hỗ trợ page size 16KB</text>
+<text x="332" y="444" fill="#64748B" font-size="12" text-anchor="end">Thư viện .so cần căn chỉnh 16KB</text>
+<!-- legend -->
+<line x1="32" y1="480" x2="768" y2="480" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="496" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="492" r="4" fill="#0284C7"/>
+<text x="140" y="496" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · SIGNATURE V2</text>
+<circle cx="328" cy="492" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="340" y="496" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="492" x2="456" y2="492" stroke="#64748B" stroke-width="0.8"/>
+<text x="464" y="496" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+</svg>
+</div>
+</div>
 
 <h2>Cách hoạt động</h2>
-<h3>Các chuẩn Ký APK Signature Scheme</h3>
+
+<h3>1. Cấu trúc bên trong một file APK</h3>
+
+<p>Đổi đuôi <code>.apk</code> thành <code>.zip</code> và giải nén (hoặc mở bằng APK Analyzer trong Android Studio), bạn thấy cấu trúc:</p>
+
+<pre data-lang="text"><code>MyApp.apk (ZIP Archive)
+├── classes.dex                # Bytecode DEX biên dịch từ Java/Kotlin
+├── classes2.dex               # File DEX thứ 2 (khi vượt giới hạn 64K method)
+├── res/                       # Tài nguyên: hình ảnh, layout đã biên dịch
+│   ├── drawable/
+│   └── layout/
+├── resources.arsc             # Bảng tài nguyên đã biên dịch (Resource Table)
+├── AndroidManifest.xml        # Manifest dạng Binary XML
+├── lib/                       # Thư viện native (.so) theo từng ABI
+│   ├── arm64-v8a/
+│   └── armeabi-v7a/
+├── assets/                    # Tài nguyên thô không biên dịch (font, database, media)
+└── META-INF/                  # Chữ ký v1 (MANIFEST.MF, CERT.SF, CERT.RSA)</code></pre>
+
+<h4><code>resources.arsc</code> và Binary XML</h4>
+
 <ul>
-  <li><strong>v1 (JAR Signature)</strong>: Ký từng file riêng lẻ trong APK.</li>
-  <li><strong>v2 (Whole-file)</strong>: Ký toàn bộ file APK ZIP, bảo mật tuyệt đối và verify cực nhanh.</li>
-  <li><strong>v3 (Key Rotation)</strong>: Hỗ trợ thay đổi Private Key của app.</li>
-  <li><strong>v4 (Streaming)</strong>: Hỗ trợ cài đặt ứng dụng siêu tốc qua ADB Incremental.</li>
+  <li><strong>Binary XML</strong>: Android không lưu <code>AndroidManifest.xml</code> hay layout dưới dạng văn bản UTF-8. Công cụ <code>aapt2</code> chuyển tên thẻ và thuộc tính (<code>&lt;activity&gt;</code>, <code>&lt;TextView&gt;</code>, <code>android:id</code>...) thành dạng nhị phân với bảng chuỗi dùng chung và ID số nguyên. Nhờ vậy hệ thống đọc layout ở runtime nhanh hơn nhiều so với parse văn bản.</li>
+  <li><strong><code>resources.arsc</code></strong>: bảng tra cứu ánh xạ Resource ID (ví dụ <code>0x7f010002</code>) tới giá trị thật hoặc đường dẫn file trong APK, theo từng cấu hình (ngôn ngữ, mật độ màn hình...). Resource ID có cấu trúc 32-bit <code>0xPPTTEEEE</code>:
+<ul>
+  <li><code>PP</code> (Package ID): <code>0x7f</code> là ứng dụng, <code>0x01</code> là Android framework.</li>
+  <li><code>TT</code> (Type ID): loại tài nguyên (<code>drawable</code>, <code>layout</code>, <code>string</code>, <code>color</code>...).</li>
+  <li><code>EEEE</code> (Entry ID): vị trí của tài nguyên trong loại đó.</li>
+</ul></li>
 </ul>
 
+<h3>2. APK Signature Schemes (v1 đến v4)</h3>
+
+<p>Ký APK là bắt buộc: Android dùng chữ ký để xác định nguồn gốc app, đảm bảo file không bị sửa, và chỉ cho phép cập nhật khi bản mới được ký bởi cùng một key.</p>
+
+<div class="dd-diagram" data-dd="s01-apk-signing">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 316" role="img" aria-labelledby="s01-apk-signing-dark-title s01-apk-signing-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-apk-signing-dark-title">Bốn thế hệ chữ ký APK</title>
+<desc id="s01-apk-signing-dark-desc">Bốn APK Signature Scheme từ v1 ký từng file trong META-INF, v2 ký toàn bộ APK trừ Signing Block, v3 thêm Signing Lineage để đổi key, tới v4 dùng file .apk.idsig chứa Merkle Tree để cài đặt tăng dần qua ADB.</desc>
+<defs>
+<marker id="s01-apk-signing-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="316" fill="#060913"/>
+<!-- arrows -->
+<path d="M 184,72 H 216" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-apk-signing-dark-arrow)"/>
+<path d="M 384,72 H 416" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-apk-signing-dark-arrow)"/>
+<path d="M 584,72 H 616" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-apk-signing-dark-arrow)"/>
+<!-- nodes -->
+<rect x="16" y="32" width="168" height="192" rx="6" fill="#060913"/>
+<rect x="16" y="32" width="168" height="192" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="28" y="44" width="28" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="42" y="53" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">V1</text>
+<text x="28" y="76" fill="#F8FAFC" font-size="12" font-weight="600">JAR Signing</text>
+<line x1="28" y1="88" x2="172" y2="88" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="28" y="108" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CƠ CHẾ</text>
+<text x="28" y="128" fill="#F8FAFC" font-size="12">Ký hash từng file,</text>
+<text x="28" y="144" fill="#F8FAFC" font-size="12">lưu trong META-INF/</text>
+<text x="28" y="172" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">HỆ QUẢ</text>
+<text x="28" y="192" fill="#94A3B8" font-size="12">Không bảo vệ phần</text>
+<text x="28" y="208" fill="#94A3B8" font-size="12">metadata của ZIP</text>
+<rect x="216" y="32" width="168" height="192" rx="6" fill="#060913"/>
+<rect x="216" y="32" width="168" height="192" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="228" y="44" width="28" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="242" y="53" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">V2</text>
+<text x="372" y="53" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="end">Android 7.0+</text>
+<text x="228" y="76" fill="#F8FAFC" font-size="12" font-weight="600">Whole-file Signing</text>
+<line x1="228" y1="88" x2="372" y2="88" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="228" y="108" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CƠ CHẾ</text>
+<text x="228" y="128" fill="#F8FAFC" font-size="12">Ký toàn bộ nội dung</text>
+<text x="228" y="144" fill="#F8FAFC" font-size="12">APK trừ Signing Block</text>
+<text x="228" y="172" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">HỆ QUẢ</text>
+<text x="228" y="192" fill="#94A3B8" font-size="12">Phát hiện mọi</text>
+<text x="228" y="208" fill="#94A3B8" font-size="12">thay đổi byte</text>
+<rect x="416" y="32" width="168" height="192" rx="6" fill="#060913"/>
+<rect x="416" y="32" width="168" height="192" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="428" y="44" width="28" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="442" y="53" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">V3</text>
+<text x="572" y="53" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="end">Android 9+</text>
+<text x="428" y="76" fill="#F8FAFC" font-size="12" font-weight="600">Key Rotation</text>
+<line x1="428" y1="88" x2="572" y2="88" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="428" y="108" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CƠ CHẾ</text>
+<text x="428" y="128" fill="#F8FAFC" font-size="12">Như v2, thêm</text>
+<text x="428" y="144" fill="#F8FAFC" font-size="12">Signing Lineage</text>
+<text x="428" y="172" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">HỆ QUẢ</text>
+<text x="428" y="192" fill="#94A3B8" font-size="12">Cho phép đổi</text>
+<text x="428" y="208" fill="#94A3B8" font-size="12">sang key mới</text>
+<rect x="616" y="32" width="168" height="192" rx="6" fill="#060913"/>
+<rect x="616" y="32" width="168" height="192" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="628" y="44" width="28" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="642" y="53" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">V4</text>
+<text x="772" y="53" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="end">Android 11+</text>
+<text x="628" y="76" fill="#F8FAFC" font-size="12" font-weight="600">Incremental Install</text>
+<line x1="628" y1="88" x2="772" y2="88" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="628" y="108" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CƠ CHẾ</text>
+<text x="628" y="128" fill="#F8FAFC" font-size="12">File .apk.idsig</text>
+<text x="628" y="144" fill="#F8FAFC" font-size="12">chứa Merkle Tree</text>
+<text x="628" y="172" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">HỆ QUẢ</text>
+<text x="628" y="192" fill="#94A3B8" font-size="12">Cài đặt tăng dần</text>
+<text x="628" y="208" fill="#94A3B8" font-size="12">qua ADB</text>
+<!-- caption -->
+<text x="400" y="256" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">V3 GIỮ ĐỊNH DẠNG V2 · V4 LUÔN ĐI KÈM CHỮ KÝ V2 HOẶC V3</text>
+<!-- legend -->
+<line x1="32" y1="284" x2="768" y2="284" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="300" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="146" y="292" width="12" height="12" rx="2" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="166" y="300" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · V2 KÝ TOÀN FILE</text>
+<line x1="400" y1="296" x2="432" y2="296" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-apk-signing-dark-arrow)"/>
+<text x="440" y="300" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THẾ HỆ KẾ TIẾP</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 316" role="img" aria-labelledby="s01-apk-signing-title s01-apk-signing-desc" font-family="'Geist', sans-serif">
+<title id="s01-apk-signing-title">Bốn thế hệ chữ ký APK</title>
+<desc id="s01-apk-signing-desc">Bốn APK Signature Scheme từ v1 ký từng file trong META-INF, v2 ký toàn bộ APK trừ Signing Block, v3 thêm Signing Lineage để đổi key, tới v4 dùng file .apk.idsig chứa Merkle Tree để cài đặt tăng dần qua ADB.</desc>
+<defs>
+<marker id="s01-apk-signing-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="316" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 184,72 H 216" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-apk-signing-arrow)"/>
+<path d="M 384,72 H 416" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-apk-signing-arrow)"/>
+<path d="M 584,72 H 616" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-apk-signing-arrow)"/>
+<!-- nodes -->
+<rect x="16" y="32" width="168" height="192" rx="6" fill="#F8FAFC"/>
+<rect x="16" y="32" width="168" height="192" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="28" y="44" width="28" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="42" y="53" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">V1</text>
+<text x="28" y="76" fill="#0F172A" font-size="12" font-weight="600">JAR Signing</text>
+<line x1="28" y1="88" x2="172" y2="88" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="28" y="108" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CƠ CHẾ</text>
+<text x="28" y="128" fill="#0F172A" font-size="12">Ký hash từng file,</text>
+<text x="28" y="144" fill="#0F172A" font-size="12">lưu trong META-INF/</text>
+<text x="28" y="172" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">HỆ QUẢ</text>
+<text x="28" y="192" fill="#64748B" font-size="12">Không bảo vệ phần</text>
+<text x="28" y="208" fill="#64748B" font-size="12">metadata của ZIP</text>
+<rect x="216" y="32" width="168" height="192" rx="6" fill="#F8FAFC"/>
+<rect x="216" y="32" width="168" height="192" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="228" y="44" width="28" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="242" y="53" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">V2</text>
+<text x="372" y="53" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="end">Android 7.0+</text>
+<text x="228" y="76" fill="#0F172A" font-size="12" font-weight="600">Whole-file Signing</text>
+<line x1="228" y1="88" x2="372" y2="88" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="228" y="108" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CƠ CHẾ</text>
+<text x="228" y="128" fill="#0F172A" font-size="12">Ký toàn bộ nội dung</text>
+<text x="228" y="144" fill="#0F172A" font-size="12">APK trừ Signing Block</text>
+<text x="228" y="172" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">HỆ QUẢ</text>
+<text x="228" y="192" fill="#64748B" font-size="12">Phát hiện mọi</text>
+<text x="228" y="208" fill="#64748B" font-size="12">thay đổi byte</text>
+<rect x="416" y="32" width="168" height="192" rx="6" fill="#F8FAFC"/>
+<rect x="416" y="32" width="168" height="192" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="428" y="44" width="28" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="442" y="53" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">V3</text>
+<text x="572" y="53" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="end">Android 9+</text>
+<text x="428" y="76" fill="#0F172A" font-size="12" font-weight="600">Key Rotation</text>
+<line x1="428" y1="88" x2="572" y2="88" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="428" y="108" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CƠ CHẾ</text>
+<text x="428" y="128" fill="#0F172A" font-size="12">Như v2, thêm</text>
+<text x="428" y="144" fill="#0F172A" font-size="12">Signing Lineage</text>
+<text x="428" y="172" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">HỆ QUẢ</text>
+<text x="428" y="192" fill="#64748B" font-size="12">Cho phép đổi</text>
+<text x="428" y="208" fill="#64748B" font-size="12">sang key mới</text>
+<rect x="616" y="32" width="168" height="192" rx="6" fill="#F8FAFC"/>
+<rect x="616" y="32" width="168" height="192" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="628" y="44" width="28" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="642" y="53" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">V4</text>
+<text x="772" y="53" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="end">Android 11+</text>
+<text x="628" y="76" fill="#0F172A" font-size="12" font-weight="600">Incremental Install</text>
+<line x1="628" y1="88" x2="772" y2="88" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="628" y="108" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CƠ CHẾ</text>
+<text x="628" y="128" fill="#0F172A" font-size="12">File .apk.idsig</text>
+<text x="628" y="144" fill="#0F172A" font-size="12">chứa Merkle Tree</text>
+<text x="628" y="172" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">HỆ QUẢ</text>
+<text x="628" y="192" fill="#64748B" font-size="12">Cài đặt tăng dần</text>
+<text x="628" y="208" fill="#64748B" font-size="12">qua ADB</text>
+<!-- caption -->
+<text x="400" y="256" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">V3 GIỮ ĐỊNH DẠNG V2 · V4 LUÔN ĐI KÈM CHỮ KÝ V2 HOẶC V3</text>
+<!-- legend -->
+<line x1="32" y1="284" x2="768" y2="284" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="300" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="146" y="292" width="12" height="12" rx="2" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="166" y="300" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · V2 KÝ TOÀN FILE</text>
+<line x1="400" y1="296" x2="432" y2="296" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-apk-signing-arrow)"/>
+<text x="440" y="300" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">THẾ HỆ KẾ TIẾP</text>
+</svg>
+</div>
+</div>
+
+<ul>
+  <li><strong>Signature v1 (JAR Signing)</strong>: ký hash của từng file trong ZIP. Hai nhược điểm: xác minh chậm vì phải đọc và hash từng file; không bảo vệ phần cấu trúc ZIP, mở đường cho lỗ hổng <strong>Janus</strong> (CVE-2017-13156) cho phép ghép thêm DEX vào APK chỉ ký v1 mà chữ ký vẫn hợp lệ.</li>
+  <li><strong>Signature v2 (Android 7.0+)</strong>: chèn một <strong>APK Signing Block</strong> ngay trước Central Directory của file ZIP. Chữ ký bao phủ toàn bộ nội dung file (trừ chính khối chữ ký), được hash theo từng đoạn 1MB. Đổi dù một byte, chữ ký không còn hợp lệ. Xác minh nhanh vì không cần giải nén.</li>
+  <li><strong>Signature v3 (Android 9+)</strong>: định dạng như v2, thêm <strong>Signing Lineage</strong>: bằng chứng rằng key mới được key cũ uỷ quyền. Nhờ đó app có thể <strong>đổi key ký</strong> (Key Rotation) mà thiết bị đã cài bản cũ vẫn chấp nhận cập nhật.</li>
+  <li><strong>Signature v4 (Android 11+)</strong>: lưu trong file riêng <code>app.apk.idsig</code>, dựa trên <strong>Merkle Tree</strong> hash của toàn bộ APK. Dùng cho <strong>cài đặt tăng dần</strong> (<code>adb install --incremental</code>): app có thể khởi động trước khi toàn bộ APK được chuyển xong, các phần còn thiếu được tải và xác minh khi cần. v4 luôn đi kèm chữ ký v2 hoặc v3.</li>
+</ul>
+
+<h3>3. <code>zipalign</code>: căn chỉnh để mmap trực tiếp</h3>
+
+<p>Nếu dữ liệu không nén trong APK (như <code>resources.arsc</code>, ảnh đã nén sẵn, <code>.so</code> không nén) nằm ở vị trí bất kỳ, hệ thống phải <strong>đọc và copy</strong> nó vào bộ nhớ riêng của app trước khi dùng.</p>
+
+<p><code>zipalign</code> dời các entry <strong>không nén</strong> trong ZIP sao cho dữ liệu của chúng bắt đầu ở offset chia hết cho <strong>4 byte</strong> (thư viện <code>.so</code> thì căn theo page: 4KB, nay là 16KB).</p>
+
+<div class="dd-diagram" data-dd="s01-zipalign">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 384" role="img" aria-labelledby="s01-zipalign-dark-title s01-zipalign-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-zipalign-dark-title">zipalign: lệch một byte là mất mmap</title>
+<desc id="s01-zipalign-dark-desc">So sánh entry không nén bắt đầu ở offset 1003 byte, buộc hệ thống đọc và copy vào bộ nhớ của app, với entry căn chỉnh ở offset 1004 byte, được mmap trực tiếp từ file mà không copy.</desc>
+<defs>
+<marker id="s01-zipalign-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="384" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="32" width="736" height="136" rx="8" fill="none" stroke="rgba(248,250,252,0.12)" stroke-width="1"/>
+<text x="48" y="52" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">KHÔNG CĂN CHỈNH</text>
+<rect x="32" y="192" width="736" height="136" rx="8" fill="none" stroke="rgba(248,250,252,0.12)" stroke-width="1"/>
+<text x="48" y="212" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CĂN CHỈNH 4 BYTE</text>
+<!-- arrows -->
+<path d="M 280,108 H 448" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-zipalign-dark-arrow)"/>
+<rect x="316" y="88" width="96" height="12" rx="2" fill="#060913"/>
+<text x="364" y="97" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">1003 MOD 4 = 3</text>
+<path d="M 280,268 H 448" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-zipalign-dark-arrow)"/>
+<rect x="316" y="248" width="96" height="12" rx="2" fill="#060913"/>
+<text x="364" y="257" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">1004 MOD 4 = 0</text>
+<!-- nodes -->
+<text x="112" y="80" fill="#F8FAFC" font-size="9" font-family="'JetBrains Mono', monospace">Offset: 1003 bytes</text>
+<path d="M 112,84 V 96" fill="none" stroke="#F8FAFC" stroke-width="1.2"/>
+<rect x="64" y="96" width="16" height="24" fill="#060913" stroke="rgba(148,163,184,0.40)" stroke-width="0.8"/>
+<rect x="80" y="96" width="16" height="24" fill="#060913" stroke="rgba(148,163,184,0.40)" stroke-width="0.8"/>
+<rect x="96" y="96" width="16" height="24" fill="#060913" stroke="rgba(148,163,184,0.40)" stroke-width="0.8"/>
+<rect x="112" y="96" width="16" height="24" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="128" y="96" width="16" height="24" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="144" y="96" width="16" height="24" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="160" y="96" width="16" height="24" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="176" y="96" width="16" height="24" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="192" y="96" width="16" height="24" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="208" y="96" width="16" height="24" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="224" y="96" width="16" height="24" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="240" y="96" width="16" height="24" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<path d="M 64,120 V 128" fill="none" stroke="#94A3B8" stroke-width="1"/>
+<text x="64" y="140" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1000</text>
+<path d="M 128,120 V 128" fill="none" stroke="#94A3B8" stroke-width="1"/>
+<text x="128" y="140" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1004</text>
+<path d="M 192,120 V 128" fill="none" stroke="#94A3B8" stroke-width="1"/>
+<text x="192" y="140" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1008</text>
+<path d="M 256,120 V 128" fill="none" stroke="#94A3B8" stroke-width="1"/>
+<text x="256" y="140" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1012</text>
+<rect x="448" y="76" width="296" height="64" rx="6" fill="#060913"/>
+<rect x="448" y="76" width="296" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="596" y="104" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Phải đọc và copy vào bộ nhớ của app</text>
+<text x="596" y="122" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bộ nhớ riêng · trước khi dùng</text>
+<text x="128" y="240" fill="#F8FAFC" font-size="9" font-family="'JetBrains Mono', monospace">Offset: 1004 bytes</text>
+<path d="M 128,244 V 256" fill="none" stroke="#F8FAFC" stroke-width="1.2"/>
+<rect x="64" y="256" width="16" height="24" fill="#060913" stroke="rgba(148,163,184,0.40)" stroke-width="0.8"/>
+<rect x="80" y="256" width="16" height="24" fill="#060913" stroke="rgba(148,163,184,0.40)" stroke-width="0.8"/>
+<rect x="96" y="256" width="16" height="24" fill="#060913" stroke="rgba(148,163,184,0.40)" stroke-width="0.8"/>
+<rect x="112" y="256" width="16" height="24" fill="#060913" stroke="rgba(148,163,184,0.40)" stroke-width="0.8"/>
+<rect x="128" y="256" width="16" height="24" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="0.8"/>
+<rect x="144" y="256" width="16" height="24" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="0.8"/>
+<rect x="160" y="256" width="16" height="24" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="0.8"/>
+<rect x="176" y="256" width="16" height="24" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="0.8"/>
+<rect x="192" y="256" width="16" height="24" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="0.8"/>
+<rect x="208" y="256" width="16" height="24" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="0.8"/>
+<rect x="224" y="256" width="16" height="24" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="0.8"/>
+<rect x="240" y="256" width="16" height="24" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="0.8"/>
+<path d="M 64,280 V 288" fill="none" stroke="#94A3B8" stroke-width="1"/>
+<text x="64" y="300" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1000</text>
+<path d="M 128,280 V 288" fill="none" stroke="#94A3B8" stroke-width="1"/>
+<text x="128" y="300" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1004</text>
+<path d="M 192,280 V 288" fill="none" stroke="#94A3B8" stroke-width="1"/>
+<text x="192" y="300" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1008</text>
+<path d="M 256,280 V 288" fill="none" stroke="#94A3B8" stroke-width="1"/>
+<text x="256" y="300" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1012</text>
+<rect x="448" y="236" width="296" height="64" rx="6" fill="#060913"/>
+<rect x="448" y="236" width="296" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="596" y="264" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">mmap() trực tiếp từ file, không copy</text>
+<text x="596" y="282" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">vẫn chiếm RAM khi truy cập · trang sạch</text>
+<!-- legend -->
+<line x1="32" y1="352" x2="768" y2="352" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="368" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="146" y="360" width="12" height="12" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="166" y="368" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">DỮ LIỆU ENTRY KHÔNG NÉN</text>
+<path d="M 360,360 V 372" fill="none" stroke="#94A3B8" stroke-width="1"/>
+<text x="372" y="368" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">BIÊN 4 BYTE</text>
+<rect x="496" y="360" width="12" height="12" rx="2" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="516" y="368" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · MMAP ĐƯỢC</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 384" role="img" aria-labelledby="s01-zipalign-title s01-zipalign-desc" font-family="'Geist', sans-serif">
+<title id="s01-zipalign-title">zipalign: lệch một byte là mất mmap</title>
+<desc id="s01-zipalign-desc">So sánh entry không nén bắt đầu ở offset 1003 byte, buộc hệ thống đọc và copy vào bộ nhớ của app, với entry căn chỉnh ở offset 1004 byte, được mmap trực tiếp từ file mà không copy.</desc>
+<defs>
+<marker id="s01-zipalign-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="384" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="32" width="736" height="136" rx="8" fill="none" stroke="rgba(15,23,42,0.12)" stroke-width="1"/>
+<text x="48" y="52" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">KHÔNG CĂN CHỈNH</text>
+<rect x="32" y="192" width="736" height="136" rx="8" fill="none" stroke="rgba(15,23,42,0.12)" stroke-width="1"/>
+<text x="48" y="212" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CĂN CHỈNH 4 BYTE</text>
+<!-- arrows -->
+<path d="M 280,108 H 448" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-zipalign-arrow)"/>
+<rect x="316" y="88" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="364" y="97" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">1003 MOD 4 = 3</text>
+<path d="M 280,268 H 448" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-zipalign-arrow)"/>
+<rect x="316" y="248" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="364" y="257" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">1004 MOD 4 = 0</text>
+<!-- nodes -->
+<text x="112" y="80" fill="#0F172A" font-size="9" font-family="'JetBrains Mono', monospace">Offset: 1003 bytes</text>
+<path d="M 112,84 V 96" fill="none" stroke="#0F172A" stroke-width="1.2"/>
+<rect x="64" y="96" width="16" height="24" fill="#F8FAFC" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<rect x="80" y="96" width="16" height="24" fill="#F8FAFC" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<rect x="96" y="96" width="16" height="24" fill="#F8FAFC" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<rect x="112" y="96" width="16" height="24" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="128" y="96" width="16" height="24" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="144" y="96" width="16" height="24" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="160" y="96" width="16" height="24" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="176" y="96" width="16" height="24" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="192" y="96" width="16" height="24" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="208" y="96" width="16" height="24" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="224" y="96" width="16" height="24" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="240" y="96" width="16" height="24" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<path d="M 64,120 V 128" fill="none" stroke="#64748B" stroke-width="1"/>
+<text x="64" y="140" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1000</text>
+<path d="M 128,120 V 128" fill="none" stroke="#64748B" stroke-width="1"/>
+<text x="128" y="140" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1004</text>
+<path d="M 192,120 V 128" fill="none" stroke="#64748B" stroke-width="1"/>
+<text x="192" y="140" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1008</text>
+<path d="M 256,120 V 128" fill="none" stroke="#64748B" stroke-width="1"/>
+<text x="256" y="140" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1012</text>
+<rect x="448" y="76" width="296" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="76" width="296" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="596" y="104" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Phải đọc và copy vào bộ nhớ của app</text>
+<text x="596" y="122" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bộ nhớ riêng · trước khi dùng</text>
+<text x="128" y="240" fill="#0F172A" font-size="9" font-family="'JetBrains Mono', monospace">Offset: 1004 bytes</text>
+<path d="M 128,244 V 256" fill="none" stroke="#0F172A" stroke-width="1.2"/>
+<rect x="64" y="256" width="16" height="24" fill="#F8FAFC" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<rect x="80" y="256" width="16" height="24" fill="#F8FAFC" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<rect x="96" y="256" width="16" height="24" fill="#F8FAFC" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<rect x="112" y="256" width="16" height="24" fill="#F8FAFC" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<rect x="128" y="256" width="16" height="24" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="0.8"/>
+<rect x="144" y="256" width="16" height="24" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="0.8"/>
+<rect x="160" y="256" width="16" height="24" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="0.8"/>
+<rect x="176" y="256" width="16" height="24" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="0.8"/>
+<rect x="192" y="256" width="16" height="24" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="0.8"/>
+<rect x="208" y="256" width="16" height="24" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="0.8"/>
+<rect x="224" y="256" width="16" height="24" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="0.8"/>
+<rect x="240" y="256" width="16" height="24" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="0.8"/>
+<path d="M 64,280 V 288" fill="none" stroke="#64748B" stroke-width="1"/>
+<text x="64" y="300" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1000</text>
+<path d="M 128,280 V 288" fill="none" stroke="#64748B" stroke-width="1"/>
+<text x="128" y="300" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1004</text>
+<path d="M 192,280 V 288" fill="none" stroke="#64748B" stroke-width="1"/>
+<text x="192" y="300" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1008</text>
+<path d="M 256,280 V 288" fill="none" stroke="#64748B" stroke-width="1"/>
+<text x="256" y="300" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1012</text>
+<rect x="448" y="236" width="296" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="236" width="296" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="596" y="264" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">mmap() trực tiếp từ file, không copy</text>
+<text x="596" y="282" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">vẫn chiếm RAM khi truy cập · trang sạch</text>
+<!-- legend -->
+<line x1="32" y1="352" x2="768" y2="352" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="368" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="146" y="360" width="12" height="12" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<text x="166" y="368" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">DỮ LIỆU ENTRY KHÔNG NÉN</text>
+<path d="M 360,360 V 372" fill="none" stroke="#64748B" stroke-width="1"/>
+<text x="372" y="368" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">BIÊN 4 BYTE</text>
+<rect x="496" y="360" width="12" height="12" rx="2" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="516" y="368" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · MMAP ĐƯỢC</text>
+</svg>
+</div>
+</div>
+
+<h4>Vì sao căn chỉnh giúp mmap được?</h4>
+
+<p>Khi dữ liệu nằm đúng vị trí, hệ thống dùng <code>mmap()</code> để ánh xạ thẳng vùng đó trong file APK vào không gian địa chỉ ảo của app. Code đọc dữ liệu dạng struct trực tiếp từ vùng nhớ đó (như <code>resources.arsc</code>) cần các trường số nguyên 32-bit nằm ở địa chỉ chia hết cho 4; truy cập lệch có thể chậm hoặc lỗi trên một số CPU ARM.</p>
+
+<p>Dữ liệu được mmap <strong>vẫn chiếm RAM khi được truy cập</strong>: các trang được nạp vào page cache. Lợi ích là đây là các trang "sạch": không bị copy thành bộ nhớ riêng của từng app, dùng chung được giữa các process, và hệ thống có thể thu hồi bất kỳ lúc nào khi thiếu RAM rồi đọc lại từ file sau.</p>
+
 <h2>Ví dụ thực tế</h2>
-<pre data-lang="kotlin"><code>android {
+
+<h3>1. Lỗi <code>INSTALL_PARSE_FAILED_NO_CERTIFICATES</code></h3>
+
+<ul>
+  <li><strong>Nguyên nhân thường gặp</strong>:
+<ul>
+  <li>APK chưa được ký (unsigned).</li>
+  <li>App có <code>targetSdk</code> từ 30 trở lên nhưng chỉ ký v1. Android 11 yêu cầu chữ ký v2 trở lên cho các app này.</li>
+  <li>Chữ ký bị hỏng do file bị sửa sau khi ký (xem ví dụ 2).</li>
+</ul></li>
+  <li><strong>Cấu hình ký trong Gradle</strong>: không ghi mật khẩu trực tiếp trong <code>build.gradle.kts</code>; đọc từ file <code>keystore.properties</code> không commit lên git (hoặc từ biến môi trường trên CI).</li>
+</ul>
+
+<pre data-lang="kotlin"><code>// build.gradle.kts (Module: app)
+import java.util.Properties
+
+val keystoreProps = Properties().apply {
+    load(rootProject.file("keystore.properties").inputStream())
+}
+
+android {
     signingConfigs {
         create("release") {
-            storeFile = file("my-release-key.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = "my-alias"
-            keyPassword = System.getenv("KEY_PASSWORD")
-            enableV1Signing = true
-            enableV2Signing = true
+            storeFile = file(keystoreProps.getProperty("storeFile"))
+            storePassword = keystoreProps.getProperty("storePassword")
+            keyAlias = keystoreProps.getProperty("keyAlias")
+            keyPassword = keystoreProps.getProperty("keyPassword")
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }</code></pre>
 
-<h2>Nâng cao</h2>
-<p>Công cụ <code>zipalign</code> giúp sắp xếp tài nguyên chưa nén theo ranh giới 4-byte, cho phép hệ điều hành dùng <code>mmap()</code> đọc trực tiếp từ APK vào RAM mà không cần copy bộ nhớ.</p>
+<p>AGP tự chọn scheme phù hợp: luôn ký v2, và chỉ ký thêm v1 khi <code>minSdk</code> dưới 24. Chỉ đặt <code>enableV1Signing</code> / <code>enableV2Signing</code> khi thật sự cần ép khác đi.</p>
 
-<h2>Sai lầm thường gặp</h2>
+<h3>2. Ký trước rồi mới <code>zipalign</code>: chữ ký v2 bị hỏng</h3>
+
+<p>Gradle tự làm đúng thứ tự. Lỗi này thường gặp khi tự viết script ký trên CI hoặc sửa APK bằng công cụ bên ngoài.</p>
+
 <ul>
-  <li>Làm mất file Keystore (<code>.jks</code>) khiến không thể cập nhật ứng dụng.</li>
-  <li>Chạy <code>zipalign</code> SAU KHI ký v1 làm hỏng chữ ký.</li>
+  <li><strong>Nguyên nhân</strong>: chạy <code>zipalign</code> <strong>sau</strong> <code>apksigner</code>. <code>zipalign</code> dời vị trí dữ liệu trong file, làm thay đổi byte, nên chữ ký v2/v3 (bao phủ toàn bộ file) không còn hợp lệ. Thiết bị từ chối cài với lỗi xác minh chữ ký.</li>
+  <li><strong>Thứ tự đúng</strong>:
+<ol>
+  <li>Build → <code>app-unsigned.apk</code></li>
+  <li>Căn chỉnh → <strong><code>zipalign</code></strong> → <code>app-aligned.apk</code></li>
+  <li>Ký → <strong><code>apksigner</code></strong> → <code>app-release.apk</code></li>
+</ol></li>
 </ul>
 
-<h2>Lịch sử phát triển</h2>
-<p>Từ APK v1 đơn giản đến APK v2/v3/v4 và sự ra đời của Android App Bundle (AAB).</p>
+<pre data-lang="bash"><code>zipalign -p -f -v 4 app-unsigned.apk app-aligned.apk
+apksigner sign --ks release.jks --out app-release.apk app-aligned.apk
+apksigner verify --verbose app-release.apk</code></pre>
+
+<p>Tuỳ chọn <code>-p</code> căn thư viện <code>.so</code> không nén theo page 4KB. Để hỗ trợ page size 16KB, dùng build-tools mới với tuỳ chọn <code>-P 16</code>, hoặc để AGP (8.5.1 trở lên) tự xử lý.</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<ol>
+  <li><strong>Dùng <code>jarsigner</code> thay vì <code>apksigner</code></strong>:
+<ul>
+  <li><code>jarsigner</code> là công cụ của JDK và <strong>chỉ tạo chữ ký v1</strong>. Dùng <strong><code>apksigner</code></strong> trong Android SDK Build-Tools để có v2/v3/v4.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Nhầm lẫn về Multidex</strong>:
+<ul>
+  <li>Vượt 65.536 method tham chiếu trong một file DEX thì build cần nhiều file DEX.</li>
+  <li>Với <code>minSdk</code> từ 21 trở lên, multidex được bật sẵn, không cần cấu hình.</li>
+  <li>Chỉ khi <code>minSdk</code> dưới 21 mới cần <code>multiDexEnabled</code> và thư viện <code>androidx.multidex</code>.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Để lọt tài nguyên và code thừa</strong>:
+<ul>
+  <li>Không bật <code>isMinifyEnabled = true</code> và <code>isShrinkResources = true</code> cho bản release khiến APK chứa code không dùng, drawable thừa và chuỗi của các thư viện không cần.</li>
+</ul></li>
+</ol>
+
+<h2>Trade-offs và Edge Cases</h2>
+
+<h3>Trade-offs</h3>
+
+<ul>
+  <li><strong>APK nguyên khối (universal)</strong>: một APK phải chứa thư viện <code>.so</code> cho mọi ABI (<code>arm64-v8a</code>, <code>armeabi-v7a</code>, <code>x86_64</code>...) và hình ảnh cho mọi mật độ màn hình (<code>mdpi</code>, <code>hdpi</code>, <code>xxhdpi</code>...). Mỗi thiết bị chỉ dùng một phần nhỏ, phần còn lại là dung lượng tải về lãng phí. AAB giải quyết vấn đề này.</li>
+</ul>
+
+<h3>Edge Cases</h3>
+
+<ul>
+  <li><strong><code>resources.arsc</code> bị nén khi targetSdk 30+</strong>: từ Android 11, app có <code>targetSdk</code> từ 30 trở lên phải lưu <code>resources.arsc</code> <strong>không nén</strong> và căn chỉnh 4 byte. Nếu không, cài đặt thất bại với thông báo <em>"Targeting R+ (version 30 and above) requires the resources.arsc of installed APKs to be stored uncompressed and aligned on a 4-byte boundary"</em>. Lỗi này hay gặp khi đóng gói lại APK bằng công cụ bên ngoài.</li>
+  <li><strong>Thư viện <code>.so</code> không nén và page size 16KB</strong>: khi <code>.so</code> được lưu không nén (mặc định của AGP mới, <code>useLegacyPackaging = false</code>), hệ thống nạp thẳng từ APK mà không giải nén ra đĩa. Khi đó <code>.so</code> phải căn theo page. Thiết bị Android 15 dùng page 16KB cần cả việc căn chỉnh trong ZIP lẫn việc link <code>.so</code> với căn chỉnh 16KB (xem <code>android.languages.jni</code>).</li>
+</ul>
 
 <h2>Kết nối hệ thống</h2>
+
 <ul>
-  <li><strong>Prerequisites</strong>: <code>android.languages.java_android</code>, <code>android.languages.kotlin</code></li>
-  <li><strong>Related Topics</strong>: <code>android.output_packages.aab_files</code>, <code>android.languages.jni</code></li>
+  <li><strong>Prerequisites</strong>: <code>android.languages.java_android</code>, <code>android.languages.kotlin</code> (luồng biên dịch ra <code>.dex</code>).</li>
+  <li><strong>Related Topics</strong>:
+<ul>
+  <li><code>android.output_packages.aab_files</code>: định dạng xuất bản giải quyết nhược điểm dung lượng của APK universal.</li>
+  <li><code>android.languages.jni</code>: nguồn của các thư viện <code>.so</code> trong thư mục <code>lib/</code>.</li>
+</ul></li>
+  <li><strong>Downstream Topics</strong>:
+<ul>
+  <li><code>android.session02.file_permissions</code>: khi cài APK, hệ thống cấp cho app một UID riêng và thư mục dữ liệu riêng.</li>
+  <li>Process Management (chưa có bài): cách hệ thống tạo process và nạp code từ APK.</li>
+</ul></li>
+</ul>
+
+<h2>Developer Curiosity Checklist</h2>
+
+<ol>
+  <li><strong>Why was this created?</strong> Để gói toàn bộ code, tài nguyên và cấu hình thành một đơn vị cài đặt duy nhất, có chữ ký.</li>
+  <li><strong>What problem does it solve?</strong> Phân phối ứng dụng, chống sửa đổi và đọc tài nguyên nhanh ở runtime.</li>
+  <li><strong>What happens if it doesn't exist?</strong> Hệ thống không kiểm tra được tính toàn vẹn và nguồn gốc của app.</li>
+  <li><strong>How does Android implement it internally?</strong> ZIP chứa <code>classes.dex</code>, <code>resources.arsc</code> và Binary XML; xác minh bằng chữ ký v1–v4; dữ liệu căn chỉnh để mmap.</li>
+  <li><strong>What misconceptions do developers have?</strong> Tưởng APK chỉ là file zip bình thường; dùng <code>jarsigner</code>; chạy <code>zipalign</code> sau khi ký.</li>
+  <li><strong>What trade-offs does it introduce?</strong> APK universal chứa tài nguyên của mọi loại thiết bị, làm tăng dung lượng tải về.</li>
+  <li><strong>What are the edge cases?</strong> <code>resources.arsc</code> bị nén khi targetSdk 30+, <code>.so</code> chưa căn chỉnh 16KB, đảo thứ tự <code>zipalign</code> và <code>apksigner</code>.</li>
+  <li><strong>What are the real-world problems developers encounter?</strong> Lỗi <code>INSTALL_PARSE_FAILED_NO_CERTIFICATES</code>, lộ mật khẩu keystore trong repo.</li>
+  <li><strong>How is it connected to the Android system?</strong> Là đơn vị cài đặt mà <code>PackageManagerService</code> (PMS) xác minh, cài đặt và cấp UID.</li>
+  <li><strong>What should developers learn next?</strong> <code>android.output_packages.aab_files</code> để hiểu cách Google Play tạo APK riêng cho từng thiết bị.</li>
+</ol>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li>Android Open Source Project: <a href="https://source.android.com/docs/security/features/apksigning/v2" target="_blank" rel="noopener">APK Signature Scheme v2</a></li>
+  <li>Android Developers: <a href="https://developer.android.com/tools/apksigner" target="_blank" rel="noopener">apksigner</a> và <a href="https://developer.android.com/tools/zipalign" target="_blank" rel="noopener">zipalign</a></li>
+  <li>Android Developers: <a href="https://developer.android.com/studio/publish/app-signing" target="_blank" rel="noopener">Sign your app</a></li>
+  <li>Android Developers: <a href="https://developer.android.com/guide/practices/page-sizes" target="_blank" rel="noopener">Support 16 KB page sizes</a></li>
 </ul>
     `
   },
 
   'android.output_packages.aab_files': {
     title: 'Android App Bundle (AAB) & Dynamic Delivery',
-    summary: 'Định dạng xuất bản hiện đại của Google Play. Tìm hiểu cơ chế bundletool, Proto-format, Split APKs (ABI, Density, Language), Dynamic Feature Modules (DFM), SplitCompat internals và Play App Signing.',
+    summary: 'Định dạng xuất bản của Google Play. Cấu trúc AAB và Protocol Buffers, cách bundletool tạo Split APK theo ABI, mật độ màn hình và ngôn ngữ, Dynamic Feature Module với Play Feature Delivery và SplitCompat, Play App Signing, và cách test AAB cục bộ.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '25 phút',
@@ -2169,57 +4460,510 @@ Java_com_example_knowledgeos_MainActivity_stringFromJNI(JNIEnv* env, jobject thi
     prerequisites: ['android.languages.java_android', 'android.languages.kotlin', 'android.output_packages.apk_files'],
     related: ['android.languages.jni'],
     learningOutcomes: [
-      'Giải thích được sự khác biệt bản chất giữa định dạng APK nguyên khối và Android App Bundle (AAB).',
-      'Giải thích được cơ chế tạo Split APKs của bundletool (Language, Density, ABI splits) để giảm 35% dung lượng tải app.',
-      'Triển khai được kiến trúc Dynamic Feature Modules (DFM) và nạp module thời điểm chạy (Runtime Loading) với SplitCompat.',
-      'Xử lý được luồng kiểm thử ứng dụng AAB cục bộ sử dụng công cụ bundletool CLI.'
+      'Giải thích được khác biệt bản chất giữa APK (định dạng cài đặt) và Android App Bundle (định dạng xuất bản).',
+      'Giải thích được cách bundletool tạo Split APK theo ngôn ngữ, mật độ màn hình và ABI cho từng thiết bị.',
+      'Triển khai được Dynamic Feature Module tải theo yêu cầu với Play Feature Delivery và SplitCompat.',
+      'Xử lý được việc kiểm thử AAB cục bộ bằng bundletool CLI.'
     ],
-    knowledgeGap: 'Không nắm vững AAB và Dynamic Delivery khiến lập trình viên lãng phí dung lượng ứng dụng, gặp sự cố ClassNotFoundException khi truy cập Dynamic Feature Modules ở runtime, bất lực trong việc test AAB cục bộ mà không qua Play Console, và bối rối với cơ chế bảo mật của Play App Signing.',
-    updatedAt: '2026-07-22',
+    knowledgeGap: 'Không nắm vững AAB và Dynamic Delivery khiến lập trình viên lãng phí dung lượng tải về của người dùng, gặp ClassNotFoundException khi dùng Dynamic Feature Module, không biết cách test AAB cục bộ khi không qua Play Console, và nhầm lẫn giữa upload key và app signing key của Play App Signing.',
+    updatedAt: '2026-11-03',
+    readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
-<p>Universal APK truyền thống phải chứa toàn bộ mã native C++, tài nguyên màn hình và ngôn ngữ của mọi thiết bị, làm dung lượng ứng dụng phình to lãng phí.</p>
+
+<p>Trong nhiều năm, ứng dụng được phát hành dưới dạng một <strong>APK universal</strong> chứa mọi thứ cho mọi thiết bị. Điều này gây ra ba vấn đề:</p>
+
+<ol>
+  <li><strong>Lãng phí dung lượng tải về</strong>: một người dùng có điện thoại màn hình <code>xxhdpi</code>, CPU ARM64, chỉ dùng tiếng Việt vẫn phải tải hình ảnh cho mọi mật độ màn hình, thư viện native cho <code>x86</code>/<code>x86_64</code>, và chuỗi dịch của hàng chục ngôn ngữ khác.</li>
+  <li><strong>Giảm tỷ lệ cài đặt</strong>: số liệu Google Play công bố năm 2017 cho thấy cứ mỗi 6MB tăng thêm trong dung lượng APK, tỷ lệ cài đặt thành công giảm khoảng 1%.</li>
+  <li><strong>Không tách được tính năng ít dùng</strong>: tính năng chỉ dùng một lần (ví dụ quét căn cước khi đăng ký) vẫn phải nằm trong APK chính, làm tăng dung lượng cài đặt ban đầu.</li>
+</ol>
+
+<p>Tháng 5/2018, Google giới thiệu <strong>Android App Bundle (AAB)</strong>. Từ tháng 8/2021, Google Play <strong>bắt buộc app mới</strong> phát hành bằng AAB.</p>
 
 <h2>Sau khi học xong</h2>
+
 <ul>
-  <li>Giải thích được sự khác nhau cốt lõi giữa Android App Bundle (AAB) và APK truyền thống.</li>
-  <li>Phân tích được cơ chế Dynamic Delivery và Split APKs của Google Play.</li>
-  <li>Triển khai được Dynamic Feature Modules để tải module tính năng theo yêu cầu (On-Demand).</li>
-  <li>Hiểu được vai trò của Play App Signing và cách quản lý App Signing Key.</li>
-</ul>
-
-<h2>AAB là gì?</h2>
-<p><strong>Android App Bundle (AAB)</strong> là định dạng xuất bản không thể cài đặt trực tiếp. Google Play dựa trên AAB để sinh ra các <strong>Split APKs</strong> tối ưu riêng cho từng thiết bị.</p>
-
-<h2>Cách hoạt động</h2>
-<h3>Cơ chế Split APKs & Dynamic Delivery</h3>
-<p>Google Play sinh ra Base APK + ABI Split APK + Density Split APK + Language Split APK tương ứng với thiết bị tải về, giúp giảm 20-50% dung lượng.</p>
-
-<h2>Ví dụ thực tế</h2>
-<pre data-lang="kotlin"><code>// Base Module build.gradle.kts
-android {
-    dynamicFeatures += setOf(":features:ar_camera")
-}</code></pre>
-
-<h2>Nâng cao</h2>
-<p>Sử dụng công cụ <code>bundletool</code> để tạo tập tin <code>.apks</code> và cài đặt thử nghiệm AAB local qua ADB command line.</p>
-
-<h2>Sai lầm thường gặp</h2>
-<ul>
-  <li>Thử dùng <code>adb install</code> trực tiếp tập tin <code>.aab</code> (phải qua <code>bundletool</code>).</li>
-  <li>Không phân biệt được Upload Key và App Signing Key.</li>
+  <li>Giải thích được khác biệt bản chất giữa APK (định dạng cài đặt) và Android App Bundle (định dạng xuất bản).</li>
+  <li>Giải thích được cách bundletool tạo Split APK theo ngôn ngữ, mật độ màn hình và ABI cho từng thiết bị.</li>
+  <li>Triển khai được Dynamic Feature Module tải theo yêu cầu với Play Feature Delivery và SplitCompat.</li>
+  <li>Xử lý được việc kiểm thử AAB cục bộ bằng bundletool CLI.</li>
 </ul>
 
 <h2>Lịch sử phát triển</h2>
-<p>Giới thiệu năm 2018 và chính thức bắt buộc cho tất cả ứng dụng mới trên Google Play từ tháng 8/2021.</p>
+
+<div class="dd-diagram" data-dd="s01-aab-history">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 352" role="img" aria-labelledby="s01-aab-history-dark-title s01-aab-history-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-aab-history-dark-title">Từ APK sang Android App Bundle</title>
+<desc id="s01-aab-history-dark-desc">Dòng thời gian 2018–2022 của Android App Bundle: ra mắt cùng Dynamic Delivery và Play App Signing, Dynamic Feature Module, Play Asset Delivery, Google Play bắt buộc AAB cho app mới năm 2021, Play Core tách thành các thư viện riêng.</desc>
+<rect width="800" height="352" fill="#060913"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="296" stroke="rgba(148,163,184,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="44" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2018</text>
+<text x="468" y="44" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Google I/O ra mắt AAB</text>
+<text x="468" y="60" fill="#94A3B8" font-size="12" text-anchor="start">Dynamic Delivery và Play App Signing</text>
+<circle cx="400" cy="96" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="380" y="100" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2019</text>
+<text x="332" y="100" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Dynamic Feature Module được hỗ trợ đầy đủ</text>
+<text x="332" y="116" fill="#94A3B8" font-size="12" text-anchor="end">Tải module theo yêu cầu</text>
+<circle cx="400" cy="152" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="156" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2020</text>
+<text x="468" y="156" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Play Asset Delivery</text>
+<text x="468" y="172" fill="#94A3B8" font-size="12" text-anchor="start">Tách tài nguyên lớn cho game</text>
+<circle cx="400" cy="208" r="8" fill="#060913"/>
+<circle cx="400" cy="208" r="6" fill="#38BDF8"/>
+<text x="380" y="212" fill="#38BDF8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2021</text>
+<text x="332" y="212" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="end">Google Play bắt buộc AAB cho app mới</text>
+<circle cx="400" cy="264" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="420" y="268" fill="#94A3B8" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2022</text>
+<text x="468" y="268" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="start">Play Core tách thành các thư viện riêng</text>
+<text x="468" y="284" fill="#94A3B8" font-size="12" text-anchor="start">Play Feature Delivery, Play Asset Delivery</text>
+<!-- legend -->
+<line x1="32" y1="320" x2="768" y2="320" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="336" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="332" r="4" fill="#38BDF8"/>
+<text x="140" y="336" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · BẮT BUỘC AAB</text>
+<circle cx="328" cy="332" r="4" fill="#060913" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="340" y="336" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 352" role="img" aria-labelledby="s01-aab-history-title s01-aab-history-desc" font-family="'Geist', sans-serif">
+<title id="s01-aab-history-title">Từ APK sang Android App Bundle</title>
+<desc id="s01-aab-history-desc">Dòng thời gian 2018–2022 của Android App Bundle: ra mắt cùng Dynamic Delivery và Play App Signing, Dynamic Feature Module, Play Asset Delivery, Google Play bắt buộc AAB cho app mới năm 2021, Play Core tách thành các thư viện riêng.</desc>
+<rect width="800" height="352" fill="#F8FAFC"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="296" stroke="rgba(100,116,139,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="44" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2018</text>
+<text x="468" y="44" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Google I/O ra mắt AAB</text>
+<text x="468" y="60" fill="#64748B" font-size="12" text-anchor="start">Dynamic Delivery và Play App Signing</text>
+<circle cx="400" cy="96" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="100" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2019</text>
+<text x="332" y="100" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Dynamic Feature Module được hỗ trợ đầy đủ</text>
+<text x="332" y="116" fill="#64748B" font-size="12" text-anchor="end">Tải module theo yêu cầu</text>
+<circle cx="400" cy="152" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="156" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2020</text>
+<text x="468" y="156" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Play Asset Delivery</text>
+<text x="468" y="172" fill="#64748B" font-size="12" text-anchor="start">Tách tài nguyên lớn cho game</text>
+<circle cx="400" cy="208" r="8" fill="#F8FAFC"/>
+<circle cx="400" cy="208" r="6" fill="#0284C7"/>
+<text x="380" y="212" fill="#0284C7" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2021</text>
+<text x="332" y="212" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Google Play bắt buộc AAB cho app mới</text>
+<circle cx="400" cy="264" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="268" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2022</text>
+<text x="468" y="268" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Play Core tách thành các thư viện riêng</text>
+<text x="468" y="284" fill="#64748B" font-size="12" text-anchor="start">Play Feature Delivery, Play Asset Delivery</text>
+<!-- legend -->
+<line x1="32" y1="320" x2="768" y2="320" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="332" r="4" fill="#0284C7"/>
+<text x="140" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · BẮT BUỘC AAB</text>
+<circle cx="328" cy="332" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="340" y="336" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+</svg>
+</div>
+</div>
+
+<h2>Cách hoạt động</h2>
+
+<h3>1. AAB và APK khác nhau thế nào</h3>
+
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Quy tắc quan trọng:</strong> Android <strong>không thể</strong> cài trực tiếp file <code>.aab</code>. AAB là <strong>định dạng xuất bản</strong> (publishing format) gửi lên cửa hàng ứng dụng. Từ AAB, cửa hàng sinh ra các APK để cài trên thiết bị.</div></div>
+
+<div class="archify-embed" data-src="archify/android/aab-split-delivery.html" data-title="AAB → Split APK: mỗi thiết bị chỉ tải phần nó cần">
+  <a class="archify-full" href="archify/android/aab-split-delivery.html" target="_blank" rel="noopener">Mở toàn màn hình ↗</a>
+</div>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Đặc tính</th>
+      <th style="padding:8px 12px;text-align:left;">APK universal</th>
+      <th style="padding:8px 12px;text-align:left;">Android App Bundle (AAB)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Mục đích</strong></td>
+      <td style="padding:8px 12px;">Gói cài đặt trực tiếp lên thiết bị</td>
+      <td style="padding:8px 12px;">Định dạng xuất bản lên cửa hàng</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Nội dung</strong></td>
+      <td style="padding:8px 12px;">Mọi ABI, mật độ màn hình, ngôn ngữ trong một file</td>
+      <td style="padding:8px 12px;">Mọi thứ, chia theo module; manifest và tài nguyên ở dạng Protocol Buffers</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Ai ký bản cài đặt</strong></td>
+      <td style="padding:8px 12px;">Developer</td>
+      <td style="padding:8px 12px;">Google Play ký bằng app signing key (Play App Signing)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Người dùng tải về</strong></td>
+      <td style="padding:8px 12px;">Toàn bộ file</td>
+      <td style="padding:8px 12px;">Chỉ các phần thiết bị cần</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Dung lượng</strong></td>
+      <td style="padding:8px 12px;">Lớn nhất</td>
+      <td style="padding:8px 12px;">Google công bố giảm trung bình khoảng 15% so với APK universal; app có nhiều tài nguyên theo cấu hình giảm nhiều hơn</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Split APK được PackageManager hỗ trợ từ Android 5.0 (API 21). Với thiết bị cũ hơn, Play sinh <strong>standalone APK</strong> riêng cho từng nhóm cấu hình.</p>
+
+<h3>2. Cấu trúc bên trong file AAB</h3>
+
+<p>Khác với APK, nơi <code>AndroidManifest.xml</code> và <code>resources.arsc</code> ở dạng Binary XML của Android, AAB lưu manifest và bảng tài nguyên ở dạng <strong>Protocol Buffers (protobuf)</strong>. Dạng này dễ để bundletool đọc và tách theo cấu hình.</p>
+
+<pre data-lang="text"><code>MyApp.aab (ZIP Archive)
+├── BundleConfig.pb              # Cấu hình của bundle (phiên bản bundletool, cách tách split...)
+├── BUNDLE-METADATA/             # Metadata cho công cụ, ví dụ mapping file của R8
+├── base/                        # Module chính
+│   ├── manifest/
+│   │   └── AndroidManifest.xml  # Manifest dạng protobuf
+│   ├── dex/                     # classes.dex, classes2.dex...
+│   ├── res/                     # Tài nguyên
+│   ├── assets/                  # Tài nguyên thô
+│   ├── lib/                     # Thư viện .so theo ABI
+│   ├── root/                    # File sẽ nằm ở gốc APK
+│   ├── resources.pb             # Bảng tài nguyên dạng protobuf (thay cho resources.arsc)
+│   ├── assets.pb                # Mô tả assets theo cấu hình
+│   └── native.pb                # Mô tả thư viện native theo ABI
+└── feature_payment/             # Dynamic Feature Module
+    ├── manifest/
+    ├── dex/
+    └── res/</code></pre>
+
+<p><strong><code>bundletool</code></strong> đọc các file <code>.pb</code> này để biết tài nguyên nào thuộc ngôn ngữ, mật độ hay ABI nào, rồi lắp ráp thành các <strong>Split APK</strong>. Đây cũng là công cụ Google Play dùng ở phía server.</p>
+
+<h3>3. Dynamic Feature Module và SplitCompat</h3>
+
+<p><strong>Dynamic Feature Module (DFM)</strong> tách một tính năng thành module riêng với chế độ phân phối:</p>
+
+<ul>
+  <li><strong>install-time</strong>: cài cùng app (dùng để tổ chức code, vẫn có thể gỡ sau).</li>
+  <li><strong>on-demand</strong>: chỉ tải khi app yêu cầu.</li>
+  <li><strong>conditional</strong>: tải lúc cài nếu thiết bị thoả điều kiện (quốc gia, tính năng phần cứng, API level).</li>
+</ul>
+
+<p>Với module <strong>on-demand</strong>, app yêu cầu tải qua thư viện <strong>Play Feature Delivery</strong> (<code>SplitInstallManager</code>). Google Play tải split APK về và hệ thống cài nó cho app.</p>
+
+<p>Vấn đề: process đang chạy <strong>chưa nạp</strong> code và tài nguyên của split vừa cài. Thông thường phải khởi động lại app mới dùng được. <strong><code>SplitCompat</code></strong> giải quyết việc này: nó nạp code và tài nguyên của split vào process hiện tại (thêm DEX vào <code>ClassLoader</code>, thêm tài nguyên vào <code>AssetManager</code>), nên app dùng được module ngay.</p>
+
+<div class="dd-diagram" data-dd="s01-splitcompat">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 504" role="img" aria-labelledby="s01-splitcompat-dark-title s01-splitcompat-dark-desc" font-family="'Geist', sans-serif">
+<title id="s01-splitcompat-dark-title">SplitCompat: dùng module vừa tải mà không khởi động lại</title>
+<desc id="s01-splitcompat-dark-desc">App Code gọi Play Feature Delivery tải module on-demand, Google Play tải và cài split APK, rồi SplitCompat nạp DEX và tài nguyên của split vào process hiện tại để app mở PaymentActivity ngay.</desc>
+<defs>
+<marker id="s01-splitcompat-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="s01-splitcompat-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="504" fill="#060913"/>
+<!-- lifelines -->
+<line x1="96" y1="84" x2="96" y2="448" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="296" y1="84" x2="296" y2="448" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="496" y1="84" x2="496" y2="448" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="704" y1="84" x2="704" y2="448" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="292" y="120" width="8" height="136" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="492" y="160" width="8" height="56" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="700" y="300" width="8" height="76" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="92" y="392" width="8" height="40" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 100,128 H 292" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-splitcompat-dark-arrow)"/>
+<rect x="104" y="104" width="184" height="16" rx="2" fill="#060913"/>
+<text x="196" y="116" fill="#F8FAFC" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748B">1  </tspan>startInstall("feature_payment")</text>
+<path d="M 300,168 H 492" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-splitcompat-dark-arrow)"/>
+<rect x="324" y="144" width="144" height="16" rx="2" fill="#060913"/>
+<text x="396" y="156" fill="#F8FAFC" font-size="12" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748B">2  </tspan>Yêu cầu tải module</text>
+<path d="M 492,208 H 300" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#s01-splitcompat-dark-arrow)"/>
+<rect x="306" y="184" width="180" height="16" rx="2" fill="#060913"/>
+<text x="396" y="196" fill="#F8FAFC" font-size="12" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748B">3  </tspan>Tải và cài split APK xong</text>
+<path d="M 292,248 H 100" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#s01-splitcompat-dark-arrow)"/>
+<rect x="120" y="224" width="152" height="16" rx="2" fill="#060913"/>
+<text x="196" y="236" fill="#F8FAFC" font-size="12" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748B">4  </tspan>Trạng thái INSTALLED</text>
+<path d="M 100,312 H 700" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-splitcompat-dark-arrow)"/>
+<rect x="512" y="272" width="176" height="32" rx="2" fill="#060913"/>
+<text x="600" y="284" fill="#F8FAFC" font-size="12" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748B">5  </tspan>Context đã được</text>
+<text x="600" y="300" fill="#F8FAFC" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">SplitCompat.install(...)</text>
+<path d="M 700,368 H 100" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#s01-splitcompat-dark-accent)"/>
+<rect x="512" y="328" width="176" height="32" rx="2" fill="#060913"/>
+<text x="600" y="340" fill="#38BDF8" font-size="12" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748B">6  </tspan>Nạp DEX và tài nguyên</text>
+<text x="600" y="356" fill="#38BDF8" font-size="12" text-anchor="middle">của split vào process</text>
+<path d="M 100,396 H 124 A 8 8 0 0 1 132,404 V 412 A 8 8 0 0 1 124,420 H 102" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-splitcompat-dark-arrow)"/>
+<rect x="144" y="400" width="148" height="16" rx="2" fill="#060913"/>
+<text x="148" y="412" fill="#F8FAFC" font-size="12"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748B">7  </tspan>Mở PaymentActivity</text>
+<!-- actors -->
+<rect x="8" y="32" width="176" height="52" rx="6" fill="#060913"/>
+<rect x="8" y="32" width="176" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="96" y="56" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">App Code</text>
+<text x="96" y="72" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">process đang chạy</text>
+<rect x="208" y="32" width="176" height="52" rx="6" fill="#060913"/>
+<rect x="208" y="32" width="176" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="296" y="56" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Play Feature Delivery</text>
+<text x="296" y="72" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">SplitInstallManager</text>
+<rect x="408" y="32" width="176" height="52" rx="6" fill="#060913"/>
+<rect x="408" y="32" width="176" height="52" rx="6" fill="rgba(248,250,252,0.05)" stroke="rgba(248,250,252,0.40)" stroke-width="1"/>
+<text x="496" y="56" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Google Play</text>
+<text x="496" y="72" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">tải split APK</text>
+<rect x="616" y="32" width="176" height="52" rx="6" fill="#060913"/>
+<rect x="616" y="32" width="176" height="52" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="704" y="56" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">SplitCompat</text>
+<text x="704" y="72" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ClassLoader · AssetManager</text>
+<!-- legend -->
+<line x1="32" y1="472" x2="768" y2="472" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="488" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<line x1="146" y1="484" x2="178" y2="484" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s01-splitcompat-dark-arrow)"/>
+<text x="186" y="488" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỌI</text>
+<line x1="240" y1="484" x2="272" y2="484" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#s01-splitcompat-dark-arrow)"/>
+<text x="280" y="488" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRẢ VỀ</text>
+<line x1="352" y1="484" x2="384" y2="484" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#s01-splitcompat-dark-accent)"/>
+<text x="392" y="488" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · NẠP SPLIT VÀO PROCESS</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 504" role="img" aria-labelledby="s01-splitcompat-title s01-splitcompat-desc" font-family="'Geist', sans-serif">
+<title id="s01-splitcompat-title">SplitCompat: dùng module vừa tải mà không khởi động lại</title>
+<desc id="s01-splitcompat-desc">App Code gọi Play Feature Delivery tải module on-demand, Google Play tải và cài split APK, rồi SplitCompat nạp DEX và tài nguyên của split vào process hiện tại để app mở PaymentActivity ngay.</desc>
+<defs>
+<marker id="s01-splitcompat-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+<marker id="s01-splitcompat-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
+</marker>
+</defs>
+<rect width="800" height="504" fill="#F8FAFC"/>
+<!-- lifelines -->
+<line x1="96" y1="84" x2="96" y2="448" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="296" y1="84" x2="296" y2="448" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="496" y1="84" x2="496" y2="448" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="704" y1="84" x2="704" y2="448" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="292" y="120" width="8" height="136" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="492" y="160" width="8" height="56" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="700" y="300" width="8" height="76" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="92" y="392" width="8" height="40" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 100,128 H 292" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-splitcompat-arrow)"/>
+<rect x="104" y="104" width="184" height="16" rx="2" fill="#F8FAFC"/>
+<text x="196" y="116" fill="#0F172A" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">1  </tspan>startInstall("feature_payment")</text>
+<path d="M 300,168 H 492" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-splitcompat-arrow)"/>
+<rect x="324" y="144" width="144" height="16" rx="2" fill="#F8FAFC"/>
+<text x="396" y="156" fill="#0F172A" font-size="12" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">2  </tspan>Yêu cầu tải module</text>
+<path d="M 492,208 H 300" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#s01-splitcompat-arrow)"/>
+<rect x="306" y="184" width="180" height="16" rx="2" fill="#F8FAFC"/>
+<text x="396" y="196" fill="#0F172A" font-size="12" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">3  </tspan>Tải và cài split APK xong</text>
+<path d="M 292,248 H 100" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#s01-splitcompat-arrow)"/>
+<rect x="120" y="224" width="152" height="16" rx="2" fill="#F8FAFC"/>
+<text x="196" y="236" fill="#0F172A" font-size="12" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">4  </tspan>Trạng thái INSTALLED</text>
+<path d="M 100,312 H 700" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-splitcompat-arrow)"/>
+<rect x="512" y="272" width="176" height="32" rx="2" fill="#F8FAFC"/>
+<text x="600" y="284" fill="#0F172A" font-size="12" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">5  </tspan>Context đã được</text>
+<text x="600" y="300" fill="#0F172A" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">SplitCompat.install(...)</text>
+<path d="M 700,368 H 100" fill="none" stroke="#0284C7" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#s01-splitcompat-accent)"/>
+<rect x="512" y="328" width="176" height="32" rx="2" fill="#F8FAFC"/>
+<text x="600" y="340" fill="#0284C7" font-size="12" text-anchor="middle"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">6  </tspan>Nạp DEX và tài nguyên</text>
+<text x="600" y="356" fill="#0284C7" font-size="12" text-anchor="middle">của split vào process</text>
+<path d="M 100,396 H 124 A 8 8 0 0 1 132,404 V 412 A 8 8 0 0 1 124,420 H 102" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-splitcompat-arrow)"/>
+<rect x="144" y="400" width="148" height="16" rx="2" fill="#F8FAFC"/>
+<text x="148" y="412" fill="#0F172A" font-size="12"><tspan font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">7  </tspan>Mở PaymentActivity</text>
+<!-- actors -->
+<rect x="8" y="32" width="176" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="8" y="32" width="176" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="96" y="56" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">App Code</text>
+<text x="96" y="72" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">process đang chạy</text>
+<rect x="208" y="32" width="176" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="208" y="32" width="176" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="296" y="56" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Play Feature Delivery</text>
+<text x="296" y="72" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">SplitInstallManager</text>
+<rect x="408" y="32" width="176" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="408" y="32" width="176" height="52" rx="6" fill="rgba(15,23,42,0.05)" stroke="rgba(15,23,42,0.40)" stroke-width="1"/>
+<text x="496" y="56" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Google Play</text>
+<text x="496" y="72" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">tải split APK</text>
+<rect x="616" y="32" width="176" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="616" y="32" width="176" height="52" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="704" y="56" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">SplitCompat</text>
+<text x="704" y="72" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ClassLoader · AssetManager</text>
+<!-- legend -->
+<line x1="32" y1="472" x2="768" y2="472" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="488" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<line x1="146" y1="484" x2="178" y2="484" stroke="#64748B" stroke-width="1.2" marker-end="url(#s01-splitcompat-arrow)"/>
+<text x="186" y="488" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GỌI</text>
+<line x1="240" y1="484" x2="272" y2="484" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#s01-splitcompat-arrow)"/>
+<text x="280" y="488" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRẢ VỀ</text>
+<line x1="352" y1="484" x2="384" y2="484" stroke="#0284C7" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#s01-splitcompat-accent)"/>
+<text x="392" y="488" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · NẠP SPLIT VÀO PROCESS</text>
+</svg>
+</div>
+</div>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>1. Tải module on-demand và bật SplitCompat</h3>
+
+<pre data-lang="kotlin"><code>// build.gradle.kts (Module: app)
+dependencies {
+    implementation("com.google.android.play:feature-delivery-ktx:2.1.0")
+}</code></pre>
+
+<pre data-lang="kotlin"><code>// ShopApplication.kt
+class ShopApplication : Application() {
+
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        // Cho phép process hiện tại dùng code và tài nguyên của split vừa tải
+        SplitCompat.install(this)
+    }
+}</code></pre>
+
+<p>Có thể kế thừa <code>SplitCompatApplication</code> thay cho việc tự gọi <code>SplitCompat.install</code>.</p>
+
+<pre data-lang="kotlin"><code>// CheckoutActivity.kt — yêu cầu tải module thanh toán
+val splitInstallManager = SplitInstallManagerFactory.create(this)
+
+val request = SplitInstallRequest.newBuilder()
+    .addModule("feature_payment")
+    .build()
+
+splitInstallManager.startInstall(request)
+    .addOnSuccessListener { sessionId -&gt;
+        // Theo dõi tiến trình bằng SplitInstallStateUpdatedListener
+    }
+    .addOnFailureListener { exception -&gt;
+        // Xử lý lỗi: không có mạng, hết dung lượng...
+    }</code></pre>
+
+<pre data-lang="kotlin"><code>// PaymentActivity.kt — nằm trong module feature_payment
+class PaymentActivity : AppCompatActivity() {
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase)
+        // Activity thuộc DFM cần gọi để truy cập tài nguyên của chính module
+        SplitCompat.installActivity(this)
+    }
+}</code></pre>
+
+<h3>2. Kiểm thử AAB cục bộ với <code>bundletool</code></h3>
+
+<p><code>adb install</code> chỉ cài được APK. Để kiểm thử đúng luồng mà Google Play sẽ dùng, sinh APK từ AAB bằng <code>bundletool</code>.</p>
+
+<h4>Bước 1: Sinh file <code>.apks</code> từ AAB</h4>
+
+<pre data-lang="bash"><code>java -jar bundletool.jar build-apks \\
+    --bundle=app-release.aab \\
+    --output=app.apks \\
+    --ks=release.jks \\
+    --ks-pass=file:keystore.pwd \\
+    --ks-key-alias=release</code></pre>
+
+<p>Dùng <code>--ks-pass=file:...</code> để mật khẩu không nằm trong lịch sử shell. Thêm <code>--connected-device</code> để chỉ sinh APK cho thiết bị đang cắm, hoặc <code>--mode=universal</code> để sinh một APK universal (hữu ích khi phân phối ngoài Google Play).</p>
+
+<h4>Bước 2: Cài lên thiết bị đang kết nối ADB</h4>
+
+<pre data-lang="bash"><code>java -jar bundletool.jar install-apks --apks=app.apks</code></pre>
+
+<p><code>bundletool</code> đọc ABI, mật độ màn hình và ngôn ngữ của thiết bị, rồi chỉ cài các Split APK phù hợp. Để thử tải module on-demand như trên Play, dùng thêm <code>--local-testing</code> khi <code>build-apks</code>.</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<ol>
+  <li><strong>Dùng <code>adb install</code> với file <code>.aab</code></strong>:
+<ul>
+  <li><code>adb</code> chỉ hiểu APK; file <code>.aab</code> bị từ chối. Dùng <code>bundletool</code> như ví dụ trên.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Quên <code>SplitCompat</code> khi dùng module on-demand</strong>:
+<ul>
+  <li>Module tải thành công nhưng app crash <code>ClassNotFoundException</code> hoặc <code>Resources.NotFoundException</code> khi mở màn hình thuộc module, vì process chưa nạp split đó.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Nhầm hai loại key của Play App Signing</strong>:
+<ul>
+  <li><strong>App signing key</strong>: do Google giữ, dùng để ký APK cài lên thiết bị người dùng.</li>
+  <li><strong>Upload key</strong>: do developer giữ, dùng để ký AAB trước khi upload.</li>
+  <li>Mất upload key thì chủ tài khoản gửi yêu cầu reset trong Play Console. Không thể tự lấy lại app signing key, nên đừng nhầm hai key khi lưu trữ.</li>
+</ul></li>
+</ol>
+
+<ol>
+  <li><strong>Vẫn dùng thư viện Play Core cũ</strong> (<code>com.google.android.play:core</code>): từ 2022 thư viện này được tách thành Play Feature Delivery, Play Asset Delivery, Play In-App Updates... Thư viện cũ không còn tương thích với các phiên bản <code>targetSdk</code> mới.</li>
+</ol>
+
+<h2>Trade-offs và Edge Cases</h2>
+
+<h3>Trade-offs</h3>
+
+<ul>
+  <li><strong>Phụ thuộc cửa hàng hỗ trợ AAB</strong>: tải module on-demand cần Google Play (hoặc cửa hàng có hỗ trợ tương đương). Một số cửa hàng khác cũng nhận AAB, nhưng nhiều nơi vẫn yêu cầu APK. Khi phân phối ngoài Play hoặc cài nội bộ, bạn phải tự sinh APK bằng <code>bundletool</code>.</li>
+  <li><strong>Google giữ app signing key</strong>: tiện và an toàn hơn khi lỡ mất key của mình, nhưng bạn phụ thuộc vào Google cho khâu ký cuối.</li>
+  <li><strong>Test phức tạp hơn</strong>: không còn "một file APK" để gửi tester; cần <code>bundletool</code> hoặc Internal App Sharing.</li>
+</ul>
+
+<h3>Edge Cases</h3>
+
+<ul>
+  <li><strong>Tài nguyên của module trong Context chưa qua SplitCompat</strong>: gọi <code>LayoutInflater.from(context)</code> với một Context chưa được <code>SplitCompat</code> xử lý (ví dụ Context tạo riêng hoặc của Service) sẽ crash <code>Resources$NotFoundException</code> khi đọc layout/drawable của module.</li>
+</ul>
 
 <h2>Kết nối hệ thống</h2>
+
 <ul>
-  <li><strong>Prerequisites</strong>: <code>android.output_packages.apk_files</code></li>
-  <li><strong>Related Topics</strong>: <code>android.languages.java_android</code>, <code>android.languages.kotlin</code></li>
+  <li><strong>Prerequisites</strong>: <code>android.output_packages.apk_files</code> (cấu trúc APK và Signature Scheme).</li>
+  <li><strong>Related Topics</strong>:
+<ul>
+  <li><code>android.languages.jni</code>: thư viện <code>.so</code> được tách thành ABI split.</li>
+</ul></li>
+  <li><strong>Downstream Topics</strong>:
+<ul>
+  <li><code>android.cicd.overview</code>: tự động build và đẩy AAB lên Play Console trong pipeline CI/CD.</li>
+</ul></li>
+</ul>
+
+<h2>Developer Curiosity Checklist</h2>
+
+<ol>
+  <li><strong>Why was this created?</strong> Để mỗi thiết bị chỉ tải đúng phần nó cần thay vì một APK universal.</li>
+  <li><strong>What problem does it solve?</strong> Giảm dung lượng tải về, tăng tỷ lệ cài đặt, và cho phép tải tính năng theo yêu cầu.</li>
+  <li><strong>What happens if it doesn't exist?</strong> Người dùng tiếp tục tải tài nguyên và thư viện native mà thiết bị không dùng tới.</li>
+  <li><strong>How does Android implement it internally?</strong> Bundle lưu manifest và tài nguyên dạng protobuf; <code>bundletool</code> tách thành base APK và config split APK; PackageManager cài nhiều APK cho cùng một app (từ API 21).</li>
+  <li><strong>What misconceptions do developers have?</strong> Nghĩ có thể <code>adb install</code> file <code>.aab</code>; nhầm upload key với app signing key.</li>
+  <li><strong>What trade-offs does it introduce?</strong> Phụ thuộc cửa hàng ứng dụng và Play App Signing, test phức tạp hơn.</li>
+  <li><strong>What are the edge cases?</strong> Crash <code>ClassNotFoundException</code> / <code>Resources$NotFoundException</code> do thiếu <code>SplitCompat</code>.</li>
+  <li><strong>What are the real-world problems developers encounter?</strong> Test AAB cục bộ, quản lý key với Play App Signing, chuyển từ Play Core sang các thư viện mới.</li>
+  <li><strong>How is it connected to the Android system?</strong> Dựa trên khả năng cài nhiều Split APK cho một app của PackageManager từ Android 5.0 (API 21).</li>
+  <li><strong>What should developers learn next?</strong> Session 02 (File Permissions, Process Management) để hiểu hệ thống cài đặt và cô lập ứng dụng thế nào.</li>
+</ol>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li>Android Developers: <a href="https://developer.android.com/guide/app-bundle" target="_blank" rel="noopener">About Android App Bundles</a></li>
+  <li>Android Developers: <a href="https://developer.android.com/tools/bundletool" target="_blank" rel="noopener">bundletool</a></li>
+  <li>Android Developers: <a href="https://developer.android.com/guide/playcore/feature-delivery" target="_blank" rel="noopener">Play Feature Delivery</a></li>
+  <li>Android Developers: <a href="https://support.google.com/googleplay/android-developer/answer/9842756" target="_blank" rel="noopener">Use Play App Signing</a></li>
+  <li>Google Play Apps &amp; Games (2017): <em>Shrinking APKs, growing installs</em>. Nguồn của số liệu 6MB và 1%.</li>
 </ul>
     `
-  }
+  },
 
 });
 
@@ -2235,262 +4979,6 @@ ANDROID_CONTENT['android.session01.overview'] = ANDROID_CONTENT['session-01-over
 
 
 Object.assign(ANDROID_CONTENT, {
-  'ss01-lang-kotlin': {
-    title: 'Kotlin trong Android',
-    summary: 'Trình biên dịch Kotlinc, cơ chế Null Safety, quá trình tương tác chéo với Java (Interoperability) và những điều quan trọng cần biết khi dùng Kotlin cho Android.',
-    status: 'draft',
-    tags: ['Language', 'Kotlin', 'Compiler', 'Null Safety', 'Coroutines'],
-    domain: 'Android',
-    module: 'Session 01: Languages',
-    prerequisites: ['java-in-android'],
-    related: ['coroutines', 'jetpack-compose'],
-    updatedAt: '2026-07-23',
-    readTime: '15 phút',
-    content: `
-<h2>1. Bản chất: Kotlin chạy như thế nào trên Android?</h2>
-<p>Một trong những lầm tưởng phổ biến nhất là: <em>"Kotlin chạy trên một máy ảo Kotlin riêng"</em> hoặc <em>"Android có một hệ điều hành mới dành cho Kotlin"</em>.</p>
-<p>Thực tế: <strong>Không hề có máy ảo Kotlin riêng biệt trên Android</strong>. Kotlin (trên Android) chia sẻ chung nền tảng Runtime (ART) hoàn toàn giống như Java.</p>
-
-<h3>Trình biên dịch (Kotlinc) là chìa khóa</h3>
-<p>Sự khác biệt lớn nhất giữa Kotlin và Java nằm ở <strong>Trình biên dịch (Compiler)</strong>. Trình biên dịch <code>kotlinc</code> đóng vai trò chuyển mã nguồn Kotlin (<code>.kt</code>) thành mã Bytecode tiêu chuẩn của Java (<code>.class</code>).</p>
-
-<div class="dd-diagram" data-dd="kotlin-build">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 584" role="img" aria-labelledby="kotlin-build-dark-title kotlin-build-dark-desc" font-family="'Geist', sans-serif">
-<title id="kotlin-build-dark-title">Kotlin và Java cùng về một file Dex</title>
-<desc id="kotlin-build-dark-desc">Mã Kotlin biên dịch bằng kotlinc và mã Java bằng javac cùng ra Java bytecode, D8 hoặc R8 chuyển thành Dalvik bytecode, đóng gói APK hoặc AAB rồi chạy trên thiết bị bằng ART.</desc>
-<defs>
-<marker id="kotlin-build-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="584" fill="#060913"/>
-<!-- arrows -->
-<path d="M 176,96 V 120 H 392 Q 400,120 400,128 V 160" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#kotlin-build-dark-arrow)"/>
-<rect x="256" y="100" width="64" height="12" rx="2" fill="#060913"/>
-<text x="288" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KOTLINC</text>
-<path d="M 624,96 V 120 H 408 Q 400,120 400,128 V 160" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#kotlin-build-dark-arrow)"/>
-<rect x="488" y="100" width="56" height="12" rx="2" fill="#060913"/>
-<text x="516" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JAVAC</text>
-<path d="M 400,224 V 268" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#kotlin-build-dark-arrow)"/>
-<rect x="412" y="236" width="64" height="16" rx="2" fill="#060913"/>
-<text x="420" y="248" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">D8 · R8</text>
-<path d="M 400,332 V 376" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#kotlin-build-dark-arrow)"/>
-<rect x="412" y="346" width="72" height="16" rx="2" fill="#060913"/>
-<text x="420" y="358" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">APK · AAB</text>
-<path d="M 400,436 V 476" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#kotlin-build-dark-arrow)"/>
-<rect x="412" y="446" width="48" height="16" rx="2" fill="#060913"/>
-<text x="420" y="458" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">ART</text>
-<!-- nodes -->
-<rect x="64" y="32" width="224" height="64" rx="20" fill="#060913"/>
-<rect x="64" y="32" width="224" height="64" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="176" y="68" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Kotlin .kt</text>
-<text x="176" y="86" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">source code</text>
-<rect x="512" y="32" width="224" height="64" rx="20" fill="#060913"/>
-<rect x="512" y="32" width="224" height="64" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="624" y="68" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Java .java</text>
-<text x="624" y="86" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">source code</text>
-<rect x="280" y="160" width="240" height="64" rx="6" fill="#060913"/>
-<rect x="280" y="160" width="240" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="196" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Bytecode .class</text>
-<text x="400" y="214" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">jvm bytecode</text>
-<rect x="280" y="268" width="240" height="64" rx="6" fill="#060913"/>
-<rect x="280" y="268" width="240" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="288" y="274" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="314" y="283" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
-<text x="400" y="304" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Dex .dex</text>
-<text x="400" y="322" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">d8 · r8 compiler</text>
-<rect x="280" y="376" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="376" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="410" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Thiết bị Android</text>
-<text x="400" y="428" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">apk · aab</text>
-<rect x="280" y="476" width="240" height="60" rx="20" fill="#060913"/>
-<rect x="280" y="476" width="240" height="60" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="510" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Machine Code</text>
-<text x="400" y="528" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">art runtime</text>
-<!-- legend -->
-<line x1="32" y1="560" x2="768" y2="560" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="576" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="572" r="4" fill="#38BDF8"/>
-<text x="162" y="576" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · DEX</text>
-<line x1="330" y1="572" x2="362" y2="572" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#kotlin-build-dark-arrow)"/>
-<text x="370" y="576" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">BIÊN DỊCH</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 584" role="img" aria-labelledby="kotlin-build-title kotlin-build-desc" font-family="'Geist', sans-serif">
-<title id="kotlin-build-title">Kotlin và Java cùng về một file Dex</title>
-<desc id="kotlin-build-desc">Mã Kotlin biên dịch bằng kotlinc và mã Java bằng javac cùng ra Java bytecode, D8 hoặc R8 chuyển thành Dalvik bytecode, đóng gói APK hoặc AAB rồi chạy trên thiết bị bằng ART.</desc>
-<defs>
-<marker id="kotlin-build-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="584" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 176,96 V 120 H 392 Q 400,120 400,128 V 160" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#kotlin-build-arrow)"/>
-<rect x="256" y="100" width="64" height="12" rx="2" fill="#F8FAFC"/>
-<text x="288" y="109" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KOTLINC</text>
-<path d="M 624,96 V 120 H 408 Q 400,120 400,128 V 160" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#kotlin-build-arrow)"/>
-<rect x="488" y="100" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="516" y="109" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JAVAC</text>
-<path d="M 400,224 V 268" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#kotlin-build-arrow)"/>
-<rect x="412" y="236" width="64" height="16" rx="2" fill="#F8FAFC"/>
-<text x="420" y="248" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">D8 · R8</text>
-<path d="M 400,332 V 376" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#kotlin-build-arrow)"/>
-<rect x="412" y="346" width="72" height="16" rx="2" fill="#F8FAFC"/>
-<text x="420" y="358" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">APK · AAB</text>
-<path d="M 400,436 V 476" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#kotlin-build-arrow)"/>
-<rect x="412" y="446" width="48" height="16" rx="2" fill="#F8FAFC"/>
-<text x="420" y="458" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.06em">ART</text>
-<!-- nodes -->
-<rect x="64" y="32" width="224" height="64" rx="20" fill="#F8FAFC"/>
-<rect x="64" y="32" width="224" height="64" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="176" y="68" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Kotlin .kt</text>
-<text x="176" y="86" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">source code</text>
-<rect x="512" y="32" width="224" height="64" rx="20" fill="#F8FAFC"/>
-<rect x="512" y="32" width="224" height="64" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="624" y="68" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Java .java</text>
-<text x="624" y="86" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">source code</text>
-<rect x="280" y="160" width="240" height="64" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="160" width="240" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="196" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Bytecode .class</text>
-<text x="400" y="214" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">jvm bytecode</text>
-<rect x="280" y="268" width="240" height="64" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="268" width="240" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="288" y="274" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="314" y="283" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
-<text x="400" y="304" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Dex .dex</text>
-<text x="400" y="322" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">d8 · r8 compiler</text>
-<rect x="280" y="376" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="376" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="410" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Thiết bị Android</text>
-<text x="400" y="428" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">apk · aab</text>
-<rect x="280" y="476" width="240" height="60" rx="20" fill="#F8FAFC"/>
-<rect x="280" y="476" width="240" height="60" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="510" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Machine Code</text>
-<text x="400" y="528" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">art runtime</text>
-<!-- legend -->
-<line x1="32" y1="560" x2="768" y2="560" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="572" r="4" fill="#0284C7"/>
-<text x="162" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · DEX</text>
-<line x1="330" y1="572" x2="362" y2="572" stroke="#64748B" stroke-width="1.2" marker-end="url(#kotlin-build-arrow)"/>
-<text x="370" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">BIÊN DỊCH</text>
-</svg>
-</div>
-</div>
-
-
-<p><strong>Tại sao điều này quan trọng?</strong><br>
-Bởi vì <code>kotlinc</code> biên dịch ra mã tương thích với JVM, nên Android (Dalvik/ART) không cần biết mã gốc được viết bằng Kotlin hay Java. ART chỉ đọc và chạy file <code>.dex</code>. Nhờ thiết kế này:</p>
-<ol>
-<li>Bạn có thể sử dụng tất cả các thư viện viết bằng Java trong project Kotlin.</li>
-<li>Không cần thiết bị người dùng phải cập nhật Android OS mới nhất để chạy được Kotlin.</li>
-<li>Kích thước APK không bị đội lên quá lớn (chỉ tăng một chút do kèm theo Kotlin Standard Library).</li>
-</ol>
-
-<h2>2. Kotlin giải quyết vấn đề gì của Java?</h2>
-
-<h3>2.1. Null Safety (Loại bỏ Billion Dollar Mistake)</h3>
-<p>Lỗi phổ biến nhất làm crash app Android viết bằng Java là <code>NullPointerException</code> (NPE). Trong Java, bất kỳ Object nào cũng có thể là <code>null</code>.</p>
-<p><strong>Kotlin giải quyết bằng cách nào?</strong><br>
-Kotlin bắt buộc bạn phải khai báo rõ ràng một biến có thể <code>null</code> hay không ngay ở cấp độ ngôn ngữ. Nếu một biến không được đánh dấu <code>?</code>, <strong>Compiler sẽ không cho phép bạn gán <code>null</code> vào nó</strong>.</p>
-<pre><code class="language-kotlin">var name: String = "John"
-// name = null // Compiler Error: Null can not be a value of a non-null type String
-
-var nullableName: String? = "John"
-nullableName = null // Hợp lệ
-</code></pre>
-
-<div class="callout-note">
-  <strong>Cơ chế đằng sau Null Safety</strong><br/>
-  Khi biên dịch sang Java Bytecode, biến Kotlin không-thể-null (<code>String</code>) sẽ được <code>kotlinc</code> dịch thành biến Java bình thường kèm theo Annotation <code>@NotNull</code>. Còn biến có-thể-null (<code>String?</code>) được dịch thành <code>@Nullable</code>. <br/>
-  Đồng thời, compiler sẽ tự động chèn các câu lệnh kiểm tra (ví dụ: <code>Intrinsics.checkNotNullParameter(...)</code>) vào đầu hàm để ném ra ngoại lệ <code>IllegalArgumentException</code> sớm nếu một thư viện Java nào đó cố tình truyền <code>null</code> vào biến không-thể-null của Kotlin.
-</div>
-
-<h3>2.2. Boilerplate Code (Giảm thiểu mã dư thừa)</h3>
-<p>Java yêu cầu quá nhiều mã để định nghĩa cấu trúc dữ liệu cơ bản (Getters, Setters, <code>equals()</code>, <code>hashCode()</code>, <code>toString()</code>). Kotlin cung cấp <strong>Data Classes</strong>.</p>
-<pre><code class="language-kotlin">// Chỉ 1 dòng code trong Kotlin
-data class User(val id: Int, val name: String)
-</code></pre>
-<p><strong>Điều gì xảy ra ở phía sau?</strong><br>
-Khi bạn dùng từ khóa <code>data</code>, trình biên dịch <code>kotlinc</code> sẽ <strong>tự động sinh ra</strong> toàn bộ các hàm getter, setter, <code>equals</code>, <code>hashCode</code>, <code>toString</code> và <code>copy</code> ở mã Bytecode. Bạn viết ít code hơn, nhưng số lượng mã máy được sinh ra (và số lượng method) tương đương với Java.</p>
-
-<h3>2.3. Bất đồng bộ (Concurrency) với Coroutines</h3>
-<p>Xử lý luồng (Threading) trong Java bằng <code>AsyncTask</code> (đã deprecated) hay <code>RxJava</code> đòi hỏi nhiều code phức tạp (Callbacks hell) hoặc vòng đời học tập (learning curve) quá dốc.</p>
-<p>Kotlin giới thiệu <strong>Coroutines</strong> - lập trình bất đồng bộ viết như mã đồng bộ (sequential-style).</p>
-<div class="callout-tip">
-  <strong>Coroutines không phải là một Thread mới.</strong> Chúng chạy <em>bên trên</em> các Thread hiện có, giống như những tác vụ siêu nhẹ. Hàng ngàn coroutines có thể chạy trên một Thread mà không làm tràn bộ nhớ (OOM). Chi tiết sâu hơn sẽ được học ở <strong>Session 08: Coroutines</strong>.
-</div>
-
-<h2>3. Khả năng tương tác chéo (Interoperability)</h2>
-<p>Một trong những lý do Google chọn Kotlin là vì nó tương tác 100% hai chiều với Java (100% Interoperability). Bạn có thể có cả file <code>.java</code> và <code>.kt</code> trong cùng một project.</p>
-
-<h3>3.1. Gọi Java từ Kotlin</h3>
-<p>Hoạt động gần như tự nhiên, vì Kotlin xem Getter/Setter của Java như là Property.</p>
-<pre><code class="language-java">// User.java
-public class User {
-    private String name;
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-}
-</code></pre>
-<pre><code class="language-kotlin">// MainActivity.kt
-val user = User()
-user.name = "Android" // Kotlin tự động gọi setName() và getName() của Java
-</code></pre>
-
-<h3>3.2. Gọi Kotlin từ Java</h3>
-<p>Kotlin biên dịch ra Bytecode nên Java có thể gọi nó. Tuy nhiên, một số tính năng đặc thù của Kotlin (như Default parameters, hay hàm nằm ngoài class) cần các Annotation đặc biệt để Java gọi dễ dàng hơn.</p>
-<pre><code class="language-kotlin">// Utils.kt (File name)
-fun doSomething(id: Int, name: String = "Default") { ... }
-</code></pre>
-<pre><code class="language-java">// Java code gọi Kotlin code
-UtilsKt.doSomething(1, "Text"); 
-// Nếu muốn Java gọi được hàm có tham số mặc định, 
-// bên Kotlin phải thêm @JvmOverloads trước hàm doSomething.
-</code></pre>
-
-<h2>4. Annotation Processing: Từ KAPT đến KSP</h2>
-<p>Trong Android, các thư viện như Room, Dagger/Hilt, Glide sử dụng Annotation Processing để tự động sinh code.</p>
-<ul>
-<li>Trong Java: Sử dụng <strong>APT</strong> (Annotation Processing Tool).</li>
-<li>Trong Kotlin: APT của Java không hiểu được mã Kotlin. Do đó Kotlin tạo ra <strong>KAPT</strong> (Kotlin Annotation Processing Tool).</li>
-</ul>
-<p><strong>Vấn đề của KAPT:</strong><br>
-KAPT hoạt động bằng cách sinh ra các lớp Java Stub (các lớp vỏ rỗng) từ mã Kotlin, sau đó đưa cho APT của Java xử lý. Việc phải tạo ra Stubs làm cho quá trình Build bị chậm đi đáng kể (tăng Build Time).</p>
-<p><strong>Giải pháp KSP (Kotlin Symbol Processing):</strong><br>
-KSP được Google ra mắt để thay thế KAPT. KSP chạy trực tiếp trên mã Kotlin, không cần phải tạo ra các Java Stubs. Nó nhanh hơn KAPT tới 2 lần.</p>
-<div class="callout-warning">
-  Khi setup dự án mới (có dùng Room, Hilt, Moshi...), <strong>luôn ưu tiên sử dụng KSP thay vì KAPT</strong> để tối ưu hóa thời gian build.
-</div>
-
-<h2>5. Những nhược điểm (Trade-offs) cần lưu ý</h2>
-<p>Không có giải pháp nào là hoàn hảo. Khi chọn Kotlin thay vì Java, bạn chấp nhận các đánh đổi:</p>
-<ol>
-<li><strong>Build Time (Thời gian biên dịch):</strong> Trình biên dịch <code>kotlinc</code> thực hiện rất nhiều việc (kiểm tra kiểu, suy luận kiểu, sinh code cho inline functions, data classes), điều này làm Clean Build của Kotlin chậm hơn Java thuần từ 15-20%.</li>
-<li><strong>Kích thước APK:</strong> Việc sử dụng Kotlin sẽ nhúng thêm <code>kotlin-stdlib</code> vào APK của bạn. Mặc dù R8 làm rất tốt việc loại bỏ code dư thừa (Dead code elimination), APK/AAB xuất ra vẫn có thể nhỉnh hơn một chút.</li>
-<li><strong>Overhead của tính năng ngầm định:</strong> Các tính năng như <code>Delegated Properties</code> (ví dụ <code>by lazy</code>) hoặc <code>High-order functions</code> có thể sinh ra thêm các đối tượng trung gian ở Bytecode nếu bạn không sử dụng chúng kèm theo từ khóa <code>inline</code>. Điều này có thể ảnh hưởng nhỏ đến bộ nhớ nếu lạm dụng trong các vòng lặp lớn.</li>
-</ol>
-
-<h2>6. Tổng kết: Bạn cần học những gì ở Kotlin cho Android?</h2>
-<p>Nếu chuyển từ Java hoặc ngôn ngữ khác sang Kotlin để làm Android, đây là <strong>Checklist cốt lõi</strong> bạn phải nắm vững thay vì học lan man:</p>
-<ul>
-<li>[ ] <strong>Variable & Null Safety:</strong> <code>val</code>, <code>var</code>, <code>?</code>, <code>!!</code>, <code>?.</code>, <code>?:</code> (Elvis operator).</li>
-<li>[ ] <strong>Functions & Lambdas:</strong> Higher-Order Functions, Inline Functions (cách nó giảm overhead).</li>
-<li>[ ] <strong>Classes & Types:</strong> Data Classes, Sealed Classes / Sealed Interfaces (để quản lý State trong UI), Enum.</li>
-<li>[ ] <strong>Extensions:</strong> Extension Functions (Cách thêm hàm vào một Class mà không cần kế thừa - Ví dụ thêm hàm <code>dpToPx()</code> vào class <code>Int</code>).</li>
-<li>[ ] <strong>Delegation:</strong> <code>by lazy</code> (Khởi tạo muộn), <code>by viewModels()</code> trong Fragment/Activity.</li>
-<li>[ ] <strong>Collections API:</strong> <code>map</code>, <code>filter</code>, <code>reduce</code>, <code>flatMap</code> (làm việc với danh sách mạnh mẽ hơn Java Streams).</li>
-<li>[ ] <strong>Coroutines & Flow:</strong> <code>suspend</code>, <code>Dispatchers</code>, <code>StateFlow</code>, <code>SharedFlow</code>. (Bắt buộc phải nắm để thao tác Network/Database).</li>
-</ul>
-<div class="callout-tip">
-  <strong>Học tiếp ở đâu?</strong><br>
-  Khác với Java Write-Once-Run-Anywhere (Viết một lần chạy mọi nơi thông qua JVM), Kotlin hiện đang tiến tới <strong>Kotlin Multiplatform (KMP)</strong> - cho phép chia sẻ Business Logic giữa Android, iOS, Desktop và Web (sử dụng Kotlin/Native và Kotlin/JS). Nếu bạn đã thành thạo Kotlin trên Android, KMP là bước đi tự nhiên tiếp theo.
-</div>
-`
-  },
 
   'build-types': {
     title: 'Build Types',

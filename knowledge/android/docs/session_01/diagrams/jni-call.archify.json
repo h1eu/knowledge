@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Một lần gọi JNI: từ Kotlin sang C++ và quay về",
+    "output": "website/archify/android/jni-call.html",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "emphasis": { "label": "lời gọi chính" },
+        "default": { "label": "gọi hàm JNI" },
+        "security": { "label": "tạo / giải phóng reference" },
+        "return": { "label": "trả về" }
+      }
+    }
+  },
+  "participants": [
+    { "id": "kotlin", "type": "backend", "label": "Code Kotlin", "sublabel": "ImageFilter" },
+    { "id": "art", "type": "backend", "label": "ART", "sublabel": "thread hiện tại" },
+    { "id": "refs", "type": "security", "label": "Local Ref Table", "sublabel": "của thread" },
+    { "id": "cpp", "type": "backend", "label": "Hàm C++", "sublabel": "libimagefilter.so" }
+  ],
+  "segments": [
+    { "from": 160, "to": 300, "label": "Vào native" },
+    { "from": 310, "to": 500, "label": "Xử lý trong C++" },
+    { "from": 510, "to": 660, "label": "Quay về ART" }
+  ],
+  "messages": [
+    { "id": "call-sharpen", "from": "kotlin", "to": "art", "y": 175, "label": "sharpen(pixels, w, h)", "variant": "emphasis", "note": "Gọi external fun" },
+    { "id": "make-local-ref", "from": "art", "to": "refs", "y": 230, "label": "tạo Local Reference", "variant": "security", "note": "Thread chuyển Runnable → Native; GC có thể chạy song song" },
+    { "id": "ref-handle", "from": "refs", "to": "art", "y": 290, "label": "jintArray", "variant": "return" },
+    { "id": "enter-cpp", "from": "art", "to": "cpp", "y": 325, "label": "gọi hàm C++ (JNIEnv*)", "variant": "emphasis" },
+    { "id": "get-elements", "from": "cpp", "to": "art", "y": 360, "label": "GetIntArrayElements", "note": "Lấy con trỏ tới dữ liệu mảng" },
+    { "id": "elements-ptr", "from": "art", "to": "cpp", "y": 415, "label": "jint* data", "variant": "return" },
+    { "id": "release-elements", "from": "cpp", "to": "art", "y": 450, "label": "ReleaseIntArrayElements", "note": "Ghi kết quả về mảng Java" },
+    { "id": "cpp-return", "from": "cpp", "to": "art", "y": 505, "label": "return", "variant": "return" },
+    { "id": "drop-local-ref", "from": "art", "to": "refs", "y": 540, "label": "giải phóng Local Reference", "variant": "security", "note": "Thread chuyển Native → Runnable; chờ nếu GC đang dừng các thread" },
+    { "id": "back-to-kotlin", "from": "art", "to": "kotlin", "y": 620, "label": "trả về Kotlin", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "art", "from": 170, "to": 626, "type": "backend" },
+    { "participant": "refs", "from": 225, "to": 296, "type": "security" },
+    { "participant": "cpp", "from": 320, "to": 511, "type": "backend" },
+    { "participant": "refs", "from": 535, "to": 560, "type": "security" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Chi phí nằm ở đâu", "items": ["Không phải system call, không vào kernel", "Tốn ở chuyển trạng thái thread và tạo reference", "Gom cả khối dữ liệu vào một lần gọi"] },
+    { "dot": "violet", "title": "Local Reference", "items": ["Tự giải phóng khi hàm native trả về", "Trong vòng lặp dài, gọi DeleteLocalRef sau mỗi lần dùng"] },
+    { "dot": "rose", "title": "Lỗi trong C++", "items": ["SIGSEGV dừng cả process", "try-catch Kotlin/Java không bắt được"] }
+  ]
+}

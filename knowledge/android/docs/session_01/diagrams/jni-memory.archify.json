@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "JNI: Managed Heap và Native Heap",
+    "output": "website/archify/android/jni-memory.html",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "backend": { "label": "code đang chạy" },
+        "database": { "label": "vùng nhớ" },
+        "security": { "label": "bảng reference" },
+        "messagebus": { "label": "giao diện JNI" }
+      }
+    }
+  },
+  "components": [
+    { "id": "kotlin", "type": "backend", "label": "Code Kotlin / Java", "sublabel": "ImageFilter.sharpen()", "pos": [40, 60], "size": [150, 64] },
+    { "id": "jnienv", "type": "messagebus", "label": "JNIEnv*", "sublabel": "mỗi thread một bản", "pos": [330, 60], "size": [150, 64] },
+    { "id": "native", "type": "backend", "label": "Hàm C/C++", "sublabel": "libimagefilter.so", "pos": [620, 60], "size": [150, 64] },
+    { "id": "heap", "type": "database", "label": "Managed Heap", "sublabel": "object Kotlin / Java", "pos": [40, 230], "size": [150, 64] },
+    { "id": "refs", "type": "security", "label": "Reference Tables", "sublabel": "Local / Global Reference", "pos": [330, 230], "size": [150, 64] },
+    { "id": "nativeheap", "type": "database", "label": "Native Heap", "sublabel": "malloc / new", "pos": [620, 230], "size": [150, 64] },
+    { "id": "gc", "type": "backend", "label": "Garbage Collector", "sublabel": "của ART", "pos": [40, 390], "size": [150, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "ART (managed)", "wraps": ["kotlin", "heap", "gc"] },
+    { "kind": "security-group", "label": "Ranh giới JNI", "wraps": ["jnienv", "refs"] },
+    { "kind": "region", "label": "Native (C/C++)", "wraps": ["native", "nativeheap"] }
+  ],
+  "connections": [
+    { "id": "call-external", "from": "kotlin", "to": "jnienv", "label": "external fun", "variant": "emphasis" },
+    { "id": "call-native", "from": "jnienv", "to": "native", "label": "gọi hàm native", "variant": "emphasis" },
+    { "id": "alloc-object", "from": "kotlin", "to": "heap", "label": "tạo object" },
+    { "id": "issue-ref", "from": "jnienv", "to": "refs", "label": "cấp Local Reference", "variant": "security" },
+    { "id": "ref-keeps-object", "from": "refs", "to": "heap", "label": "giữ object sống", "variant": "security" },
+    { "id": "native-alloc", "from": "native", "to": "nativeheap", "label": "malloc / free" },
+    { "id": "gc-collect", "from": "gc", "to": "heap", "label": "thu hồi, di chuyển", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Managed Heap", "items": ["Do ART quản lý; GC có thể di chuyển object để chống phân mảnh", "Vì vậy C/C++ chỉ giữ reference gián tiếp (jobject), không giữ con trỏ thật"] },
+    { "dot": "violet", "title": "Ranh giới JNI", "items": ["JNIEnv* chỉ dùng được trên thread đã cấp nó", "Local Reference tự giải phóng khi hàm native trả về", "Global Reference phải gọi DeleteGlobalRef, nếu không object sống mãi"] },
+    { "dot": "amber", "title": "Native Heap", "items": ["C/C++ tự cấp phát và giải phóng bằng malloc/free, new/delete", "GC không thấy vùng nhớ này: quên giải phóng là rò rỉ"] }
+  ]
+}

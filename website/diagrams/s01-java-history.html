@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hành trình tiến hóa của Java trong Hệ điều hành Android</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ DÒNG THỜI GIAN · JAVA</p>
+  <h1>Hành trình tiến hóa của Java trong Hệ điều hành Android</h1>
+  <p class="sub">Runtime đổi từ Dalvik sang ART năm 2014, rồi toolchain chuyển sang D8, R8 và desugaring.</p>
+<svg viewBox="0 0 800 492" role="img" aria-labelledby="s01-java-history-title s01-java-history-desc" font-family="'Geist', sans-serif">
+<title id="s01-java-history-title">Hành trình tiến hóa của Java trong Hệ điều hành Android</title>
+<desc id="s01-java-history-desc">Dòng thời gian 2007–2020 của Java trên Android: Dalvik, JIT, ART thay Dalvik năm 2014, ART kết hợp JIT và AOT, hỗ trợ Kotlin, D8, R8 và Core Library Desugaring.</desc>
+<rect width="800" height="492" fill="#F8FAFC"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="436" stroke="rgba(100,116,139,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="68" x2="408" y2="68" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="96" x2="408" y2="96" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="152" x2="408" y2="152" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="180" x2="408" y2="180" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="264" x2="408" y2="264" stroke="#64748B" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="44" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2007</text>
+<text x="468" y="44" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Ra mắt Android SDK (Java 5/6)</text>
+<text x="468" y="60" fill="#64748B" font-size="12" text-anchor="start">Dalvik VM với kiến trúc Register-based</text>
+<circle cx="400" cy="124" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="128" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2010</text>
+<text x="332" y="128" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 2.2 thêm JIT cho Dalvik</text>
+<text x="332" y="144" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Oracle kiện Google về Java API</text>
+<circle cx="400" cy="208" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="212" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2013</text>
+<text x="468" y="212" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Android 4.4 thêm ART dạng tuỳ chọn</text>
+<circle cx="400" cy="236" r="8" fill="#F8FAFC"/>
+<circle cx="400" cy="236" r="6" fill="#0284C7"/>
+<text x="380" y="240" fill="#0284C7" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2014</text>
+<text x="332" y="240" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 5.0 - ART thay Dalvik</text>
+<text x="332" y="256" fill="#64748B" font-size="12" text-anchor="end">AOT toàn bộ khi cài</text>
+<circle cx="400" cy="292" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="296" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2016</text>
+<text x="468" y="296" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Android 7.0 - ART kết hợp JIT, AOT</text>
+<text x="468" y="312" fill="#64748B" font-size="12" text-anchor="start">Profile-guided compilation</text>
+<circle cx="400" cy="320" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="324" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2017</text>
+<text x="332" y="324" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Google công bố hỗ trợ Kotlin</text>
+<circle cx="400" cy="348" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="352" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2018</text>
+<text x="468" y="352" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">D8 thay DX làm dex compiler mặc định</text>
+<circle cx="400" cy="376" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="380" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2019</text>
+<text x="332" y="380" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">R8 thay ProGuard</text>
+<text x="332" y="396" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Google tuyên bố Kotlin-first</text>
+<circle cx="400" cy="404" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="408" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2020</text>
+<text x="468" y="408" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Core Library Desugaring (AGP 4.0)</text>
+<text x="468" y="424" fill="#64748B" font-size="12" text-anchor="start">Dùng java.time trên thiết bị cũ</text>
+<!-- legend -->
+<line x1="32" y1="460" x2="768" y2="460" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="476" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="472" r="4" fill="#0284C7"/>
+<text x="140" y="476" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · ART THAY DALVIK</text>
+<circle cx="328" cy="472" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="340" y="476" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="472" x2="456" y2="472" stroke="#64748B" stroke-width="0.8"/>
+<text x="464" y="476" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · TIMELINE · DOC-INLINE · MIXED · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

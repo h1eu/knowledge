@@ -41,7 +41,7 @@ Workflow hướng đến việc xây dựng kiến thức nền tảng và tư d
 | Tham số | Mô tả |
 |--------|--------|
 | topic_keyword | Topic cần xây dựng |
-| android_mkdocs.yml | Bản đồ tri thức Android |
+| `map/android_mkdocs.yml` | Bản đồ tri thức Android (nav, đánh số chapter) |
 
 ---
 
@@ -49,8 +49,8 @@ Workflow hướng đến việc xây dựng kiến thức nền tảng và tư d
 
 Một Topic chỉ được xem là hoàn thành khi sinh ra đầy đủ các artifacts sau:
 
-1. Markdown Source (Single Source of Truth)
-2. Website Source Code (`android-content.js`)
+1. Markdown Source (Single Source of Truth) tại `knowledge/android/docs/<session>/...`, đúng đường dẫn khai báo trong `map/android_mkdocs.yml`
+2. Website Source Code (`website/android-content.js`)
 3. Metadata
 4. Website Assets có thể render trên Knowledge OS
 
@@ -296,7 +296,7 @@ Topic đạt yêu cầu nếu:
 - Có liên kết hệ thống.
 - Hiển thị đúng trên website.
 - Metadata hợp lệ.
-- Verify script chạy PASS.
+- Verify script chạy PASS: `node tools/verify-android-topics.js --id=<topic-id>` và `node tools/check_content_escapes.js`.
 
 ---
 

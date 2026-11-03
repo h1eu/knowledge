@@ -1,7 +1,7 @@
 ---
 id: android.output_packages.apk_files
 title: Gói ứng dụng APK (Android Package)
-summary: Cấu trúc chi tiết file APK, cơ chế biên dịch Binary XML, resources.arsc, APK Signature Schemes v1 đến v4, và kỹ thuật tối ưu bộ nhớ mmap với zipalign 4-byte boundary.
+summary: Cấu trúc file APK, Binary XML và resources.arsc, APK Signature Schemes v1 đến v4, vì sao zipalign cần thiết cho mmap, thứ tự zipalign và ký, và các yêu cầu căn chỉnh mới (resources.arsc, thư viện .so với page size 16KB).
 status: published
 difficulty: intermediate
 estimated_reading_time: 25 phút
@@ -10,37 +10,38 @@ tags: [android, apk, zipalign, signature, binary-xml, resources-arsc, dex]
 prerequisites: [android.languages.java_android, android.languages.kotlin]
 related: [android.output_packages.aab_files, android.languages.jni]
 learning_outcomes:
-  - Giải thích được cấu trúc giải nén của một file APK tiêu chuẩn và vai trò của từng thành phần (classes.dex, resources.arsc, Binary XML).
-  - Phân biệt được sự tiến hóa của APK Signature Schemes từ v1 (JAR signing), v2 (Signing Block), v3 (Key Rotation) đến v4 (fs-verity).
-  - Giải thích được cơ chế tối ưu bộ nhớ RAM của zipalign dựa trên kỹ thuật Memory Mapping (mmap) 4-byte boundary alignment.
-  - Xử lý được các sự cố biên dịch APK common như INSTALL_FAILED_INVALID_APK hay INSTALL_PARSE_FAILED_NO_CERTIFICATES.
+  - Giải thích được cấu trúc của một file APK và vai trò của từng thành phần (classes.dex, resources.arsc, Binary XML, lib, META-INF).
+  - Phân biệt được các APK Signature Scheme từ v1 (JAR signing), v2 (APK Signing Block), v3 (Key Rotation) đến v4 (cài đặt tăng dần).
+  - Giải thích được vì sao zipalign giúp hệ thống mmap dữ liệu trực tiếp từ APK thay vì copy vào bộ nhớ.
+  - Xử lý được các lỗi cài đặt APK thường gặp như INSTALL_PARSE_FAILED_NO_CERTIFICATES và lỗi căn chỉnh khi targetSdk 30+.
 knowledge_gap: >
-  Thiếu hiểu biết về cấu trúc APK sẽ khiến lập trình viên bất lực khi tối ưu dung lượng app, không hiểu tại sao zipalign giúp tiết kiệm RAM, lúng túng khi xử lý lỗi signing v1/v2/v3/v4 trên các thiết bị Android OS khác nhau, và dễ bị lỗ hổng bảo mật khi phân tích Reverse Engineering.
+  Thiếu hiểu biết về cấu trúc APK khiến lập trình viên khó tối ưu dung lượng app, không hiểu vì sao zipalign quan trọng, lúng túng khi gặp lỗi chữ ký v1/v2/v3 trên các phiên bản Android khác nhau, và làm hỏng chữ ký khi tự viết script ký trong CI.
 ---
 
 # Gói ứng dụng APK (Android Package)
 
 ## Vấn đề cần giải quyết
 
-Khi bạn hoàn tất lập trình một ứng dụng Android, hàng trăm tệp mã nguồn Java/Kotlin (`.kt`, `.java`), tệp giao diện XML (`layout.xml`), hình ảnh (`.png`, `.svg`), thư viện Native C++ (`.so`) và tệp cấu hình phải được nén lại thành **một tệp thực thi duy nhất** để phân phối đến thiết bị người dùng.
+Khi hoàn tất lập trình một ứng dụng Android, hàng trăm tệp mã nguồn (`.kt`, `.java`), tệp giao diện XML, hình ảnh, thư viện native C/C++ (`.so`) và tệp cấu hình phải được gói thành **một tệp duy nhất** để phân phối tới thiết bị.
 
-Tệp nén đó chính là **APK (Android Package)** - có định dạng thực chất là một lưu trữ ZIP tùy chỉnh.
+Tệp đó là **APK (Android Package)**, về bản chất là một file ZIP với cấu trúc quy ước riêng.
 
-Tuy nhiên, nếu chỉ nén ZIP thông thường như trên máy tính:
-1. **Thiết bị Android sẽ kiệt quệ RAM**: Hệ điều hành phải giải nén toàn bộ hình ảnh và tài nguyên từ ZIP vào RAM trước khi hiển thị.
-2. **Nguy cơ độc hại (Malware & Tampering)**: Kẻ xấu có thể dễ dàng giải nén APK, chèn mã độc vào file thực thi `.dex` rồi nén lại để lừa người dùng cài đặt.
-3. **Phân giải tài nguyên chậm chạp**: Đọc các tệp XML văn bản (`String.xml`) ở runtime tiêu tốn rất nhiều CPU cycle để parse chuỗi văn bản.
+Nếu chỉ nén ZIP thông thường như trên máy tính:
 
-Vì vậy, Google đã tạo ra định dạng APK với cấu trúc binary đặc thù, hệ thống ký duyệt bảo mật nghiêm ngặt (Signature Schemes v1-v4) và công cụ căn chỉnh bộ nhớ `zipalign`.
+1. **Tốn RAM và chậm khi đọc**: mỗi lần đọc một tài nguyên bị nén, hệ thống phải giải nén nó vào bộ nhớ. Tài nguyên không nén nhưng nằm lệch vị trí trong file cũng không thể ánh xạ (mmap) trực tiếp.
+2. **Không chống được sửa đổi**: kẻ xấu có thể giải nén APK, chèn mã độc vào `.dex` rồi nén lại để lừa người dùng cài đặt.
+3. **Phân giải tài nguyên chậm**: đọc file XML dạng văn bản (`strings.xml`, layout) ở runtime tốn nhiều CPU để parse chuỗi.
+
+Vì vậy APK có các thành phần đã biên dịch sẵn sang dạng nhị phân, cơ chế ký số (Signature Scheme v1–v4), và quy tắc căn chỉnh dữ liệu bằng `zipalign`.
 
 ---
 
 ## Sau khi học xong
 
-- Giải thích được cấu trúc giải nén của một file APK tiêu chuẩn và vai trò của từng thành phần (classes.dex, resources.arsc, Binary XML).
-- Phân biệt được sự tiến hóa của APK Signature Schemes từ v1 (JAR signing), v2 (Signing Block), v3 (Key Rotation) đến v4 (fs-verity).
-- Giải thích được cơ chế tối ưu bộ nhớ RAM của zipalign dựa trên kỹ thuật Memory Mapping (mmap) 4-byte boundary alignment.
-- Xử lý được các sự cố biên dịch APK common như INSTALL_FAILED_INVALID_APK hay INSTALL_PARSE_FAILED_NO_CERTIFICATES.
+- Giải thích được cấu trúc của một file APK và vai trò của từng thành phần (classes.dex, resources.arsc, Binary XML, lib, META-INF).
+- Phân biệt được các APK Signature Scheme từ v1 (JAR signing), v2 (APK Signing Block), v3 (Key Rotation) đến v4 (cài đặt tăng dần).
+- Giải thích được vì sao zipalign giúp hệ thống mmap dữ liệu trực tiếp từ APK thay vì copy vào bộ nhớ.
+- Xử lý được các lỗi cài đặt APK thường gặp như INSTALL_PARSE_FAILED_NO_CERTIFICATES và lỗi căn chỉnh khi targetSdk 30+.
 
 ---
 
@@ -48,183 +49,229 @@ Vì vậy, Google đã tạo ra định dạng APK với cấu trúc binary đ�
 
 ```mermaid
 timeline
-    title Tiến hóa của Cơ chế Ký duyệt và Đóng gói APK
-    2008 : Ra mắt APK Format & Signature v1 : Dựa trên JAR Signature (Ký từng file độc lập)
-    2016 : Android 7.0 (API 24) - Signature v2 : Ký toàn bộ file APK với APK Signing Block
-    2018 : Android 9.0 (API 28) - Signature v3 : Hỗ trợ Key Rotation (Đổi Key mà không đứt gãy update)
-    2020 : Android 11 (API 30) - Signature v4 : Hỗ trợ Streaming Installation với Kernel fs-verity
-    2021 : Google bắt buộc AAB cho App mới : APK trở thành định dạng đầu ra sản sinh cho từng thiết bị
+    title Tiến hóa của cơ chế đóng gói và ký APK
+    2008 : APK và Signature v1 : Dựa trên JAR Signing, ký từng file
+    2016 : Android 7.0 - Signature v2 : Ký toàn bộ APK bằng APK Signing Block
+    2018 : Android 9 - Signature v3 : Hỗ trợ Key Rotation
+    2020 : Android 11 - Signature v4 : Cài đặt tăng dần qua ADB
+    2021 : Google Play bắt buộc AAB cho app mới : APK do Play sinh ra cho từng thiết bị
+    2024 : Android 15 hỗ trợ page size 16KB : Thư viện .so cần căn chỉnh 16KB
 ```
+
+<!-- dd: s01-apk-history -->
 
 ---
 
 ## Cách hoạt động
 
-### 1. Cấu trúc Giải nén bên trong một File APK
+### 1. Cấu trúc bên trong một file APK
 
-Khi bạn đổi đuôi tập tin `.apk` thành `.zip` và giải nén, bạn sẽ thấy cấu trúc tiêu chuẩn sau:
+Đổi đuôi `.apk` thành `.zip` và giải nén (hoặc mở bằng APK Analyzer trong Android Studio), bạn thấy cấu trúc:
 
-```
+```text
 MyApp.apk (ZIP Archive)
-├── classes.dex                # Dalvik Bytecode được biên dịch từ Java/Kotlin
-├── classes2.dex               # File DEX thứ 2 (Nếu vượt quá 64K Method Limit)
-├── res/                       # Vùng chứa tài nguyên (Images, Compiled Layouts)
+├── classes.dex                # Bytecode DEX biên dịch từ Java/Kotlin
+├── classes2.dex               # File DEX thứ 2 (khi vượt giới hạn 64K method)
+├── res/                       # Tài nguyên: hình ảnh, layout đã biên dịch
 │   ├── drawable/
 │   └── layout/
-├── resources.arsc             # Bảng tra cứu tài nguyên đã biên dịch nhị phân (Resource Table)
-├── AndroidManifest.xml        # Binary XML chứa thông tin Permission, Components
-├── lib/                       # Thư viện C/C++ Native (.so) phân chia theo ABI
+├── resources.arsc             # Bảng tài nguyên đã biên dịch (Resource Table)
+├── AndroidManifest.xml        # Manifest dạng Binary XML
+├── lib/                       # Thư viện native (.so) theo từng ABI
 │   ├── arm64-v8a/
 │   └── armeabi-v7a/
-├── assets/                    # Tài nguyên thô không biên dịch (Fonts, Database, Media)
-└── META-INF/                  # Thông tin Chữ ký v1 (CERT.SF, CERT.RSA, MANIFEST.MF)
+├── assets/                    # Tài nguyên thô không biên dịch (font, database, media)
+└── META-INF/                  # Chữ ký v1 (MANIFEST.MF, CERT.SF, CERT.RSA)
 ```
 
-#### Bí mật của `resources.arsc` và Binary XML
-- **Binary XML**: Android không lưu file `AndroidManifest.xml` hay `layout.xml` dưới dạng văn bản thuần (`UTF-8 text`). Công cụ `aapt2` chuyển toàn bộ các thẻ XML (`<Activity>`, `<TextView>`) thành các mã Id dạng số nguyên (`Integer Tokens`). Điều này giúp Android OS parse layout với tốc độ ánh sáng ở runtime mà không tốn CPU parse string.
-- **`resources.arsc`**: Bảng chỉ mục liên kết giữa Resource ID dạng hex (`0x7f010002`) với đường dẫn file thực tế trong APK. Mỗi Resource ID luôn có cấu trúc $32$-bit: `0xPPTTEEEE`
-  - `PP` (Package ID): `0x7f` đại diện cho ứng dụng, `0x01` đại diện cho Android System Framework.
-  - `TT` (Type ID): Định danh loại tài nguyên (`drawable`, `layout`, `string`, `color`).
-  - `EEEE` (Entry ID): Chỉ số vị trí phần tử trong mảng tài nguyên.
+#### `resources.arsc` và Binary XML
+
+- **Binary XML**: Android không lưu `AndroidManifest.xml` hay layout dưới dạng văn bản UTF-8. Công cụ `aapt2` chuyển tên thẻ và thuộc tính (`<activity>`, `<TextView>`, `android:id`...) thành dạng nhị phân với bảng chuỗi dùng chung và ID số nguyên. Nhờ vậy hệ thống đọc layout ở runtime nhanh hơn nhiều so với parse văn bản.
+- **`resources.arsc`**: bảng tra cứu ánh xạ Resource ID (ví dụ `0x7f010002`) tới giá trị thật hoặc đường dẫn file trong APK, theo từng cấu hình (ngôn ngữ, mật độ màn hình...). Resource ID có cấu trúc 32-bit `0xPPTTEEEE`:
+  - `PP` (Package ID): `0x7f` là ứng dụng, `0x01` là Android framework.
+  - `TT` (Type ID): loại tài nguyên (`drawable`, `layout`, `string`, `color`...).
+  - `EEEE` (Entry ID): vị trí của tài nguyên trong loại đó.
 
 ---
 
-### 2. Sự tiến hóa của APK Signature Schemes (v1 đến v4)
+### 2. APK Signature Schemes (v1 đến v4)
 
-Ký duyệt APK là bước bắt buộc để Android xác thực nguồn gốc ứng dụng và đảm bảo tập tin không bị chỉnh sửa bất hợp pháp:
+Ký APK là bắt buộc: Android dùng chữ ký để xác định nguồn gốc app, đảm bảo file không bị sửa, và chỉ cho phép cập nhật khi bản mới được ký bởi cùng một key.
 
 ```mermaid
 flowchart TD
-    subgraph v1 [Signature v1: JAR Signing]
-        A["Ký Hash từng file độc lập trong META-INF/"]
-        A1["Dễ bị tấn công chèn file không ký vào ZIP"]
+    subgraph v1 ["Signature v1: JAR Signing"]
+        A["Ký hash từng file, lưu trong META-INF/"]
+        A1["Không bảo vệ phần metadata của ZIP"]
     end
 
-    subgraph v2 [Signature v2: Whole-file Signing]
-        B["Ký toàn bộ byte của APK ngoại trừ Signature Block"]
-        B1["Cực kỳ an toàn - Phát hiện mọi chỉnh sửa byte"]
+    subgraph v2 ["Signature v2: Whole-file Signing"]
+        B["Ký toàn bộ nội dung APK trừ Signing Block"]
+        B1["Phát hiện mọi thay đổi byte"]
     end
 
-    subgraph v3 [Signature v3: Key Rotation]
-        C["Tương tự v2 + Thêm Signing Lineage Capabilities"]
-        C1["Cho phép nhà phát triển đổi Chữ ký khi rò rỉ Key"]
+    subgraph v3 ["Signature v3: Key Rotation"]
+        C["Như v2, thêm Signing Lineage"]
+        C1["Cho phép đổi sang key mới"]
     end
 
-    subgraph v4 [Signature v4: Streaming Installation]
-        D["Tạo file .apk.idsig chứa cây Merkle Tree Hash"]
-        D1["Cài đặt App tức thì qua ADB/PlayStore không cần tải trọn APK"]
+    subgraph v4 ["Signature v4: Incremental Install"]
+        D["File .apk.idsig chứa Merkle Tree"]
+        D1["Cài đặt tăng dần qua ADB"]
     end
 ```
 
-- **Signature v1 (JAR Signing)**: Chỉ ký checksum từng file riêng lẻ. Nhược điểm: Tốc độ kiểm tra chữ ký khi cài đặt rất chậm vì phải giải nén toàn bộ zip để hash từng file, đồng thời lỗ hổng bảo mật Janus từng cho phép kẻ xấu sửa đổi zip header mà không đổi hash file.
-- **Signature v2 (Android 7.0+)**: Chèn một **APK Signing Block** vào ngay trước khu vực Central Directory của file ZIP. Hệ thống hash toàn bộ byte của file APK. Nếu đổi dù chỉ 1 bit trong APK -> Chữ ký lập tức không hợp lệ! Thời gian xác thực siêu nhanh vì không cần đọc từng file inside ZIP.
-- **Signature v3 (Android 9.0+)**: Cho phép nhà phát triển thực hiện **Key Rotation** (Xoay chuyển Chữ ký). Bạn có thể đổi sang Key mới mà các thiết bị cũ vẫn chấp nhận bản cập nhật dựa trên Chữ ký gốc thông qua bằng chứng `Signing Lineage`.
-- **Signature v4 (Android 11+)**: Lưu chữ ký trong một file riêng biệt `app.apk.idsig`. Sử dụng cấu trúc **Merkle Tree** tích hợp trực tiếp với tính năng `fs-verity` của Linux Kernel, cho phép tải và chạy app dưới dạng **Streaming** (ứng dụng có thể mở chạy ngay cả khi chưa tải xong 100% dung lượng từ Google Play).
+<!-- dd: s01-apk-signing -->
+
+- **Signature v1 (JAR Signing)**: ký hash của từng file trong ZIP. Hai nhược điểm: xác minh chậm vì phải đọc và hash từng file; không bảo vệ phần cấu trúc ZIP, mở đường cho lỗ hổng **Janus** (CVE-2017-13156) cho phép ghép thêm DEX vào APK chỉ ký v1 mà chữ ký vẫn hợp lệ.
+- **Signature v2 (Android 7.0+)**: chèn một **APK Signing Block** ngay trước Central Directory của file ZIP. Chữ ký bao phủ toàn bộ nội dung file (trừ chính khối chữ ký), được hash theo từng đoạn 1MB. Đổi dù một byte, chữ ký không còn hợp lệ. Xác minh nhanh vì không cần giải nén.
+- **Signature v3 (Android 9+)**: định dạng như v2, thêm **Signing Lineage**: bằng chứng rằng key mới được key cũ uỷ quyền. Nhờ đó app có thể **đổi key ký** (Key Rotation) mà thiết bị đã cài bản cũ vẫn chấp nhận cập nhật.
+- **Signature v4 (Android 11+)**: lưu trong file riêng `app.apk.idsig`, dựa trên **Merkle Tree** hash của toàn bộ APK. Dùng cho **cài đặt tăng dần** (`adb install --incremental`): app có thể khởi động trước khi toàn bộ APK được chuyển xong, các phần còn thiếu được tải và xác minh khi cần. v4 luôn đi kèm chữ ký v2 hoặc v3.
 
 ---
 
-### 3. Cơ chế tối ưu RAM của `zipalign`: Kỹ thuật `mmap` 4-byte Alignment
+### 3. `zipalign`: căn chỉnh để mmap trực tiếp
 
-Nếu không có `zipalign`, khi ứng dụng cần đọc một hình ảnh `bg.png` hoặc file `.dex` từ trong APK:
-- Android OS phải cấp phát bộ nhớ RAM tạm, đọc dữ liệu nén/không nén từ ổ đĩa storage, copy dữ liệu đó vào RAM (`RAM Copy Inflation`).
+Nếu dữ liệu không nén trong APK (như `resources.arsc`, ảnh đã nén sẵn, `.so` không nén) nằm ở vị trí bất kỳ, hệ thống phải **đọc và copy** nó vào bộ nhớ riêng của app trước khi dùng.
 
-`zipalign` giải quyết triệt me vấn đề này bằng cách căn chỉnh tất cả các tài nguyên **không nén** (uncompressed data) trong file ZIP sao cho địa chỉ bắt đầu của chúng trùng với **bội số của 4 Bytes** (32-bit alignment).
+`zipalign` dời các entry **không nén** trong ZIP sao cho dữ liệu của chúng bắt đầu ở offset chia hết cho **4 byte** (thư viện `.so` thì căn theo page: 4KB, nay là 16KB).
 
 ```mermaid
 flowchart LR
-    subgraph NonAligned [Unaligned Data]
-        Offset1["Offset: 1003 bytes (Odd boundary)"] --> Read1["Must copy bytes to RAM memory"]
+    subgraph NonAligned ["Không căn chỉnh"]
+        Offset1["Offset: 1003 bytes"] --> Read1["Phải đọc và copy vào bộ nhớ của app"]
     end
 
-    subgraph Aligned [Aligned 4-byte Boundary]
-        Offset2["Offset: 1004 bytes (4-byte aligned)"] --> Read2["Direct mmap() into OS Virtual Memory! Zero RAM Copy!"]
+    subgraph Aligned ["Căn chỉnh 4 byte"]
+        Offset2["Offset: 1004 bytes"] --> Read2["mmap() trực tiếp từ file, không copy"]
     end
 ```
 
-#### Tại sao lại là 4 Bytes (32 bits)?
-Đa số kiến trúc CPU di động (ARMv7, ARM64) đọc dữ liệu từ bộ nhớ hiệu quả nhất theo các khối từ nhớ 32-bit (4 Bytes) hoặc 64-bit (8 Bytes).
+<!-- dd: s01-zipalign -->
 
-Khi tài nguyên được căn chỉnh 4-byte boundary, Android OS có thể sử dụng câu lệnh kernel **`mmap()`** để ánh xạ trực tiếp tập tin APK từ ổ nạp flash storage vào bộ nhớ ảo (`Virtual Memory`) của ứng dụng. **Hệ thống không tốn bất kỳ 1 byte RAM nào để copy dữ liệu tạm!**
+#### Vì sao căn chỉnh giúp mmap được?
+
+Khi dữ liệu nằm đúng vị trí, hệ thống dùng `mmap()` để ánh xạ thẳng vùng đó trong file APK vào không gian địa chỉ ảo của app. Code đọc dữ liệu dạng struct trực tiếp từ vùng nhớ đó (như `resources.arsc`) cần các trường số nguyên 32-bit nằm ở địa chỉ chia hết cho 4; truy cập lệch có thể chậm hoặc lỗi trên một số CPU ARM.
+
+Dữ liệu được mmap **vẫn chiếm RAM khi được truy cập**: các trang được nạp vào page cache. Lợi ích là đây là các trang "sạch": không bị copy thành bộ nhớ riêng của từng app, dùng chung được giữa các process, và hệ thống có thể thu hồi bất kỳ lúc nào khi thiếu RAM rồi đọc lại từ file sau.
 
 ---
 
 ## Ví dụ thực tế
 
-### Phân tích và Debug lỗi Biên dịch / Cài đặt APK
+### 1. Lỗi `INSTALL_PARSE_FAILED_NO_CERTIFICATES`
 
-#### 1. Lỗi `INSTALL_PARSE_FAILED_NO_CERTIFICATES`
-- **Nguyên nhân**: Bạn build APK nhưng chưa ký chữ ký (Unsigned APK), hoặc thiết bị chạy Android 11+ bắt buộc Signature v2/v3 nhưng bạn chỉ ký Signature v1.
-- **Khắc phục trong `build.gradle`**:
-```groovy
+- **Nguyên nhân thường gặp**:
+  - APK chưa được ký (unsigned).
+  - App có `targetSdk` từ 30 trở lên nhưng chỉ ký v1. Android 11 yêu cầu chữ ký v2 trở lên cho các app này.
+  - Chữ ký bị hỏng do file bị sửa sau khi ký (xem ví dụ 2).
+- **Cấu hình ký trong Gradle**: không ghi mật khẩu trực tiếp trong `build.gradle.kts`; đọc từ file `keystore.properties` không commit lên git (hoặc từ biến môi trường trên CI).
+
+```kotlin
+// build.gradle.kts (Module: app)
+import java.util.Properties
+
+val keystoreProps = Properties().apply {
+    load(rootProject.file("keystore.properties").inputStream())
+}
+
 android {
     signingConfigs {
-        release {
-            storeFile file("my-release-key.jks")
-            storePassword "password123"
-            keyAlias "my-alias"
-            keyPassword "password123"
-            
-            // BẮT BUỘC BẬT CẢ V1 VÀ V2 SIGNATURE
-            v1SigningEnabled true
-            v2SigningEnabled true
+        create("release") {
+            storeFile = file(keystoreProps.getProperty("storeFile"))
+            storePassword = keystoreProps.getProperty("storePassword")
+            keyAlias = keystoreProps.getProperty("keyAlias")
+            keyPassword = keystoreProps.getProperty("keyPassword")
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
 ```
 
-#### 2. Lỗi `INSTALL_FAILED_INVALID_APK`: `zipalign` verification failed
-- **Nguyên nhân**: Bạn đã ký lại Chữ ký (Re-sign) **SAU KHI** chạy `zipalign`.
-- **QUY TRẮC VÀNG**: Luôn luôn thực hiện theo đúng thứ tự:
-  1. Biên dịch ứng dụng -> `app-unaligned.apk`
-  2. Căn chỉnh bộ nhớ -> **`zipalign`** -> `app-aligned.apk`
-  3. Ký chữ ký số -> **`apksigner`** -> `app-release.apk`
-  *(Nếu ký v2/v3 trước rồi mới `zipalign` -> `zipalign` sẽ làm biến đổi byte của file APK -> Vô hiệu hóa chữ ký v2!)*
+AGP tự chọn scheme phù hợp: luôn ký v2, và chỉ ký thêm v1 khi `minSdk` dưới 24. Chỉ đặt `enableV1Signing` / `enableV2Signing` khi thật sự cần ép khác đi.
+
+### 2. Ký trước rồi mới `zipalign`: chữ ký v2 bị hỏng
+
+Gradle tự làm đúng thứ tự. Lỗi này thường gặp khi tự viết script ký trên CI hoặc sửa APK bằng công cụ bên ngoài.
+
+- **Nguyên nhân**: chạy `zipalign` **sau** `apksigner`. `zipalign` dời vị trí dữ liệu trong file, làm thay đổi byte, nên chữ ký v2/v3 (bao phủ toàn bộ file) không còn hợp lệ. Thiết bị từ chối cài với lỗi xác minh chữ ký.
+- **Thứ tự đúng**:
+  1. Build → `app-unsigned.apk`
+  2. Căn chỉnh → **`zipalign`** → `app-aligned.apk`
+  3. Ký → **`apksigner`** → `app-release.apk`
+
+```bash
+zipalign -p -f -v 4 app-unsigned.apk app-aligned.apk
+apksigner sign --ks release.jks --out app-release.apk app-aligned.apk
+apksigner verify --verbose app-release.apk
+```
+
+Tuỳ chọn `-p` căn thư viện `.so` không nén theo page 4KB. Để hỗ trợ page size 16KB, dùng build-tools mới với tuỳ chọn `-P 16`, hoặc để AGP (8.5.1 trở lên) tự xử lý.
 
 ---
 
 ## Sai lầm thường gặp
 
-1. **Sử dụng `jarsigner` thay vì `apksigner`**:
-   - `jarsigner` là công cụ legacy của Java SDK, nó **chỉ hỗ trợ Signature v1**. Để ứng dụng tương thích và bảo mật trên Android modern (Android 7.0+), bắt buộc dùng công cụ **`apksigner`** thuộc Android SDK Build-Tools.
+1. **Dùng `jarsigner` thay vì `apksigner`**:
+   - `jarsigner` là công cụ của JDK và **chỉ tạo chữ ký v1**. Dùng **`apksigner`** trong Android SDK Build-Tools để có v2/v3/v4.
 
-2. **Quên cấu hình Multidex khi vượt quá 64K Methods**:
-   - Thêm quá nhiều thư viện làm tổng số phương thức vượt quá $65,536$. Nếu không bật `multiDexEnabled true`, công cụ biên dịch D8 sẽ báo lỗi build thất bại.
+2. **Nhầm lẫn về Multidex**:
+   - Vượt 65.536 method tham chiếu trong một file DEX thì build cần nhiều file DEX.
+   - Với `minSdk` từ 21 trở lên, multidex được bật sẵn, không cần cấu hình.
+   - Chỉ khi `minSdk` dưới 21 mới cần `multiDexEnabled` và thư viện `androidx.multidex`.
 
-3. **Để lọt tài nguyên dư thừa không dùng trong `res/`**:
-   - Không bật `shrinkResources true` và `minifyEnabled true` khiến APK chứa vô số hình ảnh drawable trùng lặp và chuỗi đa ngôn ngữ không dùng đến.
+3. **Để lọt tài nguyên và code thừa**:
+   - Không bật `isMinifyEnabled = true` và `isShrinkResources = true` cho bản release khiến APK chứa code không dùng, drawable thừa và chuỗi của các thư viện không cần.
 
 ---
 
 ## Trade-offs và Edge Cases
 
 ### Trade-offs
-- **Kích thước APK Monolithic**: Một file APK tiêu chuẩn phải chứa đầy đủ toàn bộ thư viện Native `.so` của tất cả kiến trúc CPU (`arm64-v8a`, `armeabi-v7a`, `x86`), cùng hình ảnh ở tất cả mật độ màn hình (`mdpi`, `hdpi`, `xxhdpi`). Điều này khiến ứng dụng bị phình dung lượng vô ích đối với thiết bị của từng người dùng cụ thể.
+
+- **APK nguyên khối (universal)**: một APK phải chứa thư viện `.so` cho mọi ABI (`arm64-v8a`, `armeabi-v7a`, `x86_64`...) và hình ảnh cho mọi mật độ màn hình (`mdpi`, `hdpi`, `xxhdpi`...). Mỗi thiết bị chỉ dùng một phần nhỏ, phần còn lại là dung lượng tải về lãng phí. AAB giải quyết vấn đề này.
 
 ### Edge Cases
-- **Lỗi Signature Alignment trên Android 11 (API 30)**: Từ Android 11, hệ thống bắt buộc các tệp `.so` trong APK phải được căn chỉnh theo **4096-byte boundary** (4KB page alignment) để phục vụ cơ chế `mmap` thực thi trực tiếp từ storage. Nếu tệp `.so` không căn chỉnh 4KB, hệ thống sẽ từ chối cài đặt ứng dụng.
+
+- **`resources.arsc` bị nén khi targetSdk 30+**: từ Android 11, app có `targetSdk` từ 30 trở lên phải lưu `resources.arsc` **không nén** và căn chỉnh 4 byte. Nếu không, cài đặt thất bại với thông báo *"Targeting R+ (version 30 and above) requires the resources.arsc of installed APKs to be stored uncompressed and aligned on a 4-byte boundary"*. Lỗi này hay gặp khi đóng gói lại APK bằng công cụ bên ngoài.
+- **Thư viện `.so` không nén và page size 16KB**: khi `.so` được lưu không nén (mặc định của AGP mới, `useLegacyPackaging = false`), hệ thống nạp thẳng từ APK mà không giải nén ra đĩa. Khi đó `.so` phải căn theo page. Thiết bị Android 15 dùng page 16KB cần cả việc căn chỉnh trong ZIP lẫn việc link `.so` với căn chỉnh 16KB (xem `android.languages.jni`).
 
 ---
 
 ## Kết nối hệ thống
 
-- **Prerequisites**: `android.languages.java_android`, `android.languages.kotlin` (Hiểu sâu về luồng biên dịch ra file `.dex`).
+- **Prerequisites**: `android.languages.java_android`, `android.languages.kotlin` (luồng biên dịch ra `.dex`).
 - **Related Topics**:
-  - `android.output_packages.aab_files`: Định dạng đóng gói thế hệ mới giải quyết nhược điểm phình dung lượng của APK.
-  - `android.languages.jni`: Nơi cung cấp các tệp thư viện `.so` nằm trong thư mục `lib/` của APK.
+  - `android.output_packages.aab_files`: định dạng xuất bản giải quyết nhược điểm dung lượng của APK universal.
+  - `android.languages.jni`: nguồn của các thư viện `.so` trong thư mục `lib/`.
 - **Downstream Topics**:
-  - `android.system.process_management`: Hệ điều hành đọc file APK để khởi tạo Process và nạp class vào bộ nhớ.
+  - `android.session02.file_permissions`: khi cài APK, hệ thống cấp cho app một UID riêng và thư mục dữ liệu riêng.
+  - Process Management (chưa có bài): cách hệ thống tạo process và nạp code từ APK.
 
 ---
 
 ## Developer Curiosity Checklist
 
-1. **Why was this created?** Để đóng gói toàn bộ mã thực thi, tài nguyên và cấu hình thành một gói thực thi duy nhất an toàn cho Android OS.
-2. **What problem does it solve?** Giải quyết bài toán phân phối ứng dụng, bảo vệ chống sửa đổi mã nguồn và tối ưu tốc độ đọc tài nguyên.
-3. **What happens if it doesn't exist?** Android OS không thể kiểm tra tính toàn vẹn ứng dụng và người dùng phải cài đặt ứng dụng qua hàng trăm file phân tán thủ công.
-4. **How does Android implement it internally?** Định dạng ZIP tùy chỉnh chứa `classes.dex`, `resources.arsc` (Binary XML), xác thực qua Signing Block v1-v4 và `mmap` qua `zipalign`.
-5. **What misconceptions do developers have?** Tưởng APK chỉ là file zip bình thường và dùng `jarsigner` thay vì `apksigner`.
-6. **What trade-offs does it introduce?** APK nguyên khối chứa tài nguyên dư thừa của mọi thiết bị làm phình dung lượng tải về.
-7. **What are the edge cases?** Lỗi vi phạm 4KB page alignment của file `.so` trên Android 11+ và thứ tự đảo ngược giữa `zipalign` và `apksigner`.
-8. **What are the real-world problems developers encounter?** Lỗi `INSTALL_PARSE_FAILED_NO_CERTIFICATES` do thiếu v2 signature và tràn 64K Method limit.
-9. **How is it connected to the Android system?** Là đơn vị cài đặt cơ sở cho `PackageManagerService` (PMS) trên Android OS.
-10. **What should developers learn next?** Chuyển sang `android.output_packages.aab_files` để hiểu cách Google Play tự động xé nhỏ APK theo cấu hình thiết bị.
+1. **Why was this created?** Để gói toàn bộ code, tài nguyên và cấu hình thành một đơn vị cài đặt duy nhất, có chữ ký.
+2. **What problem does it solve?** Phân phối ứng dụng, chống sửa đổi và đọc tài nguyên nhanh ở runtime.
+3. **What happens if it doesn't exist?** Hệ thống không kiểm tra được tính toàn vẹn và nguồn gốc của app.
+4. **How does Android implement it internally?** ZIP chứa `classes.dex`, `resources.arsc` và Binary XML; xác minh bằng chữ ký v1–v4; dữ liệu căn chỉnh để mmap.
+5. **What misconceptions do developers have?** Tưởng APK chỉ là file zip bình thường; dùng `jarsigner`; chạy `zipalign` sau khi ký.
+6. **What trade-offs does it introduce?** APK universal chứa tài nguyên của mọi loại thiết bị, làm tăng dung lượng tải về.
+7. **What are the edge cases?** `resources.arsc` bị nén khi targetSdk 30+, `.so` chưa căn chỉnh 16KB, đảo thứ tự `zipalign` và `apksigner`.
+8. **What are the real-world problems developers encounter?** Lỗi `INSTALL_PARSE_FAILED_NO_CERTIFICATES`, lộ mật khẩu keystore trong repo.
+9. **How is it connected to the Android system?** Là đơn vị cài đặt mà `PackageManagerService` (PMS) xác minh, cài đặt và cấp UID.
+10. **What should developers learn next?** `android.output_packages.aab_files` để hiểu cách Google Play tạo APK riêng cho từng thiết bị.
+
+---
+
+## Tham khảo
+
+- Android Open Source Project: [APK Signature Scheme v2](https://source.android.com/docs/security/features/apksigning/v2)
+- Android Developers: [apksigner](https://developer.android.com/tools/apksigner) và [zipalign](https://developer.android.com/tools/zipalign)
+- Android Developers: [Sign your app](https://developer.android.com/studio/publish/app-signing)
+- Android Developers: [Support 16 KB page sizes](https://developer.android.com/guide/practices/page-sizes)

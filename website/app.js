@@ -227,7 +227,7 @@ const KNOWLEDGE_DATA = {
           topics: [
             { id: 'session-01-overview', title: 'Session 01 Overview', status: 'published', tags: ['android', 'overview'] },
             { id: 'java-android', title: '1.1.1 Java Android', status: 'published', tags: ['android', 'java'] },
-            { id: 'kotlin-core', title: '1.1.2 Kotlin', status: 'published', tags: ['android', 'kotlin'] },
+            { id: 'kotlin-core', title: '1.1.2 Kotlin', status: 'draft', tags: ['android', 'kotlin'] },
             { id: 'jni-cpp', title: '1.1.3 JNI: C/C++', status: 'published', tags: ['android', 'cpp', 'jni'] },
             { id: 'apk-files', title: '1.2.1 APK', status: 'published', tags: ['android', 'build'] },
             { id: 'aab-files', title: '1.2.2 AAB', status: 'published', tags: ['android', 'build'] }
@@ -10498,6 +10498,7 @@ function openTopic(topicId, updateHash = true, triedLoad = false) {
   // Enhance code blocks: language header, copy button, syntax highlighting
   enhanceProseCodeBlocks();
   applyPreferredDsaLang();
+  enhanceArchifyEmbeds();
   initReadingEnhancers();
   initReadingExtras();
 
@@ -19913,6 +19914,50 @@ function reRenderMermaid() {
       .catch(e => console.error('Mermaid error:', e));
   }
 }
+
+// ── Archify: sơ đồ tương tác hiển thị ngay trong bài (iframe lazy) ──────
+function archifyTheme() {
+  const root = document.documentElement.classList;
+  return root.contains('theme-light') || root.contains('theme-editorial') || root.contains('theme-matcha') ? 'light' : 'dark';
+}
+
+function archifySrc(box, theme) {
+  return `${box.dataset.src}?embed=1&theme=${theme}`;
+}
+
+function enhanceArchifyEmbeds() {
+  document.querySelectorAll('#prose-content .archify-embed').forEach(box => {
+    if (box.querySelector('iframe')) return;
+    const theme = archifyTheme();
+    const frame = document.createElement('iframe');
+    frame.src = archifySrc(box, theme);
+    frame.dataset.theme = theme;
+    frame.title = box.dataset.title || 'Sơ đồ tương tác';
+    frame.loading = 'lazy';
+    // Cùng origin nên đo được chiều cao thật của sơ đồ, tránh khoảng trống thừa
+    frame.addEventListener('load', () => {
+      try {
+        const doc = frame.contentDocument;
+        const content = doc.querySelector('.container') || doc.body;
+        const height = Math.ceil(content.getBoundingClientRect().height) + 16;
+        frame.style.height = `${Math.min(height, Math.round(window.innerHeight * 0.85))}px`;
+      } catch (_) { /* khác origin: giữ chiều cao mặc định trong CSS */ }
+    });
+    box.prepend(frame);
+  });
+}
+
+// Khi người đọc đổi theme của site, nạp lại sơ đồ theo theme mới
+new MutationObserver(() => {
+  const theme = archifyTheme();
+  document.querySelectorAll('#prose-content .archify-embed').forEach(box => {
+    const frame = box.querySelector('iframe');
+    if (frame && frame.dataset.theme !== theme) {
+      frame.dataset.theme = theme;
+      frame.src = archifySrc(box, theme);
+    }
+  });
+}).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
 // ── Mermaid UX Enhancement: scroll hint, zoom, pan, fullscreen ────────
 function enhanceMermaidDiagrams() {

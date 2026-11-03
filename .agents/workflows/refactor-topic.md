@@ -35,7 +35,7 @@ description: Quy trình tái cấu trúc một Topic hiện có mà không thay 
 5. Thực hiện thay đổi từng bước nhỏ, có thể kiểm chứng.
 6. Đảm bảo không làm thay đổi bản chất kiến thức đã có.
 7. Cập nhật lại các liên kết nội bộ bị ảnh hưởng.
-8. Chạy lại Workflow Review Topic sau khi tái cấu trúc.
+8. Chạy lại Workflow Review Topic (`.agents/workflows/review-topic.md`) sau khi tái cấu trúc.
 9. Bàn giao để con người xác nhận.
 
 ## Điều kiện hoàn thành

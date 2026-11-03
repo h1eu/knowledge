@@ -50,6 +50,10 @@
     "dsa-hello": {
       "description": "Chuyển nội dung Hello Algo sang Knowledge OS",
       "template": "Bạn là Knowledge OS AI Agent. Đọc và tuân thủ nghiêm ngặt workflow tại `.agents/workflows/dsa-hello.md`. Thực hiện 7 bước: xác định chapter, kiểm kê nội dung, dịch toàn bộ (không bỏ sót), đối chiếu checklist, tích hợp originalContent, tạo widget mô phỏng (nếu có), tích hợp hệ thống. Không được dịch code, giữ nguyên asset paths.\n\nChapter keyword: $ARGUMENTS"
+    },
+    "review-topic": {
+      "description": "Rà soát chất lượng một Topic",
+      "template": "Bạn là Knowledge OS AI Agent. Đọc và tuân thủ workflow tại `.agents/workflows/review-topic.md` và Playbook `.agents/playbooks/review-content.md`. Chỉ báo cáo, không tự sửa nội dung trừ khi người dùng yêu cầu.\n\nTopic cần review: $ARGUMENTS"
     }
   }
 }

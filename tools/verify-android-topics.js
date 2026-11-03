@@ -4,7 +4,7 @@
  * ------------------------------------------------------------------
  * Kiểm tra cấu trúc của các Topic Android trong Knowledge OS.
  *
- * Đối chiếu mỗi file .md trong android/docs/ với chuẩn workflow
+ * Đối chiếu mỗi file .md trong knowledge/android/docs/ với chuẩn workflow
  * learn-android.md để phát hiện:
  *
  *   1) Title exists — frontmatter phải có title.
@@ -49,7 +49,7 @@ const vm = require('vm');
 // Configuration
 // ==================================================================
 const WORKSPACE_ROOT = path.resolve(__dirname, '..');
-const ANDROID_DOCS = path.join(WORKSPACE_ROOT, 'android', 'docs');
+const ANDROID_DOCS = path.join(WORKSPACE_ROOT, 'knowledge', 'android', 'docs');
 const WEBSITE_DIR = path.join(WORKSPACE_ROOT, 'website');
 
 const VALID_STATUSES = ['planned', 'drafting', 'reviewing', 'published', 'deprecated', 'archived'];
@@ -568,7 +568,7 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
 
   if (!fs.existsSync(ANDROID_DOCS)) {
-    console.error(`✖ Không tìm thấy thư mục android/docs tại: ${ANDROID_DOCS}`);
+    console.error(`✖ Không tìm thấy thư mục knowledge/android/docs tại: ${ANDROID_DOCS}`);
     process.exit(1);
   }
 

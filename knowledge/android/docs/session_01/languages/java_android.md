@@ -3,28 +3,27 @@ id: android.languages.java_android
 title: Java Android trong Hệ sinh thái Android
 summary: Nền tảng ngôn ngữ khởi nguồn của Android SDK. Hiểu rõ kiến trúc biên dịch Java, sự khác biệt giữa JVM (Stack-based) và ART/Dalvik (Register-based), Java Desugaring internals, memory leak do inner class và Java-Kotlin Interoperability.
 status: published
-difficulty: beginner
+difficulty: intermediate
 estimated_reading_time: 30 phút
 depth: deep-dive
 tags: [android, java, JVM, ART, dalvik, desugaring, interop]
 prerequisites: []
 related: [android.languages.kotlin, android.languages.jni, android.output_packages.apk_files]
 learning_outcomes:
-  - Giải thích được luồng biên dịch Java từ bytecode .class qua D8/R8 sang register-based opcode .dex chạy trên ART.
-  - Phân biệt được sự khác biệt bản chất giữa Stack-based JVM và Register-based Dalvik/ART Virtual Machine.
-  - Xử lý được rò rỉ bộ nhớ (Memory Leak) tạo ra bởi Anonymous Inner Classes và Handler trong Java.
-  - Biết khi nào dùng Java Desugaring (coreLibraryDesugaring) để backport tính năng Java 8+ trên Android OS đời cũ.
-  - Phân biệt được Platform Types trong Java-Kotlin Interop để phòng tránh NullPointerException ở runtime.
-  - Cấu hình đúng Gradle compileOptions và coreLibraryDesugaring cho Java Android project.
+  - Giải thích được luồng biên dịch Java từ .class qua D8/R8 sang .dex và cách ART thực thi .dex trên thiết bị.
+  - Phân biệt được kiến trúc Stack-based của JVM và Register-based của Dalvik/ART, và biết khác biệt đó còn quan trọng ở đâu.
+  - Xử lý được rò rỉ bộ nhớ do Anonymous Inner Class và Handler giữ tham chiếu ngầm tới Activity.
+  - Biết khi nào cần bật Core Library Desugaring để dùng API Java 8+ trên Android đời cũ.
+  - Xử lý được NullPointerException khi Kotlin gọi Java bằng Nullability Annotations.
 knowledge_gap: >
-  Thiếu hiểu biết về Java Android khiến lập trình viên bất lực khi đọc mã nguồn AOSP Framework (AMS, WMS), gặp sự cố rò rỉ bộ nhớ nghiêm trọng do implicit reference trong Inner Class, và dễ bị crash NullPointerException khi tương tác giữa Kotlin và Java legacy code.
+  Thiếu hiểu biết về Java Android khiến lập trình viên khó đọc mã nguồn AOSP Framework (AMS, WMS), gây rò rỉ bộ nhớ do tham chiếu ngầm trong Inner Class, và dễ bị crash NullPointerException khi Kotlin gọi vào code Java cũ.
 ---
 
 # Java Android trong Hệ sinh thái Android
 
 ## Vấn đề cần giải quyết
 
-Khi Andy Rubin và nhóm sáng lập khởi chạy dự án Android năm 2003 (sau đó được Google mua lại năm 2005), hệ điều hành di động đối mặt với thách thức sinh tử: **Làm sao thu hút hàng triệu lập trình viên xây dựng ứng dụng trên một phần cứng cực kỳ giới hạn về RAM (16MB - 64MB) và CPU (200MHz)?**
+Khi Andy Rubin và nhóm sáng lập khởi chạy dự án Android năm 2003 (sau đó được Google mua lại năm 2005), hệ điều hành di động đối mặt với một bài toán khó: **Làm sao thu hút đông đảo lập trình viên xây dựng ứng dụng trên phần cứng rất hạn chế?** Điện thoại Android đầu tiên (HTC Dream / T-Mobile G1, 2008) chỉ có 192MB RAM và CPU 528MHz, chia sẻ cho cả hệ điều hành lẫn nhiều ứng dụng cùng lúc.
 
 Nếu Android chọn C/C++ làm ngôn ngữ ứng dụng chính:
 
@@ -35,20 +34,19 @@ Năm 2007, Google chọn Java. Tuy nhiên, thay vì sử dụng tiêu chuẩn Ja
 
 Nếu không nắm vững Java Android bản chất:
 
-- **Không thể đọc mã nguồn Android Framework (AOSP)**: 80% tầng Android OS Framework (`ActivityManagerService`, `WindowManagerService`, `PackageManagerService`) được viết bằng Java và C++.
-- **Gặp thảm họa Rò rỉ bộ nhớ (Memory Leak)**: Các lớp ẩn danh (Anonymous Inner Class) và `Handler` trong Java tự động giữ một tham chiếu ngầm (`implicit reference`) tới Outer Class (Activity/Fragment), khiến Garbage Collector không thể thu hồi Activity khi đã destroyed.
-- **Rủi ro Crash NullPointerException (NPE) khi Java-Kotlin Interop**: Khi Kotlin gọi code Java không có annotation `@Nullable`/`@NonNull`, Kotlin Compiler sẽ gán kiểu **Platform Type** (`T!`), vô hiệu hóa cơ chế Null Safety compile-time.
+- **Khó đọc mã nguồn Android Framework (AOSP)**: các system service cốt lõi (`ActivityManagerService`, `WindowManagerService`, `PackageManagerService`) được viết bằng Java, phía dưới là các native service C++.
+- **Dễ gây Rò rỉ bộ nhớ (Memory Leak)**: Anonymous Inner Class (lớp ẩn danh) và Non-Static Inner Class trong Java tự động giữ một tham chiếu ngầm (implicit reference) tới Outer Class (Activity/Fragment). Nếu object đó sống lâu hơn Activity, Garbage Collector không thể thu hồi Activity dù nó đã bị destroy.
+- **Rủi ro Crash NullPointerException (NPE) khi Kotlin gọi Java**: Khi code Java không có annotation `@Nullable`/`@NonNull`, Kotlin hiểu kiểu trả về là **Platform Type** (`T!`) và không bắt kiểm tra null.
 
 ---
 
 ## Sau khi học xong
 
-- Giải thích được luồng biên dịch Java từ bytecode `.class` qua D8/R8 sang register-based opcode `.dex` chạy trên ART.
-- Phân biệt được sự khác biệt bản chất giữa Stack-based JVM và Register-based Dalvik/ART Virtual Machine.
-- Xử lý được rò rỉ bộ nhớ (Memory Leak) tạo ra bởi Anonymous Inner Classes và Handler trong Java.
-- Biết khi nào dùng Java Desugaring (`coreLibraryDesugaring`) để backport tính năng Java 8+ trên Android OS đời cũ.
-- Phân biệt được Platform Types trong Java-Kotlin Interop để phòng tránh NullPointerException ở runtime.
-- Cấu hình đúng Gradle `compileOptions` và `coreLibraryDesugaring` cho Java Android project.
+- Giải thích được luồng biên dịch Java từ .class qua D8/R8 sang .dex và cách ART thực thi .dex trên thiết bị.
+- Phân biệt được kiến trúc Stack-based của JVM và Register-based của Dalvik/ART, và biết khác biệt đó còn quan trọng ở đâu.
+- Xử lý được rò rỉ bộ nhớ do Anonymous Inner Class và Handler giữ tham chiếu ngầm tới Activity.
+- Biết khi nào cần bật Core Library Desugaring để dùng API Java 8+ trên Android đời cũ.
+- Xử lý được NullPointerException khi Kotlin gọi Java bằng Nullability Annotations.
 
 ---
 
@@ -67,7 +65,7 @@ Nếu không nắm vững Java Android bản chất:
 | **Executable** | `.class` → `.jar` / `.war` | `.class` → `.dex` → `.apk` / `.aab` |
 | **UI Framework** | `java.awt.*`, `javax.swing.*` | `android.widget.*`, `android.view.*` |
 | **Thư viện chuẩn** | Full Java SE API | Subset của Java SE + Android SDK API |
-| **Garbage Collector** | G1 GC, ZGC (high throughput) | Concurrent Copying GC (low latency, mobile-optimized) |
+| **Garbage Collector** | G1 (mặc định), ZGC / Shenandoah (ưu tiên độ trễ thấp) | Concurrent Copying GC (từ Android 8.0), có generational từ Android 10 |
 
 > **Lưu ý:** Khi nói "viết Java cho Android", thực chất bạn viết Java syntax, nhưng code sẽ chạy trên một runtime engine hoàn toàn khác biệt so với JVM trên máy tính.
 
@@ -77,19 +75,21 @@ Nếu không nắm vững Java Android bản chất:
 
 ### 1. Bản chất sự khác biệt: JVM (Stack-based) vs ART/Dalvik (Register-based)
 
-Mô hình ảo hóa của Java Standard Edition (JVM) và Android Virtual Machine (ART/Dalvik) hoàn toàn khác biệt ở cấp độ kiến trúc phần cứng giả lập:
+Bytecode của JVM và bytecode của Dalvik/ART mô tả cùng một chương trình theo hai kiểu "máy ảo" khác nhau:
 
 | Đặc tính | JVM (Java SE) | Dalvik / ART (Android) |
 | :--- | :--- | :--- |
-| **Kiến trúc VM** | **Stack-based** (Dựa trên Operand Stack) | **Register-based** (Dựa trên thanh ghi ảo) |
-| **Định dạng Executable** | Nhiều tập tin `.class` phân tán | Một tập tin hợp nhất `classes.dex` |
-| **Kích thước Opcode** | 1 Byte (256 instructions) | 16-bit / 32-bit variable length |
-| **Số lượng lệnh thực thi** | Nhiều lệnh hơn (phải push/pop liên tục) | Ít hơn 30-50% số lệnh so với JVM |
-| **Mức độ tiêu thụ RAM** | Cao (nhiều stack frame overhead) | Thấp (tối ưu cấu trúc dữ liệu cho Mobile) |
+| **Kiến trúc VM** | **Stack-based** (dựa trên Operand Stack) | **Register-based** (dựa trên thanh ghi ảo) |
+| **Định dạng Executable** | Nhiều tập tin `.class`, mỗi file một Constant Pool | `classes.dex` hợp nhất, Constant Pool dùng chung |
+| **Độ dài lệnh** | Opcode 1 byte, toán hạng lấy từ stack | Đơn vị lệnh 16-bit, mỗi lệnh dài 1–5 đơn vị (ghi rõ số thanh ghi) |
+| **Số lệnh cho cùng một đoạn code** | Nhiều hơn (phải push/pop liên tục) | Ít hơn, khoảng 47% theo nghiên cứu của Shi và cộng sự (2008) |
+| **Kích thước bytecode** | Nhỏ hơn | Lớn hơn, khoảng 25% theo cùng nghiên cứu |
 
-#### Tại sao Register-based nhanh hơn trên Mobile?
+#### Register-based nhanh hơn ở đâu?
 
-CPU thật sự trên điện thoại (ARM) sử dụng kiến trúc register. Khi Virtual Machine cũng dùng register-based instructions, việc mapping từ virtual register sang physical register sẽ hiệu quả hơn, giảm số lần truy cập bộ nhớ stack.
+Lợi thế nằm ở **interpreter**. Khi thông dịch, mỗi lệnh bytecode tốn một lần "dispatch": đọc opcode, giải mã, nhảy tới đoạn xử lý tương ứng. Register-based cần ít lệnh hơn cho cùng một phép tính, nên ít lần dispatch hơn. Cái giá là mỗi lệnh dài hơn vì phải ghi số thanh ghi, làm bytecode to hơn.
+
+Lựa chọn này hợp lý cho Dalvik năm 2008, khi app chủ yếu chạy bằng interpreter. Ngày nay, ART biên dịch phần lớn code "nóng" sang mã máy (JIT/AOT) với bộ phân bổ thanh ghi riêng, nên khác biệt stack-based và register-based gần như không còn ảnh hưởng tới tốc độ code đã biên dịch. Nó vẫn có ý nghĩa với phần code còn chạy bằng interpreter và với thiết kế định dạng `.dex`.
 
 #### So sánh Bytecode cấp độ Assembly: Phép cộng `a = b + c`
 
@@ -102,7 +102,7 @@ iadd             ; Pop 2 giá trị, cộng lại, push kết quả vào Stack
 istore_3         ; Pop kết quả từ Stack lưu vào biến a (slot 3)
 ```
 
-*(Cần 4 câu lệnh và 4 lần truy cập bộ nhớ stack)*
+*(4 lệnh, nghĩa là 4 lần dispatch khi thông dịch)*
 
 - **Dalvik / ART (Register-based Execution)**:
 
@@ -110,7 +110,7 @@ istore_3         ; Pop kết quả từ Stack lưu vào biến a (slot 3)
 add-int v0, v1, v2   ; Lấy thanh ghi v1 + v2, ghi trực tiếp kết quả vào thanh ghi v0
 ```
 
-*(Chỉ cần 1 câu lệnh đơn duy nhất — tiết kiệm CPU cycles và băng thông bộ nhớ)*
+*(1 lệnh, 1 lần dispatch; đổi lại lệnh dài hơn vì phải mã hoá 3 số thanh ghi)*
 
 ```mermaid
 flowchart LR
@@ -127,6 +127,8 @@ flowchart LR
     end
 ```
 
+<!-- dd: s01-stack-vs-register -->
+
 ---
 
 ### 2. Luồng biên dịch Android Java: Từ `.java` đến `.dex`
@@ -142,11 +144,13 @@ flowchart TD
     D -->|ART Runtime| E[JIT Profiling -> AOT Profile-Guided Compilation]
 ```
 
+<!-- dd: s01-java-build -->
+
 1. **`javac` (Java Compiler)**: Biên dịch mã nguồn `.java` thành Java Bytecode tiêu chuẩn `.class`. Bước này giống hệt Java SE.
 2. **D8 / R8 Compiler**:
    - **D8**: Đọc các tệp `.class`, gộp toàn bộ Constant Pools trùng lặp từ hàng trăm class thành một Constant Pool duy nhất. Chuyển đổi từ Stack-based instructions sang Register-based Dalvik Bytecode (`.dex`).
-   - **R8**: Thay thế ProGuard, thực hiện toàn bộ chức năng của D8 cộng thêm code shrinking (loại bỏ code không dùng), obfuscation (đổi tên class/method) và optimization.
-3. **Desugaring**: Chuyển đổi các tính năng cú pháp Java 8+ thành bytecode tương thích với các Android OS cũ hơn. Xem chi tiết phần bên dưới.
+   - **R8**: Thay thế ProGuard (mặc định từ AGP 3.4, năm 2019), thực hiện toàn bộ chức năng của D8 cộng thêm code shrinking (loại bỏ code không dùng), obfuscation (đổi tên class/method) và optimization. R8 thường chỉ bật cho bản release (`isMinifyEnabled = true`).
+3. **Desugaring**: Chuyển đổi các tính năng cú pháp Java 8+ thành bytecode tương thích với các Android OS cũ hơn. Bước này chạy bên trong D8/R8. Xem chi tiết phần bên dưới.
 
 ---
 
@@ -164,70 +168,74 @@ Chuyển đổi cú pháp Java 8 thành bytecode tương đương mà Android ru
 
 | Tính năng Java 8+ | Cách D8 desugar |
 | :--- | :--- |
-| Lambda expressions | Sinh ra anonymous inner class tương đương |
-| Method references | Chuyển thành static method call |
-| Default interface methods | Copy method body vào implementing class |
-| `try-with-resources` | Chuyển thành `try-finally` block |
+| Lambda expressions | Sinh một synthetic class implement functional interface (tương tự anonymous class) |
+| Method references | Xử lý giống lambda: cũng sinh synthetic class |
+| Default / static interface methods | Chuyển body sang một companion class (hậu tố `$-CC`), class implement gọi sang đó |
+| `try-with-resources` | Với `minSdk` < 19: viết lại bằng `try-finally` và xử lý `addSuppressed` cho runtime cũ |
 
 **Tầng 2 — Core Library Desugaring (cần cấu hình thêm):**
 
 Backport toàn bộ **Java 8+ API** (`java.time.*`, `java.util.stream.*`, `java.util.Optional`) cho thiết bị cũ bằng cách nhúng một thư viện hỗ trợ vào APK:
 
-```groovy
-// build.gradle (Module: app)
+```kotlin
+// build.gradle.kts (Module: app)
 android {
     compileOptions {
-        // Cho phép dùng cú pháp Java 8 trong source code
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-        // BẬT Core Library Desugaring
-        coreLibraryDesugaringEnabled true
+        // Phiên bản ngôn ngữ Java của source code
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        // Bật Core Library Desugaring
+        isCoreLibraryDesugaringEnabled = true
     }
 }
 
 dependencies {
-    // Thư viện backport java.time, java.util.stream cho API < 26
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    // Thư viện backport java.time, java.util.stream... cho thiết bị cũ
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 ```
 
-> **Cảnh báo:** Nếu không bật `coreLibraryDesugaringEnabled` mà gọi `java.time.LocalDate.now()` trên thiết bị Android 7.0 (API 24) trở xuống, ứng dụng sẽ crash với `NoClassDefFoundError` ngay khi runtime cố tìm class `LocalDate`.
+> **Cảnh báo:** `java.time` chỉ có sẵn từ Android 8.0 (API 26). Nếu `minSdk` thấp hơn và không bật Core Library Desugaring, Android Lint sẽ báo lỗi `NewApi`. Nếu bỏ qua lỗi đó, app crash với `NoClassDefFoundError` khi gọi `java.time.LocalDate.now()` trên thiết bị API 25 trở xuống.
 
 ---
 
 ### 4. ART Runtime Execution
 
-Khi ứng dụng được cài đặt và chạy trên thiết bị, ART thực thi `.dex` bytecode qua cơ chế kết hợp:
+Cách thiết bị thực thi `.dex` đã thay đổi nhiều lần qua các phiên bản Android:
 
-#### Dalvik VM (Android 1.0 — 4.4): JIT thuần túy
+#### Dalvik VM (Android 1.0 — 4.4): Interpreter, rồi thêm JIT
 
-- **JIT (Just-In-Time)**: Mỗi lần chạy, Dalvik VM biên dịch bytecode `.dex` sang mã máy (native code) ngay tại thời điểm thực thi.
-- **Nhược điểm**: Tốn CPU và pin mỗi lần khởi chạy app. App mở chậm.
+- **Android 1.0 — 2.1**: Dalvik chỉ **thông dịch** (interpreter) bytecode. Khi cài app, công cụ `dexopt` tối ưu sẵn file `.dex` cho thiết bị.
+- **Android 2.2+**: Dalvik thêm **trace-based JIT**: chỉ những đoạn code chạy lặp nhiều lần ("hot trace") mới được biên dịch sang mã máy, và kết quả mất đi khi process kết thúc.
+- **Nhược điểm**: lần chạy nào cũng phải thông dịch và JIT lại từ đầu, tốn CPU và pin.
 
-#### ART (Android 5.0+): AOT + JIT + Profile-Guided
+#### ART (tuỳ chọn ở 4.4, mặc định từ 5.0): AOT, JIT và Profile-Guided
 
-- **AOT (Ahead-Of-Time)**: Khi cài đặt app, ART biên dịch toàn bộ `.dex` thành mã máy (`.oat` / `.art` files). App mở nhanh hơn vì code đã sẵn sàng.
-- **JIT (Android 7.0+)**: ART kết hợp lại JIT để giảm thời gian cài đặt. JIT biên dịch các đoạn code "hot" (chạy thường xuyên) và ghi lại **profile**.
-- **Profile-Guided Compilation**: Dựa trên profile thu thập từ JIT, ART biên dịch AOT chỉ những method thực sự được dùng (khi thiết bị idle và đang sạc). Kết quả: app mở nhanh mà không tốn bộ nhớ cho code không bao giờ chạy.
+- **Android 5.0 — 6.0, AOT toàn bộ**: khi cài app, `dex2oat` biên dịch toàn bộ `.dex` sang mã máy (file `.oat`). App chạy nhanh, nhưng cài đặt và cập nhật hệ thống rất lâu, và tốn bộ nhớ cho cả code không bao giờ chạy.
+- **Android 7.0+, kết hợp**: app cài nhanh, chạy bằng interpreter và JIT trước. JIT ghi lại **profile** những method hay dùng.
+- **Profile-Guided Compilation**: khi thiết bị rảnh và đang sạc, ART dùng profile để biên dịch AOT **chỉ những method thường dùng**.
+- **Profile có sẵn từ lần cài đầu**: từ Android 9, Google Play gửi kèm **Cloud Profiles** gom từ người dùng khác. Nhà phát triển cũng có thể tự đóng gói **Baseline Profiles** (Jetpack, hoạt động từ Android 7.0) để những luồng quan trọng như khởi động app được biên dịch sẵn ngay từ lần mở đầu tiên.
 
 #### ART Garbage Collector
 
-ART sử dụng **Concurrent Copying GC** được thiết kế riêng cho mobile:
+Từ Android 8.0, GC mặc định của ART là **Concurrent Copying (CC)**:
 
-- **Concurrent**: GC chạy song song với application threads, giảm thiểu Stop-The-World pause (thường < 1ms).
-- **Generational**: Chia Heap thành Young Generation (đối tượng mới, thu hồi thường xuyên) và Old Generation (đối tượng sống lâu, thu hồi ít hơn).
-- **Compacting**: Sau khi thu hồi, GC dồn các object lại gần nhau để giảm memory fragmentation — quan trọng trên thiết bị có RAM hạn chế.
+- **Concurrent**: phần lớn công việc GC chạy song song với các thread của app, thời gian dừng app (pause) rất ngắn.
+- **Compacting**: GC copy các object còn sống lại gần nhau, giảm phân mảnh bộ nhớ. Điều này quan trọng trên thiết bị RAM hạn chế.
+- **Generational (từ Android 10)**: tách object mới tạo (thu hồi thường xuyên) với object sống lâu (thu hồi ít hơn), giảm chi phí cho mỗi lần GC.
+
+Trước Android 8.0, ART dùng Concurrent Mark Sweep (CMS).
 
 ---
 
 ## Ví dụ thực tế
 
-### 1. Thảm họa Memory Leak với Implicit Outer Reference trong Java
+### 1. Memory Leak do tham chiếu ngầm tới Outer Class
 
-Trong Java, mọi **Non-Static Inner Class** và **Anonymous Inner Class** luôn âm thầm giữ một pointer `OuterClass.this`.
+Trong Java, mọi **Non-Static Inner Class** và **Anonymous Inner Class** luôn âm thầm giữ một tham chiếu `OuterClass.this`.
 
 ```java
-// ❌ BAD PRACTICE: Gây rò rỉ bộ nhớ Activity nghiêm trọng!
+// ❌ BAD PRACTICE: Runnable ẩn danh giữ Activity sống thêm 10 giây sau khi bị destroy
 public class ProfileActivity extends AppCompatActivity {
 
     @Override
@@ -254,46 +262,58 @@ public class ProfileActivity extends AppCompatActivity {
 #### Điều gì xảy ra dưới bộ nhớ khi người dùng xoay màn hình?
 
 1. Người dùng bấm Back hoặc xoay màn hình sau 1 giây.
-2. Android OS gọi `onDestroy()` trên `ProfileActivity`.
-3. Tuy nhiên, `Handler` trong `Looper` vẫn giữ `Runnable`. `Runnable` lại giữ ngầm `ProfileActivity.this`.
-4. **Garbage Collector (GC)** duyệt cây đối tượng (GC Root) → Thấy `ProfileActivity` vẫn được tham chiếu → **Không thể thu hồi memory!**
-5. Kết quả: Toàn bộ View Hierarchy (RAM vài MB đến vài chục MB) bị kẹt lại trong bộ nhớ.
+2. Android OS gọi `onDestroy()` trên `ProfileActivity`. Khi xoay màn hình, một instance Activity mới được tạo.
+3. Tuy nhiên, `MessageQueue` của main thread vẫn giữ một `Message` chứa `Runnable`. `Runnable` lại giữ ngầm `ProfileActivity.this`.
+4. **Garbage Collector (GC)** đi từ GC Root (main thread) theo chuỗi tham chiếu → thấy `ProfileActivity` cũ vẫn được tham chiếu → **không thể thu hồi**.
+5. Kết quả: Activity cũ cùng toàn bộ View Hierarchy của nó nằm lại trong bộ nhớ **cho tới khi Runnable chạy xong** (10 giây). Mỗi lần xoay màn hình lại tạo thêm một bản như vậy.
+
+Leak này là tạm thời. Nhưng cùng một lỗi với delay dài hơn, với tác vụ lặp lại (post lại chính nó), hoặc với `Thread` chạy lâu sẽ giữ Activity rất lâu. Ngoài ra, `updateUI()` chạy trên một Activity đã chết có thể gây crash.
 
 ```mermaid
 flowchart LR
-    GCRoot["GC Root (Main Looper)"] --> Handler
-    Handler --> Runnable["Anonymous Runnable"]
-    Runnable -->|implicit reference| Activity["ProfileActivity (DESTROYED)"]
-    Activity --> Views["View Hierarchy (leaked!)"]
+    GCRoot["GC Root: main thread"] --> Queue["MessageQueue"]
+    Queue --> Msg["Message"]
+    Msg -->|callback| Runnable["Anonymous Runnable"]
+    Runnable -->|implicit reference| Activity["ProfileActivity cũ, đã destroy"]
+    Activity --> Views["View Hierarchy bị giữ lại"]
 ```
 
-#### Giải pháp chuẩn: Static Inner Class + WeakReference
+<!-- dd: s01-leak-chain -->
+
+#### Giải pháp: huỷ tác vụ theo vòng đời, và không giữ tham chiếu mạnh
 
 ```java
-// ✅ GOOD PRACTICE: Giải phóng hoàn toàn Memory Leak
+// ✅ GOOD PRACTICE
 public class ProfileActivity extends AppCompatActivity {
 
-    private final MyHandler mHandler = new MyHandler(this);
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable refreshTask = new RefreshTask(this);
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_profile);
+        handler.postDelayed(refreshTask, 10_000);
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Hủy toàn bộ pending messages khi Activity bị destroy
-        mHandler.removeCallbacksAndMessages(null);
+        // Cách chính: huỷ tác vụ đang chờ khi Activity bị destroy
+        handler.removeCallbacks(refreshTask);
     }
 
-    // Static Inner Class KHÔNG giữ implicit reference tới Outer Class
-    private static class MyHandler extends Handler {
-        private final WeakReference<ProfileActivity> mActivityRef;
+    // Static nested class: KHÔNG giữ tham chiếu ngầm tới ProfileActivity
+    private static class RefreshTask implements Runnable {
+        private final WeakReference<ProfileActivity> activityRef;
 
-        MyHandler(ProfileActivity activity) {
-            super(Looper.getMainLooper());
-            mActivityRef = new WeakReference<>(activity);
+        RefreshTask(ProfileActivity activity) {
+            activityRef = new WeakReference<>(activity);
         }
 
         @Override
-        public void handleMessage(Message msg) {
-            ProfileActivity activity = mActivityRef.get();
+        public void run() {
+            ProfileActivity activity = activityRef.get();
             if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
                 activity.updateUI();
             }
@@ -301,57 +321,25 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        // Safe UI Update
+        // Cập nhật giao diện
     }
 }
 ```
 
 **Tại sao giải pháp này hoạt động:**
 
-- `static class` không giữ implicit reference tới `ProfileActivity`.
-- `WeakReference` cho phép GC thu hồi `ProfileActivity` bất kỳ lúc nào.
-- `removeCallbacksAndMessages(null)` dọn dẹp message queue khi Activity bị destroy.
+- `removeCallbacks(refreshTask)` gỡ `Message` khỏi `MessageQueue`, cắt chuỗi tham chiếu từ GC Root. Chỉ riêng bước này đã đủ sửa leak trong ví dụ.
+- `static class` + `WeakReference` là lớp bảo vệ thứ hai: kể cả khi quên huỷ, tác vụ cũng không giữ được Activity, và kiểm tra `isDestroyed()` tránh cập nhật UI trên Activity đã chết.
+
+> **Mẹo:** Với code Kotlin, `lifecycleScope.launch { delay(10_000); updateUI() }` tự huỷ khi Activity bị destroy, nên không cần tự viết hai bước trên.
 
 ---
 
-### 2. Cạm bẫy Java-Kotlin Interop: Platform Types & Nullability
+### 2. Viết Java API an toàn cho Kotlin: Nullability Annotations
 
-Khi gọi mã Java từ Kotlin, nếu mã Java không được đánh dấu Annotation Nullability:
+Java không có khái niệm nullable trong kiểu dữ liệu. Khi Kotlin gọi một method Java không có annotation, Kotlin hiểu kiểu trả về là **Platform Type** (`String!`) và **không bắt kiểm tra null**. Nếu method trả về `null`, code Kotlin crash `NullPointerException` ở runtime. Cơ chế Platform Type và cách xử lý phía Kotlin được trình bày trong `android.languages.kotlin`.
 
-```java
-// Java Repository (Legacy) — KHÔNG CÓ ANNOTATION
-public class UserRepository {
-    public String getUserName(int userId) {
-        if (userId <= 0) return null;
-        return "Alex";
-    }
-}
-```
-
-```kotlin
-// Kotlin Code
-val repo = UserRepository()
-// Kotlin gán kiểu cho name là "String!" (Platform Type)
-val name = repo.getUserName(-1)
-
-// Kotlin Compiler KHÔNG bắt buộc check null compile-time!
-// Runtime crash lập tức với NullPointerException tại line này!
-println(name.length)
-```
-
-#### Tại sao Platform Type nguy hiểm?
-
-Khi Kotlin nhìn thấy `String!` (Platform Type), nó **không biết** giá trị có thể null hay không. Kotlin Compiler sẽ:
-
-- Không báo lỗi compile-time.
-- Không ép bạn check null.
-- Âm thầm cho bạn gọi `.length` như thể biến đó không bao giờ null.
-
-Kết quả: `NullPointerException` xảy ra ở runtime — đúng cái thảm họa mà Kotlin hứa hẹn giúp bạn tránh.
-
-#### Giải pháp khắc phục tại tầng Java
-
-Bắt buộc bổ sung Nullability Annotations (`@Nullable` / `@NonNull` từ `androidx.annotation`):
+Phía Java, cách sửa tận gốc là bổ sung Nullability Annotations (`@Nullable` / `@NonNull` từ `androidx.annotation`) cho mọi API công khai:
 
 ```java
 import androidx.annotation.NonNull;
@@ -361,7 +349,7 @@ public class UserRepository {
     @Nullable // Giúp Kotlin Compiler hiểu chính xác kiểu dữ liệu là String?
     public String getUserName(int userId) {
         if (userId <= 0) return null;
-        return "Alex";
+        return "Lan";
     }
 
     @NonNull // Kotlin hiểu đây là String (không nullable)
@@ -379,41 +367,41 @@ Sau khi thêm annotation, Kotlin sẽ hiểu:
 
 ### 3. Cấu hình Gradle cho Java Android Project
 
-```groovy
-// build.gradle (Module: app)
+```kotlin
+// build.gradle.kts (Module: app)
 plugins {
-    id 'com.android.application'
+    id("com.android.application")
 }
 
 android {
-    namespace 'com.example.myapp'
-    compileSdk 34
+    namespace = "com.example.shop"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId "com.example.myapp"
-        minSdk 21
-        targetSdk 34
-        // Bật Multidex nếu app lớn (> 64K methods)
-        multiDexEnabled true
+        applicationId = "com.example.shop"
+        // Từ API 21, ART hỗ trợ multidex sẵn, không cần multiDexEnabled
+        minSdk = 21
+        targetSdk = 35
     }
 
     compileOptions {
-        // Java 8 source/target (bắt buộc cho Lambda, Method Reference)
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-        // Backport java.time, java.util.stream cho API < 26
-        coreLibraryDesugaringEnabled true
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        // Backport java.time, java.util.stream... cho API < 26
+        isCoreLibraryDesugaringEnabled = true
     }
 }
 
 dependencies {
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    // Nullability Annotations cho Java-Kotlin Interop
-    implementation 'androidx.annotation:annotation:1.9.1'
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    // Nullability Annotations cho code Kotlin gọi vào
+    implementation("androidx.annotation:annotation:1.9.1")
 }
 ```
+
+Dự án mới dùng Gradle Kotlin DSL (`build.gradle.kts`) theo mặc định. Dự án cũ có thể vẫn dùng Groovy (`build.gradle`), cú pháp khác nhưng các thuộc tính tương đương.
 
 ---
 
@@ -428,13 +416,13 @@ dependencies {
    - Sử dụng Java `Thread` hoặc `AsyncTask` (đã bị deprecated từ API 30) bằng anonymous class trong Activity dẫn tới Memory Leak và Crash khi Activity bị recreate.
 
 3. **Bỏ qua Java Desugaring khi cấu hình Gradle**:
-   - Không bật `coreLibraryDesugaringEnabled` trong `build.gradle` khiến ứng dụng bị crash `NoClassDefFoundError` khi gọi các hàm Java 8+ (`java.time.LocalDate`) trên các thiết bị Android 7.0 (API 24) trở xuống.
+   - Không bật Core Library Desugaring nhưng vẫn dùng API Java 8+ như `java.time.LocalDate` với `minSdk` < 26, rồi tắt cảnh báo Lint `NewApi`. App crash `NoClassDefFoundError` trên thiết bị API 25 trở xuống.
 
 4. **Không thêm Nullability Annotations khi viết Java API**:
    - Gây Platform Types khi Kotlin gọi vào, dẫn đến `NullPointerException` ở runtime — đặc biệt nguy hiểm trong dự án mixed Java/Kotlin.
 
 5. **Sử dụng Java `Serializable` thay vì `Parcelable`**:
-   - `Serializable` dùng reflection, chậm gấp 10 lần so với `Parcelable` trên Android. Trong truyền dữ liệu qua `Intent` hoặc `Bundle`, luôn ưu tiên `Parcelable`.
+   - `Serializable` dùng reflection và tạo nhiều object tạm, chậm hơn đáng kể so với `Parcelable` trên Android. Khi truyền dữ liệu qua `Intent` hoặc `Bundle`, ưu tiên `Parcelable`.
 
 6. **Giữ reference tới Context trong Singleton hoặc static field**:
    - Lưu `Activity` context vào `static` variable sẽ giữ toàn bộ Activity trong bộ nhớ vĩnh viễn. Luôn dùng `applicationContext` khi cần context trong singleton.
@@ -453,7 +441,7 @@ dependencies {
 ### Nhược điểm
 
 - **Cú pháp dài dòng (Boilerplate)**: Phải viết Getters, Setters, `equals()`, `hashCode()`, `toString()` thủ công. Kotlin giải quyết bằng `data class`.
-- **Thiếu tính năng hiện đại**: Không có Coroutines, Extension Functions, Smart Casts, Sealed Classes, hay Immutable Data Classes.
+- **Tính năng mới đến chậm**: Java không có Coroutines, Extension Functions hay Null Safety. Các tính năng Java mới (records, sealed classes...) chỉ dùng được trên Android khi D8 hỗ trợ desugar, thường chậm hơn Java SE vài năm.
 - **Null Safety hoàn toàn không có**: Mọi reference type đều có thể null. Phải tự kiểm tra `if (obj != null)` thủ công.
 - **Không còn là ưu tiên của Google**: Từ 2019, tài liệu chính thức, Jetpack libraries, và code samples đều ưu tiên Kotlin. Compose chỉ hỗ trợ Kotlin.
 
@@ -463,11 +451,11 @@ dependencies {
 | :--- | :--- | :--- |
 | **Null Safety** | Không có (mọi biến có thể null) | Có (`String` vs `String?`) |
 | **Coroutines** | Không (phải dùng Thread/RxJava) | Có (structured concurrency) |
-| **Data Class** | Viết thủ công 50+ dòng | 1 dòng `data class User(...)` |
+| **Data Class** | Viết tay hàng chục dòng (hoặc `record` nếu toolchain hỗ trợ) | 1 dòng `data class User(...)` |
 | **Extension Functions** | Không | Có |
 | **Jetpack Compose** | Không hỗ trợ | Hỗ trợ đầy đủ |
 | **Google khuyến nghị** | Legacy support | First-class, Kotlin-first |
-| **Build Speed** | Nhanh hơn | Chậm hơn (do KAPT/KSP) |
+| **Build Speed** | Thường nhanh hơn | Chậm hơn; compiler K2 (Kotlin 2.0) đã cải thiện |
 | **AOSP Compatibility** | 100% | 100% (interop) |
 
 ---
@@ -477,21 +465,25 @@ dependencies {
 ```mermaid
 timeline
     title Hành trình tiến hóa của Java trong Hệ điều hành Android
-    2007 : Ra mắt Android SDK (Java 5/6) : Dalvik VM ra đời với kiến trúc Register-based
-    2010 : Vụ kiện thế kỷ Oracle vs Google : Tranh chấp bản quyền Java API/Apache Harmony
-    2014 : Android 5.0 Lollipop : Khai tử Dalvik VM, chuyển sang ART (AOT Compilation)
-    2016 : Android 7.0 Nougat : ART kết hợp JIT + AOT + Profile-guided compilation
-    2017 : Google công bố hỗ trợ Kotlin : Java chuyển sang vai trò nền tảng AOSP Core
-    2018 : Công cụ D8/R8 & Desugaring : Cho phép dùng Java 8+ API trên các thiết bị Android cũ
-    2019 : Kotlin-First : Google tuyên bố Kotlin là ưu tiên số 1 cho Android Development
+    2007 : Ra mắt Android SDK (Java 5/6) : Dalvik VM với kiến trúc Register-based
+    2010 : Android 2.2 thêm JIT cho Dalvik : Oracle kiện Google về Java API
+    2013 : Android 4.4 thêm ART dạng tuỳ chọn
+    2014 : Android 5.0 - ART thay Dalvik : AOT toàn bộ khi cài
+    2016 : Android 7.0 - ART kết hợp JIT, AOT : Profile-guided compilation
+    2017 : Google công bố hỗ trợ Kotlin
+    2018 : D8 thay DX làm dex compiler mặc định
+    2019 : R8 thay ProGuard : Google tuyên bố Kotlin-first
+    2020 : Core Library Desugaring (AGP 4.0) : Dùng java.time trên thiết bị cũ
 ```
+
+<!-- dd: s01-java-history -->
 
 | Phiên bản Android | Java hỗ trợ | Runtime Engine | Đặc điểm nổi bật |
 | :--- | :--- | :--- | :--- |
-| Android 1.0 — 4.4 | Java 5 / 6 | Dalvik VM | JIT Compilation, kiến trúc Bytecode `.dex` |
-| Android 5.0 — 6.0 | Java 7 | ART | Giới thiệu ART với AOT Ahead-Of-Time compilation |
-| Android 7.0 — 11 | Java 8 (Desugaring) | ART (JIT + AOT) | Hỗ trợ Lambda, Stream API qua D8 desugaring |
-| Android 12 — 15+ | Java 11 / 17 | ART Core Modularized | Cập nhật ART độc lập qua Google Play System Updates |
+| Android 1.0 — 4.4 | Java 5 / 6 (một phần Java 7 từ 4.4) | Dalvik VM | Interpreter, thêm trace-based JIT từ 2.2 |
+| Android 5.0 — 6.0 | Java 7 | ART | AOT toàn bộ khi cài đặt |
+| Android 7.0 — 12 | Java 8 (một phần có sẵn, phần còn lại qua desugaring) | ART (JIT + AOT) | Profile-guided compilation |
+| Android 13 — 14+ | API của Java 11 (Android 13), Java 17 (Android 14) | ART cập nhật qua Mainline | ART là module cập nhật qua Google Play system updates từ Android 12 |
 
 ---
 
@@ -535,3 +527,12 @@ Khi bật minification bằng R8, nếu không cấu hình `proguard-rules.pro` 
 8. **What are the real-world problems developers encounter?** Rò rỉ bộ nhớ Activity qua Anonymous Handlers và NullPointerExceptions khi interop với Kotlin.
 9. **How is it connected to the Android system?** Là ngôn ngữ gốc của toàn bộ AOSP System Services (`AMS`, `WMS`, `PMS`).
 10. **What should developers learn next?** Chuyển dịch lên `android.languages.kotlin` để khai thác Null Safety và Coroutines.
+
+---
+
+## Tham khảo
+
+- Android Developers: [Java 8+ APIs available through desugaring](https://developer.android.com/studio/write/java8-support)
+- Android Open Source Project: [ART and Dalvik](https://source.android.com/docs/core/runtime)
+- Android Developers: [Baseline Profiles overview](https://developer.android.com/topic/performance/baselineprofiles/overview)
+- Shi, Gregg, Beatty, Ertl (2008): *Virtual Machine Showdown: Stack Versus Registers*, ACM TACO. Nguồn của số liệu 47% ít lệnh hơn và 25% bytecode lớn hơn.

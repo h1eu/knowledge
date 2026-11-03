@@ -2,3 +2,9 @@
 **/.DS_Store
 .mimosa/
 **/.mimosa/
+.video_agent/
+
+# Archify: skill cài cục bộ (v3.2.0) và thư mục làm việc tạm
+.claude/skills/archify/
+.archify/
+website/archify/**/*.delivery.json

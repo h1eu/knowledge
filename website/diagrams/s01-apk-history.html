@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tiến hóa của cơ chế đóng gói và ký APK</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ DÒNG THỜI GIAN · APK</p>
+  <h1>Tiến hóa của cơ chế đóng gói và ký APK</h1>
+  <p class="sub">Từ v1 ký từng file tới v2 ký toàn bộ APK, rồi v3, v4, AAB và page size 16KB.</p>
+<svg viewBox="0 0 800 512" role="img" aria-labelledby="s01-apk-history-title s01-apk-history-desc" font-family="'Geist', sans-serif">
+<title id="s01-apk-history-title">Tiến hóa của cơ chế đóng gói và ký APK</title>
+<desc id="s01-apk-history-desc">Dòng thời gian 2008–2024 của APK: Signature v1 dựa trên JAR Signing, v2 ký toàn bộ APK năm 2016, v3 hỗ trợ Key Rotation, v4 cài đặt tăng dần, Google Play bắt buộc AAB cho app mới, Android 15 hỗ trợ page size 16KB.</desc>
+<rect width="800" height="512" fill="#F8FAFC"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="456" stroke="rgba(100,116,139,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="64" x2="408" y2="64" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="88" x2="408" y2="88" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="112" x2="408" y2="112" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="136" x2="408" y2="136" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="160" x2="408" y2="160" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="184" x2="408" y2="184" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="208" x2="408" y2="208" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="256" x2="408" y2="256" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="304" x2="408" y2="304" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="376" x2="408" y2="376" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="400" x2="408" y2="400" stroke="#64748B" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="44" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2008</text>
+<text x="468" y="44" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">APK và Signature v1</text>
+<text x="468" y="60" fill="#64748B" font-size="12" text-anchor="start">Dựa trên JAR Signing, ký từng file</text>
+<circle cx="400" cy="232" r="8" fill="#F8FAFC"/>
+<circle cx="400" cy="232" r="6" fill="#0284C7"/>
+<text x="380" y="236" fill="#0284C7" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2016</text>
+<text x="332" y="236" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 7.0 - Signature v2</text>
+<text x="332" y="252" fill="#64748B" font-size="12" text-anchor="end">Ký toàn bộ APK bằng APK Signing Block</text>
+<circle cx="400" cy="280" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="284" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2018</text>
+<text x="468" y="284" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Android 9 - Signature v3</text>
+<text x="468" y="300" fill="#64748B" font-size="12" text-anchor="start">Hỗ trợ Key Rotation</text>
+<circle cx="400" cy="328" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="332" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2020</text>
+<text x="332" y="332" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 11 - Signature v4</text>
+<text x="332" y="348" fill="#64748B" font-size="12" text-anchor="end">Cài đặt tăng dần qua ADB</text>
+<circle cx="400" cy="352" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="356" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2021</text>
+<text x="468" y="356" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Google Play bắt buộc AAB cho app mới</text>
+<text x="468" y="372" fill="#64748B" font-size="12" text-anchor="start">APK do Play sinh ra cho từng thiết bị</text>
+<circle cx="400" cy="424" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="428" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2024</text>
+<text x="332" y="428" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 15 hỗ trợ page size 16KB</text>
+<text x="332" y="444" fill="#64748B" font-size="12" text-anchor="end">Thư viện .so cần căn chỉnh 16KB</text>
+<!-- legend -->
+<line x1="32" y1="480" x2="768" y2="480" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="496" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="492" r="4" fill="#0284C7"/>
+<text x="140" y="496" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · SIGNATURE V2</text>
+<circle cx="328" cy="492" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="340" y="496" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="492" x2="456" y2="492" stroke="#64748B" stroke-width="0.8"/>
+<text x="464" y="496" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · TIMELINE · DOC-INLINE · MIXED · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

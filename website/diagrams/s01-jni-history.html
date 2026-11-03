@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NDK và Native Development trên Android</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #64748B; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #64748B; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(15,23,42,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ DÒNG THỜI GIAN · JNI · NDK</p>
+  <h1>NDK và Native Development trên Android</h1>
+  <p class="sub">JNI có từ JDK 1.1; trên Android, NDK đi từ r1 tới yêu cầu page size 16KB.</p>
+<svg viewBox="0 0 800 544" role="img" aria-labelledby="s01-jni-history-title s01-jni-history-desc" font-family="'Geist', sans-serif">
+<title id="s01-jni-history-title">NDK và Native Development trên Android</title>
+<desc id="s01-jni-history-desc">Dòng thời gian 1997–2024 của native development: JDK 1.1 ra mắt JNI, NDK r1 năm 2009, CMake thay dần ndk-build, NDK r17 bỏ MIPS và armeabi, RenderScript bị deprecated, Android 15 hỗ trợ page size 16KB.</desc>
+<rect width="800" height="544" fill="#F8FAFC"/>
+<!-- spine: time flows top to bottom -->
+<line x1="400" y1="24" x2="400" y2="52" stroke="rgba(100,116,139,0.40)" stroke-width="1.2"/>
+<line x1="400" y1="52" x2="400" y2="100" stroke="rgba(100,116,139,0.40)" stroke-width="1.2" stroke-dasharray="2,4"/>
+<line x1="400" y1="100" x2="400" y2="488" stroke="rgba(100,116,139,0.40)" stroke-width="1.2"/>
+<!-- year ticks (one per year, honest scale) -->
+<line x1="392" y1="136" x2="408" y2="136" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="160" x2="408" y2="160" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="184" x2="408" y2="184" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="208" x2="408" y2="208" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="232" x2="408" y2="232" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="256" x2="408" y2="256" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="304" x2="408" y2="304" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="352" x2="408" y2="352" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="376" x2="408" y2="376" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="424" x2="408" y2="424" stroke="#64748B" stroke-width="0.8"/>
+<line x1="392" y1="448" x2="408" y2="448" stroke="#64748B" stroke-width="0.8"/>
+<!-- events -->
+<circle cx="400" cy="40" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="44" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">1997</text>
+<text x="468" y="44" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">JDK 1.1 ra mắt JNI</text>
+<circle cx="400" cy="112" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="116" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2009</text>
+<text x="332" y="116" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android NDK r1</text>
+<circle cx="400" cy="280" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="284" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2016</text>
+<text x="468" y="284" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">Android Studio 2.2 hỗ trợ CMake</text>
+<text x="468" y="300" fill="#64748B" font-size="12" text-anchor="start">Thay dần ndk-build (Android.mk)</text>
+<circle cx="400" cy="328" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="380" y="332" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2018</text>
+<text x="332" y="332" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">NDK r17 bỏ MIPS và armeabi (ARMv5)</text>
+<circle cx="400" cy="400" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="420" y="404" fill="#64748B" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="start">2021</text>
+<text x="468" y="404" fill="#0F172A" font-size="12" font-weight="600" text-anchor="start">RenderScript bị deprecated</text>
+<text x="468" y="420" fill="#64748B" font-size="12" text-anchor="start">Khuyến nghị Vulkan hoặc thư viện thay thế</text>
+<circle cx="400" cy="472" r="8" fill="#F8FAFC"/>
+<circle cx="400" cy="472" r="6" fill="#0284C7"/>
+<text x="380" y="476" fill="#0284C7" font-size="12" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="end">2024</text>
+<text x="332" y="476" fill="#0F172A" font-size="12" font-weight="600" text-anchor="end">Android 15 hỗ trợ page size 16KB</text>
+<!-- legend -->
+<line x1="32" y1="512" x2="768" y2="512" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="128" cy="524" r="4" fill="#0284C7"/>
+<text x="140" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · PAGE SIZE 16KB</text>
+<circle cx="328" cy="524" r="4" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+<text x="340" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỐC SỰ KIỆN</text>
+<line x1="440" y1="524" x2="456" y2="524" stroke="#64748B" stroke-width="0.8"/>
+<text x="464" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VẠCH = 1 NĂM</text>
+<line x1="560" y1="524" x2="592" y2="524" stroke="rgba(100,116,139,0.40)" stroke-width="1.2" stroke-dasharray="2,4"/>
+<text x="600" y="528" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRỤC RÚT GỌN 1997–2009</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · TIMELINE · DOC-INLINE · MIXED · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

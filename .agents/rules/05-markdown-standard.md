@@ -155,6 +155,16 @@ Không để Code Block không có ngôn ngữ.
 
 Không sử dụng hình ảnh nếu Mermaid có thể biểu diễn.
 
+Ngoại lệ ở Presentation Layer: website có thể dùng SVG vẽ tay trong `website/diagrams/` (kèm bản `-dark`) để hiển thị đẹp hơn. Khi đó Markdown vẫn giữ Mermaid hoặc mô tả tương đương làm nguồn gốc, và đặt ngay sau khối Mermaid comment `<!-- dd: <slug> -->`; trên website khối `dd-diagram` (SVG dark + light) thay cho Mermaid đó. Vẽ bằng skill `.agents/skills/diagram-design`, sinh bản light bằng `python3 tools/gen-dd-light.py website/diagrams/<slug>-dark.html`.
+
+Sơ đồ tương tác (Archify): dùng cho sơ đồ nhiều bước hoặc nhiều thành phần mà người đọc cần bấm vào để lần theo (kiến trúc, chuỗi lời gọi, luồng dữ liệu). Không thay thế Mermaid:
+
+- File nguồn JSON nằm cạnh Markdown: `<docs>/<session>/diagrams/<slug>.archify.json`.
+- HTML build ra nằm ở `website/archify/<domain>/<slug>.html` (khoảng 800 KB mỗi file, nên chỉ dùng khi thật sự cần).
+- Markdown giữ Mermaid tương ứng, và đặt ngay sau nó một comment đánh dấu: `<!-- archify: <slug> | <tiêu đề> -->`.
+- Website đổi comment đó thành khối `.archify-embed` **thay cho** Mermaid ngay trước nó: sơ đồ hiện thẳng trong bài (iframe `loading="lazy"`, tự khớp chiều cao, đổi theo theme của site), kèm link "Mở toàn màn hình".
+- Quy trình tạo: `.agents/workflows/create-diagram.md`.
+
 ---
 
 # Callout

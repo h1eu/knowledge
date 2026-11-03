@@ -4,10 +4,10 @@ INHERIT: ../mkdocs.yml
 # Project information
 site_name: Plan Android Learning
 site_description: "Android Learning Roadmap and Knowledge Base"
-docs_dir: ../android/docs
+docs_dir: ../knowledge/android/docs
 site_dir: ../site/android
 # Repository
-edit_uri: tree/main/android/docs
+edit_uri: tree/main/knowledge/android/docs
 version: 1.0.0
 
 # Configuration
