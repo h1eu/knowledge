@@ -55,6 +55,7 @@ Trước khi bắt đầu bất kỳ topic nào, AI PHẢI khảo sát đầy đ
 - Bạn muốn học theo lý thuyết, ví dụ thực tế, project, hay kết hợp?
 
 ## 7. Yêu cầu với ví dụ code
+- Bài toán thực tế nào bạn muốn dùng làm ví dụ chính (mặc định: mình đề xuất bài toán hợp nhất với Topic)?
 - Ngôn ngữ, kiến trúc, framework, thư viện mong muốn?
 - Có tiêu chuẩn coding hoặc style nào cần tuân theo?
 
@@ -146,7 +147,10 @@ Mục tiêu là **hướng dẫn cách triển khai vào project thực tế**, 
 - **Hạn chế code dài dòng & boilerplate:** Chỉ đưa snippet ngắn gọn, thể hiện đúng điểm mấu chốt của logic.
 - **Ưu tiên code mô phỏng luồng hoạt động:** Sử dụng code dạng mô phỏng (flow breakdown/step-by-step tracing) để minh họa cách dữ liệu/trạng thái dịch chuyển qua từng bước.
 - **Minh họa bằng Mermaid:** Sử dụng biểu đồ Mermaid (Sequence Diagram, Flowchart) để trực quan hóa luồng chạy song song với các bước triển khai code.
+- **Giải thích trước code:** đoạn code mô tả logic đi theo thứ tự giải thích các bước đánh số → sơ đồ luồng chạy cùng số → code với comment `// (n)` khớp bước (rule 07, mục "Code mô tả logic").
 - **Context thực tế:** Đảm bảo snippet hoặc ví dụ áp dụng đúng ngữ cảnh dự án thật (không dùng `class Animal`, `foo`, `bar`).
+- **Ví dụ theo kiến thức:** kiến thức viết tổng quát; mỗi ví dụ chọn bài toán hợp nhất với kiến thức nó minh hoạ và giải thích luồng chạy, không ép vào một app mẫu chung. Theo `.agents/playbooks/write-example.md`.
+- **Một định nghĩa chuẩn:** khái niệm chính chỉ được định nghĩa một lần (1–2 câu + tối đa một mental model); mọi phần khác của bài phải khớp định nghĩa đó.
 
 #### 2.4: Tư duy hệ thống (Optional)
 

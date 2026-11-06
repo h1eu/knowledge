@@ -94,6 +94,8 @@ Toàn bộ Repository cần thống nhất về:
 - Metadata.
 - Markdown.
 - Quy ước.
+- Định nghĩa: trong một Topic chỉ có một định nghĩa và một mental model cho khái niệm chính; giữa các Topic, cùng một khái niệm phải được hiểu như nhau.
+- Bối cảnh ví dụ: kiến thức viết tổng quát; mỗi ví dụ chọn bài toán thực tế hợp nhất với kiến thức nó minh hoạ, không ép vào một app mẫu chung.
 
 Không tạo ngoại lệ nếu không thật sự cần.
 
@@ -132,6 +134,9 @@ Ví dụ cần:
 - Đơn giản.
 - Chỉ minh họa một ý chính.
 - Có thể chạy hoặc kiểm chứng khi phù hợp.
+- Lấy bài toán thực tế hợp với kiến thức đang minh hoạ; tên class, biến có nghĩa trong bài toán đó.
+- Không dùng kiến thức của phần sau trong bài.
+- Code mô tả logic có giải thích từng bước bằng lời và sơ đồ luồng chạy đặt trước code, dùng chung số thứ tự bước với comment trong code.
 
 Không sử dụng ví dụ gây hiểu nhầm.
 
@@ -184,6 +189,10 @@ Trước khi xem một nội dung là hoàn chỉnh, AI cần tự đánh giá:
 
 - Nội dung có chính xác không?
 - Có giải thích bản chất không?
+- Định nghĩa khái niệm chính có giống nhau ở mọi chỗ trong Topic không (summary, outcomes, cách hoạt động, tổng kết)?
+- Phần kiến thức có đứng được một mình, không phụ thuộc vào bối cảnh của ví dụ không?
+- Ví dụ có đúng bài toán mà kiến thức đó thật sự giải quyết, và có giải thích được luồng chạy không?
+- Mọi đoạn code có logic đã có giải thích từng bước và sơ đồ luồng chạy chưa?
 - Có dễ hiểu không?
 - Có nhất quán với Repository không?
 - Có vi phạm Rule nào không?

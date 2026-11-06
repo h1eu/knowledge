@@ -28,6 +28,49 @@ Hãy viết như một người hướng dẫn đang dạy một kỹ sư.
 
 ---
 
+# Người đọc mục tiêu
+
+Người đọc là **developer** muốn học mới, củng cố lại, và hiểu bản chất kiến thức để **dùng được trong công việc**.
+
+Vì vậy mỗi Topic phải trả lời được hai câu:
+
+- "Bản chất của nó là gì, vì sao nó hoạt động như vậy?"
+- "Mình áp dụng nó vào app của mình thế nào?"
+
+Bài chỉ có lý thuyết, hoặc chỉ có code mẫu, đều chưa đạt.
+
+---
+
+# Một định nghĩa, một mental model trong mỗi Topic
+
+Mỗi Topic có **đúng một** định nghĩa chuẩn cho khái niệm chính, đặt ở mục "X là gì?":
+
+- 1–2 câu định nghĩa, nêu bản chất (nó *là* gì, không chỉ nó *làm* gì).
+- Tối đa một mental model / phép so sánh. Đã chọn thì dùng nó xuyên suốt bài, không đổi sang phép so sánh khác ở phần sau.
+
+Mọi chỗ khác trong Topic phải **khớp** với định nghĩa đó, không được diễn đạt lại theo nghĩa khác:
+
+- `summary` và `learning_outcomes` trong frontmatter.
+- Các phần "Cách hoạt động", callout, chú thích Diagram, bảng so sánh.
+- Phần tổng kết, Developer Curiosity Checklist, Quiz và Flashcard của Topic.
+
+Không dùng một thuật ngữ trước khi định nghĩa nó trong bài (hoặc liên kết Topic định nghĩa nó). Nếu khái niệm đã được định nghĩa ở Topic khác, dùng lại đúng định nghĩa đó và liên kết tới Topic gốc. Không định nghĩa lại theo cách khác.
+
+---
+
+# Kiến thức tổng quát, ví dụ theo từng kiến thức
+
+Kiến thức (vấn đề, định nghĩa, cách hoạt động, summary, learning outcomes) viết **tổng quát**, không gắn vào một app cụ thể. Ví dụ code tồn tại để **minh hoạ và giải thích luồng chạy** của kiến thức đó.
+
+- Không dùng một app mẫu chung cho cả domain. Mỗi kiến thức áp dụng được cho nhiều bài toán khác nhau; ví dụ chọn **bài toán thực tế hợp nhất với chính kiến thức đó** (Room transaction → đặt hàng; `PendingIntent` → mở màn hình từ thông báo; JNI → xử lý ảnh). Các phần trong một Topic có thể dùng bài toán khác nhau.
+- Phần "Vấn đề cần giải quyết" nêu vấn đề **tổng quát** mà kiến thức giải quyết; có thể kèm một đoạn code ngắn cho thấy vấn đề lộ ra thế nào.
+- Sau mỗi phần kiến thức chính có thể có một mục `#### Ví dụ: <bài toán>` minh hoạ đúng phần vừa giải thích: bài toán (1–2 câu) → luồng chạy (các bước đánh số + sơ đồ, khi code có logic) → code với comment `// (n)` → kết quả, cách kiểm chứng.
+- Không ví dụ nào dùng kiến thức ở phần sau của bài (hoặc chưa có trong Topic tiên quyết).
+- Một kiến thức có nhiều bài toán áp dụng thì phần "Ví dụ thực tế" có thể nêu 2–3 bài toán; chỉ bài toán chính cần code đầy đủ.
+- Tên class, biến lấy theo bài toán của ví dụ, có nghĩa trong ngữ cảnh thật (không `foo`, `bar`, `Animal`).
+
+---
+
 # Giải thích bản chất trước
 
 Luôn ưu tiên trả lời:
@@ -101,13 +144,30 @@ Không dùng ví dụ để thay thế giải thích.
 
 ---
 
+# Code mô tả logic: giải thích → sơ đồ luồng chạy → code
+
+Khi một đoạn code demo hoặc hướng dẫn mô tả **logic** (luồng xử lý, rẽ nhánh, tương tác giữa các thành phần, chuyển thread, đổi trạng thái), **ưu tiên giải thích** và đi theo thứ tự:
+
+1. **Giải thích bằng lời**: các bước logic được đánh số (1, 2, 3...), nói rõ mỗi bước làm gì và vì sao.
+2. **Sơ đồ luồng chạy**: vẽ đúng các bước đó, dùng cùng số thứ tự.
+   - Tương tác giữa các thành phần hoặc thread theo thời gian (UI ↔ ViewModel ↔ Repository ↔ API, main thread ↔ background) → sequence diagram.
+   - Rẽ nhánh, điều kiện, vòng lặp → flowchart.
+   - Thay đổi trạng thái, vòng đời → state diagram.
+3. **Code**: chỉ phần cần thiết, comment đánh dấu bước tương ứng (`// (2) ...`) để người đọc dò từ lời, sang sơ đồ, sang code.
+
+Người đọc phải hiểu được luồng chạy chỉ từ phần giải thích và sơ đồ; code là bước cuối để xác nhận.
+
+Không cần sơ đồ cho code không có luồng (khai báo dependency, cấu hình Gradle, một hàm thuần một bước). Sơ đồ viết bằng Mermaid trong Markdown; trên website vẽ lại bằng diagram-design theo rule 05.
+
+---
+
 # Code là công cụ minh họa
 
 Code không phải nội dung chính.
 
 Chỉ đưa vào những đoạn code cần thiết để minh họa cho kiến thức đang học.
 
-Không đưa project hoàn chỉnh.
+Không đưa project hoàn chỉnh: mỗi ví dụ chỉ đưa phần code minh hoạ kiến thức, kèm đủ ngữ cảnh (class, file) để người đọc biết đặt vào đâu.
 
 Không đưa các chi tiết không liên quan.
 

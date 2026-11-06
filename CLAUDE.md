@@ -19,7 +19,7 @@ Phân cấp tri thức: **Domain → Module → Topic → Resource** (Lesson, Di
 
 | Domain | Markdown nguồn | Website content | Đồng bộ MD → web | Verify |
 |---|---|---|---|---|
-| Android | `knowledge/android/docs/` | `website/android-content.js` | **Thủ công** (viết HTML vào JS) | `node tools/verify-android-topics.js` |
+| Android | `knowledge/android/docs/` | `website/android-content.js` | **Script theo session**: `node tools/sync_android_session.js <NN>` (`--check` để xem lệch; tự chặn nếu entry sẽ mất sơ đồ chưa đánh dấu trong Markdown). Session chưa chuẩn hoá vẫn sửa tay | `node tools/verify-android-topics.js` |
 | iOS | `ios/docs/` | `website/ios-content.js` | Thủ công | `node tools/verify-ios-topics.js` |
 | Flutter | `flutter/docs/` | `website/flutter-content.js` | Thủ công | — |
 | Git | `knowledge/git-beginner/` | `website/git-content.js` | **Generator**: `node tools/gen_git_content.js` | — |
@@ -35,6 +35,10 @@ Phân cấp tri thức: **Domain → Module → Topic → Resource** (Lesson, Di
 2. **Không sửa `nav` trong `map/*_mkdocs.yml`** nếu người dùng chưa đồng ý — có nghi vấn thì hỏi.
 3. **Frontmatter là contract.** Không tự thêm field mới; dùng snake_case trong Markdown (`learning_outcomes`, `knowledge_gap`, `estimated_reading_time`), camelCase trong JS (`learningOutcomes`, `knowledgeGap`, `estimatedReadingTime`). Liên kết giữa Topic bằng `id`/`slug`, không bằng đường dẫn. Chi tiết: `.agents/rules/06-frontmatter-standard.md`.
 4. **Cách viết**: bắt đầu từ vấn đề → bản chất → cách hoạt động → ví dụ → khi nào dùng/không dùng → sai lầm thường gặp. Thuật ngữ lần đầu: `StateFlow (Luồng trạng thái)`, sau đó dùng tiếng Anh. Không dịch thuật ngữ đã phổ biến (key-value **không** thành "khoá - giá trị"). Ví dụ code dùng ngữ cảnh dự án thật, không `foo`/`bar`/`Animal`.
+   - **Người đọc** là developer học để củng cố, hiểu bản chất và **dùng được**: mỗi Topic trả lời "bản chất là gì" và "áp dụng vào app thế nào".
+   - **Một định nghĩa chuẩn mỗi Topic** (mục "X là gì?", 1–2 câu + tối đa một mental model); summary, outcomes, giải thích, diagram, tổng kết phải khớp nó.
+   - **Kiến thức tổng quát, ví dụ theo từng kiến thức**: vấn đề, định nghĩa, outcomes viết tổng quát, không gắn vào app cụ thể. Không dùng app mẫu chung: mỗi ví dụ code chọn bài toán thực tế hợp nhất với kiến thức nó minh hoạ (`#### Ví dụ: <bài toán>`), mục đích là giải thích luồng chạy. Chi tiết: rule 07, `.agents/playbooks/write-example.md`.
+   - **Ưu tiên giải thích, có sơ đồ luồng chạy**: code mô tả logic đi theo thứ tự giải thích các bước đánh số → sơ đồ luồng chạy (sequence / flowchart / state) cùng số → code với comment `// (n)` khớp bước. Code không có luồng (cấu hình, khai báo) thì không cần sơ đồ.
 5. **Markdown**: một `#` duy nhất, heading tăng tuần tự, code block luôn có ngôn ngữ, ảnh có alt text.
 6. **Chính xác hơn đơn giản.** Không chắc thì nói rõ; ưu tiên nguồn Official Docs/RFC và ghi References.
 7. **Thay đổi nhỏ, kiểm chứng được, đảo ngược được.** Trước khi sửa cấu trúc/dữ liệu, nêu phạm vi ảnh hưởng và rủi ro (`.agents/rules/03-risk-analysis.md`). Không để repo ở trạng thái dở dang.
@@ -67,7 +71,7 @@ Các workflow chính có lệnh tương ứng trong `.claude/commands/`. Mỗi l
 | Khi làm | Đọc |
 |---|---|
 | Quyết định kiến trúc, đổi cấu trúc thư mục/dữ liệu | `.agents/rules/01-system-thinking.md`, `02-decision-making.md`, `03-risk-analysis.md`, `04-content-architecture.md` |
-| Viết/sửa bài | `.agents/rules/05-markdown-standard.md`, `07-writing-style.md`, `10-quality-standard.md`, `.agents/templates/lesson.md` |
+| Viết/sửa bài | `.agents/rules/05-markdown-standard.md`, `07-writing-style.md`, `10-quality-standard.md`, `.agents/templates/lesson.md`, `.agents/playbooks/write-example.md` |
 | Sửa frontmatter | `.agents/rules/06-frontmatter-standard.md` |
 | Sửa code website/tools | `.agents/rules/08-code-standard.md` |
 | Giải thích, so sánh, trade-off, ví dụ, diagram | `.agents/playbooks/*.md` |

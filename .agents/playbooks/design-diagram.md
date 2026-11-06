@@ -10,6 +10,10 @@ Diagram tồn tại để giúp người học nhìn thấy mối quan hệ mà 
 
 Một Diagram tốt phải phản ánh đúng cấu trúc thực tế, không đơn giản hóa sai bản chất.
 
+## Sơ đồ luồng chạy cho code
+
+Code demo hoặc hướng dẫn mô tả logic luôn đi kèm sơ đồ luồng chạy, đặt sau phần giải thích bằng lời và trước code (rule 07). Các bước trong sơ đồ đánh số trùng với lời giải thích và comment `// (n)` trong code, để người đọc dò được từ lời → sơ đồ → code.
+
 ## Best Practices
 
 - Chọn loại Diagram phù hợp với nội dung (Flowchart cho luồng xử lý, Sequence cho tương tác theo thời gian, State cho vòng đời, Architecture cho cấu trúc hệ thống).

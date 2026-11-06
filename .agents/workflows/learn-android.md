@@ -87,6 +87,7 @@ Xác định:
 - Prerequisites Topics.
 - Related Topics.
 - Downstream Topics.
+- Các bài toán thực tế mà Topic giải quyết; chọn bài toán hợp nhất cho từng ví dụ code.
 
 Topic phải được đặt đúng vị trí trong Android Knowledge Graph.
 
@@ -195,6 +196,18 @@ Tuy nhiên, một Topic cần trả lời được hầu hết các câu hỏi s
 - How is it used in real-world Android projects?
 - What should I learn next?
 
+### Bốn nguyên tắc nội dung (bắt buộc)
+
+Chi tiết trong `.agents/rules/07-writing-style.md` và `.agents/playbooks/write-example.md`.
+
+1. **Viết cho developer học để dùng**: mỗi Topic trả lời được "bản chất là gì" và "áp dụng vào app của mình thế nào".
+2. **Một định nghĩa chuẩn**: mục "X là gì?" có 1–2 câu định nghĩa bản chất và tối đa một mental model. Summary, learning outcomes, các phần giải thích, callout, diagram, tổng kết đều phải khớp định nghĩa này.
+3. **Kiến thức tổng quát, ví dụ theo từng kiến thức**:
+   - "Vấn đề cần giải quyết", định nghĩa, summary, learning outcomes viết tổng quát, không gắn vào app cụ thể.
+   - Phần kiến thức chính trong "Cách hoạt động" có thể kèm `#### Ví dụ: <bài toán>`. Bài toán chọn theo đúng kiến thức đó; các phần có thể dùng bài toán khác nhau.
+   - "Ví dụ thực tế" nêu các bài toán thường gặp (2–3 cái), code đầy đủ cho bài toán chính.
+4. **Ưu tiên giải thích, có sơ đồ luồng chạy**: code demo hoặc hướng dẫn mô tả logic đi theo thứ tự: giải thích các bước đánh số bằng lời → sơ đồ luồng chạy (sequence / flowchart / state) cùng số bước → code với comment `// (n)` khớp bước.
+
 ### Required Artifacts
 
 #### 1. Markdown Source
@@ -208,6 +221,8 @@ Tạo entry tương ứng trong:
 ```text
 website/android-content.js
 ```
+
+Nếu entry đã tồn tại, sinh lại từ Markdown bằng `node tools/sync_android_session.js <NN>` (chạy `--check` trước để xem entry nào lệch). Script giữ nguyên `module`/`domain`, chỉ đổi `updatedAt` khi nội dung đổi, và bỏ qua entry sẽ mất sơ đồ chưa có marker `<!-- dd: ... -->` / `<!-- archify: ... -->` trong Markdown. Bài mới chưa có entry thì thêm entry và nav trong `website/app.js` bằng tay trước.
 
 Bao gồm:
 
