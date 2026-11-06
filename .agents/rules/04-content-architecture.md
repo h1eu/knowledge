@@ -133,7 +133,39 @@ Redis Cache
 
 Một Topic chỉ nên giải thích một khái niệm chính.
 
-Nếu nội dung quá lớn thì cần chia thành nhiều Topic nhỏ hơn.
+Nếu nội dung quá lớn thì cần chia thành nhiều Topic nhỏ hơn, theo quy trình ở mục "Topic và mục lục".
+
+---
+
+# Topic và mục lục
+
+Mục lục (`nav` trong `map/<domain>_mkdocs.yml`) là bản đồ Topic của domain.
+
+## Một mục lá là một Topic
+
+- Mỗi mục lá trong `nav` ứng với đúng một file Markdown và một Topic. Đường dẫn file phải đúng đường dẫn khai báo trong `nav`.
+- Tiêu đề của mục, kể cả phần trong ngoặc, là phạm vi của Topic. Ví dụ "Push data and send event via Intent" bao gồm cả phần gửi event; "Networking (Request API, Handle event network, Handle connection state)" phải trả lời đủ ba ý đó.
+- Kiến thức có mục riêng trong `nav` thì thuộc về mục đó, kể cả khi mục đó nằm ở Session sau hoặc chưa có bài.
+- File `index.md` của Session/Module là trang tổng quan, không bắt buộc có trong `nav`. Trang tổng quan muốn hiện trong mục lục thì đặt số `<session>.0` (ví dụ `5.0 Session 05 Overview`).
+
+## Khi nào Topic quá lớn
+
+Đề xuất tách khi có một trong các dấu hiệu:
+
+- `estimated_reading_time` vượt khoảng 30 phút.
+- Topic giải thích từ hai khái niệm chính trở lên, mỗi khái niệm có định nghĩa và cách hoạt động riêng.
+- Người học cần học các phần theo thứ tự khác nhau hoặc ở các thời điểm khác nhau.
+
+Bài dài vì code lặp hoặc vì giải thích lại kiến thức của Topic khác thì không tách: gom kiến thức về Topic gốc (mục "Single Source of Truth") rồi rút gọn.
+
+## Cách tách
+
+Tách Topic là thay đổi `nav`, nên phải được con người duyệt trước.
+
+1. Đề xuất cấu trúc mới theo dạng mục con dưới cùng số (ví dụ `4.2.3.3` → `4.2.3.3.1`, `4.2.3.3.2`), để không đổi số của các mục khác.
+2. Nêu phạm vi ảnh hưởng: `nav`, file và `id` mới, entry và alias trên website, sidebar `app.js`, `prerequisites`/`related` của các Topic khác.
+3. Chờ duyệt. Trong lúc chờ, giữ một file và chia section rõ ràng theo từng khái niệm.
+4. Sau khi tách, Topic cũ giữ `id` của phần chính; các phần mới nhận `id` mới; website thêm alias để link cũ không hỏng.
 
 ---
 
@@ -231,36 +263,17 @@ Không sử dụng Reference không rõ nguồn gốc.
 
 Topic không tồn tại độc lập.
 
-Một Topic có thể có:
+Quan hệ được khai báo trong frontmatter bằng `id` (định nghĩa field ở rule 06):
 
-- Prerequisite
-- Related
-- Next
-- Previous
-- Alternative
-- Extension
+- `prerequisites`: Topic cần học trước.
+- `related`: Topic liên quan, kể cả giải pháp thay thế hoặc mở rộng.
+- `downstream`: chỉ dùng trong trang tổng quan (`index.md`), liệt kê Topic bắt đầu học.
 
-Ví dụ:
+Thứ tự trước/sau (Previous/Next) lấy từ thứ tự trong `nav`, không khai báo trong frontmatter.
 
-Coroutine Scope
+Ví dụ: Coroutine Scope có `prerequisites: [Coroutine]`, `related: [Flow]`; StateFlow đứng sau nó trong `nav`.
 
-Prerequisite
-
-↓
-
-Coroutine
-
-Related
-
-↓
-
-Flow
-
-Next
-
-↓
-
-StateFlow
+Chỉ khai báo `id` đã tồn tại. Topic chưa có bài thì nhắc trong nội dung (ví dụ "xem 8.4.3 Coroutines (chưa có bài)"), không đưa vào frontmatter.
 
 Mọi Topic đều nên có khả năng liên kết.
 
@@ -275,6 +288,20 @@ Không sao chép nội dung.
 Nếu nhiều Topic cùng sử dụng một kiến thức thì tham chiếu.
 
 Không tạo nhiều phiên bản của cùng một Lesson.
+
+## Chọn Topic gốc
+
+Khi một kiến thức đang được giải thích ở nhiều Topic, Topic gốc là Topic mà tiêu đề trong `nav` nói về kiến thức đó. Ví dụ Room Flow và InvalidationTracker thuộc "Async Transactions & Flow", Parcelable thuộc "Parcelables (Serialization) and Bundle". Không có mục nào khớp thì chọn Topic đứng trước trong `nav` và ghi lý do.
+
+## Gộp trước, xoá sau
+
+Khi chuyển một đoạn trùng về Topic gốc:
+
+1. So đoạn đó với Topic gốc. Ý nào Topic gốc chưa có thì đưa sang Topic gốc trước.
+2. Ở Topic phụ, thay đoạn đó bằng một tóm tắt ngắn (1–2 câu, đúng định nghĩa của Topic gốc) và link sang Topic gốc.
+3. Nếu kiến thức thuộc một mục `nav` chưa có bài, tạo file đúng đường dẫn `nav` với `status: drafting`, kèm entry website, rồi mới chuyển. Không để kiến thức chỉ nằm ở chỗ người học không đọc được.
+
+Không xoá kiến thức chỉ vì nó trùng: phải chắc nó còn tồn tại ở Topic gốc.
 
 ---
 
@@ -300,9 +327,9 @@ Không tổ chức theo giao diện.
 
 Không tổ chức theo URL.
 
-Không tổ chức theo menu.
+Không tổ chức theo menu của website.
 
-Thư mục phải phản ánh mô hình kiến thức.
+Thư mục phải phản ánh mô hình kiến thức, tức là đường dẫn khai báo trong `nav` của Map Layer.
 
 ---
 

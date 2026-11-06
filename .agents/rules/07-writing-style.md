@@ -65,7 +65,7 @@ Kiến thức (vấn đề, định nghĩa, cách hoạt động, summary, learn
 - Không dùng một app mẫu chung cho cả domain. Mỗi kiến thức áp dụng được cho nhiều bài toán khác nhau; ví dụ chọn **bài toán thực tế hợp nhất với chính kiến thức đó** (Room transaction → đặt hàng; `PendingIntent` → mở màn hình từ thông báo; JNI → xử lý ảnh). Các phần trong một Topic có thể dùng bài toán khác nhau.
 - Phần "Vấn đề cần giải quyết" nêu vấn đề **tổng quát** mà kiến thức giải quyết; có thể kèm một đoạn code ngắn cho thấy vấn đề lộ ra thế nào.
 - Sau mỗi phần kiến thức chính có thể có một mục `#### Ví dụ: <bài toán>` minh hoạ đúng phần vừa giải thích: bài toán (1–2 câu) → luồng chạy (các bước đánh số + sơ đồ, khi code có logic) → code với comment `// (n)` → kết quả, cách kiểm chứng.
-- Không ví dụ nào dùng kiến thức ở phần sau của bài (hoặc chưa có trong Topic tiên quyết).
+- Không ví dụ nào dùng kiến thức ở phần sau của bài (hoặc chưa có trong Topic tiên quyết), trừ trường hợp ở mục "Kiến thức dùng trước".
 - Một kiến thức có nhiều bài toán áp dụng thì phần "Ví dụ thực tế" có thể nêu 2–3 bài toán; chỉ bài toán chính cần code đầy đủ.
 - Tên class, biến lấy theo bài toán của ví dụ, có nghĩa trong ngữ cảnh thật (không `foo`, `bar`, `Animal`).
 
@@ -99,17 +99,33 @@ trước khi học cách sử dụng.
 
 # Từ đơn giản đến phức tạp
 
-Thứ tự trình bày nên là:
+Thứ tự trình bày theo khung trong `.agents/templates/lesson.md`:
 
-1. Khái niệm
-2. Bối cảnh
-3. Cách hoạt động
-4. Ví dụ
-5. Trường hợp sử dụng
-6. Lưu ý
+1. Vấn đề cần giải quyết
+2. Sau khi học xong
+3. Định nghĩa ("X là gì?")
+4. Cách hoạt động, mỗi phần kiến thức kèm `#### Ví dụ:`
+5. Ví dụ thực tế
+6. Khi nào nên và không nên dùng
 7. Sai lầm thường gặp
+8. Lịch sử phát triển, Kết nối hệ thống
+
+Template là nơi duy nhất định nghĩa tên và thứ tự section; rule này chỉ giải thích vì sao đi theo thứ tự đó: người học cần biết vì sao phải học, rồi hiểu nó là gì, rồi hiểu nó chạy thế nào, sau cùng mới tới cách dùng và giới hạn.
 
 Không đảo ngược thứ tự nếu không thật sự cần thiết.
+
+---
+
+# Kiến thức dùng trước
+
+Thứ tự Topic theo `nav` đôi khi buộc một bài phải dùng kiến thức của Session sau. Ví dụ, bài Room ở Session 05 cần coroutine, trong khi Coroutines nằm ở 8.4.3.
+
+Khi đó:
+
+- Chỉ dùng phần tối thiểu cần cho ví dụ chạy được (ví dụ một hàm `suspend`, một `Flow.collect`), không giải thích cơ chế của kiến thức đó.
+- Lần đầu xuất hiện, ghi một dòng: kiến thức này là gì trong một câu, và nó được học ở mục nào (ví dụ "Coroutine được học ở 8.4.3 Coroutines (chưa có bài)").
+- Không đưa `id` của Topic chưa có bài vào `prerequisites`.
+- Không đổi sang cách viết cũ hơn (callback, `AsyncTask`) chỉ để tránh kiến thức dùng trước, nếu cách đó không còn được khuyên dùng.
 
 ---
 

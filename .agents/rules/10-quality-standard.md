@@ -59,7 +59,7 @@ Không chỉ mô tả cách sử dụng.
 
 # Tính hệ thống
 
-Mỗi Topic cần có vị trí rõ ràng trong cây tri thức.
+Mỗi Topic cần có vị trí rõ ràng trong cây tri thức: đúng một mục lá trong `nav`, nội dung trả lời đủ các ý trong tiêu đề mục và không viết sâu kiến thức đã có mục riêng ở chỗ khác (rule 04).
 
 Người học cần biết:
 
@@ -195,6 +195,8 @@ Trước khi xem một nội dung là hoàn chỉnh, AI cần tự đánh giá:
 - Mọi đoạn code có logic đã có giải thích từng bước và sơ đồ luồng chạy chưa?
 - Có dễ hiểu không?
 - Có nhất quán với Repository không?
+- Nội dung có nằm đúng phạm vi của mục trong `nav`, và kiến thức trùng đã được chuyển về Topic gốc chưa?
+- Frontmatter có đúng profile của domain (rule 06) và section có đúng khung template không?
 - Có vi phạm Rule nào không?
 - Có thể tái sử dụng không?
 - Có dễ mở rộng không?

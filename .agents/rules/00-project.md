@@ -73,11 +73,11 @@ Nội dung phải luôn được bảo toàn.
 
 ## Markdown First
 
-Toàn bộ tri thức được lưu dưới dạng Markdown hoặc MDX.
+Toàn bộ tri thức được lưu dưới dạng Markdown.
 
 Markdown là nguồn dữ liệu gốc của hệ thống.
 
-Website chỉ đọc và hiển thị nội dung.
+Website chỉ hiển thị nội dung. Hiện trạng đồng bộ Markdown → website của từng domain xem mục "Presentation Layer".
 
 Mọi công cụ khác đều hoạt động dựa trên Markdown.
 
@@ -153,7 +153,7 @@ Nếu AI không chắc chắn về thông tin thì cần nêu rõ.
 
 # Kiến trúc tổng thể
 
-Knowledge OS gồm ba tầng chính.
+Knowledge OS gồm bốn tầng.
 
 ## Knowledge Layer
 
@@ -161,7 +161,18 @@ Chứa toàn bộ tri thức của hệ thống.
 
 Đây là tầng quan trọng nhất.
 
-Mọi nội dung đều được lưu dưới dạng Markdown hoặc MDX.
+Mọi nội dung đều được lưu dưới dạng Markdown (`knowledge/`, `ios/docs/`, `flutter/docs/`, `leetcode/docs/`).
+
+---
+
+## Map Layer
+
+Mục lục của từng domain: `map/<domain>_mkdocs.yml`, phần `nav`.
+
+- `nav` do con người sở hữu. Agent không sửa `nav` nếu chưa được đồng ý.
+- Mỗi mục lá trong `nav` là một file Markdown và một Topic.
+- Tiêu đề của mục (kể cả phần trong ngoặc) xác định phạm vi của Topic.
+- Quan hệ giữa Topic, mục lục và việc tách Topic: xem rule 04, mục "Topic và mục lục".
 
 ---
 
@@ -176,6 +187,19 @@ Website chịu trách nhiệm:
 - Tương tác với người dùng
 
 Website không phải nơi lưu trữ tri thức.
+
+Mục tiêu: mọi nội dung website được sinh từ Markdown. Hiện trạng chưa đạt hoàn toàn:
+
+| Cách đồng bộ | Domain |
+|---|---|
+| Generator sinh toàn bộ file content (không sửa tay) | Git, Design Principles |
+| Script đồng bộ theo session | Android (`tools/sync_android_session.js`) |
+| Sửa tay entry JS song song với Markdown | iOS, Flutter, DSA, phần Android chưa chuẩn hoá |
+
+- Sidebar (`KNOWLEDGE_DATA` trong `website/app.js`) đang viết tay, phải khớp `nav`.
+- Sơ đồ SVG vẽ tay nằm ở `website/diagrams/`, sơ đồ Archify ở `website/archify/`. Markdown giữ Mermaid làm nguồn và đánh dấu bằng marker (rule 05).
+- Với domain sửa tay, Markdown và entry JS phải được sửa trong cùng một thay đổi.
+- Khi phát hiện entry web lệch Markdown: đưa phần chỉ có trên web về Markdown trước, rồi mới đồng bộ Markdown → web. Không đồng bộ đè khi chưa làm bước này, vì sẽ mất nội dung.
 
 ---
 
@@ -267,6 +291,8 @@ Nếu toàn bộ cache bị xóa.
 Nếu toàn bộ thư mục sinh tự động bị xóa.
 
 Chỉ cần thư mục nội dung vẫn còn thì toàn bộ Website phải có khả năng được sinh lại đầy đủ.
+
+Đây là mục tiêu. Với các domain còn sửa tay (xem "Presentation Layer"), mọi thay đổi phải giữ Markdown đầy đủ hơn hoặc bằng website, để khi có generator thì không mất nội dung.
 
 Markdown là tài sản quan trọng nhất của hệ thống.
 

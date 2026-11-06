@@ -83,6 +83,15 @@ const CALLOUTS = [
   [/^Quy tắc/, 'important', '🔴'],
   [/^Lưu ý/, 'note', 'ℹ️'],
 ];
+// GFM alert `> [!TYPE]` (chuẩn callout theo rule 05). DANGER giữ để đọc bài cũ.
+const GFM_ALERTS = {
+  NOTE: ['note', 'ℹ️'],
+  TIP: ['tip', '💡'],
+  IMPORTANT: ['important', '🔴'],
+  WARNING: ['warn', '⚠️'],
+  CAUTION: ['danger', '⛔'],
+  DANGER: ['danger', '⛔'],
+};
 
 function table(rows) {
   const cells = (r) => r.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
@@ -195,9 +204,16 @@ ${svgOf(`${slug}.html`)}
     if (/^>\s?/.test(line)) {
       const parts = [];
       while (i < lines.length && /^>\s?/.test(lines[i])) parts.push(lines[i++].replace(/^>\s?/, ''));
-      const text = parts.join(' ').trim();
-      const label = text.replace(/^\*\*/, '');
-      const [, kind, icon] = CALLOUTS.find(([re]) => re.test(label)) || [null, 'note', 'ℹ️'];
+      let text = parts.join(' ').trim();
+      const alert = text.match(/^\[!([A-Z]+)\]\s*/);
+      let kind, icon;
+      if (alert && GFM_ALERTS[alert[1]]) {
+        [kind, icon] = GFM_ALERTS[alert[1]];
+        text = text.slice(alert[0].length);
+      } else {
+        const label = text.replace(/^\*\*/, '');
+        [, kind, icon] = CALLOUTS.find(([re]) => re.test(label)) || [null, 'note', 'ℹ️'];
+      }
       out.push(`<div class="callout callout-${kind}"><span class="callout-icon">${icon}</span><div class="callout-body">${inline(text)}</div></div>`);
       continue;
     }

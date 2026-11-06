@@ -46,26 +46,20 @@ Không bỏ qua bất kỳ bước nào.
 
 AI cần xem xét toàn bộ hệ thống thay vì chỉ tập trung vào file đang chỉnh sửa.
 
-Ví dụ các thành phần cần kiểm tra:
+Các thành phần cần kiểm tra trong repo này:
 
-- Cấu trúc thư mục
-- Markdown
-- Frontmatter
-- Metadata
-- Knowledge Graph
-- Navigation
-- Sidebar
-- Search
-- URL
-- Internal Link
-- Related Topics
-- SEO
-- Build Process
-- Rendering
-- Agent khác
-- Script
-- CI/CD
-- Tài liệu liên quan
+| Thành phần | Ở đâu |
+|---|---|
+| Markdown và frontmatter | `knowledge/`, `ios/docs/`, `flutter/docs/`, `leetcode/docs/` |
+| Mục lục (`nav`) | `map/<domain>_mkdocs.yml` |
+| Quan hệ giữa Topic | `prerequisites`, `related`, `downstream`, link trong bài |
+| Entry và alias website | `website/<domain>-content*.js` |
+| Sidebar và điều hướng | `KNOWLEDGE_DATA` trong `website/app.js` |
+| Sơ đồ | `website/diagrams/`, `website/archify/`, marker `dd`/`archify` trong Markdown |
+| Script | verify, sync, generator trong `tools/` |
+| Kiểm tra tự động | pre-commit hook `tools/githooks`, CI deploy GitHub Pages khi push `main` |
+| Agent khác | Claude Code (`CLAUDE.md`, `.claude/commands/`) và OpenCode (`opencode.json`) dùng chung `.agents/` |
+| Tài liệu hướng dẫn | `.agents/` (rule, workflow, template, playbook), `CLAUDE.md` |
 
 Nếu thay đổi có thể ảnh hưởng đến các thành phần trên, cần nêu rõ.
 
@@ -118,7 +112,8 @@ Ví dụ:
 - Link hỏng.
 - Layout lỗi.
 - Không render được Markdown.
-- Không tương thích MDX.
+- Lỗi runtime JS (ví dụ `${` chưa escape trong template literal).
+- Sơ đồ SVG/Archify không khớp nội dung đã sửa.
 
 ---
 

@@ -18,6 +18,8 @@ Mục tiêu là xây dựng một hệ thống:
 
 Code cần phục vụ kiến trúc của hệ thống trước khi phục vụ nhu cầu triển khai.
 
+Phạm vi: mã nguồn của website (`website/`) và công cụ (`tools/`). Code ví dụ trong bài học theo rule 07 và `.agents/playbooks/write-example.md`.
+
 ---
 
 # Triết lý
@@ -192,6 +194,21 @@ Code không được phụ thuộc trực tiếp vào:
 Website chỉ xử lý dữ liệu đã được chuẩn hóa.
 
 Không hardcode dữ liệu tri thức trong Source Code.
+
+Hiện trạng: các file `website/<domain>-content.js` và sidebar `KNOWLEDGE_DATA` trong `website/app.js` vẫn chứa tri thức và mục lục viết sẵn (rule 00, "Presentation Layer"). Cho tới khi có generator cho mọi domain:
+
+- File do generator sinh (`git-content.js`, `oodp-content.js`) không sửa tay; sửa Markdown rồi chạy generator.
+- File sửa tay: không thêm tri thức chỉ có ở website; mọi nội dung phải có trong Markdown trước.
+- Logic hiển thị (render callout, thay Mermaid bằng SVG, embed Archify) nằm trong code website hoặc script đồng bộ, không nằm trong nội dung.
+- Công cụ mới ưu tiên đọc Markdown và sinh ra website, thay vì thêm một nơi sửa tay mới.
+
+---
+
+# Bẫy kỹ thuật của website
+
+- Nội dung bài nằm trong template literal JS: `${` sẽ bị thực thi, `\` bị nuốt (`\(` thành `(`). Phải escape thành `\${` và `\\`. Kiểm tra: `node tools/check_content_escapes.js` (chạy trong pre-commit hook và CI).
+- Sau khi sửa file JS của website: `node -c website/<file>.js`, rồi mở trang bằng Puppeteer (có sẵn trong `node_modules`) để chắc không có lỗi runtime.
+- Alias `CONTENT['<id>'] = CONTENT['<key>']` phải đặt sau định nghĩa entry mà nó trỏ tới.
 
 ---
 

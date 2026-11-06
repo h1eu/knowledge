@@ -106,17 +106,16 @@ Tên field cần:
 - Ngắn gọn.
 - Rõ nghĩa.
 - Viết bằng tiếng Anh.
-- Dùng snake_case hoặc camelCase và thống nhất toàn bộ hệ thống.
+- Dùng snake_case trong Markdown (`learning_outcomes`, `estimated_reading_time`). Khi đưa sang website JS thì dùng camelCase (`learningOutcomes`, `estimatedReadingTime`).
 
 Không sử dụng viết tắt khó hiểu.
 
 Ví dụ tốt:
 
 - title
-- slug
 - summary
-- tags
-- authors
+- learning_outcomes
+- knowledge_gap
 
 Ví dụ không tốt:
 
@@ -129,7 +128,69 @@ Ví dụ không tốt:
 
 # Danh mục Field
 
-Mỗi field sử dụng trong hệ thống phải được định nghĩa tại đây.
+Mỗi field sử dụng trong hệ thống phải được định nghĩa tại đây. Mỗi domain dùng một bộ field (profile) ở mục "Profile theo domain"; không dùng field ngoài profile của domain đó.
+
+## Field của Topic (profile Android)
+
+Thứ tự khai báo đúng như bảng.
+
+| Field | Kiểu | Bắt buộc | Quy tắc |
+|---|---|---|---|
+| `id` | String | Có | Duy nhất toàn repo. Dạng `android.<module>.<topic>` (ít nhất 3 đoạn, chữ thường, `_` giữa từ), ví dụ `android.component.activity.lifecycle`. Đã công bố thì không đổi. |
+| `title` | String | Có | Tên khái niệm, trùng H1 của bài. |
+| `summary` | String | Có | 1–2 câu, khớp định nghĩa chuẩn ở mục "X là gì?" (rule 07). |
+| `status` | Enum | Có | `planned` \| `drafting` \| `reviewing` \| `published` \| `deprecated` \| `archived`. Chỉ con người chuyển sang `published`. |
+| `difficulty` | Enum | Có | `beginner` \| `intermediate` \| `advanced`. |
+| `depth` | Enum | Có | `overview` \| `standard` \| `deep-dive`. |
+| `estimated_reading_time` | String | Có | Dạng `<số> phút`, ví dụ `25 phút`. Quá khoảng 30 phút là dấu hiệu cần tách (rule 04). |
+| `tags` | Array of String | Có | kebab-case, chữ thường. Tag đầu là domain (`android`). |
+| `prerequisites` | Array of `id` | Có (có thể `[]`) | Chỉ `id` đã tồn tại. |
+| `related` | Array of `id` | Có (có thể `[]`) | Chỉ `id` đã tồn tại. |
+| `downstream` | Array of `id` | Chỉ ở `index.md` | Topic để bắt đầu học trong Session/Module. |
+| `learning_outcomes` | Array of String | Có | 3–5 mục. Mỗi mục bắt đầu bằng một trong: Giải thích được, Xử lý được, Debug được, Biết khi nào, Phân biệt được, Triển khai được, Áp dụng được, Thiết kế được, Tối ưu được, Nhận diện được. Phải giống hệt danh sách trong section "Sau khi học xong". |
+| `knowledge_gap` | String (folded `>`) | Có | Hậu quả cụ thể nếu không nắm kiến thức, ít nhất một câu. |
+| `quality_gate` | Object | Không | Các khoá `depth`, `correctness`, `examples`, `diagrams`, `system_links`, mỗi khoá nhận `none` \| `partial` \| `complete`. |
+
+Không dùng trong profile Android: `slug`, `domain`, `module`, `topic`, `authors`, `date`, `next`, `previous`. Domain và module suy ra từ `id` và vị trí trong `nav`; thứ tự trước/sau lấy từ `nav`.
+
+Công cụ kiểm tra: `node tools/verify-android-topics.js`. Khi sửa danh mục này thì sửa script trong cùng thay đổi, và ngược lại.
+
+Mẫu:
+
+```yaml
+---
+id: android.component.activity.lifecycle
+title: Activity Lifecycle
+summary: Vòng đời Activity là chuỗi trạng thái mà hệ thống đưa Activity đi qua …
+status: reviewing
+difficulty: intermediate
+depth: deep-dive
+estimated_reading_time: 25 phút
+tags: [android, activity, lifecycle]
+prerequisites: []
+related: [android.component.activity.state_changes]
+learning_outcomes:
+  - Giải thích được …
+  - Phân biệt được …
+  - Áp dụng được …
+knowledge_gap: >
+  Không nắm vòng đời dẫn tới …
+---
+```
+
+## Profile theo domain
+
+Các domain có generator hoặc script đọc frontmatter theo bộ field riêng; không đổi profile nếu chưa sửa công cụ tương ứng.
+
+| Domain | Field | Định danh | Công cụ đọc |
+|---|---|---|---|
+| Android | Như bảng trên | `id` | `tools/verify-android-topics.js`, `tools/sync_android_session.js` |
+| Git | `title, slug, summary, tags, difficulty, read_time, prerequisites, related, next, previous, learning_outcomes, knowledge_gap` | `slug` | `tools/gen_git_content.js` |
+| Design Principles | `title, slug, summary, domain, module, tags, difficulty, depth, prerequisites, related` | `slug` | `tools/gen_oodp_content.js` |
+| iOS, Flutter | `title, slug, summary, domain, module, topic, status, difficulty, estimated_reading_time, tags, prerequisites, related, learning_outcomes` | `slug` | Sửa tay |
+| LeetCode | `title, slug, summary, leetcode_id, url, difficulty, level, pattern, tags, topic_tags` | `slug` | `tools/sync_leetcode.py` |
+
+Domain mới dùng profile Android (đầy đủ và có script kiểm tra). Chuyển một domain cũ sang profile Android là thay đổi cấu trúc dữ liệu, cần đánh giá theo rule 03 và được duyệt.
 
 ## topic_tags
 
@@ -156,12 +217,11 @@ Không tạo metadata mơ hồ.
 
 # Quan hệ
 
-Nếu metadata tham chiếu nội dung khác thì nên sử dụng:
+Metadata tham chiếu nội dung khác bằng định danh của domain (`id` với Android, `slug` với các domain còn lại), không bằng đường dẫn file.
 
-- slug
-- id
+Chỉ tham chiếu định danh đã tồn tại. Topic chưa có bài thì nhắc trong nội dung bài, không đưa vào frontmatter.
 
-Không sử dụng đường dẫn tuyệt đối.
+Link trong nội dung bài viết theo rule 05, mục "Liên kết".
 
 ---
 
@@ -212,13 +272,7 @@ AI cần kiểm tra:
 
 # Không phụ thuộc công nghệ
 
-Frontmatter không được phụ thuộc:
-
-- Next.js
-- Astro
-- React
-- Tailwind
-- Search Engine
+Frontmatter không chứa thông tin dành riêng cho website hay một công cụ cụ thể (key entry JS, class CSS, icon, thứ tự sidebar).
 
 Metadata mô tả nội dung.
 

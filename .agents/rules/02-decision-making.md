@@ -140,14 +140,17 @@ Trước khi tạo mới, AI cần tự hỏi:
 
 # Quyết định kiến trúc
 
-Đối với các thay đổi ảnh hưởng đến cấu trúc hệ thống, AI cần giải thích:
+Đối với các thay đổi ảnh hưởng đến cấu trúc hệ thống (thư mục, `nav`, frontmatter, tách/gộp Topic, website), AI cần giải thích:
 
 - Vấn đề cần giải quyết.
-- Các phương án đã cân nhắc.
+- Các phương án đã cân nhắc, kèm điểm mạnh và điểm yếu.
 - Lý do lựa chọn.
 - Trade-off.
-- Phạm vi ảnh hưởng.
+- Phạm vi ảnh hưởng (theo rule 03).
 - Rủi ro còn tồn tại.
+- Điều kiện để thay đổi quyết định trong tương lai.
+
+Cách trình bày này cũng dùng để ghi nhận quyết định, giúp quyết định được xem xét và đánh giá lại về sau.
 
 ---
 
@@ -173,21 +176,6 @@ Nếu thiếu dữ liệu để đưa ra quyết định chính xác, AI cần:
 - Đề xuất các lựa chọn khả thi với mức độ chắc chắn tương ứng.
 
 Không tự suy diễn những thông tin có thể ảnh hưởng đến kiến trúc hoặc nội dung.
-
----
-
-# Ghi nhận quyết định
-
-Đối với các quyết định quan trọng, AI nên trình bày rõ:
-
-- Mục tiêu.
-- Phân tích.
-- Quyết định.
-- Lý do.
-- Trade-off.
-- Tác động dự kiến.
-
-Điều này giúp các quyết định có thể được xem xét và đánh giá lại trong tương lai.
 
 ---
 

@@ -175,11 +175,13 @@ Nội dung cần đủ sâu để Android Developers hiểu được:
 
 ## Bước 5 - Generate Topic Artifacts
 
-Không sử dụng template cố định cho tất cả các Topic.
+Khung section theo `.agents/templates/lesson.md`: các section bắt buộc có đúng tên và thứ tự; frontmatter theo profile Android trong rule 06.
 
-AI được phép tổ chức nội dung phù hợp với bản chất của từng Topic.
+Bên trong mỗi section (nhất là "Cách hoạt động"), AI tự chia `###` phù hợp với bản chất của Topic.
 
-Tuy nhiên, một Topic cần trả lời được hầu hết các câu hỏi sau (nếu phù hợp):
+Phạm vi Topic lấy từ tiêu đề mục trong `map/android_mkdocs.yml` (rule 04, "Topic và mục lục"): trả lời đủ các ý trong tiêu đề, và không viết sâu kiến thức đã có mục riêng ở chỗ khác trong `nav`.
+
+Trong khung đó, một Topic cần trả lời được hầu hết các câu hỏi sau (nếu phù hợp):
 
 - What is it?
 - Why does it exist?

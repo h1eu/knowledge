@@ -21,8 +21,8 @@ Knowledge OS là một hệ thống quản lý tri thức cá nhân (Personal Kn
 
 Knowledge OS bao gồm các tầng chính:
 
-- Map Layer: nơi định nghĩa mục lục cho các domain. Vị trí: `map/*_mkdocs.yml`.
-- Knowledge Layer: nơi lưu trữ tri thức dưới dạng Markdown/MDX. Vị trí: `knowledge/` (Android, Git, Design Principles, Algorithms), `ios/docs/`, `flutter/docs/`, `leetcode/docs/`.
+- Map Layer: nơi định nghĩa mục lục cho các domain. Vị trí: `map/*_mkdocs.yml`. Mỗi mục lá là một Topic (rule 04).
+- Knowledge Layer: nơi lưu trữ tri thức dưới dạng Markdown. Vị trí: `knowledge/` (Android, Git, Design Principles, Algorithms), `ios/docs/`, `flutter/docs/`, `leetcode/docs/`.
 - Presentation Layer: website hiển thị và điều hướng nội dung. Vị trí: `website/`.
 - Authoring Layer: các công cụ và AI Agent hỗ trợ xây dựng nội dung. Vị trí: `.agents/` và `tools/`.
 

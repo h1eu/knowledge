@@ -114,9 +114,9 @@ Danh sách câu hỏi này định hướng toàn bộ nội dung bài viết. M
 
 #### 2.2: Tổ chức nội dung (Flexible Structure)
 
-**Không sử dụng template cố định cho tất cả các Topic.**
+Bài thực chiến vẫn theo khung section bắt buộc của `.agents/templates/lesson.md` (script verify của domain kiểm tra các section này) và frontmatter theo rule 06.
 
-AI được phép tổ chức nội dung phù hợp với bản chất của từng Topic.
+Ngoài các section bắt buộc, AI được phép tổ chức nội dung phù hợp với bản chất của từng Topic, ví dụ dồn trọng tâm vào "Ví dụ thực tế" theo hướng What → When → Code.
 
 Tuy nhiên, một Topic cần trả lời được hầu hết các câu hỏi sau (nếu phù hợp):
 

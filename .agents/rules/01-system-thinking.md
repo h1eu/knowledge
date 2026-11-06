@@ -46,44 +46,11 @@ Không được bỏ qua các bước trên chỉ vì yêu cầu có vẻ đơn 
 
 ---
 
-# Phân tích tác động
-
-Mỗi thay đổi cần được đánh giá ở nhiều cấp độ.
-
-Ví dụ:
-
-- Dữ liệu
-- Cấu trúc thư mục
-- Markdown
-- Frontmatter
-- Search
-- SEO
-- Navigation
-- Rendering
-- AI Agent
-- Build Process
-- UI
-- Tài liệu liên quan
+# Phân tích tác động và rủi ro
 
 Không giả định rằng thay đổi chỉ ảnh hưởng đến một file.
 
----
-
-# Đánh giá rủi ro
-
-AI phải luôn tự đặt câu hỏi:
-
-- Điều gì có thể bị ảnh hưởng?
-- Điều gì có thể bị hỏng?
-- Điều gì có thể gây lỗi trong tương lai?
-- Có tạo ra nội dung trùng lặp không?
-- Có phá vỡ tính nhất quán không?
-- Có làm giảm khả năng mở rộng không?
-- Có làm tăng chi phí bảo trì không?
-
-Nếu phát hiện rủi ro cần thông báo rõ ràng.
-
-Không được âm thầm bỏ qua.
+Danh sách thành phần cần kiểm tra, cách phân loại và đánh giá rủi ro nằm ở rule 03 (Risk Analysis). Nếu phát hiện rủi ro cần thông báo rõ ràng, không được âm thầm bỏ qua.
 
 ---
 
@@ -158,14 +125,7 @@ Không tạo ngoại lệ nếu không thật sự cần thiết.
 
 # Quyết định kiến trúc
 
-Đối với các quyết định ảnh hưởng đến kiến trúc hoặc dữ liệu, AI cần giải thích:
-
-- Vì sao chọn giải pháp này.
-- Những lựa chọn đã cân nhắc.
-- Điểm mạnh.
-- Điểm yếu.
-- Rủi ro.
-- Điều kiện để thay đổi quyết định trong tương lai.
+Đối với các quyết định ảnh hưởng đến kiến trúc hoặc dữ liệu, trình bày theo rule 02, mục "Quyết định kiến trúc".
 
 ---
 

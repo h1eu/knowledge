@@ -32,11 +32,7 @@ Không viết Markdown chỉ để hiển thị đẹp trên Website.
 
 # Một file chỉ có một mục tiêu
 
-Mỗi Markdown chỉ nên giải thích một Topic.
-
-Không kết hợp nhiều chủ đề lớn trong cùng một file.
-
-Nếu nội dung quá lớn, cần tách thành nhiều Topic.
+Mỗi Markdown giải thích đúng một Topic, ứng với một mục lá trong `nav`. Khi nào cần tách và cách tách: rule 04, mục "Topic và mục lục".
 
 ---
 
@@ -169,14 +165,26 @@ Sơ đồ tương tác (Archify): dùng cho sơ đồ nhiều bước hoặc nhi
 
 # Callout
 
-Sử dụng Callout để nhấn mạnh.
+Sử dụng Callout để nhấn mạnh. Dùng cú pháp alert của GitHub Flavored Markdown, với 5 loại:
 
-Ví dụ:
+```md
+> [!NOTE]
+> Thông tin bổ sung nên biết.
 
-- Note
-- Warning
-- Tip
-- Info
+> [!TIP]
+> Mẹo giúp làm tốt hơn.
+
+> [!IMPORTANT]
+> Điều bắt buộc phải nắm.
+
+> [!WARNING]
+> Điều có thể gây lỗi nếu bỏ qua.
+
+> [!CAUTION]
+> Hành động gây hậu quả nghiêm trọng (mất dữ liệu, crash, lỗ hổng bảo mật).
+```
+
+Không dùng `> **Lưu ý:**`, `> **Cảnh báo:**` hay `[!DANGER]` cho bài mới; bài cũ chuyển dần khi được viết lại. Blockquote in đậm dạng `> **Giải pháp:**` vẫn dùng được cho đoạn trích dẫn thường, không phải Callout.
 
 Không lạm dụng Callout.
 
@@ -184,24 +192,11 @@ Không lạm dụng Callout.
 
 # HTML
 
-Không nhúng HTML vào Markdown nếu Markdown hoặc MDX có thể biểu diễn.
+Không nhúng HTML vào Markdown nếu Markdown có thể biểu diễn.
+
+Ngoại lệ là các comment đánh dấu sơ đồ (`<!-- dd: … -->`, `<!-- archify: … -->`) ở mục Mermaid.
 
 Ưu tiên Markdown thuần.
-
----
-
-# MDX
-
-Chỉ sử dụng MDX khi thật sự cần.
-
-Ví dụ:
-
-- Component tương tác.
-- Demo.
-- Playground.
-- Visualization.
-
-Không chuyển toàn bộ nội dung sang JSX.
 
 ---
 
@@ -220,9 +215,14 @@ Mỗi hình cần có alt text.
 
 Ưu tiên liên kết nội bộ.
 
-Không sử dụng URL tuyệt đối nếu có thể dùng liên kết tương đối.
+Có hai loại liên kết, mỗi loại một cách viết:
 
-Không tạo liên kết chết.
+- **Quan hệ trong frontmatter** (`prerequisites`, `related`, `downstream`): dùng `id`, không dùng đường dẫn (rule 06).
+- **Link trong nội dung bài**: dùng đường dẫn tương đối tới file `.md` (ví dụ `[Task and Backstack](../activity/task_and_backstack.md)`), để link chạy được cả khi đọc Markdown trực tiếp. Không dùng URL tuyệt đối tới repo hay website.
+
+Topic chưa có bài thì ghi tên và số mục kèm "(chưa có bài)", không tạo link.
+
+Không tạo liên kết chết. Script verify của domain kiểm tra link nội bộ.
 
 ---
 
@@ -236,14 +236,7 @@ Một khái niệm chỉ nên có một cách gọi trong toàn bộ Repository.
 
 # Ví dụ
 
-Ví dụ nên:
-
-- Ngắn.
-- Độc lập.
-- Có thể chạy.
-- Chỉ minh họa đúng nội dung đang học.
-
-Không đưa Project hoàn chỉnh vào Lesson.
+Cách viết ví dụ (chọn bài toán, luồng chạy, comment `// (n)`): rule 07 và `.agents/playbooks/write-example.md`. Về mặt Markdown, ví dụ trong phần kiến thức là heading con `#### Ví dụ: <bài toán>`.
 
 ---
 
@@ -263,12 +256,9 @@ Không phụ thuộc vào giao diện Website.
 
 # Không phụ thuộc nền tảng
 
-Markdown không được chứa logic phụ thuộc:
+Markdown không chứa JavaScript, component, class CSS hay HTML trình bày dành riêng cho website.
 
-- Next.js
-- Astro
-- React
-- Tailwind
+Phần trình bày (SVG, widget, embed) do website thêm vào dựa trên marker trong Markdown.
 
 Website chỉ là nơi hiển thị.
 
