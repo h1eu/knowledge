@@ -629,7 +629,7 @@ graph LR
     end
 
     File --> Source --> CountSink --> Socket
-    CountSink -.->|emit(percent)| Flow
+    CountSink -.->|"emit(percent)"| Flow
 ```
 
 ### 8.2 Mã nguồn CountingRequestBody hoàn chỉnh

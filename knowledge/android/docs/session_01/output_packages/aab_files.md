@@ -259,7 +259,7 @@ java -jar bundletool.jar build-apks \
     --ks-key-alias=release
 ```
 
-Dùng `--ks-pass=file:...` để mật khẩu không nằm trong lịch sử shell. Thêm `--connected-device` để chỉ sinh APK cho thiết bị đang cắm, hoặc `--mode=universal` để sinh một APK universal (hữu ích khi phân phối ngoài Google Play).
+Keystore truyền qua `--ks` dùng để ký **các APK** mà `bundletool` sinh ra, không phải ký lại file AAB; bỏ `--ks` thì `bundletool` ký các APK đó bằng debug key. Dùng `--ks-pass=file:...` để mật khẩu không nằm trong lịch sử shell. Thêm `--connected-device` để chỉ sinh APK cho thiết bị đang cắm, hoặc `--mode=universal` để sinh một APK universal (hữu ích khi phân phối ngoài Google Play).
 
 #### Bước 2: Cài lên thiết bị đang kết nối ADB
 
@@ -281,7 +281,7 @@ java -jar bundletool.jar install-apks --apks=app.apks
 
 3. **Nhầm hai loại key của Play App Signing**:
    - **App signing key**: do Google giữ, dùng để ký APK cài lên thiết bị người dùng.
-   - **Upload key**: do developer giữ, dùng để ký AAB trước khi upload. AAB được ký bằng `jarsigner` (hoặc `signingConfig` của Gradle); `apksigner` **không** ký được AAB. Chữ ký này chỉ để Play xác minh người upload, còn APK cài lên thiết bị do Play ký lại bằng app signing key (v2/v3).
+   - **Upload key**: do developer giữ, dùng để ký AAB trước khi upload. AAB được ký bằng `jarsigner` khi ký từ dòng lệnh (hoặc bằng `signingConfig` của Gradle); `apksigner` **không** ký được AAB. Điều này không ngược với lời khuyên "dùng `apksigner`, đừng dùng `jarsigner`" ở [APK](apk_files.md), mục "Sai lầm thường gặp": lời khuyên đó dành cho APK cài lên thiết bị. Chữ ký trên AAB chỉ để Play xác minh người upload, còn APK cài lên thiết bị do Play ký bằng app signing key.
    - Mất upload key thì chủ tài khoản gửi yêu cầu reset trong Play Console. Không thể tự lấy lại app signing key, nên đừng nhầm hai key khi lưu trữ.
 
 4. **Vẫn dùng thư viện Play Core cũ** (`com.google.android.play:core`): từ 2022 thư viện này được tách thành Play Feature Delivery, Play Asset Delivery, Play In-App Updates... Thư viện cũ không còn tương thích với các phiên bản `targetSdk` mới.
@@ -324,7 +324,7 @@ java -jar bundletool.jar install-apks --apks=app.apks
 7. **What are the edge cases?** Crash `ClassNotFoundException` / `Resources$NotFoundException` do thiếu `SplitCompat`.
 8. **What are the real-world problems developers encounter?** Test AAB cục bộ, quản lý key với Play App Signing, chuyển từ Play Core sang các thư viện mới.
 9. **How is it connected to the Android system?** Dựa trên khả năng cài nhiều Split APK cho một app của PackageManager từ Android 5.0 (API 21).
-10. **What should developers learn next?** Session 02 (`android.session02.file_permissions`; Process Management chưa có bài) để hiểu hệ thống cài đặt và cô lập ứng dụng thế nào.
+10. **What should developers learn next?** Session 02 (`android.session02.file_permissions`; 2.2 Process Management (chưa có bài)) để hiểu hệ thống cài đặt và cô lập ứng dụng thế nào.
 
 ---
 
@@ -335,5 +335,6 @@ java -jar bundletool.jar install-apks --apks=app.apks
 - Android Developers: [Play Feature Delivery](https://developer.android.com/guide/playcore/feature-delivery)
 - Android Developers: [Configure on-demand delivery](https://developer.android.com/guide/playcore/feature-delivery/on-demand)
 - Android Developers: [Build your app from the command line: Build an app bundle](https://developer.android.com/build/building-cmdline#build_bundle)
+- Android Developers: [Sign your app](https://developer.android.com/studio/publish/app-signing)
 - Android Developers: [Use Play App Signing](https://support.google.com/googleplay/android-developer/answer/9842756)
 - Google Play Apps & Games (2017): *Shrinking APKs, growing installs*. Nguồn của số liệu 6MB và 1%.

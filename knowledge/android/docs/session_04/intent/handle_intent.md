@@ -1,7 +1,7 @@
 ---
 id: android.intent.handle_intent
 title: Xử lý Intent và onNewIntent
-summary: Hướng dẫn cách trích xuất dữ liệu từ Intent, nhận kết quả trả về với Activity Result API (cả XML và Compose), và giải phẫu chi tiết vòng đời onNewIntent() khi kết hợp cùng Launch Modes.
+summary: Hướng dẫn cách trích xuất dữ liệu từ Intent, nhận kết quả trả về với Activity Result API (cả XML và Compose), và nhận Intent mới qua onNewIntent() khi Activity đang sống được tái sử dụng thay vì tạo mới.
 status: published
 difficulty: intermediate
 depth: deep-dive
@@ -12,7 +12,7 @@ related: [android.component.activity.task_and_backstack, android.intent.filters,
 learning_outcomes:
   - Triển khai được việc đọc extras (primitive, Parcelable) từ Intent theo cách tương thích mọi phiên bản Android.
   - Áp dụng được Activity Result API (registerForActivityResult, rememberLauncherForActivityResult) để nhận kết quả trả về trong View và Compose.
-  - Giải thích được khi nào hệ thống gọi onNewIntent() thay vì onCreate() theo từng Launch Mode.
+  - Giải thích được khi nào hệ thống gọi onNewIntent() thay vì onCreate() (Activity được tái sử dụng do launch mode hoặc Intent flag).
   - Xử lý được Intent mới trong onNewIntent() và cập nhật getIntent() bằng setIntent() khi cần.
 knowledge_gap: >
   Không hiểu onNewIntent() khiến Activity dùng singleTop/singleTask hiển thị dữ liệu cũ khi người dùng bấm thông báo mới; vẫn dùng startActivityForResult/onActivityResult đã deprecated hoặc ACTION_PICK thay vì Photo Picker; và đọc Parcelable sai cách giữa các phiên bản API.
@@ -125,10 +125,7 @@ Giả sử bạn có màn hình `NotificationActivity`. Khi người dùng đang
 
 ### Tại sao lại như vậy?
 
-Do cấu hình **Launch Mode** trong Manifest, nếu Activity của bạn là `singleTop`, `singleTask`, hoặc `singleInstance`:
-Khi Component B **đang hiển thị trên cùng** (top of stack) và một Intent mới gọi đến B, hệ điều hành sẽ **KHÔNG tạo ra instance mới** (không gọi `onCreate()`).
-
-Thay vào đó, nó tái sử dụng instance cũ và chuyển Intent mới vào hàm `onNewIntent(intent)`.
+Khi Activity đích **được tái sử dụng** thay vì tạo mới, hệ điều hành **KHÔNG tạo ra instance mới** (không gọi `onCreate()`). Thay vào đó, nó chuyển Intent mới vào hàm `onNewIntent(intent)` của instance đang sống. Activity được tái sử dụng khi launch mode trong Manifest (`singleTop`, `singleTask`, `singleInstance`, `singleInstancePerTask`) hoặc Intent flag lúc gọi (`FLAG_ACTIVITY_SINGLE_TOP`, `FLAG_ACTIVITY_CLEAR_TOP` kết hợp `SINGLE_TOP`) cho phép, và instance phù hợp đã tồn tại. Mỗi launch mode và flag quyết định "khi nào tái sử dụng" ra sao được giải thích ở [Task and Back Stack](../components/activity/task_and_backstack.md), mục "Cách hoạt động — 5 Launch Modes" và "Cách hoạt động — Intent Flags".
 
 ```mermaid
 sequenceDiagram
@@ -159,9 +156,11 @@ class NotificationActivity : AppCompatActivity() {
         handleIntentData(intent)
     }
 
-    // Hàm này CHỈ gọi khi Activity ĐANG SỐNG và nhận Intent mới
-    // ComponentActivity (androidx.activity, cha của AppCompatActivity) khai báo onNewIntent(intent: Intent)
-    // non-null; viết Intent? sẽ báo lỗi "'onNewIntent' overrides nothing" và không compile
+    // Hàm này CHỈ gọi khi Activity ĐANG SỐNG và nhận Intent mới.
+    // ComponentActivity (androidx.activity, cha của AppCompatActivity) khai báo
+    // onNewIntent(@NonNull Intent intent), nên trong Kotlin tham số là Intent non-null.
+    // Code cũ viết Intent? (từ thời tham số còn là platform type) báo lỗi
+    // "'onNewIntent' overrides nothing" khi nâng androidx.activity lên 1.9.0+.
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
@@ -179,12 +178,18 @@ class NotificationActivity : AppCompatActivity() {
 }
 ```
 
-### Phân tích nhanh các Launch Mode ảnh hưởng đến onNewIntent
+### Launch mode nào dẫn tới onNewIntent?
 
-- **standard (mặc định):** Mỗi lần gọi Intent là tạo ra instance mới, gọi `onCreate()`. Cứ gọi là xếp chồng lên nhau. Khỏi quan tâm `onNewIntent`.
-- **singleTop:** Nếu B đang ở **trên cùng** stack -> GỌI `onNewIntent()`. Nếu B ở dưới A -> Tạo B mới, gọi `onCreate()`.
-- **singleTask:** Chỉ có duy nhất 1 B trong toàn bộ Task. Nếu gọi B, mọi Activity nằm trên B bị pop ra khỏi stack (xóa sạch), đưa B lên đỉnh và GỌI `onNewIntent()`. Cực kỳ hữu dụng cho màn hình Home/Dashboard.
+Với `standard` (mặc định) và không có flag tái sử dụng, mỗi Intent tạo instance mới và đi qua `onCreate()`, nên không cần `onNewIntent()`. Các launch mode và flag còn lại có thể tái sử dụng instance cũ; bảng "onNewIntent?" cho từng mode ở [Task and Back Stack](../components/activity/task_and_backstack.md), mục "Cách hoạt động — 5 Launch Modes". Activity nào có thể được tái sử dụng thì phải override `onNewIntent()` như ví dụ trên.
 
 ## Tổng kết
 
 Việc hiểu luồng dữ liệu (vào qua `onCreate` hoặc `onNewIntent`, ra qua `Activity Result API`) là cốt lõi để làm chủ ứng dụng Android. Luôn nhớ nguyên tắc vàng: **Nếu dùng Launch Mode để tái sử dụng Activity, bạn phải override `onNewIntent()` để xử lý Intent mới, và gọi `setIntent(intent)` nếu về sau còn đọc `getIntent()`.**
+
+## Nguồn tham khảo
+
+- Android Developers — [Get a result from an activity (Activity Result API)](https://developer.android.com/training/basics/intents/result)
+- Android Developers — [Photo picker](https://developer.android.com/training/data-storage/shared/photopicker)
+- Android Developers — [ComponentActivity reference (`onNewIntent(@NonNull Intent)`)](https://developer.android.com/reference/androidx/activity/ComponentActivity)
+- Android Developers — [Activity release notes (1.9.0: ComponentActivity viết lại bằng Kotlin)](https://developer.android.com/jetpack/androidx/releases/activity)
+- Android Developers — [Activity launch modes](https://developer.android.com/guide/components/activities/launch-mode)

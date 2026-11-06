@@ -13,7 +13,7 @@ learning_outcomes:
   - Giải thích được tại sao DialogFragment an toàn hơn AlertDialog truyền thống, lifecycle của DialogFragment và cách FragmentManager quản lý dialog.
   - Triển khai được DialogFragment với custom layout và BottomSheetDialogFragment.
   - Áp dụng được Fragment Result API để giao tiếp giữa dialog và Fragment/Activity cha.
-  - Biết khi nào dùng DialogFragment và khi nào dùng Navigation Component Dialog.
+  - Biết khi nào hiển thị DialogFragment bằng `show()` và khi nào khai báo nó thành `<dialog>` destination của Navigation Component.
   - Triển khai được dialog trong Compose (AlertDialog, Dialog, ModalBottomSheet).
 knowledge_gap: >
   Dùng AlertDialog trực tiếp trong Fragment/Activity mà không hiểu lifecycle sẽ gây window leak khi xoay màn hình, crash khi truy cập context bị destroy, và mất dialog state khi configuration change. Không biết Fragment Result API dẫn đến coupling cao giữa dialog và Activity/Fragment.
@@ -459,10 +459,12 @@ class ParentFragment : Fragment() {
     
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.dialogResult.collect { result ->
-                result?.let {
-                    handleResult(it)
-                    viewModel.clearResult()
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.dialogResult.collect { result ->
+                    result?.let {
+                        handleResult(it)
+                        viewModel.clearResult()
+                    }
                 }
             }
         }
@@ -702,32 +704,12 @@ Navigation Component cung cấp cách hiển thị dialog thông qua NavGraph:
 findNavController().navigate(R.id.confirmDialog)
 ```
 
-### So sánh chi tiết
+Class khai báo trong `<dialog>` vẫn là một DialogFragment bình thường. Khác biệt nằm ở chỗ ai hiển thị và ai giữ nó:
 
-| Tiêu chí | DialogFragment | Navigation Dialog |
-|----------|---------------|-------------------|
-| **Learning curve** | Thấp | Trung bình |
-| **Type safety** | Không | Có (Safe Args) |
-| **Deep linking** | Tự implement | Hỗ trợ sẵn |
-| **Back Stack** | FragmentManager | NavController |
-| **Animation** | Thủ công | Hỗ trợ sẵn |
-| **Testing** | FragmentScenario | TestNavHostController |
-| **Boilerplate** | Nhiều | Ít |
-| **Compose support** | Không | Có |
+- **`show()` thủ công**: bạn chọn FragmentManager (`childFragmentManager` hay `parentFragmentManager`) và tag; dialog không nằm trong back stack điều hướng.
+- **`<dialog>` destination**: NavController tự show DialogFragment và đặt nó lên back stack của NavController, hiện đè lên destination trước đó. User dismiss dialog (Back, chạm ra ngoài) thì destination này bị pop. Nhờ vậy dialog nhận argument (Safe Args), có action và deep link như mọi destination khác.
 
-### Khi nào dùng DialogFragment?
-
-- Project nhỏ, ít dialog.
-- Cần kiểm soát chi tiết lifecycle.
-- Không muốn thêm dependency.
-- Đang maintain codebase cũ.
-
-### Khi nào dùng Navigation Dialog?
-
-- Project lớn, nhiều dialog.
-- Cần deep linking đến dialog.
-- Làm việc với team lớn, cần type safety.
-- Dùng Compose.
+Vì sao chọn Navigation Component hay FragmentManager trực tiếp nói chung (type safety, deep link, testing…) ở [FragmentManager](fragment_manager.md), mục "So sánh FragmentManager vs Navigation Component". Với dialog: app đã dùng Navigation thì khai báo dialog thành `<dialog>` destination; app tự quản lý FragmentManager thì `show()` như các mục trên.
 
 ## Best Practices
 

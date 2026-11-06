@@ -151,7 +151,7 @@ Không để Code Block không có ngôn ngữ.
 
 Không sử dụng hình ảnh nếu Mermaid có thể biểu diễn.
 
-Ngoại lệ ở Presentation Layer: website có thể dùng SVG vẽ tay trong `website/diagrams/` (kèm bản `-dark`) để hiển thị đẹp hơn. Khi đó Markdown vẫn giữ Mermaid hoặc mô tả tương đương làm nguồn gốc, và đặt ngay sau khối Mermaid comment `<!-- dd: <slug> -->`; trên website khối `dd-diagram` (SVG dark + light) thay cho Mermaid đó. Vẽ bằng skill `.agents/skills/diagram-design`, sinh bản light bằng `python3 tools/gen-dd-light.py website/diagrams/<slug>-dark.html`.
+Ngoại lệ ở Presentation Layer: website có thể dùng SVG vẽ tay trong `website/diagrams/` (kèm bản `-dark`) để hiển thị đẹp hơn. Khi đó Markdown vẫn giữ Mermaid (hoặc sơ đồ ASCII trong khối ```` ```text ````) làm nguồn gốc, và đặt ngay sau khối đó comment `<!-- dd: <slug> -->`; trên website khối `dd-diagram` (SVG dark + light) thay cho khối đó. Marker đứng một mình (không có khối ngay trước) thì website chỉ chèn SVG. Vẽ bằng skill `.agents/skills/diagram-design`, sinh bản light bằng `python3 tools/gen-dd-light.py website/diagrams/<slug>-dark.html`.
 
 Sơ đồ tương tác (Archify): dùng cho sơ đồ nhiều bước hoặc nhiều thành phần mà người đọc cần bấm vào để lần theo (kiến trúc, chuỗi lời gọi, luồng dữ liệu). Không thay thế Mermaid:
 

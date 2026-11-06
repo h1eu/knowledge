@@ -8,7 +8,7 @@ depth: deep-dive
 estimated_reading_time: 35 phút
 tags: [android, broadcast-receiver, static-receiver, dynamic-receiver, local-broadcast, hilt, mvvm, mvi, clean-architecture, security, background]
 prerequisites: [android.component.activity.overview, android.component.activity.lifecycle, android.intent.filters]
-related: [android.component.service.overview, android.intent.explicit]
+related: [android.component.service.overview, android.intent.explicit, android.intent.push_data_event, android.manifest.tags]
 downstream: [android.component.content_provider]
 learning_outcomes:
   - Giải thích được bản chất Broadcast Receiver (cơ chế pub/sub của hệ điều hành) và vòng đời ngắn của nó.
@@ -105,6 +105,17 @@ class NetworkReceiver : BroadcastReceiver() {
 
 > **Cảnh báo:** `goAsync()` vẫn có giới hạn 10 giây. Không dùng cho tác vụ dài. Dùng WorkManager cho tác vụ dài.
 
+### Normal broadcast và Ordered broadcast
+
+Cách bên gửi phát broadcast quyết định các receiver nhận nó ra sao:
+
+- **Normal broadcast** (`sendBroadcast()`): hệ thống giao cho mọi receiver khớp filter theo thứ tự không xác định. Receiver không đọc được kết quả của receiver khác, không truyền tiếp dữ liệu và không chặn được broadcast. Đây là loại hiệu quả nhất và là loại phổ biến.
+- **Ordered broadcast** (`sendOrderedBroadcast()`): hệ thống giao cho **từng receiver một**. Receiver chạy trước có thể ghi kết quả (`setResultData()`, `setResultExtras()`) cho receiver sau đọc (`getResultData()`), hoặc gọi `abortBroadcast()` để broadcast không tới các receiver phía sau.
+
+Thứ tự trong ordered broadcast do `android:priority` của `<intent-filter>` (hoặc `IntentFilter.setPriority()` với receiver đăng ký động) quyết định: priority cao nhận trước, cùng priority thì thứ tự tuỳ ý. Từ Android 16, priority chỉ được tôn trọng giữa các receiver **trong cùng một process**; giữa các process khác nhau thứ tự không còn được đảm bảo. Vì vậy đừng thiết kế luồng dựa vào việc receiver của app mình chạy trước receiver của app khác.
+
+Phía gửi (`sendBroadcast`, `sendOrderedBroadcast`, `setPackage`, permission) được trình bày ở [Push data and send event via Intent](../../intent/push_data_event.md), mục "2. Send Event — Gửi sự kiện qua Broadcast Intent".
+
 ---
 
 ## 3. Static Receiver vs Dynamic Receiver
@@ -200,6 +211,7 @@ class MainActivity : AppCompatActivity() {
 
 > **Lưu ý Android 13/14 với Dynamic Receiver:**
 > - Từ Android 14 (targetSdk 34), `registerReceiver()` **bắt buộc** truyền cờ `RECEIVER_EXPORTED` hoặc `RECEIVER_NOT_EXPORTED` (trừ receiver chỉ nhận system broadcast), nếu không sẽ ném `SecurityException`. Dùng `ContextCompat.registerReceiver()` để có cùng API trên mọi version. `RECEIVER_NOT_EXPORTED` vẫn nhận được một số system broadcast và broadcast của chính app, nhưng không nhận broadcast từ app đặc quyền (Bluetooth, telephony).
+> - Chọn cờ theo nguồn gửi: nghe broadcast của hệ thống hoặc app khác → `RECEIVER_EXPORTED`; nghe action tự định nghĩa mà chỉ app mình gửi (ví dụ `com.example.ACTION_REFRESH_DATA`) → `RECEIVER_NOT_EXPORTED`, để app khác không gửi giả vào được: `ContextCompat.registerReceiver(this, receiver, IntentFilter(ACTION_REFRESH_DATA), ContextCompat.RECEIVER_NOT_EXPORTED)`.
 > - Từ Android 14, khi app ở trạng thái **cached**, hệ thống hoãn các system broadcast ít quan trọng (vd `ACTION_SCREEN_ON`) gửi tới receiver đăng ký bằng context, và chỉ giao khi app thoát khỏi trạng thái cached.
 > - Theo dõi mạng thì **không** dùng `CONNECTIVITY_ACTION` (deprecated từ API 28) và `activeNetworkInfo` (deprecated từ API 29): dùng `ConnectivityManager.registerDefaultNetworkCallback()` (xem mục 6).
 
@@ -215,18 +227,21 @@ Nếu 50 ứng dụng trên thiết bị đều đăng ký lắng nghe `CONNECTI
 
 ### Implicit Broadcast nào vẫn còn hoạt động với Static Receiver?
 
-Một số broadcast **được miễn trừ** (exempted) vẫn hoạt động với Static Receiver:
+Giới hạn chỉ áp dụng cho broadcast **implicit**, tức broadcast không nhắm riêng vào app của bạn. Broadcast gửi đích danh cho app (explicit) vẫn tới Static Receiver bình thường. Ngoài ra, một số broadcast implicit **được miễn trừ** (exempted), ví dụ:
 
-- `ACTION_BOOT_COMPLETED`
-- `ACTION_LOCKED_BOOT_COMPLETED`
-- `ACTION_MY_PACKAGE_REPLACED`
-- `ACTION_NEW_OUTGOING_CALL`
-- `SMS_RECEIVED`
-- `WAP_PUSH_RECEIVED`
+- `ACTION_BOOT_COMPLETED`, `ACTION_LOCKED_BOOT_COMPLETED` — máy khởi động xong.
+- `ACTION_TIME_SET`, `ACTION_TIMEZONE_CHANGED`, `ACTION_NEXT_ALARM_CLOCK_CHANGED` — đổi giờ, múi giờ, báo thức.
+- `ACTION_LOCALE_CHANGED`.
+- `ACTION_PACKAGE_FULLY_REMOVED`, `ACTION_PACKAGE_DATA_CLEARED` — app khác bị gỡ hẳn / bị xoá dữ liệu.
+- `ACTION_MEDIA_MOUNTED`, `ACTION_MEDIA_UNMOUNTED`... (gắn/tháo bộ nhớ), các sự kiện gắn/tháo USB, kết nối/ngắt thiết bị Bluetooth.
+- `SMS_RECEIVED_ACTION`, `WAP_PUSH_RECEIVED_ACTION`.
+- `ACTION_NEW_OUTGOING_CALL` (bản thân action này đã deprecated từ API 29).
 
-Danh sách đầy đủ: [developer.android.com/guide/components/broadcast-exceptions](https://developer.android.com/guide/components/broadcast-exceptions)
+Danh sách đầy đủ: [Implicit broadcast exceptions](https://developer.android.com/develop/background-work/background-tasks/broadcasts/broadcast-exceptions). Docs vẫn khuyên hạn chế đăng ký cả những broadcast được miễn.
 
-> **Không** có trong danh sách miễn trừ: `ACTION_POWER_CONNECTED`/`ACTION_POWER_DISCONNECTED`, `CONNECTIVITY_ACTION`... Static Receiver khai báo các action này sẽ không nhận được gì trên Android 8+; chỉ Dynamic Receiver nhận được (khi app đang chạy).
+> **Không** có trong danh sách miễn trừ (hay bị tưởng nhầm): `ACTION_POWER_CONNECTED`/`ACTION_POWER_DISCONNECTED`, `CONNECTIVITY_ACTION`, `ACTION_BATTERY_LOW`, `ACTION_HEADSET_PLUG`, `ACTION_PACKAGE_ADDED`/`ACTION_PACKAGE_REMOVED`/`ACTION_PACKAGE_REPLACED`. Static Receiver khai báo các action này sẽ không nhận được gì trên Android 8+; chỉ Dynamic Receiver nhận được (khi app đang chạy). Riêng `ACTION_MY_PACKAGE_REPLACED` vẫn tới Static Receiver, nhưng không phải nhờ danh sách miễn trừ: hệ thống gửi nó đích danh cho app vừa được cập nhật, tức là broadcast explicit.
+
+> **Lưu ý:** nhận `BOOT_COMPLETED` cần `<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />`. Thẻ `<queries>` (Package Visibility) không liên quan tới việc nhận broadcast; nó chỉ cần khi app muốn truy vấn hoặc nhìn thấy package khác.
 
 ### Giải pháp thay thế
 
@@ -305,6 +320,16 @@ viewModelScope.launch {
         .collect { handleRefresh() }
 }
 ```
+
+Docs cũng khuyên tránh hẳn "self-broadcast" (broadcast mà mọi receiver nằm cùng process với bên gửi): nó tốn chi phí IPC của hệ thống mà không đem lại gì so với Flow, Shared ViewModel hay callback.
+
+```text
+Use case: "Repository thông báo cho ViewModel khi data cache expired"
+        ↓
+LocalBroadcastManager ❌ (deprecated, không type-safe)
+Flow/SharedFlow ✅ (type-safe, reactive, testable)
+```
+<!-- dd: br-flow -->
 
 ---
 
@@ -633,32 +658,11 @@ Từ Android 12 (API 31), mọi receiver có `<intent-filter>` **bắt buộc ph
 </receiver>
 ```
 
-### 8.3 Gửi broadcast có bảo vệ
+### 8.3 Phía gửi: giới hạn ai nhận được
 
-Khi gửi broadcast, bạn có thể chỉ định permission để giới hạn ai nhận được:
+Bên gửi giới hạn người nhận bằng `setPackage()` hoặc truyền permission vào `sendBroadcast(intent, receiverPermission)`, và không đặt dữ liệu nhạy cảm vào extras của broadcast. Chi tiết ở [Push data and send event via Intent](../../intent/push_data_event.md), mục "2.3 Explicit Broadcast vs Implicit Broadcast" và "2.5 Gửi broadcast có permission".
 
-```kotlin
-// Gửi broadcast — chỉ receiver có permission này mới nhận được
-context.sendBroadcast(
-    Intent("com.example.SECURE_ACTION"),
-    "com.example.RECEIVE_SECURE_BROADCAST" // receiverPermission
-)
-```
-
-### 8.4 Không đặt dữ liệu nhạy cảm trong broadcast
-
-```kotlin
-// ❌ Không làm — dữ liệu có thể bị app khác intercept
-val intent = Intent("com.example.USER_LOGGED_IN")
-intent.putExtra("token", "my_secret_jwt_token")
-context.sendBroadcast(intent)
-
-// ✅ Nên làm — chỉ báo hiệu sự kiện, dữ liệu lấy qua secure channel
-val intent = Intent("com.example.USER_LOGGED_IN")
-context.sendBroadcast(intent, "com.example.RECEIVE_AUTH_EVENTS")
-```
-
-### 8.5 Validate Intent trong onReceive()
+### 8.4 Validate Intent trong onReceive()
 
 ```kotlin
 override fun onReceive(context: Context, intent: Intent) {
@@ -676,21 +680,9 @@ override fun onReceive(context: Context, intent: Intent) {
 
 ---
 
-## 9. So sánh: Broadcast Receiver vs WorkManager vs Kotlin Flow
+## 9. Khi nào dùng Broadcast Receiver, khi nào dùng thứ khác?
 
-Đây là câu hỏi thực tế: **Khi nào dùng cái nào?**
-
-### Bảng so sánh
-
-| Tiêu chí | Broadcast Receiver | WorkManager | Kotlin Flow |
-|---|---|---|---|
-| **App cần đang chạy?** | Không (static) / Có (dynamic) | Không | **Có** |
-| **Xử lý nền lâu dài?** | ❌ (max 10s) | ✅ (hỗ trợ chuỗi job) | ❌ |
-| **Phạm vi** | System-wide / App-wide | App-level | In-process |
-| **Guaranteed execution?** | Không | ✅ (persist across reboot) | Không |
-| **Type-safe?** | ❌ (Intent extras) | Một phần (Data) | ✅ |
-| **Testability** | Khó | Dễ (TestDriver) | Dễ |
-| **Battery impact** | Cao (static) / Thấp (dynamic) | Tối ưu tốt | Thấp |
+Broadcast Receiver chỉ là **điểm nhận sự kiện** và sống trong thời gian `onReceive()` (tối đa khoảng 10 giây). Việc chạy lâu hoặc phải chắc chắn hoàn thành thuộc về WorkManager hay Foreground Service, còn giao tiếp trong cùng app thuộc về Flow/SharedFlow. Bảng chọn giữa Service, WorkManager và Flow/SharedFlow ở [Android Service](../services/android_service.md), mục "Service, WorkManager hay Flow/SharedFlow?".
 
 ### Khi nào dùng Broadcast Receiver
 
@@ -700,13 +692,9 @@ override fun onReceive(context: Context, intent: Intent) {
 - `SMS_RECEIVED` — xử lý SMS trong OTP flow
 - ~~`ACTION_POWER_CONNECTED` — bắt đầu sync khi sạc~~: không nhận được qua Manifest từ Android 8 (không có trong danh sách miễn trừ). Muốn sync khi sạc, dùng WorkManager với `setRequiresCharging(true)`
 
-### Khi nào dùng WorkManager thay vì Broadcast Receiver
+### Khi việc cần làm vượt quá onReceive()
 
-✅ Dùng WorkManager khi:
-- Cần chạy tác vụ **dài hơn 10 giây** (upload, download, sync)
-- Cần **đảm bảo task chạy** dù app bị kill hay thiết bị restart
-- Cần **constraints** (chỉ chạy khi có wifi, pin đủ...)
-- Cần **chain tasks** (Task A → Task B → Task C)
+Nhận sự kiện bằng receiver, rồi giao việc cho WorkManager ngay trong `onReceive()` như ví dụ Boot Receiver ở mục 7. Đừng cố làm việc dài trong receiver:
 
 ```text
 Use case: "Upload ảnh khi có WiFi, ngay cả khi user đóng app"
@@ -716,20 +704,7 @@ WorkManager ✅ (persist, constraint-aware, guaranteed)
 ```
 <!-- dd: br-upload -->
 
-### Khi nào dùng Flow thay vì LocalBroadcastManager
-
-✅ Dùng Flow khi:
-- Giao tiếp **trong cùng một process** (ViewModel ↔ Repository, Fragment ↔ Fragment)
-- Cần **reactive stream** với operator (map, filter, combine...)
-- Cần **type-safety** và dễ test
-
-```text
-Use case: "Repository thông báo cho ViewModel khi data cache expired"
-        ↓
-LocalBroadcastManager ❌ (deprecated, không type-safe)
-Flow/SharedFlow ✅ (type-safe, reactive, testable)
-```
-<!-- dd: br-flow -->
+Giao tiếp trong cùng app (thay `LocalBroadcastManager`) dùng Flow/SharedFlow, xem mục 5.
 
 ---
 
@@ -744,7 +719,7 @@ class BadActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        registerReceiver(receiver, IntentFilter(...))
+        ContextCompat.registerReceiver(this, receiver, IntentFilter(...), ContextCompat.RECEIVER_EXPORTED)
         // Không có unregister → memory leak!
     }
 }
@@ -755,7 +730,7 @@ class GoodActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        registerReceiver(receiver, IntentFilter(...))
+        ContextCompat.registerReceiver(this, receiver, IntentFilter(...), ContextCompat.RECEIVER_EXPORTED)
     }
 
     override fun onStop() {
@@ -812,6 +787,8 @@ connectivityManager.registerNetworkCallback(request, networkCallback)
     <intent-filter>...</intent-filter>
 </receiver>
 ```
+
+Với targetSdk 31+, thiếu `exported` trên component có `<intent-filter>` làm build lỗi ngay ở bước manifest merger; APK dựng bằng công cụ cũ thì cài thất bại. Chi tiết ở [Manifest Tags](../../android_manifest/tags.md), mục "android:exported — quy tắc quan trọng nhất từ Android 12".
 
 ---
 
@@ -939,7 +916,7 @@ Sau khi nắm vững Broadcast Receiver, bạn nên tìm hiểu:
 ## References
 
 - [Android Developers — Broadcast overview](https://developer.android.com/guide/components/broadcasts)
-- [Android Developers — Implicit Broadcast Exceptions (Android 8+)](https://developer.android.com/guide/components/broadcast-exceptions)
+- [Android Developers — Implicit Broadcast Exceptions (Android 8+)](https://developer.android.com/develop/background-work/background-tasks/broadcasts/broadcast-exceptions)
 - [Android Developers — BroadcastReceiver](https://developer.android.com/reference/android/content/BroadcastReceiver)
 - [AndroidX LocalBroadcastManager deprecation](https://developer.android.com/reference/androidx/localbroadcastmanager/content/LocalBroadcastManager)
 - [Android Developers — WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)
@@ -949,3 +926,5 @@ Sau khi nắm vững Broadcast Receiver, bạn nên tìm hiểu:
 - [Android 14 behavior changes](https://developer.android.com/about/versions/14/behavior-changes-14)
 - [ConnectivityManager — CONNECTIVITY_ACTION (deprecated)](https://developer.android.com/reference/android/net/ConnectivityManager#CONNECTIVITY_ACTION)
 - [Persistent work with WorkManager](https://developer.android.com/develop/background-work/background-tasks/persistent)
+- [Android Developers — Broadcasts: Send broadcasts (ordered broadcast, priority)](https://developer.android.com/develop/background-work/background-tasks/broadcasts#sending-broadcasts)
+- [Android 16 behavior changes — ordered broadcast priority](https://developer.android.com/about/versions/16/behavior-changes-all#ordered-broadcast-priority)

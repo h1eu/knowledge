@@ -123,7 +123,7 @@ sequenceDiagram
 **Tác động thực tế:**
 
 1. IPC Binder có overhead — đặc biệt khi App Server chưa chạy, Android phải fork process mới
-2. Khi khởi động process, hệ thống gọi `ContentProvider.onCreate()` của mọi Provider trên main thread **trước** `Application.onCreate()`. Toàn bộ thời gian này, `query()` của client **bị block**. Vì vậy `onCreate()` của Provider phải thật nhẹ. Đây cũng là lý do nhiều thư viện dùng một Provider rỗng để tự khởi tạo sớm (vd `FirebaseInitProvider` của Firebase, `InitializationProvider` của App Startup)
+2. Khi khởi động process, hệ thống gọi `ContentProvider.onCreate()` của mọi Provider trên main thread **trước** `Application.onCreate()`. Toàn bộ thời gian này, `query()` của client **bị block**. Vì vậy `onCreate()` của Provider phải thật nhẹ. Đây cũng là lý do nhiều thư viện dùng một Provider rỗng để tự khởi tạo sớm (vd `FirebaseInitProvider` của Firebase, xem [Google Service](services/google_service.md), mục "Bước 2 — Thêm plugin vào Gradle"; `InitializationProvider` của App Startup)
 3. `query()` **block thread** cho đến khi nhận được response
 4. **Không bao giờ gọi ContentResolver trên Main Thread** → ANR
 5. Ngược lại, `query()/insert()/update()/delete()` của Provider được gọi trên các Binder thread, có thể **song song** từ nhiều client: code Provider phải thread-safe (Room/SQLiteDatabase đã tự xử lý đồng bộ)

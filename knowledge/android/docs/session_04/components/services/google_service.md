@@ -8,7 +8,7 @@ depth: deep-dive
 estimated_reading_time: 45 phút
 tags: [android, google-service, google-play-services, firebase, fcm, crashlytics, analytics, firebase-auth, remote-config, firestore, app-distribution, location, maps]
 prerequisites: [android.component.service.overview]
-related: [android.component.broadcast.overview, android.component.activity.overview, android.component.service.advertisements]
+related: [android.component.broadcast.overview, android.component.activity.overview, android.component.service.advertisements, android.component.content_provider]
 learning_outcomes:
   - Phân biệt được Google Play Services và Firebase, và nhận biết SDK Firebase nào bắt buộc thiết bị có GMS.
   - Áp dụng được Firebase BoM và google-services.json để tích hợp Firebase vào project chuẩn.
@@ -224,7 +224,7 @@ plugins {
 ```
 
 > [!NOTE]
-> Plugin `com.google.gms.google-services` đọc `google-services.json` và **sinh resource** cấu hình (`google_app_id`, `default_web_client_id`...). Việc khởi tạo `FirebaseApp` do `FirebaseInitProvider`, một ContentProvider của Firebase, tự làm khi process khởi động (ContentProvider chạy `onCreate` trước `Application.onCreate`, xem bài ContentProvider). Vì vậy bạn không cần gọi `FirebaseApp.initializeApp()` trong code.
+> Plugin `com.google.gms.google-services` đọc `google-services.json` và **sinh resource** cấu hình (`google_app_id`, `default_web_client_id`...). Việc khởi tạo `FirebaseApp` do `FirebaseInitProvider`, một ContentProvider của Firebase, tự làm khi process khởi động (ContentProvider chạy `onCreate` trước `Application.onCreate`; thứ tự khởi động này được giải thích ở [Content Provider](../content_provider.md), mục "3. Cơ chế hoạt động bên trong (IPC Binder)"). Vì vậy bạn không cần gọi `FirebaseApp.initializeApp()` trong code.
 
 ### Bước 3 — Thêm dependency với Firebase BoM
 

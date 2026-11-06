@@ -15,6 +15,7 @@ prerequisites:
 related:
   - android.component.activity.lifecycle
   - android.languages.kotlin
+  - android.thread.working_with_thread
 learning_outcomes:
   - Giải thích được vị trí của Session 05 trong lộ trình và vai trò bắc cầu của nó sang Session 06-08.
   - Phân biệt được khi nào dùng DataStore (key-value) và khi nào dùng Room (dữ liệu có cấu trúc).
@@ -75,7 +76,10 @@ Vai trò của Session 05 trong lộ trình:
 
 - **Kế thừa**: dùng Kotlin (Session 01), hiểu app chạy trong process/quyền (Session 02), biết Activity/Fragment là gì (Session 04).
 - **Bắc cầu**: đây là session đầu tiên làm việc với **dữ liệu thật** và **tác vụ bất đồng bộ** — hai khái niệm mà mọi session sau (LiveData, ViewModel, Paging, Retrofit, Coroutines, RxJava) đều xây dựng lên trên.
-- **Khởi động tư duy async**: lần đầu bạn đối mặt với callback, background thread, và câu hỏi "kết quả trả về khi nào?". Ngay trong 5.1 bạn đã dùng `suspend`/`Flow` ở mức cơ bản; cơ chế bên dưới được đào sâu ở Session 08 (Coroutines, RxJava).
+- **Khởi động tư duy async**: lần đầu bạn đối mặt với callback, background thread, và câu hỏi "kết quả trả về khi nào?". Ngay trong 5.1 bạn đã dùng `suspend`/`Flow` ở mức cơ bản (xem ghi chú bên dưới).
+
+> [!NOTE]
+> **Kiến thức dùng trước: coroutine và Flow.** Các bài của Session 05 dùng coroutine và Flow ở mức tối thiểu để ví dụ chạy được: gọi một hàm `suspend` bên trong `viewModelScope.launch { }`, nhận dữ liệu bằng `Flow.collect`. Coroutine là cách viết code bất đồng bộ theo kiểu tuần tự, tạm dừng được mà không chặn thread; cơ chế của nó được học ở 8.4.3 Coroutines (chưa có bài). Flow là một luồng giá trị bất đồng bộ phát ra theo thời gian; cơ chế của nó được học ở 7.1.4.2 Flow (chưa có bài). Session 05 không giải thích cơ chế bên dưới của hai kiến thức này.
 
 ## Session 05 học những gì?
 
@@ -219,7 +223,7 @@ suspend fun checkout(cartItems: List<CartItem>, total: Double) {
 **Điểm mấu chốt khi code** (cách truyền thống bằng thread pool — Session 08 sẽ thay thế bằng Coroutines):
 
 ```kotlin
-// Sai: gọi API trên UI thread → ANR
+// Sai: gọi API trên UI thread → crash
 fun loadDataBad() {
     val result = api.fetchData()   // Crash: NetworkOnMainThreadException
     textView.text = result
@@ -239,7 +243,7 @@ fun loadDataGood() {
 }
 ```
 
-Không tự gọi `Thread { ... }.start()` cho từng việc trong code app: mỗi Thread tốn bộ nhớ và thời gian tạo, lại khó hủy theo lifecycle. 5.2 giải thích lý do và cách dùng thread pool; trong app hiện đại bạn sẽ dùng Coroutines (`Dispatchers.IO`) thay cho pool tự quản lý.
+Tạo `Thread { ... }.start()` thủ công vẫn chạy đúng, nhưng có hạn chế: mỗi thread tốn chi phí tạo, không giới hạn được số lượng khi có nhiều việc, và khó hủy theo lifecycle. Vì vậy với việc nền thông thường nên ưu tiên thread pool dùng chung như trên, hoặc coroutine (`Dispatchers.IO`) trong app hiện đại. Chi tiết ở [Working with Thread](working_with_thread.md), mục "1.3 Chi phí thực sự khi tạo một Thread" và mục "5. Quản lý luồng công nghiệp: ThreadPoolExecutor & ExecutorService".
 
 ### 5.3 Networking — Dữ liệu lấy từ đâu?
 

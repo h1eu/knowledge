@@ -8,7 +8,7 @@ depth: deep-dive
 estimated_reading_time: 25 phút
 tags: [android, intent, intent-filter, deeplink]
 prerequisites: [android.intent.implicit]
-related: [android.intent.explicit, android.intent.handle_intent, android.intent.push_data_event]
+related: [android.intent.explicit, android.intent.handle_intent, android.intent.push_data_event, android.manifest.tags]
 learning_outcomes:
   - Giải thích được cấu trúc của intent-filter (action, category, data) và 3 bài test khớp Action, Data, Category cùng luật riêng của từng loại.
   - Phân biệt được Deep Link với App Links và cách hệ điều hành chọn app khi nhiều filter cùng khớp.
@@ -174,7 +174,7 @@ App ghi chú muốn hiện ra khi user Share văn bản từ Chrome/Zalo.
 ```
 
 > [!WARNING]
-> Từ **Android 12 (API 31)**, Component có `<intent-filter>` phải khai báo **`android:exported`** tường minh (`"true"` nếu muốn app khác gọi được). Không khai báo → build **fail** ở bước merge manifest, và APK như vậy **không cài được** lên Android 12+.
+> Với targetSdk 31+ (Android 12), Component có `<intent-filter>` phải khai báo **`android:exported`** tường minh (`"true"` nếu muốn app khác gọi được); thiếu thì build lỗi ở bước manifest merger, APK dựng bằng công cụ cũ thì không cài được, chi tiết ở [Manifest Tags](../android_manifest/tags.md), mục "android:exported — quy tắc quan trọng nhất từ Android 12".
 
 **Xử lý trong Activity (theo luật Data rule 3):**
 
@@ -271,7 +271,7 @@ Sau khi cài app, kiểm tra trạng thái xác minh bằng `adb shell pm get-ap
 
 **Luồng dữ liệu:** Deep Link → Activity (Presentation) → ViewModel (UI State) → Repository (Data).
 
-**Activity xử lý cả 2 đường (cold start + warm start):**
+**Activity xử lý cả 2 đường (cold start + warm start):** cold start đọc Intent trong `onCreate()`, warm start nhận Intent mới qua `onNewIntent()`. Khi nào hệ thống gọi `onNewIntent()` và vì sao cần `setIntent()` được giải thích ở [Handle Intent](handle_intent.md), mục "3. Bí ẩn của onNewIntent() và Launch Modes".
 
 ```kotlin
 @AndroidEntryPoint // Hilt cung cấp PromoViewModel (có tham số repository) cho by viewModels()
@@ -285,9 +285,11 @@ class PromoActivity : AppCompatActivity() {
         handleDeepLink(intent)
     }
 
+    // Chỉ được gọi khi PromoActivity đang sống được tái sử dụng (vd launchMode="singleTop"
+    // hoặc FLAG_ACTIVITY_SINGLE_TOP); với launchMode standard mỗi link tạo instance mới qua onCreate
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // Activity đang sống: PHẢI setIntent lại để intent mới nhất
+        // setIntent để code về sau còn đọc getIntent() (vd trong onResume) nhận intent mới nhất
         setIntent(intent)
         handleDeepLink(intent)
     }
@@ -329,9 +331,6 @@ class PromoViewModel @Inject constructor(
 
 > [!DANGER]
 > **Khai báo `mimeType="*/*"`** — App hiện ra ở **mọi** hộp thoại Share của máy, gây rác trải nghiệm. Càng tệ hơn, app nhận cả video/ảnh mà bạn không code xử lý → crash lúc runtime.
-
-> [!DANGER]
-> **Quên `android:exported` (Android 12+)** — Build fail ở bước merge manifest (*"android:exported needs to be explicitly specified..."*), và APK như vậy không cài được lên Android 12+.
 
 > [!WARNING]
 > **Filter quá rộng** — Khai `scheme="http"` trần (không host) nghĩa là app bạn xuất hiện khi mở **mọi** link http trên máy. Luôn kèm `host` (và lý tưởng là `pathPrefix`).

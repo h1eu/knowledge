@@ -107,6 +107,13 @@ Expected identity hash: 8f3d4... Found: a1b2c...
 
 ### Cảnh báo về `fallbackToDestructiveMigration()`
 
+Có một lỗi thứ ba, xảy ra trước cả hai lỗi trên: tăng `version` (ví dụ lên 2) nhưng không đăng ký migration nào dẫn từ version đang có trên máy. Room không tìm được đường nâng cấp và ném ngay khi mở database, nên app crash ở lần mở đầu tiên sau khi cập nhật:
+
+```text
+java.lang.IllegalStateException: A migration from 1 to 2 was required but not found.
+Please provide the necessary Migration path via RoomDatabase.Builder.addMigration(Migration ...)
+```
+
 Khi gặp lỗi integrity hoặc quên viết migration, nhiều lập trình viên sử dụng giải pháp "tiện tay":
 
 ```kotlin
@@ -175,7 +182,7 @@ graph LR
 
 Từ phiên bản Room 2.4.0+, Google bổ sung tính năng **AutoMigration** nhằm giảm bớt boilerplate cho các thay đổi đơn giản. Tuy nhiên, lập trình viên cần nắm vững ranh giới giữa AutoMigration và Manual Migration.
 
-> **Chuỗi schema dùng xuyên suốt các ví dụ migration trong bài** (mỗi bước chỉ đăng ký một cách: hoặc `autoMigrations`, hoặc `addMigrations`):
+> **Chuỗi schema dùng xuyên suốt các ví dụ migration trong bài** (mỗi bước chỉ đăng ký một cách: hoặc `autoMigrations`, hoặc `addMigrations`; nếu đăng ký cả hai cho cùng một bước, Room dùng migration viết tay):
 >
 > | Version | Thay đổi | Cách thực hiện |
 > | :--- | :--- | :--- |
@@ -276,7 +283,7 @@ abstract class AppDatabase : RoomDatabase() { ... }
 
 ---
 
-## 3. Các Ca Migration Khó: Kỹ Thuật 3 Bước Vàng (Table Recreation Pattern)
+## 3. Các Ca Migration Khó: Dựng Lại Bảng 5 Bước (Table Recreation Pattern)
 
 ### Hạn chế lịch sử của SQLite
 Trước phiên bản SQLite 3.35.0, SQLite **không hỗ trợ** cú pháp `ALTER TABLE DROP COLUMN`; đến nay SQLite vẫn không hỗ trợ đổi kiểu dữ liệu của cột hay thay đổi khóa chính (Primary Key) bằng `ALTER TABLE`. Theo bảng phiên bản của Android, API 31–33 (Android 12–13) đi kèm SQLite 3.32, API 34 (Android 14) mới lên 3.39; `RENAME COLUMN` (SQLite 3.25) chỉ có từ API 30 (Android 11, SQLite 3.28). Nhà sản xuất có thể đóng gói phiên bản khác, nên kiểm tra bằng `select sqlite_version()` khi cần.
@@ -286,9 +293,9 @@ Nếu ứng dụng của bạn hỗ trợ các thiết bị từ Android 7 đế
 android.database.sqlite.SQLiteException: near "DROP": syntax error
 ```
 
-### Quy tắc 3 bước vàng của SQLite Documentation
+### Quy trình 5 bước dựng lại bảng
 
-Để giải quyết triệt để mọi bài toán nâng cấp phức tạp trên mọi phiên bản Android, ta áp dụng quy trình chuẩn **Table Recreation Pattern**:
+Để giải quyết các bài toán nâng cấp mà `ALTER TABLE` không làm được (đổi kiểu cột, đổi khoá chính, xoá cột trên SQLite cũ), ta dựng lại bảng theo **Table Recreation Pattern**. Đây là bản rút gọn của quy trình 12 bước trong tài liệu SQLite (mục "Making Other Kinds Of Table Schema Changes"), gồm 5 bước. Bước 5 hay bị quên nhất: `DROP TABLE` xoá luôn các index của bảng cũ, thiếu một index đã khai báo trong `@Entity` là bước kiểm tra schema sau migration báo `Migration didn't properly handle`.
 
 ```mermaid
 flowchart TD
@@ -550,6 +557,11 @@ Mỗi khi bạn thực hiện một thao tác ghi (`INSERT`, `UPDATE` các cột
 #### 2. Dung lượng file `.db` phình to
 Mỗi Index là một bản sao thu nhỏ của dữ liệu. Việc tạo quá nhiều Index trên bảng lớn có thể khiến kích thước file Database trên máy người dùng tăng gấp đôi, dễ dẫn đến lỗi `SQLiteFullException` (hết bộ nhớ trong).
 
+#### Khi nào NÊN đánh Index?
+1. **Cột nằm trong `WHERE` của các query chạy thường xuyên** (lọc theo `user_id`, `status`, `sync_status`...).
+2. **Cột khoá ngoại (Foreign Key) và cột dùng để `JOIN`:** SQLite không tự đánh index cho cột khoá ngoại. Thiếu index, mỗi lần xoá/sửa hàng ở bảng cha (nhất là với `ON DELETE CASCADE`) và mỗi lần `JOIN` đều phải quét cả bảng con. Room cũng in cảnh báo lúc build khi cột khoá ngoại chưa nằm trong index nào.
+3. **Cột dùng trong `ORDER BY`** (ví dụ `created_at`), đặt ở cuối Composite Index như mục trên.
+
 #### Khi nào KHÔNG NÊN đánh Index?
 1. **Cột có độ chọn lọc thấp (Low Selectivity / Low Cardinality):**
    Ví dụ cột cờ boolean (`is_deleted`, `is_active`) hoặc giới tính (`gender`). Khi một giá trị chiếm tới 50% tổng số bản ghi trong bảng, SQLite Engine phân tích chi phí và nhận thấy việc tra cứu Index B-Tree rồi nhảy về đĩa tìm `ROWID` (Random I/O) còn tốn thời gian hơn việc đọc tuần tự toàn bộ bảng (Sequential I/O). Index lúc này trở nên vô dụng!
@@ -627,7 +639,6 @@ dependencies {
 package com.example.app.data.local
 
 import androidx.room.testing.MigrationTestHelper
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
@@ -642,11 +653,13 @@ class AppDatabaseMigrationTest {
 
     private val TEST_DB = "migration-test.db"
 
+    // Dùng constructor nhận class của Database. Constructor cũ nhận tên assets
+    // (canonicalName + FrameworkSQLiteOpenHelperFactory) đã deprecated từ Room 2.4
+    // và không chạy được AutoMigration (bước v2 → v3 của chuỗi schema).
     @get:Rule
     val helper: MigrationTestHelper = MigrationTestHelper(
         InstrumentationRegistry.getInstrumentation(),
-        AppDatabase::class.java.canonicalName,
-        FrameworkSQLiteOpenHelperFactory()
+        AppDatabase::class.java
     )
 
     @Test
@@ -728,7 +741,7 @@ graph TD
 
 ### Tóm tắt cốt lõi
 1. **`room_master_table` & `identity_hash`:** Chiếc khóa bảo vệ tính toàn vẹn giữa Entity Kotlin và Table SQLite. Sai lệch cấu trúc bị chặn ngay lúc mở DB: sau migration bằng `onValidateSchema` (lỗi `Migration didn't properly handle`), còn khi đổi schema mà quên tăng version thì bằng so khớp hash (lỗi `Room cannot verify the data integrity`).
-2. **Quy tắc 3 bước Table Recreation:** Cứu cánh cho mọi bài toán migration hóc búa (đổi kiểu dữ liệu, tách bảng, đổi Primary Key) tương thích với 100% thiết bị Android.
+2. **Table Recreation 5 bước** (tạo bảng mới → copy dữ liệu → xoá bảng cũ → đổi tên → tạo lại index): cách xử lý các migration mà `ALTER TABLE` không làm được (đổi kiểu dữ liệu, tách bảng, đổi Primary Key), chạy được trên mọi phiên bản SQLite đi kèm Android.
 3. **Leftmost Prefix:** Chỉ mục kết hợp `(A, B, C)` chỉ hoạt động khi mệnh đề lọc bắt đầu bằng `A`.
 4. **Write Penalty:** Đánh Index giúp `SELECT` tăng tốc $O(\log N)$, nhưng làm chậm các lệnh `INSERT/UPDATE/DELETE`. Chỉ đánh index cho các cột có Selectivity cao và thường xuyên xuất hiện trong `WHERE`/`ORDER BY`.
 5. **Testing First:** Luôn kiểm thử migration bằng `MigrationTestHelper` trước khi release.

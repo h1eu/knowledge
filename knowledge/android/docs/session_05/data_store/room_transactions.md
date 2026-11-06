@@ -121,6 +121,17 @@ Event loop trên một thread duy nhất đảm bảo: dù block có suspend gi�
 
 > **Interview insight:** Khi hỏi "Room xử lý concurrency trong Coroutines thế nào?", câu trả lời cốt lõi là: `withTransaction` chiếm một thread từ `transactionExecutor`, chạy event loop trên thread đó, và ghim dispatcher của event loop vào `CoroutineContext` thông qua `TransactionElement`. Đây là cơ chế đảm bảo transaction không bị chia giữa các thread trong suốt vòng đời của nó.
 
+### 1.5 Room chạy query trên thread nào?
+
+Đọc ghi database là Disk I/O, thời gian không đoán trước được: một query có thể mất vài mili-giây đến vài trăm mili-giây tuỳ kích thước file và tải của máy. Chạy trên main thread thì vượt ngân sách một frame và có thể dẫn tới ANR (xem [Working with Thread](../working_with_thread.md), mục "2. Main Thread (UI Thread) trong Android: Trọng trách, Giới hạn và ANR"). Vì vậy:
+
+- **Room chặn query trên main thread.** Gọi một hàm DAO thường (không `suspend`, không trả `Flow`) trên main thread sẽ bị `IllegalStateException: Cannot access database on the main thread since it may potentially lock the UI for a long period of time.` Builder có `allowMainThreadQueries()` để tắt kiểm tra này; chỉ dùng trong test, không dùng trong code production.
+- **Hàm `suspend` và hàm trả `Flow` là main-safe:** Room tự chuyển việc sang executor của nó, nên gọi từ `viewModelScope` (đang ở main thread) vẫn an toàn.
+- **Hai vai trò executor:**
+  - **Query executor** chạy các lệnh đọc (`SELECT` của hàm `suspend`, query của `Flow`), cho phép nhiều lệnh đọc song song.
+  - **Transaction executor** chạy các lệnh ghi `suspend` và `withTransaction` (mục 1.3), **tuần tự từng việc một** để các transaction ghi không tranh nhau.
+  - Mặc định cả hai cùng dùng IO executor của Architecture Components; transaction executor chỉ là lớp bọc tuần tự trên executor đó. Muốn đổi thì dùng `setQueryExecutor(...)` / `setTransactionExecutor(...)` khi build database.
+
 ---
 
 ## 2. `@Transaction` vs `withTransaction` — Hai công cụ, hai tầng kiến trúc
@@ -293,13 +304,15 @@ Khi bạn viết:
 fun getAllProducts(): Flow<List<ProductEntity>>
 ```
 
+Hàm DAO trả `Flow` là hàm thường, **không** có `suspend`: gọi hàm chỉ tạo ra `Flow`, query chỉ chạy khi có người `collect`, và chạy lại mỗi khi bảng nó đọc thay đổi.
+
 Room **không** dùng polling (cứ mỗi X giây query lại). Thay vào đó, Room dùng **SQLite trigger** để biết khi nào data thay đổi. Đây là `InvalidationTracker`.
 
 ### 4.2 Cơ chế SQLite Trigger của InvalidationTracker
 
-Khi Room khởi tạo database, nó tự động tạo:
-1. Một bảng ẩn tên `room_table_modification_log`.
-2. Với mỗi bảng được track, Room tạo 3 trigger (`INSERT`, `UPDATE`, `DELETE`):
+`InvalidationTracker` dựa vào hai thứ Room tạo ngầm:
+1. **Bảng `room_table_modification_log`**: một bảng tạm (`TEMP TABLE`, Room đặt `temp_store = MEMORY`), tạo khi database mở. Bảng không nằm trong file `.db`; mỗi hàng ứng với một bảng được theo dõi (`table_id`) và một cờ `invalidated`.
+2. **Trigger trên bảng được theo dõi**: khi một bảng có observer đầu tiên (ví dụ một `Flow` bắt đầu được collect), Room tạo 3 trigger (`INSERT`, `UPDATE`, `DELETE`) cho bảng đó; khi không còn observer nào, Room gỡ trigger đi:
 
 ```sql
 -- Ví dụ Room tạo ngầm cho bảng "products"
@@ -313,7 +326,7 @@ END;
 -- Tương tự cho UPDATE và DELETE
 ```
 
-### 4.3 Chuỗi sự kiện từ Write đến Flow emit
+### 4.3 Chuỗi sự kiện từ collect, Write đến Flow emit
 
 ```mermaid
 sequenceDiagram
@@ -326,6 +339,14 @@ sequenceDiagram
     participant Flow as Flow observer
     participant UI as UI (Compose)
 
+    UI->>Flow: collect { }
+    Flow->>IT: Đăng ký observer cho bảng "products"
+    IT->>SQLite: Tạo trigger trên "products" (nếu chưa có)
+    Flow->>SQLite: Query ban đầu: SELECT * FROM products
+    SQLite-->>Flow: Kết quả ban đầu
+    Flow-->>UI: emit(initialList)
+
+    Note over DAO, SQLite: Một tác vụ ghi diễn ra
     DAO->>SQLite: INSERT INTO products VALUES (...)
     SQLite->>Trigger: Fire AFTER INSERT trigger
     Trigger->>Log: SET invalidated = 1 WHERE table_id = 5
@@ -424,7 +445,7 @@ return orders.map { order ->
 }
 ```
 
-Với 100 orders hay 1000 orders, vẫn chỉ là **2 queries** (thêm vài query nếu vượt 999 tham số). N+1 chỉ xảy ra khi bạn **tự** lặp và gọi DAO cho từng cha (xem anti-pattern N+1 ở bài Room Architecture).
+Với 100 orders hay 1000 orders, vẫn chỉ là **2 queries** (thêm vài query nếu vượt 999 tham số). N+1 chỉ xảy ra khi bạn **tự** lặp và gọi DAO cho từng cha (xem [Room Architecture](room_architecture.md), mục "11. Sai Lầm Phổ Biến (Pitfalls & Anti-patterns) Thực Tế").
 
 ### 5.2 Tại sao bắt buộc phải có `@Transaction`?
 
@@ -591,11 +612,12 @@ suspend fun transfer(fromId: Long, toId: Long, amount: Long) { // tiền lưu th
 
 ### 6.4 WAL Mode — Tại sao Room bật theo mặc định
 
-Room mặc định dùng `JournalMode.AUTOMATIC`: chọn **Write-Ahead Logging (WAL)** trừ khi thiết bị là low-RAM device (khi đó dùng `TRUNCATE`). Bạn có thể ép chế độ bằng `setJournalMode(...)` khi build database.
+Room mặc định dùng `JournalMode.AUTOMATIC`. Theo tài liệu `RoomDatabase.JournalMode`, chế độ thực tế là `TRUNCATE` khi thiết bị chạy API dưới 16 **hoặc** là thiết bị low-RAM (`ActivityManager.isLowRamDevice()`), còn lại là **Write-Ahead Logging (WAL)**. Mốc này gắn với cấu hình thiết bị, không gắn với một phiên bản Android hay phiên bản Room cụ thể. Bạn có thể ép chế độ bằng `setJournalMode(...)` khi build database.
 
 **Cơ chế WAL:**
-- **Journal mode cũ:** Writer phải chờ tất cả Readers xong (và ngược lại) → bottleneck.
-- **WAL mode:** Writer ghi vào file WAL riêng biệt. Readers đọc từ DB chính. Readers và Writer không block lẫn nhau.
+- **Rollback journal (ví dụ `TRUNCATE`):** khi ghi, SQLite khoá độc quyền cả file database. Writer phải chờ các Reader đang đọc xong, và Reader mới phải chờ Writer ghi xong. Đang có sync ngầm ghi nhiều dữ liệu thì màn hình đọc database bị nghẽn theo.
+- **WAL mode:** thay vì sửa trực tiếp file chính (ví dụ `app_database.db`), lệnh ghi được nối vào một file nhật ký riêng `app_database.db-wal` (kèm file chỉ mục `-shm`). Reader vẫn đọc file chính cộng phần đã commit trong WAL, nên Reader không block Writer và Writer không block Reader. Mỗi lúc vẫn chỉ có **một** Writer, vì chỉ có một file WAL.
+- **Checkpoint:** định kỳ, nội dung file WAL được gom về file chính. SQLite tự chạy checkpoint khi file WAL vượt ngưỡng (mặc định của SQLite là 1000 page; nền tảng có thể cấu hình ngưỡng khác), Room không phải làm gì.
 
 ```text
 Journal Mode:  Reader1 — wait — wait — Writer — wait — Reader2
@@ -735,7 +757,7 @@ flowchart TD
 | **InvalidationTracker** | SQLite trigger → room_table_modification_log → Flow emit |
 | **Table-level invalidation** | Cả table re-emit dù chỉ 1 row thay đổi → dùng `distinctUntilChanged()` |
 | **`@Relation`** | Room chạy 2 queries (cha + `IN (...)` cho con), không phải N+1; cần `@Transaction` để đảm bảo consistency |
-| **WAL mode** | `AUTOMATIC` chọn WAL trừ low-RAM device; Reader/Writer không block nhau → Flow và Insert song song |
+| **WAL mode** | `AUTOMATIC` chọn WAL, trừ API < 16 hoặc thiết bị low-RAM (dùng `TRUNCATE`); Reader/Writer không block nhau → Flow và Insert song song |
 | **Empty flash prevention** | `withTransaction { delete + insert }` → chỉ emit sau COMMIT |
 
 ---
@@ -754,3 +776,4 @@ flowchart TD
 10. [RoomDatabase.JournalMode — Android Reference](https://developer.android.com/reference/androidx/room/RoomDatabase.JournalMode)
 11. [SQLiteDatabase.beginTransaction (nested transactions) — Android Reference](https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase#beginTransaction())
 12. [File Locking And Concurrency In SQLite — sqlite.org](https://www.sqlite.org/lockingv3.html)
+13. [RoomDatabase.Builder (allowMainThreadQueries, setQueryExecutor, setTransactionExecutor, setJournalMode) — Android Reference](https://developer.android.com/reference/androidx/room/RoomDatabase.Builder)

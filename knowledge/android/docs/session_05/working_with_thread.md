@@ -82,7 +82,7 @@ Một sai lầm kinh điển của người mới là nghĩ rằng Thread rất 
 3. **Kernel System Call Overhead:** Lệnh tạo Thread (`pthread_create` trong C/Linux) phải gọi xuống Kernel space, tốn hàng trăm microsecond đến millisecond.
 
 > [!IMPORTANT]
-> **Quy tắc vàng 1:** Tuyệt đối không tự do gọi `Thread { ... }.start()` một cách vô tội vạ. Hãy luôn quản lý luồng thông qua **Thread Pool** có kiểm soát kích thước.
+> **Quy tắc vàng 1:** Thread tạo thủ công (`thread { ... }`, `Thread(...).start()`) vẫn chạy đúng, và hợp với một việc chạy dài, riêng biệt (ví dụ luồng lắng nghe socket, mục 7). Hạn chế của nó: mỗi lần tạo tốn các chi phí ở trên, không giới hạn được số thread khi có nhiều việc cùng lúc, và không tự huỷ theo lifecycle nên dễ gây Memory Leak (mục 6.3). Với việc nền ngắn và lặp lại, hãy ưu tiên **Thread Pool** dùng chung có kiểm soát kích thước (mục 5) hoặc Coroutines (mục 8).
 
 ---
 
@@ -328,7 +328,7 @@ class SequentialBackgroundWorker {
 
 ## 5. Quản lý luồng công nghiệp: ThreadPoolExecutor & ExecutorService
 
-Khi xây dựng ứng dụng quy mô lớn, việc tạo Thread thủ công bị nghiêm cấm. Bạn phải dùng **Thread Pool**.
+Tạo Thread thủ công cho từng việc chỉ ổn khi số việc ít. Khi ứng dụng có nhiều tác vụ nền chạy liên tục, bạn cần **Thread Pool** để tái sử dụng thread và giới hạn số thread chạy cùng lúc.
 
 ### 5.1 Kiến trúc ThreadPoolExecutor
 Thread Pool duy trì sẵn một nhóm luồng thường trực để nhận công việc. Khi làm xong, luồng không bị hủy mà quay trở lại hàng ngũ chờ nhiệm vụ tiếp theo.
@@ -918,7 +918,7 @@ Trong một kiến trúc phần mềm tiêu chuẩn (Clean Architecture / MVVM),
 > [!TIP]
 > Hãy in bảng kiểm này và kiểm tra code của bạn trước mỗi đợt Release:
 
-- [ ] **Không `new Thread()` tùy tiện:** Toàn bộ tác vụ nền phải đi qua `ThreadPoolExecutor` hoặc Coroutines.
+- [ ] **Không tạo Thread mới cho từng việc ngắn:** Tác vụ nền thông thường đi qua `ThreadPoolExecutor` dùng chung hoặc Coroutines; Thread thủ công chỉ dành cho việc chạy dài, riêng biệt và phải có cách dừng khi màn hình bị huỷ.
 - [ ] **Đặt tên cho Thread:** Luôn sử dụng `ThreadFactory` để đặt tên rõ ràng (ví dụ: `Image-IO-1`, `Audio-CPU-2`) giúp việc đọc Logcat và Profiler dễ dàng.
 - [ ] **Main-Safety:** Tuyệt đối không để rò rỉ thao tác I/O hoặc tính toán nặng lên Main Thread.
 - [ ] **Chống Memory Leak:** Không bao giờ giữ tham chiếu trực tiếp đến `Activity`, `Fragment` hay `View` bên trong Worker Thread hoặc Handler. Luôn hủy tác vụ trong `onDestroy()`.

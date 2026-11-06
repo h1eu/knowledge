@@ -11,7 +11,7 @@ prerequisites: [android.output_packages.apk_files, android.output_packages.aab_f
 related: [android.manifest.product_flavors, android.manifest.plugin]
 learning_outcomes:
   - Giải thích được Build Flow của một Build Type: merge source sets, sinh BuildConfig, minify R8/ProGuard, signing.
-  - Phân biệt được Build Types với Product Flavors và biết khi nào dùng loại nào.
+  - Triển khai được R8/ProGuard rule riêng cho từng Build Type và lưu mapping.txt để đọc crash bản release.
   - Triển khai được các Build Type dev, staging, release với signing, minify, applicationIdSuffix và initWith.
   - Áp dụng được buildConfigField và manifestPlaceholders để tách biến môi trường khỏi source code.
   - Áp dụng được Build Type vào CI/CD và Firebase App Distribution để phân phối bản build cho QA.
@@ -35,32 +35,9 @@ Android cung cấp **Build Types** để giải quyết bài toán này.
 
 ## Nền tảng cần biết trước: Gradle, AGP và build.gradle.kts
 
-Trước khi đi sâu vào Build Type, cần hiểu rõ bốn khái niệm nền tảng mà bài viết này sử dụng xuyên suốt.
+**Gradle** là hệ thống build tổng quát, chạy các Task theo Task Graph; **AGP** (Android Gradle Plugin) là plugin chính thức của Google giúp Gradle hiểu và build được dự án Android, và đăng ký khối `android { }` trong `build.gradle.kts` (build script viết bằng Kotlin DSL) nơi bạn khai báo `buildTypes`. Hai khái niệm này được học ở `4.1.1.3` [Plugin](plugin.md), mục "Nền tảng cần biết trước" và "AGP là gì?".
 
-### Gradle là gì?
-
-**Gradle** là một hệ thống build (build system) tổng quát, viết bằng Java/Groovy, dùng để tự động hóa quá trình biên dịch, đóng gói và triển khai phần mềm. Ngôn ngữ viết *build script* là Groovy (`build.gradle`) hoặc Kotlin (`build.gradle.kts`). Nó không chỉ dành cho Android — bạn có thể dùng Gradle để build bất kỳ dự án nào.
-
-Gradle hoạt động dựa trên **Task Graph** (đồ thị nhiệm vụ): mỗi công việc là một Task, các Task có quan hệ phụ thuộc nhau. Khi bạn chạy `./gradlew assembleDebug`, Gradle sẽ tính toán thứ tự các Task cần chạy dựa trên graph này.
-
-### AGP (Android Gradle Plugin) là gì?
-
-**AGP** là một plugin của Gradle dành riêng cho Android. Nó mở rộng Gradle để hiểu được:
-
-- Cấu trúc dự án Android (source sets, manifest, resources...).
-- Cách biên dịch Kotlin/Java thành APK/AAB.
-- Cách ký (signing) và tối ưu hóa (R8/ProGuard).
-
-Nói cách khác: **Gradle là "bộ máy", AGP là "bộ chuyển đổi" giúp bộ máy đó hiểu cách build Android.**
-
-### build.gradle.kts là gì?
-
-`build.gradle.kts` là file cấu hình của dự án, viết bằng **Kotlin DSL** (Domain-Specific Language). Có hai cấp:
-
-- `build.gradle.kts` ở **project root**: khai báo plugin, dependency, version.
-- `build.gradle.kts` ở **module app**: nơi khai báo `android { }` block — đây là nơi cấu hình Build Types.
-
-### Mối quan hệ giữa chúng
+Vị trí của `buildTypes` trong chuỗi build:
 
 ```mermaid
 flowchart LR
@@ -71,9 +48,6 @@ flowchart LR
     E -->|thực thi| F[APK / AAB]
 ```
 <!-- dd: bt-flow -->
-
-> [!NOTE]
-> Nếu bạn đã biết Kotlin + Java nhưng chưa biết Gradle, hãy hiểu đơn giản: Gradle là "máy build", AGP là "bộ hướng dẫn Android cho Gradle", và `build.gradle.kts` là "bản thiết kế" mà bạn viết.
 
 ## Build Type là gì?
 
@@ -91,7 +65,7 @@ Theo mặc định, khi tạo một project Android mới, Gradle sẽ tự đ�
 Khi bạn nhấn nút "Run" hoặc thực thi một lệnh Gradle (ví dụ: `./gradlew assembleDebug`), Gradle và Android Gradle Plugin (AGP) sẽ thực hiện một luồng công việc (Build Flow):
 
 1. **Khởi tạo và cấu hình:** Đọc `build.gradle` (hoặc `build.gradle.kts`) để thu thập thông tin về Build Type được chọn.
-2. **Hợp nhất mã nguồn và tài nguyên (Merge Source Sets):** AGP tự động kết hợp mã nguồn (`src/main`) với mã nguồn cụ thể của Build Type (`src/debug` hoặc `src/release`). Resource và manifest của Build Type ghi đè/merge lên `main`; còn class Kotlin/Java thì **không** ghi đè được — trùng tên class giữa hai source set sẽ báo lỗi duplicate class.
+2. **Hợp nhất mã nguồn và tài nguyên (Merge Source Sets):** AGP tự động kết hợp mã nguồn (`src/main`) với mã nguồn cụ thể của Build Type (`src/debug` hoặc `src/release`). Resource và manifest của Build Type ghi đè/merge lên `main`; còn class Kotlin/Java thì **không** ghi đè được — trùng tên class giữa hai source set sẽ báo lỗi duplicate class. Thứ tự ưu tiên đầy đủ ở [Flavor](flavor.md), mục "Thứ tự merge Source Set".
 3. **Sinh code tự động (Code Generation):** Sinh ra file `BuildConfig.java` (nếu cấu hình) dựa trên các `buildConfigField` tương ứng.
 4. **Biên dịch (Compilation):** Biên dịch Kotlin/Java thành bytecode.
 5. **Tối ưu hóa (Minification - R8/ProGuard):** (Thường chỉ áp dụng cho `release` hoặc `staging`) Tối ưu code, obfuscate (làm rối), loại bỏ code thừa dựa trên các rules (quy tắc) áp dụng riêng cho Build Type đó.
@@ -120,24 +94,7 @@ flowchart TD
 
 ## Phân biệt Build Types và Product Flavors
 
-Đây là sự nhầm lẫn phổ biến nhất đối với Android Developers.
-
-- **Build Types (Cách build):** Đại diện cho các **giai đoạn phát triển** (Debug, Staging, QA, Release). Nó quyết định *cách* ứng dụng được tạo ra (có debug không, proguard không, ký khóa nào).
-- **Product Flavors (Cái gì được build):** Đại diện cho các **phiên bản sản phẩm** khác nhau phát hành cho người dùng (Free, Paid, Enterprise). Nó quyết định *nội dung* ứng dụng (tính năng, tài nguyên UI, màu sắc thương hiệu).
-
-> [!TIP]
-> **Quy tắc ngón tay cái:** Nếu thay đổi cấu hình mà người dùng cuối không (hoặc không nên) quan tâm (ví dụ: khóa ký, R8, log debug), đó là **Build Type**. Nếu thay đổi tính năng, icon, server URL cho đối tượng khách hàng khác nhau, đó thường là **Flavor**. Mặc dù URL server có thể được đổi theo Build Type (Staging vs Prod), nhưng đổi URL theo khách hàng là Flavor.
-
-> [!WARNING]
-> **Khi nào KHÔNG tạo Build Type mới:** cần biến thể về nội dung, khách hàng hoặc giao diện (free/paid, màu sắc, icon, server theo từng khách hàng) thì dùng **Product Flavors**, đừng đẻ thêm Build Type. Build Type chỉ dành cho debug/signing/minify theo giai đoạn. Mỗi Build Type mới làm tăng thời gian Gradle Sync và số variant phải kiểm thử.
-
-**Build Variant** là kết quả kết hợp một Flavor với một Build Type:
-
-```text
-Build Variant = Product Flavor × Build Type
-```
-
-Ví dụ: 2 flavor (`free`, `paid`) × 3 build type (`debug`, `staging`, `release`) = 6 variant (`freeDebug`, `freeStaging`, `paidRelease`...). Chi tiết xem thêm ở topic Product Flavors.
+Build Type quyết định một **giai đoạn** trong vòng đời phát triển được build và đóng gói ra sao (debug, khóa ký, minify), còn Product Flavor quyết định **phiên bản sản phẩm** nào được build (free/paid, white-label, cửa hàng); ghép một flavor với một build type ra một **Build Variant**. Bảng so sánh, quy tắc đặt môi trường dev/staging/prod ở đâu và khi nào không nên tạo Build Type mới ở [Flavor](flavor.md), mục "Phân biệt Build Types và Product Flavors".
 
 ## Các thuộc tính quan trọng của một Build Type
 
@@ -172,7 +129,7 @@ Trước khi cấu hình, cần nắm các thuộc tính hay dùng nhất:
 ### Lưu ý quan trọng về bảo mật
 
 > [!WARNING]
-> `BuildConfigField` **không phải** là nơi lưu secret thật sự an toàn. Mọi giá trị trong `BuildConfig` đều nằm trong APK và có thể bị đọc ngược (decompile). Chỉ đặt ở đây các cấu hình "không nhạy cảm" như BASE_URL, endpoint, feature flag. Mật khẩu, API key nhạy cảm phải nằm ở phía server hoặc qua kiến trúc bảo mật riêng (ví dụ Backend proxy, Play Integrity).
+> Mọi giá trị trong `BuildConfig` đều nằm trong APK và đọc được khi decompile, nên `buildConfigField` chỉ dành cho cấu hình không nhạy cảm (BASE_URL, endpoint, feature flag). Chi tiết và chỗ đặt secret ở [Flavor](flavor.md), mục "buildConfigField theo Flavor".
 
 ### Cách khai báo và sử dụng
 
@@ -351,7 +308,7 @@ android {
 > [!NOTE]
 > File `*-keystore.jks` thật không commit lên Git. Tên file trong ví dụ chỉ minh họa; password đọc từ biến môi trường hoặc CI secrets như đoạn code trên.
 
-Ngoài `buildConfigField`, AGP còn tự động merge Source Set theo Build Type: **resource** trong `src/staging/res/` ghi đè resource cùng tên trong `src/main/res/` (đúng Build Flow ở trên). Class Kotlin/Java thì không ghi đè được: cùng một class có ở cả `src/main/` và `src/staging/` sẽ báo lỗi duplicate class, nên class khác nhau theo build type phải nằm ở `src/debug/`, `src/staging/`, `src/release/` và **không** có trong `main`. Ví dụ đổi tên app của bản staging mà không đụng bản release:
+Ngoài `buildConfigField`, AGP còn merge Source Set theo Build Type (bước 2 của Build Flow): resource trong `src/staging/res/` ghi đè resource cùng tên trong `src/main/res/`, còn class trùng tên giữa `src/main/` và `src/staging/` báo lỗi duplicate class. Quy tắc merge đầy đủ ở [Flavor](flavor.md), mục "Thứ tự merge Source Set". Ví dụ đổi tên app của bản staging mà không đụng bản release:
 
 ```xml
 <!-- app/src/staging/res/values/strings.xml -->
@@ -594,45 +551,7 @@ Nguyên tắc: thư viện Jetpack hiện đại (2024+) tự kèm rule qua `con
 
 ## Kết hợp Build Type với CI/CD
 
-Build Type là nền tảng để tự động hóa quá trình build trong pipeline CI/CD (Continuous Integration / Continuous Delivery). Ý tưởng chính: CI đọc cùng một `build.gradle.kts` và chạy lệnh Gradle tương ứng với môi trường.
-
-Ví dụ với **GitHub Actions**:
-
-```yaml
-name: Android CI
-
-on:
-  push:
-    branches: [main, staging, dev]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Build Staging APK
-        run: ./gradlew assembleStaging
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: staging-apk
-          path: app/build/outputs/apk/staging/*.apk
-```
-
-> [!NOTE]
-> Lệnh build tương ứng từng Build Type:
-> - `./gradlew assembleDebug` → bản debug
-> - `./gradlew assembleStaging` → bản staging
-> - `./gradlew assembleRelease` → bản release
->
-> Nếu bạn đã khai báo **Flavor + Build Type** thì tên task có dạng `assembleFreeRelease`, `assemblePaidStaging`...
+CI đọc cùng một `build.gradle.kts` và chạy task Gradle của đúng build type: `./gradlew assembleDebug`, `./gradlew assembleStaging`, `./gradlew assembleRelease` (thay `assemble` bằng `bundle` để ra AAB). Quy tắc đặt tên task khi có thêm flavor và workflow GitHub Actions mẫu ở [Flavor](flavor.md), mục "Kết hợp Flavor với CI/CD". Mục tiếp theo đi vào một việc riêng của build type `staging`: giao bản build cho QA.
 
 ## Phân phối bản build cho QA bằng Firebase App Distribution
 

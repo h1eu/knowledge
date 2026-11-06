@@ -29,7 +29,7 @@ Trong một dự án Android thực tế, rất hiếm khi bạn chỉ phát hà
 - **Theo nội dung sản phẩm:** bản miễn phí (free) và bản trả phí (paid), bản cho đối tác (white-label) có logo và màu sắc riêng.
 - **Theo kênh phân phối:** bản Google Play, bản Samsung Store, bản dành cho thị trường Trung Quốc.
 
-Nếu chỉ dùng **Build Types** (đã học ở topic `4.1.1.1`), bạn mới giải quyết được phần "cách build" (debug/release, có minify hay không, ký khóa nào). Nhưng bạn **không thể** tách nội dung như: bản free không có màn hình nâng cấp, bản trả phí có tất cả tính năng, mỗi khách hàng một màu sắc riêng.
+Nếu chỉ dùng **Build Types** (đã học ở topic `4.1.1.1`), bạn mới giải quyết được phần giai đoạn phát triển: mỗi giai đoạn (debug/staging/release) được build ra sao, có minify hay không, ký khóa nào. Nhưng bạn **không thể** tách nội dung như: bản free không có màn hình nâng cấp, bản trả phí có tất cả tính năng, mỗi khách hàng một màu sắc riêng.
 
 Nếu bạn cứ copy nguyên một project để làm phiên bản thứ hai, bạn sẽ gặp thảm họa bảo trì:
 
@@ -49,13 +49,10 @@ Nếu bạn cứ copy nguyên một project để làm phiên bản thứ hai, b
 
 ## Nền tảng cần biết trước: Gradle, AGP và Build Types
 
-Bài này giả định bạn đã nắm các khái niệm từ topic **Build Types**:
+- **Gradle** là hệ thống build tổng quát, chạy các Task theo Task Graph; **AGP** (Android Gradle Plugin) là plugin chính thức của Google giúp Gradle hiểu và build được dự án Android, và đăng ký khối `android { }` trong `build.gradle.kts` nơi bạn khai báo `productFlavors`. Hai khái niệm này được học ở `4.1.1.3` [Plugin](plugin.md), mục "Nền tảng cần biết trước" và "AGP là gì?".
+- **Build Type** định nghĩa một giai đoạn trong vòng đời phát triển (debug, staging, release) được build và đóng gói ra sao. Chi tiết ở [Build Types](build_types.md).
 
-- **Gradle** là hệ thống build dựa trên Task Graph.
-- **AGP** (Android Gradle Plugin) là plugin giúp Gradle hiểu cách build Android.
-- **Build Type** định nghĩa *cách* ứng dụng được build ở từng giai đoạn (debug, release, staging).
-
-Nếu cần ôn lại, hãy đọc topic `4.1.1.1 Build Types`. Dưới đây chỉ tóm tắt mối quan hệ nền tảng:
+Sơ đồ dưới tóm tắt chỗ `productFlavors` tham gia vào chuỗi build:
 
 ```mermaid
 flowchart LR
@@ -80,7 +77,7 @@ Mỗi flavor có thể định nghĩa lại:
 - Source Set riêng: code, resources, assets, manifest riêng.
 
 > [!TIP]
-> **Mental model đơn giản:** Build Type trả lời câu hỏi *"Ứng dụng được build ở giai đoạn nào?"* (debug/release). Product Flavor trả lời câu hỏi *"Phiên bản sản phẩm này dành cho ai, chứa những gì?"* (free/paid/enterprise/dev/prod).
+> **Mental model đơn giản:** Build Type trả lời câu hỏi *"Ứng dụng được build ở giai đoạn nào?"* (debug/staging/release). Product Flavor trả lời câu hỏi *"Phiên bản sản phẩm này dành cho ai, chứa những gì?"* (free/paid/enterprise, từng cửa hàng).
 
 ## Vì sao cần Product Flavor?
 
@@ -93,16 +90,24 @@ Product Flavor tồn tại vì một lý do duy nhất: **tạo nhiều phiên b
 
 ## Phân biệt Build Types và Product Flavors
 
+Đây là chỗ nhầm lẫn phổ biến nhất khi cấu hình build Android. Tài liệu Android ("Configure your build") phân vai như sau: build type định nghĩa các thiết lập build và đóng gói, thường cấu hình theo **giai đoạn của vòng đời phát triển**; product flavor đại diện cho các **phiên bản ứng dụng phát hành tới người dùng**, như bản free và bản paid.
+
 | Tiêu chí | Build Types | Product Flavors |
 |---|---|---|
-| Câu hỏi | *Cách* build ra sao? | *Cái gì* được build? |
-| Ví dụ | `debug`, `release`, `staging` | `free`, `paid`, `dev`, `prod` |
-| Thay đổi gì | Minify, signing, log, khả năng debug | applicationId, tính năng, icon, màu sắc, server |
+| Câu hỏi | Giai đoạn nào trong vòng đời phát triển, build và đóng gói ra sao? | Phiên bản sản phẩm nào, dành cho ai, chứa những gì? |
+| Ví dụ | `debug`, `staging`, `release` | `free`, `paid`, bản white-label, `gplay`, `samsung` |
+| Thay đổi gì | Khả năng debug, khóa ký, minify/R8, log, `applicationIdSuffix` | applicationId, tính năng, code/resource riêng, icon, màu sắc, server theo từng khách hàng, `minSdk` |
 | Người dùng có thấy không | Không (không nên thấy) | Có (đây là sản phẩm họ dùng) |
-| Vai trò trong variant | Kết hợp cùng flavor tạo variant | Kết hợp cùng build type tạo variant |
+| Bắt buộc không | Có, ít nhất một; AGP tạo sẵn `debug` và `release` | Không, tự tạo khi cần; mỗi flavor phải thuộc một dimension |
+| Vai trò trong variant | Ghép với flavor tạo variant | Ghép với build type tạo variant |
 
 > [!TIP]
-> **Quy tắc ngón tay cái:** Nếu thay đổi mà người dùng cuối **không nên quan tâm** (có debug không, ký khóa nào) → **Build Type**. Nếu thay đổi mà người dùng **sẽ thấy và so sánh** (tên app, icon, tính năng, server cho từng khách hàng) → **Flavor**.
+> **Quy tắc ngón tay cái:** thay đổi gắn với **giai đoạn phát triển** và người dùng cuối không nên quan tâm (có debug không, ký khóa nào, có R8 không) → **Build Type**. Thay đổi tạo ra **một phiên bản sản phẩm** mà người dùng sẽ thấy và so sánh (tên app, icon, tính năng, cửa hàng, server riêng cho từng khách hàng) → **Flavor**.
+>
+> Môi trường server dev/staging/prod gắn với giai đoạn, nên mặc định đặt ở **build type** (`debug` trỏ dev, `staging` trỏ staging, `release` trỏ prod), như ví dụ ở [Build Types](build_types.md), mục "Ứng dụng thực tế: Cấu hình 3 môi trường Dev / Staging / Production". Chỉ đưa môi trường thành một **flavor dimension** khi nó phải độc lập với cách build, tức là cần cả bản debug lẫn bản release cho từng môi trường (xem "Ứng dụng thực tế 1" bên dưới). Cần thêm trục sản phẩm (free/paid) thì build type vẫn nhân được với flavor sản phẩm như thường (`freeStaging`, `paidRelease`), không bắt buộc phải chuyển môi trường sang flavor.
+
+> [!WARNING]
+> **Khi nào KHÔNG tạo Build Type mới:** cần biến thể về nội dung, khách hàng hoặc giao diện (free/paid, màu sắc, icon, server theo từng khách hàng) thì dùng **Product Flavors**, đừng tạo thêm Build Type. Build Type chỉ dành cho debug/signing/minify theo giai đoạn. Mỗi Build Type mới làm tăng thời gian Gradle Sync và số variant phải kiểm thử, vì nó nhân với mọi flavor.
 
 ## Cơ chế hoạt động: Build Variant
 
@@ -123,7 +128,7 @@ paidDebug     → bản trả phí, cho dev chạy debug
 paidRelease   → bản trả phí, phát hành
 ```
 
-Mỗi variant có **tên task build riêng**: `assembleFreeDebug`, `assembleFreeRelease`, `assemblePaidDebug`, `assemblePaidRelease`.
+Mỗi variant có **tên task build riêng**: `assembleFreeDebug`, `assembleFreeRelease`, `assemblePaidDebug`, `assemblePaidRelease`. Thêm build type `staging` (như bài Build Types) thì có 2 × 3 = 6 variant, thêm `freeStaging` và `paidStaging`.
 
 ```mermaid
 flowchart TD
@@ -239,7 +244,8 @@ Khi build một variant, AGP gộp nhiều source set lại. **Nguồn sau ghi �
 src/<flavor><BuildType>/     (cao nhất — ví dụ freeDebug/)
 src/<BuildType>/             (ví dụ debug/)
 src/<flavor>/                (ví dụ free/)
-src/main/                    (thấp nhất — nền tảng chung)
+src/main/                    (nền tảng chung)
+library dependencies         (thấp nhất — resource, manifest của thư viện)
 ```
 
 Khi có nhiều dimension (ví dụ `demo` thuộc dimension đầu, `minApi24` thuộc dimension sau, build type `debug`), thứ tự là: `src/demoMinApi24Debug/` → `src/debug/` → `src/demoMinApi24/` (tổ hợp flavor, phải gồm đủ mọi dimension) → `src/demo/` → `src/minApi24/` (flavor đơn lẻ, xếp theo thứ tự khai báo trong `flavorDimensions`) → `src/main/`. Không có source set nào đặt theo **tên dimension**.
@@ -254,8 +260,15 @@ flowchart TD
 ```
 <!-- dd: flav-merge -->
 
+"Ghi đè" ở đây áp dụng khác nhau cho từng loại file:
+
+- **Resource** (`res/`, `assets/`): file cùng tên ở source set ưu tiên cao thắng. Ví dụ `drawable/logo.png` ở `src/free` thay bản ở `src/main` khi build flavor `free`.
+- **`values/`** (ví dụ `strings.xml`): các file được gộp theo từng giá trị; giá trị trùng tên lấy theo thứ tự ưu tiên ở trên, ví dụ giá trị trong source set build type thắng giá trị cùng tên trong source set flavor.
+- **Manifest**: các manifest được hợp nhất thành một bằng manifest merger, cũng theo thứ tự này, nên thiết lập manifest của build type thắng thiết lập của flavor.
+- **Code Kotlin/Java**: **không** ghi đè. Mọi file trong `java/`, `kotlin/` của các source set tham gia một variant được biên dịch chung thành một output.
+
 > [!WARNING]
-> Nếu cùng một file resource tồn tại ở `src/main` và `src/free`, AGP sẽ ưu tiên file ở `src/free`. Nhưng **không được** để *cùng một tên class* (ví dụ cùng package `MainActivity.kt`) xuất hiện ở nhiều source set cùng lúc — bạn sẽ gặp lỗi duplicate class. Một file code chỉ được tồn tại ở một source set.
+> Trong cùng một variant, một class (cùng package, cùng tên, ví dụ `MainActivity.kt`) chỉ được nằm ở **một** source set. Có class đó ở cả `src/main` và `src/free` (hoặc `src/main` và `src/debug`), Gradle báo lỗi duplicate class khi build. Muốn mỗi flavor hoặc mỗi build type có một phiên bản riêng của class, đặt bản riêng vào **từng** source set (`src/free/`, `src/paid/`) và **không** đặt nó trong `src/main/`, như ví dụ ở mục sau.
 
 ## Tách Code theo Flavor
 
@@ -317,10 +330,12 @@ Cũng tương tự: đặt `mipmap`, `drawable`, `values/colors.xml` vào thư m
 
 ## buildConfigField theo Flavor
 
-Bên cạnh build type, bạn có thể khai báo `buildConfigField` theo flavor. Đây là nơi lý tưởng để đặt **server URL theo từng phiên bản sản phẩm** — kết hợp hai chiều lại rất mạnh:
+Bên cạnh build type, bạn có thể khai báo `buildConfigField` theo flavor. Đây là nơi đặt cấu hình khác nhau **theo từng phiên bản sản phẩm**, hoặc theo môi trường khi môi trường đã là một flavor dimension (xem "Phân biệt Build Types và Product Flavors"):
 
 ```kotlin
 android {
+    flavorDimensions += "environment"
+
     productFlavors {
         create("dev") {
             buildConfigField("String", "API_BASE_URL", "\"https://dev.api.example.com/\"")
@@ -344,7 +359,7 @@ object AppConfig {
 ```
 
 > [!WARNING]
-> Như Build Types đã nhấn mạnh: `buildConfigField` **không phải** nơi an toàn để chứa secret. Mọi giá trị trong `BuildConfig` đều có thể bị decompile từ APK. Chỉ đặt config không nhạy cảm (URL, feature flag).
+> `buildConfigField` **không phải** nơi an toàn để chứa secret, dù khai báo theo build type hay theo flavor. Mọi giá trị trong `BuildConfig` được biên dịch thành hằng số nằm trong APK/AAB và đọc được khi decompile; R8 làm rối tên class, không giấu giá trị chuỗi. Chỉ đặt ở đây config không nhạy cảm (BASE_URL, endpoint, feature flag). Mật khẩu, API key nhạy cảm phải nằm ở phía server hoặc qua kiến trúc bảo mật riêng (ví dụ Backend proxy, Play Integrity). Password keystore cũng không ghi thẳng vào `build.gradle.kts`: đọc từ biến môi trường hoặc CI secrets, như ví dụ signing ở [Build Types](build_types.md).
 
 ## BuildConfig.FLAVOR: Đọc tên flavor trong code
 
@@ -370,14 +385,14 @@ BuildConfig.FLAVOR_store        // "gplay"
 
 Bài toán: **tạo nhiều bản build dựa trên môi trường setup**.
 
-Có hai cách tiếp cận phổ biến:
+Có hai cách tiếp cận, chọn theo quy tắc ở mục "Phân biệt Build Types và Product Flavors":
 
 | Cách | Mô tả | Phù hợp khi |
 |---|---|---|
-| Dùng Build Type cho môi trường | `debug`/`staging`/`release` là môi trường | Mọi phiên bản sản phẩm đều dùng chung môi trường |
-| Dùng Flavor cho môi trường | `dev`/`staging`/`prod` là flavor | Cần mỗi môi trường có applicationId riêng, cài song song, hoặc kết hợp với trục sản phẩm |
+| Dùng Build Type cho môi trường (mặc định) | `debug`/`staging`/`release` là môi trường, cài song song nhờ `applicationIdSuffix`; ví dụ đầy đủ ở [Build Types](build_types.md), mục "Ứng dụng thực tế: Cấu hình 3 môi trường Dev / Staging / Production" | Mỗi môi trường chỉ cần một cách build: dev luôn debug, staging và prod luôn minify |
+| Dùng Flavor cho môi trường | `dev`/`staging`/`prod` là flavor của dimension `environment` | Cần cả bản debug lẫn bản release cho từng môi trường |
 
-Khi bạn cần QA cài đồng thời bản **dev** và bản **prod** trên cùng một máy (mỗi bản một `applicationId`), Flavor là lựa chọn phù hợp.
+Ví dụ khi cần bản `prodDebug` (debug lỗi chỉ xảy ra trên server thật) và bản `stagingRelease` (QA test bản đã minify trỏ staging), môi trường phải độc lập với build type, nên Flavor là lựa chọn phù hợp. Mỗi flavor vẫn có `applicationId` riêng để cài song song.
 
 ```kotlin
 android {
@@ -414,11 +429,11 @@ android {
 ```
 
 > [!TIP]
-> API key "không nhạy cảm" ở trên chỉ là config. Key thật phải lấy từ server hoặc qua kiến trúc bảo mật riêng (Backend proxy, Play Integrity) — không bao giờ đặt secret trong `buildConfigField`.
+> Các `API_KEY` ở trên chỉ là config không nhạy cảm; key thật không bao giờ đặt trong `buildConfigField` (xem cảnh báo ở mục "buildConfigField theo Flavor").
 
 ## Ứng dụng thực tế 2: Kết hợp Flavor môi trường + Flavor sản phẩm + Build Type
 
-Khi dự án vừa cần tách môi trường vừa cần tách sản phẩm (free/paid), ta dùng **2 dimension + build types**:
+Khi môi trường đã là flavor (lý do ở "Ứng dụng thực tế 1") và dự án còn cần tách sản phẩm (free/paid), ta dùng **2 dimension + build types**:
 
 ```kotlin
 android {
@@ -492,7 +507,14 @@ android {
 
 ## Kết hợp Flavor với CI/CD
 
-Flavor là nền tảng để CI tự động build nhiều phiên bản. Với **GitHub Actions**, bạn có thể dùng matrix build để chạy song song các flavor:
+Build Type và Flavor là nền tảng để CI tự động build nhiều phiên bản. CI đọc cùng một `build.gradle.kts` và chạy task Gradle của đúng variant, nên chỉ cần nắm cách AGP đặt tên task:
+
+- Chỉ có build type: `assemble<BuildType>`, ví dụ `./gradlew assembleDebug`, `./gradlew assembleStaging`, `./gradlew assembleRelease`.
+- Có flavor: `assemble<Flavor><BuildType>`, ví dụ `./gradlew assembleFreeRelease`, `./gradlew assembleProdDebug`.
+- Nhiều dimension: ghép tên flavor theo thứ tự khai báo trong `flavorDimensions`, rồi tới build type: `assemble<FlavorDim1><FlavorDim2><BuildType>`, ví dụ `./gradlew assembleProdPaidRelease`.
+- Thay `assemble` bằng `bundle` để ra AAB, ví dụ `./gradlew bundleProdPaidRelease`.
+
+Mỗi tên flavor và build type viết hoa chữ cái đầu khi ghép vào tên task. Với **GitHub Actions**, dùng matrix build để chạy song song các flavor (ở đây là flavor môi trường của "Ứng dụng thực tế 1"). Giá trị matrix viết hoa sẵn để ghép thẳng vào tên task:
 
 ```yaml
 name: Android Build Flavors
@@ -506,7 +528,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: [dev, staging, prod]
+        flavor: [Dev, Staging, Prod]
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -522,16 +544,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: apk-${{ matrix.flavor }}
-          path: app/build/outputs/apk/${{ matrix.flavor }}/release/*.apk
+          # Thư mục output dùng tên flavor viết thường (apk/dev/release/), nên dùng wildcard
+          path: app/build/outputs/apk/*/release/*.apk
 ```
 
-> [!TIP]
-> Lệnh build tương ứng:
-> - `./gradlew assembleDevRelease` → bản dev release
-> - `./gradlew assembleProdDebug` → bản prod debug
-> - `./gradlew assembleProdPaidRelease` → bản prod paid release
->
-> Với 2 dimension, tên task là `assemble<Dimension1><Dimension2><BuildType>` — ví dụ `assembleProdPaidRelease`.
+> [!NOTE]
+> Project chỉ dùng build type cho môi trường thì workflow giống hệt, chỉ đổi bước build thành `./gradlew assembleStaging` và đường dẫn thành `app/build/outputs/apk/staging/*.apk`. Đẩy bản staging cho QA qua Firebase App Distribution ở [Build Types](build_types.md), mục "Phân phối bản build cho QA bằng Firebase App Distribution".
 
 ## Kết hợp Flavor với đa cửa hàng (Multi-store)
 
@@ -572,7 +590,7 @@ Kết hợp với CI/CD, pipeline có thể build và upload từng flavor về 
 1. **Dùng Build Type để tách nội dung sản phẩm:** Định nghĩa `buildTypes { create("free")... }`, `create("paid")...` để đổi icon/màu. Đây là dùng sai mục đích — Build Type quyết định *cách build*, Flavor mới quyết định *nội dung*. Hậu quả: không tách được source set theo sản phẩm, variant lộn xộn.
 2. **Quên khai báo `flavorDimensions`:** Gradle báo lỗi *"All flavors must now belong to a named flavor dimension"* ngay khi sync, kể cả khi chỉ có một nhóm flavor. Luôn khai báo dimension; có từ 2 dimension trở lên thì ghi rõ `dimension` trong từng flavor.
 3. **Tạo quá nhiều dimension:** Mỗi dimension nhân số variant lên. 3 dimension × 3 flavor mỗi cái × 2 build type = 54 variant → build toàn bộ rất lâu. Chỉ thêm dimension khi thật sự cần.
-4. **Đặt cùng một class vào nhiều source set:** Ví dụ đặt `MainActivity.kt` cả ở `main` và `free` → lỗi duplicate class khi merge. Một class chỉ thuộc một source set.
+4. **Đặt cùng một class vào nhiều source set của một variant:** Ví dụ đặt `MainActivity.kt` cả ở `main` và `free` → lỗi duplicate class khi build. Muốn mỗi flavor một bản thì đặt ở từng `src/<flavor>/` và bỏ khỏi `main`.
 5. **Quên `matchingFallbacks`/`missingDimensionStrategy` khi dùng library có flavor:** Build fail vì Gradle không resolve được variant của library. Dùng `matchingFallbacks` khi cùng dimension nhưng khác tên flavor, `missingDimensionStrategy` khi library có dimension mà app không có.
 6. **Đặt secret vào `buildConfigField`:** API key, mật khẩu bị decompile từ APK. Chỉ đặt config không nhạy cảm.
 7. **Quên bật `buildConfig = true`:** Với AGP 8+, dùng `BuildConfig.API_BASE_URL` mà chưa bật `buildFeatures { buildConfig = true }` sẽ báo lỗi không tìm thấy field.
@@ -601,6 +619,7 @@ Tách biệt này giúp việc đổi flavor không phá vỡ logic nghiệp v�
 
 ## Nguồn tham khảo
 
+- [Android Developers — Configure your build (Build types, Product flavors, Build variants)](https://developer.android.com/build)
 - [Android Developers — Configure build variants](https://developer.android.com/build/build-variants)
 - [Android Developers — Configure product flavors](https://developer.android.com/build/gradle-configure)
 - [Android Developers — Build types](https://developer.android.com/build/build-types)

@@ -158,8 +158,9 @@ Mỗi FragmentTransaction có thể chứa nhiều thao tác:
 - `add()`: Thêm Fragment vào container.
 - `replace()`: Xóa Fragment cũ, thêm Fragment mới.
 - `remove()`: Xóa Fragment khỏi container.
-- `hide()`: Ẩn Fragment (không xóa khỏi bộ nhớ).
+- `hide()`: Ẩn View của Fragment (không xóa khỏi bộ nhớ, lifecycle không đổi).
 - `show()`: Hiển thị Fragment đã ẩn.
+- `setMaxLifecycle()`: Giới hạn trạng thái lifecycle cao nhất mà Fragment được lên (ví dụ tab đang ẩn chỉ lên tới `STARTED`).
 - `attach()`: Attach Fragment đã detach.
 - `detach()`: Detach Fragment (xóa View, giữ instance).
 - `setReorderingAllowed(true)`: Cho phép tối ưu thứ tự thực thi.
@@ -252,7 +253,7 @@ supportFragmentManager.beginTransaction()
     .commit()
 ```
 
-**Quan trọng**: `addToBackStack()` lưu **transaction** (danh sách thao tác để đảo ngược), còn Fragment bị `replace` vẫn được FragmentManager **giữ instance** (chỉ View bị hủy, dừng ở `onDestroyView`) để khi pop thì gắn lại đúng instance đó. Sau process death, FragmentManager tạo instance mới từ state đã lưu. Khi pop, FragmentManager sẽ **đảo ngược** thao tác:
+**Quan trọng**: `addToBackStack()` lưu **transaction** (danh sách thao tác để đảo ngược). Fragment bị `replace` không bị hủy: View bị hủy, instance được giữ và dừng ở `CREATED` để khi pop thì gắn lại đúng instance đó. Chi tiết ở [Fragment Lifecycle](lifecycle.md), mục "Lifecycle khi Fragment trong Backstack". Khi pop, FragmentManager sẽ **đảo ngược** thao tác:
 
 - Nếu transaction là `add()` → pop sẽ `remove()`.
 - Nếu transaction là `replace()` → pop sẽ khôi phục Fragment cũ.
@@ -276,36 +277,93 @@ supportFragmentManager.popBackStack(transactionId, 0)
 
 ### Ví dụ thực tế: Bottom Navigation với Back Stack
 
+Mỗi tab là một Fragment được `add` một lần rồi giữ lại; chuyển tab chỉ là ẩn tab cũ, hiện tab mới. Luồng chạy:
+
+1. Lần đầu mở Activity (`savedInstanceState == null`): add tab Home.
+2. Sau khi xoay hoặc process death, FragmentManager đã tự khôi phục các tab, còn field `currentTab` về `null`: tìm lại tab đang hiện trong container. Bỏ bước này thì lần chuyển tab đầu tiên không ẩn tab cũ, hai tab chồng lên nhau.
+3. Khi chuyển tab, tìm tab đích theo tag. Chỉ tạo instance mới khi tab chưa từng được add, để không add trùng.
+4. Trong **một** transaction: `hide` tab cũ và giới hạn nó ở `STARTED` bằng `setMaxLifecycle`.
+5. `add` tab đích nếu là lần đầu, ngược lại `show`.
+6. Cho tab đích lên lại `RESUMED` (bỏ giới hạn đặt ở bước 4 lần trước).
+
 ```kotlin
 class MainActivity : AppCompatActivity() {
-    
-    private var currentFragment: Fragment? = null
-    
-    fun navigateTo(fragment: Fragment, tag: String) {
+
+    private var currentTab: Fragment? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        if (savedInstanceState == null) {
+            switchTab(TAG_HOME)                                      // (1)
+        } else {
+            currentTab = supportFragmentManager.fragments            // (2)
+                .firstOrNull { it.id == R.id.container && !it.isHidden }
+        }
+
+        findViewById<BottomNavigationView>(R.id.bottom_nav).setOnItemSelectedListener { item ->
+            switchTab(
+                when (item.itemId) {
+                    R.id.nav_home -> TAG_HOME
+                    R.id.nav_search -> TAG_SEARCH
+                    else -> TAG_PROFILE
+                }
+            )
+            true
+        }
+    }
+
+    private fun switchTab(tag: String) {
         val fragmentManager = supportFragmentManager
-        val existingFragment = fragmentManager.findFragmentByTag(tag)
-        val target = existingFragment ?: fragment
-        if (target == currentFragment) return
+        val existing = fragmentManager.findFragmentByTag(tag)        // (3)
+        val target = existing ?: createTab(tag)
+        if (target == currentTab) return
 
         fragmentManager.beginTransaction().apply {
-            currentFragment?.let { hide(it) } // Lần đầu currentFragment = null, không có gì để ẩn
-            if (existingFragment == null) {
-                add(R.id.container, fragment, tag) // Fragment chưa tồn tại → thêm mới
-            } else {
-                show(existingFragment)             // Fragment đã tồn tại → chỉ show
+            setReorderingAllowed(true)
+            currentTab?.let {                                        // (4)
+                hide(it)
+                setMaxLifecycle(it, Lifecycle.State.STARTED)
             }
+            if (existing == null) add(R.id.container, target, tag) else show(target) // (5)
+            setMaxLifecycle(target, Lifecycle.State.RESUMED)          // (6)
         }.commit()
 
-        currentFragment = target
+        currentTab = target
+    }
+
+    private fun createTab(tag: String): Fragment = when (tag) {
+        TAG_HOME -> HomeFragment()
+        TAG_SEARCH -> SearchFragment()
+        else -> ProfileFragment()
+    }
+
+    companion object {
+        private const val TAG_HOME = "home"
+        private const val TAG_SEARCH = "search"
+        private const val TAG_PROFILE = "profile"
     }
 }
 ```
+
+`hide()` không đổi lifecycle của tab bị ẩn; `setMaxLifecycle()` ở bước 4 mới đưa nó xuống `STARTED`. Callback mà từng tab nhận khi bị ẩn/hiện ở [Fragment Lifecycle](lifecycle.md), mục "Ứng dụng đa tab / Single-Activity — show/hide giữ View sống".
 
 **Tại sao không dùng `addToBackStack()` trong trường hợp này?**
 
 Vì Bottom Navigation cần **giữ trạng thái** của tất cả tab. Nếu dùng `addToBackStack()`, khi nhấn Back sẽ pop Fragment ra khỏi Back Stack, làm mất trạng thái.
 
 Thay vào đó, ta dùng `hide()`/`show()` để **giữ Fragment trong bộ nhớ** nhưng không hiển thị.
+
+> [!WARNING]
+> **Đừng nhầm hai tình huống:**
+> - **Điều hướng sâu** (list → detail): dùng `replace` — View cũ nên bị hủy để tiết kiệm bộ nhớ.
+> - **Chuyển tab cố định** (Bottom Nav): dùng `show`/`hide` — View nên sống để không load lại data mỗi lần đổi tab.
+>
+> Dùng sai chiều sẽ gây: `replace` cho tab → app lag + mất state mỗi lần đổi; `show`/`hide` cho điều hướng sâu → nhiều Fragment chồng lên nhau, tốn bộ nhớ.
+
+> [!NOTE]
+> Khi mỗi tab có back stack riêng (tab Home đi sâu list → detail, đổi tab rồi quay lại vẫn ở detail), dùng **multiple back stacks** (Fragment 1.4.0+): `saveBackStack(name)` pop và lưu state của các transaction thuộc tab cũ, `restoreBackStack(name)` khôi phục chúng. Hai hàm này chỉ chạy với transaction có `setReorderingAllowed(true)` và có tên trong `addToBackStack(name)`. Với Navigation Component, `NavigationUI` (`setupWithNavController`) tự làm việc này cho bottom navigation, thay cho show/hide tự viết.
 
 ## Communication - Giao tiếp giữa các Fragment
 
@@ -507,10 +565,12 @@ Navigation Component là thư viện của Jetpack, cung cấp API bậc cao đ�
 | **Deep linking** | Tự implement | Hỗ trợ sẵn |
 | **Back Stack management** | Thủ công | Tự động, có thể customize |
 | **Animation** | Thủ công | Hỗ trợ sẵn trong XML |
-| **Testing** | Khó (phụ thuộc Activity) | Dễ hơn (có TestNavHostController) |
+| **Testing** | `FragmentScenario` test được từng Fragment, nhưng kiểm tra điều hướng phải đọc FragmentManager/back stack | Dễ hơn: `TestNavHostController` cho biết destination hiện tại |
 | **Modularization** | Khó | Dễ (dynamic feature module) |
 | **Compose support** | Không | Có (Navigation Compose) |
 | **Boilerplate** | Nhiều | Ít |
+
+Navigation Component quản lý cả DialogFragment như một destination (`<dialog>`), cùng back stack với các màn hình khác: xem [Dialog and DialogFragment](dialog_and_dialogfragment.md), mục "DialogFragment vs Navigation Component Dialog".
 
 ### Khi nào dùng FragmentManager?
 
@@ -702,7 +762,9 @@ class FragmentA : Fragment() {
 // Đúng
 override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     viewLifecycleOwner.lifecycleScope.launch {
-        viewModel.data.collect { /* ... */ }
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.data.collect { /* ... */ }
+        }
     }
 }
 
@@ -714,7 +776,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 }
 ```
 
-`viewLifecycleOwner` chỉ sống trong khoảng View tồn tại (tạo ở `onCreateView()`, hủy ở `onDestroyView()`). Dùng `this` (Fragment lifecycle) sẽ gây **memory leak** vì coroutine sống lâu hơn View.
+Fragment trong back stack vẫn sống trong khi View đã bị hủy, nên collector gắn với `this` sống lâu hơn View. Vì sao cần cả `viewLifecycleOwner` lẫn `repeatOnLifecycle` ở [Fragment Lifecycle](lifecycle.md), mục "Tại sao cần phân biệt?".
 
 ### 5. Tránh nested Fragment quá sâu
 
@@ -913,41 +975,7 @@ fun navigateToDetail() {
 
 ### 2. Dùng `hide()`/`show()` thay vì `replace()` cho Bottom Navigation
 
-```kotlin
-// Sai: Replace mỗi lần switch tab
-fun switchTab(tab: Int) {
-    val fragment = when (tab) {
-        0 -> HomeFragment()
-        1 -> SearchFragment()
-        else -> ProfileFragment()
-    }
-    supportFragmentManager.beginTransaction()
-        .replace(R.id.container, fragment)
-        .commit()
-}
-
-// Đúng: Hide/Show để giữ trạng thái
-fun switchTab(tab: Int) {
-    val tag = when (tab) {
-        0 -> "home"
-        1 -> "search"
-        else -> "profile"
-    }
-    
-    val fragmentManager = supportFragmentManager
-    val existing = fragmentManager.findFragmentByTag(tag)
-    val target = existing ?: createFragment(tab)
-    if (target == currentFragment) return
-
-    // Một transaction duy nhất: ẩn tab cũ (nếu có), add hoặc show tab mới
-    fragmentManager.beginTransaction().apply {
-        currentFragment?.let { hide(it) }
-        if (existing == null) add(R.id.container, target, tag) else show(target)
-    }.commit()
-
-    currentFragment = target
-}
-```
+`replace()` mỗi lần đổi tab tạo Fragment mới, hủy View cũ, nên tab nào cũng phải inflate và load lại data, mất luôn scroll position. Add mỗi tab một lần rồi chuyển bằng `hide()`/`show()` như code ở mục "Ví dụ thực tế: Bottom Navigation với Back Stack" bên trên: View của các tab được giữ, đổi tab không phải dựng lại gì.
 
 ### 3. Lazy initialization cho Child Fragment
 
@@ -1014,8 +1042,10 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // FragmentManager ở đây
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collect { state ->
-                render(state)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    render(state)
+                }
             }
         }
     }
@@ -1080,6 +1110,7 @@ class HomeFragment : Fragment() {
 - [Android Developers - FragmentManager](https://developer.android.com/reference/androidx/fragment/app/FragmentManager)
 - [Android Developers - FragmentTransaction](https://developer.android.com/reference/androidx/fragment/app/FragmentTransaction)
 - [Android Developers - Fragment manager (back stack, primary navigation fragment)](https://developer.android.com/guide/fragments/fragmentmanager)
+- [Android Developers - Fragment release notes (multiple back stacks, 1.4.0)](https://developer.android.com/jetpack/androidx/releases/fragment)
 - [Android Developers - Provide custom back navigation](https://developer.android.com/guide/navigation/custom-back)
 - [Android Developers - Navigation Component](https://developer.android.com/guide/navigation)
 - [Android Developers - Fragment best practices](https://developer.android.com/guide/fragments)

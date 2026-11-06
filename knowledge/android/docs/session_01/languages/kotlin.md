@@ -132,7 +132,7 @@ Vì vậy một data class có **nhiều method hơn** class Java tương đươ
 Platform Type là chỗ Null Safety của Kotlin "thủng" thường gặp nhất trong dự án Android, nhưng không phải chỗ duy nhất. NPE vẫn có thể xảy ra khi dùng toán tử `!!`, khi `throw NullPointerException()` tường minh, khi đọc property chưa khởi tạo xong trong constructor (leaking `this`, hoặc constructor lớp cha gọi một `open` member), và khi kiểu generic đến từ Java sai nullability (vd `ArrayList<String>` bị code Java thêm `null`). Với Platform Type, có hai cách bịt:
 
 1. Phía Kotlin: **khai báo kiểu tường minh** ngay khi nhận giá trị từ Java (`val name: String? = repo.getUserName(id)`).
-2. Phía Java: thêm `@Nullable` / `@NonNull` (`androidx.annotation`) cho API. Cách này được trình bày trong `android.languages.java_android`.
+2. Phía Java: thêm `@Nullable` / `@NonNull` (`androidx.annotation`) cho API. Cách này nằm ở [Java Android](java_android.md), mục "Viết Java API an toàn cho Kotlin: Nullability Annotations".
 
 #### Java gọi Kotlin
 
@@ -171,15 +171,7 @@ Các tính năng sau giúp code gọn, nhưng sinh thêm object hoặc vòng l�
 
 ### 1. Platform Type trong dự án Java và Kotlin chung
 
-```java
-// UserRepository.java — code Java cũ, chưa có annotation
-public class UserRepository {
-    public String getUserName(int userId) {
-        if (userId <= 0) return null;
-        return "Lan";
-    }
-}
-```
+`UserRepository` là một class Java cũ **chưa có** annotation nullability: method `getUserName(int userId)` trả về `null` khi `userId <= 0`, còn lại trả về tên người dùng. Phía Kotlin gọi nó như sau:
 
 ```kotlin
 // ProfileViewModel.kt
@@ -192,7 +184,7 @@ fun showProfile(repo: UserRepository) {
 }
 ```
 
-Quy tắc thực tế: **ở ranh giới gọi sang Java, luôn khai báo kiểu tường minh** và đi thêm annotation cho Java API khi có thể.
+Quy tắc thực tế: **ở ranh giới gọi sang Java, luôn khai báo kiểu tường minh** và đi thêm annotation cho Java API khi có thể. Phiên bản `UserRepository` đã thêm `@Nullable` / `@NonNull` nằm ở [Java Android](java_android.md), mục "Viết Java API an toàn cho Kotlin: Nullability Annotations".
 
 ### 2. Viết API Kotlin để code Java gọi dễ dàng
 
@@ -263,18 +255,12 @@ Phiên bản plugin KSP phải khớp với phiên bản Kotlin của dự án. 
 
 ## Trade-offs
 
-**Ưu điểm**
+So sánh Java và Kotlin theo từng tiêu chí (Null Safety, Coroutines, data class, sealed class, Jetpack Compose, tốc độ build, kích thước APK) nằm ở [Java Android](java_android.md), mục "So sánh nhanh Java vs Kotlin trên Android". Tóm lại, Kotlin đổi một phần thời gian build và dung lượng APK lấy Null Safety ở compile-time, ít boilerplate và coroutines.
 
-- Null Safety ở compile-time giảm mạnh NPE trong code Kotlin.
-- Ít boilerplate: data class, extension function, sealed class/interface để mô tả state UI.
-- Coroutines cho code bất đồng bộ viết theo kiểu tuần tự.
-- Google ưu tiên: Jetpack, tài liệu chính thức và **Jetpack Compose chỉ hỗ trợ Kotlin**.
-
-**Nhược điểm**
+Hai chi phí bắt nguồn từ cách Kotlin được biên dịch và gọi qua lại với Java:
 
 - **Build time**: `kotlinc` làm nhiều việc hơn `javac` (suy luận kiểu, inline, sinh code cho data class). Kotlin 2.0 (2024) đưa compiler K2 vào stable và cải thiện tốc độ biên dịch, nhưng dự án lớn vẫn cần cấu hình build cẩn thận.
-- **Kích thước APK**: thêm `kotlin-stdlib`; R8 giảm phần lớn nhưng không về 0.
-- **Ma sát trong dự án Java và Kotlin chung**: Platform Type, cần annotation `@Jvm...`, hai bộ quy ước code.
+- **Ma sát trong dự án Java và Kotlin chung**: Platform Type, cần annotation `@Jvm...` (mục 4), hai bộ quy ước code.
 
 ---
 

@@ -8,7 +8,7 @@ depth: overview
 estimated_reading_time: 18 phút
 tags: [android, fragment, ui, single-activity, navigation, viewbinding, mvvm]
 prerequisites: [android.component.activity.overview]
-related: [android.component.fragment.lifecycle, android.component.fragment.state_changes, android.component.fragment.fragment_manager, android.component.fragment.dialog_and_dialogfragment]
+related: [android.component.fragment.lifecycle, android.component.fragment.state_changes, android.component.fragment.fragment_manager, android.component.fragment.dialog_and_dialogfragment, android.component.activity.state_changes]
 downstream: [android.component.fragment.lifecycle]
 learning_outcomes:
   - Giải thích được bản chất Fragment là gì và vì sao nó là đơn vị màn hình trong Single-Activity Architecture.
@@ -139,7 +139,7 @@ Fragment được quản lý bởi `FragmentManager`, giúp hệ thống xử l�
 Trong kiến trúc MVVM / Clean Architecture, Fragment nằm ở **Presentation Layer**, đóng vai trò là **View**:
 
 - **Fragment:** render UI, gửi sự kiện người dùng lên ViewModel, quan sát `StateFlow`/`LiveData`.
-- **ViewModel:** giữ trạng thái và logic UI, **sống sót qua xoay màn hình**.
+- **ViewModel:** giữ trạng thái và logic UI, **sống sót qua xoay màn hình** (cơ chế ở [Activity State Changes](../activity/state_changes.md), mục "Bước 1").
 - **Shared ViewModel (scoped theo Activity):** chia sẻ dữ liệu giữa các Fragment mà không cần truyền qua Bundle phức tạp.
 
 ```mermaid
@@ -429,7 +429,7 @@ flowchart TD
 Fragment Overview là điểm vào của module Fragment. Để làm chủ, hãy học theo thứ tự:
 
 1. **Fragment Lifecycle** — nền tảng bắt buộc: phân biệt Fragment Lifecycle và View Lifecycle, dùng đúng `viewLifecycleOwner`.
-2. **Fragment State Changes** — giữ trạng thái qua xoay màn hình, `onSaveInstanceState`, `SavedStateHandle`.
+2. [Fragment State Changes](state_changes.md) — giữ trạng thái qua xoay màn hình, `onSaveInstanceState`, `SavedStateHandle`.
 3. **FragmentManager** — hiểu sâu transaction, add/replace/remove, backstack, commit strategy.
 4. **Dialog and DialogFragment** — màn hình dialog/bottom sheet có vòng đời riêng.
 

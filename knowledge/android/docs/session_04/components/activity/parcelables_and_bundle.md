@@ -69,6 +69,9 @@ Hai tính chất quyết định mọi thứ còn lại:
 | `Fragment.arguments` | Truyền tham số khi tạo Fragment (bắt buộc qua Bundle, không có constructor kèm data) |
 | `onSaveInstanceState(outState)` | Lưu UI state để khôi phục khi Activity bị destroy |
 | `SavedStateHandle` | ViewModel lưu state, sống sót qua process death |
+| `rememberSaveable` (Compose) | Lưu state của composable vào cùng saved state Bundle; object tự định nghĩa cần `@Parcelize` hoặc `Saver` |
+
+Ba dòng cuối là các API lưu state: chúng đều ghi vào saved state Bundle nên chịu chung giới hạn kích thước ở bài này. Chọn API nào cho loại dữ liệu nào ở [State Changes](state_changes.md), mục "Chọn công cụ nào? — Bản đồ quyết định".
 
 ## Vì sao Android dùng Bundle để truyền dữ liệu?
 
@@ -278,7 +281,19 @@ Chiều ngược lại cũng cần nhớ: `Parcel` **không phải** cơ chế s
 
 ## Giới hạn kích thước — Binder Transaction Buffer
 
-Đây là giới hạn mà đa số crash ngoài đời thực đến từ. Binder transaction buffer có **giới hạn khoảng 1MB cho toàn bộ process** — không phải 1MB cho mỗi lần truyền.
+Đây là giới hạn mà đa số crash ngoài đời thực đến từ. Binder transaction buffer có **kích thước cố định, hiện là 1MB, dùng chung cho toàn bộ process** — không phải 1MB cho mỗi lần truyền.
+
+### Ba con số cần phân biệt
+
+Các bài viết thường đưa ra nhiều ngưỡng khác nhau (1MB, 500KB, 50KB). Theo docs chỉ có một giới hạn cứng, hai con số còn lại là khuyến nghị:
+
+| Con số | Là gì | Vượt thì sao |
+|--------|-------|--------------|
+| **1MB** | Giới hạn cứng của Binder transaction buffer, dùng chung cho mọi transaction đang diễn ra của process (`startActivity`, saved state, mọi lời gọi tới system service) | Ném `TransactionTooLargeException` |
+| **Vài KB** | Khuyến nghị cho dữ liệu gửi qua Intent extras | Tăng nguy cơ chạm giới hạn 1MB |
+| **Dưới 50KB** | Khuyến nghị cho saved state (`onSaveInstanceState`, `SavedStateHandle`, `rememberSaveable`), vì system process phải giữ bản này suốt thời gian người dùng còn quay lại được Activity, kể cả khi process của app đã bị kill | Tốn bộ nhớ hệ thống, serialize chậm trên main thread, tăng nguy cơ chạm giới hạn 1MB |
+
+Không có ngưỡng 500KB nào trong docs. Khi thiết kế, hãy dùng hai con số khuyến nghị; con số 1MB chỉ giải thích vì sao app crash.
 
 ### Hệ quả nghiêm trọng
 
@@ -327,7 +342,7 @@ private fun logBundleSize(bundle: Bundle) {
 | Bitmap trong Bundle | Lưu ra file, truyền URI/file path |
 | RecyclerView nhiều item | Chỉ lưu `scroll_position` + điều kiện query, không lưu dữ liệu |
 | Fragment arguments chứa data lớn | SharedViewModel scoped theo Activity |
-| Ứng dụng cần chuyển khối dữ liệu lớn giữa 2 màn hình | Cơ chế khác: Repository / singleton / SavedStateHandle — không qua Bundle |
+| Ứng dụng cần chuyển khối dữ liệu lớn giữa 2 màn hình | Cơ chế khác: Repository / singleton / SavedStateHandle — không qua Bundle. Cache trong RAM (singleton) mất khi process bị kill, nên màn hình đích phải load lại được từ nguồn bền (Room, file) |
 
 ## Triển khai thực tế trong app MVVM
 
@@ -402,6 +417,8 @@ flowchart TD
 <!-- dd: parcel-split-a -->
 <!-- dd: parcel-split-b -->
 
+Sơ đồ đơn giản hoá nhánh "dưới/quá 1MB": 1MB là sức chứa của cả buffer dùng chung, nên transaction này có thể crash dù nhỏ hơn 1MB nếu các transaction khác đang chiếm buffer (mục "Ba con số cần phân biệt").
+
 ## Khi nào nên dùng — Khi nào không nên dùng
 
 ### Nên dùng Bundle / Parcelable
@@ -457,11 +474,27 @@ outState.putInt("selected_tab", selectedTabIndex)
 
 ### 6. Tin rằng SharedViewModel giải quyết được process death
 
-SharedViewModel mất trắng khi process bị kill. Nếu dữ liệu cần tồn tại qua process death, phải kết hợp `SavedStateHandle` (lưu qua Bundle nội bộ) hoặc Room. Hiểu đúng giới hạn này giúp bạn không ngạc nhiên khi app bị hệ thống kill ở background rồi khôi phục màn hình trống.
+SharedViewModel cũng là ViewModel nên mất khi process bị kill; dữ liệu cần sống qua process death phải đi qua `SavedStateHandle` hoặc Room. Chi tiết ở [State Changes](state_changes.md), mục "Khi nào dữ liệu bị mất? — 3 tình huống cần phân biệt".
+
+### 7. Đọc extra bằng sai giao thức
+
+```kotlin
+// Bên gửi: Product là Parcelable
+intent.putExtra(EXTRA_PRODUCT, product)
+
+// ❌ Bên nhận đọc bằng getSerializableExtra: Bundle bắt ClassCastException,
+// ghi cảnh báo sai kiểu vào logcat và trả về null. Không crash, nhưng dữ liệu "biến mất".
+val wrong = intent.getSerializableExtra(EXTRA_PRODUCT)
+
+// ✅ Bên nhận dùng cùng giao thức với bên gửi
+val product = IntentCompat.getParcelableExtra(intent, EXTRA_PRODUCT, Product::class.java)
+```
+
+Lỗi này khó thấy vì app vẫn chạy: chỉ có màn hình hiện trống. Khi một extra luôn trả về `null`, kiểm tra logcat có dòng cảnh báo sai kiểu của `Bundle` không.
 
 ## Kết nối hệ thống
 
-- **Prerequisites**: `Activity Lifecycle` và `Activity State Changes` — nơi Bundle được dùng để lưu/khôi phục state. `Task and Backstack` — ngữ cảnh Activity được tạo/hủy khi truyền Intent.
+- **Prerequisites**: `Activity Lifecycle` và [Activity State Changes](state_changes.md) — nơi Bundle được dùng để lưu/khôi phục state. `Task and Backstack` — ngữ cảnh Activity được tạo/hủy khi truyền Intent.
 - **Related Topics**: `Explicit Intents` — Intent là phương tiện vận chuyển Bundle. `Push data and send event via Intent` — các cách đưa dữ liệu vào Intent.
 - **Downstream Topics**: `ViewModel` — SavedStateHandle và cách dữ liệu Bundle đi vào ViewModel. `FragmentManager` — Fragment arguments.
 
@@ -473,6 +506,7 @@ SharedViewModel mất trắng khi process bị kill. Nếu dữ liệu cần t�
 - [IntentCompat — Android Developers Reference](https://developer.android.com/reference/androidx/core/content/IntentCompat)
 - [Get a result from an activity — Android Developers](https://developer.android.com/training/basics/intents/result)
 - [TransactionTooLargeException — Android Developers Reference](https://developer.android.com/reference/android/os/TransactionTooLargeException)
+- [Save UI states (giới hạn của saved state) — Android Developers](https://developer.android.com/topic/libraries/architecture/saving-states)
 - [Pass data between destinations (Navigation Safe Args) — Android Developers](https://developer.android.com/guide/navigation/use-graph/pass-data)
 - [ViewModel overview — Android Developers](https://developer.android.com/topic/libraries/architecture/viewmodel)
 - [Parceler & TypeParceler — Kotlin Parcelize Docs](https://kotlinlang.org/docs/parcelize.html)

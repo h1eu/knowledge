@@ -15,7 +15,7 @@
      - Key website = frontmatter `id`, hoặc slug cũ nếu có alias
        `ANDROID_CONTENT['<id>'] = ANDROID_CONTENT['<slug>']`; index.md / overview.md → `session-NN-overview`.
        Entry cũ dùng slug mà chưa có alias → thêm dòng alias đó vào android-content.js trước khi đồng bộ.
-     - `<!-- dd: <slug> -->` sau khối Mermaid → SVG `website/diagrams/<slug>(-dark).html` thay Mermaid đó.
+     - `<!-- dd: <slug> -->` sau khối Mermaid hoặc ```text (sơ đồ ASCII) → SVG `website/diagrams/<slug>(-dark).html` thay khối đó.
      - `<!-- archify: <slug> | <tiêu đề> -->` sau khối Mermaid → sơ đồ Archify
        `website/archify/android/<slug>.html` thay Mermaid đó (iframe do app.js chèn).
      - Bài chưa có entry website thì bị bỏ qua: thêm entry và nav (`KNOWLEDGE_DATA` trong app.js) bằng tay trước.
@@ -147,9 +147,9 @@ function svgOf(file) {
   return m[0];
 }
 
-// Sơ đồ thay thế (dd / archify) thay cho khối Mermaid đứng ngay trước nó
+// Sơ đồ thay thế (dd / archify) thay cho khối Mermaid, hoặc khối ```text (sơ đồ ASCII), đứng ngay trước nó
 function replacePrecedingMermaid(out, html) {
-  if (/^<div class="mermaid">/.test(out[out.length - 1] || '')) out.pop();
+  if (/^(<div class="mermaid">|<pre data-lang="text">)/.test(out[out.length - 1] || '')) out.pop();
   out.push(html);
 }
 

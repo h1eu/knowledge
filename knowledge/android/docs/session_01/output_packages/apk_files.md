@@ -1,7 +1,7 @@
 ---
 id: android.output_packages.apk_files
 title: Gói ứng dụng APK (Android Package)
-summary: Cấu trúc file APK, Binary XML và resources.arsc, APK Signature Schemes v1 đến v4, vì sao zipalign cần thiết cho mmap, thứ tự zipalign và ký, và các yêu cầu căn chỉnh mới (resources.arsc, thư viện .so với page size 16KB).
+summary: Cấu trúc file APK, Binary XML và resources.arsc, APK Signature Schemes v1 đến v4, vì sao zipalign cần thiết cho mmap, thứ tự zipalign và ký, multidex, và yêu cầu resources.arsc không nén, căn chỉnh khi targetSdk 30+.
 status: published
 difficulty: intermediate
 depth: deep-dive
@@ -218,7 +218,7 @@ apksigner sign --ks release.jks --out app-release.apk app-aligned.apk
 apksigner verify --verbose app-release.apk
 ```
 
-Tuỳ chọn `-p` căn thư viện `.so` không nén theo page 4KB. Để hỗ trợ page size 16KB, dùng build-tools mới với tuỳ chọn `-P 16`, hoặc để AGP (8.5.1 trở lên) tự xử lý.
+Tuỳ chọn `-p` căn thư viện `.so` không nén theo page 4KB; thiết bị dùng page size 16KB cần `-P 16` (chi tiết ở [JNI](../languages/jni.md), mục "Edge Cases", Page size 16KB).
 
 ---
 
@@ -226,12 +226,12 @@ Tuỳ chọn `-p` căn thư viện `.so` không nén theo page 4KB. Để hỗ t
 
 1. **Dùng `jarsigner` thay vì `apksigner`**:
    - `jarsigner` là công cụ của JDK và **chỉ tạo chữ ký v1**. Dùng **`apksigner`** trong Android SDK Build-Tools để có v2/v3/v4.
-   - Ngược lại, file **AAB** phải ký bằng `jarsigner` (`apksigner` không ký được AAB). Không mâu thuẫn: chữ ký trên AAB chỉ để Google Play xác minh người upload (upload key). Thiết bị không bao giờ cài AAB; Play sinh APK từ AAB rồi ký APK đó bằng app signing key theo v2/v3 (xem `android.output_packages.aab_files`).
+   - Ngoại lệ là file **AAB**: `apksigner` không ký được AAB, nên khi ký AAB từ dòng lệnh phải dùng `jarsigner` (hoặc để `signingConfig` của Gradle ký). Không mâu thuẫn: chữ ký trên AAB chỉ để Google Play xác minh người upload (upload key). Thiết bị không bao giờ cài AAB; Play sinh APK từ AAB rồi ký các APK đó bằng app signing key (xem [AAB](aab_files.md), mục "Sai lầm thường gặp").
 
 2. **Nhầm lẫn về Multidex**:
-   - Vượt 65.536 method tham chiếu trong một file DEX thì build cần nhiều file DEX.
-   - Với `minSdk` từ 21 trở lên, multidex được bật sẵn, không cần cấu hình.
-   - Chỉ khi `minSdk` dưới 21 mới cần `multiDexEnabled` và thư viện `androidx.multidex`.
+   - Định dạng DEX giới hạn mỗi file `.dex` tham chiếu tối đa 65.536 method (giới hạn 64K), tính cả method của Android framework, thư viện và code của app. Vượt ngưỡng này thì build tách code thành `classes.dex`, `classes2.dex`, `classes3.dex`... và đóng gói tất cả vào APK.
+   - Với `minSdk` từ 21 trở lên, multidex được bật sẵn, không cần cấu hình: ART (Android 5.0+) tự nạp mọi file `classesN.dex` và biên dịch chúng lúc cài.
+   - Chỉ khi `minSdk` dưới 21 (Dalvik mặc định chỉ đọc một `classes.dex`) mới cần `multiDexEnabled = true`, thư viện `androidx.multidex`, và cho `Application` kế thừa `MultiDexApplication` (hoặc gọi `MultiDex.install(this)` trong `attachBaseContext`). Cái giá là app khởi động chậm hơn: các file DEX phụ được cài lúc khởi động, file lớn có thể gây ANR.
 
 3. **Để lọt tài nguyên và code thừa**:
    - Không bật `isMinifyEnabled = true` và `isShrinkResources = true` cho bản release khiến APK chứa code không dùng, drawable thừa và chuỗi của các thư viện không cần.
@@ -247,7 +247,7 @@ Tuỳ chọn `-p` căn thư viện `.so` không nén theo page 4KB. Để hỗ t
 ### Edge Cases
 
 - **`resources.arsc` bị nén khi targetSdk 30+**: từ Android 11, app có `targetSdk` từ 30 trở lên phải lưu `resources.arsc` **không nén** và căn chỉnh 4 byte. Nếu không, cài đặt thất bại với thông báo *"Targeting R+ (version 30 and above) requires the resources.arsc of installed APKs to be stored uncompressed and aligned on a 4-byte boundary"*. Lỗi này hay gặp khi đóng gói lại APK bằng công cụ bên ngoài.
-- **Thư viện `.so` không nén và page size 16KB**: khi `.so` được lưu không nén (mặc định của AGP mới, `useLegacyPackaging = false`), hệ thống nạp thẳng từ APK mà không giải nén ra đĩa. Khi đó `.so` phải căn theo page. Thiết bị Android 15 dùng page 16KB cần cả việc căn chỉnh trong ZIP lẫn việc link `.so` với căn chỉnh 16KB (xem `android.languages.jni`).
+- **Thư viện `.so` không nén**: khi `minSdk` từ 23 và `useLegacyPackaging` không được đặt, AGP lưu `.so` không nén và căn theo page, để hệ thống nạp thẳng từ APK mà không giải nén ra đĩa. Thiết bị dùng page size 16KB đòi `.so` căn 16KB cả trong ZIP lẫn khi link; chi tiết ở [JNI](../languages/jni.md), mục "Edge Cases" (Page size 16KB).
 
 ---
 
@@ -259,7 +259,7 @@ Tuỳ chọn `-p` căn thư viện `.so` không nén theo page 4KB. Để hỗ t
   - `android.languages.jni`: nguồn của các thư viện `.so` trong thư mục `lib/`.
 - **Downstream Topics**:
   - `android.session02.file_permissions`: khi cài APK, hệ thống cấp cho app một UID riêng và thư mục dữ liệu riêng.
-  - Process Management (chưa có bài): cách hệ thống tạo process và nạp code từ APK.
+  - 2.2 Process Management (chưa có bài): cách hệ thống tạo process và nạp code từ APK.
 
 ---
 
@@ -284,4 +284,6 @@ Tuỳ chọn `-p` căn thư viện `.so` không nén theo page 4KB. Để hỗ t
 - Android Developers: [apksigner](https://developer.android.com/tools/apksigner) và [zipalign](https://developer.android.com/tools/zipalign)
 - Android Developers: [Build your app from the command line: Sign your app](https://developer.android.com/build/building-cmdline#sign_cmdline)
 - Android Developers: [Sign your app](https://developer.android.com/studio/publish/app-signing)
+- Android Developers: [Enable multidex for apps with over 64K methods](https://developer.android.com/build/multidex)
+- Android Developers: [bundletool](https://developer.android.com/tools/bundletool), mục "Build an app bundle" (không dùng `apksigner` để ký AAB)
 - Android Developers: [Support 16 KB page sizes](https://developer.android.com/guide/practices/page-sizes)

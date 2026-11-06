@@ -1,14 +1,14 @@
 ---
 id: android.manifest.tags
 title: Manifest Tags
-summary: Hiểu sâu AndroidManifest.xml và toàn bộ thẻ tag cốt lõi (manifest, application, activity, service, receiver, provider, permission) — ý nghĩa từng thuộc tính, cơ chế Manifest Merger khi build, cách hệ thống (PMS/AMS) xử lý manifest lúc cài đặt và runtime, quy tắc android:exported, giới hạn implicit broadcast, khai báo permission, và những lỗi manifest thường gặp trong project thực tế.
+summary: Hiểu sâu AndroidManifest.xml và toàn bộ thẻ tag cốt lõi (manifest, application, activity, service, receiver, provider, permission) — ý nghĩa từng thuộc tính, cơ chế Manifest Merger khi build, cách hệ thống (PMS/AMS) xử lý manifest lúc cài đặt và runtime, quy tắc android:exported, khai báo permission, và những lỗi manifest thường gặp trong project thực tế.
 status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 40 phút
 tags: [android, manifest, androidmanifest, application, activity, service, receiver, provider, permission, intent-filter, exported, manifest-merger, package-manager, ams]
 prerequisites: [android.output_packages.apk_files, android.output_packages.aab_files, android.manifest.build_types, android.manifest.product_flavors, android.manifest.plugin]
-related: [android.component.activity.lifecycle, android.component.service.overview, android.component.broadcast.overview, android.intent.explicit, android.intent.filters]
+related: [android.component.activity.lifecycle, android.component.activity.task_and_backstack, android.component.service.overview, android.component.broadcast.overview, android.intent.explicit, android.intent.filters]
 learning_outcomes:
   - Giải thích được vai trò của AndroidManifest.xml và vòng đời của nó từ lúc build, cài đặt đến runtime.
   - Phân biệt được ý nghĩa và thuộc tính quan trọng của từng thẻ manifest: application, activity, service, receiver, provider, permission.
@@ -305,7 +305,7 @@ Activity là component **duy nhất có giao diện** (UI). Mỗi màn hình tro
 |---|---|---|
 | `android:name` | Tên class Activity (dùng `.MainActivity` để ngắn — AGP tự nối với namespace). | Bắt buộc. |
 | `android:exported` | Cho phép component khác (app khác/hệ thống) gọi Activity này không. | **Bắt buộc khai báo rõ từ Android 12 (API 31)** nếu có `<intent-filter>`. |
-| `android:launchMode` | `standard`, `singleTop`, `singleTask`, `singleInstance`. | Quyết định Activity được tạo lại hay dùng lại. |
+| `android:launchMode` | `standard`, `singleTop`, `singleTask`, `singleInstance`, `singleInstancePerTask` (API 31+). | Quyết định Activity được tạo mới hay dùng lại; ngữ nghĩa từng mode và cách chọn ở [Task and Back Stack](../components/activity/task_and_backstack.md), mục "Cách hoạt động — 5 Launch Modes". |
 | `android:screenOrientation` | Ép hướng màn hình (`portrait`, `landscape`, `fullSensor`...). | Ép cứng `portrait` thường không được khuyến nghị với tablet/foldable. |
 | `android:configChanges` | Liệt kê config mà app tự xử lý, không recreate. | Dùng sai dễ mất logic lifecycle. |
 | `android:windowSoftInputMode` | Cách xử lý bàn phím ảo (`adjustResize`, `adjustPan`, `stateHidden`...). | Cần thiết khi màn hình có EditText. |
@@ -332,21 +332,14 @@ flowchart TD
 <!-- dd: manif-exported -->
 
 > [!WARNING]
-> Từ **Android 12 (API 31)**, nếu một Activity/Service/Receiver có `<intent-filter>` mà **không khai báo `android:exported`**, quá trình build sẽ **fail** với lỗi: *"android:exported needs to be explicitly specified for element <activity>..."*. Nếu APK như vậy vẫn được tạo ra (ví dụ build bằng công cụ cũ), nó **không cài được** lên thiết bị Android 12+. Đây là lỗi phổ biến nhất khi mọi người nâng `targetSdk` lên 31+.
+> Với app có **targetSdk 31 (Android 12) trở lên**, nếu một Activity/Service/Receiver có `<intent-filter>` mà **không khai báo `android:exported`**:
+>
+> - **Lúc build:** manifest merger báo lỗi và build dừng: *"Manifest merger failed : Apps targeting Android 12 and higher are required to specify an explicit value for android:exported when the corresponding component has an intent filter defined."* (Android Studio cũng hiện lint warning ngay trong file manifest.)
+> - **Lúc cài:** nếu APK như vậy vẫn được tạo ra (ví dụ bằng công cụ build cũ), nó **không cài được** lên thiết bị Android 12+; tuỳ công cụ, lỗi hiện là `INSTALL_FAILED_VERIFICATION_FAILURE` hoặc `INSTALL_PARSE_FAILED_MANIFEST_MALFORMED`.
+>
+> Đây không phải lỗi runtime: app không crash và không ném `SecurityException`, vì nó không tới được thiết bị. Đây là lỗi phổ biến nhất khi mọi người nâng `targetSdk` lên 31+.
 >
 > Về bảo mật: khai báo `exported="true"` cho component không cần thiết là **lỗ hổng** — app khác có thể khởi chạy màn hình của bạn, gọi service, gửi dữ liệu vào provider. Luôn đặt `exported="false"` trừ khi có lý do thực sự.
-
-### Khi nào nên dùng launchMode nào?
-
-| launchMode | Hành vi | Dùng khi |
-|---|---|---|
-| `standard` | Mỗi intent tạo Activity mới trong task hiện tại. | Mặc định, 95% trường hợp. |
-| `singleTop` | Nếu Activity đã ở **đỉnh** stack thì dùng lại, không tạo mới. | Notification → mở đúng Activity đang hiển thị (tránh trùng lặp). |
-| `singleTask` | Dùng lại Activity đã tồn tại trong task, hủy mọi Activity trên nó. | Launcher screen, main screen (tránh stack chồng nhiều bản). |
-| `singleInstance` | Activity chạy trong task riêng, chỉ mình nó. | Rất hiếm (ví dụ alarm, call screen). |
-
-> [!NOTE]
-> Đừng dùng `launchMode` như "công cụ chống trùng Activity". Với project hiện đại, hãy ưu tiên **single-top declaration + Intent flags** (`FLAG_ACTIVITY_SINGLE_TOP`, `FLAG_ACTIVITY_CLEAR_TOP`) hoặc để **Jetpack Navigation** tự xử lý back stack. `launchMode` khai trong manifest là cấu hình tĩnh, khó kiểm soát theo luồng.
 
 ### Intent Filter — cách hệ thống tìm Activity
 
@@ -451,58 +444,14 @@ Broadcast Receiver lắng nghe và phản ứng với **broadcast intent** từ 
 | Thuộc tính | Ý nghĩa |
 |---|---|
 | `android:name` | Tên class Receiver. |
-| `android:exported` | App khác/hệ thống gửi broadcast vào receiver này được không. |
+| `android:exported` | App khác/hệ thống gửi broadcast vào receiver này được không. Broadcast do chính hệ thống gửi (như `BOOT_COMPLETED`) vẫn tới receiver `false`; receiver nghe broadcast của app khác hoặc của app hệ thống đặc quyền (Bluetooth, telephony) thì phải `true`, chi tiết ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "8.1 `android:exported` — Quan trọng từ Android 12+". |
 | `android:enabled` | Receiver có được hệ thống instantiate không. |
 | `android:permission` | Broadcast phải kèm permission mới được nhận. |
 
-### Static Receiver (khai báo trong Manifest) — giới hạn từ Android 8
-
-Có hai cách đăng ký receiver: **static** (trong Manifest) và **dynamic** (trong code qua `registerReceiver()`).
-
-- **Static receiver**: được khởi động bởi hệ thống ngay cả khi app đang chạy nền. Nhưng từ **Android 8 (API 26)**, hầu hết **implicit broadcast** (không phải explicit) bị chặn với receiver static, nhằm tiết kiệm pin và tài nguyên.
-- **Dynamic receiver**: đăng ký trong code, chỉ nhận broadcast khi app đang chạy (hoặc ở foreground), không bị giới hạn implicit nhưng phải `unregisterReceiver()` để tránh leak.
-
-```kotlin
-class MainActivity : AppCompatActivity() {
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            // Xử lý broadcast khi app đang chạy
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        // Broadcast hệ thống: không cần cờ. Với action tự định nghĩa, targetSdk 34+
-        // bắt buộc truyền cờ: ContextCompat.registerReceiver(this, receiver, filter,
-        //     ContextCompat.RECEIVER_NOT_EXPORTED), nếu không sẽ ném SecurityException.
-        // (CONNECTIVITY_ACTION đã deprecated, ở đây chỉ để minh hoạ.)
-        registerReceiver(receiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
-    }
-
-    override fun onStop() {
-        unregisterReceiver(receiver)  // Bắt buộc, tránh memory leak
-        super.onStop()
-    }
-}
-```
-
-> [!WARNING]
-> **Lỗi phổ biến nhất:** đăng ký static receiver trong Manifest để lắng nghe `CONNECTIVITY_CHANGE`, `BATTERY_CHANGED`, `SCREEN_ON`... rồi không bao giờ nhận được sự kiện trên Android 8+. Các broadcast này **bị hệ thống chặn** đối với receiver static. Giải pháp: dùng dynamic receiver khi app chạy, hoặc chuyển sang **WorkManager** cho công việc cần thực thi khi bị trigger bởi mạng/battery.
-
-### Các broadcast vẫn được phép với static receiver (danh sách trắng)
-
-Một số broadcast hệ thống vẫn được phép đăng ký static, ví dụ:
-
-- `ACTION_BOOT_COMPLETED`, `ACTION_LOCKED_BOOT_COMPLETED` — máy khởi động xong.
-- `ACTION_PACKAGE_FULLY_REMOVED`, `ACTION_PACKAGE_DATA_CLEARED` — app khác bị gỡ hẳn / bị xoá dữ liệu.
-- `ACTION_TIME_CHANGED` (`TIME_SET`), `ACTION_TIMEZONE_CHANGED`.
-- `ACTION_LOCALE_CHANGED`.
-- `ACTION_MEDIA_MOUNTED` / `UNMOUNTED`..., các sự kiện USB và kết nối Bluetooth.
-
-Các broadcast hay bị tưởng nhầm là được miễn nhưng **không** có trong danh sách: `ACTION_PACKAGE_ADDED` / `ACTION_PACKAGE_REMOVED` / `ACTION_PACKAGE_REPLACED`, `ACTION_BATTERY_LOW`, `ACTION_POWER_CONNECTED` / `DISCONNECTED`, `ACTION_HEADSET_PLUG`. Riêng `ACTION_MY_PACKAGE_REPLACED` vẫn nhận được vì đó là broadcast gửi đích danh cho app của bạn (explicit), không phải nhờ danh sách miễn trừ.
+Khai báo `<receiver>` trong manifest là cách đăng ký **static**; receiver cũng có thể được đăng ký **động** trong code bằng `ContextCompat.registerReceiver()`. Từ Android 8 (API 26), receiver static không còn nhận được hầu hết implicit broadcast (trừ một danh sách được miễn như `BOOT_COMPLETED`). Hai cách đăng ký, danh sách miễn trừ và cờ `RECEIVER_EXPORTED`/`RECEIVER_NOT_EXPORTED` của Android 14 được giải thích ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "3. Static Receiver vs Dynamic Receiver" và "4. Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".
 
 > [!NOTE]
-> Để nhận `BOOT_COMPLETED`, app cần `<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />`. (`<queries>` của Package Visibility không liên quan tới việc nhận broadcast này; nó chỉ cần khi app muốn truy vấn/nhìn thấy package khác.)
+> Để nhận `BOOT_COMPLETED`, ngoài `<receiver>`, app cần khai báo `<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />`.
 
 ## Thẻ <provider>
 
@@ -939,7 +888,7 @@ sequenceDiagram
 5. **Trùng `authorities` giữa các app/flavor:** không cài được app (`INSTALL_FAILED_CONFLICTING_PROVIDER`). **Giải pháp:** authorities theo placeholder `${applicationId}`.
 6. **Khai báo permission thừa:** app bị Google Play giới hạn/từ chối, người dùng mất niềm tin. **Giải pháp:** chỉ khai báo đúng permission cần; dùng `android:maxSdkVersion` cho permission chỉ cần ở bản cũ.
 7. **`allowBackup="true"` cho app nhạy cảm:** dữ liệu bị backup lên cloud của Google. **Giải pháp:** đặt `false` hoặc cấu hình `dataExtractionRules`/`fullBackupContent`.
-8. **Dùng `launchMode` để giải quyết vấn đề back stack:** cứng nhắc, khó theo luồng. **Giải pháp:** ưu tiên Intent flags + Navigation component.
+8. **Dùng `launchMode` để giải quyết vấn đề back stack:** cứng nhắc, khó theo luồng. **Giải pháp:** ưu tiên Intent flags + Navigation component (xem [Task and Back Stack](../components/activity/task_and_backstack.md), mục "Khi nào nên dùng — Khi nào không nên dùng").
 9. **Không đọc `manifest-merger-report.txt` khi gặp khai báo "ma":** mất thời gian truy tìm nguồn gốc thẻ lạ. **Giải pháp:** mở file report để xem thao tác merge.
 10. **Thiếu `<queries>` trên Android 11+:** `resolveActivity()` trả `null`, app không tìm được app xử lý intent. **Giải pháp:** khai báo `<queries>` với intent/package cần.
 11. **Foreground Service thiếu `foregroundServiceType` (Android 14+):** crash `MissingForegroundServiceTypeException`. **Giải pháp:** khai báo type + permission tương ứng.

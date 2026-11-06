@@ -344,7 +344,10 @@ Với đoạn code tạo nhiều reference cùng lúc, có thể bọc bằng `P
 ### Edge Cases
 
 - **SIGSEGV và tombstone**: lỗi con trỏ treo (dangling pointer) hoặc con trỏ null trong C++ gây signal `SIGSEGV`, không đi qua cơ chế exception của ART. Debug bằng file tombstone (lấy qua `adb bugreport`) và công cụ `ndk-stack` để đổi địa chỉ thành dòng code.
-- **Page size 16KB**: từ Android 15, thiết bị có thể dùng page size 16KB thay vì 4KB. Thư viện `.so` phải được link với căn chỉnh 16KB (mặc định từ NDK r28, hoặc thêm cờ linker `-Wl,-z,max-page-size=16384` với NDK cũ hơn). Google Play yêu cầu app nhắm tới Android 15+ có code native phải hỗ trợ 16KB, áp dụng cho app mới và bản cập nhật từ 1/11/2025.
+- **Page size 16KB**: từ Android 15, thiết bị có thể dùng page size 16KB thay vì 4KB. App có code native (tự viết, hoặc qua SDK bên thứ ba) phải căn thư viện `.so` theo 16KB ở hai chỗ:
+  - **Khi link (căn chỉnh ELF)**: các LOAD segment của `.so` phải căn 16KB. NDK r28 trở lên làm mặc định; NDK r27 trở xuống cần thêm cờ linker `-Wl,-z,max-page-size=16384` và `-Wl,-z,common-page-size=16384`. Thư viện `.so` dựng sẵn (prebuilt) cũng phải được build lại như vậy.
+  - **Khi đóng gói (căn chỉnh trong ZIP)**: `.so` lưu không nén trong APK (mặc định khi `minSdk` từ 23) được hệ thống nạp thẳng từ APK, nên dữ liệu của nó phải bắt đầu ở offset chia hết cho 16KB. AGP 8.5.1 trở lên tự căn; tự đóng gói bằng dòng lệnh thì dùng `zipalign -P 16` (cơ chế `zipalign` ở [APK](../output_packages/apk_files.md), mục "`zipalign`: căn chỉnh để mmap trực tiếp"). Không nâng được AGP thì có thể cho Gradle nén `.so` (`useLegacyPackaging = true`), đổi lại app tốn thêm dung lượng khi cài vì `.so` bị giải nén ra đĩa.
+  - Google Play yêu cầu app nhắm tới Android 15 (API 35) trở lên phải hỗ trợ 16KB trên thiết bị 64-bit. Yêu cầu được công bố áp dụng từ 1/11/2025; tài liệu hiện tại ghi từ 1/2/2027 bản cập nhật chưa hỗ trợ 16KB sẽ không phát hành được.
 
 ---
 

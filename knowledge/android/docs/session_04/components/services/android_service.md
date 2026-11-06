@@ -47,7 +47,7 @@ Có những tác vụ cần tiếp tục thực thi **ngay cả khi người dù
 
 - **Tác vụ một lần, không cần ngay lập tức:** Dùng **WorkManager** (đảm bảo hoàn thành dù app bị kill, hỗ trợ Doze mode, constraint như có WiFi).
 - **Tác vụ ngắn do người dùng trigger:** Dùng **Coroutine trong ViewModel/Activity** (tác vụ sẽ bị hủy khi người dùng thoát app — đây là hành vi đúng đắn).
-- **Giao tiếp giữa các phần của cùng một app:** Dùng **Shared ViewModel** hoặc **SharedFlow** thay vì Bound Service.
+- **Giao tiếp giữa các phần của cùng một app:** Dùng **Shared ViewModel** hoặc **SharedFlow** thay vì Bound Service (so sánh ở mục 7, "Service, WorkManager hay Flow/SharedFlow?").
 
 ### Bản đồ quyết định: Nên dùng gì?
 
@@ -632,6 +632,31 @@ WorkManager.getInstance(context)
 | Nhận dữ liệu sensor real-time | Bound Service | Cần giao tiếp 2 chiều, vòng đời gắn với Activity |
 | Tác vụ ngắn do user trigger | Coroutine trong ViewModel | Không cần Service, đơn giản hơn nhiều |
 | GPS tracking nền | Foreground Service | Cần chạy dù người dùng thoát app |
+| Gửi log / analytics | WorkManager | Không cần chạy ngay; docs xếp vào persistent work, có retry và constraint |
+| Báo sự kiện giữa các phần trong cùng app (Service → UI, Repository → ViewModel) | Flow / SharedFlow (hoặc Shared ViewModel) | In-process, type-safe; không cần Service hay broadcast |
+
+### Service, WorkManager hay Flow/SharedFlow?
+
+Ba thứ này hay bị đặt cạnh nhau nhưng giải quyết hai việc khác nhau: **Service** và **WorkManager** là cách *thực thi* công việc khi người dùng không nhìn vào màn hình, còn **Flow/SharedFlow** là cách *truyền dữ liệu, sự kiện* giữa các thành phần trong cùng process. Flow không giữ process sống và không chạy được khi app đã bị kill.
+
+| Tiêu chí | Service (Started / Foreground / Bound) | WorkManager | Flow / SharedFlow |
+|---|---|---|---|
+| Bản chất | Component của hệ thống, chạy trong process của app | Thư viện lên lịch công việc, lưu work vào database | Stream dữ liệu trong bộ nhớ (Kotlin Coroutines) |
+| App phải đang chạy? | Có: service giữ process sống trong lúc chạy | Không: hệ thống tự mở process khi đến lúc chạy | Có: chỉ tồn tại khi có scope đang collect |
+| Sống qua app bị kill / thiết bị khởi động lại? | Không tự đảm bảo (`START_STICKY` chỉ xin tạo lại service sau khi bị kill, không qua reboot) | Có: work được lưu lại và tự lên lịch lại sau reboot (ngoại lệ: người dùng Force stop app thì work bị huỷ tới khi app được mở lại) | Không |
+| Chạy ngay, liên tục, người dùng thấy | Foreground Service (có notification, bị giới hạn bởi `foregroundServiceType`) | Không phải mục đích chính (có expedited work cho việc ngắn, gấp) | Không áp dụng |
+| Constraint (Wi-Fi, sạc), retry, chain | Tự viết | Có sẵn (`Constraints`, `BackoffPolicy`, `then()`) | Không áp dụng |
+| Type-safe | Intent extras: không; Binder interface: có | Một phần (`Data` key-value) | Có |
+| Phạm vi giao tiếp | Bound Service: client trong app hoặc app khác (qua Binder) | Không dùng để giao tiếp | Trong cùng process |
+
+Câu hỏi để chọn nhanh:
+
+1. Việc cần **chạy xong dù app bị kill hoặc máy khởi động lại**, và không cần ngay lập tức? → **WorkManager**.
+2. Việc **người dùng đang chờ, phải chạy ngay và liên tục** (phát nhạc, dẫn đường, cuộc gọi)? → **Foreground Service**.
+3. Màn hình cần **gọi hàm và nhận dữ liệu liên tục** từ một thành phần đang chạy (thiết bị Bluetooth, audio engine)? → **Bound Service**.
+4. Chỉ cần **báo sự kiện hoặc chia sẻ trạng thái giữa các phần trong app**? → **Flow/SharedFlow** hoặc Shared ViewModel, không cần Service. Docs cũng khuyên không dùng broadcast cho việc này.
+
+Broadcast Receiver không nằm trong bảng vì nó không thực thi công việc: nó chỉ là điểm nhận sự kiện hệ thống rồi giao việc cho WorkManager hoặc Service (xem [Broadcast Receiver](../broadcast/broadcast_receiver.md), mục "9. Khi nào dùng Broadcast Receiver, khi nào dùng thứ khác?").
 
 ---
 
@@ -686,3 +711,6 @@ WorkManager.getInstance(context)
 - [Restrictions on starting a foreground service from the background (Android 12+)](https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start)
 - [Foreground service types are required (Android 14)](https://developer.android.com/about/versions/14/changes/fgs-types-required)
 - [Foreground service timeouts (Android 15)](https://developer.android.com/develop/background-work/services/fgs/timeout)
+- [Persistent work (WorkManager lên lịch lại sau reboot) — Android Developers](https://developer.android.com/develop/background-work/background-tasks/persistent)
+- [Broadcasts — tránh broadcast trong cùng process — Android Developers](https://developer.android.com/develop/background-work/background-tasks/broadcasts)
+- [StateFlow and SharedFlow — Android Developers](https://developer.android.com/kotlin/flow/stateflow-and-sharedflow)

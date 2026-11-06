@@ -114,31 +114,32 @@ class ProductDetailFragment : Fragment(R.layout.fragment_product_detail) {
 
 **Khi nào dùng:** Truyền dữ liệu khởi tạo (ID, filter params, config) khi tạo Fragment. Tương tự Intent extras của Activity.
 
-**Giới hạn:** Chỉ chứa data Parcelable/Serializable. Arguments được lưu cùng saved state của Fragment, nên giữ nhỏ (docs khuyến nghị saved state dưới 50KB; buffer Binder ~1MB dùng chung cả process).
+**Giới hạn:** Chỉ chứa kiểu Bundle hỗ trợ (primitive, `String`, `Parcelable`…). Arguments được lưu cùng saved state của Fragment nên phải nhỏ như saved state; ngưỡng và lý do ở [Parcelables and Bundle](../activity/parcelables_and_bundle.md), mục "Ba con số cần phân biệt".
 
 ### 2. ViewModel (In-memory state)
 
-ViewModel tồn tại qua Configuration Change nhưng **mất khi Process Death**.
+ViewModel tồn tại qua Configuration Change nhưng **mất khi Process Death**. Cơ chế giữ ViewModel qua xoay màn hình và cách load dữ liệu ban đầu không bị lặp ở [State Changes](../activity/state_changes.md), mục "Bước 1" và "Bước 5". Phần riêng của Fragment: `by viewModels()` tự đưa `arguments` vào `SavedStateHandle`, nên ViewModel đọc được ID mà Fragment không phải chuyển tay.
 
 ```kotlin
 class ProductDetailFragment : Fragment(R.layout.fragment_product_detail) {
 
     // Scope theo Fragment — mỗi instance Fragment có ViewModel riêng.
     // by viewModels() đưa arguments ("product_id") vào SavedStateHandle của ViewModel.
-    // Không gọi loadProduct() trong onCreate: sau xoay màn hình onCreate chạy lại → fetch lặp.
+    // Không gọi hàm load dữ liệu trong onCreate: sau xoay màn hình onCreate chạy lại → fetch lặp.
+    // (ViewModel có repository trong constructor cần factory hoặc Hilt, học ở 6.4 ViewModel, chưa có bài)
     private val viewModel: ProductDetailViewModel by viewModels()
 }
 
-class ProductDetailViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+class ProductDetailViewModel(
+    savedStateHandle: SavedStateHandle,
+    private val repository: ProductRepository
+) : ViewModel() {
     private val productId: String = checkNotNull(savedStateHandle["product_id"])
 
-    init {
-        loadProduct(productId) // Chỉ chạy khi ViewModel được tạo mới
-    }
-
-    private fun loadProduct(id: String) {
-        viewModelScope.launch { /* gọi repository */ }
-    }
+    // Load lười: chỉ gọi API khi Fragment bắt đầu collect, không launch trong init
+    val product: StateFlow<Product?> =
+        flow { emit(repository.getProduct(productId)) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initialValue = null)
 }
 ```
 
@@ -146,7 +147,7 @@ class ProductDetailViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
 ### 3. SavedStateHandle (Survive Process Death)
 
-SavedStateHandle kết hợp ưu điểm của ViewModel (reactive) và savedInstanceState (survive process death).
+SavedStateHandle kết hợp ưu điểm của ViewModel (reactive) và savedInstanceState (survive process death). Cơ chế lưu/khôi phục ở [State Changes](../activity/state_changes.md), mục "Bước 2"; trong Fragment cách dùng giống hệt Activity.
 
 ```kotlin
 class ProductDetailViewModel(
@@ -170,7 +171,7 @@ private val viewModel: ProductDetailViewModel by viewModels()
 **Khi nào dùng:** Dữ liệu người dùng nhập (search query, form input, scroll position, selected tab) cần survive cả process death.
 
 > [!NOTE]
-> **`onSaveInstanceState(outState)` của Fragment** vẫn tồn tại như Activity: FragmentManager gọi nó khi host Activity lưu state, và Bundle được trả lại ở `onCreate`/`onCreateView`/`onViewCreated`/`onViewStateRestored`. Ngoài ra, View có `android:id` (EditText, CheckBox, RecyclerView với LayoutManager mặc định) **tự lưu state của chính nó** — bạn không cần tự lưu text đang gõ hay vị trí scroll cho các View đó.
+> **`onSaveInstanceState(outState)` của Fragment** vẫn tồn tại như Activity: FragmentManager gọi nó khi host Activity lưu state, và Bundle được trả lại ở `onCreate`/`onCreateView`/`onViewCreated`/`onViewStateRestored`. View có `android:id` trong layout của Fragment tự lưu state của chính nó như ở Activity ([State Changes](../activity/state_changes.md), mục "Bước 3"). Khác biệt của Fragment: khi chỉ View bị destroy (Fragment vào backstack), FragmentManager giữ state của view hierarchy và trả lại khi View được tạo lại, nên text đang gõ vẫn còn khi người dùng bấm Back quay về.
 
 ## Ma trận quyết định — Chọn đúng công cụ
 
@@ -341,16 +342,15 @@ class EditProfileViewModel(
 
 > [!WARNING]
 > **SavedStateHandle giới hạn size:**
-> SavedStateHandle lưu qua `onSaveInstanceState` → docs khuyến nghị giữ saved state dưới 50KB (buffer Binder ~1MB dùng chung cả process). Không lưu bitmap, large list, hoặc complex object.
+> SavedStateHandle ghi vào saved state Bundle nên chịu cùng khuyến nghị kích thước (xem [State Changes](../activity/state_changes.md), mục "Bước 3"). Không lưu bitmap, large list, hoặc complex object.
 > **Fix:** Lưu key/ID trong SavedStateHandle, re-fetch data khi restore.
 
 > [!TIP]
-> **Test Process Death dễ dàng:**
-> Bật "Don't keep activities" trong Developer Options **trên thiết bị** để mô phỏng một phần process death. Để test chính xác hơn: mở app → nhấn Home → chạy `adb shell am kill <package_name>` → mở lại app từ Recent.
+> **Test Process Death:** cách test giống Activity (`adb shell am kill`, và giới hạn của "Don't keep activities"), xem [State Changes](../activity/state_changes.md), mục "Process Death — hiểu và test". Với Fragment, kiểm tra thêm Fragment trong backstack: sau khi mở lại app, bấm Back phải về đúng Fragment trước với đủ state.
 
 ## So sánh với Activity State Changes
 
-Cơ chế cốt lõi giống nhau: cả Activity lẫn Fragment đều bị destroy/recreate khi Configuration Change, đều dùng `onSaveInstanceState` / `SavedStateHandle` để survive Process Death, đều dựa vào ViewModel để giữ dữ liệu qua xoay màn hình. Bạn đã học phần này ở topic **4.2.1.2 Activity State Changes**.
+Cơ chế cốt lõi giống nhau: cả Activity lẫn Fragment đều bị destroy/recreate khi Configuration Change, đều dùng `onSaveInstanceState` / `SavedStateHandle` để survive Process Death, đều dựa vào ViewModel để giữ dữ liệu qua xoay màn hình. Bạn đã học phần này ở topic 4.2.1.2 [Activity State Changes](../activity/state_changes.md).
 
 | Đặc điểm | Activity (4.2.1.2) | Fragment (4.2.2.2) |
 |---|---|---|

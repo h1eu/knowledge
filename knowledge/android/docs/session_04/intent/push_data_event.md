@@ -1,7 +1,7 @@
 ---
 id: android.intent.push_data_event
 title: Truyền dữ liệu và gửi sự kiện qua Intent
-summary: Truyền dữ liệu (Data) và gửi sự kiện (Event) qua Intent giữa các Component. Push data qua Bundle với Primitive types, Serializable/Parcelable. Send event qua Broadcast Intent (sendBroadcast, ordered broadcast) và Activity Result. Kèm giới hạn IPC 1MB, TransactionTooLargeException và Common Mistakes.
+summary: Truyền dữ liệu (Data) và gửi sự kiện (Event) qua Intent giữa các Component. Push data là đặt và lấy extras (primitive, object Parcelable) trong Bundle của Intent; send event là phát Broadcast Intent (sendBroadcast, explicit broadcast bằng setPackage, broadcast có permission, ordered broadcast). Kèm ranh giới với Activity Result API, giới hạn kích thước extras và Common Mistakes phía gửi.
 status: published
 difficulty: intermediate
 depth: deep-dive
@@ -12,11 +12,11 @@ related: [android.component.activity.parcelables_and_bundle, android.component.b
 learning_outcomes:
   - Phân biệt được Push Data (điểm-điểm qua Bundle) với Send Event (một-nhiều qua Broadcast Intent).
   - Triển khai được việc truyền primitive và object @Parcelize qua Intent extras.
-  - Giải thích được giới hạn Binder transaction buffer 1MB của mỗi process và cách tránh TransactionTooLargeException.
-  - Triển khai được sendBroadcast và Dynamic Receiver an toàn (setPackage, RECEIVER_NOT_EXPORTED) cho sự kiện nội bộ.
+  - Biết khi nào chỉ truyền ID qua extras thay vì cả object, để tránh TransactionTooLargeException.
+  - Triển khai được sendBroadcast an toàn (explicit broadcast bằng setPackage, broadcast có permission, không chở dữ liệu nhạy cảm).
   - Biết khi nào dùng Flow/SharedFlow thay cho broadcast để giao tiếp trong cùng app.
 knowledge_gap: >
-  Nhầm lẫn giữa chở dữ liệu và phát sự kiện khiến developer dùng broadcast để chở object lớn hoặc dùng startActivity để báo sự kiện cho cả hệ thống; không biết giới hạn Binder 1MB gây TransactionTooLargeException; đăng ký receiver động thiếu cờ RECEIVER_NOT_EXPORTED làm app crash với SecurityException khi target Android 14.
+  Nhầm lẫn giữa chở dữ liệu và phát sự kiện khiến developer dùng broadcast để chở object lớn hoặc dùng startActivity để báo sự kiện cho cả hệ thống; nhét object lớn vào extras gây TransactionTooLargeException; gửi broadcast implicit không setPackage hay permission khiến app khác đọc được sự kiện và dữ liệu đi kèm.
 ---
 
 # Truyền dữ liệu và gửi sự kiện qua Intent
@@ -42,7 +42,7 @@ Nếu bạn nhầm lẫn hai mục đích này, bạn sẽ viết code đúng c�
 
 ### 1.1 Bản chất: Intent + Bundle
 
-Dữ liệu gửi qua Intent không nằm trực tiếp trên Intent. Nó được chứa trong một đối tượng **Bundle** — một chiếc hộp lưu dữ liệu dạng **Key-Value (Khóa-Giá trị)**.
+Dữ liệu gửi qua Intent không nằm trực tiếp trên Intent. Nó được chứa trong một đối tượng **Bundle**, một container key-value mà Intent mang theo. Bundle là bản sao được serialize để đi qua Binder IPC sang component đích; bản chất này được giải thích ở [Parcelables and Bundle](../components/activity/parcelables_and_bundle.md), mục "Bundle là gì? — Bản chất".
 
 Khi bạn gọi `intent.putExtra(key, value)`, Intent sẽ tự động đẩy cặp key-value này vào Bundle bên trong nó:
 
@@ -80,78 +80,29 @@ val isDiscounted = intent.getBooleanExtra("IS_DISCOUNTED", false)
 
 **Best Practice:** Khi truyền giá trị cần giá trị mặc định an toàn (ví dụ `-1`, `null`, `0`) để tránh crash khi key không tồn tại hoặc Intent rỗng.
 
-### 1.3 Truyền Object: Serializable vs Parcelable
+### 1.3 Truyền Object qua extras
 
-Khi bạn muốn truyền một đối tượng phức tạp (ví dụ `data class User`), bạn không thể nhét trực tiếp nó vào Intent. Bạn phải **Serialization** — "phân rã" object thành chuỗi byte, rồi tái tạo lại ở phía nhận.
+Object muốn đặt vào extras phải serialize được: implement `Parcelable` (chuẩn trên Android, viết gọn bằng `@Parcelize` của plugin `kotlin-parcelize`) hoặc `Serializable` (chậm hơn, không khuyên dùng để truyền giữa component). Vì sao phải serialize, so sánh Parcelable với Serializable và cách viết `@Parcelize` ở [Parcelables and Bundle](../components/activity/parcelables_and_bundle.md), mục "Parcelable là gì?" và "Parcelable vs Serializable".
 
-Trong Android có 2 giao thức chính:
+Ở góc độ Intent, việc đặt và lấy object chỉ gồm hai bước:
 
-| Tiêu chí | Serializable (Java) | Parcelable (Android) |
-|---|---|---|
-| Cách dùng | Kế thừa `java.io.Serializable` (Kotlin: `: Serializable`) | Kế thừa `Parcelable` + viết logic ghi/đọc từng thuộc tính |
-| Cơ chế | Reflection (phân tích object lúc runtime) | Tự tay ghi/đọc từng field vào Parcel |
-| Tốc độ | Chậm hơn (dùng Reflection) | Nhanh hơn (ghi/đọc trực tiếp) |
-| Boilerplate | Không | Nhiều (nếu không dùng `@Parcelize`) |
-| Dùng khi | Object nhỏ, ít truyền, không quan tâm hiệu năng | Truyền thường xuyên, data lớn, cần nhanh |
-
-> [!WARNING]
-> **Không dùng Serializable cho object phức tạp.** Reflection tạo ra rất nhiều rác bộ nhớ (Garbage), khiến app bị jank nếu truyền liên tục. Trong các project Android thực tế, **Parcelable** là chuẩn.
-
-#### Kotlin `@Parcelize` — Giải pháp tốt nhất
-
-Kotlin giải quyết hoàn toàn nhược điểm boilerplate của Parcelable bằng plugin `kotlin-parcelize`:
-
-*Cài đặt (build.gradle.kts):*
 ```kotlin
-plugins {
-    id("kotlin-parcelize")
+// Sender — Activity A: Product là @Parcelize data class
+val intent = Intent(context, ProductDetailActivity::class.java).apply {
+    putExtra("EXTRA_PRODUCT", product)
 }
-```
-
-*Code:*
-```kotlin
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-// 1. Tạo Model
-@Parcelize
-data class Product(
-    val id: Int,
-    val name: String,
-    val price: Double
-) : Parcelable
-
-// 2. Push qua Intent
-val product = Product(1, "Bàn phím cơ", 1500.0)
-val intent = Intent(context, DetailActivity::class.java)
-intent.putExtra("EXTRA_PRODUCT", product)
 startActivity(intent)
 ```
 
-> [!TIP]
-> `@Parcelize` tự sinh toàn bộ code `writeToParcel()` và `CREATOR` cho bạn. Bạn có tốc độ của Parcelable với sự nhàn nhã của Serializable.
-
-### 1.4 Giới hạn bộ nhớ IPC — TransactionTooLargeException
-
-Khi bạn truyền Intent từ Component A sang Component B, Intent đó không chạy trực tiếp trong RAM của ứng dụng. Nó phải đi qua **Binder IPC** (Cơ chế giao tiếp liên tiến trình của Android OS).
-
-```mermaid
-flowchart LR
-    A[Component A] -->|putExtra + startActivity| B[Intent + Bundle]
-    B -->|Binder Transaction Buffer| C[Android OS Binder]
-    C -->|TransactionTooLargeException nếu &gt; 1MB| D[Crash]
-    C -->|đi qua 1MB| E[Component B]
+```kotlin
+// Receiver — Activity B: lấy đúng giao thức đã gửi (Parcelable)
+// IntentCompat tự chọn API đúng theo phiên bản (API 33+ cần truyền Class)
+val product = IntentCompat.getParcelableExtra(intent, "EXTRA_PRODUCT", Product::class.java)
 ```
-<!-- dd: intent-push -->
 
-> [!WARNING]
-> **Giới hạn 1MB:** Mỗi **process** có một bộ đệm Binder Transaction Buffer cố định khoảng **1MB**, dùng chung cho **mọi transaction đang diễn ra của process đó** (không phải một bộ đệm chung cho cả hệ thống). Vì vậy exception có thể xảy ra cả khi từng transaction chỉ vừa phải nhưng nhiều transaction chạy cùng lúc. Nếu bạn nhét một List 10.000 user, hoặc Base64 của tấm hình 5MB vào Intent, hệ thống ném ra `TransactionTooLargeException` và app crash.
+### 1.4 Chỉ đặt dữ liệu nhỏ vào extras
 
-**Cách xử lý khi dữ liệu quá lớn:**
-
-1. **Chỉ truyền `id`:** Màn hình B dùng `id` đó query lại database (Room/SQLite) hoặc cache (Repository/ViewModel).
-2. **Dùng Singleton / Repository Cache:** Lưu object trong memory ở phía A, màn hình B lấy ra. (Lưu ý: phải xử lý khi System Kill Process — singleton bị mất, phải load lại từ đĩa.)
-3. **Chia nhỏ payload:** Nếu bắt buộc phải chuyển nhiều dữ liệu, xem xét chuyển qua file tạm + đường dẫn, hoặc dùng SharedPreferences/Room.
+Extras đi qua Binder transaction buffer, vùng đệm khoảng 1MB dùng chung cho mọi transaction đang chạy của process; vượt ngưỡng thì hệ thống ném `TransactionTooLargeException`. Vì vậy chỉ truyền ID, flag hoặc object nhỏ (docs khuyến nghị vài KB), còn màn hình đích tự load dữ liệu đầy đủ từ Repository/Room. Ba con số giới hạn và bảng cách fix ở [Parcelables and Bundle](../components/activity/parcelables_and_bundle.md), mục "Giới hạn kích thước — Binder Transaction Buffer".
 
 ## 2. Send Event — Gửi sự kiện qua Broadcast Intent
 
@@ -209,70 +160,70 @@ class DataReceiver : BroadcastReceiver() {
 }
 ```
 
-*Đăng ký (Dynamic Receiver — khuyến nghị cho in-app event):*
-```kotlin
-class MainActivity : AppCompatActivity() {
-    private val dataReceiver = DataReceiver()
-
-    override fun onStart() {
-        super.onStart()
-        // Action tự định nghĩa: targetSdk 34+ BẮT BUỘC truyền cờ export, nếu không
-        // registerReceiver ném SecurityException. RECEIVER_NOT_EXPORTED = app khác không gửi vào được.
-        ContextCompat.registerReceiver(
-            this,
-            dataReceiver,
-            IntentFilter(ACTION_REFRESH_DATA),
-            ContextCompat.RECEIVER_NOT_EXPORTED
-        )
-    }
-
-    override fun onStop() {
-        super.onStop()
-        unregisterReceiver(dataReceiver)  // ← Bắt buộc, tránh memory leak
-    }
-}
-```
+Receiver chỉ nhận được sự kiện khi đã được đăng ký: động trong code bằng `ContextCompat.registerReceiver()` (action tự định nghĩa thì truyền `RECEIVER_NOT_EXPORTED`, và `unregisterReceiver()` ở lifecycle đối ứng) hoặc tĩnh trong Manifest. Cách đăng ký, cờ export của Android 14 và giới hạn của receiver tĩnh ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "3. Static Receiver vs Dynamic Receiver".
 
 ### 2.3 Explicit Broadcast vs Implicit Broadcast
 
 | Tiêu chí | Implicit Broadcast | Explicit Broadcast |
 |---|---|---|
 | Cách khai báo | Chỉ định `action` | Chỉ định `action` + `setPackage()`/ComponentName |
-| Ai nhận được | Bất kỳ app nào đăng ký action | Chỉ app của bạn |
+| Ai nhận được | Bất kỳ app nào đăng ký action | Chỉ app có package (hoặc component) đã chỉ định, thường là chính app của bạn |
 | Static receiver (Android 8+) | **Bị chặn** | Vẫn hoạt động |
 | Dùng khi | Sự kiện hệ thống (BOOT_COMPLETED, CONNECTIVITY) | Sự kiện nội bộ app |
 | Rủi ro bảo mật | Cao — app khác có thể nhận | Thấp |
 
 > [!WARNING]
-> **Từ Android 8.0 (API 26), hầu hết Implicit Broadcast bị chặn với Static Receiver** (khai báo trong Manifest). Nếu bạn cần gửi sự kiện nội bộ, luôn dùng **Explicit Broadcast** (`setPackage(packageName)`) hoặc **Dynamic Receiver** (đăng ký trong code). Chi tiết → xem Topic **4.2.4.1 Broadcast Receiver**.
+> Từ Android 8.0 (API 26), receiver khai báo trong Manifest không nhận được hầu hết implicit broadcast. Vì vậy sự kiện gửi cho receiver tĩnh phải là **explicit broadcast** (`setPackage()` hoặc ComponentName). Danh sách broadcast được miễn và các lựa chọn phía nhận ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "4. Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".
 
 ### 2.4 Ordered Broadcast — Gửi sự kiện theo thứ tự
 
-Khi bạn cần nhiều receiver xử lý theo thứ tự ưu tiên (và có thể hủy bỏ sự kiện), dùng `sendOrderedBroadcast()`:
+Khi bạn cần các receiver xử lý lần lượt (receiver trước có thể truyền kết quả cho receiver sau hoặc chặn sự kiện), gửi bằng `sendOrderedBroadcast()` thay cho `sendBroadcast()`:
 
 ```kotlin
-context.sendOrderedBroadcast(intent, null)  // null = không yêu cầu permission
+context.sendOrderedBroadcast(intent, null)  // null = không yêu cầu permission phía nhận
 ```
 
-Receiver có `android:priority` cao hơn sẽ nhận trước, có thể gọi `abortBroadcast()` để chặn các receiver phía sau.
+Thứ tự nhận theo `android:priority`, cách receiver đọc/ghi kết quả và `abortBroadcast()` ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "Normal broadcast và Ordered broadcast".
 
-### 2.5 Send Event trả kết quả: Activity Result API
+### 2.5 Gửi broadcast có permission
 
-Trường hợp "gửi sự kiện" cần nhận lại kết quả từ Component khác (ví dụ chọn ảnh, nhập text) thuộc **Activity Result API** — đã được trình bày đầy đủ ở Topic **4.2.6.4 Handle Intent**. Tóm tắt nhanh:
+`setPackage()` giới hạn broadcast theo **package**. Khi sự kiện cần tới nhiều app nhưng chỉ những app được tin cậy, bên gửi truyền thêm một permission: `sendBroadcast(intent, receiverPermission)`. Chỉ receiver thuộc app đã khai báo `<uses-permission>` cho permission đó mới nhận được; nếu là dangerous permission thì app nhận còn phải được người dùng cấp.
+
+#### Ví dụ: app ví báo "thanh toán xong" cho app đối tác cùng công ty
+
+1. App ví định nghĩa một permission mức `signature`: chỉ app ký cùng chứng chỉ mới được cấp.
+2. App ví gửi broadcast kèm permission đó, và `setPackage()` tới app đối tác để broadcast là explicit (receiver tĩnh của app đối tác vẫn nhận được trên Android 8+).
+3. App đối tác khai báo `<uses-permission>`; hệ thống chỉ giao broadcast cho receiver của app đã được cấp permission.
+
+```xml
+<!-- (1) Manifest của app ví -->
+<permission
+    android:name="com.example.wallet.permission.RECEIVE_PAYMENT_EVENTS"
+    android:protectionLevel="signature" />
+```
 
 ```kotlin
-// Sender — đăng ký contract trước (Photo Picker của hệ thống)
-private val pickImageLauncher = registerForActivityResult(
-    ActivityResultContracts.PickVisualMedia()
-) { uri: Uri? ->
-    if (uri != null) {
-        // Xử lý kết quả
-    }
+// (2) App ví gửi sự kiện: chỉ kèm ID, không kèm token hay dữ liệu thẻ
+const val ACTION_PAYMENT_COMPLETED = "com.example.wallet.action.PAYMENT_COMPLETED"
+
+val intent = Intent(ACTION_PAYMENT_COMPLETED).apply {
+    setPackage("com.example.shop")
+    putExtra("ORDER_ID", orderId)
 }
-
-// Kích hoạt
-pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+context.sendBroadcast(intent, "com.example.wallet.permission.RECEIVE_PAYMENT_EVENTS")
 ```
+
+```xml
+<!-- (3) Manifest của app đối tác -->
+<uses-permission android:name="com.example.wallet.permission.RECEIVE_PAYMENT_EVENTS" />
+```
+
+> [!NOTE]
+> Permission tự định nghĩa được đăng ký lúc cài app định nghĩa nó, nên app định nghĩa (app ví) phải được cài **trước** app dùng permission đó. Cách khai báo `<permission>` và các `protectionLevel` ở [Manifest Tags](../android_manifest/tags.md), mục "<permission> — tự định nghĩa quyền". Chiều ngược lại, receiver giới hạn **ai được gửi** vào nó bằng `android:permission` trên `<receiver>` (xem [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "8.2 Permission — Hạn chế ai được gửi broadcast đến receiver của bạn").
+
+### 2.6 Khi cần nhận lại kết quả: Activity Result API
+
+Nếu "gửi sự kiện" thực chất là mở một màn hình rồi chờ kết quả (chọn ảnh, nhập địa chỉ), đó không phải broadcast mà là **Activity Result API**: đăng ký launcher bằng `registerForActivityResult()` với một contract, gọi `launch()`, kết quả về qua callback. Chi tiết ở [Handle Intent](handle_intent.md), mục "2. Nhận kết quả trả về (Activity Result API)".
 
 ## 3. Trade-offs & Khi nào dùng gì
 
@@ -286,7 +237,7 @@ pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisu
 | Giao tiếp nội bộ type-safe, reactive | **Flow / SharedFlow / LiveData** (không qua Intent) | Khuyến nghị hiện đại |
 
 > [!TIP]
-> **Quy tắc vàng:** Đừng dùng Broadcast Intent để giao tiếp giữa các thành phần *trong cùng một app và cùng một process*. `LocalBroadcastManager` đã deprecated; hãy dùng `SharedFlow`/`LiveData` (chi tiết ở Topic Broadcast Receiver). Broadcast chỉ nên dùng cho **sự kiện hệ thống** hoặc **giao tiếp cross-app**.
+> **Quy tắc vàng:** Đừng dùng Broadcast Intent để giao tiếp giữa các thành phần *trong cùng một app và cùng một process*. `LocalBroadcastManager` đã deprecated; thay bằng `SharedFlow` như ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "5. LocalBroadcastManager — Deprecated và thay thế". Broadcast chỉ nên dùng cho **sự kiện hệ thống** hoặc **giao tiếp cross-app**.
 
 ## 4. Sai lầm thường gặp
 
@@ -307,22 +258,13 @@ context.sendBroadcast(Intent(ACTION_UPDATE).apply {
 })
 ```
 
-### Lỗi 3: Quên `unregisterReceiver` → Memory Leak
-```kotlin
-// ❌ Đăng ký ở onCreate nhưng không hủy → leak
-override fun onCreate(...) {
-    ContextCompat.registerReceiver(this, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
-}
+### Lỗi 3: Quên `unregisterReceiver` ở phía nhận
 
-// ✅ Luôn unregister ở lifecycle đối ứng
-override fun onStop() { unregisterReceiver(receiver) }
-```
+Receiver đăng ký động mà không huỷ ở lifecycle đối ứng sẽ giữ Context và gây memory leak. Cách đăng ký/huỷ đúng cặp lifecycle ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "Lỗi 1: Memory Leak — Quên unregister Dynamic Receiver".
 
-### Lỗi 4: Truyền đối tượng không được tái tạo đúng kiểu
-```kotlin
-// ❌ Sender dùng Parcelable, Receiver lấy bằng getSerializableExtra → Bundle log cảnh báo sai kiểu và trả về null (không crash ngay, nhưng dữ liệu mất)
-// ✅ Sender/Receiver phải dùng CÙNG giao thức (Parcelable ↔ getParcelableExtra)
-```
+### Lỗi 4: Đọc extras sai giao thức
+
+Sender đặt `Parcelable` nhưng receiver đọc bằng `getSerializableExtra` (hoặc ngược lại) thì nhận về `null` kèm cảnh báo trong logcat, không crash. Hai bên phải dùng cùng giao thức, xem [Parcelables and Bundle](../components/activity/parcelables_and_bundle.md), mục "7. Đọc extra bằng sai giao thức".
 
 ### Lỗi 5: Đặt dữ liệu nhạy cảm trong broadcast
 ```kotlin
@@ -330,7 +272,8 @@ override fun onStop() { unregisterReceiver(receiver) }
 context.sendBroadcast(Intent(ACTION_LOGIN).apply {
     putExtra("token", jwtToken)
 })
-// ✅ Chỉ báo hiệu sự kiện, dữ liệu lấy qua secure channel (hoặc setPackage)
+// ✅ Chỉ báo hiệu sự kiện; giới hạn người nhận bằng setPackage hoặc permission (mục 2.5),
+// dữ liệu nhạy cảm lấy qua kênh an toàn
 ```
 
 ## 5. Kết nối hệ thống
@@ -357,7 +300,7 @@ System Event (BOOT_COMPLETED...)    →  Broadcast Receiver  (4.2.4.1)
 Hãy nhớ sự khác biệt cốt lõi:
 
 - **Push Data:** `startActivity` + `putExtra` (Bundle). Dữ liệu nhỏ, primitive hoặc `@Parcelize`. Không chở quá 1MB.
-- **Send Event:** `sendBroadcast` + `BroadcastReceiver`. Tín hiệu một-nhiều. Nội bộ app → Explicit/Dynamic, không nhét dữ liệu nhạy cảm.
+- **Send Event:** `sendBroadcast` + `BroadcastReceiver`. Tín hiệu một-nhiều. Giới hạn người nhận bằng `setPackage` hoặc permission, không nhét dữ liệu nhạy cảm.
 - Nếu giao tiếp trong cùng process và cần type-safe → **Flow/SharedFlow** thay vì broadcast.
 
 Luôn ưu tiên giải pháp đơn giản nhất: primitive types hoặc ID qua Intent, Parcelable khi buộc phải truyền object, và không bao giờ dùng Intent để chở dữ liệu lớn.
@@ -373,4 +316,4 @@ Luôn ưu tiên giải pháp đơn giản nhất: primitive types hoặc ID qua 
 - Android Developers — [Parcelable / Parcelize](https://developer.android.com/kotlin/parcelize)
 - Android Developers — [TransactionTooLargeException](https://developer.android.com/reference/android/os/TransactionTooLargeException)
 - Android Developers — [Behavior changes: Android 14 (runtime-registered receivers)](https://developer.android.com/about/versions/14/behavior-changes-14)
-- Android Developers — [Photo picker](https://developer.android.com/training/data-storage/shared/photopicker)
+- Android Developers — [Broadcasts: send broadcasts with permissions](https://developer.android.com/develop/background-work/background-tasks/broadcasts#restrict-broadcasts-permissions)

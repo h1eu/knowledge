@@ -337,7 +337,7 @@ public class ProfileActivity extends AppCompatActivity {
 
 ### 2. Viết Java API an toàn cho Kotlin: Nullability Annotations
 
-Java không có khái niệm nullable trong kiểu dữ liệu. Khi Kotlin gọi một method Java không có annotation, Kotlin hiểu kiểu trả về là **Platform Type** (`String!`) và **không bắt kiểm tra null**. Nếu method trả về `null`, code Kotlin crash `NullPointerException` ở runtime. Cơ chế Platform Type và cách xử lý phía Kotlin được trình bày trong `android.languages.kotlin`.
+Java không có khái niệm nullable trong kiểu dữ liệu. Khi Kotlin gọi một method Java không có annotation, Kotlin hiểu kiểu trả về là **Platform Type** (`String!`) và **không bắt kiểm tra null**. Nếu method trả về `null`, code Kotlin crash `NullPointerException` ở runtime. Cơ chế Platform Type và cách xử lý ở phía gọi Kotlin nằm ở [Kotlin](kotlin.md), mục "Java và Kotlin gọi nhau".
 
 Phía Java, cách sửa tận gốc là bổ sung Nullability Annotations (`@Nullable` / `@NonNull` từ `androidx.annotation`) cho mọi API công khai:
 
@@ -387,14 +387,11 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        // Backport java.time, java.util.stream... cho API < 26
-        isCoreLibraryDesugaringEnabled = true
+        // Cần java.time, java.util.stream... với minSdk < 26: bật Core Library Desugaring như mục 3
     }
 }
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
-
     implementation("androidx.appcompat:appcompat:1.7.0")
     // Nullability Annotations cho code Kotlin gọi vào
     implementation("androidx.annotation:annotation:1.9.1")
@@ -452,10 +449,12 @@ Dự án mới dùng Gradle Kotlin DSL (`build.gradle.kts`) theo mặc định. 
 | **Null Safety** | Không có (mọi biến có thể null) | Có (`String` vs `String?`) |
 | **Coroutines** | Không (phải dùng Thread/RxJava) | Có (structured concurrency) |
 | **Data Class** | Viết tay hàng chục dòng (hoặc `record` nếu toolchain hỗ trợ) | 1 dòng `data class User(...)` |
+| **Sealed class / interface** | Không có trước Java 17 | Có, thường dùng để mô tả state UI |
 | **Extension Functions** | Không | Có |
 | **Jetpack Compose** | Không hỗ trợ | Hỗ trợ đầy đủ |
 | **Google khuyến nghị** | Legacy support | First-class, Kotlin-first |
 | **Build Speed** | Thường nhanh hơn | Chậm hơn; compiler K2 (Kotlin 2.0) đã cải thiện |
+| **Kích thước APK** | Không mang thêm thư viện runtime | Thêm `kotlin-stdlib`; R8 loại phần lớn phần không dùng nhưng không về 0 |
 | **AOSP Compatibility** | 100% | 100% (interop) |
 
 ---
@@ -491,11 +490,7 @@ timeline
 
 ### Multidex: Giới hạn 64K Methods
 
-Mỗi file `.dex` chỉ có thể tham chiếu tối đa 65,536 methods (bao gồm cả mã ứng dụng và thư viện Java). Khi vượt quá:
-
-- Build tool tự động tách ra nhiều file `.dex` (`classes.dex`, `classes2.dex`, `classes3.dex`).
-- Trên Android 5.0+ (ART): Multidex được hỗ trợ native, không cần cấu hình thêm.
-- Trên Android 4.4 trở xuống (Dalvik): Cần thêm `androidx.multidex:multidex` và extends `MultiDexApplication`. App khởi động chậm hơn do phải load nhiều `.dex` files.
+Mỗi file `.dex` chỉ tham chiếu được tối đa 65.536 method, nên app lớn được build thành nhiều file `classes*.dex`, và từ Android 5.0 ART nạp nhiều file DEX sẵn. Chi tiết giới hạn và cấu hình cho `minSdk` dưới 21 ở [APK](../output_packages/apk_files.md), mục "Sai lầm thường gặp" (Nhầm lẫn về Multidex).
 
 ### ProGuard/R8 loại bỏ quá nhiều code
 

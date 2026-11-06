@@ -47,13 +47,12 @@ Nếu không hiểu Plugin và AGP, bạn sẽ gặp những vấn đề thực 
 
 ## Nền tảng cần biết trước
 
-Bài này giả định bạn đã nắm các khái niệm từ topic **`4.1.1.1 Build Types`**:
+Bài này là nơi định nghĩa Gradle và AGP cho cả nhóm `4.1.1`; [Build Types](build_types.md) và [Flavor](flavor.md) dùng lại các định nghĩa ở đây. Trước khi nói tới plugin, cần nắm hai khái niệm nền:
 
-- **Gradle** là một hệ thống build tổng quát dựa trên **Task Graph** (đồ thị nhiệm vụ).
-- **AGP** là plugin giúp Gradle hiểu cách build Android.
-- **build.gradle.kts** là file cấu hình viết bằng **Kotlin DSL**.
+- **Gradle** là một hệ thống build (build system) tổng quát chạy trên JVM, dùng để tự động hóa việc biên dịch, đóng gói và triển khai phần mềm. Gradle không chỉ dành cho Android: nó build được bất kỳ dự án nào, miễn có plugin mang kiến thức build cho loại dự án đó. Gradle làm việc dựa trên **Task Graph** (đồ thị nhiệm vụ): mỗi công việc là một Task, các Task phụ thuộc nhau. Khi bạn chạy `./gradlew assembleDebug`, Gradle tính thứ tự các Task cần chạy dựa trên graph này.
+- **`build.gradle.kts`** là *build script* viết bằng **Kotlin DSL** (Domain-Specific Language); bản Groovy là `build.gradle`. Có hai cấp: `build.gradle.kts` ở **project root** khai báo plugin và phiên bản dùng chung, còn `build.gradle.kts` ở **module** (ví dụ `app`) áp dụng plugin và chứa khối `android { }`, nơi cấu hình `buildTypes`, `productFlavors`.
 
-Nếu cần ôn lại, hãy đọc topic Build Types. Trong bài này chúng ta đi sâu vào chính AGP — thứ đứng giữa Gradle và code Android.
+Các ví dụ về `buildTypes` và `productFlavors` trong bài đã học ở `4.1.1.1` và `4.1.1.2`. Trong bài này chúng ta đi sâu vào chính plugin và AGP, thứ đứng giữa Gradle và code Android.
 
 ## Plugin trong Gradle là gì?
 
@@ -66,7 +65,7 @@ Một plugin Gradle có thể:
 - **Thêm dependency** mặc định hoặc cấu hình source set.
 - **Mở rộng** hành vi của các plugin khác đã được áp dụng.
 
-Nói đơn giản: **plugin là "kiến thức build" được đóng gói lại.** Gradle cung cấp bộ máy (execution engine), còn các plugin mang tri thức chuyên ngành.
+**Mental model:** Gradle là **bộ máy** (execution engine), còn **plugin là "kiến thức build" được đóng gói lại** và cắm vào bộ máy đó để mang tri thức chuyên ngành (Java, Android, publish...).
 
 ```mermaid
 flowchart LR
@@ -103,7 +102,7 @@ flowchart LR
 <!-- dd: plugin-agp -->
 
 > [!TIP]
-> **Mental model:** Gradle giống "cỗ máy chạy task", AGP giống "bộ hướng dẫn Android" cắm vào cỗ máy đó. Bạn cấu hình qua `android { ... }` — đây chính là extension mà AGP đăng ký vào build script.
+> Áp lại mental model ở mục trước: Gradle là **bộ máy** chạy task, AGP là **kiến thức build Android** được đóng gói thành plugin và cắm vào bộ máy đó. Bạn cấu hình phần kiến thức này qua `android { ... }`, chính là extension mà AGP đăng ký vào build script.
 
 ## Có những loại plugin Android nào?
 
@@ -548,6 +547,7 @@ Nắm được AGP, bạn đọc được build script như đọc code bình th
 - [Android Developers — Multi-module projects](https://developer.android.com/build/multi-module)
 - [Android Developers — Custom Gradle plugin / build logic](https://developer.android.com/build/customizing-components)
 - [Android Developers — Version Catalog & plugins](https://developer.android.com/build/migrate-to-catalog)
+- [Gradle Documentation — What is Gradle?](https://docs.gradle.org/current/userguide/what_is_gradle.html)
 - [Gradle Documentation — Introduction to Gradle plugins](https://docs.gradle.org/current/userguide/plugins.html)
 - [Gradle Documentation — Writing custom Gradle plugins](https://docs.gradle.org/current/userguide/custom_plugins.html)
 - [Gradle Documentation — Version catalogs](https://docs.gradle.org/current/userguide/version_catalogs.html)

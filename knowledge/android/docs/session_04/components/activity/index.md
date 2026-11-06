@@ -222,7 +222,7 @@ Trong kiến trúc MVVM, Activity không gọi ContentResolver trực tiếp —
 - **ViewBinding** sinh class binding từ XML layout, giúp truy cập View an toàn, không cần `findViewById`.
 - **DataBinding** nâng cấp ViewBinding bằng khả năng binding dữ liệu trực tiếp vào layout XML.
 
-Cách giữ state qua ViewModel được trình bày chi tiết trong topic Activity State Changes.
+Cách giữ state qua ViewModel được trình bày chi tiết ở [State Changes](state_changes.md), mục "Chọn công cụ nào? — Bản đồ quyết định".
 
 ## Khi nào nên dùng, khi nào không?
 
@@ -278,7 +278,7 @@ Không có lựa chọn nào tuyệt đối đúng. Chọn dựa trên **nhu c�
 > [!CAUTION]
 > **Xử lý trạng thái ngay trong Activity:**
 > Lưu dữ liệu tạm trong Activity khiến dữ liệu mất khi xoay màn hình.
-> **Giải pháp:** trạng thái UI nằm trong `ViewModel` (sống qua config change); dữ liệu cần khôi phục sau khi process bị kill dùng `SavedStateHandle` / `onSaveInstanceState`.
+> **Giải pháp:** trạng thái UI nằm trong `ViewModel` (sống qua config change); dữ liệu cần khôi phục sau khi process bị kill dùng `SavedStateHandle` / `onSaveInstanceState`. Chi tiết ở [State Changes](state_changes.md).
 
 ## Tư duy hệ thống
 
@@ -304,9 +304,9 @@ flowchart TD
 Activity Overview chỉ là điểm bắt đầu. Để hiểu sâu và làm chủ Activity, hãy học theo thứ tự:
 
 1. **Activity Lifecycle** — nền tảng bắt buộc: vòng đời, từng callback, khi nào Activity bị hủy.
-2. **Activity State Changes** — cách giữ trạng thái qua xoay màn hình, `onSaveInstanceState`.
+2. [Activity State Changes](state_changes.md) — cách giữ trạng thái qua xoay màn hình, `onSaveInstanceState`.
 3. **Task and Backstack** — cách Android điều phối Activity trong Task, Launch Mode, Intent Flags.
-4. **Parcelables and Bundle** — cách truyền dữ liệu giữa Activity an toàn và hiệu quả.
+4. [Parcelables and Bundle](parcelables_and_bundle.md) — cách truyền dữ liệu giữa Activity an toàn và hiệu quả.
 
 ## Nguồn tham khảo
 
