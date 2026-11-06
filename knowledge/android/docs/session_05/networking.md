@@ -36,7 +36,13 @@ knowledge_gap: Nhiều lập trình viên chỉ biết gọi API đơn giản qu
 
 Trong bất kỳ ứng dụng di động hiện đại nào, mạng (Networking) là huyết mạch kết nối người dùng với hệ thống backend đám mây. Dù là tải bảng tin mạng xã hội, thực hiện giao dịch chuyển khoản ngân hàng hay đồng bộ giỏ hàng thương mại điện tử, mọi trải nghiệm mượt mà đều bắt nguồn từ một tầng mạng ổn định, an toàn và tối ưu.
 
-Tuy nhiên, môi trường mạng di động vốn dĩ không ổn định: thiết bị di chuyển liên tục qua các trạm BTS sóng yếu, chuyển đổi đột ngột giữa Wi-Fi và 4G/5G, đi vào thang máy hoặc kết nối vào các điểm Wi-Fi công cộng (Captive Portal) không có Internet thực sự. Một ứng dụng xử lý mạng cẩu thả sẽ nhanh chóng bộc lộ các lỗi nghiêm trọng: **treo ứng dụng (ANR)**, **văng app (Crash)**, **tràn bộ nhớ (OOM khi upload file)**, **lộ lọt thông tin người dùng (MITM Attack)**, hoặc **văng đăng nhập hàng loạt khi token hết hạn**.
+Tuy nhiên, môi trường mạng di động vốn dĩ không ổn định: thiết bị di chuyển liên tục qua các trạm BTS sóng yếu, chuyển đổi đột ngột giữa Wi-Fi và 4G/5G, đi vào thang máy hoặc kết nối vào các điểm Wi-Fi công cộng (Captive Portal) không có Internet thực sự. Một ứng dụng xử lý mạng cẩu thả sẽ nhanh chóng bộc lộ các lỗi nghiêm trọng:
+
+- **Treo ứng dụng (ANR) hoặc văng app (Crash):** gọi mạng trên Main Thread (`NetworkOnMainThreadException`), hoặc để ngoại lệ mạng cấp thấp rò lên tầng UI mà không được bắt.
+- **Tràn bộ nhớ (`OutOfMemoryError`):** đọc toàn bộ file dung lượng lớn vào mảng byte trong RAM khi upload multipart.
+- **Văng đăng nhập hàng loạt:** khi Access Token hết hạn, nhiều request đồng thời cùng nhận lỗi `401` và cùng gọi refresh token, các lần refresh xung đột nhau làm vô hiệu hoá session.
+- **Lộ lọt thông tin người dùng (MITM Attack):** kẻ tấn công đứng giữa qua proxy độc hại để đọc trộm, sửa dữ liệu tài chính và thông tin cá nhân.
+- **Lãng phí băng thông và cạn pin:** không tái sử dụng kết nối (Connection Pooling) và không có HTTP Cache hợp lý, nên mỗi lần gọi đều phải bắt tay lại và tải lại dữ liệu.
 
 Tài liệu này cung cấp một cái nhìn toàn diện từ tầng bản chất hệ điều hành (Socket, TLS) đến tầng triển khai thực chiến cấp cao (OkHttp, Retrofit, Ktor Client), giúp bạn xây dựng một hạ tầng mạng chuẩn công nghiệp, sẵn sàng cho môi trường production quy mô lớn.
 
@@ -45,6 +51,16 @@ Tài liệu này cung cấp một cái nhìn toàn diện từ tầng bản ch�
 ## 1. Bản chất tầng mạng: Từ Click nút UI đến Kernel Socket & TLS Handshake
 
 Để làm chủ việc gọi API, trước hết một kỹ sư cần hiểu điều gì thực sự diễn ra bên dưới hệ điều hành khi ứng dụng gửi đi một HTTP Request.
+
+Khi người dùng bấm một nút để gửi dữ liệu, hệ điều hành và phần cứng mạng phối hợp qua 5 giai đoạn:
+
+1. **Main-Safety:** lời gọi API được điều phối sang background thread (`Dispatchers.IO`). Nếu chạy trên Main Thread, Android ném ngay `NetworkOnMainThreadException` để bảo vệ chu kỳ vẽ màn hình (mỗi khung hình chỉ có khoảng 16.6 ms ở 60 Hz, 8.3 ms ở 120 Hz).
+2. **DNS Lookup:** phân giải domain (ví dụ `api.example.com`) thành địa chỉ IP (IPv4 hoặc IPv6).
+3. **TCP 3-Way Handshake:** gửi `SYN`, nhận `SYN-ACK`, gửi `ACK` để thiết lập kênh truyền tin cậy. Tốn 1 RTT (Round Trip Time).
+4. **TLS 1.3 Handshake:** gửi `ClientHello`, nhận `ServerHello` kèm chứng chỉ số và key share; hai bên từ đó tự tính ra khoá phiên đối xứng (ví dụ AES-GCM) mà không truyền khoá đó qua mạng. Tốn thêm 1 RTT.
+5. **HTTP Request & Response:** gửi header, body và nhận stream dữ liệu phản hồi từ máy chủ.
+
+Sơ đồ dưới đây chi tiết hoá 5 giai đoạn trên cho một lần bấm nút "Mua hàng":
 
 ```mermaid
 sequenceDiagram
@@ -152,7 +168,7 @@ graph TD
 1. **Application Interceptors:** Nơi lập trình viên gắn các logic riêng: gắn Bearer Token, chèn Request ID, mã hóa body, v.v.
 2. **RetryAndFollowUpInterceptor:** Tự động phục hồi kết nối khi đường truyền bị đứt gãy hoặc xử lý các mã chuyển hướng (301 Moved Permanently, 307 Temporary Redirect).
 3. **BridgeInterceptor:** Cầu nối giữa mã nguồn ứng dụng và giao thức HTTP chuẩn. Nó tự động gắn các header bắt buộc như `Host`, `Keep-Alive`, `Accept-Encoding: gzip` và tự động giải nén dữ liệu gzip trả về.
-4. **CacheInterceptor:** Kiểm tra xem request có thể phục vụ từ bộ nhớ đệm (Disk Cache) không. Nếu server trả về `304 Not Modified`, nó sẽ lấy dữ liệu từ cache mà không cần tải lại toàn bộ body.
+4. **CacheInterceptor:** Kiểm tra xem request có thể phục vụ từ bộ nhớ đệm (Disk Cache) không. Nếu bản cache đã cũ nhưng có `ETag` hoặc `Last-Modified`, nó gửi request có điều kiện kèm header `If-None-Match` / `If-Modified-Since`. Nếu server trả về `304 Not Modified`, nó sẽ lấy dữ liệu từ cache mà không cần tải lại toàn bộ body.
 5. **ConnectInterceptor:** Tìm kiếm một kết nối Socket sẵn có trong `ConnectionPool`. Nếu chưa có, nó khởi tạo TCP Socket và TLS Handshake.
 6. **CallServerInterceptor:** Bước cuối cùng của chuỗi. Nó trực tiếp ghi các dòng text HTTP/1.1 hoặc các frame HTTP/2 vào `BufferedSink` của Socket, sau đó đọc kết quả từ `BufferedSource`.
 
@@ -952,6 +968,8 @@ interface TokenStorage {
 
 Hãy xâu chuỗi tất cả các thành phần đã học vào một kiến trúc hoàn chỉnh theo chuẩn **Clean Architecture**:
 `UI (Compose) -> ViewModel -> UseCase -> Repository (SSOT) -> RemoteDataSource (Retrofit) & LocalDataSource (Room)`.
+
+Mô hình ở đây là **Single Source of Truth (SSOT)**: UI chỉ quan sát Room Database qua `Flow`, không bao giờ đọc thẳng kết quả API. Repository đồng bộ API khi có mạng và ghi kết quả vào Room; Flow của DAO tự phát dữ liệu mới lên UI.
 
 ```mermaid
 graph LR

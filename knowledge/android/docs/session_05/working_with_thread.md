@@ -372,6 +372,7 @@ Không có một con số cố định cho mọi bài toán. Kích thước pool
 - **Công thức:**
   $$\text{Pool Size} = N_{\text{cpu}} + 1$$
   *(Cộng thêm 1 để phòng ngừa trường hợp hiếm hoi 1 luồng bị page fault hoặc tạm ngừng ngắn).*
+- Trong cả hai công thức, $N_{\text{cpu}}$ là số nhân CPU của thiết bị, đọc lúc chạy bằng `Runtime.getRuntime().availableProcessors()`.
 
 #### Nhóm 2: Tác vụ chờ vào/ra dữ liệu (I/O-bound)
 *Ví dụ:* Tải file qua mạng HTTP, đọc/ghi SQLite, đọc file từ thẻ nhớ, gọi Web Service.
@@ -484,6 +485,14 @@ Thread B: Tăng lên 1 -> Ghi 1 vào RAM
        }
    }
    ```
+
+#### So sánh nhanh: chọn giải pháp nào?
+
+| Giải pháp | Cơ chế | Khi nào nên dùng |
+| :--- | :--- | :--- |
+| `AtomicInteger` / `AtomicReference` | Lệnh phần cứng CAS (Compare-And-Swap), lock-free | Biến đếm, cờ trạng thái, một tham chiếu đơn lẻ (tối ưu nhất) |
+| `@Volatile` | Đảm bảo visibility qua quan hệ happens-before: lần ghi được các lần đọc sau ở luồng khác nhìn thấy | Cờ boolean để dừng luồng. **Không** đảm bảo atomicity cho `count++` |
+| `synchronized` / `ReentrantLock` | Khóa loại trừ tương hỗ (Mutual Exclusion) | Cụm logic nhiều bước, chỉnh sửa cấu trúc dữ liệu như `List`/`Map` |
 
 ### 6.2 Deadlock (Khóa chết)
 Deadlock xảy ra khi hai hay nhiều luồng bị đóng băng vĩnh viễn vì luồng này chờ tài nguyên đang bị luồng kia giữ và ngược lại.

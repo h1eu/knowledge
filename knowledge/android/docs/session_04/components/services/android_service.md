@@ -563,7 +563,7 @@ class BackupWorker(
                     ?: return@withContext Result.failure(workDataOf("error" to "Missing user ID"))
 
                 // uploadPhotos(userId)
-                val uploadedCount = 42
+                val uploadedCount = 42 // Kết quả từ API
 
                 Result.success(workDataOf(KEY_UPLOADED_COUNT to uploadedCount))
             } catch (e: Exception) {
@@ -580,12 +580,12 @@ class BackupWorker(
 }
 ```
 
-**Đặt lịch và quan sát:**
+**Đặt lịch chạy và quan sát trạng thái:**
 ```kotlin
 fun scheduleNightlyBackup(context: Context, userId: String) {
     val constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.UNMETERED) // Chỉ chạy khi có WiFi
-        .setRequiresCharging(true)
+        .setRequiresCharging(true)                     // Chỉ chạy khi đang sạc
         .build()
 
     val backupRequest = PeriodicWorkRequestBuilder<BackupWorker>(24, TimeUnit.HOURS)
@@ -595,11 +595,28 @@ fun scheduleNightlyBackup(context: Context, userId: String) {
         .build()
 
     WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-        "nightly_photo_backup",
-        ExistingPeriodicWorkPolicy.KEEP,
+        "nightly_photo_backup",          // Unique name để tránh duplicate
+        ExistingPeriodicWorkPolicy.KEEP, // Nếu đã có task này, giữ nguyên
         backupRequest
     )
 }
+
+// Quan sát trạng thái từ Activity/Fragment (LifecycleOwner):
+WorkManager.getInstance(context)
+    .getWorkInfosForUniqueWorkLiveData("nightly_photo_backup")
+    .observe(this) { workInfos ->
+        workInfos.firstOrNull()?.let { info ->
+            when (info.state) {
+                WorkInfo.State.RUNNING -> { /* Hiển thị progress */ }
+                WorkInfo.State.SUCCEEDED -> {
+                    val count = info.outputData.getInt(BackupWorker.KEY_UPLOADED_COUNT, 0)
+                    // "Đã backup $count ảnh"
+                }
+                WorkInfo.State.FAILED -> { /* Hiển thị lỗi */ }
+                else -> {}
+            }
+        }
+    }
 ```
 
 ---
@@ -622,18 +639,18 @@ fun scheduleNightlyBackup(context: Context, userId: String) {
 
 > [!WARNING]
 > **Background Execution Limits (Android 8+):**
-> Từ Android 8 (Oreo), app trong background chỉ có **vài phút** để chạy Service trước khi bị system kill. Cố tình bypass giới hạn này vi phạm Play Store policy.
+> Từ Android 8 (Oreo), app trong background chỉ có **vài phút** để chạy Service trước khi bị system kill. Cố tình bypass giới hạn này (ví dụ dùng alarm để restart Service liên tục) vi phạm Play Store policy và có thể khiến app bị gỡ khỏi store.
 > **Giải pháp:** Dùng Foreground Service nếu cần chạy lâu, hoặc WorkManager cho tác vụ deferrable.
 
 > [!CAUTION]
 > **Service không phải thread riêng — ANR rình rập:**
-> Code trong `onStartCommand()` chạy trên Main Thread. Bất kỳ thao tác blocking nào sẽ freeze UI trong 5 giây → ANR.
+> Code trong `onStartCommand()` chạy trên Main Thread. Bất kỳ thao tác blocking nào (network, file IO, database query nặng) sẽ freeze UI trong 5 giây → ANR.
 > **Giải pháp:** Luôn launch Coroutine với `Dispatchers.IO` cho các tác vụ blocking trong Service.
 
 > [!CAUTION]
 > **Memory Leak với Bound Service:**
 > Nếu bind trong `onStart()` nhưng quên `unbindService()` trong `onStop()`, Activity context sẽ bị rò rỉ bộ nhớ.
-> **Giải pháp:** Luôn đối xứng: bind ↔ unbind trong cùng cặp lifecycle callback.
+> **Giải pháp:** Luôn đối xứng: bind ↔ unbind trong cùng cặp lifecycle callback (`onStart`/`onStop` hoặc `onCreate`/`onDestroy`).
 
 > [!WARNING]
 > **Khởi động Foreground Service đúng cách (Android 8+ và 12+):**
@@ -651,6 +668,9 @@ fun scheduleNightlyBackup(context: Context, userId: String) {
 > [!WARNING]
 > **Giới hạn thời gian `dataSync` và `mediaProcessing` (Android 15+):**
 > App target Android 15 chỉ được chạy Foreground Service type `dataSync` (và `mediaProcessing`) tổng cộng 6 giờ trong 24 giờ khi ở background (người dùng mở app thì bộ đếm reset). Hết hạn, hệ thống gọi `Service.onTimeout(int, int)`; service phải gọi `stopSelf()` trong vài giây, nếu không app bị lỗi `RemoteServiceException`. Với đồng bộ/upload dữ liệu, ưu tiên WorkManager hoặc user-initiated data transfer job thay cho `dataSync`.
+
+> [!TIP]
+> **WorkManager hay Service? Câu hỏi để tự hỏi:** *"Tác vụ này có cần chạy lập tức không?"* Nếu không, WorkManager là lựa chọn tốt hơn. WorkManager hiểu Doze mode, battery saver và tự lên lịch chạy lại sau khi thiết bị khởi động lại, những thứ mà Service thuần không có.
 
 ---
 

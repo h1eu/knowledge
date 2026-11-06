@@ -57,6 +57,8 @@ Trước Android 3.0 (API 11), Activity là đơn vị UI duy nhất. Khi cần 
 
 ### FragmentManager giải quyết vấn đề gì?
 
+Fragment không tự quản lý chính mình. Nó không thể tự thêm vào UI, tự thay thế Fragment khác, hay tự quay lại Fragment trước. Tất cả những thao tác này đều cần một "người quản lý", đó chính là FragmentManager.
+
 FragmentManager giải quyết 3 vấn đề cốt lõi:
 
 **1. Tách biệt trách nhiệm quản lý**
@@ -70,6 +72,8 @@ Thay vì thao tác View trực tiếp (addView, removeView), FragmentManager cun
 **3. Tự động xử lý cấu hình thay đổi**
 
 FragmentManager tự động lưu trữ và khôi phục trạng thái của Fragment khi Activity bị destroy và recreate (do rotation, dark mode...).
+
+Hiểu FragmentManager là nền tảng để hiểu tại sao Jetpack Navigation Component hoạt động được, bởi Navigation Component là abstraction layer phía trên FragmentManager.
 
 ## Cơ chế hoạt động
 
@@ -159,6 +163,24 @@ Mỗi FragmentTransaction có thể chứa nhiều thao tác:
 - `attach()`: Attach Fragment đã detach.
 - `detach()`: Detach Fragment (xóa View, giữ instance).
 - `setReorderingAllowed(true)`: Cho phép tối ưu thứ tự thực thi.
+
+### add vs replace - Khi nào dùng cái nào?
+
+```kotlin
+// add: Fragment cũ VẪN CÒN dưới Fragment mới (stacking)
+supportFragmentManager.beginTransaction()
+    .add(R.id.container, FragmentB())
+    .addToBackStack(null)
+    .commit()
+
+// replace: Fragment cũ BỊ XÓA, Fragment mới thay thế
+supportFragmentManager.beginTransaction()
+    .replace(R.id.container, FragmentB())
+    .addToBackStack(null)
+    .commit()
+```
+
+**Quy tắc thực tế:** Trong đa số trường hợp navigation, dùng `replace()` + `addToBackStack()`. Chỉ dùng `add()` khi cần nhiều Fragment cùng hiển thị (ví dụ: multi-pane layout trên tablet).
 
 ### Commit vs CommitAllowingStateLoss
 
@@ -728,10 +750,11 @@ override fun onSaveInstanceState(outState: Bundle) {
 }
 ```
 
-**Nguyên nhân**: Sau `onSaveInstanceState()`, Activity không cho phép commit transaction vì có thể gây mất trạng thái.
+**Nguyên nhân**: Sau `onSaveInstanceState()`, Activity không cho phép commit transaction vì có thể gây mất trạng thái. Lỗi thường gặp nhất trong thực tế: callback của một network request trả về khi app đã ở background, rồi gọi `commit()`. Crash báo `IllegalStateException: Can not perform this action after onSaveInstanceState`.
 
 **Giải pháp**:
-- Dùng `commitAllowingStateLoss()` nếu chấp nhận mất trạng thái.
+- Kiểm tra `supportFragmentManager.isStateSaved` trước khi commit.
+- Dùng `commitAllowingStateLoss()` cho các cập nhật không quan trọng, nếu chấp nhận mất trạng thái.
 - Hoặc delay transaction đến `onResume()`.
 
 ### Lỗi 2: Memory leak do retain Fragment

@@ -526,7 +526,7 @@ contentResolver.query(...)?.use { cursor ->
 ### 3. Dùng Content Provider để lưu data nội bộ
 
 ```kotlin
-// ❌ Anti-pattern — dùng ContentProvider cho data chỉ dùng trong app
+// ❌ Anti-pattern — dùng ContentProvider cho data chỉ dùng trong app: thêm overhead IPC không cần thiết
 class InternalUserProvider : ContentProvider() { ... }
 
 // ✅ Dùng Room + Repository
