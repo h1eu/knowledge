@@ -9,11 +9,9 @@ estimated_reading_time: 35 phút
 tags: [android, gradle, agp, plugin, gradle-plugin, android-gradle-plugin, kotlin-dsl, multi-module, version-catalog, custom-plugin, maven]
 prerequisites: [android.output_packages.apk_files, android.output_packages.aab_files, android.manifest.build_types]
 related: [android.manifest.product_flavors, android.languages.kotlin]
-downstream: []
 learning_outcomes:
-  - Giải thích được Plugin trong Gradle là gì và vì sao cần plugin để build Android.
+  - Giải thích được Plugin trong Gradle là gì, vì sao cần AGP để build Android và AGP tham gia 3 phase của Gradle thế nào.
   - Phân biệt được các loại plugin Android của AGP (application, library, test, dynamic-feature).
-  - Giải thích được cơ chế hoạt động của AGP trong 3 phase của Gradle.
   - Triển khai được cách khai báo và nạp plugin theo chuẩn (plugins block, apply false, version catalog).
   - Áp dụng được AGP cho đơn module, multi-module và library cùng so sánh với Maven.
   - Nhận diện được khi nào cần viết custom Gradle plugin và triển khai được một convention plugin cơ bản.
@@ -41,9 +39,8 @@ Nếu không hiểu Plugin và AGP, bạn sẽ gặp những vấn đề thực 
 
 ## Sau khi học xong
 
-- Giải thích được Plugin trong Gradle là gì và vì sao cần plugin để build Android.
+- Giải thích được Plugin trong Gradle là gì, vì sao cần AGP để build Android và AGP tham gia 3 phase của Gradle thế nào.
 - Phân biệt được các loại plugin Android của AGP (application, library, test, dynamic-feature).
-- Giải thích được cơ chế hoạt động của AGP trong 3 phase của Gradle.
 - Triển khai được cách khai báo và nạp plugin theo chuẩn (plugins block, apply false, version catalog).
 - Áp dụng được AGP cho đơn module, multi-module và library cùng so sánh với Maven.
 - Nhận diện được khi nào cần viết custom Gradle plugin và triển khai được một convention plugin cơ bản.
@@ -78,6 +75,7 @@ flowchart LR
     E -->|sinh ra| T[Task Graph]
     T -->|thực thi| O[Output: APK / AAR / báo cáo]
 ```
+<!-- dd: plugin-chain -->
 
 > [!NOTE]
 > Gradle có plugin **core** (đi kèm sẵn, ví dụ `java`, `maven-publish`) và plugin **cộng đồng / thứ ba** (phải khai báo mới nạp). AGP thuộc nhóm thứ ba — nó không nằm trong Gradle, mà do Google phát hành riêng.
@@ -102,6 +100,7 @@ flowchart LR
     AGP -->|tối ưu| R8[R8 / ProGuard]
     AGP -->|đóng gói + ký| O[APK / AAB]
 ```
+<!-- dd: plugin-agp -->
 
 > [!TIP]
 > **Mental model:** Gradle giống "cỗ máy chạy task", AGP giống "bộ hướng dẫn Android" cắm vào cỗ máy đó. Bạn cấu hình qua `android { ... }` — đây chính là extension mà AGP đăng ký vào build script.
@@ -132,6 +131,9 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 ```
+
+> [!NOTE]
+> Các ví dụ trong bài dùng **AGP 8.x**, nên module Kotlin phải áp dụng thêm `org.jetbrains.kotlin.android`. Từ **AGP 9.0**, AGP bật sẵn **built-in Kotlin**: không cần (và không nên) áp dụng `org.jetbrains.kotlin.android` nữa, vì plugin này không tương thích với DSL mới mà AGP 9 dùng mặc định. Khi nâng lên AGP 9, xoá dòng `id("org.jetbrains.kotlin.android")` khỏi các module (hoặc tạm opt-out bằng `android.builtInKotlin=false` trong `gradle.properties`).
 
 > [!WARNING]
 > Một module **không được** áp dụng đồng thời `com.android.application` và `com.android.library` — Gradle sẽ báo lỗi conflict. Chọn đúng plugin theo vai trò của module.
@@ -167,6 +169,7 @@ sequenceDiagram
     AGP-->>Gradle: app-debug.apk
     Gradle-->>Dev: Build SUCCESSFUL
 ```
+<!-- dd: plugin-phases -->
 
 > [!NOTE]
 > Điểm cốt lõi để gỡ lỗi: **lỗi ở phase Configuration** thường là lỗi cấu hình (sai DSL, thiếu plugin, sai phiên bản) và xuất hiện gần như ngay khi chạy lệnh. **Lỗi ở phase Execution** là lỗi trong lúc build (biên dịch fail, trùng resource, thiếu dependency).
@@ -175,7 +178,7 @@ sequenceDiagram
 
 ### plugins block — cách hiện đại
 
-Từ Gradle 4.10+, cách chuẩn là khai báo plugin trong block `plugins`. Gradle sẽ tự **resolve** (tải về) plugin từ repository được cấu hình ở `settings.gradle.kts`.
+Block `plugins` có từ Gradle 2.1 và là cách khai báo chuẩn hiện nay. Gradle sẽ tự **resolve** (tải về) plugin từ repository được cấu hình ở `settings.gradle.kts`.
 
 ```kotlin
 // app/build.gradle.kts
@@ -387,6 +390,15 @@ plugins {
     id("maven-publish")
 }
 
+android {
+    // Bắt buộc từ AGP 7.1+: tạo software component "release" để maven-publish dùng
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
+}
+
 publishing {
     publications {
         register<MavenPublication>("release") {
@@ -420,7 +432,7 @@ Convention Plugin là cách gói toàn bộ cấu hình dùng chung vào một p
 
 ```kotlin
 // build-logic/src/main/kotlin/AndroidLibraryConventionPlugin.kt
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.LibraryExtension // DSL công khai; com.android.build.gradle.LibraryExtension đã bị ẩn ở AGP 9
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -429,7 +441,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             pluginManager.apply("com.android.library")
-            pluginManager.apply("org.jetbrains.kotlin.android")
+            pluginManager.apply("org.jetbrains.kotlin.android") // chỉ cần với AGP 8.x; AGP 9 có built-in Kotlin
 
             extensions.configure<LibraryExtension>("android") {
                 compileSdk = 34
@@ -447,8 +459,12 @@ Trong `build-logic`, đăng ký plugin qua file đặc tả:
 ```kotlin
 // build-logic/build.gradle.kts
 plugins {
-    `kotlin-dsl`
-    `java-gradle-plugin`
+    `kotlin-dsl` // đã tự áp dụng java-gradle-plugin
+}
+
+dependencies {
+    // Cho convention plugin biên dịch được với kiểu LibraryExtension của AGP (cùng version AGP của project)
+    compileOnly("com.android.tools.build:gradle:8.5.2")
 }
 
 gradlePlugin {
@@ -499,7 +515,8 @@ AGP được phát hành song song với Gradle từ năm 2013. Điểm mốc qu
 
 - **AGP 7.0 (2021):** bắt đầu đòi **JDK 11**, Kotlin DSL là lựa chọn ưu tiên.
 - **AGP 8.0 (2023):** yêu cầu **Gradle 8.0+ và JDK 17**; `BuildConfig` mặc định **tắt** (phải bật `buildFeatures { buildConfig = true }`); tăng tốc build, cải thiện configuration cache.
-- **AGP 8.x hiện tại:** tiếp tục siết yêu cầu toolchain, khuyến nghị Version Catalog và convention plugin.
+- **AGP 8.x:** tiếp tục siết yêu cầu toolchain, khuyến nghị Version Catalog và convention plugin.
+- **AGP 9.0 (2026):** yêu cầu **Gradle 9.1+**; bật **built-in Kotlin** mặc định (bỏ `org.jetbrains.kotlin.android`); chỉ dùng **DSL interface mới** (`android.newDsl=true`): các kiểu cũ như `BaseExtension`, `com.android.build.gradle.LibraryExtension` bị ẩn và Legacy Variant API (`applicationVariants`) không còn truy cập được.
 
 Bạn không cần nhớ bảng phiên bản — hãy tra cứu trang [AGP release notes](https://developer.android.com/build/releases/gradle-plugin) mỗi khi nâng cấp để biết AGP ↔ Gradle ↔ JDK tương ứng.
 
@@ -525,6 +542,8 @@ Nắm được AGP, bạn đọc được build script như đọc code bình th
 ## Nguồn tham khảo
 
 - [Android Developers — Android Gradle plugin release notes (bảng tương thích AGP/Gradle/JDK)](https://developer.android.com/build/releases/gradle-plugin)
+- [Android Developers — AGP 9.0 release notes](https://developer.android.com/build/releases/agp-9-0-0-release-notes)
+- [Android Developers — Configure publication variants](https://developer.android.com/build/publish-library/configure-pub-variants)
 - [Android Developers — Configure your build](https://developer.android.com/build)
 - [Android Developers — Multi-module projects](https://developer.android.com/build/multi-module)
 - [Android Developers — Custom Gradle plugin / build logic](https://developer.android.com/build/customizing-components)

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Compose sống trong một View</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ KIẾN TRÚC · JETPACK COMPOSE</p>
+  <h1>Compose sống trong một View</h1>
+  <p class="sub">Activity hoặc Fragment gắn ComposeView; AndroidComposeView là View hệ thống giữ Composition và cây LayoutNode.</p>
+<svg viewBox="0 0 800 556" role="img" aria-labelledby="s09-compose-hosting-dark-title s09-compose-hosting-dark-desc" font-family="'Geist', sans-serif">
+<title id="s09-compose-hosting-dark-title">Compose sống trong một View</title>
+<desc id="s09-compose-hosting-dark-desc">MainActivity hoặc ProductListFragment gắn ComposeView, ComposeView tạo AndroidComposeView là một View hệ thống, AndroidComposeView giữ Composition gồm cây LayoutNode Scaffold, LazyColumn, nhiều ProductCard và AndroidView nhúng View cũ; Accessibility và UI test đọc cây semantics từ AndroidComposeView.</desc>
+<defs>
+<marker id="s09-compose-hosting-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="s09-compose-hosting-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="556" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,88 V 128" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-hosting-dark-arrow)"/>
+<path d="M 400,184 V 224" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-hosting-dark-arrow)"/>
+<path d="M 400,280 V 320" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-hosting-dark-arrow)"/>
+<path d="M 512,252 H 608" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#s09-compose-hosting-dark-arrow)"/>
+<rect x="520" y="232" width="80" height="12" rx="2" fill="#060913"/>
+<text x="560" y="241" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SEMANTICS TREE</text>
+<path d="M 376,376 V 396 Q 376,404 368,404 H 124 Q 116,404 116,412 V 432" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-hosting-dark-arrow)"/>
+<path d="M 424,376 V 396 Q 424,404 432,404 H 676 Q 684,404 684,412 V 432" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-hosting-dark-arrow)"/>
+<path d="M 184,460 H 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-hosting-dark-arrow)"/>
+<path d="M 368,460 H 416" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-hosting-dark-arrow)"/>
+<!-- nodes -->
+<rect x="256" y="32" width="288" height="56" rx="6" fill="#060913"/>
+<rect x="256" y="32" width="288" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="58" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">MainActivity / ProductListFragment</text>
+<text x="400" y="74" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">host của UI</text>
+<rect x="296" y="128" width="208" height="56" rx="6" fill="#060913"/>
+<rect x="296" y="128" width="208" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="154" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ComposeView</text>
+<text x="400" y="170" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bọc nội dung Compose</text>
+<rect x="288" y="224" width="224" height="56" rx="6" fill="#060913"/>
+<rect x="288" y="224" width="224" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="250" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">AndroidComposeView</text>
+<text x="400" y="266" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">một View hệ thống</text>
+<rect x="608" y="224" width="144" height="56" rx="6" fill="#060913"/>
+<rect x="608" y="224" width="144" height="56" rx="6" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="680" y="250" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Accessibility</text>
+<text x="680" y="266" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">UI test</text>
+<rect x="280" y="320" width="240" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="320" width="240" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="346" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Composition</text>
+<text x="400" y="362" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">cây LayoutNode</text>
+<rect x="48" y="432" width="136" height="56" rx="6" fill="#060913"/>
+<rect x="48" y="432" width="136" height="56" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="116" y="458" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Scaffold</text>
+<text x="116" y="474" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">layout màn hình</text>
+<rect x="232" y="432" width="136" height="56" rx="6" fill="#060913"/>
+<rect x="232" y="432" width="136" height="56" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="300" y="458" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">LazyColumn</text>
+<text x="300" y="474" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">list cuộn</text>
+<rect x="416" y="432" width="152" height="56" rx="6" fill="#060913"/>
+<rect x="416" y="432" width="152" height="56" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="492" y="458" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ProductCard ×n</text>
+<text x="492" y="474" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">mỗi sản phẩm</text>
+<rect x="616" y="432" width="136" height="56" rx="6" fill="#060913"/>
+<rect x="616" y="432" width="136" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="684" y="458" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">AndroidView</text>
+<text x="684" y="474" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhúng View cũ</text>
+<!-- legend -->
+<line x1="32" y1="516" x2="768" y2="516" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="532" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="120" y="532" width="12" height="8" rx="2" fill="#0B132B" stroke="#F8FAFC" stroke-width="0.8"/>
+<text x="140" y="540" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VIEW / HOST</text>
+<rect x="240" y="532" width="12" height="8" rx="2" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="260" y="540" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NODE TRONG CÂY</text>
+<rect x="380" y="532" width="12" height="8" rx="2" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="0.8"/>
+<text x="400" y="540" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM</text>
+<line x1="496" y1="536" x2="528" y2="536" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#s09-compose-hosting-dark-arrow)"/>
+<text x="536" y="540" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐỌC QUA SEMANTICS</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · ARCHITECTURE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

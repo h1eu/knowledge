@@ -1,6 +1,6 @@
 ---
 id: android.session01.overview
-title: Session 01 Overview
+title: "Session 01 Overview: Ngôn ngữ & Gói ứng dụng"
 summary: Tổng quan Session 01 — ngôn ngữ lập trình Android (Java, Kotlin, JNI/C++) và định dạng đóng gói ứng dụng (APK, AAB).
 status: published
 difficulty: beginner
@@ -8,7 +8,7 @@ depth: overview
 estimated_reading_time: 10 phút
 tags: [android, overview, session-01, languages, output-packages]
 prerequisites: []
-related: []
+related: [android.languages.java_android, android.languages.kotlin, android.languages.jni, android.output_packages.apk_files, android.output_packages.aab_files]
 learning_outcomes:
   - Giải thích được vai trò của Java, Kotlin và C/C++ (qua JNI) trong một ứng dụng Android.
   - Giải thích được chuỗi biến đổi từ mã nguồn tới file .dex, .so và gói cài đặt trên thiết bị.
@@ -52,4 +52,4 @@ Java Android → Kotlin → APK → AAB → JNI. JNI khó nhất và cần hiể
 
 ## Học tiếp
 
-Sau Session 01, Session 02 đi vào cách hệ điều hành Android cài đặt, cấp quyền và cô lập ứng dụng (File Permissions, Process Management).
+Sau Session 01, Session 02 đi vào cách hệ điều hành Android quản lý quyền truy cập, tiến trình, tài nguyên và mô hình đa người dùng (File Permissions; Process Management chưa có bài).

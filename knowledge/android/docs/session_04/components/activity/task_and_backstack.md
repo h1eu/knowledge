@@ -9,7 +9,6 @@ estimated_reading_time: 30 phút
 tags: [android, activity, task, backstack, launch-mode, intent-flags, navigation, deeplink]
 prerequisites: [android.component.activity.lifecycle, android.component.activity.state_changes]
 related: [android.intent.explicit, android.intent.filters, android.component.fragment.fragment_manager]
-downstream: [android.component.fragment.fragment_manager]
 learning_outcomes:
   - Giải thích được khái niệm Task và Back Stack cùng luồng push/pop của Activity.
   - Phân biệt được 5 Launch Modes và chọn đúng cho từng tình huống thực tế.
@@ -64,6 +63,7 @@ flowchart TD
     end
     C -. "đang hiển thị" .-> U["Người dùng"]
 ```
+<!-- dd: tb-stack -->
 
 Các quy tắc cốt lõi:
 
@@ -95,6 +95,7 @@ sequenceDiagram
     Note over C: Stack: [A, B]
     B-->>U: hiển thị lại
 ```
+<!-- dd: tb-pushback -->
 
 Hành vi với từng nút điều hướng:
 
@@ -102,7 +103,7 @@ Hành vi với từng nút điều hướng:
 |-----------|---------|
 | `startActivity()` | Push Activity mới lên top |
 | Back (nút hệ thống) | Pop Activity top + destroy |
-| Back ở root Activity | Task về background hoặc finish (tùy cấu hình) |
+| Back ở root launcher activity | Android 12+: Task về background (như Home); Android 11 trở xuống: finish |
 | Home | Task về background, giữ nguyên stack |
 | Recents → chọn app | Đưa Task về foreground |
 | System kill process | Activity bị destroy, **metadata stack được giữ** — khi mở lại, stack được phục hồi |
@@ -123,7 +124,7 @@ Launch Mode quyết định cách Activity mới **được thêm vào Back Stac
 |------|----------------|---------------|-------------|-------------|
 | `standard` | ✅ | Không | Không | Không |
 | `singleTop` | ✅ (nếu không ở top) | Không | Không | Khi ở top |
-| `singleTask` | ❌ | Có thể | ✅ | Khi đã tồn tại |
+| `singleTask` | ❌ | Có thể (tùy `taskAffinity`) | ✅ (các Activity phía trên nó) | Khi đã tồn tại |
 | `singleInstance` | ❌ | ✅ Luôn | N/A | Khi đã tồn tại |
 | `singleInstancePerTask` (API 31+) | 1 per task | ✅ | ✅ | Khi đã tồn tại |
 
@@ -151,31 +152,32 @@ Launch B (singleTop) → [A, B, C, B]     ← B không ở top → tạo mới
 
 ### singleTask
 
-**Một instance duy nhất trong hệ thống.** Nếu Activity đã tồn tại trong một Task:
+**Tối đa một instance**, đặt theo `taskAffinity`. Khi chưa có instance, hệ thống tìm Task có cùng affinity với Activity: nếu có (mặc định mọi Activity của app cùng affinity, nên thường chính là Task hiện tại), Activity được push vào Task đó như bình thường, **không** làm gốc; nếu không có, Activity được tạo ở **gốc (root) của một Task mới**. Khi instance đã tồn tại:
 
 1. Đưa Task chứa nó về foreground.
-2. **Xóa toàn bộ Activity phía trên** nó trong stack.
+2. **Destroy toàn bộ Activity phía trên** nó trong stack.
 3. Gọi `onNewIntent()` trên instance đó.
 
 ```mermaid
 flowchart LR
     subgraph Truoc["Trước"]
         direction TB
-        S1["A (top)"]
+        S3["C (top)"]
         S2["B"]
-        S3["C"]
-        S1 --- S2 --- S3
+        S1["A (root)"]
+        S3 --- S2 --- S1
     end
     Truoc -->|"launch A (singleTask)"| Sau
     subgraph Sau["Sau"]
         direction TB
-        R1["A (nhận onNewIntent)"]
+        R1["A (root, nhận onNewIntent)<br/>B, C phía trên bị destroy"]
     end
 ```
+<!-- dd: tb-singletask -->
 
-**Dùng khi:** Main/Home screen — luôn chỉ có một instance làm gốc Task.
+**Dùng khi:** Main/Home screen chỉ được phép có một instance, dù được mở từ launcher, notification hay app khác.
 
-> Cảnh báo: nếu Activity có `taskAffinity` khác mặc định, `singleTask` sẽ tạo **Task mới**. Hành vi phụ thuộc cả taskAffinity, không chỉ launchMode.
+> Cảnh báo: `singleTask` chỉ làm gốc Task khi Activity là Activity đầu tiên của Task (ví dụ mở từ launcher) hoặc có `taskAffinity` khác affinity của Task đang chạy — khi đó nó tạo **Task mới**. Hành vi phụ thuộc cả taskAffinity, không chỉ launchMode.
 
 ### singleInstance
 
@@ -204,6 +206,7 @@ flowchart TD
     Q3 -->|Có| Task["singleTask"]
     Q3 -->|Không, cần cách ly| Inst["singleInstance"]
 ```
+<!-- dd: tb-launchmode -->
 
 ## Cách hoạt động — Intent Flags
 
@@ -336,12 +339,13 @@ sequenceDiagram
     Note over Main,Detail: Back Stack: [Main, Detail]
     Detail->>Main: Back → về Main (không thoát app)
 ```
+<!-- dd: tb-notifstack -->
 
 > `android:parentActivityName` khai báo trong Manifest là thứ `addParentStack` dựa vào để biết parent của Activity.
 
 ### Bước 2: Deep Link với Navigation Component
 
-**Vấn đề:** deep link (`https://shop.com/product/123`) thường tạo Task mới với stack chỉ có một Activity → Back ra ngoài app.
+**Vấn đề:** deep link (`https://shop.com/product/123`) thường tạo Task mới với stack chỉ có một Activity → Back ra ngoài app. Nếu intent mở deep link **không** có `FLAG_ACTIVITY_NEW_TASK`, Activity mở ngay trong Task của app gọi (ví dụ trình duyệt) và Back quay về app đó.
 
 **Giải pháp:** khai báo deep link trong Navigation Graph — Navigation **tự dựng back stack** về start destination trước khi đi đến đích.
 
@@ -357,11 +361,10 @@ sequenceDiagram
 </navigation>
 ```
 
-```kotlin
-// Manifest: cho MainActivity (singleTask) nhận deep link
+```xml
+<!-- Manifest: cho MainActivity (launchMode mặc định = standard) nhận deep link -->
 <activity
-    android:name=".MainActivity"
-    android:launchMode="singleTask">
+    android:name=".MainActivity">
     <intent-filter>
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
@@ -386,8 +389,18 @@ sequenceDiagram
     Note over Home,Detail: Back Stack ảo: [Home, ProductDetail]
     Detail->>Home: Back → về Home (không thoát app)
 ```
+<!-- dd: tb-deeplink -->
 
-**Mẹo thực tế:** với App Links (verified), dùng `android:autoVerify="true"` trong intent-filter để mở trực tiếp bằng deep link; với deep link không verified, user được hỏi chọn app mở.
+Docs Navigation khuyến nghị giữ launchMode `standard`: khi đó Navigation tự gọi `handleDeepLink()` cho intent mở Activity. Nếu MainActivity dùng `singleTop`/`singleTask`, instance cũ được tái sử dụng và Navigation **không** tự xử lý, phải gọi thủ công:
+
+```kotlin
+override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    navController.handleDeepLink(intent)
+}
+```
+
+**Mẹo thực tế:** với App Links (verified), dùng `android:autoVerify="true"` trong intent-filter để mở trực tiếp bằng deep link. Từ Android 12, link `http`/`https` chưa được duyệt (chưa verify App Links, hoặc user chưa gán domain cho app trong Settings) sẽ mở thẳng bằng trình duyệt mặc định, không hiện hộp thoại chọn app.
 
 ### Bước 3: Login / Logout — Fresh Start
 
@@ -416,6 +429,7 @@ sequenceDiagram
     Home->>Stack: push Home → [Home]
     Note over Stack: [Home] — Back → thoát app, không thấy Login
 ```
+<!-- dd: tb-loginclear -->
 
 ### Bước 4: Single Activity + Compose/XML — Back Stack ảo
 
@@ -435,12 +449,13 @@ flowchart TD
     end
     Act -. "chứa" .-> Nav
 ```
+<!-- dd: tb-navhost -->
 
 Vì vậy trong app Single Activity:
 
 - **Không cần (và không nên) đụng tới launchMode/intent flags** cho từng màn hình — Navigation lo toàn bộ.
 - Nhấn Back hệ thống → Navigation pop screen trong NavHost; khi NavHost rỗng → hệ thống nhận lại Back và quyết định thoát app.
-- **Ngoại lệ khi vẫn cần Task & Back Stack:** mở app từ Notification, deep link, hoặc mở Activity khác (dùng `singleTask` cho MainActivity) — chính là các Bước 1–3 ở trên.
+- **Ngoại lệ khi vẫn cần Task & Back Stack:** mở app từ Notification, deep link, hoặc mở Activity khác — chính là các Bước 1–3 ở trên. Nếu MainActivity dùng `singleTop`/`singleTask`, nhớ gọi `navController.handleDeepLink(intent)` trong `onNewIntent()`.
 
 ```kotlin
 // Compose — Navigation tự quản lý back stack ảo
@@ -458,11 +473,8 @@ fun AppNavHost() {
             )
         ) { ProductDetailScreen() }
     }
-}
-
-// Compose: Back → pop màn hình, hoặc tự quyết định khi không còn màn nào
-BackHandler(enabled = navController.previousBackStackEntry != null) {
-    navController.popBackStack()
+    // Không cần BackHandler: NavHost tự đăng ký xử lý Back hệ thống,
+    // pop màn hình trong back stack ảo; khi chỉ còn start destination thì trả Back về Activity
 }
 ```
 
@@ -472,7 +484,7 @@ BackHandler(enabled = navController.previousBackStackEntry != null) {
 
 - **`standard`** — mặc định cho hầu hết màn hình; mỗi navigation context độc lập.
 - **`singleTop`** — màn nhận notification/deep link khi có thể đã mở (Search, Detail).
-- **`singleTask`** — Main/Home làm gốc Task; kết hợp deep link vào app.
+- **`singleTask`** — Main/Home chỉ được có một instance; nếu dùng Navigation thì phải tự gọi `handleDeepLink()` trong `onNewIntent()` (docs khuyên giữ `standard`).
 - **`CLEAR_TASK | NEW_TASK`** — sau login/logout để reset toàn bộ stack.
 - **`TaskStackBuilder` / Navigation deep link** — mọi thứ mở app từ ngoài (notification, link).
 - **Single Activity + Navigation** — chuẩn hiện đại cho toàn bộ luồng trong app.
@@ -523,10 +535,9 @@ Khi đã chuyển sang Single Activity + Navigation, đừng thêm launchMode v�
 
 ## Lịch sử phát triển
 
-- **Android 1.0**: khái niệm Task & Back Stack xuất hiện cùng nền tảng; launchMode `standard`, `singleTop`, `singleTask`, `singleInstance`.
-- **Android 1.6**: `android:taskAffinity`, `allowTaskReparenting` bổ sung để kiểm soát việc chuyển Task.
+- **Android 1.0 (API 1)**: khái niệm Task & Back Stack xuất hiện cùng nền tảng; launchMode `standard`, `singleTop`, `singleTask`, `singleInstance`; `android:taskAffinity`, `allowTaskReparenting` có ngay từ API 1.
 - **Android 5.0 (API 21)**: Recents chuyển sang **Document-centric** — mỗi Task là một document riêng; `FLAG_ACTIVITY_NEW_DOCUMENT` giới thiệu.
-- **Android 12 (API 31)**: thêm `singleInstancePerTask`; tăng cường kiểm soát việc tạo Task từ deep link.
+- **Android 12 (API 31)**: thêm `singleInstancePerTask`; Back ở root launcher activity đưa Task về background thay vì finish; web intent chỉ mở app khi domain đã được duyệt.
 - **Hiện tại**: Navigation Component (Compose/XML) trở thành chuẩn, dịch chuyển phần lớn quản lý back stack từ Activity sang thư viện.
 
 ## Kết nối hệ thống
@@ -541,6 +552,9 @@ Khi đã chuyển sang Single Activity + Navigation, đừng thêm launchMode v�
 - [Activity launch modes — Android Developers](https://developer.android.com/guide/components/activities/launch-mode)
 - [Navigation Component — Android Developers](https://developer.android.com/guide/navigation)
 - [Create deep links to app content — Android Developers](https://developer.android.com/training/app-links/deep-linking)
+- [Navigation deep link (Handle deep links) — Android Developers](https://developer.android.com/guide/navigation/design/deep-link)
+- [Android 12 behavior changes (web intent, Back ở root launcher) — Android Developers](https://developer.android.com/about/versions/12/behavior-changes-all)
+- [`<activity>` element — Android Developers](https://developer.android.com/guide/topics/manifest/activity-element)
 - [TaskStackBuilder — Android Developers Reference](https://developer.android.com/reference/android/app/TaskStackBuilder)
 - [PendingIntent — Android Developers Reference](https://developer.android.com/reference/android/app/PendingIntent)
 - [AllowBackup / Recents & Documents — Android Developers](https://developer.android.com/guide/components/recents)

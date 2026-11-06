@@ -11,10 +11,10 @@ prerequisites: []
 related: []
 downstream: [android.component.activity.overview, android.component.fragment.overview, android.manifest.build_types]
 learning_outcomes:
-  - Hiểu được Session 04 cung cấp những mảng kiến thức nào.
-  - Nắm được vai trò của Android Manifest và nhóm Package/Build/Gradle.
+  - Giải thích được Session 04 cung cấp những mảng kiến thức nào.
+  - Phân biệt được vai trò của Android Manifest và nhóm Package/Build/Gradle.
   - Nhận diện được 6 Application Components chính và trách nhiệm của từng loại.
-  - Biết thứ tự học hợp lý trong Session 04 và kiến thức cần chuẩn bị trước.
+  - Áp dụng được thứ tự học hợp lý trong Session 04 và chuẩn bị đúng kiến thức nền trước khi học.
 knowledge_gap: >
   Người học bước vào Android mà không có bản đồ tổng quan dễ bị rối giữa quá nhiều khái niệm (Manifest, Activity, Fragment, Intent...), không biết học cái nào trước và mỗi thành phần đóng vai trò gì trong một ứng dụng hoàn chỉnh.
 ---
@@ -89,6 +89,7 @@ flowchart TD
     style A fill:#4CAF50,stroke:#388E3C,color:#fff
     style I fill:#FF9800,stroke:#F57C00,color:#fff
 ```
+<!-- dd: s04-hub -->
 
 **Tóm tắt luồng:** Người dùng tương tác với `Activity` → Activity dùng `Fragment` để dựng UI phức tạp → khi cần giao tiếp, mọi component đều thông qua `Intent` → `Service` làm việc nền và báo kết quả qua `Broadcast Receiver` → dữ liệu được truy cập qua `Content Provider`.
 

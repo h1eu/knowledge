@@ -1,9 +1,21 @@
 ---
-title: Handle Intent & onNewIntent
+id: android.intent.handle_intent
+title: Xử lý Intent và onNewIntent
 summary: Hướng dẫn cách trích xuất dữ liệu từ Intent, nhận kết quả trả về với Activity Result API (cả XML và Compose), và giải phẫu chi tiết vòng đời onNewIntent() khi kết hợp cùng Launch Modes.
-authors:
-  - AI Assistant
-date: 2026-07-30
+status: published
+difficulty: intermediate
+depth: deep-dive
+estimated_reading_time: 15 phút
+tags: [android, intent, onnewintent, activity-result-api, launch-mode]
+prerequisites: [android.intent.explicit, android.component.activity.lifecycle]
+related: [android.component.activity.task_and_backstack, android.intent.filters, android.intent.push_data_event]
+learning_outcomes:
+  - Triển khai được việc đọc extras (primitive, Parcelable) từ Intent theo cách tương thích mọi phiên bản Android.
+  - Áp dụng được Activity Result API (registerForActivityResult, rememberLauncherForActivityResult) để nhận kết quả trả về trong View và Compose.
+  - Giải thích được khi nào hệ thống gọi onNewIntent() thay vì onCreate() theo từng Launch Mode.
+  - Xử lý được Intent mới trong onNewIntent() và cập nhật getIntent() bằng setIntent() khi cần.
+knowledge_gap: >
+  Không hiểu onNewIntent() khiến Activity dùng singleTop/singleTask hiển thị dữ liệu cũ khi người dùng bấm thông báo mới; vẫn dùng startActivityForResult/onActivityResult đã deprecated hoặc ACTION_PICK thay vì Photo Picker; và đọc Parcelable sai cách giữa các phiên bản API.
 ---
 
 # Xử lý Intent và onNewIntent
@@ -28,13 +40,9 @@ override fun onCreate(savedInstanceState: Bundle?) {
     val productId = intent.getIntExtra("PRODUCT_ID", -1) // -1 là giá trị mặc định nếu ko tìm thấy key
     val productName = intent.getStringExtra("PRODUCT_NAME")
     
-    // Đọc Object (Parcelable) - Từ Android 13 (API 33) trở lên cần truyền Class type
-    val product = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        intent.getParcelableExtra("EXTRA_PRODUCT", Product::class.java)
-    } else {
-        @Suppress("DEPRECATION")
-        intent.getParcelableExtra("EXTRA_PRODUCT")
-    }
+    // Đọc Object (Parcelable) - API mới (API 33+) cần truyền Class type.
+    // IntentCompat (androidx.core) tự chọn API đúng theo phiên bản, khỏi tự viết if/else.
+    val product = IntentCompat.getParcelableExtra(intent, "EXTRA_PRODUCT", Product::class.java)
 }
 ```
 
@@ -51,28 +59,32 @@ Quy trình chuẩn: Đăng ký một "hợp đồng" (Contract) **trước khi**
 ```kotlin
 class ProfileActivity : AppCompatActivity() {
 
-    // 1. Đăng ký Contract: Muốn khởi chạy một Activity khác và đợi kết quả
-    private val getAvatarLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data: Intent? = result.data
-            val imageUri = data?.data
+    // 1. Đăng ký Contract: mở Photo Picker của hệ thống và đợi ảnh được chọn
+    private val pickAvatarLauncher = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { imageUri: Uri? ->
+        if (imageUri != null) {
             // Cập nhật UI với imageUri
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+        setContentView(R.layout.activity_profile)
+
+        val btnChangeAvatar = findViewById<Button>(R.id.btnChangeAvatar)
         btnChangeAvatar.setOnClickListener {
-            // 2. Kích hoạt launcher
-            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            getAvatarLauncher.launch(intent)
+            // 2. Kích hoạt launcher: chỉ cho chọn ảnh
+            pickAvatarLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
         }
     }
 }
 ```
+
+> [!NOTE]
+> Chọn ảnh dùng contract `PickVisualMedia` (Photo Picker): không cần quyền đọc bộ nhớ và kết quả trả thẳng `Uri?`. Cách cũ `ACTION_PICK` + `StartActivityForResult` vẫn chạy nhưng phải tự đọc `result.data?.data`. `StartActivityForResult` dành cho trường hợp mở một Activity (thường của chính app) rồi nhận `resultCode` + `Intent` mà Activity đó trả về bằng `setResult(RESULT_OK, data)` trước khi `finish()`.
 
 ### Trong môi trường Jetpack Compose
 
@@ -86,17 +98,16 @@ fun AvatarPicker() {
 
     // 1. Đăng ký Launcher
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            avatarUri = result.data?.data
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            avatarUri = uri
         }
     }
 
     Button(onClick = {
         // 2. Kích hoạt
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        launcher.launch(intent)
+        launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }) {
         Text("Chọn Ảnh")
     }
@@ -130,13 +141,14 @@ sequenceDiagram
     Note right of Act: Nhận Intent mới tại đây!
     OS->>Act: onResume()
 ```
+<!-- dd: intent-newintent -->
 
 ### Cái bẫy của getIntent()
 
 Khi `onNewIntent(intent)` được gọi, biến `intent` gốc của Activity (được trả về bởi hàm `getIntent()`) **KHÔNG tự động cập nhật**. Nó vẫn trỏ vào cái Intent khai sinh ra Activity từ lúc `onCreate()`.
 
 **Cách xử lý ĐÚNG CHUẨN:**
-Bạn BẮT BUỘC phải gọi `setIntent(intent)` bên trong `onNewIntent` để ghi đè Intent cũ.
+Xử lý trực tiếp tham số `intent` của `onNewIntent`. Nếu về sau code còn đọc `getIntent()` (ví dụ trong `onResume()`, hoặc ViewModel lấy lại intent), hãy gọi `setIntent(intent)` để `getIntent()` trả về Intent mới nhất.
 
 ```kotlin
 class NotificationActivity : AppCompatActivity() {
@@ -148,14 +160,16 @@ class NotificationActivity : AppCompatActivity() {
     }
 
     // Hàm này CHỈ gọi khi Activity ĐANG SỐNG và nhận Intent mới
-    override fun onNewIntent(intent: Intent?) {
+    // ComponentActivity (androidx.activity, cha của AppCompatActivity) khai báo onNewIntent(intent: Intent)
+    // non-null; viết Intent? sẽ báo lỗi "'onNewIntent' overrides nothing" và không compile
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        
-        // 1. CẬP NHẬT LẠI INTENT GỐC CỦA ACTIVITY (Cực kỳ quan trọng)
-        setIntent(intent) 
-        
+
+        // 1. Cập nhật Intent gốc để getIntent() về sau trả về Intent mới
+        setIntent(intent)
+
         // 2. Xử lý dữ liệu mới
-        intent?.let { handleIntentData(it) }
+        handleIntentData(intent)
     }
 
     private fun handleIntentData(intent: Intent) {
@@ -173,4 +187,4 @@ class NotificationActivity : AppCompatActivity() {
 
 ## Tổng kết
 
-Việc hiểu luồng dữ liệu (vào qua `onCreate` hoặc `onNewIntent`, ra qua `Activity Result API`) là cốt lõi để làm chủ ứng dụng Android. Luôn nhớ nguyên tắc vàng: **Nếu dùng Launch Mode để tái sử dụng Activity, bạn phải override `onNewIntent()` và nhớ gọi `setIntent(intent)`.**
+Việc hiểu luồng dữ liệu (vào qua `onCreate` hoặc `onNewIntent`, ra qua `Activity Result API`) là cốt lõi để làm chủ ứng dụng Android. Luôn nhớ nguyên tắc vàng: **Nếu dùng Launch Mode để tái sử dụng Activity, bạn phải override `onNewIntent()` để xử lý Intent mới, và gọi `setIntent(intent)` nếu về sau còn đọc `getIntent()`.**

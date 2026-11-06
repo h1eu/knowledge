@@ -1,9 +1,11 @@
 ---
+id: android.data_store.room_transactions
 title: Async Transactions & Flow
-summary: Chuyen sau ve Room Database bat dong bo. Boc tach co che ThreadLocal cua SQLite, cach Room quan ly TransactionDispatcher, @Transaction vs withTransaction, co che InvalidationTracker phia duoi Flow, N+1 query problem cua @Relation, va cac pattern thuc chien cho Data Sync, E-commerce, Banking cung chien luoc Testing voi Turbine.
-authors:
-  - Antigravity AI
-date: 2026-09-21
+summary: Chuyên sâu về Room Database bất đồng bộ. Bóc tách vì sao transaction của SQLite gắn với thread, cách withTransaction giữ toàn bộ transaction trên một thread riêng, @Transaction vs withTransaction, cơ chế InvalidationTracker phía dưới Flow, cách @Relation chạy query phụ (2 query, không phải N+1), và các pattern thực chiến cho Data Sync, E-commerce, Banking cùng chiến lược Testing với Turbine.
+status: published
+difficulty: advanced
+depth: deep-dive
+estimated_reading_time: 45 phút
 tags:
   - android
   - room
@@ -14,58 +16,79 @@ tags:
   - concurrency
   - performance
   - testing
+prerequisites:
+  - android.data_store.room_architecture
+  - android.data_store.room_advanced
+related:
+  - android.data_store.room_advanced
+  - android.data_store.room_architecture
+learning_outcomes:
+  - Giải thích được vì sao transaction gắn với thread là vấn đề khi dùng Coroutines và cách withTransaction giữ cả transaction trên một thread.
+  - Phân biệt được @Transaction (DAO-level) và withTransaction (Repository-level).
+  - Giải thích được cơ chế InvalidationTracker - SQLite trigger, bảng room_table_modification_log và Flow emit.
+  - Áp dụng được các pattern Data Sync không empty flash, Checkout nhiều bảng và cách đọc @Relation hiệu quả (2 query hoặc JOIN thủ công).
+  - Triển khai được Unit Test cho transaction rollback và Flow emission bằng Turbine.
+knowledge_gap: Developer biết dùng Room cơ bản nhưng không hiểu vì sao transaction trong Coroutines phức tạp, vì sao Flow tự cập nhật, và hay gặp lỗi SQLiteDatabaseLockedException.
 ---
 
-# Room Database: Async Transactions & Flow — Tu Nguyen Ly den Thuc Chien
+# Room Database: Async Transactions & Flow — Từ Nguyên Lý đến Thực Chiến
 
-Khi ban viet `dao.insertUser(user)` ben trong mot `suspend fun`, truc giac bao ban do la mot thao tac don gian. Nhung ben duoi, mot chuoi su kien phuc tap xay ra: Coroutine phai nhay sang dung thread co SQLite connection, Room phai giu connection do suot vong doi transaction, va Flow phai biet chinh xac khi nao can re-query ma khong lam UI recompose thua.
+Khi bạn viết `dao.insertUser(user)` bên trong một `suspend fun`, trực giác bảo bạn đó là một thao tác đơn giản. Nhưng bên dưới, một chuỗi sự kiện phức tạp xảy ra: Coroutine phải nhảy sang đúng thread đang giữ transaction, Room phải giữ thread đó suốt vòng đời transaction, và Flow phải biết chính xác khi nào cần re-query mà không làm UI recompose thừa.
 
-Tai lieu nay boc tach tung tang cua co che do — tu `ThreadLocal` cua SQLite, den `TransactionElement` trong `CoroutineContext`, den trigger noi bo cua `InvalidationTracker` — de ban hieu **tai sao** no hoat dong, **khi nao** no sai, va **cach** viet code production-grade.
+Tài liệu này bóc tách từng tầng của cơ chế đó — từ cách SQLite gắn transaction với thread, đến `TransactionElement` trong `CoroutineContext`, đến trigger nội bộ của `InvalidationTracker` — để bạn hiểu **tại sao** nó hoạt động, **khi nào** nó sai, và **cách** viết code production-grade.
 
 ---
 
-## 1. Van de nen tang: Tai sao SQLite lai "nguy hiem" voi Coroutines?
+## 1. Vấn đề nền tảng: Tại sao SQLite lại "nguy hiểm" với Coroutines?
 
-### 1.1 SQLite connection la ThreadLocal
+### 1.1 SQLite connection là ThreadLocal
 
-SQLite khong phai la thread-safe theo cach ban nghi. Moi ket noi SQLite (`SQLiteDatabase`) trong Android duoc rang buoc voi **thread da mo no** thong qua co che `ThreadLocal`.
+Transaction trong SQLite của Android **gắn với thread**, không gắn với đối tượng `SQLiteDatabase`. Bên trong, `SQLiteDatabase` giữ cho mỗi thread một `SQLiteSession` riêng (qua `ThreadLocal`); transaction mở trên thread A chỉ tồn tại trong session của thread A.
 
+```text
+Thread A gọi beginTransaction() → session của A giữ connection ghi + transaction
+Thread B không thấy transaction của A:
+  - lệnh ghi của B phải chờ A trả connection ghi (hoặc báo SQLiteDatabaseLockedException nếu chờ quá lâu)
+  - setTransactionSuccessful()/endTransaction() gọi trên B báo lỗi "no current transaction"
 ```
-Thread A mo connection → Thread A co SQLite session
-Thread B co dung connection cua Thread A → SQLite bao loi: "database locked"
-```
 
-Truoc khi co Coroutines, day khong phai van de: ban mo 1 thread, chay query, dong. Tuan tu, don gian.
+Trước khi có Coroutines, đây không phải vấn đề: bạn mở 1 thread, chạy query, đóng. Tuần tự, đơn giản.
 
-Nhung Coroutines thay doi luat choi hoan toan.
+Nhưng Coroutines thay đổi luật chơi hoàn toàn.
 
-### 1.2 Coroutine suspension — ke pha vo rang buoc Thread
+### 1.2 Coroutine suspension — kẻ phá vỡ ràng buộc Thread
 
-Khi mot Coroutine `suspend`, no nhuong thread hien tai. Khi duoc resume, no co the tiep tuc tren **mot thread khac** trong pool. Xet tinh huong:
+Khi một Coroutine `suspend`, nó nhường thread hiện tại. Khi được resume, nó có thể tiếp tục trên **một thread khác** trong pool. Xét tình huống:
 
 ```kotlin
-// NGUY HIEM — dung bao gio lam the nay
+// NGUY HIỂM — đừng bao giờ làm thế này
 suspend fun badTransaction() {
-    db.beginTransaction()           // Thread A mo transaction
-    val result = networkCall()      // suspend → Thread A duoc tra ve pool
-                                    // resume tren Thread B
-    dao.insertData(result)          // Thread B dung connection cua Thread A → CRASH!
-    db.setTransactionSuccessful()
+    db.beginTransaction()           // Thread A mở transaction
+    val result = networkCall()      // suspend → Thread A được trả về pool
+                                    // resume trên Thread B
+    dao.insertData(result)          // Thread B không nằm trong transaction của Thread A
+    db.setTransactionSuccessful()   // → lỗi trên Thread B
     db.endTransaction()
 }
 ```
 
-`IllegalStateException: Cannot perform this operation because there is no current transaction` — day la loi ban nhan duoc. Khong phai vi code logic sai, ma vi thread sai.
+`IllegalStateException: Cannot perform this operation because there is no current transaction` — đây là lỗi bạn nhận được. Không phải vì code logic sai, mà vì thread sai.
 
-### 1.3 Room giai quyet bang TransactionDispatcher
+### 1.3 Room giải quyết bằng TransactionDispatcher
 
-Room tao ra mot **single-thread executor** rieng biet danh cho transaction, goi la `TransactionDispatcher`. Day la `CoroutineDispatcher` chi co dung **1 thread**, duoc dat ten theo pattern `room-X-trans`.
+`withTransaction` (room-ktx) giải quyết bằng cách **giữ riêng một thread cho cả transaction**. Trong mã nguồn Room 2.6, nó làm như sau:
+
+1. **Lấy một thread** từ `transactionExecutor` của database (mặc định là lớp bọc tuần tự trên IO executor của Architecture Components, nên mỗi lúc chỉ một transaction được chạy).
+2. Trên thread đó, chạy `runBlocking { ... }`: thread bị chiếm trọn và có một **event loop** riêng. Dispatcher của event loop này chính là "transaction dispatcher".
+3. **Cài** `TransactionElement` (giữ dispatcher đó) vào `CoroutineContext`, rồi gọi `beginTransaction()` và chạy block của bạn trong context này.
+
+Vì block luôn resume về event loop của cùng một thread, dù block có `suspend` giữa chừng thì mọi lệnh SQL vẫn chạy trên thread đang giữ transaction.
 
 ```mermaid
 flowchart LR
     App["App Code\n(viewModelScope)"]
-    IO["Dispatchers.IO\n(Thread Pool ~64 threads)"]
-    Trans["Room TransactionDispatcher\n(Single Thread)"]
+    IO["Dispatchers.IO\n(tối đa 64 thread song song)"]
+    Trans["Transaction thread\n(lấy từ transactionExecutor,\nchạy event loop runBlocking)"]
     SQLite["SQLite Connection"]
 
     App -->|"launch { }"| IO
@@ -74,67 +97,63 @@ flowchart LR
     Trans -.->|"All DAO calls pinned here"| SQLite
 ```
 
-Khi ban goi `db.withTransaction { ... }`, Room lam 3 viec:
-1. **Switch** Coroutine sang `TransactionDispatcher` (single thread).
-2. **Mo** SQLite connection va goi `beginTransaction()`.
-3. **Cai** `TransactionElement` vao `CoroutineContext` hien tai — day la "the nhan dien" de moi DAO call ben trong biet minh dang o trong transaction va phai dung chinh connection do.
+Khi bạn gọi `db.withTransaction { ... }`, Room làm 3 việc:
+1. **Chiếm** một thread từ `transactionExecutor` và chạy event loop trên thread đó.
+2. **Mở** transaction bằng `beginTransaction()` trên chính thread đó.
+3. **Cài** `TransactionElement` vào `CoroutineContext` hiện tại — đây là "thẻ nhận diện" để mọi DAO call bên trong biết mình đang ở trong transaction và phải chạy trên đúng thread đó.
 
 ```kotlin
-// Cau truc noi bo Room (simplified)
+// Cấu trúc nội bộ Room 2.6 (room-ktx, simplified)
 internal class TransactionElement(
-    private val transactionThreadControlJob: Job,
-    val transactionDispatcher: CancellableContinuation<Unit>
+    internal val transactionDispatcher: ContinuationInterceptor // dispatcher của event loop
 ) : CoroutineContext.Element {
     companion object Key : CoroutineContext.Key<TransactionElement>
-    override val key = Key
+    override val key get() = TransactionElement
+    // Đếm số transaction lồng nhau dùng element này (acquire/release)
 }
 ```
 
-Bat ky `suspend fun` DAO nao goi ben trong block `withTransaction { }` deu tim thay `TransactionElement` trong `CoroutineContext` va tu dong dung connection da mo, thay vi tao connection moi.
+Bất kỳ `suspend fun` DAO nào gọi bên trong block `withTransaction { }` đều tìm thấy `TransactionElement` trong `CoroutineContext` và chuyển việc sang `transactionDispatcher` của nó, thay vì sang query executor bình thường.
 
-### 1.4 Tai sao Single Thread lai quan trong?
+### 1.4 Tại sao Single Thread lại quan trọng?
 
-Single thread trong `TransactionDispatcher` dam bao khong co suspend giua chung lam nhay thread. Toan bo cac buoc cua transaction chay tuan tu tren cung 1 thread — cung 1 SQLite connection. Day chinh la dieu ACID yeu cau.
+Event loop trên một thread duy nhất đảm bảo: dù block có suspend giữa chừng, khi resume nó vẫn quay về đúng thread đang giữ transaction. Toàn bộ các bước của transaction chạy tuần tự trên cùng 1 thread — cùng 1 SQLite session. Đây chính là điều ACID yêu cầu.
 
-> **Interview insight:** Khi hoi "Room xu ly concurrency trong Coroutines the nao?", cau tra loi cot loi la: `TransactionDispatcher` la single-thread executor duoc pin vao `CoroutineContext` thong qua `TransactionElement`. Day la co che dam bao connection khong bi share giua cac thread trong suot vong doi transaction.
+> **Interview insight:** Khi hỏi "Room xử lý concurrency trong Coroutines thế nào?", câu trả lời cốt lõi là: `withTransaction` chiếm một thread từ `transactionExecutor`, chạy event loop trên thread đó, và ghim dispatcher của event loop vào `CoroutineContext` thông qua `TransactionElement`. Đây là cơ chế đảm bảo transaction không bị chia giữa các thread trong suốt vòng đời của nó.
 
 ---
 
-## 2. `@Transaction` vs `withTransaction` — Hai cong cu, hai tang kien truc
+## 2. `@Transaction` vs `withTransaction` — Hai công cụ, hai tầng kiến trúc
 
-### 2.1 `@Transaction` tren DAO
+### 2.1 `@Transaction` trên DAO
 
-`@Transaction` la annotation tai tang DAO. Khi Room Compiler thay annotation nay, no sinh code trong `*_Impl` xap xi nhu sau:
+`@Transaction` là annotation tại tầng DAO. Với một hàm `suspend` có thân trong abstract DAO, Room Compiler sinh code trong `*_Impl` xấp xỉ như sau:
 
 ```kotlin
-// Room-generated code (AppDatabase_Impl.kt — simplified)
+// Room-generated code (OrderDao_Impl.kt — simplified, Room 2.6)
 override suspend fun processCheckout(
     wallet: WalletEntity,
     order: OrderEntity,
     details: List<OrderDetailEntity>
 ) {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransactionAsync()           // Chuyen sang TransactionDispatcher
-    try {
-        __originalImpl.processCheckout(wallet, order, details)
-        __db.setTransactionSuccessful()
-    } finally {
-        __db.endTransactionAsync()         // Luon duoc goi du thanh cong hay loi
+    // Bọc thân hàm bạn viết trong withTransaction — cùng cơ chế ở mục 1.3
+    __db.withTransaction {
+        super.processCheckout(wallet, order, details)
     }
 }
 ```
 
-**Gioi han cua `@Transaction` tren DAO:**
-- Scope cua transaction bi gioi han trong **noi bo DAO**.
-- Khong kiem soat duoc logic truoc/sau (vi du: validate business rule o Repository).
-- Kho test vi logic transaction bi an sau annotation.
+**Giới hạn của `@Transaction` trên DAO:**
+- Scope của transaction bị giới hạn trong **nội bộ DAO**.
+- Không kiểm soát được logic trước/sau (ví dụ: validate business rule ở Repository).
+- Khó test vì logic transaction bị ẩn sau annotation.
 
-### 2.2 `withTransaction { }` tren RoomDatabase
+### 2.2 `withTransaction { }` trên RoomDatabase
 
-`withTransaction` la extension function trong `room-ktx`, cho phep mo transaction o **bat ky tang nao** — thuong la Repository:
+`withTransaction` là extension function trong `room-ktx`, cho phép mở transaction ở **bất kỳ tầng nào** — thường là Repository:
 
 ```kotlin
-// Cach Google khuyen nghi — transaction o tang Repository
+// Cách Google khuyến nghị — transaction ở tầng Repository
 class OrderRepository(
     private val db: AppDatabase,
     private val orderDao: OrderDao
@@ -145,7 +164,7 @@ class OrderRepository(
         items: List<CartItem>
     ) {
         db.withTransaction {
-            // Toan bo block nay la 1 atomic operation
+            // Toàn bộ block này là 1 atomic operation
             orderDao.updateWallet(wallet)
             val orderId = orderDao.insertOrder(order)
             val details = items.map { OrderDetailEntity(orderId = orderId, ...) }
@@ -161,12 +180,12 @@ sequenceDiagram
     participant VM as ViewModel
     participant Repo as Repository
     participant DB as RoomDatabase
-    participant Trans as TransactionDispatcher
+    participant Trans as Transaction thread
     participant SQLite as SQLite
 
     VM->>Repo: processCheckout()
     Repo->>DB: withTransaction { ... }
-    DB->>Trans: Switch coroutine to single thread
+    DB->>Trans: Chiếm thread từ transactionExecutor, chạy event loop
     Trans->>SQLite: BEGIN TRANSACTION
     Trans->>SQLite: UPDATE wallet
     Trans->>SQLite: INSERT INTO orders → orderId
@@ -181,74 +200,74 @@ sequenceDiagram
     Repo-->>VM: Result
 ```
 
-### 2.3 Khi nao dung cai nao?
+### 2.3 Khi nào dùng cái nào?
 
-| Tieu chi | `@Transaction` tren DAO | `withTransaction { }` o Repository |
+| Tiêu chí | `@Transaction` trên DAO | `withTransaction { }` ở Repository |
 |---|---|---|
-| **Scope kiem soat** | Chi trong DAO method | Toan bo block, bat ky tang nao |
-| **Business logic** | Khong nen co | Co the ket hop validate, compute |
-| **Ket hop nhieu DAO** | Khong truc tiep | De dang: `dao1.x()`, `dao2.y()` |
-| **Error handling** | It linh hoat | Full control voi try-catch |
-| **Testability** | Kho test rieng | De mock, test tung buoc |
-| **Dung khi nao** | `@Relation` query, simple grouped write | Multi-DAO write, Data Sync, Checkout |
+| **Scope kiểm soát** | Chỉ trong DAO method | Toàn bộ block, bất kỳ tầng nào |
+| **Business logic** | Không nên có | Có thể kết hợp validate, compute |
+| **Kết hợp nhiều DAO** | Không trực tiếp | Dễ dàng: `dao1.x()`, `dao2.y()` |
+| **Error handling** | Ít linh hoạt | Full control với try-catch |
+| **Testability** | Khó test riêng | Dễ mock, test từng bước |
+| **Dùng khi nào** | `@Relation` query, simple grouped write | Multi-DAO write, Data Sync, Checkout |
 
-**Nguyen tac:** `@Transaction` la annotation convenience cho truong hop don gian. Moi nghiep vu phuc tap (multi-DAO, validation, error handling) deu nen dung `withTransaction { }` o Repository.
+**Nguyên tắc:** `@Transaction` là annotation convenience cho trường hợp đơn giản. Mọi nghiệp vụ phức tạp (multi-DAO, validation, error handling) đều nên dùng `withTransaction { }` ở Repository.
 
-### 2.4 Nested Transaction — Dieu gi thuc su xay ra?
+### 2.4 Nested Transaction — Điều gì thực sự xảy ra?
 
-SQLite chi ho tro **1 level transaction thuc su**. Room xu ly dieu nay mot cach thong minh: neu Coroutine hien tai da co `TransactionElement` trong `CoroutineContext` (tuc la dang trong transaction), goi `withTransaction { }` lan thu 2 se **khong** mo transaction moi — no chi reuse connection hien tai.
+SQLite chỉ hỗ trợ **1 level transaction thực sự**. Nếu Coroutine hiện tại đã có `TransactionElement` trong `CoroutineContext` (tức là đang trong transaction), gọi `withTransaction { }` lần thứ 2 sẽ chạy trên cùng transaction thread và gọi lại `beginTransaction()`. Android ghép lần gọi này vào transaction ngoài (nested transaction của `SQLiteDatabase`): chỉ khi transaction ngoài kết thúc thì toàn bộ mới được commit hoặc rollback.
 
 ```kotlin
 db.withTransaction {                    // Outer: BEGIN TRANSACTION
     dao.insertA()
-    db.withTransaction {               // Inner: khong lam gi them — reuse connection
+    db.withTransaction {               // Inner: beginTransaction() lồng, ghép vào outer
         dao.insertB()
-        // Neu throw exception o day → ROLLBACK toan bo outer transaction
+        // Nếu throw exception ở đây → ROLLBACK toàn bộ outer transaction
     }
     dao.insertC()
-}                                       // COMMIT (neu khong co exception)
+}                                       // COMMIT (nếu không có exception)
 ```
 
-> **Canh bao:** Day la diem khac biet voi cac DB khac (nhu PostgreSQL ho tro true nested transaction voi `SAVEPOINT`). Trong Room, khong co cach de rollback inner transaction ma giu outer transaction tiep tuc.
+> **Cảnh báo:** Đây là điểm khác biệt với các DB khác (như PostgreSQL hỗ trợ true nested transaction với `SAVEPOINT`). Trong Room, không có cách để rollback inner transaction mà giữ outer transaction tiếp tục.
 
 ---
 
-## 3. Rollback va CancellationException — Bay it ai biet
+## 3. Rollback và CancellationException — Bẫy ít ai biết
 
-### 3.1 Rollback tu dong
+### 3.1 Rollback tự động
 
-Room rollback khi **bat ky `Throwable` nao** duoc nem ra trong block `withTransaction { }`, bao gom:
-- `Exception` va moi subclass
+Room rollback khi **bất kỳ `Throwable` nào** được ném ra trong block `withTransaction { }`, bao gồm:
+- `Exception` và mọi subclass
 - `Error` (OutOfMemoryError, StackOverflowError)
-- `CancellationException` — **day la bay quan trong nhat**
+- `CancellationException` — **đây là bẫy quan trọng nhất**
 
-### 3.2 CancellationException va Coroutine Cancellation
+### 3.2 CancellationException và Coroutine Cancellation
 
-Khi nguoi dung thoat man hinh, `viewModelScope` bi cancel. Dieu nay nem `CancellationException` vao moi Coroutine dang chay.
+Khi người dùng thoát màn hình, `viewModelScope` bị cancel. Điều này ném `CancellationException` vào mọi Coroutine đang chạy.
 
 ```kotlin
 viewModelScope.launch {
     db.withTransaction {
-        dao.updateWallet(wallet)        // Thanh cong
-        dao.insertOrder(order)          // Thanh cong
-        // User thoat man hinh → CancellationException duoc nem
-        dao.insertOrderDetails(details) // Khong bao gio chay
-        // Room nhan CancellationException → ROLLBACK toan bo
+        dao.updateWallet(wallet)        // Thành công
+        dao.insertOrder(order)          // Thành công
+        // User thoát màn hình → CancellationException được ném
+        dao.insertOrderDetails(details) // Không bao giờ chạy
+        // Room nhận CancellationException → ROLLBACK toàn bộ
     }
 }
 ```
 
-**Room dam bao Rollback ngay ca khi bi cancel.** Co che: `withTransaction { }` su dung `try-finally` de goi `endTransaction()` trong moi tinh huong.
+**Room đảm bảo Rollback ngay cả khi bị cancel.** Cơ chế: `withTransaction { }` sử dụng `try-finally` để gọi `endTransaction()` trong mọi tình huống.
 
-### 3.3 Chien luoc xu ly dung
+### 3.3 Chiến lược xử lý đúng
 
-Neu ban co operation critical (khong duoc cancel do chung), tach no khoi lifecycle-bound scope:
+Nếu bạn có operation critical (không được cancel dở chừng), tách nó khỏi lifecycle-bound scope:
 
 ```kotlin
 class OrderRepository(
     private val db: AppDatabase,
     private val dao: OrderDao,
-    // ApplicationScope — khong bi cancel khi screen dong
+    // ApplicationScope — không bị cancel khi screen đóng
     private val externalScope: CoroutineScope
 ) {
     suspend fun submitOrder(order: OrderEntity, items: List<CartItem>) {
@@ -264,26 +283,26 @@ class OrderRepository(
 
 ---
 
-## 4. Flow tu Room — Co che InvalidationTracker
+## 4. Flow từ Room — Cơ chế InvalidationTracker
 
-### 4.1 Flow khong phai la polling
+### 4.1 Flow không phải là polling
 
-Khi ban viet:
+Khi bạn viết:
 ```kotlin
 @Query("SELECT * FROM products")
 fun getAllProducts(): Flow<List<ProductEntity>>
 ```
 
-Room **khong** dung polling (cu moi X giay query lai). Thay vao do, Room dung **SQLite trigger** de biet khi nao data thay doi. Day la `InvalidationTracker`.
+Room **không** dùng polling (cứ mỗi X giây query lại). Thay vào đó, Room dùng **SQLite trigger** để biết khi nào data thay đổi. Đây là `InvalidationTracker`.
 
-### 4.2 Co che SQLite Trigger cua InvalidationTracker
+### 4.2 Cơ chế SQLite Trigger của InvalidationTracker
 
-Khi Room khoi tao database, no tu dong tao:
-1. Mot bang an ten `room_table_modification_log`.
-2. Voi moi bang duoc track, Room tao 3 trigger (`INSERT`, `UPDATE`, `DELETE`):
+Khi Room khởi tạo database, nó tự động tạo:
+1. Một bảng ẩn tên `room_table_modification_log`.
+2. Với mỗi bảng được track, Room tạo 3 trigger (`INSERT`, `UPDATE`, `DELETE`):
 
 ```sql
--- Vi du Room tao ngam cho bang "products"
+-- Ví dụ Room tạo ngầm cho bảng "products"
 CREATE TEMP TRIGGER IF NOT EXISTS
   room_table_modification_trigger_products_INSERT
 AFTER INSERT ON products BEGIN
@@ -291,10 +310,10 @@ AFTER INSERT ON products BEGIN
     SET invalidated = 1
     WHERE table_id = 5 AND invalidated = 0;
 END;
--- Tuong tu cho UPDATE va DELETE
+-- Tương tự cho UPDATE và DELETE
 ```
 
-### 4.3 Chuoi su kien tu Write den Flow emit
+### 4.3 Chuỗi sự kiện từ Write đến Flow emit
 
 ```mermaid
 sequenceDiagram
@@ -311,7 +330,7 @@ sequenceDiagram
     SQLite->>Trigger: Fire AFTER INSERT trigger
     Trigger->>Log: SET invalidated = 1 WHERE table_id = 5
     SQLite-->>DAO: Insert complete
-    IT->>Log: Check invalidated flag (batched)
+    IT->>Log: Check invalidated flag (sau khi transaction ghi kết thúc)
     Log-->>IT: table_id = 5 is invalidated
     IT->>IT: Reset flag to 0
     IT->>Flow: Notify: table "products" changed
@@ -320,61 +339,61 @@ sequenceDiagram
     Flow-->>UI: emit(newList) → recompose
 ```
 
-> **Quan trong:** `InvalidationTracker` su dung batched polling, khong phai real-time listen. No check `room_table_modification_log` theo tung batch sau moi write operation. Vi vay, co the co do tre rat nho (vai milliseconds) giua write va Flow emit.
+> **Quan trọng:** `InvalidationTracker` không polling theo chu kỳ. Mỗi khi một transaction ghi kết thúc, Room lên lịch **một lần** đọc `room_table_modification_log` trên background thread để tìm bảng bị đánh dấu. Vì việc đọc này chạy bất đồng bộ sau commit, có thể có độ trễ rất nhỏ (vài milliseconds) giữa write và Flow emit.
 
-### 4.4 Table-level invalidation — Van de over-emission
+### 4.4 Table-level invalidation — Vấn đề over-emission
 
-`InvalidationTracker` hoat dong o **table-level**, khong phai row-level. Nghia la neu bang `products` co 10,000 dong va ban chi update 1 dong, `Flow<List<ProductEntity>>` van re-emit toan bo danh sach 10,000 dong.
+`InvalidationTracker` hoạt động ở **table-level**, không phải row-level. Nghĩa là nếu bảng `products` có 10,000 dòng và bạn chỉ update 1 dòng, `Flow<List<ProductEntity>>` vẫn re-emit toàn bộ danh sách 10,000 dòng.
 
-**Kich ban nguy hiem:**
+**Kịch bản nguy hiểm:**
 ```kotlin
-// Man hinh hien thi danh sach san pham
+// Màn hình hiển thị danh sách sản phẩm
 val products: StateFlow<List<ProductEntity>> = dao.getAllProducts()
     .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-// Man hinh khac update stock count cua 1 san pham duy nhat
+// Màn hình khác update stock count của 1 sản phẩm duy nhất
 dao.updateStock(productId = 5, newStock = 99)
-// → TOAN BO danh sach duoc re-query va re-emit → UI recompose!
+// → TOÀN BỘ danh sách được re-query và re-emit → UI recompose!
 ```
 
-### 4.5 Giai phap: `distinctUntilChanged()` va query co scope
+### 4.5 Giải pháp: `distinctUntilChanged()` và query có scope
 
 ```kotlin
-// Choi emit neu data thuc su khong thay doi
+// Chỉ emit nếu data thực sự thay đổi
 fun getProducts(): Flow<List<ProductEntity>> =
     dao.getAllProducts()
-        .distinctUntilChanged()  // Chan neu list moi == list cu (theo equals)
+        .distinctUntilChanged()  // Chặn nếu list mới == list cũ (theo equals)
 
-// Tot hon: query hep hon
+// Tốt hơn: query hẹp hơn
 @Query("SELECT id, name, price FROM products WHERE category = :category")
 fun getProductsByCategory(category: String): Flow<List<ProductSummary>>
 ```
 
-> `distinctUntilChanged()` so sanh bang `equals()` — voi List lon, day van la O(N) comparison. Giai phap uu tien la **query hep hon** va chi lay cac field UI can.
+> `distinctUntilChanged()` so sánh bằng `equals()` — với List lớn, đây vẫn là O(N) comparison. Giải pháp ưu tiên là **query hẹp hơn** và chỉ lấy các field UI cần.
 
 ### 4.6 `Flow<List<T>>` vs `Flow<T?>` — Interview trap
 
 ```kotlin
 @Query("SELECT * FROM products")
 fun getAllProducts(): Flow<List<ProductEntity>>
-// Neu bang empty → emit emptyList() NGAY LAP TUC khi collect
+// Nếu bảng empty → emit emptyList() NGAY LẬP TỨC khi collect
 
 @Query("SELECT * FROM products WHERE id = :id")
 fun getProductById(id: Long): Flow<ProductEntity?>
-// Neu khong tim thay → emit null NGAY LAP TUC khi collect
+// Nếu không tìm thấy → emit null NGAY LẬP TỨC khi collect
 ```
 
-Cau hoi phong van: *"Flow<T?> co emit ngay lap tuc khi subscribe khong?"*
+Câu hỏi phỏng vấn: *"Flow<T?> có emit ngay lập tức khi subscribe không?"*
 
-**Co.** Room emit gia tri dau tien ngay khi Flow duoc collect bang cach chay query ngay. Dieu nay khac voi `SharedFlow` (khong emit gi cho subscriber moi den tre tru khi co replay buffer).
+**Có.** Room emit giá trị đầu tiên ngay khi Flow được collect bằng cách chạy query ngay. Điều này khác với `SharedFlow` (không emit gì cho subscriber mới đến trễ trừ khi có replay buffer).
 
 ---
 
-## 5. `@Relation` — N+1 Query Problem va cach Room xu ly
+## 5. `@Relation` — N+1 Query Problem và cách Room xử lý
 
-### 5.1 `@Relation` khong dung JOIN
+### 5.1 `@Relation` không dùng JOIN
 
-Day la hieu lam pho bien nhat. Room **khong** sinh ra SQL `JOIN`. Thay vao do, Room chay **N+1 queries**:
+Đây là hiểu lầm phổ biến: Room **không** sinh ra SQL `JOIN` cho `@Relation`. Nhưng Room cũng **không** chạy N+1 queries. Room chạy **1 query cho danh sách cha + 1 query cho mỗi quan hệ**, query thứ hai lấy toàn bộ con của mọi cha bằng `WHERE ... IN (...)` rồi ghép trong bộ nhớ:
 
 ```kotlin
 data class OrderWithDetails(
@@ -391,43 +410,42 @@ data class OrderWithDetails(
 fun getAllOrdersWithDetails(): Flow<List<OrderWithDetails>>
 ```
 
-Room sinh code tuong duong:
+Room sinh code tương đương:
 ```kotlin
 // Simplified Room-generated code
-val orders = query("SELECT * FROM orders")         // Query 1: lay tat ca orders
-val detailsMap = orders.associate { order ->
-    order.id to query(                             // Query 2..N: 1 query per order
-        "SELECT * FROM order_details WHERE orderId = ?", order.id
-    )
-}
+val orders = query("SELECT * FROM orders")              // Query 1: lấy tất cả orders
+val orderIds = orders.map { it.id }
+val details = query(                                     // Query 2: một query cho MỌI order
+    "SELECT * FROM order_details WHERE orderId IN (?, ?, ...)", orderIds
+)                                                        // (Room chia lô 999 tham số nếu danh sách quá dài)
+val detailsMap = details.groupBy { it.orderId }          // Ghép trong bộ nhớ
 return orders.map { order ->
     OrderWithDetails(order, detailsMap[order.id] ?: emptyList())
 }
 ```
 
-Voi 100 orders → 101 queries. Voi 1000 orders → 1001 queries. Day la **N+1 Query Problem**.
+Với 100 orders hay 1000 orders, vẫn chỉ là **2 queries** (thêm vài query nếu vượt 999 tham số). N+1 chỉ xảy ra khi bạn **tự** lặp và gọi DAO cho từng cha (xem anti-pattern N+1 ở bài Room Architecture).
 
-### 5.2 Tai sao bat buoc phai co `@Transaction`?
+### 5.2 Tại sao bắt buộc phải có `@Transaction`?
 
-Gia su khong co `@Transaction`:
+Giả sử không có `@Transaction`:
+```text
+t=0: Query orders → kết quả: [Order A, Order B, Order C]
+t=1: Room chưa kịp chạy query thứ hai
+t=2: Thread khác DELETE order_details của Order B
+t=3: Query details của A, B, C → B không còn detail nào (đã bị xoá!)
+t=4: Kết quả: OrderWithDetails(B, emptyList) — DỮ LIỆU KHÔNG NHẤT QUÁN!
 ```
-t=0: Query orders → ket qua: [Order A, Order B, Order C]
-t=1: Coroutine suspend giua chung (scheduler)
-t=2: Thread khac DELETE order_details cua Order B
-t=3: Query details cua Order A → OK
-t=4: Query details cua Order B → emptyList (da bi xoa!)
-t=5: Ket qua: OrderWithDetails(B, emptyList) — DU LIEU KHONG NHAT QUAN!
-```
 
-`@Transaction` dam bao toan bo chuoi N+1 queries chay trong 1 SQLite read snapshot — du lieu nhat quan tai 1 thoi diem.
+`@Transaction` đảm bảo cả 2 query chạy trong 1 SQLite read snapshot — dữ liệu nhất quán tại 1 thời điểm.
 
-### 5.3 Giai phap thay the khi N+1 la van de
+### 5.3 Giải pháp thay thế khi N+1 là vấn đề
 
 ```kotlin
 data class OrderSummary(
     val orderId: Long,
     val orderTotal: Double,
-    val itemCount: Int  // Tinh tu JOIN, khong can @Relation
+    val itemCount: Int  // Tính từ JOIN, không cần @Relation
 )
 
 @Query("""
@@ -439,34 +457,34 @@ data class OrderSummary(
 fun getOrderSummaries(): Flow<List<OrderSummary>>
 ```
 
-1 query duy nhat, khong can `@Transaction`, khong N+1.
+1 query duy nhất, không cần `@Transaction`, không phải tải toàn bộ detail lên bộ nhớ khi UI chỉ cần số lượng.
 
 ---
 
-## 6. Pattern thuc chien
+## 6. Pattern thực chiến
 
-### 6.1 Data Sync — Khong de UI thay man hinh trong
+### 6.1 Data Sync — Không để UI thấy màn hình trống
 
-Van de: khi sync, ban xoa cache cu roi insert moi. Giua 2 buoc, UI se thay danh sach trong (empty flash).
+Vấn đề: khi sync, bạn xoá cache cũ rồi insert mới. Giữa 2 bước, UI sẽ thấy danh sách trống (empty flash).
 
 ```kotlin
-// SAI — gay empty flash
+// SAI — gây empty flash
 suspend fun syncProducts(serverData: List<ProductDto>) {
-    dao.deleteAll()          // UI thay emptyList()
-    dao.insertAll(serverData.map { it.toEntity() })  // UI thay data moi
+    dao.deleteAll()          // UI thấy emptyList()
+    dao.insertAll(serverData.map { it.toEntity() })  // UI thấy data mới
 }
 
-// DUNG — atomic, UI chi thay trang thai cuoi
+// ĐÚNG — atomic, UI chỉ thấy trạng thái cuối
 suspend fun syncProducts(serverData: List<ProductDto>) {
     db.withTransaction {
         dao.deleteAll()
         dao.insertAll(serverData.map { it.toEntity() })
-        // Flow chi emit 1 lan SAU KHI ca 2 buoc hoan thanh
+        // Flow chỉ emit 1 lần SAU KHI cả 2 bước hoàn thành
     }
 }
 ```
 
-`withTransaction { }` chan duoc empty flash vi `InvalidationTracker` chi notify Flow sau khi transaction `COMMIT`. Trong suot thoi gian transaction dang chay, Flow khong nhan duoc notification nao.
+`withTransaction { }` chặn được empty flash vì `InvalidationTracker` chỉ notify Flow sau khi transaction `COMMIT`. Trong suốt thời gian transaction đang chạy, Flow không nhận được notification nào.
 
 ```mermaid
 sequenceDiagram
@@ -477,11 +495,11 @@ sequenceDiagram
 
     Repo->>Trans: withTransaction { deleteAll() + insertAll() }
     Note over Trans: BEGIN TRANSACTION
-    Trans->>Trans: DELETE FROM products (UI khong biet)
-    Trans->>Trans: INSERT INTO products... (UI khong biet)
+    Trans->>Trans: DELETE FROM products (UI không biết)
+    Trans->>Trans: INSERT INTO products... (UI không biết)
     Note over Trans: COMMIT
     Trans->>IT: Notify: "products" table changed
-    IT->>UI: emit(newFullList) — Chi 1 lan emit
+    IT->>UI: emit(newFullList) — Chỉ 1 lần emit
 ```
 
 ### 6.2 E-commerce Checkout — Multi-table atomic write
@@ -496,35 +514,42 @@ class CheckoutRepository(
     suspend fun checkout(
         userId: Long,
         cartItems: List<CartItem>
-    ): Result<Long> = runCatching {
-        db.withTransaction {
-            // Buoc 1: Kiem tra & tru vi
+    ): Result<Long> = try {
+        val orderId = db.withTransaction {
+            // Bước 1: Kiểm tra & trừ ví
             val wallet = walletDao.getWallet(userId)
                 ?: error("Wallet not found")
             val total = cartItems.sumOf { it.price * it.quantity }
-            check(wallet.balance >= total) { throw InsufficientFundsException() }
+            if (wallet.balance < total) throw InsufficientFundsException()
             walletDao.deductBalance(userId, total)
 
-            // Buoc 2: Kiem tra ton kho
+            // Bước 2: Kiểm tra tồn kho
             cartItems.forEach { item ->
                 val stock = inventoryDao.getStock(item.productId)
                 if (stock < item.quantity) throw OutOfStockException(item.productId)
                 inventoryDao.reduceStock(item.productId, item.quantity)
             }
 
-            // Buoc 3: Tao order va details
-            val orderId = orderDao.insertOrder(
+            // Bước 3: Tạo order và details
+            val newOrderId = orderDao.insertOrder(
                 OrderEntity(userId = userId, total = total, status = "PENDING")
             )
             orderDao.insertOrderDetails(
-                cartItems.map { OrderDetailEntity(orderId = orderId, productId = it.productId) }
+                cartItems.map { OrderDetailEntity(orderId = newOrderId, productId = it.productId) }
             )
-            orderId  // Tra ve orderId de ViewModel navigate
+            newOrderId  // Trả về orderId để ViewModel navigate
         }
-        // Neu BAT KY buoc nao throw → ROLLBACK toan bo
+        // Nếu BẤT KỲ bước nào throw → ROLLBACK toàn bộ
+        Result.success(orderId)
+    } catch (e: CancellationException) {
+        throw e // Không bọc cancellation vào Result (runCatching sẽ nuốt mất nó)
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 }
 ```
+
+> `runCatching { }` bắt mọi `Throwable`, kể cả `CancellationException`. Nếu dùng nó ở đây, khi màn hình bị huỷ giữa checkout, coroutine không dừng mà tiếp tục chạy `onFailure` như một lỗi nghiệp vụ. Vì vậy bắt `CancellationException` riêng và ném lại.
 
 **Trong ViewModel:**
 ```kotlin
@@ -546,20 +571,16 @@ fun checkout(cartItems: List<CartItem>) {
 }
 ```
 
-### 6.3 Banking Transfer — Ordering de tranh Deadlock
+### 6.3 Banking Transfer — Ordering để tránh Deadlock
 
-SQLite voi WAL mode chi cho phep 1 writer tai 1 thoi diem (Room TransactionDispatcher la single thread), nen thuc te trong 1 Room instance khong co 2 write transaction dong thoi. Nhung nen ap dung canonical ordering de san sang cho moi truong multi-process:
+Câu hỏi hay gặp: có cần khoá hai tài khoản theo thứ tự cố định (lock ordering) như trong database server không? Với SQLite thì **không**: SQLite không khoá theo hàng hay theo tài khoản mà khoá **cả file database** khi ghi, và mỗi lúc chỉ có một writer (kể cả ở WAL mode). Hai transaction chuyển tiền không thể giữ "khoá A chờ khoá B", nên không có deadlock kiểu lock ordering. Điều cần làm là đặt **cả đọc số dư lẫn ghi** vào cùng một transaction để không ai xen vào giữa:
 
 ```kotlin
-suspend fun transfer(fromId: Long, toId: Long, amount: Double) {
-    // Luon lock account co ID nho hon truoc (canonical ordering)
-    val (firstId, secondId) = if (fromId < toId) fromId to toId else toId to fromId
-
+suspend fun transfer(fromId: Long, toId: Long, amount: Long) { // tiền lưu theo đơn vị nhỏ nhất (đồng/xu), không dùng Double
     db.withTransaction {
-        val first = accountDao.getById(firstId) ?: error("Account not found")
-        val second = accountDao.getById(secondId) ?: error("Account not found")
-
-        val (from, to) = if (fromId == firstId) first to second else second to first
+        // Đọc và ghi trong cùng transaction: không writer nào khác chen vào giữa
+        val from = accountDao.getById(fromId) ?: error("Account not found")
+        val to = accountDao.getById(toId) ?: error("Account not found")
         if (from.balance < amount) throw InsufficientFundsException()
 
         accountDao.updateBalance(from.id, from.balance - amount)
@@ -568,26 +589,26 @@ suspend fun transfer(fromId: Long, toId: Long, amount: Double) {
 }
 ```
 
-### 6.4 WAL Mode — Tai sao Room bat theo mac dinh
+### 6.4 WAL Mode — Tại sao Room bật theo mặc định
 
-Room tu dong bat **Write-Ahead Logging (WAL)** tu phien ban 2.0+.
+Room mặc định dùng `JournalMode.AUTOMATIC`: chọn **Write-Ahead Logging (WAL)** trừ khi thiết bị là low-RAM device (khi đó dùng `TRUNCATE`). Bạn có thể ép chế độ bằng `setJournalMode(...)` khi build database.
 
-**Co che WAL:**
-- **Journal mode cu:** Writer phai cho tat ca Readers xong (va nguoc lai) → bottleneck.
-- **WAL mode:** Writer ghi vao file WAL rieng biet. Readers doc tu DB chinh. Readers va Writer khong block lan nhau.
+**Cơ chế WAL:**
+- **Journal mode cũ:** Writer phải chờ tất cả Readers xong (và ngược lại) → bottleneck.
+- **WAL mode:** Writer ghi vào file WAL riêng biệt. Readers đọc từ DB chính. Readers và Writer không block lẫn nhau.
 
-```
+```text
 Journal Mode:  Reader1 — wait — wait — Writer — wait — Reader2
 WAL Mode:      Reader1 ─────────────────────────────────────
                Reader2 ─────────────────────────────────────
                Writer  ─── WAL file ─────────────────────────
 ```
 
-Ket qua thuc te: `Flow<List<T>>` (reader) va `dao.insert()` (writer) khong block nhau, UI luon muot ma.
+Kết quả thực tế: `Flow<List<T>>` (reader) và `dao.insert()` (writer) không block nhau, UI luôn mượt mà.
 
 ---
 
-## 7. Testing — Transaction va Flow
+## 7. Testing — Transaction và Flow
 
 ### 7.1 Setup In-memory Database
 
@@ -625,14 +646,14 @@ fun `checkout voi insufficient funds phai rollback toan bo`() = runTest {
     assertTrue(result.isFailure)
     assertIs<InsufficientFundsException>(result.exceptionOrNull())
 
-    // Verify rollback: vi van con nguyen 50
+    // Verify rollback: ví vẫn còn nguyên 50
     assertEquals(50.0, db.walletDao().getWallet(1)!!.balance, 0.001)
-    // Verify: khong co order nao duoc tao
+    // Verify: không có order nào được tạo
     assertTrue(db.orderDao().getAllOrders().isEmpty())
 }
 ```
 
-### 7.3 Test Flow voi Turbine
+### 7.3 Test Flow với Turbine
 
 ```kotlin
 // build.gradle.kts
@@ -645,13 +666,13 @@ fun `flow emit updated list sau khi insert`() = runTest {
     db.productDao().insertAll(listOf(ProductEntity(id = 1, name = "Laptop")))
 
     db.productDao().getAllProducts().test {
-        // Emission dau tien: data ban dau
+        // Emission đầu tiên: data ban đầu
         assertEquals(1, awaitItem().size)
 
-        // Insert them san pham
+        // Insert thêm sản phẩm
         db.productDao().insert(ProductEntity(id = 2, name = "Phone"))
 
-        // Emission thu 2: list moi voi 2 items
+        // Emission thứ 2: list mới với 2 items
         assertEquals(2, awaitItem().size)
 
         cancelAndIgnoreRemainingEvents()
@@ -677,7 +698,7 @@ fun `sync phai emit chi 1 lan voi data moi, khong co empty flash`() = runTest {
             ))
         }
 
-        // Phai nhan dung 1 emission voi 2 items — khong co emptyList() o giua
+        // Phải nhận đúng 1 emission với 2 items — không có emptyList() ở giữa
         val result = awaitItem()
         assertEquals(2, result.size)
         assertTrue(result.none { it.name == "Old Product" })
@@ -689,37 +710,37 @@ fun `sync phai emit chi 1 lan voi data moi, khong co empty flash`() = runTest {
 
 ---
 
-## 8. Tong ket — Mental Model
+## 8. Tổng kết — Mental Model
 
 ```mermaid
 flowchart TD
     A["Coroutine\n(viewModelScope)"] --> B["withTransaction { }"]
-    B --> C["Switch to\nTransactionDispatcher\n(Single Thread)"]
+    B --> C["Chiếm 1 thread từ\ntransactionExecutor\n(event loop runBlocking)"]
     C --> D["TransactionElement\ninjected into CoroutineContext"]
     D --> E["BEGIN TRANSACTION"]
-    E --> F["DAO calls\n(reuse same connection via TransactionElement)"]
+    E --> F["DAO calls\n(chạy trên transaction thread qua TransactionElement)"]
     F --> G{Exception?}
     G -->|No| H["COMMIT\nInvalidationTracker notified"]
     G -->|"Yes / Cancel"| I["ROLLBACK\nNo notification sent"]
     H --> J["Flow re-query\nemit new data to UI"]
 ```
 
-| Khai niem | Cot loi can nho |
+| Khái niệm | Cốt lõi cần nhớ |
 |---|---|
-| **TransactionDispatcher** | Single-thread executor, pin SQLite connection vao 1 thread |
-| **TransactionElement** | "Passport" trong CoroutineContext, giup DAO calls reuse connection |
-| **`@Transaction` vs `withTransaction`** | DAO-level vs Repository-level; `withTransaction` linh hoat hon |
-| **Nested Transaction** | Room reuse connection, khong mo transaction moi |
-| **Rollback** | Trigger boi bat ky Throwable, ke ca CancellationException |
+| **Transaction thread** | `withTransaction` chiếm 1 thread từ `transactionExecutor`, chạy event loop, giữ cả transaction trên thread đó |
+| **TransactionElement** | "Passport" trong CoroutineContext, giữ dispatcher của transaction thread để DAO calls chạy đúng chỗ |
+| **`@Transaction` vs `withTransaction`** | DAO-level vs Repository-level; `withTransaction` linh hoạt hơn |
+| **Nested Transaction** | `beginTransaction()` lồng, ghép vào transaction ngoài; rollback là rollback cả khối |
+| **Rollback** | Trigger bởi bất kỳ Throwable, kể cả CancellationException |
 | **InvalidationTracker** | SQLite trigger → room_table_modification_log → Flow emit |
-| **Table-level invalidation** | Ca table re-emit du chi 1 row thay doi → dung `distinctUntilChanged()` |
-| **`@Relation` N+1** | Room chay N+1 queries, can `@Transaction` de dam bao consistency |
-| **WAL mode** | Reader/Writer khong block nhau → Flow va Insert song song |
-| **Empty flash prevention** | `withTransaction { delete + insert }` → chi emit sau COMMIT |
+| **Table-level invalidation** | Cả table re-emit dù chỉ 1 row thay đổi → dùng `distinctUntilChanged()` |
+| **`@Relation`** | Room chạy 2 queries (cha + `IN (...)` cho con), không phải N+1; cần `@Transaction` để đảm bảo consistency |
+| **WAL mode** | `AUTOMATIC` chọn WAL trừ low-RAM device; Reader/Writer không block nhau → Flow và Insert song song |
+| **Empty flash prevention** | `withTransaction { delete + insert }` → chỉ emit sau COMMIT |
 
 ---
 
-## Tham khao
+## Tham khảo
 
 1. [Write asynchronous DAO queries — Android Developers](https://developer.android.com/training/data-storage/room/async-queries)
 2. [RoomDatabase.withTransaction — AndroidX Room KTX](https://developer.android.com/reference/kotlin/androidx/room/package-summary#(androidx.room.RoomDatabase).withTransaction(kotlin.coroutines.SuspendFunction1))
@@ -729,3 +750,7 @@ flowchart TD
 6. [SQLite Write-Ahead Logging — sqlite.org](https://www.sqlite.org/wal.html)
 7. [Turbine — Testing Kotlin Flows (Square)](https://github.com/cashapp/turbine)
 8. [Test your Room database — Android Developers](https://developer.android.com/training/data-storage/room/testing-db)
+9. [Define one-to-many relationships ("requires Room to run two queries") — Android Developers](https://developer.android.com/training/data-storage/room/relationships/one-to-many)
+10. [RoomDatabase.JournalMode — Android Reference](https://developer.android.com/reference/androidx/room/RoomDatabase.JournalMode)
+11. [SQLiteDatabase.beginTransaction (nested transactions) — Android Reference](https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase#beginTransaction())
+12. [File Locking And Concurrency In SQLite — sqlite.org](https://www.sqlite.org/lockingv3.html)

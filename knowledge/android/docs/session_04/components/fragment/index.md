@@ -59,6 +59,7 @@ flowchart LR
     Act -->|chứa| F2[Fragment B — Panel 2]
     Act -->|chứa| F3[Fragment C — Panel 3]
 ```
+<!-- dd: frag-panels -->
 
 Ba đặc điểm cốt lõi:
 
@@ -73,7 +74,7 @@ Ba đặc điểm cốt lõi:
 
 ### 1. Giải quyết bài toán màn hình lớn (Tablet, Foldable)
 
-Fragment ra đời từ Android 3.0 (Honeycomb) để xử lý UI trên tablet. Một màn hình tablet có thể hiển thị song song **Danh sách (trái)** và **Chi tiết (phải)**. Với Activity, bạn phải viết 2 Activity riêng cho 2 trường hợp (phone vs tablet). Với Fragment, bạn chỉ cần 2 Fragment dùng chung, và ghép chúng lại trên tablet.
+Fragment ra đời từ Android 3.0 (Honeycomb) để xử lý UI trên tablet (bản `android.app.Fragment` của framework đã deprecated từ API 28; ngày nay dùng `androidx.fragment.app.Fragment` của AndroidX). Một màn hình tablet có thể hiển thị song song **Danh sách (trái)** và **Chi tiết (phải)**. Với Activity, bạn phải viết 2 Activity riêng cho 2 trường hợp (phone vs tablet). Với Fragment, bạn chỉ cần 2 Fragment dùng chung, và ghép chúng lại trên tablet.
 
 ```mermaid
 flowchart TB
@@ -85,10 +86,11 @@ flowchart TB
         B1[Danh sách] & B2[Chi tiết]
     end
 ```
+<!-- dd: frag-phonetab -->
 
 ### 2. Là nền tảng của Single-Activity Architecture
 
-Việc tạo một Activity rất đắt đỏ (Window riêng, khởi tạo hệ thống). Chuyển đổi giữa các Fragment thì nhẹ và mượt hơn nhiều. Google khuyến nghị các app hiện đại chỉ dùng **1 Activity duy nhất** làm container, mọi màn hình là Fragment.
+Mỗi lần mở Activity, app phải đi qua `system_server` (Binder IPC) và tạo Window riêng. Chuyển đổi giữa các Fragment diễn ra ngay trong cùng Activity nên nhẹ hơn và dễ kiểm soát animation hơn. Google khuyến nghị các app hiện đại chỉ dùng **1 Activity duy nhất** làm container, mọi màn hình là Fragment.
 
 ### 3. Quản lý vòng đời và điều hướng có hệ thống
 
@@ -156,6 +158,7 @@ flowchart TD
     style FB fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:#fff
     style VM fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#fff
 ```
+<!-- dd: frag-sharedvm -->
 
 ## Cách hoạt động bên trong: Ai quản lý Fragment?
 
@@ -174,6 +177,7 @@ flowchart TD
     style F1 fill:#4CAF50,stroke:#388E3C,color:#fff
     style F2 fill:#4CAF50,stroke:#388E3C,color:#fff
 ```
+<!-- dd: frag-fm -->
 
 Khi bạn gọi `supportFragmentManager.beginTransaction()...commit()` (hoặc Navigation Component làm giùm), FragmentManager sẽ:
 
@@ -264,6 +268,7 @@ sequenceDiagram
     F->>Act: View của Fragment xuất hiện trong container
     User->>F: Tương tác (click, input)
 ```
+<!-- dd: frag-add -->
 
 ### Con đường 2: Jetpack Navigation — chuẩn production
 
@@ -324,7 +329,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentHomeBinding.bind(view)
+        val binding = FragmentHomeBinding.bind(view) // biến local, không giữ View sau onDestroyView
 
         binding.btnNext.setOnClickListener {
             // Navigation tự lo transaction + backstack + animation
@@ -352,6 +357,7 @@ sequenceDiagram
     User->>DF: Nhấn Back
     NC->>NF: Pop backstack → hiện lại HomeFragment
 ```
+<!-- dd: frag-navgo -->
 
 ## Trade-offs
 
@@ -378,14 +384,14 @@ sequenceDiagram
 
 > [!WARNING]
 > **ViewBinding Memory Leak:**
-> Vòng đời View của Fragment có thể bị hủy và tạo lại (đưa vào backstack, xoay màn hình) trong khi instance Fragment vẫn sống.
+> Vòng đời View của Fragment có thể bị hủy và tạo lại trong khi instance Fragment vẫn sống (Fragment bị `replace` và đưa vào backstack). Khi xoay màn hình thì cả instance lẫn View đều bị tạo lại.
 > **Hậu quả:** Không gán `_binding = null` trong `onDestroyView()` → GC không dọn được View cũ, rò rỉ bộ nhớ.
 > **Giải pháp:** Luôn gán `_binding = null` trong `onDestroyView()`, và gán `binding.recyclerView.adapter = null` khi có RecyclerView.
 
 > [!CAUTION]
 > **Truyền dữ liệu bằng Constructor thay vì Arguments:**
 > `HomeFragment(val id: Int)` sẽ **crash** khi hệ điều hành tự khôi phục Fragment (sau khi process bị kill hoặc xoay màn hình) vì nó gọi constructor rỗng.
-> **Giải pháp:** Truyền dữ liệu qua `Bundle` (arguments) hoặc dùng **SafeArgs** (Navigation) hoặc **Shared ViewModel**.
+> **Giải pháp:** Truyền dữ liệu qua `Bundle` (arguments, thường gói trong hàm `newInstance(id)` của companion object) hoặc dùng **SafeArgs** (Navigation) hoặc **Shared ViewModel**. Nếu Fragment thật sự cần constructor có tham số (ví dụ inject dependency), đăng ký một `FragmentFactory` cho FragmentManager để hệ thống biết cách tạo lại nó.
 
 > [!CAUTION]
 > **Thêm đè Fragment khi xoay màn hình:**
@@ -410,6 +416,7 @@ flowchart TD
     UC --> R[Repository]
     R --> DS[(Room / Retrofit / DataStore)]
 ```
+<!-- dd: frag-vm -->
 
 **Nguyên tắc phụ thuộc:** dữ liệu chảy một chiều `Data → ViewModel → Fragment`. Fragment **không bao giờ** gọi thẳng Repository hay API. Nhờ đó:
 
@@ -430,5 +437,6 @@ Fragment Overview là điểm vào của module Fragment. Để làm chủ, hãy
 
 - [Fragments - Android Developers](https://developer.android.com/guide/fragments)
 - [Create a fragment - Android Developers](https://developer.android.com/guide/fragments/create)
+- [Fragment (AndroidX) API Reference - Android Developers](https://developer.android.com/reference/androidx/fragment/app/Fragment)
 - [Get started with Jetpack Navigation - Android Developers](https://developer.android.com/guide/navigation/get-started)
 - [Guide to App Architecture - Android Developers](https://developer.android.com/topic/architecture)

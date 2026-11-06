@@ -8,17 +8,13 @@ depth: deep-dive
 estimated_reading_time: 30 phút
 tags: [android, build, gradle, agp, build-types, buildconfigfield, proguard, ci-cd, firebase]
 prerequisites: [android.output_packages.apk_files, android.output_packages.aab_files]
-related: [android.manifest.product_flavors, android.manifest.plugin, android.build.gradle]
-downstream: []
+related: [android.manifest.product_flavors, android.manifest.plugin]
 learning_outcomes:
-  - Giải thích được vai trò của Gradle, AGP và file build.gradle.kts trong dự án Android.
-  - Phân biệt được Build Types, Product Flavors và biết khi nào dùng loại nào.
-  - Mô tả được Build Flow: merge source sets, sinh BuildConfig, minify R8/ProGuard, signing.
-  - Cấu hình được các Build Type (dev, staging, release) với signing, minify, applicationIdSuffix.
-  - Sử dụng được buildConfigField để tách biến môi trường khỏi source code.
-  - Áp dụng được initWith để kế thừa cấu hình giữa các Build Type.
-  - Đặt tên được file output APK/AAB theo từng môi trường build.
-  - Kết hợp được Build Type với CI/CD và Firebase App Distribution.
+  - Giải thích được Build Flow của một Build Type: merge source sets, sinh BuildConfig, minify R8/ProGuard, signing.
+  - Phân biệt được Build Types với Product Flavors và biết khi nào dùng loại nào.
+  - Triển khai được các Build Type dev, staging, release với signing, minify, applicationIdSuffix và initWith.
+  - Áp dụng được buildConfigField và manifestPlaceholders để tách biến môi trường khỏi source code.
+  - Áp dụng được Build Type vào CI/CD và Firebase App Distribution để phân phối bản build cho QA.
 knowledge_gap: >
   Nhầm lẫn Build Types với Product Flavors dẫn đến cấu hình sai signing hoặc minify cho bản release, gây lỗi khi phát hành hoặc lọt log debug ra production. Không hiểu cách Gradle/AGP hoạt động khiến khó gỡ lỗi khi build fail và không biết cách tách biến môi trường theo từng Build Type.
 ---
@@ -74,6 +70,7 @@ flowchart LR
     D -->|sinh ra| E[Task Graph]
     E -->|thực thi| F[APK / AAB]
 ```
+<!-- dd: bt-flow -->
 
 > [!NOTE]
 > Nếu bạn đã biết Kotlin + Java nhưng chưa biết Gradle, hãy hiểu đơn giản: Gradle là "máy build", AGP là "bộ hướng dẫn Android cho Gradle", và `build.gradle.kts` là "bản thiết kế" mà bạn viết.
@@ -94,7 +91,7 @@ Theo mặc định, khi tạo một project Android mới, Gradle sẽ tự đ�
 Khi bạn nhấn nút "Run" hoặc thực thi một lệnh Gradle (ví dụ: `./gradlew assembleDebug`), Gradle và Android Gradle Plugin (AGP) sẽ thực hiện một luồng công việc (Build Flow):
 
 1. **Khởi tạo và cấu hình:** Đọc `build.gradle` (hoặc `build.gradle.kts`) để thu thập thông tin về Build Type được chọn.
-2. **Hợp nhất mã nguồn và tài nguyên (Merge Source Sets):** AGP tự động kết hợp mã nguồn (`src/main`) với mã nguồn cụ thể của Build Type (`src/debug` hoặc `src/release`). Cấu hình của Build Type sẽ ghi đè lên cấu hình ở `main`.
+2. **Hợp nhất mã nguồn và tài nguyên (Merge Source Sets):** AGP tự động kết hợp mã nguồn (`src/main`) với mã nguồn cụ thể của Build Type (`src/debug` hoặc `src/release`). Resource và manifest của Build Type ghi đè/merge lên `main`; còn class Kotlin/Java thì **không** ghi đè được — trùng tên class giữa hai source set sẽ báo lỗi duplicate class.
 3. **Sinh code tự động (Code Generation):** Sinh ra file `BuildConfig.java` (nếu cấu hình) dựa trên các `buildConfigField` tương ứng.
 4. **Biên dịch (Compilation):** Biên dịch Kotlin/Java thành bytecode.
 5. **Tối ưu hóa (Minification - R8/ProGuard):** (Thường chỉ áp dụng cho `release` hoặc `staging`) Tối ưu code, obfuscate (làm rối), loại bỏ code thừa dựa trên các rules (quy tắc) áp dụng riêng cho Build Type đó.
@@ -118,6 +115,8 @@ flowchart TD
     I --> J[Ký ứng dụng\n Signing Config]
     J --> K((Hoàn thành))
 ```
+<!-- dd: bt-merge-a -->
+<!-- dd: bt-merge-b -->
 
 ## Phân biệt Build Types và Product Flavors
 
@@ -134,7 +133,7 @@ flowchart TD
 
 **Build Variant** là kết quả kết hợp một Flavor với một Build Type:
 
-```
+```text
 Build Variant = Product Flavor × Build Type
 ```
 
@@ -231,7 +230,7 @@ buildTypes {
 Chi tiết tách `manifestPlaceholders` theo từng Flavor (free/paid, dev/prod) xem thêm ở topic Product Flavors.
 
 > [!NOTE]
-> `buildConfigField` top-level trong `buildTypes` như các ví dụ trên vẫn chạy ở AGP 8/9, nhưng là eager API đã deprecated theo migration roadmap. API lazy thay thế là `variant.buildConfigFields.put(...)` qua `androidComponents` — bài này giữ cú pháp cũ để dễ đọc, khi nào cần tối ưu Configuration Cache hãy migrate.
+> `buildConfigField` trong `buildTypes`/`defaultConfig` như các ví dụ trên là DSL chính thức (`VariantDimension.buildConfigField`), **không** bị deprecated ở AGP 9. Khi giá trị cần tính lúc build (ví dụ đọc từ một `Provider`, git hash), dùng bản lazy `variant.buildConfigFields.put(...)` trong `androidComponents { onVariants { ... } }`.
 
 ## initWith: Kế thừa cấu hình giữa các Build Type
 
@@ -332,10 +331,16 @@ android {
 
             // Có thể muốn vẫn cho phép debug trên staging đôi chút (tuỳ team)
             isDebuggable = true
+
+            // Library module không có build type "staging" → cho Gradle dùng bản "release" của library
+            matchingFallbacks += listOf("release")
         }
     }
 }
 ```
+
+> [!WARNING]
+> Build Type tự tạo (`staging`) không tồn tại trong các library module (`:core:network`, `:feature:cart`...). Thiếu `matchingFallbacks`, Gradle không chọn được variant của library và build `assembleStaging` báo lỗi resolve dependency. `matchingFallbacks += listOf("release")` bảo Gradle: library nào không có `staging` thì lấy `release`.
 
 > [!NOTE]
 > Bằng cách cấu hình `applicationIdSuffix`, bạn có thể cài cả 3 app: `com.example.app.dev`, `com.example.app.staging`, và `com.example.app` lên cùng một thiết bị!
@@ -346,7 +351,7 @@ android {
 > [!NOTE]
 > File `*-keystore.jks` thật không commit lên Git. Tên file trong ví dụ chỉ minh họa; password đọc từ biến môi trường hoặc CI secrets như đoạn code trên.
 
-Ngoài `buildConfigField`, AGP còn tự động merge Source Set theo Build Type: file trong `src/staging/` ghi đè file cùng đường dẫn trong `src/main` (đúng Build Flow ở trên). Ví dụ đổi tên app của bản staging mà không đụng bản release:
+Ngoài `buildConfigField`, AGP còn tự động merge Source Set theo Build Type: **resource** trong `src/staging/res/` ghi đè resource cùng tên trong `src/main/res/` (đúng Build Flow ở trên). Class Kotlin/Java thì không ghi đè được: cùng một class có ở cả `src/main/` và `src/staging/` sẽ báo lỗi duplicate class, nên class khác nhau theo build type phải nằm ở `src/debug/`, `src/staging/`, `src/release/` và **không** có trong `main`. Ví dụ đổi tên app của bản staging mà không đụng bản release:
 
 ```xml
 <!-- app/src/staging/res/values/strings.xml -->
@@ -357,7 +362,7 @@ Ngoài `buildConfigField`, AGP còn tự động merge Source Set theo Build Typ
 
 ### Đặt tên file output theo môi trường
 
-Mặc định, file APK/AAB sẽ có tên kiểu `app-debug.apk`, `app-staging.apk`... Muốn đặt tên rõ ràng hơn theo môi trường, ưu tiên đổi tên gốc (Cách 1). Chỉ khi cần tùy biến hoàn toàn tên file theo từng variant mới dùng Variant API (Cách 2 mới). Cách dùng `applicationVariants` (Cách cũ) đã deprecated từ AGP 4.2 và bị xóa khỏi AGP 9 nên không còn được gợi ý trong Android Studio mới.
+Mặc định, file APK/AAB sẽ có tên kiểu `app-debug.apk`, `app-staging.apk`... Muốn đặt tên rõ ràng hơn theo môi trường, ưu tiên đổi tên gốc (Cách 1). Chỉ khi cần tùy biến hoàn toàn tên file theo từng variant mới dùng Variant API (Cách 2 mới). Cách dùng `applicationVariants` (Cách cũ) là Legacy Variant API: AGP 9 mặc định `android.newDsl=true` nên không còn truy cập được API này (opt-out `android.newDsl=false` sẽ bị bỏ ở AGP 10).
 
 Cách 1 — Đổi tên gốc (chỉ đổi phần base name, AGP vẫn ghép thêm `-debug` / `-staging` / `-release` phía sau):
 
@@ -395,41 +400,40 @@ android {
 
 </details>
 
-Cách 2 mới — Tùy biến hoàn toàn tên file với Variant API (AGP 8/9, khuyến nghị khi cần custom):
+Cách 2 mới — Tùy biến hoàn toàn tên file với Variant API (AGP 8/9, khuyến nghị khi cần custom). Variant API công khai **không** cho đổi tên file output trực tiếp; cách chuẩn là lấy artifact APK của variant rồi copy ra tên mới:
 
 ```kotlin
+// app/build.gradle.kts
+import com.android.build.api.artifact.SingleArtifact
+
 // Lưu ý: androidComponents nằm NGOÀI và NGANG CẤP với android { }, không nằm trong đó.
 androidComponents {
     onVariants(selector().all()) { variant ->
-        variant.outputs.forEach { output ->
-            output.outputFileName.set("MyApp-${variant.name}-${variant.versionName.getOrElse("1.0")}.apk")
+        val name = variant.name
+        // versionName nằm trên VariantOutput, không nằm trên Variant
+        val versionName = variant.outputs.first().versionName
+        tasks.register<Copy>("copy${name.replaceFirstChar { it.uppercase() }}Apk") {
+            from(variant.artifacts.get(SingleArtifact.APK)) { include("*.apk") }
+            into(layout.buildDirectory.dir("renamed-apk/$name"))
+            rename { "MyApp-$name-${versionName.getOrElse("1.0")}.apk" }
         }
     }
 }
 ```
 
-Chỉ đổi tên một Build Type cụ thể:
-
-```kotlin
-androidComponents {
-    onVariants(selector().withBuildType("staging")) { variant ->
-        variant.outputs.forEach { output ->
-            output.outputFileName.set("MyApp-${variant.name}-${variant.versionName.getOrElse("1.0")}.apk")
-        }
-    }
-}
-```
+Chỉ đổi tên một Build Type cụ thể: thay `selector().all()` bằng `selector().withBuildType("staging")`, phần thân giữ nguyên.
 
 > [!NOTE]
-> - `outputFileName` là `Property<String>` nên phải dùng `.set(...)`, không gán `=` như API cũ.
-> - `variant.name` sẽ là `debug`, `staging` hoặc `release` (hoặc `freeStaging`, `paidRelease`... khi kết hợp Flavor + Build Type). Kết quả: `MyApp-staging-1.0.0-STG.apk`. Dùng `getOrElse` để không crash khi variant chưa set versionName.
-> - Cách này tương thích Configuration Cache và Gradle 9, trong khi API cũ thì không. Rename này áp dụng cho cả APK/AAB; tên file AAB khi upload Play dùng cơ chế khác, kiểm tra Play Console nếu cần.
+> - `VariantOutput` công khai chỉ có `versionCode`, `versionName`, `enabled`; **không có** `outputFileName` (thuộc implementation nội bộ của API cũ), nên code kiểu `output.outputFileName.set(...)` không compile với AGP 9.
+> - Chạy `./gradlew copyStagingApk`: Gradle build APK staging trước (vì task phụ thuộc artifact `SingleArtifact.APK`), rồi copy ra `app/build/renamed-apk/staging/MyApp-staging-1.0.0-STG.apk`.
+> - `variant.name` sẽ là `debug`, `staging` hoặc `release` (hoặc `freeStaging`, `paidRelease`... khi kết hợp Flavor + Build Type). Dùng `getOrElse` để không crash khi variant chưa set versionName.
+> - Cách này tương thích Configuration Cache và Gradle 9. Nó chỉ áp dụng cho APK: `VariantOutput` không áp dụng cho AAB (bundle không có nhiều output).
 
 <details>
-<summary>Cách cũ — `applicationVariants` (Legacy, chỉ AGP &lt; 8, không nên dùng mới)</summary>
+<summary>Cách cũ — `applicationVariants` (Legacy, chỉ AGP 8 trở xuống, không nên dùng mới)</summary>
 
 > [!WARNING]
-> `applicationVariants` là Legacy Variant API. Từ AGP 7 đã deprecated, từ AGP 8.13 cần opt-in, từ AGP 9 bị xóa hẳn (`android.newDsl=true` mặc định). Đó là lý do Android Studio mới không gợi ý `applicationVariants`. Đoạn code dưới chỉ để tham khảo khi bảo trì project cũ, và dùng internal API `BaseVariantOutputImpl` vốn đã bị Google cấm.
+> `applicationVariants` là Legacy Variant API, đã được thay bằng `androidComponents`. AGP 9 mặc định `android.newDsl=true` nên không còn truy cập được (`android.newDsl=false` chỉ là opt-out tạm thời, bị bỏ ở AGP 10). Đó là lý do Android Studio mới không gợi ý `applicationVariants`. Đoạn code dưới chỉ để tham khảo khi bảo trì project cũ, và dùng internal API `BaseVariantOutputImpl` vốn đã bị Google cấm.
 
 ```kotlin
 android {
@@ -710,7 +714,7 @@ Chạy lệnh:
 4. **Quên bật `buildConfig = true`:** Với AGP 8+, dùng `BuildConfig.BASE_URL` mà quên khai báo `buildFeatures { buildConfig = true }` sẽ báo lỗi không tìm thấy field. **Giải pháp:** Bật `buildConfig` khi dùng `buildConfigField`.
 5. **Đặt secret thật sự vào `buildConfigField`:** Dù không hiển thị trên UI, mọi giá trị BuildConfig vẫn nằm trong APK và có thể bị decompile. **Giải pháp:** Chỉ đặt config không nhạy cảm; secret phải nằm ở server.
 6. **Quên `applicationIdSuffix`:** Bản staging đè mất bản production trên máy QA vì cùng application ID. **Giải pháp:** Luôn set `applicationIdSuffix` (`.staging`, `.dev`) như ví dụ ở trên để cài song song.
-7. **Trùng `versionCode` giữa các variant:** Cài bản staging đè bản release nhưng versionCode bằng nhau gây lỗi update hoặc nhầm bản khi đối chiếu crash. **Giải pháp:** Kết hợp `versionNameSuffix` và quản `versionCode` riêng theo variant khi cần phân biệt.
+7. **Trùng `versionCode` giữa các variant:** Khi staging và release dùng chung applicationId (không có suffix), cài bản staging đè bản release nhưng versionCode bằng nhau gây lỗi update hoặc nhầm bản khi đối chiếu crash. **Giải pháp:** Kết hợp `versionNameSuffix` và quản `versionCode` riêng theo variant khi cần phân biệt.
 8. **Quên upload `mapping.txt`:** Bật R8 mà không lưu/upload file mapping thì crash bản release không giải được stacktrace. **Giải pháp:** Lưu `app/build/outputs/mapping/<variant>/mapping.txt` mỗi bản release và upload lên Play Console / Crashlytics.
 
 ## Tổng kết
@@ -728,7 +732,10 @@ Build Type giúp hệ thống hóa quy trình từ lúc viết code đến lúc 
 - [Android Developers — Configure build variants](https://developer.android.com/build/build-variants)
 - [Android Developers — Configure build types](https://developer.android.com/build/build-types)
 - [Android Developers — AGP DSL/API migration timeline (applicationVariants → androidComponents)](https://developer.android.com/build/releases/gradle-plugin-roadmap)
-- [Android Developers — Gradle recipes (rename APK với AGP 9)](https://developer.android.com/agents/skills/build/agp/agp-9-upgrade/references/recipes)
+- [Android Gradle recipes (GitHub, dùng Artifacts API thay cho API cũ)](https://github.com/android/gradle-recipes)
+- [Android Developers — AGP 9.0 release notes](https://developer.android.com/build/releases/agp-9-0-0-release-notes)
+- [Android Developers — VariantOutput (gradle-api 9.0)](https://developer.android.com/reference/tools/gradle-api/9.0/com/android/build/api/variant/VariantOutput)
+- [Android Developers — VariantDimension.buildConfigField (gradle-api 9.0)](https://developer.android.com/reference/tools/gradle-api/9.0/com/android/build/api/dsl/VariantDimension)
 - [Android Developers — BuildConfig](https://developer.android.com/build/releases/gradle-plugin#build-config)
 - [Gradle Documentation — Build System](https://docs.gradle.org/current/userguide/what_is_gradle.html)
 - [Firebase App Distribution](https://firebase.google.com/docs/app-distribution)

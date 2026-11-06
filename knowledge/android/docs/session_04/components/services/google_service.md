@@ -1,24 +1,20 @@
 ---
 id: android.component.service.google_service
 title: Google Service
-summary: Google Play Services và Firebase là gì, mối quan hệ giữa chúng, cách tích hợp chuẩn vào project, và triển khai thực chiến FCM, Analytics, Crashlytics, Auth, Remote Config, Firestore, App Distribution, Location, Maps.
+summary: Google Service trên Android gồm hai tầng là Google Play Services (GMS), framework hệ thống cài sẵn trên thiết bị cung cấp API như Location, Maps, đăng nhập; và Firebase, nền tảng Backend-as-a-Service với các SDK chạy trong app. Bài phân biệt hai tầng, SDK nào thật sự cần GMS, cách tích hợp chuẩn với BoM, và triển khai FCM, Analytics, Crashlytics, Auth, Remote Config, Firestore, Location, Maps.
 status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 45 phút
 tags: [android, google-service, google-play-services, firebase, fcm, crashlytics, analytics, firebase-auth, remote-config, firestore, app-distribution, location, maps]
 prerequisites: [android.component.service.overview]
-related: [android.component.broadcast.overview, android.component.activity.overview]
-downstream: [android.component.service.advertisements]
+related: [android.component.broadcast.overview, android.component.activity.overview, android.component.service.advertisements]
 learning_outcomes:
-  - Giải thích được Google Play Services và Firebase là gì, phân biệt rõ hai khái niệm.
-  - Giải thích được vì sao ứng dụng Android thực tế phụ thuộc vào Google Play Services.
+  - Phân biệt được Google Play Services và Firebase, và nhận biết SDK Firebase nào bắt buộc thiết bị có GMS.
   - Áp dụng được Firebase BoM và google-services.json để tích hợp Firebase vào project chuẩn.
-  - Triển khai được FCM push notification và xử lý đúng foreground/background.
-  - Triển khai được Firebase Analytics, Crashlytics, Remote Config, App Distribution.
-  - Triển khai được Firebase Auth kết hợp Google Sign-In.
-  - Biết khi nào nên đặt Firebase trong Clean Architecture / MVVM.
-  - Nhận diện được các lỗi tích hợp phổ biến: version mismatch, thiếu google-services.json, API Key sai.
+  - Triển khai được FCM push notification (token, notification channel, POST_NOTIFICATIONS) và xử lý đúng foreground/background.
+  - Triển khai được Analytics, Crashlytics, Remote Config và Firebase Auth với Sign in with Google qua Credential Manager.
+  - Nhận diện được các lỗi tích hợp phổ biến như version mismatch, thiếu google-services.json, API Key sai.
 knowledge_gap: >
   Nhiều người nhầm lẫn Google Play Services với Firebase SDK, không hiểu vì sao app crash trên thiết bị không có GMS. Không nắm được cơ chế GMS tự cập nhật và sự phụ thuộc của Firebase SDK vào GMS dẫn đến lỗi tích hợp, crash runtime, và app bị từ chối trên Play Store.
 ---
@@ -37,7 +33,7 @@ knowledge_gap: >
 - Location (vị trí)
 - Google Sign-In / OAuth
 - In-app Billing (thanh toán trong app)
-- **Nền tảng để các Firebase SDK chạy trên đó**
+- **Nền tảng cho một số Firebase SDK** (vd FCM)
 
 GMS **không phải phần của AOSP** (Android mã nguồn mở). Nó là phần mềm độc quyền của Google, được cấp phép cho các nhà sản xuất (OEM) và tự cập nhật qua Google Play Store — không cần người dùng nâng cấp hệ điều hành.
 
@@ -58,7 +54,7 @@ GMS **không phải phần của AOSP** (Android mã nguồn mở). Nó là ph�
 
 ### 1.3 Mối quan hệ GMS ↔ Firebase
 
-> Firebase SDK chạy **trên nền tảng Google Play Services**. Hầu hết các Firebase SDK (đặc biệt FCM, Dynamic Links, App Check) **yêu cầu thiết bị phải có GMS** mới hoạt động. Cả hai được cấu hình chung qua một file `google-services.json`.
+> Firebase SDK và GMS là hai thứ khác nhau, được cấu hình chung qua một file `google-services.json`. Chỉ một số Firebase SDK **bắt buộc thiết bị có GMS**: FCM, Phone Number Verification, App Check với provider Play Integrity. Analytics được khuyến nghị có GMS (thiếu GMS vẫn gửi được event nhưng mất một số tính năng). Nhiều SDK khác như Firestore, Crashlytics, Authentication, Remote Config, Cloud Storage **không cần GMS**.
 
 ```mermaid
 flowchart LR
@@ -72,6 +68,7 @@ flowchart LR
     style FB fill:#FFA000,stroke:#E65100,color:#fff
     style GCloud fill:#4CAF50,stroke:#388E3C,color:#fff
 ```
+<!-- dd: gg-eco -->
 
 ---
 
@@ -101,7 +98,7 @@ Trước Firebase, mọi app muốn có push notification, analytics, hay crash 
 
 ### 3.1 Google Play Services: một "system app" giao tiếp qua IPC
 
-GMS được cài như một **application component hệ thống**. Khi app của bạn gọi `GoogleApiClient` (hoặc API mới qua `Task`), thực chất app **bind tới Service của GMS** qua Binder IPC (giống Bound Service trong bài [Android Service](./android_service.md)), và GMS thực thi tác vụ rồi trả kết quả về.
+GMS được cài như một **application component hệ thống**. Khi app của bạn gọi API của GMS (các API hiện tại trả về `Task`; `GoogleApiClient` cũ đã deprecated), thực chất app **bind tới Service của GMS** qua Binder IPC (giống Bound Service trong bài [Android Service](./android_service.md)), và GMS thực thi tác vụ rồi trả kết quả về.
 
 ```mermaid
 sequenceDiagram
@@ -118,6 +115,7 @@ sequenceDiagram
     GMS-->>App: Task<T> hoàn thành
     App->>OS: unbindService()
 ```
+<!-- dd: gg-bind -->
 
 Vì GMS tự cập nhật, **version GMS trên máy có thể mới hơn hoặc cũ hơn** so với version mà app bạn biên dịch. Đây là nguồn gốc của lỗi `Google Play services is not compatible with your app` nếu bạn không xử lý đúng.
 
@@ -131,6 +129,7 @@ flowchart TD
     B --> C[Nghe sự kiện real-time\nhoặc đăng ký với server]
     C --> D[Nhận dữ liệu / cập nhật local]
 ```
+<!-- dd: gg-init -->
 
 Khi app bị kill, FCM vẫn có thể hiển thị notification nhờ **cơ chế của hệ điều hành** (qua Google Play Services) — không cần app chạy. Đây là điểm khác biệt cốt lõi so với tự mở socket.
 
@@ -157,6 +156,8 @@ flowchart TD
     style Firestore fill:#4CAF50,stroke:#388E3C,color:#fff
     style Alt fill:#757575,stroke:#424242,color:#fff
 ```
+<!-- dd: gg-choose-a -->
+<!-- dd: gg-choose-b -->
 
 ### Nên dùng
 
@@ -192,6 +193,7 @@ flowchart LR
     style C fill:#FFA000,stroke:#E65100,color:#fff
     style D fill:#2196F3,stroke:#1565C0,color:#fff
 ```
+<!-- dd: gg-setup -->
 
 ### Bước 1 — Tạo project trên Firebase Console
 
@@ -201,7 +203,7 @@ Vào [console.firebase.google.com](https://console.firebase.google.com), tạo p
 - **SHA-1** của keystore (dùng cho Google Sign-In và một số tính năng).
 
 > [!IMPORTANT]
-> **Package name phải khớp chính xác.** Nếu khai báo sai, app sẽ crash ngay khi khởi động với lỗi: *"Default FirebaseApp is not initialized"* hoặc *"google-services.json is missing"*.
+> **Package name phải khớp chính xác.** Nếu thiếu file hoặc package name không khớp, plugin `google-services` làm **build lỗi** (vd *"File google-services.json is missing"*, *"No matching client found for package name"*). Lỗi runtime *"Default FirebaseApp is not initialized"* thường do quên apply plugin.
 
 ### Bước 2 — Thêm plugin vào Gradle
 
@@ -217,12 +219,12 @@ plugins {
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("com.google.gms.google-services")   // Bắt buộc để sinh FirebaseApp từ json
+    id("com.google.gms.google-services")   // Đọc google-services.json, sinh resource cấu hình
 }
 ```
 
 > [!NOTE]
-> Plugin `com.google.gms.google-services` đọc `google-services.json` và **tự động sinh** code khởi tạo `FirebaseApp`. Bạn không cần gọi `FirebaseApp.initializeApp()` trong code.
+> Plugin `com.google.gms.google-services` đọc `google-services.json` và **sinh resource** cấu hình (`google_app_id`, `default_web_client_id`...). Việc khởi tạo `FirebaseApp` do `FirebaseInitProvider`, một ContentProvider của Firebase, tự làm khi process khởi động (ContentProvider chạy `onCreate` trước `Application.onCreate`, xem bài ContentProvider). Vì vậy bạn không cần gọi `FirebaseApp.initializeApp()` trong code.
 
 ### Bước 3 — Thêm dependency với Firebase BoM
 
@@ -231,7 +233,7 @@ plugins {
 ```kotlin
 dependencies {
     // BoM: quản lý version tập trung
-    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
 
     // Các SDK — KHÔNG ghi version
     implementation("com.google.firebase:firebase-analytics")
@@ -240,7 +242,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
-    implementation("com.google.firebase:firebase-config-ktx")
+    implementation("com.google.firebase:firebase-config")
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.android.gms:play-services-maps:19.0.0")
     implementation("com.google.android.libraries.places:places:3.5.0")
@@ -250,12 +252,15 @@ dependencies {
 > [!TIP]
 > Không ghi version riêng cho từng SDK Firebase khi đã dùng BoM. BoM sẽ chọn version tương thích với nhau, hạn chế tối đa `Dependency conflict` khi build.
 
+> [!WARNING]
+> Từ **BoM 34.0.0** (07/2025), các module `-ktx` (vd `firebase-config-ktx`, `firebase-auth-ktx`) đã bị bỏ khỏi BoM. Kotlin API nay nằm sẵn trong module chính, nên chỉ cần khai báo `firebase-config`, `firebase-auth`...
+
 ### Bước 4 — Đảm bảo minSdk
 
-Firebase yêu cầu **minSdk ≥ 21** (Android 5.0). Kiểm tra trong `build.gradle.kts`:
+Từ **BoM 35.0.0** (10/2026), Firebase Android SDK yêu cầu **minSdk ≥ 24** (Android 7.0); các BoM cũ hơn có mức thấp hơn. Kiểm tra trong `build.gradle.kts`:
 ```kotlin
 defaultConfig {
-    minSdk = 21
+    minSdk = 24
 }
 ```
 
@@ -281,6 +286,7 @@ sequenceDiagram
     GMS->>App: App đang foreground → onMessageReceived()
     GMS->>OS: App background/kill → hiển thị notification hệ thống
 ```
+<!-- dd: gg-fcm -->
 
 **FirebaseMessagingService** — nhận message:
 
@@ -288,7 +294,8 @@ sequenceDiagram
 class OrderMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
-        // Token mới được cấp (đăng nhập lại, cài lại app...)
+        // Gọi khi token được tạo lần đầu và mỗi khi token đổi
+        // (khôi phục app sang máy mới, gỡ rồi cài lại app, xoá dữ liệu app)
         // Gửi lên server: apiService.uploadFcmToken(token)
     }
 
@@ -298,8 +305,47 @@ class OrderMessagingService : FirebaseMessagingService() {
         val body = remoteMessage.notification?.body ?: remoteMessage.data["body"] ?: ""
         showNotification(title, body)
     }
+
+    private fun showNotification(title: String, body: String) {
+        // Android 13+: chưa được cấp POST_NOTIFICATIONS thì không hiện được notification
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+        ) return
+
+        val manager = NotificationManagerCompat.from(this)
+        // Android 8+: notification phải thuộc một channel (tạo lại nhiều lần không sao)
+        manager.createNotificationChannel(
+            NotificationChannelCompat.Builder(CHANNEL_ORDERS, NotificationManagerCompat.IMPORTANCE_HIGH)
+                .setName("Đơn hàng")
+                .build()
+        )
+        val notification = NotificationCompat.Builder(this, CHANNEL_ORDERS)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setAutoCancel(true)
+            .build()
+        manager.notify(System.currentTimeMillis().toInt(), notification)
+    }
+
+    companion object {
+        const val CHANNEL_ORDERS = "orders"
+    }
 }
 ```
+
+**Lấy token hiện tại** (vd sau khi người dùng đăng nhập; `onNewToken` chỉ được gọi khi token được tạo hoặc thay đổi):
+```kotlin
+FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+    // apiService.uploadFcmToken(token)
+}
+```
+
+> [!IMPORTANT]
+> - **Android 13+:** FCM SDK (23.0.6+) đã khai báo `POST_NOTIFICATIONS` trong manifest, nhưng app phải **xin runtime permission**; chưa được cấp thì không notification nào hiện ra, kể cả notification do hệ thống tự hiển thị khi app ở background.
+> - **Notification channel (Android 8+):** notification message không chỉ định channel sẽ dùng channel mặc định khai báo bằng meta-data `com.google.firebase.messaging.default_notification_channel_id`.
+> - Tài liệu FCM mới đánh dấu cách lấy token là deprecated, chuyển dần sang đăng ký bằng Firebase Installation ID (meta-data `firebase_messaging_installation_id_enabled` và callback `onRegistered(installationId)`). Cách dùng token ở trên vẫn chạy được.
 
 **Khai báo trong AndroidManifest.xml:**
 ```xml
@@ -359,13 +405,17 @@ analytics.setUserProperty("user_tier", "premium")
 
 **Tùy biến crash log trong code:**
 ```kotlin
-class App : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        // Đăng ký handler crash toàn cục (bắt cả lỗi không gây crash app)
-        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            FirebaseCrashlytics.getInstance().recordException(throwable)
-        }
+// Crashlytics TỰ cài handler bắt crash (uncaught exception) khi app khởi động.
+// KHÔNG ghi đè Thread.setDefaultUncaughtExceptionHandler: làm vậy sẽ thay mất handler
+// của Crashlytics, crash bị báo thành non-fatal và app không kết thúc đúng cách.
+
+fun submitOrder(order: Order) {
+    try {
+        orderApi.submit(order)
+    } catch (e: IOException) {
+        // Lỗi đã được xử lý (non-fatal): recordException chỉ dùng trong catch
+        FirebaseCrashlytics.getInstance().recordException(e)
+        showRetryMessage()
     }
 }
 
@@ -385,21 +435,25 @@ fun reportUserAction(userId: String) {
 
 **Tình huống:** Người dùng đăng nhập bằng tài khoản Google.
 
+> [!NOTE]
+> API `GoogleSignInClient` (thư viện `play-services-auth`) đã deprecated. Cách hiện tại là **Credential Manager** kết hợp **Sign in with Google** (`GetGoogleIdOption`): lấy ID token của Google, rồi đổi sang phiên đăng nhập Firebase bằng `GoogleAuthProvider`.
+
 ```mermaid
 sequenceDiagram
     participant App as Ứng dụng
-    participant GMS as Google Sign-In (GMS)
+    participant GMS as Credential Manager
     participant FB as Firebase Auth
     participant GCloud as Google Backend
 
-    App->>GMS: khởi tạo GoogleSignInClient
-    App->>App: startActivityForResult(googleSignInIntent)
-    GMS-->>App: Trả về GoogleSignInAccount + idToken
+    App->>GMS: getCredential(GetGoogleIdOption)
+    GMS-->>App: Người dùng chọn tài khoản
+    GMS-->>App: GoogleIdTokenCredential (idToken)
     App->>FB: signInWithCredential(GoogleAuthProvider credential)
     FB->>GCloud: Xác thực idToken
     GCloud-->>FB: OK
     FB-->>App: FirebaseUser — đăng nhập thành công
 ```
+<!-- dd: gg-auth -->
 
 **Code trong ViewModel + Activity (luồng thực chiến):**
 
@@ -416,39 +470,40 @@ class GoogleAuthDataSource(
         firebaseAuth.currentUser?.uid ?: throw IllegalStateException("Login failed")
     }
 
-    suspend fun signOut() = firebaseAuth.signOut()
+    fun signOut() = firebaseAuth.signOut()
 }
 
-// --- UI: Activity xử lý luồng Google Sign-In ---
-private lateinit var googleSignInClient: GoogleSignInClient
-
-override fun onCreate(savedInstanceState: Bundle?) {
-    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(getString(R.string.default_web_client_id)) // từ google-services.json
-        .requestEmail()
-        .build()
-    googleSignInClient = GoogleSignIn.getClient(this, gso)
-}
+// --- UI: Activity gọi Credential Manager + Sign in with Google ---
+// Dependencies: androidx.credentials:credentials, androidx.credentials:credentials-play-services-auth,
+//               com.google.android.libraries.identity.googleid:googleid
+private val credentialManager by lazy { CredentialManager.create(this) }
 
 fun startGoogleSignIn() {
-    startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
-}
+    val googleIdOption = GetGoogleIdOption.Builder()
+        .setServerClientId(getString(R.string.default_web_client_id)) // Web client ID, từ google-services.json
+        .setFilterByAuthorizedAccounts(false) // cho chọn cả tài khoản chưa từng đăng nhập app
+        .build()
+    val request = GetCredentialRequest.Builder()
+        .addCredentialOption(googleIdOption)
+        .build()
 
-override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    super.onActivityResult(requestCode, resultCode, data)
-    if (requestCode == RC_SIGN_IN) {
-        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-        handleSignInResult(task)
+    lifecycleScope.launch {
+        try {
+            val credential = credentialManager.getCredential(this@LoginActivity, request).credential
+            if (credential is CustomCredential &&
+                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+            ) {
+                val idToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
+                viewModel.signInWithGoogle(idToken)   // gọi data layer, lưu session
+            }
+        } catch (e: GetCredentialException) {
+            // Người dùng huỷ hoặc máy không có tài khoản Google: báo lỗi trên UI, không crash
+        }
     }
 }
 
-private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
-    val account = task.getResult(ApiException::class.java)
-    val idToken = account.idToken
-    if (idToken != null) {
-        viewModel.signInWithGoogle(idToken)   // gọi data layer, lưu session
-    }
-}
+// Khi đăng xuất: firebaseAuth.signOut() rồi
+// credentialManager.clearCredentialState(ClearCredentialStateRequest())
 ```
 
 > [!CAUTION]
@@ -466,11 +521,12 @@ interface FeatureFlags {
 
 // Data: RemoteConfigDataSource
 class RemoteConfigDataSource : FeatureFlags {
+    private val remoteConfig = FirebaseRemoteConfig.getInstance()
+
     override val showFriendSuggestion: Boolean
         get() = remoteConfig.getBoolean(KEY_SHOW_FRIEND_SUGGESTION)
 
     suspend fun fetchAndActivate() {
-        val remoteConfig = FirebaseRemoteConfig.getInstance()
         remoteConfig.setDefaultsAsync(
             mapOf(KEY_SHOW_FRIEND_SUGGESTION to false) // giá trị mặc định local
         )
@@ -480,6 +536,10 @@ class RemoteConfigDataSource : FeatureFlags {
         remoteConfig.setConfigSettingsAsync(settings)
         // fetch + activate: áp dụng giá trị mới từ server
         remoteConfig.fetchAndActivate().await()
+    }
+
+    companion object {
+        const val KEY_SHOW_FRIEND_SUGGESTION = "show_friend_suggestion"
     }
 }
 ```
@@ -583,11 +643,12 @@ class LocationDataSource(
 ) {
     suspend fun getCurrentLocation(): Location? {
         return try {
-            val request = LocationRequest.Builder(
-                Priority.PRIORITY_HIGH_ACCURACY, 10_000L
-            ).build()
-            // getCurrentLocation: lấy 1 lần, không cần location listener
-            fusedLocation.getCurrentLocation(request, CancellationTokenSource().token).await()
+            // getCurrentLocation: lấy 1 lần, không cần location listener.
+            // Overload hợp lệ: (priority, token) hoặc (CurrentLocationRequest, token)
+            fusedLocation.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                CancellationTokenSource().token
+            ).await()
         } catch (e: SecurityException) {
             null // Chưa có quyền — UI phải request permission trước
         }
@@ -668,6 +729,7 @@ flowchart LR
     style FB fill:#FFA000,stroke:#E65100,color:#fff
     style GMS fill:#2196F3,stroke:#1565C0,color:#fff
 ```
+<!-- dd: gg-arch -->
 
 **Nguyên tắc:**
 - ViewModel gọi `UseCase` (Domain), không gọi Firebase trực tiếp.
@@ -683,7 +745,7 @@ flowchart LR
 > **Giải pháp:** Luôn dùng **Firebase BoM** và không ghi version riêng lẻ.
 
 > [!WARNING]
-> **Thiếu `google-services.json` hoặc sai package name:** App crash ngay khi khởi động: *"Default FirebaseApp is not initialized in this process"*.
+> **Thiếu `google-services.json` hoặc sai package name:** Plugin `google-services` làm build lỗi. Nếu quên apply plugin, app build được nhưng khi chạy báo *"Default FirebaseApp is not initialized in this process"*.
 > **Giải pháp:** Đặt đúng file vào `app/`, khớp `package name` giữa Console và `applicationId`.
 
 > [!CAUTION]
@@ -695,8 +757,8 @@ flowchart LR
 > **Giải pháp:** Dùng thư viện permission (vd Accompanist) và kiểm tra `checkSelfPermission` trước mỗi call.
 
 > [!CAUTION]
-> **minSdk < 21:** Firebase SDK yêu cầu minSdk 21 trở lên, build sẽ fail.
-> **Giải pháp:** Set `minSdk = 21` trong `build.gradle.kts`.
+> **minSdk thấp hơn yêu cầu của BoM:** Firebase SDK từ BoM 35.0.0 yêu cầu minSdk 24 trở lên, build sẽ fail (manifest merger báo lỗi minSdk).
+> **Giải pháp:** Set `minSdk = 24` trong `build.gradle.kts`, hoặc giữ BoM cũ nếu bắt buộc hỗ trợ máy cũ.
 
 > [!TIP]
 > **Debug nhanh:** Bật `debug.firebase.analytics.app` để xem event log; filter `Crashlytics` trong logcat để xem crash chi tiết; dùng **Firebase Emulator** khi phát triển để không đụng dữ liệu thật.
@@ -736,3 +798,8 @@ flowchart LR
 - [Firebase Emulator Suite](https://firebase.google.com/docs/emulator-suite)
 - [Google Play services — get current location](https://developer.android.com/develop/sensors-and-location/location/current-location)
 - [Google Maps SDK for Android](https://developers.google.com/maps/documentation/android-sdk/start)
+- [Firebase Android release notes (BoM 34: bỏ KTX, BoM 35: minSdk 24)](https://firebase.google.com/support/release-notes/android)
+- [Dependencies of Firebase Android SDKs on Google Play services](https://firebase.google.com/docs/android/android-play-services)
+- [Customize Crashlytics crash reports](https://firebase.google.com/docs/crashlytics/android/customize-crash-reports)
+- [Migrate from legacy Google Sign-In to Credential Manager](https://developer.android.com/identity/sign-in/legacy-gsi-migration)
+- [FusedLocationProviderClient reference](https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bốn tầng, hai chiều implement</title>
+<title>Broadcast Receiver trong Clean Architecture</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
@@ -17,91 +17,89 @@
 <body>
 <div class="page">
   <p class="eyebrow">SƠ ĐỒ KIẾN TRÚC · CLEAN ARCHITECTURE</p>
-  <h1>Bốn tầng, hai chiều implement</h1>
-  <p class="sub">Trên gọi xuống để chạy, dưới implement ngược lên để tách phụ thuộc.</p>
-<svg viewBox="0 0 800 500" role="img" aria-labelledby="br-arch-dark-title br-arch-dark-desc" font-family="'Geist', sans-serif">
-<title id="br-arch-dark-title">Bốn tầng, hai chiều implement</title>
-<desc id="br-arch-dark-desc">Presentation gọi xuống Domain, Domain implement ngược lên Data, hệ thống đẩy sự kiện vào observer.</desc>
+  <h1>Broadcast Receiver trong Clean Architecture</h1>
+  <p class="sub">Receiver chỉ là entry point ở Data layer: nhận sự kiện hệ thống rồi giao việc ngay.</p>
+<svg viewBox="0 0 800 528" role="img" aria-labelledby="br-arch-dark-title br-arch-dark-desc" font-family="'Geist', sans-serif">
+<title id="br-arch-dark-title">Broadcast Receiver trong Clean Architecture</title>
+<desc id="br-arch-dark-desc">Bốn tầng Presentation, Domain, Data và Android System: hệ thống đẩy sự kiện vào Data layer, nơi NetworkConnectivityObserver, ReminderScheduler và BootReceiver (enqueue RescheduleRemindersWorker) implement Domain layer, và Domain được inject lên ViewModel.</desc>
 <defs>
 <marker id="br-arch-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
 <polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
 </marker>
 </defs>
-<rect width="800" height="500" fill="#060913"/>
-<!-- zones -->
-<rect x="32" y="24" width="368" height="196" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
-<rect x="48" y="28" width="112" height="12" rx="2" fill="#060913"/>
-<text x="104" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">PRESENTATION</text>
-<rect x="416" y="24" width="352" height="272" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
-<rect x="432" y="28" width="72" height="12" rx="2" fill="#060913"/>
-<text x="468" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DATA</text>
-<rect x="32" y="244" width="368" height="196" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
-<rect x="48" y="248" width="80" height="12" rx="2" fill="#060913"/>
-<text x="88" y="257" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DOMAIN</text>
-<rect x="416" y="320" width="352" height="120" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
-<rect x="432" y="324" width="80" height="12" rx="2" fill="#060913"/>
-<text x="472" y="333" fill="#38BDF8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SYSTEM</text>
+<rect width="800" height="528" fill="#060913"/>
+<!-- layers -->
+<rect x="24" y="24" width="752" height="88" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<text x="40" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">PRESENTATION LAYER</text>
+<rect x="24" y="144" width="752" height="88" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<text x="40" y="157" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">DOMAIN LAYER</text>
+<rect x="24" y="264" width="752" height="88" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<text x="40" y="277" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">DATA LAYER</text>
+<rect x="24" y="384" width="752" height="88" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<text x="40" y="397" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">ANDROID SYSTEM</text>
 <!-- arrows -->
-<path d="M 208,108 V 132" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
-<rect x="220" y="114" width="64" height="12" rx="2" fill="#060913"/>
-<text x="252" y="123" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OBSERVE</text>
-<path d="M 208,184 V 276" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
-<rect x="220" y="224" width="56" height="12" rx="2" fill="#060913"/>
-<text x="248" y="233" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">INJECT</text>
-<path d="M 352,302 H 360 Q 368,302 368,294 V 90 H 440 Q 448,90 448,82" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
-<rect x="380" y="70" width="64" height="12" rx="2" fill="#060913"/>
-<text x="412" y="79" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">IMPLEMENT</text>
-<path d="M 352,378 H 360 Q 368,378 368,370 V 190 H 440 Q 448,190 448,182" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
-<rect x="380" y="240" width="80" height="16" rx="2" fill="#060913"/>
-<text x="420" y="252" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">IMPLEMENT</text>
-<path d="M 592,260 V 268 H 744 Q 752,268 752,276 V 460 H 216 Q 208,460 208,452 V 404" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
-<rect x="456" y="440" width="56" height="12" rx="2" fill="#060913"/>
-<text x="484" y="449" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">INJECT</text>
-<path d="M 592,328 V 346 H 216 Q 208,346 208,338 V 328" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
-<rect x="364" y="326" width="80" height="12" rx="2" fill="#060913"/>
-<text x="404" y="335" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SYSTEM EVENTS</text>
-<!-- nodes -->
-<rect x="64" y="56" width="288" height="52" rx="6" fill="#060913"/>
-<rect x="64" y="56" width="288" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="208" y="88" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
-<rect x="64" y="132" width="288" height="52" rx="6" fill="#060913"/>
-<rect x="64" y="132" width="288" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="208" y="164" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
-<rect x="448" y="56" width="288" height="52" rx="6" fill="#060913"/>
-<rect x="448" y="56" width="288" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="592" y="88" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">NetworkObserver</text>
-<text x="592" y="102" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bọc networkcallback</text>
-<rect x="448" y="132" width="288" height="52" rx="6" fill="#060913"/>
-<rect x="448" y="132" width="288" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="592" y="158" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">WorkSchedulerImpl</text>
-<text x="592" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bọc workmanager</text>
-<rect x="448" y="208" width="288" height="52" rx="6" fill="#060913"/>
-<rect x="448" y="208" width="288" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="592" y="240" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">BootReceiver</text>
-<text x="592" y="254" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">inject scheduler</text>
-<rect x="64" y="276" width="288" height="52" rx="6" fill="#060913"/>
-<rect x="64" y="276" width="288" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="208" y="308" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ConnectivityObserver</text>
-<text x="208" y="322" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">interface</text>
-<rect x="64" y="352" width="288" height="52" rx="6" fill="#060913"/>
-<rect x="64" y="352" width="288" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="208" y="384" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">WorkScheduler</text>
-<text x="208" y="398" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">interface</text>
-<rect x="448" y="352" width="288" height="52" rx="6" fill="#060913"/>
-<rect x="448" y="352" width="288" height="52" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="456" y="358" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="482" y="367" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">GỐC</text>
-<text x="592" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">NetworkCallback</text>
-<text x="592" y="400" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">system events</text>
+<path d="M 536,72 H 264" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
+<rect x="328" y="52" width="144" height="12" rx="2" fill="#060913"/>
+<text x="400" y="61" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">collect StateFlow&lt;UiState&gt;</text>
+<path d="M 276,144 V 112" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
+<rect x="288" y="120" width="48" height="12" rx="2" fill="#060913"/>
+<text x="312" y="129" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">INJECT</text>
+<path d="M 276,264 V 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
+<rect x="288" y="240" width="64" height="12" rx="2" fill="#060913"/>
+<text x="320" y="249" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">IMPLEMENT</text>
+<path d="M 276,384 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
+<rect x="288" y="360" width="84" height="12" rx="2" fill="#060913"/>
+<text x="330" y="369" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SYSTEM EVENTS</text>
+<!-- presentation nodes -->
+<rect x="40" y="48" width="224" height="52" rx="6" fill="#060913"/>
+<rect x="40" y="48" width="224" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="152" y="78" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity / Fragment</text>
+<rect x="536" y="48" width="224" height="52" rx="6" fill="#060913"/>
+<rect x="536" y="48" width="224" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="648" y="72" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<text x="648" y="88" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">MVVM · MVI Store</text>
+<!-- domain nodes -->
+<rect x="40" y="168" width="224" height="52" rx="6" fill="#060913"/>
+<rect x="40" y="168" width="224" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="152" y="192" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ConnectivityObserver</text>
+<text x="152" y="208" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">interface</text>
+<rect x="288" y="168" width="224" height="52" rx="6" fill="#060913"/>
+<rect x="288" y="168" width="224" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="192" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ReminderRepository</text>
+<text x="400" y="208" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">interface</text>
+<rect x="536" y="168" width="224" height="52" rx="6" fill="#060913"/>
+<rect x="536" y="168" width="224" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="648" y="192" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">GetPostsUseCase</text>
+<text x="648" y="208" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">use case</text>
+<!-- data nodes -->
+<rect x="40" y="288" width="224" height="52" rx="6" fill="#060913"/>
+<rect x="40" y="288" width="224" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="152" y="312" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">NetworkConnectivityObserver</text>
+<text x="152" y="328" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bọc NetworkCallback</text>
+<rect x="288" y="288" width="224" height="52" rx="6" fill="#060913"/>
+<rect x="288" y="288" width="224" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="312" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ReminderScheduler</text>
+<text x="400" y="328" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bọc AlarmManager</text>
+<rect x="536" y="288" width="224" height="52" rx="6" fill="#060913"/>
+<rect x="536" y="288" width="224" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="648" y="312" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">BootReceiver</text>
+<text x="648" y="328" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">enqueue RescheduleRemindersWorker</text>
+<!-- system node -->
+<rect x="240" y="408" width="320" height="52" rx="6" fill="#060913"/>
+<rect x="240" y="408" width="320" height="52" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="248" y="414" width="40" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="268" y="423" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">GỐC</text>
+<text x="400" y="436" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">NetworkCallback / BroadcastReceiver</text>
+<text x="400" y="452" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">onLost · onAvailable · BOOT_COMPLETED</text>
 <!-- legend -->
-<line x1="32" y1="476" x2="768" y2="476" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="492" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="488" r="4" fill="#38BDF8"/>
-<text x="162" y="492" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NGUỒN SỰ KIỆN · SYSTEM</text>
-<line x1="430" y1="488" x2="462" y2="488" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
-<text x="470" y="492" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỌI XUỐNG · IMPLEMENT LÊN</text>
+<line x1="32" y1="496" x2="768" y2="496" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="512" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="508" r="4" fill="#38BDF8"/>
+<text x="162" y="512" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NGUỒN SỰ KIỆN · SYSTEM</text>
+<line x1="430" y1="508" x2="462" y2="508" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-arch-dark-arrow)"/>
+<text x="470" y="512" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">INJECT · IMPLEMENT · EVENTS ĐI LÊN</text>
 </svg>
-  <p class="colophon">DIAGRAM-DESIGN · ARCHITECTURE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
+  <p class="colophon">DIAGRAM-DESIGN · LAYER STACK · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
 </div>
 </body>
 </html>

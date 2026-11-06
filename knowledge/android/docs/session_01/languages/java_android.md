@@ -4,8 +4,8 @@ title: Java Android trong Hệ sinh thái Android
 summary: Nền tảng ngôn ngữ khởi nguồn của Android SDK. Hiểu rõ kiến trúc biên dịch Java, sự khác biệt giữa JVM (Stack-based) và ART/Dalvik (Register-based), Java Desugaring internals, memory leak do inner class và Java-Kotlin Interoperability.
 status: published
 difficulty: intermediate
-estimated_reading_time: 30 phút
 depth: deep-dive
+estimated_reading_time: 30 phút
 tags: [android, java, JVM, ART, dalvik, desugaring, interop]
 prerequisites: []
 related: [android.languages.kotlin, android.languages.jni, android.output_packages.apk_files]
@@ -95,7 +95,7 @@ Lựa chọn này hợp lý cho Dalvik năm 2008, khi app chủ yếu chạy b�
 
 - **JVM (Stack-based Execution)**:
 
-```bytecode
+```text
 iload_1          ; Push giá trị b vào Operand Stack
 iload_2          ; Push giá trị c vào Operand Stack
 iadd             ; Pop 2 giá trị, cộng lại, push kết quả vào Stack
@@ -106,7 +106,7 @@ istore_3         ; Pop kết quả từ Stack lưu vào biến a (slot 3)
 
 - **Dalvik / ART (Register-based Execution)**:
 
-```bytecode
+```text
 add-int v0, v1, v2   ; Lấy thanh ghi v1 + v2, ghi trực tiếp kết quả vào thanh ghi v0
 ```
 

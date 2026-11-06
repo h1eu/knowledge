@@ -1,23 +1,20 @@
 ---
 id: android.component.service.overview
 title: Android Service
-summary: Android Service là gì, tất cả các loại Service (Started, Bound, Foreground), khi nào dùng loại nào, và triển khai thực chiến với Coroutines, WorkManager.
+summary: Android Service là Application Component không có UI, dùng để thực thi tác vụ nền hoặc phục vụ component khác; bài phân biệt Started, Bound và Foreground Service, các giới hạn background từ Android 8 đến Android 15, và khi nào nên chọn WorkManager thay cho Service.
 status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 30 phút
 tags: [android, service, foreground-service, bound-service, workmanager, coroutines, background]
 prerequisites: [android.component.activity.overview, android.component.activity.lifecycle]
-related: [android.component.broadcast.overview, android.intent.overview]
-downstream: []
+related: [android.component.broadcast.overview, android.intent.explicit]
 learning_outcomes:
-  - Hiểu bản chất của Android Service và vai trò của nó trong hệ thống.
-  - Phân biệt rõ 3 loại Service: Started, Bound và Foreground, biết khi nào dùng loại nào.
-  - Triển khai được Started Service với Coroutines (CoroutineWorker).
-  - Triển khai được Foreground Service với Notification.
-  - Triển khai được Bound Service với Binder.
-  - Hiểu vì sao WorkManager thường là lựa chọn tốt hơn Service thuần.
-  - Tránh được các lỗi phổ biến: ANR, memory leak, crash do policy Android.
+  - Giải thích được bản chất của Android Service (component không UI, mặc định chạy trên main thread) và vai trò của nó trong hệ thống.
+  - Phân biệt được Started, Bound và Foreground Service, biết khi nào dùng loại nào.
+  - Triển khai được Foreground Service với Notification và foregroundServiceType, và Bound Service với Binder.
+  - Biết khi nào nên dùng WorkManager thay cho Service thuần.
+  - Xử lý được các lỗi phổ biến như ANR, memory leak, crash do giới hạn background của Android 8, 12, 14 và 15.
 knowledge_gap: >
   Xem Service như "chạy ngầm mãi mãi" là hiểu sai bản chất. Android giới hạn chặt chẽ background execution từ Android 8+. Không hiểu các giới hạn này dẫn đến app bị kill, crash, hoặc vi phạm policy Play Store.
 ---
@@ -69,6 +66,7 @@ flowchart TD
     style BS fill:#2196F3,stroke:#1565C0,color:#fff
     style SS fill:#9C27B0,stroke:#6A1B9A,color:#fff
 ```
+<!-- dd: svc-choose -->
 
 ## 3. Tư duy hệ thống (System Thinking in Application)
 
@@ -108,6 +106,7 @@ flowchart LR
     style WM fill:#4CAF50,stroke:#388E3C,color:#fff
     style BS fill:#2196F3,stroke:#1565C0,color:#fff
 ```
+<!-- dd: svc-layers -->
 
 **Nguyên tắc quan trọng:** Service không được biết đến UI. Service chỉ thực thi tác vụ và emit kết quả (qua BroadcastReceiver, EventBus, Flow, hoặc Binder callback). UI quyết định cách hiển thị kết quả đó.
 
@@ -117,7 +116,7 @@ flowchart LR
 
 | Đặc điểm | Started Service | Foreground Service | Bound Service |
 |---|---|---|---|
-| **Khởi động bằng** | `startService()` | `startForeground()` | `bindService()` |
+| **Khởi động bằng** | `startService()` | `startForegroundService()`, rồi service tự gọi `ServiceCompat.startForeground()` | `bindService()` |
 | **Lifecycle** | Chạy đến khi `stopSelf()` / `stopService()` | Chạy đến khi dừng | Chạy khi có ít nhất 1 client bind |
 | **Notification** | Không | **Bắt buộc** | Không |
 | **Giao tiếp 2 chiều** | Không | Không | **Có (Binder)** |
@@ -135,6 +134,7 @@ stateDiagram-v2
     Running --> Stopped : stopSelf() / stopService() / onUnbind()
     Stopped --> [*] : onDestroy()
 ```
+<!-- dd: svc-state -->
 
 ### `onStartCommand()` — Return value quan trọng
 
@@ -159,6 +159,9 @@ override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
 **Tình huống:** Gửi log analytics lên server sau khi người dùng hoàn thành một session mà không chặn UI.
 
+> [!WARNING]
+> Ví dụ này chỉ để minh hoạ vòng đời Started Service. Với upload analytics trong app thật, **WorkManager** mới là công cụ được khuyến nghị: tài liệu chính thức xếp "gửi log hoặc analytics" vào nhóm persistent work. Lý do: tác vụ không cần chạy ngay, WorkManager lưu work vào database nên vẫn chạy lại sau khi app bị kill hoặc thiết bị khởi động lại, hỗ trợ constraint (có mạng) và retry với backoff. Ngoài ra, gọi `startService()` khi app đang ở background trên Android 8+ sẽ ném `IllegalStateException`, nên Started Service chỉ an toàn khi được start lúc app còn ở foreground.
+
 ```mermaid
 sequenceDiagram
     participant UI as Activity
@@ -175,6 +178,7 @@ sequenceDiagram
     Svc->>Svc: stopSelf() — tự dừng
     OS->>Svc: onDestroy()
 ```
+<!-- dd: svc-analytics -->
 
 **AndroidManifest.xml**
 ```xml
@@ -267,6 +271,7 @@ sequenceDiagram
     OS->>Svc: onStartCommand(ACTION_PAUSE)
     Svc->>Svc: mediaPlayer.pause()
 ```
+<!-- dd: svc-music -->
 
 **AndroidManifest.xml**
 ```xml
@@ -283,9 +288,11 @@ sequenceDiagram
 ```kotlin
 import android.app.*
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 
 class MusicPlayerService : Service() {
 
@@ -305,8 +312,8 @@ class MusicPlayerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_PLAY -> {
-                startForeground(NOTIFICATION_ID, buildNotification(isPlaying = true))
-                playMusic()
+                // Phải lên foreground trong vài giây sau startForegroundService()
+                if (promoteToForeground(isPlaying = true)) playMusic() else stopSelf()
             }
             ACTION_PAUSE -> {
                 pauseMusic()
@@ -314,17 +321,41 @@ class MusicPlayerService : Service() {
             }
             ACTION_STOP -> {
                 stopMusic()
-                stopForeground(STOP_FOREGROUND_REMOVE)
+                ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
                 stopSelf()
+            }
+            null -> {
+                // Hệ thống tạo lại Service sau khi kill (START_STICKY, intent = null):
+                // hiện lại notification ở trạng thái tạm dừng, không được thì dừng hẳn
+                if (!promoteToForeground(isPlaying = false)) stopSelf()
             }
         }
         return START_STICKY
     }
 
+    private fun promoteToForeground(isPlaying: Boolean): Boolean = try {
+        ServiceCompat.startForeground(
+            this,
+            NOTIFICATION_ID,
+            buildNotification(isPlaying),
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            } else {
+                0
+            }
+        )
+        true
+    } catch (e: Exception) {
+        // Android 12+: ForegroundServiceStartNotAllowedException nếu đang ở background
+        false
+    }
+
     private fun buildNotification(isPlaying: Boolean): Notification {
-        val pauseIntent = PendingIntent.getService(
+        // Nút trên notification đổi theo trạng thái: đang phát thì gửi PAUSE, đang dừng thì gửi PLAY
+        val toggleAction = if (isPlaying) ACTION_PAUSE else ACTION_PLAY
+        val toggleIntent = PendingIntent.getService(
             this, 0,
-            Intent(this, MusicPlayerService::class.java).apply { action = ACTION_PAUSE },
+            Intent(this, MusicPlayerService::class.java).apply { action = toggleAction },
             PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -332,7 +363,11 @@ class MusicPlayerService : Service() {
             .setContentTitle("Đang phát: Shape of You")
             .setContentText("Ed Sheeran • Divide")
             .setSmallIcon(android.R.drawable.ic_media_play)
-            .addAction(android.R.drawable.ic_media_pause, if (isPlaying) "Tạm dừng" else "Phát", pauseIntent)
+            .addAction(
+                if (isPlaying) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play,
+                if (isPlaying) "Tạm dừng" else "Phát",
+                toggleIntent
+            )
             .setOngoing(true)
             .build()
     }
@@ -361,12 +396,12 @@ class MusicPlayerService : Service() {
 val intent = Intent(this, MusicPlayerService::class.java).apply {
     action = MusicPlayerService.ACTION_PLAY
 }
-if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-    startForegroundService(intent)
-} else {
-    startService(intent)
-}
+// Gọi khi Activity đang hiển thị (người dùng vừa bấm Play): Android 12+ chặn start FGS từ background
+ContextCompat.startForegroundService(this, intent)
 ```
+
+> [!TIP]
+> Với app nghe nhạc thật, nên dùng `MediaSessionService` của Jetpack Media3: thư viện tự quản lý notification media, foreground state và media session thay cho phần viết tay ở trên.
 
 ---
 
@@ -397,6 +432,7 @@ sequenceDiagram
     SC->>Svc: onUnbind()
     Svc->>Svc: onDestroy()
 ```
+<!-- dd: svc-bound -->
 
 **BluetoothHeartRateService.kt**
 ```kotlin
@@ -600,9 +636,21 @@ fun scheduleNightlyBackup(context: Context, userId: String) {
 > **Giải pháp:** Luôn đối xứng: bind ↔ unbind trong cùng cặp lifecycle callback.
 
 > [!WARNING]
+> **Khởi động Foreground Service đúng cách (Android 8+ và 12+):**
+> Gọi `startForegroundService()`, rồi trong service gọi `ServiceCompat.startForeground(service, id, notification, type)` trong vòng vài giây (khoảng 5 giây). Quá hạn, hệ thống dừng service và báo lỗi (ANR, hoặc `ForegroundServiceDidNotStartInTimeException` trên Android 12+).
+> App target Android 12 (API 31) trở lên **không được** start Foreground Service khi đang ở background, trừ một số ngoại lệ (người dùng tương tác với notification/widget, FCM high priority, exact alarm, `BOOT_COMPLETED`...). Vi phạm sẽ ném `ForegroundServiceStartNotAllowedException`.
+
+> [!WARNING]
 > **Foreground Service Type bắt buộc (Android 14+):**
-> Từ Android 14, phải khai báo `android:foregroundServiceType` trong Manifest và request permission tương ứng. Không khai báo sẽ gây `SecurityException`.
-> Các type phổ biến: `mediaPlayback`, `location`, `dataSync`, `camera`, `microphone`.
+> App target Android 14 phải khai báo `android:foregroundServiceType` trong Manifest và permission `FOREGROUND_SERVICE_<TYPE>` tương ứng (vd `FOREGROUND_SERVICE_MEDIA_PLAYBACK`), cùng runtime permission của type đó (vd `location` cần quyền vị trí).
+> - Service không khai báo type trong Manifest: `MissingForegroundServiceTypeException` khi gọi `startForeground()`.
+> - Truyền vào `startForeground()` một type không có trong Manifest: `IllegalArgumentException`.
+> - Thiếu permission `FOREGROUND_SERVICE_<TYPE>` hoặc runtime permission bắt buộc: `SecurityException`.
+> Các type phổ biến: `mediaPlayback`, `location`, `dataSync`, `camera`, `microphone`, `shortService`.
+
+> [!WARNING]
+> **Giới hạn thời gian `dataSync` và `mediaProcessing` (Android 15+):**
+> App target Android 15 chỉ được chạy Foreground Service type `dataSync` (và `mediaProcessing`) tổng cộng 6 giờ trong 24 giờ khi ở background (người dùng mở app thì bộ đếm reset). Hết hạn, hệ thống gọi `Service.onTimeout(int, int)`; service phải gọi `stopSelf()` trong vài giây, nếu không app bị lỗi `RemoteServiceException`. Với đồng bộ/upload dữ liệu, ưu tiên WorkManager hoặc user-initiated data transfer job thay cho `dataSync`.
 
 ---
 
@@ -614,3 +662,7 @@ fun scheduleNightlyBackup(context: Context, userId: String) {
 - [Background work overview — Android Developers](https://developer.android.com/develop/background-work/background-tasks)
 - [WorkManager guide — Android Developers](https://developer.android.com/topic/libraries/architecture/workmanager)
 - [Background execution limits (Android 8+)](https://developer.android.com/about/versions/oreo/background)
+- [Launch a foreground service — Android Developers](https://developer.android.com/develop/background-work/services/fgs/launch)
+- [Restrictions on starting a foreground service from the background (Android 12+)](https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start)
+- [Foreground service types are required (Android 14)](https://developer.android.com/about/versions/14/changes/fgs-types-required)
+- [Foreground service timeouts (Android 15)](https://developer.android.com/develop/background-work/services/fgs/timeout)

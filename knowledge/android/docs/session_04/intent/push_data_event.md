@@ -1,9 +1,22 @@
 ---
-title: Push Data & Send Event via Intent
-summary: Truyền dữ liệu (Data) và gửi sự kiện (Event) qua Intent giữa các Component. Push data qua Bundle với Primitive types, Serializable/Parcelable. Send event qua Broadcast Intent (sendBroadcast, ordered broadcast, LocalBroadcastManager) và Activity Result. Kèm giới hạn IPC 1MB, TransactionTooLargeException và Common Mistakes.
-authors:
-  - AI Assistant
-date: 2026-08-01
+id: android.intent.push_data_event
+title: Truyền dữ liệu và gửi sự kiện qua Intent
+summary: Truyền dữ liệu (Data) và gửi sự kiện (Event) qua Intent giữa các Component. Push data qua Bundle với Primitive types, Serializable/Parcelable. Send event qua Broadcast Intent (sendBroadcast, ordered broadcast) và Activity Result. Kèm giới hạn IPC 1MB, TransactionTooLargeException và Common Mistakes.
+status: published
+difficulty: intermediate
+depth: deep-dive
+estimated_reading_time: 15 phút
+tags: [android, intent, bundle, parcelable, broadcast, transactiontoolarge]
+prerequisites: [android.intent.explicit, android.intent.handle_intent]
+related: [android.component.activity.parcelables_and_bundle, android.component.broadcast.overview, android.intent.pending_intent]
+learning_outcomes:
+  - Phân biệt được Push Data (điểm-điểm qua Bundle) với Send Event (một-nhiều qua Broadcast Intent).
+  - Triển khai được việc truyền primitive và object @Parcelize qua Intent extras.
+  - Giải thích được giới hạn Binder transaction buffer 1MB của mỗi process và cách tránh TransactionTooLargeException.
+  - Triển khai được sendBroadcast và Dynamic Receiver an toàn (setPackage, RECEIVER_NOT_EXPORTED) cho sự kiện nội bộ.
+  - Biết khi nào dùng Flow/SharedFlow thay cho broadcast để giao tiếp trong cùng app.
+knowledge_gap: >
+  Nhầm lẫn giữa chở dữ liệu và phát sự kiện khiến developer dùng broadcast để chở object lớn hoặc dùng startActivity để báo sự kiện cho cả hệ thống; không biết giới hạn Binder 1MB gây TransactionTooLargeException; đăng ký receiver động thiếu cờ RECEIVER_NOT_EXPORTED làm app crash với SecurityException khi target Android 14.
 ---
 
 # Truyền dữ liệu và gửi sự kiện qua Intent
@@ -75,9 +88,9 @@ Trong Android có 2 giao thức chính:
 
 | Tiêu chí | Serializable (Java) | Parcelable (Android) |
 |---|---|---|
-| Cách dùng | Thêm `implements Serializable` | Kế thừa `Parcelable` + viết logic ghi/đọc từng thuộc tính |
+| Cách dùng | Kế thừa `java.io.Serializable` (Kotlin: `: Serializable`) | Kế thừa `Parcelable` + viết logic ghi/đọc từng thuộc tính |
 | Cơ chế | Reflection (phân tích object lúc runtime) | Tự tay ghi/đọc từng field vào Parcel |
-| Tốc độ | Chậm | Nhanh (gấp ~10 lần) |
+| Tốc độ | Chậm hơn (dùng Reflection) | Nhanh hơn (ghi/đọc trực tiếp) |
 | Boilerplate | Không | Nhiều (nếu không dùng `@Parcelize`) |
 | Dùng khi | Object nhỏ, ít truyền, không quan tâm hiệu năng | Truyền thường xuyên, data lớn, cần nhanh |
 
@@ -129,9 +142,10 @@ flowchart LR
     C -->|TransactionTooLargeException nếu &gt; 1MB| D[Crash]
     C -->|đi qua 1MB| E[Component B]
 ```
+<!-- dd: intent-push -->
 
 > [!WARNING]
-> **Giới hạn 1MB:** Android OS cấp một bộ đệm (Binder Transaction Buffer) kích thước **~1MB** cho tất cả các tiến trình chạy đồng thời. Nếu bạn nhét một List 10.000 user, hoặc Base64 của tấm hình 5MB vào Intent, hệ thống ném ra `TransactionTooLargeException` và app crash.
+> **Giới hạn 1MB:** Mỗi **process** có một bộ đệm Binder Transaction Buffer cố định khoảng **1MB**, dùng chung cho **mọi transaction đang diễn ra của process đó** (không phải một bộ đệm chung cho cả hệ thống). Vì vậy exception có thể xảy ra cả khi từng transaction chỉ vừa phải nhưng nhiều transaction chạy cùng lúc. Nếu bạn nhét một List 10.000 user, hoặc Base64 của tấm hình 5MB vào Intent, hệ thống ném ra `TransactionTooLargeException` và app crash.
 
 **Cách xử lý khi dữ liệu quá lớn:**
 
@@ -164,6 +178,7 @@ sequenceDiagram
     OS->>R2: onReceive(context, intent)
     Note over R3: Không nhận vì filter không khớp
 ```
+<!-- dd: intent-fanout -->
 
 > [!NOTE]
 > **Phân biệt với Push Data:** Push Data dùng `startActivity`/`startService` (điểm-điểm, một receiver duy nhất). Send Event dùng `sendBroadcast` (một-nhiều, mọi receiver đăng ký đều nhận).
@@ -201,7 +216,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        registerReceiver(dataReceiver, IntentFilter(ACTION_REFRESH_DATA))
+        // Action tự định nghĩa: targetSdk 34+ BẮT BUỘC truyền cờ export, nếu không
+        // registerReceiver ném SecurityException. RECEIVER_NOT_EXPORTED = app khác không gửi vào được.
+        ContextCompat.registerReceiver(
+            this,
+            dataReceiver,
+            IntentFilter(ACTION_REFRESH_DATA),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     override fun onStop() {
@@ -239,18 +261,17 @@ Receiver có `android:priority` cao hơn sẽ nhận trước, có thể gọi `
 Trường hợp "gửi sự kiện" cần nhận lại kết quả từ Component khác (ví dụ chọn ảnh, nhập text) thuộc **Activity Result API** — đã được trình bày đầy đủ ở Topic **4.2.6.4 Handle Intent**. Tóm tắt nhanh:
 
 ```kotlin
-// Sender — đăng ký contract trước
+// Sender — đăng ký contract trước (Photo Picker của hệ thống)
 private val pickImageLauncher = registerForActivityResult(
-    ActivityResultContracts.StartActivityForResult()
-) { result ->
-    if (result.resultCode == Activity.RESULT_OK) {
-        val uri = result.data?.data
+    ActivityResultContracts.PickVisualMedia()
+) { uri: Uri? ->
+    if (uri != null) {
         // Xử lý kết quả
     }
 }
 
 // Kích hoạt
-pickImageLauncher.launch(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI))
+pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
 ```
 
 ## 3. Trade-offs & Khi nào dùng gì
@@ -289,7 +310,9 @@ context.sendBroadcast(Intent(ACTION_UPDATE).apply {
 ### Lỗi 3: Quên `unregisterReceiver` → Memory Leak
 ```kotlin
 // ❌ Đăng ký ở onCreate nhưng không hủy → leak
-override fun onCreate(...) { registerReceiver(receiver, filter) }
+override fun onCreate(...) {
+    ContextCompat.registerReceiver(this, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+}
 
 // ✅ Luôn unregister ở lifecycle đối ứng
 override fun onStop() { unregisterReceiver(receiver) }
@@ -297,7 +320,7 @@ override fun onStop() { unregisterReceiver(receiver) }
 
 ### Lỗi 4: Truyền đối tượng không được tái tạo đúng kiểu
 ```kotlin
-// ❌ Sender dùng Parcelable, Receiver lấy bằng getSerializableExtra → ClassCastException
+// ❌ Sender dùng Parcelable, Receiver lấy bằng getSerializableExtra → Bundle log cảnh báo sai kiểu và trả về null (không crash ngay, nhưng dữ liệu mất)
 // ✅ Sender/Receiver phải dùng CÙNG giao thức (Parcelable ↔ getParcelableExtra)
 ```
 
@@ -312,7 +335,7 @@ context.sendBroadcast(Intent(ACTION_LOGIN).apply {
 
 ## 5. Kết nối hệ thống
 
-```
+```text
 UiEvent (navigate, show snackbar)  →  SharedFlow   (trong app)
         ↕
 Intent Push Data                    →  startActivity + Bundle (điểm-điểm)
@@ -323,6 +346,7 @@ PendingIntent                       →  4.2.6.6 (ủy quyền cho OS/Notificati
         ↕
 System Event (BOOT_COMPLETED...)    →  Broadcast Receiver  (4.2.4.1)
 ```
+<!-- dd: intent-taxonomy -->
 
 - **Push Data** là cơ chế vận chuyển dữ liệu điểm-điểm (Intent + Bundle).
 - **Send Event** là cơ chế thông báo sự kiện một-nhiều (Broadcast Intent).
@@ -347,3 +371,6 @@ Luôn ưu tiên giải pháp đơn giản nhất: primitive types hoặc ID qua 
 - Android Developers — [Implicit Broadcast Exceptions (Android 8+)](https://developer.android.com/guide/components/broadcast-exceptions)
 - Android Developers — [LocalBroadcastManager (deprecated)](https://developer.android.com/reference/androidx/localbroadcastmanager/content/LocalBroadcastManager)
 - Android Developers — [Parcelable / Parcelize](https://developer.android.com/kotlin/parcelize)
+- Android Developers — [TransactionTooLargeException](https://developer.android.com/reference/android/os/TransactionTooLargeException)
+- Android Developers — [Behavior changes: Android 14 (runtime-registered receivers)](https://developer.android.com/about/versions/14/behavior-changes-14)
+- Android Developers — [Photo picker](https://developer.android.com/training/data-storage/shared/photopicker)

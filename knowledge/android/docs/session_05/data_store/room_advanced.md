@@ -1,9 +1,11 @@
 ---
+id: android.data_store.room_advanced
 title: Advanced Room (Migration & Indexing)
-summary: Chuyên sâu về Room Database nâng cao. Cơ chế Identity Hash (room_master_table), chiến lược Manual Migration 3 bước vàng, AutoMigration với AutoMigrationSpec, giải quyết các ca khó (tách bảng, đổi kiểu dữ liệu, bảng triệu dòng), cấu trúc B-Tree Indexing, Composite Index Leftmost Prefix, EXPLAIN QUERY PLAN và Unit Testing với MigrationTestHelper.
-authors:
-  - Antigravity AI
-date: 2026-09-21
+summary: Chuyên sâu về Room Database nâng cao. Cơ chế Identity Hash (room_master_table) và kiểm tra schema sau migration, chiến lược Manual Migration theo Table Recreation Pattern, AutoMigration với AutoMigrationSpec, giải quyết các ca khó (tách bảng, đổi kiểu dữ liệu, bảng triệu dòng), cấu trúc B-Tree Indexing, Composite Index Leftmost Prefix, EXPLAIN QUERY PLAN và kiểm thử migration với MigrationTestHelper.
+status: published
+difficulty: advanced
+depth: deep-dive
+estimated_reading_time: 25 phút
 tags:
   - android
   - room
@@ -13,6 +15,17 @@ tags:
   - b-tree
   - performance
   - testing
+prerequisites:
+  - android.data_store.room_architecture
+related:
+  - android.data_store.room_transactions
+learning_outcomes:
+  - Giải thích được vai trò của room_master_table, Identity Hash và bước kiểm tra schema sau migration khi mở Room Database.
+  - Triển khai được Migration an toàn với AutoMigration, AutoMigrationSpec và Manual Migration theo Table Recreation Pattern.
+  - Xử lý được các ca migration khó - thêm cột NOT NULL vào bảng triệu dòng, đổi kiểu dữ liệu, tách bảng quan hệ 1-N và skip-version migration.
+  - Áp dụng được cấu trúc B-Tree và quy tắc Leftmost Prefix để thiết kế Composite Index đúng.
+  - Debug được hiệu năng truy vấn bằng EXPLAIN QUERY PLAN và viết được test tự động cho Migration với MigrationTestHelper.
+knowledge_gap: Nhiều lập trình viên lạm dụng fallbackToDestructiveMigration gây mất trắng dữ liệu người dùng trên production, hoặc đánh index vô tội vạ làm tê liệt hiệu năng ghi (Write Penalty) và hiểu sai thứ tự cột trong Composite Index.
 ---
 
 # Advanced Room: Migration Toàn Diện & Indexing Hiệu Năng Cao
@@ -60,6 +73,9 @@ sequenceDiagram
     alt user_version cũ hơn phiên bản trong Code
         Room->>Room: Tìm kịch bản Migration phù hợp
         Room->>SQLite: Thực thi Migration Scripts
+        Room->>Room: onValidateSchema: so schema thực tế với Entity
+        Note over Room: Lệch → IllegalStateException "Migration didn't properly handle"
+        Room->>Master: Ghi identity_hash mới (updateIdentity)
         Room->>SQLite: Cập nhật PRAGMA user_version mới
     end
     Room->>Master: SELECT identity_hash FROM room_master_table WHERE id = 42
@@ -68,11 +84,15 @@ sequenceDiagram
     alt stored_hash giống code_hash
         Room-->>App: Kết nối thành công (Database Ready)
     else stored_hash khác code_hash
-        Room-->>App: CRASH! Ném IllegalStateException
+        Room-->>App: CRASH! "Room cannot verify the data integrity" (đổi schema mà chưa tăng version)
     end
 ```
 
-Nếu bạn thay đổi bất kỳ thuộc tính nào của Entity (ví dụ: thêm 1 cột, đổi một cột từ `NULL` sang `NOT NULL`, đổi tên cột, hay thậm chí đổi thứ tự cột) mà cấu trúc SQLite thực tế sau khi migrate không khớp chính xác 100% với Schema mà Room mong đợi:
+Room phát hiện lệch schema ở **hai chỗ khác nhau**, với hai thông báo lỗi khác nhau:
+
+1. **Migration viết sai** (SQL tạo ra bảng khác với `@Entity`: thiếu cột, sai kiểu, sai nullability, thiếu index, sai default value): ngay sau khi chạy migration, Room gọi `onValidateSchema` và ném `IllegalStateException: Migration didn't properly handle: <tên bảng>` kèm hai khối `Expected:` / `Found:` để bạn so từng cột. Thứ tự cột không được so.
+2. **Đổi schema mà quên tăng `version`**: không có migration nào chạy, Room so `identity_hash` lưu trong `room_master_table` với hash trong code và ném lỗi dưới đây. Sau một migration thành công, Room tự ghi hash mới (`updateIdentity`), nên migration sai không rơi vào lỗi này.
+
 ```text
 java.lang.IllegalStateException: Room cannot verify the data integrity. 
 Looks like you've changed schema but forgot to update the version number. 
@@ -81,7 +101,7 @@ Expected identity hash: 8f3d4... Found: a1b2c...
 ```
 
 > [!IMPORTANT]
-> **Bản chất của lỗi "Data integrity failure":** Không phải Room bị lỗi, mà là câu lệnh SQL Migration bạn viết đã tạo ra cấu trúc bảng khác biệt so với định nghĩa `@Entity` trong code Kotlin. Room chủ động ngắt kết nối để ngăn chặn tình trạng hỏng dữ liệu âm thầm (silent data corruption).
+> **Bản chất của hai lỗi trên:** Không phải Room bị lỗi. Hoặc migration bạn viết đã tạo ra cấu trúc bảng khác với định nghĩa `@Entity` (lỗi `Migration didn't properly handle`), hoặc schema trong code đã đổi mà `version` chưa tăng (lỗi `Room cannot verify the data integrity`). Trong cả hai trường hợp Room chủ động dừng để ngăn hỏng dữ liệu âm thầm (silent data corruption).
 
 ---
 
@@ -139,8 +159,8 @@ graph LR
     V1 ==>|"MIGRATION_1_4 Fast-path"| V4
 ```
 
-1. **Thuật toán tìm đường đi ngắn nhất (Breadth-First Search):**
-   Room coi các phiên bản là các đỉnh (Node) và các kịch bản `Migration(start, end)` là các cạnh (Edge) có hướng.
+1. **Thuật toán tham lam (greedy), không phải BFS:**
+   Room coi các phiên bản là các đỉnh (Node) và các kịch bản `Migration(start, end)` là các cạnh (Edge) có hướng. Ở mỗi bước, từ version hiện tại Room chọn migration **nhảy xa nhất** mà không vượt quá version đích, và không quay lui. Hệ quả: nếu có `1→3`, `1→2`, `2→4` và cần đi `1→4`, Room chọn `1→3` rồi bế tắc ở 3 (không có `3→4`), trả về "không tìm thấy migration" dù đường `1→2→4` có tồn tại.
 2. **Ưu tiên Migration trực tiếp:**
    - Nếu bạn cung cấp `Migration(1, 4)`, Room sẽ chọn ngay kịch bản này để nhảy từ 1 lên 4 trong 1 bước duy nhất.
    - Nếu không có `Migration(1, 4)`, Room sẽ tìm đường đi tuần tự: `1 -> 2 -> 3 -> 4` và lần lượt thực thi từng hàm `migrate()`.
@@ -154,6 +174,16 @@ graph LR
 ## 2. AutoMigration vs Manual Migration Thực Chiến
 
 Từ phiên bản Room 2.4.0+, Google bổ sung tính năng **AutoMigration** nhằm giảm bớt boilerplate cho các thay đổi đơn giản. Tuy nhiên, lập trình viên cần nắm vững ranh giới giữa AutoMigration và Manual Migration.
+
+> **Chuỗi schema dùng xuyên suốt các ví dụ migration trong bài** (mỗi bước chỉ đăng ký một cách: hoặc `autoMigrations`, hoặc `addMigrations`):
+>
+> | Version | Thay đổi | Cách thực hiện |
+> | :--- | :--- | :--- |
+> | v1 | `users(id, name, email UNIQUE, phone, fax, company_name, company_tax_code)`; `orders(id, user_id, status, amount, created_at INTEGER)` | — |
+> | v2 | `users` thêm `is_verified INTEGER NOT NULL DEFAULT 0` | `AutoMigration(1, 2)` hoặc `MIGRATION_1_2` viết tay (Case Study 1) |
+> | v3 | `users` đổi `phone` → `phone_number`, xoá `fax` | `AutoMigration(2, 3)` + `MigrationSpec2To3` |
+> | v4 | `orders.created_at` từ `INTEGER` sang `TEXT` ISO-8601 | `MIGRATION_3_4` (Case Study 2) |
+> | v5 | Tách thông tin công ty khỏi `users` sang bảng `companies` | `MIGRATION_4_5` (Case Study 3) |
 
 ### Cấu hình Gradle bắt buộc cho AutoMigration
 
@@ -186,6 +216,7 @@ Mỗi khi bạn tăng `version` trong `@Database` và compile, Room sẽ tự đ
 Nếu bạn chỉ **thêm cột mới** hoặc **thêm bảng mới**, Room tự động so sánh `1.json` và `2.json` để sinh mã SQL tương ứng mà bạn không cần viết bất kỳ câu lệnh SQL nào:
 
 ```kotlin
+// v2: UserEntity thêm @ColumnInfo(name = "is_verified", defaultValue = "0") val isVerified: Boolean = false
 @Database(
     entities = [UserEntity::class, OrderEntity::class],
     version = 2,
@@ -220,9 +251,10 @@ class MigrationSpec2To3 : AutoMigrationSpec {
 }
 
 @Database(
-    entities = [UserEntity::class],
+    entities = [UserEntity::class, OrderEntity::class],
     version = 3,
     autoMigrations = [
+        AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3, spec = MigrationSpec2To3::class)
     ]
 )
@@ -247,9 +279,9 @@ abstract class AppDatabase : RoomDatabase() { ... }
 ## 3. Các Ca Migration Khó: Kỹ Thuật 3 Bước Vàng (Table Recreation Pattern)
 
 ### Hạn chế lịch sử của SQLite
-Trước phiên bản SQLite 3.35.0 (tương ứng Android 12+), SQLite **không hỗ trợ** cú pháp `ALTER TABLE DROP COLUMN`, không hỗ trợ đổi kiểu dữ liệu của cột, và không hỗ trợ thay đổi khóa chính (Primary Key). 
+Trước phiên bản SQLite 3.35.0, SQLite **không hỗ trợ** cú pháp `ALTER TABLE DROP COLUMN`; đến nay SQLite vẫn không hỗ trợ đổi kiểu dữ liệu của cột hay thay đổi khóa chính (Primary Key) bằng `ALTER TABLE`. Theo bảng phiên bản của Android, API 31–33 (Android 12–13) đi kèm SQLite 3.32, API 34 (Android 14) mới lên 3.39; `RENAME COLUMN` (SQLite 3.25) chỉ có từ API 30 (Android 11, SQLite 3.28). Nhà sản xuất có thể đóng gói phiên bản khác, nên kiểm tra bằng `select sqlite_version()` khi cần.
 
-Nếu ứng dụng của bạn hỗ trợ các thiết bị từ Android 7, 8, 9, 10, 11 (chiếm phần lớn thiết bị trên thị trường), bất kỳ nỗ lực chạy lệnh `ALTER TABLE DROP COLUMN` bằng SQL thuần đều sẽ ném ngoại lệ:
+Nếu ứng dụng của bạn hỗ trợ các thiết bị từ Android 7 đến Android 13, bất kỳ nỗ lực chạy lệnh `ALTER TABLE DROP COLUMN` bằng SQL thuần đều sẽ ném ngoại lệ:
 ```text
 android.database.sqlite.SQLiteException: near "DROP": syntax error
 ```
@@ -297,31 +329,36 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
 ### Case Study 2: Đổi kiểu dữ liệu của cột
 
 #### Tình huống
-Bảng `orders` đang lưu cột `created_at` dưới dạng số Unix Timestamp miliseconds (`INTEGER`). 
+Ở v3, bảng `orders` đang lưu cột `created_at` dưới dạng số Unix Timestamp miliseconds (`INTEGER`). 
 Ở phiên bản mới, team quyết định đổi sang chuỗi chuẩn ISO-8601 UTC (`TEXT`, ví dụ: `"2026-09-21T15:30:00Z"`).
 
 #### Triển khai kịch bản Migration:
 
 ```kotlin
-val MIGRATION_2_3 = object : Migration(2, 3) {
+val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        // Bước 1: Tạo bảng tạm với cấu trúc mong đợi mới
+        // Bước 1: Tạo bảng tạm với cấu trúc mong đợi mới (giữ đủ mọi cột của orders)
         db.execSQL("""
             CREATE TABLE IF NOT EXISTS `orders_temp` (
                 `id` TEXT NOT NULL PRIMARY KEY,
+                `user_id` TEXT NOT NULL,
+                `status` TEXT NOT NULL,
                 `amount` REAL NOT NULL,
                 `created_at` TEXT NOT NULL
             )
         """.trimIndent())
 
         // Bước 2: Copy dữ liệu và chuyển đổi kiểu dữ liệu trực tiếp bằng SQLite Date/Time functions
-        // Hàm datetime(created_at / 1000, 'unixepoch') chuyển đổi milliseconds thành ISO string
+        // strftime('%Y-%m-%dT%H:%M:%SZ', ...) cho ra ISO-8601 dạng "2026-09-21T15:30:00Z"
+        // (datetime() cho ra "2026-09-21 15:30:00" — có dấu cách, không có chữ T)
         db.execSQL("""
-            INSERT INTO `orders_temp` (`id`, `amount`, `created_at`)
+            INSERT INTO `orders_temp` (`id`, `user_id`, `status`, `amount`, `created_at`)
             SELECT 
                 `id`, 
+                `user_id`, 
+                `status`, 
                 `amount`, 
-                datetime(`created_at` / 1000, 'unixepoch') || 'Z' AS `created_at`
+                strftime('%Y-%m-%dT%H:%M:%SZ', `created_at` / 1000, 'unixepoch') AS `created_at`
             FROM `orders`
         """.trimIndent())
 
@@ -330,6 +367,9 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
 
         // Bước 4: Đổi tên bảng tạm thành bảng chính
         db.execSQL("ALTER TABLE `orders_temp` RENAME TO `orders`")
+
+        // Bước 5: Tạo lại composite index đã khai báo trong OrderEntity (mục 4)
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_orders_user_id_status_created_at` ON `orders` (`user_id`, `status`, `created_at`)")
     }
 }
 ```
@@ -339,16 +379,16 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
 ### Case Study 3: Tách 1 Entity thành 2 Entity có quan hệ (1 - N)
 
 #### Tình huống
-Bảng `users` ban đầu chứa cả thông tin cá nhân và thông tin công ty:
-`users (id, name, email, company_name, company_tax_code)`.
-Ở version 4, kiến trúc chuẩn hóa CSDL (Normalization) yêu cầu tách thành 2 bảng riêng:
-- `users (id, name, email)`
+Bảng `users` ở v4 chứa cả thông tin cá nhân và thông tin công ty:
+`users (id, name, email, phone_number, is_verified, company_name, company_tax_code)`.
+Ở version 5, kiến trúc chuẩn hóa CSDL (Normalization) yêu cầu tách thành 2 bảng riêng:
+- `users (id, name, email, phone_number, is_verified)`
 - `companies (id, user_id, name, tax_code)`
 
 #### Triển khai kịch bản Migration:
 
 ```kotlin
-val MIGRATION_3_4 = object : Migration(3, 4) {
+val MIGRATION_4_5 = object : Migration(4, 5) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // Bước 1: Tạo bảng mới `companies`
         db.execSQL("""
@@ -382,13 +422,16 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
             CREATE TABLE IF NOT EXISTS `users_new` (
                 `id` TEXT NOT NULL PRIMARY KEY,
                 `name` TEXT NOT NULL,
-                `email` TEXT NOT NULL
+                `email` TEXT NOT NULL,
+                `phone_number` TEXT,
+                `is_verified` INTEGER NOT NULL DEFAULT 0
             )
         """.trimIndent())
 
+        // Giữ lại các cột đã thêm ở v2, v3 — bỏ sót là mất dữ liệu và validate fail
         db.execSQL("""
-            INSERT INTO `users_new` (`id`, `name`, `email`)
-            SELECT `id`, `name`, `email` FROM `users`
+            INSERT INTO `users_new` (`id`, `name`, `email`, `phone_number`, `is_verified`)
+            SELECT `id`, `name`, `email`, `phone_number`, `is_verified` FROM `users`
         """.trimIndent())
 
         db.execSQL("DROP TABLE `users`")
@@ -547,7 +590,7 @@ data class QueryPlanItem(
 
 2. **Trường hợp tối ưu (Index Search):**
    ```text
-   detail: "SEARCH TABLE orders USING INDEX index_orders_user_id_status (user_id=? AND status=?)"
+   detail: "SEARCH TABLE orders USING INDEX index_orders_user_id_status_created_at (user_id=? AND status=?)"
    ```
    👉 Tuyệt vời! SQLite đã sử dụng chính xác Composite Index bạn tạo để tìm kiếm.
 
@@ -570,10 +613,11 @@ Thư viện Room cung cấp công cụ `MigrationTestHelper` (nằm trong artifa
 ```kotlin
 // build.gradle.kts
 dependencies {
-    testImplementation(libs.androidx.room.testing)
-    testImplementation(libs.junit)
-    testImplementation(libs.androidx.test.ext.junit)
-    testImplementation(libs.robolectric) // Cho phép chạy test Room siêu tốc trên JVM máy tính
+    // Test bên dưới dùng InstrumentationRegistry và đọc schema JSON từ assets của androidTest
+    // (sourceSets ở mục 2), nên là instrumented test: đặt trong src/androidTest
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
 }
 ```
 
@@ -610,7 +654,7 @@ class AppDatabaseMigrationTest {
     fun migrate1To2_containsCorrectDataAndNewColumnDefault() {
         // GIAI ĐOẠN 1: Tạo database ở Version 1 và chèn dữ liệu mẫu
         var db = helper.createDatabase(TEST_DB, 1).apply {
-            // Chèn bản ghi theo cấu trúc của Version 1 (chưa có cột is_verified)
+            // Chèn bản ghi theo cấu trúc của Version 1 (chưa có cột is_verified; các cột khác cho phép null)
             execSQL("INSERT INTO users (id, name, email) VALUES ('u1', 'Hazu Nguyen', 'hazu@example.com')")
             close()
         }
@@ -673,7 +717,7 @@ graph TD
 ```
 
 1. **Khởi tạo và Migration trên Background Thread:**
-   Mặc dù Room ngăn chặn gọi DAO trên Main Thread, nhưng bước `OpenHelper.onUpgrade()` (nơi chạy kịch bản Migration) sẽ diễn ra vào đúng thời điểm **kết nối Database đầu tiên được mở**. Nếu UseCase đầu tiên kích hoạt từ ViewModel trên Main Thread (ví dụ quan sát Flow), một kịch bản Migration nặng trên bảng triệu dòng có thể làm đóng băng ứng dụng dẫn đến lỗi ANR.
+   Bước `OpenHelper.onUpgrade()` (nơi chạy kịch bản Migration) diễn ra vào đúng thời điểm **kết nối Database đầu tiên được mở**, trên thread đang mở kết nối đó. Với DAO `suspend`/`Flow`, đó là thread của query executor nên UI không bị chặn, nhưng mọi truy vấn phải chờ migration xong: một migration nặng trên bảng triệu dòng khiến màn hình đầu tiên trống hoặc quay loading rất lâu. Chỉ khi mở DB trên main thread (ví dụ `allowMainThreadQueries()`) thì migration nặng mới gây ANR.
    - **Giải pháp:** Sử dụng AndroidX Startup hoặc khởi tạo sớm kết nối ở Splash Screen trên `Dispatchers.IO` để hoàn tất Migration trước khi đưa người dùng vào màn hình chính.
 2. **Chiến lược Phục hồi Thảm họa (Graceful Degradation & Backup):**
    Đối với dữ liệu tài chính hoặc dữ liệu ngoại tuyến tối quan trọng: Trước khi thực hiện một kịch bản Migration phức tạp từ phiên bản rất cũ, hãy sao chép tệp `app_database.db` sang tệp tạm `app_database.db.bak`. Nếu quá trình migrate ném ngoại lệ không mong muốn, ứng dụng có thể khôi phục lại bản backup và gửi log chi tiết về Crashlytics thay vì khiến người dùng mất trắng dữ liệu.
@@ -683,7 +727,7 @@ graph TD
 ## 7. Tổng Kết & Câu Hỏi Phỏng Vấn Senior (Cheat Sheet)
 
 ### Tóm tắt cốt lõi
-1. **`room_master_table` & `identity_hash`:** Chiếc khóa bảo vệ tính toàn vẹn giữa Entity Kotlin và Table SQLite. Bất kỳ sai lệch nào về cấu trúc đều dẫn đến crash ngay lúc mở DB.
+1. **`room_master_table` & `identity_hash`:** Chiếc khóa bảo vệ tính toàn vẹn giữa Entity Kotlin và Table SQLite. Sai lệch cấu trúc bị chặn ngay lúc mở DB: sau migration bằng `onValidateSchema` (lỗi `Migration didn't properly handle`), còn khi đổi schema mà quên tăng version thì bằng so khớp hash (lỗi `Room cannot verify the data integrity`).
 2. **Quy tắc 3 bước Table Recreation:** Cứu cánh cho mọi bài toán migration hóc búa (đổi kiểu dữ liệu, tách bảng, đổi Primary Key) tương thích với 100% thiết bị Android.
 3. **Leftmost Prefix:** Chỉ mục kết hợp `(A, B, C)` chỉ hoạt động khi mệnh đề lọc bắt đầu bằng `A`.
 4. **Write Penalty:** Đánh Index giúp `SELECT` tăng tốc $O(\log N)$, nhưng làm chậm các lệnh `INSERT/UPDATE/DELETE`. Chỉ đánh index cho các cột có Selectivity cao và thường xuyên xuất hiện trong `WHERE`/`ORDER BY`.
@@ -694,7 +738,7 @@ graph TD
 ### Top 5 Câu Hỏi Phỏng Vấn Thường Gặp
 
 #### Q1: Khi nào Room ném ra lỗi `IllegalStateException: Room cannot verify the data integrity`? Cách khắc phục chuẩn là gì?
-> **Trả lời:** Lỗi này xảy ra khi mã băm `identity_hash` mà Room tính toán từ các class `@Entity` tại thời điểm biên dịch không trùng khớp với chuỗi `identity_hash` được lưu trong bảng `room_master_table` dưới tệp SQLite trên thiết bị. Nguyên nhân là do lập trình viên đã thay đổi cấu trúc Entity nhưng chưa tăng `version` của Database, hoặc kịch bản `Migration` viết bằng SQL tạo ra cấu trúc bảng không khớp hoàn toàn với schema mong đợi của Room (sai kiểu dữ liệu, thiếu default value, sai thứ tự cột hoặc thiếu ràng buộc nullability). Cách khắc phục là tăng database version và viết kịch bản `Migration` hoặc `AutoMigration` chuẩn xác.
+> **Trả lời:** Lỗi này xảy ra khi mã băm `identity_hash` mà Room tính toán từ các class `@Entity` tại thời điểm biên dịch không trùng khớp với chuỗi `identity_hash` được lưu trong bảng `room_master_table` trên thiết bị. Nguyên nhân là lập trình viên đã thay đổi cấu trúc Entity nhưng chưa tăng `version` của Database, nên không migration nào chạy. Cách khắc phục là tăng database version và viết `Migration` hoặc `AutoMigration`. Lưu ý phân biệt: nếu migration **có chạy** nhưng tạo ra bảng sai (sai kiểu dữ liệu, thiếu default value, thiếu index hoặc sai nullability), lỗi sẽ là `Migration didn't properly handle: …` kèm `Expected/Found`, không phải lỗi này.
 
 #### Q2: Sự khác nhau giữa AutoMigration và Manual Migration là gì? Khi nào bắt buộc phải dùng Manual Migration?
 > **Trả lời:** AutoMigration (từ Room 2.4+) cho phép Room tự động suy diễn câu lệnh SQL nâng cấp bằng cách so sánh hai file Schema JSON xuất ra bởi KSP, hỗ trợ tốt cho việc thêm cột, thêm bảng hoặc đổi tên/xóa cột thông qua `AutoMigrationSpec`. Tuy nhiên, bắt buộc phải dùng Manual Migration khi:
@@ -724,3 +768,7 @@ graph TD
 4. [SQLite Documentation — The SQLite Query Optimizer & EXPLAIN QUERY PLAN](https://www.sqlite.org/eqp.html)
 5. [SQLite Documentation — Making Other Kinds Of Table Schema Changes (Table Recreation Pattern)](https://www.sqlite.org/lang_altertable.html#otheralter)
 6. [SQLite Documentation — Query Planning & B-Tree Structure](https://www.sqlite.org/queryplanner.html)
+7. [Android Developers — android.database.sqlite (SQLite version theo API level)](https://developer.android.com/reference/android/database/sqlite/package-summary)
+8. [SQLite Documentation — ALTER TABLE (DROP COLUMN từ 3.35.0, RENAME COLUMN từ 3.25.0)](https://www.sqlite.org/lang_altertable.html)
+9. [SQLite Documentation — Date And Time Functions (strftime)](https://www.sqlite.org/lang_datefunc.html)
+10. [Android Developers — RoomDatabase.MigrationContainer](https://developer.android.com/reference/androidx/room/RoomDatabase.MigrationContainer)

@@ -1,9 +1,11 @@
 ---
+id: android.data_store.room_architecture
 title: Relational Database (Room Architecture)
 summary: Khám phá toàn diện kiến trúc Room Database từ bản chất giao tiếp SQLite C API, KSP codegen, InvalidationTracker, mô hình quan hệ 1-1/1-N/N-N, kiến trúc Offline-first SSOT, Migration an toàn, tối ưu Indexing đến Testing thực chiến trên dự án Todo & Task Manager.
-authors:
-  - Antigravity AI
-date: 2026-09-21
+status: published
+difficulty: intermediate
+depth: deep-dive
+estimated_reading_time: 25 phút
 tags:
   - android
   - room
@@ -13,6 +15,18 @@ tags:
   - offline-first
   - coroutines
   - flow
+prerequisites:
+  - android.data_store.key_value
+related:
+  - android.data_store.room_advanced
+  - android.data_store.room_transactions
+learning_outcomes:
+  - Giải thích được bản chất Room (lớp trừu tượng trên SQLite), cách KSP sinh mã và cách InvalidationTracker cập nhật Flow.
+  - Thiết kế được các mô hình quan hệ 1-1, 1-N, N-N trong Room bằng POJO, @Embedded và @Relation.
+  - Triển khai được kiến trúc Offline-first và Single Source of Truth (SSOT) kết hợp Room với Flow.
+  - Triển khai được Database Migration an toàn với AutoMigration và Manual Migration.
+  - Tối ưu được hiệu năng truy vấn với Indexing và kiểm thử DAO, migration bằng In-Memory Database và MigrationTestHelper.
+knowledge_gap: Nhiều lập trình viên chỉ biết dùng Room cơ bản mà không hiểu cơ chế InvalidationTracker ngầm, dẫn đến crash vì query trên main thread, vỡ dữ liệu khi thiếu @Transaction, hoặc crash production khi migrate sai schema.
 ---
 
 # Relational Database: Kiến Trúc & Thực Chiến Room
@@ -20,7 +34,7 @@ tags:
 ## 1. Bản chất & Sự ra đời của Room Database
 
 ### Vấn đề cốt lõi của SQLite thuần
-Hệ điều hành Android từ phiên bản 1.0 đã tích hợp sẵn cơ sở dữ liệu quan hệ **SQLite** (viết bằng ngôn ngữ C) trực tiếp vào nhân hệ thống. Ở giai đoạn đầu, các lập trình viên Android phải làm việc với SQLite thông qua `SQLiteOpenHelper` và `SQLiteDatabase`. 
+Hệ điều hành Android từ phiên bản 1.0 đã tích hợp sẵn cơ sở dữ liệu quan hệ **SQLite** (viết bằng ngôn ngữ C) dưới dạng thư viện hệ thống (`libsqlite.so`, chạy trong process của app chứ không nằm trong kernel). Ở giai đoạn đầu, các lập trình viên Android phải làm việc với SQLite thông qua `SQLiteOpenHelper` và `SQLiteDatabase`. 
 
 Cách tiếp cận truyền thống này bộc lộ những nhược điểm chí mạng:
 1. **Truy vấn String không an toàn (Raw SQL Strings):** Mọi câu lệnh SQL đều được viết dưới dạng chuỗi ký tự (`"SELECT * FROM tasks WHERE status = 1"`). Trình biên dịch Java/Kotlin hoàn toàn "mù" trước nội dung này. Nếu bạn gõ nhầm tên cột (`stauts` thay vì `status`) hoặc sai kiểu dữ liệu, lỗi chỉ xuất hiện khi người dùng mở ứng dụng và kích hoạt tính năng đó (Runtime Exception / Crash).
@@ -198,7 +212,7 @@ erDiagram
 ```
 
 ### 3.1. Thiết kế Entity chuẩn mực (`@Entity`)
-Khi thiết kế Entity trong Room, có 4 quy tắc bắt buộc:
+Khi thiết kế Entity trong Room, có 3 quy tắc bắt buộc:
 1. **Primary Key có chủ đích:** Với ứng dụng cần đồng bộ dữ liệu (Offline-first), tránh dùng `autoGenerate = true` dạng `Int/Long` tự tăng nếu bảng đó sẽ đồng bộ lên Server. Hãy dùng `UUID` dạng `String` làm khóa chính do Client sinh ra để tránh xung đột định danh khi tạo dữ liệu offline.
 2. **Khai báo Index cho Foreign Key:** SQLite không tự động đánh Index cho cột Foreign Key. Nếu bạn không khai báo `@Index`, các thao tác `JOIN` hoặc xóa bảng cha có ràng buộc `CASCADE` sẽ quét toàn bộ bảng (Table Scan), gây suy giảm nghiêm trọng hiệu năng.
 3. **Ràng buộc toàn vẹn dữ liệu (ForeignKey Cascading):** Khi một `Category` bị xóa, các `Task` thuộc danh mục đó sẽ được xử lý ra sao? `ForeignKey.CASCADE` giúp tự động dọn dẹp dữ liệu con.
@@ -279,10 +293,9 @@ Data Access Object là nơi định nghĩa toàn bộ "hợp đồng" truy vấn
 package com.example.taskmanager.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.example.taskmanager.data.local.entity.SyncStatus
 import com.example.taskmanager.data.local.entity.TaskEntity
 import kotlinx.coroutines.flow.Flow
@@ -300,10 +313,13 @@ interface TaskDao {
     suspend fun getPendingSyncTasks(syncedStatus: SyncStatus = SyncStatus.SYNCED): List<TaskEntity>
 
     // 2. Write Operations: Luôn dùng suspend
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // @Upsert (Room 2.5+): có rồi thì UPDATE, chưa có thì INSERT — hàng cũ không bị xoá.
+    // Không dùng @Insert(onConflict = REPLACE) cho "upsert": REPLACE xoá hàng cũ rồi chèn hàng mới,
+    // nên khoá ngoại ON DELETE CASCADE có thể kéo theo xoá reminder/tag/subtask của task.
+    @Upsert
     suspend fun upsertTask(task: TaskEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsertTasks(tasks: List<TaskEntity>)
 
     @Update
@@ -411,6 +427,26 @@ data class CategoryWithTasks(
         entityColumn = "category_id"
     )
     val tasks: List<TaskEntity>
+)
+
+// Một Task chứa nhiều Subtask: bảng con giữ khoá ngoại task_id
+@Entity(
+    tableName = "subtasks",
+    foreignKeys = [
+        ForeignKey(
+            entity = TaskEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["task_id"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index(value = ["task_id"])]
+)
+data class SubtaskEntity(
+    @PrimaryKey val id: String,
+    @ColumnInfo(name = "task_id") val taskId: String,
+    @ColumnInfo(name = "title") val title: String,
+    @ColumnInfo(name = "is_done") val isDone: Boolean = false
 )
 ```
 
@@ -565,9 +601,9 @@ sequenceDiagram
 
     Note over Writer, DB: Tác vụ ghi diễn ra
     Writer->>DB: DAO.upsertTask(newTask)
-    DB->>DB: SQLite Trigger kích hoạt, ghi cờ 1 vào "room_table_modification_tracker"
+    DB->>DB: SQLite Trigger kích hoạt, ghi cờ 1 vào "room_table_modification_log"
     
-    Tracker->>DB: Quét bảng tracker định kỳ / sau lệnh commit
+    Tracker->>DB: Đọc bảng log sau khi transaction ghi kết thúc (không quét định kỳ)
     DB-->>Tracker: Báo bảng "tasks" đã bị DIRTY (thay đổi)
     Tracker->>Flow: Thông báo onInvalidated("tasks")
     
@@ -582,10 +618,10 @@ sequenceDiagram
    ```sql
    CREATE TEMP TRIGGER IF NOT EXISTS room_table_modification_trigger_tasks_INSERT
    AFTER INSERT ON tasks BEGIN
-       UPDATE room_table_modification_tracker SET invalidated = 1 WHERE table_id = 1 AND invalidated = 0;
+       UPDATE room_table_modification_log SET invalidated = 1 WHERE table_id = 1 AND invalidated = 0;
    END;
    ```
-2. **Bảng tạm theo dõi:** Room duy trì một bảng trong bộ nhớ có tên `room_table_modification_tracker` lưu trạng thái `invalidated` của từng bảng.
+2. **Bảng tạm theo dõi:** Room duy trì một bảng trong bộ nhớ có tên `room_table_modification_log` lưu trạng thái `invalidated` của từng bảng.
 3. **Phát hiện Dirty Table:** Khi bất kỳ câu lệnh `INSERT`, `UPDATE`, hoặc `DELETE` nào được thực thi trên bảng `tasks`, Trigger SQLite sẽ đánh dấu bảng đó là "dirty" (`invalidated = 1`).
 4. **Tái kích hoạt luồng Flow:** `InvalidationTracker` phát hiện bảng bị dirty, chuyển việc re-query sang background dispatcher của Room, lấy dữ liệu mới nhất và phát ra qua `Flow`.
 
@@ -603,16 +639,16 @@ SQLite thực hiện các thao tác đọc và ghi trực tiếp lên ổ cứng
 - Bạn chỉ được phép bật `.allowMainThreadQueries()` trong các bài kiểm thử đơn giản (Unit Test), tuyệt đối không bao giờ dùng trong code Production.
 
 ### Cơ chế phân bổ Thread Pool của Room
-Room quản lý 2 Thread Pool riêng biệt:
+Room tách 2 vai trò executor (mặc định cả hai cùng dùng chung IO executor của Architecture Components, trừ khi bạn tự cấu hình bằng `setQueryExecutor`/`setTransactionExecutor`):
 1. **Query Executor:** Dùng cho các câu lệnh đọc dữ liệu (`SELECT`). Mặc định sử dụng một pool gồm nhiều luồng để cho phép đọc song song.
 2. **Transaction Executor:** Dùng cho các câu lệnh bọc `@Transaction` hoặc các thao tác ghi tuần tự. Executor này hoạt động theo cơ chế **Single Thread (Tuần tự)** để đảm bảo thứ tự các giao dịch ghi không bị tranh chấp lẫn nhau.
 
 ### Write-Ahead Logging (WAL Mode) - Bí quyết tối ưu đọc ghi đồng thời
-Mặc định ở các phiên bản Android cũ, SQLite sử dụng chế độ **Rollback Journal**:
+Ở chế độ journal truyền thống (**Rollback Journal**, ví dụ `TRUNCATE`):
 - Khi có một tác vụ Ghi (Write), toàn bộ file database bị khóa độc quyền (Exclusive Lock).
 - Mọi tác vụ Đọc (Read) khác phải đứng chờ cho đến khi tác vụ ghi hoàn tất. Điều này làm nghẽn UI nếu đang có tiến trình đồng bộ dữ liệu ngầm từ API.
 
-Từ Android 9.0+, Room mặc định kích hoạt chế độ **Write-Ahead Logging (WAL)**:
+Room mặc định dùng `JournalMode.AUTOMATIC`: chọn **Write-Ahead Logging (WAL)** trừ khi thiết bị là low-RAM device (khi đó dùng `TRUNCATE`). Mốc này không phụ thuộc Android 9; bạn có thể ép chế độ bằng `setJournalMode(...)`:
 - Thay vì ghi trực tiếp vào file chính `app_database.db`, các lệnh ghi mới sẽ được lưu tạm vào một file nhật ký riêng: `app_database.db-wal`.
 - File gốc vẫn giữ nguyên để các tác vụ Đọc truy cập song song.
 - **Kết quả:** Reader không block Writer, và Writer không block Reader! Tốc độ truy vấn của ứng dụng tăng lên gấp nhiều lần. Định kỳ, Room sẽ chạy thao tác "Checkpoint" để gom dữ liệu từ file WAL về lại file DB chính.
@@ -667,6 +703,7 @@ import com.example.taskmanager.data.local.entity.SyncStatus
 import com.example.taskmanager.data.local.entity.TaskEntity
 import com.example.taskmanager.data.remote.TaskApiService
 import com.example.taskmanager.data.remote.dto.TaskDto
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -717,6 +754,8 @@ class TaskRepositoryImpl @Inject constructor(
                 taskDao.updateSyncStatus(localTask.id, SyncStatus.SYNCED)
             }
             Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e // Không nuốt cancellation của coroutine
         } catch (e: Exception) {
             // Mất mạng: Không sao cả, task vẫn ở trạng thái PENDING_INSERT để sync sau
             Result.success(Unit)
@@ -745,6 +784,8 @@ class TaskRepositoryImpl @Inject constructor(
                 }
             }
             Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -765,11 +806,15 @@ Please provide the necessary Migration path via RoomDatabase.Builder.addMigratio
 Và ứng dụng của người dùng sẽ **bị crash ngay lập tức khi mở app**.
 
 ### 9.1. AutoMigration (Khuyên dùng từ Room 2.4+)
-Với các thay đổi đơn giản (thêm bảng mới, thêm cột có giá trị mặc định hoặc cho phép null), Room có thể tự động phân tích 2 file JSON schema được xuất ra và tự sinh code migration:
+Với các thay đổi đơn giản (thêm bảng mới, thêm cột có giá trị mặc định hoặc cho phép null), Room có thể tự động phân tích 2 file JSON schema được xuất ra và tự sinh code migration. Chuỗi version dùng xuyên suốt mục này: **v1** là schema ở mục 3; **v2** thêm cột `description TEXT` (cho phép null) vào `tasks`; **v3** đổi tên `description` thành `note`.
 
 ```kotlin
+// v2: TaskEntity thêm @ColumnInfo(name = "description") val description: String? = null
 @Database(
-    entities = [TaskEntity::class, CategoryEntity::class],
+    entities = [
+        CategoryEntity::class, TaskEntity::class, SubtaskEntity::class,
+        TagEntity::class, TaskTagCrossRef::class, TaskReminderEntity::class
+    ],
     version = 2,
     autoMigrations = [
         AutoMigration(from = 1, to = 2)
@@ -782,22 +827,27 @@ abstract class TaskManagerDatabase : RoomDatabase()
 Nếu bạn đổi tên cột hoặc xóa một cột, bạn phải cung cấp thêm chỉ dẫn `@DeleteColumn` hoặc `@RenameColumn` thông qua `AutoMigrationSpec`:
 
 ```kotlin
+// v3: TaskEntity đổi field thành @ColumnInfo(name = "note") val note: String? = null
 @Database(
-    entities = [TaskEntity::class],
+    entities = [
+        CategoryEntity::class, TaskEntity::class, SubtaskEntity::class,
+        TagEntity::class, TaskTagCrossRef::class, TaskReminderEntity::class
+    ],
     version = 3,
     autoMigrations = [
+        AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3, spec = TaskManagerDatabase.Migration2To3Spec::class)
     ],
     exportSchema = true
 )
 abstract class TaskManagerDatabase : RoomDatabase() {
-    @RenameColumn(tableName = "tasks", fromColumnName = "desc", toColumnName = "description")
+    @RenameColumn(tableName = "tasks", fromColumnName = "description", toColumnName = "note")
     class Migration2To3Spec : AutoMigrationSpec
 }
 ```
 
 ### 9.2. Manual Migration (Khi logic phức tạp)
-Khi bạn cần thay đổi kiểu dữ liệu của một cột, gộp 2 bảng lại, hoặc tách dữ liệu phức tạp, bạn phải viết Manual Migration bằng câu lệnh SQL thô.
+Khi bạn cần thay đổi kiểu dữ liệu của một cột, gộp 2 bảng lại, hoặc tách dữ liệu phức tạp, bạn phải viết Manual Migration bằng câu lệnh SQL thô. Hai migration bên dưới viết tay **cùng hai bước v1→v2→v3** ở 9.1 để bạn thấy Room làm gì thay mình; mỗi bước chỉ đăng ký một cách (hoặc `autoMigrations`, hoặc `addMigrations`), không đăng ký cả hai.
 
 > **Quy trình 5 bước chuẩn của SQLite khi sửa đổi cấu trúc bảng (Table Alteration):**
 > SQLite không hỗ trợ lệnh `ALTER TABLE ALTER COLUMN`. Do đó quy trình chuẩn luôn là:
@@ -810,16 +860,18 @@ Khi bạn cần thay đổi kiểu dữ liệu của một cột, gộp 2 bảng
 ```kotlin
 val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        // Ví dụ: Thêm cột priority dạng TEXT với giá trị mặc định 'MEDIUM'
+        // v1 -> v2: thêm cột description cho phép null (giống AutoMigration(1, 2))
         database.execSQL(
-            "ALTER TABLE tasks ADD COLUMN priority TEXT NOT NULL DEFAULT 'MEDIUM'"
+            "ALTER TABLE tasks ADD COLUMN description TEXT"
         )
     }
 }
 
 val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        // 1. Tạo bảng tạm
+        // v2 -> v3: đổi tên description thành note bằng cách dựng lại bảng
+        // (cách chạy được cả trên SQLite cũ chưa có RENAME COLUMN)
+        // 1. Tạo bảng tạm với schema v3
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS `tasks_new` (
                 `id` TEXT NOT NULL PRIMARY KEY,
@@ -827,16 +879,17 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
                 `title` TEXT NOT NULL,
                 `priority` TEXT NOT NULL,
                 `status` INTEGER NOT NULL,
-                `sync_status` INTEGER NOT NULL,
+                `sync_status` INTEGER NOT NULL DEFAULT 0,
                 `created_at` INTEGER NOT NULL,
+                `note` TEXT,
                 FOREIGN KEY(`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE
             )
         """.trimIndent())
 
-        // 2. Sao chép dữ liệu cũ
+        // 2. Sao chép dữ liệu cũ, description chuyển sang note
         database.execSQL("""
-            INSERT INTO `tasks_new` (`id`, `category_id`, `title`, `priority`, `status`, `sync_status`, `created_at`)
-            SELECT `id`, `category_id`, `title`, `priority`, 0, 0, 1600000000000 FROM `tasks`
+            INSERT INTO `tasks_new` (`id`, `category_id`, `title`, `priority`, `status`, `sync_status`, `created_at`, `note`)
+            SELECT `id`, `category_id`, `title`, `priority`, `status`, `sync_status`, `created_at`, `description` FROM `tasks`
         """.trimIndent())
 
         // 3. Drop bảng cũ
@@ -845,14 +898,17 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         // 4. Đổi tên bảng
         database.execSQL("ALTER TABLE `tasks_new` RENAME TO `tasks`")
 
-        // 5. Tái tạo Index
+        // 5. Tái tạo đủ các Index đã khai báo trong Entity (thiếu một index là validate fail)
         database.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_category_id` ON `tasks` (`category_id`)")
+        database.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_created_at` ON `tasks` (`created_at`)")
+        database.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_sync_status` ON `tasks` (`sync_status`)")
     }
 }
 ```
 
 Cấu hình vào Database Builder:
 ```kotlin
+// Dùng khi chọn migration viết tay thay cho autoMigrations ở 9.1
 Room.databaseBuilder(context, TaskManagerDatabase::class.java, "task_manager.db")
     .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
     // .fallbackToDestructiveMigration() // TUYỆT ĐỐI KHÔNG BẬT Ở RELEASE VÌ SẼ XÓA TOÀN BỘ DATA CỦA USER!
@@ -897,7 +953,7 @@ Index không phải là "miễn phí". Mọi Index đều đi kèm chi phí:
 >     val tags = tagDao.getTagsForTask(task.id) // N câu query bổ sung!
 > }
 > ```
-> **Khắc phục:** Sử dụng `@Relation` hoặc viết một câu lệnh `JOIN` duy nhất trong DAO để SQLite xử lý gom nhóm trong 1 lần truy vấn.
+> **Khắc phục:** Sử dụng `@Relation` (Room chạy thêm đúng một query cho mỗi quan hệ, gom theo danh sách id của cả danh sách cha — tổng cộng 2 query, không phải N+1) hoặc viết một câu lệnh `JOIN` duy nhất trong DAO để SQLite xử lý gom nhóm trong 1 lần truy vấn.
 
 > [!WARNING]
 > **Anti-pattern 2: Đặt tên bảng hoặc cột trùng từ khóa SQL**
@@ -1028,18 +1084,19 @@ class MigrationTest {
         // 1. Tạo Database ở Version 1 và chèn dữ liệu cũ
         var db = helper.createDatabase(TEST_DB, 1).apply {
             execSQL("INSERT INTO categories (id, name, color_hex) VALUES ('c1', 'Work', '#FFFFFF')")
-            execSQL("INSERT INTO tasks (id, category_id, title, status, sync_status, created_at) VALUES ('t1', 'c1', 'Old Task', 0, 0, 1000)")
+            execSQL("INSERT INTO tasks (id, category_id, title, priority, status, sync_status, created_at) VALUES ('t1', 'c1', 'Old Task', 'HIGH', 0, 0, 1000)")
             close()
         }
 
         // 2. Chạy Migration lên Version 2 và tự động kiểm tra Schema
         db = helper.runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2)
 
-        // 3. Kiểm tra dữ liệu cũ vẫn nguyên vẹn và cột mới có giá trị default
+        // 3. Kiểm tra dữ liệu cũ vẫn nguyên vẹn và cột mới description = NULL
         val cursor = db.query("SELECT * FROM tasks WHERE id = 't1'")
         cursor.moveToFirst()
-        val priorityIndex = cursor.getColumnIndex("priority")
-        assertEquals("MEDIUM", cursor.getString(priorityIndex))
+        assertEquals("Old Task", cursor.getString(cursor.getColumnIndex("title")))
+        assertEquals("HIGH", cursor.getString(cursor.getColumnIndex("priority")))
+        assertTrue(cursor.isNull(cursor.getColumnIndex("description")))
         cursor.close()
     }
 }
@@ -1126,3 +1183,7 @@ graph TD
 5. [Android Developers — Testing and debugging your database](https://developer.android.com/training/data-storage/room/testing-db)
 6. [Android Developers — Guide to app architecture (Offline-first)](https://developer.android.com/topic/architecture/data-layer/offline-first)
 7. [SQLite Official Documentation — Write-Ahead Logging (WAL)](https://www.sqlite.org/wal.html)
+8. [Android Developers — RoomDatabase.JournalMode](https://developer.android.com/reference/androidx/room/RoomDatabase.JournalMode)
+9. [Android Developers — Upsert](https://developer.android.com/reference/androidx/room/Upsert)
+10. [SQLite — ON CONFLICT clause (REPLACE)](https://www.sqlite.org/lang_conflict.html)
+11. [Android Developers — Define relationships between objects (one-to-many)](https://developer.android.com/training/data-storage/room/relationships/one-to-many)

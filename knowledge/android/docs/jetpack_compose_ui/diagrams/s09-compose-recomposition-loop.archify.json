@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Một vòng recomposition: từ bấm nút tới badge giỏ hàng",
+    "output": "website/archify/android/s09-compose-recomposition-loop.html",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "emphasis": {
+          "label": "luồng chính: sự kiện → recompose"
+        },
+        "default": {
+          "label": "lời gọi"
+        },
+        "dashed": {
+          "label": "ghi state, invalidate scope"
+        },
+        "return": {
+          "label": "state / kết quả phát ra"
+        }
+      }
+    }
+  },
+  "participants": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "Người dùng",
+      "sublabel": "bấm nút trên màn hình"
+    },
+    {
+      "id": "screen",
+      "type": "frontend",
+      "label": "ProductListScreen",
+      "sublabel": "@Composable"
+    },
+    {
+      "id": "vm",
+      "type": "backend",
+      "label": "ProductListViewModel",
+      "sublabel": "uiState: StateFlow"
+    },
+    {
+      "id": "repo",
+      "type": "database",
+      "label": "CartRepository",
+      "sublabel": "Room"
+    },
+    {
+      "id": "rc",
+      "type": "backend",
+      "label": "Recomposer",
+      "sublabel": "Compose runtime"
+    }
+  ],
+  "segments": [
+    {
+      "from": 160,
+      "to": 330,
+      "label": "Thiết lập: đọc state"
+    },
+    {
+      "from": 340,
+      "to": 595,
+      "label": "Sự kiện → dữ liệu"
+    },
+    {
+      "from": 605,
+      "to": 880,
+      "label": "Recomposition"
+    }
+  ],
+  "messages": [
+    {
+      "id": "s1-ui-state",
+      "from": "vm",
+      "to": "screen",
+      "y": 180,
+      "label": "(1) uiState: StateFlow",
+      "variant": "return",
+      "note": "Danh sách sản phẩm + cartCount, combine từ ProductRepository và CartRepository"
+    },
+    {
+      "id": "s2-collect",
+      "from": "screen",
+      "to": "vm",
+      "y": 255,
+      "label": "(2) collectAsStateWithLifecycle()",
+      "note": "Tạo State; vì dùng by, uiState được đọc ở lambda actions của top bar và nội dung LazyColumn → runtime ghi nhận phụ thuộc tại các scope đó"
+    },
+    {
+      "id": "s3-tap",
+      "from": "user",
+      "to": "screen",
+      "y": 375,
+      "label": "(3) Bấm \"Thêm vào giỏ\"",
+      "variant": "emphasis"
+    },
+    {
+      "id": "s3-add-to-cart",
+      "from": "screen",
+      "to": "vm",
+      "y": 405,
+      "label": "(3) addToCart(product)",
+      "variant": "emphasis",
+      "note": "Lambda onAddToCart; composable không tự sửa số trên badge"
+    },
+    {
+      "id": "s4-add",
+      "from": "vm",
+      "to": "repo",
+      "y": 480,
+      "label": "(4) add(product)",
+      "note": "Ghi vào Room"
+    },
+    {
+      "id": "s4-count",
+      "from": "repo",
+      "to": "vm",
+      "y": 530,
+      "label": "(4) observeItemCount() phát giá trị mới",
+      "variant": "return",
+      "note": "uiState có cartCount mới"
+    },
+    {
+      "id": "s5-invalidate",
+      "from": "vm",
+      "to": "rc",
+      "y": 620,
+      "label": "(5) uiState mới được ghi",
+      "variant": "dashed",
+      "note": "Recomposer đánh dấu các scope đã đọc uiState là invalid, lên lịch recompose cho frame kế tiếp"
+    },
+    {
+      "id": "s6-recompose",
+      "from": "rc",
+      "to": "screen",
+      "y": 720,
+      "label": "(6) Frame kế tiếp: recompose scope invalid",
+      "variant": "emphasis",
+      "note": "Chỉ scope invalid chạy lại; CartBadge chạy lại vì count đổi; ProductCard có product không đổi được skip"
+    },
+    {
+      "id": "s7-draw",
+      "from": "screen",
+      "to": "user",
+      "y": 820,
+      "label": "(7) Layout + Drawing",
+      "variant": "return",
+      "note": "Cập nhật phần đã đổi; badge hiện số mới"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "screen",
+      "from": 175,
+      "to": 826,
+      "type": "frontend"
+    },
+    {
+      "participant": "vm",
+      "from": 175,
+      "to": 626,
+      "type": "backend"
+    },
+    {
+      "participant": "repo",
+      "from": 475,
+      "to": 536,
+      "type": "database"
+    },
+    {
+      "participant": "rc",
+      "from": 615,
+      "to": 726,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Đọc state = đăng ký phụ thuộc",
+      "items": [
+        "Với by, state được đọc ở nơi dùng uiState.cartCount và uiState.products",
+        "Runtime ghi nhận phụ thuộc tại các scope đó (top bar actions, nội dung LazyColumn)",
+        "Chỉ scope đã đọc state đổi mới bị invalid"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Một nguồn cho số trên badge",
+      "items": [
+        "Số chỉ đến từ CartRepository",
+        "Composable gửi sự kiện lên ViewModel, không tự sửa UI"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Smart skipping",
+      "items": [
+        "CartBadge chạy lại vì count đổi",
+        "ProductCard có product không đổi được skip",
+        "Kiểm chứng bằng recomposition counts trong Layout Inspector"
+      ]
+    }
+  ]
+}

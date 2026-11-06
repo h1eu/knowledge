@@ -2,17 +2,21 @@
 id: android.intent.filters
 title: Intent Filters
 summary: Đi sâu vào Intent Filter — bộ lọc khai báo trong AndroidManifest để đón nhận Implicit Intent. Giải thích chính xác luật khớp Action, Category, Data kèm edge cases, cơ chế Resolution & Priority, Deep Link so với App Links, và tích hợp Share Target + Deep Link vào project MVVM thực tế.
-authors:
-  - AI Assistant
-date: 2026-07-30
 status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 25 phút
 tags: [android, intent, intent-filter, deeplink]
-prerequisites: [android.intent.explicit]
-related: [android.intent.implicit, android.intent.pending_intent]
-downstream: []
+prerequisites: [android.intent.implicit]
+related: [android.intent.explicit, android.intent.handle_intent, android.intent.push_data_event]
+learning_outcomes:
+  - Giải thích được cấu trúc của intent-filter (action, category, data) và 3 bài test khớp Action, Data, Category cùng luật riêng của từng loại.
+  - Phân biệt được Deep Link với App Links và cách hệ điều hành chọn app khi nhiều filter cùng khớp.
+  - Triển khai được Share Target, Deep Link và App Links (assetlinks.json) cho Activity.
+  - Áp dụng được luồng dữ liệu Intent vào ViewModel theo mô hình MVVM (onCreate và onNewIntent).
+  - Debug được intent filter bằng adb và tránh được các lỗi thường gặp.
+knowledge_gap: >
+  Khai báo intent-filter sai khiến app không bao giờ xuất hiện trong hộp thoại chia sẻ hay mở link, bị ActivityNotFoundException, hoặc hiện sai app gây rác trải nghiệm người dùng; không hiểu luật khớp sẽ tạo filter quá rộng hoặc quá hẹp và không biết cách debug.
 ---
 
 # Intent Filters (Matching Rules Deep-dive)
@@ -24,7 +28,8 @@ downstream: []
 Giả sử bạn làm app thương mại điện tử, user bấm vào link `https://shop.com/promo/2026` từ tin nhắn Zalo. Ai sẽ mở link này?
 
 - Nếu app của bạn **không khai báo gì** → trình duyệt mặc định mở, app bạn biến mất.
-- Nếu app của bạn **khai báo Intent Filter đúng** → OS liệt kê cả app bạn lẫn trình duyệt để user chọn.
+- Nếu app của bạn **khai báo Intent Filter đúng** nhưng **chưa xác minh domain** (App Links) → từ Android 12, link web vẫn mở bằng trình duyệt mặc định; app bạn chỉ được mở khi user tự bật "Mở link được hỗ trợ" trong cài đặt app. (Android 11 trở xuống thì OS hiện hộp thoại cho user chọn giữa app bạn và trình duyệt.)
+- Nếu app của bạn **khai báo filter + xác minh domain** (App Links) → link mở thẳng vào app.
 
 **Intent Filter (Bộ lọc Intent)** chính là "tấm biển quảng cáo" bạn treo trước mỗi Component để nói với OS: *"Tôi có thể xử lý dạng việc này!"* Hiểu sâu cơ chế khớp (matching) của nó quyết định app của bạn có **được liệt kê đúng chỗ** hay **hiện ra lung tung gây khó chịu** cho user.
 
@@ -57,7 +62,7 @@ Một `<intent-filter>` chứa 3 nhóm thành phần + thuộc tính priority:
 | `<action>` | Hành động Component thực hiện được | `android.intent.action.VIEW`, `android.intent.action.SEND` |
 | `<category>` | Ngữ cảnh bổ sung | `android.intent.category.DEFAULT`, `BROWSABLE` |
 | `<data>` | Định dạng dữ liệu chấp nhận | scheme `https`, host `shop.com`, mimeType `text/plain` |
-| `android:priority` | Độ ưu tiên khi nhiều filter cùng match (chỉ áp dụng implicit) | `-1000`..`1000`, mặc định `0` |
+| `android:priority` | Thứ tự gọi receiver của ordered broadcast; với activity, giá trị > 0 của app thường (không phải privileged app) bị hệ thống hạ về `0` | Số nguyên, mặc định `0` |
 
 ## Cơ chế khớp (Matching Rules) — Deep-dive
 
@@ -85,6 +90,7 @@ sequenceDiagram
         PM-->>App: Hiện Chooser dialog (hoặc app mặc định)
     end
 ```
+<!-- dd: intent-match -->
 
 ### 1. Test Action
 
@@ -121,7 +127,7 @@ Luật ngược với action:
 | --- | --- |
 | Chỉ `scheme` | URI có cùng scheme (bất kể host/path) |
 | `scheme` + `host` | URI cùng scheme + host (bất kể path) |
-| `scheme` + `host` + `path` | URI khớp cả 3 (path có thể dùng wildcard `*`) |
+| `scheme` + `host` + `path` | URI khớp cả 3 (`path` so khớp nguyên văn; muốn dùng wildcard `*` phải dùng `pathPattern`) |
 
 **So khớp MIME type** — hỗ trợ wildcard subtype: `text/*` khớp `text/plain`, `text/html`; `*/*` khớp mọi loại.
 
@@ -140,11 +146,11 @@ Luật ngược với action:
 
 ### Priority & Resolution
 
-Khi **nhiều filter** cùng khớp, OS sắp xếp theo `android:priority` (cao hơn thắng, chỉ áp dụng cho implicit intent):
+Khi **nhiều filter** cùng khớp, kết quả như sau. `android:priority` **không** giúp app thường chen lên trước: với activity của app không phải privileged app, mọi giá trị > 0 bị hạ về `0`; priority chủ yếu có ý nghĩa cho thứ tự nhận **ordered broadcast**.
 
 - **0 filter khớp** → `ActivityNotFoundException`.
 - **1 filter khớp** → mở thẳng Component.
-- **n filter khớp** → hiện **Chooser** (hoặc mở thẳng app mặc định nếu user đã chọn "Luôn luôn").
+- **n filter khớp** → hiện hộp thoại chọn app (hoặc mở thẳng app mặc định nếu user đã chọn "Luôn luôn"). Riêng link web `http`/`https` từ Android 12: chỉ app đã xác minh App Links (hoặc được user cho phép) mới được mở, còn lại link mở bằng trình duyệt.
 
 ## Hướng dẫn triển khai thực tế
 
@@ -168,7 +174,7 @@ App ghi chú muốn hiện ra khi user Share văn bản từ Chrome/Zalo.
 ```
 
 > [!WARNING]
-> Từ **Android 12 (API 31)**, Component có `<intent-filter>` phải khai báo **`android:exported="true"`** nếu muốn app khác gọi được. Không khai báo → app bị văng `SecurityException` khi cài/nhận intent.
+> Từ **Android 12 (API 31)**, Component có `<intent-filter>` phải khai báo **`android:exported`** tường minh (`"true"` nếu muốn app khác gọi được). Không khai báo → build **fail** ở bước merge manifest, và APK như vậy **không cài được** lên Android 12+.
 
 **Xử lý trong Activity (theo luật Data rule 3):**
 
@@ -218,7 +224,7 @@ User bấm `https://shop.com/promo/2026` → mở thẳng màn hình khuyến m�
 
 ### Bài toán 3: App Links — mở thẳng, không hiện chooser
 
-Deep Link vẫn hiện hộp thoại "Chọn app hay Browser". **App Links** (Android 6.0+) loại bỏ bước này bằng cách **xác minh quyền sở hữu domain**.
+Deep Link `https` chưa xác minh: Android 6–11 hiện hộp thoại "Chọn app hay Browser", từ Android 12 thì mở thẳng trình duyệt. **App Links** (Android 6.0+) giải quyết cả hai bằng cách **xác minh quyền sở hữu domain**, để link mở thẳng vào app.
 
 **Bước 1 — Manifest bật autoVerify:**
 
@@ -246,20 +252,20 @@ Deep Link vẫn hiện hộp thoại "Chọn app hay Browser". **App Links** (An
       "namespace": "android_app",
       "package_name": "com.yourshop.app",
       "sha256_cert_fingerprints": [
-        "14:6D:E9:83:C5:73:06:50:D8:EE:B9:95:2F:34:FC:64:AD:A6:92:4B:AD:5E:10:0C:7A:98:3C:CD:1A:8D:2F"
+        "14:6D:E9:83:C5:73:06:50:D8:EE:B9:95:2F:34:FC:64:AD:A6:92:4B:AD:5E:10:0C:7A:98:3C:CD:1A:8D:2F:7B"
       ]
     }
   }
 ]
 ```
 
-Lấy `sha256_cert_fingerprints` (signing certificate, không phải SHA-1) bằng:
+Lấy `sha256_cert_fingerprints` (SHA-256 của **chứng chỉ ký app mà người dùng thực sự cài**, không phải SHA-1). Nếu app phát hành qua Google Play với **Play App Signing**, Google ký lại APK bằng khoá của Google, nên phải lấy SHA-256 trong **Play Console → App integrity → App signing key certificate** (Play Console cũng sinh sẵn đoạn `assetlinks.json`). Lệnh `keytool` chỉ cho fingerprint của khoá upload / bản tự ký:
 
 ```bash
 keytool -list -v -keystore release.jks -alias your_alias
 ```
 
-Sau khi verify thành công, link mở thẳng vào app **không hiện chooser**, và trong `dumpsys` trạng thái `android:autoVerify="true"` hiển thị là **"verified"**. Nếu server chưa có file hoặc fingerprint sai → tự động hạ cấp về Deep Link (vẫn hiện chooser).
+Sau khi cài app, kiểm tra trạng thái xác minh bằng `adb shell pm get-app-links com.yourshop.app` (domain đạt sẽ hiện `verified`). Sau khi verify thành công, link mở thẳng vào app. Nếu server chưa có file hoặc fingerprint sai → link được xử lý như Deep Link thường: từ Android 12 mở bằng trình duyệt, Android 11 trở xuống hiện hộp thoại chọn app.
 
 ### Bài toán 4: Tích hợp MVVM + Deep Link vào project thực tế
 
@@ -268,6 +274,7 @@ Sau khi verify thành công, link mở thẳng vào app **không hiện chooser*
 **Activity xử lý cả 2 đường (cold start + warm start):**
 
 ```kotlin
+@AndroidEntryPoint // Hilt cung cấp PromoViewModel (có tham số repository) cho by viewModels()
 class PromoActivity : AppCompatActivity() {
 
     private val viewModel: PromoViewModel by viewModels()
@@ -294,7 +301,10 @@ class PromoActivity : AppCompatActivity() {
 ```
 
 ```kotlin
-class PromoViewModel(private val repository: PromoRepository) : ViewModel() {
+@HiltViewModel
+class PromoViewModel @Inject constructor(
+    private val repository: PromoRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PromoUiState>(PromoUiState.Loading)
     val uiState: StateFlow<PromoUiState> = _uiState
@@ -321,13 +331,13 @@ class PromoViewModel(private val repository: PromoRepository) : ViewModel() {
 > **Khai báo `mimeType="*/*"`** — App hiện ra ở **mọi** hộp thoại Share của máy, gây rác trải nghiệm. Càng tệ hơn, app nhận cả video/ảnh mà bạn không code xử lý → crash lúc runtime.
 
 > [!DANGER]
-> **Quên `android:exported` (Android 12+)** — App bị văng ngay khi hệ thống cài/intent đầu tiên tới, kèm log `SecurityException`.
+> **Quên `android:exported` (Android 12+)** — Build fail ở bước merge manifest (*"android:exported needs to be explicitly specified..."*), và APK như vậy không cài được lên Android 12+.
 
 > [!WARNING]
 > **Filter quá rộng** — Khai `scheme="http"` trần (không host) nghĩa là app bạn xuất hiện khi mở **mọi** link http trên máy. Luôn kèm `host` (và lý tưởng là `pathPrefix`).
 
 > [!WARNING]
-> **Nhầm Deep Link với App Links** — Không có `autoVerify` + `assetlinks.json` thì link vẫn hiện chooser, user phải chọn "Luôn luôn" thủ công.
+> **Nhầm Deep Link với App Links** — Không có `autoVerify` + `assetlinks.json` thì từ Android 12 link web mở bằng trình duyệt (Android 11 trở xuống thì hiện hộp thoại chọn app); user phải tự bật "Mở link được hỗ trợ" trong cài đặt app.
 
 > [!TIP]
 > **MIME chỉ `text/plain` thì đừng mong mở file cục bộ** — Theo rule 4, filter chỉ có MIME mới ngầm hỗ trợ `content:`/`file:`. Nếu muốn nhận link https + file PDF, tách **2 filter riêng**.
@@ -344,7 +354,10 @@ adb shell am start -a android.intent.action.SEND \
     --es android.intent.extra.TEXT "Xin chào" -t "text/plain" \
     com.yourshop.app
 
-# 3. Xem danh sách filter của package (kiểm tra sau khi verify App Links)
+# 3. Kiểm tra trạng thái xác minh App Links (Android 12+)
+adb shell pm get-app-links com.yourshop.app
+
+# 3b. Xem danh sách filter của package
 adb shell dumpsys package com.yourshop.app | grep -A 20 "Intent Filter"
 
 # 4. Hỏi hệ thống app nào nhận một intent cụ thể
@@ -352,23 +365,24 @@ adb shell cmd package query-activities \
     -a android.intent.action.VIEW -d "https://shop.com/promo/1"
 ```
 
-**Unit test filter thuần** (không cần thiết bị):
+**Unit test filter** (không cần thiết bị, nhưng phải chạy bằng **Robolectric**: trên JVM thuần, `IntentFilter`/`Intent` của android.jar chỉ là stub và test fail với lỗi *"Method ... not mocked"*):
 
 ```kotlin
-@Test
-fun filterMatchesShareTextIntent() {
-    val filter = IntentFilter(Intent.ACTION_SEND).apply {
-        addCategory(Intent.CATEGORY_DEFAULT)
-        addDataType("text/plain")
-    }
-    val intent = Intent(Intent.ACTION_SEND).setType("text/plain")
+@RunWith(RobolectricTestRunner::class)
+class ShareFilterTest {
+    @Test
+    fun filterMatchesShareTextIntent() {
+        val filter = IntentFilter(Intent.ACTION_SEND).apply {
+            addCategory(Intent.CATEGORY_DEFAULT)
+            addDataType("text/plain")
+        }
+        val intent = Intent(Intent.ACTION_SEND).setType("text/plain")
 
-    // Mỗi thành phần phải match (khác hằng số NO_MATCH_*)
-    assertNotEquals(IntentFilter.NO_MATCH_ACTION, filter.matchAction(intent.action))
-    assertNotEquals(IntentFilter.NO_MATCH_TYPE, filter.matchData(
-        intent.type, intent.scheme, intent.data
-    ))
-    assertTrue(filter.matchCategories(intent.categories) == null)
+        // Mỗi thành phần phải match: matchAction trả Boolean, matchData trả số >= 0 khi khớp
+        assertTrue(filter.matchAction(intent.action))
+        assertTrue(filter.matchData(intent.type, intent.scheme, intent.data) >= 0)
+        assertTrue(filter.matchCategories(intent.categories) == null)
+    }
 }
 ```
 
@@ -396,3 +410,5 @@ Intent Filter là cơ chế phân loại implicit intent của Android: **Action
 - Android Developers — [IntentFilter API reference](https://developer.android.com/reference/android/content/IntentFilter)
 - Android Developers — [Handle Android app links](https://developer.android.com/training/app-links)
 - Android Developers — [Verify Android App Links](https://developer.android.com/training/app-links/verify-android-applinks)
+- Android Developers — [intent-filter element (android:priority)](https://developer.android.com/guide/topics/manifest/intent-filter-element)
+- Android Developers — [Behavior changes: Android 12 (exported, web intent resolution)](https://developer.android.com/about/versions/12/behavior-changes-12)

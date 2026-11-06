@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>singleTask thổi bay cả chồng</title>
+<title>singleTask: xoá các Activity phía trên A, gọi onNewIntent</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   body { margin: 0; background: #F8FAFC; color: #0F172A; font-family: 'Geist', sans-serif; }
@@ -17,52 +17,68 @@
 <body>
 <div class="page">
   <p class="eyebrow">SƠ ĐỒ KIẾN TRÚC · BACK STACK</p>
-  <h1>singleTask thổi bay cả chồng</h1>
-  <p class="sub">Gọi Activity singleTask là dọn sạch phía trên, nhận intent mới tại chỗ.</p>
-<svg viewBox="0 0 800 308" role="img" aria-labelledby="tb-singletask-title tb-singletask-desc" font-family="'Geist', sans-serif">
-<title id="tb-singletask-title">singleTask thổi bay cả chồng</title>
-<desc id="tb-singletask-desc">Chồng cũ có A B C, gọi launch mode singleTask thì chỉ còn A và A nhận onNewIntent.</desc>
+  <h1>singleTask: xoá các Activity phía trên A, gọi onNewIntent</h1>
+  <p class="sub">A đã có trong task: hệ thống destroy C rồi B, A lên top và nhận onNewIntent(), không bị tạo lại.</p>
+<svg viewBox="0 0 800 324" role="img" aria-labelledby="tb-singletask-title tb-singletask-desc" font-family="'Geist', sans-serif">
+<title id="tb-singletask-title">singleTask: xoá các Activity phía trên A, gọi onNewIntent</title>
+<desc id="tb-singletask-desc">Task ban đầu có A ở root với launchMode singleTask, B ở giữa, C ở top. Khi A được khởi động lại, hệ thống tìm thấy A trong task, destroy C rồi B, đưa A lên top và gọi A.onNewIntent; A không bị tạo lại. Kết quả task chỉ còn A. Instance có sẵn chỉ được tìm trong task khớp taskAffinity của A.</desc>
 <defs>
 <marker id="tb-singletask-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
 <polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
 </marker>
 </defs>
-<rect width="800" height="308" fill="#F8FAFC"/>
+<rect width="800" height="324" fill="#F8FAFC"/>
 <!-- zones -->
-<rect x="32" y="24" width="336" height="236" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
-<rect x="48" y="28" width="72" height="12" rx="2" fill="#F8FAFC"/>
-<text x="84" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">TRƯỚC</text>
-<rect x="432" y="24" width="336" height="236" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
-<rect x="448" y="28" width="64" height="12" rx="2" fill="#F8FAFC"/>
-<text x="480" y="37" fill="#0284C7" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SAU</text>
+<rect x="32" y="24" width="320" height="224" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="44" y="18" width="124" height="12" rx="2" fill="#F8FAFC"/>
+<text x="106" y="27" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">TRƯỚC · TASK [A, B, C]</text>
+<rect x="448" y="24" width="320" height="224" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="460" y="18" width="84" height="12" rx="2" fill="#F8FAFC"/>
+<text x="502" y="27" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SAU · TASK [A]</text>
 <!-- arrows -->
-<path d="M 200,112 V 128" fill="none" stroke="#64748B" stroke-width="1.2"/>
-<path d="M 200,180 V 196" fill="none" stroke="#64748B" stroke-width="1.2"/>
-<path d="M 368,152 H 464" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-singletask-arrow)"/>
-<rect x="368" y="132" width="64" height="12" rx="2" fill="#F8FAFC"/>
-<text x="400" y="141" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SINGLETASK</text>
-<!-- nodes -->
-<rect x="64" y="60" width="272" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="64" y="60" width="272" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="200" y="92" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">A · top</text>
-<rect x="64" y="128" width="272" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="64" y="128" width="272" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="200" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">B</text>
-<rect x="64" y="196" width="272" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="64" y="196" width="272" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="200" y="228" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">C</text>
-<rect x="464" y="120" width="272" height="64" rx="6" fill="#F8FAFC"/>
-<rect x="464" y="120" width="272" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="472" y="126" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="498" y="135" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MỚI</text>
-<text x="600" y="158" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">A · onNewIntent</text>
+<path d="M 320,208 H 478" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-singletask-arrow)"/>
+<rect x="348" y="188" width="104" height="12" rx="2" fill="#F8FAFC"/>
+<text x="400" y="197" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">startActivity(A)</text>
+<rect x="356" y="216" width="88" height="12" rx="2" fill="#F8FAFC"/>
+<text x="400" y="225" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÙNG INSTANCE</text>
+<!-- nodes: task trước (top ở trên) -->
+<rect x="56" y="56" width="264" height="44" rx="6" fill="#F8FAFC"/>
+<rect x="56" y="56" width="264" height="44" rx="6" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="68" y="76" fill="#64748B" font-size="12" font-weight="600">C · top</text>
+<text x="68" y="92" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">onDestroy()</text>
+<rect x="240" y="62" width="72" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="276" y="71" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">1 · DESTROY</text>
+<rect x="56" y="120" width="264" height="44" rx="6" fill="#F8FAFC"/>
+<rect x="56" y="120" width="264" height="44" rx="6" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="68" y="140" fill="#64748B" font-size="12" font-weight="600">B</text>
+<text x="68" y="156" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">onDestroy()</text>
+<rect x="240" y="126" width="72" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="276" y="135" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">2 · DESTROY</text>
+<rect x="56" y="184" width="264" height="44" rx="6" fill="#F8FAFC"/>
+<rect x="56" y="184" width="264" height="44" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="68" y="204" fill="#0F172A" font-size="12" font-weight="600">A · root</text>
+<text x="68" y="220" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace">launchMode="singleTask"</text>
+<!-- task sau -->
+<text x="608" y="96" fill="#64748B" font-size="12" text-anchor="middle">C và B đã bị destroy</text>
+<text x="608" y="116" fill="#64748B" font-size="12" text-anchor="middle">A không bị tạo lại, không có onCreate()</text>
+<rect x="480" y="184" width="264" height="44" rx="6" fill="#F8FAFC"/>
+<rect x="480" y="184" width="264" height="44" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="492" y="204" fill="#0F172A" font-size="12" font-weight="600">A · root, giờ là top</text>
+<text x="492" y="220" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace">onNewIntent(intent) → onResume()</text>
+<rect x="648" y="190" width="88" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="692" y="199" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">3 · TÁI SỬ DỤNG</text>
+<!-- note: taskAffinity -->
+<text x="32" y="268" fill="#64748B" font-size="12"><tspan fill="#0F172A" font-weight="600">Lưu ý taskAffinity:</tspan> hệ thống chỉ tìm A có sẵn trong task khớp taskAffinity của A (mặc định: package name),</text>
+<text x="32" y="284" fill="#64748B" font-size="12">nên “một instance duy nhất” được hiểu theo taskAffinity đó.</text>
 <!-- legend -->
-<line x1="32" y1="268" x2="768" y2="268" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="284" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="280" r="4" fill="#0284C7"/>
-<text x="162" y="284" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">KẾT QUẢ · CÒN LẠI A</text>
-<line x1="380" y1="280" x2="412" y2="280" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-singletask-arrow)"/>
-<text x="420" y="284" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">DỌN STACK CŨ</text>
+<line x1="32" y1="296" x2="768" y2="296" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="312" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="120" y="304" width="20" height="12" rx="2" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="148" y="312" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">BỊ DESTROY</text>
+<rect x="260" y="304" width="20" height="12" rx="2" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="288" y="312" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">INSTANCE CŨ, TÁI SỬ DỤNG</text>
+<line x1="456" y1="308" x2="488" y2="308" stroke="#64748B" stroke-width="1.2" marker-end="url(#tb-singletask-arrow)"/>
+<text x="496" y="312" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">INTENT KHỞI ĐỘNG LẠI A</text>
 </svg>
   <p class="colophon">DIAGRAM-DESIGN · ARCHITECTURE · DOC-INLINE · ENGINEER · KNOWLEDGE OS SKIN</p>
 </div>

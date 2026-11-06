@@ -8,7 +8,7 @@ depth: overview
 estimated_reading_time: 10 phút
 tags: [android, overview, session-09, compose, ui]
 prerequisites: []
-related: []
+related: [android.jetpack_compose.compose_overview]
 downstream: []
 learning_outcomes:
   - Hiểu các khái niệm nền tảng của Jetpack Compose.
@@ -26,6 +26,7 @@ Session 09 giới thiệu **Jetpack Compose** — bộ công cụ UI hiện đ�
 
 ## Nội dung Session
 
+- [Jetpack Compose Overview](overview.md) — đọc trước: mô hình UI = f(state), compiler plugin, recomposition, interop với View
 - [9.1 Remember and Recomposition](remember_and_recomposition.md)
 - **9.2 State and State Hoisting**
   - [9.2.1 MutableState](state/mutable_state.md)

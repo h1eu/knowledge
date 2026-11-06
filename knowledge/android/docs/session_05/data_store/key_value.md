@@ -1,30 +1,25 @@
 ---
 id: android.data_store.key_value
 title: Key-Value Storage (SharedPreferences & DataStore)
-slug: key-value-storage
 summary: Hiểu chi tiết Key-Value Storage trong Android - bản chất, cơ chế hoạt động bên trong SharedPreferences và DataStore, khi nào dùng mỗi loại, triển khai chuẩn MVVM + Hilt + Coroutine/Flow cho cả XML và Compose, cùng testing, security và migration.
-tags: [android, datastore, shared-preferences, key-value, preferences-datastore, proto-datastore, hilt, mvvm, flow, coroutines]
-domain: Android
-module: Session 05: Data Store, Thread & Networking
-topic: Key-Value Storage
-prerequisites:
-  - android.languages.kotlin
-  - activity-lifecycle
-  - session-05-overview
-related:
-  - data-store-room-arch
-  - android.languages.kotlin
 status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 45 phút
+tags: [android, datastore, shared-preferences, key-value, preferences-datastore, proto-datastore, hilt, mvvm, flow, coroutines]
+prerequisites:
+  - android.languages.kotlin
+  - android.component.activity.lifecycle
+  - android.session05.overview
+related:
+  - android.data_store.room_architecture
+  - android.languages.kotlin
 learning_outcomes:
   - Giải thích được bản chất Key-Value Storage và vị trí của nó trong hệ sinh thái lưu trữ Android.
-  - Hiểu được cơ chế hoạt động bên trong SharedPreferences (file XML, nạp toàn bộ vào RAM, apply vs commit) và các rủi ro gây mất dữ liệu.
-  - Hiểu được cơ chế hoạt động bên trong DataStore (file .preferences_pb, actor tuần tự, atomic write, Flow).
-  - So sánh chính xác SharedPreferences vs DataStore, biết khi nào dùng và khi nào tránh key-value storage.
-  - Triển khai được Preferences DataStore trong kiến trúc MVVM + Hilt + Coroutine/Flow cho cả XML và Compose.
-  - Áp dụng được các nguyên tắc security (mã hóa dữ liệu nhạy cảm), testing (JVM test với runTest) và migration an toàn từ SharedPreferences sang DataStore.
+  - Giải thích được cơ chế bên trong SharedPreferences (file XML nạp vào RAM, apply vs commit) và các rủi ro gây mất dữ liệu hoặc ANR.
+  - Giải thích được cơ chế bên trong DataStore (file .preferences_pb, xử lý tuần tự, atomic write, Flow).
+  - Phân biệt được SharedPreferences và DataStore, biết khi nào dùng và khi nào tránh key-value storage.
+  - Triển khai được Preferences DataStore trong MVVM + Hilt + Coroutine/Flow, kèm mã hóa dữ liệu nhạy cảm, test trên JVM và migration từ SharedPreferences.
 knowledge_gap: >
   Nắm sai bản chất SharedPreferences dẫn đến ANR khi file XML lớn, mất token khi process bị giết giữa chừng ghi apply(), lưu dữ liệu nhạy cảm dạng plaintext, khai báo nhiều DataStore trỏ cùng một file gây crash, và gọi edit không qua coroutine làm UI block.
 ---
@@ -60,7 +55,7 @@ Key-Value Storage là mô hình lưu trữ trong đó mỗi dữ liệu được
 - **Truy cập theo khóa**: muốn đọc dữ liệu phải biết key. Không có khái niệm tìm kiếm, sắp xếp, lọc.
 - **Không có cấu trúc quan hệ**: không liên kết giữa các mục với nhau.
 - **Giá trị đơn giản**: chỉ phù hợp kiểu dữ liệu nguyên thủy (String, Int, Long, Float, Boolean, Set\<String\>). Không phù hợp object phức tạp (muốn lưu object phải tự serialize sang String/JSON).
-- **Toàn bộ được nạp vào bộ nhớ**: mỗi lần đọc, toàn bộ tập key-value được nạp từ đĩa vào RAM một lần, sau đó truy cập trong RAM. Điều này nói lên lý do "không lưu dữ liệu lớn" — xem phần giới hạn.
+- **Toàn bộ được nạp vào bộ nhớ**: ở lần đọc đầu tiên, toàn bộ tập key-value được nạp từ đĩa vào RAM, sau đó truy cập trong RAM; mỗi lần ghi lại ghi lại toàn bộ file. Điều này nói lên lý do "không lưu dữ liệu lớn" — xem phần giới hạn.
 
 ### Vị trí trong hệ sinh thái lưu trữ Android
 
@@ -122,6 +117,7 @@ flowchart TB
     D -->|apply/commit: ghi lại toàn bộ file| F
     C -->|đọc từ memory, không chạm đĩa| B
 ```
+<!-- dd: ds-sharedprefs -->
 
 - **Lần đầu truy cập**: file XML được đọc toàn bộ, parse thành một `Map` trong bộ nhớ, giữ nguyên cho tới khi app chết. Mọi thao tác đọc sau đó **không chạm ổ đĩa** — chỉ đọc từ RAM. Đây là lý do đọc SharedPreferences nhanh nhưng **lần đầu tiên có thể chậm** nếu file to.
 - **Ghi**: mọi thay đổi chỉ sửa trên bản `Map` trong RAM trước, sau đó mới quyết định ghi xuống đĩa qua `apply()` hoặc `commit()`.
@@ -131,12 +127,12 @@ flowchart TB
 | Đặc điểm | `apply()` | `commit()` |
 |---|---|---|
 | Trả về | `void` — ghi không đồng bộ | `Boolean` — kết quả ghi thành công hay không |
-| Thread | Ghi xuống đĩa trên background thread (AsyncTask cũ nội bộ) | **Ghi ngay trên thread đang gọi**, chặn đến khi xong |
+| Thread | Ghi xuống đĩa trên một thread nền nội bộ (hàng đợi `QueuedWork`) | **Ghi ngay trên thread đang gọi**, chặn đến khi xong |
 | Trạng thái bộ nhớ | Cập nhật bộ nhớ **ngay lập tức**, các đọc sau thấy giá trị mới | Cập nhật bộ nhớ ngay |
 | Lỗi | Lỗi ghi đĩa không được báo | Trả `false` khi ghi thất bại |
-| UI thread | An toàn (ghi đĩa không chặn UI) | **Nguy hiểm** — nếu gọi trên UI thread sẽ block UI khi file lớn |
+| UI thread | Không chặn lúc gọi, **nhưng** các lần `apply()` chưa ghi xong sẽ **chặn main thread** khi Activity/Service chuyển trạng thái (start/stop) — nguồn ANR phổ biến | **Nguy hiểm** — nếu gọi trên UI thread sẽ block UI khi file lớn |
 
-> **Nguyên tắc thực tế**: luôn dùng `apply()` khi chỉ cần ghi dữ liệu; chỉ dùng `commit()` khi bạn thực sự cần biết kết quả ghi (ví dụ: ghi rồi mới cho phép user thoát, cần chắc chắn dữ liệu đã lên đĩa).
+> **Nguyên tắc thực tế**: nếu buộc phải dùng SharedPreferences, ưu tiên `apply()` khi không cần kết quả ghi; chỉ dùng `commit()` (trên background thread) khi thực sự cần biết dữ liệu đã lên đĩa. `apply()` vẫn có thể gây ANR: framework chờ mọi lần ghi đang dở hoàn tất trước khi Activity/Service đổi trạng thái, và việc chờ này chạy trên main thread. Gọi `apply()` dày đặc với file lớn là công thức gây ANR — một lý do Google khuyên chuyển sang DataStore.
 
 ### Ghi mất dữ liệu — vấn đề nghiêm trọng nhất
 
@@ -147,9 +143,9 @@ Với `apply()`, hệ thống ghi file XML trên background. Nếu **process c�
 ### Vì sao SharedPreferences "không an toàn" trong thế giới hiện đại
 
 1. **Đọc chặn UI thread**: lần truy cập đầu tiên phải parse toàn bộ file XML trên thread gọi — nếu là UI thread, app giật.
-2. **Không có cơ chế theo dõi thay đổi chuẩn**: `OnSharedPreferenceChangeListener` không phân biệt được app process hay app khác (Multi-process) thay đổi, dễ dẫn đến bug phức tạp.
+2. **Không hỗ trợ nhiều process**: docs ghi rõ SharedPreferences không hỗ trợ dùng chung giữa nhiều process; `OnSharedPreferenceChangeListener` chỉ báo thay đổi trong cùng process và phải tự giữ tham chiếu mạnh tới listener.
 3. **Không an toàn khi nhiều nơi ghi cùng lúc**: hai `Editor` cùng ghi có thể ghi đè nhau.
-4. **Không có type safety**: đọc sai kiểu (đọc `String` khi lưu `Int`) trả về default value im lặng — bug khó tìm.
+4. **Không có type safety**: đọc sai kiểu (gọi `getString` với key đang lưu `Int`) ném `ClassCastException` lúc chạy — compiler không bắt được, lỗi chỉ lộ ra khi đúng nhánh code đó chạy.
 5. **Ghi mất dữ liệu** khi process bị giết giữa chừng.
 6. **Không tích hợp coroutine/Flow**: muốn lắng nghe thay đổi phải tự quản lý listener thủ công.
 
@@ -165,6 +161,7 @@ flowchart TB
     DS[DataStore - Jetpack] --> PDS[Preferences DataStore<br/>key-value như SharedPreferences]
     DS --> PRDS[Proto DataStore<br/>Protocol Buffers, có schema]
 ```
+<!-- dd: ds-types -->
 
 ### Cơ chế hoạt động bên trong
 
@@ -188,6 +185,7 @@ sequenceDiagram
     Worker-->>DS: thông báo xong
     DS-->>App: luồng Flow phát dữ liệu mới<br/>cho mọi collector
 ```
+<!-- dd: ds-write -->
 
 - **Đơn luồng xử lý (single actor)**: mọi tác vụ đọc ghi đều đi qua một coroutine duy nhất xử lý tuần tự. Hai tác vụ ghi đồng thời **không bao giờ** ghi đè nhau — cái sau chờ cái trước hoàn thành. Đây chính là thứ SharedPreferences không làm được.
 - **Ghi an toàn (atomic write)**: DataStore ghi nội dung mới vào file tạm, sau đó **rename nguyên tử** (atomic rename) thành file chính. Nếu app bị giết giữa chừng, hoặc file hỏng vì bất kỳ lý do gì, file cũ vẫn nguyên vẹn — **không mất dữ liệu đã ghi trước đó**.
@@ -215,7 +213,7 @@ sequenceDiagram
 | Async | Blocking (`commit`) hoặc best-effort (`apply`) | Coroutine + Flow |
 | Theo dõi thay đổi | Listener thủ công | Flow, UI tự cập nhật |
 | Block UI thread | Có thể (lần đọc đầu) | Không |
-| Type safety | Không | Một phần (key kiểu rõ ràng) |
+| Type safety | Không | Không (key có kiểu nhưng không có schema; chỉ Proto DataStore mới đảm bảo type safety) |
 | Hỗ trợ Google khuyến nghị | Cũ, không còn khuyến nghị | Hiện đại, được khuyến nghị |
 | Hỗ trợ test | Khó (phụ thuộc Android) | Dễ (chạy trong JVM test) |
 | File lưu trữ | XML | `.preferences_pb` (nhị phân) |
@@ -232,7 +230,7 @@ sequenceDiagram
 
 ### Không nên dùng Key-Value Storage
 
-- **Dữ liệu lớn**: file bị nạp toàn bộ vào RAM mỗi lần đọc — lưu 10MB vào DataStore sẽ làm app chậm. > 100KB-1MB nên cân nhắc Room hoặc file.
+- **Dữ liệu lớn**: toàn bộ file được nạp vào RAM và ghi lại nguyên file mỗi lần sửa — lưu 10MB vào DataStore sẽ làm app chậm. > 100KB-1MB nên cân nhắc Room hoặc file.
 - **Dữ liệu cần truy vấn**: tìm kiếm, sắp xếp, lọc — đó là việc của Room.
 - **Dữ liệu quan hệ**: giỏ hàng, danh sách đơn hàng.
 - **Dữ liệu nhạy cảm ở dạng plaintext**: mật khẩu, token không mã hóa — phải dùng EncryptedSharedPreferences hoặc Keystore (xem Security).
@@ -273,8 +271,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-// Singleton DataStore cho toàn app — khai báo ở top-level
-private val Context.userDataStore: DataStore<Preferences> by preferencesDataStore(
+// Singleton DataStore cho toàn app — khai báo ở top-level, một lần duy nhất.
+// Không để `private`: DataModule (file khác) cần import property này.
+val Context.userDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "user_prefs"
 )
 
@@ -292,38 +291,48 @@ object PrefsKeys {
 ```kotlin
 package com.example.app.data.repository
 
-import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.example.app.data.local.PrefsKeys
-import com.example.app.data.local.userDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class UserPreferencesRepository(
-    private val context: Context
-) {
+// Interface: ViewModel chỉ phụ thuộc vào đây, test thay bằng Fake
+interface UserPreferencesRepository {
+    val userToken: Flow<String?>
+    val isDarkMode: Flow<Boolean>
+    suspend fun saveToken(token: String)
+    suspend fun setDarkMode(enabled: Boolean)
+    suspend fun clearSession()
+}
+
+// Bản thật: nhận DataStore (không nhận Context) — dễ test trên JVM
+class DataStoreUserPreferencesRepository(
+    private val dataStore: DataStore<Preferences>
+) : UserPreferencesRepository {
     // Đọc — Flow: UI sẽ tự cập nhật khi dữ liệu đổi
-    val userToken: Flow<String?> = context.userDataStore.data
+    override val userToken: Flow<String?> = dataStore.data
         .map { prefs -> prefs[PrefsKeys.USER_TOKEN] }
 
-    val isDarkMode: Flow<Boolean> = context.userDataStore.data
+    override val isDarkMode: Flow<Boolean> = dataStore.data
         .map { prefs -> prefs[PrefsKeys.DARK_MODE] ?: false }
 
     // Ghi — suspend, gọi từ coroutine
-    suspend fun saveToken(token: String) {
-        context.userDataStore.edit { prefs ->
+    override suspend fun saveToken(token: String) {
+        dataStore.edit { prefs ->
             prefs[PrefsKeys.USER_TOKEN] = token
         }
     }
 
-    suspend fun setDarkMode(enabled: Boolean) {
-        context.userDataStore.edit { prefs ->
+    override suspend fun setDarkMode(enabled: Boolean) {
+        dataStore.edit { prefs ->
             prefs[PrefsKeys.DARK_MODE] = enabled
         }
     }
 
-    suspend fun clearSession() {
-        context.userDataStore.edit { prefs ->
+    override suspend fun clearSession() {
+        dataStore.edit { prefs ->
             prefs.remove(PrefsKeys.USER_TOKEN)
         }
     }
@@ -345,6 +354,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.example.app.data.local.userDataStore
+import com.example.app.data.repository.DataStoreUserPreferencesRepository
 import com.example.app.data.repository.UserPreferencesRepository
 import dagger.Module
 import dagger.Provides
@@ -367,21 +377,11 @@ object DataModule {
     @Singleton
     fun provideUserPreferencesRepository(
         dataStore: DataStore<Preferences>
-    ): UserPreferencesRepository = UserPreferencesRepository(dataStore)
+    ): UserPreferencesRepository = DataStoreUserPreferencesRepository(dataStore)
 }
 ```
 
-> **Lưu ý**: Repository được sửa để nhận `DataStore<Preferences>` thay vì `Context` — vì Context từ Hilt là `ApplicationContext`, và `preferencesDataStore` cần được truy cập từ một Context đúng nghĩa. Thực tế phổ biến: `provideUserDataStore` trả về `DataStore<Preferences>`, còn Repository chỉ phụ thuộc `DataStore` — giảm phụ thuộc vào Context, dễ test hơn. Sửa lại constructor:
-
-```kotlin
-class UserPreferencesRepository(
-    private val dataStore: DataStore<Preferences>   // thay cho Context
-) {
-    val userToken: Flow<String?> = dataStore.data
-        .map { prefs -> prefs[PrefsKeys.USER_TOKEN] }
-    // ... phần còn lại giống hệt, chỉ đổi context.userDataStore -> dataStore
-}
-```
+> **Lưu ý**: Repository chỉ phụ thuộc `DataStore<Preferences>` thay vì `Context` — giảm phụ thuộc, test JVM chỉ cần tạo một DataStore trỏ vào file tạm. `userDataStore` (extension property) chỉ được truy cập trong Hilt provider; mọi nơi khác nhận `DataStore` hoặc `UserPreferencesRepository` qua inject.
 
 ### 5. ViewModel — đọc bằng StateFlow, ghi bằng coroutine
 
@@ -392,10 +392,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app.data.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -413,20 +412,24 @@ class LoginViewModel @Inject constructor(
             initialValue = null
         )
 
-    private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+    // Suy ra từ token đã lưu (một nguồn sự thật): mở lại app vẫn đúng trạng thái
+    val isLoggedIn: StateFlow<Boolean> = prefsRepository.userToken
+        .map { token -> token != null }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
 
     fun saveSession(token: String) {
         viewModelScope.launch {
-            prefsRepository.saveToken(token)
-            _isLoggedIn.value = true
+            prefsRepository.saveToken(token) // DataStore phát token mới -> isLoggedIn tự thành true
         }
     }
 
     fun logout() {
         viewModelScope.launch {
-            prefsRepository.clearSession()
-            _isLoggedIn.value = false
+            prefsRepository.clearSession()   // token bị xoá -> isLoggedIn tự thành false
         }
     }
 }
@@ -449,8 +452,9 @@ sequenceDiagram
     File-->>DS: xong
     DS-->>Repo: phát dữ liệu mới qua Flow
     Repo-->>VM: userToken Flow emit "abc123"
-    VM-->>UI: StateFlow isLoggedIn = true<br/>UI render màn hình chính
+    VM-->>UI: isLoggedIn = (token != null) = true<br/>UI render màn hình chính
 ```
+<!-- dd: ds-login -->
 
 **Điểm mấu chốt để hiểu**: bạn **không bao giờ tự gọi lại** để lấy dữ liệu sau khi ghi. Ghi xong, DataStore tự đẩy dữ liệu mới qua Flow, Flow qua Repository, `stateIn` cập nhật StateFlow, UI tự render. Đây là sức mạnh của DataStore so với SharedPreferences — với SharedPreferences bạn phải tự đọc lại và tự notify.
 
@@ -474,6 +478,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {
 ### 7. UI — XML (View hệ thống)
 
 ```kotlin
+@AndroidEntryPoint // bắt buộc để Hilt cấp @HiltViewModel cho Activity
 class LoginActivity : AppCompatActivity() {
 
     private val viewModel: LoginViewModel by viewModels()
@@ -482,12 +487,15 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Đọc token ngay khi mở app — quyết định màn hình nào
+        // Đọc token ngay khi mở app — quyết định màn hình nào.
+        // repeatOnLifecycle: chỉ collect khi Activity ở STARTED, tự dừng khi xuống background
         lifecycleScope.launch {
-            viewModel.userToken.collect { token ->
-                if (token != null) {
-                    startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
-                    finish()
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.userToken.collect { token ->
+                    if (token != null) {
+                        startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+                        finish()
+                    }
                 }
             }
         }
@@ -506,6 +514,7 @@ class LoginActivity : AppCompatActivity() {
 DataStore ném `IOException` khi file bị hỏng. Trong file dữ liệu key-value, xử lý chuẩn là **xóa file hỏng và đọc lại từ đầu**:
 
 ```kotlin
+// Thay cho khai báo ở UserPreferences.kt (vẫn chỉ một khai báo duy nhất cho file này)
 val Context.userDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "user_prefs",
     corruptionHandler = ReplaceFileCorruptionHandler { exception ->
@@ -544,7 +553,7 @@ val encryptedPrefs = EncryptedSharedPreferences.create(
 )
 ```
 
-> **Lưu ý về security**: `security-crypto` từng bị Google gắn cờ "not recommended for new projects" vào năm 2024 vì vấn đề bảo trì — hãy đọc [thảo luận chính thức](https://issuetracker.google.com/issues/286337100) trước khi quyết định cho project mới. Hướng thay thế được khuyến nghị: mã hóa bằng Android Keystore trực tiếp, hoặc lưu token trong hệ thống xác thực riêng (ví dụ: credential của các dịch vụ như Firebase Auth).
+> **Lưu ý về security**: toàn bộ API của `security-crypto` (gồm `EncryptedSharedPreferences`, `MasterKey`) đã bị deprecate từ bản 1.1.0-alpha07 (9/4/2025) — xem [release notes](https://developer.android.com/jetpack/androidx/releases/security) và [thảo luận chính thức](https://issuetracker.google.com/issues/286337100) trước khi quyết định cho project mới. Hướng thay thế được khuyến nghị: mã hóa bằng Android Keystore trực tiếp, hoặc lưu token trong hệ thống xác thực riêng (ví dụ: credential của các dịch vụ như Firebase Auth).
 
 Ngoài mã hóa, đừng quên: **tên key không nên chứa dữ liệu nhạy cảm** và **không log giá trị token** khi debug.
 
@@ -558,6 +567,7 @@ flowchart TD
     C -->|Không - app bị giết giữa chừng| E[File cũ vẫn nguyên vẹn<br/>không mất dữ liệu trước đó]
     E --> F[Lần chạy sau: đọc dữ liệu từ file cũ hợp lệ]
 ```
+<!-- dd: ds-atomic -->
 
 Đây là lý do DataStore không có vấn đề "ghi mất dữ liệu" như SharedPreferences `apply()` — thiết kế atomic rename đảm bảo hoặc là file mới hoàn chỉnh, hoặc file cũ còn nguyên. Không bao giờ có trạng thái "nửa file".
 
@@ -575,13 +585,13 @@ class UserPreferencesRepositoryTest {
 
     @Before
     fun setUp() {
-        // DataStore chạy trong test bằng TemporaryFolder — không đụng đĩa thật
-        val tempDir = createTempDir()
+        // DataStore trỏ vào thư mục tạm — không đụng dữ liệu thật của app
+        val tempDir = Files.createTempDirectory("datastore-test").toFile()
         dataStore = PreferenceDataStoreFactory.create(
             scope = CoroutineScope(UnconfinedTestDispatcher()),
             produceFile = { tempDir.resolve("test.preferences_pb") }
         )
-        repository = UserPreferencesRepository(dataStore)
+        repository = DataStoreUserPreferencesRepository(dataStore)
     }
 
     @Test
@@ -608,20 +618,34 @@ class UserPreferencesRepositoryTest {
 ### Test ViewModel bằng fake Repository
 
 ```kotlin
-class FakeUserPreferencesRepository : UserPreferencesRepository(/* fake dataStore */) {
+// Fake hiện thực interface (class Kotlin mặc định là final, không kế thừa được)
+class FakeUserPreferencesRepository : UserPreferencesRepository {
     private val _token = MutableStateFlow<String?>(null)
+    private val _darkMode = MutableStateFlow(false)
     override val userToken: Flow<String?> = _token
+    override val isDarkMode: Flow<Boolean> = _darkMode
 
-    override suspend fun saveToken(token: String) {
-        _token.value = token
-    }
-    // ...
+    override suspend fun saveToken(token: String) { _token.value = token }
+    override suspend fun setDarkMode(enabled: Boolean) { _darkMode.value = enabled }
+    override suspend fun clearSession() { _token.value = null }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
+    // viewModelScope chạy trên Dispatchers.Main — trên JVM phải thay bằng test dispatcher
+    @Before
+    fun setUp() { Dispatchers.setMain(UnconfinedTestDispatcher()) }
+
+    @After
+    fun tearDown() { Dispatchers.resetMain() }
+
     @Test
     fun test_saveSession_updatesLoginState() = runTest {
         val vm = LoginViewModel(FakeUserPreferencesRepository())
+        // WhileSubscribed: StateFlow chỉ chạy khi có subscriber -> tạo collector nền cho test
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.userToken.collect {} }
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.isLoggedIn.collect {} }
+
         vm.saveSession("abc123")
 
         assertEquals(true, vm.isLoggedIn.value)
@@ -713,6 +737,7 @@ Project mới luôn dùng DataStore. Project cũ: migration dần (xem bên dư�
 Google cung cấp `SharedPreferencesMigration` để chuyển dữ liệu tự động:
 
 ```kotlin
+// Thay cho khai báo ở UserPreferences.kt (vẫn chỉ một khai báo duy nhất cho file này)
 val Context.userDataStore by preferencesDataStore(
     name = "user_prefs",
     // Migration: đọc hết dữ liệu từ SharedPreferences cũ vào DataStore
@@ -759,6 +784,7 @@ flowchart TB
     IMPL --> ROOM
     IMPL --> NET
 ```
+<!-- dd: ds-arch -->
 
 Vai trò của nó trong tổng thể:
 
@@ -787,3 +813,6 @@ Tương tác với các tầng khác: Data Layer cung cấp `Flow` cho ViewModel
 - [Hilt dependency injection — Android Developers](https://developer.android.com/training/dependency-injection/hilt-android)
 - [Testing coroutines — Kotlin](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-test/)
 - [security-crypto issue tracker — Google](https://issuetracker.google.com/issues/286337100)
+- [SharedPreferences.Editor#apply() — Android Developers](https://developer.android.com/reference/android/content/SharedPreferences.Editor#apply())
+- [Security library releases — Android Developers](https://developer.android.com/jetpack/androidx/releases/security)
+- [Visibility modifiers — Kotlin](https://kotlinlang.org/docs/visibility-modifiers.html)

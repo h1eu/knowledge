@@ -1,26 +1,20 @@
 ---
 id: android.session02.file_permissions
 title: File Permissions
-slug: file-permissions
-summary: Hiểu File Permissions trong Android từ gốc Linux tới thực chiến - sandbox UID, các loại Storage, Manifest vs Runtime permission, Scoped Storage Android 10-14, triển khai chuẩn Kotlin MVVM với ActivityResult, MediaStore, SAF và FileProvider.
+summary: File Permissions là cơ chế quyết định app nào được đọc, ghi file nào trên Android - từ quyền Linux và sandbox UID, các loại Storage, Manifest vs Runtime permission qua các mốc Android 6-14 (gồm Scoped Storage), tới ví dụ Kotlin với ActivityResult, Photo Picker, SAF và FileProvider.
+status: published
+difficulty: beginner
+depth: standard
+estimated_reading_time: 30 phút
 tags: [android, file-permissions, storage, scoped-storage, runtime-permission, mediastore, saf, fileprovider, mvvm, kotlin]
-domain: Android
-module: Session 02
-topic: File Permissions
 prerequisites:
   - android.languages.kotlin
 related:
-  - process-management
-  - multi-user-os
-  - manifest-tags
-status: published
-difficulty: beginner
-depth: practical
-estimated_reading_time: 30 phút
+  - android.manifest.tags
 learning_outcomes:
   - Giải thích được sandbox UID và vì sao mỗi app là một user Linux riêng.
   - Phân biệt được các loại Storage và chọn đúng chỗ lưu để khỏi xin quyền thừa.
-  - Phân biệt Manifest permission và Runtime permission cùng thay đổi Android 6-14.
+  - Phân biệt được Manifest permission và Runtime permission cùng các thay đổi từ Android 6 tới 14.
   - Triển khai được luồng xin quyền chuẩn MVVM với ActivityResult API.
   - Áp dụng được Photo Picker, SAF và FileProvider để tránh Permission denied khi đi làm.
 knowledge_gap: >
@@ -45,7 +39,7 @@ Cùng một thao tác "lưu file", nhưng:
 
 File Permissions là cơ chế quyết định **ai được đọc, ghi, thực thi file nào**.
 
-Android kế thừa nguyên xi từ Linux, rồi thêm một lớp sandbox riêng.
+Android dựa trên cơ chế quyền file của Linux (kiểm tra theo UID/GID), rồi thêm một lớp sandbox riêng: mỗi app một UID. Từ Android 5.0, Android còn bật **SELinux** ở chế độ enforcing (Mandatory Access Control): kể cả process chạy root cũng chỉ được làm những gì policy cho phép.
 
 ### Gốc Linux tối giản đủ để đi làm
 
@@ -75,6 +69,8 @@ flowchart TB
     K -->|đúng UID của mình -> cho phép| ALLOW[Đọc ghi file của mình]
 ```
 
+<!-- dd: perm-uid -->
+
 Bản chất:
 
 - Lúc cài app, hệ thống cấp một UID riêng. App A không bao giờ có UID của app B.
@@ -85,7 +81,7 @@ Bản chất:
 
 ## Các loại Storage trong Android
 
-Đây là phần quyết định 80% bug khi đi làm. Chọn sai chỗ lưu là phải xin quyền thừa hoặc bị từ chối.
+Đây là phần gây nhiều bug nhất khi đi làm. Chọn sai chỗ lưu là phải xin quyền thừa hoặc bị từ chối.
 
 | Loại | Đường dẫn ví dụ | Cần xin quyền? | Bị xóa khi gỡ app? | Dùng cho |
 |---|---|---|---|---|
@@ -113,21 +109,22 @@ Hai lớp khác nhau, phải làm đủ cả hai.
 ```xml
 <!-- app/src/main/AndroidManifest.xml -->
 <manifest>
-    <!-- Android 13+ cho ảnh -->
+    <!-- Android 13+: chỉ khi cần đọc ảnh/video do app KHÁC tạo (gallery, backup).
+         Google Play hạn chế hai quyền này; chọn ảnh thì dùng Photo Picker. -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <!-- Android 12 trở xuống cho file chung -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <!-- Ghi file chung chỉ cần tới Android 9, từ 10 dùng MediaStore -->
+    <!-- Ghi file chung: chỉ cần trên Android 9 trở xuống (và Android 10 khi tạm opt-out Scoped Storage), nên maxSdkVersion=29 -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
 </manifest>
 ```
 
-Khai báo trong Manifest chỉ là "thông báo ý định". Từ Android 6, user còn phải bấm Allow lúc chạy.
+Khai báo trong Manifest chỉ là "thông báo ý định". Từ Android 6, với quyền thuộc nhóm **dangerous** (vd `READ_MEDIA_IMAGES`), user còn phải bấm Allow lúc chạy; quyền **normal** (vd `INTERNET`) được cấp ngay khi cài.
 
 ### Runtime: xin lúc chạy
 
@@ -142,6 +139,8 @@ flowchart LR
     E -->|Don't ask again| F
 ```
 
+<!-- dd: perm-ask -->
+
 ### Timeline version bắt buộc nhớ khi đi làm
 
 ```mermaid
@@ -149,13 +148,17 @@ flowchart LR
     V6[Android 6<br/>Runtime permission] --> V7[Android 7<br/>Cấm file://<br/>dùng FileProvider]
     V7 --> V10[Android 10<br/>Scoped Storage]
     V10 --> V11[Android 11<br/>MANAGE_EXTERNAL_STORAGE<br/>siêu khó duyệt]
-    V11 --> V13[Android 13<br/>READ_MEDIA_IMAGES/VIDEO/AUDIO]
-    V13 --> V14[Android 14<br/>Partial access + Photo Picker]
+    V11 --> V13[Android 13<br/>READ_MEDIA_IMAGES/VIDEO/AUDIO<br/>+ Photo Picker]
+    V13 --> V14[Android 14<br/>Partial access<br/>READ_MEDIA_VISUAL_USER_SELECTED]
 ```
+
+<!-- dd: perm-versions -->
 
 Ý nghĩa thực tế:
 
+- **Scoped Storage** (Android 10, bắt buộc khi `targetSdk` từ 30): trên external storage, app chỉ tự do đọc ghi thư mục app-specific của mình và file media do chính nó tạo. Muốn đọc media của app khác phải qua MediaStore kèm quyền; file khác (PDF, tài liệu) phải qua SAF.
 - Đừng xin `READ_EXTERNAL_STORAGE` trên Android 13+, nó không còn tác dụng cho media.
+- Android 14 (`targetSdk` 34): user có thể chọn "Select photos and videos". Khi đó `READ_MEDIA_IMAGES` bị từ chối nhưng `READ_MEDIA_VISUAL_USER_SELECTED` được cấp, nghĩa là app chỉ thấy các ảnh user chọn. `granted = false` chưa chắc là bị từ chối hẳn: kiểm tra thêm quyền này bằng `ContextCompat.checkSelfPermission`.
 - Đừng xin `MANAGE_EXTERNAL_STORAGE` nếu chỉ lưu avatar hay export PDF, Play Store sẽ từ chối.
 - Ưu tiên Photo Picker và SAF vì không cần xin quyền gì cả.
 
@@ -172,6 +175,8 @@ flowchart TB
     REPO --> SAF[SAF<br/>user chọn tay]
 ```
 
+<!-- dd: perm-arch -->
+
 ### 1. Repository: nơi duy nhất biết lưu ở đâu
 
 ```kotlin
@@ -179,15 +184,40 @@ package com.example.profile.data
 
 import android.content.Context
 import android.net.Uri
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
+import javax.inject.Inject
 
-class FileRepository(private val context: Context) {
+// open để test có thể thay bằng FakeFileRepository (xem phần Testing)
+open class FileRepository @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
 
-    // Avatar chỉ app mình dùng -> internal, khỏi xin quyền
-    fun saveAvatar(bytes: ByteArray): File {
+    // Avatar chỉ app mình dùng -> internal, khỏi xin quyền.
+    // Ghi file là IO: chạy trên Dispatchers.IO, không chặn main thread.
+    open suspend fun saveAvatar(bytes: ByteArray): File = withContext(Dispatchers.IO) {
         val file = File(context.filesDir, "avatar.jpg")
         file.writeBytes(bytes)
-        return file
+        file
+    }
+
+    // Ảnh user chọn qua Photo Picker là một content:// Uri -> copy vào filesDir
+    open suspend fun saveAvatarFromUri(uri: Uri): File = withContext(Dispatchers.IO) {
+        val file = File(context.filesDir, "avatar.jpg")
+        val input = context.contentResolver.openInputStream(uri)
+            ?: throw IOException("Không mở được $uri")
+        input.use { source -> file.outputStream().use { target -> source.copyTo(target) } }
+        file
+    }
+
+    // SAF: ghi PDF vào Uri do user chọn, app không cần quyền storage nào
+    open suspend fun exportReport(uri: Uri, pdfBytes: ByteArray) = withContext(Dispatchers.IO) {
+        val output = context.contentResolver.openOutputStream(uri)
+            ?: throw IOException("Không mở được $uri")
+        output.use { it.write(pdfBytes) }
     }
 
     fun readAvatar(): File? {
@@ -207,6 +237,7 @@ Vì sao qua Repository mà không gọi `File` trực tiếp trong ViewModel:
 ```kotlin
 package com.example.profile.ui
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.profile.data.FileRepository
@@ -214,7 +245,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 import javax.inject.Inject
 
 data class PermissionUiState(
@@ -240,8 +273,29 @@ class ProfileViewModel @Inject constructor(
 
     fun saveAvatar(bytes: ByteArray) {
         viewModelScope.launch {
-            val file = repository.saveAvatar(bytes)
-            _uiState.value = _uiState.value.copy(avatarPath = file.absolutePath)
+            val file = repository.saveAvatar(bytes) // suspend, chạy trên Dispatchers.IO
+            _uiState.update { it.copy(avatarPath = file.absolutePath) }
+        }
+    }
+
+    fun saveAvatarFromUri(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val file = repository.saveAvatarFromUri(uri)
+                _uiState.update { it.copy(avatarPath = file.absolutePath) }
+            } catch (e: IOException) {
+                // Uri hết hạn hoặc không đọc được: báo lỗi cho UI thay vì crash
+            }
+        }
+    }
+
+    fun exportReport(uri: Uri, pdfBytes: ByteArray) {
+        viewModelScope.launch {
+            try {
+                repository.exportReport(uri, pdfBytes)
+            } catch (e: IOException) {
+                // Không ghi được vào nơi user chọn: báo lỗi cho UI
+            }
         }
     }
 }
@@ -251,33 +305,42 @@ class ProfileViewModel @Inject constructor(
 
 Cách chuẩn hiện nay, không dùng `requestPermissions` cũ.
 
+Lưu ý phạm vi: **đổi avatar không cần quyền nào** (chọn ảnh bằng Photo Picker ở mục 4, lưu vào `filesDir`). Chỉ xin `READ_MEDIA_IMAGES` khi tính năng thật sự phải đọc **toàn bộ** ảnh trong máy, ví dụ màn hình "Thư viện ảnh" để sao lưu. Đoạn dưới minh hoạ trường hợp đó.
+
 ```kotlin
-// Compose
-val viewModel: ProfileViewModel = hiltViewModel()
-val permission = if (Build.VERSION.SDK_INT >= 33) {
-    android.Manifest.permission.READ_MEDIA_IMAGES
-} else {
-    android.Manifest.permission.READ_EXTERNAL_STORAGE
-}
-
-val launcher = rememberLauncherForActivityResult(
-    ActivityResultContracts.RequestPermission()
-) { granted ->
-    viewModel.onPermissionResult(
-        granted = granted,
-        shouldShowRationale = activity.shouldShowRequestPermissionRationale(permission)
-    )
-}
-
-Button(onClick = {
-    if (Build.VERSION.SDK_INT >= 33 && !viewModel.uiState.value.hasImagePermission) {
-        launcher.launch(permission)
+// DeviceGalleryButton.kt (Compose)
+@Composable
+fun DeviceGalleryButton(
+    onOpenGallery: () -> Unit,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val activity = LocalActivity.current // androidx.activity:activity-compose 1.10+
+    val permission = if (Build.VERSION.SDK_INT >= 33) {
+        Manifest.permission.READ_MEDIA_IMAGES
     } else {
-        // Đọc avatar internal, khỏi xin
-        viewModel.saveAvatar(selectedBytes)
+        Manifest.permission.READ_EXTERNAL_STORAGE
     }
-}) {
-    Text("Đổi avatar")
+
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        viewModel.onPermissionResult(
+            granted = granted,
+            shouldShowRationale = activity != null &&
+                ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
+        )
+        if (granted) onOpenGallery()
+    }
+
+    Button(onClick = {
+        // Luôn hỏi hệ thống, không tin trạng thái đã lưu: user có thể thu hồi quyền trong Settings
+        val granted = ContextCompat.checkSelfPermission(context, permission) ==
+            PackageManager.PERMISSION_GRANTED
+        if (granted) onOpenGallery() else launcher.launch(permission)
+    }) {
+        Text("Xem toàn bộ ảnh trong máy")
+    }
 }
 ```
 
@@ -285,27 +348,30 @@ Mô phỏng luồng khi user bấm Allow:
 
 ```mermaid
 sequenceDiagram
-    participant UI as ProfileScreen
+    participant UI as DeviceGalleryButton
     participant VM as ProfileViewModel
-    participant Repo as FileRepository
     participant Sys as Android System
+    UI->>Sys: checkSelfPermission(READ_MEDIA_IMAGES)
+    Sys-->>UI: PERMISSION_DENIED
     UI->>Sys: launcher.launch(READ_MEDIA_IMAGES)
-    Sys-->>UI: granted = true
-    UI->>VM: onPermissionResult(true)
+    Sys-->>UI: granted = true (user bấm Allow)
+    UI->>VM: onPermissionResult(granted = true, ...)
     VM-->>UI: uiState.hasImagePermission = true
-    UI->>VM: saveAvatar(bytes)
-    VM->>Repo: saveAvatar -> filesDir/avatar.jpg
-    Repo-->>VM: File path
-    VM-->>UI: avatarPath, render ảnh
+    UI->>UI: onOpenGallery() đọc MediaStore
 ```
+
+<!-- dd: perm-seq -->
 
 ### 4. Không cần xin quyền: Photo Picker và SAF
 
 Khi đi làm, ưu tiên hai cách này vì không cần khai báo quyền gì.
 
 ```kotlin
-// Photo Picker Android 13+, backport tới Android 4.4 qua AndroidX
-// Không cần READ_MEDIA_IMAGES
+// Photo Picker: có sẵn từ Android 13, Android 11-12 nhận qua Google System Updates.
+// Android 4.4-10 cần bản backport do Google Play services cài (khai báo service
+// com.google.android.gms.metadata.ModuleDependencies trong manifest).
+// Máy không có Photo Picker: AndroidX tự chuyển sang ACTION_OPEN_DOCUMENT.
+// Không cần READ_MEDIA_IMAGES. Cần androidx.activity 1.7.0+.
 val pickImage = rememberLauncherForActivityResult(
     ActivityResultContracts.PickVisualMedia()
 ) { uri: Uri? ->
@@ -321,10 +387,11 @@ Button(onClick = {
 
 ```kotlin
 // SAF: user tự chọn nơi tạo PDF export
+// reportPdfBytes: nội dung PDF đã tạo sẵn (vd bằng android.graphics.pdf.PdfDocument)
 val createPdf = rememberLauncherForActivityResult(
     ActivityResultContracts.CreateDocument("application/pdf")
 ) { uri: Uri? ->
-    uri?.let { viewModel.exportReport(it) }
+    uri?.let { viewModel.exportReport(it, reportPdfBytes) }
 }
 ```
 
@@ -424,7 +491,7 @@ Luôn có nhánh disable tính năng và nút mở Settings. App chỉ hiện m�
 
 ### 5. Test chỉ trên một version
 
-Bug File Permissions 90% chỉ lòi trên version khác. Khi đi làm phải test tối thiểu: Android 9, Android 11, Android 13/14.
+Bug File Permissions thường chỉ lộ ra trên version khác. Khi đi làm phải test tối thiểu: Android 9, Android 11, Android 13/14.
 
 ## Debug và Testing
 
@@ -439,28 +506,44 @@ sdcard/Android/data/com.example.profile/files/
 
 ```bash
 adb shell dumpsys package com.example.profile | grep permission
-adb shell ls -l /data/data/com.example.profile/files
+adb shell run-as com.example.profile ls -l files
 ```
+
+Máy chưa root không `ls` được `/data/data/<pkg>` từ `adb shell`; với bản build debuggable, `run-as <pkg>` chạy lệnh dưới UID của app nên đọc được thư mục riêng của nó.
 
 Không log đường dẫn tuyệt đối và nội dung file nhạy cảm ra Logcat production.
 
 Testing:
 
 ```kotlin
-class FakeFileRepository : FileRepository(mockContext) {
+// testImplementation: kotlinx-coroutines-test, mockk
+// Fake override mọi hàm được gọi nên Context giả không bao giờ bị dùng tới
+class FakeFileRepository : FileRepository(mockk(relaxed = true)) {
     var savedBytes: ByteArray? = null
-    override fun saveAvatar(bytes: ByteArray): File {
+    override suspend fun saveAvatar(bytes: ByteArray): File {
         savedBytes = bytes
         return File("fake/avatar.jpg")
     }
 }
 
 // Test ViewModel không cần thiết bị thật
-@Test
-fun saveAvatar_updatesUiState() = runTest {
-    val vm = ProfileViewModel(FakeFileRepository())
-    vm.saveAvatar(byteArrayOf(1, 2, 3))
-    assertNotNull(vm.uiState.value.avatarPath)
+@OptIn(ExperimentalCoroutinesApi::class)
+class ProfileViewModelTest {
+    private val testDispatcher = StandardTestDispatcher()
+
+    // viewModelScope chạy trên Dispatchers.Main, unit test JVM không có Main -> phải thay
+    @Before fun setUp() = Dispatchers.setMain(testDispatcher)
+    @After fun tearDown() = Dispatchers.resetMain()
+
+    @Test
+    fun saveAvatar_updatesUiState() = runTest(testDispatcher) {
+        val repo = FakeFileRepository()
+        val vm = ProfileViewModel(repo)
+        vm.saveAvatar(byteArrayOf(1, 2, 3))
+        advanceUntilIdle() // chạy hết coroutine đã launch
+        assertNotNull(vm.uiState.value.avatarPath)
+        assertArrayEquals(byteArrayOf(1, 2, 3), repo.savedBytes)
+    }
 }
 ```
 
@@ -490,6 +573,8 @@ flowchart TB
     P --> K
 ```
 
+<!-- dd: perm-sum -->
+
 Liên hệ:
 
 - `2.2 Process Management`: mỗi process mang UID, bị giết thì file cache có thể mất.
@@ -516,3 +601,5 @@ Liên hệ:
 - [FileProvider — Android Developers](https://developer.android.com/reference/androidx/core/content/FileProvider)
 - [Permissions behavior Android 13 — Android Developers](https://developer.android.com/about/versions/13/behavior-changes-13#granular-media-permissions)
 - [Partial photo access Android 14 — Android Developers](https://developer.android.com/about/versions/14/changes/partial-photo-video-access)
+- [Security-Enhanced Linux in Android — Android Open Source Project](https://source.android.com/docs/security/features/selinux)
+- [Test your code on Android: Coroutines — Android Developers](https://developer.android.com/kotlin/coroutines/test)

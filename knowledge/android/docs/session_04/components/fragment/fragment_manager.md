@@ -1,29 +1,20 @@
 ---
 id: android.component.fragment.fragment_manager
 title: FragmentManager
-slug: fragment-manager
 summary: Hiểu bản chất FragmentManager - thành phần trung tâm quản lý vòng đời Fragment, điều hướng Back Stack và giao tiếp giữa các Fragment trong ứng dụng Android.
-tags: [android, fragment, fragment-manager, navigation, mvvm]
-domain: Android
-module: Application Components
-topic: Fragment
-prerequisites:
-  - fragment-lifecycle
-  - fragment-state-changes
-related:
-  - navigation-component
-  - activity-lifecycle
 status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 35 phút
+tags: [android, fragment, fragment-manager, navigation, mvvm]
+prerequisites: [android.component.fragment.lifecycle, android.component.fragment.state_changes]
+related: [android.component.activity.lifecycle, android.component.activity.task_and_backstack]
 learning_outcomes:
   - Giải thích được vai trò và cơ chế hoạt động của FragmentManager trong hệ thống Fragment.
   - Phân biệt được FragmentTransaction, Back Stack và các chiến lược commit.
-  - Áp dụng được các pattern giao tiếp giữa các Fragment (Shared ViewModel, Fragment Result API).
-  - Triển khai được Child Fragment cho các trường hợp nested navigation.
-  - So sánh được FragmentManager với Navigation Component và biết khi nào dùng cái nào.
-  - Áp dụng được best practices để tránh các lỗi phổ biến khi làm việc với FragmentManager.
+  - Áp dụng được các pattern giao tiếp giữa các Fragment (Shared ViewModel, Fragment Result API) và Child Fragment cho nested navigation.
+  - Biết khi nào dùng FragmentManager trực tiếp và khi nào dùng Navigation Component.
+  - Nhận diện được các lỗi phổ biến khi làm việc với FragmentManager và cách tránh.
 knowledge_gap: >
   Không hiểu FragmentManager dẫn đến crash IllegalStateException khi commit sau onSaveInstanceState, Fragment overlapping khi dùng sai add/replace, memory leak do communication sai pattern, và không kiểm soát được Back Stack trong các trường hợp phức tạp.
 ---
@@ -101,6 +92,8 @@ graph TB
     style B fill:#e1f5ff
     style F fill:#fff4e1
 ```
+<!-- dd: fmg-tree-a -->
+<!-- dd: fmg-tree-b -->
 
 FragmentManager hoạt động như một **trung gian** giữa Activity và các Fragment:
 
@@ -138,6 +131,8 @@ sequenceDiagram
     FM->>F: onDestroy()
     FM->>F: onDetach()
 ```
+<!-- dd: fmg-up -->
+<!-- dd: fmg-down -->
 
 FragmentManager gọi các callback vòng đời của Fragment **theo đúng thứ tự** và **đồng bộ với Activity**. Nếu Activity ở trạng thái `RESUMED`, Fragment cũng sẽ ở `RESUMED`.
 
@@ -187,8 +182,8 @@ fragmentManager.beginTransaction()
 **Khi nào dùng cái nào?**
 
 - `commit()`: Mặc định, an toàn. Thao tác được thực hiện bất đồng bộ trong message queue.
-- `commitAllowingStateLoss()`: Dùng khi Activity đã save state (ví dụ: trong `onSaveInstanceState()`). Chấp nhận mất trạng thái nếu Activity bị kill.
-- `commitNow()`: Thực thi đồng bộ. Hữu ích khi cần Fragment đã sẵn sàng ngay sau khi commit.
+- `commitAllowingStateLoss()`: Cho phép commit cả **sau** khi Activity đã lưu state (sau `onSaveInstanceState()`), chấp nhận transaction có thể bị mất nếu Activity bị kill rồi khôi phục từ state đã lưu.
+- `commitNow()`: Thực thi đồng bộ. Hữu ích khi cần Fragment đã sẵn sàng ngay sau khi commit. Không dùng chung với `addToBackStack()`: `commitNow()` ném `IllegalStateException` nếu transaction đã yêu cầu vào back stack.
 
 ### Animation và Transition
 
@@ -224,6 +219,7 @@ graph LR
     style D fill:#ff6b6b
     style A fill:#51cf66
 ```
+<!-- dd: fmg-tx -->
 
 ### addToBackStack()
 
@@ -234,7 +230,7 @@ supportFragmentManager.beginTransaction()
     .commit()
 ```
 
-**Quan trọng**: `addToBackStack()` chỉ lưu **transaction**, không lưu **Fragment instance**. Khi pop, FragmentManager sẽ **đảo ngược** thao tác:
+**Quan trọng**: `addToBackStack()` lưu **transaction** (danh sách thao tác để đảo ngược), còn Fragment bị `replace` vẫn được FragmentManager **giữ instance** (chỉ View bị hủy, dừng ở `onDestroyView`) để khi pop thì gắn lại đúng instance đó. Sau process death, FragmentManager tạo instance mới từ state đã lưu. Khi pop, FragmentManager sẽ **đảo ngược** thao tác:
 
 - Nếu transaction là `add()` → pop sẽ `remove()`.
 - Nếu transaction là `replace()` → pop sẽ khôi phục Fragment cũ.
@@ -266,22 +262,19 @@ class MainActivity : AppCompatActivity() {
     fun navigateTo(fragment: Fragment, tag: String) {
         val fragmentManager = supportFragmentManager
         val existingFragment = fragmentManager.findFragmentByTag(tag)
-        
-        if (existingFragment == null) {
-            // Fragment chưa tồn tại → thêm mới
-            fragmentManager.beginTransaction()
-                .hide(currentFragment!!)
-                .add(R.id.container, fragment, tag)
-                .commit()
-        } else {
-            // Fragment đã tồn tại → chỉ hide/show
-            fragmentManager.beginTransaction()
-                .hide(currentFragment!!)
-                .show(existingFragment)
-                .commit()
-        }
-        
-        currentFragment = existingFragment ?: fragment
+        val target = existingFragment ?: fragment
+        if (target == currentFragment) return
+
+        fragmentManager.beginTransaction().apply {
+            currentFragment?.let { hide(it) } // Lần đầu currentFragment = null, không có gì để ẩn
+            if (existingFragment == null) {
+                add(R.id.container, fragment, tag) // Fragment chưa tồn tại → thêm mới
+            } else {
+                show(existingFragment)             // Fragment đã tồn tại → chỉ show
+            }
+        }.commit()
+
+        currentFragment = target
     }
 }
 ```
@@ -315,12 +308,15 @@ class ListFragment : Fragment() {
     
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.selectedItem.collect { item ->
-                // Xử lý khi item được chọn
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.selectedItem.collect { item ->
+                    // Xử lý khi item được chọn
+                }
             }
         }
         
-        binding.recyclerView.setOnItemClickListener { item ->
+        // RecyclerView không có setOnItemClickListener: click đi qua callback của Adapter
+        binding.recyclerView.adapter = ItemAdapter { item ->
             viewModel.selectItem(item)
         }
     }
@@ -332,8 +328,10 @@ class DetailFragment : Fragment() {
     
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.selectedItem.collect { item ->
-                item?.let { displayDetail(it) }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.selectedItem.collect { item ->
+                    item?.let { displayDetail(it) }
+                }
             }
         }
     }
@@ -366,7 +364,7 @@ class FragmentB : Fragment() {
         super.onCreate(savedInstanceState)
         
         setFragmentResultListener("requestKey") { requestKey, bundle ->
-            val item = bundle.getParcelable<Item>("item")
+            val item = BundleCompat.getParcelable(bundle, "item", Item::class.java)
             // Xử lý kết quả
         }
     }
@@ -426,6 +424,7 @@ graph TB
     style C fill:#e1f5ff
     style D fill:#fff4e1
 ```
+<!-- dd: fmg-child -->
 
 ### Khi nào dùng Child Fragment?
 
@@ -468,7 +467,7 @@ class ProfileFragment : Fragment() {
 ### Lưu ý quan trọng
 
 - **Vòng đời**: Child Fragment bị ảnh hưởng bởi vòng đời của Parent Fragment. Khi Parent bị destroy, Child cũng bị destroy.
-- **Back Stack**: Child Fragment có Back Stack riêng. Khi nhấn Back, Child Back Stack được pop trước, sau đó mới đến Parent Back Stack.
+- **Back Stack**: Child Fragment có Back Stack riêng. Back chỉ được giao cho child trước khi Parent Fragment là **primary navigation fragment** (`setPrimaryNavigationFragment(parent)`; `NavHostFragment` tự làm việc này khi có `app:defaultNavHost="true"`). Nếu không, Back pop back stack của FragmentManager cha, bỏ qua back stack của child.
 - **Communication**: Child Fragment nên giao tiếp với Parent Fragment thông qua Shared ViewModel hoặc Fragment Result API.
 
 ## So sánh FragmentManager vs Navigation Component
@@ -604,14 +603,19 @@ class MainActivity : AppCompatActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+        // Layout chứa cả FragmentContainerView (R.id.fragment_container) và ComposeView (R.id.compose_view).
+        // Không gọi setContent { } của Activity: nó thay toàn bộ content view, xoá luôn container của Fragment.
+        setContentView(R.layout.activity_main)
+
         // Fragment XML truyền thống
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fragment_container, LegacyFragment())
-            .commit()
-        
-        // Compose trong cùng Activity
-        setContentView {
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .add(R.id.fragment_container, LegacyFragment())
+                .commit()
+        }
+
+        // Compose trong cùng Activity, gắn vào một ComposeView của layout
+        findViewById<ComposeView>(R.id.compose_view).setContent {
             AppNavigation()
         }
     }
@@ -688,7 +692,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 }
 ```
 
-`viewLifecycleOwner` chỉ sống từ `onViewCreated()` đến `onDestroyView()`. Dùng `this` (Fragment lifecycle) sẽ gây **memory leak** vì coroutine sống lâu hơn View.
+`viewLifecycleOwner` chỉ sống trong khoảng View tồn tại (tạo ở `onCreateView()`, hủy ở `onDestroyView()`). Dùng `this` (Fragment lifecycle) sẽ gây **memory leak** vì coroutine sống lâu hơn View.
 
 ### 5. Tránh nested Fragment quá sâu
 
@@ -778,19 +782,16 @@ override fun onBackPressed() {
 
 Vấn đề: Không handle trường hợp có nhiều Back Stack (ví dụ: Bottom Navigation + nested navigation).
 
-**Giải pháp**: Dùng `OnBackPressedDispatcher` (AndroidX Activity 1.1+):
+**Giải pháp**: Không override `onBackPressed()` (đã deprecated từ API 33) và không tự viết callback pop back stack. FragmentManager của AndroidX đã tự đăng ký callback với `OnBackPressedDispatcher` của Activity: Back pop back stack của nó (và của child thuộc primary navigation fragment), hết back stack thì trả Back về Activity. Callback tự viết kiểu `popBackStackImmediate()` còn làm hỏng predictive back. Chỉ thêm `OnBackPressedCallback` khi cần hành vi riêng, ví dụ hỏi xác nhận trước khi rời form chưa lưu:
 
 ```kotlin
-class MainActivity : AppCompatActivity() {
-    
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        
-        onBackPressedDispatcher.addCallback(this) {
-            if (!supportFragmentManager.popBackStackImmediate()) {
-                isEnabled = false
-                onBackPressedDispatcher.onBackPressed()
-            }
+class EditProfileFragment : Fragment() {
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // Callback gắn với viewLifecycleOwner: tự gỡ khi View bị hủy
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            showDiscardChangesDialog()
         }
     }
 }
@@ -843,26 +844,26 @@ class MyApplication : Application() {
                     )
                 }
             }
+            // ActivityLifecycleCallbacks là interface: phải override đủ các method còn lại
+            override fun onActivityStarted(activity: Activity) {}
+            override fun onActivityResumed(activity: Activity) {}
+            override fun onActivityPaused(activity: Activity) {}
+            override fun onActivityStopped(activity: Activity) {}
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+            override fun onActivityDestroyed(activity: Activity) {}
         })
     }
 }
 ```
 
-### 3. Debug Back Stack với Stetho/Flipper
+### 3. Debug Back Stack bằng adb
 
-Dùng **Stetho** hoặc **Flipper** để inspect Fragment Back Stack trong runtime:
+Stetho và Flipper đã ngừng phát triển. Cách gọn hơn là dùng `adb`: lệnh đầu bật log chi tiết của FragmentManager (FragmentManager tôn trọng `Log.isLoggable`), lệnh sau dump Activity đang ở top, gồm danh sách Fragment đã add và Back Stack:
 
-```kotlin
-// Stetho
-class MyApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        Stetho.initializeWithDefaults(this)
-    }
-}
+```bash
+adb shell setprop log.tag.FragmentManager VERBOSE
+adb shell dumpsys activity top
 ```
-
-Mở Chrome, truy cập `chrome://inspect` để xem Fragment hierarchy.
 
 ## Performance Considerations
 
@@ -911,20 +912,17 @@ fun switchTab(tab: Int) {
     }
     
     val fragmentManager = supportFragmentManager
-    val newFragment = fragmentManager.findFragmentByTag(tag)
-        ?: createFragment(tab).also {
-            fragmentManager.beginTransaction()
-                .add(R.id.container, it, tag)
-                .hide(currentFragment!!)
-                .commit()
-        }
-    
-    fragmentManager.beginTransaction()
-        .hide(currentFragment!!)
-        .show(newFragment)
-        .commit()
-    
-    currentFragment = newFragment
+    val existing = fragmentManager.findFragmentByTag(tag)
+    val target = existing ?: createFragment(tab)
+    if (target == currentFragment) return
+
+    // Một transaction duy nhất: ẩn tab cũ (nếu có), add hoặc show tab mới
+    fragmentManager.beginTransaction().apply {
+        currentFragment?.let { hide(it) }
+        if (existing == null) add(R.id.container, target, tag) else show(target)
+    }.commit()
+
+    currentFragment = target
 }
 ```
 
@@ -933,15 +931,18 @@ fun switchTab(tab: Int) {
 ```kotlin
 class ParentFragment : Fragment() {
     
-    private var childFragment: ChildFragment? = null
-    
     fun showChildFragment() {
-        if (childFragment == null) {
-            childFragment = ChildFragment()
+        // Tìm bằng tag thay vì giữ field: sau khi xoay, childFragmentManager đã tự khôi phục
+        // child, còn field thì về null → add trùng một child nữa
+        if (childFragmentManager.findFragmentByTag(CHILD_TAG) == null) {
             childFragmentManager.beginTransaction()
-                .add(R.id.child_container, childFragment!!)
+                .add(R.id.child_container, ChildFragment(), CHILD_TAG)
                 .commit()
         }
+    }
+
+    companion object {
+        private const val CHILD_TAG = "child"
     }
 }
 ```
@@ -973,6 +974,7 @@ graph TB
     
     style B fill:#e1f5ff
 ```
+<!-- dd: fmg-layers -->
 
 **Vai trò của FragmentManager**:
 - **Presentation Layer**: Quản lý vòng đời Fragment, điều hướng Back Stack.
@@ -1022,24 +1024,26 @@ class HomeUseCase(
 ```kotlin
 @Module
 @InstallIn(ActivityComponent::class)
-abstract class FragmentModule {
-    
-    @Binds
-    abstract fun bindFragmentManager(activity: AppCompatActivity): FragmentManager {
-        return activity.supportFragmentManager
-    }
+object FragmentModule {
+
+    // @Binds không có thân hàm; tạo object từ code phải dùng @Provides.
+    // Hilt cung cấp sẵn Activity trong ActivityComponent.
+    @Provides
+    fun provideFragmentManager(activity: Activity): FragmentManager =
+        (activity as FragmentActivity).supportFragmentManager
 }
 
 // Trong Fragment
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
     
+    // Không đặt tên `fragmentManager`: trùng getter final getFragmentManager() của Fragment
     @Inject
-    lateinit var fragmentManager: FragmentManager
+    lateinit var activityFragmentManager: FragmentManager
     
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Dùng fragmentManager đã được inject
-        fragmentManager.beginTransaction()
+        // Dùng FragmentManager của Activity đã được inject
+        activityFragmentManager.beginTransaction()
             .replace(R.id.container, DetailFragment())
             .commit()
     }
@@ -1052,6 +1056,8 @@ class HomeFragment : Fragment() {
 
 - [Android Developers - FragmentManager](https://developer.android.com/reference/androidx/fragment/app/FragmentManager)
 - [Android Developers - FragmentTransaction](https://developer.android.com/reference/androidx/fragment/app/FragmentTransaction)
+- [Android Developers - Fragment manager (back stack, primary navigation fragment)](https://developer.android.com/guide/fragments/fragmentmanager)
+- [Android Developers - Provide custom back navigation](https://developer.android.com/guide/navigation/custom-back)
 - [Android Developers - Navigation Component](https://developer.android.com/guide/navigation)
 - [Android Developers - Fragment best practices](https://developer.android.com/guide/fragments)
 - [Jetpack Navigation Compose](https://developer.android.com/jetpack/compose/navigation)

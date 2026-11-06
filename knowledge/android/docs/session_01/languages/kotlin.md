@@ -4,8 +4,8 @@ title: Kotlin trong Android
 summary: Kotlin chạy trên Android như thế nào khi không có máy ảo riêng, Null Safety được thực thi ở compile-time và runtime ra sao, cách Java và Kotlin gọi nhau trong cùng dự án, KAPT và KSP, và những chi phí ẩn của các tính năng Kotlin.
 status: reviewing
 difficulty: beginner
-estimated_reading_time: 25 phút
 depth: standard
+estimated_reading_time: 25 phút
 tags: [android, kotlin, kotlinc, null-safety, interop, ksp]
 prerequisites: [android.languages.java_android]
 related: [android.languages.jni, android.output_packages.apk_files]
@@ -129,7 +129,7 @@ Vì vậy một data class có **nhiều method hơn** class Java tương đươ
 - Interface Java có một method trừu tượng (SAM) nhận lambda Kotlin: `button.setOnClickListener { openCart() }`.
 - **Platform Type**: kiểu trả về của Java không có annotation nullability được Kotlin hiểu là `String!`, nghĩa là "không biết có null hay không". Compiler cho phép dùng nó như `String` hoặc `String?`, **không bắt kiểm tra null**. Nếu giá trị thật là `null` và bạn dùng như `String`, app crash NPE tại runtime.
 
-Platform Type là chỗ duy nhất Null Safety của Kotlin "thủng" một cách hợp lệ. Có hai cách bịt:
+Platform Type là chỗ Null Safety của Kotlin "thủng" thường gặp nhất trong dự án Android, nhưng không phải chỗ duy nhất. NPE vẫn có thể xảy ra khi dùng toán tử `!!`, khi `throw NullPointerException()` tường minh, khi đọc property chưa khởi tạo xong trong constructor (leaking `this`, hoặc constructor lớp cha gọi một `open` member), và khi kiểu generic đến từ Java sai nullability (vd `ArrayList<String>` bị code Java thêm `null`). Với Platform Type, có hai cách bịt:
 
 1. Phía Kotlin: **khai báo kiểu tường minh** ngay khi nhận giá trị từ Java (`val name: String? = repo.getUserName(id)`).
 2. Phía Java: thêm `@Nullable` / `@NonNull` (`androidx.annotation`) cho API. Cách này được trình bày trong `android.languages.java_android`.
@@ -183,13 +183,13 @@ public class UserRepository {
 
 ```kotlin
 // ProfileViewModel.kt
-val repo = UserRepository()
+fun showProfile(repo: UserRepository) {
+    val name = repo.getUserName(-1)   // Kiểu suy ra: String! (Platform Type)
+    println(name.length)              // Compile được, nhưng crash NullPointerException ở runtime
 
-val name = repo.getUserName(-1)   // Kiểu suy ra: String! (Platform Type)
-println(name.length)              // Compile được, nhưng crash NullPointerException ở runtime
-
-val safeName: String? = repo.getUserName(-1)  // Khai báo tường minh
-println(safeName?.length ?: 0)                // Compiler buộc xử lý null
+    val safeName: String? = repo.getUserName(-1)  // Khai báo tường minh
+    println(safeName?.length ?: 0)                // Compiler buộc xử lý null
+}
 ```
 
 Quy tắc thực tế: **ở ranh giới gọi sang Java, luôn khai báo kiểu tường minh** và đi thêm annotation cho Java API khi có thể.
@@ -303,7 +303,7 @@ timeline
 - **Related Topics**:
   - `android.languages.jni`: hàm `external fun` trong Kotlin là điểm vào code C/C++.
   - `android.output_packages.apk_files`: nơi `classes.dex` (gồm cả code Kotlin và `kotlin-stdlib`) được đóng gói.
-- **Downstream Topics** (chưa có bài): Coroutines (8.4.3), Jetpack Compose, Room với KSP.
+- **Downstream Topics**: `android.jetpack_compose.compose_overview` (Jetpack Compose); chưa có bài: Coroutines (8.4.3), Room với KSP.
 
 ---
 

@@ -8,15 +8,13 @@ depth: deep-dive
 estimated_reading_time: 25 phút
 tags: [android, parcelable, serializable, bundle, intent, ipc, binder, parcelize, savedstatehandle, viewmodel]
 prerequisites: [android.component.activity.lifecycle, android.component.activity.state_changes, android.component.activity.task_and_backstack]
-related: [android.intent.push_data_event, android.intent.explicit_intents, android.component.activity.state_changes]
-downstream: []
+related: [android.intent.explicit, android.component.activity.state_changes]
 learning_outcomes:
-  - Giải thích được bản chất Bundle là gì và vì sao Android buộc phải serialize dữ liệu khi truyền giữa các component.
-  - Quyết định được khi nào dùng Intent extras/Bundle và khi nào dùng SharedViewModel.
-  - Viết được Parcelable thủ công và sử dụng @Parcelize để truyền object.
+  - Giải thích được bản chất Bundle, cơ chế Binder IPC và vì sao Android buộc phải serialize dữ liệu khi truyền giữa các component.
+  - Biết khi nào dùng Intent extras/Bundle và khi nào dùng SharedViewModel.
+  - Triển khai được Parcelable thủ công và bằng @Parcelize để truyền object.
   - Phân biệt được Parcelable và Serializable về cơ chế và hiệu năng.
-  - Xác định được giới hạn Binder transaction buffer và cách fix TransactionTooLargeException.
-  - Triển khai đúng luồng truyền dữ liệu trong app MVVM thực tế.
+  - Xử lý được TransactionTooLargeException dựa trên giới hạn Binder transaction buffer.
 knowledge_gap: >
   Không hiểu bản chất Bundle sẽ khiến developer truyền dữ liệu sai cách: dùng Serializable gây chậm, truyền object quá lớn gây TransactionTooLargeException crash ở production, hoặc dùng Bundle cho những thứ lẽ ra phải nằm trong SharedViewModel — vừa lãng phí vừa khó bảo trì. Cảm giác "truyền thế nào cũng được" sẽ phá vỡ kiến trúc khi app lớn lên.
 ---
@@ -46,11 +44,11 @@ Câu hỏi cốt lõi của bài này không phải "dùng hàm nào", mà là:
 
 ## Sau khi học xong
 
-- Giải thích được bản chất Bundle và cơ chế Binder IPC.
-- Quyết định được Bundle vs SharedViewModel theo đúng tình huống.
-- Viết được Parcelable thủ công và dùng `@Parcelize`.
-- Xác định và fix được TransactionTooLargeException.
-- Áp dụng đúng luồng truyền dữ liệu trong app MVVM.
+- Giải thích được bản chất Bundle, cơ chế Binder IPC và vì sao Android buộc phải serialize dữ liệu khi truyền giữa các component.
+- Biết khi nào dùng Intent extras/Bundle và khi nào dùng SharedViewModel.
+- Triển khai được Parcelable thủ công và bằng @Parcelize để truyền object.
+- Phân biệt được Parcelable và Serializable về cơ chế và hiệu năng.
+- Xử lý được TransactionTooLargeException dựa trên giới hạn Binder transaction buffer.
 
 ## Bundle là gì? — Bản chất
 
@@ -92,6 +90,7 @@ sequenceDiagram
     AMS->>Target: Binder IPC: "onCreate, đây là extras"
     Target->>Target: deserialize Parcel → Bundle → đọc getStringExtra()
 ```
+<!-- dd: parcel-binder -->
 
 Chính vì phải đi qua biên giới này, dữ liệu:
 
@@ -111,12 +110,15 @@ Nếu Android đơn giản truyền reference như lời gọi hàm thông thư�
 
 Đây là lựa chọn kiến trúc quan trọng nhất khi truyền dữ liệu trong app MVVM. Không có "cái nào luôn đúng" — phụ thuộc quan hệ giữa 2 màn hình.
 
+> [!IMPORTANT]
+> SharedViewModel chỉ chia sẻ được giữa các màn hình dùng chung một `ViewModelStoreOwner`: các Fragment/destination trong **cùng một Activity** (hoặc cùng nav graph). Hai **Activity khác nhau không dùng chung được ViewModel**. Nếu A và B là hai Activity, dữ liệu đi qua Intent extras (gửi đi) và Activity Result API (trả về), hoặc cả hai cùng đọc một nguồn chung như Repository/Room.
+
 | Tiêu chí | Bundle / Intent extras | SharedViewModel |
 |----------|------------------------|-----------------|
 | Dữ liệu | Bản sao (copy) | Tham chiếu (shared instance) |
 | Vòng đời | Theo Activity mục tiêu | Theo scope (Activity / Fragment) |
 | Process death | Sống sót (nếu dùng đúng cách) | Mất (trừ khi SavedStateHandle) |
-| Kích thước | Giới hạn ~1MB | Không giới hạn theo bundle (nhưng là bộ nhớ RAM) |
+| Kích thước | Buffer ~1MB dùng chung cả process; nên giữ vài KB | Không giới hạn theo bundle (nhưng là bộ nhớ RAM) |
 | Phụ thuộc | Component không cần biết nhau về lifecycle | Phải cùng một Activity/Fragment scope |
 | Khi quay lại màn hình cũ | State cũ được giữ nguyên qua backstack | Shared VM vẫn giữ state |
 
@@ -135,7 +137,7 @@ Nếu Android đơn giản truyền reference như lời gọi hàm thông thư�
 
 ### Quyết định nhanh trong 30 giây
 
-```
+```text
 Dữ liệu nhỏ (ID/flag/query) và B độc lập với A?
   └── ✅ Bundle / Intent extras + @Parcelize
 
@@ -157,7 +159,7 @@ Cần sống sót khi process bị kill?
 | Object | `putParcelable`, `putSerializable` |
 | Bundle | `putBundle` (bundle lồng nhau) |
 
-**Điểm mấu chốt:** để đưa một object vào Bundle, object đó **bắt buộc** phải implement `Parcelable`. Đây chính là lý do Topic này có hai nửa: **Bundle** (container) và **Parcelable** (khả năng đóng gói của object).
+**Điểm mấu chốt:** để đưa một object vào Bundle, object đó phải implement `Parcelable` (hoặc `Serializable`, nhưng chậm hơn — xem phần so sánh bên dưới). Đây chính là lý do Topic này có hai nửa: **Bundle** (container) và **Parcelable** (khả năng đóng gói của object).
 
 ## Parcelable là gì?
 
@@ -272,16 +274,18 @@ data class User(val name: String) : Parcelable
 
 **Vậy Serializable dùng khi nào?** Khi cần lưu trữ lâu dài (ghi vào file, gửi qua mạng, cache) — ví dụ object đi qua Retrofit/Gson thường serialize bằng JSON, không phải Bundle. Trong truyền nội bộ Android, Parcelable luôn thắng.
 
+Chiều ngược lại cũng cần nhớ: `Parcel` **không phải** cơ chế serialize đa dụng. Docs khuyến cáo không bao giờ ghi dữ liệu `Parcel` xuống đĩa hay gửi qua mạng, vì định dạng nhị phân của nó chỉ dành cho IPC và có thể khác nhau giữa các phiên bản.
+
 ## Giới hạn kích thước — Binder Transaction Buffer
 
 Đây là giới hạn mà đa số crash ngoài đời thực đến từ. Binder transaction buffer có **giới hạn khoảng 1MB cho toàn bộ process** — không phải 1MB cho mỗi lần truyền.
 
 ### Hệ quả nghiêm trọng
 
-Intent extras, `savedInstanceState`, Fragment arguments, và **mọi IPC khác trong cùng process đều chia sẻ buffer này**. Nghĩa là:
+Intent extras, `savedInstanceState`, Fragment arguments, và **mọi Binder transaction đang diễn ra đồng thời trong cùng process đều chia sẻ buffer này**. Một Bundle chỉ nằm trong bộ nhớ thì không chiếm buffer; nó chỉ tính vào buffer trong lúc đang được gửi qua Binder. Nghĩa là:
 
-- Màn hình đang giữ một Bundle lớn trong `savedInstanceState` (chưa cần truyền đi), thì ngay cả `startActivity()` với dữ liệu nhỏ cũng có thể vượt ngưỡng.
-- Crash thường bùng ra **không phải lúc bạn `putExtra()`**, mà lúc **một Activity khác đang nằm trong background gọi `onSaveInstanceState()`** — rất khó reproduce ở development.
+- Nhiều transaction chạy cùng lúc (ví dụ `startActivity()` trùng thời điểm saved state của một màn hình khác đang được gửi đi, hoặc nhiều lời gọi tới system service) có thể cộng lại vượt ngưỡng, dù từng transaction riêng lẻ không lớn.
+- Crash thường bùng ra **không phải lúc bạn `putExtra()`**, mà lúc **Activity vừa xuống background và Bundle từ `onSaveInstanceState()` được gửi sang `system_server`** — rất khó reproduce ở development.
 
 ```kotlin
 // ❌ Crash tiềm tàng — list hàng nghìn item qua Intent
@@ -294,13 +298,7 @@ intent.putExtra("product_id", productId)
 
 ### Cách phát hiện
 
-Từ API 26+, hệ thống log warning khi transaction gần giới hạn:
-
-```text
-W/ActivityThread: Bundle stats: [total size: 524288 bytes]
-```
-
-Debug bằng cách đo trực tiếp kích thước Bundle:
+Từ Android 7.0 (API 24), vượt giới hạn sẽ ném `TransactionTooLargeException` dạng runtime exception (app crash); các phiên bản trước chỉ log warning trong logcat. Vì vậy hãy chủ động đo kích thước Bundle khi debug:
 
 ```kotlin
 override fun onSaveInstanceState(outState: Bundle) {
@@ -382,7 +380,9 @@ override fun onCreate(savedInstanceState: Bundle?) {
 }
 ```
 
-> [!tip] `getParcelableExtra()` (không có class) bị deprecated ở API 33. Luôn dùng overload kèm `Class` khi `minSdk >= 33`, và giữ branch cũ cho máy thấp hơn.
+> [!tip] `getParcelableExtra()` (không có class) bị deprecated ở API 33. Luôn dùng overload kèm `Class` khi `minSdk >= 33`, và giữ branch cũ cho máy thấp hơn — hoặc gọi `IntentCompat.getParcelableExtra(intent, EXTRA_PRODUCT, Product::class.java)` của AndroidX Core để bỏ hẳn nhánh `if`.
+
+Chiều ngược lại (B trả kết quả về A, ví dụ địa chỉ giao hàng vừa chọn) dùng **Activity Result API**: A đăng ký `registerForActivityResult(ActivityResultContracts.StartActivityForResult())`, B gọi `setResult(RESULT_OK, Intent().putExtra(...))` rồi `finish()`. Kết quả cũng đi qua Bundle nên chịu cùng giới hạn kích thước.
 
 ### Flow mô phỏng toàn bộ luồng
 
@@ -399,6 +399,8 @@ flowchart TD
     I --> J[deserialize Parcel về object]
     J --> K[ViewModel nhận id, load dữ liệu chi tiết]
 ```
+<!-- dd: parcel-split-a -->
+<!-- dd: parcel-split-b -->
 
 ## Khi nào nên dùng — Khi nào không nên dùng
 
@@ -411,7 +413,7 @@ flowchart TD
 
 ### Không nên dùng Bundle
 
-- **Dữ liệu lớn** (> 500KB) — nguy cơ TransactionTooLargeException.
+- **Dữ liệu lớn** — docs khuyến nghị Intent extras chỉ ở mức vài KB và saved state dưới 50KB; vượt xa mức đó là nguy cơ TransactionTooLargeException.
 - **Dữ liệu cần đồng bộ hai chiều giữa các màn hình** — dùng SharedViewModel.
 - **Dữ liệu quan trọng cần lưu lâu dài** — dùng Room/DataStore, không phải Bundle (Bundle có thể bị mất nếu hệ thống kill process mà không lưu state).
 - **Object có tham chiếu vòng hoặc nguồn tài nguyên nặng** (Connection, Handler, View) — không thể serialize.
@@ -468,6 +470,8 @@ SharedViewModel mất trắng khi process bị kill. Nếu dữ liệu cần t�
 - [Parcelable and Bundle — Android Developers](https://developer.android.com/guide/components/activities/parcelables-and-bundles)
 - [Parcelable — Android Developers Reference](https://developer.android.com/reference/android/os/Parcelable)
 - [Bundle — Android Developers Reference](https://developer.android.com/reference/android/os/Bundle)
+- [IntentCompat — Android Developers Reference](https://developer.android.com/reference/androidx/core/content/IntentCompat)
+- [Get a result from an activity — Android Developers](https://developer.android.com/training/basics/intents/result)
 - [TransactionTooLargeException — Android Developers Reference](https://developer.android.com/reference/android/os/TransactionTooLargeException)
 - [Pass data between destinations (Navigation Safe Args) — Android Developers](https://developer.android.com/guide/navigation/use-graph/pass-data)
 - [ViewModel overview — Android Developers](https://developer.android.com/topic/libraries/architecture/viewmodel)

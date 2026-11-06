@@ -8,14 +8,13 @@ depth: deep-dive
 estimated_reading_time: 30 phút
 tags: [android, activity, state, configuration-change, process-death, viewmodel, savedstatehandle, bundle, composestate]
 prerequisites: [android.component.activity.lifecycle]
-related: [android.component.activity.parcelables_and_bundle, android.arch.viewmodel, android.compose.state]
-downstream: []
+related: [android.component.activity.parcelables_and_bundle, android.component.fragment.state_changes]
 learning_outcomes:
   - Giải thích được vì sao Android phải destroy/recreate Activity khi configuration change.
   - Phân biệt được configuration change và process death về hành vi, dữ liệu bị mất và cách test.
-  - Chọn đúng công cụ lưu state (ViewModel, SavedStateHandle, onSaveInstanceState, rememberSaveable) cho từng loại dữ liệu.
+  - Biết khi nào dùng ViewModel, SavedStateHandle, onSaveInstanceState hay rememberSaveable cho từng loại dữ liệu.
   - Triển khai được luồng lưu/khôi phục state trong app MVVM bằng cả View (XML) và Jetpack Compose.
-  - Tránh được các lỗi phổ biến: fetch API lặp, TransactionTooLargeException, lạm dụng android:configChanges.
+  - Xử lý được các lỗi phổ biến: fetch API lặp, TransactionTooLargeException, lạm dụng android:configChanges.
 knowledge_gap: >
   Không hiểu State Changes sẽ khiến ứng dụng mất dữ liệu khi xoay màn hình, mất luôn cả state quan trọng khi process bị kill, fetch API lặp lại gây lãng phí băng thông, và phải dùng android:configChanges như "miếng vá" thay vì xử lý đúng bản chất.
 ---
@@ -38,11 +37,11 @@ Bài viết này dạy bạn: **hiểu vì sao điều đó xảy ra, phân bi�
 
 ## Sau khi học xong
 
-- Giải thích được vì sao Android destroy/recreate Activity khi configuration change.
-- Phân biệt được configuration change và process death.
-- Chọn đúng ViewModel / SavedStateHandle / onSaveInstanceState / rememberSaveable cho từng loại dữ liệu.
-- Triển khai được luồng lưu/khôi phục state trong app MVVM bằng cả XML và Compose.
-- Tránh được fetch API lặp, TransactionTooLargeException, lạm dụng android:configChanges.
+- Giải thích được vì sao Android phải destroy/recreate Activity khi configuration change.
+- Phân biệt được configuration change và process death về hành vi, dữ liệu bị mất và cách test.
+- Biết khi nào dùng ViewModel, SavedStateHandle, onSaveInstanceState hay rememberSaveable cho từng loại dữ liệu.
+- Triển khai được luồng lưu/khôi phục state trong app MVVM bằng cả View (XML) và Jetpack Compose.
+- Xử lý được các lỗi phổ biến: fetch API lặp, TransactionTooLargeException, lạm dụng android:configChanges.
 
 ## Nó là gì? — Vì sao Activity bị destroy/recreate?
 
@@ -76,10 +75,11 @@ flowchart TD
     F --> G["onStart() → onRestoreInstanceState() → onResume()"]
     G --> H["Activity RESUME với<br/>config mới"]
 ```
+<!-- dd: actconfig -->
 
-**Điểm mấu chốt:** `onSaveInstanceState()` là cơ hội DUY NHẤT để giữ lại dữ liệu xuyên qua cú destroy/recreate này. Những gì không lưu vào Bundle thì mất.
+**Điểm mấu chốt:** `onSaveInstanceState()` là cơ hội để đưa UI state nhỏ vào Bundle, thứ sống qua cả cú destroy/recreate này lẫn process death. ViewModel cũng sống qua configuration change (xem Bước 1) nhưng chết theo process. Những gì không nằm trong Bundle hay ViewModel thì mất.
 
-> **Lưu ý:** Từ API 28+, `onSaveInstanceState()` luôn được gọi **sau** `onStop()`. Trước API 28 thứ tự có thể khác. Với hầu hết app hiện tại (minSdk ≥ 21), hãy giả định thứ tự là `onPause → onStop → onSaveInstanceState`.
+> **Lưu ý:** Thứ tự phụ thuộc **`targetSdkVersion`** của app, không phải API của thiết bị. App có targetSdk ≥ 28 (Android 9): `onSaveInstanceState()` luôn được gọi **sau** `onStop()`, nên có thể commit fragment transaction an toàn trong `onStop()`. App có targetSdk < 28: `onSaveInstanceState()` được gọi **trước** `onStop()` (không đảm bảo trước hay sau `onPause()`).
 
 ## Khi nào dữ liệu bị mất? — 3 tình huống cần phân biệt
 
@@ -101,13 +101,14 @@ Không phải lúc nào Activity biến mất cũng giống nhau. Bạn phải p
 
 ### 3. Người dùng thoát hẳn (bấm Back / finish)
 
-- Activity finish vĩnh viễn, không ai cần khôi phục.
+- Activity finish vĩnh viễn, không ai cần khôi phục. Process **vẫn chạy** (Back không kill process).
 - `onSaveInstanceState()` **không được gọi**.
+- Từ Android 12, bấm Back ở root launcher activity không finish Activity nữa mà đưa task về background (giống bấm Home), nên trường hợp này hành xử như tình huống bấm Home.
 - Không nên lưu state — dữ liệu cần giữ lâu dài phải đi vào **Room / DataStore** (persistent), không phải state management.
 
 | Tiêu chí | Configuration Change | Process Death | User quits (Back) |
 |----------|---------------------|---------------|-------------------|
-| Process có chết không? | ❌ | ✅ | ✅ |
+| Process có chết không? | ❌ | ✅ | ❌ (chỉ Activity finish) |
 | ViewModel | ✅ Sống | ❌ Mất | ❌ Mất |
 | Bundle (savedState) | ✅ Khôi phục | ✅ Khôi phục | Không cần |
 | onSaveInstanceState | ✅ Gọi | ✅ Gọi (nếu có cơ hội) | ❌ Không gọi |
@@ -127,7 +128,7 @@ Dữ liệu cần xử lý
     │       └── ✅ ViewModel  ← sống qua config change, load lại nếu process death
     │
     ├── User input quan trọng (search query, filter, tab, step trong form)?
-    │       └── ✅ SavedStateHandle (Compose) / onSaveInstanceState (XML)
+    │       └── ✅ SavedStateHandle (cả XML lẫn Compose) / onSaveInstanceState, rememberSaveable cho state thuần UI
     │
     └── Dữ liệu lớn (list, bitmap)?
             └── ✅ ViewModel + chỉ lưu ID vào Bundle để load lại sau process death
@@ -137,7 +138,7 @@ Dữ liệu cần xử lý
 |----------|-----------|------------------|---------------------|
 | Survive config change | ✅ | ✅ | ✅ |
 | Survive process death | ❌ | ✅ | ✅ |
-| Giới hạn kích thước | Không | ~1MB Bundle | ~1MB Bundle |
+| Giới hạn kích thước | Không | Nên dưới 50KB (Bundle) | Nên dưới 50KB (Bundle) |
 | Cần Parcelable/Serializable | ❌ | ✅ | ✅ |
 | Phù hợp cho | Business data, API response, dữ liệu lớn | State quan trọng, kích thước nhỏ | Transient UI state (XML) |
 
@@ -197,6 +198,7 @@ sequenceDiagram
     A--x VM: ViewModel biến mất cùng process
     A->>VM: ViewModel TẠO MỚI → gọi API lại (lần 2)
 ```
+<!-- dd: vm-survive -->
 
 ### Bước 2: SavedStateHandle — lưu user input quan trọng, survive process death
 
@@ -246,7 +248,9 @@ class ProductListActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         if (savedInstanceState != null) {
             binding.recyclerView.layoutManager
-                ?.onRestoreInstanceState(savedInstanceState.getParcelable("recycler_scroll"))
+                ?.onRestoreInstanceState(
+                    BundleCompat.getParcelable(savedInstanceState, "recycler_scroll", Parcelable::class.java)
+                )
         }
     }
 
@@ -266,7 +270,7 @@ class ProductListActivity : AppCompatActivity() {
 - User bấm Home (Activity có thể bị kill sau đó) → **luôn gọi**
 - User bấm Back / finish → **không gọi**
 
-> **Giới hạn Bundle (quan trọng):** Bundle được truyền qua Binder IPC, giới hạn ~1MB cho toàn bộ process. Không lưu Bitmap, danh sách lớn hay toàn bộ API response vào Bundle — sẽ dính `TransactionTooLargeException` và crash. Chỉ lưu ID/giá trị nhỏ, dữ liệu lớn để trong ViewModel hoặc load lại từ database.
+> **Giới hạn Bundle (quan trọng):** Bundle được truyền qua Binder IPC, buffer ~1MB dùng chung cho mọi transaction đang chạy của process; docs khuyến nghị giữ saved state **dưới 50KB**. Không lưu Bitmap, danh sách lớn hay toàn bộ API response vào Bundle — sẽ dính `TransactionTooLargeException` và crash. Chỉ lưu ID/giá trị nhỏ, dữ liệu lớn để trong ViewModel hoặc load lại từ database.
 
 ### Bước 4: Compose — rememberSaveable thay cho Bundle
 
@@ -409,6 +413,7 @@ flowchart TB
     VV --> REPO
     REPO --> DB
 ```
+<!-- dd: vm-layers -->
 
 State Changes không phải việc của riêng UI. Trong kiến trúc đúng:
 
@@ -423,6 +428,9 @@ State Changes không phải việc của riêng UI. Trong kiến trúc đúng:
 - [Android Developers — ViewModel overview](https://developer.android.com/topic/libraries/architecture/viewmodel)
 - [Android Developers — Handle process death](https://developer.android.com/topic/libraries/architecture/saving-states#process_can_recreate_an_activity)
 - [Android Developers — SavedStateHandle](https://developer.android.com/topic/libraries/architecture/viewmodel-savedstate)
+- [Android Developers — Activity.onSaveInstanceState](https://developer.android.com/reference/android/app/Activity#onSaveInstanceState(android.os.Bundle))
+- [Android Developers — Parcelables and bundles](https://developer.android.com/guide/components/activities/parcelables-and-bundles)
+- [Android Developers — Tasks and the back stack (Back ở root launcher activity)](https://developer.android.com/guide/components/activities/tasks-and-back-stack)
 
 ## Học tiếp
 

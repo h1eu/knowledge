@@ -1,24 +1,21 @@
 ---
 id: android.component.broadcast.overview
 title: Broadcast Receiver
-summary: Broadcast Receiver là gì, phân biệt Static vs Dynamic Receiver, LocalBroadcastManager và cách thay thế hiện đại, triển khai thực chiến với MVVM/MVI + Hilt, giới hạn Android 8+, security, và so sánh với WorkManager/Flow.
+summary: Broadcast Receiver là Application Component cho phép app lắng nghe và phản ứng với broadcast do hệ thống hoặc app khác phát đi (mô hình pub/sub ở cấp hệ điều hành). Bài phân biệt Static và Dynamic Receiver, các giới hạn từ Android 8 đến Android 14, security, cách thay LocalBroadcastManager bằng Flow, và khi nào dùng WorkManager hoặc NetworkCallback thay cho broadcast.
 status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 35 phút
 tags: [android, broadcast-receiver, static-receiver, dynamic-receiver, local-broadcast, hilt, mvvm, mvi, clean-architecture, security, background]
-prerequisites: [android.component.activity.overview, android.component.activity.lifecycle, android.intent.overview]
-related: [android.component.service.overview, android.intent.overview]
-downstream: [android.component.content_provider.overview]
+prerequisites: [android.component.activity.overview, android.component.activity.lifecycle, android.intent.filters]
+related: [android.component.service.overview, android.intent.explicit]
+downstream: [android.component.content_provider]
 learning_outcomes:
-  - Hiểu bản chất Broadcast Receiver và vòng đời của nó.
-  - Phân biệt Static Receiver và Dynamic Receiver, biết khi nào dùng loại nào.
-  - Biết tại sao LocalBroadcastManager deprecated và cách thay thế bằng Flow/SharedFlow.
-  - Triển khai Dynamic Receiver đúng cách trong MVVM/MVI với Hilt.
-  - Nắm rõ các giới hạn background của Android 8+ ảnh hưởng đến Static Receiver.
-  - Bảo vệ app trước các lỗ hổng bảo mật liên quan đến Broadcast.
-  - Biết khi nào nên dùng WorkManager hoặc Flow thay vì Broadcast Receiver.
-  - Tránh được các lỗi phổ biến: leak, unregister, ANR trên main thread.
+  - Giải thích được bản chất Broadcast Receiver (cơ chế pub/sub của hệ điều hành) và vòng đời ngắn của nó.
+  - Phân biệt được Static Receiver và Dynamic Receiver, biết khi nào dùng loại nào và các giới hạn từ Android 8 đến Android 14.
+  - Triển khai được Dynamic Receiver đúng cách (ContextCompat.registerReceiver với cờ export, đăng ký và huỷ theo lifecycle) trong MVVM với Hilt.
+  - Biết khi nào nên dùng WorkManager, NetworkCallback hoặc Flow/SharedFlow thay vì Broadcast Receiver.
+  - Xử lý được các lỗi phổ biến như lỗ hổng bảo mật, leak do quên unregister, ANR trên main thread.
 knowledge_gap: >
   Nhiều developer hiểu Broadcast Receiver theo kiểu "đăng ký lắng nghe sự kiện toàn hệ thống",
   nhưng bỏ qua việc Android 8+ đã cắt hầu hết Static Receiver cho implicit broadcast,
@@ -56,7 +53,7 @@ Không có Broadcast Receiver, ứng dụng của bạn **không có cách nào 
 
 > Một Broadcast Receiver chỉ "sống" trong thời gian thực thi hàm `onReceive()`. Sau khi `onReceive()` kết thúc, Receiver có thể bị GC bất cứ lúc nào.
 
-```
+```text
 Intent được gửi đi
         ↓
 Android tìm Receiver phù hợp
@@ -83,7 +80,7 @@ override fun onReceive(context: Context, intent: Intent) {
 }
 ```
 
-Vì lifecycle cực ngắn, bạn **không thể** bắt đầu một coroutine bình thường hoặc AsyncTask bên trong `onReceive()` và mong chờ nó hoàn thành. Nếu cần tác vụ nặng, bạn phải khởi động một **Service** hoặc schedule job qua **WorkManager**.
+Vì lifecycle cực ngắn, bạn **không thể** bắt đầu một coroutine bình thường hoặc AsyncTask bên trong `onReceive()` và mong chờ nó hoàn thành: sau khi `onReceive()` trả về, hệ thống có thể kill cả process. Tài liệu chính thức cũng cảnh báo việc tạo thread hoặc start background service từ `onReceive()`. Việc ngắn (dưới 10 giây) thì dùng `goAsync()`; việc nặng thì schedule job qua **WorkManager** (hoặc `JobScheduler`).
 
 ### goAsync() — Khi cần thêm thời gian
 
@@ -119,7 +116,7 @@ class NetworkReceiver : BroadcastReceiver() {
 | Khai báo ở đâu | `AndroidManifest.xml` | Trong code (Activity/Fragment/Service) |
 | App có cần đang chạy? | Không (Android có thể khởi động process) | Có — chỉ nhận khi component đang active |
 | Còn nhận sau Android 8+? | **Chỉ với explicit và một số system broadcast** | Có |
-| Khi nào dùng | Boot completed, SMS, Phone call | Network change, screen on/off, in-app events |
+| Khi nào dùng | Boot completed, SMS, Phone call | Sạc pin, screen on/off (chỉ khi app đang mở) |
 | Nguy cơ leak | Không | **Có** nếu quên unregister |
 
 ### Static Receiver — Khai báo trong Manifest
@@ -140,33 +137,34 @@ class NetworkReceiver : BroadcastReceiver() {
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            // Reschedule WorkManager jobs sau khi thiết bị khởi động lại
+            // Alarm đặt bằng AlarmManager bị xoá khi thiết bị khởi động lại → đặt lại.
+            // (Job của WorkManager thì KHÔNG cần: WorkManager tự lưu và lên lịch lại sau reboot.)
+            // onReceive phải ngắn → giao việc đọc DB và đặt lại alarm cho WorkManager
             WorkManager.getInstance(context)
                 .enqueueUniqueWork(
-                    "sync_after_boot",
-                    ExistingWorkPolicy.KEEP,
-                    OneTimeWorkRequestBuilder<SyncWorker>().build()
+                    RescheduleRemindersWorker.UNIQUE_NAME,
+                    ExistingWorkPolicy.REPLACE,
+                    OneTimeWorkRequestBuilder<RescheduleRemindersWorker>().build()
                 )
         }
     }
 }
 ```
 
-> **Lưu ý:** Cần permission `RECEIVE_BOOT_COMPLETED` trong Manifest.
+> **Lưu ý:** Cần permission `RECEIVE_BOOT_COMPLETED` trong Manifest. `BOOT_COMPLETED` là protected broadcast, chỉ hệ thống gửi được, nên để `exported="true"` như tài liệu khuyến nghị cho receiver nghe broadcast hệ thống vẫn an toàn (xem mục 8.1).
 
 ### Dynamic Receiver — Đăng ký trong code
 
 ```kotlin
-// NetworkMonitorReceiver.kt
-class NetworkMonitorReceiver : BroadcastReceiver() {
+// PowerConnectionReceiver.kt
+class PowerConnectionReceiver(
+    private val onChargingChanged: (Boolean) -> Unit
+) : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val isConnected = isNetworkAvailable(context)
-        // Notify ViewModel/UseCase
-    }
-
-    private fun isNetworkAvailable(context: Context): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return cm.activeNetworkInfo?.isConnectedOrConnecting == true
+        when (intent.action) {
+            Intent.ACTION_POWER_CONNECTED -> onChargingChanged(true)
+            Intent.ACTION_POWER_DISCONNECTED -> onChargingChanged(false)
+        }
     }
 }
 ```
@@ -178,20 +176,32 @@ Luôn đảm bảo `register` và `unregister` ở cùng cặp lifecycle:
 ```kotlin
 // Activity
 class MainActivity : AppCompatActivity() {
-    private val networkReceiver = NetworkMonitorReceiver()
+    private val powerReceiver = PowerConnectionReceiver { isCharging ->
+        // Cập nhật UI, vd hiện gợi ý "Đang sạc: có thể tải video chất lượng cao"
+    }
 
     override fun onStart() {
         super.onStart()
-        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        registerReceiver(networkReceiver, filter)
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_POWER_CONNECTED)
+            addAction(Intent.ACTION_POWER_DISCONNECTED)
+        }
+        // Android 14+ (targetSdk 34): receiver đăng ký bằng context phải chọn
+        // RECEIVER_EXPORTED hoặc RECEIVER_NOT_EXPORTED. Nghe broadcast hệ thống → EXPORTED.
+        ContextCompat.registerReceiver(this, powerReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
     }
 
     override fun onStop() {
         super.onStop()
-        unregisterReceiver(networkReceiver) // ← Bắt buộc!
+        unregisterReceiver(powerReceiver) // ← Bắt buộc!
     }
 }
 ```
+
+> **Lưu ý Android 13/14 với Dynamic Receiver:**
+> - Từ Android 14 (targetSdk 34), `registerReceiver()` **bắt buộc** truyền cờ `RECEIVER_EXPORTED` hoặc `RECEIVER_NOT_EXPORTED` (trừ receiver chỉ nhận system broadcast), nếu không sẽ ném `SecurityException`. Dùng `ContextCompat.registerReceiver()` để có cùng API trên mọi version. `RECEIVER_NOT_EXPORTED` vẫn nhận được một số system broadcast và broadcast của chính app, nhưng không nhận broadcast từ app đặc quyền (Bluetooth, telephony).
+> - Từ Android 14, khi app ở trạng thái **cached**, hệ thống hoãn các system broadcast ít quan trọng (vd `ACTION_SCREEN_ON`) gửi tới receiver đăng ký bằng context, và chỉ giao khi app thoát khỏi trạng thái cached.
+> - Theo dõi mạng thì **không** dùng `CONNECTIVITY_ACTION` (deprecated từ API 28) và `activeNetworkInfo` (deprecated từ API 29): dùng `ConnectivityManager.registerDefaultNetworkCallback()` (xem mục 6).
 
 ---
 
@@ -216,17 +226,20 @@ Một số broadcast **được miễn trừ** (exempted) vẫn hoạt động v
 
 Danh sách đầy đủ: [developer.android.com/guide/components/broadcast-exceptions](https://developer.android.com/guide/components/broadcast-exceptions)
 
+> **Không** có trong danh sách miễn trừ: `ACTION_POWER_CONNECTED`/`ACTION_POWER_DISCONNECTED`, `CONNECTIVITY_ACTION`... Static Receiver khai báo các action này sẽ không nhận được gì trên Android 8+; chỉ Dynamic Receiver nhận được (khi app đang chạy).
+
 ### Giải pháp thay thế
 
-```
+```text
 Static Receiver cho CONNECTIVITY_CHANGE (Android 8+)
             ↓
         Bị chặn!
             ↓
-   Dùng Dynamic Receiver
-   hoặc
-   NetworkCallback (ConnectivityManager.registerNetworkCallback)
+   Dynamic Receiver (CONNECTIVITY_ACTION đã deprecated từ API 28)
+   hoặc tốt hơn
+   NetworkCallback (ConnectivityManager.registerDefaultNetworkCallback)
 ```
+<!-- dd: br-blocked -->
 
 ---
 
@@ -248,7 +261,7 @@ LocalBroadcastManager.getInstance(this)
 
 ### Vì sao nó deprecated?
 
-`LocalBroadcastManager` bị deprecated từ **AndroidX Core 1.1.0** (2019) vì:
+`LocalBroadcastManager` bị deprecated từ artifact **`androidx.localbroadcastmanager` 1.1.0** (2019) vì:
 
 1. **Không phải giải pháp tốt cho giao tiếp component**: Nó chỉ là wrapper của BroadcastReceiver — vẫn có overhead của Intent và Receiver creation.
 2. **Không type-safe**: Mọi dữ liệu phải serialize vào Intent extras → dễ lỗi runtime.
@@ -267,7 +280,7 @@ LocalBroadcastManager.getInstance(this)
 **Ví dụ thay thế: `SharedFlow` thay vì `LocalBroadcastManager`**
 
 ```kotlin
-// AppEventBus.kt — Singleton qua Hilt
+// AppEventBus.kt — Singleton dạng object (hoặc class @Singleton inject qua Hilt)
 object AppEventBus {
     private val _events = MutableSharedFlow<AppEvent>(extraBufferCapacity = 64)
     val events: SharedFlow<AppEvent> = _events.asSharedFlow()
@@ -303,7 +316,7 @@ Use case phổ biến nhất: App cần biết khi nào mạng mất/khôi phụ
 
 ### Kiến trúc
 
-```
+```text
 NetworkConnectivityObserver (Data Layer)
         ↓ Flow<ConnectivityStatus>
 NetworkRepository (Domain Layer)
@@ -312,6 +325,7 @@ NetworkStatusViewModel (Presentation Layer)
         ↓
 Activity/Fragment (UI Layer)
 ```
+<!-- dd: br-observer -->
 
 #### Data Layer: NetworkConnectivityObserver
 
@@ -349,18 +363,17 @@ class NetworkConnectivityObserver @Inject constructor(
             }
         }
 
-        val request = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .build()
-
-        connectivityManager.registerNetworkCallback(request, callback)
+        // Theo dõi network MẶC ĐỊNH: onLost chỉ báo khi app thật sự không còn network mặc định.
+        // (registerNetworkCallback(request) báo onLost cho TỪNG network, vd mất Wi-Fi
+        // trong khi vẫn còn 4G → báo offline sai)
+        connectivityManager.registerDefaultNetworkCallback(callback)
 
         awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
     }.distinctUntilChanged()
 }
 ```
 
-> **Lưu ý:** Đây là cách **hiện đại** hơn BroadcastReceiver cho network — dùng `NetworkCallback` thay vì `CONNECTIVITY_ACTION`. Tuy nhiên bên dưới nó vẫn dùng Broadcast. Flow wrapper giúp nó type-safe và dễ test.
+> **Lưu ý:** Mục này **không dùng BroadcastReceiver**: đây là phương án thay thế hiện đại cho `CONNECTIVITY_ACTION`. `NetworkCallback` không đi qua broadcast; `ConnectivityService` của hệ thống gọi callback trực tiếp vào app qua Binder. Flow wrapper giúp nó type-safe và dễ test.
 
 #### DI Module
 
@@ -480,7 +493,7 @@ class HomeFragment : Fragment() {
 
 ### Luồng hoạt động (Flow Simulation)
 
-```
+```text
 Mạng bị ngắt (Network Lost)
         ↓
 ConnectivityManager phát NetworkCallback.onLost()
@@ -505,54 +518,57 @@ ViewModel: isOffline = false + gọi loadPosts()
         ↓
 offlineBanner.isVisible = false (ẩn banner)
 ```
+<!-- dd: br-offline -->
 
 ---
 
 ## 7. Ví dụ 2: Broadcast Receiver thực sự cần thiết — Boot Receiver + WorkManager
 
-### Bài toán: App cần schedule job định kỳ, job bị mất sau khi thiết bị restart
+### Bài toán: Đặt lại alarm nhắc uống thuốc sau khi thiết bị khởi động lại
+
+Alarm đặt bằng `AlarmManager` bị hệ thống xoá khi thiết bị tắt/khởi động lại, nên app phải tự đặt lại khi nhận `BOOT_COMPLETED`. Ngược lại, job của **WorkManager không cần** BootReceiver: WorkManager lưu work vào database và tự lên lịch lại sau reboot.
 
 ```kotlin
 // receiver/BootReceiver.kt
-@AndroidEntryPoint // Hilt hỗ trợ inject vào BroadcastReceiver từ Hilt 2.28+
 class BootReceiver : BroadcastReceiver() {
 
-    @Inject
-    lateinit var workScheduler: WorkScheduler
-
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED ||
-            intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
-            workScheduler.schedulePeriodicSync()
-        }
+        if (intent.action != Intent.ACTION_BOOT_COMPLETED &&
+            intent.action != Intent.ACTION_MY_PACKAGE_REPLACED) return
+
+        // onReceive chạy trên main thread và phải xong nhanh:
+        // giao việc đọc DB + đặt lại alarm cho WorkManager
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            RescheduleRemindersWorker.UNIQUE_NAME,
+            ExistingWorkPolicy.REPLACE,
+            OneTimeWorkRequestBuilder<RescheduleRemindersWorker>().build()
+        )
     }
 }
 ```
 
-> **Lưu ý Hilt:** Để inject vào BroadcastReceiver với Hilt, bạn cần annotate receiver với `@AndroidEntryPoint` và Activity/Application phải cũng dùng Hilt.
+> **Lưu ý Hilt:** Receiver ở đây không cần inject gì. Nếu cần inject vào BroadcastReceiver, annotate receiver với `@AndroidEntryPoint` (Application cũng phải dùng `@HiltAndroidApp`). Worker dùng `@HiltWorker` cần cấu hình `HiltWorkerFactory` cho WorkManager.
 
 ```kotlin
-// domain/scheduler/WorkScheduler.kt
-class WorkScheduler @Inject constructor(
-    private val workManager: WorkManager
-) {
-    fun schedulePeriodicSync() {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+// worker/RescheduleRemindersWorker.kt
+@HiltWorker
+class RescheduleRemindersWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted params: WorkerParameters,
+    private val reminderRepository: ReminderRepository,
+    private val reminderScheduler: ReminderScheduler // bọc AlarmManager
+) : CoroutineWorker(context, params) {
 
-        val syncRequest = PeriodicWorkRequestBuilder<DataSyncWorker>(
-            repeatInterval = 15,
-            repeatIntervalTimeUnit = TimeUnit.MINUTES
-        )
-            .setConstraints(constraints)
-            .build()
+    override suspend fun doWork(): Result {
+        // Đọc các lần nhắc sắp tới từ Room rồi đặt lại từng alarm
+        reminderRepository.getUpcomingReminders().forEach { reminder ->
+            reminderScheduler.schedule(reminder) // AlarmManager.setAndAllowWhileIdle(...)
+        }
+        return Result.success()
+    }
 
-        workManager.enqueueUniquePeriodicWork(
-            "data_sync",
-            ExistingPeriodicWorkPolicy.KEEP,
-            syncRequest
-        )
+    companion object {
+        const val UNIQUE_NAME = "reschedule_reminders"
     }
 }
 ```
@@ -561,9 +577,11 @@ class WorkScheduler @Inject constructor(
 <!-- AndroidManifest.xml -->
 <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+<!-- Nghe broadcast hệ thống → exported="true" (BOOT_COMPLETED là protected broadcast,
+     app khác không giả mạo được) -->
 <receiver
     android:name=".receiver.BootReceiver"
-    android:exported="false">
+    android:exported="true">
     <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED" />
         <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
@@ -589,13 +607,15 @@ Từ Android 12 (API 31), mọi receiver có `<intent-filter>` **bắt buộc ph
     ...
 </receiver>
 
-<!-- ✅ Đúng — Nhận từ hệ thống (cần thiết) -->
+<!-- ✅ Đúng — Nhận broadcast từ hệ thống hoặc app khác -->
 <receiver
     android:name=".receiver.BootReceiver"
     android:exported="true">
     ...
 </receiver>
 ```
+
+> **`exported` với system broadcast:** broadcast do chính hệ thống (system UID) gửi, như `BOOT_COMPLETED`, vẫn tới được receiver `exported="false"`. Nhưng một số system broadcast đến từ app đặc quyền (Bluetooth, telephony) không chạy dưới UID hệ thống, nên receiver `exported="false"` sẽ không nhận được. Vì vậy tài liệu chính thức khuyên: receiver nghe broadcast từ **hệ thống hoặc app khác** thì đặt `exported="true"`, kết hợp kiểm tra action trong `onReceive()` và permission khi cần.
 
 > **Rule of thumb:** Luôn dùng `exported="false"` trừ khi bạn có lý do rõ ràng cần nhận từ bên ngoài.
 
@@ -675,10 +695,10 @@ override fun onReceive(context: Context, intent: Intent) {
 ### Khi nào dùng Broadcast Receiver
 
 ✅ Dùng khi bạn cần **phản ứng với sự kiện hệ thống** mà không có API thay thế:
-- `ACTION_BOOT_COMPLETED` — reschedule job sau reboot
+- `ACTION_BOOT_COMPLETED` — đặt lại alarm của `AlarmManager` sau reboot (job WorkManager tự được lên lịch lại)
 - `ACTION_MY_PACKAGE_REPLACED` — migrate data sau update
 - `SMS_RECEIVED` — xử lý SMS trong OTP flow
-- `ACTION_POWER_CONNECTED` — bắt đầu sync khi sạc
+- ~~`ACTION_POWER_CONNECTED` — bắt đầu sync khi sạc~~: không nhận được qua Manifest từ Android 8 (không có trong danh sách miễn trừ). Muốn sync khi sạc, dùng WorkManager với `setRequiresCharging(true)`
 
 ### Khi nào dùng WorkManager thay vì Broadcast Receiver
 
@@ -688,12 +708,13 @@ override fun onReceive(context: Context, intent: Intent) {
 - Cần **constraints** (chỉ chạy khi có wifi, pin đủ...)
 - Cần **chain tasks** (Task A → Task B → Task C)
 
-```
+```text
 Use case: "Upload ảnh khi có WiFi, ngay cả khi user đóng app"
         ↓
 Broadcast Receiver ❌ (không thể đảm bảo, max 10s)
 WorkManager ✅ (persist, constraint-aware, guaranteed)
 ```
+<!-- dd: br-upload -->
 
 ### Khi nào dùng Flow thay vì LocalBroadcastManager
 
@@ -702,12 +723,13 @@ WorkManager ✅ (persist, constraint-aware, guaranteed)
 - Cần **reactive stream** với operator (map, filter, combine...)
 - Cần **type-safety** và dễ test
 
-```
+```text
 Use case: "Repository thông báo cho ViewModel khi data cache expired"
         ↓
 LocalBroadcastManager ❌ (deprecated, không type-safe)
 Flow/SharedFlow ✅ (type-safe, reactive, testable)
 ```
+<!-- dd: br-flow -->
 
 ---
 
@@ -780,7 +802,7 @@ connectivityManager.registerNetworkCallback(request, networkCallback)
 ### Lỗi 4: Không khai báo exported trên Android 12+
 
 ```xml
-<!-- ❌ App sẽ crash khi install trên Android 12+ -->
+<!-- ❌ Cài đặt thất bại trên Android 12+ (INSTALL_PARSE_FAILED_MANIFEST_MALFORMED) -->
 <receiver android:name=".MyReceiver">
     <intent-filter>...</intent-filter>
 </receiver>
@@ -801,16 +823,21 @@ connectivityManager.registerNetworkCallback(request, networkCallback)
 @RunWith(RobolectricTestRunner::class)
 class BootReceiverTest {
 
-    @Test
-    fun `onReceive BOOT_COMPLETED should schedule WorkManager job`() {
-        val context = ApplicationProvider.getApplicationContext<Application>()
-        val receiver = BootReceiver()
-        val intent = Intent(Intent.ACTION_BOOT_COMPLETED)
+    private lateinit var context: Context
 
-        receiver.onReceive(context, intent)
+    @Before
+    fun setup() {
+        context = ApplicationProvider.getApplicationContext()
+        // WorkManager phải được khởi tạo bản test trước khi gọi getInstance()
+        WorkManagerTestInitHelper.initializeTestWorkManager(context)
+    }
+
+    @Test
+    fun `onReceive BOOT_COMPLETED should enqueue reschedule work`() {
+        BootReceiver().onReceive(context, Intent(Intent.ACTION_BOOT_COMPLETED))
 
         val workInfos = WorkManager.getInstance(context)
-            .getWorkInfosForUniqueWork("data_sync")
+            .getWorkInfosForUniqueWork(RescheduleRemindersWorker.UNIQUE_NAME)
             .get()
 
         assertThat(workInfos).isNotEmpty()
@@ -861,7 +888,7 @@ class FakeConnectivityObserver : ConnectivityObserver {
 
 ## 12. Tư duy hệ thống — Vị trí trong Clean Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                    Presentation Layer                    │
 │  Activity / Fragment                                     │
@@ -872,15 +899,15 @@ class FakeConnectivityObserver : ConnectivityObserver {
 ┌─────────────────────────────────────────────────────────┐
 │                     Domain Layer                         │
 │  ConnectivityObserver (interface)                       │
-│  WorkScheduler (interface)                              │
+│  ReminderRepository (interface)                         │
 │  GetPostsUseCase                                        │
 └─────────────────────────────────────────────────────────┘
                           ↑ implement
 ┌─────────────────────────────────────────────────────────┐
 │                      Data Layer                          │
 │  NetworkConnectivityObserver  ← bọc NetworkCallback    │
-│  WorkSchedulerImpl            ← bọc WorkManager        │
-│  BootReceiver                 ← inject WorkScheduler   │
+│  ReminderScheduler            ← bọc AlarmManager       │
+│  BootReceiver                 → enqueue Worker         │
 └─────────────────────────────────────────────────────────┘
                     ↑ system events
 ┌─────────────────────────────────────────────────────────┐
@@ -888,6 +915,7 @@ class FakeConnectivityObserver : ConnectivityObserver {
 │  NetworkCallback / BroadcastReceiver                    │
 └─────────────────────────────────────────────────────────┘
 ```
+<!-- dd: br-arch -->
 
 **Nguyên tắc quan trọng trong kiến trúc:**
 
@@ -917,3 +945,7 @@ Sau khi nắm vững Broadcast Receiver, bạn nên tìm hiểu:
 - [Android Developers — WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)
 - [Kotlin Coroutines — SharedFlow](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-shared-flow/)
 - [Hilt — Inject into Android classes](https://developer.android.com/training/dependency-injection/hilt-android)
+- [Android Developers — Broadcasts (RECEIVER_EXPORTED, Android 14 cached apps)](https://developer.android.com/develop/background-work/background-tasks/broadcasts)
+- [Android 14 behavior changes](https://developer.android.com/about/versions/14/behavior-changes-14)
+- [ConnectivityManager — CONNECTIVITY_ACTION (deprecated)](https://developer.android.com/reference/android/net/ConnectivityManager#CONNECTIVITY_ACTION)
+- [Persistent work with WorkManager](https://developer.android.com/develop/background-work/background-tasks/persistent)

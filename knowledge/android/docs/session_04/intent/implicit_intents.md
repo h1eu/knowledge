@@ -1,9 +1,21 @@
 ---
+id: android.intent.implicit
 title: Implicit Intents
-summary: Hiểu cách Implicit Intent hoạt động, cơ chế phân giải (Resolution) của hệ điều hành Android và cách ứng dụng vào các bài toán thực tế như mở web, share text hay gọi điện thoại.
-authors:
-  - AI Assistant
-date: 2026-07-30
+summary: Hiểu cách Implicit Intent hoạt động, cơ chế phân giải (Resolution) của hệ điều hành Android và cách ứng dụng vào các bài toán thực tế như mở web, chia sẻ text hay gửi email.
+status: published
+difficulty: intermediate
+depth: deep-dive
+estimated_reading_time: 15 phút
+tags: [android, intent, implicit-intent, intent-resolution, package-visibility]
+prerequisites: [android.intent.explicit]
+related: [android.intent.filters, android.manifest.tags]
+learning_outcomes:
+  - Giải thích được Implicit Intent là gì và cách hệ điều hành phân giải (resolve) nó qua Action, Data, Category.
+  - Phân biệt được Implicit Intent với Explicit Intent và biết khi nào dùng loại nào.
+  - Triển khai được Implicit Intent cho các bài toán mở web, chia sẻ text, gửi email.
+  - Xử lý được trường hợp không có app nào nhận Intent (ActivityNotFoundException) và giới hạn Package Visibility từ Android 11.
+knowledge_gap: >
+  Không hiểu cơ chế phân giải Implicit Intent khiến app crash với ActivityNotFoundException khi máy không có app phù hợp, hoặc lặng lẽ bỏ qua hành động trên Android 11+ vì resolveActivity() trả về null do thiếu khai báo queries; không biết implicit intent chỉ tới được component exported cũng khiến luồng nội bộ hỏng khi target Android 14.
 ---
 
 # Implicit Intents
@@ -22,7 +34,10 @@ Nhưng làm sao bạn biết thiết bị của người dùng đang cài app Ca
 
 **Implicit Intent** là loại Intent mà bạn không truyền tên Component (Class) cụ thể, thay vào đó, bạn khai báo một **Hành động (Action)** và loại **Dữ liệu (Data)** mà hành động đó cần thực thi.
 
-Hệ điều hành Android (cụ thể là `PackageManager` và `ActivityManagerService`) sẽ đứng ra làm trung gian: dò tìm toàn bộ các app trong máy xem app nào có khả năng xử lý hành động này, và đưa ra danh sách cho người dùng chọn (hoặc mở ngay nếu chỉ có 1 app xử lý được).
+Hệ điều hành Android (cụ thể là `PackageManager` và `ActivityManagerService`) sẽ đứng ra làm trung gian: tra danh sách intent-filter mà `PackageManager` đã parse từ manifest của các app lúc cài đặt, xem app nào có khả năng xử lý hành động này, và đưa ra danh sách cho người dùng chọn (hoặc mở ngay nếu chỉ có 1 app xử lý được).
+
+> [!NOTE]
+> Từ Android 14 (app target API 34+), implicit intent **chỉ được giao tới component `exported="true"`**. Component nội bộ (`exported="false"`) dù có `<intent-filter>` khớp cũng không nhận được implicit intent (với `startActivity` sẽ ném `ActivityNotFoundException`); muốn mở nó phải dùng Explicit Intent hoặc `setPackage(context.packageName)`.
 
 ## Cơ chế OS Resolve Implicit Intent
 
@@ -47,6 +62,8 @@ sequenceDiagram
         OS-->>App: Ném ra ActivityNotFoundException!
     end
 ```
+<!-- dd: intent-resolve-a -->
+<!-- dd: intent-resolve-b -->
 
 Đây gọi là quá trình **Intent Resolution** (Phân giải Intent). Hệ thống so sánh 3 thành phần chính:
 1. **Action:** (VD: `ACTION_VIEW`, `ACTION_SEND`, `ACTION_DIAL`).
@@ -93,6 +110,9 @@ fun shareText(textToShare: String, context: Context) {
 }
 ```
 
+> [!NOTE]
+> `createChooser()` khác hộp thoại chọn app mặc định của hệ thống. Khi nhiều app khớp mà người dùng chưa đặt app mặc định, hệ thống hiện **disambiguation dialog** có nút "Luôn dùng"/"Chỉ một lần"; nếu người dùng đã chọn "Luôn dùng" thì lần sau mở thẳng app đó, không hỏi nữa. `createChooser()` thì **luôn** hiện Sharesheet và không cho đặt mặc định, nên hợp với hành động chia sẻ, nơi mỗi lần người dùng có thể muốn chọn app khác.
+
 ### 3. Gửi Email
 
 ```kotlin
@@ -102,8 +122,13 @@ fun composeEmail(addresses: Array<String>, subject: String, context: Context) {
         putExtra(Intent.EXTRA_EMAIL, addresses)
         putExtra(Intent.EXTRA_SUBJECT, subject)
     }
-    if (intent.resolveActivity(context.packageManager) != null) {
+    // Không dùng resolveActivity() ở đây: trên Android 11+ nó trả về null nếu manifest
+    // không khai báo <queries> cho mailto, và email bị bỏ qua mà không báo gì.
+    // Gọi thẳng startActivity và bắt lỗi khi máy không có app email.
+    try {
         context.startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        // Báo người dùng chưa có app email
     }
 }
 ```
@@ -126,6 +151,11 @@ Trong `AndroidManifest.xml`:
     <intent>
         <action android:name="android.intent.action.VIEW" />
         <data android:scheme="https" />
+    </intent>
+    <!-- Cần nếu muốn dùng resolveActivity() cho intent gửi email (mailto:) -->
+    <intent>
+        <action android:name="android.intent.action.SENDTO" />
+        <data android:scheme="mailto" />
     </intent>
 </queries>
 ```

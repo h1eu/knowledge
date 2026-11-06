@@ -4,8 +4,8 @@ title: Android App Bundle (AAB) & Dynamic Delivery
 summary: Định dạng xuất bản của Google Play. Cấu trúc AAB và Protocol Buffers, cách bundletool tạo Split APK theo ABI, mật độ màn hình và ngôn ngữ, Dynamic Feature Module với Play Feature Delivery và SplitCompat, Play App Signing, và cách test AAB cục bộ.
 status: published
 difficulty: intermediate
-estimated_reading_time: 25 phút
 depth: deep-dive
+estimated_reading_time: 25 phút
 tags: [android, aab, app-bundle, dynamic-delivery, bundletool, split-apk, play-app-signing]
 prerequisites: [android.languages.java_android, android.languages.kotlin, android.output_packages.apk_files]
 related: [android.languages.jni]
@@ -38,6 +38,14 @@ Tháng 5/2018, Google giới thiệu **Android App Bundle (AAB)**. Từ tháng 8
 - Giải thích được cách bundletool tạo Split APK theo ngôn ngữ, mật độ màn hình và ABI cho từng thiết bị.
 - Triển khai được Dynamic Feature Module tải theo yêu cầu với Play Feature Delivery và SplitCompat.
 - Xử lý được việc kiểm thử AAB cục bộ bằng bundletool CLI.
+
+---
+
+## AAB là gì?
+
+**Android App Bundle (AAB)** là định dạng **xuất bản** (publishing format): một file `.aab` chứa toàn bộ code và tài nguyên đã biên dịch của app, chia theo module, để cửa hàng (Google Play) tự sinh và ký các APK tối ưu cho từng thiết bị. Thiết bị không cài trực tiếp được AAB.
+
+Mental model: APK là **thùng hàng đóng sẵn** gửi tới tay người dùng; AAB là **kho nguyên liệu** gửi cho Google Play, để Play đóng từng thùng vừa đúng với từng thiết bị.
 
 ---
 
@@ -199,11 +207,29 @@ val request = SplitInstallRequest.newBuilder()
 
 splitInstallManager.startInstall(request)
     .addOnSuccessListener { sessionId ->
-        // Theo dõi tiến trình bằng SplitInstallStateUpdatedListener
+        // Theo dõi tiến trình bằng SplitInstallStateUpdatedListener (bên dưới)
     }
     .addOnFailureListener { exception ->
         // Xử lý lỗi: không có mạng, hết dung lượng...
     }
+```
+
+`startInstall` thành công chỉ nghĩa là Play **nhận yêu cầu**. Trạng thái tải và cài đến qua `SplitInstallStateUpdatedListener`, trong đó phải xử lý `REQUIRES_USER_CONFIRMATION`:
+
+```kotlin
+// CheckoutActivity.kt — đăng ký trước startInstall (vd onStart), huỷ bằng unregisterListener (vd onStop)
+// confirmLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { }
+val listener = SplitInstallStateUpdatedListener { state ->
+    when (state.status()) {
+        // Play cần người dùng xác nhận: app không cài từ Play, hoặc module lớn khi dùng mobile data
+        SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION ->
+            splitInstallManager.startConfirmationDialogForResult(state, confirmLauncher)
+        SplitInstallSessionStatus.INSTALLED -> openPaymentScreen()
+        SplitInstallSessionStatus.FAILED -> showRetry(state.errorCode())
+        else -> Unit // PENDING, DOWNLOADING...: cập nhật progress bằng bytesDownloaded() / totalBytesToDownload()
+    }
+}
+splitInstallManager.registerListener(listener)
 ```
 
 ```kotlin
@@ -255,7 +281,7 @@ java -jar bundletool.jar install-apks --apks=app.apks
 
 3. **Nhầm hai loại key của Play App Signing**:
    - **App signing key**: do Google giữ, dùng để ký APK cài lên thiết bị người dùng.
-   - **Upload key**: do developer giữ, dùng để ký AAB trước khi upload.
+   - **Upload key**: do developer giữ, dùng để ký AAB trước khi upload. AAB được ký bằng `jarsigner` (hoặc `signingConfig` của Gradle); `apksigner` **không** ký được AAB. Chữ ký này chỉ để Play xác minh người upload, còn APK cài lên thiết bị do Play ký lại bằng app signing key (v2/v3).
    - Mất upload key thì chủ tài khoản gửi yêu cầu reset trong Play Console. Không thể tự lấy lại app signing key, nên đừng nhầm hai key khi lưu trữ.
 
 4. **Vẫn dùng thư viện Play Core cũ** (`com.google.android.play:core`): từ 2022 thư viện này được tách thành Play Feature Delivery, Play Asset Delivery, Play In-App Updates... Thư viện cũ không còn tương thích với các phiên bản `targetSdk` mới.
@@ -272,6 +298,7 @@ java -jar bundletool.jar install-apks --apks=app.apks
 
 ### Edge Cases
 
+- **Giới hạn sau khi tải module on-demand**: trong một thời gian (có khi vài ngày) sau khi tải, platform chưa áp dụng manifest entry mới mà module khai báo, và system UI (vd notification) chưa dùng được tài nguyên của module. Tài nguyên cần dùng ngay cho notification nên đặt ở base module.
 - **Tài nguyên của module trong Context chưa qua SplitCompat**: gọi `LayoutInflater.from(context)` với một Context chưa được `SplitCompat` xử lý (ví dụ Context tạo riêng hoặc của Service) sẽ crash `Resources$NotFoundException` khi đọc layout/drawable của module.
 
 ---
@@ -297,7 +324,7 @@ java -jar bundletool.jar install-apks --apks=app.apks
 7. **What are the edge cases?** Crash `ClassNotFoundException` / `Resources$NotFoundException` do thiếu `SplitCompat`.
 8. **What are the real-world problems developers encounter?** Test AAB cục bộ, quản lý key với Play App Signing, chuyển từ Play Core sang các thư viện mới.
 9. **How is it connected to the Android system?** Dựa trên khả năng cài nhiều Split APK cho một app của PackageManager từ Android 5.0 (API 21).
-10. **What should developers learn next?** Session 02 (File Permissions, Process Management) để hiểu hệ thống cài đặt và cô lập ứng dụng thế nào.
+10. **What should developers learn next?** Session 02 (`android.session02.file_permissions`; Process Management chưa có bài) để hiểu hệ thống cài đặt và cô lập ứng dụng thế nào.
 
 ---
 
@@ -306,5 +333,7 @@ java -jar bundletool.jar install-apks --apks=app.apks
 - Android Developers: [About Android App Bundles](https://developer.android.com/guide/app-bundle)
 - Android Developers: [bundletool](https://developer.android.com/tools/bundletool)
 - Android Developers: [Play Feature Delivery](https://developer.android.com/guide/playcore/feature-delivery)
+- Android Developers: [Configure on-demand delivery](https://developer.android.com/guide/playcore/feature-delivery/on-demand)
+- Android Developers: [Build your app from the command line: Build an app bundle](https://developer.android.com/build/building-cmdline#build_bundle)
 - Android Developers: [Use Play App Signing](https://support.google.com/googleplay/android-developer/answer/9842756)
 - Google Play Apps & Games (2017): *Shrinking APKs, growing installs*. Nguồn của số liệu 6MB và 1%.

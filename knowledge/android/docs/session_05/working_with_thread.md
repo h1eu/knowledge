@@ -1,9 +1,11 @@
 ---
+id: android.thread.working_with_thread
 title: Working with Thread in Android — Từ Bản Chất Đến Thực Chiến
 summary: Cẩm nang chuyên sâu và toàn diện về Multithreading trong Android. Phân tích bản chất Process vs Thread dưới góc nhìn Linux kernel và ART, cơ chế Main Thread & ANR, mổ xẻ bộ ba Looper - MessageQueue - Handler, quản lý luồng công nghiệp với ThreadPoolExecutor, xử lý Race Condition, Deadlock, Memory Leak, kết nối với Kotlin Coroutines Dispatchers và thực hành Mini-Project Image Pipeline hoàn chỉnh bằng Kotlin.
-authors:
-  - Antigravity AI
-date: 2026-09-22
+status: published
+difficulty: intermediate
+depth: deep-dive
+estimated_reading_time: 40 phút
 tags:
   - android
   - threading
@@ -14,6 +16,18 @@ tags:
   - thread-pool
   - coroutines
   - performance
+prerequisites:
+  - android.session05.overview
+related:
+  - android.data_store.room_transactions
+  - android.networking.basics
+learning_outcomes:
+  - Giải thích được bản chất Process vs Thread, vùng nhớ Heap/Stack và chi phí thật khi tạo một Thread trên Linux/ART.
+  - Giải thích được vì sao Main Thread phải hoàn thành mỗi frame trong 16.6ms và khi nào hệ thống báo ANR.
+  - Triển khai được giao tiếp Background Thread → Main Thread bằng Looper, MessageQueue, Handler và HandlerThread.
+  - Thiết kế được ThreadPoolExecutor phù hợp cho tác vụ CPU-bound và I/O-bound.
+  - Nhận diện được Race Condition, Deadlock, Memory Leak khi dùng Thread và áp dụng được cách phòng tránh.
+knowledge_gap: Nhiều developer chỉ dùng Coroutines mà không hiểu Thread bên dưới, dẫn đến việc dùng sai Dispatchers, rò rỉ bộ nhớ qua Handler/Thread ngầm, hoặc gặp lỗi ANR và Race Condition khó debug.
 ---
 
 # Working with Thread in Android: Từ Bản Chất Đến Thực Chiến
@@ -63,7 +77,7 @@ Tài liệu này dẫn dắt bạn đi từ con số 0 đến cấp độ kỹ s
 
 ### 1.3 Chi phí thực sự khi tạo một Thread
 Một sai lầm kinh điển của người mới là nghĩ rằng Thread rất "nhẹ":
-1. **Chi phí bộ nhớ (Memory Footprint):** Mỗi Thread trong Android Runtime (ART) khi khởi tạo ngầm cấp phát một vùng Call Stack cố định (thường từ **1MB đến 2MB** trong không gian bộ nhớ ảo). Tạo 100 Thread đồng nghĩa bạn đã đốt sạch 100MB - 200MB bộ nhớ chỉ riêng cho Stack!
+1. **Chi phí bộ nhớ (Memory Footprint):** Mỗi Thread trong Android Runtime (ART) khi khởi tạo ngầm cấp phát một vùng Call Stack cố định (thường từ **1MB đến 2MB** trong không gian bộ nhớ ảo). Tạo 100 Thread đồng nghĩa giữ chỗ 100MB - 200MB **không gian địa chỉ ảo** cho Stack. RAM vật lý chỉ được cấp cho phần stack thực sự dùng tới, nên con số RAM thật nhỏ hơn nhiều, nhưng mỗi Thread vẫn tốn bộ nhớ kernel, thời gian tạo và chi phí lập lịch.
 2. **Chi phí chuyển ngữ cảnh (Context Switching):** CPU chỉ có một số lượng nhân vật lý hữu hạn (ví dụ: chip 8 nhân). Khi có hàng trăm Thread cùng đòi chạy, CPU phải liên tục dừng luồng này, lưu trạng thái thanh ghi/stack pointer ra RAM, rồi tải trạng thái của luồng khác vào thanh ghi. Hiện tượng này làm tiêu tốn chu kỳ CPU vô ích, gây nóng máy và tụt pin trầm trọng.
 3. **Kernel System Call Overhead:** Lệnh tạo Thread (`pthread_create` trong C/Linux) phải gọi xuống Kernel space, tốn hàng trăm microsecond đến millisecond.
 
@@ -371,6 +385,7 @@ Không có một con số cố định cho mọi bài toán. Kích thước pool
 import android.os.Handler
 import android.os.Looper
 import java.util.concurrent.*
+import java.util.concurrent.atomic.AtomicInteger
 
 object AppExecutors {
 
@@ -407,9 +422,9 @@ object AppExecutors {
 
     // Factory đặt tên Thread để debug trong Profiler dễ dàng
     private class NamedThreadFactory(private val prefix: String) : ThreadFactory {
-        private var count = 0
+        private val count = AtomicInteger(0) // newThread() có thể được gọi từ nhiều luồng
         override fun newThread(r: Runnable): Thread {
-            return Thread(r, "$prefix-${++count}")
+            return Thread(r, "$prefix-${count.incrementAndGet()}")
         }
     }
 }
@@ -451,7 +466,7 @@ Thread B: Tăng lên 1 -> Ghi 1 vào RAM
    ```
 
 2. **`@Volatile` (Chỉ đảm bảo tính hiển thị - Visibility, KHÔNG đảm bảo tính nguyên tử - Atomicity):**
-   Mỗi CPU core có bộ nhớ đệm (L1/L2 Cache) riêng. Khi một luồng thay đổi giá trị, luồng khác có thể vẫn đang đọc giá trị cũ từ Cache của nó. `@Volatile` ép CPU luôn đọc/ghi trực tiếp vào RAM chính.
+   Mỗi CPU core có bộ nhớ đệm (L1/L2 Cache) riêng. Khi một luồng thay đổi giá trị, luồng khác có thể vẫn đang đọc giá trị cũ từ Cache của nó. `@Volatile` tạo quan hệ **happens-before** theo Java Memory Model: mọi lần ghi vào biến volatile được đảm bảo nhìn thấy bởi các lần đọc diễn ra sau đó ở luồng khác (đừng hình dung là "đọc thẳng RAM"; phần cứng tự lo tính nhất quán cache).
    ```kotlin
    @Volatile 
    var isServiceRunning: Boolean = true // Mọi luồng luôn thấy giá trị mới nhất lập tức
@@ -553,7 +568,7 @@ class SafeActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        workerFuture?.cancel(true) // Ngắt luồng ngay lập tức!
+        workerFuture?.cancel(true) // Gửi interrupt: tác vụ chỉ dừng khi nó tự kiểm tra cờ hoặc đang chờ ở hàm chặn
     }
 }
 ```
@@ -579,15 +594,15 @@ Dưới đây là 5 bài toán mà bất kỳ lập trình viên Android nào c�
 Trong phát triển Android hiện đại (2024-2026), bạn sẽ chủ yếu làm việc với **Kotlin Coroutines** và **WorkManager**. Nhưng hãy nhìn cách chúng ánh xạ trực tiếp vào kiến trúc Thread bên dưới:
 
 ### 8.1 Coroutine Dispatchers thực chất là gì?
-Coroutine không phải là một luồng ma thuật. Nó là những đoạn mã có khả năng tạm ngừng (suspension) được điều phối chạy trên các **Java Thread Pool** được tối ưu hóa sẵn:
+Coroutine không phải là một luồng ma thuật. Nó là những đoạn mã có khả năng tạm ngừng (suspension) được điều phối chạy trên các Thread có sẵn. `Dispatchers.Default` và `Dispatchers.IO` **không phải `ThreadPoolExecutor`**: cả hai dùng chung một scheduler riêng của kotlinx.coroutines, nên `withContext(Dispatchers.IO)` khi đang ở Default thường không đổi thread thật.
 
 ```
 +---------------------------+-------------------------------------------------------+
 | Coroutine Dispatcher      | Bản chất Thread Pool bên dưới                          |
 +---------------------------+-------------------------------------------------------+
 | Dispatchers.Main          | Chạy trực tiếp qua MainLooper Handler của Android     |
-| Dispatchers.IO            | ThreadPoolExecutor co giãn đàn hồi (tối đa 64 threads)|
-| Dispatchers.Default       | ThreadPoolExecutor giới hạn bằng số nhân CPU ($N_{cpu}$)|
+| Dispatchers.IO            | Dùng chung thread với Default; tối đa 64 tác vụ chặn song song (hoặc số nhân CPU nếu lớn hơn) |
+| Dispatchers.Default       | Pool dùng chung; tối đa số thread = số nhân CPU, tối thiểu 2 |
 | Dispatchers.Unconfined    | Không đổi luồng (chạy tiếp trên luồng vừa gọi)        |
 +---------------------------+-------------------------------------------------------+
 ```
@@ -680,10 +695,12 @@ class ImagePipelineManager(callback: PipelineCallback) {
     private val mainHandler = Handler(Looper.getMainLooper())
 
     // 1. Thread Pool cho việc tải ảnh qua mạng (I/O)
+    // Queue không giới hạn thì pool không bao giờ vượt corePoolSize (maximumPoolSize bị bỏ qua),
+    // nên đặt core = max = 4 và cho thread rảnh tự hủy sau 30 giây.
     private val downloadExecutor = ThreadPoolExecutor(
-        2, 4, 30L, TimeUnit.SECONDS,
+        4, 4, 30L, TimeUnit.SECONDS,
         LinkedBlockingQueue<Runnable>()
-    )
+    ).apply { allowCoreThreadTimeOut(true) }
 
     // 2. Thread Pool cho việc biến đổi điểm ảnh CPU (CPU-bound)
     private val filterExecutor = ThreadPoolExecutor(
@@ -909,3 +926,6 @@ Trong một kiến trúc phần mềm tiêu chuẩn (Clean Architecture / MVVM),
 3. [Handler and Looper source code — Android Open Source Project (AOSP)](https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/os/Looper.java)
 4. [Java Concurrency in Practice — Brian Goetz](https://jcip.net/)
 5. [Kotlin Coroutines on Android: Background Work Best Practices](https://developer.android.com/kotlin/coroutines)
+6. [Dispatchers.Default — kotlinx.coroutines API](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-dispatchers/-default.html)
+7. [Dispatchers.IO — kotlinx.coroutines API](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-dispatchers/-i-o.html)
+8. [ThreadPoolExecutor — Android Developers](https://developer.android.com/reference/java/util/concurrent/ThreadPoolExecutor)

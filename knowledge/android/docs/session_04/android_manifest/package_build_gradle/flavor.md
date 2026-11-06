@@ -9,16 +9,12 @@ estimated_reading_time: 35 phút
 tags: [android, gradle, agp, flavor, product-flavors, flavor-dimensions, build-variants, source-sets, buildconfigfield, ci-cd]
 prerequisites: [android.output_packages.apk_files, android.output_packages.aab_files, android.manifest.build_types]
 related: [android.manifest.plugin, android.languages.kotlin]
-downstream: []
 learning_outcomes:
-  - Giải thích được Product Flavor là gì và vì sao nó tồn tại.
+  - Giải thích được Product Flavor là gì, cơ chế Build Variant, flavorDimensions và thứ tự merge Source Set.
   - Phân biệt được Build Types và Product Flavors cùng lúc nào dùng loại nào.
-  - Mô tả được cơ chế Build Variant, flavorDimensions và thứ tự merge Source Set.
-  - Cấu hình được productFlavors, flavorDimensions, applicationId, versionName theo Kotlin DSL.
-  - Tách được code và resources (strings, colors, icon) theo từng flavor.
-  - Sử dụng được buildConfigField và BuildConfig.FLAVOR để phân biệt flavor trong code.
-  - Áp dụng được matchingFallbacks khi kết hợp app module với library module.
-  - Kết hợp được Flavor với CI/CD và đa cửa hàng (multi-store).
+  - Triển khai được productFlavors, flavorDimensions và source set riêng để tách code, resources, buildConfigField theo từng flavor.
+  - Xử lý được việc khớp flavor giữa app module và library module bằng matchingFallbacks và missingDimensionStrategy.
+  - Áp dụng được Flavor vào CI/CD và phân phối đa cửa hàng (multi-store).
 knowledge_gap: >
   Nhầm lẫn giữa Build Types và Product Flavors dẫn đến việc cấu hình sai mô hình build variant, không tách được code/resource theo flavor, hoặc sinh ra quá nhiều variant không kiểm soát. Không hiểu cơ chế flavorDimensions và merge source set khiến dễ gây lỗi trùng resource, sai applicationId và build fail khi kết hợp library module.
 ---
@@ -45,14 +41,11 @@ Nếu bạn cứ copy nguyên một project để làm phiên bản thứ hai, b
 
 ## Sau khi học xong
 
-- Giải thích được Product Flavor là gì và vì sao nó tồn tại.
+- Giải thích được Product Flavor là gì, cơ chế Build Variant, flavorDimensions và thứ tự merge Source Set.
 - Phân biệt được Build Types và Product Flavors cùng lúc nào dùng loại nào.
-- Mô tả được cơ chế Build Variant, flavorDimensions và thứ tự merge Source Set.
-- Cấu hình được productFlavors, flavorDimensions, applicationId, versionName theo Kotlin DSL.
-- Tách được code và resources (strings, colors, icon) theo từng flavor.
-- Sử dụng được buildConfigField và BuildConfig.FLAVOR để phân biệt flavor trong code.
-- Áp dụng được matchingFallbacks khi kết hợp app module với library module.
-- Kết hợp được Flavor với CI/CD và đa cửa hàng (multi-store).
+- Triển khai được productFlavors, flavorDimensions và source set riêng để tách code, resources, buildConfigField theo từng flavor.
+- Xử lý được việc khớp flavor giữa app module và library module bằng matchingFallbacks và missingDimensionStrategy.
+- Áp dụng được Flavor vào CI/CD và phân phối đa cửa hàng (multi-store).
 
 ## Nền tảng cần biết trước: Gradle, AGP và Build Types
 
@@ -72,6 +65,7 @@ flowchart LR
     D -->|kết hợp| E[Build Variant]
     E -->|thực thi task| F[APK / AAB]
 ```
+<!-- dd: flav-flow -->
 
 ## Product Flavor là gì?
 
@@ -116,7 +110,7 @@ Product Flavor tồn tại vì một lý do duy nhất: **tạo nhiều phiên b
 
 Công thức:
 
-```
+```text
 Build Variant = Product Flavor × Build Type
 ```
 
@@ -157,10 +151,11 @@ flowchart TD
     V3 --> O1
     V4 --> O1
 ```
+<!-- dd: flav-matrix -->
 
 ## flavorDimensions: Vì sao cần khai báo dimension?
 
-Khi bạn chỉ có **một nhóm flavor** (ví dụ free/paid), bạn không cần `flavorDimensions`. Nhưng khi bạn có **nhiều chiều phân loại cùng lúc**, Gradle bắt buộc bạn khai báo `flavorDimensions`.
+**Mọi flavor đều phải thuộc một flavor dimension**; flavor không có dimension sẽ làm build fail với lỗi *"All flavors must now belong to a named flavor dimension"*. Khi module chỉ khai báo **một** dimension (ví dụ `flavorDimensions += "version"` cho free/paid), AGP tự gán mọi flavor vào dimension đó nên bạn không cần ghi `dimension = ...` trong từng flavor. Khi có **nhiều chiều phân loại cùng lúc**, mỗi flavor phải ghi rõ `dimension` của mình.
 
 Ví dụ: app vừa phân loại theo **môi trường** (dev/prod), vừa phân loại theo **kênh phân phối** (gplay/samsung). Mỗi chiều là một `flavorDimension`:
 
@@ -192,6 +187,10 @@ Số variant bây giờ = số flavor của mỗi dimension nhân với nhau, r�
 
 ```kotlin
 android {
+    // Bắt buộc: mọi flavor phải thuộc một dimension.
+    // Chỉ có một dimension nên AGP tự gán free/paid vào "version".
+    flavorDimensions += "version"
+
     productFlavors {
         create("free") {
             applicationId = "com.example.myapp.free"
@@ -240,9 +239,10 @@ Khi build một variant, AGP gộp nhiều source set lại. **Nguồn sau ghi �
 src/<flavor><BuildType>/     (cao nhất — ví dụ freeDebug/)
 src/<BuildType>/             (ví dụ debug/)
 src/<flavor>/                (ví dụ free/)
-src/<flavorDimension>/       (chỉ khi có dimension)
 src/main/                    (thấp nhất — nền tảng chung)
 ```
+
+Khi có nhiều dimension (ví dụ `demo` thuộc dimension đầu, `minApi24` thuộc dimension sau, build type `debug`), thứ tự là: `src/demoMinApi24Debug/` → `src/debug/` → `src/demoMinApi24/` (tổ hợp flavor, phải gồm đủ mọi dimension) → `src/demo/` → `src/minApi24/` (flavor đơn lẻ, xếp theo thứ tự khai báo trong `flavorDimensions`) → `src/main/`. Không có source set nào đặt theo **tên dimension**.
 
 ```mermaid
 flowchart TD
@@ -252,6 +252,7 @@ flowchart TD
     FB[src/freeDebug\nƯu tiên cao nhất] --> M2
     M2 -->|Nguồn sau ghi đè nguồn trước| V[freeDebug variant]
 ```
+<!-- dd: flav-merge -->
 
 > [!WARNING]
 > Nếu cùng một file resource tồn tại ở `src/main` và `src/free`, AGP sẽ ưu tiên file ở `src/free`. Nhưng **không được** để *cùng một tên class* (ví dụ cùng package `MainActivity.kt`) xuất hiện ở nhiều source set cùng lúc — bạn sẽ gặp lỗi duplicate class. Một file code chỉ được tồn tại ở một source set.
@@ -260,7 +261,7 @@ flowchart TD
 
 Khi bạn muốn mỗi flavor có logic riêng, đặt file code vào source set của flavor đó.
 
-Ví dụ: flavor `free` hiển thị quảng cáo, flavor `paid` thì không. Tạo interface chung trong `main`, hai triển khai riêng:
+Ví dụ: flavor `free` hiển thị quảng cáo, flavor `paid` thì không. Tạo interface chung trong `main`, rồi mỗi flavor có một class **cùng tên, cùng package** `FlavorAdsProvider` để code trong `main` gọi được mà không cần biết đang build flavor nào:
 
 ```kotlin
 // src/main/java/com/example/myapp/feature/AdsProvider.kt (chung)
@@ -270,8 +271,8 @@ interface AdsProvider {
 ```
 
 ```kotlin
-// src/free/java/com/example/myapp/feature/AdsProvider.kt (chỉ có trong flavor free)
-class FreeAdsProvider : AdsProvider {
+// src/free/java/com/example/myapp/feature/FlavorAdsProvider.kt (chỉ có trong flavor free)
+class FlavorAdsProvider : AdsProvider {
     override fun showBanner() {
         // Hiển thị banner quảng cáo
     }
@@ -279,12 +280,18 @@ class FreeAdsProvider : AdsProvider {
 ```
 
 ```kotlin
-// src/paid/java/com/example/myapp/feature/AdsProvider.kt (chỉ có trong flavor paid)
-class PaidAdsProvider : AdsProvider {
+// src/paid/java/com/example/myapp/feature/FlavorAdsProvider.kt (chỉ có trong flavor paid)
+class FlavorAdsProvider : AdsProvider {
     override fun showBanner() {
         // Không có quảng cáo
     }
 }
+```
+
+```kotlin
+// src/main/java/com/example/myapp/feature/HomeScreenAds.kt (chung)
+// Biên dịch được cho cả hai flavor vì flavor nào cũng có class FlavorAdsProvider
+val adsProvider: AdsProvider = FlavorAdsProvider()
 ```
 
 > [!NOTE]
@@ -361,7 +368,7 @@ BuildConfig.FLAVOR_store        // "gplay"
 
 ## Ứng dụng thực tế 1: Tách môi trường setup bằng Flavor
 
-Đây là bài toán bạn đặt ra: **tạo nhiều bản build dựa trên môi trường setup**. 
+Bài toán: **tạo nhiều bản build dựa trên môi trường setup**.
 
 Có hai cách tiếp cận phổ biến:
 
@@ -452,25 +459,36 @@ Tên task build tương ứng: `./gradlew assembleProdPaidRelease`, `./gradlew a
 
 ## matchingFallbacks: Khi app module kết hợp với library module
 
-Khi project của bạn có **library module** (Android Library) và library đó cũng định nghĩa flavor riêng, app phải khai báo **`matchingFallbacks`** để Gradle biết flavor của app tương ứng với flavor nào của library.
+Khi project của bạn có **library module** (Android Library) và library đó cũng định nghĩa flavor riêng, Gradle tự khớp variant theo **tên dimension và tên flavor**. Có hai tình huống cần khai báo thêm:
 
-Ví dụ: library có flavor `minimal`/`full`, app có flavor `free`/`paid`. App khai báo:
+- **Cùng dimension, khác tên flavor** → dùng **`matchingFallbacks`** trong flavor của app. Ví dụ app và library đều có dimension `tier`; app có `free`/`paid`, library chỉ có `demo`/`paid`. Flavor `free` của app không có bản tương ứng nên phải chỉ định flavor thay thế.
+- **Library có dimension mà app không có** → dùng **`missingDimensionStrategy`** để chọn flavor mặc định của dimension đó. Ví dụ library có dimension `content` gồm `minimal`/`full`, app không có dimension này.
 
 ```kotlin
 android {
+    flavorDimensions += "tier"
+
+    defaultConfig {
+        // Library có dimension "content" mà app không có: chọn "minimal" (dự phòng "full")
+        missingDimensionStrategy("content", "minimal", "full")
+    }
+
     productFlavors {
         create("free") {
-            matchingFallbacks += listOf("minimal")
+            dimension = "tier"
+            // Library không có "free" trong dimension "tier": dùng "demo" thay thế
+            matchingFallbacks += listOf("demo")
         }
         create("paid") {
-            matchingFallbacks += listOf("full")
+            dimension = "tier"
+            // Library cũng có "paid" → tự khớp, không cần fallback
         }
     }
 }
 ```
 
 > [!NOTE]
-> Nếu không có `matchingFallbacks`, Gradle báo lỗi tương tự *"Flavor 'free' doesn't match flavors of module :library"* khi build. `matchingFallbacks` cũng dùng để map flavor app với flavor của một app khác trong cùng build.
+> Thiếu `matchingFallbacks`/`missingDimensionStrategy` ở các tình huống trên, Gradle không chọn được variant của library và build báo lỗi resolve dependency (không tìm thấy variant khớp). `matchingFallbacks` cũng dùng được cho **build type** (ví dụ build type `staging` của app dùng bản `release` của library).
 
 ## Kết hợp Flavor với CI/CD
 
@@ -552,10 +570,10 @@ Kết hợp với CI/CD, pipeline có thể build và upload từng flavor về 
 ## Trade-offs và Common Mistakes (Những sai lầm thường gặp)
 
 1. **Dùng Build Type để tách nội dung sản phẩm:** Định nghĩa `buildTypes { create("free")... }`, `create("paid")...` để đổi icon/màu. Đây là dùng sai mục đích — Build Type quyết định *cách build*, Flavor mới quyết định *nội dung*. Hậu quả: không tách được source set theo sản phẩm, variant lộn xộn.
-2. **Quên khai báo `flavorDimensions` khi có nhiều trục flavor:** Gradle báo lỗi cấu hình ngay khi sync. Luôn khai báo dimension khi có từ 2 nhóm flavor trở lên.
-3. **Tạo quá nhiều dimension:** Mỗi dimension nhân số variant lên. 3 dimension × 3 flavor mỗi cái × 2 build type = 18 variant → build toàn bộ rất lâu. Chỉ thêm dimension khi thật sự cần.
+2. **Quên khai báo `flavorDimensions`:** Gradle báo lỗi *"All flavors must now belong to a named flavor dimension"* ngay khi sync, kể cả khi chỉ có một nhóm flavor. Luôn khai báo dimension; có từ 2 dimension trở lên thì ghi rõ `dimension` trong từng flavor.
+3. **Tạo quá nhiều dimension:** Mỗi dimension nhân số variant lên. 3 dimension × 3 flavor mỗi cái × 2 build type = 54 variant → build toàn bộ rất lâu. Chỉ thêm dimension khi thật sự cần.
 4. **Đặt cùng một class vào nhiều source set:** Ví dụ đặt `MainActivity.kt` cả ở `main` và `free` → lỗi duplicate class khi merge. Một class chỉ thuộc một source set.
-5. **Quên `matchingFallbacks` khi dùng library có flavor:** Build fail với lỗi flavor mismatch. Khai báo `matchingFallbacks` trong từng flavor của app.
+5. **Quên `matchingFallbacks`/`missingDimensionStrategy` khi dùng library có flavor:** Build fail vì Gradle không resolve được variant của library. Dùng `matchingFallbacks` khi cùng dimension nhưng khác tên flavor, `missingDimensionStrategy` khi library có dimension mà app không có.
 6. **Đặt secret vào `buildConfigField`:** API key, mật khẩu bị decompile từ APK. Chỉ đặt config không nhạy cảm.
 7. **Quên bật `buildConfig = true`:** Với AGP 8+, dùng `BuildConfig.API_BASE_URL` mà chưa bật `buildFeatures { buildConfig = true }` sẽ báo lỗi không tìm thấy field.
 8. **Nhầm tên task build:** Tên task là `assemble<Flavor><BuildType>` (ghi hoa chữ cái đầu, không có dấu phân cách). `assemblefreeRelease` sai → phải `assembleFreeRelease`.

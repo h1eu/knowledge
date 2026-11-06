@@ -9,7 +9,6 @@ estimated_reading_time: 40 phút
 tags: [android, manifest, androidmanifest, application, activity, service, receiver, provider, permission, intent-filter, exported, manifest-merger, package-manager, ams]
 prerequisites: [android.output_packages.apk_files, android.output_packages.aab_files, android.manifest.build_types, android.manifest.product_flavors, android.manifest.plugin]
 related: [android.component.activity.lifecycle, android.component.service.overview, android.component.broadcast.overview, android.intent.explicit, android.intent.filters]
-downstream: []
 learning_outcomes:
   - Giải thích được vai trò của AndroidManifest.xml và vòng đời của nó từ lúc build, cài đặt đến runtime.
   - Phân biệt được ý nghĩa và thuộc tính quan trọng của từng thẻ manifest: application, activity, service, receiver, provider, permission.
@@ -29,7 +28,7 @@ Mỗi ứng dụng Android, trước khi có thể chạy trên thiết bị, **
 Nếu không hiểu Manifest, bạn sẽ gặp những lỗi thực tế khó chịu:
 
 - Viết xong một Activity nhưng **quên khai báo** trong Manifest → app crash ngay khi mở với `ActivityNotFoundException`.
-- Nâng cấp lên **Android 12 (API 31)** thì app **crash ngay lập tức** vì thiếu `android:exported`.
+- Nâng `targetSdk` lên **Android 12 (API 31)** mà component có `<intent-filter>` thiếu `android:exported` → **build fail**, và APK như vậy **không cài được** trên Android 12+.
 - Khai báo `<provider>` trùng `authorities` với app khác → **không cài được app**.
 - Đăng ký một Broadcast Receiver trong Manifest để lắng nghe `CONNECTIVITY_CHANGE` nhưng **không bao giờ nhận được sự kiện** (từ Android 8.0+).
 - Khai báo quá nhiều permission → bị **Google Play từ chối** vì chính sách quyền riêng tư.
@@ -78,6 +77,7 @@ flowchart LR
     D --> H[OS biết cấp quyền gì]
     E --> I[OS biết app chạy ở đâu]
 ```
+<!-- dd: manif-what -->
 
 > [!NOTE]
 > Trước đây, thuộc tính `package` được khai báo trong thẻ `<manifest>`. Từ **AGP 7.3+** và đặc biệt là **AGP 8.0**, `package` trong manifest đã bị **loại bỏ** — package/namespace được khai báo trong `build.gradle.kts` qua thuộc tính `namespace`. Điều này tách biệt **namespace Java** (quản lý `R` class, BuildConfig) với **applicationId** (định danh trên Google Play).
@@ -104,9 +104,10 @@ flowchart LR
     MERGE[Manifest Merger] --> OUT[AndroidManifest.xml\nđã gộp, build vào APK]
     MERGE --> REPORT[manifest-merger-report.txt\nghi lại thao tác merge]
 ```
+<!-- dd: manif-merge -->
 
 > [!WARNING]
-> Mỗi khi build, AGP sinh file báo cáo merge tại `app/build/outputs/logs/manifest-merger-report.txt`. Khi gặp khai báo "ma" không biết từ đâu ra, hãy mở file này để xem thao tác merge cụ thể. Đây là kỹ năng debug manifest quan trọng nhất.
+> Mỗi khi build, AGP sinh file báo cáo merge tại `app/build/outputs/logs/manifest-merger-<variant>-report.txt` (ví dụ `manifest-merger-debug-report.txt`). Khi gặp khai báo "ma" không biết từ đâu ra, hãy mở file này để xem thao tác merge cụ thể. Đây là kỹ năng debug manifest quan trọng nhất.
 
 ### Giai đoạn 2: Cài đặt (PackageManagerService parse)
 
@@ -144,6 +145,7 @@ sequenceDiagram
     AMS->>Zygote: Fork process mới (nếu chưa có)
     Zygote->>App: ActivityThread chạy → gọi component.onCreate()
 ```
+<!-- dd: manif-pms -->
 
 ## Cấu trúc tổng quan của Manifest
 
@@ -327,9 +329,10 @@ flowchart TD
     B --> D[Android 12+ bắt buộc khai báo rõ\nnếu không manifest merger sẽ báo lỗi]
     C --> E[Không bắt buộc nhưng nên khai báo rõ]
 ```
+<!-- dd: manif-exported -->
 
 > [!WARNING]
-> Từ **Android 12 (API 31)**, nếu một Activity/Service/Receiver có `<intent-filter>` mà **không khai báo `android:exported`**, quá trình build sẽ **fail** với lỗi: *"android:exported needs to be explicitly specified for element <activity>..."*. Đây là lỗi phổ biến nhất khi mọi người nâng `targetSdk` lên 31+.
+> Từ **Android 12 (API 31)**, nếu một Activity/Service/Receiver có `<intent-filter>` mà **không khai báo `android:exported`**, quá trình build sẽ **fail** với lỗi: *"android:exported needs to be explicitly specified for element <activity>..."*. Nếu APK như vậy vẫn được tạo ra (ví dụ build bằng công cụ cũ), nó **không cài được** lên thiết bị Android 12+. Đây là lỗi phổ biến nhất khi mọi người nâng `targetSdk` lên 31+.
 >
 > Về bảo mật: khai báo `exported="true"` cho component không cần thiết là **lỗ hổng** — app khác có thể khởi chạy màn hình của bạn, gọi service, gửi dữ liệu vào provider. Luôn đặt `exported="false"` trừ khi có lý do thực sự.
 
@@ -359,7 +362,7 @@ flowchart TD
 </activity>
 ```
 
-Một intent-filter phải có **tối thiểu 1 `<action>`** và **1 `<category>`**. Để Activity trở thành launcher (màn hình chính), cần cặp:
+Một intent-filter **bắt buộc** có tối thiểu 1 `<action>`; `<category>` và `<data>` là tuỳ chọn. Để Activity trở thành launcher (màn hình chính), cần cặp:
 
 ```xml
 <intent-filter>
@@ -378,12 +381,18 @@ Service là component chạy **nền** (background), không có giao diện. Nó
 ### Khai báo cơ bản
 
 ```xml
+<!-- Quyền FGS khai bằng <uses-permission> ở cấp <manifest> -->
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
 <service
     android:name=".MyForegroundService"
     android:exported="false"
-    android:foregroundServiceType="dataSync"
-    android:permission="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    android:foregroundServiceType="dataSync" />
 ```
+
+> [!NOTE]
+> Không đặt `FOREGROUND_SERVICE_DATA_SYNC` vào `android:permission` của `<service>`. Thuộc tính `android:permission` là quyền mà **bên gọi** (app khác) phải có để start/bind service; quyền mà **chính app** cần để chạy FGS phải khai bằng `<uses-permission>`.
 
 | Thuộc tính | Ý nghĩa | Lưu ý |
 |---|---|---|
@@ -392,7 +401,7 @@ Service là component chạy **nền** (background), không có giao diện. Nó
 | `android:foregroundServiceType` | Loại Foreground Service (`mediaPlayback`, `location`, `dataSync`, `camera`...). | **Bắt buộc từ Android 14 (API 34)** khi chạy Foreground Service. |
 | `android:permission` | Permission yêu cầu khi app khác bind/start service này. | Bảo vệ service khỏi truy cập ngoài. |
 | `android:process` | Chạy service trong process riêng. | Hiếm dùng. |
-| `android:stopWithTask` | Service có bị stop khi user rời app không. | Mặc định `true`; đặt `false` nếu muốn tiếp tục. |
+| `android:stopWithTask` | Service có tự stop khi user **xoá task** của app khỏi màn hình Recents không. | Mặc định `false` (service vẫn chạy); đặt `true` nếu muốn dừng theo task. |
 | `android:isolatedProcess` | Chạy service trong process cách ly, không có quyền app. | Bảo mật cao, hiếm dùng. |
 
 ### Intent Filter cho Service
@@ -400,7 +409,7 @@ Service là component chạy **nền** (background), không có giao diện. Nó
 Service có `<intent-filter>` khi muốn được **gọi ngầm** qua implicit intent (ví dụ media player xử lý `ACTION_PLAY`):
 
 ```xml
-<service android:name=".MusicService" android:exported="false"
+<service android:name=".MusicService" android:exported="true"
     android:foregroundServiceType="mediaPlayback">
     <intent-filter>
         <action android:name="androidx.media3.session.MediaSessionService" />
@@ -409,7 +418,7 @@ Service có `<intent-filter>` khi muốn được **gọi ngầm** qua implicit 
 ```
 
 > [!NOTE]
-> Service thường được gọi bằng **explicit intent** (chỉ định class). Chỉ cần `<intent-filter>` khi bạn thực sự muốn service nhận implicit intent — thường là để service của bạn trở thành "provider" cho một API hệ thống (media, speech recognition...).
+> Service thường được gọi bằng **explicit intent** (chỉ định class). Chỉ cần `<intent-filter>` khi bạn thực sự muốn service nhận implicit intent — thường là để service của bạn trở thành "provider" cho một API hệ thống (media, speech recognition...). Khi đó service phải `exported="true"` để client bên ngoài (System UI, Bluetooth, Android Auto) kết nối được, như ví dụ `MediaSessionService` ở trên.
 
 ### Foreground Service và ràng buộc từng phiên bản
 
@@ -463,6 +472,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        // Broadcast hệ thống: không cần cờ. Với action tự định nghĩa, targetSdk 34+
+        // bắt buộc truyền cờ: ContextCompat.registerReceiver(this, receiver, filter,
+        //     ContextCompat.RECEIVER_NOT_EXPORTED), nếu không sẽ ném SecurityException.
+        // (CONNECTIVITY_ACTION đã deprecated, ở đây chỉ để minh hoạ.)
         registerReceiver(receiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
     }
 
@@ -480,16 +493,16 @@ class MainActivity : AppCompatActivity() {
 
 Một số broadcast hệ thống vẫn được phép đăng ký static, ví dụ:
 
-- `ACTION_BOOT_COMPLETED` — máy khởi động xong.
-- `ACTION_PACKAGE_ADDED` / `ACTION_PACKAGE_REMOVED` — cài/gỡ app.
-- `ACTION_MY_PACKAGE_REPLACED` — app được cập nhật.
-- `ACTION_TIME_CHANGED`, `ACTION_TIMEZONE_CHANGED`.
+- `ACTION_BOOT_COMPLETED`, `ACTION_LOCKED_BOOT_COMPLETED` — máy khởi động xong.
+- `ACTION_PACKAGE_FULLY_REMOVED`, `ACTION_PACKAGE_DATA_CLEARED` — app khác bị gỡ hẳn / bị xoá dữ liệu.
+- `ACTION_TIME_CHANGED` (`TIME_SET`), `ACTION_TIMEZONE_CHANGED`.
 - `ACTION_LOCALE_CHANGED`.
-- `ACTION_BATTERY_LOW`, `ACTION_POWER_CONNECTED` / `DISCONNECTED`.
-- `ACTION_HEADSET_PLUG`.
+- `ACTION_MEDIA_MOUNTED` / `UNMOUNTED`..., các sự kiện USB và kết nối Bluetooth.
+
+Các broadcast hay bị tưởng nhầm là được miễn nhưng **không** có trong danh sách: `ACTION_PACKAGE_ADDED` / `ACTION_PACKAGE_REMOVED` / `ACTION_PACKAGE_REPLACED`, `ACTION_BATTERY_LOW`, `ACTION_POWER_CONNECTED` / `DISCONNECTED`, `ACTION_HEADSET_PLUG`. Riêng `ACTION_MY_PACKAGE_REPLACED` vẫn nhận được vì đó là broadcast gửi đích danh cho app của bạn (explicit), không phải nhờ danh sách miễn trừ.
 
 > [!NOTE]
-> Để nhận `BOOT_COMPLETED`, app cần `<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />`. Ngoài ra, từ Android 11+ còn phải khai báo `<queries>` hoặc dùng explicit intent để nhìn thấy các package khác (Package Visibility).
+> Để nhận `BOOT_COMPLETED`, app cần `<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />`. (`<queries>` của Package Visibility không liên quan tới việc nhận broadcast này; nó chỉ cần khi app muốn truy vấn/nhìn thấy package khác.)
 
 ## Thẻ <provider>
 
@@ -530,32 +543,42 @@ flowchart LR
     C -->|Trùng| E[INSTALL_FAILED_CONFLICTING_PROVIDER]
     E --> F[Phải đổi authorities\ntrước khi cài lại]
 ```
+<!-- dd: manif-provider -->
 
 > [!WARNING]
-> **Lỗi debug kinh điển:** bạn cài 2 app debug (debug & release) hoặc 2 flavor lên cùng thiết bị, cả hai đều khai báo cùng `authorities` → app thứ hai không cài được. **Giải pháp:** dùng `applicationId + ".provider"` làm authorities, hoặc dùng `manifestPlaceholders` để mỗi build variant có authorities riêng.
+> **Lỗi debug kinh điển:** bạn cài 2 app debug (debug & release) hoặc 2 flavor lên cùng thiết bị, cả hai đều khai báo cùng `authorities` → app thứ hai không cài được. **Giải pháp:** dùng placeholder có sẵn `${applicationId}` để authorities đi theo applicationId của từng build variant.
 
 ### Sử dụng manifestPlaceholders để tránh trùng authorities
 
 Trong `build.gradle.kts`:
 
 ```kotlin
-defaultConfig {
-    applicationId = "com.example.myapp"
-    manifestPlaceholders["providerAuthority"] = "${applicationId}.provider"
+android {
+    defaultConfig {
+        applicationId = "com.example.myapp"
+    }
+    buildTypes {
+        debug {
+            applicationIdSuffix = ".debug" // applicationId cuối: com.example.myapp.debug
+        }
+    }
 }
 ```
 
-Trong Manifest:
+Trong Manifest, dùng thẳng placeholder `${applicationId}` mà AGP cung cấp sẵn:
 
 ```xml
 <provider
     android:name=".MyContentProvider"
-    android:authorities="${providerAuthority}"
+    android:authorities="${applicationId}.provider"
     android:exported="false" />
 ```
 
 > [!TIP]
-> Nhờ placeholder, mỗi flavor/variant (debug, release, staging...) tự có `authorities` khác nhau vì `applicationId` khác nhau — hết cảnh trùng provider khi cài nhiều bản cùng lúc.
+> `${applicationId}` luôn bằng **applicationId cuối cùng của variant đang build** (đã cộng `applicationIdSuffix` của build type/flavor), nên debug, release, staging... tự có `authorities` khác nhau — hết cảnh trùng provider khi cài nhiều bản cùng lúc.
+
+> [!WARNING]
+> Đừng viết `manifestPlaceholders["providerAuthority"] = "${applicationId}.provider"` trong `defaultConfig`. Đó là string template của Kotlin, được tính **một lần lúc cấu hình** từ `defaultConfig.applicationId`, nên không nhận `applicationIdSuffix` của từng variant: debug và release vẫn trùng authorities.
 
 ## Thẻ <uses-permission> và <permission>
 
@@ -591,6 +614,7 @@ flowchart TD
     T -->|signature| C[Chỉ app cùng signature\ntự động cấp]
     B --> D[App gọi requestPermissions hoặc\nActivityResultContracts.RequestPermission]
 ```
+<!-- dd: manif-perm -->
 
 ### Runtime permission — khai báo thôi chưa đủ
 
@@ -730,10 +754,18 @@ Khi library khai báo `android:label` khác và bạn muốn main manifest ghi �
 
 ### tools:remove — xóa khai báo từ library
 
+`tools:remove` chỉ xoá **thuộc tính** (liệt kê trong giá trị); muốn xoá **cả phần tử** mà library thêm vào thì dùng `tools:node="remove"`:
+
 ```xml
+<!-- Xoá hẳn permission do library khai báo -->
 <uses-permission
     android:name="com.some.library.permission.UNNECESSARY"
-    tools:remove="android:name" />
+    tools:node="remove" />
+
+<!-- Chỉ xoá thuộc tính windowSoftInputMode mà library đặt cho activity -->
+<activity
+    android:name="com.some.library.LibraryActivity"
+    tools:remove="android:windowSoftInputMode" />
 ```
 
 ### tools:node — kiểm soát toàn bộ node
@@ -854,7 +886,7 @@ Manifest giải quyết rất nhiều vấn đề, nhưng **không phải là n�
         <!-- Provider nội bộ, authorities theo applicationId -->
         <provider
             android:name=".DataProvider"
-            android:authorities="${providerAuthority}"
+            android:authorities="${applicationId}.provider"
             android:exported="false" />
 
         <!-- API key cho Maps library -->
@@ -876,7 +908,6 @@ android {
         applicationId = "com.example.myapp"
         minSdk = 24
         targetSdk = 34
-        manifestPlaceholders["providerAuthority"] = "${applicationId}.provider"
         manifestPlaceholders["MAPS_API_KEY"] = project.findProperty("mapsApiKey") as String? ?: ""
     }
 }
@@ -895,8 +926,9 @@ sequenceDiagram
     System->>PMS: Resolve ACTION_SEND + mimeType text/plain
     PMS->>System: Tìm activity có intent-filter khớp + exported=true
     System->>Share: startActivity(intent) với ACTION_SEND
-    Share->>Share: onNewIntent → xử lý text được share
+    Share->>Share: onCreate → đọc intent, xử lý text được share
 ```
+<!-- dd: manif-share -->
 
 ## Trade-offs và Common Mistakes (Sai lầm thường gặp)
 
@@ -904,7 +936,7 @@ sequenceDiagram
 2. **Thiếu `android:exported` trên Android 12+:** build fail. **Giải pháp:** khai báo rõ `exported` cho mọi component có intent-filter; `false` cho nội bộ.
 3. **Khai báo `exported="true"` cho component nội bộ:** lỗ hổng bảo mật — app khác gọi được Activity/Service/Provider của bạn. **Giải pháp:** mặc định `false`, chỉ mở khi thực sự cần.
 4. **Static receiver nghe broadcast bị chặn (API 26+):** receiver không bao giờ được gọi. **Giải pháp:** dùng dynamic receiver khi app chạy, hoặc WorkManager; chỉ đăng ký static cho broadcast thuộc danh sách trắng.
-5. **Trùng `authorities` giữa các app/flavor:** không cài được app (`INSTALL_FAILED_CONFLICTING_PROVIDER`). **Giải pháp:** authorities theo `applicationId` qua manifestPlaceholder.
+5. **Trùng `authorities` giữa các app/flavor:** không cài được app (`INSTALL_FAILED_CONFLICTING_PROVIDER`). **Giải pháp:** authorities theo placeholder `${applicationId}`.
 6. **Khai báo permission thừa:** app bị Google Play giới hạn/từ chối, người dùng mất niềm tin. **Giải pháp:** chỉ khai báo đúng permission cần; dùng `android:maxSdkVersion` cho permission chỉ cần ở bản cũ.
 7. **`allowBackup="true"` cho app nhạy cảm:** dữ liệu bị backup lên cloud của Google. **Giải pháp:** đặt `false` hoặc cấu hình `dataExtractionRules`/`fullBackupContent`.
 8. **Dùng `launchMode` để giải quyết vấn đề back stack:** cứng nhắc, khó theo luồng. **Giải pháp:** ưu tiên Intent flags + Navigation component.
@@ -939,27 +971,28 @@ flowchart TB
     APK --> PMS[PackageManagerService\nlúc cài đặt]
     APK --> AMS[ActivityManagerService\nlúc runtime]
 ```
+<!-- dd: manif-pipeline -->
 
 ### Tương tác với các tầng khác
 
 - **UI (Activity/Fragment):** Activity phải được khai báo, có `exported` đúng, intent-filter hợp lý thì navigation và deep link mới hoạt động.
 - **Background (Service/WorkManager):** Service phải khai báo đúng `foregroundServiceType`; WorkManager tự đăng ký component của nó qua manifest của thư viện.
-- **Data (Provider/Room):** Room tự khai báo provider của mình (dùng để lưu schema) — đó là lý do bạn thấy provider "lạ" trong manifest đã merge. `authorities` của Room cũng sinh theo applicationId.
+- **Data (Provider):** nhiều thư viện Jetpack (WorkManager, Lifecycle `ProcessLifecycleOwner`, Emoji2, ProfileInstaller...) tự khởi tạo qua `androidx.startup.InitializationProvider` — đó là lý do bạn thấy provider "lạ" trong manifest đã merge. `authorities` của nó sinh theo `${applicationId}.androidx-startup`. Room thì **không** thêm provider nào.
 - **Domain logic:** hoàn toàn không phụ thuộc manifest — Manifest là ranh giới giữa code nghiệp vụ và hệ điều hành.
 
 > [!NOTE]
-> **Room:** thư viện Room tự thêm một `<provider>` vào manifest để lưu schema database. Nếu bạn thấy `androidx.room.RoomOpenHelper` trong manifest đã merge, đó là từ thư viện — đừng xóa. Đây là minh chứng rõ nhất cho cơ chế Manifest Merger.
+> **App Startup:** nếu bạn thấy `<provider android:name="androidx.startup.InitializationProvider" ...>` trong manifest đã merge mà mình không hề viết, đó là từ thư viện (WorkManager, Lifecycle...) — đừng xóa cả provider, vì các thư viện đó sẽ không được khởi tạo. Muốn tắt khởi tạo tự động của một thư viện thì xoá đúng `<meta-data>` của nó bằng `tools:node="remove"`. Đây là minh chứng rõ nhất cho cơ chế Manifest Merger.
 
 ## Lịch sử phát triển
 
 - **Android 1.0:** Manifest ra đời cùng platform, khai báo package, component, permission.
 - **Android 6.0 (API 23, 2015):** giới thiệu **Runtime Permission** — permission dangerous không còn cấp tự động lúc cài mà hỏi người dùng lúc chạy. Khai báo manifest vẫn bắt buộc.
-- **Android 7.0 (API 24):** `android:dataExtractionRules` phục vụ backup riêng theo version.
 - **Android 8.0 (API 26, 2017):** giới hạn **implicit broadcast** cho static receiver; bắt buộc Foreground Service khi chạy nền lâu.
 - **AGP 7.3 (2022):** `package` trong manifest bắt đầu deprecated, chuyển sang `namespace` trong build script.
-- **Android 12 (API 31, 2021):** **bắt buộc `android:exported`** khi component có intent-filter; giới thiệu `android:exported` cho receiver như nhau.
+- **Android 12 (API 31, 2021):** **bắt buộc `android:exported`** khi component có intent-filter; thêm `android:dataExtractionRules` để cấu hình backup lên cloud và chuyển dữ liệu sang thiết bị mới.
 - **AGP 8.0 (2023):** loại bỏ `package` khỏi manifest — chỉ còn `namespace`.
-- **Android 14 (API 34, 2023):** bắt buộc `android:foregroundServiceType`; quy định quyền notification `POST_NOTIFICATIONS` là runtime permission.
+- **Android 13 (API 33, 2022):** `POST_NOTIFICATIONS` trở thành runtime permission — app phải xin quyền trước khi hiện thông báo.
+- **Android 14 (API 34, 2023):** bắt buộc `android:foregroundServiceType`; receiver đăng ký động cho broadcast không phải của hệ thống phải truyền `RECEIVER_EXPORTED`/`RECEIVER_NOT_EXPORTED`.
 - **Android 15 (API 35, 2024):** giới hạn thời gian chạy tối đa cho một số loại Foreground Service; siết thêm quyền riêng tư.
 
 ## Tổng kết
@@ -997,3 +1030,9 @@ Nắm được Manifest, bạn đọc được "giấy khai sinh" của mọi ap
 - [Android Developers — Foreground service types (Android 14+)](https://developer.android.com/develop/background-work/services/fgs)
 - [Android Developers — Package visibility on Android 11+](https://developer.android.com/training/package-visibility)
 - [Android Developers — android:exported requirement on Android 12+](https://developer.android.com/about/versions/12/behavior-changes-12#exported)
+- [Android Developers — Implicit broadcast exceptions](https://developer.android.com/develop/background-work/background-tasks/broadcasts/broadcast-exceptions)
+- [Android Developers — Intent filter element](https://developer.android.com/guide/topics/manifest/intent-filter-element)
+- [Android Developers — Behavior changes: Android 14](https://developer.android.com/about/versions/14/behavior-changes-14)
+- [Android Developers — Notification runtime permission](https://developer.android.com/develop/ui/views/notifications/notification-permission)
+- [Android Developers — App Startup](https://developer.android.com/topic/libraries/app-startup)
+- [Android Developers — Background playback with MediaSessionService](https://developer.android.com/media/media3/session/background-playback)

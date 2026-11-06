@@ -1,30 +1,26 @@
 ---
 id: android.session05.overview
 title: Session 05 Overview
-slug: session-05-overview
 summary: Tổng quan Session 05 — ba trụ cột làm nên ứng dụng Android thực tế: Data Store (SharedPreferences, DataStore, Room), Working with Thread và Networking. Hiểu vị trí của session trong lộ trình, mối liên hệ giữa các topic, điều kiện tiên quyết từ Session 01-04 và nền tảng nó tạo ra cho các session sau.
-tags: [android, session05, overview, data-store, room, datastore, shared-preferences, threading, networking]
-domain: Android
-module: Session 05: Data Store, Thread & Networking
-topic: Session 05 Overview
-prerequisites:
-  - android.languages.java_android
-  - android.languages.kotlin
-  - manifest-tags
-  - activity-lifecycle
-related:
-  - activity-lifecycle
-  - android.languages.kotlin
 status: published
 difficulty: intermediate
 depth: overview
 estimated_reading_time: 20 phút
+tags: [android, session05, overview, data-store, room, datastore, shared-preferences, threading, networking]
+prerequisites:
+  - android.languages.java_android
+  - android.languages.kotlin
+  - android.manifest.tags
+  - android.component.activity.lifecycle
+related:
+  - android.component.activity.lifecycle
+  - android.languages.kotlin
 learning_outcomes:
-  - Nắm được vị trí của Session 05 trong lộ trình học và vai trò bắc cầu của nó sang Session 06-08.
-  - "Chọn đúng công cụ lưu trữ: DataStore cho key-value, Room cho dữ liệu có cấu trúc."
-  - Hiểu vì sao không được chạy việc nặng trên UI thread và cách chuyển sang background thread.
-  - Nắm nguyên lý gọi API, xử lý lỗi mạng và theo dõi trạng thái kết nối.
-  - Xác định được thứ tự học và mối liên hệ giữa 5.1 Data Store, 5.2 Thread, 5.3 Networking.
+  - Giải thích được vị trí của Session 05 trong lộ trình và vai trò bắc cầu của nó sang Session 06-08.
+  - Phân biệt được khi nào dùng DataStore (key-value) và khi nào dùng Room (dữ liệu có cấu trúc).
+  - Giải thích được vì sao không được chạy việc nặng trên UI thread và cách chuyển việc sang background thread.
+  - Giải thích được nguyên lý gọi API, xử lý lỗi mạng và theo dõi trạng thái kết nối.
+  - Áp dụng được thứ tự học 5.1 Data Store → 5.2 Thread → 5.3 Networking dựa trên mối liên hệ giữa ba phần.
 knowledge_gap: >
   Bỏ qua phần tổng quan khiến người học mất cái nhìn toàn cục về luồng dữ liệu của một app thực tế, dẫn đến chọn sai công cụ lưu trữ, dính ANR vì không hiểu thread, và mù mờ về xử lý lỗi mạng.
 ---
@@ -73,18 +69,19 @@ flowchart LR
     S01 --> S02 --> S03 --> S04 --> S05
     S05 --> S06 --> S07 --> S08
 ```
+<!-- dd: s05-roadmap -->
 
 Vai trò của Session 05 trong lộ trình:
 
 - **Kế thừa**: dùng Kotlin (Session 01), hiểu app chạy trong process/quyền (Session 02), biết Activity/Fragment là gì (Session 04).
 - **Bắc cầu**: đây là session đầu tiên làm việc với **dữ liệu thật** và **tác vụ bất đồng bộ** — hai khái niệm mà mọi session sau (LiveData, ViewModel, Paging, Retrofit, Coroutines, RxJava) đều xây dựng lên trên.
-- **Khởi động tư duy async**: lần đầu bạn đối mặt với callback, background thread, và câu hỏi "kết quả trả về khi nào?". Tư duy này được đào sâu ở Session 08 (Coroutines, RxJava).
+- **Khởi động tư duy async**: lần đầu bạn đối mặt với callback, background thread, và câu hỏi "kết quả trả về khi nào?". Ngay trong 5.1 bạn đã dùng `suspend`/`Flow` ở mức cơ bản; cơ chế bên dưới được đào sâu ở Session 08 (Coroutines, RxJava).
 
 ## Session 05 học những gì?
 
 | Phần | Topic | Câu hỏi trả lời |
 |---|---|---|
-| 5.1 Data Store | Key-Value Storage | Lưu dữ liệu nhỏ dạng cặp khóa-giá trị bằng gì? |
+| 5.1 Data Store | Key-Value Storage | Lưu dữ liệu nhỏ dạng cặp key-value bằng gì? |
 | 5.1 Data Store | Relational Database (Room) | Lưu dữ liệu có cấu trúc, quan hệ, truy vấn phức tạp bằng gì? |
 | 5.1 Data Store | Advanced Room | App đã phát hành mà thay đổi database thì sao? Truy vấn nhanh hơn thế nào? |
 | 5.1 Data Store | Async Transactions & Flow | Đọc ghi database trong thread nào cho đúng, và theo dõi dữ liệu tự động như thế nào? |
@@ -99,7 +96,7 @@ Vai trò của Session 05 trong lộ trình:
 
 **Vấn đề cần giải quyết**: lưu một lượng nhỏ dữ liệu đơn giản dạng khóa → giá trị: token đăng nhập, cờ "đã xem hướng dẫn lần đầu", theme đã chọn, số lần mở app. Không cần truy vấn phức tạp.
 
-**Bản chất**: một file XML (SharedPreferences) hoặc file protobuf/Preferences DataStore chứa toàn bộ cặp khóa-giá trị. Đọc toàn bộ vào bộ nhớ khi cần.
+**Bản chất**: một file XML (SharedPreferences) hoặc file protobuf/Preferences DataStore chứa toàn bộ các cặp key-value. Đọc toàn bộ vào bộ nhớ khi cần.
 
 **Khi nào dùng**:
 
@@ -130,7 +127,7 @@ val tokenFlow: Flow<String?> = context.dataStore.data
 
 **Vấn đề cần giải quyết**: lưu dữ liệu có cấu trúc, số lượng lớn, cần truy vấn theo nhiều điều kiện: danh sách sản phẩm, lịch sử đơn hàng, hồ sơ người dùng. SharedPreferences không làm được.
 
-**Bản chất**: Room là **ORM (Object-Relational Mapping)** bọc trên SQLite — bạn khai báo Entity, DAO, Database, Room tự sinh code SQLite. Kiểm tra lỗi truy vấn ngay lúc **biên dịch** (compile-time) thay vì lúc chạy.
+**Bản chất**: Room là **lớp trừu tượng (abstraction layer)** bọc trên SQLite, làm vai trò gần giống ORM — bạn khai báo Entity, DAO, Database, Room tự sinh code SQLite. Kiểm tra lỗi truy vấn ngay lúc **biên dịch** (compile-time) thay vì lúc chạy.
 
 **Khi nào dùng**: dữ liệu có cấu trúc, cần truy vấn (WHERE, JOIN, ORDER BY), dữ liệu offline-first (app chính là database).
 
@@ -191,7 +188,7 @@ data class Product(...)
 
 **Vấn đề cần giải quyết**: database là tài nguyên dùng chung và là điểm chậm. Ghi trên UI thread → app đơ. Ghi cùng lúc từ nhiều nơi → dữ liệu hỏng. Ngoài ra, UI cần **tự cập nhật** khi database thay đổi thay vì phải tự hỏi lại.
 
-**Bản chất**: Room tích hợp sẵn coroutine (suspend, Flow) — đọc ghi luôn chạy trên background thread, và DAO có thể trả về `Flow` để UI nhận dữ liệu mới mỗi khi bảng thay đổi.
+**Bản chất**: Room tích hợp sẵn coroutine (suspend, Flow) — hàm DAO `suspend` và DAO trả `Flow` tự chạy truy vấn trên background thread (hàm DAO thường, không suspend, vẫn chặn thread gọi nó), và DAO có thể trả về `Flow` để UI nhận dữ liệu mới mỗi khi bảng thay đổi.
 
 **Điểm mấu chốt khi code**:
 
@@ -219,25 +216,30 @@ suspend fun checkout(cartItems: List<CartItem>, total: Double) {
 - Phải dùng background thread: đọc ghi database, gọi API, đọc file, parse JSON, nén ảnh.
 - Không dùng background thread: cập nhật View, thao tác nhanh trong bộ nhớ.
 
-**Điểm mấu chốt khi code** (cách truyền thống — Session 08 sẽ thay thế bằng Coroutines):
+**Điểm mấu chốt khi code** (cách truyền thống bằng thread pool — Session 08 sẽ thay thế bằng Coroutines):
 
 ```kotlin
 // Sai: gọi API trên UI thread → ANR
 fun loadDataBad() {
-    val result = api.fetchData()   // NetworkOnMainThreadException hoặc ANR
+    val result = api.fetchData()   // Crash: NetworkOnMainThreadException
     textView.text = result
 }
 
-// Đúng: chạy trên background thread, trả kết quả về UI thread
+// Đúng: giao việc cho một thread pool dùng chung, trả kết quả về UI thread
+// (pool tạo một lần cho cả app, không tạo Thread mới cho mỗi việc)
+private val ioExecutor: ExecutorService = Executors.newFixedThreadPool(4)
+
 fun loadDataGood() {
-    Thread {
+    ioExecutor.execute {
         val result = api.fetchData()
         runOnUiThread {
             textView.text = result
         }
-    }.start()
+    }
 }
 ```
+
+Không tự gọi `Thread { ... }.start()` cho từng việc trong code app: mỗi Thread tốn bộ nhớ và thời gian tạo, lại khó hủy theo lifecycle. 5.2 giải thích lý do và cách dùng thread pool; trong app hiện đại bạn sẽ dùng Coroutines (`Dispatchers.IO`) thay cho pool tự quản lý.
 
 ### 5.3 Networking — Dữ liệu lấy từ đâu?
 
@@ -284,6 +286,7 @@ flowchart TB
     NET -->|mất mạng?| STATE[Connection State 5.3]
     STATE -->|offline → đọc cache| ROOM
 ```
+<!-- dd: s05-dataflow -->
 
 Ví dụ thực tế — app thương mại điện tử:
 
@@ -304,11 +307,11 @@ Nếu chưa vững Kotlin, hãy ôn lại `android.languages.kotlin` trước �
 
 ## Sau khi học xong Session 05, bạn làm được gì?
 
-- Chọn đúng công cụ lưu trữ: DataStore cho key-value, Room cho dữ liệu có cấu trúc.
-- Viết được Entity/DAO/Database, migration an toàn khi nâng version, index cho truy vấn nhanh.
-- Đọc ghi database không block UI, theo dõi dữ liệu tự động bằng Flow.
-- Hiểu vì sao không được chạy việc nặng trên UI thread và cách chuyển sang background thread.
-- Gọi API, xử lý lỗi mạng, và phản ứng với trạng thái kết nối (online/offline).
+- Giải thích được vị trí của Session 05 trong lộ trình và vai trò bắc cầu của nó sang Session 06-08.
+- Phân biệt được khi nào dùng DataStore (key-value) và khi nào dùng Room (dữ liệu có cấu trúc).
+- Giải thích được vì sao không được chạy việc nặng trên UI thread và cách chuyển việc sang background thread.
+- Giải thích được nguyên lý gọi API, xử lý lỗi mạng và theo dõi trạng thái kết nối.
+- Áp dụng được thứ tự học 5.1 Data Store → 5.2 Thread → 5.3 Networking dựa trên mối liên hệ giữa ba phần.
 
 ## Nền tảng cho các session tiếp theo
 
@@ -330,6 +333,7 @@ flowchart LR
     AT --> TH[5.2<br/>Working with Thread]
     TH --> NT[5.3<br/>Networking]
 ```
+<!-- dd: s05-path -->
 
 Lý do thứ tự này:
 

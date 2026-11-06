@@ -12,9 +12,9 @@ related: [android.component.activity.lifecycle, android.component.activity.state
 downstream: [android.component.activity.lifecycle]
 learning_outcomes:
   - Giải thích được bản chất Activity là gì và vì sao nó không chỉ là một "màn hình".
-  - Mô tả được vị trí của Activity trong kiến trúc MVVM và Clean Architecture.
+  - Giải thích được vị trí của Activity trong kiến trúc MVVM và Clean Architecture.
   - Phân biệt được cách Activity tương tác với từng component Android khác.
-  - Kết hợp được Activity với ViewModel, ViewBinding, DataBinding theo chuẩn thực chiến.
+  - Áp dụng được Activity cùng ViewModel, ViewBinding, DataBinding theo chuẩn thực chiến.
   - Biết khi nào nên dùng Activity, khi nào nên dùng Single-Activity Architecture.
 knowledge_gap: >
   Xem Activity như một "Màn hình" đơn thuần khiến người học nhồi nhét mọi logic vào Activity (God Object), không hiểu được vai trò trung tâm của nó trong hệ sinh thái component và cách hệ điều hành điều phối. Khi nội dung phát triển, họ không biết component nào đảm nhận nhiệm vụ nào và kiến trúc dễ sụp đổ.
@@ -40,9 +40,9 @@ Nếu chỉ trả lời bằng câu "Activity là một màn hình", bạn sẽ 
 ## Sau khi học xong
 
 - Giải thích được bản chất Activity là gì và vì sao nó không chỉ là một "màn hình".
-- Mô tả được vị trí của Activity trong kiến trúc MVVM và Clean Architecture.
+- Giải thích được vị trí của Activity trong kiến trúc MVVM và Clean Architecture.
 - Phân biệt được cách Activity tương tác với từng component Android khác.
-- Kết hợp được Activity với ViewModel, ViewBinding, DataBinding theo chuẩn thực chiến.
+- Áp dụng được Activity cùng ViewModel, ViewBinding, DataBinding theo chuẩn thực chiến.
 - Biết khi nào nên dùng Activity, khi nào nên dùng Single-Activity Architecture.
 
 ## Activity là gì?
@@ -56,6 +56,7 @@ flowchart LR
     A -->|"vẽ lên"| W[Window]
     A -->|"nhận sự kiện"| W
 ```
+<!-- dd: act-fan -->
 
 Khác với ứng dụng desktop/web có một hàm `main()` duy nhất, ứng dụng Android có thể được khởi chạy từ **nhiều điểm khác nhau**:
 
@@ -78,7 +79,7 @@ Activity giải quyết 3 bài toán mà hệ điều hành phải xử lý:
 
 **2. Quản lý tài nguyên hệ điều hành**
 
-Hệ điều hành cần biết chính xác **màn hình nào đang hiển thị** để phân bổ tài nguyên (bộ nhớ, CPU) và giết app chạy ngầm khi thiếu RAM. Nó dùng Activity để theo dõi điều này — không phải dùng process hay service.
+Hệ điều hành cần biết chính xác **màn hình nào đang hiển thị** để phân bổ tài nguyên (bộ nhớ, CPU) và chọn process nào để giết khi thiếu RAM. Trạng thái Activity là một tín hiệu quan trọng, nhưng đơn vị bị giết là **process**: hệ thống xếp hạng mức quan trọng của process theo component quan trọng nhất đang chạy trong nó (Activity đang tương tác hay chỉ còn hiển thị, foreground service, started service, BroadcastReceiver đang chạy `onReceive`). Process chỉ còn các Activity đã `onStop` thuộc nhóm cached và bị giết trước tiên.
 
 **3. Điều hướng có hệ thống (Task & Back Stack)**
 
@@ -100,6 +101,7 @@ flowchart TD
     style A fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:#fff
     style VM fill:#2196F3,stroke:#1976D2,stroke-width:2px,color:#fff
 ```
+<!-- dd: act-mvvm -->
 
 Vai trò cụ thể của Activity trong hệ thống:
 
@@ -127,6 +129,7 @@ flowchart LR
 
     style A fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:#fff
 ```
+<!-- dd: act-hub -->
 
 | Component | Quan hệ với Activity | Nhiệm vụ trong project |
 |---|---|---|
@@ -168,6 +171,7 @@ flowchart TD
     FM --> F2[DetailFragment]
     FM --> F3[ProfileFragment]
 ```
+<!-- dd: act-frag -->
 
 Trong kiến trúc hiện đại, Fragment là đơn vị màn hình, Activity chỉ là khung chứa duy nhất.
 
@@ -190,11 +194,12 @@ val receiver = object : BroadcastReceiver() {
         // Cập nhật UI khi có sự kiện
     }
 }
-registerReceiver(receiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+// Theo dõi đổi mạng thì dùng ConnectivityManager.NetworkCallback (CONNECTIVITY_ACTION deprecated từ API 28)
+registerReceiver(receiver, IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED))
 ```
 
 > [!WARNING]
-> Receiver đăng ký trong Activity phải được hủy trong `onPause()` hoặc `onStop()`, nếu không sẽ gây **memory leak** và nhận sự kiện khi Activity không còn hiển thị.
+> Receiver đăng ký trong Activity phải được hủy ở callback đối xứng với chỗ đăng ký (đăng ký ở `onStart()` thì hủy ở `onStop()`, ở `onResume()` thì hủy ở `onPause()`), nếu không sẽ gây **memory leak** và nhận sự kiện khi Activity không còn hiển thị.
 
 ### 5. Activity và ContentProvider
 
@@ -217,7 +222,7 @@ Trong kiến trúc MVVM, Activity không gọi ContentResolver trực tiếp —
 - **ViewBinding** sinh class binding từ XML layout, giúp truy cập View an toàn, không cần `findViewById`.
 - **DataBinding** nâng cấp ViewBinding bằng khả năng binding dữ liệu trực tiếp vào layout XML.
 
-Xem cách phối hợp cụ thể trong phần "Triển khai thực chiến" dưới đây.
+Cách giữ state qua ViewModel được trình bày chi tiết trong topic Activity State Changes.
 
 ## Khi nào nên dùng, khi nào không?
 
@@ -268,7 +273,7 @@ Không có lựa chọn nào tuyệt đối đúng. Chọn dựa trên **nhu c�
 > [!CAUTION]
 > **Quên khai báo Activity trong Manifest:**
 > Mọi Activity phải khai báo trong `AndroidManifest.xml`. Nếu quên, app crash ngay với `ActivityNotFoundException`.
-> Kể từ Android 12 (API 31), bắt buộc khai báo rõ `android:exported`.
+> Kể từ Android 12 (API 31), Activity có `<intent-filter>` bắt buộc khai báo rõ `android:exported`.
 
 > [!CAUTION]
 > **Xử lý trạng thái ngay trong Activity:**
@@ -286,6 +291,7 @@ flowchart TD
     UC --> R[Repository]
     R --> DS[(Room / Retrofit / DataStore)]
 ```
+<!-- dd: act-data -->
 
 **Nguyên tắc phụ thuộc:** dữ liệu chảy một chiều từ Data → ViewModel → Activity. Activity **không bao giờ** gọi thẳng Repository hay API. Điều này giúp bạn:
 
@@ -308,3 +314,4 @@ Activity Overview chỉ là điểm bắt đầu. Để hiểu sâu và làm ch�
 - [Activity API Reference](https://developer.android.com/reference/android/app/Activity)
 - [Guide to App Architecture - Android Developers](https://developer.android.com/topic/architecture)
 - [Activities and the system - Android Developers](https://developer.android.com/guide/components/activities/system-packages)
+- [Processes and app lifecycle - Android Developers](https://developer.android.com/guide/components/activities/process-lifecycle)

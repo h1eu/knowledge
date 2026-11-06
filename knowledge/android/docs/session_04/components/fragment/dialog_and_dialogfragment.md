@@ -1,28 +1,19 @@
 ---
 id: android.component.fragment.dialog_and_dialogfragment
 title: Dialog and DialogFragment
-slug: dialog-and-dialogfragment
 summary: Hiểu bản chất Dialog và DialogFragment - cách tạo dialog an toàn với lifecycle, xử lý rotation, giao tiếp với Fragment/Activity, và triển khai BottomSheetDialogFragment trong ứng dụng Android hiện đại.
-tags: [android, fragment, dialog, dialogfragment, bottomsheet, fragment-result-api]
-domain: Android
-module: Application Components
-topic: Fragment
-prerequisites:
-  - fragment-lifecycle
-  - fragment-manager
-related:
-  - fragment-state-changes
-  - navigation-component
 status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 35 phút
+tags: [android, fragment, dialog, dialogfragment, bottomsheet, fragment-result-api]
+prerequisites: [android.component.fragment.lifecycle, android.component.fragment.fragment_manager]
+related: [android.component.fragment.state_changes]
 learning_outcomes:
-  - Giải thích được tại sao DialogFragment an toàn hơn AlertDialog truyền thống.
-  - Hiểu được lifecycle của DialogFragment và cách FragmentManager quản lý dialog.
+  - Giải thích được tại sao DialogFragment an toàn hơn AlertDialog truyền thống, lifecycle của DialogFragment và cách FragmentManager quản lý dialog.
   - Triển khai được DialogFragment với custom layout và BottomSheetDialogFragment.
   - Áp dụng được Fragment Result API để giao tiếp giữa dialog và Fragment/Activity cha.
-  - So sánh được DialogFragment với Navigation Component Dialog và biết khi nào dùng cái nào.
+  - Biết khi nào dùng DialogFragment và khi nào dùng Navigation Component Dialog.
   - Triển khai được dialog trong Compose (AlertDialog, Dialog, ModalBottomSheet).
 knowledge_gap: >
   Dùng AlertDialog trực tiếp trong Fragment/Activity mà không hiểu lifecycle sẽ gây window leak khi xoay màn hình, crash khi truy cập context bị destroy, và mất dialog state khi configuration change. Không biết Fragment Result API dẫn đến coupling cao giữa dialog và Activity/Fragment.
@@ -93,6 +84,7 @@ graph TB
     style C fill:#e1f5ff
     style D fill:#fff4e1
 ```
+<!-- dd: dlg-tree -->
 
 DialogFragment tạo ra một **Window riêng** (Dialog Window) nằm trên Window của Activity. Window này chứa View của dialog.
 
@@ -120,19 +112,21 @@ sequenceDiagram
     Note over DF,D: User tương tác
     
     FM->>DF: onPause()
-    D->>D: dialog.hide()
     FM->>DF: onStop()
+    D->>D: dialog.hide()
     FM->>DF: onDestroyView()
     FM->>DF: onDestroy()
     FM->>DF: onDetach()
 ```
+<!-- dd: dlg-show-a -->
+<!-- dd: dlg-show-b -->
 
 ### Các callback quan trọng
 
 **1. onCreateDialog()**
 - Được gọi để tạo Dialog instance.
 - Trả về `Dialog` (thường là `AlertDialog`).
-- Chỉ gọi **một lần** khi DialogFragment được tạo.
+- Được gọi mỗi khi DialogFragment tạo view (ngay sau `onCreate`, trước `onCreateView`), nên chạy lại sau mỗi lần DialogFragment được tạo lại (ví dụ xoay màn hình).
 
 ```kotlin
 override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -184,6 +178,7 @@ sequenceDiagram
     FM->>DF: onStart()
     Note over DF: Dialog tự động hiển thị lại
 ```
+<!-- dd: dlg-rotate -->
 
 FragmentManager **tự động khôi phục** DialogFragment sau rotation. Dialog sẽ hiển thị lại mà không cần code thêm.
 
@@ -397,8 +392,10 @@ class ListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Lắng nghe kết quả từ dialog
-        setFragmentResultListener(ConfirmDeleteDialog.REQUEST_KEY) { requestKey, bundle ->
+        // Dialog được show bằng childFragmentManager (bên dưới), nên setFragmentResult() trong dialog
+        // ghi kết quả vào childFragmentManager của ListFragment. Listener phải đăng ký trên CÙNG manager đó;
+        // setFragmentResultListener() dạng KTX đăng ký trên parentFragmentManager → không bao giờ nhận được.
+        childFragmentManager.setFragmentResultListener(ConfirmDeleteDialog.REQUEST_KEY, this) { _, bundle ->
             val confirmed = bundle.getBoolean(ConfirmDeleteDialog.RESULT_KEY)
             if (confirmed) {
                 deleteItem()
@@ -418,7 +415,7 @@ class ListFragment : Fragment() {
 
 **Ưu điểm:**
 - Fragment không cần biết về dialog.
-- Kết quả được gửi qua Bundle (type-safe).
+- Kết quả được gửi qua Bundle (key-value, **không** type-safe: sai key hay sai kiểu chỉ lộ ra lúc runtime).
 - Hoạt động đúng ngay cả khi dialog bị dismiss do rotation.
 - Không cần interface callback.
 
@@ -552,7 +549,8 @@ fun ConfirmDeleteDialog(
 // Cách sử dụng
 @Composable
 fun ListScreen() {
-    var showDialog by remember { mutableStateOf(false) }
+    // rememberSaveable: dialog vẫn mở sau khi xoay màn hình (remember sẽ mất)
+    var showDialog by rememberSaveable { mutableStateOf(false) }
     
     if (showDialog) {
         ConfirmDeleteDialog(
@@ -578,7 +576,7 @@ fun CustomInputDialog(
     onDismiss: () -> Unit,
     onSubmit: (String) -> Unit
 ) {
-    var inputText by remember { mutableStateOf("") }
+    var inputText by rememberSaveable { mutableStateOf("") } // giữ text đang gõ qua rotation
     
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -680,7 +678,7 @@ fun FilterBottomSheet(
 | **Đơn vị** | Fragment | Composable function |
 | **State management** | Bundle, ViewModel | Compose state |
 | **Lifecycle** | Fragment lifecycle | Composition lifecycle |
-| **Rotation handling** | Tự động (FragmentManager) | Tự động (rememberSaveable) |
+| **Rotation handling** | Tự động (FragmentManager) | Chỉ khi state hiển thị/input dùng `rememberSaveable` hoặc nằm trong ViewModel (`remember` sẽ mất) |
 | **Animation** | XML animation | AnimatedVisibility, Crossfade |
 | **Customization** | Custom layout | Composable tree |
 | **Testing** | FragmentScenario | ComposeTestRule |
@@ -835,11 +833,12 @@ class MyDialog : DialogFragment() {
 ```kotlin
 // Sai
 class MyDialog : DialogFragment() {
-    private var activity: MainActivity? = null
+    // (Đặt tên `activity` sẽ không compile: trùng getter final getActivity() của Fragment)
+    private var hostActivity: MainActivity? = null
     
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        activity = context as MainActivity  // Memory leak!
+        hostActivity = context as MainActivity  // Memory leak!
     }
 }
 
@@ -854,12 +853,15 @@ class MyDialog : DialogFragment() {
 ```kotlin
 // Sai
 fun someCallback() {
-    dialog.dismiss()  // Crash nếu Activity đã destroy
+    dismiss()  // Crash nếu dialog đã bị gỡ, hoặc IllegalStateException nếu state đã được lưu
 }
 
 // Đúng
 fun someCallback() {
-    if (isAdded && !isDetached) {
+    if (!isAdded) return                     // dialog đã bị gỡ khỏi FragmentManager
+    if (parentFragmentManager.isStateSaved) {
+        dismissAllowingStateLoss()           // sau onSaveInstanceState, dismiss() sẽ ném IllegalStateException
+    } else {
         dismiss()
     }
 }
@@ -898,6 +900,9 @@ class CustomDialog : DialogFragment() {
 }
 ```
 
+> [!NOTE]
+> EditText có `android:id` vốn **tự lưu và khôi phục** text đang gõ qua state của View hierarchy, nên với riêng text trong EditText thì phần "Đúng" ở trên là thừa. Chỉ cần tự lưu state không nằm trong View (biến tạm, lựa chọn chưa hiển thị), hoặc đưa nó vào ViewModel + `SavedStateHandle`.
+
 ### Lỗi 4: Dùng dialog.show() mà không check state
 
 ```kotlin
@@ -908,7 +913,7 @@ fun showDialog() {
 
 // Đúng
 fun showDialog() {
-    if (!isStateSaved) {
+    if (!supportFragmentManager.isStateSaved) {
         MyDialog().show(supportFragmentManager, "tag")
     }
 }
@@ -1047,6 +1052,7 @@ graph TB
     
     style B fill:#e1f5ff
 ```
+<!-- dd: dlg-layers -->
 
 **Vai trò của DialogFragment**:
 - **Presentation Layer**: Hiển thị dialog, thu thập input từ user.
@@ -1058,16 +1064,23 @@ graph TB
 ```kotlin
 // Đúng: DialogFragment chỉ ở Presentation Layer
 class ConfirmDeleteDialog : DialogFragment() {
-    private val viewModel: ConfirmDialogViewModel by viewModels()
+    // ViewModel của Fragment cha (dialog được show bằng childFragmentManager của nó).
+    // Nếu dùng by viewModels() của chính dialog, ViewModel bị clear ngay khi dismiss → coroutine xoá bị huỷ.
+    private val viewModel: ItemListViewModel by viewModels({ requireParentFragment() })
+    private val itemId: String by lazy { requireArguments().getString(ARG_ITEM_ID)!! }
     
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return AlertDialog.Builder(requireContext())
             .setTitle("Xác nhận xóa")
             .setPositiveButton("Xóa") { _, _ ->
-                viewModel.confirmDelete(itemId)
+                viewModel.deleteItem(itemId)
                 dismiss()
             }
             .create()
+    }
+
+    companion object {
+        const val ARG_ITEM_ID = "item_id"
     }
 }
 
@@ -1087,6 +1100,8 @@ class DeleteItemUseCase(
 
 - [Android Developers - DialogFragment](https://developer.android.com/reference/androidx/fragment/app/DialogFragment)
 - [Android Developers - Dialogs](https://developer.android.com/guide/topics/ui/dialogs)
+- [Android Developers - Communicate with fragments (parent/child Fragment Result)](https://developer.android.com/guide/fragments/communicate)
+- [Android Developers - Display dialogs with DialogFragment](https://developer.android.com/guide/fragments/dialogs)
 - [Android Developers - BottomSheetDialogFragment](https://developer.android.com/reference/com/google/android/material/bottomsheet/BottomSheetDialogFragment)
 - [Material Design - Dialogs](https://m3.material.io/components/dialogs)
 - [Jetpack Compose - Dialogs](https://developer.android.com/jetpack/compose/elements#dialogs)

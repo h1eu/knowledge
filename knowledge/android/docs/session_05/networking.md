@@ -1,9 +1,11 @@
 ---
+id: android.networking.basics
 title: Networking in Android — Từ Bản Chất Socket, OkHttp Đến Retrofit & Ktor Thực Chiến
 summary: Cẩm nang toàn diện và chuyên sâu về Networking trong Android. Đi từ tầng vật lý Socket, TLS Handshake, mổ xẻ kiến trúc OkHttp Interceptor Chain & Connection Pool, giải quyết triệt để bài toán kinh điển Concurrent 401 Refresh Token, thiết kế Error Handling chuẩn Clean Architecture, Retry với Exponential Backoff, bảo mật SSL Pinning, Multipart Upload có Progress Tracking chống OOM, giám sát kết nối tầng OS với ConnectivityManager & Flow, so sánh & thực chiến song song Retrofit vs Ktor Client (KMP), và Unit Test với MockWebServer.
-authors:
-  - Antigravity AI
-date: 2026-09-22
+status: published
+difficulty: advanced
+depth: deep-dive
+estimated_reading_time: 45 phút
 tags:
   - android
   - networking
@@ -15,6 +17,19 @@ tags:
   - connectivity-manager
   - ssl-pinning
   - clean-architecture
+prerequisites:
+  - android.thread.working_with_thread
+  - android.session05.overview
+related:
+  - android.data_store.room_transactions
+  - android.thread.working_with_thread
+learning_outcomes:
+  - Giải thích được bản chất Socket, DNS, TCP Handshake, TLS 1.3 và lý do Android cấm gọi mạng trên Main Thread (NetworkOnMainThreadException).
+  - Thiết kế được Error Handling và Result Pattern phân tầng, kèm Retry với Exponential Backoff & Jitter, không nuốt CancellationException.
+  - Áp dụng được Network Security Config, Certificate Pinning có backup pin và các mặc định bảo mật của nền tảng (cleartext, CA người dùng cài).
+  - Triển khai được NetworkMonitor theo dõi mạng mặc định bằng ConnectivityManager, NetworkCapabilities và Kotlin Flow.
+  - Phân biệt được vai trò của OkHttp, Retrofit và Ktor Client trong tầng mạng của app.
+knowledge_gap: Nhiều lập trình viên chỉ biết gọi API đơn giản qua Retrofit mà không nắm cơ chế bên dưới của OkHttp, lúng túng khi xử lý token refresh đồng thời, gặp lỗi crash OOM khi upload file lớn, hoặc chỉ check mạng sơ sài bằng INTERNET capability thay vì VALIDATED.
 ---
 
 # Networking in Android: Từ Bản Chất Socket, OkHttp Đến Retrofit & Ktor Thực Chiến
@@ -404,6 +419,7 @@ classDiagram
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
 
 sealed interface NetworkResult<out T> {
@@ -436,6 +452,9 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> T): NetworkResult<T> {
     } catch (e: IOException) {
         // Các lỗi I/O khác của mạng (ví dụ đứt cáp đột ngột)
         NetworkResult.Error.NoInternet(e.localizedMessage ?: "Lỗi kết nối mạng")
+    } catch (e: CancellationException) {
+        // Coroutine bị huỷ (thoát màn hình...): ném lại, không biến thành lỗi mạng
+        throw e
     } catch (e: Exception) {
         // Lỗi parse JSON hoặc lỗi logic bất ngờ
         NetworkResult.Error.Unknown(e)
@@ -502,12 +521,14 @@ fun <T> Flow<T>.retryWithExponentialBackoff(
 
 Mặc định, Android tin tưởng các Chứng chỉ số (Certificate Authority - CA) được cài đặt sẵn trong hệ thống (như DigiCert, Let's Encrypt). 
 Tuy nhiên, tin tặc có thể thực hiện tấn công **Man-in-the-Middle (MITM)** bằng cách:
-1. Đánh lừa người dùng cài đặt một Root CA độc hại vào thiết bị (hoặc qua các máy đã Root).
+1. Đưa một Root CA độc hại vào kho CA **hệ thống** của thiết bị (cần máy đã Root), hoặc nhắm vào app vẫn tin CA do người dùng cài.
 2. Thiết lập proxy (như Charles Proxy, Burp Suite) đứng giữa ứng dụng và máy chủ.
 3. Proxy này giải mã toàn bộ dữ liệu HTTPS mà ứng dụng không hề hay biết!
 
+Lưu ý mặc định của nền tảng: từ Android 7.0 (API 24), app **không** tin CA do người dùng tự cài trừ khi khai báo `<certificates src="user" />` trong Network Security Config (app target API 23 trở xuống vẫn tin). Từ Android 9 (API 28), **cleartext HTTP bị tắt mặc định**: gọi `http://` sẽ lỗi (OkHttp báo `UnknownServiceException: CLEARTEXT communication ... not permitted by network security policy`) trừ khi bật `cleartextTrafficPermitted="true"` cho domain cụ thể.
+
 ### 7.1 Certificate Pinning là gì?
-**Certificate Pinning (Ghim chứng chỉ)** là kỹ thuật mà ứng dụng Android **từ chối tin tưởng các Root CA mặc định**. Thay vào đó, ứng dụng lưu trữ một danh sách băm (Hash) các khóa công khai (Public Key - SPKI) của chính máy chủ backend. Khi bắt tay TLS, nếu mã băm gửi về không khớp với danh sách ghim trong app, kết nối sẽ bị hủy ngay lập tức.
+**Certificate Pinning (Ghim chứng chỉ)** là kỹ thuật **thêm một điều kiện** vào việc kiểm tra chứng chỉ: chuỗi chứng chỉ vẫn phải hợp lệ với các Root CA được tin như bình thường, **và** phải chứa ít nhất một khóa công khai (Public Key - SPKI) có mã băm nằm trong danh sách ghim của app (khóa của máy chủ, của intermediate CA hoặc của CA). Nếu không có khóa nào khớp, kết nối sẽ bị hủy ngay lập tức.
 
 ### 7.2 Triển khai với OkHttp CertificatePinner
 
@@ -604,6 +625,8 @@ import okio.Buffer
 import okio.BufferedSink
 import okio.ForwardingSink
 import okio.Sink
+import okio.buffer
+import okio.source
 import java.io.File
 
 class CountingRequestBody(
@@ -631,8 +654,9 @@ class CountingRequestBody(
         }
 
         // Dùng Okio buffer để stream dữ liệu từng chunk an toàn, không tốn RAM
-        okio.Okio.source(file).use { source ->
-            val bufferedSink = okio.Okio.buffer(countingSink)
+        // Okio 2/3 dùng extension function: File.source(), Sink.buffer()
+        file.source().use { source ->
+            val bufferedSink = countingSink.buffer()
             bufferedSink.writeAll(source)
             bufferedSink.flush()
         }
@@ -640,11 +664,36 @@ class CountingRequestBody(
 }
 ```
 
+Dùng `CountingRequestBody` làm một part của request multipart:
+
+```kotlin
+val body = MultipartBody.Builder()
+    .setType(MultipartBody.FORM)
+    .addFormDataPart(
+        "file", file.name,
+        CountingRequestBody(file, "image/jpeg".toMediaType()) { _, _, percent ->
+            progressFlow.value = percent // cập nhật StateFlow cho UI
+        }
+    )
+    .build()
+```
+
 ---
 
 ## 9. Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager & NetworkCallback
 
-Trước Android 7.0 (Nougat), lập trình viên thường dùng `BroadcastReceiver` lắng nghe `android.net.conn.CONNECTIVITY_ACTION`. Tuy nhiên, cơ chế này làm thức giấc hàng chục tiến trình app cùng lúc khi mạng thay đổi, gây giật lag hệ thống và cạn pin. Google đã khai tử cơ chế này và bắt buộc chuyển sang **`ConnectivityManager.NetworkCallback`**.
+Trước Android 7.0 (Nougat), lập trình viên thường dùng `BroadcastReceiver` lắng nghe `android.net.conn.CONNECTIVITY_ACTION`. Tuy nhiên, cơ chế này làm thức giấc hàng chục tiến trình app cùng lúc khi mạng thay đổi, gây giật lag hệ thống và cạn pin. Từ Android 7.0, app target API 24+ không còn nhận `CONNECTIVITY_ACTION` qua receiver khai báo trong manifest (receiver đăng ký bằng code vẫn nhận), và action này bị deprecate từ API 28. Google khuyến nghị chuyển sang **`ConnectivityManager.NetworkCallback`**.
+
+> [!IMPORTANT]
+> **Quyền và cleartext cần khai báo trước khi gọi mạng:**
+> - `android.permission.INTERNET`: thiếu quyền này thì mọi kết nối socket của app đều thất bại.
+> - `android.permission.ACCESS_NETWORK_STATE`: bắt buộc để dùng `ConnectivityManager` (`activeNetwork`, `getNetworkCapabilities`, `register...NetworkCallback`); thiếu thì ném `SecurityException`.
+> - Cả hai đều là normal permission: khai báo trong `AndroidManifest.xml` là đủ, không cần xin lúc chạy.
+>
+> ```xml
+> <uses-permission android:name="android.permission.INTERNET" />
+> <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+> ```
 
 ### 9.1 Phân biệt NET_CAPABILITY_INTERNET vs NET_CAPABILITY_VALIDATED
 Đây là điểm khác biệt cốt tử mà nhiều developer không phân biệt được:
@@ -661,7 +710,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -706,22 +754,17 @@ class ConnectivityManagerNetworkMonitor(
             }
 
             override fun onLost(network: Network) {
+                // Với default callback, onLost nghĩa là mạng mặc định mất và chưa có mạng thay thế
                 trySend(NetworkStatus.Lost)
             }
-
-            override fun onUnavailable() {
-                trySend(NetworkStatus.Unavailable)
-            }
+            // Không override onUnavailable(): callback này chỉ được gọi cho requestNetwork(..., timeout),
+            // không bao giờ được gọi khi dùng registerDefaultNetworkCallback / registerNetworkCallback
         }
 
-        val request = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-            .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
-            .build()
-
-        connectivityManager.registerNetworkCallback(request, callback)
+        // Theo dõi MẠNG MẶC ĐỊNH (mạng app thực sự dùng). registerNetworkCallback với nhiều transport
+        // sẽ báo onLost cho từng mạng: tắt Wi-Fi trong khi 4G vẫn còn cũng phát Lost — sai trạng thái.
+        // Cần quyền ACCESS_NETWORK_STATE, nếu thiếu sẽ ném SecurityException.
+        connectivityManager.registerDefaultNetworkCallback(callback)
 
         // Phát trạng thái ban đầu ngay khi bắt đầu lắng nghe
         val currentCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
@@ -939,9 +982,14 @@ graph LR
 ### 12.1 Data Layer: Remote DataSource & Repository
 
 ```kotlin
+import androidx.room.Dao
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import retrofit2.http.GET
 
 // 1. Retrofit API Definition
@@ -962,17 +1010,29 @@ interface ProductRepository {
     suspend fun syncProducts(): NetworkResult<Unit>
 }
 
-// 5. Repository Implementation (Offline-First Single Source of Truth)
+// 5. Local DataSource: Room DAO — Flow tự phát lại mỗi khi bảng products thay đổi
+@Entity(tableName = "products")
+data class ProductEntity(@PrimaryKey val id: Long, val name: String, val price: Double)
+
+@Dao
+interface ProductDao {
+    @Query("SELECT * FROM products")
+    fun observeAll(): Flow<List<ProductEntity>>
+
+    @Upsert
+    suspend fun upsertAll(items: List<ProductEntity>)
+}
+
+// 6. Repository Implementation (Offline-First Single Source of Truth)
 class ProductRepositoryImpl(
     private val apiService: ProductApiService,
-    private val productDao: FakeProductDao,
+    private val productDao: ProductDao,
     private val networkMonitor: NetworkMonitor
 ) : ProductRepository {
 
-    // Luôn luôn đọc dữ liệu từ Room Database để hiển thị ngay lập tức
-    override fun getProducts(): Flow<List<Product>> = flow {
-        emit(productDao.getAllProducts().map { Product(it.id, it.name, it.price) })
-    }
+    // Luôn đọc từ Room: sau mỗi lần sync ghi vào bảng, Flow của DAO tự emit danh sách mới
+    override fun getProducts(): Flow<List<Product>> =
+        productDao.observeAll().map { rows -> rows.map { Product(it.id, it.name, it.price) } }
 
     override suspend fun syncProducts(): NetworkResult<Unit> {
         val status = networkMonitor.networkStatus.first()
@@ -982,15 +1042,10 @@ class ProductRepositoryImpl(
 
         return safeApiCall {
             val remoteProducts = apiService.fetchProducts()
-            // Cập nhật lại vào cơ sở dữ liệu nội bộ
-            productDao.upsertAll(remoteProducts)
+            // Cập nhật lại vào cơ sở dữ liệu nội bộ -> getProducts() tự nhận dữ liệu mới
+            productDao.upsertAll(remoteProducts.map { ProductEntity(it.id, it.name, it.price) })
         }
     }
-}
-
-class FakeProductDao {
-    fun getAllProducts(): List<ProductDto> = emptyList()
-    fun upsertAll(items: List<ProductDto>) {}
 }
 ```
 
@@ -1189,3 +1244,7 @@ class NetworkIntegrationTest {
 6. [IETF RFC 9110 — HTTP Semantics & Status Codes](https://www.rfc-editor.org/rfc/rfc9110.html)
 7. [IETF RFC 8446 — The Transport Layer Security (TLS) Protocol Version 1.3](https://www.rfc-editor.org/rfc/rfc8446.html)
 8. [AWS Architecture Blog — Exponential Backoff And Jitter](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/)
+9. [Android Developers — Network security configuration (user CA từ API 24, cleartext từ API 28, pin-set)](https://developer.android.com/privacy-and-security/security-config)
+10. [Android Developers — ConnectivityManager.registerDefaultNetworkCallback](https://developer.android.com/reference/android/net/ConnectivityManager#registerDefaultNetworkCallback(android.net.ConnectivityManager.NetworkCallback))
+11. [Android Developers — Background optimizations (CONNECTIVITY_ACTION)](https://developer.android.com/topic/performance/background-optimization)
+12. [Kotlin — Cancellation and timeouts](https://kotlinlang.org/docs/cancellation-and-timeouts.html)

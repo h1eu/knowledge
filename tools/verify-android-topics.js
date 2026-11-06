@@ -202,7 +202,9 @@ function parseFrontmatter(content) {
 // Text extraction utilities
 // ==================================================================
 function extractHeadings(md) {
-  return [...md.matchAll(/^(#{1,6})\s+(.+)$/gm)].map((m) => ({
+  // Bỏ code block trước: dòng comment `#` trong bash/toml/proguard không phải heading
+  const prose = md.replace(/^```[^\n]*\n[\s\S]*?^```[ \t]*$/gm, '');
+  return [...prose.matchAll(/^(#{1,6})\s+(.+)$/gm)].map((m) => ({
     level: m[1].length,
     text: m[2].trim(),
   }));
@@ -602,6 +604,18 @@ function main() {
       allIdsMap.get(fm.id).push(file.rel);
     }
   }
+
+  // index.md không được audit nhưng id của nó vẫn là đích hợp lệ cho prerequisites/related
+  (function addIndexIds(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, entry.name);
+      if (entry.isDirectory()) addIndexIds(p);
+      else if (entry.name === 'index.md') {
+        const { data: fm } = parseFrontmatter(fs.readFileSync(p, 'utf8'));
+        if (fm.id) allTopicIds.add(fm.id);
+      }
+    }
+  })(ANDROID_DOCS);
 
   // --- Audit all topics ---
   const allResults = [];

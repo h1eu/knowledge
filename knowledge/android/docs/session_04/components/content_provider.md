@@ -1,8 +1,31 @@
+---
+id: android.component.content_provider
+title: Content Provider
+summary: Content Provider là Application Component đóng vai trò cổng giao tiếp dữ liệu có kiểm soát giữa các ứng dụng và hệ thống; app khác truy cập qua ContentResolver theo Content URI. Bài giải thích cơ chế IPC Binder, cách đọc MediaStore và Contacts bằng Coroutine + Flow, lắng nghe thay đổi bằng ContentObserver, tự tạo Custom Provider có permission, và các lỗi ANR, leak thường gặp.
+status: published
+difficulty: intermediate
+depth: deep-dive
+estimated_reading_time: 25 phút
+tags: [android, content-provider, ipc, mediastore, contacts, coroutine, flow, hilt]
+prerequisites: [android.component.activity.lifecycle, android.component.service.overview]
+related: [android.component.broadcast.overview, android.component.service.google_service]
+learning_outcomes:
+  - Giải thích được vai trò của Content Provider trong sandbox Android và cơ chế IPC Binder phía sau ContentResolver.
+  - Triển khai được truy vấn MediaStore và Contacts Provider bằng Coroutines + Flow, đúng permission theo từng version Android.
+  - Áp dụng được ContentObserver + callbackFlow để lắng nghe thay đổi dữ liệu thời gian thực.
+  - Triển khai được Custom Content Provider có permission kiểm soát truy cập và package visibility cho app client.
+  - Xử lý được ANR do query trên Main Thread, leak do quên đóng Cursor, và biết khi nào không nên dùng Content Provider.
+knowledge_gap: >
+  Nhiều developer viết code query ContentResolver trên Main Thread gây ANR, quên đóng Cursor gây resource leak, hoặc lạm dụng Content Provider cho data nội bộ trong khi Room là giải pháp đúng đắn hơn.
+---
+
 # 4.2.5 Content Provider
 
 ## 1. Nó là gì và vì sao nó tồn tại?
 
-**Content Provider** là một trong 4 Application Component cốt lõi của Android (Activity, Service, Broadcast Receiver, Content Provider). Nó đóng vai trò **cổng giao tiếp dữ liệu có kiểm soát** giữa các ứng dụng và hệ thống.
+**Content Provider** là một trong 4 Application Component cốt lõi của Android (Activity, Service, Broadcast Receiver, Content Provider). Nó đóng vai trò **cổng giao tiếp dữ liệu có kiểm soát** giữa các ứng dụng và hệ thống: app sở hữu dữ liệu mở dữ liệu qua Content URI chuẩn, app khác đọc/ghi bằng các thao tác CRUD qua `ContentResolver`.
+
+> **Mental model:** hãy hình dung Content Provider như một **REST API nội bộ của hệ điều hành**: URI là endpoint, `query/insert/update/delete` là các method, permission là cơ chế xác thực.
 
 ### Vấn đề nó giải quyết
 
@@ -10,6 +33,10 @@ Android ứng dụng mô hình **sandbox bảo mật nghiêm ngặt**: mỗi app
 
 - App A **không thể đọc** file `.db` hay `SharedPreferences` của App B
 - App của bạn **không thể trực tiếp** truy cập danh bạ, ảnh, lịch của hệ thống
+
+Từ đó nảy ra hai bài toán:
+1. Làm sao app lấy được danh bạ, tin nhắn, danh sách ảnh từ hệ điều hành (vốn thuộc các app khác)?
+2. Làm sao app chia sẻ một phần dữ liệu cho app đối tác một cách an toàn mà không làm lộ toàn bộ database?
 
 Nếu không có cơ chế chuẩn hóa, việc chia sẻ dữ liệu yêu cầu các hack như: ghi file ra `external storage`, mở socket server nội bộ, hoặc hardcode path database — tất cả đều nguy hiểm và không nhất quán.
 
@@ -36,7 +63,7 @@ Content Provider giải quyết điều này bằng mô hình **client-server ch
 
 URI là địa chỉ để xác định dữ liệu cần truy cập. Cấu trúc:
 
-```
+```text
 content://com.android.contacts/contacts/42
   [scheme] [authority/package]  [path]  [id]
 ```
@@ -60,7 +87,7 @@ Cursor là con trỏ duyệt qua tập kết quả trả về, giống `ResultSe
 
 Đây là phần nhiều developer bỏ qua nhưng rất quan trọng để hiểu tại sao query Content Provider có thể chậm và tại sao phải dùng background thread.
 
-```
+```text
 App Client                 Android System               App Server
 -----------               ----------------              ----------
 ContentResolver.query()
@@ -75,11 +102,31 @@ ContentResolver.query()
   Cursor (shared memory)
 ```
 
+Chi tiết hơn: hệ thống chỉ làm trung gian lúc tìm Provider; sau đó client gọi thẳng vào Provider qua Binder.
+
+```mermaid
+sequenceDiagram
+    participant ClientApp as App Client (Resolver)
+    participant AMS as ActivityManagerService (OS)
+    participant ServerApp as App Server (Provider)
+
+    ClientApp->>AMS: Xin query URI (content://com.app.a/users)
+    AMS->>AMS: Phân tích URI -> Tìm ra App A
+    alt App A chưa chạy
+        AMS->>ServerApp: Fork process, gọi ContentProvider.onCreate() rồi Application.onCreate()
+    end
+    AMS-->>ClientApp: Trả về đối tượng Binder đại diện cho Provider
+    ClientApp->>ServerApp: Gọi query() trực tiếp qua IPC Binder
+    ServerApp-->>ClientApp: Trả về dữ liệu (Cursor window memory)
+```
+
 **Tác động thực tế:**
 
 1. IPC Binder có overhead — đặc biệt khi App Server chưa chạy, Android phải fork process mới
-2. `query()` **block thread** cho đến khi nhận được response
-3. **Không bao giờ gọi ContentResolver trên Main Thread** → ANR
+2. Khi khởi động process, hệ thống gọi `ContentProvider.onCreate()` của mọi Provider trên main thread **trước** `Application.onCreate()`. Toàn bộ thời gian này, `query()` của client **bị block**. Vì vậy `onCreate()` của Provider phải thật nhẹ. Đây cũng là lý do nhiều thư viện dùng một Provider rỗng để tự khởi tạo sớm (vd `FirebaseInitProvider` của Firebase, `InitializationProvider` của App Startup)
+3. `query()` **block thread** cho đến khi nhận được response
+4. **Không bao giờ gọi ContentResolver trên Main Thread** → ANR
+5. Ngược lại, `query()/insert()/update()/delete()` của Provider được gọi trên các Binder thread, có thể **song song** từ nhiều client: code Provider phải thread-safe (Room/SQLiteDatabase đã tự xử lý đồng bộ)
 
 ---
 
@@ -90,12 +137,22 @@ ContentResolver.query()
 **Bước 1: Khai báo permission trong AndroidManifest.xml**
 
 ```xml
-<!-- Android ≤ 12 -->
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<!-- Android 12L trở xuống (API ≤ 32) -->
+<uses-permission
+    android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32" />
 
 <!-- Android 13+ (API 33+) — granular permissions -->
 <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+<!-- Android 14+ (API 34+) — người dùng có thể chỉ cho phép một số ảnh -->
+<uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 ```
+
+> [!NOTE]
+> - Từ Android 14, khi người dùng chọn "Chỉ cho phép một số ảnh", app chỉ được cấp `READ_MEDIA_VISUAL_USER_SELECTED` và MediaStore chỉ trả về những ảnh đã chọn. Khai báo permission này để app xử lý đúng trường hợp đó và cho người dùng chọn lại.
+> - Nếu app chỉ cần người dùng chọn vài ảnh (đổi avatar, đính kèm), dùng **Photo Picker** (`PickVisualMedia`): không cần permission nào.
+> - Không dùng cột `MediaStore.Images.Media.DATA` (đường dẫn file tuyệt đối): deprecated từ API 29 do scoped storage. Luôn truy cập ảnh qua content URI (`ContentUris.withAppendedId`) như code dưới.
 
 **Bước 2: Viết Repository tầng Data**
 
@@ -183,8 +240,9 @@ fun observeImages(): Flow<List<MediaImage>> = callbackFlow {
 
     val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
-            // Mỗi khi MediaStore thay đổi → re-fetch
-            trySend(runBlocking(Dispatchers.IO) { fetchImages() })
+            // onChange chạy trên main looper: KHÔNG block ở đây (vd runBlocking).
+            // Mỗi khi MediaStore thay đổi → re-fetch trong coroutine của callbackFlow
+            launch { send(fetchImages()) }
         }
     }
 
@@ -200,6 +258,8 @@ fun observeImages(): Flow<List<MediaImage>> = callbackFlow {
     }
 }
 ```
+
+> Biến thể gọn hơn: observer chỉ phát tín hiệu (`trySend(Unit)`), rồi phía ngoài dùng `mapLatest { fetchImages() }` để query lại; `mapLatest` tự huỷ lần query cũ nếu có thay đổi mới.
 
 **Sử dụng trong ViewModel:**
 
@@ -221,7 +281,7 @@ class GalleryViewModel @Inject constructor(
 
 **Luồng hoạt động:**
 
-```
+```text
 Người dùng chụp ảnh mới
         ↓
 MediaStore.Images URI thay đổi
@@ -234,12 +294,13 @@ Flow emit List<MediaImage> mới
         ↓
 StateFlow cập nhật → UI tự re-render
 ```
+<!-- dd: intent-observe -->
 
 ---
 
 ## 6. Đọc danh bạ từ ContactsProvider
 
-Một use case thực tế khác. ContactsProvider có schema phức tạp hơn MediaStore:
+Một use case thực tế khác. ContactsProvider có schema phức tạp hơn MediaStore. Cần runtime permission `READ_CONTACTS` trước khi query:
 
 ```kotlin
 // data/contacts/ContactsRepository.kt
@@ -341,6 +402,16 @@ class UserProvider : ContentProvider() {
 }
 ```
 
+> [!NOTE]
+> - **Thông báo thay đổi:** trong `query()` gọi `cursor.setNotificationUri(context!!.contentResolver, uri)`, và sau mỗi `insert/update/delete` gọi `context!!.contentResolver.notifyChange(uri, null)`. Thiếu bước này, `ContentObserver` của client (mục 5) sẽ không bao giờ được gọi với Provider tự viết.
+> - Dữ liệu không nằm trong SQLite thì có thể trả `MatrixCursor` dựng trong bộ nhớ:
+
+```kotlin
+val cursor = MatrixCursor(arrayOf("_id", "name", "email"))
+cursor.addRow(arrayOf(1, "Nguyễn Văn An", "an.nguyen@example.com"))
+return cursor
+```
+
 ### Bước 2: Khai báo trong AndroidManifest.xml của App A
 
 ```xml
@@ -362,7 +433,15 @@ class UserProvider : ContentProvider() {
 ```xml
 <!-- AndroidManifest.xml của App B -->
 <uses-permission android:name="com.company.permission.READ_USER" />
+
+<!-- Android 11+ (API 30+): package visibility — phải khai báo Provider muốn truy cập,
+     nếu không ContentResolver không "thấy" Provider của App A -->
+<queries>
+    <provider android:authorities="com.company.appa.provider" />
+</queries>
 ```
+
+> Custom permission được đăng ký khi cài app: **App A (app định nghĩa permission) phải được cài trước** App B thì App B mới được cấp quyền.
 
 ```kotlin
 // data/user/RemoteUserRepository.kt (App B)
@@ -387,7 +466,7 @@ suspend fun fetchUsersFromAppA(): List<User> = withContext(Dispatchers.IO) {
 
 ## 8. Luồng hoàn chỉnh end-to-end
 
-```
+```text
 [App B - GalleryScreen]
         ↓ collect StateFlow
 [App B - GalleryViewModel]
@@ -414,7 +493,7 @@ suspend fun fetchUsersFromAppA(): List<User> = withContext(Dispatchers.IO) {
 ### 1. Query trên Main Thread
 
 ```kotlin
-// ❌ Crash → StrictMode exception hoặc ANR
+// ❌ Block main thread → ANR (StrictMode báo vi phạm nếu đã bật)
 fun onClick() {
     val cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, ...)
 }
@@ -471,11 +550,24 @@ class InternalUserProvider : ContentProvider() { ... }
 ## 10. Khi nào không dùng Content Provider
 
 - **Data nội bộ**: Dùng Room + DataStore
-- **Giao tiếp real-time**: Dùng SharedFlow/BroadcastChannel
-- **File transfer lớn**: Dùng FileProvider + Intent chooser
+- **Giao tiếp real-time**: Dùng SharedFlow
+- **File transfer lớn**: Dùng `FileProvider` + Intent chooser: tạo content URI bằng `FileProvider.getUriForFile()`, gắn vào Intent kèm `Intent.FLAG_GRANT_READ_URI_PERMISSION` để app nhận được đọc tạm thời đúng file đó, không cần export Provider
 - **API server**: Dùng Retrofit/Ktor
 
-Content Provider phù hợp nhất khi cần **truy cập dữ liệu tabular có cấu trúc** từ system providers (MediaStore, ContactsProvider, CalendarProvider) hoặc chia sẻ data có kiểm soát giữa các app.
+Content Provider phù hợp nhất khi cần **truy cập dữ liệu tabular có cấu trúc** từ system providers (MediaStore, ContactsProvider, CalendarProvider) hoặc chia sẻ data có kiểm soát giữa các app. Trước đây Google từng khuyến khích bọc SQLite bằng Provider ngay cả khi chỉ dùng nội bộ; nay đó là anti-pattern vì Room đã thay thế.
+
+| Giải pháp | Khi nào dùng | Trade-off |
+|---|---|---|
+| Content Provider | Chia sẻ tabular data giữa apps, system data | IPC overhead, setup phức tạp, cần permission |
+| Room + Repository | Data nội bộ trong app | Đơn giản, type-safe, không IPC |
+| FileProvider | Chia sẻ file (ảnh, PDF) giữa apps | Chỉ dùng cho file, không phải tabular data |
+| SharedFlow | Event/message nội bộ trong app | In-memory, không persist qua process death |
+| Messenger / AIDL | IPC phức tạp, two-way communication | Boilerplate nhiều, khó maintain |
+
+**Tổng kết best practices:**
+- **Security:** dùng `android:readPermission` và `android:writePermission`; không bao giờ `exported="true"` vô điều kiện.
+- **Performance:** luôn truy vấn qua Coroutines (`Dispatchers.IO`); giữ `onCreate()` của Provider thật nhẹ vì nó chặn quá trình khởi động app và cả client đang chờ.
+- **Resource:** luôn bọc Cursor trong `use {}`.
 
 ---
 
@@ -486,273 +578,7 @@ Content Provider phù hợp nhất khi cần **truy cập dữ liệu tabular c�
 - [Android Developers — MediaStore](https://developer.android.com/reference/android/provider/MediaStore)
 - [Android Developers — ContactsContract](https://developer.android.com/reference/android/provider/ContactsContract)
 - [Android Developers — FileProvider](https://developer.android.com/reference/androidx/core/content/FileProvider)
-
-
-## Vấn đề cần giải quyết
-
-Trong Android, mỗi ứng dụng (App) chạy trong một hộp cát (Sandbox) riêng biệt với Process và User ID riêng.
-Điều này có nghĩa là App A không thể trực tiếp đọc file database (`.db`) hay `SharedPreferences` của App B.
-
-**Bài toán đặt ra:**
-1. Làm sao ứng dụng của bạn có thể lấy được danh bạ, tin nhắn, hoặc danh sách ảnh từ hệ điều hành (vốn thuộc các app khác nhau)?
-2. Làm sao ứng dụng của bạn có thể chia sẻ một số dữ liệu nhất định cho các ứng dụng đối tác một cách an toàn mà không làm lộ toàn bộ database?
-
-Nếu không có cơ chế chuẩn hóa, các app phải tự mở cổng server, dùng socket hoặc ghi file ra bộ nhớ ngoài rất nguy hiểm và không đồng nhất.
-
-Đó là lý do **Content Provider** ra đời. Nó đóng vai trò như một "nhân viên hải quan" hoặc "REST API nội bộ" của hệ điều hành, cho phép các app giao tiếp và chia sẻ dữ liệu với nhau một cách an toàn qua một chuẩn chung (CRUD).
-
-## Content Provider là gì?
-
-Content Provider là một trong 4 thành phần cốt lõi của Android (cùng với Activity, Service, Broadcast Receiver).
-Nó quản lý quyền truy cập vào một kho dữ liệu trung tâm và cung cấp dữ liệu đó cho các ứng dụng khác.
-
-**Khái niệm cốt lõi:**
-- **ContentProvider (Server):** Ứng dụng sở hữu dữ liệu sẽ tạo ra một lớp kế thừa `ContentProvider` để quyết định xem ai được phép đọc/ghi dữ liệu gì.
-- **ContentResolver (Client):** Ứng dụng muốn lấy dữ liệu sẽ không bao giờ gọi trực tiếp `ContentProvider`. Thay vào đó, nó dùng `ContentResolver` (một trung gian của hệ điều hành) để gửi yêu cầu.
-- **URI (Uniform Resource Identifier):** Giống như URL của website. Để biết cần lấy dữ liệu từ đâu, bạn phải gọi đúng địa chỉ URI. VD: `content://com.android.contacts/contacts`.
-- **Cursor:** Giống như một con trỏ trỏ vào kết quả trả về từ database. Bạn sẽ dùng nó để duyệt qua từng dòng dữ liệu.
-
----
-
-## 1. Sử dụng Content Provider (Client Side)
-
-Hãy bắt đầu với trường hợp phổ biến nhất: Ứng dụng của bạn cần lấy danh bạ hoặc media từ hệ thống.
-
-### Ví dụ thực tế: Đọc danh sách ảnh từ thư viện (Media) bằng Coroutine & Flow
-
-Nếu dùng cách cũ với Thread thuần, code sẽ rất rối và dễ gây block Main Thread. Với Kotlin Coroutines, chúng্বা có thể đẩy tiến trình query xuống background thread (`Dispatchers.IO`).
-
-**Bước 1: Khai báo quyền trong AndroidManifest.xml**
-```xml
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<!-- Từ Android 13 trở lên -->
-<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-```
-
-**Bước 2: Viết hàm Query bất đồng bộ**
-
-```kotlin
-import android.content.ContentResolver
-import android.provider.MediaStore
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-
-data class ImageItem(val id: Long, val name: String, val path: String)
-
-suspend fun fetchImagesFromGallery(contentResolver: ContentResolver): List<ImageItem> {
-    return withContext(Dispatchers.IO) { // Chuyển sang IO Thread để không block UI
-        val imageList = mutableListOf<ImageItem>()
-
-        // 1. Xác định URI cần lấy (ở đây là ảnh từ bộ nhớ ngoài)
-        val collectionUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-
-        // 2. Chỉ định các cột muốn lấy (SELECT)
-        val projection = arrayOf(
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.DISPLAY_NAME,
-            MediaStore.Images.Media.DATA
-        )
-
-        // 3. Thực hiện Query thông qua ContentResolver
-        val cursor = contentResolver.query(
-            collectionUri,
-            projection,
-            null, // WHERE clause
-            null, // WHERE arguments
-            "${MediaStore.Images.Media.DATE_ADDED} DESC" // ORDER BY
-        )
-
-        // 4. Duyệt Cursor để lấy dữ liệu
-        cursor?.use { // .use() tự động đóng Cursor để tránh Memory Leak
-            val idColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-            val nameColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
-            val dataColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-
-            while (it.moveToNext()) {
-                val id = it.getLong(idColumn)
-                val name = it.getString(nameColumn)
-                val path = it.getString(dataColumn)
-                imageList.add(ImageItem(id, name, path))
-            }
-        }
-        
-        imageList
-    }
-}
-```
-
-> [!TIP]
-> **Best Practice:** Luôn bọc `cursor` trong khối `.use { }` để đảm bảo Cursor được `close()` ngay cả khi có Exception xảy ra. Quên đóng Cursor là nguyên nhân hàng đầu gây sập app do cạn kiệt tài nguyên (OOM).
-
----
-
-## 2. Tạo Content Provider chia sẻ dữ liệu (Server Side)
-
-Bây giờ giả sử bạn làm cho công ty có 2 app: App A (Lưu thông tin User) và App B. App B cần lấy thông tin User từ App A mà không bắt người dùng đăng nhập lại.
-
-Bạn sẽ tạo một Custom Content Provider ở App A.
-
-**Bước 1: Tạo class kế thừa ContentProvider**
-
-```kotlin
-import android.content.ContentProvider
-import android.content.ContentValues
-import android.content.UriMatcher
-import android.database.Cursor
-import android.database.MatrixCursor
-import android.net.Uri
-
-class UserContentProvider : ContentProvider() {
-
-    companion object {
-        const val AUTHORITY = "com.company.appa.provider"
-        const val PATH_USER = "users"
-        const val CODE_USER = 1
-        
-        // Dùng UriMatcher để phân loại URI truyền vào
-        val uriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
-            addURI(AUTHORITY, PATH_USER, CODE_USER)
-        }
-    }
-
-    override fun onCreate(): Boolean {
-        // Khởi tạo Database/Room ở đây nếu cần
-        return true
-    }
-
-    override fun query(
-        uri: Uri, projection: Array<String>?, selection: String?,
-        selectionArgs: Array<String>?, sortOrder: String?
-    ): Cursor? {
-        when (uriMatcher.match(uri)) {
-            CODE_USER -> {
-                // Tạo một Cursor giả lập (Thực tế bạn sẽ lấy từ SQLite/Room)
-                val cursor = MatrixCursor(arrayOf("id", "name", "email"))
-                cursor.addRow(arrayOf(1, "Hazu", "hazu@example.com"))
-                return cursor
-            }
-            else -> throw IllegalArgumentException("Unknown URI: $uri")
-        }
-    }
-
-    // Các hàm bắt buộc khác phải override (trả về null/0 nếu không hỗ trợ)
-    override fun getType(uri: Uri): String? = null
-    override fun insert(uri: Uri, values: ContentValues?): Uri? = null
-    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int = 0
-    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?): Int = 0
-}
-```
-
-**Bước 2: Khai báo trong AndroidManifest.xml của App A**
-
-```xml
-<provider
-    android:name=".UserContentProvider"
-    android:authorities="com.company.appa.provider"
-    android:exported="true" 
-    android:readPermission="com.company.permission.READ_USER" />
-```
-
-> [!WARNING]
-> Thuộc tính `android:exported="true"` cho phép **MỌI APP** trên điện thoại truy cập Provider này. Luôn kết hợp với `android:readPermission` để chỉ những app có chung chữ ký bảo mật hoặc được cấp quyền mới được đọc.
-
-**Bước 3: Bên App B, gọi data giống hệt cách query ảnh ở trên, nhưng đổi URI thành:**
-`content://com.company.appa.provider/users`
-
----
-
-## 3. IPC Binder - Chuyện gì thực sự xảy ra dưới nền? (Cơ chế hoạt động)
-
-Android ứng dụng kiến trúc Client-Server. App xin dữ liệu và App cho dữ liệu nằm ở 2 process khác nhau hoàn toàn.
-
-Khi `ContentResolver` (Client) gọi `query()`, hệ thống Android thực hiện luồng sau:
-
-```mermaid
-sequenceDiagram
-    participant ClientApp as App Client (Resolver)
-    participant AMS as ActivityManagerService (OS)
-    participant ServerApp as App Server (Provider)
-    
-    ClientApp->>AMS: Xin query URI (content://com.app.a/users)
-    AMS->>AMS: Phân tích URI -> Tìm ra App A
-    alt App A chưa chạy
-        AMS->>ServerApp: Fork Process & Gọi onCreate() của Provider
-    end
-    AMS-->>ClientApp: Trả về đối tượng Binder đại diện cho Provider
-    ClientApp->>ServerApp: Gọi query() trực tiếp qua IPC Binder
-    ServerApp-->>ClientApp: Trả về dữ liệu (Cursor window memory)
-```
-
-**Sự thật về tốc độ & UI:**
-1. IPC (Inter-Process Communication) rất tốn kém (chậm).
-2. Nếu Server App chưa chạy, OS phải khởi động nó (Cold Start), gọi `Application.onCreate` rồi đến `Provider.onCreate`. Toàn bộ thời gian này, `query()` của Client **bị block**.
-3. Do đó, **TUYỆT ĐỐI KHÔNG** gọi ContentResolver.query() trên Main Thread (UI Thread) vì nó sẽ gây giật lag hoặc ANR.
-
----
-
-## 4. Lắng nghe thay đổi dữ liệu thời gian thực với Flow
-
-Trong thực tế, danh bạ hoặc media có thể thay đổi (người dùng vừa chụp thêm 1 bức ảnh). Làm sao để UI tự động cập nhật mà không phải query lại thủ công?
-
-Chúng ta dùng `ContentObserver` bọc lại bằng Kotlin Flow:
-
-```kotlin
-import android.database.ContentObserver
-import android.net.Uri
-import android.os.Handler
-import android.os.Looper
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-
-fun observeUriChanges(contentResolver: ContentResolver, uri: Uri): Flow<Unit> = callbackFlow {
-    val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
-        override fun onChange(selfChange: Boolean) {
-            // Gửi tín hiệu khi dữ liệu thay đổi
-            trySend(Unit)
-        }
-    }
-    
-    // Đăng ký lắng nghe
-    contentResolver.registerContentObserver(uri, true, observer)
-    
-    // Gửi tín hiệu khởi tạo lần đầu để query ban đầu
-    trySend(Unit)
-
-    // Khi Flow bị cancel (VD: màn hình đóng), tự động unregister để tránh Memory Leak
-    awaitClose {
-        contentResolver.unregisterContentObserver(observer)
-    }
-}
-```
-
-**Cách sử dụng trong ViewModel:**
-
-```kotlin
-class GalleryViewModel(private val contentResolver: ContentResolver) : ViewModel() {
-    
-    // Bất cứ khi nào Media URI thay đổi, nó sẽ trigger map và query lại dữ liệu mới nhất
-    val images: Flow<List<ImageItem>> = observeUriChanges(
-        contentResolver, 
-        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-    ).map { 
-        fetchImagesFromGallery(contentResolver) // Hàm đã viết ở Phần 1
-    }
-}
-```
-*Đây là cách kết hợp hoàn hảo giữa cơ chế cổ điển của Android (ContentObserver) và kiến trúc hiện đại (Kotlin Flow).*
-
----
-
-## 5. Khi nào KHÔNG nên dùng Content Provider?
-
-Content Provider là một công cụ nặng nề (heavyweight). Đừng dùng nó nếu:
-- Bạn chỉ muốn lưu dữ liệu nội bộ trong app của mình. Hãy dùng **Room Database** hoặc **DataStore**.
-- Bạn muốn truyền một mảng dữ liệu nhỏ giữa 2 Activity. Hãy dùng **Intent/Bundle**.
-- Bạn làm app nhỏ không có nhu cầu share data ra ngoài. (Trước đây Google khuyến khích bọc SQLite bằng Provider ngay cả dùng nội bộ, nhưng giờ đó là Anti-pattern. Architecture Components/Room đã thay thế nó).
-
-## Tổng kết Trade-offs & Best Practices
-- **Security:** Luôn dùng `android:readPermission` và `android:writePermission`. Không bao giờ `exported="true"` vô điều kiện.
-- **Performance:** Luôn truy vấn qua Coroutines (`Dispatchers.IO`).
-- **Memory Leak:** Luôn bọc cursor trong block `use {}` để giải phóng.
-- **IPC Blocking:** Tránh thực hiện logic quá nặng trong `onCreate()` của Provider vì nó block quá trình khởi động của app và block cả app client đang chờ.
+- [Android Developers — ContentProvider (thread-safety, onCreate)](https://developer.android.com/reference/android/content/ContentProvider)
+- [Android Developers — Application.onCreate](https://developer.android.com/reference/android/app/Application#onCreate())
+- [Android 14 behavior changes — partial photo/video access](https://developer.android.com/about/versions/14/behavior-changes-14)
+- [Package visibility — declaring queries](https://developer.android.com/training/package-visibility/declaring)

@@ -9,7 +9,6 @@ estimated_reading_time: 35 phút
 tags: [android, activity, lifecycle, lifecycle-owner, lifecycle-scope, repeat-on-lifecycle, process-lifecycle-owner, lifecycle-service]
 prerequisites: []
 related: [android.component.activity.state_changes, android.component.fragment.lifecycle, android.component.activity.task_and_backstack]
-downstream: [android.component.activity.state_changes]
 learning_outcomes:
   - Giải thích được cơ chế LifecycleOwner, LifecycleRegistry và LifecycleObserver trong Jetpack Lifecycle.
   - Phân biệt được Lifecycle.State và Lifecycle.Event cùng mối quan hệ với Activity callbacks.
@@ -47,7 +46,7 @@ AndroidX Lifecycle Library ra đời để giải quyết đúng vấn đề nà
 
 ## Activity Lifecycle là gì?
 
-Activity Lifecycle là tập hợp các **callback method** hệ thống gọi khi Activity chuyển trạng thái: `onCreate`, `onStart`, `onResume`, `onPause`, `onStop`, `onDestroy`.
+Activity Lifecycle là tập hợp các **callback method** hệ thống gọi khi Activity chuyển trạng thái: 6 callback chính `onCreate`, `onStart`, `onResume`, `onPause`, `onStop`, `onDestroy`, cộng thêm `onRestart` khi Activity quay lại từ trạng thái stopped (tổng cộng 7 callback).
 
 Ý nghĩa cốt lõi: **hệ thống điều khiển vòng đời, app chỉ phản ứng**. Developer không quyết định khi nào Activity bị hủy — developer quyết định làm gì ở từng thời điểm.
 
@@ -84,7 +83,7 @@ stateDiagram-v2
 | onResume | STARTED → RESUMED | Foreground, bắt đầu camera/sensor |
 | onPause | RESUMED → STARTED | Mất focus, dừng thao tác nhẹ |
 | onStop | STARTED → CREATED | Không visible, giải phóng tài nguyên |
-| onRestart | — | Quay lại từ stopped state |
+| onRestart | — (giữ CREATED, gọi ngay trước onStart) | Quay lại từ stopped state |
 | onDestroy | CREATED → DESTROYED | Cleanup cuối cùng |
 
 **Lưu ý:** `onPause()` phải chạy nhanh — Activity tiếp theo chỉ `onResume()` sau khi Activity hiện tại `onPause()` xong. Thao tác nặng (save database) phải để trong `onStop()`.
@@ -138,7 +137,7 @@ Activity của bạn đã implement sẵn `LifecycleOwner`:
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycle.addObserver(LocationTracker(this))
+        lifecycle.addObserver(LocationTracker(App.locationClient))
         // Không cần gọi start/stop thủ công — LocationTracker tự xử lý
     }
 }
@@ -146,7 +145,7 @@ class MainActivity : AppCompatActivity() {
 
 ### Lifecycle.State vs Lifecycle.Event
 
-- **State** là trạng thái hiện tại: `CREATED`, `STARTED`, `RESUMED`, `DESTROYED`.
+- **State** là trạng thái hiện tại: `INITIALIZED`, `CREATED`, `STARTED`, `RESUMED`, `DESTROYED`.
 - **Event** là sự kiện chuyển đổi: `ON_CREATE`, `ON_START`, `ON_RESUME`, `ON_PAUSE`, `ON_STOP`, `ON_DESTROY`, `ON_ANY`.
 
 Event tạo ra State. Đây là điểm nhiều developer nhầm lẫn.
@@ -171,7 +170,7 @@ sequenceDiagram
     Obs-->>Act: component tự xử lý
 ```
 
-Chính vì cơ chế này, khi bạn thêm observer trong `onCreate()`, observer sẽ **tự động** nhận `ON_START` và `ON_RESUME` ngay sau đó — Activity không cần gọi lại bằng tay.
+Chính vì cơ chế này, khi bạn thêm observer trong `onCreate()`, observer sẽ **tự động** nhận lần lượt `ON_CREATE`, `ON_START` và `ON_RESUME` — Activity không cần gọi lại bằng tay.
 
 ### DefaultLifecycleObserver vs LifecycleEventObserver
 
@@ -267,7 +266,7 @@ Activity lifecycle chỉ bao phủ một màn hình. Khi cần biết **toàn b�
 
 ### ProcessLifecycleOwner
 
-`ProcessLifecycleOwner` là `LifecycleOwner` đại diện cho **toàn bộ process của app**. Nó phát `ON_START` khi app chuyển lên foreground, `ON_STOP` khi app xuống background.
+`ProcessLifecycleOwner` là `LifecycleOwner` đại diện cho **toàn bộ process của app**. Nó phát `ON_START` khi app chuyển lên foreground, `ON_STOP` khi app xuống background. `ON_PAUSE`/`ON_STOP` được phát **có độ trễ** sau khi Activity cuối cùng dừng, đủ để không báo nhầm "xuống background" khi Activity bị destroy và tạo lại do configuration change.
 
 ```gradle
 implementation("androidx.lifecycle:lifecycle-process:2.9.4")
@@ -393,10 +392,12 @@ class TrackingCoordinator(
 
     override fun onStart(owner: LifecycleOwner) {
         locationClient.startTracking()   // Chỉ khi màn hình visible
+        analytics.onScreenVisible()
     }
 
     override fun onStop(owner: LifecycleOwner) {
         locationClient.stopTracking()    // App background → dừng, tiết kiệm pin
+        analytics.onScreenHidden()
     }
 }
 ```
@@ -409,7 +410,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycle.addObserver(tracking)
+        lifecycle.addObserver(tracking)   // Đăng ký trong onCreate, trước ON_START
+        setContent { HomeScreen() }       // UI Compose ở Bước 3
     }
 }
 ```
@@ -455,9 +457,8 @@ flowchart TD
     AppStart[Application.onCreate] --> PLO[addObserver AppLifecycleObserver]
     PLO --> A1[MainActivity onCreate]
     A1 --> AddObs[lifecycle.addObserver TrackingCoordinator]
-    AddObs --> Launched[lifecycleScope.launch]
-    Launched --> RoL[repeatOnLifecycle STARTED]
-    RoL --> Collect[collect StateFlow]
+    AddObs --> SetContent[setContent HomeScreen]
+    SetContent --> Collect[collectAsStateWithLifecycle uiState, từ STARTED]
     Collect --> Render[Render UI trong Compose]
     Render -->|background| StopTrack[TrackingCoordinator.onStop dừng tracking]
     StopTrack -->|foreground| ResumeTrack[TrackingCoordinator.onStart bắt đầu lại]
@@ -474,13 +475,12 @@ sequenceDiagram
     participant P as ProcessLifecycleOwner
 
     U->>A: Mở app
-    A->>P: Activity start
+    A->>A: onCreate: lifecycle.addObserver(TrackingCoordinator), setContent
+    A->>P: Activity onStart
     P->>P: ON_START (app foreground)
-    A->>A: lifecycle.addObserver(TrackingCoordinator)
     A->>C: nhận ON_START
     C->>C: bắt đầu tracking location
-    A->>A: lifecycleScope.launch
-    A->>VM: collect uiState (repeatOnLifecycle STARTED)
+    A->>VM: HomeScreen collectAsStateWithLifecycle (từ STARTED)
     VM-->>A: emit Success(products)
     A-->>U: hiển thị danh sách
 ```
@@ -559,9 +559,10 @@ Nếu `addObserver` được gọi khi Activity đã ở `RESUMED`, registry s�
 - **Android 1.0**: 7 callback Activity cơ bản ra đời cùng framework.
 - **2017 — Architecture Components 1.0**: giới thiệu `LifecycleOwner`, `LifecycleObserver`, `LifecycleRegistry`, `@OnLifecycleEvent`.
 - **2019 — Lifecycle 2.2**: thêm `lifecycleScope` (coroutine theo lifecycle).
-- **2021 — Lifecycle 2.4**: `DefaultLifecycleObserver` thay thế `@OnLifecycleEvent` (deprecated); thêm `repeatOnLifecycle`; `launchWhenX` bắt đầu bị đánh dấu deprecated.
-- **2023 — Lifecycle 2.7**: `collectAsStateWithLifecycle`, `LifecycleEventEffect`, `LifecycleStartEffect`, `LifecycleResumeEffect` trong `lifecycle-runtime-compose`.
-- **Hiện tại (2.9.x)**: `repeatOnLifecycle` là pattern chuẩn; `launchWhenX` đã bị deprecated hoàn toàn.
+- **2021 — Lifecycle 2.4**: `DefaultLifecycleObserver` thay thế `@OnLifecycleEvent` (deprecated); thêm `repeatOnLifecycle`.
+- **2023 — Lifecycle 2.6**: `launchWhenX`/`whenX` bị deprecated, khuyến nghị chuyển sang `repeatOnLifecycle`; thêm `collectAsStateWithLifecycle` cho `Flow`/`StateFlow`.
+- **2023 — Lifecycle 2.7**: `LifecycleEventEffect`, `LifecycleStartEffect`, `LifecycleResumeEffect` trong `lifecycle-runtime-compose`.
+- **Hiện tại (2.9.x)**: `repeatOnLifecycle` / `collectAsStateWithLifecycle` là pattern chuẩn.
 
 ## Kết nối hệ thống
 
@@ -579,3 +580,4 @@ Nếu `addObserver` được gọi khi Activity đã ở `RESUMED`, registry s�
 - [ProcessLifecycleOwner — Android Developers Reference](https://developer.android.com/reference/androidx/lifecycle/ProcessLifecycleOwner)
 - [LifecycleService — Android Developers Reference](https://developer.android.com/reference/androidx/lifecycle/LifecycleService)
 - [LifecycleRegistry — Android Developers Reference](https://developer.android.com/reference/androidx/lifecycle/LifecycleRegistry)
+- [Lifecycle release notes — Android Developers](https://developer.android.com/jetpack/androidx/releases/lifecycle)

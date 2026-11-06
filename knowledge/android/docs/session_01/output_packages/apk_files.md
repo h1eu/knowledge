@@ -4,8 +4,8 @@ title: Gói ứng dụng APK (Android Package)
 summary: Cấu trúc file APK, Binary XML và resources.arsc, APK Signature Schemes v1 đến v4, vì sao zipalign cần thiết cho mmap, thứ tự zipalign và ký, và các yêu cầu căn chỉnh mới (resources.arsc, thư viện .so với page size 16KB).
 status: published
 difficulty: intermediate
-estimated_reading_time: 25 phút
 depth: deep-dive
+estimated_reading_time: 25 phút
 tags: [android, apk, zipalign, signature, binary-xml, resources-arsc, dex]
 prerequisites: [android.languages.java_android, android.languages.kotlin]
 related: [android.output_packages.aab_files, android.languages.jni]
@@ -42,6 +42,14 @@ Vì vậy APK có các thành phần đã biên dịch sẵn sang dạng nhị p
 - Phân biệt được các APK Signature Scheme từ v1 (JAR signing), v2 (APK Signing Block), v3 (Key Rotation) đến v4 (cài đặt tăng dần).
 - Giải thích được vì sao zipalign giúp hệ thống mmap dữ liệu trực tiếp từ APK thay vì copy vào bộ nhớ.
 - Xử lý được các lỗi cài đặt APK thường gặp như INSTALL_PARSE_FAILED_NO_CERTIFICATES và lỗi căn chỉnh khi targetSdk 30+.
+
+---
+
+## APK là gì?
+
+**APK (Android Package)** là định dạng file cài đặt của Android: một file ZIP theo cấu trúc quy ước, chứa code đã biên dịch (`classes.dex`), tài nguyên đã biên dịch (`resources.arsc`, Binary XML), thư viện native (`lib/<abi>/*.so`) và chữ ký số, đủ để hệ thống cài thẳng lên thiết bị.
+
+Mental model: APK là một **thùng hàng đã niêm phong**. Bên trong đã sắp sẵn để dùng ngay, và tem niêm phong (chữ ký) bị rách nếu ai đó mở thùng sửa bên trong.
 
 ---
 
@@ -218,6 +226,7 @@ Tuỳ chọn `-p` căn thư viện `.so` không nén theo page 4KB. Để hỗ t
 
 1. **Dùng `jarsigner` thay vì `apksigner`**:
    - `jarsigner` là công cụ của JDK và **chỉ tạo chữ ký v1**. Dùng **`apksigner`** trong Android SDK Build-Tools để có v2/v3/v4.
+   - Ngược lại, file **AAB** phải ký bằng `jarsigner` (`apksigner` không ký được AAB). Không mâu thuẫn: chữ ký trên AAB chỉ để Google Play xác minh người upload (upload key). Thiết bị không bao giờ cài AAB; Play sinh APK từ AAB rồi ký APK đó bằng app signing key theo v2/v3 (xem `android.output_packages.aab_files`).
 
 2. **Nhầm lẫn về Multidex**:
    - Vượt 65.536 method tham chiếu trong một file DEX thì build cần nhiều file DEX.
@@ -273,5 +282,6 @@ Tuỳ chọn `-p` căn thư viện `.so` không nén theo page 4KB. Để hỗ t
 
 - Android Open Source Project: [APK Signature Scheme v2](https://source.android.com/docs/security/features/apksigning/v2)
 - Android Developers: [apksigner](https://developer.android.com/tools/apksigner) và [zipalign](https://developer.android.com/tools/zipalign)
+- Android Developers: [Build your app from the command line: Sign your app](https://developer.android.com/build/building-cmdline#sign_cmdline)
 - Android Developers: [Sign your app](https://developer.android.com/studio/publish/app-signing)
 - Android Developers: [Support 16 KB page sizes](https://developer.android.com/guide/practices/page-sizes)

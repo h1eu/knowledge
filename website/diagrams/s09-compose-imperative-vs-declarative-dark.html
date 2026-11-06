@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>View system (imperative) và Compose (declarative)</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #060913; color: #F8FAFC; font-family: 'Geist', sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 24px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: #94A3B8; margin: 0 0 8px; }
+  h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .sub { color: #94A3B8; font-size: 14px; margin: 0 0 24px; }
+  .colophon { border-top: 1px solid rgba(248,250,252,0.12); margin-top: 24px; padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: #64748B; }
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">SƠ ĐỒ LUỒNG · IMPERATIVE VÀ DECLARATIVE</p>
+  <h1>View system (imperative) và Compose (declarative)</h1>
+  <p class="sub">Cùng một thay đổi dữ liệu: View system tìm và sửa từng View, Compose gọi lại composable với state mới.</p>
+<svg viewBox="0 0 800 520" role="img" aria-labelledby="s09-compose-imperative-vs-declarative-dark-title s09-compose-imperative-vs-declarative-dark-desc" font-family="'Geist', sans-serif">
+<title id="s09-compose-imperative-vs-declarative-dark-title">View system (imperative) và Compose (declarative)</title>
+<desc id="s09-compose-imperative-vs-declarative-dark-desc">Với View system, dữ liệu đổi thì phải tìm View cần sửa, gọi setText, isVisible hoặc notifyItemChanged, và View giữ trạng thái riêng; với Compose, state đổi thì composable được gọi lại với state mới, rồi Compose so sánh và chỉ cập nhật phần khác.</desc>
+<defs>
+<marker id="s09-compose-imperative-vs-declarative-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="520" fill="#060913"/>
+<!-- zones -->
+<rect x="40" y="32" width="344" height="432" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.12)" stroke-width="1"/>
+<text x="56" y="52" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">VIEW SYSTEM · IMPERATIVE</text>
+<text x="368" y="52" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em" text-anchor="end">RA LỆNH SỬA</text>
+<rect x="416" y="32" width="344" height="432" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.12)" stroke-width="1"/>
+<text x="432" y="52" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">COMPOSE · DECLARATIVE</text>
+<text x="744" y="52" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em" text-anchor="end">MÔ TẢ LẠI</text>
+<!-- arrows -->
+<path d="M 212,128 V 156" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-imperative-vs-declarative-dark-arrow)"/>
+<path d="M 212,212 V 240" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-imperative-vs-declarative-dark-arrow)"/>
+<path d="M 212,296 V 324" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-imperative-vs-declarative-dark-arrow)"/>
+<path d="M 588,128 V 156" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-imperative-vs-declarative-dark-arrow)"/>
+<path d="M 588,212 V 240" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-imperative-vs-declarative-dark-arrow)"/>
+<!-- View system nodes -->
+<rect x="64" y="72" width="296" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="72" width="296" height="56" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<rect x="72" y="78" width="44" height="12" rx="2" fill="transparent" stroke="rgba(148,163,184,0.40)" stroke-width="0.8"/>
+<text x="94" y="87" fill="rgba(148,163,184,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SỰ KIỆN</text>
+<text x="212" y="108" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Dữ liệu đổi</text>
+<rect x="64" y="156" width="296" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="156" width="296" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="72" y="162" width="44" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="94" y="171" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TÌM</text>
+<text x="212" y="192" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Tìm View cần sửa</text>
+<rect x="64" y="240" width="296" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="240" width="296" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="72" y="246" width="44" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="94" y="255" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SỬA</text>
+<text x="212" y="272" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Gọi lệnh sửa trên View</text>
+<text x="212" y="287" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">setText / isVisible / notifyItemChanged</text>
+<path d="M 64,336 V 368 A 148,12 0 0,0 360,368 V 336" fill="#060913"/>
+<path d="M 64,336 V 368 A 148,12 0 0,0 360,368 V 336" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<ellipse cx="212" cy="336" rx="148" ry="12" fill="#060913"/>
+<ellipse cx="212" cy="336" rx="148" ry="12" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="212" y="368" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">View giữ trạng thái riêng</text>
+<!-- Compose nodes -->
+<rect x="440" y="72" width="296" height="56" rx="6" fill="#060913"/>
+<rect x="440" y="72" width="296" height="56" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<rect x="448" y="78" width="44" height="12" rx="2" fill="transparent" stroke="rgba(148,163,184,0.40)" stroke-width="0.8"/>
+<text x="470" y="87" fill="rgba(148,163,184,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SỰ KIỆN</text>
+<text x="588" y="108" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">State đổi</text>
+<rect x="440" y="156" width="296" height="56" rx="6" fill="#060913"/>
+<rect x="440" y="156" width="296" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="448" y="162" width="48" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="472" y="171" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">GỌI LẠI</text>
+<text x="588" y="188" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Gọi lại composable với state mới</text>
+<text x="588" y="203" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">recomposition</text>
+<rect x="440" y="240" width="296" height="56" rx="6" fill="#060913"/>
+<rect x="440" y="240" width="296" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="448" y="246" width="52" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="474" y="255" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CẬP NHẬT</text>
+<text x="588" y="276" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Compose so sánh và cập nhật phần khác</text>
+<!-- summaries -->
+<line x1="64" y1="404" x2="360" y2="404" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="64" y="428" fill="#F8FAFC" font-size="12" font-weight="600">Hai việc: dựng cây View, rồi tự sửa nó</text>
+<text x="64" y="444" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">mỗi thay đổi = một lệnh sửa UI</text>
+<line x1="440" y1="404" x2="736" y2="404" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="440" y="428" fill="#F8FAFC" font-size="12" font-weight="600">Một việc: mô tả UI cho state hiện tại</text>
+<text x="440" y="444" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">UI = f(state) · không có bước sửa</text>
+<!-- legend -->
+<line x1="40" y1="488" x2="760" y2="488" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="40" y="504" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="148" cy="500" r="4" fill="#38BDF8"/>
+<text x="160" y="504" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRỌNG TÂM · RECOMPOSITION</text>
+<rect x="300" y="496" width="8" height="8" rx="2" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<text x="316" y="504" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">DỮ LIỆU / STATE ĐỔI</text>
+<path d="M 436,496 V 504 A 4,2 0 0,0 444,504 V 496" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="0.8"/>
+<ellipse cx="440" cy="496" rx="4" ry="2" fill="#060913" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="452" y="504" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRẠNG THÁI NẰM TRONG VIEW</text>
+<line x1="604" y1="500" x2="636" y2="500" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#s09-compose-imperative-vs-declarative-dark-arrow)"/>
+<text x="644" y="504" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">BƯỚC KẾ TIẾP</text>
+</svg>
+  <p class="colophon">DIAGRAM-DESIGN · FLOWCHART · DOC-INLINE · MIXED · KNOWLEDGE OS SKIN</p>
+</div>
+</body>
+</html>

@@ -9,7 +9,6 @@ estimated_reading_time: 20 phút
 tags: [android, fragment, state, configuration-change, viewmodel, savedstatehandle, arguments]
 prerequisites: [android.component.fragment.lifecycle, android.component.activity.state_changes]
 related: [android.component.fragment.fragment_manager, android.component.activity.parcelables_and_bundle]
-downstream: []
 learning_outcomes:
   - Phân biệt được các tình huống Fragment bị recreate và hành vi tương ứng.
   - Giải thích được sự khác biệt giữa Arguments, onSaveInstanceState và ViewModel trong Fragment.
@@ -66,6 +65,7 @@ flowchart TD
     style E fill:#4CAF50,stroke:#388E3C,color:#fff
     style F fill:#9E9E9E,stroke:#757575,color:#fff
 ```
+<!-- dd: fsc-cases -->
 
 ### Chi tiết từng tình huống
 
@@ -114,7 +114,7 @@ class ProductDetailFragment : Fragment(R.layout.fragment_product_detail) {
 
 **Khi nào dùng:** Truyền dữ liệu khởi tạo (ID, filter params, config) khi tạo Fragment. Tương tự Intent extras của Activity.
 
-**Giới hạn:** Chỉ chứa data serializable, giới hạn ~1MB cho toàn bộ transaction buffer.
+**Giới hạn:** Chỉ chứa data Parcelable/Serializable. Arguments được lưu cùng saved state của Fragment, nên giữ nhỏ (docs khuyến nghị saved state dưới 50KB; buffer Binder ~1MB dùng chung cả process).
 
 ### 2. ViewModel (In-memory state)
 
@@ -123,13 +123,21 @@ ViewModel tồn tại qua Configuration Change nhưng **mất khi Process Death*
 ```kotlin
 class ProductDetailFragment : Fragment(R.layout.fragment_product_detail) {
 
-    // Scope theo Fragment — mỗi instance Fragment có ViewModel riêng
+    // Scope theo Fragment — mỗi instance Fragment có ViewModel riêng.
+    // by viewModels() đưa arguments ("product_id") vào SavedStateHandle của ViewModel.
+    // Không gọi loadProduct() trong onCreate: sau xoay màn hình onCreate chạy lại → fetch lặp.
     private val viewModel: ProductDetailViewModel by viewModels()
+}
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val productId = requireArguments().getString("product_id")!!
-        viewModel.loadProduct(productId)
+class ProductDetailViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+    private val productId: String = checkNotNull(savedStateHandle["product_id"])
+
+    init {
+        loadProduct(productId) // Chỉ chạy khi ViewModel được tạo mới
+    }
+
+    private fun loadProduct(id: String) {
+        viewModelScope.launch { /* gọi repository */ }
     }
 }
 ```
@@ -161,6 +169,9 @@ private val viewModel: ProductDetailViewModel by viewModels()
 
 **Khi nào dùng:** Dữ liệu người dùng nhập (search query, form input, scroll position, selected tab) cần survive cả process death.
 
+> [!NOTE]
+> **`onSaveInstanceState(outState)` của Fragment** vẫn tồn tại như Activity: FragmentManager gọi nó khi host Activity lưu state, và Bundle được trả lại ở `onCreate`/`onCreateView`/`onViewCreated`/`onViewStateRestored`. Ngoài ra, View có `android:id` (EditText, CheckBox, RecyclerView với LayoutManager mặc định) **tự lưu state của chính nó** — bạn không cần tự lưu text đang gõ hay vị trí scroll cho các View đó.
+
 ## Ma trận quyết định — Chọn đúng công cụ
 
 ```mermaid
@@ -182,6 +193,7 @@ flowchart TD
     style H fill:#FF9800,stroke:#F57C00,color:#fff
     style I fill:#9C27B0,stroke:#7B1FA2,color:#fff
 ```
+<!-- dd: fsc-decide -->
 
 | Loại dữ liệu | Công cụ | Ví dụ |
 |---|---|---|
@@ -230,6 +242,7 @@ flowchart TD
     style VMA fill:#4CAF50,stroke:#388E3C,color:#fff
     style VMB fill:#4CAF50,stroke:#388E3C,color:#fff
 ```
+<!-- dd: fsc-scopes -->
 
 **Quy tắc chọn scope:**
 - `viewModels()` — Dữ liệu thuộc riêng Fragment (product detail, form data)
@@ -238,7 +251,7 @@ flowchart TD
 
 ## setRetainInstance — Deprecated và thay thế
 
-Trước đây, `setRetainInstance(true)` cho phép Fragment instance tồn tại qua configuration change (Activity bị recreate nhưng Fragment instance giữ nguyên). Cách này đã **deprecated từ API 28**.
+Trước đây, `setRetainInstance(true)` cho phép Fragment instance tồn tại qua configuration change (Activity bị recreate nhưng Fragment instance giữ nguyên). Cách này đã **deprecated từ AndroidX Fragment 1.3.0** (API 28 là mốc deprecate `android.app.Fragment` của framework, không phải `setRetainInstance` của AndroidX).
 
 **Lý do deprecated:**
 - Gây rối loạn lifecycle: Fragment instance sống nhưng host Activity mới, context cũ bị leak
@@ -267,8 +280,9 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
-                    binding.etName.setText(state.name)
-                    binding.etEmail.setText(state.email)
+                    // Chỉ setText khi khác: tránh vòng lặp với doAfterTextChanged và con trỏ nhảy về đầu
+                    if (binding.etName.text.toString() != state.name) binding.etName.setText(state.name)
+                    if (binding.etEmail.text.toString() != state.email) binding.etEmail.setText(state.email)
                     binding.btnSave.isEnabled = state.isValid
                 }
             }
@@ -327,12 +341,12 @@ class EditProfileViewModel(
 
 > [!WARNING]
 > **SavedStateHandle giới hạn size:**
-> SavedStateHandle lưu qua `onSaveInstanceState` → giới hạn ~1MB cho toàn bộ Bundle. Không lưu bitmap, large list, hoặc complex object.
+> SavedStateHandle lưu qua `onSaveInstanceState` → docs khuyến nghị giữ saved state dưới 50KB (buffer Binder ~1MB dùng chung cả process). Không lưu bitmap, large list, hoặc complex object.
 > **Fix:** Lưu key/ID trong SavedStateHandle, re-fetch data khi restore.
 
 > [!TIP]
 > **Test Process Death dễ dàng:**
-> Android Studio → "Don't Keep Activities" (Developer Options) mô phỏng một phần process death. Để test chính xác hơn: mở app → nhấn Home → chạy `adb shell am kill <package_name>` → mở lại app từ Recent.
+> Bật "Don't keep activities" trong Developer Options **trên thiết bị** để mô phỏng một phần process death. Để test chính xác hơn: mở app → nhấn Home → chạy `adb shell am kill <package_name>` → mở lại app từ Recent.
 
 ## So sánh với Activity State Changes
 
@@ -347,20 +361,22 @@ Cơ chế cốt lõi giống nhau: cả Activity lẫn Fragment đều bị dest
 | ViewModel scope | Scope theo Activity | `viewModels()` (theo Fragment) / `activityViewModels()` (theo Activity) |
 | Ai lưu state khi recreate | Hệ thống | FragmentManager lưu & khôi phục từng Fragment + backstack |
 | Survive process death | SavedStateHandle / Bundle | SavedStateHandle / Bundle (giống) |
-| Giải pháp cũ đã deprecated | Không có | `setRetainInstance` (deprecated từ API 28) |
+| Giải pháp cũ đã deprecated | Không có | `setRetainInstance` (deprecated từ AndroidX Fragment 1.3.0) |
 
 **Điểm thực chiến quan trọng nhất:** với Activity, hệ thống quản lý `savedInstanceState` của Activity; với Fragment, **FragmentManager** chịu trách nhiệm lưu/khôi phục state của mọi Fragment đang quản lý (kể cả Fragment nằm trong backstack). Khi xoay màn hình, FragmentManager tự khôi phục đúng Fragment đang hiển thị — bạn chỉ cần lo phần dữ liệu (`arguments`, ViewModel, `SavedStateHandle`), không cần tự tay khôi phục Fragment instance.
 
 ## Nên học tiếp
 
-- **[FragmentManager](fragment_manager.md)** — transaction (`add`/`replace`/`remove`), backstack, và cách FragmentManager lưu/khôi phục state của từng Fragment.
-- **[Dialog and DialogFragment](dialog_and_dialogfragment.md)** — màn hình dialog có vòng đời riêng và cách lưu state khi rotate.
-- **[Activity State Changes](../activity/state_changes.md)** — nền tảng mà Fragment State Changes thừa hưởng.
+- **FragmentManager** (`android.component.fragment.fragment_manager`) — transaction (`add`/`replace`/`remove`), backstack, và cách FragmentManager lưu/khôi phục state của từng Fragment.
+- **Dialog and DialogFragment** (`android.component.fragment.dialog_and_dialogfragment`) — màn hình dialog có vòng đời riêng và cách lưu state khi rotate.
+- **Activity State Changes** (`android.component.activity.state_changes`) — nền tảng mà Fragment State Changes thừa hưởng.
 
 ## Nguồn tham khảo
 
 - [Save UI States - Android Developers](https://developer.android.com/topic/libraries/architecture/saving-states)
 - [ViewModel Overview - Android Developers](https://developer.android.com/topic/libraries/architecture/viewmodel)
 - [SavedStateHandle - Android Developers](https://developer.android.com/topic/libraries/architecture/viewmodel/viewmodel-savedstate)
-- [Fragment Arguments - Android Developers](https://developer.android.com/guide/fragments/communicate#fragment-result)
+- [Fragment Arguments (setArguments) - Android Developers](https://developer.android.com/reference/androidx/fragment/app/Fragment#setArguments(android.os.Bundle))
+- [Fragment (setRetainInstance deprecated) - Android Developers](https://developer.android.com/reference/androidx/fragment/app/Fragment)
+- [Parcelables and bundles (giới hạn kích thước) - Android Developers](https://developer.android.com/guide/components/activities/parcelables-and-bundles)
 - [Activity lifecycle / state changes - Android Developers](https://developer.android.com/guide/components/activities/activity-lifecycle)

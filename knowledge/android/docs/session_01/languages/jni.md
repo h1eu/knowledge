@@ -4,8 +4,8 @@ title: JNI & C/C++ Native Code trong Android
 summary: Cách Java/Kotlin gọi mã C/C++ qua Java Native Interface (JNI), NDK và CMake; chi phí của mỗi lần gọi JNI; đăng ký hàm native tĩnh và động; quản lý Local/Global Reference và bộ nhớ Native Heap; yêu cầu page size 16KB.
 status: published
 difficulty: advanced
-estimated_reading_time: 30 phút
 depth: deep-dive
+estimated_reading_time: 30 phút
 tags: [android, jni, cpp, ndk, cmake, native, memory]
 prerequisites: [android.languages.java_android, android.languages.kotlin]
 related: [android.output_packages.apk_files, android.output_packages.aab_files]
@@ -117,7 +117,7 @@ Một lời gọi JNI **không phải system call**: không chuyển sang kernel
 
 Mỗi lần gọi tốn cỡ hàng chục tới hàng trăm nanosecond tuỳ thiết bị, và truy cập dữ liệu Java từ C/C++ (đọc field, copy mảng) tốn thêm. Tốn kém nhất là gọi JNI **rất nhiều lần cho mỗi phần việc nhỏ**, ví dụ mỗi pixel một lần.
 
-> **Quy tắc thực tế:** Gom việc lại để **một lần gọi JNI xử lý cả khối dữ liệu** (cả bức ảnh, cả buffer), thay vì gọi trong vòng lặp. Framework Android còn dùng nội bộ các annotation như `@FastNative` / `@CriticalNative` để giảm chi phí chuyển trạng thái, nhưng với app, giảm số lần gọi là cách hiệu quả nhất.
+> **Quy tắc thực tế:** Gom việc lại để **một lần gọi JNI xử lý cả khối dữ liệu** (cả bức ảnh, cả buffer), thay vì gọi trong vòng lặp. Annotation `@FastNative` / `@CriticalNative` (package `dalvik.annotation.optimization`) giảm chi phí chuyển trạng thái. Ban đầu chỉ hệ thống dùng (từ Android 8), từ **Android 14** chúng là public API có CTS kiểm thử, nên app cũng dùng được, kèm điều kiện: không dùng cả hai cùng lúc; `@CriticalNative` chỉ cho hàm không nhận/trả object Java và hàm C++ bỏ tham số `JNIEnv*`, `jclass`; không dùng cho hàm chạy lâu, làm I/O hoặc giữ lock vì GC không dừng được thread trong lúc đó; trên Android 8–11 phải đăng ký bằng `RegisterNatives`; Android 7 trở xuống bỏ qua annotation (với `@CriticalNative` thì sai ABI, dễ crash). Dù vậy, giảm số lần gọi vẫn là cách hiệu quả nhất.
 
 ### 3. Đăng ký hàm Native: tĩnh và động
 
@@ -171,8 +171,15 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 
 Giới hạn số Local Reference:
 
-- **Trước Android 8.0**: số Local Reference mỗi thread bị giới hạn (512 trên nhiều phiên bản). Vượt quá thì app crash với lỗi `local reference table overflow`.
+- **Trước Android 8.0**: số Local Reference mỗi thread bị giới hạn (mức giới hạn khác nhau theo từng phiên bản). Vượt quá thì app crash với lỗi `local reference table overflow`.
 - **Từ Android 8.0 (API 26)**: không còn giới hạn cứng. Nhưng mọi object còn được tham chiếu vẫn bị giữ trong bộ nhớ cho tới khi hàm native trả về.
+
+Chiều ngược lại, **C/C++ gọi lên Java**, cần nhớ vài quy tắc:
+
+- Lấy `jmethodID` bằng `GetMethodID` / `GetStaticMethodID` (tra một lần rồi cache), sau đó gọi bằng họ `Call<Type>Method`.
+- Sau mỗi lời gọi `Call*Method`, phải kiểm tra `ExceptionCheck()`: nếu Java ném exception thì giá trị trả về không hợp lệ, và hầu hết hàm JNI khác bị cấm gọi cho tới khi bạn trả về hoặc `ExceptionClear()`.
+- `FindClass` gọi từ native thread tự tạo (rồi `AttachCurrentThread`) dùng **system ClassLoader**, không thấy class của app. Hãy `FindClass` trong `JNI_OnLoad` và cache `jclass` bằng `NewGlobalRef` để dùng ở mọi thread đã attach (`jmethodID` không phải reference, cache trực tiếp được).
+- Chuỗi truyền vào `NewStringUTF` phải là **Modified UTF-8**; dữ liệu đọc từ file/mạng cần lọc hoặc chuyển đổi trước.
 
 ---
 
@@ -200,16 +207,48 @@ class ImageFilter {
 ```cpp
 // src/main/cpp/image_filter.cpp
 #include <jni.h>
+#include <algorithm>
+#include <vector>
+
+static inline int clamp255(int v) { return std::min(255, std::max(0, v)); }
+
+// Lấy một kênh màu (B: shift 0, G: 8, R: 16) của pixel thứ j trong ảnh gốc
+static inline int channel(const std::vector<jint>& px, int j, int shift) {
+    return (px[j] >> shift) & 0xFF;
+}
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_shop_image_ImageFilter_sharpen(JNIEnv* env, jobject thiz,
                                                 jintArray pixels, jint width, jint height) {
-    jint* data = env->GetIntArrayElements(pixels, nullptr);
-    if (data == nullptr) return; // hết bộ nhớ, JNI đã đặt sẵn exception
+    const jsize count = width * height;
+    if (width < 3 || height < 3 || env->GetArrayLength(pixels) < count) return;
 
-    // Xử lý width * height pixel trực tiếp trên data
+    // Sharpen là phép convolution: mỗi pixel mới cần pixel GỐC của các điểm lân cận.
+    // Sửa trực tiếp trên mảng đang đọc sẽ làm các pixel sau đọc phải giá trị đã bị sửa.
+    // Vì vậy copy ảnh gốc ra src, tính kết quả vào dst riêng.
+    std::vector<jint> src(count), dst(count);
+    env->GetIntArrayRegion(pixels, 0, count, src.data()); // copy 1 lần, không cần Release
 
-    env->ReleaseIntArrayElements(pixels, data, 0); // 0: ghi kết quả về mảng Java và giải phóng
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            const int i = y * width + x;
+            if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
+                dst[i] = src[i]; // giữ nguyên viền ảnh
+                continue;
+            }
+            jint out = src[i] & 0xFF000000; // giữ kênh alpha
+            for (int shift = 0; shift <= 16; shift += 8) { // kênh B, G, R
+                // Kernel sharpen 3x3: [0 -1 0; -1 5 -1; 0 -1 0]
+                int v = 5 * channel(src, i, shift)
+                        - channel(src, i - 1, shift) - channel(src, i + 1, shift)
+                        - channel(src, i - width, shift) - channel(src, i + width, shift);
+                out |= clamp255(v) << shift;
+            }
+            dst[i] = out;
+        }
+    }
+
+    env->SetIntArrayRegion(pixels, 0, count, dst.data()); // ghi kết quả về mảng Java
 }
 ```
 
@@ -241,7 +280,7 @@ android {
 }
 ```
 
-Khi build, Gradle gọi CMake và NDK để biên dịch `libimagefilter.so` cho từng ABI, rồi đặt vào thư mục `lib/<abi>/` trong APK/AAB.
+Khi build, Gradle gọi CMake và NDK để biên dịch `libimagefilter.so` cho từng ABI, rồi đặt vào thư mục `lib/<abi>/` trong APK (trong AAB là `base/lib/<abi>/` của module base).
 
 ### 2. Rò rỉ Local Reference trong vòng lặp
 
@@ -339,3 +378,4 @@ Với đoạn code tạo nhiều reference cùng lúc, có thể bọc bằng `P
 - Android Developers: [JNI tips](https://developer.android.com/training/articles/perf-jni)
 - Android Developers: [Get started with the NDK](https://developer.android.com/ndk/guides)
 - Android Developers: [Support 16 KB page sizes](https://developer.android.com/guide/practices/page-sizes)
+- Android Developers: [FastNative](https://developer.android.com/reference/dalvik/annotation/optimization/FastNative), [CriticalNative](https://developer.android.com/reference/dalvik/annotation/optimization/CriticalNative)

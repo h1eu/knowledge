@@ -9,7 +9,6 @@ estimated_reading_time: 10 phút
 tags: [android, intent, explicit-intent]
 prerequisites: [android.component.activity.lifecycle]
 related: [android.intent.implicit, android.intent.pending_intent]
-downstream: []
 learning_outcomes:
   - Giải thích được bản chất và cơ chế hoạt động của Explicit Intent.
   - Triển khai được Explicit Intent trong XML/View truyền thống và Jetpack Compose.
@@ -36,11 +35,12 @@ Làm thế nào để Component A yêu cầu hệ thống khởi chạy Componen
 
 ## Explicit Intent là gì?
 
-**Explicit Intent (Intent tường minh)** là loại Intent mà bạn chỉ định **chính xác tên class** (component) sẽ xử lý nó.
+**Explicit Intent (Intent tường minh)** là loại Intent mà bạn chỉ định **chính xác component** sẽ xử lý nó: tên class (`Intent(context, X::class.java)`), một `ComponentName`, hoặc ít nhất package đích qua `setPackage()`.
 
 - **Đặc điểm:** Không thông qua bộ lọc (Intent Filter) của hệ thống.
 - **Phạm vi:** Thường được sử dụng để điều hướng **bên trong cùng một ứng dụng** (vì bạn biết rõ tên class của mình).
 - **Mục đích:** Khởi chạy Activity khác, start một Service, hoặc gửi một Broadcast đến một Receiver cụ thể.
+- **Với Service là bắt buộc:** từ Android 5.0 (API 21), gọi `bindService()` bằng implicit intent sẽ ném `IllegalArgumentException` ("Service Intent must be explicit"). Luôn chỉ định class, `ComponentName` hoặc `setPackage()` khi start/bind Service.
 
 ## Cách hoạt động
 
@@ -55,6 +55,7 @@ sequenceDiagram
     OS->>B: Khởi tạo và cấp phát tài nguyên cho Target
     B-->>A: Màn hình B hiển thị
 ```
+<!-- dd: intent-call -->
 
 1. **Khởi tạo:** Cung cấp `Context` hiện tại và `Class` đích.
 2. **Yêu cầu OS:** Gọi hàm (ví dụ `startActivity()`). OS (cụ thể là ActivityManagerService - AMS) nhận lệnh.
@@ -122,6 +123,11 @@ fun ProfileButton(userId: Int) {
 3. View (Activity/Fragment/Compose) observe sự kiện này, lấy Context của chính nó và gọi `startActivity(Intent(...))`.
 
 ```kotlin
+// Sự kiện điều hướng mà ViewModel phát ra
+sealed interface NavigationEvent {
+    data class NavigateToProfile(val userId: Int) : NavigationEvent
+}
+
 // 1. ViewModel: Chỉ phát ra sự kiện, KHÔNG biết về Intent
 class HomeViewModel : ViewModel() {
     private val _navigationEvent = Channel<NavigationEvent>()
@@ -140,7 +146,7 @@ viewLifecycleOwner.lifecycleScope.launch {
         when (event) {
             is NavigationEvent.NavigateToProfile -> {
                 val intent = Intent(requireContext(), ProfileActivity::class.java)
-                intent.putExtra("ID", event.userId)
+                intent.putExtra("USER_ID", event.userId)
                 startActivity(intent)
             }
         }
@@ -175,7 +181,8 @@ Khi muốn mở một trang web hoặc ứng dụng camera, việc cố gắng c
 
 - **Android 1.0 (API 1):** Cơ chế Explicit Intent được giới thiệu ngay từ phiên bản đầu tiên của Android, định hình kiến trúc component rời rạc (decoupled components) thông qua Binder IPC.
 - **Android 8.0 (API 26):** Giới hạn nghiêm ngặt Implicit Broadcast để tiết kiệm pin. Hệ thống khuyến khích chuyển sang dùng Explicit Intent (chỉ định rõ class) đối với các Broadcast Receiver đăng ký trong Manifest để đảm bảo hiệu năng.
-- **Android 14 (API 34):** Thắt chặt bảo mật. Các ứng dụng khi gửi Explicit Intent đến ứng dụng khác phải đảm bảo ứng dụng đích xuất (export) component đó một cách an toàn, hạn chế các cuộc tấn công tấn công giả mạo component (Component Hijacking).
+- **Android 14 (API 34):** Thắt chặt implicit intent: với app target 34+, implicit intent chỉ được giao tới component `exported`. Muốn mở component nội bộ (`exported="false"`) phải dùng Explicit Intent (chỉ định class hoặc `setPackage(context.packageName)`), nhờ đó app khác không chặn được intent nội bộ.
+- **Android 16 (API 36):** "Safer Intents" (opt-in qua `android:intentMatchingFlags="enforceIntentFilter"` trong manifest của app **nhận**): Explicit Intent từ app khác gửi tới component phải khớp `<intent-filter>` của component đó. Không ảnh hưởng điều hướng trong cùng một app.
 
 ## Kết nối hệ thống
 
