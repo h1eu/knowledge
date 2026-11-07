@@ -22983,7 +22983,7 @@ WorkManager.getInstance(context)
     domain: 'Android',
     module: 'Session 04: Application Components & Intent',
     prerequisites: ['android.component.service.overview'],
-    related: ['android.component.broadcast.overview', 'android.component.activity.overview', 'android.component.service.advertisements', 'android.component.content_provider'],
+    related: ['android.component.broadcast.overview', 'android.component.activity.overview', 'android.component.service.ads.overview', 'android.component.content_provider'],
     learningOutcomes: [
       'Phân biệt được Google Play Services và Firebase, và nhận biết SDK Firebase nào bắt buộc thiết bị có GMS.',
       'Áp dụng được Firebase BoM và google-services.json để tích hợp Firebase vào project chuẩn.',
@@ -24806,28 +24806,28 @@ override fun onMapReady(map: GoogleMap) {
     `
   },
 
-  'advertisements': {
-    title: 'Advertisements',
-    summary: 'Quảng cáo trên Android là việc app (Publisher) hiển thị nội dung quảng bá trả phí qua SDK của một Ad Network, phổ biến nhất là Google AdMob với Google Mobile Ads SDK. Bài giải thích hệ sinh thái AdMob (đấu giá, mediation), phân biệt các loại ad, cách tích hợp trong XML lẫn Jetpack Compose theo MVVM/Clean Architecture, quy tắc lifecycle khi show ad, privacy (UMP, trẻ em) và cách debug.',
-    status: 'published',
+  'ads-overview': {
+    title: 'AdMob Overview',
+    summary: 'Quảng cáo trên Android là việc app (Publisher) hiển thị nội dung quảng bá trả phí qua SDK của một Ad Network, phổ biến nhất là Google AdMob với Google Mobile Ads SDK. Bài giải thích các bên tham gia, cách một ad request đi qua đấu giá và mediation tới lúc hiển thị, các loại ad, và cách tích hợp SDK cùng test ads ngay từ đầu.',
+    status: 'reviewing',
     difficulty: 'intermediate',
-    estimatedReadingTime: '60 phút',
+    estimatedReadingTime: '25 phút',
     depth: 'deep-dive',
-    tags: ['android', 'ads', 'admob', 'google-mobile-ads', 'banner', 'interstitial', 'rewarded', 'native-ads', 'mediation', 'monetization', 'mvvm'],
+    tags: ['android', 'ads', 'admob', 'google-mobile-ads', 'mediation', 'monetization'],
     domain: 'Android',
-    module: 'Session 04: Application Components & Intent',
+    module: 'Session 04',
     prerequisites: ['android.component.service.overview', 'android.component.service.google_service'],
-    related: ['android.component.activity.lifecycle', 'android.component.fragment.lifecycle', 'android.component.fragment.fragment_manager'],
+    related: ['android.component.service.ads.inline', 'android.component.service.ads.fullscreen', 'android.component.service.ads.architecture', 'android.component.service.ads.privacy'],
     learningOutcomes: [
-      'Giải thích được bản chất quảng cáo trên Android và vai trò của từng thành phần (Advertiser, Ad Network, Publisher, SDK).',
-      'Phân biệt được Banner, Interstitial, Rewarded, Rewarded Interstitial và Native Ads, biết khi nào dùng loại nào.',
-      'Áp dụng được Google Mobile Ads SDK vào app cả View System (XML) lẫn Jetpack Compose, load/show/destroy đúng lifecycle.',
-      'Triển khai được quảng cáo trong MVVM/Clean Architecture ở đúng tầng, không vi phạm kiến trúc.',
-      'Nhận diện được các lỗi tích hợp phổ biến và cách debug, test ad an toàn.'
+      'Giải thích được vai trò của Advertiser, Ad Network, Publisher, SDK và đường đi của một ad request qua đấu giá, mediation tới khi hiển thị.',
+      'Phân biệt được App ID với Ad Unit ID, và các loại ad (Banner, Interstitial, Rewarded, Rewarded Interstitial, Native, App Open) theo hình thức và use case.',
+      'Áp dụng được 4 bước tích hợp Google Mobile Ads SDK (dependency, App ID, khởi tạo, test ads) mà không tạo invalid traffic.',
+      'Debug được lỗi load ad bằng Ad Inspector, logcat và mã lỗi (no fill).',
+      'Biết khi nào dùng AdMob, mediation, tự xây ad server hay In-app Purchase.'
     ],
-    knowledgeGap: 'Nhiều người chỉ biết dán banner lên màn hình, không hiểu luồng đấu giá ad, tải lại ad sai vòng đời gây crash.',
+    knowledgeGap: 'Nhiều người chỉ biết dán banner lên màn hình, không hiểu luồng đấu giá ad, không biết vì sao test bằng ad unit thật làm tài khoản bị khoá.',
     updatedAt: '2026-11-07',
-    readTime: '60 phút',
+    readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -24842,16 +24842,16 @@ override fun onMapReady(map: GoogleMap) {
   <li><strong>SDK</strong> — thư viện chạy trong app để yêu cầu và show ad.</li>
 </ul>
 
-<p>Nếu tự xây toàn bộ hệ thống này thì không khả thi. Bài này giúp bạn hiểu và tích hợp <strong>Google Mobile Ads SDK (AdMob)</strong> — ad network lớn nhất của Google — đúng cách, từ bản chất đến code thực tế.</p>
+<p>Nếu tự xây toàn bộ hệ thống này thì không khả thi. Bài này giải thích hệ sinh thái <strong>Google AdMob</strong> (ad network lớn nhất của Google), đường đi của một ad request từ app tới lúc hiển thị, và cách tích hợp <strong>Google Mobile Ads SDK</strong> đúng ngay từ đầu. Cách dùng từng loại ad, cách đặt quảng cáo vào kiến trúc app và các quy định privacy nằm ở các bài 4.2.3.3.2 đến 4.2.3.3.5.</p>
 
 <h2>Sau khi học xong</h2>
 
 <ul>
-  <li>Giải thích được bản chất quảng cáo trên Android và vai trò của từng thành phần (Advertiser, Ad Network, Publisher, SDK).</li>
-  <li>Phân biệt được Banner, Interstitial, Rewarded, Rewarded Interstitial và Native Ads, biết khi nào dùng loại nào.</li>
-  <li>Áp dụng được Google Mobile Ads SDK vào app cả View System (XML) lẫn Jetpack Compose, load/show/destroy đúng lifecycle.</li>
-  <li>Triển khai được quảng cáo trong MVVM/Clean Architecture ở đúng tầng, không vi phạm kiến trúc.</li>
-  <li>Nhận diện được các lỗi tích hợp phổ biến và cách debug, test ad an toàn.</li>
+  <li>Giải thích được vai trò của Advertiser, Ad Network, Publisher, SDK và đường đi của một ad request qua đấu giá, mediation tới khi hiển thị.</li>
+  <li>Phân biệt được App ID với Ad Unit ID, và các loại ad (Banner, Interstitial, Rewarded, Rewarded Interstitial, Native, App Open) theo hình thức và use case.</li>
+  <li>Áp dụng được 4 bước tích hợp Google Mobile Ads SDK (dependency, App ID, khởi tạo, test ads) mà không tạo invalid traffic.</li>
+  <li>Debug được lỗi load ad bằng Ad Inspector, logcat và mã lỗi (no fill).</li>
+  <li>Biết khi nào dùng AdMob, mediation, tự xây ad server hay In-app Purchase.</li>
 </ul>
 
 <h2>Quảng cáo trên Android là gì?</h2>
@@ -25847,179 +25847,18 @@ override fun onMapReady(map: GoogleMap) {
   </tbody>
 </table>
 
-<h3>Chi tiết từng loại</h3>
+<p><strong>App Open Ad</strong> (hiển thị khi app quay lại từ background) cũng là ad toàn màn hình, nằm ở bài Full-screen Ads.</p>
 
-<h4>Banner Ads</h4>
-
-<p><strong>Bản chất:</strong> Banner là một View (thực chất là WebView) hiển thị HTML ad. Nó gắn vào layout của app, luôn hiển thị.</p>
-
-<p><strong>Kích thước chuẩn:</strong></p>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Ad Size</th>
-      <th style="padding:8px 12px;text-align:left;">Dimensions (WxH)</th>
-      <th style="padding:8px 12px;text-align:left;">Use case</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">BANNER</td>
-      <td style="padding:8px 12px;">320x50</td>
-      <td style="padding:8px 12px;">Điện thoại, dưới màn hình</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">LARGE_BANNER</td>
-      <td style="padding:8px 12px;">320x100</td>
-      <td style="padding:8px 12px;">Điện thoại, cao hơn</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">MEDIUM_RECTANGLE</td>
-      <td style="padding:8px 12px;">300x250</td>
-      <td style="padding:8px 12px;">Tablet, giữa nội dung</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">FULL_BANNER</td>
-      <td style="padding:8px 12px;">468x60</td>
-      <td style="padding:8px 12px;">Tablet</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">LEADERBOARD</td>
-      <td style="padding:8px 12px;">728x90</td>
-      <td style="padding:8px 12px;">Tablet, trên cùng</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">ADAPTIVE_BANNER</td>
-      <td style="padding:8px 12px;">Tự động</td>
-      <td style="padding:8px 12px;">Tự động theo chiều rộng màn hình</td>
-    </tr>
-  </tbody>
-</table>
-
-<p><strong>Khi nào dùng:</strong></p>
+<p>Bảng trên dùng để chọn loại ad. Cách hoạt động, code và quy tắc lifecycle của từng loại:</p>
 
 <ul>
-  <li>App cần revenue ổn định, liên tục.</li>
-  <li>Không muốn làm phiền user quá nhiều.</li>
-  <li>App có màn hình dài, có chỗ trống dưới cùng.</li>
+  <li>Banner, Native (nằm trong layout của app): <a href="inline_ads.md" target="_blank" rel="noopener">Inline Ads</a>.</li>
+  <li>Interstitial, Rewarded, Rewarded Interstitial, App Open (SDK mở màn hình riêng): <a href="fullscreen_ads.md" target="_blank" rel="noopener">Full-screen Ads</a>.</li>
 </ul>
 
-<p><strong>Khi nào KHÔNG dùng:</strong></p>
+<h2>Ví dụ thực tế: tích hợp Google Mobile Ads SDK</h2>
 
-<ul>
-  <li>App có UI chật chội, không có chỗ trống.</li>
-  <li>App yêu cầu user tập trung cao (game hành động, đọc sách).</li>
-  <li>App có nhiều màn hình nhỏ, banner sẽ chiếm quá nhiều không gian.</li>
-</ul>
-
-<h4>Interstitial Ads</h4>
-
-<p><strong>Bản chất:</strong> Interstitial là một Activity fullscreen nội bộ của SDK. Nó không phải View của app, mà là một màn hình riêng được SDK quản lý.</p>
-
-<p><strong>Đặc điểm:</strong></p>
-
-<ul>
-  <li>Chiếm toàn bộ màn hình.</li>
-  <li>User phải đóng (nút X) hoặc tương tác (click) để quay lại app.</li>
-  <li>Một instance chỉ show được một lần.</li>
-</ul>
-
-<p><strong>Khi nào dùng:</strong></p>
-
-<ul>
-  <li>Ở <strong>natural break point</strong> của flow:
-<ul>
-  <li>Sau khi user hoàn thành level (game).</li>
-  <li>Sau khi user save document (app productivity).</li>
-  <li>Sau khi user xem xong bài viết (app content).</li>
-</ul></li>
-  <li>Giữa các màn hình chính (không nên show quá thường xuyên).</li>
-</ul>
-
-<p><strong>Khi nào KHÔNG dùng:</strong></p>
-
-<ul>
-  <li>Ngay khi mở app (user chưa kịp làm gì).</li>
-  <li>Khi user đang nhập liệu (đánh máy, điền form).</li>
-  <li>Khi user đang chơi game hồi căng thẳng.</li>
-  <li>Quá thường xuyên (mỗi 30 giây một lần) — gây khó chịu, bị gỡ app.</li>
-</ul>
-
-<h4>Rewarded Ads</h4>
-
-<p><strong>Bản chất:</strong> Rewarded là ad mà user <strong>chủ động chọn xem</strong> để đổi lấy thứ gì đó có giá trị trong app (xu, lives, unlock tính năng).</p>
-
-<p><strong>Đặc điểm:</strong></p>
-
-<ul>
-  <li>User phải xem hết (hoặc qua thời gian tối thiểu) mới nhận thưởng.</li>
-  <li>Doanh thu cao nhất vì user tương tác chủ động.</li>
-  <li>Không được ép buộc — user phải tự bấm nút xem.</li>
-</ul>
-
-<p><strong>Khi nào dùng:</strong></p>
-
-<ul>
-  <li>Game: xem ad nhận coin, extra lives, unlock skin.</li>
-  <li>App productivity: xem ad để mở khóa tính năng premium tạm thời.</li>
-  <li>App content: xem ad để đọc bài viết premium.</li>
-</ul>
-
-<p><strong>Khi nào KHÔNG dùng:</strong></p>
-
-<ul>
-  <li>Ép buộc user xem ad để dùng tính năng cơ bản (vi phạm policy).</li>
-  <li>Thưởng không đủ giá trị (user không muốn xem).</li>
-  <li>App không có cơ chế thưởng rõ ràng.</li>
-</ul>
-
-<h4>Rewarded Interstitial Ads</h4>
-
-<p><strong>Bản chất:</strong> Kết hợp Interstitial và Rewarded — ad fullscreen tự động hiển thị, nhưng user phải xem hết mới nhận thưởng.</p>
-
-<p><strong>Khác với Rewarded thông thường:</strong></p>
-
-<ul>
-  <li>Rewarded: user bấm nút để xem.</li>
-  <li>Rewarded Interstitial: ad tự động hiển thị ở điểm dừng, user phải xem để nhận thưởng.</li>
-</ul>
-
-<p><strong>Khi nào dùng:</strong></p>
-
-<ul>
-  <li>Game: sau khi hoàn thành level, ad tự động hiện, user xem để nhận bonus.</li>
-  <li>Flow có nhiều bước, mỗi bước có thưởng.</li>
-</ul>
-
-<h4>Native Ads</h4>
-
-<p><strong>Bản chất:</strong> Native Ads cho phép customize UI ad để hòa lẫn với UI của app. Bạn tự bind dữ liệu (headline, image, call-to-action) vào layout của mình.</p>
-
-<p><strong>Đặc điểm:</strong></p>
-
-<ul>
-  <li>Hợp với giao diện app nhưng <strong>bắt buộc có nhãn attribution</strong> (vd "Quảng cáo"/"Ad") để user biết đó là quảng cáo; biểu tượng AdChoices do SDK tự chèn.</li>
-  <li>UX tốt nhất vì ad không phá UI.</li>
-  <li>Implementation phức tạp nhất — phải tự bind từng view.</li>
-</ul>
-
-<p><strong>Khi nào dùng:</strong></p>
-
-<ul>
-  <li>Feed content (news, social media).</li>
-  <li>List items (product list, video list).</li>
-  <li>Khi muốn ad hòa lẫn tự nhiên.</li>
-</ul>
-
-<p><strong>Khi nào KHÔNG dùng:</strong></p>
-
-<ul>
-  <li>App đơn giản, không cần customize.</li>
-  <li>Không có thời gian implement (Native phức tạp hơn Banner nhiều).</li>
-</ul>
-
-<h2>Tích hợp Google Mobile Ads SDK</h2>
+<p>Bốn bước dưới đây làm một lần cho cả app, trước khi dùng bất kỳ loại ad nào.</p>
 
 <h3>Bước 1: Khai báo dependency</h3>
 
@@ -26030,13 +25869,13 @@ plugins {
 }
 
 dependencies {
-    implementation("com.google.android.gms:play-services-ads:23.4.0")
+    implementation("com.google.android.gms:play-services-ads:25.5.0")
 }</code></pre>
 
 <p><strong>Lưu ý:</strong></p>
 
 <ul>
-  <li>Version mới nhất kiểm tra tại: https://developers.google.com/admob/android/quick-start</li>
+  <li>Version mới nhất kiểm tra tại: https://developers.google.com/admob/android/quick-start (tháng 11/2026 là 25.5.0). Trang docs hiện gắn nhãn SDK này là "Google Mobile Ads SDK (Legacy)": khi bắt đầu dự án mới, đọc docs để chọn đúng SDK.</li>
   <li>Không cần <code>google-services.json</code> (khác với Firebase).</li>
   <li>SDK tự động thêm permissions cần thiết (<code>INTERNET</code>, <code>ACCESS_NETWORK_STATE</code>, <code>com.google.android.gms.permission.AD_ID</code>).</li>
 </ul>
@@ -26086,6 +25925,8 @@ dependencies {
   <li>Callback <code>initializationStatus</code> trả về trạng thái của từng ad network (AdMob, mediation networks...).</li>
   <li>Không cần chờ callback xong mới load ad — SDK tự queue requests.</li>
   <li>Khởi tạo càng sớm càng tốt để giảm latency khi load ad đầu tiên.</li>
+  <li>Quick-start của Google minh hoạ gọi <code>initialize()</code> trên background thread (<code>CoroutineScope(Dispatchers.IO).launch { ... }</code>) để không chặn main thread lúc mở app.</li>
+  <li>App có user ở vùng cần consent (EEA, UK, Thuỵ Sĩ) phải kiểm tra <code>canRequestAds()</code> trước khi request ad: xem <a href="privacy_policy.md" target="_blank" rel="noopener">Ads Privacy &amp; Policy</a>.</li>
 </ul>
 
 <h3>Bước 4: Test ads — bắt buộc dùng</h3>
@@ -26110,7 +25951,11 @@ dependencies {
   </thead>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Banner</td>
+      <td style="padding:8px 12px;font-weight:600;">Adaptive Banner</td>
+      <td style="padding:8px 12px;"><code>ca-app-pub-3940256099942544/9214589741</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Fixed Size Banner</td>
       <td style="padding:8px 12px;"><code>ca-app-pub-3940256099942544/6300978111</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
@@ -26128,6 +25973,10 @@ dependencies {
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Native</td>
       <td style="padding:8px 12px;"><code>ca-app-pub-3940256099942544/2247696110</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Native Video</td>
+      <td style="padding:8px 12px;"><code>ca-app-pub-3940256099942544/1044960115</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">App Open</td>
@@ -26158,1167 +26007,6 @@ MobileAds.setRequestConfiguration(configuration)</code></pre>
 <ul>
   <li>Test device ID hiển thị trong logcat khi bạn chạy app với ad unit ID thật.</li>
   <li>AdMob sẽ trả về test ads cho device này, không tính là invalid traffic.</li>
-</ul>
-
-<h2>Banner Ads</h2>
-
-<h3>XML (View System)</h3>
-
-<p><strong>Layout:</strong></p>
-
-<pre data-lang="xml"><code>&lt;com.google.android.gms.ads.AdView
-    android:id="@+id/adView"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom|center_horizontal"
-    app:adSize="BANNER"
-    app:adUnitId="ca-app-pub-3940256099942544/6300978111"/&gt;</code></pre>
-
-<p><strong>Activity:</strong></p>
-
-<pre data-lang="kotlin"><code>class MainActivity : AppCompatActivity() {
-
-    private lateinit var adView: AdView
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        
-        adView = findViewById(R.id.adView)
-        adView.loadAd(AdRequest.Builder().build())
-    }
-
-    // Quan trọng: phải synchronous lifecycle với Activity
-    override fun onPause() {
-        adView.pause()  // Dừng load ad, dừng animation/video
-        super.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        adView.resume()  // Tiếp tục load ad
-    }
-
-    override fun onDestroy() {
-        adView.destroy()  // Giải phóng resource, tránh memory leak
-        super.onDestroy()
-    }
-}</code></pre>
-
-<p><strong>Chi tiết lifecycle:</strong></p>
-
-<ul>
-  <li><code>pause()</code>: Dừng mọi hoạt động của banner (load ad, animation, video). Gọi khi Activity không còn visible (onPause).</li>
-  <li><code>resume()</code>: Tiếp tục hoạt động. Gọi khi Activity trở lại foreground (onResume).</li>
-  <li><code>destroy()</code>: Giải phóng resource (WebView, memory). Gọi khi Activity bị destroy. <strong>Bắt buộc</strong> để tránh memory leak.</li>
-</ul>
-
-<p><strong>Tại sao phải gọi pause/resume/destroy?</strong></p>
-
-<ul>
-  <li>Banner thực chất là <strong>WebView</strong> hiển thị HTML ad.</li>
-  <li>Nếu không pause khi app ở background:
-<ul>
-  <li>WebView vẫn chạy → tốn CPU, battery.</li>
-  <li>Video ad vẫn phát → user nghe tiếng quảng cáo khi app bị ẩn.</li>
-  <li>Vi phạm chính sách Google Play (ad không được chạy ngầm).</li>
-</ul></li>
-  <li>Nếu không destroy khi Activity bị hủy:
-<ul>
-  <li>WebView vẫn giữ reference đến Context → memory leak.</li>
-  <li>Ad vẫn load → tốn network, battery.</li>
-</ul></li>
-</ul>
-
-<h3>Jetpack Compose</h3>
-
-<pre data-lang="kotlin"><code>@Composable
-fun AdBannerView(
-    modifier: Modifier = Modifier,
-    adUnitId: String,
-    adSize: AdSize = AdSize.BANNER
-) {
-    AndroidView(
-        modifier = modifier,
-        factory = { context -&gt;
-            AdView(context).apply {
-                this.adSize = adSize
-                this.adUnitId = adUnitId
-                loadAd(AdRequest.Builder().build())
-            }
-        },
-        update = { adView -&gt;
-            // Called khi recomposition với tham số mới
-            // Thường không cần reload ad trừ khi adUnitId thay đổi
-            if (adView.adUnitId != adUnitId) {
-                adView.adUnitId = adUnitId
-                adView.loadAd(AdRequest.Builder().build())
-            }
-        },
-        onRelease = { adView -&gt;
-            // Called khi Composable rời khỏi composition
-            adView.destroy()  // Tương đương onDestroy trong View System
-        }
-    )
-}
-
-// Sử dụng
-@Composable
-fun MainScreen() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Nội dung màn hình
-        Column(modifier = Modifier.fillMaxSize()) {
-            // ... content ...
-        }
-        
-        // Banner ở dưới cùng
-        AdBannerView(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(8.dp),
-            adUnitId = "ca-app-pub-3940256099942544/6300978111"
-        )
-    }
-}</code></pre>
-
-<p><strong>Chi tiết Compose:</strong></p>
-
-<ul>
-  <li><code>AndroidView</code>: Bridge giữa Compose và View System.</li>
-  <li><code>factory</code>: Tạo AdView lần đầu. Chỉ gọi một lần.</li>
-  <li><code>update</code>: Gọi khi recomposition với tham số mới. Kiểm tra <code>adUnitId</code> thay đổi mới reload.</li>
-  <li><code>onRelease</code>: Gọi khi Composable rời khỏi composition. <strong>Phải gọi <code>destroy()</code></strong> để tránh leak.</li>
-</ul>
-
-<p><strong>Lưu ý:</strong></p>
-
-<ul>
-  <li>Không nên khởi tạo AdView trong <code>remember {}</code> với lambda không ổn định — có thể tạo lại View gây double load.</li>
-  <li>Nếu cần pause/resume theo lifecycle, dùng <code>DisposableEffect</code> với <code>LocalLifecycleOwner</code>:</li>
-</ul>
-
-<pre data-lang="kotlin"><code>@Composable
-fun AdBannerViewWithLifecycle(
-    modifier: Modifier = Modifier,
-    adUnitId: String
-) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    // Giữ AdView trong remember để observer bên dưới gọi được pause()/resume()
-    val adView = remember {
-        AdView(context).apply {
-            adSize = AdSize.BANNER
-            this.adUnitId = adUnitId
-            loadAd(AdRequest.Builder().build())
-        }
-    }
-
-    AndroidView(modifier = modifier, factory = { adView })
-
-    // AndroidView KHÔNG tự pause/resume AdView: phải tự nối với lifecycle
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event -&gt;
-            when (event) {
-                Lifecycle.Event.ON_RESUME -&gt; adView.resume()
-                Lifecycle.Event.ON_PAUSE -&gt; adView.pause()
-                else -&gt; Unit
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
-    // Rời composition → destroy để tránh leak
-    DisposableEffect(adView) {
-        onDispose { adView.destroy() }
-    }
-}</code></pre>
-
-<h2>Interstitial Ads</h2>
-
-<h3>Bản chất</h3>
-
-<p>Interstitial <strong>không phải View gắn layout</strong> — nó là fullscreen activity nội bộ của SDK, quản lý bởi <code>InterstitialAd</code>.</p>
-
-<p><strong>Đặc điểm:</strong></p>
-
-<ul>
-  <li>Chiếm toàn bộ màn hình.</li>
-  <li>User phải đóng (nút X) hoặc tương tác (click) để quay lại app.</li>
-  <li>Một instance chỉ show được một lần.</li>
-  <li>Load asynchronous, phải load trước khi cần show.</li>
-</ul>
-
-<h3>Load (tải trước khi cần)</h3>
-
-<pre data-lang="kotlin"><code>class MainActivity : AppCompatActivity() {
-
-    private var interstitialAd: InterstitialAd? = null
-    private val TAG = "Interstitial"
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        
-        // Load ad ngay khi Activity tạo
-        loadInterstitial()
-    }
-
-    private fun loadInterstitial() {
-        InterstitialAd.load(
-            this,
-            "ca-app-pub-3940256099942544/1033173712",
-            AdRequest.Builder().build(),
-            object : InterstitialAdLoadCallback() {
-                override fun onAdLoaded(ad: InterstitialAd) {
-                    interstitialAd = ad
-                    Log.d(TAG, "Ad loaded successfully")
-                    
-                    // Set callback để theo dõi sự kiện
-                    interstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                        override fun onAdClicked() {
-                            Log.d(TAG, "Ad clicked")
-                        }
-
-                        override fun onAdDismissedFullScreenContent() {
-                            Log.d(TAG, "Ad dismissed")
-                            // Ad đã đóng → xóa reference và load ad mới
-                            interstitialAd = null
-                            loadInterstitial()  // Load ad mới cho lần sau
-                        }
-
-                        override fun onAdFailedToShowFullScreenContent(error: AdError) {
-                            Log.e(TAG, "Ad failed to show: \${error.message}")
-                            interstitialAd = null
-                        }
-
-                        override fun onAdImpression() {
-                            Log.d(TAG, "Ad impression recorded")
-                        }
-
-                        override fun onAdShowedFullScreenContent() {
-                            Log.d(TAG, "Ad showed fullscreen")
-                        }
-                    }
-                }
-
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    Log.e(TAG, "Ad failed to load: \${error.message}")
-                    interstitialAd = null
-                    // Không load lại ngay — đợi một thời gian rồi thử lại
-                }
-            }
-        )
-    }
-}</code></pre>
-
-<p><strong>Chi tiết:</strong></p>
-
-<ul>
-  <li><code>InterstitialAd.load()</code>: Bắt đầu load ad asynchronous.</li>
-  <li><code>InterstitialAdLoadCallback</code>: Callback khi load xong hoặc lỗi.</li>
-  <li><code>onAdLoaded</code>: Ad đã sẵn sàng, gán vào variable.</li>
-  <li><code>onAdFailedToLoad</code>: Lỗi (no fill, network error, invalid ad unit).</li>
-  <li><code>fullScreenContentCallback</code>: Theo dõi sự kiện khi show ad.</li>
-  <li><strong>Quan trọng:</strong> Trong <code>onAdDismissedFullScreenContent</code>, phải load ad mới vì ad cũ đã dùng xong.</li>
-</ul>
-
-<h3>Show (đúng thời điểm)</h3>
-
-<pre data-lang="kotlin"><code>private fun showInterstitial() {
-    // Kiểm tra Activity có ở foreground không
-    if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-        interstitialAd?.let { ad -&gt;
-            ad.show(this)  // Show ad
-        } ?: run {
-            // Chưa có ad sẵn sàng → không show
-            Log.d(TAG, "Ad not ready yet")
-        }
-    } else {
-        // Activity không ở foreground → không show
-        Log.w(TAG, "Cannot show ad: Activity not in foreground")
-    }
-}</code></pre>
-
-<p><strong>Khi nào gọi <code>showInterstitial()</code>?</strong></p>
-
-<ul>
-  <li>Sau khi user hoàn thành level (game).</li>
-  <li>Sau khi user save document (app productivity).</li>
-  <li>Sau khi user xem xong bài viết (app content).</li>
-  <li><strong>Không</strong> gọi ngay khi mở app.</li>
-  <li><strong>Không</strong> gọi khi user đang nhập liệu.</li>
-</ul>
-
-<p><strong>Ví dụ thực tế:</strong></p>
-
-<pre data-lang="kotlin"><code>class GameActivity : AppCompatActivity() {
-
-    private var interstitialAd: InterstitialAd? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_game)
-        
-        loadInterstitial()
-        
-        // Nút "Next Level"
-        findViewById&lt;Button&gt;(R.id.btnNextLevel).setOnClickListener {
-            goToNextLevel()
-        }
-    }
-
-    private fun goToNextLevel() {
-        // Hiển thị interstitial trước khi chuyển level
-        if (interstitialAd != null) {
-            // Chuyển level khi ad đóng (hoặc show lỗi), không phải ngay lúc gọi show
-            interstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                override fun onAdDismissedFullScreenContent() {
-                    interstitialAd = null
-                    startNextLevel()
-                    loadInterstitial()
-                }
-
-                override fun onAdFailedToShowFullScreenContent(error: AdError) {
-                    interstitialAd = null
-                    startNextLevel()
-                }
-            }
-            showInterstitial()
-        } else {
-            // Không có ad → chuyển level ngay
-            startNextLevel()
-        }
-    }
-
-    private fun startNextLevel() {
-        // Logic chuyển level
-        Log.d("Game", "Starting next level")
-    }
-}</code></pre>
-
-<h3>Chú thích lifecycle (Interstitial)</h3>
-
-<p><strong>Load trước, show sau:</strong></p>
-
-<ul>
-  <li>Tải ad khi bắt đầu màn hình/level.</li>
-  <li>Hiển thị khi user hoàn thành hành động.</li>
-  <li><strong>Không</strong> vừa load vừa show — ad chưa sẵn sàng sẽ gây lỗi.</li>
-</ul>
-
-<p><strong>Một ad chỉ dùng một lần:</strong></p>
-
-<ul>
-  <li>Sau khi show, instance ad "chết".</li>
-  <li>Phải load ad mới trong <code>onAdDismissedFullScreenContent</code>.</li>
-</ul>
-
-<p><strong>Chỉ show khi Activity ở RESUMED:</strong></p>
-
-<ul>
-  <li>Kiểm tra <code>lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)</code>.</li>
-  <li><strong>Không</strong> show khi Activity đang <code>onPause</code>/<code>onStop</code> (app về background).</li>
-  <li>SDK có thể crash hoặc vi phạm policy nếu show sai thời điểm.</li>
-</ul>
-
-<p><strong>Không show quá thường xuyên:</strong></p>
-
-<ul>
-  <li>Mỗi 3-5 phút một lần là hợp lý.</li>
-  <li>Show mỗi 30 giây → user chán, gỡ app.</li>
-  <li>Google có thể gỡ app nếu phát hiện ad quá nhiều.</li>
-</ul>
-
-<p><strong>Xử lý lỗi:</strong></p>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Error Code</th>
-      <th style="padding:8px 12px;text-align:left;">Ý nghĩa</th>
-      <th style="padding:8px 12px;text-align:left;">Xử lý</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">0</td>
-      <td style="padding:8px 12px;">ERROR_CODE_INTERNAL_ERROR</td>
-      <td style="padding:8px 12px;">Lỗi nội bộ SDK. Thử lại sau.</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">1</td>
-      <td style="padding:8px 12px;">ERROR_CODE_INVALID_REQUEST</td>
-      <td style="padding:8px 12px;">Ad unit ID sai hoặc request invalid. Kiểm tra config.</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">2</td>
-      <td style="padding:8px 12px;">ERROR_CODE_NETWORK_ERROR</td>
-      <td style="padding:8px 12px;">Lỗi mạng. Kiểm tra kết nối.</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">3</td>
-      <td style="padding:8px 12px;">ERROR_CODE_NO_FILL</td>
-      <td style="padding:8px 12px;">Không có ad phù hợp. Bình thường, thử lại sau vài phút.</td>
-    </tr>
-  </tbody>
-</table>
-
-<pre data-lang="kotlin"><code>override fun onAdFailedToLoad(error: LoadAdError) {
-    when (error.code) {
-        AdRequest.ERROR_CODE_NO_FILL -&gt; {
-            // Không có ad → không làm gì, thử lại sau
-            Log.d(TAG, "No fill, will retry later")
-        }
-        AdRequest.ERROR_CODE_NETWORK_ERROR -&gt; {
-            // Lỗi mạng → kiểm tra kết nối
-            Log.e(TAG, "Network error")
-        }
-        else -&gt; {
-            Log.e(TAG, "Ad failed: \${error.code}")
-        }
-    }
-}</code></pre>
-
-<h2>Rewarded Ads</h2>
-
-<h3>Bản chất</h3>
-
-<p>Rewarded là ad mà user <strong>chủ động chọn xem</strong> để đổi lấy thứ gì đó có giá trị trong app (xu, lives, unlock tính năng).</p>
-
-<p><strong>Đặc điểm:</strong></p>
-
-<ul>
-  <li>User phải xem hết (hoặc qua thời gian tối thiểu) mới nhận thưởng.</li>
-  <li>Doanh thu cao nhất vì user tương tác chủ động.</li>
-  <li><strong>Không được ép buộc</strong> — user phải tự bấm nút xem.</li>
-  <li>Một instance chỉ show được một lần.</li>
-</ul>
-
-<h3>Triển khai với MVVM</h3>
-
-<p><strong>ViewModel:</strong></p>
-
-<pre data-lang="kotlin"><code>class GameViewModel : ViewModel() {
-
-    private var rewardedAd: RewardedAd? = null
-
-    // State
-    private val _coins = MutableStateFlow(100)
-    val coins: StateFlow&lt;Int&gt; = _coins.asStateFlow()
-
-    private val _canShowRewardedAd = MutableStateFlow(false)
-    val canShowRewardedAd: StateFlow&lt;Boolean&gt; = _canShowRewardedAd.asStateFlow()
-
-    fun loadRewarded(context: Context) {
-        // Dùng applicationContext: callback sống lâu hơn Activity, giữ Activity ở đây sẽ leak
-        val appContext = context.applicationContext
-        RewardedAd.load(
-            appContext,
-            "ca-app-pub-3940256099942544/5224354917",
-            AdRequest.Builder().build(),
-            object : RewardedAdLoadCallback() {
-                override fun onAdLoaded(ad: RewardedAd) {
-                    rewardedAd = ad
-                    _canShowRewardedAd.value = true
-
-                    ad.fullScreenContentCallback = object : FullScreenContentCallback() {
-                        override fun onAdDismissedFullScreenContent() {
-                            rewardedAd = null
-                            _canShowRewardedAd.value = false
-                            loadRewarded(appContext)  // Load ad mới
-                        }
-
-                        override fun onAdFailedToShowFullScreenContent(error: AdError) {
-                            rewardedAd = null
-                            _canShowRewardedAd.value = false
-                        }
-                    }
-                }
-
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    rewardedAd = null
-                    _canShowRewardedAd.value = false
-                }
-            }
-        )
-    }
-
-    fun showRewarded(activity: Activity, onReward: (Int) -&gt; Unit) {
-        rewardedAd?.let { ad -&gt;
-            ad.show(activity) { rewardItem -&gt;
-                // User xem xong → trao thưởng
-                val rewardAmount = rewardItem.amount
-                _coins.value += rewardAmount
-                onReward(rewardAmount)
-            }
-        }
-    }
-}</code></pre>
-
-<p><strong>Activity:</strong></p>
-
-<pre data-lang="kotlin"><code>class GameActivity : AppCompatActivity() {
-
-    private val viewModel: GameViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_game)
-
-        // Load ad
-        viewModel.loadRewarded(this)
-
-        // Nút "Watch Ad for Coins"
-        findViewById&lt;Button&gt;(R.id.btnWatchAd).setOnClickListener {
-            if (viewModel.canShowRewardedAd.value) {
-                viewModel.showRewarded(this) { coins -&gt;
-                    Toast.makeText(this, "Earned $coins coins!", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(this, "Ad not ready yet", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Observe coins
-        lifecycleScope.launch {
-            viewModel.coins.collect { coins -&gt;
-                findViewById&lt;TextView&gt;(R.id.tvCoins).text = "Coins: $coins"
-            }
-        }
-
-        // Observe ad availability
-        lifecycleScope.launch {
-            viewModel.canShowRewardedAd.collect { canShow -&gt;
-                findViewById&lt;Button&gt;(R.id.btnWatchAd).isEnabled = canShow
-            }
-        }
-    }
-}</code></pre>
-
-<h3>Chú thích lifecycle (Rewarded)</h3>
-
-<p><strong>Reward chỉ trao trong callback <code>onUserEarnedReward</code>:</strong></p>
-
-<ul>
-  <li>Không được tưởng thưởng trước khi ad xem xong.</li>
-  <li>Callback chỉ gọi khi user xem đủ thời gian yêu cầu.</li>
-  <li>Nếu user đóng ad giữa chừng → callback không gọi → không có thưởng.</li>
-</ul>
-
-<p><strong>Không tái sử dụng RewardedAd:</strong></p>
-
-<ul>
-  <li>Mỗi ad một lần show.</li>
-  <li>Sau khi show, load ad mới trong <code>onAdDismissedFullScreenContent</code>.</li>
-</ul>
-
-<p><strong>Cơ chế bảo vệ revenue:</strong></p>
-
-<ul>
-  <li>Nếu user đóng ad giữa chừng, callback reward không được gọi.</li>
-  <li>Đây là cơ chế bảo vệ advertiser — họ chỉ trả tiền khi user xem đủ.</li>
-  <li>Đừng cố hack (ví dụ: tự gọi reward khi user đóng ad) — vi phạm policy, bị banned.</li>
-</ul>
-
-<p><strong>UX tốt:</strong></p>
-
-<ul>
-  <li>Hiển thị nút "Watch Ad" rõ ràng.</li>
-  <li>Cho biết user sẽ nhận được gì (ví dụ: "Watch ad to get 50 coins").</li>
-  <li>Không ép buộc — user phải tự chọn xem.</li>
-</ul>
-
-<h2>Native Ads</h2>
-
-<h3>Bản chất</h3>
-
-<p>Native Ads cho phép customize UI thông qua template, giúp ad hòa lẫn với UI của app.</p>
-
-<p><strong>Đặc điểm:</strong></p>
-
-<ul>
-  <li>Hợp với giao diện app nhưng <strong>bắt buộc có nhãn attribution</strong> (vd "Quảng cáo"/"Ad") để user biết đó là quảng cáo; biểu tượng AdChoices do SDK tự chèn.</li>
-  <li>UX tốt nhất vì ad không phá UI.</li>
-  <li>Implementation phức tạp nhất — phải tự bind từng view.</li>
-</ul>
-
-<h3>Layout XML</h3>
-
-<pre data-lang="xml"><code>&lt;!-- layout/native_ad_layout.xml --&gt;
-&lt;com.google.android.gms.ads.nativead.NativeAdView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/native_ad_view"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="16dp"&gt;
-
-    &lt;LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"&gt;
-
-        &lt;!-- Nhãn attribution: bắt buộc theo policy native ads --&gt;
-        &lt;TextView
-            android:id="@+id/ad_attribution"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quảng cáo"
-            android:textSize="12sp"/&gt;
-
-        &lt;!-- Media (image/video) --&gt;
-        &lt;com.google.android.gms.ads.nativead.MediaView
-            android:id="@+id/ad_media"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"/&gt;
-
-        &lt;!-- Headline --&gt;
-        &lt;TextView
-            android:id="@+id/ad_headline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp"/&gt;
-
-        &lt;!-- Body --&gt;
-        &lt;TextView
-            android:id="@+id/ad_body"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginTop="4dp"/&gt;
-
-        &lt;!-- Call to action --&gt;
-        &lt;Button
-            android:id="@+id/ad_call_to_action"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"/&gt;
-
-    &lt;/LinearLayout&gt;
-&lt;/com.google.android.gms.ads.nativead.NativeAdView&gt;</code></pre>
-
-<h3>Load và bind</h3>
-
-<pre data-lang="kotlin"><code>class MainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        loadNativeAd()
-    }
-
-    private fun loadNativeAd() {
-        val adLoader = AdLoader.Builder(this, "ca-app-pub-3940256099942544/2247696110")
-            .forNativeAd { nativeAd -&gt;
-                // Ad đã load → bind vào layout
-                bindNativeAd(nativeAd)
-            }
-            .withAdListener(object : AdListener() {
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    Log.e("NativeAd", "Failed to load: \${error.message}")
-                }
-            })
-            .build()
-
-        adLoader.loadAd(AdRequest.Builder().build())
-    }
-
-    private fun bindNativeAd(nativeAd: NativeAd) {
-        val adView = layoutInflater.inflate(R.layout.native_ad_layout, null) as NativeAdView
-
-        // Bind headline
-        adView.headlineView = adView.findViewById(R.id.ad_headline)
-        (adView.headlineView as TextView).text = nativeAd.headline
-
-        // Bind body (optional)
-        if (nativeAd.body != null) {
-            adView.bodyView = adView.findViewById(R.id.ad_body)
-            (adView.bodyView as TextView).text = nativeAd.body
-            adView.bodyView?.visibility = View.VISIBLE
-        } else {
-            adView.bodyView?.visibility = View.GONE
-        }
-
-        // Bind media
-        adView.mediaView = adView.findViewById(R.id.ad_media)
-
-        // Bind call to action
-        adView.callToActionView = adView.findViewById(R.id.ad_call_to_action)
-        (adView.callToActionView as Button).text = nativeAd.callToAction
-        adView.callToActionView?.visibility = View.VISIBLE
-
-        // Gán xong mọi asset view (kể cả MediaView) rồi mới setNativeAd(): gọi SAU CÙNG
-        adView.setNativeAd(nativeAd)
-
-        // Add ad view vào layout
-        findViewById&lt;LinearLayout&gt;(R.id.adContainer).addView(adView)
-    }
-}</code></pre>
-
-<h3>Chú thích</h3>
-
-<p><strong>Phải bind từng view:</strong></p>
-
-<ul>
-  <li><code>headlineView</code>, <code>bodyView</code>, <code>mediaView</code>, <code>callToActionView</code>...</li>
-  <li>Gọi <code>adView.setNativeAd(nativeAd)</code> <strong>sau cùng</strong>, sau khi đã gán mọi asset view (kể cả <code>mediaView</code>), để SDK đăng ký đúng view và đo click/impression.</li>
-</ul>
-
-<p><strong>Destroy khi không dùng:</strong></p>
-
-<ul>
-  <li>Native ad giữ reference đến Context.</li>
-  <li>Khi Activity bị destroy, phải destroy native ad để tránh leak.</li>
-</ul>
-
-<pre data-lang="kotlin"><code>override fun onDestroy() {
-    nativeAd?.destroy()
-    super.onDestroy()
-}</code></pre>
-
-<h2>Quảng cáo trong MVVM / Clean Architecture</h2>
-
-<h3>Nguyên tắc</h3>
-
-<p>Quảng cáo có bản chất <strong>gắn với UI và lifecycle Activity</strong> — nó cần <code>Activity</code>/<code>Context</code> để show. Vì vậy:</p>
-
-<p><strong>Tầng Data:</strong></p>
-
-<ul>
-  <li>AdMob SDK nằm ở Data Layer (hoặc <code>AdManager</code>/<code>AdRepository</code> riêng).</li>
-  <li>Bọc toàn bộ API của Google.</li>
-  <li>Trả kết quả thuần (suspend/flow) cho tầng trên.</li>
-</ul>
-
-<p><strong>Tầng Domain:</strong></p>
-
-<ul>
-  <li>Hoàn toàn không biết ad tồn tại.</li>
-  <li>UseCase chỉ xử lý nghiệp vụ.</li>
-</ul>
-
-<p><strong>Tầng Presentation:</strong></p>
-
-<ul>
-  <li>UI quyết định thời điểm show (vì chỉ UI mới biết Activity foreground).</li>
-  <li>ViewModel điều phối trạng thái.</li>
-</ul>
-
-<h3>Mẫu triển khai</h3>
-
-<p><strong>Interface:</strong></p>
-
-<pre data-lang="kotlin"><code>interface AdManager {
-    suspend fun loadInterstitial(): Boolean
-    fun showInterstitial(activity: Activity)
-    suspend fun loadRewarded(): Boolean
-    fun showRewarded(activity: Activity, onReward: (Int) -&gt; Unit)
-}</code></pre>
-
-<p><strong>Implementation:</strong></p>
-
-<pre data-lang="kotlin"><code>class AdMobAdManager @Inject constructor(
-    @ApplicationContext private val context: Context
-) : AdManager {
-
-    private var interstitialAd: InterstitialAd? = null
-    private var rewardedAd: RewardedAd? = null
-
-    override suspend fun loadInterstitial(): Boolean =
-        suspendCoroutine { cont -&gt;
-            InterstitialAd.load(context, INTERSTITIAL_ID, AdRequest.Builder().build(),
-                object : InterstitialAdLoadCallback() {
-                    override fun onAdLoaded(ad: InterstitialAd) {
-                        interstitialAd = ad
-                        cont.resume(true)
-                    }
-
-                    override fun onAdFailedToLoad(error: LoadAdError) {
-                        cont.resume(false)
-                    }
-                })
-        }
-
-    override fun showInterstitial(activity: Activity) {
-        if (activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-            interstitialAd?.show(activity)
-            interstitialAd = null
-        }
-    }
-
-    override suspend fun loadRewarded(): Boolean =
-        suspendCoroutine { cont -&gt;
-            RewardedAd.load(context, REWARDED_ID, AdRequest.Builder().build(),
-                object : RewardedAdLoadCallback() {
-                    override fun onAdLoaded(ad: RewardedAd) {
-                        rewardedAd = ad
-                        cont.resume(true)
-                    }
-
-                    override fun onAdFailedToLoad(error: LoadAdError) {
-                        cont.resume(false)
-                    }
-                })
-        }
-
-    override fun showRewarded(activity: Activity, onReward: (Int) -&gt; Unit) {
-        if (activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-            rewardedAd?.show(activity) { rewardItem -&gt;
-                onReward(rewardItem.amount)
-            }
-            rewardedAd = null
-        }
-    }
-}</code></pre>
-
-<p><strong>ViewModel:</strong></p>
-
-<pre data-lang="kotlin"><code>class GameViewModel(
-    private val adManager: AdManager
-) : ViewModel() {
-
-    private val _showRewardedEvent = MutableSharedFlow&lt;Boolean&gt;(extraBufferCapacity = 1)
-    val showRewardedEvent: SharedFlow&lt;Boolean&gt; = _showRewardedEvent.asSharedFlow()
-
-    private val _rewardGranted = MutableStateFlow(0)
-    val rewardGranted: StateFlow&lt;Int&gt; = _rewardGranted.asStateFlow()
-
-    fun onWatchAdForCoinsClicked() {
-        _showRewardedEvent.tryEmit(true)
-    }
-
-    fun onRewardEarned(coins: Int) {
-        _rewardGranted.value += coins
-    }
-}</code></pre>
-
-<p><strong>Activity:</strong></p>
-
-<pre data-lang="kotlin"><code>class GameActivity : AppCompatActivity() {
-
-    @Inject lateinit var adManager: AdManager
-    private val viewModel: GameViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_game)
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.showRewardedEvent.collect { shouldShow -&gt;
-                    if (shouldShow) {
-                        adManager.showRewarded(this@GameActivity) { coins -&gt;
-                            viewModel.onRewardEarned(coins)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}</code></pre>
-
-<h3>Tại sao Ad ở Data Layer?</h3>
-
-<p><strong>Lý do:</strong></p>
-
-<ol>
-  <li><strong>AdMob SDK là external dependency</strong> — giống như Firebase, Room, Retrofit.</li>
-  <li><strong>Dễ thay thế</strong> — nếu đổi sang AppLovin, chỉ cần viết lại <code>AdMobAdManager</code>, không đụng UI/Domain.</li>
-  <li><strong>Dễ test</strong> — mock <code>AdManager</code> interface, test ViewModel mà không cần SDK thật.</li>
-  <li><strong>Tách biệt trách nhiệm</strong> — UI chỉ lo hiển thị, Data lo tích hợp SDK.</li>
-</ol>
-
-<p><strong>Không đặt Ad ở Presentation Layer:</strong></p>
-
-<ul>
-  <li>ViewModel không nên biết về AdMob SDK.</li>
-  <li>Nếu đặt SDK trong ViewModel → khó test, khó thay đổi network.</li>
-</ul>
-
-<p><strong>Không đặt Ad ở Domain Layer:</strong></p>
-
-<ul>
-  <li>Domain không nên biết về external dependencies.</li>
-  <li>UseCase chỉ xử lý nghiệp vụ thuần.</li>
-</ul>
-
-<h2>Chú thích hiển thị quảng cáo theo lifecycle app (Lifecycle Guidelines)</h2>
-
-<p>Đây là phần các nhà phát triển hay bỏ qua — dẫn đến crash, leak và bị Google phạt. Tổng hợp toàn bộ quy tắc:</p>
-
-<h3>1. Banner (View gắn layout)</h3>
-
-<p><strong>Quy tắc:</strong></p>
-
-<ul>
-  <li>Gọi <code>adView.pause()</code> trong <code>onPause</code>.</li>
-  <li>Gọi <code>adView.resume()</code> trong <code>onResume</code>.</li>
-  <li>Gọi <code>adView.destroy()</code> trong <code>onDestroy</code>.</li>
-</ul>
-
-<p><strong>Tại sao:</strong></p>
-
-<ul>
-  <li>Banner là WebView — nếu không pause khi app ở background:
-<ul>
-  <li>WebView vẫn chạy → tốn CPU, battery.</li>
-  <li>Video ad vẫn phát → user nghe tiếng quảng cáo khi app bị ẩn.</li>
-  <li>Vi phạm chính sách Google Play.</li>
-</ul></li>
-  <li>Nếu không destroy khi Activity bị hủy:
-<ul>
-  <li>WebView vẫn giữ reference đến Context → memory leak.</li>
-  <li>Ad vẫn load → tốn network, battery.</li>
-</ul></li>
-</ul>
-
-<p><strong>Trong Compose:</strong></p>
-
-<ul>
-  <li><code>onRelease</code> callback của <code>AndroidView</code> chính là nơi gọi <code>destroy()</code>.</li>
-  <li>AndroidView <strong>không</strong> tự pause/resume AdView: phải tự gọi <code>pause()</code>/<code>resume()</code> qua <code>LifecycleEventObserver</code> (xem <code>AdBannerViewWithLifecycle</code> ở phần Banner).</li>
-</ul>
-
-<p><strong>Nếu app có nhiều Activity cùng hiển thị banner:</strong></p>
-
-<ul>
-  <li>Chỉ một banner duy nhất nên hoạt động tại một thời điểm.</li>
-  <li>Khi chuyển Activity, pause banner cũ, resume banner mới.</li>
-</ul>
-
-<h3>2. Interstitial &amp; Rewarded (Fullscreen)</h3>
-
-<p><strong>Quy tắc:</strong></p>
-
-<ul>
-  <li><strong>Chỉ show khi Activity ở <code>RESUMED</code>.</strong></li>
-  <li>Kiểm tra bằng <code>lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)</code>.</li>
-  <li>Hoặc dùng <code>repeatOnLifecycle(Lifecycle.State.RESUMED)</code>.</li>
-</ul>
-
-<p><strong>Tại sao:</strong></p>
-
-<ul>
-  <li>Nếu show khi Activity đang <code>onPause</code>/<code>onStop</code>:
-<ul>
-  <li>SDK có thể crash.</li>
-  <li>Vi phạm chính sách (ad không được hiển thị khi app không ở foreground).</li>
-  <li>User không thấy ad → không có revenue.</li>
-</ul></li>
-</ul>
-
-<p><strong>Không show trong <code>onCreate</code>:</strong></p>
-
-<ul>
-  <li>Màn hình chưa sẵn sàng.</li>
-  <li>Activity chưa visible.</li>
-  <li>Có thể gây crash hoặc hiển thị sai.</li>
-</ul>
-
-<p><strong>Không show khi Activity đang bị overlay:</strong></p>
-
-<ul>
-  <li>Dialog đang mở.</li>
-  <li>Notification drawer đang kéo.</li>
-  <li>SDK xử lý không chính xác trong các trường hợp này.</li>
-</ul>
-
-<p><strong>Sau khi đóng fullscreen ad:</strong></p>
-
-<ul>
-  <li>Hệ thống gọi lại <code>onPause</code>/<code>onResume</code> của Activity.</li>
-  <li>Đừng show ad ngay trong lúc này nếu không cần thiết.</li>
-  <li>Đợi user thực hiện hành động khác rồi mới show.</li>
-</ul>
-
-<h3>3. Tránh hiển thị trùng lặp</h3>
-
-<p><strong>Quy tắc:</strong></p>
-
-<ul>
-  <li>Chỉ hiển thị <strong>một fullscreen ad tại một thời điểm</strong>.</li>
-  <li>Không bao giờ mở interstitial chồng lên rewarded đang hiển thị.</li>
-</ul>
-
-<p><strong>Tại sao:</strong></p>
-
-<ul>
-  <li>Gây confuse cho user.</li>
-  <li>SDK có thể crash.</li>
-  <li>Vi phạm chính sách.</li>
-</ul>
-
-<p><strong>Cách implement:</strong></p>
-
-<pre data-lang="kotlin"><code>private var isAdShowing = false
-
-private fun showInterstitial() {
-    if (isAdShowing) {
-        // Đang có ad hiển thị → không show ad mới
-        return
-    }
-    
-    interstitialAd?.let { ad -&gt;
-        isAdShowing = true
-        ad.show(this)
-    }
-}
-
-// Trong fullScreenContentCallback
-override fun onAdDismissedFullScreenContent() {
-    isAdShowing = false
-    interstitialAd = null
-    loadInterstitial()
-}</code></pre>
-
-<h3>4. Process life</h3>
-
-<p><strong>Khi app vào background:</strong></p>
-
-<ul>
-  <li>Fullscreen ad đang hiển thị nên được coi như đã đóng.</li>
-  <li>Đừng giữ reference đến ad cũ.</li>
-  <li>Không chủ động load ad liên tục ở background.</li>
-</ul>
-
-<p><strong>Tại sao:</strong></p>
-
-<ul>
-  <li>Load ad ở background → bị AdMob xem là traffic bất thường.</li>
-  <li>Tốn network, battery.</li>
-  <li>Ad có thể expire trước khi app trở lại foreground.</li>
-</ul>
-
-<p><strong>Implement:</strong></p>
-
-<pre data-lang="kotlin"><code>// Cờ của app (không phải API của SDK): mọi chỗ load ad kiểm tra cờ này trước
-object AdLoadGate {
-    @Volatile var isAppInForeground = true
-}
-
-class MyApplication : Application() {
-
-    override fun onCreate() {
-        super.onCreate()
-        
-        ProcessLifecycleOwner.get().lifecycle.addObserver(object : LifecycleEventObserver {
-            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                when (event) {
-                    // Google Mobile Ads SDK không có API kiểu "pauseAdLoading()":
-                    // app tự giữ một cờ và kiểm tra nó trước mỗi lần gọi load()
-                    Lifecycle.Event.ON_STOP -&gt; AdLoadGate.isAppInForeground = false
-                    Lifecycle.Event.ON_START -&gt; AdLoadGate.isAppInForeground = true
-                    else -&gt; Unit
-                }
-            }
-        })
-    }
-}</code></pre>
-
-<h3>5. App Open Ads (tùy chọn nâng cao)</h3>
-
-<p><strong>Bản chất:</strong></p>
-
-<ul>
-  <li>App Open Ad hiển thị mỗi khi app mở lại từ background.</li>
-  <li>Giống như splash screen nhưng có quảng cáo.</li>
-</ul>
-
-<p><strong>Implement:</strong></p>
-
-<pre data-lang="kotlin"><code>class MyApplication : Application(), Application.ActivityLifecycleCallbacks, DefaultLifecycleObserver {
-
-    private var appOpenAd: AppOpenAd? = null
-    private var isLoadingAd = false
-    private var isShowingAd = false
-    private var loadTime = 0L
-    private var currentActivity: Activity? = null  // show() cần Activity, không nhận Application
-
-    override fun onCreate() {
-        super&lt;Application&gt;.onCreate()
-        registerActivityLifecycleCallbacks(this)
-        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
-    }
-
-    // App vừa về foreground → show app open ad trên Activity đang hiển thị
-    override fun onStart(owner: LifecycleOwner) {
-        currentActivity?.let { showAdIfAvailable(it) }
-    }
-
-    // Theo dõi Activity hiện tại; bỏ qua AdActivity của SDK khi đang show ad
-    override fun onActivityStarted(activity: Activity) {
-        if (!isShowingAd) currentActivity = activity
-    }
-
-    override fun onActivityDestroyed(activity: Activity) {
-        if (currentActivity === activity) currentActivity = null
-    }
-
-    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
-    override fun onActivityResumed(activity: Activity) {}
-    override fun onActivityPaused(activity: Activity) {}
-    override fun onActivityStopped(activity: Activity) {}
-    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
-
-    private fun loadAd() {
-        if (isLoadingAd || isAdAvailable()) return
-        isLoadingAd = true
-        AppOpenAd.load(this, APP_OPEN_AD_ID, AdRequest.Builder().build(),
-            object : AppOpenAd.AppOpenAdLoadCallback() {
-                override fun onAdLoaded(ad: AppOpenAd) {
-                    appOpenAd = ad
-                    isLoadingAd = false
-                    loadTime = System.currentTimeMillis()
-                }
-
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    isLoadingAd = false
-                }
-            })
-    }
-
-    // App open ad hết hạn sau 4 giờ kể từ lúc load
-    private fun isAdAvailable(): Boolean =
-        appOpenAd != null &amp;&amp; System.currentTimeMillis() - loadTime &lt; 4 * 3_600_000L
-
-    private fun showAdIfAvailable(activity: Activity) {
-        if (isShowingAd) return
-        if (!isAdAvailable()) {
-            loadAd()
-            return
-        }
-        // Gán callback TRƯỚC khi show
-        appOpenAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-            override fun onAdDismissedFullScreenContent() {
-                appOpenAd = null
-                isShowingAd = false
-                loadAd()
-            }
-
-            override fun onAdFailedToShowFullScreenContent(error: AdError) {
-                appOpenAd = null
-                isShowingAd = false
-                loadAd()
-            }
-        }
-        isShowingAd = true
-        appOpenAd?.show(activity)
-    }
-}</code></pre>
-
-<p><strong>Cảnh báo:</strong></p>
-
-<ul>
-  <li>App Open Ads có nhiều quy định riêng.</li>
-  <li>Dễ gây khó chịu nếu show quá thường xuyên.</li>
-  <li>Chỉ dùng khi thực sự cần và luôn thử nghiệm cẩn thận.</li>
-  <li>Không show khi user đang thực hiện tác vụ quan trọng.</li>
 </ul>
 
 <h2>So sánh với công nghệ tương tự</h2>
@@ -27611,104 +26299,7 @@ class MyApplication : Application() {
     }
 }</code></pre>
 
-<h2>Các chính sách quan trọng (Privacy &amp; Compliance)</h2>
-
-<h3>GDPR (Châu Âu)</h3>
-
-<p><strong>Bản chất:</strong></p>
-
-<ul>
-  <li>GDPR (General Data Protection Regulation) là luật bảo vệ dữ liệu cá nhân của EU.</li>
-  <li>App phải xin sự đồng ý của user trước khi thu thập dữ liệu để quảng cáo cá nhân hóa.</li>
-</ul>
-
-<p><strong>Implement với UMP SDK:</strong></p>
-
-<pre data-lang="kotlin"><code>// Trong Activity đầu tiên (vd MainActivity.onCreate)
-// 1. Lấy ConsentInformation và cập nhật trạng thái consent mỗi lần mở app
-val consentInformation = UserMessagingPlatform.getConsentInformation(this)
-val params = ConsentRequestParameters.Builder().build()
-
-consentInformation.requestConsentInfoUpdate(this, params, {
-    // 2. Hiển thị form nếu cần (vd user ở EEA/UK chưa có consent); không cần thì callback chạy ngay
-    UserMessagingPlatform.loadAndShowConsentFormIfRequired(this) { formError -&gt;
-        if (formError != null) {
-            Log.w("Consent", formError.message)
-        }
-        // 3. Chỉ request ad khi canRequestAds() = true
-        if (consentInformation.canRequestAds()) loadAd()
-    }
-}, { requestError -&gt;
-    Log.w("Consent", requestError.message)
-})
-
-// Consent từ phiên trước đã đủ thì có thể load ad song song (loadAd() tự chặn gọi trùng bằng một cờ)
-if (consentInformation.canRequestAds()) loadAd()</code></pre>
-
-<p><strong>Chi tiết:</strong></p>
-
-<ul>
-  <li><code>canRequestAds()</code>: Trả về true nếu user đã đồng ý hoặc không cần consent.</li>
-  <li><code>UserMessagingPlatform.loadAndShowConsentFormIfRequired()</code>: Tự động hiển thị form nếu cần.</li>
-  <li>Lựa chọn consent được UMP lưu trên máy; Google Mobile Ads SDK đọc lựa chọn đó và tự điều chỉnh loại ad (vd ad không cá nhân hoá), không cần đổi <code>AdRequest</code>. <code>setMaxAdContentRating</code> chỉ giới hạn mức nội dung của ad, không liên quan tới cá nhân hoá.</li>
-  <li>Với user ở vùng cần consent, nên có nút mở lại form trong Settings: kiểm tra <code>privacyOptionsRequirementStatus</code> rồi gọi <code>UserMessagingPlatform.showPrivacyOptionsForm()</code>.</li>
-</ul>
-
-<h3>COPPA / Đối tượng trẻ em</h3>
-
-<p><strong>Bản chất:</strong></p>
-
-<ul>
-  <li>COPPA (Children's Online Privacy Protection Act) là luật bảo vệ trẻ em dưới 13 tuổi ở Mỹ.</li>
-  <li>Nếu app hướng đến trẻ em, phải tuân thủ COPPA.</li>
-</ul>
-
-<p><strong>Implement:</strong></p>
-
-<pre data-lang="kotlin"><code>// Cấu hình toàn cục cho mọi ad request (gọi trước khi load ad)
-val requestConfiguration = MobileAds.getRequestConfiguration().toBuilder()
-    // App hướng đến trẻ em; thay cho setTagForChildDirectedTreatment (đã deprecated)
-    .setAgeRestrictedTreatment(AgeRestrictedTreatment.CHILD)
-    // Chỉ nhận ad có xếp hạng nội dung G
-    .setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_G)
-    .build()
-MobileAds.setRequestConfiguration(requestConfiguration)</code></pre>
-
-<p><strong>Tác động:</strong></p>
-
-<ul>
-  <li>Google chỉ phục vụ ad an toàn cho trẻ (không có nội dung nhạy cảm).</li>
-  <li>Không thu thập dữ liệu cá nhân của trẻ.</li>
-  <li>Doanh thu có thể thấp hơn (ít advertiser target trẻ em).</li>
-</ul>
-
-<h3>Quy tắc Google Play</h3>
-
-<p><strong>Không được:</strong></p>
-
-<ul>
-  <li>Quảng cáo lừa đảo, nội dung nhạy cảm (sex, bạo lực).</li>
-  <li>Ép buộc user xem ad (ví dụ: chặn toàn bộ app trừ khi xem ad).</li>
-  <li>Bắt chước UI hệ thống (fake close button, fake notification).</li>
-</ul>
-
-<p><strong>Hậu quả:</strong></p>
-
-<ul>
-  <li>App bị từ chối khi submit.</li>
-  <li>App bị gỡ nếu đã publish.</li>
-  <li>Tài khoản developer bị banned (khó khôi phục).</li>
-</ul>
-
-<p><strong>Best practice:</strong></p>
-
-<ul>
-  <li>Đọc kỹ <a href="https://support.google.com/googleplay/android-developer/answer/113468" target="_blank" rel="noopener">Google Play Policy</a>.</li>
-  <li>Test app với policy checker trước khi submit.</li>
-  <li>Nếu không chắc, hỏi Google trước.</li>
-</ul>
-
-<h2>Sai lầm thường gặp (Pitfalls)</h2>
+<h2>Sai lầm thường gặp</h2>
 
 <h3>1. Quên khai báo App ID trong Manifest</h3>
 
@@ -27765,80 +26356,7 @@ MobileAds.setRequestConfiguration(requestConfiguration)</code></pre>
     "ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY"  // Production
 }</code></pre>
 
-<h3>3. Show Interstitial ngay khi vừa load xong</h3>
-
-<p><strong>Triệu chứng:</strong></p>
-
-<ul>
-  <li>User khó chịu.</li>
-  <li>Tỷ lệ uninstall cao.</li>
-  <li>Google có thể gỡ app.</li>
-</ul>
-
-<p><strong>Nguyên nhân:</strong></p>
-
-<ul>
-  <li>Show ad ngay khi app mở hoặc user chưa kịp làm gì.</li>
-</ul>
-
-<p><strong>Giải pháp:</strong></p>
-
-<ul>
-  <li>Show ở <strong>natural break point</strong> của flow:
-<ul>
-  <li>Sau khi user hoàn thành level.</li>
-  <li>Sau khi user save document.</li>
-  <li>Sau khi user xem xong bài viết.</li>
-</ul></li>
-</ul>
-
-<h3>4. Không tải lại ad sau khi show</h3>
-
-<p><strong>Triệu chứng:</strong></p>
-
-<ul>
-  <li>Lần sau user không có ad để xem.</li>
-  <li>Mất revenue.</li>
-</ul>
-
-<p><strong>Nguyên nhân:</strong></p>
-
-<ul>
-  <li>Một instance ad chỉ dùng được một lần.</li>
-  <li>Sau khi show, ad "chết".</li>
-</ul>
-
-<p><strong>Giải pháp:</strong></p>
-
-<pre data-lang="kotlin"><code>override fun onAdDismissedFullScreenContent() {
-    interstitialAd = null  // Xóa reference
-    loadInterstitial()     // Load ad mới
-}</code></pre>
-
-<h3>5. Memory leak banner</h3>
-
-<p><strong>Triệu chứng:</strong></p>
-
-<ul>
-  <li>App tốn nhiều memory.</li>
-  <li>Crash OOM (Out Of Memory) sau thời gian dài.</li>
-</ul>
-
-<p><strong>Nguyên nhân:</strong></p>
-
-<ul>
-  <li>Không gọi <code>adView.destroy()</code> khi Activity bị hủy.</li>
-  <li>WebView vẫn giữ reference đến Context.</li>
-</ul>
-
-<p><strong>Giải pháp:</strong></p>
-
-<pre data-lang="kotlin"><code>override fun onDestroy() {
-    adView.destroy()  // Bắt buộc
-    super.onDestroy()
-}</code></pre>
-
-<h3>6. Mã lỗi 3 (No fill) không phải bug</h3>
+<h3>3. Mã lỗi 3 (No fill) không phải bug</h3>
 
 <p><strong>Triệu chứng:</strong></p>
 
@@ -27930,7 +26448,1815 @@ MobileAds.setRequestConfiguration(configuration)</code></pre>
   <li>Copy device ID và thêm vào <code>setTestDeviceIds()</code>.</li>
 </ul>
 
-<h2>Performance Considerations</h2>
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>2006:</strong> AdMob ra đời, là nền tảng quảng cáo mobile độc lập.</li>
+  <li><strong>2010:</strong> Google mua lại AdMob với giá $750 triệu.</li>
+  <li><strong>2013:</strong> Google Mobile Ads SDK được đưa vào Google Play services 4.0, thay thế AdMob SDK độc lập cũ.</li>
+  <li><strong>2014:</strong> Google hợp nhất AdMob với Google Ads, tạo thành nền tảng quảng cáo thống nhất.</li>
+  <li><strong>2020:</strong> SDK 19.0.0 deprecated <code>addTestDevice()</code>, thay bằng <code>RequestConfiguration.setTestDeviceIds()</code>.</li>
+  <li><strong>07/2020:</strong> UMP SDK 1.0.0 ra mắt để xin consent (xem <a href="privacy_policy.md" target="_blank" rel="noopener">Ads Privacy &amp; Policy</a>).</li>
+  <li><strong>2021:</strong> API full-screen ad đổi sang kiểu <code>load()</code> + callback (chi tiết ở <a href="fullscreen_ads.md" target="_blank" rel="noopener">Full-screen Ads</a>).</li>
+  <li><strong>2023:</strong> SDK 23.x với cải thiện performance, mediation.</li>
+  <li><strong>2026:</strong> SDK 25.x; docs gắn nhãn SDK này là "Legacy".</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Các bài con của 4.2.3.3:</strong> bài này là nền chung (các bên tham gia, luồng request, tích hợp SDK, test ads). <a href="inline_ads.md" target="_blank" rel="noopener">Inline Ads</a> và <a href="fullscreen_ads.md" target="_blank" rel="noopener">Full-screen Ads</a> dùng lại luồng load ở đây cho từng loại ad; <a href="ads_architecture.md" target="_blank" rel="noopener">Ads trong kiến trúc app</a> đặt SDK vào đúng tầng; <a href="privacy_policy.md" target="_blank" rel="noopener">Ads Privacy &amp; Policy</a> quyết định khi nào được phép request ad.</li>
+  <li><strong>Google Service (4.2.3.2):</strong> AdMob là một Google service chạy trong process của app như FCM, Analytics, nhưng không cần <code>google-services.json</code>. Xem <a href="../google_service.md" target="_blank" rel="noopener">Google Service</a>.</li>
+  <li><strong>Activity Lifecycle (4.2.1.1):</strong> ad tải qua network nhưng hiển thị qua Activity, nên chỉ show khi Activity ở foreground. Xem <a href="../../activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>.</li>
+  <li><strong>Manifest (4.1.2):</strong> App ID khai báo bằng <code>&lt;meta-data&gt;</code> trong <code>AndroidManifest.xml</code>; SDK tự merge thêm permission <code>INTERNET</code>, <code>ACCESS_NETWORK_STATE</code>, <code>AD_ID</code>.</li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
+
+<ul>
+  <li><a href="https://developers.google.com/admob/android/quick-start" target="_blank" rel="noopener">Google AdMob Documentation</a> — Official, bắt buộc đọc.</li>
+  <li><a href="https://developer.android.com/develop/ui/views/admob" target="_blank" rel="noopener">Android Developers - AdMob</a></li>
+  <li><a href="https://developers.google.com/admob/android/mediation" target="_blank" rel="noopener">AdMob Mediation</a></li>
+  <li><a href="https://developers.google.com/admob/android/test-ads" target="_blank" rel="noopener">AdMob Test ads</a></li>
+  <li><a href="https://developers.google.com/admob/android/ad-inspector" target="_blank" rel="noopener">Ad Inspector</a></li>
+  <li><a href="https://developers.google.com/admob/android/rel-notes" target="_blank" rel="noopener">Google Mobile Ads SDK release notes</a></li>
+</ul>
+    `
+  },
+
+  'ads-inline': {
+    title: 'Inline Ads',
+    summary: 'Inline ad là quảng cáo hiển thị như một View nằm trong layout của app (Banner, Native), sống cùng vòng đời với màn hình chứa nó. Bài giải thích vì sao phải gọi pause/resume/destroy theo lifecycle, cách dựng Banner trong XML và Jetpack Compose, cách bind Native Ad, và khi nào chọn loại nào.',
+    status: 'reviewing',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '15 phút',
+    depth: 'standard',
+    tags: ['android', 'ads', 'admob', 'banner', 'native-ads', 'compose'],
+    domain: 'Android',
+    module: 'Session 04',
+    prerequisites: ['android.component.service.ads.overview', 'android.component.activity.lifecycle'],
+    related: ['android.component.service.ads.fullscreen', 'android.component.service.ads.architecture', 'android.component.fragment.lifecycle'],
+    learningOutcomes: [
+      'Giải thích được vì sao Banner và Native là View trong layout của app và phải đi theo lifecycle của màn hình chứa nó.',
+      'Áp dụng được Banner trong View System (XML) lẫn Jetpack Compose, gọi pause/resume/destroy đúng thời điểm.',
+      'Triển khai được Native Ad với NativeAdView, bind từng asset rồi gọi setNativeAd() sau cùng.',
+      'Biết khi nào chọn Banner, khi nào chọn Native.',
+      'Xử lý được memory leak và âm thanh chạy nền do banner hoặc native ad không được giải phóng.'
+    ],
+    knowledgeGap: 'Nhiều người thả AdView vào layout rồi quên pause/destroy, hoặc bọc AdView bằng AndroidView mà tưởng Compose tự lo lifecycle.',
+    updatedAt: '2026-11-07',
+    readTime: '15 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Có những quảng cáo không bật lên toàn màn hình mà nằm ngay trong giao diện: một thanh banner dưới đáy màn hình, một ô quảng cáo xen giữa danh sách bài viết. Với app, chúng chỉ là một View nữa trong layout.</p>
+
+<p>Nhưng View này đặc biệt. Banner thực chất là WebView chạy HTML ad, có thể phát video, tự refresh qua network. Nếu màn hình đã vào background mà ad vẫn chạy, app tốn pin, phát tiếng quảng cáo khi user không nhìn thấy, và vi phạm policy. Nếu màn hình đã bị huỷ mà ad còn giữ Context, app bị memory leak. Native ad còn thêm một yêu cầu: hoà vào giao diện app nhưng user vẫn phải nhận ra đó là quảng cáo.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được vì sao Banner và Native là View trong layout của app và phải đi theo lifecycle của màn hình chứa nó.</li>
+  <li>Áp dụng được Banner trong View System (XML) lẫn Jetpack Compose, gọi pause/resume/destroy đúng thời điểm.</li>
+  <li>Triển khai được Native Ad với NativeAdView, bind từng asset rồi gọi setNativeAd() sau cùng.</li>
+  <li>Biết khi nào chọn Banner, khi nào chọn Native.</li>
+  <li>Xử lý được memory leak và âm thanh chạy nền do banner hoặc native ad không được giải phóng.</li>
+</ul>
+
+<h2>Inline Ads là gì?</h2>
+
+<p><strong>Inline ad</strong> là quảng cáo hiển thị như một View nằm trong layout của app (Banner, Native), sống cùng vòng đời với màn hình chứa nó. Khác với full-screen ad, SDK không mở màn hình riêng: app tự đặt view, tự load và tự giải phóng.</p>
+
+<p>Mental model: inline ad là <strong>một ô trong layout mà SDK lấp nội dung</strong>. Ô đó thuộc về màn hình, nên màn hình pause thì ô pause, màn hình bị huỷ thì ô bị huỷ.</p>
+
+<h3>Banner Ads</h3>
+
+<p><strong>Bản chất:</strong> Banner là một View (thực chất là WebView) hiển thị HTML ad. Nó gắn vào layout của app, luôn hiển thị.</p>
+
+<p><strong>Kích thước chuẩn:</strong></p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Ad Size</th>
+      <th style="padding:8px 12px;text-align:left;">Dimensions (WxH)</th>
+      <th style="padding:8px 12px;text-align:left;">Use case</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">BANNER</td>
+      <td style="padding:8px 12px;">320x50</td>
+      <td style="padding:8px 12px;">Điện thoại, dưới màn hình</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">LARGE_BANNER</td>
+      <td style="padding:8px 12px;">320x100</td>
+      <td style="padding:8px 12px;">Điện thoại, cao hơn</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">MEDIUM_RECTANGLE</td>
+      <td style="padding:8px 12px;">300x250</td>
+      <td style="padding:8px 12px;">Tablet, giữa nội dung</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">FULL_BANNER</td>
+      <td style="padding:8px 12px;">468x60</td>
+      <td style="padding:8px 12px;">Tablet</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">LEADERBOARD</td>
+      <td style="padding:8px 12px;">728x90</td>
+      <td style="padding:8px 12px;">Tablet, trên cùng</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">ADAPTIVE_BANNER</td>
+      <td style="padding:8px 12px;">Tự động</td>
+      <td style="padding:8px 12px;">Tự động theo chiều rộng màn hình</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Native Ads</h3>
+
+<p><strong>Bản chất:</strong> Native Ads cho phép customize UI ad để hòa lẫn với UI của app. Bạn tự bind dữ liệu (headline, image, call-to-action) vào layout của mình.</p>
+
+<p><strong>Đặc điểm:</strong></p>
+
+<ul>
+  <li>Hợp với giao diện app nhưng <strong>bắt buộc có nhãn attribution</strong> (vd "Quảng cáo"/"Ad") để user biết đó là quảng cáo; biểu tượng AdChoices do SDK tự chèn.</li>
+  <li>UX tốt nhất vì ad không phá UI.</li>
+  <li>Implementation phức tạp nhất — phải tự bind từng view.</li>
+</ul>
+
+<h2>Cách hoạt động</h2>
+
+<p>Cả Banner lẫn Native đi qua cùng một vòng đời, gắn với màn hình chứa nó:</p>
+
+<ol>
+  <li>Màn hình có sẵn một view cho ad trong layout: <code>AdView</code> (banner) hoặc <code>NativeAdView</code> (native).</li>
+  <li>App gọi load với một <code>AdRequest</code>. SDK gửi request bất đồng bộ theo luồng ở <a href="overview.md" target="_blank" rel="noopener">AdMob Overview</a>.</li>
+  <li>SDK trả nội dung về: banner tự hiển thị trong <code>AdView</code>; native trả dữ liệu (<code>NativeAd</code>) để app tự bind vào view.</li>
+  <li>Màn hình vào <code>onPause</code> thì gọi <code>pause()</code>, quay lại <code>onResume</code> thì gọi <code>resume()</code>, để ad không chạy khi user không nhìn thấy.</li>
+  <li>Màn hình bị huỷ (hoặc Composable rời composition) thì gọi <code>destroy()</code> để giải phóng WebView và Context.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant UI as Activity / Composable
+    participant Ad as AdView / NativeAdView
+    participant SDK as Google Mobile Ads SDK
+
+    UI-&gt;&gt;Ad: (1) view cho ad nằm trong layout
+    UI-&gt;&gt;SDK: (2) load(AdRequest)
+    SDK--&gt;&gt;Ad: (3) trả nội dung, view hiển thị ad
+    UI-&gt;&gt;Ad: (4) onPause → pause(), onResume → resume()
+    UI-&gt;&gt;Ad: (5) onDestroy / onRelease → destroy()
+</div>
+
+<h3>Banner trong View System (XML)</h3>
+
+<p><strong>Layout:</strong></p>
+
+<pre data-lang="xml"><code>&lt;com.google.android.gms.ads.AdView
+    android:id="@+id/adView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|center_horizontal"
+    app:adSize="BANNER"
+    app:adUnitId="ca-app-pub-3940256099942544/6300978111"/&gt;</code></pre>
+
+<p><strong>Activity:</strong></p>
+
+<pre data-lang="kotlin"><code>class MainActivity : AppCompatActivity() {
+
+    private lateinit var adView: AdView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        adView = findViewById(R.id.adView)  // (1) AdView khai báo sẵn trong layout
+                adView.loadAd(AdRequest.Builder().build())  // (2)
+    }
+
+    // Quan trọng: phải synchronous lifecycle với Activity
+    override fun onPause() {
+        adView.pause()  // (4) Dừng load ad, dừng animation/video
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adView.resume()  // (4) Tiếp tục load ad
+    }
+
+    override fun onDestroy() {
+        adView.destroy()  // (5) Giải phóng resource, tránh memory leak
+        super.onDestroy()
+    }
+}</code></pre>
+
+<p><strong>Chi tiết lifecycle:</strong></p>
+
+<ul>
+  <li><code>pause()</code>: Dừng mọi hoạt động của banner (load ad, animation, video). Gọi khi Activity không còn visible (onPause).</li>
+  <li><code>resume()</code>: Tiếp tục hoạt động. Gọi khi Activity trở lại foreground (onResume).</li>
+  <li><code>destroy()</code>: Giải phóng resource (WebView, memory). Gọi khi Activity bị destroy. <strong>Bắt buộc</strong> để tránh memory leak.</li>
+</ul>
+
+<p><strong>Tại sao phải gọi pause/resume/destroy?</strong></p>
+
+<ul>
+  <li>Banner thực chất là <strong>WebView</strong> hiển thị HTML ad.</li>
+  <li>Nếu không pause khi app ở background:
+<ul>
+  <li>WebView vẫn chạy → tốn CPU, battery.</li>
+  <li>Video ad vẫn phát → user nghe tiếng quảng cáo khi app bị ẩn.</li>
+  <li>Vi phạm chính sách Google Play (ad không được chạy ngầm).</li>
+</ul></li>
+  <li>Nếu không destroy khi Activity bị hủy:
+<ul>
+  <li>WebView vẫn giữ reference đến Context → memory leak.</li>
+  <li>Ad vẫn load → tốn network, battery.</li>
+</ul></li>
+</ul>
+
+<h3>Banner trong Jetpack Compose</h3>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>AndroidView</code> (nhúng View vào Compose) và <code>DisposableEffect</code> thuộc Session 09: Jetpack Compose UI, mục 9.3.2 DisposableEffect (chưa có bài). Ở đây chỉ cần biết <code>DisposableEffect</code> chạy <code>onDispose</code> khi Composable rời composition.</div></div>
+
+<pre data-lang="kotlin"><code>@Composable
+fun AdBannerView(
+    modifier: Modifier = Modifier,
+    adUnitId: String,
+    adSize: AdSize = AdSize.BANNER
+) {
+    AndroidView(
+        modifier = modifier,
+        factory = { context -&gt;
+            AdView(context).apply {
+                this.adSize = adSize
+                this.adUnitId = adUnitId
+                loadAd(AdRequest.Builder().build())
+            }
+        },
+        update = { adView -&gt;
+            // Called khi recomposition với tham số mới
+            // Thường không cần reload ad trừ khi adUnitId thay đổi
+            if (adView.adUnitId != adUnitId) {
+                adView.adUnitId = adUnitId
+                adView.loadAd(AdRequest.Builder().build())
+            }
+        },
+        onRelease = { adView -&gt;
+            // Called khi Composable rời khỏi composition
+            adView.destroy()  // (5) Tương đương onDestroy trong View System
+        }
+    )
+}
+
+// Sử dụng
+@Composable
+fun MainScreen() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Nội dung màn hình
+        Column(modifier = Modifier.fillMaxSize()) {
+            // ... content ...
+        }
+        
+        // Banner ở dưới cùng
+        AdBannerView(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(8.dp),
+            adUnitId = "ca-app-pub-3940256099942544/6300978111"
+        )
+    }
+}</code></pre>
+
+<p><strong>Chi tiết Compose:</strong></p>
+
+<ul>
+  <li><code>AndroidView</code>: Bridge giữa Compose và View System.</li>
+  <li><code>factory</code>: Tạo AdView lần đầu. Chỉ gọi một lần.</li>
+  <li><code>update</code>: Gọi khi recomposition với tham số mới. Kiểm tra <code>adUnitId</code> thay đổi mới reload.</li>
+  <li><code>onRelease</code>: Gọi khi Composable rời khỏi composition. <strong>Phải gọi <code>destroy()</code></strong> để tránh leak.</li>
+</ul>
+
+<p><strong>Lưu ý:</strong></p>
+
+<ul>
+  <li>Không nên khởi tạo AdView trong <code>remember {}</code> với lambda không ổn định — có thể tạo lại View gây double load.</li>
+  <li>Nếu cần pause/resume theo lifecycle, dùng <code>DisposableEffect</code> với <code>LocalLifecycleOwner</code>:</li>
+</ul>
+
+<pre data-lang="kotlin"><code>@Composable
+fun AdBannerViewWithLifecycle(
+    modifier: Modifier = Modifier,
+    adUnitId: String
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Giữ AdView trong remember để observer bên dưới gọi được pause()/resume()
+    val adView = remember {
+        AdView(context).apply {
+            adSize = AdSize.BANNER
+            this.adUnitId = adUnitId
+            loadAd(AdRequest.Builder().build())
+        }
+    }
+
+    AndroidView(modifier = modifier, factory = { adView })
+
+    // AndroidView KHÔNG tự pause/resume AdView: phải tự nối với lifecycle
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event -&gt;
+            when (event) {
+                Lifecycle.Event.ON_RESUME -&gt; adView.resume()
+                Lifecycle.Event.ON_PAUSE -&gt; adView.pause()
+                else -&gt; Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    // Rời composition → destroy để tránh leak
+    DisposableEffect(adView) {
+        onDispose { adView.destroy() }
+    }
+}
+
+#### Lưu ý lifecycle
+
+**Trong Compose:**
+- \`onRelease\` callback của \`AndroidView\` chính là nơi gọi \`destroy()\`.
+- AndroidView **không** tự pause/resume AdView: phải tự gọi \`pause()\`/\`resume()\` qua \`LifecycleEventObserver\` (như \`AdBannerViewWithLifecycle\` ở trên).
+
+**Nếu app có nhiều Activity cùng hiển thị banner:**
+- Chỉ một banner duy nhất nên hoạt động tại một thời điểm.
+- Khi chuyển Activity, pause banner cũ, resume banner mới.
+
+### Banner refresh
+
+**Vấn đề:**
+- Banner có thể tự refresh theo cấu hình của ad unit.
+- Nếu refresh quá thường xuyên → tốn network.
+
+**Giải pháp:**
+- Refresh rate chỉ chỉnh trong **AdMob UI** (cài đặt ad unit): Google optimized (khuyến nghị), custom 30–150 giây, hoặc tắt hẳn. Refresh chỉ chạy khi banner đang hiển thị trên màn hình.
+- Nếu tắt auto-refresh trong AdMob UI, app tự gọi \`adView.loadAd()\` khi cần ad mới.
+
+\`\`\`xml
+&lt;!-- Không có attribute XML nào để chỉnh refresh: cấu hình trong AdMob UI (ad unit settings) --&gt;
+&lt;com.google.android.gms.ads.AdView
+    android:id="@+id/adView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:adSize="BANNER"
+    app:adUnitId="..."/&gt;</code></pre>
+
+<h2>Ví dụ thực tế: Native ad trong màn hình bài viết</h2>
+
+<p>Màn hình đọc bài viết chèn một native ad giữa nội dung, giao diện giống một khối "bài liên quan" nhưng có nhãn "Quảng cáo". Các bước (1)–(5) khớp với luồng ở trên.</p>
+
+<h3>Layout</h3>
+
+<pre data-lang="xml"><code>&lt;!-- layout/native_ad_layout.xml --&gt;
+&lt;com.google.android.gms.ads.nativead.NativeAdView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/native_ad_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"&gt;
+
+    &lt;LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"&gt;
+
+        &lt;!-- Nhãn attribution: bắt buộc theo policy native ads --&gt;
+        &lt;TextView
+            android:id="@+id/ad_attribution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quảng cáo"
+            android:textSize="12sp"/&gt;
+
+        &lt;!-- Media (image/video) --&gt;
+        &lt;com.google.android.gms.ads.nativead.MediaView
+            android:id="@+id/ad_media"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"/&gt;
+
+        &lt;!-- Headline --&gt;
+        &lt;TextView
+            android:id="@+id/ad_headline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"/&gt;
+
+        &lt;!-- Body --&gt;
+        &lt;TextView
+            android:id="@+id/ad_body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"/&gt;
+
+        &lt;!-- Call to action --&gt;
+        &lt;Button
+            android:id="@+id/ad_call_to_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"/&gt;
+
+    &lt;/LinearLayout&gt;
+&lt;/com.google.android.gms.ads.nativead.NativeAdView&gt;</code></pre>
+
+<h3>Load và bind</h3>
+
+<pre data-lang="kotlin"><code>class ArticleActivity : AppCompatActivity() {
+
+    private var nativeAd: NativeAd? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        loadNativeAd()
+    }
+
+    private fun loadNativeAd() {
+        val adLoader = AdLoader.Builder(this, "ca-app-pub-3940256099942544/2247696110")
+            .forNativeAd { ad -&gt;  // (3) SDK trả về dữ liệu ad
+                // Callback có thể đến sau khi Activity đã bị huỷ: huỷ ad ngay, không bind
+                if (isDestroyed) {
+                    ad.destroy()
+                    return@forNativeAd
+                }
+                nativeAd?.destroy()  // Bỏ ad cũ trước khi giữ ad mới
+                nativeAd = ad
+                bindNativeAd(ad)
+            }
+            .withAdListener(object : AdListener() {
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    Log.e("NativeAd", "Failed to load: \${error.message}")
+                }
+            })
+            .build()
+
+        adLoader.loadAd(AdRequest.Builder().build())  // (2)
+    }
+
+    private fun bindNativeAd(nativeAd: NativeAd) {
+        // (1) Layout của app, gốc là NativeAdView
+        val adView = layoutInflater.inflate(R.layout.native_ad_layout, null) as NativeAdView
+
+        // Bind headline
+        adView.headlineView = adView.findViewById(R.id.ad_headline)
+        (adView.headlineView as TextView).text = nativeAd.headline
+
+        // Bind body (optional)
+        if (nativeAd.body != null) {
+            adView.bodyView = adView.findViewById(R.id.ad_body)
+            (adView.bodyView as TextView).text = nativeAd.body
+            adView.bodyView?.visibility = View.VISIBLE
+        } else {
+            adView.bodyView?.visibility = View.GONE
+        }
+
+        // Bind media
+        adView.mediaView = adView.findViewById(R.id.ad_media)
+
+        // Bind call to action
+        adView.callToActionView = adView.findViewById(R.id.ad_call_to_action)
+        (adView.callToActionView as Button).text = nativeAd.callToAction
+        adView.callToActionView?.visibility = View.VISIBLE
+
+        // Gán xong mọi asset view (kể cả MediaView) rồi mới setNativeAd(): gọi SAU CÙNG
+        adView.setNativeAd(nativeAd)
+
+        // Add ad view vào layout
+        findViewById&lt;LinearLayout&gt;(R.id.adContainer).addView(adView)
+    }
+
+    override fun onDestroy() {
+        nativeAd?.destroy()  // (5) Native ad giữ reference tới Context
+        super.onDestroy()
+    }
+}</code></pre>
+
+<h3>Chú thích</h3>
+
+<p><strong>Phải bind từng view:</strong></p>
+
+<ul>
+  <li><code>headlineView</code>, <code>bodyView</code>, <code>mediaView</code>, <code>callToActionView</code>...</li>
+  <li>Gọi <code>adView.setNativeAd(nativeAd)</code> <strong>sau cùng</strong>, sau khi đã gán mọi asset view (kể cả <code>mediaView</code>), để SDK đăng ký đúng view và đo click/impression.</li>
+</ul>
+
+<p><strong>Destroy khi không dùng:</strong></p>
+
+<ul>
+  <li>Native ad giữ reference đến Context.</li>
+  <li>Khi Activity bị destroy, phải destroy native ad để tránh leak.</li>
+</ul>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<h3>Banner</h3>
+
+<p><strong>Khi nào dùng:</strong></p>
+
+<ul>
+  <li>App cần revenue ổn định, liên tục.</li>
+  <li>Không muốn làm phiền user quá nhiều.</li>
+  <li>App có màn hình dài, có chỗ trống dưới cùng.</li>
+</ul>
+
+<p><strong>Khi nào KHÔNG dùng:</strong></p>
+
+<ul>
+  <li>App có UI chật chội, không có chỗ trống.</li>
+  <li>App yêu cầu user tập trung cao (game hành động, đọc sách).</li>
+  <li>App có nhiều màn hình nhỏ, banner sẽ chiếm quá nhiều không gian.</li>
+</ul>
+
+<h3>Native</h3>
+
+<p><strong>Khi nào dùng:</strong></p>
+
+<ul>
+  <li>Feed content (news, social media).</li>
+  <li>List items (product list, video list).</li>
+  <li>Khi muốn ad hòa lẫn tự nhiên.</li>
+</ul>
+
+<p><strong>Khi nào KHÔNG dùng:</strong></p>
+
+<ul>
+  <li>App đơn giản, không cần customize.</li>
+  <li>Không có thời gian implement (Native phức tạp hơn Banner nhiều).</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Memory leak banner</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>App tốn nhiều memory.</li>
+  <li>Crash OOM (Out Of Memory) sau thời gian dài.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li>Không gọi <code>adView.destroy()</code> khi Activity bị hủy.</li>
+  <li>WebView vẫn giữ reference đến Context.</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<pre data-lang="kotlin"><code>override fun onDestroy() {
+    adView.destroy()  // Bắt buộc
+    super.onDestroy()
+}</code></pre>
+
+<h3>2. Bọc AdView bằng AndroidView mà không pause/resume</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>Video ad trong banner vẫn phát tiếng khi app đã về background.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li><code>AndroidView</code> chỉ có <code>onRelease</code> (tương đương destroy), không tự gọi <code>pause()</code>/<code>resume()</code> theo lifecycle.</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<ul>
+  <li>Nối AdView với lifecycle bằng <code>LifecycleEventObserver</code> trong <code>DisposableEffect</code>, như <code>AdBannerViewWithLifecycle</code> ở trên.</li>
+</ul>
+
+<h3>3. Gọi setNativeAd() trước khi gán asset view</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>Click vào native ad không mở quảng cáo, impression không được ghi nhận.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li><code>setNativeAd()</code> đăng ký các asset view đã gán lúc gọi; view gán sau đó SDK không biết.</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<ul>
+  <li>Gán hết <code>headlineView</code>, <code>bodyView</code>, <code>mediaView</code>, <code>callToActionView</code>... rồi mới gọi <code>adView.setNativeAd(nativeAd)</code> ở cuối.</li>
+</ul>
+
+<h3>4. Native ad không có nhãn attribution</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>App bị cảnh báo vi phạm policy native ads.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li>Native ad hoà vào giao diện đến mức user không biết đó là quảng cáo.</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<ul>
+  <li>Luôn có nhãn "Quảng cáo"/"Ad" trong layout (biểu tượng AdChoices do SDK tự chèn).</li>
+</ul>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li>Banner (<code>AdView</code>) là định dạng có từ những bản AdMob SDK đầu tiên; bộ API <code>loadAd</code>/<code>pause</code>/<code>resume</code>/<code>destroy</code> của nó không đổi qua các bản SDK. Thay đổi API lớn năm 2021 chỉ áp dụng cho full-screen ad (xem <a href="fullscreen_ads.md" target="_blank" rel="noopener">Full-screen Ads</a>).</li>
+  <li>Ngoài kích thước cố định, SDK có <strong>adaptive banner</strong> (tự tính chiều cao theo chiều rộng màn hình); test ad unit chính thức hiện có riêng cho adaptive banner (xem bảng test ads ở <a href="overview.md" target="_blank" rel="noopener">AdMob Overview</a>).</li>
+  <li>Lịch sử chung của AdMob và SDK: <a href="overview.md" target="_blank" rel="noopener">AdMob Overview</a>.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>AdMob Overview (4.2.3.3.1):</strong> luồng load, test ad unit và cách debug dùng chung cho mọi loại ad. Xem <a href="overview.md" target="_blank" rel="noopener">AdMob Overview</a>.</li>
+  <li><strong>Activity Lifecycle (4.2.1.1):</strong> <code>pause()</code>/<code>resume()</code>/<code>destroy()</code> của ad map thẳng vào <code>onPause</code>/<code>onResume</code>/<code>onDestroy</code> của màn hình chứa nó. Xem <a href="../../activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>.</li>
+  <li><strong>Fragment Lifecycle (4.2.2.1):</strong> banner trong Fragment gắn với view lifecycle của Fragment (destroy ở <code>onDestroyView</code>, không phải <code>onDestroy</code>). Xem <a href="../../fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>.</li>
+  <li><strong>Full-screen Ads (4.2.3.3.3):</strong> ngược với inline ad, SDK tự mở màn hình riêng và app chỉ giữ một instance để show. Xem <a href="fullscreen_ads.md" target="_blank" rel="noopener">Full-screen Ads</a>.</li>
+  <li><strong>Ads trong kiến trúc app (4.2.3.3.4):</strong> inline ad là View nên nằm ở tầng UI; việc có hiện ad hay không (vd user đã mua "remove ads") là state đến từ ViewModel. Xem <a href="ads_architecture.md" target="_blank" rel="noopener">Ads trong kiến trúc app</a>.</li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
+
+<ul>
+  <li><a href="https://developers.google.com/admob/android/banner" target="_blank" rel="noopener">AdMob Banner</a></li>
+  <li><a href="https://developers.google.com/admob/android/native/start" target="_blank" rel="noopener">AdMob Native</a></li>
+  <li><a href="https://developers.google.com/admob/android/native/advanced" target="_blank" rel="noopener">Native advanced (attribution, setNativeAd)</a></li>
+  <li><a href="https://support.google.com/admob/answer/3245199" target="_blank" rel="noopener">Automatic refresh for banner ads</a></li>
+</ul>
+    `
+  },
+
+  'ads-fullscreen': {
+    title: 'Full-screen Ads',
+    summary: 'Full-screen ad là quảng cáo được SDK hiển thị trong một Activity riêng phủ lên app (Interstitial, Rewarded, Rewarded Interstitial, App Open); app chỉ giữ một instance đã load và gọi show() đúng thời điểm. Bài giải thích vòng load trước, show sau, mỗi instance dùng một lần, cách trao thưởng, các quy tắc lifecycle khi show và App Open Ad.',
+    status: 'reviewing',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '25 phút',
+    depth: 'deep-dive',
+    tags: ['android', 'ads', 'admob', 'interstitial', 'rewarded', 'app-open', 'lifecycle'],
+    domain: 'Android',
+    module: 'Session 04',
+    prerequisites: ['android.component.service.ads.overview', 'android.component.activity.lifecycle'],
+    related: ['android.component.service.ads.inline', 'android.component.service.ads.architecture', 'android.component.fragment.lifecycle'],
+    learningOutcomes: [
+      'Giải thích được vì sao full-screen ad phải load trước, show sau và mỗi instance chỉ show được một lần.',
+      'Phân biệt được Interstitial, Rewarded, Rewarded Interstitial và App Open theo thời điểm hiển thị và cách user nhận thưởng.',
+      'Áp dụng được vòng load, show, reload với FullScreenContentCallback, chỉ show khi Activity ở RESUMED.',
+      'Xử lý được show trùng ad, app vào background và App Open Ad khi app quay lại foreground.',
+      'Biết khi nào nên và không nên show từng loại full-screen ad.'
+    ],
+    knowledgeGap: 'Nhiều người show ad ngay khi vừa load, quên load lại sau khi show, hoặc show khi Activity đã vào background gây crash và vi phạm policy.',
+    updatedAt: '2026-11-07',
+    readTime: '25 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Một số quảng cáo chiếm toàn màn hình: sau khi user qua màn, trước khi mở bài viết tiếp theo, hoặc khi user bấm "Xem quảng cáo để nhận xu". Loại ad này trả tiền cao hơn banner, nhưng cũng dễ làm hỏng trải nghiệm và dễ dùng sai nhất.</p>
+
+<p>Ba đặc điểm gây lỗi:</p>
+
+<ul>
+  <li>Load mất vài giây, nên không thể đợi đến lúc cần mới load.</li>
+  <li>Một instance ad chỉ show được một lần. Quên load lại thì lần sau không có ad.</li>
+  <li>Ad mở một màn hình riêng chồng lên app. Show khi Activity đã vào background có thể crash hoặc vi phạm policy.</li>
+</ul>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được vì sao full-screen ad phải load trước, show sau và mỗi instance chỉ show được một lần.</li>
+  <li>Phân biệt được Interstitial, Rewarded, Rewarded Interstitial và App Open theo thời điểm hiển thị và cách user nhận thưởng.</li>
+  <li>Áp dụng được vòng load, show, reload với FullScreenContentCallback, chỉ show khi Activity ở RESUMED.</li>
+  <li>Xử lý được show trùng ad, app vào background và App Open Ad khi app quay lại foreground.</li>
+  <li>Biết khi nào nên và không nên show từng loại full-screen ad.</li>
+</ul>
+
+<h2>Full-screen Ads là gì?</h2>
+
+<p><strong>Full-screen ad</strong> là quảng cáo được SDK hiển thị trong một Activity riêng phủ lên app (Interstitial, Rewarded, Rewarded Interstitial, App Open). App không đặt view nào vào layout: nó chỉ giữ một instance ad đã load và gọi <code>show(activity)</code> đúng thời điểm.</p>
+
+<p>Mental model: full-screen ad giống <strong>vé dùng một lần</strong>. Mua vé trước (load), xé vé khi vào cửa (show), vào xong phải mua vé mới cho lần sau (load lại).</p>
+
+<h3>Interstitial Ads</h3>
+
+<p><strong>Bản chất:</strong> Interstitial là một Activity fullscreen nội bộ của SDK. Nó không phải View của app, mà là một màn hình riêng được SDK quản lý.</p>
+
+<p><strong>Đặc điểm:</strong></p>
+
+<ul>
+  <li>Chiếm toàn bộ màn hình.</li>
+  <li>User phải đóng (nút X) hoặc tương tác (click) để quay lại app.</li>
+  <li>Một instance chỉ show được một lần.</li>
+</ul>
+
+<h3>Rewarded Ads</h3>
+
+<p><strong>Bản chất:</strong> Rewarded là ad mà user <strong>chủ động chọn xem</strong> để đổi lấy thứ gì đó có giá trị trong app (xu, lives, unlock tính năng).</p>
+
+<p><strong>Đặc điểm:</strong></p>
+
+<ul>
+  <li>User phải xem hết (hoặc qua thời gian tối thiểu) mới nhận thưởng.</li>
+  <li>Doanh thu cao nhất vì user tương tác chủ động.</li>
+  <li>Không được ép buộc — user phải tự bấm nút xem.</li>
+</ul>
+
+<h3>Rewarded Interstitial Ads</h3>
+
+<p><strong>Bản chất:</strong> Kết hợp Interstitial và Rewarded — ad fullscreen tự động hiển thị, nhưng user phải xem hết mới nhận thưởng.</p>
+
+<p><strong>Khác với Rewarded thông thường:</strong></p>
+
+<ul>
+  <li>Rewarded: user bấm nút để xem.</li>
+  <li>Rewarded Interstitial: ad tự động hiển thị ở điểm dừng, user phải xem để nhận thưởng.</li>
+</ul>
+
+<h3>App Open Ads</h3>
+
+<p><strong>Bản chất:</strong></p>
+
+<ul>
+  <li>App Open Ad hiển thị mỗi khi app mở lại từ background.</li>
+  <li>Giống như splash screen nhưng có quảng cáo.</li>
+</ul>
+
+<h2>Cách hoạt động</h2>
+
+<p>Mọi full-screen ad đi theo cùng một vòng, khớp với sơ đồ vòng đời ad ở <a href="overview.md" target="_blank" rel="noopener">AdMob Overview</a> (<code>NOT_READY → LOADING → LOADED → SHOWN</code>):</p>
+
+<ol>
+  <li><strong>Load trước:</strong> gọi <code>XxxAd.load(...)</code> từ sớm (đầu màn hình, đầu level). Kết quả về bất đồng bộ qua <code>onAdLoaded</code>, app giữ instance lại.</li>
+  <li><strong>Gán callback:</strong> gán <code>fullScreenContentCallback</code> trước khi show để biết khi nào ad đóng hoặc show lỗi.</li>
+  <li><strong>Show đúng lúc:</strong> đến điểm dừng tự nhiên của flow và Activity đang <code>RESUMED</code> thì gọi <code>show(activity)</code>. SDK mở Activity riêng của nó phủ lên app.</li>
+  <li><strong>Trao thưởng (chỉ Rewarded):</strong> user xem đủ thời gian thì SDK gọi listener reward; đóng giữa chừng thì không có thưởng.</li>
+  <li><strong>Dọn và load lại:</strong> khi <code>onAdDismissedFullScreenContent</code> (hoặc show lỗi), bỏ instance cũ và load instance mới cho lần sau.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant App as Activity
+    participant SDK as Google Mobile Ads SDK
+    participant AdAct as Activity của SDK
+
+    App-&gt;&gt;SDK: (1) load(adUnitId, AdRequest)
+    SDK--&gt;&gt;App: onAdLoaded(ad), app giữ instance
+    App-&gt;&gt;App: (2) gán fullScreenContentCallback
+    App-&gt;&gt;SDK: (3) show(activity) khi RESUMED
+    SDK-&gt;&gt;AdAct: mở màn hình ad phủ lên app
+    AdAct--&gt;&gt;App: (4) onUserEarnedReward (chỉ Rewarded)
+    AdAct--&gt;&gt;App: (5) onAdDismissedFullScreenContent
+    App-&gt;&gt;SDK: (5) bỏ instance cũ, load ad mới
+</div>
+
+<h3>Interstitial: load trước</h3>
+
+<pre data-lang="kotlin"><code>class MainActivity : AppCompatActivity() {
+
+    private var interstitialAd: InterstitialAd? = null
+    private val TAG = "Interstitial"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        // Load ad ngay khi Activity tạo
+        loadInterstitial()
+    }
+
+    private fun loadInterstitial() {
+        InterstitialAd.load(  // (1) Load trước, bất đồng bộ
+            this,
+            "ca-app-pub-3940256099942544/1033173712",
+            AdRequest.Builder().build(),
+            object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(ad: InterstitialAd) {
+                    interstitialAd = ad
+                    Log.d(TAG, "Ad loaded successfully")
+                    
+                    // (2) Gán callback trước khi show
+                    interstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                        override fun onAdClicked() {
+                            Log.d(TAG, "Ad clicked")
+                        }
+
+                        override fun onAdDismissedFullScreenContent() {
+                            Log.d(TAG, "Ad dismissed")
+                            // Ad đã đóng → xóa reference và load ad mới
+                            interstitialAd = null
+                            loadInterstitial()  // (5) Load ad mới cho lần sau
+                        }
+
+                        override fun onAdFailedToShowFullScreenContent(error: AdError) {
+                            Log.e(TAG, "Ad failed to show: \${error.message}")
+                            interstitialAd = null
+                        }
+
+                        override fun onAdImpression() {
+                            Log.d(TAG, "Ad impression recorded")
+                        }
+
+                        override fun onAdShowedFullScreenContent() {
+                            Log.d(TAG, "Ad showed fullscreen")
+                        }
+                    }
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    Log.e(TAG, "Ad failed to load: \${error.message}")
+                    interstitialAd = null
+                    // Không load lại ngay — đợi một thời gian rồi thử lại
+                }
+            }
+        )
+    }
+}</code></pre>
+
+<p><strong>Chi tiết:</strong></p>
+
+<ul>
+  <li><code>InterstitialAd.load()</code>: Bắt đầu load ad asynchronous.</li>
+  <li><code>InterstitialAdLoadCallback</code>: Callback khi load xong hoặc lỗi.</li>
+  <li><code>onAdLoaded</code>: Ad đã sẵn sàng, gán vào variable.</li>
+  <li><code>onAdFailedToLoad</code>: Lỗi (no fill, network error, invalid ad unit).</li>
+  <li><code>fullScreenContentCallback</code>: Theo dõi sự kiện khi show ad.</li>
+  <li><strong>Quan trọng:</strong> Trong <code>onAdDismissedFullScreenContent</code>, phải load ad mới vì ad cũ đã dùng xong.</li>
+</ul>
+
+<h3>Interstitial: show đúng thời điểm</h3>
+
+<pre data-lang="kotlin"><code>private fun showInterstitial() {
+    // Kiểm tra Activity có ở foreground không
+    if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+        interstitialAd?.let { ad -&gt;
+            ad.show(this)  // (3) Show khi Activity ở RESUMED
+        } ?: run {
+            // Chưa có ad sẵn sàng → không show
+            Log.d(TAG, "Ad not ready yet")
+        }
+    } else {
+        // Activity không ở foreground → không show
+        Log.w(TAG, "Cannot show ad: Activity not in foreground")
+    }
+}</code></pre>
+
+<p><strong>Khi nào gọi <code>showInterstitial()</code>?</strong></p>
+
+<ul>
+  <li>Sau khi user hoàn thành level (game).</li>
+  <li>Sau khi user save document (app productivity).</li>
+  <li>Sau khi user xem xong bài viết (app content).</li>
+  <li><strong>Không</strong> gọi ngay khi mở app.</li>
+  <li><strong>Không</strong> gọi khi user đang nhập liệu.</li>
+</ul>
+
+<h4>Chú thích lifecycle (Interstitial)</h4>
+
+<p><strong>Load trước, show sau:</strong></p>
+
+<ul>
+  <li>Tải ad khi bắt đầu màn hình/level.</li>
+  <li>Hiển thị khi user hoàn thành hành động.</li>
+  <li><strong>Không</strong> vừa load vừa show — ad chưa sẵn sàng sẽ gây lỗi.</li>
+</ul>
+
+<p><strong>Một ad chỉ dùng một lần:</strong></p>
+
+<ul>
+  <li>Sau khi show, instance ad "chết".</li>
+  <li>Phải load ad mới trong <code>onAdDismissedFullScreenContent</code>.</li>
+</ul>
+
+<p><strong>Chỉ show khi Activity ở RESUMED:</strong></p>
+
+<ul>
+  <li>Kiểm tra <code>lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)</code>.</li>
+  <li><strong>Không</strong> show khi Activity đang <code>onPause</code>/<code>onStop</code> (app về background).</li>
+  <li>SDK có thể crash hoặc vi phạm policy nếu show sai thời điểm.</li>
+</ul>
+
+<p><strong>Không show quá thường xuyên:</strong></p>
+
+<ul>
+  <li>Mỗi 3-5 phút một lần là hợp lý.</li>
+  <li>Show mỗi 30 giây → user chán, gỡ app.</li>
+  <li>Google có thể gỡ app nếu phát hiện ad quá nhiều.</li>
+</ul>
+
+<p><strong>Xử lý lỗi:</strong></p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Error Code</th>
+      <th style="padding:8px 12px;text-align:left;">Ý nghĩa</th>
+      <th style="padding:8px 12px;text-align:left;">Xử lý</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">0</td>
+      <td style="padding:8px 12px;">ERROR_CODE_INTERNAL_ERROR</td>
+      <td style="padding:8px 12px;">Lỗi nội bộ SDK. Thử lại sau.</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">1</td>
+      <td style="padding:8px 12px;">ERROR_CODE_INVALID_REQUEST</td>
+      <td style="padding:8px 12px;">Ad unit ID sai hoặc request invalid. Kiểm tra config.</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">2</td>
+      <td style="padding:8px 12px;">ERROR_CODE_NETWORK_ERROR</td>
+      <td style="padding:8px 12px;">Lỗi mạng. Kiểm tra kết nối.</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">3</td>
+      <td style="padding:8px 12px;">ERROR_CODE_NO_FILL</td>
+      <td style="padding:8px 12px;">Không có ad phù hợp. Bình thường, thử lại sau vài phút.</td>
+    </tr>
+  </tbody>
+</table>
+
+<pre data-lang="kotlin"><code>override fun onAdFailedToLoad(error: LoadAdError) {
+    when (error.code) {
+        AdRequest.ERROR_CODE_NO_FILL -&gt; {
+            // Không có ad → không làm gì, thử lại sau
+            Log.d(TAG, "No fill, will retry later")
+        }
+        AdRequest.ERROR_CODE_NETWORK_ERROR -&gt; {
+            // Lỗi mạng → kiểm tra kết nối
+            Log.e(TAG, "Network error")
+        }
+        else -&gt; {
+            Log.e(TAG, "Ad failed: \${error.code}")
+        }
+    }
+}</code></pre>
+
+<h3>Rewarded: trao thưởng trong callback</h3>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Ví dụ này để ViewModel giữ <code>RewardedAd</code> cho gọn, để tập trung vào vòng load/show/reward. Cách tách SDK ra sau một interface ở Data Layer nằm ở <a href="ads_architecture.md" target="_blank" rel="noopener">Ads trong kiến trúc app</a>.</div></div>
+
+<p><strong>ViewModel:</strong></p>
+
+<pre data-lang="kotlin"><code>class GameViewModel : ViewModel() {
+
+    private var rewardedAd: RewardedAd? = null
+
+    // State
+    private val _coins = MutableStateFlow(100)
+    val coins: StateFlow&lt;Int&gt; = _coins.asStateFlow()
+
+    private val _canShowRewardedAd = MutableStateFlow(false)
+    val canShowRewardedAd: StateFlow&lt;Boolean&gt; = _canShowRewardedAd.asStateFlow()
+
+    fun loadRewarded(context: Context) {
+        // Dùng applicationContext: callback sống lâu hơn Activity, giữ Activity ở đây sẽ leak
+        val appContext = context.applicationContext
+        RewardedAd.load(  // (1)
+            appContext,
+            "ca-app-pub-3940256099942544/5224354917",
+            AdRequest.Builder().build(),
+            object : RewardedAdLoadCallback() {
+                override fun onAdLoaded(ad: RewardedAd) {
+                    rewardedAd = ad
+                    _canShowRewardedAd.value = true
+
+                    ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                        override fun onAdDismissedFullScreenContent() {
+                            rewardedAd = null
+                            _canShowRewardedAd.value = false
+                            loadRewarded(appContext)  // (5) Load ad mới
+                        }
+
+                        override fun onAdFailedToShowFullScreenContent(error: AdError) {
+                            rewardedAd = null
+                            _canShowRewardedAd.value = false
+                        }
+                    }
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    rewardedAd = null
+                    _canShowRewardedAd.value = false
+                }
+            }
+        )
+    }
+
+    fun showRewarded(activity: Activity, onReward: (Int) -&gt; Unit) {
+        rewardedAd?.let { ad -&gt;
+            ad.show(activity) { rewardItem -&gt;  // (3)
+                // (4) User xem đủ → trao thưởng
+                val rewardAmount = rewardItem.amount
+                _coins.value += rewardAmount
+                onReward(rewardAmount)
+            }
+        }
+    }
+}</code></pre>
+
+<p><strong>Activity:</strong></p>
+
+<pre data-lang="kotlin"><code>class GameActivity : AppCompatActivity() {
+
+    private val viewModel: GameViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_game)
+
+        // Load ad
+        viewModel.loadRewarded(this)
+
+        // Nút "Watch Ad for Coins"
+        findViewById&lt;Button&gt;(R.id.btnWatchAd).setOnClickListener {
+            if (viewModel.canShowRewardedAd.value) {
+                viewModel.showRewarded(this) { coins -&gt;
+                    Toast.makeText(this, "Earned $coins coins!", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(this, "Ad not ready yet", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Observe coins
+        lifecycleScope.launch {
+            viewModel.coins.collect { coins -&gt;
+                findViewById&lt;TextView&gt;(R.id.tvCoins).text = "Coins: $coins"
+            }
+        }
+
+        // Observe ad availability
+        lifecycleScope.launch {
+            viewModel.canShowRewardedAd.collect { canShow -&gt;
+                findViewById&lt;Button&gt;(R.id.btnWatchAd).isEnabled = canShow
+            }
+        }
+    }
+}</code></pre>
+
+<h4>Chú thích lifecycle (Rewarded)</h4>
+
+<p><strong>Reward chỉ trao trong callback <code>onUserEarnedReward</code>:</strong></p>
+
+<ul>
+  <li>Không được tưởng thưởng trước khi ad xem xong.</li>
+  <li>Callback chỉ gọi khi user xem đủ thời gian yêu cầu.</li>
+  <li>Nếu user đóng ad giữa chừng → callback không gọi → không có thưởng.</li>
+</ul>
+
+<p><strong>Không tái sử dụng RewardedAd:</strong></p>
+
+<ul>
+  <li>Mỗi ad một lần show.</li>
+  <li>Sau khi show, load ad mới trong <code>onAdDismissedFullScreenContent</code>.</li>
+</ul>
+
+<p><strong>Cơ chế bảo vệ revenue:</strong></p>
+
+<ul>
+  <li>Nếu user đóng ad giữa chừng, callback reward không được gọi.</li>
+  <li>Đây là cơ chế bảo vệ advertiser — họ chỉ trả tiền khi user xem đủ.</li>
+  <li>Đừng cố hack (ví dụ: tự gọi reward khi user đóng ad) — vi phạm policy, bị banned.</li>
+</ul>
+
+<p><strong>UX tốt:</strong></p>
+
+<ul>
+  <li>Hiển thị nút "Watch Ad" rõ ràng.</li>
+  <li>Cho biết user sẽ nhận được gì (ví dụ: "Watch ad to get 50 coins").</li>
+  <li>Không ép buộc — user phải tự chọn xem.</li>
+</ul>
+
+<h2>Quy tắc hiển thị theo lifecycle</h2>
+
+<p>Đây là phần các nhà phát triển hay bỏ qua, dẫn đến crash, leak và bị Google phạt. Banner có quy tắc riêng ở <a href="inline_ads.md" target="_blank" rel="noopener">Inline Ads</a>; các quy tắc dưới đây cho full-screen ad.</p>
+
+<h3>1. Chỉ show khi Activity ở RESUMED</h3>
+
+<p><strong>Quy tắc:</strong></p>
+
+<ul>
+  <li><strong>Chỉ show khi Activity ở <code>RESUMED</code>.</strong></li>
+  <li>Kiểm tra bằng <code>lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)</code>.</li>
+  <li>Hoặc dùng <code>repeatOnLifecycle(Lifecycle.State.RESUMED)</code>.</li>
+</ul>
+
+<p><strong>Tại sao:</strong></p>
+
+<ul>
+  <li>Nếu show khi Activity đang <code>onPause</code>/<code>onStop</code>:
+<ul>
+  <li>SDK có thể crash.</li>
+  <li>Vi phạm chính sách (ad không được hiển thị khi app không ở foreground).</li>
+  <li>User không thấy ad → không có revenue.</li>
+</ul></li>
+</ul>
+
+<p><strong>Không show trong <code>onCreate</code>:</strong></p>
+
+<ul>
+  <li>Màn hình chưa sẵn sàng.</li>
+  <li>Activity chưa visible.</li>
+  <li>Có thể gây crash hoặc hiển thị sai.</li>
+</ul>
+
+<p><strong>Không show khi Activity đang bị overlay:</strong></p>
+
+<ul>
+  <li>Dialog đang mở.</li>
+  <li>Notification drawer đang kéo.</li>
+  <li>SDK xử lý không chính xác trong các trường hợp này.</li>
+</ul>
+
+<p><strong>Sau khi đóng fullscreen ad:</strong></p>
+
+<ul>
+  <li>Hệ thống gọi lại <code>onPause</code>/<code>onResume</code> của Activity.</li>
+  <li>Đừng show ad ngay trong lúc này nếu không cần thiết.</li>
+  <li>Đợi user thực hiện hành động khác rồi mới show.</li>
+</ul>
+
+<h3>2. Tránh hiển thị trùng lặp</h3>
+
+<p><strong>Quy tắc:</strong></p>
+
+<ul>
+  <li>Chỉ hiển thị <strong>một fullscreen ad tại một thời điểm</strong>.</li>
+  <li>Không bao giờ mở interstitial chồng lên rewarded đang hiển thị.</li>
+</ul>
+
+<p><strong>Tại sao:</strong></p>
+
+<ul>
+  <li>Gây confuse cho user.</li>
+  <li>SDK có thể crash.</li>
+  <li>Vi phạm chính sách.</li>
+</ul>
+
+<p><strong>Cách implement:</strong></p>
+
+<pre data-lang="kotlin"><code>private var isAdShowing = false
+
+private fun showInterstitial() {
+    if (isAdShowing) {
+        // Đang có ad hiển thị → không show ad mới
+        return
+    }
+    
+    interstitialAd?.let { ad -&gt;
+        isAdShowing = true
+        ad.show(this)
+    }
+}
+
+// Trong fullScreenContentCallback
+override fun onAdDismissedFullScreenContent() {
+    isAdShowing = false
+    interstitialAd = null
+    loadInterstitial()
+}</code></pre>
+
+<h3>3. Process life</h3>
+
+<p><strong>Khi app vào background:</strong></p>
+
+<ul>
+  <li>Fullscreen ad đang hiển thị nên được coi như đã đóng.</li>
+  <li>Đừng giữ reference đến ad cũ.</li>
+  <li>Không chủ động load ad liên tục ở background.</li>
+</ul>
+
+<p><strong>Tại sao:</strong></p>
+
+<ul>
+  <li>Load ad ở background → bị AdMob xem là traffic bất thường.</li>
+  <li>Tốn network, battery.</li>
+  <li>Ad có thể expire trước khi app trở lại foreground.</li>
+</ul>
+
+<p><strong>Implement:</strong></p>
+
+<pre data-lang="kotlin"><code>// Cờ của app (không phải API của SDK): mọi chỗ load ad kiểm tra cờ này trước
+object AdLoadGate {
+    @Volatile var isAppInForeground = true
+}
+
+class MyApplication : Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+        
+        ProcessLifecycleOwner.get().lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                when (event) {
+                    // Google Mobile Ads SDK không có API kiểu "pauseAdLoading()":
+                    // app tự giữ một cờ và kiểm tra nó trước mỗi lần gọi load()
+                    Lifecycle.Event.ON_STOP -&gt; AdLoadGate.isAppInForeground = false
+                    Lifecycle.Event.ON_START -&gt; AdLoadGate.isAppInForeground = true
+                    else -&gt; Unit
+                }
+            }
+        })
+    }
+}</code></pre>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>Chuyển level sau interstitial</h3>
+
+<p>Game load interstitial khi vào level và chỉ chuyển sang level mới khi ad đã đóng (hoặc show lỗi), nên user không bị cắt ngang giữa lúc chơi.</p>
+
+<pre data-lang="kotlin"><code>class GameActivity : AppCompatActivity() {
+
+    private var interstitialAd: InterstitialAd? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_game)
+        
+        loadInterstitial()
+        
+        // Nút "Next Level"
+        findViewById&lt;Button&gt;(R.id.btnNextLevel).setOnClickListener {
+            goToNextLevel()
+        }
+    }
+
+    private fun goToNextLevel() {
+        // Hiển thị interstitial trước khi chuyển level
+        if (interstitialAd != null) {
+            // Chuyển level khi ad đóng (hoặc show lỗi), không phải ngay lúc gọi show
+            interstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    interstitialAd = null
+                    startNextLevel()
+                    loadInterstitial()
+                }
+
+                override fun onAdFailedToShowFullScreenContent(error: AdError) {
+                    interstitialAd = null
+                    startNextLevel()
+                }
+            }
+            showInterstitial()
+        } else {
+            // Không có ad → chuyển level ngay
+            startNextLevel()
+        }
+    }
+
+    private fun startNextLevel() {
+        // Logic chuyển level
+        Log.d("Game", "Starting next level")
+    }
+}</code></pre>
+
+<h3>App Open Ad khi app quay lại foreground</h3>
+
+<p>App Open Ad gắn với process chứ không với một màn hình: <code>ProcessLifecycleOwner</code> báo app vừa về foreground, <code>ActivityLifecycleCallbacks</code> cho biết Activity nào đang hiển thị để gọi <code>show()</code>.</p>
+
+<p><strong>Implement:</strong></p>
+
+<pre data-lang="kotlin"><code>class MyApplication : Application(), Application.ActivityLifecycleCallbacks, DefaultLifecycleObserver {
+
+    private var appOpenAd: AppOpenAd? = null
+    private var isLoadingAd = false
+    private var isShowingAd = false
+    private var loadTime = 0L
+    private var currentActivity: Activity? = null  // show() cần Activity, không nhận Application
+
+    override fun onCreate() {
+        super&lt;Application&gt;.onCreate()
+        registerActivityLifecycleCallbacks(this)
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+    }
+
+    // App vừa về foreground → show app open ad trên Activity đang hiển thị
+    override fun onStart(owner: LifecycleOwner) {
+        currentActivity?.let { showAdIfAvailable(it) }
+    }
+
+    // Theo dõi Activity hiện tại; bỏ qua AdActivity của SDK khi đang show ad
+    override fun onActivityStarted(activity: Activity) {
+        if (!isShowingAd) currentActivity = activity
+    }
+
+    override fun onActivityDestroyed(activity: Activity) {
+        if (currentActivity === activity) currentActivity = null
+    }
+
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+    override fun onActivityResumed(activity: Activity) {}
+    override fun onActivityPaused(activity: Activity) {}
+    override fun onActivityStopped(activity: Activity) {}
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+
+    private fun loadAd() {
+        if (isLoadingAd || isAdAvailable()) return
+        isLoadingAd = true
+        AppOpenAd.load(this, APP_OPEN_AD_ID, AdRequest.Builder().build(),
+            object : AppOpenAd.AppOpenAdLoadCallback() {
+                override fun onAdLoaded(ad: AppOpenAd) {
+                    appOpenAd = ad
+                    isLoadingAd = false
+                    loadTime = System.currentTimeMillis()
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    isLoadingAd = false
+                }
+            })
+    }
+
+    // App open ad hết hạn sau 4 giờ kể từ lúc load
+    private fun isAdAvailable(): Boolean =
+        appOpenAd != null &amp;&amp; System.currentTimeMillis() - loadTime &lt; 4 * 3_600_000L
+
+    private fun showAdIfAvailable(activity: Activity) {
+        if (isShowingAd) return
+        if (!isAdAvailable()) {
+            loadAd()
+            return
+        }
+        // Gán callback TRƯỚC khi show
+        appOpenAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdDismissedFullScreenContent() {
+                appOpenAd = null
+                isShowingAd = false
+                loadAd()
+            }
+
+            override fun onAdFailedToShowFullScreenContent(error: AdError) {
+                appOpenAd = null
+                isShowingAd = false
+                loadAd()
+            }
+        }
+        isShowingAd = true
+        appOpenAd?.show(activity)
+    }
+}</code></pre>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<h3>Interstitial</h3>
+
+<p><strong>Khi nào dùng:</strong></p>
+
+<ul>
+  <li>Ở <strong>natural break point</strong> của flow:
+<ul>
+  <li>Sau khi user hoàn thành level (game).</li>
+  <li>Sau khi user save document (app productivity).</li>
+  <li>Sau khi user xem xong bài viết (app content).</li>
+</ul></li>
+  <li>Giữa các màn hình chính (không nên show quá thường xuyên).</li>
+</ul>
+
+<p><strong>Khi nào KHÔNG dùng:</strong></p>
+
+<ul>
+  <li>Ngay khi mở app (user chưa kịp làm gì).</li>
+  <li>Khi user đang nhập liệu (đánh máy, điền form).</li>
+  <li>Khi user đang chơi game hồi căng thẳng.</li>
+  <li>Quá thường xuyên (mỗi 30 giây một lần) — gây khó chịu, bị gỡ app.</li>
+</ul>
+
+<h3>Rewarded</h3>
+
+<p><strong>Khi nào dùng:</strong></p>
+
+<ul>
+  <li>Game: xem ad nhận coin, extra lives, unlock skin.</li>
+  <li>App productivity: xem ad để mở khóa tính năng premium tạm thời.</li>
+  <li>App content: xem ad để đọc bài viết premium.</li>
+</ul>
+
+<p><strong>Khi nào KHÔNG dùng:</strong></p>
+
+<ul>
+  <li>Ép buộc user xem ad để dùng tính năng cơ bản (vi phạm policy).</li>
+  <li>Thưởng không đủ giá trị (user không muốn xem).</li>
+  <li>App không có cơ chế thưởng rõ ràng.</li>
+</ul>
+
+<h3>Rewarded Interstitial</h3>
+
+<p><strong>Khi nào dùng:</strong></p>
+
+<ul>
+  <li>Game: sau khi hoàn thành level, ad tự động hiện, user xem để nhận bonus.</li>
+  <li>Flow có nhiều bước, mỗi bước có thưởng.</li>
+</ul>
+
+<h3>App Open</h3>
+
+<ul>
+  <li>App Open Ads có nhiều quy định riêng.</li>
+  <li>Dễ gây khó chịu nếu show quá thường xuyên.</li>
+  <li>Chỉ dùng khi thực sự cần và luôn thử nghiệm cẩn thận.</li>
+  <li>Không show khi user đang thực hiện tác vụ quan trọng.</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Show Interstitial ngay khi vừa load xong</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>User khó chịu.</li>
+  <li>Tỷ lệ uninstall cao.</li>
+  <li>Google có thể gỡ app.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li>Show ad ngay khi app mở hoặc user chưa kịp làm gì.</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<ul>
+  <li>Show ở <strong>natural break point</strong> của flow:
+<ul>
+  <li>Sau khi user hoàn thành level.</li>
+  <li>Sau khi user save document.</li>
+  <li>Sau khi user xem xong bài viết.</li>
+</ul></li>
+</ul>
+
+<h3>2. Không tải lại ad sau khi show</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>Lần sau user không có ad để xem.</li>
+  <li>Mất revenue.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li>Một instance ad chỉ dùng được một lần.</li>
+  <li>Sau khi show, ad "chết".</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<pre data-lang="kotlin"><code>override fun onAdDismissedFullScreenContent() {
+    interstitialAd = null  // Xóa reference
+    loadInterstitial()     // Load ad mới
+}</code></pre>
+
+<h3>3. Show khi Activity không còn ở RESUMED</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>Ad không hiện, hoặc app crash, khi user vừa rời màn hình.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li><code>show()</code> được gọi từ một callback đến muộn (load xong, timer, kết quả network) sau khi Activity đã vào <code>onPause</code>/<code>onStop</code>.</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<ul>
+  <li>Kiểm tra <code>lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)</code> ngay trước khi show, hoặc nhận lệnh show trong <code>repeatOnLifecycle(Lifecycle.State.RESUMED)</code>.</li>
+</ul>
+
+<h3>4. Tự trao thưởng khi user đóng rewarded ad</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>Tài khoản AdMob bị cảnh báo hoặc bị khoá.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li>Trao thưởng trong <code>onAdDismissedFullScreenContent</code> thay vì trong listener reward, nên user đóng giữa chừng vẫn được thưởng.</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<ul>
+  <li>Chỉ trao thưởng trong listener truyền vào <code>show(activity) { rewardItem -&gt; ... }</code>.</li>
+</ul>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>01/2021:</strong> SDK 19.7.0 đổi API full-screen sang kiểu <code>InterstitialAd.load()</code> + <code>*AdLoadCallback</code>: ad được load bằng hàm static và trả instance qua callback, thay vì tạo object rồi gọi <code>loadAd()</code>.</li>
+  <li><strong>04/2021:</strong> SDK 20.0.0 bỏ hẳn API Interstitial và <code>RewardedVideoAd</code> cũ.</li>
+  <li>Lịch sử chung của AdMob và SDK: <a href="overview.md" target="_blank" rel="noopener">AdMob Overview</a>.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Activity Lifecycle (4.2.1.1):</strong> quy tắc "chỉ show khi <code>RESUMED</code>" và việc Activity gọi lại <code>onPause</code>/<code>onResume</code> khi ad đóng đều xuất phát từ lifecycle. Xem <a href="../../activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>.</li>
+  <li><strong>Fragment Lifecycle (4.2.2.1):</strong> <code>repeatOnLifecycle(Lifecycle.State.RESUMED)</code> để nhận lệnh show chỉ khi màn hình foreground. Xem <a href="../../fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>.</li>
+  <li><strong>Process Management (2.2):</strong> App Open Ad dựa vào <code>ProcessLifecycleOwner</code> để biết cả app vào background hay quay lại foreground. Mục 2.2 Process Management (chưa có bài).</li>
+  <li><strong>Ads trong kiến trúc app (4.2.3.3.4):</strong> ví dụ ở đây giữ ad trong Activity/ViewModel cho gọn; trong app thật, việc load bọc sau <code>AdManager</code> ở Data Layer, còn UI quyết định thời điểm show. Xem <a href="ads_architecture.md" target="_blank" rel="noopener">Ads trong kiến trúc app</a>.</li>
+  <li><strong>Ads Privacy &amp; Policy (4.2.3.3.5):</strong> chỉ load khi <code>canRequestAds()</code> trả <code>true</code>; các hành vi ép xem ad bị Google Play cấm. Xem <a href="privacy_policy.md" target="_blank" rel="noopener">Ads Privacy &amp; Policy</a>.</li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
+
+<ul>
+  <li><a href="https://developers.google.com/admob/android/interstitial" target="_blank" rel="noopener">AdMob Interstitial</a></li>
+  <li><a href="https://developers.google.com/admob/android/rewarded" target="_blank" rel="noopener">AdMob Rewarded</a></li>
+  <li><a href="https://developers.google.com/admob/android/rewarded-interstitial" target="_blank" rel="noopener">AdMob Rewarded Interstitial</a></li>
+  <li><a href="https://developers.google.com/admob/android/app-open" target="_blank" rel="noopener">AdMob App Open</a></li>
+  <li><a href="https://developers.google.com/admob/android/rel-notes" target="_blank" rel="noopener">Google Mobile Ads SDK release notes</a></li>
+</ul>
+    `
+  },
+
+  'ads-architecture': {
+    title: 'Ads trong kiến trúc app',
+    summary: 'Đặt quảng cáo vào kiến trúc app là chia trách nhiệm theo tầng, SDK bọc sau một interface ở Data Layer, ViewModel chỉ giữ state và phát event, còn UI là nơi duy nhất cầm Activity để show. Bài giải thích luồng một lần xem rewarded ad qua các tầng, mẫu AdManager, và cách load ít, load sớm, giải phóng đúng lúc.',
+    status: 'reviewing',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '15 phút',
+    depth: 'standard',
+    tags: ['android', 'ads', 'admob', 'mvvm', 'clean-architecture'],
+    domain: 'Android',
+    module: 'Session 04',
+    prerequisites: ['android.component.service.ads.overview', 'android.component.service.ads.fullscreen'],
+    related: ['android.component.service.ads.inline', 'android.component.fragment.lifecycle', 'android.component.activity.lifecycle'],
+    learningOutcomes: [
+      'Giải thích được vì sao SDK quảng cáo thuộc Data Layer còn thời điểm show thuộc UI.',
+      'Triển khai được interface AdManager bọc Google Mobile Ads SDK, ViewModel phát event, Activity show trong repeatOnLifecycle(RESUMED).',
+      'Tối ưu được latency và tần suất load ad, giải phóng ad đúng lúc để không tốn network và không leak.',
+      'Nhận diện được các cách đặt ad sai tầng (SDK trong ViewModel, ad trong Domain, ViewModel giữ Activity).'
+    ],
+    knowledgeGap: 'Nhiều người gọi SDK quảng cáo thẳng trong Activity hoặc ViewModel, khiến không test được, không đổi được ad network và dễ leak Activity.',
+    updatedAt: '2026-11-07',
+    readTime: '15 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Cách tích hợp nhanh nhất là gọi SDK quảng cáo ngay trong Activity hoặc ViewModel. App chạy được, nhưng sớm gặp ba vấn đề:</p>
+
+<ul>
+  <li><strong>Không test được:</strong> ViewModel gọi thẳng <code>RewardedAd.load()</code> thì unit test phải có SDK thật và network.</li>
+  <li><strong>Không đổi được ad network:</strong> code của Google rải khắp các màn hình, đổi sang network khác là sửa toàn bộ.</li>
+  <li><strong>Dễ leak:</strong> show ad cần <code>Activity</code>, nên ViewModel có xu hướng giữ Activity, mà ViewModel sống lâu hơn Activity.</li>
+</ul>
+
+<p>Cái khó là quảng cáo vừa là external dependency (giống Retrofit, Room), vừa gắn chặt với UI và lifecycle (phải có Activity đang foreground mới show được).</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được vì sao SDK quảng cáo thuộc Data Layer còn thời điểm show thuộc UI.</li>
+  <li>Triển khai được interface AdManager bọc Google Mobile Ads SDK, ViewModel phát event, Activity show trong repeatOnLifecycle(RESUMED).</li>
+  <li>Tối ưu được latency và tần suất load ad, giải phóng ad đúng lúc để không tốn network và không leak.</li>
+  <li>Nhận diện được các cách đặt ad sai tầng (SDK trong ViewModel, ad trong Domain, ViewModel giữ Activity).</li>
+</ul>
+
+<h2>Ads trong kiến trúc app là gì?</h2>
+
+<p><strong>Đặt quảng cáo vào kiến trúc app</strong> là chia trách nhiệm quảng cáo theo tầng: SDK được bọc sau một interface ở Data Layer, ViewModel chỉ giữ state và phát event, còn UI là nơi duy nhất cầm <code>Activity</code> để show.</p>
+
+<p>Mental model: ViewModel nói <strong>"đến lúc show"</strong>, UI quyết định <strong>"show được chưa"</strong> (màn hình có đang foreground không), còn <code>AdManager</code> lo <strong>"show bằng SDK nào"</strong>.</p>
+
+<h3>Mỗi tầng làm gì</h3>
+
+<p>Quảng cáo có bản chất <strong>gắn với UI và lifecycle Activity</strong> — nó cần <code>Activity</code>/<code>Context</code> để show. Vì vậy:</p>
+
+<p><strong>Tầng Data:</strong></p>
+
+<ul>
+  <li>AdMob SDK nằm ở Data Layer (hoặc <code>AdManager</code>/<code>AdRepository</code> riêng).</li>
+  <li>Bọc toàn bộ API của Google.</li>
+  <li>Trả kết quả thuần (suspend/flow) cho tầng trên.</li>
+</ul>
+
+<p><strong>Tầng Domain:</strong></p>
+
+<ul>
+  <li>Hoàn toàn không biết ad tồn tại.</li>
+  <li>UseCase chỉ xử lý nghiệp vụ.</li>
+</ul>
+
+<p><strong>Tầng Presentation:</strong></p>
+
+<ul>
+  <li>UI quyết định thời điểm show (vì chỉ UI mới biết Activity foreground).</li>
+  <li>ViewModel điều phối trạng thái.</li>
+</ul>
+
+<p>Ngoài ra, <code>AdManager</code> là nơi xử lý retry và lỗi load; UI phản ánh trạng thái ad (đang load, sẵn sàng, đã show), ví dụ bật hoặc tắt nút "Xem quảng cáo".</p>
+
+<h2>Cách hoạt động</h2>
+
+<p>Luồng một lần user bấm "Xem quảng cáo để nhận xu" đi qua các tầng như sau:</p>
+
+<ol>
+  <li>User bấm nút, Activity chuyển hành động cho ViewModel (<code>onWatchAdForCoinsClicked()</code>).</li>
+  <li>ViewModel phát một event "cần show rewarded ad" qua <code>SharedFlow</code>. ViewModel không cầm Activity và không biết SDK.</li>
+  <li>Activity collect event trong <code>repeatOnLifecycle(Lifecycle.State.RESUMED)</code>, nên chỉ nhận khi màn hình đang foreground.</li>
+  <li>Activity gọi <code>adManager.showRewarded(activity)</code>. <code>AdManager</code> (Data Layer) là chỗ duy nhất gọi Google Mobile Ads SDK.</li>
+  <li>User xem đủ, SDK gọi callback reward, Activity chuyển số xu cho ViewModel (<code>onRewardEarned</code>) để cập nhật state.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    actor User
+    participant UI as GameActivity (UI)
+    participant VM as GameViewModel
+    participant AM as AdManager (Data)
+    participant SDK as Google Mobile Ads SDK
+
+    User-&gt;&gt;UI: (1) bấm "Xem ad nhận xu"
+    UI-&gt;&gt;VM: onWatchAdForCoinsClicked()
+    VM--&gt;&gt;UI: (2) showRewardedEvent
+    Note over UI: (3) chỉ collect khi RESUMED
+    UI-&gt;&gt;AM: (4) showRewarded(activity)
+    AM-&gt;&gt;SDK: rewardedAd.show(activity)
+    SDK--&gt;&gt;AM: user xem đủ, rewardItem
+    AM--&gt;&gt;UI: onReward(coins)
+    UI-&gt;&gt;VM: (5) onRewardEarned(coins)
+</div>
+
+<h3>Tại sao Ad ở Data Layer?</h3>
+
+<p><strong>Lý do:</strong></p>
+
+<ol>
+  <li><strong>AdMob SDK là external dependency</strong> — giống như Firebase, Room, Retrofit.</li>
+  <li><strong>Dễ thay thế</strong> — nếu đổi sang AppLovin, chỉ cần viết lại <code>AdMobAdManager</code>, không đụng UI/Domain.</li>
+  <li><strong>Dễ test</strong> — mock <code>AdManager</code> interface, test ViewModel mà không cần SDK thật.</li>
+  <li><strong>Tách biệt trách nhiệm</strong> — UI chỉ lo hiển thị, Data lo tích hợp SDK.</li>
+</ol>
+
+<h2>Ví dụ thực tế: xem rewarded ad để nhận xu</h2>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>@Inject</code>, <code>@HiltViewModel</code>, <code>@AndroidEntryPoint</code> là Hilt, học ở mục 7.1.5.3 Hilt (chưa có bài); <code>suspendCoroutine</code> bọc callback thành suspend function, học ở mục 8.4.3 Coroutines (chưa có bài). Ở đây chỉ cần biết Hilt tạo sẵn <code>AdManager</code> và inject vào Activity.</div></div>
+
+<h3>Interface</h3>
+
+<pre data-lang="kotlin"><code>interface AdManager {
+    suspend fun loadInterstitial(): Boolean
+    fun showInterstitial(activity: Activity)
+    suspend fun loadRewarded(): Boolean
+    fun showRewarded(activity: Activity, onReward: (Int) -&gt; Unit)
+}
+
+### Implementation
+
+\`\`\`kotlin
+class AdMobAdManager @Inject constructor(
+    @ApplicationContext private val context: Context
+) : AdManager {
+
+    private var interstitialAd: InterstitialAd? = null
+    private var rewardedAd: RewardedAd? = null
+
+    override suspend fun loadInterstitial(): Boolean =
+        suspendCoroutine { cont -&gt;
+            InterstitialAd.load(context, INTERSTITIAL_ID, AdRequest.Builder().build(),
+                object : InterstitialAdLoadCallback() {
+                    override fun onAdLoaded(ad: InterstitialAd) {
+                        interstitialAd = ad
+                        cont.resume(true)
+                    }
+
+                    override fun onAdFailedToLoad(error: LoadAdError) {
+                        cont.resume(false)
+                    }
+                })
+        }
+
+    override fun showInterstitial(activity: Activity) {
+        if (activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            interstitialAd?.show(activity)
+            interstitialAd = null
+        }
+    }
+
+    override suspend fun loadRewarded(): Boolean =
+        suspendCoroutine { cont -&gt;
+            RewardedAd.load(context, REWARDED_ID, AdRequest.Builder().build(),
+                object : RewardedAdLoadCallback() {
+                    override fun onAdLoaded(ad: RewardedAd) {
+                        rewardedAd = ad
+                        cont.resume(true)
+                    }
+
+                    override fun onAdFailedToLoad(error: LoadAdError) {
+                        cont.resume(false)
+                    }
+                })
+        }
+
+    override fun showRewarded(activity: Activity, onReward: (Int) -&gt; Unit) {
+        if (activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            rewardedAd?.show(activity) { rewardItem -&gt;
+                onReward(rewardItem.amount)
+            }
+            rewardedAd = null
+        }
+    }
+}</code></pre>
+
+<h3>ViewModel</h3>
+
+<pre data-lang="kotlin"><code>@HiltViewModel
+class GameViewModel @Inject constructor() : ViewModel() {
+    // ViewModel không biết AdManager hay SDK: chỉ giữ state và phát event
+
+    private val _showRewardedEvent = MutableSharedFlow&lt;Boolean&gt;(extraBufferCapacity = 1)
+    val showRewardedEvent: SharedFlow&lt;Boolean&gt; = _showRewardedEvent.asSharedFlow()
+
+    private val _rewardGranted = MutableStateFlow(0)
+    val rewardGranted: StateFlow&lt;Int&gt; = _rewardGranted.asStateFlow()
+
+    fun onWatchAdForCoinsClicked() {
+        _showRewardedEvent.tryEmit(true)  // (2) Phát event, không cầm Activity
+    }
+
+    fun onRewardEarned(coins: Int) {
+        _rewardGranted.value += coins  // (5) Cập nhật state sau khi có thưởng
+    }
+}</code></pre>
+
+<h3>Activity</h3>
+
+<pre data-lang="kotlin"><code>@AndroidEntryPoint
+class GameActivity : AppCompatActivity() {
+
+    @Inject lateinit var adManager: AdManager
+    private val viewModel: GameViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_game)
+
+        findViewById&lt;Button&gt;(R.id.btnWatchAd).setOnClickListener {
+            viewModel.onWatchAdForCoinsClicked()  // (1)
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {  // (3) Chỉ nhận event khi màn hình foreground
+                viewModel.showRewardedEvent.collect { shouldShow -&gt;
+                    if (shouldShow) {
+                        adManager.showRewarded(this@GameActivity) { coins -&gt;  // (4)
+                            viewModel.onRewardEarned(coins)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}</code></pre>
+
+<h2>Hiệu năng</h2>
 
 <h3>1. Giảm latency khi load ad</h3>
 
@@ -27982,31 +28308,7 @@ fun onLevelComplete() {
     }
 }</code></pre>
 
-<h3>3. Optimize banner refresh rate</h3>
-
-<p><strong>Vấn đề:</strong></p>
-
-<ul>
-  <li>Banner có thể tự refresh theo cấu hình của ad unit.</li>
-  <li>Nếu refresh quá thường xuyên → tốn network.</li>
-</ul>
-
-<p><strong>Giải pháp:</strong></p>
-
-<ul>
-  <li>Refresh rate chỉ chỉnh trong <strong>AdMob UI</strong> (cài đặt ad unit): Google optimized (khuyến nghị), custom 30–150 giây, hoặc tắt hẳn. Refresh chỉ chạy khi banner đang hiển thị trên màn hình.</li>
-  <li>Nếu tắt auto-refresh trong AdMob UI, app tự gọi <code>adView.loadAd()</code> khi cần ad mới.</li>
-</ul>
-
-<pre data-lang="xml"><code>&lt;!-- Không có attribute XML nào để chỉnh refresh: cấu hình trong AdMob UI (ad unit settings) --&gt;
-&lt;com.google.android.gms.ads.AdView
-    android:id="@+id/adView"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    app:adSize="BANNER"
-    app:adUnitId="..."/&gt;</code></pre>
-
-<h3>4. Memory optimization</h3>
+<h3>3. Giải phóng ad khi không dùng</h3>
 
 <p><strong>Vấn đề:</strong></p>
 
@@ -28030,81 +28332,367 @@ fun onLevelComplete() {
     super.onDestroy()
 }</code></pre>
 
-<h2>Kết nối hệ thống (System Thinking)</h2>
+<h2>Sai lầm thường gặp</h2>
 
-<p>Advertisements nằm ở <strong>Presentation + Data Layer</strong> trong kiến trúc MVVM/Clean:</p>
+<h3>1. Gọi SDK quảng cáo thẳng trong ViewModel</h3>
 
-<p><strong>Tầng Presentation:</strong></p>
+<p><strong>Triệu chứng:</strong></p>
 
 <ul>
-  <li>Activity/Compose quyết định thời điểm show (chỉ khi foreground).</li>
-  <li>Dùng <code>repeatOnLifecycle</code> để không show sai lúc.</li>
-  <li>UI phải responsive với ad state (loading, loaded, shown).</li>
+  <li>Unit test ViewModel cần SDK thật và network; đổi ad network phải sửa ViewModel.</li>
 </ul>
 
-<p><strong>Tầng Data:</strong></p>
+<p><strong>Nguyên nhân:</strong></p>
 
 <ul>
-  <li><code>AdManager</code>/<code>AdDataSource</code> bọc Google Mobile Ads SDK.</li>
-  <li>Trả kết quả thuần (suspend/flow) cho tầng trên.</li>
-  <li>Xử lý retry, error handling.</li>
+  <li>ViewModel biết về AdMob SDK, nên khó test, khó đổi network.</li>
 </ul>
 
-<p><strong>Tầng Domain:</strong></p>
+<p><strong>Giải pháp:</strong></p>
 
 <ul>
-  <li>Hoàn toàn không biết quảng cáo tồn tại.</li>
-  <li>UseCase chỉ xử lý nghiệp vụ.</li>
+  <li>Bọc SDK sau interface <code>AdManager</code> ở Data Layer; khi test, thay bằng một <code>AdManager</code> giả.</li>
 </ul>
 
-<p><strong>Liên hệ với Service:</strong></p>
+<h3>2. Đưa quảng cáo vào Domain Layer</h3>
+
+<p><strong>Triệu chứng:</strong></p>
 
 <ul>
-  <li>Ad SDK chạy trong process app như một service nội bộ.</li>
-  <li>Tương tự Google Service (FCM, Analytics).</li>
-  <li>Tải ad qua network, hiển thị qua Activity.</li>
+  <li>UseCase nghiệp vụ (tính điểm, lưu tiến độ) phụ thuộc vào thư viện quảng cáo.</li>
 </ul>
 
-<p><strong>Liên hệ với Lifecycle:</strong></p>
+<p><strong>Nguyên nhân:</strong></p>
 
 <ul>
-  <li>Ad phải synchronous với Activity lifecycle.</li>
-  <li>Pause/resume/destroy đúng thời điểm.</li>
-  <li>Không show ad khi app ở background.</li>
+  <li>Domain không nên biết về external dependencies; UseCase chỉ xử lý nghiệp vụ thuần.</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<ul>
+  <li>Domain không biết quảng cáo tồn tại; phần thưởng từ ad đi vào như một hành động bình thường (vd "cộng 50 xu").</li>
+</ul>
+
+<h3>3. ViewModel giữ Activity</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>Memory leak sau khi xoay màn hình hoặc rời màn hình.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li>ViewModel sống lâu hơn Activity; giữ Activity (hoặc callback giữ Activity) trong ViewModel làm Activity cũ không được giải phóng.</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<ul>
+  <li>ViewModel chỉ phát event; Activity truyền chính nó vào <code>show()</code> lúc nhận event. Chỗ nào cần Context để load thì dùng <code>applicationContext</code>.</li>
 </ul>
 
 <h2>Lịch sử phát triển</h2>
 
 <ul>
-  <li><strong>2006:</strong> AdMob ra đời, là nền tảng quảng cáo mobile độc lập.</li>
-  <li><strong>2010:</strong> Google mua lại AdMob với giá $750 triệu.</li>
-  <li><strong>2014:</strong> Google hợp nhất AdMob với Google Ads, tạo thành nền tảng quảng cáo thống nhất.</li>
-  <li><strong>2013:</strong> Google Mobile Ads SDK được đưa vào Google Play services 4.0, thay thế AdMob SDK độc lập cũ.</li>
-  <li><strong>2020:</strong> SDK 19.0.0 deprecated <code>addTestDevice()</code>, thay bằng <code>RequestConfiguration.setTestDeviceIds()</code>.</li>
-  <li><strong>2021:</strong> SDK 19.7.0 (01/2021) đổi API full-screen sang kiểu <code>InterstitialAd.load()</code> + <code>*AdLoadCallback</code>; SDK 20.0.0 (04/2021) bỏ hẳn API Interstitial và <code>RewardedVideoAd</code> cũ.</li>
-  <li><strong>2021:</strong> UMP SDK ra đời để tuân thủ GDPR/COPPA.</li>
-  <li><strong>2023:</strong> SDK 23.x với cải thiện performance, mediation.</li>
+  <li><strong>2017:</strong> Google giới thiệu Architecture Components và Guide to app architecture, chuẩn hoá cách tách UI, ViewModel và Data Layer trên Android.</li>
+  <li><strong>2018:</strong> Kotlin coroutines ổn định (Kotlin 1.3), cho phép bọc API callback như <code>InterstitialAd.load()</code> thành suspend function như <code>AdManager</code> ở trên.</li>
+  <li><strong>2021:</strong> Guide to app architecture được viết lại, thêm Domain Layer (tuỳ chọn). Google Mobile Ads SDK đến nay vẫn dùng callback, nên lớp bọc kiểu <code>AdManager</code> vẫn do app tự viết.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Clean Architecture (7.2.5):</strong> quảng cáo là ví dụ điển hình của external dependency nằm ở Data Layer, Domain không biết nó tồn tại. Mục 7.2.5 Clean Architecture (chưa có bài).</li>
+  <li><strong>Hilt (7.1.5.3):</strong> <code>AdManager</code> là singleton được inject; khi test thay bằng bản giả. Mục 7.1.5.3 Hilt (chưa có bài).</li>
+  <li><strong>Fragment Lifecycle (4.2.2.1):</strong> <code>repeatOnLifecycle(Lifecycle.State.RESUMED)</code> là cách UI chỉ show khi foreground. Xem <a href="../../fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>.</li>
+  <li><strong>Full-screen Ads (4.2.3.3.3):</strong> <code>AdManager</code> bọc đúng vòng load, show, reload ở bài đó. Xem <a href="fullscreen_ads.md" target="_blank" rel="noopener">Full-screen Ads</a>.</li>
+  <li><strong>Inline Ads (4.2.3.3.2):</strong> banner, native là View nên nằm ở UI; việc có hiện hay không là state từ ViewModel. Xem <a href="inline_ads.md" target="_blank" rel="noopener">Inline Ads</a>.</li>
+  <li><strong>Ads Privacy &amp; Policy (4.2.3.3.5):</strong> <code>AdManager</code> là chỗ hợp lý để kiểm tra <code>canRequestAds()</code> trước mỗi lần load. Xem <a href="privacy_policy.md" target="_blank" rel="noopener">Ads Privacy &amp; Policy</a>.</li>
 </ul>
 
 <h2>Nguồn tham khảo</h2>
 
 <ul>
-  <li><a href="https://developers.google.com/admob/android/quick-start" target="_blank" rel="noopener">Google AdMob Documentation</a> — Official, bắt buộc đọc.</li>
-  <li><a href="https://developer.android.com/develop/ui/views/admob" target="_blank" rel="noopener">Android Developers - AdMob</a></li>
-  <li><a href="https://support.google.com/googleplay/android-developer/answer/113468" target="_blank" rel="noopener">Google Play Policy - Ads</a></li>
-  <li><a href="https://developers.google.com/admob/android/privacy" target="_blank" rel="noopener">UMP SDK - User Messaging Platform</a></li>
-  <li><a href="https://developers.google.com/admob/android/mediation" target="_blank" rel="noopener">AdMob Mediation</a></li>
-  <li><a href="https://developers.google.com/admob/android/banner" target="_blank" rel="noopener">AdMob Banner</a></li>
-  <li><a href="https://developers.google.com/admob/android/interstitial" target="_blank" rel="noopener">AdMob Interstitial</a></li>
+  <li><a href="https://developer.android.com/topic/architecture" target="_blank" rel="noopener">Guide to app architecture</a></li>
+  <li><a href="https://developer.android.com/topic/architecture/domain-layer" target="_blank" rel="noopener">Domain layer</a></li>
   <li><a href="https://developers.google.com/admob/android/rewarded" target="_blank" rel="noopener">AdMob Rewarded</a></li>
-  <li><a href="https://developers.google.com/admob/android/native/start" target="_blank" rel="noopener">AdMob Native</a></li>
-  <li><a href="https://developers.google.com/admob/android/app-open" target="_blank" rel="noopener">AdMob App Open</a></li>
-  <li><a href="https://developers.google.com/admob/android/test-ads" target="_blank" rel="noopener">AdMob Test ads</a></li>
+</ul>
+    `
+  },
+
+  'ads-privacy': {
+    title: 'Ads Privacy & Policy',
+    summary: 'Ads Privacy & Policy là các quy định mà app có quảng cáo phải tuân thủ, xin consent trước khi dùng dữ liệu cho quảng cáo (GDPR, qua UMP SDK), cấu hình riêng cho trẻ em (COPPA) và policy quảng cáo của Google Play. Bài giải thích luồng consent với UMP, cấu hình AgeRestrictedTreatment và các hành vi bị cấm.',
+    status: 'reviewing',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '10 phút',
+    depth: 'standard',
+    tags: ['android', 'ads', 'admob', 'privacy', 'gdpr', 'ump', 'coppa', 'policy'],
+    domain: 'Android',
+    module: 'Session 04',
+    prerequisites: ['android.component.service.ads.overview'],
+    related: ['android.component.service.ads.fullscreen', 'android.component.service.ads.inline', 'android.component.service.ads.architecture'],
+    learningOutcomes: [
+      'Giải thích được vì sao phải xin consent trước khi request ad ở các vùng như EEA, UK và vai trò của UMP SDK.',
+      'Áp dụng được luồng consent requestConsentInfoUpdate, loadAndShowConsentFormIfRequired, canRequestAds và nút privacy options.',
+      'Áp dụng được cấu hình quảng cáo cho app hướng tới trẻ em bằng setAgeRestrictedTreatment và setMaxAdContentRating.',
+      'Nhận diện được các hành vi quảng cáo bị Google Play cấm và hậu quả.'
+    ],
+    knowledgeGap: 'Nhiều người load ad ngay khi mở app mà chưa xét consent, hoặc vẫn dùng API trẻ em đã deprecated.',
+    updatedAt: '2026-11-07',
+    readTime: '10 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Quảng cáo cá nhân hoá dùng dữ liệu của user (định danh quảng cáo, hành vi trong app) để chọn ad phù hợp. Nhiều nơi có luật về việc này: ở EU phải xin đồng ý trước khi dùng dữ liệu (GDPR), ở Mỹ có luật riêng cho trẻ em (COPPA). Google Play và AdMob còn có policy riêng về cách hiển thị quảng cáo.</p>
+
+<p>App vi phạm thì bị từ chối khi submit, bị gỡ khỏi store, hoặc tài khoản developer và tài khoản AdMob bị khoá. Vì vậy câu hỏi "khi nào được phép request ad" phải được trả lời trước mọi đoạn code load ad.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được vì sao phải xin consent trước khi request ad ở các vùng như EEA, UK và vai trò của UMP SDK.</li>
+  <li>Áp dụng được luồng consent requestConsentInfoUpdate, loadAndShowConsentFormIfRequired, canRequestAds và nút privacy options.</li>
+  <li>Áp dụng được cấu hình quảng cáo cho app hướng tới trẻ em bằng setAgeRestrictedTreatment và setMaxAdContentRating.</li>
+  <li>Nhận diện được các hành vi quảng cáo bị Google Play cấm và hậu quả.</li>
+</ul>
+
+<h2>Ads Privacy &amp; Policy là gì?</h2>
+
+<p><strong>Ads Privacy &amp; Policy</strong> là các quy định mà app có quảng cáo phải tuân thủ: xin consent trước khi dùng dữ liệu cho quảng cáo (GDPR, qua UMP SDK), cấu hình riêng cho trẻ em (COPPA) và policy quảng cáo của Google Play.</p>
+
+<p>Mental model: consent là <strong>cổng trước mọi ad request</strong>. Code load ad ở các bài khác chỉ chạy khi cổng mở (<code>canRequestAds()</code> trả <code>true</code>).</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Luồng consent với UMP SDK</h3>
+
+<p>UMP (User Messaging Platform) SDK của Google quyết định user có cần thấy form consent không, hiển thị form, lưu lựa chọn trên máy và báo cho app biết đã được request ad chưa:</p>
+
+<ol>
+  <li>Mỗi lần mở app, gọi <code>requestConsentInfoUpdate()</code> để cập nhật trạng thái consent của user.</li>
+  <li>Gọi <code>loadAndShowConsentFormIfRequired()</code>: nếu user ở vùng cần consent và chưa chọn, form hiện ra; không cần thì callback chạy ngay.</li>
+  <li>Chỉ request ad khi <code>canRequestAds()</code> trả <code>true</code>.</li>
+  <li>Với user ở vùng cần consent, màn hình Settings có nút mở lại form (privacy options) để user đổi lựa chọn.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant App as Activity đầu tiên
+    participant UMP as UMP SDK
+    participant Ads as Code load ad
+
+    App-&gt;&gt;UMP: (1) requestConsentInfoUpdate(params)
+    UMP--&gt;&gt;App: trạng thái consent đã cập nhật
+    App-&gt;&gt;UMP: (2) loadAndShowConsentFormIfRequired()
+    UMP--&gt;&gt;App: form đóng (hoặc không cần form)
+    App-&gt;&gt;UMP: (3) canRequestAds()?
+    UMP--&gt;&gt;App: true
+    App-&gt;&gt;Ads: load ad
+    Note over App,UMP: (4) Settings: showPrivacyOptionsForm() khi REQUIRED
+</div>
+
+<h3>GDPR (Châu Âu)</h3>
+
+<p><strong>Bản chất:</strong></p>
+
+<ul>
+  <li>GDPR (General Data Protection Regulation) là luật bảo vệ dữ liệu cá nhân của EU.</li>
+  <li>App phải xin sự đồng ý của user trước khi thu thập dữ liệu để quảng cáo cá nhân hóa.</li>
+</ul>
+
+<h3>COPPA / Đối tượng trẻ em</h3>
+
+<p><strong>Bản chất:</strong></p>
+
+<ul>
+  <li>COPPA (Children's Online Privacy Protection Act) là luật bảo vệ trẻ em dưới 13 tuổi ở Mỹ.</li>
+  <li>Nếu app hướng đến trẻ em, phải tuân thủ COPPA.</li>
+</ul>
+
+<p><strong>Cấu hình:</strong></p>
+
+<pre data-lang="kotlin"><code>// Cấu hình toàn cục cho mọi ad request (gọi trước khi load ad)
+val requestConfiguration = MobileAds.getRequestConfiguration().toBuilder()
+    // App hướng đến trẻ em; thay cho setTagForChildDirectedTreatment (đã deprecated)
+    .setAgeRestrictedTreatment(AgeRestrictedTreatment.CHILD)
+    // Chỉ nhận ad có xếp hạng nội dung G
+    .setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_G)
+    .build()
+MobileAds.setRequestConfiguration(requestConfiguration)</code></pre>
+
+<p><strong>Tác động:</strong></p>
+
+<ul>
+  <li>Google chỉ phục vụ ad an toàn cho trẻ (không có nội dung nhạy cảm).</li>
+  <li>Không thu thập dữ liệu cá nhân của trẻ.</li>
+  <li>Doanh thu có thể thấp hơn (ít advertiser target trẻ em).</li>
+</ul>
+
+<h3>Quy tắc Google Play</h3>
+
+<p><strong>Không được:</strong></p>
+
+<ul>
+  <li>Quảng cáo lừa đảo, nội dung nhạy cảm (sex, bạo lực).</li>
+  <li>Ép buộc user xem ad (ví dụ: chặn toàn bộ app trừ khi xem ad).</li>
+  <li>Bắt chước UI hệ thống (fake close button, fake notification).</li>
+</ul>
+
+<p><strong>Hậu quả:</strong></p>
+
+<ul>
+  <li>App bị từ chối khi submit.</li>
+  <li>App bị gỡ nếu đã publish.</li>
+  <li>Tài khoản developer bị banned (khó khôi phục).</li>
+</ul>
+
+<p><strong>Best practice:</strong></p>
+
+<ul>
+  <li>Đọc kỹ <a href="https://support.google.com/googleplay/android-developer/answer/113468" target="_blank" rel="noopener">Google Play Policy</a>.</li>
+  <li>Test app với policy checker trước khi submit.</li>
+  <li>Nếu không chắc, hỏi Google trước.</li>
+</ul>
+
+<h2>Ví dụ thực tế: xin consent trước khi load ad</h2>
+
+<p>Activity đầu tiên của app chạy luồng consent, rồi mới load ad. Các bước (1)–(4) khớp với luồng ở trên.</p>
+
+<pre data-lang="kotlin"><code>// Trong Activity đầu tiên (vd MainActivity.onCreate)
+// (1) Lấy ConsentInformation và cập nhật trạng thái consent mỗi lần mở app
+val consentInformation = UserMessagingPlatform.getConsentInformation(this)
+val params = ConsentRequestParameters.Builder().build()
+
+consentInformation.requestConsentInfoUpdate(this, params, {
+    // (2) Hiển thị form nếu cần (vd user ở EEA/UK chưa có consent); không cần thì callback chạy ngay
+    UserMessagingPlatform.loadAndShowConsentFormIfRequired(this) { formError -&gt;
+        if (formError != null) {
+            Log.w("Consent", formError.message)
+        }
+        // (3) Chỉ request ad khi canRequestAds() = true
+        if (consentInformation.canRequestAds()) loadAd()
+    }
+}, { requestError -&gt;
+    Log.w("Consent", requestError.message)
+})
+
+// Consent từ phiên trước đã đủ thì có thể load ad song song (loadAd() tự chặn gọi trùng bằng một cờ)
+if (consentInformation.canRequestAds()) loadAd()</code></pre>
+
+<p>Màn hình Settings hiện nút privacy options khi UMP yêu cầu:</p>
+
+<pre data-lang="kotlin"><code>// (4) Chỉ hiện nút khi user ở vùng cần consent
+val consentInformation = UserMessagingPlatform.getConsentInformation(this)
+privacyButton.isVisible = consentInformation.privacyOptionsRequirementStatus ==
+    ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
+
+privacyButton.setOnClickListener {
+    UserMessagingPlatform.showPrivacyOptionsForm(this) { formError -&gt;
+        formError?.let { Log.w("Consent", it.message) }
+    }
+}</code></pre>
+
+<p><strong>Chi tiết:</strong></p>
+
+<ul>
+  <li><code>canRequestAds()</code>: Trả về true nếu user đã đồng ý hoặc không cần consent.</li>
+  <li><code>UserMessagingPlatform.loadAndShowConsentFormIfRequired()</code>: Tự động hiển thị form nếu cần.</li>
+  <li>Lựa chọn consent được UMP lưu trên máy; Google Mobile Ads SDK đọc lựa chọn đó và tự điều chỉnh loại ad (vd ad không cá nhân hoá), không cần đổi <code>AdRequest</code>. <code>setMaxAdContentRating</code> chỉ giới hạn mức nội dung của ad, không liên quan tới cá nhân hoá.</li>
+  <li>Với user ở vùng cần consent, nên có nút mở lại form trong Settings: kiểm tra <code>privacyOptionsRequirementStatus</code> rồi gọi <code>UserMessagingPlatform.showPrivacyOptionsForm()</code>.</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Request ad trước khi biết consent</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>Ad được request cho user ở EEA/UK trước khi form consent kịp hiện.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li>Gọi load ad ngay trong <code>onCreate</code>, không chờ kết quả của UMP.</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<ul>
+  <li>Chỉ load sau khi <code>canRequestAds()</code> trả <code>true</code>. Nếu kiểm tra ở hai chỗ (consent của phiên trước và sau khi form đóng), dùng một cờ để không request trùng.</li>
+</ul>
+
+<h3>2. Dùng API trẻ em đã deprecated</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>Android Studio cảnh báo deprecated ở <code>setTagForChildDirectedTreatment()</code> / <code>setTagForUnderAgeOfConsent()</code>.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li>Hai API này đã bị thay bằng <code>setAgeRestrictedTreatment()</code>.</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<ul>
+  <li>Dùng <code>setAgeRestrictedTreatment(AgeRestrictedTreatment.CHILD)</code> trong <code>RequestConfiguration</code>.</li>
+</ul>
+
+<h3>3. Ép user xem ad hoặc làm giả nút đóng</h3>
+
+<p><strong>Triệu chứng:</strong></p>
+
+<ul>
+  <li>App bị từ chối hoặc bị gỡ khỏi Google Play.</li>
+</ul>
+
+<p><strong>Nguyên nhân:</strong></p>
+
+<ul>
+  <li>Chặn tính năng cơ bản cho tới khi xem ad, hoặc bắt chước UI hệ thống (fake close button, fake notification).</li>
+</ul>
+
+<p><strong>Giải pháp:</strong></p>
+
+<ul>
+  <li>Rewarded ad luôn là lựa chọn của user; không đặt quảng cáo giả dạng UI hệ thống.</li>
+</ul>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>1998:</strong> Mỹ thông qua COPPA (có hiệu lực từ 2000; FTC sửa đổi quy định năm 2013).</li>
+  <li><strong>25/05/2018:</strong> GDPR có hiệu lực ở EU.</li>
+  <li><strong>07/2020:</strong> UMP SDK 1.0.0 ra mắt bản chính thức.</li>
+  <li><strong>10/2025:</strong> UMP SDK 4.0.0.</li>
+  <li>Các bản Google Mobile Ads SDK gần đây thay <code>setTagForChildDirectedTreatment()</code> và <code>setTagForUnderAgeOfConsent()</code> bằng <code>setAgeRestrictedTreatment()</code>.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>AdMob Overview (4.2.3.3.1):</strong> khởi tạo SDK và test device; consent là điều kiện trước mọi ad request ở bài đó. Xem <a href="overview.md" target="_blank" rel="noopener">AdMob Overview</a>.</li>
+  <li><strong>Inline Ads và Full-screen Ads (4.2.3.3.2, 4.2.3.3.3):</strong> mọi đoạn <code>load()</code> trong hai bài chỉ chạy sau khi <code>canRequestAds()</code> trả <code>true</code>. Xem <a href="inline_ads.md" target="_blank" rel="noopener">Inline Ads</a>, <a href="fullscreen_ads.md" target="_blank" rel="noopener">Full-screen Ads</a>.</li>
+  <li><strong>Ads trong kiến trúc app (4.2.3.3.4):</strong> kiểm tra consent đặt trong <code>AdManager</code> để mọi màn hình dùng chung. Xem <a href="ads_architecture.md" target="_blank" rel="noopener">Ads trong kiến trúc app</a>.</li>
+  <li><strong>Manifest Tags (4.1.2):</strong> permission <code>com.google.android.gms.permission.AD_ID</code> do SDK merge vào manifest liên quan tới định danh quảng cáo. Xem <a href="../../../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>.</li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
+
+<ul>
+  <li><a href="https://developers.google.com/admob/android/privacy" target="_blank" rel="noopener">UMP SDK - User Messaging Platform</a></li>
+  <li><a href="https://developers.google.com/admob/android/privacy/release-notes" target="_blank" rel="noopener">UMP SDK release notes</a></li>
   <li><a href="https://developers.google.com/admob/android/targeting" target="_blank" rel="noopener">AdMob Targeting (RequestConfiguration)</a></li>
-  <li><a href="https://developers.google.com/admob/android/native/advanced" target="_blank" rel="noopener">Native advanced (attribution, setNativeAd)</a></li>
-  <li><a href="https://developers.google.com/admob/android/ad-inspector" target="_blank" rel="noopener">Ad Inspector</a></li>
-  <li><a href="https://developers.google.com/admob/android/rel-notes" target="_blank" rel="noopener">Google Mobile Ads SDK release notes</a></li>
-  <li><a href="https://support.google.com/admob/answer/3245199" target="_blank" rel="noopener">Automatic refresh for banner ads</a></li>
+  <li><a href="https://support.google.com/googleplay/android-developer/answer/113468" target="_blank" rel="noopener">Google Play Policy - Ads</a></li>
 </ul>
     `
   },
@@ -37034,7 +37622,14 @@ ANDROID_CONTENT['android.manifest.build_types'] = ANDROID_CONTENT['build-types']
 ANDROID_CONTENT['android.manifest.product_flavors'] = ANDROID_CONTENT['flavor'];
 ANDROID_CONTENT['android.manifest.plugin'] = ANDROID_CONTENT['plugin'];
 ANDROID_CONTENT['android.manifest.tags'] = ANDROID_CONTENT['manifest-tags'];
-ANDROID_CONTENT['android.component.service.advertisements'] = ANDROID_CONTENT['advertisements'];
+ANDROID_CONTENT['android.component.service.ads.overview'] = ANDROID_CONTENT['ads-overview'];
+ANDROID_CONTENT['android.component.service.ads.inline'] = ANDROID_CONTENT['ads-inline'];
+ANDROID_CONTENT['android.component.service.ads.fullscreen'] = ANDROID_CONTENT['ads-fullscreen'];
+ANDROID_CONTENT['android.component.service.ads.architecture'] = ANDROID_CONTENT['ads-architecture'];
+ANDROID_CONTENT['android.component.service.ads.privacy'] = ANDROID_CONTENT['ads-privacy'];
+// Id và slug cũ của bài Advertisements trước khi tách (link, bookmark cũ) → AdMob Overview
+ANDROID_CONTENT['android.component.service.advertisements'] = ANDROID_CONTENT['ads-overview'];
+ANDROID_CONTENT['advertisements'] = ANDROID_CONTENT['ads-overview'];
 ANDROID_CONTENT['android.session05.overview'] = ANDROID_CONTENT['session-05-overview'];
 ANDROID_CONTENT['android.data_store.key_value'] = ANDROID_CONTENT['data-store-key-value'];
 ANDROID_CONTENT['android.data_store.room_architecture'] = ANDROID_CONTENT['data-store-room-arch'];
@@ -37054,7 +37649,7 @@ Object.assign(ANDROID_CONTENT, {
     domain: 'Android',
     module: 'Session 04: Android Manifest & Application Components',
     prerequisites: [],
-    related: ['android.manifest.build_types', 'android.manifest.product_flavors', 'android.manifest.plugin', 'android.manifest.tags', 'android.component.activity.lifecycle', 'android.component.activity.parcelables_and_bundle', 'android.component.activity.state_changes', 'android.component.activity.task_and_backstack', 'android.component.broadcast.overview', 'android.component.content_provider', 'android.component.fragment.dialog_and_dialogfragment', 'android.component.fragment.fragment_manager', 'android.component.fragment.lifecycle', 'android.component.fragment.state_changes', 'android.component.service.advertisements', 'android.component.service.overview', 'android.component.service.google_service', 'android.intent.explicit', 'android.intent.handle_intent', 'android.intent.implicit', 'android.intent.filters', 'android.intent.pending_intent', 'android.intent.push_data_event'],
+    related: ['android.manifest.build_types', 'android.manifest.product_flavors', 'android.manifest.plugin', 'android.manifest.tags', 'android.component.activity.overview', 'android.component.activity.lifecycle', 'android.component.activity.parcelables_and_bundle', 'android.component.activity.state_changes', 'android.component.activity.task_and_backstack', 'android.component.broadcast.overview', 'android.component.content_provider', 'android.component.fragment.dialog_and_dialogfragment', 'android.component.fragment.fragment_manager', 'android.component.fragment.overview', 'android.component.fragment.lifecycle', 'android.component.fragment.state_changes', 'android.component.service.ads.architecture', 'android.component.service.ads.fullscreen', 'android.component.service.ads.inline', 'android.component.service.ads.overview', 'android.component.service.ads.privacy', 'android.component.service.overview', 'android.component.service.google_service', 'android.intent.explicit', 'android.intent.handle_intent', 'android.intent.implicit', 'android.intent.filters', 'android.intent.pending_intent', 'android.intent.push_data_event'],
     learningOutcomes: [
       'Giải thích được Session 04 cung cấp những mảng kiến thức nào.',
       'Phân biệt được vai trò của Android Manifest và nhóm Package/Build/Gradle.',

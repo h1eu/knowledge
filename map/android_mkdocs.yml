@@ -73,7 +73,12 @@ nav:
       - 4.2.3 Android Services:
         - 4.2.3.1 Android Service: session_04/components/services/android_service.md
         - 4.2.3.2 Google Service: session_04/components/services/google_service.md
-        - 4.2.3.3 Advertisements: session_04/components/services/advertisements.md
+        - 4.2.3.3 Advertisements:
+          - 4.2.3.3.1 AdMob Overview (Ad Network, luồng request, các loại ad, tích hợp SDK): session_04/components/services/advertisements/overview.md
+          - 4.2.3.3.2 Inline Ads (Banner, Native): session_04/components/services/advertisements/inline_ads.md
+          - 4.2.3.3.3 Full-screen Ads (Interstitial, Rewarded, App Open): session_04/components/services/advertisements/fullscreen_ads.md
+          - 4.2.3.3.4 Ads trong kiến trúc app (MVVM, Clean Architecture): session_04/components/services/advertisements/ads_architecture.md
+          - 4.2.3.3.5 Ads Privacy & Policy (GDPR/UMP, COPPA, Google Play): session_04/components/services/advertisements/privacy_policy.md
       - 4.2.4 Broadcast Receiver:
         - 4.2.4.1 Broadcast Receiver: session_04/components/broadcast/broadcast_receiver.md
       - 4.2.5 Content Provider: session_04/components/content_provider.md

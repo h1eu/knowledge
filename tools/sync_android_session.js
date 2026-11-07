@@ -13,7 +13,7 @@
 
    Quy ước Markdown → website:
      - Key website = frontmatter `id`, hoặc slug cũ nếu có alias
-       `ANDROID_CONTENT['<id>'] = ANDROID_CONTENT['<slug>']`; index.md / overview.md → `session-NN-overview`.
+       `ANDROID_CONTENT['<id>'] = ANDROID_CONTENT['<slug>']`; index.md / overview.md ở gốc thư mục session → `session-NN-overview`.
        Entry cũ dùng slug mà chưa có alias → thêm dòng alias đó vào android-content.js trước khi đồng bộ.
      - `<!-- dd: <slug> -->` sau khối Mermaid hoặc ```text (sơ đồ ASCII) → SVG `website/diagrams/<slug>(-dark).html` thay khối đó.
      - `<!-- archify: <slug> | <tiêu đề> -->` sau khối Mermaid → sơ đồ Archify
@@ -340,7 +340,10 @@ function main() {
 
   const topics = walk(docs).sort().map((file) => {
     const parsed = parseFrontmatter(fs.readFileSync(file, 'utf8'));
-    return { file, isIndex: ['index.md', 'overview.md'].includes(path.basename(file)), ...(parsed || {}) };
+    // Chỉ index.md / overview.md ở gốc thư mục session mới là trang tổng quan của session
+    // (overview.md trong thư mục con, vd advertisements/overview.md, là Topic thường).
+    const isIndex = path.dirname(file) === docs && ['index.md', 'overview.md'].includes(path.basename(file));
+    return { file, isIndex, ...(parsed || {}) };
   }).filter((t) => t.fm && t.fm.id);
 
   let js = fs.readFileSync(JS, 'utf8');

@@ -8,7 +8,7 @@ depth: deep-dive
 estimated_reading_time: 45 phút
 tags: [android, google-service, google-play-services, firebase, fcm, crashlytics, analytics, firebase-auth, remote-config, firestore, app-distribution, location, maps]
 prerequisites: [android.component.service.overview]
-related: [android.component.broadcast.overview, android.component.activity.overview, android.component.service.advertisements, android.component.content_provider]
+related: [android.component.broadcast.overview, android.component.activity.overview, android.component.service.ads.overview, android.component.content_provider]
 learning_outcomes:
   - Phân biệt được Google Play Services và Firebase, và nhận biết SDK Firebase nào bắt buộc thiết bị có GMS.
   - Áp dụng được Firebase BoM và google-services.json để tích hợp Firebase vào project chuẩn.

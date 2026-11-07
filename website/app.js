@@ -278,7 +278,11 @@ const KNOWLEDGE_DATA = {
             { id: 'fragment-dialog', title: '4.2.2.4 Dialog and DialogFragment', status: 'published', tags: ['android', 'fragment', 'dialog'] },
             { id: 'android-service', title: '4.2.3.1 Android Service', status: 'published', tags: ['android', 'service', 'background', 'workmanager'] },
             { id: 'google-service', title: '4.2.3.2 Google Service', status: 'published', tags: ['android', 'google-service', 'firebase', 'fcm'] },
-            { id: 'advertisements', title: '4.2.3.3 Advertisements', status: 'published', tags: ['android', 'ads', 'admob', 'monetization'] },
+            { id: 'ads-overview', title: '4.2.3.3.1 AdMob Overview', status: 'draft', tags: ['android', 'ads', 'admob', 'monetization'] },
+            { id: 'ads-inline', title: '4.2.3.3.2 Inline Ads', status: 'draft', tags: ['android', 'ads', 'banner', 'native-ads'] },
+            { id: 'ads-fullscreen', title: '4.2.3.3.3 Full-screen Ads', status: 'draft', tags: ['android', 'ads', 'interstitial', 'rewarded'] },
+            { id: 'ads-architecture', title: '4.2.3.3.4 Ads trong kiến trúc app', status: 'draft', tags: ['android', 'ads', 'mvvm'] },
+            { id: 'ads-privacy', title: '4.2.3.3.5 Ads Privacy & Policy', status: 'draft', tags: ['android', 'ads', 'privacy', 'gdpr'] },
             { id: 'android-broadcast-receiver', title: '4.2.4.1 Broadcast Receiver', status: 'published', tags: ['android', 'broadcast'] },
             { id: 'content-provider', title: '4.2.5 Content Provider', status: 'published', tags: ['android', 'content-provider'] },
             { id: 'intent-explicit', title: '4.2.6.1 Explicit Intents', status: 'published', tags: ['android', 'intent'] },
@@ -303,7 +307,12 @@ const KNOWLEDGE_DATA = {
               sections: [
                 { id: 's04-activity', name: '4.2.1 Activity', topics: ['activity-overview', 'activity-lifecycle', 'activity-state-changes', 'activity-task-backstack', 'activity-parcelables-bundle'] },
                 { id: 's04-fragment', name: '4.2.2 Fragment', topics: ['fragment-overview', 'fragment-lifecycle', 'fragment-state-changes', 'fragment-manager', 'fragment-dialog'] },
-                { id: 's04-services', name: '4.2.3 Android Services', topics: ['android-service', 'google-service', 'advertisements'] },
+                {
+                  id: 's04-services', name: '4.2.3 Android Services', topics: ['android-service', 'google-service'],
+                  sections: [
+                    { id: 's04-ads', name: '4.2.3.3 Advertisements', topics: ['ads-overview', 'ads-inline', 'ads-fullscreen', 'ads-architecture', 'ads-privacy'] }
+                  ]
+                },
                 { id: 's04-broadcast', name: '4.2.4 Broadcast Receiver', topics: ['android-broadcast-receiver'] },
                 { id: 's04-provider', name: '4.2.5 Content Provider', topics: ['content-provider'] },
                 { id: 's04-intent', name: '4.2.6 Intent', topics: ['intent-explicit', 'intent-implicit', 'intent-filters', 'intent-handle', 'intent-push-data', 'intent-pending'] }
@@ -9770,11 +9779,14 @@ function renderModuleContent(mod) {
   const renderSectionBlock = (sec) => {
     const secKey = mod.id + '::' + sec.id;
     const open = expandedSections.has(secKey) || sectionContainsTopic(sec, currentTopicId);
-    const childSections = (sec.sections || []).map(renderSectionBlock).join('');
-    const childTopics = (sec.topics || []).map(tid => {
-      const t = mod.topics.find(x => x.id === tid);
-      return t ? renderTopicRow(t) : '';
-    }).join('');
+    // Mục con và topic xếp chung theo thứ tự trong mod.topics (đúng thứ tự nav)
+    const children = [
+      ...(sec.sections || []).map(s => ({ pos: minTopicIndex(s), html: renderSectionBlock(s) })),
+      ...(sec.topics || []).map(tid => {
+        const t = mod.topics.find(x => x.id === tid);
+        return { pos: topicIndex(tid), html: t ? renderTopicRow(t) : '' };
+      })
+    ].sort((a, b) => a.pos - b.pos).map(c => c.html).join('');
     return `
       <div class="sidebar-folder ${open ? 'expanded' : ''}"
            onclick="toggleSection('${secKey}')">
@@ -9782,7 +9794,7 @@ function renderModuleContent(mod) {
         <span class="section-chevron">${CHEVRON_SVG}</span>
       </div>
       <div class="sidebar-tree sidebar-tree--nested ${open ? '' : 'collapsed'}">
-        ${open ? (childSections + childTopics) : ''}
+        ${open ? children : ''}
       </div>
     `;
   };
@@ -20267,12 +20279,19 @@ function toggleTheme(event) {
 window.toggleTheme = toggleTheme;
 
 // ── Routing & Deep Linking ─────────────────────────────────────────
+// Slug cũ của Topic đã tách hoặc đổi tên → Topic hiện tại, để link và bookmark cũ vẫn mở được
+const TOPIC_REDIRECTS = {
+  'advertisements': 'ads-overview', // 4.2.3.3 Advertisements tách thành 4.2.3.3.1–4.2.3.3.5
+};
+
 function handleUrlRouting() {
   const hash = window.location.hash.replace(/^#/, '');
   const urlParams = new URLSearchParams(window.location.search);
-  const topicParam = urlParams.get('topic') || hash;
+  const requested = urlParams.get('topic') || hash;
+  const topicParam = TOPIC_REDIRECTS[requested] || requested;
 
   if (topicParam && (typeof TOPIC_CONTENT !== 'undefined' && TOPIC_CONTENT[topicParam] || findTopic(topicParam))) {
+    if (topicParam !== requested) history.replaceState(null, '', `#${topicParam}`);
     openTopic(topicParam, false);
     return true;
   }

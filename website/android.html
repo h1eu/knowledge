@@ -187,15 +187,8 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const hash = window.location.hash.replace('#', '');
-    const urlParams = new URLSearchParams(window.location.search);
-    const topicParam = urlParams.get('topic') || hash;
-
-    if (topicParam && (typeof TOPIC_CONTENT !== 'undefined' && TOPIC_CONTENT[topicParam] || findTopic(topicParam))) {
-      openTopic(topicParam);
-    } else {
-      showDomain('android');
-    }
+    // handleUrlRouting (app.js) mở Topic theo ?topic= hoặc #hash, kể cả slug cũ trong TOPIC_REDIRECTS
+    if (!handleUrlRouting()) showDomain('android');
   });
 </script>
 </body>
