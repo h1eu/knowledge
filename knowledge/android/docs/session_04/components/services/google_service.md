@@ -5,7 +5,7 @@ summary: Google Service trên Android gồm hai tầng là Google Play Services 
 status: published
 difficulty: intermediate
 depth: deep-dive
-estimated_reading_time: 45 phút
+estimated_reading_time: 30 phút
 tags: [android, google-service, google-play-services, firebase, fcm, crashlytics, analytics, firebase-auth, remote-config, firestore, app-distribution, location, maps]
 prerequisites: [android.component.service.overview]
 related: [android.component.broadcast.overview, android.component.activity.overview, android.component.service.ads.overview, android.component.content_provider]
@@ -271,6 +271,9 @@ defaultConfig {
 ### 6.1 FCM — Push Notification
 
 **Tình huống:** Gửi thông báo đơn hàng mới tới người dùng, hiển thị notification cả khi app đang mở lẫn bị kill.
+
+> [!NOTE]
+> Kiến thức dùng trước: hàm `showNotification()` bên dưới dùng notification channel, quyền `POST_NOTIFICATIONS` và `NotificationCompat`, học ở mục 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài). Ở đây chỉ cần biết: khi app ở foreground, FCM giao message cho `onMessageReceived()` và app tự dựng notification.
 
 ```mermaid
 sequenceDiagram
@@ -694,13 +697,16 @@ override fun onMapReady(map: GoogleMap) {
 
 ### 7.3 AdMob — Quảng cáo (dẫn dắt)
 
-AdMob hiển thị quảng cáo (banner, interstitial, rewarded) qua Google Mobile Ads SDK. Đây là chủ đề riêng có nhiều quy định của Google (policy quảng cáo, hợp đồng) — sẽ được trình bày chi tiết ở topic **4.2.3.3 Advertisements**.
+AdMob hiển thị quảng cáo (banner, interstitial, rewarded) qua Google Mobile Ads SDK. Đây là chủ đề riêng có nhiều quy định của Google (policy quảng cáo, consent), trình bày ở 4.2.3.3 Advertisements, bắt đầu từ [AdMob Overview](advertisements/overview.md).
 
 ---
 
 ## 8. Vị trí trong Clean Architecture / MVVM (Tư duy hệ thống)
 
-Google Service và Firebase nằm ở **Data Layer** (tầng dữ liệu), bên trong các `*DataSource`. **Domain Layer chỉ biết interface** — không được biết Firebase là gì. Điều này giúp thay thế Firebase (vd sang HMS hoặc backend riêng) không đụng vào UI.
+> [!NOTE]
+> Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục 7.2.5 Clean Architecture (chưa có bài). Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.
+
+Google Play Services và Firebase là SDK bên ngoài, nên nằm ở **Data Layer**, bên trong các `*DataSource`: một DataSource cho Firebase (FCM, Auth, Firestore, Crashlytics, Analytics), một cho API của GMS (Location, Maps).
 
 ```mermaid
 flowchart LR
@@ -731,10 +737,10 @@ flowchart LR
 ```
 <!-- dd: gg-arch -->
 
-**Nguyên tắc:**
-- ViewModel gọi `UseCase` (Domain), không gọi Firebase trực tiếp.
-- `DataSource` (Data) bọc mọi API của Firebase/GMS, trả về **model thuần** của app.
-- Thay đổi Firebase ↔ HMS chỉ cần viết lại `DataSource` + đổi DI binding, UI/Domain không đổi.
+**Riêng với Google Service:**
+- `DataSource` bọc mọi API của Firebase/GMS (`Task`, `RemoteMessage`, `FirebaseUser`...) và trả về **model thuần** của app, nên tầng trên không import `com.google.*`.
+- Máy không có GMS (Huawei, thị trường Trung Quốc) thì thay bằng HMS chỉ cần viết thêm một `DataSource` và đổi DI binding, UI/Domain không đổi.
+- Cùng cách đặt tầng cho quảng cáo: [Ads trong kiến trúc app](advertisements/ads_architecture.md).
 
 ---
 

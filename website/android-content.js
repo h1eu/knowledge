@@ -22977,7 +22977,7 @@ WorkManager.getInstance(context)
     summary: 'Google Service trên Android gồm hai tầng là Google Play Services (GMS), framework hệ thống cài sẵn trên thiết bị cung cấp API như Location, Maps, đăng nhập; và Firebase, nền tảng Backend-as-a-Service với các SDK chạy trong app. Bài phân biệt hai tầng, SDK nào thật sự cần GMS, cách tích hợp chuẩn với BoM, và triển khai FCM, Analytics, Crashlytics, Auth, Remote Config, Firestore, Location, Maps.',
     status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '45 phút',
+    estimatedReadingTime: '30 phút',
     depth: 'deep-dive',
     tags: ['android', 'google-service', 'google-play-services', 'firebase', 'fcm', 'crashlytics', 'analytics', 'firebase-auth', 'remote-config', 'firestore', 'app-distribution', 'location', 'maps'],
     domain: 'Android',
@@ -22993,7 +22993,7 @@ WorkManager.getInstance(context)
     ],
     knowledgeGap: 'Nhiều người nhầm lẫn Google Play Services với Firebase SDK, không hiểu vì sao app crash trên thiết bị không có GMS. Không nắm được cơ chế GMS tự cập nhật và sự phụ thuộc của Firebase SDK vào GMS dẫn đến lỗi tích hợp, crash runtime, và app bị từ chối trên Play Store.',
     updatedAt: '2026-11-07',
-    readTime: '45 phút',
+    readTime: '30 phút',
     content: `
 <h2>1. Nó là gì? (What is it?)</h2>
 
@@ -23896,6 +23896,8 @@ WorkManager.getInstance(context)
 
 <p><strong>Tình huống:</strong> Gửi thông báo đơn hàng mới tới người dùng, hiển thị notification cả khi app đang mở lẫn bị kill.</p>
 
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: hàm <code>showNotification()</code> bên dưới dùng notification channel, quyền <code>POST_NOTIFICATIONS</code> và <code>NotificationCompat</code>, học ở mục 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài). Ở đây chỉ cần biết: khi app ở foreground, FCM giao message cho <code>onMessageReceived()</code> và app tự dựng notification.</div></div>
+
 <div class="dd-diagram" data-dd="gg-fcm">
 <div class="dd-svg dd-svg-dark">
 <svg viewBox="0 0 800 328" role="img" aria-labelledby="gg-fcm-dark-title gg-fcm-dark-desc" font-family="'Geist', sans-serif">
@@ -24595,11 +24597,13 @@ override fun onMapReady(map: GoogleMap) {
 
 <h3>7.3 AdMob — Quảng cáo (dẫn dắt)</h3>
 
-<p>AdMob hiển thị quảng cáo (banner, interstitial, rewarded) qua Google Mobile Ads SDK. Đây là chủ đề riêng có nhiều quy định của Google (policy quảng cáo, hợp đồng) — sẽ được trình bày chi tiết ở topic <strong>4.2.3.3 Advertisements</strong>.</p>
+<p>AdMob hiển thị quảng cáo (banner, interstitial, rewarded) qua Google Mobile Ads SDK. Đây là chủ đề riêng có nhiều quy định của Google (policy quảng cáo, consent), trình bày ở 4.2.3.3 Advertisements, bắt đầu từ <a href="advertisements/overview.md" target="_blank" rel="noopener">AdMob Overview</a>.</p>
 
 <h2>8. Vị trí trong Clean Architecture / MVVM (Tư duy hệ thống)</h2>
 
-<p>Google Service và Firebase nằm ở <strong>Data Layer</strong> (tầng dữ liệu), bên trong các <code>*DataSource</code>. <strong>Domain Layer chỉ biết interface</strong> — không được biết Firebase là gì. Điều này giúp thay thế Firebase (vd sang HMS hoặc backend riêng) không đụng vào UI.</p>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục 7.2.5 Clean Architecture (chưa có bài). Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.</div></div>
+
+<p>Google Play Services và Firebase là SDK bên ngoài, nên nằm ở <strong>Data Layer</strong>, bên trong các <code>*DataSource</code>: một DataSource cho Firebase (FCM, Auth, Firestore, Crashlytics, Analytics), một cho API của GMS (Location, Maps).</p>
 
 <div class="dd-diagram" data-dd="gg-arch">
 <div class="dd-svg dd-svg-dark">
@@ -24712,12 +24716,12 @@ override fun onMapReady(map: GoogleMap) {
 </div>
 </div>
 
-<p><strong>Nguyên tắc:</strong></p>
+<p><strong>Riêng với Google Service:</strong></p>
 
 <ul>
-  <li>ViewModel gọi <code>UseCase</code> (Domain), không gọi Firebase trực tiếp.</li>
-  <li><code>DataSource</code> (Data) bọc mọi API của Firebase/GMS, trả về <strong>model thuần</strong> của app.</li>
-  <li>Thay đổi Firebase ↔ HMS chỉ cần viết lại <code>DataSource</code> + đổi DI binding, UI/Domain không đổi.</li>
+  <li><code>DataSource</code> bọc mọi API của Firebase/GMS (<code>Task</code>, <code>RemoteMessage</code>, <code>FirebaseUser</code>...) và trả về <strong>model thuần</strong> của app, nên tầng trên không import <code>com.google.*</code>.</li>
+  <li>Máy không có GMS (Huawei, thị trường Trung Quốc) thì thay bằng HMS chỉ cần viết thêm một <code>DataSource</code> và đổi DI binding, UI/Domain không đổi.</li>
+  <li>Cùng cách đặt tầng cho quảng cáo: <a href="advertisements/ads_architecture.md" target="_blank" rel="noopener">Ads trong kiến trúc app</a>.</li>
 </ul>
 
 <h2>9. Lỗi thường gặp &amp; Best Practices (Pitfalls)</h2>
