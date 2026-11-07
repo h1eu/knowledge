@@ -1,7 +1,7 @@
 ---
 id: android.component.fragment.lifecycle
 title: Fragment Lifecycle
-summary: Hiểu sâu Fragment Lifecycle với 2 lớp vòng đời (Fragment vs View), callback flow khi navigate, backstack, cách dùng viewLifecycleOwner đúng cách, và phân biệt lifecycle show/hide (tab) so với replace trong app Single-Activity.
+summary: Fragment Lifecycle gồm hai vòng đời lồng nhau, vòng đời của Fragment instance (this, từ onAttach đến onDetach) và vòng đời ngắn hơn của View (viewLifecycleOwner, từ onCreateView đến onDestroyView). Bài giải thích thứ tự callback, chuyện gì xảy ra khi Fragment vào backstack, cách observe đúng bằng viewLifecycleOwner, và khác biệt giữa show/hide (tab) với replace trong app Single-Activity.
 status: published
 difficulty: intermediate
 depth: deep-dive
@@ -37,7 +37,23 @@ Nếu không hiểu cơ chế này, bạn sẽ:
 - Truy cập `binding` sau `onDestroyView` → crash
 - Không cleanup resource → memory leak
 
-## Fragment Lifecycle Callbacks — Toàn cảnh
+## Sau khi học xong
+
+- Giải thích được toàn bộ Fragment Lifecycle callbacks và thứ tự gọi, kể cả khi Fragment bị đưa vào backstack.
+- Phân biệt được Fragment Lifecycle và View Lifecycle — điểm khác biệt cốt lõi so với Activity.
+- Áp dụng được viewLifecycleOwner khi observe LiveData/Flow trong Fragment.
+- Biết khi nào dùng từng callback để khởi tạo, bind data, giải phóng tài nguyên.
+- Phân biệt được lifecycle của show/hide (tab) so với replace (điều hướng sâu) trong app Single-Activity.
+
+## Fragment Lifecycle là gì?
+
+**Fragment Lifecycle** là chuỗi trạng thái mà `FragmentManager` đưa một Fragment đi qua, gồm hai vòng đời lồng nhau: vòng đời của **Fragment instance** (`this`, từ `onAttach` đến `onDetach`) và vòng đời ngắn hơn của **View** (`viewLifecycleOwner`, từ `onCreateView` đến `onDestroyView`).
+
+Mental model: Fragment instance là **cái khung**, View là **bức tranh lồng trong khung**. Khi Fragment vào backstack, bức tranh bị gỡ ra và vứt đi, cái khung vẫn được giữ; khi quay lại, một bức tranh mới được lồng vào đúng cái khung cũ. Thứ gì gắn với bức tranh (binding, observer cập nhật UI) phải đi theo vòng đời của bức tranh, không theo cái khung.
+
+## Cách hoạt động
+
+### Các callback của Fragment
 
 Fragment có nhiều callback hơn Activity vì phải xử lý thêm quá trình tạo/hủy View riêng biệt.
 
@@ -61,7 +77,7 @@ stateDiagram-v2
 <!-- dd: frag-state-a -->
 <!-- dd: frag-state-b -->
 
-### Ý nghĩa từng Callback
+#### Ý nghĩa từng callback
 
 | Callback | Khi nào được gọi | Nên làm gì |
 |---|---|---|
@@ -82,12 +98,16 @@ stateDiagram-v2
 
 > [!TIP]
 > **Quy tắc 80/20:** Trong thực tế, bạn chỉ cần override 3 callbacks: `onCreate` (ViewModel), `onViewCreated` (UI logic), và `onDestroyView` (cleanup binding). Các callback còn lại rất hiếm khi cần.
+>
+> **Khi nào dùng `onCreate` vs `onViewCreated`:**
+> - `onCreate`: Logic không liên quan View — khởi tạo ViewModel, parse arguments, setup analytics.
+> - `onViewCreated`: Mọi thứ liên quan View — bind data, click listeners, observe LiveData/Flow, setup RecyclerView.
+>
+> Quy tắc: Nếu code cần `binding` hoặc `view`, nó thuộc `onViewCreated`.
 
-## View Lifecycle — Điểm khác biệt cốt lõi
+### View Lifecycle: vòng đời thứ hai trong Fragment
 
 Đây là khái niệm **không tồn tại trong Activity** và là nguồn gốc của phần lớn bug Fragment.
-
-### Hai Lifecycle trong một Fragment
 
 ```mermaid
 flowchart LR
@@ -122,7 +142,7 @@ flowchart LR
 
 **View Lifecycle (`viewLifecycleOwner`):** Chỉ tồn tại từ `onCreateView` đến `onDestroyView`. Mỗi lần Fragment quay lại từ backstack, một View Lifecycle mới được tạo, nhưng Fragment Lifecycle không thay đổi.
 
-### Tại sao cần phân biệt?
+#### Ví dụ: chọn đúng LifecycleOwner khi observe dữ liệu
 
 Khi bạn observe LiveData hoặc collect Flow, bạn cần chọn đúng LifecycleOwner:
 
@@ -174,7 +194,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 > [!WARNING]
 > **Quy tắc vàng:** Bất kỳ operation nào liên quan đến **View** (observe, bind, click listener, adapter) đều phải dùng `viewLifecycleOwner`. Chỉ dùng `this` (Fragment lifecycle) cho những thứ không liên quan đến View (ví dụ: log analytics event).
 
-## Lifecycle khi Fragment trong Backstack
+### Lifecycle khi Fragment vào backstack
 
 Khi Fragment bị đưa vào backstack (ví dụ: navigate từ A sang B bằng `replace` + `addToBackStack`), chuỗi callback xảy ra khác với khi Fragment bị remove hoàn toàn.
 
@@ -214,9 +234,41 @@ sequenceDiagram
 - `savedInstanceState` trong `onViewCreated` là `null` khi quay lại từ backstack (khác với configuration change)
 - Instance chỉ được giữ trong lúc process còn sống. Sau configuration change hoặc process death, FragmentManager tạo instance **mới** cho mọi Fragment (kể cả Fragment trong backstack) từ state đã lưu và dựng lại backstack
 
-## Triển khai thực tế — Fragment chuẩn Production
+## Ví dụ thực tế
 
-### Pattern hoàn chỉnh
+### Danh sách sản phẩm: mở chi tiết rồi nhấn Back
+
+Màn hình danh sách sản phẩm là Fragment chuẩn production: View được dựng ở `onViewCreated`, dữ liệu đến từ ViewModel, và mọi thứ gắn với View được dọn ở `onDestroyView`. Luồng khi user mở chi tiết một sản phẩm rồi quay lại:
+
+1. Mở danh sách: `onViewCreated` bind View và collect `products` trong `repeatOnLifecycle(STARTED)` của `viewLifecycleOwner`.
+2. ViewModel bắt đầu load khi có collector đầu tiên (`stateIn`), chỉ một lần cho mỗi ViewModel; dữ liệu emit về và `adapter.submitList()`.
+3. Click sản phẩm: `replace` + `addToBackStack` sang chi tiết; danh sách nhận `onDestroyView`, gỡ adapter và gán `_binding = null`. Instance vẫn sống.
+4. Nhấn Back: Fragment chi tiết bị hủy; danh sách gọi lại `onCreateView` → `onViewCreated` và collect với một `viewLifecycleOwner` mới.
+5. ViewModel vẫn là cái cũ nên trả ngay dữ liệu đã có, không fetch lại.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant PL as ProductListFragment
+    participant VM as ProductListViewModel
+    participant PD as ProductDetailFragment
+
+    User->>PL: Mở danh sách sản phẩm
+    PL->>PL: (1) onViewCreated() → collect viewModel.products
+    VM->>VM: (2) stateIn bắt đầu load khi có collector đầu tiên
+    VM-->>PL: (2) products emit → adapter.submitList()
+
+    User->>PL: Click sản phẩm
+    PL->>PD: (3) Navigate (replace + addToBackStack)
+    PL->>PL: (3) onDestroyView() → adapter = null, _binding = null
+    Note over PL: View destroyed, instance alive
+
+    User->>PD: Nhấn Back
+    PD->>PD: (4) onDestroy()
+    PL->>PL: (4) onCreateView() → onViewCreated(), collect với viewLifecycleOwner MỚI
+    VM-->>PL: (5) products emit từ dữ liệu đã có → adapter.submitList()
+    Note over PL: View mới, data từ ViewModel cache
+```
 
 ```kotlin
 class ProductListFragment : Fragment(R.layout.fragment_product_list) {
@@ -236,19 +288,19 @@ class ProductListFragment : Fragment(R.layout.fragment_product_list) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentProductListBinding.bind(view)
+        _binding = FragmentProductListBinding.bind(view)  // (1) và (4): mỗi View mới một binding mới
 
         // Setup UI components
         val adapter = ProductAdapter { product ->
-            // Navigate to detail
+            // (3) Navigate to detail
         }
         binding.recyclerView.adapter = adapter
 
-        // Observe data — PHẢI dùng viewLifecycleOwner
+        // (1) Observe data — PHẢI dùng viewLifecycleOwner
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.products.collect { products ->
-                    adapter.submitList(products)
+                    adapter.submitList(products)  // (2) và (5)
                 }
             }
         }
@@ -263,7 +315,7 @@ class ProductListFragment : Fragment(R.layout.fragment_product_list) {
     }
 
     override fun onDestroyView() {
-        // Cleanup TRƯỚC khi gọi super
+        // (3) Cleanup TRƯỚC khi gọi super
         // Tránh memory leak từ RecyclerView adapter giữ reference đến views
         binding.recyclerView.adapter = null
         _binding = null
@@ -272,34 +324,9 @@ class ProductListFragment : Fragment(R.layout.fragment_product_list) {
 }
 ```
 
-### Mô phỏng luồng: Navigate và Back
+**Kết quả:** quay lại từ chi tiết, danh sách hiện ngay dữ liệu cũ, không có request mạng mới và không có observer trùng (mỗi lần chỉ một collector gắn với View đang sống).
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant PL as ProductListFragment
-    participant VM as ProductListViewModel
-    participant PD as ProductDetailFragment
-
-    User->>PL: Mở danh sách sản phẩm
-    VM->>VM: init → loadProducts(category_id) (chỉ khi ViewModel tạo mới)
-    PL->>PL: onViewCreated() → observe viewModel.products
-    VM-->>PL: products emit → adapter.submitList()
-
-    User->>PL: Click sản phẩm
-    PL->>PD: Navigate (replace + addToBackStack)
-    PL->>PL: onDestroyView() → _binding = null
-    Note over PL: View destroyed, instance alive
-
-    User->>PD: Nhấn Back
-    PD->>PD: onDestroy()
-    PL->>PL: onCreateView() → onViewCreated()
-    PL->>PL: observe viewModel.products (observer MỚI)
-    VM-->>PL: products emit → adapter.submitList()
-    Note over PL: View mới, data từ ViewModel cache
-```
-
-## Ứng dụng đa tab / Single-Activity — show/hide giữ View sống
+### Đa tab trong app Single-Activity: show/hide giữ View sống
 
 Trong app Single-Activity, Bottom Navigation chứa nhiều tab, mỗi tab là một Fragment. Khi chuyển tab bạn có **hai cách**, và chúng kích hoạt lifecycle **khác nhau hoàn toàn**:
 
@@ -334,7 +361,7 @@ Code chuyển tab (một transaction: `hide` tab cũ kèm `setMaxLifecycle`, `ad
 > [!TIP]
 > **Vì sao show/hide giữ được state?** Vì `hide()` chỉ **ẩn View**, không đổi lifecycle: Fragment vẫn ở `RESUMED`, View và instance đều sống → `viewLifecycleOwner` vẫn hoạt động, observer không bị remove, scroll position của RecyclerView được giữ nguyên. Hệ quả: tab ẩn vẫn chạy như đang hiện. Muốn phản ứng khi bị ẩn/hiện thì override `onHiddenChanged(hidden)`; muốn tab ẩn thật sự dừng ở một mức lifecycle thì gọi `setMaxLifecycle(tab, Lifecycle.State.STARTED)` trong cùng transaction với `hide()`: tab ẩn nhận `onPause()` và dừng ở `STARTED`, tab được hiện cần `setMaxLifecycle(tab, Lifecycle.State.RESUMED)` để lên lại `RESUMED`. `setUserVisibleHint()` cũ đã **deprecated**, docs chuyển sang `setMaxLifecycle()`.
 
-## So sánh Fragment Lifecycle vs Activity Lifecycle
+## So sánh Fragment Lifecycle với Activity Lifecycle
 
 | Đặc điểm | Activity | Fragment |
 |---|---|---|
@@ -345,35 +372,42 @@ Code chuyển tab (một transaction: `hide` tab cũ kèm `setMaxLifecycle`, `ad
 | Cleanup binding | Không cần | **Bắt buộc** trong `onDestroyView` |
 | Tồn tại khi view bị hủy? | Không áp dụng | Có (trong backstack) |
 
-## Trade-offs & Pitfalls
+## Sai lầm thường gặp
 
-> [!CAUTION]
-> **Memory Leak — observe bằng `this`:**
-> Đây là lỗi phổ biến nhất. Nếu bạn gọi `viewModel.data.observe(this, observer)`, observer **không bị remove** khi view bị destroy (backstack). Mỗi lần `onViewCreated` được gọi lại, bạn thêm thêm một observer mới. Kết quả: UI update nhiều lần, memory leak, và có thể crash.
-> **Fix:** Luôn dùng `viewLifecycleOwner`.
+### 1. Observe bằng `this` thay vì `viewLifecycleOwner`
 
-> [!WARNING]
-> **Truy cập binding sau onDestroyView:**
-> Nếu bạn có callback bất đồng bộ (delay, network callback) trả về sau khi view đã bị destroy, `binding` sẽ là `null` (vì bạn đã gán `_binding = null`). Nếu dùng `binding!!` → crash `NullPointerException`.
-> **Fix:** Dùng `viewLifecycleOwner.lifecycleScope` — coroutine tự cancel khi view destroy. Hoặc kiểm tra `_binding != null` trước khi truy cập.
+Đây là lỗi phổ biến nhất. Nếu bạn gọi `viewModel.data.observe(this, observer)`, observer **không bị remove** khi view bị destroy (backstack). Mỗi lần `onViewCreated` được gọi lại, bạn thêm thêm một observer mới. Kết quả: UI update nhiều lần, memory leak, và có thể crash.
 
-> [!WARNING]
-> **RecyclerView Adapter leak:**
-> RecyclerView giữ strong reference đến Adapter, Adapter giữ reference đến ViewHolder, ViewHolder giữ reference đến View. Nếu không set `recyclerView.adapter = null` trong `onDestroyView`, toàn bộ chuỗi này sẽ không được GC thu hồi khi Fragment trong backstack.
-> **Fix:** Gán `binding.recyclerView.adapter = null` trong `onDestroyView()`, **trước** `_binding = null`.
+**Cách sửa:** Luôn dùng `viewLifecycleOwner` (xem ví dụ ở mục View Lifecycle).
 
-> [!TIP]
-> **Khi nào dùng `onCreate` vs `onViewCreated`:**
-> - `onCreate`: Logic không liên quan View — khởi tạo ViewModel, parse arguments, setup analytics.
-> - `onViewCreated`: Mọi thứ liên quan View — bind data, click listeners, observe LiveData/Flow, setup RecyclerView.
-> Quy tắc: Nếu code cần `binding` hoặc `view`, nó thuộc `onViewCreated`.
+### 2. Truy cập binding sau `onDestroyView`
 
-## Nên học tiếp
+Nếu bạn có callback bất đồng bộ (delay, network callback) trả về sau khi view đã bị destroy, `binding` sẽ là `null` (vì bạn đã gán `_binding = null`). Nếu dùng `binding!!` → crash `NullPointerException`.
 
-Fragment Lifecycle là nền tảng. Hai chủ đề kế tiếp đào sâu vào các khía cạnh bạn cần khi xây app thực tế:
+**Cách sửa:** Dùng `viewLifecycleOwner.lifecycleScope` — coroutine tự cancel khi view destroy. Hoặc kiểm tra `_binding != null` trước khi truy cập.
 
-- **Fragment State Changes** (`android.component.fragment.state_changes`) — lưu & khôi phục state khi xoay màn hình, Process Death: `arguments`, ViewModel, `SavedStateHandle`. Đây là phần bạn cần sau khi nắm rõ lifecycle vì recreate luôn đi kèm lifecycle.
-- **FragmentManager** (`android.component.fragment.fragment_manager`) — transaction (`add`/`replace`/`remove`), backstack, commit strategy, kèm code chuyển tab bằng `show`/`hide` mà mục đa tab ở trên dẫn sang.
+### 3. Không gỡ adapter của RecyclerView
+
+RecyclerView giữ strong reference đến Adapter, Adapter giữ reference đến ViewHolder, ViewHolder giữ reference đến View. Nếu không set `recyclerView.adapter = null` trong `onDestroyView`, toàn bộ chuỗi này sẽ không được GC thu hồi khi Fragment trong backstack.
+
+**Cách sửa:** Gán `binding.recyclerView.adapter = null` trong `onDestroyView()`, **trước** `_binding = null`.
+
+## Lịch sử phát triển
+
+- **Android 3.0 (API 11, 2011):** Fragment ra đời trong framework (`android.app.Fragment`) để chia màn hình tablet thành nhiều phần. Bản framework bị deprecated từ **API 28**, thay bằng Fragment của Jetpack (`androidx.fragment`) để hành vi đồng nhất trên mọi máy và có Lifecycle.
+- **2018:** `getViewLifecycleOwner()` đã có trong Support Library 28.0.0, tách vòng đời của View khỏi vòng đời của Fragment thành một `LifecycleOwner` riêng.
+- **09/2019 (Fragment 1.1.0):** thêm `setMaxLifecycle()` thay cho `setUserVisibleHint()` (deprecated), và constructor nhận layout id (`Fragment(R.layout.…)`).
+- **01/2020 (Fragment 1.2.0):** thêm Lint check nhắc dùng `getViewLifecycleOwner()` khi observe từ Fragment.
+- **Fragment 1.3.0 (stable năm 2021):** `onActivityCreated()` bị deprecated (từ bản 1.3.0-alpha02, 03/2020); code chạm vào View chuyển sang `onViewCreated()`.
+- **Lifecycle 2.4.0 (stable 10/2021):** thêm `repeatOnLifecycle`, mẫu collect Flow an toàn dùng trong bài.
+
+## Kết nối hệ thống
+
+- **Tiên quyết:** [Activity Lifecycle](../activity/lifecycle.md) (Fragment Lifecycle chạy bên trong và không vượt quá lifecycle của Activity chứa nó) và [Fragment Overview](index.md).
+- **Học tiếp:**
+  - [Fragment State Changes](state_changes.md): lưu và khôi phục state khi xoay màn hình, process death (`arguments`, ViewModel, `SavedStateHandle`). Recreate luôn đi kèm lifecycle, nên đây là phần cần ngay sau bài này.
+  - [FragmentManager](fragment_manager.md): transaction (`add`/`replace`/`remove`), backstack, commit strategy, kèm code chuyển tab bằng `show`/`hide` mà mục đa tab ở trên dẫn sang.
+- **Liên quan:** cách ViewModel load lười bằng `stateIn` thay vì launch trong `init` ở [Activity State Changes](../activity/state_changes.md).
 
 ## Nguồn tham khảo
 
@@ -383,4 +417,7 @@ Fragment Lifecycle là nền tảng. Hai chủ đề kế tiếp đào sâu vào
 - [Fragment manager (addToBackStack: Fragment bị replace chỉ STOPPED, View bị hủy) - Android Developers](https://developer.android.com/guide/fragments/fragmentmanager)
 - [Use Kotlin coroutines with lifecycle-aware components (repeatOnLifecycle) - Android Developers](https://developer.android.com/topic/libraries/architecture/coroutines)
 - [FragmentTransaction (hide, setMaxLifecycle) - Android Developers](https://developer.android.com/reference/androidx/fragment/app/FragmentTransaction)
+- [Fragment release notes (1.1.0, 1.2.0, 1.3.0) - Android Developers](https://developer.android.com/jetpack/androidx/releases/fragment)
+- [Lifecycle release notes (2.4.0: repeatOnLifecycle) - Android Developers](https://developer.android.com/jetpack/androidx/releases/lifecycle)
+- [android.app.Fragment (API 11, deprecated API 28) - Android Developers](https://developer.android.com/reference/android/app/Fragment)
 - [A Deep Dive into Fragment Lifecycle - Google I/O](https://www.youtube.com/watch?v=Q2sH93cQ3YI)
