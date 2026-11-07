@@ -1,17 +1,16 @@
 ---
 id: android.networking.basics
-title: Networking in Android — Từ Bản Chất Socket, OkHttp Đến Retrofit & Ktor Thực Chiến
-summary: Cẩm nang toàn diện và chuyên sâu về Networking trong Android. Đi từ tầng vật lý Socket, TLS Handshake, mổ xẻ kiến trúc OkHttp Interceptor Chain & Connection Pool, giải quyết triệt để bài toán kinh điển Concurrent 401 Refresh Token, thiết kế Error Handling chuẩn Clean Architecture, Retry với Exponential Backoff, bảo mật SSL Pinning, Multipart Upload có Progress Tracking chống OOM, giám sát kết nối tầng OS với ConnectivityManager & Flow, so sánh & thực chiến song song Retrofit vs Ktor Client (KMP), và Unit Test với MockWebServer.
+title: Networking — Request API, lỗi mạng và trạng thái kết nối
+summary: Tầng mạng của app Android từ bản chất một request (Socket, DNS, TCP, TLS 1.3, cấm gọi mạng trên Main Thread) tới ba việc phải làm ở mọi app, gọi API an toàn với Result Pattern, xử lý sự cố mạng (retry với exponential backoff và jitter, Network Security Config và Certificate Pinning, chiến lược cache) và theo dõi trạng thái kết nối bằng ConnectivityManager và Flow. Kiến thức riêng của OkHttp, Okio, Retrofit, Ktor nằm ở Session 08.
 status: published
 difficulty: advanced
 depth: deep-dive
-estimated_reading_time: 45 phút
+estimated_reading_time: 30 phút
 tags:
   - android
   - networking
   - retrofit
   - okhttp
-  - ktor
   - coroutines
   - flow
   - connectivity-manager
@@ -23,28 +22,32 @@ prerequisites:
 related:
   - android.data_store.room_transactions
   - android.thread.working_with_thread
+  - android.networks.okhttp
+  - android.networks.okio
+  - android.networks.ktor_apollo
+  - android.testing.unit_testing
 learning_outcomes:
   - Giải thích được bản chất Socket, DNS, TCP Handshake, TLS 1.3 và lý do Android cấm gọi mạng trên Main Thread (NetworkOnMainThreadException).
   - Thiết kế được Error Handling và Result Pattern phân tầng, kèm Retry với Exponential Backoff & Jitter, không nuốt CancellationException.
   - Áp dụng được Network Security Config, Certificate Pinning có backup pin và các mặc định bảo mật của nền tảng (cleartext, CA người dùng cài).
   - Triển khai được NetworkMonitor theo dõi mạng mặc định bằng ConnectivityManager, NetworkCapabilities và Kotlin Flow.
-  - Phân biệt được vai trò của OkHttp, Retrofit và Ktor Client trong tầng mạng của app.
-knowledge_gap: Nhiều lập trình viên chỉ biết gọi API đơn giản qua Retrofit mà không nắm cơ chế bên dưới của OkHttp, lúng túng khi xử lý token refresh đồng thời, gặp lỗi crash OOM khi upload file lớn, hoặc chỉ check mạng sơ sài bằng INTERNET capability thay vì VALIDATED.
+  - Phân biệt được vai trò của OkHttp, Okio, Retrofit và Ktor Client trong tầng mạng của app.
+knowledge_gap: Nhiều lập trình viên chỉ biết gọi API qua Retrofit mà không hiểu điều gì diễn ra bên dưới, để lỗi mạng cấp thấp rò lên UI, retry dồn dập làm quá tải server, hoặc chỉ check mạng sơ sài bằng INTERNET capability thay vì VALIDATED.
 ---
 
-# Networking in Android: Từ Bản Chất Socket, OkHttp Đến Retrofit & Ktor Thực Chiến
+# Networking: Request API, lỗi mạng và trạng thái kết nối
 
 Trong bất kỳ ứng dụng di động hiện đại nào, mạng (Networking) là huyết mạch kết nối người dùng với hệ thống backend đám mây. Dù là tải bảng tin mạng xã hội, thực hiện giao dịch chuyển khoản ngân hàng hay đồng bộ giỏ hàng thương mại điện tử, mọi trải nghiệm mượt mà đều bắt nguồn từ một tầng mạng ổn định, an toàn và tối ưu.
 
 Tuy nhiên, môi trường mạng di động vốn dĩ không ổn định: thiết bị di chuyển liên tục qua các trạm BTS sóng yếu, chuyển đổi đột ngột giữa Wi-Fi và 4G/5G, đi vào thang máy hoặc kết nối vào các điểm Wi-Fi công cộng (Captive Portal) không có Internet thực sự. Một ứng dụng xử lý mạng cẩu thả sẽ nhanh chóng bộc lộ các lỗi nghiêm trọng:
 
 - **Treo ứng dụng (ANR) hoặc văng app (Crash):** gọi mạng trên Main Thread (`NetworkOnMainThreadException`), hoặc để ngoại lệ mạng cấp thấp rò lên tầng UI mà không được bắt.
-- **Tràn bộ nhớ (`OutOfMemoryError`):** đọc toàn bộ file dung lượng lớn vào mảng byte trong RAM khi upload multipart.
-- **Văng đăng nhập hàng loạt:** khi Access Token hết hạn, nhiều request đồng thời cùng nhận lỗi `401` và cùng gọi refresh token, các lần refresh xung đột nhau làm vô hiệu hoá session.
+- **Tràn bộ nhớ (`OutOfMemoryError`):** đọc toàn bộ file dung lượng lớn vào mảng byte trong RAM khi upload multipart (cách stream file: [8.1.4 Okio](../session_08/networks/okio.md)).
+- **Văng đăng nhập hàng loạt:** khi Access Token hết hạn, nhiều request đồng thời cùng nhận lỗi `401` và cùng gọi refresh token, các lần refresh xung đột nhau làm vô hiệu hoá session (cách xử lý: [8.1.3 OkHttp](../session_08/networks/okhttp.md)).
 - **Lộ lọt thông tin người dùng (MITM Attack):** kẻ tấn công đứng giữa qua proxy độc hại để đọc trộm, sửa dữ liệu tài chính và thông tin cá nhân.
 - **Lãng phí băng thông và cạn pin:** không tái sử dụng kết nối (Connection Pooling) và không có HTTP Cache hợp lý, nên mỗi lần gọi đều phải bắt tay lại và tải lại dữ liệu.
 
-Tài liệu này cung cấp một cái nhìn toàn diện từ tầng bản chất hệ điều hành (Socket, TLS) đến tầng triển khai thực chiến cấp cao (OkHttp, Retrofit, Ktor Client), giúp bạn xây dựng một hạ tầng mạng chuẩn công nghiệp, sẵn sàng cho môi trường production quy mô lớn.
+Bài này đi từ bản chất một request mạng (Socket, TLS) tới ba việc mọi app phải làm ở tầng mạng: gọi API an toàn và phân loại lỗi, xử lý sự cố mạng (retry, bảo mật kênh truyền, cache), và theo dõi trạng thái kết nối. Kiến thức riêng của từng thư viện (OkHttp, Okio, Retrofit, Ktor) nằm ở Session 08, mục 8.1 Networks.
 
 ---
 
@@ -118,277 +121,33 @@ Mỗi lần mở một kết nối HTTPS mới, thiết bị phải trả giá r
 4. **Tổng độ trễ:** Có thể lên tới **300ms - 800ms** trước khi byte dữ liệu đầu tiên của API được truyền đi!
 
 > [!IMPORTANT]
-> **Nhận thức cốt lõi:** Nếu ứng dụng của bạn tạo mới một kết nối Socket cho mỗi request HTTP, trải nghiệm người dùng sẽ cực kỳ chậm chạp và hao pin. Đây chính là lý do bạn bắt buộc phải sử dụng các thư viện có cơ chế **Connection Pooling** và **HTTP/2 Multiplexing** như OkHttp.
+> **Nhận thức cốt lõi:** Nếu ứng dụng của bạn tạo mới một kết nối Socket cho mỗi request HTTP, trải nghiệm người dùng sẽ cực kỳ chậm chạp và hao pin. Đây chính là lý do bạn bắt buộc phải sử dụng các thư viện có cơ chế **Connection Pooling** và **HTTP/2 Multiplexing** như OkHttp (xem [8.1.3 OkHttp](../session_08/networks/okhttp.md)).
 
 ---
 
-## 2. Kiến trúc nội bộ OkHttp: Trái tim của Networking Android
+## 2. Thư viện tầng mạng: OkHttp, Okio, Retrofit, Ktor
 
-OkHttp (được phát triển bởi Square) là thư viện mạng tiêu chuẩn nền tảng trong Android. Kể cả Google cũng sử dụng mã nguồn OkHttp bên dưới lớp hiện thực `HttpURLConnection` của Android OS.
+App Android hiếm khi tự mở socket. Phần việc dưới đây do thư viện đảm nhận, mỗi thư viện có Topic riêng ở Session 08:
 
-### 2.1 Mẫu thiết kế Chain of Responsibility (Interceptor Chain)
-Sức mạnh lớn nhất của OkHttp nằm ở chuỗi **Interceptor Chain**. Mọi request gửi đi và response trả về đều phải đi qua một chuỗi các Interceptor nối tiếp nhau theo mẫu thiết kế **Chain of Responsibility**:
+| Thư viện | Vai trò trong tầng mạng | Học ở |
+| :--- | :--- | :--- |
+| **OkHttp** | HTTP client: Interceptor Chain, Connection Pool (mặc định giữ 5 kết nối nhàn rỗi trong 5 phút), interceptor tuỳ biến, `Authenticator` xử lý nhiều request cùng nhận `401`, `CertificatePinner`, HTTP Cache. | [8.1.3 OkHttp](../session_08/networks/okhttp.md) |
+| **Okio** | I/O theo từng đoạn bên dưới OkHttp: upload file lớn không `OutOfMemoryError`, đếm byte để báo tiến độ. | [8.1.4 Okio](../session_08/networks/okio.md) |
+| **Retrofit** | Biến interface Kotlin (`@GET`, `suspend fun`) thành lời gọi HTTP chạy trên OkHttp. | 8.1.1 Retrofit (chưa có bài) |
+| **Ktor Client** | HTTP client thuần Kotlin, chạy được trên Kotlin Multiplatform; lựa chọn thay Retrofit. | [8.1.5 Ktor and Apollo Android](../session_08/networks/ktor_apollo.md) |
 
-```mermaid
-graph TD
-    subgraph Client ["Ứng dụng của bạn"]
-        Req["Request"]
-        Resp["Response"]
-    end
+Test tầng mạng bằng MockWebServer (server HTTP thật trên localhost) nằm ở [10.2 Unit Testing](../coding_analyst_and_testing/unit_testing.md).
 
-    subgraph InterceptorChain ["OkHttp Interceptor Chain"]
-        direction TB
-        AppInt["1. Application Interceptors (Custom Headers, Logging, Auth)"]
-        RetryInt["2. RetryAndFollowUpInterceptor (Redirect, Retry khi crash kết nối)"]
-        BridgeInt["3. BridgeInterceptor (Thêm Content-Type, User-Agent, Keep-Alive, Gzip)"]
-        CacheInt["4. CacheInterceptor (Đọc cache từ đĩa, kiểm tra ETag, 304 Not Modified)"]
-        ConnectInt["5. ConnectInterceptor (Mở TCP Socket, TLS Handshake từ ConnectionPool)"]
-        NetInt["6. Network Interceptors (Giám sát dữ liệu thực tế trên Socket)"]
-        CallInt["7. CallServerInterceptor (Ghi HTTP request ra Socket, đọc HTTP response)"]
-        
-        AppInt --> RetryInt --> BridgeInt --> CacheInt --> ConnectInt --> NetInt --> CallInt
-    end
-
-    subgraph Network ["Tầng Mạng & Server"]
-        RemoteServer["Backend API Server"]
-    end
-
-    Req --> AppInt
-    CallInt --> RemoteServer
-    RemoteServer --> CallInt
-    CallInt -.-> NetInt -.-> ConnectInt -.-> CacheInt -.-> BridgeInt -.-> RetryInt -.-> AppInt -.-> Resp
-
-    style AppInt fill:#2563EB,stroke:#1D4ED8,color:#fff
-    style CacheInt fill:#059669,stroke:#047857,color:#fff
-    style ConnectInt fill:#D97706,stroke:#B45309,color:#fff
-    style CallInt fill:#DC2626,stroke:#B91C1C,color:#fff
-```
-
-### 2.2 Trách nhiệm từng Interceptor cốt lõi
-1. **Application Interceptors:** Nơi lập trình viên gắn các logic riêng: gắn Bearer Token, chèn Request ID, mã hóa body, v.v.
-2. **RetryAndFollowUpInterceptor:** Tự động phục hồi kết nối khi đường truyền bị đứt gãy hoặc xử lý các mã chuyển hướng (301 Moved Permanently, 307 Temporary Redirect).
-3. **BridgeInterceptor:** Cầu nối giữa mã nguồn ứng dụng và giao thức HTTP chuẩn. Nó tự động gắn các header bắt buộc như `Host`, `Keep-Alive`, `Accept-Encoding: gzip` và tự động giải nén dữ liệu gzip trả về.
-4. **CacheInterceptor:** Kiểm tra xem request có thể phục vụ từ bộ nhớ đệm (Disk Cache) không. Nếu bản cache đã cũ nhưng có `ETag` hoặc `Last-Modified`, nó gửi request có điều kiện kèm header `If-None-Match` / `If-Modified-Since`. Nếu server trả về `304 Not Modified`, nó sẽ lấy dữ liệu từ cache mà không cần tải lại toàn bộ body.
-5. **ConnectInterceptor:** Tìm kiếm một kết nối Socket sẵn có trong `ConnectionPool`. Nếu chưa có, nó khởi tạo TCP Socket và TLS Handshake.
-6. **CallServerInterceptor:** Bước cuối cùng của chuỗi. Nó trực tiếp ghi các dòng text HTTP/1.1 hoặc các frame HTTP/2 vào `BufferedSink` của Socket, sau đó đọc kết quả từ `BufferedSource`.
-
-### 2.3 Cơ chế Connection Pool (Tái sử dụng kết nối)
-Thay vì đóng Socket ngay khi nhận xong response (khiến lần gọi sau phải handshake lại từ đầu), OkHttp duy trì một **ConnectionPool**:
-- Mặc định giữ tối đa **5 kết nối nhàn rỗi (idle connections)** trong vòng **5 phút**.
-- Với HTTP/2, nhiều request độc lập có thể chạy song song trên **cùng một kết nối TCP duy nhất** (Multiplexing), loại bỏ hoàn toàn hiện tượng nghẽn đầu hàng (Head-of-Line Blocking) ở tầng ứng dụng.
+> [!NOTE]
+> Kiến thức dùng trước: các ví dụ trong bài dùng tối thiểu Retrofit (`retrofit2.HttpException`, interface `@GET`) và Kotlin Coroutines, Flow (`suspend`, `retryWhen`, `callbackFlow`); Retrofit học ở mục 8.1.1, Coroutines ở mục 8.4.3 (chưa có bài).
 
 ---
 
-## 3. Custom Interceptors chuẩn Production
-
-Trong một dự án thực tế, bạn sẽ cần tạo các Interceptor riêng để giải quyết các bài toán hạ tầng: gắn header thiết bị, truy vết request và logging an toàn.
-
-### 3.1 Dynamic Header & Tracing Interceptor
-Interceptor này tự động bổ sung các header quan trọng phục vụ tracing hệ thống và xác thực định danh:
-
-```kotlin
-import okhttp3.Interceptor
-import okhttp3.Response
-import java.util.UUID
-
-class HeaderInterceptor(
-    private val tokenProvider: () -> String?,
-    private val appVersion: String
-) : Interceptor {
-
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val originalRequest = chain.request()
-        
-        val requestBuilder = originalRequest.newBuilder()
-            .header("X-App-Version", appVersion)
-            .header("X-Platform", "Android")
-            .header("X-Request-ID", UUID.randomUUID().toString()) // Phục vụ truy vết log phân tán
-            .header("Accept", "application/json")
-
-        // Tự động gắn Token nếu có và request chưa có header Authorization
-        val token = tokenProvider()
-        if (!token.isNullOrBlank() && originalRequest.header("Authorization") == null) {
-            requestBuilder.header("Authorization", "Bearer $token")
-        }
-
-        return chain.proceed(requestBuilder.build())
-    }
-}
-```
-
-### 3.2 Sanitized Logging Interceptor (Bảo mật PII & Credentials)
-Thư viện `HttpLoggingInterceptor` mặc định sẽ in toàn bộ dữ liệu ra Logcat. Trong môi trường ngân hàng hoặc thương mại điện tử, việc in thẻ tín dụng (CVV), mật khẩu hoặc mã OTP ra Logcat là hành vi vi phạm chuẩn bảo mật nghiêm trọng (OWASP Mobile Top 10, GDPR).
-
-```kotlin
-import okhttp3.logging.HttpLoggingInterceptor
-import android.util.Log
-
-object SafeLoggingInterceptorFactory {
-    fun create(isDebug: Boolean): HttpLoggingInterceptor {
-        val logging = HttpLoggingInterceptor { message ->
-            // Che giấu dữ liệu nhạy cảm trước khi in ra Logcat
-            val sanitized = message
-                .replace(Regex("\"password\"\\s*:\\s*\"[^\"]+\""), "\"password\":\"***\"")
-                .replace(Regex("\"cardNumber\"\\s*:\\s*\"[^\"]+\""), "\"cardNumber\":\"***\"")
-                .replace(Regex("\"cvv\"\\s*:\\s*\"[^\"]+\""), "\"cvv\":\"***\"")
-            
-            Log.d("OkHttp", sanitized)
-        }
-        
-        // Môi trường Release tuyệt đối KHÔNG in Body ra Logcat
-        logging.level = if (isDebug) {
-            HttpLoggingInterceptor.Level.BODY
-        } else {
-            HttpLoggingInterceptor.Level.NONE
-        }
-        
-        // Che giấu header Authorization
-        logging.redactHeader("Authorization")
-        logging.redactHeader("Cookie")
-        
-        return logging
-    }
-}
-```
-
----
-
-## 4. Giải quyết bài toán kinh điển: Concurrent 401 & Auto Refresh Token
-
-Một trong những bài toán hóc búa nhất khi xây dựng ứng dụng di động là: **Xử lý Refresh Token khi nhiều API đồng thời nhận mã lỗi 401 Unauthorized**.
-
-### 4.1 Thảm họa Token Desynchronization (Khi không đồng bộ)
-Giả sử người dùng mở màn hình Dashboard, app đồng thời bắn 3 request:
-1. `GET /api/user/profile`
-2. `GET /api/notifications`
-3. `GET /api/cart`
-
-Access Token vừa hết hạn, cả 3 request đồng thời nhận về mã lỗi `401`. Nếu xử lý ngây thơ:
-- Cả 3 request cùng lúc gọi `POST /api/auth/refresh-token`.
-- Server nhận được request refresh đầu tiên -> Cấp Access Token mới A và Refresh Token mới B, đồng thời **thu hồi (revoke) Refresh Token cũ**.
-- Hai request refresh tiếp theo gửi Refresh Token cũ lên server -> Server báo lỗi `Invalid Refresh Token`!
-- **Hệ quả:** App xóa session và người dùng bị đá văng ra màn hình đăng nhập một cách oan uổng.
-
-### 4.2 Giải pháp chuẩn Senior: okhttp3.Authenticator
-OkHttp cung cấp sẵn interface `okhttp3.Authenticator` được thiết kế đặc thù cho việc xử lý mã `401`. Khi kết hợp với khối khóa đồng bộ (`synchronized`), chúng ta đạt được giải pháp tối ưu:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant R1 as Request 1 (/profile)
-    participant R2 as Request 2 (/cart)
-    participant Auth as TokenAuthenticator (Lock)
-    participant Server as Auth Server
-
-    R1->>Server: Gửi Request (Token Cũ: T1)
-    R2->>Server: Gửi Request (Token Cũ: T1)
-    Server-->>R1: 401 Unauthorized
-    Server-->>R2: 401 Unauthorized
-
-    Note over R1,Auth: R1 kích hoạt Authenticator & Chiếm Lock
-    R1->>Auth: authenticate(response) [Nhận Lock]
-    Auth->>Auth: Kiểm tra: Token trong request có khớp Token hiện tại không? (Khớp: T1 == T1)
-    Auth->>Server: POST /auth/refresh (Gọi đồng bộ)
-    Server-->>Auth: 200 OK (Cấp Token Mới: T2)
-    Auth->>Auth: Lưu T2 vào bộ nhớ / DataStore
-    Auth-->>R1: Trả về Request 1 kèm Header: Bearer T2
-    R1->>Server: Thử lại Request 1 với T2 -> Thành công!
-    Note over R1,Auth: R1 giải phóng Lock
-
-    Note over R2,Auth: R2 kích hoạt Authenticator & Nhận Lock
-    R2->>Auth: authenticate(response) [Nhận Lock]
-    Auth->>Auth: Kiểm tra: Token của R2 (T1) có khớp Token hiện tại (T2) không?
-    Note over Auth: KHÔNG KHỚP! (T1 != T2) -> Nghĩa là request khác đã vừa refresh xong!
-    Auth-->>R2: Không cần gọi server nữa! Trả về Request 2 kèm Header: Bearer T2 ngay lập tức
-    R2->>Server: Thử lại Request 2 với T2 -> Thành công!
-```
-
-### 4.3 Mã nguồn triển khai chi tiết
-
-```kotlin
-import okhttp3.Authenticator
-import okhttp3.Request
-import okhttp3.Response
-import okhttp3.Route
-
-class TokenManager(
-    private var accessToken: String?,
-    private var refreshToken: String?,
-    private val refreshApiCall: (String) -> Pair<String, String>? // Trả về Pair(newAccess, newRefresh)
-) {
-    @Synchronized
-    fun getAccessToken(): String? = accessToken
-
-    @Synchronized
-    fun refreshTokens(failedToken: String): String? {
-        // Double-check: Nếu token hiện tại đã khác failedToken, 
-        // nghĩa là một luồng khác đã vừa refresh thành công!
-        if (accessToken != null && accessToken != failedToken) {
-            return accessToken
-        }
-
-        val currentRefresh = refreshToken ?: return null
-        val newTokens = refreshApiCall(currentRefresh) ?: return null
-
-        accessToken = newTokens.first
-        refreshToken = newTokens.second
-        return accessToken
-    }
-
-    @Synchronized
-    fun clearTokens() {
-        accessToken = null
-        refreshToken = null
-    }
-}
-
-class TokenAuthenticator(
-    private val tokenManager: TokenManager
-) : Authenticator {
-
-    override fun authenticate(route: Route?, response: Response): Request? {
-        // Đề phòng vòng lặp vô tận: Nếu đã thử lại 3 lần mà vẫn bị 401 thì từ bỏ
-        if (responseCount(response) >= 3) {
-            tokenManager.clearTokens()
-            return null // Đăng xuất người dùng
-        }
-
-        // Lấy token đã dùng trong request bị lỗi 401
-        val failedToken = response.request.header("Authorization")
-            ?.removePrefix("Bearer ")
-            ?.trim() ?: ""
-
-        // Thực hiện refresh đồng bộ an toàn qua TokenManager
-        val newAccessToken = tokenManager.refreshTokens(failedToken) ?: run {
-            tokenManager.clearTokens()
-            return null // Refresh thất bại (Refresh Token hết hạn) -> Buộc đăng nhập lại
-        }
-
-        // Tạo request mới với token mới để OkHttp tự động thử lại
-        return response.request.newBuilder()
-            .header("Authorization", "Bearer $newAccessToken")
-            .build()
-    }
-
-    private fun responseCount(response: Response): Int {
-        var count = 1
-        var prior = response.priorResponse
-        while (prior != null) {
-            count++
-            prior = prior.priorResponse
-        }
-        return count
-    }
-}
-```
-
----
-
-## 5. Chuẩn hóa Error Handling & Result Pattern trong Clean Architecture
+## 3. Chuẩn hóa Error Handling & Result Pattern trong Clean Architecture
 
 Trong Clean Architecture, tầng UI (Compose hoặc Activity) **tuyệt đối không được phép biết đến các ngoại lệ mạng cấp thấp** như `SocketTimeoutException`, `UnknownHostException` hay `HttpException`. Nếu để lộ các exception này lên UI, mã nguồn UI sẽ tràn ngập các khối `try-catch`, khó kiểm thử và dễ bị crash nếu sót exception.
 
-### 5.1 Phân cấp lỗi mạng chuẩn
+### 3.1 Phân cấp lỗi mạng chuẩn
 Một hệ thống xử lý lỗi mạng hoàn chỉnh cần phân loại thành 4 nhóm rõ rệt:
 
 ```mermaid
@@ -429,7 +188,7 @@ classDiagram
     Error <|-- UnknownError
 ```
 
-### 5.2 Mã nguồn NetworkResult Pattern
+### 3.2 Mã nguồn NetworkResult Pattern
 
 ```kotlin
 import java.io.IOException
@@ -480,12 +239,12 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> T): NetworkResult<T> {
 
 ---
 
-## 6. Retry Policy với Exponential Backoff & Jitter
+## 4. Retry Policy với Exponential Backoff & Jitter
 
 Khi mạng chập chờn, việc tự động gửi lại request (Retry) giúp người dùng không phải bấm lại bằng tay. Tuy nhiên, nếu áp dụng cơ chế **Retry tức thì (Immediate Retry)** hoặc **khoảng cách cố định (Fixed Delay)**, bạn sẽ gây ra hiện tượng **Thundering Herd**:
 Khi hàng triệu thiết bị cùng mất kết nối trong 10 giây rồi cùng đồng loạt bắn request retry ngay khi vừa có mạng, server backend sẽ lập tức quá tải và sập nguồn!
 
-### 6.1 Công thức Exponential Backoff kết hợp Full Jitter
+### 4.1 Công thức Exponential Backoff kết hợp Full Jitter
 Chuẩn kỹ nghệ (được khuyến nghị bởi AWS và Google Cloud Architecture) sử dụng thuật toán:
 
 $$\text{Delay} = \text{Random}(0, \min(\text{MaxDelay}, \text{BaseDelay} \times 2^{\text{attempt}}))$$
@@ -497,7 +256,7 @@ graph LR
     end
 ```
 
-### 6.2 Cài đặt Generic Retry Extension trên Kotlin Flow
+### 4.2 Cài đặt Generic Retry Extension trên Kotlin Flow
 
 ```kotlin
 import kotlinx.coroutines.delay
@@ -531,9 +290,7 @@ fun <T> Flow<T>.retryWithExponentialBackoff(
 }
 ```
 
----
-
-## 7. Bảo mật cao cấp: SSL / Certificate Pinning & Phòng thủ MITM
+## 5. Bảo mật cao cấp: SSL / Certificate Pinning & Phòng thủ MITM
 
 Mặc định, Android tin tưởng các Chứng chỉ số (Certificate Authority - CA) được cài đặt sẵn trong hệ thống (như DigiCert, Let's Encrypt). 
 Tuy nhiên, tin tặc có thể thực hiện tấn công **Man-in-the-Middle (MITM)** bằng cách:
@@ -543,31 +300,14 @@ Tuy nhiên, tin tặc có thể thực hiện tấn công **Man-in-the-Middle (M
 
 Lưu ý mặc định của nền tảng: từ Android 7.0 (API 24), app **không** tin CA do người dùng tự cài trừ khi khai báo `<certificates src="user" />` trong Network Security Config (app target API 23 trở xuống vẫn tin). Từ Android 9 (API 28), **cleartext HTTP bị tắt mặc định**: gọi `http://` sẽ lỗi (OkHttp báo `UnknownServiceException: CLEARTEXT communication ... not permitted by network security policy`) trừ khi bật `cleartextTrafficPermitted="true"` cho domain cụ thể.
 
-### 7.1 Certificate Pinning là gì?
+### 5.1 Certificate Pinning là gì?
 **Certificate Pinning (Ghim chứng chỉ)** là kỹ thuật **thêm một điều kiện** vào việc kiểm tra chứng chỉ: chuỗi chứng chỉ vẫn phải hợp lệ với các Root CA được tin như bình thường, **và** phải chứa ít nhất một khóa công khai (Public Key - SPKI) có mã băm nằm trong danh sách ghim của app (khóa của máy chủ, của intermediate CA hoặc của CA). Nếu không có khóa nào khớp, kết nối sẽ bị hủy ngay lập tức.
 
-### 7.2 Triển khai với OkHttp CertificatePinner
+### 5.2 Ghim chứng chỉ bằng code
 
-```kotlin
-import okhttp3.CertificatePinner
-import okhttp3.OkHttpClient
+Ngoài cấu hình XML ở mục 5.3 bên dưới, có thể ghim chứng chỉ bằng code qua `CertificatePinner` của OkHttp (xem [8.1.3 OkHttp](../session_08/networks/okhttp.md)). Quy tắc backup pin ở cảnh báo dưới đây áp dụng cho cả hai cách.
 
-fun createSecureOkHttpClient(): OkHttpClient {
-    val certificatePinner = CertificatePinner.Builder()
-        // Ghim Public Key SHA-256 của domain chính
-        .add("api.example.com", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
-        // BẮT BUỘC: Luôn luôn phải có ít nhất 1 mã Pin dự phòng (Backup Pin)!
-        // Dùng khi chứng chỉ chính hết hạn hoặc bị lộ khóa bí mật.
-        .add("api.example.com", "sha256/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=")
-        .build()
-
-    return OkHttpClient.Builder()
-        .certificatePinner(certificatePinner)
-        .build()
-}
-```
-
-### 7.3 Triển khai qua Network Security Config (Chuẩn Declarative của Android)
+### 5.3 Triển khai qua Network Security Config (Chuẩn Declarative của Android)
 Từ Android 7.0, Google khuyến nghị cấu hình bảo mật thông qua file XML:
 
 Tạo file `res/xml/network_security_config.xml`:
@@ -600,103 +340,7 @@ Tạo file `res/xml/network_security_config.xml`:
 
 ---
 
-## 8. Multipart Upload & Tracking Tiến Độ (%) Realtime chống OOM
-
-Khi tải lên tệp tin lớn (ảnh độ phân giải cao, tài liệu KYC PDF, video), một sai lầm phổ biến là đọc toàn bộ nội dung file vào một mảng byte trong RAM:
-```kotlin
-// SAI LẦM TỰ SÁT BỘ NHỚ: Gây OutOfMemoryError ngay lập tức với file lớn!
-val bytes = file.readBytes() // Đọc 100MB vào RAM của Android!
-val body = bytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
-```
-
-### 8.1 Nguyên lý Streaming và Tracking Byte qua ForwardingSink
-Để an toàn tuyệt đối, chúng ta phải đọc file theo từng khối đệm (Chunk Buffer) từ ổ cứng và truyền trực tiếp ra Socket. Đồng thời, bọc `BufferedSink` của OkHttp bằng một `ForwardingSink` để đếm số byte thực tế đã ghi.
-
-```mermaid
-graph LR
-    subgraph Disk ["Bộ nhớ lưu trữ"]
-        File["Tệp tin lớn (100MB)"]
-    end
-
-    subgraph Pipeline ["Pipeline Stream"]
-        Source["Okio FileSource (Đọc từng khối 8KB)"]
-        CountSink["CountingSink (Đếm byte đã ghi & Tính %)"]
-    end
-
-    subgraph Output ["Tầng Mạng"]
-        Socket["OkHttp Socket Sink"]
-        Flow["StateFlow: Báo % lên UI"]
-    end
-
-    File --> Source --> CountSink --> Socket
-    CountSink -.->|"emit(percent)"| Flow
-```
-
-### 8.2 Mã nguồn CountingRequestBody hoàn chỉnh
-
-```kotlin
-import okhttp3.MediaType
-import okhttp3.RequestBody
-import okio.Buffer
-import okio.BufferedSink
-import okio.ForwardingSink
-import okio.Sink
-import okio.buffer
-import okio.source
-import java.io.File
-
-class CountingRequestBody(
-    private val file: File,
-    private val contentType: MediaType?,
-    private val onProgressUpdate: (bytesWritten: Long, totalBytes: Long, percent: Int) -> Unit
-) : RequestBody() {
-
-    override fun contentType(): MediaType? = contentType
-
-    override fun contentLength(): Long = file.length()
-
-    override fun writeTo(sink: BufferedSink) {
-        val totalBytes = contentLength()
-        var bytesWritten = 0L
-
-        // Bao bọc sink bằng ForwardingSink để đếm byte
-        val countingSink = object : ForwardingSink(sink) {
-            override fun write(source: Buffer, byteCount: Long) {
-                super.write(source, byteCount)
-                bytesWritten += byteCount
-                val percent = ((bytesWritten * 100) / totalBytes).toInt()
-                onProgressUpdate(bytesWritten, totalBytes, percent)
-            }
-        }
-
-        // Dùng Okio buffer để stream dữ liệu từng chunk an toàn, không tốn RAM
-        // Okio 2/3 dùng extension function: File.source(), Sink.buffer()
-        file.source().use { source ->
-            val bufferedSink = countingSink.buffer()
-            bufferedSink.writeAll(source)
-            bufferedSink.flush()
-        }
-    }
-}
-```
-
-Dùng `CountingRequestBody` làm một part của request multipart:
-
-```kotlin
-val body = MultipartBody.Builder()
-    .setType(MultipartBody.FORM)
-    .addFormDataPart(
-        "file", file.name,
-        CountingRequestBody(file, "image/jpeg".toMediaType()) { _, _, percent ->
-            progressFlow.value = percent // cập nhật StateFlow cho UI
-        }
-    )
-    .build()
-```
-
----
-
-## 9. Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager & NetworkCallback
+## 6. Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager & NetworkCallback
 
 Trước Android 7.0 (Nougat), lập trình viên thường dùng `BroadcastReceiver` lắng nghe `android.net.conn.CONNECTIVITY_ACTION`. Tuy nhiên, cơ chế này làm thức giấc hàng chục tiến trình app cùng lúc khi mạng thay đổi, gây giật lag hệ thống và cạn pin. Từ Android 7.0, app target API 24+ không còn nhận `CONNECTIVITY_ACTION` qua receiver khai báo trong manifest (receiver đăng ký bằng code vẫn nhận), và action này bị deprecate từ API 28. Google khuyến nghị chuyển sang **`ConnectivityManager.NetworkCallback`**.
 
@@ -711,7 +355,7 @@ Trước Android 7.0 (Nougat), lập trình viên thường dùng `BroadcastRece
 > <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 > ```
 
-### 9.1 Phân biệt NET_CAPABILITY_INTERNET vs NET_CAPABILITY_VALIDATED
+### 6.1 Phân biệt NET_CAPABILITY_INTERNET vs NET_CAPABILITY_VALIDATED
 Đây là điểm khác biệt cốt tử mà nhiều developer không phân biệt được:
 - **`NET_CAPABILITY_INTERNET`:** Thiết bị đã kết nối vào một mạng hỗ trợ truyền thông IP (ví dụ kết nối vào router Wi-Fi hoặc trạm 4G). Nhưng mạng này hoàn toàn có thể **chưa có Internet** (dây cáp quang bị đứt, gói cước hết tiền, hoặc mạng Wi-Fi bắt nhập mã voucher tại quán cafe/khách sạn).
 - **`NET_CAPABILITY_VALIDATED`:** Hệ điều hành Android đã âm thầm gửi một HTTP probe (thường là `https://clients3.google.com/generate_204`) và nhận về đúng mã trạng thái `204 No Content`. Điều này chứng minh **thiết bị thực sự đi được ra thế giới Internet bên ngoài**!
@@ -719,7 +363,7 @@ Trước Android 7.0 (Nougat), lập trình viên thường dùng `BroadcastRece
 > [!IMPORTANT]
 > **Quy tắc bắt buộc:** Luôn luôn kiểm tra cờ `NET_CAPABILITY_VALIDATED` thay vì chỉ kiểm tra `NET_CAPABILITY_INTERNET`.
 
-### 9.2 Thiết kế NetworkMonitor Reactive với callbackFlow
+### 6.2 Thiết kế NetworkMonitor Reactive với callbackFlow
 
 ```kotlin
 import android.content.Context
@@ -797,7 +441,7 @@ class ConnectivityManagerNetworkMonitor(
 
 ---
 
-## 10. Chiến lược Caching: HTTP Cache (OkHttp) vs Local Database (Room)
+## 7. Chiến lược Caching: HTTP Cache (OkHttp) vs Local Database (Room)
 
 Khi thiết kế ứng dụng hỗ trợ Offline, nhiều người phân vân giữa việc dùng OkHttp Cache hay lưu trữ vào SQLite qua Room Database.
 
@@ -809,164 +453,15 @@ Khi thiết kế ứng dụng hỗ trợ Offline, nhiều người phân vân gi
 | **Phản ứng thay đổi** | Thụ động. Không thể lắng nghe khi có dữ liệu mới. | **Reactive**: Hỗ trợ trả về `Flow<List<Item>>`, tự động cập nhật UI khi DB đổi. |
 | **Trường hợp sử dụng** | Ảnh tĩnh (Glide/Coil), tệp tĩnh cấu hình, API tin tức đơn giản. | Dữ liệu nghiệp vụ lõi: Giỏ hàng, Danh sách bài viết, Profile offline, Chat. |
 
-### 10.1 Cấu hình OkHttp HTTP Cache & OfflineCacheInterceptor
-Nếu backend hỗ trợ các header `Cache-Control`, OkHttp có thể tự động trả về dữ liệu mà không cần gọi mạng:
+### 7.1 HTTP Cache của OkHttp
 
-```kotlin
-import okhttp3.Cache
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import java.io.File
-import java.util.concurrent.TimeUnit
-
-fun createCachedOkHttpClient(cacheDir: File, isNetworkConnected: () -> Boolean): OkHttpClient {
-    // Cấp phát 10MB dung lượng cache trên bộ nhớ trong
-    val cache = Cache(File(cacheDir, "http_cache"), 10L * 1024 * 1024)
-
-    val offlineCacheInterceptor = Interceptor { chain ->
-        var request = chain.request()
-        if (!isNetworkConnected()) {
-            // Khi không có mạng, buộc OkHttp đọc từ cache dù cache đã hết hạn (tối đa 7 ngày)
-            request = request.newBuilder()
-                .header("Cache-Control", "public, only-if-cached, max-stale=" + 60 * 60 * 24 * 7)
-                .build()
-        }
-        chain.proceed(request)
-    }
-
-    return OkHttpClient.Builder()
-        .cache(cache)
-        .addInterceptor(offlineCacheInterceptor)
-        .build()
-}
-```
+Cấu hình `Cache` và một interceptor buộc đọc cache khi offline (`only-if-cached, max-stale`) nằm ở [8.1.3 OkHttp](../session_08/networks/okhttp.md).
 
 ---
 
-## 11. Ktor Client vs Retrofit: Lựa chọn công nghệ cho tương lai KMP
+## 8. Tích hợp Clean Architecture: End-to-End E-Commerce Example
 
-Retrofit đã thống trị hệ sinh thái Android trong hơn 10 năm qua. Tuy nhiên, với làn sóng **Kotlin Multiplatform (KMP)**, **Ktor Client** (được chính JetBrains phát triển) đang nổi lên như một đối thủ mạnh mẽ.
-
-```mermaid
-graph TD
-    subgraph RetrofitArchitecture ["Retrofit + OkHttp (Chỉ dành cho JVM & Android)"]
-        R_API["Java/Kotlin Interface"] --> R_Core["Retrofit Core (Reflection / Dynamic Proxy)"]
-        R_Core --> R_OkHttp["OkHttp Engine (Dựa trên Java Sockets)"]
-        R_OkHttp --> R_Net["OS Network"]
-    end
-
-    subgraph KtorArchitecture ["Ktor Client (Kotlin Multiplatform Native)"]
-        K_Code["Kotlin Shared Code"] --> K_Core["Ktor Client Core (Pure Coroutines, No Reflection)"]
-        K_Core --> K_Engines{"Lựa chọn Engine theo OS"}
-        K_Engines -->|Android| K_OkHttp["OkHttp Engine / Android Engine"]
-        K_Engines -->|iOS| K_Darwin["Darwin (URLSession Native)"]
-        K_Engines -->|Desktop/Server| K_CIO["CIO / Java Engine"]
-    end
-```
-
-### 11.1 Bảng so sánh chi tiết Retrofit vs Ktor Client
-
-| Tiêu chí | Retrofit 2 + OkHttp | Ktor Client |
-| :--- | :--- | :--- |
-| **Khả năng đa nền tảng** | **Chỉ JVM/Android**: Không thể chia sẻ code mạng sang iOS hoặc Desktop. | **Full KMP**: Chạy tốt trên Android, iOS, Desktop (JVM), Web (Wasm/JS). |
-| **Cơ chế khởi tạo API** | Dùng Java Dynamic Proxy & Runtime Reflection (`retrofit.create()`). | Hoàn toàn là hàm Kotlin thuần, không Reflection, compile cực nhanh. |
-| **Hỗ trợ Coroutines** | Tích hợp qua adapter ngoài hoặc `suspend fun`. | **Native Coroutines 100%**: Mọi pipeline xử lý đều là Coroutine Channel/Job. |
-| **Hỗ trợ Streaming & Socket** | Khá phức tạp khi làm việc với WebSockets hay Server-Sent Events (SSE). | Hỗ trợ WebSockets và HTTP Streaming cực kỳ thanh thoát và tự nhiên. |
-| **Cấu hình Middleware** | Dựa trên danh sách các Interceptors của OkHttp. | Dựa trên hệ thống **Plugins** linh hoạt (Auth, Logging, ContentNegotiation). |
-
-### 11.2 Triển khai Ktor Client hoàn chỉnh (Auth, Logging, Serialization)
-
-```kotlin
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.auth.providers.bearer
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-
-@Serializable
-data class UserDto(val id: Long, val name: String, val email: String)
-
-@Serializable
-data class CreateUserRequest(val name: String, val email: String)
-
-class KtorApiClient(
-    private val tokenStorage: TokenStorage
-) {
-    val client = HttpClient(OkHttp) {
-        // Plugin 1: Tự động chuyển đổi JSON qua kotlinx.serialization
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                isLenient = true
-                prettyPrint = false
-            })
-        }
-
-        // Plugin 2: Ghi log
-        install(Logging) {
-            level = LogLevel.INFO
-        }
-
-        // Plugin 3: Xử lý Bearer Token và Auto-Refresh tích hợp sẵn của Ktor
-        install(Auth) {
-            bearer {
-                loadTokens {
-                    BearerTokens(
-                        accessToken = tokenStorage.getAccessToken() ?: "",
-                        refreshToken = tokenStorage.getRefreshToken() ?: ""
-                    )
-                }
-                refreshTokens {
-                    // Ktor tự động lock và quản lý concurrent refresh khi gặp mã 401!
-                    val newTokens = callRefreshTokenApi(oldTokens?.refreshToken)
-                    tokenStorage.saveTokens(newTokens.accessToken, newTokens.refreshToken)
-                    BearerTokens(newTokens.accessToken, newTokens.refreshToken)
-                }
-            }
-        }
-    }
-
-    suspend fun getUserProfile(userId: Long): UserDto {
-        return client.get("https://api.example.com/users/$userId").body()
-    }
-
-    suspend fun createUser(request: CreateUserRequest): UserDto {
-        return client.post("https://api.example.com/users") {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.body()
-    }
-
-    private suspend fun callRefreshTokenApi(refreshToken: String?): BearerTokens {
-        // Giả lập gọi API refresh token
-        return BearerTokens("new_access_token", "new_refresh_token")
-    }
-}
-
-interface TokenStorage {
-    fun getAccessToken(): String?
-    fun getRefreshToken(): String?
-    fun saveTokens(access: String, refresh: String)
-}
-```
-
----
-
-## 12. Tích hợp Clean Architecture: End-to-End E-Commerce Example
-
-Hãy xâu chuỗi tất cả các thành phần đã học vào một kiến trúc hoàn chỉnh theo chuẩn **Clean Architecture**:
+Hãy xâu chuỗi các thành phần đã học vào một kiến trúc hoàn chỉnh theo chuẩn **Clean Architecture** (Retrofit chỉ dùng một interface `@GET`, xem mục 2):
 `UI (Compose) -> ViewModel -> UseCase -> Repository (SSOT) -> RemoteDataSource (Retrofit) & LocalDataSource (Room)`.
 
 Mô hình ở đây là **Single Source of Truth (SSOT)**: UI chỉ quan sát Room Database qua `Flow`, không bao giờ đọc thẳng kết quả API. Repository đồng bộ API khi có mạng và ghi kết quả vào Room; Flow của DAO tự phát dữ liệu mới lên UI.
@@ -997,7 +492,7 @@ graph LR
     Repo --> NetMon
 ```
 
-### 12.1 Data Layer: Remote DataSource & Repository
+### 8.1 Data Layer: Remote DataSource & Repository
 
 ```kotlin
 import androidx.room.Dao
@@ -1067,7 +562,7 @@ class ProductRepositoryImpl(
 }
 ```
 
-### 12.2 Presentation Layer: ViewModel điều phối UI State
+### 8.2 Presentation Layer: ViewModel điều phối UI State
 
 ```kotlin
 import androidx.lifecycle.ViewModel
@@ -1132,118 +627,16 @@ class ProductViewModel(
 
 ---
 
-## 13. Testing Tầng Network với MockWebServer
+## 9. Checklist Best Practices & Anti-patterns
 
-Một sai lầm phổ biến khi viết Unit Test cho tầng Data là **dùng Mockito để mock trực tiếp Retrofit Interface**:
-```kotlin
-// KIỂU TEST VÔ NGHĨA:
-val mockApi = mock(ProductApiService::class.java)
-`when`(mockApi.fetchProducts()).thenReturn(listOf(...))
-```
-Cách test trên hoàn toàn vô nghĩa vì nó **bỏ qua 100% logic của tầng mạng**: không test được Interceptor, không test được logic parse JSON của Moshi/Serialization, không test được mã lỗi HTTP (401, 500) và không test được lỗi Timeout!
-
-### 13.1 Giải pháp chuẩn: MockWebServer của Square
-`MockWebServer` khởi tạo một HTTP Server thật sự chạy trên cổng cục bộ (localhost) trong JVM test. Nó nhận HTTP request thật từ OkHttp và trả về response thật.
-
-```kotlin
-import kotlinx.coroutines.runBlocking
-import okhttp3.OkHttpClient
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
-
-class NetworkIntegrationTest {
-
-    private lateinit var mockWebServer: MockWebServer
-    private lateinit var apiService: ProductApiService
-
-    @Before
-    fun setup() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start()
-
-        val okHttpClient = OkHttpClient.Builder()
-            .connectTimeout(1, TimeUnit.SECONDS)
-            .readTimeout(1, TimeUnit.SECONDS)
-            .build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(mockWebServer.url("/")) // Trỏ tới localhost của mock server
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        apiService = retrofit.create(ProductApiService::class.java)
-    }
-
-    @After
-    fun tearDown() {
-        mockWebServer.shutdown()
-    }
-
-    @Test
-    fun fetchProducts_success_returns_parsed_list() = runBlocking {
-        // 1. Giả lập Server trả về JSON hợp lệ với mã 200 OK
-        val mockJson = """
-            [
-                {"id": 101, "name": "Bàn phím cơ", "price": 150.0},
-                {"id": 102, "name": "Chuột Gaming", "price": 75.0}
-            ]
-        """.trimIndent()
-        
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody(mockJson)
-        )
-
-        // 2. Thực thi hàm gọi API
-        val result = safeApiCall { apiService.fetchProducts() }
-
-        // 3. Kiểm chứng
-        assertTrue(result is NetworkResult.Success)
-        val data = (result as NetworkResult.Success).data
-        assertEquals(2, data.size)
-        assertEquals("Bàn phím cơ", data[0].name)
-    }
-
-    @Test
-    fun fetchProducts_serverError_returns_httpError() = runBlocking {
-        // Giả lập Server trả về lỗi 500 Internal Server Error
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(500)
-                .setBody("""{"error": "Database down"}""")
-        )
-
-        val result = safeApiCall { apiService.fetchProducts() }
-
-        assertTrue(result is NetworkResult.Error.Http)
-        val httpError = result as NetworkResult.Error.Http
-        assertEquals(500, httpError.code)
-    }
-}
-```
-
----
-
-## 14. Checklist Best Practices & Anti-patterns
-
-### 14.1 Những điều BẮT BUỘC NÊN LÀM (Best Practices)
+### 9.1 Những điều BẮT BUỘC NÊN LÀM (Best Practices)
 1. **Singleton OkHttpClient:** Chỉ khởi tạo **DUY NHẤT MỘT** `OkHttpClient` instance trong suốt vòng đời ứng dụng để tối ưu `ConnectionPool` và `DiskCache`. Nếu cần cấu hình riêng cho một số endpoint, hãy sử dụng `okHttpClient.newBuilder()`.
 2. **Main-Safety:** Mọi hàm API trong tầng Data phải là `suspend` và tự động chuyển sang `Dispatchers.IO` hoặc để Retrofit/Ktor tự xử lý luồng nền.
 3. **Phân biệt Capability:** Luôn kiểm tra `NET_CAPABILITY_VALIDATED` thay vì chỉ kiểm tra `NET_CAPABILITY_INTERNET`.
 4. **Timeouts hợp lý:** Luôn thiết lập timeout rõ ràng (`connectTimeout`, `readTimeout`, `writeTimeout`), không để mặc định quá lâu làm người dùng phải chờ đợi màn hình trắng.
 5. **Che giấu PII trong Log:** Tuyệt đối không log thông tin nhạy cảm (mật khẩu, mã OTP, số thẻ, Authorization Header) ra ngoài Logcat.
 
-### 14.2 Những sai lầm NGHIÊM TRỌNG (Anti-patterns)
+### 9.2 Những sai lầm NGHIÊM TRỌNG (Anti-patterns)
 - ❌ **Khởi tạo OkHttpClient mới trong mỗi Repository:** Làm vô hiệu hóa hoàn toàn Connection Pool và HTTP Cache, gây cạn kiệt File Descriptor (FD Leak).
 - ❌ **Nuốt Exception (Catch & Empty):** Bắt exception nhưng không thông báo cho người dùng, làm UI ở trạng thái Loading mãi mãi.
 - ❌ **Đọc toàn bộ File vào byte array để Upload:** Gây crash `OutOfMemoryError` khi người dùng upload file nặng trên các thiết bị RAM thấp.
@@ -1252,7 +645,7 @@ class NetworkIntegrationTest {
 
 ---
 
-## 15. Nguồn tham khảo chính thống (References & RFCs)
+## 10. Nguồn tham khảo chính thống (References & RFCs)
 
 1. [Android Developers — Connect to the network](https://developer.android.com/training/basics/network-ops/connecting)
 2. [Android Developers — Monitor connectivity status and connection metering](https://developer.android.com/training/monitoring-device-state/connectivity-status-type)
