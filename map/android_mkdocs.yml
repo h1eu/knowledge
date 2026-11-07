@@ -150,6 +150,7 @@ nav:
       - 8.5.5 Message (Toast, Snackbar, Notification): session_08/view_layout/message.md
       - 8.5.6 Animation (Animator, Lotties, Material Motions, AnimationSet): session_08/view_layout/animation.md
   - Session 09: 
+    - 9.0 Jetpack Compose Overview: jetpack_compose_ui/overview.md
     - 9.1 Remember and Recomposition: jetpack_compose_ui/remember_and_recomposition.md
     - 9.2 State and State Hoisting:
       - 9.2.1 MutableState: jetpack_compose_ui/state/mutable_state.md

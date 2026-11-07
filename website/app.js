@@ -420,7 +420,7 @@ const KNOWLEDGE_DATA = {
           id: 'jetpack-compose-ui',
           name: 'Session 09: Jetpack Compose UI',
           topics: [
-            { id: 'compose-overview', title: 'Jetpack Compose Overview', status: 'draft', tags: ['android', 'compose'] },
+            { id: 'compose-overview', title: '9.0 Jetpack Compose Overview', status: 'draft', tags: ['android', 'compose'] },
             { id: 'compose-recomposition', title: '9.1 Remember and Recomposition', status: 'draft', tags: ['android', 'compose'] },
             { id: 'compose-state', title: '9.2 State and State Hoisting', status: 'published', tags: ['android', 'kotlin', 'compose'] },
             { id: 'compose-mutablestate', title: '9.2.1 MutableState', status: 'draft', tags: ['android', 'compose'] },

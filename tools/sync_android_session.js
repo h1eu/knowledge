@@ -13,7 +13,7 @@
 
    Quy ước Markdown → website:
      - Key website = frontmatter `id`, hoặc slug cũ nếu có alias
-       `ANDROID_CONTENT['<id>'] = ANDROID_CONTENT['<slug>']`; index.md / overview.md ở gốc thư mục session → `session-NN-overview`.
+       `ANDROID_CONTENT['<id>'] = ANDROID_CONTENT['<slug>']`; index.md (hoặc overview.md khi không có index.md) ở gốc thư mục session → `session-NN-overview`.
        Entry cũ dùng slug mà chưa có alias → thêm dòng alias đó vào android-content.js trước khi đồng bộ.
      - `<!-- dd: <slug> -->` sau khối Mermaid hoặc ```text (sơ đồ ASCII) → SVG `website/diagrams/<slug>(-dark).html` thay khối đó.
      - `<!-- archify: <slug> | <tiêu đề> -->` sau khối Mermaid → sơ đồ Archify
@@ -340,9 +340,12 @@ function main() {
 
   const topics = walk(docs).sort().map((file) => {
     const parsed = parseFrontmatter(fs.readFileSync(file, 'utf8'));
-    // Chỉ index.md / overview.md ở gốc thư mục session mới là trang tổng quan của session
-    // (overview.md trong thư mục con, vd advertisements/overview.md, là Topic thường).
-    const isIndex = path.dirname(file) === docs && ['index.md', 'overview.md'].includes(path.basename(file));
+    // Trang tổng quan của session: index.md ở gốc thư mục session, hoặc overview.md ở gốc khi không có index.md
+    // (vd session_05/overview.md). overview.md trong thư mục con (advertisements/overview.md) hoặc nằm cạnh
+    // index.md (jetpack_compose_ui/overview.md = 9.0 Jetpack Compose Overview) là Topic thường.
+    const base = path.basename(file);
+    const isIndex = path.dirname(file) === docs &&
+      (base === 'index.md' || (base === 'overview.md' && !fs.existsSync(path.join(docs, 'index.md'))));
     return { file, isIndex, ...(parsed || {}) };
   }).filter((t) => t.fm && t.fm.id);
 
