@@ -1,7 +1,7 @@
 ---
 id: android.component.activity.state_changes
 title: Activity State Changes
-summary: Xử lý State Changes thực chiến — hiểu vì sao Activity bị destroy/recreate, phân biệt configuration change với process death, và áp dụng đúng bộ công cụ ViewModel, SavedStateHandle, onSaveInstanceState, rememberSaveable cho từng loại dữ liệu trong project thực tế.
+summary: Activity State Changes là các sự kiện khiến Android thay đổi trạng thái tồn tại của Activity, quan trọng nhất là Configuration Change (Activity bị destroy rồi tạo lại) và Process Death (cả process bị kill). Bài giải thích vì sao Activity bị recreate, dữ liệu nào mất trong từng tình huống, và chọn đúng ViewModel, SavedStateHandle, onSaveInstanceState, rememberSaveable cho từng loại dữ liệu.
 status: published
 difficulty: intermediate
 depth: deep-dive
@@ -43,9 +43,13 @@ Bài viết này dạy bạn: **hiểu vì sao điều đó xảy ra, phân bi�
 - Triển khai được luồng lưu/khôi phục state trong app MVVM bằng cả View (XML) và Jetpack Compose.
 - Xử lý được các lỗi phổ biến: fetch API lặp, đưa dữ liệu lớn vào saved state, lạm dụng android:configChanges.
 
-## Nó là gì? — Vì sao Activity bị destroy/recreate?
+## Activity State Changes là gì?
 
-State Changes là tập hợp các sự kiện khiến Android **thay đổi trạng thái tồn tại của Activity**, trong đó quan trọng nhất là **Configuration Change** và **Process Death**.
+**Activity State Changes** là tập hợp các sự kiện khiến Android **thay đổi trạng thái tồn tại của Activity**, trong đó quan trọng nhất là **Configuration Change** và **Process Death**.
+
+Mental model: Activity instance là **đồ dùng một lần**, hệ thống có thể bỏ nó đi và thay bằng một instance mới. State chỉ sống sót nếu được gửi ra **ngoài** instance: vào ViewModel (được giữ hộ qua configuration change, nhưng chết theo process) hoặc vào saved state Bundle mà hệ thống giữ hộ (sống qua cả process death). Thứ gì chỉ nằm trong field của Activity thì mất theo instance cũ.
+
+## Cách hoạt động
 
 ### Configuration Change
 
@@ -77,29 +81,30 @@ flowchart TD
 ```
 <!-- dd: actconfig -->
 
-**Điểm mấu chốt:** `onSaveInstanceState()` là cơ hội để đưa UI state nhỏ vào Bundle, thứ sống qua cả cú destroy/recreate này lẫn process death. ViewModel cũng sống qua configuration change (xem Bước 1) nhưng chết theo process. Những gì không nằm trong Bundle hay ViewModel thì mất.
+**Điểm mấu chốt:** `onSaveInstanceState()` là cơ hội để đưa UI state nhỏ vào Bundle, thứ sống qua cả cú destroy/recreate này lẫn process death. ViewModel cũng sống qua configuration change (xem mục "ViewModel" bên dưới) nhưng chết theo process. Những gì không nằm trong Bundle hay ViewModel thì mất.
 
-> **Lưu ý:** Thứ tự phụ thuộc **`targetSdkVersion`** của app, không phải API của thiết bị. App có targetSdk ≥ 28 (Android 9): `onSaveInstanceState()` luôn được gọi **sau** `onStop()`, nên có thể commit fragment transaction an toàn trong `onStop()`. App có targetSdk < 28: `onSaveInstanceState()` được gọi **trước** `onStop()` (không đảm bảo trước hay sau `onPause()`).
+> [!NOTE]
+> Thứ tự phụ thuộc **`targetSdkVersion`** của app, không phải API của thiết bị. App có targetSdk ≥ 28 (Android 9): `onSaveInstanceState()` luôn được gọi **sau** `onStop()`, nên có thể commit fragment transaction an toàn trong `onStop()`. App có targetSdk < 28: `onSaveInstanceState()` được gọi **trước** `onStop()` (không đảm bảo trước hay sau `onPause()`).
 
-## Khi nào dữ liệu bị mất? — 3 tình huống cần phân biệt
+### Khi nào dữ liệu bị mất? — 3 tình huống cần phân biệt
 
 Không phải lúc nào Activity biến mất cũng giống nhau. Bạn phải phân biệt **3 tình huống** vì mỗi loại đòi hỏi công cụ khác nhau:
 
-### 1. Configuration Change — dữ liệu mất, app vẫn "sống"
+#### 1. Configuration Change — dữ liệu mất, app vẫn "sống"
 
 - Activity destroy/recreate nhưng **process vẫn chạy**.
 - ViewModel **sống sót** (được giữ lại qua `NonConfigurationInstances`).
 - Bundle trong `onSaveInstanceState()` được khôi phục.
 - Dữ liệu nào không thuộc ViewModel và không nằm trong Bundle thì mất.
 
-### 2. Process Death — toàn bộ app chết
+#### 2. Process Death — toàn bộ app chết
 
 - System kill toàn bộ process (thiếu bộ nhớ, ép buộc dừng...).
 - ViewModel **biến mất**, static/singleton **reset về 0**.
 - Bundle đã lưu qua `onSaveInstanceState()` vẫn được hệ thống **giữ lại và khôi phục** khi người dùng quay lại app.
 - `onDestroy()` **không đảm bảo** được gọi.
 
-### 3. Người dùng thoát hẳn (bấm Back / finish)
+#### 3. Người dùng thoát hẳn (bấm Back / finish)
 
 - Activity finish vĩnh viễn, không ai cần khôi phục. Process **vẫn chạy** (Back không kill process).
 - `onSaveInstanceState()` **không được gọi**.
@@ -114,7 +119,7 @@ Không phải lúc nào Activity biến mất cũng giống nhau. Bạn phải p
 | onSaveInstanceState | ✅ Gọi | ✅ Gọi (nếu có cơ hội) | ❌ Không gọi |
 | Cách phòng thủ | ViewModel + Bundle | Bundle / SavedStateHandle | Room / DataStore |
 
-## Chọn công cụ nào? — Bản đồ quyết định
+### Chọn công cụ nào? — Bản đồ quyết định
 
 Trước khi vào code, ghi nhớ nguyên tắc lựa chọn sau:
 
@@ -142,35 +147,15 @@ Dữ liệu cần xử lý
 | Cần Parcelable/Serializable | ❌ | ✅ | ✅ |
 | Phù hợp cho | Business data, API response, dữ liệu lớn | State quan trọng, kích thước nhỏ | Transient UI state (XML) |
 
-## Triển khai step-by-step trong project thực tế
-
-Lấy bối cảnh cụ thể: một app **mua sắm** (giống các app thương mại điện tử thực tế). Màn hình chính là `ProductListScreen` — có ô **search**, **filter theo category**, danh sách sản phẩm load từ API, và **cart** hiển thị số lượng. Yêu cầu: xoay màn hình và process death đều không được làm mất trải nghiệm người dùng.
-
-### Bước 1: ViewModel — giữ dữ liệu business qua configuration change
+### ViewModel: giữ dữ liệu business qua configuration change
 
 Loại dữ liệu nguy hiểm nhất khi xoay màn hình là **kết quả API**. Nếu fetch lại trong `onCreate`, mỗi lần xoay màn hình là một lần gọi lại mạng. ViewModel giải quyết điều này: nó sống sót qua config change nên dữ liệu đã load vẫn còn, Activity mới không cần gọi lại API.
 
-`StateFlow` và `stateIn` dùng ở đây là luồng dữ liệu quan sát được, học ở 7.1.4.2 Flow (chưa có bài); `viewModelScope` là coroutine scope gắn với ViewModel, học ở 6.4 ViewModel (chưa có bài).
+`StateFlow` và `stateIn` dùng ở đây là luồng dữ liệu quan sát được, học ở 7.1.4.2 Flow (chưa có bài); `viewModelScope` là coroutine scope gắn với ViewModel, đã giới thiệu ở [Activity Lifecycle](lifecycle.md), mục "viewModelScope", học đầy đủ ở 6.4 ViewModel (chưa có bài).
 
-```kotlin
-class ProductListViewModel(
-    private val repository: ProductRepository
-) : ViewModel() {
+**Điều cốt lõi để hiểu:** ViewModel sống sót qua config change nhờ `ViewModelStore` được lưu vào `NonConfigurationInstances` — một object mà `ActivityThread` giữ lại khi recreate Activity. Khi Activity mới tạo, nó lấy lại chính `ViewModelStore` cũ, nên `products` vẫn giữ kết quả đã load. `WhileSubscribed(5_000)` giữ pipeline chạy thêm 5 giây sau khi UI ngừng collect; Activity mới collect lại trong khoảng đó nên API **không bị gọi lại** khi xoay màn hình. Nếu UI ngừng collect lâu hơn 5 giây (app nằm ở background), pipeline dừng và chạy lại khi UI quay lại; muốn chỉ gọi một lần cho mỗi ViewModel thì dùng `SharingStarted.Lazily`. Vì sao không gọi API trong `init` của ViewModel: xem mục "Sai lầm thường gặp", mục 3.
 
-    // Pipeline khởi động lười: API chỉ được gọi khi UI bắt đầu collect,
-    // kết quả nằm trong StateFlow của ViewModel nên sống qua config change
-    val products: StateFlow<List<Product>> =
-        flow { emit(repository.getProducts()) }
-            .catch { emit(emptyList()) /* app thật: chuyển sang error state */ }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyList()
-            )
-}
-```
-
-**Điều cốt lõi để hiểu:** ViewModel sống sót qua config change nhờ `ViewModelStore` được lưu vào `NonConfigurationInstances` — một object mà `ActivityThread` giữ lại khi recreate Activity. Khi Activity mới tạo, nó lấy lại chính `ViewModelStore` cũ, nên `products` vẫn giữ kết quả đã load. `WhileSubscribed(5_000)` giữ pipeline chạy thêm 5 giây sau khi UI ngừng collect; Activity mới collect lại trong khoảng đó nên API **không bị gọi lại** khi xoay màn hình. Nếu UI ngừng collect lâu hơn 5 giây (app nằm ở background), pipeline dừng và chạy lại khi UI quay lại; muốn chỉ gọi một lần cho mỗi ViewModel thì dùng `SharingStarted.Lazily`. Vì sao không gọi API trong `init` của ViewModel: xem Bước 5.
+Code của `products` (pipeline `stateIn` khởi động lười) ở mục "Ví dụ thực tế", bước (1) và (3).
 
 ```mermaid
 sequenceDiagram
@@ -193,41 +178,32 @@ sequenceDiagram
 ```
 <!-- dd: vm-survive -->
 
-### Bước 2: SavedStateHandle — lưu user input quan trọng, survive process death
+### SavedStateHandle: lưu user input quan trọng qua process death
 
 ViewModel giải quyết config change nhưng **chết theo process**. Search query hay bước form đang nhập là dữ liệu người dùng đã đánh máy — để mất là trải nghiệm cực tệ. Đây là chỗ dùng **SavedStateHandle**: nó nằm trong ViewModel nhưng tự động serialize vào Bundle qua `onSaveInstanceState()`, nên **sống sót cả process death**.
 
-```kotlin
-class ProductListViewModel(
-    private val repository: ProductRepository,
-    private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
-
-    // Auto-save/restore qua process death
-    val searchQuery: StateFlow<String> =
-        savedStateHandle.getStateFlow("search_query", "")
-
-    val selectedCategory: StateFlow<String> =
-        savedStateHandle.getStateFlow("selected_category", "all")
-
-    fun onSearchQueryChanged(query: String) {
-        savedStateHandle["search_query"] = query
-    }
-
-    fun onCategorySelected(category: String) {
-        savedStateHandle["selected_category"] = category
-    }
-}
-```
-
 **Cơ chế:** SavedStateHandle dùng `onSaveInstanceState()` của Activity để lưu dữ liệu vào Bundle. Sau process death, hệ thống khôi phục Bundle, tạo ViewModel mới và **đổ lại dữ liệu vào SavedStateHandle** — dữ liệu trở về như chưa từng mất.
 
-### Bước 3: onSaveInstanceState — transient UI state (View/XML)
+Code đọc/ghi `search_query` và `selected_category` qua `getStateFlow()` ở mục "Ví dụ thực tế", bước (2), (4) và (5).
+
+### onSaveInstanceState: transient UI state (View/XML)
 
 Trong View system, ngoài ViewModel, bạn vẫn cần xử lý các **transient UI state** thuộc riêng Activity: vị trí scroll của `RecyclerView`, tab đang chọn, vị trí cursor. Công cụ là `onSaveInstanceState()` / `onRestoreInstanceState()`.
 
 > [!NOTE]
 > Bản mặc định của `onSaveInstanceState()` đã lưu state của view hierarchy: mỗi View có `android:id` tự lưu state của chính nó (text trong `EditText`, trạng thái `CheckBox`, vị trí scroll của list). Bạn chỉ cần tự lưu state không thuộc về View nào, như `selectedTab` dưới đây, và phải gọi `super.onSaveInstanceState()` để giữ phần tự động này. Ví dụ dưới lưu cả scroll của `RecyclerView` để thấy rõ cách dùng Bundle.
+
+**Khi nào được gọi:**
+- Configuration change → **luôn gọi**
+- User bấm Home (Activity có thể bị kill sau đó) → **luôn gọi**
+- User bấm Back / finish → **không gọi**
+
+> [!WARNING]
+> **Saved state phải nhỏ:** docs khuyến nghị giữ saved state **dưới 50KB**, vì system process phải giữ bản này suốt thời gian người dùng còn có thể quay lại Activity, kể cả khi process của app đã bị kill. Chỉ lưu ID và giá trị nhỏ; Bitmap, danh sách lớn hay API response để trong ViewModel hoặc load lại từ database. Con số 50KB là khuyến nghị, khác với giới hạn cứng 1MB của Binder transaction buffer gây `TransactionTooLargeException`; cơ chế ở [Parcelables and Bundle](parcelables_and_bundle.md), mục "Giới hạn kích thước — Binder Transaction Buffer".
+
+#### Ví dụ: giữ tab đang chọn và vị trí scroll của danh sách
+
+Màn hình danh sách sản phẩm (XML) có tab và `RecyclerView`: sau khi xoay màn hình hoặc process death, tab đang chọn và vị trí scroll phải còn nguyên.
 
 ```kotlin
 class ProductListActivity : AppCompatActivity() {
@@ -261,17 +237,15 @@ class ProductListActivity : AppCompatActivity() {
 }
 ```
 
-**Khi nào được gọi:**
-- Configuration change → **luôn gọi**
-- User bấm Home (Activity có thể bị kill sau đó) → **luôn gọi**
-- User bấm Back / finish → **không gọi**
-
-> [!WARNING]
-> **Saved state phải nhỏ:** docs khuyến nghị giữ saved state **dưới 50KB**, vì system process phải giữ bản này suốt thời gian người dùng còn có thể quay lại Activity, kể cả khi process của app đã bị kill. Chỉ lưu ID và giá trị nhỏ; Bitmap, danh sách lớn hay API response để trong ViewModel hoặc load lại từ database. Con số 50KB là khuyến nghị, khác với giới hạn cứng 1MB của Binder transaction buffer gây `TransactionTooLargeException`; cơ chế ở [Parcelables and Bundle](parcelables_and_bundle.md), mục "Giới hạn kích thước — Binder Transaction Buffer".
-
-### Bước 4: Compose — rememberSaveable thay cho Bundle
+### rememberSaveable: saved state trong Compose
 
 Trong Jetpack Compose, `rememberSaveable` tương đương `onSaveInstanceState` — dữ liệu sống qua cả config change lẫn process death, còn `remember` chỉ sống qua recomposition.
+
+`remember`/`rememberSaveable` và `mutableStateOf` là API state của Compose, học ở 9.2.2 Remember and rememberSaveable (chưa có bài); `collectAsStateWithLifecycle()` biến Flow thành Compose State theo lifecycle, giới thiệu ở [Activity Lifecycle](lifecycle.md), mục "Cách hoạt động — Compose với Lifecycle".
+
+#### Ví dụ: ô tìm kiếm sản phẩm trong Compose
+
+Màn hình danh sách sản phẩm viết bằng Compose: chữ đang gõ trong ô tìm kiếm phải còn sau khi xoay màn hình và sau process death, còn danh sách lấy từ ViewModel.
 
 ```kotlin
 @Composable
@@ -305,47 +279,10 @@ fun ProductListScreen(viewModel: ProductListViewModel) {
 }
 ```
 
+> [!NOTE]
 > **Lưu ý với custom object:** `rememberSaveable` cũng giới hạn bởi Bundle. Với object tự định nghĩa, cần implement `Saver` hoặc `@Parcelize`. Nếu không, app sẽ crash khi cố lưu object không Serializable/Parcelable. Cách viết `@Parcelize` ở [Parcelables and Bundle](parcelables_and_bundle.md), mục "@Parcelize — cách viết Parcelable hiện đại".
 
-### Bước 5: Tránh fetch API lặp lại
-
-Lỗi kinh điển: gọi API trong `onCreate` nhưng không kiểm tra, nên mỗi lần xoay màn hình là một lần gọi lại mạng. Cách sửa hay gặp là chuyển lời gọi vào `init` của ViewModel, nhưng docs cũng khuyên **không** làm vậy: launch việc bất đồng bộ trong `init` hay constructor khiến code async có thể đọc/ghi object trước khi nó khởi tạo xong; với ViewModel giữ Compose State, việc này còn có thể gây `IllegalStateException`. Docs khuyên khởi động việc load một cách lười (khi UI bắt đầu collect), hoặc qua một hàm `initialize()` idempotent khi không dùng được Flow.
-
-```kotlin
-// ❌ SAI — onCreate chạy lại sau mỗi config change → gọi lại API
-class ProductListActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.loadProducts() // hàm public, không kiểm tra đã load hay chưa
-    }
-}
-
-// ❌ KHÔNG NÊN — launch coroutine trong init (docs cảnh báo)
-class ProductListViewModel(private val repository: ProductRepository) : ViewModel() {
-    private val _products = MutableStateFlow<List<Product>>(emptyList())
-    init {
-        viewModelScope.launch { _products.value = repository.getProducts() }
-    }
-}
-
-// ✅ ĐÚNG — pipeline lười trong ViewModel, như Bước 1
-val products: StateFlow<List<Product>> =
-    flow { emit(repository.getProducts()) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
-// ✅ Khi không dùng được Flow — initialize() idempotent:
-// gọi từ onCreate cũng an toàn, vì sau xoay màn hình vẫn là ViewModel cũ, cờ đã bật
-private var initializeCalled = false
-
-@MainThread
-fun initialize() {
-    if (initializeCalled) return
-    initializeCalled = true
-    viewModelScope.launch { /* load dữ liệu ban đầu */ }
-}
-```
-
-### Bước 6: android:configChanges — ngoại lệ cho trường hợp đặc biệt
+### android:configChanges: ngoại lệ cho trường hợp đặc biệt
 
 Bạn có thể khai báo trong Manifest để **ngăn** Android destroy Activity khi một số configuration change nhất định xảy ra:
 
@@ -375,9 +312,86 @@ override fun onConfigurationChanged(newConfig: Configuration) {
 - App thông thường — bạn phải tự xử lý toàn bộ việc tải lại layout/string/drawable
 - Khi cần layout riêng cho landscape
 
-> **Cảnh báo:** `android:configChanges` chỉ "né" config change, KHÔNG giải quyết process death. Dùng nó như miếng vá cho mất state là **sai gốc rễ** — bạn vẫn phải làm đúng ViewModel + SavedStateHandle, và còn thêm gánh nặng tự quản lý resource. Hãy coi nó là ngoại lệ hiếm hoi, không phải thói quen.
+> [!WARNING]
+> `android:configChanges` chỉ "né" config change, KHÔNG giải quyết process death. Dùng nó như miếng vá cho mất state là **sai gốc rễ** — bạn vẫn phải làm đúng ViewModel + SavedStateHandle, và còn thêm gánh nặng tự quản lý resource. Hãy coi nó là ngoại lệ hiếm hoi, không phải thói quen.
 
-## Process Death — hiểu và test
+## Ví dụ thực tế
+
+### Danh sách sản phẩm: search và filter sống qua xoay màn hình và process death
+
+Lấy bối cảnh cụ thể: một app **mua sắm** (giống các app thương mại điện tử thực tế). Màn hình chính là `ProductListScreen` — có ô **search**, **filter theo category**, danh sách sản phẩm load từ API, và **cart** hiển thị số lượng. Yêu cầu: xoay màn hình và process death đều không được làm mất trải nghiệm người dùng.
+
+Mỗi loại dữ liệu đi vào đúng công cụ theo bản đồ quyết định: danh sách sản phẩm (dữ liệu từ network) nằm trong ViewModel, search query và category (user input) nằm trong `SavedStateHandle`. Luồng chạy:
+
+1. Mở màn hình: UI bắt đầu collect `products`, pipeline `stateIn` khởi động và gọi `repository.getProducts()` lần đầu.
+2. Người dùng gõ search, chọn category: ViewModel ghi giá trị vào `SavedStateHandle`, `getStateFlow()` phát giá trị mới cho UI.
+3. Xoay màn hình: Activity cũ bị destroy, Activity mới lấy lại đúng ViewModel cũ và collect lại trong vòng 5 giây (`WhileSubscribed(5_000)`), nên `products`, search query và category còn nguyên, **không** gọi API lại.
+4. Người dùng bấm Home: `onSaveInstanceState()` chạy, dữ liệu của `SavedStateHandle` được ghi vào Bundle mà hệ thống giữ hộ. Sau đó process bị kill, ViewModel mất theo.
+5. Người dùng mở lại app: hệ thống khôi phục Bundle, tạo ViewModel mới với `SavedStateHandle` chứa lại search query và category; `products` không nằm trong Bundle nên Repository load lại từ network/database.
+
+```mermaid
+sequenceDiagram
+    participant U as Người dùng
+    participant A as Activity
+    participant VM as ProductListViewModel
+    participant SSH as SavedStateHandle
+    participant R as Repository/API
+
+    U->>A: Mở màn hình
+    A->>VM: (1) collect products
+    VM->>R: (1) getProducts() (lần 1)
+    R-->>VM: Danh sách sản phẩm
+    U->>A: Gõ search, chọn category
+    A->>VM: (2) onSearchQueryChanged() / onCategorySelected()
+    VM->>SSH: (2) ghi "search_query", "selected_category"
+    U->>A: Xoay màn hình
+    A--x A: (3) Activity cũ destroy, Activity mới lấy lại ViewModel cũ
+    Note over VM,R: (3) Không gọi API, products/query/category còn nguyên
+    U->>A: Bấm Home
+    A->>SSH: (4) onSaveInstanceState(): lưu dữ liệu của SavedStateHandle vào Bundle hệ thống giữ hộ
+    Note over A,VM: (4) Process bị kill, ViewModel mất
+    U->>A: Mở lại app
+    A->>VM: (5) ViewModel MỚI, SavedStateHandle khôi phục từ Bundle
+    VM->>R: (5) getProducts() (lần 2)
+```
+
+```kotlin
+class ProductListViewModel(
+    private val repository: ProductRepository,
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
+
+    // (1) Pipeline khởi động lười: API chỉ được gọi khi UI bắt đầu collect,
+    // (3) kết quả nằm trong StateFlow của ViewModel nên sống qua config change
+    val products: StateFlow<List<Product>> =
+        flow { emit(repository.getProducts()) }
+            .catch { emit(emptyList()) /* app thật: chuyển sang error state */ }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList()
+            )
+
+    // (5) Auto-save/restore qua process death
+    val searchQuery: StateFlow<String> =
+        savedStateHandle.getStateFlow("search_query", "")
+
+    val selectedCategory: StateFlow<String> =
+        savedStateHandle.getStateFlow("selected_category", "all")
+
+    fun onSearchQueryChanged(query: String) {
+        savedStateHandle["search_query"] = query  // (2) và (4): được ghi vào Bundle khi Activity lưu state
+    }
+
+    fun onCategorySelected(category: String) {
+        savedStateHandle["selected_category"] = category  // (2)
+    }
+}
+```
+
+**Kết quả:** xoay màn hình thì danh sách, search query và category còn nguyên mà không có request mạng mới; sau process death (kiểm tra như mục dưới), search query và category trở lại đúng như trước, danh sách được load lại một lần.
+
+### Process Death — hiểu và test
 
 Cách duy nhất để biết app có sống sót qua process death hay không là **test thật**, vì xoay màn hình KHÔNG test được process death.
 
@@ -397,17 +411,84 @@ Tuỳ chọn **Don't keep activities** trong Developer Options **trên thiết b
 
 ## Sai lầm thường gặp
 
-> **1. Chỉ test xoay màn hình, bỏ qua process death** — ViewModel "che" lỗi khi xoay màn hình, nên mọi thứ có vẻ OK. Nhưng sau process death, ViewModel mất → mất search query, mất bước form. Luôn test bằng `am kill`.
+### 1. Chỉ test xoay màn hình, bỏ qua process death
 
-> **2. Lưu dữ liệu lớn vào Bundle** — List sản phẩm vài trăm item hoặc Bitmap trong saved state vượt xa khuyến nghị 50KB và có thể crash `TransactionTooLargeException`. Chỉ lưu ID, load lại từ database; dữ liệu lớn để trong ViewModel. Vì sao crash: xem [Parcelables and Bundle](parcelables_and_bundle.md), mục "Giới hạn kích thước — Binder Transaction Buffer".
+ViewModel "che" lỗi khi xoay màn hình, nên mọi thứ có vẻ OK. Nhưng sau process death, ViewModel mất → mất search query, mất bước form.
 
-> **3. Fetch API trong onCreate mỗi lần recreate** — `onCreate` chạy lại sau mỗi lần xoay màn hình, gọi mạng lại vô ích, làm UI flash và tốn băng thông. Để ViewModel khởi động việc load một cách lười (`stateIn`) hoặc qua `initialize()` idempotent, không launch trong `init` (Bước 5).
+**Cách sửa:** Luôn test bằng `am kill` (mục "Process Death — hiểu và test").
 
-> **4. Dùng android:configChanges để "fix" mất state** — Không giải quyết được process death, còn phá vỡ cơ chế resource reload của hệ thống. Xử lý đúng bản chất bằng ViewModel + SavedStateHandle.
+### 2. Lưu dữ liệu lớn vào Bundle
 
-> **5. Không phân biệt transient state và persistent data** — Search query đang gõ là transient (SavedStateHandle), còn giỏ hàng phải là persistent (Room/DataStore). Lẫn lộn hai loại này làm logic lưu trữ vừa thừa vừa thiếu.
+List sản phẩm vài trăm item hoặc Bitmap trong saved state vượt xa khuyến nghị 50KB và có thể crash `TransactionTooLargeException`. Vì sao crash: xem [Parcelables and Bundle](parcelables_and_bundle.md), mục "Giới hạn kích thước — Binder Transaction Buffer".
 
-## Tư duy hệ thống — vị trí trong MVVM/Clean Architecture
+**Cách sửa:** Chỉ lưu ID, load lại từ database; dữ liệu lớn để trong ViewModel.
+
+### 3. Fetch API trong onCreate mỗi lần recreate
+
+`onCreate` chạy lại sau mỗi lần xoay màn hình, gọi mạng lại vô ích, làm UI flash và tốn băng thông.
+
+Lỗi kinh điển: gọi API trong `onCreate` nhưng không kiểm tra, nên mỗi lần xoay màn hình là một lần gọi lại mạng. Cách sửa hay gặp là chuyển lời gọi vào `init` của ViewModel, nhưng docs cũng khuyên **không** làm vậy: launch việc bất đồng bộ trong `init` hay constructor khiến code async có thể đọc/ghi object trước khi nó khởi tạo xong; với ViewModel giữ Compose State, việc này còn có thể gây `IllegalStateException`. Docs khuyên khởi động việc load một cách lười (khi UI bắt đầu collect), hoặc qua một hàm `initialize()` idempotent khi không dùng được Flow.
+
+**Cách sửa:** Để ViewModel khởi động việc load một cách lười (`stateIn`) hoặc qua `initialize()` idempotent, không launch trong `init`.
+
+```kotlin
+// ❌ SAI — onCreate chạy lại sau mỗi config change → gọi lại API
+class ProductListActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.loadProducts() // hàm public, không kiểm tra đã load hay chưa
+    }
+}
+
+// ❌ KHÔNG NÊN — launch coroutine trong init (docs cảnh báo)
+class ProductListViewModel(private val repository: ProductRepository) : ViewModel() {
+    private val _products = MutableStateFlow<List<Product>>(emptyList())
+    init {
+        viewModelScope.launch { _products.value = repository.getProducts() }
+    }
+}
+
+// ✅ ĐÚNG — pipeline lười trong ViewModel, như ở Ví dụ thực tế
+val products: StateFlow<List<Product>> =
+    flow { emit(repository.getProducts()) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+// ✅ Khi không dùng được Flow — initialize() idempotent:
+// gọi từ onCreate cũng an toàn, vì sau xoay màn hình vẫn là ViewModel cũ, cờ đã bật
+private var initializeCalled = false
+
+@MainThread
+fun initialize() {
+    if (initializeCalled) return
+    initializeCalled = true
+    viewModelScope.launch { /* load dữ liệu ban đầu */ }
+}
+```
+
+### 4. Dùng android:configChanges để "fix" mất state
+
+Không giải quyết được process death, còn phá vỡ cơ chế resource reload của hệ thống.
+
+**Cách sửa:** Xử lý đúng bản chất bằng ViewModel + SavedStateHandle; chỉ dùng `android:configChanges` cho các trường hợp ở mục "android:configChanges: ngoại lệ cho trường hợp đặc biệt".
+
+### 5. Không phân biệt transient state và persistent data
+
+Lẫn lộn hai loại này làm logic lưu trữ vừa thừa vừa thiếu.
+
+**Cách sửa:** Search query đang gõ là transient (SavedStateHandle), còn giỏ hàng phải là persistent (Room/DataStore).
+
+## Lịch sử phát triển
+
+- **API 1:** `onSaveInstanceState(Bundle)`, `onRestoreInstanceState(Bundle)`, `onConfigurationChanged(Configuration)` và `onRetainNonConfigurationInstance()` đều có từ API level 1: cơ chế destroy/recreate khi configuration change và saved state Bundle tồn tại từ phiên bản Android đầu tiên.
+- **Android 9 (API 28):** với app có targetSdk ≥ 28, `onSaveInstanceState()` luôn được gọi sau `onStop()`.
+- **01/2020 (Lifecycle ViewModel SavedState 1.0.0):** thêm `SavedStateHandle`, cho ViewModel đọc và ghi vào saved state; factory mặc định của Fragment và `AppCompatActivity` tự truyền `SavedStateHandle` vào constructor của ViewModel.
+- **Android 12 (API 31):** bấm Back ở root launcher activity đưa Activity và task về background thay vì finish Activity.
+- **06/2022 (Lifecycle 2.5.0):** thêm `SavedStateHandle.getStateFlow()`, trả về `StateFlow` thay cho `LiveData` khi theo dõi giá trị.
+- **03/2023 (Lifecycle 2.6.0):** `collectAsStateWithLifecycle()` ổn định (thêm từ 2.6.0-alpha01, 06/2022), dùng trong ví dụ Compose của bài.
+
+## Kết nối hệ thống
+
+### Vị trí trong MVVM/Clean Architecture
 
 ```mermaid
 flowchart TB
@@ -434,7 +515,19 @@ State Changes không phải việc của riêng UI. Trong kiến trúc đúng:
 - **ViewModel** là nơi duy nhất giữ business state, dùng `SavedStateHandle` cho dữ liệu quan trọng cần sống qua process death.
 - **Data Layer** chịu trách nhiệm "load lại" dữ liệu bất cứ khi nào được hỏi — vì vậy sau process death, Repository chỉ việc đọc lại từ network/database.
 
-## References
+### Topic liên quan
+
+- **Tiên quyết:** [Activity Lifecycle](lifecycle.md): thứ tự callback khi Activity bị destroy rồi tạo lại, `viewModelScope`, collect Flow theo lifecycle.
+- **Liên quan:**
+  - [Parcelables and Bundle](parcelables_and_bundle.md) — cơ chế serialize dữ liệu qua Binder, giới hạn kích thước.
+  - [Task and Backstack](task_and_backstack.md): Back ở root launcher activity, ngữ cảnh Activity bị finish hay chỉ về background.
+- **Học tiếp:**
+  - [Fragment State Changes](../fragment/state_changes.md) — cách Fragment lưu/khôi phục state riêng.
+  - 6.4 ViewModel (chưa có bài): chi tiết về `viewModelScope`, `SavedStateHandle`, factory.
+  - 9.2 State and State Hoisting (chưa có bài), gồm 9.2.1 MutableState và 9.2.2 Remember and rememberSaveable: `remember`, `rememberSaveable`, `mutableStateOf` và Saver.
+  - 7.2.3 MVVM và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.
+
+## Nguồn tham khảo
 
 - [Android Developers — Save UI states](https://developer.android.com/topic/libraries/architecture/saving-states)
 - [Android Developers — Activity lifecycle / state changes](https://developer.android.com/guide/components/activities/activity-lifecycle)
@@ -442,14 +535,9 @@ State Changes không phải việc của riêng UI. Trong kiến trúc đúng:
 - [Android Developers — Handle process death](https://developer.android.com/topic/libraries/architecture/saving-states#process_can_recreate_an_activity)
 - [Android Developers — SavedStateHandle](https://developer.android.com/topic/libraries/architecture/viewmodel-savedstate)
 - [Android Developers — Activity.onSaveInstanceState](https://developer.android.com/reference/android/app/Activity#onSaveInstanceState(android.os.Bundle))
+- [Android Developers — Activity reference (API level 1 của onSaveInstanceState, onRestoreInstanceState, onConfigurationChanged, onRetainNonConfigurationInstance; thứ tự với targetSdk P)](https://developer.android.com/reference/android/app/Activity)
 - [Android Developers — Parcelables and bundles](https://developer.android.com/guide/components/activities/parcelables-and-bundles)
 - [Android Developers — Tasks and the back stack (Back ở root launcher activity)](https://developer.android.com/guide/components/activities/tasks-and-back-stack)
 - [Android Developers — Save UI states (Views)](https://developer.android.com/topic/libraries/architecture/views/saving-states-views)
 - [Android Developers — UI State production (khởi tạo pipeline, cảnh báo về `init`)](https://developer.android.com/topic/architecture/ui-layer/state-production)
-
-## Học tiếp
-
-- [Parcelables and Bundle](parcelables_and_bundle.md) — cơ chế serialize dữ liệu qua Binder, giới hạn kích thước.
-- **ViewModel** — chi tiết về `viewModelScope`, `SavedStateHandle`, factory.
-- **Compose State Management** — `remember`, `rememberSaveable`, `mutableStateOf` và Saver.
-- [Fragment State Changes](../fragment/state_changes.md) — cách Fragment lưu/khôi phục state riêng.
+- [Android Developers — Lifecycle release notes (ViewModel SavedState 1.0.0, 2.5.0: getStateFlow, 2.6.0: collectAsStateWithLifecycle)](https://developer.android.com/jetpack/androidx/releases/lifecycle)

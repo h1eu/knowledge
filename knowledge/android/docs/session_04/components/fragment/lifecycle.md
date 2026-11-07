@@ -284,7 +284,7 @@ class ProductListFragment : Fragment(R.layout.fragment_product_list) {
     // mới chạy lại onCreate trong khi ViewModel vẫn là cái cũ → fetch lặp.
     // ViewModel tự đọc "category_id" từ SavedStateHandle (by viewModels() tự đưa arguments
     // của Fragment vào đó) và load lười bằng stateIn khi UI bắt đầu collect
-    // (xem activity/state_changes.md, Bước 5: không launch coroutine trong init).
+    // (xem activity/state_changes.md, mục Sai lầm thường gặp "3. Fetch API trong onCreate mỗi lần recreate": không launch coroutine trong init).
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -356,7 +356,7 @@ sequenceDiagram
 ```
 <!-- dd: frag-tabs -->
 
-Code chuyển tab (một transaction: `hide` tab cũ kèm `setMaxLifecycle`, `add` hoặc `show` tab mới, khôi phục tab đang hiện sau khi xoay) ở [FragmentManager](fragment_manager.md), mục "Ví dụ thực tế: Bottom Navigation với Back Stack". Bài đó cũng so sánh khi nào chọn `replace`, show/hide hay multiple back stacks.
+Code chuyển tab (một transaction: `hide` tab cũ kèm `setMaxLifecycle`, `add` hoặc `show` tab mới, khôi phục tab đang hiện sau khi xoay) ở [FragmentManager](fragment_manager.md), mục "Ví dụ thực tế", phần "Bottom Navigation: chuyển tab bằng show/hide". Bài đó cũng so sánh khi nào chọn `replace`, show/hide hay multiple back stacks.
 
 > [!TIP]
 > **Vì sao show/hide giữ được state?** Vì `hide()` chỉ **ẩn View**, không đổi lifecycle: Fragment vẫn ở `RESUMED`, View và instance đều sống → `viewLifecycleOwner` vẫn hoạt động, observer không bị remove, scroll position của RecyclerView được giữ nguyên. Hệ quả: tab ẩn vẫn chạy như đang hiện. Muốn phản ứng khi bị ẩn/hiện thì override `onHiddenChanged(hidden)`; muốn tab ẩn thật sự dừng ở một mức lifecycle thì gọi `setMaxLifecycle(tab, Lifecycle.State.STARTED)` trong cùng transaction với `hide()`: tab ẩn nhận `onPause()` và dừng ở `STARTED`, tab được hiện cần `setMaxLifecycle(tab, Lifecycle.State.RESUMED)` để lên lại `RESUMED`. `setUserVisibleHint()` cũ đã **deprecated**, docs chuyển sang `setMaxLifecycle()`.

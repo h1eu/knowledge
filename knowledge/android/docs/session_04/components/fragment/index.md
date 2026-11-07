@@ -139,7 +139,7 @@ Fragment được quản lý bởi `FragmentManager`, giúp hệ thống xử l�
 Trong kiến trúc MVVM / Clean Architecture, Fragment nằm ở **Presentation Layer**, đóng vai trò là **View**:
 
 - **Fragment:** render UI, gửi sự kiện người dùng lên ViewModel, quan sát `StateFlow`/`LiveData`.
-- **ViewModel:** giữ trạng thái và logic UI, **sống sót qua xoay màn hình** (cơ chế ở [Activity State Changes](../activity/state_changes.md), mục "Bước 1").
+- **ViewModel:** giữ trạng thái và logic UI, **sống sót qua xoay màn hình** (cơ chế ở [Activity State Changes](../activity/state_changes.md), mục "ViewModel: giữ dữ liệu business qua configuration change").
 - **Shared ViewModel (scoped theo Activity):** chia sẻ dữ liệu giữa các Fragment mà không cần truyền qua Bundle phức tạp.
 
 ```mermaid

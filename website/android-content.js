@@ -10230,7 +10230,7 @@ Object.assign(ANDROID_CONTENT, {
 
   'activity-state-changes': {
     title: 'Activity State Changes',
-    summary: 'Xử lý State Changes thực chiến — hiểu vì sao Activity bị destroy/recreate, phân biệt configuration change với process death, và áp dụng đúng bộ công cụ ViewModel, SavedStateHandle, onSaveInstanceState, rememberSaveable cho từng loại dữ liệu trong project thực tế.',
+    summary: 'Activity State Changes là các sự kiện khiến Android thay đổi trạng thái tồn tại của Activity, quan trọng nhất là Configuration Change (Activity bị destroy rồi tạo lại) và Process Death (cả process bị kill). Bài giải thích vì sao Activity bị recreate, dữ liệu nào mất trong từng tình huống, và chọn đúng ViewModel, SavedStateHandle, onSaveInstanceState, rememberSaveable cho từng loại dữ liệu.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '30 phút',
@@ -10277,9 +10277,13 @@ Object.assign(ANDROID_CONTENT, {
   <li>Xử lý được các lỗi phổ biến: fetch API lặp, đưa dữ liệu lớn vào saved state, lạm dụng android:configChanges.</li>
 </ul>
 
-<h2>Nó là gì? — Vì sao Activity bị destroy/recreate?</h2>
+<h2>Activity State Changes là gì?</h2>
 
-<p>State Changes là tập hợp các sự kiện khiến Android <strong>thay đổi trạng thái tồn tại của Activity</strong>, trong đó quan trọng nhất là <strong>Configuration Change</strong> và <strong>Process Death</strong>.</p>
+<p><strong>Activity State Changes</strong> là tập hợp các sự kiện khiến Android <strong>thay đổi trạng thái tồn tại của Activity</strong>, trong đó quan trọng nhất là <strong>Configuration Change</strong> và <strong>Process Death</strong>.</p>
+
+<p>Mental model: Activity instance là <strong>đồ dùng một lần</strong>, hệ thống có thể bỏ nó đi và thay bằng một instance mới. State chỉ sống sót nếu được gửi ra <strong>ngoài</strong> instance: vào ViewModel (được giữ hộ qua configuration change, nhưng chết theo process) hoặc vào saved state Bundle mà hệ thống giữ hộ (sống qua cả process death). Thứ gì chỉ nằm trong field của Activity thì mất theo instance cũ.</p>
+
+<h2>Cách hoạt động</h2>
 
 <h3>Configuration Change</h3>
 
@@ -10457,15 +10461,15 @@ Object.assign(ANDROID_CONTENT, {
 </div>
 </div>
 
-<p><strong>Điểm mấu chốt:</strong> <code>onSaveInstanceState()</code> là cơ hội để đưa UI state nhỏ vào Bundle, thứ sống qua cả cú destroy/recreate này lẫn process death. ViewModel cũng sống qua configuration change (xem Bước 1) nhưng chết theo process. Những gì không nằm trong Bundle hay ViewModel thì mất.</p>
+<p><strong>Điểm mấu chốt:</strong> <code>onSaveInstanceState()</code> là cơ hội để đưa UI state nhỏ vào Bundle, thứ sống qua cả cú destroy/recreate này lẫn process death. ViewModel cũng sống qua configuration change (xem mục "ViewModel" bên dưới) nhưng chết theo process. Những gì không nằm trong Bundle hay ViewModel thì mất.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý:</strong> Thứ tự phụ thuộc <strong><code>targetSdkVersion</code></strong> của app, không phải API của thiết bị. App có targetSdk ≥ 28 (Android 9): <code>onSaveInstanceState()</code> luôn được gọi <strong>sau</strong> <code>onStop()</code>, nên có thể commit fragment transaction an toàn trong <code>onStop()</code>. App có targetSdk &lt; 28: <code>onSaveInstanceState()</code> được gọi <strong>trước</strong> <code>onStop()</code> (không đảm bảo trước hay sau <code>onPause()</code>).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Thứ tự phụ thuộc <strong><code>targetSdkVersion</code></strong> của app, không phải API của thiết bị. App có targetSdk ≥ 28 (Android 9): <code>onSaveInstanceState()</code> luôn được gọi <strong>sau</strong> <code>onStop()</code>, nên có thể commit fragment transaction an toàn trong <code>onStop()</code>. App có targetSdk &lt; 28: <code>onSaveInstanceState()</code> được gọi <strong>trước</strong> <code>onStop()</code> (không đảm bảo trước hay sau <code>onPause()</code>).</div></div>
 
-<h2>Khi nào dữ liệu bị mất? — 3 tình huống cần phân biệt</h2>
+<h3>Khi nào dữ liệu bị mất? — 3 tình huống cần phân biệt</h3>
 
 <p>Không phải lúc nào Activity biến mất cũng giống nhau. Bạn phải phân biệt <strong>3 tình huống</strong> vì mỗi loại đòi hỏi công cụ khác nhau:</p>
 
-<h3>1. Configuration Change — dữ liệu mất, app vẫn "sống"</h3>
+<h4>1. Configuration Change — dữ liệu mất, app vẫn "sống"</h4>
 
 <ul>
   <li>Activity destroy/recreate nhưng <strong>process vẫn chạy</strong>.</li>
@@ -10474,7 +10478,7 @@ Object.assign(ANDROID_CONTENT, {
   <li>Dữ liệu nào không thuộc ViewModel và không nằm trong Bundle thì mất.</li>
 </ul>
 
-<h3>2. Process Death — toàn bộ app chết</h3>
+<h4>2. Process Death — toàn bộ app chết</h4>
 
 <ul>
   <li>System kill toàn bộ process (thiếu bộ nhớ, ép buộc dừng...).</li>
@@ -10483,7 +10487,7 @@ Object.assign(ANDROID_CONTENT, {
   <li><code>onDestroy()</code> <strong>không đảm bảo</strong> được gọi.</li>
 </ul>
 
-<h3>3. Người dùng thoát hẳn (bấm Back / finish)</h3>
+<h4>3. Người dùng thoát hẳn (bấm Back / finish)</h4>
 
 <ul>
   <li>Activity finish vĩnh viễn, không ai cần khôi phục. Process <strong>vẫn chạy</strong> (Back không kill process).</li>
@@ -10535,7 +10539,7 @@ Object.assign(ANDROID_CONTENT, {
   </tbody>
 </table>
 
-<h2>Chọn công cụ nào? — Bản đồ quyết định</h2>
+<h3>Chọn công cụ nào? — Bản đồ quyết định</h3>
 
 <p>Trước khi vào code, ghi nhớ nguyên tắc lựa chọn sau:</p>
 
@@ -10596,33 +10600,15 @@ Object.assign(ANDROID_CONTENT, {
   </tbody>
 </table>
 
-<h2>Triển khai step-by-step trong project thực tế</h2>
-
-<p>Lấy bối cảnh cụ thể: một app <strong>mua sắm</strong> (giống các app thương mại điện tử thực tế). Màn hình chính là <code>ProductListScreen</code> — có ô <strong>search</strong>, <strong>filter theo category</strong>, danh sách sản phẩm load từ API, và <strong>cart</strong> hiển thị số lượng. Yêu cầu: xoay màn hình và process death đều không được làm mất trải nghiệm người dùng.</p>
-
-<h3>Bước 1: ViewModel — giữ dữ liệu business qua configuration change</h3>
+<h3>ViewModel: giữ dữ liệu business qua configuration change</h3>
 
 <p>Loại dữ liệu nguy hiểm nhất khi xoay màn hình là <strong>kết quả API</strong>. Nếu fetch lại trong <code>onCreate</code>, mỗi lần xoay màn hình là một lần gọi lại mạng. ViewModel giải quyết điều này: nó sống sót qua config change nên dữ liệu đã load vẫn còn, Activity mới không cần gọi lại API.</p>
 
-<p><code>StateFlow</code> và <code>stateIn</code> dùng ở đây là luồng dữ liệu quan sát được, học ở 7.1.4.2 Flow (chưa có bài); <code>viewModelScope</code> là coroutine scope gắn với ViewModel, học ở 6.4 ViewModel (chưa có bài).</p>
+<p><code>StateFlow</code> và <code>stateIn</code> dùng ở đây là luồng dữ liệu quan sát được, học ở 7.1.4.2 Flow (chưa có bài); <code>viewModelScope</code> là coroutine scope gắn với ViewModel, đã giới thiệu ở <a href="lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>, mục "viewModelScope", học đầy đủ ở 6.4 ViewModel (chưa có bài).</p>
 
-<pre data-lang="kotlin"><code>class ProductListViewModel(
-    private val repository: ProductRepository
-) : ViewModel() {
+<p><strong>Điều cốt lõi để hiểu:</strong> ViewModel sống sót qua config change nhờ <code>ViewModelStore</code> được lưu vào <code>NonConfigurationInstances</code> — một object mà <code>ActivityThread</code> giữ lại khi recreate Activity. Khi Activity mới tạo, nó lấy lại chính <code>ViewModelStore</code> cũ, nên <code>products</code> vẫn giữ kết quả đã load. <code>WhileSubscribed(5_000)</code> giữ pipeline chạy thêm 5 giây sau khi UI ngừng collect; Activity mới collect lại trong khoảng đó nên API <strong>không bị gọi lại</strong> khi xoay màn hình. Nếu UI ngừng collect lâu hơn 5 giây (app nằm ở background), pipeline dừng và chạy lại khi UI quay lại; muốn chỉ gọi một lần cho mỗi ViewModel thì dùng <code>SharingStarted.Lazily</code>. Vì sao không gọi API trong <code>init</code> của ViewModel: xem mục "Sai lầm thường gặp", mục 3.</p>
 
-    // Pipeline khởi động lười: API chỉ được gọi khi UI bắt đầu collect,
-    // kết quả nằm trong StateFlow của ViewModel nên sống qua config change
-    val products: StateFlow&lt;List&lt;Product&gt;&gt; =
-        flow { emit(repository.getProducts()) }
-            .catch { emit(emptyList()) /* app thật: chuyển sang error state */ }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyList()
-            )
-}</code></pre>
-
-<p><strong>Điều cốt lõi để hiểu:</strong> ViewModel sống sót qua config change nhờ <code>ViewModelStore</code> được lưu vào <code>NonConfigurationInstances</code> — một object mà <code>ActivityThread</code> giữ lại khi recreate Activity. Khi Activity mới tạo, nó lấy lại chính <code>ViewModelStore</code> cũ, nên <code>products</code> vẫn giữ kết quả đã load. <code>WhileSubscribed(5_000)</code> giữ pipeline chạy thêm 5 giây sau khi UI ngừng collect; Activity mới collect lại trong khoảng đó nên API <strong>không bị gọi lại</strong> khi xoay màn hình. Nếu UI ngừng collect lâu hơn 5 giây (app nằm ở background), pipeline dừng và chạy lại khi UI quay lại; muốn chỉ gọi một lần cho mỗi ViewModel thì dùng <code>SharingStarted.Lazily</code>. Vì sao không gọi API trong <code>init</code> của ViewModel: xem Bước 5.</p>
+<p>Code của <code>products</code> (pipeline <code>stateIn</code> khởi động lười) ở mục "Ví dụ thực tế", bước (1) và (3).</p>
 
 <div class="dd-diagram" data-dd="vm-survive">
 <div class="dd-svg dd-svg-dark">
@@ -10797,38 +10783,33 @@ Object.assign(ANDROID_CONTENT, {
 </div>
 </div>
 
-<h3>Bước 2: SavedStateHandle — lưu user input quan trọng, survive process death</h3>
+<h3>SavedStateHandle: lưu user input quan trọng qua process death</h3>
 
 <p>ViewModel giải quyết config change nhưng <strong>chết theo process</strong>. Search query hay bước form đang nhập là dữ liệu người dùng đã đánh máy — để mất là trải nghiệm cực tệ. Đây là chỗ dùng <strong>SavedStateHandle</strong>: nó nằm trong ViewModel nhưng tự động serialize vào Bundle qua <code>onSaveInstanceState()</code>, nên <strong>sống sót cả process death</strong>.</p>
 
-<pre data-lang="kotlin"><code>class ProductListViewModel(
-    private val repository: ProductRepository,
-    private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
-
-    // Auto-save/restore qua process death
-    val searchQuery: StateFlow&lt;String&gt; =
-        savedStateHandle.getStateFlow("search_query", "")
-
-    val selectedCategory: StateFlow&lt;String&gt; =
-        savedStateHandle.getStateFlow("selected_category", "all")
-
-    fun onSearchQueryChanged(query: String) {
-        savedStateHandle["search_query"] = query
-    }
-
-    fun onCategorySelected(category: String) {
-        savedStateHandle["selected_category"] = category
-    }
-}</code></pre>
-
 <p><strong>Cơ chế:</strong> SavedStateHandle dùng <code>onSaveInstanceState()</code> của Activity để lưu dữ liệu vào Bundle. Sau process death, hệ thống khôi phục Bundle, tạo ViewModel mới và <strong>đổ lại dữ liệu vào SavedStateHandle</strong> — dữ liệu trở về như chưa từng mất.</p>
 
-<h3>Bước 3: onSaveInstanceState — transient UI state (View/XML)</h3>
+<p>Code đọc/ghi <code>search_query</code> và <code>selected_category</code> qua <code>getStateFlow()</code> ở mục "Ví dụ thực tế", bước (2), (4) và (5).</p>
+
+<h3>onSaveInstanceState: transient UI state (View/XML)</h3>
 
 <p>Trong View system, ngoài ViewModel, bạn vẫn cần xử lý các <strong>transient UI state</strong> thuộc riêng Activity: vị trí scroll của <code>RecyclerView</code>, tab đang chọn, vị trí cursor. Công cụ là <code>onSaveInstanceState()</code> / <code>onRestoreInstanceState()</code>.</p>
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Bản mặc định của <code>onSaveInstanceState()</code> đã lưu state của view hierarchy: mỗi View có <code>android:id</code> tự lưu state của chính nó (text trong <code>EditText</code>, trạng thái <code>CheckBox</code>, vị trí scroll của list). Bạn chỉ cần tự lưu state không thuộc về View nào, như <code>selectedTab</code> dưới đây, và phải gọi <code>super.onSaveInstanceState()</code> để giữ phần tự động này. Ví dụ dưới lưu cả scroll của <code>RecyclerView</code> để thấy rõ cách dùng Bundle.</div></div>
+
+<p><strong>Khi nào được gọi:</strong></p>
+
+<ul>
+  <li>Configuration change → <strong>luôn gọi</strong></li>
+  <li>User bấm Home (Activity có thể bị kill sau đó) → <strong>luôn gọi</strong></li>
+  <li>User bấm Back / finish → <strong>không gọi</strong></li>
+</ul>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Saved state phải nhỏ:</strong> docs khuyến nghị giữ saved state <strong>dưới 50KB</strong>, vì system process phải giữ bản này suốt thời gian người dùng còn có thể quay lại Activity, kể cả khi process của app đã bị kill. Chỉ lưu ID và giá trị nhỏ; Bitmap, danh sách lớn hay API response để trong ViewModel hoặc load lại từ database. Con số 50KB là khuyến nghị, khác với giới hạn cứng 1MB của Binder transaction buffer gây <code>TransactionTooLargeException</code>; cơ chế ở <a href="parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Giới hạn kích thước — Binder Transaction Buffer".</div></div>
+
+<h4>Ví dụ: giữ tab đang chọn và vị trí scroll của danh sách</h4>
+
+<p>Màn hình danh sách sản phẩm (XML) có tab và <code>RecyclerView</code>: sau khi xoay màn hình hoặc process death, tab đang chọn và vị trí scroll phải còn nguyên.</p>
 
 <pre data-lang="kotlin"><code>class ProductListActivity : AppCompatActivity() {
 
@@ -10860,19 +10841,15 @@ Object.assign(ANDROID_CONTENT, {
     }
 }</code></pre>
 
-<p><strong>Khi nào được gọi:</strong></p>
-
-<ul>
-  <li>Configuration change → <strong>luôn gọi</strong></li>
-  <li>User bấm Home (Activity có thể bị kill sau đó) → <strong>luôn gọi</strong></li>
-  <li>User bấm Back / finish → <strong>không gọi</strong></li>
-</ul>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Saved state phải nhỏ:</strong> docs khuyến nghị giữ saved state <strong>dưới 50KB</strong>, vì system process phải giữ bản này suốt thời gian người dùng còn có thể quay lại Activity, kể cả khi process của app đã bị kill. Chỉ lưu ID và giá trị nhỏ; Bitmap, danh sách lớn hay API response để trong ViewModel hoặc load lại từ database. Con số 50KB là khuyến nghị, khác với giới hạn cứng 1MB của Binder transaction buffer gây <code>TransactionTooLargeException</code>; cơ chế ở <a href="parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Giới hạn kích thước — Binder Transaction Buffer".</div></div>
-
-<h3>Bước 4: Compose — rememberSaveable thay cho Bundle</h3>
+<h3>rememberSaveable: saved state trong Compose</h3>
 
 <p>Trong Jetpack Compose, <code>rememberSaveable</code> tương đương <code>onSaveInstanceState</code> — dữ liệu sống qua cả config change lẫn process death, còn <code>remember</code> chỉ sống qua recomposition.</p>
+
+<p><code>remember</code>/<code>rememberSaveable</code> và <code>mutableStateOf</code> là API state của Compose, học ở 9.2.2 Remember and rememberSaveable (chưa có bài); <code>collectAsStateWithLifecycle()</code> biến Flow thành Compose State theo lifecycle, giới thiệu ở <a href="lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>, mục "Cách hoạt động — Compose với Lifecycle".</p>
+
+<h4>Ví dụ: ô tìm kiếm sản phẩm trong Compose</h4>
+
+<p>Màn hình danh sách sản phẩm viết bằng Compose: chữ đang gõ trong ô tìm kiếm phải còn sau khi xoay màn hình và sau process death, còn danh sách lấy từ ViewModel.</p>
 
 <pre data-lang="kotlin"><code>@Composable
 fun ProductListScreen(viewModel: ProductListViewModel) {
@@ -10906,43 +10883,7 @@ fun ProductListScreen(viewModel: ProductListViewModel) {
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý với custom object:</strong> <code>rememberSaveable</code> cũng giới hạn bởi Bundle. Với object tự định nghĩa, cần implement <code>Saver</code> hoặc <code>@Parcelize</code>. Nếu không, app sẽ crash khi cố lưu object không Serializable/Parcelable. Cách viết <code>@Parcelize</code> ở <a href="parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "@Parcelize — cách viết Parcelable hiện đại".</div></div>
 
-<h3>Bước 5: Tránh fetch API lặp lại</h3>
-
-<p>Lỗi kinh điển: gọi API trong <code>onCreate</code> nhưng không kiểm tra, nên mỗi lần xoay màn hình là một lần gọi lại mạng. Cách sửa hay gặp là chuyển lời gọi vào <code>init</code> của ViewModel, nhưng docs cũng khuyên <strong>không</strong> làm vậy: launch việc bất đồng bộ trong <code>init</code> hay constructor khiến code async có thể đọc/ghi object trước khi nó khởi tạo xong; với ViewModel giữ Compose State, việc này còn có thể gây <code>IllegalStateException</code>. Docs khuyên khởi động việc load một cách lười (khi UI bắt đầu collect), hoặc qua một hàm <code>initialize()</code> idempotent khi không dùng được Flow.</p>
-
-<pre data-lang="kotlin"><code>// ❌ SAI — onCreate chạy lại sau mỗi config change → gọi lại API
-class ProductListActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.loadProducts() // hàm public, không kiểm tra đã load hay chưa
-    }
-}
-
-// ❌ KHÔNG NÊN — launch coroutine trong init (docs cảnh báo)
-class ProductListViewModel(private val repository: ProductRepository) : ViewModel() {
-    private val _products = MutableStateFlow&lt;List&lt;Product&gt;&gt;(emptyList())
-    init {
-        viewModelScope.launch { _products.value = repository.getProducts() }
-    }
-}
-
-// ✅ ĐÚNG — pipeline lười trong ViewModel, như Bước 1
-val products: StateFlow&lt;List&lt;Product&gt;&gt; =
-    flow { emit(repository.getProducts()) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
-// ✅ Khi không dùng được Flow — initialize() idempotent:
-// gọi từ onCreate cũng an toàn, vì sau xoay màn hình vẫn là ViewModel cũ, cờ đã bật
-private var initializeCalled = false
-
-@MainThread
-fun initialize() {
-    if (initializeCalled) return
-    initializeCalled = true
-    viewModelScope.launch { /* load dữ liệu ban đầu */ }
-}</code></pre>
-
-<h3>Bước 6: android:configChanges — ngoại lệ cho trường hợp đặc biệt</h3>
+<h3>android:configChanges: ngoại lệ cho trường hợp đặc biệt</h3>
 
 <p>Bạn có thể khai báo trong Manifest để <strong>ngăn</strong> Android destroy Activity khi một số configuration change nhất định xảy ra:</p>
 
@@ -10974,9 +10915,85 @@ fun initialize() {
   <li>Khi cần layout riêng cho landscape</li>
 </ul>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Cảnh báo:</strong> <code>android:configChanges</code> chỉ "né" config change, KHÔNG giải quyết process death. Dùng nó như miếng vá cho mất state là <strong>sai gốc rễ</strong> — bạn vẫn phải làm đúng ViewModel + SavedStateHandle, và còn thêm gánh nặng tự quản lý resource. Hãy coi nó là ngoại lệ hiếm hoi, không phải thói quen.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><code>android:configChanges</code> chỉ "né" config change, KHÔNG giải quyết process death. Dùng nó như miếng vá cho mất state là <strong>sai gốc rễ</strong> — bạn vẫn phải làm đúng ViewModel + SavedStateHandle, và còn thêm gánh nặng tự quản lý resource. Hãy coi nó là ngoại lệ hiếm hoi, không phải thói quen.</div></div>
 
-<h2>Process Death — hiểu và test</h2>
+<h2>Ví dụ thực tế</h2>
+
+<h3>Danh sách sản phẩm: search và filter sống qua xoay màn hình và process death</h3>
+
+<p>Lấy bối cảnh cụ thể: một app <strong>mua sắm</strong> (giống các app thương mại điện tử thực tế). Màn hình chính là <code>ProductListScreen</code> — có ô <strong>search</strong>, <strong>filter theo category</strong>, danh sách sản phẩm load từ API, và <strong>cart</strong> hiển thị số lượng. Yêu cầu: xoay màn hình và process death đều không được làm mất trải nghiệm người dùng.</p>
+
+<p>Mỗi loại dữ liệu đi vào đúng công cụ theo bản đồ quyết định: danh sách sản phẩm (dữ liệu từ network) nằm trong ViewModel, search query và category (user input) nằm trong <code>SavedStateHandle</code>. Luồng chạy:</p>
+
+<ol>
+  <li>Mở màn hình: UI bắt đầu collect <code>products</code>, pipeline <code>stateIn</code> khởi động và gọi <code>repository.getProducts()</code> lần đầu.</li>
+  <li>Người dùng gõ search, chọn category: ViewModel ghi giá trị vào <code>SavedStateHandle</code>, <code>getStateFlow()</code> phát giá trị mới cho UI.</li>
+  <li>Xoay màn hình: Activity cũ bị destroy, Activity mới lấy lại đúng ViewModel cũ và collect lại trong vòng 5 giây (<code>WhileSubscribed(5_000)</code>), nên <code>products</code>, search query và category còn nguyên, <strong>không</strong> gọi API lại.</li>
+  <li>Người dùng bấm Home: <code>onSaveInstanceState()</code> chạy, dữ liệu của <code>SavedStateHandle</code> được ghi vào Bundle mà hệ thống giữ hộ. Sau đó process bị kill, ViewModel mất theo.</li>
+  <li>Người dùng mở lại app: hệ thống khôi phục Bundle, tạo ViewModel mới với <code>SavedStateHandle</code> chứa lại search query và category; <code>products</code> không nằm trong Bundle nên Repository load lại từ network/database.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant U as Người dùng
+    participant A as Activity
+    participant VM as ProductListViewModel
+    participant SSH as SavedStateHandle
+    participant R as Repository/API
+
+    U-&gt;&gt;A: Mở màn hình
+    A-&gt;&gt;VM: (1) collect products
+    VM-&gt;&gt;R: (1) getProducts() (lần 1)
+    R--&gt;&gt;VM: Danh sách sản phẩm
+    U-&gt;&gt;A: Gõ search, chọn category
+    A-&gt;&gt;VM: (2) onSearchQueryChanged() / onCategorySelected()
+    VM-&gt;&gt;SSH: (2) ghi "search_query", "selected_category"
+    U-&gt;&gt;A: Xoay màn hình
+    A--x A: (3) Activity cũ destroy, Activity mới lấy lại ViewModel cũ
+    Note over VM,R: (3) Không gọi API, products/query/category còn nguyên
+    U-&gt;&gt;A: Bấm Home
+    A-&gt;&gt;SSH: (4) onSaveInstanceState(): lưu dữ liệu của SavedStateHandle vào Bundle hệ thống giữ hộ
+    Note over A,VM: (4) Process bị kill, ViewModel mất
+    U-&gt;&gt;A: Mở lại app
+    A-&gt;&gt;VM: (5) ViewModel MỚI, SavedStateHandle khôi phục từ Bundle
+    VM-&gt;&gt;R: (5) getProducts() (lần 2)
+</div>
+
+<pre data-lang="kotlin"><code>class ProductListViewModel(
+    private val repository: ProductRepository,
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
+
+    // (1) Pipeline khởi động lười: API chỉ được gọi khi UI bắt đầu collect,
+    // (3) kết quả nằm trong StateFlow của ViewModel nên sống qua config change
+    val products: StateFlow&lt;List&lt;Product&gt;&gt; =
+        flow { emit(repository.getProducts()) }
+            .catch { emit(emptyList()) /* app thật: chuyển sang error state */ }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList()
+            )
+
+    // (5) Auto-save/restore qua process death
+    val searchQuery: StateFlow&lt;String&gt; =
+        savedStateHandle.getStateFlow("search_query", "")
+
+    val selectedCategory: StateFlow&lt;String&gt; =
+        savedStateHandle.getStateFlow("selected_category", "all")
+
+    fun onSearchQueryChanged(query: String) {
+        savedStateHandle["search_query"] = query  // (2) và (4): được ghi vào Bundle khi Activity lưu state
+    }
+
+    fun onCategorySelected(category: String) {
+        savedStateHandle["selected_category"] = category  // (2)
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> xoay màn hình thì danh sách, search query và category còn nguyên mà không có request mạng mới; sau process death (kiểm tra như mục dưới), search query và category trở lại đúng như trước, danh sách được load lại một lần.</p>
+
+<h3>Process Death — hiểu và test</h3>
 
 <p>Cách duy nhất để biết app có sống sót qua process death hay không là <strong>test thật</strong>, vì xoay màn hình KHÔNG test được process death.</p>
 
@@ -10997,17 +11014,84 @@ adb shell am kill com.example.shoppingapp</code></pre>
 
 <h2>Sai lầm thường gặp</h2>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>1. Chỉ test xoay màn hình, bỏ qua process death</strong> — ViewModel "che" lỗi khi xoay màn hình, nên mọi thứ có vẻ OK. Nhưng sau process death, ViewModel mất → mất search query, mất bước form. Luôn test bằng <code>am kill</code>.</div></div>
+<h3>1. Chỉ test xoay màn hình, bỏ qua process death</h3>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>2. Lưu dữ liệu lớn vào Bundle</strong> — List sản phẩm vài trăm item hoặc Bitmap trong saved state vượt xa khuyến nghị 50KB và có thể crash <code>TransactionTooLargeException</code>. Chỉ lưu ID, load lại từ database; dữ liệu lớn để trong ViewModel. Vì sao crash: xem <a href="parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Giới hạn kích thước — Binder Transaction Buffer".</div></div>
+<p>ViewModel "che" lỗi khi xoay màn hình, nên mọi thứ có vẻ OK. Nhưng sau process death, ViewModel mất → mất search query, mất bước form.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>3. Fetch API trong onCreate mỗi lần recreate</strong> — <code>onCreate</code> chạy lại sau mỗi lần xoay màn hình, gọi mạng lại vô ích, làm UI flash và tốn băng thông. Để ViewModel khởi động việc load một cách lười (<code>stateIn</code>) hoặc qua <code>initialize()</code> idempotent, không launch trong <code>init</code> (Bước 5).</div></div>
+<p><strong>Cách sửa:</strong> Luôn test bằng <code>am kill</code> (mục "Process Death — hiểu và test").</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>4. Dùng android:configChanges để "fix" mất state</strong> — Không giải quyết được process death, còn phá vỡ cơ chế resource reload của hệ thống. Xử lý đúng bản chất bằng ViewModel + SavedStateHandle.</div></div>
+<h3>2. Lưu dữ liệu lớn vào Bundle</h3>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>5. Không phân biệt transient state và persistent data</strong> — Search query đang gõ là transient (SavedStateHandle), còn giỏ hàng phải là persistent (Room/DataStore). Lẫn lộn hai loại này làm logic lưu trữ vừa thừa vừa thiếu.</div></div>
+<p>List sản phẩm vài trăm item hoặc Bitmap trong saved state vượt xa khuyến nghị 50KB và có thể crash <code>TransactionTooLargeException</code>. Vì sao crash: xem <a href="parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Giới hạn kích thước — Binder Transaction Buffer".</p>
 
-<h2>Tư duy hệ thống — vị trí trong MVVM/Clean Architecture</h2>
+<p><strong>Cách sửa:</strong> Chỉ lưu ID, load lại từ database; dữ liệu lớn để trong ViewModel.</p>
+
+<h3>3. Fetch API trong onCreate mỗi lần recreate</h3>
+
+<p><code>onCreate</code> chạy lại sau mỗi lần xoay màn hình, gọi mạng lại vô ích, làm UI flash và tốn băng thông.</p>
+
+<p>Lỗi kinh điển: gọi API trong <code>onCreate</code> nhưng không kiểm tra, nên mỗi lần xoay màn hình là một lần gọi lại mạng. Cách sửa hay gặp là chuyển lời gọi vào <code>init</code> của ViewModel, nhưng docs cũng khuyên <strong>không</strong> làm vậy: launch việc bất đồng bộ trong <code>init</code> hay constructor khiến code async có thể đọc/ghi object trước khi nó khởi tạo xong; với ViewModel giữ Compose State, việc này còn có thể gây <code>IllegalStateException</code>. Docs khuyên khởi động việc load một cách lười (khi UI bắt đầu collect), hoặc qua một hàm <code>initialize()</code> idempotent khi không dùng được Flow.</p>
+
+<p><strong>Cách sửa:</strong> Để ViewModel khởi động việc load một cách lười (<code>stateIn</code>) hoặc qua <code>initialize()</code> idempotent, không launch trong <code>init</code>.</p>
+
+<pre data-lang="kotlin"><code>// ❌ SAI — onCreate chạy lại sau mỗi config change → gọi lại API
+class ProductListActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.loadProducts() // hàm public, không kiểm tra đã load hay chưa
+    }
+}
+
+// ❌ KHÔNG NÊN — launch coroutine trong init (docs cảnh báo)
+class ProductListViewModel(private val repository: ProductRepository) : ViewModel() {
+    private val _products = MutableStateFlow&lt;List&lt;Product&gt;&gt;(emptyList())
+    init {
+        viewModelScope.launch { _products.value = repository.getProducts() }
+    }
+}
+
+// ✅ ĐÚNG — pipeline lười trong ViewModel, như ở Ví dụ thực tế
+val products: StateFlow&lt;List&lt;Product&gt;&gt; =
+    flow { emit(repository.getProducts()) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+// ✅ Khi không dùng được Flow — initialize() idempotent:
+// gọi từ onCreate cũng an toàn, vì sau xoay màn hình vẫn là ViewModel cũ, cờ đã bật
+private var initializeCalled = false
+
+@MainThread
+fun initialize() {
+    if (initializeCalled) return
+    initializeCalled = true
+    viewModelScope.launch { /* load dữ liệu ban đầu */ }
+}</code></pre>
+
+<h3>4. Dùng android:configChanges để "fix" mất state</h3>
+
+<p>Không giải quyết được process death, còn phá vỡ cơ chế resource reload của hệ thống.</p>
+
+<p><strong>Cách sửa:</strong> Xử lý đúng bản chất bằng ViewModel + SavedStateHandle; chỉ dùng <code>android:configChanges</code> cho các trường hợp ở mục "android:configChanges: ngoại lệ cho trường hợp đặc biệt".</p>
+
+<h3>5. Không phân biệt transient state và persistent data</h3>
+
+<p>Lẫn lộn hai loại này làm logic lưu trữ vừa thừa vừa thiếu.</p>
+
+<p><strong>Cách sửa:</strong> Search query đang gõ là transient (SavedStateHandle), còn giỏ hàng phải là persistent (Room/DataStore).</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>API 1:</strong> <code>onSaveInstanceState(Bundle)</code>, <code>onRestoreInstanceState(Bundle)</code>, <code>onConfigurationChanged(Configuration)</code> và <code>onRetainNonConfigurationInstance()</code> đều có từ API level 1: cơ chế destroy/recreate khi configuration change và saved state Bundle tồn tại từ phiên bản Android đầu tiên.</li>
+  <li><strong>Android 9 (API 28):</strong> với app có targetSdk ≥ 28, <code>onSaveInstanceState()</code> luôn được gọi sau <code>onStop()</code>.</li>
+  <li><strong>01/2020 (Lifecycle ViewModel SavedState 1.0.0):</strong> thêm <code>SavedStateHandle</code>, cho ViewModel đọc và ghi vào saved state; factory mặc định của Fragment và <code>AppCompatActivity</code> tự truyền <code>SavedStateHandle</code> vào constructor của ViewModel.</li>
+  <li><strong>Android 12 (API 31):</strong> bấm Back ở root launcher activity đưa Activity và task về background thay vì finish Activity.</li>
+  <li><strong>06/2022 (Lifecycle 2.5.0):</strong> thêm <code>SavedStateHandle.getStateFlow()</code>, trả về <code>StateFlow</code> thay cho <code>LiveData</code> khi theo dõi giá trị.</li>
+  <li><strong>03/2023 (Lifecycle 2.6.0):</strong> <code>collectAsStateWithLifecycle()</code> ổn định (thêm từ 2.6.0-alpha01, 06/2022), dùng trong ví dụ Compose của bài.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<h3>Vị trí trong MVVM/Clean Architecture</h3>
 
 <div class="dd-diagram" data-dd="vm-layers">
 <div class="dd-svg dd-svg-dark">
@@ -11134,7 +11218,25 @@ adb shell am kill com.example.shoppingapp</code></pre>
   <li><strong>Data Layer</strong> chịu trách nhiệm "load lại" dữ liệu bất cứ khi nào được hỏi — vì vậy sau process death, Repository chỉ việc đọc lại từ network/database.</li>
 </ul>
 
-<h2>References</h2>
+<h3>Topic liên quan</h3>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>: thứ tự callback khi Activity bị destroy rồi tạo lại, <code>viewModelScope</code>, collect Flow theo lifecycle.</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a> — cơ chế serialize dữ liệu qua Binder, giới hạn kích thước.</li>
+  <li><a href="task_and_backstack.md" target="_blank" rel="noopener">Task and Backstack</a>: Back ở root launcher activity, ngữ cảnh Activity bị finish hay chỉ về background.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="../fragment/state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a> — cách Fragment lưu/khôi phục state riêng.</li>
+  <li>6.4 ViewModel (chưa có bài): chi tiết về <code>viewModelScope</code>, <code>SavedStateHandle</code>, factory.</li>
+  <li>9.2 State and State Hoisting (chưa có bài), gồm 9.2.1 MutableState và 9.2.2 Remember and rememberSaveable: <code>remember</code>, <code>rememberSaveable</code>, <code>mutableStateOf</code> và Saver.</li>
+  <li>7.2.3 MVVM và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.</li>
+</ul></li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
 
 <ul>
   <li><a href="https://developer.android.com/topic/libraries/architecture/saving-states" target="_blank" rel="noopener">Android Developers — Save UI states</a></li>
@@ -11143,19 +11245,12 @@ adb shell am kill com.example.shoppingapp</code></pre>
   <li><a href="https://developer.android.com/topic/libraries/architecture/saving-states#process_can_recreate_an_activity" target="_blank" rel="noopener">Android Developers — Handle process death</a></li>
   <li><a href="https://developer.android.com/topic/libraries/architecture/viewmodel-savedstate" target="_blank" rel="noopener">Android Developers — SavedStateHandle</a></li>
   <li><a href="https://developer.android.com/reference/android/app/Activity#onSaveInstanceState(android.os.Bundle" target="_blank" rel="noopener">Android Developers — Activity.onSaveInstanceState</a>)</li>
+  <li><a href="https://developer.android.com/reference/android/app/Activity" target="_blank" rel="noopener">Android Developers — Activity reference (API level 1 của onSaveInstanceState, onRestoreInstanceState, onConfigurationChanged, onRetainNonConfigurationInstance; thứ tự với targetSdk P)</a></li>
   <li><a href="https://developer.android.com/guide/components/activities/parcelables-and-bundles" target="_blank" rel="noopener">Android Developers — Parcelables and bundles</a></li>
   <li><a href="https://developer.android.com/guide/components/activities/tasks-and-back-stack" target="_blank" rel="noopener">Android Developers — Tasks and the back stack (Back ở root launcher activity)</a></li>
   <li><a href="https://developer.android.com/topic/libraries/architecture/views/saving-states-views" target="_blank" rel="noopener">Android Developers — Save UI states (Views)</a></li>
   <li><a href="https://developer.android.com/topic/architecture/ui-layer/state-production" target="_blank" rel="noopener">Android Developers — UI State production (khởi tạo pipeline, cảnh báo về <code>init</code>)</a></li>
-</ul>
-
-<h2>Học tiếp</h2>
-
-<ul>
-  <li><a href="parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a> — cơ chế serialize dữ liệu qua Binder, giới hạn kích thước.</li>
-  <li><strong>ViewModel</strong> — chi tiết về <code>viewModelScope</code>, <code>SavedStateHandle</code>, factory.</li>
-  <li><strong>Compose State Management</strong> — <code>remember</code>, <code>rememberSaveable</code>, <code>mutableStateOf</code> và Saver.</li>
-  <li><a href="../fragment/state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a> — cách Fragment lưu/khôi phục state riêng.</li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/lifecycle" target="_blank" rel="noopener">Android Developers — Lifecycle release notes (ViewModel SavedState 1.0.0, 2.5.0: getStateFlow, 2.6.0: collectAsStateWithLifecycle)</a></li>
 </ul>
     `
   },
@@ -12671,7 +12766,7 @@ override fun onNewIntent(intent: Intent) {
 
   'activity-parcelables-bundle': {
     title: 'Parcelables & Bundle',
-    summary: 'Hiểu bản chất Bundle và Parcelable trong Android, vì sao Android dùng chúng để truyền dữ liệu giữa các component, khi nào nên dùng thay vì SharedViewModel, cách viết Parcelable thủ công và @Parcelize, giới hạn Binder transaction buffer và cách tránh TransactionTooLargeException.',
+    summary: 'Bundle là container key-value tự serialize nội dung thành Parcel để dữ liệu vượt qua biên giới giữa các component (qua Binder IPC); Parcelable là interface giúp một object tự đóng gói vào Parcel và mở gói ngược lại. Bài giải thích vì sao Android buộc phải serialize, khi nào dùng Bundle thay vì SharedViewModel, cách viết Parcelable thủ công và bằng @Parcelize, so sánh với Serializable, và giới hạn Binder transaction buffer dẫn tới TransactionTooLargeException.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '25 phút',
@@ -12723,9 +12818,17 @@ override fun onNewIntent(intent: Intent) {
   <li>Xử lý được TransactionTooLargeException dựa trên giới hạn Binder transaction buffer.</li>
 </ul>
 
-<h2>Bundle là gì? — Bản chất</h2>
+<h2>Bundle và Parcelable là gì?</h2>
 
 <p><strong>Bundle</strong> là một container key-value (<code>Map</code>), có khả năng tự <strong>serialize</strong> (đóng gói thành byte) toàn bộ nội dung của nó sang dạng <strong>Parcel</strong> để vượt qua biên giới giữa các thành phần.</p>
+
+<p><strong>Parcelable</strong> là interface do Android thiết kế để một object tự biết cách "đóng gói" mình thành dữ liệu nhị phân (Parcel) và "mở gói" ngược lại. Nó tối ưu cho Binder IPC — không dùng reflection, không sinh object trung gian.</p>
+
+<p>Mental model: Bundle là một <strong>kiện hàng gửi qua bưu điện</strong> (<code>system_server</code>). Thứ được gửi đi là kiện đã đóng gói, không phải chính món đồ: người nhận mở kiện và có một bản sao của riêng mình. Chỉ món đồ biết tự đóng gói (Parcelable) mới cho vào kiện được, và mỗi process chỉ có một kho trung chuyển sức chứa cố định, dùng chung cho mọi kiện đang trên đường đi (Binder transaction buffer).</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Bundle gửi bản sao, chỉ nhận kiểu đã đăng ký</h3>
 
 <p>Hai tính chất quyết định mọi thứ còn lại:</p>
 
@@ -12736,7 +12839,7 @@ override fun onNewIntent(intent: Intent) {
 
 <p>Đây là lý do Android không cho truyền object trực tiếp như gọi hàm trong cùng process: nơi nhận dữ liệu <strong>không đảm bảo nằm cùng process</strong> với nơi gửi.</p>
 
-<h3>Nơi Bundle xuất hiện trong thực tế</h3>
+<h4>Nơi Bundle xuất hiện trong thực tế</h4>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -12771,7 +12874,7 @@ override fun onNewIntent(intent: Intent) {
 
 <p>Ba dòng cuối là các API lưu state: chúng đều ghi vào saved state Bundle nên chịu chung giới hạn kích thước ở bài này. Chọn API nào cho loại dữ liệu nào ở <a href="state_changes.md" target="_blank" rel="noopener">State Changes</a>, mục "Chọn công cụ nào? — Bản đồ quyết định".</p>
 
-<h2>Vì sao Android dùng Bundle để truyền dữ liệu?</h2>
+<h3>Vì sao phải serialize: Binder IPC</h3>
 
 <p>Câu trả lời nằm ở cách các component giao tiếp với nhau: <strong>qua Binder IPC</strong>.</p>
 
@@ -12930,7 +13033,7 @@ override fun onNewIntent(intent: Intent) {
 
 <p>Nếu Android đơn giản truyền reference như lời gọi hàm thông thường, nó sẽ phá vỡ mô hình "mỗi app là một process" — nền tảng bảo mật và ổn định của Android.</p>
 
-<h3>Ưu điểm của Bundle so với cách truyền trực tiếp</h3>
+<h4>Ưu điểm của Bundle so với cách truyền trực tiếp</h4>
 
 <ul>
   <li><strong>Hoạt động cả khi 2 component khác process</strong> (2 app, app ↔ system) — vốn là thiết kế mặc định của Android.</li>
@@ -12938,83 +13041,7 @@ override fun onNewIntent(intent: Intent) {
   <li><strong>Sống sót qua process death</strong> — dữ liệu trong Bundle có thể được hệ thống lưu lại và trao lại khi Activity được tạo lại.</li>
 </ul>
 
-<h2>Bundle vs SharedViewModel — Khi nào dùng cái nào</h2>
-
-<p>Đây là lựa chọn kiến trúc quan trọng nhất khi truyền dữ liệu trong app MVVM. Không có "cái nào luôn đúng" — phụ thuộc quan hệ giữa 2 màn hình.</p>
-
-<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">SharedViewModel chỉ chia sẻ được giữa các màn hình dùng chung một <code>ViewModelStoreOwner</code>: các Fragment/destination trong <strong>cùng một Activity</strong> (hoặc cùng nav graph). Hai <strong>Activity khác nhau không dùng chung được ViewModel</strong>. Nếu A và B là hai Activity, dữ liệu đi qua Intent extras (gửi đi) và Activity Result API (trả về), hoặc cả hai cùng đọc một nguồn chung như Repository/Room.</div></div>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
-      <th style="padding:8px 12px;text-align:left;">Bundle / Intent extras</th>
-      <th style="padding:8px 12px;text-align:left;">SharedViewModel</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Dữ liệu</td>
-      <td style="padding:8px 12px;">Bản sao (copy)</td>
-      <td style="padding:8px 12px;">Tham chiếu (shared instance)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Vòng đời</td>
-      <td style="padding:8px 12px;">Theo Activity mục tiêu</td>
-      <td style="padding:8px 12px;">Theo scope (Activity / Fragment)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Process death</td>
-      <td style="padding:8px 12px;">Sống sót (nếu dùng đúng cách)</td>
-      <td style="padding:8px 12px;">Mất (trừ khi SavedStateHandle)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Kích thước</td>
-      <td style="padding:8px 12px;">Buffer ~1MB dùng chung cả process; nên giữ vài KB</td>
-      <td style="padding:8px 12px;">Không giới hạn theo bundle (nhưng là bộ nhớ RAM)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Phụ thuộc</td>
-      <td style="padding:8px 12px;">Component không cần biết nhau về lifecycle</td>
-      <td style="padding:8px 12px;">Phải cùng một Activity/Fragment scope</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Khi quay lại màn hình cũ</td>
-      <td style="padding:8px 12px;">State cũ được giữ nguyên qua backstack</td>
-      <td style="padding:8px 12px;">Shared VM vẫn giữ state</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3>Khi nào dùng Bundle (Intent extras)</h3>
-
-<ul>
-  <li><strong>Màn hình B độc lập, không cần đồng bộ liên tục với A.</strong> Ví dụ: mở màn hình chi tiết sản phẩm từ danh sách.</li>
-  <li><strong>Dữ liệu là định danh (ID), query string, flag.</strong> Nhỏ, đơn giản, không cần sống lâu.</li>
-  <li><strong>Component có thể khác process</strong> (gọi từ Notification, Shortcut, Deep Link) — lúc này SharedViewModel không tồn tại.</li>
-</ul>
-
-<h3>Khi nào dùng SharedViewModel</h3>
-
-<ul>
-  <li><strong>Hai màn hình cùng chia sẻ một nguồn dữ liệu "sống"</strong> (đang load, đang cập nhật), ví dụ: màn hình danh sách → màn hình lọc cùng đọc <code>ProductFilterState</code> trong một <code>ProductListViewModel</code> scoped theo Activity.</li>
-  <li><strong>Dữ liệu lớn</strong> (list, bitmap, kết quả xử lý) — đưa vào Bundle là mời <code>TransactionTooLargeException</code>.</li>
-  <li><strong>Cần đồng bộ hai chiều</strong> — màn hình B đổi dữ liệu, màn hình A phản ứng ngay khi quay lại.</li>
-  <li><strong>Fragment ↔ Fragment trong cùng Activity</strong> — dùng ViewModel scoped theo Activity là pattern chuẩn, không nên đẩy qua Bundle.</li>
-</ul>
-
-<h3>Quyết định nhanh trong 30 giây</h3>
-
-<pre data-lang="text"><code>Dữ liệu nhỏ (ID/flag/query) và B độc lập với A?
-  └── ✅ Bundle / Intent extras + @Parcelize
-
-Dữ liệu lớn, cần đồng bộ, hoặc A và B là Fragment cùng Activity?
-  └── ✅ SharedViewModel
-
-Cần sống sót khi process bị kill?
-  └── ✅ Bundle (via SavedStateHandle hoặc onSaveInstanceState)</code></pre>
-
-<h2>Bundle hỗ trợ những kiểu dữ liệu nào</h2>
+<h3>Bundle hỗ trợ những kiểu dữ liệu nào</h3>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -13053,9 +13080,7 @@ Cần sống sót khi process bị kill?
 
 <p><strong>Điểm mấu chốt:</strong> để đưa một object vào Bundle, object đó phải implement <code>Parcelable</code> (hoặc <code>Serializable</code>, nhưng chậm hơn — xem phần so sánh bên dưới). Đây chính là lý do Topic này có hai nửa: <strong>Bundle</strong> (container) và <strong>Parcelable</strong> (khả năng đóng gói của object).</p>
 
-<h2>Parcelable là gì?</h2>
-
-<p><strong>Parcelable</strong> là interface do Android thiết kế để một object tự biết cách "đóng gói" mình thành dữ liệu nhị phân (Parcel) và "mở gói" ngược lại. Nó tối ưu cho Binder IPC — không dùng reflection, không sinh object trung gian.</p>
+<h3>Parcelable: object tự đóng gói vào Parcel</h3>
 
 <p>Hai khái niệm cần phân biệt:</p>
 
@@ -13064,7 +13089,7 @@ Cần sống sót khi process bị kill?
   <li><strong><code>Parcelable</code></strong> — interface mà object implement để có khả năng tự viết/đọc vào/ra <code>Parcel</code>.</li>
 </ul>
 
-<h3>Viết Parcelable thủ công (để hiểu bản chất)</h3>
+<h4>Ví dụ: viết Parcelable thủ công cho sản phẩm (để hiểu bản chất)</h4>
 
 <p>Một class <code>Parcelable</code> cần 3 phần: <code>writeToParcel()</code> (đóng gói), <code>describeContents()</code> (mô tả content), và <code>CREATOR</code> (mở gói):</p>
 
@@ -13120,6 +13145,8 @@ data class Product(
 
 <p><code>@Parcelize</code> tự xử lý được: primitive, <code>String</code>, <code>Enum</code>, các class <code>Parcelable</code> lồng nhau, <code>List</code>/<code>Set</code>/<code>Map</code>/<code>Array</code> (với element là kiểu hỗ trợ).</p>
 
+<h4>Ví dụ: sự kiện có field kiểu <code>Date</code></h4>
+
 <p><strong>Khi cần kiểu không hỗ trợ</strong> (ví dụ <code>java.util.Date</code>), dùng <code>@TypeParceler</code>:</p>
 
 <pre data-lang="kotlin"><code>@Parcelize
@@ -13136,68 +13163,11 @@ object DateParceler : Parceler&lt;Date&gt; {
     }
 }</code></pre>
 
-<h2>Parcelable vs Serializable</h2>
-
-<p><code>Serializable</code> là interface marker của Java — bạn chỉ cần <code>implements Serializable</code>, còn lại JVM dùng <strong>reflection</strong> để tự động quét toàn bộ field và serialize. Nghe có vẻ tiện, nhưng trên Android nó đắt:</p>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
-      <th style="padding:8px 12px;text-align:left;">Serializable (Java)</th>
-      <th style="padding:8px 12px;text-align:left;">Parcelable (Android)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Cơ chế</td>
-      <td style="padding:8px 12px;">Reflection (runtime)</td>
-      <td style="padding:8px 12px;">Manual code / sinh lúc compile</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Tốc độ</td>
-      <td style="padding:8px 12px;">Chậm (~10x so với Parcelable)</td>
-      <td style="padding:8px 12px;">Nhanh</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Object tạm</td>
-      <td style="padding:8px 12px;">Tạo nhiều object trung gian → GC pressure</td>
-      <td style="padding:8px 12px;">Không</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Boilerplate</td>
-      <td style="padding:8px 12px;">Không cần</td>
-      <td style="padding:8px 12px;">Nhiều nếu viết tay (nhưng @Parcelize xử lý)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Mục đích</td>
-      <td style="padding:8px 12px;">Serialize để lưu trữ (disk, network)</td>
-      <td style="padding:8px 12px;">Binder IPC giữa components</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Kết quả serialize</td>
-      <td style="padding:8px 12px;">Có versioning, nhiều metadata</td>
-      <td style="padding:8px 12px;">Nhị phân gọn, không versioning</td>
-    </tr>
-  </tbody>
-</table>
-
-<pre data-lang="kotlin"><code>// ❌ Đừng dùng Serializable để truyền giữa component — chậm, tạo GC pressure
-data class User(val name: String) : Serializable
-
-// ✅ Dùng Parcelable — nhanh, tối ưu cho IPC
-@Parcelize
-data class User(val name: String) : Parcelable</code></pre>
-
-<p><strong>Vậy Serializable dùng khi nào?</strong> Khi cần lưu trữ lâu dài (ghi vào file, gửi qua mạng, cache) — ví dụ object đi qua Retrofit/Gson thường serialize bằng JSON, không phải Bundle. Trong truyền nội bộ Android, Parcelable luôn thắng.</p>
-
-<p>Chiều ngược lại cũng cần nhớ: <code>Parcel</code> <strong>không phải</strong> cơ chế serialize đa dụng. Docs khuyến cáo không bao giờ ghi dữ liệu <code>Parcel</code> xuống đĩa hay gửi qua mạng, vì định dạng nhị phân của nó chỉ dành cho IPC và có thể khác nhau giữa các phiên bản.</p>
-
-<h2>Giới hạn kích thước — Binder Transaction Buffer</h2>
+<h3>Giới hạn kích thước — Binder Transaction Buffer</h3>
 
 <p>Đây là giới hạn mà đa số crash ngoài đời thực đến từ. Binder transaction buffer có <strong>kích thước cố định, hiện là 1MB, dùng chung cho toàn bộ process</strong> — không phải 1MB cho mỗi lần truyền.</p>
 
-<h3>Ba con số cần phân biệt</h3>
+<h4>Ba con số cần phân biệt</h4>
 
 <p>Các bài viết thường đưa ra nhiều ngưỡng khác nhau (1MB, 500KB, 50KB). Theo docs chỉ có một giới hạn cứng, hai con số còn lại là khuyến nghị:</p>
 
@@ -13230,7 +13200,7 @@ data class User(val name: String) : Parcelable</code></pre>
 
 <p>Không có ngưỡng 500KB nào trong docs. Khi thiết kế, hãy dùng hai con số khuyến nghị; con số 1MB chỉ giải thích vì sao app crash.</p>
 
-<h3>Hệ quả nghiêm trọng</h3>
+<h4>Hệ quả nghiêm trọng</h4>
 
 <p>Intent extras, <code>savedInstanceState</code>, Fragment arguments, và <strong>mọi Binder transaction đang diễn ra đồng thời trong cùng process đều chia sẻ buffer này</strong>. Một Bundle chỉ nằm trong bộ nhớ thì không chiếm buffer; nó chỉ tính vào buffer trong lúc đang được gửi qua Binder. Nghĩa là:</p>
 
@@ -13246,7 +13216,7 @@ intent.putParcelableArrayListExtra("all_products", ArrayList(thousandProducts))
 // ✅ Đúng — chỉ truyền định danh, màn hình đích tự query
 intent.putExtra("product_id", productId)</code></pre>
 
-<h3>Cách phát hiện</h3>
+<h4>Cách phát hiện</h4>
 
 <p>Từ Android 7.0 (API 24), vượt giới hạn sẽ ném <code>TransactionTooLargeException</code> dạng runtime exception (app crash); các phiên bản trước chỉ log warning trong logcat. Vì vậy hãy chủ động đo kích thước Bundle khi debug:</p>
 
@@ -13267,7 +13237,7 @@ private fun logBundleSize(bundle: Bundle) {
     }
 }</code></pre>
 
-<h3>Cách fix</h3>
+<h4>Cách fix</h4>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -13300,56 +13270,21 @@ private fun logBundleSize(bundle: Bundle) {
   </tbody>
 </table>
 
-<h2>Triển khai thực tế trong app MVVM</h2>
+<h2>Ví dụ thực tế</h2>
 
-<p>Tình huống chuẩn: app mua sắm, màn hình <code>ProductListScreen</code> mở <code>ProductDetailScreen</code>. Ta thực hiện theo 3 bước.</p>
+<h3>Mở màn hình chi tiết sản phẩm từ danh sách</h3>
 
-<h3>Bước 1: Model là @Parcelize</h3>
+<p>Tình huống chuẩn: app mua sắm, màn hình <code>ProductListScreen</code> mở <code>ProductDetailScreen</code>. Luồng chạy:</p>
 
-<pre data-lang="kotlin"><code>// data/model/Product.kt
-@Parcelize
-data class Product(
-    val id: Long,
-    val name: String,
-    val price: Double,
-    val imageUrl: String
-) : Parcelable</code></pre>
+<ol>
+  <li>Model <code>Product</code> là <code>@Parcelize</code>: compiler sinh sẵn code đóng gói, nên <code>Product</code> là Parcelable và cho vào Bundle được.</li>
+  <li><code>ProductListActivity</code> gọi <code>putExtra(EXTRA_PRODUCT, product)</code> rồi <code>startActivity()</code>: Bundle của Intent được serialize thành Parcel.</li>
+  <li>Parcel đi qua Binder transaction buffer tới <code>system_server</code> để xử lý launch. Nếu buffer dùng chung của process bị vượt, lời gọi ném <code>TransactionTooLargeException</code>.</li>
+  <li><code>ProductDetailActivity</code> đọc extra bằng <code>getParcelableExtra()</code> (overload kèm <code>Class</code> từ API 33): Parcel được deserialize thành một object <code>Product</code> mới, độc lập với object bên gửi.</li>
+  <li>Màn hình đích chỉ dùng <code>id</code> để ViewModel load dữ liệu chi tiết.</li>
+</ol>
 
-<h3>Bước 2: Activity A gửi dữ liệu</h3>
-
-<pre data-lang="kotlin"><code>// ProductListActivity.kt
-private fun openDetail(product: Product) {
-    val intent = Intent(this, ProductDetailActivity::class.java).apply {
-        putExtra(EXTRA_PRODUCT, product) // Parcelable → tự serialize
-    }
-    startActivity(intent)
-}
-
-companion object {
-    const val EXTRA_PRODUCT = "extra_product"
-}</code></pre>
-
-<h3>Bước 3: Activity B nhận dữ liệu (chú ý API version)</h3>
-
-<pre data-lang="kotlin"><code>// ProductDetailActivity.kt
-override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-
-    val product: Product? = if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.TIRAMISU) {
-        intent.getParcelableExtra(EXTRA_PRODUCT, Product::class.java)
-    } else {
-        @Suppress("DEPRECATION")
-        intent.getParcelableExtra(EXTRA_PRODUCT)
-    }
-
-    product?.let { viewModel.loadDetail(it.id) }
-}</code></pre>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">[!tip] <code>getParcelableExtra()</code> (không có class) bị deprecated ở API 33. Luôn dùng overload kèm <code>Class</code> khi <code>minSdk &gt;= 33</code>, và giữ branch cũ cho máy thấp hơn — hoặc gọi <code>IntentCompat.getParcelableExtra(intent, EXTRA_PRODUCT, Product::class.java)</code> của AndroidX Core để bỏ hẳn nhánh <code>if</code>.</div></div>
-
-<p>Chiều ngược lại (B trả kết quả về A, ví dụ địa chỉ giao hàng vừa chọn) dùng <strong>Activity Result API</strong>: A đăng ký <code>registerForActivityResult(ActivityResultContracts.StartActivityForResult())</code>, B gọi <code>setResult(RESULT_OK, Intent().putExtra(...))</code> rồi <code>finish()</code>. Kết quả cũng đi qua Bundle nên chịu cùng giới hạn kích thước.</p>
-
-<h3>Flow mô phỏng toàn bộ luồng</h3>
+<p>Sơ đồ dưới vẽ đúng các bước trên theo tên node: (1) là nhánh <code>Product là Parcelable?</code>, (2) là <code>serialize thành Parcel</code>, (3) là <code>Binder Transaction Buffer</code> và hai nhánh của nó, (4) là <code>getParcelableExtra</code> → <code>deserialize</code>, (5) là node cuối.</p>
 
 <div class="dd-diagram" data-dd="parcel-split-a">
 <div class="dd-svg dd-svg-dark">
@@ -13563,7 +13498,193 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 <p>Sơ đồ đơn giản hoá nhánh "dưới/quá 1MB": 1MB là sức chứa của cả buffer dùng chung, nên transaction này có thể crash dù nhỏ hơn 1MB nếu các transaction khác đang chiếm buffer (mục "Ba con số cần phân biệt").</p>
 
-<h2>Khi nào nên dùng — Khi nào không nên dùng</h2>
+<p>Model là @Parcelize:</p>
+
+<pre data-lang="kotlin"><code>// data/model/Product.kt
+// (1) Compiler sinh writeToParcel/CREATOR
+@Parcelize
+data class Product(
+    val id: Long,
+    val name: String,
+    val price: Double,
+    val imageUrl: String
+) : Parcelable</code></pre>
+
+<p>Activity A gửi dữ liệu:</p>
+
+<pre data-lang="kotlin"><code>// ProductListActivity.kt
+private fun openDetail(product: Product) {
+    val intent = Intent(this, ProductDetailActivity::class.java).apply {
+        putExtra(EXTRA_PRODUCT, product) // (2) Parcelable → tự serialize
+    }
+    startActivity(intent) // (3) Parcel đi qua Binder tới system_server
+}
+
+companion object {
+    const val EXTRA_PRODUCT = "extra_product"
+}</code></pre>
+
+<p>Activity B nhận dữ liệu (chú ý API version):</p>
+
+<pre data-lang="kotlin"><code>// ProductDetailActivity.kt
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+
+    // (4) Deserialize Parcel thành một Product mới
+    val product: Product? = if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.TIRAMISU) {
+        intent.getParcelableExtra(EXTRA_PRODUCT, Product::class.java)
+    } else {
+        @Suppress("DEPRECATION")
+        intent.getParcelableExtra(EXTRA_PRODUCT)
+    }
+
+    product?.let { viewModel.loadDetail(it.id) } // (5)
+}</code></pre>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><code>getParcelableExtra()</code> (không có class) bị deprecated ở API 33. Luôn dùng overload kèm <code>Class</code> khi <code>minSdk &gt;= 33</code>, và giữ branch cũ cho máy thấp hơn — hoặc gọi <code>IntentCompat.getParcelableExtra(intent, EXTRA_PRODUCT, Product::class.java)</code> của AndroidX Core để bỏ hẳn nhánh <code>if</code>.</div></div>
+
+<p><strong>Kết quả:</strong> <code>ProductDetailActivity</code> nhận một bản sao <code>Product</code> độc lập với object bên <code>ProductListActivity</code>; kiểm tra bằng cách log <code>product</code> trong <code>onCreate()</code> của màn hình đích, và đo kích thước Bundle bằng <code>logBundleSize()</code> ở mục "Cách phát hiện" nếu nghi ngờ extra quá lớn.</p>
+
+<h3>Trả kết quả về màn hình trước</h3>
+
+<p>Chiều ngược lại (B trả kết quả về A, ví dụ địa chỉ giao hàng vừa chọn) dùng <strong>Activity Result API</strong>: A đăng ký <code>registerForActivityResult(ActivityResultContracts.StartActivityForResult())</code>, B gọi <code>setResult(RESULT_OK, Intent().putExtra(...))</code> rồi <code>finish()</code>. Kết quả cũng đi qua Bundle nên chịu cùng giới hạn kích thước.</p>
+
+<h2>So sánh với các cách tiếp cận khác</h2>
+
+<h3>Bundle vs SharedViewModel — Khi nào dùng cái nào</h3>
+
+<p>Đây là lựa chọn kiến trúc quan trọng nhất khi truyền dữ liệu trong app MVVM. Không có "cái nào luôn đúng" — phụ thuộc quan hệ giữa 2 màn hình.</p>
+
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">SharedViewModel chỉ chia sẻ được giữa các màn hình dùng chung một <code>ViewModelStoreOwner</code>: các Fragment/destination trong <strong>cùng một Activity</strong> (hoặc cùng nav graph). Hai <strong>Activity khác nhau không dùng chung được ViewModel</strong>. Nếu A và B là hai Activity, dữ liệu đi qua Intent extras (gửi đi) và Activity Result API (trả về), hoặc cả hai cùng đọc một nguồn chung như Repository/Room.</div></div>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
+      <th style="padding:8px 12px;text-align:left;">Bundle / Intent extras</th>
+      <th style="padding:8px 12px;text-align:left;">SharedViewModel</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Dữ liệu</td>
+      <td style="padding:8px 12px;">Bản sao (copy)</td>
+      <td style="padding:8px 12px;">Tham chiếu (shared instance)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Vòng đời</td>
+      <td style="padding:8px 12px;">Theo Activity mục tiêu</td>
+      <td style="padding:8px 12px;">Theo scope (Activity / Fragment)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Process death</td>
+      <td style="padding:8px 12px;">Sống sót (nếu dùng đúng cách)</td>
+      <td style="padding:8px 12px;">Mất (trừ khi SavedStateHandle)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Kích thước</td>
+      <td style="padding:8px 12px;">Buffer ~1MB dùng chung cả process; nên giữ vài KB</td>
+      <td style="padding:8px 12px;">Không giới hạn theo bundle (nhưng là bộ nhớ RAM)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Phụ thuộc</td>
+      <td style="padding:8px 12px;">Component không cần biết nhau về lifecycle</td>
+      <td style="padding:8px 12px;">Phải cùng một Activity/Fragment scope</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Khi quay lại màn hình cũ</td>
+      <td style="padding:8px 12px;">State cũ được giữ nguyên qua backstack</td>
+      <td style="padding:8px 12px;">Shared VM vẫn giữ state</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4>Khi nào dùng Bundle (Intent extras)</h4>
+
+<ul>
+  <li><strong>Màn hình B độc lập, không cần đồng bộ liên tục với A.</strong> Ví dụ: mở màn hình chi tiết sản phẩm từ danh sách.</li>
+  <li><strong>Dữ liệu là định danh (ID), query string, flag.</strong> Nhỏ, đơn giản, không cần sống lâu.</li>
+  <li><strong>Component có thể khác process</strong> (gọi từ Notification, Shortcut, Deep Link) — lúc này SharedViewModel không tồn tại.</li>
+</ul>
+
+<h4>Khi nào dùng SharedViewModel</h4>
+
+<ul>
+  <li><strong>Hai màn hình cùng chia sẻ một nguồn dữ liệu "sống"</strong> (đang load, đang cập nhật), ví dụ: màn hình danh sách → màn hình lọc cùng đọc <code>ProductFilterState</code> trong một <code>ProductListViewModel</code> scoped theo Activity.</li>
+  <li><strong>Dữ liệu lớn</strong> (list, bitmap, kết quả xử lý) — đưa vào Bundle là mời <code>TransactionTooLargeException</code>.</li>
+  <li><strong>Cần đồng bộ hai chiều</strong> — màn hình B đổi dữ liệu, màn hình A phản ứng ngay khi quay lại.</li>
+  <li><strong>Fragment ↔ Fragment trong cùng Activity</strong> — dùng ViewModel scoped theo Activity là pattern chuẩn, không nên đẩy qua Bundle.</li>
+</ul>
+
+<h4>Quyết định nhanh trong 30 giây</h4>
+
+<pre data-lang="text"><code>Dữ liệu nhỏ (ID/flag/query) và B độc lập với A?
+  └── ✅ Bundle / Intent extras + @Parcelize
+
+Dữ liệu lớn, cần đồng bộ, hoặc A và B là Fragment cùng Activity?
+  └── ✅ SharedViewModel
+
+Cần sống sót khi process bị kill?
+  └── ✅ Bundle (via SavedStateHandle hoặc onSaveInstanceState)</code></pre>
+
+<h3>Parcelable vs Serializable</h3>
+
+<p><code>Serializable</code> là interface marker của Java — bạn chỉ cần <code>implements Serializable</code>, còn lại JVM dùng <strong>reflection</strong> để tự động quét toàn bộ field và serialize. Nghe có vẻ tiện, nhưng trên Android nó đắt:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
+      <th style="padding:8px 12px;text-align:left;">Serializable (Java)</th>
+      <th style="padding:8px 12px;text-align:left;">Parcelable (Android)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Cơ chế</td>
+      <td style="padding:8px 12px;">Reflection (runtime)</td>
+      <td style="padding:8px 12px;">Manual code / sinh lúc compile</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Tốc độ</td>
+      <td style="padding:8px 12px;">Chậm (~10x so với Parcelable)</td>
+      <td style="padding:8px 12px;">Nhanh</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Object tạm</td>
+      <td style="padding:8px 12px;">Tạo nhiều object trung gian → GC pressure</td>
+      <td style="padding:8px 12px;">Không</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Boilerplate</td>
+      <td style="padding:8px 12px;">Không cần</td>
+      <td style="padding:8px 12px;">Nhiều nếu viết tay (nhưng @Parcelize xử lý)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Mục đích</td>
+      <td style="padding:8px 12px;">Serialize để lưu trữ (disk, network)</td>
+      <td style="padding:8px 12px;">Binder IPC giữa components</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Kết quả serialize</td>
+      <td style="padding:8px 12px;">Có versioning, nhiều metadata</td>
+      <td style="padding:8px 12px;">Nhị phân gọn, không versioning</td>
+    </tr>
+  </tbody>
+</table>
+
+<pre data-lang="kotlin"><code>// ❌ Đừng dùng Serializable để truyền giữa component — chậm, tạo GC pressure
+data class User(val name: String) : Serializable
+
+// ✅ Dùng Parcelable — nhanh, tối ưu cho IPC
+@Parcelize
+data class User(val name: String) : Parcelable</code></pre>
+
+<p><strong>Vậy Serializable dùng khi nào?</strong> Khi cần lưu trữ lâu dài (ghi vào file, gửi qua mạng, cache) — ví dụ object đi qua Retrofit/Gson thường serialize bằng JSON, không phải Bundle. Trong truyền nội bộ Android, Parcelable luôn thắng.</p>
+
+<p>Chiều ngược lại cũng cần nhớ: <code>Parcel</code> <strong>không phải</strong> cơ chế serialize đa dụng. Docs khuyến cáo không bao giờ ghi dữ liệu <code>Parcel</code> xuống đĩa hay gửi qua mạng, vì định dạng nhị phân của nó chỉ dành cho IPC và có thể khác nhau giữa các phiên bản.</p>
+
+<h2>Khi nào nên và không nên dùng</h2>
 
 <h3>Nên dùng Bundle / Parcelable</h3>
 
@@ -13632,12 +13753,32 @@ val product = IntentCompat.getParcelableExtra(intent, EXTRA_PRODUCT, Product::cl
 
 <p>Lỗi này khó thấy vì app vẫn chạy: chỉ có màn hình hiện trống. Khi một extra luôn trả về <code>null</code>, kiểm tra logcat có dòng cảnh báo sai kiểu của <code>Bundle</code> không.</p>
 
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>API 1 (Android 1.0):</strong> <code>Bundle</code>, <code>Parcel</code>, <code>Parcelable</code> và <code>Intent.getParcelableExtra(String)</code> có từ API level đầu tiên; Intent extras dựa trên Bundle ngay từ đầu.</li>
+  <li><strong>API 15 (Android 4.0.3):</strong> thêm <code>TransactionTooLargeException</code>, exception báo Binder transaction không vừa buffer.</li>
+  <li><strong>Android 7.0 (API 24):</strong> vượt giới hạn buffer ném <code>TransactionTooLargeException</code> dạng runtime exception; các phiên bản trước chỉ log warning trong logcat.</li>
+  <li><strong>Kotlin 1.4.20:</strong> generator Parcelable tách khỏi <code>kotlin-android-extensions</code> (bị deprecated) sang plugin riêng <code>kotlin-parcelize</code>; annotation <code>@Parcelize</code> chuyển sang package <code>kotlinx.parcelize</code>.</li>
+  <li><strong>Android 13 (API 33):</strong> thêm overload type-safe <code>getParcelableExtra(String, Class)</code> và <code>getSerializableExtra(String, Class)</code>; overload không có <code>Class</code> bị deprecated.</li>
+  <li><strong>AndroidX Core 1.10.0 (04/2023):</strong> thêm <code>IntentCompat.getParcelableExtra(Intent, String, Class)</code>, cho dùng API type-safe trên mọi API level.</li>
+</ul>
+
 <h2>Kết nối hệ thống</h2>
 
 <ul>
-  <li><strong>Prerequisites</strong>: <code>Activity Lifecycle</code> và <a href="state_changes.md" target="_blank" rel="noopener">Activity State Changes</a> — nơi Bundle được dùng để lưu/khôi phục state. <code>Task and Backstack</code> — ngữ cảnh Activity được tạo/hủy khi truyền Intent.</li>
-  <li><strong>Related Topics</strong>: <code>Explicit Intents</code> — Intent là phương tiện vận chuyển Bundle. <code>Push data and send event via Intent</code> — các cách đưa dữ liệu vào Intent.</li>
-  <li><strong>Downstream Topics</strong>: <code>ViewModel</code> — SavedStateHandle và cách dữ liệu Bundle đi vào ViewModel. <code>FragmentManager</code> — Fragment arguments.</li>
+  <li><strong>Tiên quyết:</strong> <a href="lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>, <a href="state_changes.md" target="_blank" rel="noopener">Activity State Changes</a> — nơi Bundle được dùng để lưu/khôi phục state, và <a href="task_and_backstack.md" target="_blank" rel="noopener">Task and Backstack</a> — ngữ cảnh Activity được tạo/hủy khi truyền Intent.</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../../intent/explicit_intents.md" target="_blank" rel="noopener">Explicit Intents</a> — Intent là phương tiện vận chuyển Bundle.</li>
+  <li><a href="../../intent/push_data_event.md" target="_blank" rel="noopener">Push data and send event via Intent</a> — các cách đưa dữ liệu vào Intent.</li>
+  <li><a href="../../intent/handle_intent.md" target="_blank" rel="noopener">Handle Intent</a> — trích xuất extras và nhận kết quả bằng Activity Result API.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li>6.4 ViewModel (chưa có bài) — SavedStateHandle và cách dữ liệu Bundle đi vào ViewModel.</li>
+  <li><a href="../fragment/fragment_manager.md" target="_blank" rel="noopener">FragmentManager</a> — Fragment arguments.</li>
+</ul></li>
 </ul>
 
 <h2>Nguồn tham khảo</h2>
@@ -13646,13 +13787,17 @@ val product = IntentCompat.getParcelableExtra(intent, EXTRA_PRODUCT, Product::cl
   <li><a href="https://developer.android.com/guide/components/activities/parcelables-and-bundles" target="_blank" rel="noopener">Parcelable and Bundle — Android Developers</a></li>
   <li><a href="https://developer.android.com/reference/android/os/Parcelable" target="_blank" rel="noopener">Parcelable — Android Developers Reference</a></li>
   <li><a href="https://developer.android.com/reference/android/os/Bundle" target="_blank" rel="noopener">Bundle — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/reference/android/os/Parcel" target="_blank" rel="noopener">Parcel (API 1) — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/reference/android/content/Intent" target="_blank" rel="noopener">Intent (getParcelableExtra, getSerializableExtra: API 1, overload kèm Class từ API 33) — Android Developers Reference</a></li>
   <li><a href="https://developer.android.com/reference/androidx/core/content/IntentCompat" target="_blank" rel="noopener">IntentCompat — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/core" target="_blank" rel="noopener">Core release notes (1.10.0) — Android Developers</a></li>
   <li><a href="https://developer.android.com/training/basics/intents/result" target="_blank" rel="noopener">Get a result from an activity — Android Developers</a></li>
   <li><a href="https://developer.android.com/reference/android/os/TransactionTooLargeException" target="_blank" rel="noopener">TransactionTooLargeException — Android Developers Reference</a></li>
   <li><a href="https://developer.android.com/topic/libraries/architecture/saving-states" target="_blank" rel="noopener">Save UI states (giới hạn của saved state) — Android Developers</a></li>
   <li><a href="https://developer.android.com/guide/navigation/use-graph/pass-data" target="_blank" rel="noopener">Pass data between destinations (Navigation Safe Args) — Android Developers</a></li>
   <li><a href="https://developer.android.com/topic/libraries/architecture/viewmodel" target="_blank" rel="noopener">ViewModel overview — Android Developers</a></li>
   <li><a href="https://kotlinlang.org/docs/parcelize.html" target="_blank" rel="noopener">Parceler &amp; TypeParceler — Kotlin Parcelize Docs</a></li>
+  <li><a href="https://kotlinlang.org/docs/whatsnew1420.html" target="_blank" rel="noopener">What's new in Kotlin 1.4.20 (plugin kotlin-parcelize) — Kotlin Docs</a></li>
 </ul>
     `
   },
@@ -14952,7 +15097,7 @@ registerReceiver(receiver, IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED))</c
 
 <ul>
   <li><strong>Fragment:</strong> render UI, gửi sự kiện người dùng lên ViewModel, quan sát <code>StateFlow</code>/<code>LiveData</code>.</li>
-  <li><strong>ViewModel:</strong> giữ trạng thái và logic UI, <strong>sống sót qua xoay màn hình</strong> (cơ chế ở <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "Bước 1").</li>
+  <li><strong>ViewModel:</strong> giữ trạng thái và logic UI, <strong>sống sót qua xoay màn hình</strong> (cơ chế ở <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "ViewModel: giữ dữ liệu business qua configuration change").</li>
   <li><strong>Shared ViewModel (scoped theo Activity):</strong> chia sẻ dữ liệu giữa các Fragment mà không cần truyền qua Bundle phức tạp.</li>
 </ul>
 
@@ -16723,7 +16868,7 @@ sequenceDiagram
     // mới chạy lại onCreate trong khi ViewModel vẫn là cái cũ → fetch lặp.
     // ViewModel tự đọc "category_id" từ SavedStateHandle (by viewModels() tự đưa arguments
     // của Fragment vào đó) và load lười bằng stateIn khi UI bắt đầu collect
-    // (xem activity/state_changes.md, Bước 5: không launch coroutine trong init).
+    // (xem activity/state_changes.md, mục Sai lầm thường gặp "3. Fetch API trong onCreate mỗi lần recreate": không launch coroutine trong init).
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -17005,7 +17150,7 @@ sequenceDiagram
 </div>
 </div>
 
-<p>Code chuyển tab (một transaction: <code>hide</code> tab cũ kèm <code>setMaxLifecycle</code>, <code>add</code> hoặc <code>show</code> tab mới, khôi phục tab đang hiện sau khi xoay) ở <a href="fragment_manager.md" target="_blank" rel="noopener">FragmentManager</a>, mục "Ví dụ thực tế: Bottom Navigation với Back Stack". Bài đó cũng so sánh khi nào chọn <code>replace</code>, show/hide hay multiple back stacks.</p>
+<p>Code chuyển tab (một transaction: <code>hide</code> tab cũ kèm <code>setMaxLifecycle</code>, <code>add</code> hoặc <code>show</code> tab mới, khôi phục tab đang hiện sau khi xoay) ở <a href="fragment_manager.md" target="_blank" rel="noopener">FragmentManager</a>, mục "Ví dụ thực tế", phần "Bottom Navigation: chuyển tab bằng show/hide". Bài đó cũng so sánh khi nào chọn <code>replace</code>, show/hide hay multiple back stacks.</p>
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Vì sao show/hide giữ được state?</strong> Vì <code>hide()</code> chỉ <strong>ẩn View</strong>, không đổi lifecycle: Fragment vẫn ở <code>RESUMED</code>, View và instance đều sống → <code>viewLifecycleOwner</code> vẫn hoạt động, observer không bị remove, scroll position của RecyclerView được giữ nguyên. Hệ quả: tab ẩn vẫn chạy như đang hiện. Muốn phản ứng khi bị ẩn/hiện thì override <code>onHiddenChanged(hidden)</code>; muốn tab ẩn thật sự dừng ở một mức lifecycle thì gọi <code>setMaxLifecycle(tab, Lifecycle.State.STARTED)</code> trong cùng transaction với <code>hide()</code>: tab ẩn nhận <code>onPause()</code> và dừng ở <code>STARTED</code>, tab được hiện cần <code>setMaxLifecycle(tab, Lifecycle.State.RESUMED)</code> để lên lại <code>RESUMED</code>. <code>setUserVisibleHint()</code> cũ đã <strong>deprecated</strong>, docs chuyển sang <code>setMaxLifecycle()</code>.</div></div>
 
@@ -17115,7 +17260,7 @@ sequenceDiagram
 
   'fragment-state-changes': {
     title: 'Fragment State Changes',
-    summary: 'Hiểu cơ chế Fragment bị recreate, phân biệt Configuration Change vs Process Death, và sử dụng đúng Arguments, ViewModel, SavedStateHandle để bảo toàn dữ liệu.',
+    summary: 'Fragment State Changes là các tình huống khiến Fragment bị tạo lại hoặc chỉ mất View (configuration change, process death, vào backstack, bị remove), cùng cách FragmentManager lưu và khôi phục state của từng Fragment qua các tình huống đó. Bài đi vào phần riêng của Fragment, gồm arguments, scope của ViewModel (viewModels, activityViewModels), SavedStateHandle nhận arguments, và vì sao setRetainInstance bị deprecated.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '20 phút',
@@ -17167,7 +17312,17 @@ sequenceDiagram
   <li>Nhận diện được setRetainInstance đã deprecated và giải pháp thay thế.</li>
 </ul>
 
-<h2>Các tình huống Fragment bị Recreate</h2>
+<h2>Fragment State Changes là gì?</h2>
+
+<p><strong>Fragment State Changes</strong> là các tình huống khiến Fragment bị tạo lại hoặc chỉ mất View (configuration change, process death, vào backstack, bị remove), cùng cách <strong>FragmentManager</strong> lưu và khôi phục state của từng Fragment qua các tình huống đó.</p>
+
+<p>Mental model, dùng lại từ <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>: Fragment instance là <strong>cái khung</strong>, View là <strong>bức tranh lồng trong khung</strong>. Vào backstack thì chỉ bức tranh bị thay, cái khung giữ nguyên; configuration change và process death thay luôn cả cái khung, FragmentManager dựng khung mới từ state đã lưu. Dữ liệu chỉ còn nếu nằm ngoài cái khung cũ: <code>arguments</code> và saved state (FragmentManager chuyển sang khung mới), ViewModel (giữ qua configuration change, mất khi process chết).</p>
+
+<p>Vì sao Activity bị recreate, khác biệt giữa configuration change và process death, cơ chế của ViewModel và <code>SavedStateHandle</code> là kiến thức chung, nằm ở <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>. Bài này chỉ đi vào phần riêng của Fragment.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Các tình huống Fragment bị recreate</h3>
 
 <div class="dd-diagram" data-dd="fsc-cases">
 <div class="dd-svg dd-svg-dark">
@@ -17304,7 +17459,7 @@ sequenceDiagram
 </div>
 </div>
 
-<h3>Chi tiết từng tình huống</h3>
+<h4>Chi tiết từng tình huống</h4>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -17355,9 +17510,9 @@ sequenceDiagram
 
 <div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Arguments luôn được bảo toàn</strong> qua mọi tình huống recreate (Configuration Change, Process Death). Đây là lý do bạn phải truyền dữ liệu khởi tạo qua <code>arguments</code> Bundle thay vì constructor parameter.</div></div>
 
-<h2>Ba công cụ lưu State</h2>
+<h3>Ba công cụ lưu state</h3>
 
-<h3>1. Arguments (Bundle khởi tạo)</h3>
+<h4>1. Arguments (Bundle khởi tạo)</h4>
 
 <p>Arguments là Bundle gắn vào Fragment <strong>trước khi</strong> Fragment được add vào FragmentManager. Nó tồn tại xuyên suốt vòng đời Fragment.</p>
 
@@ -17390,9 +17545,9 @@ class ProductDetailFragment : Fragment(R.layout.fragment_product_detail) {
 
 <p><strong>Giới hạn:</strong> Chỉ chứa kiểu Bundle hỗ trợ (primitive, <code>String</code>, <code>Parcelable</code>…). Arguments được lưu cùng saved state của Fragment nên phải nhỏ như saved state; ngưỡng và lý do ở <a href="../activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Ba con số cần phân biệt".</p>
 
-<h3>2. ViewModel (In-memory state)</h3>
+<h4>2. ViewModel (In-memory state)</h4>
 
-<p>ViewModel tồn tại qua Configuration Change nhưng <strong>mất khi Process Death</strong>. Cơ chế giữ ViewModel qua xoay màn hình và cách load dữ liệu ban đầu không bị lặp ở <a href="../activity/state_changes.md" target="_blank" rel="noopener">State Changes</a>, mục "Bước 1" và "Bước 5". Phần riêng của Fragment: <code>by viewModels()</code> tự đưa <code>arguments</code> vào <code>SavedStateHandle</code>, nên ViewModel đọc được ID mà Fragment không phải chuyển tay.</p>
+<p>ViewModel tồn tại qua Configuration Change nhưng <strong>mất khi Process Death</strong>. Cơ chế giữ ViewModel qua xoay màn hình và cách load dữ liệu ban đầu không bị lặp ở <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "ViewModel: giữ dữ liệu business qua configuration change" và mục "Sai lầm thường gặp", phần 3 "Fetch API trong onCreate mỗi lần recreate". Phần riêng của Fragment: <code>by viewModels()</code> tự đưa <code>arguments</code> vào <code>SavedStateHandle</code>, nên ViewModel đọc được ID mà Fragment không phải chuyển tay.</p>
 
 <pre data-lang="kotlin"><code>class ProductDetailFragment : Fragment(R.layout.fragment_product_detail) {
 
@@ -17417,9 +17572,9 @@ class ProductDetailViewModel(
 
 <p><strong>Khi nào dùng:</strong> Mọi dữ liệu UI cần survive qua configuration change: network responses, processed lists, UI state.</p>
 
-<h3>3. SavedStateHandle (Survive Process Death)</h3>
+<h4>3. SavedStateHandle (Survive Process Death)</h4>
 
-<p>SavedStateHandle kết hợp ưu điểm của ViewModel (reactive) và savedInstanceState (survive process death). Cơ chế lưu/khôi phục ở <a href="../activity/state_changes.md" target="_blank" rel="noopener">State Changes</a>, mục "Bước 2"; trong Fragment cách dùng giống hệt Activity.</p>
+<p>SavedStateHandle kết hợp ưu điểm của ViewModel (reactive) và savedInstanceState (survive process death). Cơ chế lưu/khôi phục ở <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "SavedStateHandle: lưu user input quan trọng qua process death"; trong Fragment cách dùng giống hệt Activity.</p>
 
 <pre data-lang="kotlin"><code>class ProductDetailViewModel(
     private val savedStateHandle: SavedStateHandle
@@ -17438,9 +17593,9 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
 
 <p><strong>Khi nào dùng:</strong> Dữ liệu người dùng nhập (search query, form input, scroll position, selected tab) cần survive cả process death.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong><code>onSaveInstanceState(outState)</code> của Fragment</strong> vẫn tồn tại như Activity: FragmentManager gọi nó khi host Activity lưu state, và Bundle được trả lại ở <code>onCreate</code>/<code>onCreateView</code>/<code>onViewCreated</code>/<code>onViewStateRestored</code>. View có <code>android:id</code> trong layout của Fragment tự lưu state của chính nó như ở Activity (<a href="../activity/state_changes.md" target="_blank" rel="noopener">State Changes</a>, mục "Bước 3"). Khác biệt của Fragment: khi chỉ View bị destroy (Fragment vào backstack), FragmentManager giữ state của view hierarchy và trả lại khi View được tạo lại, nên text đang gõ vẫn còn khi người dùng bấm Back quay về.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong><code>onSaveInstanceState(outState)</code> của Fragment</strong> vẫn tồn tại như Activity: FragmentManager gọi nó khi host Activity lưu state, và Bundle được trả lại ở <code>onCreate</code>/<code>onCreateView</code>/<code>onViewCreated</code>/<code>onViewStateRestored</code>. View có <code>android:id</code> trong layout của Fragment tự lưu state của chính nó như ở Activity (<a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "onSaveInstanceState: transient UI state (View/XML)"). Khác biệt của Fragment: khi chỉ View bị destroy (Fragment vào backstack), FragmentManager giữ state của view hierarchy và trả lại khi View được tạo lại, nên text đang gõ vẫn còn khi người dùng bấm Back quay về.</div></div>
 
-<h2>Ma trận quyết định — Chọn đúng công cụ</h2>
+<h3>Ma trận quyết định: chọn đúng công cụ</h3>
 
 <div class="dd-diagram" data-dd="fsc-decide">
 <div class="dd-svg dd-svg-dark">
@@ -17623,7 +17778,7 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
   </tbody>
 </table>
 
-<h2>ViewModel Scoping — viewModels() vs activityViewModels()</h2>
+<h3>ViewModel scoping: viewModels() vs activityViewModels()</h3>
 
 <p>Fragment có thể chọn scope cho ViewModel:</p>
 
@@ -17749,21 +17904,40 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
   <li><code>navGraphViewModels()</code> — Dữ liệu chia sẻ trong một luồng navigation cụ thể (checkout flow)</li>
 </ul>
 
-<h2>setRetainInstance — Deprecated và thay thế</h2>
+<h2>Ví dụ thực tế</h2>
 
-<p>Trước đây, <code>setRetainInstance(true)</code> cho phép Fragment instance tồn tại qua configuration change (Activity bị recreate nhưng Fragment instance giữ nguyên). Cách này đã <strong>deprecated từ AndroidX Fragment 1.3.0</strong> (API 28 là mốc deprecate <code>android.app.Fragment</code> của framework, không phải <code>setRetainInstance</code> của AndroidX).</p>
+<h3>Form sửa profile: giữ draft qua xoay màn hình và process death</h3>
 
-<p><strong>Lý do deprecated:</strong></p>
+<p>Fragment sửa profile có hai ô tên và email, nút Lưu chỉ bật khi dữ liệu hợp lệ. Draft người dùng đang gõ phải còn nguyên sau xoay màn hình và sau process death. Draft là user input nhỏ, nên theo ma trận quyết định nó nằm trong <code>SavedStateHandle</code> của ViewModel scope theo Fragment (<code>by viewModels()</code>). Luồng chạy:</p>
 
-<ul>
-  <li>Gây rối loạn lifecycle: Fragment instance sống nhưng host Activity mới, context cũ bị leak</li>
-  <li>Không tương thích với Navigation Component</li>
-  <li>ViewModel đã giải quyết hoàn toàn nhu cầu retain data qua configuration change</li>
-</ul>
+<ol>
+  <li><code>onViewCreated</code>: tạo binding, collect <code>uiState</code> trong <code>repeatOnLifecycle(STARTED)</code> của <code>viewLifecycleOwner</code>.</li>
+  <li>Người dùng gõ tên hoặc email: <code>doAfterTextChanged</code> gọi <code>updateName</code>/<code>updateEmail</code>, ViewModel ghi giá trị vào <code>SavedStateHandle</code>.</li>
+  <li><code>getStateFlow()</code> phát giá trị mới, <code>combine</code> tạo <code>EditProfileState</code> (kèm <code>isValid</code>); UI chỉ <code>setText</code> khi khác giá trị đang hiển thị, rồi bật/tắt nút Lưu.</li>
+  <li>Xoay màn hình: <code>onDestroyView</code> gán <code>_binding = null</code> (View chết trước Fragment instance); Fragment instance và View được tạo mới, ViewModel giữ nguyên; <code>onViewCreated</code> collect lại và nhận ngay draft hiện tại.</li>
+  <li>Process death: ViewModel mất, nhưng dữ liệu của <code>SavedStateHandle</code> nằm trong saved state mà FragmentManager đã lưu; khi mở lại app, ViewModel mới đọc lại <code>name</code> và <code>email</code>.</li>
+</ol>
 
-<p><strong>Thay thế:</strong> Dùng <code>ViewModel</code> cho mọi trường hợp cần retain data.</p>
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant F as EditProfileFragment
+    participant VM as EditProfileViewModel
+    participant SSH as SavedStateHandle
 
-<h2>Triển khai thực tế — Fragment với đầy đủ State Management</h2>
+    F-&gt;&gt;VM: (1) onViewCreated() → collect uiState (viewLifecycleOwner)
+    User-&gt;&gt;F: Gõ tên / email
+    F-&gt;&gt;VM: (2) doAfterTextChanged → updateName() / updateEmail()
+    VM-&gt;&gt;SSH: (2) ghi "name", "email"
+    SSH--&gt;&gt;VM: (3) getStateFlow phát giá trị mới → combine
+    VM--&gt;&gt;F: (3) EditProfileState → setText nếu khác, btnSave.isEnabled
+    User-&gt;&gt;F: Xoay màn hình
+    F-&gt;&gt;F: (4) onDestroyView() → _binding = null
+    Note over F,VM: (4) Fragment + View mới, ViewModel cũ
+    F-&gt;&gt;VM: (4) onViewCreated() → collect lại, nhận draft hiện tại
+    Note over VM,SSH: (5) Process death: ViewModel mất, saved state còn
+    F-&gt;&gt;VM: (5) ViewModel MỚI, SavedStateHandle khôi phục "name", "email"
+</div>
 
 <pre data-lang="kotlin"><code>class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
 
@@ -17775,14 +17949,14 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentEditProfileBinding.bind(view)
+        _binding = FragmentEditProfileBinding.bind(view)  // (1) và (4): mỗi View mới một binding mới
 
-        // Restore UI state từ ViewModel (survive config change)
-        // SavedStateHandle bên trong ViewModel giữ draft data (survive process death)
+        // (4) Restore UI state từ ViewModel (survive config change)
+        // (5) SavedStateHandle bên trong ViewModel giữ draft data (survive process death)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state -&gt;
-                    // Chỉ setText khi khác: tránh vòng lặp với doAfterTextChanged và con trỏ nhảy về đầu
+                    // (3) Chỉ setText khi khác: tránh vòng lặp với doAfterTextChanged và con trỏ nhảy về đầu
                     if (binding.etName.text.toString() != state.name) binding.etName.setText(state.name)
                     if (binding.etEmail.text.toString() != state.email) binding.etEmail.setText(state.email)
                     binding.btnSave.isEnabled = state.isValid
@@ -17790,7 +17964,7 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
             }
         }
 
-        // Lưu user input vào ViewModel (auto-save draft)
+        // (2) Lưu user input vào ViewModel (auto-save draft)
         binding.etName.doAfterTextChanged { text -&gt;
             viewModel.updateName(text.toString())
         }
@@ -17801,7 +17975,7 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
     }
 
     override fun onDestroyView() {
-        _binding = null
+        _binding = null  // (4)
         super.onDestroyView()
     }
 }</code></pre>
@@ -17810,7 +17984,8 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    // Draft data — survive process death
+    // (5) Draft data — survive process death
+    // (3) Mỗi lần "name" hoặc "email" đổi, combine tạo state mới
     val uiState: StateFlow&lt;EditProfileState&gt; = combine(
         savedStateHandle.getStateFlow("name", ""),
         savedStateHandle.getStateFlow("email", "")
@@ -17822,19 +17997,13 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), EditProfileState())
 
-    fun updateName(name: String) { savedStateHandle["name"] = name }
-    fun updateEmail(email: String) { savedStateHandle["email"] = email }
+    fun updateName(name: String) { savedStateHandle["name"] = name }  // (2)
+    fun updateEmail(email: String) { savedStateHandle["email"] = email }  // (2)
 }</code></pre>
 
-<h2>Trade-offs &amp; Pitfalls</h2>
+<p><strong>Kết quả:</strong> sau khi xoay màn hình, và sau khi kill process rồi mở lại app, hai ô tên và email hiện đúng draft đang gõ, nút Lưu giữ đúng trạng thái bật/tắt.</p>
 
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><strong>Không dùng constructor parameter để truyền data:</strong> <code>class MyFragment(val userId: String)</code> sẽ crash khi system recreate Fragment vì system gọi <strong>no-args constructor</strong>. <strong>Fix:</strong> Dùng <code>arguments</code> Bundle hoặc SafeArgs (Jetpack Navigation).</div></div>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>activityViewModels() leak concern:</strong> ViewModel scope theo Activity tồn tại cho đến khi Activity bị destroy. Nếu Fragment chỉ cần data tạm thời mà dùng <code>activityViewModels()</code>, data sẽ chiếm bộ nhớ suốt vòng đời Activity. <strong>Fix:</strong> Chỉ dùng <code>activityViewModels()</code> cho data thực sự cần chia sẻ. Dùng <code>viewModels()</code> cho data riêng.</div></div>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>SavedStateHandle giới hạn size:</strong> SavedStateHandle ghi vào saved state Bundle nên chịu cùng khuyến nghị kích thước (xem <a href="../activity/state_changes.md" target="_blank" rel="noopener">State Changes</a>, mục "Bước 3"). Không lưu bitmap, large list, hoặc complex object. <strong>Fix:</strong> Lưu key/ID trong SavedStateHandle, re-fetch data khi restore.</div></div>
-
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Test Process Death:</strong> cách test giống Activity (<code>adb shell am kill</code>, và giới hạn của "Don't keep activities"), xem <a href="../activity/state_changes.md" target="_blank" rel="noopener">State Changes</a>, mục "Process Death — hiểu và test". Với Fragment, kiểm tra thêm Fragment trong backstack: sau khi mở lại app, bấm Back phải về đúng Fragment trước với đủ state.</div></div>
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Test Process Death:</strong> cách test giống Activity (<code>adb shell am kill</code>, và giới hạn của "Don't keep activities"), xem <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "Process Death — hiểu và test". Với Fragment, kiểm tra thêm Fragment trong backstack: sau khi mở lại app, bấm Back phải về đúng Fragment trước với đủ state.</div></div>
 
 <h2>So sánh với Activity State Changes</h2>
 
@@ -17894,12 +18063,69 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
 
 <p><strong>Điểm thực chiến quan trọng nhất:</strong> với Activity, hệ thống quản lý <code>savedInstanceState</code> của Activity; với Fragment, <strong>FragmentManager</strong> chịu trách nhiệm lưu/khôi phục state của mọi Fragment đang quản lý (kể cả Fragment nằm trong backstack). Khi xoay màn hình, FragmentManager tự khôi phục đúng Fragment đang hiển thị — bạn chỉ cần lo phần dữ liệu (<code>arguments</code>, ViewModel, <code>SavedStateHandle</code>), không cần tự tay khôi phục Fragment instance.</p>
 
-<h2>Nên học tiếp</h2>
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Dùng constructor parameter để truyền data</h3>
+
+<p><code>class MyFragment(val userId: String)</code> sẽ crash khi system recreate Fragment vì system gọi <strong>no-args constructor</strong>.</p>
+
+<p><strong>Cách sửa:</strong> Dùng <code>arguments</code> Bundle hoặc SafeArgs (Jetpack Navigation).</p>
+
+<h3>2. Dùng activityViewModels() cho data chỉ cần tạm thời</h3>
+
+<p>ViewModel scope theo Activity tồn tại cho đến khi Activity bị destroy. Nếu Fragment chỉ cần data tạm thời mà dùng <code>activityViewModels()</code>, data sẽ chiếm bộ nhớ suốt vòng đời Activity.</p>
+
+<p><strong>Cách sửa:</strong> Chỉ dùng <code>activityViewModels()</code> cho data thực sự cần chia sẻ. Dùng <code>viewModels()</code> cho data riêng.</p>
+
+<h3>3. Lưu dữ liệu lớn vào SavedStateHandle</h3>
+
+<p>SavedStateHandle ghi vào saved state Bundle nên chịu cùng khuyến nghị kích thước (xem <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "onSaveInstanceState: transient UI state (View/XML)"). Không lưu bitmap, large list, hoặc complex object.</p>
+
+<p><strong>Cách sửa:</strong> Lưu key/ID trong SavedStateHandle, re-fetch data khi restore.</p>
+
+<h2>Lịch sử phát triển</h2>
 
 <ul>
-  <li><strong>FragmentManager</strong> (<code>android.component.fragment.fragment_manager</code>) — transaction (<code>add</code>/<code>replace</code>/<code>remove</code>), backstack, và cách FragmentManager lưu/khôi phục state của từng Fragment.</li>
-  <li><strong>Dialog and DialogFragment</strong> (<code>android.component.fragment.dialog_and_dialogfragment</code>) — màn hình dialog có vòng đời riêng và cách lưu state khi rotate.</li>
-  <li><strong>Activity State Changes</strong> (<code>android.component.activity.state_changes</code>) — nền tảng mà Fragment State Changes thừa hưởng.</li>
+  <li><strong>Android 3.0 (API 11):</strong> <code>setArguments()</code> và <code>setRetainInstance()</code> có từ API level 11 trong <code>android.app.Fragment</code>. Bản Fragment của framework bị deprecated từ API 28, thay bằng Fragment của AndroidX.</li>
+  <li><strong>09/2019 (Fragment 1.1.0):</strong> <code>fragment-ktx</code> thêm hai property delegate <code>by viewModels()</code> (ViewModel theo Fragment) và <code>by activityViewModels()</code> (ViewModel theo Activity).</li>
+  <li><strong>01/2020 (Fragment 1.2.0):</strong> <code>SavedStateViewModelFactory</code> thành factory mặc định khi dùng <code>by viewModels()</code>, <code>by activityViewModels()</code> hoặc constructor <code>ViewModelProvider</code> với Fragment (từ bản 1.2.0-alpha02, 08/2019); cùng lúc Lifecycle ViewModel SavedState 1.0.0 ra mắt <code>SavedStateHandle</code> (chi tiết ở <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "Lịch sử phát triển").</li>
+  <li><strong>02/2021 (Fragment 1.3.0):</strong> <code>setRetainInstance()</code> bị deprecated (từ bản 1.3.0-alpha01, 03/2020).</li>
+</ul>
+
+<h3>setRetainInstance: deprecated và thay thế</h3>
+
+<p>Trước đây, <code>setRetainInstance(true)</code> cho phép Fragment instance tồn tại qua configuration change (Activity bị recreate nhưng Fragment instance giữ nguyên). Cách này đã <strong>deprecated từ AndroidX Fragment 1.3.0</strong> (API 28 là mốc deprecate <code>android.app.Fragment</code> của framework, không phải <code>setRetainInstance</code> của AndroidX).</p>
+
+<p><strong>Lý do deprecated:</strong></p>
+
+<ul>
+  <li>Gây rối loạn lifecycle: Fragment instance sống nhưng host Activity mới, context cũ bị leak</li>
+  <li>Không tương thích với Navigation Component</li>
+  <li>ViewModel đã giải quyết hoàn toàn nhu cầu retain data qua configuration change</li>
+</ul>
+
+<p>Release notes của Fragment 1.3.0 nêu lý do: ViewModel là API riêng để giữ state, gắn được với Activity, Fragment và Navigation graph, nên Fragment không cần được retain nữa và tránh được một nguồn leak phổ biến.</p>
+
+<p><strong>Thay thế:</strong> Dùng <code>ViewModel</code> cho mọi trường hợp cần retain data.</p>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>: hai vòng đời Fragment và View, chuyện gì xảy ra khi Fragment vào backstack.</li>
+  <li><a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a> — nền tảng mà Fragment State Changes thừa hưởng: vì sao recreate, configuration change với process death, cơ chế ViewModel và <code>SavedStateHandle</code>.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="fragment_manager.md" target="_blank" rel="noopener">FragmentManager</a> — transaction (<code>add</code>/<code>replace</code>/<code>remove</code>), backstack, và cách FragmentManager lưu/khôi phục state của từng Fragment.</li>
+  <li><a href="dialog_and_dialogfragment.md" target="_blank" rel="noopener">Dialog and DialogFragment</a> — màn hình dialog có vòng đời riêng và cách lưu state khi rotate.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>: kiểu dữ liệu và giới hạn kích thước của <code>arguments</code> và saved state.</li>
+  <li>6.4 ViewModel (chưa có bài): factory, Hilt, <code>viewModelScope</code>.</li>
+</ul></li>
 </ul>
 
 <h2>Nguồn tham khảo</h2>
@@ -17910,6 +18136,8 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
   <li><a href="https://developer.android.com/topic/libraries/architecture/viewmodel/viewmodel-savedstate" target="_blank" rel="noopener">SavedStateHandle - Android Developers</a></li>
   <li><a href="https://developer.android.com/reference/androidx/fragment/app/Fragment#setArguments(android.os.Bundle" target="_blank" rel="noopener">Fragment Arguments (setArguments) - Android Developers</a>)</li>
   <li><a href="https://developer.android.com/reference/androidx/fragment/app/Fragment" target="_blank" rel="noopener">Fragment (setRetainInstance deprecated) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/android/app/Fragment" target="_blank" rel="noopener">android.app.Fragment (setArguments, setRetainInstance: API 11; deprecated API 28) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/fragment" target="_blank" rel="noopener">Fragment release notes (1.1.0: by viewModels/activityViewModels, 1.2.0: SavedStateViewModelFactory mặc định, 1.3.0: setRetainInstance deprecated) - Android Developers</a></li>
   <li><a href="https://developer.android.com/guide/components/activities/parcelables-and-bundles" target="_blank" rel="noopener">Parcelables and bundles (giới hạn kích thước) - Android Developers</a></li>
   <li><a href="https://developer.android.com/guide/components/activities/activity-lifecycle" target="_blank" rel="noopener">Activity lifecycle / state changes - Android Developers</a></li>
 </ul>
@@ -17918,7 +18146,7 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
 
   'fragment-manager': {
     title: 'FragmentManager',
-    summary: 'Hiểu bản chất FragmentManager - thành phần trung tâm quản lý vòng đời Fragment, điều hướng Back Stack và giao tiếp giữa các Fragment trong ứng dụng Android.',
+    summary: 'FragmentManager là đối tượng mà mỗi host (Activity hoặc Fragment cha) sở hữu để thêm, xoá, thay thế, ẩn/hiện Fragment qua FragmentTransaction, giữ back stack gồm các transaction đó và đưa từng Fragment đi qua lifecycle đồng bộ với host. Bài giải thích transaction và chiến lược commit, back stack, chuyển tab bằng show/hide, giao tiếp giữa các Fragment, Child Fragment và khi nào chuyển sang Navigation Component.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '35 phút',
@@ -17939,32 +18167,7 @@ private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
     updatedAt: '2026-11-07',
     readTime: '35 phút',
     content: `
-<h2>FragmentManager là gì?</h2>
-
-<p>FragmentManager là thành phần trung tâm trong hệ thống Fragment của Android, chịu trách nhiệm:</p>
-
-<ul>
-  <li><strong>Quản lý vòng đời</strong> của tất cả Fragment trong Activity.</li>
-  <li><strong>Thực hiện các thao tác</strong> (thêm, xóa, thay thế, ẩn/hiện) thông qua FragmentTransaction.</li>
-  <li><strong>Quản lý Back Stack</strong> - điều hướng ngược qua các Fragment.</li>
-  <li><strong>Tìm kiếm Fragment</strong> theo ID hoặc tag.</li>
-  <li><strong>Phối hợp với Activity</strong> để đồng bộ trạng thái khi cấu hình thay đổi (rotation, dark mode...).</li>
-</ul>
-
-<p>FragmentManager không phải là một class bạn tự khởi tạo. Nó được cung cấp bởi Activity hoặc Fragment cha thông qua:</p>
-
-<pre data-lang="kotlin"><code>// Trong Activity
-val fragmentManager = supportFragmentManager
-
-// Trong Fragment (để quản lý Child Fragment)
-val childFragmentManager = childFragmentManager
-
-// Trong Fragment (để truy cập FragmentManager của Activity cha)
-val parentFragmentManager = parentFragmentManager</code></pre>
-
-<h2>Tại sao FragmentManager tồn tại?</h2>
-
-<h3>Vấn đề trước khi có FragmentManager</h3>
+<h2>Vấn đề cần giải quyết</h2>
 
 <p>Trước Android 3.0 (API 11), Activity là đơn vị UI duy nhất. Khi cần hiển thị nhiều màn hình trong cùng một Activity, lập trình viên phải:</p>
 
@@ -17975,9 +18178,7 @@ val parentFragmentManager = parentFragmentManager</code></pre>
   <li>Không có cơ chế tái sử dụng UI giữa các Activity.</li>
 </ul>
 
-<h3>FragmentManager giải quyết vấn đề gì?</h3>
-
-<p>Fragment không tự quản lý chính mình. Nó không thể tự thêm vào UI, tự thay thế Fragment khác, hay tự quay lại Fragment trước. Tất cả những thao tác này đều cần một "người quản lý", đó chính là FragmentManager.</p>
+<p>Fragment chia màn hình thành nhiều phần có vòng đời riêng, nhưng Fragment không tự quản lý chính mình. Nó không thể tự thêm vào UI, tự thay thế Fragment khác, hay tự quay lại Fragment trước. Tất cả những thao tác này đều cần một "người quản lý", đó chính là FragmentManager.</p>
 
 <p>FragmentManager giải quyết 3 vấn đề cốt lõi:</p>
 
@@ -17995,9 +18196,35 @@ val parentFragmentManager = parentFragmentManager</code></pre>
 
 <p>Hiểu FragmentManager là nền tảng để hiểu tại sao Jetpack Navigation Component hoạt động được, bởi Navigation Component là abstraction layer phía trên FragmentManager.</p>
 
-<h2>Cơ chế hoạt động</h2>
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được vai trò và cơ chế hoạt động của FragmentManager trong hệ thống Fragment.</li>
+  <li>Phân biệt được FragmentTransaction, Back Stack và các chiến lược commit.</li>
+  <li>Áp dụng được các pattern giao tiếp giữa các Fragment (Shared ViewModel, Fragment Result API) và Child Fragment cho nested navigation.</li>
+  <li>Biết khi nào dùng FragmentManager trực tiếp và khi nào dùng Navigation Component.</li>
+  <li>Nhận diện được các lỗi phổ biến khi làm việc với FragmentManager và cách tránh.</li>
+</ul>
+
+<h2>FragmentManager là gì?</h2>
+
+<p><strong>FragmentManager</strong> là đối tượng mà mỗi host (Activity hoặc Fragment cha) sở hữu để thực hiện thao tác trên các Fragment của nó: thêm, xoá, thay thế, ẩn/hiện qua <code>FragmentTransaction</code>, giữ back stack gồm các transaction đó, và đưa từng Fragment đi qua lifecycle đồng bộ với host.</p>
+
+<p>Mental model: FragmentManager là <strong>người giữ sổ giao dịch</strong> của host. Mỗi <code>FragmentTransaction</code> là một phiếu ghi nhiều thao tác (<code>add</code>, <code>replace</code>, <code>hide</code>…) được thực hiện cùng nhau; <code>addToBackStack()</code> cất phiếu đó vào chồng sổ; nhấn Back là lấy phiếu trên cùng ra và làm ngược từng thao tác trên phiếu. Fragment không tự thêm hay tự gỡ mình, nó chỉ đổi trạng thái theo phiếu mà người giữ sổ thực thi.</p>
+
+<h2>Cách hoạt động</h2>
 
 <h3>Kiến trúc tổng thể</h3>
+
+<p>FragmentManager là thành phần trung tâm trong hệ thống Fragment của Android, chịu trách nhiệm:</p>
+
+<ul>
+  <li><strong>Quản lý vòng đời</strong> của tất cả Fragment trong Activity.</li>
+  <li><strong>Thực hiện các thao tác</strong> (thêm, xóa, thay thế, ẩn/hiện) thông qua FragmentTransaction.</li>
+  <li><strong>Quản lý Back Stack</strong> - điều hướng ngược qua các Fragment.</li>
+  <li><strong>Tìm kiếm Fragment</strong> theo ID hoặc tag.</li>
+  <li><strong>Phối hợp với Activity</strong> để đồng bộ trạng thái khi cấu hình thay đổi (rotation, dark mode...).</li>
+</ul>
 
 <div class="dd-diagram" data-dd="fmg-tree-a">
 <div class="dd-svg dd-svg-dark">
@@ -18199,6 +18426,19 @@ val parentFragmentManager = parentFragmentManager</code></pre>
   <li><strong>FragmentManager</strong> cập nhật Back Stack nếu cần.</li>
   <li><strong>FragmentManager</strong> đồng bộ vòng đời của tất cả Fragment với Activity.</li>
 </ol>
+
+<h3>Lấy FragmentManager từ Activity hoặc Fragment cha</h3>
+
+<p>FragmentManager không phải là một class bạn tự khởi tạo. Nó được cung cấp bởi Activity hoặc Fragment cha thông qua:</p>
+
+<pre data-lang="kotlin"><code>// Trong Activity
+val fragmentManager = supportFragmentManager
+
+// Trong Fragment (để quản lý Child Fragment)
+val childFragmentManager = childFragmentManager
+
+// Trong Fragment (để truy cập FragmentManager của Activity cha)
+val parentFragmentManager = parentFragmentManager</code></pre>
 
 <h3>Vòng đời phối hợp</h3>
 
@@ -18474,9 +18714,9 @@ val parentFragmentManager = parentFragmentManager</code></pre>
 
 <p>FragmentManager gọi các callback vòng đời của Fragment <strong>theo đúng thứ tự</strong> và <strong>đồng bộ với Activity</strong>. Nếu Activity ở trạng thái <code>RESUMED</code>, Fragment cũng sẽ ở <code>RESUMED</code>.</p>
 
-<h2>FragmentTransaction - Thao tác với Fragment</h2>
+<h3>FragmentTransaction: thao tác với Fragment</h3>
 
-<h3>FragmentTransaction là gì?</h3>
+<h4>FragmentTransaction là gì?</h4>
 
 <p>FragmentTransaction là một <strong>đối tượng mô tả một loạt thao tác</strong> sẽ thực hiện trên Fragment. Nó tuân theo pattern <strong>Builder</strong> và <strong>Command</strong>.</p>
 
@@ -18499,7 +18739,7 @@ val parentFragmentManager = parentFragmentManager</code></pre>
   <li><code>setReorderingAllowed(true)</code>: Cho phép tối ưu thứ tự thực thi.</li>
 </ul>
 
-<h3>add vs replace - Khi nào dùng cái nào?</h3>
+<h4>add vs replace - Khi nào dùng cái nào?</h4>
 
 <pre data-lang="kotlin"><code>// add: Fragment cũ VẪN CÒN dưới Fragment mới (stacking)
 supportFragmentManager.beginTransaction()
@@ -18515,7 +18755,17 @@ supportFragmentManager.beginTransaction()
 
 <p><strong>Quy tắc thực tế:</strong> Trong đa số trường hợp navigation, dùng <code>replace()</code> + <code>addToBackStack()</code>. Chỉ dùng <code>add()</code> khi cần nhiều Fragment cùng hiển thị (ví dụ: multi-pane layout trên tablet).</p>
 
-<h3>Commit vs CommitAllowingStateLoss</h3>
+<h4>Dùng <code>setReorderingAllowed(true)</code> cho nhiều thao tác</h4>
+
+<pre data-lang="kotlin"><code>supportFragmentManager.beginTransaction()
+    .setReorderingAllowed(true)
+    .hide(currentFragment)
+    .add(R.id.container, newFragment)
+    .commit()</code></pre>
+
+<p><code>setReorderingAllowed(true)</code> cho phép FragmentManager <strong>tối ưu thứ tự thực thi</strong>, tránh việc Fragment bị create/destroy không cần thiết.</p>
+
+<h4>Commit vs CommitAllowingStateLoss</h4>
 
 <pre data-lang="kotlin"><code>// Cách 1: Commit thông thường
 fragmentManager.beginTransaction()
@@ -18540,7 +18790,7 @@ fragmentManager.beginTransaction()
   <li><code>commitNow()</code>: Thực thi đồng bộ. Hữu ích khi cần Fragment đã sẵn sàng ngay sau khi commit. Không dùng chung với <code>addToBackStack()</code>: <code>commitNow()</code> ném <code>IllegalStateException</code> nếu transaction đã yêu cầu vào back stack.</li>
 </ul>
 
-<h3>Animation và Transition</h3>
+<h4>Animation và Transition</h4>
 
 <pre data-lang="kotlin"><code>supportFragmentManager.beginTransaction()
     .setCustomAnimations(
@@ -18560,9 +18810,9 @@ fragmentManager.beginTransaction()
   <li><strong>Backward</strong>: Khi pop Fragment khỏi Back Stack (popEnter/popExit).</li>
 </ul>
 
-<h2>Back Stack - Điều hướng ngược</h2>
+<h3>Back Stack: điều hướng ngược</h3>
 
-<h3>Back Stack là gì?</h3>
+<h4>Back Stack là gì?</h4>
 
 <p>Back Stack là một <strong>ngăn xếp các FragmentTransaction</strong>. Khi người dùng nhấn Back, FragmentManager sẽ <strong>pop</strong> transaction gần nhất ra khỏi Back Stack và <strong>đảo ngược</strong> thao tác.</p>
 
@@ -18649,14 +18899,14 @@ fragmentManager.beginTransaction()
 </div>
 </div>
 
-<h3>addToBackStack()</h3>
+<h4>addToBackStack()</h4>
 
 <pre data-lang="kotlin"><code>supportFragmentManager.beginTransaction()
     .replace(R.id.container, ProfileFragment())
     .addToBackStack("profile")  // Tag để nhận diện
     .commit()</code></pre>
 
-<p><strong>Quan trọng</strong>: <code>addToBackStack()</code> lưu <strong>transaction</strong> (danh sách thao tác để đảo ngược). Fragment bị <code>replace</code> không bị hủy: View bị hủy, instance được giữ và dừng ở <code>CREATED</code> để khi pop thì gắn lại đúng instance đó. Chi tiết ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "Lifecycle khi Fragment trong Backstack". Khi pop, FragmentManager sẽ <strong>đảo ngược</strong> thao tác:</p>
+<p><strong>Quan trọng</strong>: <code>addToBackStack()</code> lưu <strong>transaction</strong> (danh sách thao tác để đảo ngược). Fragment bị <code>replace</code> không bị hủy: View bị hủy, instance được giữ và dừng ở <code>CREATED</code> để khi pop thì gắn lại đúng instance đó. Chi tiết ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "Lifecycle khi Fragment vào backstack". Khi pop, FragmentManager sẽ <strong>đảo ngược</strong> thao tác:</p>
 
 <ul>
   <li>Nếu transaction là <code>add()</code> → pop sẽ <code>remove()</code>.</li>
@@ -18664,7 +18914,7 @@ fragmentManager.beginTransaction()
   <li>Nếu transaction là <code>remove()</code> → pop sẽ <code>add()</code> lại.</li>
 </ul>
 
-<h3>popBackStack()</h3>
+<h4>popBackStack()</h4>
 
 <pre data-lang="kotlin"><code>// Pop 1 transaction
 supportFragmentManager.popBackStack()
@@ -18678,93 +18928,9 @@ supportFragmentManager.popBackStack("profile", POP_BACK_STACK_INCLUSIVE)
 // Pop đến ID
 supportFragmentManager.popBackStack(transactionId, 0)</code></pre>
 
-<h3>Ví dụ thực tế: Bottom Navigation với Back Stack</h3>
+<h3>Giao tiếp giữa các Fragment</h3>
 
-<p>Mỗi tab là một Fragment được <code>add</code> một lần rồi giữ lại; chuyển tab chỉ là ẩn tab cũ, hiện tab mới. Luồng chạy:</p>
-
-<ol>
-  <li>Lần đầu mở Activity (<code>savedInstanceState == null</code>): add tab Home.</li>
-  <li>Sau khi xoay hoặc process death, FragmentManager đã tự khôi phục các tab, còn field <code>currentTab</code> về <code>null</code>: tìm lại tab đang hiện trong container. Bỏ bước này thì lần chuyển tab đầu tiên không ẩn tab cũ, hai tab chồng lên nhau.</li>
-  <li>Khi chuyển tab, tìm tab đích theo tag. Chỉ tạo instance mới khi tab chưa từng được add, để không add trùng.</li>
-  <li>Trong <strong>một</strong> transaction: <code>hide</code> tab cũ và giới hạn nó ở <code>STARTED</code> bằng <code>setMaxLifecycle</code>.</li>
-  <li><code>add</code> tab đích nếu là lần đầu, ngược lại <code>show</code>.</li>
-  <li>Cho tab đích lên lại <code>RESUMED</code> (bỏ giới hạn đặt ở bước 4 lần trước).</li>
-</ol>
-
-<pre data-lang="kotlin"><code>class MainActivity : AppCompatActivity() {
-
-    private var currentTab: Fragment? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        if (savedInstanceState == null) {
-            switchTab(TAG_HOME)                                      // (1)
-        } else {
-            currentTab = supportFragmentManager.fragments            // (2)
-                .firstOrNull { it.id == R.id.container &amp;&amp; !it.isHidden }
-        }
-
-        findViewById&lt;BottomNavigationView&gt;(R.id.bottom_nav).setOnItemSelectedListener { item -&gt;
-            switchTab(
-                when (item.itemId) {
-                    R.id.nav_home -&gt; TAG_HOME
-                    R.id.nav_search -&gt; TAG_SEARCH
-                    else -&gt; TAG_PROFILE
-                }
-            )
-            true
-        }
-    }
-
-    private fun switchTab(tag: String) {
-        val fragmentManager = supportFragmentManager
-        val existing = fragmentManager.findFragmentByTag(tag)        // (3)
-        val target = existing ?: createTab(tag)
-        if (target == currentTab) return
-
-        fragmentManager.beginTransaction().apply {
-            setReorderingAllowed(true)
-            currentTab?.let {                                        // (4)
-                hide(it)
-                setMaxLifecycle(it, Lifecycle.State.STARTED)
-            }
-            if (existing == null) add(R.id.container, target, tag) else show(target) // (5)
-            setMaxLifecycle(target, Lifecycle.State.RESUMED)          // (6)
-        }.commit()
-
-        currentTab = target
-    }
-
-    private fun createTab(tag: String): Fragment = when (tag) {
-        TAG_HOME -&gt; HomeFragment()
-        TAG_SEARCH -&gt; SearchFragment()
-        else -&gt; ProfileFragment()
-    }
-
-    companion object {
-        private const val TAG_HOME = "home"
-        private const val TAG_SEARCH = "search"
-        private const val TAG_PROFILE = "profile"
-    }
-}</code></pre>
-
-<p><code>hide()</code> không đổi lifecycle của tab bị ẩn; <code>setMaxLifecycle()</code> ở bước 4 mới đưa nó xuống <code>STARTED</code>. Callback mà từng tab nhận khi bị ẩn/hiện ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "Ứng dụng đa tab / Single-Activity — show/hide giữ View sống".</p>
-
-<p><strong>Tại sao không dùng <code>addToBackStack()</code> trong trường hợp này?</strong></p>
-
-<p>Vì Bottom Navigation cần <strong>giữ trạng thái</strong> của tất cả tab. Nếu dùng <code>addToBackStack()</code>, khi nhấn Back sẽ pop Fragment ra khỏi Back Stack, làm mất trạng thái.</p>
-
-<p>Thay vào đó, ta dùng <code>hide()</code>/<code>show()</code> để <strong>giữ Fragment trong bộ nhớ</strong> nhưng không hiển thị.</p>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Đừng nhầm hai tình huống:</strong> - <strong>Điều hướng sâu</strong> (list → detail): dùng <code>replace</code> — View cũ nên bị hủy để tiết kiệm bộ nhớ. - <strong>Chuyển tab cố định</strong> (Bottom Nav): dùng <code>show</code>/<code>hide</code> — View nên sống để không load lại data mỗi lần đổi tab.  Dùng sai chiều sẽ gây: <code>replace</code> cho tab → app lag + mất state mỗi lần đổi; <code>show</code>/<code>hide</code> cho điều hướng sâu → nhiều Fragment chồng lên nhau, tốn bộ nhớ.</div></div>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Khi mỗi tab có back stack riêng (tab Home đi sâu list → detail, đổi tab rồi quay lại vẫn ở detail), dùng <strong>multiple back stacks</strong> (Fragment 1.4.0+): <code>saveBackStack(name)</code> pop và lưu state của các transaction thuộc tab cũ, <code>restoreBackStack(name)</code> khôi phục chúng. Hai hàm này chỉ chạy với transaction có <code>setReorderingAllowed(true)</code> và có tên trong <code>addToBackStack(name)</code>. Với Navigation Component, <code>NavigationUI</code> (<code>setupWithNavController</code>) tự làm việc này cho bottom navigation, thay cho show/hide tự viết.</div></div>
-
-<h2>Communication - Giao tiếp giữa các Fragment</h2>
-
-<h3>Pattern 1: Shared ViewModel (Khuyến nghị)</h3>
+<h4>Pattern 1: Shared ViewModel (Khuyến nghị)</h4>
 
 <p>Đây là pattern <strong>chuẩn mực</strong> trong MVVM. Các Fragment chia sẻ cùng một ViewModel thông qua Activity scope.</p>
 
@@ -18821,7 +18987,7 @@ class DetailFragment : Fragment() {
   <li>Dễ test, dễ bảo trì.</li>
 </ul>
 
-<h3>Pattern 2: Fragment Result API (Cho one-time event)</h3>
+<h4>Pattern 2: Fragment Result API (Cho one-time event)</h4>
 
 <p>Dùng khi Fragment A cần <strong>gửi kết quả</strong> cho Fragment B (ví dụ: chọn ảnh, chọn file).</p>
 
@@ -18855,7 +19021,7 @@ class FragmentB : Fragment() {
   <li>Kết quả được gửi qua Bundle (phải Parcelable/Serializable).</li>
 </ul>
 
-<h3>Pattern 3: Interface Callback (Legacy)</h3>
+<h4>Pattern 3: Interface Callback (Legacy)</h4>
 
 <p>Pattern cũ, không khuyến nghị trong project mới.</p>
 
@@ -18887,9 +19053,9 @@ class FragmentA : Fragment() {
   <li>Khó test.</li>
 </ul>
 
-<h2>Child Fragment - Fragment lồng nhau</h2>
+<h3>Child Fragment: Fragment lồng nhau</h3>
 
-<h3>Child Fragment là gì?</h3>
+<h4>Child Fragment là gì?</h4>
 
 <p>Child Fragment là Fragment được <strong>quản lý bởi Fragment khác</strong> thay vì Activity. FragmentManager của Fragment cha được gọi là <code>childFragmentManager</code>.</p>
 
@@ -18988,7 +19154,7 @@ class FragmentA : Fragment() {
 </div>
 </div>
 
-<h3>Khi nào dùng Child Fragment?</h3>
+<h4>Khi nào dùng Child Fragment?</h4>
 
 <p><strong>Trường hợp 1: ViewPager2 với TabLayout</strong></p>
 
@@ -19022,488 +19188,7 @@ class FragmentA : Fragment() {
     }
 }</code></pre>
 
-<h3>Lưu ý quan trọng</h3>
-
-<ul>
-  <li><strong>Vòng đời</strong>: Child Fragment bị ảnh hưởng bởi vòng đời của Parent Fragment. Khi Parent bị destroy, Child cũng bị destroy.</li>
-  <li><strong>Back Stack</strong>: Child Fragment có Back Stack riêng. Back chỉ được giao cho child trước khi Parent Fragment là <strong>primary navigation fragment</strong> (<code>setPrimaryNavigationFragment(parent)</code>; <code>NavHostFragment</code> tự làm việc này khi có <code>app:defaultNavHost="true"</code>). Nếu không, Back pop back stack của FragmentManager cha, bỏ qua back stack của child.</li>
-  <li><strong>Communication</strong>: Child Fragment nên giao tiếp với Parent Fragment thông qua Shared ViewModel hoặc Fragment Result API.</li>
-</ul>
-
-<h2>So sánh FragmentManager vs Navigation Component</h2>
-
-<h3>Navigation Component là gì?</h3>
-
-<p>Navigation Component là thư viện của Jetpack, cung cấp API bậc cao để quản lý điều hướng trong ứng dụng. Nó <strong>sử dụng FragmentManager bên dưới</strong>.</p>
-
-<h3>So sánh chi tiết</h3>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
-      <th style="padding:8px 12px;text-align:left;">FragmentManager</th>
-      <th style="padding:8px 12px;text-align:left;">Navigation Component</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Learning curve</strong></td>
-      <td style="padding:8px 12px;">Thấp, API đơn giản</td>
-      <td style="padding:8px 12px;">Trung bình, cần hiểu NavGraph, NavHost</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Type safety</strong></td>
-      <td style="padding:8px 12px;">Không (dùng tag/id string)</td>
-      <td style="padding:8px 12px;">Có (dùng Safe Args plugin)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Deep linking</strong></td>
-      <td style="padding:8px 12px;">Tự implement</td>
-      <td style="padding:8px 12px;">Hỗ trợ sẵn</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Back Stack management</strong></td>
-      <td style="padding:8px 12px;">Thủ công</td>
-      <td style="padding:8px 12px;">Tự động, có thể customize</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Animation</strong></td>
-      <td style="padding:8px 12px;">Thủ công</td>
-      <td style="padding:8px 12px;">Hỗ trợ sẵn trong XML</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Testing</strong></td>
-      <td style="padding:8px 12px;"><code>FragmentScenario</code> test được từng Fragment, nhưng kiểm tra điều hướng phải đọc FragmentManager/back stack</td>
-      <td style="padding:8px 12px;">Dễ hơn: <code>TestNavHostController</code> cho biết destination hiện tại</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Modularization</strong></td>
-      <td style="padding:8px 12px;">Khó</td>
-      <td style="padding:8px 12px;">Dễ (dynamic feature module)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Compose support</strong></td>
-      <td style="padding:8px 12px;">Không</td>
-      <td style="padding:8px 12px;">Có (Navigation Compose)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Boilerplate</strong></td>
-      <td style="padding:8px 12px;">Nhiều</td>
-      <td style="padding:8px 12px;">Ít</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Navigation Component quản lý cả DialogFragment như một destination (<code>&lt;dialog&gt;</code>), cùng back stack với các màn hình khác: xem <a href="dialog_and_dialogfragment.md" target="_blank" rel="noopener">Dialog and DialogFragment</a>, mục "DialogFragment vs Navigation Component Dialog".</p>
-
-<h3>Khi nào dùng FragmentManager?</h3>
-
-<ul>
-  <li>Project nhỏ, ít màn hình.</li>
-  <li>Cần kiểm soát chi tiết Back Stack.</li>
-  <li>Không muốn thêm dependency.</li>
-  <li>Đang maintain codebase cũ.</li>
-</ul>
-
-<h3>Khi nào dùng Navigation Component?</h3>
-
-<ul>
-  <li>Project lớn, nhiều màn hình.</li>
-  <li>Cần deep linking.</li>
-  <li>Làm việc với team lớn, cần type safety.</li>
-  <li>Dùng Compose.</li>
-  <li>Cần modularization.</li>
-</ul>
-
-<h3>Ví dụ so sánh code</h3>
-
-<p><strong>FragmentManager:</strong></p>
-
-<pre data-lang="kotlin"><code>// Điều hướng
-supportFragmentManager.beginTransaction()
-    .replace(R.id.container, DetailFragment())
-    .addToBackStack(null)
-    .commit()
-
-// Truyền dữ liệu
-val fragment = DetailFragment().apply {
-    arguments = bundleOf("itemId" to itemId)
-}
-supportFragmentManager.beginTransaction()
-    .replace(R.id.container, fragment)
-    .addToBackStack(null)
-    .commit()</code></pre>
-
-<p><strong>Navigation Component:</strong></p>
-
-<pre data-lang="kotlin"><code>// Điều hướng
-findNavController().navigate(R.id.action_to_detail)
-
-// Truyền dữ liệu (với Safe Args)
-val action = ListFragmentDirections.actionToDetail(itemId)
-findNavController().navigate(action)</code></pre>
-
-<h2>FragmentManager trong XML vs Compose</h2>
-
-<h3>XML (Traditional View System)</h3>
-
-<pre data-lang="kotlin"><code>class MainActivity : AppCompatActivity() {
-    
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.container, HomeFragment())
-                .commit()
-        }
-    }
-}</code></pre>
-
-<h3>Compose (Navigation Compose)</h3>
-
-<p>Trong Compose, bạn <strong>không dùng FragmentManager trực tiếp</strong>. Thay vào đó, dùng <strong>Navigation Compose</strong> - một thư viện điều hướng dành riêng cho Compose.</p>
-
-<pre data-lang="kotlin"><code>@Composable
-fun AppNavigation() {
-    val navController = rememberNavController()
-    
-    NavHost(navController = navController, startDestination = "home") {
-        composable("home") {
-            HomeScreen(onNavigateToDetail = { itemId -&gt;
-                navController.navigate("detail/$itemId")
-            })
-        }
-        
-        composable(
-            route = "detail/{itemId}",
-            arguments = listOf(navArgument("itemId") { type = NavType.StringType })
-        ) { backStackEntry -&gt;
-            val itemId = backStackEntry.arguments?.getString("itemId")
-            DetailScreen(itemId = itemId)
-        }
-    }
-}</code></pre>
-
-<h3>Sự khác biệt cốt lõi</h3>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Aspect</th>
-      <th style="padding:8px 12px;text-align:left;">XML (FragmentManager)</th>
-      <th style="padding:8px 12px;text-align:left;">Compose (Navigation Compose)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Đơn vị điều hướng</strong></td>
-      <td style="padding:8px 12px;">Fragment</td>
-      <td style="padding:8px 12px;">Composable function</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Quản lý trạng thái</strong></td>
-      <td style="padding:8px 12px;">Fragment lifecycle</td>
-      <td style="padding:8px 12px;">Compose state + SavedStateHandle</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Back Stack</strong></td>
-      <td style="padding:8px 12px;">FragmentTransaction</td>
-      <td style="padding:8px 12px;">NavBackStackEntry</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Animation</strong></td>
-      <td style="padding:8px 12px;">XML animation</td>
-      <td style="padding:8px 12px;">AnimatedContent, Crossfade</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Type safety</strong></td>
-      <td style="padding:8px 12px;">Bundle (Parcelable)</td>
-      <td style="padding:8px 12px;">NavType + Safe Args</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3>Chuyển từ XML sang Compose</h3>
-
-<p>Nếu đang migrate từ XML sang Compose, bạn có thể <strong>dùng chung Fragment và Compose</strong> trong cùng một Activity:</p>
-
-<pre data-lang="kotlin"><code>class MainActivity : AppCompatActivity() {
-    
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Layout chứa cả FragmentContainerView (R.id.fragment_container) và ComposeView (R.id.compose_view).
-        // Không gọi setContent { } của Activity: nó thay toàn bộ content view, xoá luôn container của Fragment.
-        setContentView(R.layout.activity_main)
-
-        // Fragment XML truyền thống
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.fragment_container, LegacyFragment())
-                .commit()
-        }
-
-        // Compose trong cùng Activity, gắn vào một ComposeView của layout
-        findViewById&lt;ComposeView&gt;(R.id.compose_view).setContent {
-            AppNavigation()
-        }
-    }
-}</code></pre>
-
-<h2>Best Practices</h2>
-
-<h3>1. Luôn dùng <code>commit()</code> thay vì <code>commitAllowingStateLoss()</code></h3>
-
-<pre data-lang="kotlin"><code>// Đúng
-supportFragmentManager.beginTransaction()
-    .replace(R.id.container, fragment)
-    .commit()
-
-// Sai (trừ khi thật sự cần)
-supportFragmentManager.beginTransaction()
-    .replace(R.id.container, fragment)
-    .commitAllowingStateLoss()</code></pre>
-
-<p><code>commitAllowingStateLoss()</code> có thể gây mất trạng thái nếu Activity bị kill. Chỉ dùng khi bạn <strong>chấp nhận rủi ro</strong> (ví dụ: hiển thị dialog không quan trọng).</p>
-
-<h3>2. Dùng <code>setReorderingAllowed(true)</code> cho nhiều thao tác</h3>
-
-<pre data-lang="kotlin"><code>supportFragmentManager.beginTransaction()
-    .setReorderingAllowed(true)
-    .hide(currentFragment)
-    .add(R.id.container, newFragment)
-    .commit()</code></pre>
-
-<p><code>setReorderingAllowed(true)</code> cho phép FragmentManager <strong>tối ưu thứ tự thực thi</strong>, tránh việc Fragment bị create/destroy không cần thiết.</p>
-
-<h3>3. Luôn dùng Shared ViewModel cho communication</h3>
-
-<pre data-lang="kotlin"><code>// Đúng
-class FragmentA : Fragment() {
-    private val viewModel: SharedViewModel by activityViewModels()
-}
-
-class FragmentB : Fragment() {
-    private val viewModel: SharedViewModel by activityViewModels()
-}
-
-// Sai (coupling cao)
-class FragmentA : Fragment() {
-    private lateinit var fragmentB: FragmentB
-    
-    fun sendData(data: Data) {
-        fragmentB.receiveData(data)
-    }
-}</code></pre>
-
-<h3>4. Dùng <code>viewLifecycleOwner</code> thay vì <code>this</code> khi observe LiveData/Flow</h3>
-
-<pre data-lang="kotlin"><code>// Đúng
-override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    viewLifecycleOwner.lifecycleScope.launch {
-        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.data.collect { /* ... */ }
-        }
-    }
-}
-
-// Sai (memory leak)
-override fun onCreate(savedInstanceState: Bundle?) {
-    lifecycleScope.launch {
-        viewModel.data.collect { /* ... */ }
-    }
-}</code></pre>
-
-<p>Fragment trong back stack vẫn sống trong khi View đã bị hủy, nên collector gắn với <code>this</code> sống lâu hơn View. Vì sao cần cả <code>viewLifecycleOwner</code> lẫn <code>repeatOnLifecycle</code> ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "Tại sao cần phân biệt?".</p>
-
-<h3>5. Tránh nested Fragment quá sâu</h3>
-
-<pre data-lang="kotlin"><code>// Tránh
-Activity
-  └─ Fragment A
-      └─ Fragment B
-          └─ Fragment C
-              └─ Fragment D</code></pre>
-
-<p>Nested Fragment quá sâu gây:</p>
-
-<ul>
-  <li>Khó debug.</li>
-  <li>Vòng đời phức tạp.</li>
-  <li>Back Stack khó kiểm soát.</li>
-</ul>
-
-<p>Nếu cần nested navigation, cân nhắc dùng <strong>Navigation Component</strong> với <strong>nested NavGraph</strong>.</p>
-
-<h2>Common Mistakes</h2>
-
-<h3>Lỗi 1: Transaction đã commit sau <code>onSaveInstanceState()</code></h3>
-
-<pre data-lang="kotlin"><code>// Lỗi
-override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    
-    // Crash: IllegalStateException
-    supportFragmentManager.beginTransaction()
-        .replace(R.id.container, fragment)
-        .commit()
-}</code></pre>
-
-<p><strong>Nguyên nhân</strong>: Sau <code>onSaveInstanceState()</code>, Activity không cho phép commit transaction vì có thể gây mất trạng thái. Lỗi thường gặp nhất trong thực tế: callback của một network request trả về khi app đã ở background, rồi gọi <code>commit()</code>. Crash báo <code>IllegalStateException: Can not perform this action after onSaveInstanceState</code>.</p>
-
-<p><strong>Giải pháp</strong>:</p>
-
-<ul>
-  <li>Kiểm tra <code>supportFragmentManager.isStateSaved</code> trước khi commit.</li>
-  <li>Dùng <code>commitAllowingStateLoss()</code> cho các cập nhật không quan trọng, nếu chấp nhận mất trạng thái.</li>
-  <li>Hoặc delay transaction đến <code>onResume()</code>.</li>
-</ul>
-
-<h3>Lỗi 2: Memory leak do retain Fragment</h3>
-
-<pre data-lang="kotlin"><code>// Lỗi
-class MyFragment : Fragment() {
-    
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        retainInstance = true  // Deprecated, không dùng
-    }
-}</code></pre>
-
-<p><code>retainInstance = true</code> giữ Fragment instance khi Activity bị recreate, gây <strong>memory leak</strong> nếu Fragment giữ reference đến Activity hoặc View.</p>
-
-<p><strong>Giải pháp</strong>: Dùng <code>ViewModel</code> với <code>SavedStateHandle</code> để lưu trữ dữ liệu.</p>
-
-<h3>Lỗi 3: Find Fragment bằng ID sai</h3>
-
-<pre data-lang="kotlin"><code>// Lỗi
-val fragment = supportFragmentManager.findFragmentById(R.id.container)
-fragment as MyFragment  // ClassCastException nếu không phải MyFragment
-
-// Đúng
-val fragment = supportFragmentManager.findFragmentByTag("my_fragment")
-if (fragment is MyFragment) {
-    // Xử lý
-}</code></pre>
-
-<p>Luôn dùng <code>findFragmentByTag()</code> với tag rõ ràng. Check type trước khi cast.</p>
-
-<h3>Lỗi 4: Không handle Back Stack đúng cách</h3>
-
-<pre data-lang="kotlin"><code>// Lỗi
-override fun onBackPressed() {
-    if (supportFragmentManager.backStackEntryCount &gt; 0) {
-        supportFragmentManager.popBackStack()
-    } else {
-        super.onBackPressed()
-    }
-}</code></pre>
-
-<p>Vấn đề: Không handle trường hợp có nhiều Back Stack (ví dụ: Bottom Navigation + nested navigation).</p>
-
-<p><strong>Giải pháp</strong>: Không override <code>onBackPressed()</code> (đã deprecated từ API 33) và không tự viết callback pop back stack. FragmentManager của AndroidX đã tự đăng ký callback với <code>OnBackPressedDispatcher</code> của Activity: Back pop back stack của nó (và của child thuộc primary navigation fragment), hết back stack thì trả Back về Activity. Callback tự viết kiểu <code>popBackStackImmediate()</code> còn làm hỏng predictive back. Chỉ thêm <code>OnBackPressedCallback</code> khi cần hành vi riêng, ví dụ hỏi xác nhận trước khi rời form chưa lưu:</p>
-
-<pre data-lang="kotlin"><code>class EditProfileFragment : Fragment() {
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // Callback gắn với viewLifecycleOwner: tự gỡ khi View bị hủy
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            showDiscardChangesDialog()
-        }
-    }
-}</code></pre>
-
-<h2>Debug Techniques</h2>
-
-<h3>1. Log tất cả FragmentTransaction</h3>
-
-<pre data-lang="kotlin"><code>supportFragmentManager.beginTransaction()
-    .replace(R.id.container, fragment)
-    .addToBackStack(null)
-    .commit()
-
-// Log Back Stack
-fun logBackStack() {
-    val fragmentManager = supportFragmentManager
-    Log.d("BackStack", "Entry count: \${fragmentManager.backStackEntryCount}")
-    
-    for (i in 0 until fragmentManager.backStackEntryCount) {
-        val entry = fragmentManager.getBackStackEntryAt(i)
-        Log.d("BackStack", "[$i] \${entry.name} - \${entry.id}")
-    }
-}</code></pre>
-
-<h3>2. Dùng FragmentLifecycleCallbacks</h3>
-
-<pre data-lang="kotlin"><code>class MyApplication : Application() {
-    
-    override fun onCreate() {
-        super.onCreate()
-        
-        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
-            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-                if (activity is AppCompatActivity) {
-                    activity.supportFragmentManager.registerFragmentLifecycleCallbacks(
-                        object : FragmentManager.FragmentLifecycleCallbacks() {
-                            override fun onFragmentCreated(fm: FragmentManager, f: Fragment, savedInstanceState: Bundle?) {
-                                Log.d("FragmentLifecycle", "\${f.javaClass.simpleName} - onFragmentCreated")
-                            }
-                            
-                            override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
-                                Log.d("FragmentLifecycle", "\${f.javaClass.simpleName} - onFragmentResumed")
-                            }
-                        },
-                        true  // true = recursive (bao gồm Child Fragment)
-                    )
-                }
-            }
-            // ActivityLifecycleCallbacks là interface: phải override đủ các method còn lại
-            override fun onActivityStarted(activity: Activity) {}
-            override fun onActivityResumed(activity: Activity) {}
-            override fun onActivityPaused(activity: Activity) {}
-            override fun onActivityStopped(activity: Activity) {}
-            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
-            override fun onActivityDestroyed(activity: Activity) {}
-        })
-    }
-}</code></pre>
-
-<h3>3. Debug Back Stack bằng adb</h3>
-
-<p>Stetho và Flipper đã ngừng phát triển. Cách gọn hơn là dùng <code>adb</code>: lệnh đầu bật log chi tiết của FragmentManager (FragmentManager tôn trọng <code>Log.isLoggable</code>), lệnh sau dump Activity đang ở top, gồm danh sách Fragment đã add và Back Stack:</p>
-
-<pre data-lang="bash"><code>adb shell setprop log.tag.FragmentManager VERBOSE
-adb shell dumpsys activity top</code></pre>
-
-<h2>Performance Considerations</h2>
-
-<h3>1. Tránh tạo Fragment không cần thiết</h3>
-
-<pre data-lang="kotlin"><code>// Sai: Tạo Fragment mới mỗi lần
-fun navigateToDetail() {
-    supportFragmentManager.beginTransaction()
-        .replace(R.id.container, DetailFragment())
-        .commit()
-}
-
-// Đúng: Tái sử dụng Fragment nếu đã tồn tại
-fun navigateToDetail() {
-    val fragment = supportFragmentManager.findFragmentByTag("detail")
-        ?: DetailFragment()
-    
-    supportFragmentManager.beginTransaction()
-        .replace(R.id.container, fragment, "detail")
-        .commit()
-}</code></pre>
-
-<h3>2. Dùng <code>hide()</code>/<code>show()</code> thay vì <code>replace()</code> cho Bottom Navigation</h3>
-
-<p><code>replace()</code> mỗi lần đổi tab tạo Fragment mới, hủy View cũ, nên tab nào cũng phải inflate và load lại data, mất luôn scroll position. Add mỗi tab một lần rồi chuyển bằng <code>hide()</code>/<code>show()</code> như code ở mục "Ví dụ thực tế: Bottom Navigation với Back Stack" bên trên: View của các tab được giữ, đổi tab không phải dựng lại gì.</p>
-
-<h3>3. Lazy initialization cho Child Fragment</h3>
+<h4>Ví dụ: chỉ tạo Child Fragment khi cần</h4>
 
 <pre data-lang="kotlin"><code>class ParentFragment : Fragment() {
     
@@ -19524,9 +19209,19 @@ fun navigateToDetail() {
 
 <p>Chỉ tạo Child Fragment khi cần, không tạo sẵn trong <code>onCreate()</code>.</p>
 
-<h2>System Thinking - Vị trí trong kiến trúc</h2>
+<h4>Lưu ý quan trọng</h4>
 
-<h3>FragmentManager trong MVVM + Clean Architecture</h3>
+<ul>
+  <li><strong>Vòng đời</strong>: Child Fragment bị ảnh hưởng bởi vòng đời của Parent Fragment. Khi Parent bị destroy, Child cũng bị destroy.</li>
+  <li><strong>Back Stack</strong>: Child Fragment có Back Stack riêng. Back chỉ được giao cho back stack của child trước (trước back stack của FragmentManager cha) khi Parent Fragment là <strong>primary navigation fragment</strong> (<code>setPrimaryNavigationFragment(parent)</code>; <code>NavHostFragment</code> tự làm việc này khi có <code>app:defaultNavHost="true"</code>). Nếu không, Back pop back stack của FragmentManager cha, bỏ qua back stack của child.</li>
+  <li><strong>Communication</strong>: Child Fragment nên giao tiếp với Parent Fragment thông qua Shared ViewModel hoặc Fragment Result API.</li>
+</ul>
+
+<h3>FragmentManager trong kiến trúc app</h3>
+
+<p>Phần này dùng trước MVVM (7.2.3 MVVM, chưa có bài) và Clean Architecture (7.2.5 Clean Architecture, chưa có bài): app chia thành Presentation, Domain, Data layer, mỗi layer chỉ phụ thuộc layer bên trong.</p>
+
+<h4>FragmentManager trong MVVM + Clean Architecture</h4>
 
 <div class="dd-diagram" data-dd="fmg-layers">
 <div class="dd-svg dd-svg-dark">
@@ -19675,7 +19370,7 @@ fun navigateToDetail() {
   <li><strong>Không thuộc Data Layer</strong>: FragmentManager không nên biết về Repository hay DataSource.</li>
 </ul>
 
-<h3>Nguyên tắc Separation of Concerns</h3>
+<h4>Nguyên tắc Separation of Concerns</h4>
 
 <pre data-lang="kotlin"><code>// Đúng: FragmentManager chỉ ở Presentation Layer
 class HomeFragment : Fragment() {
@@ -19713,7 +19408,9 @@ class HomeUseCase(
     }
 }</code></pre>
 
-<h3>FragmentManager và Dependency Injection</h3>
+<h4>FragmentManager và Dependency Injection</h4>
+
+<p>Hilt là thư viện Dependency Injection, được học ở 7.1.5.3 Hilt (chưa có bài).</p>
 
 <pre data-lang="kotlin"><code>@Module
 @InstallIn(ActivityComponent::class)
@@ -19744,24 +19441,651 @@ class HomeFragment : Fragment() {
 
 <p><strong>Lưu ý</strong>: Chỉ inject <code>FragmentManager</code> khi cần thiết. Trong hầu hết trường hợp, dùng <code>supportFragmentManager</code> hoặc <code>childFragmentManager</code> trực tiếp là đủ.</p>
 
-<h2>References</h2>
+<h2>Deep Dive: debug FragmentManager</h2>
+
+<h3>1. Log tất cả FragmentTransaction</h3>
+
+<pre data-lang="kotlin"><code>supportFragmentManager.beginTransaction()
+    .replace(R.id.container, fragment)
+    .addToBackStack(null)
+    .commit()
+
+// Log Back Stack
+fun logBackStack() {
+    val fragmentManager = supportFragmentManager
+    Log.d("BackStack", "Entry count: \${fragmentManager.backStackEntryCount}")
+    
+    for (i in 0 until fragmentManager.backStackEntryCount) {
+        val entry = fragmentManager.getBackStackEntryAt(i)
+        Log.d("BackStack", "[$i] \${entry.name} - \${entry.id}")
+    }
+}</code></pre>
+
+<h3>2. Dùng FragmentLifecycleCallbacks</h3>
+
+<pre data-lang="kotlin"><code>class MyApplication : Application() {
+    
+    override fun onCreate() {
+        super.onCreate()
+        
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                if (activity is AppCompatActivity) {
+                    activity.supportFragmentManager.registerFragmentLifecycleCallbacks(
+                        object : FragmentManager.FragmentLifecycleCallbacks() {
+                            override fun onFragmentCreated(fm: FragmentManager, f: Fragment, savedInstanceState: Bundle?) {
+                                Log.d("FragmentLifecycle", "\${f.javaClass.simpleName} - onFragmentCreated")
+                            }
+                            
+                            override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
+                                Log.d("FragmentLifecycle", "\${f.javaClass.simpleName} - onFragmentResumed")
+                            }
+                        },
+                        true  // true = recursive (bao gồm Child Fragment)
+                    )
+                }
+            }
+            // ActivityLifecycleCallbacks là interface: phải override đủ các method còn lại
+            override fun onActivityStarted(activity: Activity) {}
+            override fun onActivityResumed(activity: Activity) {}
+            override fun onActivityPaused(activity: Activity) {}
+            override fun onActivityStopped(activity: Activity) {}
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+            override fun onActivityDestroyed(activity: Activity) {}
+        })
+    }
+}</code></pre>
+
+<h3>3. Debug Back Stack bằng adb</h3>
+
+<p>Stetho và Flipper đã ngừng phát triển. Cách gọn hơn là dùng <code>adb</code>: lệnh đầu bật log chi tiết của FragmentManager (FragmentManager tôn trọng <code>Log.isLoggable</code>), lệnh sau dump Activity đang ở top, gồm danh sách Fragment đã add và Back Stack:</p>
+
+<pre data-lang="bash"><code>adb shell setprop log.tag.FragmentManager VERBOSE
+adb shell dumpsys activity top</code></pre>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>Bottom Navigation: chuyển tab bằng show/hide</h3>
+
+<p>Mỗi tab là một Fragment được <code>add</code> một lần rồi giữ lại; chuyển tab chỉ là ẩn tab cũ, hiện tab mới. Luồng chạy:</p>
+
+<ol>
+  <li>Lần đầu mở Activity (<code>savedInstanceState == null</code>): add tab Home.</li>
+  <li>Sau khi xoay hoặc process death, FragmentManager đã tự khôi phục các tab, còn field <code>currentTab</code> về <code>null</code>: tìm lại tab đang hiện trong container. Bỏ bước này thì lần chuyển tab đầu tiên không ẩn tab cũ, hai tab chồng lên nhau.</li>
+  <li>Khi chuyển tab, tìm tab đích theo tag. Chỉ tạo instance mới khi tab chưa từng được add, để không add trùng.</li>
+  <li>Trong <strong>một</strong> transaction: <code>hide</code> tab cũ và giới hạn nó ở <code>STARTED</code> bằng <code>setMaxLifecycle</code>.</li>
+  <li><code>add</code> tab đích nếu là lần đầu, ngược lại <code>show</code>.</li>
+  <li>Cho tab đích lên lại <code>RESUMED</code> (bỏ giới hạn đặt ở bước 4 lần trước).</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    Create(["MainActivity.onCreate()"]) --&gt; Saved{"savedInstanceState == null?"}
+    Saved -- Có --&gt; S1["(1) switchTab(TAG_HOME)"]
+    Saved -- Không --&gt; S2["(2) currentTab = tab đang hiện trong container"]
+    S2 -.-&gt; Select(["User chọn tab trên BottomNavigationView"])
+    Select --&gt; S3
+    S1 --&gt; S3["(3) findFragmentByTag(tag), chưa có thì createTab(tag)"]
+    S3 --&gt; Same{"target == currentTab?"}
+    Same -- Có --&gt; Stop(["return, không tạo transaction"])
+    Same -- Không --&gt; S4["(4) currentTab != null: hide + setMaxLifecycle(STARTED)"]
+    S4 --&gt; First{"Tab đích chưa từng được add?"}
+    First -- Có --&gt; Add["(5) add(R.id.container, target, tag)"]
+    First -- Không --&gt; Show["(5) show(target)"]
+    Add --&gt; S6["(6) setMaxLifecycle(target, RESUMED)"]
+    Show --&gt; S6
+    S6 --&gt; Commit["commit(), currentTab = target"]
+</div>
+
+<pre data-lang="kotlin"><code>class MainActivity : AppCompatActivity() {
+
+    private var currentTab: Fragment? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        if (savedInstanceState == null) {
+            switchTab(TAG_HOME)                                      // (1)
+        } else {
+            currentTab = supportFragmentManager.fragments            // (2)
+                .firstOrNull { it.id == R.id.container &amp;&amp; !it.isHidden }
+        }
+
+        findViewById&lt;BottomNavigationView&gt;(R.id.bottom_nav).setOnItemSelectedListener { item -&gt;
+            switchTab(
+                when (item.itemId) {
+                    R.id.nav_home -&gt; TAG_HOME
+                    R.id.nav_search -&gt; TAG_SEARCH
+                    else -&gt; TAG_PROFILE
+                }
+            )
+            true
+        }
+    }
+
+    private fun switchTab(tag: String) {
+        val fragmentManager = supportFragmentManager
+        val existing = fragmentManager.findFragmentByTag(tag)        // (3)
+        val target = existing ?: createTab(tag)
+        if (target == currentTab) return
+
+        fragmentManager.beginTransaction().apply {
+            setReorderingAllowed(true)
+            currentTab?.let {                                        // (4)
+                hide(it)
+                setMaxLifecycle(it, Lifecycle.State.STARTED)
+            }
+            if (existing == null) add(R.id.container, target, tag) else show(target) // (5)
+            setMaxLifecycle(target, Lifecycle.State.RESUMED)          // (6)
+        }.commit()
+
+        currentTab = target
+    }
+
+    private fun createTab(tag: String): Fragment = when (tag) {
+        TAG_HOME -&gt; HomeFragment()
+        TAG_SEARCH -&gt; SearchFragment()
+        else -&gt; ProfileFragment()
+    }
+
+    companion object {
+        private const val TAG_HOME = "home"
+        private const val TAG_SEARCH = "search"
+        private const val TAG_PROFILE = "profile"
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> đổi tab không dựng lại View, scroll position và dữ liệu của từng tab được giữ; tab bị ẩn dừng ở <code>STARTED</code>, chỉ tab đang hiện ở <code>RESUMED</code>; sau khi xoay, lần chuyển tab đầu tiên vẫn ẩn đúng tab cũ nên không có hai tab chồng lên nhau.</p>
+
+<p><code>hide()</code> không đổi lifecycle của tab bị ẩn; <code>setMaxLifecycle()</code> ở bước 4 mới đưa nó xuống <code>STARTED</code>. Callback mà từng tab nhận khi bị ẩn/hiện ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "Đa tab trong app Single-Activity: show/hide giữ View sống".</p>
+
+<p><strong>Tại sao không dùng <code>addToBackStack()</code> trong trường hợp này?</strong></p>
+
+<p>Vì Bottom Navigation cần <strong>giữ trạng thái</strong> của tất cả tab. Nếu dùng <code>addToBackStack()</code>, khi nhấn Back sẽ pop Fragment ra khỏi Back Stack, làm mất trạng thái.</p>
+
+<p>Thay vào đó, ta dùng <code>hide()</code>/<code>show()</code> để <strong>giữ Fragment trong bộ nhớ</strong> nhưng không hiển thị.</p>
+
+<h3>Mỗi tab có back stack riêng: multiple back stacks</h3>
+
+<p>Khi mỗi tab có back stack riêng (tab Home đi sâu list → detail, đổi tab rồi quay lại vẫn ở detail), dùng <strong>multiple back stacks</strong> (Fragment 1.4.0+): <code>saveBackStack(name)</code> pop và lưu state của các transaction thuộc tab cũ, <code>restoreBackStack(name)</code> khôi phục chúng. Hai hàm này chỉ chạy với transaction có <code>setReorderingAllowed(true)</code> và có tên trong <code>addToBackStack(name)</code>. Với Navigation Component, <code>NavigationUI</code> (<code>setupWithNavController</code>) tự làm việc này cho bottom navigation, thay cho show/hide tự viết.</p>
+
+<h2>So sánh với các cách tiếp cận khác</h2>
+
+<h3>So sánh FragmentManager vs Navigation Component</h3>
+
+<h4>Navigation Component là gì?</h4>
+
+<p>Navigation Component là thư viện của Jetpack, cung cấp API bậc cao để quản lý điều hướng trong ứng dụng. Nó <strong>sử dụng FragmentManager bên dưới</strong>.</p>
+
+<h4>So sánh chi tiết</h4>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
+      <th style="padding:8px 12px;text-align:left;">FragmentManager</th>
+      <th style="padding:8px 12px;text-align:left;">Navigation Component</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Learning curve</strong></td>
+      <td style="padding:8px 12px;">Thấp, API đơn giản</td>
+      <td style="padding:8px 12px;">Trung bình, cần hiểu NavGraph, NavHost</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Type safety</strong></td>
+      <td style="padding:8px 12px;">Không (dùng tag/id string)</td>
+      <td style="padding:8px 12px;">Có (dùng Safe Args plugin)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Deep linking</strong></td>
+      <td style="padding:8px 12px;">Tự implement</td>
+      <td style="padding:8px 12px;">Hỗ trợ sẵn</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Back Stack management</strong></td>
+      <td style="padding:8px 12px;">Thủ công</td>
+      <td style="padding:8px 12px;">Tự động, có thể customize</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Animation</strong></td>
+      <td style="padding:8px 12px;">Thủ công</td>
+      <td style="padding:8px 12px;">Hỗ trợ sẵn trong XML</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Testing</strong></td>
+      <td style="padding:8px 12px;"><code>FragmentScenario</code> test được từng Fragment, nhưng kiểm tra điều hướng phải đọc FragmentManager/back stack</td>
+      <td style="padding:8px 12px;">Dễ hơn: <code>TestNavHostController</code> cho biết destination hiện tại</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Modularization</strong></td>
+      <td style="padding:8px 12px;">Khó</td>
+      <td style="padding:8px 12px;">Dễ (dynamic feature module)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Compose support</strong></td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Có (Navigation Compose)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Boilerplate</strong></td>
+      <td style="padding:8px 12px;">Nhiều</td>
+      <td style="padding:8px 12px;">Ít</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Navigation Component quản lý cả DialogFragment như một destination (<code>&lt;dialog&gt;</code>), cùng back stack với các màn hình khác: xem <a href="dialog_and_dialogfragment.md" target="_blank" rel="noopener">Dialog and DialogFragment</a>, mục "DialogFragment vs Navigation Component Dialog".</p>
+
+<h4>Ví dụ so sánh code</h4>
+
+<p><strong>FragmentManager:</strong></p>
+
+<pre data-lang="kotlin"><code>// Điều hướng
+supportFragmentManager.beginTransaction()
+    .replace(R.id.container, DetailFragment())
+    .addToBackStack(null)
+    .commit()
+
+// Truyền dữ liệu
+val fragment = DetailFragment().apply {
+    arguments = bundleOf("itemId" to itemId)
+}
+supportFragmentManager.beginTransaction()
+    .replace(R.id.container, fragment)
+    .addToBackStack(null)
+    .commit()</code></pre>
+
+<p><strong>Navigation Component:</strong></p>
+
+<pre data-lang="kotlin"><code>// Điều hướng
+findNavController().navigate(R.id.action_to_detail)
+
+// Truyền dữ liệu (với Safe Args)
+val action = ListFragmentDirections.actionToDetail(itemId)
+findNavController().navigate(action)</code></pre>
+
+<h3>FragmentManager trong XML vs Compose</h3>
+
+<p>Jetpack Compose là UI toolkit khai báo, được học ở Session 09, bắt đầu từ <a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">9.0 Jetpack Compose Overview</a>.</p>
+
+<h4>XML (Traditional View System)</h4>
+
+<pre data-lang="kotlin"><code>class MainActivity : AppCompatActivity() {
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .add(R.id.container, HomeFragment())
+                .commit()
+        }
+    }
+}</code></pre>
+
+<h4>Compose (Navigation Compose)</h4>
+
+<p>Trong Compose, bạn <strong>không dùng FragmentManager trực tiếp</strong>. Thay vào đó, dùng <strong>Navigation Compose</strong> - một thư viện điều hướng dành riêng cho Compose.</p>
+
+<pre data-lang="kotlin"><code>@Composable
+fun AppNavigation() {
+    val navController = rememberNavController()
+    
+    NavHost(navController = navController, startDestination = "home") {
+        composable("home") {
+            HomeScreen(onNavigateToDetail = { itemId -&gt;
+                navController.navigate("detail/$itemId")
+            })
+        }
+        
+        composable(
+            route = "detail/{itemId}",
+            arguments = listOf(navArgument("itemId") { type = NavType.StringType })
+        ) { backStackEntry -&gt;
+            val itemId = backStackEntry.arguments?.getString("itemId")
+            DetailScreen(itemId = itemId)
+        }
+    }
+}</code></pre>
+
+<h4>Sự khác biệt cốt lõi</h4>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Aspect</th>
+      <th style="padding:8px 12px;text-align:left;">XML (FragmentManager)</th>
+      <th style="padding:8px 12px;text-align:left;">Compose (Navigation Compose)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Đơn vị điều hướng</strong></td>
+      <td style="padding:8px 12px;">Fragment</td>
+      <td style="padding:8px 12px;">Composable function</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Quản lý trạng thái</strong></td>
+      <td style="padding:8px 12px;">Fragment lifecycle</td>
+      <td style="padding:8px 12px;">Compose state + SavedStateHandle</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Back Stack</strong></td>
+      <td style="padding:8px 12px;">FragmentTransaction</td>
+      <td style="padding:8px 12px;">NavBackStackEntry</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Animation</strong></td>
+      <td style="padding:8px 12px;">XML animation</td>
+      <td style="padding:8px 12px;">AnimatedContent, Crossfade</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Type safety</strong></td>
+      <td style="padding:8px 12px;">Bundle (Parcelable)</td>
+      <td style="padding:8px 12px;">NavType trên route string; từ Navigation 2.8.0 có route type-safe bằng Kotlin Serialization (Safe Args chỉ dành cho nav graph XML)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4>Chuyển từ XML sang Compose</h4>
+
+<p>Nếu đang migrate từ XML sang Compose, bạn có thể <strong>dùng chung Fragment và Compose</strong> trong cùng một Activity:</p>
+
+<pre data-lang="kotlin"><code>class MainActivity : AppCompatActivity() {
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Layout chứa cả FragmentContainerView (R.id.fragment_container) và ComposeView (R.id.compose_view).
+        // Không gọi setContent { } của Activity: nó thay toàn bộ content view, xoá luôn container của Fragment.
+        setContentView(R.layout.activity_main)
+
+        // Fragment XML truyền thống
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .add(R.id.fragment_container, LegacyFragment())
+                .commit()
+        }
+
+        // Compose trong cùng Activity, gắn vào một ComposeView của layout
+        findViewById&lt;ComposeView&gt;(R.id.compose_view).setContent {
+            AppNavigation()
+        }
+    }
+}</code></pre>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<h3>Khi nào dùng FragmentManager trực tiếp?</h3>
+
+<ul>
+  <li>Project nhỏ, ít màn hình.</li>
+  <li>Cần kiểm soát chi tiết Back Stack.</li>
+  <li>Không muốn thêm dependency.</li>
+  <li>Đang maintain codebase cũ.</li>
+</ul>
+
+<h3>Khi nào dùng Navigation Component?</h3>
+
+<ul>
+  <li>Project lớn, nhiều màn hình.</li>
+  <li>Cần deep linking.</li>
+  <li>Làm việc với team lớn, cần type safety.</li>
+  <li>Dùng Compose.</li>
+  <li>Cần modularization.</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Commit transaction sau <code>onSaveInstanceState()</code></h3>
+
+<pre data-lang="kotlin"><code>// Lỗi
+override fun onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    
+    // Crash: IllegalStateException
+    supportFragmentManager.beginTransaction()
+        .replace(R.id.container, fragment)
+        .commit()
+}</code></pre>
+
+<p><strong>Nguyên nhân</strong>: Sau <code>onSaveInstanceState()</code>, Activity không cho phép commit transaction vì có thể gây mất trạng thái. Lỗi thường gặp nhất trong thực tế: callback của một network request trả về khi app đã ở background, rồi gọi <code>commit()</code>. Crash báo <code>IllegalStateException: Can not perform this action after onSaveInstanceState</code>.</p>
+
+<p><strong>Cách sửa:</strong></p>
+
+<ul>
+  <li>Kiểm tra <code>supportFragmentManager.isStateSaved</code> trước khi commit.</li>
+  <li>Dùng <code>commitAllowingStateLoss()</code> cho các cập nhật không quan trọng, nếu chấp nhận mất trạng thái.</li>
+  <li>Hoặc delay transaction đến <code>onResume()</code>.</li>
+</ul>
+
+<h3>2. Dùng <code>commitAllowingStateLoss()</code> làm mặc định</h3>
+
+<pre data-lang="kotlin"><code>// Đúng
+supportFragmentManager.beginTransaction()
+    .replace(R.id.container, fragment)
+    .commit()
+
+// Sai (trừ khi thật sự cần)
+supportFragmentManager.beginTransaction()
+    .replace(R.id.container, fragment)
+    .commitAllowingStateLoss()</code></pre>
+
+<p><code>commitAllowingStateLoss()</code> có thể gây mất trạng thái nếu Activity bị kill. Chỉ dùng khi bạn <strong>chấp nhận rủi ro</strong> (ví dụ: hiển thị dialog không quan trọng).</p>
+
+<p><strong>Cách sửa:</strong> Luôn dùng <code>commit()</code> thay vì <code>commitAllowingStateLoss()</code>.</p>
+
+<h3>3. Dùng <code>replace</code> cho tab cố định, <code>show</code>/<code>hide</code> cho điều hướng sâu</h3>
+
+<p>Hai tình huống dễ nhầm:</p>
+
+<ul>
+  <li><strong>Điều hướng sâu</strong> (list → detail): dùng <code>replace</code> — View cũ nên bị hủy để tiết kiệm bộ nhớ.</li>
+  <li><strong>Chuyển tab cố định</strong> (Bottom Nav): dùng <code>show</code>/<code>hide</code> — View nên sống để không load lại data mỗi lần đổi tab.</li>
+</ul>
+
+<p>Dùng sai chiều sẽ gây: <code>replace</code> cho tab → app lag + mất state mỗi lần đổi; <code>show</code>/<code>hide</code> cho điều hướng sâu → nhiều Fragment chồng lên nhau, tốn bộ nhớ.</p>
+
+<p><code>replace()</code> mỗi lần đổi tab tạo Fragment mới, hủy View cũ, nên tab nào cũng phải inflate và load lại data, mất luôn scroll position.</p>
+
+<p><strong>Cách sửa:</strong> Với Bottom Navigation, add mỗi tab một lần rồi chuyển bằng <code>hide()</code>/<code>show()</code> như code ở mục "Bottom Navigation: chuyển tab bằng show/hide" trong phần Ví dụ thực tế: View của các tab được giữ, đổi tab không phải dựng lại gì. Với điều hướng sâu, dùng <code>replace()</code> + <code>addToBackStack()</code>.</p>
+
+<h3>4. Memory leak do retain Fragment</h3>
+
+<pre data-lang="kotlin"><code>// Lỗi
+class MyFragment : Fragment() {
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        retainInstance = true  // Deprecated, không dùng
+    }
+}</code></pre>
+
+<p><code>retainInstance = true</code> giữ Fragment instance khi Activity bị recreate, gây <strong>memory leak</strong> nếu Fragment giữ reference đến Activity hoặc View.</p>
+
+<p><strong>Cách sửa:</strong> Dùng <code>ViewModel</code> với <code>SavedStateHandle</code> để lưu trữ dữ liệu.</p>
+
+<h3>5. Find Fragment bằng ID rồi cast thẳng</h3>
+
+<pre data-lang="kotlin"><code>// Lỗi
+val fragment = supportFragmentManager.findFragmentById(R.id.container)
+fragment as MyFragment  // ClassCastException nếu không phải MyFragment
+
+// Đúng
+val fragment = supportFragmentManager.findFragmentByTag("my_fragment")
+if (fragment is MyFragment) {
+    // Xử lý
+}</code></pre>
+
+<p><strong>Cách sửa:</strong> Luôn dùng <code>findFragmentByTag()</code> với tag rõ ràng. Check type trước khi cast.</p>
+
+<h3>6. Không handle Back Stack đúng cách</h3>
+
+<pre data-lang="kotlin"><code>// Lỗi
+override fun onBackPressed() {
+    if (supportFragmentManager.backStackEntryCount &gt; 0) {
+        supportFragmentManager.popBackStack()
+    } else {
+        super.onBackPressed()
+    }
+}</code></pre>
+
+<p>Vấn đề: Không handle trường hợp có nhiều Back Stack (ví dụ: Bottom Navigation + nested navigation).</p>
+
+<p><strong>Cách sửa:</strong> Không override <code>onBackPressed()</code> (đã deprecated từ API 33) và không tự viết callback pop back stack. FragmentManager của AndroidX đã tự đăng ký callback với <code>OnBackPressedDispatcher</code> của Activity: Back pop back stack của nó (và của child thuộc primary navigation fragment), hết back stack thì trả Back về Activity. Callback tự viết kiểu <code>popBackStackImmediate()</code> còn làm hỏng predictive back. Chỉ thêm <code>OnBackPressedCallback</code> khi cần hành vi riêng, ví dụ hỏi xác nhận trước khi rời form chưa lưu:</p>
+
+<pre data-lang="kotlin"><code>class EditProfileFragment : Fragment() {
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // Callback gắn với viewLifecycleOwner: tự gỡ khi View bị hủy
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            showDiscardChangesDialog()
+        }
+    }
+}</code></pre>
+
+<h3>7. Giao tiếp bằng reference trực tiếp tới Fragment khác</h3>
+
+<pre data-lang="kotlin"><code>// Đúng
+class FragmentA : Fragment() {
+    private val viewModel: SharedViewModel by activityViewModels()
+}
+
+class FragmentB : Fragment() {
+    private val viewModel: SharedViewModel by activityViewModels()
+}
+
+// Sai (coupling cao)
+class FragmentA : Fragment() {
+    private lateinit var fragmentB: FragmentB
+    
+    fun sendData(data: Data) {
+        fragmentB.receiveData(data)
+    }
+}</code></pre>
+
+<p><strong>Cách sửa:</strong> Luôn dùng Shared ViewModel cho communication (hoặc Fragment Result API cho kết quả một lần), như mục "Giao tiếp giữa các Fragment".</p>
+
+<h3>8. Observe LiveData/Flow bằng <code>this</code> thay vì <code>viewLifecycleOwner</code></h3>
+
+<pre data-lang="kotlin"><code>// Đúng
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.data.collect { /* ... */ }
+        }
+    }
+}
+
+// Sai (memory leak)
+override fun onCreate(savedInstanceState: Bundle?) {
+    lifecycleScope.launch {
+        viewModel.data.collect { /* ... */ }
+    }
+}</code></pre>
+
+<p>Fragment trong back stack vẫn sống trong khi View đã bị hủy, nên collector gắn với <code>this</code> sống lâu hơn View. Vì sao cần cả <code>viewLifecycleOwner</code> lẫn <code>repeatOnLifecycle</code> ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "View Lifecycle: vòng đời thứ hai trong Fragment".</p>
+
+<p><strong>Cách sửa:</strong> Collect trong <code>viewLifecycleOwner.lifecycleScope</code> kèm <code>repeatOnLifecycle(Lifecycle.State.STARTED)</code>, như phần "Đúng" ở trên.</p>
+
+<h3>9. Tạo Fragment mới mỗi lần điều hướng</h3>
+
+<pre data-lang="kotlin"><code>// Sai: Tạo Fragment mới mỗi lần
+fun navigateToDetail() {
+    supportFragmentManager.beginTransaction()
+        .replace(R.id.container, DetailFragment())
+        .commit()
+}
+
+// Đúng: Tái sử dụng Fragment nếu đã tồn tại
+fun navigateToDetail() {
+    val fragment = supportFragmentManager.findFragmentByTag("detail")
+        ?: DetailFragment()
+    
+    supportFragmentManager.beginTransaction()
+        .replace(R.id.container, fragment, "detail")
+        .commit()
+}</code></pre>
+
+<p><strong>Cách sửa:</strong> Tìm Fragment theo tag trước, chỉ tạo instance mới khi chưa có.</p>
+
+<h3>10. Nested Fragment quá sâu</h3>
+
+<pre data-lang="text"><code>// Tránh
+Activity
+  └─ Fragment A
+      └─ Fragment B
+          └─ Fragment C
+              └─ Fragment D</code></pre>
+
+<p>Nested Fragment quá sâu gây:</p>
+
+<ul>
+  <li>Khó debug.</li>
+  <li>Vòng đời phức tạp.</li>
+  <li>Back Stack khó kiểm soát.</li>
+</ul>
+
+<p><strong>Cách sửa:</strong> Nếu cần nested navigation, cân nhắc dùng <strong>Navigation Component</strong> với <strong>nested NavGraph</strong>.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>Android 3.0 (API 11, 2011):</strong> <code>android.app.FragmentManager</code> và <code>FragmentTransaction</code> ra đời cùng Fragment trong framework. Cả hai bị deprecated từ <strong>API 28</strong>, thay bằng <code>FragmentManager</code> của Jetpack (<code>androidx.fragment.app</code>) để hành vi đồng nhất trên mọi máy và có Lifecycle.</li>
+  <li><strong>API 24:</strong> bản framework thêm <code>commitNow()</code> và <code>commitNowAllowingStateLoss()</code>.</li>
+  <li><strong>API 26:</strong> bản framework thêm <code>setReorderingAllowed()</code>.</li>
+  <li><strong>09/2019 (Fragment 1.1.0):</strong> thêm <code>setMaxLifecycle()</code> trên <code>FragmentTransaction</code>, thay cho <code>setUserVisibleHint()</code> (deprecated).</li>
+  <li><strong>01/2020 (Fragment 1.2.0):</strong> <code>FragmentManager.enableDebugLogging()</code> bị deprecated; FragmentManager tôn trọng <code>Log.isLoggable()</code> với tag <code>FragmentManager</code>, nên bật log bằng <code>adb</code> như mục Deep Dive mà không cần build lại app.</li>
+  <li><strong>02/2021 (Fragment 1.3.0):</strong> thêm Fragment Result API (truyền kết quả giữa hai Fragment qua <code>FragmentManager</code>); <code>setRetainInstance()</code> bị deprecated.</li>
+  <li><strong>11/2021 (Fragment 1.4.0):</strong> multiple back stacks với <code>saveBackStack()</code>, <code>restoreBackStack()</code>, <code>clearBackStack()</code>.</li>
+  <li><strong>05/2024 (Fragment 1.7.0):</strong> Fragment hỗ trợ predictive back khi dùng <code>Animator</code> hoặc AndroidX Transition 1.5.0.</li>
+  <li><strong>Navigation 2.8.0:</strong> Navigation Compose và Navigation Kotlin DSL có route type-safe bằng Kotlin Serialization, tương đương Safe Args của nav graph XML.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a> (FragmentManager là thành phần đưa Fragment đi qua các callback, và <code>addToBackStack</code> quyết định Fragment dừng ở <code>onDestroyView</code> hay bị hủy hẳn) và <a href="state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a> (FragmentManager tự khôi phục Fragment sau xoay màn hình và process death; dữ liệu đi qua <code>arguments</code>, ViewModel, <code>SavedStateHandle</code>). Nền tảng chung ở <a href="index.md" target="_blank" rel="noopener">Fragment Overview</a>.</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>: FragmentManager đồng bộ lifecycle của Fragment theo Activity chứa nó.</li>
+  <li><a href="../activity/task_and_backstack.md" target="_blank" rel="noopener">Task and Backstack</a>: back stack của các Activity trong một task, khác với back stack transaction mà FragmentManager giữ bên trong một Activity.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="dialog_and_dialogfragment.md" target="_blank" rel="noopener">Dialog and DialogFragment</a>: DialogFragment được <code>show()</code> qua FragmentManager, hoặc khai báo thành <code>&lt;dialog&gt;</code> destination của Navigation Component.</li>
+  <li>6.4 ViewModel (chưa có bài): ViewModel dùng cho Shared ViewModel giữa các Fragment.</li>
+  <li>7.2.3 MVVM (chưa có bài) và 7.2.5 Clean Architecture (chưa có bài): vị trí của FragmentManager trong Presentation Layer.</li>
+  <li>7.1.5.3 Hilt (chưa có bài): inject <code>FragmentManager</code> qua <code>ActivityComponent</code>.</li>
+  <li><a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">9.0 Jetpack Compose Overview</a>: Compose và Navigation Compose, nơi điều hướng không còn đi qua FragmentManager.</li>
+</ul></li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
 
 <ul>
   <li><a href="https://developer.android.com/reference/androidx/fragment/app/FragmentManager" target="_blank" rel="noopener">Android Developers - FragmentManager</a></li>
   <li><a href="https://developer.android.com/reference/androidx/fragment/app/FragmentTransaction" target="_blank" rel="noopener">Android Developers - FragmentTransaction</a></li>
   <li><a href="https://developer.android.com/guide/fragments/fragmentmanager" target="_blank" rel="noopener">Android Developers - Fragment manager (back stack, primary navigation fragment)</a></li>
-  <li><a href="https://developer.android.com/jetpack/androidx/releases/fragment" target="_blank" rel="noopener">Android Developers - Fragment release notes (multiple back stacks, 1.4.0)</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/fragment" target="_blank" rel="noopener">Android Developers - Fragment release notes (multiple back stacks, 1.4.0; cùng các mốc 1.1.0, 1.2.0, 1.3.0, 1.7.0 ở Lịch sử phát triển)</a></li>
   <li><a href="https://developer.android.com/guide/navigation/custom-back" target="_blank" rel="noopener">Android Developers - Provide custom back navigation</a></li>
   <li><a href="https://developer.android.com/guide/navigation" target="_blank" rel="noopener">Android Developers - Navigation Component</a></li>
   <li><a href="https://developer.android.com/guide/fragments" target="_blank" rel="noopener">Android Developers - Fragment best practices</a></li>
   <li><a href="https://developer.android.com/jetpack/compose/navigation" target="_blank" rel="noopener">Jetpack Navigation Compose</a></li>
+  <li><a href="https://developer.android.com/reference/android/app/FragmentManager" target="_blank" rel="noopener">android.app.FragmentManager (API 11, deprecated API 28) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/android/app/FragmentTransaction" target="_blank" rel="noopener">android.app.FragmentTransaction (commitNow API 24, setReorderingAllowed API 26) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/guide/navigation/design/type-safety" target="_blank" rel="noopener">Type safety in Kotlin DSL and Navigation Compose (Navigation 2.8.0) - Android Developers</a></li>
 </ul>
     `
   },
 
   'fragment-dialog': {
     title: 'Dialog and DialogFragment',
-    summary: 'Hiểu bản chất Dialog và DialogFragment - cách tạo dialog an toàn với lifecycle, xử lý rotation, giao tiếp với Fragment/Activity, và triển khai BottomSheetDialogFragment trong ứng dụng Android hiện đại.',
+    summary: 'DialogFragment là một Fragment do FragmentManager quản lý, tạo và sở hữu một Dialog riêng làm cửa sổ hiển thị, nên dialog có lifecycle của Fragment và được khôi phục sau khi xoay màn hình. Bài giải thích lifecycle của DialogFragment, AlertDialog và custom layout, BottomSheetDialogFragment, giao tiếp với Fragment/Activity cha bằng Fragment Result API, khi nào dùng `<dialog>` destination của Navigation Component, và dialog trong Compose.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '35 phút',
@@ -19827,7 +20151,27 @@ AlertDialog.Builder(this)
   <li><strong>Quản lý bởi FragmentManager</strong>: Nhất quán với cách quản lý Fragment khác.</li>
 </ul>
 
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được tại sao DialogFragment an toàn hơn AlertDialog truyền thống, lifecycle của DialogFragment và cách FragmentManager quản lý dialog.</li>
+  <li>Triển khai được DialogFragment với custom layout và BottomSheetDialogFragment.</li>
+  <li>Áp dụng được Fragment Result API để giao tiếp giữa dialog và Fragment/Activity cha.</li>
+  <li>Biết khi nào hiển thị DialogFragment bằng <code>show()</code> và khi nào khai báo nó thành <code>&lt;dialog&gt;</code> destination của Navigation Component.</li>
+  <li>Triển khai được dialog trong Compose (AlertDialog, Dialog, ModalBottomSheet).</li>
+</ul>
+
 <h2>DialogFragment là gì?</h2>
+
+<p><strong>DialogFragment</strong> là một Fragment do <code>FragmentManager</code> quản lý, tạo và sở hữu một <code>Dialog</code> riêng làm cửa sổ hiển thị: Fragment giữ lifecycle, state và logic, còn Dialog chỉ là Window nằm trên Window của Activity.</p>
+
+<p>Mental model: DialogFragment là <strong>người quản lý</strong>, Dialog là <strong>cửa sổ</strong> do người quản lý mở ra. FragmentManager ghi nhớ người quản lý, kể cả qua xoay màn hình; cửa sổ thì bị đóng và mở lại mỗi lần người quản lý được tạo lại (<code>onCreateDialog()</code> chạy lại). Vì vậy state và logic đặt ở DialogFragment (hoặc ViewModel), không đặt vào Dialog.</p>
+
+<h2>Cách hoạt động</h2>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ dùng tối thiểu vài kiến thức của Session sau: - ViewBinding (class sinh ra từ layout để truy cập View an toàn): 6.1 View Binding (chưa có bài). - ViewModel (giữ state qua configuration change) và <code>activityViewModels()</code>: 6.4 ViewModel (chưa có bài); phạm vi <code>viewModels()</code> / <code>activityViewModels()</code> ở <a href="state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a>. - <code>StateFlow</code> và coroutine (<code>lifecycleScope</code>, <code>repeatOnLifecycle</code>): 7.1.4.2 Flow (chưa có bài), 8.4.3 Coroutines (chưa có bài); mẫu collect an toàn trong Fragment ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>. - Composable và state của Compose (<code>remember</code>, <code>rememberSaveable</code>): <a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, 9.2.2 Remember and rememberSaveable (chưa có bài).</div></div>
+
+<h3>Kiến trúc tổng thể</h3>
 
 <p>DialogFragment là một <strong>Fragment đặc biệt</strong> được hiển thị dưới dạng dialog. Nó:</p>
 
@@ -19837,8 +20181,6 @@ AlertDialog.Builder(this)
   <li>Có lifecycle đầy đủ như Fragment.</li>
   <li>Tự động xử lý configuration changes (rotation, dark mode...).</li>
 </ul>
-
-<h3>Kiến trúc tổng thể</h3>
 
 <div class="dd-diagram" data-dd="dlg-tree">
 <div class="dd-svg dd-svg-dark">
@@ -19965,9 +20307,9 @@ AlertDialog.Builder(this)
 
 <p>DialogFragment tạo ra một <strong>Window riêng</strong> (Dialog Window) nằm trên Window của Activity. Window này chứa View của dialog.</p>
 
-<h2>Lifecycle của DialogFragment</h2>
+<h3>Lifecycle của DialogFragment</h3>
 
-<h3>So sánh với Fragment thông thường</h3>
+<h4>So sánh với Fragment thông thường</h4>
 
 <div class="dd-diagram" data-dd="dlg-show-a">
 <div class="dd-svg dd-svg-dark">
@@ -20241,7 +20583,7 @@ AlertDialog.Builder(this)
 </div>
 </div>
 
-<h3>Các callback quan trọng</h3>
+<h4>Các callback quan trọng</h4>
 
 <p><strong>1. onCreateDialog()</strong></p>
 
@@ -20282,7 +20624,27 @@ AlertDialog.Builder(this)
   <li>Dùng để đăng ký/hủy listener.</li>
 </ul>
 
-<h3>Lifecycle khi rotation</h3>
+<p><strong>4. onDismiss() và onCancel()</strong></p>
+
+<ul>
+  <li><code>onDismiss()</code>: dialog bị dismiss, nơi cleanup.</li>
+  <li><code>onCancel()</code>: user nhấn Back hoặc tap outside.</li>
+</ul>
+
+<pre data-lang="kotlin"><code>class MyDialog : DialogFragment() {
+    
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        // Cleanup khi dialog bị dismiss
+    }
+    
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        // Handle khi user nhấn Back hoặc tap outside
+    }
+}</code></pre>
+
+<h4>Lifecycle khi rotation</h4>
 
 <div class="dd-diagram" data-dd="dlg-rotate">
 <div class="dd-svg dd-svg-dark">
@@ -20427,9 +20789,9 @@ AlertDialog.Builder(this)
 
 <p>FragmentManager <strong>tự động khôi phục</strong> DialogFragment sau rotation. Dialog sẽ hiển thị lại mà không cần code thêm.</p>
 
-<h2>AlertDialog trong DialogFragment</h2>
+<h3>AlertDialog trong DialogFragment</h3>
 
-<h3>Cách 1: Dùng onCreateDialog() (Khuyến nghị)</h3>
+<h4>Ví dụ: xác nhận xoá, cách 1 dùng onCreateDialog() (khuyến nghị)</h4>
 
 <pre data-lang="kotlin"><code>class ConfirmDeleteDialog : DialogFragment() {
     
@@ -20458,7 +20820,7 @@ AlertDialog.Builder(this)
 <pre data-lang="kotlin"><code>// Trong Activity hoặc Fragment
 ConfirmDeleteDialog().show(supportFragmentManager, "confirm_delete")</code></pre>
 
-<h3>Cách 2: Dùng onCreateView() cho custom layout</h3>
+<h4>Ví dụ: dialog nhập liệu, cách 2 dùng onCreateView() cho custom layout</h4>
 
 <pre data-lang="kotlin"><code>class CustomInputDialog : DialogFragment() {
     
@@ -20498,9 +20860,21 @@ ConfirmDeleteDialog().show(supportFragmentManager, "confirm_delete")</code></pre
     }
 }</code></pre>
 
-<h2>BottomSheetDialogFragment</h2>
+<h4>Ví dụ: dialog toàn màn hình, set dialog style trong onCreate()</h4>
 
-<h3>BottomSheetDialogFragment là gì?</h3>
+<p><code>setStyle()</code> chỉnh giao diện và hành vi của Dialog, nên phải gọi trước khi Dialog được tạo ở <code>onCreateDialog()</code>; gọi sau đó thì không có tác dụng.</p>
+
+<pre data-lang="kotlin"><code>class FullScreenDialog : DialogFragment() {
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
+    }
+}</code></pre>
+
+<h3>BottomSheetDialogFragment</h3>
+
+<h4>BottomSheetDialogFragment là gì?</h4>
 
 <p>BottomSheetDialogFragment là DialogFragment hiển thị dialog <strong>từ dưới lên</strong> (bottom sheet). Phù hợp cho:</p>
 
@@ -20511,7 +20885,7 @@ ConfirmDeleteDialog().show(supportFragmentManager, "confirm_delete")</code></pre
   <li>Filter, sort options.</li>
 </ul>
 
-<h3>Triển khai BottomSheetDialogFragment</h3>
+<h4>Ví dụ: bottom sheet bộ lọc, triển khai BottomSheetDialogFragment</h4>
 
 <pre data-lang="kotlin"><code>class FilterBottomSheet : BottomSheetDialogFragment() {
     
@@ -20564,7 +20938,7 @@ ConfirmDeleteDialog().show(supportFragmentManager, "confirm_delete")</code></pre
 
 <pre data-lang="kotlin"><code>FilterBottomSheet().show(supportFragmentManager, "filter_bottom_sheet")</code></pre>
 
-<h3>Customizing BottomSheet behavior</h3>
+<h4>Customizing BottomSheet behavior</h4>
 
 <pre data-lang="kotlin"><code>class CustomBottomSheet : BottomSheetDialogFragment() {
     
@@ -20589,63 +20963,11 @@ ConfirmDeleteDialog().show(supportFragmentManager, "confirm_delete")</code></pre
     }
 }</code></pre>
 
-<h2>Communication - Giao tiếp với Dialog</h2>
+<h3>Communication - Giao tiếp với Dialog</h3>
 
-<h3>Pattern 1: Fragment Result API (Khuyến nghị)</h3>
+<h4>Pattern 1: Fragment Result API (Khuyến nghị)</h4>
 
-<p>Đây là pattern <strong>hiện đại và an toàn nhất</strong> để dialog trả kết quả cho Fragment/Activity cha.</p>
-
-<pre data-lang="kotlin"><code>// ConfirmDeleteDialog.kt
-class ConfirmDeleteDialog : DialogFragment() {
-    
-    companion object {
-        const val REQUEST_KEY = "confirm_delete_request"
-        const val RESULT_KEY = "confirmed"
-    }
-    
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return AlertDialog.Builder(requireContext())
-            .setTitle("Xác nhận xóa")
-            .setMessage("Bạn có chắc chắn muốn xóa?")
-            .setPositiveButton("Xóa") { _, _ -&gt;
-                // Gửi kết quả TRUE
-                setFragmentResult(REQUEST_KEY, bundleOf(RESULT_KEY to true))
-                dismiss()
-            }
-            .setNegativeButton("Hủy") { dialog, _ -&gt;
-                // Gửi kết quả FALSE
-                setFragmentResult(REQUEST_KEY, bundleOf(RESULT_KEY to false))
-                dialog.dismiss()
-            }
-            .create()
-    }
-}
-
-// Fragment/Activity cha
-class ListFragment : Fragment() {
-    
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        
-        // Dialog được show bằng childFragmentManager (bên dưới), nên setFragmentResult() trong dialog
-        // ghi kết quả vào childFragmentManager của ListFragment. Listener phải đăng ký trên CÙNG manager đó;
-        // setFragmentResultListener() dạng KTX đăng ký trên parentFragmentManager → không bao giờ nhận được.
-        childFragmentManager.setFragmentResultListener(ConfirmDeleteDialog.REQUEST_KEY, this) { _, bundle -&gt;
-            val confirmed = bundle.getBoolean(ConfirmDeleteDialog.RESULT_KEY)
-            if (confirmed) {
-                deleteItem()
-            }
-        }
-    }
-    
-    private fun showDeleteConfirmation() {
-        ConfirmDeleteDialog().show(childFragmentManager, "confirm_delete")
-    }
-    
-    private fun deleteItem() {
-        // Logic xóa
-    }
-}</code></pre>
+<p>Đây là pattern <strong>hiện đại và an toàn nhất</strong> để dialog trả kết quả cho Fragment/Activity cha. Dialog gọi <code>setFragmentResult(requestKey, bundle)</code>, Fragment cha đăng ký listener với cùng <code>requestKey</code> trên <strong>cùng FragmentManager</strong> đã dùng để show dialog. Code đầy đủ và luồng chạy ở mục "Ví dụ thực tế", bài toán xác nhận xoá item.</p>
 
 <p><strong>Ưu điểm:</strong></p>
 
@@ -20656,7 +20978,9 @@ class ListFragment : Fragment() {
   <li>Không cần interface callback.</li>
 </ul>
 
-<h3>Pattern 2: Shared ViewModel</h3>
+<p>Fragment Result API dùng chung cho mọi cặp Fragment, không riêng dialog: xem <a href="fragment_manager.md" target="_blank" rel="noopener">FragmentManager</a>, mục "Pattern 2: Fragment Result API (Cho one-time event)".</p>
+
+<h4>Pattern 2: Shared ViewModel</h4>
 
 <p>Dùng khi dialog và Fragment/Activity cha cần <strong>chia sẻ dữ liệu phức tạp</strong>.</p>
 
@@ -20714,7 +21038,7 @@ class ParentFragment : Fragment() {
     }
 }</code></pre>
 
-<h3>Pattern 3: Interface Callback (Legacy)</h3>
+<h4>Pattern 3: Interface Callback (Legacy)</h4>
 
 <p>Pattern cũ, không khuyến nghị trong project mới.</p>
 
@@ -20757,9 +21081,35 @@ class ParentFragment : Fragment() {
   <li>Khó test.</li>
 </ul>
 
-<h2>Dialog trong Compose</h2>
+<h3>DialogFragment vs Navigation Component Dialog</h3>
 
-<h3>AlertDialog trong Compose</h3>
+<h4>Navigation Component Dialog</h4>
+
+<p>Navigation Component cung cấp cách hiển thị dialog thông qua NavGraph:</p>
+
+<pre data-lang="xml"><code>&lt;!-- nav_graph.xml --&gt;
+&lt;dialog
+    android:id="@+id/confirmDialog"
+    android:name="com.example.ConfirmDialog"
+    android:label="ConfirmDialog" /&gt;</code></pre>
+
+<pre data-lang="kotlin"><code>// Điều hướng đến dialog
+findNavController().navigate(R.id.confirmDialog)</code></pre>
+
+<p>Class khai báo trong <code>&lt;dialog&gt;</code> vẫn là một DialogFragment bình thường. Khác biệt nằm ở chỗ ai hiển thị và ai giữ nó:</p>
+
+<ul>
+  <li><strong><code>show()</code> thủ công</strong>: bạn chọn FragmentManager (<code>childFragmentManager</code> hay <code>parentFragmentManager</code>) và tag; dialog không nằm trong back stack điều hướng.</li>
+  <li><strong><code>&lt;dialog&gt;</code> destination</strong>: NavController tự show DialogFragment và đặt nó lên back stack của NavController, hiện đè lên destination trước đó. User dismiss dialog (Back, chạm ra ngoài) thì destination này bị pop. Nhờ vậy dialog nhận argument (Safe Args), có action và deep link như mọi destination khác.</li>
+</ul>
+
+<p>Vì sao chọn Navigation Component hay FragmentManager trực tiếp nói chung (type safety, deep link, testing…) ở <a href="fragment_manager.md" target="_blank" rel="noopener">FragmentManager</a>, mục "So sánh FragmentManager vs Navigation Component". Với dialog: app đã dùng Navigation thì khai báo dialog thành <code>&lt;dialog&gt;</code> destination; app tự quản lý FragmentManager thì <code>show()</code> như các mục trên.</p>
+
+<h3>Dialog trong Compose</h3>
+
+<p>Trong Compose, dialog không phải Fragment mà là một composable: nó hiện khi state hiển thị là <code>true</code> và biến mất khi state về <code>false</code>.</p>
+
+<h4>AlertDialog trong Compose</h4>
 
 <pre data-lang="kotlin"><code>@Composable
 fun ConfirmDeleteDialog(
@@ -20804,7 +21154,7 @@ fun ListScreen() {
     }
 }</code></pre>
 
-<h3>Custom Dialog trong Compose</h3>
+<h4>Custom Dialog trong Compose</h4>
 
 <pre data-lang="kotlin"><code>@Composable
 fun CustomInputDialog(
@@ -20851,7 +21201,7 @@ fun CustomInputDialog(
     }
 }</code></pre>
 
-<h3>ModalBottomSheet trong Compose</h3>
+<h4>ModalBottomSheet trong Compose</h4>
 
 <pre data-lang="kotlin"><code>@OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20903,355 +21253,96 @@ fun FilterBottomSheet(
     }
 }</code></pre>
 
-<h3>So sánh Dialog XML vs Compose</h3>
+<h2>Ví dụ thực tế</h2>
 
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Aspect</th>
-      <th style="padding:8px 12px;text-align:left;">XML (DialogFragment)</th>
-      <th style="padding:8px 12px;text-align:left;">Compose (Dialog/AlertDialog)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Đơn vị</strong></td>
-      <td style="padding:8px 12px;">Fragment</td>
-      <td style="padding:8px 12px;">Composable function</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>State management</strong></td>
-      <td style="padding:8px 12px;">Bundle, ViewModel</td>
-      <td style="padding:8px 12px;">Compose state</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Lifecycle</strong></td>
-      <td style="padding:8px 12px;">Fragment lifecycle</td>
-      <td style="padding:8px 12px;">Composition lifecycle</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Rotation handling</strong></td>
-      <td style="padding:8px 12px;">Tự động (FragmentManager)</td>
-      <td style="padding:8px 12px;">Chỉ khi state hiển thị/input dùng <code>rememberSaveable</code> hoặc nằm trong ViewModel (<code>remember</code> sẽ mất)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Animation</strong></td>
-      <td style="padding:8px 12px;">XML animation</td>
-      <td style="padding:8px 12px;">AnimatedVisibility, Crossfade</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Customization</strong></td>
-      <td style="padding:8px 12px;">Custom layout</td>
-      <td style="padding:8px 12px;">Composable tree</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Testing</strong></td>
-      <td style="padding:8px 12px;">FragmentScenario</td>
-      <td style="padding:8px 12px;">ComposeTestRule</td>
-    </tr>
-  </tbody>
-</table>
+<h3>Xác nhận xoá item, trả kết quả về Fragment cha bằng Fragment Result API</h3>
 
-<h2>DialogFragment vs Navigation Component Dialog</h2>
+<p>Màn hình danh sách cần hỏi lại trước khi xoá một item. Dialog chỉ hỏi và trả về <code>true</code>/<code>false</code>; việc xoá thuộc về Fragment cha. Luồng chạy:</p>
 
-<h3>Navigation Component Dialog</h3>
+<ol>
+  <li><code>ListFragment.onCreate()</code> đăng ký listener với <code>REQUEST_KEY</code> trên <code>childFragmentManager</code>, đúng manager sẽ dùng để show dialog.</li>
+  <li>User bấm xoá: <code>ConfirmDeleteDialog().show(childFragmentManager, "confirm_delete")</code>.</li>
+  <li>FragmentManager add dialog; <code>onCreateDialog()</code> tạo <code>AlertDialog</code>, dialog hiện ở <code>onStart()</code>.</li>
+  <li>User bấm "Xóa" hoặc "Hủy": dialog gọi <code>setFragmentResult(REQUEST_KEY, bundleOf(RESULT_KEY to true/false))</code>, kết quả được ghi vào <code>childFragmentManager</code> của <code>ListFragment</code>.</li>
+  <li>Dialog <code>dismiss()</code>.</li>
+  <li><code>childFragmentManager</code> chuyển Bundle cho listener khi <code>ListFragment</code> ít nhất <code>STARTED</code>; <code>confirmed == true</code> thì <code>deleteItem()</code>.</li>
+</ol>
 
-<p>Navigation Component cung cấp cách hiển thị dialog thông qua NavGraph:</p>
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant LF as ListFragment
+    participant CFM as childFragmentManager
+    participant DF as ConfirmDeleteDialog
 
-<pre data-lang="xml"><code>&lt;!-- nav_graph.xml --&gt;
-&lt;dialog
-    android:id="@+id/confirmDialog"
-    android:name="com.example.ConfirmDialog"
-    android:label="ConfirmDialog" /&gt;</code></pre>
+    LF-&gt;&gt;CFM: (1) setFragmentResultListener(REQUEST_KEY)
+    User-&gt;&gt;LF: Bấm xoá
+    LF-&gt;&gt;CFM: (2) show(childFragmentManager, "confirm_delete")
+    CFM-&gt;&gt;DF: (3) onCreateDialog() → onStart(): dialog hiện
+    User-&gt;&gt;DF: Bấm "Xóa" hoặc "Hủy"
+    DF-&gt;&gt;CFM: (4) setFragmentResult(REQUEST_KEY, confirmed)
+    DF-&gt;&gt;DF: (5) dismiss()
+    CFM--&gt;&gt;LF: (6) listener nhận Bundle (khi LF ≥ STARTED)
+    LF-&gt;&gt;LF: (6) confirmed == true → deleteItem()
+</div>
 
-<pre data-lang="kotlin"><code>// Điều hướng đến dialog
-findNavController().navigate(R.id.confirmDialog)</code></pre>
-
-<p>Class khai báo trong <code>&lt;dialog&gt;</code> vẫn là một DialogFragment bình thường. Khác biệt nằm ở chỗ ai hiển thị và ai giữ nó:</p>
-
-<ul>
-  <li><strong><code>show()</code> thủ công</strong>: bạn chọn FragmentManager (<code>childFragmentManager</code> hay <code>parentFragmentManager</code>) và tag; dialog không nằm trong back stack điều hướng.</li>
-  <li><strong><code>&lt;dialog&gt;</code> destination</strong>: NavController tự show DialogFragment và đặt nó lên back stack của NavController, hiện đè lên destination trước đó. User dismiss dialog (Back, chạm ra ngoài) thì destination này bị pop. Nhờ vậy dialog nhận argument (Safe Args), có action và deep link như mọi destination khác.</li>
-</ul>
-
-<p>Vì sao chọn Navigation Component hay FragmentManager trực tiếp nói chung (type safety, deep link, testing…) ở <a href="fragment_manager.md" target="_blank" rel="noopener">FragmentManager</a>, mục "So sánh FragmentManager vs Navigation Component". Với dialog: app đã dùng Navigation thì khai báo dialog thành <code>&lt;dialog&gt;</code> destination; app tự quản lý FragmentManager thì <code>show()</code> như các mục trên.</p>
-
-<h2>Best Practices</h2>
-
-<h3>1. Luôn dùng Fragment Result API cho communication</h3>
-
-<pre data-lang="kotlin"><code>// Đúng
-class MyDialog : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+<pre data-lang="kotlin"><code>// ConfirmDeleteDialog.kt
+class ConfirmDeleteDialog : DialogFragment() {
+    
+    companion object {
+        const val REQUEST_KEY = "confirm_delete_request"
+        const val RESULT_KEY = "confirmed"
+    }
+    
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog { // (3)
         return AlertDialog.Builder(requireContext())
-            .setPositiveButton("OK") { _, _ -&gt;
-                setFragmentResult("request_key", bundleOf("result" to true))
-                dismiss()
+            .setTitle("Xác nhận xóa")
+            .setMessage("Bạn có chắc chắn muốn xóa?")
+            .setPositiveButton("Xóa") { _, _ -&gt;
+                // (4) Gửi kết quả TRUE
+                setFragmentResult(REQUEST_KEY, bundleOf(RESULT_KEY to true))
+                dismiss() // (5)
+            }
+            .setNegativeButton("Hủy") { dialog, _ -&gt;
+                // (4) Gửi kết quả FALSE
+                setFragmentResult(REQUEST_KEY, bundleOf(RESULT_KEY to false))
+                dialog.dismiss() // (5)
             }
             .create()
     }
 }
 
-// Sai (coupling cao)
-class MyDialog : DialogFragment() {
-    private lateinit var callback: () -&gt; Unit
-    
-    fun setCallback(cb: () -&gt; Unit) {
-        callback = cb
-    }
-}</code></pre>
-
-<h3>2. Dùng <code>requireContext()</code> thay vì <code>context</code> hoặc <code>activity</code></h3>
-
-<pre data-lang="kotlin"><code>// Đúng
-override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-    return AlertDialog.Builder(requireContext())
-        .setTitle("Title")
-        .create()
-}
-
-// Sai (có thể null)
-override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-    return AlertDialog.Builder(context!!)  // Crash nếu context null
-        .setTitle("Title")
-        .create()
-}</code></pre>
-
-<h3>3. Cleanup binding trong onDestroyView()</h3>
-
-<pre data-lang="kotlin"><code>class CustomDialog : DialogFragment() {
-    private var _binding: DialogCustomBinding? = null
-    private val binding get() = _binding!!
-    
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = DialogCustomBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-    
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null  // Tránh memory leak
-    }
-}</code></pre>
-
-<h3>4. Set dialog style trong onCreate()</h3>
-
-<pre data-lang="kotlin"><code>class FullScreenDialog : DialogFragment() {
+// Fragment/Activity cha
+class ListFragment : Fragment() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
-    }
-}</code></pre>
-
-<h3>5. Handle dismiss đúng cách</h3>
-
-<pre data-lang="kotlin"><code>class MyDialog : DialogFragment() {
-    
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        // Cleanup khi dialog bị dismiss
-    }
-    
-    override fun onCancel(dialog: DialogInterface) {
-        super.onCancel(dialog)
-        // Handle khi user nhấn Back hoặc tap outside
-    }
-}</code></pre>
-
-<h2>Common Mistakes</h2>
-
-<h3>Lỗi 1: Memory leak do giữ reference đến Activity</h3>
-
-<pre data-lang="kotlin"><code>// Sai
-class MyDialog : DialogFragment() {
-    // (Đặt tên \`activity\` sẽ không compile: trùng getter final getActivity() của Fragment)
-    private var hostActivity: MainActivity? = null
-    
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        hostActivity = context as MainActivity  // Memory leak!
-    }
-}
-
-// Đúng
-class MyDialog : DialogFragment() {
-    // Dùng Fragment Result API hoặc Shared ViewModel
-}</code></pre>
-
-<h3>Lỗi 2: Crash khi dismiss sau khi Activity đã destroy</h3>
-
-<pre data-lang="kotlin"><code>// Sai
-fun someCallback() {
-    dismiss()  // Crash nếu dialog đã bị gỡ, hoặc IllegalStateException nếu state đã được lưu
-}
-
-// Đúng
-fun someCallback() {
-    if (!isAdded) return                     // dialog đã bị gỡ khỏi FragmentManager
-    if (parentFragmentManager.isStateSaved) {
-        dismissAllowingStateLoss()           // sau onSaveInstanceState, dismiss() sẽ ném IllegalStateException
-    } else {
-        dismiss()
-    }
-}</code></pre>
-
-<h3>Lỗi 3: Không handle rotation cho custom view</h3>
-
-<pre data-lang="kotlin"><code>// Sai
-class CustomDialog : DialogFragment() {
-    private var inputText = ""
-    
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.etInput.setText(inputText)
-        binding.etInput.addTextChangedListener {
-            inputText = it.toString()  // Không lưu khi rotation
+        
+        // (1) Dialog được show bằng childFragmentManager (bên dưới), nên setFragmentResult() trong dialog
+        // ghi kết quả vào childFragmentManager của ListFragment. Listener phải đăng ký trên CÙNG manager đó;
+        // setFragmentResultListener() dạng KTX đăng ký trên parentFragmentManager → không bao giờ nhận được.
+        childFragmentManager.setFragmentResultListener(ConfirmDeleteDialog.REQUEST_KEY, this) { _, bundle -&gt;
+            val confirmed = bundle.getBoolean(ConfirmDeleteDialog.RESULT_KEY) // (6)
+            if (confirmed) {
+                deleteItem()
+            }
         }
     }
-}
-
-// Đúng
-class CustomDialog : DialogFragment() {
-    private var inputText = ""
     
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("input_text", inputText)
+    private fun showDeleteConfirmation() {
+        ConfirmDeleteDialog().show(childFragmentManager, "confirm_delete") // (2)
     }
     
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        savedInstanceState?.let {
-            inputText = it.getString("input_text", "")
-        }
-        binding.etInput.setText(inputText)
+    private fun deleteItem() {
+        // Logic xóa
     }
 }</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">EditText có <code>android:id</code> vốn <strong>tự lưu và khôi phục</strong> text đang gõ qua state của View hierarchy, nên với riêng text trong EditText thì phần "Đúng" ở trên là thừa. Chỉ cần tự lưu state không nằm trong View (biến tạm, lựa chọn chưa hiển thị), hoặc đưa nó vào ViewModel + <code>SavedStateHandle</code>.</div></div>
+<p><strong>Kết quả:</strong> bấm "Xóa" thì <code>ListFragment</code> nhận <code>confirmed = true</code> và xoá item, bấm "Hủy" thì không có gì bị xoá; dialog không giữ reference nào tới <code>ListFragment</code>, nên dùng lại được ở bất kỳ Fragment nào đăng ký cùng <code>REQUEST_KEY</code>.</p>
 
-<h3>Lỗi 4: Dùng dialog.show() mà không check state</h3>
+<h3>Dialog xác nhận gọi ViewModel của Fragment cha (MVVM + Clean Architecture)</h3>
 
-<pre data-lang="kotlin"><code>// Sai
-fun showDialog() {
-    MyDialog().show(supportFragmentManager, "tag")
-}
-
-// Đúng
-fun showDialog() {
-    if (!supportFragmentManager.isStateSaved) {
-        MyDialog().show(supportFragmentManager, "tag")
-    }
-}</code></pre>
-
-<h2>Debug Techniques</h2>
-
-<h3>1. Log lifecycle của DialogFragment</h3>
-
-<pre data-lang="kotlin"><code>class MyDialog : DialogFragment() {
-    
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        Log.d("DialogLifecycle", "onAttach")
-    }
-    
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d("DialogLifecycle", "onCreate")
-    }
-    
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        Log.d("DialogLifecycle", "onCreateDialog")
-        return super.onCreateDialog(savedInstanceState)
-    }
-    
-    override fun onStart() {
-        super.onStart()
-        Log.d("DialogLifecycle", "onStart - Dialog visible")
-    }
-    
-    override fun onStop() {
-        super.onStop()
-        Log.d("DialogLifecycle", "onStop - Dialog hidden")
-    }
-    
-    override fun onDestroyView() {
-        super.onDestroyView()
-        Log.d("DialogLifecycle", "onDestroyView")
-    }
-}</code></pre>
-
-<h3>2. Debug dialog stack</h3>
-
-<pre data-lang="kotlin"><code>fun debugDialogStack() {
-    val fragmentManager = supportFragmentManager
-    fragmentManager.fragments.forEach { fragment -&gt;
-        if (fragment is DialogFragment) {
-            Log.d("DialogStack", "Dialog: \${fragment.javaClass.simpleName}")
-            Log.d("DialogStack", "  isAdded: \${fragment.isAdded}")
-            Log.d("DialogStack", "  isVisible: \${fragment.isVisible}")
-            Log.d("DialogStack", "  dialog: \${fragment.dialog}")
-        }
-    }
-}</code></pre>
-
-<h3>3. Dùng Layout Inspector</h3>
-
-<p>Mở <strong>Layout Inspector</strong> trong Android Studio để xem:</p>
-
-<ul>
-  <li>Dialog window hierarchy.</li>
-  <li>View tree của dialog.</li>
-  <li>Properties của từng view.</li>
-</ul>
-
-<h2>Performance Considerations</h2>
-
-<h3>1. Tránh tạo DialogFragment không cần thiết</h3>
-
-<pre data-lang="kotlin"><code>// Sai: Tạo dialog mới mỗi lần
-fun showDialog() {
-    MyDialog().show(supportFragmentManager, "tag")
-}
-
-// Đúng: Tái sử dụng dialog nếu đã tồn tại
-fun showDialog() {
-    val existingDialog = supportFragmentManager.findFragmentByTag("tag")
-    if (existingDialog == null) {
-        MyDialog().show(supportFragmentManager, "tag")
-    }
-}</code></pre>
-
-<h3>2. Dùng dismissAllowingStateLoss() cho non-critical dialogs</h3>
-
-<pre data-lang="kotlin"><code>// Dialog không quan trọng, có thể mất nếu Activity bị kill
-fun dismissDialog() {
-    dismissAllowingStateLoss()
-}</code></pre>
-
-<h3>3. Lazy inflate custom view</h3>
-
-<pre data-lang="kotlin"><code>class CustomDialog : DialogFragment() {
-    private var _binding: DialogCustomBinding? = null
-    private val binding get() = _binding!!
-    
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        // Chỉ inflate khi cần
-        _binding = DialogCustomBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-}</code></pre>
-
-<h2>System Thinking - Vị trí trong kiến trúc</h2>
-
-<h3>DialogFragment trong MVVM + Clean Architecture</h3>
+<p>DialogFragment chỉ thuộc Presentation Layer: nó hiển thị dialog và thu thập input, rồi giao việc cho ViewModel. MVVM và Clean Architecture được học ở 7.2.3 MVVM (chưa có bài) và 7.2.5 Clean Architecture (chưa có bài).</p>
 
 <div class="dd-diagram" data-dd="dlg-layers">
 <div class="dd-svg dd-svg-dark">
@@ -21400,7 +21491,7 @@ fun dismissDialog() {
   <li><strong>Không thuộc Data Layer</strong>: DialogFragment không nên biết về Repository.</li>
 </ul>
 
-<h3>Nguyên tắc Separation of Concerns</h3>
+<p>Nguyên tắc Separation of Concerns: dialog nhận <code>itemId</code> qua arguments, khi user bấm "Xóa" thì gọi ViewModel của Fragment cha rồi dismiss.</p>
 
 <pre data-lang="kotlin"><code>// Đúng: DialogFragment chỉ ở Presentation Layer
 class ConfirmDeleteDialog : DialogFragment() {
@@ -21422,9 +21513,335 @@ class ConfirmDeleteDialog : DialogFragment() {
     companion object {
         const val ARG_ITEM_ID = "item_id"
     }
-}
+}</code></pre>
 
-// Sai: DialogFragment xuất hiện ở Domain Layer
+<p><strong>Kết quả:</strong> việc xoá chạy trong ViewModel của Fragment cha nên không bị huỷ khi dialog đóng; phản ví dụ đưa DialogFragment xuống Domain Layer ở mục "Sai lầm thường gặp" (mục 11).</p>
+
+<h3>Debug DialogFragment</h3>
+
+<h4>1. Log lifecycle của DialogFragment</h4>
+
+<pre data-lang="kotlin"><code>class MyDialog : DialogFragment() {
+    
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.d("DialogLifecycle", "onAttach")
+    }
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d("DialogLifecycle", "onCreate")
+    }
+    
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        Log.d("DialogLifecycle", "onCreateDialog")
+        return super.onCreateDialog(savedInstanceState)
+    }
+    
+    override fun onStart() {
+        super.onStart()
+        Log.d("DialogLifecycle", "onStart - Dialog visible")
+    }
+    
+    override fun onStop() {
+        super.onStop()
+        Log.d("DialogLifecycle", "onStop - Dialog hidden")
+    }
+    
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.d("DialogLifecycle", "onDestroyView")
+    }
+}</code></pre>
+
+<h4>2. Debug dialog stack</h4>
+
+<pre data-lang="kotlin"><code>fun debugDialogStack() {
+    val fragmentManager = supportFragmentManager
+    fragmentManager.fragments.forEach { fragment -&gt;
+        if (fragment is DialogFragment) {
+            Log.d("DialogStack", "Dialog: \${fragment.javaClass.simpleName}")
+            Log.d("DialogStack", "  isAdded: \${fragment.isAdded}")
+            Log.d("DialogStack", "  isVisible: \${fragment.isVisible}")
+            Log.d("DialogStack", "  dialog: \${fragment.dialog}")
+        }
+    }
+}</code></pre>
+
+<h4>3. Dùng Layout Inspector</h4>
+
+<p>Mở <strong>Layout Inspector</strong> trong Android Studio để xem:</p>
+
+<ul>
+  <li>Dialog window hierarchy.</li>
+  <li>View tree của dialog.</li>
+  <li>Properties của từng view.</li>
+</ul>
+
+<h2>So sánh với các cách tiếp cận khác</h2>
+
+<h3>So sánh Dialog XML vs Compose</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Aspect</th>
+      <th style="padding:8px 12px;text-align:left;">XML (DialogFragment)</th>
+      <th style="padding:8px 12px;text-align:left;">Compose (Dialog/AlertDialog)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Đơn vị</strong></td>
+      <td style="padding:8px 12px;">Fragment</td>
+      <td style="padding:8px 12px;">Composable function</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>State management</strong></td>
+      <td style="padding:8px 12px;">Bundle, ViewModel</td>
+      <td style="padding:8px 12px;">Compose state</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Lifecycle</strong></td>
+      <td style="padding:8px 12px;">Fragment lifecycle</td>
+      <td style="padding:8px 12px;">Composition lifecycle</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Rotation handling</strong></td>
+      <td style="padding:8px 12px;">Tự động (FragmentManager)</td>
+      <td style="padding:8px 12px;">Chỉ khi state hiển thị/input dùng <code>rememberSaveable</code> hoặc nằm trong ViewModel (<code>remember</code> sẽ mất)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Animation</strong></td>
+      <td style="padding:8px 12px;">XML animation</td>
+      <td style="padding:8px 12px;">AnimatedVisibility, Crossfade</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Customization</strong></td>
+      <td style="padding:8px 12px;">Custom layout</td>
+      <td style="padding:8px 12px;">Composable tree</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Testing</strong></td>
+      <td style="padding:8px 12px;">FragmentScenario</td>
+      <td style="padding:8px 12px;">ComposeTestRule</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<ul>
+  <li><strong>Nên dùng DialogFragment</strong> cho dialog trong UI viết bằng View/Fragment, nhất là khi dialog phải sống qua rotation, có input cần giữ, hoặc được tái sử dụng ở nhiều màn hình.</li>
+  <li><strong>Nên dùng BottomSheetDialogFragment</strong> cho menu tùy chọn, form nhập liệu, chi tiết nhanh, filter/sort.</li>
+  <li><strong><code>&lt;dialog&gt;</code> destination hay <code>show()</code></strong>: app đã dùng Navigation thì khai báo dialog thành <code>&lt;dialog&gt;</code> destination; app tự quản lý FragmentManager thì <code>show()</code>.</li>
+  <li><strong>Giao tiếp</strong>: Fragment Result API cho kết quả trả về từ dialog; Shared ViewModel khi cần chia sẻ dữ liệu phức tạp; không dùng Interface Callback trong project mới.</li>
+  <li><strong>Màn hình viết bằng Compose</strong>: dùng <code>AlertDialog</code>, <code>Dialog</code>, <code>ModalBottomSheet</code> của Compose, state hiển thị đặt trong <code>rememberSaveable</code> hoặc ViewModel.</li>
+  <li><strong>Không nên</strong> gọi <code>AlertDialog.Builder(...).show()</code> trực tiếp trong Activity/Fragment: dialog mất khi rotation và không có lifecycle rõ ràng.</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Truyền callback cho dialog qua setter</h3>
+
+<pre data-lang="kotlin"><code>// Sai (coupling cao)
+class MyDialog : DialogFragment() {
+    private lateinit var callback: () -&gt; Unit
+    
+    fun setCallback(cb: () -&gt; Unit) {
+        callback = cb
+    }
+}</code></pre>
+
+<p>Dialog giữ thẳng lambda của nơi gọi, nên phụ thuộc vào nơi gọi. Ngoài ra, sau rotation FragmentManager tạo instance dialog mới, không ai gọi lại <code>setCallback()</code>.</p>
+
+<p><strong>Cách sửa:</strong> Luôn dùng Fragment Result API cho communication.</p>
+
+<pre data-lang="kotlin"><code>// Đúng
+class MyDialog : DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return AlertDialog.Builder(requireContext())
+            .setPositiveButton("OK") { _, _ -&gt;
+                setFragmentResult("request_key", bundleOf("result" to true))
+                dismiss()
+            }
+            .create()
+    }
+}</code></pre>
+
+<h3>2. Đăng ký result listener trên sai FragmentManager</h3>
+
+<p>Dialog được show bằng <code>childFragmentManager</code> thì <code>setFragmentResult()</code> ghi kết quả vào <code>childFragmentManager</code> của Fragment cha. <code>setFragmentResultListener()</code> dạng KTX trong Fragment cha lại đăng ký trên <code>parentFragmentManager</code>, nên listener không bao giờ nhận được kết quả.</p>
+
+<p><strong>Cách sửa:</strong> Đăng ký listener trên đúng manager đã show dialog: <code>childFragmentManager.setFragmentResultListener(...)</code> (xem code ở mục "Ví dụ thực tế").</p>
+
+<h3>3. Memory leak do giữ reference đến Activity</h3>
+
+<pre data-lang="kotlin"><code>// Sai
+class MyDialog : DialogFragment() {
+    // (Đặt tên \`activity\` sẽ không compile: trùng getter final getActivity() của Fragment)
+    private var hostActivity: MainActivity? = null
+    
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        hostActivity = context as MainActivity  // Memory leak!
+    }
+}</code></pre>
+
+<p><strong>Cách sửa:</strong></p>
+
+<pre data-lang="kotlin"><code>// Đúng
+class MyDialog : DialogFragment() {
+    // Dùng Fragment Result API hoặc Shared ViewModel
+}</code></pre>
+
+<h3>4. Dùng <code>context!!</code> thay vì <code>requireContext()</code></h3>
+
+<pre data-lang="kotlin"><code>// Sai (có thể null)
+override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    return AlertDialog.Builder(context!!)  // Crash nếu context null
+        .setTitle("Title")
+        .create()
+}</code></pre>
+
+<p><strong>Cách sửa:</strong> Dùng <code>requireContext()</code> thay vì <code>context</code> hoặc <code>activity</code>.</p>
+
+<pre data-lang="kotlin"><code>// Đúng
+override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    return AlertDialog.Builder(requireContext())
+        .setTitle("Title")
+        .create()
+}</code></pre>
+
+<h3>5. Không cleanup binding trong onDestroyView()</h3>
+
+<p>View của dialog bị hủy ở <code>onDestroyView()</code>, nhưng nếu <code>_binding</code> vẫn giữ reference thì View cũ không được giải phóng.</p>
+
+<p><strong>Cách sửa:</strong> Inflate binding trong <code>onCreateView()</code> và gán <code>_binding = null</code> trong <code>onDestroyView()</code>.</p>
+
+<pre data-lang="kotlin"><code>class CustomDialog : DialogFragment() {
+    private var _binding: DialogCustomBinding? = null
+    private val binding get() = _binding!!
+    
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        // Chỉ inflate khi cần
+        _binding = DialogCustomBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+    
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null  // Tránh memory leak
+    }
+}</code></pre>
+
+<h3>6. Crash khi dismiss sau khi Activity đã destroy</h3>
+
+<pre data-lang="kotlin"><code>// Sai
+fun someCallback() {
+    dismiss()  // Crash nếu dialog đã bị gỡ, hoặc IllegalStateException nếu state đã được lưu
+}</code></pre>
+
+<p><strong>Cách sửa:</strong> kiểm tra dialog còn được add và state chưa được lưu trước khi dismiss.</p>
+
+<pre data-lang="kotlin"><code>// Đúng
+fun someCallback() {
+    if (!isAdded) return                     // dialog đã bị gỡ khỏi FragmentManager
+    if (parentFragmentManager.isStateSaved) {
+        dismissAllowingStateLoss()           // sau onSaveInstanceState, dismiss() sẽ ném IllegalStateException
+    } else {
+        dismiss()
+    }
+}</code></pre>
+
+<p>Với non-critical dialogs, có thể dùng thẳng <code>dismissAllowingStateLoss()</code>:</p>
+
+<pre data-lang="kotlin"><code>// Dialog không quan trọng, có thể mất nếu Activity bị kill
+fun dismissDialog() {
+    dismissAllowingStateLoss()
+}</code></pre>
+
+<h3>7. Dùng dialog.show() mà không check state</h3>
+
+<pre data-lang="kotlin"><code>// Sai
+fun showDialog() {
+    MyDialog().show(supportFragmentManager, "tag")
+}</code></pre>
+
+<p><strong>Cách sửa:</strong> chỉ show khi FragmentManager chưa lưu state.</p>
+
+<pre data-lang="kotlin"><code>// Đúng
+fun showDialog() {
+    if (!supportFragmentManager.isStateSaved) {
+        MyDialog().show(supportFragmentManager, "tag")
+    }
+}</code></pre>
+
+<h3>8. Tạo DialogFragment không cần thiết</h3>
+
+<pre data-lang="kotlin"><code>// Sai: Tạo dialog mới mỗi lần
+fun showDialog() {
+    MyDialog().show(supportFragmentManager, "tag")
+}</code></pre>
+
+<p><strong>Cách sửa:</strong> Tái sử dụng dialog nếu đã tồn tại, tìm theo tag trước khi show.</p>
+
+<pre data-lang="kotlin"><code>// Đúng: Tái sử dụng dialog nếu đã tồn tại
+fun showDialog() {
+    val existingDialog = supportFragmentManager.findFragmentByTag("tag")
+    if (existingDialog == null) {
+        MyDialog().show(supportFragmentManager, "tag")
+    }
+}</code></pre>
+
+<h3>9. Không handle rotation cho custom view</h3>
+
+<pre data-lang="kotlin"><code>// Sai
+class CustomDialog : DialogFragment() {
+    private var inputText = ""
+    
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.etInput.setText(inputText)
+        binding.etInput.addTextChangedListener {
+            inputText = it.toString()  // Không lưu khi rotation
+        }
+    }
+}</code></pre>
+
+<p><strong>Cách sửa:</strong> lưu state vào <code>outState</code> và đọc lại từ <code>savedInstanceState</code>.</p>
+
+<pre data-lang="kotlin"><code>// Đúng
+class CustomDialog : DialogFragment() {
+    private var inputText = ""
+    
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("input_text", inputText)
+    }
+    
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        savedInstanceState?.let {
+            inputText = it.getString("input_text", "")
+        }
+        binding.etInput.setText(inputText)
+    }
+}</code></pre>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">EditText có <code>android:id</code> vốn <strong>tự lưu và khôi phục</strong> text đang gõ qua state của View hierarchy, nên với riêng text trong EditText thì phần "Đúng" ở trên là thừa. Chỉ cần tự lưu state không nằm trong View (biến tạm, lựa chọn chưa hiển thị), hoặc đưa nó vào ViewModel + <code>SavedStateHandle</code>.</div></div>
+
+<h3>10. Giữ state hiển thị dialog Compose bằng <code>remember</code></h3>
+
+<p><code>remember</code> mất giá trị khi Activity bị recreate, nên dialog đang mở (và text đang gõ) biến mất sau khi xoay màn hình.</p>
+
+<p><strong>Cách sửa:</strong> dùng <code>rememberSaveable</code> (như <code>showDialog</code> và <code>inputText</code> ở mục Dialog trong Compose) hoặc đặt state trong ViewModel.</p>
+
+<h3>11. DialogFragment xuất hiện ở Domain Layer</h3>
+
+<pre data-lang="kotlin"><code>// Sai: DialogFragment xuất hiện ở Domain Layer
 class DeleteItemUseCase(
     private val repository: Repository,
     private val dialog: DialogFragment  // KHÔNG NÊN
@@ -21435,7 +21852,44 @@ class DeleteItemUseCase(
     }
 }</code></pre>
 
-<h2>References</h2>
+<p><strong>Cách sửa:</strong> để dialog ở Presentation Layer và gọi ViewModel, UseCase không biết dialog tồn tại (xem mục Dialog xác nhận gọi ViewModel của Fragment cha ở "Ví dụ thực tế").</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>Android 3.0 (API 11):</strong> <code>android.app.DialogFragment</code> ra đời cùng Fragment của framework. Bản framework bị deprecated từ <strong>API 28</strong>, thay bằng <code>androidx.fragment.app.DialogFragment</code> của Jetpack để hành vi đồng nhất trên mọi máy và có Lifecycle.</li>
+  <li><strong>Support Library 23.2.0 (02/2016):</strong> Design Support Library thêm bottom sheet (<code>BottomSheetBehavior</code>), nền của <code>BottomSheetDialogFragment</code> ngày nay nằm trong Material Components.</li>
+  <li><strong>Navigation 2.1.0 (09/2019):</strong> thêm <code>&lt;dialog&gt;</code> destination, <code>navigate()</code> tới nó sẽ show một DialogFragment; <code>NavHostFragment</code> hỗ trợ sẵn.</li>
+  <li><strong>Fragment 1.3.0-alpha02 (03/2020):</strong> DialogFragment có constructor nhận <code>@LayoutRes</code>, layout mà <code>onCreateView()</code> inflate mặc định.</li>
+  <li><strong>Fragment 1.3.0 (stable 02/2021):</strong> Fragment Result API (thêm từ 1.3.0-alpha04, 04/2020) truyền kết quả giữa hai Fragment, dùng được cho DialogFragment, và chỉ gửi kết quả khi Fragment nhận ít nhất <code>STARTED</code>. Target fragment API cũ bị deprecated.</li>
+  <li><strong>Fragment 1.3.1 (03/2021):</strong> Dialog của DialogFragment truy cập được ViewTree owners qua DecorView, nên dùng được <code>ComposeView</code> bên trong DialogFragment.</li>
+  <li><strong>Fragment 1.5.0:</strong> <code>onCreateDialog()</code> mặc định trả về <code>ComponentDialog</code> (từ 1.5.0-alpha03, 02/2022).</li>
+  <li><strong>Fragment 1.6.0 (06/2023):</strong> thêm <code>requireComponentDialog()</code>; class kế thừa DialogFragment bắt buộc gọi <code>super</code> khi override <code>onDismiss()</code> (từ 1.6.0-alpha03).</li>
+  <li><strong>Compose Material3 1.1.0 (05/2023):</strong> thêm <code>ModalBottomSheet</code> (có từ 1.1.0-alpha06, 02/2023).</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>: DialogFragment đi qua đúng các callback của Fragment, thêm <code>onCreateDialog()</code>.</li>
+  <li><a href="fragment_manager.md" target="_blank" rel="noopener">FragmentManager</a>: <code>show()</code> là một transaction của FragmentManager; bài đó có Fragment Result API cho mọi cặp Fragment và so sánh FragmentManager với Navigation Component.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a>: lưu state qua rotation và process death, phạm vi <code>viewModels()</code> / <code>activityViewModels()</code> dùng cho Shared ViewModel.</li>
+  <li><a href="index.md" target="_blank" rel="noopener">Fragment Overview</a>: khi nào dùng Fragment, trong đó có dialog và bottom sheet.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li>6.1 View Binding (chưa có bài), 6.4 ViewModel (chưa có bài).</li>
+  <li>7.2.3 MVVM (chưa có bài), 7.2.5 Clean Architecture (chưa có bài): vị trí của DialogFragment trong Presentation Layer.</li>
+  <li><a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và 9.2.2 Remember and rememberSaveable (chưa có bài): nền cho dialog trong Compose.</li>
+</ul></li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
 
 <ul>
   <li><a href="https://developer.android.com/reference/androidx/fragment/app/DialogFragment" target="_blank" rel="noopener">Android Developers - DialogFragment</a></li>
@@ -21445,6 +21899,11 @@ class DeleteItemUseCase(
   <li><a href="https://developer.android.com/reference/com/google/android/material/bottomsheet/BottomSheetDialogFragment" target="_blank" rel="noopener">Android Developers - BottomSheetDialogFragment</a></li>
   <li><a href="https://m3.material.io/components/dialogs" target="_blank" rel="noopener">Material Design - Dialogs</a></li>
   <li><a href="https://developer.android.com/jetpack/compose/elements#dialogs" target="_blank" rel="noopener">Jetpack Compose - Dialogs</a></li>
+  <li><a href="https://developer.android.com/reference/android/app/DialogFragment" target="_blank" rel="noopener">android.app.DialogFragment (API 11, deprecated API 28) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/fragment" target="_blank" rel="noopener">Fragment release notes (1.3.0-alpha02, 1.3.0, 1.3.1, 1.5.0-alpha03, 1.6.0) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/navigation" target="_blank" rel="noopener">Navigation release notes (2.1.0: dialog destinations) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/topic/libraries/support-library/rev-archive" target="_blank" rel="noopener">Support Library revision archive (23.2.0: bottom sheets) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/compose-material3" target="_blank" rel="noopener">Compose Material3 release notes (1.1.0: ModalBottomSheet) - Android Developers</a></li>
 </ul>
     `
   },
@@ -32308,7 +32767,7 @@ class ShareFilterTest {
 
 <h3>1.1 Bản chất: Intent + Bundle</h3>
 
-<p>Dữ liệu gửi qua Intent không nằm trực tiếp trên Intent. Nó được chứa trong một đối tượng <strong>Bundle</strong>, một container key-value mà Intent mang theo. Bundle là bản sao được serialize để đi qua Binder IPC sang component đích; bản chất này được giải thích ở <a href="../components/activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Bundle là gì? — Bản chất".</p>
+<p>Dữ liệu gửi qua Intent không nằm trực tiếp trên Intent. Nó được chứa trong một đối tượng <strong>Bundle</strong>, một container key-value mà Intent mang theo. Bundle là bản sao được serialize để đi qua Binder IPC sang component đích; bản chất này được giải thích ở <a href="../components/activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Bundle và Parcelable là gì?".</p>
 
 <p>Khi bạn gọi <code>intent.putExtra(key, value)</code>, Intent sẽ tự động đẩy cặp key-value này vào Bundle bên trong nó:</p>
 

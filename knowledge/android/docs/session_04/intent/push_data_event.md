@@ -42,7 +42,7 @@ Nếu bạn nhầm lẫn hai mục đích này, bạn sẽ viết code đúng c�
 
 ### 1.1 Bản chất: Intent + Bundle
 
-Dữ liệu gửi qua Intent không nằm trực tiếp trên Intent. Nó được chứa trong một đối tượng **Bundle**, một container key-value mà Intent mang theo. Bundle là bản sao được serialize để đi qua Binder IPC sang component đích; bản chất này được giải thích ở [Parcelables and Bundle](../components/activity/parcelables_and_bundle.md), mục "Bundle là gì? — Bản chất".
+Dữ liệu gửi qua Intent không nằm trực tiếp trên Intent. Nó được chứa trong một đối tượng **Bundle**, một container key-value mà Intent mang theo. Bundle là bản sao được serialize để đi qua Binder IPC sang component đích; bản chất này được giải thích ở [Parcelables and Bundle](../components/activity/parcelables_and_bundle.md), mục "Bundle và Parcelable là gì?".
 
 Khi bạn gọi `intent.putExtra(key, value)`, Intent sẽ tự động đẩy cặp key-value này vào Bundle bên trong nó:
 
