@@ -60,7 +60,7 @@ Hãy nghĩ về nó như một **radio receiver**: hệ thống (hoặc app khá
 > - Room (database của app) chỉ xuất hiện sau `ReminderRepository`: [Relational Database (Room Architecture)](../../../session_05/data_store/room_architecture.md).
 > - Flow (`callbackFlow`, `StateFlow`, `SharedFlow`): 7.1.4.2 Flow (chưa có bài).
 > - ViewModel và Hilt (`@HiltViewModel`, `@Inject`, `@Module`): [ViewModel](../../../session_06/viewmodel.md), 7.1.5.3 Hilt (chưa có bài).
-> - MVVM, MVI và Clean Architecture (app chia thành Presentation, Domain, Data layer): 7.2.3 MVVM, 7.2.4 MVI, 7.2.5 Clean Architecture (chưa có bài).
+> - MVVM, MVI và Clean Architecture (app chia thành Presentation, Domain, Data layer): [MVVM](../../../session_07/architecture/mvvm.md), 7.2.4 MVI và 7.2.5 Clean Architecture (chưa có bài).
 
 ### Lifecycle: Cực kỳ ngắn
 

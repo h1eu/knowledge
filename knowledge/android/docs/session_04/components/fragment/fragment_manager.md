@@ -504,7 +504,7 @@ Chỉ tạo Child Fragment khi cần, không tạo sẵn trong `onCreate()`.
 
 ### FragmentManager trong kiến trúc app
 
-Phần này dùng trước MVVM (7.2.3 MVVM, chưa có bài) và Clean Architecture (7.2.5 Clean Architecture, chưa có bài): app chia thành Presentation, Domain, Data layer, mỗi layer chỉ phụ thuộc layer bên trong.
+Phần này dùng trước MVVM ([MVVM](../../../session_07/architecture/mvvm.md)) và Clean Architecture (7.2.5 Clean Architecture, chưa có bài): app chia thành Presentation, Domain, Data layer, mỗi layer chỉ phụ thuộc layer bên trong.
 
 #### FragmentManager trong MVVM + Clean Architecture
 
@@ -1173,7 +1173,7 @@ Nested Fragment quá sâu gây:
 - **Học tiếp:**
   - [Dialog and DialogFragment](dialog_and_dialogfragment.md): DialogFragment được `show()` qua FragmentManager, hoặc khai báo thành `<dialog>` destination của Navigation Component.
   - [ViewModel](../../../session_06/viewmodel.md): ViewModel dùng cho Shared ViewModel giữa các Fragment.
-  - 7.2.3 MVVM (chưa có bài) và 7.2.5 Clean Architecture (chưa có bài): vị trí của FragmentManager trong Presentation Layer.
+  - [MVVM](../../../session_07/architecture/mvvm.md) và 7.2.5 Clean Architecture (chưa có bài): vị trí của FragmentManager trong Presentation Layer.
   - 7.1.5.3 Hilt (chưa có bài): inject `FragmentManager` qua `ActivityComponent`.
   - [9.0 Jetpack Compose Overview](../../../jetpack_compose_ui/overview.md): Compose và Navigation Compose, nơi điều hướng không còn đi qua FragmentManager.
 

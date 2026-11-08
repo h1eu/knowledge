@@ -476,7 +476,7 @@ State Changes không phải việc của riêng UI. Trong kiến trúc đúng:
   - [Fragment State Changes](../fragment/state_changes.md) — cách Fragment lưu/khôi phục state riêng.
   - [ViewModel](../../../session_06/viewmodel.md): cơ chế store, vòng đời, scope, factory, `viewModelScope`.
   - 9.2 State and State Hoisting (chưa có bài), gồm 9.2.1 MutableState và 9.2.2 Remember and rememberSaveable: `remember`, `rememberSaveable`, `mutableStateOf` và Saver.
-  - 7.2.3 MVVM và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.
+  - [MVVM](../../../session_07/architecture/mvvm.md) và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.
 
 ## Nguồn tham khảo
 

@@ -249,7 +249,7 @@ Bài toán chính là lưu phiên đăng nhập bằng Preferences DataStore, t�
 > [!NOTE]
 > **Kiến thức dùng trước.** Ngoài coroutine và `Flow` (đã ghi ở mục "Các giải pháp Key-Value trong Android"), ví dụ dùng tối thiểu:
 > - `StateFlow` (`stateIn`, `collectAsStateWithLifecycle`): luồng giữ giá trị mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài).
-> - `ViewModel` (`viewModelScope`): giữ trạng thái của màn hình, học ở [ViewModel](../../session_06/viewmodel.md); cách tách UI - ViewModel - Repository học ở 7.2.3 MVVM (chưa có bài).
+> - `ViewModel` (`viewModelScope`): giữ trạng thái của màn hình, học ở [ViewModel](../../session_06/viewmodel.md); cách tách UI - ViewModel - Repository học ở [MVVM](../../session_07/architecture/mvvm.md).
 > - Hilt (`@Module`, `@Provides`, `@HiltViewModel`, `hiltViewModel()`): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài).
 > - Jetpack Compose (`@Composable`): viết UI bằng Kotlin, xem [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md).
 
@@ -887,7 +887,7 @@ Tương tác với các tầng khác: Data Layer cung cấp `Flow` cho ViewModel
 - **Học tiếp:**
   - [5.1.2 Relational Database (Room Architecture)](room_architecture.md) — khi dữ liệu không còn là key-value mà cần truy vấn.
   - [ViewModel](../../session_06/viewmodel.md) — cách quản lý StateFlow/Flow trong vòng đời ViewModel, `stateIn` chi tiết.
-  - 7.2.3 MVVM và 7.2.5 Clean Architecture (chưa có bài) — chuẩn hóa Data Layer, Repository pattern sâu hơn.
+  - [MVVM](../../session_07/architecture/mvvm.md) và 7.2.5 Clean Architecture (chưa có bài) — chuẩn hóa Data Layer, Repository pattern sâu hơn.
   - 8.4.3 Coroutines và 7.1.4.2 Flow (chưa có bài) — hiểu sâu actor, channel, cách Flow hoạt động bên trong.
   - 7.1.5.3 Hilt (chưa có bài) — cách Hilt cấp `DataStore` và Repository dạng Singleton như `DataModule`.
   - [Unit Testing](../../coding_analyst_and_testing/unit_testing.md) — viết test cho Repository và ViewModel như phần Testing.

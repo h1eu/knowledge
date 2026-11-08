@@ -658,7 +658,7 @@ fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) { /* ... *
   - [Jetpack Compose Overview](../jetpack_compose_ui/overview.md): hướng UI thay thế cho UI mới.
 - **Học tiếp:**
   - [LiveData](livedata.md), [ViewModel](viewmodel.md): nguồn dữ liệu và nơi giữ dữ liệu mà layout đọc.
-  - 7.1.4.2 Flow, 7.1.2 ViewHolder Pattern, 7.2.3 MVVM, 8.2.4 Coil (chưa có bài): `StateFlow`, item danh sách, kiến trúc Data Binding phục vụ, thư viện tải ảnh.
+  - 7.1.4.2 Flow, 7.1.2 ViewHolder Pattern, 8.2.4 Coil (chưa có bài): `StateFlow`, item danh sách, thư viện tải ảnh; [MVVM](../session_07/architecture/mvvm.md): kiến trúc Data Binding phục vụ.
 
 ## Tham khảo
 

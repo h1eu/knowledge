@@ -792,7 +792,7 @@ class ListFragment : Fragment() {
 
 ### Dialog xác nhận gọi ViewModel của Fragment cha (MVVM + Clean Architecture)
 
-DialogFragment chỉ thuộc Presentation Layer: nó hiển thị dialog và thu thập input, rồi giao việc cho ViewModel. MVVM và Clean Architecture được học ở 7.2.3 MVVM (chưa có bài) và 7.2.5 Clean Architecture (chưa có bài).
+DialogFragment chỉ thuộc Presentation Layer: nó hiển thị dialog và thu thập input, rồi giao việc cho ViewModel. MVVM và Clean Architecture được học ở [MVVM](../../../session_07/architecture/mvvm.md) và 7.2.5 Clean Architecture (chưa có bài).
 
 ```mermaid
 graph TB
@@ -1205,7 +1205,7 @@ class DeleteItemUseCase(
   - [Fragment Overview](index.md): khi nào dùng Fragment, trong đó có dialog và bottom sheet.
 - **Học tiếp:**
   - [View Binding](../../../session_06/view_binding.md), [ViewModel](../../../session_06/viewmodel.md).
-  - 7.2.3 MVVM (chưa có bài), 7.2.5 Clean Architecture (chưa có bài): vị trí của DialogFragment trong Presentation Layer.
+  - [MVVM](../../../session_07/architecture/mvvm.md), 7.2.5 Clean Architecture (chưa có bài): vị trí của DialogFragment trong Presentation Layer.
   - [Jetpack Compose Overview](../../../jetpack_compose_ui/overview.md) và 9.2.2 Remember and rememberSaveable (chưa có bài): nền cho dialog trong Compose.
 
 ## Nguồn tham khảo

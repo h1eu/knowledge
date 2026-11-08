@@ -613,7 +613,7 @@ class CheckoutViewModel(private val activity: Activity) : ViewModel() {
 
 **Lỗi lộ ra thế nào:** xoay màn hình thì ViewModel vẫn giữ Activity cũ đã bị destroy: LeakCanary báo leak cả cây View của Activity cũ. Gọi Toast hay `startActivity` qua Activity cũ có thể crash hoặc không hiện.
 
-**Cách sửa:** ViewModel chỉ đưa ra state (ví dụ trạng thái `OrderPlaced`), UI quan sát và tự hiện Toast hoặc điều hướng. Cần tài nguyên app (string) thì để UI tra, hoặc dùng `Application` qua `AndroidViewModel`/`APPLICATION_KEY` chứ không dùng Activity Context. Docs ghi rõ ViewModel không nên giữ API gắn với lifecycle như `Context` hay `Resources`. Lỗi tương tự với Intent ở [Explicit Intents](../session_04/intent/explicit_intents.md), mục "Sai lầm thường gặp".
+**Cách sửa:** ViewModel chỉ đưa ra state (ví dụ trạng thái `OrderPlaced`), UI quan sát và tự hiện Toast hoặc điều hướng. Cần tài nguyên app (string) thì để UI tra từ một id hoặc từ state. Docs ghi rõ ViewModel không nên giữ API gắn với lifecycle như `Context` hay `Resources`, và khuyên không dùng `AndroidViewModel`: thứ gì cần `Context` nên nằm ở tầng UI hoặc tầng data (ví dụ Repository), còn factory có thể lấy `Application` qua `APPLICATION_KEY` để dựng các dependency đó. Lỗi tương tự với Intent ở [Explicit Intents](../session_04/intent/explicit_intents.md), mục "Sai lầm thường gặp".
 
 ### 2. Tự tạo ViewModel bằng constructor
 
@@ -691,7 +691,7 @@ val uiState = MutableStateFlow<SearchUiState>(SearchUiState.Idle)
   - [Paging](paging.md): `cachedIn(viewModelScope)` giữ dữ liệu phân trang trong ViewModel.
   - 7.1.4.2 Flow (chưa có bài): `StateFlow`, `stateIn` dùng trong bài.
   - 7.1.5.3 Hilt (chưa có bài): sinh factory cho ViewModel tự động.
-  - 7.2.3 MVVM (chưa có bài): vị trí của ViewModel trong kiến trúc.
+  - [MVVM](../session_07/architecture/mvvm.md): vị trí của ViewModel trong kiến trúc.
 
 ## Tham khảo
 

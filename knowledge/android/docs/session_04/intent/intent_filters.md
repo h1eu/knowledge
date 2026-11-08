@@ -499,7 +499,7 @@ Giữ filter hẹp, Activity mỏng, logic nghiệp vụ ở ViewModel/Repositor
 - **Học tiếp:**
   - [Handle Intent](handle_intent.md): đọc dữ liệu từ Intent, `onNewIntent()` và Launch Modes.
   - [Push data and send event via Intent](push_data_event.md): truyền dữ liệu và sự kiện qua Intent.
-  - 7.2.3 MVVM (chưa có bài), [ViewModel](../../session_06/viewmodel.md), 7.1.5.3 Hilt (chưa có bài): kiến trúc và công cụ mà Bài toán 4 dựa vào.
+  - [MVVM](../../session_07/architecture/mvvm.md), [ViewModel](../../session_06/viewmodel.md), 7.1.5.3 Hilt (chưa có bài): kiến trúc và công cụ mà Bài toán 4 dựa vào.
 
 ## Nguồn tham khảo
 

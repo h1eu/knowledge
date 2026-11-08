@@ -624,7 +624,7 @@ Hai sai lầm khác đã nêu ở trên: observe bằng `this` trong Fragment, v
   - [Data Binding](data_binding.md) (6.2): gắn LiveData trực tiếp vào layout.
   - 7.1.4.3 LiveData (chưa có bài): LiveData như một hiện thực của Observer Pattern.
   - 7.1.4.2 Flow (chưa có bài): `Flow`, `StateFlow` và các toán tử LiveData không có.
-  - 7.2.3 MVVM (chưa có bài): vị trí của LiveData giữa View và ViewModel.
+  - [MVVM](../session_07/architecture/mvvm.md): vị trí của LiveData giữa View và ViewModel.
   - 8.4.3 Coroutines (chưa có bài): coroutine trong `liveData {}` và `viewModelScope`.
 
 ## Tham khảo

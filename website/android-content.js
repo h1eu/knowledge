@@ -11082,7 +11082,7 @@ class ProductListActivity : AppCompatActivity() {
   <li><a href="../fragment/state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a> — cách Fragment lưu/khôi phục state riêng.</li>
   <li><a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: cơ chế store, vòng đời, scope, factory, <code>viewModelScope</code>.</li>
   <li>9.2 State and State Hoisting (chưa có bài), gồm 9.2.1 MutableState và 9.2.2 Remember and rememberSaveable: <code>remember</code>, <code>rememberSaveable</code>, <code>mutableStateOf</code> và Saver.</li>
-  <li>7.2.3 MVVM và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.</li>
+  <li><a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.</li>
 </ul></li>
 </ul>
 
@@ -18316,7 +18316,7 @@ class FragmentA : Fragment() {
 
 <h3>FragmentManager trong kiến trúc app</h3>
 
-<p>Phần này dùng trước MVVM (7.2.3 MVVM, chưa có bài) và Clean Architecture (7.2.5 Clean Architecture, chưa có bài): app chia thành Presentation, Domain, Data layer, mỗi layer chỉ phụ thuộc layer bên trong.</p>
+<p>Phần này dùng trước MVVM (<a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>) và Clean Architecture (7.2.5 Clean Architecture, chưa có bài): app chia thành Presentation, Domain, Data layer, mỗi layer chỉ phụ thuộc layer bên trong.</p>
 
 <h4>FragmentManager trong MVVM + Clean Architecture</h4>
 
@@ -19156,7 +19156,7 @@ Activity
 <ul>
   <li><a href="dialog_and_dialogfragment.md" target="_blank" rel="noopener">Dialog and DialogFragment</a>: DialogFragment được <code>show()</code> qua FragmentManager, hoặc khai báo thành <code>&lt;dialog&gt;</code> destination của Navigation Component.</li>
   <li><a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: ViewModel dùng cho Shared ViewModel giữa các Fragment.</li>
-  <li>7.2.3 MVVM (chưa có bài) và 7.2.5 Clean Architecture (chưa có bài): vị trí của FragmentManager trong Presentation Layer.</li>
+  <li><a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và 7.2.5 Clean Architecture (chưa có bài): vị trí của FragmentManager trong Presentation Layer.</li>
   <li>7.1.5.3 Hilt (chưa có bài): inject <code>FragmentManager</code> qua <code>ActivityComponent</code>.</li>
   <li><a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">9.0 Jetpack Compose Overview</a>: Compose và Navigation Compose, nơi điều hướng không còn đi qua FragmentManager.</li>
 </ul></li>
@@ -20439,7 +20439,7 @@ class ListFragment : Fragment() {
 
 <h3>Dialog xác nhận gọi ViewModel của Fragment cha (MVVM + Clean Architecture)</h3>
 
-<p>DialogFragment chỉ thuộc Presentation Layer: nó hiển thị dialog và thu thập input, rồi giao việc cho ViewModel. MVVM và Clean Architecture được học ở 7.2.3 MVVM (chưa có bài) và 7.2.5 Clean Architecture (chưa có bài).</p>
+<p>DialogFragment chỉ thuộc Presentation Layer: nó hiển thị dialog và thu thập input, rồi giao việc cho ViewModel. MVVM và Clean Architecture được học ở <a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và 7.2.5 Clean Architecture (chưa có bài).</p>
 
 <div class="dd-diagram" data-dd="dlg-layers">
 <div class="dd-svg dd-svg-dark">
@@ -20981,7 +20981,7 @@ class DeleteItemUseCase(
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="../../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>, <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</li>
-  <li>7.2.3 MVVM (chưa có bài), 7.2.5 Clean Architecture (chưa có bài): vị trí của DialogFragment trong Presentation Layer.</li>
+  <li><a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, 7.2.5 Clean Architecture (chưa có bài): vị trí của DialogFragment trong Presentation Layer.</li>
   <li><a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và 9.2.2 Remember and rememberSaveable (chưa có bài): nền cho dialog trong Compose.</li>
 </ul></li>
 </ul>
@@ -28607,7 +28607,7 @@ privacyButton.setOnClickListener {
 
 <h2>Cách hoạt động</h2>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ trong bài dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>CoroutineScope</code>, <code>launch</code>, <code>Dispatchers.IO</code>, hàm <code>suspend</code>) là cách chạy việc bất đồng bộ ngoài main thread: 8.4.3 Coroutines (chưa có bài). - WorkManager (thư viện Jetpack lên lịch việc nền, lưu work lại và tự lên lịch lại sau reboot): <a href="../services/android_service.md" target="_blank" rel="noopener">Android Service</a>, mục "WorkManager — Lựa chọn hiện đại cho background task". - Room (database của app) chỉ xuất hiện sau <code>ReminderRepository</code>: <a href="../../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>. - Flow (<code>callbackFlow</code>, <code>StateFlow</code>, <code>SharedFlow</code>): 7.1.4.2 Flow (chưa có bài). - ViewModel và Hilt (<code>@HiltViewModel</code>, <code>@Inject</code>, <code>@Module</code>): <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, 7.1.5.3 Hilt (chưa có bài). - MVVM, MVI và Clean Architecture (app chia thành Presentation, Domain, Data layer): 7.2.3 MVVM, 7.2.4 MVI, 7.2.5 Clean Architecture (chưa có bài).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ trong bài dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>CoroutineScope</code>, <code>launch</code>, <code>Dispatchers.IO</code>, hàm <code>suspend</code>) là cách chạy việc bất đồng bộ ngoài main thread: 8.4.3 Coroutines (chưa có bài). - WorkManager (thư viện Jetpack lên lịch việc nền, lưu work lại và tự lên lịch lại sau reboot): <a href="../services/android_service.md" target="_blank" rel="noopener">Android Service</a>, mục "WorkManager — Lựa chọn hiện đại cho background task". - Room (database của app) chỉ xuất hiện sau <code>ReminderRepository</code>: <a href="../../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>. - Flow (<code>callbackFlow</code>, <code>StateFlow</code>, <code>SharedFlow</code>): 7.1.4.2 Flow (chưa có bài). - ViewModel và Hilt (<code>@HiltViewModel</code>, <code>@Inject</code>, <code>@Module</code>): <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, 7.1.5.3 Hilt (chưa có bài). - MVVM, MVI và Clean Architecture (app chia thành Presentation, Domain, Data layer): <a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, 7.2.4 MVI và 7.2.5 Clean Architecture (chưa có bài).</div></div>
 
 <h3>Lifecycle: Cực kỳ ngắn</h3>
 
@@ -32507,7 +32507,7 @@ class ShareFilterTest {
 <ul>
   <li><a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a>: đọc dữ liệu từ Intent, <code>onNewIntent()</code> và Launch Modes.</li>
   <li><a href="push_data_event.md" target="_blank" rel="noopener">Push data and send event via Intent</a>: truyền dữ liệu và sự kiện qua Intent.</li>
-  <li>7.2.3 MVVM (chưa có bài), <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, 7.1.5.3 Hilt (chưa có bài): kiến trúc và công cụ mà Bài toán 4 dựa vào.</li>
+  <li><a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, 7.1.5.3 Hilt (chưa có bài): kiến trúc và công cụ mà Bài toán 4 dựa vào.</li>
 </ul></li>
 </ul>
 
@@ -34756,7 +34756,7 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
 
 <p>Bài toán chính là lưu phiên đăng nhập bằng Preferences DataStore, tách đúng tầng UI - ViewModel - Repository. Các bài toán sau dùng lại cùng các lớp đó: chống crash khi file hỏng, bảo vệ token, chuyển dữ liệu cũ từ SharedPreferences, test và debug.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ngoài coroutine và <code>Flow</code> (đã ghi ở mục "Các giải pháp Key-Value trong Android"), ví dụ dùng tối thiểu: - <code>StateFlow</code> (<code>stateIn</code>, <code>collectAsStateWithLifecycle</code>): luồng giữ giá trị mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài). - <code>ViewModel</code> (<code>viewModelScope</code>): giữ trạng thái của màn hình, học ở <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; cách tách UI - ViewModel - Repository học ở 7.2.3 MVVM (chưa có bài). - Hilt (<code>@Module</code>, <code>@Provides</code>, <code>@HiltViewModel</code>, <code>hiltViewModel()</code>): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài). - Jetpack Compose (<code>@Composable</code>): viết UI bằng Kotlin, xem <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ngoài coroutine và <code>Flow</code> (đã ghi ở mục "Các giải pháp Key-Value trong Android"), ví dụ dùng tối thiểu: - <code>StateFlow</code> (<code>stateIn</code>, <code>collectAsStateWithLifecycle</code>): luồng giữ giá trị mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài). - <code>ViewModel</code> (<code>viewModelScope</code>): giữ trạng thái của màn hình, học ở <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; cách tách UI - ViewModel - Repository học ở <a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>. - Hilt (<code>@Module</code>, <code>@Provides</code>, <code>@HiltViewModel</code>, <code>hiltViewModel()</code>): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài). - Jetpack Compose (<code>@Composable</code>): viết UI bằng Kotlin, xem <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</div></div>
 
 <h3>Lưu phiên đăng nhập: MVVM + Hilt + Coroutine/Flow</h3>
 
@@ -35669,7 +35669,7 @@ try {
 <ul>
   <li><a href="room_architecture.md" target="_blank" rel="noopener">5.1.2 Relational Database (Room Architecture)</a> — khi dữ liệu không còn là key-value mà cần truy vấn.</li>
   <li><a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a> — cách quản lý StateFlow/Flow trong vòng đời ViewModel, <code>stateIn</code> chi tiết.</li>
-  <li>7.2.3 MVVM và 7.2.5 Clean Architecture (chưa có bài) — chuẩn hóa Data Layer, Repository pattern sâu hơn.</li>
+  <li><a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và 7.2.5 Clean Architecture (chưa có bài) — chuẩn hóa Data Layer, Repository pattern sâu hơn.</li>
   <li>8.4.3 Coroutines và 7.1.4.2 Flow (chưa có bài) — hiểu sâu actor, channel, cách Flow hoạt động bên trong.</li>
   <li>7.1.5.3 Hilt (chưa có bài) — cách Hilt cấp <code>DataStore</code> và Repository dạng Singleton như <code>DataModule</code>.</li>
   <li><a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a> — viết test cho Repository và ViewModel như phần Testing.</li>
@@ -39711,7 +39711,7 @@ Object.assign(ANDROID_CONTENT, {
 </div>
 </div>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ví dụ dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>suspend</code>, <code>withContext(Dispatchers.IO)</code>, <code>viewModelScope.launch</code>): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài). - <code>StateFlow</code>: luồng giữ trạng thái mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài). - <code>ViewModel</code>: giữ trạng thái của màn hình, học ở <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; cách tách UI - ViewModel - Repository học ở 7.2.3 MVVM (chưa có bài). - Hilt (<code>@Inject</code>, <code>@HiltViewModel</code>, <code>hiltViewModel()</code>): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài). - Jetpack Compose (<code>@Composable</code>, <code>rememberLauncherForActivityResult</code>): viết UI bằng Kotlin, xem <a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ví dụ dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>suspend</code>, <code>withContext(Dispatchers.IO)</code>, <code>viewModelScope.launch</code>): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài). - <code>StateFlow</code>: luồng giữ trạng thái mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài). - <code>ViewModel</code>: giữ trạng thái của màn hình, học ở <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; cách tách UI - ViewModel - Repository học ở <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>. - Hilt (<code>@Inject</code>, <code>@HiltViewModel</code>, <code>hiltViewModel()</code>): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài). - Jetpack Compose (<code>@Composable</code>, <code>rememberLauncherForActivityResult</code>): viết UI bằng Kotlin, xem <a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</div></div>
 
 <h3>Khung chung: Repository và ViewModel</h3>
 
@@ -40602,7 +40602,7 @@ val file = File(context.filesDir, "avatar.jpg")</code></pre>
   <li><a href="../session_05/data_store/key_value.md" target="_blank" rel="noopener">Key-Value Storage</a> và <a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>: khi nào lưu file, khi nào lưu database có cấu trúc.</li>
   <li>8.3 Local Storage (chưa có bài): cache ảnh, download nền bằng WorkManager.</li>
   <li><a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: viết test cho ViewModel như phần Debug và Testing.</li>
-  <li>Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 7.1.5.3 Hilt, 7.2.3 MVVM (đều chưa có bài) và <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</li>
+  <li>Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 7.1.5.3 Hilt (đều chưa có bài), <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</li>
 </ul></li>
 </ul>
 
@@ -46920,7 +46920,7 @@ fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) { /* ... *
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="livedata.md" target="_blank" rel="noopener">LiveData</a>, <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: nguồn dữ liệu và nơi giữ dữ liệu mà layout đọc.</li>
-  <li>7.1.4.2 Flow, 7.1.2 ViewHolder Pattern, 7.2.3 MVVM, 8.2.4 Coil (chưa có bài): <code>StateFlow</code>, item danh sách, kiến trúc Data Binding phục vụ, thư viện tải ảnh.</li>
+  <li>7.1.4.2 Flow, 7.1.2 ViewHolder Pattern, 8.2.4 Coil (chưa có bài): <code>StateFlow</code>, item danh sách, thư viện tải ảnh; <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>: kiến trúc Data Binding phục vụ.</li>
 </ul></li>
 </ul>
 
@@ -47611,7 +47611,7 @@ private val _navigateToOrderDetail = MutableLiveData&lt;Long&gt;()
   <li><a href="data_binding.md" target="_blank" rel="noopener">Data Binding</a> (6.2): gắn LiveData trực tiếp vào layout.</li>
   <li>7.1.4.3 LiveData (chưa có bài): LiveData như một hiện thực của Observer Pattern.</li>
   <li>7.1.4.2 Flow (chưa có bài): <code>Flow</code>, <code>StateFlow</code> và các toán tử LiveData không có.</li>
-  <li>7.2.3 MVVM (chưa có bài): vị trí của LiveData giữa View và ViewModel.</li>
+  <li><a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>: vị trí của LiveData giữa View và ViewModel.</li>
   <li>8.4.3 Coroutines (chưa có bài): coroutine trong <code>liveData {}</code> và <code>viewModelScope</code>.</li>
 </ul></li>
 </ul>
@@ -48366,7 +48366,7 @@ class CheckoutViewModel(private val activity: Activity) : ViewModel() {
 
 <p><strong>Lỗi lộ ra thế nào:</strong> xoay màn hình thì ViewModel vẫn giữ Activity cũ đã bị destroy: LeakCanary báo leak cả cây View của Activity cũ. Gọi Toast hay <code>startActivity</code> qua Activity cũ có thể crash hoặc không hiện.</p>
 
-<p><strong>Cách sửa:</strong> ViewModel chỉ đưa ra state (ví dụ trạng thái <code>OrderPlaced</code>), UI quan sát và tự hiện Toast hoặc điều hướng. Cần tài nguyên app (string) thì để UI tra, hoặc dùng <code>Application</code> qua <code>AndroidViewModel</code>/<code>APPLICATION_KEY</code> chứ không dùng Activity Context. Docs ghi rõ ViewModel không nên giữ API gắn với lifecycle như <code>Context</code> hay <code>Resources</code>. Lỗi tương tự với Intent ở <a href="../session_04/intent/explicit_intents.md" target="_blank" rel="noopener">Explicit Intents</a>, mục "Sai lầm thường gặp".</p>
+<p><strong>Cách sửa:</strong> ViewModel chỉ đưa ra state (ví dụ trạng thái <code>OrderPlaced</code>), UI quan sát và tự hiện Toast hoặc điều hướng. Cần tài nguyên app (string) thì để UI tra từ một id hoặc từ state. Docs ghi rõ ViewModel không nên giữ API gắn với lifecycle như <code>Context</code> hay <code>Resources</code>, và khuyên không dùng <code>AndroidViewModel</code>: thứ gì cần <code>Context</code> nên nằm ở tầng UI hoặc tầng data (ví dụ Repository), còn factory có thể lấy <code>Application</code> qua <code>APPLICATION_KEY</code> để dựng các dependency đó. Lỗi tương tự với Intent ở <a href="../session_04/intent/explicit_intents.md" target="_blank" rel="noopener">Explicit Intents</a>, mục "Sai lầm thường gặp".</p>
 
 <h3>2. Tự tạo ViewModel bằng constructor</h3>
 
@@ -48446,7 +48446,7 @@ val uiState = MutableStateFlow&lt;SearchUiState&gt;(SearchUiState.Idle)</code></
   <li><a href="paging.md" target="_blank" rel="noopener">Paging</a>: <code>cachedIn(viewModelScope)</code> giữ dữ liệu phân trang trong ViewModel.</li>
   <li>7.1.4.2 Flow (chưa có bài): <code>StateFlow</code>, <code>stateIn</code> dùng trong bài.</li>
   <li>7.1.5.3 Hilt (chưa có bài): sinh factory cho ViewModel tự động.</li>
-  <li>7.2.3 MVVM (chưa có bài): vị trí của ViewModel trong kiến trúc.</li>
+  <li><a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>: vị trí của ViewModel trong kiến trúc.</li>
 </ul></li>
 </ul>
 
@@ -49248,3 +49248,599 @@ ANDROID_CONTENT['android.jetpack.data_binding'] = ANDROID_CONTENT['data-binding'
 ANDROID_CONTENT['android.jetpack.livedata'] = ANDROID_CONTENT['livedata'];
 ANDROID_CONTENT['android.jetpack.viewmodel'] = ANDROID_CONTENT['viewmodel'];
 ANDROID_CONTENT['android.jetpack.paging'] = ANDROID_CONTENT['paging-library'];
+
+// ── Session 07: Design Patterns & Architecture ───────────────────
+Object.assign(ANDROID_CONTENT, {
+  'arch-mvvm': {
+    title: 'MVVM',
+    summary: 'MVVM (Model–View–ViewModel) là pattern kiến trúc cho tầng UI, chia một màn hình thành ba vai là Model (dữ liệu và logic nghiệp vụ), View (vẽ state và chuyển thao tác của người dùng) và ViewModel (giữ UI state đã chuẩn bị sẵn cho View); View quan sát ViewModel, còn ViewModel không biết View tồn tại. Bài giải thích hướng phụ thuộc giữa ba vai, luồng dữ liệu một chiều với một uiState, cách xử lý thao tác và event một lần, Model trong Android là data layer, và MVVM khác class ViewModel của Jetpack ở đâu.',
+    status: 'reviewing',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '17 phút',
+    depth: 'standard',
+    tags: ['android', 'architecture', 'mvvm', 'viewmodel', 'udf', 'ui-state', 'stateflow', 'presentation-layer'],
+    domain: 'Android',
+    module: 'Session 07',
+    prerequisites: ['android.jetpack.viewmodel', 'android.jetpack.livedata', 'android.component.fragment.lifecycle'],
+    related: ['android.jetpack.view_binding', 'android.jetpack.data_binding', 'android.data_store.room_architecture', 'android.networking.basics', 'android.jetpack_compose.compose_overview'],
+    learningOutcomes: [
+      'Giải thích được ba vai Model, View, ViewModel và hướng phụ thuộc giữa chúng, và vì sao ViewModel không được biết View.',
+      'Phân biệt được vai ViewModel của MVVM với class ViewModel của Jetpack, và MVVM với MVC, MVP, MVI.',
+      'Thiết kế được một màn hình theo luồng dữ liệu một chiều, với một uiState dạng StateFlow đi xuống và thao tác của người dùng đi lên qua hàm của ViewModel.',
+      'Xử lý được event một lần (thông báo, điều hướng) bằng cách biểu diễn nó thành state.',
+      'Nhận diện được các sai lầm như ViewModel giữ View hoặc Context, View chứa logic nghiệp vụ và nhiều luồng state rời rạc gây màn hình mâu thuẫn.'
+    ],
+    knowledgeGap: 'Nhiều developer nghĩ "dùng class ViewModel là đã làm MVVM", nên vẫn để Fragment tự gọi API, để ViewModel giữ Fragment hoặc Context, đưa ra năm bảy LiveData rời rạc khiến màn hình rơi vào trạng thái không thể có, hoặc bắn event điều hướng qua một kênh bị mất khi xoay màn hình.',
+    updatedAt: '2026-11-08',
+    readTime: '17 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Màn hình đầu tiên của nhiều app thường được viết dồn vào một Activity hoặc Fragment:</p>
+
+<pre data-lang="kotlin"><code>// ArticleListFragment.kt (cách làm có vấn đề)
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    binding.progress.isVisible = true
+    lifecycleScope.launch {
+        try {
+            val articles = retrofit.create(ArticleApi::class.java).getArticles() // gọi API ngay trong UI
+            val visible = articles.filter { !it.isHidden }.sortedByDescending { it.publishedAt }
+            adapter.submitList(visible)
+            binding.emptyText.isVisible = visible.isEmpty()
+        } catch (e: IOException) {
+            binding.errorText.isVisible = true
+        } finally {
+            binding.progress.isVisible = false
+        }
+    }
+}</code></pre>
+
+<p>Khi màn hình lớn dần, kiểu viết này gặp bốn vấn đề:</p>
+
+<ul>
+  <li><strong>Một class làm mọi việc:</strong> gọi mạng, lọc và sắp xếp dữ liệu, quyết định hiển thị, vẽ View. Sửa một quy tắc lọc phải đọc cả code vẽ UI.</li>
+  <li><strong>Không test được logic:</strong> quy tắc "ẩn bài bị ẩn, mới nhất lên đầu" chỉ chạy được khi có Fragment, tức phải có thiết bị hoặc emulator.</li>
+  <li><strong>Gắn với vòng đời của UI:</strong> xoay màn hình thì Fragment bị tạo lại và request chạy lại từ đầu; request đang chạy dở bị huỷ cùng scope của Fragment.</li>
+  <li><strong>State rải rác trong View:</strong> "đang tải", "lỗi", "danh sách rỗng" nằm trong <code>isVisible</code> của ba View khác nhau. Không có chỗ nào nói màn hình <strong>đang ở trạng thái gì</strong>, nên dễ hiện cùng lúc vòng tải và thông báo lỗi.</li>
+</ul>
+
+<p>Vấn đề cần giải quyết là: <strong>tách phần "màn hình hiển thị gì" khỏi phần "vẽ nó ra" và phần "dữ liệu đến từ đâu"</strong>, để mỗi phần đổi và test được riêng.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được ba vai Model, View, ViewModel và hướng phụ thuộc giữa chúng, và vì sao ViewModel không được biết View.</li>
+  <li>Phân biệt được vai ViewModel của MVVM với class ViewModel của Jetpack, và MVVM với MVC, MVP, MVI.</li>
+  <li>Thiết kế được một màn hình theo luồng dữ liệu một chiều, với một uiState dạng StateFlow đi xuống và thao tác của người dùng đi lên qua hàm của ViewModel.</li>
+  <li>Xử lý được event một lần (thông báo, điều hướng) bằng cách biểu diễn nó thành state.</li>
+  <li>Nhận diện được các sai lầm như ViewModel giữ View hoặc Context, View chứa logic nghiệp vụ và nhiều luồng state rời rạc gây màn hình mâu thuẫn.</li>
+</ul>
+
+<h2>MVVM là gì?</h2>
+
+<p><strong>MVVM (Model–View–ViewModel)</strong> là pattern kiến trúc cho tầng UI, chia một màn hình thành ba vai: <strong>Model</strong> giữ dữ liệu và logic nghiệp vụ, <strong>View</strong> vẽ state và chuyển thao tác của người dùng, <strong>ViewModel</strong> giữ UI state đã chuẩn bị sẵn cho View. View quan sát ViewModel, còn ViewModel không biết View tồn tại.</p>
+
+<p>Mental model: ViewModel là <strong>màn hình được viết bằng dữ liệu</strong>: nó mô tả đầy đủ "màn hình đang hiện gì" (danh sách nào, có đang tải không, lỗi gì) mà không có một pixel nào. View chỉ là <strong>bộ dịch</strong> từ bản mô tả đó ra pixel, và từ cú chạm của người dùng ra lời gọi hàm. Thay View (XML sang Compose, điện thoại sang tablet) thì bản mô tả không đổi.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Ba vai và hướng phụ thuộc</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Vai</th>
+      <th style="padding:8px 12px;text-align:left;">Ở Android là</th>
+      <th style="padding:8px 12px;text-align:left;">Biết ai</th>
+      <th style="padding:8px 12px;text-align:left;">Không biết ai</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>View</strong></td>
+      <td style="padding:8px 12px;">Activity, Fragment, composable, layout XML</td>
+      <td style="padding:8px 12px;">ViewModel</td>
+      <td style="padding:8px 12px;">Model</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>ViewModel</strong></td>
+      <td style="padding:8px 12px;">Class giữ UI state và nhận thao tác (thường kế thừa <code>ViewModel</code> của Jetpack)</td>
+      <td style="padding:8px 12px;">Model</td>
+      <td style="padding:8px 12px;">View</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Model</strong></td>
+      <td style="padding:8px 12px;">Data layer: Repository và data source (Room, API, DataStore); có thể thêm domain layer (use case)</td>
+      <td style="padding:8px 12px;">Không ai ở tầng UI</td>
+      <td style="padding:8px 12px;">View, ViewModel</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Mũi tên phụ thuộc chỉ đi <strong>một hướng</strong>: View → ViewModel → Model. Dữ liệu đi ngược lại không phải bằng lời gọi hàm, mà bằng <strong>quan sát</strong>: Model đưa dữ liệu ra dạng <code>Flow</code>, ViewModel đưa UI state ra dạng <code>StateFlow</code> hoặc <code>LiveData</code>, và tầng trên tự nhận giá trị mới. Đây là Observer Pattern, giải thích ở 7.1.4.0 Observer Pattern Overview (chưa có bài); <code>StateFlow</code> học ở 7.1.4.2 Flow (chưa có bài), LiveData ở <a href="../../session_06/livedata.md" target="_blank" rel="noopener">LiveData</a>.</p>
+
+<div class="mermaid">
+flowchart TD
+    V["View&lt;br/&gt;Fragment / composable"] --&gt;|"gọi hàm: onRetry(), onBookmark(id)"| VM["ViewModel&lt;br/&gt;giữ uiState"]
+    VM --&gt;|"gọi hàm: getArticles(), bookmark(id)"| M["Model&lt;br/&gt;Repository, Room, API"]
+    M -.-&gt;|"Flow dữ liệu"| VM
+    VM -.-&gt;|"StateFlow&amp;lt;UiState&amp;gt;"| V
+</div>
+
+<p>Vì ViewModel không giữ tham chiếu tới View:</p>
+
+<ul>
+  <li><strong>ViewModel sống được lâu hơn View.</strong> Xoay màn hình thì View bị huỷ và tạo lại, ViewModel vẫn còn và View mới chỉ việc quan sát lại.</li>
+  <li><strong>ViewModel test được trên JVM.</strong> Test gọi hàm của ViewModel và kiểm tra <code>uiState</code>, không cần View nào.</li>
+  <li><strong>Một ViewModel phục vụ được nhiều kiểu View.</strong> Cùng một <code>uiState</code> có thể được vẽ bằng XML hoặc Compose.</li>
+</ul>
+
+<h3>Vai ViewModel của MVVM và class <code>ViewModel</code> của Jetpack</h3>
+
+<p>Hai thứ cùng tên nhưng là hai khái niệm khác nhau:</p>
+
+<ul>
+  <li><strong>Vai ViewModel</strong> là một khái niệm của pattern: thứ giữ UI state và không biết View.</li>
+  <li><strong>Class <code>androidx.lifecycle.ViewModel</code></strong> là một công cụ của Android: object được cất trong <code>ViewModelStore</code> nên sống qua configuration change (<a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, mục "ViewModel là gì?").</li>
+</ul>
+
+<p>Trên Android, vai ViewModel gần như luôn được hiện thực bằng class <code>ViewModel</code> của Jetpack, vì nó giải quyết luôn chuyện sống qua xoay màn hình. Nhưng kế thừa class đó không tự biến code thành MVVM: một <code>ViewModel</code> giữ <code>Fragment</code>, hoặc một Fragment tự gọi API dù đã có <code>ViewModel</code>, đều không phải MVVM. Ngược lại, một class thường giữ state cho một component UI tái sử dụng (state holder) vẫn đóng vai ViewModel mà không cần kế thừa gì.</p>
+
+<h3>UI state và luồng dữ liệu một chiều</h3>
+
+<p>Hướng dẫn kiến trúc của Android đặt MVVM trên nguyên tắc <strong>luồng dữ liệu một chiều</strong> (Unidirectional Data Flow, UDF): <strong>state đi xuống, event đi lên</strong>.</p>
+
+<ol>
+  <li>ViewModel đưa ra <strong>một</strong> property <code>uiState</code> mô tả toàn bộ màn hình, thường là <code>StateFlow&lt;XxxUiState&gt;</code>.</li>
+  <li>View quan sát <code>uiState</code> theo lifecycle và vẽ lại theo giá trị mới nhất. View không tự giữ state nghiệp vụ nào.</li>
+  <li>Người dùng thao tác: View gọi một hàm của ViewModel (<code>onRetry()</code>, <code>onBookmarkClick(id)</code>), không tự sửa View.</li>
+  <li>ViewModel xử lý (gọi Model nếu cần) và phát ra <code>uiState</code> mới; quay lại bước 2.</li>
+</ol>
+
+<p><code>XxxUiState</code> là một <code>data class</code> (các phần dữ liệu cùng tồn tại) hoặc <code>sealed interface</code> (các trạng thái loại trừ nhau, như Loading/Success/Error). Gom mọi thứ vào một state duy nhất giúp màn hình <strong>không thể</strong> ở trạng thái mâu thuẫn, vì mỗi lần vẽ là vẽ từ một giá trị nhất quán. Khi dữ liệu đến từ một luồng của Model, docs khuyên dựng <code>uiState</code> bằng <code>stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initialValue)</code>; cách tải lười này đã giải thích ở <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, mục "Tải dữ liệu: lười, không launch trong init".</p>
+
+<h4>Ví dụ: danh sách bài báo có tải, lỗi và thử lại</h4>
+
+<p><strong>Bài toán:</strong> màn danh sách bài báo đọc từ Repository (Room làm cache, mạng làm mới). Màn hình phải ở đúng một trong ba trạng thái: đang tải, có danh sách, hoặc lỗi kèm nút "Thử lại".</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Fragment bắt đầu quan sát <code>uiState</code>; <code>stateIn</code> khởi động luồng của Repository và phát <code>Loading</code>.</li>
+  <li>Repository phát danh sách bài; ViewModel lọc, sắp xếp rồi phát <code>Success(articles)</code>.</li>
+  <li>Fragment vẽ theo state: chỉ một trong ba nhóm View được hiện.</li>
+  <li>Lỗi mạng: ViewModel phát <code>Error</code>. Người dùng bấm "Thử lại", Fragment gọi <code>viewModel.onRetry()</code>.</li>
+  <li>ViewModel tăng bộ đếm thử lại; luồng chạy lại từ bước 1.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant F as ArticleListFragment (View)
+    participant VM as ArticleListViewModel
+    participant R as ArticleRepository (Model)
+    F-&gt;&gt;VM: (1) collect uiState
+    VM--&gt;&gt;F: Loading
+    VM-&gt;&gt;R: observeArticles()
+    R--&gt;&gt;VM: (2) List&lt;Article&gt;
+    VM--&gt;&gt;F: Success(articles đã lọc, sắp xếp)
+    F-&gt;&gt;F: (3) render(state)
+    R--xVM: (4) IOException → Error
+    F-&gt;&gt;VM: onRetry()
+    VM-&gt;&gt;VM: (5) retryCount + 1 → chạy lại luồng
+</div>
+
+<pre data-lang="kotlin"><code>// ArticleListUiState.kt
+sealed interface ArticleListUiState {
+    data object Loading : ArticleListUiState
+    data class Success(val articles: List&lt;Article&gt;) : ArticleListUiState
+    data class Error(val message: String) : ArticleListUiState
+}
+
+// ArticleListViewModel.kt
+class ArticleListViewModel(private val repository: ArticleRepository) : ViewModel() {
+
+    private val retryCount = MutableStateFlow(0)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState: StateFlow&lt;ArticleListUiState&gt; = retryCount
+        .flatMapLatest {                                                        // (5) mỗi lần thử lại
+            repository.observeArticles()                                        // (1)
+                .map&lt;List&lt;Article&gt;, ArticleListUiState&gt; { articles -&gt;
+                    ArticleListUiState.Success(                                 // (2) quy tắc hiển thị ở đây
+                        articles.filter { !it.isHidden }.sortedByDescending { it.publishedAt }
+                    )
+                }
+                .onStart { emit(ArticleListUiState.Loading) }
+                .catch { emit(ArticleListUiState.Error("Không tải được bài báo")) } // (4)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ArticleListUiState.Loading)
+
+    fun onRetry() {
+        retryCount.update { it + 1 }                                            // (5)
+    }
+}</code></pre>
+
+<pre data-lang="kotlin"><code>// ArticleListFragment.kt
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    val binding = FragmentArticleListBinding.bind(view)
+    val adapter = ArticleAdapter()
+    binding.articleList.adapter = adapter
+    binding.retryButton.setOnClickListener { viewModel.onRetry() }             // (4) event đi lên
+
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.uiState.collect { state -&gt;                                // (1) state đi xuống
+                binding.progress.isVisible = state is ArticleListUiState.Loading    // (3)
+                binding.errorGroup.isVisible = state is ArticleListUiState.Error
+                binding.articleList.isVisible = state is ArticleListUiState.Success
+                if (state is ArticleListUiState.Success) adapter.submitList(state.articles)
+            }
+        }
+    }
+}</code></pre>
+
+<p><code>flatMapLatest</code>, <code>onStart</code>, <code>catch</code> là toán tử của Flow, học ở 7.1.4.2 Flow (chưa có bài). Fragment không có <code>if</code> nghiệp vụ nào: nó chỉ dịch state thành <code>isVisible</code> và danh sách. <code>ArticleAdapter</code> là adapter của <code>RecyclerView</code>, học ở 7.1.2 ViewHolder Pattern (chưa có bài).</p>
+
+<p><strong>Kết quả:</strong> quy tắc "ẩn bài bị ẩn, mới nhất lên đầu" giờ nằm trong ViewModel và test được bằng một <code>FakeArticleRepository</code>. Tắt mạng thì màn hình chỉ hiện lỗi, không còn vòng tải; bấm "Thử lại" khi có mạng thì danh sách hiện. Xoay màn hình không chạy lại luồng, nhờ <code>WhileSubscribed(5_000)</code>.</p>
+
+<h3>Thao tác của người dùng và event một lần</h3>
+
+<p>Thao tác đi lên bằng <strong>lời gọi hàm</strong> của ViewModel. Tên hàm nói về việc người dùng làm (<code>onBookmarkClick(articleId)</code>), không nói về View (<code>onStarImageViewClicked()</code>), để cùng ViewModel dùng được cho mọi kiểu UI.</p>
+
+<p>Khó hơn là những thứ chỉ xảy ra <strong>một lần</strong>: hiện Snackbar "Đã lưu", điều hướng sang màn kế tiếp sau khi đăng nhập. Gửi chúng qua một kênh event riêng (<code>SharedFlow</code>, <code>Channel</code>, <code>SingleLiveEvent</code>) có thể làm event bị mất khi không có ai đang quan sát (ví dụ đúng lúc xoay màn hình), hoặc bị phát lại. Docs khuyên <strong>không gửi event từ ViewModel sang UI</strong>: xử lý event ngay trong ViewModel và đưa kết quả vào state. Cách làm:</p>
+
+<ol>
+  <li>ViewModel đưa kết quả vào <code>uiState</code>, ví dụ <code>userMessage = "Đã lưu bài"</code> hoặc <code>isLoggedIn = true</code>.</li>
+  <li>View vẽ state đó: hiện Snackbar, hoặc điều hướng.</li>
+  <li>View báo lại đã xử lý xong: <code>viewModel.userMessageShown()</code>; ViewModel xoá phần state đó.</li>
+</ol>
+
+<p>Vì thông điệp nằm trong state, nó không mất khi xoay màn hình (View mới vẽ lại state hiện tại), và không bị hiện hai lần (đã được xoá sau bước 3). Code đầy đủ của mẫu này với LiveData ở <a href="../../session_06/livedata.md" target="_blank" rel="noopener">LiveData</a>, mục "Ví dụ thực tế"; với <code>StateFlow</code> ở mục "Ví dụ thực tế" bên dưới.</p>
+
+<h3>Model trong Android: data layer và domain layer</h3>
+
+<p>Chữ "Model" trong MVVM không phải một class mà là <strong>mọi thứ bên dưới tầng UI</strong>. Theo hướng dẫn kiến trúc của Android:</p>
+
+<ul>
+  <li><strong>Data layer</strong> (bắt buộc): Repository đưa dữ liệu của app ra cho phần còn lại, giấu việc dữ liệu đến từ Room, mạng hay DataStore. Docs khuyên tạo Repository kể cả khi chỉ có một nguồn, và <strong>ViewModel không gọi thẳng data source</strong> (DAO, Retrofit service). Repository và nguồn sự thật đã gặp ở <a href="../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, mục "Single Source of Truth (SSOT) và Offline-first" và <a href="../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>.</li>
+  <li><strong>Domain layer</strong> (tuỳ chọn, khuyên dùng cho app lớn): các use case gom logic nghiệp vụ dùng lại ở nhiều ViewModel, ví dụ <code>GetVisibleArticlesUseCase</code>. Cách chia lớp này là chủ đề của 7.2.5 Clean Architecture (chưa có bài).</li>
+</ul>
+
+<p>ViewModel giữ <strong>logic UI</strong> (dữ liệu nào hiện, định dạng ra sao, trạng thái tải) và gọi Model cho <strong>logic nghiệp vụ</strong> (quy tắc của sản phẩm, đọc ghi dữ liệu). Ranh giới này không cứng: app nhỏ có thể để quy tắc lọc trong ViewModel như ví dụ trên, rồi chuyển xuống use case khi nhiều màn cùng cần.</p>
+
+<h3>View cập nhật thế nào: tự vẽ, Data Binding hay Compose</h3>
+
+<p>MVVM chỉ đòi View <strong>quan sát</strong> ViewModel; cách quan sát tuỳ công nghệ UI:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Cách</th>
+      <th style="padding:8px 12px;text-align:left;">View làm gì</th>
+      <th style="padding:8px 12px;text-align:left;">Ghi chú</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">View/XML + View Binding</td>
+      <td style="padding:8px 12px;"><code>collect</code> <code>uiState</code> rồi tự gán vào View, như ví dụ trên</td>
+      <td style="padding:8px 12px;">Rõ ràng, debug dễ; Fragment có một hàm <code>render(state)</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">View/XML + Data Binding</td>
+      <td style="padding:8px 12px;">Layout đọc <code>uiState</code> qua biểu thức <code>@{}</code></td>
+      <td style="padding:8px 12px;">Bớt code trong Fragment; logic dễ lọt vào XML (<a href="../../session_06/data_binding.md" target="_blank" rel="noopener">Data Binding</a>)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Jetpack Compose</td>
+      <td style="padding:8px 12px;"><code>collectAsStateWithLifecycle()</code> rồi gọi composable với state</td>
+      <td style="padding:8px 12px;">Docs khuyên dùng cho UI mới; recomposition thay cho tự gán</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>MVVM ở WPF nguyên thuỷ dựa hẳn vào data binding. Trên Android, binding là tuỳ chọn: phần cốt lõi là ViewModel đưa state ra và View quan sát nó.</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<p>Ba bài toán hay gặp khi tổ chức màn hình theo MVVM:</p>
+
+<ol>
+  <li><strong>Form đăng nhập:</strong> ô nhập, kiểm tra hợp lệ, trạng thái đang gửi, lỗi và điều hướng sau khi thành công, kèm unit test. Đây là bài toán chính, code đầy đủ bên dưới.</li>
+  <li><strong>Danh sách có tải, lỗi, thử lại:</strong> như ví dụ ở mục "UI state và luồng dữ liệu một chiều".</li>
+  <li><strong>Cùng ViewModel cho XML và Compose:</strong> khi chuyển dần sang Compose, màn mới viết <code>LoginScreen(uiState, onEmailChange, …)</code> và dùng nguyên <code>LoginViewModel</code>; chỉ View đổi.</li>
+</ol>
+
+<h3>Form đăng nhập với UI state, event thành state và unit test</h3>
+
+<p><strong>Bài toán:</strong> màn đăng nhập có email, mật khẩu và nút "Đăng nhập". Nút chỉ bật khi email đúng định dạng và mật khẩu đủ 8 ký tự; khi đang gửi thì hiện vòng tải; sai mật khẩu thì hiện lỗi; thành công thì sang màn chính <strong>đúng một lần</strong>, kể cả nếu người dùng xoay màn hình đúng lúc đó.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Người dùng gõ: View gọi <code>onEmailChange()</code>, <code>onPasswordChange()</code>; ViewModel cập nhật <code>uiState</code> và tính lại <code>canSubmit</code>.</li>
+  <li>Bấm "Đăng nhập": View gọi <code>onLoginClick()</code>; ViewModel đặt <code>isLoading = true</code> rồi gọi <code>AuthRepository.login()</code> trong <code>viewModelScope</code>.</li>
+  <li>Thành công: ViewModel đặt <code>isLoggedIn = true</code>. Sai thông tin: đặt <code>errorMessage</code>.</li>
+  <li>View thấy <code>isLoggedIn = true</code> thì điều hướng, rồi gọi <code>onLoginNavigated()</code> để ViewModel đặt lại cờ. Thấy <code>errorMessage</code> thì hiện Snackbar rồi gọi <code>errorShown()</code>.</li>
+  <li>Unit test gọi các hàm của ViewModel với <code>FakeAuthRepository</code> và kiểm tra <code>uiState</code>.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant V as LoginFragment (View)
+    participant VM as LoginViewModel
+    participant R as AuthRepository (Model)
+    V-&gt;&gt;VM: (1) onEmailChange / onPasswordChange
+    VM--&gt;&gt;V: uiState(canSubmit = true)
+    V-&gt;&gt;VM: (2) onLoginClick()
+    VM--&gt;&gt;V: uiState(isLoading = true)
+    VM-&gt;&gt;R: login(email, password)
+    R--&gt;&gt;VM: (3) Result
+    VM--&gt;&gt;V: uiState(isLoggedIn = true) hoặc (errorMessage = …)
+    V-&gt;&gt;V: (4) điều hướng / hiện Snackbar
+    V-&gt;&gt;VM: onLoginNavigated() / errorShown()
+</div>
+
+<pre data-lang="kotlin"><code>// LoginUiState.kt
+data class LoginUiState(
+    val email: String = "",
+    val password: String = "",
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val isLoggedIn: Boolean = false
+) {
+    val canSubmit: Boolean
+        get() = !isLoading &amp;&amp; EMAIL_REGEX.matches(email) &amp;&amp; password.length &gt;= 8
+
+    private companion object {
+        // Regex thuần Kotlin thay cho android.util.Patterns: test chạy được trên JVM
+        val EMAIL_REGEX = Regex("^[^@\\\\s]+@[^@\\\\s]+\\\\.[^@\\\\s]+$")
+    }
+}
+
+// LoginViewModel.kt
+class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(LoginUiState())
+    val uiState: StateFlow&lt;LoginUiState&gt; = _uiState.asStateFlow()
+
+    fun onEmailChange(email: String) = _uiState.update { it.copy(email = email.trim()) }       // (1)
+    fun onPasswordChange(password: String) = _uiState.update { it.copy(password = password) }
+
+    fun onLoginClick() {
+        val state = _uiState.value
+        if (!state.canSubmit) return
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }                   // (2)
+        viewModelScope.launch {
+            val result = authRepository.login(state.email, state.password)
+            _uiState.update {                                                                   // (3)
+                if (result.isSuccess) it.copy(isLoading = false, isLoggedIn = true)
+                else it.copy(isLoading = false, errorMessage = "Email hoặc mật khẩu không đúng")
+            }
+        }
+    }
+
+    fun onLoginNavigated() = _uiState.update { it.copy(isLoggedIn = false) }                  // (4)
+    fun errorShown() = _uiState.update { it.copy(errorMessage = null) }
+}</code></pre>
+
+<p>Kiểm tra email dùng regex thuần Kotlin thay vì <code>android.util.Patterns</code>, vì class của Android framework không có giá trị khi chạy unit test trên JVM. <code>AuthRepository.login()</code> là hàm <code>suspend</code> trả <code>Result&lt;Unit&gt;</code>, giấu việc gọi API và lưu token (<a href="../../session_05/data_store/key_value.md" target="_blank" rel="noopener">Key-Value Storage</a>).</p>
+
+<pre data-lang="kotlin"><code>// LoginFragment.kt
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    val binding = FragmentLoginBinding.bind(view)
+    binding.emailInput.doAfterTextChanged { viewModel.onEmailChange(it.toString()) }        // (1)
+    binding.passwordInput.doAfterTextChanged { viewModel.onPasswordChange(it.toString()) }
+    binding.loginButton.setOnClickListener { viewModel.onLoginClick() }                       // (2)
+
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.uiState.collect { state -&gt;
+                binding.loginButton.isEnabled = state.canSubmit
+                binding.progress.isVisible = state.isLoading
+                state.errorMessage?.let { message -&gt;                                          // (4)
+                    Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+                    viewModel.errorShown()
+                }
+                if (state.isLoggedIn) {
+                    findNavController().navigate(R.id.action_login_to_home)
+                    viewModel.onLoginNavigated()
+                }
+            }
+        }
+    }
+}</code></pre>
+
+<p>Ô nhập không được gán ngược từ state, vì <code>EditText</code> tự giữ text người dùng đang gõ; gán lại mỗi lần state đổi sẽ làm con trỏ nhảy. <code>findNavController()</code> thuộc Navigation, chỉ dùng tối thiểu ở đây. <code>Snackbar</code> học ở 8.5.5 Message (chưa có bài).</p>
+
+<pre data-lang="kotlin"><code>// LoginViewModelTest.kt (src/test): (5) kiểm tra state, không cần View
+class FakeAuthRepository(var result: Result&lt;Unit&gt; = Result.success(Unit)) : AuthRepository {
+    override suspend fun login(email: String, password: String) = result
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class LoginViewModelTest {
+    @get:Rule val mainDispatcherRule = MainDispatcherRule()   // thay Dispatchers.Main bằng test dispatcher
+
+    @Test
+    fun wrongPassword_showsErrorAndStaysOnScreen() = runTest {
+        val viewModel = LoginViewModel(FakeAuthRepository(Result.failure(IOException())))
+        viewModel.onEmailChange("an@shop.vn")
+        viewModel.onPasswordChange("12345678")
+
+        viewModel.onLoginClick()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.isLoggedIn)
+        assertEquals("Email hoặc mật khẩu không đúng", state.errorMessage)
+    }
+}</code></pre>
+
+<p><code>MainDispatcherRule</code> là rule ngắn của dự án gọi <code>Dispatchers.setMain</code>/<code>resetMain</code>, như giải thích ở <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, mục "Ví dụ thực tế".</p>
+
+<p><strong>Kết quả:</strong> gõ email sai định dạng thì nút "Đăng nhập" mờ. Đăng nhập thành công rồi xoay màn hình ngay lúc chuyển: màn chính chỉ mở một lần, vì <code>isLoggedIn</code> đã được đặt lại sau khi điều hướng. Sai mật khẩu thì Snackbar hiện một lần, xoay màn hình không hiện lại. Test chạy bằng <code>./gradlew testDebugUnitTest</code>.</p>
+
+<h2>So sánh với các cách tiếp cận khác</h2>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Pattern</th>
+      <th style="padding:8px 12px;text-align:left;">Thành phần giữa UI và dữ liệu</th>
+      <th style="padding:8px 12px;text-align:left;">Thành phần đó có biết View?</th>
+      <th style="padding:8px 12px;text-align:left;">Cập nhật UI</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">MVC</td>
+      <td style="padding:8px 12px;">Controller</td>
+      <td style="padding:8px 12px;">Có; trên Android, Activity thường vừa là View vừa là Controller</td>
+      <td style="padding:8px 12px;">Controller gán thẳng vào View</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">MVP</td>
+      <td style="padding:8px 12px;">Presenter</td>
+      <td style="padding:8px 12px;">Có, qua interface <code>View</code> (<code>showArticles()</code>, <code>showError()</code>)</td>
+      <td style="padding:8px 12px;">Presenter gọi hàm của View</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>MVVM</strong></td>
+      <td style="padding:8px 12px;">ViewModel</td>
+      <td style="padding:8px 12px;"><strong>Không</strong></td>
+      <td style="padding:8px 12px;">View quan sát state của ViewModel</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">MVI</td>
+      <td style="padding:8px 12px;">ViewModel / Store, reducer</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Như MVVM, nhưng mọi thao tác thành <code>Intent</code> đi qua một reducer duy nhất, state bất biến</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Khác biệt cốt lõi giữa MVP và MVVM là <strong>ai giữ tham chiếu tới ai</strong>. Presenter giữ View nên phải tự gỡ khi View bị huỷ; ViewModel không giữ gì nên sống qua xoay màn hình một cách tự nhiên. MVVM theo UDF với một <code>uiState</code> như bài này đã rất gần MVI; MVI chặt hơn ở chỗ mọi thay đổi đều đi qua một hàm reducer. Chi tiết từng pattern ở 7.2.1 MVC, 7.2.2 MVP và 7.2.4 MVI (chưa có bài).</p>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<ul>
+  <li><strong>Nên dùng</strong> cho hầu hết màn hình của app Android hiện nay: đây là kiến trúc mà hướng dẫn chính thức, các thư viện Jetpack (ViewModel, Lifecycle, Navigation) và Compose được thiết kế để phục vụ.</li>
+  <li><strong>Nên dùng</strong> khi màn hình có state đáng kể (tải, lỗi, form, lọc) hoặc logic cần unit test.</li>
+  <li><strong>Không cần</strong> dựng đủ ba vai cho màn hình tĩnh không có state (trang giới thiệu, điều khoản), hoặc cho một component UI tái sử dụng: component đó dùng state holder thường, không dùng class <code>ViewModel</code>.</li>
+  <li><strong>Cân nhắc MVI</strong> khi màn hình có nhiều thao tác tác động chéo lên cùng một state (trình soạn thảo, giỏ hàng nhiều bước) và cần mọi thay đổi đi qua một chỗ để dễ lần vết.</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. ViewModel giữ View, Fragment hoặc Context</h3>
+
+<pre data-lang="kotlin"><code>// Sai: ViewModel biết View
+class LoginViewModel(private val fragment: LoginFragment) : ViewModel() {
+    fun onLoginSuccess() = fragment.findNavController().navigate(R.id.action_login_to_home)
+}</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> xoay màn hình thì ViewModel vẫn giữ Fragment cũ đã bị huỷ: leak cả cây View, và lệnh điều hướng chạy trên Fragment đã chết có thể crash. ViewModel cũng không unit test được vì cần Fragment thật.</p>
+
+<p><strong>Cách sửa:</strong> ViewModel chỉ đặt state (<code>isLoggedIn = true</code>), View quan sát và tự điều hướng. Docs khuyên ViewModel không giữ <code>Activity</code>, <code>Context</code> hay <code>Resources</code>, và không dùng <code>AndroidViewModel</code>.</p>
+
+<h3>2. View vẫn chứa logic nghiệp vụ</h3>
+
+<pre data-lang="kotlin"><code>// Sai: quy tắc nằm trong Fragment
+viewModel.articles.observe(viewLifecycleOwner) { articles -&gt;
+    adapter.submitList(articles.filter { !it.isHidden &amp;&amp; it.publishedAt &gt; lastWeek })
+}</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> quy tắc "bài trong tuần, không bị ẩn" không test được, và màn khác cần cùng quy tắc sẽ chép lại. Đây là "Massive Fragment" khoác áo MVVM.</p>
+
+<p><strong>Cách sửa:</strong> ViewModel (hoặc use case) đưa ra danh sách đã lọc; View chỉ hiển thị.</p>
+
+<h3>3. Nhiều luồng state rời rạc</h3>
+
+<pre data-lang="kotlin"><code>// Sai: bốn luồng độc lập cho một màn hình
+val isLoading = MutableLiveData(false)
+val articles = MutableLiveData&lt;List&lt;Article&gt;&gt;()
+val error = MutableLiveData&lt;String?&gt;()
+val isEmpty = MutableLiveData(false)</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> mỗi luồng được View quan sát riêng và đổi vào thời điểm khác nhau, nên có lúc màn hình vừa hiện vòng tải vừa hiện lỗi, hoặc hiện "Không có bài" trong khi danh sách đang về. Mỗi chỗ đổi state phải nhớ đặt lại ba luồng kia.</p>
+
+<p><strong>Cách sửa:</strong> một <code>uiState</code> duy nhất (<code>data class</code> hoặc <code>sealed interface</code>), đổi nguyên khối mỗi lần. Các phần dữ liệu thật sự không liên quan nhau có thể tách thành vài state riêng, nhưng không tách những phần phải nhất quán với nhau.</p>
+
+<h3>4. Gửi event một lần qua kênh riêng</h3>
+
+<pre data-lang="kotlin"><code>// Không nên: event có thể mất hoặc lặp
+private val _navigateHome = MutableSharedFlow&lt;Unit&gt;()
+val navigateHome = _navigateHome.asSharedFlow()</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> <code>SharedFlow</code> không có replay thì event phát ra đúng lúc View đang tạo lại (xoay màn hình) sẽ bị mất: đăng nhập xong mà không sang màn chính. Dùng <code>LiveData</code> cho event thì ngược lại: event bị phát lại cho View mới, Snackbar hiện hai lần.</p>
+
+<p><strong>Cách sửa:</strong> biểu diễn event thành state rồi để View báo đã xử lý, như mục "Thao tác của người dùng và event một lần".</p>
+
+<h3>5. ViewModel gọi thẳng data source</h3>
+
+<pre data-lang="kotlin"><code>// Sai: ViewModel biết Retrofit và DAO
+class ArticleListViewModel(private val api: ArticleApi, private val dao: ArticleDao) : ViewModel()</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> quyết định "đọc cache hay gọi mạng" nằm rải ở nhiều ViewModel, mỗi nơi làm một kiểu; đổi API hay thêm cache phải sửa mọi màn. Test ViewModel phải giả lập cả Retrofit lẫn Room.</p>
+
+<p><strong>Cách sửa:</strong> ViewModel chỉ phụ thuộc <code>ArticleRepository</code>; Repository mới biết DAO và API.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>1979:</strong> Trygve Reenskaug mô tả MVC cho Smalltalk, tách dữ liệu (Model) khỏi hiển thị (View) và xử lý input (Controller).</li>
+  <li><strong>Thập niên 1990:</strong> MVP xuất hiện (Taligent), Presenter nhận input và cập nhật View qua interface.</li>
+  <li><strong>2004:</strong> Martin Fowler mô tả Presentation Model: một class giữ state và hành vi của màn hình, không phụ thuộc UI framework.</li>
+  <li><strong>2005:</strong> John Gossman (Microsoft) giới thiệu MVVM cho WPF, một biến thể của Presentation Model dựa vào data binding của WPF.</li>
+  <li><strong>Android những năm đầu:</strong> không có kiến trúc chính thức; Activity thường làm mọi việc ("Massive Activity"), cộng đồng dùng MVP để tách logic ra khỏi Activity.</li>
+  <li><strong>Google I/O 2015:</strong> Data Binding Library ra mắt, cho layout XML quan sát dữ liệu.</li>
+  <li><strong>Google I/O 2017:</strong> Android Architecture Components (Lifecycle, LiveData, ViewModel, Room) và "Guide to app architecture" chính thức đưa MVVM thành hướng khuyên dùng.</li>
+  <li><strong>12/2021:</strong> Google viết lại hướng dẫn kiến trúc: tầng UI, tầng data, tầng domain tuỳ chọn, UI state và luồng dữ liệu một chiều; MVVM giữ vai trò ở tầng UI, kết hợp Compose (stable 07/2021).</li>
+  <li><strong>Hiện nay:</strong> khuyến nghị kiến trúc của Android gồm UDF, một <code>uiState</code> dạng <code>StateFlow</code> dựng bằng <code>stateIn(... WhileSubscribed(5000))</code>, không gửi event từ ViewModel sang UI, ViewModel ở cấp màn hình và Compose cho UI mới.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: class hiện thực vai ViewModel, vì sao nó sống qua xoay màn hình, tải dữ liệu lười.</li>
+  <li><a href="../../session_06/livedata.md" target="_blank" rel="noopener">LiveData</a>: một cách đưa state ra cho View quan sát, và mẫu event thành state.</li>
+  <li><a href="../../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>: quan sát state trên <code>viewLifecycleOwner</code>.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a> và <a href="../../session_06/data_binding.md" target="_blank" rel="noopener">Data Binding</a>: hai cách View vẽ state trong UI XML.</li>
+  <li><a href="../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a> và <a href="../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>: Model của các ví dụ.</li>
+  <li><a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>: View viết bằng Compose cho cùng ViewModel.</li>
+  <li><a href="../../../../design-principles/02-solid/solid-srp.md" target="_blank" rel="noopener">SRP — Single Responsibility Principle</a>: nguyên lý đứng sau việc tách ba vai.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li>7.1.4.0 Observer Pattern Overview và 7.1.4.2 Flow (chưa có bài): cơ chế quan sát và <code>StateFlow</code>.</li>
+  <li>7.2.1 MVC, 7.2.2 MVP, 7.2.4 MVI (chưa có bài): các pattern đứng trước và sau MVVM.</li>
+  <li>7.2.5 Clean Architecture (chưa có bài): chia Model thành data layer và domain layer.</li>
+  <li>7.1.5.3 Hilt (chưa có bài): cung cấp Repository cho ViewModel.</li>
+</ul></li>
+</ul>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li><a href="https://developer.android.com/topic/architecture" target="_blank" rel="noopener">Guide to app architecture - Android Developers</a></li>
+  <li><a href="https://developer.android.com/topic/architecture/ui-layer" target="_blank" rel="noopener">UI layer - Android Developers</a></li>
+  <li><a href="https://developer.android.com/topic/architecture/ui-layer/events" target="_blank" rel="noopener">UI events (không gửi event từ ViewModel) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/topic/architecture/recommendations" target="_blank" rel="noopener">Recommendations for Android architecture - Android Developers</a></li>
+  <li><a href="https://developer.android.com/topic/architecture/data-layer" target="_blank" rel="noopener">Data layer - Android Developers</a></li>
+  <li><a href="https://android-developers.googleblog.com/2021/12/rebuilding-our-guide-to-app-architecture.html" target="_blank" rel="noopener">Rebuilding our guide to app architecture (12/2021) - Android Developers Blog</a></li>
+  <li><a href="https://martinfowler.com/eaaDev/PresentationModel.html" target="_blank" rel="noopener">Presentation Model - Martin Fowler</a></li>
+  <li><a href="https://martinfowler.com/eaaDev/uiArchs.html" target="_blank" rel="noopener">GUI Architectures (MVC, MVP, Presentation Model) - Martin Fowler</a></li>
+</ul>
+    `
+  },
+});
+ANDROID_CONTENT['android.architecture.mvvm'] = ANDROID_CONTENT['arch-mvvm'];
