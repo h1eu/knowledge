@@ -16238,8 +16238,9 @@ Object.assign(ANDROID_CONTENT, {
 <p>Khi bạn observe LiveData hoặc collect Flow, bạn cần chọn đúng LifecycleOwner:</p>
 
 <pre data-lang="kotlin"><code>// ❌ SAI — Dùng Fragment lifecycle (this)
-// Observer KHÔNG bị remove khi view bị destroy (backstack)
-// → Mỗi lần quay lại, thêm 1 observer mới → duplicate updates
+// Observer KHÔNG bị remove ở onDestroyView (Fragment vào backstack), chỉ bị gỡ ở onDestroy
+// → Mỗi lần quay lại, thêm 1 observer mới; observer cũ vẫn giữ binding của View đã huỷ
+// → cập nhật trùng, và cây View cũ không được thu hồi khi Fragment còn trong backstack
 viewModel.users.observe(this) { users -&gt;
     binding.recyclerView.adapter = UsersAdapter(users)
 }
@@ -19066,7 +19067,7 @@ class FragmentA : Fragment() {
 
 <p><strong>Cách sửa:</strong> Luôn dùng Shared ViewModel cho communication (hoặc Fragment Result API cho kết quả một lần), như mục "Giao tiếp giữa các Fragment".</p>
 
-<h3>8. Observe LiveData/Flow bằng <code>this</code> thay vì <code>viewLifecycleOwner</code></h3>
+<h3>8. Collect Flow bằng <code>this</code> thay vì <code>viewLifecycleOwner</code></h3>
 
 <pre data-lang="kotlin"><code>// Đúng
 override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -19086,7 +19087,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 <p>Fragment trong back stack vẫn sống trong khi View đã bị hủy, nên collector gắn với <code>this</code> sống lâu hơn View. Vì sao cần cả <code>viewLifecycleOwner</code> lẫn <code>repeatOnLifecycle</code> ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "View Lifecycle: vòng đời thứ hai trong Fragment".</p>
 
-<p><strong>Cách sửa:</strong> Collect trong <code>viewLifecycleOwner.lifecycleScope</code> kèm <code>repeatOnLifecycle(Lifecycle.State.STARTED)</code>, như phần "Đúng" ở trên.</p>
+<p><strong>Cách sửa:</strong> Collect trong <code>viewLifecycleOwner.lifecycleScope</code> kèm <code>repeatOnLifecycle(Lifecycle.State.STARTED)</code>, như phần "Đúng" ở trên. Với LiveData, lỗi tương tự là <code>observe(this)</code>; cách sửa là <code>observe(viewLifecycleOwner)</code>, xem <a href="../../../session_06/livedata.md" target="_blank" rel="noopener">LiveData</a>.</p>
 
 <h3>9. Tạo Fragment mới mỗi lần điều hướng</h3>
 
@@ -46224,10 +46225,10 @@ flowchart LR
   },
   'data-binding': {
     title: 'Data Binding',
-    summary: 'Data Binding là thư viện Jetpack đi kèm Android Gradle Plugin cho phép layout XML bọc trong thẻ layout khai báo biến và biểu thức @{}; lúc build, annotation processor sinh class binding chứa sẵn code gán giá trị của biểu thức vào View, và khi biến hoặc nguồn dữ liệu quan sát được thay đổi, binding tự tính lại biểu thức và cập nhật View. Bài giải thích cú pháp layout, cơ chế cập nhật, nguồn dữ liệu quan sát được, xử lý sự kiện, BindingAdapter, two-way binding, cách dùng trong Fragment và khi nào nên chọn View Binding hay Compose.',
+    summary: 'Data Binding là thư viện Jetpack đi kèm Android Gradle Plugin cho phép layout XML bọc trong thẻ layout khai báo biến và biểu thức @{}; lúc build, annotation processor sinh class binding chứa sẵn code gán giá trị của biểu thức vào View, và khi biến hoặc nguồn dữ liệu quan sát được thay đổi, binding tự tính lại biểu thức và cập nhật View. Bài giải thích cơ chế cập nhật, observable, BindingAdapter, two-way binding, dùng trong Fragment và khi nào chọn View Binding hay Compose.',
     status: 'reviewing',
     difficulty: 'intermediate',
-    estimatedReadingTime: '22 phút',
+    estimatedReadingTime: '17 phút',
     depth: 'standard',
     tags: ['android', 'data-binding', 'layout', 'xml', 'binding-adapter', 'two-way-binding', 'kapt', 'agp'],
     domain: 'Android',
@@ -46235,15 +46236,15 @@ flowchart LR
     prerequisites: ['android.jetpack.view_binding', 'android.component.fragment.lifecycle'],
     related: ['android.languages.kotlin', 'android.manifest.plugin', 'android.jetpack_compose.compose_overview'],
     learningOutcomes: [
-      'Giải thích được cách Data Binding biến layout có biến và biểu thức @{} thành class binding lúc build, và vì sao View được cập nhật trước frame tiếp theo chứ không ngay khi dữ liệu đổi.',
-      'Triển khai được binding expression, nguồn dữ liệu quan sát được (ObservableField, LiveData, StateFlow) cùng lifecycleOwner, và xử lý sự kiện bằng method reference hoặc listener binding.',
-      'Áp dụng được @BindingAdapter và two-way binding @={}, kể cả @InverseBindingAdapter cho thuộc tính tự định nghĩa, mà không tạo vòng lặp cập nhật vô hạn.',
+      'Giải thích được cách Data Binding sinh class binding từ layout có biểu thức @{}, và vì sao View cập nhật trước frame tiếp theo chứ không ngay khi dữ liệu đổi.',
+      'Triển khai được binding expression, nguồn dữ liệu quan sát được cùng lifecycleOwner, và sự kiện bằng method reference hoặc listener binding.',
+      'Áp dụng được @BindingAdapter và two-way binding @={}, kể cả cho thuộc tính tự định nghĩa, mà không tạo vòng lặp cập nhật vô hạn.',
       'Xử lý được Data Binding trong Fragment bằng viewLifecycleOwner và dọn binding theo vòng đời của View.',
-      'Biết khi nào chọn Data Binding, View Binding hay Compose dựa trên chi phí build (kapt) và tình trạng bảo trì của thư viện.'
+      'Biết khi nào chọn Data Binding, View Binding hay Compose dựa trên chi phí build (kapt) và tình trạng bảo trì.'
     ],
-    knowledgeGap: 'Không hiểu Data Binding chạy thế nào khiến developer quên gán lifecycleOwner rồi thắc mắc vì sao UI chỉ hiện giá trị đầu tiên, gán lifecycleOwner = this trong Fragment làm binding cũ tiếp tục nhận dữ liệu sau onDestroyView, viết BindingAdapter so sánh thiếu giá trị cũ gây vòng lặp vô hạn ở two-way binding, nhồi logic nghiệp vụ vào XML không test được, hoặc bật Data Binding chỉ để thay findViewById và trả giá bằng thời gian build của kapt.',
+    knowledgeGap: 'Không hiểu Data Binding chạy thế nào khiến developer quên lifecycleOwner nên UI chỉ hiện giá trị đầu tiên, dùng lifecycleOwner = this trong Fragment, viết BindingAdapter không so sánh giá trị cũ gây vòng lặp vô hạn, nhồi logic nghiệp vụ vào XML, hoặc bật Data Binding chỉ để thay findViewById và trả giá bằng thời gian build của kapt.',
     updatedAt: '2026-11-08',
-    readTime: '22 phút',
+    readTime: '17 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -46251,28 +46252,21 @@ flowchart LR
 
 <pre data-lang="kotlin"><code>// Mỗi lần trạng thái đơn hàng đổi, phải tự gọi lại toàn bộ đoạn này
 binding.statusText.text = order.statusLabel
-binding.etaText.text = getString(R.string.eta_format, order.etaMinutes)
 binding.progress.visibility = if (order.isLoading) View.VISIBLE else View.GONE
 binding.cancelButton.isEnabled = order.canCancel</code></pre>
 
-<p>Đoạn code này có ba vấn đề:</p>
+<p>Ba vấn đề: dữ liệu đổi ở nhiều chỗ (tải lần đầu, làm mới, thông báo đẩy) thì chỗ nào cũng phải gọi lại đoạn gán, quên một chỗ là UI lệch dữ liệu; đọc layout không biết <code>statusText</code> hiển thị trường nào; và form phải nối hai chiều bằng tay (đổ giá trị vào <code>EditText</code>, gắn <code>TextWatcher</code> đọc về, tránh để hai chiều gọi nhau mãi).</p>
 
-<ul>
-  <li><strong>Dễ quên cập nhật:</strong> dữ liệu đổi ở nhiều chỗ (tải lần đầu, làm mới, thông báo đẩy) thì chỗ nào cũng phải gọi lại đoạn gán. Quên một chỗ là UI lệch dữ liệu.</li>
-  <li><strong>Quan hệ dữ liệu–View nằm rải rác:</strong> đọc layout không biết <code>statusText</code> hiển thị trường nào.</li>
-  <li><strong>Form phải nối hai chiều bằng tay:</strong> đổ giá trị vào <code>EditText</code>, gắn <code>TextWatcher</code> đọc giá trị về, và tránh để hai chiều gọi nhau mãi.</li>
-</ul>
-
-<p>Vấn đề cần giải quyết là: <strong>khai báo một lần "View này hiển thị dữ liệu nào", rồi để hệ thống tự giữ View khớp với dữ liệu</strong>, kể cả chiều ngược lại khi người dùng nhập.</p>
+<p>Cần: <strong>khai báo một lần "View này hiển thị dữ liệu nào", rồi để hệ thống tự giữ View khớp với dữ liệu</strong>, kể cả chiều ngược lại khi người dùng nhập.</p>
 
 <h2>Sau khi học xong</h2>
 
 <ul>
-  <li>Giải thích được cách Data Binding biến layout có biến và biểu thức @{} thành class binding lúc build, và vì sao View được cập nhật trước frame tiếp theo chứ không ngay khi dữ liệu đổi.</li>
-  <li>Triển khai được binding expression, nguồn dữ liệu quan sát được (ObservableField, LiveData, StateFlow) cùng lifecycleOwner, và xử lý sự kiện bằng method reference hoặc listener binding.</li>
-  <li>Áp dụng được @BindingAdapter và two-way binding @={}, kể cả @InverseBindingAdapter cho thuộc tính tự định nghĩa, mà không tạo vòng lặp cập nhật vô hạn.</li>
+  <li>Giải thích được cách Data Binding sinh class binding từ layout có biểu thức @{}, và vì sao View cập nhật trước frame tiếp theo chứ không ngay khi dữ liệu đổi.</li>
+  <li>Triển khai được binding expression, nguồn dữ liệu quan sát được cùng lifecycleOwner, và sự kiện bằng method reference hoặc listener binding.</li>
+  <li>Áp dụng được @BindingAdapter và two-way binding @={}, kể cả cho thuộc tính tự định nghĩa, mà không tạo vòng lặp cập nhật vô hạn.</li>
   <li>Xử lý được Data Binding trong Fragment bằng viewLifecycleOwner và dọn binding theo vòng đời của View.</li>
-  <li>Biết khi nào chọn Data Binding, View Binding hay Compose dựa trên chi phí build (kapt) và tình trạng bảo trì của thư viện.</li>
+  <li>Biết khi nào chọn Data Binding, View Binding hay Compose dựa trên chi phí build (kapt) và tình trạng bảo trì.</li>
 </ul>
 
 <h2>Data Binding là gì?</h2>
@@ -46281,7 +46275,7 @@ binding.cancelButton.isEnabled = order.canCancel</code></pre>
 
 <p>Mental model: layout Data Binding là <strong>một bảng tính</strong>. Biến trong <code>&lt;data&gt;</code> là ô nhập liệu, mỗi thuộc tính <code>@{}</code> là ô công thức tham chiếu tới chúng; ô nhập liệu đổi thì ô công thức phụ thuộc tự tính lại. Two-way binding là ô vừa hiện kết quả vừa cho người dùng gõ đè, giá trị gõ vào được ghi ngược về ô nhập liệu.</p>
 
-<p>Class binding ở đây là cùng khái niệm với <a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>, mục "View Binding là gì?" (tên theo layout, field cho View có id, <code>inflate()</code>/<code>bind()</code>); Data Binding thêm setter cho từng biến và code tính biểu thức.</p>
+<p>Class binding là cùng khái niệm với <a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>, mục "View Binding là gì?"; Data Binding thêm setter cho từng biến và code tính biểu thức.</p>
 
 <h2>Cách hoạt động</h2>
 
@@ -46304,19 +46298,11 @@ android {
 
 <p>Từ AGP 9.0 (Kotlin tích hợp sẵn trong AGP), plugin <code>org.jetbrains.kotlin.kapt</code> không tương thích nữa; docs hướng dẫn thay bằng <code>com.android.legacy-kapt</code>. Data Binding <strong>không có bản KSP</strong> và docs ghi không có kế hoạch làm, nên module dùng Data Binding không bỏ được kapt. Đây là chi phí chính của Data Binding: kapt phải sinh Java stub từ code Kotlin mỗi lần build, và docs gợi ý cô lập Data Binding vào module riêng để giới hạn ảnh hưởng.</p>
 
-<p>Một layout dùng Data Binding có ba phần:</p>
-
-<ol>
-  <li>Thẻ gốc <code>&lt;layout&gt;</code>: đánh dấu layout Data Binding. Layout không có <code>&lt;layout&gt;</code> thì không có biến hay biểu thức (bật thêm <code>viewBinding</code> thì nó vẫn có class View Binding).</li>
-  <li>Phần <code>&lt;data&gt;</code>: <code>&lt;variable name="…" type="…"/&gt;</code> (ô nhập liệu của bảng tính) và <code>&lt;import type="…"/&gt;</code> để dùng tên class ngắn như <code>View.GONE</code>.</li>
-  <li>View gốc thật của màn hình; thuộc tính cần dữ liệu thì viết <code>@{biểu thức}</code>.</li>
-</ol>
-
-<p>Module app phải bật <code>dataBinding</code> nếu phụ thuộc vào thư viện dùng Data Binding, kể cả khi bản thân nó không dùng.</p>
+<p>Một layout dùng Data Binding có ba phần: thẻ gốc <code>&lt;layout&gt;</code>; phần <code>&lt;data&gt;</code> gồm <code>&lt;variable&gt;</code> (ô nhập liệu của bảng tính) và <code>&lt;import&gt;</code> để dùng tên class ngắn như <code>View.GONE</code>; và View gốc thật của màn hình, thuộc tính cần dữ liệu thì viết <code>@{biểu thức}</code>. Module app phải bật <code>dataBinding</code> nếu phụ thuộc vào thư viện dùng Data Binding, kể cả khi bản thân nó không dùng.</p>
 
 <h4>Ví dụ: thẻ thông tin chuyến bay</h4>
 
-<p><strong>Bài toán:</strong> màn chi tiết vé máy bay hiển thị mã chuyến, hành trình, cửa ra (có thể chưa có) và dòng báo trễ chỉ hiện khi trễ. Dữ liệu đọc một lần, không đổi, nên chỉ cần binding một chiều.</p>
+<p><strong>Bài toán:</strong> màn chi tiết vé máy bay hiển thị mã chuyến, cửa ra (có thể chưa có) và dòng báo trễ chỉ hiện khi trễ. Dữ liệu không đổi, chỉ cần binding một chiều.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
@@ -46337,7 +46323,7 @@ sequenceDiagram
     B-&gt;&gt;V: (3) trước frame tiếp theo: setText, setVisibility
 </div>
 
-<pre data-lang="xml"><code>&lt;!-- res/layout/activity_flight_detail.xml --&gt;
+<pre data-lang="xml"><code>&lt;!-- res/layout/activity_flight_detail.xml (lược layout_width/height) --&gt;
 &lt;layout xmlns:android="http://schemas.android.com/apk/res/android"&gt;
 
     &lt;data&gt;
@@ -46347,30 +46333,13 @@ sequenceDiagram
             type="com.example.booking.Flight" /&gt;
     &lt;/data&gt;
 
-    &lt;LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="24dp"&gt;
+    &lt;LinearLayout android:orientation="vertical"&gt;
+
+        &lt;TextView android:text="@{flight.code}" /&gt;
+
+        &lt;TextView android:text="@{flight.gate ?? @string/gate_not_assigned}" /&gt;
 
         &lt;TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{flight.code}" /&gt;
-
-        &lt;TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{@string/route_format(flight.origin, flight.destination)}" /&gt;
-
-        &lt;TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{flight.gate ?? @string/gate_not_assigned}" /&gt;
-
-        &lt;TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@{@plurals/delay_minutes(flight.delayMinutes, flight.delayMinutes)}"
             android:visibility="@{flight.delayMinutes &gt; 0 ? View.VISIBLE : View.GONE}" /&gt;
     &lt;/LinearLayout&gt;
@@ -46378,13 +46347,7 @@ sequenceDiagram
 
 <pre data-lang="kotlin"><code>// Flight.kt (@Parcelize cần plugin kotlin-parcelize)
 @Parcelize
-data class Flight(
-    val code: String,
-    val origin: String,
-    val destination: String,
-    val gate: String?,
-    val delayMinutes: Int
-) : Parcelable
+data class Flight(val code: String, val gate: String?, val delayMinutes: Int) : Parcelable
 
 // FlightDetailActivity.kt
 class FlightDetailActivity : AppCompatActivity() {
@@ -46401,154 +46364,49 @@ class FlightDetailActivity : AppCompatActivity() {
         binding.flight = flight                                        // (2) gán ô nhập liệu
         // (3) không có dòng setText nào: binding tự gán trước frame tiếp theo
     }
-
-    companion object {
-        const val EXTRA_FLIGHT = "extra_flight"
-    }
+    // ... companion object chứa EXTRA_FLIGHT
 }</code></pre>
 
-<p><strong>Kết quả:</strong> <code>gate = null</code> thì dòng cửa ra hiện chuỗi <code>gate_not_assigned</code>; <code>delayMinutes = 0</code> thì dòng báo trễ ẩn. Activity không có dòng <code>setText</code> nào; "View nào hiển thị trường nào" đọc được ngay trong layout.</p>
+<p><strong>Kết quả:</strong> <code>gate = null</code> thì dòng cửa ra hiện chuỗi <code>gate_not_assigned</code>; <code>delayMinutes = 0</code> thì dòng báo trễ ẩn. "View nào hiển thị trường nào" đọc được ngay trong layout.</p>
 
 <h3>Binding expression <code>@{}</code>: viết được gì và nên viết gì</h3>
 
-<p>Biểu thức trong <code>@{}</code> là một ngôn ngữ nhỏ giống Java, kiểm tra kiểu <strong>lúc build</strong>:</p>
+<p>Biểu thức trong <code>@{}</code> là một ngôn ngữ nhỏ giống Java, kiểm tra kiểu <strong>lúc build</strong>. Viết được toán tử số học, logic, so sánh (dấu <code>&lt;</code> phải viết <code>&amp;lt;</code> trong XML), ternary <code>?:</code>, gọi method, <code>[]</code>; null coalescing <code>a ?? b</code> (lấy <code>a</code> nếu khác <code>null</code>, ngược lại <code>b</code>); resource như <code>@string/fmt(a, b)</code>; tham chiếu View khác theo id camelCase. Không có <code>this</code>, <code>super</code>, <code>new</code>. <code>@{user.firstName}</code> dùng được cho field, getter Java và property Kotlin.</p>
 
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Nhóm</th>
-      <th style="padding:8px 12px;text-align:left;">Viết được</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Toán tử</td>
-      <td style="padding:8px 12px;"><code>+ - * / %</code>, nối chuỗi <code>+</code>, \`&amp;&amp; \\</td>
-      <td style="padding:8px 12px;">\\</td>
-      <td style="padding:8px 12px;"><code>, </code>!<code>, so sánh </code>== &gt; &lt; &gt;= &lt;=<code> (dấu </code>&lt;<code> phải viết </code>&amp;lt;<code> vì đang nằm trong XML), ternary </code>?:<code>, </code>instanceof<code>, ép kiểu, gọi method, truy cập field, </code>[]\` cho list/map/array</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Null coalescing</td>
-      <td style="padding:8px 12px;"><code>a ?? b</code>: lấy <code>a</code> nếu khác <code>null</code>, ngược lại lấy <code>b</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Resource</td>
-      <td style="padding:8px 12px;"><code>@string/x</code>, <code>@dimen/x</code>, chuỗi có tham số <code>@string/fmt(a, b)</code>, số nhiều <code>@plurals/x(count, count)</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Tham chiếu View khác</td>
-      <td style="padding:8px 12px;">Theo id dạng camelCase, ví dụ <code>@{promoCodeInput.text}</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Không có</td>
-      <td style="padding:8px 12px;"><code>this</code>, <code>super</code>, <code>new</code>, gọi generic tường minh</td>
-    </tr>
-  </tbody>
-</table>
+<p><strong>Null safety của biểu thức:</strong> code sinh ra tự kiểm tra <code>null</code>. Với <code>@{user.name}</code>, nếu <code>user</code> là <code>null</code> thì biểu thức nhận giá trị mặc định của kiểu (<code>null</code>, <code>0</code>, <code>false</code>) thay vì ném <code>NullPointerException</code>. Không crash, nhưng biến quên gán chỉ hiện thành ô trống, không lỗi nào báo.</p>
 
-<p><strong>Null safety của biểu thức:</strong> code sinh ra tự kiểm tra <code>null</code>. Với <code>@{user.name}</code>, nếu <code>user</code> là <code>null</code> thì biểu thức nhận giá trị mặc định của kiểu (<code>null</code>, <code>0</code>, <code>false</code>) thay vì ném <code>NullPointerException</code>. Màn hình không crash khi biến chưa gán, nhưng biến quên gán chỉ hiện thành ô trống, không lỗi nào báo.</p>
-
-<p><code>@{user.firstName}</code> dùng được cho field, getter Java và property Kotlin. Biến <code>context</code> có sẵn (từ <code>root.getContext()</code>).</p>
-
-<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Docs khuyên giữ biểu thức <strong>nhỏ và đơn giản</strong> vì chúng không unit test được và IDE hỗ trợ hạn chế. Biểu thức chỉ nên là "lấy trường nào, định dạng thế nào"; quy tắc nghiệp vụ nằm ở ViewModel hoặc lớp dưới, layout chỉ đọc kết quả, ví dụ <code>@{order.canCancel}</code>.</div></div>
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Docs khuyên giữ biểu thức <strong>nhỏ và đơn giản</strong> vì chúng không unit test được và IDE hỗ trợ hạn chế. Quy tắc nghiệp vụ nằm ở ViewModel hoặc lớp dưới, layout chỉ đọc kết quả, ví dụ <code>@{order.canCancel}</code>.</div></div>
 
 <h3>Từ layout đến class binding: build-time và thời điểm cập nhật</h3>
 
-<p>Khi build, Data Binding đi qua các bước sau cho mỗi layout có <code>&lt;layout&gt;</code>:</p>
+<p>Khi build, với mỗi layout có <code>&lt;layout&gt;</code>:</p>
 
 <ol>
-  <li>AGP tách <code>&lt;data&gt;</code> và biểu thức khỏi layout, đóng gói phần layout còn lại như layout thường; View mang biểu thức được gắn tag nội bộ để binding tìm lại.</li>
-  <li>AGP sinh class binding (<code>ActivityFlightDetailBinding</code>, kế thừa <code>ViewDataBinding</code>) với field cho View có id và setter cho từng biến, <strong>trước</strong> khi biên dịch code Kotlin/Java.</li>
+  <li>AGP tách <code>&lt;data&gt;</code> và biểu thức khỏi layout, đóng gói phần còn lại như layout thường (View mang biểu thức được gắn tag nội bộ), rồi sinh class binding (<code>ActivityFlightDetailBinding</code>, kế thừa <code>ViewDataBinding</code>) với field cho View có id và setter cho từng biến, <strong>trước</strong> khi biên dịch code Kotlin/Java.</li>
   <li>Annotation processor (qua kapt) sinh class hiện thực, thường mang hậu tố <code>Impl</code>, chứa <code>executeBindings()</code>: mọi biểu thức đã được biên dịch thành Java thường, kèm các câu kiểm tra <code>null</code>. Nó cũng sinh class <code>BR</code> chứa id của các biến (và của property quan sát được ở mục sau), tương tự <code>R</code>.</li>
   <li>Biểu thức sai (property không tồn tại, sai kiểu) làm <strong>build lỗi</strong>, không đợi tới runtime.</li>
 </ol>
 
-<p>Lúc chạy, cập nhật <strong>không</strong> diễn ra ngay khi gán biến. Docs mô tả: khi biến hoặc đối tượng quan sát được thay đổi, binding được <strong>lên lịch</strong> cập nhật trước frame tiếp theo. Setter chỉ đánh dấu phần "bẩn" (dirty flag) rồi yêu cầu rebind; gán ba biến liên tiếp chỉ dẫn tới <strong>một</strong> lần <code>executeBindings()</code>, và chỉ biểu thức phụ thuộc phần bẩn được tính lại. Khi cần View đổi <strong>ngay</strong>, gọi <code>executePendingBindings()</code> để chạy phần đang chờ một cách đồng bộ.</p>
+<p>Lúc chạy, cập nhật <strong>không</strong> diễn ra ngay khi gán biến. Docs mô tả: khi biến hoặc đối tượng quan sát được thay đổi, binding được <strong>lên lịch</strong> cập nhật trước frame tiếp theo. Setter chỉ đánh dấu phần "bẩn" (dirty flag) rồi yêu cầu rebind, nên gán nhiều biến liên tiếp chỉ dẫn tới <strong>một</strong> lần <code>executeBindings()</code>. Khi cần View đổi <strong>ngay</strong>, gọi <code>executePendingBindings()</code> để chạy phần đang chờ một cách đồng bộ.</p>
 
-<div class="mermaid">
-sequenceDiagram
-    participant C as Code của bạn
-    participant B as BindingImpl
-    participant F as Frame tiếp theo
-    participant V as View
-    C-&gt;&gt;B: setFlight(flight)
-    Note over B: bật dirty flag của flight,&lt;br/&gt;requestRebind()
-    C-&gt;&gt;B: setPassenger(passenger)
-    Note over B: bật dirty flag của passenger,&lt;br/&gt;đã có lịch, không lên lịch lại
-    F-&gt;&gt;B: trước khi vẽ frame
-    B-&gt;&gt;V: executeBindings(): chỉ tính biểu thức bẩn
-    Note over C,B: Gọi executePendingBindings()&lt;br/&gt;thì executeBindings() chạy ngay, đồng bộ
-</div>
+<p><strong>Trường hợp điển hình: item của danh sách</strong> (<code>RecyclerView</code> học ở 7.1.2 ViewHolder Pattern (chưa có bài)). <code>RecyclerView</code> <strong>đo item ngay</strong> sau <code>onBindViewHolder()</code>; nếu binding chỉ được lên lịch cho frame sau, item (ví dụ tin nhắn dài ngắn xen kẽ) bị đo với nội dung cũ rồi đo lại, nên danh sách giật. Docs dùng mẫu:</p>
 
-<h4>Ví dụ: danh sách tin nhắn có chiều cao khác nhau</h4>
-
-<p><strong>Bài toán:</strong> item tin nhắn dùng layout Data Binding với biến <code>message</code>, chiều cao theo độ dài tin. <code>RecyclerView</code> gọi <code>onBindViewHolder()</code> rồi <strong>đo item ngay</strong> trong cùng lượt layout; nếu binding chỉ được lên lịch cho frame sau, item bị đo với nội dung cũ rồi đo lại ở frame sau, nên danh sách giật khi cuộn. <code>RecyclerView</code>/<code>ViewHolder</code> là kiến thức dùng trước, học ở 7.1.2 ViewHolder Pattern (chưa có bài).</p>
-
-<p><strong>Luồng chạy:</strong></p>
-
-<ol>
-  <li><code>RecyclerView</code> gọi <code>onBindViewHolder()</code> với item ở vị trí cần hiển thị.</li>
-  <li>Gán <code>binding.message = message</code>: binding mới chỉ đánh dấu bẩn.</li>
-  <li>Gọi <code>binding.executePendingBindings()</code>: text được gán ngay, đồng bộ.</li>
-  <li><code>RecyclerView</code> đo item với đúng nội dung mới, nên không có frame nào hiện sai chiều cao.</li>
-</ol>
-
-<div class="mermaid">
-sequenceDiagram
-    participant RV as RecyclerView
-    participant A as MessageAdapter
-    participant B as ItemMessageBinding
-    RV-&gt;&gt;A: (1) onBindViewHolder(holder, position)
-    A-&gt;&gt;B: (2) binding.message = message
-    A-&gt;&gt;B: (3) executePendingBindings()
-    B--&gt;&gt;A: text đã được gán
-    RV-&gt;&gt;RV: (4) measure item với nội dung mới
-</div>
-
-<pre data-lang="kotlin"><code>// MessageAdapter.kt
-class MessageAdapter : ListAdapter&lt;Message, MessageAdapter.MessageViewHolder&gt;(MessageDiff) {
-
-    class MessageViewHolder(val binding: ItemMessageBinding) :
-        RecyclerView.ViewHolder(binding.root)
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder =
-        MessageViewHolder(
-            ItemMessageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        )
-
-    override fun onBindViewHolder(holder: MessageViewHolder, position: Int) { // (1)
-        holder.binding.message = getItem(position)                           // (2) chỉ đánh dấu bẩn
-        holder.binding.executePendingBindings()                              // (3) gán ngay
-    }                                                                        // (4) RecyclerView đo item sau đó
-
-    object MessageDiff : DiffUtil.ItemCallback&lt;Message&gt;() {
-        override fun areItemsTheSame(old: Message, new: Message) = old.id == new.id
-        override fun areContentsTheSame(old: Message, new: Message) = old == new
-    }
+<pre data-lang="kotlin"><code>// MessageAdapter.kt (trích)
+override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
+    holder.binding.message = getItem(position) // chỉ đánh dấu bẩn
+    holder.binding.executePendingBindings()    // gán ngay, trước khi RecyclerView đo item
 }</code></pre>
-
-<p><strong>Kết quả:</strong> bỏ <code>executePendingBindings()</code> rồi cuộn nhanh danh sách có tin dài ngắn xen kẽ: item nhấp nháy nội dung cũ và nhảy chiều cao; thêm lại thì hết. Docs dùng đúng mẫu này cho adapter (<code>setVariable(BR.item, item)</code> rồi <code>executePendingBindings()</code>).</p>
 
 <h3>Nguồn dữ liệu quan sát được và <code>lifecycleOwner</code></h3>
 
-<p>Gán một object thường cho biến chỉ cập nhật UI <strong>lúc gán</strong>. Muốn ô công thức tự tính lại khi dữ liệu đổi, dữ liệu phải <strong>quan sát được</strong>, tức tự báo cho binding mỗi lần đổi. Có hai nhóm nguồn.</p>
-
-<p><strong>Nhóm 1: observable của chính Data Binding</strong> (không biết vòng đời): <code>ObservableField&lt;T&gt;</code> và bản nguyên thuỷ (<code>ObservableInt</code>...), class kế thừa <code>BaseObservable</code> tự gọi <code>notifyPropertyChanged(BR.tenProperty)</code> trong setter của property <code>@Bindable</code>, và <code>ObservableArrayList</code>/<code>ObservableArrayMap</code>.</p>
-
-<pre data-lang="kotlin"><code>// UploadProgressPresenter.kt: ObservableInt tự báo cho binding khi set()
-class UploadProgressPresenter {
-    val percent = ObservableInt(0)
-    fun onProgress(value: Int) = percent.set(value)
-}</code></pre>
-
-<p><strong>Nhóm 2: nguồn lifecycle-aware</strong>: <code>LiveData</code> và <code>StateFlow</code>, thường do ViewModel (lớp giữ dữ liệu UI sống qua xoay màn hình, học ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>) phơi ra. Đây là lựa chọn thường dùng hiện nay.</p>
+<p>Gán một object thường cho biến chỉ cập nhật UI <strong>lúc gán</strong>. Muốn ô công thức tự tính lại, dữ liệu phải <strong>quan sát được</strong>, tức tự báo cho binding mỗi lần đổi. Có hai nhóm:</p>
 
 <ul>
-  <li><code>LiveData</code>: holder dữ liệu quan sát được, biết vòng đời, học ở <a href="livedata.md" target="_blank" rel="noopener">LiveData</a>.</li>
-  <li><code>StateFlow</code>: dòng dữ liệu luôn có giá trị hiện tại của Kotlin coroutines, học ở 7.1.4.2 Flow (chưa có bài). Module Kotlin dùng AndroidX được thêm hỗ trợ <code>StateFlow</code> tự động (tắt bằng <code>dataBinding { addKtx = false }</code>).</li>
+  <li><strong>Observable của chính Data Binding</strong> (không biết vòng đời): <code>ObservableField&lt;T&gt;</code> và bản nguyên thuỷ (<code>ObservableInt</code>...), class kế thừa <code>BaseObservable</code> tự gọi <code>notifyPropertyChanged(BR.tenProperty)</code> trong setter của property <code>@Bindable</code>, và <code>ObservableArrayList</code>/<code>ObservableArrayMap</code>.</li>
+  <li><strong>Nguồn lifecycle-aware</strong>, lựa chọn thường dùng hiện nay, thường do ViewModel (lớp giữ dữ liệu UI sống qua xoay màn hình, học ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>) phơi ra: <a href="livedata.md" target="_blank" rel="noopener">LiveData</a> và <code>StateFlow</code> (dòng dữ liệu luôn có giá trị hiện tại của Kotlin coroutines, học ở 7.1.4.2 Flow (chưa có bài)). Module Kotlin dùng AndroidX được thêm hỗ trợ <code>StateFlow</code> tự động (tắt bằng <code>dataBinding { addKtx = false }</code>).</li>
 </ul>
 
-<p>Điều kiện bắt buộc với nhóm 2: <strong>gán <code>binding.lifecycleOwner</code></strong>. Binding dùng owner này để quan sát <code>LiveData</code>/<code>StateFlow</code>; không có owner, binding chỉ đọc giá trị hiện tại lúc tính biểu thức và <strong>không đăng ký nhận thay đổi</strong>. Activity dùng chính nó; Fragment dùng <code>viewLifecycleOwner</code> (mục "Data Binding trong Fragment").</p>
+<p>Điều kiện bắt buộc với nhóm sau: <strong>gán <code>binding.lifecycleOwner</code></strong>. Binding dùng owner này để quan sát <code>LiveData</code>/<code>StateFlow</code>; không có owner, binding chỉ đọc giá trị hiện tại lúc tính biểu thức và <strong>không đăng ký nhận thay đổi</strong>. Activity dùng chính nó; Fragment dùng <code>viewLifecycleOwner</code> (mục "Data Binding trong Fragment").</p>
 
 <h4>Ví dụ: theo dõi trạng thái đơn giao đồ ăn</h4>
 
@@ -46558,9 +46416,9 @@ class UploadProgressPresenter {
 
 <ol>
   <li>Activity lấy <code>OrderTrackingViewModel</code>, inflate binding, gán <code>binding.viewModel</code>.</li>
-  <li>Gán <code>binding.lifecycleOwner = this</code>: binding bắt đầu quan sát <code>viewModel.uiState</code> khi Activity ở trạng thái đang hiển thị.</li>
-  <li>ViewModel nhận trạng thái mới từ repository và gán <code>_uiState.value = …</code>.</li>
-  <li><code>StateFlow</code> phát giá trị mới; binding đánh dấu bẩn và tính lại các biểu thức đọc <code>uiState</code> trước frame tiếp theo.</li>
+  <li>Gán <code>binding.lifecycleOwner = this</code>: binding bắt đầu quan sát <code>viewModel.uiState</code>.</li>
+  <li>ViewModel nhận trạng thái mới từ repository và gán <code>_uiState.value</code>.</li>
+  <li><code>StateFlow</code> phát giá trị mới; binding tính lại các biểu thức đọc <code>uiState</code> trước frame tiếp theo.</li>
 </ol>
 
 <div class="mermaid">
@@ -46576,38 +46434,14 @@ sequenceDiagram
     B-&gt;&gt;B: tính lại statusLabel, isRefreshing
 </div>
 
-<pre data-lang="xml"><code>&lt;!-- res/layout/activity_order_tracking.xml --&gt;
-&lt;layout xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+<pre data-lang="xml"><code>&lt;!-- res/layout/activity_order_tracking.xml (trích, biến viewModel: OrderTrackingViewModel) --&gt;
+&lt;TextView android:text="@{viewModel.uiState.statusLabel}" /&gt;
 
-    &lt;data&gt;
-        &lt;import type="android.view.View" /&gt;
-        &lt;variable
-            name="viewModel"
-            type="com.example.delivery.OrderTrackingViewModel" /&gt;
-    &lt;/data&gt;
-
-    &lt;LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"&gt;
-
-        &lt;TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{viewModel.uiState.statusLabel}" /&gt;
-
-        &lt;ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="@{viewModel.uiState.isRefreshing ? View.VISIBLE : View.GONE}" /&gt;
-    &lt;/LinearLayout&gt;
-&lt;/layout&gt;</code></pre>
+&lt;ProgressBar
+    android:visibility="@{viewModel.uiState.isRefreshing ? View.VISIBLE : View.GONE}" /&gt;</code></pre>
 
 <pre data-lang="kotlin"><code>// OrderTrackingViewModel.kt
-data class OrderTrackingUiState(
-    val statusLabel: String = "",
-    val isRefreshing: Boolean = false
-)
+data class OrderTrackingUiState(val statusLabel: String = "", val isRefreshing: Boolean = false)
 
 class OrderTrackingViewModel(private val repository: OrderRepository) : ViewModel() {
 
@@ -46617,8 +46451,7 @@ class OrderTrackingViewModel(private val repository: OrderRepository) : ViewMode
     fun refresh(orderId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isRefreshing = true)
-            val status = repository.fetchStatus(orderId)
-            _uiState.value = OrderTrackingUiState(statusLabel = status.label) // (3)
+            _uiState.value = OrderTrackingUiState(repository.fetchStatus(orderId).label) // (3)
         }
     }
 }
@@ -46637,15 +46470,10 @@ class OrderTrackingActivity : AppCompatActivity() {
         binding.lifecycleOwner = this   // (2) thiếu dòng này thì (4) không xảy ra
         viewModel.refresh(intent.getStringExtra(EXTRA_ORDER_ID).orEmpty())
     }
-
-    companion object {
-        const val EXTRA_ORDER_ID = "extra_order_id"
-    }
+    // ... companion object chứa EXTRA_ORDER_ID
 }</code></pre>
 
-<p><code>viewModelScope</code>, <code>by viewModels</code> và <code>Factory</code> là phần tối thiểu để có ViewModel, được giải thích ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</p>
-
-<p><strong>Kết quả:</strong> trạng thái đổi theo server mà Activity không có dòng <code>setText</code> nào. Xoá <code>binding.lifecycleOwner = this</code>: màn chỉ hiện trạng thái rỗng ban đầu rồi đứng yên dù ViewModel đã có dữ liệu mới.</p>
+<p><strong>Kết quả:</strong> trạng thái đổi theo server mà Activity không có dòng <code>setText</code> nào (<code>viewModelScope</code>, <code>by viewModels</code>, <code>Factory</code> giải thích ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>). Xoá <code>binding.lifecycleOwner = this</code>: màn chỉ hiện trạng thái rỗng ban đầu rồi đứng yên dù ViewModel đã có dữ liệu mới.</p>
 
 <h3>Xử lý sự kiện: method reference và listener binding</h3>
 
@@ -46667,44 +46495,27 @@ class OrderTrackingActivity : AppCompatActivity() {
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Chữ ký method</td>
-      <td style="padding:8px 12px;">Phải khớp <strong>đúng</strong> chữ ký listener (<code>onClick(View)</code> → <code>fun onShareClick(view: View)</code>)</td>
-      <td style="padding:8px 12px;">Chỉ kiểu trả về phải khớp; tham số tuỳ ý, lấy từ biến của layout</td>
+      <td style="padding:8px 12px;">Phải khớp <strong>đúng</strong> chữ ký listener (<code>onClick(View)</code>)</td>
+      <td style="padding:8px 12px;">Chỉ kiểu trả về phải khớp; tham số tuỳ ý</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Listener được tạo khi</td>
       <td style="padding:8px 12px;">Lúc <strong>bind dữ liệu</strong> (biểu thức <code>handler</code> bằng <code>null</code> thì gán listener <code>null</code>)</td>
       <td style="padding:8px 12px;">Luôn tạo listener; biểu thức lambda được tính <strong>khi sự kiện xảy ra</strong></td>
     </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Hợp khi</td>
-      <td style="padding:8px 12px;">Handler có sẵn method đúng chữ ký</td>
-      <td style="padding:8px 12px;">Cần truyền dữ liệu của layout (item, giá trị đang nhập) vào handler</td>
-    </tr>
   </tbody>
 </table>
 
-<p>Cả hai đều được kiểm tra lúc build. Docs khuyên lambda chỉ chuyển dữ liệu có sẵn từ UI sang method của handler; logic nằm trong method đó.</p>
+<p>Cả hai đều được kiểm tra lúc build; docs khuyên lambda chỉ chuyển dữ liệu từ UI sang method của handler. Ví dụ trang khoá học: nút "Đăng ký" cần biết khoá nào (listener binding), nút "Chia sẻ" chỉ cần View được bấm (method reference):</p>
 
-<p>Ví dụ trên trang chi tiết khoá học: nút "Đăng ký" cần biết đang đăng ký khoá nào (listener binding), nút "Chia sẻ" chỉ cần View được bấm (method reference):</p>
-
-<pre data-lang="xml"><code>&lt;!-- res/layout/activity_course_detail.xml (trích) --&gt;
-&lt;data&gt;
-    &lt;variable name="course" type="com.example.learning.Course" /&gt;
-    &lt;variable name="handler" type="com.example.learning.CourseDetailHandler" /&gt;
-&lt;/data&gt;
-...
+<pre data-lang="xml"><code>&lt;!-- res/layout/activity_course_detail.xml (trích, biến course và handler: CourseDetailHandler) --&gt;
 &lt;Button
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
     android:text="@string/enroll"
     android:enabled="@{!course.isEnrolled}"
     android:onClick="@{() -&gt; handler.onEnrollClick(course)}" /&gt;
 
 &lt;ImageButton
-    android:layout_width="48dp"
-    android:layout_height="48dp"
     android:contentDescription="@string/share"
-    android:src="@drawable/ic_share"
     android:onClick="@{handler::onShareClick}" /&gt;</code></pre>
 
 <pre data-lang="kotlin"><code>// CourseDetailHandler.kt
@@ -46713,23 +46524,23 @@ interface CourseDetailHandler {
     fun onShareClick(view: View)      // method reference: phải khớp onClick(View)
 }</code></pre>
 
-<p>Đổi <code>onShareClick(view: View)</code> thành <code>onShareClick()</code> thì build báo lỗi ở layout; muốn bỏ tham số thì chuyển sang listener binding <code>@{() -&gt; handler.onShareClick()}</code>.</p>
+<p>Đổi thành <code>onShareClick()</code> thì build báo lỗi ở layout; muốn bỏ tham số thì dùng listener binding <code>@{() -&gt; handler.onShareClick()}</code>.</p>
 
 <h3><code>@BindingAdapter</code>: dạy binding cách gán một thuộc tính</h3>
 
-<p>Mỗi thuộc tính có biểu thức cần một đoạn code gán giá trị vào View; docs gọi đó là <strong>binding adapter</strong>. Binding chọn adapter theo thứ tự:</p>
+<p>Đoạn code gán giá trị một thuộc tính vào View gọi là <strong>binding adapter</strong>. Binding chọn theo thứ tự:</p>
 
 <ol>
-  <li><strong>Tự tìm setter:</strong> thuộc tính <code>x</code> thì tìm <code>setX(arg)</code> nhận đúng kiểu của biểu thức. Namespace (<code>android:</code>, <code>app:</code>) <strong>bị bỏ qua</strong>, chỉ tên và kiểu được dùng; nhờ vậy <code>app:error="@{…}"</code> trên <code>TextInputLayout</code> tự gọi <code>setError(CharSequence)</code>.</li>
+  <li><strong>Tự tìm setter:</strong> thuộc tính <code>x</code> thì tìm <code>setX(arg)</code> đúng kiểu. Namespace (<code>android:</code>, <code>app:</code>) <strong>bị bỏ qua</strong>; nhờ vậy <code>app:error="@{…}"</code> trên <code>TextInputLayout</code> tự gọi <code>setError(CharSequence)</code>.</li>
   <li><strong><code>@BindingMethods</code>:</strong> nối thuộc tính với setter khác tên (docs: <code>android:tint</code> → <code>setImageTintList</code>).</li>
-  <li><strong><code>@BindingAdapter</code>:</strong> hàm static tự viết khi cần logic riêng. Tham số đầu là kiểu View, các tham số sau là giá trị từng thuộc tính. Adapter của app <strong>ghi đè</strong> adapter mặc định khi trùng.</li>
+  <li><strong><code>@BindingAdapter</code>:</strong> hàm static tự viết khi cần logic riêng; tham số đầu là View, các tham số sau là giá trị từng thuộc tính. Adapter của app <strong>ghi đè</strong> adapter mặc định khi trùng.</li>
 </ol>
 
 <p>Adapter nhiều thuộc tính mặc định <code>requireAll = true</code>, tức chỉ được dùng khi <strong>mọi</strong> thuộc tính đều có biểu thức; đặt <code>requireAll = false</code> (tham số nullable) để thuộc tính là tuỳ chọn. Trong Kotlin, viết adapter là <strong>hàm top-level</strong>; đặt trong <code>object</code> thì phải thêm <code>@JvmStatic</code>.</p>
 
 <h4>Ví dụ: ảnh đại diện tải từ URL</h4>
 
-<p><strong>Bài toán:</strong> ảnh đại diện xuất hiện ở nhiều layout (hồ sơ, bình luận, danh sách bạn bè), URL có thể <code>null</code>. Một adapter dùng chung thay cho code tải ảnh lặp ở mọi màn.</p>
+<p><strong>Bài toán:</strong> ảnh đại diện xuất hiện ở nhiều layout (hồ sơ, bình luận), URL có thể <code>null</code>. Một adapter dùng chung thay code tải ảnh lặp ở mọi màn.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
@@ -46750,13 +46561,7 @@ flowchart TD
     D --&gt;|Không| F[Tải ảnh bằng Coil,&lt;br/&gt;placeholder khi chờ/lỗi]
 </div>
 
-<pre data-lang="kotlin"><code>// AvatarBindingAdapters.kt (hàm top-level = static)
-import coil3.load
-import coil3.request.error
-import coil3.request.placeholder
-import coil3.request.transformations
-import coil3.transform.CircleCropTransformation
-
+<pre data-lang="kotlin"><code>// AvatarBindingAdapters.kt (hàm top-level = static; import Coil lược bớt)
 @BindingAdapter(value = ["avatarUrl", "avatarPlaceholder"], requireAll = false) // (2)
 fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) {        // (3)
     if (url == null) {                                                         // (4)
@@ -46772,25 +46577,23 @@ fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) {        /
 
 <pre data-lang="xml"><code>&lt;!-- Trong bất kỳ layout Data Binding nào có biến user --&gt;
 &lt;ImageView
-    android:layout_width="56dp"
-    android:layout_height="56dp"
     android:contentDescription="@string/avatar"
     app:avatarUrl="@{user.avatarUrl}"
     app:avatarPlaceholder="@{@drawable/avatar_placeholder}" /&gt;</code></pre>
 
-<p>Coil là thư viện tải ảnh, học ở 8.2.4 Coil (chưa có bài); ở đây chỉ cần biết <code>view.load(url) { … }</code> tải ảnh vào <code>ImageView</code>.</p>
+<p>Coil học ở 8.2.4 Coil (chưa có bài); ở đây chỉ cần biết <code>view.load(url) { … }</code> tải ảnh vào <code>ImageView</code>.</p>
 
-<p><strong>Kết quả:</strong> mọi layout dùng <code>app:avatarUrl</code> hiện ảnh tròn, người chưa có ảnh thấy placeholder. Gõ nhầm <code>app:avatarUrI</code> thì build lỗi "Cannot find a setter".</p>
+<p><strong>Kết quả:</strong> mọi layout dùng <code>app:avatarUrl</code> hiện ảnh tròn hoặc placeholder. Gõ nhầm <code>app:avatarUrI</code> thì build lỗi "Cannot find a setter".</p>
 
 <h3>Two-way binding <code>@={}</code></h3>
 
-<p><strong>Two-way binding</strong> viết <code>@={}</code> (có dấu <code>=</code>): vừa gán dữ liệu vào View, vừa nghe người dùng đổi View và ghi giá trị mới ngược về property. Thư viện có sẵn two-way cho <code>android:text</code>, <code>android:checked</code> (CheckBox, Switch), <code>android:progress</code> (SeekBar), <code>android:rating</code>, <code>android:selectedItemPosition</code>, ngày giờ của <code>DatePicker</code>/<code>TimePicker</code>... Property đích phải <strong>ghi được</strong>: <code>MutableLiveData</code>, <code>ObservableField</code>, hoặc property <code>@Bindable</code> có setter.</p>
+<p><strong>Two-way binding</strong> viết <code>@={}</code> (có dấu <code>=</code>): vừa gán dữ liệu vào View, vừa nghe người dùng đổi View và ghi giá trị mới ngược về property. Thư viện có sẵn two-way cho <code>android:text</code>, <code>android:checked</code>, <code>android:progress</code>, <code>android:rating</code>, <code>DatePicker</code>/<code>TimePicker</code>... Property đích phải <strong>ghi được</strong>: <code>MutableLiveData</code>, <code>ObservableField</code>, hoặc property <code>@Bindable</code> có setter.</p>
 
-<p>Mấu chốt là <strong>chặn vòng lặp</strong>: người dùng gõ → ghi property → property đổi → binding gán lại View → View báo đổi → ghi property... Adapter có sẵn tự chặn bằng cách bỏ qua khi giá trị mới bằng giá trị đang hiển thị; adapter tự viết phải làm điều này.</p>
+<p>Mấu chốt là <strong>chặn vòng lặp</strong>: gõ → ghi property → binding gán lại View → View báo đổi → ghi property... Adapter có sẵn tự chặn bằng cách bỏ qua khi giá trị mới bằng giá trị đang hiển thị; adapter tự viết phải làm điều này.</p>
 
 <h4>Ví dụ: form đăng ký tài khoản</h4>
 
-<p><strong>Bài toán:</strong> form đăng ký có họ tên, email và ô "Đồng ý điều khoản". ViewModel cần giá trị hiện tại để kiểm tra khi bấm "Đăng ký", và form phải giữ nội dung khi xoay màn hình.</p>
+<p><strong>Bài toán:</strong> form đăng ký có email và ô "Đồng ý điều khoản". ViewModel cần giá trị hiện tại để kiểm tra khi bấm "Đăng ký", và form phải giữ nội dung khi xoay màn hình.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
@@ -46818,41 +46621,24 @@ sequenceDiagram
     B-&gt;&gt;VM: onSubmit()
 </div>
 
-<pre data-lang="xml"><code>&lt;!-- res/layout/fragment_sign_up.xml (trích) --&gt;
-&lt;data&gt;
-    &lt;variable name="viewModel" type="com.example.account.SignUpViewModel" /&gt;
-&lt;/data&gt;
-...
+<pre data-lang="xml"><code>&lt;!-- res/layout/fragment_sign_up.xml (trích, biến viewModel: SignUpViewModel) --&gt;
 &lt;EditText
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:hint="@string/full_name"
-    android:text="@={viewModel.fullName}" /&gt;
-
-&lt;EditText
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     android:hint="@string/email"
     android:inputType="textEmailAddress"
     android:text="@={viewModel.email}" /&gt;
 
 &lt;CheckBox
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
     android:text="@string/accept_terms"
     android:checked="@={viewModel.acceptedTerms}" /&gt;
 
 &lt;Button
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     android:text="@string/sign_up"
     android:onClick="@{() -&gt; viewModel.onSubmit()}" /&gt;</code></pre>
 
 <pre data-lang="kotlin"><code>// SignUpViewModel.kt
 class SignUpViewModel : ViewModel() {
 
-    val fullName = MutableLiveData("")       // (1)(2) đích ghi được của @={}
-    val email = MutableLiveData("")
+    val email = MutableLiveData("")          // (1)(2) đích ghi được của @={}
     val acceptedTerms = MutableLiveData(false)
 
     private val _submitError = MutableLiveData&lt;Int?&gt;(null)
@@ -46861,121 +46647,68 @@ class SignUpViewModel : ViewModel() {
     fun onSubmit() {                         // (5) logic kiểm tra nằm ở đây, không ở XML
         val emailValue = email.value.orEmpty().trim()
         _submitError.value = when {
-            fullName.value.isNullOrBlank() -&gt; R.string.error_name_required
             !Patterns.EMAIL_ADDRESS.matcher(emailValue).matches() -&gt; R.string.error_email_invalid
             acceptedTerms.value != true -&gt; R.string.error_terms_required
             else -&gt; null
         }
-        if (_submitError.value == null) {
-            // gọi repository đăng ký...
-        }
+        // không lỗi thì gọi repository đăng ký...
     }
 }</code></pre>
 
-<p>Two-way binding cần đích <strong>ghi được</strong>, nên ba <code>MutableLiveData</code> này buộc phải public, khác quy tắc thường lệ "chỉ đưa ra bản read-only" ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, mục "Sai lầm thường gặp". Bù lại, chỉ đưa ra những ô form người dùng được sửa; kết quả kiểm tra (<code>submitError</code>) vẫn là <code>LiveData</code> read-only, và logic kiểm tra nằm trong <code>onSubmit()</code>.</p>
+<p>Two-way binding cần đích <strong>ghi được</strong>, nên các <code>MutableLiveData</code> này buộc phải public, khác quy tắc thường lệ "chỉ đưa ra bản read-only" ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, mục "Sai lầm thường gặp". Bù lại, chỉ đưa ra những ô form người dùng được sửa; kết quả kiểm tra (<code>submitError</code>) vẫn là <code>LiveData</code> read-only.</p>
 
-<p><strong>Kết quả:</strong> gõ email rồi xoay màn hình: nội dung còn nguyên vì ViewModel giữ <code>email</code> và binding mới đổ lại vào <code>EditText</code> mới. Breakpoint ở <code>email.setValue</code> dừng đúng một lần mỗi phím gõ.</p>
+<p><strong>Kết quả:</strong> gõ email rồi xoay màn hình, nội dung còn nguyên vì ViewModel giữ <code>email</code> và binding mới đổ lại vào <code>EditText</code>.</p>
 
-<h4>Ví dụ: ô chọn số khách khi đặt bàn (thuộc tính tự định nghĩa)</h4>
-
-<p><strong>Bài toán:</strong> màn đặt bàn dùng custom view <code>GuestCountStepper</code> (trừ, số khách, cộng). Để viết <code>app:guestCount="@={viewModel.guestCount}"</code>, Data Binding cần biết cách gán vào View (<code>@BindingAdapter</code>), cách đọc từ View (<code>@InverseBindingAdapter</code>) và <strong>khi nào</strong> View đổi (sự kiện tổng hợp <code>guestCountAttrChanged</code>).</p>
-
-<p><strong>Luồng chạy:</strong></p>
-
-<ol>
-  <li><code>@BindingAdapter("guestCount")</code>: gán số khách vào View, <strong>chỉ khi khác giá trị đang hiển thị</strong>.</li>
-  <li><code>@BindingAdapter("guestCountAttrChanged")</code>: nhận <code>InverseBindingListener</code> và gọi <code>onChange()</code> khi người dùng bấm cộng/trừ.</li>
-  <li><code>@InverseBindingAdapter(attribute = "guestCount")</code>: khi có <code>onChange()</code>, binding đọc số khách từ View và ghi vào <code>viewModel.guestCount</code>.</li>
-  <li><code>guestCount</code> đổi, binding gọi lại (1); giá trị bằng giá trị đang hiển thị nên dừng.</li>
-</ol>
-
-<div class="mermaid">
-flowchart TD
-    U[Người dùng bấm cộng] --&gt; L["(2) onCountChanged →&lt;br/&gt;InverseBindingListener.onChange()"]
-    L --&gt; R["(3) getGuestCount(view) →&lt;br/&gt;viewModel.guestCount = 4"]
-    R --&gt; S["(4) guestCount đổi → gọi lại&lt;br/&gt;setGuestCount(view, 4)"]
-    S --&gt; C{"(1) view.count != 4?"}
-    C --&gt;|"Không: bằng nhau"| D[Dừng]
-    C --&gt;|"Có (chỉ khi đổi từ code)"| G[Gán view.count]
-</div>
+<p><strong>Two-way cho thuộc tính tự định nghĩa.</strong> Với custom view <code>GuestCountStepper</code> (chọn số khách khi đặt bàn), để viết <code>app:guestCount="@={viewModel.guestCount}"</code> (<code>MutableLiveData&lt;Int&gt;</code>), Data Binding cần ba adapter: gán vào View (<strong>chỉ khi khác giá trị đang hiển thị</strong>), báo <strong>khi nào</strong> View đổi (sự kiện tổng hợp <code>guestCountAttrChanged</code> gọi <code>InverseBindingListener.onChange()</code>), và đọc từ View (<code>@InverseBindingAdapter</code>). Sau <code>onChange()</code>, binding đọc giá trị, ghi vào ViewModel, rồi gọi lại adapter gán; giá trị bằng nhau nên dừng.</p>
 
 <pre data-lang="kotlin"><code>// GuestCountBindingAdapters.kt
 @BindingAdapter("guestCount")
 fun setGuestCount(view: GuestCountStepper, count: Int) {
-    if (view.count != count) {          // (1) so sánh để chặn vòng lặp
-        view.count = count
-    }
+    if (view.count != count) view.count = count // so sánh để chặn vòng lặp
 }
 
 @BindingAdapter("guestCountAttrChanged")
 fun setGuestCountListener(view: GuestCountStepper, listener: InverseBindingListener?) {
-    view.onCountChanged = { listener?.onChange() } // (2) báo binding: View đã đổi
+    view.onCountChanged = { listener?.onChange() } // báo binding: View đã đổi
 }
 
 @InverseBindingAdapter(attribute = "guestCount")
-fun getGuestCount(view: GuestCountStepper): Int = view.count // (3) đọc giá trị từ View</code></pre>
+fun getGuestCount(view: GuestCountStepper): Int = view.count // đọc giá trị từ View</code></pre>
 
-<pre data-lang="xml"><code>&lt;!-- res/layout/fragment_reservation.xml (trích) --&gt;
-&lt;com.example.reservation.GuestCountStepper
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    app:guestCount="@={viewModel.guestCount}" /&gt;</code></pre>
-
-<p><code>viewModel.guestCount</code> là <code>MutableLiveData&lt;Int&gt;</code>; <code>GuestCountStepper</code> gọi <code>onCountChanged</code> mỗi lần <code>count</code> được gán, kể cả khi gán từ code.</p>
-
-<p><strong>Kết quả:</strong> bấm cộng thì <code>viewModel.guestCount</code> tăng đúng 1. Bỏ điều kiện ở (1) thì sinh vòng lặp vô hạn, xem "Sai lầm thường gặp", phần 4.</p>
+<p><code>onCountChanged</code> chạy mỗi lần <code>count</code> được gán, kể cả từ code, nên bỏ điều kiện so sánh thì sinh vòng lặp vô hạn ("Sai lầm thường gặp", phần 3).</p>
 
 <h3>Data Binding trong Fragment</h3>
 
-<p>Fragment instance sống lâu hơn View của nó (<a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "View Lifecycle: vòng đời thứ hai trong Fragment"). Binding giữ cả cây View <strong>và</strong> các đăng ký quan sát dữ liệu, nên phải bám vòng đời View theo hai quy tắc:</p>
+<p>Fragment instance sống lâu hơn View của nó (<a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "View Lifecycle: vòng đời thứ hai trong Fragment"). Binding giữ cả cây View <strong>và</strong> các đăng ký quan sát dữ liệu, nên:</p>
 
 <ul>
-  <li><strong><code>binding.lifecycleOwner = viewLifecycleOwner</code></strong>, không phải <code>this</code>. Binding quan sát <code>LiveData</code>/<code>StateFlow</code> bằng owner này; với <code>viewLifecycleOwner</code>, việc quan sát dừng ở <code>onDestroyView()</code> cùng với View. Với <code>this</code> (Fragment), owner vẫn sống khi Fragment nằm trong backstack, nên binding của cây View đã huỷ vẫn còn đăng ký nhận dữ liệu và tiếp tục tính lại biểu thức cho những View không còn hiển thị.</li>
-  <li><strong>Dọn tham chiếu binding ở <code>onDestroyView()</code></strong> bằng mẫu <code>_binding</code> nullable, giống hệt <a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>, mục "View Binding trong Fragment: binding sống theo View".</li>
+  <li><strong><code>binding.lifecycleOwner = viewLifecycleOwner</code></strong>, không phải <code>this</code>. Với <code>viewLifecycleOwner</code>, việc quan sát <code>LiveData</code>/<code>StateFlow</code> dừng ở <code>onDestroyView()</code> cùng với View. Với <code>this</code>, owner vẫn sống khi Fragment nằm trong backstack, nên binding của cây View đã huỷ vẫn nhận dữ liệu và tính lại biểu thức.</li>
+  <li><strong>Dọn tham chiếu binding ở <code>onDestroyView()</code></strong> bằng mẫu <code>_binding</code> nullable, giống hệt <a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>, mục "View Binding trong Fragment: binding sống theo View". Code đầy đủ ở "Ví dụ thực tế".</li>
 </ul>
-
-<pre data-lang="kotlin"><code>// Khung chuẩn của Fragment dùng Data Binding
-override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-    _binding = FragmentSignUpBinding.inflate(inflater, container, false)
-    return binding.root
-}
-
-override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    binding.viewModel = viewModel
-    binding.lifecycleOwner = viewLifecycleOwner // vòng đời của View, không phải this
-}
-
-override fun onDestroyView() {
-    super.onDestroyView()
-    _binding = null
-}</code></pre>
-
-<p>Ví dụ đầy đủ nằm ở "Ví dụ thực tế".</p>
 
 <h2>Ví dụ thực tế</h2>
 
 <p>Ba bài toán hay gặp với Data Binding:</p>
 
 <ol>
-  <li><strong>Màn chỉnh sửa hồ sơ trong Fragment</strong> (bài toán chính, code bên dưới): state từ <code>StateFlow</code>, ảnh qua <code>@BindingAdapter</code>, ô nhập two-way, hiển thị lỗi, <code>viewLifecycleOwner</code>.</li>
-  <li><strong>Item danh sách:</strong> gán biến rồi <code>executePendingBindings()</code> trong <code>onBindViewHolder()</code>, như ví dụ tin nhắn ở trên.</li>
-  <li><strong>Thu hẹp Data Binding trong dự án cũ:</strong> layout không có biểu thức nào thì bỏ <code>&lt;layout&gt;</code> và dùng View Binding; layout còn biểu thức thì gom vào module riêng để module khác chuyển được sang KSP; màn mới viết bằng Compose.</li>
+  <li><strong>Màn chỉnh sửa hồ sơ trong Fragment</strong> (bài toán chính, code bên dưới).</li>
+  <li><strong>Item danh sách:</strong> <code>executePendingBindings()</code> trong <code>onBindViewHolder()</code>, như mục "Từ layout đến class binding".</li>
+  <li><strong>Thu hẹp Data Binding trong dự án cũ:</strong> layout không còn biểu thức thì chuyển sang View Binding, layout còn biểu thức gom vào module riêng để module khác sang được KSP, màn mới viết bằng Compose.</li>
 </ol>
 
 <h3>Màn chỉnh sửa hồ sơ</h3>
 
-<p><strong>Bài toán:</strong> Fragment sửa tên hiển thị và giới thiệu, hiện ảnh đại diện, báo lỗi dưới ô tên khi để trống, khoá nút "Lưu" và hiện vòng tải khi đang gửi. Fragment nằm trong app nhiều tab nên View bị huỷ và tạo lại nhiều lần.</p>
+<p><strong>Bài toán:</strong> Fragment sửa tên hiển thị, báo lỗi dưới ô tên khi để trống, khoá nút "Lưu" và hiện vòng tải khi đang gửi. Fragment ở app nhiều tab nên View bị huỷ, tạo lại nhiều lần.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
   <li><code>onCreateView()</code>: inflate <code>FragmentEditProfileBinding</code> vào <code>_binding</code>.</li>
   <li><code>onViewCreated()</code>: gán <code>viewModel</code> và <code>lifecycleOwner = viewLifecycleOwner</code>; binding bắt đầu quan sát.</li>
-  <li>ViewModel tải hồ sơ vào <code>displayName</code>/<code>bio</code> (two-way) và <code>uiState</code> (ảnh, lỗi, đang lưu).</li>
+  <li>ViewModel tải hồ sơ vào <code>displayName</code> (two-way) và giữ <code>uiState</code> (lỗi, đang lưu).</li>
   <li>Người dùng sửa tên (two-way ghi vào <code>displayName</code>), bấm "Lưu" gọi <code>viewModel.save()</code>.</li>
   <li><code>save()</code> kiểm tra tên: trống thì đặt <code>nameError</code> và adapter <code>errorRes</code> hiện lỗi; hợp lệ thì <code>isSaving = true</code> và gửi đi.</li>
-  <li>Chuyển tab: <code>onDestroyView()</code> làm binding ngừng quan sát và <code>_binding = null</code>. Quay lại: lặp từ (1) với binding mới, dữ liệu vẫn trong ViewModel.</li>
+  <li>Chuyển tab: <code>onDestroyView()</code> ngừng quan sát và <code>_binding = null</code>. Quay lại thì lặp từ (1), dữ liệu vẫn trong ViewModel.</li>
 </ol>
 
 <div class="mermaid">
@@ -46986,7 +46719,7 @@ sequenceDiagram
     actor U as Người dùng
     F-&gt;&gt;B: (1) inflate(inflater, container, false)
     F-&gt;&gt;B: (2) viewModel, lifecycleOwner = viewLifecycleOwner
-    VM--&gt;&gt;B: (3) displayName, bio, uiState
+    VM--&gt;&gt;B: (3) displayName, uiState
     U-&gt;&gt;B: (4) sửa tên, bấm Lưu
     B-&gt;&gt;VM: displayName.setValue, save()
     VM--&gt;&gt;B: (5) nameError hoặc isSaving = true
@@ -46994,66 +46727,22 @@ sequenceDiagram
     F-&gt;&gt;B: (6) onDestroyView: ngừng quan sát, _binding = null
 </div>
 
-<pre data-lang="xml"><code>&lt;!-- res/layout/fragment_edit_profile.xml --&gt;
-&lt;layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"&gt;
+<pre data-lang="xml"><code>&lt;!-- res/layout/fragment_edit_profile.xml (trích, biến viewModel: EditProfileViewModel) --&gt;
+&lt;com.google.android.material.textfield.TextInputLayout
+    android:hint="@string/display_name"
+    app:errorRes="@{viewModel.uiState.nameError}"&gt;
 
-    &lt;data&gt;
-        &lt;import type="android.view.View" /&gt;
-        &lt;variable
-            name="viewModel"
-            type="com.example.profile.EditProfileViewModel" /&gt;
-    &lt;/data&gt;
+    &lt;com.google.android.material.textfield.TextInputEditText
+        android:text="@={viewModel.displayName}" /&gt;
+&lt;/com.google.android.material.textfield.TextInputLayout&gt;
 
-    &lt;LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="24dp"&gt;
+&lt;Button
+    android:text="@string/save"
+    android:enabled="@{!viewModel.uiState.isSaving}"
+    android:onClick="@{() -&gt; viewModel.save()}" /&gt;
 
-        &lt;ImageView
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:contentDescription="@string/avatar"
-            app:avatarUrl="@{viewModel.uiState.avatarUrl}"
-            app:avatarPlaceholder="@{@drawable/avatar_placeholder}" /&gt;
-
-        &lt;com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/display_name"
-            app:errorRes="@{viewModel.uiState.nameError}"&gt;
-
-            &lt;com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@={viewModel.displayName}" /&gt;
-        &lt;/com.google.android.material.textfield.TextInputLayout&gt;
-
-        &lt;com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/bio"&gt;
-
-            &lt;com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@={viewModel.bio}" /&gt;
-        &lt;/com.google.android.material.textfield.TextInputLayout&gt;
-
-        &lt;Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/save"
-            android:enabled="@{!viewModel.uiState.isSaving}"
-            android:onClick="@{() -&gt; viewModel.save()}" /&gt;
-
-        &lt;ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="@{viewModel.uiState.isSaving ? View.VISIBLE : View.GONE}" /&gt;
-    &lt;/LinearLayout&gt;
-&lt;/layout&gt;</code></pre>
+&lt;ProgressBar
+    android:visibility="@{viewModel.uiState.isSaving ? View.VISIBLE : View.GONE}" /&gt;</code></pre>
 
 <pre data-lang="kotlin"><code>// ErrorBindingAdapters.kt
 @BindingAdapter("errorRes")
@@ -47062,27 +46751,17 @@ fun setErrorRes(layout: TextInputLayout, @StringRes errorRes: Int?) {
 }
 
 // EditProfileViewModel.kt
-data class EditProfileUiState(
-    val avatarUrl: String? = null,
-    @StringRes val nameError: Int? = null,
-    val isSaving: Boolean = false
-)
+data class EditProfileUiState(@StringRes val nameError: Int? = null, val isSaving: Boolean = false)
 
 class EditProfileViewModel(private val repository: ProfileRepository) : ViewModel() {
 
     val displayName = MutableLiveData("")   // two-way
-    val bio = MutableLiveData("")           // two-way
 
     private val _uiState = MutableStateFlow(EditProfileUiState())
     val uiState: StateFlow&lt;EditProfileUiState&gt; = _uiState
 
-    init {
-        viewModelScope.launch {             // (3) tải hồ sơ một lần cho ViewModel
-            val profile = repository.loadProfile()
-            displayName.value = profile.displayName
-            bio.value = profile.bio
-            _uiState.value = _uiState.value.copy(avatarUrl = profile.avatarUrl)
-        }
+    init {                                  // (3) tải hồ sơ một lần cho ViewModel
+        viewModelScope.launch { displayName.value = repository.loadProfile().displayName }
     }
 
     fun save() {                            // (5) quy tắc nằm ở đây, không ở XML
@@ -47093,7 +46772,7 @@ class EditProfileViewModel(private val repository: ProfileRepository) : ViewMode
         }
         _uiState.value = _uiState.value.copy(nameError = null, isSaving = true)
         viewModelScope.launch {
-            repository.updateProfile(name, bio.value.orEmpty())
+            repository.updateDisplayName(name)
             _uiState.value = _uiState.value.copy(isSaving = false)
         }
     }
@@ -47107,11 +46786,7 @@ class EditProfileFragment : Fragment() {
     private var _binding: FragmentEditProfileBinding? = null
     private val binding get() = _binding!!
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentEditProfileBinding.inflate(inflater, container, false) // (1)
         return binding.root
     }
@@ -47119,7 +46794,7 @@ class EditProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.viewModel = viewModel                                           // (2)
-        binding.lifecycleOwner = viewLifecycleOwner
+        binding.lifecycleOwner = viewLifecycleOwner // vòng đời của View, không phải this
     }
 
     override fun onDestroyView() {
@@ -47128,11 +46803,11 @@ class EditProfileFragment : Fragment() {
     }
 }</code></pre>
 
-<p><code>ProfileRepository</code> gọi server như ở <a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>. Lỗi ở dạng <code>@StringRes Int?</code> để ViewModel không cần <code>Context</code>; adapter <code>errorRes</code> đổi nó thành chuỗi.</p>
+<p>Lỗi ở dạng <code>@StringRes Int?</code> để ViewModel không cần <code>Context</code>; adapter <code>errorRes</code> đổi nó thành chuỗi (<code>ProfileRepository</code> gọi server như ở <a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>).</p>
 
-<p><strong>Kết quả:</strong> để trống tên rồi bấm "Lưu" thì lỗi hiện dưới ô tên; có tên thì nút bị khoá và vòng tải hiện tới khi server trả lời. Fragment không có dòng <code>setText</code>, <code>setError</code> hay <code>setOnClickListener</code> nào. Bỏ <code>_binding = null</code> thì LeakCanary báo cây View cũ bị <code>EditProfileFragment._binding</code> giữ, như với View Binding.</p>
+<p><strong>Kết quả:</strong> để trống tên rồi bấm "Lưu" thì lỗi hiện dưới ô tên; có tên thì nút khoá và vòng tải hiện tới khi server trả lời. Bỏ <code>_binding = null</code> thì LeakCanary báo cây View cũ bị <code>EditProfileFragment._binding</code> giữ, như với View Binding.</p>
 
-<h2>So sánh với các cách tiếp cận khác</h2>
+<h2>Khi nào nên và không nên dùng</h2>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -47145,28 +46820,10 @@ class EditProfileFragment : Fragment() {
   </thead>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Bản chất</td>
-      <td style="padding:8px 12px;">Class binding giữ tham chiếu tới View có id</td>
-      <td style="padding:8px 12px;">Class binding + biến, biểu thức và cập nhật tự động trong XML</td>
-      <td style="padding:8px 12px;">UI là hàm Kotlin, không có XML</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Đổ dữ liệu vào View</td>
-      <td style="padding:8px 12px;">Code Kotlin tự gán</td>
-      <td style="padding:8px 12px;">Khai báo <code>@{}</code> trong XML</td>
-      <td style="padding:8px 12px;">Hàm composable đọc state</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Cập nhật khi dữ liệu đổi</td>
-      <td style="padding:8px 12px;">Tự gọi lại code gán</td>
-      <td style="padding:8px 12px;">Tự động qua observable/<code>LiveData</code>/<code>StateFlow</code> + <code>lifecycleOwner</code></td>
-      <td style="padding:8px 12px;">Tự động qua recomposition</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Two-way cho form</td>
-      <td style="padding:8px 12px;">Tự viết <code>TextWatcher</code></td>
-      <td style="padding:8px 12px;"><code>@={}</code></td>
-      <td style="padding:8px 12px;"><code>value</code> + <code>onValueChange</code></td>
+      <td style="padding:8px 12px;font-weight:600;">Đổ dữ liệu, cập nhật khi đổi</td>
+      <td style="padding:8px 12px;">Code Kotlin tự gán, tự gọi lại</td>
+      <td style="padding:8px 12px;"><code>@{}</code> trong XML, tự động qua observable/<code>LiveData</code>/<code>StateFlow</code> + <code>lifecycleOwner</code></td>
+      <td style="padding:8px 12px;">Hàm composable đọc state, tự recomposition</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Chi phí build</td>
@@ -47183,16 +46840,11 @@ class EditProfileFragment : Fragment() {
   </tbody>
 </table>
 
-<p>Hai loại binding dùng chung được trong một module: layout có <code>&lt;layout&gt;</code> do Data Binding xử lý, layout thường do View Binding. Docs ghi: nếu chỉ dùng Data Binding để thay <code>findViewById</code>, hãy dùng View Binding. Compose: xem <a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</p>
-
-<h2>Khi nào nên và không nên dùng</h2>
-
 <ul>
-  <li><strong>Nên dùng</strong> khi bảo trì dự án View/XML theo MVVM đã dùng Data Binding: layout đọc thẳng <code>LiveData</code>/<code>StateFlow</code> của ViewModel, Fragment gần như không còn code gán UI.</li>
-  <li><strong>Nên dùng</strong> cho form nhiều ô nhập trong dự án XML, nơi two-way binding bỏ được nhiều <code>TextWatcher</code> viết tay; và <code>@BindingAdapter</code> cho thao tác lặp ở nhiều layout (tải ảnh, hiện lỗi).</li>
-  <li><strong>Không nên</strong> bật chỉ để thay <code>findViewById</code>: View Binding làm việc đó với build nhanh hơn.</li>
-  <li><strong>Không nên</strong> chọn cho UI mới: thư viện ở chế độ bảo trì, Google khuyên dùng Compose, vốn đã có sẵn "UI tự cập nhật theo state".</li>
-  <li><strong>Không nên</strong> dùng trong module muốn bỏ hẳn kapt: Data Binding giữ kapt lại.</li>
+  <li><strong>Nên dùng</strong> khi bảo trì dự án View/XML theo MVVM đã dùng Data Binding, nhất là form nhiều ô nhập (two-way bỏ được nhiều <code>TextWatcher</code>) và thao tác lặp ở nhiều layout (<code>@BindingAdapter</code> tải ảnh, hiện lỗi).</li>
+  <li><strong>Không nên</strong> bật chỉ để thay <code>findViewById</code>: docs ghi trường hợp này hãy dùng View Binding. Hai loại binding dùng chung được trong một module.</li>
+  <li><strong>Không nên</strong> chọn cho UI mới: thư viện ở chế độ bảo trì, Google khuyên dùng Compose (<a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>).</li>
+  <li><strong>Không nên</strong> dùng trong module muốn bỏ hẳn kapt.</li>
 </ul>
 
 <h2>Sai lầm thường gặp</h2>
@@ -47200,11 +46852,9 @@ class EditProfileFragment : Fragment() {
 <h3>1. Quên <code>lifecycleOwner</code>: UI chỉ hiện giá trị đầu tiên</h3>
 
 <pre data-lang="kotlin"><code>// Sai: có ViewModel, có LiveData/StateFlow, nhưng không có owner
-binding = ActivityOrderTrackingBinding.inflate(layoutInflater)
-setContentView(binding.root)
 binding.viewModel = viewModel</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> màn hiện giá trị ban đầu (thường rỗng) rồi đứng yên, dù log trong ViewModel cho thấy dữ liệu mới đã về. Không lỗi build, không crash, nên dễ mất nhiều giờ tìm lỗi ở repository.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> màn hiện giá trị ban đầu rồi đứng yên, dù log trong ViewModel cho thấy dữ liệu mới đã về. Không lỗi build, không crash.</p>
 
 <p><strong>Cách sửa:</strong> gán <code>binding.lifecycleOwner</code> (Activity: <code>this</code>, Fragment: <code>viewLifecycleOwner</code>).</p>
 
@@ -47213,21 +46863,11 @@ binding.viewModel = viewModel</code></pre>
 <pre data-lang="kotlin"><code>// Sai: owner là Fragment instance, sống lâu hơn View
 binding.lifecycleOwner = this</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> khi Fragment vào backstack, View bị huỷ nhưng owner (Fragment) vẫn sống, nên binding cũ vẫn nhận dữ liệu và tính lại biểu thức cho cây View đã huỷ; quay lại Fragment, binding mới đăng ký thêm. Breakpoint trong một <code>@BindingAdapter</code> sẽ dừng cả cho View cũ.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> khi Fragment vào backstack, binding cũ vẫn nhận dữ liệu và tính lại biểu thức cho cây View đã huỷ; breakpoint trong <code>@BindingAdapter</code> dừng cả cho View cũ.</p>
 
-<p><strong>Cách sửa:</strong> dùng <code>viewLifecycleOwner</code>, cùng nguyên tắc với observe <code>LiveData</code> trong <a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "Sai lầm thường gặp", phần 1 "Observe bằng <code>this</code> thay vì <code>viewLifecycleOwner</code>".</p>
+<p><strong>Cách sửa:</strong> dùng <code>viewLifecycleOwner</code>, cùng nguyên tắc với observe <code>LiveData</code> trong <a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "Sai lầm thường gặp", phần 1.</p>
 
-<h3>3. Logic nghiệp vụ trong biểu thức XML</h3>
-
-<pre data-lang="xml"><code>&lt;!-- Sai: quy tắc huỷ đơn nằm trong layout --&gt;
-&lt;Button
-    android:enabled="@{order.status == 1 &amp;amp;&amp;amp; order.createdMinutesAgo &amp;lt; 5 &amp;amp;&amp;amp; !order.isPaidOnline}" /&gt;</code></pre>
-
-<p><strong>Lỗi lộ ra thế nào:</strong> quy tắc "huỷ được trong 5 phút, chưa thanh toán online" không unit test được, khó đọc khi review vì đầy <code>&amp;amp;</code>/<code>&amp;lt;</code>, và màn khác cần cùng quy tắc sẽ chép lại.</p>
-
-<p><strong>Cách sửa:</strong> tính trong ViewModel hoặc domain (<code>val canCancel: Boolean</code>), layout chỉ đọc <code>@{order.canCancel}</code>.</p>
-
-<h3>4. BindingAdapter của thuộc tính tự định nghĩa không so sánh giá trị cũ</h3>
+<h3>3. BindingAdapter của thuộc tính tự định nghĩa không so sánh giá trị cũ</h3>
 
 <pre data-lang="kotlin"><code>// Sai: luôn gán, kể cả khi giá trị không đổi
 @BindingAdapter("guestCount")
@@ -47235,48 +46875,32 @@ fun setGuestCount(view: GuestCountStepper, count: Int) {
     view.count = count
 }</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> gán <code>view.count</code> gọi <code>onCountChanged</code>, binding ghi lại vào <code>MutableLiveData</code>, mà <code>setValue</code> luôn phát kể cả khi giá trị không đổi, nên adapter bị gọi lại ở mọi frame: log trong adapter in liên tục, CPU luôn bận dù không ai chạm. Với <code>EditText</code> tự viết adapter, gán lại text còn làm con trỏ nhảy về đầu ô.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> gán <code>view.count</code> gọi <code>onCountChanged</code>, binding ghi lại vào <code>MutableLiveData</code>, mà <code>setValue</code> luôn phát kể cả khi giá trị không đổi, nên adapter bị gọi lại ở mọi frame, CPU luôn bận dù không ai chạm.</p>
 
-<p><strong>Cách sửa:</strong> so sánh trước khi gán (<code>if (view.count != count)</code>), như docs yêu cầu ở mục "Infinite loops using two-way data binding". Thuộc tính có sẵn như <code>android:text</code> đã được adapter của thư viện so sánh.</p>
+<p><strong>Cách sửa:</strong> so sánh trước khi gán (<code>if (view.count != count)</code>), như docs yêu cầu ở mục "Infinite loops using two-way data binding".</p>
 
-<h3>5. BindingAdapter không được gọi hoặc gọi nhầm</h3>
+<h3>4. BindingAdapter không được gọi hoặc gọi nhầm</h3>
 
-<pre data-lang="kotlin"><code>// Sai 1: thiếu requireAll = false, layout chỉ dùng app:avatarUrl
+<pre data-lang="kotlin"><code>// Sai: thiếu requireAll = false, layout chỉ dùng app:avatarUrl
 @BindingAdapter("avatarUrl", "avatarPlaceholder")
-fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) { /* ... */ }
+fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) { /* ... */ }</code></pre>
 
-// Sai 2: adapter trong object nhưng thiếu @JvmStatic
-object ImageAdapters {
-    @BindingAdapter("avatarUrl")
-    fun loadAvatar(view: ImageView, url: String?) { /* ... */ }
-}
+<p><strong>Lỗi lộ ra thế nào:</strong> build lỗi "Cannot find a setter" vì adapter đòi đủ hai thuộc tính. Adapter trong <code>object</code> thiếu <code>@JvmStatic</code> cũng build lỗi; còn adapter tên <code>app:text</code> chạy cho <strong>mọi</strong> <code>android:text="@{…}"</code> cùng kiểu vì namespace bị bỏ qua.</p>
 
-// Sai 3: đặt tên thuộc tính trùng setter có sẵn, nghĩ namespace sẽ tách ra
-@BindingAdapter("app:text")
-fun setPriceText(view: TextView, amount: Long) { /* ... */ }</code></pre>
-
-<p><strong>Lỗi lộ ra thế nào:</strong></p>
-
-<ul>
-  <li>Sai 1: build lỗi "Cannot find a setter for <code>&lt;ImageView app:avatarUrl&gt;</code>" vì adapter đòi đủ hai thuộc tính.</li>
-  <li>Sai 2: build lỗi, vì method không static nên binding không biết lấy instance <code>ImageAdapters</code> ở đâu.</li>
-  <li>Sai 3: namespace bị bỏ qua nên <code>app:text</code> chính là <code>text</code>; adapter này chạy cho <strong>mọi</strong> <code>android:text="@{…}"</code> trả về <code>Long</code> trong module, kể cả chỗ không phải giá tiền.</li>
-</ul>
-
-<p><strong>Cách sửa:</strong> <code>requireAll = false</code> cho thuộc tính tuỳ chọn; adapter là hàm top-level (hoặc <code>@JvmStatic</code>); tên thuộc tính đủ cụ thể (<code>priceVnd</code>, <code>avatarUrl</code>).</p>
+<p><strong>Cách sửa:</strong> <code>requireAll = false</code> cho thuộc tính tuỳ chọn; adapter là hàm top-level (hoặc <code>@JvmStatic</code>); tên thuộc tính đủ cụ thể.</p>
 
 <h2>Lịch sử phát triển</h2>
 
 <ul>
-  <li><strong>Google I/O (05/2015):</strong> Data Binding Library ra mắt bản beta với <code>&lt;layout&gt;</code>, biến và <code>@{}</code>; docs ghi hỗ trợ từ Android 4.0 (API 14) và AGP 1.5.0.</li>
-  <li><strong>AGP 2.0 (2016):</strong> listener binding (lambda cho sự kiện); two-way binding <code>@={}</code> ra đời cùng giai đoạn.</li>
-  <li><strong>Android Studio 3.1 (03/2018):</strong> <code>LiveData</code> làm được nguồn dữ liệu, <code>ViewDataBinding</code> có <code>setLifecycleOwner()</code>; xem trước Data Binding Compiler V2 (AGP sinh class binding trước khi biên dịch Java, thư viện giữ class binding thay vì sinh lại), giúp build nhanh hơn với dự án nhiều module.</li>
-  <li><strong>Android Studio 3.2 (09/2018):</strong> Data Binding V2 bật mặc định; thư viện có bản AndroidX (<code>androidx.databinding</code>).</li>
-  <li><strong>AGP 3.6 (02/2020):</strong> View Binding ra mắt cho nhu cầu chỉ thay <code>findViewById</code>.</li>
-  <li><strong>AGP 4.0.0 (04/2020):</strong> <code>dataBinding.enabled</code> bị deprecated, thay bằng <code>buildFeatures { dataBinding = true }</code>.</li>
-  <li><strong>AGP 7.0 (2021):</strong> <code>StateFlow</code> làm được nguồn dữ liệu (docs: từ 7.0.0-alpha04), tắt được bằng <code>addKtx</code>.</li>
-  <li><strong>Thời kỳ KSP và Compose:</strong> kapt vào chế độ bảo trì, Google khuyên chuyển sang KSP; Data Binding không có và không có kế hoạch có bản KSP. Trang release ghi Data Binding ở chế độ bảo trì, chỉ nhận bản sửa lỗi quan trọng, và khuyên dùng Compose.</li>
-  <li><strong>AGP 9.0:</strong> Kotlin tích hợp sẵn trong AGP; module dùng Data Binding thay <code>kotlin-kapt</code> bằng <code>com.android.legacy-kapt</code>.</li>
+  <li><strong>05/2015 (Google I/O):</strong> ra mắt bản beta; hỗ trợ từ Android 4.0 (API 14) và AGP 1.5.0.</li>
+  <li><strong>AGP 2.0 (2016):</strong> listener binding; two-way binding <code>@={}</code> ra đời cùng giai đoạn.</li>
+  <li><strong>Android Studio 3.1 (03/2018):</strong> <code>LiveData</code> làm nguồn dữ liệu, có <code>setLifecycleOwner()</code>; xem trước Compiler V2.</li>
+  <li><strong>Android Studio 3.2 (09/2018):</strong> V2 bật mặc định; có bản AndroidX.</li>
+  <li><strong>AGP 3.6 (02/2020):</strong> View Binding ra mắt.</li>
+  <li><strong>AGP 4.0.0 (04/2020):</strong> <code>dataBinding.enabled</code> deprecated, thay bằng <code>buildFeatures { dataBinding = true }</code>.</li>
+  <li><strong>AGP 7.0 (2021):</strong> <code>StateFlow</code> làm nguồn dữ liệu (docs: từ 7.0.0-alpha04).</li>
+  <li><strong>Thời kỳ KSP và Compose:</strong> Data Binding không có và không có kế hoạch có bản KSP; trang release ghi thư viện ở chế độ bảo trì, chỉ nhận bản sửa lỗi quan trọng, và khuyên dùng Compose.</li>
+  <li><strong>AGP 9.0:</strong> module dùng Data Binding thay <code>kotlin-kapt</code> bằng <code>com.android.legacy-kapt</code>.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -47284,23 +46908,19 @@ fun setPriceText(view: TextView, amount: Long) { /* ... */ }</code></pre>
 <ul>
   <li><strong>Tiên quyết:</strong>
 <ul>
-  <li><a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>: class binding, <code>inflate()</code>/<code>bind()</code> và mẫu <code>_binding</code> trong Fragment mà Data Binding dùng lại.</li>
-  <li><a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>: vì sao <code>lifecycleOwner</code> của binding trong Fragment phải là <code>viewLifecycleOwner</code>.</li>
+  <li><a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>: class binding và mẫu <code>_binding</code> trong Fragment.</li>
+  <li><a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>: vì sao dùng <code>viewLifecycleOwner</code>.</li>
 </ul></li>
   <li><strong>Liên quan:</strong>
 <ul>
   <li><a href="../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a>: KAPT và KSP, lý do Data Binding làm build chậm hơn.</li>
-  <li><a href="../session_04/android_manifest/package_build_gradle/plugin.md" target="_blank" rel="noopener">Plugin</a>: AGP là bên bật <code>buildFeatures</code> và sinh class binding.</li>
+  <li><a href="../session_04/android_manifest/package_build_gradle/plugin.md" target="_blank" rel="noopener">Plugin</a>: AGP sinh class binding.</li>
   <li><a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>: hướng UI thay thế cho UI mới.</li>
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
-  <li><a href="livedata.md" target="_blank" rel="noopener">LiveData</a>: nguồn dữ liệu lifecycle-aware mà binding quan sát.</li>
-  <li><a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: nơi giữ dữ liệu mà layout đọc qua biến <code>viewModel</code>.</li>
-  <li>7.1.4.2 Flow (chưa có bài): <code>StateFlow</code> làm nguồn dữ liệu cho binding.</li>
-  <li>7.1.2 ViewHolder Pattern (chưa có bài): Data Binding trong item của danh sách.</li>
-  <li>7.2.3 MVVM (chưa có bài): kiến trúc mà Data Binding được thiết kế để phục vụ.</li>
-  <li>8.2.4 Coil (chưa có bài): thư viện tải ảnh dùng trong <code>@BindingAdapter</code> ví dụ.</li>
+  <li><a href="livedata.md" target="_blank" rel="noopener">LiveData</a>, <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: nguồn dữ liệu và nơi giữ dữ liệu mà layout đọc.</li>
+  <li>7.1.4.2 Flow, 7.1.2 ViewHolder Pattern, 7.2.3 MVVM, 8.2.4 Coil (chưa có bài): <code>StateFlow</code>, item danh sách, kiến trúc Data Binding phục vụ, thư viện tải ảnh.</li>
 </ul></li>
 </ul>
 
@@ -47327,10 +46947,10 @@ fun setPriceText(view: TextView, amount: Long) { /* ... */ }</code></pre>
   },
   'livedata': {
     title: 'LiveData',
-    summary: 'LiveData là class giữ dữ liệu quan sát được và lifecycle-aware của Jetpack, giữ giá trị mới nhất và chỉ giao giá trị đó cho observer có LifecycleOwner đang active (STARTED hoặc RESUMED), tự gỡ observer khi owner bị DESTROYED. Bài giải thích observer active/inactive và version, setValue với postValue, observe với observeForever, map/switchMap/MediatorLiveData, onActive/onInactive, cầu nối với coroutine và Flow, và vì sao event một lần nên được biểu diễn thành UI state.',
+    summary: 'LiveData là class giữ dữ liệu quan sát được và lifecycle-aware của Jetpack, giữ giá trị mới nhất và chỉ giao giá trị đó cho observer có LifecycleOwner đang active (STARTED hoặc RESUMED), tự gỡ observer khi owner bị DESTROYED. Bài đi qua setValue/postValue, observeForever, map/switchMap/MediatorLiveData, onActive/onInactive, cầu nối coroutine/Flow và event một lần dưới dạng UI state.',
     status: 'reviewing',
     difficulty: 'intermediate',
-    estimatedReadingTime: '25 phút',
+    estimatedReadingTime: '17 phút',
     depth: 'deep-dive',
     tags: ['android', 'livedata', 'jetpack', 'lifecycle', 'observer', 'mediatorlivedata', 'transformations', 'ui-state'],
     domain: 'Android',
@@ -47346,11 +46966,11 @@ fun setPriceText(view: TextView, amount: Long) { /* ... */ }</code></pre>
     ],
     knowledgeGap: 'Không hiểu LiveData là state holder gắn với lifecycle dẫn tới gọi setValue từ background thread (crash), mong postValue giao đủ mọi giá trị (mất giá trị trung gian), observe bằng this trong Fragment (observer nhân đôi), quên removeObserver sau observeForever (leak), và dùng LiveData cho event một lần khiến Snackbar hay điều hướng bị lặp lại sau khi xoay màn hình.',
     updatedAt: '2026-11-08',
-    readTime: '25 phút',
+    readTime: '17 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
-<p>UI cần hiển thị dữ liệu thay đổi theo thời gian: số lượng trong giỏ hàng, kết quả tìm kiếm, trạng thái mạng, tiến độ tải lên. Dữ liệu đó thường đến <strong>bất đồng bộ</strong>, từ database, network hoặc một service của hệ thống, trong khi màn hình nhận nó có vòng đời riêng: bị đưa xuống background, bị huỷ rồi tạo lại khi xoay màn hình.</p>
+<p>UI cần hiển thị dữ liệu thay đổi theo thời gian: số món trong giỏ, kết quả tìm kiếm, trạng thái mạng, tiến độ tải lên. Dữ liệu đó thường đến <strong>bất đồng bộ</strong> (database, network, service của hệ thống), trong khi màn hình nhận nó có vòng đời riêng: bị đưa xuống background, bị huỷ rồi tạo lại khi xoay màn hình.</p>
 
 <p>Cách gốc là để nơi giữ dữ liệu gọi thẳng callback vào màn hình:</p>
 
@@ -47365,10 +46985,10 @@ override fun onCreate(savedInstanceState: Bundle?) {
 <p>Cách này có bốn điểm yếu:</p>
 
 <ul>
-  <li><strong>Leak:</strong> <code>cartManager</code> sống lâu hơn Activity và giữ listener, listener giữ Activity; mỗi lần xoay màn hình thêm một Activity cũ không được thu hồi.</li>
-  <li><strong>Crash hoặc làm việc thừa:</strong> callback đến khi Activity đã <code>onStop()</code> hay <code>onDestroy()</code>, cập nhật View không còn hiển thị, hoặc chạy <code>FragmentTransaction</code> sau khi state đã lưu và ném <code>IllegalStateException</code>.</li>
-  <li><strong>Tự quản lý đăng ký:</strong> mỗi màn phải nhớ đăng ký ở <code>onStart()</code> và huỷ ở <code>onStop()</code>.</li>
-  <li><strong>Mất dữ liệu khi tạo lại:</strong> Activity mới sau khi xoay màn hình không có giá trị hiện tại, phải đợi lần thay đổi kế tiếp hoặc tải lại.</li>
+  <li><strong>Leak:</strong> <code>cartManager</code> sống lâu hơn Activity, giữ listener, listener giữ Activity cũ sau mỗi lần xoay.</li>
+  <li><strong>Crash hoặc làm việc thừa:</strong> callback đến sau <code>onStop()</code>/<code>onDestroy()</code>, cập nhật View đã ẩn, hoặc chạy <code>FragmentTransaction</code> sau khi state đã lưu và ném <code>IllegalStateException</code>.</li>
+  <li><strong>Tự quản lý đăng ký</strong> ở <code>onStart()</code>/<code>onStop()</code> cho từng màn.</li>
+  <li><strong>Mất dữ liệu khi tạo lại:</strong> Activity mới sau khi xoay không có giá trị hiện tại.</li>
 </ul>
 
 <p>Vấn đề cần giải quyết là: <strong>một nơi giữ dữ liệu mà UI quan sát được, tự biết khi nào UI sẵn sàng nhận, tự dọn khi UI bị huỷ, và luôn có sẵn giá trị mới nhất cho UI vừa được tạo lại.</strong></p>
@@ -47389,7 +47009,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 <p>Mental model: LiveData là <strong>một tấm bảng tin chỉ có một dòng</strong>. Mỗi lần ghi, dòng cũ bị xoá và thay bằng dòng mới. Người trực bảng chỉ báo tin cho người đang có mặt (active); người vắng mặt (inactive) không bị gọi, nhưng khi quay lại sẽ được xem đúng dòng đang ghi trên bảng, không phải mọi dòng đã từng ghi. Người đã rời đi hẳn (<code>DESTROYED</code>) bị gạch tên khỏi danh sách.</p>
 
-<p><code>LifecycleOwner</code>, <code>Lifecycle.State</code> và cách <code>LifecycleRegistry</code> phát state cho observer đã được học ở <a href="../session_04/components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>, mục "Cách hoạt động — Bộ ba cốt lõi". Bài này dùng lại đúng các khái niệm đó.</p>
+<p><code>LifecycleOwner</code>, <code>Lifecycle.State</code> và cách <code>LifecycleRegistry</code> phát state cho observer đã học ở <a href="../session_04/components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>, mục "Cách hoạt động — Bộ ba cốt lõi".</p>
 
 <h2>Cách hoạt động</h2>
 
@@ -47397,7 +47017,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 <p><code>LiveData&lt;T&gt;</code> chỉ cho <strong>đọc và quan sát</strong> (<code>value</code>, <code>observe()</code>, <code>observeForever()</code>); hai hàm ghi <code>setValue()</code> và <code>postValue()</code> là <code>protected</code>. <code>MutableLiveData&lt;T&gt;</code> là lớp con mở hai hàm đó thành <code>public</code>.</p>
 
-<p>Nơi giữ state thường là <strong>ViewModel</strong>: object giữ state của màn hình và sống qua configuration change, được học ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; bài này chỉ dùng nó làm chỗ đặt LiveData. Mẫu quen thuộc là <strong>backing property</strong>: <code>_itemCount</code> kiểu <code>MutableLiveData</code> để <code>private</code>, <code>itemCount</code> kiểu <code>LiveData</code> đưa ra ngoài, nên chỉ ViewModel ghi được.</p>
+<p>Nơi giữ state thường là <strong>ViewModel</strong> (object giữ state của màn hình và sống qua configuration change, học ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>). Mẫu quen thuộc là <strong>backing property</strong>: <code>_itemCount</code> kiểu <code>MutableLiveData</code> để <code>private</code>, <code>itemCount</code> kiểu <code>LiveData</code> đưa ra ngoài, nên chỉ ViewModel ghi được.</p>
 
 <pre data-lang="kotlin"><code>// CartViewModel.kt
 class CartViewModel : ViewModel() {
@@ -47410,11 +47030,11 @@ class CartViewModel : ViewModel() {
     }
 }</code></pre>
 
-<p><code>MutableLiveData&lt;Int&gt;()</code> không truyền giá trị thì LiveData <strong>chưa có giá trị</strong> (<code>isInitialized == false</code>): <code>value</code> trả <code>null</code> và observer chưa được gọi. Truyền giá trị khởi tạo như <code>MutableLiveData(0)</code> thì observer nhận <code>0</code> ngay khi active. Ở Kotlin, <code>value</code> luôn có kiểu <code>T?</code>, nên đọc giá trị hiện tại thường đi kèm <code>?:</code>.</p>
+<p><code>MutableLiveData&lt;Int&gt;()</code> không truyền giá trị thì <strong>chưa có giá trị</strong> (<code>isInitialized == false</code>): <code>value</code> là <code>null</code>, observer chưa được gọi. Ở Kotlin, <code>value</code> luôn có kiểu <code>T?</code>.</p>
 
 <h3>Observe theo lifecycle: active, inactive và tự gỡ</h3>
 
-<p><code>observe(owner, observer)</code> đăng ký một <code>Observer</code> kèm <code>LifecycleOwner</code> (Activity, Fragment, <code>viewLifecycleOwner</code>). Từ đó LiveData theo dõi lifecycle của owner và xếp observer vào một trong ba trạng thái:</p>
+<p><code>observe(owner, observer)</code> đăng ký một <code>Observer</code> kèm <code>LifecycleOwner</code> (Activity, Fragment, <code>viewLifecycleOwner</code>); LiveData theo lifecycle của owner mà xếp observer vào ba trạng thái:</p>
 
 <ul>
   <li><strong>Inactive:</strong> owner ở <code>CREATED</code> (vừa <code>onCreate()</code>, hoặc đã <code>onStop()</code>). Giá trị đổi nhưng observer không được gọi.</li>
@@ -47422,32 +47042,19 @@ class CartViewModel : ViewModel() {
   <li><strong>Đã gỡ:</strong> owner chuyển sang <code>DESTROYED</code>. LiveData tự gọi <code>removeObserver()</code>, không còn giữ tham chiếu tới observer hay owner.</li>
 </ul>
 
-<p>Khi observer chuyển từ inactive sang active, nó nhận <strong>giá trị mới nhất</strong> nếu chưa nhận giá trị đó; nhờ vậy Activity tạo lại sau xoay màn hình có dữ liệu ngay. Mỗi observer nhớ <strong>version</strong> của giá trị cuối nó đã nhận, nên đi qua inactive rồi active lại mà giá trị không đổi thì không bị gọi lặp (mục "Deep Dive").</p>
-
-<div class="mermaid">
-stateDiagram-v2
-    [*] --&gt; Inactive: observe(owner), owner ở CREATED
-    Inactive --&gt; Active: owner STARTED, nhận giá trị mới nhất nếu chưa nhận
-    Active --&gt; Active: setValue, gọi onChanged
-    Active --&gt; Inactive: owner onStop, xuống CREATED
-    Inactive --&gt; Removed: owner DESTROYED
-    Active --&gt; Removed: owner DESTROYED
-    Removed --&gt; [*]
-</div>
-
-<p>Vì observer được gọi ngay khi owner <code>STARTED</code>, chỗ hợp lý để observe là <code>onCreate()</code> của Activity (hoặc <code>onViewCreated()</code> của Fragment, mục sau), không phải <code>onResume()</code>.</p>
+<p>Khi observer chuyển từ inactive sang active, nó nhận <strong>giá trị mới nhất</strong> nếu chưa nhận (mỗi observer nhớ <strong>version</strong> của giá trị cuối đã nhận, mục "Deep Dive"); nhờ vậy Activity tạo lại sau xoay màn hình có dữ liệu ngay. Vì observer được gọi ngay khi owner <code>STARTED</code>, nên observe trong <code>onCreate()</code> (Fragment: <code>onViewCreated()</code>), không phải <code>onResume()</code>.</p>
 
 <h4>Ví dụ: badge số lượng giỏ hàng qua xoay màn hình</h4>
 
-<p><strong>Bài toán:</strong> badge trên màn danh sách sản phẩm hiện số món trong giỏ, cập nhật ngay khi bấm "Thêm vào giỏ" và giữ đúng con số khi xoay màn hình.</p>
+<p><strong>Bài toán:</strong> badge hiện số món trong giỏ, cập nhật ngay khi bấm "Thêm vào giỏ" và giữ đúng con số khi xoay màn hình.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li>Trong <code>onCreate()</code>, Activity observe <code>itemCount</code>; owner đang <code>CREATED</code> nên observer inactive.</li>
-  <li><code>onStart()</code>: owner <code>STARTED</code>, observer active và nhận ngay giá trị hiện tại <code>0</code>.</li>
+  <li><code>onCreate()</code>: Activity observe <code>itemCount</code>; owner đang <code>CREATED</code> nên observer inactive.</li>
+  <li><code>onStart()</code>: owner <code>STARTED</code>, observer active, nhận ngay <code>0</code>.</li>
   <li>Bấm "Thêm vào giỏ": ViewModel <code>setValue(1)</code>, observer nhận <code>1</code>.</li>
-  <li>Xoay màn hình: Activity cũ <code>DESTROYED</code>, LiveData tự gỡ observer cũ; ViewModel và LiveData của nó vẫn sống.</li>
+  <li>Xoay màn hình: Activity cũ <code>DESTROYED</code>, observer cũ bị gỡ; ViewModel và LiveData vẫn sống.</li>
   <li>Activity mới observe lại và nhận ngay <code>1</code> khi tới <code>STARTED</code>.</li>
 </ol>
 
@@ -47491,9 +47098,9 @@ class ProductListActivity : AppCompatActivity() {
     }
 }</code></pre>
 
-<p><code>binding</code> là <a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>; <code>by viewModels()</code> lấy ViewModel gắn với Activity (<a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>).</p>
+<p><code>binding</code> là <a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>; <code>by viewModels()</code> học ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</p>
 
-<p><strong>Kết quả:</strong> bấm thêm ba lần, badge hiện <code>3</code>; xoay màn hình, badge vẫn <code>3</code> ngay khi màn mới hiện. Xoay nhiều lần rồi bấm: log trong observer chỉ in một lần mỗi lần bấm, LeakCanary không báo Activity cũ bị giữ.</p>
+<p><strong>Kết quả:</strong> bấm thêm ba lần, badge hiện <code>3</code>; xoay màn hình, badge vẫn <code>3</code> ngay. Xoay nhiều lần rồi bấm: observer chạy đúng một lần mỗi lần bấm, LeakCanary không báo Activity cũ bị giữ.</p>
 
 <h3><code>setValue</code> và <code>postValue</code>: ghi từ thread nào</h3>
 
@@ -47510,36 +47117,36 @@ class ProductListActivity : AppCompatActivity() {
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Gọi từ</td>
-      <td style="padding:8px 12px;">Chỉ main thread; gọi từ thread khác ném <code>IllegalStateException: Cannot invoke setValue on a background thread</code></td>
+      <td style="padding:8px 12px;">Chỉ main thread; thread khác ném <code>IllegalStateException: Cannot invoke setValue on a background thread</code></td>
       <td style="padding:8px 12px;">Bất kỳ thread nào</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Khi nào đổi giá trị</td>
-      <td style="padding:8px 12px;">Ngay lập tức, observer active được gọi đồng bộ trước khi hàm trả về</td>
-      <td style="padding:8px 12px;">Sau này, khi main thread chạy tới task đã post</td>
+      <td style="padding:8px 12px;">Ngay, observer active được gọi đồng bộ trước khi hàm trả về</td>
+      <td style="padding:8px 12px;">Khi main thread chạy tới task đã post</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Gọi nhiều lần liên tiếp</td>
       <td style="padding:8px 12px;">Mỗi lần là một lần giao</td>
-      <td style="padding:8px 12px;">Gọi nhiều lần trước khi main thread chạy task thì <strong>chỉ giá trị cuối</strong> được giao</td>
+      <td style="padding:8px 12px;">Trước khi task chạy thì <strong>chỉ giá trị cuối</strong> được giao</td>
     </tr>
   </tbody>
 </table>
 
-<p><code>postValue()</code> ghi giá trị vào một ô "đang chờ" và chỉ post <strong>một</strong> <code>Runnable</code> lên main thread khi ô đó đang trống; các lần gọi sau, trong lúc Runnable chưa chạy, chỉ ghi đè ô chờ. Khi chạy, Runnable lấy giá trị trong ô và gọi <code>setValue()</code>. Cơ chế gửi task về main thread qua <code>MessageQueue</code> đã học ở <a href="../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>, mục "Trái tim giao tiếp bất đồng bộ của Android: Looper, MessageQueue và Handler". Theo mental model bảng tin: chỉ tờ giấy cuối cùng được mang tới kịp mới được ghi lên bảng.</p>
+<p><code>postValue()</code> ghi vào một ô "đang chờ" và chỉ post <strong>một</strong> <code>Runnable</code> lên main thread khi ô đang trống; Runnable chạy thì lấy giá trị trong ô rồi gọi <code>setValue()</code>. Cơ chế gửi task qua <code>MessageQueue</code> đã học ở <a href="../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>, mục "Trái tim giao tiếp bất đồng bộ của Android: Looper, MessageQueue và Handler".</p>
 
 <h4>Ví dụ: tiến độ nén ảnh trước khi tải lên</h4>
 
-<p><strong>Bài toán:</strong> app nén từng ảnh trên worker thread trước khi đăng bài và hiện phần trăm tiến độ; tiến độ phải gửi về main thread bằng <code>postValue()</code>.</p>
+<p><strong>Bài toán:</strong> app nén từng ảnh trên worker thread trước khi đăng bài và hiện phần trăm tiến độ.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
   <li>Trên main thread, ViewModel <code>setValue(0)</code> rồi giao việc nén cho executor.</li>
   <li>Worker thread nén từng ảnh.</li>
-  <li>Sau mỗi ảnh, worker <code>postValue(phần trăm)</code>: giá trị vào ô chờ, chỉ khi ô đang trống mới post Runnable.</li>
-  <li>Main thread chạy Runnable, <code>setValue()</code> giá trị <strong>mới nhất</strong> trong ô; giá trị bị ghi đè trước đó không tới observer.</li>
-  <li>Người dùng chuyển sang app khác thì observer inactive, chỉ nhận giá trị mới nhất khi quay lại.</li>
+  <li>Sau mỗi ảnh, worker <code>postValue(phần trăm)</code>: giá trị vào ô chờ, ô đang trống mới post Runnable.</li>
+  <li>Main thread chạy Runnable, <code>setValue()</code> giá trị <strong>mới nhất</strong> trong ô; giá trị bị ghi đè không tới observer.</li>
+  <li>Chuyển sang app khác thì observer inactive, quay lại chỉ nhận giá trị mới nhất.</li>
 </ol>
 
 <div class="mermaid">
@@ -47547,17 +47154,15 @@ sequenceDiagram
     participant VM as UploadViewModel (main)
     participant W as Worker thread
     participant L as progress (LiveData)
-    participant M as Main thread (Looper)
     participant O as Observer (Activity)
     VM-&gt;&gt;L: (1) setValue(0)
     L--&gt;&gt;O: onChanged(0)
     VM-&gt;&gt;W: execute nén ảnh
     W-&gt;&gt;W: (2) nén ảnh 1
     W-&gt;&gt;L: (3) postValue(33), ô chờ trống, post Runnable
-    L-&gt;&gt;M: post(Runnable)
     W-&gt;&gt;W: nén ảnh 2
     W-&gt;&gt;L: postValue(66), ô chờ đã có, chỉ ghi đè
-    M-&gt;&gt;L: (4) Runnable chạy, setValue(66)
+    L-&gt;&gt;L: (4) main thread chạy Runnable, setValue(66)
     L--&gt;&gt;O: onChanged(66), giá trị 33 bị bỏ qua
     Note over O: (5) observer inactive thì chỉ nhận giá trị mới nhất khi active lại
 </div>
@@ -47565,7 +47170,7 @@ sequenceDiagram
 <pre data-lang="kotlin"><code>// UploadViewModel.kt
 class UploadViewModel : ViewModel() {
 
-    private val executor = Executors.newSingleThreadExecutor()
+    private val executor = Executors.newSingleThreadExecutor()  // onCleared() gọi shutdownNow(), xem viewmodel.md
 
     private val _progress = MutableLiveData(0)
     val progress: LiveData&lt;Int&gt; = _progress
@@ -47580,10 +47185,6 @@ class UploadViewModel : ViewModel() {
             }
         }
     }
-
-    override fun onCleared() {
-        executor.shutdownNow()   // ViewModel bị clear thì dừng worker, xem viewmodel.md
-    }
 }
 
 // PostComposerActivity.kt
@@ -47592,31 +47193,22 @@ uploadViewModel.progress.observe(this) { percent -&gt;          // (4)(5) luôn 
     binding.uploadPercentText.text = "$percent%"
 }</code></pre>
 
-<p><code>compressPhoto()</code> là hàm nén ảnh của dự án, không thuộc phạm vi bài này.</p>
-
-<p><strong>Kết quả:</strong> với vài ảnh lớn, tiến độ tăng dần 33 → 66 → 100. Với rất nhiều ảnh nhỏ, log trong observer có thể nhảy cóc (4 → 37 → 100) vì các giá trị giữa bị gộp: đó là hành vi đúng của <code>postValue()</code>. Đổi thành <code>_progress.value = percent</code> trong worker thì app crash với <code>Cannot invoke setValue on a background thread</code>.</p>
+<p><strong>Kết quả:</strong> vài ảnh lớn thì tiến độ tăng dần 33 → 66 → 100; rất nhiều ảnh nhỏ thì có thể nhảy cóc (4 → 37 → 100) vì giá trị giữa bị gộp, đúng hành vi của <code>postValue()</code>. Đổi thành <code>_progress.value = percent</code> trong worker thì app crash với <code>Cannot invoke setValue on a background thread</code>.</p>
 
 <h3>Trong Fragment: observe bằng <code>viewLifecycleOwner</code></h3>
 
-<p>Instance của Fragment sống lâu hơn View của nó, nên observer cập nhật View phải dùng owner <strong><code>viewLifecycleOwner</code></strong> và observe trong <code>onViewCreated()</code>. Lý do đã giải thích ở <a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "View Lifecycle: vòng đời thứ hai trong Fragment"; ở đây chỉ bổ sung phần thuộc về LiveData.</p>
+<p>Fragment sống lâu hơn View của nó, nên observer cập nhật View phải dùng <strong><code>viewLifecycleOwner</code></strong> và observe trong <code>onViewCreated()</code> (lý do ở <a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "View Lifecycle: vòng đời thứ hai trong Fragment").</p>
 
-<pre data-lang="kotlin"><code>// OrderListFragment.kt
-override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    val binding = FragmentOrderListBinding.bind(view)
-    val adapter = OrderAdapter()
-    binding.orderList.adapter = adapter
-
-    orderViewModel.orders.observe(viewLifecycleOwner) { orders -&gt;
-        adapter.submitList(orders)
-    }
+<pre data-lang="kotlin"><code>// OrderListFragment.kt, trong onViewCreated()
+orderViewModel.orders.observe(viewLifecycleOwner) { orders -&gt;
+    adapter.submitList(orders)
 }</code></pre>
 
-<p><code>observe()</code> chỉ chống trùng theo <strong>chính instance <code>Observer</code></strong>, mà lambda trong <code>onViewCreated()</code> là instance mới mỗi lần View được tạo lại. Observe bằng <code>this</code> thì khi Fragment vào backstack, observer cũ không bị gỡ (Fragment chưa <code>DESTROYED</code>); quay lại là thêm observer thứ hai, observer cũ còn giữ binding của cây View đã huỷ. Ngược lại, dùng <strong>cùng một instance</strong> observer với hai owner khác nhau thì <code>observe()</code> ném <code>IllegalArgumentException: Cannot add the same observer with different lifecycles</code>.</p>
+<p><code>observe()</code> chỉ chống trùng theo <strong>chính instance <code>Observer</code></strong>, mà lambda trong <code>onViewCreated()</code> là instance mới mỗi lần tạo View. Observe bằng <code>this</code> thì khi Fragment vào backstack, observer cũ không bị gỡ (Fragment chưa <code>DESTROYED</code>); quay lại là có observer thứ hai, còn observer cũ giữ binding của cây View đã huỷ.</p>
 
 <h3>Biến đổi: <code>map</code>, <code>switchMap</code>, <code>distinctUntilChanged</code></h3>
 
-<p>Thư viện cung cấp ba hàm extension trên <code>LiveData</code> (trước đây gọi qua class <code>Transformations</code>; Kotlin hiện dùng dạng extension <code>map {}</code>, <code>switchMap {}</code>). Mỗi hàm trả về một LiveData <strong>mới</strong>, bên trong là một <code>MediatorLiveData</code> (mục sau) lắng nghe LiveData nguồn:</p>
+<p>Thư viện cung cấp ba hàm extension trên <code>LiveData</code> (trước đây gọi qua class <code>Transformations</code>). Mỗi hàm trả về một LiveData <strong>mới</strong>, bên trong là một <code>MediatorLiveData</code> (mục sau) lắng nghe LiveData nguồn:</p>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -47634,36 +47226,31 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>source.switchMap { x -&gt; liveDataOf(x) }</code></td>
-      <td style="padding:8px 12px;">Với mỗi giá trị nguồn, tạo một LiveData khác và <strong>chuyển sang</strong> quan sát nó, bỏ LiveData trước</td>
-      <td style="padding:8px 12px;">Tham số đổi thì nguồn dữ liệu đổi: từ khoá tìm kiếm, id người dùng</td>
+      <td style="padding:8px 12px;">Với mỗi giá trị nguồn, tạo LiveData khác và <strong>chuyển sang</strong> quan sát nó, bỏ cái trước</td>
+      <td style="padding:8px 12px;">Tham số đổi thì nguồn đổi: từ khoá tìm kiếm, id người dùng</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>source.distinctUntilChanged()</code></td>
-      <td style="padding:8px 12px;">Chỉ giao giá trị khi khác giá trị trước đó (so bằng <code>equals</code>)</td>
-      <td style="padding:8px 12px;">Chặn cập nhật lặp, vì <code>setValue()</code> cùng giá trị vẫn giao lại cho observer</td>
+      <td style="padding:8px 12px;">Chỉ giao khi khác giá trị trước (so bằng <code>equals</code>)</td>
+      <td style="padding:8px 12px;">Chặn cập nhật lặp, vì <code>setValue()</code> cùng giá trị vẫn giao lại</td>
     </tr>
   </tbody>
 </table>
 
-<p>Hai đặc tính quan trọng: các hàm này <strong>lười</strong> (LiveData sinh ra chỉ lắng nghe nguồn khi chính nó có observer active; không ai observe thì <code>value</code> không được cập nhật), và lambda của chúng <strong>chạy trên main thread</strong>, nên việc nặng đặt trong <code>map</code> sẽ gây giật UI.</p>
-
-<pre data-lang="kotlin"><code>// CartViewModel.kt
-val badgeText: LiveData&lt;String&gt; = itemCount.map { count -&gt;
-    if (count &gt; 99) "99+" else count.toString()
-}</code></pre>
+<p>Hai đặc tính quan trọng: các hàm này <strong>lười</strong> (chỉ lắng nghe nguồn khi chính LiveData sinh ra có observer active; không ai observe thì <code>value</code> không được cập nhật), và lambda của chúng <strong>chạy trên main thread</strong>, nên việc nặng (lọc, sắp xếp danh sách lớn) trong <code>map</code> gây giật UI; việc đó nên đẩy xuống query của database hoặc Flow với <code>flowOn(Dispatchers.Default)</code>.</p>
 
 <h4>Ví dụ: tìm kiếm sản phẩm theo từ khoá</h4>
 
-<p><strong>Bài toán:</strong> ô tìm kiếm lọc sản phẩm lưu trong Room. Mỗi từ khoá là một query khác, và danh sách phải tự cập nhật khi bảng đổi. Tham số đổi thì đổi nguồn LiveData: đúng việc của <code>switchMap</code>.</p>
+<p><strong>Bài toán:</strong> ô tìm kiếm lọc sản phẩm lưu trong Room; danh sách phải tự cập nhật khi bảng đổi. Mỗi từ khoá là một query, tức một LiveData nguồn khác: đúng việc của <code>switchMap</code>.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
   <li>Người dùng gõ, ViewModel ghi từ khoá đã <code>trim()</code> vào <code>query</code>.</li>
   <li><code>distinctUntilChanged()</code> bỏ qua từ khoá trùng lần trước.</li>
-  <li><code>switchMap</code> gọi DAO, nhận LiveData query mới, <strong>gỡ</strong> LiveData của từ khoá cũ và lắng nghe cái mới.</li>
-  <li>Room chạy query trên background thread rồi đẩy kết quả lên; <code>results</code> giao cho observer.</li>
-  <li>Bảng <code>products</code> đổi về sau: Room tự chạy lại đúng query đang được lắng nghe.</li>
+  <li><code>switchMap</code> gọi DAO lấy LiveData query mới, <strong>gỡ</strong> LiveData của từ khoá cũ.</li>
+  <li>Room chạy query trên background thread rồi đẩy kết quả; <code>results</code> giao cho observer.</li>
+  <li>Bảng <code>products</code> đổi: Room tự chạy lại query đang được lắng nghe.</li>
 </ol>
 
 <div class="mermaid">
@@ -47703,180 +47290,55 @@ class ProductSearchViewModel(private val productDao: ProductDao) : ViewModel() {
     }
 }</code></pre>
 
-<p>DAO trả <code>LiveData</code> là observable query của Room, học ở <a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>; ViewModel có tham số (<code>productDao</code>) cần factory, học ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, mục "Factory và CreationExtras".</p>
+<p>DAO trả <code>LiveData</code> là observable query của Room (<a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>); ViewModel có tham số cần factory (<a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>).</p>
 
-<p><strong>Kết quả:</strong> gõ "áo" thì chỉ còn sản phẩm có "áo" trong tên; sửa giá một sản phẩm bằng Database Inspector thì danh sách tự cập nhật. Gõ "áo" rồi thêm và xoá một dấu cách, log trong <code>switchMap</code> chỉ in một lần. Cần <strong>debounce</strong> (chờ ngừng gõ 300 ms mới query) thì LiveData không có toán tử này; đó là lúc dùng Flow (mục "Cầu nối với coroutine và Flow").</p>
+<p><strong>Kết quả:</strong> gõ "áo" thì chỉ còn sản phẩm có "áo" trong tên; sửa giá một sản phẩm bằng Database Inspector thì danh sách tự cập nhật. Gõ "áo" rồi thêm và xoá một dấu cách, <code>switchMap</code> chỉ chạy một lần. LiveData không có <strong>debounce</strong> (chờ ngừng gõ 300 ms mới query); cần thì dùng Flow (mục "Cầu nối với coroutine và Flow").</p>
 
 <h3>Gộp nhiều nguồn: <code>MediatorLiveData</code></h3>
 
-<p><code>MediatorLiveData&lt;T&gt;</code> là một <code>MutableLiveData</code> <strong>lắng nghe nhiều LiveData nguồn</strong>: <code>addSource(source) { value -&gt; … }</code> đăng ký một callback cho mỗi nguồn, <code>removeSource(source)</code> gỡ nó; nguồn đổi thì callback chạy và thường gọi <code>setValue()</code> cho mediator. Mediator cũng lười: chỉ lắng nghe nguồn khi bản thân nó có observer active, ngừng khi không còn. Chính <code>map</code>, <code>switchMap</code> và <code>distinctUntilChanged</code> được viết bằng <code>MediatorLiveData</code>.</p>
+<p><code>MediatorLiveData&lt;T&gt;</code> là một <code>MutableLiveData</code> <strong>lắng nghe nhiều LiveData nguồn</strong>: <code>addSource(source) { … }</code> đăng ký callback cho mỗi nguồn, <code>removeSource(source)</code> gỡ nó; nguồn đổi thì callback chạy và thường gọi <code>setValue()</code> cho mediator. Mediator cũng lười; <code>map</code>, <code>switchMap</code>, <code>distinctUntilChanged</code> được viết bằng nó.</p>
 
-<h4>Ví dụ: tổng tiền thanh toán từ giỏ hàng và mã giảm giá</h4>
+<p>Ví dụ: tổng tiền thanh toán phụ thuộc tạm tính giỏ hàng (<code>subtotal</code>, từ Room) và phần trăm giảm của mã (<code>discountPercent</code>, ghi bởi <code>applyCoupon()</code>); callback của <strong>mỗi</strong> nguồn đọc lại <strong>cả hai</strong> nguồn:</p>
 
-<p><strong>Bài toán:</strong> tổng tiền ở màn thanh toán phụ thuộc hai nguồn: tạm tính của giỏ hàng (từ Room) và phần trăm giảm của mã người dùng vừa nhập. Nguồn nào đổi thì tổng cũng phải tính lại.</p>
-
-<p><strong>Luồng chạy:</strong></p>
-
-<ol>
-  <li>Khi tạo, mediator <code>total</code> đăng ký hai nguồn bằng <code>addSource()</code>.</li>
-  <li>Màn hình observe <code>total</code> và tới <code>STARTED</code>: mediator active, bắt đầu lắng nghe hai nguồn.</li>
-  <li>Một nguồn đổi (tạm tính mới từ Room, hoặc áp mã): callback gọi <code>recalculate()</code>.</li>
-  <li><code>recalculate()</code> đọc <strong>cả hai</strong> nguồn, tính tổng và <code>setValue()</code>; observer nhận tổng mới.</li>
-  <li>Màn hình <code>onStop()</code>: mediator inactive, ngừng lắng nghe nguồn.</li>
-</ol>
-
-<div class="mermaid">
-flowchart TD
-    A["(1) addSource(subtotal), addSource(discountPercent)"] --&gt; B["(2) total có observer active"]
-    B --&gt; C{"(3) nguồn nào đổi?"}
-    C --&gt;|"subtotal từ Room"| D["(4) recalculate()"]
-    C --&gt;|"discountPercent khi áp mã"| D
-    D --&gt; E["total = subtotal - subtotal x percent / 100"]
-    E --&gt; F[observer nhận tổng mới]
-    F --&gt; G{"(5) màn hình onStop?"}
-    G --&gt;|Có| H[ngừng lắng nghe nguồn]
-    G --&gt;|Không| C
-</div>
-
-<pre data-lang="kotlin"><code>// CartDao.kt
-@Dao
-interface CartDao {
-    @Query("SELECT COALESCE(SUM(unit_price * quantity), 0) FROM cart_items")
-    fun observeSubtotal(): LiveData&lt;Long&gt;
-}
-
-// CheckoutViewModel.kt
-class CheckoutViewModel(cartDao: CartDao) : ViewModel() {
-
-    private val subtotal: LiveData&lt;Long&gt; = cartDao.observeSubtotal()
-    private val discountPercent = MutableLiveData(0)
-
-    val total: LiveData&lt;Long&gt; = MediatorLiveData&lt;Long&gt;().apply {
-        fun recalculate() {                                   // (4) đọc cả hai nguồn
-            val amount = subtotal.value ?: 0L
-            val percent = discountPercent.value ?: 0
-            value = amount - amount * percent / 100
-        }
-        addSource(subtotal) { recalculate() }                 // (1)(3)
-        addSource(discountPercent) { recalculate() }          // (1)(3)
+<pre data-lang="kotlin"><code>// CheckoutViewModel.kt (subtotal = cartDao.observeSubtotal(), discountPercent = MutableLiveData(0))
+val total: LiveData&lt;Long&gt; = MediatorLiveData&lt;Long&gt;().apply {
+    fun recalculate() {
+        val amount = subtotal.value ?: 0L
+        val percent = discountPercent.value ?: 0
+        value = amount - amount * percent / 100
     }
-
-    fun applyCoupon(percent: Int) {
-        discountPercent.value = percent.coerceIn(0, 100)
-    }
+    addSource(subtotal) { recalculate() }
+    addSource(discountPercent) { recalculate() }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> giỏ hàng 200.000 đ, áp mã 10% thì tổng hiện 180.000 đ; tăng số lượng một món trong giỏ thì tổng tự tính lại theo tạm tính mới, mã vẫn được áp. Bỏ hết observer của <code>total</code> thì <code>recalculate()</code> không chạy nữa, kể cả khi bảng <code>cart_items</code> đổi.</p>
+<p>Giỏ hàng 200.000 đ, áp mã 10% thì tổng hiện 180.000 đ; tăng số lượng một món thì tổng tự tính lại. Không còn observer của <code>total</code> thì <code>recalculate()</code> không chạy, kể cả khi bảng <code>cart_items</code> đổi.</p>
 
 <h3><code>observe(owner)</code> và <code>observeForever</code>: khi không có lifecycle</h3>
 
-<p><code>observeForever(observer)</code> đăng ký observer <strong>không kèm owner</strong>, được coi là <strong>luôn active</strong>. Không có lifecycle thì không ai tự gỡ, nên <strong>người gọi phải <code>removeObserver(observer)</code></strong>; quên là LiveData giữ observer (và mọi thứ nó tham chiếu) mãi mãi.</p>
+<p><code>observeForever(observer)</code> đăng ký observer <strong>không kèm owner</strong>, được coi là <strong>luôn active</strong>. Không có lifecycle thì không ai tự gỡ, nên <strong>người gọi phải <code>removeObserver(observer)</code></strong>; quên là LiveData giữ observer (và mọi thứ nó tham chiếu) mãi mãi. Trong UI luôn dùng <code>observe()</code>; <code>observeForever()</code> thường gặp nhất trong <strong>unit test</strong>, nơi không có owner.</p>
 
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;"></th>
-      <th style="padding:8px 12px;text-align:left;"><code>observe(owner, observer)</code></th>
-      <th style="padding:8px 12px;text-align:left;"><code>observeForever(observer)</code></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Active khi</td>
-      <td style="padding:8px 12px;">Owner ở <code>STARTED</code>/<code>RESUMED</code></td>
-      <td style="padding:8px 12px;">Luôn luôn</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Gỡ observer</td>
-      <td style="padding:8px 12px;">Tự động khi owner <code>DESTROYED</code></td>
-      <td style="padding:8px 12px;">Phải gọi <code>removeObserver()</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Dùng ở</td>
-      <td style="padding:8px 12px;">Activity, Fragment, <code>LifecycleService</code></td>
-      <td style="padding:8px 12px;">Unit test, component không có lifecycle (ví dụ một class sống theo app)</td>
-    </tr>
-  </tbody>
-</table>
+<p><code>total</code> ở trên là mediator lười, nên test phải có observer mới đọc được tổng. <code>InstantTaskExecutorRule</code> (artifact <code>androidx.arch.core:core-testing</code>) coi thread của test là main thread, nên <code>setValue()</code> không ném lỗi trong JVM test.</p>
 
-<p>Trong UI luôn dùng <code>observe()</code>; <code>observeForever()</code> thường gặp nhất trong <strong>unit test</strong>, nơi không có owner nào.</p>
-
-<h4>Ví dụ: unit test tổng tiền của <code>CheckoutViewModel</code></h4>
-
-<p><strong>Bài toán:</strong> kiểm tra <code>total</code> ở mục trước tính đúng sau khi áp mã. <code>total</code> là mediator lười: không có observer thì <code>total.value</code> vẫn là <code>null</code>. Test cần một observer không có lifecycle, tức <code>observeForever()</code>.</p>
-
-<p><strong>Luồng chạy:</strong></p>
-
-<ol>
-  <li><code>InstantTaskExecutorRule</code> cho mọi task chạy đồng bộ và coi thread của test là main thread, nên <code>setValue()</code> không ném lỗi trong JVM test.</li>
-  <li><code>getOrAwaitValue()</code> gọi <code>observeForever()</code>: observer active ngay, kéo mediator active theo.</li>
-  <li>Mediator tính tổng, observer nhận giá trị và nhả <code>CountDownLatch</code>.</li>
-  <li><code>finally</code> luôn gọi <code>removeObserver()</code>, để observer không sống tiếp sang test khác.</li>
-</ol>
-
-<div class="mermaid">
-sequenceDiagram
-    participant T as CheckoutViewModelTest
-    participant U as getOrAwaitValue()
-    participant L as total (MediatorLiveData)
-    Note over T: (1) InstantTaskExecutorRule
-    T-&gt;&gt;U: total.getOrAwaitValue()
-    U-&gt;&gt;L: (2) observeForever(observer)
-    L--&gt;&gt;U: (3) onChanged(180000), latch.countDown()
-    U-&gt;&gt;L: (4) finally: removeObserver(observer)
-    U--&gt;&gt;T: 180000
-</div>
-
-<pre data-lang="kotlin"><code>// test/.../LiveDataTestUtil.kt
-fun &lt;T&gt; LiveData&lt;T&gt;.getOrAwaitValue(timeoutSeconds: Long = 2): T {
-    var data: T? = null
-    val latch = CountDownLatch(1)
-    val observer = Observer&lt;T&gt; { value -&gt;
-        data = value
-        latch.countDown()                                     // (3)
-    }
-    observeForever(observer)                                  // (2) không có owner, luôn active
-    try {
-        if (!latch.await(timeoutSeconds, TimeUnit.SECONDS)) {
-            throw TimeoutException("LiveData chưa có giá trị")
-        }
-    } finally {
-        removeObserver(observer)                              // (4) bắt buộc tự gỡ
-    }
-    @Suppress("UNCHECKED_CAST")
-    return data as T
-}
-
-// test/.../CheckoutViewModelTest.kt
-class CheckoutViewModelTest {
-
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()   // (1) androidx.arch.core:core-testing
-
-    private class FakeCartDao(subtotal: Long) : CartDao {
-        private val subtotalLiveData = MutableLiveData(subtotal)
-        override fun observeSubtotal(): LiveData&lt;Long&gt; = subtotalLiveData
-    }
-
-    @Test
-    fun total_appliesCouponDiscount() {
-        val viewModel = CheckoutViewModel(FakeCartDao(subtotal = 200_000L))
-
-        viewModel.applyCoupon(10)
-
-        assertEquals(180_000L, viewModel.total.getOrAwaitValue())
-    }
+<pre data-lang="kotlin"><code>// CheckoutViewModelTest.kt (có @get:Rule InstantTaskExecutorRule)
+val viewModel = CheckoutViewModel(FakeCartDao(subtotal = 200_000L))
+viewModel.applyCoupon(10)
+val observer = Observer&lt;Long&gt; { }
+viewModel.total.observeForever(observer)         // không có owner, luôn active: mediator bắt đầu tính
+try {
+    assertEquals(180_000L, viewModel.total.value)
+} finally {
+    viewModel.total.removeObserver(observer)     // bắt buộc tự gỡ
 }</code></pre>
 
-<p><strong>Kết quả:</strong> test pass. Thay <code>viewModel.total.getOrAwaitValue()</code> bằng <code>viewModel.total.value</code> thì test fail với giá trị <code>null</code>, vì không có observer nên mediator chưa từng tính tổng. Unit test nói chung được học ở <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>.</p>
+<p>Bỏ <code>observeForever()</code> thì <code>total.value</code> là <code>null</code>, vì mediator chưa từng tính tổng. Unit test nói chung học ở <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>.</p>
 
 <h3>LiveData tự quản lý tài nguyên: <code>onActive</code> và <code>onInactive</code></h3>
 
-<p>Kế thừa <code>LiveData</code> trực tiếp cho phép nó <strong>tự bật và tắt nguồn dữ liệu</strong> theo số observer đang active: <code>onActive()</code> được gọi khi số đó tăng từ 0 lên 1 (đăng ký listener, bật cảm biến), <code>onInactive()</code> khi nó giảm về 0 (huỷ đăng ký để không tốn pin). Một LiveData bọc service của hệ thống vì thế dùng chung được cho nhiều màn, và service chỉ được kết nối khi có màn đang hiển thị. Nguồn kiểu này thường gọi callback trên thread của nó, nên giá trị được ghi bằng <code>postValue()</code>.</p>
+<p>Kế thừa <code>LiveData</code> trực tiếp cho phép nó <strong>tự bật và tắt nguồn dữ liệu</strong> theo số observer đang active: <code>onActive()</code> được gọi khi số đó tăng từ 0 lên 1 (đăng ký listener, bật cảm biến), <code>onInactive()</code> khi nó giảm về 0 (huỷ đăng ký để không tốn pin). LiveData bọc service của hệ thống vì thế dùng chung được cho nhiều màn, chỉ kết nối service khi có màn hiển thị. Callback của nguồn kiểu này thường chạy trên thread khác, nên ghi bằng <code>postValue()</code>.</p>
 
 <h4>Ví dụ: banner "Đang offline" theo trạng thái mạng</h4>
 
-<p><strong>Bài toán:</strong> nhiều màn hình hiện banner "Đang offline" khi mất Internet; khi app ở background thì phải ngừng lắng nghe <code>ConnectivityManager</code>. <code>NetworkCallback</code> và <code>NET_CAPABILITY_VALIDATED</code> đã học ở <a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager &amp; NetworkCallback"; ở đây chỉ dùng chúng làm nguồn dữ liệu.</p>
+<p><strong>Bài toán:</strong> nhiều màn hiện banner "Đang offline" khi mất Internet; app ở background thì ngừng lắng nghe <code>ConnectivityManager</code>. <code>NetworkCallback</code> và <code>NET_CAPABILITY_VALIDATED</code> đã học ở <a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager &amp; NetworkCallback".</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
@@ -47934,14 +47396,12 @@ class NetworkStatusLiveData(context: Context) : LiveData&lt;Boolean&gt;() {
             hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
 }
 
-// OrderListActivity.kt
+// OrderListActivity.kt (networkStatus: một instance dùng chung cho cả app)
 networkStatus.distinctUntilChanged().observe(this) { isOnline -&gt;
     binding.offlineBanner.isVisible = !isOnline
 }</code></pre>
 
-<p><code>networkStatus</code> là <strong>một</strong> instance dùng chung cho cả app (tạo trong <code>Application</code> hoặc qua DI), để mọi màn chia sẻ một callback.</p>
-
-<p><strong>Kết quả:</strong> bật chế độ máy bay, banner hiện; tắt, banner ẩn khi mạng được validated. Bấm Home rồi đặt breakpoint trong <code>onCapabilitiesChanged</code>: không còn callback nào tới. Bài Networking giải cùng bài toán bằng <code>callbackFlow</code>; LiveData tự gắn lifecycle, còn Flow cho thêm toán tử và dùng được ở mọi tầng.</p>
+<p><strong>Kết quả:</strong> bật chế độ máy bay, banner hiện; tắt, banner ẩn khi mạng được validated. Bấm Home: breakpoint trong <code>onCapabilitiesChanged</code> không còn dừng.</p>
 
 <h3>Cầu nối với coroutine và Flow</h3>
 
@@ -47950,186 +47410,37 @@ networkStatus.distinctUntilChanged().observe(this) { isOnline -&gt;
 <p>Ba API nối LiveData với hai thế giới đó (dependency <code>androidx.lifecycle:lifecycle-livedata-ktx</code>):</p>
 
 <ul>
-  <li><strong><code>liveData { … }</code></strong>: builder tạo LiveData từ một khối coroutine, trong đó <code>emit(value)</code> đặt giá trị trên main thread. Khối bắt đầu chạy khi LiveData <strong>active</strong>; khi LiveData inactive, khối bị huỷ sau một <strong>timeout</strong> (mặc định 5 giây, tham số <code>timeoutInMs</code>). Bị huỷ giữa chừng thì chạy lại từ đầu khi active lại; đã chạy xong thì không chạy lại.</li>
+  <li><strong><code>liveData { … }</code></strong>: tạo LiveData từ một khối coroutine, <code>emit(value)</code> đặt giá trị trên main thread. Khối chạy khi LiveData <strong>active</strong>; khi inactive, khối bị huỷ sau một <strong>timeout</strong> (mặc định 5 giây, tham số <code>timeoutInMs</code>). Bị huỷ giữa chừng thì chạy lại từ đầu khi active lại; đã xong thì không chạy lại.</li>
   <li><strong><code>flow.asLiveData()</code></strong>: collect Flow khi LiveData active, ngừng sau cùng timeout đó khi inactive; Flow là <code>StateFlow</code> thì giá trị ban đầu được đặt luôn cho LiveData.</li>
   <li><strong><code>liveData.asFlow()</code></strong>: biến LiveData thành Flow để dùng toán tử như <code>debounce</code>, <code>combine</code>.</li>
 </ul>
 
-<p>Timeout tồn tại vì xoay màn hình làm observer bị gỡ rồi đăng ký lại trong vài trăm mili giây; công việc đang chạy không nên bị huỷ rồi khởi động lại vô ích.</p>
-
-<h4>Ví dụ: tải hồ sơ người dùng qua xoay màn hình</h4>
-
-<p><strong>Bài toán:</strong> màn hồ sơ tải dữ liệu bằng một hàm <code>suspend</code>; người dùng xoay màn hình trong lúc tải thì request đang chạy không được bị huỷ rồi gửi lại.</p>
-
-<p><strong>Luồng chạy:</strong></p>
-
-<ol>
-  <li>Activity observe <code>profile</code>; LiveData active lần đầu nên khối <code>liveData {}</code> bắt đầu chạy.</li>
-  <li>Khối <code>emit(Loading)</code>.</li>
-  <li>Khối gọi <code>fetchProfile()</code>, coroutine tạm dừng chờ server.</li>
-  <li>Xoay màn hình: LiveData inactive, bộ đếm 5 giây bắt đầu; Activity mới observe ngay sau đó nên bộ đếm bị huỷ, coroutine <strong>chạy tiếp</strong>, Activity mới nhận <code>Loading</code>.</li>
-  <li>Server trả về, khối <code>emit(Content)</code>.</li>
-</ol>
-
-<div class="mermaid">
-sequenceDiagram
-    participant A1 as Activity cũ
-    participant A2 as Activity mới
-    participant L as profile (liveData {})
-    participant R as ProfileRepository
-    A1-&gt;&gt;L: (1) observe, LiveData active, khối bắt đầu chạy
-    L--&gt;&gt;A1: (2) emit(Loading)
-    L-&gt;&gt;R: (3) fetchProfile() (suspend)
-    Note over A1,L: (4) xoay màn hình, LiveData inactive, đếm 5 giây
-    A2-&gt;&gt;L: observe, active lại trước 5 giây, coroutine chạy tiếp
-    L--&gt;&gt;A2: Loading (giá trị mới nhất)
-    R--&gt;&gt;L: (5) Profile
-    L--&gt;&gt;A2: emit(Content(profile))
-</div>
+<p>Timeout tồn tại vì xoay màn hình gỡ rồi đăng ký lại observer chỉ trong vài trăm mili giây.</p>
 
 <pre data-lang="kotlin"><code>// ProfileViewModel.kt
-class ProfileViewModel(private val profileRepository: ProfileRepository) : ViewModel() {
-
-    val profile: LiveData&lt;ProfileUiState&gt; = liveData {            // (1) chạy khi active
-        emit(ProfileUiState.Loading)                              // (2)
-        try {
-            val result = profileRepository.fetchProfile()         // (3) suspend, (4) không bị huỷ khi xoay
-            emit(ProfileUiState.Content(result))                  // (5)
-        } catch (e: IOException) {
-            emit(ProfileUiState.Error)
-        }
+val profile: LiveData&lt;ProfileUiState&gt; = liveData {                // chạy khi LiveData active
+    emit(ProfileUiState.Loading)
+    try {
+        emit(ProfileUiState.Content(profileRepository.fetchProfile()))  // suspend, không bị huỷ khi xoay
+    } catch (e: IOException) {                                    // cố ý không bắt CancellationException
+        emit(ProfileUiState.Error)
     }
-
-    // Flow từ Room đổi sang LiveData cho UI cũ còn observe LiveData
-    val recentOrders: LiveData&lt;List&lt;Order&gt;&gt; = profileRepository.observeRecentOrders().asLiveData()
 }
+val recentOrders: LiveData&lt;List&lt;Order&gt;&gt; = profileRepository.observeRecentOrders().asLiveData()</code></pre>
 
-sealed interface ProfileUiState {
-    data object Loading : ProfileUiState
-    data class Content(val profile: Profile) : ProfileUiState
-    data object Error : ProfileUiState
-}</code></pre>
-
-<p><code>catch (e: IOException)</code> cố ý không bắt <code>CancellationException</code> (<a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "Sai lầm thường gặp", phần 4).</p>
-
-<p><strong>Kết quả:</strong> mở Network Inspector, xoay màn hình trong lúc đang tải: chỉ có một request. Bấm Home, đợi hơn 5 giây khi request chưa xong rồi mở lại: request bị huỷ và gửi lại, màn hình hiện <code>Loading</code> từ đầu.</p>
-
-<h3>LiveData giữ state, không phải event</h3>
-
-<p>LiveData giữ giá trị mới nhất và giao lại giá trị đó cho mọi observer vừa active. Với <strong>state</strong> (badge, danh sách, tổng tiền) đó là điều ta muốn. Với <strong>event một lần</strong> (hiện Snackbar "Đã lưu", điều hướng sang màn khác) thì đó là lỗi: event được "phát lại".</p>
-
-<ol>
-  <li>ViewModel lưu thành công, <code>_message.value = "Đã lưu"</code>.</li>
-  <li>Observer hiện Snackbar.</li>
-  <li>Người dùng xoay màn hình: observer mới active và nhận lại giá trị mới nhất "Đã lưu", Snackbar hiện lần nữa. Nếu event là điều hướng, màn hình mới bị mở hai lần.</li>
-</ol>
-
-<div class="mermaid">
-sequenceDiagram
-    participant VM as ViewModel
-    participant L as message (LiveData)
-    participant A1 as Activity cũ
-    participant A2 as Activity mới
-    VM-&gt;&gt;L: (1) setValue("Đã lưu")
-    L--&gt;&gt;A1: (2) onChanged, hiện Snackbar
-    Note over A1: (3) xoay màn hình
-    A2-&gt;&gt;L: observe
-    L--&gt;&gt;A2: onChanged("Đã lưu"), Snackbar hiện lại
-</div>
-
-<p>Có ba cách xử lý:</p>
-
-<ul>
-  <li><strong><code>SingleLiveEvent</code>:</strong> lớp con của <code>MutableLiveData</code> (từ sample của Google, không có trong thư viện) dùng cờ <code>AtomicBoolean</code> để chỉ giao một lần. Chỉ một observer nhận được, và vẫn là một mẹo chống lại thiết kế của LiveData.</li>
-  <li><strong>Event wrapper:</strong> bọc giá trị trong object nhớ đã được xử lý chưa; observer gọi <code>getContentIfNotHandled()</code>, lần thứ hai nhận <code>null</code>.</li>
-</ul>
-
-<pre data-lang="kotlin"><code>// Event.kt
-class Event&lt;out T&gt;(private val content: T) {
-    var hasBeenHandled = false
-        private set
-
-    fun getContentIfNotHandled(): T? =
-        if (hasBeenHandled) null else content.also { hasBeenHandled = true }
-}</code></pre>
-
-<ul>
-  <li><strong>Biểu diễn event thành UI state (khuyến nghị hiện nay):</strong> hướng dẫn kiến trúc của Android nêu rằng event phát sinh từ ViewModel luôn phải dẫn tới một lần cập nhật UI state. Thông báo là một field của state (<code>userMessage</code>); UI hiện nó rồi <strong>báo lại</strong> cho ViewModel (<code>userMessageShown()</code>) để ViewModel xoá field đó. State luôn mô tả đúng màn hình, không cần cơ chế "giao đúng một lần" (vốn khó đảm bảo khi nơi phát sống lâu hơn nơi nhận), và test được bằng cách đọc state. Code đầy đủ ở mục "Ví dụ thực tế".</li>
-</ul>
+<p>Xoay màn hình khi <code>fetchProfile()</code> đang chạy: Activity mới observe lại trước 5 giây nên coroutine chạy tiếp, chỉ có một request. Bấm Home quá 5 giây khi request chưa xong rồi mở lại: request bị huỷ và gửi lại. Lý do không bắt <code>CancellationException</code> ở <a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "Sai lầm thường gặp", phần 4.</p>
 
 <h2>Deep Dive: bên trong LiveData</h2>
 
-<p>Phần này đọc source <code>androidx.lifecycle.LiveData</code> (Java, module <code>lifecycle-livedata-core</code>), rút gọn. Bỏ qua phần này vẫn dùng được LiveData đúng cách.</p>
-
-<pre data-lang="java"><code>// LiveData.java (rút gọn)
-public abstract class LiveData&lt;T&gt; {
-    static final int START_VERSION = -1;
-    private SafeIterableMap&lt;Observer&lt;? super T&gt;, ObserverWrapper&gt; mObservers;
-    private volatile Object mData;            // giá trị hiện tại (NOT_SET nếu chưa có)
-    volatile Object mPendingData = NOT_SET;   // ô chờ của postValue
-    private int mVersion;                     // tăng mỗi lần setValue
-
-    protected void setValue(T value) {
-        assertMainThread("setValue");         // ném IllegalStateException nếu không phải main
-        mVersion++;
-        mData = value;
-        dispatchingValue(null);               // null = giao cho mọi observer
-    }
-
-    protected void postValue(T value) {
-        boolean postTask;
-        synchronized (mDataLock) {
-            postTask = mPendingData == NOT_SET;   // chỉ post khi ô chờ đang trống
-            mPendingData = value;                 // các lần sau chỉ ghi đè
-        }
-        if (postTask) ArchTaskExecutor.getInstance().postToMainThread(mPostValueRunnable);
-    }
-
-    private void considerNotify(ObserverWrapper observer) {
-        if (!observer.mActive) return;
-        if (!observer.shouldBeActive()) { observer.activeStateChanged(false); return; }
-        if (observer.mLastVersion &gt;= mVersion) return;  // đã nhận giá trị này rồi
-        observer.mLastVersion = mVersion;
-        observer.mObserver.onChanged((T) mData);
-    }
-
-    class LifecycleBoundObserver extends ObserverWrapper implements LifecycleEventObserver {
-        boolean shouldBeActive() {
-            return mOwner.getLifecycle().getCurrentState().isAtLeast(STARTED);
-        }
-        public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
-            if (mOwner.getLifecycle().getCurrentState() == DESTROYED) {
-                removeObserver(mObserver);    // tự gỡ khi owner DESTROYED
-                return;
-            }
-            activeStateChanged(shouldBeActive());
-        }
-    }
-}</code></pre>
-
-<p>Những gì đoạn code này giải thích:</p>
-
-<ul>
-  <li><strong><code>LifecycleBoundObserver</code>:</strong> <code>observe()</code> bọc <code>Observer</code> trong wrapper này và đăng ký nó làm <code>LifecycleEventObserver</code> của owner. Mỗi lần owner đổi state, <code>onStateChanged()</code> tính lại <code>shouldBeActive()</code> (từ <code>STARTED</code> trở lên); gặp <code>DESTROYED</code> thì tự <code>removeObserver()</code>. <code>observeForever()</code> dùng <code>AlwaysActiveObserver</code>, có <code>shouldBeActive()</code> luôn <code>true</code> và không gắn lifecycle nào, nên không ai gỡ hộ.</li>
-  <li><strong><code>mVersion</code> và <code>mLastVersion</code>:</strong> version của LiveData tăng sau mỗi <code>setValue()</code>, mỗi wrapper nhớ version cuối nó đã giao, và <code>considerNotify()</code> chỉ gọi <code>onChanged()</code> khi version của LiveData lớn hơn. Observer active lại không nhận lặp giá trị cũ, còn observer <strong>mới</strong> (version <code>-1</code>) luôn nhận giá trị hiện tại: đó là nguồn gốc của event bị phát lại sau xoay màn hình. Version tăng cả khi giá trị mới bằng giá trị cũ, nên cần <code>distinctUntilChanged()</code>.</li>
-  <li><strong><code>activeStateChanged(true)</code>:</strong> wrapper vừa active gọi <code>dispatchingValue(this)</code> để nhận giá trị mới nhất cho riêng mình; bộ đếm observer active đi từ 0 lên 1 thì gọi <code>onActive()</code>, về 0 thì <code>onInactive()</code>.</li>
-  <li><strong><code>dispatchingValue</code> và lời gọi lồng nhau:</strong> observer gọi <code>setValue()</code> ngay trong <code>onChanged()</code> (như <code>userMessageShown()</code> ở ví dụ thực tế) thì lần dispatch đang chạy bị đánh dấu không còn hợp lệ và vòng lặp giao lại từ đầu với giá trị mới, thay vì gọi đệ quy.</li>
-  <li><strong>Ô chờ của <code>postValue</code>:</strong> Runnable trên main thread lấy <code>mPendingData</code>, đặt lại về <code>NOT_SET</code>, rồi gọi <code>setValue()</code>; vì vậy nhiều <code>postValue()</code> liên tiếp chỉ giao giá trị cuối.</li>
-</ul>
+<p>Trong source <code>androidx.lifecycle.LiveData</code>, <code>observe()</code> bọc <code>Observer</code> trong <code>LifecycleBoundObserver</code>: owner đổi state thì wrapper tính lại <code>shouldBeActive()</code> (từ <code>STARTED</code> trở lên), gặp <code>DESTROYED</code> thì tự <code>removeObserver()</code>; <code>observeForever()</code> dùng <code>AlwaysActiveObserver</code> có <code>shouldBeActive()</code> luôn <code>true</code>, nên không ai gỡ hộ. LiveData giữ <code>mVersion</code> tăng sau mỗi <code>setValue()</code> (kể cả khi giá trị bằng cũ, nên cần <code>distinctUntilChanged()</code>), mỗi wrapper nhớ <code>mLastVersion</code>, và <code>considerNotify()</code> chỉ gọi <code>onChanged()</code> khi version của LiveData lớn hơn. Observer <strong>mới</strong> (version <code>-1</code>) vì thế luôn nhận giá trị hiện tại: nguồn gốc của event bị phát lại sau xoay màn hình. Observer gọi <code>setValue()</code> ngay trong <code>onChanged()</code> thì lần dispatch đang chạy bị đánh dấu không còn hợp lệ và vòng lặp giao lại từ đầu với giá trị mới, thay vì gọi đệ quy.</p>
 
 <h2>Ví dụ thực tế</h2>
 
-<p>Ba bài toán hay gặp với LiveData:</p>
-
-<ol>
-  <li><strong>Thông báo một lần sau khi lưu</strong>: biểu diễn thông báo thành UI state. Đây là bài toán chính, code đầy đủ bên dưới.</li>
-  <li><strong>Danh sách từ Room tự cập nhật:</strong> DAO trả <code>LiveData&lt;List&lt;T&gt;&gt;</code> (hoặc <code>Flow</code> rồi <code>asLiveData()</code>), Fragment observe bằng <code>viewLifecycleOwner</code> rồi <code>submitList()</code>, như ví dụ tìm kiếm.</li>
-  <li><strong>Trạng thái dùng chung cho cả app</strong> (mạng, đăng nhập): LiveData kế thừa trực tiếp, bật tắt nguồn bằng <code>onActive</code>/<code>onInactive</code>, như ví dụ banner offline.</li>
-</ol>
+<p>Với <strong>event một lần</strong> (Snackbar "Đã lưu", điều hướng), việc giao lại giá trị mới nhất cho observer mới thành lỗi: xoay màn hình là Snackbar hiện lại, hoặc màn đích mở hai lần. <code>SingleLiveEvent</code> (từ sample của Google, dùng cờ <code>AtomicBoolean</code>) và wrapper <code>Event&lt;T&gt;</code> (đọc qua <code>getContentIfNotHandled()</code>, lần hai nhận <code>null</code>) đều là mẹo chống lại thiết kế của LiveData. Khuyến nghị hiện nay là <strong>biểu diễn event thành UI state</strong>: hướng dẫn kiến trúc của Android nêu rằng event phát sinh từ ViewModel luôn phải dẫn tới một lần cập nhật UI state. Thông báo là một field của state, UI hiện nó rồi <strong>báo lại</strong> để ViewModel xoá field đó.</p>
 
 <h3>Lưu hồ sơ và hiện thông báo đúng một lần</h3>
 
-<p><strong>Bài toán:</strong> màn sửa hồ sơ có ô tên và nút "Lưu". Khi lưu, nút bị khoá; lưu xong hiện Snackbar báo thành công hoặc lỗi. Xoay màn hình sau khi Snackbar đã hiện thì không được hiện lại; xoay <strong>trong lúc</strong> đang lưu thì vẫn phải hiện thông báo khi lưu xong.</p>
+<p><strong>Bài toán:</strong> màn sửa hồ sơ khoá nút "Lưu" khi đang lưu, lưu xong hiện Snackbar thành công hoặc lỗi. Xoay màn hình sau khi Snackbar đã hiện thì không hiện lại; xoay <strong>trong lúc</strong> đang lưu thì vẫn hiện thông báo khi xong.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
@@ -48138,7 +47449,7 @@ public abstract class LiveData&lt;T&gt; {
   <li>ViewModel gọi <code>updateDisplayName()</code> trong <code>viewModelScope</code> (scope coroutine của ViewModel, <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>).</li>
   <li>Lưu xong hoặc lỗi: <code>isSaving = false</code>, <code>userMessage</code> là id chuỗi thông báo.</li>
   <li>Fragment observe <code>uiState</code> bằng <code>viewLifecycleOwner</code>: khoá hoặc mở nút; <code>userMessage</code> khác <code>null</code> thì hiện Snackbar.</li>
-  <li>Hiện xong, Fragment gọi <code>userMessageShown()</code>, ViewModel xoá <code>userMessage</code>. Observer tạo sau đó (xoay màn hình) nhận state không còn thông báo; xoay <strong>trước</strong> bước 3 thì observer mới vẫn nhận thông báo ở bước 3.</li>
+  <li>Hiện xong, Fragment gọi <code>userMessageShown()</code>, ViewModel xoá <code>userMessage</code>; observer tạo sau đó không còn thấy thông báo. Xoay <strong>trước</strong> bước 3 thì observer mới vẫn nhận nó.</li>
 </ol>
 
 <div class="mermaid">
@@ -48192,112 +47503,29 @@ class EditProfileViewModel(private val profileRepository: ProfileRepository) : V
     private fun currentState() = _uiState.value ?: EditProfileUiState()
 }
 
-// EditProfileFragment.kt
-class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
-
-    // ViewModel có tham số cần factory, xem viewmodel.md mục "Factory và CreationExtras"
-    private val viewModel: EditProfileViewModel by viewModels { EditProfileViewModel.Factory }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val binding = FragmentEditProfileBinding.bind(view)
-
-        binding.saveButton.setOnClickListener {
-            viewModel.saveProfile(binding.displayNameInput.text.toString())
-        }
-
-        viewModel.uiState.observe(viewLifecycleOwner) { state -&gt;           // (4)
-            binding.saveButton.isEnabled = !state.isSaving
-            binding.savingProgress.isVisible = state.isSaving
-
-            state.userMessage?.let { messageRes -&gt;
-                Snackbar.make(binding.root, messageRes, Snackbar.LENGTH_SHORT).show()
-                viewModel.userMessageShown()                               // (5)
-            }
-        }
+// EditProfileFragment.kt, trong onViewCreated()
+viewModel.uiState.observe(viewLifecycleOwner) { state -&gt;                   // (4)
+    binding.saveButton.isEnabled = !state.isSaving
+    binding.savingProgress.isVisible = state.isSaving
+    state.userMessage?.let { messageRes -&gt;
+        Snackbar.make(binding.root, messageRes, Snackbar.LENGTH_SHORT).show()
+        viewModel.userMessageShown()                                       // (5)
     }
 }</code></pre>
 
-<p>Gọi <code>userMessageShown()</code> trong observer là gọi <code>setValue()</code> lồng trong <code>onChanged()</code>; LiveData giao lại state mới từ đầu (mục "Deep Dive", phần <code>dispatchingValue</code>).</p>
+<p>Gọi <code>userMessageShown()</code> trong observer là gọi <code>setValue()</code> lồng trong <code>onChanged()</code>; LiveData giao lại state mới từ đầu (mục "Deep Dive").</p>
 
-<p><strong>Kết quả:</strong> bấm "Lưu", Snackbar "Đã lưu hồ sơ" hiện một lần; xoay màn hình thì không hiện lại. Làm chậm mạng (Network throttling của emulator), bấm "Lưu" rồi xoay ngay: khi có kết quả, màn mới hiện đúng một Snackbar. Unit test chỉ cần đọc state: sau khi lưu thì <code>userMessage == R.string.profile_saved</code>, sau <code>userMessageShown()</code> thì <code>userMessage == null</code>.</p>
-
-<h2>So sánh với các cách tiếp cận khác</h2>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;"></th>
-      <th style="padding:8px 12px;text-align:left;">LiveData</th>
-      <th style="padding:8px 12px;text-align:left;"><code>StateFlow</code></th>
-      <th style="padding:8px 12px;text-align:left;"><code>Flow</code> (cold)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Bản chất</td>
-      <td style="padding:8px 12px;">State holder gắn lifecycle, thư viện Android</td>
-      <td style="padding:8px 12px;">State holder của kotlinx.coroutines</td>
-      <td style="padding:8px 12px;">Luồng giá trị, chạy khi được collect</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Giá trị ban đầu</td>
-      <td style="padding:8px 12px;">Không bắt buộc</td>
-      <td style="padding:8px 12px;">Bắt buộc</td>
-      <td style="padding:8px 12px;">Không có khái niệm "giá trị hiện tại"</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Gắn lifecycle</td>
-      <td style="padding:8px 12px;">Có sẵn trong <code>observe(owner)</code></td>
-      <td style="padding:8px 12px;">Cần <code>repeatOnLifecycle</code> hoặc <code>collectAsStateWithLifecycle</code></td>
-      <td style="padding:8px 12px;">Như <code>StateFlow</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Giá trị trùng</td>
-      <td style="padding:8px 12px;"><code>setValue()</code> cùng giá trị vẫn giao lại</td>
-      <td style="padding:8px 12px;">Bỏ qua giá trị bằng giá trị hiện tại</td>
-      <td style="padding:8px 12px;">Tuỳ nguồn phát</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Toán tử</td>
-      <td style="padding:8px 12px;"><code>map</code>, <code>switchMap</code>, <code>distinctUntilChanged</code>, <code>MediatorLiveData</code></td>
-      <td style="padding:8px 12px;">Toàn bộ toán tử của Flow (<code>combine</code>, <code>debounce</code>, <code>flatMapLatest</code>...)</td>
-      <td style="padding:8px 12px;">Như <code>StateFlow</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Thread</td>
-      <td style="padding:8px 12px;">Observe và biến đổi trên main thread</td>
-      <td style="padding:8px 12px;">Chọn dispatcher, <code>flowOn</code></td>
-      <td style="padding:8px 12px;">Như <code>StateFlow</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Dùng ở tầng</td>
-      <td style="padding:8px 12px;">UI và ViewModel</td>
-      <td style="padding:8px 12px;">Mọi tầng, kể cả Kotlin Multiplatform</td>
-      <td style="padding:8px 12px;">Mọi tầng</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Java</td>
-      <td style="padding:8px 12px;">Dùng tự nhiên</td>
-      <td style="padding:8px 12px;">Bất tiện</td>
-      <td style="padding:8px 12px;">Bất tiện</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Docs của Android khuyên <strong>không</strong> dùng LiveData ở tầng data (Repository) vì khả năng kết hợp luồng rất hạn chế và mọi biến đổi chạy trên main thread; tầng dưới dùng Flow, ViewModel đổi sang LiveData bằng <code>asLiveData()</code> nếu cần. Code Kotlin mới thường đưa state ra UI bằng <code>StateFlow</code> (như ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>); LiveData vẫn được hỗ trợ và hợp lý cho codebase Java hoặc UI XML đang dùng nó.</p>
-
-<p>So sánh sâu LiveData như một hiện thực của Observer Pattern, đặt cạnh RxJava và Flow, ở 7.1.4.3 LiveData (chưa có bài); Flow và <code>StateFlow</code> ở 7.1.4.2 Flow (chưa có bài).</p>
+<p><strong>Kết quả:</strong> bấm "Lưu", Snackbar "Đã lưu hồ sơ" hiện một lần; xoay màn hình thì không hiện lại. Làm chậm mạng (Network throttling của emulator), bấm "Lưu" rồi xoay ngay: màn mới hiện đúng một Snackbar. Unit test chỉ cần đọc state: sau khi lưu <code>userMessage == R.string.profile_saved</code>, sau <code>userMessageShown()</code> thì <code>null</code>.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
 <ul>
-  <li><strong>Nên dùng</strong> để ViewModel đưa state ra UI viết bằng View/XML, nhất là codebase Java hoặc đã dùng LiveData: lifecycle-aware sẵn, UI không cần coroutine.</li>
+  <li><strong>Nên dùng</strong> để ViewModel đưa state ra UI View/XML, nhất là codebase Java hoặc đã dùng LiveData: lifecycle-aware sẵn, UI không cần coroutine. Code Kotlin mới thường dùng <code>StateFlow</code> (như ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>).</li>
   <li><strong>Nên dùng</strong> với <a href="data_binding.md" target="_blank" rel="noopener">Data Binding</a> (6.2): layout gắn trực tiếp vào LiveData khi binding có <code>lifecycleOwner</code>.</li>
-  <li><strong>Nên dùng</strong> kế thừa <code>LiveData</code> với <code>onActive</code>/<code>onInactive</code> để bọc một nguồn của hệ thống chỉ nên chạy khi có màn hiển thị.</li>
-  <li><strong>Không nên dùng</strong> ở Repository, DataSource hay domain layer, hoặc khi cần toán tử phức tạp (debounce, retry, kết hợp nhiều luồng) hay xử lý ngoài main thread: dùng Flow.</li>
+  <li><strong>Nên dùng</strong> <code>onActive</code>/<code>onInactive</code> để bọc một nguồn của hệ thống chỉ nên chạy khi có màn hiển thị.</li>
+  <li><strong>Không nên dùng</strong> ở Repository, DataSource, domain layer (docs của Android khuyên vậy vì khả năng kết hợp luồng rất hạn chế và mọi biến đổi chạy trên main thread), hoặc khi cần toán tử phức tạp (debounce, retry, kết hợp nhiều luồng): dùng Flow, ViewModel đổi sang LiveData bằng <code>asLiveData()</code> nếu cần.</li>
   <li><strong>Không dùng</strong> để gửi event một lần: biểu diễn thành UI state như mục "Ví dụ thực tế".</li>
-  <li><strong>Không cần</strong> cho màn Compose mới: Compose thường dùng <code>StateFlow</code> với <code>collectAsStateWithLifecycle()</code>; LiveData vẫn đọc được qua <code>observeAsState()</code> (artifact <code>runtime-livedata</code>) khi chuyển dần màn cũ.</li>
+  <li><strong>Không cần</strong> cho màn Compose mới (thường dùng <code>StateFlow</code> với <code>collectAsStateWithLifecycle()</code>); LiveData vẫn đọc được qua <code>observeAsState()</code> (artifact <code>runtime-livedata</code>) khi chuyển dần màn cũ.</li>
 </ul>
 
 <h2>Sai lầm thường gặp</h2>
@@ -48305,79 +47533,59 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
 <h3>1. Gọi <code>setValue</code> từ background thread</h3>
 
 <pre data-lang="kotlin"><code>// Sai: callback của OkHttp chạy trên thread của OkHttp
-apiClient.newCall(request).enqueue(object : Callback {
-    override fun onResponse(call: Call, response: Response) {
-        _orders.value = parseOrders(response)
-    }
-    override fun onFailure(call: Call, e: IOException) { /* ... */ }
-})</code></pre>
+override fun onResponse(call: Call, response: Response) {
+    _orders.value = parseOrders(response)
+}</code></pre>
 
 <p><strong>Lỗi lộ ra thế nào:</strong> crash <code>IllegalStateException: Cannot invoke setValue on a background thread</code> ngay khi response về.</p>
 
-<p><strong>Cách sửa:</strong> dùng <code>_orders.postValue(parseOrders(response))</code>, hoặc chuyển cả lời gọi sang coroutine trong <code>viewModelScope</code> (chạy trên main thread nên dùng <code>value =</code> được).</p>
+<p><strong>Cách sửa:</strong> dùng <code>_orders.postValue(...)</code>, hoặc gọi trong coroutine của <code>viewModelScope</code> (chạy trên main thread nên <code>value =</code> được).</p>
 
 <h3>2. Mong <code>postValue</code> giao đủ mọi giá trị</h3>
 
-<pre data-lang="kotlin"><code>// Sai: dùng LiveData như một hàng đợi
-fun importContacts(contacts: List&lt;Contact&gt;) = executor.execute {
-    contacts.forEach { contact -&gt;
-        contactDao.insert(contact)
-        _importedContact.postValue(contact)   // UI muốn hiện tên từng người
-    }
+<pre data-lang="kotlin"><code>// Sai: dùng LiveData như một hàng đợi (chạy trên executor)
+contacts.forEach { contact -&gt;
+    contactDao.insert(contact)
+    _importedContact.postValue(contact)   // UI muốn hiện tên từng người
 }</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> danh sách "đã nhập" trên UI thiếu người, mỗi lần chạy thiếu một kiểu, vì các <code>postValue()</code> liên tiếp chỉ giao giá trị cuối và observer inactive chỉ nhận giá trị mới nhất.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> UI thiếu người, mỗi lần thiếu một kiểu, vì các <code>postValue()</code> liên tiếp chỉ giao giá trị cuối.</p>
 
-<p><strong>Cách sửa:</strong> LiveData giữ <strong>state</strong>, không phải danh sách sự kiện. Đưa ra state tích luỹ (<code>_importedCount.postValue(count)</code> hoặc danh sách đầy đủ), hoặc dùng Flow khi thật sự cần một luồng giá trị.</p>
+<p><strong>Cách sửa:</strong> đưa ra state tích luỹ (<code>_importedCount.postValue(count)</code> hoặc danh sách đầy đủ), hoặc dùng Flow khi thật sự cần một luồng giá trị.</p>
 
 <h3>3. Tạo LiveData mới mỗi lần gọi hàm</h3>
 
-<pre data-lang="kotlin"><code>// Sai: mỗi lần gọi là một LiveData mới
-class AddressViewModel(private val repository: AddressRepository) : ViewModel() {
-    fun postalCodeOf(address: String): LiveData&lt;String&gt; = repository.lookupPostalCode(address)
-}
-
-// Fragment: mỗi lần người dùng sửa địa chỉ lại observe một LiveData khác
+<pre data-lang="kotlin"><code>// Sai: mỗi lần người dùng sửa địa chỉ, Fragment lại observe một LiveData khác
+fun postalCodeOf(address: String): LiveData&lt;String&gt; = repository.lookupPostalCode(address)
 viewModel.postalCodeOf(address).observe(viewLifecycleOwner) { binding.postalCode.text = it }</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> mỗi lần sửa địa chỉ, Fragment thêm một observer mới mà observer cũ vẫn còn; kết quả cũ về muộn có thể ghi đè kết quả mới. Xoay màn hình thì phải gọi lại <code>lookupPostalCode()</code> từ đầu.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> observer cũ vẫn còn sau mỗi lần sửa, kết quả cũ về muộn có thể ghi đè kết quả mới; xoay màn hình thì tra lại từ đầu.</p>
 
-<p><strong>Cách sửa:</strong> để địa chỉ là một LiveData đầu vào và <code>switchMap</code> sang kết quả, như ví dụ tìm kiếm: <code>val postalCode = address.switchMap { repository.lookupPostalCode(it) }</code>. Fragment observe <code>postalCode</code> đúng một lần.</p>
+<p><strong>Cách sửa:</strong> để địa chỉ là một LiveData đầu vào và <code>switchMap</code> sang kết quả như ví dụ tìm kiếm: <code>val postalCode = address.switchMap { repository.lookupPostalCode(it) }</code>.</p>
 
-<h3>4. Việc nặng trong <code>map</code></h3>
-
-<pre data-lang="kotlin"><code>// Sai: lọc danh sách lớn trên main thread
-val premiumCustomers: LiveData&lt;List&lt;Customer&gt;&gt; = customers.map { all -&gt;
-    all.filter { it.isPremium &amp;&amp; it.totalSpent &gt; threshold }.sortedByDescending { it.totalSpent }
-}</code></pre>
-
-<p><strong>Lỗi lộ ra thế nào:</strong> UI giật mỗi khi dữ liệu đổi; CPU Profiler cho thấy lambda của <code>map</code> chiếm frame dài trên main thread.</p>
-
-<p><strong>Cách sửa:</strong> đẩy việc lọc xuống query của database (<code>WHERE</code>, <code>ORDER BY</code>), hoặc dùng Flow với <code>map</code> và <code>flowOn(Dispatchers.Default)</code> rồi <code>asLiveData()</code>.</p>
-
-<h3>5. Dùng LiveData cho event một lần</h3>
+<h3>4. Dùng LiveData cho event một lần</h3>
 
 <pre data-lang="kotlin"><code>// Sai: event điều hướng giữ trong LiveData
 private val _navigateToOrderDetail = MutableLiveData&lt;Long&gt;()
 // Fragment: observe rồi gọi navigate(orderId)</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> xoay màn hình (hoặc quay lại từ màn chi tiết) thì observer mới nhận lại <code>orderId</code> cũ và mở màn chi tiết thêm lần nữa.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> xoay màn hình thì observer mới nhận lại <code>orderId</code> cũ và mở màn chi tiết thêm lần nữa.</p>
 
-<p><strong>Cách sửa:</strong> biểu diễn thành UI state và báo lại khi đã xử lý (mục "Ví dụ thực tế"); với code cũ chưa chuyển được, bọc bằng <code>Event&lt;T&gt;</code> và đọc qua <code>getContentIfNotHandled()</code>.</p>
+<p><strong>Cách sửa:</strong> biểu diễn thành UI state và báo lại khi đã xử lý (mục "Ví dụ thực tế"); code cũ chưa chuyển được thì bọc bằng <code>Event&lt;T&gt;</code>.</p>
 
-<p>Hai sai lầm khác đã nêu trong phần kiến thức: observe bằng <code>this</code> thay vì <code>viewLifecycleOwner</code> trong Fragment (xem thêm <a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "Sai lầm thường gặp", phần 1), và <code>observeForever()</code> mà không <code>removeObserver()</code>.</p>
+<p>Hai sai lầm khác đã nêu ở trên: observe bằng <code>this</code> trong Fragment, và <code>observeForever()</code> không <code>removeObserver()</code>.</p>
 
 <h2>Lịch sử phát triển</h2>
 
 <ul>
-  <li><strong>Google I/O (05/2017):</strong> Android Architecture Components ra mắt bản alpha, gồm Lifecycle, LiveData, ViewModel và Room; LiveData cho UI quan sát dữ liệu mà không leak, không cần RxJava.</li>
+  <li><strong>Google I/O (05/2017):</strong> Android Architecture Components ra mắt bản alpha, gồm Lifecycle, LiveData, ViewModel và Room.</li>
   <li><strong>Architecture Components 1.0.0 (11/2017):</strong> bản stable đầu tiên, package <code>android.arch.lifecycle</code>.</li>
   <li><strong>Lifecycle 2.0.0 (09/2018):</strong> chuyển sang AndroidX, package <code>androidx.lifecycle</code>.</li>
-  <li><strong>Lifecycle 2.1.0 (09/2019):</strong> thêm extension Kotlin cho <code>observe</code> và các hàm <code>Transformations</code> (<code>liveData.map {}</code>), thêm <code>distinctUntilChanged</code>.</li>
-  <li><strong>Lifecycle 2.2.0 (01/2020):</strong> <code>lifecycle-livedata-ktx</code> có builder <code>liveData {}</code> dựa trên coroutine và cầu nối với Flow; artifact <code>lifecycle-extensions</code> bị deprecated.</li>
-  <li><strong>Lifecycle 2.3.0 (02/2021):</strong> extension <code>LiveData.observe()</code> dạng lambda bị deprecated vì Kotlin 1.4 đã chuyển lambda thành <code>Observer</code> (SAM conversion); thêm Lint cảnh báo đặt <code>null</code> vào <code>MutableLiveData</code> khai báo non-null.</li>
-  <li><strong>Lifecycle 2.6.0 (03/2023):</strong> <code>Transformations</code> và <code>Observer</code> được viết lại bằng Kotlin; code Kotlin buộc dùng dạng extension <code>map {}</code>, <code>switchMap {}</code>; thêm <code>LiveData.isInitialized</code> và constructor nhận giá trị khởi tạo cho <code>MediatorLiveData</code>.</li>
-  <li><strong>Lifecycle 2.7.0 (01/2024):</strong> nội dung <code>lifecycle-livedata-ktx</code> được gộp vào <code>lifecycle-livedata</code>; extension <code>map</code> và <code>switchMap</code> đặt sẵn giá trị cho LiveData trả về ngay khi nguồn đã có giá trị, giống hành vi sẵn có của <code>distinctUntilChanged</code>.</li>
+  <li><strong>Lifecycle 2.1.0 (09/2019):</strong> extension Kotlin cho <code>observe</code> và các hàm <code>Transformations</code> (<code>liveData.map {}</code>), thêm <code>distinctUntilChanged</code>.</li>
+  <li><strong>Lifecycle 2.2.0 (01/2020):</strong> <code>lifecycle-livedata-ktx</code> có builder <code>liveData {}</code> và cầu nối với Flow; <code>lifecycle-extensions</code> bị deprecated.</li>
+  <li><strong>Lifecycle 2.3.0 (02/2021):</strong> extension <code>LiveData.observe()</code> dạng lambda bị deprecated nhờ SAM conversion của Kotlin 1.4; thêm Lint cảnh báo đặt <code>null</code> vào <code>MutableLiveData</code> khai báo non-null.</li>
+  <li><strong>Lifecycle 2.6.0 (03/2023):</strong> <code>Transformations</code> và <code>Observer</code> viết lại bằng Kotlin, code Kotlin buộc dùng extension <code>map {}</code>, <code>switchMap {}</code>; thêm <code>LiveData.isInitialized</code> và constructor nhận giá trị khởi tạo cho <code>MediatorLiveData</code>.</li>
+  <li><strong>Lifecycle 2.7.0 (01/2024):</strong> <code>lifecycle-livedata-ktx</code> gộp vào <code>lifecycle-livedata</code>; <code>map</code>, <code>switchMap</code> đặt sẵn giá trị ngay khi nguồn đã có giá trị, giống <code>distinctUntilChanged</code>.</li>
   <li><strong>Hiện nay:</strong> hướng dẫn kiến trúc của Android dùng <code>StateFlow</code> cho state và khuyên biểu diễn event thành UI state; LiveData vẫn được duy trì, không bị deprecated.</li>
 </ul>
 
@@ -48386,25 +47594,25 @@ private val _navigateToOrderDetail = MutableLiveData&lt;Long&gt;()
 <ul>
   <li><strong>Tiên quyết:</strong>
 <ul>
-  <li><a href="../session_04/components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>: <code>LifecycleOwner</code>, <code>Lifecycle.State</code>, cơ chế phát state mà LiveData dựa vào.</li>
+  <li><a href="../session_04/components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>: <code>LifecycleOwner</code>, <code>Lifecycle.State</code>.</li>
   <li><a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>: vì sao observe bằng <code>viewLifecycleOwner</code>.</li>
   <li><a href="../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: main thread và <code>MessageQueue</code>, nền của <code>setValue</code> và <code>postValue</code>.</li>
 </ul></li>
   <li><strong>Liên quan:</strong>
 <ul>
-  <li><a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>: cách các ví dụ truy cập View trong observer.</li>
+  <li><a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>: cách các ví dụ truy cập View.</li>
   <li><a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a> và <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>: DAO trả <code>LiveData</code> hoặc <code>Flow</code>.</li>
   <li><a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>: <code>NetworkCallback</code> làm nguồn cho <code>NetworkStatusLiveData</code>.</li>
-  <li><a href="../session_04/components/activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>: <code>SavedStateHandle.getLiveData()</code> cho state cần sống qua process death.</li>
+  <li><a href="../session_04/components/activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>: <code>SavedStateHandle.getLiveData()</code> cho state sống qua process death.</li>
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
-  <li><a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a> (6.4): nơi giữ LiveData, vì sao nó sống qua xoay màn hình, <code>viewModelScope</code> và factory.</li>
+  <li><a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a> (6.4): nơi giữ LiveData, <code>viewModelScope</code> và factory.</li>
   <li><a href="data_binding.md" target="_blank" rel="noopener">Data Binding</a> (6.2): gắn LiveData trực tiếp vào layout.</li>
-  <li>7.1.4.3 LiveData (chưa có bài): LiveData như một hiện thực của Observer Pattern, so với RxJava và Flow.</li>
+  <li>7.1.4.3 LiveData (chưa có bài): LiveData như một hiện thực của Observer Pattern.</li>
   <li>7.1.4.2 Flow (chưa có bài): <code>Flow</code>, <code>StateFlow</code> và các toán tử LiveData không có.</li>
   <li>7.2.3 MVVM (chưa có bài): vị trí của LiveData giữa View và ViewModel.</li>
-  <li>8.4.3 Coroutines (chưa có bài): coroutine dùng trong <code>liveData {}</code> và <code>viewModelScope</code>.</li>
+  <li>8.4.3 Coroutines (chưa có bài): coroutine trong <code>liveData {}</code> và <code>viewModelScope</code>.</li>
 </ul></li>
 </ul>
 
@@ -49258,10 +48466,10 @@ val uiState = MutableStateFlow&lt;SearchUiState&gt;(SearchUiState.Idle)</code></
   },
   'paging-library': {
     title: 'Paging',
-    summary: 'Paging (Paging 3) là thư viện Jetpack tải và hiển thị một tập dữ liệu lớn theo từng trang, đúng lúc người dùng cuộn tới. PagingSource biết cách tải một trang theo key, Pager biến nó thành luồng Flow<PagingData> được cache trong ViewModel, còn UI chỉ hiển thị và báo vị trí đang xem. Bài giải thích PagingSource, PagingConfig, cachedIn, PagingDataAdapter, LoadState và retry, biến đổi PagingData, RemoteMediator với Room làm nguồn sự thật, cách test và các lỗi thường gặp.',
+    summary: 'Paging (Paging 3) là thư viện Jetpack tải và hiển thị một tập dữ liệu lớn theo từng trang, đúng lúc người dùng cuộn tới. PagingSource biết cách tải một trang theo key, Pager biến nó thành luồng Flow<PagingData> được cache trong ViewModel, còn UI chỉ hiển thị và báo vị trí đang xem.',
     status: 'reviewing',
     difficulty: 'intermediate',
-    estimatedReadingTime: '25 phút',
+    estimatedReadingTime: '17 phút',
     depth: 'deep-dive',
     tags: ['android', 'paging', 'jetpack', 'recyclerview', 'room', 'offline-first', 'flow'],
     domain: 'Android',
@@ -49269,45 +48477,37 @@ val uiState = MutableStateFlow&lt;SearchUiState&gt;(SearchUiState.Idle)</code></
     prerequisites: ['android.jetpack.view_binding', 'android.component.fragment.lifecycle', 'android.data_store.room_architecture', 'android.networking.basics'],
     related: ['android.data_store.room_transactions', 'android.testing.unit_testing', 'android.jetpack_compose.compose_overview'],
     learningOutcomes: [
-      'Giải thích được cách Paging tải dữ liệu theo trang qua PagingSource, Pager và PagingData, và vì sao mỗi PagingSource chỉ là một snapshot dùng một lần.',
-      'Triển khai được danh sách phân trang gồm PagingSource, Pager với cachedIn trong ViewModel, và PagingDataAdapter hoặc collectAsLazyPagingItems ở UI.',
-      'Xử lý được trạng thái tải, lỗi và retry bằng LoadState, kể cả footer tải thêm bằng withLoadStateFooter.',
-      'Thiết kế được danh sách offline-first với Room làm nguồn sự thật và RemoteMediator tải thêm từ mạng.',
-      'Nhận diện được các lỗi thường gặp như quên cachedIn, tạo Pager mới mỗi lần collect, dùng lại PagingSource, getRefreshKey sai và key không ổn định khiến danh sách nhấp nháy.'
+      'Giải thích được cách PagingSource, Pager và PagingData tải dữ liệu theo trang, và vì sao mỗi PagingSource chỉ dùng cho một snapshot.',
+      'Triển khai được danh sách phân trang với cachedIn và PagingDataAdapter hoặc collectAsLazyPagingItems.',
+      'Xử lý được trạng thái tải, lỗi và retry bằng LoadState và withLoadStateFooter.',
+      'Thiết kế được danh sách offline-first với Room và RemoteMediator.',
+      'Nhận diện được các lỗi quên cachedIn, dùng lại PagingSource, getRefreshKey sai và key không ổn định.'
     ],
-    knowledgeGap: 'Không hiểu Paging thì hoặc tải cả danh sách vào bộ nhớ (chậm, tốn RAM và data), hoặc tự viết cuộn vô tận với cờ isLoading và số trang thủ công dễ tải trùng, mất trang khi lỗi mạng. Dùng Paging mà không nắm cơ chế thì quên cachedIn khiến xoay màn hình tải lại từ đầu, tạo Pager mới ở mỗi lần collect, dùng lại PagingSource gây crash khi refresh, hoặc dùng id tự sinh làm key khiến danh sách nhấp nháy và nhảy vị trí sau mỗi lần làm mới.',
+    knowledgeGap: 'Không hiểu Paging thì hoặc tải cả danh sách vào bộ nhớ, hoặc tự viết cuộn vô tận dễ tải trùng. Dùng sai thì xoay màn hình tải lại từ đầu, refresh bị crash, hoặc danh sách nhấp nháy sau mỗi lần làm mới.',
     updatedAt: '2026-11-08',
-    readTime: '25 phút',
+    readTime: '17 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
-<p>Nhiều màn hình hiển thị một danh sách mà nguồn dữ liệu lớn hơn rất nhiều so với những gì người dùng thực sự xem: feed bài viết, kết quả tìm kiếm, lịch sử giao dịch, danh bạ. Cách đơn giản nhất là tải hết một lần:</p>
+<p>Feed, kết quả tìm kiếm, lịch sử giao dịch thường lớn hơn nhiều so với phần người dùng thực sự xem. Cách đơn giản nhất là tải hết:</p>
 
-<pre data-lang="kotlin"><code>// Tải toàn bộ lịch sử giao dịch rồi mới hiển thị
-val transactions = api.getAllTransactions()   // 20.000 bản ghi
+<pre data-lang="kotlin"><code>val transactions = api.getAllTransactions()   // 20.000 bản ghi
 adapter.submitList(transactions)</code></pre>
 
-<p>Người dùng chỉ xem 20 dòng đầu, nhưng app phải tải, parse và giữ 20.000 object: màn hình trắng lâu, RAM tăng (máy yếu có thể <code>OutOfMemoryError</code>), tốn data và pin cho những trang không ai mở.</p>
+<p>Người dùng chỉ xem 20 dòng đầu, nhưng app phải tải và giữ 20.000 object: màn hình trắng lâu, RAM tăng (có thể <code>OutOfMemoryError</code>), tốn data.</p>
 
-<p>Cách thứ hai là tự viết cuộn vô tận: gần cuối danh sách thì gọi trang tiếp theo. Nghe đơn giản, nhưng code tự viết phải tự lo:</p>
+<p>Tự viết cuộn vô tận thì phải tự lo chống request trùng, thử lại đúng trang lỗi, giữ dữ liệu khi xoay màn hình, huỷ request khi đổi từ khoá, hiện dữ liệu đã lưu khi offline: chỗ nào cũng dễ sai, và cách sửa giống nhau ở mọi app.</p>
 
-<ul>
-  <li>Cờ <code>isLoading</code> để cuộn nhanh không gửi hai request cho cùng một trang; biết khi nào hết dữ liệu.</li>
-  <li>Lỗi mạng ở trang 5: hiện "Thử lại" ở cuối, thử lại đúng trang 5, giữ trang 1 đến 4; trạng thái riêng cho lần tải đầu (toàn màn hình) và lần tải thêm.</li>
-  <li>Xoay màn hình không tải lại từ trang 1; đổi từ khoá thì huỷ request cũ, bỏ kết quả về muộn.</li>
-  <li>Hiển thị dữ liệu đã lưu khi offline, đồng bộ khi có mạng.</li>
-</ul>
-
-<p>Mỗi điểm là một chỗ dễ sai, và cách sửa giống nhau ở mọi app. Vấn đề cần giải quyết là: <strong>tải dữ liệu theo từng phần đúng lúc cần, với trạng thái tải, lỗi, thử lại, cache và làm mới được xử lý một lần, nhất quán.</strong></p>
+<p>Vấn đề cần giải quyết là: <strong>tải dữ liệu theo từng phần đúng lúc cần, với trạng thái tải, lỗi, thử lại, cache và làm mới được xử lý một lần, nhất quán.</strong></p>
 
 <h2>Sau khi học xong</h2>
 
 <ul>
-  <li>Giải thích được cách Paging tải dữ liệu theo trang qua PagingSource, Pager và PagingData, và vì sao mỗi PagingSource chỉ là một snapshot dùng một lần.</li>
-  <li>Triển khai được danh sách phân trang gồm PagingSource, Pager với cachedIn trong ViewModel, và PagingDataAdapter hoặc collectAsLazyPagingItems ở UI.</li>
-  <li>Xử lý được trạng thái tải, lỗi và retry bằng LoadState, kể cả footer tải thêm bằng withLoadStateFooter.</li>
-  <li>Thiết kế được danh sách offline-first với Room làm nguồn sự thật và RemoteMediator tải thêm từ mạng.</li>
-  <li>Nhận diện được các lỗi thường gặp như quên cachedIn, tạo Pager mới mỗi lần collect, dùng lại PagingSource, getRefreshKey sai và key không ổn định khiến danh sách nhấp nháy.</li>
+  <li>Giải thích được cách PagingSource, Pager và PagingData tải dữ liệu theo trang, và vì sao mỗi PagingSource chỉ dùng cho một snapshot.</li>
+  <li>Triển khai được danh sách phân trang với cachedIn và PagingDataAdapter hoặc collectAsLazyPagingItems.</li>
+  <li>Xử lý được trạng thái tải, lỗi và retry bằng LoadState và withLoadStateFooter.</li>
+  <li>Thiết kế được danh sách offline-first với Room và RemoteMediator.</li>
+  <li>Nhận diện được các lỗi quên cachedIn, dùng lại PagingSource, getRefreshKey sai và key không ổn định.</li>
 </ul>
 
 <h2>Paging là gì?</h2>
@@ -49316,120 +48516,41 @@ adapter.submitList(transactions)</code></pre>
 
 <p>Mental model: Paging là một <strong>cửa sổ trượt</strong> trên một danh sách rất dài. Chỉ các trang quanh vị trí đang xem nằm trong bộ nhớ; cuộn gần mép cửa sổ thì Paging tự tải thêm trang ở mép đó, và nếu bạn đặt giới hạn thì các trang ở xa bị bỏ bớt. Bạn chỉ mô tả "lấy một trang thế nào"; việc trượt cửa sổ là của thư viện.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước, chỉ dùng tối thiểu trong bài:  - Coroutine (hàm <code>suspend</code>, <code>viewModelScope</code>, <code>lifecycleScope.launch</code>): chạy việc bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài). - <code>Flow</code> và các toán tử <code>map</code>, <code>flatMapLatest</code>, <code>collectLatest</code>, <code>MutableStateFlow</code>: luồng giá trị bất đồng bộ, học ở 7.1.4.2 Flow (chưa có bài). - <code>ViewModel</code> và <code>viewModelScope</code>: nơi giữ trạng thái màn hình qua xoay màn hình, học ở <a href="viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>. - <code>RecyclerView</code>, <code>ViewHolder</code>, <code>DiffUtil</code>: hiển thị danh sách, học ở 8.5.1 Layouts (chưa có bài) và 7.1.2 ViewHolder Pattern (chưa có bài). - Interface Retrofit (<code>@GET</code>, <code>suspend fun</code>, <code>retrofit2.HttpException</code>): gọi API, học ở 8.1.1 Retrofit (chưa có bài); phân loại lỗi mạng ở <a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: coroutine, <code>Flow</code> (8.4.3 Coroutines, 7.1.4.2 Flow, chưa có bài); <code>ViewModel</code> (<a href="viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>); <code>RecyclerView</code>, <code>DiffUtil</code> (7.1.2 ViewHolder Pattern, chưa có bài); Retrofit (8.1.1 Retrofit, chưa có bài) và lỗi mạng (<a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>).</div></div>
 
 <h2>Cách hoạt động</h2>
 
 <h3>Ba tầng của Paging</h3>
 
-<p>Paging chia việc tải danh sách thành ba tầng, khớp kiến trúc khuyến nghị của Android:</p>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Tầng</th>
-      <th style="padding:8px 12px;text-align:left;">Thành phần</th>
-      <th style="padding:8px 12px;text-align:left;">Việc của nó</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Repository</td>
-      <td style="padding:8px 12px;"><code>PagingSource&lt;Key, Value&gt;</code></td>
-      <td style="padding:8px 12px;">Tải <strong>một</strong> trang từ <strong>một</strong> nguồn (API hoặc database) theo key.</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Repository</td>
-      <td style="padding:8px 12px;"><code>RemoteMediator&lt;Key, Value&gt;</code> (tuỳ chọn)</td>
-      <td style="padding:8px 12px;">Khi dữ liệu local hết, tải thêm từ mạng và ghi vào database.</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">ViewModel</td>
-      <td style="padding:8px 12px;"><code>Pager</code> + <code>PagingConfig</code></td>
-      <td style="padding:8px 12px;">Điều phối việc gọi <code>PagingSource</code>, phát ra <code>Flow&lt;PagingData&lt;Value&gt;&gt;</code>.</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">ViewModel</td>
-      <td style="padding:8px 12px;"><code>cachedIn(viewModelScope)</code></td>
-      <td style="padding:8px 12px;">Giữ các trang đã tải qua xoay màn hình, cho phép collect lại.</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">UI</td>
-      <td style="padding:8px 12px;"><code>PagingDataAdapter</code> (RecyclerView) hoặc <code>collectAsLazyPagingItems()</code> (Compose)</td>
-      <td style="padding:8px 12px;">Hiển thị <code>PagingData</code>, báo vị trí đang xem để Paging tải tiếp, phát <code>LoadState</code>.</td>
-    </tr>
-  </tbody>
-</table>
+<p>Repository: <code>PagingSource</code> tải <strong>một</strong> trang từ <strong>một</strong> nguồn theo key, tuỳ chọn <code>RemoteMediator</code> tải thêm từ mạng vào database. ViewModel: <code>Pager</code> + <code>PagingConfig</code> phát <code>Flow&lt;PagingData&gt;</code>, <code>cachedIn(viewModelScope)</code> giữ trang đã tải. UI: <code>PagingDataAdapter</code> hoặc <code>collectAsLazyPagingItems()</code> hiển thị và báo vị trí đang xem.</p>
 
 <p><code>PagingData</code> là một <strong>snapshot</strong> của danh sách đã phân trang: các trang đã tải, cộng một kênh để UI báo ngược "đang xem item thứ N". Mỗi lần nguồn đổi hẳn (làm mới, đổi từ khoá), <code>Pager</code> phát ra một <code>PagingData</code> mới.</p>
 
-<p>Luồng chạy chung:</p>
+<p>Luồng chạy chung: UI collect <code>Flow&lt;PagingData&gt;</code>; <code>Pager</code> gọi <code>PagingSource.load()</code> cho lần tải đầu (refresh), nhận trang kèm key trang trước/sau, qua <code>cachedIn</code> tới UI. Cuộn tới cách mép ít hơn <code>prefetchDistance</code> item thì <code>Pager</code> gọi <code>load()</code> với key trang sau (append). Hai ví dụ feed bên dưới đi qua từng bước kèm sơ đồ.</p>
 
-<ol>
-  <li>UI collect <code>Flow&lt;PagingData&gt;</code> từ ViewModel và đưa từng <code>PagingData</code> cho adapter.</li>
-  <li><code>Pager</code> gọi <code>PagingSource.load()</code> cho lần tải đầu (refresh).</li>
-  <li><code>PagingSource</code> trả về một trang kèm key của trang trước và trang sau.</li>
-  <li>Trang đi qua <code>cachedIn</code> trong ViewModel rồi tới UI; adapter hiển thị.</li>
-  <li>Người dùng cuộn; adapter báo vị trí đang xem. Khi còn cách mép dữ liệu ít hơn <code>prefetchDistance</code> item, <code>Pager</code> gọi <code>load()</code> với key trang sau (append).</li>
-</ol>
-
-<div class="mermaid">
-sequenceDiagram
-    participant UI as UI (Adapter)
-    participant VM as ViewModel (Pager + cachedIn)
-    participant PS as PagingSource
-    participant API as Nguồn dữ liệu
-    UI-&gt;&gt;VM: (1) collect Flow&lt;PagingData&gt;
-    VM-&gt;&gt;PS: (2) load(Refresh, key = null)
-    PS-&gt;&gt;API: gọi trang đầu
-    API--&gt;&gt;PS: dữ liệu
-    PS--&gt;&gt;VM: (3) Page(data, prevKey, nextKey)
-    VM--&gt;&gt;UI: (4) PagingData → hiển thị
-    UI-&gt;&gt;VM: (5) đang xem item gần cuối
-    VM-&gt;&gt;PS: load(Append, key = nextKey)
-</div>
-
-<p>Cài đặt (chỉ thêm artifact bạn dùng):</p>
-
-<pre data-lang="kotlin"><code>// app/build.gradle.kts
+<pre data-lang="kotlin"><code>// app/build.gradle.kts (chỉ thêm artifact bạn dùng)
 dependencies {
     val pagingVersion = "3.5.3"
-    // Lõi + PagingDataAdapter cho RecyclerView
-    implementation("androidx.paging:paging-runtime:$pagingVersion")
-    // collectAsLazyPagingItems cho Jetpack Compose (nếu dùng Compose)
-    implementation("androidx.paging:paging-compose:$pagingVersion")
-    // TestPager, asSnapshot cho unit test
-    testImplementation("androidx.paging:paging-testing:$pagingVersion")
-    // DAO của Room trả về PagingSource; dùng cùng biến version với room-runtime
-    implementation("androidx.room:room-paging:$roomVersion")
+    implementation("androidx.paging:paging-runtime:$pagingVersion")      // lõi + PagingDataAdapter
+    implementation("androidx.paging:paging-compose:$pagingVersion")      // nếu dùng Compose
+    testImplementation("androidx.paging:paging-testing:$pagingVersion")  // TestPager, asSnapshot
+    implementation("androidx.room:room-paging:$roomVersion")             // DAO trả PagingSource
 }</code></pre>
 
 <h3>PagingSource: tải một trang theo key</h3>
 
-<p><code>PagingSource&lt;Key, Value&gt;</code> có hai tham số kiểu:</p>
+<p><code>PagingSource&lt;Key, Value&gt;</code> (<code>Key</code> là số trang, cursor...; <code>Value</code> là kiểu item) override hai hàm:</p>
 
 <ul>
-  <li><code>Key</code>: thứ dùng để xin một trang (số trang <code>Int</code>, cursor <code>String</code>...).</li>
-  <li><code>Value</code>: kiểu của từng item, ví dụ <code>Article</code>.</li>
+  <li><code>suspend fun load(params)</code>: <code>params.key</code> là key cần tải (<code>null</code> ở lần tải đầu), <code>params.loadSize</code> là số item Paging <em>gợi ý</em>. Trả về <code>LoadResult.Page(data, prevKey, nextKey)</code> khi thành công (key <code>null</code> là hết trang theo hướng đó), <code>LoadResult.Error(throwable)</code> cho lỗi dự kiến (Paging chuyển thành <code>LoadState.Error</code>, cho phép retry), hoặc <code>LoadResult.Invalid()</code> khi nguồn đã đổi.</li>
+  <li><code>fun getRefreshKey(state)</code>: khi làm mới, trả về key để trang mới bắt đầu <strong>gần vị trí đang xem</strong> (<code>state.anchorPosition</code>) thay vì quay về đầu.</li>
 </ul>
 
-<p>Bạn override hai hàm:</p>
-
-<ul>
-  <li><code>suspend fun load(params: LoadParams&lt;Key&gt;): LoadResult&lt;Key, Value&gt;</code>: tải một trang. <code>params.key</code> là key cần tải (<code>null</code> ở lần tải đầu), <code>params.loadSize</code> là số item Paging <em>gợi ý</em>. Trả về một trong ba dạng:
-<ul>
-  <li><code>LoadResult.Page(data, prevKey, nextKey)</code>: thành công. <code>prevKey</code>/<code>nextKey</code> là key của trang trước/sau; <code>null</code> nghĩa là không còn trang theo hướng đó.</li>
-  <li><code>LoadResult.Error(throwable)</code>: lỗi dự kiến (mất mạng, HTTP 5xx). Paging chuyển nó thành <code>LoadState.Error</code> cho UI và cho phép retry.</li>
-  <li><code>LoadResult.Invalid()</code>: nguồn đã đổi, <code>PagingSource</code> này không còn dùng được và cần được thay bằng instance mới.</li>
-</ul></li>
-  <li><code>fun getRefreshKey(state: PagingState&lt;Key, Value&gt;): Key?</code>: khi danh sách được làm mới, trả về key để trang mới bắt đầu <strong>gần vị trí người dùng đang xem</strong> (<code>state.anchorPosition</code>), thay vì quay về đầu danh sách.</li>
-</ul>
-
-<p>Một <code>PagingSource</code> đại diện cho <strong>một snapshot</strong> của nguồn. Khi nguồn đổi, nó bị <code>invalidate()</code> và <code>Pager</code> gọi factory tạo instance <strong>mới</strong>; instance cũ không bao giờ được dùng lại (mục "Deep Dive").</p>
+<p>Một <code>PagingSource</code> là <strong>một snapshot</strong> của nguồn: khi nguồn đổi, nó bị <code>invalidate()</code> và <code>Pager</code> gọi factory tạo instance <strong>mới</strong> (mục "Deep Dive").</p>
 
 <h4>Ví dụ: feed bài viết từ API phân trang theo số trang</h4>
 
-<p><strong>Bài toán:</strong> feed của app tin tức; API <code>GET /articles?page=N&amp;limit=20</code> trả bài viết kèm <code>totalPages</code>. Đây là dạng phân trang phổ biến nhất: key là số trang, trang cố định 20 bài.</p>
+<p><strong>Bài toán:</strong> feed của app tin tức; API <code>GET /articles?page=N&amp;limit=20</code> trả bài viết kèm <code>totalPages</code>.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
@@ -49437,8 +48558,8 @@ dependencies {
   <li>Lấy key cần tải: <code>params.key</code>, hoặc trang 1 nếu là lần tải đầu (<code>null</code>).</li>
   <li>Gọi API với số trang đó và kích thước trang cố định của API.</li>
   <li>Thành công: trả <code>LoadResult.Page</code>; <code>prevKey</code> là <code>null</code> ở trang 1, <code>nextKey</code> là <code>null</code> ở trang cuối.</li>
-  <li>Lỗi mạng (<code>IOException</code>) hoặc lỗi HTTP (<code>HttpException</code>): trả <code>LoadResult.Error</code> để UI hiện trạng thái lỗi và retry.</li>
-  <li><code>getRefreshKey()</code>: tìm trang gần vị trí đang xem nhất, suy ra số trang của nó từ <code>prevKey + 1</code> hoặc <code>nextKey - 1</code>.</li>
+  <li><code>IOException</code> hoặc <code>HttpException</code>: trả <code>LoadResult.Error</code>.</li>
+  <li><code>getRefreshKey()</code>: tìm trang gần vị trí đang xem nhất, suy ra số trang từ <code>prevKey + 1</code> hoặc <code>nextKey - 1</code>.</li>
 </ol>
 
 <div class="mermaid">
@@ -49450,20 +48571,8 @@ flowchart TD
     F --&gt; A
 </div>
 
-<pre data-lang="kotlin"><code>// ArticleApi.kt
-interface ArticleApi {
-    @GET("articles")
-    suspend fun getArticles(
-        @Query("page") page: Int,
-        @Query("limit") limit: Int
-    ): ArticlePageResponse
-}
-
-data class ArticlePageResponse(val articles: List&lt;Article&gt;, val totalPages: Int)
-
-data class Article(val id: String, val title: String, val summary: String, val publishedAt: Long)</code></pre>
-
 <pre data-lang="kotlin"><code>// ArticlePagingSource.kt
+// api.getArticles(page, limit) trả ArticlePageResponse(articles: List&lt;Article&gt;, totalPages: Int)
 class ArticlePagingSource(
     private val api: ArticleApi
 ) : PagingSource&lt;Int, Article&gt;() {
@@ -49499,26 +48608,25 @@ class ArticlePagingSource(
     }
 }</code></pre>
 
-<p>Hàm <code>suspend</code> của Retrofit tự chạy request trên thread nền, nên không cần <code>withContext(Dispatchers.IO)</code>. Chỉ bắt <code>IOException</code> và <code>HttpException</code>, nên <code>CancellationException</code> không bị nuốt khi Paging huỷ một lần tải.</p>
+<p>Chỉ bắt <code>IOException</code> và <code>HttpException</code>, nên <code>CancellationException</code> không bị nuốt khi Paging huỷ một lần tải.</p>
 
-<p><strong>Kết quả:</strong> kiểm chứng bằng <code>TestPager</code> (mục "Ví dụ thực tế"): <code>refresh()</code> trả trang có <code>prevKey = null</code>, <code>nextKey = 2</code>; trên API giả 3 trang, <code>append()</code> lần hai trả trang có <code>nextKey = null</code>; API giả lỗi mạng thì <code>refresh()</code> trả <code>LoadResult.Error</code>.</p>
+<p><strong>Kết quả:</strong> <code>TestPager</code> (mục "Ví dụ thực tế") cho thấy <code>refresh()</code> trả <code>prevKey = null</code>, <code>nextKey = 2</code>; trên API giả 3 trang, <code>append()</code> lần hai trả <code>nextKey = null</code>.</p>
 
 <h4>Khi nguồn là Room: để Room sinh PagingSource</h4>
 
-<p>Với dữ liệu trong database, không cần tự viết <code>PagingSource</code>: Room (<a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>) sinh sẵn implementation khi hàm <code>@Query</code> trả <code>PagingSource&lt;Int, Entity&gt;</code> và module có <code>room-paging</code>:</p>
+<p>Room (<a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>) sinh sẵn <code>PagingSource</code> khi hàm <code>@Query</code> trả <code>PagingSource&lt;Int, Entity&gt;</code> và module có <code>room-paging</code>:</p>
 
-<pre data-lang="kotlin"><code>// ContactDao.kt
-@Dao
+<pre data-lang="kotlin"><code>@Dao
 interface ContactDao {
     @Query("SELECT * FROM contacts ORDER BY displayName COLLATE NOCASE, id")
     fun pagingSource(): PagingSource&lt;Int, Contact&gt;
 }</code></pre>
 
-<p><code>PagingSource</code> của Room dùng key là vị trí (offset) trong kết quả query, đếm được tổng số dòng (nên hỗ trợ placeholder), đã có <code>getRefreshKey</code>, và tự <code>invalidate()</code> khi bảng trong query bị ghi, nhờ <code>InvalidationTracker</code> ở <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, mục "Flow từ Room — Cơ chế InvalidationTracker".</p>
+<p><code>PagingSource</code> của Room dùng key là offset, đếm được tổng số dòng (nên hỗ trợ placeholder), đã có <code>getRefreshKey</code>, và tự <code>invalidate()</code> khi bảng trong query bị ghi, nhờ <code>InvalidationTracker</code> ở <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, mục "Flow từ Room — Cơ chế InvalidationTracker".</p>
 
 <h3>Pager, PagingConfig và cachedIn trong ViewModel</h3>
 
-<p><code>Pager</code> nhận một <code>PagingConfig</code>, một <strong>factory</strong> tạo <code>PagingSource</code> mới (<code>pagingSourceFactory</code>), và tuỳ chọn một <code>RemoteMediator</code>; <code>pager.flow</code> là <code>Flow&lt;PagingData&lt;Value&gt;&gt;</code>. <code>PagingConfig</code> quyết định cửa sổ trượt rộng bao nhiêu và trượt thế nào:</p>
+<p><code>Pager</code> nhận một <code>PagingConfig</code>, một <strong>factory</strong> tạo <code>PagingSource</code> mới (<code>pagingSourceFactory</code>), và tuỳ chọn một <code>RemoteMediator</code>; <code>pager.flow</code> là <code>Flow&lt;PagingData&lt;Value&gt;&gt;</code>. <code>PagingConfig</code> quyết định cửa sổ trượt:</p>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -49532,116 +48640,59 @@ interface ContactDao {
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>pageSize</code></td>
       <td style="padding:8px 12px;">(bắt buộc)</td>
-      <td style="padding:8px 12px;">Số item mỗi lần tải. Docs khuyên bằng vài lần số item hiện trên màn hình; card lớn kiểu mạng xã hội 10–20, lưới nhiều ô có thể gần 100.</td>
+      <td style="padding:8px 12px;">Số item mỗi lần tải; nên bằng vài lần số item trên màn hình.</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>prefetchDistance</code></td>
       <td style="padding:8px 12px;"><code>pageSize</code></td>
-      <td style="padding:8px 12px;">Còn cách mép dữ liệu đã tải bao nhiêu item thì tải trang tiếp. <code>0</code> nghĩa là chỉ tải khi chạm mép, người dùng sẽ thấy cuối danh sách hoặc placeholder.</td>
+      <td style="padding:8px 12px;">Còn cách mép bao nhiêu item thì tải trang tiếp; <code>0</code> là chạm mép mới tải.</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>initialLoadSize</code></td>
       <td style="padding:8px 12px;"><code>pageSize * 3</code></td>
-      <td style="padding:8px 12px;">Số item xin ở lần tải đầu, để lần cuộn đầu không phải chờ.</td>
+      <td style="padding:8px 12px;">Số item xin ở lần tải đầu.</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>enablePlaceholders</code></td>
       <td style="padding:8px 12px;"><code>true</code></td>
-      <td style="padding:8px 12px;">Cho phép hiện item <code>null</code> thay cho phần chưa tải, <strong>nếu</strong> <code>PagingSource</code> đếm được tổng số item (Room đếm được, đa số API thì không).</td>
+      <td style="padding:8px 12px;">Hiện item <code>null</code> cho phần chưa tải, <strong>nếu</strong> <code>PagingSource</code> đếm được tổng số (Room được, đa số API không).</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>maxSize</code></td>
       <td style="padding:8px 12px;"><code>MAX_SIZE_UNBOUNDED</code></td>
-      <td style="padding:8px 12px;">Số item tối đa giữ trong <code>PagingData</code> trước khi bỏ các trang xa. Phải ít nhất <code>pageSize + 2 * prefetchDistance</code>.</td>
+      <td style="padding:8px 12px;">Số item tối đa giữ trước khi bỏ trang xa; ít nhất <code>pageSize + 2 * prefetchDistance</code>.</td>
     </tr>
   </tbody>
 </table>
 
-<p><code>pageSize</code> và <code>initialLoadSize</code> chỉ là gợi ý đi vào <code>params.loadSize</code>; <code>PagingSource</code> có thể trả số item khác.</p>
+<p><code>pageSize</code> và <code>initialLoadSize</code> chỉ là gợi ý đi vào <code>params.loadSize</code>. <code>cachedIn(scope)</code> <strong>cache</strong> các trang đã tải (và kết quả các biến đổi đặt trước nó) trong <code>scope</code>, sống qua xoay màn hình với <code>viewModelScope</code>; nó cũng <strong>multicast</strong>, cho UI mới (sau xoay màn hình, từ backstack) collect lại mà không tải lại, vì một <code>PagingData</code> mặc định chỉ collect được một lần.</p>
 
-<p><code>cachedIn(scope)</code> là toán tử quan trọng nhất ở tầng ViewModel:</p>
-
-<ul>
-  <li><strong>Cache:</strong> giữ các trang đã tải (và kết quả các biến đổi đặt trước nó) trong <code>scope</code>. Với <code>viewModelScope</code>, cache sống qua xoay màn hình, mất khi ViewModel bị huỷ.</li>
-  <li><strong>Multicast:</strong> một <code>PagingData</code> mặc định chỉ collect được một lần; <code>cachedIn</code> cho phép UI mới (sau xoay màn hình, quay lại từ backstack) collect lại mà không tải lại.</li>
-</ul>
-
-<p>Danh sách phụ thuộc tham số (từ khoá, bộ lọc) thì giữ tham số trong <code>StateFlow</code>, dùng <code>flatMapLatest</code> tạo <code>Pager</code> mới cho mỗi giá trị, và đặt <code>cachedIn</code> <strong>sau</strong> <code>flatMapLatest</code>.</p>
-
-<h4>Ví dụ: tìm kiếm sản phẩm theo từ khoá</h4>
-
-<p><strong>Bài toán:</strong> tìm kiếm của app bán hàng; mỗi từ khoá là một danh sách phân trang khác. Gõ "áo khoác" rồi sửa thành "áo len": kết quả về muộn của "áo khoác" không được chen vào, và xoay màn hình không được tìm lại từ đầu.</p>
-
-<p><strong>Luồng chạy:</strong></p>
-
-<ol>
-  <li>UI gọi <code>onQueryChanged()</code>; ViewModel ghi từ khoá vào <code>MutableStateFlow</code>.</li>
-  <li><code>flatMapLatest</code> nhận từ khoá mới: huỷ <code>Pager</code> của từ khoá cũ (kể cả request đang chạy), tạo <code>Pager</code> mới với factory dùng từ khoá mới.</li>
-  <li><code>Pager</code> gọi <code>PagingSource</code> của repository; mỗi lần invalidate thì factory tạo instance mới.</li>
-  <li><code>cachedIn(viewModelScope)</code> giữ kết quả; UI collect lại sau xoay màn hình nhận ngay các trang đã tải.</li>
-</ol>
-
-<div class="mermaid">
-sequenceDiagram
-    participant UI as SearchFragment
-    participant VM as ProductSearchViewModel
-    participant P as Pager (theo từ khoá)
-    participant PS as ProductSearchPagingSource
-    UI-&gt;&gt;VM: (1) onQueryChanged("áo len")
-    VM-&gt;&gt;VM: query.value = "áo len"
-    Note over VM,P: (2) flatMapLatest huỷ Pager "áo khoác",&lt;br/&gt;tạo Pager "áo len"
-    VM-&gt;&gt;P: Pager(config) { repository.searchPagingSource("áo len") }
-    P-&gt;&gt;PS: (3) load(Refresh)
-    PS--&gt;&gt;P: Page(kết quả "áo len")
-    P--&gt;&gt;VM: PagingData
-    VM--&gt;&gt;UI: (4) cachedIn → submitData
-    Note over UI,VM: Xoay màn hình: UI mới collect lại,&lt;br/&gt;nhận trang đã cache, không gọi API
-</div>
-
-<pre data-lang="kotlin"><code>// ProductRepository.kt (tầng repository: chỉ biết cách tạo PagingSource)
-class ProductRepository(private val api: ProductApi) {
-    fun searchPagingSource(keyword: String): PagingSource&lt;Int, Product&gt; =
-        ProductSearchPagingSource(api, keyword)
-}</code></pre>
+<p>Danh sách phụ thuộc tham số (từ khoá, bộ lọc) thì giữ tham số trong <code>StateFlow</code>, <code>flatMapLatest</code> tạo <code>Pager</code> mới cho mỗi giá trị và huỷ <code>Pager</code> cũ (kể cả request đang chạy), <code>cachedIn</code> đặt <strong>sau</strong> <code>flatMapLatest</code>:</p>
 
 <pre data-lang="kotlin"><code>// ProductSearchViewModel.kt
-class ProductSearchViewModel(
-    private val repository: ProductRepository
-) : ViewModel() {
+private val query = MutableStateFlow("")
 
-    private val query = MutableStateFlow("")
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val results: Flow&lt;PagingData&lt;Product&gt;&gt; = query
-        .flatMapLatest { keyword -&gt;                                    // (2) huỷ Pager cũ
-            Pager(
-                config = PagingConfig(
-                    pageSize = 30,
-                    prefetchDistance = 10,
-                    enablePlaceholders = false   // API không trả tổng số kết quả
-                ),
-                pagingSourceFactory = { repository.searchPagingSource(keyword) } // (3) luôn tạo mới
-            ).flow
-        }
-        .cachedIn(viewModelScope)                                      // (4) sau flatMapLatest
-
-    fun onQueryChanged(keyword: String) {                              // (1)
-        query.value = keyword.trim()
+@OptIn(ExperimentalCoroutinesApi::class)
+val results: Flow&lt;PagingData&lt;Product&gt;&gt; = query
+    .flatMapLatest { keyword -&gt;                    // huỷ Pager của từ khoá cũ
+        Pager(PagingConfig(pageSize = 30, enablePlaceholders = false)) {
+            repository.searchPagingSource(keyword) // luôn tạo PagingSource mới
+        }.flow
     }
-}</code></pre>
+    .cachedIn(viewModelScope)                      // sau flatMapLatest
 
-<p>Cách tạo ViewModel có tham số (factory, Hilt) ở <a href="viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>. Trong app thật thường thêm <code>debounce</code> trước <code>flatMapLatest</code> để không tạo <code>Pager</code> cho mỗi ký tự gõ.</p>
+fun onQueryChanged(keyword: String) { query.value = keyword.trim() }</code></pre>
 
-<p><strong>Kết quả:</strong> gõ "áo khoác" rồi sửa nhanh thành "áo len": danh sách chỉ chứa kết quả "áo len" (request "áo khoác" bị huỷ, xem trong Logcat của OkHttp thấy request bị cancel). Xoay màn hình: danh sách giữ nguyên, không có request mới.</p>
+<p>App thật thường thêm <code>debounce</code> trước <code>flatMapLatest</code> để không tạo <code>Pager</code> cho mỗi ký tự gõ.</p>
 
 <h3>Hiển thị: PagingDataAdapter và DiffUtil</h3>
 
-<p>Với <code>RecyclerView</code>, Paging có <code>PagingDataAdapter&lt;T, VH&gt;</code>: giống <code>ListAdapter</code> ở chỗ cần <code>DiffUtil.ItemCallback&lt;T&gt;</code> (<code>areItemsTheSame</code> so id ổn định, <code>areContentsTheSame</code> so nội dung), khác ở chỗ nhận dữ liệu bằng <code>submitData(pagingData)</code>. Ba điểm cần nắm:</p>
+<p><code>PagingDataAdapter&lt;T, VH&gt;</code> giống <code>ListAdapter</code> (cần <code>DiffUtil.ItemCallback&lt;T&gt;</code>) nhưng nhận dữ liệu bằng <code>submitData(pagingData)</code>:</p>
 
 <ul>
-  <li><strong><code>getItem(position)</code> trả <code>T?</code>:</strong> <code>null</code> là placeholder cho item chưa tải (khi bật placeholder); ViewHolder phải bind được <code>null</code>.</li>
-  <li><strong><code>getItem()</code> cũng là tín hiệu cuộn:</strong> lấy item ở vị trí N là báo cho Paging "đang xem quanh N" để nó quyết định tải tiếp. Đọc item mà không kích hoạt tải thì dùng <code>peek(index)</code>.</li>
-  <li><strong><code>submitData()</code> là hàm <code>suspend</code> không trả về</strong> cho tới khi <code>PagingData</code> đó bị thay. Vì vậy collect bằng <code>collectLatest</code>: <code>PagingData</code> mới tới thì lần <code>submitData</code> cũ bị huỷ.</li>
+  <li><strong><code>getItem(position)</code> trả <code>T?</code>:</strong> <code>null</code> là placeholder; ViewHolder phải bind được <code>null</code>.</li>
+  <li><strong><code>getItem()</code> cũng là tín hiệu cuộn:</strong> lấy item ở vị trí N là báo Paging "đang xem quanh N". Đọc mà không kích hoạt tải thì dùng <code>peek(index)</code>.</li>
+  <li><strong><code>submitData()</code> là hàm <code>suspend</code> không trả về</strong> cho tới khi <code>PagingData</code> đó bị thay, nên collect bằng <code>collectLatest</code> để <code>PagingData</code> mới huỷ lần <code>submitData</code> cũ.</li>
 </ul>
 
 <h4>Ví dụ: hiển thị feed bài viết trong Fragment</h4>
@@ -49651,11 +48702,11 @@ class ProductSearchViewModel(
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li><code>onViewCreated()</code>: tạo <code>ArticleAdapter</code> với <code>ArticleDiffCallback</code>, gắn vào <code>RecyclerView</code> qua View Binding.</li>
-  <li>Collect <code>viewModel.articles</code> trong <code>viewLifecycleOwner.lifecycleScope</code> với <code>repeatOnLifecycle(STARTED)</code>, để collector sống theo View của Fragment.</li>
-  <li>Với mỗi <code>PagingData</code>, gọi <code>adapter.submitData()</code> bên trong <code>collectLatest</code>.</li>
-  <li>Người dùng cuộn: <code>RecyclerView</code> gọi <code>onBindViewHolder</code> → <code>getItem(position)</code> → Paging nhận vị trí, gần cuối thì tải trang sau.</li>
-  <li>Mở chi tiết rồi Back: View mới, adapter mới, collect lại; <code>cachedIn</code> trả ngay các trang đã tải.</li>
+  <li><code>onViewCreated()</code>: tạo <code>ArticleAdapter</code>, gắn vào <code>RecyclerView</code>.</li>
+  <li>Collect <code>viewModel.articles</code> trong <code>viewLifecycleOwner.lifecycleScope</code> với <code>repeatOnLifecycle(STARTED)</code>.</li>
+  <li>Với mỗi <code>PagingData</code>, gọi <code>adapter.submitData()</code> trong <code>collectLatest</code>.</li>
+  <li>Cuộn: <code>onBindViewHolder</code> → <code>getItem(position)</code> → gần cuối thì Paging tải trang sau.</li>
+  <li>Mở chi tiết rồi Back: View mới collect lại; <code>cachedIn</code> trả ngay các trang đã tải.</li>
 </ol>
 
 <div class="mermaid">
@@ -49684,10 +48735,9 @@ class ArticleAdapter(
     private val onArticleClick: (Article) -&gt; Unit
 ) : PagingDataAdapter&lt;Article, ArticleAdapter.ArticleViewHolder&gt;(ArticleDiffCallback) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleViewHolder {
-        val binding = ItemArticleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ArticleViewHolder(binding)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ArticleViewHolder(
+        ItemArticleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+    )
 
     override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
         holder.bind(getItem(position))                         // (4) getItem báo vị trí cho Paging
@@ -49696,16 +48746,10 @@ class ArticleAdapter(
     inner class ArticleViewHolder(
         private val binding: ItemArticleBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(article: Article?) {
-            if (article == null) {                             // placeholder (khi bật placeholders)
-                binding.titleText.text = ""
-                binding.summaryText.text = ""
-                binding.root.setOnClickListener(null)
-                return
-            }
-            binding.titleText.text = article.title
-            binding.summaryText.text = article.summary
-            binding.root.setOnClickListener { onArticleClick(article) }
+        fun bind(article: Article?) {                          // null = placeholder (khi bật placeholders)
+            binding.titleText.text = article?.title.orEmpty()
+            binding.summaryText.text = article?.summary.orEmpty()
+            binding.root.setOnClickListener { article?.let(onArticleClick) }
         }
     }
 }
@@ -49732,52 +48776,38 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
 <p>Lý do collect bằng <code>viewLifecycleOwner</code> ở <a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "View Lifecycle: vòng đời thứ hai trong Fragment".</p>
 
-<p><strong>Kết quả:</strong> cuộn feed, log của OkHttp cho thấy <code>page=2</code>, <code>page=3</code> được gửi lần lượt khi gần cuối, không trùng dù cuộn nhanh. Mở chi tiết rồi Back, hoặc xoay màn hình: không có request mới.</p>
+<p><strong>Kết quả:</strong> cuộn feed, log OkHttp cho thấy <code>page=2</code>, <code>page=3</code> được gửi lần lượt khi gần cuối, không trùng dù cuộn nhanh. Mở chi tiết rồi Back, hoặc xoay màn hình: không có request mới.</p>
 
 <h4>Với Jetpack Compose</h4>
 
-<p>Compose không cần adapter: <code>collectAsLazyPagingItems()</code> (<code>paging-compose</code>) biến <code>Flow&lt;PagingData&gt;</code> thành <code>LazyPagingItems</code> cho <code>LazyColumn</code>; <code>itemKey</code> thay vai trò <code>areItemsTheSame</code>. ViewModel và <code>PagingSource</code> giữ nguyên.</p>
+<p><code>collectAsLazyPagingItems()</code> (<code>paging-compose</code>) thay adapter; <code>itemKey</code> thay <code>areItemsTheSame</code>, <code>articles[index]</code> cũng là tín hiệu cuộn. Chi tiết ở 9.5.7 Lazy Paging Items (chưa có bài).</p>
 
-<pre data-lang="kotlin"><code>// ArticleFeedScreen.kt
-@Composable
-fun ArticleFeedScreen(viewModel: ArticleFeedViewModel) {
-    val articles = viewModel.articles.collectAsLazyPagingItems()
-    LazyColumn {
-        items(count = articles.itemCount, key = articles.itemKey { it.id }) { index -&gt;
-            val article = articles[index]          // cũng là tín hiệu cuộn, như getItem()
-            if (article != null) ArticleRow(article) else ArticlePlaceholder()
-        }
+<pre data-lang="kotlin"><code>val articles = viewModel.articles.collectAsLazyPagingItems()
+LazyColumn {
+    items(count = articles.itemCount, key = articles.itemKey { it.id }) { index -&gt;
+        val article = articles[index]
+        if (article != null) ArticleRow(article) else ArticlePlaceholder()
     }
 }</code></pre>
 
-<p>Chi tiết <code>LazyPagingItems</code> thuộc 9.5.7 Lazy Paging Items (chưa có bài); <code>LazyColumn</code> ở 9.5.4 Lazy Column (chưa có bài).</p>
-
 <h3>LoadState: trạng thái tải, lỗi và retry</h3>
 
-<p>Paging phát trạng thái tải qua <code>adapter.loadStateFlow</code> (hoặc <code>addLoadStateListener</code>) dưới dạng <code>CombinedLoadStates</code>:</p>
+<p><code>adapter.loadStateFlow</code> phát <code>CombinedLoadStates</code>: mỗi hướng tải <code>refresh</code> (tải đầu, làm mới), <code>append</code> (cuối), <code>prepend</code> (đầu) có một <code>LoadState</code> là <code>Loading</code>, <code>NotLoading(endOfPaginationReached)</code> hoặc <code>Error(error)</code>. <code>source</code> và <code>mediator</code> là trạng thái riêng của <code>PagingSource</code> và <code>RemoteMediator</code>; các thuộc tính gộp ưu tiên <code>RemoteMediator</code> nếu có.</p>
 
-<ul>
-  <li>Ba hướng tải (<code>LoadType</code>): <code>refresh</code> (tải đầu hoặc làm mới), <code>append</code> (thêm ở cuối), <code>prepend</code> (thêm ở đầu).</li>
-  <li>Mỗi hướng có một <code>LoadState</code>: <code>Loading</code>; <code>NotLoading(endOfPaginationReached)</code> (<code>true</code> là đã hết dữ liệu theo hướng đó); <code>Error(error)</code> mang <code>Throwable</code> từ <code>LoadResult.Error</code>.</li>
-  <li><code>source</code> và <code>mediator</code> là trạng thái riêng của <code>PagingSource</code> và <code>RemoteMediator</code>; các thuộc tính gộp <code>refresh</code>/<code>append</code>/<code>prepend</code> ưu tiên <code>RemoteMediator</code> nếu có.</li>
-</ul>
-
-<p><code>adapter.retry()</code> thử lại <strong>những lần tải đang lỗi</strong> (ví dụ append trang 5), giữ các trang đã có. <code>adapter.refresh()</code> bỏ snapshot hiện tại, tải lại từ key của <code>getRefreshKey()</code>, dùng cho kéo để làm mới.</p>
-
-<p>Để hiện trạng thái tải thêm ngay trong danh sách có <code>LoadStateAdapter</code>, adapter chỉ có 0 hoặc 1 item (mặc định hiện khi <code>Loading</code> hoặc <code>Error</code>). <code>withLoadStateFooter(footer)</code> (hoặc <code>withLoadStateHeader</code>, <code>withLoadStateHeaderAndFooter</code>) ghép nó với <code>PagingDataAdapter</code> thành một <code>ConcatAdapter</code>, tự cập nhật theo <code>append</code>/<code>prepend</code>.</p>
+<p><code>adapter.retry()</code> thử lại <strong>những lần tải đang lỗi</strong>; <code>adapter.refresh()</code> tải lại từ key của <code>getRefreshKey()</code>. <code>LoadStateAdapter</code> là adapter chỉ có 0 hoặc 1 item (hiện khi <code>Loading</code> hoặc <code>Error</code>); <code>withLoadStateFooter(footer)</code> ghép nó với <code>PagingDataAdapter</code> thành một <code>ConcatAdapter</code>, tự cập nhật theo <code>append</code>.</p>
 
 <h4>Ví dụ: footer "Thử lại" khi mất mạng giữa feed</h4>
 
-<p><strong>Bài toán:</strong> đang đọc feed thì vào thang máy mất sóng. Trang 1–4 vẫn hiện; cuối danh sách hiện lỗi và "Thử lại", bấm thì tải lại đúng trang 5. Lỗi ngay lần đầu thì hiện lỗi toàn màn hình.</p>
+<p><strong>Bài toán:</strong> đang đọc feed thì mất sóng. Trang 1–4 vẫn hiện; cuối danh sách hiện lỗi và "Thử lại", bấm thì tải lại đúng trang 5. Lỗi ngay lần đầu thì hiện lỗi toàn màn hình.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li>Người dùng cuộn gần cuối; <code>append</code> chuyển sang <code>Loading</code>, footer hiện vòng xoay.</li>
-  <li><code>ArticlePagingSource</code> gặp <code>IOException</code>, trả <code>LoadResult.Error</code>; <code>append</code> thành <code>Error</code>, footer hiện thông báo và nút "Thử lại".</li>
-  <li>Bấm "Thử lại": footer gọi <code>adapter.retry()</code>, Paging gọi lại <code>load()</code> với đúng key trang 5.</li>
+  <li>Cuộn gần cuối: <code>append</code> là <code>Loading</code>, footer hiện vòng xoay.</li>
+  <li><code>LoadResult.Error</code>: <code>append</code> thành <code>Error</code>, footer hiện nút "Thử lại".</li>
+  <li>Bấm "Thử lại": <code>adapter.retry()</code> gọi lại <code>load()</code> với đúng key trang 5.</li>
   <li>Thành công: <code>append</code> về <code>NotLoading</code>, footer ẩn, trang 5 được nối vào.</li>
-  <li>Riêng <code>refresh</code>: theo dõi <code>loadStateFlow</code> để hiện vòng xoay hoặc lỗi toàn màn hình khi danh sách còn trống.</li>
+  <li>Riêng <code>refresh</code>: theo dõi <code>loadStateFlow</code> để hiện vòng xoay hoặc lỗi toàn màn hình khi danh sách trống.</li>
 </ol>
 
 <div class="mermaid">
@@ -49796,14 +48826,11 @@ class RetryLoadStateAdapter(
     private val onRetry: () -&gt; Unit
 ) : LoadStateAdapter&lt;RetryLoadStateAdapter.LoadStateViewHolder&gt;() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): LoadStateViewHolder {
-        val binding = ItemLoadStateBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return LoadStateViewHolder(binding)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState) = LoadStateViewHolder(
+        ItemLoadStateBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+    )
 
-    override fun onBindViewHolder(holder: LoadStateViewHolder, loadState: LoadState) {
-        holder.bind(loadState)
-    }
+    override fun onBindViewHolder(holder: LoadStateViewHolder, loadState: LoadState) = holder.bind(loadState)
 
     inner class LoadStateViewHolder(
         private val binding: ItemLoadStateBinding
@@ -49815,9 +48842,7 @@ class RetryLoadStateAdapter(
         fun bind(loadState: LoadState) {
             binding.progressBar.isVisible = loadState is LoadState.Loading   // (1)
             binding.errorGroup.isVisible = loadState is LoadState.Error      // (2)
-            if (loadState is LoadState.Error) {
-                binding.errorText.text = errorMessage
-            }
+            binding.errorText.text = errorMessage
         }
     }
 }</code></pre>
@@ -49839,126 +48864,66 @@ viewLifecycleOwner.lifecycleScope.launch {
                 val isEmpty = adapter.itemCount == 0
                 binding.fullScreenProgress.isVisible = refresh is LoadState.Loading &amp;&amp; isEmpty
                 binding.fullScreenError.isVisible = refresh is LoadState.Error &amp;&amp; isEmpty
-                binding.emptyText.isVisible = refresh is LoadState.NotLoading &amp;&amp;
-                    loadStates.append.endOfPaginationReached &amp;&amp; isEmpty
             }
         }
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> cuộn tới trang 4, bật chế độ máy bay rồi cuộn tiếp: footer hiện "Không tải được bài viết" và "Thử lại", trang 1–4 vẫn còn. Tắt chế độ máy bay, bấm "Thử lại": log có request <code>page=5</code>, footer biến mất. Mở màn khi offline: lỗi toàn màn hình thay vì danh sách trống.</p>
+<p><strong>Kết quả:</strong> cuộn tới trang 4, bật chế độ máy bay rồi cuộn tiếp: footer hiện "Không tải được bài viết", trang 1–4 vẫn còn. Tắt chế độ máy bay, bấm "Thử lại": log có request <code>page=5</code>, footer biến mất. Mở màn khi offline: lỗi toàn màn hình.</p>
 
 <h3>Biến đổi PagingData: map, filter, insertSeparators</h3>
 
-<p><code>PagingData</code> không phải <code>List</code>. Biến đổi đặt trong <code>flow.map { pagingData -&gt; ... }</code> (mỗi <code>PagingData</code> mới đều đi qua), dùng toán tử của chính <code>PagingData</code>, chạy theo từng trang khi trang được tải:</p>
+<p><code>PagingData</code> không phải <code>List</code>: biến đổi đặt trong <code>flow.map { pagingData -&gt; ... }</code>, dùng toán tử của <code>PagingData</code>, chạy theo từng trang. <code>map</code> đổi kiểu từng item. <code>filter</code> lọc <strong>sau khi trang đã tải</strong> (trang có thể ít item hơn <code>pageSize</code>; điều kiện biết trước thì đưa vào query). <code>insertSeparators { before, after -&gt; }</code> chèn item phân cách giữa hai item liền kề (trả <code>null</code> để không chèn; <code>before == null</code> là trước item đầu, <code>after == null</code> là sau item cuối). Đặt <code>cachedIn</code> <strong>sau</strong> các biến đổi để kết quả cũng được cache.</p>
 
-<ul>
-  <li><code>map { }</code>: đổi kiểu từng item, ví dụ entity sang model của UI.</li>
-  <li><code>filter { }</code>: bỏ item khỏi danh sách hiển thị. Lọc diễn ra <strong>sau khi trang đã tải</strong>, nên trang có thể ít item hơn <code>pageSize</code>; điều kiện biết trước lúc query thì đưa vào <code>WHERE</code> hoặc tham số API.</li>
-  <li><code>insertSeparators { before, after -&gt; }</code>: chèn item phân cách giữa hai item liền kề, trả <code>null</code> để không chèn; <code>before == null</code> là trước item đầu, <code>after == null</code> là sau item cuối.</li>
-</ul>
+<p>Ví dụ danh bạ (<code>ContactDao</code> ở trên) cần header "A", "B", "C" trước mỗi nhóm:</p>
 
-<p>Đặt <code>cachedIn</code> <strong>sau</strong> các biến đổi để kết quả biến đổi cũng được cache.</p>
-
-<h4>Ví dụ: danh bạ nhóm theo chữ cái đầu</h4>
-
-<p><strong>Bài toán:</strong> danh bạ vài nghìn liên hệ trong Room, sắp theo tên, cần header "A", "B", "C" trước mỗi nhóm. Header không có trong database mà phụ thuộc hai item liền kề, đúng việc của <code>insertSeparators</code>.</p>
-
-<p><strong>Luồng chạy:</strong></p>
-
-<ol>
-  <li>Room sinh <code>PagingSource</code> từ <code>ContactDao.pagingSource()</code> (query đã sắp theo tên).</li>
-  <li><code>map</code> đổi mỗi <code>Contact</code> thành <code>ContactListItem.Row</code>.</li>
-  <li><code>insertSeparators</code> so chữ cái đầu của <code>before</code> và <code>after</code>; khác nhau (hoặc là item đầu) thì chèn <code>ContactListItem.Header</code>.</li>
-  <li><code>cachedIn(viewModelScope)</code> cache cả item lẫn header đã chèn.</li>
-  <li>Adapter dùng <code>getItemViewType</code> để vẽ header và dòng liên hệ khác nhau.</li>
-</ol>
-
-<div class="mermaid">
-flowchart TD
-    A["(1) Room PagingSource&lt;br/&gt;Contact"] --&gt; B["(2) map → Row"]
-    B --&gt; C{"(3) chữ cái đầu&lt;br/&gt;before ≠ after?"}
-    C --&gt;|Có| D["chèn Header(after)"]
-    C --&gt;|Không| E[không chèn]
-    D --&gt; F["(4) cachedIn"]
-    E --&gt; F
-    F --&gt; G["(5) Adapter: Header / Row"]
-</div>
-
-<pre data-lang="kotlin"><code>// ContactListItem.kt
-sealed interface ContactListItem {
-    data class Header(val letter: Char) : ContactListItem
-    data class Row(val contact: Contact) : ContactListItem
-}
-
-val Contact.initial: Char get() = displayName.first().uppercaseChar()</code></pre>
-
-<pre data-lang="kotlin"><code>// ContactsViewModel.kt
-class ContactsViewModel(contactDao: ContactDao) : ViewModel() {
-
-    val contacts: Flow&lt;PagingData&lt;ContactListItem&gt;&gt; = Pager(
-        config = PagingConfig(pageSize = 50),
-        pagingSourceFactory = { contactDao.pagingSource() }                // (1)
-    ).flow
-        .map { pagingData -&gt;
-            pagingData
-                .map { contact -&gt; ContactListItem.Row(contact) }            // (2)
-                .insertSeparators&lt;ContactListItem.Row, ContactListItem&gt; { before, after -&gt;
-                    when {                                                  // (3)
-                        after == null -&gt; null                               // sau item cuối: không chèn
-                        before == null || before.contact.initial != after.contact.initial -&gt;
-                            ContactListItem.Header(after.contact.initial)
-                        else -&gt; null
-                    }
+<pre data-lang="kotlin"><code>// ContactsViewModel.kt; ContactListItem là sealed interface gồm Header(letter) và Row(contact),
+// contact.initial là chữ cái đầu (viết hoa) của displayName
+val contacts: Flow&lt;PagingData&lt;ContactListItem&gt;&gt; = Pager(PagingConfig(pageSize = 50)) {
+    contactDao.pagingSource()
+}.flow
+    .map { pagingData -&gt;
+        pagingData
+            .map { contact -&gt; ContactListItem.Row(contact) }
+            .insertSeparators&lt;ContactListItem.Row, ContactListItem&gt; { before, after -&gt;
+                when {
+                    after == null -&gt; null                                   // sau item cuối: không chèn
+                    before == null || before.contact.initial != after.contact.initial -&gt;
+                        ContactListItem.Header(after.contact.initial)
+                    else -&gt; null
                 }
-        }
-        .cachedIn(viewModelScope)                                           // (4)
-}</code></pre>
+            }
+    }
+    .cachedIn(viewModelScope)</code></pre>
 
-<pre data-lang="kotlin"><code>// ContactAdapter.kt (rút gọn): PagingDataAdapter&lt;ContactListItem, RecyclerView.ViewHolder&gt;
-override fun getItemViewType(position: Int) = when (peek(position)) {    // (5) peek: không kích hoạt tải
-    is ContactListItem.Header -&gt; VIEW_TYPE_HEADER
-    else -&gt; VIEW_TYPE_CONTACT
-}
-// DiffUtil: Header so theo letter, Row so theo contact.id</code></pre>
-
-<p>Phải ghi rõ <code>insertSeparators&lt;ContactListItem.Row, ContactListItem&gt;</code> vì kiểu kết quả rộng hơn kiểu đầu vào; Kotlin không tự suy ra kiểu chung.</p>
-
-<p><strong>Kết quả:</strong> danh bạ hiện "A", các liên hệ chữ A, rồi "B"... Header vẫn đúng ở chỗ nối hai trang, vì <code>insertSeparators</code> được gọi cả cho cặp item ở hai trang liền kề. Thêm một liên hệ vào Room: <code>PagingSource</code> tự invalidate, header cập nhật đúng chỗ.</p>
+<p>Phải ghi rõ <code>insertSeparators&lt;ContactListItem.Row, ContactListItem&gt;</code> vì kiểu kết quả rộng hơn kiểu đầu vào. <code>insertSeparators</code> được gọi cả cho cặp item ở hai trang liền kề, nên header đúng ở chỗ nối trang.</p>
 
 <h3>RemoteMediator: Room làm nguồn sự thật, mạng tải thêm</h3>
 
-<p><code>PagingSource</code> đọc thẳng API thì offline là danh sách trống. Mô hình <strong>offline-first</strong> (<a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, mục "Single Source of Truth (SSOT) và Offline-first") cho UI chỉ đọc từ Room, mạng chỉ dùng để ghi thêm vào Room. Paging hỗ trợ mô hình này bằng <code>RemoteMediator</code>:</p>
-
-<ul>
-  <li><code>PagingSource</code> là của <strong>Room</strong>; UI chỉ thấy những gì có trong database.</li>
-  <li>Khi <code>PagingSource</code> của Room hết dữ liệu theo một hướng (cuộn tới cuối cache), hoặc khi làm mới, Paging gọi <code>RemoteMediator.load(loadType, state)</code>.</li>
-  <li><code>RemoteMediator</code> gọi API, ghi kết quả vào Room trong một transaction, trả <code>MediatorResult.Success(endOfPaginationReached)</code> hoặc <code>MediatorResult.Error(e)</code>.</li>
-  <li>Ghi bảng làm <code>PagingSource</code> của Room tự invalidate; <code>Pager</code> tạo instance mới, UI thấy dữ liệu mới.</li>
-</ul>
+<p>Đọc thẳng API thì offline là danh sách trống. Mô hình <strong>offline-first</strong> (<a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, mục "Single Source of Truth (SSOT) và Offline-first") cho UI chỉ đọc từ Room, mạng chỉ ghi thêm vào Room. Với <code>RemoteMediator</code>, <code>PagingSource</code> là của Room; khi nó hết dữ liệu theo một hướng hoặc khi làm mới, Paging gọi <code>RemoteMediator.load(loadType, state)</code>. Mediator gọi API, ghi vào Room trong một transaction, trả <code>MediatorResult.Success(endOfPaginationReached)</code> hoặc <code>MediatorResult.Error(e)</code>; ghi bảng làm <code>PagingSource</code> tự invalidate.</p>
 
 <p>Ba điểm thiết kế:</p>
 
 <ul>
-  <li><strong>Remote key:</strong> key của API (số trang, cursor) không phải key của Room (offset). Không suy ra được từ item cuối thì lưu vào bảng riêng, ghi cùng transaction với dữ liệu để hai thứ luôn khớp.</li>
-  <li><strong><code>initialize()</code>:</strong> chạy trước mọi lần tải; trả <code>LAUNCH_INITIAL_REFRESH</code> (mặc định) để làm mới ngay khi mở màn hình, hoặc <code>SKIP_INITIAL_REFRESH</code> khi cache còn mới.</li>
-  <li><strong>Khoá chính ổn định:</strong> id từ server làm <code>@PrimaryKey</code> (không <code>autoGenerate</code>), <code>ORDER BY</code> thêm <code>id</code> làm tiêu chí phụ để thứ tự luôn xác định; nếu không, mỗi lần làm mới <code>DiffUtil</code> coi mọi item là mới và danh sách nhấp nháy.</li>
+  <li><strong>Remote key:</strong> key của API (số trang, cursor) không phải key của Room (offset); lưu vào bảng riêng, ghi cùng transaction với dữ liệu.</li>
+  <li><strong><code>initialize()</code>:</strong> trả <code>LAUNCH_INITIAL_REFRESH</code> (mặc định) để làm mới ngay, hoặc <code>SKIP_INITIAL_REFRESH</code> khi cache còn mới.</li>
+  <li><strong>Khoá chính ổn định:</strong> id từ server làm <code>@PrimaryKey</code> (không <code>autoGenerate</code>), <code>ORDER BY</code> thêm <code>id</code> làm tiêu chí phụ.</li>
 </ul>
 
 <p><code>RemoteMediator</code> vẫn mang <code>@ExperimentalPagingApi</code>, nên cần <code>@OptIn(ExperimentalPagingApi::class)</code>.</p>
 
 <h4>Ví dụ: lịch sử giao dịch xem được khi offline</h4>
 
-<p><strong>Bài toán:</strong> lịch sử giao dịch của app ví điện tử. Mở app trên tàu điện ngầm vẫn thấy giao dịch đã xem; có mạng thì tự cập nhật; cuộn quá phần đã cache thì tải thêm từ <code>GET /transactions?cursor=...&amp;limit=...</code> (API trả <code>nextCursor</code>).</p>
+<p><strong>Bài toán:</strong> lịch sử giao dịch của app ví điện tử: offline vẫn thấy giao dịch đã xem, có mạng thì tự cập nhật, cuộn quá cache thì tải thêm từ <code>GET /transactions?cursor=...</code> (API trả <code>nextCursor</code>).</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li>Mở màn hình: <code>initialize()</code> kiểm tra lần làm mới gần nhất; quá 15 phút thì yêu cầu làm mới ngay, còn mới thì hiện cache.</li>
-  <li><code>PagingSource</code> của Room hiển thị ngay những gì đang có trong bảng <code>transactions</code> (kể cả khi offline).</li>
-  <li>Làm mới (<code>REFRESH</code>): <code>RemoteMediator</code> gọi API với <code>cursor = null</code>. Cuộn tới cuối cache (<code>APPEND</code>): đọc <code>nextCursor</code> từ bảng remote keys rồi gọi API.</li>
+  <li><code>initialize()</code>: lần làm mới gần nhất quá 15 phút thì làm mới ngay, còn mới thì chỉ hiện cache.</li>
+  <li><code>PagingSource</code> của Room hiển thị ngay những gì đang có trong bảng <code>transactions</code>.</li>
+  <li><code>REFRESH</code>: gọi API với <code>cursor = null</code>. <code>APPEND</code>: đọc <code>nextCursor</code> từ bảng remote keys rồi gọi API.</li>
   <li>Thành công: trong một <code>withTransaction</code>, nếu là <code>REFRESH</code> thì xoá cache cũ; ghi giao dịch mới và remote key mới.</li>
-  <li>Ghi bảng làm Room invalidate <code>PagingSource</code>; <code>Pager</code> tạo <code>PagingSource</code> mới, UI nhận dữ liệu mới. Lỗi mạng thì trả <code>MediatorResult.Error</code>, cache không bị đụng tới.</li>
+  <li>Ghi bảng làm Room invalidate <code>PagingSource</code>; UI nhận dữ liệu mới. Lỗi mạng thì trả <code>MediatorResult.Error</code>, cache không bị đụng tới.</li>
 </ol>
 
 <div class="mermaid">
@@ -49980,7 +48945,7 @@ sequenceDiagram
     P--&gt;&gt;UI: PagingData mới
 </div>
 
-<pre data-lang="kotlin"><code>// TransactionEntities.kt
+<pre data-lang="kotlin"><code>// TransactionEntities.kt, TransactionDao.kt
 @Entity(tableName = "transactions")
 data class TransactionEntity(
     @PrimaryKey val id: String,          // id từ server: ổn định qua mọi lần làm mới
@@ -49990,33 +48955,18 @@ data class TransactionEntity(
 )
 
 @Entity(tableName = "remote_keys")
-data class RemoteKey(
-    @PrimaryKey val listName: String,
-    val nextCursor: String?,
-    val refreshedAt: Long
-)</code></pre>
+data class RemoteKey(@PrimaryKey val listName: String, val nextCursor: String?, val refreshedAt: Long)
 
-<pre data-lang="kotlin"><code>// TransactionDao.kt, RemoteKeyDao.kt
 @Dao
 interface TransactionDao {
     @Query("SELECT * FROM transactions ORDER BY createdAt DESC, id DESC")
     fun pagingSource(): PagingSource&lt;Int, TransactionEntity&gt;
 
-    @Upsert
-    suspend fun upsertAll(items: List&lt;TransactionEntity&gt;)
+    @Upsert suspend fun upsertAll(items: List&lt;TransactionEntity&gt;)
 
-    @Query("DELETE FROM transactions")
-    suspend fun clearAll()
+    @Query("DELETE FROM transactions") suspend fun clearAll()
 }
-
-@Dao
-interface RemoteKeyDao {
-    @Query("SELECT * FROM remote_keys WHERE listName = :listName")
-    suspend fun get(listName: String): RemoteKey?
-
-    @Upsert
-    suspend fun upsert(key: RemoteKey)
-}</code></pre>
+// RemoteKeyDao: get(listName): RemoteKey? và @Upsert upsert(key)</code></pre>
 
 <pre data-lang="kotlin"><code>// TransactionRemoteMediator.kt
 @OptIn(ExperimentalPagingApi::class)
@@ -50079,7 +49029,6 @@ class TransactionRemoteMediator(
 
 <pre data-lang="kotlin"><code>// TransactionHistoryViewModel.kt
 class TransactionHistoryViewModel(db: WalletDatabase, api: TransactionApi) : ViewModel() {
-
     @OptIn(ExperimentalPagingApi::class)
     val transactions: Flow&lt;PagingData&lt;TransactionEntity&gt;&gt; = Pager(
         config = PagingConfig(pageSize = 30),
@@ -50088,57 +49037,29 @@ class TransactionHistoryViewModel(db: WalletDatabase, api: TransactionApi) : Vie
     ).flow.cachedIn(viewModelScope)
 }</code></pre>
 
-<p><code>withTransaction</code> được giải thích ở <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, mục "<code>withTransaction { }</code> trên RoomDatabase". Request mạng nằm <strong>ngoài</strong> transaction để không giữ khoá database trong lúc chờ mạng; lỗi mạng xảy ra trước khi xoá cache nên cache còn nguyên.</p>
+<p><code>withTransaction</code> ở <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>. Request mạng nằm <strong>ngoài</strong> transaction để không giữ khoá database lúc chờ mạng; lỗi mạng xảy ra trước khi xoá cache nên cache còn nguyên.</p>
 
-<p><strong>Kết quả:</strong> cuộn vài trang khi có mạng, tắt mạng, đóng hẳn app rồi mở lại: giao dịch đã tải vẫn hiện. Cuộn quá phần đã cache khi offline: <code>mediator.append</code> là <code>Error</code>, footer hiện "Thử lại". Database Inspector của Android Studio cho thấy <code>remote_keys.nextCursor</code> khớp trang cuối đã tải.</p>
+<p><strong>Kết quả:</strong> cuộn vài trang, tắt mạng, đóng hẳn app rồi mở lại: giao dịch đã tải vẫn hiện. Cuộn quá phần đã cache khi offline: <code>mediator.append</code> là <code>Error</code>, footer hiện "Thử lại".</p>
 
 <h2>Deep Dive: generation, invalidate và cửa sổ trượt bên trong Pager</h2>
 
-<p>Phần này giải thích vì sao có các quy tắc ở trên (factory luôn tạo mới, cần <code>cachedIn</code>, cần <code>getRefreshKey</code>).</p>
+<p><strong>Mỗi <code>PagingSource</code> là một generation.</strong> Khi <code>invalidate()</code> được gọi (bảng Room bị ghi, <code>adapter.refresh()</code>), <code>Pager</code> hỏi <code>getRefreshKey(state)</code> của instance cũ, gọi factory lấy instance mới, gọi <code>load(Refresh, key = refreshKey)</code> rồi phát <code>PagingData</code> mới; <code>DiffUtil</code> giữ nguyên item không đổi. Vì vậy factory phải trả instance mới (Paging kiểm tra việc dùng lại để báo lỗi sớm), còn <code>getRefreshKey</code> trả <code>null</code> nghĩa là generation mới bắt đầu từ đầu.</p>
 
-<p><strong>Mỗi <code>PagingSource</code> là một generation.</strong> <code>Pager</code> gọi <code>pagingSourceFactory()</code> lấy instance cho generation đầu và phát một <code>PagingData</code> gắn với nó. Khi <code>invalidate()</code> được gọi (Room thấy bảng bị ghi, <code>adapter.refresh()</code>, <code>RemoteMediator</code> vừa ghi dữ liệu), generation đó kết thúc:</p>
-
-<ol>
-  <li><code>Pager</code> hỏi <code>getRefreshKey(state)</code> của instance cũ, với <code>state</code> chứa các trang đã tải và <code>anchorPosition</code> (vị trí người dùng xem gần nhất).</li>
-  <li>Gọi factory lấy instance mới, gọi <code>load(Refresh, key = refreshKey)</code>.</li>
-  <li>Phát ra <code>PagingData</code> mới; adapter dùng <code>DiffUtil</code> so với danh sách cũ, nên item không đổi giữ nguyên trên màn hình.</li>
-</ol>
-
-<div class="mermaid">
-stateDiagram-v2
-    [*] --&gt; Gen1: factory() tạo PagingSource #1
-    Gen1 --&gt; Invalidated: invalidate() khi DB ghi hoặc refresh()
-    Invalidated --&gt; Gen2: getRefreshKey(state) rồi factory() tạo PagingSource #2
-    Gen2 --&gt; Invalidated: invalidate()
-</div>
-
-<p>Vì vậy factory phải trả instance mới (instance đã invalidate không tải được nữa, và Paging kiểm tra việc dùng lại để báo lỗi sớm). Còn <code>getRefreshKey</code> trả <code>null</code> nghĩa là generation mới bắt đầu từ đầu: người dùng đang ở item 300 bị đưa về đầu mỗi khi dữ liệu đổi.</p>
-
-<p><strong>Tín hiệu cuộn và prefetch.</strong> Mỗi lần UI lấy item ở vị trí N (<code>getItem</code>, <code>lazyPagingItems[index]</code>), Paging nhận gợi ý về vị trí đang xem. N cách item cuối đã tải ít hơn <code>prefetchDistance</code> thì nó gửi một lần <code>APPEND</code> (tương tự <code>PREPEND</code> ở đầu). Mỗi hướng chỉ có một lần tải chạy tại một thời điểm, nên cuộn nhanh không gây request trùng: đây là "cờ <code>isLoading</code>" mà code tự viết phải tự lo. Có <code>maxSize</code> thì trang xa bị bỏ khỏi bộ nhớ, cuộn ngược về sẽ tải lại.</p>
-
-<p><strong><code>PagingData</code> chỉ collect được một lần.</strong> Nó mang kênh hai chiều tới generation hiện tại (dữ liệu đi xuống, gợi ý vị trí đi lên); hai collector cùng lúc sẽ tranh nhau kênh này, nên Paging cấm. <code>cachedIn(scope)</code> giữ một bản cache dùng chung trong <code>scope</code> và phát lại cho mỗi collector mới.</p>
+<p><strong>Tín hiệu cuộn và prefetch.</strong> Mỗi lần UI lấy item ở vị trí N, Paging nhận gợi ý vị trí; gần mép hơn <code>prefetchDistance</code> thì gửi một lần <code>APPEND</code> (hoặc <code>PREPEND</code>). Mỗi hướng chỉ có một lần tải chạy cùng lúc, nên cuộn nhanh không gây request trùng. <code>PagingData</code> mang kênh hai chiều tới generation hiện tại (dữ liệu đi xuống, gợi ý vị trí đi lên), nên hai collector cùng lúc bị cấm; <code>cachedIn</code> phát lại bản cache dùng chung cho mỗi collector mới.</p>
 
 <h2>Ví dụ thực tế</h2>
 
-<p>Ba bài toán hay gặp với Paging:</p>
-
-<ol>
-  <li><strong>Màn lịch sử giao dịch hoàn chỉnh:</strong> ghép <code>TransactionRemoteMediator</code> ở trên với kéo để làm mới, báo lỗi khi đang hiện cache, và cuộn về đầu sau khi làm mới. Đây là bài toán chính, code tầng UI bên dưới.</li>
-  <li><strong>Kiểm thử <code>PagingSource</code>:</strong> dùng <code>TestPager</code> của <code>paging-testing</code>, code ngắn ở cuối mục.</li>
-  <li><strong>Lịch sử chat tải cả hai chiều:</strong> mở cuộc trò chuyện ở tin chưa đọc đầu tiên, cuộn lên tải tin cũ (<code>PREPEND</code>), cuộn xuống tải tin mới (<code>APPEND</code>). <code>PagingSource</code> dùng key là id tin nhắn, trả cả <code>prevKey</code> lẫn <code>nextKey</code>; <code>initialKey</code> của <code>Pager</code> là id tin chưa đọc.</li>
-</ol>
-
 <h3>Màn lịch sử giao dịch: kéo để làm mới khi đang offline</h3>
 
-<p><strong>Bài toán:</strong> dùng <code>TransactionHistoryViewModel</code> của mục "RemoteMediator". Kéo xuống để làm mới; làm mới lỗi mà đang có cache thì chỉ báo bằng Snackbar, không xoá danh sách; làm mới xong thì cuộn về đầu để thấy giao dịch mới nhất.</p>
+<p><strong>Bài toán:</strong> thêm kéo để làm mới cho màn lịch sử giao dịch ở mục "RemoteMediator"; lỗi mà đang có cache thì chỉ báo Snackbar, làm mới xong thì cuộn về đầu.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li>Gắn adapter kèm footer <code>RetryLoadStateAdapter</code>, collect <code>transactions</code> bằng <code>collectLatest</code> + <code>submitData</code>.</li>
-  <li>Kéo để làm mới: <code>SwipeRefreshLayout</code> gọi <code>adapter.refresh()</code>; Paging invalidate và gọi <code>RemoteMediator.load(REFRESH)</code>.</li>
-  <li>Vòng xoay của <code>SwipeRefreshLayout</code> theo <code>mediator.refresh</code>; <code>mediator.refresh</code> là <code>Error</code> mà danh sách có dữ liệu thì hiện Snackbar.</li>
-  <li>Người dùng vừa kéo và <code>source.refresh</code> chuyển sang <code>NotLoading</code> thì cuộn về vị trí 0. Dùng trạng thái của <code>source</code> vì nó đồng bộ với lúc UI đã nhận dữ liệu mới.</li>
+  <li>Gắn adapter kèm footer <code>RetryLoadStateAdapter</code>, collect <code>transactions</code> bằng <code>collectLatest</code> + <code>submitData</code>, như ví dụ footer "Thử lại".</li>
+  <li>Kéo để làm mới: <code>SwipeRefreshLayout</code> gọi <code>adapter.refresh()</code>; Paging gọi <code>RemoteMediator.load(REFRESH)</code>.</li>
+  <li>Vòng xoay theo <code>mediator.refresh</code>; <code>mediator.refresh</code> là <code>Error</code> mà danh sách có dữ liệu thì hiện Snackbar.</li>
+  <li>Người dùng vừa kéo và <code>source.refresh</code> chuyển sang <code>NotLoading</code> thì cuộn về vị trí 0 (<code>source</code> đồng bộ với lúc UI đã nhận dữ liệu mới).</li>
 </ol>
 
 <div class="mermaid">
@@ -50156,93 +49077,74 @@ sequenceDiagram
     A--&gt;&gt;F: (4) source.refresh NotLoading → scrollToPosition(0)
 </div>
 
-<pre data-lang="kotlin"><code>// TransactionHistoryFragment.kt
-override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    val adapter = TransactionAdapter()   // PagingDataAdapter&lt;TransactionEntity, ...&gt;, DiffUtil theo id
-    binding.transactionList.adapter = adapter.withLoadStateFooter(                // (1)
-        footer = RetryLoadStateAdapter(errorMessage = "Không tải được giao dịch", onRetry = adapter::retry)
-    )
-    var scrollToTopAfterRefresh = false
-    binding.swipeRefresh.setOnRefreshListener {                                    // (2)
-        scrollToTopAfterRefresh = true
-        adapter.refresh()
-    }
+<pre data-lang="kotlin"><code>// TransactionHistoryFragment.kt, trong onViewCreated(); adapter + footer gắn như ArticleFeedFragment (1)
+var scrollToTopAfterRefresh = false
+binding.swipeRefresh.setOnRefreshListener {                                    // (2)
+    scrollToTopAfterRefresh = true
+    adapter.refresh()
+}
 
-    viewLifecycleOwner.lifecycleScope.launch {
-        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            launch { viewModel.transactions.collectLatest { adapter.submitData(it) } }  // (1)
+viewLifecycleOwner.lifecycleScope.launch {
+    viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launch { viewModel.transactions.collectLatest { adapter.submitData(it) } }  // (1)
 
-            launch {                                                               // (3)
-                // chỉ phản ứng khi mediator.refresh đổi, để Snackbar không hiện lặp
-                adapter.loadStateFlow.distinctUntilChangedBy { it.mediator?.refresh }.collect { loadStates -&gt;
-                    val mediatorRefresh = loadStates.mediator?.refresh
-                    binding.swipeRefresh.isRefreshing = mediatorRefresh is LoadState.Loading
-                    if (mediatorRefresh is LoadState.Error) scrollToTopAfterRefresh = false
-                    if (mediatorRefresh is LoadState.Error &amp;&amp; adapter.itemCount &gt; 0) {
-                        Snackbar.make(binding.root, "Đang hiển thị dữ liệu đã lưu", Snackbar.LENGTH_SHORT).show()
-                    }
+        launch {                                                               // (3)
+            // chỉ phản ứng khi mediator.refresh đổi, để Snackbar không hiện lặp
+            adapter.loadStateFlow.distinctUntilChangedBy { it.mediator?.refresh }.collect { loadStates -&gt;
+                val mediatorRefresh = loadStates.mediator?.refresh
+                binding.swipeRefresh.isRefreshing = mediatorRefresh is LoadState.Loading
+                if (mediatorRefresh is LoadState.Error) scrollToTopAfterRefresh = false
+                if (mediatorRefresh is LoadState.Error &amp;&amp; adapter.itemCount &gt; 0) {
+                    Snackbar.make(binding.root, "Đang hiển thị dữ liệu đã lưu", Snackbar.LENGTH_SHORT).show()
                 }
             }
+        }
 
-            launch {                                                               // (4)
-                adapter.loadStateFlow
-                    .distinctUntilChangedBy { it.source.refresh }
-                    .filter { it.source.refresh is LoadState.NotLoading }
-                    .collect {
-                        if (scrollToTopAfterRefresh) {
-                            scrollToTopAfterRefresh = false
-                            binding.transactionList.scrollToPosition(0)
-                        }
+        launch {                                                               // (4)
+            adapter.loadStateFlow
+                .distinctUntilChangedBy { it.source.refresh }
+                .filter { it.source.refresh is LoadState.NotLoading }
+                .collect {
+                    if (scrollToTopAfterRefresh) {
+                        scrollToTopAfterRefresh = false
+                        binding.transactionList.scrollToPosition(0)
                     }
-            }
+                }
         }
     }
 }</code></pre>
 
-<p><code>Snackbar</code> học ở 8.5.5 Message (chưa có bài). Cờ <code>scrollToTopAfterRefresh</code> cần thiết vì <code>source.refresh</code> cũng về <code>NotLoading</code> sau mỗi lần Room invalidate do <code>APPEND</code> ghi thêm dữ liệu; không có cờ thì đang cuộn xuống sẽ bị kéo về đầu. Header theo ngày ("Hôm nay", "Hôm qua") thêm bằng <code>insertSeparators</code> trong ViewModel, như ví dụ danh bạ.</p>
+<p>Cờ <code>scrollToTopAfterRefresh</code> cần vì <code>source.refresh</code> cũng về <code>NotLoading</code> sau mỗi lần <code>APPEND</code> ghi thêm dữ liệu; không có cờ thì đang cuộn xuống sẽ bị kéo về đầu. <code>Snackbar</code> học ở 8.5.5 Message (chưa có bài).</p>
 
-<p><strong>Kết quả:</strong> bật chế độ máy bay, kéo để làm mới: vòng xoay tắt, Snackbar "Đang hiển thị dữ liệu đã lưu", danh sách giữ nguyên. Tắt chế độ máy bay, kéo lại: giao dịch mới xuất hiện trên cùng và danh sách cuộn về đầu; cuộn xuống tải thêm thì không bị kéo ngược lên.</p>
+<p><strong>Kết quả:</strong> bật chế độ máy bay rồi kéo: Snackbar "Đang hiển thị dữ liệu đã lưu", danh sách giữ nguyên. Có mạng, kéo lại: giao dịch mới hiện trên cùng, danh sách cuộn về đầu.</p>
 
 <h3>Kiểm thử PagingSource</h3>
 
-<p><code>TestPager(config, pagingSource)</code> của <code>paging-testing</code> gọi <code>refresh()</code>, <code>append()</code>, <code>prepend()</code> trực tiếp trên một <code>PagingSource</code> và trả <code>LoadResult</code> để assert, không cần ViewModel hay UI. Để test cả luồng <code>Flow&lt;PagingData&gt;</code> của ViewModel (ví dụ header của <code>insertSeparators</code>), dùng <code>asSnapshot { scrollTo(index) }</code>: nó giả lập cuộn và trả <code>List</code> đã tải; luồng có <code>cachedIn(viewModelScope)</code> thì test cần thay <code>Dispatchers.Main</code> bằng test dispatcher.</p>
+<p><code>TestPager</code> (<code>paging-testing</code>) gọi <code>refresh()</code>, <code>append()</code> trực tiếp trên <code>PagingSource</code> và trả <code>LoadResult</code> để assert; luồng của ViewModel thì dùng <code>asSnapshot</code>, với test dispatcher (<a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>).</p>
 
-<pre data-lang="kotlin"><code>// ArticlePagingSourceTest.kt
-class ArticlePagingSourceTest {
+<pre data-lang="kotlin"><code>@Test
+fun refreshThenAppend_followsPageKeys() = runTest {
+    val pager = TestPager(PagingConfig(pageSize = 20), ArticlePagingSource(FakeArticleApi(totalPages = 3)))
 
-    private val fakeApi = FakeArticleApi(totalPages = 3)   // 20 bài mỗi trang, có cờ giả lỗi mạng
+    val first = pager.refresh() as PagingSource.LoadResult.Page
+    assertNull(first.prevKey)
+    assertEquals(2, first.nextKey)
 
-    @Test
-    fun refreshThenAppend_followsPageKeys() = runTest {
-        val pager = TestPager(PagingConfig(pageSize = 20), ArticlePagingSource(fakeApi))
-
-        val first = pager.refresh() as PagingSource.LoadResult.Page
-        assertNull(first.prevKey)
-        assertEquals(2, first.nextKey)
-
-        pager.append()
-        val last = pager.append() as PagingSource.LoadResult.Page
-        assertNull(last.nextKey)                            // trang 3 là trang cuối
-    }
-
-    @Test
-    fun networkFailure_returnsError() = runTest {
-        fakeApi.failNextRequest = true
-        val pager = TestPager(PagingConfig(pageSize = 20), ArticlePagingSource(fakeApi))
-        assertTrue(pager.refresh() is PagingSource.LoadResult.Error)
-    }
+    pager.append()
+    val last = pager.append() as PagingSource.LoadResult.Page
+    assertNull(last.nextKey)                                // trang 3 là trang cuối
 }</code></pre>
 
-<p>Fake và test dispatcher ở <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>. <code>RemoteMediator</code> dùng Room nên test bằng in-memory database trong <code>androidTest</code>, như mục "Kiểm thử DAO với In-Memory Database" của <a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>.</p>
+<p><code>RemoteMediator</code> test bằng in-memory database trong <code>androidTest</code> (<a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>).</p>
+
+<p>Lịch sử chat tải hai chiều: key là id tin nhắn, trả cả <code>prevKey</code> lẫn <code>nextKey</code>, <code>initialKey</code> của <code>Pager</code> là id tin chưa đọc đầu tiên.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
 <ul>
-  <li><strong>Nên dùng</strong> cho danh sách dài hoặc không biết trước độ dài: feed, kết quả tìm kiếm, lịch sử giao dịch, lịch sử chat, danh bạ lớn, thư viện ảnh. So với tự viết cuộn vô tận, Paging đã lo sẵn chống request trùng, retry, trạng thái tải, cache qua xoay màn hình.</li>
-  <li><strong>Nên dùng <code>RemoteMediator</code></strong> khi danh sách phải xem được offline hoặc mở lại phải hiện ngay.</li>
-  <li><strong>Không cần</strong> khi danh sách nhỏ, có giới hạn rõ (vài chục mục): tải hết rồi <code>submitList()</code>, hoặc Room <code>Flow&lt;List&lt;T&gt;&gt;</code>, đơn giản hơn.</li>
-  <li><strong>Không hợp</strong> khi phải sửa danh sách tại chỗ liên tục (kéo thả sắp xếp, chọn nhiều rồi xoá) mà không có database làm nguồn: <code>PagingData</code> không cho sửa trực tiếp, mọi thay đổi phải đi qua nguồn rồi invalidate. Có Room làm nguồn thì ổn: ghi vào Room, Paging tự cập nhật.</li>
+  <li><strong>Nên dùng</strong> cho danh sách dài hoặc không biết trước độ dài; thêm <code>RemoteMediator</code> khi phải xem được offline.</li>
+  <li><strong>Không cần</strong> khi danh sách nhỏ, có giới hạn rõ (vài chục mục): <code>submitList()</code> hoặc Room <code>Flow&lt;List&lt;T&gt;&gt;</code> đơn giản hơn.</li>
+  <li><strong>Không hợp</strong> khi phải sửa danh sách tại chỗ liên tục mà không có database làm nguồn: <code>PagingData</code> không cho sửa trực tiếp.</li>
   <li><strong>Không thay</strong> phân trang ở server: API vẫn phải hỗ trợ số trang, offset hoặc cursor.</li>
 </ul>
 
@@ -50250,127 +49152,78 @@ class ArticlePagingSourceTest {
 
 <h3>1. Quên <code>cachedIn</code> trong ViewModel</h3>
 
-<pre data-lang="kotlin"><code>// Sai: không cache
-val articles = Pager(PagingConfig(pageSize = 20)) { ArticlePagingSource(api) }.flow</code></pre>
+<pre data-lang="kotlin"><code>val articles = Pager(PagingConfig(pageSize = 20)) { ArticlePagingSource(api) }.flow   // Sai: không cache</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> xoay màn hình hoặc quay lại từ backstack là tải lại từ trang 1, mất vị trí cuộn. Hai chỗ cùng collect một <code>PagingData</code> (ví dụ qua <code>combine</code>) thì crash <code>IllegalStateException</code> về việc collect hai lần, kèm gợi ý gọi <code>cachedIn</code>.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> xoay màn hình là tải lại từ trang 1, mất vị trí cuộn; hai chỗ cùng collect thì crash <code>IllegalStateException</code>.</p>
 
 <p><strong>Cách sửa:</strong> <code>.cachedIn(viewModelScope)</code> ở cuối chuỗi, sau mọi biến đổi.</p>
 
 <h3>2. Tạo <code>Pager</code> mới mỗi lần collect</h3>
 
-<pre data-lang="kotlin"><code>// Sai: mỗi lần gọi là một Pager mới; Fragment gọi hàm này trong onViewCreated
-fun articles(): Flow&lt;PagingData&lt;Article&gt;&gt; =
-    Pager(PagingConfig(pageSize = 20)) { ArticlePagingSource(api) }.flow.cachedIn(viewModelScope)</code></pre>
+<pre data-lang="kotlin"><code>// Sai: Fragment gọi hàm này trong onViewCreated, mỗi lần là một Pager mới
+fun articles() = Pager(PagingConfig(pageSize = 20)) { ArticlePagingSource(api) }.flow.cachedIn(viewModelScope)</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> mỗi lần View được tạo lại là một <code>Pager</code> và một cache mới trong <code>viewModelScope</code>: danh sách tải lại từ đầu, cache cũ không được dùng nữa.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> mỗi lần View được tạo lại là một <code>Pager</code> và một cache mới: danh sách tải lại từ đầu.</p>
 
-<p><strong>Cách sửa:</strong> khai báo thuộc tính <code>val</code> để mọi lần collect dùng chung một luồng; danh sách có tham số thì <code>StateFlow</code> + <code>flatMapLatest</code> như ví dụ tìm kiếm.</p>
+<p><strong>Cách sửa:</strong> khai báo thuộc tính <code>val</code>; có tham số thì <code>StateFlow</code> + <code>flatMapLatest</code> như <code>ProductSearchViewModel</code>.</p>
 
 <h3>3. <code>pagingSourceFactory</code> trả lại cùng một instance</h3>
 
-<pre data-lang="kotlin"><code>// Sai: một PagingSource cho mọi generation
-val source = ArticlePagingSource(api)
-val articles = Pager(PagingConfig(pageSize = 20)) { source }.flow.cachedIn(viewModelScope)</code></pre>
+<pre data-lang="kotlin"><code>val source = ArticlePagingSource(api)
+val articles = Pager(PagingConfig(pageSize = 20)) { source }.flow.cachedIn(viewModelScope)   // Sai</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> lần đầu chạy bình thường; lần invalidate đầu tiên (kéo để làm mới) thì crash <code>IllegalStateException</code> báo <code>PagingSource</code> bị dùng lại trong khi <code>Pager</code> cần instance mới.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> lần invalidate đầu tiên (kéo để làm mới) thì crash <code>IllegalStateException</code> báo <code>PagingSource</code> bị dùng lại.</p>
 
-<p><strong>Cách sửa:</strong> lambda phải tạo mới: <code>{ ArticlePagingSource(api) }</code>; với Room là <code>{ dao.pagingSource() }</code>.</p>
+<p><strong>Cách sửa:</strong> lambda phải tạo mới: <code>{ ArticlePagingSource(api) }</code>, với Room là <code>{ dao.pagingSource() }</code>.</p>
 
 <h3>4. Collect bằng <code>collect</code> hoặc sai scope</h3>
 
-<pre data-lang="kotlin"><code>// Sai: scope của Fragment (không phải của View) và collect thường
-lifecycleScope.launch {
-    viewModel.results.collect { adapter.submitData(it) }
-}</code></pre>
+<pre data-lang="kotlin"><code>lifecycleScope.launch { viewModel.results.collect { adapter.submitData(it) } }   // Sai</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> <code>submitData()</code> chưa trả về khi <code>PagingData</code> cũ còn hiệu lực, nên với <code>collect</code>, <code>PagingData</code> mới (đổi từ khoá) bị kẹt phía sau và danh sách không đổi. <code>lifecycleScope</code> của Fragment sống qua <code>onDestroyView</code>, tiếp tục đẩy dữ liệu vào adapter của cây View đã huỷ.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> <code>submitData()</code> chưa trả về nên <code>PagingData</code> mới bị kẹt phía sau; <code>lifecycleScope</code> của Fragment sống qua <code>onDestroyView</code>.</p>
 
 <p><strong>Cách sửa:</strong> <code>viewLifecycleOwner.lifecycleScope</code> + <code>repeatOnLifecycle(STARTED)</code> + <code>collectLatest</code>.</p>
 
-<h3>5. <code>getRefreshKey</code> trả <code>null</code> hoặc tính sai</h3>
+<h3>5. <code>getRefreshKey</code> sai, hoặc gửi <code>params.loadSize</code> cho API theo số trang</h3>
 
-<pre data-lang="kotlin"><code>// Sai: luôn làm mới từ đầu
-override fun getRefreshKey(state: PagingState&lt;Int, Article&gt;): Int? = null</code></pre>
+<pre data-lang="kotlin"><code>override fun getRefreshKey(state: PagingState&lt;Int, Article&gt;): Int? = null      // Sai: luôn về đầu
+val response = api.getArticles(page = page, limit = params.loadSize)           // Sai: page và limit lệch</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> người dùng ở bài thứ 200, một lần invalidate xảy ra (dữ liệu đổi, <code>refresh()</code>): danh sách nhảy về đầu. Trả <code>anchorPosition</code> (vị trí item) cho API cần số trang thì sau khi làm mới hiện nhầm trang.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> trả <code>null</code> thì mỗi lần invalidate danh sách nhảy về đầu. Gửi <code>loadSize</code> (lần đầu 60) thì "trang 1" là bài 1–60, <code>page = 2</code> lại trả bài 21–40: bài bị trùng.</p>
 
-<p><strong>Cách sửa:</strong> suy key từ trang gần <code>anchorPosition</code> như <code>ArticlePagingSource</code>; key là offset thì lấy <code>anchorPosition</code> trừ nửa <code>initialLoadSize</code> (không nhỏ hơn 0).</p>
+<p><strong>Cách sửa:</strong> suy key từ trang gần <code>anchorPosition</code> như <code>ArticlePagingSource</code>; API theo số trang thì gửi kích thước cố định.</p>
 
-<h3>6. Gửi <code>params.loadSize</code> cho API theo số trang</h3>
+<h3>6. Key không ổn định khiến danh sách nhấp nháy</h3>
 
-<pre data-lang="kotlin"><code>// Sai: page và limit lệch nhau giữa lần đầu và các lần sau
-val response = api.getArticles(page = page, limit = params.loadSize)</code></pre>
+<pre data-lang="kotlin"><code>// Sai: id tự sinh; REFRESH xoá rồi chèn lại là ra id mới
+@Entity data class TransactionEntity(@PrimaryKey(autoGenerate = true) val localId: Long = 0, val serverId: String /* ... */)</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> lần đầu <code>loadSize = 60</code>, API trả bài 1–60 làm "trang 1"; lần sau <code>page = 2, limit = 20</code> trả bài 21–40, đã hiển thị rồi. Danh sách có bài trùng.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> sau mỗi lần làm mới, <code>DiffUtil</code> coi mọi item là mới: danh sách nhấp nháy, mất vị trí cuộn.</p>
 
-<p><strong>Cách sửa:</strong> API theo số trang thì gửi kích thước cố định (hoặc đặt <code>initialLoadSize = pageSize</code>); <code>params.loadSize</code> chỉ an toàn với API theo offset hoặc cursor.</p>
-
-<h3>7. Key không ổn định khiến danh sách nhấp nháy</h3>
-
-<pre data-lang="kotlin"><code>// Sai: id tự sinh; REFRESH xoá rồi chèn lại là ra id mới, DiffUtil so theo localId
-@Entity(tableName = "transactions")
-data class TransactionEntity(
-    @PrimaryKey(autoGenerate = true) val localId: Long = 0,
-    val serverId: String,
-    val amount: Long,
-    val createdAt: Long
-)</code></pre>
-
-<p><strong>Lỗi lộ ra thế nào:</strong> sau mỗi lần làm mới, <code>DiffUtil</code> coi mọi item là mới: cả danh sách nhấp nháy, mất vị trí cuộn. Tương tự khi <code>areItemsTheSame</code> so cả object, hoặc <code>ORDER BY createdAt</code> có nhiều dòng cùng thời điểm khiến thứ tự đổi giữa hai lần query.</p>
-
-<p><strong>Cách sửa:</strong> id từ server làm khoá chính và làm <code>areItemsTheSame</code>; <code>ORDER BY</code> thêm <code>id</code> làm tiêu chí phụ; Compose dùng <code>itemKey { it.id }</code>.</p>
-
-<h3>8. <code>pageSize</code> quá nhỏ, <code>prefetchDistance = 0</code></h3>
-
-<pre data-lang="kotlin"><code>// Sai: 5 item mỗi trang, chạm mép mới tải
-PagingConfig(pageSize = 5, prefetchDistance = 0)</code></pre>
-
-<p><strong>Lỗi lộ ra thế nào:</strong> màn hình hiện 10 item mà trang chỉ có 5: vừa mở đã gửi nhiều request liên tiếp; cuộn nhanh thì liên tục thấy cuối danh sách và vòng xoay.</p>
-
-<p><strong>Cách sửa:</strong> <code>pageSize</code> bằng vài lần số item trên màn hình; để <code>prefetchDistance</code> mặc định (bằng <code>pageSize</code>).</p>
+<p><strong>Cách sửa:</strong> id từ server làm khoá chính và làm <code>areItemsTheSame</code>; <code>ORDER BY</code> thêm <code>id</code>; Compose dùng <code>itemKey { it.id }</code>.</p>
 
 <h2>Lịch sử phát triển</h2>
 
 <ul>
-  <li><strong>Trước Paging (đến 2017):</strong> app tự viết cuộn vô tận bằng <code>RecyclerView.OnScrollListener</code>, số trang và cờ <code>isLoading</code>; dữ liệu local thường đi qua <code>CursorAdapter</code> và <code>Loader</code>.</li>
-  <li><strong>Paging 1.0 (<code>android.arch.paging</code>, alpha từ cuối 2017, 1.0.0-rc1 04/2018, 1.0.1 06/2018):</strong> ra mắt cùng Architecture Components. Mô hình gồm <code>DataSource</code> (ba loại <code>PageKeyedDataSource</code>, <code>ItemKeyedDataSource</code>, <code>PositionalDataSource</code>), <code>PagedList</code> chứa dữ liệu đã tải, <code>PagedListAdapter</code>, <code>LivePagedListBuilder</code>, và <code>BoundaryCallback</code> để biết khi dữ liệu local hết. Room đã sinh được <code>DataSource.Factory</code> từ DAO.</li>
+  <li><strong>Trước Paging (đến 2017):</strong> tự viết bằng <code>RecyclerView.OnScrollListener</code>.</li>
+  <li><strong>Paging 1.0 (<code>android.arch.paging</code>, alpha từ cuối 2017, 1.0.0-rc1 04/2018, 1.0.1 06/2018):</strong> <code>DataSource</code>, <code>PagedList</code>, <code>PagedListAdapter</code>, <code>BoundaryCallback</code>.</li>
   <li><strong>Paging 2.0.0 (10/2018):</strong> chuyển sang AndroidX (<code>androidx.paging</code>), API giữ nguyên.</li>
-  <li><strong>Paging 2.1.0 (01/2019):</strong> thêm <code>setMaxSize()</code> để bỏ bớt trang khỏi bộ nhớ và các extension KTX cho Kotlin.</li>
-  <li><strong>Paging 3.0.0-alpha01 (06/2020):</strong> viết lại bằng Kotlin, lấy coroutine và Flow làm trung tâm. <code>PagingSource</code> thay ba loại <code>DataSource</code> bằng một hàm <code>load()</code>; <code>PagingData</code> thay <code>PagedList</code>; <code>RemoteMediator</code> thay <code>BoundaryCallback</code>; thêm <code>LoadState</code>, retry, refresh, header/footer, biến đổi <code>map</code>/<code>filter</code>/<code>insertSeparators</code>, hỗ trợ huỷ tải.</li>
+  <li><strong>Paging 2.1.0 (01/2019):</strong> thêm <code>setMaxSize()</code> và các extension KTX.</li>
+  <li><strong>Paging 3.0.0-alpha01 (06/2020):</strong> viết lại bằng Kotlin với coroutine và Flow: <code>PagingSource</code>, <code>PagingData</code>, <code>RemoteMediator</code>, <code>LoadState</code>.</li>
   <li><strong>Room 2.3.0 (04/2021):</strong> DAO trả <code>PagingSource</code> cho Paging 3.</li>
   <li><strong>Paging 3.0.0 (05/2021):</strong> bản stable đầu tiên của Paging 3; phần lớn API của Paging 2 bị đánh dấu deprecated.</li>
-  <li><strong>Room 2.4.0-alpha04 (07/2021):</strong> tách artifact <code>room-paging</code> cho phần tích hợp Paging 3.</li>
-  <li><strong>Paging 3.2.0 (07/2023):</strong> <code>paging-compose</code> (trước đó đánh số riêng 1.0.0-alphaXX) nhập về cùng số version với các artifact Paging khác; artifact <code>paging-testing</code> có <code>TestPager</code>, <code>asSnapshot</code>, <code>asPagingSourceFactory</code>.</li>
-  <li><strong>Paging 3.3.0 (05/2024):</strong> <code>paging-common</code> hỗ trợ Kotlin Multiplatform, dùng được trong code chung ngoài Android.</li>
+  <li><strong>Room 2.4.0-alpha04 (07/2021):</strong> tách artifact <code>room-paging</code>.</li>
+  <li><strong>Paging 3.2.0 (07/2023):</strong> <code>paging-compose</code> (trước đó đánh số riêng 1.0.0-alphaXX) về cùng số version; thêm artifact <code>paging-testing</code>.</li>
+  <li><strong>Paging 3.3.0 (05/2024):</strong> <code>paging-common</code> hỗ trợ Kotlin Multiplatform.</li>
   <li><strong>Paging 3.5.3 (10/2026):</strong> bản stable mới nhất tại thời điểm viết bài.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
 
 <ul>
-  <li><strong>Tiên quyết:</strong>
-<ul>
-  <li><a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>: ViewHolder và Fragment trong bài dùng class binding.</li>
-  <li><a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>: vì sao collect <code>PagingData</code> bằng <code>viewLifecycleOwner</code>.</li>
-  <li><a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>: Entity, DAO, Single Source of Truth, nền của <code>RemoteMediator</code>.</li>
-  <li><a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>: phân loại lỗi mạng mà <code>LoadResult.Error</code> và <code>MediatorResult.Error</code> mang theo.</li>
-</ul></li>
-  <li><strong>Liên quan:</strong>
-<ul>
-  <li><a href="viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>: nơi đặt <code>Pager</code> và <code>cachedIn(viewModelScope)</code>.</li>
-  <li><a href="livedata.md" target="_blank" rel="noopener">6.3 LiveData</a>: Paging cũng phát <code>PagingData</code> dưới dạng <code>LiveData</code> (<code>Pager.liveData</code>) cho code chưa dùng Flow.</li>
-  <li><a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>: <code>withTransaction</code> và <code>InvalidationTracker</code>, cơ chế làm <code>PagingSource</code> của Room tự invalidate.</li>
-  <li><a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: fake, test dispatcher cho các test dùng <code>TestPager</code>, <code>asSnapshot</code>.</li>
-  <li><a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>: UI dùng <code>collectAsLazyPagingItems</code> thay adapter.</li>
-</ul></li>
-  <li><strong>Học tiếp:</strong>
-<ul>
-  <li>9.5.7 Lazy Paging Items (chưa có bài): Paging trong Compose chi tiết.</li>
-  <li>7.1.4.2 Flow (chưa có bài) và 8.4.3 Coroutines (chưa có bài): nền của <code>Flow&lt;PagingData&gt;</code>, <code>flatMapLatest</code>, <code>collectLatest</code>.</li>
-  <li>7.1.2 ViewHolder Pattern (chưa có bài) và 8.5.1 Layouts (chưa có bài): <code>RecyclerView</code>, <code>ViewHolder</code>, <code>DiffUtil</code>.</li>
-  <li>8.1.1 Retrofit (chưa có bài): interface API dùng trong <code>PagingSource</code> và <code>RemoteMediator</code>.</li>
-</ul></li>
+  <li><strong>Tiên quyết:</strong> <a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>, <a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, <a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, <a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>.</li>
+  <li><strong>Liên quan:</strong> <a href="viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>, <a href="livedata.md" target="_blank" rel="noopener">6.3 LiveData</a> (<code>Pager.liveData</code> cho code chưa dùng Flow), <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>, <a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</li>
+  <li><strong>Học tiếp:</strong> 9.5.7 Lazy Paging Items, 7.1.4.2 Flow, 8.4.3 Coroutines, 7.1.2 ViewHolder Pattern, 8.1.1 Retrofit (đều chưa có bài).</li>
 </ul>
 
 <h2>Tham khảo</h2>

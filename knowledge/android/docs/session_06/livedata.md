@@ -1,11 +1,11 @@
 ---
 id: android.jetpack.livedata
 title: LiveData
-summary: LiveData là class giữ dữ liệu quan sát được và lifecycle-aware của Jetpack, giữ giá trị mới nhất và chỉ giao giá trị đó cho observer có LifecycleOwner đang active (STARTED hoặc RESUMED), tự gỡ observer khi owner bị DESTROYED. Bài giải thích observer active/inactive và version, setValue với postValue, observe với observeForever, map/switchMap/MediatorLiveData, onActive/onInactive, cầu nối với coroutine và Flow, và vì sao event một lần nên được biểu diễn thành UI state.
+summary: LiveData là class giữ dữ liệu quan sát được và lifecycle-aware của Jetpack, giữ giá trị mới nhất và chỉ giao giá trị đó cho observer có LifecycleOwner đang active (STARTED hoặc RESUMED), tự gỡ observer khi owner bị DESTROYED. Bài đi qua setValue/postValue, observeForever, map/switchMap/MediatorLiveData, onActive/onInactive, cầu nối coroutine/Flow và event một lần dưới dạng UI state.
 status: reviewing
 difficulty: intermediate
 depth: deep-dive
-estimated_reading_time: 25 phút
+estimated_reading_time: 17 phút
 tags: [android, livedata, jetpack, lifecycle, observer, mediatorlivedata, transformations, ui-state]
 prerequisites: [android.component.activity.lifecycle, android.component.fragment.lifecycle, android.thread.working_with_thread]
 related: [android.jetpack.view_binding, android.data_store.room_architecture, android.data_store.room_transactions, android.networking.basics, android.component.activity.state_changes]
@@ -23,7 +23,7 @@ knowledge_gap: >
 
 ## Vấn đề cần giải quyết
 
-UI cần hiển thị dữ liệu thay đổi theo thời gian: số lượng trong giỏ hàng, kết quả tìm kiếm, trạng thái mạng, tiến độ tải lên. Dữ liệu đó thường đến **bất đồng bộ**, từ database, network hoặc một service của hệ thống, trong khi màn hình nhận nó có vòng đời riêng: bị đưa xuống background, bị huỷ rồi tạo lại khi xoay màn hình.
+UI cần hiển thị dữ liệu thay đổi theo thời gian: số món trong giỏ, kết quả tìm kiếm, trạng thái mạng, tiến độ tải lên. Dữ liệu đó thường đến **bất đồng bộ** (database, network, service của hệ thống), trong khi màn hình nhận nó có vòng đời riêng: bị đưa xuống background, bị huỷ rồi tạo lại khi xoay màn hình.
 
 Cách gốc là để nơi giữ dữ liệu gọi thẳng callback vào màn hình:
 
@@ -39,10 +39,10 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 Cách này có bốn điểm yếu:
 
-- **Leak:** `cartManager` sống lâu hơn Activity và giữ listener, listener giữ Activity; mỗi lần xoay màn hình thêm một Activity cũ không được thu hồi.
-- **Crash hoặc làm việc thừa:** callback đến khi Activity đã `onStop()` hay `onDestroy()`, cập nhật View không còn hiển thị, hoặc chạy `FragmentTransaction` sau khi state đã lưu và ném `IllegalStateException`.
-- **Tự quản lý đăng ký:** mỗi màn phải nhớ đăng ký ở `onStart()` và huỷ ở `onStop()`.
-- **Mất dữ liệu khi tạo lại:** Activity mới sau khi xoay màn hình không có giá trị hiện tại, phải đợi lần thay đổi kế tiếp hoặc tải lại.
+- **Leak:** `cartManager` sống lâu hơn Activity, giữ listener, listener giữ Activity cũ sau mỗi lần xoay.
+- **Crash hoặc làm việc thừa:** callback đến sau `onStop()`/`onDestroy()`, cập nhật View đã ẩn, hoặc chạy `FragmentTransaction` sau khi state đã lưu và ném `IllegalStateException`.
+- **Tự quản lý đăng ký** ở `onStart()`/`onStop()` cho từng màn.
+- **Mất dữ liệu khi tạo lại:** Activity mới sau khi xoay không có giá trị hiện tại.
 
 Vấn đề cần giải quyết là: **một nơi giữ dữ liệu mà UI quan sát được, tự biết khi nào UI sẵn sàng nhận, tự dọn khi UI bị huỷ, và luôn có sẵn giá trị mới nhất cho UI vừa được tạo lại.**
 
@@ -60,7 +60,7 @@ Vấn đề cần giải quyết là: **một nơi giữ dữ liệu mà UI quan
 
 Mental model: LiveData là **một tấm bảng tin chỉ có một dòng**. Mỗi lần ghi, dòng cũ bị xoá và thay bằng dòng mới. Người trực bảng chỉ báo tin cho người đang có mặt (active); người vắng mặt (inactive) không bị gọi, nhưng khi quay lại sẽ được xem đúng dòng đang ghi trên bảng, không phải mọi dòng đã từng ghi. Người đã rời đi hẳn (`DESTROYED`) bị gạch tên khỏi danh sách.
 
-`LifecycleOwner`, `Lifecycle.State` và cách `LifecycleRegistry` phát state cho observer đã được học ở [Activity Lifecycle](../session_04/components/activity/lifecycle.md), mục "Cách hoạt động — Bộ ba cốt lõi". Bài này dùng lại đúng các khái niệm đó.
+`LifecycleOwner`, `Lifecycle.State` và cách `LifecycleRegistry` phát state cho observer đã học ở [Activity Lifecycle](../session_04/components/activity/lifecycle.md), mục "Cách hoạt động — Bộ ba cốt lõi".
 
 ## Cách hoạt động
 
@@ -68,7 +68,7 @@ Mental model: LiveData là **một tấm bảng tin chỉ có một dòng**. M�
 
 `LiveData<T>` chỉ cho **đọc và quan sát** (`value`, `observe()`, `observeForever()`); hai hàm ghi `setValue()` và `postValue()` là `protected`. `MutableLiveData<T>` là lớp con mở hai hàm đó thành `public`.
 
-Nơi giữ state thường là **ViewModel**: object giữ state của màn hình và sống qua configuration change, được học ở [ViewModel](viewmodel.md); bài này chỉ dùng nó làm chỗ đặt LiveData. Mẫu quen thuộc là **backing property**: `_itemCount` kiểu `MutableLiveData` để `private`, `itemCount` kiểu `LiveData` đưa ra ngoài, nên chỉ ViewModel ghi được.
+Nơi giữ state thường là **ViewModel** (object giữ state của màn hình và sống qua configuration change, học ở [ViewModel](viewmodel.md)). Mẫu quen thuộc là **backing property**: `_itemCount` kiểu `MutableLiveData` để `private`, `itemCount` kiểu `LiveData` đưa ra ngoài, nên chỉ ViewModel ghi được.
 
 ```kotlin
 // CartViewModel.kt
@@ -83,41 +83,28 @@ class CartViewModel : ViewModel() {
 }
 ```
 
-`MutableLiveData<Int>()` không truyền giá trị thì LiveData **chưa có giá trị** (`isInitialized == false`): `value` trả `null` và observer chưa được gọi. Truyền giá trị khởi tạo như `MutableLiveData(0)` thì observer nhận `0` ngay khi active. Ở Kotlin, `value` luôn có kiểu `T?`, nên đọc giá trị hiện tại thường đi kèm `?:`.
+`MutableLiveData<Int>()` không truyền giá trị thì **chưa có giá trị** (`isInitialized == false`): `value` là `null`, observer chưa được gọi. Ở Kotlin, `value` luôn có kiểu `T?`.
 
 ### Observe theo lifecycle: active, inactive và tự gỡ
 
-`observe(owner, observer)` đăng ký một `Observer` kèm `LifecycleOwner` (Activity, Fragment, `viewLifecycleOwner`). Từ đó LiveData theo dõi lifecycle của owner và xếp observer vào một trong ba trạng thái:
+`observe(owner, observer)` đăng ký một `Observer` kèm `LifecycleOwner` (Activity, Fragment, `viewLifecycleOwner`); LiveData theo lifecycle của owner mà xếp observer vào ba trạng thái:
 
 - **Inactive:** owner ở `CREATED` (vừa `onCreate()`, hoặc đã `onStop()`). Giá trị đổi nhưng observer không được gọi.
 - **Active:** owner ở `STARTED` hoặc `RESUMED`. Mỗi lần giá trị đổi, `onChanged()` được gọi trên main thread.
 - **Đã gỡ:** owner chuyển sang `DESTROYED`. LiveData tự gọi `removeObserver()`, không còn giữ tham chiếu tới observer hay owner.
 
-Khi observer chuyển từ inactive sang active, nó nhận **giá trị mới nhất** nếu chưa nhận giá trị đó; nhờ vậy Activity tạo lại sau xoay màn hình có dữ liệu ngay. Mỗi observer nhớ **version** của giá trị cuối nó đã nhận, nên đi qua inactive rồi active lại mà giá trị không đổi thì không bị gọi lặp (mục "Deep Dive").
-
-```mermaid
-stateDiagram-v2
-    [*] --> Inactive: observe(owner), owner ở CREATED
-    Inactive --> Active: owner STARTED, nhận giá trị mới nhất nếu chưa nhận
-    Active --> Active: setValue, gọi onChanged
-    Active --> Inactive: owner onStop, xuống CREATED
-    Inactive --> Removed: owner DESTROYED
-    Active --> Removed: owner DESTROYED
-    Removed --> [*]
-```
-
-Vì observer được gọi ngay khi owner `STARTED`, chỗ hợp lý để observe là `onCreate()` của Activity (hoặc `onViewCreated()` của Fragment, mục sau), không phải `onResume()`.
+Khi observer chuyển từ inactive sang active, nó nhận **giá trị mới nhất** nếu chưa nhận (mỗi observer nhớ **version** của giá trị cuối đã nhận, mục "Deep Dive"); nhờ vậy Activity tạo lại sau xoay màn hình có dữ liệu ngay. Vì observer được gọi ngay khi owner `STARTED`, nên observe trong `onCreate()` (Fragment: `onViewCreated()`), không phải `onResume()`.
 
 #### Ví dụ: badge số lượng giỏ hàng qua xoay màn hình
 
-**Bài toán:** badge trên màn danh sách sản phẩm hiện số món trong giỏ, cập nhật ngay khi bấm "Thêm vào giỏ" và giữ đúng con số khi xoay màn hình.
+**Bài toán:** badge hiện số món trong giỏ, cập nhật ngay khi bấm "Thêm vào giỏ" và giữ đúng con số khi xoay màn hình.
 
 **Luồng chạy:**
 
-1. Trong `onCreate()`, Activity observe `itemCount`; owner đang `CREATED` nên observer inactive.
-2. `onStart()`: owner `STARTED`, observer active và nhận ngay giá trị hiện tại `0`.
+1. `onCreate()`: Activity observe `itemCount`; owner đang `CREATED` nên observer inactive.
+2. `onStart()`: owner `STARTED`, observer active, nhận ngay `0`.
 3. Bấm "Thêm vào giỏ": ViewModel `setValue(1)`, observer nhận `1`.
-4. Xoay màn hình: Activity cũ `DESTROYED`, LiveData tự gỡ observer cũ; ViewModel và LiveData của nó vẫn sống.
+4. Xoay màn hình: Activity cũ `DESTROYED`, observer cũ bị gỡ; ViewModel và LiveData vẫn sống.
 5. Activity mới observe lại và nhận ngay `1` khi tới `STARTED`.
 
 ```mermaid
@@ -162,9 +149,9 @@ class ProductListActivity : AppCompatActivity() {
 }
 ```
 
-`binding` là [View Binding](view_binding.md); `by viewModels()` lấy ViewModel gắn với Activity ([ViewModel](viewmodel.md)).
+`binding` là [View Binding](view_binding.md); `by viewModels()` học ở [ViewModel](viewmodel.md).
 
-**Kết quả:** bấm thêm ba lần, badge hiện `3`; xoay màn hình, badge vẫn `3` ngay khi màn mới hiện. Xoay nhiều lần rồi bấm: log trong observer chỉ in một lần mỗi lần bấm, LeakCanary không báo Activity cũ bị giữ.
+**Kết quả:** bấm thêm ba lần, badge hiện `3`; xoay màn hình, badge vẫn `3` ngay. Xoay nhiều lần rồi bấm: observer chạy đúng một lần mỗi lần bấm, LeakCanary không báo Activity cũ bị giữ.
 
 ### `setValue` và `postValue`: ghi từ thread nào
 
@@ -172,40 +159,38 @@ LiveData giao giá trị cho observer trên **main thread**, nên mọi thay đ�
 
 | | `setValue(value)` (Kotlin: `value = …`) | `postValue(value)` |
 |---|---|---|
-| Gọi từ | Chỉ main thread; gọi từ thread khác ném `IllegalStateException: Cannot invoke setValue on a background thread` | Bất kỳ thread nào |
-| Khi nào đổi giá trị | Ngay lập tức, observer active được gọi đồng bộ trước khi hàm trả về | Sau này, khi main thread chạy tới task đã post |
-| Gọi nhiều lần liên tiếp | Mỗi lần là một lần giao | Gọi nhiều lần trước khi main thread chạy task thì **chỉ giá trị cuối** được giao |
+| Gọi từ | Chỉ main thread; thread khác ném `IllegalStateException: Cannot invoke setValue on a background thread` | Bất kỳ thread nào |
+| Khi nào đổi giá trị | Ngay, observer active được gọi đồng bộ trước khi hàm trả về | Khi main thread chạy tới task đã post |
+| Gọi nhiều lần liên tiếp | Mỗi lần là một lần giao | Trước khi task chạy thì **chỉ giá trị cuối** được giao |
 
-`postValue()` ghi giá trị vào một ô "đang chờ" và chỉ post **một** `Runnable` lên main thread khi ô đó đang trống; các lần gọi sau, trong lúc Runnable chưa chạy, chỉ ghi đè ô chờ. Khi chạy, Runnable lấy giá trị trong ô và gọi `setValue()`. Cơ chế gửi task về main thread qua `MessageQueue` đã học ở [Working with Thread](../session_05/working_with_thread.md), mục "Trái tim giao tiếp bất đồng bộ của Android: Looper, MessageQueue và Handler". Theo mental model bảng tin: chỉ tờ giấy cuối cùng được mang tới kịp mới được ghi lên bảng.
+`postValue()` ghi vào một ô "đang chờ" và chỉ post **một** `Runnable` lên main thread khi ô đang trống; Runnable chạy thì lấy giá trị trong ô rồi gọi `setValue()`. Cơ chế gửi task qua `MessageQueue` đã học ở [Working with Thread](../session_05/working_with_thread.md), mục "Trái tim giao tiếp bất đồng bộ của Android: Looper, MessageQueue và Handler".
 
 #### Ví dụ: tiến độ nén ảnh trước khi tải lên
 
-**Bài toán:** app nén từng ảnh trên worker thread trước khi đăng bài và hiện phần trăm tiến độ; tiến độ phải gửi về main thread bằng `postValue()`.
+**Bài toán:** app nén từng ảnh trên worker thread trước khi đăng bài và hiện phần trăm tiến độ.
 
 **Luồng chạy:**
 
 1. Trên main thread, ViewModel `setValue(0)` rồi giao việc nén cho executor.
 2. Worker thread nén từng ảnh.
-3. Sau mỗi ảnh, worker `postValue(phần trăm)`: giá trị vào ô chờ, chỉ khi ô đang trống mới post Runnable.
-4. Main thread chạy Runnable, `setValue()` giá trị **mới nhất** trong ô; giá trị bị ghi đè trước đó không tới observer.
-5. Người dùng chuyển sang app khác thì observer inactive, chỉ nhận giá trị mới nhất khi quay lại.
+3. Sau mỗi ảnh, worker `postValue(phần trăm)`: giá trị vào ô chờ, ô đang trống mới post Runnable.
+4. Main thread chạy Runnable, `setValue()` giá trị **mới nhất** trong ô; giá trị bị ghi đè không tới observer.
+5. Chuyển sang app khác thì observer inactive, quay lại chỉ nhận giá trị mới nhất.
 
 ```mermaid
 sequenceDiagram
     participant VM as UploadViewModel (main)
     participant W as Worker thread
     participant L as progress (LiveData)
-    participant M as Main thread (Looper)
     participant O as Observer (Activity)
     VM->>L: (1) setValue(0)
     L-->>O: onChanged(0)
     VM->>W: execute nén ảnh
     W->>W: (2) nén ảnh 1
     W->>L: (3) postValue(33), ô chờ trống, post Runnable
-    L->>M: post(Runnable)
     W->>W: nén ảnh 2
     W->>L: postValue(66), ô chờ đã có, chỉ ghi đè
-    M->>L: (4) Runnable chạy, setValue(66)
+    L->>L: (4) main thread chạy Runnable, setValue(66)
     L-->>O: onChanged(66), giá trị 33 bị bỏ qua
     Note over O: (5) observer inactive thì chỉ nhận giá trị mới nhất khi active lại
 ```
@@ -214,7 +199,7 @@ sequenceDiagram
 // UploadViewModel.kt
 class UploadViewModel : ViewModel() {
 
-    private val executor = Executors.newSingleThreadExecutor()
+    private val executor = Executors.newSingleThreadExecutor()  // onCleared() gọi shutdownNow(), xem viewmodel.md
 
     private val _progress = MutableLiveData(0)
     val progress: LiveData<Int> = _progress
@@ -229,10 +214,6 @@ class UploadViewModel : ViewModel() {
             }
         }
     }
-
-    override fun onCleared() {
-        executor.shutdownNow()   // ViewModel bị clear thì dừng worker, xem viewmodel.md
-    }
 }
 
 // PostComposerActivity.kt
@@ -242,60 +223,44 @@ uploadViewModel.progress.observe(this) { percent ->          // (4)(5) luôn ch�
 }
 ```
 
-`compressPhoto()` là hàm nén ảnh của dự án, không thuộc phạm vi bài này.
-
-**Kết quả:** với vài ảnh lớn, tiến độ tăng dần 33 → 66 → 100. Với rất nhiều ảnh nhỏ, log trong observer có thể nhảy cóc (4 → 37 → 100) vì các giá trị giữa bị gộp: đó là hành vi đúng của `postValue()`. Đổi thành `_progress.value = percent` trong worker thì app crash với `Cannot invoke setValue on a background thread`.
+**Kết quả:** vài ảnh lớn thì tiến độ tăng dần 33 → 66 → 100; rất nhiều ảnh nhỏ thì có thể nhảy cóc (4 → 37 → 100) vì giá trị giữa bị gộp, đúng hành vi của `postValue()`. Đổi thành `_progress.value = percent` trong worker thì app crash với `Cannot invoke setValue on a background thread`.
 
 ### Trong Fragment: observe bằng `viewLifecycleOwner`
 
-Instance của Fragment sống lâu hơn View của nó, nên observer cập nhật View phải dùng owner **`viewLifecycleOwner`** và observe trong `onViewCreated()`. Lý do đã giải thích ở [Fragment Lifecycle](../session_04/components/fragment/lifecycle.md), mục "View Lifecycle: vòng đời thứ hai trong Fragment"; ở đây chỉ bổ sung phần thuộc về LiveData.
+Fragment sống lâu hơn View của nó, nên observer cập nhật View phải dùng **`viewLifecycleOwner`** và observe trong `onViewCreated()` (lý do ở [Fragment Lifecycle](../session_04/components/fragment/lifecycle.md), mục "View Lifecycle: vòng đời thứ hai trong Fragment").
 
 ```kotlin
-// OrderListFragment.kt
-override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    val binding = FragmentOrderListBinding.bind(view)
-    val adapter = OrderAdapter()
-    binding.orderList.adapter = adapter
-
-    orderViewModel.orders.observe(viewLifecycleOwner) { orders ->
-        adapter.submitList(orders)
-    }
+// OrderListFragment.kt, trong onViewCreated()
+orderViewModel.orders.observe(viewLifecycleOwner) { orders ->
+    adapter.submitList(orders)
 }
 ```
 
-`observe()` chỉ chống trùng theo **chính instance `Observer`**, mà lambda trong `onViewCreated()` là instance mới mỗi lần View được tạo lại. Observe bằng `this` thì khi Fragment vào backstack, observer cũ không bị gỡ (Fragment chưa `DESTROYED`); quay lại là thêm observer thứ hai, observer cũ còn giữ binding của cây View đã huỷ. Ngược lại, dùng **cùng một instance** observer với hai owner khác nhau thì `observe()` ném `IllegalArgumentException: Cannot add the same observer with different lifecycles`.
+`observe()` chỉ chống trùng theo **chính instance `Observer`**, mà lambda trong `onViewCreated()` là instance mới mỗi lần tạo View. Observe bằng `this` thì khi Fragment vào backstack, observer cũ không bị gỡ (Fragment chưa `DESTROYED`); quay lại là có observer thứ hai, còn observer cũ giữ binding của cây View đã huỷ.
 
 ### Biến đổi: `map`, `switchMap`, `distinctUntilChanged`
 
-Thư viện cung cấp ba hàm extension trên `LiveData` (trước đây gọi qua class `Transformations`; Kotlin hiện dùng dạng extension `map {}`, `switchMap {}`). Mỗi hàm trả về một LiveData **mới**, bên trong là một `MediatorLiveData` (mục sau) lắng nghe LiveData nguồn:
+Thư viện cung cấp ba hàm extension trên `LiveData` (trước đây gọi qua class `Transformations`). Mỗi hàm trả về một LiveData **mới**, bên trong là một `MediatorLiveData` (mục sau) lắng nghe LiveData nguồn:
 
 | Hàm | Làm gì | Dùng khi |
 |---|---|---|
 | `source.map { x -> y }` | Biến mỗi giá trị nguồn thành một giá trị khác | Định dạng để hiển thị: `99+`, tiền tệ, ghép họ tên |
-| `source.switchMap { x -> liveDataOf(x) }` | Với mỗi giá trị nguồn, tạo một LiveData khác và **chuyển sang** quan sát nó, bỏ LiveData trước | Tham số đổi thì nguồn dữ liệu đổi: từ khoá tìm kiếm, id người dùng |
-| `source.distinctUntilChanged()` | Chỉ giao giá trị khi khác giá trị trước đó (so bằng `equals`) | Chặn cập nhật lặp, vì `setValue()` cùng giá trị vẫn giao lại cho observer |
+| `source.switchMap { x -> liveDataOf(x) }` | Với mỗi giá trị nguồn, tạo LiveData khác và **chuyển sang** quan sát nó, bỏ cái trước | Tham số đổi thì nguồn đổi: từ khoá tìm kiếm, id người dùng |
+| `source.distinctUntilChanged()` | Chỉ giao khi khác giá trị trước (so bằng `equals`) | Chặn cập nhật lặp, vì `setValue()` cùng giá trị vẫn giao lại |
 
-Hai đặc tính quan trọng: các hàm này **lười** (LiveData sinh ra chỉ lắng nghe nguồn khi chính nó có observer active; không ai observe thì `value` không được cập nhật), và lambda của chúng **chạy trên main thread**, nên việc nặng đặt trong `map` sẽ gây giật UI.
-
-```kotlin
-// CartViewModel.kt
-val badgeText: LiveData<String> = itemCount.map { count ->
-    if (count > 99) "99+" else count.toString()
-}
-```
+Hai đặc tính quan trọng: các hàm này **lười** (chỉ lắng nghe nguồn khi chính LiveData sinh ra có observer active; không ai observe thì `value` không được cập nhật), và lambda của chúng **chạy trên main thread**, nên việc nặng (lọc, sắp xếp danh sách lớn) trong `map` gây giật UI; việc đó nên đẩy xuống query của database hoặc Flow với `flowOn(Dispatchers.Default)`.
 
 #### Ví dụ: tìm kiếm sản phẩm theo từ khoá
 
-**Bài toán:** ô tìm kiếm lọc sản phẩm lưu trong Room. Mỗi từ khoá là một query khác, và danh sách phải tự cập nhật khi bảng đổi. Tham số đổi thì đổi nguồn LiveData: đúng việc của `switchMap`.
+**Bài toán:** ô tìm kiếm lọc sản phẩm lưu trong Room; danh sách phải tự cập nhật khi bảng đổi. Mỗi từ khoá là một query, tức một LiveData nguồn khác: đúng việc của `switchMap`.
 
 **Luồng chạy:**
 
 1. Người dùng gõ, ViewModel ghi từ khoá đã `trim()` vào `query`.
 2. `distinctUntilChanged()` bỏ qua từ khoá trùng lần trước.
-3. `switchMap` gọi DAO, nhận LiveData query mới, **gỡ** LiveData của từ khoá cũ và lắng nghe cái mới.
-4. Room chạy query trên background thread rồi đẩy kết quả lên; `results` giao cho observer.
-5. Bảng `products` đổi về sau: Room tự chạy lại đúng query đang được lắng nghe.
+3. `switchMap` gọi DAO lấy LiveData query mới, **gỡ** LiveData của từ khoá cũ.
+4. Room chạy query trên background thread rồi đẩy kết quả; `results` giao cho observer.
+5. Bảng `products` đổi: Room tự chạy lại query đang được lắng nghe.
 
 ```mermaid
 sequenceDiagram
@@ -336,159 +301,59 @@ class ProductSearchViewModel(private val productDao: ProductDao) : ViewModel() {
 }
 ```
 
-DAO trả `LiveData` là observable query của Room, học ở [Room Architecture](../session_05/data_store/room_architecture.md); ViewModel có tham số (`productDao`) cần factory, học ở [ViewModel](viewmodel.md), mục "Factory và CreationExtras".
+DAO trả `LiveData` là observable query của Room ([Room Architecture](../session_05/data_store/room_architecture.md)); ViewModel có tham số cần factory ([ViewModel](viewmodel.md)).
 
-**Kết quả:** gõ "áo" thì chỉ còn sản phẩm có "áo" trong tên; sửa giá một sản phẩm bằng Database Inspector thì danh sách tự cập nhật. Gõ "áo" rồi thêm và xoá một dấu cách, log trong `switchMap` chỉ in một lần. Cần **debounce** (chờ ngừng gõ 300 ms mới query) thì LiveData không có toán tử này; đó là lúc dùng Flow (mục "Cầu nối với coroutine và Flow").
+**Kết quả:** gõ "áo" thì chỉ còn sản phẩm có "áo" trong tên; sửa giá một sản phẩm bằng Database Inspector thì danh sách tự cập nhật. Gõ "áo" rồi thêm và xoá một dấu cách, `switchMap` chỉ chạy một lần. LiveData không có **debounce** (chờ ngừng gõ 300 ms mới query); cần thì dùng Flow (mục "Cầu nối với coroutine và Flow").
 
 ### Gộp nhiều nguồn: `MediatorLiveData`
 
-`MediatorLiveData<T>` là một `MutableLiveData` **lắng nghe nhiều LiveData nguồn**: `addSource(source) { value -> … }` đăng ký một callback cho mỗi nguồn, `removeSource(source)` gỡ nó; nguồn đổi thì callback chạy và thường gọi `setValue()` cho mediator. Mediator cũng lười: chỉ lắng nghe nguồn khi bản thân nó có observer active, ngừng khi không còn. Chính `map`, `switchMap` và `distinctUntilChanged` được viết bằng `MediatorLiveData`.
+`MediatorLiveData<T>` là một `MutableLiveData` **lắng nghe nhiều LiveData nguồn**: `addSource(source) { … }` đăng ký callback cho mỗi nguồn, `removeSource(source)` gỡ nó; nguồn đổi thì callback chạy và thường gọi `setValue()` cho mediator. Mediator cũng lười; `map`, `switchMap`, `distinctUntilChanged` được viết bằng nó.
 
-#### Ví dụ: tổng tiền thanh toán từ giỏ hàng và mã giảm giá
-
-**Bài toán:** tổng tiền ở màn thanh toán phụ thuộc hai nguồn: tạm tính của giỏ hàng (từ Room) và phần trăm giảm của mã người dùng vừa nhập. Nguồn nào đổi thì tổng cũng phải tính lại.
-
-**Luồng chạy:**
-
-1. Khi tạo, mediator `total` đăng ký hai nguồn bằng `addSource()`.
-2. Màn hình observe `total` và tới `STARTED`: mediator active, bắt đầu lắng nghe hai nguồn.
-3. Một nguồn đổi (tạm tính mới từ Room, hoặc áp mã): callback gọi `recalculate()`.
-4. `recalculate()` đọc **cả hai** nguồn, tính tổng và `setValue()`; observer nhận tổng mới.
-5. Màn hình `onStop()`: mediator inactive, ngừng lắng nghe nguồn.
-
-```mermaid
-flowchart TD
-    A["(1) addSource(subtotal), addSource(discountPercent)"] --> B["(2) total có observer active"]
-    B --> C{"(3) nguồn nào đổi?"}
-    C -->|"subtotal từ Room"| D["(4) recalculate()"]
-    C -->|"discountPercent khi áp mã"| D
-    D --> E["total = subtotal - subtotal x percent / 100"]
-    E --> F[observer nhận tổng mới]
-    F --> G{"(5) màn hình onStop?"}
-    G -->|Có| H[ngừng lắng nghe nguồn]
-    G -->|Không| C
-```
+Ví dụ: tổng tiền thanh toán phụ thuộc tạm tính giỏ hàng (`subtotal`, từ Room) và phần trăm giảm của mã (`discountPercent`, ghi bởi `applyCoupon()`); callback của **mỗi** nguồn đọc lại **cả hai** nguồn:
 
 ```kotlin
-// CartDao.kt
-@Dao
-interface CartDao {
-    @Query("SELECT COALESCE(SUM(unit_price * quantity), 0) FROM cart_items")
-    fun observeSubtotal(): LiveData<Long>
-}
-
-// CheckoutViewModel.kt
-class CheckoutViewModel(cartDao: CartDao) : ViewModel() {
-
-    private val subtotal: LiveData<Long> = cartDao.observeSubtotal()
-    private val discountPercent = MutableLiveData(0)
-
-    val total: LiveData<Long> = MediatorLiveData<Long>().apply {
-        fun recalculate() {                                   // (4) đọc cả hai nguồn
-            val amount = subtotal.value ?: 0L
-            val percent = discountPercent.value ?: 0
-            value = amount - amount * percent / 100
-        }
-        addSource(subtotal) { recalculate() }                 // (1)(3)
-        addSource(discountPercent) { recalculate() }          // (1)(3)
+// CheckoutViewModel.kt (subtotal = cartDao.observeSubtotal(), discountPercent = MutableLiveData(0))
+val total: LiveData<Long> = MediatorLiveData<Long>().apply {
+    fun recalculate() {
+        val amount = subtotal.value ?: 0L
+        val percent = discountPercent.value ?: 0
+        value = amount - amount * percent / 100
     }
-
-    fun applyCoupon(percent: Int) {
-        discountPercent.value = percent.coerceIn(0, 100)
-    }
+    addSource(subtotal) { recalculate() }
+    addSource(discountPercent) { recalculate() }
 }
 ```
 
-**Kết quả:** giỏ hàng 200.000 đ, áp mã 10% thì tổng hiện 180.000 đ; tăng số lượng một món trong giỏ thì tổng tự tính lại theo tạm tính mới, mã vẫn được áp. Bỏ hết observer của `total` thì `recalculate()` không chạy nữa, kể cả khi bảng `cart_items` đổi.
+Giỏ hàng 200.000 đ, áp mã 10% thì tổng hiện 180.000 đ; tăng số lượng một món thì tổng tự tính lại. Không còn observer của `total` thì `recalculate()` không chạy, kể cả khi bảng `cart_items` đổi.
 
 ### `observe(owner)` và `observeForever`: khi không có lifecycle
 
-`observeForever(observer)` đăng ký observer **không kèm owner**, được coi là **luôn active**. Không có lifecycle thì không ai tự gỡ, nên **người gọi phải `removeObserver(observer)`**; quên là LiveData giữ observer (và mọi thứ nó tham chiếu) mãi mãi.
+`observeForever(observer)` đăng ký observer **không kèm owner**, được coi là **luôn active**. Không có lifecycle thì không ai tự gỡ, nên **người gọi phải `removeObserver(observer)`**; quên là LiveData giữ observer (và mọi thứ nó tham chiếu) mãi mãi. Trong UI luôn dùng `observe()`; `observeForever()` thường gặp nhất trong **unit test**, nơi không có owner.
 
-| | `observe(owner, observer)` | `observeForever(observer)` |
-|---|---|---|
-| Active khi | Owner ở `STARTED`/`RESUMED` | Luôn luôn |
-| Gỡ observer | Tự động khi owner `DESTROYED` | Phải gọi `removeObserver()` |
-| Dùng ở | Activity, Fragment, `LifecycleService` | Unit test, component không có lifecycle (ví dụ một class sống theo app) |
-
-Trong UI luôn dùng `observe()`; `observeForever()` thường gặp nhất trong **unit test**, nơi không có owner nào.
-
-#### Ví dụ: unit test tổng tiền của `CheckoutViewModel`
-
-**Bài toán:** kiểm tra `total` ở mục trước tính đúng sau khi áp mã. `total` là mediator lười: không có observer thì `total.value` vẫn là `null`. Test cần một observer không có lifecycle, tức `observeForever()`.
-
-**Luồng chạy:**
-
-1. `InstantTaskExecutorRule` cho mọi task chạy đồng bộ và coi thread của test là main thread, nên `setValue()` không ném lỗi trong JVM test.
-2. `getOrAwaitValue()` gọi `observeForever()`: observer active ngay, kéo mediator active theo.
-3. Mediator tính tổng, observer nhận giá trị và nhả `CountDownLatch`.
-4. `finally` luôn gọi `removeObserver()`, để observer không sống tiếp sang test khác.
-
-```mermaid
-sequenceDiagram
-    participant T as CheckoutViewModelTest
-    participant U as getOrAwaitValue()
-    participant L as total (MediatorLiveData)
-    Note over T: (1) InstantTaskExecutorRule
-    T->>U: total.getOrAwaitValue()
-    U->>L: (2) observeForever(observer)
-    L-->>U: (3) onChanged(180000), latch.countDown()
-    U->>L: (4) finally: removeObserver(observer)
-    U-->>T: 180000
-```
+`total` ở trên là mediator lười, nên test phải có observer mới đọc được tổng. `InstantTaskExecutorRule` (artifact `androidx.arch.core:core-testing`) coi thread của test là main thread, nên `setValue()` không ném lỗi trong JVM test.
 
 ```kotlin
-// test/.../LiveDataTestUtil.kt
-fun <T> LiveData<T>.getOrAwaitValue(timeoutSeconds: Long = 2): T {
-    var data: T? = null
-    val latch = CountDownLatch(1)
-    val observer = Observer<T> { value ->
-        data = value
-        latch.countDown()                                     // (3)
-    }
-    observeForever(observer)                                  // (2) không có owner, luôn active
-    try {
-        if (!latch.await(timeoutSeconds, TimeUnit.SECONDS)) {
-            throw TimeoutException("LiveData chưa có giá trị")
-        }
-    } finally {
-        removeObserver(observer)                              // (4) bắt buộc tự gỡ
-    }
-    @Suppress("UNCHECKED_CAST")
-    return data as T
-}
-
-// test/.../CheckoutViewModelTest.kt
-class CheckoutViewModelTest {
-
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()   // (1) androidx.arch.core:core-testing
-
-    private class FakeCartDao(subtotal: Long) : CartDao {
-        private val subtotalLiveData = MutableLiveData(subtotal)
-        override fun observeSubtotal(): LiveData<Long> = subtotalLiveData
-    }
-
-    @Test
-    fun total_appliesCouponDiscount() {
-        val viewModel = CheckoutViewModel(FakeCartDao(subtotal = 200_000L))
-
-        viewModel.applyCoupon(10)
-
-        assertEquals(180_000L, viewModel.total.getOrAwaitValue())
-    }
+// CheckoutViewModelTest.kt (có @get:Rule InstantTaskExecutorRule)
+val viewModel = CheckoutViewModel(FakeCartDao(subtotal = 200_000L))
+viewModel.applyCoupon(10)
+val observer = Observer<Long> { }
+viewModel.total.observeForever(observer)         // không có owner, luôn active: mediator bắt đầu tính
+try {
+    assertEquals(180_000L, viewModel.total.value)
+} finally {
+    viewModel.total.removeObserver(observer)     // bắt buộc tự gỡ
 }
 ```
 
-**Kết quả:** test pass. Thay `viewModel.total.getOrAwaitValue()` bằng `viewModel.total.value` thì test fail với giá trị `null`, vì không có observer nên mediator chưa từng tính tổng. Unit test nói chung được học ở [Unit Testing](../coding_analyst_and_testing/unit_testing.md).
+Bỏ `observeForever()` thì `total.value` là `null`, vì mediator chưa từng tính tổng. Unit test nói chung học ở [Unit Testing](../coding_analyst_and_testing/unit_testing.md).
 
 ### LiveData tự quản lý tài nguyên: `onActive` và `onInactive`
 
-Kế thừa `LiveData` trực tiếp cho phép nó **tự bật và tắt nguồn dữ liệu** theo số observer đang active: `onActive()` được gọi khi số đó tăng từ 0 lên 1 (đăng ký listener, bật cảm biến), `onInactive()` khi nó giảm về 0 (huỷ đăng ký để không tốn pin). Một LiveData bọc service của hệ thống vì thế dùng chung được cho nhiều màn, và service chỉ được kết nối khi có màn đang hiển thị. Nguồn kiểu này thường gọi callback trên thread của nó, nên giá trị được ghi bằng `postValue()`.
+Kế thừa `LiveData` trực tiếp cho phép nó **tự bật và tắt nguồn dữ liệu** theo số observer đang active: `onActive()` được gọi khi số đó tăng từ 0 lên 1 (đăng ký listener, bật cảm biến), `onInactive()` khi nó giảm về 0 (huỷ đăng ký để không tốn pin). LiveData bọc service của hệ thống vì thế dùng chung được cho nhiều màn, chỉ kết nối service khi có màn hiển thị. Callback của nguồn kiểu này thường chạy trên thread khác, nên ghi bằng `postValue()`.
 
 #### Ví dụ: banner "Đang offline" theo trạng thái mạng
 
-**Bài toán:** nhiều màn hình hiện banner "Đang offline" khi mất Internet; khi app ở background thì phải ngừng lắng nghe `ConnectivityManager`. `NetworkCallback` và `NET_CAPABILITY_VALIDATED` đã học ở [Networking](../session_05/networking.md), mục "Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager & NetworkCallback"; ở đây chỉ dùng chúng làm nguồn dữ liệu.
+**Bài toán:** nhiều màn hiện banner "Đang offline" khi mất Internet; app ở background thì ngừng lắng nghe `ConnectivityManager`. `NetworkCallback` và `NET_CAPABILITY_VALIDATED` đã học ở [Networking](../session_05/networking.md), mục "Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager & NetworkCallback".
 
 **Luồng chạy:**
 
@@ -545,15 +410,13 @@ class NetworkStatusLiveData(context: Context) : LiveData<Boolean>() {
             hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
 }
 
-// OrderListActivity.kt
+// OrderListActivity.kt (networkStatus: một instance dùng chung cho cả app)
 networkStatus.distinctUntilChanged().observe(this) { isOnline ->
     binding.offlineBanner.isVisible = !isOnline
 }
 ```
 
-`networkStatus` là **một** instance dùng chung cho cả app (tạo trong `Application` hoặc qua DI), để mọi màn chia sẻ một callback.
-
-**Kết quả:** bật chế độ máy bay, banner hiện; tắt, banner ẩn khi mạng được validated. Bấm Home rồi đặt breakpoint trong `onCapabilitiesChanged`: không còn callback nào tới. Bài Networking giải cùng bài toán bằng `callbackFlow`; LiveData tự gắn lifecycle, còn Flow cho thêm toán tử và dùng được ở mọi tầng.
+**Kết quả:** bật chế độ máy bay, banner hiện; tắt, banner ẩn khi mạng được validated. Bấm Home: breakpoint trong `onCapabilitiesChanged` không còn dừng.
 
 ### Cầu nối với coroutine và Flow
 
@@ -561,179 +424,38 @@ Phần này dùng trước hai kiến thức: **coroutine** (hàm `suspend` ch�
 
 Ba API nối LiveData với hai thế giới đó (dependency `androidx.lifecycle:lifecycle-livedata-ktx`):
 
-- **`liveData { … }`**: builder tạo LiveData từ một khối coroutine, trong đó `emit(value)` đặt giá trị trên main thread. Khối bắt đầu chạy khi LiveData **active**; khi LiveData inactive, khối bị huỷ sau một **timeout** (mặc định 5 giây, tham số `timeoutInMs`). Bị huỷ giữa chừng thì chạy lại từ đầu khi active lại; đã chạy xong thì không chạy lại.
+- **`liveData { … }`**: tạo LiveData từ một khối coroutine, `emit(value)` đặt giá trị trên main thread. Khối chạy khi LiveData **active**; khi inactive, khối bị huỷ sau một **timeout** (mặc định 5 giây, tham số `timeoutInMs`). Bị huỷ giữa chừng thì chạy lại từ đầu khi active lại; đã xong thì không chạy lại.
 - **`flow.asLiveData()`**: collect Flow khi LiveData active, ngừng sau cùng timeout đó khi inactive; Flow là `StateFlow` thì giá trị ban đầu được đặt luôn cho LiveData.
 - **`liveData.asFlow()`**: biến LiveData thành Flow để dùng toán tử như `debounce`, `combine`.
 
-Timeout tồn tại vì xoay màn hình làm observer bị gỡ rồi đăng ký lại trong vài trăm mili giây; công việc đang chạy không nên bị huỷ rồi khởi động lại vô ích.
-
-#### Ví dụ: tải hồ sơ người dùng qua xoay màn hình
-
-**Bài toán:** màn hồ sơ tải dữ liệu bằng một hàm `suspend`; người dùng xoay màn hình trong lúc tải thì request đang chạy không được bị huỷ rồi gửi lại.
-
-**Luồng chạy:**
-
-1. Activity observe `profile`; LiveData active lần đầu nên khối `liveData {}` bắt đầu chạy.
-2. Khối `emit(Loading)`.
-3. Khối gọi `fetchProfile()`, coroutine tạm dừng chờ server.
-4. Xoay màn hình: LiveData inactive, bộ đếm 5 giây bắt đầu; Activity mới observe ngay sau đó nên bộ đếm bị huỷ, coroutine **chạy tiếp**, Activity mới nhận `Loading`.
-5. Server trả về, khối `emit(Content)`.
-
-```mermaid
-sequenceDiagram
-    participant A1 as Activity cũ
-    participant A2 as Activity mới
-    participant L as profile (liveData {})
-    participant R as ProfileRepository
-    A1->>L: (1) observe, LiveData active, khối bắt đầu chạy
-    L-->>A1: (2) emit(Loading)
-    L->>R: (3) fetchProfile() (suspend)
-    Note over A1,L: (4) xoay màn hình, LiveData inactive, đếm 5 giây
-    A2->>L: observe, active lại trước 5 giây, coroutine chạy tiếp
-    L-->>A2: Loading (giá trị mới nhất)
-    R-->>L: (5) Profile
-    L-->>A2: emit(Content(profile))
-```
+Timeout tồn tại vì xoay màn hình gỡ rồi đăng ký lại observer chỉ trong vài trăm mili giây.
 
 ```kotlin
 // ProfileViewModel.kt
-class ProfileViewModel(private val profileRepository: ProfileRepository) : ViewModel() {
-
-    val profile: LiveData<ProfileUiState> = liveData {            // (1) chạy khi active
-        emit(ProfileUiState.Loading)                              // (2)
-        try {
-            val result = profileRepository.fetchProfile()         // (3) suspend, (4) không bị huỷ khi xoay
-            emit(ProfileUiState.Content(result))                  // (5)
-        } catch (e: IOException) {
-            emit(ProfileUiState.Error)
-        }
+val profile: LiveData<ProfileUiState> = liveData {                // chạy khi LiveData active
+    emit(ProfileUiState.Loading)
+    try {
+        emit(ProfileUiState.Content(profileRepository.fetchProfile()))  // suspend, không bị huỷ khi xoay
+    } catch (e: IOException) {                                    // cố ý không bắt CancellationException
+        emit(ProfileUiState.Error)
     }
-
-    // Flow từ Room đổi sang LiveData cho UI cũ còn observe LiveData
-    val recentOrders: LiveData<List<Order>> = profileRepository.observeRecentOrders().asLiveData()
 }
-
-sealed interface ProfileUiState {
-    data object Loading : ProfileUiState
-    data class Content(val profile: Profile) : ProfileUiState
-    data object Error : ProfileUiState
-}
+val recentOrders: LiveData<List<Order>> = profileRepository.observeRecentOrders().asLiveData()
 ```
 
-`catch (e: IOException)` cố ý không bắt `CancellationException` ([Networking](../session_05/networking.md), mục "Sai lầm thường gặp", phần 4).
-
-**Kết quả:** mở Network Inspector, xoay màn hình trong lúc đang tải: chỉ có một request. Bấm Home, đợi hơn 5 giây khi request chưa xong rồi mở lại: request bị huỷ và gửi lại, màn hình hiện `Loading` từ đầu.
-
-### LiveData giữ state, không phải event
-
-LiveData giữ giá trị mới nhất và giao lại giá trị đó cho mọi observer vừa active. Với **state** (badge, danh sách, tổng tiền) đó là điều ta muốn. Với **event một lần** (hiện Snackbar "Đã lưu", điều hướng sang màn khác) thì đó là lỗi: event được "phát lại".
-
-1. ViewModel lưu thành công, `_message.value = "Đã lưu"`.
-2. Observer hiện Snackbar.
-3. Người dùng xoay màn hình: observer mới active và nhận lại giá trị mới nhất "Đã lưu", Snackbar hiện lần nữa. Nếu event là điều hướng, màn hình mới bị mở hai lần.
-
-```mermaid
-sequenceDiagram
-    participant VM as ViewModel
-    participant L as message (LiveData)
-    participant A1 as Activity cũ
-    participant A2 as Activity mới
-    VM->>L: (1) setValue("Đã lưu")
-    L-->>A1: (2) onChanged, hiện Snackbar
-    Note over A1: (3) xoay màn hình
-    A2->>L: observe
-    L-->>A2: onChanged("Đã lưu"), Snackbar hiện lại
-```
-
-Có ba cách xử lý:
-
-- **`SingleLiveEvent`:** lớp con của `MutableLiveData` (từ sample của Google, không có trong thư viện) dùng cờ `AtomicBoolean` để chỉ giao một lần. Chỉ một observer nhận được, và vẫn là một mẹo chống lại thiết kế của LiveData.
-- **Event wrapper:** bọc giá trị trong object nhớ đã được xử lý chưa; observer gọi `getContentIfNotHandled()`, lần thứ hai nhận `null`.
-
-```kotlin
-// Event.kt
-class Event<out T>(private val content: T) {
-    var hasBeenHandled = false
-        private set
-
-    fun getContentIfNotHandled(): T? =
-        if (hasBeenHandled) null else content.also { hasBeenHandled = true }
-}
-```
-
-- **Biểu diễn event thành UI state (khuyến nghị hiện nay):** hướng dẫn kiến trúc của Android nêu rằng event phát sinh từ ViewModel luôn phải dẫn tới một lần cập nhật UI state. Thông báo là một field của state (`userMessage`); UI hiện nó rồi **báo lại** cho ViewModel (`userMessageShown()`) để ViewModel xoá field đó. State luôn mô tả đúng màn hình, không cần cơ chế "giao đúng một lần" (vốn khó đảm bảo khi nơi phát sống lâu hơn nơi nhận), và test được bằng cách đọc state. Code đầy đủ ở mục "Ví dụ thực tế".
+Xoay màn hình khi `fetchProfile()` đang chạy: Activity mới observe lại trước 5 giây nên coroutine chạy tiếp, chỉ có một request. Bấm Home quá 5 giây khi request chưa xong rồi mở lại: request bị huỷ và gửi lại. Lý do không bắt `CancellationException` ở [Networking](../session_05/networking.md), mục "Sai lầm thường gặp", phần 4.
 
 ## Deep Dive: bên trong LiveData
 
-Phần này đọc source `androidx.lifecycle.LiveData` (Java, module `lifecycle-livedata-core`), rút gọn. Bỏ qua phần này vẫn dùng được LiveData đúng cách.
-
-```java
-// LiveData.java (rút gọn)
-public abstract class LiveData<T> {
-    static final int START_VERSION = -1;
-    private SafeIterableMap<Observer<? super T>, ObserverWrapper> mObservers;
-    private volatile Object mData;            // giá trị hiện tại (NOT_SET nếu chưa có)
-    volatile Object mPendingData = NOT_SET;   // ô chờ của postValue
-    private int mVersion;                     // tăng mỗi lần setValue
-
-    protected void setValue(T value) {
-        assertMainThread("setValue");         // ném IllegalStateException nếu không phải main
-        mVersion++;
-        mData = value;
-        dispatchingValue(null);               // null = giao cho mọi observer
-    }
-
-    protected void postValue(T value) {
-        boolean postTask;
-        synchronized (mDataLock) {
-            postTask = mPendingData == NOT_SET;   // chỉ post khi ô chờ đang trống
-            mPendingData = value;                 // các lần sau chỉ ghi đè
-        }
-        if (postTask) ArchTaskExecutor.getInstance().postToMainThread(mPostValueRunnable);
-    }
-
-    private void considerNotify(ObserverWrapper observer) {
-        if (!observer.mActive) return;
-        if (!observer.shouldBeActive()) { observer.activeStateChanged(false); return; }
-        if (observer.mLastVersion >= mVersion) return;  // đã nhận giá trị này rồi
-        observer.mLastVersion = mVersion;
-        observer.mObserver.onChanged((T) mData);
-    }
-
-    class LifecycleBoundObserver extends ObserverWrapper implements LifecycleEventObserver {
-        boolean shouldBeActive() {
-            return mOwner.getLifecycle().getCurrentState().isAtLeast(STARTED);
-        }
-        public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
-            if (mOwner.getLifecycle().getCurrentState() == DESTROYED) {
-                removeObserver(mObserver);    // tự gỡ khi owner DESTROYED
-                return;
-            }
-            activeStateChanged(shouldBeActive());
-        }
-    }
-}
-```
-
-Những gì đoạn code này giải thích:
-
-- **`LifecycleBoundObserver`:** `observe()` bọc `Observer` trong wrapper này và đăng ký nó làm `LifecycleEventObserver` của owner. Mỗi lần owner đổi state, `onStateChanged()` tính lại `shouldBeActive()` (từ `STARTED` trở lên); gặp `DESTROYED` thì tự `removeObserver()`. `observeForever()` dùng `AlwaysActiveObserver`, có `shouldBeActive()` luôn `true` và không gắn lifecycle nào, nên không ai gỡ hộ.
-- **`mVersion` và `mLastVersion`:** version của LiveData tăng sau mỗi `setValue()`, mỗi wrapper nhớ version cuối nó đã giao, và `considerNotify()` chỉ gọi `onChanged()` khi version của LiveData lớn hơn. Observer active lại không nhận lặp giá trị cũ, còn observer **mới** (version `-1`) luôn nhận giá trị hiện tại: đó là nguồn gốc của event bị phát lại sau xoay màn hình. Version tăng cả khi giá trị mới bằng giá trị cũ, nên cần `distinctUntilChanged()`.
-- **`activeStateChanged(true)`:** wrapper vừa active gọi `dispatchingValue(this)` để nhận giá trị mới nhất cho riêng mình; bộ đếm observer active đi từ 0 lên 1 thì gọi `onActive()`, về 0 thì `onInactive()`.
-- **`dispatchingValue` và lời gọi lồng nhau:** observer gọi `setValue()` ngay trong `onChanged()` (như `userMessageShown()` ở ví dụ thực tế) thì lần dispatch đang chạy bị đánh dấu không còn hợp lệ và vòng lặp giao lại từ đầu với giá trị mới, thay vì gọi đệ quy.
-- **Ô chờ của `postValue`:** Runnable trên main thread lấy `mPendingData`, đặt lại về `NOT_SET`, rồi gọi `setValue()`; vì vậy nhiều `postValue()` liên tiếp chỉ giao giá trị cuối.
+Trong source `androidx.lifecycle.LiveData`, `observe()` bọc `Observer` trong `LifecycleBoundObserver`: owner đổi state thì wrapper tính lại `shouldBeActive()` (từ `STARTED` trở lên), gặp `DESTROYED` thì tự `removeObserver()`; `observeForever()` dùng `AlwaysActiveObserver` có `shouldBeActive()` luôn `true`, nên không ai gỡ hộ. LiveData giữ `mVersion` tăng sau mỗi `setValue()` (kể cả khi giá trị bằng cũ, nên cần `distinctUntilChanged()`), mỗi wrapper nhớ `mLastVersion`, và `considerNotify()` chỉ gọi `onChanged()` khi version của LiveData lớn hơn. Observer **mới** (version `-1`) vì thế luôn nhận giá trị hiện tại: nguồn gốc của event bị phát lại sau xoay màn hình. Observer gọi `setValue()` ngay trong `onChanged()` thì lần dispatch đang chạy bị đánh dấu không còn hợp lệ và vòng lặp giao lại từ đầu với giá trị mới, thay vì gọi đệ quy.
 
 ## Ví dụ thực tế
 
-Ba bài toán hay gặp với LiveData:
-
-1. **Thông báo một lần sau khi lưu**: biểu diễn thông báo thành UI state. Đây là bài toán chính, code đầy đủ bên dưới.
-2. **Danh sách từ Room tự cập nhật:** DAO trả `LiveData<List<T>>` (hoặc `Flow` rồi `asLiveData()`), Fragment observe bằng `viewLifecycleOwner` rồi `submitList()`, như ví dụ tìm kiếm.
-3. **Trạng thái dùng chung cho cả app** (mạng, đăng nhập): LiveData kế thừa trực tiếp, bật tắt nguồn bằng `onActive`/`onInactive`, như ví dụ banner offline.
+Với **event một lần** (Snackbar "Đã lưu", điều hướng), việc giao lại giá trị mới nhất cho observer mới thành lỗi: xoay màn hình là Snackbar hiện lại, hoặc màn đích mở hai lần. `SingleLiveEvent` (từ sample của Google, dùng cờ `AtomicBoolean`) và wrapper `Event<T>` (đọc qua `getContentIfNotHandled()`, lần hai nhận `null`) đều là mẹo chống lại thiết kế của LiveData. Khuyến nghị hiện nay là **biểu diễn event thành UI state**: hướng dẫn kiến trúc của Android nêu rằng event phát sinh từ ViewModel luôn phải dẫn tới một lần cập nhật UI state. Thông báo là một field của state, UI hiện nó rồi **báo lại** để ViewModel xoá field đó.
 
 ### Lưu hồ sơ và hiện thông báo đúng một lần
 
-**Bài toán:** màn sửa hồ sơ có ô tên và nút "Lưu". Khi lưu, nút bị khoá; lưu xong hiện Snackbar báo thành công hoặc lỗi. Xoay màn hình sau khi Snackbar đã hiện thì không được hiện lại; xoay **trong lúc** đang lưu thì vẫn phải hiện thông báo khi lưu xong.
+**Bài toán:** màn sửa hồ sơ khoá nút "Lưu" khi đang lưu, lưu xong hiện Snackbar thành công hoặc lỗi. Xoay màn hình sau khi Snackbar đã hiện thì không hiện lại; xoay **trong lúc** đang lưu thì vẫn hiện thông báo khi xong.
 
 **Luồng chạy:**
 
@@ -741,7 +463,7 @@ Ba bài toán hay gặp với LiveData:
 2. ViewModel gọi `updateDisplayName()` trong `viewModelScope` (scope coroutine của ViewModel, [ViewModel](viewmodel.md)).
 3. Lưu xong hoặc lỗi: `isSaving = false`, `userMessage` là id chuỗi thông báo.
 4. Fragment observe `uiState` bằng `viewLifecycleOwner`: khoá hoặc mở nút; `userMessage` khác `null` thì hiện Snackbar.
-5. Hiện xong, Fragment gọi `userMessageShown()`, ViewModel xoá `userMessage`. Observer tạo sau đó (xoay màn hình) nhận state không còn thông báo; xoay **trước** bước 3 thì observer mới vẫn nhận thông báo ở bước 3.
+5. Hiện xong, Fragment gọi `userMessageShown()`, ViewModel xoá `userMessage`; observer tạo sau đó không còn thấy thông báo. Xoay **trước** bước 3 thì observer mới vẫn nhận nó.
 
 ```mermaid
 sequenceDiagram
@@ -795,62 +517,29 @@ class EditProfileViewModel(private val profileRepository: ProfileRepository) : V
     private fun currentState() = _uiState.value ?: EditProfileUiState()
 }
 
-// EditProfileFragment.kt
-class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
-
-    // ViewModel có tham số cần factory, xem viewmodel.md mục "Factory và CreationExtras"
-    private val viewModel: EditProfileViewModel by viewModels { EditProfileViewModel.Factory }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val binding = FragmentEditProfileBinding.bind(view)
-
-        binding.saveButton.setOnClickListener {
-            viewModel.saveProfile(binding.displayNameInput.text.toString())
-        }
-
-        viewModel.uiState.observe(viewLifecycleOwner) { state ->           // (4)
-            binding.saveButton.isEnabled = !state.isSaving
-            binding.savingProgress.isVisible = state.isSaving
-
-            state.userMessage?.let { messageRes ->
-                Snackbar.make(binding.root, messageRes, Snackbar.LENGTH_SHORT).show()
-                viewModel.userMessageShown()                               // (5)
-            }
-        }
+// EditProfileFragment.kt, trong onViewCreated()
+viewModel.uiState.observe(viewLifecycleOwner) { state ->                   // (4)
+    binding.saveButton.isEnabled = !state.isSaving
+    binding.savingProgress.isVisible = state.isSaving
+    state.userMessage?.let { messageRes ->
+        Snackbar.make(binding.root, messageRes, Snackbar.LENGTH_SHORT).show()
+        viewModel.userMessageShown()                                       // (5)
     }
 }
 ```
 
-Gọi `userMessageShown()` trong observer là gọi `setValue()` lồng trong `onChanged()`; LiveData giao lại state mới từ đầu (mục "Deep Dive", phần `dispatchingValue`).
+Gọi `userMessageShown()` trong observer là gọi `setValue()` lồng trong `onChanged()`; LiveData giao lại state mới từ đầu (mục "Deep Dive").
 
-**Kết quả:** bấm "Lưu", Snackbar "Đã lưu hồ sơ" hiện một lần; xoay màn hình thì không hiện lại. Làm chậm mạng (Network throttling của emulator), bấm "Lưu" rồi xoay ngay: khi có kết quả, màn mới hiện đúng một Snackbar. Unit test chỉ cần đọc state: sau khi lưu thì `userMessage == R.string.profile_saved`, sau `userMessageShown()` thì `userMessage == null`.
-
-## So sánh với các cách tiếp cận khác
-
-| | LiveData | `StateFlow` | `Flow` (cold) |
-|---|---|---|---|
-| Bản chất | State holder gắn lifecycle, thư viện Android | State holder của kotlinx.coroutines | Luồng giá trị, chạy khi được collect |
-| Giá trị ban đầu | Không bắt buộc | Bắt buộc | Không có khái niệm "giá trị hiện tại" |
-| Gắn lifecycle | Có sẵn trong `observe(owner)` | Cần `repeatOnLifecycle` hoặc `collectAsStateWithLifecycle` | Như `StateFlow` |
-| Giá trị trùng | `setValue()` cùng giá trị vẫn giao lại | Bỏ qua giá trị bằng giá trị hiện tại | Tuỳ nguồn phát |
-| Toán tử | `map`, `switchMap`, `distinctUntilChanged`, `MediatorLiveData` | Toàn bộ toán tử của Flow (`combine`, `debounce`, `flatMapLatest`...) | Như `StateFlow` |
-| Thread | Observe và biến đổi trên main thread | Chọn dispatcher, `flowOn` | Như `StateFlow` |
-| Dùng ở tầng | UI và ViewModel | Mọi tầng, kể cả Kotlin Multiplatform | Mọi tầng |
-| Java | Dùng tự nhiên | Bất tiện | Bất tiện |
-
-Docs của Android khuyên **không** dùng LiveData ở tầng data (Repository) vì khả năng kết hợp luồng rất hạn chế và mọi biến đổi chạy trên main thread; tầng dưới dùng Flow, ViewModel đổi sang LiveData bằng `asLiveData()` nếu cần. Code Kotlin mới thường đưa state ra UI bằng `StateFlow` (như ở [ViewModel](viewmodel.md)); LiveData vẫn được hỗ trợ và hợp lý cho codebase Java hoặc UI XML đang dùng nó.
-
-So sánh sâu LiveData như một hiện thực của Observer Pattern, đặt cạnh RxJava và Flow, ở 7.1.4.3 LiveData (chưa có bài); Flow và `StateFlow` ở 7.1.4.2 Flow (chưa có bài).
+**Kết quả:** bấm "Lưu", Snackbar "Đã lưu hồ sơ" hiện một lần; xoay màn hình thì không hiện lại. Làm chậm mạng (Network throttling của emulator), bấm "Lưu" rồi xoay ngay: màn mới hiện đúng một Snackbar. Unit test chỉ cần đọc state: sau khi lưu `userMessage == R.string.profile_saved`, sau `userMessageShown()` thì `null`.
 
 ## Khi nào nên và không nên dùng
 
-- **Nên dùng** để ViewModel đưa state ra UI viết bằng View/XML, nhất là codebase Java hoặc đã dùng LiveData: lifecycle-aware sẵn, UI không cần coroutine.
+- **Nên dùng** để ViewModel đưa state ra UI View/XML, nhất là codebase Java hoặc đã dùng LiveData: lifecycle-aware sẵn, UI không cần coroutine. Code Kotlin mới thường dùng `StateFlow` (như ở [ViewModel](viewmodel.md)).
 - **Nên dùng** với [Data Binding](data_binding.md) (6.2): layout gắn trực tiếp vào LiveData khi binding có `lifecycleOwner`.
-- **Nên dùng** kế thừa `LiveData` với `onActive`/`onInactive` để bọc một nguồn của hệ thống chỉ nên chạy khi có màn hiển thị.
-- **Không nên dùng** ở Repository, DataSource hay domain layer, hoặc khi cần toán tử phức tạp (debounce, retry, kết hợp nhiều luồng) hay xử lý ngoài main thread: dùng Flow.
+- **Nên dùng** `onActive`/`onInactive` để bọc một nguồn của hệ thống chỉ nên chạy khi có màn hiển thị.
+- **Không nên dùng** ở Repository, DataSource, domain layer (docs của Android khuyên vậy vì khả năng kết hợp luồng rất hạn chế và mọi biến đổi chạy trên main thread), hoặc khi cần toán tử phức tạp (debounce, retry, kết hợp nhiều luồng): dùng Flow, ViewModel đổi sang LiveData bằng `asLiveData()` nếu cần.
 - **Không dùng** để gửi event một lần: biểu diễn thành UI state như mục "Ví dụ thực tế".
-- **Không cần** cho màn Compose mới: Compose thường dùng `StateFlow` với `collectAsStateWithLifecycle()`; LiveData vẫn đọc được qua `observeAsState()` (artifact `runtime-livedata`) khi chuyển dần màn cũ.
+- **Không cần** cho màn Compose mới (thường dùng `StateFlow` với `collectAsStateWithLifecycle()`); LiveData vẫn đọc được qua `observeAsState()` (artifact `runtime-livedata`) khi chuyển dần màn cũ.
 
 ## Sai lầm thường gặp
 
@@ -858,64 +547,42 @@ So sánh sâu LiveData như một hiện thực của Observer Pattern, đặt c
 
 ```kotlin
 // Sai: callback của OkHttp chạy trên thread của OkHttp
-apiClient.newCall(request).enqueue(object : Callback {
-    override fun onResponse(call: Call, response: Response) {
-        _orders.value = parseOrders(response)
-    }
-    override fun onFailure(call: Call, e: IOException) { /* ... */ }
-})
+override fun onResponse(call: Call, response: Response) {
+    _orders.value = parseOrders(response)
+}
 ```
 
 **Lỗi lộ ra thế nào:** crash `IllegalStateException: Cannot invoke setValue on a background thread` ngay khi response về.
 
-**Cách sửa:** dùng `_orders.postValue(parseOrders(response))`, hoặc chuyển cả lời gọi sang coroutine trong `viewModelScope` (chạy trên main thread nên dùng `value =` được).
+**Cách sửa:** dùng `_orders.postValue(...)`, hoặc gọi trong coroutine của `viewModelScope` (chạy trên main thread nên `value =` được).
 
 ### 2. Mong `postValue` giao đủ mọi giá trị
 
 ```kotlin
-// Sai: dùng LiveData như một hàng đợi
-fun importContacts(contacts: List<Contact>) = executor.execute {
-    contacts.forEach { contact ->
-        contactDao.insert(contact)
-        _importedContact.postValue(contact)   // UI muốn hiện tên từng người
-    }
+// Sai: dùng LiveData như một hàng đợi (chạy trên executor)
+contacts.forEach { contact ->
+    contactDao.insert(contact)
+    _importedContact.postValue(contact)   // UI muốn hiện tên từng người
 }
 ```
 
-**Lỗi lộ ra thế nào:** danh sách "đã nhập" trên UI thiếu người, mỗi lần chạy thiếu một kiểu, vì các `postValue()` liên tiếp chỉ giao giá trị cuối và observer inactive chỉ nhận giá trị mới nhất.
+**Lỗi lộ ra thế nào:** UI thiếu người, mỗi lần thiếu một kiểu, vì các `postValue()` liên tiếp chỉ giao giá trị cuối.
 
-**Cách sửa:** LiveData giữ **state**, không phải danh sách sự kiện. Đưa ra state tích luỹ (`_importedCount.postValue(count)` hoặc danh sách đầy đủ), hoặc dùng Flow khi thật sự cần một luồng giá trị.
+**Cách sửa:** đưa ra state tích luỹ (`_importedCount.postValue(count)` hoặc danh sách đầy đủ), hoặc dùng Flow khi thật sự cần một luồng giá trị.
 
 ### 3. Tạo LiveData mới mỗi lần gọi hàm
 
 ```kotlin
-// Sai: mỗi lần gọi là một LiveData mới
-class AddressViewModel(private val repository: AddressRepository) : ViewModel() {
-    fun postalCodeOf(address: String): LiveData<String> = repository.lookupPostalCode(address)
-}
-
-// Fragment: mỗi lần người dùng sửa địa chỉ lại observe một LiveData khác
+// Sai: mỗi lần người dùng sửa địa chỉ, Fragment lại observe một LiveData khác
+fun postalCodeOf(address: String): LiveData<String> = repository.lookupPostalCode(address)
 viewModel.postalCodeOf(address).observe(viewLifecycleOwner) { binding.postalCode.text = it }
 ```
 
-**Lỗi lộ ra thế nào:** mỗi lần sửa địa chỉ, Fragment thêm một observer mới mà observer cũ vẫn còn; kết quả cũ về muộn có thể ghi đè kết quả mới. Xoay màn hình thì phải gọi lại `lookupPostalCode()` từ đầu.
+**Lỗi lộ ra thế nào:** observer cũ vẫn còn sau mỗi lần sửa, kết quả cũ về muộn có thể ghi đè kết quả mới; xoay màn hình thì tra lại từ đầu.
 
-**Cách sửa:** để địa chỉ là một LiveData đầu vào và `switchMap` sang kết quả, như ví dụ tìm kiếm: `val postalCode = address.switchMap { repository.lookupPostalCode(it) }`. Fragment observe `postalCode` đúng một lần.
+**Cách sửa:** để địa chỉ là một LiveData đầu vào và `switchMap` sang kết quả như ví dụ tìm kiếm: `val postalCode = address.switchMap { repository.lookupPostalCode(it) }`.
 
-### 4. Việc nặng trong `map`
-
-```kotlin
-// Sai: lọc danh sách lớn trên main thread
-val premiumCustomers: LiveData<List<Customer>> = customers.map { all ->
-    all.filter { it.isPremium && it.totalSpent > threshold }.sortedByDescending { it.totalSpent }
-}
-```
-
-**Lỗi lộ ra thế nào:** UI giật mỗi khi dữ liệu đổi; CPU Profiler cho thấy lambda của `map` chiếm frame dài trên main thread.
-
-**Cách sửa:** đẩy việc lọc xuống query của database (`WHERE`, `ORDER BY`), hoặc dùng Flow với `map` và `flowOn(Dispatchers.Default)` rồi `asLiveData()`.
-
-### 5. Dùng LiveData cho event một lần
+### 4. Dùng LiveData cho event một lần
 
 ```kotlin
 // Sai: event điều hướng giữ trong LiveData
@@ -923,42 +590,42 @@ private val _navigateToOrderDetail = MutableLiveData<Long>()
 // Fragment: observe rồi gọi navigate(orderId)
 ```
 
-**Lỗi lộ ra thế nào:** xoay màn hình (hoặc quay lại từ màn chi tiết) thì observer mới nhận lại `orderId` cũ và mở màn chi tiết thêm lần nữa.
+**Lỗi lộ ra thế nào:** xoay màn hình thì observer mới nhận lại `orderId` cũ và mở màn chi tiết thêm lần nữa.
 
-**Cách sửa:** biểu diễn thành UI state và báo lại khi đã xử lý (mục "Ví dụ thực tế"); với code cũ chưa chuyển được, bọc bằng `Event<T>` và đọc qua `getContentIfNotHandled()`.
+**Cách sửa:** biểu diễn thành UI state và báo lại khi đã xử lý (mục "Ví dụ thực tế"); code cũ chưa chuyển được thì bọc bằng `Event<T>`.
 
-Hai sai lầm khác đã nêu trong phần kiến thức: observe bằng `this` thay vì `viewLifecycleOwner` trong Fragment (xem thêm [Fragment Lifecycle](../session_04/components/fragment/lifecycle.md), mục "Sai lầm thường gặp", phần 1), và `observeForever()` mà không `removeObserver()`.
+Hai sai lầm khác đã nêu ở trên: observe bằng `this` trong Fragment, và `observeForever()` không `removeObserver()`.
 
 ## Lịch sử phát triển
 
-- **Google I/O (05/2017):** Android Architecture Components ra mắt bản alpha, gồm Lifecycle, LiveData, ViewModel và Room; LiveData cho UI quan sát dữ liệu mà không leak, không cần RxJava.
+- **Google I/O (05/2017):** Android Architecture Components ra mắt bản alpha, gồm Lifecycle, LiveData, ViewModel và Room.
 - **Architecture Components 1.0.0 (11/2017):** bản stable đầu tiên, package `android.arch.lifecycle`.
 - **Lifecycle 2.0.0 (09/2018):** chuyển sang AndroidX, package `androidx.lifecycle`.
-- **Lifecycle 2.1.0 (09/2019):** thêm extension Kotlin cho `observe` và các hàm `Transformations` (`liveData.map {}`), thêm `distinctUntilChanged`.
-- **Lifecycle 2.2.0 (01/2020):** `lifecycle-livedata-ktx` có builder `liveData {}` dựa trên coroutine và cầu nối với Flow; artifact `lifecycle-extensions` bị deprecated.
-- **Lifecycle 2.3.0 (02/2021):** extension `LiveData.observe()` dạng lambda bị deprecated vì Kotlin 1.4 đã chuyển lambda thành `Observer` (SAM conversion); thêm Lint cảnh báo đặt `null` vào `MutableLiveData` khai báo non-null.
-- **Lifecycle 2.6.0 (03/2023):** `Transformations` và `Observer` được viết lại bằng Kotlin; code Kotlin buộc dùng dạng extension `map {}`, `switchMap {}`; thêm `LiveData.isInitialized` và constructor nhận giá trị khởi tạo cho `MediatorLiveData`.
-- **Lifecycle 2.7.0 (01/2024):** nội dung `lifecycle-livedata-ktx` được gộp vào `lifecycle-livedata`; extension `map` và `switchMap` đặt sẵn giá trị cho LiveData trả về ngay khi nguồn đã có giá trị, giống hành vi sẵn có của `distinctUntilChanged`.
+- **Lifecycle 2.1.0 (09/2019):** extension Kotlin cho `observe` và các hàm `Transformations` (`liveData.map {}`), thêm `distinctUntilChanged`.
+- **Lifecycle 2.2.0 (01/2020):** `lifecycle-livedata-ktx` có builder `liveData {}` và cầu nối với Flow; `lifecycle-extensions` bị deprecated.
+- **Lifecycle 2.3.0 (02/2021):** extension `LiveData.observe()` dạng lambda bị deprecated nhờ SAM conversion của Kotlin 1.4; thêm Lint cảnh báo đặt `null` vào `MutableLiveData` khai báo non-null.
+- **Lifecycle 2.6.0 (03/2023):** `Transformations` và `Observer` viết lại bằng Kotlin, code Kotlin buộc dùng extension `map {}`, `switchMap {}`; thêm `LiveData.isInitialized` và constructor nhận giá trị khởi tạo cho `MediatorLiveData`.
+- **Lifecycle 2.7.0 (01/2024):** `lifecycle-livedata-ktx` gộp vào `lifecycle-livedata`; `map`, `switchMap` đặt sẵn giá trị ngay khi nguồn đã có giá trị, giống `distinctUntilChanged`.
 - **Hiện nay:** hướng dẫn kiến trúc của Android dùng `StateFlow` cho state và khuyên biểu diễn event thành UI state; LiveData vẫn được duy trì, không bị deprecated.
 
 ## Kết nối hệ thống
 
 - **Tiên quyết:**
-  - [Activity Lifecycle](../session_04/components/activity/lifecycle.md): `LifecycleOwner`, `Lifecycle.State`, cơ chế phát state mà LiveData dựa vào.
+  - [Activity Lifecycle](../session_04/components/activity/lifecycle.md): `LifecycleOwner`, `Lifecycle.State`.
   - [Fragment Lifecycle](../session_04/components/fragment/lifecycle.md): vì sao observe bằng `viewLifecycleOwner`.
   - [Working with Thread](../session_05/working_with_thread.md): main thread và `MessageQueue`, nền của `setValue` và `postValue`.
 - **Liên quan:**
-  - [View Binding](view_binding.md): cách các ví dụ truy cập View trong observer.
+  - [View Binding](view_binding.md): cách các ví dụ truy cập View.
   - [Room Architecture](../session_05/data_store/room_architecture.md) và [Async Transactions & Flow](../session_05/data_store/room_transactions.md): DAO trả `LiveData` hoặc `Flow`.
   - [Networking](../session_05/networking.md): `NetworkCallback` làm nguồn cho `NetworkStatusLiveData`.
-  - [Activity State Changes](../session_04/components/activity/state_changes.md): `SavedStateHandle.getLiveData()` cho state cần sống qua process death.
+  - [Activity State Changes](../session_04/components/activity/state_changes.md): `SavedStateHandle.getLiveData()` cho state sống qua process death.
 - **Học tiếp:**
-  - [ViewModel](viewmodel.md) (6.4): nơi giữ LiveData, vì sao nó sống qua xoay màn hình, `viewModelScope` và factory.
+  - [ViewModel](viewmodel.md) (6.4): nơi giữ LiveData, `viewModelScope` và factory.
   - [Data Binding](data_binding.md) (6.2): gắn LiveData trực tiếp vào layout.
-  - 7.1.4.3 LiveData (chưa có bài): LiveData như một hiện thực của Observer Pattern, so với RxJava và Flow.
+  - 7.1.4.3 LiveData (chưa có bài): LiveData như một hiện thực của Observer Pattern.
   - 7.1.4.2 Flow (chưa có bài): `Flow`, `StateFlow` và các toán tử LiveData không có.
   - 7.2.3 MVVM (chưa có bài): vị trí của LiveData giữa View và ViewModel.
-  - 8.4.3 Coroutines (chưa có bài): coroutine dùng trong `liveData {}` và `viewModelScope`.
+  - 8.4.3 Coroutines (chưa có bài): coroutine trong `liveData {}` và `viewModelScope`.
 
 ## Tham khảo
 

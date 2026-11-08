@@ -148,8 +148,9 @@ Khi bạn observe LiveData hoặc collect Flow, bạn cần chọn đúng Lifecy
 
 ```kotlin
 // ❌ SAI — Dùng Fragment lifecycle (this)
-// Observer KHÔNG bị remove khi view bị destroy (backstack)
-// → Mỗi lần quay lại, thêm 1 observer mới → duplicate updates
+// Observer KHÔNG bị remove ở onDestroyView (Fragment vào backstack), chỉ bị gỡ ở onDestroy
+// → Mỗi lần quay lại, thêm 1 observer mới; observer cũ vẫn giữ binding của View đã huỷ
+// → cập nhật trùng, và cây View cũ không được thu hồi khi Fragment còn trong backstack
 viewModel.users.observe(this) { users ->
     binding.recyclerView.adapter = UsersAdapter(users)
 }

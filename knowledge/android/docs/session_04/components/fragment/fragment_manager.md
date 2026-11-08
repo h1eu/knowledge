@@ -1087,7 +1087,7 @@ class FragmentA : Fragment() {
 
 **Cách sửa:** Luôn dùng Shared ViewModel cho communication (hoặc Fragment Result API cho kết quả một lần), như mục "Giao tiếp giữa các Fragment".
 
-### 8. Observe LiveData/Flow bằng `this` thay vì `viewLifecycleOwner`
+### 8. Collect Flow bằng `this` thay vì `viewLifecycleOwner`
 
 ```kotlin
 // Đúng
@@ -1109,7 +1109,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 Fragment trong back stack vẫn sống trong khi View đã bị hủy, nên collector gắn với `this` sống lâu hơn View. Vì sao cần cả `viewLifecycleOwner` lẫn `repeatOnLifecycle` ở [Fragment Lifecycle](lifecycle.md), mục "View Lifecycle: vòng đời thứ hai trong Fragment".
 
-**Cách sửa:** Collect trong `viewLifecycleOwner.lifecycleScope` kèm `repeatOnLifecycle(Lifecycle.State.STARTED)`, như phần "Đúng" ở trên.
+**Cách sửa:** Collect trong `viewLifecycleOwner.lifecycleScope` kèm `repeatOnLifecycle(Lifecycle.State.STARTED)`, như phần "Đúng" ở trên. Với LiveData, lỗi tương tự là `observe(this)`; cách sửa là `observe(viewLifecycleOwner)`, xem [LiveData](../../../session_06/livedata.md).
 
 ### 9. Tạo Fragment mới mỗi lần điều hướng
 
