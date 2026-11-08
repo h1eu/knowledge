@@ -373,7 +373,7 @@ class LoginViewModelTest {
 }
 ```
 
-`MainDispatcherRule` là rule ngắn của dự án gọi `Dispatchers.setMain`/`resetMain`, như giải thích ở [ViewModel](../../session_06/viewmodel.md), mục "Ví dụ thực tế".
+`MainDispatcherRule` là một JUnit rule ngắn của dự án, gọi `Dispatchers.setMain` trước mỗi test và `Dispatchers.resetMain` sau test; nó làm đúng việc mà cặp `@Before`/`@After` trong test của [ViewModel](../../session_06/viewmodel.md), mục "Ví dụ thực tế", đang làm, chỉ gom lại để dùng chung.
 
 **Kết quả:** gõ email sai định dạng thì nút "Đăng nhập" mờ. Đăng nhập thành công rồi xoay màn hình ngay lúc chuyển: màn chính chỉ mở một lần, vì `isLoggedIn` đã được đặt lại sau khi điều hướng. Sai mật khẩu thì Snackbar hiện một lần, xoay màn hình không hiện lại. Test chạy bằng `./gradlew testDebugUnitTest`.
 

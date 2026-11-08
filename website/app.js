@@ -356,9 +356,11 @@ const KNOWLEDGE_DATA = {
             { id: 'builder-pattern', title: '7.1.1 Builder Pattern', status: 'draft', tags: ['android', 'patterns'] },
             { id: 'viewholder-pattern', title: '7.1.2 ViewHolder Pattern', status: 'draft', tags: ['android', 'patterns'] },
             { id: 'singleton-pattern', title: '7.1.3 Singleton Pattern', status: 'draft', tags: ['android', 'patterns'] },
+            { id: 'observer-overview', title: '7.1.4.0 Observer Pattern Overview', status: 'draft', tags: ['android', 'patterns', 'reactive'] },
             { id: 'observer-rxjava', title: '7.1.4.1 RxJava / RxAndroid', status: 'draft', tags: ['android', 'patterns', 'reactive'] },
             { id: 'observer-flow', title: '7.1.4.2 Flow', status: 'draft', tags: ['android', 'patterns', 'reactive'] },
             { id: 'observer-livedata', title: '7.1.4.3 LiveData', status: 'draft', tags: ['android', 'patterns', 'reactive'] },
+            { id: 'di-overview', title: '7.1.5.0 Dependency Injection Overview', status: 'draft', tags: ['android', 'di'] },
             { id: 'di-dagger2', title: '7.1.5.1 Dagger2', status: 'draft', tags: ['android', 'di'] },
             { id: 'di-koin', title: '7.1.5.2 Koin', status: 'draft', tags: ['android', 'di'] },
             { id: 'di-hilt', title: '7.1.5.3 Hilt', status: 'draft', tags: ['android', 'di'] },
@@ -375,8 +377,8 @@ const KNOWLEDGE_DATA = {
               name: '7.1 Design Pattern',
               sections: [
                 { id: 's07-holder', name: '7.1.1-7.1.3', topics: ['builder-pattern', 'viewholder-pattern', 'singleton-pattern'] },
-                { id: 's07-observer', name: '7.1.4 Observer Pattern', topics: ['observer-rxjava', 'observer-flow', 'observer-livedata'] },
-                { id: 's07-di', name: '7.1.5 Dependency Injection', topics: ['di-dagger2', 'di-koin', 'di-hilt', 'di-kodein'] }
+                { id: 's07-observer', name: '7.1.4 Observer Pattern', topics: ['observer-overview', 'observer-rxjava', 'observer-flow', 'observer-livedata'] },
+                { id: 's07-di', name: '7.1.5 Dependency Injection', topics: ['di-overview', 'di-dagger2', 'di-koin', 'di-hilt', 'di-kodein'] }
               ]
             },
             { id: 's07-arch', name: '7.2 Architecture', topics: ['arch-mvc', 'arch-mvp', 'arch-mvvm', 'arch-mvi', 'arch-clean'] }
