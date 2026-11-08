@@ -708,7 +708,7 @@ lifecycleScope.launch {
       'Xử lý được NullPointerException khi Kotlin gọi Java bằng Nullability Annotations.'
     ],
     knowledgeGap: 'Thiếu hiểu biết về Java Android khiến lập trình viên khó đọc mã nguồn AOSP Framework (AMS, WMS), gây rò rỉ bộ nhớ do tham chiếu ngầm trong Inner Class, và dễ bị crash NullPointerException khi Kotlin gọi vào code Java cũ.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -1578,37 +1578,22 @@ dependencies {
   <li>Android Java <strong>không chạy</strong> tập tin <code>.jar</code> trực tiếp mà phải chuyển đổi qua bytecode <code>.dex</code>.</li>
   <li>Android Runtime sử dụng cơ chế Garbage Collection riêng (Concurrent Copying GC) được tinh chỉnh cho độ trễ di động.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Lạm dụng Anonymous Callbacks cho Network/Async Tasks</strong>:
 <ul>
   <li>Sử dụng Java <code>Thread</code> hoặc <code>AsyncTask</code> (đã bị deprecated từ API 30) bằng anonymous class trong Activity dẫn tới Memory Leak và Crash khi Activity bị recreate.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Bỏ qua Java Desugaring khi cấu hình Gradle</strong>:
 <ul>
   <li>Không bật Core Library Desugaring nhưng vẫn dùng API Java 8+ như <code>java.time.LocalDate</code> với <code>minSdk</code> &lt; 26, rồi tắt cảnh báo Lint <code>NewApi</code>. App crash <code>NoClassDefFoundError</code> trên thiết bị API 25 trở xuống.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Không thêm Nullability Annotations khi viết Java API</strong>:
 <ul>
   <li>Gây Platform Types khi Kotlin gọi vào, dẫn đến <code>NullPointerException</code> ở runtime — đặc biệt nguy hiểm trong dự án mixed Java/Kotlin.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Sử dụng Java <code>Serializable</code> thay vì <code>Parcelable</code></strong>:
 <ul>
   <li><code>Serializable</code> dùng reflection và tạo nhiều object tạm, chậm hơn đáng kể so với <code>Parcelable</code> trên Android. Khi truyền dữ liệu qua <code>Intent</code> hoặc <code>Bundle</code>, ưu tiên <code>Parcelable</code>.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Giữ reference tới Context trong Singleton hoặc static field</strong>:
 <ul>
   <li>Lưu <code>Activity</code> context vào <code>static</code> variable sẽ giữ toàn bộ Activity trong bộ nhớ vĩnh viễn. Luôn dùng <code>applicationContext</code> khi cần context trong singleton.</li>
@@ -3310,7 +3295,7 @@ dependencies {
       'Triển khai được thư viện C/C++ trong dự án Android với NDK, CMake và external fun.'
     ],
     knowledgeGap: 'Không hiểu JNI khiến lập trình viên viết code native chậm hơn cả Kotlin do gọi JNI quá nhiều lần, gặp crash SIGSEGV mà try-catch Java/Kotlin không bắt được, rò rỉ bộ nhớ Native Heap mà GC không thấy, và bị Google Play chặn cập nhật vì thư viện .so chưa hỗ trợ page size 16KB.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -3688,25 +3673,16 @@ Java_com_example_shop_image_ImageProcessor_processBatch(JNIEnv* env, jobject thi
 <ul>
   <li>Đoạn xử lý nhỏ gọi qua JNI nhiều lần có thể <strong>chậm hơn</strong> viết hoàn toàn bằng Kotlin, vì chi phí chuyển trạng thái lấn át phần tính toán.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Dùng chung <code>JNIEnv*</code> giữa nhiều thread</strong>:
 <ul>
   <li><code>JNIEnv*</code> chỉ hợp lệ trên <strong>thread đã cấp nó</strong>. Dùng ở thread khác gây lỗi hoặc crash.</li>
   <li><em>Giải pháp</em>: lưu <code>JavaVM*</code> (dùng được mọi thread), gọi <code>AttachCurrentThread()</code> trên thread mới để lấy <code>JNIEnv*</code> riêng, và gọi <code>DetachCurrentThread()</code> trước khi thread kết thúc.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Quên giải phóng bộ nhớ native và Global Reference</strong>:
 <ul>
   <li>GC không thấy bộ nhớ cấp phát bằng <code>malloc</code>/<code>new</code>. Quên <code>free</code>/<code>delete</code> thì bộ nhớ của process tăng dần cho tới khi hệ thống (low memory killer) dừng app.</li>
   <li>Quên <code>DeleteGlobalRef</code> giữ object Java sống mãi.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Giữ con trỏ lấy từ <code>GetIntArrayElements</code> / <code>GetStringUTFChars</code> mà không <code>Release...</code></strong>: rò rỉ bộ nhớ, và với mảng, kết quả có thể không được ghi về phía Java.</li>
 </ol>
 
@@ -3789,7 +3765,7 @@ Java_com_example_shop_image_ImageProcessor_processBatch(JNIEnv* env, jobject thi
       'Xử lý được các lỗi cài đặt APK thường gặp như INSTALL_PARSE_FAILED_NO_CERTIFICATES và lỗi căn chỉnh khi targetSdk 30+.'
     ],
     knowledgeGap: 'Thiếu hiểu biết về cấu trúc APK khiến lập trình viên khó tối ưu dung lượng app, không hiểu vì sao zipalign quan trọng, lúng túng khi gặp lỗi chữ ký v1/v2/v3 trên các phiên bản Android khác nhau, và làm hỏng chữ ký khi tự viết script ký trong CI.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -4394,18 +4370,12 @@ apksigner verify --verbose app-release.apk</code></pre>
   <li><code>jarsigner</code> là công cụ của JDK và <strong>chỉ tạo chữ ký v1</strong>. Dùng <strong><code>apksigner</code></strong> trong Android SDK Build-Tools để có v2/v3/v4.</li>
   <li>Ngoại lệ là file <strong>AAB</strong>: <code>apksigner</code> không ký được AAB, nên khi ký AAB từ dòng lệnh phải dùng <code>jarsigner</code> (hoặc để <code>signingConfig</code> của Gradle ký). Không mâu thuẫn: chữ ký trên AAB chỉ để Google Play xác minh người upload (upload key). Thiết bị không bao giờ cài AAB; Play sinh APK từ AAB rồi ký các APK đó bằng app signing key (xem <a href="aab_files.md" target="_blank" rel="noopener">AAB</a>, mục "Sai lầm thường gặp").</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Nhầm lẫn về Multidex</strong>:
 <ul>
   <li>Định dạng DEX giới hạn mỗi file <code>.dex</code> tham chiếu tối đa 65.536 method (giới hạn 64K), tính cả method của Android framework, thư viện và code của app. Vượt ngưỡng này thì build tách code thành <code>classes.dex</code>, <code>classes2.dex</code>, <code>classes3.dex</code>... và đóng gói tất cả vào APK.</li>
   <li>Với <code>minSdk</code> từ 21 trở lên, multidex được bật sẵn, không cần cấu hình: ART (Android 5.0+) tự nạp mọi file <code>classesN.dex</code> và biên dịch chúng lúc cài.</li>
   <li>Chỉ khi <code>minSdk</code> dưới 21 (Dalvik mặc định chỉ đọc một <code>classes.dex</code>) mới cần <code>multiDexEnabled = true</code>, thư viện <code>androidx.multidex</code>, và cho <code>Application</code> kế thừa <code>MultiDexApplication</code> (hoặc gọi <code>MultiDex.install(this)</code> trong <code>attachBaseContext</code>). Cái giá là app khởi động chậm hơn: các file DEX phụ được cài lúc khởi động, file lớn có thể gây ANR.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Để lọt tài nguyên và code thừa</strong>:
 <ul>
   <li>Không bật <code>isMinifyEnabled = true</code> và <code>isShrinkResources = true</code> cho bản release khiến APK chứa code không dùng, drawable thừa và chuỗi của các thư viện không cần.</li>
@@ -4491,7 +4461,7 @@ apksigner verify --verbose app-release.apk</code></pre>
       'Xử lý được việc kiểm thử AAB cục bộ bằng bundletool CLI.'
     ],
     knowledgeGap: 'Không nắm vững AAB và Dynamic Delivery khiến lập trình viên lãng phí dung lượng tải về của người dùng, gặp ClassNotFoundException khi dùng Dynamic Feature Module, không biết cách test AAB cục bộ khi không qua Play Console, và nhầm lẫn giữa upload key và app signing key của Play App Signing.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -4933,25 +4903,16 @@ class PaymentActivity : AppCompatActivity() {
 <ul>
   <li><code>adb</code> chỉ hiểu APK; file <code>.aab</code> bị từ chối. Dùng <code>bundletool</code> như ví dụ trên.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Quên <code>SplitCompat</code> khi dùng module on-demand</strong>:
 <ul>
   <li>Module tải thành công nhưng app crash <code>ClassNotFoundException</code> hoặc <code>Resources.NotFoundException</code> khi mở màn hình thuộc module, vì process chưa nạp split đó.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Nhầm hai loại key của Play App Signing</strong>:
 <ul>
   <li><strong>App signing key</strong>: do Google giữ, dùng để ký APK cài lên thiết bị người dùng.</li>
   <li><strong>Upload key</strong>: do developer giữ, dùng để ký AAB trước khi upload. AAB được ký bằng <code>jarsigner</code> khi ký từ dòng lệnh (hoặc bằng <code>signingConfig</code> của Gradle); <code>apksigner</code> <strong>không</strong> ký được AAB. Điều này không ngược với lời khuyên "dùng <code>apksigner</code>, đừng dùng <code>jarsigner</code>" ở <a href="apk_files.md" target="_blank" rel="noopener">APK</a>, mục "Sai lầm thường gặp": lời khuyên đó dành cho APK cài lên thiết bị. Chữ ký trên AAB chỉ để Play xác minh người upload, còn APK cài lên thiết bị do Play ký bằng app signing key.</li>
   <li>Mất upload key thì chủ tài khoản gửi yêu cầu reset trong Play Console. Không thể tự lấy lại app signing key, nên đừng nhầm hai key khi lưu trữ.</li>
 </ul></li>
-</ol>
-
-<ol>
   <li><strong>Vẫn dùng thư viện Play Core cũ</strong> (<code>com.google.android.play:core</code>): từ 2022 thư viện này được tách thành Play Feature Delivery, Play Asset Delivery, Play In-App Updates... Thư viện cũ không còn tương thích với các phiên bản <code>targetSdk</code> mới.</li>
 </ol>
 
@@ -24767,7 +24728,9 @@ fun trackAddToCart(productId: String, price: Double, currency: String) {
 
 <ul>
   <li>Bật <strong>DebugView</strong> trên Firebase Console.</li>
-  <li>Xem trực tiếp trong logcat bằng filter: \`\`<code>bash adb shell setprop debug.firebase.analytics.app &lt;package_name&gt; </code>\`<code> Khi đó trong logcat hiện các dòng: </code>I/FA: Event received...\` với đầy đủ tên sự kiện và tham số.</li>
+  <li>Xem trực tiếp trong logcat bằng filter:
+<pre data-lang="bash"><code>adb shell setprop debug.firebase.analytics.app &lt;package_name&gt;</code></pre>
+<p>Khi đó trong logcat hiện các dòng: <code>I/FA: Event received...</code> với đầy đủ tên sự kiện và tham số.</p></li>
 </ul>
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Event log của Analytics là <strong>chìa khóa debug</strong>. Nếu sự kiện bạn gửi không xuất hiện, kiểm tra: đã tắt <strong>data saver</strong>? đã set prop <code>debug.firebase.analytics.app</code>? đã gửi đúng package name khi set prop?</div></div>
@@ -31171,7 +31134,7 @@ connectivityManager.registerNetworkCallback(request, networkCallback)</code></pr
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="../content_provider.md" target="_blank" rel="noopener">Content Provider</a>: Application Component tiếp theo trong mục 4.2.</li>
-  <li><a href="../../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "6. Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager &amp; NetworkCallback": API hiện đại hơn để theo dõi mạng.</li>
+  <li><a href="../../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager &amp; NetworkCallback": API hiện đại hơn để theo dõi mạng.</li>
   <li>7.1.4.2 Flow (chưa có bài): <code>SharedFlow</code>/<code>StateFlow</code> thay cho broadcast nội bộ.</li>
   <li>7.1.5.3 Hilt (chưa có bài), 7.2.4 MVI và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà phần "Ví dụ thực tế" dựa vào.</li>
   <li><a href="../../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: nền cho test Robolectric và test ViewModel với fake.</li>
@@ -35010,7 +34973,7 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
   },
   'data-store-key-value': {
     title: 'Key-Value Storage (SharedPreferences & DataStore)',
-    summary: 'Hiểu chi tiết Key-Value Storage trong Android - bản chất, cơ chế hoạt động bên trong SharedPreferences và DataStore, khi nào dùng mỗi loại, triển khai chuẩn MVVM + Hilt + Coroutine/Flow cho cả XML và Compose, cùng testing, security và migration.',
+    summary: 'Key-Value Storage lưu một lượng nhỏ dữ liệu đơn giản dạng cặp key → value trong một file riêng của app, nạp cả file vào RAM khi đọc lần đầu. Bài giải thích cơ chế bên trong SharedPreferences và DataStore, khi nào dùng mỗi loại, triển khai chuẩn MVVM + Hilt + Coroutine/Flow cho cả XML và Compose, cùng testing, security và migration.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '45 phút',
@@ -35028,7 +34991,7 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
       'Triển khai được Preferences DataStore trong MVVM + Hilt + Coroutine/Flow, kèm mã hóa dữ liệu nhạy cảm, test trên JVM và migration từ SharedPreferences.'
     ],
     knowledgeGap: 'Nắm sai bản chất SharedPreferences dẫn đến ANR khi file XML lớn, mất token khi process bị giết giữa chừng ghi apply(), lưu dữ liệu nhạy cảm dạng plaintext, khai báo nhiều DataStore trỏ cùng một file gây crash, và gọi edit không qua coroutine làm UI block.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '45 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -35046,6 +35009,16 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Key-Value Storage giải quyết chính xác bài toán này: lưu <strong>một lượng nhỏ dữ liệu dạng cặp khóa → giá trị (key → value)</strong>, được hệ điều hành/framework lo phần ghi xuống ổ đĩa, tự khôi phục khi mở lại app.</div></div>
 
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được bản chất Key-Value Storage và vị trí của nó trong hệ sinh thái lưu trữ Android.</li>
+  <li>Giải thích được cơ chế bên trong SharedPreferences (file XML nạp vào RAM, apply vs commit) và các rủi ro gây mất dữ liệu hoặc ANR.</li>
+  <li>Giải thích được cơ chế bên trong DataStore (file .preferences_pb, xử lý tuần tự, atomic write, Flow).</li>
+  <li>Phân biệt được SharedPreferences và DataStore, biết khi nào dùng và khi nào tránh key-value storage.</li>
+  <li>Triển khai được Preferences DataStore trong MVVM + Hilt + Coroutine/Flow, kèm mã hóa dữ liệu nhạy cảm, test trên JVM và migration từ SharedPreferences.</li>
+</ul>
+
 <h2>Key-Value Storage là gì?</h2>
 
 <p>Key-Value Storage là mô hình lưu trữ trong đó mỗi dữ liệu được xác định bằng một <strong>key</strong> (khóa, dạng String) duy nhất và lưu một <strong>value</strong> (giá trị) tương ứng:</p>
@@ -35055,63 +35028,13 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
 "theme"        -&gt; "dark"
 "launch_count" -&gt; 12</code></pre>
 
-<p>Đặc điểm bản chất:</p>
+<p>Trên Android, toàn bộ các cặp key-value của một tập được lưu trong <strong>một file riêng của app</strong> (file XML với SharedPreferences, file <code>.preferences_pb</code> với DataStore).</p>
 
-<ul>
-  <li><strong>Truy cập theo khóa</strong>: muốn đọc dữ liệu phải biết key. Không có khái niệm tìm kiếm, sắp xếp, lọc.</li>
-  <li><strong>Không có cấu trúc quan hệ</strong>: không liên kết giữa các mục với nhau.</li>
-  <li><strong>Giá trị đơn giản</strong>: chỉ phù hợp kiểu dữ liệu nguyên thủy (String, Int, Long, Float, Boolean, Set\\&lt;String\\&gt;). Không phù hợp object phức tạp (muốn lưu object phải tự serialize sang String/JSON).</li>
-  <li><strong>Toàn bộ được nạp vào bộ nhớ</strong>: ở lần đọc đầu tiên, toàn bộ tập key-value được nạp từ đĩa vào RAM, sau đó truy cập trong RAM; mỗi lần ghi lại ghi lại toàn bộ file. Điều này nói lên lý do "không lưu dữ liệu lớn" — xem phần giới hạn.</li>
-</ul>
+<p><strong>Mental model:</strong> một <code>Map&lt;String, giá trị đơn giản&gt;</code> được chép xuống một file. Lần đọc đầu nạp cả file vào RAM, mỗi lần ghi lại ghi lại cả file. Mọi giới hạn của key-value (chỉ truy cập theo key, không lưu dữ liệu lớn) đều suy ra từ hình ảnh này.</p>
 
-<h3>Vị trí trong hệ sinh thái lưu trữ Android</h3>
+<h2>Cách hoạt động</h2>
 
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Giải pháp</th>
-      <th style="padding:8px 12px;text-align:left;">Loại dữ liệu phù hợp</th>
-      <th style="padding:8px 12px;text-align:left;">Có truy vấn?</th>
-      <th style="padding:8px 12px;text-align:left;">Async?</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Biến trong bộ nhớ (RAM)</td>
-      <td style="padding:8px 12px;">Dữ liệu tạm trong phiên chạy</td>
-      <td style="padding:8px 12px;">Không</td>
-      <td style="padding:8px 12px;">Không</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">SharedPreferences</td>
-      <td style="padding:8px 12px;">Key-value nhỏ</td>
-      <td style="padding:8px 12px;">Không</td>
-      <td style="padding:8px 12px;">Không (blocking)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">DataStore</td>
-      <td style="padding:8px 12px;">Key-value nhỏ</td>
-      <td style="padding:8px 12px;">Không</td>
-      <td style="padding:8px 12px;">Có (Flow, suspend)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Room (SQLite)</td>
-      <td style="padding:8px 12px;">Dữ liệu có cấu trúc, quan hệ, số lượng lớn</td>
-      <td style="padding:8px 12px;">Có</td>
-      <td style="padding:8px 12px;">Có</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">File / CacheDir</td>
-      <td style="padding:8px 12px;">Nội dung thô: ảnh, JSON lớn, PDF</td>
-      <td style="padding:8px 12px;">Không</td>
-      <td style="padding:8px 12px;">Tùy</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Nguyên tắc chọn: <strong>dữ liệu càng có cấu trúc và càng lớn thì càng phải đi xuống phía dưới bảng</strong>. Key-value chỉ thích hợp hàng trên cùng.</p>
-
-<h2>Các giải pháp Key-Value trong Android</h2>
+<h3>Các giải pháp Key-Value trong Android</h3>
 
 <p>Trong hệ sinh thái Android tồn tại ba giải pháp chính cho bài toán key-value:</p>
 
@@ -35123,9 +35046,20 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
 
 <p>Bài này tập trung vào hai cái đầu — là kiến thức chuẩn của lộ trình. MMKV được nhắc để bạn biết nó tồn tại khi gặp trong các dự án thực tế.</p>
 
-<h2>SharedPreferences hoạt động như thế nào?</h2>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Phần DataStore dùng tối thiểu hai kiến thức của Session sau: - Coroutine (<code>suspend</code>, <code>launch</code>): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài). - <code>Flow</code>: luồng dữ liệu phát giá trị mới mỗi khi nguồn thay đổi, học ở 7.1.4.2 Flow (chưa có bài).</div></div>
 
-<h3>Bản chất</h3>
+<h3>Đặc điểm của mô hình key-value</h3>
+
+<ul>
+  <li><strong>Truy cập theo khóa</strong>: muốn đọc dữ liệu phải biết key. Không có khái niệm tìm kiếm, sắp xếp, lọc.</li>
+  <li><strong>Không có cấu trúc quan hệ</strong>: không liên kết giữa các mục với nhau.</li>
+  <li><strong>Giá trị đơn giản</strong>: chỉ phù hợp kiểu dữ liệu nguyên thủy (String, Int, Long, Float, Boolean, Set\\&lt;String\\&gt;). Không phù hợp object phức tạp (muốn lưu object phải tự serialize sang String/JSON).</li>
+  <li><strong>Toàn bộ được nạp vào bộ nhớ</strong>: ở lần đọc đầu tiên, toàn bộ tập key-value được nạp từ đĩa vào RAM, sau đó truy cập trong RAM; mỗi lần ghi lại ghi lại toàn bộ file. Điều này nói lên lý do "không lưu dữ liệu lớn" — xem phần giới hạn.</li>
+</ul>
+
+<h3>SharedPreferences hoạt động như thế nào?</h3>
+
+<h4>Bản chất</h4>
 
 <p>SharedPreferences lưu toàn bộ dữ liệu trong <strong>một file XML</strong> nằm trong vùng private của app, tại đường dẫn:</p>
 
@@ -35141,7 +35075,7 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
     &lt;int name="launch_count" value="12" /&gt;
 &lt;/map&gt;</code></pre>
 
-<h3>Cơ chế hoạt động</h3>
+<h4>Cơ chế hoạt động</h4>
 
 <div class="dd-diagram" data-dd="ds-sharedprefs">
 <div class="dd-svg dd-svg-dark">
@@ -35271,7 +35205,7 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
   <li><strong>Ghi</strong>: mọi thay đổi chỉ sửa trên bản <code>Map</code> trong RAM trước, sau đó mới quyết định ghi xuống đĩa qua <code>apply()</code> hoặc <code>commit()</code>.</li>
 </ul>
 
-<h3>apply() vs commit()</h3>
+<h4>apply() vs commit()</h4>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -35310,18 +35244,18 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
   </tbody>
 </table>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Nguyên tắc thực tế</strong>: nếu buộc phải dùng SharedPreferences, ưu tiên <code>apply()</code> khi không cần kết quả ghi; chỉ dùng <code>commit()</code> (trên background thread) khi thực sự cần biết dữ liệu đã lên đĩa. <code>apply()</code> vẫn có thể gây ANR: framework chờ mọi lần ghi đang dở hoàn tất trước khi Activity/Service đổi trạng thái, và việc chờ này chạy trên main thread. Gọi <code>apply()</code> dày đặc với file lớn là công thức gây ANR — một lý do Google khuyên chuyển sang DataStore.</div></div>
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Nguyên tắc thực tế</strong>: nếu buộc phải dùng SharedPreferences, ưu tiên <code>apply()</code> khi không cần kết quả ghi; chỉ dùng <code>commit()</code> (trên background thread) khi thực sự cần biết dữ liệu đã lên đĩa. <code>apply()</code> vẫn có thể gây ANR: framework chờ mọi lần ghi đang dở hoàn tất trước khi Activity/Service đổi trạng thái, và việc chờ này chạy trên main thread. Gọi <code>apply()</code> dày đặc với file lớn là công thức gây ANR — một lý do Google khuyên chuyển sang DataStore.</div></div>
 
-<h3>Ghi mất dữ liệu — vấn đề nghiêm trọng nhất</h3>
+<h4>Ghi mất dữ liệu — vấn đề nghiêm trọng nhất</h4>
 
 <p>Với <code>apply()</code>, hệ thống ghi file XML trên background. Nếu <strong>process của app bị giết ngay sau khi gọi <code>apply()</code></strong> (user giết app, crash, hệ thống thu hồi process), phần ghi đĩa chưa kịp hoàn thành thì dữ liệu mới <strong>bị mất</strong>, dù bộ nhớ đã có giá trị mới.</p>
 
 <p>Điều này đặc biệt nguy hiểm với dữ liệu quan trọng như token, cờ trạng thái. DataStore ra đời có một trong những mục tiêu quan trọng nhất là loại bỏ rủi ro này — xem phần cơ chế transaction của DataStore.</p>
 
-<h3>Vì sao SharedPreferences "không an toàn" trong thế giới hiện đại</h3>
+<h4>Vì sao SharedPreferences "không an toàn" trong thế giới hiện đại</h4>
 
 <ol>
-  <li><strong>Đọc chặn UI thread</strong>: lần truy cập đầu tiên phải parse toàn bộ file XML trên thread gọi — nếu là UI thread, app giật.</li>
+  <li><strong>Đọc chặn UI thread</strong>: lần truy cập đầu tiên phải chờ đọc và parse xong toàn bộ file XML; việc parse chạy trên một thread nền của framework nhưng thread gọi <code>getX()</code> bị chặn trong lúc chờ — nếu là UI thread, app giật.</li>
   <li><strong>Không hỗ trợ nhiều process</strong>: docs ghi rõ SharedPreferences không hỗ trợ dùng chung giữa nhiều process; <code>OnSharedPreferenceChangeListener</code> chỉ báo thay đổi trong cùng process và phải tự giữ tham chiếu mạnh tới listener.</li>
   <li><strong>Không an toàn khi nhiều nơi ghi cùng lúc</strong>: hai <code>Editor</code> cùng ghi có thể ghi đè nhau.</li>
   <li><strong>Không có type safety</strong>: đọc sai kiểu (gọi <code>getString</code> với key đang lưu <code>Int</code>) ném <code>ClassCastException</code> lúc chạy — compiler không bắt được, lỗi chỉ lộ ra khi đúng nhánh code đó chạy.</li>
@@ -35329,7 +35263,7 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
   <li><strong>Không tích hợp coroutine/Flow</strong>: muốn lắng nghe thay đổi phải tự quản lý listener thủ công.</li>
 </ol>
 
-<h2>DataStore là gì?</h2>
+<h3>DataStore hoạt động như thế nào?</h3>
 
 <p>DataStore là thư viện Jetpack của Google, thay thế SharedPreferences, được xây dựng trên <strong>coroutine và Flow</strong>:</p>
 
@@ -35413,7 +35347,7 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
 </div>
 </div>
 
-<h3>Cơ chế hoạt động bên trong</h3>
+<h4>Cơ chế hoạt động bên trong</h4>
 
 <p>DataStore lưu dữ liệu trong một file nhị phân tên là <code>*.preferences_pb</code> (Protocol Buffers), nằm tại:</p>
 
@@ -35561,7 +35495,118 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
   <li><strong>Chống hỏng file</strong>: nếu DataStore phát hiện file hỏng khi đọc (corrupted), nó ném <code>IOException</code> — bạn bắt lỗi này và quyết định xóa file hỏng (xem phần triển khai).</li>
 </ul>
 
-<h3>Preferences DataStore vs Proto DataStore</h3>
+<h4>Xử lý lỗi ghi khi app bị giết</h4>
+
+<div class="dd-diagram" data-dd="ds-atomic">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 584" role="img" aria-labelledby="ds-atomic-dark-title ds-atomic-dark-desc" font-family="'Geist', sans-serif">
+<title id="ds-atomic-dark-title">Rename nguyên tử: giết app cũng không mất</title>
+<desc id="ds-atomic-dark-desc">Ghi token vào file tạm, rename thành công thì an toàn, thất bại thì file cũ còn nguyên để đọc lại.</desc>
+<defs>
+<marker id="ds-atomic-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="584" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,92 V 132" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
+<path d="M 400,192 V 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
+<path d="M 340,292 V 312 H 188 Q 180,312 180,320 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
+<rect x="232" y="292" width="40" height="12" rx="2" fill="#060913"/>
+<text x="252" y="301" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 460,292 V 312 H 612 Q 620,312 620,320 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
+<rect x="502" y="292" width="56" height="12" rx="2" fill="#060913"/>
+<text x="530" y="301" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 580,412 V 436 H 508 Q 500,436 500,444 V 476" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">App ghi token</text>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="166" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">DataStore ghi tạm</text>
+<polygon points="400,232 470,276 400,320 330,276" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="280" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">RENAME OK?</text>
+<rect x="80" y="352" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="80" y="352" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="180" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">An toàn</text>
+<text x="180" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trên đĩa</text>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="526" y="358" width="44" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="548" y="367" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CỨU</text>
+<text x="620" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">File cũ còn</text>
+<text x="620" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">không mất data</text>
+<rect x="380" y="476" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="380" y="476" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="500" y="510" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Đọc file cũ</text>
+<text x="500" y="528" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lần chạy sau</text>
+<!-- legend -->
+<line x1="32" y1="560" x2="768" y2="560" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="576" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="572" r="4" fill="#38BDF8"/>
+<text x="162" y="576" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">PHAO CỨU SINH · FILE CŨ</text>
+<line x1="430" y1="572" x2="462" y2="572" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
+<text x="470" y="576" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">RỚT THÌ CÒN ĐƯỜNG VỀ</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 584" role="img" aria-labelledby="ds-atomic-title ds-atomic-desc" font-family="'Geist', sans-serif">
+<title id="ds-atomic-title">Rename nguyên tử: giết app cũng không mất</title>
+<desc id="ds-atomic-desc">Ghi token vào file tạm, rename thành công thì an toàn, thất bại thì file cũ còn nguyên để đọc lại.</desc>
+<defs>
+<marker id="ds-atomic-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="584" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,92 V 132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
+<path d="M 400,192 V 232" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
+<path d="M 340,292 V 312 H 188 Q 180,312 180,320 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
+<rect x="232" y="292" width="40" height="12" rx="2" fill="#F8FAFC"/>
+<text x="252" y="301" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 460,292 V 312 H 612 Q 620,312 620,320 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
+<rect x="502" y="292" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="530" y="301" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 580,412 V 436 H 508 Q 500,436 500,444 V 476" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">App ghi token</text>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="166" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">DataStore ghi tạm</text>
+<polygon points="400,232 470,276 400,320 330,276" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="280" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">RENAME OK?</text>
+<rect x="80" y="352" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="352" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="180" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">An toàn</text>
+<text x="180" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trên đĩa</text>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="526" y="358" width="44" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="548" y="367" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CỨU</text>
+<text x="620" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">File cũ còn</text>
+<text x="620" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">không mất data</text>
+<rect x="380" y="476" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="380" y="476" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="500" y="510" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Đọc file cũ</text>
+<text x="500" y="528" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lần chạy sau</text>
+<!-- legend -->
+<line x1="32" y1="560" x2="768" y2="560" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="572" r="4" fill="#0284C7"/>
+<text x="162" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">PHAO CỨU SINH · FILE CŨ</text>
+<line x1="430" y1="572" x2="462" y2="572" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
+<text x="470" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">RỚT THÌ CÒN ĐƯỜNG VỀ</text>
+</svg>
+</div>
+</div>
+
+<p>Đây là lý do DataStore không có vấn đề "ghi mất dữ liệu" như SharedPreferences <code>apply()</code> — thiết kế atomic rename đảm bảo hoặc là file mới hoàn chỉnh, hoặc file cũ còn nguyên. Không bao giờ có trạng thái "nửa file".</p>
+
+<h4>Preferences DataStore vs Proto DataStore</h4>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -35600,9 +35645,9 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
   </tbody>
 </table>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Khuyến nghị</strong>: 90% nhu cầu key-value của một app thương mại (token, setting, cờ trạng thái) dùng Preferences DataStore là đủ. Proto DataStore chỉ cân nhắc khi dữ liệu có cấu trúc nghiêm túc cần schema. Bài này đi sâu Preferences DataStore.</div></div>
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Khuyến nghị</strong>: 90% nhu cầu key-value của một app thương mại (token, setting, cờ trạng thái) dùng Preferences DataStore là đủ. Proto DataStore chỉ cân nhắc khi dữ liệu có cấu trúc nghiêm túc cần schema. Bài này đi sâu Preferences DataStore.</div></div>
 
-<h2>So sánh SharedPreferences vs DataStore</h2>
+<h3>So sánh SharedPreferences vs DataStore</h3>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -35661,220 +35706,29 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
   </tbody>
 </table>
 
-<h2>Khi nào nên dùng, khi nào không nên dùng</h2>
+<h2>Ví dụ thực tế</h2>
 
-<h3>Nên dùng Key-Value Storage</h3>
+<p>Bài toán chính là lưu phiên đăng nhập bằng Preferences DataStore, tách đúng tầng UI - ViewModel - Repository. Các bài toán sau dùng lại cùng các lớp đó: chống crash khi file hỏng, bảo vệ token, chuyển dữ liệu cũ từ SharedPreferences, test và debug.</p>
 
-<ul>
-  <li>Token đăng nhập, refresh token (đã mã hóa — xem phần Security).</li>
-  <li>Cài đặt UI: theme sáng/tối, ngôn ngữ, cỡ chữ.</li>
-  <li>Cờ trạng thái: đã xem onboarding, đã tặng quà lần đầu.</li>
-  <li>Bộ đếm nhỏ: số lần mở app, lần đánh giá gần nhất.</li>
-  <li>Cache nhỏ không quan trọng: câu trả lời cuối của một trường nhập.</li>
-</ul>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ngoài coroutine và <code>Flow</code> (đã ghi ở mục "Các giải pháp Key-Value trong Android"), ví dụ dùng tối thiểu: - <code>StateFlow</code> (<code>stateIn</code>, <code>collectAsStateWithLifecycle</code>): luồng giữ giá trị mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài). - <code>ViewModel</code> (<code>viewModelScope</code>): giữ trạng thái của màn hình, học ở 6.4 ViewModel (chưa có bài); cách tách UI - ViewModel - Repository học ở 7.2.3 MVVM (chưa có bài). - Hilt (<code>@Module</code>, <code>@Provides</code>, <code>@HiltViewModel</code>, <code>hiltViewModel()</code>): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài). - Jetpack Compose (<code>@Composable</code>): viết UI bằng Kotlin, xem <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</div></div>
 
-<h3>Không nên dùng Key-Value Storage</h3>
+<h3>Lưu phiên đăng nhập: MVVM + Hilt + Coroutine/Flow</h3>
 
-<ul>
-  <li><strong>Dữ liệu lớn</strong>: toàn bộ file được nạp vào RAM và ghi lại nguyên file mỗi lần sửa — lưu 10MB vào DataStore sẽ làm app chậm. &gt; 100KB-1MB nên cân nhắc Room hoặc file.</li>
-  <li><strong>Dữ liệu cần truy vấn</strong>: tìm kiếm, sắp xếp, lọc — đó là việc của Room.</li>
-  <li><strong>Dữ liệu quan hệ</strong>: giỏ hàng, danh sách đơn hàng.</li>
-  <li><strong>Dữ liệu nhạy cảm ở dạng plaintext</strong>: mật khẩu, token không mã hóa — phải dùng EncryptedSharedPreferences hoặc Keystore (xem Security).</li>
-  <li><strong>Dữ liệu chỉ cần trong phiên làm việc</strong>: không cần bền vững thì để RAM (ViewModel, cache layer).</li>
-</ul>
+<p>Bài toán: sau khi đăng nhập thành công, app lưu token; màn hình tự chuyển sang màn hình chính, và lần mở app sau vẫn biết user đã đăng nhập mà không cần đăng nhập lại.</p>
 
-<h2>Triển khai thực tế: MVVM + Hilt + Coroutine/Flow</h2>
+<p>Luồng chạy khi user đăng nhập xong:</p>
 
-<h3>1. Thêm dependency</h3>
+<ol>
+  <li>UI gọi <code>viewModel.saveSession(token)</code>.</li>
+  <li>ViewModel mở coroutine bằng <code>viewModelScope.launch</code> và gọi <code>prefsRepository.saveToken(token)</code>.</li>
+  <li>Repository gọi <code>dataStore.edit { prefs[USER_TOKEN] = token }</code>.</li>
+  <li>DataStore ghi file mới rồi atomic rename thành <code>user_prefs.preferences_pb</code> (cơ chế ở mục "Xử lý lỗi ghi khi app bị giết"), sau đó báo xong.</li>
+  <li>DataStore phát dữ liệu mới qua <code>dataStore.data</code>; Repository <code>map</code> ra token.</li>
+  <li>Flow <code>userToken</code> của Repository emit token mới cho ViewModel.</li>
+  <li>ViewModel tính <code>isLoggedIn = (token != null)</code> = <code>true</code>; UI đang collect <code>isLoggedIn</code> nên render màn hình chính.</li>
+</ol>
 
-<pre data-lang="kotlin"><code>// app/build.gradle.kts
-dependencies {
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
-
-    // Đã có trong project dùng MVVM + Hilt:
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.x")
-    implementation("com.google.dagger:hilt-android:2.5x")
-    kapt("com.google.dagger:hilt-compiler:2.5x")
-}</code></pre>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý phiên bản</strong>: kiểm tra phiên bản mới nhất tại <a href="https://developer.android.com/jetpack/androidx/releases/datastore" target="_blank" rel="noopener">developer.android.com/jetpack/androidx/releases/datastore</a>. Code trong bài dùng <code>1.1.1</code> — là phiên bản ổn định phổ biến tại thời điểm viết.</div></div>
-
-<h3>2. Khai báo keys và DataStore</h3>
-
-<p>Tạo file <code>UserPreferences.kt</code> — nơi duy nhất định nghĩa tên file và toàn bộ keys:</p>
-
-<pre data-lang="kotlin"><code>package com.example.app.data.local
-
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-
-// Singleton DataStore cho toàn app — khai báo ở top-level, một lần duy nhất.
-// Không để \`private\`: DataModule (file khác) cần import property này.
-val Context.userDataStore: DataStore&lt;Preferences&gt; by preferencesDataStore(
-    name = "user_prefs"
-)
-
-object PrefsKeys {
-    val USER_TOKEN = stringPreferencesKey("user_token")
-    val DARK_MODE = booleanPreferencesKey("dark_mode")
-    val FIRST_LAUNCH = booleanPreferencesKey("first_launch")
-}</code></pre>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Tip</strong>: tên file <code>user_prefs</code> chỉ khai báo <strong>một lần</strong> ở cấp top-level. Khai báo lại <code>preferencesDataStore</code> với cùng tên ở nơi khác sẽ gây crash. Đây là lỗi phổ biến đầu tiên — xem phần Sai lầm thường gặp.</div></div>
-
-<h3>3. Repository — đọc ghi duy nhất một nơi</h3>
-
-<pre data-lang="kotlin"><code>package com.example.app.data.repository
-
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import com.example.app.data.local.PrefsKeys
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-
-// Interface: ViewModel chỉ phụ thuộc vào đây, test thay bằng Fake
-interface UserPreferencesRepository {
-    val userToken: Flow&lt;String?&gt;
-    val isDarkMode: Flow&lt;Boolean&gt;
-    suspend fun saveToken(token: String)
-    suspend fun setDarkMode(enabled: Boolean)
-    suspend fun clearSession()
-}
-
-// Bản thật: nhận DataStore (không nhận Context) — dễ test trên JVM
-class DataStoreUserPreferencesRepository(
-    private val dataStore: DataStore&lt;Preferences&gt;
-) : UserPreferencesRepository {
-    // Đọc — Flow: UI sẽ tự cập nhật khi dữ liệu đổi
-    override val userToken: Flow&lt;String?&gt; = dataStore.data
-        .map { prefs -&gt; prefs[PrefsKeys.USER_TOKEN] }
-
-    override val isDarkMode: Flow&lt;Boolean&gt; = dataStore.data
-        .map { prefs -&gt; prefs[PrefsKeys.DARK_MODE] ?: false }
-
-    // Ghi — suspend, gọi từ coroutine
-    override suspend fun saveToken(token: String) {
-        dataStore.edit { prefs -&gt;
-            prefs[PrefsKeys.USER_TOKEN] = token
-        }
-    }
-
-    override suspend fun setDarkMode(enabled: Boolean) {
-        dataStore.edit { prefs -&gt;
-            prefs[PrefsKeys.DARK_MODE] = enabled
-        }
-    }
-
-    override suspend fun clearSession() {
-        dataStore.edit { prefs -&gt;
-            prefs.remove(PrefsKeys.USER_TOKEN)
-        }
-    }
-}</code></pre>
-
-<p><strong>Tại sao phải qua Repository mà không gọi DataStore trực tiếp trong ViewModel?</strong></p>
-
-<ul>
-  <li>ViewModel không nên biết chi tiết "dữ liệu lưu ở đâu" (DataStore, Room, network). Repository là ranh giới này.</li>
-  <li>Dễ test: khi test ViewModel, chỉ cần fake Repository, không cần DataStore thật.</li>
-  <li>Khi đổi cơ chế lưu (DataStore → nơi khác), chỉ sửa Repository, ViewModel không đổi.</li>
-</ul>
-
-<h3>4. Hilt module — cung cấp DataStore và Repository</h3>
-
-<pre data-lang="kotlin"><code>package com.example.app.di
-
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import com.example.app.data.local.userDataStore
-import com.example.app.data.repository.DataStoreUserPreferencesRepository
-import com.example.app.data.repository.UserPreferencesRepository
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
-
-@Module
-@InstallIn(SingletonComponent::class)
-object DataModule {
-
-    @Provides
-    @Singleton
-    fun provideUserDataStore(
-        @ApplicationContext context: Context
-    ): DataStore&lt;Preferences&gt; = context.userDataStore
-
-    @Provides
-    @Singleton
-    fun provideUserPreferencesRepository(
-        dataStore: DataStore&lt;Preferences&gt;
-    ): UserPreferencesRepository = DataStoreUserPreferencesRepository(dataStore)
-}</code></pre>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý</strong>: Repository chỉ phụ thuộc <code>DataStore&lt;Preferences&gt;</code> thay vì <code>Context</code> — giảm phụ thuộc, test JVM chỉ cần tạo một DataStore trỏ vào file tạm. <code>userDataStore</code> (extension property) chỉ được truy cập trong Hilt provider; mọi nơi khác nhận <code>DataStore</code> hoặc <code>UserPreferencesRepository</code> qua inject.</div></div>
-
-<h3>5. ViewModel — đọc bằng StateFlow, ghi bằng coroutine</h3>
-
-<pre data-lang="kotlin"><code>package com.example.app.ui.login
-
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.app.data.repository.UserPreferencesRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-@HiltViewModel
-class LoginViewModel @Inject constructor(
-    private val prefsRepository: UserPreferencesRepository
-) : ViewModel() {
-
-    // Đọc: Flow từ DataStore -&gt; StateFlow để UI observe
-    val userToken: StateFlow&lt;String?&gt; = prefsRepository.userToken
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = null
-        )
-
-    // Suy ra từ token đã lưu (một nguồn sự thật): mở lại app vẫn đúng trạng thái
-    val isLoggedIn: StateFlow&lt;Boolean&gt; = prefsRepository.userToken
-        .map { token -&gt; token != null }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false
-        )
-
-    fun saveSession(token: String) {
-        viewModelScope.launch {
-            prefsRepository.saveToken(token) // DataStore phát token mới -&gt; isLoggedIn tự thành true
-        }
-    }
-
-    fun logout() {
-        viewModelScope.launch {
-            prefsRepository.clearSession()   // token bị xoá -&gt; isLoggedIn tự thành false
-        }
-    }
-}</code></pre>
-
-<p><strong>Mô phỏng luồng dữ liệu khi đọc — Ghi token → UI cập nhật:</strong></p>
+<p><strong>Mô phỏng luồng dữ liệu khi đọc — Ghi token → UI cập nhật</strong> (các mũi tên đi đúng thứ tự 7 bước trên, từ trên xuống):</p>
 
 <div class="dd-diagram" data-dd="ds-login">
 <div class="dd-svg dd-svg-dark">
@@ -36047,22 +35901,213 @@ class LoginViewModel @Inject constructor(
 
 <p><strong>Điểm mấu chốt để hiểu</strong>: bạn <strong>không bao giờ tự gọi lại</strong> để lấy dữ liệu sau khi ghi. Ghi xong, DataStore tự đẩy dữ liệu mới qua Flow, Flow qua Repository, <code>stateIn</code> cập nhật StateFlow, UI tự render. Đây là sức mạnh của DataStore so với SharedPreferences — với SharedPreferences bạn phải tự đọc lại và tự notify.</p>
 
-<h3>6. UI — Jetpack Compose</h3>
+<h4>Thêm dependency</h4>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts
+dependencies {
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // Đã có trong project dùng MVVM + Hilt:
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.x")
+    implementation("com.google.dagger:hilt-android:2.5x")
+    kapt("com.google.dagger:hilt-compiler:2.5x")
+}</code></pre>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý phiên bản</strong>: kiểm tra phiên bản mới nhất tại <a href="https://developer.android.com/jetpack/androidx/releases/datastore" target="_blank" rel="noopener">developer.android.com/jetpack/androidx/releases/datastore</a>. Code trong bài dùng <code>1.1.1</code> — là phiên bản ổn định phổ biến tại thời điểm viết.</div></div>
+
+<h4>Khai báo keys và DataStore</h4>
+
+<p>Tạo file <code>UserPreferences.kt</code> — nơi duy nhất định nghĩa tên file và toàn bộ keys:</p>
+
+<pre data-lang="kotlin"><code>package com.example.app.data.local
+
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+// Singleton DataStore cho toàn app — khai báo ở top-level, một lần duy nhất.
+// Không để \`private\`: DataModule (file khác) cần import property này.
+val Context.userDataStore: DataStore&lt;Preferences&gt; by preferencesDataStore(
+    name = "user_prefs"
+)
+
+object PrefsKeys {
+    val USER_TOKEN = stringPreferencesKey("user_token")
+    val DARK_MODE = booleanPreferencesKey("dark_mode")
+    val FIRST_LAUNCH = booleanPreferencesKey("first_launch")
+}</code></pre>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Tip</strong>: tên file <code>user_prefs</code> chỉ khai báo <strong>một lần</strong> ở cấp top-level. Khai báo lại <code>preferencesDataStore</code> với cùng tên ở nơi khác sẽ gây crash. Đây là lỗi phổ biến đầu tiên — xem phần Sai lầm thường gặp.</div></div>
+
+<h4>Repository — đọc ghi duy nhất một nơi</h4>
+
+<pre data-lang="kotlin"><code>package com.example.app.data.repository
+
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import com.example.app.data.local.PrefsKeys
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+// Interface: ViewModel chỉ phụ thuộc vào đây, test thay bằng Fake
+interface UserPreferencesRepository {
+    val userToken: Flow&lt;String?&gt;
+    val isDarkMode: Flow&lt;Boolean&gt;
+    suspend fun saveToken(token: String)
+    suspend fun setDarkMode(enabled: Boolean)
+    suspend fun clearSession()
+}
+
+// Bản thật: nhận DataStore (không nhận Context) — dễ test trên JVM
+class DataStoreUserPreferencesRepository(
+    private val dataStore: DataStore&lt;Preferences&gt;
+) : UserPreferencesRepository {
+    // (5) Đọc — Flow: UI sẽ tự cập nhật khi dữ liệu đổi
+    override val userToken: Flow&lt;String?&gt; = dataStore.data
+        .map { prefs -&gt; prefs[PrefsKeys.USER_TOKEN] }
+
+    override val isDarkMode: Flow&lt;Boolean&gt; = dataStore.data
+        .map { prefs -&gt; prefs[PrefsKeys.DARK_MODE] ?: false }
+
+    // (3) Ghi — suspend, gọi từ coroutine
+    override suspend fun saveToken(token: String) {
+        dataStore.edit { prefs -&gt;
+            prefs[PrefsKeys.USER_TOKEN] = token
+        }
+    }
+
+    override suspend fun setDarkMode(enabled: Boolean) {
+        dataStore.edit { prefs -&gt;
+            prefs[PrefsKeys.DARK_MODE] = enabled
+        }
+    }
+
+    override suspend fun clearSession() {
+        dataStore.edit { prefs -&gt;
+            prefs.remove(PrefsKeys.USER_TOKEN)
+        }
+    }
+}</code></pre>
+
+<p><strong>Tại sao phải qua Repository mà không gọi DataStore trực tiếp trong ViewModel?</strong></p>
+
+<ul>
+  <li>ViewModel không nên biết chi tiết "dữ liệu lưu ở đâu" (DataStore, Room, network). Repository là ranh giới này.</li>
+  <li>Dễ test: khi test ViewModel, chỉ cần fake Repository, không cần DataStore thật.</li>
+  <li>Khi đổi cơ chế lưu (DataStore → nơi khác), chỉ sửa Repository, ViewModel không đổi.</li>
+</ul>
+
+<h4>Hilt module — cung cấp DataStore và Repository</h4>
+
+<pre data-lang="kotlin"><code>package com.example.app.di
+
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import com.example.app.data.local.userDataStore
+import com.example.app.data.repository.DataStoreUserPreferencesRepository
+import com.example.app.data.repository.UserPreferencesRepository
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object DataModule {
+
+    @Provides
+    @Singleton
+    fun provideUserDataStore(
+        @ApplicationContext context: Context
+    ): DataStore&lt;Preferences&gt; = context.userDataStore
+
+    @Provides
+    @Singleton
+    fun provideUserPreferencesRepository(
+        dataStore: DataStore&lt;Preferences&gt;
+    ): UserPreferencesRepository = DataStoreUserPreferencesRepository(dataStore)
+}</code></pre>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý</strong>: Repository chỉ phụ thuộc <code>DataStore&lt;Preferences&gt;</code> thay vì <code>Context</code> — giảm phụ thuộc, test JVM chỉ cần tạo một DataStore trỏ vào file tạm. <code>userDataStore</code> (extension property) chỉ được truy cập trong Hilt provider; mọi nơi khác nhận <code>DataStore</code> hoặc <code>UserPreferencesRepository</code> qua inject.</div></div>
+
+<h4>ViewModel — đọc bằng StateFlow, ghi bằng coroutine</h4>
+
+<pre data-lang="kotlin"><code>package com.example.app.ui.login
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.app.data.repository.UserPreferencesRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val prefsRepository: UserPreferencesRepository
+) : ViewModel() {
+
+    // (6) Đọc: Flow từ DataStore -&gt; StateFlow để UI observe
+    val userToken: StateFlow&lt;String?&gt; = prefsRepository.userToken
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null
+        )
+
+    // (7) Suy ra từ token đã lưu (một nguồn sự thật): mở lại app vẫn đúng trạng thái
+    val isLoggedIn: StateFlow&lt;Boolean&gt; = prefsRepository.userToken
+        .map { token -&gt; token != null }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
+
+    fun saveSession(token: String) {
+        viewModelScope.launch {
+            prefsRepository.saveToken(token) // (2) DataStore phát token mới -&gt; isLoggedIn tự thành true
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            prefsRepository.clearSession()   // token bị xoá -&gt; isLoggedIn tự thành false
+        }
+    }
+}</code></pre>
+
+<h4>UI — Jetpack Compose</h4>
 
 <pre data-lang="kotlin"><code>@Composable
 fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {
+    // (7) UI collect isLoggedIn, tự render lại khi giá trị đổi
     val isLoggedIn by viewModel.isLoggedIn.collectAsStateWithLifecycle()
 
     if (isLoggedIn) {
         HomeScreen()
     } else {
         LoginForm(
+            // (1) đăng nhập xong -&gt; lưu phiên
             onLoginClick = { token -&gt; viewModel.saveSession(token) }
         )
     }
 }</code></pre>
 
-<h3>7. UI — XML (View hệ thống)</h3>
+<h4>UI — XML (View hệ thống)</h4>
 
 <pre data-lang="kotlin"><code>@AndroidEntryPoint // bắt buộc để Hilt cấp @HiltViewModel cho Activity
 class LoginActivity : AppCompatActivity() {
@@ -36073,7 +36118,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Đọc token ngay khi mở app — quyết định màn hình nào.
+        // (7) Đọc token ngay khi mở app — quyết định màn hình nào.
         // repeatOnLifecycle: chỉ collect khi Activity ở STARTED, tự dừng khi xuống background
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -36088,13 +36133,15 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onLoginClick(token: String) {
-        viewModel.saveSession(token)
+        viewModel.saveSession(token) // (1)
     }
 }</code></pre>
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Chú ý thời điểm đọc</strong>: với kiến trúc chuẩn, việc "mở app thấy màn hình nào" nên được quyết định ngay khi app khởi động (splash/logic trước khi render). Đọc <code>userToken</code> trong ViewModel và <code>collect</code> trong UI là cách chuẩn — không đọc đồng bộ trong <code>onCreate</code> kiểu cũ.</div></div>
 
-<h3>8. Chống crash khi file hỏng (IOException)</h3>
+<p><strong>Kết quả:</strong> bấm đăng nhập thì <code>isLoggedIn</code> thành <code>true</code> và UI chuyển sang màn hình chính mà không có dòng code đọc lại nào; tắt hẳn app rồi mở lại, <code>isLoggedIn</code> lại thành <code>true</code> ngay khi DataStore đọc xong file <code>user_prefs.preferences_pb</code>; gọi <code>logout()</code> thì token bị xoá và UI quay về form đăng nhập.</p>
+
+<h3>Chống crash khi file hỏng (IOException)</h3>
 
 <p>DataStore ném <code>IOException</code> khi file bị hỏng. Trong file dữ liệu key-value, xử lý chuẩn là <strong>xóa file hỏng và đọc lại từ đầu</strong>:</p>
 
@@ -36109,9 +36156,9 @@ val Context.userDataStore: DataStore&lt;Preferences&gt; by preferencesDataStore(
 
 <p>Với trường hợp muốn giữ log để điều tra, xem <a href="https://developer.android.com/topic/libraries/architecture/datastore#handling-corruption" target="_blank" rel="noopener">DataStore corruption handling</a>.</p>
 
-<h2>Security — token và dữ liệu nhạy cảm</h2>
+<h3>Security — token và dữ liệu nhạy cảm</h3>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Nguyên tắc số một</strong>: không bao giờ lưu <strong>dữ liệu nhạy cảm dạng plaintext</strong> vào SharedPreferences/DataStore thường.</div></div>
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Nguyên tắc số một</strong>: không bao giờ lưu <strong>dữ liệu nhạy cảm dạng plaintext</strong> vào SharedPreferences/DataStore thường.</div></div>
 
 <p>Cấp độ xử lý tùy độ nhạy cảm:</p>
 
@@ -36136,124 +36183,40 @@ val encryptedPrefs = EncryptedSharedPreferences.create(
     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
 )</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý về security</strong>: toàn bộ API của <code>security-crypto</code> (gồm <code>EncryptedSharedPreferences</code>, <code>MasterKey</code>) đã bị deprecate từ bản 1.1.0-alpha07 (9/4/2025) — xem <a href="https://developer.android.com/jetpack/androidx/releases/security" target="_blank" rel="noopener">release notes</a> và <a href="https://issuetracker.google.com/issues/286337100" target="_blank" rel="noopener">thảo luận chính thức</a> trước khi quyết định cho project mới. Hướng thay thế được khuyến nghị: mã hóa bằng Android Keystore trực tiếp, hoặc lưu token trong hệ thống xác thực riêng (ví dụ: credential của các dịch vụ như Firebase Auth).</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Lưu ý về security</strong>: toàn bộ API của <code>security-crypto</code> (gồm <code>EncryptedSharedPreferences</code>, <code>MasterKey</code>) đã bị deprecate từ bản 1.1.0-alpha07 (9/4/2025) — xem <a href="https://developer.android.com/jetpack/androidx/releases/security" target="_blank" rel="noopener">release notes</a> và <a href="https://issuetracker.google.com/issues/286337100" target="_blank" rel="noopener">thảo luận chính thức</a> trước khi quyết định cho project mới. Hướng thay thế được khuyến nghị: mã hóa bằng Android Keystore trực tiếp, hoặc lưu token trong hệ thống xác thực riêng (ví dụ: credential của các dịch vụ như Firebase Auth).</div></div>
 
 <p>Ngoài mã hóa, đừng quên: <strong>tên key không nên chứa dữ liệu nhạy cảm</strong> và <strong>không log giá trị token</strong> khi debug.</p>
 
-<h2>Xử lý lỗi ghi khi app bị giết</h2>
+<h3>Migration từ SharedPreferences sang DataStore</h3>
 
-<div class="dd-diagram" data-dd="ds-atomic">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 584" role="img" aria-labelledby="ds-atomic-dark-title ds-atomic-dark-desc" font-family="'Geist', sans-serif">
-<title id="ds-atomic-dark-title">Rename nguyên tử: giết app cũng không mất</title>
-<desc id="ds-atomic-dark-desc">Ghi token vào file tạm, rename thành công thì an toàn, thất bại thì file cũ còn nguyên để đọc lại.</desc>
-<defs>
-<marker id="ds-atomic-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="584" fill="#060913"/>
-<!-- arrows -->
-<path d="M 400,92 V 132" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
-<path d="M 400,192 V 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
-<path d="M 340,292 V 312 H 188 Q 180,312 180,320 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
-<rect x="232" y="292" width="40" height="12" rx="2" fill="#060913"/>
-<text x="252" y="301" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 460,292 V 312 H 612 Q 620,312 620,320 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
-<rect x="502" y="292" width="56" height="12" rx="2" fill="#060913"/>
-<text x="530" y="301" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 580,412 V 436 H 508 Q 500,436 500,444 V 476" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">App ghi token</text>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="166" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">DataStore ghi tạm</text>
-<polygon points="400,232 470,276 400,320 330,276" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="280" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">RENAME OK?</text>
-<rect x="80" y="352" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="80" y="352" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="180" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">An toàn</text>
-<text x="180" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trên đĩa</text>
-<rect x="520" y="352" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="520" y="352" width="200" height="60" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="526" y="358" width="44" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="548" y="367" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CỨU</text>
-<text x="620" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">File cũ còn</text>
-<text x="620" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">không mất data</text>
-<rect x="380" y="476" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="380" y="476" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="500" y="510" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Đọc file cũ</text>
-<text x="500" y="528" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lần chạy sau</text>
-<!-- legend -->
-<line x1="32" y1="560" x2="768" y2="560" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="576" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="572" r="4" fill="#38BDF8"/>
-<text x="162" y="576" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">PHAO CỨU SINH · FILE CŨ</text>
-<line x1="430" y1="572" x2="462" y2="572" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#ds-atomic-dark-arrow)"/>
-<text x="470" y="576" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">RỚT THÌ CÒN ĐƯỜNG VỀ</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 584" role="img" aria-labelledby="ds-atomic-title ds-atomic-desc" font-family="'Geist', sans-serif">
-<title id="ds-atomic-title">Rename nguyên tử: giết app cũng không mất</title>
-<desc id="ds-atomic-desc">Ghi token vào file tạm, rename thành công thì an toàn, thất bại thì file cũ còn nguyên để đọc lại.</desc>
-<defs>
-<marker id="ds-atomic-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="584" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 400,92 V 132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
-<path d="M 400,192 V 232" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
-<path d="M 340,292 V 312 H 188 Q 180,312 180,320 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
-<rect x="232" y="292" width="40" height="12" rx="2" fill="#F8FAFC"/>
-<text x="252" y="301" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 460,292 V 312 H 612 Q 620,312 620,320 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
-<rect x="502" y="292" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="530" y="301" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 580,412 V 436 H 508 Q 500,436 500,444 V 476" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">App ghi token</text>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="166" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">DataStore ghi tạm</text>
-<polygon points="400,232 470,276 400,320 330,276" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="280" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">RENAME OK?</text>
-<rect x="80" y="352" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="80" y="352" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="180" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">An toàn</text>
-<text x="180" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">trên đĩa</text>
-<rect x="520" y="352" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="520" y="352" width="200" height="60" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="526" y="358" width="44" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="548" y="367" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CỨU</text>
-<text x="620" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">File cũ còn</text>
-<text x="620" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">không mất data</text>
-<rect x="380" y="476" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="380" y="476" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="500" y="510" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Đọc file cũ</text>
-<text x="500" y="528" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">lần chạy sau</text>
-<!-- legend -->
-<line x1="32" y1="560" x2="768" y2="560" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="572" r="4" fill="#0284C7"/>
-<text x="162" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">PHAO CỨU SINH · FILE CŨ</text>
-<line x1="430" y1="572" x2="462" y2="572" stroke="#64748B" stroke-width="1.2" marker-end="url(#ds-atomic-arrow)"/>
-<text x="470" y="576" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">RỚT THÌ CÒN ĐƯỜNG VỀ</text>
-</svg>
-</div>
-</div>
+<p>Google cung cấp <code>SharedPreferencesMigration</code> để chuyển dữ liệu tự động:</p>
 
-<p>Đây là lý do DataStore không có vấn đề "ghi mất dữ liệu" như SharedPreferences <code>apply()</code> — thiết kế atomic rename đảm bảo hoặc là file mới hoàn chỉnh, hoặc file cũ còn nguyên. Không bao giờ có trạng thái "nửa file".</p>
+<pre data-lang="kotlin"><code>// Thay cho khai báo ở UserPreferences.kt (vẫn chỉ một khai báo duy nhất cho file này)
+val Context.userDataStore by preferencesDataStore(
+    name = "user_prefs",
+    // Migration: đọc hết dữ liệu từ SharedPreferences cũ vào DataStore
+    // rồi xóa file SharedPreferences cũ
+    produceMigrations = { context -&gt;
+        listOf(
+            SharedPreferencesMigration(context, "old_shared_prefs_name")
+        )
+    }
+)</code></pre>
 
-<h2>Testing</h2>
+<p><strong>Cách hiểu cơ chế</strong>:</p>
 
-<h3>Unit Test Repository với DataStore thật trên JVM</h3>
+<ol>
+  <li>Lần đầu DataStore chạy, nó đọc toàn bộ file XML cũ (<code>old_shared_prefs_name.xml</code>).</li>
+  <li>Chuyển toàn bộ key-value sang file <code>.preferences_pb</code> mới.</li>
+  <li>Xóa file SharedPreferences cũ.</li>
+  <li>Từ đó, code mới đọc ghi hoàn toàn trên DataStore.</li>
+</ol>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Tip migration thực tế</strong>: nếu app đã phát hành và user đang có dữ liệu, migration tự động này là cách an toàn nhất — không cần viết code chuyển đổi thủ công. Kiểm tra kỹ trên bản build có dữ liệu cũ trước khi phát hành.</div></div>
+
+<h3>Testing</h3>
+
+<h4>Unit Test Repository với DataStore thật trên JVM</h4>
 
 <p>DataStore chạy được trong JVM test (không cần thiết bị) — đây là lợi thế lớn so với SharedPreferences:</p>
 
@@ -36291,9 +36254,9 @@ val encryptedPrefs = EncryptedSharedPreferences.create(
     }
 }</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Tip test</strong>: <code>runTest</code> (từ <code>kotlinx-coroutines-test</code>) là cách chuẩn để test suspend function. <code>UnconfinedTestDispatcher</code> giúp DataStore chạy trong test scope thay vì scope mặc định.</div></div>
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Tip test</strong>: <code>runTest</code> (từ <code>kotlinx-coroutines-test</code>) là cách chuẩn để test suspend function. <code>UnconfinedTestDispatcher</code> giúp DataStore chạy trong test scope thay vì scope mặc định.</div></div>
 
-<h3>Test ViewModel bằng fake Repository</h3>
+<h4>Test ViewModel bằng fake Repository</h4>
 
 <pre data-lang="kotlin"><code>// Fake hiện thực interface (class Kotlin mặc định là final, không kế thừa được)
 class FakeUserPreferencesRepository : UserPreferencesRepository {
@@ -36330,7 +36293,7 @@ class LoginViewModelTest {
     }
 }</code></pre>
 
-<h2>Debug — xem dữ liệu đã lưu</h2>
+<h3>Debug — xem dữ liệu đã lưu</h3>
 
 <p>Trên thiết bị/máy ảo, dùng <strong>Device File Explorer</strong> trong Android Studio (View → Tool Windows → Device File Explorer):</p>
 
@@ -36343,6 +36306,77 @@ data/data/com.example.app/shared_prefs/user_prefs.xml   (nếu còn SharedPrefer
   <li><strong>Log tại nơi đọc</strong>: log giá trị Flow phát ra khi thu thập (đừng log token thật trong production).</li>
   <li><strong>Bật logging DataStore</strong> trong debug: thêm log trong <code>edit</code> block để xem dữ liệu đang ghi gì.</li>
   <li><strong>Kiểm tra qua app</strong>: viết màn hình debug hiển thị toàn bộ key-value hiện có.</li>
+</ul>
+
+<h2>So sánh với các cách tiếp cận khác</h2>
+
+<h3>Vị trí trong hệ sinh thái lưu trữ Android</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Giải pháp</th>
+      <th style="padding:8px 12px;text-align:left;">Loại dữ liệu phù hợp</th>
+      <th style="padding:8px 12px;text-align:left;">Có truy vấn?</th>
+      <th style="padding:8px 12px;text-align:left;">Async?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Biến trong bộ nhớ (RAM)</td>
+      <td style="padding:8px 12px;">Dữ liệu tạm trong phiên chạy</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Không</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">SharedPreferences</td>
+      <td style="padding:8px 12px;">Key-value nhỏ</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Không (blocking)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">DataStore</td>
+      <td style="padding:8px 12px;">Key-value nhỏ</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Có (Flow, suspend)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Room (SQLite)</td>
+      <td style="padding:8px 12px;">Dữ liệu có cấu trúc, quan hệ, số lượng lớn</td>
+      <td style="padding:8px 12px;">Có</td>
+      <td style="padding:8px 12px;">Có</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">File / CacheDir</td>
+      <td style="padding:8px 12px;">Nội dung thô: ảnh, JSON lớn, PDF</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Tùy</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Nguyên tắc chọn: <strong>dữ liệu càng có cấu trúc và càng lớn thì càng phải đi xuống phía dưới bảng</strong>. Key-value chỉ thích hợp hàng trên cùng.</p>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<h3>Nên dùng Key-Value Storage</h3>
+
+<ul>
+  <li>Token đăng nhập, refresh token (đã mã hóa — xem phần Security).</li>
+  <li>Cài đặt UI: theme sáng/tối, ngôn ngữ, cỡ chữ.</li>
+  <li>Cờ trạng thái: đã xem onboarding, đã tặng quà lần đầu.</li>
+  <li>Bộ đếm nhỏ: số lần mở app, lần đánh giá gần nhất.</li>
+  <li>Cache nhỏ không quan trọng: câu trả lời cuối của một trường nhập.</li>
+</ul>
+
+<h3>Không nên dùng Key-Value Storage</h3>
+
+<ul>
+  <li><strong>Dữ liệu lớn</strong>: toàn bộ file được nạp vào RAM và ghi lại nguyên file mỗi lần sửa — lưu 10MB vào DataStore sẽ làm app chậm. &gt; 100KB-1MB nên cân nhắc Room hoặc file.</li>
+  <li><strong>Dữ liệu cần truy vấn</strong>: tìm kiếm, sắp xếp, lọc — đó là việc của Room.</li>
+  <li><strong>Dữ liệu quan hệ</strong>: giỏ hàng, danh sách đơn hàng.</li>
+  <li><strong>Dữ liệu nhạy cảm ở dạng plaintext</strong>: mật khẩu, token không mã hóa — phải dùng EncryptedSharedPreferences hoặc Keystore (xem Security).</li>
+  <li><strong>Dữ liệu chỉ cần trong phiên làm việc</strong>: không cần bền vững thì để RAM (ViewModel, cache layer).</li>
 </ul>
 
 <h2>Sai lầm thường gặp</h2>
@@ -36396,38 +36430,34 @@ try {
 
 <p>Đã trình bày ở phần Security — lưu plaintext token là lỗ hổng nghiêm trọng, app bị audit bảo mật sẽ bị từ chối.</p>
 
+<p><strong>Cách sửa:</strong> chọn cách lưu theo cấp độ nhạy cảm ở mục "Security — token và dữ liệu nhạy cảm": mã hoá token trước khi lưu, dữ liệu tối mật thì cân nhắc không lưu trên thiết bị.</p>
+
 <h3>7. Giữ SharedPreferences cũ "chỉ để đỡ phải đổi"</h3>
 
-<p>Project mới luôn dùng DataStore. Project cũ: migration dần (xem bên dưới), không xây thêm code mới trên SharedPreferences.</p>
+<p>Project mới luôn dùng DataStore. Project cũ: migration dần (xem mục "Migration từ SharedPreferences sang DataStore"), không xây thêm code mới trên SharedPreferences.</p>
 
-<h2>Migration từ SharedPreferences sang DataStore</h2>
+<h2>Lịch sử phát triển</h2>
 
-<p>Google cung cấp <code>SharedPreferencesMigration</code> để chuyển dữ liệu tự động:</p>
+<ul>
+  <li><strong>API 1:</strong> <code>SharedPreferences</code> cùng <code>SharedPreferences.Editor</code> và <code>commit()</code> có từ phiên bản Android đầu tiên.</li>
+  <li><strong>API 9 (Android 2.3):</strong> thêm <code>Editor.apply()</code>, ghi vào bộ nhớ ngay và ghi xuống đĩa bất đồng bộ, không báo lỗi.</li>
+  <li><strong>API 11:</strong> thêm <code>Editor.putStringSet()</code>, kiểu <code>Set&lt;String&gt;</code> trong danh sách giá trị đơn giản ở đầu bài.</li>
+  <li><strong>API 23:</strong> <code>Context.MODE_MULTI_PROCESS</code> bị deprecated vì không hoạt động ổn định trên một số phiên bản và không có cơ chế hoà giải ghi đồng thời giữa các process; docs khuyên dùng cách quản lý dữ liệu liên process rõ ràng như <code>ContentProvider</code>.</li>
+  <li><strong>05/2019 (security-crypto 1.0.0-alpha01):</strong> ra mắt <code>EncryptedSharedPreferences</code>, tự mã hoá cả key lẫn value của SharedPreferences; bản 1.0.0 stable phát hành 21/04/2021.</li>
+  <li><strong>02/09/2020 (DataStore 1.0.0-alpha01):</strong> Jetpack DataStore ra đời với mục tiêu thay thế SharedPreferences, xây trên coroutine và Flow, gồm hai bản Preferences DataStore và Proto DataStore.</li>
+  <li><strong>01/2021 (DataStore 1.0.0-alpha06):</strong> <code>preferencesKey&lt;T&gt;()</code> được thay bằng các hàm theo kiểu (<code>intPreferencesKey</code>, <code>stringPreferencesKey</code>…) dùng trong bài.</li>
+  <li><strong>24/02/2021 (DataStore 1.0.0-alpha07):</strong> property delegate khai báo ở top-level thay cho <code>Context.createDataStore</code>; DataStore bắt đầu ném exception khi có nhiều DataStore cùng hoạt động trên một file (sai lầm số 1).</li>
+  <li><strong>04/08/2021 (DataStore 1.0.0):</strong> bản stable đầu tiên.</li>
+  <li><strong>17/04/2024 (DataStore 1.1.0):</strong> hỗ trợ nhiều process cùng truy cập một file (kèm quan sát thay đổi giữa các process), interface <code>Storage</code> để tuỳ biến cách lưu, và dùng được trong Kotlin Multiplatform.</li>
+  <li><strong>09/04/2025 (security-crypto 1.1.0-alpha07):</strong> deprecate toàn bộ API, khuyên dùng API của nền tảng và Android Keystore trực tiếp; bản 1.1.0 stable (30/07/2025) giữ trạng thái deprecated này.</li>
+  <li><strong>10/2026:</strong> bản DataStore stable mới nhất khi rà soát bài là 1.3.0 (21/10/2026); ví dụ trong bài vẫn dùng 1.1.1.</li>
+</ul>
 
-<pre data-lang="kotlin"><code>// Thay cho khai báo ở UserPreferences.kt (vẫn chỉ một khai báo duy nhất cho file này)
-val Context.userDataStore by preferencesDataStore(
-    name = "user_prefs",
-    // Migration: đọc hết dữ liệu từ SharedPreferences cũ vào DataStore
-    // rồi xóa file SharedPreferences cũ
-    produceMigrations = { context -&gt;
-        listOf(
-            SharedPreferencesMigration(context, "old_shared_prefs_name")
-        )
-    }
-)</code></pre>
+<p>Vì sao thiết kế đổi như vậy: các hạn chế ở mục "Vì sao SharedPreferences "không an toàn" trong thế giới hiện đại" nằm ngay trong API (đọc ghi đồng bộ, <code>apply()</code> không báo lỗi, không dùng được giữa nhiều process), nên Google làm thư viện mới thay vì vá SharedPreferences. Theo release notes, DataStore lưu dữ liệu bất đồng bộ, nhất quán và theo transaction để khắc phục phần lớn nhược điểm của SharedPreferences.</p>
 
-<p><strong>Cách hiểu cơ chế</strong>:</p>
+<h2>Kết nối hệ thống</h2>
 
-<ol>
-  <li>Lần đầu DataStore chạy, nó đọc toàn bộ file XML cũ (<code>old_shared_prefs_name.xml</code>).</li>
-  <li>Chuyển toàn bộ key-value sang file <code>.preferences_pb</code> mới.</li>
-  <li>Xóa file SharedPreferences cũ.</li>
-  <li>Từ đó, code mới đọc ghi hoàn toàn trên DataStore.</li>
-</ol>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Tip migration thực tế</strong>: nếu app đã phát hành và user đang có dữ liệu, migration tự động này là cách an toàn nhất — không cần viết code chuyển đổi thủ công. Kiểm tra kỹ trên bản build có dữ liệu cũ trước khi phát hành.</div></div>
-
-<h2>Vị trí trong hệ thống (System Thinking)</h2>
+<h3>Vị trí trong hệ thống (System Thinking)</h3>
 
 <p>Key-Value Storage không tồn tại độc lập — nó là một phần của <strong>Data Layer</strong> trong kiến trúc MVVM/Clean Architecture:</p>
 
@@ -36574,37 +36604,57 @@ val Context.userDataStore by preferencesDataStore(
 
 <p>Tương tác với các tầng khác: Data Layer cung cấp <code>Flow</code> cho ViewModel; ViewModel biến thành <code>StateFlow</code> cho UI. Đây là luồng dữ liệu một chiều chuẩn MVVM — điều mà SharedPreferences (callback, thiếu Flow) không hỗ trợ tự nhiên.</p>
 
-<h2>Học tiếp gì?</h2>
+<h3>Topic liên quan</h3>
 
 <ul>
-  <li><strong>5.1.2 Relational Database (Room)</strong> — khi dữ liệu không còn là key-value mà cần truy vấn.</li>
-  <li><strong>Session 06 — LiveData, ViewModel</strong> — cách quản lý StateFlow/Flow trong vòng đời ViewModel, <code>stateIn</code> chi tiết.</li>
-  <li><strong>Session 07 — MVVM, Clean Architecture</strong> — chuẩn hóa Data Layer, Repository pattern sâu hơn.</li>
-  <li><strong>Session 08 — Coroutines, Flow</strong> — hiểu sâu actor, channel, cách Flow hoạt động bên trong.</li>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="../../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a>: ngôn ngữ của mọi ví dụ trong bài.</li>
+  <li><a href="../../session_04/components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>: <code>apply()</code> chặn main thread đúng lúc Activity/Service đổi trạng thái; <code>repeatOnLifecycle(STARTED)</code> trong ví dụ XML.</li>
+  <li><a href="../overview.md" target="_blank" rel="noopener">Session 05 Overview</a>: vị trí của key-value giữa các cách lưu dữ liệu trong Session 05.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../../session_02/file_permissions.md" target="_blank" rel="noopener">File Permissions</a>, mục "Android sandbox: mỗi app là một user Linux": vì sao <code>/data/data/&lt;package_name&gt;/</code> là vùng private của app, nơi chứa cả <code>shared_prefs/</code> lẫn <code>files/datastore/</code>.</li>
+  <li><a href="../working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: main thread và ANR, gốc của rủi ro khi SharedPreferences đọc lần đầu hoặc chờ <code>apply()</code> trên UI thread.</li>
+  <li><a href="../../session_04/components/content_provider.md" target="_blank" rel="noopener">Content Provider</a>: cách chia sẻ dữ liệu giữa các process mà docs khuyên thay cho <code>MODE_MULTI_PROCESS</code>.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="room_architecture.md" target="_blank" rel="noopener">5.1.2 Relational Database (Room Architecture)</a> — khi dữ liệu không còn là key-value mà cần truy vấn.</li>
+  <li>6.4 ViewModel (chưa có bài) — cách quản lý StateFlow/Flow trong vòng đời ViewModel, <code>stateIn</code> chi tiết.</li>
+  <li>7.2.3 MVVM và 7.2.5 Clean Architecture (chưa có bài) — chuẩn hóa Data Layer, Repository pattern sâu hơn.</li>
+  <li>8.4.3 Coroutines và 7.1.4.2 Flow (chưa có bài) — hiểu sâu actor, channel, cách Flow hoạt động bên trong.</li>
+  <li>7.1.5.3 Hilt (chưa có bài) — cách Hilt cấp <code>DataStore</code> và Repository dạng Singleton như <code>DataModule</code>.</li>
+  <li><a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a> — viết test cho Repository và ViewModel như phần Testing.</li>
   <li><strong>Proto DataStore</strong> — nâng cao khi cần schema nghiêm túc.</li>
+</ul></li>
 </ul>
 
 <h2>Nguồn tham khảo</h2>
 
 <ul>
   <li><a href="https://developer.android.com/topic/libraries/architecture/datastore" target="_blank" rel="noopener">DataStore — Android Developers</a></li>
-  <li><a href="https://developer.android.com/jetpack/androidx/releases/datastore" target="_blank" rel="noopener">DataStore releases — Android Developers</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/datastore" target="_blank" rel="noopener">DataStore releases (1.0.0-alpha01, alpha06, alpha07, 1.0.0, 1.1.0, 1.3.0) — Android Developers</a></li>
   <li><a href="https://developer.android.com/topic/libraries/architecture/datastore#preferences-datastore" target="_blank" rel="noopener">Preferences DataStore — Android Developers</a></li>
   <li><a href="https://developer.android.com/topic/libraries/architecture/datastore#handling-corruption" target="_blank" rel="noopener">DataStore corruption handling — Android Developers</a></li>
   <li><a href="https://developer.android.com/reference/android/content/SharedPreferences" target="_blank" rel="noopener">SharedPreferences — Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/android/content/SharedPreferences.Editor" target="_blank" rel="noopener">SharedPreferences.Editor (commit API 1, apply API 9, putStringSet API 11) — Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/android/content/Context#MODE_MULTI_PROCESS" target="_blank" rel="noopener">Context.MODE_MULTI_PROCESS (deprecated API 23) — Android Developers</a></li>
+  <li><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/java/android/app/SharedPreferencesImpl.java" target="_blank" rel="noopener">SharedPreferencesImpl.java (đọc file trên thread nền, <code>awaitLoadedLocked()</code> chặn thread gọi) — Android Open Source Project</a></li>
   <li><a href="https://developer.android.com/training/data-storage" target="_blank" rel="noopener">Data and file storage overview — Android Developers</a></li>
   <li><a href="https://developer.android.com/training/dependency-injection/hilt-android" target="_blank" rel="noopener">Hilt dependency injection — Android Developers</a></li>
   <li><a href="https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-test/" target="_blank" rel="noopener">Testing coroutines — Kotlin</a></li>
   <li><a href="https://issuetracker.google.com/issues/286337100" target="_blank" rel="noopener">security-crypto issue tracker — Google</a></li>
   <li><a href="https://developer.android.com/reference/android/content/SharedPreferences.Editor#apply(" target="_blank" rel="noopener">SharedPreferences.Editor#apply() — Android Developers</a>)</li>
-  <li><a href="https://developer.android.com/jetpack/androidx/releases/security" target="_blank" rel="noopener">Security library releases — Android Developers</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/security" target="_blank" rel="noopener">Security library releases (security-crypto 1.0.0-alpha01, 1.0.0, 1.1.0-alpha07, 1.1.0) — Android Developers</a></li>
   <li><a href="https://kotlinlang.org/docs/visibility-modifiers.html" target="_blank" rel="noopener">Visibility modifiers — Kotlin</a></li>
 </ul>
     `
   },
   'data-store-room-arch': {
     title: 'Relational Database (Room Architecture)',
-    summary: 'Khám phá kiến trúc Room Database từ bản chất lớp trừu tượng trên SQLite, KSP codegen, thiết kế Entity/DAO/Database, mô hình quan hệ 1-1/1-N/N-N, TypeConverter, kiến trúc Offline-first SSOT đến kiểm thử DAO trên dự án Task Manager. Migration, Indexing và cơ chế Flow/InvalidationTracker chỉ được giới thiệu và học sâu ở Advanced Room và Async Transactions & Flow.',
+    summary: 'Room là lớp trừu tượng (ORM mỏng, type-safe) bọc lấy SQLite, dữ liệu vẫn nằm trong file `.db` do SQLite quản lý, còn Room kiểm tra SQL lúc biên dịch và sinh code `_Impl` chuyển đổi giữa bảng và Kotlin data class. Bài giải thích kiến trúc phân tầng và KSP codegen, thiết kế Entity/DAO/Database, mô hình quan hệ 1-1/1-N/N-N, TypeConverter, kiến trúc Offline-first với Room làm Single Source of Truth (SSOT) và kiểm thử DAO. Migration, Indexing và cơ chế Flow/InvalidationTracker chỉ được tóm tắt và học sâu ở Advanced Room và Async Transactions & Flow.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '25 phút',
@@ -36621,12 +36671,10 @@ val Context.userDataStore by preferencesDataStore(
       'Triển khai được test cho DAO bằng In-Memory Database.'
     ],
     knowledgeGap: 'Nhiều lập trình viên chỉ biết dùng Room cơ bản mà không hiểu cơ chế InvalidationTracker ngầm, dẫn đến crash vì query trên main thread, vỡ dữ liệu khi thiếu @Transaction, hoặc crash production khi migrate sai schema.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '25 phút',
     content: `
-<h2>1. Bản chất &amp; Sự ra đời của Room Database</h2>
-
-<h3>Vấn đề cốt lõi của SQLite thuần</h3>
+<h2>Vấn đề cần giải quyết</h2>
 
 <p>Hệ điều hành Android từ phiên bản 1.0 đã tích hợp sẵn cơ sở dữ liệu quan hệ <strong>SQLite</strong> (viết bằng ngôn ngữ C) dưới dạng thư viện hệ thống (<code>libsqlite.so</code>, chạy trong process của app chứ không nằm trong kernel). Ở giai đoạn đầu, các lập trình viên Android phải làm việc với SQLite thông qua <code>SQLiteOpenHelper</code> và <code>SQLiteDatabase</code>.</p>
 
@@ -36639,9 +36687,22 @@ val Context.userDataStore by preferencesDataStore(
   <li><strong>Nguy cơ Block Main Thread:</strong> Việc quản lý đa luồng thủ công khi đọc/ghi SQLite rất dễ dẫn đến lỗi ANR (Application Not Responding) hoặc xung đột tài nguyên (Database Locking).</li>
 </ol>
 
-<h3>Room Database thực chất là gì?</h3>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ trong bài dùng tối thiểu vài kiến thức của Session sau: - Coroutine (hàm <code>suspend</code>, <code>CancellationException</code>) là cách viết code bất đồng bộ theo kiểu tuần tự, tạm dừng được mà không chặn thread: 8.4.3 Coroutines (chưa có bài). - Flow (<code>Flow&lt;T&gt;</code>, <code>first()</code>) là một luồng giá trị bất đồng bộ phát ra theo thời gian: 7.1.4.2 Flow (chưa có bài). Cách Session 05 dùng hai kiến thức này ở <a href="../overview.md" target="_blank" rel="noopener">Session 05 Overview</a>. - Hilt (<code>@Inject</code>, <code>@Singleton</code>) là thư viện Dependency Injection tạo và cấp sẵn đối tượng cho class: 7.1.5.3 Hilt (chưa có bài). - Retrofit (<code>TaskApiService</code>, <code>response.isSuccessful</code>) là thư viện gọi API: 8.1.1 Retrofit (chưa có bài). - ViewModel và Clean Architecture (app chia thành UI, Domain, Data layer): 6.4 ViewModel, 7.2.5 Clean Architecture (chưa có bài).</div></div>
 
-<p>Google giới thiệu <strong>Room Persistence Library</strong> tại Google I/O 2017 như một phần của Android Architecture Components (Jetpack).</p>
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được bản chất Room (lớp trừu tượng trên SQLite) và cách KSP sinh mã <code>_Impl</code> từ Entity, DAO, Database.</li>
+  <li>Thiết kế được các mô hình quan hệ 1-1, 1-N, N-N trong Room bằng POJO, @Embedded và @Relation.</li>
+  <li>Triển khai được kiến trúc Offline-first và Single Source of Truth (SSOT) kết hợp Room với Flow.</li>
+  <li>Triển khai được test cho DAO bằng In-Memory Database.</li>
+</ul>
+
+<h2>Room là gì?</h2>
+
+<p><strong>Room</strong> (Room Persistence Library) là một lớp trừu tượng (abstraction layer), hay một ORM (Object-Relational Mapping) mỏng và type-safe, bọc lấy SQLite: dữ liệu vẫn nằm trong file <code>.db</code> do SQLite quản lý, còn Room kiểm tra câu SQL ngay lúc biên dịch và sinh code chuyển đổi giữa bảng và Kotlin data class.</p>
+
+<p>Mental model: Room là <strong>người viết sẵn code SQLite thay bạn lúc build</strong>. Bạn chỉ khai báo hợp đồng (Entity là bảng, DAO là các truy vấn, Database gom chúng lại); Room đọc hợp đồng đó và sinh các class <code>_Impl</code> làm đúng việc mà trước đây bạn phải tự viết với <code>SQLiteOpenHelper</code> và <code>Cursor</code>.</p>
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Bản chất kỹ thuật:</strong> Room <strong>KHÔNG PHẢI</strong> là một database engine mới. Room là một <strong>Lớp Trừu Tượng (Abstraction Layer)</strong> hay một <strong>Object-Relational Mapping (ORM)</strong> mỏng, mạnh mẽ và an toàn kiểu (type-safe) được xây dựng bọc lấy SQLite.</div></div>
 
@@ -36653,50 +36714,11 @@ val Context.userDataStore by preferencesDataStore(
   <li>Hỗ trợ trực tiếp các luồng dữ liệu phản ứng bất đồng bộ (<strong>Kotlin Coroutines &amp; Flow</strong>).</li>
 </ul>
 
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
-      <th style="padding:8px 12px;text-align:left;">SQLite thuần (<code>SQLiteOpenHelper</code>)</th>
-      <th style="padding:8px 12px;text-align:left;">Room Persistence Library</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Kiểm tra cú pháp SQL</strong></td>
-      <td style="padding:8px 12px;">Lúc chạy (Runtime - Dễ crash production)</td>
-      <td style="padding:8px 12px;">Lúc build (Compile-time via KSP - An toàn tuyệt đối)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Data Mapping</strong></td>
-      <td style="padding:8px 12px;">Thủ công qua <code>Cursor</code> (Boilerplate cực lớn)</td>
-      <td style="padding:8px 12px;">Tự động sinh mã mapping sang Kotlin Data Class</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Hỗ trợ Reactive</strong></td>
-      <td style="padding:8px 12px;">Không (Phải tự xây dựng Notification/ContentObserver)</td>
-      <td style="padding:8px 12px;">Native First-Class (Kotlin <code>Flow</code>, LiveData, RxJava)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Migration</strong></td>
-      <td style="padding:8px 12px;">Tự viết script SQL thô, khó kiểm thử</td>
-      <td style="padding:8px 12px;">Hỗ trợ <code>AutoMigration</code> và <code>MigrationTestHelper</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Xử lý Threading</strong></td>
-      <td style="padding:8px 12px;">Thủ công quản lý Thread/Executor</td>
-      <td style="padding:8px 12px;">Tự động chạy trên background dispatcher với <code>suspend</code> &amp; <code>Flow</code></td>
-    </tr>
-  </tbody>
-</table>
+<h2>Cách hoạt động</h2>
 
-<h2>2. Kiến trúc nội tại &amp; Cơ chế hoạt động (Under the Hood)</h2>
+<h3>Kiến trúc phân tầng: từ annotation đến file <code>.db</code></h3>
 
-<p>Để trở thành một Senior Android Engineer, bạn không thể chỉ dừng lại ở các annotation <code>@Entity</code> hay <code>@Dao</code>. Bạn cần hiểu Room thực sự hoạt động như thế nào bên dưới nắp ca-pô.</p>
-
-<h3>Mô hình phân tầng kiến trúc</h3>
-
-<p>Room được chia thành các tầng kiến trúc rõ ràng, nối liền từ mã nguồn Kotlin của bạn xuống thư viện C của Android OS:</p>
+<p>Các annotation <code>@Entity</code> hay <code>@Dao</code> chỉ là phần bạn nhìn thấy. Room được chia thành các tầng kiến trúc rõ ràng, nối liền từ mã nguồn Kotlin của bạn xuống thư viện C của Android OS:</p>
 
 <div class="mermaid">
 graph TD
@@ -36719,7 +36741,7 @@ graph TD
     end
 
     subgraph "Tầng Hệ Điều Hành (OS Layer)"
-        NDK["NDK JNI Bridge"]
+        NDK["JNI Bridge (framework native code)"]
         SQLiteC["SQLite C Engine (/system/lib/libsqlite.so)"]
         DBFile[("File CSDL: app_database.db")]
     end
@@ -36737,7 +36759,7 @@ graph TD
     SQLiteC --&gt; DBFile
 </div>
 
-<h3>Bí mật của KSP (Kotlin Symbol Processing) và các file <code>_Impl</code></h3>
+<h3>KSP sinh mã <code>_Impl</code></h3>
 
 <p>Khi bạn bấm nút Build trong Android Studio, Room Compiler (chạy thông qua KSP) sẽ phân tích các Annotation:</p>
 
@@ -36750,7 +36772,28 @@ graph TD
 </ul></li>
 </ol>
 
-<p>Hãy nhìn vào đoạn mã mô phỏng cách <code>TaskDao_Impl</code> do Room sinh ra xử lý câu truy vấn:</p>
+<h4>Ví dụ: code Room sinh cho một hàm DAO đọc task theo id</h4>
+
+<p>Hãy nhìn vào đoạn mã mô phỏng cách <code>TaskDao_Impl</code> do Room sinh ra xử lý câu truy vấn. Đây là bản rút gọn để thấy luồng chạy: Entity ở đây giản lược còn <code>id</code>, <code>title</code> và cờ <code>isCompleted</code> lưu vào cột <code>status</code>, khác <code>TaskEntity</code> đầy đủ ở phần Entity bên dưới. Luồng của <code>getTaskById()</code>:</p>
+
+<ol>
+  <li>Lấy một câu lệnh đã biên dịch sẵn (<code>RoomSQLiteQuery.acquire</code>) và bind tham số <code>id</code> vào dấu <code>?</code>, thay cho việc nối chuỗi SQL.</li>
+  <li>Chuyển việc thực thi sang background dispatcher của Room, nên hàm <code>suspend</code> không chạy query trên main thread.</li>
+  <li>Chạy query, nhận về <code>Cursor</code>.</li>
+  <li>Đọc chỉ mục từng cột một lần, rồi map hàng đầu tiên thành <code>TaskEntity</code> (không có hàng thì trả <code>null</code>).</li>
+  <li>Luôn đóng <code>Cursor</code> và trả câu lệnh về pool trong <code>finally</code>.</li>
+</ol>
+
+<div class="mermaid">
+flowchart LR
+    A["(1) acquire + bind id"] --&gt; B["(2) CoroutinesRoom.execute&lt;br/&gt;chuyển sang background"]
+    B --&gt; C["(3) DBUtil.query → Cursor"]
+    C --&gt; D{"(4) moveToFirst()?"}
+    D --&gt;|Có| E["(4) map cột → TaskEntity"]
+    D --&gt;|Không| F["(4) null"]
+    E --&gt; G["(5) finally: close cursor, release statement"]
+    F --&gt; G
+</div>
 
 <pre data-lang="kotlin"><code>// [Code sinh tự động bởi Room KSP - TaskDao_Impl]
 public class TaskDao_Impl(private val __db: RoomDatabase) : TaskDao {
@@ -36771,14 +36814,16 @@ public class TaskDao_Impl(private val __db: RoomDatabase) : TaskDao {
     }
 
     override suspend fun getTaskById(id: String): TaskEntity? {
+        // (1) Lấy câu lệnh đã biên dịch sẵn và bind tham số
         val _sql = "SELECT * FROM tasks WHERE id = ?"
         val _statement = RoomSQLiteQuery.acquire(_sql, 1)
         _statement.bindString(1, id)
         
-        // Room tự động chuyển execution sang Background Dispatcher
+        // (2) Room tự động chuyển execution sang Background Dispatcher
         return CoroutinesRoom.execute(__db, false, null) {
-            val _cursor = DBUtil.query(__db, _statement, false, null)
+            val _cursor = DBUtil.query(__db, _statement, false, null) // (3)
             try {
+                // (4) Đọc chỉ mục cột một lần rồi map sang TaskEntity
                 val _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id")
                 val _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title")
                 val _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "status")
@@ -36791,6 +36836,7 @@ public class TaskDao_Impl(private val __db: RoomDatabase) : TaskDao {
                     )
                 } else null
             } finally {
+                // (5) Luôn dọn tài nguyên
                 _cursor.close()
                 _statement.release()
             }
@@ -36798,18 +36844,20 @@ public class TaskDao_Impl(private val __db: RoomDatabase) : TaskDao {
     }
 }</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Bài học rút ra:</strong> Room không dùng Reflection (vốn rất chậm trên Android Runtime). Room sinh mã thuần túy bằng code Java/Kotlin hiệu năng cao tương đương với code mà một kỹ sư tỉ mỉ nhất tự tay viết, nhưng không có nguy cơ sai sót.</div></div>
+<p><strong>Kết quả:</strong> toàn bộ boilerplate <code>Cursor</code> ở phần "Vấn đề cần giải quyết" (chỉ mục cột, ép kiểu, đóng cursor) vẫn tồn tại, nhưng do Room viết và đã được kiểm tra lúc build.</p>
 
-<h2>3. Bộ Ba Cốt Lõi Trong Bối Cảnh Smart Task Manager</h2>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Bài học rút ra:</strong> Room không dùng Reflection (vốn rất chậm trên Android Runtime) để truy vấn và map dữ liệu. Room sinh mã thuần túy bằng code Java/Kotlin hiệu năng cao tương đương với code mà một kỹ sư tỉ mỉ nhất tự tay viết, nhưng không có nguy cơ sai sót.</div></div>
 
-<p>Để áp dụng chuẩn mực, chúng ta xây dựng hệ thống lưu trữ cho ứng dụng <strong>Smart Task &amp; Project Manager</strong> bao gồm các thực thể: <code>Category</code> (Danh mục dự án), <code>Task</code> (Nhiệm vụ), <code>Subtask</code> (Nhiệm vụ con), và <code>Tag</code> (Nhãn dán).</p>
+<h3>Entity, DAO và Database</h3>
+
+<p>Để áp dụng chuẩn mực, chúng ta xây dựng hệ thống lưu trữ cho ứng dụng <strong>Smart Task &amp; Project Manager</strong> bao gồm các thực thể: <code>Category</code> (Danh mục dự án), <code>Task</code> (Nhiệm vụ), <code>Subtask</code> (Nhiệm vụ con), và <code>Tag</code> (Nhãn dán). Bài toán quản lý công việc có đủ các loại quan hệ (1-1, 1-N, N-N), nên các ví dụ của phần này và phần quan hệ dùng chung mô hình dưới đây.</p>
 
 <div class="mermaid">
 erDiagram
-    CATEGORY ||--o{ TASK : "1 chứa nhiều (1-N)"
-    TASK ||--o{ SUBTASK : "1 có nhiều (1-N)"
-    TASK }|--|{ TAG : "Nhiều - Nhiều qua TaskTagCrossRef"
-    TASK ||--o| TASK_REMINDER : "1 kèm 1 (1-1)"
+    CATEGORY only one to zero or more TASK : "1 chứa nhiều (1-N)"
+    TASK only one to zero or more SUBTASK : "1 có nhiều (1-N)"
+    TASK one or more to one or more TAG : "Nhiều - Nhiều qua TaskTagCrossRef"
+    TASK only one to zero or one TASK_REMINDER : "1 kèm 1 (1-1)"
 
     CATEGORY {
         string id PK
@@ -36842,7 +36890,7 @@ erDiagram
     }
 </div>
 
-<h3>3.1. Thiết kế Entity chuẩn mực (<code>@Entity</code>)</h3>
+<h4>Entity (<code>@Entity</code>)</h4>
 
 <p>Khi thiết kế Entity trong Room, có 3 quy tắc bắt buộc:</p>
 
@@ -36901,7 +36949,7 @@ data class TaskEntity(
     val title: String,
 
     @ColumnInfo(name = "priority")
-    val priority: PriorityLevel, // Cần TypeConverter
+    val priority: PriorityLevel, // Dùng TypeConverter tự viết ở phần TypeConverter
 
     @ColumnInfo(name = "status")
     val status: TaskStatus,
@@ -36917,7 +36965,7 @@ enum class PriorityLevel { LOW, MEDIUM, HIGH, URGENT }
 enum class TaskStatus { TODO, IN_PROGRESS, COMPLETED }
 enum class SyncStatus { SYNCED, PENDING_INSERT, PENDING_UPDATE, PENDING_DELETE }</code></pre>
 
-<h3>3.2. Thiết kế DAO (<code>@Dao</code>)</h3>
+<h4>DAO (<code>@Dao</code>)</h4>
 
 <p>Data Access Object là nơi định nghĩa toàn bộ "hợp đồng" truy vấn dữ liệu:</p>
 
@@ -36968,7 +37016,9 @@ interface TaskDao {
     suspend fun updateSyncStatus(taskId: String, status: SyncStatus)
 }</code></pre>
 
-<h3>3.3. Cấu hình Database (<code>@Database</code>)</h3>
+<h4>Database (<code>@Database</code>)</h4>
+
+<p><code>@Database</code> gom danh sách Entity, version của schema, TypeConverter và các DAO vào một class; Room sinh <code>_Impl</code> cho class này như ở phần "KSP sinh mã <code>_Impl</code>".</p>
 
 <pre data-lang="kotlin"><code>package com.example.taskmanager.data.local
 
@@ -37001,9 +37051,9 @@ abstract class TaskManagerDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 }</code></pre>
 
-<h2>4. Mô Hình Hóa Quan Hệ Trong Room (Relationships)</h2>
+<h3>Mô hình hoá quan hệ (Relationships)</h3>
 
-<h3>Tại sao Room cấm Entity chứa trực tiếp Entity khác?</h3>
+<h4>Tại sao Room cấm Entity chứa trực tiếp Entity khác?</h4>
 
 <p>Nhiều lập trình viên từ các nền tảng Backend (như Hibernate / JPA) sang Android thường thắc mắc: <em>Tại sao không thể viết <code>data class Task(val subtasks: List&lt;Subtask&gt;)</code>?</em></p>
 
@@ -37011,7 +37061,7 @@ abstract class TaskManagerDatabase : RoomDatabase() {
 
 <p>Thay vào đó, Room cung cấp các class POJO trung gian kết hợp annotation <code>@Relation</code> và <code>@Embedded</code>.</p>
 
-<h3>4.1. Quan hệ 1 - 1 (Task &amp; TaskReminder)</h3>
+<h4>Quan hệ 1 - 1 (Task &amp; TaskReminder)</h4>
 
 <p>Mỗi Task chỉ có tối đa 1 nhắc nhở (Reminder).</p>
 
@@ -37047,7 +37097,7 @@ data class TaskWithReminder(
     val reminder: TaskReminderEntity?
 )</code></pre>
 
-<h3>4.2. Quan hệ 1 - N (Category &amp; Tasks, Task &amp; Subtasks)</h3>
+<h4>Quan hệ 1 - N (Category &amp; Tasks, Task &amp; Subtasks)</h4>
 
 <p>Một Category chứa nhiều Task:</p>
 
@@ -37081,7 +37131,7 @@ data class SubtaskEntity(
     @ColumnInfo(name = "is_done") val isDone: Boolean = false
 )</code></pre>
 
-<h3>4.3. Quan hệ N - N (Task &amp; Tag qua Junction Table)</h3>
+<h4>Quan hệ N - N (Task &amp; Tag qua Junction Table)</h4>
 
 <p>Một Task có thể gắn nhiều Tag, và một Tag có thể gắn cho nhiều Task. Ta tạo bảng chéo <code>TaskTagCrossRef</code>:</p>
 
@@ -37126,7 +37176,7 @@ data class TaskWithTags(
     val tags: List&lt;TagEntity&gt;
 )</code></pre>
 
-<h3>Quy tắc sống còn: Luôn dùng <code>@Transaction</code> khi truy vấn <code>@Relation</code></h3>
+<h4>Quy tắc sống còn: Luôn dùng <code>@Transaction</code> khi truy vấn <code>@Relation</code></h4>
 
 <p>Khi Room thực hiện truy vấn một class có chứa <code>@Relation</code>, bên dưới nó phải chạy <strong>ít nhất 2 câu lệnh SQL riêng biệt</strong>:</p>
 
@@ -37135,7 +37185,7 @@ data class TaskWithTags(
   <li><code>SELECT * FROM tags INNER JOIN task_tag_cross_ref ...</code></li>
 </ol>
 
-<p>Nếu không bọc trong một Transaction, dữ liệu giữa 2 câu query có thể bị biến đổi bởi một tác vụ ghi khác xen ngang, dẫn đến dữ liệu trả về bị mâu thuẫn (Inconsistent State). Room sinh code cho <code>@Relation</code> thế nào và vì sao đó là 2 query chứ không phải N+1 được giải thích ở <a href="room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, mục "5. <code>@Relation</code> — N+1 Query Problem và cách Room xử lý".</p>
+<p>Nếu không bọc trong một Transaction, dữ liệu giữa 2 câu query có thể bị biến đổi bởi một tác vụ ghi khác xen ngang, dẫn đến dữ liệu trả về bị mâu thuẫn (Inconsistent State). Room sinh code cho <code>@Relation</code> thế nào và vì sao đó là 2 query chứ không phải N+1 được giải thích ở <a href="room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, mục "<code>@Relation</code> — N+1 Query Problem và cách Room xử lý".</p>
 
 <pre data-lang="kotlin"><code>@Dao
 interface TaskRelationDao {
@@ -37149,11 +37199,9 @@ interface TaskRelationDao {
     fun getCategoriesWithTasks(): Flow&lt;List&lt;CategoryWithTasks&gt;&gt;
 }</code></pre>
 
-<h2>5. TypeConverter: Vũ Khí Hai Lưỡi</h2>
+<h3>TypeConverter</h3>
 
-<h3>Bản chất của TypeConverter</h3>
-
-<p>SQLite trong nhân Android chỉ hỗ trợ tự nhiên 5 kiểu dữ liệu lưu trữ:</p>
+<p>SQLite chỉ hỗ trợ tự nhiên 5 kiểu dữ liệu lưu trữ:</p>
 
 <ul>
   <li><code>NULL</code></li>
@@ -37164,6 +37212,8 @@ interface TaskRelationDao {
 </ul>
 
 <p>Kotlin có rất nhiều kiểu dữ liệu phong phú như <code>Enum</code>, <code>Instant</code>, <code>UUID</code>, <code>BigDecimal</code>. Room cung cấp <code>@TypeConverter</code> để lập trình viên định nghĩa quy tắc hoán chuyển 2 chiều giữa kiểu dữ liệu Kotlin và kiểu dữ liệu SQLite hỗ trợ.</p>
+
+<p>Riêng với <code>Enum</code>, từ Room 2.3 nếu không khai báo converter nào thì Room mặc định lưu Enum dưới dạng String. Ví dụ dưới tự viết converter để chọn cách lưu (<code>TaskStatus</code> lưu theo số thứ tự) và giá trị mặc định khi đọc phải dữ liệu lạ.</p>
 
 <pre data-lang="kotlin"><code>package com.example.taskmanager.data.local.converter
 
@@ -37196,33 +37246,9 @@ class AppTypeConverters {
         SyncStatus.entries.getOrElse(value) { SyncStatus.SYNCED }
 }</code></pre>
 
-<h3>Khi nào TypeConverter trở thành Anti-Pattern?</h3>
+<p>TypeConverter chỉ dành cho giá trị đơn lẻ; dùng nó để nhét cả danh sách dữ liệu con vào một cột là anti-pattern, xem mục "5. Dùng TypeConverter nhét JSON vào một cột (Json in Column)" ở phần Sai lầm thường gặp.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">⚠️ <strong>Cảnh báo Anti-Pattern (Json in Column):</strong> Rất nhiều lập trình viên lười tạo bảng quan hệ đã dùng Gson/Moshi viết một <code>@TypeConverter</code> để biến <code>List&lt;Subtask&gt;</code> thành một chuỗi JSON String và nhét vào 1 cột <code>TEXT</code> trong bảng <code>tasks</code>.</div></div>
-
-<p><strong>Hậu quả khôn lường:</strong></p>
-
-<ol>
-  <li><strong>Phá vỡ chuẩn hóa 1NF (First Normal Form):</strong> Dữ liệu không còn tính nguyên tử.</li>
-  <li><strong>Không thể Index và Query:</strong> Bạn không thể viết SQL: <code>SELECT * FROM tasks WHERE subtasks.isDone = false</code>.</li>
-  <li><strong>Hiệu năng suy giảm:</strong> Mỗi lần đọc một <code>TaskEntity</code>, Room phải khởi tạo JSON parser để parse toàn bộ chuỗi string thành danh sách object trong RAM, gây lãng phí chu kỳ CPU và ép Garbage Collector (GC) làm việc liên tục.</li>
-</ol>
-
-<p><strong>Quy tắc:</strong> Chỉ dùng TypeConverter cho các giá trị <strong>đơn lẻ</strong> (Single Scalar Values) như Date/Timestamp, UUID, hoặc Enum. Với tập hợp danh sách dữ liệu con, luôn tạo bảng riêng và dùng <code>@Relation</code>.</p>
-
-<h2>6. Reactive Database &amp; Cơ Chế InvalidationTracker</h2>
-
-<p>Hàm DAO trả <code>Flow&lt;List&lt;TaskEntity&gt;&gt;</code> (mục 3.2) tự phát danh sách mới mỗi khi bảng <code>tasks</code> thay đổi nhờ <strong><code>InvalidationTracker</code></strong>: Room dùng SQLite trigger đánh dấu bảng vừa bị ghi vào bảng tạm <code>room_table_modification_log</code>, và sau khi transaction ghi kết thúc, báo cho các <code>Flow</code> đang đọc bảng đó chạy lại query. Room theo dõi ở <strong>cấp bảng</strong>, không phải từng hàng, nên mọi lần ghi vào <code>tasks</code> đều làm các <code>Flow</code> đọc <code>tasks</code> chạy lại; vì vậy giữ query trong DAO càng hẹp càng tốt.</p>
-
-<p>Chi tiết ở <a href="room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, mục "4. Flow từ Room — Cơ chế InvalidationTracker".</p>
-
-<h2>7. Threading, Executor &amp; An Toàn Concurrency</h2>
-
-<p>Room ném <code>IllegalStateException</code> nếu một hàm DAO thường (không <code>suspend</code>, không trả <code>Flow</code>) chạy trên main thread; <code>allowMainThreadQueries()</code> chỉ dùng trong test (như mục 12.1). Các hàm <code>suspend</code> và <code>Flow</code> trong <code>TaskDao</code> tự chạy trên executor của Room, và database mặc định ở chế độ WAL (trừ API dưới 16 hoặc thiết bị low-RAM) để việc đọc của UI không bị lệnh ghi khi đồng bộ chặn lại.</p>
-
-<p>Chi tiết ở <a href="room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, mục "1.5 Room chạy query trên thread nào?" và mục "6.4 WAL Mode — Tại sao Room bật theo mặc định".</p>
-
-<h2>8. Triển Khai Kiến Trúc Single Source of Truth (SSOT) &amp; Offline-First</h2>
+<h3>Single Source of Truth (SSOT) và Offline-first</h3>
 
 <p>Trong ứng dụng hiện đại, Room đóng vai trò là <strong>Nguồn Chân Lý Duy Nhất (Single Source of Truth)</strong>.</p>
 
@@ -37253,7 +37279,7 @@ flowchart LR
     Repo -.-&gt;|Đồng bộ ngầm lên Server| API
 </div>
 
-<h3>Quy tắc triển khai Offline-First:</h3>
+<p>Quy tắc triển khai Offline-First:</p>
 
 <ol>
   <li><strong>Giao diện người dùng (UI) KHÔNG BAO GIỜ chờ API mạng.</strong> UI chỉ quan sát duy nhất <code>Flow</code> phát ra từ Room.</li>
@@ -37265,7 +37291,72 @@ flowchart LR
 </ul></li>
 </ol>
 
-<h3>Triển khai Code Thực Chiến <code>TaskRepositoryImpl</code></h3>
+<p>Code đầy đủ của <code>TaskRepositoryImpl</code> ở phần "Ví dụ thực tế".</p>
+
+<h3>Flow và InvalidationTracker (tóm tắt)</h3>
+
+<p>Hàm DAO trả <code>Flow&lt;List&lt;TaskEntity&gt;&gt;</code> (phần DAO ở trên) tự phát danh sách mới mỗi khi bảng <code>tasks</code> thay đổi nhờ <strong><code>InvalidationTracker</code></strong>: Room dùng SQLite trigger đánh dấu bảng vừa bị ghi vào bảng tạm <code>room_table_modification_log</code>, và sau khi transaction ghi kết thúc, báo cho các <code>Flow</code> đang đọc bảng đó chạy lại query. Room theo dõi ở <strong>cấp bảng</strong>, không phải từng hàng, nên mọi lần ghi vào <code>tasks</code> đều làm các <code>Flow</code> đọc <code>tasks</code> chạy lại; vì vậy giữ query trong DAO càng hẹp càng tốt.</p>
+
+<p>Chi tiết ở <a href="room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, mục "Flow từ Room — Cơ chế InvalidationTracker".</p>
+
+<h3>Threading, Executor và an toàn concurrency (tóm tắt)</h3>
+
+<p>Room ném <code>IllegalStateException</code> nếu một hàm DAO thường (không <code>suspend</code>, không trả <code>Flow</code>) chạy trên main thread; <code>allowMainThreadQueries()</code> chỉ dùng trong test (như ví dụ kiểm thử DAO ở phần "Ví dụ thực tế"). Các hàm <code>suspend</code> và <code>Flow</code> trong <code>TaskDao</code> tự chạy trên executor của Room, và database mặc định ở chế độ WAL (trừ API dưới 16 hoặc thiết bị low-RAM) để việc đọc của UI không bị lệnh ghi khi đồng bộ chặn lại.</p>
+
+<p>Chi tiết ở <a href="room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, mục "Room chạy query trên thread nào?" và mục "WAL Mode — Tại sao Room bật theo mặc định".</p>
+
+<h3>Database Migration (tóm tắt)</h3>
+
+<p>Database ở phần <code>@Database</code> khai báo <code>version = 1</code> và <code>exportSchema = true</code>. Khi app đã phát hành, mỗi lần đổi Entity (thêm cột, thêm bảng, đổi kiểu dữ liệu) phải tăng <code>version</code> và cung cấp Migration để Room chuyển database đang có trên máy người dùng sang schema mới mà không mất dữ liệu; thiếu Migration thì app crash ngay lần mở đầu tiên sau khi cập nhật. <code>exportSchema = true</code> (kèm thư mục schema khai báo trong Gradle) cho Room xuất schema JSON của từng version, là đầu vào của AutoMigration và của <code>MigrationTestHelper</code>.</p>
+
+<p>Chi tiết ở <a href="room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>, mục "Bản chất &amp; Cơ chế xác thực tính toàn vẹn (Room Internals)" và mục "AutoMigration vs Manual Migration Thực Chiến".</p>
+
+<h3>Indexing (<code>@Index</code>) (tóm tắt)</h3>
+
+<p>Index là một cây B-Tree riêng cho cột được đánh index, giúp <code>WHERE</code>, <code>JOIN</code>, <code>ORDER BY</code> trên cột đó không phải quét cả bảng, đổi lại mỗi lệnh ghi chậm hơn và file <code>.db</code> lớn hơn. <code>TaskEntity</code> ở phần Entity đánh index cho <code>category_id</code> (khoá ngoại), <code>created_at</code> (sắp xếp) và <code>sync_status</code> (lọc dữ liệu chưa đồng bộ) theo đúng nguyên tắc đó.</p>
+
+<p>Chi tiết ở <a href="room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>, mục "Indexing, B-Tree &amp; Tối Ưu Hóa Truy Vấn CSDL Lớn".</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>Tạo task offline-first: ghi Room trước, đồng bộ sau</h3>
+
+<p>Repository của ứng dụng quản lý công việc áp dụng hai quy tắc Offline-first ở phần SSOT: UI chỉ quan sát Room, và mọi thao tác ghi vào Room trước rồi mới gửi lên Server. Luồng khi người dùng tạo task:</p>
+
+<ol>
+  <li>UI (qua ViewModel) collect <code>getTasksByCategory()</code>; Repository trả thẳng <code>Flow</code> của Room, không gọi mạng.</li>
+  <li>Người dùng tạo task: <code>createTask()</code> dựng <code>TaskEntity</code> với khóa chính UUID do client sinh và <code>SyncStatus.PENDING_INSERT</code>.</li>
+  <li><code>taskDao.upsertTask()</code> ghi task vào Room.</li>
+  <li>Room phát lại danh sách qua <code>Flow</code> ở bước (1), UI hiện task mới ngay mà không chờ mạng.</li>
+  <li>Repository thử gửi task lên Server bằng <code>apiService.createTask()</code>.</li>
+  <li>Server trả thành công: <code>updateSyncStatus(SYNCED)</code>. Mất mạng hoặc lỗi: task giữ <code>PENDING_INSERT</code> và hàm vẫn trả <code>Result.success</code> vì dữ liệu đã an toàn trong Room. <code>CancellationException</code> thì luôn được ném lại.</li>
+  <li>Sau đó <code>syncPendingTasks()</code> (chạy qua WorkManager hoặc khi có mạng lại) lấy mọi task chưa đồng bộ và xử lý theo từng <code>SyncStatus</code>.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant UI as UI / TaskViewModel
+    participant Repo as TaskRepositoryImpl
+    participant Dao as TaskDao (Room)
+    participant API as TaskApiService
+
+    UI-&gt;&gt;Repo: (1) getTasksByCategory(categoryId)
+    Repo-&gt;&gt;Dao: (1) getTasksByCategory() trả Flow
+    Dao--&gt;&gt;UI: (1) emit danh sách hiện có
+    UI-&gt;&gt;Repo: (2) createTask(categoryId, title)
+    Repo-&gt;&gt;Repo: (2) TaskEntity(UUID, PENDING_INSERT)
+    Repo-&gt;&gt;Dao: (3) upsertTask(localTask)
+    Dao--&gt;&gt;UI: (4) Flow emit danh sách có task mới
+    Repo-&gt;&gt;API: (5) createTask(TaskDto)
+    alt (6) Thành công
+        API--&gt;&gt;Repo: isSuccessful
+        Repo-&gt;&gt;Dao: (6) updateSyncStatus(SYNCED)
+    else (6) Mất mạng / lỗi
+        API--xRepo: Exception
+        Note over Repo,Dao: (6) Task giữ PENDING_INSERT
+    end
+    Note over Repo,API: (7) syncPendingTasks() gửi lại task còn pending
+</div>
 
 <pre data-lang="kotlin"><code>package com.example.taskmanager.data.repository
 
@@ -37292,12 +37383,12 @@ class TaskRepositoryImpl @Inject constructor(
     private val apiService: TaskApiService
 ) : TaskRepository {
 
-    // 1. UI chỉ lắng nghe luồng này
+    // (1) UI chỉ lắng nghe luồng này
     override fun getTasksByCategory(categoryId: String): Flow&lt;List&lt;TaskEntity&gt;&gt; {
         return taskDao.getTasksByCategory(categoryId)
     }
 
-    // 2. Tạo task: Lưu Local trước (Optimistic UI Update)
+    // (2) Tạo task: Lưu Local trước (Optimistic UI Update)
     override suspend fun createTask(categoryId: String, title: String): Result&lt;Unit&gt; {
         val localTask = TaskEntity(
             id = java.util.UUID.randomUUID().toString(),
@@ -37308,10 +37399,10 @@ class TaskRepositoryImpl @Inject constructor(
             syncStatus = SyncStatus.PENDING_INSERT
         )
 
-        // Lưu vào Room -&gt; UI lập tức hiển thị task mới nhờ Flow
+        // (3) Lưu vào Room -&gt; (4) UI lập tức hiển thị task mới nhờ Flow
         taskDao.upsertTask(localTask)
 
-        // Thử đồng bộ lên Server
+        // (5) Thử đồng bộ lên Server
         return try {
             val response = apiService.createTask(
                 TaskDto(
@@ -37321,19 +37412,19 @@ class TaskRepositoryImpl @Inject constructor(
                 )
             )
             if (response.isSuccessful) {
-                // Đánh dấu đã sync thành công
+                // (6) Đánh dấu đã sync thành công
                 taskDao.updateSyncStatus(localTask.id, SyncStatus.SYNCED)
             }
             Result.success(Unit)
         } catch (e: CancellationException) {
             throw e // Không nuốt cancellation của coroutine
         } catch (e: Exception) {
-            // Mất mạng: Không sao cả, task vẫn ở trạng thái PENDING_INSERT để sync sau
+            // (6) Mất mạng: Không sao cả, task vẫn ở trạng thái PENDING_INSERT để sync sau
             Result.success(Unit)
         }
     }
 
-    // 3. Tiến trình đồng bộ dữ liệu ngầm (Chạy qua WorkManager hoặc khi có mạng lại)
+    // (7) Tiến trình đồng bộ dữ liệu ngầm (Chạy qua WorkManager hoặc khi có mạng lại)
     override suspend fun syncPendingTasks(): Result&lt;Unit&gt; {
         return try {
             val pendingTasks = taskDao.getPendingSyncTasks()
@@ -37363,31 +37454,9 @@ class TaskRepositoryImpl @Inject constructor(
     }
 }</code></pre>
 
-<h2>9. Database Migration: Sống Còn Trong Môi Trường Production</h2>
+<p><strong>Kết quả:</strong> tắt mạng rồi tạo task, task hiện ngay trên danh sách và nằm trong Room với <code>sync_status</code> là <code>PENDING_INSERT</code>; bật mạng và chạy <code>syncPendingTasks()</code>, task được gửi lên Server và chuyển sang <code>SYNCED</code>.</p>
 
-<p>Database ở mục 3.3 khai báo <code>version = 1</code> và <code>exportSchema = true</code>. Khi app đã phát hành, mỗi lần đổi Entity (thêm cột, thêm bảng, đổi kiểu dữ liệu) phải tăng <code>version</code> và cung cấp Migration để Room chuyển database đang có trên máy người dùng sang schema mới mà không mất dữ liệu; thiếu Migration thì app crash ngay lần mở đầu tiên sau khi cập nhật. <code>exportSchema = true</code> (kèm thư mục schema khai báo trong Gradle) cho Room xuất schema JSON của từng version, là đầu vào của AutoMigration và của <code>MigrationTestHelper</code>.</p>
-
-<p>Chi tiết ở <a href="room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>, mục "1. Bản chất &amp; Cơ chế xác thực tính toàn vẹn (Room Internals)" và mục "2. AutoMigration vs Manual Migration Thực Chiến".</p>
-
-<h2>10. Tối Ưu Hiệu Năng &amp; Indexing (@Index)</h2>
-
-<p>Index là một cây B-Tree riêng cho cột được đánh index, giúp <code>WHERE</code>, <code>JOIN</code>, <code>ORDER BY</code> trên cột đó không phải quét cả bảng, đổi lại mỗi lệnh ghi chậm hơn và file <code>.db</code> lớn hơn. <code>TaskEntity</code> ở mục 3.1 đánh index cho <code>category_id</code> (khoá ngoại), <code>created_at</code> (sắp xếp) và <code>sync_status</code> (lọc dữ liệu chưa đồng bộ) theo đúng nguyên tắc đó.</p>
-
-<p>Chi tiết ở <a href="room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>, mục "4. Indexing, B-Tree &amp; Tối Ưu Hóa Truy Vấn CSDL Lớn".</p>
-
-<h2>11. Sai Lầm Phổ Biến (Pitfalls &amp; Anti-patterns) Thực Tế</h2>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Anti-pattern 1: N+1 Query Problem với vòng lặp DAO</strong> \`\`<code>kotlin // SAI LẦM: Làm treo UI vì gọi hàng trăm câu query liên tục val tasks = taskDao.getAllTasks() for (task in tasks) {     val tags = tagDao.getTagsForTask(task.id) // N câu query bổ sung! } </code>\`<code> **Khắc phục:** Sử dụng </code>@Relation<code> (Room chạy thêm đúng một query cho mỗi quan hệ, gom theo danh sách id của cả danh sách cha — tổng cộng 2 query, không phải N+1) hoặc viết một câu lệnh </code>JOIN\` duy nhất trong DAO để SQLite xử lý gom nhóm trong 1 lần truy vấn.</div></div>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Anti-pattern 2: Đặt tên bảng hoặc cột trùng từ khóa SQL</strong> Đặt tên cột là <code>order</code>, <code>group</code>, <code>index</code>, <code>where</code>, <code>desc</code> mà không bọc trong dấu backtick (\\\`) sẽ khiến Room sinh mã SQL lỗi cú pháp hoặc gây ra các bug tiềm ẩn cực kỳ khó debug.</div></div>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Anti-pattern 3: Quên <code>@Transaction</code> trên các phương thức DAO tổng hợp</strong> Nếu một hàm DAO thực hiện nhiều câu lệnh (ví dụ: Xóa dữ liệu cũ -&gt; Chèn dữ liệu mới từ API), bạn bắt buộc phải gắn <code>@Transaction</code>. Nếu không gắn, lỡ app bị tắt đột ngột giữa chừng, database sẽ rơi vào trạng thái "dở dang" (dữ liệu cũ đã bị xóa sạch nhưng dữ liệu mới chưa kịp chèn vào).</div></div>
-
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><strong>Anti-pattern 4: Lạm dụng <code>fallbackToDestructiveMigration()</code></strong> Gắn <code>.fallbackToDestructiveMigration()</code> vào Builder cho "tiện" rồi phát hành: khi không tìm thấy migration, Room xoá và tạo lại toàn bộ bảng, người dùng cập nhật app <strong>mất sạch dữ liệu offline</strong>. Khi nào được dùng và cách giới hạn bằng <code>fallbackToDestructiveMigrationFrom(...)</code> ở <a href="room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>, mục "Cảnh báo về <code>fallbackToDestructiveMigration()</code>".</div></div>
-
-<h2>12. Kiểm Thử Cơ Sở Dữ Liệu (Testing Strategy)</h2>
-
-<h3>12.1. Kiểm thử DAO với In-Memory Database</h3>
+<h3>Kiểm thử DAO với In-Memory Database</h3>
 
 <p>Để đảm bảo Unit Test chạy nhanh, độc lập và không để lại rác trên ổ cứng sau mỗi lần test, hãy sử dụng <code>Room.inMemoryDatabaseBuilder</code>. Database này chỉ tồn tại trong RAM của tiến trình test và sẽ tự động biến mất khi hoàn thành.</p>
 
@@ -37480,11 +37549,54 @@ class TaskDaoTest {
     }
 }</code></pre>
 
-<h3>12.2. Kiểm thử Migration an toàn với <code>MigrationTestHelper</code></h3>
+<p><strong>Kết quả:</strong> test đầu xác nhận Entity, TypeConverter và <code>Flow</code> của DAO đọc lại đúng dữ liệu vừa ghi; test thứ hai xác nhận ràng buộc <code>ForeignKey.CASCADE</code> khai báo ở <code>TaskEntity</code> thật sự xoá Task con khi xoá Category.</p>
 
-<p>Thư viện <code>androidx.room:room-testing</code> cung cấp <code>MigrationTestHelper</code> để tạo database ở version cũ, chèn dữ liệu, chạy migration lên version mới rồi tự đối chiếu schema với file JSON đã export. Chi tiết ở <a href="room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>, mục "5. Testing Migration với <code>MigrationTestHelper</code>".</p>
+<h3>Kiểm thử Migration với <code>MigrationTestHelper</code> (tóm tắt)</h3>
 
-<h2>13. Khi Nào Dùng vs Không Nên Dùng Room (Trade-Off Matrix)</h2>
+<p>Thư viện <code>androidx.room:room-testing</code> cung cấp <code>MigrationTestHelper</code> để tạo database ở version cũ, chèn dữ liệu, chạy migration lên version mới rồi tự đối chiếu schema với file JSON đã export. Chi tiết ở <a href="room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>, mục "Testing Migration với <code>MigrationTestHelper</code>".</p>
+
+<h2>So sánh với các cách tiếp cận khác</h2>
+
+<h3>Room và SQLite thuần</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
+      <th style="padding:8px 12px;text-align:left;">SQLite thuần (<code>SQLiteOpenHelper</code>)</th>
+      <th style="padding:8px 12px;text-align:left;">Room Persistence Library</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Kiểm tra cú pháp SQL</strong></td>
+      <td style="padding:8px 12px;">Lúc chạy (Runtime - Dễ crash production)</td>
+      <td style="padding:8px 12px;">Lúc build (Compile-time via KSP - An toàn tuyệt đối)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Data Mapping</strong></td>
+      <td style="padding:8px 12px;">Thủ công qua <code>Cursor</code> (Boilerplate cực lớn)</td>
+      <td style="padding:8px 12px;">Tự động sinh mã mapping sang Kotlin Data Class</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Hỗ trợ Reactive</strong></td>
+      <td style="padding:8px 12px;">Không (Phải tự xây dựng Notification/ContentObserver)</td>
+      <td style="padding:8px 12px;">Native First-Class (Kotlin <code>Flow</code>, LiveData, RxJava)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Migration</strong></td>
+      <td style="padding:8px 12px;">Tự viết script SQL thô, khó kiểm thử</td>
+      <td style="padding:8px 12px;">Hỗ trợ <code>AutoMigration</code> và <code>MigrationTestHelper</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Xử lý Threading</strong></td>
+      <td style="padding:8px 12px;">Thủ công quản lý Thread/Executor</td>
+      <td style="padding:8px 12px;">Tự động chạy trên background dispatcher với <code>suspend</code> &amp; <code>Flow</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Khi nào nên và không nên dùng</h2>
 
 <p>Để đưa ra quyết định kiến trúc chuẩn xác khi phỏng vấn hoặc thiết kế dự án, hãy tham chiếu bảng phân loại nhu cầu lưu trữ:</p>
 
@@ -37530,7 +37642,69 @@ class TaskDaoTest {
   </tbody>
 </table>
 
-<h2>14. Tư Duy Hệ Thống &amp; Vị Trí Trong Clean Architecture</h2>
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. N+1 Query Problem với vòng lặp DAO</h3>
+
+<pre data-lang="kotlin"><code>// SAI LẦM: Làm treo UI vì gọi hàng trăm câu query liên tục
+val tasks = taskDao.getAllTasks()
+for (task in tasks) {
+    val tags = tagDao.getTagsForTask(task.id) // N câu query bổ sung!
+}</code></pre>
+
+<p><strong>Khắc phục:</strong> Sử dụng <code>@Relation</code> (Room chạy thêm đúng một query cho mỗi quan hệ, gom theo danh sách id của cả danh sách cha — tổng cộng 2 query, không phải N+1) hoặc viết một câu lệnh <code>JOIN</code> duy nhất trong DAO để SQLite xử lý gom nhóm trong 1 lần truy vấn.</p>
+
+<h3>2. Đặt tên bảng hoặc cột trùng từ khóa SQL</h3>
+
+<p>Đặt tên cột là <code>order</code>, <code>group</code>, <code>index</code>, <code>where</code>, <code>desc</code> thì mọi câu <code>@Query</code> tự viết đều phải bọc tên đó trong dấu backtick (\\<code>); quên bọc thì câu SQL sai cú pháp. Câu SQL do Room tự sinh (như </code>INSERT<code> trong </code>TaskDao_Impl<code> ở phần "KSP sinh mã </code>_Impl\`") đã tự bọc backtick, nên lỗi nằm ở các câu query bạn tự viết.</p>
+
+<p><strong>Cách sửa:</strong> tránh dùng từ khóa SQL làm tên cột, đặt tên cột khác bằng <code>@ColumnInfo(name = "...")</code>; nếu buộc phải giữ tên đó thì luôn bọc backtick trong <code>@Query</code>.</p>
+
+<h3>3. Quên <code>@Transaction</code> trên các phương thức DAO tổng hợp</h3>
+
+<p>Nếu một hàm DAO thực hiện nhiều câu lệnh (ví dụ: Xóa dữ liệu cũ -&gt; Chèn dữ liệu mới từ API), bạn bắt buộc phải gắn <code>@Transaction</code>. Nếu không gắn, lỡ app bị tắt đột ngột giữa chừng, database sẽ rơi vào trạng thái "dở dang" (dữ liệu cũ đã bị xóa sạch nhưng dữ liệu mới chưa kịp chèn vào).</p>
+
+<p><strong>Cách sửa:</strong> gắn <code>@Transaction</code> cho hàm DAO đó để các câu lệnh cùng thành công hoặc cùng rollback; hàm truy vấn <code>@Relation</code> cũng cần <code>@Transaction</code> như phần "Quy tắc sống còn: Luôn dùng <code>@Transaction</code> khi truy vấn <code>@Relation</code>".</p>
+
+<h3>4. Lạm dụng <code>fallbackToDestructiveMigration()</code></h3>
+
+<p>Gắn <code>.fallbackToDestructiveMigration()</code> vào Builder cho "tiện" rồi phát hành: khi không tìm thấy migration, Room xoá và tạo lại toàn bộ bảng, người dùng cập nhật app <strong>mất sạch dữ liệu offline</strong>.</p>
+
+<p><strong>Cách sửa:</strong> cung cấp Migration cho mỗi lần tăng <code>version</code>. Khi nào được dùng và cách giới hạn bằng <code>fallbackToDestructiveMigrationFrom(...)</code> ở <a href="room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>, mục "Cảnh báo về <code>fallbackToDestructiveMigration()</code>".</p>
+
+<h3>5. Dùng TypeConverter nhét JSON vào một cột (Json in Column)</h3>
+
+<p>Rất nhiều lập trình viên lười tạo bảng quan hệ đã dùng Gson/Moshi viết một <code>@TypeConverter</code> để biến <code>List&lt;Subtask&gt;</code> thành một chuỗi JSON String và nhét vào 1 cột <code>TEXT</code> trong bảng <code>tasks</code>.</p>
+
+<p><strong>Hậu quả khôn lường:</strong></p>
+
+<ol>
+  <li><strong>Phá vỡ chuẩn hóa 1NF (First Normal Form):</strong> Dữ liệu không còn tính nguyên tử.</li>
+  <li><strong>Không thể Index và Query:</strong> Bạn không thể viết SQL: <code>SELECT * FROM tasks WHERE subtasks.isDone = false</code>.</li>
+  <li><strong>Hiệu năng suy giảm:</strong> Mỗi lần đọc một <code>TaskEntity</code>, Room phải khởi tạo JSON parser để parse toàn bộ chuỗi string thành danh sách object trong RAM, gây lãng phí chu kỳ CPU và ép Garbage Collector (GC) làm việc liên tục.</li>
+</ol>
+
+<p><strong>Quy tắc:</strong> Chỉ dùng TypeConverter cho các giá trị <strong>đơn lẻ</strong> (Single Scalar Values) như Date/Timestamp, UUID, hoặc Enum. Với tập hợp danh sách dữ liệu con, luôn tạo bảng riêng và dùng <code>@Relation</code>.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>05/2017 (Google I/O 2017):</strong> Google giới thiệu <strong>Room Persistence Library</strong> như một phần của Android Architecture Components (Jetpack), lúc đầu ở dạng preview, mô tả là lớp object-mapping trừu tượng trên SQLite. Bản 1.x dùng artifact <code>android.arch.persistence.room</code> (bản cuối là 1.1.1, 06/2018).</li>
+  <li><strong>Room 2.0.0 (10/2018):</strong> chuyển sang AndroidX (<code>androidx.room</code>).</li>
+  <li><strong>Room 2.1.0 (06/2019):</strong> hàm DAO có thể là hàm <code>suspend</code> (artifact <code>room-ktx</code>, kèm <code>RoomDatabase.withTransaction</code>).</li>
+  <li><strong>Room 2.2.0 (10/2019):</strong> <code>@Query</code> trả được <code>Flow&lt;T&gt;</code>, phát lại kết quả khi bảng đang quan sát bị invalidate; <code>@Relation</code> hỗ trợ quan hệ N-N qua <code>associateBy = @Junction</code> và quan hệ một giá trị (1-1); <code>@ColumnInfo</code> có <code>defaultValue</code>.</li>
+  <li><strong>Room 2.3.0 (04/2021):</strong> Room mặc định có converter Enum ↔ String nếu không khai báo converter nào. KSP được hỗ trợ ở dạng thử nghiệm từ 2.3.0-beta02 (02/2021).</li>
+  <li><strong>Room 2.4.0 (12/2021):</strong> AutoMigration, Room tự sinh migration khi schema được export.</li>
+  <li><strong>Room 2.5.0 (01/2023):</strong> thêm <code>@Upsert</code> (insert khi không xung đột, update khi xung đột).</li>
+  <li><strong>Room 2.6.0 (10/2023):</strong> Room KSP sinh được code Kotlin (tuỳ chọn <code>room.generateKotlin</code>).</li>
+  <li><strong>Room 2.7.0 (04/2025):</strong> Room trở thành thư viện Kotlin Multiplatform và cấu hình được với một <code>SQLiteDriver</code>.</li>
+</ul>
+
+<p>Vì sao thiết kế đi theo hướng này: các mốc lớn đều đưa Room gần hơn với Kotlin (coroutine, <code>Flow</code>, codegen Kotlin) và giảm phần việc thủ công quanh schema (AutoMigration, <code>@Upsert</code>), trong khi lõi vẫn là SQLite.</p>
+
+<h2>Kết nối hệ thống</h2>
+
+<h3>Vị trí trong Clean Architecture</h3>
 
 <p>Trong mô hình kiến trúc chuẩn của Android (Guide to App Architecture):</p>
 
@@ -37575,7 +37749,29 @@ graph TD
     RemoteDS --&gt; Server
 </div>
 
-<h2>15. Câu Hỏi Phỏng Vấn Kinh Điển (Interview Cheat Sheet)</h2>
+<h3>Topic liên quan</h3>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="key_value.md" target="_blank" rel="noopener">Key-Value Storage (SharedPreferences &amp; DataStore)</a>: lưu cấu hình và giá trị đơn lẻ; bài này bắt đầu khi dữ liệu có cấu trúc, quan hệ và cần truy vấn.</li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>: Topic gốc của Migration, <code>MigrationTestHelper</code> và Index mà bài này chỉ tóm tắt.</li>
+  <li><a href="room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>: Topic gốc của <code>InvalidationTracker</code>, threading, WAL, <code>@Transaction</code>/<code>withTransaction</code> và cách Room chạy <code>@Relation</code>.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: vì sao không được đọc ghi database trên main thread.</li>
+  <li><a href="../networking.md" target="_blank" rel="noopener">Networking</a>: Remote Data Source mà <code>TaskRepositoryImpl</code> đồng bộ lên.</li>
+  <li><a href="../../session_04/components/content_provider.md" target="_blank" rel="noopener">Content Provider</a>: chia sẻ dữ liệu cho app khác; dữ liệu nội bộ của app thì lưu bằng Room.</li>
+  <li><a href="../../session_02/file_permissions.md" target="_blank" rel="noopener">File Permissions</a>: khi nào lưu file, khi nào lưu database có cấu trúc.</li>
+  <li><a href="../../session_04/components/services/android_service.md" target="_blank" rel="noopener">Android Service</a>, mục "WorkManager — Lựa chọn hiện đại cho background task": chạy <code>syncPendingTasks()</code> ở nền.</li>
+  <li><a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: nền tảng cho phần kiểm thử DAO.</li>
+  <li>8.3 Local Storage (chưa có bài).</li>
+  <li>Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 7.1.5.3 Hilt, 8.1.1 Retrofit, 6.4 ViewModel, 7.2.5 Clean Architecture (đều chưa có bài).</li>
+</ul></li>
+</ul>
+
+<h2>Developer Curiosity Checklist</h2>
 
 <ol>
   <li><strong>Câu hỏi:</strong> <em>Room khác gì so với SQLite thuần?</em>
@@ -37588,7 +37784,7 @@ graph TD
 </ul></li>
   <li><strong>Câu hỏi:</strong> <em>Cơ chế hoạt động của <code>Flow</code> trong Room như thế nào?</em>
 <ul>
-  <li><strong>Trả lời:</strong> Dựa trên <code>InvalidationTracker</code>: trigger SQLite đánh dấu bảng vừa bị ghi, sau khi transaction ghi kết thúc Room chạy lại query của các <code>Flow</code> đang đọc bảng đó và emit kết quả mới (mục 6; chi tiết ở <a href="room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>).</li>
+  <li><strong>Trả lời:</strong> Dựa trên <code>InvalidationTracker</code>: trigger SQLite đánh dấu bảng vừa bị ghi, sau khi transaction ghi kết thúc Room chạy lại query của các <code>Flow</code> đang đọc bảng đó và emit kết quả mới (phần "Flow và InvalidationTracker (tóm tắt)"; chi tiết ở <a href="room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>).</li>
 </ul></li>
   <li><strong>Câu hỏi:</strong> <em>Khi nào nên dùng <code>@Transaction</code>?</em>
 <ul>
@@ -37600,7 +37796,7 @@ graph TD
 </ul></li>
 </ol>
 
-<h2>Tài Liệu Tham Khảo (References)</h2>
+<h2>Nguồn tham khảo</h2>
 
 <ol>
   <li><a href="https://developer.android.com/training/data-storage/room" target="_blank" rel="noopener">Android Developers — Save data in a local database using Room</a></li>
@@ -37612,12 +37808,15 @@ graph TD
   <li><a href="https://developer.android.com/reference/androidx/room/Upsert" target="_blank" rel="noopener">Android Developers — Upsert</a></li>
   <li><a href="https://www.sqlite.org/lang_conflict.html" target="_blank" rel="noopener">SQLite — ON CONFLICT clause (REPLACE)</a></li>
   <li><a href="https://developer.android.com/training/data-storage/room/relationships/one-to-many" target="_blank" rel="noopener">Android Developers — Define relationships between objects (one-to-many)</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/room" target="_blank" rel="noopener">Room release notes (2.0.0 AndroidX, 2.1.0 suspend, 2.2.0 Flow/Junction, 2.3.0 Enum converter/KSP, 2.4.0 AutoMigration, 2.5.0 @Upsert, 2.6.0 Kotlin codegen, 2.7.0 KMP) — Android Developers</a></li>
+  <li><a href="https://android-developers.googleblog.com/2017/05/android-and-architecture.html" target="_blank" rel="noopener">Android Developers Blog — Android and Architecture (17/05/2017, preview Architecture Components và Room)</a></li>
+  <li><a href="https://www.sqlite.org/datatype3.html" target="_blank" rel="noopener">SQLite — Datatypes In SQLite (storage class)</a></li>
 </ol>
     `
   },
   'data-store-room-adv': {
     title: 'Advanced Room (Migration & Indexing)',
-    summary: 'Chuyên sâu về Room Database nâng cao. Cơ chế Identity Hash (room_master_table) và kiểm tra schema sau migration, chiến lược Manual Migration theo Table Recreation Pattern, AutoMigration với AutoMigrationSpec, giải quyết các ca khó (tách bảng, đổi kiểu dữ liệu, bảng triệu dòng), cấu trúc B-Tree Indexing, Composite Index Leftmost Prefix, EXPLAIN QUERY PLAN và kiểm thử migration với MigrationTestHelper.',
+    summary: 'Migration trong Room là đoạn chuyển schema và dữ liệu của database trên máy người dùng từ version cũ sang version mới mà giữ nguyên dữ liệu, sau đó Room kiểm tra schema thực tế với @Entity; Index là một B-Tree riêng sắp theo giá trị cột, giúp tìm hàng với O(log N) thay vì quét toàn bảng, đổi lại làm chậm thao tác ghi. Bài giải thích Identity Hash (room_master_table) và bước kiểm tra schema sau migration, AutoMigration với AutoMigrationSpec, Manual Migration theo Table Recreation Pattern cho các ca khó (bảng triệu dòng, đổi kiểu dữ liệu, tách bảng), Composite Index theo Leftmost Prefix, EXPLAIN QUERY PLAN và kiểm thử migration với MigrationTestHelper.',
     status: 'published',
     difficulty: 'advanced',
     estimatedReadingTime: '25 phút',
@@ -37635,9 +37834,11 @@ graph TD
       'Debug được hiệu năng truy vấn bằng EXPLAIN QUERY PLAN và viết được test tự động cho Migration với MigrationTestHelper.'
     ],
     knowledgeGap: 'Nhiều lập trình viên lạm dụng fallbackToDestructiveMigration gây mất trắng dữ liệu người dùng trên production, hoặc đánh index vô tội vạ làm tê liệt hiệu năng ghi (Write Penalty) và hiểu sai thứ tự cột trong Composite Index.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '25 phút',
     content: `
+<h2>Vấn đề cần giải quyết</h2>
+
 <p>Trong các ứng dụng Android thực tế ở quy mô Production, cơ sở dữ liệu không bao giờ đứng yên. Yêu cầu nghiệp vụ liên tục thay đổi buộc cấu trúc bảng phải tiến hóa: thêm cột, đổi kiểu dữ liệu, tách bảng quan hệ. Đồng thời, khi lượng dữ liệu tích lũy lên hàng trăm ngàn hay hàng triệu bản ghi, các câu truy vấn ngây thơ sẽ khiến ứng dụng bị giật lag, đơ giao diện (ANR) hoặc tiêu tốn bộ nhớ.</p>
 
 <p>Tài liệu này tập trung giải quyết triệt để hai bài toán sống còn của tầng Database trong Android:</p>
@@ -37647,11 +37848,29 @@ graph TD
   <li><strong>Indexing (Tối ưu hiệu năng):</strong> Làm chủ cấu trúc B-Tree bên dưới SQLite, thiết kế Composite Index theo quy tắc tiền tố và đo lường truy vấn chính xác bằng <code>EXPLAIN QUERY PLAN</code>.</li>
 </ol>
 
-<h2>1. Bản chất &amp; Cơ chế xác thực tính toàn vẹn (Room Internals)</h2>
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được vai trò của room_master_table, Identity Hash và bước kiểm tra schema sau migration khi mở Room Database.</li>
+  <li>Triển khai được Migration an toàn với AutoMigration, AutoMigrationSpec và Manual Migration theo Table Recreation Pattern.</li>
+  <li>Xử lý được các ca migration khó - thêm cột NOT NULL vào bảng triệu dòng, đổi kiểu dữ liệu, tách bảng quan hệ 1-N và skip-version migration.</li>
+  <li>Áp dụng được cấu trúc B-Tree và quy tắc Leftmost Prefix để thiết kế Composite Index đúng.</li>
+  <li>Debug được hiệu năng truy vấn bằng EXPLAIN QUERY PLAN và viết được test tự động cho Migration với MigrationTestHelper.</li>
+</ul>
+
+<h2>Migration và Index trong Room là gì?</h2>
+
+<p><strong>Migration</strong> trong Room là đoạn chuyển schema và dữ liệu của database đang nằm trên máy người dùng từ <code>version</code> cũ sang <code>version</code> mới mà giữ nguyên dữ liệu (SQL viết tay trong <code>Migration(from, to)</code>, hoặc do Room sinh ra qua <code>AutoMigration</code>); chạy xong, Room so schema thực tế với <code>@Entity</code> và dừng lại nếu lệch. <strong>Index</strong> là một B-Tree riêng mà SQLite lưu cạnh bảng, sắp theo giá trị của một hay nhiều cột và trỏ về <code>ROWID</code> của từng hàng, giúp tìm hàng với $O(\\log N)$ thay vì quét toàn bảng, đổi lại mỗi thao tác ghi phải cập nhật thêm cây đó.</p>
+
+<p>Mental model: database trên máy người dùng là <strong>một cuốn sổ đang ghi dở</strong>. Migration là chép sổ sang mẫu kẻ mới (thêm cột, đổi cách ghi) mà không được làm mất trang nào, rồi Room soát lại mẫu mới có đúng bản thiết kế (<code>@Entity</code>) không trước khi cho dùng. Index là <strong>bảng tra theo vần ở cuối sổ</strong>: tra nhanh, nhưng mỗi dòng ghi thêm vào sổ cũng phải ghi thêm vào bảng tra.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Bản chất &amp; Cơ chế xác thực tính toàn vẹn (Room Internals)</h3>
 
 <p>Để viết migration chuẩn xác và tự tin trả lời phỏng vấn Senior, bạn cần hiểu chính xác Room làm gì khi khởi tạo kết nối cơ sở dữ liệu.</p>
 
-<h3>Bảng bí mật <code>room_master_table</code> &amp; <code>identity_hash</code></h3>
+<h4>Bảng bí mật <code>room_master_table</code> &amp; <code>identity_hash</code></h4>
 
 <p>Khi bạn khai báo <code>@Database(entities = [UserEntity::class], version = 2)</code>, Room Compiler (KSP) thực hiện các bước sau tại thời điểm build:</p>
 
@@ -37723,15 +37942,17 @@ Please provide the necessary Migration path via RoomDatabase.Builder.addMigratio
 
 <pre data-lang="kotlin"><code>// ⚠️ NGUY HIỂM CHÍ MẠNG TRÊN PRODUCTION!
 Room.databaseBuilder(context, AppDatabase::class.java, "app.db")
-    .fallbackToDestructiveMigration()
+    .fallbackToDestructiveMigration(dropAllTables = true)
     .build()</code></pre>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Từ Room 2.7.0, <code>fallbackToDestructiveMigration()</code> và <code>fallbackToDestructiveMigrationFrom(vararg)</code> không có tham số <code>dropAllTables</code> bị deprecated. <code>dropAllTables = true</code> xoá cả các bảng không do Room quản lý (giá trị tài liệu khuyên dùng, để không sót dữ liệu cũ khi tên hoặc sự tồn tại của bảng đổi giữa các version); <code>false</code> giữ hành vi của bản cũ, chỉ xoá các bảng Room quản lý.</div></div>
 
 <h4>Cơ chế hoạt động của Destructive Migration</h4>
 
 <p>Khi Room phát hiện phiên bản database tăng lên nhưng không tìm thấy kịch bản <code>Migration</code> phù hợp:</p>
 
 <ol>
-  <li>Room chạy lệnh <code>DROP TABLE</code> cho <strong>TOÀN BỘ</strong> các bảng trong cơ sở dữ liệu.</li>
+  <li>Room chạy lệnh <code>DROP TABLE</code> cho <strong>TOÀN BỘ</strong> các bảng Room quản lý (với <code>dropAllTables = true</code> thì cả các bảng không do Room quản lý). Nếu database được tạo từ asset hoặc file, Room dựng lại từ chính file đó.</li>
   <li>Tạo lại các bảng mới từ đầu (trắng trơn).</li>
   <li>Đặt lại <code>identity_hash</code> mới.</li>
 </ol>
@@ -37747,14 +37968,14 @@ Room.databaseBuilder(context, AppDatabase::class.java, "app.db")
   <li><strong>Môi trường Debug / Develop nội bộ:</strong> Tiết kiệm thời gian khi đang trong giai đoạn thiết kế tính năng mới.</li>
 </ul>
 
-<h4>Giải pháp kiểm soát an toàn:</h4>
+<h4>Ví dụ: chỉ xoá dữ liệu của các bản Beta nội bộ</h4>
 
 <p>Nếu buộc phải xóa sạch một số phiên bản thử nghiệm cũ mà vẫn bảo vệ phiên bản chính thức:</p>
 
 <pre data-lang="kotlin"><code>// Chỉ xóa dữ liệu nếu người dùng nâng cấp từ version 1 hoặc 2 (bản Beta nội bộ).
 // Từ version 3 trở đi, bắt buộc phải chạy Migration an toàn!
 Room.databaseBuilder(context, AppDatabase::class.java, "app.db")
-    .fallbackToDestructiveMigrationFrom(1, 2)
+    .fallbackToDestructiveMigrationFrom(dropAllTables = true, 1, 2)
     .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
     .build()</code></pre>
 
@@ -37789,13 +38010,50 @@ graph LR
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Best Practice cho Skip-Version:</strong> Thông thường, bạn chỉ cần duy trì các Migration tuần tự (<code>1-&gt;2</code>, <code>2-&gt;3</code>, <code>3-&gt;4</code>). Chỉ viết migration trực tiếp (<code>1-&gt;4</code>) khi kịch bản tuần tự tốn quá nhiều thời gian xử lý dữ liệu nặng (I/O) gây chậm trễ cho lần mở app đầu tiên của người dùng cũ.</div></div>
 
-<h2>2. AutoMigration vs Manual Migration Thực Chiến</h2>
+<h3>AutoMigration vs Manual Migration Thực Chiến</h3>
 
 <p>Từ phiên bản Room 2.4.0+, Google bổ sung tính năng <strong>AutoMigration</strong> nhằm giảm bớt boilerplate cho các thay đổi đơn giản. Tuy nhiên, lập trình viên cần nắm vững ranh giới giữa AutoMigration và Manual Migration.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Chuỗi schema dùng xuyên suốt các ví dụ migration trong bài</strong> (mỗi bước chỉ đăng ký một cách: hoặc <code>autoMigrations</code>, hoặc <code>addMigrations</code>; nếu đăng ký cả hai cho cùng một bước, Room dùng migration viết tay):  | Version | Thay đổi | Cách thực hiện | | :--- | :--- | :--- | | v1 | <code>users(id, name, email UNIQUE, phone, fax, company_name, company_tax_code)</code>; <code>orders(id, user_id, status, amount, created_at INTEGER)</code> | — | | v2 | <code>users</code> thêm <code>is_verified INTEGER NOT NULL DEFAULT 0</code> | <code>AutoMigration(1, 2)</code> hoặc <code>MIGRATION_1_2</code> viết tay (Case Study 1) | | v3 | <code>users</code> đổi <code>phone</code> → <code>phone_number</code>, xoá <code>fax</code> | <code>AutoMigration(2, 3)</code> + <code>MigrationSpec2To3</code> | | v4 | <code>orders.created_at</code> từ <code>INTEGER</code> sang <code>TEXT</code> ISO-8601 | <code>MIGRATION_3_4</code> (Case Study 2) | | v5 | Tách thông tin công ty khỏi <code>users</code> sang bảng <code>companies</code> | <code>MIGRATION_4_5</code> (Case Study 3) |</div></div>
+<p><strong>Chuỗi schema dùng xuyên suốt các ví dụ migration trong bài</strong> (mỗi bước chỉ đăng ký một cách: hoặc <code>autoMigrations</code>, hoặc <code>addMigrations</code>; nếu đăng ký cả hai cho cùng một bước, Room dùng migration viết tay):</p>
 
-<h3>Cấu hình Gradle bắt buộc cho AutoMigration</h3>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Version</th>
+      <th style="padding:8px 12px;text-align:left;">Thay đổi</th>
+      <th style="padding:8px 12px;text-align:left;">Cách thực hiện</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">v1</td>
+      <td style="padding:8px 12px;"><code>users(id, name, email UNIQUE, phone, fax, company_name, company_tax_code)</code>; <code>orders(id, user_id, status, amount, created_at INTEGER)</code></td>
+      <td style="padding:8px 12px;">—</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">v2</td>
+      <td style="padding:8px 12px;"><code>users</code> thêm <code>is_verified INTEGER NOT NULL DEFAULT 0</code></td>
+      <td style="padding:8px 12px;"><code>AutoMigration(1, 2)</code> hoặc <code>MIGRATION_1_2</code> viết tay (Case Study 1)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">v3</td>
+      <td style="padding:8px 12px;"><code>users</code> đổi <code>phone</code> → <code>phone_number</code>, xoá <code>fax</code></td>
+      <td style="padding:8px 12px;"><code>AutoMigration(2, 3)</code> + <code>MigrationSpec2To3</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">v4</td>
+      <td style="padding:8px 12px;"><code>orders.created_at</code> từ <code>INTEGER</code> sang <code>TEXT</code> ISO-8601</td>
+      <td style="padding:8px 12px;"><code>MIGRATION_3_4</code> (Case Study 2)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">v5</td>
+      <td style="padding:8px 12px;">Tách thông tin công ty khỏi <code>users</code> sang bảng <code>companies</code></td>
+      <td style="padding:8px 12px;"><code>MIGRATION_4_5</code> (Case Study 3)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4>Cấu hình Gradle bắt buộc cho AutoMigration</h4>
 
 <p>AutoMigration phụ thuộc vào việc so sánh các file Schema JSON qua từng phiên bản. Bạn phải cấu hình KSP để xuất Schema:</p>
 
@@ -37817,7 +38075,9 @@ android {
 
 <p>Mỗi khi bạn tăng <code>version</code> trong <code>@Database</code> và compile, Room sẽ tự động sinh ra file <code>schemas/com.example.app.AppDatabase/1.json</code>, <code>2.json</code>.</p>
 
-<h3>Sử dụng AutoMigration khi thay đổi cấu trúc cơ bản</h3>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Từ Room 2.6.0 có thêm Room Gradle Plugin (id <code>androidx.room</code>), khai báo thư mục schema bằng <code>room { schemaDirectory("$projectDir/schemas") }</code> thay cho tham số KSP ở trên. Tài liệu của <code>MigrationTestHelper</code> hiện khuyên cấu hình schema qua plugin này.</div></div>
+
+<h4>Sử dụng AutoMigration khi thay đổi cấu trúc cơ bản</h4>
 
 <p>Nếu bạn chỉ <strong>thêm cột mới</strong> hoặc <strong>thêm bảng mới</strong>, Room tự động so sánh <code>1.json</code> và <code>2.json</code> để sinh mã SQL tương ứng mà bạn không cần viết bất kỳ câu lệnh SQL nào:</p>
 
@@ -37833,7 +38093,24 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 }</code></pre>
 
-<h3>Khi nào bắt buộc dùng <code>AutoMigrationSpec</code>?</h3>
+<h4>Ví dụ: thêm cột <code>NOT NULL</code> vào bảng có hàng triệu dòng (Case Study 1)</h4>
+
+<p><strong>Tình huống:</strong> Bảng <code>users</code> đang có 1 triệu bản ghi. Version 2 yêu cầu thêm cột <code>is_verified: Boolean</code> (không được null, mặc định là false <code>0</code>). Đây là bước v1 → v2 ở trên, viết tay thay cho <code>AutoMigration(1, 2)</code>.</p>
+
+<p><strong>Giải pháp an toàn:</strong></p>
+
+<pre data-lang="kotlin"><code>val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Với SQLite, khi thêm cột NOT NULL vào bảng đã có dữ liệu,
+        // BẮT BUỘC phải cung cấp giá trị DEFAULT.
+        // Boolean trong SQLite được lưu trữ dưới dạng INTEGER (0 hoặc 1).
+        db.execSQL("ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL DEFAULT 0")
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> mọi dòng cũ nhận <code>is_verified = 0</code>, và vì <code>DEFAULT 0</code> khớp <code>defaultValue = "0"</code> trong <code>UserEntity</code>, bước kiểm tra schema sau migration không báo lệch. Quên <code>DEFAULT</code> là lỗi ở mục "Sai lầm thường gặp".</p>
+
+<h4>Khi nào bắt buộc dùng <code>AutoMigrationSpec</code>?</h4>
 
 <p>Khi bạn <strong>đổi tên cột</strong>, <strong>xóa cột</strong>, <strong>đổi tên bảng</strong>, hoặc <strong>xóa bảng</strong>, Room Compiler không thể tự đoán biết được: bạn muốn đổi tên cột cũ sang cột mới hay muốn xóa cột cũ đi và thêm một cột hoàn toàn mới?</p>
 
@@ -37861,7 +38138,7 @@ class MigrationSpec2To3 : AutoMigrationSpec {
 )
 abstract class AppDatabase : RoomDatabase() { ... }</code></pre>
 
-<h3>Bảng so sánh lựa chọn: AutoMigration vs Manual Migration</h3>
+<h4>Bảng so sánh lựa chọn: AutoMigration vs Manual Migration</h4>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -37905,9 +38182,9 @@ abstract class AppDatabase : RoomDatabase() { ... }</code></pre>
   </tbody>
 </table>
 
-<h2>3. Các Ca Migration Khó: Dựng Lại Bảng 5 Bước (Table Recreation Pattern)</h2>
+<h3>Các Ca Migration Khó: Dựng Lại Bảng 5 Bước (Table Recreation Pattern)</h3>
 
-<h3>Hạn chế lịch sử của SQLite</h3>
+<h4>Hạn chế lịch sử của SQLite</h4>
 
 <p>Trước phiên bản SQLite 3.35.0, SQLite <strong>không hỗ trợ</strong> cú pháp <code>ALTER TABLE DROP COLUMN</code>; đến nay SQLite vẫn không hỗ trợ đổi kiểu dữ liệu của cột hay thay đổi khóa chính (Primary Key) bằng <code>ALTER TABLE</code>. Theo bảng phiên bản của Android, API 31–33 (Android 12–13) đi kèm SQLite 3.32, API 34 (Android 14) mới lên 3.39; <code>RENAME COLUMN</code> (SQLite 3.25) chỉ có từ API 30 (Android 11, SQLite 3.28). Nhà sản xuất có thể đóng gói phiên bản khác, nên kiểm tra bằng <code>select sqlite_version()</code> khi cần.</p>
 
@@ -37915,7 +38192,7 @@ abstract class AppDatabase : RoomDatabase() { ... }</code></pre>
 
 <pre data-lang="text"><code>android.database.sqlite.SQLiteException: near "DROP": syntax error</code></pre>
 
-<h3>Quy trình 5 bước dựng lại bảng</h3>
+<h4>Quy trình 5 bước dựng lại bảng</h4>
 
 <p>Để giải quyết các bài toán nâng cấp mà <code>ALTER TABLE</code> không làm được (đổi kiểu cột, đổi khoá chính, xoá cột trên SQLite cũ), ta dựng lại bảng theo <strong>Table Recreation Pattern</strong>. Đây là bản rút gọn của quy trình 12 bước trong tài liệu SQLite (mục "Making Other Kinds Of Table Schema Changes"), gồm 5 bước. Bước 5 hay bị quên nhất: <code>DROP TABLE</code> xoá luôn các index của bảng cũ, thiếu một index đã khai báo trong <code>@Entity</code> là bước kiểm tra schema sau migration báo <code>Migration didn't properly handle</code>.</p>
 
@@ -37930,36 +38207,336 @@ flowchart TD
     Step1 --&gt; Step2 --&gt; Step3 --&gt; Step4 --&gt; Step5
 </div>
 
-<h3>Case Study 1: Thêm cột <code>NOT NULL</code> vào bảng có hàng triệu dòng</h3>
+<p>Case Study 2 (đổi kiểu dữ liệu) và Case Study 3 (tách bảng) ở mục "Ví dụ thực tế" áp dụng đúng quy trình này.</p>
 
-<h4>Tình huống</h4>
+<h3>Indexing, B-Tree &amp; Tối Ưu Hóa Truy Vấn CSDL Lớn</h3>
 
-<p>Bảng <code>users</code> đang có 1 triệu bản ghi. Version 2 yêu cầu thêm cột <code>is_verified: Boolean</code> (không được null, mặc định là false <code>0</code>).</p>
+<p>Khi ứng dụng quản lý tập dữ liệu lớn, hiệu năng đọc là tiêu chí sống còn. Hiểu rõ cấu trúc Index sẽ giúp bạn tránh các quyết định tối ưu hóa sai lầm.</p>
 
-<h4>Giải pháp an toàn</h4>
+<h4>Bản chất của Index bên dưới đĩa cứng: Cấu trúc B-Tree</h4>
 
-<pre data-lang="kotlin"><code>val MIGRATION_1_2 = object : Migration(1, 2) {
-    override fun migrate(db: SupportSQLiteDatabase) {
-        // Với SQLite, khi thêm cột NOT NULL vào bảng đã có dữ liệu,
-        // BẮT BUỘC phải cung cấp giá trị DEFAULT.
-        // Boolean trong SQLite được lưu trữ dưới dạng INTEGER (0 hoặc 1).
-        db.execSQL("ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL DEFAULT 0")
+<p>Trong SQLite, bảng dữ liệu mặc định được tổ chức dưới dạng <strong>B-Tree bảng (Table B-Tree)</strong> được đánh địa chỉ bằng một số nguyên 64-bit gọi là <code>ROWID</code>.</p>
+
+<ul>
+  <li>Khi bạn chạy câu truy vấn: <code>SELECT * FROM users WHERE email = 'hazu@example.com'</code></li>
+  <li>Nếu cột <code>email</code> <strong>chưa được đánh Index</strong>, SQLite buộc phải thực hiện <strong>Full Table Scan</strong>: Đọc tuần tự từng trang đĩa từ đầu đến cuối bảng, so sánh từng chuỗi ký tự. Độ phức tạp là $O(N)$. Với bảng 500.000 dòng, thao tác này có thể mất từ 200ms - 1500ms, gây freeze UI ngay tức khắc!</li>
+</ul>
+
+<p>Khi bạn đánh Index cho cột <code>email</code>:</p>
+
+<pre data-lang="kotlin"><code>@Entity(
+    tableName = "users",
+    indices = [Index(value = ["email"], unique = true)]
+)
+data class UserEntity(
+    @PrimaryKey val id: String,
+    val name: String,
+    val email: String
+)</code></pre>
+
+<p>SQLite sẽ cấp phát một <strong>Index B-Tree</strong> riêng biệt trên đĩa cứng:</p>
+
+<div class="mermaid">
+graph TD
+    subgraph "Index B-Tree (Sắp xếp theo email)"
+        Root["Node Gốc: ['m@...']"]
+        Leaf1["Leaf Node A-L: ['a@...', 'hazu@example.com'] -&gt; ROWID #402"]
+        Leaf2["Leaf Node M-Z: ['n@...', 'z@...'] -&gt; ROWID #981"]
+        Root --&gt; Leaf1
+        Root --&gt; Leaf2
+    end
+
+    subgraph "Main Table (Lưu trên Disk)"
+        Row402["ROWID #402: {id: 'u_1', name: 'Nguyen Van A', email: 'hazu@example.com'}"]
+        Row981["ROWID #981: {id: 'u_2', name: 'Tran Thi B', email: 'z@example.com'}"]
+    end
+
+    Leaf1 -.-&gt;|Truy xuất trực tiếp qua ROWID| Row402
+    Leaf2 -.-&gt;|Truy xuất trực tiếp qua ROWID| Row981
+</div>
+
+<p>Quá trình tìm kiếm chỉ tốn $O(\\log N)$ bước duyệt cây để tìm thấy <code>ROWID</code>, sau đó nhảy thẳng đến vị trí bản ghi trên đĩa. Tốc độ tìm kiếm tăng từ hàng giây xuống còn <strong>dưới 2 mili-giây</strong>!</p>
+
+<h4>Composite Index &amp; Quy tắc "Leftmost Prefix" (Tiền tố bên trái)</h4>
+
+<p>Trong thực tế, bạn thường xuyên phải lọc theo nhiều điều kiện đồng thời, ví dụ màn hình danh sách đơn hàng: <code>SELECT * FROM orders WHERE user_id = :userId AND status = :status ORDER BY created_at DESC</code></p>
+
+<p>Nếu bạn đánh 3 Index đơn lẻ (<code>user_id</code>, <code>status</code>, <code>created_at</code>), SQLite chỉ có thể chọn <strong>1 Index duy nhất</strong> tốt nhất để duyệt, hai cột còn lại vẫn phải lọc thủ công trong bộ nhớ.</p>
+
+<p>Giải pháp là <strong>Composite Index (Chỉ mục kết hợp nhiều cột)</strong>:</p>
+
+<pre data-lang="kotlin"><code>@Entity(
+    tableName = "orders",
+    indices = [
+        Index(value = ["user_id", "status", "created_at"])
+    ]
+)
+data class OrderEntity(...)</code></pre>
+
+<h5>Quy tắc vàng: "Leftmost Prefix"</h5>
+
+<p>Thứ tự khai báo các cột trong <code>value = ["colA", "colB", "colC"]</code> mang tính quyết định:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Câu lệnh truy vấn</th>
+      <th style="padding:8px 12px;text-align:left;">Index có được sử dụng không?</th>
+      <th style="padding:8px 12px;text-align:left;">Giải thích</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colA = ?</code></td>
+      <td style="padding:8px 12px;"><strong>CÓ</strong></td>
+      <td style="padding:8px 12px;">Khớp tiền tố bên trái nhất (<code>colA</code>).</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colA = ? AND colB = ?</code></td>
+      <td style="padding:8px 12px;"><strong>CÓ</strong></td>
+      <td style="padding:8px 12px;">Khớp tiền tố 2 cột đầu (<code>colA</code>, <code>colB</code>).</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colA = ? AND colB = ? AND colC = ?</code></td>
+      <td style="padding:8px 12px;"><strong>CÓ (Tối ưu tuyệt đối)</strong></td>
+      <td style="padding:8px 12px;">Sử dụng trọn vẹn cả 3 cột của B-Tree.</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colB = ?</code></td>
+      <td style="padding:8px 12px;"><strong>KHÔNG</strong></td>
+      <td style="padding:8px 12px;">Bỏ qua <code>colA</code>. SQLite không thể nhảy vào giữa cây B-Tree mà không qua gốc <code>colA</code>!</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colB = ? AND colC = ?</code></td>
+      <td style="padding:8px 12px;"><strong>KHÔNG</strong></td>
+      <td style="padding:8px 12px;">Bỏ qua tiền tố bên trái nhất. Bắt buộc phải Full Table Scan!</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colA = ? AND colC = ?</code></td>
+      <td style="padding:8px 12px;"><strong>MỘT PHẦN</strong></td>
+      <td style="padding:8px 12px;">Chỉ dùng index cho <code>colA</code>. Cột <code>colC</code> phải scan thủ công.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Thứ tự sắp xếp cột chuẩn trong Composite Index:</strong> 1. <strong>Cột so sánh bằng (<code>=</code>) có độ chọn lọc cao nhất:</strong> Đặt lên đầu tiên (ví dụ <code>user_id</code>). 2. <strong>Cột so sánh bằng bổ sung:</strong> Đặt ở giữa (ví dụ <code>status</code>). 3. <strong>Cột so sánh khoảng (<code>&lt;</code>, <code>&gt;</code>, <code>BETWEEN</code>) hoặc sắp xếp (<code>ORDER BY</code>):</strong> Bắt buộc phải đặt ở <strong>cuối cùng</strong> của Composite Index. Nếu đặt cột so sánh khoảng lên trước, SQLite sẽ ngừng sử dụng Index cho các cột phía sau!</div></div>
+
+<h4>Chi phí đánh đổi (Trade-off) của Index</h4>
+
+<p>Index là một con dao hai lưỡi. Một Senior Android Developer phải biết từ chối đánh index khi không cần thiết.</p>
+
+<div class="mermaid">
+pie title "Chi phí tài nguyên của Index"
+    "Dung lượng lưu trữ bảng chính": 55
+    "Dung lượng các cây B-Tree Index": 45
+</div>
+
+<h5>1. Hình phạt ghi dữ liệu (The Write Penalty)</h5>
+
+<p>Mỗi khi bạn thực hiện một thao tác ghi (<code>INSERT</code>, <code>UPDATE</code> các cột có index, hoặc <code>DELETE</code>):</p>
+
+<ul>
+  <li>SQLite không chỉ cập nhật bản ghi trong bảng chính.</li>
+  <li>SQLite phải duyệt và tái cân bằng (Rebalance / Split Node) lại <strong>tất cả</strong> các cây B-Tree Index gắn liền với bảng đó.</li>
+  <li>Nếu một bảng có 5 Index, tốc độ <code>INSERT</code> có thể bị <strong>chậm đi từ 3x đến 8x</strong> so với bảng không có Index!</li>
+</ul>
+
+<h5>2. Dung lượng file <code>.db</code> phình to</h5>
+
+<p>Mỗi Index là một bản sao thu nhỏ của dữ liệu. Việc tạo quá nhiều Index trên bảng lớn có thể khiến kích thước file Database trên máy người dùng tăng gấp đôi, dễ dẫn đến lỗi <code>SQLiteFullException</code> (hết bộ nhớ trong).</p>
+
+<p>Tiêu chí chọn cột nên và không nên đánh index ở mục "Khi nào nên và không nên dùng".</p>
+
+<h4>Đo lường chính xác bằng <code>EXPLAIN QUERY PLAN</code></h4>
+
+<p>Đừng bao giờ đoán mò xem câu truy vấn có đang chạy nhanh hay không. Hãy để SQLite chỉ rõ đường đi nước bước thông qua lệnh <code>EXPLAIN QUERY PLAN</code>.</p>
+
+<p>Bạn có thể kiểm tra trực tiếp trong Room DAO hoặc Database Inspector của Android Studio. DAO dưới đây dùng hàm <code>suspend</code> (hàm coroutine, Room chạy nó ngoài main thread), được học ở 8.4.3 Coroutines (chưa có bài):</p>
+
+<pre data-lang="kotlin"><code>@Dao
+interface OrderDao {
+    // Câu truy vấn kiểm tra kế hoạch thực thi
+    @Query("EXPLAIN QUERY PLAN SELECT * FROM orders WHERE user_id = :userId AND status = :status")
+    suspend fun explainOrderQuery(userId: String, status: String): List&lt;QueryPlanItem&gt;
+}
+
+data class QueryPlanItem(
+    val id: Int,
+    val parent: Int,
+    val notused: Int,
+    val detail: String // Chứa thông tin kế hoạch
+)</code></pre>
+
+<h5>Phân tích kết quả thực tế từ <code>detail</code></h5>
+
+<ol>
+  <li><strong>Trường hợp nguy hiểm (Full Table Scan):</strong>
+<pre data-lang="text"><code>detail: "SCAN TABLE orders"</code></pre>
+<p>👉 SQLite đang phải duyệt qua toàn bộ bảng từ dòng đầu đến dòng cuối. Bạn cần xem lại cấu trúc Index ngay lập tức!</p></li>
+  <li><strong>Trường hợp tối ưu (Index Search):</strong>
+<pre data-lang="text"><code>detail: "SEARCH TABLE orders USING INDEX index_orders_user_id_status_created_at (user_id=? AND status=?)"</code></pre>
+<p>👉 Tuyệt vời! SQLite đã sử dụng chính xác Composite Index bạn tạo để tìm kiếm.</p></li>
+  <li><strong>Cảnh giới cao nhất: Covering Index:</strong>
+<pre data-lang="text"><code>detail: "SEARCH TABLE orders USING COVERING INDEX index_orders_user_id_status_amount (user_id=? AND status=?)"</code></pre>
+<p>👉 <strong>Covering Index:</strong> Tất cả các cột nằm trong mệnh đề <code>SELECT</code>, <code>WHERE</code>, và <code>ORDER BY</code> đều nằm trọn vẹn bên trong cây B-Tree của Index. SQLite <strong>không cần phải đọc bảng chính một lần nào</strong>. Đây là mức hiệu năng truy vấn nhanh nhất có thể đạt được trong hệ thống CSDL quan hệ!</p>
+<p>Kết quả này ứng với một query chỉ đọc các cột có trong index, ví dụ tổng tiền đơn hàng theo trạng thái: <code>SELECT SUM(amount) FROM orders WHERE user_id = :userId AND status = :status</code>. <code>SELECT *</code> như DAO ở trên không thể là covering index, vì nó cần cả các cột không nằm trong index. Index <code>index_orders_user_id_status_amount</code> phải được khai báo trong <code>OrderEntity</code>, bên cạnh composite index ở mục trên. Khi không đặt <code>name</code>, Room đặt tên index là <code>index_&lt;tên bảng&gt;_&lt;các cột nối bằng _&gt;</code>:</p>
+<pre data-lang="kotlin"><code>@Entity(
+    tableName = "orders",
+    indices = [
+        // Màn hình danh sách đơn: WHERE user_id = ? AND status = ? ORDER BY created_at DESC
+        Index(value = ["user_id", "status", "created_at"]),
+        // Covering index cho query chỉ đọc amount: SELECT SUM(amount) ... WHERE user_id = ? AND status = ?
+        Index(value = ["user_id", "status", "amount"])
+    ]
+)
+data class OrderEntity(...)</code></pre></li>
+</ol>
+
+<h3>Testing Migration với <code>MigrationTestHelper</code></h3>
+
+<p>Quy tắc vàng số 1 của Production Database: <strong>Không bao giờ đẩy migration lên production nếu chưa có Unit Test tự động chứng minh nó chạy thành công 100%.</strong></p>
+
+<p>Thư viện Room cung cấp công cụ <code>MigrationTestHelper</code> (nằm trong artifact <code>androidx.room:room-testing</code>) cho phép mô phỏng việc tạo CSDL ở phiên bản cũ, chèn dữ liệu thực tế, chạy migration, và kiểm tra tính toàn vẹn dữ liệu.</p>
+
+<h4>Khai báo dependency</h4>
+
+<pre data-lang="kotlin"><code>// build.gradle.kts
+dependencies {
+    // Test bên dưới dùng InstrumentationRegistry và đọc schema JSON từ assets của androidTest
+    // (sourceSets ở mục "Cấu hình Gradle bắt buộc cho AutoMigration"), nên là instrumented test: đặt trong src/androidTest
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+}</code></pre>
+
+<h4>Ví dụ: kiểm chứng Migration 1 lên 2</h4>
+
+<p>Test kiểm chứng <code>MIGRATION_1_2</code> ở Case Study 1 đi qua ba giai đoạn:</p>
+
+<ol>
+  <li>Tạo database ở version 1 theo <code>schemas/1.json</code>, chèn một user theo cấu trúc v1 rồi đóng lại.</li>
+  <li><code>runMigrationsAndValidate</code> chạy <code>MIGRATION_1_2</code> rồi so schema thực tế với <code>schemas/2.json</code>; lệch thì test fail ngay ở bước này.</li>
+  <li>Đọc lại user cũ: dữ liệu phải còn nguyên và cột mới <code>is_verified</code> có giá trị mặc định <code>0</code>.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant Test as AppDatabaseMigrationTest
+    participant Helper as MigrationTestHelper
+    participant DB as migration-test.db
+
+    Test-&gt;&gt;Helper: (1) createDatabase(TEST_DB, 1)
+    Helper-&gt;&gt;DB: (1) tạo bảng theo schemas/1.json
+    Test-&gt;&gt;DB: (1) INSERT user u1, close()
+    Test-&gt;&gt;Helper: (2) runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2)
+    Helper-&gt;&gt;DB: (2) chạy MIGRATION_1_2
+    Helper-&gt;&gt;Helper: (2) so schema thực tế với schemas/2.json
+    Test-&gt;&gt;DB: (3) SELECT ... WHERE id = 'u1'
+    DB--&gt;&gt;Test: (3) name, email cũ + is_verified = 0
+</div>
+
+<pre data-lang="kotlin"><code>package com.example.app.data.local
+
+import androidx.room.testing.MigrationTestHelper
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.io.IOException
+
+@RunWith(AndroidJUnit4::class)
+class AppDatabaseMigrationTest {
+
+    private val TEST_DB = "migration-test.db"
+
+    // Dùng constructor nhận class của Database. Constructor cũ nhận tên assets
+    // (canonicalName + FrameworkSQLiteOpenHelperFactory) đã deprecated từ Room 2.4
+    // và không chạy được AutoMigration (bước v2 → v3 của chuỗi schema).
+    @get:Rule
+    val helper: MigrationTestHelper = MigrationTestHelper(
+        InstrumentationRegistry.getInstrumentation(),
+        AppDatabase::class.java
+    )
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate1To2_containsCorrectDataAndNewColumnDefault() {
+        // (1) GIAI ĐOẠN 1: Tạo database ở Version 1 và chèn dữ liệu mẫu
+        var db = helper.createDatabase(TEST_DB, 1).apply {
+            // Chèn bản ghi theo cấu trúc của Version 1 (chưa có cột is_verified; các cột khác cho phép null)
+            execSQL("INSERT INTO users (id, name, email) VALUES ('u1', 'Hazu Nguyen', 'hazu@example.com')")
+            close()
+        }
+
+        // (2) GIAI ĐOẠN 2: Thực thi migration lên Version 2
+        // helper.runMigrationsAndValidate sẽ tự động:
+        // 1. Chạy MIGRATION_1_2
+        // 2. So sánh Identity Hash và Schema thực tế với schemas/2.json
+        db = helper.runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2)
+
+        // (3) GIAI ĐOẠN 3: Kiểm tra tính toàn vẹn của dữ liệu sau khi migrate
+        val cursor = db.query("SELECT id, name, email, is_verified FROM users WHERE id = 'u1'")
+        assertTrue("Bản ghi người dùng cũ phải còn tồn tại", cursor.moveToFirst())
+
+        val name = cursor.getString(cursor.getColumnIndexOrThrow("name"))
+        val email = cursor.getString(cursor.getColumnIndexOrThrow("email"))
+        val isVerified = cursor.getInt(cursor.getColumnIndexOrThrow("is_verified"))
+
+        // Xác nhận dữ liệu cũ không bị mất hoặc sai lệch
+        assertEquals("Hazu Nguyen", name)
+        assertEquals("hazu@example.com", email)
+        // Xác nhận cột mới có giá trị default chính xác (0 tương ứng false)
+        assertEquals(0, isVerified)
+
+        cursor.close()
+        db.close()
     }
 }</code></pre>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Nếu bạn viết <code>"ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL"</code> mà quên <code>DEFAULT 0</code>, SQLite sẽ ném lỗi crash ngay lập tức vì không biết điền giá trị gì cho 1 triệu dòng dữ liệu cũ!</div></div>
+<p><strong>Kết quả:</strong> test xanh nghĩa là migration giữ được dữ liệu cũ và tạo đúng schema v2; migration sai làm test đỏ ở bước (2) (schema lệch) hoặc bước (3) (dữ liệu mất).</p>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Tích hợp bài test này vào luồng <strong>CI/CD (GitHub Actions / GitLab CI)</strong>. Mỗi khi có Pull Request thay đổi Entity hoặc Database Version, CI sẽ tự động kích hoạt test. Nếu ai đó quên viết Migration hoặc viết sai câu lệnh SQL, bản build sẽ bị chặn ngay lập tức, triệt tiêu 100% nguy cơ crash database trên máy khách hàng.</div></div>
+
+<h2>Ví dụ thực tế</h2>
 
 <h3>Case Study 2: Đổi kiểu dữ liệu của cột</h3>
 
-<h4>Tình huống</h4>
+<p><strong>Tình huống:</strong> Ở v3, bảng <code>orders</code> đang lưu cột <code>created_at</code> dưới dạng số Unix Timestamp miliseconds (<code>INTEGER</code>). Ở phiên bản mới, team quyết định đổi sang chuỗi chuẩn ISO-8601 UTC (<code>TEXT</code>, ví dụ: <code>"2026-09-21T15:30:00Z"</code>).</p>
 
-<p>Ở v3, bảng <code>orders</code> đang lưu cột <code>created_at</code> dưới dạng số Unix Timestamp miliseconds (<code>INTEGER</code>). Ở phiên bản mới, team quyết định đổi sang chuỗi chuẩn ISO-8601 UTC (<code>TEXT</code>, ví dụ: <code>"2026-09-21T15:30:00Z"</code>).</p>
+<p><code>ALTER TABLE</code> không đổi được kiểu cột, nên <code>MIGRATION_3_4</code> dựng lại bảng theo 5 bước của Table Recreation Pattern, rồi Room kiểm tra kết quả:</p>
 
-<h4>Triển khai kịch bản Migration:</h4>
+<ol>
+  <li>Tạo bảng tạm <code>orders_temp</code> với cấu trúc mới (<code>created_at TEXT</code>), giữ đủ mọi cột của <code>orders</code>.</li>
+  <li>Copy dữ liệu sang bảng tạm, đổi kiểu ngay trong câu <code>SELECT</code> bằng <code>strftime</code>.</li>
+  <li>Xoá bảng <code>orders</code> cũ; các index của nó bị xoá theo.</li>
+  <li>Đổi tên <code>orders_temp</code> thành <code>orders</code>.</li>
+  <li>Tạo lại cả hai index đã khai báo trong <code>OrderEntity</code> (composite index và covering index ở mục "Đo lường chính xác bằng <code>EXPLAIN QUERY PLAN</code>").</li>
+  <li><code>migrate()</code> xong, Room so schema thực tế với <code>@Entity</code> (<code>onValidateSchema</code>) rồi ghi <code>identity_hash</code> và <code>user_version</code> mới, như sơ đồ ở mục "Bảng bí mật <code>room_master_table</code> &amp; <code>identity_hash</code>".</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant Room as Room OpenHelper
+    participant M as MIGRATION_3_4
+    participant DB as SQLite DB
+
+    Room-&gt;&gt;M: migrate(db) vì user_version = 3
+    M-&gt;&gt;DB: (1) CREATE TABLE orders_temp (created_at TEXT ...)
+    M-&gt;&gt;DB: (2) INSERT INTO orders_temp SELECT ..., strftime(...) FROM orders
+    M-&gt;&gt;DB: (3) DROP TABLE orders (index cũ mất theo)
+    M-&gt;&gt;DB: (4) ALTER TABLE orders_temp RENAME TO orders
+    M-&gt;&gt;DB: (5) CREATE INDEX x2 theo OrderEntity
+    M--&gt;&gt;Room: migrate() xong
+    Room-&gt;&gt;DB: (6) onValidateSchema: so orders với OrderEntity
+    Room-&gt;&gt;DB: (6) ghi identity_hash mới, user_version = 4
+</div>
 
 <pre data-lang="kotlin"><code>val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        // Bước 1: Tạo bảng tạm với cấu trúc mong đợi mới (giữ đủ mọi cột của orders)
+        // (1) Bước 1: Tạo bảng tạm với cấu trúc mong đợi mới (giữ đủ mọi cột của orders)
         db.execSQL("""
             CREATE TABLE IF NOT EXISTS \`orders_temp\` (
                 \`id\` TEXT NOT NULL PRIMARY KEY,
@@ -37970,7 +38547,7 @@ flowchart TD
             )
         """.trimIndent())
 
-        // Bước 2: Copy dữ liệu và chuyển đổi kiểu dữ liệu trực tiếp bằng SQLite Date/Time functions
+        // (2) Bước 2: Copy dữ liệu và chuyển đổi kiểu dữ liệu trực tiếp bằng SQLite Date/Time functions
         // strftime('%Y-%m-%dT%H:%M:%SZ', ...) cho ra ISO-8601 dạng "2026-09-21T15:30:00Z"
         // (datetime() cho ra "2026-09-21 15:30:00" — có dấu cách, không có chữ T)
         db.execSQL("""
@@ -37984,29 +38561,30 @@ flowchart TD
             FROM \`orders\`
         """.trimIndent())
 
-        // Bước 3: Xóa bảng cũ
+        // (3) Bước 3: Xóa bảng cũ
         db.execSQL("DROP TABLE \`orders\`")
 
-        // Bước 4: Đổi tên bảng tạm thành bảng chính
+        // (4) Bước 4: Đổi tên bảng tạm thành bảng chính
         db.execSQL("ALTER TABLE \`orders_temp\` RENAME TO \`orders\`")
 
-        // Bước 5: Tạo lại composite index đã khai báo trong OrderEntity (mục 4)
+        // (5) Bước 5: Tạo lại hai index đã khai báo trong OrderEntity (composite index và covering index)
         db.execSQL("CREATE INDEX IF NOT EXISTS \`index_orders_user_id_status_created_at\` ON \`orders\` (\`user_id\`, \`status\`, \`created_at\`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS \`index_orders_user_id_status_amount\` ON \`orders\` (\`user_id\`, \`status\`, \`amount\`)")
     }
 }</code></pre>
 
+<p><strong>Kết quả:</strong> trên máy đang ở v3, sau khi cập nhật app, <code>orders.created_at</code> chứa chuỗi dạng <code>"2026-09-21T15:30:00Z"</code> và Room mở database bình thường; thiếu một trong hai index ở bước (5) thì bước (6) ném <code>Migration didn't properly handle: orders</code>. Kiểm chứng tự động như mục "Testing Migration với <code>MigrationTestHelper</code>": <code>helper.createDatabase(TEST_DB, 3)</code>, chèn vài đơn hàng, rồi <code>helper.runMigrationsAndValidate(TEST_DB, 4, true, MIGRATION_3_4)</code>.</p>
+
 <h3>Case Study 3: Tách 1 Entity thành 2 Entity có quan hệ (1 - N)</h3>
 
-<h4>Tình huống</h4>
-
-<p>Bảng <code>users</code> ở v4 chứa cả thông tin cá nhân và thông tin công ty: <code>users (id, name, email, phone_number, is_verified, company_name, company_tax_code)</code>. Ở version 5, kiến trúc chuẩn hóa CSDL (Normalization) yêu cầu tách thành 2 bảng riêng:</p>
+<p><strong>Tình huống:</strong> Bảng <code>users</code> ở v4 chứa cả thông tin cá nhân và thông tin công ty: <code>users (id, name, email, phone_number, is_verified, company_name, company_tax_code)</code>. Ở version 5, kiến trúc chuẩn hóa CSDL (Normalization) yêu cầu tách thành 2 bảng riêng:</p>
 
 <ul>
   <li><code>users (id, name, email, phone_number, is_verified)</code></li>
   <li><code>companies (id, user_id, name, tax_code)</code></li>
 </ul>
 
-<h4>Triển khai kịch bản Migration:</h4>
+<p>Migration tạo bảng <code>companies</code> và index cho khoá ngoại, đẩy dữ liệu công ty sang, rồi dựng lại <code>users</code> theo Table Recreation Pattern để bỏ hai cột thừa:</p>
 
 <pre data-lang="kotlin"><code>val MIGRATION_4_5 = object : Migration(4, 5) {
     override fun migrate(db: SupportSQLiteDatabase) {
@@ -38062,143 +38640,13 @@ flowchart TD
     }
 }</code></pre>
 
-<h2>4. Indexing, B-Tree &amp; Tối Ưu Hóa Truy Vấn CSDL Lớn</h2>
+<p><strong>Kết quả:</strong> mỗi user có <code>company_name</code> được một dòng tương ứng trong <code>companies</code> (<code>user_id</code> trỏ về user đó), bảng <code>users</code> không còn hai cột công ty, và unique index trên <code>email</code> vẫn còn.</p>
 
-<p>Khi ứng dụng quản lý tập dữ liệu lớn, hiệu năng đọc là tiêu chí sống còn. Hiểu rõ cấu trúc Index sẽ giúp bạn tránh các quyết định tối ưu hóa sai lầm.</p>
+<h2>Khi nào nên và không nên dùng</h2>
 
-<h3>Bản chất của Index bên dưới đĩa cứng: Cấu trúc B-Tree</h3>
+<p>Chọn AutoMigration hay Manual Migration theo bảng ở mục "Bảng so sánh lựa chọn: AutoMigration vs Manual Migration"; <code>fallbackToDestructiveMigration</code> chỉ dùng trong các trường hợp ở mục "Khi nào được phép dùng?". Với Index:</p>
 
-<p>Trong SQLite, bảng dữ liệu mặc định được tổ chức dưới dạng <strong>B-Tree bảng (Table B-Tree)</strong> được đánh địa chỉ bằng một số nguyên 64-bit gọi là <code>ROWID</code>.</p>
-
-<ul>
-  <li>Khi bạn chạy câu truy vấn: <code>SELECT * FROM users WHERE email = 'hazu@example.com'</code></li>
-  <li>Nếu cột <code>email</code> <strong>chưa được đánh Index</strong>, SQLite buộc phải thực hiện <strong>Full Table Scan</strong>: Đọc tuần tự từng trang đĩa từ đầu đến cuối bảng, so sánh từng chuỗi ký tự. Độ phức tạp là $O(N)$. Với bảng 500.000 dòng, thao tác này có thể mất từ 200ms - 1500ms, gây freeze UI ngay tức khắc!</li>
-</ul>
-
-<p>Khi bạn đánh Index cho cột <code>email</code>:</p>
-
-<pre data-lang="kotlin"><code>@Entity(
-    tableName = "users",
-    indices = [Index(value = ["email"], unique = true)]
-)
-data class UserEntity(
-    @PrimaryKey val id: String,
-    val name: String,
-    val email: String
-)</code></pre>
-
-<p>SQLite sẽ cấp phát một <strong>Index B-Tree</strong> riêng biệt trên đĩa cứng:</p>
-
-<div class="mermaid">
-graph TD
-    subgraph "Index B-Tree (Sắp xếp theo email)"
-        Root["Node Gốc: ['m@...']"]
-        Leaf1["Leaf Node A-L: ['a@...', 'hazu@example.com'] -&gt; ROWID #402"]
-        Leaf2["Leaf Node M-Z: ['n@...', 'z@...'] -&gt; ROWID #981"]
-        Root --&gt; Leaf1
-        Root --&gt; Leaf2
-    end
-
-    subgraph "Main Table (Lưu trên Disk)"
-        Row402["ROWID #402: {id: 'u_1', name: 'Nguyen Van A', email: 'hazu@example.com'}"]
-        Row981["ROWID #981: {id: 'u_2', name: 'Tran Thi B', email: 'z@example.com'}"]
-    end
-
-    Leaf1 -.-&gt;|Truy xuất trực tiếp qua ROWID| Row402
-    Leaf2 -.-&gt;|Truy xuất trực tiếp qua ROWID| Row981
-</div>
-
-<p>Quá trình tìm kiếm chỉ tốn $O(\\log N)$ bước duyệt cây để tìm thấy <code>ROWID</code>, sau đó nhảy thẳng đến vị trí bản ghi trên đĩa. Tốc độ tìm kiếm tăng từ hàng giây xuống còn <strong>dưới 2 mili-giây</strong>!</p>
-
-<h3>Composite Index &amp; Quy tắc "Leftmost Prefix" (Tiền tố bên trái)</h3>
-
-<p>Trong thực tế, bạn thường xuyên phải lọc theo nhiều điều kiện đồng thời, ví dụ màn hình danh sách đơn hàng: <code>SELECT * FROM orders WHERE user_id = :userId AND status = :status ORDER BY created_at DESC</code></p>
-
-<p>Nếu bạn đánh 3 Index đơn lẻ (<code>user_id</code>, <code>status</code>, <code>created_at</code>), SQLite chỉ có thể chọn <strong>1 Index duy nhất</strong> tốt nhất để duyệt, hai cột còn lại vẫn phải lọc thủ công trong bộ nhớ.</p>
-
-<p>Giải pháp là <strong>Composite Index (Chỉ mục kết hợp nhiều cột)</strong>:</p>
-
-<pre data-lang="kotlin"><code>@Entity(
-    tableName = "orders",
-    indices = [
-        Index(value = ["user_id", "status", "created_at"])
-    ]
-)
-data class OrderEntity(...)</code></pre>
-
-<h4>Quy tắc vàng: "Leftmost Prefix"</h4>
-
-<p>Thứ tự khai báo các cột trong <code>value = ["colA", "colB", "colC"]</code> mang tính quyết định:</p>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Câu lệnh truy vấn</th>
-      <th style="padding:8px 12px;text-align:left;">Index có được sử dụng không?</th>
-      <th style="padding:8px 12px;text-align:left;">Giải thích</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colA = ?</code></td>
-      <td style="padding:8px 12px;"><strong>CÓ</strong></td>
-      <td style="padding:8px 12px;">Khớp tiền tố bên trái nhất (<code>colA</code>).</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colA = ? AND colB = ?</code></td>
-      <td style="padding:8px 12px;"><strong>CÓ</strong></td>
-      <td style="padding:8px 12px;">Khớp tiền tố 2 cột đầu (<code>colA</code>, <code>colB</code>).</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colA = ? AND colB = ? AND colC = ?</code></td>
-      <td style="padding:8px 12px;"><strong>CÓ (Tối ưu tuyệt đối)</strong></td>
-      <td style="padding:8px 12px;">Sử dụng trọn vẹn cả 3 cột của B-Tree.</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colB = ?</code></td>
-      <td style="padding:8px 12px;"><strong>KHÔNG</strong></td>
-      <td style="padding:8px 12px;">Bỏ qua <code>colA</code>. SQLite không thể nhảy vào giữa cây B-Tree mà không qua gốc <code>colA</code>!</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colB = ? AND colC = ?</code></td>
-      <td style="padding:8px 12px;"><strong>KHÔNG</strong></td>
-      <td style="padding:8px 12px;">Bỏ qua tiền tố bên trái nhất. Bắt buộc phải Full Table Scan!</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>WHERE colA = ? AND colC = ?</code></td>
-      <td style="padding:8px 12px;"><strong>MỘT PHẦN</strong></td>
-      <td style="padding:8px 12px;">Chỉ dùng index cho <code>colA</code>. Cột <code>colC</code> phải scan thủ công.</td>
-    </tr>
-  </tbody>
-</table>
-
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Thứ tự sắp xếp cột chuẩn trong Composite Index:</strong> 1. <strong>Cột so sánh bằng (<code>=</code>) có độ chọn lọc cao nhất:</strong> Đặt lên đầu tiên (ví dụ <code>user_id</code>). 2. <strong>Cột so sánh bằng bổ sung:</strong> Đặt ở giữa (ví dụ <code>status</code>). 3. <strong>Cột so sánh khoảng (<code>&lt;</code>, <code>&gt;</code>, <code>BETWEEN</code>) hoặc sắp xếp (<code>ORDER BY</code>):</strong> Bắt buộc phải đặt ở <strong>cuối cùng</strong> của Composite Index. Nếu đặt cột so sánh khoảng lên trước, SQLite sẽ ngừng sử dụng Index cho các cột phía sau!</div></div>
-
-<h3>Chi phí đánh đổi (Trade-off) &amp; Khi nào KHÔNG ĐƯỢC đánh Index?</h3>
-
-<p>Index là một con dao hai lưỡi. Một Senior Android Developer phải biết từ chối đánh index khi không cần thiết.</p>
-
-<div class="mermaid">
-pie title "Chi phí tài nguyên của Index"
-    "Dung lượng lưu trữ bảng chính": 55
-    "Dung lượng các cây B-Tree Index": 45
-</div>
-
-<h4>1. Hình phạt ghi dữ liệu (The Write Penalty)</h4>
-
-<p>Mỗi khi bạn thực hiện một thao tác ghi (<code>INSERT</code>, <code>UPDATE</code> các cột có index, hoặc <code>DELETE</code>):</p>
-
-<ul>
-  <li>SQLite không chỉ cập nhật bản ghi trong bảng chính.</li>
-  <li>SQLite phải duyệt và tái cân bằng (Rebalance / Split Node) lại <strong>tất cả</strong> các cây B-Tree Index gắn liền với bảng đó.</li>
-  <li>Nếu một bảng có 5 Index, tốc độ <code>INSERT</code> có thể bị <strong>chậm đi từ 3x đến 8x</strong> so với bảng không có Index!</li>
-</ul>
-
-<h4>2. Dung lượng file <code>.db</code> phình to</h4>
-
-<p>Mỗi Index là một bản sao thu nhỏ của dữ liệu. Việc tạo quá nhiều Index trên bảng lớn có thể khiến kích thước file Database trên máy người dùng tăng gấp đôi, dễ dẫn đến lỗi <code>SQLiteFullException</code> (hết bộ nhớ trong).</p>
-
-<h4>Khi nào NÊN đánh Index?</h4>
+<h3>Khi nào NÊN đánh Index?</h3>
 
 <ol>
   <li><strong>Cột nằm trong <code>WHERE</code> của các query chạy thường xuyên</strong> (lọc theo <code>user_id</code>, <code>status</code>, <code>sync_status</code>...).</li>
@@ -38206,7 +38654,7 @@ pie title "Chi phí tài nguyên của Index"
   <li><strong>Cột dùng trong <code>ORDER BY</code></strong> (ví dụ <code>created_at</code>), đặt ở cuối Composite Index như mục trên.</li>
 </ol>
 
-<h4>Khi nào KHÔNG NÊN đánh Index?</h4>
+<h3>Khi nào KHÔNG NÊN đánh Index?</h3>
 
 <ol>
   <li><strong>Cột có độ chọn lọc thấp (Low Selectivity / Low Cardinality):</strong> Ví dụ cột cờ boolean (<code>is_deleted</code>, <code>is_active</code>) hoặc giới tính (<code>gender</code>). Khi một giá trị chiếm tới 50% tổng số bản ghi trong bảng, SQLite Engine phân tích chi phí và nhận thấy việc tra cứu Index B-Tree rồi nhảy về đĩa tìm <code>ROWID</code> (Random I/O) còn tốn thời gian hơn việc đọc tuần tự toàn bộ bảng (Sequential I/O). Index lúc này trở nên vô dụng!</li>
@@ -38214,123 +38662,76 @@ pie title "Chi phí tài nguyên của Index"
   <li><strong>Bảng ghi nhiều hơn đọc (Write-heavy tables):</strong> Ví dụ bảng <code>analytics_events</code>, <code>log_records</code>. Dữ liệu liên tục được chèn vào nhưng rất hiếm khi được truy vấn trực tiếp trên thiết bị.</li>
 </ol>
 
-<h3>Đo lường chính xác bằng <code>EXPLAIN QUERY PLAN</code></h3>
+<h2>Sai lầm thường gặp</h2>
 
-<p>Đừng bao giờ đoán mò xem câu truy vấn có đang chạy nhanh hay không. Hãy để SQLite chỉ rõ đường đi nước bước thông qua lệnh <code>EXPLAIN QUERY PLAN</code>.</p>
+<h3>1. Gắn <code>fallbackToDestructiveMigration()</code> cho app có dữ liệu offline</h3>
 
-<p>Bạn có thể kiểm tra trực tiếp trong Room DAO hoặc Database Inspector của Android Studio:</p>
+<p>Không tìm thấy migration, Room xoá và tạo lại bảng: người dùng cập nhật app mất sạch dữ liệu chưa đồng bộ, không phục hồi được.</p>
 
-<pre data-lang="kotlin"><code>@Dao
-interface OrderDao {
-    // Câu truy vấn kiểm tra kế hoạch thực thi
-    @Query("EXPLAIN QUERY PLAN SELECT * FROM orders WHERE user_id = :userId AND status = :status")
-    suspend fun explainOrderQuery(userId: String, status: String): List&lt;QueryPlanItem&gt;
-}
+<p><strong>Cách sửa:</strong> viết <code>Migration</code>/<code>AutoMigration</code> cho mọi bước version đã phát hành; nếu cần bỏ dữ liệu của vài bản thử nghiệm thì giới hạn bằng <code>fallbackToDestructiveMigrationFrom(...)</code> (mục "Cảnh báo về <code>fallbackToDestructiveMigration()</code>").</p>
 
-data class QueryPlanItem(
-    val id: Int,
-    val parent: Int,
-    val notused: Int,
-    val detail: String // Chứa thông tin kế hoạch
-)</code></pre>
+<h3>2. Đổi <code>@Entity</code> mà quên tăng <code>version</code></h3>
 
-<h4>Phân tích kết quả thực tế từ <code>detail</code>:</h4>
+<p>Không migration nào chạy, hash trong <code>room_master_table</code> khác hash trong code, app crash với <code>Room cannot verify the data integrity</code>.</p>
 
-<ol>
-  <li><strong>Trường hợp nguy hiểm (Full Table Scan):</strong> \`\`<code>text detail: "SCAN TABLE orders" </code>\`\` 👉 SQLite đang phải duyệt qua toàn bộ bảng từ dòng đầu đến dòng cuối. Bạn cần xem lại cấu trúc Index ngay lập tức!</li>
-</ol>
+<p><strong>Cách sửa:</strong> mỗi lần đổi schema, tăng <code>version</code> trong <code>@Database</code> và đăng ký migration tương ứng.</p>
 
-<ol>
-  <li><strong>Trường hợp tối ưu (Index Search):</strong> \`\`<code>text detail: "SEARCH TABLE orders USING INDEX index_orders_user_id_status_created_at (user_id=? AND status=?)" </code>\`\` 👉 Tuyệt vời! SQLite đã sử dụng chính xác Composite Index bạn tạo để tìm kiếm.</li>
-</ol>
+<h3>3. Tăng <code>version</code> nhưng thiếu đường migration</h3>
 
-<ol>
-  <li><strong>Cảnh giới cao nhất: Covering Index:</strong> \`\`<code>text detail: "SEARCH TABLE orders USING COVERING INDEX index_orders_user_id_status_amount" </code>\`<code> 👉 **Covering Index:** Tất cả các cột nằm trong mệnh đề </code>SELECT<code>, </code>WHERE<code>, và </code>ORDER BY\` đều nằm trọn vẹn bên trong cây B-Tree của Index. SQLite <strong>không cần phải đọc bảng chính một lần nào</strong>. Đây là mức hiệu năng truy vấn nhanh nhất có thể đạt được trong hệ thống CSDL quan hệ!</li>
-</ol>
+<p>Room ném <code>A migration from 1 to 2 was required but not found</code> ở lần mở đầu tiên sau khi cập nhật. Có đủ các migration riêng lẻ vẫn có thể gặp lỗi này, vì Room chọn đường theo thuật toán tham lam, không quay lui.</p>
 
-<h2>5. Testing Migration với <code>MigrationTestHelper</code></h2>
+<p><strong>Cách sửa:</strong> đăng ký đủ migration từ mọi version đã phát hành (<code>addMigrations(...)</code> hoặc <code>autoMigrations</code>), ưu tiên chuỗi tuần tự như mục "Kịch bản "Nhảy cóc phiên bản" (Skip-Version Migrations)", và kiểm chứng bằng <code>MigrationTestHelper</code>.</p>
 
-<p>Quy tắc vàng số 1 của Production Database: <strong>Không bao giờ đẩy migration lên production nếu chưa có Unit Test tự động chứng minh nó chạy thành công 100%.</strong></p>
+<h3>4. Thêm cột <code>NOT NULL</code> mà quên <code>DEFAULT</code></h3>
 
-<p>Thư viện Room cung cấp công cụ <code>MigrationTestHelper</code> (nằm trong artifact <code>androidx.room:room-testing</code>) cho phép mô phỏng việc tạo CSDL ở phiên bản cũ, chèn dữ liệu thực tế, chạy migration, và kiểm tra tính toàn vẹn dữ liệu.</p>
+<p>Nếu bạn viết <code>"ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL"</code> mà quên <code>DEFAULT 0</code>, SQLite từ chối lệnh và app crash ngay khi migrate: theo tài liệu SQLite, cột <code>NOT NULL</code> thêm bằng <code>ADD COLUMN</code> phải có giá trị mặc định khác <code>NULL</code>, vì đó là giá trị SQLite điền cho mọi dòng đã có (ở đây là 1 triệu dòng dữ liệu cũ).</p>
 
-<h3>1. Khai báo dependency</h3>
+<p><strong>Cách sửa:</strong> luôn kèm <code>DEFAULT</code>, và giá trị đó phải khớp <code>defaultValue</code> trong <code>@ColumnInfo</code>, như Case Study 1.</p>
 
-<pre data-lang="kotlin"><code>// build.gradle.kts
-dependencies {
-    // Test bên dưới dùng InstrumentationRegistry và đọc schema JSON từ assets của androidTest
-    // (sourceSets ở mục 2), nên là instrumented test: đặt trong src/androidTest
-    androidTestImplementation(libs.androidx.room.testing)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.runner)
-}</code></pre>
+<h3>5. Chạy <code>ALTER TABLE DROP COLUMN</code> trên thiết bị cũ</h3>
 
-<h3>2. Viết Test Case kiểm chứng Migration 1 lên 2</h3>
+<p>Trên Android 13 trở xuống (SQLite dưới 3.35), lệnh ném <code>SQLiteException: near "DROP": syntax error</code>.</p>
 
-<pre data-lang="kotlin"><code>package com.example.app.data.local
+<p><strong>Cách sửa:</strong> xoá cột bằng Table Recreation Pattern (mục "Các Ca Migration Khó: Dựng Lại Bảng 5 Bước (Table Recreation Pattern)") hoặc bằng <code>@DeleteColumn</code> trong <code>AutoMigrationSpec</code>.</p>
 
-import androidx.room.testing.MigrationTestHelper
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.io.IOException
+<h3>6. Quên tạo lại index sau khi dựng lại bảng</h3>
 
-@RunWith(AndroidJUnit4::class)
-class AppDatabaseMigrationTest {
+<p><code>DROP TABLE</code> xoá luôn các index của bảng cũ. Thiếu một index đã khai báo trong <code>@Entity</code>, bước kiểm tra schema sau migration ném <code>Migration didn't properly handle</code>.</p>
 
-    private val TEST_DB = "migration-test.db"
+<p><strong>Cách sửa:</strong> bước 5 của Table Recreation Pattern tạo lại <strong>mọi</strong> index của bảng với đúng tên và đúng cột như <code>@Entity</code>, như bước (5) của Case Study 2.</p>
 
-    // Dùng constructor nhận class của Database. Constructor cũ nhận tên assets
-    // (canonicalName + FrameworkSQLiteOpenHelperFactory) đã deprecated từ Room 2.4
-    // và không chạy được AutoMigration (bước v2 → v3 của chuỗi schema).
-    @get:Rule
-    val helper: MigrationTestHelper = MigrationTestHelper(
-        InstrumentationRegistry.getInstrumentation(),
-        AppDatabase::class.java
-    )
+<h3>7. Bỏ sót cột khi copy sang bảng mới</h3>
 
-    @Test
-    @Throws(IOException::class)
-    fun migrate1To2_containsCorrectDataAndNewColumnDefault() {
-        // GIAI ĐOẠN 1: Tạo database ở Version 1 và chèn dữ liệu mẫu
-        var db = helper.createDatabase(TEST_DB, 1).apply {
-            // Chèn bản ghi theo cấu trúc của Version 1 (chưa có cột is_verified; các cột khác cho phép null)
-            execSQL("INSERT INTO users (id, name, email) VALUES ('u1', 'Hazu Nguyen', 'hazu@example.com')")
-            close()
-        }
+<p>Câu <code>INSERT ... SELECT</code> chỉ liệt kê cột của version gốc mà quên các cột đã thêm ở những version sau: dữ liệu các cột đó mất, và bảng mới thiếu cột thì validate fail.</p>
 
-        // GIAI ĐOẠN 2: Thực thi migration lên Version 2
-        // helper.runMigrationsAndValidate sẽ tự động:
-        // 1. Chạy MIGRATION_1_2
-        // 2. So sánh Identity Hash và Schema thực tế với schemas/2.json
-        db = helper.runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2)
+<p><strong>Cách sửa:</strong> liệt kê đủ mọi cột của schema hiện tại trong cả <code>CREATE TABLE</code> lẫn <code>INSERT ... SELECT</code>, như bước 4 của Case Study 3.</p>
 
-        // GIAI ĐOẠN 3: Kiểm tra tính toàn vẹn của dữ liệu sau khi migrate
-        val cursor = db.query("SELECT id, name, email, is_verified FROM users WHERE id = 'u1'")
-        assertTrue("Bản ghi người dùng cũ phải còn tồn tại", cursor.moveToFirst())
+<h3>8. Sai thứ tự cột trong Composite Index</h3>
 
-        val name = cursor.getString(cursor.getColumnIndexOrThrow("name"))
-        val email = cursor.getString(cursor.getColumnIndexOrThrow("email"))
-        val isVerified = cursor.getInt(cursor.getColumnIndexOrThrow("is_verified"))
+<p>Đặt cột so sánh khoảng hoặc cột <code>ORDER BY</code> lên trước, hoặc query không lọc theo cột đầu tiên của index: SQLite dừng dùng index ở cột đó, hoặc không dùng được index và quay về Full Table Scan.</p>
 
-        // Xác nhận dữ liệu cũ không bị mất hoặc sai lệch
-        assertEquals("Hazu Nguyen", name)
-        assertEquals("hazu@example.com", email)
-        // Xác nhận cột mới có giá trị default chính xác (0 tương ứng false)
-        assertEquals(0, isVerified)
+<p><strong>Cách sửa:</strong> cột so sánh bằng có độ chọn lọc cao đặt đầu, cột so sánh khoảng/<code>ORDER BY</code> đặt cuối (mục "Composite Index &amp; Quy tắc "Leftmost Prefix" (Tiền tố bên trái)"), rồi xác nhận bằng <code>EXPLAIN QUERY PLAN</code>.</p>
 
-        cursor.close()
-        db.close()
-    }
-}</code></pre>
+<h3>9. Đánh index cho mọi cột</h3>
 
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Tích hợp bài test này vào luồng <strong>CI/CD (GitHub Actions / GitLab CI)</strong>. Mỗi khi có Pull Request thay đổi Entity hoặc Database Version, CI sẽ tự động kích hoạt test. Nếu ai đó quên viết Migration hoặc viết sai câu lệnh SQL, bản build sẽ bị chặn ngay lập tức, triệt tiêu 100% nguy cơ crash database trên máy khách hàng.</div></div>
+<p>Mỗi index thêm một cây B-Tree phải cập nhật ở mọi lần ghi và làm file <code>.db</code> phình to, trong khi index trên cột có độ chọn lọc thấp không giúp gì cho đọc.</p>
 
-<h2>6. Tư Duy Hệ Thống (System Thinking): Vị Trí Của Migration Trong Clean Architecture</h2>
+<p><strong>Cách sửa:</strong> chỉ đánh index theo tiêu chí ở mục "Khi nào nên và không nên dùng", và dùng <code>EXPLAIN QUERY PLAN</code> để chứng minh index thật sự được dùng.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>Room 2.0.0 (bản đầu tiên trong AndroidX):</strong> reference ghi <code>RoomDatabase.Builder</code> (kèm <code>fallbackToDestructiveMigration()</code>, <code>fallbackToDestructiveMigrationFrom()</code>) và <code>MigrationTestHelper</code> có từ bản này.</li>
+  <li><strong>SQLite 3.25.0 (15/09/2018):</strong> thêm <code>ALTER TABLE ... RENAME COLUMN</code>. Trên Android có từ API 30 (Android 11, SQLite 3.28).</li>
+  <li><strong>SQLite 3.35.0 (12/03/2021):</strong> thêm <code>ALTER TABLE DROP COLUMN</code>. Android chỉ lên SQLite 3.39 ở API 34 (Android 14), nên app hỗ trợ máy cũ hơn vẫn cần Table Recreation Pattern.</li>
+  <li><strong>Room 2.4.0 (stable 15/12/2021):</strong> thêm AutoMigration (<code>@Database(autoMigrations = ...)</code>, <code>AutoMigrationSpec</code>), xuất hiện từ 2.4.0-alpha01 (04/2021). <code>MigrationTestHelper</code> có constructor nhận class của Database (từ 2.4.0-alpha03) để chạy được AutoMigration trong test; constructor cũ nhận tên thư mục assets bị deprecated trong 2.4.0.</li>
+  <li><strong>Room 2.6.0 (stable 18/10/2023):</strong> thêm Room Gradle Plugin (<code>androidx.room</code>), khai báo thư mục schema bằng <code>room { schemaDirectory(...) }</code> thay cho tham số của annotation processor/KSP.</li>
+  <li><strong>Room 2.7.0 (stable 09/04/2025):</strong> Room thành thư viện Kotlin Multiplatform, cấu hình được với <code>SQLiteDriver</code>; <code>fallbackToDestructiveMigration()</code> và <code>fallbackToDestructiveMigrationFrom(vararg)</code> bị deprecated, thay bằng overload có tham số <code>dropAllTables</code>.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<h3>Vị trí của Migration trong Clean Architecture</h3>
 
 <p>Trong một kiến trúc phần mềm hoàn chỉnh, Migration và Indexing không chỉ đơn thuần là kỹ thuật viết SQL, mà là một phần thiết yếu của chiến lược quản trị dữ liệu:</p>
 
@@ -38364,7 +38765,19 @@ graph TD
   <li><strong>Chiến lược Phục hồi Thảm họa (Graceful Degradation &amp; Backup):</strong> Đối với dữ liệu tài chính hoặc dữ liệu ngoại tuyến tối quan trọng: Trước khi thực hiện một kịch bản Migration phức tạp từ phiên bản rất cũ, hãy sao chép tệp <code>app_database.db</code> sang tệp tạm <code>app_database.db.bak</code>. Nếu quá trình migrate ném ngoại lệ không mong muốn, ứng dụng có thể khôi phục lại bản backup và gửi log chi tiết về Crashlytics thay vì khiến người dùng mất trắng dữ liệu.</li>
 </ol>
 
-<h2>7. Tổng Kết &amp; Câu Hỏi Phỏng Vấn Senior (Cheat Sheet)</h2>
+<h3>Topic liên quan</h3>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>: Entity, DAO, <code>@Database</code> và <code>version</code>, những thứ mà migration và index trong bài này thay đổi.</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>: transaction và Flow trên Room, chạy trên cùng database mà migration đã nâng cấp.</li>
+  <li><a href="../working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: Main Thread và ANR, lý do migration nặng không được chạy trên main thread.</li>
+</ul></li>
+  <li><strong>Kiến thức dùng trước:</strong> 8.4.3 Coroutines (chưa có bài) cho hàm <code>suspend</code> và <code>Dispatchers.IO</code>; 7.2.5 Clean Architecture (chưa có bài) cho sơ đồ các tầng ở trên.</li>
+</ul>
+
+<h2>Developer Curiosity Checklist</h2>
 
 <h3>Tóm tắt cốt lõi</h3>
 
@@ -38388,7 +38801,7 @@ graph TD
 
 <h4>Q3: Tại sao gọi <code>fallbackToDestructiveMigration()</code> là nguy hiểm trên Production?</h4>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Trả lời:</strong> Vì khi phát hiện sự chênh lệch version mà không có migration script tương ứng, Room sẽ thực thi <code>DROP TABLE</code> cho toàn bộ các bảng, xóa sạch toàn bộ dữ liệu offline của người dùng mà không thể phục hồi. Phương thức này chỉ được chấp nhận đối với dữ liệu thuần cache từ remote server hoặc trong môi trường phát triển nội bộ.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Trả lời:</strong> Vì khi phát hiện sự chênh lệch version mà không có migration script tương ứng, Room sẽ thực thi <code>DROP TABLE</code> cho toàn bộ các bảng (các bảng Room quản lý, hoặc mọi bảng với <code>dropAllTables = true</code>), xóa sạch toàn bộ dữ liệu offline của người dùng mà không thể phục hồi. Phương thức này chỉ được chấp nhận đối với dữ liệu thuần cache từ remote server hoặc trong môi trường phát triển nội bộ.</div></div>
 
 <h4>Q4: Cấu trúc bên dưới của Index trong SQLite là gì? Tại sao không nên đánh Index cho mọi cột?</h4>
 
@@ -38398,7 +38811,7 @@ graph TD
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Trả lời:</strong> Một Composite Index trên các cột <code>(A, B, C)</code> chỉ được SQLite sử dụng nếu câu truy vấn lọc theo thứ tự bắt đầu từ cột ngoài cùng bên trái (<code>A</code>). Cụ thể: query theo <code>A</code>, theo <code>A AND B</code>, hoặc theo <code>A AND B AND C</code> đều được tối ưu. Nhưng nếu câu query chỉ tìm theo <code>B</code> hoặc <code>B AND C</code> (bỏ qua <code>A</code>), SQLite sẽ không thể sử dụng Index này và buộc phải quét tuần tự toàn bộ bảng (Full Table Scan). Do đó, các cột so sánh bằng (<code>=</code>) và có độ chọn lọc cao nhất phải luôn được ưu tiên đặt ở vị trí ngoài cùng bên trái của Composite Index.</div></div>
 
-<h2>8. Nguồn Tham Khảo Chính Thức (References)</h2>
+<h2>Nguồn tham khảo</h2>
 
 <ol>
   <li><a href="https://developer.android.com/training/data-storage/room/migrating-db-versions" target="_blank" rel="noopener">Android Developers — Migrate Room databases</a></li>
@@ -38408,15 +38821,21 @@ graph TD
   <li><a href="https://www.sqlite.org/lang_altertable.html#otheralter" target="_blank" rel="noopener">SQLite Documentation — Making Other Kinds Of Table Schema Changes (Table Recreation Pattern)</a></li>
   <li><a href="https://www.sqlite.org/queryplanner.html" target="_blank" rel="noopener">SQLite Documentation — Query Planning &amp; B-Tree Structure</a></li>
   <li><a href="https://developer.android.com/reference/android/database/sqlite/package-summary" target="_blank" rel="noopener">Android Developers — android.database.sqlite (SQLite version theo API level)</a></li>
-  <li><a href="https://www.sqlite.org/lang_altertable.html" target="_blank" rel="noopener">SQLite Documentation — ALTER TABLE (DROP COLUMN từ 3.35.0, RENAME COLUMN từ 3.25.0)</a></li>
+  <li><a href="https://www.sqlite.org/lang_altertable.html" target="_blank" rel="noopener">SQLite Documentation — ALTER TABLE (DROP COLUMN từ 3.35.0, RENAME COLUMN từ 3.25.0; cột NOT NULL thêm bằng ADD COLUMN phải có DEFAULT khác NULL)</a></li>
   <li><a href="https://www.sqlite.org/lang_datefunc.html" target="_blank" rel="noopener">SQLite Documentation — Date And Time Functions (strftime)</a></li>
   <li><a href="https://developer.android.com/reference/androidx/room/RoomDatabase.MigrationContainer" target="_blank" rel="noopener">Android Developers — RoomDatabase.MigrationContainer</a></li>
+  <li><a href="https://developer.android.com/reference/kotlin/androidx/room/RoomDatabase.Builder" target="_blank" rel="noopener">Android Developers — RoomDatabase.Builder (fallbackToDestructiveMigration, dropAllTables, deprecated trong 2.7.0)</a></li>
+  <li><a href="https://developer.android.com/reference/kotlin/androidx/room/testing/MigrationTestHelper" target="_blank" rel="noopener">Android Developers — MigrationTestHelper (constructor nhận class Database từ 2.4.0, constructor assets deprecated)</a></li>
+  <li><a href="https://developer.android.com/reference/kotlin/androidx/room/Index.html" target="_blank" rel="noopener">Android Developers — Index (tên index mặc định)</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/room" target="_blank" rel="noopener">Android Developers — Room release notes (2.4.0 AutoMigration, 2.6.0 Room Gradle Plugin, 2.7.0 KMP)</a></li>
+  <li><a href="https://www.sqlite.org/releaselog/3_25_0.html" target="_blank" rel="noopener">SQLite — Release 3.25.0 (RENAME COLUMN)</a></li>
+  <li><a href="https://www.sqlite.org/changes.html" target="_blank" rel="noopener">SQLite — Release History (3.35.0: DROP COLUMN)</a></li>
 </ol>
     `
   },
   'data-store-room-trans': {
     title: 'Async Transactions & Flow',
-    summary: 'Chuyên sâu về Room Database bất đồng bộ. Bóc tách vì sao transaction của SQLite gắn với thread, cách withTransaction giữ toàn bộ transaction trên một thread riêng, @Transaction vs withTransaction, cơ chế InvalidationTracker phía dưới Flow, cách @Relation chạy query phụ (2 query, không phải N+1), và các pattern thực chiến cho Data Sync, E-commerce, Banking cùng chiến lược Testing với Turbine.',
+    summary: 'Room làm việc với coroutine bằng hai cơ chế. withTransaction giữ toàn bộ một transaction trên một thread riêng lấy từ transactionExecutor (TransactionElement trong CoroutineContext dẫn mọi DAO call về thread đó) dù block có suspend; InvalidationTracker dùng SQLite trigger đánh dấu bảng bị ghi để các Flow đang đọc bảng chạy lại query sau khi transaction ghi kết thúc. Bài giải thích threading của Room, @Transaction vs withTransaction, rollback khi bị cancel, table-level invalidation, @Relation (2 query, không phải N+1), WAL, các pattern Data Sync, Checkout, chuyển tiền và cách test bằng Turbine.',
     status: 'published',
     difficulty: 'advanced',
     estimatedReadingTime: '45 phút',
@@ -38434,16 +38853,16 @@ graph TD
       'Triển khai được Unit Test cho transaction rollback và Flow emission bằng Turbine.'
     ],
     knowledgeGap: 'Developer biết dùng Room cơ bản nhưng không hiểu vì sao transaction trong Coroutines phức tạp, vì sao Flow tự cập nhật, và hay gặp lỗi SQLiteDatabaseLockedException.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '45 phút',
     content: `
+<h2>Vấn đề cần giải quyết</h2>
+
 <p>Khi bạn viết <code>dao.insertUser(user)</code> bên trong một <code>suspend fun</code>, trực giác bảo bạn đó là một thao tác đơn giản. Nhưng bên dưới, một chuỗi sự kiện phức tạp xảy ra: Coroutine phải nhảy sang đúng thread đang giữ transaction, Room phải giữ thread đó suốt vòng đời transaction, và Flow phải biết chính xác khi nào cần re-query mà không làm UI recompose thừa.</p>
 
-<p>Tài liệu này bóc tách từng tầng của cơ chế đó — từ cách SQLite gắn transaction với thread, đến <code>TransactionElement</code> trong <code>CoroutineContext</code>, đến trigger nội bộ của <code>InvalidationTracker</code> — để bạn hiểu <strong>tại sao</strong> nó hoạt động, <strong>khi nào</strong> nó sai, và <strong>cách</strong> viết code production-grade.</p>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Bài dùng coroutine (đoạn code có thể tạm dừng bằng <code>suspend</code> rồi chạy tiếp, có thể trên thread khác) và <code>Flow</code> (luồng dữ liệu bất đồng bộ phát nhiều giá trị theo thời gian) ở mức tối thiểu: hàm <code>suspend</code>, <code>launch</code>, <code>collect</code>. Coroutine được học ở 8.4.3 Coroutines (chưa có bài); Flow được học ở 7.1.4.2 Flow (chưa có bài).</div></div>
 
-<h2>1. Vấn đề nền tảng: Tại sao SQLite lại "nguy hiểm" với Coroutines?</h2>
-
-<h3>1.1 SQLite connection là ThreadLocal</h3>
+<h3>Transaction của SQLite gắn với thread</h3>
 
 <p>Transaction trong SQLite của Android <strong>gắn với thread</strong>, không gắn với đối tượng <code>SQLiteDatabase</code>. Bên trong, <code>SQLiteDatabase</code> giữ cho mỗi thread một <code>SQLiteSession</code> riêng (qua <code>ThreadLocal</code>); transaction mở trên thread A chỉ tồn tại trong session của thread A.</p>
 
@@ -38456,7 +38875,7 @@ Thread B không thấy transaction của A:
 
 <p>Nhưng Coroutines thay đổi luật chơi hoàn toàn.</p>
 
-<h3>1.2 Coroutine suspension — kẻ phá vỡ ràng buộc Thread</h3>
+<h3>Coroutine suspension — kẻ phá vỡ ràng buộc Thread</h3>
 
 <p>Khi một Coroutine <code>suspend</code>, nó nhường thread hiện tại. Khi được resume, nó có thể tiếp tục trên <strong>một thread khác</strong> trong pool. Xét tình huống:</p>
 
@@ -38472,7 +38891,42 @@ suspend fun badTransaction() {
 
 <p><code>IllegalStateException: Cannot perform this operation because there is no current transaction</code> — đây là lỗi bạn nhận được. Không phải vì code logic sai, mà vì thread sai.</p>
 
-<h3>1.3 Room giải quyết bằng TransactionDispatcher</h3>
+<p>Tài liệu này bóc tách từng tầng của cơ chế đó — từ cách SQLite gắn transaction với thread, đến <code>TransactionElement</code> trong <code>CoroutineContext</code>, đến trigger nội bộ của <code>InvalidationTracker</code> — để bạn hiểu <strong>tại sao</strong> nó hoạt động, <strong>khi nào</strong> nó sai, và <strong>cách</strong> viết code production-grade.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được vì sao transaction gắn với thread là vấn đề khi dùng Coroutines và cách withTransaction giữ cả transaction trên một thread.</li>
+  <li>Phân biệt được @Transaction (DAO-level) và withTransaction (Repository-level).</li>
+  <li>Giải thích được cơ chế InvalidationTracker - SQLite trigger, bảng room_table_modification_log và Flow emit.</li>
+  <li>Áp dụng được các pattern Data Sync không empty flash, Checkout nhiều bảng và cách đọc @Relation hiệu quả (2 query hoặc JOIN thủ công).</li>
+  <li>Triển khai được Unit Test cho transaction rollback và Flow emission bằng Turbine.</li>
+</ul>
+
+<h2>Async Transactions &amp; Flow là gì?</h2>
+
+<p><strong>Async Transactions &amp; Flow</strong> là hai cơ chế Room dùng để làm việc với coroutine: <code>withTransaction</code> giữ toàn bộ một transaction trên <strong>một thread riêng</strong> lấy từ <code>transactionExecutor</code> dù block có <code>suspend</code> giữa chừng, còn <code>InvalidationTracker</code> dùng <strong>SQLite trigger</strong> đánh dấu bảng vừa bị ghi để các <code>Flow</code> đang đọc bảng đó chạy lại query sau khi transaction ghi kết thúc.</p>
+
+<p>Mental model: <code>TransactionElement</code> là <strong>thẻ nhận diện</strong> của transaction mà coroutine mang theo trong <code>CoroutineContext</code>. Lời gọi DAO nào bên trong <code>withTransaction { }</code> thấy thẻ này thì được dẫn về đúng thread đang giữ transaction; lời gọi không có thẻ thì đi sang executor bình thường của Room.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Room chạy query trên thread nào?</h3>
+
+<p>Đọc ghi database là Disk I/O, thời gian không đoán trước được: một query có thể mất vài mili-giây đến vài trăm mili-giây tuỳ kích thước file và tải của máy. Chạy trên main thread thì vượt ngân sách một frame và có thể dẫn tới ANR (xem <a href="../working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>, mục "Main Thread (UI Thread) trong Android"). Vì vậy:</p>
+
+<ul>
+  <li><strong>Room chặn query trên main thread.</strong> Gọi một hàm DAO thường (không <code>suspend</code>, không trả <code>Flow</code>) trên main thread sẽ bị <code>IllegalStateException: Cannot access database on the main thread since it may potentially lock the UI for a long period of time.</code> Builder có <code>allowMainThreadQueries()</code> để tắt kiểm tra này; chỉ dùng trong test, không dùng trong code production.</li>
+  <li><strong>Hàm <code>suspend</code> và hàm trả <code>Flow</code> là main-safe:</strong> Room tự chuyển việc sang executor của nó, nên gọi từ <code>viewModelScope</code> (đang ở main thread) vẫn an toàn.</li>
+  <li><strong>Hai vai trò executor:</strong>
+<ul>
+  <li><strong>Query executor</strong> chạy các lệnh đọc (<code>SELECT</code> của hàm <code>suspend</code>, query của <code>Flow</code>), cho phép nhiều lệnh đọc song song.</li>
+  <li><strong>Transaction executor</strong> chạy các lệnh ghi <code>suspend</code> và <code>withTransaction</code> (mục "<code>withTransaction</code> giữ cả transaction trên một thread" ngay sau đây), <strong>tuần tự từng việc một</strong> để các transaction ghi không tranh nhau.</li>
+  <li>Mặc định cả hai cùng dùng IO executor của Architecture Components; transaction executor chỉ là lớp bọc tuần tự trên executor đó. Muốn đổi thì dùng <code>setQueryExecutor(...)</code> / <code>setTransactionExecutor(...)</code> khi build database.</li>
+</ul></li>
+</ul>
+
+<h3><code>withTransaction</code> giữ cả transaction trên một thread</h3>
 
 <p><code>withTransaction</code> (room-ktx) giải quyết bằng cách <strong>giữ riêng một thread cho cả transaction</strong>. Trong mã nguồn Room 2.6, nó làm như sau:</p>
 
@@ -38516,30 +38970,13 @@ internal class TransactionElement(
 
 <p>Bất kỳ <code>suspend fun</code> DAO nào gọi bên trong block <code>withTransaction { }</code> đều tìm thấy <code>TransactionElement</code> trong <code>CoroutineContext</code> và chuyển việc sang <code>transactionDispatcher</code> của nó, thay vì sang query executor bình thường.</p>
 
-<h3>1.4 Tại sao Single Thread lại quan trọng?</h3>
+<h4>Tại sao Single Thread lại quan trọng?</h4>
 
 <p>Event loop trên một thread duy nhất đảm bảo: dù block có suspend giữa chừng, khi resume nó vẫn quay về đúng thread đang giữ transaction. Toàn bộ các bước của transaction chạy tuần tự trên cùng 1 thread — cùng 1 SQLite session. Đây chính là điều ACID yêu cầu.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Interview insight:</strong> Khi hỏi "Room xử lý concurrency trong Coroutines thế nào?", câu trả lời cốt lõi là: <code>withTransaction</code> chiếm một thread từ <code>transactionExecutor</code>, chạy event loop trên thread đó, và ghim dispatcher của event loop vào <code>CoroutineContext</code> thông qua <code>TransactionElement</code>. Đây là cơ chế đảm bảo transaction không bị chia giữa các thread trong suốt vòng đời của nó.</div></div>
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Interview insight:</strong> Khi hỏi "Room xử lý concurrency trong Coroutines thế nào?", câu trả lời cốt lõi là: <code>withTransaction</code> chiếm một thread từ <code>transactionExecutor</code>, chạy event loop trên thread đó, và ghim dispatcher của event loop vào <code>CoroutineContext</code> thông qua <code>TransactionElement</code>. Đây là cơ chế đảm bảo transaction không bị chia giữa các thread trong suốt vòng đời của nó.</div></div>
 
-<h3>1.5 Room chạy query trên thread nào?</h3>
-
-<p>Đọc ghi database là Disk I/O, thời gian không đoán trước được: một query có thể mất vài mili-giây đến vài trăm mili-giây tuỳ kích thước file và tải của máy. Chạy trên main thread thì vượt ngân sách một frame và có thể dẫn tới ANR (xem <a href="../working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>, mục "2. Main Thread (UI Thread) trong Android: Trọng trách, Giới hạn và ANR"). Vì vậy:</p>
-
-<ul>
-  <li><strong>Room chặn query trên main thread.</strong> Gọi một hàm DAO thường (không <code>suspend</code>, không trả <code>Flow</code>) trên main thread sẽ bị <code>IllegalStateException: Cannot access database on the main thread since it may potentially lock the UI for a long period of time.</code> Builder có <code>allowMainThreadQueries()</code> để tắt kiểm tra này; chỉ dùng trong test, không dùng trong code production.</li>
-  <li><strong>Hàm <code>suspend</code> và hàm trả <code>Flow</code> là main-safe:</strong> Room tự chuyển việc sang executor của nó, nên gọi từ <code>viewModelScope</code> (đang ở main thread) vẫn an toàn.</li>
-  <li><strong>Hai vai trò executor:</strong>
-<ul>
-  <li><strong>Query executor</strong> chạy các lệnh đọc (<code>SELECT</code> của hàm <code>suspend</code>, query của <code>Flow</code>), cho phép nhiều lệnh đọc song song.</li>
-  <li><strong>Transaction executor</strong> chạy các lệnh ghi <code>suspend</code> và <code>withTransaction</code> (mục 1.3), <strong>tuần tự từng việc một</strong> để các transaction ghi không tranh nhau.</li>
-  <li>Mặc định cả hai cùng dùng IO executor của Architecture Components; transaction executor chỉ là lớp bọc tuần tự trên executor đó. Muốn đổi thì dùng <code>setQueryExecutor(...)</code> / <code>setTransactionExecutor(...)</code> khi build database.</li>
-</ul></li>
-</ul>
-
-<h2>2. <code>@Transaction</code> vs <code>withTransaction</code> — Hai công cụ, hai tầng kiến trúc</h2>
-
-<h3>2.1 <code>@Transaction</code> trên DAO</h3>
+<h3><code>@Transaction</code> trên DAO</h3>
 
 <p><code>@Transaction</code> là annotation tại tầng DAO. Với một hàm <code>suspend</code> có thân trong abstract DAO, Room Compiler sinh code trong <code>*_Impl</code> xấp xỉ như sau:</p>
 
@@ -38549,7 +38986,7 @@ override suspend fun processCheckout(
     order: OrderEntity,
     details: List&lt;OrderDetailEntity&gt;
 ) {
-    // Bọc thân hàm bạn viết trong withTransaction — cùng cơ chế ở mục 1.3
+    // Bọc thân hàm bạn viết trong withTransaction — cùng cơ chế ở mục "withTransaction giữ cả transaction trên một thread"
     __db.withTransaction {
         super.processCheckout(wallet, order, details)
     }
@@ -38563,7 +39000,7 @@ override suspend fun processCheckout(
   <li>Khó test vì logic transaction bị ẩn sau annotation.</li>
 </ul>
 
-<h3>2.2 <code>withTransaction { }</code> trên RoomDatabase</h3>
+<h3><code>withTransaction { }</code> trên RoomDatabase</h3>
 
 <p><code>withTransaction</code> là extension function trong <code>room-ktx</code>, cho phép mở transaction ở <strong>bất kỳ tầng nào</strong> — thường là Repository:</p>
 
@@ -38613,7 +39050,525 @@ sequenceDiagram
     Repo--&gt;&gt;VM: Result
 </div>
 
-<h3>2.3 Khi nào dùng cái nào?</h3>
+<p>Khi nào chọn <code>@Transaction</code>, khi nào chọn <code>withTransaction</code>: xem mục "Khi nào nên và không nên dùng".</p>
+
+<h3>Nested Transaction — Điều gì thực sự xảy ra?</h3>
+
+<p>SQLite chỉ hỗ trợ <strong>1 level transaction thực sự</strong>. Nếu Coroutine hiện tại đã có <code>TransactionElement</code> trong <code>CoroutineContext</code> (tức là đang trong transaction), gọi <code>withTransaction { }</code> lần thứ 2 sẽ chạy trên cùng transaction thread và gọi lại <code>beginTransaction()</code>. Android ghép lần gọi này vào transaction ngoài (nested transaction của <code>SQLiteDatabase</code>): chỉ khi transaction ngoài kết thúc thì toàn bộ mới được commit hoặc rollback.</p>
+
+<pre data-lang="kotlin"><code>db.withTransaction {                    // Outer: BEGIN TRANSACTION
+    dao.insertA()
+    db.withTransaction {               // Inner: beginTransaction() lồng, ghép vào outer
+        dao.insertB()
+        // Nếu throw exception ở đây → ROLLBACK toàn bộ outer transaction
+    }
+    dao.insertC()
+}                                       // COMMIT (nếu không có exception)</code></pre>
+
+<h3>Rollback và CancellationException</h3>
+
+<h4>Rollback tự động</h4>
+
+<p>Room rollback khi <strong>bất kỳ <code>Throwable</code> nào</strong> được ném ra trong block <code>withTransaction { }</code>, bao gồm:</p>
+
+<ul>
+  <li><code>Exception</code> và mọi subclass</li>
+  <li><code>Error</code> (OutOfMemoryError, StackOverflowError)</li>
+  <li><code>CancellationException</code> — <strong>đây là bẫy quan trọng nhất</strong></li>
+</ul>
+
+<p>Tài liệu của <code>withTransaction</code> ghi rõ: transaction chỉ được đánh dấu thành công khi block không ném exception <strong>và</strong> coroutine không bị cancel.</p>
+
+<h4>CancellationException và Coroutine Cancellation</h4>
+
+<p>Khi người dùng thoát màn hình, <code>viewModelScope</code> bị cancel. Điều này ném <code>CancellationException</code> vào mọi Coroutine đang chạy.</p>
+
+<pre data-lang="kotlin"><code>viewModelScope.launch {
+    db.withTransaction {
+        dao.updateWallet(wallet)        // Thành công
+        dao.insertOrder(order)          // Thành công
+        // User thoát màn hình → CancellationException được ném
+        dao.insertOrderDetails(details) // Không bao giờ chạy
+        // Room nhận CancellationException → ROLLBACK toàn bộ
+    }
+}</code></pre>
+
+<p><strong>Room đảm bảo Rollback ngay cả khi bị cancel.</strong> Cơ chế: <code>withTransaction { }</code> sử dụng <code>try-finally</code> để gọi <code>endTransaction()</code> trong mọi tình huống.</p>
+
+<p>Rollback giữ dữ liệu nhất quán, nhưng thao tác ghi bị bỏ dở. Thao tác nào không được phép bỏ dở khi màn hình đóng thì phải chạy ngoài scope của màn hình: xem mục "Sai lầm thường gặp", phần "3. Chạy thao tác ghi quan trọng trong scope gắn với màn hình".</p>
+
+<h3>Flow từ Room — Cơ chế InvalidationTracker</h3>
+
+<h4>Flow không phải là polling</h4>
+
+<p>Khi bạn viết:</p>
+
+<pre data-lang="kotlin"><code>@Query("SELECT * FROM products")
+fun getAllProducts(): Flow&lt;List&lt;ProductEntity&gt;&gt;</code></pre>
+
+<p>Hàm DAO trả <code>Flow</code> là hàm thường, <strong>không</strong> có <code>suspend</code>: gọi hàm chỉ tạo ra <code>Flow</code>, query chỉ chạy khi có người <code>collect</code>, và chạy lại mỗi khi bảng nó đọc thay đổi.</p>
+
+<p>Room <strong>không</strong> dùng polling (cứ mỗi X giây query lại). Thay vào đó, Room dùng <strong>SQLite trigger</strong> để biết khi nào data thay đổi. Đây là <code>InvalidationTracker</code>.</p>
+
+<h4>Cơ chế SQLite Trigger của InvalidationTracker</h4>
+
+<p><code>InvalidationTracker</code> dựa vào hai thứ Room tạo ngầm:</p>
+
+<ol>
+  <li><strong>Bảng <code>room_table_modification_log</code></strong>: một bảng tạm (<code>TEMP TABLE</code>, Room đặt <code>temp_store = MEMORY</code>), tạo khi database mở. Bảng không nằm trong file <code>.db</code>; mỗi hàng ứng với một bảng được theo dõi (<code>table_id</code>) và một cờ <code>invalidated</code>.</li>
+  <li><strong>Trigger trên bảng được theo dõi</strong>: khi một bảng có observer đầu tiên (ví dụ một <code>Flow</code> bắt đầu được collect), Room tạo 3 trigger (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>) cho bảng đó; khi không còn observer nào, Room gỡ trigger đi:</li>
+</ol>
+
+<pre data-lang="sql"><code>-- Ví dụ Room tạo ngầm cho bảng "products"
+CREATE TEMP TRIGGER IF NOT EXISTS
+  room_table_modification_trigger_products_INSERT
+AFTER INSERT ON products BEGIN
+    UPDATE room_table_modification_log
+    SET invalidated = 1
+    WHERE table_id = 5 AND invalidated = 0;
+END;
+-- Tương tự cho UPDATE và DELETE</code></pre>
+
+<h4>Chuỗi sự kiện từ collect, Write đến Flow emit</h4>
+
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant DAO as DAO Insert
+    participant SQLite as SQLite Engine
+    participant Trigger as SQL Trigger
+    participant Log as room_table_modification_log
+    participant IT as InvalidationTracker
+    participant Flow as Flow observer
+    participant UI as UI (Compose)
+
+    UI-&gt;&gt;Flow: collect { }
+    Flow-&gt;&gt;IT: Đăng ký observer cho bảng "products"
+    IT-&gt;&gt;SQLite: Tạo trigger trên "products" (nếu chưa có)
+    Flow-&gt;&gt;SQLite: Query ban đầu: SELECT * FROM products
+    SQLite--&gt;&gt;Flow: Kết quả ban đầu
+    Flow--&gt;&gt;UI: emit(initialList)
+
+    Note over DAO, SQLite: Một tác vụ ghi diễn ra
+    DAO-&gt;&gt;SQLite: INSERT INTO products VALUES (...)
+    SQLite-&gt;&gt;Trigger: Fire AFTER INSERT trigger
+    Trigger-&gt;&gt;Log: SET invalidated = 1 WHERE table_id = 5
+    SQLite--&gt;&gt;DAO: Insert complete
+    IT-&gt;&gt;Log: Check invalidated flag (sau khi transaction ghi kết thúc)
+    Log--&gt;&gt;IT: table_id = 5 is invalidated
+    IT-&gt;&gt;IT: Reset flag to 0
+    IT-&gt;&gt;Flow: Notify: table "products" changed
+    Flow-&gt;&gt;SQLite: Re-execute SELECT * FROM products
+    SQLite--&gt;&gt;Flow: New result set
+    Flow--&gt;&gt;UI: emit(newList) → recompose
+</div>
+
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><code>InvalidationTracker</code> không polling theo chu kỳ. Mỗi khi một transaction ghi kết thúc, Room lên lịch <strong>một lần</strong> đọc <code>room_table_modification_log</code> trên background thread để tìm bảng bị đánh dấu. Vì việc đọc này chạy bất đồng bộ sau commit, có thể có độ trễ rất nhỏ (vài milliseconds) giữa write và Flow emit.</div></div>
+
+<h4>Table-level invalidation — Vấn đề over-emission</h4>
+
+<p><code>InvalidationTracker</code> hoạt động ở <strong>table-level</strong>, không phải row-level. Nghĩa là nếu bảng <code>products</code> có 10,000 dòng và bạn chỉ update 1 dòng, <code>Flow&lt;List&lt;ProductEntity&gt;&gt;</code> vẫn re-emit toàn bộ danh sách 10,000 dòng.</p>
+
+<p>Kịch bản lộ ra vấn đề này và cách giảm số lần emit thừa ở mục "Sai lầm thường gặp", phần "6. Observe cả bảng lớn rồi để Flow re-emit toàn bộ khi chỉ một dòng đổi".</p>
+
+<h4><code>Flow&lt;List&lt;T&gt;&gt;</code> vs <code>Flow&lt;T?&gt;</code> — Giá trị đầu tiên khi collect</h4>
+
+<pre data-lang="kotlin"><code>@Query("SELECT * FROM products")
+fun getAllProducts(): Flow&lt;List&lt;ProductEntity&gt;&gt;
+// Nếu bảng empty → emit emptyList() NGAY LẬP TỨC khi collect
+
+@Query("SELECT * FROM products WHERE id = :id")
+fun getProductById(id: Long): Flow&lt;ProductEntity?&gt;
+// Nếu không tìm thấy → emit null NGAY LẬP TỨC khi collect</code></pre>
+
+<p>Câu hỏi phỏng vấn: <em>"Flow&lt;T?&gt; có emit ngay lập tức khi subscribe không?"</em></p>
+
+<p><strong>Có.</strong> Room emit giá trị đầu tiên ngay khi Flow được collect bằng cách chạy query ngay. Điều này khác với <code>SharedFlow</code> (không emit gì cho subscriber mới đến trễ trừ khi có replay buffer).</p>
+
+<h3><code>@Relation</code> — N+1 Query Problem và cách Room xử lý</h3>
+
+<h4><code>@Relation</code> không dùng JOIN</h4>
+
+<p>Đây là hiểu lầm phổ biến: Room <strong>không</strong> sinh ra SQL <code>JOIN</code> cho <code>@Relation</code>. Nhưng Room cũng <strong>không</strong> chạy N+1 queries. Room chạy <strong>1 query cho danh sách cha + 1 query cho mỗi quan hệ</strong>, query thứ hai lấy toàn bộ con của mọi cha bằng <code>WHERE ... IN (...)</code> rồi ghép trong bộ nhớ:</p>
+
+<pre data-lang="kotlin"><code>data class OrderWithDetails(
+    @Embedded val order: OrderEntity,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "orderId"
+    )
+    val details: List&lt;OrderDetailEntity&gt;
+)
+
+@Transaction
+@Query("SELECT * FROM orders")
+fun getAllOrdersWithDetails(): Flow&lt;List&lt;OrderWithDetails&gt;&gt;</code></pre>
+
+<p>Room sinh code tương đương:</p>
+
+<pre data-lang="kotlin"><code>// Simplified Room-generated code
+val orders = query("SELECT * FROM orders")              // Query 1: lấy tất cả orders
+val orderIds = orders.map { it.id }
+val details = query(                                     // Query 2: một query cho MỌI order
+    "SELECT * FROM order_details WHERE orderId IN (?, ?, ...)", orderIds
+)                                                        // (Room chia lô 999 tham số nếu danh sách quá dài)
+val detailsMap = details.groupBy { it.orderId }          // Ghép trong bộ nhớ
+return orders.map { order -&gt;
+    OrderWithDetails(order, detailsMap[order.id] ?: emptyList())
+}</code></pre>
+
+<p>Với 100 orders hay 1000 orders, vẫn chỉ là <strong>2 queries</strong> (thêm vài query nếu vượt 999 tham số). N+1 chỉ xảy ra khi bạn <strong>tự</strong> lặp và gọi DAO cho từng cha (xem <a href="room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, mục "Sai lầm thường gặp", phần "1. N+1 Query Problem với vòng lặp DAO").</p>
+
+<h4>Tại sao bắt buộc phải có <code>@Transaction</code>?</h4>
+
+<p>Giả sử không có <code>@Transaction</code>:</p>
+
+<pre data-lang="text"><code>t=0: Query orders → kết quả: [Order A, Order B, Order C]
+t=1: Room chưa kịp chạy query thứ hai
+t=2: Thread khác DELETE order_details của Order B
+t=3: Query details của A, B, C → B không còn detail nào (đã bị xoá!)
+t=4: Kết quả: OrderWithDetails(B, emptyList) — DỮ LIỆU KHÔNG NHẤT QUÁN!</code></pre>
+
+<p><code>@Transaction</code> đảm bảo cả 2 query chạy trong 1 SQLite read snapshot — dữ liệu nhất quán tại 1 thời điểm.</p>
+
+<h4>Thay <code>@Relation</code> bằng JOIN khi UI chỉ cần số liệu gộp</h4>
+
+<pre data-lang="kotlin"><code>data class OrderSummary(
+    val orderId: Long,
+    val orderTotal: Double,
+    val itemCount: Int  // Tính từ JOIN, không cần @Relation
+)
+
+@Query("""
+    SELECT o.id AS orderId, o.total AS orderTotal, COUNT(d.id) AS itemCount
+    FROM orders o
+    LEFT JOIN order_details d ON o.id = d.orderId
+    GROUP BY o.id
+""")
+fun getOrderSummaries(): Flow&lt;List&lt;OrderSummary&gt;&gt;</code></pre>
+
+<p>1 query duy nhất, không cần <code>@Transaction</code>, không phải tải toàn bộ detail lên bộ nhớ khi UI chỉ cần số lượng.</p>
+
+<h3>WAL Mode — Tại sao Room bật theo mặc định</h3>
+
+<p>Room mặc định dùng <code>JournalMode.AUTOMATIC</code>. Theo tài liệu <code>RoomDatabase.JournalMode</code>, chế độ thực tế là <code>TRUNCATE</code> khi thiết bị chạy API dưới 16 <strong>hoặc</strong> là thiết bị low-RAM (<code>ActivityManager.isLowRamDevice()</code>), còn lại là <strong>Write-Ahead Logging (WAL)</strong>. Mốc này gắn với cấu hình thiết bị, không gắn với một phiên bản Android hay phiên bản Room cụ thể. Bạn có thể ép chế độ bằng <code>setJournalMode(...)</code> khi build database.</p>
+
+<p><strong>Cơ chế WAL:</strong></p>
+
+<ul>
+  <li><strong>Rollback journal (ví dụ <code>TRUNCATE</code>):</strong> khi ghi, SQLite khoá độc quyền cả file database. Writer phải chờ các Reader đang đọc xong, và Reader mới phải chờ Writer ghi xong. Đang có sync ngầm ghi nhiều dữ liệu thì màn hình đọc database bị nghẽn theo.</li>
+  <li><strong>WAL mode:</strong> thay vì sửa trực tiếp file chính (ví dụ <code>app_database.db</code>), lệnh ghi được nối vào một file nhật ký riêng <code>app_database.db-wal</code> (kèm file chỉ mục <code>-shm</code>). Reader vẫn đọc file chính cộng phần đã commit trong WAL, nên Reader không block Writer và Writer không block Reader. Mỗi lúc vẫn chỉ có <strong>một</strong> Writer, vì chỉ có một file WAL.</li>
+  <li><strong>Checkpoint:</strong> định kỳ, nội dung file WAL được gom về file chính. SQLite tự chạy checkpoint khi file WAL vượt ngưỡng (mặc định của SQLite là 1000 page; nền tảng có thể cấu hình ngưỡng khác), Room không phải làm gì.</li>
+</ul>
+
+<pre data-lang="text"><code>Journal Mode:  Reader1 — wait — wait — Writer — wait — Reader2
+WAL Mode:      Reader1 ─────────────────────────────────────
+               Reader2 ─────────────────────────────────────
+               Writer  ─── WAL file ─────────────────────────</code></pre>
+
+<p>Kết quả thực tế: <code>Flow&lt;List&lt;T&gt;&gt;</code> (reader) và <code>dao.insert()</code> (writer) không block nhau, UI luôn mượt mà.</p>
+
+<h3>Tổng kết cơ chế</h3>
+
+<div class="mermaid">
+flowchart TD
+    A["Coroutine\\n(viewModelScope)"] --&gt; B["withTransaction { }"]
+    B --&gt; C["Chiếm 1 thread từ\\ntransactionExecutor\\n(event loop runBlocking)"]
+    C --&gt; D["TransactionElement\\ninjected into CoroutineContext"]
+    D --&gt; E["BEGIN TRANSACTION"]
+    E --&gt; F["DAO calls\\n(chạy trên transaction thread qua TransactionElement)"]
+    F --&gt; G{Exception?}
+    G --&gt;|No| H["COMMIT\\nInvalidationTracker notified"]
+    G --&gt;|"Yes / Cancel"| I["ROLLBACK\\nNo notification sent"]
+    H --&gt; J["Flow re-query\\nemit new data to UI"]
+</div>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Khái niệm</th>
+      <th style="padding:8px 12px;text-align:left;">Cốt lõi cần nhớ</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Transaction thread</strong></td>
+      <td style="padding:8px 12px;"><code>withTransaction</code> chiếm 1 thread từ <code>transactionExecutor</code>, chạy event loop, giữ cả transaction trên thread đó</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>TransactionElement</strong></td>
+      <td style="padding:8px 12px;">"Thẻ nhận diện" trong CoroutineContext, giữ dispatcher của transaction thread để DAO calls chạy đúng chỗ</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong><code>@Transaction</code> vs <code>withTransaction</code></strong></td>
+      <td style="padding:8px 12px;">DAO-level vs Repository-level; <code>withTransaction</code> linh hoạt hơn</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Nested Transaction</strong></td>
+      <td style="padding:8px 12px;"><code>beginTransaction()</code> lồng, ghép vào transaction ngoài; rollback là rollback cả khối</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Rollback</strong></td>
+      <td style="padding:8px 12px;">Trigger bởi bất kỳ Throwable, kể cả CancellationException</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>InvalidationTracker</strong></td>
+      <td style="padding:8px 12px;">SQLite trigger → room_table_modification_log → Flow emit</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Table-level invalidation</strong></td>
+      <td style="padding:8px 12px;">Cả table re-emit dù chỉ 1 row thay đổi → dùng <code>distinctUntilChanged()</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong><code>@Relation</code></strong></td>
+      <td style="padding:8px 12px;">Room chạy 2 queries (cha + <code>IN (...)</code> cho con), không phải N+1; cần <code>@Transaction</code> để đảm bảo consistency</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>WAL mode</strong></td>
+      <td style="padding:8px 12px;"><code>AUTOMATIC</code> chọn WAL, trừ API &lt; 16 hoặc thiết bị low-RAM (dùng <code>TRUNCATE</code>); Reader/Writer không block nhau → Flow và Insert song song</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Empty flash prevention</strong></td>
+      <td style="padding:8px 12px;"><code>withTransaction { delete + insert }</code> → chỉ emit sau COMMIT</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>E-commerce Checkout — Multi-table atomic write</h3>
+
+<p>Đặt hàng phải trừ ví, trừ tồn kho và tạo đơn cùng lúc: hoặc tất cả thành công, hoặc không bảng nào thay đổi. Luồng chạy:</p>
+
+<ol>
+  <li>ViewModel đặt <code>CheckoutState.Loading</code> và gọi <code>checkoutRepo.checkout(userId, cartItems)</code> trong <code>viewModelScope</code>.</li>
+  <li>Repository mở <code>db.withTransaction { }</code>: Room chiếm transaction thread và <code>BEGIN TRANSACTION</code>.</li>
+  <li>Đọc ví và tính tổng tiền; không đủ tiền thì ném <code>InsufficientFundsException</code>, đủ thì trừ ví.</li>
+  <li>Với từng sản phẩm trong giỏ: thiếu hàng thì ném <code>OutOfStockException</code>, đủ thì trừ tồn kho.</li>
+  <li>Tạo order và order details; block trả <code>newOrderId</code>, Room <code>COMMIT</code>.</li>
+  <li>Nếu bất kỳ bước (3)–(5) ném exception, Room <code>ROLLBACK</code> toàn bộ; Repository bọc lỗi nghiệp vụ thành <code>Result.failure</code>, còn <code>CancellationException</code> được ném lại.</li>
+  <li>ViewModel đổi <code>Result</code> thành <code>CheckoutState</code> tương ứng để UI hiển thị.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) ViewModel: Loading, gọi checkout()"] --&gt; B["(2) withTransaction: BEGIN TRANSACTION"]
+    B --&gt; C{"(3) Ví đủ tiền?"}
+    C --&gt;|Có| D["(3) Trừ ví"]
+    C --&gt;|Không| X["(6) Throw → ROLLBACK toàn bộ"]
+    D --&gt; E{"(4) Sản phẩm này đủ hàng?"}
+    E --&gt;|Có| F["(4) Trừ tồn kho, sang sản phẩm tiếp theo"]
+    E --&gt;|Không| X
+    F --&gt; G["(5) Insert order + details, COMMIT"]
+    G --&gt; H["(7) Result.success → CheckoutState.Success"]
+    X --&gt; I["(6) Result.failure (CancellationException ném lại)"]
+    I --&gt; J["(7) CheckoutState lỗi tương ứng"]
+</div>
+
+<pre data-lang="kotlin"><code>class CheckoutRepository(
+    private val db: AppDatabase,
+    private val walletDao: WalletDao,
+    private val orderDao: OrderDao,
+    private val inventoryDao: InventoryDao
+) {
+    suspend fun checkout(
+        userId: Long,
+        cartItems: List&lt;CartItem&gt;
+    ): Result&lt;Long&gt; = try {
+        val orderId = db.withTransaction { // (2) BEGIN TRANSACTION trên transaction thread
+            // (3) Kiểm tra &amp; trừ ví
+            val wallet = walletDao.getWallet(userId)
+                ?: error("Wallet not found")
+            val total = cartItems.sumOf { it.price * it.quantity }
+            if (wallet.balance &lt; total) throw InsufficientFundsException()
+            walletDao.deductBalance(userId, total)
+
+            // (4) Kiểm tra tồn kho
+            cartItems.forEach { item -&gt;
+                val stock = inventoryDao.getStock(item.productId)
+                if (stock &lt; item.quantity) throw OutOfStockException(item.productId)
+                inventoryDao.reduceStock(item.productId, item.quantity)
+            }
+
+            // (5) Tạo order và details
+            val newOrderId = orderDao.insertOrder(
+                OrderEntity(userId = userId, total = total, status = "PENDING")
+            )
+            orderDao.insertOrderDetails(
+                cartItems.map { OrderDetailEntity(orderId = newOrderId, productId = it.productId) }
+            )
+            newOrderId  // Trả về orderId để ViewModel navigate
+        }
+        // (6) Nếu BẤT KỲ bước nào throw → ROLLBACK toàn bộ
+        Result.success(orderId)
+    } catch (e: CancellationException) {
+        throw e // (6) Không bọc cancellation vào Result (runCatching sẽ nuốt mất nó)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+}</code></pre>
+
+<p><strong>Trong ViewModel:</strong></p>
+
+<pre data-lang="kotlin"><code>fun checkout(cartItems: List&lt;CartItem&gt;) {
+    viewModelScope.launch {
+        _uiState.value = CheckoutState.Loading // (1)
+        checkoutRepo.checkout(userId, cartItems)
+            .onSuccess { orderId -&gt;
+                _uiState.value = CheckoutState.Success(orderId) // (7)
+            }
+            .onFailure { error -&gt;
+                _uiState.value = when (error) { // (7)
+                    is InsufficientFundsException -&gt; CheckoutState.InsufficientFunds
+                    is OutOfStockException -&gt; CheckoutState.OutOfStock(error.productId)
+                    else -&gt; CheckoutState.Error(error.message)
+                }
+            }
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> thiếu tiền hoặc hết hàng ở bất kỳ bước nào thì ví, tồn kho và bảng <code>orders</code> giữ nguyên như trước khi checkout; test "Test Transaction Rollback" ở phần "Kiểm thử transaction và Flow" bên dưới kiểm chứng điều này cho trường hợp thiếu tiền.</p>
+
+<h3>Data Sync — Không để UI thấy màn hình trống</h3>
+
+<p>Vấn đề: khi sync, bạn xoá cache cũ rồi insert mới. Giữa 2 bước, UI sẽ thấy danh sách trống (empty flash). Cách viết sai (hai bước tách rời) ở mục "Sai lầm thường gặp", phần "5. Xoá rồi insert lại ngoài transaction khi sync".</p>
+
+<pre data-lang="kotlin"><code>// ĐÚNG — atomic, UI chỉ thấy trạng thái cuối
+suspend fun syncProducts(serverData: List&lt;ProductDto&gt;) {
+    db.withTransaction {
+        dao.deleteAll()
+        dao.insertAll(serverData.map { it.toEntity() })
+        // Flow chỉ emit 1 lần SAU KHI cả 2 bước hoàn thành
+    }
+}</code></pre>
+
+<p><code>withTransaction { }</code> chặn được empty flash vì <code>InvalidationTracker</code> chỉ notify Flow sau khi transaction <code>COMMIT</code>. Trong suốt thời gian transaction đang chạy, Flow không nhận được notification nào.</p>
+
+<div class="mermaid">
+sequenceDiagram
+    participant Repo as Repository
+    participant Trans as Transaction
+    participant IT as InvalidationTracker
+    participant UI as UI Flow
+
+    Repo-&gt;&gt;Trans: withTransaction { deleteAll() + insertAll() }
+    Note over Trans: BEGIN TRANSACTION
+    Trans-&gt;&gt;Trans: DELETE FROM products (UI không biết)
+    Trans-&gt;&gt;Trans: INSERT INTO products... (UI không biết)
+    Note over Trans: COMMIT
+    Trans-&gt;&gt;IT: Notify: "products" table changed
+    IT-&gt;&gt;UI: emit(newFullList) — Chỉ 1 lần emit
+</div>
+
+<h3>Banking Transfer — Đọc và ghi số dư trong cùng transaction</h3>
+
+<p>Câu hỏi hay gặp: có cần khoá hai tài khoản theo thứ tự cố định (lock ordering) như trong database server không? Với SQLite thì <strong>không</strong>: SQLite không khoá theo hàng hay theo tài khoản mà khoá <strong>cả file database</strong> khi ghi, và mỗi lúc chỉ có một writer (kể cả ở WAL mode). Hai transaction chuyển tiền không thể giữ "khoá A chờ khoá B", nên không có deadlock kiểu lock ordering. Điều cần làm là đặt <strong>cả đọc số dư lẫn ghi</strong> vào cùng một transaction để không ai xen vào giữa:</p>
+
+<pre data-lang="kotlin"><code>suspend fun transfer(fromId: Long, toId: Long, amount: Long) { // tiền lưu theo đơn vị nhỏ nhất (đồng/xu), không dùng Double
+    db.withTransaction {
+        // Đọc và ghi trong cùng transaction: không writer nào khác chen vào giữa
+        val from = accountDao.getById(fromId) ?: error("Account not found")
+        val to = accountDao.getById(toId) ?: error("Account not found")
+        if (from.balance &lt; amount) throw InsufficientFundsException()
+
+        accountDao.updateBalance(from.id, from.balance - amount)
+        accountDao.updateBalance(to.id, to.balance + amount)
+    }
+}</code></pre>
+
+<h3>Kiểm thử transaction và Flow</h3>
+
+<h4>Setup In-memory Database</h4>
+
+<pre data-lang="kotlin"><code>@RunWith(AndroidJUnit4::class)
+class CheckoutRepositoryTest {
+
+    private lateinit var db: AppDatabase
+    private lateinit var repo: CheckoutRepository
+
+    @Before
+    fun setup() {
+        val context = ApplicationProvider.getApplicationContext&lt;Context&gt;()
+        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        repo = CheckoutRepository(db, db.walletDao(), db.orderDao(), db.inventoryDao())
+    }
+
+    @After
+    fun teardown() { db.close() }
+}</code></pre>
+
+<h4>Test Transaction Rollback</h4>
+
+<pre data-lang="kotlin"><code>@Test
+fun \`checkout voi insufficient funds phai rollback toan bo\`() = runTest {
+    db.walletDao().insert(WalletEntity(userId = 1, balance = 50.0))
+    val cartItems = listOf(CartItem(productId = 1, price = 100.0, quantity = 1))
+
+    val result = repo.checkout(userId = 1, cartItems = cartItems)
+
+    assertTrue(result.isFailure)
+    assertIs&lt;InsufficientFundsException&gt;(result.exceptionOrNull())
+
+    // Verify rollback: ví vẫn còn nguyên 50
+    assertEquals(50.0, db.walletDao().getWallet(1)!!.balance, 0.001)
+    // Verify: không có order nào được tạo
+    assertTrue(db.orderDao().getAllOrders().isEmpty())
+}</code></pre>
+
+<h4>Test Flow với Turbine</h4>
+
+<pre data-lang="kotlin"><code>// build.gradle.kts
+testImplementation("app.cash.turbine:turbine:1.1.0")</code></pre>
+
+<pre data-lang="kotlin"><code>@Test
+fun \`flow emit updated list sau khi insert\`() = runTest {
+    db.productDao().insertAll(listOf(ProductEntity(id = 1, name = "Laptop")))
+
+    db.productDao().getAllProducts().test {
+        // Emission đầu tiên: data ban đầu
+        assertEquals(1, awaitItem().size)
+
+        // Insert thêm sản phẩm
+        db.productDao().insert(ProductEntity(id = 2, name = "Phone"))
+
+        // Emission thứ 2: list mới với 2 items
+        assertEquals(2, awaitItem().size)
+
+        cancelAndIgnoreRemainingEvents()
+    }
+}</code></pre>
+
+<h4>Test Empty Flash Prevention</h4>
+
+<pre data-lang="kotlin"><code>@Test
+fun \`sync phai emit chi 1 lan voi data moi, khong co empty flash\`() = runTest {
+    db.productDao().insertAll(listOf(ProductEntity(id = 1, name = "Old Product")))
+
+    db.productDao().getAllProducts().test {
+        awaitItem()  // Consume initial emission
+
+        db.withTransaction {
+            db.productDao().deleteAll()
+            db.productDao().insertAll(listOf(
+                ProductEntity(id = 2, name = "New A"),
+                ProductEntity(id = 3, name = "New B"),
+            ))
+        }
+
+        // Phải nhận đúng 1 emission với 2 items — không có emptyList() ở giữa
+        val result = awaitItem()
+        assertEquals(2, result.size)
+        assertTrue(result.none { it.name == "Old Product" })
+
+        cancelAndIgnoreRemainingEvents()
+    }
+}</code></pre>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<p>Chọn giữa <code>@Transaction</code> trên DAO và <code>withTransaction { }</code> ở Repository:</p>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -38659,52 +39614,25 @@ sequenceDiagram
 
 <p><strong>Nguyên tắc:</strong> <code>@Transaction</code> là annotation convenience cho trường hợp đơn giản. Mọi nghiệp vụ phức tạp (multi-DAO, validation, error handling) đều nên dùng <code>withTransaction { }</code> ở Repository.</p>
 
-<h3>2.4 Nested Transaction — Điều gì thực sự xảy ra?</h3>
+<h2>Sai lầm thường gặp</h2>
 
-<p>SQLite chỉ hỗ trợ <strong>1 level transaction thực sự</strong>. Nếu Coroutine hiện tại đã có <code>TransactionElement</code> trong <code>CoroutineContext</code> (tức là đang trong transaction), gọi <code>withTransaction { }</code> lần thứ 2 sẽ chạy trên cùng transaction thread và gọi lại <code>beginTransaction()</code>. Android ghép lần gọi này vào transaction ngoài (nested transaction của <code>SQLiteDatabase</code>): chỉ khi transaction ngoài kết thúc thì toàn bộ mới được commit hoặc rollback.</p>
+<h3>1. Tự mở transaction bằng <code>beginTransaction()</code> quanh một lời gọi <code>suspend</code></h3>
 
-<pre data-lang="kotlin"><code>db.withTransaction {                    // Outer: BEGIN TRANSACTION
-    dao.insertA()
-    db.withTransaction {               // Inner: beginTransaction() lồng, ghép vào outer
-        dao.insertB()
-        // Nếu throw exception ở đây → ROLLBACK toàn bộ outer transaction
-    }
-    dao.insertC()
-}                                       // COMMIT (nếu không có exception)</code></pre>
+<p>Đoạn <code>badTransaction()</code> ở mục "Vấn đề cần giải quyết" mở transaction trên thread A, <code>suspend</code> giữa chừng rồi resume trên thread B. Lỗi lộ ra là <code>IllegalStateException: ... no current transaction</code> khi gọi <code>setTransactionSuccessful()</code>/<code>endTransaction()</code> trên thread B.</p>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Cảnh báo:</strong> Đây là điểm khác biệt với các DB khác (như PostgreSQL hỗ trợ true nested transaction với <code>SAVEPOINT</code>). Trong Room, không có cách để rollback inner transaction mà giữ outer transaction tiếp tục.</div></div>
+<p><strong>Cách sửa:</strong> dùng <code>db.withTransaction { }</code> (hoặc <code>@Transaction</code> trên hàm DAO <code>suspend</code>) để Room giữ cả transaction trên một thread. <code>beginTransaction()</code>, <code>setTransactionSuccessful()</code> và <code>endTransaction()</code> của <code>RoomDatabase</code> đã deprecated từ Room 2.1.0.</p>
 
-<h2>3. Rollback và CancellationException — Bẫy ít ai biết</h2>
+<h3>2. Gọi hàm DAO thường trên main thread, hoặc bật <code>allowMainThreadQueries()</code> trong production</h3>
 
-<h3>3.1 Rollback tự động</h3>
+<p>Hàm DAO không <code>suspend</code>, không trả <code>Flow</code> mà chạy trên main thread thì Room ném <code>IllegalStateException: Cannot access database on the main thread...</code>. Tắt kiểm tra bằng <code>allowMainThreadQueries()</code> chỉ che lỗi: query vẫn chặn main thread và có thể gây ANR.</p>
 
-<p>Room rollback khi <strong>bất kỳ <code>Throwable</code> nào</strong> được ném ra trong block <code>withTransaction { }</code>, bao gồm:</p>
+<p><strong>Cách sửa:</strong> khai báo hàm DAO là <code>suspend</code> hoặc trả <code>Flow</code> để Room tự chuyển sang executor của nó (mục "Room chạy query trên thread nào?"); chỉ dùng <code>allowMainThreadQueries()</code> trong test.</p>
 
-<ul>
-  <li><code>Exception</code> và mọi subclass</li>
-  <li><code>Error</code> (OutOfMemoryError, StackOverflowError)</li>
-  <li><code>CancellationException</code> — <strong>đây là bẫy quan trọng nhất</strong></li>
-</ul>
+<h3>3. Chạy thao tác ghi quan trọng trong scope gắn với màn hình</h3>
 
-<h3>3.2 CancellationException và Coroutine Cancellation</h3>
+<p>Transaction chạy trong <code>viewModelScope</code> bị rollback khi người dùng thoát màn hình giữa chừng (mục "Rollback và CancellationException"). Dữ liệu vẫn nhất quán, nhưng đơn hàng người dùng đã bấm gửi thì không được ghi.</p>
 
-<p>Khi người dùng thoát màn hình, <code>viewModelScope</code> bị cancel. Điều này ném <code>CancellationException</code> vào mọi Coroutine đang chạy.</p>
-
-<pre data-lang="kotlin"><code>viewModelScope.launch {
-    db.withTransaction {
-        dao.updateWallet(wallet)        // Thành công
-        dao.insertOrder(order)          // Thành công
-        // User thoát màn hình → CancellationException được ném
-        dao.insertOrderDetails(details) // Không bao giờ chạy
-        // Room nhận CancellationException → ROLLBACK toàn bộ
-    }
-}</code></pre>
-
-<p><strong>Room đảm bảo Rollback ngay cả khi bị cancel.</strong> Cơ chế: <code>withTransaction { }</code> sử dụng <code>try-finally</code> để gọi <code>endTransaction()</code> trong mọi tình huống.</p>
-
-<h3>3.3 Chiến lược xử lý đúng</h3>
-
-<p>Nếu bạn có operation critical (không được cancel dở chừng), tách nó khỏi lifecycle-bound scope:</p>
+<p><strong>Cách sửa:</strong> Nếu bạn có operation critical (không được cancel dở chừng), tách nó khỏi lifecycle-bound scope:</p>
 
 <pre data-lang="kotlin"><code>class OrderRepository(
     private val db: AppDatabase,
@@ -38722,77 +39650,27 @@ sequenceDiagram
     }
 }</code></pre>
 
-<h2>4. Flow từ Room — Cơ chế InvalidationTracker</h2>
+<h3>4. Bọc <code>withTransaction</code> trong <code>runCatching { }</code></h3>
 
-<h3>4.1 Flow không phải là polling</h3>
+<p><code>runCatching { }</code> bắt mọi <code>Throwable</code>, kể cả <code>CancellationException</code>. Nếu dùng nó ở đây, khi màn hình bị huỷ giữa checkout, coroutine không dừng mà tiếp tục chạy <code>onFailure</code> như một lỗi nghiệp vụ.</p>
 
-<p>Khi bạn viết:</p>
+<p><strong>Cách sửa:</strong> Vì vậy bắt <code>CancellationException</code> riêng và ném lại, như <code>CheckoutRepository</code> ở mục "Ví dụ thực tế".</p>
 
-<pre data-lang="kotlin"><code>@Query("SELECT * FROM products")
-fun getAllProducts(): Flow&lt;List&lt;ProductEntity&gt;&gt;</code></pre>
+<h3>5. Xoá rồi insert lại ngoài transaction khi sync</h3>
 
-<p>Hàm DAO trả <code>Flow</code> là hàm thường, <strong>không</strong> có <code>suspend</code>: gọi hàm chỉ tạo ra <code>Flow</code>, query chỉ chạy khi có người <code>collect</code>, và chạy lại mỗi khi bảng nó đọc thay đổi.</p>
+<p>Hai lệnh ghi tách rời là hai transaction, mỗi lần commit đều có thể làm <code>Flow</code> emit, nên UI có thể thấy danh sách trống ở giữa (empty flash):</p>
 
-<p>Room <strong>không</strong> dùng polling (cứ mỗi X giây query lại). Thay vào đó, Room dùng <strong>SQLite trigger</strong> để biết khi nào data thay đổi. Đây là <code>InvalidationTracker</code>.</p>
+<pre data-lang="kotlin"><code>// SAI — gây empty flash
+suspend fun syncProducts(serverData: List&lt;ProductDto&gt;) {
+    dao.deleteAll()          // UI thấy emptyList()
+    dao.insertAll(serverData.map { it.toEntity() })  // UI thấy data mới
+}</code></pre>
 
-<h3>4.2 Cơ chế SQLite Trigger của InvalidationTracker</h3>
+<p><strong>Cách sửa:</strong> bọc cả hai bước trong <code>db.withTransaction { }</code> như ví dụ "Data Sync — Không để UI thấy màn hình trống".</p>
 
-<p><code>InvalidationTracker</code> dựa vào hai thứ Room tạo ngầm:</p>
+<h3>6. Observe cả bảng lớn rồi để Flow re-emit toàn bộ khi chỉ một dòng đổi</h3>
 
-<ol>
-  <li><strong>Bảng <code>room_table_modification_log</code></strong>: một bảng tạm (<code>TEMP TABLE</code>, Room đặt <code>temp_store = MEMORY</code>), tạo khi database mở. Bảng không nằm trong file <code>.db</code>; mỗi hàng ứng với một bảng được theo dõi (<code>table_id</code>) và một cờ <code>invalidated</code>.</li>
-  <li><strong>Trigger trên bảng được theo dõi</strong>: khi một bảng có observer đầu tiên (ví dụ một <code>Flow</code> bắt đầu được collect), Room tạo 3 trigger (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>) cho bảng đó; khi không còn observer nào, Room gỡ trigger đi:</li>
-</ol>
-
-<pre data-lang="sql"><code>-- Ví dụ Room tạo ngầm cho bảng "products"
-CREATE TEMP TRIGGER IF NOT EXISTS
-  room_table_modification_trigger_products_INSERT
-AFTER INSERT ON products BEGIN
-    UPDATE room_table_modification_log
-    SET invalidated = 1
-    WHERE table_id = 5 AND invalidated = 0;
-END;
--- Tương tự cho UPDATE và DELETE</code></pre>
-
-<h3>4.3 Chuỗi sự kiện từ collect, Write đến Flow emit</h3>
-
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant DAO as DAO Insert
-    participant SQLite as SQLite Engine
-    participant Trigger as SQL Trigger
-    participant Log as room_table_modification_log
-    participant IT as InvalidationTracker
-    participant Flow as Flow observer
-    participant UI as UI (Compose)
-
-    UI-&gt;&gt;Flow: collect { }
-    Flow-&gt;&gt;IT: Đăng ký observer cho bảng "products"
-    IT-&gt;&gt;SQLite: Tạo trigger trên "products" (nếu chưa có)
-    Flow-&gt;&gt;SQLite: Query ban đầu: SELECT * FROM products
-    SQLite--&gt;&gt;Flow: Kết quả ban đầu
-    Flow--&gt;&gt;UI: emit(initialList)
-
-    Note over DAO, SQLite: Một tác vụ ghi diễn ra
-    DAO-&gt;&gt;SQLite: INSERT INTO products VALUES (...)
-    SQLite-&gt;&gt;Trigger: Fire AFTER INSERT trigger
-    Trigger-&gt;&gt;Log: SET invalidated = 1 WHERE table_id = 5
-    SQLite--&gt;&gt;DAO: Insert complete
-    IT-&gt;&gt;Log: Check invalidated flag (sau khi transaction ghi kết thúc)
-    Log--&gt;&gt;IT: table_id = 5 is invalidated
-    IT-&gt;&gt;IT: Reset flag to 0
-    IT-&gt;&gt;Flow: Notify: table "products" changed
-    Flow-&gt;&gt;SQLite: Re-execute SELECT * FROM products
-    SQLite--&gt;&gt;Flow: New result set
-    Flow--&gt;&gt;UI: emit(newList) → recompose
-</div>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Quan trọng:</strong> <code>InvalidationTracker</code> không polling theo chu kỳ. Mỗi khi một transaction ghi kết thúc, Room lên lịch <strong>một lần</strong> đọc <code>room_table_modification_log</code> trên background thread để tìm bảng bị đánh dấu. Vì việc đọc này chạy bất đồng bộ sau commit, có thể có độ trễ rất nhỏ (vài milliseconds) giữa write và Flow emit.</div></div>
-
-<h3>4.4 Table-level invalidation — Vấn đề over-emission</h3>
-
-<p><code>InvalidationTracker</code> hoạt động ở <strong>table-level</strong>, không phải row-level. Nghĩa là nếu bảng <code>products</code> có 10,000 dòng và bạn chỉ update 1 dòng, <code>Flow&lt;List&lt;ProductEntity&gt;&gt;</code> vẫn re-emit toàn bộ danh sách 10,000 dòng.</p>
+<p>Vì invalidation theo bảng (mục "Table-level invalidation — Vấn đề over-emission"), một lần ghi nhỏ cũng làm cả danh sách được query lại.</p>
 
 <p><strong>Kịch bản nguy hiểm:</strong></p>
 
@@ -38804,7 +39682,7 @@ val products: StateFlow&lt;List&lt;ProductEntity&gt;&gt; = dao.getAllProducts()
 dao.updateStock(productId = 5, newStock = 99)
 // → TOÀN BỘ danh sách được re-query và re-emit → UI recompose!</code></pre>
 
-<h3>4.5 Giải pháp: <code>distinctUntilChanged()</code> và query có scope</h3>
+<p><strong>Cách sửa:</strong> <code>distinctUntilChanged()</code> và query có scope.</p>
 
 <pre data-lang="kotlin"><code>// Chỉ emit nếu data thực sự thay đổi
 fun getProducts(): Flow&lt;List&lt;ProductEntity&gt;&gt; =
@@ -38817,381 +39695,46 @@ fun getProductsByCategory(category: String): Flow&lt;List&lt;ProductSummary&gt;&
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><code>distinctUntilChanged()</code> so sánh bằng <code>equals()</code> — với List lớn, đây vẫn là O(N) comparison. Giải pháp ưu tiên là <strong>query hẹp hơn</strong> và chỉ lấy các field UI cần.</div></div>
 
-<h3>4.6 <code>Flow&lt;List&lt;T&gt;&gt;</code> vs <code>Flow&lt;T?&gt;</code> — Interview trap</h3>
+<h3>7. Trông chờ rollback riêng transaction lồng bên trong</h3>
 
-<pre data-lang="kotlin"><code>@Query("SELECT * FROM products")
-fun getAllProducts(): Flow&lt;List&lt;ProductEntity&gt;&gt;
-// Nếu bảng empty → emit emptyList() NGAY LẬP TỨC khi collect
+<p><code>withTransaction</code> lồng không tạo transaction con độc lập (mục "Nested Transaction — Điều gì thực sự xảy ra?"). Đây là điểm khác biệt với các DB khác (như PostgreSQL hỗ trợ true nested transaction với <code>SAVEPOINT</code>). Trong Room, không có cách để rollback inner transaction mà giữ outer transaction tiếp tục.</p>
 
-@Query("SELECT * FROM products WHERE id = :id")
-fun getProductById(id: Long): Flow&lt;ProductEntity?&gt;
-// Nếu không tìm thấy → emit null NGAY LẬP TỨC khi collect</code></pre>
+<p><strong>Cách sửa:</strong> thiết kế mỗi transaction là một khối "tất cả hoặc không có gì"; bước nào được phép thất bại riêng thì đặt ngoài khối đó, trong một transaction riêng.</p>
 
-<p>Câu hỏi phỏng vấn: <em>"Flow&lt;T?&gt; có emit ngay lập tức khi subscribe không?"</em></p>
-
-<p><strong>Có.</strong> Room emit giá trị đầu tiên ngay khi Flow được collect bằng cách chạy query ngay. Điều này khác với <code>SharedFlow</code> (không emit gì cho subscriber mới đến trễ trừ khi có replay buffer).</p>
-
-<h2>5. <code>@Relation</code> — N+1 Query Problem và cách Room xử lý</h2>
-
-<h3>5.1 <code>@Relation</code> không dùng JOIN</h3>
-
-<p>Đây là hiểu lầm phổ biến: Room <strong>không</strong> sinh ra SQL <code>JOIN</code> cho <code>@Relation</code>. Nhưng Room cũng <strong>không</strong> chạy N+1 queries. Room chạy <strong>1 query cho danh sách cha + 1 query cho mỗi quan hệ</strong>, query thứ hai lấy toàn bộ con của mọi cha bằng <code>WHERE ... IN (...)</code> rồi ghép trong bộ nhớ:</p>
-
-<pre data-lang="kotlin"><code>data class OrderWithDetails(
-    @Embedded val order: OrderEntity,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "orderId"
-    )
-    val details: List&lt;OrderDetailEntity&gt;
-)
-
-@Transaction
-@Query("SELECT * FROM orders")
-fun getAllOrdersWithDetails(): Flow&lt;List&lt;OrderWithDetails&gt;&gt;</code></pre>
-
-<p>Room sinh code tương đương:</p>
-
-<pre data-lang="kotlin"><code>// Simplified Room-generated code
-val orders = query("SELECT * FROM orders")              // Query 1: lấy tất cả orders
-val orderIds = orders.map { it.id }
-val details = query(                                     // Query 2: một query cho MỌI order
-    "SELECT * FROM order_details WHERE orderId IN (?, ?, ...)", orderIds
-)                                                        // (Room chia lô 999 tham số nếu danh sách quá dài)
-val detailsMap = details.groupBy { it.orderId }          // Ghép trong bộ nhớ
-return orders.map { order -&gt;
-    OrderWithDetails(order, detailsMap[order.id] ?: emptyList())
-}</code></pre>
-
-<p>Với 100 orders hay 1000 orders, vẫn chỉ là <strong>2 queries</strong> (thêm vài query nếu vượt 999 tham số). N+1 chỉ xảy ra khi bạn <strong>tự</strong> lặp và gọi DAO cho từng cha (xem <a href="room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, mục "11. Sai Lầm Phổ Biến (Pitfalls &amp; Anti-patterns) Thực Tế").</p>
-
-<h3>5.2 Tại sao bắt buộc phải có <code>@Transaction</code>?</h3>
-
-<p>Giả sử không có <code>@Transaction</code>:</p>
-
-<pre data-lang="text"><code>t=0: Query orders → kết quả: [Order A, Order B, Order C]
-t=1: Room chưa kịp chạy query thứ hai
-t=2: Thread khác DELETE order_details của Order B
-t=3: Query details của A, B, C → B không còn detail nào (đã bị xoá!)
-t=4: Kết quả: OrderWithDetails(B, emptyList) — DỮ LIỆU KHÔNG NHẤT QUÁN!</code></pre>
-
-<p><code>@Transaction</code> đảm bảo cả 2 query chạy trong 1 SQLite read snapshot — dữ liệu nhất quán tại 1 thời điểm.</p>
-
-<h3>5.3 Giải pháp thay thế khi N+1 là vấn đề</h3>
-
-<pre data-lang="kotlin"><code>data class OrderSummary(
-    val orderId: Long,
-    val orderTotal: Double,
-    val itemCount: Int  // Tính từ JOIN, không cần @Relation
-)
-
-@Query("""
-    SELECT o.id AS orderId, o.total AS orderTotal, COUNT(d.id) AS itemCount
-    FROM orders o
-    LEFT JOIN order_details d ON o.id = d.orderId
-    GROUP BY o.id
-""")
-fun getOrderSummaries(): Flow&lt;List&lt;OrderSummary&gt;&gt;</code></pre>
-
-<p>1 query duy nhất, không cần <code>@Transaction</code>, không phải tải toàn bộ detail lên bộ nhớ khi UI chỉ cần số lượng.</p>
-
-<h2>6. Pattern thực chiến</h2>
-
-<h3>6.1 Data Sync — Không để UI thấy màn hình trống</h3>
-
-<p>Vấn đề: khi sync, bạn xoá cache cũ rồi insert mới. Giữa 2 bước, UI sẽ thấy danh sách trống (empty flash).</p>
-
-<pre data-lang="kotlin"><code>// SAI — gây empty flash
-suspend fun syncProducts(serverData: List&lt;ProductDto&gt;) {
-    dao.deleteAll()          // UI thấy emptyList()
-    dao.insertAll(serverData.map { it.toEntity() })  // UI thấy data mới
-}
-
-// ĐÚNG — atomic, UI chỉ thấy trạng thái cuối
-suspend fun syncProducts(serverData: List&lt;ProductDto&gt;) {
-    db.withTransaction {
-        dao.deleteAll()
-        dao.insertAll(serverData.map { it.toEntity() })
-        // Flow chỉ emit 1 lần SAU KHI cả 2 bước hoàn thành
-    }
-}</code></pre>
-
-<p><code>withTransaction { }</code> chặn được empty flash vì <code>InvalidationTracker</code> chỉ notify Flow sau khi transaction <code>COMMIT</code>. Trong suốt thời gian transaction đang chạy, Flow không nhận được notification nào.</p>
-
-<div class="mermaid">
-sequenceDiagram
-    participant Repo as Repository
-    participant Trans as Transaction
-    participant IT as InvalidationTracker
-    participant UI as UI Flow
-
-    Repo-&gt;&gt;Trans: withTransaction { deleteAll() + insertAll() }
-    Note over Trans: BEGIN TRANSACTION
-    Trans-&gt;&gt;Trans: DELETE FROM products (UI không biết)
-    Trans-&gt;&gt;Trans: INSERT INTO products... (UI không biết)
-    Note over Trans: COMMIT
-    Trans-&gt;&gt;IT: Notify: "products" table changed
-    IT-&gt;&gt;UI: emit(newFullList) — Chỉ 1 lần emit
-</div>
-
-<h3>6.2 E-commerce Checkout — Multi-table atomic write</h3>
-
-<pre data-lang="kotlin"><code>class CheckoutRepository(
-    private val db: AppDatabase,
-    private val walletDao: WalletDao,
-    private val orderDao: OrderDao,
-    private val inventoryDao: InventoryDao
-) {
-    suspend fun checkout(
-        userId: Long,
-        cartItems: List&lt;CartItem&gt;
-    ): Result&lt;Long&gt; = try {
-        val orderId = db.withTransaction {
-            // Bước 1: Kiểm tra &amp; trừ ví
-            val wallet = walletDao.getWallet(userId)
-                ?: error("Wallet not found")
-            val total = cartItems.sumOf { it.price * it.quantity }
-            if (wallet.balance &lt; total) throw InsufficientFundsException()
-            walletDao.deductBalance(userId, total)
-
-            // Bước 2: Kiểm tra tồn kho
-            cartItems.forEach { item -&gt;
-                val stock = inventoryDao.getStock(item.productId)
-                if (stock &lt; item.quantity) throw OutOfStockException(item.productId)
-                inventoryDao.reduceStock(item.productId, item.quantity)
-            }
-
-            // Bước 3: Tạo order và details
-            val newOrderId = orderDao.insertOrder(
-                OrderEntity(userId = userId, total = total, status = "PENDING")
-            )
-            orderDao.insertOrderDetails(
-                cartItems.map { OrderDetailEntity(orderId = newOrderId, productId = it.productId) }
-            )
-            newOrderId  // Trả về orderId để ViewModel navigate
-        }
-        // Nếu BẤT KỲ bước nào throw → ROLLBACK toàn bộ
-        Result.success(orderId)
-    } catch (e: CancellationException) {
-        throw e // Không bọc cancellation vào Result (runCatching sẽ nuốt mất nó)
-    } catch (e: Exception) {
-        Result.failure(e)
-    }
-}</code></pre>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><code>runCatching { }</code> bắt mọi <code>Throwable</code>, kể cả <code>CancellationException</code>. Nếu dùng nó ở đây, khi màn hình bị huỷ giữa checkout, coroutine không dừng mà tiếp tục chạy <code>onFailure</code> như một lỗi nghiệp vụ. Vì vậy bắt <code>CancellationException</code> riêng và ném lại.</div></div>
-
-<p><strong>Trong ViewModel:</strong></p>
-
-<pre data-lang="kotlin"><code>fun checkout(cartItems: List&lt;CartItem&gt;) {
-    viewModelScope.launch {
-        _uiState.value = CheckoutState.Loading
-        checkoutRepo.checkout(userId, cartItems)
-            .onSuccess { orderId -&gt;
-                _uiState.value = CheckoutState.Success(orderId)
-            }
-            .onFailure { error -&gt;
-                _uiState.value = when (error) {
-                    is InsufficientFundsException -&gt; CheckoutState.InsufficientFunds
-                    is OutOfStockException -&gt; CheckoutState.OutOfStock(error.productId)
-                    else -&gt; CheckoutState.Error(error.message)
-                }
-            }
-    }
-}</code></pre>
-
-<h3>6.3 Banking Transfer — Ordering để tránh Deadlock</h3>
-
-<p>Câu hỏi hay gặp: có cần khoá hai tài khoản theo thứ tự cố định (lock ordering) như trong database server không? Với SQLite thì <strong>không</strong>: SQLite không khoá theo hàng hay theo tài khoản mà khoá <strong>cả file database</strong> khi ghi, và mỗi lúc chỉ có một writer (kể cả ở WAL mode). Hai transaction chuyển tiền không thể giữ "khoá A chờ khoá B", nên không có deadlock kiểu lock ordering. Điều cần làm là đặt <strong>cả đọc số dư lẫn ghi</strong> vào cùng một transaction để không ai xen vào giữa:</p>
-
-<pre data-lang="kotlin"><code>suspend fun transfer(fromId: Long, toId: Long, amount: Long) { // tiền lưu theo đơn vị nhỏ nhất (đồng/xu), không dùng Double
-    db.withTransaction {
-        // Đọc và ghi trong cùng transaction: không writer nào khác chen vào giữa
-        val from = accountDao.getById(fromId) ?: error("Account not found")
-        val to = accountDao.getById(toId) ?: error("Account not found")
-        if (from.balance &lt; amount) throw InsufficientFundsException()
-
-        accountDao.updateBalance(from.id, from.balance - amount)
-        accountDao.updateBalance(to.id, to.balance + amount)
-    }
-}</code></pre>
-
-<h3>6.4 WAL Mode — Tại sao Room bật theo mặc định</h3>
-
-<p>Room mặc định dùng <code>JournalMode.AUTOMATIC</code>. Theo tài liệu <code>RoomDatabase.JournalMode</code>, chế độ thực tế là <code>TRUNCATE</code> khi thiết bị chạy API dưới 16 <strong>hoặc</strong> là thiết bị low-RAM (<code>ActivityManager.isLowRamDevice()</code>), còn lại là <strong>Write-Ahead Logging (WAL)</strong>. Mốc này gắn với cấu hình thiết bị, không gắn với một phiên bản Android hay phiên bản Room cụ thể. Bạn có thể ép chế độ bằng <code>setJournalMode(...)</code> khi build database.</p>
-
-<p><strong>Cơ chế WAL:</strong></p>
+<h2>Lịch sử phát triển</h2>
 
 <ul>
-  <li><strong>Rollback journal (ví dụ <code>TRUNCATE</code>):</strong> khi ghi, SQLite khoá độc quyền cả file database. Writer phải chờ các Reader đang đọc xong, và Reader mới phải chờ Writer ghi xong. Đang có sync ngầm ghi nhiều dữ liệu thì màn hình đọc database bị nghẽn theo.</li>
-  <li><strong>WAL mode:</strong> thay vì sửa trực tiếp file chính (ví dụ <code>app_database.db</code>), lệnh ghi được nối vào một file nhật ký riêng <code>app_database.db-wal</code> (kèm file chỉ mục <code>-shm</code>). Reader vẫn đọc file chính cộng phần đã commit trong WAL, nên Reader không block Writer và Writer không block Reader. Mỗi lúc vẫn chỉ có <strong>một</strong> Writer, vì chỉ có một file WAL.</li>
-  <li><strong>Checkpoint:</strong> định kỳ, nội dung file WAL được gom về file chính. SQLite tự chạy checkpoint khi file WAL vượt ngưỡng (mặc định của SQLite là 1000 page; nền tảng có thể cấu hình ngưỡng khác), Room không phải làm gì.</li>
+  <li><strong>SQLite 3.7.0 (07/2010):</strong> thêm chế độ Write-Ahead Log (WAL), nền của việc Reader và Writer không block nhau.</li>
+  <li><strong>Room 2.0.0 (10/2018):</strong> <code>androidx.room</code> có <code>RoomDatabase.Builder.setQueryExecutor()</code> (thêm từ 2.0.0-beta01, 07/2018) để đổi executor chạy query.</li>
+  <li><strong>Room 2.1.0 (06/2019):</strong> hàm DAO được khai báo <code>suspend</code>, và <code>room-ktx</code> có <code>RoomDatabase.withTransaction</code> để chạy transaction trong coroutine (thêm từ 2.1.0-alpha05, 03/2019). Cùng đợt này:
+<ul>
+  <li>Hàm <code>@Transaction</code> có thân (non-abstract) được phép là <code>suspend</code>; trả kiểu async như <code>Single</code>, <code>LiveData</code> thì báo lỗi, vì transaction gắn với thread nên Room không thể mở và đóng transaction quanh code chạy trên nhiều thread (2.1.0-alpha04).</li>
+  <li>Transaction async được tuần tự hoá, Room không dùng quá một thread để chạy transaction, và thêm <code>setTransactionExecutor(Executor)</code> (2.1.0-alpha06).</li>
+  <li><code>beginTransaction()</code>, <code>setTransactionSuccessful()</code>, <code>endTransaction()</code> của <code>RoomDatabase</code> bị deprecated, thay bằng <code>runInTransaction</code> và <code>withTransaction</code>.</li>
+</ul></li>
+  <li><strong>Room 2.2.0 (10/2019):</strong> hàm <code>@Query</code> của DAO trả được <code>Flow&lt;T&gt;</code>; <code>Flow</code> emit lại khi bảng mà query quan sát bị invalidate.</li>
+  <li><strong>Room 2.6.0 (10/2023):</strong> Room KSP có tuỳ chọn sinh code Kotlin (Kotlin CodeGen); code <code>*_Impl</code> minh hoạ trong bài theo Room 2.6.</li>
+  <li><strong>Room 2.7.0 (04/2025):</strong> Room thành thư viện Kotlin Multiplatform và cấu hình được với <code>SQLiteDriver</code>; thêm <code>useReaderConnection</code> / <code>useWriterConnection</code>. Khi database dùng <code>SQLiteDriver</code>, tài liệu khuyên dùng <code>useWriterConnection</code> cùng <code>immediateTransaction</code> cho thao tác transaction, và các hàm transaction thủ công như <code>beginTransaction()</code> ném <code>IllegalStateException</code>. Cơ chế transaction thread mô tả trong bài là của Room 2.6 trên Android.</li>
 </ul>
 
-<pre data-lang="text"><code>Journal Mode:  Reader1 — wait — wait — Writer — wait — Reader2
-WAL Mode:      Reader1 ─────────────────────────────────────
-               Reader2 ─────────────────────────────────────
-               Writer  ─── WAL file ─────────────────────────</code></pre>
+<h2>Kết nối hệ thống</h2>
 
-<p>Kết quả thực tế: <code>Flow&lt;List&lt;T&gt;&gt;</code> (reader) và <code>dao.insert()</code> (writer) không block nhau, UI luôn mượt mà.</p>
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>: Entity, DAO, <code>@Relation</code>, và vai trò của <code>InvalidationTracker</code> trong kiến trúc Room mà bài này đi sâu.</li>
+  <li><a href="room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>: index giúp các query hẹp (giải pháp cho table-level invalidation) chạy nhanh.</li>
+</ul></li>
+  <li><strong>Kiến thức dùng trước:</strong> 8.4.3 Coroutines (chưa có bài) cho <code>suspend</code>, <code>launch</code>, cancellation; 7.1.4.2 Flow (chưa có bài) cho <code>collect</code>, <code>stateIn</code>, <code>distinctUntilChanged</code>.</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: main thread, ANR và thread pool, nền của việc Room chặn query trên main thread và dùng executor riêng.</li>
+  <li>6.4 ViewModel (chưa có bài): <code>viewModelScope</code> mà các ví dụ dùng và việc nó bị cancel khi màn hình đóng.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong> <a href="../networking.md" target="_blank" rel="noopener">Networking</a>: lấy dữ liệu từ server rồi ghi vào Room, nơi pattern Data Sync trong bài được dùng.</li>
+</ul>
 
-<h2>7. Testing — Transaction và Flow</h2>
-
-<h3>7.1 Setup In-memory Database</h3>
-
-<pre data-lang="kotlin"><code>@RunWith(AndroidJUnit4::class)
-class CheckoutRepositoryTest {
-
-    private lateinit var db: AppDatabase
-    private lateinit var repo: CheckoutRepository
-
-    @Before
-    fun setup() {
-        val context = ApplicationProvider.getApplicationContext&lt;Context&gt;()
-        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
-            .allowMainThreadQueries()
-            .build()
-        repo = CheckoutRepository(db, db.walletDao(), db.orderDao(), db.inventoryDao())
-    }
-
-    @After
-    fun teardown() { db.close() }
-}</code></pre>
-
-<h3>7.2 Test Transaction Rollback</h3>
-
-<pre data-lang="kotlin"><code>@Test
-fun \`checkout voi insufficient funds phai rollback toan bo\`() = runTest {
-    db.walletDao().insert(WalletEntity(userId = 1, balance = 50.0))
-    val cartItems = listOf(CartItem(productId = 1, price = 100.0, quantity = 1))
-
-    val result = repo.checkout(userId = 1, cartItems = cartItems)
-
-    assertTrue(result.isFailure)
-    assertIs&lt;InsufficientFundsException&gt;(result.exceptionOrNull())
-
-    // Verify rollback: ví vẫn còn nguyên 50
-    assertEquals(50.0, db.walletDao().getWallet(1)!!.balance, 0.001)
-    // Verify: không có order nào được tạo
-    assertTrue(db.orderDao().getAllOrders().isEmpty())
-}</code></pre>
-
-<h3>7.3 Test Flow với Turbine</h3>
-
-<pre data-lang="kotlin"><code>// build.gradle.kts
-testImplementation("app.cash.turbine:turbine:1.1.0")</code></pre>
-
-<pre data-lang="kotlin"><code>@Test
-fun \`flow emit updated list sau khi insert\`() = runTest {
-    db.productDao().insertAll(listOf(ProductEntity(id = 1, name = "Laptop")))
-
-    db.productDao().getAllProducts().test {
-        // Emission đầu tiên: data ban đầu
-        assertEquals(1, awaitItem().size)
-
-        // Insert thêm sản phẩm
-        db.productDao().insert(ProductEntity(id = 2, name = "Phone"))
-
-        // Emission thứ 2: list mới với 2 items
-        assertEquals(2, awaitItem().size)
-
-        cancelAndIgnoreRemainingEvents()
-    }
-}</code></pre>
-
-<h3>7.4 Test Empty Flash Prevention</h3>
-
-<pre data-lang="kotlin"><code>@Test
-fun \`sync phai emit chi 1 lan voi data moi, khong co empty flash\`() = runTest {
-    db.productDao().insertAll(listOf(ProductEntity(id = 1, name = "Old Product")))
-
-    db.productDao().getAllProducts().test {
-        awaitItem()  // Consume initial emission
-
-        db.withTransaction {
-            db.productDao().deleteAll()
-            db.productDao().insertAll(listOf(
-                ProductEntity(id = 2, name = "New A"),
-                ProductEntity(id = 3, name = "New B"),
-            ))
-        }
-
-        // Phải nhận đúng 1 emission với 2 items — không có emptyList() ở giữa
-        val result = awaitItem()
-        assertEquals(2, result.size)
-        assertTrue(result.none { it.name == "Old Product" })
-
-        cancelAndIgnoreRemainingEvents()
-    }
-}</code></pre>
-
-<h2>8. Tổng kết — Mental Model</h2>
-
-<div class="mermaid">
-flowchart TD
-    A["Coroutine\\n(viewModelScope)"] --&gt; B["withTransaction { }"]
-    B --&gt; C["Chiếm 1 thread từ\\ntransactionExecutor\\n(event loop runBlocking)"]
-    C --&gt; D["TransactionElement\\ninjected into CoroutineContext"]
-    D --&gt; E["BEGIN TRANSACTION"]
-    E --&gt; F["DAO calls\\n(chạy trên transaction thread qua TransactionElement)"]
-    F --&gt; G{Exception?}
-    G --&gt;|No| H["COMMIT\\nInvalidationTracker notified"]
-    G --&gt;|"Yes / Cancel"| I["ROLLBACK\\nNo notification sent"]
-    H --&gt; J["Flow re-query\\nemit new data to UI"]
-</div>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Khái niệm</th>
-      <th style="padding:8px 12px;text-align:left;">Cốt lõi cần nhớ</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Transaction thread</strong></td>
-      <td style="padding:8px 12px;"><code>withTransaction</code> chiếm 1 thread từ <code>transactionExecutor</code>, chạy event loop, giữ cả transaction trên thread đó</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>TransactionElement</strong></td>
-      <td style="padding:8px 12px;">"Passport" trong CoroutineContext, giữ dispatcher của transaction thread để DAO calls chạy đúng chỗ</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong><code>@Transaction</code> vs <code>withTransaction</code></strong></td>
-      <td style="padding:8px 12px;">DAO-level vs Repository-level; <code>withTransaction</code> linh hoạt hơn</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Nested Transaction</strong></td>
-      <td style="padding:8px 12px;"><code>beginTransaction()</code> lồng, ghép vào transaction ngoài; rollback là rollback cả khối</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Rollback</strong></td>
-      <td style="padding:8px 12px;">Trigger bởi bất kỳ Throwable, kể cả CancellationException</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>InvalidationTracker</strong></td>
-      <td style="padding:8px 12px;">SQLite trigger → room_table_modification_log → Flow emit</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Table-level invalidation</strong></td>
-      <td style="padding:8px 12px;">Cả table re-emit dù chỉ 1 row thay đổi → dùng <code>distinctUntilChanged()</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong><code>@Relation</code></strong></td>
-      <td style="padding:8px 12px;">Room chạy 2 queries (cha + <code>IN (...)</code> cho con), không phải N+1; cần <code>@Transaction</code> để đảm bảo consistency</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>WAL mode</strong></td>
-      <td style="padding:8px 12px;"><code>AUTOMATIC</code> chọn WAL, trừ API &lt; 16 hoặc thiết bị low-RAM (dùng <code>TRUNCATE</code>); Reader/Writer không block nhau → Flow và Insert song song</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><strong>Empty flash prevention</strong></td>
-      <td style="padding:8px 12px;"><code>withTransaction { delete + insert }</code> → chỉ emit sau COMMIT</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2>Tham khảo</h2>
+<h2>Nguồn tham khảo</h2>
 
 <ol>
   <li><a href="https://developer.android.com/training/data-storage/room/async-queries" target="_blank" rel="noopener">Write asynchronous DAO queries — Android Developers</a></li>
@@ -39207,6 +39750,8 @@ flowchart TD
   <li><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase#beginTransaction(" target="_blank" rel="noopener">SQLiteDatabase.beginTransaction (nested transactions) — Android Reference</a>)</li>
   <li><a href="https://www.sqlite.org/lockingv3.html" target="_blank" rel="noopener">File Locking And Concurrency In SQLite — sqlite.org</a></li>
   <li><a href="https://developer.android.com/reference/androidx/room/RoomDatabase.Builder" target="_blank" rel="noopener">RoomDatabase.Builder (allowMainThreadQueries, setQueryExecutor, setTransactionExecutor, setJournalMode) — Android Reference</a></li>
+  <li><a href="https://developer.android.com/reference/kotlin/androidx/room/RoomDatabase" target="_blank" rel="noopener">RoomDatabase (withTransaction: thành công trừ khi có exception hoặc bị cancel; beginTransaction deprecated từ 2.1.0; useWriterConnection) — Android Reference</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/room" target="_blank" rel="noopener">Room release notes (2.0.0, 2.1.0, 2.2.0, 2.6.0, 2.7.0) — Android Developers</a></li>
 </ol>
     `
   },
@@ -41042,7 +41587,7 @@ val file = File(context.filesDir, "avatar.jpg")</code></pre>
 
   'working-with-thread': {
     title: 'Working with Thread in Android — Từ Bản Chất Đến Thực Chiến',
-    summary: 'Cẩm nang chuyên sâu và toàn diện về Multithreading trong Android. Phân tích bản chất Process vs Thread dưới góc nhìn Linux kernel và ART, cơ chế Main Thread & ANR, mổ xẻ bộ ba Looper - MessageQueue - Handler, quản lý luồng công nghiệp với ThreadPoolExecutor, xử lý Race Condition, Deadlock, Memory Leak, kết nối với Kotlin Coroutines Dispatchers và thực hành Mini-Project Image Pipeline hoàn chỉnh bằng Kotlin.',
+    summary: 'Làm việc với Thread trong Android là giữ Main Thread (thread duy nhất được chạm vào UI) luôn rảnh, đưa việc chặn như Disk I/O, Network I/O và tính toán nặng sang worker thread hoặc thread pool trong cùng process, rồi gửi kết quả về Main Thread qua MessageQueue bằng Looper và Handler. Bài đi từ Process vs Thread dưới góc nhìn Linux kernel và ART, ngân sách frame và ANR, bộ ba Looper - MessageQueue - Handler, HandlerThread, ThreadPoolExecutor cho tác vụ CPU-bound và I/O-bound, đến Race Condition, Deadlock, Memory Leak, cách Coroutine Dispatchers ánh xạ xuống Thread, và một pipeline xử lý ảnh đa luồng bằng Kotlin.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '40 phút',
@@ -41060,16 +41605,38 @@ val file = File(context.filesDir, "avatar.jpg")</code></pre>
       'Nhận diện được Race Condition, Deadlock, Memory Leak khi dùng Thread và áp dụng được cách phòng tránh.'
     ],
     knowledgeGap: 'Nhiều developer chỉ dùng Coroutines mà không hiểu Thread bên dưới, dẫn đến việc dùng sai Dispatchers, rò rỉ bộ nhớ qua Handler/Thread ngầm, hoặc gặp lỗi ANR và Race Condition khó debug.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '40 phút',
     content: `
+<h2>Vấn đề cần giải quyết</h2>
+
 <p>Trong phát triển ứng dụng Android, mọi trải nghiệm mượt mà của người dùng — từ thao tác vuốt chạm 120 FPS không giật lag, tải dữ liệu nền êm ái đến việc nén ảnh không làm đóng băng màn hình — đều phụ thuộc trực tiếp vào cách bạn làm việc với <strong>Thread (Luồng)</strong>.</p>
+
+<p>Vấn đề gốc nằm ở một ràng buộc của Android: chỉ một thread được phép vẽ và cập nhật giao diện. Mọi việc chạy trên thread đó đều chiếm thời gian vẽ màn hình, nên một lần đọc file, một lời gọi API hay một phép nén ảnh chạy sai chỗ là đủ làm app giật, rồi treo. Ngược lại, chuyển việc sang thread khác thì lại phải giải quyết bài toán gửi kết quả về đúng thread vẽ UI, chia sẻ dữ liệu giữa các thread và dừng thread đúng lúc.</p>
 
 <p>Nhiều lập trình viên hiện đại bắt đầu ngay với Kotlin Coroutines mà bỏ qua việc tìm hiểu Thread. Tuy nhiên, Coroutines không thay thế Thread; Coroutines <strong>chạy trên nền tảng các Thread</strong>. Nếu không hiểu bản chất của hệ điều hành, cơ chế Message Loop, mô hình phân chia bộ nhớ và các cạm bẫy tranh chấp tài nguyên (Concurrency Pitfalls), bạn sẽ sớm đối mặt với những lỗi quái đản trong môi trường production: <strong>ANR (Application Not Responding)</strong>, <strong>Memory Leak</strong>, <strong>Race Condition</strong> hay <strong>Deadlock</strong>.</p>
 
 <p>Tài liệu này dẫn dắt bạn đi từ con số 0 đến cấp độ kỹ sư cấp cao: hiểu bản chất hệ điều hành, làm chủ cơ chế giao tiếp của Android Framework, thiết kế Thread Pool tối ưu và xây dựng một <strong>Pipeline xử lý đa luồng thực tế bằng Kotlin</strong>.</p>
 
-<h2>1. Bản chất cốt lõi: Process vs Thread dưới lăng kính Hệ điều hành &amp; ART</h2>
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được bản chất Process vs Thread, vùng nhớ Heap/Stack và chi phí thật khi tạo một Thread trên Linux/ART.</li>
+  <li>Giải thích được vì sao Main Thread phải hoàn thành mỗi frame trong 16.6ms và khi nào hệ thống báo ANR.</li>
+  <li>Triển khai được giao tiếp Background Thread → Main Thread bằng Looper, MessageQueue, Handler và HandlerThread.</li>
+  <li>Thiết kế được ThreadPoolExecutor phù hợp cho tác vụ CPU-bound và I/O-bound.</li>
+  <li>Nhận diện được Race Condition, Deadlock, Memory Leak khi dùng Thread và áp dụng được cách phòng tránh.</li>
+</ul>
+
+<h2>Thread trong Android là gì?</h2>
+
+<p><strong>Thread</strong> (Luồng) là đơn vị thực thi nhỏ nhất mà CPU Scheduler của hệ điều hành phân bổ thời gian CPU; các thread trong cùng một process dùng chung Heap nhưng mỗi thread có Call Stack riêng. <strong>Làm việc với Thread trong Android</strong> nghĩa là giữ Main Thread (thread duy nhất được chạm vào UI) luôn rảnh: việc chặn như I/O và tính toán nặng chạy trên worker thread hoặc thread pool, còn kết quả được gửi về Main Thread qua MessageQueue của nó bằng Looper và Handler.</p>
+
+<p>Mental model: Main Thread là <strong>một quầy phục vụ duy nhất</strong> xử lý lần lượt từng phiếu trong một hàng đợi (MessageQueue). Việc lâu được giao cho <strong>nhân viên phía sau</strong> (worker thread, thread pool); làm xong, họ không tự bước ra quầy mà <strong>bỏ một phiếu kết quả vào hàng đợi</strong> (<code>Handler.post</code>, <code>sendMessage</code>), và quầy sẽ xử lý phiếu đó đúng lượt. Quầy bị một phiếu giữ quá lâu thì cả hàng phía sau đứng im: đó là jank và ANR.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Process vs Thread dưới lăng kính Hệ điều hành &amp; ART</h3>
 
 <p>Để hiểu đa luồng, trước hết phải hiểu đơn vị vận hành của hệ điều hành.</p>
 
@@ -41088,7 +41655,7 @@ val file = File(context.filesDir, "avatar.jpg")</code></pre>
 |  +-------------------+  +-------------------+  +-------------------+  |
 +-----------------------------------------------------------------------+</code></pre>
 
-<h3>1.1 Process (Tiến trình) là gì?</h3>
+<h4>Process (Tiến trình)</h4>
 
 <ul>
   <li>Khi người dùng chạm vào biểu tượng app để mở, hệ thống Linux sẽ fork ra một <strong>Process</strong> mới độc lập thông qua <code>Zygote</code>.</li>
@@ -41096,7 +41663,7 @@ val file = File(context.filesDir, "avatar.jpg")</code></pre>
   <li>Hai Process khác nhau không thể trực tiếp đọc hay ghi vào vùng nhớ của nhau (nếu muốn chia sẻ dữ liệu thì bắt buộc phải dùng IPC - Inter-Process Communication như Binder, AIDL, Messenger, Socket).</li>
 </ul>
 
-<h3>1.2 Thread (Luồng) là gì?</h3>
+<h4>Thread (Luồng): vùng nhớ dùng chung và vùng nhớ riêng</h4>
 
 <ul>
   <li><strong>Thread</strong> là đơn vị thực thi nhỏ nhất được hệ điều hành (CPU Scheduler) phân bổ thời gian CPU để xử lý lệnh.</li>
@@ -41110,7 +41677,9 @@ val file = File(context.filesDir, "avatar.jpg")</code></pre>
 </ul></li>
 </ul>
 
-<h3>1.3 Chi phí thực sự khi tạo một Thread</h3>
+<p>Vì Heap dùng chung, hai thread có thể cùng đọc ghi một object; đây là gốc của Race Condition ở phần "Race Condition và đồng bộ hoá dữ liệu dùng chung" bên dưới.</p>
+
+<h4>Chi phí thực sự khi tạo một Thread</h4>
 
 <p>Một sai lầm kinh điển của người mới là nghĩ rằng Thread rất "nhẹ":</p>
 
@@ -41120,11 +41689,11 @@ val file = File(context.filesDir, "avatar.jpg")</code></pre>
   <li><strong>Kernel System Call Overhead:</strong> Lệnh tạo Thread (<code>pthread_create</code> trong C/Linux) phải gọi xuống Kernel space, tốn hàng trăm microsecond đến millisecond.</li>
 </ol>
 
-<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Quy tắc vàng 1:</strong> Thread tạo thủ công (<code>thread { ... }</code>, <code>Thread(...).start()</code>) vẫn chạy đúng, và hợp với một việc chạy dài, riêng biệt (ví dụ luồng lắng nghe socket, mục 7). Hạn chế của nó: mỗi lần tạo tốn các chi phí ở trên, không giới hạn được số thread khi có nhiều việc cùng lúc, và không tự huỷ theo lifecycle nên dễ gây Memory Leak (mục 6.3). Với việc nền ngắn và lặp lại, hãy ưu tiên <strong>Thread Pool</strong> dùng chung có kiểm soát kích thước (mục 5) hoặc Coroutines (mục 8).</div></div>
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Quy tắc vàng 1:</strong> Thread tạo thủ công (<code>thread { ... }</code>, <code>Thread(...).start()</code>) vẫn chạy đúng, và hợp với một việc chạy dài, riêng biệt (ví dụ luồng lắng nghe socket, bảng bài toán ở mục "Ví dụ thực tế"). Hạn chế của nó: mỗi lần tạo tốn các chi phí ở trên, không giới hạn được số thread khi có nhiều việc cùng lúc, và không tự huỷ theo lifecycle nên dễ gây Memory Leak (mục "Sai lầm thường gặp", phần 4). Với việc nền ngắn và lặp lại, hãy ưu tiên <strong>Thread Pool</strong> dùng chung có kiểm soát kích thước (phần Thread Pool bên dưới) hoặc Coroutines (mục "So sánh với các cách tiếp cận khác").</div></div>
 
-<h2>2. Main Thread (UI Thread) trong Android: Trọng trách, Giới hạn và ANR</h2>
+<h3>Main Thread (UI Thread) trong Android</h3>
 
-<h3>2.1 Tại sao Android áp dụng mô hình "Single-Threaded UI Model"?</h3>
+<h4>Tại sao Android áp dụng mô hình "Single-Threaded UI Model"?</h4>
 
 <p>Hầu hết các hệ điều hành đồ họa (Android, iOS, Swing, Web DOM) đều thiết kế UI framework theo mô hình <strong>Đơn Luồng (Single-Threaded)</strong>.</p>
 
@@ -41160,7 +41729,7 @@ void checkThread() {
     }
 }</code></pre>
 
-<h3>2.2 Vòng lặp Frame 16.6ms / 8.3ms và sự hình thành của Lag</h3>
+<h4>Vòng lặp Frame 16.6ms / 8.3ms và sự hình thành của Lag</h4>
 
 <p>Màn hình thiết bị Android làm mới (refresh) theo tần số quét:</p>
 
@@ -41171,7 +41740,7 @@ void checkThread() {
 
 <p>Nếu Main Thread bận thực hiện một phép tính toán nặng (ví dụ: giải mã file JSON 5MB mất 100ms), nó sẽ bỏ lỡ (drop) nhiều khung hình Vsync. Người dùng sẽ thấy màn hình bị giật cục (Jank/Stutter).</p>
 
-<h3>2.3 ANR (Application Not Responding)</h3>
+<h4>ANR (Application Not Responding)</h4>
 
 <p>Khi Main Thread bị chặn (block) quá lâu và không thể tiếp nhận tương tác người dùng, hệ điều hành sẽ kích hoạt hộp thoại <strong>ANR</strong>:</p>
 
@@ -41208,15 +41777,15 @@ void checkThread() {
   </tbody>
 </table>
 
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body">Bất kỳ thao tác nào liên quan đến <strong>Disk I/O</strong> (đọc ghi file, SQLite), <strong>Network I/O</strong> (gọi API HTTP, Socket), hoặc <strong>CPU-bound calculation</strong> (nén ảnh, giải mã mã hóa) đều <strong>BẮT BUỘC PHẢI CHUYỂN SANG BACKGROUND THREAD</strong>.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Docs ANR chỉ ghi chắc chắn hai con số: input không được phản hồi trong <strong>5 giây</strong>, và <code>BroadcastReceiver</code> chưa chạy xong trong <strong>10 giây</strong> khi app có Activity ở foreground; với Service, docs chỉ ghi "vài giây". Các con số còn lại trong bảng là hằng số timeout trong mã nguồn AOSP (<code>BROADCAST_FG_TIMEOUT</code>/<code>BROADCAST_BG_TIMEOUT</code> trong <code>ActivityManagerService</code>, <code>SERVICE_TIMEOUT</code>/<code>SERVICE_BACKGROUND_TIMEOUT</code> trong <code>ActivityManagerConstants</code>), được nhân thêm hệ số theo phần cứng và có thể đổi giữa các phiên bản. "Foreground/Background" ở dòng BroadcastReceiver là hàng đợi broadcast (broadcast gửi kèm <code>Intent.FLAG_RECEIVER_FOREGROUND</code> vào hàng đợi foreground); ở dòng Service là process có đang chạy service ở mức ưu tiên foreground hay không. Đừng thiết kế dựa vào các con số này: việc trên Main Thread luôn phải xong trong một frame.</div></div>
 
-<p>Android thậm chí còn cài sẵn chốt chặn: Nếu bạn cố tình gọi HTTP Request trên Main Thread, framework sẽ ném ngay lỗi <code>android.os.NetworkOnMainThreadException</code>.</p>
+<p>Cách giữ Main Thread rảnh là chuyển Disk I/O, Network I/O và tính toán nặng sang thread khác; vì sao bỏ qua điều này là sai lầm phổ biến nhất xem mục "Sai lầm thường gặp", phần 1.</p>
 
-<h2>3. Tạo và khởi chạy Thread cơ bản trong Kotlin</h2>
+<h3>Tạo và khởi chạy Thread cơ bản trong Kotlin</h3>
 
 <p>Trong Kotlin / Java, có 3 cách cơ bản để khởi tạo và chạy một Thread:</p>
 
-<h3>Cách 1: Sử dụng Kotlin DSL <code>thread { ... }</code></h3>
+<h4>Cách 1: Sử dụng Kotlin DSL <code>thread { ... }</code></h4>
 
 <p>Cách ngắn gọn và phổ biến nhất khi bạn chỉ muốn chạy nhanh một đoạn code ngầm độc lập:</p>
 
@@ -41229,7 +41798,7 @@ fun runTask() {
     }
 }</code></pre>
 
-<h3>Cách 2: Triển khai interface <code>Runnable</code> (Khuyến khích hơn kế thừa Thread)</h3>
+<h4>Cách 2: Triển khai interface <code>Runnable</code> (Khuyến khích hơn kế thừa Thread)</h4>
 
 <p>Tách rời công việc cần làm (<code>Runnable</code>) khỏi phương tiện thực thi (<code>Thread</code>):</p>
 
@@ -41245,7 +41814,7 @@ val task = HeavyCalculationTask(listOf(1, 2, 3, 4, 5))
 val workerThread = Thread(task, "CalculationWorker")
 workerThread.start()</code></pre>
 
-<h3>Vì sao không nên kế thừa trực tiếp từ <code>class MyThread : Thread()</code>?</h3>
+<h4>Vì sao không nên kế thừa trực tiếp từ <code>class MyThread : Thread()</code>?</h4>
 
 <ol>
   <li>Java và Kotlin chỉ hỗ trợ đơn kế thừa. Kế thừa <code>Thread</code> làm bạn mất khả năng kế thừa từ class cha khác.</li>
@@ -41253,9 +41822,9 @@ workerThread.start()</code></pre>
   <li>Không thể tái sử dụng logic đó cho các kiến trúc hiện đại như <code>ExecutorService</code> hay <code>ThreadPool</code>.</li>
 </ol>
 
-<h2>4. Trái tim giao tiếp bất đồng bộ của Android: Looper, MessageQueue và Handler</h2>
+<h3>Trái tim giao tiếp bất đồng bộ của Android: Looper, MessageQueue và Handler</h3>
 
-<p>Đây là kiến trúc cốt lõi nhất của toàn bộ Android OS. Mọi tương tác chạm, hiển thị, lifecycle của Activity hay Coroutines <code>Dispatchers.Main</code> đều chạy trên nền tảng của bộ ba này.</p>
+<p>Đây là kiến trúc cốt lõi nhất của toàn bộ Android OS. Mọi tương tác chạm, hiển thị, lifecycle của Activity hay Coroutines <code>Dispatchers.Main</code> đều chạy trên nền tảng của bộ ba này. Trong mental model ở trên, <code>MessageQueue</code> là hàng đợi phiếu, <code>Looper</code> là quầy lấy từng phiếu ra xử lý, còn <code>Handler</code> là cách bỏ phiếu vào đúng hàng đợi của một thread.</p>
 
 <div class="mermaid">
 sequenceDiagram
@@ -41274,7 +41843,7 @@ sequenceDiagram
     HD-&gt;&gt;UI: handleMessage() chạy an toàn trên Main Thread
 </div>
 
-<h3>4.1 Mổ xẻ từng thành phần</h3>
+<h4>Mổ xẻ từng thành phần</h4>
 
 <ol>
   <li><strong><code>Message</code></strong>: Đối tượng dữ liệu mang thông điệp cần chuyển giao giữa các luồng.
@@ -41282,25 +41851,27 @@ sequenceDiagram
   <li><code>what</code>: Mã định danh kiểu sự kiện (Int).</li>
   <li><code>arg1</code>, <code>arg2</code>: Hai số nguyên dung lượng nhẹ (tiết kiệm bộ nhớ).</li>
   <li><code>obj</code>: Con trỏ tham chiếu đến đối tượng dữ liệu bất kỳ (String, Data Class, Bitmap...).</li>
-  <li><code>target</code>: Con trỏ lưu Handler nào chịu trách nhiệm xử lý Message này khi nó được lấy ra khỏi hàng đợi.</li>
+  <li><code>target</code>: Con trỏ lưu Handler nào chịu trách nhiệm xử lý Message này khi nó được lấy ra khỏi hàng đợi.
+<p>&gt; [!TIP] &gt; Luôn dùng <code>handler.obtainMessage()</code> hoặc <code>Message.obtain()</code> thay vì <code>new Message()</code>. Android duy trì một <strong>Object Pool</strong> chứa sẵn các Message rỗng để tái sử dụng, giúp tránh kích hoạt Garbage Collection (GC) liên tục.</p></li>
 </ul></li>
-</ol>
-
-<p>&gt; [!TIP] &gt; Luôn dùng <code>handler.obtainMessage()</code> hoặc <code>Message.obtain()</code> thay vì <code>new Message()</code>. Android duy trì một <strong>Object Pool</strong> chứa sẵn các Message rỗng để tái sử dụng, giúp tránh kích hoạt Garbage Collection (GC) liên tục.</p>
-
-<ol>
   <li><strong><code>MessageQueue</code></strong>: Hàng đợi liên kết đơn (Linked List) chứa các <code>Message</code> cần xử lý.
 <ul>
   <li>Các Message được sắp xếp theo thời gian kích hoạt (<code>when</code>). Nếu gọi <code>sendMessageDelayed(msg, 1000)</code>, Message sẽ nằm chờ trong Queue và chỉ được lấy ra khi đủ 1000ms.</li>
   <li>Nó sử dụng cơ chế <code>epoll</code> của nhân Linux: Khi hàng đợi rỗng hoặc chưa tới giờ xử lý tin nhắn tiếp theo, Thread sẽ rơi vào trạng thái ngủ sâu (sleep) mà không hề tiêu tốn 1% CPU nào.</li>
 </ul></li>
-</ol>
-
-<ol>
-  <li><strong><code>Looper</code></strong>: "Động cơ vĩnh cửu" giữ cho Thread luôn sống và liên tục bơm việc: \`\`<code>java // Logic tối giản của Looper.loop() trong AOSP public static void loop() { final Looper me = myLooper(); final MessageQueue queue = me.mQueue; for (;;) { // Vòng lặp vô tận Message msg = queue.next(); // Chặn chờ tin nhắn tới if (msg == null) return; msg.target.dispatchMessage(msg); // Gọi lại Handler msg.recycleUnchecked();          // Trả Message về Pool } } </code>\`<code> Main Thread của Android đã được hệ thống gọi sẵn </code>Looper.prepareMainLooper()<code> và </code>Looper.loop()<code> ngay từ hàm </code>ActivityThread.main()\`.</li>
-</ol>
-
-<ol>
+  <li><strong><code>Looper</code></strong>: "Động cơ vĩnh cửu" giữ cho Thread luôn sống và liên tục bơm việc:
+<pre data-lang="java"><code>// Logic tối giản của Looper.loop() trong AOSP
+public static void loop() {
+    final Looper me = myLooper();
+    final MessageQueue queue = me.mQueue;
+    for (;;) { // Vòng lặp vô tận
+        Message msg = queue.next(); // Chặn chờ tin nhắn tới
+        if (msg == null) return;
+        msg.target.dispatchMessage(msg); // Gọi lại Handler
+        msg.recycleUnchecked();          // Trả Message về Pool
+    }
+}</code></pre>
+<p>Main Thread của Android đã được hệ thống gọi sẵn <code>Looper.prepareMainLooper()</code> và <code>Looper.loop()</code> ngay từ hàm <code>ActivityThread.main()</code>.</p></li>
   <li><strong><code>Handler</code></strong>: Bộ điều phối hai chiều:
 <ul>
   <li><strong>Chiều gửi (Producer):</strong> Cung cấp các hàm <code>post()</code>, <code>postDelayed()</code>, <code>sendMessage()</code> để bất kỳ Thread nào cũng có thể đẩy tin nhắn vào <code>MessageQueue</code>.</li>
@@ -41308,7 +41879,33 @@ sequenceDiagram
 </ul></li>
 </ol>
 
-<h3>4.2 Code thực tế: Giao tiếp Background Thread -&gt; Main Thread qua Handler</h3>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Constructor <code>Handler()</code> và <code>Handler(callback)</code> không truyền <code>Looper</code> đã bị deprecated: chọn Looper ngầm theo thread hiện tại dễ làm mất việc (Looper đã quit), crash (thread chưa có Looper) hoặc chạy nhầm thread. Luôn truyền Looper rõ ràng, như <code>Handler(Looper.getMainLooper())</code> trong các ví dụ của bài.</div></div>
+
+<h4>Ví dụ: trả kết quả tải dữ liệu từ Background Thread về Main Thread</h4>
+
+<p>Một màn hình cần tải dữ liệu mất khoảng 2 giây rồi hiển thị kết quả. Việc tải phải chạy trên background thread, còn hiển thị phải chạy trên Main Thread, nên kết quả được gửi qua Handler gắn với Main Looper:</p>
+
+<ol>
+  <li>Tạo <code>mainHandler</code> gắn với <code>Looper.getMainLooper()</code>, override <code>handleMessage()</code> để phân loại theo <code>msg.what</code>.</li>
+  <li><code>fetchDataAsync()</code> mở một background thread để làm việc chậm (giả lập bằng <code>Thread.sleep(2000)</code>).</li>
+  <li>Xong việc, background thread lấy Message từ Pool bằng <code>obtainMessage()</code> và <code>sendMessage()</code> vào MessageQueue của Main Thread; lỗi thì gửi <code>MSG_ERROR</code>.</li>
+  <li>Looper của Main Thread lấy Message ra và gọi <code>handleMessage()</code> trên Main Thread, nơi <code>onResult()</code> được phép chạm vào UI.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant UI as Màn hình (Main Thread)
+    participant BG as Thread "NetworkFetcher"
+    participant MQ as MessageQueue (Main)
+    participant H as mainHandler
+
+    UI-&gt;&gt;H: (1) Tạo Handler(Looper.getMainLooper())
+    UI-&gt;&gt;BG: (2) fetchDataAsync() mở background thread
+    BG-&gt;&gt;BG: (2) Làm việc chậm ~2 giây
+    BG-&gt;&gt;MQ: (3) obtainMessage(MSG_SUCCESS, data) → sendMessage()
+    MQ--&gt;&gt;H: (4) Looper lấy Message, gọi handleMessage()
+    H-&gt;&gt;UI: (4) onResult(data) trên Main Thread
+</div>
 
 <pre data-lang="kotlin"><code>import android.os.Handler
 import android.os.Looper
@@ -41317,13 +41914,13 @@ import kotlin.concurrent.thread
 
 class DataFetcher(private val onResult: (String) -&gt; Unit) {
 
-    // 1. Tạo Handler gắn chặt với Main Looper
+    // (1) Tạo Handler gắn chặt với Main Looper
     private val mainHandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 MSG_SUCCESS -&gt; {
                     val data = msg.obj as String
-                    onResult(data) // Chạy an toàn 100% trên Main Thread!
+                    onResult(data) // (4) Chạy an toàn 100% trên Main Thread!
                 }
                 MSG_ERROR -&gt; {
                     // Xử lý lỗi UI
@@ -41338,14 +41935,14 @@ class DataFetcher(private val onResult: (String) -&gt; Unit) {
     }
 
     fun fetchDataAsync() {
-        // 2. Chạy tác vụ trên Background Thread
+        // (2) Chạy tác vụ trên Background Thread
         thread(name = "NetworkFetcher") {
             try {
                 // Giả lập đọc mạng/file mất 2 giây
                 Thread.sleep(2000)
                 val responseData = "Dữ liệu máy chủ: { id: 100, name: 'Knowledge OS' }"
 
-                // 3. Tái sử dụng Message từ Pool và gửi về Main Thread
+                // (3) Tái sử dụng Message từ Pool và gửi về Main Thread
                 val msg = mainHandler.obtainMessage(MSG_SUCCESS, responseData)
                 mainHandler.sendMessage(msg)
             } catch (e: Exception) {
@@ -41355,7 +41952,9 @@ class DataFetcher(private val onResult: (String) -&gt; Unit) {
     }
 }</code></pre>
 
-<h3>4.3 <code>HandlerThread</code>: Background Thread sở hữu riêng một Looper</h3>
+<p><strong>Kết quả:</strong> gọi <code>fetchDataAsync()</code> từ Main Thread thì UI không bị chặn trong 2 giây chờ; khoảng 2 giây sau <code>onResult()</code> chạy trên Main Thread (kiểm tra bằng <code>Looper.myLooper() == Looper.getMainLooper()</code> bên trong callback).</p>
+
+<h4><code>HandlerThread</code>: Background Thread sở hữu riêng một Looper</h4>
 
 <p>Thông thường, một Background Thread mới tạo chỉ chạy hết hàm <code>run()</code> rồi lập tức kết thúc. Nếu bạn muốn một Background Thread sống lâu dài, có hàng đợi công việc riêng để xử lý tuần tự từng task ngầm (ví dụ: tuần tự ghi log vào file, hoặc kết nối Bluetooth Serial): 👉 Sử dụng <strong><code>HandlerThread</code></strong>.</p>
 
@@ -41381,11 +41980,11 @@ class SequentialBackgroundWorker {
     }
 }</code></pre>
 
-<h2>5. Quản lý luồng công nghiệp: ThreadPoolExecutor &amp; ExecutorService</h2>
+<h3>Quản lý luồng công nghiệp: ThreadPoolExecutor &amp; ExecutorService</h3>
 
 <p>Tạo Thread thủ công cho từng việc chỉ ổn khi số việc ít. Khi ứng dụng có nhiều tác vụ nền chạy liên tục, bạn cần <strong>Thread Pool</strong> để tái sử dụng thread và giới hạn số thread chạy cùng lúc.</p>
 
-<h3>5.1 Kiến trúc ThreadPoolExecutor</h3>
+<h4>Kiến trúc ThreadPoolExecutor</h4>
 
 <p>Thread Pool duy trì sẵn một nhóm luồng thường trực để nhận công việc. Khi làm xong, luồng không bị hủy mà quay trở lại hàng ngũ chờ nhiệm vụ tiếp theo.</p>
 
@@ -41416,11 +42015,11 @@ class SequentialBackgroundWorker {
                                              | Tạo Thread tạm thời mới |   | Kích hoạt RejectedPolicy|
                                              +-------------------------+   +-------------------------+</code></pre>
 
-<h3>5.2 Công thức tính toán kích thước Thread Pool tối ưu</h3>
+<h4>Công thức tính toán kích thước Thread Pool tối ưu</h4>
 
 <p>Không có một con số cố định cho mọi bài toán. Kích thước pool phụ thuộc vào tính chất của tác vụ:</p>
 
-<h4>Nhóm 1: Tác vụ nặng tính toán (CPU-bound)</h4>
+<p><strong>Nhóm 1: Tác vụ nặng tính toán (CPU-bound)</strong></p>
 
 <p><em>Ví dụ:</em> Nén ảnh Bitmap, mã hóa dữ liệu AES, thuật toán đồ thị, giải nén ZIP.</p>
 
@@ -41430,7 +42029,7 @@ class SequentialBackgroundWorker {
   <li>Trong cả hai công thức, $N_{\\text{cpu}}$ là số nhân CPU của thiết bị, đọc lúc chạy bằng <code>Runtime.getRuntime().availableProcessors()</code>.</li>
 </ul>
 
-<h4>Nhóm 2: Tác vụ chờ vào/ra dữ liệu (I/O-bound)</h4>
+<p><strong>Nhóm 2: Tác vụ chờ vào/ra dữ liệu (I/O-bound)</strong></p>
 
 <p><em>Ví dụ:</em> Tải file qua mạng HTTP, đọc/ghi SQLite, đọc file từ thẻ nhớ, gọi Web Service.</p>
 
@@ -41439,7 +42038,9 @@ class SequentialBackgroundWorker {
   <li><strong>Công thức:</strong> $$\\text{Pool Size} = N_{\\text{cpu}} \\times \\left(1 + \\frac{\\text{Wait Time}}{\\text{Compute Time}}\\right)$$ <em>(Trong thực tế Android, I/O Pool thường được cấu hình từ <strong>4 đến 64 threads</strong> tùy nhu cầu).</em></li>
 </ul>
 
-<h3>5.3 Triển khai <code>AppExecutors</code> Singleton chuẩn kiến trúc Android</h3>
+<h4>Ví dụ: <code>AppExecutors</code> Singleton chuẩn kiến trúc Android</h4>
+
+<p>Một app dùng chung ba executor cho mọi màn hình: pool cho việc CPU-bound, pool cho I/O, và một executor đưa việc về Main Thread. Đây là code khai báo (không có luồng xử lý), nên không cần sơ đồ:</p>
 
 <pre data-lang="kotlin"><code>import android.os.Handler
 import android.os.Looper
@@ -41488,13 +42089,11 @@ object AppExecutors {
     }
 }</code></pre>
 
-<h2>6. Hiểm họa đa luồng: Race Condition, Deadlock &amp; Memory Leak</h2>
+<h3>Race Condition và đồng bộ hoá dữ liệu dùng chung</h3>
 
-<p>Lập trình đa luồng rất mạnh mẽ nhưng đi kèm những cạm bẫy cực kỳ nguy hiểm.</p>
+<p>Lập trình đa luồng rất mạnh mẽ nhưng đi kèm những cạm bẫy cực kỳ nguy hiểm. Cạm bẫy đầu tiên đến thẳng từ việc các thread dùng chung Heap.</p>
 
-<h3>6.1 Race Condition (Xung đột dữ liệu)</h3>
-
-<p>Xảy ra khi nhiều Thread cùng đọc và ghi vào một vùng dữ liệu chung mà không có cơ chế đồng bộ hóa.</p>
+<p><strong>Race Condition (Xung đột dữ liệu)</strong> xảy ra khi nhiều Thread cùng đọc và ghi vào một vùng dữ liệu chung mà không có cơ chế đồng bộ hóa.</p>
 
 <p>Xét bài toán: Tăng biến đếm lượt tải ảnh <code>downloadCount++</code>: Phép toán <code>count++</code> thực chất gồm <strong>3 bước máy tính riêng biệt</strong>:</p>
 
@@ -41512,23 +42111,27 @@ Thread A: Tăng lên 1 -&gt; Ghi 1 vào RAM
 Thread B: Tăng lên 1 -&gt; Ghi 1 vào RAM
 -&gt; Kết quả thực tế là 1, trong khi đúng ra phải là 2!</code></pre>
 
-<h4>Các giải pháp bảo vệ dữ liệu:</h4>
+<h4>Các giải pháp bảo vệ dữ liệu</h4>
 
 <ol>
-  <li><strong><code>AtomicInteger</code> / <code>AtomicBoolean</code> / <code>AtomicReference</code> (Tối ưu nhất cho biến đơn lẻ):</strong> Sử dụng lệnh phần cứng chuyên dụng <strong>CAS (Compare-And-Swap)</strong> của CPU, không cần khóa luồng (lock-free), hiệu năng cực cao. \`\`\`kotlin import java.util.concurrent.atomic.AtomicInteger</li>
+  <li><strong><code>AtomicInteger</code> / <code>AtomicBoolean</code> / <code>AtomicReference</code> (Tối ưu nhất cho biến đơn lẻ):</strong> Sử dụng lệnh phần cứng chuyên dụng <strong>CAS (Compare-And-Swap)</strong> của CPU, không cần khóa luồng (lock-free), hiệu năng cực cao.
+<pre data-lang="kotlin"><code>import java.util.concurrent.atomic.AtomicInteger
+
+val downloadCount = AtomicInteger(0)
+downloadCount.incrementAndGet() // An toàn 100% trên mọi luồng</code></pre></li>
+  <li><strong><code>@Volatile</code> (Chỉ đảm bảo tính hiển thị - Visibility, KHÔNG đảm bảo tính nguyên tử - Atomicity):</strong> Mỗi CPU core có bộ nhớ đệm (L1/L2 Cache) riêng. Khi một luồng thay đổi giá trị, luồng khác có thể vẫn đang đọc giá trị cũ từ Cache của nó. <code>@Volatile</code> tạo quan hệ <strong>happens-before</strong> theo Java Memory Model: mọi lần ghi vào biến volatile được đảm bảo nhìn thấy bởi các lần đọc diễn ra sau đó ở luồng khác (đừng hình dung là "đọc thẳng RAM"; phần cứng tự lo tính nhất quán cache).
+<pre data-lang="kotlin"><code>@Volatile 
+var isServiceRunning: Boolean = true // Mọi luồng luôn thấy giá trị mới nhất lập tức</code></pre></li>
+  <li><strong><code>synchronized</code> Block (Dành cho cụm logic phức tạp):</strong> Đảm bảo tại một thời điểm chỉ có duy nhất một luồng được bước vào khối lệnh.
+<pre data-lang="kotlin"><code>private val lock = Any()
+private val userCart = mutableListOf&lt;String&gt;()
+
+fun addItem(item: String) {
+    synchronized(lock) {
+        userCart.add(item) // An toàn
+    }
+}</code></pre></li>
 </ol>
-
-<p>val downloadCount = AtomicInteger(0) downloadCount.incrementAndGet() // An toàn 100% trên mọi luồng \`\`\`</p>
-
-<ol>
-  <li><strong><code>@Volatile</code> (Chỉ đảm bảo tính hiển thị - Visibility, KHÔNG đảm bảo tính nguyên tử - Atomicity):</strong> Mỗi CPU core có bộ nhớ đệm (L1/L2 Cache) riêng. Khi một luồng thay đổi giá trị, luồng khác có thể vẫn đang đọc giá trị cũ từ Cache của nó. <code>@Volatile</code> tạo quan hệ <strong>happens-before</strong> theo Java Memory Model: mọi lần ghi vào biến volatile được đảm bảo nhìn thấy bởi các lần đọc diễn ra sau đó ở luồng khác (đừng hình dung là "đọc thẳng RAM"; phần cứng tự lo tính nhất quán cache). \`\`<code>kotlin @Volatile var isServiceRunning: Boolean = true // Mọi luồng luôn thấy giá trị mới nhất lập tức </code>\`\`</li>
-</ol>
-
-<ol>
-  <li><strong><code>synchronized</code> Block (Dành cho cụm logic phức tạp):</strong> Đảm bảo tại một thời điểm chỉ có duy nhất một luồng được bước vào khối lệnh. \`\`\`kotlin private val lock = Any() private val userCart = mutableListOf&lt;String&gt;()</li>
-</ol>
-
-<p>fun addItem(item: String) { synchronized(lock) { userCart.add(item) // An toàn } } \`\`\`</p>
 
 <h4>So sánh nhanh: chọn giải pháp nào?</h4>
 
@@ -41559,102 +42162,71 @@ Thread B: Tăng lên 1 -&gt; Ghi 1 vào RAM
   </tbody>
 </table>
 
-<h3>6.2 Deadlock (Khóa chết)</h3>
+<p>Khoá giải quyết Race Condition nhưng mở ra cạm bẫy khác: hai thread khoá chéo nhau (Deadlock), xem mục "Sai lầm thường gặp", phần 3.</p>
 
-<p>Deadlock xảy ra khi hai hay nhiều luồng bị đóng băng vĩnh viễn vì luồng này chờ tài nguyên đang bị luồng kia giữ và ngược lại.</p>
+<h3>Giám sát &amp; Debugging Đa luồng chuyên nghiệp</h3>
 
-<div class="mermaid">
-flowchart TD
-    subgraph DL["KỊCH BẢN DEADLOCK"]
-        T1["Thread 1"] --&gt;|Đã giữ| L1["Lock A"]
-        T1 -.-&gt;|Đang chờ xin cấp| L2["Lock B"]
-        
-        T2["Thread 2"] --&gt;|Đã giữ| L2
-        T2 -.-&gt;|Đang chờ xin cấp| L1
-    end
-    style DL fill:#3b1111,stroke:#f87171,color:#fff
-</div>
+<p>Lập trình viên giỏi khác lập trình viên trung bình ở khả năng <strong>quan sát và chẩn đoán luồng</strong>.</p>
 
-<pre data-lang="kotlin"><code>// NGUY HIỂM: Kịch bản sinh Deadlock
-val lockA = Any()
-val lockB = Any()
+<h4>Khám phá Android Studio Profiler</h4>
 
-// Thread 1
-thread {
-    synchronized(lockA) {
-        Thread.sleep(50)
-        synchronized(lockB) { /* Làm gì đó */ }
-    }
-}
-
-// Thread 2
-thread {
-    synchronized(lockB) {
-        Thread.sleep(50)
-        synchronized(lockA) { /* Làm gì đó */ } // CẢ HAI LUỒNG TREO VĨNH VIỄN!
-    }
-}</code></pre>
-
-<h4>Nguyên tắc phòng chống Deadlock:</h4>
-
+<ol>
+  <li>Kết nối máy thật hoặc máy ảo -&gt; Chạy app bằng <strong>Profile 'app' with low overhead</strong> hoặc <strong>Profile 'app' with complete data</strong>; tab <strong>Profiler</strong> mở ở đáy Android Studio.</li>
+  <li>Trong tab <strong>Home</strong> của Profiler, chọn process của app -&gt; Chọn một task: <strong>View Live Telemetry</strong> để xem thread theo thời gian thực, task ghi <strong>System Trace</strong>, hoặc <strong>Find CPU Hotspots</strong> (Callstack Sample hay Java/Kotlin Method Recording) -&gt; Bấm <strong>Start profiler task</strong>.</li>
+  <li>Thao tác trên app -&gt; Dừng ghi (với task có ghi) và chờ kết quả được phân tích.</li>
+  <li>Quan sát danh sách Threads (màu trạng thái theo docs của live view):
 <ul>
-  <li><strong>Khóa theo thứ tự cố định (Lock Ordering):</strong> Mọi luồng trong toàn bộ ứng dụng nếu cần cả <code>lockA</code> và <code>lockB</code> thì bắt buộc phải xin <code>lockA</code> trước rồi mới tới <code>lockB</code>.</li>
-  <li><strong>Sử dụng <code>ReentrantLock</code> với Timeout:</strong> Thay vì <code>synchronized</code>, dùng <code>lock.tryLock(1000, TimeUnit.MILLISECONDS)</code>. Nếu quá 1 giây không lấy được khóa thì hủy bỏ và thử lại sau.</li>
-</ul>
-
-<h3>6.3 Hiểm họa Memory Leak khi dùng Thread trong Android</h3>
-
-<p>Trong Java/Kotlin, một <strong>Non-static Inner Class</strong> hoặc <strong>Anonymous Class</strong> (bao gồm cả lambda) luôn ngầm giữ một tham chiếu mạnh (<code>Strong Reference</code>) đến đối tượng chứa nó (Outer Class - ví dụ: <code>Activity</code>).</p>
-
-<pre data-lang="kotlin"><code>class ProfileActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // RÒ RỈ BỘ NHỚ NGUY HIỂM!
-        Thread {
-            Thread.sleep(60_000) // Chạy ngầm 60 giây
-            // Lambda này ngầm giữ tham chiếu đến ProfileActivity
-            runOnUiThread { updateUI() }
-        }.start()
-    }
-}</code></pre>
-
-<p><strong>Điều gì xảy ra khi người dùng bấm nút Back sau 2 giây?</strong></p>
-
-<ol>
-  <li>Hệ thống gọi <code>ProfileActivity.onDestroy()</code>.</li>
-  <li>Lẽ ra Activity phải được Garbage Collection (GC) thu hồi hàng chục MB (ảnh, View, Layout).</li>
-  <li>Nhưng Thread ngầm vẫn đang chạy 58 giây tiếp theo và đang giữ chặt tham chiếu đến <code>ProfileActivity</code>.</li>
-  <li>Toàn bộ Activity và cây View của nó bị kẹt lại trong Heap RAM -&gt; <strong>Memory Leak</strong>.</li>
+  <li><strong>Màu xanh lá cây (Running/Runnable):</strong> Luồng đang thực thi lệnh trên CPU hoặc đã sẵn sàng chờ CPU.</li>
+  <li><strong>Màu vàng:</strong> Luồng vẫn hoạt động nhưng đang chờ một thao tác I/O (disk hoặc network) hoàn tất.</li>
+  <li><strong>Màu xám (Sleeping):</strong> Luồng đang ngủ, không tiêu tốn CPU (<code>Thread.sleep()</code>, chờ MessageQueue, hoặc bị kernel cho ngủ đến khi tài nguyên cần thiết, như một khóa, sẵn sàng).</li>
+  <li>CẢNH BÁO NGUY HIỂM! Nếu Main Thread vàng hoặc xám kéo dài trong lúc người dùng đang thao tác (đang chờ I/O, chờ khóa của <code>synchronized</code> hoặc Lock khác) -&gt; Nguy cơ ANR trực tiếp!</li>
+</ul></li>
 </ol>
 
-<h4>Cách khắc phục:</h4>
+<h4>Bật StrictMode phát hiện vi phạm luồng trong lúc Debug</h4>
 
-<ol>
-  <li>Sử dụng <strong><code>WeakReference</code></strong> nếu bắt buộc phải giữ tham chiếu đến UI.</li>
-  <li>Hủy bỏ (Cancel/Interrupt) tác vụ ngầm ngay khi Activity bị hủy:</li>
-</ol>
+<p>Thêm đoạn code này vào hàm <code>Application.onCreate()</code> để ứng dụng tự động cảnh báo (hoặc chớp đỏ màn hình/crash) khi vô tình thực hiện Disk/Network I/O trên Main Thread:</p>
 
-<pre data-lang="kotlin"><code>class SafeActivity : AppCompatActivity() {
-    private var workerFuture: Future&lt;*&gt;? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        workerFuture = AppExecutors.ioExecutor.submit {
-            if (!Thread.currentThread().isInterrupted) {
-                // Làm việc an toàn...
-            }
+<pre data-lang="kotlin"><code>class MyApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()
+                    .penaltyLog()
+                    .penaltyFlashScreen()
+                    .build()
+            )
         }
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        workerFuture?.cancel(true) // Gửi interrupt: tác vụ chỉ dừng khi nó tự kiểm tra cờ hoặc đang chờ ở hàm chặn
-    }
 }</code></pre>
 
-<h2>7. Bản đồ 5 Use Cases thực chiến trong ứng dụng Android</h2>
+<h3>Tư duy hệ thống (System Thinking): Vị trí của Threading trong Clean Architecture</h3>
+
+<p>Trong một kiến trúc phần mềm tiêu chuẩn (Clean Architecture / MVVM), việc điều phối luồng không nằm rải rác tùy tiện mà tuân thủ ranh giới rõ ràng:</p>
+
+<pre data-lang="text"><code>[ UI Layer (Activity / Compose) ] 
+       | (Luôn chạy trên MAIN THREAD - Thụ động hiển thị UI State)
+       v
+[ ViewModel / Presenter ]
+       | (Chuyển tiếp lệnh, điều phối luồng thông qua Scopes)
+       v
+[ Domain Layer (UseCases) ]
+       | (Thực thi Business Logic - Luôn là Thread-Safe)
+       v
+[ Data Layer (Repository / DataSource) ]
+       | (CHỦ ĐỘNG chuyển sang BACKGROUND THREAD: I/O Pool hoặc Dispatchers.IO)
+       v
+[ SQLite Database / Remote Network ]</code></pre>
+
+<p><strong>Nguyên tắc "Main-Safety":</strong> Một Repository hoặc UseCase chuẩn mực phải <strong>Main-Safe</strong>. Nghĩa là bất kể ai gọi nó từ Main Thread, nó phải tự chịu trách nhiệm chuyển sang Background Thread để xử lý và trả kết quả về an toàn mà không làm treo UI của người gọi.</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>Bản đồ 5 Use Cases thực chiến trong ứng dụng Android</h3>
 
 <p>Dưới đây là 5 bài toán mà bất kỳ lập trình viên Android nào cũng sẽ gặp trong các dự án thực tế:</p>
 
@@ -41701,46 +42273,9 @@ thread {
   </tbody>
 </table>
 
-<h2>8. Cầu nối thế hệ: Từ Thread thuần đến Kotlin Coroutines &amp; WorkManager</h2>
+<p>Bài toán chính dưới đây gộp use case 1 và 2: tải ảnh (I/O-bound) rồi lọc ảnh (CPU-bound), mỗi giai đoạn chạy trên pool hợp với nó.</p>
 
-<p>Trong phát triển Android hiện đại (2024-2026), bạn sẽ chủ yếu làm việc với <strong>Kotlin Coroutines</strong> và <strong>WorkManager</strong>. Nhưng hãy nhìn cách chúng ánh xạ trực tiếp vào kiến trúc Thread bên dưới:</p>
-
-<h3>8.1 Coroutine Dispatchers thực chất là gì?</h3>
-
-<p>Coroutine không phải là một luồng ma thuật. Nó là những đoạn mã có khả năng tạm ngừng (suspension) được điều phối chạy trên các Thread có sẵn. <code>Dispatchers.Default</code> và <code>Dispatchers.IO</code> <strong>không phải <code>ThreadPoolExecutor</code></strong>: cả hai dùng chung một scheduler riêng của kotlinx.coroutines, nên <code>withContext(Dispatchers.IO)</code> khi đang ở Default thường không đổi thread thật.</p>
-
-<pre data-lang="text"><code>+---------------------------+-------------------------------------------------------+
-| Coroutine Dispatcher      | Bản chất Thread Pool bên dưới                          |
-+---------------------------+-------------------------------------------------------+
-| Dispatchers.Main          | Chạy trực tiếp qua MainLooper Handler của Android     |
-| Dispatchers.IO            | Dùng chung thread với Default; tối đa 64 tác vụ chặn song song (hoặc số nhân CPU nếu lớn hơn) |
-| Dispatchers.Default       | Pool dùng chung; tối đa số thread = số nhân CPU, tối thiểu 2 |
-| Dispatchers.Unconfined    | Không đổi luồng (chạy tiếp trên luồng vừa gọi)        |
-+---------------------------+-------------------------------------------------------+</code></pre>
-
-<h3>8.2 Khi nào dùng công nghệ nào? Bảng quyết định kỹ thuật</h3>
-
-<pre data-lang="text"><code>                     Bạn cần thực hiện tác vụ gì?
-                                 |
-         +-----------------------+-----------------------+
-         |                                               |
-Tác vụ cần chạy ngay lập tức?           Tác vụ cần chạy cả khi app đã tắt?
-         |                                               |
-  (In-Memory Work)                             (Guaranteed Execution)
-         |                                               |
-+------------------------+                     +-----------------------+
-| Dùng Kotlin Coroutines |                     |   Dùng WorkManager    |
-| (lifecycleScope/       |                     | (Đồng bộ ngầm, upload |
-|  viewModelScope)       |                     |  ảnh hàng loạt)       |
-+------------------------+                     +-----------------------+</code></pre>
-
-<ol>
-  <li><strong>Kotlin Coroutines:</strong> Lựa chọn mặc định số 1 cho 95% các tác vụ trong ứng dụng hiện nay (gọi API, đọc database, cập nhật State).</li>
-  <li><strong>ThreadPool / HandlerThread thuần:</strong> Dùng khi phát triển các <strong>Core C/C++ NDK Library</strong>, <strong>Audio/Video Engine thời gian thực</strong>, hoặc các SDK chuyên dụng độc lập không muốn phụ thuộc vào thư viện bên thứ ba.</li>
-  <li><strong>WorkManager:</strong> Dùng cho các tác vụ bắt buộc phải hoàn thành ngay cả khi người dùng vuốt thoát app hoặc khởi động lại máy (đồng bộ dữ liệu, sao lưu ngầm).</li>
-</ol>
-
-<h2>9. Mini-Project thực chiến: Concurrent Image Processing Pipeline</h2>
+<h3>Mini-Project thực chiến: Concurrent Image Processing Pipeline</h3>
 
 <p>Chúng ta sẽ xây dựng một <strong>Hệ thống tải và lọc ảnh song song (Pipeline)</strong> bằng Kotlin thuần kết hợp <code>ThreadPoolExecutor</code> và <code>Handler</code>, tuân thủ 100% Best Practices:</p>
 
@@ -41750,19 +42285,38 @@ Tác vụ cần chạy ngay lập tức?           Tác vụ cần chạy cả k
   <li>Tự động hủy luồng khi màn hình bị đóng để ngăn chặn Memory Leak.</li>
 </ul>
 
-<h3>9.1 Thiết kế cấu trúc các thành phần</h3>
+<p>Luồng chạy:</p>
 
-<pre data-lang="text"><code>[UI Layer: Activity / Screen]
-         | 1. Yêu cầu xử lý danh sách ảnh
-         v
-[ImagePipelineManager]
-         | 2. Phân tách tác vụ
-         v
-[IO ThreadPool] -----(Tải byte ảnh)-----&gt; [CPU ThreadPool] -----(Bộ lọc Grayscale)
-                                                                       |
-         &lt;----- 3. Báo cáo % &amp; Bitmap hoàn chỉnh (Main Handler) --------+</code></pre>
+<ol>
+  <li><code>ImageProcessingActivity</code> tạo <code>ImagePipelineManager</code> (giữ callback bằng <code>WeakReference</code>) và gọi <code>processImage(url)</code> từ Main Thread.</li>
+  <li>Task được đưa vào <code>downloadExecutor</code> (I/O pool): báo tiến độ 20%, tải và decode ảnh bằng <code>HttpURLConnection</code> + <code>BitmapFactory</code>, báo tiến độ 60%.</li>
+  <li>Bitmap vừa tải được đẩy sang <code>filterExecutor</code> (CPU pool) để áp bộ lọc Grayscale, rồi báo 100% và <code>Success</code> (hoặc <code>Error</code> nếu có lỗi ở bất kỳ giai đoạn nào).</li>
+  <li>Mọi lần báo trạng thái đi qua <code>mainHandler.post</code>, nên <code>onStateUpdate()</code> luôn chạy trên Main Thread.</li>
+  <li>Activity cập nhật <code>ProgressBar</code> và <code>TextView</code> theo <code>PipelineState</code>.</li>
+  <li><code>onDestroy()</code> gọi <code>release()</code>: gửi interrupt cho các task đang chạy và <code>shutdownNow()</code> cả hai pool.</li>
+</ol>
 
-<h3>9.2 Triển khai mã nguồn hoàn chỉnh</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant A as ImageProcessingActivity (Main)
+    participant M as ImagePipelineManager
+    participant IO as downloadExecutor (I/O pool)
+    participant CPU as filterExecutor (CPU pool)
+    participant H as mainHandler (Main Looper)
+
+    A-&gt;&gt;M: (1) processImage(url)
+    M-&gt;&gt;IO: (2) submit task
+    IO-&gt;&gt;H: (2) Progress 20%
+    IO-&gt;&gt;IO: (2) downloadBitmap(url)
+    IO-&gt;&gt;H: (2) Progress 60%
+    IO-&gt;&gt;CPU: (3) execute { applyGrayscaleFilter() }
+    CPU-&gt;&gt;H: (3) Progress 100%, Success(bitmap)
+    H-&gt;&gt;A: (4) post { onStateUpdate(state) }
+    A-&gt;&gt;A: (5) Cập nhật ProgressBar / TextView
+    A-&gt;&gt;M: (6) onDestroy() → release()
+    M-&gt;&gt;IO: (6) cancel(true) + shutdownNow()
+    M-&gt;&gt;CPU: (6) shutdownNow()
+</div>
 
 <h4>Bước 1: Khai báo Contract và Data Model</h4>
 
@@ -41789,7 +42343,6 @@ interface PipelineCallback {
 import android.graphics.*
 import android.os.Handler
 import android.os.Looper
-import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
 import java.net.URL
@@ -41797,13 +42350,13 @@ import java.util.concurrent.*
 
 class ImagePipelineManager(callback: PipelineCallback) {
 
-    // Tránh Memory Leak bằng WeakReference
+    // (1) Tránh Memory Leak bằng WeakReference
     private val callbackRef = WeakReference(callback)
 
-    // Handler đảm bảo mọi callback đều bắn về Main UI Thread
+    // (4) Handler đảm bảo mọi callback đều bắn về Main UI Thread
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    // 1. Thread Pool cho việc tải ảnh qua mạng (I/O)
+    // (2) Thread Pool cho việc tải ảnh qua mạng (I/O)
     // Queue không giới hạn thì pool không bao giờ vượt corePoolSize (maximumPoolSize bị bỏ qua),
     // nên đặt core = max = 4 và cho thread rảnh tự hủy sau 30 giây.
     private val downloadExecutor = ThreadPoolExecutor(
@@ -41811,7 +42364,7 @@ class ImagePipelineManager(callback: PipelineCallback) {
         LinkedBlockingQueue&lt;Runnable&gt;()
     ).apply { allowCoreThreadTimeOut(true) }
 
-    // 2. Thread Pool cho việc biến đổi điểm ảnh CPU (CPU-bound)
+    // (3) Thread Pool cho việc biến đổi điểm ảnh CPU (CPU-bound)
     private val filterExecutor = ThreadPoolExecutor(
         Runtime.getRuntime().availableProcessors(),
         Runtime.getRuntime().availableProcessors(),
@@ -41825,13 +42378,13 @@ class ImagePipelineManager(callback: PipelineCallback) {
     fun processImage(imageUrl: String) {
         val future = downloadExecutor.submit {
             try {
-                // Giai đoạn 1: Tải ảnh (I/O)
+                // (2) Giai đoạn 1: Tải ảnh (I/O)
                 notifyState(PipelineState.Progress(imageUrl, 20))
                 val rawBitmap = downloadBitmap(imageUrl)
 
                 notifyState(PipelineState.Progress(imageUrl, 60))
 
-                // Giai đoạn 2: Đẩy sang CPU Pool để áp bộ lọc Grayscale
+                // (3) Giai đoạn 2: Đẩy sang CPU Pool để áp bộ lọc Grayscale
                 filterExecutor.execute {
                     try {
                         val filteredBitmap = applyGrayscaleFilter(rawBitmap)
@@ -41854,14 +42407,16 @@ class ImagePipelineManager(callback: PipelineCallback) {
         connection.doInput = true
         connection.connectTimeout = 5000
         connection.readTimeout = 5000
-        connection.connect()
-
-        val input: InputStream = connection.inputStream
-        val bitmap = BitmapFactory.decodeStream(input)
-            ?: throw IllegalStateException("Không thể decode dữ liệu ảnh")
-        input.close()
-        connection.disconnect()
-        return bitmap
+        try {
+            connection.connect()
+            // use {} đóng InputStream kể cả khi decode lỗi
+            return connection.inputStream.use { input -&gt;
+                BitmapFactory.decodeStream(input)
+                    ?: throw IllegalStateException("Không thể decode dữ liệu ảnh")
+            }
+        } finally {
+            connection.disconnect()
+        }
     }
 
     // Thuật toán CPU-bound: Chuyển đổi màu ảnh sang Grayscale
@@ -41881,12 +42436,13 @@ class ImagePipelineManager(callback: PipelineCallback) {
     }
 
     private fun notifyState(state: PipelineState) {
+        // (4) Đưa trạng thái vào MessageQueue của Main Thread
         mainHandler.post {
             callbackRef.get()?.onStateUpdate(state)
         }
     }
 
-    // Dọn dẹp tài nguyên và ngắt toàn bộ luồng khi màn hình đóng
+    // (6) Dọn dẹp tài nguyên và ngắt toàn bộ luồng khi màn hình đóng
     fun release() {
         for (future in runningFutures) {
             future.cancel(true) // Gửi tín hiệu ngắt interrupt
@@ -41918,12 +42474,12 @@ class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
 
         pipelineManager = ImagePipelineManager(this)
         
-        // Bắt đầu xử lý ảnh ngầm
+        // (1) Bắt đầu xử lý ảnh ngầm
         pipelineManager?.processImage("https://example.com/large-wallpaper.jpg")
     }
 
     override fun onStateUpdate(state: PipelineState) {
-        // Đã được bảo đảm 100% chạy trên Main Thread qua Handler
+        // (5) Đã được bảo đảm 100% chạy trên Main Thread qua Handler
         when (state) {
             is PipelineState.Progress -&gt; {
                 progressBar.progress = state.percent
@@ -41941,73 +42497,60 @@ class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Triệt tiêu nguy cơ Memory Leak ngay khi Activity bị hủy
+        // (6) Triệt tiêu nguy cơ Memory Leak ngay khi Activity bị hủy
         pipelineManager?.release()
         pipelineManager = null
     }
 }</code></pre>
 
-<h2>10. Giám sát &amp; Debugging Đa luồng chuyên nghiệp</h2>
+<p><strong>Kết quả:</strong> mở màn hình, <code>ProgressBar</code> đi qua 20% → 60% → 100% rồi hiện "Hoàn tất!" mà UI không giật; trong Profiler thấy việc tải chạy trên thread của <code>downloadExecutor</code> và việc lọc chạy trên thread của <code>filterExecutor</code>, còn Main Thread chỉ nhận các lần cập nhật. Đóng màn hình giữa chừng thì <code>release()</code> ngắt task và tắt cả hai pool, không còn thread nào giữ tham chiếu mạnh tới Activity.</p>
 
-<p>Lập trình viên giỏi khác lập trình viên trung bình ở khả năng <strong>quan sát và chẩn đoán luồng</strong>.</p>
+<h2>So sánh với các cách tiếp cận khác</h2>
 
-<h3>10.1 Khám phá Android Studio Profiler (CPU Profiler)</h3>
+<h3>Cầu nối thế hệ: Từ Thread thuần đến Kotlin Coroutines &amp; WorkManager</h3>
+
+<p>Trong phát triển Android hiện đại (2024-2026), bạn sẽ chủ yếu làm việc với <strong>Kotlin Coroutines</strong> và <strong>WorkManager</strong>. Nhưng hãy nhìn cách chúng ánh xạ trực tiếp vào kiến trúc Thread bên dưới. Đây là kiến thức dùng trước: Coroutine được học ở 8.4.3 Coroutines (chưa có bài); WorkManager được giới thiệu ở <a href="../session_04/components/services/android_service.md" target="_blank" rel="noopener">Android Service</a>, mục "WorkManager — Lựa chọn hiện đại cho background task".</p>
+
+<h4>Coroutine Dispatchers thực chất là gì?</h4>
+
+<p>Coroutine không phải là một luồng ma thuật. Nó là những đoạn mã có khả năng tạm ngừng (suspension) được điều phối chạy trên các Thread có sẵn. <code>Dispatchers.Default</code> và <code>Dispatchers.IO</code> <strong>không phải <code>ThreadPoolExecutor</code></strong>: cả hai dùng chung một scheduler riêng của kotlinx.coroutines, nên <code>withContext(Dispatchers.IO)</code> khi đang ở Default thường không đổi thread thật.</p>
+
+<pre data-lang="text"><code>+---------------------------+-------------------------------------------------------+
+| Coroutine Dispatcher      | Bản chất Thread Pool bên dưới                          |
++---------------------------+-------------------------------------------------------+
+| Dispatchers.Main          | Chạy trực tiếp qua MainLooper Handler của Android     |
+| Dispatchers.IO            | Dùng chung thread với Default; tối đa 64 tác vụ chặn song song (hoặc số nhân CPU nếu lớn hơn) |
+| Dispatchers.Default       | Pool dùng chung; tối đa số thread = số nhân CPU, tối thiểu 2 |
+| Dispatchers.Unconfined    | Không đổi luồng (chạy tiếp trên luồng vừa gọi)        |
++---------------------------+-------------------------------------------------------+</code></pre>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<h3>Khi nào dùng công nghệ nào? Bảng quyết định kỹ thuật</h3>
+
+<pre data-lang="text"><code>                     Bạn cần thực hiện tác vụ gì?
+                                 |
+         +-----------------------+-----------------------+
+         |                                               |
+Tác vụ cần chạy ngay lập tức?           Tác vụ cần chạy cả khi app đã tắt?
+         |                                               |
+  (In-Memory Work)                             (Guaranteed Execution)
+         |                                               |
++------------------------+                     +-----------------------+
+| Dùng Kotlin Coroutines |                     |   Dùng WorkManager    |
+| (lifecycleScope/       |                     | (Đồng bộ ngầm, upload |
+|  viewModelScope)       |                     |  ảnh hàng loạt)       |
++------------------------+                     +-----------------------+</code></pre>
 
 <ol>
-  <li>Kết nối máy thật hoặc máy ảo -&gt; Mở tab <strong>Profiler</strong> ở đáy Android Studio.</li>
-  <li>Bấm vào biểu đồ <strong>CPU</strong> -&gt; Chọn cấu hình <strong>System Trace</strong> hoặc <strong>Java/Kotlin Method Trace</strong> -&gt; Bấm <strong>Record</strong>.</li>
-  <li>Thao tác trên app -&gt; Bấm <strong>Stop Recording</strong>.</li>
-  <li>Quan sát danh sách Threads:
-<ul>
-  <li><strong>Màu xanh lá cây (Running):</strong> Luồng đang thực thi lệnh trên CPU.</li>
-  <li><strong>Màu xanh da trời (Sleeping):</strong> Luồng đang nghỉ (<code>Thread.sleep()</code> hoặc chờ MessageQueue).</li>
-  <li><strong>Màu vàng (Waiting):</strong> Luồng đang đợi tài nguyên/khóa (<code>Object.wait()</code>).</li>
-  <li><strong>Màu đỏ (Blocked):</strong> CẢNH BÁO NGUY HIỂM! Luồng đang bị chặn bởi <code>synchronized</code> hoặc Lock khác. Nếu Main Thread có vạch màu đỏ kéo dài -&gt; Nguy cơ ANR trực tiếp!</li>
-</ul></li>
+  <li><strong>Kotlin Coroutines:</strong> Lựa chọn mặc định số 1 cho 95% các tác vụ trong ứng dụng hiện nay (gọi API, đọc database, cập nhật State).</li>
+  <li><strong>ThreadPool / HandlerThread thuần:</strong> Dùng khi phát triển các <strong>Core C/C++ NDK Library</strong>, <strong>Audio/Video Engine thời gian thực</strong>, hoặc các SDK chuyên dụng độc lập không muốn phụ thuộc vào thư viện bên thứ ba.</li>
+  <li><strong>WorkManager:</strong> Dùng cho các tác vụ bắt buộc phải hoàn thành ngay cả khi người dùng vuốt thoát app hoặc khởi động lại máy (đồng bộ dữ liệu, sao lưu ngầm).</li>
 </ol>
 
-<h3>10.2 Bật StrictMode phát hiện vi phạm luồng trong lúc Debug</h3>
+<p>Thread tạo thủ công vẫn hợp với một việc chạy dài, riêng biệt (luồng lắng nghe socket, use case 4 ở mục "Ví dụ thực tế"); không nên dùng nó cho việc nền ngắn và lặp lại (xem "Quy tắc vàng 1" ở mục "Cách hoạt động").</p>
 
-<p>Thêm đoạn code này vào hàm <code>Application.onCreate()</code> để ứng dụng tự động cảnh báo (hoặc chớp đỏ màn hình/crash) khi vô tình thực hiện Disk/Network I/O trên Main Thread:</p>
-
-<pre data-lang="kotlin"><code>class MyApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        if (BuildConfig.DEBUG) {
-            StrictMode.setThreadPolicy(
-                StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
-                    .detectDiskWrites()
-                    .detectNetwork()
-                    .penaltyLog()
-                    .penaltyFlashScreen()
-                    .build()
-            )
-        }
-    }
-}</code></pre>
-
-<h2>11. Tư duy hệ thống (System Thinking): Vị trí của Threading trong Clean Architecture</h2>
-
-<p>Trong một kiến trúc phần mềm tiêu chuẩn (Clean Architecture / MVVM), việc điều phối luồng không nằm rải rác tùy tiện mà tuân thủ ranh giới rõ ràng:</p>
-
-<pre data-lang="text"><code>[ UI Layer (Activity / Compose) ] 
-       | (Luôn chạy trên MAIN THREAD - Thụ động hiển thị UI State)
-       v
-[ ViewModel / Presenter ]
-       | (Chuyển tiếp lệnh, điều phối luồng thông qua Scopes)
-       v
-[ Domain Layer (UseCases) ]
-       | (Thực thi Business Logic - Luôn là Thread-Safe)
-       v
-[ Data Layer (Repository / DataSource) ]
-       | (CHỦ ĐỘNG chuyển sang BACKGROUND THREAD: I/O Pool hoặc Dispatchers.IO)
-       v
-[ SQLite Database / Remote Network ]</code></pre>
-
-<p><strong>Nguyên tắc "Main-Safety":</strong> Một Repository hoặc UseCase chuẩn mực phải <strong>Main-Safe</strong>. Nghĩa là bất kể ai gọi nó từ Main Thread, nó phải tự chịu trách nhiệm chuyển sang Background Thread để xử lý và trả kết quả về an toàn mà không làm treo UI của người gọi.</p>
-
-<h2>12. Checklist Best Practices khi làm việc với Thread</h2>
+<h3>Checklist Best Practices khi làm việc với Thread</h3>
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Hãy in bảng kiểm này và kiểm tra code của bạn trước mỗi đợt Release:</div></div>
 
@@ -42021,7 +42564,158 @@ class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
   <li>[ ] <strong>Phòng chống Deadlock:</strong> Khóa tài nguyên theo một thứ tự duy nhất trên toàn hệ thống. Ưu tiên các cấu trúc dữ liệu <code>java.util.concurrent.*</code> thay vì tự viết <code>synchronized</code>.</li>
 </ul>
 
-<h2>13. Nguồn tham khảo (References)</h2>
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Chạy I/O hoặc tính toán nặng trên Main Thread</h3>
+
+<p>Bất kỳ thao tác nào liên quan đến <strong>Disk I/O</strong> (đọc ghi file, SQLite), <strong>Network I/O</strong> (gọi API HTTP, Socket), hoặc <strong>CPU-bound calculation</strong> (nén ảnh, giải mã mã hóa) đều <strong>BẮT BUỘC PHẢI CHUYỂN SANG BACKGROUND THREAD</strong>. Chạy trên Main Thread thì vượt ngân sách frame (jank), lâu hơn nữa thì ANR.</p>
+
+<p>Android thậm chí còn cài sẵn chốt chặn: Nếu bạn cố tình gọi HTTP Request trên Main Thread, framework sẽ ném ngay lỗi <code>android.os.NetworkOnMainThreadException</code>.</p>
+
+<p><strong>Cách sửa:</strong> đưa việc vào thread pool dùng chung (<code>AppExecutors.ioExecutor</code> / <code>cpuExecutor</code>) và trả kết quả về qua Handler của Main Looper; bật StrictMode trong bản debug để bắt Disk/Network I/O lọt lên Main Thread.</p>
+
+<h3>2. Tưởng <code>@Volatile</code> làm <code>count++</code> an toàn</h3>
+
+<p><code>@Volatile</code> chỉ đảm bảo visibility: lần ghi được các lần đọc sau ở luồng khác nhìn thấy. <code>count++</code> vẫn là ba bước đọc → cộng → ghi, nên hai thread vẫn có thể cùng đọc giá trị cũ và ghi đè nhau (Race Condition), kết quả đếm thiếu.</p>
+
+<p><strong>Cách sửa:</strong> biến đơn lẻ dùng <code>AtomicInteger.incrementAndGet()</code>; cụm logic nhiều bước dùng <code>synchronized</code> hoặc <code>ReentrantLock</code> (xem phần "Race Condition và đồng bộ hoá dữ liệu dùng chung").</p>
+
+<h3>3. Deadlock (Khóa chết)</h3>
+
+<p>Deadlock xảy ra khi hai hay nhiều luồng bị đóng băng vĩnh viễn vì luồng này chờ tài nguyên đang bị luồng kia giữ và ngược lại.</p>
+
+<div class="mermaid">
+flowchart TD
+    subgraph DL["KỊCH BẢN DEADLOCK"]
+        T1["Thread 1"] --&gt;|Đã giữ| L1["Lock A"]
+        T1 -.-&gt;|Đang chờ xin cấp| L2["Lock B"]
+        
+        T2["Thread 2"] --&gt;|Đã giữ| L2
+        T2 -.-&gt;|Đang chờ xin cấp| L1
+    end
+    style DL fill:#3b1111,stroke:#f87171,color:#fff
+</div>
+
+<pre data-lang="kotlin"><code>// NGUY HIỂM: Kịch bản sinh Deadlock
+val lockA = Any()
+val lockB = Any()
+
+// Thread 1
+thread {
+    synchronized(lockA) {
+        Thread.sleep(50)
+        synchronized(lockB) { /* Làm gì đó */ }
+    }
+}
+
+// Thread 2
+thread {
+    synchronized(lockB) {
+        Thread.sleep(50)
+        synchronized(lockA) { /* Làm gì đó */ } // CẢ HAI LUỒNG TREO VĨNH VIỄN!
+    }
+}</code></pre>
+
+<p><strong>Cách sửa (nguyên tắc phòng chống Deadlock):</strong></p>
+
+<ul>
+  <li><strong>Khóa theo thứ tự cố định (Lock Ordering):</strong> Mọi luồng trong toàn bộ ứng dụng nếu cần cả <code>lockA</code> và <code>lockB</code> thì bắt buộc phải xin <code>lockA</code> trước rồi mới tới <code>lockB</code>.</li>
+  <li><strong>Sử dụng <code>ReentrantLock</code> với Timeout:</strong> Thay vì <code>synchronized</code>, dùng <code>lock.tryLock(1000, TimeUnit.MILLISECONDS)</code>. Nếu quá 1 giây không lấy được khóa thì hủy bỏ và thử lại sau.</li>
+</ul>
+
+<h3>4. Hiểm họa Memory Leak khi dùng Thread trong Android</h3>
+
+<p>Trong Java/Kotlin, một <strong>Non-static Inner Class</strong> hoặc <strong>Anonymous Class</strong> (bao gồm cả lambda) luôn ngầm giữ một tham chiếu mạnh (<code>Strong Reference</code>) đến đối tượng chứa nó (Outer Class - ví dụ: <code>Activity</code>).</p>
+
+<pre data-lang="kotlin"><code>class ProfileActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // RÒ RỈ BỘ NHỚ NGUY HIỂM!
+        Thread {
+            Thread.sleep(60_000) // Chạy ngầm 60 giây
+            // Lambda này ngầm giữ tham chiếu đến ProfileActivity
+            runOnUiThread { updateUI() }
+        }.start()
+    }
+}</code></pre>
+
+<p><strong>Điều gì xảy ra khi người dùng bấm nút Back sau 2 giây?</strong></p>
+
+<ol>
+  <li>Hệ thống gọi <code>ProfileActivity.onDestroy()</code>.</li>
+  <li>Lẽ ra Activity phải được Garbage Collection (GC) thu hồi hàng chục MB (ảnh, View, Layout).</li>
+  <li>Nhưng Thread ngầm vẫn đang chạy 58 giây tiếp theo và đang giữ chặt tham chiếu đến <code>ProfileActivity</code>.</li>
+  <li>Toàn bộ Activity và cây View của nó bị kẹt lại trong Heap RAM -&gt; <strong>Memory Leak</strong>.</li>
+</ol>
+
+<p><strong>Cách khắc phục:</strong></p>
+
+<ol>
+  <li>Sử dụng <strong><code>WeakReference</code></strong> nếu bắt buộc phải giữ tham chiếu đến UI.</li>
+  <li>Hủy bỏ (Cancel/Interrupt) tác vụ ngầm ngay khi Activity bị hủy:</li>
+</ol>
+
+<pre data-lang="kotlin"><code>class SafeActivity : AppCompatActivity() {
+    private var workerFuture: Future&lt;*&gt;? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        workerFuture = AppExecutors.ioExecutor.submit {
+            if (!Thread.currentThread().isInterrupted) {
+                // Làm việc an toàn...
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        workerFuture?.cancel(true) // Gửi interrupt: tác vụ chỉ dừng khi nó tự kiểm tra cờ hoặc đang chờ ở hàm chặn
+    }
+}</code></pre>
+
+<h3>5. Quên dừng <code>HandlerThread</code></h3>
+
+<p><code>HandlerThread</code> có Looper chạy vòng lặp vô tận, nên nó không tự kết thúc như thread thường. Không gọi <code>quit()</code>/<code>quitSafely()</code> thì thread và mọi object mà các task trong hàng đợi giữ tới sống mãi.</p>
+
+<p><strong>Cách sửa:</strong> gọi <code>handlerThread.quitSafely()</code> khi không còn dùng (như hàm <code>stop()</code> trong ví dụ <code>SequentialBackgroundWorker</code>): Looper xử lý nốt các message đã tới hạn rồi dừng.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>API 1 (Android 1.0):</strong> <code>Handler</code>, <code>Looper</code>, <code>HandlerThread</code> và <code>java.util.concurrent.ThreadPoolExecutor</code> có từ API level đầu tiên.</li>
+  <li><strong>API 3 (Android 1.5):</strong> thêm <code>AsyncTask</code>, lớp tiện ích bọc <code>Thread</code> và <code>Handler</code> để chạy việc nền rồi trả kết quả về UI thread.</li>
+  <li><strong>API 9 (Android 2.3):</strong> thêm <code>StrictMode</code> để bắt Disk/Network I/O vô tình chạy trên Main Thread; thêm <code>ThreadPoolExecutor.allowCoreThreadTimeOut()</code> (dùng trong pipeline ở trên).</li>
+  <li><strong>API 11 (Android 3.0, Honeycomb):</strong> app target Honeycomb trở lên bị ném <code>NetworkOnMainThreadException</code> khi gọi mạng trên Main Thread; <code>AsyncTask</code> mặc định chạy tuần tự trên một thread để tránh lỗi do chạy song song.</li>
+  <li><strong>API 18 (Android 4.3):</strong> thêm <code>Looper.quitSafely()</code> và <code>HandlerThread.quitSafely()</code>: dừng Looper sau khi xử lý xong các message đã tới hạn.</li>
+  <li><strong>API 30 (Android 11):</strong> <code>AsyncTask</code> bị deprecated vì dễ gây leak Context, mất callback hoặc crash khi configuration change và nuốt exception; docs khuyên dùng <code>java.util.concurrent</code> hoặc Kotlin coroutines. <code>Looper.prepareMainLooper()</code> cũng bị deprecated vì main looper do Android tạo sẵn.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="overview.md" target="_blank" rel="noopener">Session 05 Overview</a> (vị trí của bài này giữa Data Store và Networking).</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../session_04/components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>: <code>onDestroy()</code> là nơi huỷ task nền để tránh Memory Leak.</li>
+  <li><a href="../session_04/components/services/android_service.md" target="_blank" rel="noopener">Android Service</a>: Service chạy trên Main Thread nên việc nặng vẫn phải sang thread khác; WorkManager cho việc phải chạy cả khi app đã tắt.</li>
+  <li><a href="../session_04/components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>: <code>onReceive()</code> chạy trên Main Thread với giới hạn khoảng 10 giây, <code>goAsync()</code> và WorkManager cho việc dài hơn.</li>
+  <li><a href="../session_04/components/content_provider.md" target="_blank" rel="noopener">Content Provider</a>: query chạy nền thay vì trên Main Thread.</li>
+  <li><a href="data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>: đọc ghi Room là Disk I/O, phải chạy ngoài Main Thread.</li>
+  <li>2.2 Process Management (chưa có bài): Process, Zygote và mức ưu tiên process.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="networking.md" target="_blank" rel="noopener">Networking</a>: request API trên background thread, xử lý lỗi mạng và trạng thái kết nối.</li>
+  <li>8.4.1 What Sync / Async (chưa có bài), 8.4.2 Thread and Multi-Thread (chưa có bài): đồng bộ, bất đồng bộ và đa luồng ở mức ngôn ngữ.</li>
+  <li>8.4.3 Coroutines (chưa có bài): Dispatchers, <code>withContext</code>, structured concurrency thay cho Handler và thread pool tự quản lý.</li>
+  <li>8.4.4 RxJava, RxAndroid, RxKotlin (chưa có bài): Schedulers, một cách khác để đổi thread.</li>
+  <li>7.2.5 Clean Architecture (chưa có bài) và 6.4 ViewModel (chưa có bài): đặt việc đổi thread ở Data Layer theo nguyên tắc Main-Safety.</li>
+</ul></li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
 
 <ol>
   <li><a href="https://developer.android.com/guide/components/processes-and-threads" target="_blank" rel="noopener">Processes and threads overview — Android Developers Official</a></li>
@@ -42032,13 +42726,24 @@ class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
   <li><a href="https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-dispatchers/-default.html" target="_blank" rel="noopener">Dispatchers.Default — kotlinx.coroutines API</a></li>
   <li><a href="https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-dispatchers/-i-o.html" target="_blank" rel="noopener">Dispatchers.IO — kotlinx.coroutines API</a></li>
   <li><a href="https://developer.android.com/reference/java/util/concurrent/ThreadPoolExecutor" target="_blank" rel="noopener">ThreadPoolExecutor — Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/profile/inspect-app-live" target="_blank" rel="noopener">Inspect your app live (màu trạng thái thread trong Profiler) — Android Studio</a></li>
+  <li><a href="https://developer.android.com/studio/profile" target="_blank" rel="noopener">Profile your app performance (tab Home, profiler task) — Android Studio</a></li>
+  <li><a href="https://developer.android.com/reference/android/content/BroadcastReceiver" target="_blank" rel="noopener">BroadcastReceiver (onReceive, goAsync: giới hạn 10 giây) — Android Developers Reference</a></li>
+  <li><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/services/core/java/com/android/server/am/ActivityManagerService.java" target="_blank" rel="noopener">ActivityManagerService.java (BROADCAST_FG_TIMEOUT, BROADCAST_BG_TIMEOUT) — AOSP</a></li>
+  <li><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/services/core/java/com/android/server/am/ActivityManagerConstants.java" target="_blank" rel="noopener">ActivityManagerConstants.java (SERVICE_TIMEOUT, SERVICE_BACKGROUND_TIMEOUT) — AOSP</a></li>
+  <li><a href="https://developer.android.com/reference/android/os/Handler" target="_blank" rel="noopener">Handler (constructor deprecated, API level) — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/reference/android/os/Looper" target="_blank" rel="noopener">Looper (quitSafely API 18, prepareMainLooper deprecated API 30) — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/reference/android/os/HandlerThread" target="_blank" rel="noopener">HandlerThread (quitSafely API 18) — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/reference/android/os/StrictMode" target="_blank" rel="noopener">StrictMode (API 9) — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/reference/android/os/NetworkOnMainThreadException" target="_blank" rel="noopener">NetworkOnMainThreadException (API 11) — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/reference/android/os/AsyncTask" target="_blank" rel="noopener">AsyncTask (API 3, deprecated API 30) — Android Developers Reference</a></li>
 </ol>
     `
   },
 
   'networking-basics': {
     title: 'Networking — Request API, lỗi mạng và trạng thái kết nối',
-    summary: 'Tầng mạng của app Android từ bản chất một request (Socket, DNS, TCP, TLS 1.3, cấm gọi mạng trên Main Thread) tới ba việc phải làm ở mọi app, gọi API an toàn với Result Pattern, xử lý sự cố mạng (retry với exponential backoff và jitter, Network Security Config và Certificate Pinning, chiến lược cache) và theo dõi trạng thái kết nối bằng ConnectivityManager và Flow. Kiến thức riêng của OkHttp, Okio, Retrofit, Ktor nằm ở Session 08.',
+    summary: 'Networking là phần code chuyển dữ liệu giữa app và server qua kết nối TCP (thường bọc TLS) do hệ điều hành mở, gồm ba việc - Request API (Socket, DNS, TCP, TLS 1.3, cấm gọi mạng trên Main Thread), Handle event network (Result Pattern, retry với exponential backoff và jitter, Network Security Config và Certificate Pinning, chiến lược cache) và Handle connection state (ConnectivityManager, NetworkCapabilities và Flow). Kiến thức riêng của OkHttp, Okio, Retrofit, Ktor nằm ở Session 08.',
     status: 'published',
     difficulty: 'advanced',
     estimatedReadingTime: '30 phút',
@@ -42056,9 +42761,11 @@ class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
       'Phân biệt được vai trò của OkHttp, Okio, Retrofit và Ktor Client trong tầng mạng của app.'
     ],
     knowledgeGap: 'Nhiều lập trình viên chỉ biết gọi API qua Retrofit mà không hiểu điều gì diễn ra bên dưới, để lỗi mạng cấp thấp rò lên UI, retry dồn dập làm quá tải server, hoặc chỉ check mạng sơ sài bằng INTERNET capability thay vì VALIDATED.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '30 phút',
     content: `
+<h2>Vấn đề cần giải quyết</h2>
+
 <p>Trong bất kỳ ứng dụng di động hiện đại nào, mạng (Networking) là huyết mạch kết nối người dùng với hệ thống backend đám mây. Dù là tải bảng tin mạng xã hội, thực hiện giao dịch chuyển khoản ngân hàng hay đồng bộ giỏ hàng thương mại điện tử, mọi trải nghiệm mượt mà đều bắt nguồn từ một tầng mạng ổn định, an toàn và tối ưu.</p>
 
 <p>Tuy nhiên, môi trường mạng di động vốn dĩ không ổn định: thiết bị di chuyển liên tục qua các trạm BTS sóng yếu, chuyển đổi đột ngột giữa Wi-Fi và 4G/5G, đi vào thang máy hoặc kết nối vào các điểm Wi-Fi công cộng (Captive Portal) không có Internet thực sự. Một ứng dụng xử lý mạng cẩu thả sẽ nhanh chóng bộc lộ các lỗi nghiêm trọng:</p>
@@ -42073,7 +42780,33 @@ class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
 
 <p>Bài này đi từ bản chất một request mạng (Socket, TLS) tới ba việc mọi app phải làm ở tầng mạng: gọi API an toàn và phân loại lỗi, xử lý sự cố mạng (retry, bảo mật kênh truyền, cache), và theo dõi trạng thái kết nối. Kiến thức riêng của từng thư viện (OkHttp, Okio, Retrofit, Ktor) nằm ở Session 08, mục 8.1 Networks.</p>
 
-<h2>1. Bản chất tầng mạng: Từ Click nút UI đến Kernel Socket &amp; TLS Handshake</h2>
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được bản chất Socket, DNS, TCP Handshake, TLS 1.3 và lý do Android cấm gọi mạng trên Main Thread (NetworkOnMainThreadException).</li>
+  <li>Thiết kế được Error Handling và Result Pattern phân tầng, kèm Retry với Exponential Backoff &amp; Jitter, không nuốt CancellationException.</li>
+  <li>Áp dụng được Network Security Config, Certificate Pinning có backup pin và các mặc định bảo mật của nền tảng (cleartext, CA người dùng cài).</li>
+  <li>Triển khai được NetworkMonitor theo dõi mạng mặc định bằng ConnectivityManager, NetworkCapabilities và Kotlin Flow.</li>
+  <li>Phân biệt được vai trò của OkHttp, Okio, Retrofit và Ktor Client trong tầng mạng của app.</li>
+</ul>
+
+<h2>Networking là gì?</h2>
+
+<p><strong>Networking</strong> (tầng mạng) của app Android là phần code chuyển dữ liệu giữa app và server qua một kết nối TCP (thường được bọc TLS) mà hệ điều hành mở cho app. Nó gồm ba việc đúng theo tiêu đề mục 5.3: <strong>Request API</strong> (gửi request, nhận response mà không chặn Main Thread), <strong>Handle event network</strong> (biến mọi kết quả, kể cả lỗi và sự cố mạng, thành dữ liệu app xử lý được) và <strong>Handle connection state</strong> (biết app hiện có đường ra Internet thật hay không).</p>
+
+<p>Mental model: mạng là một <strong>đường ống không tin cậy</strong> nối app với server. Mở đường ống tốn phí (DNS, TCP, TLS) nên phải tái dùng; dữ liệu chảy qua có thể tắc giữa chừng nên mọi lần gửi phải tính trước kết quả thất bại; và đường ống có thể đứt, hoặc chỉ nối tới một ngõ cụt (Wi-Fi chưa ra Internet), nên phải có người canh trạng thái của nó.</p>
+
+<h2>Cách hoạt động</h2>
+
+<p>Ba việc trong định nghĩa ứng với các phần dưới đây:</p>
+
+<ul>
+  <li><strong>Request API:</strong> một request đi qua những bước nào (mở đường ống), và thư viện nào làm phần việc đó.</li>
+  <li><strong>Handle event network:</strong> phân loại lỗi bằng Result Pattern, retry khi đường ống tắc, bảo mật kênh truyền, chiến lược cache.</li>
+  <li><strong>Handle connection state:</strong> theo dõi đường ống còn thông ra Internet hay không bằng <code>ConnectivityManager</code>.</li>
+</ul>
+
+<h3>Bản chất tầng mạng: Từ Click nút UI đến Kernel Socket &amp; TLS Handshake</h3>
 
 <p>Để làm chủ việc gọi API, trước hết một kỹ sư cần hiểu điều gì thực sự diễn ra bên dưới hệ điều hành khi ứng dụng gửi đi một HTTP Request.</p>
 
@@ -42087,7 +42820,7 @@ class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
   <li><strong>HTTP Request &amp; Response:</strong> gửi header, body và nhận stream dữ liệu phản hồi từ máy chủ.</li>
 </ol>
 
-<p>Sơ đồ dưới đây chi tiết hoá 5 giai đoạn trên cho một lần bấm nút "Mua hàng":</p>
+<p>Kernel chỉ lo phần socket và TCP; TLS handshake do thư viện TLS chạy ngay trong process của app thực hiện (trên Android là Conscrypt), dữ liệu đi qua socket TCP đã mở. Sơ đồ dưới đây chi tiết hoá 5 giai đoạn trên cho một lần bấm nút "Mua hàng":</p>
 
 <div class="mermaid">
 sequenceDiagram
@@ -42108,20 +42841,20 @@ sequenceDiagram
     OS-&gt;&gt;Server: [TCP 3-Way Handshake] SYN
     Server--&gt;&gt;OS: SYN-ACK
     OS-&gt;&gt;Server: ACK (TCP Connection Established)
-    Note over OS,Server: [TLS 1.3 Handshake] Bảo mật kênh truyền
-    OS-&gt;&gt;Server: ClientHello (Supported Ciphers, TLS Version)
-    Server--&gt;&gt;OS: ServerHello + Certificate + Key Share
-    OS-&gt;&gt;OS: Kiểm tra Certificate Authority (CA) &amp; Hạn dùng
-    OS-&gt;&gt;Server: Finished (Kênh mã hóa đối xứng AES-GCM sẵn sàng)
+    Note over Worker,Server: [TLS 1.3 Handshake] do thư viện TLS trong process app thực hiện, đi qua socket TCP
+    Worker-&gt;&gt;Server: ClientHello (Supported Ciphers, TLS Version)
+    Server--&gt;&gt;Worker: ServerHello + Certificate + Key Share
+    Worker-&gt;&gt;Worker: Kiểm tra Certificate Authority (CA) &amp; Hạn dùng
+    Worker-&gt;&gt;Server: Finished (Kênh mã hóa đối xứng AES-GCM sẵn sàng)
     Worker-&gt;&gt;Server: [HTTP/2 POST] Headers + Body JSON
     Server--&gt;&gt;Worker: [HTTP/2 200 OK] Response Body Stream
     Worker-&gt;&gt;App: Parse JSON DTO -&gt; Cập nhật UI State
     App--&gt;&gt;User: Hiển thị "Đặt hàng thành công!"
 </div>
 
-<h3>1.1 Vấn đề NetworkOnMainThreadException</h3>
+<h4>Vấn đề NetworkOnMainThreadException</h4>
 
-<p>Từ phiên bản Android 3.0 (Honeycomb), hệ điều hành áp dụng cơ chế giám sát nghiêm ngặt: <strong>Mọi thao tác liên quan đến Socket I/O đều bị cấm trên Main Thread</strong>. Nếu bạn cố tình thực hiện một lời gọi mạng đồng bộ trên Main Thread:</p>
+<p>Từ phiên bản Android 3.0 (Honeycomb), với app target API 11 trở lên, hệ điều hành áp dụng cơ chế giám sát nghiêm ngặt: <strong>Mọi thao tác liên quan đến Socket I/O đều bị cấm trên Main Thread</strong>. Nếu bạn cố tình thực hiện một lời gọi mạng đồng bộ trên Main Thread:</p>
 
 <pre data-lang="kotlin"><code>// SAI LẦM: Làm đơ giao diện người dùng
 val url = URL("https://api.example.com/data")
@@ -42135,14 +42868,14 @@ val data = connection.inputStream.bufferedReader().readText() // CRASH!</code></
 
 <p><strong>Bản chất:</strong> Network I/O có độ trễ không thể dự đoán (Latency từ vài trăm millisecond đến vài giây). Nếu Main Thread bị chặn (block), hệ thống không thể xử lý các thông điệp vẽ màn hình (Choreographer VSYNC), dẫn đến việc người dùng thấy ứng dụng bị đóng băng và hộp thoại <strong>ANR (Application Not Responding)</strong> xuất hiện sau 5 giây.</p>
 
-<h3>1.2 Chi phí thiết lập kết nối (Connection Overhead)</h3>
+<h4>Chi phí thiết lập kết nối (Connection Overhead)</h4>
 
 <p>Mỗi lần mở một kết nối HTTPS mới, thiết bị phải trả giá rất đắt:</p>
 
 <ol>
   <li><strong>DNS Resolution (Hỏi IP):</strong> Tốn từ 50ms - 250ms trên sóng di động 3G/4G.</li>
   <li><strong>TCP 3-Way Handshake:</strong> Tốn 1 RTT (Round Trip Time) để gửi gói tin SYN, nhận SYN-ACK và gửi ACK.</li>
-  <li><strong>TLS Handshake (HTTPS):</strong> 
+  <li><strong>TLS Handshake (HTTPS):</strong>
 <ul>
   <li>TLS 1.2: Tốn thêm 2 RTT để trao đổi chứng chỉ và thống nhất khóa mã hóa.</li>
   <li>TLS 1.3: Cải tiến còn 1 RTT (hoặc 0-RTT nếu hỗ trợ phục hồi phiên - Session Resumption).</li>
@@ -42152,7 +42885,7 @@ val data = connection.inputStream.bufferedReader().readText() // CRASH!</code></
 
 <div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Nhận thức cốt lõi:</strong> Nếu ứng dụng của bạn tạo mới một kết nối Socket cho mỗi request HTTP, trải nghiệm người dùng sẽ cực kỳ chậm chạp và hao pin. Đây chính là lý do bạn bắt buộc phải sử dụng các thư viện có cơ chế <strong>Connection Pooling</strong> và <strong>HTTP/2 Multiplexing</strong> như OkHttp (xem <a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">8.1.3 OkHttp</a>).</div></div>
 
-<h2>2. Thư viện tầng mạng: OkHttp, Okio, Retrofit, Ktor</h2>
+<h3>Thư viện tầng mạng: OkHttp, Okio, Retrofit, Ktor</h3>
 
 <p>App Android hiếm khi tự mở socket. Phần việc dưới đây do thư viện đảm nhận, mỗi thư viện có Topic riêng ở Session 08:</p>
 
@@ -42192,13 +42925,15 @@ val data = connection.inputStream.bufferedReader().readText() // CRASH!</code></
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: các ví dụ trong bài dùng tối thiểu Retrofit (<code>retrofit2.HttpException</code>, interface <code>@GET</code>) và Kotlin Coroutines, Flow (<code>suspend</code>, <code>retryWhen</code>, <code>callbackFlow</code>); Retrofit học ở mục 8.1.1, Coroutines ở mục 8.4.3 (chưa có bài).</div></div>
 
-<h2>3. Chuẩn hóa Error Handling &amp; Result Pattern trong Clean Architecture</h2>
+<h3>Chuẩn hóa Error Handling &amp; Result Pattern trong Clean Architecture</h3>
+
+<p>Đường ống có thể tắc ở bất kỳ bước nào, nên mọi lời gọi API phải trả về một kết quả mà app xử lý được, kể cả khi thất bại.</p>
 
 <p>Trong Clean Architecture, tầng UI (Compose hoặc Activity) <strong>tuyệt đối không được phép biết đến các ngoại lệ mạng cấp thấp</strong> như <code>SocketTimeoutException</code>, <code>UnknownHostException</code> hay <code>HttpException</code>. Nếu để lộ các exception này lên UI, mã nguồn UI sẽ tràn ngập các khối <code>try-catch</code>, khó kiểm thử và dễ bị crash nếu sót exception.</p>
 
-<h3>3.1 Phân cấp lỗi mạng chuẩn</h3>
+<h4>Phân cấp lỗi mạng chuẩn</h4>
 
-<p>Một hệ thống xử lý lỗi mạng hoàn chỉnh cần phân loại thành 4 nhóm rõ rệt:</p>
+<p>Một hệ thống xử lý lỗi mạng hoàn chỉnh cần phân loại lỗi thành các nhóm rõ rệt (5 loại <code>Error</code> dưới đây, tên khớp với code ở ví dụ ngay sau):</p>
 
 <div class="mermaid">
 classDiagram
@@ -42211,7 +42946,7 @@ classDiagram
     class Error {
         &lt;&lt;sealed interface&gt;&gt;
     }
-    class HttpError {
+    class Http {
         +Int code
         +String? message
         +String? errorBody
@@ -42222,23 +42957,47 @@ classDiagram
     class NoInternet {
         +String message
     }
-    class SerializationError {
+    class Serialization {
         +Throwable cause
     }
-    class UnknownError {
+    class Unknown {
         +Throwable cause
     }
 
     NetworkResult &lt;|-- Success
     NetworkResult &lt;|-- Error
-    Error &lt;|-- HttpError
+    Error &lt;|-- Http
     Error &lt;|-- NetworkTimeout
     Error &lt;|-- NoInternet
-    Error &lt;|-- SerializationError
-    Error &lt;|-- UnknownError
+    Error &lt;|-- Serialization
+    Error &lt;|-- Unknown
 </div>
 
-<h3>3.2 Mã nguồn NetworkResult Pattern</h3>
+<h4>Ví dụ: bọc mọi lời gọi API bằng <code>safeApiCall</code></h4>
+
+<p>Bài toán: mọi Repository gọi API qua một hàm duy nhất, hàm này không bao giờ ném exception ra ngoài mà trả về <code>NetworkResult</code>. Luồng chạy:</p>
+
+<ol>
+  <li>Gọi <code>apiCall()</code>; chạy xong thì trả <code>Success</code>.</li>
+  <li>Server trả mã lỗi HTTP (Retrofit ném <code>HttpException</code>): trả <code>Error.Http</code> kèm <code>code</code> và <code>errorBody</code>.</li>
+  <li>Quá thời gian chờ (<code>SocketTimeoutException</code>): trả <code>Error.NetworkTimeout</code>.</li>
+  <li>Không phân giải được domain (<code>UnknownHostException</code>) hoặc lỗi I/O khác của mạng: trả <code>Error.NoInternet</code>.</li>
+  <li>Coroutine bị huỷ (<code>CancellationException</code>): ném lại, không biến thành lỗi mạng.</li>
+  <li>Mọi exception còn lại: trả <code>Error.Unknown</code>.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) apiCall()"] --&gt;|chạy xong| S["Success(data)"]
+    A --&gt;|ném exception| B{Loại exception?}
+    B --&gt;|"(2) HttpException"| H["Error.Http(code, errorBody)"]
+    B --&gt;|"(3) SocketTimeoutException"| T["Error.NetworkTimeout"]
+    B --&gt;|"(4) UnknownHostException / IOException"| N["Error.NoInternet"]
+    B --&gt;|"(5) CancellationException"| C["throw e (để coroutine huỷ đúng)"]
+    B --&gt;|"(6) Exception khác"| U["Error.Unknown(e)"]
+</div>
+
+<p>Thứ tự <code>catch</code> quan trọng: <code>SocketTimeoutException</code> và <code>UnknownHostException</code> đều là <code>IOException</code>, nên phải bắt trước nhánh <code>IOException</code>.</p>
 
 <pre data-lang="kotlin"><code>import java.io.IOException
 import java.net.SocketTimeoutException
@@ -42264,45 +43023,73 @@ sealed interface NetworkResult&lt;out T&gt; {
  */
 suspend fun &lt;T&gt; safeApiCall(apiCall: suspend () -&gt; T): NetworkResult&lt;T&gt; {
     return try {
+        // (1)
         NetworkResult.Success(apiCall())
     } catch (e: HttpException) {
+        // (2)
         val code = e.code()
         val errorBody = e.response()?.errorBody()?.string()
         NetworkResult.Error.Http(code = code, message = e.message(), errorBody = errorBody)
     } catch (e: SocketTimeoutException) {
+        // (3)
         NetworkResult.Error.NetworkTimeout()
     } catch (e: UnknownHostException) {
+        // (4)
         NetworkResult.Error.NoInternet()
     } catch (e: IOException) {
-        // Các lỗi I/O khác của mạng (ví dụ đứt cáp đột ngột)
+        // (4) Các lỗi I/O khác của mạng (ví dụ đứt cáp đột ngột)
         NetworkResult.Error.NoInternet(e.localizedMessage ?: "Lỗi kết nối mạng")
     } catch (e: CancellationException) {
-        // Coroutine bị huỷ (thoát màn hình...): ném lại, không biến thành lỗi mạng
+        // (5) Coroutine bị huỷ (thoát màn hình...): ném lại, không biến thành lỗi mạng
         throw e
     } catch (e: Exception) {
-        // Lỗi parse JSON hoặc lỗi logic bất ngờ
+        // (6) Lỗi parse JSON hoặc lỗi logic bất ngờ
         NetworkResult.Error.Unknown(e)
     }
 }</code></pre>
 
-<h2>4. Retry Policy với Exponential Backoff &amp; Jitter</h2>
+<p><strong>Kết quả:</strong> tầng UI chỉ cần <code>when</code> trên <code>NetworkResult</code> để hiện dữ liệu hoặc thông báo lỗi thân thiện, không còn <code>try-catch</code> nào. Bản <code>safeApiCall</code> này gộp lỗi parse JSON vào <code>Unknown</code>; loại <code>Serialization</code> dành cho khi muốn tách riêng exception của converter JSON đang dùng.</p>
+
+<h3>Retry Policy với Exponential Backoff &amp; Jitter</h3>
 
 <p>Khi mạng chập chờn, việc tự động gửi lại request (Retry) giúp người dùng không phải bấm lại bằng tay. Tuy nhiên, nếu áp dụng cơ chế <strong>Retry tức thì (Immediate Retry)</strong> hoặc <strong>khoảng cách cố định (Fixed Delay)</strong>, bạn sẽ gây ra hiện tượng <strong>Thundering Herd</strong>: Khi hàng triệu thiết bị cùng mất kết nối trong 10 giây rồi cùng đồng loạt bắn request retry ngay khi vừa có mạng, server backend sẽ lập tức quá tải và sập nguồn!</p>
 
-<h3>4.1 Công thức Exponential Backoff kết hợp Full Jitter</h3>
+<h4>Công thức Exponential Backoff kết hợp Full Jitter</h4>
 
 <p>Chuẩn kỹ nghệ (được khuyến nghị bởi AWS và Google Cloud Architecture) sử dụng thuật toán:</p>
 
 <p>$$\\text{Delay} = \\text{Random}(0, \\min(\\text{MaxDelay}, \\text{BaseDelay} \\times 2^{\\text{attempt}}))$$</p>
 
+<p>Trần thời gian chờ tăng gấp đôi sau mỗi lần thử; thời gian chờ thật là một giá trị ngẫu nhiên từ 0 tới trần đó, nên các thiết bị không gửi lại cùng một lúc:</p>
+
 <div class="mermaid">
 graph LR
-    subgraph ExponentialBackoff ["Thời gian chờ giữa các lần thử lại"]
-        L1["Lần 1: ~1s + ngẫu nhiên"] --&gt; L2["Lần 2: ~2s + ngẫu nhiên"] --&gt; L3["Lần 3: ~4s + ngẫu nhiên"] --&gt; L4["Lần 4: Dừng &amp; Báo lỗi"]
+    subgraph ExponentialBackoff ["Thời gian chờ giữa các lần thử lại (BaseDelay = 1s)"]
+        L1["Lần 1: ngẫu nhiên 0–1s"] --&gt; L2["Lần 2: ngẫu nhiên 0–2s"] --&gt; L3["Lần 3: ngẫu nhiên 0–4s"] --&gt; L4["Lần 4: Dừng &amp; Báo lỗi"]
     end
 </div>
 
-<h3>4.2 Cài đặt Generic Retry Extension trên Kotlin Flow</h3>
+<h4>Ví dụ: tự gửi lại request khi mạng chập chờn</h4>
+
+<p>Bài toán: một Flow gọi API (tải bảng tin, đồng bộ giỏ hàng) cần tự thử lại khi gặp lỗi mạng, nhưng không được dồn dập. Luồng chạy của <code>retryWithExponentialBackoff</code>:</p>
+
+<ol>
+  <li>Flow phía trên ném exception; <code>retryWhen</code> nhận <code>cause</code> và số lần đã thử <code>attempt</code> (bắt đầu từ 0).</li>
+  <li>Nếu đã hết lượt (<code>attempt &gt;= maxAttempts</code>) hoặc lỗi không phải <code>IOException</code> (ví dụ lỗi 4xx): trả <code>false</code>, exception đi tiếp xuống tầng sau.</li>
+  <li>Tính trần thời gian chờ <code>initialDelayMs * factor^attempt</code>, chặn trên bằng <code>maxDelayMs</code>.</li>
+  <li>Chọn thời gian chờ ngẫu nhiên từ 0 tới trần (Full Jitter).</li>
+  <li><code>delay</code> rồi trả <code>true</code>: Flow phía trên được collect lại từ đầu, tức là request được gửi lại.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    E["(1) Flow ném exception: cause, attempt"] --&gt; C{"(2) attempt nhỏ hơn maxAttempts&lt;br/&gt;và cause là IOException?"}
+    C --&gt;|Không| F["(2) false: exception đi tiếp"]
+    C --&gt;|Có| D["(3) cappedDelay = min(initialDelayMs × factor^attempt, maxDelayMs)"]
+    D --&gt; J["(4) jitteredDelay = Random(0..cappedDelay)"]
+    J --&gt; R["(5) delay(jitteredDelay), true: collect lại Flow"]
+    R --&gt; E
+</div>
 
 <pre data-lang="kotlin"><code>import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -42318,14 +43105,18 @@ fun &lt;T&gt; Flow&lt;T&gt;.retryWithExponentialBackoff(
     maxDelayMs: Long = 10000L,
     factor: Double = 2.0
 ): Flow&lt;T&gt; {
+    // (1)
     return this.retryWhen { cause, attempt -&gt;
+        // (2)
         if (attempt &lt; maxAttempts &amp;&amp; cause is IOException) {
             // Chỉ retry khi gặp lỗi mạng (I/O, Timeout). Không retry lỗi 4xx Client Error!
+            // (3)
             val exponentialDelay = (initialDelayMs * factor.pow(attempt.toDouble())).toLong()
             val cappedDelay = min(exponentialDelay, maxDelayMs)
-            // Thêm Full Jitter ngẫu nhiên từ 0 đến cappedDelay để tránh các thiết bị đồng nhịp
+            // (4) Thêm Full Jitter ngẫu nhiên từ 0 đến cappedDelay để tránh các thiết bị đồng nhịp
             val jitteredDelay = Random.nextLong(0, cappedDelay + 1)
             
+            // (5)
             delay(jitteredDelay)
             true // Tiếp tục thử lại
         } else {
@@ -42334,7 +43125,9 @@ fun &lt;T&gt; Flow&lt;T&gt;.retryWithExponentialBackoff(
     }
 }</code></pre>
 
-<h2>5. Bảo mật cao cấp: SSL / Certificate Pinning &amp; Phòng thủ MITM</h2>
+<p><strong>Kết quả:</strong> với mặc định <code>maxAttempts = 3</code>, request được gửi tối đa 4 lần (1 lần đầu và 3 lần thử lại, chờ ngẫu nhiên trong 0–1s, 0–2s, 0–4s); lỗi không phải <code>IOException</code> đi thẳng xuống tầng sau mà không chờ.</p>
+
+<h3>Bảo mật cao cấp: SSL / Certificate Pinning &amp; Phòng thủ MITM</h3>
 
 <p>Mặc định, Android tin tưởng các Chứng chỉ số (Certificate Authority - CA) được cài đặt sẵn trong hệ thống (như DigiCert, Let's Encrypt). Tuy nhiên, tin tặc có thể thực hiện tấn công <strong>Man-in-the-Middle (MITM)</strong> bằng cách:</p>
 
@@ -42344,17 +43137,17 @@ fun &lt;T&gt; Flow&lt;T&gt;.retryWithExponentialBackoff(
   <li>Proxy này giải mã toàn bộ dữ liệu HTTPS mà ứng dụng không hề hay biết!</li>
 </ol>
 
-<p>Lưu ý mặc định của nền tảng: từ Android 7.0 (API 24), app <strong>không</strong> tin CA do người dùng tự cài trừ khi khai báo <code>&lt;certificates src="user" /&gt;</code> trong Network Security Config (app target API 23 trở xuống vẫn tin). Từ Android 9 (API 28), <strong>cleartext HTTP bị tắt mặc định</strong>: gọi <code>http://</code> sẽ lỗi (OkHttp báo <code>UnknownServiceException: CLEARTEXT communication ... not permitted by network security policy</code>) trừ khi bật <code>cleartextTrafficPermitted="true"</code> cho domain cụ thể.</p>
+<p>Lưu ý mặc định của nền tảng: từ Android 7.0 (API 24), app <strong>không</strong> tin CA do người dùng tự cài trừ khi khai báo <code>&lt;certificates src="user" /&gt;</code> trong Network Security Config (app target API 23 trở xuống vẫn tin). Từ Android 9 (API 28), với app target API 28 trở lên, <strong>cleartext HTTP bị tắt mặc định</strong>: gọi <code>http://</code> sẽ lỗi (OkHttp báo <code>UnknownServiceException: CLEARTEXT communication ... not permitted by network security policy</code>) trừ khi bật <code>cleartextTrafficPermitted="true"</code> cho domain cụ thể.</p>
 
-<h3>5.1 Certificate Pinning là gì?</h3>
+<h4>Certificate Pinning là gì?</h4>
 
 <p><strong>Certificate Pinning (Ghim chứng chỉ)</strong> là kỹ thuật <strong>thêm một điều kiện</strong> vào việc kiểm tra chứng chỉ: chuỗi chứng chỉ vẫn phải hợp lệ với các Root CA được tin như bình thường, <strong>và</strong> phải chứa ít nhất một khóa công khai (Public Key - SPKI) có mã băm nằm trong danh sách ghim của app (khóa của máy chủ, của intermediate CA hoặc của CA). Nếu không có khóa nào khớp, kết nối sẽ bị hủy ngay lập tức.</p>
 
-<h3>5.2 Ghim chứng chỉ bằng code</h3>
+<h4>Ghim chứng chỉ bằng code</h4>
 
-<p>Ngoài cấu hình XML ở mục 5.3 bên dưới, có thể ghim chứng chỉ bằng code qua <code>CertificatePinner</code> của OkHttp (xem <a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">8.1.3 OkHttp</a>). Quy tắc backup pin ở cảnh báo dưới đây áp dụng cho cả hai cách.</p>
+<p>Ngoài cấu hình XML ở mục "Triển khai qua Network Security Config" bên dưới, có thể ghim chứng chỉ bằng code qua <code>CertificatePinner</code> của OkHttp (xem <a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">8.1.3 OkHttp</a>). Quy tắc backup pin ở cảnh báo dưới đây áp dụng cho cả hai cách.</p>
 
-<h3>5.3 Triển khai qua Network Security Config (Chuẩn Declarative của Android)</h3>
+<h4>Triển khai qua Network Security Config (Chuẩn Declarative của Android)</h4>
 
 <p>Từ Android 7.0, Google khuyến nghị cấu hình bảo mật thông qua file XML:</p>
 
@@ -42382,98 +43175,7 @@ fun &lt;T&gt; Flow&lt;T&gt;.retryWithExponentialBackoff(
 
 <div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><strong>Hiểm họa "Gạch App" (App Bricking Risk):</strong> Nếu bạn chỉ ghim 1 mã Pin duy nhất và chứng chỉ trên server bị hết hạn hoặc bị tấn công phải đổi mới khẩn cấp, người dùng toàn cầu sẽ <strong>không thể mở được app</strong> cho đến khi bạn release một bản cập nhật mới lên Google Play Store. <strong>Quy tắc bất di bất dịch:</strong> Luôn luôn ghim khóa công khai của <strong>Backup Intermediate CA</strong> hoặc <strong>Backup Key</strong>, kèm theo cơ chế Remote Config để cập nhật mã pin động nếu cần.</div></div>
 
-<h2>6. Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager &amp; NetworkCallback</h2>
-
-<p>Trước Android 7.0 (Nougat), lập trình viên thường dùng <code>BroadcastReceiver</code> lắng nghe <code>android.net.conn.CONNECTIVITY_ACTION</code>. Tuy nhiên, cơ chế này làm thức giấc hàng chục tiến trình app cùng lúc khi mạng thay đổi, gây giật lag hệ thống và cạn pin. Từ Android 7.0, app target API 24+ không còn nhận <code>CONNECTIVITY_ACTION</code> qua receiver khai báo trong manifest (receiver đăng ký bằng code vẫn nhận), và action này bị deprecate từ API 28. Google khuyến nghị chuyển sang <strong><code>ConnectivityManager.NetworkCallback</code></strong>.</p>
-
-<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Quyền và cleartext cần khai báo trước khi gọi mạng:</strong> - <code>android.permission.INTERNET</code>: thiếu quyền này thì mọi kết nối socket của app đều thất bại. - <code>android.permission.ACCESS_NETWORK_STATE</code>: bắt buộc để dùng <code>ConnectivityManager</code> (<code>activeNetwork</code>, <code>getNetworkCapabilities</code>, <code>register...NetworkCallback</code>); thiếu thì ném <code>SecurityException</code>. - Cả hai đều là normal permission: khai báo trong <code>AndroidManifest.xml</code> là đủ, không cần xin lúc chạy.  \`\`<code>xml &lt;uses-permission android:name="android.permission.INTERNET" /&gt; &lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt; </code>\`\`</div></div>
-
-<h3>6.1 Phân biệt NET_CAPABILITY_INTERNET vs NET_CAPABILITY_VALIDATED</h3>
-
-<p>Đây là điểm khác biệt cốt tử mà nhiều developer không phân biệt được:</p>
-
-<ul>
-  <li><strong><code>NET_CAPABILITY_INTERNET</code>:</strong> Thiết bị đã kết nối vào một mạng hỗ trợ truyền thông IP (ví dụ kết nối vào router Wi-Fi hoặc trạm 4G). Nhưng mạng này hoàn toàn có thể <strong>chưa có Internet</strong> (dây cáp quang bị đứt, gói cước hết tiền, hoặc mạng Wi-Fi bắt nhập mã voucher tại quán cafe/khách sạn).</li>
-  <li><strong><code>NET_CAPABILITY_VALIDATED</code>:</strong> Hệ điều hành Android đã âm thầm gửi một HTTP probe (thường là <code>https://clients3.google.com/generate_204</code>) và nhận về đúng mã trạng thái <code>204 No Content</code>. Điều này chứng minh <strong>thiết bị thực sự đi được ra thế giới Internet bên ngoài</strong>!</li>
-</ul>
-
-<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Quy tắc bắt buộc:</strong> Luôn luôn kiểm tra cờ <code>NET_CAPABILITY_VALIDATED</code> thay vì chỉ kiểm tra <code>NET_CAPABILITY_INTERNET</code>.</div></div>
-
-<h3>6.2 Thiết kế NetworkMonitor Reactive với callbackFlow</h3>
-
-<pre data-lang="kotlin"><code>import android.content.Context
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-
-sealed interface NetworkStatus {
-    object Available : NetworkStatus
-    object Lost : NetworkStatus
-    object Unavailable : NetworkStatus
-}
-
-interface NetworkMonitor {
-    val networkStatus: Flow&lt;NetworkStatus&gt;
-}
-
-class ConnectivityManagerNetworkMonitor(
-    context: Context
-) : NetworkMonitor {
-
-    private val connectivityManager = 
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-    override val networkStatus: Flow&lt;NetworkStatus&gt; = callbackFlow {
-        val callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                // Mạng vật lý vừa kết nối, nhưng chưa chắc có Internet thực sự
-            }
-
-            override fun onCapabilitiesChanged(
-                network: Network,
-                networkCapabilities: NetworkCapabilities
-            ) {
-                // Kiểm tra xem mạng đã được VALIDATED chưa
-                val hasInternet = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                val isValidated = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-
-                if (hasInternet &amp;&amp; isValidated) {
-                    trySend(NetworkStatus.Available)
-                } else {
-                    trySend(NetworkStatus.Lost)
-                }
-            }
-
-            override fun onLost(network: Network) {
-                // Với default callback, onLost nghĩa là mạng mặc định mất và chưa có mạng thay thế
-                trySend(NetworkStatus.Lost)
-            }
-            // Không override onUnavailable(): callback này chỉ được gọi cho requestNetwork(..., timeout),
-            // không bao giờ được gọi khi dùng registerDefaultNetworkCallback / registerNetworkCallback
-        }
-
-        // Theo dõi MẠNG MẶC ĐỊNH (mạng app thực sự dùng). registerNetworkCallback với nhiều transport
-        // sẽ báo onLost cho từng mạng: tắt Wi-Fi trong khi 4G vẫn còn cũng phát Lost — sai trạng thái.
-        // Cần quyền ACCESS_NETWORK_STATE, nếu thiếu sẽ ném SecurityException.
-        connectivityManager.registerDefaultNetworkCallback(callback)
-
-        // Phát trạng thái ban đầu ngay khi bắt đầu lắng nghe
-        val currentCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-        val isInitiallyValid = currentCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
-        trySend(if (isInitiallyValid) NetworkStatus.Available else NetworkStatus.Lost)
-
-        // Hủy đăng ký callback khi Flow ngừng collect để chống rò rỉ bộ nhớ (Memory Leak)
-        awaitClose {
-            connectivityManager.unregisterNetworkCallback(callback)
-        }
-    }.distinctUntilChanged()
-}</code></pre>
-
-<h2>7. Chiến lược Caching: HTTP Cache (OkHttp) vs Local Database (Room)</h2>
+<h3>Chiến lược Caching: HTTP Cache (OkHttp) vs Local Database (Room)</h3>
 
 <p>Khi thiết kế ứng dụng hỗ trợ Offline, nhiều người phân vân giữa việc dùng OkHttp Cache hay lưu trữ vào SQLite qua Room Database.</p>
 
@@ -42514,13 +43216,139 @@ class ConnectivityManagerNetworkMonitor(
   </tbody>
 </table>
 
-<h3>7.1 HTTP Cache của OkHttp</h3>
+<h4>HTTP Cache của OkHttp</h4>
 
 <p>Cấu hình <code>Cache</code> và một interceptor buộc đọc cache khi offline (<code>only-if-cached, max-stale</code>) nằm ở <a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">8.1.3 OkHttp</a>.</p>
 
-<h2>8. Tích hợp Clean Architecture: End-to-End E-Commerce Example</h2>
+<h3>Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager &amp; NetworkCallback</h3>
 
-<p>Hãy xâu chuỗi các thành phần đã học vào một kiến trúc hoàn chỉnh theo chuẩn <strong>Clean Architecture</strong> (Retrofit chỉ dùng một interface <code>@GET</code>, xem mục 2): <code>UI (Compose) -&gt; ViewModel -&gt; UseCase -&gt; Repository (SSOT) -&gt; RemoteDataSource (Retrofit) &amp; LocalDataSource (Room)</code>.</p>
+<p>Phần này là "người canh đường ống" trong mental model: app cần biết đường ống còn thông ra Internet hay không để quyết định gọi API, đồng bộ lại, hay báo người dùng đang offline.</p>
+
+<p>Trước Android 7.0 (Nougat), lập trình viên thường dùng <code>BroadcastReceiver</code> lắng nghe <code>android.net.conn.CONNECTIVITY_ACTION</code>. Tuy nhiên, cơ chế này làm thức giấc hàng chục tiến trình app cùng lúc khi mạng thay đổi, gây giật lag hệ thống và cạn pin. Từ Android 7.0, app target API 24+ không còn nhận <code>CONNECTIVITY_ACTION</code> qua receiver khai báo trong manifest (receiver đăng ký bằng code vẫn nhận), và action này bị deprecate từ API 28. Google khuyến nghị chuyển sang <strong><code>ConnectivityManager.NetworkCallback</code></strong>.</p>
+
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Quyền và cleartext cần khai báo trước khi gọi mạng:</strong> - <code>android.permission.INTERNET</code>: thiếu quyền này thì mọi kết nối socket của app đều thất bại. - <code>android.permission.ACCESS_NETWORK_STATE</code>: bắt buộc để dùng <code>ConnectivityManager</code> (<code>activeNetwork</code>, <code>getNetworkCapabilities</code>, <code>register...NetworkCallback</code>); thiếu thì ném <code>SecurityException</code>. - Cả hai đều là normal permission: khai báo trong <code>AndroidManifest.xml</code> là đủ, không cần xin lúc chạy.  \`\`<code>xml &lt;uses-permission android:name="android.permission.INTERNET" /&gt; &lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt; </code>\`\`</div></div>
+
+<h4>Phân biệt NET_CAPABILITY_INTERNET vs NET_CAPABILITY_VALIDATED</h4>
+
+<p>Đây là điểm khác biệt cốt tử mà nhiều developer không phân biệt được:</p>
+
+<ul>
+  <li><strong><code>NET_CAPABILITY_INTERNET</code>:</strong> Thiết bị đã kết nối vào một mạng hỗ trợ truyền thông IP (ví dụ kết nối vào router Wi-Fi hoặc trạm 4G). Nhưng mạng này hoàn toàn có thể <strong>chưa có Internet</strong> (dây cáp quang bị đứt, gói cước hết tiền, hoặc mạng Wi-Fi bắt nhập mã voucher tại quán cafe/khách sạn).</li>
+  <li><strong><code>NET_CAPABILITY_VALIDATED</code>:</strong> Hệ điều hành Android đã âm thầm gửi một HTTP probe (thường là <code>https://clients3.google.com/generate_204</code>) và nhận về đúng mã trạng thái <code>204 No Content</code>. Điều này chứng minh <strong>thiết bị thực sự đi được ra thế giới Internet bên ngoài</strong>!</li>
+</ul>
+
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Quy tắc bắt buộc:</strong> Luôn luôn kiểm tra cờ <code>NET_CAPABILITY_VALIDATED</code> thay vì chỉ kiểm tra <code>NET_CAPABILITY_INTERNET</code>.</div></div>
+
+<h4>Ví dụ: NetworkMonitor phát trạng thái mạng bằng <code>callbackFlow</code></h4>
+
+<p>Bài toán: nhiều màn hình cần biết app có đang online không (hiện banner "Đang offline", tự đồng bộ khi có mạng lại). <code>NetworkMonitor</code> biến các callback của <code>ConnectivityManager</code> thành một <code>Flow&lt;NetworkStatus&gt;</code>. Luồng chạy:</p>
+
+<ol>
+  <li>Khi Flow bắt đầu được collect, đăng ký callback cho <strong>mạng mặc định</strong> (mạng app thực sự dùng) bằng <code>registerDefaultNetworkCallback</code>.</li>
+  <li>Phát ngay trạng thái ban đầu, đọc từ <code>activeNetwork</code>.</li>
+  <li>Khi capability của mạng mặc định đổi (<code>onCapabilitiesChanged</code>): có cả <code>INTERNET</code> và <code>VALIDATED</code> thì phát <code>Available</code>, ngược lại phát <code>Lost</code>.</li>
+  <li>Khi mạng mặc định mất mà không có mạng thay thế (<code>onLost</code>): phát <code>Lost</code>.</li>
+  <li><code>distinctUntilChanged()</code> bỏ các giá trị lặp, collector chỉ nhận khi trạng thái thực sự đổi.</li>
+  <li>Khi collector ngừng collect, <code>awaitClose</code> huỷ đăng ký callback.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant C as Collector (ViewModel)
+    participant F as networkStatus (callbackFlow)
+    participant CM as ConnectivityManager
+
+    C-&gt;&gt;F: collect
+    F-&gt;&gt;CM: (1) registerDefaultNetworkCallback(callback)
+    F-&gt;&gt;CM: (2) getNetworkCapabilities(activeNetwork)
+    F--&gt;&gt;C: (2) Available / Lost ban đầu
+    CM-&gt;&gt;F: (3) onCapabilitiesChanged(INTERNET, VALIDATED)
+    F--&gt;&gt;C: (3)(5) Available (nếu khác giá trị trước)
+    CM-&gt;&gt;F: (4) onLost(network)
+    F--&gt;&gt;C: (4)(5) Lost
+    C-&gt;&gt;F: ngừng collect
+    F-&gt;&gt;CM: (6) awaitClose: unregisterNetworkCallback(callback)
+</div>
+
+<pre data-lang="kotlin"><code>import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+
+sealed interface NetworkStatus {
+    object Available : NetworkStatus
+    object Lost : NetworkStatus
+    object Unavailable : NetworkStatus
+}
+
+interface NetworkMonitor {
+    val networkStatus: Flow&lt;NetworkStatus&gt;
+}
+
+class ConnectivityManagerNetworkMonitor(
+    context: Context
+) : NetworkMonitor {
+
+    private val connectivityManager = 
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    override val networkStatus: Flow&lt;NetworkStatus&gt; = callbackFlow {
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                // Mạng vật lý vừa kết nối, nhưng chưa chắc có Internet thực sự
+            }
+
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities
+            ) {
+                // (3) Kiểm tra xem mạng đã được VALIDATED chưa
+                val hasInternet = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                val isValidated = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+
+                if (hasInternet &amp;&amp; isValidated) {
+                    trySend(NetworkStatus.Available)
+                } else {
+                    trySend(NetworkStatus.Lost)
+                }
+            }
+
+            override fun onLost(network: Network) {
+                // (4) Với default callback, onLost nghĩa là mạng mặc định mất và chưa có mạng thay thế
+                trySend(NetworkStatus.Lost)
+            }
+            // Không override onUnavailable(): callback này chỉ được gọi cho requestNetwork(...),
+            // không bao giờ được gọi khi dùng registerDefaultNetworkCallback / registerNetworkCallback
+        }
+
+        // (1) Theo dõi MẠNG MẶC ĐỊNH (mạng app thực sự dùng). registerNetworkCallback với nhiều transport
+        // sẽ báo onLost cho từng mạng: tắt Wi-Fi trong khi 4G vẫn còn cũng phát Lost — sai trạng thái.
+        // Cần quyền ACCESS_NETWORK_STATE, nếu thiếu sẽ ném SecurityException.
+        connectivityManager.registerDefaultNetworkCallback(callback)
+
+        // (2) Phát trạng thái ban đầu ngay khi bắt đầu lắng nghe
+        val currentCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        val isInitiallyValid = currentCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+        trySend(if (isInitiallyValid) NetworkStatus.Available else NetworkStatus.Lost)
+
+        // (6) Hủy đăng ký callback khi Flow ngừng collect để chống rò rỉ bộ nhớ (Memory Leak)
+        awaitClose {
+            connectivityManager.unregisterNetworkCallback(callback)
+        }
+    }.distinctUntilChanged() // (5)
+}</code></pre>
+
+<p><strong>Kết quả:</strong> bật chế độ máy bay thì collector nhận <code>Lost</code>; tắt Wi-Fi trong khi 4G vẫn còn thì mạng mặc định chuyển sang 4G và collector vẫn ở <code>Available</code> sau khi 4G được validated; khi mạng mặc định là một Wi-Fi chưa <code>VALIDATED</code> (ví dụ Wi-Fi quán cafe chưa đăng nhập, không có 4G) thì nhận <code>Lost</code>.</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>Tích hợp Clean Architecture: End-to-End E-Commerce Example</h3>
+
+<p>Hãy xâu chuỗi các thành phần đã học vào một kiến trúc hoàn chỉnh theo chuẩn <strong>Clean Architecture</strong> (Retrofit chỉ dùng một interface <code>@GET</code>, xem mục "Thư viện tầng mạng" ở trên): <code>UI (Compose) -&gt; ViewModel -&gt; UseCase -&gt; Repository (SSOT) -&gt; RemoteDataSource (Retrofit) &amp; LocalDataSource (Room)</code>.</p>
 
 <p>Mô hình ở đây là <strong>Single Source of Truth (SSOT)</strong>: UI chỉ quan sát Room Database qua <code>Flow</code>, không bao giờ đọc thẳng kết quả API. Repository đồng bộ API khi có mạng và ghi kết quả vào Room; Flow của DAO tự phát dữ liệu mới lên UI.</p>
 
@@ -42550,7 +43378,45 @@ graph LR
     Repo --&gt; NetMon
 </div>
 
-<h3>8.1 Data Layer: Remote DataSource &amp; Repository</h3>
+<p>Bài toán: màn hình danh sách sản phẩm phải hiện ngay dữ liệu đã lưu, tự đồng bộ khi có mạng, và báo đang offline khi mất mạng mà không xoá dữ liệu đang hiển thị. Ba việc của Networking gặp nhau ở đây: Request API (<code>ProductApiService</code>), Handle event network (<code>safeApiCall</code>), Handle connection state (<code>NetworkMonitor</code>). Luồng chạy:</p>
+
+<ol>
+  <li>ViewModel collect <code>repository.getProducts()</code>; Repository đọc từ Room qua <code>observeAll()</code>, danh sách đã lưu hiện ngay (<code>Success</code>, <code>isOffline</code> lấy theo trạng thái mạng gần nhất mà ViewModel ghi nhận).</li>
+  <li>ViewModel collect <code>networkMonitor.networkStatus</code>.</li>
+  <li>Khi nhận <code>Available</code>, ViewModel ghi nhận đang online (<code>isOffline = false</code>) rồi gọi <code>repository.syncProducts()</code>.</li>
+  <li>Repository đọc trạng thái mạng hiện tại bằng <code>networkStatus.first()</code>; không <code>Available</code> thì trả ngay <code>NetworkResult.Error.NoInternet()</code>.</li>
+  <li>Có mạng: gọi API trong <code>safeApiCall</code>; mọi lỗi mạng thành <code>NetworkResult.Error</code>, ViewModel xử lý mà không làm mất dữ liệu offline đang hiển thị.</li>
+  <li>Gọi thành công: <code>upsertAll</code> ghi vào Room; Flow của DAO tự phát danh sách mới, collector ở bước (1) cập nhật UI.</li>
+  <li>Khi nhận <code>Lost</code> (hoặc <code>Unavailable</code>), ViewModel giữ danh sách đang có và đặt <code>isOffline = true</code>. Trạng thái này được nhớ lại, nên lần Room phát danh sách tiếp theo ở bước (1) không ghi đè nó về <code>false</code>.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant VM as ProductViewModel
+    participant Repo as ProductRepositoryImpl
+    participant Dao as ProductDao (Room)
+    participant Mon as NetworkMonitor
+    participant Api as ProductApiService
+
+    VM-&gt;&gt;Repo: (1) getProducts().collect
+    Repo-&gt;&gt;Dao: (1) observeAll()
+    Dao--&gt;&gt;VM: (1) danh sách đã lưu → Success(products, isOffline)
+    VM-&gt;&gt;Mon: (2) networkStatus.collect
+    Mon--&gt;&gt;VM: (2) Available
+    VM-&gt;&gt;Repo: (3) isOffline = false, syncProducts()
+    Repo-&gt;&gt;Mon: (4) networkStatus.first()
+    alt không Available
+        Repo--&gt;&gt;VM: (4) NetworkResult.Error.NoInternet
+    else Available
+        Repo-&gt;&gt;Api: (5) safeApiCall { fetchProducts() }
+        Api--&gt;&gt;Repo: (5) danh sách ProductDto, hoặc lỗi → NetworkResult.Error
+        Repo-&gt;&gt;Dao: (6) upsertAll(...)
+        Dao--&gt;&gt;VM: (6) Flow phát danh sách mới → Success
+    end
+    Mon--&gt;&gt;VM: (7) Lost → copy(isOffline = true)
+</div>
+
+<h4>Data Layer: Remote DataSource &amp; Repository</h4>
 
 <pre data-lang="kotlin"><code>import androidx.room.Dao
 import androidx.room.Entity
@@ -42562,25 +43428,25 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import retrofit2.http.GET
 
-// 1. Retrofit API Definition
+// Retrofit API Definition
 interface ProductApiService {
     @GET("/api/v1/products")
     suspend fun fetchProducts(): List&lt;ProductDto&gt;
 }
 
-// 2. Data Transfer Object
+// Data Transfer Object
 data class ProductDto(val id: Long, val name: String, val price: Double)
 
-// 3. Domain Model
+// Domain Model
 data class Product(val id: Long, val name: String, val price: Double)
 
-// 4. Repository Interface
+// Repository Interface
 interface ProductRepository {
     fun getProducts(): Flow&lt;List&lt;Product&gt;&gt;
     suspend fun syncProducts(): NetworkResult&lt;Unit&gt;
 }
 
-// 5. Local DataSource: Room DAO — Flow tự phát lại mỗi khi bảng products thay đổi
+// Local DataSource: Room DAO — Flow tự phát lại mỗi khi bảng products thay đổi
 @Entity(tableName = "products")
 data class ProductEntity(@PrimaryKey val id: Long, val name: String, val price: Double)
 
@@ -42593,32 +43459,34 @@ interface ProductDao {
     suspend fun upsertAll(items: List&lt;ProductEntity&gt;)
 }
 
-// 6. Repository Implementation (Offline-First Single Source of Truth)
+// Repository Implementation (Offline-First Single Source of Truth)
 class ProductRepositoryImpl(
     private val apiService: ProductApiService,
     private val productDao: ProductDao,
     private val networkMonitor: NetworkMonitor
 ) : ProductRepository {
 
-    // Luôn đọc từ Room: sau mỗi lần sync ghi vào bảng, Flow của DAO tự emit danh sách mới
+    // (1) Luôn đọc từ Room: sau mỗi lần sync ghi vào bảng, Flow của DAO tự emit danh sách mới
     override fun getProducts(): Flow&lt;List&lt;Product&gt;&gt; =
         productDao.observeAll().map { rows -&gt; rows.map { Product(it.id, it.name, it.price) } }
 
     override suspend fun syncProducts(): NetworkResult&lt;Unit&gt; {
+        // (4)
         val status = networkMonitor.networkStatus.first()
         if (status !is NetworkStatus.Available) {
             return NetworkResult.Error.NoInternet()
         }
 
+        // (5)
         return safeApiCall {
             val remoteProducts = apiService.fetchProducts()
-            // Cập nhật lại vào cơ sở dữ liệu nội bộ -&gt; getProducts() tự nhận dữ liệu mới
+            // (6) Cập nhật lại vào cơ sở dữ liệu nội bộ -&gt; getProducts() tự nhận dữ liệu mới
             productDao.upsertAll(remoteProducts.map { ProductEntity(it.id, it.name, it.price) })
         }
     }
 }</code></pre>
 
-<h3>8.2 Presentation Layer: ViewModel điều phối UI State</h3>
+<h4>Presentation Layer: ViewModel điều phối UI State</h4>
 
 <pre data-lang="kotlin"><code>import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -42642,31 +43510,44 @@ class ProductViewModel(
     private val _uiState = MutableStateFlow&lt;ProductUiState&gt;(ProductUiState.Loading)
     val uiState: StateFlow&lt;ProductUiState&gt; = _uiState.asStateFlow()
 
+    // Trạng thái mạng gần nhất; cả hai coroutine dưới đây chạy trên Main Thread (viewModelScope)
+    // nên đọc ghi trực tiếp được. Nhờ biến này, Room phát danh sách mới không ghi đè isOffline.
+    private var isOffline = false
+
     init {
         observeNetworkAndLoadData()
     }
 
     private fun observeNetworkAndLoadData() {
-        // Tải dữ liệu offline hiển thị ngay cho người dùng
+        // (1) Tải dữ liệu offline hiển thị ngay cho người dùng
         viewModelScope.launch {
             repository.getProducts().collect { localProducts -&gt;
                 _uiState.update { 
-                    ProductUiState.Success(products = localProducts, isOffline = false) 
+                    ProductUiState.Success(products = localProducts, isOffline = isOffline) 
                 }
             }
         }
 
-        // Tự động đồng bộ dữ liệu mới khi có kết nối Internet
+        // (2) Tự động đồng bộ dữ liệu mới khi có kết nối Internet
         viewModelScope.launch {
             networkMonitor.networkStatus.collect { status -&gt;
                 when (status) {
                     is NetworkStatus.Available -&gt; {
+                        // (3)
+                        isOffline = false
+                        _uiState.update { current -&gt;
+                            if (current is ProductUiState.Success) {
+                                current.copy(isOffline = false)
+                            } else current
+                        }
                         val result = repository.syncProducts()
                         if (result is NetworkResult.Error) {
                             // Xử lý lỗi nhưng không làm mất dữ liệu offline đang hiển thị
                         }
                     }
                     is NetworkStatus.Lost, is NetworkStatus.Unavailable -&gt; {
+                        // (7)
+                        isOffline = true
                         _uiState.update { current -&gt;
                             if (current is ProductUiState.Success) {
                                 current.copy(isOffline = true)
@@ -42679,29 +43560,129 @@ class ProductViewModel(
     }
 }</code></pre>
 
-<h2>9. Checklist Best Practices &amp; Anti-patterns</h2>
+<p><strong>Kết quả:</strong> mở màn hình khi đang ở chế độ máy bay thì danh sách đã lưu trong Room vẫn hiện và <code>isOffline = true</code>, dù Room phát danh sách trước hay sau trạng thái <code>Lost</code>; tắt chế độ máy bay, khi mạng mặc định được validated thì <code>syncProducts()</code> chạy, Room nhận dữ liệu mới và danh sách tự cập nhật qua Flow của DAO mà UI không phải gọi lại gì.</p>
 
-<h3>9.1 Những điều BẮT BUỘC NÊN LÀM (Best Practices)</h3>
-
-<ol>
-  <li><strong>Singleton OkHttpClient:</strong> Chỉ khởi tạo <strong>DUY NHẤT MỘT</strong> <code>OkHttpClient</code> instance trong suốt vòng đời ứng dụng để tối ưu <code>ConnectionPool</code> và <code>DiskCache</code>. Nếu cần cấu hình riêng cho một số endpoint, hãy sử dụng <code>okHttpClient.newBuilder()</code>.</li>
-  <li><strong>Main-Safety:</strong> Mọi hàm API trong tầng Data phải là <code>suspend</code> và tự động chuyển sang <code>Dispatchers.IO</code> hoặc để Retrofit/Ktor tự xử lý luồng nền.</li>
-  <li><strong>Phân biệt Capability:</strong> Luôn kiểm tra <code>NET_CAPABILITY_VALIDATED</code> thay vì chỉ kiểm tra <code>NET_CAPABILITY_INTERNET</code>.</li>
-  <li><strong>Timeouts hợp lý:</strong> Luôn thiết lập timeout rõ ràng (<code>connectTimeout</code>, <code>readTimeout</code>, <code>writeTimeout</code>), không để mặc định quá lâu làm người dùng phải chờ đợi màn hình trắng.</li>
-  <li><strong>Che giấu PII trong Log:</strong> Tuyệt đối không log thông tin nhạy cảm (mật khẩu, mã OTP, số thẻ, Authorization Header) ra ngoài Logcat.</li>
-</ol>
-
-<h3>9.2 Những sai lầm NGHIÊM TRỌNG (Anti-patterns)</h3>
+<h3>Các bài toán khác dùng cùng các phần trên</h3>
 
 <ul>
-  <li>❌ <strong>Khởi tạo OkHttpClient mới trong mỗi Repository:</strong> Làm vô hiệu hóa hoàn toàn Connection Pool và HTTP Cache, gây cạn kiệt File Descriptor (FD Leak).</li>
-  <li>❌ <strong>Nuốt Exception (Catch &amp; Empty):</strong> Bắt exception nhưng không thông báo cho người dùng, làm UI ở trạng thái Loading mãi mãi.</li>
-  <li>❌ <strong>Đọc toàn bộ File vào byte array để Upload:</strong> Gây crash <code>OutOfMemoryError</code> khi người dùng upload file nặng trên các thiết bị RAM thấp.</li>
-  <li>❌ <strong>Chỉ ghim 1 mã SSL Pin duy nhất:</strong> Nguy cơ biến toàn bộ ứng dụng thành "cục gạch" khi server renew chứng chỉ SSL mới.</li>
-  <li>❌ <strong>Lạm dụng BroadcastReceiver cho mạng:</strong> Gây lãng phí tài nguyên CPU và pin của thiết bị.</li>
+  <li><strong>Upload ảnh hoặc file lớn kèm tiến độ:</strong> request vẫn đi qua <code>safeApiCall</code> và retry như trên, còn phần stream file theo từng đoạn để tránh <code>OutOfMemoryError</code> nằm ở <a href="../session_08/networks/okio.md" target="_blank" rel="noopener">8.1.4 Okio</a>.</li>
+  <li><strong>Access Token hết hạn khi nhiều request chạy song song:</strong> lỗi <code>401</code> được phân loại thành <code>Error.Http</code>, còn việc chỉ refresh token một lần cho tất cả request dùng <code>Authenticator</code> của <a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">8.1.3 OkHttp</a>.</li>
 </ul>
 
-<h2>10. Nguồn tham khảo chính thống (References &amp; RFCs)</h2>
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Gọi mạng trên Main Thread</h3>
+
+<p>Lời gọi mạng đồng bộ trên Main Thread làm app ném <code>NetworkOnMainThreadException</code> (xem mục "Vấn đề NetworkOnMainThreadException"), hoặc làm đơ UI tới mức ANR.</p>
+
+<p><strong>Cách sửa (Main-Safety):</strong> Mọi hàm API trong tầng Data phải là <code>suspend</code> và tự động chuyển sang <code>Dispatchers.IO</code> hoặc để Retrofit/Ktor tự xử lý luồng nền.</p>
+
+<h3>2. Khởi tạo OkHttpClient mới trong mỗi Repository</h3>
+
+<p>Làm vô hiệu hóa hoàn toàn Connection Pool và HTTP Cache, gây cạn kiệt File Descriptor (FD Leak). Mỗi request lại phải trả lại toàn bộ chi phí DNS, TCP, TLS ở mục "Chi phí thiết lập kết nối (Connection Overhead)".</p>
+
+<p><strong>Cách sửa (Singleton OkHttpClient):</strong> Chỉ khởi tạo <strong>DUY NHẤT MỘT</strong> <code>OkHttpClient</code> instance trong suốt vòng đời ứng dụng để tối ưu <code>ConnectionPool</code> và <code>DiskCache</code>. Nếu cần cấu hình riêng cho một số endpoint, hãy sử dụng <code>okHttpClient.newBuilder()</code>.</p>
+
+<h3>3. Nuốt Exception (Catch &amp; Empty)</h3>
+
+<p>Bắt exception nhưng không thông báo cho người dùng, làm UI ở trạng thái Loading mãi mãi.</p>
+
+<p><strong>Cách sửa:</strong> bọc lời gọi API bằng <code>safeApiCall</code> để mọi lỗi thành một nhánh <code>NetworkResult.Error</code>, và để UI hiển thị nhánh đó thay vì bỏ qua.</p>
+
+<h3>4. Biến <code>CancellationException</code> thành lỗi mạng</h3>
+
+<p>Một <code>catch (e: Exception)</code> chung cũng bắt <code>CancellationException</code> khi coroutine bị huỷ (ví dụ người dùng thoát màn hình), biến việc huỷ thành một "lỗi mạng" và coroutine không dừng đúng.</p>
+
+<p><strong>Cách sửa:</strong> như nhánh (5) trong <code>safeApiCall</code>, bắt <code>CancellationException</code> trước nhánh <code>Exception</code> và ném lại (<code>throw e</code>).</p>
+
+<h3>5. Retry tức thì hoặc với khoảng cách cố định</h3>
+
+<p>Mọi thiết bị cùng gửi lại ngay khi có mạng gây ra Thundering Herd và làm server quá tải (xem mục "Retry Policy với Exponential Backoff &amp; Jitter").</p>
+
+<p><strong>Cách sửa:</strong> dùng Exponential Backoff kết hợp Full Jitter, chỉ retry khi gặp lỗi mạng (<code>IOException</code>), không retry lỗi 4xx.</p>
+
+<h3>6. Đọc toàn bộ File vào byte array để Upload</h3>
+
+<p>Gây crash <code>OutOfMemoryError</code> khi người dùng upload file nặng trên các thiết bị RAM thấp.</p>
+
+<p><strong>Cách sửa:</strong> stream file theo từng đoạn bằng Okio (xem <a href="../session_08/networks/okio.md" target="_blank" rel="noopener">8.1.4 Okio</a>).</p>
+
+<h3>7. Chỉ ghim 1 mã SSL Pin duy nhất</h3>
+
+<p>Nguy cơ biến toàn bộ ứng dụng thành "cục gạch" khi server renew chứng chỉ SSL mới.</p>
+
+<p><strong>Cách sửa:</strong> luôn có backup pin, theo cảnh báo "Gạch App" ở mục "Triển khai qua Network Security Config".</p>
+
+<h3>8. Chỉ kiểm tra <code>NET_CAPABILITY_INTERNET</code></h3>
+
+<p>Mạng có <code>INTERNET</code> vẫn có thể chưa ra được Internet (Captive Portal, hết gói cước), nên app tưởng đang online rồi gọi API thất bại.</p>
+
+<p><strong>Cách sửa (Phân biệt Capability):</strong> Luôn kiểm tra <code>NET_CAPABILITY_VALIDATED</code> thay vì chỉ kiểm tra <code>NET_CAPABILITY_INTERNET</code>.</p>
+
+<h3>9. Theo dõi mạng bằng <code>registerNetworkCallback</code> cho nhiều transport</h3>
+
+<p>Callback nhận <code>onLost</code> cho từng mạng, nên tắt Wi-Fi trong khi 4G vẫn còn cũng phát <code>Lost</code>, app báo offline sai.</p>
+
+<p><strong>Cách sửa:</strong> theo dõi mạng mặc định bằng <code>registerDefaultNetworkCallback</code>, như trong ví dụ <code>NetworkMonitor</code>.</p>
+
+<h3>10. Lạm dụng BroadcastReceiver cho mạng</h3>
+
+<p>Lắng nghe <code>CONNECTIVITY_ACTION</code> gây lãng phí tài nguyên CPU và pin của thiết bị, và receiver khai báo trong manifest không còn nhận action này với app target API 24+.</p>
+
+<p><strong>Cách sửa:</strong> dùng <code>ConnectivityManager.NetworkCallback</code>.</p>
+
+<h3>11. Để timeout mặc định</h3>
+
+<p>Không đặt timeout thì người dùng có thể phải chờ rất lâu trước một màn hình trắng.</p>
+
+<p><strong>Cách sửa (Timeouts hợp lý):</strong> Luôn thiết lập timeout rõ ràng (<code>connectTimeout</code>, <code>readTimeout</code>, <code>writeTimeout</code>), không để mặc định quá lâu làm người dùng phải chờ đợi màn hình trắng.</p>
+
+<h3>12. Log thông tin nhạy cảm</h3>
+
+<p>Log request và response đầy đủ làm lộ dữ liệu người dùng qua Logcat.</p>
+
+<p><strong>Cách sửa (Che giấu PII trong Log):</strong> Tuyệt đối không log thông tin nhạy cảm (mật khẩu, mã OTP, số thẻ, Authorization Header) ra ngoài Logcat.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>Android 3.0 (API 11):</strong> thêm <code>NetworkOnMainThreadException</code>; exception này chỉ được ném cho app target API 11 trở lên.</li>
+  <li><strong>Android 5.0 (API 21):</strong> thêm <code>ConnectivityManager.NetworkCallback</code>, <code>NetworkCapabilities</code> và <code>NET_CAPABILITY_INTERNET</code>, mở đường cho việc theo dõi mạng bằng callback thay cho broadcast.</li>
+  <li><strong>Android 6.0 (API 23):</strong> thêm <code>NET_CAPABILITY_VALIDATED</code> và <code>getActiveNetwork()</code>.</li>
+  <li><strong>Android 7.0 (API 24):</strong> thêm <code>registerDefaultNetworkCallback()</code>; app target API 24+ không còn nhận <code>CONNECTIVITY_ACTION</code> qua receiver khai báo trong manifest; cấu hình mặc định của Network Security Config cho app target API 24+ không còn tin CA do người dùng cài.</li>
+  <li><strong>08/2018:</strong> IETF công bố TLS 1.3 (RFC 8446), rút handshake còn 1 RTT.</li>
+  <li><strong>Android 8.0 (API 26):</strong> <code>onAvailable()</code> luôn được theo sau ngay bởi <code>onCapabilitiesChanged()</code>, nên <code>NetworkMonitor</code> có thể đọc trạng thái <code>VALIDATED</code> từ <code>onCapabilitiesChanged()</code>; thêm <code>onUnavailable()</code>.</li>
+  <li><strong>Android 9 (API 28):</strong> <code>CONNECTIVITY_ACTION</code> bị deprecated; cleartext HTTP bị tắt mặc định với app target API 28+.</li>
+  <li><strong>Android 10 (API 29):</strong> TLS 1.3 được bật mặc định cho mọi kết nối TLS của nền tảng (không hỗ trợ chế độ 0-RTT).</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: vì sao việc IO như gọi mạng phải rời Main Thread, và Main Thread bị chặn thì gây ANR thế nào.</li>
+  <li><a href="overview.md" target="_blank" rel="noopener">Session 05 Overview</a>: vị trí của Networking sau Data Store và Thread trong luồng dữ liệu của app.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>: Flow của Room tự phát lại khi bảng đổi, cơ chế mà ví dụ offline-first dựa vào.</li>
+  <li><a href="data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>: Entity, DAO và database dùng làm Single Source of Truth.</li>
+  <li><a href="../session_04/components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>: cách cũ theo dõi mạng bằng <code>CONNECTIVITY_ACTION</code> và giới hạn của nó.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li>8.1.1 Retrofit (chưa có bài) và 8.1.2 Gson (chưa có bài): biến interface thành lời gọi HTTP và parse JSON thành DTO.</li>
+  <li><a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">8.1.3 OkHttp</a>: Connection Pool, Interceptor, <code>Authenticator</code>, <code>CertificatePinner</code>, HTTP Cache.</li>
+  <li><a href="../session_08/networks/okio.md" target="_blank" rel="noopener">8.1.4 Okio</a>: stream file lớn khi upload, báo tiến độ.</li>
+  <li><a href="../session_08/networks/ktor_apollo.md" target="_blank" rel="noopener">8.1.5 Ktor and Apollo Android</a>: HTTP client thuần Kotlin thay Retrofit.</li>
+  <li>7.1.4.2 Flow (chưa có bài) và 8.4.3 Coroutines (chưa có bài): <code>suspend</code>, <code>retryWhen</code>, <code>callbackFlow</code> dùng trong bài.</li>
+  <li>7.2.5 Clean Architecture (chưa có bài): kiến trúc tầng của ví dụ thực tế.</li>
+  <li><a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>: test <code>safeApiCall</code> và tầng mạng bằng MockWebServer.</li>
+</ul></li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
 
 <ol>
   <li><a href="https://developer.android.com/training/basics/network-ops/connecting" target="_blank" rel="noopener">Android Developers — Connect to the network</a></li>
@@ -42716,6 +43697,11 @@ class ProductViewModel(
   <li><a href="https://developer.android.com/reference/android/net/ConnectivityManager#registerDefaultNetworkCallback(android.net.ConnectivityManager.NetworkCallback" target="_blank" rel="noopener">Android Developers — ConnectivityManager.registerDefaultNetworkCallback</a>)</li>
   <li><a href="https://developer.android.com/topic/performance/background-optimization" target="_blank" rel="noopener">Android Developers — Background optimizations (CONNECTIVITY_ACTION)</a></li>
   <li><a href="https://kotlinlang.org/docs/cancellation-and-timeouts.html" target="_blank" rel="noopener">Kotlin — Cancellation and timeouts</a></li>
+  <li><a href="https://developer.android.com/reference/android/os/NetworkOnMainThreadException" target="_blank" rel="noopener">Android Developers — NetworkOnMainThreadException (API 11, chỉ ném cho app target Honeycomb trở lên)</a></li>
+  <li><a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback" target="_blank" rel="noopener">Android Developers — ConnectivityManager.NetworkCallback (API 21; onAvailable, onLost, onUnavailable)</a></li>
+  <li><a href="https://developer.android.com/reference/android/net/NetworkCapabilities" target="_blank" rel="noopener">Android Developers — NetworkCapabilities (NET_CAPABILITY_INTERNET API 21, NET_CAPABILITY_VALIDATED API 23)</a></li>
+  <li><a href="https://developer.android.com/reference/android/net/ConnectivityManager" target="_blank" rel="noopener">Android Developers — ConnectivityManager (getActiveNetwork API 23, CONNECTIVITY_ACTION deprecated API 28)</a></li>
+  <li><a href="https://developer.android.com/about/versions/10/behavior-changes-all" target="_blank" rel="noopener">Android Developers — Android 10 behavior changes: TLS 1.3 enabled by default</a></li>
 </ol>
     `
   },
@@ -42740,14 +43726,14 @@ class ProductViewModel(
       'Áp dụng được CertificatePinner và HTTP Cache của OkHttp đúng chỗ.'
     ],
     knowledgeGap: 'Nhiều người dùng OkHttp qua Retrofit mà không biết request đi qua những interceptor nào, tạo OkHttpClient mới ở mỗi repository, và để nhiều request cùng refresh token làm user bị đăng xuất oan.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '20 phút',
     content: `
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Bản nháp: phần dưới đây là kiến thức chuyển từ <a href="../../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, nơi nó từng được dạy trước. Phần còn thiếu của Topic (tạo <code>OkHttpClient</code>, <code>Request</code>/<code>Call</code>, <code>execute()</code> và <code>enqueue()</code>, timeout) sẽ viết khi làm Session 08.</div></div>
 
 <h2>Vấn đề cần giải quyết</h2>
 
-<p>Mỗi kết nối HTTPS mới tốn DNS lookup, TCP handshake và TLS handshake, cộng lại có thể tới vài trăm millisecond trước khi byte đầu tiên được gửi (xem <a href="../../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục 1.2). Ngoài việc gửi request, một app thật còn cần:</p>
+<p>Mỗi kết nối HTTPS mới tốn DNS lookup, TCP handshake và TLS handshake, cộng lại có thể tới vài trăm millisecond trước khi byte đầu tiên được gửi (xem <a href="../../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục "Chi phí thiết lập kết nối (Connection Overhead)"). Ngoài việc gửi request, một app thật còn cần:</p>
 
 <ul>
   <li>Tái sử dụng kết nối thay vì handshake lại cho mỗi request.</li>
@@ -43045,7 +44031,7 @@ class TokenAuthenticator(
 
 <h3>Ghim chứng chỉ bằng CertificatePinner</h3>
 
-<p>Khái niệm Certificate Pinning, các mặc định bảo mật của Android và cách ghim bằng Network Security Config nằm ở <a href="../../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục 5. Đây là cách ghim bằng code của OkHttp:</p>
+<p>Khái niệm Certificate Pinning, các mặc định bảo mật của Android và cách ghim bằng Network Security Config nằm ở <a href="../../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục "Bảo mật cao cấp: SSL / Certificate Pinning &amp; Phòng thủ MITM". Đây là cách ghim bằng code của OkHttp:</p>
 
 <pre data-lang="kotlin"><code>import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
@@ -43066,7 +44052,7 @@ fun createSecureOkHttpClient(): OkHttpClient {
 
 <h3>HTTP Cache và OfflineCacheInterceptor</h3>
 
-<p>Khi nào dùng HTTP Cache, khi nào dùng Room: xem bảng so sánh ở <a href="../../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục 7.</p>
+<p>Khi nào dùng HTTP Cache, khi nào dùng Room: xem bảng so sánh ở <a href="../../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục "Chiến lược Caching: HTTP Cache (OkHttp) vs Local Database (Room)".</p>
 
 <p>Nếu backend hỗ trợ các header <code>Cache-Control</code>, OkHttp có thể tự động trả về dữ liệu mà không cần gọi mạng:</p>
 
@@ -43170,7 +44156,7 @@ fun createCachedOkHttpClient(cacheDir: File, isNetworkConnected: () -&gt; Boolea
 <p><strong>Giải pháp:</strong></p>
 
 <ul>
-  <li>Luôn có pin dự phòng (backup pin), như cảnh báo ở <a href="../../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục 5.</li>
+  <li>Luôn có pin dự phòng (backup pin), như cảnh báo ở <a href="../../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục "Triển khai qua Network Security Config (Chuẩn Declarative của Android)".</li>
 </ul>
 
 <h2>Lịch sử phát triển</h2>
@@ -43680,7 +44666,7 @@ interface TokenStorage {
       'Triển khai được test cho safeApiCall với cả trường hợp thành công và lỗi server.'
     ],
     knowledgeGap: 'Nhiều người mock thẳng interface Retrofit nên test luôn xanh nhưng không phát hiện lỗi parse JSON, mã lỗi HTTP hay interceptor.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '10 phút',
     content: `
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Bản nháp: phần dưới đây là kiến thức chuyển từ <a href="../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, nơi nó từng được dạy trước. Phần còn thiếu của Topic (JUnit, test ViewModel và coroutine, fake và mock, test các tầng khác) sẽ viết khi làm Session 10.</div></div>
@@ -43742,7 +44728,7 @@ sequenceDiagram
 
 <h2>Ví dụ thực tế: test safeApiCall với MockWebServer</h2>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>safeApiCall</code>, <code>NetworkResult</code> và <code>ProductApiService</code> ở <a href="../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục 3 và 8; Retrofit ở mục 8.1.1 Retrofit (chưa có bài).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>safeApiCall</code>, <code>NetworkResult</code> và <code>ProductApiService</code> ở <a href="../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục "Chuẩn hóa Error Handling &amp; Result Pattern trong Clean Architecture" và mục "Ví dụ thực tế"; Retrofit ở mục 8.1.1 Retrofit (chưa có bài).</div></div>
 
 <pre data-lang="kotlin"><code>import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient

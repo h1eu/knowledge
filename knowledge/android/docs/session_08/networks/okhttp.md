@@ -26,7 +26,7 @@ knowledge_gap: >
 
 ## Vấn đề cần giải quyết
 
-Mỗi kết nối HTTPS mới tốn DNS lookup, TCP handshake và TLS handshake, cộng lại có thể tới vài trăm millisecond trước khi byte đầu tiên được gửi (xem [5.3 Networking](../../session_05/networking.md), mục 1.2). Ngoài việc gửi request, một app thật còn cần:
+Mỗi kết nối HTTPS mới tốn DNS lookup, TCP handshake và TLS handshake, cộng lại có thể tới vài trăm millisecond trước khi byte đầu tiên được gửi (xem [5.3 Networking](../../session_05/networking.md), mục "Chi phí thiết lập kết nối (Connection Overhead)"). Ngoài việc gửi request, một app thật còn cần:
 
 - Tái sử dụng kết nối thay vì handshake lại cho mỗi request.
 - Gắn header chung (token, request ID, phiên bản app) cho mọi request mà không lặp code.
@@ -308,7 +308,7 @@ class TokenAuthenticator(
 
 ### Ghim chứng chỉ bằng CertificatePinner
 
-Khái niệm Certificate Pinning, các mặc định bảo mật của Android và cách ghim bằng Network Security Config nằm ở [5.3 Networking](../../session_05/networking.md), mục 5. Đây là cách ghim bằng code của OkHttp:
+Khái niệm Certificate Pinning, các mặc định bảo mật của Android và cách ghim bằng Network Security Config nằm ở [5.3 Networking](../../session_05/networking.md), mục "Bảo mật cao cấp: SSL / Certificate Pinning & Phòng thủ MITM". Đây là cách ghim bằng code của OkHttp:
 
 ```kotlin
 import okhttp3.CertificatePinner
@@ -331,7 +331,7 @@ fun createSecureOkHttpClient(): OkHttpClient {
 
 ### HTTP Cache và OfflineCacheInterceptor
 
-Khi nào dùng HTTP Cache, khi nào dùng Room: xem bảng so sánh ở [5.3 Networking](../../session_05/networking.md), mục 7.
+Khi nào dùng HTTP Cache, khi nào dùng Room: xem bảng so sánh ở [5.3 Networking](../../session_05/networking.md), mục "Chiến lược Caching: HTTP Cache (OkHttp) vs Local Database (Room)".
 
 Nếu backend hỗ trợ các header `Cache-Control`, OkHttp có thể tự động trả về dữ liệu mà không cần gọi mạng:
 
@@ -405,7 +405,7 @@ fun createCachedOkHttpClient(cacheDir: File, isNetworkConnected: () -> Boolean):
 - Server đổi chứng chỉ, toàn bộ user không gọi được API cho tới khi cập nhật app.
 
 **Giải pháp:**
-- Luôn có pin dự phòng (backup pin), như cảnh báo ở [5.3 Networking](../../session_05/networking.md), mục 5.
+- Luôn có pin dự phòng (backup pin), như cảnh báo ở [5.3 Networking](../../session_05/networking.md), mục "Triển khai qua Network Security Config (Chuẩn Declarative của Android)".
 
 ## Lịch sử phát triển
 

@@ -114,20 +114,42 @@ ${tr}
 </table>`;
 }
 
-// Danh sách lồng nhau theo thụt lề; dòng tiếp nối (thụt lề, không phải bullet) nối vào item trước.
+// Danh sách lồng nhau theo thụt lề. Trong một item: dòng tiếp nối (thụt lề, không phải bullet) nối vào
+// đoạn đang viết; sau dòng trống thì mở đoạn mới; khối ``` thụt lề là code block thuộc item đó.
 function list(lines) {
   const items = [];
+  let fence = null; // { indent, lang, code[] } khi đang ở trong code block của item
+  let gap = false;  // vừa gặp dòng trống ngoài code block
   for (const line of lines) {
+    const item = items[items.length - 1];
+    if (fence) {
+      if (/^\s*```\s*$/.test(line)) {
+        item.parts.push({ code: fence.code.join('\n'), lang: fence.lang });
+        fence = null;
+      } else fence.code.push(line.slice(Math.min(fence.indent, line.length - line.trimStart().length)));
+      continue;
+    }
+    if (line.trim() === '') { gap = true; continue; }
+    const open = item && line.match(/^(\s+)```(.*)$/);
+    if (open) { fence = { indent: open[1].length, lang: open[2].trim() || 'text', code: [] }; gap = false; continue; }
     const m = line.match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
-    if (m) items.push({ indent: m[1].length, ordered: /\d/.test(m[2]), text: m[3] });
-    else items[items.length - 1].text += ' ' + line.trim();
+    if (m) items.push({ indent: m[1].length, ordered: /\d/.test(m[2]), parts: [{ text: m[3] }] });
+    else {
+      const last = item.parts[item.parts.length - 1];
+      if (!gap && last.text !== undefined) last.text += ' ' + line.trim();
+      else item.parts.push({ text: line.trim() });
+    }
+    gap = false;
   }
+  const body = (parts) => parts.map((p, k) => p.code !== undefined
+    ? `\n<pre data-lang="${p.lang}"><code>${esc(p.code)}</code></pre>`
+    : k === 0 ? inline(p.text) : `\n<p>${inline(p.text)}</p>`).join('');
   function build(start, indent) {
     const tag = items[start].ordered ? 'ol' : 'ul';
     let html = `<${tag}>\n`;
     let i = start;
     while (i < items.length && items[i].indent >= indent) {
-      let li = `  <li>${inline(items[i].text)}`;
+      let li = `  <li>${body(items[i].parts)}`;
       i++;
       if (i < items.length && items[i].indent > indent) {
         const [sub, next] = build(i, items[i].indent);
@@ -193,7 +215,7 @@ ${svgOf(`${slug}.html`)}
       continue;
     }
     if (/^#\s/.test(line) || /^---\s*$/.test(line) || /^<!--.*-->\s*$/.test(line) || line.trim() === '') { i++; continue; }
-    const h = line.match(/^(#{2,4})\s+(.*)$/);
+    const h = line.match(/^(#{2,6})\s+(.*)$/);
     if (h) { out.push(`<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`); i++; continue; }
     if (/^\|/.test(line)) {
       const rows = [];
@@ -219,12 +241,30 @@ ${svgOf(`${slug}.html`)}
     }
     if (/^\s*([-*]|\d+\.)\s+/.test(line)) {
       const block = [];
-      while (i < lines.length && lines[i].trim() !== '' && (/^\s*([-*]|\d+\.)\s+/.test(lines[i]) || /^\s+\S/.test(lines[i]))) block.push(lines[i++]);
+      let inFence = false;
+      while (i < lines.length) {
+        const l = lines[i];
+        if (inFence) { block.push(l); if (/^\s*```\s*$/.test(l)) inFence = false; i++; continue; }
+        if (l.trim() === '') {
+          // Dòng trống chỉ thuộc list khi dòng có nội dung kế tiếp còn thụt lề (phần của item) hoặc là item mới
+          let j = i + 1;
+          while (j < lines.length && lines[j].trim() === '') j++;
+          const sameKind = (a, b) => /^\s*\d+\./.test(a) === /^\s*\d+\./.test(b);
+          if (j < lines.length && (/^\s+\S/.test(lines[j]) || (/^([-*]|\d+\.)\s+/.test(lines[j]) && sameKind(lines[j], block[0])))) { block.push(l); i++; continue; }
+          break;
+        }
+        if (!(/^\s*([-*]|\d+\.)\s+/.test(l) || /^\s+\S/.test(l))) break;
+        if (/^\s+```/.test(l)) inFence = true;
+        block.push(l);
+        i++;
+      }
       out.push(list(block));
       continue;
     }
     const para = [];
     while (i < lines.length && lines[i].trim() !== '' && !/^(```|#|\||>|\s*([-*]|\d+\.)\s)/.test(lines[i])) para.push(lines[i++].trim());
+    // Dòng không thuộc nhánh nào ở trên (vd "#hashtag") vẫn phải được tiêu thụ, nếu không vòng lặp không tiến
+    if (!para.length) para.push(lines[i++].trim());
     out.push(`<p>${inline(para.join(' '))}</p>`);
   }
   return out.join('\n\n');

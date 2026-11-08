@@ -1024,7 +1024,7 @@ Với targetSdk 31+, thiếu `exported` trên component có `<intent-filter>` l�
   - [Android Service](../services/android_service.md): WorkManager (mục "WorkManager — Lựa chọn hiện đại cho background task") nhận việc mà receiver giao, và Foreground Service (mục "Foreground Service — Phát nhạc nền") khi cần chạy nền nhưng user cần biết (music player, location tracking).
 - **Học tiếp:**
   - [Content Provider](../content_provider.md): Application Component tiếp theo trong mục 4.2.
-  - [Networking](../../../session_05/networking.md), mục "6. Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager & NetworkCallback": API hiện đại hơn để theo dõi mạng.
+  - [Networking](../../../session_05/networking.md), mục "Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager & NetworkCallback": API hiện đại hơn để theo dõi mạng.
   - 7.1.4.2 Flow (chưa có bài): `SharedFlow`/`StateFlow` thay cho broadcast nội bộ.
   - 7.1.5.3 Hilt (chưa có bài), 7.2.4 MVI và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà phần "Ví dụ thực tế" dựa vào.
   - [Unit Testing](../../../coding_analyst_and_testing/unit_testing.md): nền cho test Robolectric và test ViewModel với fake.

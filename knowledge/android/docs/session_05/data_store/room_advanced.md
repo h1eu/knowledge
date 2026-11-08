@@ -1,7 +1,7 @@
 ---
 id: android.data_store.room_advanced
 title: Advanced Room (Migration & Indexing)
-summary: Chuyên sâu về Room Database nâng cao. Cơ chế Identity Hash (room_master_table) và kiểm tra schema sau migration, chiến lược Manual Migration theo Table Recreation Pattern, AutoMigration với AutoMigrationSpec, giải quyết các ca khó (tách bảng, đổi kiểu dữ liệu, bảng triệu dòng), cấu trúc B-Tree Indexing, Composite Index Leftmost Prefix, EXPLAIN QUERY PLAN và kiểm thử migration với MigrationTestHelper.
+summary: Migration trong Room là đoạn chuyển schema và dữ liệu của database trên máy người dùng từ version cũ sang version mới mà giữ nguyên dữ liệu, sau đó Room kiểm tra schema thực tế với @Entity; Index là một B-Tree riêng sắp theo giá trị cột, giúp tìm hàng với O(log N) thay vì quét toàn bảng, đổi lại làm chậm thao tác ghi. Bài giải thích Identity Hash (room_master_table) và bước kiểm tra schema sau migration, AutoMigration với AutoMigrationSpec, Manual Migration theo Table Recreation Pattern cho các ca khó (bảng triệu dòng, đổi kiểu dữ liệu, tách bảng), Composite Index theo Leftmost Prefix, EXPLAIN QUERY PLAN và kiểm thử migration với MigrationTestHelper.
 status: published
 difficulty: advanced
 depth: deep-dive
@@ -30,21 +30,39 @@ knowledge_gap: Nhiều lập trình viên lạm dụng fallbackToDestructiveMigr
 
 # Advanced Room: Migration Toàn Diện & Indexing Hiệu Năng Cao
 
+## Vấn đề cần giải quyết
+
 Trong các ứng dụng Android thực tế ở quy mô Production, cơ sở dữ liệu không bao giờ đứng yên. Yêu cầu nghiệp vụ liên tục thay đổi buộc cấu trúc bảng phải tiến hóa: thêm cột, đổi kiểu dữ liệu, tách bảng quan hệ. Đồng thời, khi lượng dữ liệu tích lũy lên hàng trăm ngàn hay hàng triệu bản ghi, các câu truy vấn ngây thơ sẽ khiến ứng dụng bị giật lag, đơ giao diện (ANR) hoặc tiêu tốn bộ nhớ.
 
 Tài liệu này tập trung giải quyết triệt để hai bài toán sống còn của tầng Database trong Android:
+
 1. **Migration (Bảo toàn dữ liệu):** Nâng cấp lược đồ cơ sở dữ liệu an toàn 100%, không làm mất một dòng dữ liệu nào của người dùng và không làm crash ứng dụng.
 2. **Indexing (Tối ưu hiệu năng):** Làm chủ cấu trúc B-Tree bên dưới SQLite, thiết kế Composite Index theo quy tắc tiền tố và đo lường truy vấn chính xác bằng `EXPLAIN QUERY PLAN`.
 
----
+## Sau khi học xong
 
-## 1. Bản chất & Cơ chế xác thực tính toàn vẹn (Room Internals)
+- Giải thích được vai trò của room_master_table, Identity Hash và bước kiểm tra schema sau migration khi mở Room Database.
+- Triển khai được Migration an toàn với AutoMigration, AutoMigrationSpec và Manual Migration theo Table Recreation Pattern.
+- Xử lý được các ca migration khó - thêm cột NOT NULL vào bảng triệu dòng, đổi kiểu dữ liệu, tách bảng quan hệ 1-N và skip-version migration.
+- Áp dụng được cấu trúc B-Tree và quy tắc Leftmost Prefix để thiết kế Composite Index đúng.
+- Debug được hiệu năng truy vấn bằng EXPLAIN QUERY PLAN và viết được test tự động cho Migration với MigrationTestHelper.
+
+## Migration và Index trong Room là gì?
+
+**Migration** trong Room là đoạn chuyển schema và dữ liệu của database đang nằm trên máy người dùng từ `version` cũ sang `version` mới mà giữ nguyên dữ liệu (SQL viết tay trong `Migration(from, to)`, hoặc do Room sinh ra qua `AutoMigration`); chạy xong, Room so schema thực tế với `@Entity` và dừng lại nếu lệch. **Index** là một B-Tree riêng mà SQLite lưu cạnh bảng, sắp theo giá trị của một hay nhiều cột và trỏ về `ROWID` của từng hàng, giúp tìm hàng với $O(\log N)$ thay vì quét toàn bảng, đổi lại mỗi thao tác ghi phải cập nhật thêm cây đó.
+
+Mental model: database trên máy người dùng là **một cuốn sổ đang ghi dở**. Migration là chép sổ sang mẫu kẻ mới (thêm cột, đổi cách ghi) mà không được làm mất trang nào, rồi Room soát lại mẫu mới có đúng bản thiết kế (`@Entity`) không trước khi cho dùng. Index là **bảng tra theo vần ở cuối sổ**: tra nhanh, nhưng mỗi dòng ghi thêm vào sổ cũng phải ghi thêm vào bảng tra.
+
+## Cách hoạt động
+
+### Bản chất & Cơ chế xác thực tính toàn vẹn (Room Internals)
 
 Để viết migration chuẩn xác và tự tin trả lời phỏng vấn Senior, bạn cần hiểu chính xác Room làm gì khi khởi tạo kết nối cơ sở dữ liệu.
 
-### Bảng bí mật `room_master_table` & `identity_hash`
+#### Bảng bí mật `room_master_table` & `identity_hash`
 
 Khi bạn khai báo `@Database(entities = [UserEntity::class], version = 2)`, Room Compiler (KSP) thực hiện các bước sau tại thời điểm build:
+
 1. Thu thập toàn bộ định nghĩa bảng: tên bảng, tên cột, kiểu dữ liệu, ràng buộc `NOT NULL`, Primary Key, Foreign Key, Indices.
 2. Tạo ra một chuỗi đại diện (Schema Definition String) và tính toán mã băm **Identity Hash** (chuỗi MD5/SHA-256).
 3. Nhúng mã băm này trực tiếp vào mã nguồn sinh tự động `AppDatabase_Impl.kt`.
@@ -103,8 +121,6 @@ Expected identity hash: 8f3d4... Found: a1b2c...
 > [!IMPORTANT]
 > **Bản chất của hai lỗi trên:** Không phải Room bị lỗi. Hoặc migration bạn viết đã tạo ra cấu trúc bảng khác với định nghĩa `@Entity` (lỗi `Migration didn't properly handle`), hoặc schema trong code đã đổi mà `version` chưa tăng (lỗi `Room cannot verify the data integrity`). Trong cả hai trường hợp Room chủ động dừng để ngăn hỏng dữ liệu âm thầm (silent data corruption).
 
----
-
 ### Cảnh báo về `fallbackToDestructiveMigration()`
 
 Có một lỗi thứ ba, xảy ra trước cả hai lỗi trên: tăng `version` (ví dụ lên 2) nhưng không đăng ký migration nào dẫn từ version đang có trên máy. Room không tìm được đường nâng cấp và ném ngay khi mở database, nên app crash ở lần mở đầu tiên sau khi cập nhật:
@@ -119,41 +135,49 @@ Khi gặp lỗi integrity hoặc quên viết migration, nhiều lập trình vi
 ```kotlin
 // ⚠️ NGUY HIỂM CHÍ MẠNG TRÊN PRODUCTION!
 Room.databaseBuilder(context, AppDatabase::class.java, "app.db")
-    .fallbackToDestructiveMigration()
+    .fallbackToDestructiveMigration(dropAllTables = true)
     .build()
 ```
 
+> [!NOTE]
+> Từ Room 2.7.0, `fallbackToDestructiveMigration()` và `fallbackToDestructiveMigrationFrom(vararg)` không có tham số `dropAllTables` bị deprecated. `dropAllTables = true` xoá cả các bảng không do Room quản lý (giá trị tài liệu khuyên dùng, để không sót dữ liệu cũ khi tên hoặc sự tồn tại của bảng đổi giữa các version); `false` giữ hành vi của bản cũ, chỉ xoá các bảng Room quản lý.
+
 #### Cơ chế hoạt động của Destructive Migration
+
 Khi Room phát hiện phiên bản database tăng lên nhưng không tìm thấy kịch bản `Migration` phù hợp:
-1. Room chạy lệnh `DROP TABLE` cho **TOÀN BỘ** các bảng trong cơ sở dữ liệu.
+
+1. Room chạy lệnh `DROP TABLE` cho **TOÀN BỘ** các bảng Room quản lý (với `dropAllTables = true` thì cả các bảng không do Room quản lý). Nếu database được tạo từ asset hoặc file, Room dựng lại từ chính file đó.
 2. Tạo lại các bảng mới từ đầu (trắng trơn).
 3. Đặt lại `identity_hash` mới.
 
 #### Hậu quả trên Production
+
 Toàn bộ dữ liệu của người dùng lưu trữ offline (ghi chú, tin nhắn chưa đồng bộ, lịch sử giao dịch, token định danh, cài đặt cá nhân) bị **XÓA SẠCH VĨNH VIỄN**.
 
 #### Khi nào được phép dùng?
+
 - **App thuần Cache:** 100% dữ liệu có thể tải lại từ Server ngay khi người dùng mở mạng (ví dụ: Feed mạng xã hội chỉ lưu tạm).
 - **Môi trường Debug / Develop nội bộ:** Tiết kiệm thời gian khi đang trong giai đoạn thiết kế tính năng mới.
 
-#### Giải pháp kiểm soát an toàn:
+#### Ví dụ: chỉ xoá dữ liệu của các bản Beta nội bộ
+
 Nếu buộc phải xóa sạch một số phiên bản thử nghiệm cũ mà vẫn bảo vệ phiên bản chính thức:
+
 ```kotlin
 // Chỉ xóa dữ liệu nếu người dùng nâng cấp từ version 1 hoặc 2 (bản Beta nội bộ).
 // Từ version 3 trở đi, bắt buộc phải chạy Migration an toàn!
 Room.databaseBuilder(context, AppDatabase::class.java, "app.db")
-    .fallbackToDestructiveMigrationFrom(1, 2)
+    .fallbackToDestructiveMigrationFrom(dropAllTables = true, 1, 2)
     .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
     .build()
 ```
-
----
 
 ### Kịch bản "Nhảy cóc phiên bản" (Skip-Version Migrations)
 
 Một vấn đề phổ biến ở môi trường thực tế: Người dùng cài App Version 1.0 (Database Version 1). Họ không cập nhật app trong 6 tháng. Khi họ tải bản cập nhật mới nhất, Database Version trong app đã là 4.
 
 Room sẽ xử lý thế nào nếu bạn đã đăng ký:
+
 - `MIGRATION_1_2`
 - `MIGRATION_2_3`
 - `MIGRATION_3_4`
@@ -176,23 +200,21 @@ graph LR
 > **Best Practice cho Skip-Version:**
 > Thông thường, bạn chỉ cần duy trì các Migration tuần tự (`1->2`, `2->3`, `3->4`). Chỉ viết migration trực tiếp (`1->4`) khi kịch bản tuần tự tốn quá nhiều thời gian xử lý dữ liệu nặng (I/O) gây chậm trễ cho lần mở app đầu tiên của người dùng cũ.
 
----
-
-## 2. AutoMigration vs Manual Migration Thực Chiến
+### AutoMigration vs Manual Migration Thực Chiến
 
 Từ phiên bản Room 2.4.0+, Google bổ sung tính năng **AutoMigration** nhằm giảm bớt boilerplate cho các thay đổi đơn giản. Tuy nhiên, lập trình viên cần nắm vững ranh giới giữa AutoMigration và Manual Migration.
 
-> **Chuỗi schema dùng xuyên suốt các ví dụ migration trong bài** (mỗi bước chỉ đăng ký một cách: hoặc `autoMigrations`, hoặc `addMigrations`; nếu đăng ký cả hai cho cùng một bước, Room dùng migration viết tay):
->
-> | Version | Thay đổi | Cách thực hiện |
-> | :--- | :--- | :--- |
-> | v1 | `users(id, name, email UNIQUE, phone, fax, company_name, company_tax_code)`; `orders(id, user_id, status, amount, created_at INTEGER)` | — |
-> | v2 | `users` thêm `is_verified INTEGER NOT NULL DEFAULT 0` | `AutoMigration(1, 2)` hoặc `MIGRATION_1_2` viết tay (Case Study 1) |
-> | v3 | `users` đổi `phone` → `phone_number`, xoá `fax` | `AutoMigration(2, 3)` + `MigrationSpec2To3` |
-> | v4 | `orders.created_at` từ `INTEGER` sang `TEXT` ISO-8601 | `MIGRATION_3_4` (Case Study 2) |
-> | v5 | Tách thông tin công ty khỏi `users` sang bảng `companies` | `MIGRATION_4_5` (Case Study 3) |
+**Chuỗi schema dùng xuyên suốt các ví dụ migration trong bài** (mỗi bước chỉ đăng ký một cách: hoặc `autoMigrations`, hoặc `addMigrations`; nếu đăng ký cả hai cho cùng một bước, Room dùng migration viết tay):
 
-### Cấu hình Gradle bắt buộc cho AutoMigration
+| Version | Thay đổi | Cách thực hiện |
+| :--- | :--- | :--- |
+| v1 | `users(id, name, email UNIQUE, phone, fax, company_name, company_tax_code)`; `orders(id, user_id, status, amount, created_at INTEGER)` | — |
+| v2 | `users` thêm `is_verified INTEGER NOT NULL DEFAULT 0` | `AutoMigration(1, 2)` hoặc `MIGRATION_1_2` viết tay (Case Study 1) |
+| v3 | `users` đổi `phone` → `phone_number`, xoá `fax` | `AutoMigration(2, 3)` + `MigrationSpec2To3` |
+| v4 | `orders.created_at` từ `INTEGER` sang `TEXT` ISO-8601 | `MIGRATION_3_4` (Case Study 2) |
+| v5 | Tách thông tin công ty khỏi `users` sang bảng `companies` | `MIGRATION_4_5` (Case Study 3) |
+
+#### Cấu hình Gradle bắt buộc cho AutoMigration
 
 AutoMigration phụ thuộc vào việc so sánh các file Schema JSON qua từng phiên bản. Bạn phải cấu hình KSP để xuất Schema:
 
@@ -216,9 +238,10 @@ android {
 
 Mỗi khi bạn tăng `version` trong `@Database` và compile, Room sẽ tự động sinh ra file `schemas/com.example.app.AppDatabase/1.json`, `2.json`.
 
----
+> [!NOTE]
+> Từ Room 2.6.0 có thêm Room Gradle Plugin (id `androidx.room`), khai báo thư mục schema bằng `room { schemaDirectory("$projectDir/schemas") }` thay cho tham số KSP ở trên. Tài liệu của `MigrationTestHelper` hiện khuyên cấu hình schema qua plugin này.
 
-### Sử dụng AutoMigration khi thay đổi cấu trúc cơ bản
+#### Sử dụng AutoMigration khi thay đổi cấu trúc cơ bản
 
 Nếu bạn chỉ **thêm cột mới** hoặc **thêm bảng mới**, Room tự động so sánh `1.json` và `2.json` để sinh mã SQL tương ứng mà bạn không cần viết bất kỳ câu lệnh SQL nào:
 
@@ -236,9 +259,26 @@ abstract class AppDatabase : RoomDatabase() {
 }
 ```
 
----
+#### Ví dụ: thêm cột `NOT NULL` vào bảng có hàng triệu dòng (Case Study 1)
 
-### Khi nào bắt buộc dùng `AutoMigrationSpec`?
+**Tình huống:** Bảng `users` đang có 1 triệu bản ghi. Version 2 yêu cầu thêm cột `is_verified: Boolean` (không được null, mặc định là false `0`). Đây là bước v1 → v2 ở trên, viết tay thay cho `AutoMigration(1, 2)`.
+
+**Giải pháp an toàn:**
+
+```kotlin
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Với SQLite, khi thêm cột NOT NULL vào bảng đã có dữ liệu,
+        // BẮT BUỘC phải cung cấp giá trị DEFAULT.
+        // Boolean trong SQLite được lưu trữ dưới dạng INTEGER (0 hoặc 1).
+        db.execSQL("ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL DEFAULT 0")
+    }
+}
+```
+
+**Kết quả:** mọi dòng cũ nhận `is_verified = 0`, và vì `DEFAULT 0` khớp `defaultValue = "0"` trong `UserEntity`, bước kiểm tra schema sau migration không báo lệch. Quên `DEFAULT` là lỗi ở mục "Sai lầm thường gặp".
+
+#### Khi nào bắt buộc dùng `AutoMigrationSpec`?
 
 Khi bạn **đổi tên cột**, **xóa cột**, **đổi tên bảng**, hoặc **xóa bảng**, Room Compiler không thể tự đoán biết được: bạn muốn đổi tên cột cũ sang cột mới hay muốn xóa cột cũ đi và thêm một cột hoàn toàn mới?
 
@@ -268,9 +308,7 @@ class MigrationSpec2To3 : AutoMigrationSpec {
 abstract class AppDatabase : RoomDatabase() { ... }
 ```
 
----
-
-### Bảng so sánh lựa chọn: AutoMigration vs Manual Migration
+#### Bảng so sánh lựa chọn: AutoMigration vs Manual Migration
 
 | Nghiệp vụ thay đổi | Phương pháp đề xuất | Lý do kỹ thuật |
 | :--- | :--- | :--- |
@@ -281,19 +319,19 @@ abstract class AppDatabase : RoomDatabase() { ... }
 | **Tách 1 bảng thành 2 bảng quan hệ** | **Manual Migration** | Cần truy vấn INSERT chọn lọc dữ liệu từ bảng cũ sang bảng mới. |
 | **Thay đổi Primary Key / Ràng buộc Foreign Key** | **Manual Migration** | SQLite không hỗ trợ sửa PK trực tiếp qua `ALTER TABLE`. |
 
----
+### Các Ca Migration Khó: Dựng Lại Bảng 5 Bước (Table Recreation Pattern)
 
-## 3. Các Ca Migration Khó: Dựng Lại Bảng 5 Bước (Table Recreation Pattern)
+#### Hạn chế lịch sử của SQLite
 
-### Hạn chế lịch sử của SQLite
 Trước phiên bản SQLite 3.35.0, SQLite **không hỗ trợ** cú pháp `ALTER TABLE DROP COLUMN`; đến nay SQLite vẫn không hỗ trợ đổi kiểu dữ liệu của cột hay thay đổi khóa chính (Primary Key) bằng `ALTER TABLE`. Theo bảng phiên bản của Android, API 31–33 (Android 12–13) đi kèm SQLite 3.32, API 34 (Android 14) mới lên 3.39; `RENAME COLUMN` (SQLite 3.25) chỉ có từ API 30 (Android 11, SQLite 3.28). Nhà sản xuất có thể đóng gói phiên bản khác, nên kiểm tra bằng `select sqlite_version()` khi cần.
 
 Nếu ứng dụng của bạn hỗ trợ các thiết bị từ Android 7 đến Android 13, bất kỳ nỗ lực chạy lệnh `ALTER TABLE DROP COLUMN` bằng SQL thuần đều sẽ ném ngoại lệ:
+
 ```text
 android.database.sqlite.SQLiteException: near "DROP": syntax error
 ```
 
-### Quy trình 5 bước dựng lại bảng
+#### Quy trình 5 bước dựng lại bảng
 
 Để giải quyết các bài toán nâng cấp mà `ALTER TABLE` không làm được (đổi kiểu cột, đổi khoá chính, xoá cột trên SQLite cũ), ta dựng lại bảng theo **Table Recreation Pattern**. Đây là bản rút gọn của quy trình 12 bước trong tài liệu SQLite (mục "Making Other Kinds Of Table Schema Changes"), gồm 5 bước. Bước 5 hay bị quên nhất: `DROP TABLE` xoá luôn các index của bảng cũ, thiếu một index đã khai báo trong `@Entity` là bước kiểm tra schema sau migration báo `Migration didn't properly handle`.
 
@@ -308,43 +346,329 @@ flowchart TD
     Step1 --> Step2 --> Step3 --> Step4 --> Step5
 ```
 
----
+Case Study 2 (đổi kiểu dữ liệu) và Case Study 3 (tách bảng) ở mục "Ví dụ thực tế" áp dụng đúng quy trình này.
 
-### Case Study 1: Thêm cột `NOT NULL` vào bảng có hàng triệu dòng
+### Indexing, B-Tree & Tối Ưu Hóa Truy Vấn CSDL Lớn
 
-#### Tình huống
-Bảng `users` đang có 1 triệu bản ghi. Version 2 yêu cầu thêm cột `is_verified: Boolean` (không được null, mặc định là false `0`).
+Khi ứng dụng quản lý tập dữ liệu lớn, hiệu năng đọc là tiêu chí sống còn. Hiểu rõ cấu trúc Index sẽ giúp bạn tránh các quyết định tối ưu hóa sai lầm.
 
-#### Giải pháp an toàn
+#### Bản chất của Index bên dưới đĩa cứng: Cấu trúc B-Tree
+
+Trong SQLite, bảng dữ liệu mặc định được tổ chức dưới dạng **B-Tree bảng (Table B-Tree)** được đánh địa chỉ bằng một số nguyên 64-bit gọi là `ROWID`.
+
+- Khi bạn chạy câu truy vấn: `SELECT * FROM users WHERE email = 'hazu@example.com'`
+- Nếu cột `email` **chưa được đánh Index**, SQLite buộc phải thực hiện **Full Table Scan**: Đọc tuần tự từng trang đĩa từ đầu đến cuối bảng, so sánh từng chuỗi ký tự. Độ phức tạp là $O(N)$. Với bảng 500.000 dòng, thao tác này có thể mất từ 200ms - 1500ms, gây freeze UI ngay tức khắc!
+
+Khi bạn đánh Index cho cột `email`:
 
 ```kotlin
-val MIGRATION_1_2 = object : Migration(1, 2) {
-    override fun migrate(db: SupportSQLiteDatabase) {
-        // Với SQLite, khi thêm cột NOT NULL vào bảng đã có dữ liệu,
-        // BẮT BUỘC phải cung cấp giá trị DEFAULT.
-        // Boolean trong SQLite được lưu trữ dưới dạng INTEGER (0 hoặc 1).
-        db.execSQL("ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL DEFAULT 0")
+@Entity(
+    tableName = "users",
+    indices = [Index(value = ["email"], unique = true)]
+)
+data class UserEntity(
+    @PrimaryKey val id: String,
+    val name: String,
+    val email: String
+)
+```
+
+SQLite sẽ cấp phát một **Index B-Tree** riêng biệt trên đĩa cứng:
+
+```mermaid
+graph TD
+    subgraph "Index B-Tree (Sắp xếp theo email)"
+        Root["Node Gốc: ['m@...']"]
+        Leaf1["Leaf Node A-L: ['a@...', 'hazu@example.com'] -> ROWID #402"]
+        Leaf2["Leaf Node M-Z: ['n@...', 'z@...'] -> ROWID #981"]
+        Root --> Leaf1
+        Root --> Leaf2
+    end
+
+    subgraph "Main Table (Lưu trên Disk)"
+        Row402["ROWID #402: {id: 'u_1', name: 'Nguyen Van A', email: 'hazu@example.com'}"]
+        Row981["ROWID #981: {id: 'u_2', name: 'Tran Thi B', email: 'z@example.com'}"]
+    end
+
+    Leaf1 -.->|Truy xuất trực tiếp qua ROWID| Row402
+    Leaf2 -.->|Truy xuất trực tiếp qua ROWID| Row981
+```
+
+Quá trình tìm kiếm chỉ tốn $O(\log N)$ bước duyệt cây để tìm thấy `ROWID`, sau đó nhảy thẳng đến vị trí bản ghi trên đĩa. Tốc độ tìm kiếm tăng từ hàng giây xuống còn **dưới 2 mili-giây**!
+
+#### Composite Index & Quy tắc "Leftmost Prefix" (Tiền tố bên trái)
+
+Trong thực tế, bạn thường xuyên phải lọc theo nhiều điều kiện đồng thời, ví dụ màn hình danh sách đơn hàng:
+`SELECT * FROM orders WHERE user_id = :userId AND status = :status ORDER BY created_at DESC`
+
+Nếu bạn đánh 3 Index đơn lẻ (`user_id`, `status`, `created_at`), SQLite chỉ có thể chọn **1 Index duy nhất** tốt nhất để duyệt, hai cột còn lại vẫn phải lọc thủ công trong bộ nhớ.
+
+Giải pháp là **Composite Index (Chỉ mục kết hợp nhiều cột)**:
+
+```kotlin
+@Entity(
+    tableName = "orders",
+    indices = [
+        Index(value = ["user_id", "status", "created_at"])
+    ]
+)
+data class OrderEntity(...)
+```
+
+##### Quy tắc vàng: "Leftmost Prefix"
+
+Thứ tự khai báo các cột trong `value = ["colA", "colB", "colC"]` mang tính quyết định:
+
+| Câu lệnh truy vấn | Index có được sử dụng không? | Giải thích |
+| :--- | :---: | :--- |
+| `WHERE colA = ?` | **CÓ** | Khớp tiền tố bên trái nhất (`colA`). |
+| `WHERE colA = ? AND colB = ?` | **CÓ** | Khớp tiền tố 2 cột đầu (`colA`, `colB`). |
+| `WHERE colA = ? AND colB = ? AND colC = ?` | **CÓ (Tối ưu tuyệt đối)** | Sử dụng trọn vẹn cả 3 cột của B-Tree. |
+| `WHERE colB = ?` | **KHÔNG** | Bỏ qua `colA`. SQLite không thể nhảy vào giữa cây B-Tree mà không qua gốc `colA`! |
+| `WHERE colB = ? AND colC = ?` | **KHÔNG** | Bỏ qua tiền tố bên trái nhất. Bắt buộc phải Full Table Scan! |
+| `WHERE colA = ? AND colC = ?` | **MỘT PHẦN** | Chỉ dùng index cho `colA`. Cột `colC` phải scan thủ công. |
+
+> [!TIP]
+> **Thứ tự sắp xếp cột chuẩn trong Composite Index:**
+> 1. **Cột so sánh bằng (`=`) có độ chọn lọc cao nhất:** Đặt lên đầu tiên (ví dụ `user_id`).
+> 2. **Cột so sánh bằng bổ sung:** Đặt ở giữa (ví dụ `status`).
+> 3. **Cột so sánh khoảng (`<`, `>`, `BETWEEN`) hoặc sắp xếp (`ORDER BY`):** Bắt buộc phải đặt ở **cuối cùng** của Composite Index. Nếu đặt cột so sánh khoảng lên trước, SQLite sẽ ngừng sử dụng Index cho các cột phía sau!
+
+#### Chi phí đánh đổi (Trade-off) của Index
+
+Index là một con dao hai lưỡi. Một Senior Android Developer phải biết từ chối đánh index khi không cần thiết.
+
+```mermaid
+pie title "Chi phí tài nguyên của Index"
+    "Dung lượng lưu trữ bảng chính": 55
+    "Dung lượng các cây B-Tree Index": 45
+```
+
+##### 1. Hình phạt ghi dữ liệu (The Write Penalty)
+
+Mỗi khi bạn thực hiện một thao tác ghi (`INSERT`, `UPDATE` các cột có index, hoặc `DELETE`):
+
+- SQLite không chỉ cập nhật bản ghi trong bảng chính.
+- SQLite phải duyệt và tái cân bằng (Rebalance / Split Node) lại **tất cả** các cây B-Tree Index gắn liền với bảng đó.
+- Nếu một bảng có 5 Index, tốc độ `INSERT` có thể bị **chậm đi từ 3x đến 8x** so với bảng không có Index!
+
+##### 2. Dung lượng file `.db` phình to
+
+Mỗi Index là một bản sao thu nhỏ của dữ liệu. Việc tạo quá nhiều Index trên bảng lớn có thể khiến kích thước file Database trên máy người dùng tăng gấp đôi, dễ dẫn đến lỗi `SQLiteFullException` (hết bộ nhớ trong).
+
+Tiêu chí chọn cột nên và không nên đánh index ở mục "Khi nào nên và không nên dùng".
+
+#### Đo lường chính xác bằng `EXPLAIN QUERY PLAN`
+
+Đừng bao giờ đoán mò xem câu truy vấn có đang chạy nhanh hay không. Hãy để SQLite chỉ rõ đường đi nước bước thông qua lệnh `EXPLAIN QUERY PLAN`.
+
+Bạn có thể kiểm tra trực tiếp trong Room DAO hoặc Database Inspector của Android Studio. DAO dưới đây dùng hàm `suspend` (hàm coroutine, Room chạy nó ngoài main thread), được học ở 8.4.3 Coroutines (chưa có bài):
+
+```kotlin
+@Dao
+interface OrderDao {
+    // Câu truy vấn kiểm tra kế hoạch thực thi
+    @Query("EXPLAIN QUERY PLAN SELECT * FROM orders WHERE user_id = :userId AND status = :status")
+    suspend fun explainOrderQuery(userId: String, status: String): List<QueryPlanItem>
+}
+
+data class QueryPlanItem(
+    val id: Int,
+    val parent: Int,
+    val notused: Int,
+    val detail: String // Chứa thông tin kế hoạch
+)
+```
+
+##### Phân tích kết quả thực tế từ `detail`
+
+1. **Trường hợp nguy hiểm (Full Table Scan):**
+
+   ```text
+   detail: "SCAN TABLE orders"
+   ```
+
+   👉 SQLite đang phải duyệt qua toàn bộ bảng từ dòng đầu đến dòng cuối. Bạn cần xem lại cấu trúc Index ngay lập tức!
+
+2. **Trường hợp tối ưu (Index Search):**
+
+   ```text
+   detail: "SEARCH TABLE orders USING INDEX index_orders_user_id_status_created_at (user_id=? AND status=?)"
+   ```
+
+   👉 Tuyệt vời! SQLite đã sử dụng chính xác Composite Index bạn tạo để tìm kiếm.
+
+3. **Cảnh giới cao nhất: Covering Index:**
+
+   ```text
+   detail: "SEARCH TABLE orders USING COVERING INDEX index_orders_user_id_status_amount (user_id=? AND status=?)"
+   ```
+
+   👉 **Covering Index:** Tất cả các cột nằm trong mệnh đề `SELECT`, `WHERE`, và `ORDER BY` đều nằm trọn vẹn bên trong cây B-Tree của Index. SQLite **không cần phải đọc bảng chính một lần nào**. Đây là mức hiệu năng truy vấn nhanh nhất có thể đạt được trong hệ thống CSDL quan hệ!
+
+   Kết quả này ứng với một query chỉ đọc các cột có trong index, ví dụ tổng tiền đơn hàng theo trạng thái: `SELECT SUM(amount) FROM orders WHERE user_id = :userId AND status = :status`. `SELECT *` như DAO ở trên không thể là covering index, vì nó cần cả các cột không nằm trong index. Index `index_orders_user_id_status_amount` phải được khai báo trong `OrderEntity`, bên cạnh composite index ở mục trên. Khi không đặt `name`, Room đặt tên index là `index_<tên bảng>_<các cột nối bằng _>`:
+
+   ```kotlin
+   @Entity(
+       tableName = "orders",
+       indices = [
+           // Màn hình danh sách đơn: WHERE user_id = ? AND status = ? ORDER BY created_at DESC
+           Index(value = ["user_id", "status", "created_at"]),
+           // Covering index cho query chỉ đọc amount: SELECT SUM(amount) ... WHERE user_id = ? AND status = ?
+           Index(value = ["user_id", "status", "amount"])
+       ]
+   )
+   data class OrderEntity(...)
+   ```
+
+### Testing Migration với `MigrationTestHelper`
+
+Quy tắc vàng số 1 của Production Database: **Không bao giờ đẩy migration lên production nếu chưa có Unit Test tự động chứng minh nó chạy thành công 100%.**
+
+Thư viện Room cung cấp công cụ `MigrationTestHelper` (nằm trong artifact `androidx.room:room-testing`) cho phép mô phỏng việc tạo CSDL ở phiên bản cũ, chèn dữ liệu thực tế, chạy migration, và kiểm tra tính toàn vẹn dữ liệu.
+
+#### Khai báo dependency
+
+```kotlin
+// build.gradle.kts
+dependencies {
+    // Test bên dưới dùng InstrumentationRegistry và đọc schema JSON từ assets của androidTest
+    // (sourceSets ở mục "Cấu hình Gradle bắt buộc cho AutoMigration"), nên là instrumented test: đặt trong src/androidTest
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+}
+```
+
+#### Ví dụ: kiểm chứng Migration 1 lên 2
+
+Test kiểm chứng `MIGRATION_1_2` ở Case Study 1 đi qua ba giai đoạn:
+
+1. Tạo database ở version 1 theo `schemas/1.json`, chèn một user theo cấu trúc v1 rồi đóng lại.
+2. `runMigrationsAndValidate` chạy `MIGRATION_1_2` rồi so schema thực tế với `schemas/2.json`; lệch thì test fail ngay ở bước này.
+3. Đọc lại user cũ: dữ liệu phải còn nguyên và cột mới `is_verified` có giá trị mặc định `0`.
+
+```mermaid
+sequenceDiagram
+    participant Test as AppDatabaseMigrationTest
+    participant Helper as MigrationTestHelper
+    participant DB as migration-test.db
+
+    Test->>Helper: (1) createDatabase(TEST_DB, 1)
+    Helper->>DB: (1) tạo bảng theo schemas/1.json
+    Test->>DB: (1) INSERT user u1, close()
+    Test->>Helper: (2) runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2)
+    Helper->>DB: (2) chạy MIGRATION_1_2
+    Helper->>Helper: (2) so schema thực tế với schemas/2.json
+    Test->>DB: (3) SELECT ... WHERE id = 'u1'
+    DB-->>Test: (3) name, email cũ + is_verified = 0
+```
+
+```kotlin
+package com.example.app.data.local
+
+import androidx.room.testing.MigrationTestHelper
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.io.IOException
+
+@RunWith(AndroidJUnit4::class)
+class AppDatabaseMigrationTest {
+
+    private val TEST_DB = "migration-test.db"
+
+    // Dùng constructor nhận class của Database. Constructor cũ nhận tên assets
+    // (canonicalName + FrameworkSQLiteOpenHelperFactory) đã deprecated từ Room 2.4
+    // và không chạy được AutoMigration (bước v2 → v3 của chuỗi schema).
+    @get:Rule
+    val helper: MigrationTestHelper = MigrationTestHelper(
+        InstrumentationRegistry.getInstrumentation(),
+        AppDatabase::class.java
+    )
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate1To2_containsCorrectDataAndNewColumnDefault() {
+        // (1) GIAI ĐOẠN 1: Tạo database ở Version 1 và chèn dữ liệu mẫu
+        var db = helper.createDatabase(TEST_DB, 1).apply {
+            // Chèn bản ghi theo cấu trúc của Version 1 (chưa có cột is_verified; các cột khác cho phép null)
+            execSQL("INSERT INTO users (id, name, email) VALUES ('u1', 'Hazu Nguyen', 'hazu@example.com')")
+            close()
+        }
+
+        // (2) GIAI ĐOẠN 2: Thực thi migration lên Version 2
+        // helper.runMigrationsAndValidate sẽ tự động:
+        // 1. Chạy MIGRATION_1_2
+        // 2. So sánh Identity Hash và Schema thực tế với schemas/2.json
+        db = helper.runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2)
+
+        // (3) GIAI ĐOẠN 3: Kiểm tra tính toàn vẹn của dữ liệu sau khi migrate
+        val cursor = db.query("SELECT id, name, email, is_verified FROM users WHERE id = 'u1'")
+        assertTrue("Bản ghi người dùng cũ phải còn tồn tại", cursor.moveToFirst())
+
+        val name = cursor.getString(cursor.getColumnIndexOrThrow("name"))
+        val email = cursor.getString(cursor.getColumnIndexOrThrow("email"))
+        val isVerified = cursor.getInt(cursor.getColumnIndexOrThrow("is_verified"))
+
+        // Xác nhận dữ liệu cũ không bị mất hoặc sai lệch
+        assertEquals("Hazu Nguyen", name)
+        assertEquals("hazu@example.com", email)
+        // Xác nhận cột mới có giá trị default chính xác (0 tương ứng false)
+        assertEquals(0, isVerified)
+
+        cursor.close()
+        db.close()
     }
 }
 ```
 
-> [!WARNING]
-> Nếu bạn viết `"ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL"` mà quên `DEFAULT 0`, SQLite sẽ ném lỗi crash ngay lập tức vì không biết điền giá trị gì cho 1 triệu dòng dữ liệu cũ!
+**Kết quả:** test xanh nghĩa là migration giữ được dữ liệu cũ và tạo đúng schema v2; migration sai làm test đỏ ở bước (2) (schema lệch) hoặc bước (3) (dữ liệu mất).
 
----
+> [!TIP]
+> Tích hợp bài test này vào luồng **CI/CD (GitHub Actions / GitLab CI)**. Mỗi khi có Pull Request thay đổi Entity hoặc Database Version, CI sẽ tự động kích hoạt test. Nếu ai đó quên viết Migration hoặc viết sai câu lệnh SQL, bản build sẽ bị chặn ngay lập tức, triệt tiêu 100% nguy cơ crash database trên máy khách hàng.
+
+## Ví dụ thực tế
 
 ### Case Study 2: Đổi kiểu dữ liệu của cột
 
-#### Tình huống
-Ở v3, bảng `orders` đang lưu cột `created_at` dưới dạng số Unix Timestamp miliseconds (`INTEGER`). 
+**Tình huống:** Ở v3, bảng `orders` đang lưu cột `created_at` dưới dạng số Unix Timestamp miliseconds (`INTEGER`). 
 Ở phiên bản mới, team quyết định đổi sang chuỗi chuẩn ISO-8601 UTC (`TEXT`, ví dụ: `"2026-09-21T15:30:00Z"`).
 
-#### Triển khai kịch bản Migration:
+`ALTER TABLE` không đổi được kiểu cột, nên `MIGRATION_3_4` dựng lại bảng theo 5 bước của Table Recreation Pattern, rồi Room kiểm tra kết quả:
+
+1. Tạo bảng tạm `orders_temp` với cấu trúc mới (`created_at TEXT`), giữ đủ mọi cột của `orders`.
+2. Copy dữ liệu sang bảng tạm, đổi kiểu ngay trong câu `SELECT` bằng `strftime`.
+3. Xoá bảng `orders` cũ; các index của nó bị xoá theo.
+4. Đổi tên `orders_temp` thành `orders`.
+5. Tạo lại cả hai index đã khai báo trong `OrderEntity` (composite index và covering index ở mục "Đo lường chính xác bằng `EXPLAIN QUERY PLAN`").
+6. `migrate()` xong, Room so schema thực tế với `@Entity` (`onValidateSchema`) rồi ghi `identity_hash` và `user_version` mới, như sơ đồ ở mục "Bảng bí mật `room_master_table` & `identity_hash`".
+
+```mermaid
+sequenceDiagram
+    participant Room as Room OpenHelper
+    participant M as MIGRATION_3_4
+    participant DB as SQLite DB
+
+    Room->>M: migrate(db) vì user_version = 3
+    M->>DB: (1) CREATE TABLE orders_temp (created_at TEXT ...)
+    M->>DB: (2) INSERT INTO orders_temp SELECT ..., strftime(...) FROM orders
+    M->>DB: (3) DROP TABLE orders (index cũ mất theo)
+    M->>DB: (4) ALTER TABLE orders_temp RENAME TO orders
+    M->>DB: (5) CREATE INDEX x2 theo OrderEntity
+    M-->>Room: migrate() xong
+    Room->>DB: (6) onValidateSchema: so orders với OrderEntity
+    Room->>DB: (6) ghi identity_hash mới, user_version = 4
+```
 
 ```kotlin
 val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        // Bước 1: Tạo bảng tạm với cấu trúc mong đợi mới (giữ đủ mọi cột của orders)
+        // (1) Bước 1: Tạo bảng tạm với cấu trúc mong đợi mới (giữ đủ mọi cột của orders)
         db.execSQL("""
             CREATE TABLE IF NOT EXISTS `orders_temp` (
                 `id` TEXT NOT NULL PRIMARY KEY,
@@ -355,7 +679,7 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
             )
         """.trimIndent())
 
-        // Bước 2: Copy dữ liệu và chuyển đổi kiểu dữ liệu trực tiếp bằng SQLite Date/Time functions
+        // (2) Bước 2: Copy dữ liệu và chuyển đổi kiểu dữ liệu trực tiếp bằng SQLite Date/Time functions
         // strftime('%Y-%m-%dT%H:%M:%SZ', ...) cho ra ISO-8601 dạng "2026-09-21T15:30:00Z"
         // (datetime() cho ra "2026-09-21 15:30:00" — có dấu cách, không có chữ T)
         db.execSQL("""
@@ -369,30 +693,31 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
             FROM `orders`
         """.trimIndent())
 
-        // Bước 3: Xóa bảng cũ
+        // (3) Bước 3: Xóa bảng cũ
         db.execSQL("DROP TABLE `orders`")
 
-        // Bước 4: Đổi tên bảng tạm thành bảng chính
+        // (4) Bước 4: Đổi tên bảng tạm thành bảng chính
         db.execSQL("ALTER TABLE `orders_temp` RENAME TO `orders`")
 
-        // Bước 5: Tạo lại composite index đã khai báo trong OrderEntity (mục 4)
+        // (5) Bước 5: Tạo lại hai index đã khai báo trong OrderEntity (composite index và covering index)
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_orders_user_id_status_created_at` ON `orders` (`user_id`, `status`, `created_at`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_orders_user_id_status_amount` ON `orders` (`user_id`, `status`, `amount`)")
     }
 }
 ```
 
----
+**Kết quả:** trên máy đang ở v3, sau khi cập nhật app, `orders.created_at` chứa chuỗi dạng `"2026-09-21T15:30:00Z"` và Room mở database bình thường; thiếu một trong hai index ở bước (5) thì bước (6) ném `Migration didn't properly handle: orders`. Kiểm chứng tự động như mục "Testing Migration với `MigrationTestHelper`": `helper.createDatabase(TEST_DB, 3)`, chèn vài đơn hàng, rồi `helper.runMigrationsAndValidate(TEST_DB, 4, true, MIGRATION_3_4)`.
 
 ### Case Study 3: Tách 1 Entity thành 2 Entity có quan hệ (1 - N)
 
-#### Tình huống
-Bảng `users` ở v4 chứa cả thông tin cá nhân và thông tin công ty:
+**Tình huống:** Bảng `users` ở v4 chứa cả thông tin cá nhân và thông tin công ty:
 `users (id, name, email, phone_number, is_verified, company_name, company_tax_code)`.
 Ở version 5, kiến trúc chuẩn hóa CSDL (Normalization) yêu cầu tách thành 2 bảng riêng:
+
 - `users (id, name, email, phone_number, is_verified)`
 - `companies (id, user_id, name, tax_code)`
 
-#### Triển khai kịch bản Migration:
+Migration tạo bảng `companies` và index cho khoá ngoại, đẩy dữ liệu công ty sang, rồi dựng lại `users` theo Table Recreation Pattern để bỏ hai cột thừa:
 
 ```kotlin
 val MIGRATION_4_5 = object : Migration(4, 5) {
@@ -450,260 +775,93 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
 }
 ```
 
----
+**Kết quả:** mỗi user có `company_name` được một dòng tương ứng trong `companies` (`user_id` trỏ về user đó), bảng `users` không còn hai cột công ty, và unique index trên `email` vẫn còn.
 
-## 4. Indexing, B-Tree & Tối Ưu Hóa Truy Vấn CSDL Lớn
+## Khi nào nên và không nên dùng
 
-Khi ứng dụng quản lý tập dữ liệu lớn, hiệu năng đọc là tiêu chí sống còn. Hiểu rõ cấu trúc Index sẽ giúp bạn tránh các quyết định tối ưu hóa sai lầm.
+Chọn AutoMigration hay Manual Migration theo bảng ở mục "Bảng so sánh lựa chọn: AutoMigration vs Manual Migration"; `fallbackToDestructiveMigration` chỉ dùng trong các trường hợp ở mục "Khi nào được phép dùng?". Với Index:
 
-### Bản chất của Index bên dưới đĩa cứng: Cấu trúc B-Tree
+### Khi nào NÊN đánh Index?
 
-Trong SQLite, bảng dữ liệu mặc định được tổ chức dưới dạng **B-Tree bảng (Table B-Tree)** được đánh địa chỉ bằng một số nguyên 64-bit gọi là `ROWID`.
-- Khi bạn chạy câu truy vấn: `SELECT * FROM users WHERE email = 'hazu@example.com'`
-- Nếu cột `email` **chưa được đánh Index**, SQLite buộc phải thực hiện **Full Table Scan**: Đọc tuần tự từng trang đĩa từ đầu đến cuối bảng, so sánh từng chuỗi ký tự. Độ phức tạp là $O(N)$. Với bảng 500.000 dòng, thao tác này có thể mất từ 200ms - 1500ms, gây freeze UI ngay tức khắc!
-
-Khi bạn đánh Index cho cột `email`:
-```kotlin
-@Entity(
-    tableName = "users",
-    indices = [Index(value = ["email"], unique = true)]
-)
-data class UserEntity(
-    @PrimaryKey val id: String,
-    val name: String,
-    val email: String
-)
-```
-
-SQLite sẽ cấp phát một **Index B-Tree** riêng biệt trên đĩa cứng:
-
-```mermaid
-graph TD
-    subgraph "Index B-Tree (Sắp xếp theo email)"
-        Root["Node Gốc: ['m@...']"]
-        Leaf1["Leaf Node A-L: ['a@...', 'hazu@example.com'] -> ROWID #402"]
-        Leaf2["Leaf Node M-Z: ['n@...', 'z@...'] -> ROWID #981"]
-        Root --> Leaf1
-        Root --> Leaf2
-    end
-
-    subgraph "Main Table (Lưu trên Disk)"
-        Row402["ROWID #402: {id: 'u_1', name: 'Nguyen Van A', email: 'hazu@example.com'}"]
-        Row981["ROWID #981: {id: 'u_2', name: 'Tran Thi B', email: 'z@example.com'}"]
-    end
-
-    Leaf1 -.->|Truy xuất trực tiếp qua ROWID| Row402
-    Leaf2 -.->|Truy xuất trực tiếp qua ROWID| Row981
-```
-
-Quá trình tìm kiếm chỉ tốn $O(\log N)$ bước duyệt cây để tìm thấy `ROWID`, sau đó nhảy thẳng đến vị trí bản ghi trên đĩa. Tốc độ tìm kiếm tăng từ hàng giây xuống còn **dưới 2 mili-giây**!
-
----
-
-### Composite Index & Quy tắc "Leftmost Prefix" (Tiền tố bên trái)
-
-Trong thực tế, bạn thường xuyên phải lọc theo nhiều điều kiện đồng thời, ví dụ màn hình danh sách đơn hàng:
-`SELECT * FROM orders WHERE user_id = :userId AND status = :status ORDER BY created_at DESC`
-
-Nếu bạn đánh 3 Index đơn lẻ (`user_id`, `status`, `created_at`), SQLite chỉ có thể chọn **1 Index duy nhất** tốt nhất để duyệt, hai cột còn lại vẫn phải lọc thủ công trong bộ nhớ.
-
-Giải pháp là **Composite Index (Chỉ mục kết hợp nhiều cột)**:
-```kotlin
-@Entity(
-    tableName = "orders",
-    indices = [
-        Index(value = ["user_id", "status", "created_at"])
-    ]
-)
-data class OrderEntity(...)
-```
-
-#### Quy tắc vàng: "Leftmost Prefix"
-Thứ tự khai báo các cột trong `value = ["colA", "colB", "colC"]` mang tính quyết định:
-
-| Câu lệnh truy vấn | Index có được sử dụng không? | Giải thích |
-| :--- | :---: | :--- |
-| `WHERE colA = ?` | **CÓ** | Khớp tiền tố bên trái nhất (`colA`). |
-| `WHERE colA = ? AND colB = ?` | **CÓ** | Khớp tiền tố 2 cột đầu (`colA`, `colB`). |
-| `WHERE colA = ? AND colB = ? AND colC = ?` | **CÓ (Tối ưu tuyệt đối)** | Sử dụng trọn vẹn cả 3 cột của B-Tree. |
-| `WHERE colB = ?` | **KHÔNG** | Bỏ qua `colA`. SQLite không thể nhảy vào giữa cây B-Tree mà không qua gốc `colA`! |
-| `WHERE colB = ? AND colC = ?` | **KHÔNG** | Bỏ qua tiền tố bên trái nhất. Bắt buộc phải Full Table Scan! |
-| `WHERE colA = ? AND colC = ?` | **MỘT PHẦN** | Chỉ dùng index cho `colA`. Cột `colC` phải scan thủ công. |
-
-> [!TIP]
-> **Thứ tự sắp xếp cột chuẩn trong Composite Index:**
-> 1. **Cột so sánh bằng (`=`) có độ chọn lọc cao nhất:** Đặt lên đầu tiên (ví dụ `user_id`).
-> 2. **Cột so sánh bằng bổ sung:** Đặt ở giữa (ví dụ `status`).
-> 3. **Cột so sánh khoảng (`<`, `>`, `BETWEEN`) hoặc sắp xếp (`ORDER BY`):** Bắt buộc phải đặt ở **cuối cùng** của Composite Index. Nếu đặt cột so sánh khoảng lên trước, SQLite sẽ ngừng sử dụng Index cho các cột phía sau!
-
----
-
-### Chi phí đánh đổi (Trade-off) & Khi nào KHÔNG ĐƯỢC đánh Index?
-
-Index là một con dao hai lưỡi. Một Senior Android Developer phải biết từ chối đánh index khi không cần thiết.
-
-```mermaid
-pie title "Chi phí tài nguyên của Index"
-    "Dung lượng lưu trữ bảng chính": 55
-    "Dung lượng các cây B-Tree Index": 45
-```
-
-#### 1. Hình phạt ghi dữ liệu (The Write Penalty)
-Mỗi khi bạn thực hiện một thao tác ghi (`INSERT`, `UPDATE` các cột có index, hoặc `DELETE`):
-- SQLite không chỉ cập nhật bản ghi trong bảng chính.
-- SQLite phải duyệt và tái cân bằng (Rebalance / Split Node) lại **tất cả** các cây B-Tree Index gắn liền với bảng đó.
-- Nếu một bảng có 5 Index, tốc độ `INSERT` có thể bị **chậm đi từ 3x đến 8x** so với bảng không có Index!
-
-#### 2. Dung lượng file `.db` phình to
-Mỗi Index là một bản sao thu nhỏ của dữ liệu. Việc tạo quá nhiều Index trên bảng lớn có thể khiến kích thước file Database trên máy người dùng tăng gấp đôi, dễ dẫn đến lỗi `SQLiteFullException` (hết bộ nhớ trong).
-
-#### Khi nào NÊN đánh Index?
 1. **Cột nằm trong `WHERE` của các query chạy thường xuyên** (lọc theo `user_id`, `status`, `sync_status`...).
 2. **Cột khoá ngoại (Foreign Key) và cột dùng để `JOIN`:** SQLite không tự đánh index cho cột khoá ngoại. Thiếu index, mỗi lần xoá/sửa hàng ở bảng cha (nhất là với `ON DELETE CASCADE`) và mỗi lần `JOIN` đều phải quét cả bảng con. Room cũng in cảnh báo lúc build khi cột khoá ngoại chưa nằm trong index nào.
 3. **Cột dùng trong `ORDER BY`** (ví dụ `created_at`), đặt ở cuối Composite Index như mục trên.
 
-#### Khi nào KHÔNG NÊN đánh Index?
+### Khi nào KHÔNG NÊN đánh Index?
+
 1. **Cột có độ chọn lọc thấp (Low Selectivity / Low Cardinality):**
    Ví dụ cột cờ boolean (`is_deleted`, `is_active`) hoặc giới tính (`gender`). Khi một giá trị chiếm tới 50% tổng số bản ghi trong bảng, SQLite Engine phân tích chi phí và nhận thấy việc tra cứu Index B-Tree rồi nhảy về đĩa tìm `ROWID` (Random I/O) còn tốn thời gian hơn việc đọc tuần tự toàn bộ bảng (Sequential I/O). Index lúc này trở nên vô dụng!
 2. **Bảng có kích thước nhỏ:** Các bảng danh mục, cấu hình chỉ có vài chục đến vài trăm dòng. Quét toàn bộ bảng trong bộ nhớ RAM chỉ tốn một phần nhỏ của mili-giây.
 3. **Bảng ghi nhiều hơn đọc (Write-heavy tables):** Ví dụ bảng `analytics_events`, `log_records`. Dữ liệu liên tục được chèn vào nhưng rất hiếm khi được truy vấn trực tiếp trên thiết bị.
 
----
+## Sai lầm thường gặp
 
-### Đo lường chính xác bằng `EXPLAIN QUERY PLAN`
+### 1. Gắn `fallbackToDestructiveMigration()` cho app có dữ liệu offline
 
-Đừng bao giờ đoán mò xem câu truy vấn có đang chạy nhanh hay không. Hãy để SQLite chỉ rõ đường đi nước bước thông qua lệnh `EXPLAIN QUERY PLAN`.
+Không tìm thấy migration, Room xoá và tạo lại bảng: người dùng cập nhật app mất sạch dữ liệu chưa đồng bộ, không phục hồi được.
 
-Bạn có thể kiểm tra trực tiếp trong Room DAO hoặc Database Inspector của Android Studio:
+**Cách sửa:** viết `Migration`/`AutoMigration` cho mọi bước version đã phát hành; nếu cần bỏ dữ liệu của vài bản thử nghiệm thì giới hạn bằng `fallbackToDestructiveMigrationFrom(...)` (mục "Cảnh báo về `fallbackToDestructiveMigration()`").
 
-```kotlin
-@Dao
-interface OrderDao {
-    // Câu truy vấn kiểm tra kế hoạch thực thi
-    @Query("EXPLAIN QUERY PLAN SELECT * FROM orders WHERE user_id = :userId AND status = :status")
-    suspend fun explainOrderQuery(userId: String, status: String): List<QueryPlanItem>
-}
+### 2. Đổi `@Entity` mà quên tăng `version`
 
-data class QueryPlanItem(
-    val id: Int,
-    val parent: Int,
-    val notused: Int,
-    val detail: String // Chứa thông tin kế hoạch
-)
-```
+Không migration nào chạy, hash trong `room_master_table` khác hash trong code, app crash với `Room cannot verify the data integrity`.
 
-#### Phân tích kết quả thực tế từ `detail`:
+**Cách sửa:** mỗi lần đổi schema, tăng `version` trong `@Database` và đăng ký migration tương ứng.
 
-1. **Trường hợp nguy hiểm (Full Table Scan):**
-   ```text
-   detail: "SCAN TABLE orders"
-   ```
-   👉 SQLite đang phải duyệt qua toàn bộ bảng từ dòng đầu đến dòng cuối. Bạn cần xem lại cấu trúc Index ngay lập tức!
+### 3. Tăng `version` nhưng thiếu đường migration
 
-2. **Trường hợp tối ưu (Index Search):**
-   ```text
-   detail: "SEARCH TABLE orders USING INDEX index_orders_user_id_status_created_at (user_id=? AND status=?)"
-   ```
-   👉 Tuyệt vời! SQLite đã sử dụng chính xác Composite Index bạn tạo để tìm kiếm.
+Room ném `A migration from 1 to 2 was required but not found` ở lần mở đầu tiên sau khi cập nhật. Có đủ các migration riêng lẻ vẫn có thể gặp lỗi này, vì Room chọn đường theo thuật toán tham lam, không quay lui.
 
-3. **Cảnh giới cao nhất: Covering Index:**
-   ```text
-   detail: "SEARCH TABLE orders USING COVERING INDEX index_orders_user_id_status_amount"
-   ```
-   👉 **Covering Index:** Tất cả các cột nằm trong mệnh đề `SELECT`, `WHERE`, và `ORDER BY` đều nằm trọn vẹn bên trong cây B-Tree của Index. SQLite **không cần phải đọc bảng chính một lần nào**. Đây là mức hiệu năng truy vấn nhanh nhất có thể đạt được trong hệ thống CSDL quan hệ!
+**Cách sửa:** đăng ký đủ migration từ mọi version đã phát hành (`addMigrations(...)` hoặc `autoMigrations`), ưu tiên chuỗi tuần tự như mục "Kịch bản "Nhảy cóc phiên bản" (Skip-Version Migrations)", và kiểm chứng bằng `MigrationTestHelper`.
 
----
+### 4. Thêm cột `NOT NULL` mà quên `DEFAULT`
 
-## 5. Testing Migration với `MigrationTestHelper`
+Nếu bạn viết `"ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL"` mà quên `DEFAULT 0`, SQLite từ chối lệnh và app crash ngay khi migrate: theo tài liệu SQLite, cột `NOT NULL` thêm bằng `ADD COLUMN` phải có giá trị mặc định khác `NULL`, vì đó là giá trị SQLite điền cho mọi dòng đã có (ở đây là 1 triệu dòng dữ liệu cũ).
 
-Quy tắc vàng số 1 của Production Database: **Không bao giờ đẩy migration lên production nếu chưa có Unit Test tự động chứng minh nó chạy thành công 100%.**
+**Cách sửa:** luôn kèm `DEFAULT`, và giá trị đó phải khớp `defaultValue` trong `@ColumnInfo`, như Case Study 1.
 
-Thư viện Room cung cấp công cụ `MigrationTestHelper` (nằm trong artifact `androidx.room:room-testing`) cho phép mô phỏng việc tạo CSDL ở phiên bản cũ, chèn dữ liệu thực tế, chạy migration, và kiểm tra tính toàn vẹn dữ liệu.
+### 5. Chạy `ALTER TABLE DROP COLUMN` trên thiết bị cũ
 
-### 1. Khai báo dependency
+Trên Android 13 trở xuống (SQLite dưới 3.35), lệnh ném `SQLiteException: near "DROP": syntax error`.
 
-```kotlin
-// build.gradle.kts
-dependencies {
-    // Test bên dưới dùng InstrumentationRegistry và đọc schema JSON từ assets của androidTest
-    // (sourceSets ở mục 2), nên là instrumented test: đặt trong src/androidTest
-    androidTestImplementation(libs.androidx.room.testing)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.runner)
-}
-```
+**Cách sửa:** xoá cột bằng Table Recreation Pattern (mục "Các Ca Migration Khó: Dựng Lại Bảng 5 Bước (Table Recreation Pattern)") hoặc bằng `@DeleteColumn` trong `AutoMigrationSpec`.
 
-### 2. Viết Test Case kiểm chứng Migration 1 lên 2
+### 6. Quên tạo lại index sau khi dựng lại bảng
 
-```kotlin
-package com.example.app.data.local
+`DROP TABLE` xoá luôn các index của bảng cũ. Thiếu một index đã khai báo trong `@Entity`, bước kiểm tra schema sau migration ném `Migration didn't properly handle`.
 
-import androidx.room.testing.MigrationTestHelper
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.io.IOException
+**Cách sửa:** bước 5 của Table Recreation Pattern tạo lại **mọi** index của bảng với đúng tên và đúng cột như `@Entity`, như bước (5) của Case Study 2.
 
-@RunWith(AndroidJUnit4::class)
-class AppDatabaseMigrationTest {
+### 7. Bỏ sót cột khi copy sang bảng mới
 
-    private val TEST_DB = "migration-test.db"
+Câu `INSERT ... SELECT` chỉ liệt kê cột của version gốc mà quên các cột đã thêm ở những version sau: dữ liệu các cột đó mất, và bảng mới thiếu cột thì validate fail.
 
-    // Dùng constructor nhận class của Database. Constructor cũ nhận tên assets
-    // (canonicalName + FrameworkSQLiteOpenHelperFactory) đã deprecated từ Room 2.4
-    // và không chạy được AutoMigration (bước v2 → v3 của chuỗi schema).
-    @get:Rule
-    val helper: MigrationTestHelper = MigrationTestHelper(
-        InstrumentationRegistry.getInstrumentation(),
-        AppDatabase::class.java
-    )
+**Cách sửa:** liệt kê đủ mọi cột của schema hiện tại trong cả `CREATE TABLE` lẫn `INSERT ... SELECT`, như bước 4 của Case Study 3.
 
-    @Test
-    @Throws(IOException::class)
-    fun migrate1To2_containsCorrectDataAndNewColumnDefault() {
-        // GIAI ĐOẠN 1: Tạo database ở Version 1 và chèn dữ liệu mẫu
-        var db = helper.createDatabase(TEST_DB, 1).apply {
-            // Chèn bản ghi theo cấu trúc của Version 1 (chưa có cột is_verified; các cột khác cho phép null)
-            execSQL("INSERT INTO users (id, name, email) VALUES ('u1', 'Hazu Nguyen', 'hazu@example.com')")
-            close()
-        }
+### 8. Sai thứ tự cột trong Composite Index
 
-        // GIAI ĐOẠN 2: Thực thi migration lên Version 2
-        // helper.runMigrationsAndValidate sẽ tự động:
-        // 1. Chạy MIGRATION_1_2
-        // 2. So sánh Identity Hash và Schema thực tế với schemas/2.json
-        db = helper.runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2)
+Đặt cột so sánh khoảng hoặc cột `ORDER BY` lên trước, hoặc query không lọc theo cột đầu tiên của index: SQLite dừng dùng index ở cột đó, hoặc không dùng được index và quay về Full Table Scan.
 
-        // GIAI ĐOẠN 3: Kiểm tra tính toàn vẹn của dữ liệu sau khi migrate
-        val cursor = db.query("SELECT id, name, email, is_verified FROM users WHERE id = 'u1'")
-        assertTrue("Bản ghi người dùng cũ phải còn tồn tại", cursor.moveToFirst())
+**Cách sửa:** cột so sánh bằng có độ chọn lọc cao đặt đầu, cột so sánh khoảng/`ORDER BY` đặt cuối (mục "Composite Index & Quy tắc "Leftmost Prefix" (Tiền tố bên trái)"), rồi xác nhận bằng `EXPLAIN QUERY PLAN`.
 
-        val name = cursor.getString(cursor.getColumnIndexOrThrow("name"))
-        val email = cursor.getString(cursor.getColumnIndexOrThrow("email"))
-        val isVerified = cursor.getInt(cursor.getColumnIndexOrThrow("is_verified"))
+### 9. Đánh index cho mọi cột
 
-        // Xác nhận dữ liệu cũ không bị mất hoặc sai lệch
-        assertEquals("Hazu Nguyen", name)
-        assertEquals("hazu@example.com", email)
-        // Xác nhận cột mới có giá trị default chính xác (0 tương ứng false)
-        assertEquals(0, isVerified)
+Mỗi index thêm một cây B-Tree phải cập nhật ở mọi lần ghi và làm file `.db` phình to, trong khi index trên cột có độ chọn lọc thấp không giúp gì cho đọc.
 
-        cursor.close()
-        db.close()
-    }
-}
-```
+**Cách sửa:** chỉ đánh index theo tiêu chí ở mục "Khi nào nên và không nên dùng", và dùng `EXPLAIN QUERY PLAN` để chứng minh index thật sự được dùng.
 
-> [!TIP]
-> Tích hợp bài test này vào luồng **CI/CD (GitHub Actions / GitLab CI)**. Mỗi khi có Pull Request thay đổi Entity hoặc Database Version, CI sẽ tự động kích hoạt test. Nếu ai đó quên viết Migration hoặc viết sai câu lệnh SQL, bản build sẽ bị chặn ngay lập tức, triệt tiêu 100% nguy cơ crash database trên máy khách hàng.
+## Lịch sử phát triển
 
----
+- **Room 2.0.0 (bản đầu tiên trong AndroidX):** reference ghi `RoomDatabase.Builder` (kèm `fallbackToDestructiveMigration()`, `fallbackToDestructiveMigrationFrom()`) và `MigrationTestHelper` có từ bản này.
+- **SQLite 3.25.0 (15/09/2018):** thêm `ALTER TABLE ... RENAME COLUMN`. Trên Android có từ API 30 (Android 11, SQLite 3.28).
+- **SQLite 3.35.0 (12/03/2021):** thêm `ALTER TABLE DROP COLUMN`. Android chỉ lên SQLite 3.39 ở API 34 (Android 14), nên app hỗ trợ máy cũ hơn vẫn cần Table Recreation Pattern.
+- **Room 2.4.0 (stable 15/12/2021):** thêm AutoMigration (`@Database(autoMigrations = ...)`, `AutoMigrationSpec`), xuất hiện từ 2.4.0-alpha01 (04/2021). `MigrationTestHelper` có constructor nhận class của Database (từ 2.4.0-alpha03) để chạy được AutoMigration trong test; constructor cũ nhận tên thư mục assets bị deprecated trong 2.4.0.
+- **Room 2.6.0 (stable 18/10/2023):** thêm Room Gradle Plugin (`androidx.room`), khai báo thư mục schema bằng `room { schemaDirectory(...) }` thay cho tham số của annotation processor/KSP.
+- **Room 2.7.0 (stable 09/04/2025):** Room thành thư viện Kotlin Multiplatform, cấu hình được với `SQLiteDriver`; `fallbackToDestructiveMigration()` và `fallbackToDestructiveMigrationFrom(vararg)` bị deprecated, thay bằng overload có tham số `dropAllTables`.
 
-## 6. Tư Duy Hệ Thống (System Thinking): Vị Trí Của Migration Trong Clean Architecture
+## Kết nối hệ thống
+
+### Vị trí của Migration trong Clean Architecture
 
 Trong một kiến trúc phần mềm hoàn chỉnh, Migration và Indexing không chỉ đơn thuần là kỹ thuật viết SQL, mà là một phần thiết yếu của chiến lược quản trị dữ liệu:
 
@@ -735,45 +893,53 @@ graph TD
 2. **Chiến lược Phục hồi Thảm họa (Graceful Degradation & Backup):**
    Đối với dữ liệu tài chính hoặc dữ liệu ngoại tuyến tối quan trọng: Trước khi thực hiện một kịch bản Migration phức tạp từ phiên bản rất cũ, hãy sao chép tệp `app_database.db` sang tệp tạm `app_database.db.bak`. Nếu quá trình migrate ném ngoại lệ không mong muốn, ứng dụng có thể khôi phục lại bản backup và gửi log chi tiết về Crashlytics thay vì khiến người dùng mất trắng dữ liệu.
 
----
+### Topic liên quan
 
-## 7. Tổng Kết & Câu Hỏi Phỏng Vấn Senior (Cheat Sheet)
+- **Tiên quyết:** [Relational Database (Room Architecture)](room_architecture.md): Entity, DAO, `@Database` và `version`, những thứ mà migration và index trong bài này thay đổi.
+- **Liên quan:**
+  - [Async Transactions & Flow](room_transactions.md): transaction và Flow trên Room, chạy trên cùng database mà migration đã nâng cấp.
+  - [Working with Thread](../working_with_thread.md): Main Thread và ANR, lý do migration nặng không được chạy trên main thread.
+- **Kiến thức dùng trước:** 8.4.3 Coroutines (chưa có bài) cho hàm `suspend` và `Dispatchers.IO`; 7.2.5 Clean Architecture (chưa có bài) cho sơ đồ các tầng ở trên.
+
+## Developer Curiosity Checklist
 
 ### Tóm tắt cốt lõi
+
 1. **`room_master_table` & `identity_hash`:** Chiếc khóa bảo vệ tính toàn vẹn giữa Entity Kotlin và Table SQLite. Sai lệch cấu trúc bị chặn ngay lúc mở DB: sau migration bằng `onValidateSchema` (lỗi `Migration didn't properly handle`), còn khi đổi schema mà quên tăng version thì bằng so khớp hash (lỗi `Room cannot verify the data integrity`).
 2. **Table Recreation 5 bước** (tạo bảng mới → copy dữ liệu → xoá bảng cũ → đổi tên → tạo lại index): cách xử lý các migration mà `ALTER TABLE` không làm được (đổi kiểu dữ liệu, tách bảng, đổi Primary Key), chạy được trên mọi phiên bản SQLite đi kèm Android.
 3. **Leftmost Prefix:** Chỉ mục kết hợp `(A, B, C)` chỉ hoạt động khi mệnh đề lọc bắt đầu bằng `A`.
 4. **Write Penalty:** Đánh Index giúp `SELECT` tăng tốc $O(\log N)$, nhưng làm chậm các lệnh `INSERT/UPDATE/DELETE`. Chỉ đánh index cho các cột có Selectivity cao và thường xuyên xuất hiện trong `WHERE`/`ORDER BY`.
 5. **Testing First:** Luôn kiểm thử migration bằng `MigrationTestHelper` trước khi release.
 
----
-
 ### Top 5 Câu Hỏi Phỏng Vấn Thường Gặp
 
 #### Q1: Khi nào Room ném ra lỗi `IllegalStateException: Room cannot verify the data integrity`? Cách khắc phục chuẩn là gì?
+
 > **Trả lời:** Lỗi này xảy ra khi mã băm `identity_hash` mà Room tính toán từ các class `@Entity` tại thời điểm biên dịch không trùng khớp với chuỗi `identity_hash` được lưu trong bảng `room_master_table` trên thiết bị. Nguyên nhân là lập trình viên đã thay đổi cấu trúc Entity nhưng chưa tăng `version` của Database, nên không migration nào chạy. Cách khắc phục là tăng database version và viết `Migration` hoặc `AutoMigration`. Lưu ý phân biệt: nếu migration **có chạy** nhưng tạo ra bảng sai (sai kiểu dữ liệu, thiếu default value, thiếu index hoặc sai nullability), lỗi sẽ là `Migration didn't properly handle: …` kèm `Expected/Found`, không phải lỗi này.
 
 #### Q2: Sự khác nhau giữa AutoMigration và Manual Migration là gì? Khi nào bắt buộc phải dùng Manual Migration?
+
 > **Trả lời:** AutoMigration (từ Room 2.4+) cho phép Room tự động suy diễn câu lệnh SQL nâng cấp bằng cách so sánh hai file Schema JSON xuất ra bởi KSP, hỗ trợ tốt cho việc thêm cột, thêm bảng hoặc đổi tên/xóa cột thông qua `AutoMigrationSpec`. Tuy nhiên, bắt buộc phải dùng Manual Migration khi:
 > 1. Thay đổi kiểu dữ liệu của cột cần logic convert dữ liệu cũ.
 > 2. Tách hoặc gộp dữ liệu giữa các bảng (quan hệ 1-1, 1-N).
 > 3. Thay đổi khóa chính (Primary Key) hoặc các ràng buộc Foreign Key phức tạp.
 
 #### Q3: Tại sao gọi `fallbackToDestructiveMigration()` là nguy hiểm trên Production?
-> **Trả lời:** Vì khi phát hiện sự chênh lệch version mà không có migration script tương ứng, Room sẽ thực thi `DROP TABLE` cho toàn bộ các bảng, xóa sạch toàn bộ dữ liệu offline của người dùng mà không thể phục hồi. Phương thức này chỉ được chấp nhận đối với dữ liệu thuần cache từ remote server hoặc trong môi trường phát triển nội bộ.
+
+> **Trả lời:** Vì khi phát hiện sự chênh lệch version mà không có migration script tương ứng, Room sẽ thực thi `DROP TABLE` cho toàn bộ các bảng (các bảng Room quản lý, hoặc mọi bảng với `dropAllTables = true`), xóa sạch toàn bộ dữ liệu offline của người dùng mà không thể phục hồi. Phương thức này chỉ được chấp nhận đối với dữ liệu thuần cache từ remote server hoặc trong môi trường phát triển nội bộ.
 
 #### Q4: Cấu trúc bên dưới của Index trong SQLite là gì? Tại sao không nên đánh Index cho mọi cột?
+
 > **Trả lời:** Index trong SQLite được tổ chức dưới dạng cấu trúc cây cân bằng **B-Tree**, lưu trữ giá trị của các cột được index kèm theo con trỏ `ROWID` trỏ đến bản ghi trong bảng chính. Không nên đánh index cho mọi cột vì:
 > 1. **Hình phạt ghi (Write Penalty):** Mỗi thao tác `INSERT`, `UPDATE`, `DELETE` đều buộc SQLite phải duyệt và tái cân bằng lại tất cả các cây B-Tree Index, làm giảm nghiêm trọng hiệu năng ghi của ứng dụng.
 > 2. **Dung lượng lưu trữ:** Mỗi cây B-Tree tốn thêm bộ nhớ trên đĩa.
 > 3. **Độ chọn lọc thấp (Low Selectivity):** Các cột có ít giá trị phân biệt (như cờ Boolean) thì Index hoàn toàn không phát huy tác dụng do chi phí Random I/O duyệt index còn lớn hơn Sequential Scan bảng chính.
 
 #### Q5: Quy tắc "Leftmost Prefix" trong Composite Index hoạt động như thế nào?
+
 > **Trả lời:** Một Composite Index trên các cột `(A, B, C)` chỉ được SQLite sử dụng nếu câu truy vấn lọc theo thứ tự bắt đầu từ cột ngoài cùng bên trái (`A`). Cụ thể: query theo `A`, theo `A AND B`, hoặc theo `A AND B AND C` đều được tối ưu. Nhưng nếu câu query chỉ tìm theo `B` hoặc `B AND C` (bỏ qua `A`), SQLite sẽ không thể sử dụng Index này và buộc phải quét tuần tự toàn bộ bảng (Full Table Scan). Do đó, các cột so sánh bằng (`=`) và có độ chọn lọc cao nhất phải luôn được ưu tiên đặt ở vị trí ngoài cùng bên trái của Composite Index.
 
----
-
-## 8. Nguồn Tham Khảo Chính Thức (References)
+## Nguồn tham khảo
 
 1. [Android Developers — Migrate Room databases](https://developer.android.com/training/data-storage/room/migrating-db-versions)
 2. [Android Developers — Testing your Room migrations](https://developer.android.com/training/data-storage/room/testing-db#test-migrations)
@@ -782,6 +948,12 @@ graph TD
 5. [SQLite Documentation — Making Other Kinds Of Table Schema Changes (Table Recreation Pattern)](https://www.sqlite.org/lang_altertable.html#otheralter)
 6. [SQLite Documentation — Query Planning & B-Tree Structure](https://www.sqlite.org/queryplanner.html)
 7. [Android Developers — android.database.sqlite (SQLite version theo API level)](https://developer.android.com/reference/android/database/sqlite/package-summary)
-8. [SQLite Documentation — ALTER TABLE (DROP COLUMN từ 3.35.0, RENAME COLUMN từ 3.25.0)](https://www.sqlite.org/lang_altertable.html)
+8. [SQLite Documentation — ALTER TABLE (DROP COLUMN từ 3.35.0, RENAME COLUMN từ 3.25.0; cột NOT NULL thêm bằng ADD COLUMN phải có DEFAULT khác NULL)](https://www.sqlite.org/lang_altertable.html)
 9. [SQLite Documentation — Date And Time Functions (strftime)](https://www.sqlite.org/lang_datefunc.html)
 10. [Android Developers — RoomDatabase.MigrationContainer](https://developer.android.com/reference/androidx/room/RoomDatabase.MigrationContainer)
+11. [Android Developers — RoomDatabase.Builder (fallbackToDestructiveMigration, dropAllTables, deprecated trong 2.7.0)](https://developer.android.com/reference/kotlin/androidx/room/RoomDatabase.Builder)
+12. [Android Developers — MigrationTestHelper (constructor nhận class Database từ 2.4.0, constructor assets deprecated)](https://developer.android.com/reference/kotlin/androidx/room/testing/MigrationTestHelper)
+13. [Android Developers — Index (tên index mặc định)](https://developer.android.com/reference/kotlin/androidx/room/Index.html)
+14. [Android Developers — Room release notes (2.4.0 AutoMigration, 2.6.0 Room Gradle Plugin, 2.7.0 KMP)](https://developer.android.com/jetpack/androidx/releases/room)
+15. [SQLite — Release 3.25.0 (RENAME COLUMN)](https://www.sqlite.org/releaselog/3_25_0.html)
+16. [SQLite — Release History (3.35.0: DROP COLUMN)](https://www.sqlite.org/changes.html)

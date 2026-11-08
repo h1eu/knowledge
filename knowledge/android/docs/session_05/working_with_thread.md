@@ -1,7 +1,7 @@
 ---
 id: android.thread.working_with_thread
 title: Working with Thread in Android — Từ Bản Chất Đến Thực Chiến
-summary: Cẩm nang chuyên sâu và toàn diện về Multithreading trong Android. Phân tích bản chất Process vs Thread dưới góc nhìn Linux kernel và ART, cơ chế Main Thread & ANR, mổ xẻ bộ ba Looper - MessageQueue - Handler, quản lý luồng công nghiệp với ThreadPoolExecutor, xử lý Race Condition, Deadlock, Memory Leak, kết nối với Kotlin Coroutines Dispatchers và thực hành Mini-Project Image Pipeline hoàn chỉnh bằng Kotlin.
+summary: Làm việc với Thread trong Android là giữ Main Thread (thread duy nhất được chạm vào UI) luôn rảnh, đưa việc chặn như Disk I/O, Network I/O và tính toán nặng sang worker thread hoặc thread pool trong cùng process, rồi gửi kết quả về Main Thread qua MessageQueue bằng Looper và Handler. Bài đi từ Process vs Thread dưới góc nhìn Linux kernel và ART, ngân sách frame và ANR, bộ ba Looper - MessageQueue - Handler, HandlerThread, ThreadPoolExecutor cho tác vụ CPU-bound và I/O-bound, đến Race Condition, Deadlock, Memory Leak, cách Coroutine Dispatchers ánh xạ xuống Thread, và một pipeline xử lý ảnh đa luồng bằng Kotlin.
 status: published
 difficulty: intermediate
 depth: deep-dive
@@ -32,19 +32,37 @@ knowledge_gap: Nhiều developer chỉ dùng Coroutines mà không hiểu Thread
 
 # Working with Thread in Android: Từ Bản Chất Đến Thực Chiến
 
+## Vấn đề cần giải quyết
+
 Trong phát triển ứng dụng Android, mọi trải nghiệm mượt mà của người dùng — từ thao tác vuốt chạm 120 FPS không giật lag, tải dữ liệu nền êm ái đến việc nén ảnh không làm đóng băng màn hình — đều phụ thuộc trực tiếp vào cách bạn làm việc với **Thread (Luồng)**.
+
+Vấn đề gốc nằm ở một ràng buộc của Android: chỉ một thread được phép vẽ và cập nhật giao diện. Mọi việc chạy trên thread đó đều chiếm thời gian vẽ màn hình, nên một lần đọc file, một lời gọi API hay một phép nén ảnh chạy sai chỗ là đủ làm app giật, rồi treo. Ngược lại, chuyển việc sang thread khác thì lại phải giải quyết bài toán gửi kết quả về đúng thread vẽ UI, chia sẻ dữ liệu giữa các thread và dừng thread đúng lúc.
 
 Nhiều lập trình viên hiện đại bắt đầu ngay với Kotlin Coroutines mà bỏ qua việc tìm hiểu Thread. Tuy nhiên, Coroutines không thay thế Thread; Coroutines **chạy trên nền tảng các Thread**. Nếu không hiểu bản chất của hệ điều hành, cơ chế Message Loop, mô hình phân chia bộ nhớ và các cạm bẫy tranh chấp tài nguyên (Concurrency Pitfalls), bạn sẽ sớm đối mặt với những lỗi quái đản trong môi trường production: **ANR (Application Not Responding)**, **Memory Leak**, **Race Condition** hay **Deadlock**.
 
 Tài liệu này dẫn dắt bạn đi từ con số 0 đến cấp độ kỹ sư cấp cao: hiểu bản chất hệ điều hành, làm chủ cơ chế giao tiếp của Android Framework, thiết kế Thread Pool tối ưu và xây dựng một **Pipeline xử lý đa luồng thực tế bằng Kotlin**.
 
----
+## Sau khi học xong
 
-## 1. Bản chất cốt lõi: Process vs Thread dưới lăng kính Hệ điều hành & ART
+- Giải thích được bản chất Process vs Thread, vùng nhớ Heap/Stack và chi phí thật khi tạo một Thread trên Linux/ART.
+- Giải thích được vì sao Main Thread phải hoàn thành mỗi frame trong 16.6ms và khi nào hệ thống báo ANR.
+- Triển khai được giao tiếp Background Thread → Main Thread bằng Looper, MessageQueue, Handler và HandlerThread.
+- Thiết kế được ThreadPoolExecutor phù hợp cho tác vụ CPU-bound và I/O-bound.
+- Nhận diện được Race Condition, Deadlock, Memory Leak khi dùng Thread và áp dụng được cách phòng tránh.
+
+## Thread trong Android là gì?
+
+**Thread** (Luồng) là đơn vị thực thi nhỏ nhất mà CPU Scheduler của hệ điều hành phân bổ thời gian CPU; các thread trong cùng một process dùng chung Heap nhưng mỗi thread có Call Stack riêng. **Làm việc với Thread trong Android** nghĩa là giữ Main Thread (thread duy nhất được chạm vào UI) luôn rảnh: việc chặn như I/O và tính toán nặng chạy trên worker thread hoặc thread pool, còn kết quả được gửi về Main Thread qua MessageQueue của nó bằng Looper và Handler.
+
+Mental model: Main Thread là **một quầy phục vụ duy nhất** xử lý lần lượt từng phiếu trong một hàng đợi (MessageQueue). Việc lâu được giao cho **nhân viên phía sau** (worker thread, thread pool); làm xong, họ không tự bước ra quầy mà **bỏ một phiếu kết quả vào hàng đợi** (`Handler.post`, `sendMessage`), và quầy sẽ xử lý phiếu đó đúng lượt. Quầy bị một phiếu giữ quá lâu thì cả hàng phía sau đứng im: đó là jank và ANR.
+
+## Cách hoạt động
+
+### Process vs Thread dưới lăng kính Hệ điều hành & ART
 
 Để hiểu đa luồng, trước hết phải hiểu đơn vị vận hành của hệ điều hành.
 
-```
+```text
 +-----------------------------------------------------------------------+
 | LINUX PROCESS (App Sandbox - UID riêng)                                |
 |                                                                       |
@@ -61,12 +79,14 @@ Tài liệu này dẫn dắt bạn đi từ con số 0 đến cấp độ kỹ s
 +-----------------------------------------------------------------------+
 ```
 
-### 1.1 Process (Tiến trình) là gì?
+#### Process (Tiến trình)
+
 - Khi người dùng chạm vào biểu tượng app để mở, hệ thống Linux sẽ fork ra một **Process** mới độc lập thông qua `Zygote`.
 - Mỗi Process có một không gian địa chỉ bộ nhớ ảo (Virtual Address Space) hoàn toàn cô lập, được gán một **Linux User ID (UID)** riêng biệt để đảm bảo tính bảo mật (Sandbox).
 - Hai Process khác nhau không thể trực tiếp đọc hay ghi vào vùng nhớ của nhau (nếu muốn chia sẻ dữ liệu thì bắt buộc phải dùng IPC - Inter-Process Communication như Binder, AIDL, Messenger, Socket).
 
-### 1.2 Thread (Luồng) là gì?
+#### Thread (Luồng): vùng nhớ dùng chung và vùng nhớ riêng
+
 - **Thread** là đơn vị thực thi nhỏ nhất được hệ điều hành (CPU Scheduler) phân bổ thời gian CPU để xử lý lệnh.
 - Một Process luôn có ít nhất một Thread (gọi là **Main Thread** trong Android). Một Process có thể sinh ra nhiều Thread con (Worker Threads).
 - **Vùng nhớ dùng chung (Shared Memory):** Tất cả các Thread trong cùng một Process đều dùng chung **Heap Memory**, các biến static, và các vùng nhớ tài nguyên của Process đó.
@@ -75,20 +95,22 @@ Tài liệu này dẫn dắt bạn đi từ con số 0 đến cấp độ kỹ s
   - **Program Counter (PC):** Con trỏ lưu vị trí lệnh máy tiếp theo cần thực thi.
   - **Registers:** Tập hợp các thanh ghi CPU lưu trạng thái tính toán tạm thời.
 
-### 1.3 Chi phí thực sự khi tạo một Thread
+Vì Heap dùng chung, hai thread có thể cùng đọc ghi một object; đây là gốc của Race Condition ở phần "Race Condition và đồng bộ hoá dữ liệu dùng chung" bên dưới.
+
+#### Chi phí thực sự khi tạo một Thread
+
 Một sai lầm kinh điển của người mới là nghĩ rằng Thread rất "nhẹ":
 1. **Chi phí bộ nhớ (Memory Footprint):** Mỗi Thread trong Android Runtime (ART) khi khởi tạo ngầm cấp phát một vùng Call Stack cố định (thường từ **1MB đến 2MB** trong không gian bộ nhớ ảo). Tạo 100 Thread đồng nghĩa giữ chỗ 100MB - 200MB **không gian địa chỉ ảo** cho Stack. RAM vật lý chỉ được cấp cho phần stack thực sự dùng tới, nên con số RAM thật nhỏ hơn nhiều, nhưng mỗi Thread vẫn tốn bộ nhớ kernel, thời gian tạo và chi phí lập lịch.
 2. **Chi phí chuyển ngữ cảnh (Context Switching):** CPU chỉ có một số lượng nhân vật lý hữu hạn (ví dụ: chip 8 nhân). Khi có hàng trăm Thread cùng đòi chạy, CPU phải liên tục dừng luồng này, lưu trạng thái thanh ghi/stack pointer ra RAM, rồi tải trạng thái của luồng khác vào thanh ghi. Hiện tượng này làm tiêu tốn chu kỳ CPU vô ích, gây nóng máy và tụt pin trầm trọng.
 3. **Kernel System Call Overhead:** Lệnh tạo Thread (`pthread_create` trong C/Linux) phải gọi xuống Kernel space, tốn hàng trăm microsecond đến millisecond.
 
 > [!IMPORTANT]
-> **Quy tắc vàng 1:** Thread tạo thủ công (`thread { ... }`, `Thread(...).start()`) vẫn chạy đúng, và hợp với một việc chạy dài, riêng biệt (ví dụ luồng lắng nghe socket, mục 7). Hạn chế của nó: mỗi lần tạo tốn các chi phí ở trên, không giới hạn được số thread khi có nhiều việc cùng lúc, và không tự huỷ theo lifecycle nên dễ gây Memory Leak (mục 6.3). Với việc nền ngắn và lặp lại, hãy ưu tiên **Thread Pool** dùng chung có kiểm soát kích thước (mục 5) hoặc Coroutines (mục 8).
+> **Quy tắc vàng 1:** Thread tạo thủ công (`thread { ... }`, `Thread(...).start()`) vẫn chạy đúng, và hợp với một việc chạy dài, riêng biệt (ví dụ luồng lắng nghe socket, bảng bài toán ở mục "Ví dụ thực tế"). Hạn chế của nó: mỗi lần tạo tốn các chi phí ở trên, không giới hạn được số thread khi có nhiều việc cùng lúc, và không tự huỷ theo lifecycle nên dễ gây Memory Leak (mục "Sai lầm thường gặp", phần 4). Với việc nền ngắn và lặp lại, hãy ưu tiên **Thread Pool** dùng chung có kiểm soát kích thước (phần Thread Pool bên dưới) hoặc Coroutines (mục "So sánh với các cách tiếp cận khác").
 
----
+### Main Thread (UI Thread) trong Android
 
-## 2. Main Thread (UI Thread) trong Android: Trọng trách, Giới hạn và ANR
+#### Tại sao Android áp dụng mô hình "Single-Threaded UI Model"?
 
-### 2.1 Tại sao Android áp dụng mô hình "Single-Threaded UI Model"?
 Hầu hết các hệ điều hành đồ họa (Android, iOS, Swing, Web DOM) đều thiết kế UI framework theo mô hình **Đơn Luồng (Single-Threaded)**.
 
 Giả sử nếu hai Thread khác nhau cùng được phép chỉnh sửa một nút bấm (`Button`):
@@ -106,7 +128,7 @@ thread {
 }
 ```
 Hệ thống sẽ ném ra ngoại lệ nổi tiếng:
-```
+```text
 android.view.ViewRootImpl$CalledFromWrongThreadException: 
 Only the original thread that created a view hierarchy can touch its views.
 ```
@@ -121,17 +143,19 @@ void checkThread() {
 }
 ```
 
-### 2.2 Vòng lặp Frame 16.6ms / 8.3ms và sự hình thành của Lag
+#### Vòng lặp Frame 16.6ms / 8.3ms và sự hình thành của Lag
+
 Màn hình thiết bị Android làm mới (refresh) theo tần số quét:
 - Màn hình **60Hz**: Cứ sau **16.6ms**, phần cứng GPU/Choreographer sẽ gửi tín hiệu **Vsync**. Main Thread phải hoàn thành việc đo (`measure`), sắp xếp (`layout`) và vẽ (`draw`) toàn bộ cây View trong chưa đầy 16.6ms.
 - Màn hình **120Hz**: Thời gian giới hạn chỉ còn **8.3ms**.
 
 Nếu Main Thread bận thực hiện một phép tính toán nặng (ví dụ: giải mã file JSON 5MB mất 100ms), nó sẽ bỏ lỡ (drop) nhiều khung hình Vsync. Người dùng sẽ thấy màn hình bị giật cục (Jank/Stutter).
 
-### 2.3 ANR (Application Not Responding)
+#### ANR (Application Not Responding)
+
 Khi Main Thread bị chặn (block) quá lâu và không thể tiếp nhận tương tác người dùng, hệ điều hành sẽ kích hoạt hộp thoại **ANR**:
 
-```
+```text
 +-------------------------------------------------------------+
 | App isn't responding                                        |
 | Do you want to close it?                                    |
@@ -145,18 +169,17 @@ Khi Main Thread bị chặn (block) quá lâu và không thể tiếp nhận tư
 | **BroadcastReceiver** | **10 giây (Foreground) / 60 giây (Background)** | Hàm `onReceive()` chạy quá thời gian cho phép. |
 | **Service** | **20 giây (Foreground) / 200 giây (Background)** | Các hàm lifecycle (`onCreate`, `onStartCommand`) của Service chặn Main Thread. |
 
-> [!CAUTION]
-> Bất kỳ thao tác nào liên quan đến **Disk I/O** (đọc ghi file, SQLite), **Network I/O** (gọi API HTTP, Socket), hoặc **CPU-bound calculation** (nén ảnh, giải mã mã hóa) đều **BẮT BUỘC PHẢI CHUYỂN SANG BACKGROUND THREAD**.
+> [!NOTE]
+> Docs ANR chỉ ghi chắc chắn hai con số: input không được phản hồi trong **5 giây**, và `BroadcastReceiver` chưa chạy xong trong **10 giây** khi app có Activity ở foreground; với Service, docs chỉ ghi "vài giây". Các con số còn lại trong bảng là hằng số timeout trong mã nguồn AOSP (`BROADCAST_FG_TIMEOUT`/`BROADCAST_BG_TIMEOUT` trong `ActivityManagerService`, `SERVICE_TIMEOUT`/`SERVICE_BACKGROUND_TIMEOUT` trong `ActivityManagerConstants`), được nhân thêm hệ số theo phần cứng và có thể đổi giữa các phiên bản. "Foreground/Background" ở dòng BroadcastReceiver là hàng đợi broadcast (broadcast gửi kèm `Intent.FLAG_RECEIVER_FOREGROUND` vào hàng đợi foreground); ở dòng Service là process có đang chạy service ở mức ưu tiên foreground hay không. Đừng thiết kế dựa vào các con số này: việc trên Main Thread luôn phải xong trong một frame.
 
-Android thậm chí còn cài sẵn chốt chặn: Nếu bạn cố tình gọi HTTP Request trên Main Thread, framework sẽ ném ngay lỗi `android.os.NetworkOnMainThreadException`.
+Cách giữ Main Thread rảnh là chuyển Disk I/O, Network I/O và tính toán nặng sang thread khác; vì sao bỏ qua điều này là sai lầm phổ biến nhất xem mục "Sai lầm thường gặp", phần 1.
 
----
-
-## 3. Tạo và khởi chạy Thread cơ bản trong Kotlin
+### Tạo và khởi chạy Thread cơ bản trong Kotlin
 
 Trong Kotlin / Java, có 3 cách cơ bản để khởi tạo và chạy một Thread:
 
-### Cách 1: Sử dụng Kotlin DSL `thread { ... }`
+#### Cách 1: Sử dụng Kotlin DSL `thread { ... }`
+
 Cách ngắn gọn và phổ biến nhất khi bạn chỉ muốn chạy nhanh một đoạn code ngầm độc lập:
 ```kotlin
 import kotlin.concurrent.thread
@@ -169,7 +192,8 @@ fun runTask() {
 }
 ```
 
-### Cách 2: Triển khai interface `Runnable` (Khuyến khích hơn kế thừa Thread)
+#### Cách 2: Triển khai interface `Runnable` (Khuyến khích hơn kế thừa Thread)
+
 Tách rời công việc cần làm (`Runnable`) khỏi phương tiện thực thi (`Thread`):
 ```kotlin
 class HeavyCalculationTask(private val data: List<Int>) : Runnable {
@@ -185,16 +209,15 @@ val workerThread = Thread(task, "CalculationWorker")
 workerThread.start()
 ```
 
-### Vì sao không nên kế thừa trực tiếp từ `class MyThread : Thread()`?
+#### Vì sao không nên kế thừa trực tiếp từ `class MyThread : Thread()`?
+
 1. Java và Kotlin chỉ hỗ trợ đơn kế thừa. Kế thừa `Thread` làm bạn mất khả năng kế thừa từ class cha khác.
 2. Vi phạm nguyên lý Single Responsibility Principle (SRP): Trộn lẫn logic công việc với cơ chế quản lý vòng đời luồng.
 3. Không thể tái sử dụng logic đó cho các kiến trúc hiện đại như `ExecutorService` hay `ThreadPool`.
 
----
+### Trái tim giao tiếp bất đồng bộ của Android: Looper, MessageQueue và Handler
 
-## 4. Trái tim giao tiếp bất đồng bộ của Android: Looper, MessageQueue và Handler
-
-Đây là kiến trúc cốt lõi nhất của toàn bộ Android OS. Mọi tương tác chạm, hiển thị, lifecycle của Activity hay Coroutines `Dispatchers.Main` đều chạy trên nền tảng của bộ ba này.
+Đây là kiến trúc cốt lõi nhất của toàn bộ Android OS. Mọi tương tác chạm, hiển thị, lifecycle của Activity hay Coroutines `Dispatchers.Main` đều chạy trên nền tảng của bộ ba này. Trong mental model ở trên, `MessageQueue` là hàng đợi phiếu, `Looper` là quầy lấy từng phiếu ra xử lý, còn `Handler` là cách bỏ phiếu vào đúng hàng đợi của một thread.
 
 ```mermaid
 sequenceDiagram
@@ -213,7 +236,7 @@ sequenceDiagram
     HD->>UI: handleMessage() chạy an toàn trên Main Thread
 ```
 
-### 4.1 Mổ xẻ từng thành phần
+#### Mổ xẻ từng thành phần
 
 1. **`Message`**: Đối tượng dữ liệu mang thông điệp cần chuyển giao giữa các luồng.
    - `what`: Mã định danh kiểu sự kiện (Int).
@@ -248,7 +271,33 @@ sequenceDiagram
    - **Chiều gửi (Producer):** Cung cấp các hàm `post()`, `postDelayed()`, `sendMessage()` để bất kỳ Thread nào cũng có thể đẩy tin nhắn vào `MessageQueue`.
    - **Chiều nhận (Consumer):** Cài đặt hàm `handleMessage(msg: Message)` để nhận và xử lý tin nhắn khi Looper phân phối tới. Handler gắn liền với Thread nào thì `handleMessage` sẽ chạy trên Thread đó!
 
-### 4.2 Code thực tế: Giao tiếp Background Thread -> Main Thread qua Handler
+> [!NOTE]
+> Constructor `Handler()` và `Handler(callback)` không truyền `Looper` đã bị deprecated: chọn Looper ngầm theo thread hiện tại dễ làm mất việc (Looper đã quit), crash (thread chưa có Looper) hoặc chạy nhầm thread. Luôn truyền Looper rõ ràng, như `Handler(Looper.getMainLooper())` trong các ví dụ của bài.
+
+#### Ví dụ: trả kết quả tải dữ liệu từ Background Thread về Main Thread
+
+Một màn hình cần tải dữ liệu mất khoảng 2 giây rồi hiển thị kết quả. Việc tải phải chạy trên background thread, còn hiển thị phải chạy trên Main Thread, nên kết quả được gửi qua Handler gắn với Main Looper:
+
+1. Tạo `mainHandler` gắn với `Looper.getMainLooper()`, override `handleMessage()` để phân loại theo `msg.what`.
+2. `fetchDataAsync()` mở một background thread để làm việc chậm (giả lập bằng `Thread.sleep(2000)`).
+3. Xong việc, background thread lấy Message từ Pool bằng `obtainMessage()` và `sendMessage()` vào MessageQueue của Main Thread; lỗi thì gửi `MSG_ERROR`.
+4. Looper của Main Thread lấy Message ra và gọi `handleMessage()` trên Main Thread, nơi `onResult()` được phép chạm vào UI.
+
+```mermaid
+sequenceDiagram
+    participant UI as Màn hình (Main Thread)
+    participant BG as Thread "NetworkFetcher"
+    participant MQ as MessageQueue (Main)
+    participant H as mainHandler
+
+    UI->>H: (1) Tạo Handler(Looper.getMainLooper())
+    UI->>BG: (2) fetchDataAsync() mở background thread
+    BG->>BG: (2) Làm việc chậm ~2 giây
+    BG->>MQ: (3) obtainMessage(MSG_SUCCESS, data) → sendMessage()
+    MQ-->>H: (4) Looper lấy Message, gọi handleMessage()
+    H->>UI: (4) onResult(data) trên Main Thread
+```
+
 ```kotlin
 import android.os.Handler
 import android.os.Looper
@@ -257,13 +306,13 @@ import kotlin.concurrent.thread
 
 class DataFetcher(private val onResult: (String) -> Unit) {
 
-    // 1. Tạo Handler gắn chặt với Main Looper
+    // (1) Tạo Handler gắn chặt với Main Looper
     private val mainHandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 MSG_SUCCESS -> {
                     val data = msg.obj as String
-                    onResult(data) // Chạy an toàn 100% trên Main Thread!
+                    onResult(data) // (4) Chạy an toàn 100% trên Main Thread!
                 }
                 MSG_ERROR -> {
                     // Xử lý lỗi UI
@@ -278,14 +327,14 @@ class DataFetcher(private val onResult: (String) -> Unit) {
     }
 
     fun fetchDataAsync() {
-        // 2. Chạy tác vụ trên Background Thread
+        // (2) Chạy tác vụ trên Background Thread
         thread(name = "NetworkFetcher") {
             try {
                 // Giả lập đọc mạng/file mất 2 giây
                 Thread.sleep(2000)
                 val responseData = "Dữ liệu máy chủ: { id: 100, name: 'Knowledge OS' }"
 
-                // 3. Tái sử dụng Message từ Pool và gửi về Main Thread
+                // (3) Tái sử dụng Message từ Pool và gửi về Main Thread
                 val msg = mainHandler.obtainMessage(MSG_SUCCESS, responseData)
                 mainHandler.sendMessage(msg)
             } catch (e: Exception) {
@@ -296,7 +345,10 @@ class DataFetcher(private val onResult: (String) -> Unit) {
 }
 ```
 
-### 4.3 `HandlerThread`: Background Thread sở hữu riêng một Looper
+**Kết quả:** gọi `fetchDataAsync()` từ Main Thread thì UI không bị chặn trong 2 giây chờ; khoảng 2 giây sau `onResult()` chạy trên Main Thread (kiểm tra bằng `Looper.myLooper() == Looper.getMainLooper()` bên trong callback).
+
+#### `HandlerThread`: Background Thread sở hữu riêng một Looper
+
 Thông thường, một Background Thread mới tạo chỉ chạy hết hàm `run()` rồi lập tức kết thúc. Nếu bạn muốn một Background Thread sống lâu dài, có hàng đợi công việc riêng để xử lý tuần tự từng task ngầm (ví dụ: tuần tự ghi log vào file, hoặc kết nối Bluetooth Serial):
 👉 Sử dụng **`HandlerThread`**.
 
@@ -324,16 +376,15 @@ class SequentialBackgroundWorker {
 }
 ```
 
----
-
-## 5. Quản lý luồng công nghiệp: ThreadPoolExecutor & ExecutorService
+### Quản lý luồng công nghiệp: ThreadPoolExecutor & ExecutorService
 
 Tạo Thread thủ công cho từng việc chỉ ổn khi số việc ít. Khi ứng dụng có nhiều tác vụ nền chạy liên tục, bạn cần **Thread Pool** để tái sử dụng thread và giới hạn số thread chạy cùng lúc.
 
-### 5.1 Kiến trúc ThreadPoolExecutor
+#### Kiến trúc ThreadPoolExecutor
+
 Thread Pool duy trì sẵn một nhóm luồng thường trực để nhận công việc. Khi làm xong, luồng không bị hủy mà quay trở lại hàng ngũ chờ nhiệm vụ tiếp theo.
 
-```
+```text
                   +----------------------------------------------+
                   |               Incoming Tasks                 |
                   +----------------------------------------------+
@@ -362,11 +413,12 @@ Thread Pool duy trì sẵn một nhóm luồng thường trực để nhận cô
                                              +-------------------------+   +-------------------------+
 ```
 
-### 5.2 Công thức tính toán kích thước Thread Pool tối ưu
+#### Công thức tính toán kích thước Thread Pool tối ưu
 
 Không có một con số cố định cho mọi bài toán. Kích thước pool phụ thuộc vào tính chất của tác vụ:
 
-#### Nhóm 1: Tác vụ nặng tính toán (CPU-bound)
+**Nhóm 1: Tác vụ nặng tính toán (CPU-bound)**
+
 *Ví dụ:* Nén ảnh Bitmap, mã hóa dữ liệu AES, thuật toán đồ thị, giải nén ZIP.
 - Luồng chạy liên tục và ép CPU đạt 100% công suất. Nếu tạo số Thread vượt quá số nhân CPU, máy chỉ tốn thêm thời gian context switch.
 - **Công thức:**
@@ -374,14 +426,18 @@ Không có một con số cố định cho mọi bài toán. Kích thước pool
   *(Cộng thêm 1 để phòng ngừa trường hợp hiếm hoi 1 luồng bị page fault hoặc tạm ngừng ngắn).*
 - Trong cả hai công thức, $N_{\text{cpu}}$ là số nhân CPU của thiết bị, đọc lúc chạy bằng `Runtime.getRuntime().availableProcessors()`.
 
-#### Nhóm 2: Tác vụ chờ vào/ra dữ liệu (I/O-bound)
+**Nhóm 2: Tác vụ chờ vào/ra dữ liệu (I/O-bound)**
+
 *Ví dụ:* Tải file qua mạng HTTP, đọc/ghi SQLite, đọc file từ thẻ nhớ, gọi Web Service.
 - Hầu hết thời gian luồng không dùng CPU mà chỉ nằm im chờ kết nối mạng hoặc chờ đĩa từ phản hồi. Vì vậy, CPU có thể phục vụ nhiều luồng khác cùng lúc.
 - **Công thức:**
   $$\text{Pool Size} = N_{\text{cpu}} \times \left(1 + \frac{\text{Wait Time}}{\text{Compute Time}}\right)$$
   *(Trong thực tế Android, I/O Pool thường được cấu hình từ **4 đến 64 threads** tùy nhu cầu).*
 
-### 5.3 Triển khai `AppExecutors` Singleton chuẩn kiến trúc Android
+#### Ví dụ: `AppExecutors` Singleton chuẩn kiến trúc Android
+
+Một app dùng chung ba executor cho mọi màn hình: pool cho việc CPU-bound, pool cho I/O, và một executor đưa việc về Main Thread. Đây là code khai báo (không có luồng xử lý), nên không cần sơ đồ:
+
 ```kotlin
 import android.os.Handler
 import android.os.Looper
@@ -431,14 +487,11 @@ object AppExecutors {
 }
 ```
 
----
+### Race Condition và đồng bộ hoá dữ liệu dùng chung
 
-## 6. Hiểm họa đa luồng: Race Condition, Deadlock & Memory Leak
+Lập trình đa luồng rất mạnh mẽ nhưng đi kèm những cạm bẫy cực kỳ nguy hiểm. Cạm bẫy đầu tiên đến thẳng từ việc các thread dùng chung Heap.
 
-Lập trình đa luồng rất mạnh mẽ nhưng đi kèm những cạm bẫy cực kỳ nguy hiểm.
-
-### 6.1 Race Condition (Xung đột dữ liệu)
-Xảy ra khi nhiều Thread cùng đọc và ghi vào một vùng dữ liệu chung mà không có cơ chế đồng bộ hóa.
+**Race Condition (Xung đột dữ liệu)** xảy ra khi nhiều Thread cùng đọc và ghi vào một vùng dữ liệu chung mà không có cơ chế đồng bộ hóa.
 
 Xét bài toán: Tăng biến đếm lượt tải ảnh `downloadCount++`:
 Phép toán `count++` thực chất gồm **3 bước máy tính riêng biệt**:
@@ -447,7 +500,7 @@ Phép toán `count++` thực chất gồm **3 bước máy tính riêng biệt**
 3. Ghi giá trị mới từ thanh ghi CPU trở lại RAM.
 
 Nếu Thread A và Thread B cùng chạy song song:
-```
+```text
 Thread A: Đọc count (0)
 Thread B: Đọc count (0)
 Thread A: Tăng lên 1 -> Ghi 1 vào RAM
@@ -455,7 +508,7 @@ Thread B: Tăng lên 1 -> Ghi 1 vào RAM
 -> Kết quả thực tế là 1, trong khi đúng ra phải là 2!
 ```
 
-#### Các giải pháp bảo vệ dữ liệu:
+#### Các giải pháp bảo vệ dữ liệu
 
 1. **`AtomicInteger` / `AtomicBoolean` / `AtomicReference` (Tối ưu nhất cho biến đơn lẻ):**
    Sử dụng lệnh phần cứng chuyên dụng **CAS (Compare-And-Swap)** của CPU, không cần khóa luồng (lock-free), hiệu năng cực cao.
@@ -494,7 +547,393 @@ Thread B: Tăng lên 1 -> Ghi 1 vào RAM
 | `@Volatile` | Đảm bảo visibility qua quan hệ happens-before: lần ghi được các lần đọc sau ở luồng khác nhìn thấy | Cờ boolean để dừng luồng. **Không** đảm bảo atomicity cho `count++` |
 | `synchronized` / `ReentrantLock` | Khóa loại trừ tương hỗ (Mutual Exclusion) | Cụm logic nhiều bước, chỉnh sửa cấu trúc dữ liệu như `List`/`Map` |
 
-### 6.2 Deadlock (Khóa chết)
+Khoá giải quyết Race Condition nhưng mở ra cạm bẫy khác: hai thread khoá chéo nhau (Deadlock), xem mục "Sai lầm thường gặp", phần 3.
+
+### Giám sát & Debugging Đa luồng chuyên nghiệp
+
+Lập trình viên giỏi khác lập trình viên trung bình ở khả năng **quan sát và chẩn đoán luồng**.
+
+#### Khám phá Android Studio Profiler
+
+1. Kết nối máy thật hoặc máy ảo -> Chạy app bằng **Profile 'app' with low overhead** hoặc **Profile 'app' with complete data**; tab **Profiler** mở ở đáy Android Studio.
+2. Trong tab **Home** của Profiler, chọn process của app -> Chọn một task: **View Live Telemetry** để xem thread theo thời gian thực, task ghi **System Trace**, hoặc **Find CPU Hotspots** (Callstack Sample hay Java/Kotlin Method Recording) -> Bấm **Start profiler task**.
+3. Thao tác trên app -> Dừng ghi (với task có ghi) và chờ kết quả được phân tích.
+4. Quan sát danh sách Threads (màu trạng thái theo docs của live view):
+   - **Màu xanh lá cây (Running/Runnable):** Luồng đang thực thi lệnh trên CPU hoặc đã sẵn sàng chờ CPU.
+   - **Màu vàng:** Luồng vẫn hoạt động nhưng đang chờ một thao tác I/O (disk hoặc network) hoàn tất.
+   - **Màu xám (Sleeping):** Luồng đang ngủ, không tiêu tốn CPU (`Thread.sleep()`, chờ MessageQueue, hoặc bị kernel cho ngủ đến khi tài nguyên cần thiết, như một khóa, sẵn sàng).
+   - CẢNH BÁO NGUY HIỂM! Nếu Main Thread vàng hoặc xám kéo dài trong lúc người dùng đang thao tác (đang chờ I/O, chờ khóa của `synchronized` hoặc Lock khác) -> Nguy cơ ANR trực tiếp!
+
+#### Bật StrictMode phát hiện vi phạm luồng trong lúc Debug
+
+Thêm đoạn code này vào hàm `Application.onCreate()` để ứng dụng tự động cảnh báo (hoặc chớp đỏ màn hình/crash) khi vô tình thực hiện Disk/Network I/O trên Main Thread:
+
+```kotlin
+class MyApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()
+                    .penaltyLog()
+                    .penaltyFlashScreen()
+                    .build()
+            )
+        }
+    }
+}
+```
+
+### Tư duy hệ thống (System Thinking): Vị trí của Threading trong Clean Architecture
+
+Trong một kiến trúc phần mềm tiêu chuẩn (Clean Architecture / MVVM), việc điều phối luồng không nằm rải rác tùy tiện mà tuân thủ ranh giới rõ ràng:
+
+```text
+[ UI Layer (Activity / Compose) ] 
+       | (Luôn chạy trên MAIN THREAD - Thụ động hiển thị UI State)
+       v
+[ ViewModel / Presenter ]
+       | (Chuyển tiếp lệnh, điều phối luồng thông qua Scopes)
+       v
+[ Domain Layer (UseCases) ]
+       | (Thực thi Business Logic - Luôn là Thread-Safe)
+       v
+[ Data Layer (Repository / DataSource) ]
+       | (CHỦ ĐỘNG chuyển sang BACKGROUND THREAD: I/O Pool hoặc Dispatchers.IO)
+       v
+[ SQLite Database / Remote Network ]
+```
+
+**Nguyên tắc "Main-Safety":** Một Repository hoặc UseCase chuẩn mực phải **Main-Safe**. Nghĩa là bất kể ai gọi nó từ Main Thread, nó phải tự chịu trách nhiệm chuyển sang Background Thread để xử lý và trả kết quả về an toàn mà không làm treo UI của người gọi.
+
+## Ví dụ thực tế
+
+### Bản đồ 5 Use Cases thực chiến trong ứng dụng Android
+
+Dưới đây là 5 bài toán mà bất kỳ lập trình viên Android nào cũng sẽ gặp trong các dự án thực tế:
+
+| Use Case | Đặc trưng tài nguyên | Loại Thread Pool phù hợp | Cơ chế điều phối |
+| :--- | :--- | :--- | :--- |
+| **1. File Downloader & Storage Writer** | I/O-bound (chờ mạng và đĩa) | `ioExecutor` (10-20 threads) | Báo cáo byte đã tải về Main Handler theo từng đoạn (chunk) |
+| **2. Image Processing & Filters** | CPU-bound (thuật toán ma trận pixel) | `cpuExecutor` ($N_{cpu}$ threads) | Chia nhỏ ảnh hoặc xử lý từng ảnh một cách độc lập |
+| **3. Large JSON Bulk Import** | Hỗn hợp (CPU parse + I/O SQLite) | `SingleThreadExecutor` hoặc `ioExecutor` | Thực hiện Transaction trọn gói trong 1 luồng ngầm duy nhất |
+| **4. Realtime Socket / Bluetooth** | Liên tục, kết nối duy trì lâu | `Dedicated Thread` (`HandlerThread`) | Lắng nghe liên tục trên vòng lặp `while (isConnected)` ngầm |
+| **5. Periodic Polling / Heartbeat** | Định kỳ, thời gian ngắn | `ScheduledThreadPoolExecutor` | `scheduleAtFixedRate()` gửi ping định kỳ |
+
+Bài toán chính dưới đây gộp use case 1 và 2: tải ảnh (I/O-bound) rồi lọc ảnh (CPU-bound), mỗi giai đoạn chạy trên pool hợp với nó.
+
+### Mini-Project thực chiến: Concurrent Image Processing Pipeline
+
+Chúng ta sẽ xây dựng một **Hệ thống tải và lọc ảnh song song (Pipeline)** bằng Kotlin thuần kết hợp `ThreadPoolExecutor` và `Handler`, tuân thủ 100% Best Practices:
+- Quản lý kích thước luồng chặt chẽ.
+- Báo cáo % tiến độ và kết quả về Main Thread.
+- Tự động hủy luồng khi màn hình bị đóng để ngăn chặn Memory Leak.
+
+Luồng chạy:
+
+1. `ImageProcessingActivity` tạo `ImagePipelineManager` (giữ callback bằng `WeakReference`) và gọi `processImage(url)` từ Main Thread.
+2. Task được đưa vào `downloadExecutor` (I/O pool): báo tiến độ 20%, tải và decode ảnh bằng `HttpURLConnection` + `BitmapFactory`, báo tiến độ 60%.
+3. Bitmap vừa tải được đẩy sang `filterExecutor` (CPU pool) để áp bộ lọc Grayscale, rồi báo 100% và `Success` (hoặc `Error` nếu có lỗi ở bất kỳ giai đoạn nào).
+4. Mọi lần báo trạng thái đi qua `mainHandler.post`, nên `onStateUpdate()` luôn chạy trên Main Thread.
+5. Activity cập nhật `ProgressBar` và `TextView` theo `PipelineState`.
+6. `onDestroy()` gọi `release()`: gửi interrupt cho các task đang chạy và `shutdownNow()` cả hai pool.
+
+```mermaid
+sequenceDiagram
+    participant A as ImageProcessingActivity (Main)
+    participant M as ImagePipelineManager
+    participant IO as downloadExecutor (I/O pool)
+    participant CPU as filterExecutor (CPU pool)
+    participant H as mainHandler (Main Looper)
+
+    A->>M: (1) processImage(url)
+    M->>IO: (2) submit task
+    IO->>H: (2) Progress 20%
+    IO->>IO: (2) downloadBitmap(url)
+    IO->>H: (2) Progress 60%
+    IO->>CPU: (3) execute { applyGrayscaleFilter() }
+    CPU->>H: (3) Progress 100%, Success(bitmap)
+    H->>A: (4) post { onStateUpdate(state) }
+    A->>A: (5) Cập nhật ProgressBar / TextView
+    A->>M: (6) onDestroy() → release()
+    M->>IO: (6) cancel(true) + shutdownNow()
+    M->>CPU: (6) shutdownNow()
+```
+
+#### Bước 1: Khai báo Contract và Data Model
+
+```kotlin
+package com.knowledge.threading.pipeline
+
+import android.graphics.Bitmap
+
+// Trạng thái của từng tác vụ ảnh
+sealed class PipelineState {
+    data class Progress(val imageUrl: String, val percent: Int) : PipelineState()
+    data class Success(val imageUrl: String, val resultBitmap: Bitmap) : PipelineState()
+    data class Error(val imageUrl: String, val throwable: Throwable) : PipelineState()
+}
+
+// Callback giao tiếp an toàn về UI
+interface PipelineCallback {
+    fun onStateUpdate(state: PipelineState)
+}
+```
+
+#### Bước 2: Xây dựng Bộ xử lý ImagePipelineManager
+
+```kotlin
+package com.knowledge.threading.pipeline
+
+import android.graphics.*
+import android.os.Handler
+import android.os.Looper
+import java.lang.ref.WeakReference
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.concurrent.*
+
+class ImagePipelineManager(callback: PipelineCallback) {
+
+    // (1) Tránh Memory Leak bằng WeakReference
+    private val callbackRef = WeakReference(callback)
+
+    // (4) Handler đảm bảo mọi callback đều bắn về Main UI Thread
+    private val mainHandler = Handler(Looper.getMainLooper())
+
+    // (2) Thread Pool cho việc tải ảnh qua mạng (I/O)
+    // Queue không giới hạn thì pool không bao giờ vượt corePoolSize (maximumPoolSize bị bỏ qua),
+    // nên đặt core = max = 4 và cho thread rảnh tự hủy sau 30 giây.
+    private val downloadExecutor = ThreadPoolExecutor(
+        4, 4, 30L, TimeUnit.SECONDS,
+        LinkedBlockingQueue<Runnable>()
+    ).apply { allowCoreThreadTimeOut(true) }
+
+    // (3) Thread Pool cho việc biến đổi điểm ảnh CPU (CPU-bound)
+    private val filterExecutor = ThreadPoolExecutor(
+        Runtime.getRuntime().availableProcessors(),
+        Runtime.getRuntime().availableProcessors(),
+        0L, TimeUnit.MILLISECONDS,
+        LinkedBlockingQueue<Runnable>()
+    )
+
+    // Danh sách theo dõi các Task đang chạy để có thể cancel khi cần
+    private val runningFutures = CopyOnWriteArrayList<Future<*>>()
+
+    fun processImage(imageUrl: String) {
+        val future = downloadExecutor.submit {
+            try {
+                // (2) Giai đoạn 1: Tải ảnh (I/O)
+                notifyState(PipelineState.Progress(imageUrl, 20))
+                val rawBitmap = downloadBitmap(imageUrl)
+
+                notifyState(PipelineState.Progress(imageUrl, 60))
+
+                // (3) Giai đoạn 2: Đẩy sang CPU Pool để áp bộ lọc Grayscale
+                filterExecutor.execute {
+                    try {
+                        val filteredBitmap = applyGrayscaleFilter(rawBitmap)
+                        notifyState(PipelineState.Progress(imageUrl, 100))
+                        notifyState(PipelineState.Success(imageUrl, filteredBitmap))
+                    } catch (e: Throwable) {
+                        notifyState(PipelineState.Error(imageUrl, e))
+                    }
+                }
+            } catch (e: Throwable) {
+                notifyState(PipelineState.Error(imageUrl, e))
+            }
+        }
+        runningFutures.add(future)
+    }
+
+    private fun downloadBitmap(urlString: String): Bitmap {
+        val url = URL(urlString)
+        val connection = url.openConnection() as HttpURLConnection
+        connection.doInput = true
+        connection.connectTimeout = 5000
+        connection.readTimeout = 5000
+        try {
+            connection.connect()
+            // use {} đóng InputStream kể cả khi decode lỗi
+            return connection.inputStream.use { input ->
+                BitmapFactory.decodeStream(input)
+                    ?: throw IllegalStateException("Không thể decode dữ liệu ảnh")
+            }
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    // Thuật toán CPU-bound: Chuyển đổi màu ảnh sang Grayscale
+    private fun applyGrayscaleFilter(src: Bitmap): Bitmap {
+        val width = src.width
+        val height = src.height
+        val dest = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+
+        val canvas = Canvas(dest)
+        val paint = Paint()
+        val colorMatrix = ColorMatrix().apply {
+            setSaturation(0f) // Triệt tiêu độ bão hòa màu -> trắng đen
+        }
+        paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
+        canvas.drawBitmap(src, 0f, 0f, paint)
+        return dest
+    }
+
+    private fun notifyState(state: PipelineState) {
+        // (4) Đưa trạng thái vào MessageQueue của Main Thread
+        mainHandler.post {
+            callbackRef.get()?.onStateUpdate(state)
+        }
+    }
+
+    // (6) Dọn dẹp tài nguyên và ngắt toàn bộ luồng khi màn hình đóng
+    fun release() {
+        for (future in runningFutures) {
+            future.cancel(true) // Gửi tín hiệu ngắt interrupt
+        }
+        runningFutures.clear()
+        downloadExecutor.shutdownNow()
+        filterExecutor.shutdownNow()
+    }
+}
+```
+
+#### Bước 3: Tích hợp vào Activity an toàn với Vòng đời
+
+```kotlin
+package com.knowledge.threading.pipeline
+
+import android.os.Bundle
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+
+class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
+
+    private lateinit var progressBar: ProgressBar
+    private lateinit var statusText: TextView
+    private var pipelineManager: ImagePipelineManager? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Khởi tạo views...
+
+        pipelineManager = ImagePipelineManager(this)
+        
+        // (1) Bắt đầu xử lý ảnh ngầm
+        pipelineManager?.processImage("https://example.com/large-wallpaper.jpg")
+    }
+
+    override fun onStateUpdate(state: PipelineState) {
+        // (5) Đã được bảo đảm 100% chạy trên Main Thread qua Handler
+        when (state) {
+            is PipelineState.Progress -> {
+                progressBar.progress = state.percent
+                statusText.text = "Đang xử lý: ${state.percent}%"
+            }
+            is PipelineState.Success -> {
+                statusText.text = "Hoàn tất!"
+                // imageView.setImageBitmap(state.resultBitmap)
+            }
+            is PipelineState.Error -> {
+                statusText.text = "Lỗi: ${state.throwable.localizedMessage}"
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // (6) Triệt tiêu nguy cơ Memory Leak ngay khi Activity bị hủy
+        pipelineManager?.release()
+        pipelineManager = null
+    }
+}
+```
+
+**Kết quả:** mở màn hình, `ProgressBar` đi qua 20% → 60% → 100% rồi hiện "Hoàn tất!" mà UI không giật; trong Profiler thấy việc tải chạy trên thread của `downloadExecutor` và việc lọc chạy trên thread của `filterExecutor`, còn Main Thread chỉ nhận các lần cập nhật. Đóng màn hình giữa chừng thì `release()` ngắt task và tắt cả hai pool, không còn thread nào giữ tham chiếu mạnh tới Activity.
+
+## So sánh với các cách tiếp cận khác
+
+### Cầu nối thế hệ: Từ Thread thuần đến Kotlin Coroutines & WorkManager
+
+Trong phát triển Android hiện đại (2024-2026), bạn sẽ chủ yếu làm việc với **Kotlin Coroutines** và **WorkManager**. Nhưng hãy nhìn cách chúng ánh xạ trực tiếp vào kiến trúc Thread bên dưới. Đây là kiến thức dùng trước: Coroutine được học ở 8.4.3 Coroutines (chưa có bài); WorkManager được giới thiệu ở [Android Service](../session_04/components/services/android_service.md), mục "WorkManager — Lựa chọn hiện đại cho background task".
+
+#### Coroutine Dispatchers thực chất là gì?
+
+Coroutine không phải là một luồng ma thuật. Nó là những đoạn mã có khả năng tạm ngừng (suspension) được điều phối chạy trên các Thread có sẵn. `Dispatchers.Default` và `Dispatchers.IO` **không phải `ThreadPoolExecutor`**: cả hai dùng chung một scheduler riêng của kotlinx.coroutines, nên `withContext(Dispatchers.IO)` khi đang ở Default thường không đổi thread thật.
+
+```text
++---------------------------+-------------------------------------------------------+
+| Coroutine Dispatcher      | Bản chất Thread Pool bên dưới                          |
++---------------------------+-------------------------------------------------------+
+| Dispatchers.Main          | Chạy trực tiếp qua MainLooper Handler của Android     |
+| Dispatchers.IO            | Dùng chung thread với Default; tối đa 64 tác vụ chặn song song (hoặc số nhân CPU nếu lớn hơn) |
+| Dispatchers.Default       | Pool dùng chung; tối đa số thread = số nhân CPU, tối thiểu 2 |
+| Dispatchers.Unconfined    | Không đổi luồng (chạy tiếp trên luồng vừa gọi)        |
++---------------------------+-------------------------------------------------------+
+```
+
+## Khi nào nên và không nên dùng
+
+### Khi nào dùng công nghệ nào? Bảng quyết định kỹ thuật
+
+```text
+                     Bạn cần thực hiện tác vụ gì?
+                                 |
+         +-----------------------+-----------------------+
+         |                                               |
+Tác vụ cần chạy ngay lập tức?           Tác vụ cần chạy cả khi app đã tắt?
+         |                                               |
+  (In-Memory Work)                             (Guaranteed Execution)
+         |                                               |
++------------------------+                     +-----------------------+
+| Dùng Kotlin Coroutines |                     |   Dùng WorkManager    |
+| (lifecycleScope/       |                     | (Đồng bộ ngầm, upload |
+|  viewModelScope)       |                     |  ảnh hàng loạt)       |
++------------------------+                     +-----------------------+
+```
+
+1. **Kotlin Coroutines:** Lựa chọn mặc định số 1 cho 95% các tác vụ trong ứng dụng hiện nay (gọi API, đọc database, cập nhật State).
+2. **ThreadPool / HandlerThread thuần:** Dùng khi phát triển các **Core C/C++ NDK Library**, **Audio/Video Engine thời gian thực**, hoặc các SDK chuyên dụng độc lập không muốn phụ thuộc vào thư viện bên thứ ba.
+3. **WorkManager:** Dùng cho các tác vụ bắt buộc phải hoàn thành ngay cả khi người dùng vuốt thoát app hoặc khởi động lại máy (đồng bộ dữ liệu, sao lưu ngầm).
+
+Thread tạo thủ công vẫn hợp với một việc chạy dài, riêng biệt (luồng lắng nghe socket, use case 4 ở mục "Ví dụ thực tế"); không nên dùng nó cho việc nền ngắn và lặp lại (xem "Quy tắc vàng 1" ở mục "Cách hoạt động").
+
+### Checklist Best Practices khi làm việc với Thread
+
+> [!TIP]
+> Hãy in bảng kiểm này và kiểm tra code của bạn trước mỗi đợt Release:
+
+- [ ] **Không tạo Thread mới cho từng việc ngắn:** Tác vụ nền thông thường đi qua `ThreadPoolExecutor` dùng chung hoặc Coroutines; Thread thủ công chỉ dành cho việc chạy dài, riêng biệt và phải có cách dừng khi màn hình bị huỷ.
+- [ ] **Đặt tên cho Thread:** Luôn sử dụng `ThreadFactory` để đặt tên rõ ràng (ví dụ: `Image-IO-1`, `Audio-CPU-2`) giúp việc đọc Logcat và Profiler dễ dàng.
+- [ ] **Main-Safety:** Tuyệt đối không để rò rỉ thao tác I/O hoặc tính toán nặng lên Main Thread.
+- [ ] **Chống Memory Leak:** Không bao giờ giữ tham chiếu trực tiếp đến `Activity`, `Fragment` hay `View` bên trong Worker Thread hoặc Handler. Luôn hủy tác vụ trong `onDestroy()`.
+- [ ] **Tái sử dụng Message:** Dùng `Message.obtain()` hoặc `handler.obtainMessage()` thay vì khởi tạo `Message()`.
+- [ ] **Xử lý ngắt luồng (Cancellation):** Trong các vòng lặp nặng của Thread, hãy thường xuyên kiểm tra cờ `Thread.currentThread().isInterrupted` để dừng sớm khi bị hủy.
+- [ ] **Phòng chống Deadlock:** Khóa tài nguyên theo một thứ tự duy nhất trên toàn hệ thống. Ưu tiên các cấu trúc dữ liệu `java.util.concurrent.*` thay vì tự viết `synchronized`.
+
+## Sai lầm thường gặp
+
+### 1. Chạy I/O hoặc tính toán nặng trên Main Thread
+
+Bất kỳ thao tác nào liên quan đến **Disk I/O** (đọc ghi file, SQLite), **Network I/O** (gọi API HTTP, Socket), hoặc **CPU-bound calculation** (nén ảnh, giải mã mã hóa) đều **BẮT BUỘC PHẢI CHUYỂN SANG BACKGROUND THREAD**. Chạy trên Main Thread thì vượt ngân sách frame (jank), lâu hơn nữa thì ANR.
+
+Android thậm chí còn cài sẵn chốt chặn: Nếu bạn cố tình gọi HTTP Request trên Main Thread, framework sẽ ném ngay lỗi `android.os.NetworkOnMainThreadException`.
+
+**Cách sửa:** đưa việc vào thread pool dùng chung (`AppExecutors.ioExecutor` / `cpuExecutor`) và trả kết quả về qua Handler của Main Looper; bật StrictMode trong bản debug để bắt Disk/Network I/O lọt lên Main Thread.
+
+### 2. Tưởng `@Volatile` làm `count++` an toàn
+
+`@Volatile` chỉ đảm bảo visibility: lần ghi được các lần đọc sau ở luồng khác nhìn thấy. `count++` vẫn là ba bước đọc → cộng → ghi, nên hai thread vẫn có thể cùng đọc giá trị cũ và ghi đè nhau (Race Condition), kết quả đếm thiếu.
+
+**Cách sửa:** biến đơn lẻ dùng `AtomicInteger.incrementAndGet()`; cụm logic nhiều bước dùng `synchronized` hoặc `ReentrantLock` (xem phần "Race Condition và đồng bộ hoá dữ liệu dùng chung").
+
+### 3. Deadlock (Khóa chết)
+
 Deadlock xảy ra khi hai hay nhiều luồng bị đóng băng vĩnh viễn vì luồng này chờ tài nguyên đang bị luồng kia giữ và ngược lại.
 
 ```mermaid
@@ -531,11 +970,12 @@ thread {
 }
 ```
 
-#### Nguyên tắc phòng chống Deadlock:
+**Cách sửa (nguyên tắc phòng chống Deadlock):**
 - **Khóa theo thứ tự cố định (Lock Ordering):** Mọi luồng trong toàn bộ ứng dụng nếu cần cả `lockA` và `lockB` thì bắt buộc phải xin `lockA` trước rồi mới tới `lockB`.
 - **Sử dụng `ReentrantLock` với Timeout:** Thay vì `synchronized`, dùng `lock.tryLock(1000, TimeUnit.MILLISECONDS)`. Nếu quá 1 giây không lấy được khóa thì hủy bỏ và thử lại sau.
 
-### 6.3 Hiểm họa Memory Leak khi dùng Thread trong Android
+### 4. Hiểm họa Memory Leak khi dùng Thread trong Android
+
 Trong Java/Kotlin, một **Non-static Inner Class** hoặc **Anonymous Class** (bao gồm cả lambda) luôn ngầm giữ một tham chiếu mạnh (`Strong Reference`) đến đối tượng chứa nó (Outer Class - ví dụ: `Activity`).
 
 ```kotlin
@@ -559,7 +999,7 @@ class ProfileActivity : AppCompatActivity() {
 3. Nhưng Thread ngầm vẫn đang chạy 58 giây tiếp theo và đang giữ chặt tham chiếu đến `ProfileActivity`.
 4. Toàn bộ Activity và cây View của nó bị kẹt lại trong Heap RAM -> **Memory Leak**.
 
-#### Cách khắc phục:
+**Cách khắc phục:**
 1. Sử dụng **`WeakReference`** nếu bắt buộc phải giữ tham chiếu đến UI.
 2. Hủy bỏ (Cancel/Interrupt) tác vụ ngầm ngay khi Activity bị hủy:
 ```kotlin
@@ -582,353 +1022,39 @@ class SafeActivity : AppCompatActivity() {
 }
 ```
 
----
+### 5. Quên dừng `HandlerThread`
 
-## 7. Bản đồ 5 Use Cases thực chiến trong ứng dụng Android
+`HandlerThread` có Looper chạy vòng lặp vô tận, nên nó không tự kết thúc như thread thường. Không gọi `quit()`/`quitSafely()` thì thread và mọi object mà các task trong hàng đợi giữ tới sống mãi.
 
-Dưới đây là 5 bài toán mà bất kỳ lập trình viên Android nào cũng sẽ gặp trong các dự án thực tế:
+**Cách sửa:** gọi `handlerThread.quitSafely()` khi không còn dùng (như hàm `stop()` trong ví dụ `SequentialBackgroundWorker`): Looper xử lý nốt các message đã tới hạn rồi dừng.
 
-| Use Case | Đặc trưng tài nguyên | Loại Thread Pool phù hợp | Cơ chế điều phối |
-| :--- | :--- | :--- | :--- |
-| **1. File Downloader & Storage Writer** | I/O-bound (chờ mạng và đĩa) | `ioExecutor` (10-20 threads) | Báo cáo byte đã tải về Main Handler theo từng đoạn (chunk) |
-| **2. Image Processing & Filters** | CPU-bound (thuật toán ma trận pixel) | `cpuExecutor` ($N_{cpu}$ threads) | Chia nhỏ ảnh hoặc xử lý từng ảnh một cách độc lập |
-| **3. Large JSON Bulk Import** | Hỗn hợp (CPU parse + I/O SQLite) | `SingleThreadExecutor` hoặc `ioExecutor` | Thực hiện Transaction trọn gói trong 1 luồng ngầm duy nhất |
-| **4. Realtime Socket / Bluetooth** | Liên tục, kết nối duy trì lâu | `Dedicated Thread` (`HandlerThread`) | Lắng nghe liên tục trên vòng lặp `while (isConnected)` ngầm |
-| **5. Periodic Polling / Heartbeat** | Định kỳ, thời gian ngắn | `ScheduledThreadPoolExecutor` | `scheduleAtFixedRate()` gửi ping định kỳ |
+## Lịch sử phát triển
 
----
+- **API 1 (Android 1.0):** `Handler`, `Looper`, `HandlerThread` và `java.util.concurrent.ThreadPoolExecutor` có từ API level đầu tiên.
+- **API 3 (Android 1.5):** thêm `AsyncTask`, lớp tiện ích bọc `Thread` và `Handler` để chạy việc nền rồi trả kết quả về UI thread.
+- **API 9 (Android 2.3):** thêm `StrictMode` để bắt Disk/Network I/O vô tình chạy trên Main Thread; thêm `ThreadPoolExecutor.allowCoreThreadTimeOut()` (dùng trong pipeline ở trên).
+- **API 11 (Android 3.0, Honeycomb):** app target Honeycomb trở lên bị ném `NetworkOnMainThreadException` khi gọi mạng trên Main Thread; `AsyncTask` mặc định chạy tuần tự trên một thread để tránh lỗi do chạy song song.
+- **API 18 (Android 4.3):** thêm `Looper.quitSafely()` và `HandlerThread.quitSafely()`: dừng Looper sau khi xử lý xong các message đã tới hạn.
+- **API 30 (Android 11):** `AsyncTask` bị deprecated vì dễ gây leak Context, mất callback hoặc crash khi configuration change và nuốt exception; docs khuyên dùng `java.util.concurrent` hoặc Kotlin coroutines. `Looper.prepareMainLooper()` cũng bị deprecated vì main looper do Android tạo sẵn.
 
-## 8. Cầu nối thế hệ: Từ Thread thuần đến Kotlin Coroutines & WorkManager
+## Kết nối hệ thống
 
-Trong phát triển Android hiện đại (2024-2026), bạn sẽ chủ yếu làm việc với **Kotlin Coroutines** và **WorkManager**. Nhưng hãy nhìn cách chúng ánh xạ trực tiếp vào kiến trúc Thread bên dưới:
+- **Tiên quyết:** [Session 05 Overview](overview.md) (vị trí của bài này giữa Data Store và Networking).
+- **Liên quan:**
+  - [Activity Lifecycle](../session_04/components/activity/lifecycle.md): `onDestroy()` là nơi huỷ task nền để tránh Memory Leak.
+  - [Android Service](../session_04/components/services/android_service.md): Service chạy trên Main Thread nên việc nặng vẫn phải sang thread khác; WorkManager cho việc phải chạy cả khi app đã tắt.
+  - [Broadcast Receiver](../session_04/components/broadcast/broadcast_receiver.md): `onReceive()` chạy trên Main Thread với giới hạn khoảng 10 giây, `goAsync()` và WorkManager cho việc dài hơn.
+  - [Content Provider](../session_04/components/content_provider.md): query chạy nền thay vì trên Main Thread.
+  - [Async Transactions & Flow](data_store/room_transactions.md): đọc ghi Room là Disk I/O, phải chạy ngoài Main Thread.
+  - 2.2 Process Management (chưa có bài): Process, Zygote và mức ưu tiên process.
+- **Học tiếp:**
+  - [Networking](networking.md): request API trên background thread, xử lý lỗi mạng và trạng thái kết nối.
+  - 8.4.1 What Sync / Async (chưa có bài), 8.4.2 Thread and Multi-Thread (chưa có bài): đồng bộ, bất đồng bộ và đa luồng ở mức ngôn ngữ.
+  - 8.4.3 Coroutines (chưa có bài): Dispatchers, `withContext`, structured concurrency thay cho Handler và thread pool tự quản lý.
+  - 8.4.4 RxJava, RxAndroid, RxKotlin (chưa có bài): Schedulers, một cách khác để đổi thread.
+  - 7.2.5 Clean Architecture (chưa có bài) và 6.4 ViewModel (chưa có bài): đặt việc đổi thread ở Data Layer theo nguyên tắc Main-Safety.
 
-### 8.1 Coroutine Dispatchers thực chất là gì?
-Coroutine không phải là một luồng ma thuật. Nó là những đoạn mã có khả năng tạm ngừng (suspension) được điều phối chạy trên các Thread có sẵn. `Dispatchers.Default` và `Dispatchers.IO` **không phải `ThreadPoolExecutor`**: cả hai dùng chung một scheduler riêng của kotlinx.coroutines, nên `withContext(Dispatchers.IO)` khi đang ở Default thường không đổi thread thật.
-
-```
-+---------------------------+-------------------------------------------------------+
-| Coroutine Dispatcher      | Bản chất Thread Pool bên dưới                          |
-+---------------------------+-------------------------------------------------------+
-| Dispatchers.Main          | Chạy trực tiếp qua MainLooper Handler của Android     |
-| Dispatchers.IO            | Dùng chung thread với Default; tối đa 64 tác vụ chặn song song (hoặc số nhân CPU nếu lớn hơn) |
-| Dispatchers.Default       | Pool dùng chung; tối đa số thread = số nhân CPU, tối thiểu 2 |
-| Dispatchers.Unconfined    | Không đổi luồng (chạy tiếp trên luồng vừa gọi)        |
-+---------------------------+-------------------------------------------------------+
-```
-
-### 8.2 Khi nào dùng công nghệ nào? Bảng quyết định kỹ thuật
-
-```
-                     Bạn cần thực hiện tác vụ gì?
-                                 |
-         +-----------------------+-----------------------+
-         |                                               |
-Tác vụ cần chạy ngay lập tức?           Tác vụ cần chạy cả khi app đã tắt?
-         |                                               |
-  (In-Memory Work)                             (Guaranteed Execution)
-         |                                               |
-+------------------------+                     +-----------------------+
-| Dùng Kotlin Coroutines |                     |   Dùng WorkManager    |
-| (lifecycleScope/       |                     | (Đồng bộ ngầm, upload |
-|  viewModelScope)       |                     |  ảnh hàng loạt)       |
-+------------------------+                     +-----------------------+
-```
-
-1. **Kotlin Coroutines:** Lựa chọn mặc định số 1 cho 95% các tác vụ trong ứng dụng hiện nay (gọi API, đọc database, cập nhật State).
-2. **ThreadPool / HandlerThread thuần:** Dùng khi phát triển các **Core C/C++ NDK Library**, **Audio/Video Engine thời gian thực**, hoặc các SDK chuyên dụng độc lập không muốn phụ thuộc vào thư viện bên thứ ba.
-3. **WorkManager:** Dùng cho các tác vụ bắt buộc phải hoàn thành ngay cả khi người dùng vuốt thoát app hoặc khởi động lại máy (đồng bộ dữ liệu, sao lưu ngầm).
-
----
-
-## 9. Mini-Project thực chiến: Concurrent Image Processing Pipeline
-
-Chúng ta sẽ xây dựng một **Hệ thống tải và lọc ảnh song song (Pipeline)** bằng Kotlin thuần kết hợp `ThreadPoolExecutor` và `Handler`, tuân thủ 100% Best Practices:
-- Quản lý kích thước luồng chặt chẽ.
-- Báo cáo % tiến độ và kết quả về Main Thread.
-- Tự động hủy luồng khi màn hình bị đóng để ngăn chặn Memory Leak.
-
-### 9.1 Thiết kế cấu trúc các thành phần
-
-```
-[UI Layer: Activity / Screen]
-         | 1. Yêu cầu xử lý danh sách ảnh
-         v
-[ImagePipelineManager]
-         | 2. Phân tách tác vụ
-         v
-[IO ThreadPool] -----(Tải byte ảnh)-----> [CPU ThreadPool] -----(Bộ lọc Grayscale)
-                                                                       |
-         <----- 3. Báo cáo % & Bitmap hoàn chỉnh (Main Handler) --------+
-```
-
-### 9.2 Triển khai mã nguồn hoàn chỉnh
-
-#### Bước 1: Khai báo Contract và Data Model
-```kotlin
-package com.knowledge.threading.pipeline
-
-import android.graphics.Bitmap
-
-// Trạng thái của từng tác vụ ảnh
-sealed class PipelineState {
-    data class Progress(val imageUrl: String, val percent: Int) : PipelineState()
-    data class Success(val imageUrl: String, val resultBitmap: Bitmap) : PipelineState()
-    data class Error(val imageUrl: String, val throwable: Throwable) : PipelineState()
-}
-
-// Callback giao tiếp an toàn về UI
-interface PipelineCallback {
-    fun onStateUpdate(state: PipelineState)
-}
-```
-
-#### Bước 2: Xây dựng Bộ xử lý ImagePipelineManager
-```kotlin
-package com.knowledge.threading.pipeline
-
-import android.graphics.*
-import android.os.Handler
-import android.os.Looper
-import java.io.InputStream
-import java.lang.ref.WeakReference
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.concurrent.*
-
-class ImagePipelineManager(callback: PipelineCallback) {
-
-    // Tránh Memory Leak bằng WeakReference
-    private val callbackRef = WeakReference(callback)
-
-    // Handler đảm bảo mọi callback đều bắn về Main UI Thread
-    private val mainHandler = Handler(Looper.getMainLooper())
-
-    // 1. Thread Pool cho việc tải ảnh qua mạng (I/O)
-    // Queue không giới hạn thì pool không bao giờ vượt corePoolSize (maximumPoolSize bị bỏ qua),
-    // nên đặt core = max = 4 và cho thread rảnh tự hủy sau 30 giây.
-    private val downloadExecutor = ThreadPoolExecutor(
-        4, 4, 30L, TimeUnit.SECONDS,
-        LinkedBlockingQueue<Runnable>()
-    ).apply { allowCoreThreadTimeOut(true) }
-
-    // 2. Thread Pool cho việc biến đổi điểm ảnh CPU (CPU-bound)
-    private val filterExecutor = ThreadPoolExecutor(
-        Runtime.getRuntime().availableProcessors(),
-        Runtime.getRuntime().availableProcessors(),
-        0L, TimeUnit.MILLISECONDS,
-        LinkedBlockingQueue<Runnable>()
-    )
-
-    // Danh sách theo dõi các Task đang chạy để có thể cancel khi cần
-    private val runningFutures = CopyOnWriteArrayList<Future<*>>()
-
-    fun processImage(imageUrl: String) {
-        val future = downloadExecutor.submit {
-            try {
-                // Giai đoạn 1: Tải ảnh (I/O)
-                notifyState(PipelineState.Progress(imageUrl, 20))
-                val rawBitmap = downloadBitmap(imageUrl)
-
-                notifyState(PipelineState.Progress(imageUrl, 60))
-
-                // Giai đoạn 2: Đẩy sang CPU Pool để áp bộ lọc Grayscale
-                filterExecutor.execute {
-                    try {
-                        val filteredBitmap = applyGrayscaleFilter(rawBitmap)
-                        notifyState(PipelineState.Progress(imageUrl, 100))
-                        notifyState(PipelineState.Success(imageUrl, filteredBitmap))
-                    } catch (e: Throwable) {
-                        notifyState(PipelineState.Error(imageUrl, e))
-                    }
-                }
-            } catch (e: Throwable) {
-                notifyState(PipelineState.Error(imageUrl, e))
-            }
-        }
-        runningFutures.add(future)
-    }
-
-    private fun downloadBitmap(urlString: String): Bitmap {
-        val url = URL(urlString)
-        val connection = url.openConnection() as HttpURLConnection
-        connection.doInput = true
-        connection.connectTimeout = 5000
-        connection.readTimeout = 5000
-        connection.connect()
-
-        val input: InputStream = connection.inputStream
-        val bitmap = BitmapFactory.decodeStream(input)
-            ?: throw IllegalStateException("Không thể decode dữ liệu ảnh")
-        input.close()
-        connection.disconnect()
-        return bitmap
-    }
-
-    // Thuật toán CPU-bound: Chuyển đổi màu ảnh sang Grayscale
-    private fun applyGrayscaleFilter(src: Bitmap): Bitmap {
-        val width = src.width
-        val height = src.height
-        val dest = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-
-        val canvas = Canvas(dest)
-        val paint = Paint()
-        val colorMatrix = ColorMatrix().apply {
-            setSaturation(0f) // Triệt tiêu độ bão hòa màu -> trắng đen
-        }
-        paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
-        canvas.drawBitmap(src, 0f, 0f, paint)
-        return dest
-    }
-
-    private fun notifyState(state: PipelineState) {
-        mainHandler.post {
-            callbackRef.get()?.onStateUpdate(state)
-        }
-    }
-
-    // Dọn dẹp tài nguyên và ngắt toàn bộ luồng khi màn hình đóng
-    fun release() {
-        for (future in runningFutures) {
-            future.cancel(true) // Gửi tín hiệu ngắt interrupt
-        }
-        runningFutures.clear()
-        downloadExecutor.shutdownNow()
-        filterExecutor.shutdownNow()
-    }
-}
-```
-
-#### Bước 3: Tích hợp vào Activity an toàn với Vòng đời
-```kotlin
-package com.knowledge.threading.pipeline
-
-import android.os.Bundle
-import android.widget.ProgressBar
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-
-class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
-
-    private lateinit var progressBar: ProgressBar
-    private lateinit var statusText: TextView
-    private var pipelineManager: ImagePipelineManager? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Khởi tạo views...
-
-        pipelineManager = ImagePipelineManager(this)
-        
-        // Bắt đầu xử lý ảnh ngầm
-        pipelineManager?.processImage("https://example.com/large-wallpaper.jpg")
-    }
-
-    override fun onStateUpdate(state: PipelineState) {
-        // Đã được bảo đảm 100% chạy trên Main Thread qua Handler
-        when (state) {
-            is PipelineState.Progress -> {
-                progressBar.progress = state.percent
-                statusText.text = "Đang xử lý: ${state.percent}%"
-            }
-            is PipelineState.Success -> {
-                statusText.text = "Hoàn tất!"
-                // imageView.setImageBitmap(state.resultBitmap)
-            }
-            is PipelineState.Error -> {
-                statusText.text = "Lỗi: ${state.throwable.localizedMessage}"
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        // Triệt tiêu nguy cơ Memory Leak ngay khi Activity bị hủy
-        pipelineManager?.release()
-        pipelineManager = null
-    }
-}
-```
-
----
-
-## 10. Giám sát & Debugging Đa luồng chuyên nghiệp
-
-Lập trình viên giỏi khác lập trình viên trung bình ở khả năng **quan sát và chẩn đoán luồng**.
-
-### 10.1 Khám phá Android Studio Profiler (CPU Profiler)
-1. Kết nối máy thật hoặc máy ảo -> Mở tab **Profiler** ở đáy Android Studio.
-2. Bấm vào biểu đồ **CPU** -> Chọn cấu hình **System Trace** hoặc **Java/Kotlin Method Trace** -> Bấm **Record**.
-3. Thao tác trên app -> Bấm **Stop Recording**.
-4. Quan sát danh sách Threads:
-   - **Màu xanh lá cây (Running):** Luồng đang thực thi lệnh trên CPU.
-   - **Màu xanh da trời (Sleeping):** Luồng đang nghỉ (`Thread.sleep()` hoặc chờ MessageQueue).
-   - **Màu vàng (Waiting):** Luồng đang đợi tài nguyên/khóa (`Object.wait()`).
-   - **Màu đỏ (Blocked):** CẢNH BÁO NGUY HIỂM! Luồng đang bị chặn bởi `synchronized` hoặc Lock khác. Nếu Main Thread có vạch màu đỏ kéo dài -> Nguy cơ ANR trực tiếp!
-
-### 10.2 Bật StrictMode phát hiện vi phạm luồng trong lúc Debug
-Thêm đoạn code này vào hàm `Application.onCreate()` để ứng dụng tự động cảnh báo (hoặc chớp đỏ màn hình/crash) khi vô tình thực hiện Disk/Network I/O trên Main Thread:
-
-```kotlin
-class MyApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        if (BuildConfig.DEBUG) {
-            StrictMode.setThreadPolicy(
-                StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
-                    .detectDiskWrites()
-                    .detectNetwork()
-                    .penaltyLog()
-                    .penaltyFlashScreen()
-                    .build()
-            )
-        }
-    }
-}
-```
-
----
-
-## 11. Tư duy hệ thống (System Thinking): Vị trí của Threading trong Clean Architecture
-
-Trong một kiến trúc phần mềm tiêu chuẩn (Clean Architecture / MVVM), việc điều phối luồng không nằm rải rác tùy tiện mà tuân thủ ranh giới rõ ràng:
-
-```
-[ UI Layer (Activity / Compose) ] 
-       | (Luôn chạy trên MAIN THREAD - Thụ động hiển thị UI State)
-       v
-[ ViewModel / Presenter ]
-       | (Chuyển tiếp lệnh, điều phối luồng thông qua Scopes)
-       v
-[ Domain Layer (UseCases) ]
-       | (Thực thi Business Logic - Luôn là Thread-Safe)
-       v
-[ Data Layer (Repository / DataSource) ]
-       | (CHỦ ĐỘNG chuyển sang BACKGROUND THREAD: I/O Pool hoặc Dispatchers.IO)
-       v
-[ SQLite Database / Remote Network ]
-```
-
-**Nguyên tắc "Main-Safety":** Một Repository hoặc UseCase chuẩn mực phải **Main-Safe**. Nghĩa là bất kể ai gọi nó từ Main Thread, nó phải tự chịu trách nhiệm chuyển sang Background Thread để xử lý và trả kết quả về an toàn mà không làm treo UI của người gọi.
-
----
-
-## 12. Checklist Best Practices khi làm việc với Thread
-
-> [!TIP]
-> Hãy in bảng kiểm này và kiểm tra code của bạn trước mỗi đợt Release:
-
-- [ ] **Không tạo Thread mới cho từng việc ngắn:** Tác vụ nền thông thường đi qua `ThreadPoolExecutor` dùng chung hoặc Coroutines; Thread thủ công chỉ dành cho việc chạy dài, riêng biệt và phải có cách dừng khi màn hình bị huỷ.
-- [ ] **Đặt tên cho Thread:** Luôn sử dụng `ThreadFactory` để đặt tên rõ ràng (ví dụ: `Image-IO-1`, `Audio-CPU-2`) giúp việc đọc Logcat và Profiler dễ dàng.
-- [ ] **Main-Safety:** Tuyệt đối không để rò rỉ thao tác I/O hoặc tính toán nặng lên Main Thread.
-- [ ] **Chống Memory Leak:** Không bao giờ giữ tham chiếu trực tiếp đến `Activity`, `Fragment` hay `View` bên trong Worker Thread hoặc Handler. Luôn hủy tác vụ trong `onDestroy()`.
-- [ ] **Tái sử dụng Message:** Dùng `Message.obtain()` hoặc `handler.obtainMessage()` thay vì khởi tạo `Message()`.
-- [ ] **Xử lý ngắt luồng (Cancellation):** Trong các vòng lặp nặng của Thread, hãy thường xuyên kiểm tra cờ `Thread.currentThread().isInterrupted` để dừng sớm khi bị hủy.
-- [ ] **Phòng chống Deadlock:** Khóa tài nguyên theo một thứ tự duy nhất trên toàn hệ thống. Ưu tiên các cấu trúc dữ liệu `java.util.concurrent.*` thay vì tự viết `synchronized`.
-
----
-
-## 13. Nguồn tham khảo (References)
+## Nguồn tham khảo
 
 1. [Processes and threads overview — Android Developers Official](https://developer.android.com/guide/components/processes-and-threads)
 2. [Keep your app responsive (ANR prevention) — Android Developers](https://developer.android.com/topic/performance/vitals/anr)
@@ -938,3 +1064,14 @@ Trong một kiến trúc phần mềm tiêu chuẩn (Clean Architecture / MVVM),
 6. [Dispatchers.Default — kotlinx.coroutines API](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-dispatchers/-default.html)
 7. [Dispatchers.IO — kotlinx.coroutines API](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-dispatchers/-i-o.html)
 8. [ThreadPoolExecutor — Android Developers](https://developer.android.com/reference/java/util/concurrent/ThreadPoolExecutor)
+9. [Inspect your app live (màu trạng thái thread trong Profiler) — Android Studio](https://developer.android.com/studio/profile/inspect-app-live)
+10. [Profile your app performance (tab Home, profiler task) — Android Studio](https://developer.android.com/studio/profile)
+11. [BroadcastReceiver (onReceive, goAsync: giới hạn 10 giây) — Android Developers Reference](https://developer.android.com/reference/android/content/BroadcastReceiver)
+12. [ActivityManagerService.java (BROADCAST_FG_TIMEOUT, BROADCAST_BG_TIMEOUT) — AOSP](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/services/core/java/com/android/server/am/ActivityManagerService.java)
+13. [ActivityManagerConstants.java (SERVICE_TIMEOUT, SERVICE_BACKGROUND_TIMEOUT) — AOSP](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/services/core/java/com/android/server/am/ActivityManagerConstants.java)
+14. [Handler (constructor deprecated, API level) — Android Developers Reference](https://developer.android.com/reference/android/os/Handler)
+15. [Looper (quitSafely API 18, prepareMainLooper deprecated API 30) — Android Developers Reference](https://developer.android.com/reference/android/os/Looper)
+16. [HandlerThread (quitSafely API 18) — Android Developers Reference](https://developer.android.com/reference/android/os/HandlerThread)
+17. [StrictMode (API 9) — Android Developers Reference](https://developer.android.com/reference/android/os/StrictMode)
+18. [NetworkOnMainThreadException (API 11) — Android Developers Reference](https://developer.android.com/reference/android/os/NetworkOnMainThreadException)
+19. [AsyncTask (API 3, deprecated API 30) — Android Developers Reference](https://developer.android.com/reference/android/os/AsyncTask)
