@@ -19528,7 +19528,7 @@ Activity
       'Triển khai được dialog trong Compose (AlertDialog, Dialog, ModalBottomSheet).'
     ],
     knowledgeGap: 'Dùng AlertDialog trực tiếp trong Fragment/Activity mà không hiểu lifecycle sẽ gây window leak khi xoay màn hình, crash khi truy cập context bị destroy, và mất dialog state khi configuration change. Không biết Fragment Result API dẫn đến coupling cao giữa dialog và Activity/Fragment.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '35 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -19594,7 +19594,7 @@ AlertDialog.Builder(this)
 
 <h2>Cách hoạt động</h2>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ dùng tối thiểu vài kiến thức của Session sau: - ViewBinding (class sinh ra từ layout để truy cập View an toàn): 6.1 View Binding (chưa có bài). - ViewModel (giữ state qua configuration change) và <code>activityViewModels()</code>: 6.4 ViewModel (chưa có bài); phạm vi <code>viewModels()</code> / <code>activityViewModels()</code> ở <a href="state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a>. - <code>StateFlow</code> và coroutine (<code>lifecycleScope</code>, <code>repeatOnLifecycle</code>): 7.1.4.2 Flow (chưa có bài), 8.4.3 Coroutines (chưa có bài); mẫu collect an toàn trong Fragment ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>. - Composable và state của Compose (<code>remember</code>, <code>rememberSaveable</code>): <a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, 9.2.2 Remember and rememberSaveable (chưa có bài).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ dùng tối thiểu vài kiến thức của Session sau: - ViewBinding (class sinh ra từ layout để truy cập View an toàn): <a href="../../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>. - ViewModel (giữ state qua configuration change) và <code>activityViewModels()</code>: 6.4 ViewModel (chưa có bài); phạm vi <code>viewModels()</code> / <code>activityViewModels()</code> ở <a href="state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a>. - <code>StateFlow</code> và coroutine (<code>lifecycleScope</code>, <code>repeatOnLifecycle</code>): 7.1.4.2 Flow (chưa có bài), 8.4.3 Coroutines (chưa có bài); mẫu collect an toàn trong Fragment ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>. - Composable và state của Compose (<code>remember</code>, <code>rememberSaveable</code>): <a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, 9.2.2 Remember and rememberSaveable (chưa có bài).</div></div>
 
 <h3>Kiến trúc tổng thể</h3>
 
@@ -21308,7 +21308,7 @@ class DeleteItemUseCase(
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
-  <li>6.1 View Binding (chưa có bài), 6.4 ViewModel (chưa có bài).</li>
+  <li><a href="../../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>, 6.4 ViewModel (chưa có bài).</li>
   <li>7.2.3 MVVM (chưa có bài), 7.2.5 Clean Architecture (chưa có bài): vị trí của DialogFragment trong Presentation Layer.</li>
   <li><a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và 9.2.2 Remember and rememberSaveable (chưa có bài): nền cho dialog trong Compose.</li>
 </ul></li>
@@ -45631,3 +45631,762 @@ ANDROID_CONTENT['android.networks.okhttp'] = ANDROID_CONTENT['okhttp'];
 ANDROID_CONTENT['android.networks.okio'] = ANDROID_CONTENT['okio'];
 ANDROID_CONTENT['android.networks.ktor_apollo'] = ANDROID_CONTENT['ktor-apollo'];
 ANDROID_CONTENT['android.testing.unit_testing'] = ANDROID_CONTENT['unit-testing'];
+
+// ── Session 06: Architecture Components ──────────────────────────
+Object.assign(ANDROID_CONTENT, {
+  'view-binding': {
+    title: 'View Binding',
+    summary: 'View Binding là tính năng build của Android Gradle Plugin, sinh cho mỗi layout XML một class binding giữ sẵn tham chiếu có kiểu tới mọi View có id, thay cho findViewById. Bài giải thích class binding được sinh ra thế nào, vì sao nó an toàn về null và kiểu, cách dùng trong Activity, Fragment, include và custom view, và khi nào chọn nó thay vì Data Binding hay Compose.',
+    status: 'reviewing',
+    difficulty: 'beginner',
+    estimatedReadingTime: '16 phút',
+    depth: 'standard',
+    tags: ['android', 'view-binding', 'layout', 'xml', 'fragment', 'findviewbyid', 'agp'],
+    domain: 'Android',
+    module: 'Session 06',
+    prerequisites: ['android.component.activity.lifecycle', 'android.component.fragment.lifecycle'],
+    related: ['android.manifest.plugin', 'android.component.fragment.dialog_and_dialogfragment', 'android.jetpack_compose.compose_overview'],
+    learningOutcomes: [
+      'Giải thích được class binding được AGP sinh ra từ layout XML lúc build và vì sao nó an toàn về null và kiểu hơn findViewById.',
+      'Triển khai được View Binding trong Activity, Fragment, layout dùng include và custom view.',
+      'Xử lý được binding trong Fragment theo vòng đời của View để không giữ cây View đã bị huỷ.',
+      'Phân biệt được View Binding với findViewById, Kotlin synthetics, Data Binding và Compose.',
+      'Nhận diện được các lỗi thường gặp như inflate hai lần, attachToParent sai và field kiểu View do khác kiểu giữa các cấu hình.'
+    ],
+    knowledgeGap: 'Nhiều developer coi View Binding chỉ là cách viết gọn findViewById, nên giữ binding trong Fragment sau onDestroyView (giữ cả cây View cũ), inflate binding rồi lại gọi setContentView(R.layout...) khiến UI không phản hồi, hoặc không hiểu vì sao một field bỗng nullable hay có kiểu View sau khi thêm layout-land.',
+    updatedAt: '2026-11-08',
+    readTime: '16 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Một màn hình viết bằng XML layout cần lấy tham chiếu tới từng View để đọc dữ liệu, gắn listener, đổi nội dung. Cách gốc là <code>findViewById</code>:</p>
+
+<pre data-lang="kotlin"><code>val emailInput = findViewById&lt;EditText&gt;(R.id.email_input)
+val loginButton = findViewById&lt;Button&gt;(R.id.login_button)</code></pre>
+
+<p>Cách này có ba điểm yếu, và cả ba chỉ lộ ra <strong>lúc chạy</strong>, không phải lúc build:</p>
+
+<ul>
+  <li><strong>Không an toàn về null:</strong> <code>R.id</code> là một số nguyên toàn cục của module. Truyền id của một layout khác (hoặc id chỉ có trong <code>layout-land</code>) vẫn compile được, nhưng trả về <code>null</code> và crash khi dùng.</li>
+  <li><strong>Không an toàn về kiểu:</strong> kiểu <code>EditText</code> là do bạn khai báo, không phải do layout. Đổi <code>EditText</code> trong XML thành <code>TextInputLayout</code> thì code vẫn build, rồi <code>ClassCastException</code> lúc chạy.</li>
+  <li><strong>Lặp và tốn công:</strong> mỗi View một dòng tra cứu; layout có 20 View là 20 dòng gần giống nhau, và mỗi lần gọi là một lần duyệt cây View.</li>
+</ul>
+
+<p>Các thư viện cũ như Butter Knife hay Kotlin synthetics giảm số dòng code, nhưng không giải quyết triệt để chuyện null và kiểu theo từng layout. Vấn đề cần giải quyết là: <strong>cho code một cách truy cập View mà layout và code không thể lệch nhau mà vẫn build được.</strong></p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được class binding được AGP sinh ra từ layout XML lúc build và vì sao nó an toàn về null và kiểu hơn findViewById.</li>
+  <li>Triển khai được View Binding trong Activity, Fragment, layout dùng include và custom view.</li>
+  <li>Xử lý được binding trong Fragment theo vòng đời của View để không giữ cây View đã bị huỷ.</li>
+  <li>Phân biệt được View Binding với findViewById, Kotlin synthetics, Data Binding và Compose.</li>
+  <li>Nhận diện được các lỗi thường gặp như inflate hai lần, attachToParent sai và field kiểu View do khác kiểu giữa các cấu hình.</li>
+</ul>
+
+<h2>View Binding là gì?</h2>
+
+<p><strong>View Binding</strong> là tính năng build của Android Gradle Plugin (AGP): với mỗi file layout XML trong module, nó sinh ra một <strong>class binding</strong> chứa sẵn tham chiếu có kiểu tới View gốc và mọi View có <code>android:id</code> trong layout đó.</p>
+
+<p>Mental model: class binding là <strong>mục lục của một layout</strong>. Mục lục được in một lần lúc build, từ chính layout đó; code tra View theo tên trong mục lục thay vì lật từng trang tìm id. Layout đổi thì mục lục được in lại, và code nào tra một mục không còn tồn tại sẽ không build được.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Build sinh class binding từ layout</h3>
+
+<p>View Binding bật theo từng module trong <code>build.gradle.kts</code> của module đó. AGP là plugin Gradle lo toàn bộ quá trình build app, được học ở <a href="../session_04/android_manifest/package_build_gradle/plugin.md" target="_blank" rel="noopener">Plugin</a>.</p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts
+android {
+    buildFeatures {
+        viewBinding = true
+    }
+}</code></pre>
+
+<p>Từ đó, mỗi lần build, AGP làm các bước sau cho <strong>mọi</strong> layout của module:</p>
+
+<ol>
+  <li>Đọc file layout, ví dụ <code>activity_login.xml</code>.</li>
+  <li>Đặt tên class: tên file chuyển sang PascalCase cộng hậu tố <code>Binding</code> → <code>ActivityLoginBinding</code>, nằm trong package <code>&lt;namespace&gt;.databinding</code>.</li>
+  <li>Sinh một field cho View gốc (<code>root</code>) và cho mỗi View có id; tên field là id chuyển sang camelCase (<code>email_input</code> → <code>emailInput</code>), kiểu field là kiểu thẻ trong XML. View không có id thì không có field.</li>
+  <li>Sinh các hàm tĩnh <code>inflate(...)</code> và <code>bind(View)</code> để tạo instance binding.</li>
+  <li>Biên dịch code của app dựa trên class vừa sinh. Code gọi <code>binding.emailInput</code> mà layout không còn id <code>email_input</code> thì build lỗi ngay.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) activity_login.xml"] --&gt; B["(2) AGP đặt tên&lt;br/&gt;ActivityLoginBinding"]
+    B --&gt; C["(3) Field cho root&lt;br/&gt;và mỗi View có id"]
+    C --&gt; D["(4) Hàm inflate() và bind()"]
+    D --&gt; E{"(5) Code khớp&lt;br/&gt;với layout?"}
+    E --&gt;|Có| F[Build thành công]
+    E --&gt;|Không| G[Lỗi compile,&lt;br/&gt;không đợi đến runtime]
+</div>
+
+<p>Layout nào không cần binding (ví dụ layout chỉ dùng qua <code>&lt;include&gt;</code> mà không ai tham chiếu) thì thêm <code>tools:viewBindingIgnore="true"</code> vào View gốc để AGP bỏ qua.</p>
+
+<h4>Ví dụ: form đăng nhập trong Activity</h4>
+
+<p><strong>Bài toán:</strong> màn đăng nhập có ô email, ô mật khẩu và nút đăng nhập; nút chỉ làm việc khi cả hai ô đều có nội dung. Đây là trường hợp điển hình cần tham chiếu tới vài View để đọc nội dung và gắn listener.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Trong <code>onCreate()</code>, gọi <code>ActivityLoginBinding.inflate(layoutInflater)</code>: layout được inflate thành cây View, và binding giữ tham chiếu tới các View có id.</li>
+  <li>Đưa <code>binding.root</code> cho <code>setContentView()</code>, để chính cây View đó được hiển thị.</li>
+  <li>Gắn listener cho <code>binding.loginButton</code>; khi bấm, đọc <code>binding.emailInput.text</code> và <code>binding.passwordInput.text</code>.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant A as LoginActivity
+    participant B as ActivityLoginBinding
+    participant W as Window
+    A-&gt;&gt;B: (1) inflate(layoutInflater)
+    B--&gt;&gt;A: binding (root, emailInput, passwordInput, loginButton)
+    A-&gt;&gt;W: (2) setContentView(binding.root)
+    A-&gt;&gt;B: (3) loginButton.setOnClickListener
+    Note over A,B: Bấm nút → đọc emailInput.text, passwordInput.text
+</div>
+
+<pre data-lang="xml"><code>&lt;!-- res/layout/activity_login.xml --&gt;
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"&gt;
+
+    &lt;EditText
+        android:id="@+id/email_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress" /&gt;
+
+    &lt;EditText
+        android:id="@+id/password_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword" /&gt;
+
+    &lt;Button
+        android:id="@+id/login_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đăng nhập" /&gt;
+&lt;/LinearLayout&gt;</code></pre>
+
+<pre data-lang="kotlin"><code>// LoginActivity.kt
+class LoginActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityLoginBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityLoginBinding.inflate(layoutInflater) // (1) inflate + giữ tham chiếu
+        setContentView(binding.root)                           // (2) hiển thị đúng cây View đó
+
+        binding.loginButton.setOnClickListener {               // (3) field có kiểu Button
+            val email = binding.emailInput.text.toString().trim()
+            val password = binding.passwordInput.text.toString()
+            if (email.isEmpty() || password.isEmpty()) {
+                binding.emailInput.error = "Nhập email và mật khẩu"
+                return@setOnClickListener
+            }
+            // gọi đăng nhập...
+        }
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> đổi <code>password_input</code> trong XML thành <code>password_field</code> rồi build: Android Studio báo <code>Unresolved reference: passwordInput</code> ngay ở <code>LoginActivity</code>, thay vì crash khi người dùng bấm nút. Trong Activity, binding sống cùng Activity nên không cần gán <code>null</code>; Activity bị huỷ thì binding đi theo.</p>
+
+<h3>Null safety và type safety theo cấu hình</h3>
+
+<p>Một layout có thể có nhiều bản theo cấu hình: <code>layout/</code> cho màn dọc, <code>layout-land/</code> cho màn ngang, <code>layout-sw600dp/</code> cho tablet. Configuration qualifier được học ở 2.3 Resource Solutions (chưa có bài). AGP sinh <strong>một</strong> class binding cho tất cả các bản cùng tên, và tính field theo cả nhóm:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Tình huống trong các bản layout</th>
+      <th style="padding:8px 12px;text-align:left;">Field sinh ra</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">View có id ở mọi bản, cùng kiểu</td>
+      <td style="padding:8px 12px;">Kiểu đó, non-null</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">View có id chỉ ở một số bản</td>
+      <td style="padding:8px 12px;">Kiểu đó, <code>@Nullable</code> (Kotlin thấy là <code>TextView?</code>)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Cùng id nhưng kiểu khác nhau giữa các bản</td>
+      <td style="padding:8px 12px;"><code>View</code>, kể cả khi hai kiểu có lớp cha chung</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Như trên, có <code>tools:viewBindingType="X"</code></td>
+      <td style="padding:8px 12px;">Kiểu <code>X</code> (phải là lớp cha của thẻ và thống nhất ở mọi bản)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Đây chính là "null safety" và "type safety" của View Binding: Kotlin buộc bạn xử lý <code>null</code> đúng ở View nào thực sự có thể vắng mặt, và field luôn có kiểu khớp với layout. Docs nói rõ View Binding không tự suy ra lớp cha chung (như <code>TextView</code> cho <code>TextView</code> và <code>EditText</code>) do giới hạn kỹ thuật, nên trường hợp khác kiểu cần <code>tools:viewBindingType</code>.</p>
+
+<h4>Ví dụ: panel mục lục chỉ có khi xoay ngang</h4>
+
+<p><strong>Bài toán:</strong> màn đọc bài viết ở màn dọc chỉ có nội dung; khi xoay ngang có thêm panel mục lục bên trái. Code phải chạy đúng với cả hai layout mà không cần kiểm tra orientation bằng tay.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Activity inflate <code>ActivityArticleBinding</code>; hệ thống chọn <code>layout/</code> hoặc <code>layout-land/</code> theo cấu hình hiện tại.</li>
+  <li><code>binding.articleContent</code> có ở cả hai bản nên non-null, gán nội dung luôn.</li>
+  <li><code>binding.tableOfContents</code> chỉ có ở <code>layout-land/</code> nên là <code>RecyclerView?</code>; dùng <code>?.let</code> để chỉ cấu hình nội dung mục lục khi panel tồn tại.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) inflate ActivityArticleBinding"] --&gt; B["(2) articleContent.text = nội dung&lt;br/&gt;(non-null, có ở mọi bản)"]
+    B --&gt; C{"(3) tableOfContents != null?"}
+    C --&gt;|"Có (layout-land)"| D[Hiện danh sách mục lục]
+    C --&gt;|"Không (layout dọc)"| E[Bỏ qua]
+</div>
+
+<pre data-lang="kotlin"><code>// ArticleActivity.kt
+// layout/activity_article.xml:      TextView article_content
+// layout-land/activity_article.xml: TextView article_content + RecyclerView table_of_contents
+class ArticleActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityArticleBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityArticleBinding.inflate(layoutInflater) // (1) chọn layout theo cấu hình
+        setContentView(binding.root)
+
+        val article = IntentCompat.getParcelableExtra(intent, EXTRA_ARTICLE, Article::class.java)
+            ?: return finish()
+        binding.articleContent.text = article.body               // (2) non-null
+
+        binding.tableOfContents?.let { toc -&gt;                    // (3) RecyclerView?
+            toc.layoutManager = LinearLayoutManager(this)
+            toc.adapter = HeadingAdapter(article.headings)
+        }
+    }
+
+    companion object {
+        const val EXTRA_ARTICLE = "extra_article"
+    }
+}</code></pre>
+
+<p><code>RecyclerView</code> và adapter ở đây chỉ là View cần hiển thị danh sách, được học ở 8.5.1 Layouts (chưa có bài); điểm cần chú ý là kiểu <code>RecyclerView?</code> do View Binding sinh ra.</p>
+
+<p><strong>Kết quả:</strong> chạy màn dọc thì không có mục lục và không crash; xoay ngang thì mục lục hiện. Xoá <code>table_of_contents</code> khỏi <code>layout-land/</code> thì field biến mất khỏi binding và đoạn <code>?.let</code> báo lỗi compile, nhắc bạn dọn code theo.</p>
+
+<h3>View Binding trong Fragment: binding sống theo View</h3>
+
+<p>Fragment có hai vòng đời: Fragment instance sống lâu hơn View của nó. Khi Fragment vào backstack, <code>onDestroyView()</code> huỷ View nhưng instance vẫn còn (<a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "Fragment Lifecycle là gì?"). Binding giữ tham chiếu tới toàn bộ cây View, nên nếu binding là field của Fragment thì nó phải <strong>sống theo View</strong>, không theo Fragment:</p>
+
+<ul>
+  <li>Tạo binding khi View được tạo: <code>inflate(inflater, container, false)</code> trong <code>onCreateView()</code>, hoặc <code>bind(view)</code> trong <code>onViewCreated()</code> nếu Fragment truyền layout qua constructor <code>Fragment(R.layout.…)</code>.</li>
+  <li>Bỏ tham chiếu trong <code>onDestroyView()</code>. Docs ghi chú: Fragment sống lâu hơn View của nó, nên phải dọn tham chiếu tới binding ở <code>onDestroyView()</code>.</li>
+</ul>
+
+<p>Mẫu thường dùng là hai property: <code>_binding</code> nullable để gán <code>null</code>, và <code>binding</code> non-null để dùng trong khoảng View còn sống.</p>
+
+<h4>Ví dụ: màn hồ sơ trong app nhiều tab</h4>
+
+<p><strong>Bài toán:</strong> Fragment hồ sơ hiển thị tên, avatar và nút đăng xuất. Người dùng mở màn cài đặt (Fragment hồ sơ vào backstack) rồi bấm Back. View của hồ sơ bị huỷ rồi tạo lại, nên binding cũng phải được tạo lại.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li><code>onCreateView()</code>: inflate <code>FragmentProfileBinding</code>, gán vào <code>_binding</code>, trả <code>binding.root</code> cho FragmentManager.</li>
+  <li><code>onViewCreated()</code>: đổ dữ liệu và gắn listener qua <code>binding</code>.</li>
+  <li>Mở màn cài đặt: Fragment vào backstack, <code>onDestroyView()</code> gán <code>_binding = null</code>. Cây View cũ không còn bị Fragment giữ, có thể được thu hồi.</li>
+  <li>Bấm Back: <code>onCreateView()</code> chạy lại và tạo một binding mới cho cây View mới.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant FM as FragmentManager
+    participant F as ProfileFragment
+    participant B as FragmentProfileBinding
+    FM-&gt;&gt;F: (1) onCreateView()
+    F-&gt;&gt;B: inflate(inflater, container, false)
+    F--&gt;&gt;FM: binding.root
+    FM-&gt;&gt;F: (2) onViewCreated() → đổ dữ liệu qua binding
+    Note over FM,F: Người dùng mở màn cài đặt
+    FM-&gt;&gt;F: (3) onDestroyView() → _binding = null
+    Note over F: Instance còn sống trong backstack,&lt;br/&gt;không còn giữ cây View cũ
+    Note over FM,F: Người dùng bấm Back
+    FM-&gt;&gt;F: (4) onCreateView() → binding mới
+</div>
+
+<pre data-lang="kotlin"><code>// ProfileFragment.kt
+class ProfileFragment : Fragment() {
+
+    private var _binding: FragmentProfileBinding? = null
+    // Chỉ dùng giữa onCreateView và onDestroyView
+    private val binding get() = _binding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentProfileBinding.inflate(inflater, container, false) // (1)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.nameText.text = requireArguments().getString(ARG_DISPLAY_NAME)  // (2)
+        binding.logoutButton.setOnClickListener { onLogoutClicked() }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null                                                         // (3)
+    }
+
+    private fun onLogoutClicked() { /* ... */ }
+
+    companion object {
+        private const val ARG_DISPLAY_NAME = "arg_display_name"
+    }
+}</code></pre>
+
+<p>Nếu Fragment dùng constructor <code>Fragment(R.layout.fragment_profile)</code> thì FragmentManager tự inflate layout; khi đó bỏ <code>onCreateView()</code> và tạo binding bằng <code>FragmentProfileBinding.bind(view)</code> ở đầu <code>onViewCreated()</code>. Mẫu này đã có trong <a href="../session_04/components/fragment/index.md" target="_blank" rel="noopener">Fragment Overview</a>, mục "Bước 2: Tạo Fragment với ViewBinding".</p>
+
+<p>Khi chỉ cần binding trong <code>onViewCreated()</code> (không dùng ở hàm khác), có thể bỏ hẳn field và dùng biến cục bộ <code>val binding = FragmentProfileBinding.bind(view)</code>; lambda listener vẫn giữ binding, nhưng chúng gắn vào chính các View đó nên được thu hồi cùng cây View.</p>
+
+<p><strong>Kết quả:</strong> bật LeakCanary (thư viện phát hiện memory leak) và mở/đóng màn cài đặt nhiều lần: không có cảnh báo về View bị Fragment giữ. Bỏ dòng <code>_binding = null</code> thì LeakCanary báo cây View cũ bị <code>ProfileFragment._binding</code> giữ trong lúc Fragment nằm trong backstack.</p>
+
+<h3>Layout dùng lại: <code>&lt;include&gt;</code> và <code>&lt;merge&gt;</code></h3>
+
+<p>Layout dùng lại (toolbar, thanh trạng thái tải) được nhúng bằng <code>&lt;include&gt;</code>. Thẻ này được học cùng các layout khác ở 8.5.1 Layouts (chưa có bài). View Binding xử lý nó như sau:</p>
+
+<ul>
+  <li><code>&lt;include&gt;</code> <strong>có id</strong> → binding ngoài có một field mang kiểu binding của layout con. Ví dụ <code>&lt;include android:id="@+id/toolbar" layout="@layout/view_toolbar"/&gt;</code> sinh field <code>toolbar: ViewToolbarBinding</code>, truy cập <code>binding.toolbar.titleText</code>.</li>
+  <li>Layout con có gốc <code>&lt;merge&gt;</code> thì không có View gốc riêng để mang id, nên binding ngoài không có field cho nó. Gọi <code>ViewToolbarBinding.bind(binding.root)</code> để lấy binding của phần đã merge.</li>
+  <li>Class binding của layout gốc <code>&lt;merge&gt;</code> có <code>inflate(inflater, parent)</code> với <code>parent</code> bắt buộc, vì nội dung merge luôn phải gắn vào một View cha.</li>
+</ul>
+
+<h4>Ví dụ: toolbar dùng chung cho nhiều màn</h4>
+
+<p><strong>Bài toán:</strong> nhiều màn dùng chung một toolbar tự vẽ gồm nút back và tiêu đề. Mỗi màn chỉ cần đổi tiêu đề và gắn hành động back.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Màn hình inflate binding của layout ngoài, trong đó <code>&lt;include&gt;</code> có id <code>toolbar</code>.</li>
+  <li>Truy cập <code>binding.toolbar</code>, một <code>ViewToolbarBinding</code> được tạo sẵn cùng binding ngoài.</li>
+  <li>Đổi <code>titleText</code> và gắn listener cho <code>backButton</code> qua binding con.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant A as OrderHistoryActivity
+    participant B as ActivityOrderHistoryBinding
+    participant T as ViewToolbarBinding
+    A-&gt;&gt;B: (1) inflate(layoutInflater)
+    B-&gt;&gt;T: tạo binding con cho include có id
+    A-&gt;&gt;T: (2) binding.toolbar
+    A-&gt;&gt;T: (3) titleText.text, backButton.setOnClickListener
+</div>
+
+<pre data-lang="xml"><code>&lt;!-- res/layout/view_toolbar.xml --&gt;
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:gravity="center_vertical"&gt;
+
+    &lt;ImageButton
+        android:id="@+id/back_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="Quay lại"
+        android:src="@drawable/ic_arrow_back" /&gt;
+
+    &lt;TextView
+        android:id="@+id/title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" /&gt;
+&lt;/LinearLayout&gt;
+
+&lt;!-- res/layout/activity_order_history.xml --&gt;
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"&gt;
+
+    &lt;include
+        android:id="@+id/toolbar"
+        layout="@layout/view_toolbar" /&gt;
+
+    &lt;TextView
+        android:id="@+id/empty_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" /&gt;
+&lt;/LinearLayout&gt;</code></pre>
+
+<pre data-lang="kotlin"><code>// OrderHistoryActivity.kt
+class OrderHistoryActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityOrderHistoryBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityOrderHistoryBinding.inflate(layoutInflater) // (1)
+        setContentView(binding.root)
+
+        val toolbar: ViewToolbarBinding = binding.toolbar             // (2) binding con
+        toolbar.titleText.text = "Lịch sử đơn hàng"                   // (3)
+        toolbar.backButton.setOnClickListener { finish() }
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> tiêu đề hiện "Lịch sử đơn hàng", bấm nút back đóng màn. Bỏ <code>android:id</code> khỏi <code>&lt;include&gt;</code> thì <code>binding.toolbar</code> không còn, và code báo lỗi compile.</p>
+
+<h2>Deep Dive: class binding sinh ra trông thế nào</h2>
+
+<p>Class binding là code Java thường do AGP sinh, nằm trong <code>build/generated/</code> của module (trong Android Studio chọn Go to Declaration trên <code>ActivityLoginBinding</code> để xem). Rút gọn, nó có dạng:</p>
+
+<pre data-lang="java"><code>// ActivityLoginBinding.java (rút gọn, do AGP sinh)
+public final class ActivityLoginBinding implements ViewBinding {
+  @NonNull private final LinearLayout rootView;
+  @NonNull public final EditText emailInput;
+  @NonNull public final EditText passwordInput;
+  @NonNull public final Button loginButton;
+
+  @Override @NonNull
+  public LinearLayout getRoot() { return rootView; }
+
+  @NonNull
+  public static ActivityLoginBinding inflate(@NonNull LayoutInflater inflater,
+      @Nullable ViewGroup parent, boolean attachToParent) {
+    View root = inflater.inflate(R.layout.activity_login, parent, false);
+    if (attachToParent) parent.addView(root);
+    return bind(root);
+  }
+
+  @NonNull
+  public static ActivityLoginBinding bind(@NonNull View rootView) {
+    // Tìm từng View theo id MỘT lần; thiếu View bắt buộc thì ném lỗi ngay
+    EditText emailInput = ViewBindings.findChildViewById(rootView, R.id.email_input);
+    if (emailInput == null) {
+      throw new NullPointerException("Missing required view with ID: "
+          + rootView.getResources().getResourceName(R.id.email_input));
+    }
+    // ... tương tự cho passwordInput, loginButton
+    return new ActivityLoginBinding((LinearLayout) rootView, emailInput, passwordInput, loginButton);
+  }
+}</code></pre>
+
+<p>Ba điều rút ra từ đoạn code này:</p>
+
+<ul>
+  <li><strong>Không có phép màu lúc chạy:</strong> binding vẫn dùng cơ chế tìm View theo id, nhưng chỉ một lần trong <code>bind()</code>, rồi giữ kết quả trong field <code>final</code>. Không có reflection hay annotation processing, nên chi phí runtime gần như bằng <code>findViewById</code> viết tay, và build nhanh hơn Data Binding.</li>
+  <li><strong><code>inflate()</code> luôn đi qua <code>bind()</code>:</strong> <code>inflate()</code> chỉ là "inflate layout rồi <code>bind()</code>". Vì vậy hai cách tạo binding (inflate trong <code>onCreateView</code>, hoặc <code>bind(view)</code> khi layout đã được inflate sẵn) cho cùng một kết quả.</li>
+  <li><strong>Lỗi <code>Missing required view with ID</code>:</strong> chỉ xảy ra khi <code>bind()</code> nhận một View không phải gốc của layout đó (ví dụ <code>bind()</code> nhầm layout). Dùng đúng <code>inflate()</code> của chính class binding thì không gặp.</li>
+</ul>
+
+<p><code>ViewBinding</code> là interface nhỏ trong thư viện <code>androidx.viewbinding:viewbinding</code> (AGP tự thêm khi bật tính năng), chỉ có <code>getRoot()</code>. Nhờ nó, code dùng chung (base class, adapter generic) có thể nhận "bất kỳ binding nào" mà vẫn lấy được View gốc.</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<p>Ba bài toán hay gặp với View Binding:</p>
+
+<ol>
+  <li><strong>Custom view ghép từ nhiều View</strong> (ô chọn số lượng có nút trừ, số, nút cộng): dùng layout gốc <code>&lt;merge&gt;</code> và <code>inflate(inflater, this)</code>. Đây là bài toán chính, code đầy đủ bên dưới.</li>
+  <li><strong>Item của danh sách:</strong> <code>ViewHolder</code> giữ binding của item, tạo bằng <code>ItemProductBinding.inflate(LayoutInflater.from(parent.context), parent, false)</code> trong <code>onCreateViewHolder</code>. Cách tổ chức ViewHolder được học ở 7.1.2 ViewHolder Pattern (chưa có bài).</li>
+  <li><strong>Chuyển màn hình cũ từ Kotlin synthetics hoặc <code>findViewById</code>:</strong> bật <code>viewBinding</code>, xoá plugin <code>kotlin-android-extensions</code> và mọi import <code>kotlinx.android.synthetic.*</code>, tạo binding trong <code>onCreate</code>/<code>onCreateView</code>, rồi đổi <code>nameText.text = …</code> thành <code>binding.nameText.text = …</code>. Build báo lỗi ở mọi chỗ còn sót, nên chuyển từng màn và build liên tục là cách an toàn. Nếu module đang dùng <code>@Parcelize</code> qua plugin cũ thì chuyển sang plugin <code>kotlin-parcelize</code>.</li>
+</ol>
+
+<h3>Custom view chọn số lượng sản phẩm</h3>
+
+<p><strong>Bài toán:</strong> giỏ hàng, trang chi tiết sản phẩm và màn đặt lại đơn đều cần một ô chọn số lượng: nút trừ, số hiện tại, nút cộng, giới hạn trong khoảng 1 đến tồn kho. Gói nó thành một custom view để mọi màn dùng chung, và dùng View Binding để custom view truy cập các View con.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Layout <code>view_quantity_stepper.xml</code> có gốc <code>&lt;merge&gt;</code>, vì chính <code>QuantityStepperView</code> (một <code>LinearLayout</code>) đã là View cha; không cần thêm một lớp layout nữa.</li>
+  <li>Constructor của custom view gọi <code>ViewQuantityStepperBinding.inflate(LayoutInflater.from(context), this)</code>: nội dung merge được gắn thẳng vào <code>this</code>, binding giữ tham chiếu tới ba View con.</li>
+  <li>Bấm cộng hoặc trừ: tính số mới trong khoảng <code>1..maxQuantity</code>, cập nhật <code>binding.quantityText</code>, bật/tắt nút ở hai đầu giới hạn.</li>
+  <li>Báo số mới ra ngoài qua <code>onQuantityChanged</code>, để màn chứa custom view cập nhật giỏ hàng.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant U as Người dùng
+    participant V as QuantityStepperView
+    participant B as ViewQuantityStepperBinding
+    participant S as Màn chứa (giỏ hàng)
+    V-&gt;&gt;B: (2) inflate(inflater, this) → gắn nội dung merge vào V
+    U-&gt;&gt;B: bấm increaseButton
+    B-&gt;&gt;V: (3) updateQuantity(quantity + 1), giới hạn 1..maxQuantity
+    V-&gt;&gt;B: quantityText.text, bật/tắt nút
+    V-&gt;&gt;S: (4) onQuantityChanged(newQuantity)
+</div>
+
+<pre data-lang="xml"><code>&lt;!-- res/layout/view_quantity_stepper.xml --&gt;
+&lt;!-- (1) gốc merge: View cha chính là QuantityStepperView --&gt;
+&lt;merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.widget.LinearLayout"
+    tools:orientation="horizontal"&gt;
+
+    &lt;ImageButton
+        android:id="@+id/decrease_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="Giảm số lượng"
+        android:src="@drawable/ic_remove" /&gt;
+
+    &lt;TextView
+        android:id="@+id/quantity_text"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:gravity="center" /&gt;
+
+    &lt;ImageButton
+        android:id="@+id/increase_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="Tăng số lượng"
+        android:src="@drawable/ic_add" /&gt;
+&lt;/merge&gt;</code></pre>
+
+<pre data-lang="kotlin"><code>// QuantityStepperView.kt
+class QuantityStepperView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null
+) : LinearLayout(context, attrs) {
+
+    // (2) layout gốc &lt;merge&gt;: inflate(inflater, parent) gắn nội dung vào this
+    private val binding = ViewQuantityStepperBinding.inflate(LayoutInflater.from(context), this)
+
+    var maxQuantity: Int = 99
+        set(value) {
+            field = value.coerceAtLeast(1)
+            updateQuantity(quantity)
+        }
+
+    var quantity: Int = 1
+        private set
+
+    var onQuantityChanged: ((Int) -&gt; Unit)? = null
+
+    init {
+        orientation = HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        binding.decreaseButton.setOnClickListener { updateQuantity(quantity - 1) }
+        binding.increaseButton.setOnClickListener { updateQuantity(quantity + 1) }
+        render()
+    }
+
+    fun updateQuantity(value: Int) {
+        val newQuantity = value.coerceIn(1, maxQuantity)  // (3) giữ trong giới hạn
+        if (newQuantity == quantity) {
+            render()
+            return
+        }
+        quantity = newQuantity
+        render()
+        onQuantityChanged?.invoke(newQuantity)            // (4) báo ra ngoài
+    }
+
+    private fun render() {
+        binding.quantityText.text = quantity.toString()
+        binding.decreaseButton.isEnabled = quantity &gt; 1
+        binding.increaseButton.isEnabled = quantity &lt; maxQuantity
+    }
+}</code></pre>
+
+<pre data-lang="kotlin"><code>// CartItemViewHolder hoặc màn chi tiết sản phẩm: dùng custom view qua binding của màn đó
+binding.quantityStepper.maxQuantity = product.stock
+binding.quantityStepper.onQuantityChanged = { newQuantity -&gt;
+    cartController.updateQuantity(product.id, newQuantity)
+}</code></pre>
+
+<p><code>tools:parentTag</code> chỉ giúp Layout Editor xem trước layout <code>&lt;merge&gt;</code> như thể nó nằm trong <code>LinearLayout</code>; nó không ảnh hưởng tới code sinh ra hay lúc chạy.</p>
+
+<p><strong>Kết quả:</strong> đặt <code>maxQuantity = 3</code>, bấm cộng tới 3 thì nút cộng bị tắt; bấm trừ về 1 thì nút trừ bị tắt; mỗi lần đổi số, <code>onQuantityChanged</code> nhận đúng giá trị mới. Đổi layout gốc từ <code>&lt;merge&gt;</code> sang <code>LinearLayout</code> thì binding không còn hàm <code>inflate(inflater, parent)</code> hai tham số, và constructor phải đổi sang <code>inflate(inflater, this, true)</code>. Cách đó vẫn chạy nhưng cây View thừa một lớp <code>LinearLayout</code> lồng nhau.</p>
+
+<h2>So sánh với các cách tiếp cận khác</h2>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Cách</th>
+      <th style="padding:8px 12px;text-align:left;">Cơ chế</th>
+      <th style="padding:8px 12px;text-align:left;">Null safety</th>
+      <th style="padding:8px 12px;text-align:left;">Type safety</th>
+      <th style="padding:8px 12px;text-align:left;">Chi phí build</th>
+      <th style="padding:8px 12px;text-align:left;">Trạng thái</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>findViewById</code></td>
+      <td style="padding:8px 12px;">Tìm theo id mỗi lần gọi</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Không (kiểu do người viết khai báo)</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Vẫn dùng được, là nền của mọi cách khác</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Butter Knife</td>
+      <td style="padding:8px 12px;">Annotation <code>@BindView</code>, annotation processing</td>
+      <td style="padding:8px 12px;">Một phần (lỗi khi bind)</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Có (kapt)</td>
+      <td style="padding:8px 12px;">Deprecated, README khuyên chuyển sang View Binding</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Kotlin synthetics</td>
+      <td style="padding:8px 12px;">Plugin <code>kotlin-android-extensions</code> sinh property theo id</td>
+      <td style="padding:8px 12px;">Không theo cấu hình (dễ trỏ nhầm layout)</td>
+      <td style="padding:8px 12px;">Có</td>
+      <td style="padding:8px 12px;">Thấp</td>
+      <td style="padding:8px 12px;">Deprecated từ Kotlin 1.4.20</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>View Binding</strong></td>
+      <td style="padding:8px 12px;">AGP sinh class binding theo layout</td>
+      <td style="padding:8px 12px;">Có, <code>@Nullable</code> theo cấu hình</td>
+      <td style="padding:8px 12px;">Có</td>
+      <td style="padding:8px 12px;">Thấp, không annotation processing</td>
+      <td style="padding:8px 12px;">Khuyên dùng cho UI XML</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Data Binding</td>
+      <td style="padding:8px 12px;">Như View Binding + biểu thức và biến trong XML</td>
+      <td style="padding:8px 12px;">Có</td>
+      <td style="padding:8px 12px;">Có</td>
+      <td style="padding:8px 12px;">Cao hơn (annotation processing)</td>
+      <td style="padding:8px 12px;">Vẫn hỗ trợ, dùng khi cần binding trong XML</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Jetpack Compose</td>
+      <td style="padding:8px 12px;">UI là hàm Kotlin, không có XML để tra View</td>
+      <td style="padding:8px 12px;">Không áp dụng</td>
+      <td style="padding:8px 12px;">Không áp dụng</td>
+      <td style="padding:8px 12px;">Compose compiler</td>
+      <td style="padding:8px 12px;">Hướng chính cho UI mới</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>View Binding và Data Binding không loại trừ nhau: cùng một module có thể bật cả hai, dùng Data Binding cho layout cần biểu thức hay two-way binding và View Binding cho phần còn lại. Data Binding được học ở 6.2 Data Binding (chưa có bài); Compose ở <a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</p>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<ul>
+  <li><strong>Nên dùng</strong> cho mọi màn hình, Fragment, dialog, item danh sách và custom view còn viết bằng XML layout. Bật nó gần như không tốn gì và loại bỏ cả một nhóm crash runtime.</li>
+  <li><strong>Nên dùng</strong> khi chuyển code cũ khỏi Kotlin synthetics hay Butter Knife: hai công cụ đó đã deprecated.</li>
+  <li><strong>Không cần</strong> cho layout không có View nào phải truy cập từ code: thêm <code>tools:viewBindingIgnore="true"</code> để bớt class sinh ra.</li>
+  <li><strong>Không đủ</strong> khi muốn khai báo dữ liệu ngay trong XML (<code>android:text="@{user.name}"</code>) hoặc two-way binding cho form: đó là việc của Data Binding.</li>
+  <li><strong>Không áp dụng</strong> cho UI viết bằng Compose: không có layout XML nên không có gì để binding. Màn hình Compose nhúng View cũ qua <code>AndroidView</code> vẫn có thể dùng binding cho phần View đó.</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Giữ binding của Fragment sau <code>onDestroyView()</code></h3>
+
+<pre data-lang="kotlin"><code>// Sai: binding là lateinit, không bao giờ được dọn
+class ProfileFragment : Fragment() {
+    private lateinit var binding: FragmentProfileBinding
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentProfileBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+}</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> khi Fragment vào backstack, View bị huỷ nhưng <code>binding</code> vẫn giữ cả cây View cũ (kèm bitmap, adapter). LeakCanary báo leak; với nhiều Fragment trong backstack, bộ nhớ tăng dần.</p>
+
+<p><strong>Cách sửa:</strong> dùng <code>_binding</code> nullable và gán <code>null</code> trong <code>onDestroyView()</code> như mục "View Binding trong Fragment". Truy cập binding trong callback bất đồng bộ sau <code>onDestroyView()</code> là một lỗi khác của cùng nguyên nhân, xem <a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, mục "Sai lầm thường gặp", phần 2 "Truy cập binding sau <code>onDestroyView</code>".</p>
+
+<h3>2. Inflate binding rồi lại <code>setContentView(R.layout...)</code></h3>
+
+<pre data-lang="kotlin"><code>// Sai: hai cây View khác nhau
+binding = ActivityLoginBinding.inflate(layoutInflater)
+setContentView(R.layout.activity_login)   // inflate thêm lần nữa
+binding.loginButton.setOnClickListener { login() }</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> màn hình hiện bình thường nhưng bấm nút không có gì xảy ra, đổi text qua binding cũng không thấy. Lý do: <code>setContentView(R.layout…)</code> inflate một cây View <strong>mới</strong> để hiển thị, còn <code>binding</code> trỏ tới cây View tạo bởi <code>inflate()</code>, vốn không được gắn vào Window.</p>
+
+<p><strong>Cách sửa:</strong> luôn hiển thị đúng cây View của binding: <code>setContentView(binding.root)</code>.</p>
+
+<h3>3. <code>attachToParent = true</code> trong <code>onCreateView()</code></h3>
+
+<pre data-lang="kotlin"><code>// Sai: tự gắn View vào container
+_binding = FragmentProfileBinding.inflate(inflater, container, true)
+return binding.root</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> crash <code>IllegalStateException: The specified child already has a parent. You must call removeView() on the child's parent first.</code> Với <code>attachToParent = true</code>, View gốc đã được thêm vào <code>container</code>; sau đó FragmentManager lại thêm View mà <code>onCreateView()</code> trả về vào chính container đó lần nữa.</p>
+
+<p><strong>Cách sửa:</strong> trong Fragment luôn truyền <code>false</code>; FragmentManager mới là bên gắn View vào container. <code>container</code> vẫn cần được truyền vào để layout params của View gốc được tính theo View cha.</p>
+
+<h3>4. Field bỗng có kiểu <code>View</code> sau khi thêm layout cho cấu hình khác</h3>
+
+<pre data-lang="xml"><code>&lt;!-- layout/profile_header.xml --&gt;
+&lt;TextView android:id="@+id/user_bio" ... /&gt;
+&lt;!-- layout-sw600dp/profile_header.xml: tablet cho sửa bio tại chỗ --&gt;
+&lt;EditText android:id="@+id/user_bio" ... /&gt;</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> mọi chỗ dùng <code>binding.userBio.text = …</code> báo lỗi compile, vì field giờ có kiểu <code>View</code>. Nhiều người sửa bằng ép kiểu <code>(binding.userBio as TextView)</code> rải khắp code.</p>
+
+<p><strong>Cách sửa:</strong> khai báo kiểu chung trong layout bằng <code>tools:viewBindingType="TextView"</code> ở thẻ <code>EditText</code>. Giá trị phải là lớp cha của thẻ đó và phải ra cùng một kiểu ở mọi bản layout; View Binding không kiểm tra giá trị này, đặt sai sẽ lỗi ở compile hoặc runtime.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>Android 1.0 (API 1, 2008):</strong> <code>findViewById(int)</code> trả về <code>View</code>, người viết tự ép kiểu.</li>
+  <li><strong>Butter Knife (từ 2013):</strong> thư viện của Jake Wharton dùng annotation <code>@BindView</code> và annotation processing để sinh code gọi <code>findViewById</code>. Về sau README ghi rõ thư viện đã deprecated và khuyên chuyển sang View Binding.</li>
+  <li><strong>Data Binding Library (Google I/O 2015):</strong> binding sinh từ layout bọc trong thẻ <code>&lt;layout&gt;</code>, kèm biểu thức trong XML. Mạnh nhưng phải đổi layout và tốn thời gian build.</li>
+  <li><strong>Kotlin Android Extensions:</strong> plugin <code>kotlin-android-extensions</code> cho phép gọi View theo id như property (synthetics). Gọn, nhưng không phân biệt View theo layout và cấu hình, dễ trỏ nhầm View của layout khác.</li>
+  <li><strong>Android 8.0 (API 26, 2017):</strong> <code>findViewById</code> thành hàm generic <code>&lt;T extends View&gt; T findViewById(int)</code>, bỏ được phép ép kiểu tường minh nhưng vẫn không an toàn về kiểu.</li>
+  <li><strong>Android Studio 3.6 / AGP 3.6 (02/2020):</strong> View Binding ra mắt, bật theo module, không cần sửa layout và không dùng annotation processing.</li>
+  <li><strong>AGP 4.0.0 (04/2020):</strong> thêm khối <code>buildFeatures</code> để bật/tắt từng tính năng build; <code>viewBinding.enabled</code> cũ bị deprecated, cách bật chuyển sang <code>buildFeatures { viewBinding = true }</code> như hiện nay.</li>
+  <li><strong>Kotlin 1.4.20 (11/2020):</strong> JetBrains deprecate synthetic views của <code>kotlin-android-extensions</code> để thay bằng View Binding, và tách phần sinh <code>Parcelable</code> sang plugin riêng <code>kotlin-parcelize</code>.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="../session_04/components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>: binding của Activity được tạo trong <code>onCreate()</code>.</li>
+  <li><a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>: vì sao binding của Fragment phải theo vòng đời View.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../session_04/android_manifest/package_build_gradle/plugin.md" target="_blank" rel="noopener">Plugin</a>: AGP là bên sinh class binding lúc build.</li>
+  <li><a href="../session_04/components/fragment/dialog_and_dialogfragment.md" target="_blank" rel="noopener">Dialog and DialogFragment</a>: dialog có custom layout dùng binding theo cùng quy tắc với Fragment.</li>
+  <li><a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>: hướng UI không cần View Binding.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li>6.2 Data Binding (chưa có bài): binding có biểu thức và biến trong XML, mở rộng từ chính class binding ở bài này.</li>
+  <li>7.1.2 ViewHolder Pattern (chưa có bài): binding trong item của danh sách.</li>
+  <li>8.5.1 Layouts (chưa có bài): <code>&lt;include&gt;</code>, <code>&lt;merge&gt;</code> và các layout dùng trong ví dụ.</li>
+</ul></li>
+</ul>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li><a href="https://developer.android.com/topic/libraries/view-binding" target="_blank" rel="noopener">View binding - Android Developers</a></li>
+  <li><a href="https://developer.android.com/topic/libraries/view-binding/migration" target="_blank" rel="noopener">Migrate from Kotlin synthetics to Jetpack view binding - Android Developers</a></li>
+  <li><a href="https://kotlinlang.org/docs/whatsnew1420.html" target="_blank" rel="noopener">What's new in Kotlin 1.4.20 (deprecation of synthetic views) - Kotlin</a></li>
+  <li><a href="https://developer.android.com/studio/releases/past-releases/as-3-6-0-release-notes" target="_blank" rel="noopener">Android Studio 3.6 release notes - Android Developers</a></li>
+  <li><a href="https://developer.android.com/build/releases/past-releases/agp-4-0-0-release-notes" target="_blank" rel="noopener">Android Gradle Plugin 4.0.0 release notes (buildFeatures) - Android Developers</a></li>
+  <li><a href="https://github.com/JakeWharton/butterknife" target="_blank" rel="noopener">Butter Knife (README: deprecated, switch to view binding) - GitHub</a></li>
+  <li><a href="https://developer.android.com/guide/fragments/lifecycle" target="_blank" rel="noopener">Fragment lifecycle - Android Developers</a></li>
+</ul>
+    `
+  },
+});
+ANDROID_CONTENT['android.jetpack.view_binding'] = ANDROID_CONTENT['view-binding'];
