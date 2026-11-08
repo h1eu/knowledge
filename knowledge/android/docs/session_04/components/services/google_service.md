@@ -1,7 +1,7 @@
 ---
 id: android.component.service.google_service
 title: Google Service
-summary: Google Service trên Android gồm hai tầng là Google Play Services (GMS), framework hệ thống cài sẵn trên thiết bị cung cấp API như Location, Maps, đăng nhập; và Firebase, nền tảng Backend-as-a-Service với các SDK chạy trong app. Bài phân biệt hai tầng, SDK nào thật sự cần GMS, cách tích hợp chuẩn với BoM, và triển khai FCM, Analytics, Crashlytics, Auth, Remote Config, Firestore, Location, Maps.
+summary: Google Service trên Android gồm hai tầng dịch vụ của Google - Google Play Services (GMS), framework hệ thống cài sẵn trên thiết bị mà app gọi tới qua Binder IPC, và Firebase, nền tảng Backend-as-a-Service mà app dùng qua các SDK chạy ngay trong process của app. Bài phân biệt hai tầng, SDK nào thật sự cần GMS, cách tích hợp chuẩn với BoM, và triển khai FCM, Analytics, Crashlytics, Auth, Remote Config, Firestore, Location, Maps.
 status: published
 difficulty: intermediate
 depth: deep-dive
@@ -21,58 +21,7 @@ knowledge_gap: >
 
 # Google Service
 
-## 1. Nó là gì? (What is it?)
-
-**Google Service** trong phạm vi Android thường được hiểu theo **hai tầng** khác nhau nhưng gắn bó chặt chẽ:
-
-### 1.1 Google Play Services (GMS)
-
-**Google Play Services** là một **framework hệ thống cài sẵn trên thiết bị** (một APK riêng, thường tên gói `com.google.android.gms`). Nó cung cấp các API nền cho vô số tính năng của Google:
-
-- Google Maps
-- Location (vị trí)
-- Google Sign-In / OAuth
-- In-app Billing (thanh toán trong app)
-- **Nền tảng cho một số Firebase SDK** (vd FCM)
-
-GMS **không phải phần của AOSP** (Android mã nguồn mở). Nó là phần mềm độc quyền của Google, được cấp phép cho các nhà sản xuất (OEM) và tự cập nhật qua Google Play Store — không cần người dùng nâng cấp hệ điều hành.
-
-### 1.2 Firebase
-
-**Firebase** là một **Backend-as-a-Service (BaaS)** của Google. Phía client là các **SDK** (thư viện) bạn thêm vào project, phía server là hạ tầng đám mây Google đã quản lý sẵn.
-
-| Sản phẩm Firebase | Vai trò |
-|---|---|
-| Firebase Cloud Messaging (FCM) | Gửi push notification |
-| Firebase Analytics | Theo dõi hành vi người dùng |
-| Firebase Crashlytics | Báo cáo crash |
-| Firebase Authentication | Đăng nhập (email, Google, phone...) |
-| Cloud Firestore | Database NoSQL real-time |
-| Firebase Storage | Lưu trữ file |
-| Firebase Remote Config | Cấu hình app từ xa |
-| Firebase App Distribution | Phân phối build test |
-
-### 1.3 Mối quan hệ GMS ↔ Firebase
-
-> Firebase SDK và GMS là hai thứ khác nhau, được cấu hình chung qua một file `google-services.json`. Chỉ một số Firebase SDK **bắt buộc thiết bị có GMS**: FCM, Phone Number Verification, App Check với provider Play Integrity. Analytics được khuyến nghị có GMS (thiếu GMS vẫn gửi được event nhưng mất một số tính năng). Nhiều SDK khác như Firestore, Crashlytics, Authentication, Remote Config, Cloud Storage **không cần GMS**.
-
-```mermaid
-flowchart LR
-    App[Ứng dụng Android] --> GMS[Google Play Services\nAPK hệ thống trên device]
-    App --> FB[Firebase SDK\nFCM, Analytics, Crashlytics...]
-    GMS <--> GCloud[Google Cloud Backend]
-    FB --> GCloud
-    GCloud --> Console[Firebase Console\nquản lý, theo dõi, gửi thông báo]
-
-    style GMS fill:#2196F3,stroke:#1565C0,color:#fff
-    style FB fill:#FFA000,stroke:#E65100,color:#fff
-    style GCloud fill:#4CAF50,stroke:#388E3C,color:#fff
-```
-<!-- dd: gg-eco -->
-
----
-
-## 2. Vì sao tồn tại? Nó giải quyết vấn đề gì? (Why & What problem?)
+## Vấn đề cần giải quyết
 
 ### Android thuần (AOSP) thiếu gì?
 
@@ -92,11 +41,35 @@ Trước Firebase, mọi app muốn có push notification, analytics, hay crash 
 - Tự mở rộng quy mô.
 - Client SDK đã được tối ưu sẵn cho Android.
 
----
+## Sau khi học xong
 
-## 3. Cách hoạt động bên trong (How does it work?)
+- Phân biệt được Google Play Services và Firebase, và nhận biết SDK Firebase nào bắt buộc thiết bị có GMS.
+- Áp dụng được Firebase BoM và google-services.json để tích hợp Firebase vào project chuẩn.
+- Triển khai được FCM push notification (token, notification channel, POST_NOTIFICATIONS) và xử lý đúng foreground/background.
+- Triển khai được Analytics, Crashlytics, Remote Config và Firebase Auth với Sign in with Google qua Credential Manager.
+- Nhận diện được các lỗi tích hợp phổ biến như version mismatch, thiếu google-services.json, API Key sai.
 
-### 3.1 Google Play Services: một "system app" giao tiếp qua IPC
+## Google Service là gì?
+
+**Google Service** trên Android là hai tầng dịch vụ của Google mà app dùng: **Google Play Services (GMS)**, một framework hệ thống cài sẵn trên thiết bị mà app gọi tới qua Binder IPC, và **Firebase**, một nền tảng Backend-as-a-Service (BaaS) mà app dùng qua các SDK chạy ngay trong process của app.
+
+Mental model: GMS là **dịch vụ nằm ngoài app**, Firebase SDK là **thư viện nằm trong app**. Thứ nằm ngoài app do máy người dùng quyết định: máy có thể không có GMS, và version GMS tự cập nhật theo Play Store chứ không theo APK của bạn. Thứ nằm trong app do bạn quyết định qua Gradle (BoM, plugin, `google-services.json`). Hầu hết câu hỏi "vì sao chạy máy này mà crash máy kia" trong bài đều trả lời được bằng câu hỏi: tính năng đó nằm ngoài hay trong app?
+
+## Cách hoạt động
+
+### Google Play Services (GMS)
+
+**Google Play Services** là một **framework hệ thống cài sẵn trên thiết bị** (một APK riêng, thường tên gói `com.google.android.gms`). Nó cung cấp các API nền cho vô số tính năng của Google:
+
+- Google Maps
+- Location (vị trí)
+- Google Sign-In / OAuth
+- In-app Billing (thanh toán trong app)
+- **Nền tảng cho một số Firebase SDK** (vd FCM)
+
+GMS **không phải phần của AOSP** (Android mã nguồn mở). Nó là phần mềm độc quyền của Google, được cấp phép cho các nhà sản xuất (OEM) và tự cập nhật qua Google Play Store — không cần người dùng nâng cấp hệ điều hành.
+
+#### Một "system app" giao tiếp qua IPC
 
 GMS được cài như một **application component hệ thống**. Khi app của bạn gọi API của GMS (các API hiện tại trả về `Task`; `GoogleApiClient` cũ đã deprecated), thực chất app **bind tới Service của GMS** qua Binder IPC (giống Bound Service trong bài [Android Service](./android_service.md)), và GMS thực thi tác vụ rồi trả kết quả về.
 
@@ -119,7 +92,22 @@ sequenceDiagram
 
 Vì GMS tự cập nhật, **version GMS trên máy có thể mới hơn hoặc cũ hơn** so với version mà app bạn biên dịch. Đây là nguồn gốc của lỗi `Google Play services is not compatible with your app` nếu bạn không xử lý đúng.
 
-### 3.2 Firebase SDK: client kết nối backend Google
+### Firebase
+
+**Firebase** là một **Backend-as-a-Service (BaaS)** của Google. Phía client là các **SDK** (thư viện) bạn thêm vào project, phía server là hạ tầng đám mây Google đã quản lý sẵn.
+
+| Sản phẩm Firebase | Vai trò |
+|---|---|
+| Firebase Cloud Messaging (FCM) | Gửi push notification |
+| Firebase Analytics | Theo dõi hành vi người dùng |
+| Firebase Crashlytics | Báo cáo crash |
+| Firebase Authentication | Đăng nhập (email, Google, phone...) |
+| Cloud Firestore | Database NoSQL real-time |
+| Firebase Storage | Lưu trữ file |
+| Firebase Remote Config | Cấu hình app từ xa |
+| Firebase App Distribution | Phân phối build test |
+
+#### Firebase SDK: client kết nối backend Google
 
 Firebase SDK chạy **trong chính process app** của bạn. Nó dùng file `google-services.json` để biết app thuộc project Firebase nào, sau đó mở kết nối (REST/WebSocket) tới backend:
 
@@ -133,54 +121,27 @@ flowchart TD
 
 Khi app bị kill, FCM vẫn có thể hiển thị notification nhờ **cơ chế của hệ điều hành** (qua Google Play Services) — không cần app chạy. Đây là điểm khác biệt cốt lõi so với tự mở socket.
 
----
+### Mối quan hệ GMS ↔ Firebase
 
-## 4. Khi nào nên dùng / không nên dùng? (When to use / avoid?)
-
-### Bản đồ quyết định
+> Firebase SDK và GMS là hai thứ khác nhau, được cấu hình chung qua một file `google-services.json`. Chỉ một số Firebase SDK **bắt buộc thiết bị có GMS**: FCM, Phone Number Verification, App Check với provider Play Integrity. Analytics được khuyến nghị có GMS (thiếu GMS vẫn gửi được event nhưng mất một số tính năng). Nhiều SDK khác như Firestore, Crashlytics, Authentication, Remote Config, Cloud Storage **không cần GMS**.
 
 ```mermaid
-flowchart TD
-    Start([Bạn cần chức năng gì?]) --> Q1{Cần backend/\nthông tin đám mây?}
-    Q1 -- Có --> Q2{Đã có server riêng\nvà team vận hành?}
-    Q2 -- Không --> Firebase[Firebase BaaS]
-    Q2 -- Có --> Q3{Real-time / CRUD\nnhanh + scaling?}
-    Q3 -- Có --> Firestore[Firestore hoặc tự build]
-    Q1 -- Không --> Q4{Cần vị trí, bản đồ,\nthanh toán, đăng nhập Google?}
-    Q4 -- Có --> GMS[Google Play Services API]
-    Q4 -- Không --> Q5{Thiết bị có GMS?}
-    Q5 -- Không --> Alt[Giải pháp thay thế: HMS,\ntự build backend]
+flowchart LR
+    App[Ứng dụng Android] --> GMS[Google Play Services\nAPK hệ thống trên device]
+    App --> FB[Firebase SDK\nFCM, Analytics, Crashlytics...]
+    GMS <--> GCloud[Google Cloud Backend]
+    FB --> GCloud
+    GCloud --> Console[Firebase Console\nquản lý, theo dõi, gửi thông báo]
 
-    style Firebase fill:#FFA000,stroke:#E65100,color:#fff
     style GMS fill:#2196F3,stroke:#1565C0,color:#fff
-    style Firestore fill:#4CAF50,stroke:#388E3C,color:#fff
-    style Alt fill:#757575,stroke:#424242,color:#fff
+    style FB fill:#FFA000,stroke:#E65100,color:#fff
+    style GCloud fill:#4CAF50,stroke:#388E3C,color:#fff
 ```
-<!-- dd: gg-choose-a -->
-<!-- dd: gg-choose-b -->
+<!-- dd: gg-eco -->
 
-### Nên dùng
+### Tích hợp vào project (Setup chuẩn)
 
-| Tình huống | Giải pháp |
-|---|---|
-| Gửi push notification tới hàng triệu user | FCM |
-| Theo dõi crash, session, hành vi user | Crashlytics + Analytics |
-| Xác thực đăng nhập nhanh, không tự build OAuth | Firebase Auth / Google Sign-In |
-| App cần real-time dữ liệu, tối ưu thời gian phát triển | Cloud Firestore |
-| Bản đồ, định vị, thanh toán trong app | Google Play Services |
-
-### Không nên dùng
-
-- **Thiết bị không có GMS** (Huawei mới, một số máy Trung Quốc): FCM, Maps, Location của Google **không hoạt động**. Cần dùng Huawei HMS hoặc tự build giải pháp thay thế.
-- **Yêu cầu kiểm soát dữ liệu chặt chẽ** (GDPR, dữ liệu nhạy cảm nội bộ): Firebase lưu dữ liệu trên cloud của Google, không thể tự host.
-- **Đã có backend team mạnh + nhu cầu tùy biến sâu**: tự build có thể rẻ và linh hoạt hơn về lâu dài.
-- **Chỉ cần 1 chức năng đơn giản**: đừng kéo cả Firebase vào, mỗi SDK đều tăng dung lượng APK và số lượng dependency.
-
----
-
-## 5. Tích hợp vào project (Setup chuẩn)
-
-### Luồng tích hợp
+#### Luồng tích hợp
 
 ```mermaid
 flowchart LR
@@ -195,17 +156,16 @@ flowchart LR
 ```
 <!-- dd: gg-setup -->
 
-### Bước 1 — Tạo project trên Firebase Console
+#### Bước 1 — Tạo project trên Firebase Console
 
 Vào [console.firebase.google.com](https://console.firebase.google.com), tạo project, thêm app Android với:
 
 - **Package name** khớp 100% với `applicationId` trong `build.gradle`.
 - **SHA-1** của keystore (dùng cho Google Sign-In và một số tính năng).
 
-> [!IMPORTANT]
-> **Package name phải khớp chính xác.** Nếu thiếu file hoặc package name không khớp, plugin `google-services` làm **build lỗi** (vd *"File google-services.json is missing"*, *"No matching client found for package name"*). Lỗi runtime *"Default FirebaseApp is not initialized"* thường do quên apply plugin.
+Package name không khớp hoặc thiếu file làm build lỗi, xem mục 2 của "Sai lầm thường gặp".
 
-### Bước 2 — Thêm plugin vào Gradle
+#### Bước 2 — Thêm plugin vào Gradle
 
 **Project-level `build.gradle.kts` (hoặc `settings.gradle.kts`):**
 ```kotlin
@@ -224,9 +184,9 @@ plugins {
 ```
 
 > [!NOTE]
-> Plugin `com.google.gms.google-services` đọc `google-services.json` và **sinh resource** cấu hình (`google_app_id`, `default_web_client_id`...). Việc khởi tạo `FirebaseApp` do `FirebaseInitProvider`, một ContentProvider của Firebase, tự làm khi process khởi động (ContentProvider chạy `onCreate` trước `Application.onCreate`; thứ tự khởi động này được giải thích ở [Content Provider](../content_provider.md), mục "3. Cơ chế hoạt động bên trong (IPC Binder)"). Vì vậy bạn không cần gọi `FirebaseApp.initializeApp()` trong code.
+> Plugin `com.google.gms.google-services` đọc `google-services.json` và **sinh resource** cấu hình (`google_app_id`, `default_web_client_id`...). Việc khởi tạo `FirebaseApp` do `FirebaseInitProvider`, một ContentProvider của Firebase, tự làm khi process khởi động (ContentProvider chạy `onCreate` trước `Application.onCreate`; thứ tự khởi động này được giải thích ở [Content Provider](../content_provider.md), mục "Cơ chế hoạt động bên trong (IPC Binder)"). Vì vậy bạn không cần gọi `FirebaseApp.initializeApp()` trong code.
 
-### Bước 3 — Thêm dependency với Firebase BoM
+#### Bước 3 — Thêm dependency với Firebase BoM
 
 **Firebase BoM (Bill of Materials)** giúp tất cả SDK Firebase **cùng một version** — tránh lỗi xung đột version (conflict):
 
@@ -255,7 +215,7 @@ dependencies {
 > [!WARNING]
 > Từ **BoM 34.0.0** (07/2025), các module `-ktx` (vd `firebase-config-ktx`, `firebase-auth-ktx`) đã bị bỏ khỏi BoM. Kotlin API nay nằm sẵn trong module chính, nên chỉ cần khai báo `firebase-config`, `firebase-auth`...
 
-### Bước 4 — Đảm bảo minSdk
+#### Bước 4 — Đảm bảo minSdk
 
 Từ **BoM 35.0.0** (10/2026), Firebase Android SDK yêu cầu **minSdk ≥ 24** (Android 7.0); các BoM cũ hơn có mức thấp hơn. Kiểm tra trong `build.gradle.kts`:
 ```kotlin
@@ -264,16 +224,70 @@ defaultConfig {
 }
 ```
 
----
+### Vị trí trong Clean Architecture / MVVM
 
-## 6. Thực chiến Firebase
+> [!NOTE]
+> Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục 7.2.5 Clean Architecture (chưa có bài). Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.
 
-### 6.1 FCM — Push Notification
+Google Play Services và Firebase là SDK bên ngoài, nên nằm ở **Data Layer**, bên trong các `*DataSource`: một DataSource cho Firebase (FCM, Auth, Firestore, Crashlytics, Analytics), một cho API của GMS (Location, Maps).
+
+```mermaid
+flowchart LR
+    subgraph UI["Presentation Layer"]
+        A[Activity / Compose]
+        VM[ViewModel]
+    end
+    subgraph Domain["Domain Layer"]
+        UC[UseCase]
+        IF["Interface:<br/>NotificationRepository<br/>AuthRepository"]
+    end
+    subgraph Data["Data Layer"]
+        REPO[Repository]
+        FB["FirebaseDataSource:<br/>FCM, Auth, Firestore,<br/>Crashlytics, Analytics"]
+        GMS["GoogleApiDataSource:<br/>Location, Maps"]
+    end
+
+    A -- observe --> VM
+    VM --> UC
+    UC --> IF
+    IF --> REPO
+    REPO --> FB
+    REPO --> GMS
+
+    style IF fill:#7E57C2,stroke:#4527A0,color:#fff
+    style FB fill:#FFA000,stroke:#E65100,color:#fff
+    style GMS fill:#2196F3,stroke:#1565C0,color:#fff
+```
+<!-- dd: gg-arch -->
+
+**Riêng với Google Service:**
+- `DataSource` bọc mọi API của Firebase/GMS (`Task`, `RemoteMessage`, `FirebaseUser`...) và trả về **model thuần** của app, nên tầng trên không import `com.google.*`.
+- Máy không có GMS (Huawei, thị trường Trung Quốc) thì thay bằng HMS chỉ cần viết thêm một `DataSource` và đổi DI binding, UI/Domain không đổi.
+- Cùng cách đặt tầng cho quảng cáo: [Ads trong kiến trúc app](advertisements/ads_architecture.md).
+
+## Ví dụ thực tế
+
+Bài toán chính là push notification bằng FCM, viết đầy đủ kèm luồng chạy. Các bài toán còn lại là cách dùng thường gặp của từng sản phẩm Firebase và API của GMS.
+
+### Thực chiến Firebase
+
+#### FCM — Push Notification
 
 **Tình huống:** Gửi thông báo đơn hàng mới tới người dùng, hiển thị notification cả khi app đang mở lẫn bị kill.
 
 > [!NOTE]
 > Kiến thức dùng trước: hàm `showNotification()` bên dưới dùng notification channel, quyền `POST_NOTIFICATIONS` và `NotificationCompat`, học ở mục 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài). Ở đây chỉ cần biết: khi app ở foreground, FCM giao message cho `onMessageReceived()` và app tự dựng notification.
+
+Luồng chạy:
+
+1. App đăng ký với FCM và nhận **device token**: `onNewToken()` được gọi khi token được tạo hoặc đổi; lúc khác lấy token hiện tại bằng `FirebaseMessaging.getInstance().token`.
+2. App gửi token lên backend của bạn để backend biết gửi tới máy nào.
+3. Backend gọi FCM HTTP v1 API với nội dung message và token.
+4. FCM đẩy message xuống device qua Google Play Services (dịch vụ nằm ngoài app, nên app không cần đang chạy).
+5. App đang foreground: GMS giao message cho `onMessageReceived()`, app tự dựng notification (kiểm tra `POST_NOTIFICATIONS`, tạo channel).
+6. App ở background hoặc bị kill: GMS tự hiển thị notification hệ thống từ payload `notification`, `onMessageReceived()` không được gọi.
+
+Sơ đồ dưới vẽ đúng các bước trên theo thứ tự mũi tên: (1) là `Đăng ký, nhận device token`, (2) là `Gửi token lên server`, (3) là `Gọi HTTP v1 API`, (4) là `Đẩy message xuống device`, (5) và (6) là hai mũi tên cuối đi ra từ GMS.
 
 ```mermaid
 sequenceDiagram
@@ -297,13 +311,13 @@ sequenceDiagram
 class OrderMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
-        // Gọi khi token được tạo lần đầu và mỗi khi token đổi
+        // (1) Gọi khi token được tạo lần đầu và mỗi khi token đổi
         // (khôi phục app sang máy mới, gỡ rồi cài lại app, xoá dữ liệu app)
-        // Gửi lên server: apiService.uploadFcmToken(token)
+        // (2) Gửi lên server: apiService.uploadFcmToken(token)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // Khi app ĐANG foreground — notification hệ thống KHÔNG tự hiện
+        // (5) Khi app ĐANG foreground — notification hệ thống KHÔNG tự hiện
         val title = remoteMessage.notification?.title ?: "Thông báo"
         val body = remoteMessage.notification?.body ?: remoteMessage.data["body"] ?: ""
         showNotification(title, body)
@@ -341,7 +355,7 @@ class OrderMessagingService : FirebaseMessagingService() {
 **Lấy token hiện tại** (vd sau khi người dùng đăng nhập; `onNewToken` chỉ được gọi khi token được tạo hoặc thay đổi):
 ```kotlin
 FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-    // apiService.uploadFcmToken(token)
+    // (2) apiService.uploadFcmToken(token)
 }
 ```
 
@@ -364,7 +378,9 @@ FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
 > [!WARNING]
 > **Foreground vs Background:** Khi app ở foreground, `onMessageReceived()` được gọi và bạn **tự hiển thị notification**. Khi app ở background hoặc bị kill, GMS **tự hiển thị** notification từ payload `notification` — `onMessageReceived()` **không được gọi**. Muốn luôn nhận data ở background, gửi **data message** (không có field `notification`) và để client xử lý trong `onMessageReceived()`.
 
-### 6.2 Firebase Analytics & Event Log
+**Kết quả:** khi app đang mở, notification do `showNotification()` dựng hiện ra (bước 5); khi app ở background hoặc bị kill, notification do hệ thống hiển thị (bước 6). Kiểm chứng bằng cách log token ở bước (1), rồi gửi test message tới token đó từ Firebase Console lần lượt khi app foreground và background.
+
+#### Firebase Analytics & Event Log
 
 **Tình huống:** Theo dõi sự kiện "add_to_cart" để đo hiệu quả chiến dịch.
 
@@ -400,7 +416,7 @@ analytics.setUserProperty("user_tier", "premium")
 > [!NOTE]
 > Event log của Analytics là **chìa khóa debug**. Nếu sự kiện bạn gửi không xuất hiện, kiểm tra: đã tắt **data saver**? đã set prop `debug.firebase.analytics.app`? đã gửi đúng package name khi set prop?
 
-### 6.3 Crashlytics — Báo cáo crash
+#### Crashlytics — Báo cáo crash
 
 **Tình huống:** Bắt crash tự động, kèm log và thông tin người dùng để fix nhanh.
 
@@ -434,7 +450,7 @@ fun reportUserAction(userId: String) {
 > [!TIP]
 > Bật **Crashlytics NDK** và **Crashlytics debug** để xem crash ngay trên máy test: trong logcat filter `Crashlytics`. Bản build debug thường hiện log đầy đủ hơn.
 
-### 6.4 Firebase Auth + Google Sign-In
+#### Firebase Auth + Google Sign-In
 
 **Tình huống:** Người dùng đăng nhập bằng tài khoản Google.
 
@@ -457,6 +473,9 @@ sequenceDiagram
     FB-->>App: FirebaseUser — đăng nhập thành công
 ```
 <!-- dd: gg-auth -->
+
+> [!NOTE]
+> Kiến thức dùng trước: `suspend`, `await()` và `lifecycleScope.launch` là coroutine của Kotlin, học ở mục 8.4.3 Coroutines (chưa có bài). Ở đây chỉ cần biết `await()` chờ `Task` của Firebase/GMS hoàn thành mà không chặn main thread.
 
 **Code trong ViewModel + Activity (luồng thực chiến):**
 
@@ -509,10 +528,9 @@ fun startGoogleSignIn() {
 // credentialManager.clearCredentialState(ClearCredentialStateRequest())
 ```
 
-> [!CAUTION]
-> `R.string.default_web_client_id` được **tự sinh bởi plugin** `google-services` từ `google-services.json`. Nếu bạn xóa `google-services.json` hoặc không apply plugin, resource này không tồn tại → build lỗi ngay.
+`R.string.default_web_client_id` chỉ tồn tại khi plugin `google-services` đã được apply, xem mục 2 của "Sai lầm thường gặp".
 
-### 6.5 Remote Config — Cấu hình từ xa
+#### Remote Config — Cấu hình từ xa
 
 **Tình huống:** Bật/tắt tính năng "gợi ý bạn bè" cho một phần người dùng mà không cần phát hành bản update.
 
@@ -550,7 +568,7 @@ class RemoteConfigDataSource : FeatureFlags {
 > [!NOTE]
 > Luôn khai báo **default value local** (`setDefaultsAsync`) để app không bị null/crash khi chưa kịp fetch hoặc mất mạng.
 
-### 6.6 Firestore & Storage — Tổng quan
+#### Firestore & Storage — Tổng quan
 
 **Tình huống:** Lưu giỏ hàng real-time, đồng bộ offline khi mất mạng.
 
@@ -588,10 +606,9 @@ ref.putFile(uri)
     .addOnFailureListener { /* xử lý lỗi */ }
 ```
 
-> [!WARNING]
-> **Security Rules là bắt buộc.** Mặc định Firestore/Storage chặn toàn bộ truy cập (đúng, an toàn). Khi deploy rules, đừng mở kiểu `if true` (cho phép tất cả) — đó là lỗ hổng bảo mật nghiêm trọng, hacker có thể đọc/xóa toàn bộ dữ liệu của bạn.
+Security Rules cho Firestore/Storage: xem mục 6 của "Sai lầm thường gặp".
 
-### 6.7 App Distribution & Emulator Suite
+#### App Distribution & Emulator Suite
 
 **Firebase App Distribution** phân phối build test (`.apk`/`.aab`) tới tester nhanh, không cần qua Play Console:
 
@@ -625,11 +642,9 @@ if (BuildConfig.DEBUG) {
 > [!TIP]
 > Dùng Emulator Suite trong quá trình phát triển để **không tốn quota thật** và không làm bẩn dữ liệu production. Chỉ chuyển sang dữ liệu thật khi test tích hợp với backend thật.
 
----
+### Thực chiến Google Play Services
 
-## 7. Thực chiến Google Play Services
-
-### 7.1 Location — FusedLocationProvider
+#### Location — FusedLocationProvider
 
 **Tình huống:** Lấy vị trí hiện tại một lần (nhất) để hiển thị trên màn hình chính.
 
@@ -659,10 +674,9 @@ class LocationDataSource(
 }
 ```
 
-> [!CAUTION]
-> Bắt buộc **request runtime permission** (`ACCESS_FINE_LOCATION`) trước khi gọi API, và **khai báo cả hai permission** trong Manifest. Nếu thiếu, app sẽ ném `SecurityException`.
+Thiếu permission là lỗi hay gặp nhất của API vị trí, xem mục 4 của "Sai lầm thường gặp".
 
-### 7.2 Google Maps — Hiển thị bản đồ
+#### Google Maps — Hiển thị bản đồ
 
 **Tình huống:** Hiển thị vị trí cửa hàng trên bản đồ.
 
@@ -692,89 +706,101 @@ override fun onMapReady(map: GoogleMap) {
 }
 ```
 
-> [!WARNING]
-> **API Key lộ trong source = rủi ro lớn.** Nếu không giới hạn key theo package + SHA-1, kẻ khác có thể trích xuất key từ APK (dễ dàng bằng các công cụ decompile) và sử dụng trục lợi → key bị khóa, chi phí tăng. Luôn giới hạn key trong Cloud Console.
+Giới hạn API Key để không bị trục lợi: xem mục 3 của "Sai lầm thường gặp".
 
-### 7.3 AdMob — Quảng cáo (dẫn dắt)
+#### AdMob — Quảng cáo (dẫn dắt)
 
 AdMob hiển thị quảng cáo (banner, interstitial, rewarded) qua Google Mobile Ads SDK. Đây là chủ đề riêng có nhiều quy định của Google (policy quảng cáo, consent), trình bày ở 4.2.3.3 Advertisements, bắt đầu từ [AdMob Overview](advertisements/overview.md).
 
----
+## Khi nào nên và không nên dùng
 
-## 8. Vị trí trong Clean Architecture / MVVM (Tư duy hệ thống)
-
-> [!NOTE]
-> Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục 7.2.5 Clean Architecture (chưa có bài). Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.
-
-Google Play Services và Firebase là SDK bên ngoài, nên nằm ở **Data Layer**, bên trong các `*DataSource`: một DataSource cho Firebase (FCM, Auth, Firestore, Crashlytics, Analytics), một cho API của GMS (Location, Maps).
+### Bản đồ quyết định
 
 ```mermaid
-flowchart LR
-    subgraph UI["Presentation Layer"]
-        A[Activity / Compose]
-        VM[ViewModel]
-    end
-    subgraph Domain["Domain Layer"]
-        UC[UseCase]
-        IF["Interface:<br/>NotificationRepository<br/>AuthRepository"]
-    end
-    subgraph Data["Data Layer"]
-        REPO[Repository]
-        FB["FirebaseDataSource:<br/>FCM, Auth, Firestore,<br/>Crashlytics, Analytics"]
-        GMS["GoogleApiDataSource:<br/>Location, Maps"]
-    end
+flowchart TD
+    Start([Bạn cần chức năng gì?]) --> Q1{Cần backend/\nthông tin đám mây?}
+    Q1 -- Có --> Q2{Đã có server riêng\nvà team vận hành?}
+    Q2 -- Không --> Firebase[Firebase BaaS]
+    Q2 -- Có --> Q3{Real-time / CRUD\nnhanh + scaling?}
+    Q3 -- Có --> Firestore[Firestore hoặc tự build]
+    Q1 -- Không --> Q4{Cần vị trí, bản đồ,\nthanh toán, đăng nhập Google?}
+    Q4 -- Có --> GMS[Google Play Services API]
+    Q4 -- Không --> Q5{Thiết bị có GMS?}
+    Q5 -- Không --> Alt[Giải pháp thay thế: HMS,\ntự build backend]
 
-    A -- observe --> VM
-    VM --> UC
-    UC --> IF
-    IF --> REPO
-    REPO --> FB
-    REPO --> GMS
-
-    style IF fill:#7E57C2,stroke:#4527A0,color:#fff
-    style FB fill:#FFA000,stroke:#E65100,color:#fff
+    style Firebase fill:#FFA000,stroke:#E65100,color:#fff
     style GMS fill:#2196F3,stroke:#1565C0,color:#fff
+    style Firestore fill:#4CAF50,stroke:#388E3C,color:#fff
+    style Alt fill:#757575,stroke:#424242,color:#fff
 ```
-<!-- dd: gg-arch -->
+<!-- dd: gg-choose-a -->
+<!-- dd: gg-choose-b -->
 
-**Riêng với Google Service:**
-- `DataSource` bọc mọi API của Firebase/GMS (`Task`, `RemoteMessage`, `FirebaseUser`...) và trả về **model thuần** của app, nên tầng trên không import `com.google.*`.
-- Máy không có GMS (Huawei, thị trường Trung Quốc) thì thay bằng HMS chỉ cần viết thêm một `DataSource` và đổi DI binding, UI/Domain không đổi.
-- Cùng cách đặt tầng cho quảng cáo: [Ads trong kiến trúc app](advertisements/ads_architecture.md).
+### Nên dùng
 
----
+| Tình huống | Giải pháp |
+|---|---|
+| Gửi push notification tới hàng triệu user | FCM |
+| Theo dõi crash, session, hành vi user | Crashlytics + Analytics |
+| Xác thực đăng nhập nhanh, không tự build OAuth | Firebase Auth / Google Sign-In |
+| App cần real-time dữ liệu, tối ưu thời gian phát triển | Cloud Firestore |
+| Bản đồ, định vị, thanh toán trong app | Google Play Services |
 
-## 9. Lỗi thường gặp & Best Practices (Pitfalls)
+### Không nên dùng
 
-> [!WARNING]
-> **Version mismatch / Dependency conflict:** Khi dùng nhiều SDK Firebase với version khác nhau → build lỗi `Dependency conflict` hoặc crash runtime.
-> **Giải pháp:** Luôn dùng **Firebase BoM** và không ghi version riêng lẻ.
+- **Thiết bị không có GMS** (Huawei mới, một số máy Trung Quốc): FCM, Maps, Location của Google **không hoạt động**. Cần dùng Huawei HMS hoặc tự build giải pháp thay thế.
+- **Yêu cầu kiểm soát dữ liệu chặt chẽ** (GDPR, dữ liệu nhạy cảm nội bộ): Firebase lưu dữ liệu trên cloud của Google, không thể tự host.
+- **Đã có backend team mạnh + nhu cầu tùy biến sâu**: tự build có thể rẻ và linh hoạt hơn về lâu dài.
+- **Chỉ cần 1 chức năng đơn giản**: đừng kéo cả Firebase vào, mỗi SDK đều tăng dung lượng APK và số lượng dependency.
 
-> [!WARNING]
-> **Thiếu `google-services.json` hoặc sai package name:** Plugin `google-services` làm build lỗi. Nếu quên apply plugin, app build được nhưng khi chạy báo *"Default FirebaseApp is not initialized in this process"*.
-> **Giải pháp:** Đặt đúng file vào `app/`, khớp `package name` giữa Console và `applicationId`.
+## Sai lầm thường gặp
 
-> [!CAUTION]
-> **API Key sai hoặc không giới hạn:** Maps/Location trả về lỗi "API key not authorized" hoặc bị trục lợi.
-> **Giải pháp:** Restrict key theo package name + SHA-1 trong Cloud Console.
+### 1. Version mismatch / Dependency conflict
 
-> [!CAUTION]
-> **Quên permission runtime:** Location, Camera, Microphone... không request quyền → `SecurityException`.
-> **Giải pháp:** Dùng thư viện permission (vd Accompanist) và kiểm tra `checkSelfPermission` trước mỗi call.
+Khi dùng nhiều SDK Firebase với version khác nhau → build lỗi `Dependency conflict` hoặc crash runtime.
 
-> [!CAUTION]
-> **minSdk thấp hơn yêu cầu của BoM:** Firebase SDK từ BoM 35.0.0 yêu cầu minSdk 24 trở lên, build sẽ fail (manifest merger báo lỗi minSdk).
-> **Giải pháp:** Set `minSdk = 24` trong `build.gradle.kts`, hoặc giữ BoM cũ nếu bắt buộc hỗ trợ máy cũ.
+**Giải pháp:** Luôn dùng **Firebase BoM** và không ghi version riêng lẻ.
+
+### 2. Thiếu `google-services.json`, sai package name hoặc quên apply plugin
+
+**Package name phải khớp chính xác.** Nếu thiếu file hoặc package name không khớp, plugin `google-services` làm **build lỗi** (vd *"File google-services.json is missing"*, *"No matching client found for package name"*). Nếu quên apply plugin, app build được nhưng khi chạy báo *"Default FirebaseApp is not initialized in this process"*.
+
+`R.string.default_web_client_id` được **tự sinh bởi plugin** `google-services` từ `google-services.json`. Nếu bạn xóa `google-services.json` hoặc không apply plugin, resource này không tồn tại → build lỗi ngay.
+
+**Giải pháp:** Đặt đúng file vào `app/`, khớp `package name` giữa Console và `applicationId`.
+
+### 3. API Key sai hoặc không giới hạn
+
+Maps/Places trả về lỗi "API key not authorized" hoặc bị trục lợi.
+
+**API Key lộ trong source = rủi ro lớn.** Nếu không giới hạn key theo package + SHA-1, kẻ khác có thể trích xuất key từ APK (dễ dàng bằng các công cụ decompile) và sử dụng trục lợi → key bị khóa, chi phí tăng. Luôn giới hạn key trong Cloud Console.
+
+**Giải pháp:** Restrict key theo package name + SHA-1 trong Cloud Console.
+
+### 4. Quên permission runtime
+
+Location, Camera, Microphone... không request quyền → `SecurityException`.
+
+Bắt buộc **request runtime permission** (`ACCESS_FINE_LOCATION`) trước khi gọi API, và **khai báo cả hai permission** trong Manifest. Nếu thiếu, app sẽ ném `SecurityException`.
+
+**Giải pháp:** Dùng thư viện permission (vd Accompanist) và kiểm tra `checkSelfPermission` trước mỗi call.
+
+### 5. minSdk thấp hơn yêu cầu của BoM
+
+Firebase SDK từ BoM 35.0.0 yêu cầu minSdk 24 trở lên, build sẽ fail (manifest merger báo lỗi minSdk).
+
+**Giải pháp:** Set `minSdk = 24` trong `build.gradle.kts`, hoặc giữ BoM cũ nếu bắt buộc hỗ trợ máy cũ.
+
+### 6. Mở Security Rules cho tất cả
+
+**Security Rules là bắt buộc.** Mặc định Firestore/Storage chặn toàn bộ truy cập (đúng, an toàn). Khi deploy rules, đừng mở kiểu `if true` (cho phép tất cả) — đó là lỗ hổng bảo mật nghiêm trọng, hacker có thể đọc/xóa toàn bộ dữ liệu của bạn.
+
+**Giải pháp (best practice về dữ liệu):** Luôn giới hạn Security Rules; không gửi dữ liệu nhạy cảm (password, token) lên Analytics/Crashlytics; bật **App Check** cho dữ liệu nhạy cảm.
 
 > [!TIP]
 > **Debug nhanh:** Bật `debug.firebase.analytics.app` để xem event log; filter `Crashlytics` trong logcat để xem crash chi tiết; dùng **Firebase Emulator** khi phát triển để không đụng dữ liệu thật.
 
-> [!TIP]
-> **Best practice về dữ liệu:** Luôn giới hạn Security Rules; không gửi dữ liệu nhạy cảm (password, token) lên Analytics/Crashlytics; bật **App Check** cho dữ liệu nhạy cảm.
-
----
-
-## 10. Trade-offs, chi phí & Security
+## Trade-offs
 
 | Khía cạnh | Lợi ích | Đánh đổi / Lưu ý |
 |---|---|---|
@@ -788,9 +814,28 @@ flowchart LR
 > [!NOTE]
 > **Chi phí dự đoán:** Firestore tính tiền theo số lượt đọc/ghi — một app chat có thể đọc/ghi rất nhiều. Theo dõi **Usage** trên Firebase Console thường xuyên để tránh hóa đơn bất ngờ.
 
----
+## Lịch sử phát triển
 
-## 11. Nguồn tham khảo
+- **Android 8.0 (API 26):** thêm `NotificationChannel`. App target API 26 trở lên phải gắn mỗi notification vào một channel, nên FCM cần meta-data `default_notification_channel_id` cho notification message không chỉ định channel.
+- **Android 13 (API 33):** thêm runtime permission `POST_NOTIFICATIONS`; app cài mới trên Android 13+ mặc định bị tắt notification cho tới khi người dùng cấp quyền. FCM SDK từ 23.0.6 khai báo sẵn permission này trong manifest, app vẫn phải tự xin quyền lúc chạy.
+- **09/2024:** Android Developers Blog (11/09/2024) công bố Credential Manager thay thế các API đăng nhập cũ và xếp Google Sign-In for Android vào nhóm deprecated. Hướng dẫn migrate của Android Developers ghi rõ Google Sign-In for Android (`play-services-auth`) đã deprecated và sẽ bị gỡ khỏi Google Play services Auth SDK trong một bản phát hành sau; đây là lý do ví dụ đăng nhập dùng Credential Manager với `GetGoogleIdOption`.
+- **Firebase BoM 34.0.0 (21/07/2025):** bỏ các module `-ktx` khỏi BoM, Kotlin API nằm trong module chính.
+- **Firebase BoM 35.0.0 (07/10/2026):** nâng `minSdkVersion` của các thư viện Firebase lên API 24 (breaking change).
+
+## Kết nối hệ thống
+
+- **Tiên quyết:** [Android Service](android_service.md): Bound Service và Binder IPC, cơ chế app dùng để gọi tới GMS.
+- **Liên quan:**
+  - [Content Provider](../content_provider.md): `FirebaseInitProvider` khởi tạo `FirebaseApp` trước `Application.onCreate`.
+  - [Plugin](../../android_manifest/package_build_gradle/plugin.md): Gradle plugin, như `com.google.gms.google-services` và `com.google.firebase.crashlytics`.
+  - [Manifest Tags](../../android_manifest/tags.md): khai báo `<service>`, `<uses-permission>`, `<meta-data>` dùng trong bài.
+- **Học tiếp:**
+  - 4.2.3.3 Advertisements, bắt đầu từ [AdMob Overview](advertisements/overview.md): Google Mobile Ads SDK; cách đặt tầng cho quảng cáo ở [Ads trong kiến trúc app](advertisements/ads_architecture.md).
+  - 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài): notification channel, `POST_NOTIFICATIONS`, `NotificationCompat` dùng trong ví dụ FCM.
+  - 8.4.3 Coroutines (chưa có bài): `suspend`, `await()`, `lifecycleScope` dùng trong các ví dụ Auth, Remote Config, Location.
+  - 7.2.5 Clean Architecture (chưa có bài) và 7.1.5.3 Hilt (chưa có bài): chia tầng và DI binding để thay DataSource GMS bằng HMS.
+
+## Nguồn tham khảo
 
 - [Google Play Services overview — Android Developers](https://developer.android.com/develop/connectivity/play-services)
 - [Firebase Documentation](https://firebase.google.com/docs)
@@ -809,3 +854,7 @@ flowchart LR
 - [Customize Crashlytics crash reports](https://firebase.google.com/docs/crashlytics/android/customize-crash-reports)
 - [Migrate from legacy Google Sign-In to Credential Manager](https://developer.android.com/identity/sign-in/legacy-gsi-migration)
 - [FusedLocationProviderClient reference](https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient)
+- [NotificationChannel (Added in API level 26) — Android Developers Reference](https://developer.android.com/reference/android/app/NotificationChannel)
+- [Create and manage notification channels — Android Developers](https://developer.android.com/develop/ui/views/notifications/channels)
+- [Notification runtime permission (Android 13) — Android Developers](https://developer.android.com/develop/ui/views/notifications/notification-permission)
+- [Streamlining Android authentication: Credential Manager replaces legacy APIs — Android Developers Blog (09/2024)](https://android-developers.googleblog.com/2024/09/streamlining-android-authentication-credential-manager-replaces-legacy-apis.html)

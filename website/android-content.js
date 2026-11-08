@@ -8151,7 +8151,7 @@ Object.assign(ANDROID_CONTENT, {
       'Triển khai được khai báo và kiểm tra permission đúng chuẩn, phân biệt normal, dangerous và signature.'
     ],
     knowledgeGap: 'Không hiểu AndroidManifest.xml dẫn đến các lỗi ngầm nghiêm trọng: component không được khai báo khiến app crash lúc chạy, quên android:exported gây lỗi trên Android 12+, khai báo sai authorities của ContentProvider gây crash khi cài đặt, cấu hình minify mà không khai báo reflection, hoặc khai báo permission thừa gây từ chối trên Google Play. Không hiểu Manifest Merger cũng khiến developer không biết vì sao một thẻ xuất hiện trong manifest cuối cùng mà mình không hề viết.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '40 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -9168,7 +9168,7 @@ Object.assign(ANDROID_CONTENT, {
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>android:exported</code></td>
-      <td style="padding:8px 12px;">App khác/hệ thống gửi broadcast vào receiver này được không. Broadcast do chính hệ thống gửi (như <code>BOOT_COMPLETED</code>) vẫn tới receiver <code>false</code>; receiver nghe broadcast của app khác hoặc của app hệ thống đặc quyền (Bluetooth, telephony) thì phải <code>true</code>, chi tiết ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "8.1 <code>android:exported</code> — Quan trọng từ Android 12+".</td>
+      <td style="padding:8px 12px;">App khác/hệ thống gửi broadcast vào receiver này được không. Broadcast do chính hệ thống gửi (như <code>BOOT_COMPLETED</code>) vẫn tới receiver <code>false</code>; receiver nghe broadcast của app khác hoặc của app hệ thống đặc quyền (Bluetooth, telephony) thì phải <code>true</code>, chi tiết ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "<code>android:exported</code> — Quan trọng từ Android 12+".</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>android:enabled</code></td>
@@ -9181,7 +9181,7 @@ Object.assign(ANDROID_CONTENT, {
   </tbody>
 </table>
 
-<p>Khai báo <code>&lt;receiver&gt;</code> trong manifest là cách đăng ký <strong>static</strong>; receiver cũng có thể được đăng ký <strong>động</strong> trong code bằng <code>ContextCompat.registerReceiver()</code>. Từ Android 8 (API 26), receiver static không còn nhận được hầu hết implicit broadcast (trừ một danh sách được miễn như <code>BOOT_COMPLETED</code>). Hai cách đăng ký, danh sách miễn trừ và cờ <code>RECEIVER_EXPORTED</code>/<code>RECEIVER_NOT_EXPORTED</code> của Android 14 được giải thích ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "3. Static Receiver vs Dynamic Receiver" và "4. Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".</p>
+<p>Khai báo <code>&lt;receiver&gt;</code> trong manifest là cách đăng ký <strong>static</strong>; receiver cũng có thể được đăng ký <strong>động</strong> trong code bằng <code>ContextCompat.registerReceiver()</code>. Từ Android 8 (API 26), receiver static không còn nhận được hầu hết implicit broadcast (trừ một danh sách được miễn như <code>BOOT_COMPLETED</code>). Hai cách đăng ký, danh sách miễn trừ và cờ <code>RECEIVER_EXPORTED</code>/<code>RECEIVER_NOT_EXPORTED</code> của Android 14 được giải thích ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "Static Receiver vs Dynamic Receiver" và "4. Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".</p>
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Để nhận <code>BOOT_COMPLETED</code>, ngoài <code>&lt;receiver&gt;</code>, app cần khai báo <code>&lt;uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /&gt;</code>.</div></div>
 
@@ -21910,7 +21910,7 @@ class DeleteItemUseCase(
 
   'android-service': {
     title: 'Android Service',
-    summary: 'Android Service là Application Component không có UI, dùng để thực thi tác vụ nền hoặc phục vụ component khác; bài phân biệt Started, Bound và Foreground Service, các giới hạn background từ Android 8 đến Android 15, và khi nào nên chọn WorkManager thay cho Service.',
+    summary: 'Android Service là Application Component không có UI, dùng để thực thi tác vụ nền hoặc phục vụ component khác; nó là cách app báo với hệ thống rằng đang có việc cần làm, không phải một thread riêng. Bài phân biệt Started, Bound và Foreground Service, các giới hạn background từ Android 8 đến Android 15, và khi nào nên chọn WorkManager hay Flow/SharedFlow thay cho Service.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '30 phút',
@@ -21928,22 +21928,12 @@ class DeleteItemUseCase(
       'Xử lý được các lỗi phổ biến như ANR, memory leak, crash do giới hạn background của Android 8, 12, 14 và 15.'
     ],
     knowledgeGap: 'Xem Service như "chạy ngầm mãi mãi" là hiểu sai bản chất. Android giới hạn chặt chẽ background execution từ Android 8+. Không hiểu các giới hạn này dẫn đến app bị kill, crash, hoặc vi phạm policy Play Store.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '30 phút',
     content: `
-<h2>1. Nó là gì? (What is it?)</h2>
+<h2>Vấn đề cần giải quyết</h2>
 
-<p><strong>Android Service</strong> là một <strong>Application Component</strong> chạy <strong>không có giao diện người dùng (UI)</strong>. Nó được thiết kế để thực thi các tác vụ chạy nền hoặc phục vụ các component khác trong ứng dụng.</p>
-
-<p>Một điều quan trọng cần hiểu ngay từ đầu:</p>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Service <strong>không tự động chạy trên một thread riêng</strong>. Mặc định, Service chạy trên <strong>Main Thread (UI Thread)</strong> của ứng dụng. Nếu bạn làm tác vụ nặng (gọi network, đọc file lớn) trực tiếp trong Service mà không dùng Coroutine hoặc Thread, ứng dụng sẽ bị ANR (Application Not Responding).</div></div>
-
-<h2>2. Khi nào dùng &amp; Vấn đề giải quyết? (Why &amp; When to use?)</h2>
-
-<h3>Vấn đề Service giải quyết</h3>
-
-<p>Có những tác vụ cần tiếp tục thực thi <strong>ngay cả khi người dùng rời khỏi màn hình</strong>:</p>
+<p>Activity chỉ làm việc trong lúc người dùng nhìn vào nó: khi người dùng rời màn hình, Activity bị dừng, và công việc gắn với màn hình dừng theo. Thế nhưng có những tác vụ cần tiếp tục thực thi <strong>ngay cả khi người dùng rời khỏi màn hình</strong>:</p>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -21976,315 +21966,31 @@ class DeleteItemUseCase(
   </tbody>
 </table>
 
-<h3>Khi nào KHÔNG nên dùng Service thuần?</h3>
+<p>App cần một cách để nói với hệ thống "tôi vẫn đang có việc", đồng thời hệ thống phải giữ quyền thu hồi tài nguyên để app chạy ngầm không làm chậm app người dùng đang dùng. Service là câu trả lời của Android cho bài toán đó, và cũng vì thế mà nó bị giới hạn ngày càng chặt qua các phiên bản (mục "Foreground Service và giới hạn chạy nền theo phiên bản Android").</p>
+
+<h2>Sau khi học xong</h2>
 
 <ul>
-  <li><strong>Tác vụ một lần, không cần ngay lập tức:</strong> Dùng <strong>WorkManager</strong> (đảm bảo hoàn thành dù app bị kill, hỗ trợ Doze mode, constraint như có WiFi).</li>
-  <li><strong>Tác vụ ngắn do người dùng trigger:</strong> Dùng <strong>Coroutine trong ViewModel/Activity</strong> (tác vụ sẽ bị hủy khi người dùng thoát app — đây là hành vi đúng đắn).</li>
-  <li><strong>Giao tiếp giữa các phần của cùng một app:</strong> Dùng <strong>Shared ViewModel</strong> hoặc <strong>SharedFlow</strong> thay vì Bound Service (so sánh ở mục 7, "Service, WorkManager hay Flow/SharedFlow?").</li>
+  <li>Giải thích được bản chất của Android Service (component không UI, mặc định chạy trên main thread) và vai trò của nó trong hệ thống.</li>
+  <li>Phân biệt được Started, Bound và Foreground Service, biết khi nào dùng loại nào.</li>
+  <li>Triển khai được Foreground Service với Notification và foregroundServiceType, và Bound Service với Binder.</li>
+  <li>Biết khi nào nên dùng WorkManager thay cho Service thuần.</li>
+  <li>Xử lý được các lỗi phổ biến như ANR, memory leak, crash do giới hạn background của Android 8, 12, 14 và 15.</li>
 </ul>
 
-<h3>Bản đồ quyết định: Nên dùng gì?</h3>
+<h2>Android Service là gì?</h2>
 
-<div class="dd-diagram" data-dd="svc-choose">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 700" role="img" aria-labelledby="svc-choose-dark-title svc-choose-dark-desc" font-family="'Geist', sans-serif">
-<title id="svc-choose-dark-title">Ba câu hỏi chọn đúng Service</title>
-<desc id="svc-choose-dark-desc">Thấy tiến trình thì Foreground Service, không cần ngay thì WorkManager, cần hai chiều thì Bound Service, còn lại Started Service.</desc>
-<defs>
-<marker id="svc-choose-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="700" fill="#060913"/>
-<!-- arrows -->
-<path d="M 325,140 V 190 H 188 Q 180,190 180,198 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
-<rect x="232" y="170" width="40" height="12" rx="2" fill="#060913"/>
-<text x="252" y="179" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 400,184 V 240" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
-<rect x="412" y="204" width="56" height="12" rx="2" fill="#060913"/>
-<text x="440" y="213" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 325,284 V 334 H 188 Q 180,334 180,342 V 392" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
-<rect x="232" y="314" width="56" height="12" rx="2" fill="#060913"/>
-<text x="260" y="323" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 400,328 V 436" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
-<rect x="412" y="374" width="40" height="12" rx="2" fill="#060913"/>
-<text x="432" y="383" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 325,480 V 530 H 188 Q 180,530 180,538 V 588" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
-<rect x="232" y="510" width="40" height="12" rx="2" fill="#060913"/>
-<text x="252" y="519" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 475,480 V 530 H 612 Q 620,530 620,538 V 588" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
-<rect x="502" y="510" width="56" height="12" rx="2" fill="#060913"/>
-<text x="530" y="519" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<!-- diamonds -->
-<polygon points="400,96 475,140 400,184 325,140" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<text x="400" y="144" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">THẤY TIẾN TRÌNH?</text>
-<polygon points="400,240 475,284 400,328 325,284" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="288" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">CHẠY NGAY?</text>
-<polygon points="400,436 475,480 400,524 325,480" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="484" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">2 CHIỀU?</text>
-<!-- outcomes -->
-<rect x="280" y="32" width="240" height="52" rx="20" fill="#060913"/>
-<rect x="280" y="32" width="240" height="52" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="64" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Tác vụ nền cần làm</text>
-<rect x="80" y="248" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="80" y="248" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="180" y="282" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Foreground</text>
-<text x="180" y="300" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">+ notification</text>
-<rect x="80" y="392" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="80" y="392" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="180" y="426" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
-<text x="180" y="444" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đặt lịch</text>
-<rect x="80" y="588" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="80" y="588" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="180" y="622" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Bound Service</text>
-<text x="180" y="640" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">2 chiều · binder</text>
-<rect x="520" y="588" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="520" y="588" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="620" y="622" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Started Service</text>
-<text x="620" y="640" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">+ coroutine</text>
-<!-- legend -->
-<line x1="32" y1="676" x2="768" y2="676" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="688" r="4" fill="#38BDF8"/>
-<text x="162" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CÂU HỎI ĐẦU TIÊN</text>
-<line x1="370" y1="688" x2="402" y2="688" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
-<text x="410" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MỌI NHÁNH ĐỀU CÓ NHÃN</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 700" role="img" aria-labelledby="svc-choose-title svc-choose-desc" font-family="'Geist', sans-serif">
-<title id="svc-choose-title">Ba câu hỏi chọn đúng Service</title>
-<desc id="svc-choose-desc">Thấy tiến trình thì Foreground Service, không cần ngay thì WorkManager, cần hai chiều thì Bound Service, còn lại Started Service.</desc>
-<defs>
-<marker id="svc-choose-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="700" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 325,140 V 190 H 188 Q 180,190 180,198 V 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
-<rect x="232" y="170" width="40" height="12" rx="2" fill="#F8FAFC"/>
-<text x="252" y="179" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 400,184 V 240" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
-<rect x="412" y="204" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="440" y="213" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 325,284 V 334 H 188 Q 180,334 180,342 V 392" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
-<rect x="232" y="314" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="260" y="323" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 400,328 V 436" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
-<rect x="412" y="374" width="40" height="12" rx="2" fill="#F8FAFC"/>
-<text x="432" y="383" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 325,480 V 530 H 188 Q 180,530 180,538 V 588" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
-<rect x="232" y="510" width="40" height="12" rx="2" fill="#F8FAFC"/>
-<text x="252" y="519" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 475,480 V 530 H 612 Q 620,530 620,538 V 588" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
-<rect x="502" y="510" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="530" y="519" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<!-- diamonds -->
-<polygon points="400,96 475,140 400,184 325,140" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<text x="400" y="144" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">THẤY TIẾN TRÌNH?</text>
-<polygon points="400,240 475,284 400,328 325,284" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="288" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">CHẠY NGAY?</text>
-<polygon points="400,436 475,480 400,524 325,480" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="484" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">2 CHIỀU?</text>
-<!-- outcomes -->
-<rect x="280" y="32" width="240" height="52" rx="20" fill="#F8FAFC"/>
-<rect x="280" y="32" width="240" height="52" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="64" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Tác vụ nền cần làm</text>
-<rect x="80" y="248" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="80" y="248" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="180" y="282" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Foreground</text>
-<text x="180" y="300" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">+ notification</text>
-<rect x="80" y="392" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="80" y="392" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="180" y="426" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
-<text x="180" y="444" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đặt lịch</text>
-<rect x="80" y="588" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="80" y="588" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="180" y="622" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Bound Service</text>
-<text x="180" y="640" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">2 chiều · binder</text>
-<rect x="520" y="588" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="520" y="588" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="620" y="622" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Started Service</text>
-<text x="620" y="640" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">+ coroutine</text>
-<!-- legend -->
-<line x1="32" y1="676" x2="768" y2="676" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="688" r="4" fill="#0284C7"/>
-<text x="162" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CÂU HỎI ĐẦU TIÊN</text>
-<line x1="370" y1="688" x2="402" y2="688" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
-<text x="410" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỌI NHÁNH ĐỀU CÓ NHÃN</text>
-</svg>
-</div>
-</div>
+<p><strong>Android Service</strong> là một <strong>Application Component</strong> chạy <strong>không có giao diện người dùng (UI)</strong>. Nó được thiết kế để thực thi các tác vụ chạy nền hoặc phục vụ các component khác trong ứng dụng.</p>
 
-<h2>3. Tư duy hệ thống (System Thinking in Application)</h2>
+<p>Mental model: Service là <strong>lời khai báo với hệ thống</strong>, không phải một thread. <code>startService()</code> báo "app đang có việc cần làm dù người dùng không nhìn vào màn hình", <code>bindService()</code> mở một cửa để component khác gọi vào; còn code bên trong vẫn chạy trong process và trên main thread của app (docs của lớp <code>Service</code> nói rõ Service không phải process riêng, cũng không phải thread).</p>
 
-<h3>Service trong kiến trúc MVVM / Clean Architecture</h3>
+<p>Một điều quan trọng cần hiểu ngay từ đầu:</p>
 
-<div class="dd-diagram" data-dd="svc-layers">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 524" role="img" aria-labelledby="svc-layers-dark-title svc-layers-dark-desc" font-family="'Geist', sans-serif">
-<title id="svc-layers-dark-title">Service nào ở tầng nào</title>
-<desc id="svc-layers-dark-desc">Activity gọi service, Foreground phát sự kiện về ViewModel, Bound giao tiếp Binder, WorkManager chạy định kỳ vào Repository đọc Room và API.</desc>
-<defs>
-<marker id="svc-layers-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="524" fill="#060913"/>
-<!-- zones -->
-<rect x="32" y="24" width="352" height="180" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
-<rect x="48" y="28" width="128" height="12" rx="2" fill="#060913"/>
-<text x="112" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">PRESENTATION</text>
-<rect x="416" y="24" width="352" height="180" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
-<rect x="432" y="28" width="96" height="12" rx="2" fill="#060913"/>
-<text x="480" y="37" fill="#38BDF8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SERVICE</text>
-<rect x="32" y="228" width="352" height="116" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
-<rect x="48" y="232" width="112" height="12" rx="2" fill="#060913"/>
-<text x="104" y="241" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">BACKGROUND</text>
-<rect x="416" y="228" width="352" height="248" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
-<rect x="432" y="232" width="72" height="12" rx="2" fill="#060913"/>
-<text x="468" y="241" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DATA</text>
-<!-- arrows -->
-<path d="M 320,92 H 448" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
-<rect x="336" y="72" width="96" height="12" rx="2" fill="#060913"/>
-<text x="384" y="81" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BIND · START</text>
-<path d="M 448,92 V 130 H 328 Q 320,130 320,138 V 164" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
-<rect x="352" y="110" width="64" height="12" rx="2" fill="#060913"/>
-<text x="384" y="119" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">EVENTS</text>
-<path d="M 448,164 V 200 H 64 Q 56,200 56,192 V 92 H 64" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
-<rect x="140" y="208" width="88" height="12" rx="2" fill="#060913"/>
-<text x="184" y="217" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BINDER IPC</text>
-<path d="M 320,298 V 292 H 440 Q 448,292 448,288" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
-<rect x="348" y="272" width="72" height="12" rx="2" fill="#060913"/>
-<text x="384" y="281" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PERIODIC</text>
-<path d="M 574,316 V 332" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
-<path d="M 574,384 V 408" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
-<!-- nodes -->
-<rect x="64" y="64" width="256" height="56" rx="6" fill="#060913"/>
-<rect x="64" y="64" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="192" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
-<text x="192" y="114" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình</text>
-<rect x="64" y="136" width="256" height="56" rx="6" fill="#060913"/>
-<rect x="64" y="136" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="192" y="170" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
-<rect x="448" y="64" width="256" height="56" rx="6" fill="#060913"/>
-<rect x="448" y="64" width="256" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="456" y="70" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="482" y="79" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HOT</text>
-<text x="576" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Foreground Svc</text>
-<text x="576" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhạc · gps · upload</text>
-<rect x="448" y="136" width="256" height="56" rx="6" fill="#060913"/>
-<rect x="448" y="136" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="576" y="170" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Bound Service</text>
-<text x="576" y="186" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bluetooth · audio</text>
-<rect x="64" y="268" width="256" height="60" rx="6" fill="#060913"/>
-<rect x="64" y="268" width="256" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="192" y="302" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
-<text x="192" y="320" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">sync · backup</text>
-<rect x="448" y="260" width="256" height="56" rx="6" fill="#060913"/>
-<rect x="448" y="260" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="576" y="294" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
-<rect x="448" y="332" width="256" height="52" rx="6" fill="#060913"/>
-<rect x="448" y="332" width="256" height="52" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
-<text x="576" y="364" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Room DB</text>
-<rect x="448" y="400" width="256" height="52" rx="6" fill="#060913"/>
-<rect x="448" y="400" width="256" height="52" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
-<text x="576" y="432" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Retrofit API</text>
-<!-- legend -->
-<line x1="32" y1="500" x2="768" y2="500" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="516" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="512" r="4" fill="#38BDF8"/>
-<text x="162" y="516" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GIỮ TRẢI NGHIỆM · FG</text>
-<line x1="400" y1="512" x2="432" y2="512" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
-<text x="440" y="516" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỌI · ĐẨY · ĐỒNG BỘ</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 524" role="img" aria-labelledby="svc-layers-title svc-layers-desc" font-family="'Geist', sans-serif">
-<title id="svc-layers-title">Service nào ở tầng nào</title>
-<desc id="svc-layers-desc">Activity gọi service, Foreground phát sự kiện về ViewModel, Bound giao tiếp Binder, WorkManager chạy định kỳ vào Repository đọc Room và API.</desc>
-<defs>
-<marker id="svc-layers-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="524" fill="#F8FAFC"/>
-<!-- zones -->
-<rect x="32" y="24" width="352" height="180" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
-<rect x="48" y="28" width="128" height="12" rx="2" fill="#F8FAFC"/>
-<text x="112" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">PRESENTATION</text>
-<rect x="416" y="24" width="352" height="180" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
-<rect x="432" y="28" width="96" height="12" rx="2" fill="#F8FAFC"/>
-<text x="480" y="37" fill="#0284C7" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SERVICE</text>
-<rect x="32" y="228" width="352" height="116" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
-<rect x="48" y="232" width="112" height="12" rx="2" fill="#F8FAFC"/>
-<text x="104" y="241" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">BACKGROUND</text>
-<rect x="416" y="228" width="352" height="248" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
-<rect x="432" y="232" width="72" height="12" rx="2" fill="#F8FAFC"/>
-<text x="468" y="241" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DATA</text>
-<!-- arrows -->
-<path d="M 320,92 H 448" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
-<rect x="336" y="72" width="96" height="12" rx="2" fill="#F8FAFC"/>
-<text x="384" y="81" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BIND · START</text>
-<path d="M 448,92 V 130 H 328 Q 320,130 320,138 V 164" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
-<rect x="352" y="110" width="64" height="12" rx="2" fill="#F8FAFC"/>
-<text x="384" y="119" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">EVENTS</text>
-<path d="M 448,164 V 200 H 64 Q 56,200 56,192 V 92 H 64" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
-<rect x="140" y="208" width="88" height="12" rx="2" fill="#F8FAFC"/>
-<text x="184" y="217" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BINDER IPC</text>
-<path d="M 320,298 V 292 H 440 Q 448,292 448,288" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
-<rect x="348" y="272" width="72" height="12" rx="2" fill="#F8FAFC"/>
-<text x="384" y="281" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PERIODIC</text>
-<path d="M 574,316 V 332" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
-<path d="M 574,384 V 408" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
-<!-- nodes -->
-<rect x="64" y="64" width="256" height="56" rx="6" fill="#F8FAFC"/>
-<rect x="64" y="64" width="256" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="192" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
-<text x="192" y="114" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình</text>
-<rect x="64" y="136" width="256" height="56" rx="6" fill="#F8FAFC"/>
-<rect x="64" y="136" width="256" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="192" y="170" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
-<rect x="448" y="64" width="256" height="56" rx="6" fill="#F8FAFC"/>
-<rect x="448" y="64" width="256" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="456" y="70" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="482" y="79" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HOT</text>
-<text x="576" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Foreground Svc</text>
-<text x="576" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhạc · gps · upload</text>
-<rect x="448" y="136" width="256" height="56" rx="6" fill="#F8FAFC"/>
-<rect x="448" y="136" width="256" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="576" y="170" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Bound Service</text>
-<text x="576" y="186" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bluetooth · audio</text>
-<rect x="64" y="268" width="256" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="64" y="268" width="256" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="192" y="302" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
-<text x="192" y="320" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">sync · backup</text>
-<rect x="448" y="260" width="256" height="56" rx="6" fill="#F8FAFC"/>
-<rect x="448" y="260" width="256" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="576" y="294" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
-<rect x="448" y="332" width="256" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="448" y="332" width="256" height="52" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
-<text x="576" y="364" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Room DB</text>
-<rect x="448" y="400" width="256" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="448" y="400" width="256" height="52" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
-<text x="576" y="432" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Retrofit API</text>
-<!-- legend -->
-<line x1="32" y1="500" x2="768" y2="500" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="516" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="512" r="4" fill="#0284C7"/>
-<text x="162" y="516" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GIỮ TRẢI NGHIỆM · FG</text>
-<line x1="400" y1="512" x2="432" y2="512" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
-<text x="440" y="516" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GỌI · ĐẨY · ĐỒNG BỘ</text>
-</svg>
-</div>
-</div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Service <strong>không tự động chạy trên một thread riêng</strong>. Mặc định, Service chạy trên <strong>Main Thread (UI Thread)</strong> của ứng dụng. Nếu bạn làm tác vụ nặng (gọi network, đọc file lớn) trực tiếp trong Service mà không dùng Coroutine hoặc Thread, ứng dụng sẽ bị ANR (Application Not Responding).</div></div>
 
-<p><strong>Nguyên tắc quan trọng:</strong> Service không được biết đến UI. Service chỉ thực thi tác vụ và emit kết quả (qua BroadcastReceiver, EventBus, Flow, hoặc Binder callback). UI quyết định cách hiển thị kết quả đó.</p>
+<h2>Cách hoạt động</h2>
 
-<h2>4. Ba loại Service — So sánh tổng quan</h2>
+<h3>Ba loại Service — So sánh tổng quan</h3>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -22335,7 +22041,7 @@ class DeleteItemUseCase(
   </tbody>
 </table>
 
-<h2>5. Vòng đời Service (Lifecycle)</h2>
+<h3>Vòng đời Service (Lifecycle)</h3>
 
 <div class="dd-diagram" data-dd="svc-state">
 <div class="dd-svg dd-svg-dark">
@@ -22428,7 +22134,7 @@ class DeleteItemUseCase(
 </div>
 </div>
 
-<h3><code>onStartCommand()</code> — Return value quan trọng</h3>
+<h4><code>onStartCommand()</code> — Return value quan trọng</h4>
 
 <pre data-lang="kotlin"><code>override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     // Quyết định hành vi khi Service bị kill bởi hệ thống:
@@ -22439,13 +22145,15 @@ class DeleteItemUseCase(
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>START_STICKY</strong> phù hợp cho Media Player (muốn Service sống lại sau khi bị kill). <strong>START_NOT_STICKY</strong> phù hợp cho tác vụ một lần như upload file (không cần chạy lại nếu bị kill giữa chừng).</div></div>
 
-<h2>6. Triển khai thực chiến</h2>
+<h3>Started Service</h3>
 
-<h3>6.1 Started Service với Coroutine</h3>
+<p>Started Service được khởi động bằng <code>startService()</code> và chạy đến khi tự gọi <code>stopSelf()</code> hoặc bị <code>stopService()</code>; nó không trả dữ liệu về cho bên gọi.</p>
+
+<h4>Ví dụ: gửi log analytics sau một session</h4>
 
 <p><strong>Tình huống:</strong> Gửi log analytics lên server sau khi người dùng hoàn thành một session mà không chặn UI.</p>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Ví dụ này chỉ để minh hoạ vòng đời Started Service. Với upload analytics trong app thật, <strong>WorkManager</strong> mới là công cụ được khuyến nghị: tài liệu chính thức xếp "gửi log hoặc analytics" vào nhóm persistent work. Lý do: tác vụ không cần chạy ngay, WorkManager lưu work vào database nên vẫn chạy lại sau khi app bị kill hoặc thiết bị khởi động lại, hỗ trợ constraint (có mạng) và retry với backoff. Ngoài ra, gọi <code>startService()</code> khi app đang ở background trên Android 8+ sẽ ném <code>IllegalStateException</code>, nên Started Service chỉ an toàn khi được start lúc app còn ở foreground.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Ví dụ này chỉ để minh hoạ vòng đời Started Service. Với upload analytics trong app thật, <strong>WorkManager</strong> mới là công cụ được khuyến nghị: tài liệu chính thức xếp "gửi log hoặc analytics" vào nhóm persistent work. Lý do: tác vụ không cần chạy ngay, WorkManager lưu work vào database nên vẫn chạy lại sau khi app bị kill hoặc thiết bị khởi động lại, hỗ trợ constraint (có mạng) và retry với backoff. Ngoài ra, app target Android 8+ gọi <code>startService()</code> khi đang ở background sẽ ném <code>IllegalStateException</code>, nên Started Service chỉ an toàn khi được start lúc app còn ở foreground.</div></div>
 
 <div class="dd-diagram" data-dd="svc-analytics">
 <div class="dd-svg dd-svg-dark">
@@ -22656,304 +22364,13 @@ class AnalyticsService : Service() {
     }
 }</code></pre>
 
-<h3>6.2 Foreground Service — Phát nhạc nền</h3>
+<p><strong>Kết quả:</strong> <code>onStartCommand()</code> trả về ngay nên main thread không bị chặn; upload chạy trên <code>Dispatchers.IO</code>, xong thì <code>stopSelf(startId)</code> dừng service, và nếu service bị destroy giữa chừng thì <code>serviceJob.cancel()</code> huỷ coroutine đang chạy.</p>
 
-<p><strong>Tình huống:</strong> Music Player — cần tiếp tục phát nhạc khi người dùng khóa màn hình, hiển thị notification với control (play/pause).</p>
+<h3>Bound Service</h3>
 
-<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Từ <strong>Android 8 (API 26)</strong>, Background Service bị giới hạn nghiêm ngặt. Nếu app chạy ngầm và cần tiếp tục làm việc lâu dài, <strong>bắt buộc</strong> phải dùng Foreground Service với Notification. Từ <strong>Android 14 (API 34)</strong>, phải khai báo rõ <code>foregroundServiceType</code> trong Manifest.</div></div>
+<p>Bound Service sống khi có ít nhất một client bind bằng <code>bindService()</code>, và cho client giao tiếp hai chiều qua <code>Binder</code>: client gọi hàm của service, service đẩy dữ liệu về client.</p>
 
-<div class="dd-diagram" data-dd="svc-music">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 440" role="img" aria-labelledby="svc-music-dark-title svc-music-dark-desc" font-family="'Geist', sans-serif">
-<title id="svc-music-dark-title">Nhạc vẫn chạy khi đã rời app</title>
-<desc id="svc-music-dark-desc">Bấm Play khởi động foreground service phát nhạc, rời app nhạc vẫn chạy, bấm pause trên notification thì nhạc dừng.</desc>
-<defs>
-<marker id="svc-music-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-<marker id="svc-music-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
-</marker>
-</defs>
-<rect width="800" height="440" fill="#060913"/>
-<!-- lifelines -->
-<line x1="110" y1="84" x2="110" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="310" y1="84" x2="310" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="510" y1="84" x2="510" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="710" y1="84" x2="710" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="306" y="112" width="8" height="16" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="506" y="176" width="8" height="216" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="706" y="144" width="8" height="120" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
-<!-- messages -->
-<path d="M 110,120 H 310" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
-<rect x="174" y="100" width="72" height="12" rx="2" fill="#060913"/>
-<text x="210" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BẤM PLAY</text>
-<path d="M 310,152 H 710" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
-<rect x="462" y="132" width="96" height="12" rx="2" fill="#060913"/>
-<text x="510" y="141" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">FOREGROUND SVC</text>
-<path d="M 710,184 H 510" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
-<rect x="570" y="164" width="80" height="12" rx="2" fill="#060913"/>
-<text x="610" y="173" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONCREATE</text>
-<path d="M 710,208 H 510" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
-<rect x="570" y="188" width="80" height="12" rx="2" fill="#060913"/>
-<text x="610" y="197" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STARTCMD</text>
-<path d="M 510,232 H 710" fill="none" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#svc-music-dark-accent)"/>
-<rect x="562" y="212" width="96" height="12" rx="2" fill="#060913"/>
-<text x="610" y="221" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STARTFG · NOTIF</text>
-<path d="M 710,256 H 110" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
-<rect x="362" y="236" width="96" height="12" rx="2" fill="#060913"/>
-<text x="410" y="245" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NOTIF HIỆN</text>
-<path d="M 110,280 H 310" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
-<rect x="174" y="260" width="72" height="12" rx="2" fill="#060913"/>
-<text x="210" y="269" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VỀ HOME</text>
-<rect x="560" y="292" width="140" height="12" rx="2" fill="#060913"/>
-<text x="630" y="301" fill="#FBBF24" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHẠY NHỜ FOREGROUND</text>
-<path d="M 110,320 H 310" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
-<rect x="174" y="300" width="72" height="12" rx="2" fill="#060913"/>
-<text x="210" y="309" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PAUSE NOTIF</text>
-<path d="M 710,344 H 510" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
-<rect x="570" y="324" width="80" height="12" rx="2" fill="#060913"/>
-<text x="610" y="333" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CMD PAUSE</text>
-<path d="M 510,368 H 534 V 384 H 510" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
-<rect x="546" y="362" width="80" height="16" rx="2" fill="#060913"/>
-<text x="586" y="374" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PAUSE NHẠC</text>
-<!-- actors -->
-<rect x="35" y="32" width="150" height="52" rx="6" fill="#060913"/>
-<rect x="35" y="32" width="150" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
-<text x="110" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">User</text>
-<text x="110" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">người dùng</text>
-<rect x="235" y="32" width="150" height="52" rx="6" fill="#060913"/>
-<rect x="235" y="32" width="150" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="310" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">MusicActivity</text>
-<text x="310" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình nhạc</text>
-<rect x="435" y="32" width="150" height="52" rx="6" fill="#060913"/>
-<rect x="435" y="32" width="150" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="510" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">MusicService</text>
-<text x="510" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">phát nhạc</text>
-<rect x="635" y="32" width="150" height="52" rx="6" fill="#060913"/>
-<rect x="635" y="32" width="150" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="710" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Android OS</text>
-<text x="710" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">hệ thống</text>
-<!-- legend -->
-<line x1="32" y1="416" x2="768" y2="416" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="432" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="428" r="4" fill="#38BDF8"/>
-<text x="162" y="432" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VÉ Ở LẠI · STARTFG</text>
-<line x1="400" y1="428" x2="432" y2="428" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
-<text x="440" y="432" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">HỆ THỐNG TRUNG GIAN</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 440" role="img" aria-labelledby="svc-music-title svc-music-desc" font-family="'Geist', sans-serif">
-<title id="svc-music-title">Nhạc vẫn chạy khi đã rời app</title>
-<desc id="svc-music-desc">Bấm Play khởi động foreground service phát nhạc, rời app nhạc vẫn chạy, bấm pause trên notification thì nhạc dừng.</desc>
-<defs>
-<marker id="svc-music-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-<marker id="svc-music-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
-</marker>
-</defs>
-<rect width="800" height="440" fill="#F8FAFC"/>
-<!-- lifelines -->
-<line x1="110" y1="84" x2="110" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="310" y1="84" x2="310" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="510" y1="84" x2="510" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="710" y1="84" x2="710" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="306" y="112" width="8" height="16" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="506" y="176" width="8" height="216" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="706" y="144" width="8" height="120" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
-<!-- messages -->
-<path d="M 110,120 H 310" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
-<rect x="174" y="100" width="72" height="12" rx="2" fill="#F8FAFC"/>
-<text x="210" y="109" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BẤM PLAY</text>
-<path d="M 310,152 H 710" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
-<rect x="462" y="132" width="96" height="12" rx="2" fill="#F8FAFC"/>
-<text x="510" y="141" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">FOREGROUND SVC</text>
-<path d="M 710,184 H 510" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
-<rect x="570" y="164" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="610" y="173" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONCREATE</text>
-<path d="M 710,208 H 510" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
-<rect x="570" y="188" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="610" y="197" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STARTCMD</text>
-<path d="M 510,232 H 710" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#svc-music-accent)"/>
-<rect x="562" y="212" width="96" height="12" rx="2" fill="#F8FAFC"/>
-<text x="610" y="221" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STARTFG · NOTIF</text>
-<path d="M 710,256 H 110" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
-<rect x="362" y="236" width="96" height="12" rx="2" fill="#F8FAFC"/>
-<text x="410" y="245" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NOTIF HIỆN</text>
-<path d="M 110,280 H 310" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
-<rect x="174" y="260" width="72" height="12" rx="2" fill="#F8FAFC"/>
-<text x="210" y="269" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VỀ HOME</text>
-<rect x="560" y="292" width="140" height="12" rx="2" fill="#F8FAFC"/>
-<text x="630" y="301" fill="#FBBF24" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHẠY NHỜ FOREGROUND</text>
-<path d="M 110,320 H 310" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
-<rect x="174" y="300" width="72" height="12" rx="2" fill="#F8FAFC"/>
-<text x="210" y="309" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PAUSE NOTIF</text>
-<path d="M 710,344 H 510" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
-<rect x="570" y="324" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="610" y="333" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CMD PAUSE</text>
-<path d="M 510,368 H 534 V 384 H 510" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
-<rect x="546" y="362" width="80" height="16" rx="2" fill="#F8FAFC"/>
-<text x="586" y="374" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PAUSE NHẠC</text>
-<!-- actors -->
-<rect x="35" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="35" y="32" width="150" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
-<text x="110" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">User</text>
-<text x="110" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">người dùng</text>
-<rect x="235" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="235" y="32" width="150" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="310" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">MusicActivity</text>
-<text x="310" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình nhạc</text>
-<rect x="435" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="435" y="32" width="150" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="510" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">MusicService</text>
-<text x="510" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">phát nhạc</text>
-<rect x="635" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="635" y="32" width="150" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="710" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Android OS</text>
-<text x="710" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">hệ thống</text>
-<!-- legend -->
-<line x1="32" y1="416" x2="768" y2="416" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="428" r="4" fill="#0284C7"/>
-<text x="162" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VÉ Ở LẠI · STARTFG</text>
-<line x1="400" y1="428" x2="432" y2="428" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
-<text x="440" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">HỆ THỐNG TRUNG GIAN</text>
-</svg>
-</div>
-</div>
-
-<p><strong>AndroidManifest.xml</strong></p>
-
-<pre data-lang="xml"><code>&lt;uses-permission android:name="android.permission.FOREGROUND_SERVICE" /&gt;
-&lt;uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" /&gt;
-
-&lt;service
-    android:name=".service.MusicPlayerService"
-    android:foregroundServiceType="mediaPlayback"
-    android:exported="false" /&gt;</code></pre>
-
-<p><strong>MusicPlayerService.kt</strong></p>
-
-<pre data-lang="kotlin"><code>import android.app.*
-import android.content.Intent
-import android.content.pm.ServiceInfo
-import android.os.Build
-import android.os.IBinder
-import androidx.core.app.NotificationCompat
-import androidx.core.app.ServiceCompat
-
-class MusicPlayerService : Service() {
-
-    companion object {
-        const val CHANNEL_ID = "music_player_channel"
-        const val NOTIFICATION_ID = 1001
-        const val ACTION_PLAY = "action_play"
-        const val ACTION_PAUSE = "action_pause"
-        const val ACTION_STOP = "action_stop"
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        createNotificationChannel()
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
-            ACTION_PLAY -&gt; {
-                // Phải lên foreground trong vài giây sau startForegroundService()
-                if (promoteToForeground(isPlaying = true)) playMusic() else stopSelf()
-            }
-            ACTION_PAUSE -&gt; {
-                pauseMusic()
-                updateNotification(isPlaying = false)
-            }
-            ACTION_STOP -&gt; {
-                stopMusic()
-                ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-                stopSelf()
-            }
-            null -&gt; {
-                // Hệ thống tạo lại Service sau khi kill (START_STICKY, intent = null):
-                // hiện lại notification ở trạng thái tạm dừng, không được thì dừng hẳn
-                if (!promoteToForeground(isPlaying = false)) stopSelf()
-            }
-        }
-        return START_STICKY
-    }
-
-    private fun promoteToForeground(isPlaying: Boolean): Boolean = try {
-        ServiceCompat.startForeground(
-            this,
-            NOTIFICATION_ID,
-            buildNotification(isPlaying),
-            if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.Q) {
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-            } else {
-                0
-            }
-        )
-        true
-    } catch (e: Exception) {
-        // Android 12+: ForegroundServiceStartNotAllowedException nếu đang ở background
-        false
-    }
-
-    private fun buildNotification(isPlaying: Boolean): Notification {
-        // Nút trên notification đổi theo trạng thái: đang phát thì gửi PAUSE, đang dừng thì gửi PLAY
-        val toggleAction = if (isPlaying) ACTION_PAUSE else ACTION_PLAY
-        val toggleIntent = PendingIntent.getService(
-            this, 0,
-            Intent(this, MusicPlayerService::class.java).apply { action = toggleAction },
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Đang phát: Shape of You")
-            .setContentText("Ed Sheeran • Divide")
-            .setSmallIcon(android.R.drawable.ic_media_play)
-            .addAction(
-                if (isPlaying) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play,
-                if (isPlaying) "Tạm dừng" else "Phát",
-                toggleIntent
-            )
-            .setOngoing(true)
-            .build()
-    }
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "Trình phát nhạc", NotificationManager.IMPORTANCE_LOW)
-            getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
-        }
-    }
-
-    private fun updateNotification(isPlaying: Boolean) {
-        getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, buildNotification(isPlaying))
-    }
-
-    private fun playMusic() { /* MediaPlayer logic */ }
-    private fun pauseMusic() { /* MediaPlayer logic */ }
-    private fun stopMusic() { /* MediaPlayer logic */ }
-
-    override fun onBind(intent: Intent?): IBinder? = null
-}</code></pre>
-
-<p><strong>Cách gọi từ Activity:</strong></p>
-
-<pre data-lang="kotlin"><code>val intent = Intent(this, MusicPlayerService::class.java).apply {
-    action = MusicPlayerService.ACTION_PLAY
-}
-// Gọi khi Activity đang hiển thị (người dùng vừa bấm Play): Android 12+ chặn start FGS từ background
-ContextCompat.startForegroundService(this, intent)</code></pre>
-
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Với app nghe nhạc thật, nên dùng <code>MediaSessionService</code> của Jetpack Media3: thư viện tự quản lý notification media, foreground state và media session thay cho phần viết tay ở trên.</div></div>
-
-<h3>6.3 Bound Service — Kết nối Bluetooth Real-time</h3>
+<h4>Ví dụ: nhận nhịp tim real-time từ thiết bị Bluetooth</h4>
 
 <p><strong>Tình huống:</strong> App đo nhịp tim kết nối với thiết bị Bluetooth. UI cần nhận dữ liệu nhịp tim liên tục, real-time, trong khi app đang mở.</p>
 
@@ -23239,7 +22656,519 @@ class HeartRateActivity : AppCompatActivity(), BluetoothHeartRateService.HeartRa
     override fun onConnectionStateChanged(connected: Boolean) { }
 }</code></pre>
 
-<h3>6.4 WorkManager — Lựa chọn hiện đại cho background task</h3>
+<p><strong>Kết quả:</strong> service chỉ tồn tại trong lúc <code>HeartRateActivity</code> đang hiển thị (bind ở <code>onStart()</code>, unbind ở <code>onStop()</code>); khi client cuối cùng unbind, <code>onUnbind()</code> gỡ callback và service bị destroy, nên không còn reference nào giữ Activity.</p>
+
+<h3>Foreground Service và giới hạn chạy nền theo phiên bản Android</h3>
+
+<p>Foreground Service là service đã được nâng lên foreground: nó bắt buộc hiện Notification và được ưu tiên cao nên khó bị kill (bảng "Ba loại Service" ở trên). Đổi lại, mỗi phiên bản Android thêm điều kiện cho việc khởi động nó.</p>
+
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Từ <strong>Android 8 (API 26)</strong>, Background Service bị giới hạn nghiêm ngặt. Nếu app chạy ngầm và cần tiếp tục làm việc lâu dài, <strong>bắt buộc</strong> phải dùng Foreground Service với Notification. App target <strong>Android 14 (API 34)</strong> trở lên phải khai báo rõ <code>foregroundServiceType</code> trong Manifest.</div></div>
+
+<h4>Background Execution Limits (Android 8+)</h4>
+
+<p>Từ Android 8 (Oreo), khi app chuyển xuống background, nó chỉ còn <strong>vài phút</strong> để tiếp tục tạo và dùng background service; hết khoảng đó, hệ thống dừng các background service của app (như thể chúng tự gọi <code>stopSelf()</code>). Giới hạn này không áp dụng cho Foreground Service và Bound Service.</p>
+
+<p><strong>Giải pháp:</strong> Dùng Foreground Service nếu cần chạy lâu, hoặc WorkManager cho tác vụ deferrable.</p>
+
+<h4>Khởi động Foreground Service đúng cách (Android 8+ và 12+)</h4>
+
+<p>Gọi <code>startForegroundService()</code>, rồi trong service gọi <code>ServiceCompat.startForeground(service, id, notification, type)</code> trong vòng vài giây (khoảng 5 giây). Quá hạn, hệ thống dừng service và báo lỗi (ANR, hoặc <code>ForegroundServiceDidNotStartInTimeException</code> trên Android 12+).</p>
+
+<p>App target Android 12 (API 31) trở lên <strong>không được</strong> start Foreground Service khi đang ở background, trừ một số ngoại lệ (người dùng tương tác với notification/widget, FCM high priority, exact alarm, <code>BOOT_COMPLETED</code>...). Vi phạm sẽ ném <code>ForegroundServiceStartNotAllowedException</code>.</p>
+
+<h4>Foreground Service Type bắt buộc (Android 14+)</h4>
+
+<p>App target Android 14 phải khai báo <code>android:foregroundServiceType</code> trong Manifest và permission <code>FOREGROUND_SERVICE_&lt;TYPE&gt;</code> tương ứng (vd <code>FOREGROUND_SERVICE_MEDIA_PLAYBACK</code>), cùng runtime permission của type đó (vd <code>location</code> cần quyền vị trí).</p>
+
+<ul>
+  <li>Service không khai báo type trong Manifest: <code>MissingForegroundServiceTypeException</code> khi gọi <code>startForeground()</code>.</li>
+  <li>Truyền vào <code>startForeground()</code> một type không có trong Manifest: <code>IllegalArgumentException</code>.</li>
+  <li>Thiếu permission <code>FOREGROUND_SERVICE_&lt;TYPE&gt;</code> hoặc runtime permission bắt buộc: <code>SecurityException</code>.</li>
+</ul>
+
+<p>Các type phổ biến: <code>mediaPlayback</code>, <code>location</code>, <code>dataSync</code>, <code>camera</code>, <code>microphone</code>, <code>shortService</code>.</p>
+
+<h4>Giới hạn thời gian <code>dataSync</code> và <code>mediaProcessing</code> (Android 15+)</h4>
+
+<p>App target Android 15 chỉ được chạy Foreground Service type <code>dataSync</code> (và <code>mediaProcessing</code>) tổng cộng 6 giờ trong 24 giờ khi ở background (mỗi type có bộ đếm riêng; người dùng mở app thì bộ đếm reset). Hết hạn, hệ thống gọi <code>Service.onTimeout(int, int)</code>; service phải gọi <code>stopSelf()</code> trong vài giây, nếu không app bị lỗi <code>RemoteServiceException</code>. Với đồng bộ/upload dữ liệu, ưu tiên WorkManager hoặc user-initiated data transfer job thay cho <code>dataSync</code>.</p>
+
+<p>Code đầy đủ của một Foreground Service tuân thủ các điều kiện trên ở mục "Ví dụ thực tế".</p>
+
+<h3>Service trong kiến trúc MVVM / Clean Architecture</h3>
+
+<div class="dd-diagram" data-dd="svc-layers">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 524" role="img" aria-labelledby="svc-layers-dark-title svc-layers-dark-desc" font-family="'Geist', sans-serif">
+<title id="svc-layers-dark-title">Service nào ở tầng nào</title>
+<desc id="svc-layers-dark-desc">Activity gọi service, Foreground phát sự kiện về ViewModel, Bound giao tiếp Binder, WorkManager chạy định kỳ vào Repository đọc Room và API.</desc>
+<defs>
+<marker id="svc-layers-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="524" fill="#060913"/>
+<!-- zones -->
+<rect x="32" y="24" width="352" height="180" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="128" height="12" rx="2" fill="#060913"/>
+<text x="112" y="37" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">PRESENTATION</text>
+<rect x="416" y="24" width="352" height="180" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<rect x="432" y="28" width="96" height="12" rx="2" fill="#060913"/>
+<text x="480" y="37" fill="#38BDF8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SERVICE</text>
+<rect x="32" y="228" width="352" height="116" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="48" y="232" width="112" height="12" rx="2" fill="#060913"/>
+<text x="104" y="241" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">BACKGROUND</text>
+<rect x="416" y="228" width="352" height="248" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
+<rect x="432" y="232" width="72" height="12" rx="2" fill="#060913"/>
+<text x="468" y="241" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DATA</text>
+<!-- arrows -->
+<path d="M 320,92 H 448" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<rect x="336" y="72" width="96" height="12" rx="2" fill="#060913"/>
+<text x="384" y="81" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BIND · START</text>
+<path d="M 448,92 V 130 H 328 Q 320,130 320,138 V 164" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<rect x="352" y="110" width="64" height="12" rx="2" fill="#060913"/>
+<text x="384" y="119" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">EVENTS</text>
+<path d="M 448,164 V 200 H 64 Q 56,200 56,192 V 92 H 64" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<rect x="140" y="208" width="88" height="12" rx="2" fill="#060913"/>
+<text x="184" y="217" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BINDER IPC</text>
+<path d="M 320,298 V 292 H 440 Q 448,292 448,288" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<rect x="348" y="272" width="72" height="12" rx="2" fill="#060913"/>
+<text x="384" y="281" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PERIODIC</text>
+<path d="M 574,316 V 332" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<path d="M 574,384 V 408" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<!-- nodes -->
+<rect x="64" y="64" width="256" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="64" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="192" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
+<text x="192" y="114" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình</text>
+<rect x="64" y="136" width="256" height="56" rx="6" fill="#060913"/>
+<rect x="64" y="136" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="192" y="170" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<rect x="448" y="64" width="256" height="56" rx="6" fill="#060913"/>
+<rect x="448" y="64" width="256" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="456" y="70" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="482" y="79" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HOT</text>
+<text x="576" y="98" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Foreground Svc</text>
+<text x="576" y="112" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhạc · gps · upload</text>
+<rect x="448" y="136" width="256" height="56" rx="6" fill="#060913"/>
+<rect x="448" y="136" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="576" y="170" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Bound Service</text>
+<text x="576" y="186" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bluetooth · audio</text>
+<rect x="64" y="268" width="256" height="60" rx="6" fill="#060913"/>
+<rect x="64" y="268" width="256" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="192" y="302" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
+<text x="192" y="320" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">sync · backup</text>
+<rect x="448" y="260" width="256" height="56" rx="6" fill="#060913"/>
+<rect x="448" y="260" width="256" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="576" y="294" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
+<rect x="448" y="332" width="256" height="52" rx="6" fill="#060913"/>
+<rect x="448" y="332" width="256" height="52" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="576" y="364" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Room DB</text>
+<rect x="448" y="400" width="256" height="52" rx="6" fill="#060913"/>
+<rect x="448" y="400" width="256" height="52" rx="6" fill="rgba(248,250,252,0.05)" stroke="#94A3B8" stroke-width="1"/>
+<text x="576" y="432" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Retrofit API</text>
+<!-- legend -->
+<line x1="32" y1="500" x2="768" y2="500" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="516" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="512" r="4" fill="#38BDF8"/>
+<text x="162" y="516" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GIỮ TRẢI NGHIỆM · FG</text>
+<line x1="400" y1="512" x2="432" y2="512" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-layers-dark-arrow)"/>
+<text x="440" y="516" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỌI · ĐẨY · ĐỒNG BỘ</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 524" role="img" aria-labelledby="svc-layers-title svc-layers-desc" font-family="'Geist', sans-serif">
+<title id="svc-layers-title">Service nào ở tầng nào</title>
+<desc id="svc-layers-desc">Activity gọi service, Foreground phát sự kiện về ViewModel, Bound giao tiếp Binder, WorkManager chạy định kỳ vào Repository đọc Room và API.</desc>
+<defs>
+<marker id="svc-layers-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="524" fill="#F8FAFC"/>
+<!-- zones -->
+<rect x="32" y="24" width="352" height="180" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="28" width="128" height="12" rx="2" fill="#F8FAFC"/>
+<text x="112" y="37" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">PRESENTATION</text>
+<rect x="416" y="24" width="352" height="180" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
+<rect x="432" y="28" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="480" y="37" fill="#0284C7" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SERVICE</text>
+<rect x="32" y="228" width="352" height="116" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="48" y="232" width="112" height="12" rx="2" fill="#F8FAFC"/>
+<text x="104" y="241" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">BACKGROUND</text>
+<rect x="416" y="228" width="352" height="248" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
+<rect x="432" y="232" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="468" y="241" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DATA</text>
+<!-- arrows -->
+<path d="M 320,92 H 448" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
+<rect x="336" y="72" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="384" y="81" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BIND · START</text>
+<path d="M 448,92 V 130 H 328 Q 320,130 320,138 V 164" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
+<rect x="352" y="110" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="384" y="119" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">EVENTS</text>
+<path d="M 448,164 V 200 H 64 Q 56,200 56,192 V 92 H 64" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
+<rect x="140" y="208" width="88" height="12" rx="2" fill="#F8FAFC"/>
+<text x="184" y="217" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BINDER IPC</text>
+<path d="M 320,298 V 292 H 440 Q 448,292 448,288" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
+<rect x="348" y="272" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="384" y="281" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PERIODIC</text>
+<path d="M 574,316 V 332" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
+<path d="M 574,384 V 408" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
+<!-- nodes -->
+<rect x="64" y="64" width="256" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="64" width="256" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="192" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
+<text x="192" y="114" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình</text>
+<rect x="64" y="136" width="256" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="136" width="256" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="192" y="170" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<rect x="448" y="64" width="256" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="64" width="256" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="456" y="70" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="482" y="79" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HOT</text>
+<text x="576" y="98" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Foreground Svc</text>
+<text x="576" y="112" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhạc · gps · upload</text>
+<rect x="448" y="136" width="256" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="136" width="256" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="576" y="170" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Bound Service</text>
+<text x="576" y="186" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">bluetooth · audio</text>
+<rect x="64" y="268" width="256" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="64" y="268" width="256" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="192" y="302" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
+<text x="192" y="320" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">sync · backup</text>
+<rect x="448" y="260" width="256" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="260" width="256" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="576" y="294" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
+<rect x="448" y="332" width="256" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="332" width="256" height="52" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<text x="576" y="364" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Room DB</text>
+<rect x="448" y="400" width="256" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="448" y="400" width="256" height="52" rx="6" fill="rgba(15,23,42,0.05)" stroke="#64748B" stroke-width="1"/>
+<text x="576" y="432" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Retrofit API</text>
+<!-- legend -->
+<line x1="32" y1="500" x2="768" y2="500" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="516" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="512" r="4" fill="#0284C7"/>
+<text x="162" y="516" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GIỮ TRẢI NGHIỆM · FG</text>
+<line x1="400" y1="512" x2="432" y2="512" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-layers-arrow)"/>
+<text x="440" y="516" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GỌI · ĐẨY · ĐỒNG BỘ</text>
+</svg>
+</div>
+</div>
+
+<p><strong>Nguyên tắc quan trọng:</strong> Service không được biết đến UI. Service chỉ thực thi tác vụ và emit kết quả (qua BroadcastReceiver, EventBus, Flow, hoặc Binder callback). UI quyết định cách hiển thị kết quả đó.</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>Foreground Service — Phát nhạc nền</h3>
+
+<p><strong>Tình huống:</strong> Music Player — cần tiếp tục phát nhạc khi người dùng khóa màn hình, hiển thị notification với control (play/pause).</p>
+
+<p>Luồng chạy (sơ đồ bên dưới minh hoạ bước 1–5):</p>
+
+<ol>
+  <li>Người dùng bấm Play khi Activity đang hiển thị: Activity gọi <code>ContextCompat.startForegroundService()</code> với <code>ACTION_PLAY</code>.</li>
+  <li>Hệ thống tạo service: <code>onCreate()</code> tạo notification channel.</li>
+  <li><code>onStartCommand(ACTION_PLAY)</code>: trong vài giây, service gọi <code>ServiceCompat.startForeground()</code> với notification và type <code>mediaPlayback</code>; hệ thống hiện notification. Không lên được foreground (vd <code>ForegroundServiceStartNotAllowedException</code>) thì service tự dừng.</li>
+  <li>Service phát nhạc. Người dùng bấm Home, service tiếp tục chạy vì đang ở foreground.</li>
+  <li>Người dùng bấm Pause trên notification: PendingIntent tạo bằng <code>getService()</code> gửi <code>ACTION_PAUSE</code> vào <code>onStartCommand()</code>; service tạm dừng nhạc và cập nhật notification (nút đổi thành "Phát").</li>
+  <li><code>ACTION_STOP</code>: dừng nhạc, gỡ notification bằng <code>stopForeground(STOP_FOREGROUND_REMOVE)</code> rồi <code>stopSelf()</code>.</li>
+  <li>Nếu hệ thống kill rồi tạo lại service (<code>START_STICKY</code>, intent = null): hiện lại notification ở trạng thái tạm dừng, không được thì dừng hẳn.</li>
+</ol>
+
+<div class="dd-diagram" data-dd="svc-music">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 440" role="img" aria-labelledby="svc-music-dark-title svc-music-dark-desc" font-family="'Geist', sans-serif">
+<title id="svc-music-dark-title">Nhạc vẫn chạy khi đã rời app</title>
+<desc id="svc-music-dark-desc">Bấm Play khởi động foreground service phát nhạc, rời app nhạc vẫn chạy, bấm pause trên notification thì nhạc dừng.</desc>
+<defs>
+<marker id="svc-music-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="svc-music-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="440" fill="#060913"/>
+<!-- lifelines -->
+<line x1="110" y1="84" x2="110" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="310" y1="84" x2="310" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="510" y1="84" x2="510" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="710" y1="84" x2="710" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="306" y="112" width="8" height="16" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="506" y="176" width="8" height="216" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="706" y="144" width="8" height="120" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 110,120 H 310" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
+<rect x="174" y="100" width="72" height="12" rx="2" fill="#060913"/>
+<text x="210" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BẤM PLAY</text>
+<path d="M 310,152 H 710" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
+<rect x="462" y="132" width="96" height="12" rx="2" fill="#060913"/>
+<text x="510" y="141" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">FOREGROUND SVC</text>
+<path d="M 710,184 H 510" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
+<rect x="570" y="164" width="80" height="12" rx="2" fill="#060913"/>
+<text x="610" y="173" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONCREATE</text>
+<path d="M 710,208 H 510" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
+<rect x="570" y="188" width="80" height="12" rx="2" fill="#060913"/>
+<text x="610" y="197" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STARTCMD</text>
+<path d="M 510,232 H 710" fill="none" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#svc-music-dark-accent)"/>
+<rect x="562" y="212" width="96" height="12" rx="2" fill="#060913"/>
+<text x="610" y="221" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STARTFG · NOTIF</text>
+<path d="M 710,256 H 110" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
+<rect x="362" y="236" width="96" height="12" rx="2" fill="#060913"/>
+<text x="410" y="245" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NOTIF HIỆN</text>
+<path d="M 110,280 H 310" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
+<rect x="174" y="260" width="72" height="12" rx="2" fill="#060913"/>
+<text x="210" y="269" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VỀ HOME</text>
+<rect x="560" y="292" width="140" height="12" rx="2" fill="#060913"/>
+<text x="630" y="301" fill="#FBBF24" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHẠY NHỜ FOREGROUND</text>
+<path d="M 110,320 H 310" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
+<rect x="174" y="300" width="72" height="12" rx="2" fill="#060913"/>
+<text x="210" y="309" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PAUSE NOTIF</text>
+<path d="M 710,344 H 510" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
+<rect x="570" y="324" width="80" height="12" rx="2" fill="#060913"/>
+<text x="610" y="333" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CMD PAUSE</text>
+<path d="M 510,368 H 534 V 384 H 510" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
+<rect x="546" y="362" width="80" height="16" rx="2" fill="#060913"/>
+<text x="586" y="374" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PAUSE NHẠC</text>
+<!-- actors -->
+<rect x="35" y="32" width="150" height="52" rx="6" fill="#060913"/>
+<rect x="35" y="32" width="150" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="110" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">User</text>
+<text x="110" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">người dùng</text>
+<rect x="235" y="32" width="150" height="52" rx="6" fill="#060913"/>
+<rect x="235" y="32" width="150" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="310" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">MusicActivity</text>
+<text x="310" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình nhạc</text>
+<rect x="435" y="32" width="150" height="52" rx="6" fill="#060913"/>
+<rect x="435" y="32" width="150" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="510" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">MusicService</text>
+<text x="510" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">phát nhạc</text>
+<rect x="635" y="32" width="150" height="52" rx="6" fill="#060913"/>
+<rect x="635" y="32" width="150" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="710" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Android OS</text>
+<text x="710" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">hệ thống</text>
+<!-- legend -->
+<line x1="32" y1="416" x2="768" y2="416" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="432" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="428" r="4" fill="#38BDF8"/>
+<text x="162" y="432" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">VÉ Ở LẠI · STARTFG</text>
+<line x1="400" y1="428" x2="432" y2="428" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-music-dark-arrow)"/>
+<text x="440" y="432" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">HỆ THỐNG TRUNG GIAN</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 440" role="img" aria-labelledby="svc-music-title svc-music-desc" font-family="'Geist', sans-serif">
+<title id="svc-music-title">Nhạc vẫn chạy khi đã rời app</title>
+<desc id="svc-music-desc">Bấm Play khởi động foreground service phát nhạc, rời app nhạc vẫn chạy, bấm pause trên notification thì nhạc dừng.</desc>
+<defs>
+<marker id="svc-music-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+<marker id="svc-music-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
+</marker>
+</defs>
+<rect width="800" height="440" fill="#F8FAFC"/>
+<!-- lifelines -->
+<line x1="110" y1="84" x2="110" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="310" y1="84" x2="310" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="510" y1="84" x2="510" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="710" y1="84" x2="710" y2="392" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="306" y="112" width="8" height="16" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="506" y="176" width="8" height="216" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="706" y="144" width="8" height="120" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 110,120 H 310" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
+<rect x="174" y="100" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="210" y="109" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BẤM PLAY</text>
+<path d="M 310,152 H 710" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
+<rect x="462" y="132" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="510" y="141" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">FOREGROUND SVC</text>
+<path d="M 710,184 H 510" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
+<rect x="570" y="164" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="610" y="173" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONCREATE</text>
+<path d="M 710,208 H 510" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
+<rect x="570" y="188" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="610" y="197" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STARTCMD</text>
+<path d="M 510,232 H 710" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#svc-music-accent)"/>
+<rect x="562" y="212" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="610" y="221" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STARTFG · NOTIF</text>
+<path d="M 710,256 H 110" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
+<rect x="362" y="236" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="410" y="245" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NOTIF HIỆN</text>
+<path d="M 110,280 H 310" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
+<rect x="174" y="260" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="210" y="269" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VỀ HOME</text>
+<rect x="560" y="292" width="140" height="12" rx="2" fill="#F8FAFC"/>
+<text x="630" y="301" fill="#FBBF24" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHẠY NHỜ FOREGROUND</text>
+<path d="M 110,320 H 310" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
+<rect x="174" y="300" width="72" height="12" rx="2" fill="#F8FAFC"/>
+<text x="210" y="309" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PAUSE NOTIF</text>
+<path d="M 710,344 H 510" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
+<rect x="570" y="324" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="610" y="333" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CMD PAUSE</text>
+<path d="M 510,368 H 534 V 384 H 510" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
+<rect x="546" y="362" width="80" height="16" rx="2" fill="#F8FAFC"/>
+<text x="586" y="374" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PAUSE NHẠC</text>
+<!-- actors -->
+<rect x="35" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="35" y="32" width="150" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="110" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">User</text>
+<text x="110" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">người dùng</text>
+<rect x="235" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="235" y="32" width="150" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="310" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">MusicActivity</text>
+<text x="310" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình nhạc</text>
+<rect x="435" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="435" y="32" width="150" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="510" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">MusicService</text>
+<text x="510" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">phát nhạc</text>
+<rect x="635" y="32" width="150" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="635" y="32" width="150" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="710" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Android OS</text>
+<text x="710" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">hệ thống</text>
+<!-- legend -->
+<line x1="32" y1="416" x2="768" y2="416" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="428" r="4" fill="#0284C7"/>
+<text x="162" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">VÉ Ở LẠI · STARTFG</text>
+<line x1="400" y1="428" x2="432" y2="428" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-music-arrow)"/>
+<text x="440" y="432" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">HỆ THỐNG TRUNG GIAN</text>
+</svg>
+</div>
+</div>
+
+<p><strong>AndroidManifest.xml</strong></p>
+
+<pre data-lang="xml"><code>&lt;uses-permission android:name="android.permission.FOREGROUND_SERVICE" /&gt;
+&lt;uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" /&gt;
+
+&lt;service
+    android:name=".service.MusicPlayerService"
+    android:foregroundServiceType="mediaPlayback"
+    android:exported="false" /&gt;</code></pre>
+
+<p><strong>Cách gọi từ Activity:</strong></p>
+
+<pre data-lang="kotlin"><code>val intent = Intent(this, MusicPlayerService::class.java).apply {
+    action = MusicPlayerService.ACTION_PLAY
+}
+// (1) Gọi khi Activity đang hiển thị (người dùng vừa bấm Play): app target Android 12+ bị chặn start FGS từ background
+ContextCompat.startForegroundService(this, intent)</code></pre>
+
+<p><strong>MusicPlayerService.kt</strong></p>
+
+<pre data-lang="kotlin"><code>import android.app.*
+import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.os.Build
+import android.os.IBinder
+import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
+
+class MusicPlayerService : Service() {
+
+    companion object {
+        const val CHANNEL_ID = "music_player_channel"
+        const val NOTIFICATION_ID = 1001
+        const val ACTION_PLAY = "action_play"
+        const val ACTION_PAUSE = "action_pause"
+        const val ACTION_STOP = "action_stop"
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannel() // (2)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_PLAY -&gt; {
+                // (3) Phải lên foreground trong vài giây sau startForegroundService()
+                if (promoteToForeground(isPlaying = true)) playMusic() else stopSelf() // (4) phát nhạc
+            }
+            ACTION_PAUSE -&gt; {
+                pauseMusic() // (5)
+                updateNotification(isPlaying = false)
+            }
+            ACTION_STOP -&gt; {
+                stopMusic() // (6)
+                ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+                stopSelf()
+            }
+            null -&gt; {
+                // (7) Hệ thống tạo lại Service sau khi kill (START_STICKY, intent = null):
+                // hiện lại notification ở trạng thái tạm dừng, không được thì dừng hẳn
+                if (!promoteToForeground(isPlaying = false)) stopSelf()
+            }
+        }
+        return START_STICKY
+    }
+
+    private fun promoteToForeground(isPlaying: Boolean): Boolean = try {
+        ServiceCompat.startForeground(
+            this,
+            NOTIFICATION_ID,
+            buildNotification(isPlaying),
+            if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.Q) {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            } else {
+                0
+            }
+        )
+        true
+    } catch (e: Exception) {
+        // App target Android 12+: ForegroundServiceStartNotAllowedException nếu đang ở background
+        false
+    }
+
+    private fun buildNotification(isPlaying: Boolean): Notification {
+        // (5) Nút trên notification đổi theo trạng thái: đang phát thì gửi PAUSE, đang dừng thì gửi PLAY
+        val toggleAction = if (isPlaying) ACTION_PAUSE else ACTION_PLAY
+        val toggleIntent = PendingIntent.getService(
+            this, 0,
+            Intent(this, MusicPlayerService::class.java).apply { action = toggleAction },
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Đang phát: Shape of You")
+            .setContentText("Ed Sheeran • Divide")
+            .setSmallIcon(android.R.drawable.ic_media_play)
+            .addAction(
+                if (isPlaying) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play,
+                if (isPlaying) "Tạm dừng" else "Phát",
+                toggleIntent
+            )
+            .setOngoing(true)
+            .build()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(CHANNEL_ID, "Trình phát nhạc", NotificationManager.IMPORTANCE_LOW)
+            getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        }
+    }
+
+    private fun updateNotification(isPlaying: Boolean) {
+        getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, buildNotification(isPlaying))
+    }
+
+    private fun playMusic() { /* MediaPlayer logic */ }
+    private fun pauseMusic() { /* MediaPlayer logic */ }
+    private fun stopMusic() { /* MediaPlayer logic */ }
+
+    override fun onBind(intent: Intent?): IBinder? = null
+}</code></pre>
+
+<p><strong>Kết quả:</strong> bấm Play rồi về Home thì nhạc vẫn phát và notification vẫn hiện; bấm nút trên notification thì service nhận <code>ACTION_PAUSE</code>/<code>ACTION_PLAY</code> và nút đổi theo trạng thái. Trên app target Android 14+, nếu Manifest thiếu type hoặc permission <code>FOREGROUND_SERVICE_MEDIA_PLAYBACK</code> thì <code>startForeground()</code> ném exception (mục "Foreground Service Type bắt buộc (Android 14+)"); <code>promoteToForeground()</code> bắt lỗi và service tự dừng thay vì crash.</p>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Với app nghe nhạc thật, nên dùng <code>MediaSessionService</code> của Jetpack Media3: thư viện tự quản lý notification media, foreground state và media session thay cho phần viết tay ở trên.</div></div>
+
+<h3>WorkManager — Lựa chọn hiện đại cho background task</h3>
 
 <p><strong>Tình huống:</strong> Backup ảnh lên server mỗi đêm khi có WiFi và đang sạc pin.</p>
 
@@ -23318,64 +23247,9 @@ WorkManager.getInstance(context)
         }
     }</code></pre>
 
-<h2>7. Bảng so sánh tổng hợp: Nên dùng gì?</h2>
+<p><strong>Kết quả:</strong> không cần Service nào: work chỉ chạy khi máy có Wi-Fi không tính phí và đang sạc, lỗi thì retry với backoff exponential cho tới khi <code>runAttemptCount</code> đạt 3, và gọi <code>scheduleNightlyBackup()</code> nhiều lần vẫn chỉ có một lịch nhờ unique name với <code>KEEP</code>.</p>
 
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Kịch bản</th>
-      <th style="padding:8px 12px;text-align:left;">Giải pháp tốt nhất</th>
-      <th style="padding:8px 12px;text-align:left;">Lý do</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Phát nhạc nền</td>
-      <td style="padding:8px 12px;">Foreground Service</td>
-      <td style="padding:8px 12px;">Cần UI (Notification) + chạy liên tục</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Upload file lớn 1 lần</td>
-      <td style="padding:8px 12px;">Foreground Service</td>
-      <td style="padding:8px 12px;">Cần progress notification</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Sync data mỗi ngày</td>
-      <td style="padding:8px 12px;">WorkManager (Periodic)</td>
-      <td style="padding:8px 12px;">Không cần ngay, cần đảm bảo completion</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Sync data khi có WiFi</td>
-      <td style="padding:8px 12px;">WorkManager + Constraints</td>
-      <td style="padding:8px 12px;">WorkManager xử lý constraint tốt nhất</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Nhận dữ liệu sensor real-time</td>
-      <td style="padding:8px 12px;">Bound Service</td>
-      <td style="padding:8px 12px;">Cần giao tiếp 2 chiều, vòng đời gắn với Activity</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Tác vụ ngắn do user trigger</td>
-      <td style="padding:8px 12px;">Coroutine trong ViewModel</td>
-      <td style="padding:8px 12px;">Không cần Service, đơn giản hơn nhiều</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">GPS tracking nền</td>
-      <td style="padding:8px 12px;">Foreground Service</td>
-      <td style="padding:8px 12px;">Cần chạy dù người dùng thoát app</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Gửi log / analytics</td>
-      <td style="padding:8px 12px;">WorkManager</td>
-      <td style="padding:8px 12px;">Không cần chạy ngay; docs xếp vào persistent work, có retry và constraint</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Báo sự kiện giữa các phần trong cùng app (Service → UI, Repository → ViewModel)</td>
-      <td style="padding:8px 12px;">Flow / SharedFlow (hoặc Shared ViewModel)</td>
-      <td style="padding:8px 12px;">In-process, type-safe; không cần Service hay broadcast</td>
-    </tr>
-  </tbody>
-</table>
+<h2>So sánh với các cách tiếp cận khác</h2>
 
 <h3>Service, WorkManager hay Flow/SharedFlow?</h3>
 
@@ -23445,28 +23319,296 @@ WorkManager.getInstance(context)
   <li>Chỉ cần <strong>báo sự kiện hoặc chia sẻ trạng thái giữa các phần trong app</strong>? → <strong>Flow/SharedFlow</strong> hoặc Shared ViewModel, không cần Service. Docs cũng khuyên không dùng broadcast cho việc này.</li>
 </ol>
 
-<p>Broadcast Receiver không nằm trong bảng vì nó không thực thi công việc: nó chỉ là điểm nhận sự kiện hệ thống rồi giao việc cho WorkManager hoặc Service (xem <a href="../broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "9. Khi nào dùng Broadcast Receiver, khi nào dùng thứ khác?").</p>
+<p>Broadcast Receiver không nằm trong bảng vì nó không thực thi công việc: nó chỉ là điểm nhận sự kiện hệ thống rồi giao việc cho WorkManager hoặc Service (xem <a href="../broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "Khi nào nên và không nên dùng").</p>
 
-<h2>8. Trade-offs &amp; Pitfalls (Lưu ý quan trọng)</h2>
+<h2>Khi nào nên và không nên dùng</h2>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Background Execution Limits (Android 8+):</strong> Từ Android 8 (Oreo), app trong background chỉ có <strong>vài phút</strong> để chạy Service trước khi bị system kill. Cố tình bypass giới hạn này (ví dụ dùng alarm để restart Service liên tục) vi phạm Play Store policy và có thể khiến app bị gỡ khỏi store. <strong>Giải pháp:</strong> Dùng Foreground Service nếu cần chạy lâu, hoặc WorkManager cho tác vụ deferrable.</div></div>
+<p>Dùng Service khi việc phải tiếp tục lúc người dùng rời màn hình và cần chạy ngay (Foreground Service), hoặc khi một màn hình cần giao tiếp hai chiều với một thành phần đang chạy (Bound Service). Các trường hợp còn lại thường có công cụ phù hợp hơn.</p>
 
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><strong>Service không phải thread riêng — ANR rình rập:</strong> Code trong <code>onStartCommand()</code> chạy trên Main Thread. Bất kỳ thao tác blocking nào (network, file IO, database query nặng) sẽ freeze UI trong 5 giây → ANR. <strong>Giải pháp:</strong> Luôn launch Coroutine với <code>Dispatchers.IO</code> cho các tác vụ blocking trong Service.</div></div>
+<h3>Khi nào KHÔNG nên dùng Service thuần?</h3>
 
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><strong>Memory Leak với Bound Service:</strong> Nếu bind trong <code>onStart()</code> nhưng quên <code>unbindService()</code> trong <code>onStop()</code>, Activity context sẽ bị rò rỉ bộ nhớ. <strong>Giải pháp:</strong> Luôn đối xứng: bind ↔ unbind trong cùng cặp lifecycle callback (<code>onStart</code>/<code>onStop</code> hoặc <code>onCreate</code>/<code>onDestroy</code>).</div></div>
+<ul>
+  <li><strong>Tác vụ một lần, không cần ngay lập tức:</strong> Dùng <strong>WorkManager</strong> (đảm bảo hoàn thành dù app bị kill, hỗ trợ Doze mode, constraint như có WiFi).</li>
+  <li><strong>Tác vụ ngắn do người dùng trigger:</strong> Dùng <strong>Coroutine trong ViewModel/Activity</strong> (tác vụ sẽ bị hủy khi người dùng thoát app — đây là hành vi đúng đắn).</li>
+  <li><strong>Giao tiếp giữa các phần của cùng một app:</strong> Dùng <strong>Shared ViewModel</strong> hoặc <strong>SharedFlow</strong> thay vì Bound Service (so sánh ở mục "Service, WorkManager hay Flow/SharedFlow?").</li>
+</ul>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Khởi động Foreground Service đúng cách (Android 8+ và 12+):</strong> Gọi <code>startForegroundService()</code>, rồi trong service gọi <code>ServiceCompat.startForeground(service, id, notification, type)</code> trong vòng vài giây (khoảng 5 giây). Quá hạn, hệ thống dừng service và báo lỗi (ANR, hoặc <code>ForegroundServiceDidNotStartInTimeException</code> trên Android 12+). App target Android 12 (API 31) trở lên <strong>không được</strong> start Foreground Service khi đang ở background, trừ một số ngoại lệ (người dùng tương tác với notification/widget, FCM high priority, exact alarm, <code>BOOT_COMPLETED</code>...). Vi phạm sẽ ném <code>ForegroundServiceStartNotAllowedException</code>.</div></div>
+<h3>Bản đồ quyết định: Nên dùng gì?</h3>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Foreground Service Type bắt buộc (Android 14+):</strong> App target Android 14 phải khai báo <code>android:foregroundServiceType</code> trong Manifest và permission <code>FOREGROUND_SERVICE_&lt;TYPE&gt;</code> tương ứng (vd <code>FOREGROUND_SERVICE_MEDIA_PLAYBACK</code>), cùng runtime permission của type đó (vd <code>location</code> cần quyền vị trí). - Service không khai báo type trong Manifest: <code>MissingForegroundServiceTypeException</code> khi gọi <code>startForeground()</code>. - Truyền vào <code>startForeground()</code> một type không có trong Manifest: <code>IllegalArgumentException</code>. - Thiếu permission <code>FOREGROUND_SERVICE_&lt;TYPE&gt;</code> hoặc runtime permission bắt buộc: <code>SecurityException</code>. Các type phổ biến: <code>mediaPlayback</code>, <code>location</code>, <code>dataSync</code>, <code>camera</code>, <code>microphone</code>, <code>shortService</code>.</div></div>
+<div class="dd-diagram" data-dd="svc-choose">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 700" role="img" aria-labelledby="svc-choose-dark-title svc-choose-dark-desc" font-family="'Geist', sans-serif">
+<title id="svc-choose-dark-title">Ba câu hỏi chọn đúng Service</title>
+<desc id="svc-choose-dark-desc">Thấy tiến trình thì Foreground Service, không cần ngay thì WorkManager, cần hai chiều thì Bound Service, còn lại Started Service.</desc>
+<defs>
+<marker id="svc-choose-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="700" fill="#060913"/>
+<!-- arrows -->
+<path d="M 325,140 V 190 H 188 Q 180,190 180,198 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
+<rect x="232" y="170" width="40" height="12" rx="2" fill="#060913"/>
+<text x="252" y="179" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 400,184 V 240" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
+<rect x="412" y="204" width="56" height="12" rx="2" fill="#060913"/>
+<text x="440" y="213" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 325,284 V 334 H 188 Q 180,334 180,342 V 392" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
+<rect x="232" y="314" width="56" height="12" rx="2" fill="#060913"/>
+<text x="260" y="323" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 400,328 V 436" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
+<rect x="412" y="374" width="40" height="12" rx="2" fill="#060913"/>
+<text x="432" y="383" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 325,480 V 530 H 188 Q 180,530 180,538 V 588" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
+<rect x="232" y="510" width="40" height="12" rx="2" fill="#060913"/>
+<text x="252" y="519" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 475,480 V 530 H 612 Q 620,530 620,538 V 588" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
+<rect x="502" y="510" width="56" height="12" rx="2" fill="#060913"/>
+<text x="530" y="519" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<!-- diamonds -->
+<polygon points="400,96 475,140 400,184 325,140" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<text x="400" y="144" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">THẤY TIẾN TRÌNH?</text>
+<polygon points="400,240 475,284 400,328 325,284" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="288" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">CHẠY NGAY?</text>
+<polygon points="400,436 475,480 400,524 325,480" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="484" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">2 CHIỀU?</text>
+<!-- outcomes -->
+<rect x="280" y="32" width="240" height="52" rx="20" fill="#060913"/>
+<rect x="280" y="32" width="240" height="52" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="64" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Tác vụ nền cần làm</text>
+<rect x="80" y="248" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="80" y="248" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="180" y="282" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Foreground</text>
+<text x="180" y="300" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">+ notification</text>
+<rect x="80" y="392" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="80" y="392" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="180" y="426" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
+<text x="180" y="444" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đặt lịch</text>
+<rect x="80" y="588" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="80" y="588" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="180" y="622" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Bound Service</text>
+<text x="180" y="640" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">2 chiều · binder</text>
+<rect x="520" y="588" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="520" y="588" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="620" y="622" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Started Service</text>
+<text x="620" y="640" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">+ coroutine</text>
+<!-- legend -->
+<line x1="32" y1="676" x2="768" y2="676" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="688" r="4" fill="#38BDF8"/>
+<text x="162" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CÂU HỎI ĐẦU TIÊN</text>
+<line x1="370" y1="688" x2="402" y2="688" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#svc-choose-dark-arrow)"/>
+<text x="410" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">MỌI NHÁNH ĐỀU CÓ NHÃN</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 700" role="img" aria-labelledby="svc-choose-title svc-choose-desc" font-family="'Geist', sans-serif">
+<title id="svc-choose-title">Ba câu hỏi chọn đúng Service</title>
+<desc id="svc-choose-desc">Thấy tiến trình thì Foreground Service, không cần ngay thì WorkManager, cần hai chiều thì Bound Service, còn lại Started Service.</desc>
+<defs>
+<marker id="svc-choose-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="700" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 325,140 V 190 H 188 Q 180,190 180,198 V 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="232" y="170" width="40" height="12" rx="2" fill="#F8FAFC"/>
+<text x="252" y="179" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 400,184 V 240" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="412" y="204" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="440" y="213" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 325,284 V 334 H 188 Q 180,334 180,342 V 392" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="232" y="314" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="260" y="323" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<path d="M 400,328 V 436" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="412" y="374" width="40" height="12" rx="2" fill="#F8FAFC"/>
+<text x="432" y="383" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 325,480 V 530 H 188 Q 180,530 180,538 V 588" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="232" y="510" width="40" height="12" rx="2" fill="#F8FAFC"/>
+<text x="252" y="519" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+<path d="M 475,480 V 530 H 612 Q 620,530 620,538 V 588" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<rect x="502" y="510" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="530" y="519" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+<!-- diamonds -->
+<polygon points="400,96 475,140 400,184 325,140" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<text x="400" y="144" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">THẤY TIẾN TRÌNH?</text>
+<polygon points="400,240 475,284 400,328 325,284" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="288" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">CHẠY NGAY?</text>
+<polygon points="400,436 475,480 400,524 325,480" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="484" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">2 CHIỀU?</text>
+<!-- outcomes -->
+<rect x="280" y="32" width="240" height="52" rx="20" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="52" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="64" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Tác vụ nền cần làm</text>
+<rect x="80" y="248" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="248" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="180" y="282" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Foreground</text>
+<text x="180" y="300" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">+ notification</text>
+<rect x="80" y="392" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="392" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="180" y="426" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
+<text x="180" y="444" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">đặt lịch</text>
+<rect x="80" y="588" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="588" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="180" y="622" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Bound Service</text>
+<text x="180" y="640" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">2 chiều · binder</text>
+<rect x="520" y="588" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="520" y="588" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="620" y="622" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Started Service</text>
+<text x="620" y="640" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">+ coroutine</text>
+<!-- legend -->
+<line x1="32" y1="676" x2="768" y2="676" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="688" r="4" fill="#0284C7"/>
+<text x="162" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CÂU HỎI ĐẦU TIÊN</text>
+<line x1="370" y1="688" x2="402" y2="688" stroke="#64748B" stroke-width="1.2" marker-end="url(#svc-choose-arrow)"/>
+<text x="410" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">MỌI NHÁNH ĐỀU CÓ NHÃN</text>
+</svg>
+</div>
+</div>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Giới hạn thời gian <code>dataSync</code> và <code>mediaProcessing</code> (Android 15+):</strong> App target Android 15 chỉ được chạy Foreground Service type <code>dataSync</code> (và <code>mediaProcessing</code>) tổng cộng 6 giờ trong 24 giờ khi ở background (người dùng mở app thì bộ đếm reset). Hết hạn, hệ thống gọi <code>Service.onTimeout(int, int)</code>; service phải gọi <code>stopSelf()</code> trong vài giây, nếu không app bị lỗi <code>RemoteServiceException</code>. Với đồng bộ/upload dữ liệu, ưu tiên WorkManager hoặc user-initiated data transfer job thay cho <code>dataSync</code>.</div></div>
+<h3>Bảng so sánh tổng hợp: Nên dùng gì?</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Kịch bản</th>
+      <th style="padding:8px 12px;text-align:left;">Giải pháp tốt nhất</th>
+      <th style="padding:8px 12px;text-align:left;">Lý do</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Phát nhạc nền</td>
+      <td style="padding:8px 12px;">Foreground Service</td>
+      <td style="padding:8px 12px;">Cần UI (Notification) + chạy liên tục</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Upload file lớn 1 lần do người dùng bấm</td>
+      <td style="padding:8px 12px;">User-initiated data transfer job (hoặc WorkManager)</td>
+      <td style="padding:8px 12px;">Cần báo tiến trình cho người dùng; docs khuyên dùng thay cho Foreground Service <code>dataSync</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Sync data mỗi ngày</td>
+      <td style="padding:8px 12px;">WorkManager (Periodic)</td>
+      <td style="padding:8px 12px;">Không cần ngay, cần đảm bảo completion</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Sync data khi có WiFi</td>
+      <td style="padding:8px 12px;">WorkManager + Constraints</td>
+      <td style="padding:8px 12px;">WorkManager xử lý constraint tốt nhất</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Nhận dữ liệu sensor real-time</td>
+      <td style="padding:8px 12px;">Bound Service</td>
+      <td style="padding:8px 12px;">Cần giao tiếp 2 chiều, vòng đời gắn với Activity</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Tác vụ ngắn do user trigger</td>
+      <td style="padding:8px 12px;">Coroutine trong ViewModel</td>
+      <td style="padding:8px 12px;">Không cần Service, đơn giản hơn nhiều</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">GPS tracking nền</td>
+      <td style="padding:8px 12px;">Foreground Service</td>
+      <td style="padding:8px 12px;">Cần chạy dù người dùng thoát app</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Gửi log / analytics</td>
+      <td style="padding:8px 12px;">WorkManager</td>
+      <td style="padding:8px 12px;">Không cần chạy ngay; docs xếp vào persistent work, có retry và constraint</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Báo sự kiện giữa các phần trong cùng app (Service → UI, Repository → ViewModel)</td>
+      <td style="padding:8px 12px;">Flow / SharedFlow (hoặc Shared ViewModel)</td>
+      <td style="padding:8px 12px;">In-process, type-safe; không cần Service hay broadcast</td>
+    </tr>
+  </tbody>
+</table>
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>WorkManager hay Service? Câu hỏi để tự hỏi:</strong> <em>"Tác vụ này có cần chạy lập tức không?"</em> Nếu không, WorkManager là lựa chọn tốt hơn. WorkManager hiểu Doze mode, battery saver và tự lên lịch chạy lại sau khi thiết bị khởi động lại, những thứ mà Service thuần không có.</div></div>
 
-<h2>9. Nguồn tham khảo</h2>
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Làm việc blocking ngay trong Service: ANR</h3>
+
+<p><strong>Service không phải thread riêng — ANR rình rập:</strong> Code trong <code>onStartCommand()</code> chạy trên Main Thread. Bất kỳ thao tác blocking nào (network, file IO, database query nặng) sẽ freeze UI trong 5 giây → ANR.</p>
+
+<p><strong>Cách sửa:</strong> Luôn launch Coroutine với <code>Dispatchers.IO</code> cho các tác vụ blocking trong Service (như <code>AnalyticsService</code> ở mục "Started Service"), và huỷ scope trong <code>onDestroy()</code>.</p>
+
+<h3>2. Bind mà quên unbind: Memory Leak với Bound Service</h3>
+
+<p>Nếu bind trong <code>onStart()</code> nhưng quên <code>unbindService()</code> trong <code>onStop()</code>, Activity context sẽ bị rò rỉ bộ nhớ.</p>
+
+<p><strong>Cách sửa:</strong> Luôn đối xứng: bind ↔ unbind trong cùng cặp lifecycle callback (<code>onStart</code>/<code>onStop</code> hoặc <code>onCreate</code>/<code>onDestroy</code>).</p>
+
+<h3>3. Lách giới hạn background để giữ Service sống</h3>
+
+<p>Cố tình bypass giới hạn background của Android 8+ (ví dụ dùng alarm để restart Service liên tục) vi phạm Play Store policy và có thể khiến app bị gỡ khỏi store.</p>
+
+<p><strong>Cách sửa:</strong> việc người dùng cần thấy và chạy lâu thì dùng Foreground Service; việc trì hoãn được thì giao cho WorkManager (mục "Background Execution Limits (Android 8+)").</p>
+
+<h3>4. Start Foreground Service từ background, hoặc gọi <code>startForeground()</code> quá muộn</h3>
+
+<p>App target Android 12+ gọi <code>startForegroundService()</code> khi đang ở background (ngoài các ngoại lệ) thì nhận <code>ForegroundServiceStartNotAllowedException</code>; service đã được start nhưng không gọi <code>startForeground()</code> trong khoảng 5 giây thì bị hệ thống dừng và báo ANR.</p>
+
+<p><strong>Cách sửa:</strong> chỉ start Foreground Service khi app đang hiển thị hoặc thuộc một ngoại lệ, gọi <code>ServiceCompat.startForeground()</code> ngay trong <code>onStartCommand()</code>, và bọc lời gọi trong <code>try/catch</code> như <code>promoteToForeground()</code> ở mục "Ví dụ thực tế" (mục "Khởi động Foreground Service đúng cách (Android 8+ và 12+)").</p>
+
+<h3>5. Thiếu <code>foregroundServiceType</code> hoặc permission của type (Android 14+)</h3>
+
+<p>App target Android 14 mà Manifest không khai báo type, truyền type không có trong Manifest, hoặc thiếu <code>FOREGROUND_SERVICE_&lt;TYPE&gt;</code>/runtime permission thì <code>startForeground()</code> ném <code>MissingForegroundServiceTypeException</code>, <code>IllegalArgumentException</code> hoặc <code>SecurityException</code>.</p>
+
+<p><strong>Cách sửa:</strong> khai báo <code>android:foregroundServiceType</code>, permission <code>FOREGROUND_SERVICE_&lt;TYPE&gt;</code>, và xin runtime permission của type <strong>trước</strong> khi start service (mục "Foreground Service Type bắt buộc (Android 14+)").</p>
+
+<h3>6. Chạy <code>dataSync</code> hết hạn mà không xử lý <code>onTimeout()</code> (Android 15+)</h3>
+
+<p>Service type <code>dataSync</code> hoặc <code>mediaProcessing</code> dùng hết 6 giờ mà không gọi <code>stopSelf()</code> sau <code>onTimeout(int, int)</code> thì app bị lỗi <code>RemoteServiceException</code>.</p>
+
+<p><strong>Cách sửa:</strong> override <code>onTimeout(int, int)</code> và gọi <code>stopSelf()</code> trong vài giây; với đồng bộ/upload, chuyển sang WorkManager hoặc user-initiated data transfer job (mục "Giới hạn thời gian <code>dataSync</code> và <code>mediaProcessing</code> (Android 15+)").</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>API 1 (Android 1.0):</strong> lớp <code>Service</code>, <code>onBind()</code> và <code>Context.startService()</code> có từ API level đầu tiên.</li>
+  <li><strong>API 5 (Android 2.0):</strong> thêm <code>onStartCommand()</code> cùng các giá trị trả về <code>START_STICKY</code>, <code>START_NOT_STICKY</code>, <code>START_REDELIVER_INTENT</code>, và <code>startForeground(int, Notification)</code>.</li>
+  <li><strong>API 24 (Android 7.0):</strong> thêm <code>stopForeground(int)</code> với cờ <code>STOP_FOREGROUND_REMOVE</code>; bản <code>stopForeground(boolean)</code> bị deprecated từ API 33.</li>
+  <li><strong>Android 8.0 (API 26):</strong> giới hạn background service (app target API 26+ ở background chỉ còn vài phút để dùng background service); thêm <code>Context.startForegroundService()</code>, service phải gọi <code>startForeground()</code> trong 5 giây.</li>
+  <li><strong>Android 9 (API 28):</strong> app target API 28+ phải khai báo permission <code>FOREGROUND_SERVICE</code> để gọi <code>startForeground()</code>.</li>
+  <li><strong>Android 10 (API 29):</strong> thêm thuộc tính Manifest <code>android:foregroundServiceType</code> và <code>startForeground(int, Notification, int)</code> nhận type.</li>
+  <li><strong>Android 12 (API 31):</strong> app target API 31+ không được start Foreground Service từ background (trừ ngoại lệ); thêm <code>ForegroundServiceStartNotAllowedException</code>. Từ phiên bản này, service không gọi <code>startForeground()</code> kịp thời được log là <code>ForegroundServiceDidNotStartInTimeException</code>.</li>
+  <li><strong>Android 14 (API 34):</strong> app target API 34+ bắt buộc khai báo type và permission <code>FOREGROUND_SERVICE_&lt;TYPE&gt;</code> (vd <code>FOREGROUND_SERVICE_MEDIA_PLAYBACK</code>); thêm <code>MissingForegroundServiceTypeException</code>, các type mới <code>health</code>, <code>remoteMessaging</code>, <code>shortService</code>, <code>specialUse</code>, <code>systemExempted</code>, và <code>onTimeout(int)</code> cho <code>shortService</code>. <code>ServiceCompat.startForeground()</code> nhận type từ androidx-core 1.12.</li>
+  <li><strong>Android 15 (API 35):</strong> app target API 35+ chỉ được chạy <code>dataSync</code> và <code>mediaProcessing</code> (type mới) tối đa 6 giờ trong 24 giờ khi ở background; thêm <code>onTimeout(int, int)</code>.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="../activity/index.md" target="_blank" rel="noopener">Activity Overview</a> và <a href="../activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>: Service khởi động, bind và unbind theo lifecycle của Activity gọi nó.</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>: khai báo <code>&lt;service&gt;</code>, <code>android:exported</code>, <code>android:foregroundServiceType</code> và permission.</li>
+  <li><a href="../../intent/explicit_intents.md" target="_blank" rel="noopener">Explicit Intents</a>: Service được start và bind bằng explicit intent.</li>
+  <li><a href="../../intent/pending_intent.md" target="_blank" rel="noopener">Pending Intent</a>: PendingIntent tạo bằng <code>getService()</code> cho nút điều khiển trên notification của Foreground Service.</li>
+  <li><a href="../broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>: điểm nhận sự kiện hệ thống rồi giao việc cho WorkManager hoặc Service.</li>
+  <li><a href="google_service.md" target="_blank" rel="noopener">Google Service</a>: app gọi Google Play services bằng cách bind tới Service của GMS qua Binder IPC.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="../../../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: main thread và ANR, lý do Service phải đưa việc nặng sang thread khác.</li>
+  <li>8.4.3 Coroutines (chưa có bài): <code>CoroutineScope</code>, <code>Dispatchers.IO</code> dùng trong Service.</li>
+  <li>7.1.4.2 Flow (chưa có bài): Flow/SharedFlow để Service báo kết quả cho UI.</li>
+  <li>8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài): Notification bắt buộc của Foreground Service.</li>
+</ul></li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
 
 <ul>
   <li><a href="https://developer.android.com/guide/components/services" target="_blank" rel="noopener">Services overview — Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/android/app/Service" target="_blank" rel="noopener">Service (API level của các hàm, "What is a Service?") — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/reference/android/content/Context" target="_blank" rel="noopener">Context (startService, startForegroundService) — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/reference/android/Manifest.permission" target="_blank" rel="noopener">Manifest.permission (FOREGROUND_SERVICE, FOREGROUND_SERVICE_MEDIA_PLAYBACK) — Android Developers Reference</a></li>
   <li><a href="https://developer.android.com/develop/background-work/services/foreground-services" target="_blank" rel="noopener">Foreground services — Android Developers</a></li>
   <li><a href="https://developer.android.com/guide/components/bound-services" target="_blank" rel="noopener">Bound services overview — Android Developers</a></li>
   <li><a href="https://developer.android.com/develop/background-work/background-tasks" target="_blank" rel="noopener">Background work overview — Android Developers</a></li>
@@ -23476,6 +23618,9 @@ WorkManager.getInstance(context)
   <li><a href="https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start" target="_blank" rel="noopener">Restrictions on starting a foreground service from the background (Android 12+)</a></li>
   <li><a href="https://developer.android.com/about/versions/14/changes/fgs-types-required" target="_blank" rel="noopener">Foreground service types are required (Android 14)</a></li>
   <li><a href="https://developer.android.com/develop/background-work/services/fgs/timeout" target="_blank" rel="noopener">Foreground service timeouts (Android 15)</a></li>
+  <li><a href="https://developer.android.com/about/versions/15/changes/datasync-migration" target="_blank" rel="noopener">Alternatives to data sync foreground services (user-initiated data transfer job, WorkManager) — Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/android/app/ForegroundServiceStartNotAllowedException" target="_blank" rel="noopener">ForegroundServiceStartNotAllowedException — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/reference/android/app/MissingForegroundServiceTypeException" target="_blank" rel="noopener">MissingForegroundServiceTypeException — Android Developers Reference</a></li>
   <li><a href="https://developer.android.com/develop/background-work/background-tasks/persistent" target="_blank" rel="noopener">Persistent work (WorkManager lên lịch lại sau reboot) — Android Developers</a></li>
   <li><a href="https://developer.android.com/develop/background-work/background-tasks/broadcasts" target="_blank" rel="noopener">Broadcasts — tránh broadcast trong cùng process — Android Developers</a></li>
   <li><a href="https://developer.android.com/kotlin/flow/stateflow-and-sharedflow" target="_blank" rel="noopener">StateFlow and SharedFlow — Android Developers</a></li>
@@ -23485,7 +23630,7 @@ WorkManager.getInstance(context)
 
   'google-service': {
     title: 'Google Service',
-    summary: 'Google Service trên Android gồm hai tầng là Google Play Services (GMS), framework hệ thống cài sẵn trên thiết bị cung cấp API như Location, Maps, đăng nhập; và Firebase, nền tảng Backend-as-a-Service với các SDK chạy trong app. Bài phân biệt hai tầng, SDK nào thật sự cần GMS, cách tích hợp chuẩn với BoM, và triển khai FCM, Analytics, Crashlytics, Auth, Remote Config, Firestore, Location, Maps.',
+    summary: 'Google Service trên Android gồm hai tầng dịch vụ của Google - Google Play Services (GMS), framework hệ thống cài sẵn trên thiết bị mà app gọi tới qua Binder IPC, và Firebase, nền tảng Backend-as-a-Service mà app dùng qua các SDK chạy ngay trong process của app. Bài phân biệt hai tầng, SDK nào thật sự cần GMS, cách tích hợp chuẩn với BoM, và triển khai FCM, Analytics, Crashlytics, Auth, Remote Config, Firestore, Location, Maps.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '30 phút',
@@ -23503,182 +23648,10 @@ WorkManager.getInstance(context)
       'Nhận diện được các lỗi tích hợp phổ biến như version mismatch, thiếu google-services.json, API Key sai.'
     ],
     knowledgeGap: 'Nhiều người nhầm lẫn Google Play Services với Firebase SDK, không hiểu vì sao app crash trên thiết bị không có GMS. Không nắm được cơ chế GMS tự cập nhật và sự phụ thuộc của Firebase SDK vào GMS dẫn đến lỗi tích hợp, crash runtime, và app bị từ chối trên Play Store.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '30 phút',
     content: `
-<h2>1. Nó là gì? (What is it?)</h2>
-
-<p><strong>Google Service</strong> trong phạm vi Android thường được hiểu theo <strong>hai tầng</strong> khác nhau nhưng gắn bó chặt chẽ:</p>
-
-<h3>1.1 Google Play Services (GMS)</h3>
-
-<p><strong>Google Play Services</strong> là một <strong>framework hệ thống cài sẵn trên thiết bị</strong> (một APK riêng, thường tên gói <code>com.google.android.gms</code>). Nó cung cấp các API nền cho vô số tính năng của Google:</p>
-
-<ul>
-  <li>Google Maps</li>
-  <li>Location (vị trí)</li>
-  <li>Google Sign-In / OAuth</li>
-  <li>In-app Billing (thanh toán trong app)</li>
-  <li><strong>Nền tảng cho một số Firebase SDK</strong> (vd FCM)</li>
-</ul>
-
-<p>GMS <strong>không phải phần của AOSP</strong> (Android mã nguồn mở). Nó là phần mềm độc quyền của Google, được cấp phép cho các nhà sản xuất (OEM) và tự cập nhật qua Google Play Store — không cần người dùng nâng cấp hệ điều hành.</p>
-
-<h3>1.2 Firebase</h3>
-
-<p><strong>Firebase</strong> là một <strong>Backend-as-a-Service (BaaS)</strong> của Google. Phía client là các <strong>SDK</strong> (thư viện) bạn thêm vào project, phía server là hạ tầng đám mây Google đã quản lý sẵn.</p>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Sản phẩm Firebase</th>
-      <th style="padding:8px 12px;text-align:left;">Vai trò</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Firebase Cloud Messaging (FCM)</td>
-      <td style="padding:8px 12px;">Gửi push notification</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Firebase Analytics</td>
-      <td style="padding:8px 12px;">Theo dõi hành vi người dùng</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Firebase Crashlytics</td>
-      <td style="padding:8px 12px;">Báo cáo crash</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Firebase Authentication</td>
-      <td style="padding:8px 12px;">Đăng nhập (email, Google, phone...)</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Cloud Firestore</td>
-      <td style="padding:8px 12px;">Database NoSQL real-time</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Firebase Storage</td>
-      <td style="padding:8px 12px;">Lưu trữ file</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Firebase Remote Config</td>
-      <td style="padding:8px 12px;">Cấu hình app từ xa</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Firebase App Distribution</td>
-      <td style="padding:8px 12px;">Phân phối build test</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3>1.3 Mối quan hệ GMS ↔ Firebase</h3>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Firebase SDK và GMS là hai thứ khác nhau, được cấu hình chung qua một file <code>google-services.json</code>. Chỉ một số Firebase SDK <strong>bắt buộc thiết bị có GMS</strong>: FCM, Phone Number Verification, App Check với provider Play Integrity. Analytics được khuyến nghị có GMS (thiếu GMS vẫn gửi được event nhưng mất một số tính năng). Nhiều SDK khác như Firestore, Crashlytics, Authentication, Remote Config, Cloud Storage <strong>không cần GMS</strong>.</div></div>
-
-<div class="dd-diagram" data-dd="gg-eco">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 368" role="img" aria-labelledby="gg-eco-dark-title gg-eco-dark-desc" font-family="'Geist', sans-serif">
-<title id="gg-eco-dark-title">App nói chuyện với Google qua hai cửa</title>
-<desc id="gg-eco-dark-desc">Ứng dụng gọi Play Services và Firebase SDK, Play Services trao đổi hai chiều với Google Cloud, Firebase gửi lên, Cloud hiện ra Firebase Console.</desc>
-<defs>
-<marker id="gg-eco-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="368" fill="#060913"/>
-<!-- arrows -->
-<path d="M 208,180 V 88 H 280" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
-<path d="M 208,180 V 248 H 272 Q 280,248 280,256 V 256" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
-<path d="M 460,76 H 540" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
-<rect x="472" y="56" width="56" height="12" rx="2" fill="#060913"/>
-<text x="500" y="65" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">REQUEST</text>
-<path d="M 540,100 H 460" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
-<rect x="472" y="108" width="56" height="12" rx="2" fill="#060913"/>
-<text x="500" y="117" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DATA</text>
-<path d="M 460,256 V 210 H 532 Q 540,210 540,202 V 180" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
-<path d="M 620,212 V 260" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
-<!-- nodes -->
-<rect x="48" y="148" width="160" height="64" rx="6" fill="#060913"/>
-<rect x="48" y="148" width="160" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="128" y="182" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
-<rect x="280" y="60" width="180" height="56" rx="6" fill="#060913"/>
-<rect x="280" y="60" width="180" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="370" y="94" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Play Services</text>
-<rect x="280" y="228" width="180" height="56" rx="6" fill="#060913"/>
-<rect x="280" y="228" width="180" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="370" y="256" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Firebase SDK</text>
-<text x="370" y="274" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fcm · crashlytics</text>
-<rect x="540" y="148" width="160" height="64" rx="6" fill="#060913"/>
-<rect x="540" y="148" width="160" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="548" y="154" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="574" y="163" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HUB</text>
-<text x="620" y="186" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Google Cloud</text>
-<rect x="540" y="260" width="160" height="60" rx="6" fill="#060913"/>
-<rect x="540" y="260" width="160" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="620" y="294" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Firebase Console</text>
-<text x="620" y="312" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">quản lý</text>
-<!-- legend -->
-<line x1="32" y1="344" x2="768" y2="344" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="356" r="4" fill="#38BDF8"/>
-<text x="162" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRUNG TÂM · ĐÁM MÂY</text>
-<line x1="400" y1="356" x2="432" y2="356" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
-<text x="440" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">HAI CHIỀU KHI CẦN</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 368" role="img" aria-labelledby="gg-eco-title gg-eco-desc" font-family="'Geist', sans-serif">
-<title id="gg-eco-title">App nói chuyện với Google qua hai cửa</title>
-<desc id="gg-eco-desc">Ứng dụng gọi Play Services và Firebase SDK, Play Services trao đổi hai chiều với Google Cloud, Firebase gửi lên, Cloud hiện ra Firebase Console.</desc>
-<defs>
-<marker id="gg-eco-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="368" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 208,180 V 88 H 280" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
-<path d="M 208,180 V 248 H 272 Q 280,248 280,256 V 256" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
-<path d="M 460,76 H 540" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
-<rect x="472" y="56" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="500" y="65" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">REQUEST</text>
-<path d="M 540,100 H 460" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
-<rect x="472" y="108" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="500" y="117" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DATA</text>
-<path d="M 460,256 V 210 H 532 Q 540,210 540,202 V 180" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
-<path d="M 620,212 V 260" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
-<!-- nodes -->
-<rect x="48" y="148" width="160" height="64" rx="6" fill="#F8FAFC"/>
-<rect x="48" y="148" width="160" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="128" y="182" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
-<rect x="280" y="60" width="180" height="56" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="60" width="180" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="370" y="94" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Play Services</text>
-<rect x="280" y="228" width="180" height="56" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="228" width="180" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="370" y="256" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Firebase SDK</text>
-<text x="370" y="274" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fcm · crashlytics</text>
-<rect x="540" y="148" width="160" height="64" rx="6" fill="#F8FAFC"/>
-<rect x="540" y="148" width="160" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="548" y="154" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="574" y="163" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HUB</text>
-<text x="620" y="186" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Google Cloud</text>
-<rect x="540" y="260" width="160" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="540" y="260" width="160" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="620" y="294" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Firebase Console</text>
-<text x="620" y="312" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">quản lý</text>
-<!-- legend -->
-<line x1="32" y1="344" x2="768" y2="344" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="356" r="4" fill="#0284C7"/>
-<text x="162" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRUNG TÂM · ĐÁM MÂY</text>
-<line x1="400" y1="356" x2="432" y2="356" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
-<text x="440" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">HAI CHIỀU KHI CẦN</text>
-</svg>
-</div>
-</div>
-
-<h2>2. Vì sao tồn tại? Nó giải quyết vấn đề gì? (Why &amp; What problem?)</h2>
+<h2>Vấn đề cần giải quyết</h2>
 
 <h3>Android thuần (AOSP) thiếu gì?</h3>
 
@@ -23702,9 +23675,39 @@ WorkManager.getInstance(context)
   <li>Client SDK đã được tối ưu sẵn cho Android.</li>
 </ul>
 
-<h2>3. Cách hoạt động bên trong (How does it work?)</h2>
+<h2>Sau khi học xong</h2>
 
-<h3>3.1 Google Play Services: một "system app" giao tiếp qua IPC</h3>
+<ul>
+  <li>Phân biệt được Google Play Services và Firebase, và nhận biết SDK Firebase nào bắt buộc thiết bị có GMS.</li>
+  <li>Áp dụng được Firebase BoM và google-services.json để tích hợp Firebase vào project chuẩn.</li>
+  <li>Triển khai được FCM push notification (token, notification channel, POST_NOTIFICATIONS) và xử lý đúng foreground/background.</li>
+  <li>Triển khai được Analytics, Crashlytics, Remote Config và Firebase Auth với Sign in with Google qua Credential Manager.</li>
+  <li>Nhận diện được các lỗi tích hợp phổ biến như version mismatch, thiếu google-services.json, API Key sai.</li>
+</ul>
+
+<h2>Google Service là gì?</h2>
+
+<p><strong>Google Service</strong> trên Android là hai tầng dịch vụ của Google mà app dùng: <strong>Google Play Services (GMS)</strong>, một framework hệ thống cài sẵn trên thiết bị mà app gọi tới qua Binder IPC, và <strong>Firebase</strong>, một nền tảng Backend-as-a-Service (BaaS) mà app dùng qua các SDK chạy ngay trong process của app.</p>
+
+<p>Mental model: GMS là <strong>dịch vụ nằm ngoài app</strong>, Firebase SDK là <strong>thư viện nằm trong app</strong>. Thứ nằm ngoài app do máy người dùng quyết định: máy có thể không có GMS, và version GMS tự cập nhật theo Play Store chứ không theo APK của bạn. Thứ nằm trong app do bạn quyết định qua Gradle (BoM, plugin, <code>google-services.json</code>). Hầu hết câu hỏi "vì sao chạy máy này mà crash máy kia" trong bài đều trả lời được bằng câu hỏi: tính năng đó nằm ngoài hay trong app?</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Google Play Services (GMS)</h3>
+
+<p><strong>Google Play Services</strong> là một <strong>framework hệ thống cài sẵn trên thiết bị</strong> (một APK riêng, thường tên gói <code>com.google.android.gms</code>). Nó cung cấp các API nền cho vô số tính năng của Google:</p>
+
+<ul>
+  <li>Google Maps</li>
+  <li>Location (vị trí)</li>
+  <li>Google Sign-In / OAuth</li>
+  <li>In-app Billing (thanh toán trong app)</li>
+  <li><strong>Nền tảng cho một số Firebase SDK</strong> (vd FCM)</li>
+</ul>
+
+<p>GMS <strong>không phải phần của AOSP</strong> (Android mã nguồn mở). Nó là phần mềm độc quyền của Google, được cấp phép cho các nhà sản xuất (OEM) và tự cập nhật qua Google Play Store — không cần người dùng nâng cấp hệ điều hành.</p>
+
+<h4>Một "system app" giao tiếp qua IPC</h4>
 
 <p>GMS được cài như một <strong>application component hệ thống</strong>. Khi app của bạn gọi API của GMS (các API hiện tại trả về <code>Task</code>; <code>GoogleApiClient</code> cũ đã deprecated), thực chất app <strong>bind tới Service của GMS</strong> qua Binder IPC (giống Bound Service trong bài <a href="./android_service.md" target="_blank" rel="noopener">Android Service</a>), và GMS thực thi tác vụ rồi trả kết quả về.</p>
 
@@ -23855,7 +23858,54 @@ WorkManager.getInstance(context)
 
 <p>Vì GMS tự cập nhật, <strong>version GMS trên máy có thể mới hơn hoặc cũ hơn</strong> so với version mà app bạn biên dịch. Đây là nguồn gốc của lỗi <code>Google Play services is not compatible with your app</code> nếu bạn không xử lý đúng.</p>
 
-<h3>3.2 Firebase SDK: client kết nối backend Google</h3>
+<h3>Firebase</h3>
+
+<p><strong>Firebase</strong> là một <strong>Backend-as-a-Service (BaaS)</strong> của Google. Phía client là các <strong>SDK</strong> (thư viện) bạn thêm vào project, phía server là hạ tầng đám mây Google đã quản lý sẵn.</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Sản phẩm Firebase</th>
+      <th style="padding:8px 12px;text-align:left;">Vai trò</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Firebase Cloud Messaging (FCM)</td>
+      <td style="padding:8px 12px;">Gửi push notification</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Firebase Analytics</td>
+      <td style="padding:8px 12px;">Theo dõi hành vi người dùng</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Firebase Crashlytics</td>
+      <td style="padding:8px 12px;">Báo cáo crash</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Firebase Authentication</td>
+      <td style="padding:8px 12px;">Đăng nhập (email, Google, phone...)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Cloud Firestore</td>
+      <td style="padding:8px 12px;">Database NoSQL real-time</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Firebase Storage</td>
+      <td style="padding:8px 12px;">Lưu trữ file</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Firebase Remote Config</td>
+      <td style="padding:8px 12px;">Cấu hình app từ xa</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Firebase App Distribution</td>
+      <td style="padding:8px 12px;">Phân phối build test</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4>Firebase SDK: client kết nối backend Google</h4>
 
 <p>Firebase SDK chạy <strong>trong chính process app</strong> của bạn. Nó dùng file <code>google-services.json</code> để biết app thuộc project Firebase nào, sau đó mở kết nối (REST/WebSocket) tới backend:</p>
 
@@ -23948,7 +23998,1148 @@ WorkManager.getInstance(context)
 
 <p>Khi app bị kill, FCM vẫn có thể hiển thị notification nhờ <strong>cơ chế của hệ điều hành</strong> (qua Google Play Services) — không cần app chạy. Đây là điểm khác biệt cốt lõi so với tự mở socket.</p>
 
-<h2>4. Khi nào nên dùng / không nên dùng? (When to use / avoid?)</h2>
+<h3>Mối quan hệ GMS ↔ Firebase</h3>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Firebase SDK và GMS là hai thứ khác nhau, được cấu hình chung qua một file <code>google-services.json</code>. Chỉ một số Firebase SDK <strong>bắt buộc thiết bị có GMS</strong>: FCM, Phone Number Verification, App Check với provider Play Integrity. Analytics được khuyến nghị có GMS (thiếu GMS vẫn gửi được event nhưng mất một số tính năng). Nhiều SDK khác như Firestore, Crashlytics, Authentication, Remote Config, Cloud Storage <strong>không cần GMS</strong>.</div></div>
+
+<div class="dd-diagram" data-dd="gg-eco">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 368" role="img" aria-labelledby="gg-eco-dark-title gg-eco-dark-desc" font-family="'Geist', sans-serif">
+<title id="gg-eco-dark-title">App nói chuyện với Google qua hai cửa</title>
+<desc id="gg-eco-dark-desc">Ứng dụng gọi Play Services và Firebase SDK, Play Services trao đổi hai chiều với Google Cloud, Firebase gửi lên, Cloud hiện ra Firebase Console.</desc>
+<defs>
+<marker id="gg-eco-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="368" fill="#060913"/>
+<!-- arrows -->
+<path d="M 208,180 V 88 H 280" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
+<path d="M 208,180 V 248 H 272 Q 280,248 280,256 V 256" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
+<path d="M 460,76 H 540" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
+<rect x="472" y="56" width="56" height="12" rx="2" fill="#060913"/>
+<text x="500" y="65" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">REQUEST</text>
+<path d="M 540,100 H 460" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
+<rect x="472" y="108" width="56" height="12" rx="2" fill="#060913"/>
+<text x="500" y="117" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DATA</text>
+<path d="M 460,256 V 210 H 532 Q 540,210 540,202 V 180" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
+<path d="M 620,212 V 260" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
+<!-- nodes -->
+<rect x="48" y="148" width="160" height="64" rx="6" fill="#060913"/>
+<rect x="48" y="148" width="160" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="128" y="182" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
+<rect x="280" y="60" width="180" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="60" width="180" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="370" y="94" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Play Services</text>
+<rect x="280" y="228" width="180" height="56" rx="6" fill="#060913"/>
+<rect x="280" y="228" width="180" height="56" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="370" y="256" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Firebase SDK</text>
+<text x="370" y="274" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fcm · crashlytics</text>
+<rect x="540" y="148" width="160" height="64" rx="6" fill="#060913"/>
+<rect x="540" y="148" width="160" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="548" y="154" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="574" y="163" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HUB</text>
+<text x="620" y="186" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Google Cloud</text>
+<rect x="540" y="260" width="160" height="60" rx="6" fill="#060913"/>
+<rect x="540" y="260" width="160" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="620" y="294" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Firebase Console</text>
+<text x="620" y="312" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">quản lý</text>
+<!-- legend -->
+<line x1="32" y1="344" x2="768" y2="344" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="356" r="4" fill="#38BDF8"/>
+<text x="162" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TRUNG TÂM · ĐÁM MÂY</text>
+<line x1="400" y1="356" x2="432" y2="356" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-eco-dark-arrow)"/>
+<text x="440" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">HAI CHIỀU KHI CẦN</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 368" role="img" aria-labelledby="gg-eco-title gg-eco-desc" font-family="'Geist', sans-serif">
+<title id="gg-eco-title">App nói chuyện với Google qua hai cửa</title>
+<desc id="gg-eco-desc">Ứng dụng gọi Play Services và Firebase SDK, Play Services trao đổi hai chiều với Google Cloud, Firebase gửi lên, Cloud hiện ra Firebase Console.</desc>
+<defs>
+<marker id="gg-eco-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="368" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 208,180 V 88 H 280" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
+<path d="M 208,180 V 248 H 272 Q 280,248 280,256 V 256" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
+<path d="M 460,76 H 540" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
+<rect x="472" y="56" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="500" y="65" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">REQUEST</text>
+<path d="M 540,100 H 460" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
+<rect x="472" y="108" width="56" height="12" rx="2" fill="#F8FAFC"/>
+<text x="500" y="117" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DATA</text>
+<path d="M 460,256 V 210 H 532 Q 540,210 540,202 V 180" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
+<path d="M 620,212 V 260" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
+<!-- nodes -->
+<rect x="48" y="148" width="160" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="48" y="148" width="160" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="128" y="182" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
+<rect x="280" y="60" width="180" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="60" width="180" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="370" y="94" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Play Services</text>
+<rect x="280" y="228" width="180" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="228" width="180" height="56" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="370" y="256" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Firebase SDK</text>
+<text x="370" y="274" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fcm · crashlytics</text>
+<rect x="540" y="148" width="160" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="540" y="148" width="160" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="548" y="154" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="574" y="163" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HUB</text>
+<text x="620" y="186" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Google Cloud</text>
+<rect x="540" y="260" width="160" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="540" y="260" width="160" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="620" y="294" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Firebase Console</text>
+<text x="620" y="312" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">quản lý</text>
+<!-- legend -->
+<line x1="32" y1="344" x2="768" y2="344" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="356" r="4" fill="#0284C7"/>
+<text x="162" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TRUNG TÂM · ĐÁM MÂY</text>
+<line x1="400" y1="356" x2="432" y2="356" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-eco-arrow)"/>
+<text x="440" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">HAI CHIỀU KHI CẦN</text>
+</svg>
+</div>
+</div>
+
+<h3>Tích hợp vào project (Setup chuẩn)</h3>
+
+<h4>Luồng tích hợp</h4>
+
+<div class="dd-diagram" data-dd="gg-setup">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 272" role="img" aria-labelledby="gg-setup-dark-title gg-setup-dark-desc" font-family="'Geist', sans-serif">
+<title id="gg-setup-dark-title">Năm bước cắm Firebase vào app</title>
+<desc id="gg-setup-dark-desc">Tạo project, thêm app, tải file json, khai báo Gradle rồi dùng SDK Firebase.</desc>
+<defs>
+<marker id="gg-setup-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="272" fill="#060913"/>
+<!-- arrows -->
+<path d="M 160,152 H 184" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-setup-dark-arrow)"/>
+<path d="M 312,152 H 336" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-setup-dark-arrow)"/>
+<path d="M 464,152 H 488" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-setup-dark-arrow)"/>
+<path d="M 616,152 H 640" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-setup-dark-arrow)"/>
+<!-- nodes -->
+<rect x="32" y="120" width="128" height="64" rx="6" fill="#060913"/>
+<rect x="32" y="120" width="128" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="40" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="50" y="138" fill="rgba(248,250,252,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1</text>
+<text x="96" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Tạo project</text>
+<text x="96" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">console</text>
+<rect x="184" y="120" width="128" height="64" rx="6" fill="#060913"/>
+<rect x="184" y="120" width="128" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="192" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="202" y="138" fill="rgba(248,250,252,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">2</text>
+<text x="248" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Thêm app</text>
+<text x="248" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">package · sha-1</text>
+<rect x="336" y="120" width="128" height="64" rx="6" fill="#060913"/>
+<rect x="336" y="120" width="128" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="344" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="354" y="138" fill="rgba(248,250,252,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">3</text>
+<text x="400" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Tải json</text>
+<text x="400" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app/ folder</text>
+<rect x="488" y="120" width="128" height="64" rx="6" fill="#060913"/>
+<rect x="488" y="120" width="128" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<rect x="496" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
+<text x="506" y="138" fill="rgba(248,250,252,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">4</text>
+<text x="552" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Khai báo Gradle</text>
+<text x="552" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">plugin · bom</text>
+<rect x="640" y="120" width="128" height="64" rx="6" fill="#060913"/>
+<rect x="640" y="120" width="128" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="648" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="658" y="138" fill="rgba(56,189,248,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">5</text>
+<text x="704" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Dùng SDK</text>
+<text x="704" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">firebase sdk</text>
+<!-- legend -->
+<line x1="32" y1="248" x2="768" y2="248" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="264" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="260" r="4" fill="#38BDF8"/>
+<text x="162" y="264" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">XONG · DÙNG ĐƯỢC</text>
+<line x1="380" y1="260" x2="412" y2="260" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-setup-dark-arrow)"/>
+<text x="420" y="264" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐÚNG THỨ TỰ 1→5</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 272" role="img" aria-labelledby="gg-setup-title gg-setup-desc" font-family="'Geist', sans-serif">
+<title id="gg-setup-title">Năm bước cắm Firebase vào app</title>
+<desc id="gg-setup-desc">Tạo project, thêm app, tải file json, khai báo Gradle rồi dùng SDK Firebase.</desc>
+<defs>
+<marker id="gg-setup-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="272" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 160,152 H 184" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
+<path d="M 312,152 H 336" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
+<path d="M 464,152 H 488" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
+<path d="M 616,152 H 640" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
+<!-- nodes -->
+<rect x="32" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="32" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="40" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="50" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1</text>
+<text x="96" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Tạo project</text>
+<text x="96" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">console</text>
+<rect x="184" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="184" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="192" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="202" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">2</text>
+<text x="248" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Thêm app</text>
+<text x="248" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">package · sha-1</text>
+<rect x="336" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="336" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="344" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="354" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">3</text>
+<text x="400" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Tải json</text>
+<text x="400" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app/ folder</text>
+<rect x="488" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="488" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<rect x="496" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
+<text x="506" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">4</text>
+<text x="552" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Khai báo Gradle</text>
+<text x="552" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">plugin · bom</text>
+<rect x="640" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
+<rect x="640" y="120" width="128" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="648" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="658" y="138" fill="rgba(2,132,199,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">5</text>
+<text x="704" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Dùng SDK</text>
+<text x="704" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">firebase sdk</text>
+<!-- legend -->
+<line x1="32" y1="248" x2="768" y2="248" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="264" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="260" r="4" fill="#0284C7"/>
+<text x="162" y="264" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">XONG · DÙNG ĐƯỢC</text>
+<line x1="380" y1="260" x2="412" y2="260" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
+<text x="420" y="264" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐÚNG THỨ TỰ 1→5</text>
+</svg>
+</div>
+</div>
+
+<h4>Bước 1 — Tạo project trên Firebase Console</h4>
+
+<p>Vào <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a>, tạo project, thêm app Android với:</p>
+
+<ul>
+  <li><strong>Package name</strong> khớp 100% với <code>applicationId</code> trong <code>build.gradle</code>.</li>
+  <li><strong>SHA-1</strong> của keystore (dùng cho Google Sign-In và một số tính năng).</li>
+</ul>
+
+<p>Package name không khớp hoặc thiếu file làm build lỗi, xem mục 2 của "Sai lầm thường gặp".</p>
+
+<h4>Bước 2 — Thêm plugin vào Gradle</h4>
+
+<p><strong>Project-level <code>build.gradle.kts</code> (hoặc <code>settings.gradle.kts</code>):</strong></p>
+
+<pre data-lang="kotlin"><code>plugins {
+    id("com.google.gms.google-services") version "4.4.2" apply false
+}</code></pre>
+
+<p><strong>App-level <code>build.gradle.kts</code>:</strong></p>
+
+<pre data-lang="kotlin"><code>plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")   // Đọc google-services.json, sinh resource cấu hình
+}</code></pre>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Plugin <code>com.google.gms.google-services</code> đọc <code>google-services.json</code> và <strong>sinh resource</strong> cấu hình (<code>google_app_id</code>, <code>default_web_client_id</code>...). Việc khởi tạo <code>FirebaseApp</code> do <code>FirebaseInitProvider</code>, một ContentProvider của Firebase, tự làm khi process khởi động (ContentProvider chạy <code>onCreate</code> trước <code>Application.onCreate</code>; thứ tự khởi động này được giải thích ở <a href="../content_provider.md" target="_blank" rel="noopener">Content Provider</a>, mục "Cơ chế hoạt động bên trong (IPC Binder)"). Vì vậy bạn không cần gọi <code>FirebaseApp.initializeApp()</code> trong code.</div></div>
+
+<h4>Bước 3 — Thêm dependency với Firebase BoM</h4>
+
+<p><strong>Firebase BoM (Bill of Materials)</strong> giúp tất cả SDK Firebase <strong>cùng một version</strong> — tránh lỗi xung đột version (conflict):</p>
+
+<pre data-lang="kotlin"><code>dependencies {
+    // BoM: quản lý version tập trung
+    implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
+
+    // Các SDK — KHÔNG ghi version
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-config")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation("com.google.android.libraries.places:places:3.5.0")
+}</code></pre>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Không ghi version riêng cho từng SDK Firebase khi đã dùng BoM. BoM sẽ chọn version tương thích với nhau, hạn chế tối đa <code>Dependency conflict</code> khi build.</div></div>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Từ <strong>BoM 34.0.0</strong> (07/2025), các module <code>-ktx</code> (vd <code>firebase-config-ktx</code>, <code>firebase-auth-ktx</code>) đã bị bỏ khỏi BoM. Kotlin API nay nằm sẵn trong module chính, nên chỉ cần khai báo <code>firebase-config</code>, <code>firebase-auth</code>...</div></div>
+
+<h4>Bước 4 — Đảm bảo minSdk</h4>
+
+<p>Từ <strong>BoM 35.0.0</strong> (10/2026), Firebase Android SDK yêu cầu <strong>minSdk ≥ 24</strong> (Android 7.0); các BoM cũ hơn có mức thấp hơn. Kiểm tra trong <code>build.gradle.kts</code>:</p>
+
+<pre data-lang="kotlin"><code>defaultConfig {
+    minSdk = 24
+}</code></pre>
+
+<h3>Vị trí trong Clean Architecture / MVVM</h3>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục 7.2.5 Clean Architecture (chưa có bài). Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.</div></div>
+
+<p>Google Play Services và Firebase là SDK bên ngoài, nên nằm ở <strong>Data Layer</strong>, bên trong các <code>*DataSource</code>: một DataSource cho Firebase (FCM, Auth, Firestore, Crashlytics, Analytics), một cho API của GMS (Location, Maps).</p>
+
+<div class="dd-diagram" data-dd="gg-arch">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 644" role="img" aria-labelledby="gg-arch-dark-title gg-arch-dark-desc" font-family="'Geist', sans-serif">
+<title id="gg-arch-dark-title">Firebase trong Clean Architecture</title>
+<desc id="gg-arch-dark-desc">Activity quan sát ViewModel gọi UseCase tới interface, interface vào Repository rồi tới Firebase và GoogleApi data source.</desc>
+<defs>
+<marker id="gg-arch-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="644" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,92 V 132" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
+<rect x="412" y="102" width="64" height="12" rx="2" fill="#060913"/>
+<text x="444" y="111" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OBSERVE</text>
+<path d="M 400,192 V 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
+<path d="M 400,292 V 332" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
+<path d="M 400,392 V 432" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
+<path d="M 340,476 V 500 H 268 Q 260,500 260,508 V 532" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
+<path d="M 460,476 V 500 H 532 Q 540,500 540,508 V 532" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="166" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="266" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">UseCase</text>
+<rect x="280" y="332" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="332" width="240" height="60" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="288" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="314" y="347" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PORTS</text>
+<text x="400" y="370" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Repository Interfaces</text>
+<rect x="280" y="432" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="432" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="466" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
+<rect x="160" y="532" width="220" height="60" rx="6" fill="#060913"/>
+<rect x="160" y="532" width="220" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="270" y="566" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FirebaseDataSource</text>
+<text x="270" y="584" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fcm · auth · firestore</text>
+<rect x="420" y="532" width="220" height="60" rx="6" fill="#060913"/>
+<rect x="420" y="532" width="220" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="530" y="566" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">GoogleApiDataSource</text>
+<text x="530" y="584" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">location · maps</text>
+<!-- legend -->
+<line x1="32" y1="616" x2="768" y2="616" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="632" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="628" r="4" fill="#38BDF8"/>
+<text x="162" y="632" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CỔNG ĐẢO NGƯỢC · PORTS</text>
+<line x1="430" y1="628" x2="462" y2="628" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
+<text x="470" y="632" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỌI XUỐNG · RẼ HAI NGẢ</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 644" role="img" aria-labelledby="gg-arch-title gg-arch-desc" font-family="'Geist', sans-serif">
+<title id="gg-arch-title">Firebase trong Clean Architecture</title>
+<desc id="gg-arch-desc">Activity quan sát ViewModel gọi UseCase tới interface, interface vào Repository rồi tới Firebase và GoogleApi data source.</desc>
+<defs>
+<marker id="gg-arch-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="644" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,92 V 132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
+<rect x="412" y="102" width="64" height="12" rx="2" fill="#F8FAFC"/>
+<text x="444" y="111" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OBSERVE</text>
+<path d="M 400,192 V 232" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
+<path d="M 400,292 V 332" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
+<path d="M 400,392 V 432" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
+<path d="M 340,476 V 500 H 268 Q 260,500 260,508 V 532" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
+<path d="M 460,476 V 500 H 532 Q 540,500 540,508 V 532" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="166" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="266" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UseCase</text>
+<rect x="280" y="332" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="332" width="240" height="60" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="288" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="314" y="347" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PORTS</text>
+<text x="400" y="370" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Repository Interfaces</text>
+<rect x="280" y="432" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="432" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="466" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
+<rect x="160" y="532" width="220" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="160" y="532" width="220" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="270" y="566" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FirebaseDataSource</text>
+<text x="270" y="584" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fcm · auth · firestore</text>
+<rect x="420" y="532" width="220" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="420" y="532" width="220" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="530" y="566" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">GoogleApiDataSource</text>
+<text x="530" y="584" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">location · maps</text>
+<!-- legend -->
+<line x1="32" y1="616" x2="768" y2="616" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="632" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="628" r="4" fill="#0284C7"/>
+<text x="162" y="632" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CỔNG ĐẢO NGƯỢC · PORTS</text>
+<line x1="430" y1="628" x2="462" y2="628" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
+<text x="470" y="632" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GỌI XUỐNG · RẼ HAI NGẢ</text>
+</svg>
+</div>
+</div>
+
+<p><strong>Riêng với Google Service:</strong></p>
+
+<ul>
+  <li><code>DataSource</code> bọc mọi API của Firebase/GMS (<code>Task</code>, <code>RemoteMessage</code>, <code>FirebaseUser</code>...) và trả về <strong>model thuần</strong> của app, nên tầng trên không import <code>com.google.*</code>.</li>
+  <li>Máy không có GMS (Huawei, thị trường Trung Quốc) thì thay bằng HMS chỉ cần viết thêm một <code>DataSource</code> và đổi DI binding, UI/Domain không đổi.</li>
+  <li>Cùng cách đặt tầng cho quảng cáo: <a href="advertisements/ads_architecture.md" target="_blank" rel="noopener">Ads trong kiến trúc app</a>.</li>
+</ul>
+
+<h2>Ví dụ thực tế</h2>
+
+<p>Bài toán chính là push notification bằng FCM, viết đầy đủ kèm luồng chạy. Các bài toán còn lại là cách dùng thường gặp của từng sản phẩm Firebase và API của GMS.</p>
+
+<h3>Thực chiến Firebase</h3>
+
+<h4>FCM — Push Notification</h4>
+
+<p><strong>Tình huống:</strong> Gửi thông báo đơn hàng mới tới người dùng, hiển thị notification cả khi app đang mở lẫn bị kill.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: hàm <code>showNotification()</code> bên dưới dùng notification channel, quyền <code>POST_NOTIFICATIONS</code> và <code>NotificationCompat</code>, học ở mục 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài). Ở đây chỉ cần biết: khi app ở foreground, FCM giao message cho <code>onMessageReceived()</code> và app tự dựng notification.</div></div>
+
+<p>Luồng chạy:</p>
+
+<ol>
+  <li>App đăng ký với FCM và nhận <strong>device token</strong>: <code>onNewToken()</code> được gọi khi token được tạo hoặc đổi; lúc khác lấy token hiện tại bằng <code>FirebaseMessaging.getInstance().token</code>.</li>
+  <li>App gửi token lên backend của bạn để backend biết gửi tới máy nào.</li>
+  <li>Backend gọi FCM HTTP v1 API với nội dung message và token.</li>
+  <li>FCM đẩy message xuống device qua Google Play Services (dịch vụ nằm ngoài app, nên app không cần đang chạy).</li>
+  <li>App đang foreground: GMS giao message cho <code>onMessageReceived()</code>, app tự dựng notification (kiểm tra <code>POST_NOTIFICATIONS</code>, tạo channel).</li>
+  <li>App ở background hoặc bị kill: GMS tự hiển thị notification hệ thống từ payload <code>notification</code>, <code>onMessageReceived()</code> không được gọi.</li>
+</ol>
+
+<p>Sơ đồ dưới vẽ đúng các bước trên theo thứ tự mũi tên: (1) là <code>Đăng ký, nhận device token</code>, (2) là <code>Gửi token lên server</code>, (3) là <code>Gọi HTTP v1 API</code>, (4) là <code>Đẩy message xuống device</code>, (5) và (6) là hai mũi tên cuối đi ra từ GMS.</p>
+
+<div class="dd-diagram" data-dd="gg-fcm">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 328" role="img" aria-labelledby="gg-fcm-dark-title gg-fcm-dark-desc" font-family="'Geist', sans-serif">
+<title id="gg-fcm-dark-title">Push notification: sáu chặng đường dài</title>
+<desc id="gg-fcm-dark-desc">App đăng ký nhận token gửi lên server, server gọi FCM đẩy xuống, máy foreground thì gọi hàm, background thì hiện thông báo.</desc>
+<defs>
+<marker id="gg-fcm-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="gg-fcm-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="328" fill="#060913"/>
+<!-- lifelines -->
+<line x1="70" y1="84" x2="70" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="230" y1="84" x2="230" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="390" y1="84" x2="390" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="550" y1="84" x2="550" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="710" y1="84" x2="710" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="226" y="112" width="8" height="16" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="66" y="144" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="386" y="176" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="706" y="208" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 710,120 H 230" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
+<rect x="422" y="100" width="96" height="12" rx="2" fill="#060913"/>
+<text x="470" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐĂNG KÝ TOKEN</text>
+<path d="M 710,152 H 70" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
+<rect x="342" y="132" width="88" height="12" rx="2" fill="#060913"/>
+<text x="386" y="141" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GỬI TOKEN</text>
+<path d="M 70,184 H 230" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
+<rect x="110" y="164" width="80" height="12" rx="2" fill="#060913"/>
+<text x="150" y="173" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HTTP V1 API</text>
+<path d="M 230,216 H 390" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
+<rect x="270" y="196" width="80" height="12" rx="2" fill="#060913"/>
+<text x="310" y="205" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐẨY MESSAGE</text>
+<path d="M 390,248 H 710" fill="none" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#gg-fcm-dark-accent)"/>
+<rect x="566" y="228" width="96" height="12" rx="2" fill="#060913"/>
+<text x="614" y="237" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">FOREGROUND</text>
+<path d="M 390,272 H 550" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
+<rect x="430" y="252" width="80" height="12" rx="2" fill="#060913"/>
+<text x="470" y="261" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BACKGROUND</text>
+<!-- actors -->
+<rect x="5" y="32" width="130" height="52" rx="6" fill="#060913"/>
+<rect x="5" y="32" width="130" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="70" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Backend</text>
+<text x="70" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">server bạn</text>
+<rect x="165" y="32" width="130" height="52" rx="6" fill="#060913"/>
+<rect x="165" y="32" width="130" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="230" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FCM Server</text>
+<text x="230" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">firebase</text>
+<rect x="325" y="32" width="130" height="52" rx="6" fill="#060913"/>
+<rect x="325" y="32" width="130" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="390" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Play Services</text>
+<text x="390" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">gms</text>
+<rect x="485" y="32" width="130" height="52" rx="6" fill="#060913"/>
+<rect x="485" y="32" width="130" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="550" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
+<text x="550" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app</text>
+<rect x="645" y="32" width="130" height="52" rx="6" fill="#060913"/>
+<rect x="645" y="32" width="130" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="710" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Android OS</text>
+<text x="710" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">hệ thống</text>
+<!-- legend -->
+<line x1="32" y1="304" x2="768" y2="304" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="316" r="4" fill="#38BDF8"/>
+<text x="162" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH CHÍNH · FOREGROUND</text>
+<line x1="430" y1="316" x2="462" y2="316" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
+<text x="470" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH PHỤ · BACKGROUND</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 328" role="img" aria-labelledby="gg-fcm-title gg-fcm-desc" font-family="'Geist', sans-serif">
+<title id="gg-fcm-title">Push notification: sáu chặng đường dài</title>
+<desc id="gg-fcm-desc">App đăng ký nhận token gửi lên server, server gọi FCM đẩy xuống, máy foreground thì gọi hàm, background thì hiện thông báo.</desc>
+<defs>
+<marker id="gg-fcm-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+<marker id="gg-fcm-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
+</marker>
+</defs>
+<rect width="800" height="328" fill="#F8FAFC"/>
+<!-- lifelines -->
+<line x1="70" y1="84" x2="70" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="230" y1="84" x2="230" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="390" y1="84" x2="390" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="550" y1="84" x2="550" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="710" y1="84" x2="710" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="226" y="112" width="8" height="16" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="66" y="144" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="386" y="176" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="706" y="208" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 710,120 H 230" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
+<rect x="422" y="100" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="470" y="109" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐĂNG KÝ TOKEN</text>
+<path d="M 710,152 H 70" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
+<rect x="342" y="132" width="88" height="12" rx="2" fill="#F8FAFC"/>
+<text x="386" y="141" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GỬI TOKEN</text>
+<path d="M 70,184 H 230" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
+<rect x="110" y="164" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="150" y="173" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HTTP V1 API</text>
+<path d="M 230,216 H 390" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
+<rect x="270" y="196" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="310" y="205" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐẨY MESSAGE</text>
+<path d="M 390,248 H 710" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#gg-fcm-accent)"/>
+<rect x="566" y="228" width="96" height="12" rx="2" fill="#F8FAFC"/>
+<text x="614" y="237" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">FOREGROUND</text>
+<path d="M 390,272 H 550" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
+<rect x="430" y="252" width="80" height="12" rx="2" fill="#F8FAFC"/>
+<text x="470" y="261" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BACKGROUND</text>
+<!-- actors -->
+<rect x="5" y="32" width="130" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="5" y="32" width="130" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="70" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Backend</text>
+<text x="70" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">server bạn</text>
+<rect x="165" y="32" width="130" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="165" y="32" width="130" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="230" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FCM Server</text>
+<text x="230" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">firebase</text>
+<rect x="325" y="32" width="130" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="325" y="32" width="130" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="390" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Play Services</text>
+<text x="390" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">gms</text>
+<rect x="485" y="32" width="130" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="485" y="32" width="130" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="550" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
+<text x="550" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app</text>
+<rect x="645" y="32" width="130" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="645" y="32" width="130" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="710" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Android OS</text>
+<text x="710" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">hệ thống</text>
+<!-- legend -->
+<line x1="32" y1="304" x2="768" y2="304" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="320" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="316" r="4" fill="#0284C7"/>
+<text x="162" y="320" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH CHÍNH · FOREGROUND</text>
+<line x1="430" y1="316" x2="462" y2="316" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
+<text x="470" y="320" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH PHỤ · BACKGROUND</text>
+</svg>
+</div>
+</div>
+
+<p><strong>FirebaseMessagingService</strong> — nhận message:</p>
+
+<pre data-lang="kotlin"><code>class OrderMessagingService : FirebaseMessagingService() {
+
+    override fun onNewToken(token: String) {
+        // (1) Gọi khi token được tạo lần đầu và mỗi khi token đổi
+        // (khôi phục app sang máy mới, gỡ rồi cài lại app, xoá dữ liệu app)
+        // (2) Gửi lên server: apiService.uploadFcmToken(token)
+    }
+
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        // (5) Khi app ĐANG foreground — notification hệ thống KHÔNG tự hiện
+        val title = remoteMessage.notification?.title ?: "Thông báo"
+        val body = remoteMessage.notification?.body ?: remoteMessage.data["body"] ?: ""
+        showNotification(title, body)
+    }
+
+    private fun showNotification(title: String, body: String) {
+        // Android 13+: chưa được cấp POST_NOTIFICATIONS thì không hiện được notification
+        if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.TIRAMISU &amp;&amp;
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+        ) return
+
+        val manager = NotificationManagerCompat.from(this)
+        // Android 8+: notification phải thuộc một channel (tạo lại nhiều lần không sao)
+        manager.createNotificationChannel(
+            NotificationChannelCompat.Builder(CHANNEL_ORDERS, NotificationManagerCompat.IMPORTANCE_HIGH)
+                .setName("Đơn hàng")
+                .build()
+        )
+        val notification = NotificationCompat.Builder(this, CHANNEL_ORDERS)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setAutoCancel(true)
+            .build()
+        manager.notify(System.currentTimeMillis().toInt(), notification)
+    }
+
+    companion object {
+        const val CHANNEL_ORDERS = "orders"
+    }
+}</code></pre>
+
+<p><strong>Lấy token hiện tại</strong> (vd sau khi người dùng đăng nhập; <code>onNewToken</code> chỉ được gọi khi token được tạo hoặc thay đổi):</p>
+
+<pre data-lang="kotlin"><code>FirebaseMessaging.getInstance().token.addOnSuccessListener { token -&gt;
+    // (2) apiService.uploadFcmToken(token)
+}</code></pre>
+
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">- <strong>Android 13+:</strong> FCM SDK (23.0.6+) đã khai báo <code>POST_NOTIFICATIONS</code> trong manifest, nhưng app phải <strong>xin runtime permission</strong>; chưa được cấp thì không notification nào hiện ra, kể cả notification do hệ thống tự hiển thị khi app ở background. - <strong>Notification channel (Android 8+):</strong> notification message không chỉ định channel sẽ dùng channel mặc định khai báo bằng meta-data <code>com.google.firebase.messaging.default_notification_channel_id</code>. - Tài liệu FCM mới đánh dấu cách lấy token là deprecated, chuyển dần sang đăng ký bằng Firebase Installation ID (meta-data <code>firebase_messaging_installation_id_enabled</code> và callback <code>onRegistered(installationId)</code>). Cách dùng token ở trên vẫn chạy được.</div></div>
+
+<p><strong>Khai báo trong AndroidManifest.xml:</strong></p>
+
+<pre data-lang="xml"><code>&lt;service
+    android:name=".data.notification.OrderMessagingService"
+    android:exported="false"&gt;
+    &lt;intent-filter&gt;
+        &lt;action android:name="com.google.firebase.MESSAGING_EVENT" /&gt;
+    &lt;/intent-filter&gt;
+&lt;/service&gt;</code></pre>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Foreground vs Background:</strong> Khi app ở foreground, <code>onMessageReceived()</code> được gọi và bạn <strong>tự hiển thị notification</strong>. Khi app ở background hoặc bị kill, GMS <strong>tự hiển thị</strong> notification từ payload <code>notification</code> — <code>onMessageReceived()</code> <strong>không được gọi</strong>. Muốn luôn nhận data ở background, gửi <strong>data message</strong> (không có field <code>notification</code>) và để client xử lý trong <code>onMessageReceived()</code>.</div></div>
+
+<p><strong>Kết quả:</strong> khi app đang mở, notification do <code>showNotification()</code> dựng hiện ra (bước 5); khi app ở background hoặc bị kill, notification do hệ thống hiển thị (bước 6). Kiểm chứng bằng cách log token ở bước (1), rồi gửi test message tới token đó từ Firebase Console lần lượt khi app foreground và background.</p>
+
+<h4>Firebase Analytics &amp; Event Log</h4>
+
+<p><strong>Tình huống:</strong> Theo dõi sự kiện "add_to_cart" để đo hiệu quả chiến dịch.</p>
+
+<p><strong>Gửi sự kiện:</strong></p>
+
+<pre data-lang="kotlin"><code>// FirebaseAnalytics là Singleton — lấy qua Application context
+private val analytics: FirebaseAnalytics =
+    FirebaseAnalytics.getInstance(applicationContext)
+
+fun trackAddToCart(productId: String, price: Double, currency: String) {
+    val bundle = Bundle().apply {
+        putString(FirebaseAnalytics.Param.ITEM_ID, productId)
+        putDouble(FirebaseAnalytics.Param.PRICE, price)
+        putString(FirebaseAnalytics.Param.CURRENCY, currency)
+    }
+    analytics.logEvent(FirebaseAnalytics.Event.ADD_TO_CART, bundle)
+}</code></pre>
+
+<p><strong>User property</strong> (thuộc tính người dùng, dùng để phân khúc):</p>
+
+<pre data-lang="kotlin"><code>analytics.setUserProperty("user_tier", "premium")</code></pre>
+
+<p><strong>Xem Event Log trong quá trình debug:</strong></p>
+
+<ul>
+  <li>Bật <strong>DebugView</strong> trên Firebase Console.</li>
+  <li>Xem trực tiếp trong logcat bằng filter: \`\`<code>bash adb shell setprop debug.firebase.analytics.app &lt;package_name&gt; </code>\`<code> Khi đó trong logcat hiện các dòng: </code>I/FA: Event received...\` với đầy đủ tên sự kiện và tham số.</li>
+</ul>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Event log của Analytics là <strong>chìa khóa debug</strong>. Nếu sự kiện bạn gửi không xuất hiện, kiểm tra: đã tắt <strong>data saver</strong>? đã set prop <code>debug.firebase.analytics.app</code>? đã gửi đúng package name khi set prop?</div></div>
+
+<h4>Crashlytics — Báo cáo crash</h4>
+
+<p><strong>Tình huống:</strong> Bắt crash tự động, kèm log và thông tin người dùng để fix nhanh.</p>
+
+<p><strong>Cấu hình:</strong> Plugin <code>com.google.firebase.crashlytics</code> trong Gradle (thêm dòng <code>id("com.google.firebase.crashlytics")</code> vào <code>plugins</code>).</p>
+
+<p><strong>Tùy biến crash log trong code:</strong></p>
+
+<pre data-lang="kotlin"><code>// Crashlytics TỰ cài handler bắt crash (uncaught exception) khi app khởi động.
+// KHÔNG ghi đè Thread.setDefaultUncaughtExceptionHandler: làm vậy sẽ thay mất handler
+// của Crashlytics, crash bị báo thành non-fatal và app không kết thúc đúng cách.
+
+fun submitOrder(order: Order) {
+    try {
+        orderApi.submit(order)
+    } catch (e: IOException) {
+        // Lỗi đã được xử lý (non-fatal): recordException chỉ dùng trong catch
+        FirebaseCrashlytics.getInstance().recordException(e)
+        showRetryMessage()
+    }
+}
+
+fun reportUserAction(userId: String) {
+    val crashlytics = FirebaseCrashlytics.getInstance()
+    crashlytics.setUserId(userId)            // Ai gặp crash
+    crashlytics.setCustomKey("last_screen", "checkout") // Đang ở màn nào
+    crashlytics.log("User bấm nút 'Thanh toán'")        // Log trước crash
+    // → Khi crash xảy ra, các dòng log() này hiện trong báo cáo
+}</code></pre>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Bật <strong>Crashlytics NDK</strong> và <strong>Crashlytics debug</strong> để xem crash ngay trên máy test: trong logcat filter <code>Crashlytics</code>. Bản build debug thường hiện log đầy đủ hơn.</div></div>
+
+<h4>Firebase Auth + Google Sign-In</h4>
+
+<p><strong>Tình huống:</strong> Người dùng đăng nhập bằng tài khoản Google.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">API <code>GoogleSignInClient</code> (thư viện <code>play-services-auth</code>) đã deprecated. Cách hiện tại là <strong>Credential Manager</strong> kết hợp <strong>Sign in with Google</strong> (<code>GetGoogleIdOption</code>): lấy ID token của Google, rồi đổi sang phiên đăng nhập Firebase bằng <code>GoogleAuthProvider</code>.</div></div>
+
+<div class="dd-diagram" data-dd="gg-auth">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 420" role="img" aria-labelledby="gg-auth-dark-title gg-auth-dark-desc" font-family="'Geist', sans-serif">
+<title id="gg-auth-dark-title">Đăng nhập Google qua Credential Manager</title>
+<desc id="gg-auth-dark-desc">Ứng dụng gọi getCredential với GetGoogleIdOption, người dùng chọn tài khoản, Credential Manager trả GoogleIdTokenCredential chứa idToken; app gọi signInWithCredential, Firebase Auth xác thực idToken với Google Backend rồi trả FirebaseUser.</desc>
+<defs>
+<marker id="gg-auth-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="gg-auth-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="420" fill="#060913"/>
+<!-- lifelines: Credential Manager 100 · Ứng dụng 300 · Firebase Auth 500 · Google Backend 700 -->
+<line x1="100" y1="84" x2="100" y2="364" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="300" y1="84" x2="300" y2="364" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="500" y1="84" x2="500" y2="364" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="700" y1="84" x2="700" y2="364" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="296" y="108" width="8" height="248" fill="#060913"/>
+<rect x="296" y="108" width="8" height="248" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="96" y="116" width="8" height="80" fill="#060913"/>
+<rect x="96" y="116" width="8" height="80" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="496" y="236" width="8" height="116" fill="#060913"/>
+<rect x="496" y="236" width="8" height="116" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="696" y="272" width="8" height="44" fill="#060913"/>
+<rect x="696" y="272" width="8" height="44" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- (1) App gọi Credential Manager -->
+<path d="M 296,120 H 104" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-auth-dark-arrow)"/>
+<rect x="116" y="100" width="168" height="12" rx="2" fill="#060913"/>
+<text x="200" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">getCredential(GetGoogleIdOption)</text>
+<!-- (2) Credential Manager trả về: người dùng chọn tài khoản -->
+<path d="M 104,156 H 296" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-arrow)"/>
+<rect x="124" y="136" width="152" height="12" rx="2" fill="#060913"/>
+<text x="200" y="145" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NGƯỜI DÙNG CHỌN TÀI KHOẢN</text>
+<!-- (3) Credential Manager trả về GoogleIdTokenCredential -->
+<path d="M 104,192 H 296" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-arrow)"/>
+<rect x="116" y="172" width="168" height="12" rx="2" fill="#060913"/>
+<text x="200" y="181" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">GoogleIdTokenCredential (idToken)</text>
+<!-- (4) App gọi Firebase Auth -->
+<path d="M 304,240 H 496" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-auth-dark-arrow)"/>
+<rect x="316" y="204" width="168" height="28" rx="2" fill="#060913"/>
+<text x="400" y="214" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">signInWithCredential(</text>
+<text x="400" y="226" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">GoogleAuthProvider credential)</text>
+<!-- (5) Firebase Auth gọi Google Backend -->
+<path d="M 504,276 H 696" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-auth-dark-arrow)"/>
+<rect x="548" y="256" width="104" height="12" rx="2" fill="#060913"/>
+<text x="600" y="265" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">XÁC THỰC idToken</text>
+<!-- (6) Google Backend trả OK -->
+<path d="M 696,312 H 504" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-arrow)"/>
+<rect x="584" y="292" width="32" height="12" rx="2" fill="#060913"/>
+<text x="600" y="301" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OK</text>
+<!-- (7) Firebase Auth trả FirebaseUser -->
+<path d="M 496,348 H 304" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-accent)"/>
+<rect x="320" y="328" width="160" height="12" rx="2" fill="#060913"/>
+<text x="400" y="337" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">FirebaseUser · ĐĂNG NHẬP OK</text>
+<!-- actors -->
+<rect x="20" y="32" width="160" height="52" rx="6" fill="#060913"/>
+<rect x="20" y="32" width="160" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="100" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Credential Manager</text>
+<text x="100" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">androidx.credentials</text>
+<rect x="220" y="32" width="160" height="52" rx="6" fill="#060913"/>
+<rect x="220" y="32" width="160" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="300" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
+<text x="300" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">LoginActivity</text>
+<rect x="420" y="32" width="160" height="52" rx="6" fill="#060913"/>
+<rect x="420" y="32" width="160" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="500" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Firebase Auth</text>
+<text x="500" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">FirebaseAuth</text>
+<rect x="620" y="32" width="160" height="52" rx="6" fill="#060913"/>
+<rect x="620" y="32" width="160" height="52" rx="6" fill="rgba(248,250,252,0.05)" stroke="rgba(248,250,252,0.40)" stroke-width="1"/>
+<text x="700" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Google Backend</text>
+<text x="700" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">server</text>
+<!-- legend -->
+<line x1="32" y1="388" x2="768" y2="388" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="404" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<line x1="124" y1="400" x2="156" y2="400" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-auth-dark-arrow)"/>
+<text x="164" y="404" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT LIỀN · GỌI</text>
+<line x1="316" y1="400" x2="348" y2="400" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-arrow)"/>
+<text x="356" y="404" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · TRẢ VỀ</text>
+<line x1="516" y1="400" x2="548" y2="400" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-accent)"/>
+<text x="556" y="404" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐĂNG NHẬP XONG · USER</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 420" role="img" aria-labelledby="gg-auth-title gg-auth-desc" font-family="'Geist', sans-serif">
+<title id="gg-auth-title">Đăng nhập Google qua Credential Manager</title>
+<desc id="gg-auth-desc">Ứng dụng gọi getCredential với GetGoogleIdOption, người dùng chọn tài khoản, Credential Manager trả GoogleIdTokenCredential chứa idToken; app gọi signInWithCredential, Firebase Auth xác thực idToken với Google Backend rồi trả FirebaseUser.</desc>
+<defs>
+<marker id="gg-auth-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+<marker id="gg-auth-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
+</marker>
+</defs>
+<rect width="800" height="420" fill="#F8FAFC"/>
+<!-- lifelines: Credential Manager 100 · Ứng dụng 300 · Firebase Auth 500 · Google Backend 700 -->
+<line x1="100" y1="84" x2="100" y2="364" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="300" y1="84" x2="300" y2="364" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="500" y1="84" x2="500" y2="364" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="700" y1="84" x2="700" y2="364" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="296" y="108" width="8" height="248" fill="#F8FAFC"/>
+<rect x="296" y="108" width="8" height="248" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="96" y="116" width="8" height="80" fill="#F8FAFC"/>
+<rect x="96" y="116" width="8" height="80" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="496" y="236" width="8" height="116" fill="#F8FAFC"/>
+<rect x="496" y="236" width="8" height="116" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="696" y="272" width="8" height="44" fill="#F8FAFC"/>
+<rect x="696" y="272" width="8" height="44" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<!-- (1) App gọi Credential Manager -->
+<path d="M 296,120 H 104" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-auth-arrow)"/>
+<rect x="116" y="100" width="168" height="12" rx="2" fill="#F8FAFC"/>
+<text x="200" y="109" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">getCredential(GetGoogleIdOption)</text>
+<!-- (2) Credential Manager trả về: người dùng chọn tài khoản -->
+<path d="M 104,156 H 296" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-arrow)"/>
+<rect x="124" y="136" width="152" height="12" rx="2" fill="#F8FAFC"/>
+<text x="200" y="145" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NGƯỜI DÙNG CHỌN TÀI KHOẢN</text>
+<!-- (3) Credential Manager trả về GoogleIdTokenCredential -->
+<path d="M 104,192 H 296" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-arrow)"/>
+<rect x="116" y="172" width="168" height="12" rx="2" fill="#F8FAFC"/>
+<text x="200" y="181" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">GoogleIdTokenCredential (idToken)</text>
+<!-- (4) App gọi Firebase Auth -->
+<path d="M 304,240 H 496" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-auth-arrow)"/>
+<rect x="316" y="204" width="168" height="28" rx="2" fill="#F8FAFC"/>
+<text x="400" y="214" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">signInWithCredential(</text>
+<text x="400" y="226" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">GoogleAuthProvider credential)</text>
+<!-- (5) Firebase Auth gọi Google Backend -->
+<path d="M 504,276 H 696" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-auth-arrow)"/>
+<rect x="548" y="256" width="104" height="12" rx="2" fill="#F8FAFC"/>
+<text x="600" y="265" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">XÁC THỰC idToken</text>
+<!-- (6) Google Backend trả OK -->
+<path d="M 696,312 H 504" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-arrow)"/>
+<rect x="584" y="292" width="32" height="12" rx="2" fill="#F8FAFC"/>
+<text x="600" y="301" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OK</text>
+<!-- (7) Firebase Auth trả FirebaseUser -->
+<path d="M 496,348 H 304" fill="none" stroke="#0284C7" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#gg-auth-accent)"/>
+<rect x="320" y="328" width="160" height="12" rx="2" fill="#F8FAFC"/>
+<text x="400" y="337" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">FirebaseUser · ĐĂNG NHẬP OK</text>
+<!-- actors -->
+<rect x="20" y="32" width="160" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="20" y="32" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="100" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Credential Manager</text>
+<text x="100" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">androidx.credentials</text>
+<rect x="220" y="32" width="160" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="220" y="32" width="160" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="300" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
+<text x="300" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">LoginActivity</text>
+<rect x="420" y="32" width="160" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="420" y="32" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="500" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Firebase Auth</text>
+<text x="500" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">FirebaseAuth</text>
+<rect x="620" y="32" width="160" height="52" rx="6" fill="#F8FAFC"/>
+<rect x="620" y="32" width="160" height="52" rx="6" fill="rgba(15,23,42,0.05)" stroke="rgba(15,23,42,0.40)" stroke-width="1"/>
+<text x="700" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Google Backend</text>
+<text x="700" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">server</text>
+<!-- legend -->
+<line x1="32" y1="388" x2="768" y2="388" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="404" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<line x1="124" y1="400" x2="156" y2="400" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-auth-arrow)"/>
+<text x="164" y="404" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT LIỀN · GỌI</text>
+<line x1="316" y1="400" x2="348" y2="400" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-arrow)"/>
+<text x="356" y="404" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · TRẢ VỀ</text>
+<line x1="516" y1="400" x2="548" y2="400" stroke="#0284C7" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#gg-auth-accent)"/>
+<text x="556" y="404" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐĂNG NHẬP XONG · USER</text>
+</svg>
+</div>
+</div>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>suspend</code>, <code>await()</code> và <code>lifecycleScope.launch</code> là coroutine của Kotlin, học ở mục 8.4.3 Coroutines (chưa có bài). Ở đây chỉ cần biết <code>await()</code> chờ <code>Task</code> của Firebase/GMS hoàn thành mà không chặn main thread.</div></div>
+
+<p><strong>Code trong ViewModel + Activity (luồng thực chiến):</strong></p>
+
+<pre data-lang="kotlin"><code>// --- data/remote/GoogleAuthDataSource.kt ---
+class GoogleAuthDataSource(
+    private val firebaseAuth: FirebaseAuth
+) {
+    fun currentUser(): String? = firebaseAuth.currentUser?.uid
+
+    suspend fun signInWithGoogle(idToken: String): Result&lt;String&gt; = runCatching {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        firebaseAuth.signInWithCredential(credential).await()
+        firebaseAuth.currentUser?.uid ?: throw IllegalStateException("Login failed")
+    }
+
+    fun signOut() = firebaseAuth.signOut()
+}
+
+// --- UI: Activity gọi Credential Manager + Sign in with Google ---
+// Dependencies: androidx.credentials:credentials, androidx.credentials:credentials-play-services-auth,
+//               com.google.android.libraries.identity.googleid:googleid
+private val credentialManager by lazy { CredentialManager.create(this) }
+
+fun startGoogleSignIn() {
+    val googleIdOption = GetGoogleIdOption.Builder()
+        .setServerClientId(getString(R.string.default_web_client_id)) // Web client ID, từ google-services.json
+        .setFilterByAuthorizedAccounts(false) // cho chọn cả tài khoản chưa từng đăng nhập app
+        .build()
+    val request = GetCredentialRequest.Builder()
+        .addCredentialOption(googleIdOption)
+        .build()
+
+    lifecycleScope.launch {
+        try {
+            val credential = credentialManager.getCredential(this@LoginActivity, request).credential
+            if (credential is CustomCredential &amp;&amp;
+                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+            ) {
+                val idToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
+                viewModel.signInWithGoogle(idToken)   // gọi data layer, lưu session
+            }
+        } catch (e: GetCredentialException) {
+            // Người dùng huỷ hoặc máy không có tài khoản Google: báo lỗi trên UI, không crash
+        }
+    }
+}
+
+// Khi đăng xuất: firebaseAuth.signOut() rồi
+// credentialManager.clearCredentialState(ClearCredentialStateRequest())</code></pre>
+
+<p><code>R.string.default_web_client_id</code> chỉ tồn tại khi plugin <code>google-services</code> đã được apply, xem mục 2 của "Sai lầm thường gặp".</p>
+
+<h4>Remote Config — Cấu hình từ xa</h4>
+
+<p><strong>Tình huống:</strong> Bật/tắt tính năng "gợi ý bạn bè" cho một phần người dùng mà không cần phát hành bản update.</p>
+
+<pre data-lang="kotlin"><code>// Domain: giao diện đọc config
+interface FeatureFlags {
+    val showFriendSuggestion: Boolean
+}
+
+// Data: RemoteConfigDataSource
+class RemoteConfigDataSource : FeatureFlags {
+    private val remoteConfig = FirebaseRemoteConfig.getInstance()
+
+    override val showFriendSuggestion: Boolean
+        get() = remoteConfig.getBoolean(KEY_SHOW_FRIEND_SUGGESTION)
+
+    suspend fun fetchAndActivate() {
+        remoteConfig.setDefaultsAsync(
+            mapOf(KEY_SHOW_FRIEND_SUGGESTION to false) // giá trị mặc định local
+        )
+        val settings = FirebaseRemoteConfigSettings.Builder()
+            .setMinimumFetchIntervalInSeconds(3600) // fetch tối đa 1h/lần
+            .build()
+        remoteConfig.setConfigSettingsAsync(settings)
+        // fetch + activate: áp dụng giá trị mới từ server
+        remoteConfig.fetchAndActivate().await()
+    }
+
+    companion object {
+        const val KEY_SHOW_FRIEND_SUGGESTION = "show_friend_suggestion"
+    }
+}</code></pre>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Luôn khai báo <strong>default value local</strong> (<code>setDefaultsAsync</code>) để app không bị null/crash khi chưa kịp fetch hoặc mất mạng.</div></div>
+
+<h4>Firestore &amp; Storage — Tổng quan</h4>
+
+<p><strong>Tình huống:</strong> Lưu giỏ hàng real-time, đồng bộ offline khi mất mạng.</p>
+
+<p><strong>Firestore (database NoSQL real-time):</strong></p>
+
+<pre data-lang="kotlin"><code>// Structure: users/{userId}/cart/{itemId}
+data class CartItem(val productId: String, val qty: Int)
+
+// Ghi dữ liệu
+val docRef = FirebaseFirestore.getInstance()
+    .collection("users")
+    .document(userId)
+    .collection("cart")
+    .document(itemId)
+
+docRef.set(CartItem(productId, qty))
+
+// Lắng nghe real-time + tự động offline persistence
+docRef.addSnapshotListener { snapshot, error -&gt;
+    if (error != null) return@addSnapshotListener
+    // snapshot.toObject(CartItem::class.java) → cập nhật UI
+}</code></pre>
+
+<p><strong>Storage (lưu file, ảnh):</strong></p>
+
+<pre data-lang="kotlin"><code>// Upload ảnh avatar
+val ref = FirebaseStorage.getInstance().reference
+    .child("avatars/$userId.jpg")
+
+ref.putFile(uri)
+    .addOnSuccessListener { task -&gt;
+        // Lấy URL để lưu vào Firestore
+    }
+    .addOnFailureListener { /* xử lý lỗi */ }</code></pre>
+
+<p>Security Rules cho Firestore/Storage: xem mục 6 của "Sai lầm thường gặp".</p>
+
+<h4>App Distribution &amp; Emulator Suite</h4>
+
+<p><strong>Firebase App Distribution</strong> phân phối build test (<code>.apk</code>/<code>.aab</code>) tới tester nhanh, không cần qua Play Console:</p>
+
+<ul>
+  <li>Upload qua <strong>Gradle plugin</strong> (<code>com.google.firebase.appdistribution</code>) hoặc CLI.</li>
+  <li>Tester nhận link cài, gửi <strong>feedback</strong> (screenshot, crash log) ngay trong app.</li>
+  <li>Quản lý tester theo nhóm (QA, team leader, khách hàng demo...).</li>
+</ul>
+
+<p><strong>Khác biệt so với Play Console:</strong></p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
+      <th style="padding:8px 12px;text-align:left;">App Distribution</th>
+      <th style="padding:8px 12px;text-align:left;">Play Console (Internal/Closed testing)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Mục đích</td>
+      <td style="padding:8px 12px;">Phân phối build test nhanh</td>
+      <td style="padding:8px 12px;">Phê duyệt trước khi public</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Tốc độ</td>
+      <td style="padding:8px 12px;">Giây, không cần review</td>
+      <td style="padding:8px 12px;">Cần review của Google</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Feedback từ tester</td>
+      <td style="padding:8px 12px;">Có (screenshot, crash)</td>
+      <td style="padding:8px 12px;">Không</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Phiên bản lưu giữ</td>
+      <td style="padding:8px 12px;">Mặc định giữ gần đây</td>
+      <td style="padding:8px 12px;">Không giới hạn</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Firebase Emulator Suite</strong> — chạy toàn bộ Firebase (Auth, Firestore, Storage, Functions...) <strong>trên máy local</strong> trong lúc phát triển:</p>
+
+<pre data-lang="bash"><code>firebase emulators:start   # khởi động emulators từ thư mục dự án</code></pre>
+
+<pre data-lang="kotlin"><code>// Khởi tạo app dùng emulator khi debug
+if (BuildConfig.DEBUG) {
+    FirebaseFirestore.getInstance()
+        .useEmulator("10.0.2.2", 8080)   // 10.0.2.2 = host machine từ emulator Android
+}</code></pre>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Dùng Emulator Suite trong quá trình phát triển để <strong>không tốn quota thật</strong> và không làm bẩn dữ liệu production. Chỉ chuyển sang dữ liệu thật khi test tích hợp với backend thật.</div></div>
+
+<h3>Thực chiến Google Play Services</h3>
+
+<h4>Location — FusedLocationProvider</h4>
+
+<p><strong>Tình huống:</strong> Lấy vị trí hiện tại một lần (nhất) để hiển thị trên màn hình chính.</p>
+
+<p><strong>Cấu hình Manifest:</strong></p>
+
+<pre data-lang="xml"><code>&lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;</code></pre>
+
+<p><strong>Kotlin:</strong></p>
+
+<pre data-lang="kotlin"><code>class LocationDataSource(
+    private val fusedLocation: FusedLocationProviderClient
+) {
+    suspend fun getCurrentLocation(): Location? {
+        return try {
+            // getCurrentLocation: lấy 1 lần, không cần location listener.
+            // Overload hợp lệ: (priority, token) hoặc (CurrentLocationRequest, token)
+            fusedLocation.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                CancellationTokenSource().token
+            ).await()
+        } catch (e: SecurityException) {
+            null // Chưa có quyền — UI phải request permission trước
+        }
+    }
+}</code></pre>
+
+<p>Thiếu permission là lỗi hay gặp nhất của API vị trí, xem mục 4 của "Sai lầm thường gặp".</p>
+
+<h4>Google Maps — Hiển thị bản đồ</h4>
+
+<p><strong>Tình huống:</strong> Hiển thị vị trí cửa hàng trên bản đồ.</p>
+
+<p><strong>Bước 1 — Tạo API Key</strong> trên <a href="https://console.cloud.google.com" target="_blank" rel="noopener">Google Cloud Console</a>, enable <strong>Maps SDK for Android</strong>, giới hạn key theo <strong>package name + SHA-1</strong> (best practice).</p>
+
+<p><strong>Bước 2 — Khai báo trong Manifest:</strong></p>
+
+<pre data-lang="xml"><code>&lt;meta-data
+    android:name="com.google.android.geo.API_KEY"
+    android:value="AIza...YOUR_KEY" /&gt;</code></pre>
+
+<p><strong>Bước 3 — Hiển thị MapFragment trong Compose hoặc Fragment truyền thống:</strong></p>
+
+<pre data-lang="kotlin"><code>// XML: &lt;fragment class="com.google.android.gms.maps.SupportMapFragment" /&gt;
+
+override fun onMapReady(map: GoogleMap) {
+    map.uiSettings.isZoomControlsEnabled = true
+    map.addMarker(
+        MarkerOptions()
+            .position(LatLng(21.0285, 105.8542))
+            .title("Hà Nội")
+    )
+    map.moveCamera(
+        CameraUpdateFactory.newLatLngZoom(LatLng(21.0285, 105.8542), 15f)
+    )
+}</code></pre>
+
+<p>Giới hạn API Key để không bị trục lợi: xem mục 3 của "Sai lầm thường gặp".</p>
+
+<h4>AdMob — Quảng cáo (dẫn dắt)</h4>
+
+<p>AdMob hiển thị quảng cáo (banner, interstitial, rewarded) qua Google Mobile Ads SDK. Đây là chủ đề riêng có nhiều quy định của Google (policy quảng cáo, consent), trình bày ở 4.2.3.3 Advertisements, bắt đầu từ <a href="advertisements/overview.md" target="_blank" rel="noopener">AdMob Overview</a>.</p>
+
+<h2>Khi nào nên và không nên dùng</h2>
 
 <h3>Bản đồ quyết định</h3>
 
@@ -24222,1036 +25413,53 @@ WorkManager.getInstance(context)
   <li><strong>Chỉ cần 1 chức năng đơn giản</strong>: đừng kéo cả Firebase vào, mỗi SDK đều tăng dung lượng APK và số lượng dependency.</li>
 </ul>
 
-<h2>5. Tích hợp vào project (Setup chuẩn)</h2>
+<h2>Sai lầm thường gặp</h2>
 
-<h3>Luồng tích hợp</h3>
+<h3>1. Version mismatch / Dependency conflict</h3>
 
-<div class="dd-diagram" data-dd="gg-setup">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 272" role="img" aria-labelledby="gg-setup-dark-title gg-setup-dark-desc" font-family="'Geist', sans-serif">
-<title id="gg-setup-dark-title">Năm bước cắm Firebase vào app</title>
-<desc id="gg-setup-dark-desc">Tạo project, thêm app, tải file json, khai báo Gradle rồi dùng SDK Firebase.</desc>
-<defs>
-<marker id="gg-setup-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="272" fill="#060913"/>
-<!-- arrows -->
-<path d="M 160,152 H 184" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-setup-dark-arrow)"/>
-<path d="M 312,152 H 336" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-setup-dark-arrow)"/>
-<path d="M 464,152 H 488" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-setup-dark-arrow)"/>
-<path d="M 616,152 H 640" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-setup-dark-arrow)"/>
-<!-- nodes -->
-<rect x="32" y="120" width="128" height="64" rx="6" fill="#060913"/>
-<rect x="32" y="120" width="128" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<rect x="40" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
-<text x="50" y="138" fill="rgba(248,250,252,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1</text>
-<text x="96" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Tạo project</text>
-<text x="96" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">console</text>
-<rect x="184" y="120" width="128" height="64" rx="6" fill="#060913"/>
-<rect x="184" y="120" width="128" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<rect x="192" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
-<text x="202" y="138" fill="rgba(248,250,252,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">2</text>
-<text x="248" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Thêm app</text>
-<text x="248" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">package · sha-1</text>
-<rect x="336" y="120" width="128" height="64" rx="6" fill="#060913"/>
-<rect x="336" y="120" width="128" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<rect x="344" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
-<text x="354" y="138" fill="rgba(248,250,252,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">3</text>
-<text x="400" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Tải json</text>
-<text x="400" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app/ folder</text>
-<rect x="488" y="120" width="128" height="64" rx="6" fill="#060913"/>
-<rect x="488" y="120" width="128" height="64" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<rect x="496" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
-<text x="506" y="138" fill="rgba(248,250,252,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">4</text>
-<text x="552" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Khai báo Gradle</text>
-<text x="552" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">plugin · bom</text>
-<rect x="640" y="120" width="128" height="64" rx="6" fill="#060913"/>
-<rect x="640" y="120" width="128" height="64" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="648" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="658" y="138" fill="rgba(56,189,248,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">5</text>
-<text x="704" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Dùng SDK</text>
-<text x="704" y="176" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">firebase sdk</text>
-<!-- legend -->
-<line x1="32" y1="248" x2="768" y2="248" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="264" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="260" r="4" fill="#38BDF8"/>
-<text x="162" y="264" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">XONG · DÙNG ĐƯỢC</text>
-<line x1="380" y1="260" x2="412" y2="260" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-setup-dark-arrow)"/>
-<text x="420" y="264" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐÚNG THỨ TỰ 1→5</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 272" role="img" aria-labelledby="gg-setup-title gg-setup-desc" font-family="'Geist', sans-serif">
-<title id="gg-setup-title">Năm bước cắm Firebase vào app</title>
-<desc id="gg-setup-desc">Tạo project, thêm app, tải file json, khai báo Gradle rồi dùng SDK Firebase.</desc>
-<defs>
-<marker id="gg-setup-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="272" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 160,152 H 184" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
-<path d="M 312,152 H 336" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
-<path d="M 464,152 H 488" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
-<path d="M 616,152 H 640" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
-<!-- nodes -->
-<rect x="32" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
-<rect x="32" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<rect x="40" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
-<text x="50" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">1</text>
-<text x="96" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Tạo project</text>
-<text x="96" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">console</text>
-<rect x="184" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
-<rect x="184" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<rect x="192" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
-<text x="202" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">2</text>
-<text x="248" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Thêm app</text>
-<text x="248" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">package · sha-1</text>
-<rect x="336" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
-<rect x="336" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<rect x="344" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
-<text x="354" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">3</text>
-<text x="400" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Tải json</text>
-<text x="400" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app/ folder</text>
-<rect x="488" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
-<rect x="488" y="120" width="128" height="64" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<rect x="496" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
-<text x="506" y="138" fill="rgba(15,23,42,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">4</text>
-<text x="552" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Khai báo Gradle</text>
-<text x="552" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">plugin · bom</text>
-<rect x="640" y="120" width="128" height="64" rx="6" fill="#F8FAFC"/>
-<rect x="640" y="120" width="128" height="64" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="648" y="126" width="20" height="16" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="658" y="138" fill="rgba(2,132,199,0.8)" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">5</text>
-<text x="704" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Dùng SDK</text>
-<text x="704" y="176" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">firebase sdk</text>
-<!-- legend -->
-<line x1="32" y1="248" x2="768" y2="248" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="264" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="260" r="4" fill="#0284C7"/>
-<text x="162" y="264" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">XONG · DÙNG ĐƯỢC</text>
-<line x1="380" y1="260" x2="412" y2="260" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-setup-arrow)"/>
-<text x="420" y="264" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐÚNG THỨ TỰ 1→5</text>
-</svg>
-</div>
-</div>
+<p>Khi dùng nhiều SDK Firebase với version khác nhau → build lỗi <code>Dependency conflict</code> hoặc crash runtime.</p>
 
-<h3>Bước 1 — Tạo project trên Firebase Console</h3>
+<p><strong>Giải pháp:</strong> Luôn dùng <strong>Firebase BoM</strong> và không ghi version riêng lẻ.</p>
 
-<p>Vào <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a>, tạo project, thêm app Android với:</p>
+<h3>2. Thiếu <code>google-services.json</code>, sai package name hoặc quên apply plugin</h3>
 
-<ul>
-  <li><strong>Package name</strong> khớp 100% với <code>applicationId</code> trong <code>build.gradle</code>.</li>
-  <li><strong>SHA-1</strong> của keystore (dùng cho Google Sign-In và một số tính năng).</li>
-</ul>
+<p><strong>Package name phải khớp chính xác.</strong> Nếu thiếu file hoặc package name không khớp, plugin <code>google-services</code> làm <strong>build lỗi</strong> (vd <em>"File google-services.json is missing"</em>, <em>"No matching client found for package name"</em>). Nếu quên apply plugin, app build được nhưng khi chạy báo <em>"Default FirebaseApp is not initialized in this process"</em>.</p>
 
-<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body"><strong>Package name phải khớp chính xác.</strong> Nếu thiếu file hoặc package name không khớp, plugin <code>google-services</code> làm <strong>build lỗi</strong> (vd <em>"File google-services.json is missing"</em>, <em>"No matching client found for package name"</em>). Lỗi runtime <em>"Default FirebaseApp is not initialized"</em> thường do quên apply plugin.</div></div>
+<p><code>R.string.default_web_client_id</code> được <strong>tự sinh bởi plugin</strong> <code>google-services</code> từ <code>google-services.json</code>. Nếu bạn xóa <code>google-services.json</code> hoặc không apply plugin, resource này không tồn tại → build lỗi ngay.</p>
 
-<h3>Bước 2 — Thêm plugin vào Gradle</h3>
+<p><strong>Giải pháp:</strong> Đặt đúng file vào <code>app/</code>, khớp <code>package name</code> giữa Console và <code>applicationId</code>.</p>
 
-<p><strong>Project-level <code>build.gradle.kts</code> (hoặc <code>settings.gradle.kts</code>):</strong></p>
+<h3>3. API Key sai hoặc không giới hạn</h3>
 
-<pre data-lang="kotlin"><code>plugins {
-    id("com.google.gms.google-services") version "4.4.2" apply false
-}</code></pre>
+<p>Maps/Places trả về lỗi "API key not authorized" hoặc bị trục lợi.</p>
 
-<p><strong>App-level <code>build.gradle.kts</code>:</strong></p>
+<p><strong>API Key lộ trong source = rủi ro lớn.</strong> Nếu không giới hạn key theo package + SHA-1, kẻ khác có thể trích xuất key từ APK (dễ dàng bằng các công cụ decompile) và sử dụng trục lợi → key bị khóa, chi phí tăng. Luôn giới hạn key trong Cloud Console.</p>
 
-<pre data-lang="kotlin"><code>plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("com.google.gms.google-services")   // Đọc google-services.json, sinh resource cấu hình
-}</code></pre>
+<p><strong>Giải pháp:</strong> Restrict key theo package name + SHA-1 trong Cloud Console.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Plugin <code>com.google.gms.google-services</code> đọc <code>google-services.json</code> và <strong>sinh resource</strong> cấu hình (<code>google_app_id</code>, <code>default_web_client_id</code>...). Việc khởi tạo <code>FirebaseApp</code> do <code>FirebaseInitProvider</code>, một ContentProvider của Firebase, tự làm khi process khởi động (ContentProvider chạy <code>onCreate</code> trước <code>Application.onCreate</code>; thứ tự khởi động này được giải thích ở <a href="../content_provider.md" target="_blank" rel="noopener">Content Provider</a>, mục "3. Cơ chế hoạt động bên trong (IPC Binder)"). Vì vậy bạn không cần gọi <code>FirebaseApp.initializeApp()</code> trong code.</div></div>
+<h3>4. Quên permission runtime</h3>
 
-<h3>Bước 3 — Thêm dependency với Firebase BoM</h3>
+<p>Location, Camera, Microphone... không request quyền → <code>SecurityException</code>.</p>
 
-<p><strong>Firebase BoM (Bill of Materials)</strong> giúp tất cả SDK Firebase <strong>cùng một version</strong> — tránh lỗi xung đột version (conflict):</p>
+<p>Bắt buộc <strong>request runtime permission</strong> (<code>ACCESS_FINE_LOCATION</code>) trước khi gọi API, và <strong>khai báo cả hai permission</strong> trong Manifest. Nếu thiếu, app sẽ ném <code>SecurityException</code>.</p>
 
-<pre data-lang="kotlin"><code>dependencies {
-    // BoM: quản lý version tập trung
-    implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
+<p><strong>Giải pháp:</strong> Dùng thư viện permission (vd Accompanist) và kiểm tra <code>checkSelfPermission</code> trước mỗi call.</p>
 
-    // Các SDK — KHÔNG ghi version
-    implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-messaging")
-    implementation("com.google.firebase:firebase-crashlytics")
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-storage")
-    implementation("com.google.firebase:firebase-config")
-    implementation("com.google.android.gms:play-services-location:21.3.0")
-    implementation("com.google.android.gms:play-services-maps:19.0.0")
-    implementation("com.google.android.libraries.places:places:3.5.0")
-}</code></pre>
+<h3>5. minSdk thấp hơn yêu cầu của BoM</h3>
 
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Không ghi version riêng cho từng SDK Firebase khi đã dùng BoM. BoM sẽ chọn version tương thích với nhau, hạn chế tối đa <code>Dependency conflict</code> khi build.</div></div>
+<p>Firebase SDK từ BoM 35.0.0 yêu cầu minSdk 24 trở lên, build sẽ fail (manifest merger báo lỗi minSdk).</p>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Từ <strong>BoM 34.0.0</strong> (07/2025), các module <code>-ktx</code> (vd <code>firebase-config-ktx</code>, <code>firebase-auth-ktx</code>) đã bị bỏ khỏi BoM. Kotlin API nay nằm sẵn trong module chính, nên chỉ cần khai báo <code>firebase-config</code>, <code>firebase-auth</code>...</div></div>
+<p><strong>Giải pháp:</strong> Set <code>minSdk = 24</code> trong <code>build.gradle.kts</code>, hoặc giữ BoM cũ nếu bắt buộc hỗ trợ máy cũ.</p>
 
-<h3>Bước 4 — Đảm bảo minSdk</h3>
+<h3>6. Mở Security Rules cho tất cả</h3>
 
-<p>Từ <strong>BoM 35.0.0</strong> (10/2026), Firebase Android SDK yêu cầu <strong>minSdk ≥ 24</strong> (Android 7.0); các BoM cũ hơn có mức thấp hơn. Kiểm tra trong <code>build.gradle.kts</code>:</p>
+<p><strong>Security Rules là bắt buộc.</strong> Mặc định Firestore/Storage chặn toàn bộ truy cập (đúng, an toàn). Khi deploy rules, đừng mở kiểu <code>if true</code> (cho phép tất cả) — đó là lỗ hổng bảo mật nghiêm trọng, hacker có thể đọc/xóa toàn bộ dữ liệu của bạn.</p>
 
-<pre data-lang="kotlin"><code>defaultConfig {
-    minSdk = 24
-}</code></pre>
-
-<h2>6. Thực chiến Firebase</h2>
-
-<h3>6.1 FCM — Push Notification</h3>
-
-<p><strong>Tình huống:</strong> Gửi thông báo đơn hàng mới tới người dùng, hiển thị notification cả khi app đang mở lẫn bị kill.</p>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: hàm <code>showNotification()</code> bên dưới dùng notification channel, quyền <code>POST_NOTIFICATIONS</code> và <code>NotificationCompat</code>, học ở mục 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài). Ở đây chỉ cần biết: khi app ở foreground, FCM giao message cho <code>onMessageReceived()</code> và app tự dựng notification.</div></div>
-
-<div class="dd-diagram" data-dd="gg-fcm">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 328" role="img" aria-labelledby="gg-fcm-dark-title gg-fcm-dark-desc" font-family="'Geist', sans-serif">
-<title id="gg-fcm-dark-title">Push notification: sáu chặng đường dài</title>
-<desc id="gg-fcm-dark-desc">App đăng ký nhận token gửi lên server, server gọi FCM đẩy xuống, máy foreground thì gọi hàm, background thì hiện thông báo.</desc>
-<defs>
-<marker id="gg-fcm-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-<marker id="gg-fcm-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
-</marker>
-</defs>
-<rect width="800" height="328" fill="#060913"/>
-<!-- lifelines -->
-<line x1="70" y1="84" x2="70" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="230" y1="84" x2="230" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="390" y1="84" x2="390" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="550" y1="84" x2="550" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="710" y1="84" x2="710" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="226" y="112" width="8" height="16" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="66" y="144" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="386" y="176" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="706" y="208" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
-<!-- messages -->
-<path d="M 710,120 H 230" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
-<rect x="422" y="100" width="96" height="12" rx="2" fill="#060913"/>
-<text x="470" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐĂNG KÝ TOKEN</text>
-<path d="M 710,152 H 70" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
-<rect x="342" y="132" width="88" height="12" rx="2" fill="#060913"/>
-<text x="386" y="141" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GỬI TOKEN</text>
-<path d="M 70,184 H 230" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
-<rect x="110" y="164" width="80" height="12" rx="2" fill="#060913"/>
-<text x="150" y="173" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HTTP V1 API</text>
-<path d="M 230,216 H 390" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
-<rect x="270" y="196" width="80" height="12" rx="2" fill="#060913"/>
-<text x="310" y="205" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐẨY MESSAGE</text>
-<path d="M 390,248 H 710" fill="none" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#gg-fcm-dark-accent)"/>
-<rect x="566" y="228" width="96" height="12" rx="2" fill="#060913"/>
-<text x="614" y="237" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">FOREGROUND</text>
-<path d="M 390,272 H 550" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
-<rect x="430" y="252" width="80" height="12" rx="2" fill="#060913"/>
-<text x="470" y="261" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BACKGROUND</text>
-<!-- actors -->
-<rect x="5" y="32" width="130" height="52" rx="6" fill="#060913"/>
-<rect x="5" y="32" width="130" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="70" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Backend</text>
-<text x="70" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">server bạn</text>
-<rect x="165" y="32" width="130" height="52" rx="6" fill="#060913"/>
-<rect x="165" y="32" width="130" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="230" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FCM Server</text>
-<text x="230" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">firebase</text>
-<rect x="325" y="32" width="130" height="52" rx="6" fill="#060913"/>
-<rect x="325" y="32" width="130" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="390" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Play Services</text>
-<text x="390" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">gms</text>
-<rect x="485" y="32" width="130" height="52" rx="6" fill="#060913"/>
-<rect x="485" y="32" width="130" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="550" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
-<text x="550" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app</text>
-<rect x="645" y="32" width="130" height="52" rx="6" fill="#060913"/>
-<rect x="645" y="32" width="130" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
-<text x="710" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Android OS</text>
-<text x="710" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">hệ thống</text>
-<!-- legend -->
-<line x1="32" y1="304" x2="768" y2="304" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="316" r="4" fill="#38BDF8"/>
-<text x="162" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH CHÍNH · FOREGROUND</text>
-<line x1="430" y1="316" x2="462" y2="316" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-fcm-dark-arrow)"/>
-<text x="470" y="320" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH PHỤ · BACKGROUND</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 328" role="img" aria-labelledby="gg-fcm-title gg-fcm-desc" font-family="'Geist', sans-serif">
-<title id="gg-fcm-title">Push notification: sáu chặng đường dài</title>
-<desc id="gg-fcm-desc">App đăng ký nhận token gửi lên server, server gọi FCM đẩy xuống, máy foreground thì gọi hàm, background thì hiện thông báo.</desc>
-<defs>
-<marker id="gg-fcm-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-<marker id="gg-fcm-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
-</marker>
-</defs>
-<rect width="800" height="328" fill="#F8FAFC"/>
-<!-- lifelines -->
-<line x1="70" y1="84" x2="70" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="230" y1="84" x2="230" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="390" y1="84" x2="390" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="550" y1="84" x2="550" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="710" y1="84" x2="710" y2="280" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="226" y="112" width="8" height="16" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="66" y="144" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="386" y="176" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="706" y="208" width="8" height="48" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
-<!-- messages -->
-<path d="M 710,120 H 230" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
-<rect x="422" y="100" width="96" height="12" rx="2" fill="#F8FAFC"/>
-<text x="470" y="109" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐĂNG KÝ TOKEN</text>
-<path d="M 710,152 H 70" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
-<rect x="342" y="132" width="88" height="12" rx="2" fill="#F8FAFC"/>
-<text x="386" y="141" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GỬI TOKEN</text>
-<path d="M 70,184 H 230" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
-<rect x="110" y="164" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="150" y="173" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HTTP V1 API</text>
-<path d="M 230,216 H 390" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
-<rect x="270" y="196" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="310" y="205" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐẨY MESSAGE</text>
-<path d="M 390,248 H 710" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#gg-fcm-accent)"/>
-<rect x="566" y="228" width="96" height="12" rx="2" fill="#F8FAFC"/>
-<text x="614" y="237" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">FOREGROUND</text>
-<path d="M 390,272 H 550" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
-<rect x="430" y="252" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="470" y="261" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BACKGROUND</text>
-<!-- actors -->
-<rect x="5" y="32" width="130" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="5" y="32" width="130" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="70" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Backend</text>
-<text x="70" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">server bạn</text>
-<rect x="165" y="32" width="130" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="165" y="32" width="130" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="230" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FCM Server</text>
-<text x="230" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">firebase</text>
-<rect x="325" y="32" width="130" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="325" y="32" width="130" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="390" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Play Services</text>
-<text x="390" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">gms</text>
-<rect x="485" y="32" width="130" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="485" y="32" width="130" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="550" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
-<text x="550" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app</text>
-<rect x="645" y="32" width="130" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="645" y="32" width="130" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
-<text x="710" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Android OS</text>
-<text x="710" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">hệ thống</text>
-<!-- legend -->
-<line x1="32" y1="304" x2="768" y2="304" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="320" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="316" r="4" fill="#0284C7"/>
-<text x="162" y="320" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH CHÍNH · FOREGROUND</text>
-<line x1="430" y1="316" x2="462" y2="316" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-fcm-arrow)"/>
-<text x="470" y="320" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH PHỤ · BACKGROUND</text>
-</svg>
-</div>
-</div>
-
-<p><strong>FirebaseMessagingService</strong> — nhận message:</p>
-
-<pre data-lang="kotlin"><code>class OrderMessagingService : FirebaseMessagingService() {
-
-    override fun onNewToken(token: String) {
-        // Gọi khi token được tạo lần đầu và mỗi khi token đổi
-        // (khôi phục app sang máy mới, gỡ rồi cài lại app, xoá dữ liệu app)
-        // Gửi lên server: apiService.uploadFcmToken(token)
-    }
-
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // Khi app ĐANG foreground — notification hệ thống KHÔNG tự hiện
-        val title = remoteMessage.notification?.title ?: "Thông báo"
-        val body = remoteMessage.notification?.body ?: remoteMessage.data["body"] ?: ""
-        showNotification(title, body)
-    }
-
-    private fun showNotification(title: String, body: String) {
-        // Android 13+: chưa được cấp POST_NOTIFICATIONS thì không hiện được notification
-        if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.TIRAMISU &amp;&amp;
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED
-        ) return
-
-        val manager = NotificationManagerCompat.from(this)
-        // Android 8+: notification phải thuộc một channel (tạo lại nhiều lần không sao)
-        manager.createNotificationChannel(
-            NotificationChannelCompat.Builder(CHANNEL_ORDERS, NotificationManagerCompat.IMPORTANCE_HIGH)
-                .setName("Đơn hàng")
-                .build()
-        )
-        val notification = NotificationCompat.Builder(this, CHANNEL_ORDERS)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(title)
-            .setContentText(body)
-            .setAutoCancel(true)
-            .build()
-        manager.notify(System.currentTimeMillis().toInt(), notification)
-    }
-
-    companion object {
-        const val CHANNEL_ORDERS = "orders"
-    }
-}</code></pre>
-
-<p><strong>Lấy token hiện tại</strong> (vd sau khi người dùng đăng nhập; <code>onNewToken</code> chỉ được gọi khi token được tạo hoặc thay đổi):</p>
-
-<pre data-lang="kotlin"><code>FirebaseMessaging.getInstance().token.addOnSuccessListener { token -&gt;
-    // apiService.uploadFcmToken(token)
-}</code></pre>
-
-<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">- <strong>Android 13+:</strong> FCM SDK (23.0.6+) đã khai báo <code>POST_NOTIFICATIONS</code> trong manifest, nhưng app phải <strong>xin runtime permission</strong>; chưa được cấp thì không notification nào hiện ra, kể cả notification do hệ thống tự hiển thị khi app ở background. - <strong>Notification channel (Android 8+):</strong> notification message không chỉ định channel sẽ dùng channel mặc định khai báo bằng meta-data <code>com.google.firebase.messaging.default_notification_channel_id</code>. - Tài liệu FCM mới đánh dấu cách lấy token là deprecated, chuyển dần sang đăng ký bằng Firebase Installation ID (meta-data <code>firebase_messaging_installation_id_enabled</code> và callback <code>onRegistered(installationId)</code>). Cách dùng token ở trên vẫn chạy được.</div></div>
-
-<p><strong>Khai báo trong AndroidManifest.xml:</strong></p>
-
-<pre data-lang="xml"><code>&lt;service
-    android:name=".data.notification.OrderMessagingService"
-    android:exported="false"&gt;
-    &lt;intent-filter&gt;
-        &lt;action android:name="com.google.firebase.MESSAGING_EVENT" /&gt;
-    &lt;/intent-filter&gt;
-&lt;/service&gt;</code></pre>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Foreground vs Background:</strong> Khi app ở foreground, <code>onMessageReceived()</code> được gọi và bạn <strong>tự hiển thị notification</strong>. Khi app ở background hoặc bị kill, GMS <strong>tự hiển thị</strong> notification từ payload <code>notification</code> — <code>onMessageReceived()</code> <strong>không được gọi</strong>. Muốn luôn nhận data ở background, gửi <strong>data message</strong> (không có field <code>notification</code>) và để client xử lý trong <code>onMessageReceived()</code>.</div></div>
-
-<h3>6.2 Firebase Analytics &amp; Event Log</h3>
-
-<p><strong>Tình huống:</strong> Theo dõi sự kiện "add_to_cart" để đo hiệu quả chiến dịch.</p>
-
-<p><strong>Gửi sự kiện:</strong></p>
-
-<pre data-lang="kotlin"><code>// FirebaseAnalytics là Singleton — lấy qua Application context
-private val analytics: FirebaseAnalytics =
-    FirebaseAnalytics.getInstance(applicationContext)
-
-fun trackAddToCart(productId: String, price: Double, currency: String) {
-    val bundle = Bundle().apply {
-        putString(FirebaseAnalytics.Param.ITEM_ID, productId)
-        putDouble(FirebaseAnalytics.Param.PRICE, price)
-        putString(FirebaseAnalytics.Param.CURRENCY, currency)
-    }
-    analytics.logEvent(FirebaseAnalytics.Event.ADD_TO_CART, bundle)
-}</code></pre>
-
-<p><strong>User property</strong> (thuộc tính người dùng, dùng để phân khúc):</p>
-
-<pre data-lang="kotlin"><code>analytics.setUserProperty("user_tier", "premium")</code></pre>
-
-<p><strong>Xem Event Log trong quá trình debug:</strong></p>
-
-<ul>
-  <li>Bật <strong>DebugView</strong> trên Firebase Console.</li>
-  <li>Xem trực tiếp trong logcat bằng filter: \`\`<code>bash adb shell setprop debug.firebase.analytics.app &lt;package_name&gt; </code>\`<code> Khi đó trong logcat hiện các dòng: </code>I/FA: Event received...\` với đầy đủ tên sự kiện và tham số.</li>
-</ul>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Event log của Analytics là <strong>chìa khóa debug</strong>. Nếu sự kiện bạn gửi không xuất hiện, kiểm tra: đã tắt <strong>data saver</strong>? đã set prop <code>debug.firebase.analytics.app</code>? đã gửi đúng package name khi set prop?</div></div>
-
-<h3>6.3 Crashlytics — Báo cáo crash</h3>
-
-<p><strong>Tình huống:</strong> Bắt crash tự động, kèm log và thông tin người dùng để fix nhanh.</p>
-
-<p><strong>Cấu hình:</strong> Plugin <code>com.google.firebase.crashlytics</code> trong Gradle (thêm dòng <code>id("com.google.firebase.crashlytics")</code> vào <code>plugins</code>).</p>
-
-<p><strong>Tùy biến crash log trong code:</strong></p>
-
-<pre data-lang="kotlin"><code>// Crashlytics TỰ cài handler bắt crash (uncaught exception) khi app khởi động.
-// KHÔNG ghi đè Thread.setDefaultUncaughtExceptionHandler: làm vậy sẽ thay mất handler
-// của Crashlytics, crash bị báo thành non-fatal và app không kết thúc đúng cách.
-
-fun submitOrder(order: Order) {
-    try {
-        orderApi.submit(order)
-    } catch (e: IOException) {
-        // Lỗi đã được xử lý (non-fatal): recordException chỉ dùng trong catch
-        FirebaseCrashlytics.getInstance().recordException(e)
-        showRetryMessage()
-    }
-}
-
-fun reportUserAction(userId: String) {
-    val crashlytics = FirebaseCrashlytics.getInstance()
-    crashlytics.setUserId(userId)            // Ai gặp crash
-    crashlytics.setCustomKey("last_screen", "checkout") // Đang ở màn nào
-    crashlytics.log("User bấm nút 'Thanh toán'")        // Log trước crash
-    // → Khi crash xảy ra, các dòng log() này hiện trong báo cáo
-}</code></pre>
-
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Bật <strong>Crashlytics NDK</strong> và <strong>Crashlytics debug</strong> để xem crash ngay trên máy test: trong logcat filter <code>Crashlytics</code>. Bản build debug thường hiện log đầy đủ hơn.</div></div>
-
-<h3>6.4 Firebase Auth + Google Sign-In</h3>
-
-<p><strong>Tình huống:</strong> Người dùng đăng nhập bằng tài khoản Google.</p>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">API <code>GoogleSignInClient</code> (thư viện <code>play-services-auth</code>) đã deprecated. Cách hiện tại là <strong>Credential Manager</strong> kết hợp <strong>Sign in with Google</strong> (<code>GetGoogleIdOption</code>): lấy ID token của Google, rồi đổi sang phiên đăng nhập Firebase bằng <code>GoogleAuthProvider</code>.</div></div>
-
-<div class="dd-diagram" data-dd="gg-auth">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 420" role="img" aria-labelledby="gg-auth-dark-title gg-auth-dark-desc" font-family="'Geist', sans-serif">
-<title id="gg-auth-dark-title">Đăng nhập Google qua Credential Manager</title>
-<desc id="gg-auth-dark-desc">Ứng dụng gọi getCredential với GetGoogleIdOption, người dùng chọn tài khoản, Credential Manager trả GoogleIdTokenCredential chứa idToken; app gọi signInWithCredential, Firebase Auth xác thực idToken với Google Backend rồi trả FirebaseUser.</desc>
-<defs>
-<marker id="gg-auth-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-<marker id="gg-auth-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
-</marker>
-</defs>
-<rect width="800" height="420" fill="#060913"/>
-<!-- lifelines: Credential Manager 100 · Ứng dụng 300 · Firebase Auth 500 · Google Backend 700 -->
-<line x1="100" y1="84" x2="100" y2="364" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="300" y1="84" x2="300" y2="364" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="500" y1="84" x2="500" y2="364" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="700" y1="84" x2="700" y2="364" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="296" y="108" width="8" height="248" fill="#060913"/>
-<rect x="296" y="108" width="8" height="248" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="96" y="116" width="8" height="80" fill="#060913"/>
-<rect x="96" y="116" width="8" height="80" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="496" y="236" width="8" height="116" fill="#060913"/>
-<rect x="496" y="236" width="8" height="116" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="696" y="272" width="8" height="44" fill="#060913"/>
-<rect x="696" y="272" width="8" height="44" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
-<!-- (1) App gọi Credential Manager -->
-<path d="M 296,120 H 104" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-auth-dark-arrow)"/>
-<rect x="116" y="100" width="168" height="12" rx="2" fill="#060913"/>
-<text x="200" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">getCredential(GetGoogleIdOption)</text>
-<!-- (2) Credential Manager trả về: người dùng chọn tài khoản -->
-<path d="M 104,156 H 296" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-arrow)"/>
-<rect x="124" y="136" width="152" height="12" rx="2" fill="#060913"/>
-<text x="200" y="145" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NGƯỜI DÙNG CHỌN TÀI KHOẢN</text>
-<!-- (3) Credential Manager trả về GoogleIdTokenCredential -->
-<path d="M 104,192 H 296" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-arrow)"/>
-<rect x="116" y="172" width="168" height="12" rx="2" fill="#060913"/>
-<text x="200" y="181" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">GoogleIdTokenCredential (idToken)</text>
-<!-- (4) App gọi Firebase Auth -->
-<path d="M 304,240 H 496" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-auth-dark-arrow)"/>
-<rect x="316" y="204" width="168" height="28" rx="2" fill="#060913"/>
-<text x="400" y="214" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">signInWithCredential(</text>
-<text x="400" y="226" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">GoogleAuthProvider credential)</text>
-<!-- (5) Firebase Auth gọi Google Backend -->
-<path d="M 504,276 H 696" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-auth-dark-arrow)"/>
-<rect x="548" y="256" width="104" height="12" rx="2" fill="#060913"/>
-<text x="600" y="265" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">XÁC THỰC idToken</text>
-<!-- (6) Google Backend trả OK -->
-<path d="M 696,312 H 504" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-arrow)"/>
-<rect x="584" y="292" width="32" height="12" rx="2" fill="#060913"/>
-<text x="600" y="301" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OK</text>
-<!-- (7) Firebase Auth trả FirebaseUser -->
-<path d="M 496,348 H 304" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-accent)"/>
-<rect x="320" y="328" width="160" height="12" rx="2" fill="#060913"/>
-<text x="400" y="337" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">FirebaseUser · ĐĂNG NHẬP OK</text>
-<!-- actors -->
-<rect x="20" y="32" width="160" height="52" rx="6" fill="#060913"/>
-<rect x="20" y="32" width="160" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="100" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Credential Manager</text>
-<text x="100" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">androidx.credentials</text>
-<rect x="220" y="32" width="160" height="52" rx="6" fill="#060913"/>
-<rect x="220" y="32" width="160" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
-<text x="300" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
-<text x="300" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">LoginActivity</text>
-<rect x="420" y="32" width="160" height="52" rx="6" fill="#060913"/>
-<rect x="420" y="32" width="160" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="500" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Firebase Auth</text>
-<text x="500" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">FirebaseAuth</text>
-<rect x="620" y="32" width="160" height="52" rx="6" fill="#060913"/>
-<rect x="620" y="32" width="160" height="52" rx="6" fill="rgba(248,250,252,0.05)" stroke="rgba(248,250,252,0.40)" stroke-width="1"/>
-<text x="700" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Google Backend</text>
-<text x="700" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">server</text>
-<!-- legend -->
-<line x1="32" y1="388" x2="768" y2="388" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="404" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<line x1="124" y1="400" x2="156" y2="400" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-auth-dark-arrow)"/>
-<text x="164" y="404" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT LIỀN · GỌI</text>
-<line x1="316" y1="400" x2="348" y2="400" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-arrow)"/>
-<text x="356" y="404" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · TRẢ VỀ</text>
-<line x1="516" y1="400" x2="548" y2="400" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#gg-auth-dark-accent)"/>
-<text x="556" y="404" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐĂNG NHẬP XONG · USER</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 420" role="img" aria-labelledby="gg-auth-title gg-auth-desc" font-family="'Geist', sans-serif">
-<title id="gg-auth-title">Đăng nhập Google qua Credential Manager</title>
-<desc id="gg-auth-desc">Ứng dụng gọi getCredential với GetGoogleIdOption, người dùng chọn tài khoản, Credential Manager trả GoogleIdTokenCredential chứa idToken; app gọi signInWithCredential, Firebase Auth xác thực idToken với Google Backend rồi trả FirebaseUser.</desc>
-<defs>
-<marker id="gg-auth-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-<marker id="gg-auth-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
-</marker>
-</defs>
-<rect width="800" height="420" fill="#F8FAFC"/>
-<!-- lifelines: Credential Manager 100 · Ứng dụng 300 · Firebase Auth 500 · Google Backend 700 -->
-<line x1="100" y1="84" x2="100" y2="364" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="300" y1="84" x2="300" y2="364" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="500" y1="84" x2="500" y2="364" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="700" y1="84" x2="700" y2="364" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="296" y="108" width="8" height="248" fill="#F8FAFC"/>
-<rect x="296" y="108" width="8" height="248" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="96" y="116" width="8" height="80" fill="#F8FAFC"/>
-<rect x="96" y="116" width="8" height="80" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="496" y="236" width="8" height="116" fill="#F8FAFC"/>
-<rect x="496" y="236" width="8" height="116" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="696" y="272" width="8" height="44" fill="#F8FAFC"/>
-<rect x="696" y="272" width="8" height="44" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
-<!-- (1) App gọi Credential Manager -->
-<path d="M 296,120 H 104" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-auth-arrow)"/>
-<rect x="116" y="100" width="168" height="12" rx="2" fill="#F8FAFC"/>
-<text x="200" y="109" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">getCredential(GetGoogleIdOption)</text>
-<!-- (2) Credential Manager trả về: người dùng chọn tài khoản -->
-<path d="M 104,156 H 296" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-arrow)"/>
-<rect x="124" y="136" width="152" height="12" rx="2" fill="#F8FAFC"/>
-<text x="200" y="145" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NGƯỜI DÙNG CHỌN TÀI KHOẢN</text>
-<!-- (3) Credential Manager trả về GoogleIdTokenCredential -->
-<path d="M 104,192 H 296" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-arrow)"/>
-<rect x="116" y="172" width="168" height="12" rx="2" fill="#F8FAFC"/>
-<text x="200" y="181" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">GoogleIdTokenCredential (idToken)</text>
-<!-- (4) App gọi Firebase Auth -->
-<path d="M 304,240 H 496" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-auth-arrow)"/>
-<rect x="316" y="204" width="168" height="28" rx="2" fill="#F8FAFC"/>
-<text x="400" y="214" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">signInWithCredential(</text>
-<text x="400" y="226" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">GoogleAuthProvider credential)</text>
-<!-- (5) Firebase Auth gọi Google Backend -->
-<path d="M 504,276 H 696" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-auth-arrow)"/>
-<rect x="548" y="256" width="104" height="12" rx="2" fill="#F8FAFC"/>
-<text x="600" y="265" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">XÁC THỰC idToken</text>
-<!-- (6) Google Backend trả OK -->
-<path d="M 696,312 H 504" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-arrow)"/>
-<rect x="584" y="292" width="32" height="12" rx="2" fill="#F8FAFC"/>
-<text x="600" y="301" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OK</text>
-<!-- (7) Firebase Auth trả FirebaseUser -->
-<path d="M 496,348 H 304" fill="none" stroke="#0284C7" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#gg-auth-accent)"/>
-<rect x="320" y="328" width="160" height="12" rx="2" fill="#F8FAFC"/>
-<text x="400" y="337" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">FirebaseUser · ĐĂNG NHẬP OK</text>
-<!-- actors -->
-<rect x="20" y="32" width="160" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="20" y="32" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="100" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Credential Manager</text>
-<text x="100" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">androidx.credentials</text>
-<rect x="220" y="32" width="160" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="220" y="32" width="160" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
-<text x="300" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Ứng dụng</text>
-<text x="300" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">LoginActivity</text>
-<rect x="420" y="32" width="160" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="420" y="32" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="500" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Firebase Auth</text>
-<text x="500" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">FirebaseAuth</text>
-<rect x="620" y="32" width="160" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="620" y="32" width="160" height="52" rx="6" fill="rgba(15,23,42,0.05)" stroke="rgba(15,23,42,0.40)" stroke-width="1"/>
-<text x="700" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Google Backend</text>
-<text x="700" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">server</text>
-<!-- legend -->
-<line x1="32" y1="388" x2="768" y2="388" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="404" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<line x1="124" y1="400" x2="156" y2="400" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-auth-arrow)"/>
-<text x="164" y="404" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT LIỀN · GỌI</text>
-<line x1="316" y1="400" x2="348" y2="400" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#gg-auth-arrow)"/>
-<text x="356" y="404" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · TRẢ VỀ</text>
-<line x1="516" y1="400" x2="548" y2="400" stroke="#0284C7" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#gg-auth-accent)"/>
-<text x="556" y="404" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐĂNG NHẬP XONG · USER</text>
-</svg>
-</div>
-</div>
-
-<p><strong>Code trong ViewModel + Activity (luồng thực chiến):</strong></p>
-
-<pre data-lang="kotlin"><code>// --- data/remote/GoogleAuthDataSource.kt ---
-class GoogleAuthDataSource(
-    private val firebaseAuth: FirebaseAuth
-) {
-    fun currentUser(): String? = firebaseAuth.currentUser?.uid
-
-    suspend fun signInWithGoogle(idToken: String): Result&lt;String&gt; = runCatching {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        firebaseAuth.signInWithCredential(credential).await()
-        firebaseAuth.currentUser?.uid ?: throw IllegalStateException("Login failed")
-    }
-
-    fun signOut() = firebaseAuth.signOut()
-}
-
-// --- UI: Activity gọi Credential Manager + Sign in with Google ---
-// Dependencies: androidx.credentials:credentials, androidx.credentials:credentials-play-services-auth,
-//               com.google.android.libraries.identity.googleid:googleid
-private val credentialManager by lazy { CredentialManager.create(this) }
-
-fun startGoogleSignIn() {
-    val googleIdOption = GetGoogleIdOption.Builder()
-        .setServerClientId(getString(R.string.default_web_client_id)) // Web client ID, từ google-services.json
-        .setFilterByAuthorizedAccounts(false) // cho chọn cả tài khoản chưa từng đăng nhập app
-        .build()
-    val request = GetCredentialRequest.Builder()
-        .addCredentialOption(googleIdOption)
-        .build()
-
-    lifecycleScope.launch {
-        try {
-            val credential = credentialManager.getCredential(this@LoginActivity, request).credential
-            if (credential is CustomCredential &amp;&amp;
-                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-            ) {
-                val idToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
-                viewModel.signInWithGoogle(idToken)   // gọi data layer, lưu session
-            }
-        } catch (e: GetCredentialException) {
-            // Người dùng huỷ hoặc máy không có tài khoản Google: báo lỗi trên UI, không crash
-        }
-    }
-}
-
-// Khi đăng xuất: firebaseAuth.signOut() rồi
-// credentialManager.clearCredentialState(ClearCredentialStateRequest())</code></pre>
-
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><code>R.string.default_web_client_id</code> được <strong>tự sinh bởi plugin</strong> <code>google-services</code> từ <code>google-services.json</code>. Nếu bạn xóa <code>google-services.json</code> hoặc không apply plugin, resource này không tồn tại → build lỗi ngay.</div></div>
-
-<h3>6.5 Remote Config — Cấu hình từ xa</h3>
-
-<p><strong>Tình huống:</strong> Bật/tắt tính năng "gợi ý bạn bè" cho một phần người dùng mà không cần phát hành bản update.</p>
-
-<pre data-lang="kotlin"><code>// Domain: giao diện đọc config
-interface FeatureFlags {
-    val showFriendSuggestion: Boolean
-}
-
-// Data: RemoteConfigDataSource
-class RemoteConfigDataSource : FeatureFlags {
-    private val remoteConfig = FirebaseRemoteConfig.getInstance()
-
-    override val showFriendSuggestion: Boolean
-        get() = remoteConfig.getBoolean(KEY_SHOW_FRIEND_SUGGESTION)
-
-    suspend fun fetchAndActivate() {
-        remoteConfig.setDefaultsAsync(
-            mapOf(KEY_SHOW_FRIEND_SUGGESTION to false) // giá trị mặc định local
-        )
-        val settings = FirebaseRemoteConfigSettings.Builder()
-            .setMinimumFetchIntervalInSeconds(3600) // fetch tối đa 1h/lần
-            .build()
-        remoteConfig.setConfigSettingsAsync(settings)
-        // fetch + activate: áp dụng giá trị mới từ server
-        remoteConfig.fetchAndActivate().await()
-    }
-
-    companion object {
-        const val KEY_SHOW_FRIEND_SUGGESTION = "show_friend_suggestion"
-    }
-}</code></pre>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Luôn khai báo <strong>default value local</strong> (<code>setDefaultsAsync</code>) để app không bị null/crash khi chưa kịp fetch hoặc mất mạng.</div></div>
-
-<h3>6.6 Firestore &amp; Storage — Tổng quan</h3>
-
-<p><strong>Tình huống:</strong> Lưu giỏ hàng real-time, đồng bộ offline khi mất mạng.</p>
-
-<p><strong>Firestore (database NoSQL real-time):</strong></p>
-
-<pre data-lang="kotlin"><code>// Structure: users/{userId}/cart/{itemId}
-data class CartItem(val productId: String, val qty: Int)
-
-// Ghi dữ liệu
-val docRef = FirebaseFirestore.getInstance()
-    .collection("users")
-    .document(userId)
-    .collection("cart")
-    .document(itemId)
-
-docRef.set(CartItem(productId, qty))
-
-// Lắng nghe real-time + tự động offline persistence
-docRef.addSnapshotListener { snapshot, error -&gt;
-    if (error != null) return@addSnapshotListener
-    // snapshot.toObject(CartItem::class.java) → cập nhật UI
-}</code></pre>
-
-<p><strong>Storage (lưu file, ảnh):</strong></p>
-
-<pre data-lang="kotlin"><code>// Upload ảnh avatar
-val ref = FirebaseStorage.getInstance().reference
-    .child("avatars/$userId.jpg")
-
-ref.putFile(uri)
-    .addOnSuccessListener { task -&gt;
-        // Lấy URL để lưu vào Firestore
-    }
-    .addOnFailureListener { /* xử lý lỗi */ }</code></pre>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Security Rules là bắt buộc.</strong> Mặc định Firestore/Storage chặn toàn bộ truy cập (đúng, an toàn). Khi deploy rules, đừng mở kiểu <code>if true</code> (cho phép tất cả) — đó là lỗ hổng bảo mật nghiêm trọng, hacker có thể đọc/xóa toàn bộ dữ liệu của bạn.</div></div>
-
-<h3>6.7 App Distribution &amp; Emulator Suite</h3>
-
-<p><strong>Firebase App Distribution</strong> phân phối build test (<code>.apk</code>/<code>.aab</code>) tới tester nhanh, không cần qua Play Console:</p>
-
-<ul>
-  <li>Upload qua <strong>Gradle plugin</strong> (<code>com.google.firebase.appdistribution</code>) hoặc CLI.</li>
-  <li>Tester nhận link cài, gửi <strong>feedback</strong> (screenshot, crash log) ngay trong app.</li>
-  <li>Quản lý tester theo nhóm (QA, team leader, khách hàng demo...).</li>
-</ul>
-
-<p><strong>Khác biệt so với Play Console:</strong></p>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
-      <th style="padding:8px 12px;text-align:left;">App Distribution</th>
-      <th style="padding:8px 12px;text-align:left;">Play Console (Internal/Closed testing)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Mục đích</td>
-      <td style="padding:8px 12px;">Phân phối build test nhanh</td>
-      <td style="padding:8px 12px;">Phê duyệt trước khi public</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Tốc độ</td>
-      <td style="padding:8px 12px;">Giây, không cần review</td>
-      <td style="padding:8px 12px;">Cần review của Google</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Feedback từ tester</td>
-      <td style="padding:8px 12px;">Có (screenshot, crash)</td>
-      <td style="padding:8px 12px;">Không</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Phiên bản lưu giữ</td>
-      <td style="padding:8px 12px;">Mặc định giữ gần đây</td>
-      <td style="padding:8px 12px;">Không giới hạn</td>
-    </tr>
-  </tbody>
-</table>
-
-<p><strong>Firebase Emulator Suite</strong> — chạy toàn bộ Firebase (Auth, Firestore, Storage, Functions...) <strong>trên máy local</strong> trong lúc phát triển:</p>
-
-<pre data-lang="bash"><code>firebase emulators:start   # khởi động emulators từ thư mục dự án</code></pre>
-
-<pre data-lang="kotlin"><code>// Khởi tạo app dùng emulator khi debug
-if (BuildConfig.DEBUG) {
-    FirebaseFirestore.getInstance()
-        .useEmulator("10.0.2.2", 8080)   // 10.0.2.2 = host machine từ emulator Android
-}</code></pre>
-
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Dùng Emulator Suite trong quá trình phát triển để <strong>không tốn quota thật</strong> và không làm bẩn dữ liệu production. Chỉ chuyển sang dữ liệu thật khi test tích hợp với backend thật.</div></div>
-
-<h2>7. Thực chiến Google Play Services</h2>
-
-<h3>7.1 Location — FusedLocationProvider</h3>
-
-<p><strong>Tình huống:</strong> Lấy vị trí hiện tại một lần (nhất) để hiển thị trên màn hình chính.</p>
-
-<p><strong>Cấu hình Manifest:</strong></p>
-
-<pre data-lang="xml"><code>&lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /&gt;
-&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;</code></pre>
-
-<p><strong>Kotlin:</strong></p>
-
-<pre data-lang="kotlin"><code>class LocationDataSource(
-    private val fusedLocation: FusedLocationProviderClient
-) {
-    suspend fun getCurrentLocation(): Location? {
-        return try {
-            // getCurrentLocation: lấy 1 lần, không cần location listener.
-            // Overload hợp lệ: (priority, token) hoặc (CurrentLocationRequest, token)
-            fusedLocation.getCurrentLocation(
-                Priority.PRIORITY_HIGH_ACCURACY,
-                CancellationTokenSource().token
-            ).await()
-        } catch (e: SecurityException) {
-            null // Chưa có quyền — UI phải request permission trước
-        }
-    }
-}</code></pre>
-
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body">Bắt buộc <strong>request runtime permission</strong> (<code>ACCESS_FINE_LOCATION</code>) trước khi gọi API, và <strong>khai báo cả hai permission</strong> trong Manifest. Nếu thiếu, app sẽ ném <code>SecurityException</code>.</div></div>
-
-<h3>7.2 Google Maps — Hiển thị bản đồ</h3>
-
-<p><strong>Tình huống:</strong> Hiển thị vị trí cửa hàng trên bản đồ.</p>
-
-<p><strong>Bước 1 — Tạo API Key</strong> trên <a href="https://console.cloud.google.com" target="_blank" rel="noopener">Google Cloud Console</a>, enable <strong>Maps SDK for Android</strong>, giới hạn key theo <strong>package name + SHA-1</strong> (best practice).</p>
-
-<p><strong>Bước 2 — Khai báo trong Manifest:</strong></p>
-
-<pre data-lang="xml"><code>&lt;meta-data
-    android:name="com.google.android.geo.API_KEY"
-    android:value="AIza...YOUR_KEY" /&gt;</code></pre>
-
-<p><strong>Bước 3 — Hiển thị MapFragment trong Compose hoặc Fragment truyền thống:</strong></p>
-
-<pre data-lang="kotlin"><code>// XML: &lt;fragment class="com.google.android.gms.maps.SupportMapFragment" /&gt;
-
-override fun onMapReady(map: GoogleMap) {
-    map.uiSettings.isZoomControlsEnabled = true
-    map.addMarker(
-        MarkerOptions()
-            .position(LatLng(21.0285, 105.8542))
-            .title("Hà Nội")
-    )
-    map.moveCamera(
-        CameraUpdateFactory.newLatLngZoom(LatLng(21.0285, 105.8542), 15f)
-    )
-}</code></pre>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>API Key lộ trong source = rủi ro lớn.</strong> Nếu không giới hạn key theo package + SHA-1, kẻ khác có thể trích xuất key từ APK (dễ dàng bằng các công cụ decompile) và sử dụng trục lợi → key bị khóa, chi phí tăng. Luôn giới hạn key trong Cloud Console.</div></div>
-
-<h3>7.3 AdMob — Quảng cáo (dẫn dắt)</h3>
-
-<p>AdMob hiển thị quảng cáo (banner, interstitial, rewarded) qua Google Mobile Ads SDK. Đây là chủ đề riêng có nhiều quy định của Google (policy quảng cáo, consent), trình bày ở 4.2.3.3 Advertisements, bắt đầu từ <a href="advertisements/overview.md" target="_blank" rel="noopener">AdMob Overview</a>.</p>
-
-<h2>8. Vị trí trong Clean Architecture / MVVM (Tư duy hệ thống)</h2>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục 7.2.5 Clean Architecture (chưa có bài). Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.</div></div>
-
-<p>Google Play Services và Firebase là SDK bên ngoài, nên nằm ở <strong>Data Layer</strong>, bên trong các <code>*DataSource</code>: một DataSource cho Firebase (FCM, Auth, Firestore, Crashlytics, Analytics), một cho API của GMS (Location, Maps).</p>
-
-<div class="dd-diagram" data-dd="gg-arch">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 644" role="img" aria-labelledby="gg-arch-dark-title gg-arch-dark-desc" font-family="'Geist', sans-serif">
-<title id="gg-arch-dark-title">Firebase trong Clean Architecture</title>
-<desc id="gg-arch-dark-desc">Activity quan sát ViewModel gọi UseCase tới interface, interface vào Repository rồi tới Firebase và GoogleApi data source.</desc>
-<defs>
-<marker id="gg-arch-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="644" fill="#060913"/>
-<!-- arrows -->
-<path d="M 400,92 V 132" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<rect x="412" y="102" width="64" height="12" rx="2" fill="#060913"/>
-<text x="444" y="111" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OBSERVE</text>
-<path d="M 400,192 V 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<path d="M 400,292 V 332" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<path d="M 400,392 V 432" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<path d="M 340,476 V 500 H 268 Q 260,500 260,508 V 532" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<path d="M 460,476 V 500 H 532 Q 540,500 540,508 V 532" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="166" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="266" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">UseCase</text>
-<rect x="280" y="332" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="332" width="240" height="60" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="288" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="314" y="347" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PORTS</text>
-<text x="400" y="370" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Repository Interfaces</text>
-<rect x="280" y="432" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="432" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="466" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
-<rect x="160" y="532" width="220" height="60" rx="6" fill="#060913"/>
-<rect x="160" y="532" width="220" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="270" y="566" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FirebaseDataSource</text>
-<text x="270" y="584" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fcm · auth · firestore</text>
-<rect x="420" y="532" width="220" height="60" rx="6" fill="#060913"/>
-<rect x="420" y="532" width="220" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="530" y="566" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">GoogleApiDataSource</text>
-<text x="530" y="584" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">location · maps</text>
-<!-- legend -->
-<line x1="32" y1="616" x2="768" y2="616" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="632" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="628" r="4" fill="#38BDF8"/>
-<text x="162" y="632" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CỔNG ĐẢO NGƯỢC · PORTS</text>
-<line x1="430" y1="628" x2="462" y2="628" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<text x="470" y="632" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỌI XUỐNG · RẼ HAI NGẢ</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 644" role="img" aria-labelledby="gg-arch-title gg-arch-desc" font-family="'Geist', sans-serif">
-<title id="gg-arch-title">Firebase trong Clean Architecture</title>
-<desc id="gg-arch-desc">Activity quan sát ViewModel gọi UseCase tới interface, interface vào Repository rồi tới Firebase và GoogleApi data source.</desc>
-<defs>
-<marker id="gg-arch-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="644" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 400,92 V 132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<rect x="412" y="102" width="64" height="12" rx="2" fill="#F8FAFC"/>
-<text x="444" y="111" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OBSERVE</text>
-<path d="M 400,192 V 232" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<path d="M 400,292 V 332" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<path d="M 400,392 V 432" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<path d="M 340,476 V 500 H 268 Q 260,500 260,508 V 532" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<path d="M 460,476 V 500 H 532 Q 540,500 540,508 V 532" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="166" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="266" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UseCase</text>
-<rect x="280" y="332" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="332" width="240" height="60" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="288" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="314" y="347" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PORTS</text>
-<text x="400" y="370" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Repository Interfaces</text>
-<rect x="280" y="432" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="432" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="466" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
-<rect x="160" y="532" width="220" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="160" y="532" width="220" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="270" y="566" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FirebaseDataSource</text>
-<text x="270" y="584" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fcm · auth · firestore</text>
-<rect x="420" y="532" width="220" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="420" y="532" width="220" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="530" y="566" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">GoogleApiDataSource</text>
-<text x="530" y="584" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">location · maps</text>
-<!-- legend -->
-<line x1="32" y1="616" x2="768" y2="616" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="632" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="628" r="4" fill="#0284C7"/>
-<text x="162" y="632" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CỔNG ĐẢO NGƯỢC · PORTS</text>
-<line x1="430" y1="628" x2="462" y2="628" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<text x="470" y="632" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GỌI XUỐNG · RẼ HAI NGẢ</text>
-</svg>
-</div>
-</div>
-
-<p><strong>Riêng với Google Service:</strong></p>
-
-<ul>
-  <li><code>DataSource</code> bọc mọi API của Firebase/GMS (<code>Task</code>, <code>RemoteMessage</code>, <code>FirebaseUser</code>...) và trả về <strong>model thuần</strong> của app, nên tầng trên không import <code>com.google.*</code>.</li>
-  <li>Máy không có GMS (Huawei, thị trường Trung Quốc) thì thay bằng HMS chỉ cần viết thêm một <code>DataSource</code> và đổi DI binding, UI/Domain không đổi.</li>
-  <li>Cùng cách đặt tầng cho quảng cáo: <a href="advertisements/ads_architecture.md" target="_blank" rel="noopener">Ads trong kiến trúc app</a>.</li>
-</ul>
-
-<h2>9. Lỗi thường gặp &amp; Best Practices (Pitfalls)</h2>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Version mismatch / Dependency conflict:</strong> Khi dùng nhiều SDK Firebase với version khác nhau → build lỗi <code>Dependency conflict</code> hoặc crash runtime. <strong>Giải pháp:</strong> Luôn dùng <strong>Firebase BoM</strong> và không ghi version riêng lẻ.</div></div>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Thiếu <code>google-services.json</code> hoặc sai package name:</strong> Plugin <code>google-services</code> làm build lỗi. Nếu quên apply plugin, app build được nhưng khi chạy báo <em>"Default FirebaseApp is not initialized in this process"</em>. <strong>Giải pháp:</strong> Đặt đúng file vào <code>app/</code>, khớp <code>package name</code> giữa Console và <code>applicationId</code>.</div></div>
-
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><strong>API Key sai hoặc không giới hạn:</strong> Maps/Location trả về lỗi "API key not authorized" hoặc bị trục lợi. <strong>Giải pháp:</strong> Restrict key theo package name + SHA-1 trong Cloud Console.</div></div>
-
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><strong>Quên permission runtime:</strong> Location, Camera, Microphone... không request quyền → <code>SecurityException</code>. <strong>Giải pháp:</strong> Dùng thư viện permission (vd Accompanist) và kiểm tra <code>checkSelfPermission</code> trước mỗi call.</div></div>
-
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><strong>minSdk thấp hơn yêu cầu của BoM:</strong> Firebase SDK từ BoM 35.0.0 yêu cầu minSdk 24 trở lên, build sẽ fail (manifest merger báo lỗi minSdk). <strong>Giải pháp:</strong> Set <code>minSdk = 24</code> trong <code>build.gradle.kts</code>, hoặc giữ BoM cũ nếu bắt buộc hỗ trợ máy cũ.</div></div>
+<p><strong>Giải pháp (best practice về dữ liệu):</strong> Luôn giới hạn Security Rules; không gửi dữ liệu nhạy cảm (password, token) lên Analytics/Crashlytics; bật <strong>App Check</strong> cho dữ liệu nhạy cảm.</p>
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Debug nhanh:</strong> Bật <code>debug.firebase.analytics.app</code> để xem event log; filter <code>Crashlytics</code> trong logcat để xem crash chi tiết; dùng <strong>Firebase Emulator</strong> khi phát triển để không đụng dữ liệu thật.</div></div>
 
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Best practice về dữ liệu:</strong> Luôn giới hạn Security Rules; không gửi dữ liệu nhạy cảm (password, token) lên Analytics/Crashlytics; bật <strong>App Check</strong> cho dữ liệu nhạy cảm.</div></div>
-
-<h2>10. Trade-offs, chi phí &amp; Security</h2>
+<h2>Trade-offs</h2>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -25297,7 +25505,36 @@ override fun onMapReady(map: GoogleMap) {
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Chi phí dự đoán:</strong> Firestore tính tiền theo số lượt đọc/ghi — một app chat có thể đọc/ghi rất nhiều. Theo dõi <strong>Usage</strong> trên Firebase Console thường xuyên để tránh hóa đơn bất ngờ.</div></div>
 
-<h2>11. Nguồn tham khảo</h2>
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>Android 8.0 (API 26):</strong> thêm <code>NotificationChannel</code>. App target API 26 trở lên phải gắn mỗi notification vào một channel, nên FCM cần meta-data <code>default_notification_channel_id</code> cho notification message không chỉ định channel.</li>
+  <li><strong>Android 13 (API 33):</strong> thêm runtime permission <code>POST_NOTIFICATIONS</code>; app cài mới trên Android 13+ mặc định bị tắt notification cho tới khi người dùng cấp quyền. FCM SDK từ 23.0.6 khai báo sẵn permission này trong manifest, app vẫn phải tự xin quyền lúc chạy.</li>
+  <li><strong>09/2024:</strong> Android Developers Blog (11/09/2024) công bố Credential Manager thay thế các API đăng nhập cũ và xếp Google Sign-In for Android vào nhóm deprecated. Hướng dẫn migrate của Android Developers ghi rõ Google Sign-In for Android (<code>play-services-auth</code>) đã deprecated và sẽ bị gỡ khỏi Google Play services Auth SDK trong một bản phát hành sau; đây là lý do ví dụ đăng nhập dùng Credential Manager với <code>GetGoogleIdOption</code>.</li>
+  <li><strong>Firebase BoM 34.0.0 (21/07/2025):</strong> bỏ các module <code>-ktx</code> khỏi BoM, Kotlin API nằm trong module chính.</li>
+  <li><strong>Firebase BoM 35.0.0 (07/10/2026):</strong> nâng <code>minSdkVersion</code> của các thư viện Firebase lên API 24 (breaking change).</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="android_service.md" target="_blank" rel="noopener">Android Service</a>: Bound Service và Binder IPC, cơ chế app dùng để gọi tới GMS.</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../content_provider.md" target="_blank" rel="noopener">Content Provider</a>: <code>FirebaseInitProvider</code> khởi tạo <code>FirebaseApp</code> trước <code>Application.onCreate</code>.</li>
+  <li><a href="../../android_manifest/package_build_gradle/plugin.md" target="_blank" rel="noopener">Plugin</a>: Gradle plugin, như <code>com.google.gms.google-services</code> và <code>com.google.firebase.crashlytics</code>.</li>
+  <li><a href="../../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>: khai báo <code>&lt;service&gt;</code>, <code>&lt;uses-permission&gt;</code>, <code>&lt;meta-data&gt;</code> dùng trong bài.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li>4.2.3.3 Advertisements, bắt đầu từ <a href="advertisements/overview.md" target="_blank" rel="noopener">AdMob Overview</a>: Google Mobile Ads SDK; cách đặt tầng cho quảng cáo ở <a href="advertisements/ads_architecture.md" target="_blank" rel="noopener">Ads trong kiến trúc app</a>.</li>
+  <li>8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài): notification channel, <code>POST_NOTIFICATIONS</code>, <code>NotificationCompat</code> dùng trong ví dụ FCM.</li>
+  <li>8.4.3 Coroutines (chưa có bài): <code>suspend</code>, <code>await()</code>, <code>lifecycleScope</code> dùng trong các ví dụ Auth, Remote Config, Location.</li>
+  <li>7.2.5 Clean Architecture (chưa có bài) và 7.1.5.3 Hilt (chưa có bài): chia tầng và DI binding để thay DataSource GMS bằng HMS.</li>
+</ul></li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
 
 <ul>
   <li><a href="https://developer.android.com/develop/connectivity/play-services" target="_blank" rel="noopener">Google Play Services overview — Android Developers</a></li>
@@ -25317,6 +25554,10 @@ override fun onMapReady(map: GoogleMap) {
   <li><a href="https://firebase.google.com/docs/crashlytics/android/customize-crash-reports" target="_blank" rel="noopener">Customize Crashlytics crash reports</a></li>
   <li><a href="https://developer.android.com/identity/sign-in/legacy-gsi-migration" target="_blank" rel="noopener">Migrate from legacy Google Sign-In to Credential Manager</a></li>
   <li><a href="https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient" target="_blank" rel="noopener">FusedLocationProviderClient reference</a></li>
+  <li><a href="https://developer.android.com/reference/android/app/NotificationChannel" target="_blank" rel="noopener">NotificationChannel (Added in API level 26) — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/develop/ui/views/notifications/channels" target="_blank" rel="noopener">Create and manage notification channels — Android Developers</a></li>
+  <li><a href="https://developer.android.com/develop/ui/views/notifications/notification-permission" target="_blank" rel="noopener">Notification runtime permission (Android 13) — Android Developers</a></li>
+  <li><a href="https://android-developers.googleblog.com/2024/09/streamlining-android-authentication-credential-manager-replaces-legacy-apis.html" target="_blank" rel="noopener">Streamlining Android authentication: Credential Manager replaces legacy APIs — Android Developers Blog (09/2024)</a></li>
 </ul>
     `
   },
@@ -29214,7 +29455,7 @@ privacyButton.setOnClickListener {
 
   'android-broadcast-receiver': {
     title: 'Broadcast Receiver',
-    summary: 'Broadcast Receiver là Application Component cho phép app lắng nghe và phản ứng với broadcast do hệ thống hoặc app khác phát đi (mô hình pub/sub ở cấp hệ điều hành). Bài phân biệt Static và Dynamic Receiver, các giới hạn từ Android 8 đến Android 14, security, cách thay LocalBroadcastManager bằng Flow, và khi nào dùng WorkManager hoặc NetworkCallback thay cho broadcast.',
+    summary: 'Broadcast Receiver là Application Component ở phía nhận của cơ chế pub/sub cấp hệ điều hành, cho phép app lắng nghe và phản ứng với broadcast (Intent mang một action) do hệ thống hoặc app khác phát đi; mỗi lần nhận, receiver chỉ sống trong thời gian chạy onReceive(). Bài phân biệt Static và Dynamic Receiver, các giới hạn từ Android 8 đến Android 14, security, cách thay LocalBroadcastManager bằng Flow, và khi nào dùng WorkManager hoặc NetworkCallback thay cho broadcast.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '35 phút',
@@ -29232,16 +29473,10 @@ privacyButton.setOnClickListener {
       'Xử lý được các lỗi phổ biến như lỗ hổng bảo mật, leak do quên unregister, ANR trên main thread.'
     ],
     knowledgeGap: 'Nhiều developer hiểu Broadcast Receiver theo kiểu "đăng ký lắng nghe sự kiện toàn hệ thống", nhưng bỏ qua việc Android 8+ đã cắt hầu hết Static Receiver cho implicit broadcast, không biết Dynamic Receiver cần unregister đúng nơi để tránh leak, và thường dùng Broadcast để giao tiếp nội bộ trong khi Flow/EventBus là lựa chọn tốt hơn nhiều.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '35 phút',
     content: `
-<h2>1. Nó là gì và vì sao nó tồn tại?</h2>
-
-<p><strong>Broadcast Receiver</strong> là một <strong>Application Component</strong> cho phép ứng dụng <strong>lắng nghe và phản ứng với các sự kiện (broadcast)</strong> được phát đi bởi hệ thống hoặc các ứng dụng khác.</p>
-
-<p>Hãy nghĩ về nó như một <strong>radio receiver</strong>: hệ thống (hoặc app khác) phát đi một tín hiệu trên một "kênh" nhất định (một Intent với một Action cụ thể), và bất kỳ ai đang "dò" kênh đó sẽ nhận được tín hiệu đó.</p>
-
-<h3>Vấn đề nó giải quyết</h3>
+<h2>Vấn đề cần giải quyết</h2>
 
 <p>Trong một hệ sinh thái Android, nhiều thứ xảy ra độc lập với ứng dụng của bạn:</p>
 
@@ -29255,13 +29490,31 @@ privacyButton.setOnClickListener {
 
 <p>Không có Broadcast Receiver, ứng dụng của bạn <strong>không có cách nào biết</strong> những sự kiện này xảy ra — trừ khi bạn liên tục polling (rất tốn pin và tài nguyên). Broadcast Receiver giải quyết vấn đề này theo mô hình <strong>pub/sub (publish-subscribe)</strong> ở cấp độ hệ điều hành.</p>
 
-<h2>2. Broadcast Receiver hoạt động như thế nào?</h2>
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được bản chất Broadcast Receiver (cơ chế pub/sub của hệ điều hành) và vòng đời ngắn của nó.</li>
+  <li>Phân biệt được Static Receiver và Dynamic Receiver, biết khi nào dùng loại nào và các giới hạn từ Android 8 đến Android 14.</li>
+  <li>Triển khai được Dynamic Receiver đúng cách (ContextCompat.registerReceiver với cờ export, đăng ký và huỷ theo lifecycle) trong MVVM với Hilt.</li>
+  <li>Biết khi nào nên dùng WorkManager, NetworkCallback hoặc Flow/SharedFlow thay vì Broadcast Receiver.</li>
+  <li>Xử lý được các lỗi phổ biến như lỗ hổng bảo mật, leak do quên unregister, ANR trên main thread.</li>
+</ul>
+
+<h2>Broadcast Receiver là gì?</h2>
+
+<p><strong>Broadcast Receiver</strong> là một <strong>Application Component</strong> cho phép ứng dụng <strong>lắng nghe và phản ứng với các sự kiện (broadcast)</strong> được phát đi bởi hệ thống hoặc các ứng dụng khác. Nó là phía nhận (subscriber) của cơ chế pub/sub ở cấp hệ điều hành: mỗi broadcast là một Intent mang một action, và mỗi lần nhận, receiver chỉ sống trong thời gian chạy <code>onReceive()</code>.</p>
+
+<p>Hãy nghĩ về nó như một <strong>radio receiver</strong>: hệ thống (hoặc app khác) phát đi một tín hiệu trên một "kênh" nhất định (một Intent với một Action cụ thể), và bất kỳ ai đang "dò" kênh đó sẽ nhận được tín hiệu đó.</p>
+
+<h2>Cách hoạt động</h2>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ trong bài dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>CoroutineScope</code>, <code>launch</code>, <code>Dispatchers.IO</code>, hàm <code>suspend</code>) là cách chạy việc bất đồng bộ ngoài main thread: 8.4.3 Coroutines (chưa có bài). - WorkManager (thư viện Jetpack lên lịch việc nền, lưu work lại và tự lên lịch lại sau reboot): <a href="../services/android_service.md" target="_blank" rel="noopener">Android Service</a>, mục "WorkManager — Lựa chọn hiện đại cho background task". - Room (database của app) chỉ xuất hiện sau <code>ReminderRepository</code>: <a href="../../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>. - Flow (<code>callbackFlow</code>, <code>StateFlow</code>, <code>SharedFlow</code>): 7.1.4.2 Flow (chưa có bài). - ViewModel và Hilt (<code>@HiltViewModel</code>, <code>@Inject</code>, <code>@Module</code>): 6.4 ViewModel (chưa có bài), 7.1.5.3 Hilt (chưa có bài). - MVVM, MVI và Clean Architecture (app chia thành Presentation, Domain, Data layer): 7.2.3 MVVM, 7.2.4 MVI, 7.2.5 Clean Architecture (chưa có bài).</div></div>
 
 <h3>Lifecycle: Cực kỳ ngắn</h3>
 
 <p>Đây là điều quan trọng nhất cần hiểu về Broadcast Receiver:</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Một Broadcast Receiver chỉ "sống" trong thời gian thực thi hàm <code>onReceive()</code>. Sau khi <code>onReceive()</code> kết thúc, Receiver có thể bị GC bất cứ lúc nào.</div></div>
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Một Broadcast Receiver chỉ "sống" trong thời gian thực thi hàm <code>onReceive()</code>. Sau khi <code>onReceive()</code> kết thúc, Receiver có thể bị GC bất cứ lúc nào.</div></div>
 
 <pre data-lang="text"><code>Intent được gửi đi
         ↓
@@ -29292,24 +29545,49 @@ override fun onReceive(context: Context, intent: Intent) {
 
 <h3>goAsync() — Khi cần thêm thời gian</h3>
 
-<p>Nếu bạn cần làm gì đó bất đồng bộ nhỏ ngay trong Receiver:</p>
+<p>Nếu bạn cần làm gì đó bất đồng bộ nhỏ ngay trong Receiver, <code>goAsync()</code> giữ broadcast ở trạng thái "đang xử lý" sau khi <code>onReceive()</code> trả về, cho tới khi bạn gọi <code>finish()</code>.</p>
+
+<h4>Ví dụ: chuyển việc ngắn của receiver ra khỏi main thread</h4>
+
+<p>Receiver nhận sự kiện thay đổi mạng và cần làm một việc bất đồng bộ ngắn mà không chặn main thread:</p>
+
+<ol>
+  <li><code>goAsync()</code> trả về <code>PendingResult</code>, báo hệ thống broadcast chưa xử lý xong dù <code>onReceive()</code> sắp trả về.</li>
+  <li>Việc ngắn chạy trong coroutine trên <code>Dispatchers.IO</code>, ngoài main thread; <code>onReceive()</code> trả về ngay.</li>
+  <li><code>pendingResult.finish()</code> trong <code>finally</code> báo hệ thống đã xong, kể cả khi việc bị lỗi. Toàn bộ thời gian từ <code>goAsync()</code> tới <code>finish()</code> vẫn nằm trong giới hạn 10 giây.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant OS as Android System
+    participant Main as Main thread (onReceive)
+    participant IO as Dispatchers.IO
+
+    OS-&gt;&gt;Main: onReceive(context, intent)
+    Main-&gt;&gt;Main: (1) goAsync() → PendingResult
+    Main-&gt;&gt;IO: (2) launch { processNetworkChange(intent) }
+    Note over Main: onReceive() trả về, broadcast vẫn mở
+    IO-&gt;&gt;OS: (3) pendingResult.finish() (trong vòng 10 giây)
+</div>
 
 <pre data-lang="kotlin"><code>class NetworkReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val pendingResult = goAsync() // Báo cho Android "chưa xong đâu"
+        val pendingResult = goAsync() // (1) Báo cho Android "chưa xong đâu"
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Công việc bất đồng bộ ngắn (&lt; 10 giây)
+                // (2) Công việc bất đồng bộ ngắn (&lt; 10 giây)
                 processNetworkChange(intent)
             } finally {
-                pendingResult.finish() // Báo Android "xong rồi"
+                pendingResult.finish() // (3) Báo Android "xong rồi"
             }
         }
     }
 }</code></pre>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Cảnh báo:</strong> <code>goAsync()</code> vẫn có giới hạn 10 giây. Không dùng cho tác vụ dài. Dùng WorkManager cho tác vụ dài.</div></div>
+<p><strong>Kết quả:</strong> main thread không bị chặn trong lúc xử lý, và hệ thống chỉ coi broadcast là xong khi <code>finish()</code> được gọi.</p>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><code>goAsync()</code> vẫn có giới hạn 10 giây. Không dùng cho tác vụ dài. Dùng WorkManager cho tác vụ dài.</div></div>
 
 <h3>Normal broadcast và Ordered broadcast</h3>
 
@@ -29324,9 +29602,9 @@ override fun onReceive(context: Context, intent: Intent) {
 
 <p>Phía gửi (<code>sendBroadcast</code>, <code>sendOrderedBroadcast</code>, <code>setPackage</code>, permission) được trình bày ở <a href="../../intent/push_data_event.md" target="_blank" rel="noopener">Push data and send event via Intent</a>, mục "2. Send Event — Gửi sự kiện qua Broadcast Intent".</p>
 
-<h2>3. Static Receiver vs Dynamic Receiver</h2>
+<h3>Static Receiver vs Dynamic Receiver</h3>
 
-<h3>So sánh tổng quan</h3>
+<h4>So sánh tổng quan</h4>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -29365,7 +29643,7 @@ override fun onReceive(context: Context, intent: Intent) {
   </tbody>
 </table>
 
-<h3>Static Receiver — Khai báo trong Manifest</h3>
+<h4>Static Receiver — Khai báo trong Manifest</h4>
 
 <pre data-lang="xml"><code>&lt;!-- AndroidManifest.xml --&gt;
 &lt;receiver
@@ -29393,30 +29671,55 @@ class BootReceiver : BroadcastReceiver() {
     }
 }</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý:</strong> Cần permission <code>RECEIVE_BOOT_COMPLETED</code> trong Manifest. <code>BOOT_COMPLETED</code> là protected broadcast, chỉ hệ thống gửi được, nên để <code>exported="true"</code> như tài liệu khuyến nghị cho receiver nghe broadcast hệ thống vẫn an toàn (xem mục 8.1).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Cần permission <code>RECEIVE_BOOT_COMPLETED</code> trong Manifest. <code>BOOT_COMPLETED</code> là protected broadcast, chỉ hệ thống gửi được, nên để <code>exported="true"</code> như tài liệu khuyến nghị cho receiver nghe broadcast hệ thống vẫn an toàn (xem mục "<code>android:exported</code> — Quan trọng từ Android 12+" bên dưới).</div></div>
 
-<h3>Dynamic Receiver — Đăng ký trong code</h3>
+<h4>Dynamic Receiver — Đăng ký trong code</h4>
+
+<p>Dynamic Receiver được đăng ký bằng một Context (thường là Activity) và chỉ nhận broadcast trong khoảng giữa lúc đăng ký và lúc huỷ đăng ký.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý Android 13/14 với Dynamic Receiver:</strong> - Từ Android 14 (targetSdk 34), <code>registerReceiver()</code> <strong>bắt buộc</strong> truyền cờ <code>RECEIVER_EXPORTED</code> hoặc <code>RECEIVER_NOT_EXPORTED</code> (trừ receiver chỉ nhận system broadcast), nếu không sẽ ném <code>SecurityException</code>. Dùng <code>ContextCompat.registerReceiver()</code> để có cùng API trên mọi version. <code>RECEIVER_NOT_EXPORTED</code> vẫn nhận được một số system broadcast và broadcast của chính app, nhưng không nhận broadcast từ app đặc quyền (Bluetooth, telephony). - Chọn cờ theo nguồn gửi: nghe broadcast của hệ thống hoặc app khác → <code>RECEIVER_EXPORTED</code>; nghe action tự định nghĩa mà chỉ app mình gửi (ví dụ <code>com.example.ACTION_REFRESH_DATA</code>) → <code>RECEIVER_NOT_EXPORTED</code>, để app khác không gửi giả vào được: <code>ContextCompat.registerReceiver(this, receiver, IntentFilter(ACTION_REFRESH_DATA), ContextCompat.RECEIVER_NOT_EXPORTED)</code>. - Từ Android 14, khi app ở trạng thái <strong>cached</strong>, hệ thống hoãn các system broadcast ít quan trọng (vd <code>ACTION_SCREEN_ON</code>) gửi tới receiver đăng ký bằng context, và chỉ giao khi app thoát khỏi trạng thái cached. - Theo dõi mạng thì <strong>không</strong> dùng <code>CONNECTIVITY_ACTION</code> (deprecated từ API 28) và <code>activeNetworkInfo</code> (deprecated từ API 29): dùng <code>ConnectivityManager.registerDefaultNetworkCallback()</code> (xem mục "Ví dụ thực tế", phần theo dõi trạng thái mạng).</div></div>
+
+<h4>Ví dụ: Đăng ký và hủy đăng ký đúng cách</h4>
+
+<p>Màn hình phát video muốn hiện gợi ý "Đang sạc: có thể tải video chất lượng cao" khi user cắm sạc, nhưng chỉ khi màn hình đang hiển thị. Luôn đảm bảo <code>register</code> và <code>unregister</code> ở cùng cặp lifecycle:</p>
+
+<ol>
+  <li><code>onStart()</code>: tạo <code>IntentFilter</code> cho <code>ACTION_POWER_CONNECTED</code> và <code>ACTION_POWER_DISCONNECTED</code>, đăng ký bằng <code>ContextCompat.registerReceiver()</code> với <code>RECEIVER_EXPORTED</code> vì đây là broadcast hệ thống.</li>
+  <li>User cắm hoặc rút sạc: hệ thống gửi broadcast; receiver đang được đăng ký nên <code>onReceive()</code> chạy trên main thread.</li>
+  <li><code>onReceive()</code> đọc action và gọi callback <code>onChargingChanged(true/false)</code>; Activity cập nhật UI.</li>
+  <li><code>onStop()</code>: <code>unregisterReceiver()</code>; màn hình không còn hiển thị thì không nhận nữa, và receiver không còn giữ Context của Activity.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant A as MainActivity
+    participant OS as Android System
+    participant R as PowerConnectionReceiver
+
+    A-&gt;&gt;OS: (1) onStart() → ContextCompat.registerReceiver(RECEIVER_EXPORTED)
+    OS-&gt;&gt;R: (2) ACTION_POWER_CONNECTED → onReceive() trên main thread
+    R-&gt;&gt;A: (3) onChargingChanged(true) → cập nhật UI
+    A-&gt;&gt;OS: (4) onStop() → unregisterReceiver()
+    Note over OS,R: Cắm/rút sạc lúc này không còn tới receiver
+</div>
 
 <pre data-lang="kotlin"><code>// PowerConnectionReceiver.kt
 class PowerConnectionReceiver(
     private val onChargingChanged: (Boolean) -&gt; Unit
 ) : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        // (2) Hệ thống gọi onReceive() trên main thread
         when (intent.action) {
-            Intent.ACTION_POWER_CONNECTED -&gt; onChargingChanged(true)
-            Intent.ACTION_POWER_DISCONNECTED -&gt; onChargingChanged(false)
+            Intent.ACTION_POWER_CONNECTED -&gt; onChargingChanged(true) // (3)
+            Intent.ACTION_POWER_DISCONNECTED -&gt; onChargingChanged(false) // (3)
         }
     }
 }</code></pre>
 
-<h4>Đăng ký và hủy đăng ký đúng cách</h4>
-
-<p>Luôn đảm bảo <code>register</code> và <code>unregister</code> ở cùng cặp lifecycle:</p>
-
 <pre data-lang="kotlin"><code>// Activity
 class MainActivity : AppCompatActivity() {
     private val powerReceiver = PowerConnectionReceiver { isCharging -&gt;
-        // Cập nhật UI, vd hiện gợi ý "Đang sạc: có thể tải video chất lượng cao"
+        // (3) Cập nhật UI, vd hiện gợi ý "Đang sạc: có thể tải video chất lượng cao"
     }
 
     override fun onStart() {
@@ -29425,28 +29728,28 @@ class MainActivity : AppCompatActivity() {
             addAction(Intent.ACTION_POWER_CONNECTED)
             addAction(Intent.ACTION_POWER_DISCONNECTED)
         }
-        // Android 14+ (targetSdk 34): receiver đăng ký bằng context phải chọn
+        // (1) Android 14+ (targetSdk 34): receiver đăng ký bằng context phải chọn
         // RECEIVER_EXPORTED hoặc RECEIVER_NOT_EXPORTED. Nghe broadcast hệ thống → EXPORTED.
         ContextCompat.registerReceiver(this, powerReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
     }
 
     override fun onStop() {
         super.onStop()
-        unregisterReceiver(powerReceiver) // ← Bắt buộc!
+        unregisterReceiver(powerReceiver) // (4) ← Bắt buộc!
     }
 }</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý Android 13/14 với Dynamic Receiver:</strong> - Từ Android 14 (targetSdk 34), <code>registerReceiver()</code> <strong>bắt buộc</strong> truyền cờ <code>RECEIVER_EXPORTED</code> hoặc <code>RECEIVER_NOT_EXPORTED</code> (trừ receiver chỉ nhận system broadcast), nếu không sẽ ném <code>SecurityException</code>. Dùng <code>ContextCompat.registerReceiver()</code> để có cùng API trên mọi version. <code>RECEIVER_NOT_EXPORTED</code> vẫn nhận được một số system broadcast và broadcast của chính app, nhưng không nhận broadcast từ app đặc quyền (Bluetooth, telephony). - Chọn cờ theo nguồn gửi: nghe broadcast của hệ thống hoặc app khác → <code>RECEIVER_EXPORTED</code>; nghe action tự định nghĩa mà chỉ app mình gửi (ví dụ <code>com.example.ACTION_REFRESH_DATA</code>) → <code>RECEIVER_NOT_EXPORTED</code>, để app khác không gửi giả vào được: <code>ContextCompat.registerReceiver(this, receiver, IntentFilter(ACTION_REFRESH_DATA), ContextCompat.RECEIVER_NOT_EXPORTED)</code>. - Từ Android 14, khi app ở trạng thái <strong>cached</strong>, hệ thống hoãn các system broadcast ít quan trọng (vd <code>ACTION_SCREEN_ON</code>) gửi tới receiver đăng ký bằng context, và chỉ giao khi app thoát khỏi trạng thái cached. - Theo dõi mạng thì <strong>không</strong> dùng <code>CONNECTIVITY_ACTION</code> (deprecated từ API 28) và <code>activeNetworkInfo</code> (deprecated từ API 29): dùng <code>ConnectivityManager.registerDefaultNetworkCallback()</code> (xem mục 6).</div></div>
+<p><strong>Kết quả:</strong> gợi ý chỉ đổi khi màn hình đang hiển thị; rời màn hình rồi cắm sạc thì receiver không chạy, và không có receiver nào còn giữ Activity sau <code>onStop()</code>.</p>
 
-<h2>4. Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions</h2>
+<h3>Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions</h3>
 
 <p>Từ Android 8.0 (Oreo), Google đã <strong>cấm hầu hết Static Receiver nhận implicit broadcasts</strong> để cải thiện hiệu năng và tuổi thọ pin.</p>
 
-<h3>Nguyên nhân</h3>
+<h4>Nguyên nhân</h4>
 
 <p>Nếu 50 ứng dụng trên thiết bị đều đăng ký lắng nghe <code>CONNECTIVITY_CHANGE</code> qua Manifest, mỗi khi mạng thay đổi, Android phải khởi động 50 process. Điều này gây lãng phí tài nguyên nghiêm trọng.</p>
 
-<h3>Implicit Broadcast nào vẫn còn hoạt động với Static Receiver?</h3>
+<h4>Implicit Broadcast nào vẫn còn hoạt động với Static Receiver?</h4>
 
 <p>Giới hạn chỉ áp dụng cho broadcast <strong>implicit</strong>, tức broadcast không nhắm riêng vào app của bạn. Broadcast gửi đích danh cho app (explicit) vẫn tới Static Receiver bình thường. Ngoài ra, một số broadcast implicit <strong>được miễn trừ</strong> (exempted), ví dụ:</p>
 
@@ -29462,11 +29765,11 @@ class MainActivity : AppCompatActivity() {
 
 <p>Danh sách đầy đủ: <a href="https://developer.android.com/develop/background-work/background-tasks/broadcasts/broadcast-exceptions" target="_blank" rel="noopener">Implicit broadcast exceptions</a>. Docs vẫn khuyên hạn chế đăng ký cả những broadcast được miễn.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Không</strong> có trong danh sách miễn trừ (hay bị tưởng nhầm): <code>ACTION_POWER_CONNECTED</code>/<code>ACTION_POWER_DISCONNECTED</code>, <code>CONNECTIVITY_ACTION</code>, <code>ACTION_BATTERY_LOW</code>, <code>ACTION_HEADSET_PLUG</code>, <code>ACTION_PACKAGE_ADDED</code>/<code>ACTION_PACKAGE_REMOVED</code>/<code>ACTION_PACKAGE_REPLACED</code>. Static Receiver khai báo các action này sẽ không nhận được gì trên Android 8+; chỉ Dynamic Receiver nhận được (khi app đang chạy). Riêng <code>ACTION_MY_PACKAGE_REPLACED</code> vẫn tới Static Receiver, nhưng không phải nhờ danh sách miễn trừ: hệ thống gửi nó đích danh cho app vừa được cập nhật, tức là broadcast explicit.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Không</strong> có trong danh sách miễn trừ (hay bị tưởng nhầm): <code>ACTION_POWER_CONNECTED</code>/<code>ACTION_POWER_DISCONNECTED</code>, <code>CONNECTIVITY_ACTION</code>, <code>ACTION_BATTERY_LOW</code>, <code>ACTION_HEADSET_PLUG</code>, <code>ACTION_PACKAGE_ADDED</code>/<code>ACTION_PACKAGE_REMOVED</code>/<code>ACTION_PACKAGE_REPLACED</code>. Static Receiver khai báo các action này sẽ không nhận được gì trên Android 8+; chỉ Dynamic Receiver nhận được (khi app đang chạy). Riêng <code>ACTION_MY_PACKAGE_REPLACED</code> vẫn tới Static Receiver, nhưng không phải nhờ danh sách miễn trừ: hệ thống gửi nó đích danh cho app vừa được cập nhật, tức là broadcast explicit.</div></div>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý:</strong> nhận <code>BOOT_COMPLETED</code> cần <code>&lt;uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /&gt;</code>. Thẻ <code>&lt;queries&gt;</code> (Package Visibility) không liên quan tới việc nhận broadcast; nó chỉ cần khi app muốn truy vấn hoặc nhìn thấy package khác.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Nhận <code>BOOT_COMPLETED</code> cần <code>&lt;uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /&gt;</code>. Thẻ <code>&lt;queries&gt;</code> (Package Visibility) không liên quan tới việc nhận broadcast; nó chỉ cần khi app muốn truy vấn hoặc nhìn thấy package khác.</div></div>
 
-<h3>Giải pháp thay thế</h3>
+<h4>Giải pháp thay thế</h4>
 
 <div class="dd-diagram" data-dd="br-blocked">
 <div class="dd-svg dd-svg-dark">
@@ -29553,180 +29856,192 @@ class MainActivity : AppCompatActivity() {
 </div>
 </div>
 
-<h2>5. LocalBroadcastManager — Deprecated và thay thế</h2>
+<h3>Security — Bảo mật với Broadcast Receiver</h3>
 
-<h3>LocalBroadcastManager là gì?</h3>
+<p>Broadcast Receiver là một <strong>bề mặt tấn công (attack surface)</strong> tiềm ẩn nếu không cấu hình đúng.</p>
 
-<p><code>LocalBroadcastManager</code> là utility class của AndroidX cho phép gửi và nhận broadcast <strong>chỉ trong nội bộ ứng dụng</strong> (không qua hệ thống).</p>
+<h4><code>android:exported</code> — Quan trọng từ Android 12+</h4>
 
-<pre data-lang="kotlin"><code>// Gửi
-LocalBroadcastManager.getInstance(context)
-    .sendBroadcast(Intent("com.example.REFRESH_DATA"))
+<p>Từ Android 12 (API 31), mọi receiver có <code>&lt;intent-filter&gt;</code> <strong>bắt buộc phải khai báo</strong> <code>android:exported</code>:</p>
 
-// Nhận
-LocalBroadcastManager.getInstance(this)
-    .registerReceiver(receiver, IntentFilter("com.example.REFRESH_DATA"))</code></pre>
+<pre data-lang="xml"><code>&lt;!-- ✅ Đúng — Chỉ nhận broadcast từ nội bộ app --&gt;
+&lt;receiver
+    android:name=".receiver.InternalReceiver"
+    android:exported="false"&gt;
+    ...
+&lt;/receiver&gt;
 
-<h3>Vì sao nó deprecated?</h3>
+&lt;!-- ✅ Đúng — Nhận broadcast từ hệ thống hoặc app khác --&gt;
+&lt;receiver
+    android:name=".receiver.BootReceiver"
+    android:exported="true"&gt;
+    ...
+&lt;/receiver&gt;</code></pre>
 
-<p><code>LocalBroadcastManager</code> bị deprecated từ artifact <strong><code>androidx.localbroadcastmanager</code> 1.1.0</strong> (2019) vì:</p>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong><code>exported</code> với system broadcast:</strong> broadcast do chính hệ thống (system UID) gửi, như <code>BOOT_COMPLETED</code>, vẫn tới được receiver <code>exported="false"</code>. Nhưng một số system broadcast đến từ app đặc quyền (Bluetooth, telephony) không chạy dưới UID hệ thống, nên receiver <code>exported="false"</code> sẽ không nhận được. Vì vậy tài liệu chính thức khuyên: receiver nghe broadcast từ <strong>hệ thống hoặc app khác</strong> thì đặt <code>exported="true"</code>, kết hợp kiểm tra action trong <code>onReceive()</code> và permission khi cần.</div></div>
 
-<ol>
-  <li><strong>Không phải giải pháp tốt cho giao tiếp component</strong>: Nó chỉ là wrapper của BroadcastReceiver — vẫn có overhead của Intent và Receiver creation.</li>
-  <li><strong>Không type-safe</strong>: Mọi dữ liệu phải serialize vào Intent extras → dễ lỗi runtime.</li>
-  <li><strong>Có giải pháp tốt hơn nhiều</strong> trong Kotlin ecosystem.</li>
-</ol>
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Rule of thumb:</strong> Luôn dùng <code>exported="false"</code> trừ khi bạn có lý do rõ ràng cần nhận từ bên ngoài.</div></div>
 
-<h3>Thay thế LocalBroadcastManager</h3>
+<h4>Permission — Hạn chế ai được gửi broadcast đến receiver của bạn</h4>
 
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Use case</th>
-      <th style="padding:8px 12px;text-align:left;">Giải pháp thay thế</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">ViewModel ↔ UI</td>
-      <td style="padding:8px 12px;"><code>StateFlow</code> / <code>LiveData</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Giữa các ViewModel</td>
-      <td style="padding:8px 12px;"><code>SharedViewModel</code> / <code>SharedFlow</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Giữa các màn hình (navigation)</td>
-      <td style="padding:8px 12px;"><code>SavedStateHandle</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Giữa các layer (Repository → ViewModel)</td>
-      <td style="padding:8px 12px;"><code>Flow</code> / <code>SharedFlow</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Broadcast toàn app (one-to-many)</td>
-      <td style="padding:8px 12px;"><code>SharedFlow</code> với replay=0</td>
-    </tr>
-  </tbody>
-</table>
+<pre data-lang="xml"><code>&lt;!-- Chỉ app có permission này mới gửi được --&gt;
+&lt;receiver
+    android:name=".receiver.SecureReceiver"
+    android:exported="true"
+    android:permission="com.example.SEND_SECURE_BROADCAST"&gt;
+    &lt;intent-filter&gt;
+        &lt;action android:name="com.example.SECURE_ACTION" /&gt;
+    &lt;/intent-filter&gt;
+&lt;/receiver&gt;</code></pre>
 
-<p><strong>Ví dụ thay thế: <code>SharedFlow</code> thay vì <code>LocalBroadcastManager</code></strong></p>
+<h4>Phía gửi: giới hạn ai nhận được</h4>
 
-<pre data-lang="kotlin"><code>// AppEventBus.kt — Singleton dạng object (hoặc class @Singleton inject qua Hilt)
-object AppEventBus {
-    private val _events = MutableSharedFlow&lt;AppEvent&gt;(extraBufferCapacity = 64)
-    val events: SharedFlow&lt;AppEvent&gt; = _events.asSharedFlow()
+<p>Bên gửi giới hạn người nhận bằng <code>setPackage()</code> hoặc truyền permission vào <code>sendBroadcast(intent, receiverPermission)</code>, và không đặt dữ liệu nhạy cảm vào extras của broadcast. Chi tiết ở <a href="../../intent/push_data_event.md" target="_blank" rel="noopener">Push data and send event via Intent</a>, mục "2.3 Explicit Broadcast vs Implicit Broadcast" và "2.5 Gửi broadcast có permission".</p>
 
-    suspend fun emit(event: AppEvent) = _events.emit(event)
-}
+<h4>Validate Intent trong onReceive()</h4>
 
-sealed class AppEvent {
-    object RefreshData : AppEvent()
-    data class ShowError(val message: String) : AppEvent()
-}
+<pre data-lang="kotlin"><code>override fun onReceive(context: Context, intent: Intent) {
+    // Validate action trước khi xử lý
+    if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
 
-// ViewModel phát sự kiện
-viewModelScope.launch {
-    AppEventBus.emit(AppEvent.RefreshData)
-}
+    // Validate extras nếu có
+    val payload = intent.getStringExtra("payload") ?: return
+    if (!isValidPayload(payload)) return
 
-// ViewModel nhận sự kiện
-viewModelScope.launch {
-    AppEventBus.events
-        .filterIsInstance&lt;AppEvent.RefreshData&gt;()
-        .collect { handleRefresh() }
+    // Xử lý an toàn
+    processBootCompleted(context)
 }</code></pre>
 
-<p>Docs cũng khuyên tránh hẳn "self-broadcast" (broadcast mà mọi receiver nằm cùng process với bên gửi): nó tốn chi phí IPC của hệ thống mà không đem lại gì so với Flow, Shared ViewModel hay callback.</p>
+<h2>Ví dụ thực tế</h2>
 
-<div class="dd-diagram" data-dd="br-flow">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 288" role="img" aria-labelledby="br-flow-dark-title br-flow-dark-desc" font-family="'Geist', sans-serif">
-<title id="br-flow-dark-title">Báo nhau trong app: đừng dùng broadcast</title>
-<desc id="br-flow-dark-desc">Cache hết hạn thì Flow báo type-safe, LocalBroadcast thì không.</desc>
-<defs>
-<marker id="br-flow-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="288" fill="#060913"/>
-<!-- arrows -->
-<path d="M 400,92 V 140 H 188 Q 180,140 180,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#br-flow-dark-arrow)"/>
-<path d="M 400,92 V 140 H 612 Q 620,140 620,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-flow-dark-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Cache hết hạn</text>
-<text x="400" y="84" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">repo báo viewmodel</text>
-<rect x="80" y="192" width="200" height="56" rx="6" fill="#060913"/>
-<rect x="80" y="192" width="200" height="56" rx="6" fill="transparent" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
-<rect x="88" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
-<text x="114" y="207" fill="rgba(100,116,139,0.9)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THUA</text>
-<text x="180" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">LocalBroadcastManager</text>
-<text x="180" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">deprecated · lỗi thời</text>
-<rect x="520" y="192" width="200" height="56" rx="6" fill="#060913"/>
-<rect x="520" y="192" width="200" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="528" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="554" y="207" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THẮNG</text>
-<text x="620" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Flow · SharedFlow</text>
-<text x="620" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">type-safe · reactive</text>
-<!-- legend -->
-<line x1="32" y1="264" x2="768" y2="264" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="276" r="4" fill="#38BDF8"/>
-<text x="162" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THẮNG · TYPE-SAFE</text>
-<line x1="400" y1="276" x2="432" y2="276" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
-<text x="440" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THUA · LỖI THỜI</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 288" role="img" aria-labelledby="br-flow-title br-flow-desc" font-family="'Geist', sans-serif">
-<title id="br-flow-title">Báo nhau trong app: đừng dùng broadcast</title>
-<desc id="br-flow-desc">Cache hết hạn thì Flow báo type-safe, LocalBroadcast thì không.</desc>
-<defs>
-<marker id="br-flow-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="288" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 400,92 V 140 H 188 Q 180,140 180,148 V 192" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#br-flow-arrow)"/>
-<path d="M 400,92 V 140 H 612 Q 620,140 620,148 V 192" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#br-flow-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Cache hết hạn</text>
-<text x="400" y="84" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">repo báo viewmodel</text>
-<rect x="80" y="192" width="200" height="56" rx="6" fill="#F8FAFC"/>
-<rect x="80" y="192" width="200" height="56" rx="6" fill="transparent" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
-<rect x="88" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
-<text x="114" y="207" fill="rgba(100,116,139,0.9)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THUA</text>
-<text x="180" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">LocalBroadcastManager</text>
-<text x="180" y="240" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">deprecated · lỗi thời</text>
-<rect x="520" y="192" width="200" height="56" rx="6" fill="#F8FAFC"/>
-<rect x="520" y="192" width="200" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="528" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="554" y="207" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THẮNG</text>
-<text x="620" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Flow · SharedFlow</text>
-<text x="620" y="240" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">type-safe · reactive</text>
-<!-- legend -->
-<line x1="32" y1="264" x2="768" y2="264" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="276" r="4" fill="#0284C7"/>
-<text x="162" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">THẮNG · TYPE-SAFE</text>
-<line x1="400" y1="276" x2="432" y2="276" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
-<text x="440" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">THUA · LỖI THỜI</text>
-</svg>
-</div>
+<h3>Broadcast Receiver thực sự cần thiết — Boot Receiver + WorkManager</h3>
+
+<h4>Bài toán: Đặt lại alarm nhắc uống thuốc sau khi thiết bị khởi động lại</h4>
+
+<p>Alarm đặt bằng <code>AlarmManager</code> bị hệ thống xoá khi thiết bị tắt/khởi động lại, nên app phải tự đặt lại khi nhận <code>BOOT_COMPLETED</code>. Ngược lại, job của <strong>WorkManager không cần</strong> BootReceiver: WorkManager lưu work vào database và tự lên lịch lại sau reboot.</p>
+
+<p>Luồng chạy:</p>
+
+<ol>
+  <li>Thiết bị khởi động xong: hệ thống gửi <code>BOOT_COMPLETED</code>. Khi app vừa được cập nhật, hệ thống gửi <code>MY_PACKAGE_REPLACED</code> đích danh cho app.</li>
+  <li><code>BootReceiver</code> khai báo trong Manifest nên hệ thống khởi động process của app (nếu chưa chạy), tạo instance receiver và gọi <code>onReceive()</code> trên main thread.</li>
+  <li><code>onReceive()</code> kiểm tra action, bỏ qua Intent không phải hai action trên.</li>
+  <li><code>onReceive()</code> giao việc cho WorkManager bằng <code>enqueueUniqueWork(..., REPLACE, ...)</code> rồi trả về ngay; receiver hết vòng đời.</li>
+  <li>WorkManager chạy <code>RescheduleRemindersWorker</code> ở background: đọc các lần nhắc sắp tới từ Room qua <code>ReminderRepository</code>.</li>
+  <li>Worker đặt lại từng alarm qua <code>ReminderScheduler</code> (bọc <code>AlarmManager</code>) rồi trả <code>Result.success()</code>.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant OS as Android System
+    participant BR as BootReceiver
+    participant WM as WorkManager
+    participant W as RescheduleRemindersWorker
+    participant AM as AlarmManager
+
+    OS-&gt;&gt;OS: (1) Khởi động xong → gửi BOOT_COMPLETED
+    OS-&gt;&gt;BR: (2) Khởi động process, gọi onReceive() trên main thread
+    BR-&gt;&gt;BR: (3) Kiểm tra action
+    BR-&gt;&gt;WM: (4) enqueueUniqueWork(REPLACE)
+    Note over BR: onReceive() trả về, receiver hết vòng đời
+    WM-&gt;&gt;W: (5) doWork() ở background, đọc reminder từ Room
+    W-&gt;&gt;AM: (6) Đặt lại từng alarm
 </div>
 
-<h2>6. Triển khai thực chiến trong MVVM + Clean Architecture + Hilt</h2>
+<pre data-lang="kotlin"><code>// receiver/BootReceiver.kt
+class BootReceiver : BroadcastReceiver() {
 
-<h3>Bài toán: Theo dõi trạng thái mạng</h3>
+    override fun onReceive(context: Context, intent: Intent) {
+        // (2) Hệ thống gọi onReceive() trên main thread
+        // (3) Chỉ xử lý action đã biết
+        if (intent.action != Intent.ACTION_BOOT_COMPLETED &amp;&amp;
+            intent.action != Intent.ACTION_MY_PACKAGE_REPLACED) return
+
+        // (4) onReceive chạy trên main thread và phải xong nhanh:
+        // giao việc đọc DB + đặt lại alarm cho WorkManager
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            RescheduleRemindersWorker.UNIQUE_NAME,
+            ExistingWorkPolicy.REPLACE,
+            OneTimeWorkRequestBuilder&lt;RescheduleRemindersWorker&gt;().build()
+        )
+    }
+}</code></pre>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý Hilt:</strong> Receiver ở đây không cần inject gì. Nếu cần inject vào BroadcastReceiver, annotate receiver với <code>@AndroidEntryPoint</code> (Application cũng phải dùng <code>@HiltAndroidApp</code>). Worker dùng <code>@HiltWorker</code> cần cấu hình <code>HiltWorkerFactory</code> cho WorkManager.</div></div>
+
+<pre data-lang="kotlin"><code>// worker/RescheduleRemindersWorker.kt
+@HiltWorker
+class RescheduleRemindersWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted params: WorkerParameters,
+    private val reminderRepository: ReminderRepository,
+    private val reminderScheduler: ReminderScheduler // bọc AlarmManager
+) : CoroutineWorker(context, params) {
+
+    override suspend fun doWork(): Result {
+        // (5) Đọc các lần nhắc sắp tới từ Room rồi đặt lại từng alarm
+        reminderRepository.getUpcomingReminders().forEach { reminder -&gt;
+            reminderScheduler.schedule(reminder) // (6) AlarmManager.setAndAllowWhileIdle(...)
+        }
+        return Result.success()
+    }
+
+    companion object {
+        const val UNIQUE_NAME = "reschedule_reminders"
+    }
+}</code></pre>
+
+<pre data-lang="xml"><code>&lt;!-- AndroidManifest.xml --&gt;
+&lt;uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /&gt;
+
+&lt;!-- Nghe broadcast hệ thống → exported="true" (BOOT_COMPLETED là protected broadcast,
+     app khác không giả mạo được) --&gt;
+&lt;receiver
+    android:name=".receiver.BootReceiver"
+    android:exported="true"&gt;
+    &lt;intent-filter&gt;
+        &lt;action android:name="android.intent.action.BOOT_COMPLETED" /&gt;
+        &lt;action android:name="android.intent.action.MY_PACKAGE_REPLACED" /&gt;
+    &lt;/intent-filter&gt;
+&lt;/receiver&gt;</code></pre>
+
+<p><strong>Kết quả:</strong> sau khi thiết bị khởi động lại (hoặc app được cập nhật), các alarm nhắc uống thuốc được đặt lại trong khi <code>onReceive()</code> vẫn trả về ngay. Test Robolectric dưới đây kiểm chứng receiver đã enqueue work.</p>
+
+<h4>Test Static Receiver với Robolectric</h4>
+
+<pre data-lang="kotlin"><code>@RunWith(RobolectricTestRunner::class)
+class BootReceiverTest {
+
+    private lateinit var context: Context
+
+    @Before
+    fun setup() {
+        context = ApplicationProvider.getApplicationContext()
+        // WorkManager phải được khởi tạo bản test trước khi gọi getInstance()
+        WorkManagerTestInitHelper.initializeTestWorkManager(context)
+    }
+
+    @Test
+    fun \`onReceive BOOT_COMPLETED should enqueue reschedule work\`() {
+        BootReceiver().onReceive(context, Intent(Intent.ACTION_BOOT_COMPLETED))
+
+        val workInfos = WorkManager.getInstance(context)
+            .getWorkInfosForUniqueWork(RescheduleRemindersWorker.UNIQUE_NAME)
+            .get()
+
+        assertThat(workInfos).isNotEmpty()
+    }
+}</code></pre>
+
+<h3>Triển khai thực chiến trong MVVM + Clean Architecture + Hilt</h3>
+
+<h4>Bài toán: Theo dõi trạng thái mạng</h4>
 
 <p>Use case phổ biến nhất: App cần biết khi nào mạng mất/khôi phục để retry API call hoặc hiển thị banner offline.</p>
 
-<h3>Kiến trúc</h3>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Mục này <strong>không dùng BroadcastReceiver</strong>: đây là phương án thay thế hiện đại cho <code>CONNECTIVITY_ACTION</code>. <code>NetworkCallback</code> không đi qua broadcast; <code>ConnectivityService</code> của hệ thống gọi callback trực tiếp vào app qua Binder. Flow wrapper giúp nó type-safe và dễ test.</div></div>
+
+<h4>Kiến trúc</h4>
 
 <div class="dd-diagram" data-dd="br-observer">
 <div class="dd-svg dd-svg-dark">
@@ -29865,8 +30180,6 @@ class NetworkConnectivityObserver @Inject constructor(
     }.distinctUntilChanged()
 }</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý:</strong> Mục này <strong>không dùng BroadcastReceiver</strong>: đây là phương án thay thế hiện đại cho <code>CONNECTIVITY_ACTION</code>. <code>NetworkCallback</code> không đi qua broadcast; <code>ConnectivityService</code> của hệ thống gọi callback trực tiếp vào app qua Binder. Flow wrapper giúp nó type-safe và dễ test.</div></div>
-
 <h4>DI Module</h4>
 
 <pre data-lang="kotlin"><code>// di/ConnectivityModule.kt
@@ -29975,7 +30288,7 @@ class HomeFragment : Fragment() {
     }
 }</code></pre>
 
-<h3>Luồng hoạt động (Flow Simulation)</h3>
+<h4>Luồng hoạt động (Flow Simulation)</h4>
 
 <div class="dd-diagram" data-dd="br-offline">
 <div class="dd-svg dd-svg-dark">
@@ -30162,326 +30475,7 @@ class HomeFragment : Fragment() {
 </div>
 </div>
 
-<h2>7. Ví dụ 2: Broadcast Receiver thực sự cần thiết — Boot Receiver + WorkManager</h2>
-
-<h3>Bài toán: Đặt lại alarm nhắc uống thuốc sau khi thiết bị khởi động lại</h3>
-
-<p>Alarm đặt bằng <code>AlarmManager</code> bị hệ thống xoá khi thiết bị tắt/khởi động lại, nên app phải tự đặt lại khi nhận <code>BOOT_COMPLETED</code>. Ngược lại, job của <strong>WorkManager không cần</strong> BootReceiver: WorkManager lưu work vào database và tự lên lịch lại sau reboot.</p>
-
-<pre data-lang="kotlin"><code>// receiver/BootReceiver.kt
-class BootReceiver : BroadcastReceiver() {
-
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != Intent.ACTION_BOOT_COMPLETED &amp;&amp;
-            intent.action != Intent.ACTION_MY_PACKAGE_REPLACED) return
-
-        // onReceive chạy trên main thread và phải xong nhanh:
-        // giao việc đọc DB + đặt lại alarm cho WorkManager
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            RescheduleRemindersWorker.UNIQUE_NAME,
-            ExistingWorkPolicy.REPLACE,
-            OneTimeWorkRequestBuilder&lt;RescheduleRemindersWorker&gt;().build()
-        )
-    }
-}</code></pre>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Lưu ý Hilt:</strong> Receiver ở đây không cần inject gì. Nếu cần inject vào BroadcastReceiver, annotate receiver với <code>@AndroidEntryPoint</code> (Application cũng phải dùng <code>@HiltAndroidApp</code>). Worker dùng <code>@HiltWorker</code> cần cấu hình <code>HiltWorkerFactory</code> cho WorkManager.</div></div>
-
-<pre data-lang="kotlin"><code>// worker/RescheduleRemindersWorker.kt
-@HiltWorker
-class RescheduleRemindersWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted params: WorkerParameters,
-    private val reminderRepository: ReminderRepository,
-    private val reminderScheduler: ReminderScheduler // bọc AlarmManager
-) : CoroutineWorker(context, params) {
-
-    override suspend fun doWork(): Result {
-        // Đọc các lần nhắc sắp tới từ Room rồi đặt lại từng alarm
-        reminderRepository.getUpcomingReminders().forEach { reminder -&gt;
-            reminderScheduler.schedule(reminder) // AlarmManager.setAndAllowWhileIdle(...)
-        }
-        return Result.success()
-    }
-
-    companion object {
-        const val UNIQUE_NAME = "reschedule_reminders"
-    }
-}</code></pre>
-
-<pre data-lang="xml"><code>&lt;!-- AndroidManifest.xml --&gt;
-&lt;uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /&gt;
-
-&lt;!-- Nghe broadcast hệ thống → exported="true" (BOOT_COMPLETED là protected broadcast,
-     app khác không giả mạo được) --&gt;
-&lt;receiver
-    android:name=".receiver.BootReceiver"
-    android:exported="true"&gt;
-    &lt;intent-filter&gt;
-        &lt;action android:name="android.intent.action.BOOT_COMPLETED" /&gt;
-        &lt;action android:name="android.intent.action.MY_PACKAGE_REPLACED" /&gt;
-    &lt;/intent-filter&gt;
-&lt;/receiver&gt;</code></pre>
-
-<h2>8. Security — Bảo mật với Broadcast Receiver</h2>
-
-<p>Broadcast Receiver là một <strong>bề mặt tấn công (attack surface)</strong> tiềm ẩn nếu không cấu hình đúng.</p>
-
-<h3>8.1 <code>android:exported</code> — Quan trọng từ Android 12+</h3>
-
-<p>Từ Android 12 (API 31), mọi receiver có <code>&lt;intent-filter&gt;</code> <strong>bắt buộc phải khai báo</strong> <code>android:exported</code>:</p>
-
-<pre data-lang="xml"><code>&lt;!-- ✅ Đúng — Chỉ nhận broadcast từ nội bộ app --&gt;
-&lt;receiver
-    android:name=".receiver.InternalReceiver"
-    android:exported="false"&gt;
-    ...
-&lt;/receiver&gt;
-
-&lt;!-- ✅ Đúng — Nhận broadcast từ hệ thống hoặc app khác --&gt;
-&lt;receiver
-    android:name=".receiver.BootReceiver"
-    android:exported="true"&gt;
-    ...
-&lt;/receiver&gt;</code></pre>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong><code>exported</code> với system broadcast:</strong> broadcast do chính hệ thống (system UID) gửi, như <code>BOOT_COMPLETED</code>, vẫn tới được receiver <code>exported="false"</code>. Nhưng một số system broadcast đến từ app đặc quyền (Bluetooth, telephony) không chạy dưới UID hệ thống, nên receiver <code>exported="false"</code> sẽ không nhận được. Vì vậy tài liệu chính thức khuyên: receiver nghe broadcast từ <strong>hệ thống hoặc app khác</strong> thì đặt <code>exported="true"</code>, kết hợp kiểm tra action trong <code>onReceive()</code> và permission khi cần.</div></div>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Rule of thumb:</strong> Luôn dùng <code>exported="false"</code> trừ khi bạn có lý do rõ ràng cần nhận từ bên ngoài.</div></div>
-
-<h3>8.2 Permission — Hạn chế ai được gửi broadcast đến receiver của bạn</h3>
-
-<pre data-lang="xml"><code>&lt;!-- Chỉ app có permission này mới gửi được --&gt;
-&lt;receiver
-    android:name=".receiver.SecureReceiver"
-    android:exported="true"
-    android:permission="com.example.SEND_SECURE_BROADCAST"&gt;
-    &lt;intent-filter&gt;
-        &lt;action android:name="com.example.SECURE_ACTION" /&gt;
-    &lt;/intent-filter&gt;
-&lt;/receiver&gt;</code></pre>
-
-<h3>8.3 Phía gửi: giới hạn ai nhận được</h3>
-
-<p>Bên gửi giới hạn người nhận bằng <code>setPackage()</code> hoặc truyền permission vào <code>sendBroadcast(intent, receiverPermission)</code>, và không đặt dữ liệu nhạy cảm vào extras của broadcast. Chi tiết ở <a href="../../intent/push_data_event.md" target="_blank" rel="noopener">Push data and send event via Intent</a>, mục "2.3 Explicit Broadcast vs Implicit Broadcast" và "2.5 Gửi broadcast có permission".</p>
-
-<h3>8.4 Validate Intent trong onReceive()</h3>
-
-<pre data-lang="kotlin"><code>override fun onReceive(context: Context, intent: Intent) {
-    // Validate action trước khi xử lý
-    if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
-
-    // Validate extras nếu có
-    val payload = intent.getStringExtra("payload") ?: return
-    if (!isValidPayload(payload)) return
-
-    // Xử lý an toàn
-    processBootCompleted(context)
-}</code></pre>
-
-<h2>9. Khi nào dùng Broadcast Receiver, khi nào dùng thứ khác?</h2>
-
-<p>Broadcast Receiver chỉ là <strong>điểm nhận sự kiện</strong> và sống trong thời gian <code>onReceive()</code> (tối đa khoảng 10 giây). Việc chạy lâu hoặc phải chắc chắn hoàn thành thuộc về WorkManager hay Foreground Service, còn giao tiếp trong cùng app thuộc về Flow/SharedFlow. Bảng chọn giữa Service, WorkManager và Flow/SharedFlow ở <a href="../services/android_service.md" target="_blank" rel="noopener">Android Service</a>, mục "Service, WorkManager hay Flow/SharedFlow?".</p>
-
-<h3>Khi nào dùng Broadcast Receiver</h3>
-
-<p>✅ Dùng khi bạn cần <strong>phản ứng với sự kiện hệ thống</strong> mà không có API thay thế:</p>
-
-<ul>
-  <li><code>ACTION_BOOT_COMPLETED</code> — đặt lại alarm của <code>AlarmManager</code> sau reboot (job WorkManager tự được lên lịch lại)</li>
-  <li><code>ACTION_MY_PACKAGE_REPLACED</code> — migrate data sau update</li>
-  <li><code>SMS_RECEIVED</code> — xử lý SMS trong OTP flow</li>
-  <li>~~<code>ACTION_POWER_CONNECTED</code> — bắt đầu sync khi sạc~~: không nhận được qua Manifest từ Android 8 (không có trong danh sách miễn trừ). Muốn sync khi sạc, dùng WorkManager với <code>setRequiresCharging(true)</code></li>
-</ul>
-
-<h3>Khi việc cần làm vượt quá onReceive()</h3>
-
-<p>Nhận sự kiện bằng receiver, rồi giao việc cho WorkManager ngay trong <code>onReceive()</code> như ví dụ Boot Receiver ở mục 7. Đừng cố làm việc dài trong receiver:</p>
-
-<div class="dd-diagram" data-dd="br-upload">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 288" role="img" aria-labelledby="br-upload-dark-title br-upload-dark-desc" font-family="'Geist', sans-serif">
-<title id="br-upload-dark-title">Việc nền đừng tin Broadcast</title>
-<desc id="br-upload-dark-desc">Tải ảnh khi có WiFi thì WorkManager đảm bảo xong việc, Broadcast Receiver không đảm bảo.</desc>
-<defs>
-<marker id="br-upload-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="288" fill="#060913"/>
-<!-- arrows -->
-<path d="M 400,92 V 140 H 188 Q 180,140 180,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#br-upload-dark-arrow)"/>
-<path d="M 400,92 V 140 H 612 Q 620,140 620,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-upload-dark-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Upload ảnh · WiFi</text>
-<text x="400" y="84" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app đã đóng</text>
-<rect x="80" y="192" width="200" height="56" rx="6" fill="#060913"/>
-<rect x="80" y="192" width="200" height="56" rx="6" fill="transparent" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
-<rect x="88" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
-<text x="114" y="207" fill="rgba(100,116,139,0.9)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THUA</text>
-<text x="180" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">BroadcastReceiver</text>
-<text x="180" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">max 10s · hên xui</text>
-<rect x="520" y="192" width="200" height="56" rx="6" fill="#060913"/>
-<rect x="520" y="192" width="200" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="528" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="554" y="207" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THẮNG</text>
-<text x="620" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
-<text x="620" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">persist · đúng hẹn</text>
-<!-- legend -->
-<line x1="32" y1="264" x2="768" y2="264" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="276" r="4" fill="#38BDF8"/>
-<text x="162" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THẮNG · ĐẢM BẢO XONG</text>
-<line x1="400" y1="276" x2="432" y2="276" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
-<text x="440" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THUA · KHÔNG ĐẢM BẢO</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 288" role="img" aria-labelledby="br-upload-title br-upload-desc" font-family="'Geist', sans-serif">
-<title id="br-upload-title">Việc nền đừng tin Broadcast</title>
-<desc id="br-upload-desc">Tải ảnh khi có WiFi thì WorkManager đảm bảo xong việc, Broadcast Receiver không đảm bảo.</desc>
-<defs>
-<marker id="br-upload-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="288" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 400,92 V 140 H 188 Q 180,140 180,148 V 192" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#br-upload-arrow)"/>
-<path d="M 400,92 V 140 H 612 Q 620,140 620,148 V 192" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#br-upload-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Upload ảnh · WiFi</text>
-<text x="400" y="84" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app đã đóng</text>
-<rect x="80" y="192" width="200" height="56" rx="6" fill="#F8FAFC"/>
-<rect x="80" y="192" width="200" height="56" rx="6" fill="transparent" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
-<rect x="88" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
-<text x="114" y="207" fill="rgba(100,116,139,0.9)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THUA</text>
-<text x="180" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">BroadcastReceiver</text>
-<text x="180" y="240" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">max 10s · hên xui</text>
-<rect x="520" y="192" width="200" height="56" rx="6" fill="#F8FAFC"/>
-<rect x="520" y="192" width="200" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="528" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="554" y="207" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THẮNG</text>
-<text x="620" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
-<text x="620" y="240" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">persist · đúng hẹn</text>
-<!-- legend -->
-<line x1="32" y1="264" x2="768" y2="264" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="276" r="4" fill="#0284C7"/>
-<text x="162" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">THẮNG · ĐẢM BẢO XONG</text>
-<line x1="400" y1="276" x2="432" y2="276" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
-<text x="440" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">THUA · KHÔNG ĐẢM BẢO</text>
-</svg>
-</div>
-</div>
-
-<p>Giao tiếp trong cùng app (thay <code>LocalBroadcastManager</code>) dùng Flow/SharedFlow, xem mục 5.</p>
-
-<h2>10. Các lỗi phổ biến và cách tránh</h2>
-
-<h3>Lỗi 1: Memory Leak — Quên unregister Dynamic Receiver</h3>
-
-<pre data-lang="kotlin"><code>// ❌ Lỗi thường gặp
-class BadActivity : AppCompatActivity() {
-    private val receiver = NetworkReceiver()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        ContextCompat.registerReceiver(this, receiver, IntentFilter(...), ContextCompat.RECEIVER_EXPORTED)
-        // Không có unregister → memory leak!
-    }
-}
-
-// ✅ Đúng — Unregister ở đúng lifecycle counterpart
-class GoodActivity : AppCompatActivity() {
-    private val receiver = NetworkReceiver()
-
-    override fun onStart() {
-        super.onStart()
-        ContextCompat.registerReceiver(this, receiver, IntentFilter(...), ContextCompat.RECEIVER_EXPORTED)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        unregisterReceiver(receiver)
-    }
-}</code></pre>
-
-<h3>Lỗi 2: Làm việc nặng trong onReceive()</h3>
-
-<pre data-lang="kotlin"><code>// ❌ Block main thread → ANR sau 10 giây
-override fun onReceive(context: Context, intent: Intent) {
-    uploadFilesToServer() // Tác vụ nặng
-}
-
-// ✅ Delegate sang WorkManager
-override fun onReceive(context: Context, intent: Intent) {
-    WorkManager.getInstance(context)
-        .enqueue(OneTimeWorkRequestBuilder&lt;UploadWorker&gt;().build())
-}</code></pre>
-
-<h3>Lỗi 3: Dùng Static Receiver cho implicit broadcast trên Android 8+</h3>
-
-<pre data-lang="xml"><code>&lt;!-- ❌ Sẽ không hoạt động trên Android 8+ --&gt;
-&lt;receiver android:name=".NetworkReceiver"&gt;
-    &lt;intent-filter&gt;
-        &lt;action android:name="android.net.conn.CONNECTIVITY_CHANGE" /&gt;
-    &lt;/intent-filter&gt;
-&lt;/receiver&gt;</code></pre>
-
-<pre data-lang="kotlin"><code>// ✅ Dùng Dynamic Receiver hoặc NetworkCallback thay thế
-val request = NetworkRequest.Builder()
-    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    .build()
-connectivityManager.registerNetworkCallback(request, networkCallback)</code></pre>
-
-<h3>Lỗi 4: Không khai báo exported trên Android 12+</h3>
-
-<pre data-lang="xml"><code>&lt;!-- ❌ Cài đặt thất bại trên Android 12+ (INSTALL_PARSE_FAILED_MANIFEST_MALFORMED) --&gt;
-&lt;receiver android:name=".MyReceiver"&gt;
-    &lt;intent-filter&gt;...&lt;/intent-filter&gt;
-&lt;/receiver&gt;
-
-&lt;!-- ✅ Phải khai báo rõ --&gt;
-&lt;receiver android:name=".MyReceiver" android:exported="false"&gt;
-    &lt;intent-filter&gt;...&lt;/intent-filter&gt;
-&lt;/receiver&gt;</code></pre>
-
-<p>Với targetSdk 31+, thiếu <code>exported</code> trên component có <code>&lt;intent-filter&gt;</code> làm build lỗi ngay ở bước manifest merger; APK dựng bằng công cụ cũ thì cài thất bại. Chi tiết ở <a href="../../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>, mục "android:exported — quy tắc quan trọng nhất từ Android 12".</p>
-
-<h2>11. Testing Broadcast Receiver</h2>
-
-<h3>Test Static Receiver với Robolectric</h3>
-
-<pre data-lang="kotlin"><code>@RunWith(RobolectricTestRunner::class)
-class BootReceiverTest {
-
-    private lateinit var context: Context
-
-    @Before
-    fun setup() {
-        context = ApplicationProvider.getApplicationContext()
-        // WorkManager phải được khởi tạo bản test trước khi gọi getInstance()
-        WorkManagerTestInitHelper.initializeTestWorkManager(context)
-    }
-
-    @Test
-    fun \`onReceive BOOT_COMPLETED should enqueue reschedule work\`() {
-        BootReceiver().onReceive(context, Intent(Intent.ACTION_BOOT_COMPLETED))
-
-        val workInfos = WorkManager.getInstance(context)
-            .getWorkInfosForUniqueWork(RescheduleRemindersWorker.UNIQUE_NAME)
-            .get()
-
-        assertThat(workInfos).isNotEmpty()
-    }
-}</code></pre>
-
-<h3>Test Dynamic Receiver Behavior qua ViewModel</h3>
+<h4>Test Dynamic Receiver Behavior qua ViewModel</h4>
 
 <p>Test logic trong ViewModel dễ hơn nhiều khi bạn tách flow qua <code>ConnectivityObserver</code>:</p>
 
@@ -30518,7 +30512,7 @@ class FakeConnectivityObserver : ConnectivityObserver {
     override fun observe() = _statusFlow
 }</code></pre>
 
-<h2>12. Tư duy hệ thống — Vị trí trong Clean Architecture</h2>
+<h3>Tư duy hệ thống — Vị trí trong Clean Architecture</h3>
 
 <div class="dd-diagram" data-dd="br-arch">
 <div class="dd-svg dd-svg-dark">
@@ -30695,28 +30689,419 @@ class FakeConnectivityObserver : ConnectivityObserver {
   <li><strong>ViewModel không import bất kỳ Android broadcast API</strong> — chỉ làm việc với <code>Flow</code> và interface, giúp test dễ dàng.</li>
 </ol>
 
-<h2>13. Nên học tiếp gì?</h2>
+<h2>So sánh với các cách tiếp cận khác</h2>
 
-<p>Sau khi nắm vững Broadcast Receiver, bạn nên tìm hiểu:</p>
+<h3>LocalBroadcastManager — Deprecated và thay thế</h3>
+
+<h4>LocalBroadcastManager là gì?</h4>
+
+<p><code>LocalBroadcastManager</code> là utility class của AndroidX cho phép gửi và nhận broadcast <strong>chỉ trong nội bộ ứng dụng</strong> (không qua hệ thống).</p>
+
+<pre data-lang="kotlin"><code>// Gửi
+LocalBroadcastManager.getInstance(context)
+    .sendBroadcast(Intent("com.example.REFRESH_DATA"))
+
+// Nhận
+LocalBroadcastManager.getInstance(this)
+    .registerReceiver(receiver, IntentFilter("com.example.REFRESH_DATA"))</code></pre>
+
+<h4>Vì sao nó deprecated?</h4>
+
+<p><code>LocalBroadcastManager</code> bắt đầu bị deprecated từ artifact <strong><code>androidx.localbroadcastmanager</code> 1.1.0-alpha01</strong> (12/2018) và bị deprecated hoàn toàn ở bản stable <strong>1.1.0</strong> (01/2022) vì:</p>
+
+<ol>
+  <li><strong>Không phải giải pháp tốt cho giao tiếp component</strong>: Nó chỉ là wrapper của BroadcastReceiver — vẫn có overhead của Intent và Receiver creation.</li>
+  <li><strong>Không type-safe</strong>: Mọi dữ liệu phải serialize vào Intent extras → dễ lỗi runtime.</li>
+  <li><strong>Có giải pháp tốt hơn nhiều</strong> trong Kotlin ecosystem.</li>
+</ol>
+
+<h4>Thay thế LocalBroadcastManager</h4>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Use case</th>
+      <th style="padding:8px 12px;text-align:left;">Giải pháp thay thế</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">ViewModel ↔ UI</td>
+      <td style="padding:8px 12px;"><code>StateFlow</code> / <code>LiveData</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Giữa các ViewModel</td>
+      <td style="padding:8px 12px;"><code>SharedViewModel</code> / <code>SharedFlow</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Giữa các màn hình (navigation)</td>
+      <td style="padding:8px 12px;"><code>SavedStateHandle</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Giữa các layer (Repository → ViewModel)</td>
+      <td style="padding:8px 12px;"><code>Flow</code> / <code>SharedFlow</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Broadcast toàn app (one-to-many)</td>
+      <td style="padding:8px 12px;"><code>SharedFlow</code> với replay=0</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Ví dụ thay thế: <code>SharedFlow</code> thay vì <code>LocalBroadcastManager</code></strong></p>
+
+<pre data-lang="kotlin"><code>// AppEventBus.kt — Singleton dạng object (hoặc class @Singleton inject qua Hilt)
+object AppEventBus {
+    private val _events = MutableSharedFlow&lt;AppEvent&gt;(extraBufferCapacity = 64)
+    val events: SharedFlow&lt;AppEvent&gt; = _events.asSharedFlow()
+
+    suspend fun emit(event: AppEvent) = _events.emit(event)
+}
+
+sealed class AppEvent {
+    object RefreshData : AppEvent()
+    data class ShowError(val message: String) : AppEvent()
+}
+
+// ViewModel phát sự kiện
+viewModelScope.launch {
+    AppEventBus.emit(AppEvent.RefreshData)
+}
+
+// ViewModel nhận sự kiện
+viewModelScope.launch {
+    AppEventBus.events
+        .filterIsInstance&lt;AppEvent.RefreshData&gt;()
+        .collect { handleRefresh() }
+}</code></pre>
+
+<p>Docs cũng khuyên tránh hẳn "self-broadcast" (broadcast mà mọi receiver nằm cùng process với bên gửi): nó tốn chi phí IPC của hệ thống mà không đem lại gì so với Flow, Shared ViewModel hay callback.</p>
+
+<div class="dd-diagram" data-dd="br-flow">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 288" role="img" aria-labelledby="br-flow-dark-title br-flow-dark-desc" font-family="'Geist', sans-serif">
+<title id="br-flow-dark-title">Báo nhau trong app: đừng dùng broadcast</title>
+<desc id="br-flow-dark-desc">Cache hết hạn thì Flow báo type-safe, LocalBroadcast thì không.</desc>
+<defs>
+<marker id="br-flow-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="288" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,92 V 140 H 188 Q 180,140 180,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#br-flow-dark-arrow)"/>
+<path d="M 400,92 V 140 H 612 Q 620,140 620,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-flow-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Cache hết hạn</text>
+<text x="400" y="84" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">repo báo viewmodel</text>
+<rect x="80" y="192" width="200" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="192" width="200" height="56" rx="6" fill="transparent" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<rect x="88" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="114" y="207" fill="rgba(100,116,139,0.9)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THUA</text>
+<text x="180" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">LocalBroadcastManager</text>
+<text x="180" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">deprecated · lỗi thời</text>
+<rect x="520" y="192" width="200" height="56" rx="6" fill="#060913"/>
+<rect x="520" y="192" width="200" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="528" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="554" y="207" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THẮNG</text>
+<text x="620" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Flow · SharedFlow</text>
+<text x="620" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">type-safe · reactive</text>
+<!-- legend -->
+<line x1="32" y1="264" x2="768" y2="264" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="276" r="4" fill="#38BDF8"/>
+<text x="162" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THẮNG · TYPE-SAFE</text>
+<line x1="400" y1="276" x2="432" y2="276" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="440" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THUA · LỖI THỜI</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 288" role="img" aria-labelledby="br-flow-title br-flow-desc" font-family="'Geist', sans-serif">
+<title id="br-flow-title">Báo nhau trong app: đừng dùng broadcast</title>
+<desc id="br-flow-desc">Cache hết hạn thì Flow báo type-safe, LocalBroadcast thì không.</desc>
+<defs>
+<marker id="br-flow-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="288" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,92 V 140 H 188 Q 180,140 180,148 V 192" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#br-flow-arrow)"/>
+<path d="M 400,92 V 140 H 612 Q 620,140 620,148 V 192" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#br-flow-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Cache hết hạn</text>
+<text x="400" y="84" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">repo báo viewmodel</text>
+<rect x="80" y="192" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="192" width="200" height="56" rx="6" fill="transparent" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<rect x="88" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="114" y="207" fill="rgba(100,116,139,0.9)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THUA</text>
+<text x="180" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">LocalBroadcastManager</text>
+<text x="180" y="240" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">deprecated · lỗi thời</text>
+<rect x="520" y="192" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="520" y="192" width="200" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="528" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="554" y="207" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THẮNG</text>
+<text x="620" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Flow · SharedFlow</text>
+<text x="620" y="240" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">type-safe · reactive</text>
+<!-- legend -->
+<line x1="32" y1="264" x2="768" y2="264" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="276" r="4" fill="#0284C7"/>
+<text x="162" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">THẮNG · TYPE-SAFE</text>
+<line x1="400" y1="276" x2="432" y2="276" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="440" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">THUA · LỖI THỜI</text>
+</svg>
+</div>
+</div>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<p>Broadcast Receiver chỉ là <strong>điểm nhận sự kiện</strong> và sống trong thời gian <code>onReceive()</code> (tối đa khoảng 10 giây). Việc chạy lâu hoặc phải chắc chắn hoàn thành thuộc về WorkManager hay Foreground Service, còn giao tiếp trong cùng app thuộc về Flow/SharedFlow. Bảng chọn giữa Service, WorkManager và Flow/SharedFlow ở <a href="../services/android_service.md" target="_blank" rel="noopener">Android Service</a>, mục "Service, WorkManager hay Flow/SharedFlow?".</p>
+
+<h3>Khi nào dùng Broadcast Receiver</h3>
+
+<p>✅ Dùng khi bạn cần <strong>phản ứng với sự kiện hệ thống</strong> mà không có API thay thế:</p>
 
 <ul>
-  <li><strong>WorkManager</strong> — quản lý background work phức tạp hơn, guaranteed execution</li>
-  <li><strong>Intent và Intent Filter</strong> — cơ chế routing của Broadcast</li>
-  <li><strong>Foreground Service</strong> — khi cần chạy nền nhưng user cần biết (music player, location tracking)</li>
-  <li><strong>ConnectivityManager.NetworkCallback</strong> — API hiện đại hơn để theo dõi mạng</li>
+  <li><code>ACTION_BOOT_COMPLETED</code> — đặt lại alarm của <code>AlarmManager</code> sau reboot (job WorkManager tự được lên lịch lại)</li>
+  <li><code>ACTION_MY_PACKAGE_REPLACED</code> — migrate data sau update</li>
+  <li><code>SMS_RECEIVED</code> — xử lý SMS trong OTP flow</li>
+  <li>~~<code>ACTION_POWER_CONNECTED</code> — bắt đầu sync khi sạc~~: không nhận được qua Manifest từ Android 8 (không có trong danh sách miễn trừ). Muốn sync khi sạc, dùng WorkManager với <code>setRequiresCharging(true)</code></li>
 </ul>
 
-<h2>References</h2>
+<h3>Khi việc cần làm vượt quá onReceive()</h3>
+
+<p>Nhận sự kiện bằng receiver, rồi giao việc cho WorkManager ngay trong <code>onReceive()</code> như ví dụ Boot Receiver ở mục "Ví dụ thực tế". Đừng cố làm việc dài trong receiver:</p>
+
+<div class="dd-diagram" data-dd="br-upload">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 288" role="img" aria-labelledby="br-upload-dark-title br-upload-dark-desc" font-family="'Geist', sans-serif">
+<title id="br-upload-dark-title">Việc nền đừng tin Broadcast</title>
+<desc id="br-upload-dark-desc">Tải ảnh khi có WiFi thì WorkManager đảm bảo xong việc, Broadcast Receiver không đảm bảo.</desc>
+<defs>
+<marker id="br-upload-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="288" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,92 V 140 H 188 Q 180,140 180,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#br-upload-dark-arrow)"/>
+<path d="M 400,92 V 140 H 612 Q 620,140 620,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#br-upload-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Upload ảnh · WiFi</text>
+<text x="400" y="84" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app đã đóng</text>
+<rect x="80" y="192" width="200" height="56" rx="6" fill="#060913"/>
+<rect x="80" y="192" width="200" height="56" rx="6" fill="transparent" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<rect x="88" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="114" y="207" fill="rgba(100,116,139,0.9)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THUA</text>
+<text x="180" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">BroadcastReceiver</text>
+<text x="180" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">max 10s · hên xui</text>
+<rect x="520" y="192" width="200" height="56" rx="6" fill="#060913"/>
+<rect x="520" y="192" width="200" height="56" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="528" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="554" y="207" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THẮNG</text>
+<text x="620" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
+<text x="620" y="240" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">persist · đúng hẹn</text>
+<!-- legend -->
+<line x1="32" y1="264" x2="768" y2="264" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="276" r="4" fill="#38BDF8"/>
+<text x="162" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THẮNG · ĐẢM BẢO XONG</text>
+<line x1="400" y1="276" x2="432" y2="276" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="440" y="280" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">THUA · KHÔNG ĐẢM BẢO</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 288" role="img" aria-labelledby="br-upload-title br-upload-desc" font-family="'Geist', sans-serif">
+<title id="br-upload-title">Việc nền đừng tin Broadcast</title>
+<desc id="br-upload-desc">Tải ảnh khi có WiFi thì WorkManager đảm bảo xong việc, Broadcast Receiver không đảm bảo.</desc>
+<defs>
+<marker id="br-upload-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="288" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,92 V 140 H 188 Q 180,140 180,148 V 192" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#br-upload-arrow)"/>
+<path d="M 400,92 V 140 H 612 Q 620,140 620,148 V 192" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#br-upload-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Upload ảnh · WiFi</text>
+<text x="400" y="84" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">app đã đóng</text>
+<rect x="80" y="192" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="192" width="200" height="56" rx="6" fill="transparent" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>
+<rect x="88" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(100,116,139,0.40)" stroke-width="0.8"/>
+<text x="114" y="207" fill="rgba(100,116,139,0.9)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THUA</text>
+<text x="180" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">BroadcastReceiver</text>
+<text x="180" y="240" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">max 10s · hên xui</text>
+<rect x="520" y="192" width="200" height="56" rx="6" fill="#F8FAFC"/>
+<rect x="520" y="192" width="200" height="56" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="528" y="198" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="554" y="207" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">THẮNG</text>
+<text x="620" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">WorkManager</text>
+<text x="620" y="240" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">persist · đúng hẹn</text>
+<!-- legend -->
+<line x1="32" y1="264" x2="768" y2="264" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="276" r="4" fill="#0284C7"/>
+<text x="162" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">THẮNG · ĐẢM BẢO XONG</text>
+<line x1="400" y1="276" x2="432" y2="276" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="440" y="280" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">THUA · KHÔNG ĐẢM BẢO</text>
+</svg>
+</div>
+</div>
+
+<p>Giao tiếp trong cùng app (thay <code>LocalBroadcastManager</code>) dùng Flow/SharedFlow, xem mục "LocalBroadcastManager — Deprecated và thay thế".</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Memory Leak — Quên unregister Dynamic Receiver</h3>
+
+<p>Receiver đăng ký trong <code>onCreate()</code> mà không có <code>unregisterReceiver()</code> tương ứng thì tiếp tục giữ Context của Activity.</p>
+
+<p><strong>Cách sửa:</strong> đăng ký và huỷ ở cùng cặp lifecycle (<code>onStart</code>/<code>onStop</code>), như ví dụ "Đăng ký và hủy đăng ký đúng cách" ở trên.</p>
+
+<pre data-lang="kotlin"><code>// ❌ Lỗi thường gặp
+class BadActivity : AppCompatActivity() {
+    private val receiver = NetworkReceiver()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        ContextCompat.registerReceiver(this, receiver, IntentFilter(...), ContextCompat.RECEIVER_EXPORTED)
+        // Không có unregister → memory leak!
+    }
+}
+
+// ✅ Đúng — Unregister ở đúng lifecycle counterpart
+class GoodActivity : AppCompatActivity() {
+    private val receiver = NetworkReceiver()
+
+    override fun onStart() {
+        super.onStart()
+        ContextCompat.registerReceiver(this, receiver, IntentFilter(...), ContextCompat.RECEIVER_EXPORTED)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unregisterReceiver(receiver)
+    }
+}</code></pre>
+
+<h3>2. Làm việc nặng trong onReceive()</h3>
+
+<p><code>onReceive()</code> chạy trên main thread; tác vụ nặng chặn main thread và gây ANR.</p>
+
+<p><strong>Cách sửa:</strong> giao việc cho WorkManager ngay trong <code>onReceive()</code>.</p>
+
+<pre data-lang="kotlin"><code>// ❌ Block main thread → ANR sau 10 giây
+override fun onReceive(context: Context, intent: Intent) {
+    uploadFilesToServer() // Tác vụ nặng
+}
+
+// ✅ Delegate sang WorkManager
+override fun onReceive(context: Context, intent: Intent) {
+    WorkManager.getInstance(context)
+        .enqueue(OneTimeWorkRequestBuilder&lt;UploadWorker&gt;().build())
+}</code></pre>
+
+<h3>3. Dùng Static Receiver cho implicit broadcast trên Android 8+</h3>
+
+<p>Receiver khai báo trong Manifest cho một implicit broadcast không được miễn trừ sẽ không bao giờ được gọi.</p>
+
+<p><strong>Cách sửa:</strong> dùng Dynamic Receiver hoặc, với mạng, <code>NetworkCallback</code>.</p>
+
+<pre data-lang="xml"><code>&lt;!-- ❌ Sẽ không hoạt động trên Android 8+
+     (riêng CONNECTIVITY_CHANGE: đã không tới receiver khai báo trong Manifest từ Android 7.0, app target API 24+) --&gt;
+&lt;receiver android:name=".NetworkReceiver"&gt;
+    &lt;intent-filter&gt;
+        &lt;action android:name="android.net.conn.CONNECTIVITY_CHANGE" /&gt;
+    &lt;/intent-filter&gt;
+&lt;/receiver&gt;</code></pre>
+
+<pre data-lang="kotlin"><code>// ✅ Dùng Dynamic Receiver hoặc NetworkCallback thay thế
+val request = NetworkRequest.Builder()
+    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    .build()
+connectivityManager.registerNetworkCallback(request, networkCallback)</code></pre>
+
+<h3>4. Không khai báo exported trên Android 12+</h3>
+
+<pre data-lang="xml"><code>&lt;!-- ❌ Cài đặt thất bại trên Android 12+ (INSTALL_PARSE_FAILED_MANIFEST_MALFORMED) --&gt;
+&lt;receiver android:name=".MyReceiver"&gt;
+    &lt;intent-filter&gt;...&lt;/intent-filter&gt;
+&lt;/receiver&gt;
+
+&lt;!-- ✅ Phải khai báo rõ --&gt;
+&lt;receiver android:name=".MyReceiver" android:exported="false"&gt;
+    &lt;intent-filter&gt;...&lt;/intent-filter&gt;
+&lt;/receiver&gt;</code></pre>
+
+<p>Với targetSdk 31+, thiếu <code>exported</code> trên component có <code>&lt;intent-filter&gt;</code> làm build lỗi ngay ở bước manifest merger; APK dựng bằng công cụ cũ thì cài thất bại. Chi tiết ở <a href="../../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>, mục "android:exported — quy tắc quan trọng nhất từ Android 12".</p>
+
+<p><strong>Cách sửa:</strong> khai báo <code>android:exported</code> rõ ràng trên mọi receiver có <code>&lt;intent-filter&gt;</code>.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>API 1 (Android 1.0):</strong> <code>BroadcastReceiver</code>, <code>onReceive()</code> và các API của ordered broadcast (<code>abortBroadcast()</code>, <code>setResultData()</code>, <code>setResultExtras()</code>, <code>getResultData()</code>) có từ API level đầu tiên; <code>CONNECTIVITY_ACTION</code> cũng có từ API 1.</li>
+  <li><strong>API 11 (Android 3.0):</strong> thêm <code>goAsync()</code>.</li>
+  <li><strong>Android 7.0 (API 24):</strong> hệ thống không còn gửi <code>ACTION_NEW_PICTURE</code>/<code>ACTION_NEW_VIDEO</code>; app target API 24+ chỉ nhận <code>CONNECTIVITY_ACTION</code> qua receiver đăng ký bằng code, khai báo trong Manifest không còn tác dụng. <code>registerDefaultNetworkCallback()</code> cũng có từ API 24.</li>
+  <li><strong>Android 8.0 (API 26):</strong> app target API 26+ không khai báo được receiver trong Manifest cho hầu hết implicit broadcast (trừ danh sách được miễn); receiver đăng ký bằng code vẫn nhận khi app đang được dùng.</li>
+  <li><strong>Android 9 (API 28):</strong> <code>CONNECTIVITY_ACTION</code> bị deprecated, docs chuyển sang <code>NetworkCallback</code>.</li>
+  <li><strong>12/2018 (LocalBroadcastManager 1.1.0-alpha01):</strong> <code>LocalBroadcastManager</code> bắt đầu bị deprecated; bản 1.1.0 (01/2022) deprecated hoàn toàn, docs khuyên thay bằng LiveData hoặc reactive stream.</li>
+  <li><strong>Android 12 (API 31):</strong> app target API 31+ phải khai báo <code>android:exported</code> cho receiver (cùng Activity, Service) có <code>&lt;intent-filter&gt;</code>, nếu không app không cài được.</li>
+  <li><strong>Android 13 (API 33):</strong> thêm cờ <code>RECEIVER_EXPORTED</code> / <code>RECEIVER_NOT_EXPORTED</code> cho receiver đăng ký bằng code.</li>
+  <li><strong>Android 14 (API 34):</strong> app target API 34+ đăng ký receiver bằng code phải chỉ định một trong hai cờ trên (trừ receiver chỉ nhận system broadcast); khi app ở trạng thái cached, hệ thống hoãn các system broadcast ít quan trọng.</li>
+  <li><strong>Android 16:</strong> <code>android:priority</code> của ordered broadcast chỉ được tôn trọng giữa các receiver trong cùng một process.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="../activity/index.md" target="_blank" rel="noopener">Activity</a> và <a href="../activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>: Dynamic Receiver đăng ký và huỷ theo cặp lifecycle của Activity.</li>
+  <li><a href="../../intent/intent_filters.md" target="_blank" rel="noopener">Intent Filters Value</a>: filter quyết định receiver nhận action nào, và <code>android:priority</code> của filter có ý nghĩa với ordered broadcast.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../../intent/push_data_event.md" target="_blank" rel="noopener">Push data and send event via Intent</a>: phía gửi broadcast (<code>sendBroadcast</code>, <code>sendOrderedBroadcast</code>, <code>setPackage</code>, permission).</li>
+  <li><a href="../../intent/explicit_intents.md" target="_blank" rel="noopener">Explicit Intents</a>: Intent đích danh, cơ sở của explicit broadcast vẫn tới được Static Receiver.</li>
+  <li><a href="../../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>: khai báo <code>&lt;receiver&gt;</code>, <code>android:exported</code>, <code>android:permission</code>.</li>
+  <li><a href="../../intent/pending_intent.md" target="_blank" rel="noopener">Pending Intent</a>: PendingIntent tạo bằng <code>getBroadcast()</code> (AlarmManager, nút action trên Notification) được giao tới receiver.</li>
+  <li><a href="../services/android_service.md" target="_blank" rel="noopener">Android Service</a>: WorkManager (mục "WorkManager — Lựa chọn hiện đại cho background task") nhận việc mà receiver giao, và Foreground Service (mục "Foreground Service — Phát nhạc nền") khi cần chạy nền nhưng user cần biết (music player, location tracking).</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="../content_provider.md" target="_blank" rel="noopener">Content Provider</a>: Application Component tiếp theo trong mục 4.2.</li>
+  <li><a href="../../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "6. Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager &amp; NetworkCallback": API hiện đại hơn để theo dõi mạng.</li>
+  <li>7.1.4.2 Flow (chưa có bài): <code>SharedFlow</code>/<code>StateFlow</code> thay cho broadcast nội bộ.</li>
+  <li>7.1.5.3 Hilt (chưa có bài), 7.2.4 MVI và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà phần "Ví dụ thực tế" dựa vào.</li>
+  <li><a href="../../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: nền cho test Robolectric và test ViewModel với fake.</li>
+</ul></li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
 
 <ul>
   <li><a href="https://developer.android.com/guide/components/broadcasts" target="_blank" rel="noopener">Android Developers — Broadcast overview</a></li>
   <li><a href="https://developer.android.com/develop/background-work/background-tasks/broadcasts/broadcast-exceptions" target="_blank" rel="noopener">Android Developers — Implicit Broadcast Exceptions (Android 8+)</a></li>
-  <li><a href="https://developer.android.com/reference/android/content/BroadcastReceiver" target="_blank" rel="noopener">Android Developers — BroadcastReceiver</a></li>
+  <li><a href="https://developer.android.com/reference/android/content/BroadcastReceiver" target="_blank" rel="noopener">Android Developers — BroadcastReceiver (API 1, goAsync API 11, giới hạn 10 giây)</a></li>
   <li><a href="https://developer.android.com/reference/androidx/localbroadcastmanager/content/LocalBroadcastManager" target="_blank" rel="noopener">AndroidX LocalBroadcastManager deprecation</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/localbroadcastmanager" target="_blank" rel="noopener">LocalBroadcastManager release notes (1.1.0-alpha01 12/2018, 1.1.0 01/2022)</a></li>
   <li><a href="https://developer.android.com/topic/libraries/architecture/workmanager" target="_blank" rel="noopener">Android Developers — WorkManager</a></li>
   <li><a href="https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-shared-flow/" target="_blank" rel="noopener">Kotlin Coroutines — SharedFlow</a></li>
   <li><a href="https://developer.android.com/training/dependency-injection/hilt-android" target="_blank" rel="noopener">Hilt — Inject into Android classes</a></li>
-  <li><a href="https://developer.android.com/develop/background-work/background-tasks/broadcasts" target="_blank" rel="noopener">Android Developers — Broadcasts (RECEIVER_EXPORTED, Android 14 cached apps)</a></li>
+  <li><a href="https://developer.android.com/develop/background-work/background-tasks/broadcasts" target="_blank" rel="noopener">Android Developers — Broadcasts (RECEIVER_EXPORTED, Android 7.0/8.0/14/16 changes)</a></li>
+  <li><a href="https://developer.android.com/reference/android/content/Context#RECEIVER_EXPORTED" target="_blank" rel="noopener">Context — RECEIVER_EXPORTED / RECEIVER_NOT_EXPORTED (API 33)</a></li>
+  <li><a href="https://developer.android.com/about/versions/12/behavior-changes-12" target="_blank" rel="noopener">Android 12 behavior changes — Safer component exporting</a></li>
   <li><a href="https://developer.android.com/about/versions/14/behavior-changes-14" target="_blank" rel="noopener">Android 14 behavior changes</a></li>
   <li><a href="https://developer.android.com/reference/android/net/ConnectivityManager#CONNECTIVITY_ACTION" target="_blank" rel="noopener">ConnectivityManager — CONNECTIVITY_ACTION (deprecated)</a></li>
   <li><a href="https://developer.android.com/develop/background-work/background-tasks/persistent" target="_blank" rel="noopener">Persistent work with WorkManager</a></li>
@@ -30746,16 +31131,10 @@ class FakeConnectivityObserver : ConnectivityObserver {
       'Xử lý được ANR do query trên Main Thread, leak do quên đóng Cursor, và biết khi nào không nên dùng Content Provider.'
     ],
     knowledgeGap: 'Nhiều developer viết code query ContentResolver trên Main Thread gây ANR, quên đóng Cursor gây resource leak, hoặc lạm dụng Content Provider cho data nội bộ trong khi Room là giải pháp đúng đắn hơn.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '25 phút',
     content: `
-<h2>1. Nó là gì và vì sao nó tồn tại?</h2>
-
-<p><strong>Content Provider</strong> là một trong 4 Application Component cốt lõi của Android (Activity, Service, Broadcast Receiver, Content Provider). Nó đóng vai trò <strong>cổng giao tiếp dữ liệu có kiểm soát</strong> giữa các ứng dụng và hệ thống: app sở hữu dữ liệu mở dữ liệu qua Content URI chuẩn, app khác đọc/ghi bằng các thao tác CRUD qua <code>ContentResolver</code>.</p>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Mental model:</strong> hãy hình dung Content Provider như một <strong>REST API nội bộ của hệ điều hành</strong>: URI là endpoint, <code>query/insert/update/delete</code> là các method, permission là cơ chế xác thực.</div></div>
-
-<h3>Vấn đề nó giải quyết</h3>
+<h2>Vấn đề cần giải quyết</h2>
 
 <p>Android ứng dụng mô hình <strong>sandbox bảo mật nghiêm ngặt</strong>: mỗi app chạy trong một Linux process riêng với User ID riêng. Điều này có nghĩa là:</p>
 
@@ -30780,40 +31159,23 @@ class FakeConnectivityObserver : ConnectivityObserver {
   <li>App cần dữ liệu → dùng <strong>ContentResolver</strong> (client), gửi request theo URI chuẩn</li>
 </ul>
 
-<h3>Khi nào nên dùng Content Provider?</h3>
+<h2>Sau khi học xong</h2>
 
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Use case</th>
-      <th style="padding:8px 12px;text-align:left;">Nên dùng Content Provider?</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Đọc danh bạ/ảnh/lịch từ hệ thống</td>
-      <td style="padding:8px 12px;">✅ Bắt buộc</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Chia sẻ data giữa 2 app cùng công ty</td>
-      <td style="padding:8px 12px;">✅ Phù hợp</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Cung cấp Search Suggestions cho hệ thống</td>
-      <td style="padding:8px 12px;">✅ Phù hợp</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Lưu data nội bộ trong một app</td>
-      <td style="padding:8px 12px;">❌ Dùng Room/DataStore</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Truyền data nhỏ giữa các Activity</td>
-      <td style="padding:8px 12px;">❌ Dùng Intent/Bundle</td>
-    </tr>
-  </tbody>
-</table>
+<ul>
+  <li>Giải thích được vai trò của Content Provider trong sandbox Android và cơ chế IPC Binder phía sau ContentResolver.</li>
+  <li>Triển khai được truy vấn MediaStore và Contacts Provider bằng Coroutines + Flow, đúng permission theo từng version Android.</li>
+  <li>Áp dụng được ContentObserver + callbackFlow để lắng nghe thay đổi dữ liệu thời gian thực.</li>
+  <li>Triển khai được Custom Content Provider có permission kiểm soát truy cập và package visibility cho app client.</li>
+  <li>Xử lý được ANR do query trên Main Thread, leak do quên đóng Cursor, và biết khi nào không nên dùng Content Provider.</li>
+</ul>
 
-<h2>2. Các khái niệm cốt lõi</h2>
+<h2>Content Provider là gì?</h2>
+
+<p><strong>Content Provider</strong> là một trong 4 Application Component cốt lõi của Android (Activity, Service, Broadcast Receiver, Content Provider). Nó đóng vai trò <strong>cổng giao tiếp dữ liệu có kiểm soát</strong> giữa các ứng dụng và hệ thống: app sở hữu dữ liệu mở dữ liệu qua Content URI chuẩn, app khác đọc/ghi bằng các thao tác CRUD qua <code>ContentResolver</code>.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Mental model:</strong> hãy hình dung Content Provider như một <strong>REST API nội bộ của hệ điều hành</strong>: URI là endpoint, <code>query/insert/update/delete</code> là các method, permission là cơ chế xác thực.</div></div>
+
+<h2>Cách hoạt động</h2>
 
 <h3>Content URI — "địa chỉ" của dữ liệu</h3>
 
@@ -30837,24 +31199,20 @@ class FakeConnectivityObserver : ConnectivityObserver {
 
 <p>Cursor là con trỏ duyệt qua tập kết quả trả về, giống <code>ResultSet</code> trong JDBC. Cursor giữ tài nguyên hệ thống và <strong>phải được đóng</strong> sau khi dùng.</p>
 
-<h2>3. Cơ chế hoạt động bên trong (IPC Binder)</h2>
+<h3>Cơ chế hoạt động bên trong (IPC Binder)</h3>
 
 <p>Đây là phần nhiều developer bỏ qua nhưng rất quan trọng để hiểu tại sao query Content Provider có thể chậm và tại sao phải dùng background thread.</p>
 
-<pre data-lang="text"><code>App Client                 Android System               App Server
------------               ----------------              ----------
-ContentResolver.query()
-        ↓
-  Gửi Binder IPC  ──────► ActivityManagerService ──────► ContentProvider.query()
-                                  │                              │
-                          Tìm Provider từ URI               Xử lý query
-                          Khởi động App Server               trả Cursor
-                          nếu chưa chạy                        │
-                                  ◄──────────────────────── Cursor data
-        ◄─────────────────────────
-  Cursor (shared memory)</code></pre>
+<p>Hệ thống chỉ làm trung gian lúc tìm Provider; sau đó client gọi thẳng vào Provider qua Binder:</p>
 
-<p>Chi tiết hơn: hệ thống chỉ làm trung gian lúc tìm Provider; sau đó client gọi thẳng vào Provider qua Binder.</p>
+<ol>
+  <li>App Client gọi <code>ContentResolver.query()</code> với một Content URI; request đi qua Binder IPC tới hệ thống (<code>ActivityManagerService</code>).</li>
+  <li>Hệ thống phân tích authority trong URI để tìm Provider và app sở hữu nó (App Server).</li>
+  <li>Nếu App Server chưa chạy, hệ thống khởi động process của nó; khi khởi động, <code>ContentProvider.onCreate()</code> được gọi trước <code>Application.onCreate()</code>.</li>
+  <li>Hệ thống trả về cho client đối tượng Binder đại diện cho Provider.</li>
+  <li>Client gọi <code>query()</code> trực tiếp vào Provider qua Binder; Provider xử lý query.</li>
+  <li>Provider trả Cursor; dữ liệu về client qua vùng nhớ dùng chung (Cursor window, shared memory).</li>
+</ol>
 
 <div class="mermaid">
 sequenceDiagram
@@ -30862,14 +31220,14 @@ sequenceDiagram
     participant AMS as ActivityManagerService (OS)
     participant ServerApp as App Server (Provider)
 
-    ClientApp-&gt;&gt;AMS: Xin query URI (content://com.app.a/users)
-    AMS-&gt;&gt;AMS: Phân tích URI -&gt; Tìm ra App A
+    ClientApp-&gt;&gt;AMS: (1) Xin query URI (content://com.app.a/users)
+    AMS-&gt;&gt;AMS: (2) Phân tích URI -&gt; Tìm ra App A
     alt App A chưa chạy
-        AMS-&gt;&gt;ServerApp: Fork process, gọi ContentProvider.onCreate() rồi Application.onCreate()
+        AMS-&gt;&gt;ServerApp: (3) Fork process, gọi ContentProvider.onCreate() rồi Application.onCreate()
     end
-    AMS--&gt;&gt;ClientApp: Trả về đối tượng Binder đại diện cho Provider
-    ClientApp-&gt;&gt;ServerApp: Gọi query() trực tiếp qua IPC Binder
-    ServerApp--&gt;&gt;ClientApp: Trả về dữ liệu (Cursor window memory)
+    AMS--&gt;&gt;ClientApp: (4) Trả về đối tượng Binder đại diện cho Provider
+    ClientApp-&gt;&gt;ServerApp: (5) Gọi query() trực tiếp qua IPC Binder
+    ServerApp--&gt;&gt;ClientApp: (6) Trả về dữ liệu (Cursor window memory)
 </div>
 
 <p><strong>Tác động thực tế:</strong></p>
@@ -30882,11 +31240,9 @@ sequenceDiagram
   <li>Ngược lại, <code>query()/insert()/update()/delete()</code> của Provider được gọi trên các Binder thread, có thể <strong>song song</strong> từ nhiều client: code Provider phải thread-safe (Room/SQLiteDatabase đã tự xử lý đồng bộ)</li>
 </ol>
 
-<h2>4. Đọc dữ liệu từ System Provider (Client Side)</h2>
+<h3>Đọc dữ liệu từ System Provider (Client Side)</h3>
 
-<h3>Ví dụ thực chiến: Đọc danh sách ảnh từ MediaStore</h3>
-
-<p><strong>Bước 1: Khai báo permission trong AndroidManifest.xml</strong></p>
+<p>App client đọc dữ liệu của System Provider (MediaStore, ContactsProvider...) bằng <code>ContentResolver</code>, nhưng trước đó phải có đúng permission. Với ảnh trong MediaStore, permission thay đổi theo version Android, nên khai báo trong <code>AndroidManifest.xml</code> như sau:</p>
 
 <pre data-lang="xml"><code>&lt;!-- Android 12L trở xuống (API ≤ 32) --&gt;
 &lt;uses-permission
@@ -30899,121 +31255,55 @@ sequenceDiagram
 &lt;!-- Android 14+ (API 34+) — người dùng có thể chỉ cho phép một số ảnh --&gt;
 &lt;uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" /&gt;</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">- Từ Android 14, khi người dùng chọn "Chỉ cho phép một số ảnh", app chỉ được cấp <code>READ_MEDIA_VISUAL_USER_SELECTED</code> và MediaStore chỉ trả về những ảnh đã chọn. Khai báo permission này để app xử lý đúng trường hợp đó và cho người dùng chọn lại. - Nếu app chỉ cần người dùng chọn vài ảnh (đổi avatar, đính kèm), dùng <strong>Photo Picker</strong> (<code>PickVisualMedia</code>): không cần permission nào. - Không dùng cột <code>MediaStore.Images.Media.DATA</code> (đường dẫn file tuyệt đối): deprecated từ API 29 do scoped storage. Luôn truy cập ảnh qua content URI (<code>ContentUris.withAppendedId</code>) như code dưới.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">- Từ Android 14, khi người dùng chọn "Chỉ cho phép một số ảnh", app chỉ được cấp <code>READ_MEDIA_VISUAL_USER_SELECTED</code> và MediaStore chỉ trả về những ảnh đã chọn. Khai báo permission này để app xử lý đúng trường hợp đó và cho người dùng chọn lại. - Nếu app chỉ cần người dùng chọn vài ảnh (đổi avatar, đính kèm), dùng <strong>Photo Picker</strong> (<code>PickVisualMedia</code>): không cần permission nào. - Không dựa vào cột <code>MediaStore.Images.Media.DATA</code> (đường dẫn file tuyệt đối): docs cảnh báo file ở đường dẫn đó không phải lúc nào cũng truy cập được, và từ Android 11 cột này chỉ đọc với app target API 30+. Luôn truy cập ảnh qua content URI (<code>ContentUris.withAppendedId</code>) như code ở mục "Ví dụ thực tế".</div></div>
 
-<p><strong>Bước 2: Viết Repository tầng Data</strong></p>
+<p>Một truy vấn gồm: URI của bảng, <code>projection</code> (các cột cần lấy), <code>selection</code> + <code>selectionArgs</code> (điều kiện WHERE, giá trị truyền qua placeholder <code>?</code>) và <code>sortOrder</code>. Kết quả là một Cursor, luôn bọc trong <code>use {}</code> để tự đóng.</p>
 
-<pre data-lang="kotlin"><code>// data/media/MediaRepository.kt
-class MediaRepository @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
-    // suspend fun → phải gọi từ coroutine scope
-    suspend fun fetchImages(): List&lt;MediaImage&gt; = withContext(Dispatchers.IO) {
-        val images = mutableListOf&lt;MediaImage&gt;()
+<h4>Ví dụ: Tìm danh bạ theo tên từ ContactsProvider</h4>
 
-        val projection = arrayOf(
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.DISPLAY_NAME,
-            MediaStore.Images.Media.DATE_TAKEN,
-            MediaStore.Images.Media.SIZE
-        )
+<p>ContactsProvider có schema phức tạp hơn MediaStore. Cần runtime permission <code>READ_CONTACTS</code> trước khi query:</p>
 
-        context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            null, // selection (WHERE)
-            null, // selectionArgs
-            "\${MediaStore.Images.Media.DATE_TAKEN} DESC" // sortOrder
-        )?.use { cursor -&gt; // .use {} tự đóng Cursor ngay cả khi exception
-            val idCol       = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-            val nameCol     = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
-            val dateTakenCol= cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
-            val sizeCol     = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)
+<pre data-lang="kotlin"><code>// data/contacts/ContactsRepository.kt
+suspend fun searchContacts(query: String): List&lt;Contact&gt; = withContext(Dispatchers.IO) {
+    val contacts = mutableListOf&lt;Contact&gt;()
 
-            while (cursor.moveToNext()) {
-                val id = cursor.getLong(idCol)
-                // Tạo content URI từ ID để dùng với Coil/Glide
-                val contentUri = ContentUris.withAppendedId(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id
-                )
-                images += MediaImage(
-                    id = id,
-                    uri = contentUri,
-                    name = cursor.getString(nameCol),
-                    dateTaken = cursor.getLong(dateTakenCol),
-                    size = cursor.getLong(sizeCol)
+    val projection = arrayOf(
+        ContactsContract.Contacts._ID,
+        ContactsContract.Contacts.DISPLAY_NAME_PRIMARY,
+        ContactsContract.Contacts.HAS_PHONE_NUMBER
+    )
+
+    context.contentResolver.query(
+        ContactsContract.Contacts.CONTENT_URI,
+        projection,
+        "\${ContactsContract.Contacts.DISPLAY_NAME_PRIMARY} LIKE ?",
+        arrayOf("%$query%"), // % là wildcard
+        "\${ContactsContract.Contacts.DISPLAY_NAME_PRIMARY} ASC"
+    )?.use { cursor -&gt;
+        val idCol   = cursor.getColumnIndexOrThrow(ContactsContract.Contacts._ID)
+        val nameCol = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY)
+        val hasPhoneCol = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.HAS_PHONE_NUMBER)
+
+        while (cursor.moveToNext()) {
+            if (cursor.getInt(hasPhoneCol) &gt; 0) {
+                contacts += Contact(
+                    id = cursor.getLong(idCol),
+                    name = cursor.getString(nameCol)
                 )
             }
         }
-
-        images
     }
-}
 
-data class MediaImage(
-    val id: Long,
-    val uri: Uri,
-    val name: String,
-    val dateTaken: Long,
-    val size: Long
-)</code></pre>
+    contacts
+}</code></pre>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Bẫy phổ biến:</strong> Khi truy vấn có filter (<code>selection</code>), <strong>không bao giờ</strong> nối thẳng string như <code>"name = '$userInput'"</code> — dễ bị SQL Injection. Dùng placeholder <code>?</code> và <code>selectionArgs</code> array.</div></div>
+<p><strong>Kết quả:</strong> gõ "an" trả về các liên hệ có tên chứa "an" và có số điện thoại, sắp xếp theo tên; chuỗi người dùng gõ chỉ đi qua <code>selectionArgs</code>, không nối vào câu WHERE.</p>
 
-<pre data-lang="kotlin"><code>// ❌ SQL Injection risk
-query(uri, projection, "display_name = '$input'", null, null)
-
-// ✅ Dùng selectionArgs
-query(uri, projection, "\${MediaStore.Images.Media.DISPLAY_NAME} = ?", arrayOf(input), null)</code></pre>
-
-<h2>5. Lắng nghe thay đổi thời gian thực (ContentObserver + Flow)</h2>
+<h3>Lắng nghe thay đổi thời gian thực (ContentObserver)</h3>
 
 <p>Người dùng có thể chụp ảnh mới trong khi app đang chạy. Làm sao để gallery tự refresh?</p>
 
-<p><strong>ContentObserver</strong> là cơ chế của Android để theo dõi thay đổi trên một URI. Kết hợp với <code>callbackFlow</code> của Kotlin để tạo một reactive stream:</p>
-
-<pre data-lang="kotlin"><code>// data/media/MediaRepository.kt — thêm hàm observe
-fun observeImages(): Flow&lt;List&lt;MediaImage&gt;&gt; = callbackFlow {
-    // Gửi data lần đầu ngay khi collect
-    trySend(fetchImages())
-
-    val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
-        override fun onChange(selfChange: Boolean) {
-            // onChange chạy trên main looper: KHÔNG block ở đây (vd runBlocking).
-            // Mỗi khi MediaStore thay đổi → re-fetch trong coroutine của callbackFlow
-            launch { send(fetchImages()) }
-        }
-    }
-
-    context.contentResolver.registerContentObserver(
-        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-        true, // notifyForDescendants
-        observer
-    )
-
-    // Khi Flow bị cancel (scope hủy, màn hình đóng) → unregister để tránh leak
-    awaitClose {
-        context.contentResolver.unregisterContentObserver(observer)
-    }
-}</code></pre>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Biến thể gọn hơn: observer chỉ phát tín hiệu (<code>trySend(Unit)</code>), rồi phía ngoài dùng <code>mapLatest { fetchImages() }</code> để query lại; <code>mapLatest</code> tự huỷ lần query cũ nếu có thay đổi mới.</div></div>
-
-<p><strong>Sử dụng trong ViewModel:</strong></p>
-
-<pre data-lang="kotlin"><code>@HiltViewModel
-class GalleryViewModel @Inject constructor(
-    private val mediaRepository: MediaRepository
-) : ViewModel() {
-
-    val images: StateFlow&lt;List&lt;MediaImage&gt;&gt; = mediaRepository
-        .observeImages()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList()
-        )
-}</code></pre>
+<p><strong>ContentObserver</strong> là cơ chế của Android để theo dõi thay đổi trên một URI. Kết hợp với <code>callbackFlow</code> của Kotlin để tạo một reactive stream: đăng ký observer khi Flow bắt đầu được collect, mỗi lần <code>onChange()</code> thì query lại và emit, gỡ observer khi Flow bị cancel. Code đầy đủ ở mục "Ví dụ thực tế".</p>
 
 <p><strong>Luồng hoạt động:</strong></p>
 
@@ -31162,49 +31452,17 @@ class GalleryViewModel @Inject constructor(
 </div>
 </div>
 
-<h2>6. Đọc danh bạ từ ContactsProvider</h2>
+<p>Observer chỉ được gọi khi Provider báo thay đổi: System Provider như MediaStore tự làm việc này; Provider tự viết phải tự gọi <code>notifyChange()</code> (xem mục "Tự tạo Custom Content Provider (Server Side)").</p>
 
-<p>Một use case thực tế khác. ContactsProvider có schema phức tạp hơn MediaStore. Cần runtime permission <code>READ_CONTACTS</code> trước khi query:</p>
+<h3>Tự tạo Custom Content Provider (Server Side)</h3>
 
-<pre data-lang="kotlin"><code>// data/contacts/ContactsRepository.kt
-suspend fun searchContacts(query: String): List&lt;Contact&gt; = withContext(Dispatchers.IO) {
-    val contacts = mutableListOf&lt;Contact&gt;()
+<p>App sở hữu dữ liệu kế thừa <code>ContentProvider</code>, dùng <code>UriMatcher</code> để biết URI nào trỏ tới bảng nào, kiểm tra permission của bên gọi, khai báo <code>&lt;provider&gt;</code> trong Manifest kèm permission; app client khai báo <code>&lt;uses-permission&gt;</code> và <code>&lt;queries&gt;</code> để thấy Provider.</p>
 
-    val projection = arrayOf(
-        ContactsContract.Contacts._ID,
-        ContactsContract.Contacts.DISPLAY_NAME_PRIMARY,
-        ContactsContract.Contacts.HAS_PHONE_NUMBER
-    )
-
-    context.contentResolver.query(
-        ContactsContract.Contacts.CONTENT_URI,
-        projection,
-        "\${ContactsContract.Contacts.DISPLAY_NAME_PRIMARY} LIKE ?",
-        arrayOf("%$query%"), // % là wildcard
-        "\${ContactsContract.Contacts.DISPLAY_NAME_PRIMARY} ASC"
-    )?.use { cursor -&gt;
-        val idCol   = cursor.getColumnIndexOrThrow(ContactsContract.Contacts._ID)
-        val nameCol = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY)
-        val hasPhoneCol = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.HAS_PHONE_NUMBER)
-
-        while (cursor.moveToNext()) {
-            if (cursor.getInt(hasPhoneCol) &gt; 0) {
-                contacts += Contact(
-                    id = cursor.getLong(idCol),
-                    name = cursor.getString(nameCol)
-                )
-            }
-        }
-    }
-
-    contacts
-}</code></pre>
-
-<h2>7. Tự tạo Custom Content Provider (Server Side)</h2>
+<h4>Ví dụ: App companion đọc profile user từ app chính</h4>
 
 <p>Kịch bản: Công ty bạn có <strong>App A</strong> (app chính) và <strong>App B</strong> (app companion). App B cần đọc profile user từ database của App A.</p>
 
-<h3>Bước 1: Tạo ContentProvider trong App A</h3>
+<p><strong>Bước 1: Tạo ContentProvider trong App A</strong></p>
 
 <pre data-lang="kotlin"><code>// provider/UserProvider.kt (App A)
 class UserProvider : ContentProvider() {
@@ -31260,13 +31518,13 @@ class UserProvider : ContentProvider() {
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array&lt;String&gt;?): Int = 0
 }</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">- <strong>Thông báo thay đổi:</strong> trong <code>query()</code> gọi <code>cursor.setNotificationUri(context!!.contentResolver, uri)</code>, và sau mỗi <code>insert/update/delete</code> gọi <code>context!!.contentResolver.notifyChange(uri, null)</code>. Thiếu bước này, <code>ContentObserver</code> của client (mục 5) sẽ không bao giờ được gọi với Provider tự viết. - Dữ liệu không nằm trong SQLite thì có thể trả <code>MatrixCursor</code> dựng trong bộ nhớ:</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">- <strong>Thông báo thay đổi:</strong> trong <code>query()</code> gọi <code>cursor.setNotificationUri(context!!.contentResolver, uri)</code>, và sau mỗi <code>insert/update/delete</code> gọi <code>context!!.contentResolver.notifyChange(uri, null)</code>. Thiếu bước này, <code>ContentObserver</code> của client (mục "Lắng nghe thay đổi thời gian thực (ContentObserver)") sẽ không bao giờ được gọi với Provider tự viết. - Dữ liệu không nằm trong SQLite thì có thể trả <code>MatrixCursor</code> dựng trong bộ nhớ:</div></div>
 
 <pre data-lang="kotlin"><code>val cursor = MatrixCursor(arrayOf("_id", "name", "email"))
 cursor.addRow(arrayOf(1, "Nguyễn Văn An", "an.nguyen@example.com"))
 return cursor</code></pre>
 
-<h3>Bước 2: Khai báo trong AndroidManifest.xml của App A</h3>
+<p><strong>Bước 2: Khai báo trong AndroidManifest.xml của App A</strong></p>
 
 <pre data-lang="xml"><code>&lt;!-- Khai báo custom permission --&gt;
 &lt;permission
@@ -31280,12 +31538,14 @@ return cursor</code></pre>
     android:exported="true"
     android:readPermission="com.company.permission.READ_USER" /&gt;</code></pre>
 
-<h3>Bước 3: App B khai báo và sử dụng</h3>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><code>android:protectionLevel="signature"</code> nghĩa là chỉ app được ký cùng keystore với App A mới được cấp permission này tự động. Đây là cách bảo mật chuẩn cho các app cùng công ty.</div></div>
+
+<p><strong>Bước 3: App B khai báo và sử dụng</strong></p>
 
 <pre data-lang="xml"><code>&lt;!-- AndroidManifest.xml của App B --&gt;
 &lt;uses-permission android:name="com.company.permission.READ_USER" /&gt;
 
-&lt;!-- Android 11+ (API 30+): package visibility — phải khai báo Provider muốn truy cập,
+&lt;!-- App B target Android 11+ (API 30+): package visibility — phải khai báo Provider muốn truy cập,
      nếu không ContentResolver không "thấy" Provider của App A --&gt;
 &lt;queries&gt;
     &lt;provider android:authorities="com.company.appa.provider" /&gt;
@@ -31307,87 +31567,168 @@ suspend fun fetchUsersFromAppA(): List&lt;User&gt; = withContext(Dispatchers.IO)
     users
 }</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><code>android:protectionLevel="signature"</code> nghĩa là chỉ app được ký cùng keystore với App A mới được cấp permission này tự động. Đây là cách bảo mật chuẩn cho các app cùng công ty.</div></div>
+<p><strong>Kết quả:</strong> App B (cùng chữ ký, cài sau App A) đọc được danh sách user; một app khác không có <code>READ_USER</code> gọi cùng URI sẽ nhận <code>SecurityException</code>.</p>
 
-<h2>8. Luồng hoàn chỉnh end-to-end</h2>
+<h2>Ví dụ thực tế</h2>
 
-<pre data-lang="text"><code>[App B - GalleryScreen]
-        ↓ collect StateFlow
-[App B - GalleryViewModel]
-        ↓ observeImages() / fetchUsersFromAppA()
-[App B - Repository]
-        ↓ contentResolver.query()
-[Android OS - ActivityManagerService]
-        ↓ IPC Binder
-[App A/System - ContentProvider.query()]
-        ↓ SQLite / Room query
-[Cursor - Shared Memory Window]
-        ↑ trả về App B qua Binder
-[App B - Repository parse Cursor]
-        ↑ emit vào Flow
-[App B - ViewModel StateFlow update]
-        ↑ LazyColumn re-render
-[App B - GalleryScreen hiển thị ảnh]</code></pre>
+<h3>Gallery ảnh tự cập nhật khi có ảnh mới (MediaStore + ContentObserver + Flow)</h3>
 
-<h2>9. Sai lầm thường gặp</h2>
+<p>Màn hình gallery hiện ảnh trong máy, mới nhất trước, và tự cập nhật khi người dùng chụp ảnh mới trong lúc màn hình đang mở. Đây là bài toán dùng cả hai phía client của Content Provider: query System Provider (mục "Đọc dữ liệu từ System Provider (Client Side)") và lắng nghe thay đổi (mục "Lắng nghe thay đổi thời gian thực (ContentObserver)"). Luồng chạy:</p>
 
-<h3>1. Query trên Main Thread</h3>
+<ol>
+  <li>UI collect <code>images</code>; <code>stateIn(WhileSubscribed(5_000))</code> bắt đầu collect <code>observeImages()</code>.</li>
+  <li><code>callbackFlow</code> gửi data lần đầu ngay khi được collect: <code>trySend(fetchImages())</code>.</li>
+  <li><code>fetchImages()</code> chuyển sang <code>Dispatchers.IO</code> rồi gọi <code>contentResolver.query()</code> vào MediaStore với <code>projection</code> và <code>sortOrder</code> <code>DATE_TAKEN DESC</code> (đi qua IPC Binder như mục "Cơ chế hoạt động bên trong (IPC Binder)").</li>
+  <li>Duyệt Cursor trong <code>use {}</code>: đọc từng cột, dựng content URI cho từng ảnh bằng <code>ContentUris.withAppendedId</code>; Cursor tự đóng khi ra khỏi <code>use {}</code>.</li>
+  <li>Đăng ký <code>ContentObserver</code> trên <code>MediaStore.Images.Media.EXTERNAL_CONTENT_URI</code> (<code>notifyForDescendants = true</code>).</li>
+  <li>MediaStore thay đổi (ảnh mới): <code>onChange()</code> chạy trên main looper, <code>launch</code> một coroutine query lại và <code>send()</code> danh sách mới.</li>
+  <li>StateFlow nhận danh sách mới, UI re-render.</li>
+  <li>UI ngừng collect quá 5 giây: Flow bị cancel, <code>awaitClose</code> gỡ observer.</li>
+</ol>
 
-<pre data-lang="kotlin"><code>// ❌ Block main thread → ANR (StrictMode báo vi phạm nếu đã bật)
-fun onClick() {
-    val cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, ...)
+<div class="mermaid">
+sequenceDiagram
+    participant UI as GalleryScreen
+    participant VM as GalleryViewModel
+    participant Repo as MediaRepository
+    participant MS as MediaStore (System Provider)
+
+    UI-&gt;&gt;VM: (1) collect images (StateFlow)
+    VM-&gt;&gt;Repo: (1) collect observeImages()
+    Repo-&gt;&gt;Repo: (2) trySend(fetchImages())
+    Repo-&gt;&gt;MS: (3) query() trên Dispatchers.IO, qua IPC Binder
+    MS--&gt;&gt;Repo: (3) Cursor (DATE_TAKEN DESC)
+    Repo-&gt;&gt;Repo: (4) Duyệt Cursor trong use {}, dựng content URI
+    Repo--&gt;&gt;VM: (2) List&lt;MediaImage&gt; lần đầu
+    VM--&gt;&gt;UI: (7) StateFlow cập nhật → re-render
+    Repo-&gt;&gt;MS: (5) registerContentObserver(EXTERNAL_CONTENT_URI)
+    Note over MS: Người dùng chụp ảnh mới
+    MS--&gt;&gt;Repo: (6) onChange() trên main looper
+    Repo-&gt;&gt;MS: (6) launch: query lại
+    Repo--&gt;&gt;VM: (6) send(List&lt;MediaImage&gt; mới)
+    VM--&gt;&gt;UI: (7) StateFlow cập nhật → re-render
+    Note over UI,VM: Rời màn hình quá 5 giây
+    VM-&gt;&gt;Repo: (8) Flow bị cancel
+    Repo-&gt;&gt;MS: (8) awaitClose: unregisterContentObserver
+</div>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ví dụ dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>suspend</code>, <code>withContext(Dispatchers.IO)</code>, <code>launch</code>): chạy code bất đồng bộ không chặn thread gọi, học ở 8.4.3 Coroutines (chưa có bài). - <code>Flow</code>, <code>callbackFlow</code>, <code>StateFlow</code>, <code>stateIn</code>: luồng dữ liệu quan sát được, học ở 7.1.4.2 Flow (chưa có bài). - <code>@HiltViewModel</code>, <code>@Inject</code>: Hilt tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài); ViewModel và <code>viewModelScope</code> học ở 6.4 ViewModel (chưa có bài).</div></div>
+
+<p>Permission <code>READ_MEDIA_IMAGES</code> (hoặc <code>READ_EXTERNAL_STORAGE</code> trên API ≤ 32) đã được khai báo và cấp như mục "Đọc dữ liệu từ System Provider (Client Side)".</p>
+
+<pre data-lang="kotlin"><code>// data/media/MediaRepository.kt
+class MediaRepository @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
+    // suspend fun → phải gọi từ coroutine scope
+    // (3) chuyển sang IO trước khi query
+    suspend fun fetchImages(): List&lt;MediaImage&gt; = withContext(Dispatchers.IO) {
+        val images = mutableListOf&lt;MediaImage&gt;()
+
+        val projection = arrayOf(
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.DISPLAY_NAME,
+            MediaStore.Images.Media.DATE_TAKEN,
+            MediaStore.Images.Media.SIZE
+        )
+
+        // (3) query qua ContentResolver → IPC Binder tới MediaStore
+        context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            null, // selection (WHERE)
+            null, // selectionArgs
+            "\${MediaStore.Images.Media.DATE_TAKEN} DESC" // sortOrder
+        )?.use { cursor -&gt; // (4) .use {} tự đóng Cursor ngay cả khi exception
+            val idCol       = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+            val nameCol     = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+            val dateTakenCol= cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+            val sizeCol     = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)
+
+            while (cursor.moveToNext()) {
+                val id = cursor.getLong(idCol)
+                // (4) Tạo content URI từ ID để dùng với Coil/Glide
+                val contentUri = ContentUris.withAppendedId(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id
+                )
+                images += MediaImage(
+                    id = id,
+                    uri = contentUri,
+                    name = cursor.getString(nameCol),
+                    dateTaken = cursor.getLong(dateTakenCol),
+                    size = cursor.getLong(sizeCol)
+                )
+            }
+        }
+
+        images
+    }
 }
 
-// ✅ Dùng Coroutines
-fun onClick() {
-    viewModelScope.launch {
-        val images = withContext(Dispatchers.IO) {
-            repository.fetchImages()
+data class MediaImage(
+    val id: Long,
+    val uri: Uri,
+    val name: String,
+    val dateTaken: Long,
+    val size: Long
+)</code></pre>
+
+<pre data-lang="kotlin"><code>// data/media/MediaRepository.kt — thêm hàm observe
+fun observeImages(): Flow&lt;List&lt;MediaImage&gt;&gt; = callbackFlow {
+    // (2) Gửi data lần đầu ngay khi collect
+    trySend(fetchImages())
+
+    val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) {
+            // (6) onChange chạy trên main looper: KHÔNG block ở đây (vd runBlocking).
+            // Mỗi khi MediaStore thay đổi → re-fetch trong coroutine của callbackFlow
+            launch { send(fetchImages()) }
         }
+    }
+
+    // (5) Đăng ký observer trên URI ảnh
+    context.contentResolver.registerContentObserver(
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+        true, // notifyForDescendants
+        observer
+    )
+
+    // (8) Khi Flow bị cancel (scope hủy, màn hình đóng) → unregister để tránh leak
+    awaitClose {
+        context.contentResolver.unregisterContentObserver(observer)
     }
 }</code></pre>
 
-<h3>2. Quên đóng Cursor</h3>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Biến thể gọn hơn: observer chỉ phát tín hiệu (<code>trySend(Unit)</code>), rồi phía ngoài dùng <code>mapLatest { fetchImages() }</code> để query lại; <code>mapLatest</code> tự huỷ lần query cũ nếu có thay đổi mới.</div></div>
 
-<pre data-lang="kotlin"><code>// ❌ Memory/resource leak — Cursor giữ file descriptor
-val cursor = contentResolver.query(...)
-cursor?.moveToFirst()
-val name = cursor?.getString(0) // cursor không được đóng!
+<p><strong>Sử dụng trong ViewModel:</strong></p>
 
-// ✅ .use {} tự động close()
-contentResolver.query(...)?.use { cursor -&gt;
-    cursor.moveToFirst()
-    val name = cursor.getString(0)
-} // close() được gọi tự động ở đây</code></pre>
+<pre data-lang="kotlin"><code>@HiltViewModel
+class GalleryViewModel @Inject constructor(
+    private val mediaRepository: MediaRepository
+) : ViewModel() {
 
-<h3>3. Dùng Content Provider để lưu data nội bộ</h3>
+    // (1) UI collect images → bắt đầu collect observeImages()
+    // (7) mỗi List mới từ Flow cập nhật StateFlow → UI re-render
+    val images: StateFlow&lt;List&lt;MediaImage&gt;&gt; = mediaRepository
+        .observeImages()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000), // (8) hết subscriber 5 giây → cancel Flow
+            initialValue = emptyList()
+        )
+}</code></pre>
 
-<pre data-lang="kotlin"><code>// ❌ Anti-pattern — dùng ContentProvider cho data chỉ dùng trong app: thêm overhead IPC không cần thiết
-class InternalUserProvider : ContentProvider() { ... }
+<p><strong>Kết quả:</strong> mở gallery thấy ảnh mới nhất ở đầu danh sách; chụp một ảnh mới khi màn hình đang mở thì ảnh đó tự xuất hiện mà không cần kéo refresh; rời màn hình quá 5 giây thì observer được gỡ (không còn <code>onChange()</code> nào chạy).</p>
 
-// ✅ Dùng Room + Repository
-@Dao interface UserDao { @Query("SELECT * FROM users") fun getAll(): Flow&lt;List&lt;User&gt;&gt; }</code></pre>
-
-<h3>4. exported="true" không có permission</h3>
-
-<pre data-lang="xml"><code>&lt;!-- ❌ Nguy hiểm — mọi app đều đọc được --&gt;
-&lt;provider android:exported="true" /&gt;
-
-&lt;!-- ✅ Luôn kèm permission --&gt;
-&lt;provider
-    android:exported="true"
-    android:readPermission="com.company.permission.READ_USER" /&gt;</code></pre>
-
-<h2>10. Khi nào không dùng Content Provider</h2>
+<h3>Các bài toán khác</h3>
 
 <ul>
-  <li><strong>Data nội bộ</strong>: Dùng Room + DataStore</li>
-  <li><strong>Giao tiếp real-time</strong>: Dùng SharedFlow</li>
-  <li><strong>File transfer lớn</strong>: Dùng <code>FileProvider</code> + Intent chooser: tạo content URI bằng <code>FileProvider.getUriForFile()</code>, gắn vào Intent kèm <code>Intent.FLAG_GRANT_READ_URI_PERMISSION</code> để app nhận được đọc tạm thời đúng file đó, không cần export Provider</li>
-  <li><strong>API server</strong>: Dùng Retrofit/Ktor</li>
+  <li><strong>Tìm danh bạ theo tên:</strong> query <code>ContactsContract.Contacts.CONTENT_URI</code> với <code>selection</code> dùng <code>LIKE ?</code> và <code>selectionArgs</code>, cần runtime permission <code>READ_CONTACTS</code> (code ở mục "Đọc dữ liệu từ System Provider (Client Side)").</li>
+  <li><strong>Chia sẻ dữ liệu giữa hai app cùng công ty:</strong> App A mở Custom Provider có permission mức <code>signature</code>, App B query qua <code>ContentResolver</code> sau khi khai báo <code>&lt;uses-permission&gt;</code> và <code>&lt;queries&gt;</code> (code ở mục "Tự tạo Custom Content Provider (Server Side)"). Khi App B hiển thị danh sách user lấy từ App A, luồng đi từ màn hình → ViewModel → Repository (<code>fetchUsersFromAppA()</code>) → <code>contentResolver.query()</code> → Provider của App A → SQLite/Room query → Cursor về App B → Repository parse Cursor → ViewModel StateFlow → UI re-render.</li>
 </ul>
 
-<p>Content Provider phù hợp nhất khi cần <strong>truy cập dữ liệu tabular có cấu trúc</strong> từ system providers (MediaStore, ContactsProvider, CalendarProvider) hoặc chia sẻ data có kiểm soát giữa các app. Trước đây Google từng khuyến khích bọc SQLite bằng Provider ngay cả khi chỉ dùng nội bộ; nay đó là anti-pattern vì Room đã thay thế.</p>
+<h2>So sánh với các cách tiếp cận khác</h2>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -31426,6 +31767,50 @@ class InternalUserProvider : ContentProvider() { ... }
   </tbody>
 </table>
 
+<h2>Khi nào nên và không nên dùng</h2>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Use case</th>
+      <th style="padding:8px 12px;text-align:left;">Nên dùng Content Provider?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Đọc danh bạ/ảnh/lịch từ hệ thống</td>
+      <td style="padding:8px 12px;">✅ Bắt buộc</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Chia sẻ data giữa 2 app cùng công ty</td>
+      <td style="padding:8px 12px;">✅ Phù hợp</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Cung cấp Search Suggestions cho hệ thống</td>
+      <td style="padding:8px 12px;">✅ Phù hợp</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Lưu data nội bộ trong một app</td>
+      <td style="padding:8px 12px;">❌ Dùng Room/DataStore</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Truyền data nhỏ giữa các Activity</td>
+      <td style="padding:8px 12px;">❌ Dùng Intent/Bundle</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Không dùng Content Provider khi:</p>
+
+<ul>
+  <li><strong>Data nội bộ</strong>: Dùng Room + DataStore</li>
+  <li><strong>Giao tiếp real-time</strong>: Dùng SharedFlow</li>
+  <li><strong>File transfer lớn</strong>: Dùng <code>FileProvider</code> + Intent chooser: tạo content URI bằng <code>FileProvider.getUriForFile()</code>, gắn vào Intent kèm <code>Intent.FLAG_GRANT_READ_URI_PERMISSION</code> để app nhận được đọc tạm thời đúng file đó, không cần export Provider</li>
+  <li><strong>API server</strong>: Dùng Retrofit/Ktor</li>
+</ul>
+
+<p>Content Provider phù hợp nhất khi cần <strong>truy cập dữ liệu tabular có cấu trúc</strong> từ system providers (MediaStore, ContactsProvider, CalendarProvider) hoặc chia sẻ data có kiểm soát giữa các app. Trước đây Google từng khuyến khích bọc SQLite bằng Provider ngay cả khi chỉ dùng nội bộ; nay đó là anti-pattern vì Room đã thay thế.</p>
+
 <p><strong>Tổng kết best practices:</strong></p>
 
 <ul>
@@ -31434,16 +31819,130 @@ class InternalUserProvider : ContentProvider() { ... }
   <li><strong>Resource:</strong> luôn bọc Cursor trong <code>use {}</code>.</li>
 </ul>
 
-<h2>References</h2>
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Query trên Main Thread</h3>
+
+<pre data-lang="kotlin"><code>// ❌ Block main thread → ANR (StrictMode báo vi phạm nếu đã bật)
+fun onClick() {
+    val cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, ...)
+}
+
+// ✅ Dùng Coroutines
+fun onClick() {
+    viewModelScope.launch {
+        val images = withContext(Dispatchers.IO) {
+            repository.fetchImages()
+        }
+    }
+}</code></pre>
+
+<p><strong>Cách sửa:</strong> <code>query()</code> block thread gọi cho tới khi Provider trả kết quả qua Binder (mục "Cơ chế hoạt động bên trong (IPC Binder)"), nên luôn chạy trên <code>Dispatchers.IO</code>.</p>
+
+<h3>2. Quên đóng Cursor</h3>
+
+<pre data-lang="kotlin"><code>// ❌ Memory/resource leak — Cursor giữ file descriptor
+val cursor = contentResolver.query(...)
+cursor?.moveToFirst()
+val name = cursor?.getString(0) // cursor không được đóng!
+
+// ✅ .use {} tự động close()
+contentResolver.query(...)?.use { cursor -&gt;
+    cursor.moveToFirst()
+    val name = cursor.getString(0)
+} // close() được gọi tự động ở đây</code></pre>
+
+<p><strong>Cách sửa:</strong> luôn bọc Cursor trong <code>use {}</code>.</p>
+
+<h3>3. Dùng Content Provider để lưu data nội bộ</h3>
+
+<pre data-lang="kotlin"><code>// ❌ Anti-pattern — dùng ContentProvider cho data chỉ dùng trong app: thêm overhead IPC không cần thiết
+class InternalUserProvider : ContentProvider() { ... }
+
+// ✅ Dùng Room + Repository
+@Dao interface UserDao { @Query("SELECT * FROM users") fun getAll(): Flow&lt;List&lt;User&gt;&gt; }</code></pre>
+
+<p><strong>Cách sửa:</strong> data chỉ dùng trong app thì dùng Room/DataStore (mục "Khi nào nên và không nên dùng").</p>
+
+<h3>4. exported="true" không có permission</h3>
+
+<pre data-lang="xml"><code>&lt;!-- ❌ Nguy hiểm — mọi app đều đọc được --&gt;
+&lt;provider android:exported="true" /&gt;
+
+&lt;!-- ✅ Luôn kèm permission --&gt;
+&lt;provider
+    android:exported="true"
+    android:readPermission="com.company.permission.READ_USER" /&gt;</code></pre>
+
+<p><strong>Cách sửa:</strong> Provider export ra ngoài luôn kèm <code>android:readPermission</code> / <code>android:writePermission</code>, với app cùng công ty thì dùng permission mức <code>signature</code> (mục "Tự tạo Custom Content Provider (Server Side)").</p>
+
+<h3>5. Nối input của người dùng vào <code>selection</code></h3>
+
+<p><strong>Bẫy phổ biến:</strong> Khi truy vấn có filter (<code>selection</code>), <strong>không bao giờ</strong> nối thẳng string như <code>"name = '$userInput'"</code> — dễ bị SQL Injection. Dùng placeholder <code>?</code> và <code>selectionArgs</code> array.</p>
+
+<pre data-lang="kotlin"><code>// ❌ SQL Injection risk
+query(uri, projection, "display_name = '$input'", null, null)
+
+// ✅ Dùng selectionArgs
+query(uri, projection, "\${MediaStore.Images.Media.DISPLAY_NAME} = ?", arrayOf(input), null)</code></pre>
+
+<p><strong>Cách sửa:</strong> mọi giá trị đến từ người dùng đi qua <code>selectionArgs</code>, như ví dụ tìm danh bạ ở mục "Đọc dữ liệu từ System Provider (Client Side)".</p>
+
+<h3>6. Custom Provider không báo thay đổi</h3>
+
+<p>Client đăng ký <code>ContentObserver</code> trên URI của Provider tự viết nhưng <code>onChange()</code> không bao giờ được gọi, vì Provider không báo thay đổi.</p>
+
+<p><strong>Cách sửa:</strong> trong <code>query()</code> gọi <code>cursor.setNotificationUri(...)</code>, sau mỗi <code>insert/update/delete</code> gọi <code>notifyChange(uri, null)</code> (mục "Tự tạo Custom Content Provider (Server Side)").</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>API 1 (Android 1.0):</strong> <code>ContentProvider</code>, <code>ContentResolver</code>, <code>ContentObserver</code> (<code>onChange(boolean)</code>), <code>MediaStore</code>, thẻ <code>&lt;provider&gt;</code> trong Manifest và permission <code>READ_CONTACTS</code> có từ API level đầu tiên.</li>
+  <li><strong>Android 2.0 (API 5):</strong> thêm <code>ContactsContract</code>, API của Contacts Provider dùng trong bài, thay cho API <code>Contacts</code> cũ.</li>
+  <li><strong>Android 4.1 (API 16):</strong> thêm permission <code>READ_EXTERNAL_STORAGE</code>.</li>
+  <li><strong>Android 4.2 (API 17):</strong> thêm thuộc tính <code>android:exported</code> cho <code>&lt;provider&gt;</code>. Thiết bị API 16 trở xuống luôn coi Provider là exported; app target API 17+ thì mặc định <code>exported="false"</code> trên thiết bị API 17+.</li>
+  <li><strong>Android 11 (API 30):</strong> app target API 30+ chịu package visibility, phải khai báo <code>&lt;queries&gt;</code> (có thể theo provider authority) để thấy Provider của app khác; cột <code>MediaStore.MediaColumns.DATA</code> chỉ đọc với app target API 30+.</li>
+  <li><strong>Android 13 (API 33):</strong> thêm <code>READ_MEDIA_IMAGES</code> (granular media permission), thay <code>READ_EXTERNAL_STORAGE</code> khi đọc ảnh.</li>
+  <li><strong>Android 14 (API 34):</strong> thêm <code>READ_MEDIA_VISUAL_USER_SELECTED</code> cho trường hợp người dùng chỉ cho phép một số ảnh.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="../../session_02/file_permissions.md" target="_blank" rel="noopener">File Permissions</a>, mục "Android sandbox: mỗi app là một user Linux": sandbox mà Content Provider là cổng đi qua; các loại storage, runtime permission và FileProvider.</li>
+  <li><a href="activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a> và <a href="services/android_service.md" target="_blank" rel="noopener">Android Service</a>: hai Application Component khác, đặt Content Provider vào đúng chỗ trong 4 component cốt lõi.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>, mục "Thẻ &lt;provider&gt;" và "&lt;permission&gt; — tự định nghĩa quyền": khai báo <code>&lt;provider&gt;</code>, <code>authorities</code>, custom permission và <code>protectionLevel</code>.</li>
+  <li><a href="broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>: component cùng nhóm, cũng phải cân nhắc <code>exported</code> và permission khi mở cho app khác.</li>
+  <li><a href="services/google_service.md" target="_blank" rel="noopener">Google Service</a>: <code>FirebaseInitProvider</code> dùng thứ tự <code>ContentProvider.onCreate()</code> trước <code>Application.onCreate()</code> để khởi tạo Firebase.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>: lưu data nội bộ thay cho Content Provider.</li>
+  <li><a href="../../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: Main Thread, ANR và vì sao query phải chạy nền.</li>
+  <li>8.4.3 Coroutines (chưa có bài), 7.1.4.2 Flow (chưa có bài), 7.1.5.3 Hilt (chưa có bài): các kiến thức dùng trước trong ví dụ.</li>
+</ul></li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
 
 <ul>
   <li><a href="https://developer.android.com/guide/topics/providers/content-provider-basics" target="_blank" rel="noopener">Android Developers — Content Provider basics</a></li>
   <li><a href="https://developer.android.com/guide/topics/providers/content-provider-creating" target="_blank" rel="noopener">Android Developers — Creating a Content Provider</a></li>
   <li><a href="https://developer.android.com/reference/android/provider/MediaStore" target="_blank" rel="noopener">Android Developers — MediaStore</a></li>
-  <li><a href="https://developer.android.com/reference/android/provider/ContactsContract" target="_blank" rel="noopener">Android Developers — ContactsContract</a></li>
+  <li><a href="https://developer.android.com/reference/android/provider/MediaStore.MediaColumns" target="_blank" rel="noopener">Android Developers — MediaStore.MediaColumns (DATA: read-only từ Android 11 với app target API 30+)</a></li>
+  <li><a href="https://developer.android.com/reference/android/provider/ContactsContract" target="_blank" rel="noopener">Android Developers — ContactsContract (API 5)</a></li>
   <li><a href="https://developer.android.com/reference/androidx/core/content/FileProvider" target="_blank" rel="noopener">Android Developers — FileProvider</a></li>
-  <li><a href="https://developer.android.com/reference/android/content/ContentProvider" target="_blank" rel="noopener">Android Developers — ContentProvider (thread-safety, onCreate)</a></li>
+  <li><a href="https://developer.android.com/reference/android/content/ContentProvider" target="_blank" rel="noopener">Android Developers — ContentProvider (thread-safety, onCreate, API 1)</a></li>
+  <li><a href="https://developer.android.com/reference/android/content/ContentResolver" target="_blank" rel="noopener">Android Developers — ContentResolver (API 1)</a></li>
+  <li><a href="https://developer.android.com/reference/android/database/ContentObserver" target="_blank" rel="noopener">Android Developers — ContentObserver (API 1)</a></li>
   <li><a href="https://developer.android.com/reference/android/app/Application#onCreate(" target="_blank" rel="noopener">Android Developers — Application.onCreate</a>)</li>
+  <li><a href="https://developer.android.com/guide/topics/manifest/provider-element" target="_blank" rel="noopener">Android Developers — &lt;provider&gt; element (exported mặc định theo API 17)</a></li>
+  <li><a href="https://developer.android.com/reference/android/Manifest.permission" target="_blank" rel="noopener">Android Developers — Manifest.permission (READ_CONTACTS API 1, READ_EXTERNAL_STORAGE API 16, READ_MEDIA_IMAGES API 33, READ_MEDIA_VISUAL_USER_SELECTED API 34)</a></li>
   <li><a href="https://developer.android.com/about/versions/14/behavior-changes-14" target="_blank" rel="noopener">Android 14 behavior changes — partial photo/video access</a></li>
   <li><a href="https://developer.android.com/training/package-visibility/declaring" target="_blank" rel="noopener">Package visibility — declaring queries</a></li>
 </ul>
@@ -33215,7 +33714,7 @@ context.sendBroadcast(intent)</code></pre>
     }
 }</code></pre>
 
-<p>Receiver chỉ nhận được sự kiện khi đã được đăng ký: động trong code bằng <code>ContextCompat.registerReceiver()</code> (action tự định nghĩa thì truyền <code>RECEIVER_NOT_EXPORTED</code>, và <code>unregisterReceiver()</code> ở lifecycle đối ứng) hoặc tĩnh trong Manifest. Cách đăng ký, cờ export của Android 14 và giới hạn của receiver tĩnh ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "3. Static Receiver vs Dynamic Receiver".</p>
+<p>Receiver chỉ nhận được sự kiện khi đã được đăng ký: động trong code bằng <code>ContextCompat.registerReceiver()</code> (action tự định nghĩa thì truyền <code>RECEIVER_NOT_EXPORTED</code>, và <code>unregisterReceiver()</code> ở lifecycle đối ứng) hoặc tĩnh trong Manifest. Cách đăng ký, cờ export của Android 14 và giới hạn của receiver tĩnh ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "Static Receiver vs Dynamic Receiver".</p>
 
 <h4>2.3 Explicit Broadcast vs Implicit Broadcast</h4>
 
@@ -33256,7 +33755,7 @@ context.sendBroadcast(intent)</code></pre>
   </tbody>
 </table>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Từ Android 8.0 (API 26), receiver khai báo trong Manifest của app target API 26+ không nhận được hầu hết implicit broadcast. Vì vậy sự kiện gửi cho receiver tĩnh phải là <strong>explicit broadcast</strong> (<code>setPackage()</code> hoặc ComponentName). Danh sách broadcast được miễn và các lựa chọn phía nhận ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "4. Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Từ Android 8.0 (API 26), receiver khai báo trong Manifest của app target API 26+ không nhận được hầu hết implicit broadcast. Vì vậy sự kiện gửi cho receiver tĩnh phải là <strong>explicit broadcast</strong> (<code>setPackage()</code> hoặc ComponentName). Danh sách broadcast được miễn và các lựa chọn phía nhận ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".</div></div>
 
 <h4>2.4 Ordered Broadcast — Gửi sự kiện theo thứ tự</h4>
 
@@ -33323,7 +33822,7 @@ context.sendBroadcast(intent, "com.example.wallet.permission.RECEIVE_PAYMENT_EVE
 
 <p><strong>Kết quả:</strong> chỉ receiver của app đối tác (cùng chứng chỉ ký, đã khai báo <code>&lt;uses-permission&gt;</code>) nhận được <code>ORDER_ID</code>; app khác đăng ký cùng action không nhận được sự kiện.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Permission tự định nghĩa được đăng ký lúc cài app định nghĩa nó, nên app định nghĩa (app ví) phải được cài <strong>trước</strong> app dùng permission đó. Cách khai báo <code>&lt;permission&gt;</code> và các <code>protectionLevel</code> ở <a href="../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>, mục "&lt;permission&gt; — tự định nghĩa quyền". Chiều ngược lại, receiver giới hạn <strong>ai được gửi</strong> vào nó bằng <code>android:permission</code> trên <code>&lt;receiver&gt;</code> (xem <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "8.2 Permission — Hạn chế ai được gửi broadcast đến receiver của bạn").</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Permission tự định nghĩa được đăng ký lúc cài app định nghĩa nó, nên app định nghĩa (app ví) phải được cài <strong>trước</strong> app dùng permission đó. Cách khai báo <code>&lt;permission&gt;</code> và các <code>protectionLevel</code> ở <a href="../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>, mục "&lt;permission&gt; — tự định nghĩa quyền". Chiều ngược lại, receiver giới hạn <strong>ai được gửi</strong> vào nó bằng <code>android:permission</code> trên <code>&lt;receiver&gt;</code> (xem <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "Permission — Hạn chế ai được gửi broadcast đến receiver của bạn").</div></div>
 
 <h3>Các bài toán khác</h3>
 
@@ -33376,7 +33875,7 @@ context.sendBroadcast(intent, "com.example.wallet.permission.RECEIVE_PAYMENT_EVE
   </tbody>
 </table>
 
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Quy tắc vàng:</strong> Đừng dùng Broadcast Intent để giao tiếp giữa các thành phần <em>trong cùng một app và cùng một process</em>. <code>LocalBroadcastManager</code> đã deprecated; thay bằng <code>SharedFlow</code> như ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "5. LocalBroadcastManager — Deprecated và thay thế". Broadcast chỉ nên dùng cho <strong>sự kiện hệ thống</strong> hoặc <strong>giao tiếp cross-app</strong>.</div></div>
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Quy tắc vàng:</strong> Đừng dùng Broadcast Intent để giao tiếp giữa các thành phần <em>trong cùng một app và cùng một process</em>. <code>LocalBroadcastManager</code> đã deprecated; thay bằng <code>SharedFlow</code> như ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "LocalBroadcastManager — Deprecated và thay thế". Broadcast chỉ nên dùng cho <strong>sự kiện hệ thống</strong> hoặc <strong>giao tiếp cross-app</strong>.</div></div>
 
 <p>Hãy nhớ sự khác biệt cốt lõi:</p>
 
@@ -33411,7 +33910,7 @@ context.sendBroadcast(Intent(ACTION_UPDATE).apply {
 
 <h3>3. Quên <code>unregisterReceiver</code> ở phía nhận</h3>
 
-<p>Receiver đăng ký động mà không huỷ ở lifecycle đối ứng sẽ giữ Context và gây memory leak. Cách đăng ký/huỷ đúng cặp lifecycle ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "Lỗi 1: Memory Leak — Quên unregister Dynamic Receiver".</p>
+<p>Receiver đăng ký động mà không huỷ ở lifecycle đối ứng sẽ giữ Context và gây memory leak. Cách đăng ký/huỷ đúng cặp lifecycle ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "Ví dụ: Đăng ký và hủy đăng ký đúng cách".</p>
 
 <h3>4. Đọc extras sai giao thức</h3>
 

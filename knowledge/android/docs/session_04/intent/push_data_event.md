@@ -175,7 +175,7 @@ class DataReceiver : BroadcastReceiver() {
 }
 ```
 
-Receiver chỉ nhận được sự kiện khi đã được đăng ký: động trong code bằng `ContextCompat.registerReceiver()` (action tự định nghĩa thì truyền `RECEIVER_NOT_EXPORTED`, và `unregisterReceiver()` ở lifecycle đối ứng) hoặc tĩnh trong Manifest. Cách đăng ký, cờ export của Android 14 và giới hạn của receiver tĩnh ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "3. Static Receiver vs Dynamic Receiver".
+Receiver chỉ nhận được sự kiện khi đã được đăng ký: động trong code bằng `ContextCompat.registerReceiver()` (action tự định nghĩa thì truyền `RECEIVER_NOT_EXPORTED`, và `unregisterReceiver()` ở lifecycle đối ứng) hoặc tĩnh trong Manifest. Cách đăng ký, cờ export của Android 14 và giới hạn của receiver tĩnh ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "Static Receiver vs Dynamic Receiver".
 
 #### 2.3 Explicit Broadcast vs Implicit Broadcast
 
@@ -188,7 +188,7 @@ Receiver chỉ nhận được sự kiện khi đã được đăng ký: động
 | Rủi ro bảo mật | Cao — app khác có thể nhận | Thấp |
 
 > [!WARNING]
-> Từ Android 8.0 (API 26), receiver khai báo trong Manifest của app target API 26+ không nhận được hầu hết implicit broadcast. Vì vậy sự kiện gửi cho receiver tĩnh phải là **explicit broadcast** (`setPackage()` hoặc ComponentName). Danh sách broadcast được miễn và các lựa chọn phía nhận ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "4. Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".
+> Từ Android 8.0 (API 26), receiver khai báo trong Manifest của app target API 26+ không nhận được hầu hết implicit broadcast. Vì vậy sự kiện gửi cho receiver tĩnh phải là **explicit broadcast** (`setPackage()` hoặc ComponentName). Danh sách broadcast được miễn và các lựa chọn phía nhận ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".
 
 #### 2.4 Ordered Broadcast — Gửi sự kiện theo thứ tự
 
@@ -262,7 +262,7 @@ context.sendBroadcast(intent, "com.example.wallet.permission.RECEIVE_PAYMENT_EVE
 **Kết quả:** chỉ receiver của app đối tác (cùng chứng chỉ ký, đã khai báo `<uses-permission>`) nhận được `ORDER_ID`; app khác đăng ký cùng action không nhận được sự kiện.
 
 > [!NOTE]
-> Permission tự định nghĩa được đăng ký lúc cài app định nghĩa nó, nên app định nghĩa (app ví) phải được cài **trước** app dùng permission đó. Cách khai báo `<permission>` và các `protectionLevel` ở [Manifest Tags](../android_manifest/tags.md), mục "<permission> — tự định nghĩa quyền". Chiều ngược lại, receiver giới hạn **ai được gửi** vào nó bằng `android:permission` trên `<receiver>` (xem [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "8.2 Permission — Hạn chế ai được gửi broadcast đến receiver của bạn").
+> Permission tự định nghĩa được đăng ký lúc cài app định nghĩa nó, nên app định nghĩa (app ví) phải được cài **trước** app dùng permission đó. Cách khai báo `<permission>` và các `protectionLevel` ở [Manifest Tags](../android_manifest/tags.md), mục "<permission> — tự định nghĩa quyền". Chiều ngược lại, receiver giới hạn **ai được gửi** vào nó bằng `android:permission` trên `<receiver>` (xem [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "Permission — Hạn chế ai được gửi broadcast đến receiver của bạn").
 
 ### Các bài toán khác
 
@@ -281,7 +281,7 @@ context.sendBroadcast(intent, "com.example.wallet.permission.RECEIVE_PAYMENT_EVE
 | Giao tiếp nội bộ type-safe, reactive | **Flow / SharedFlow / LiveData** (không qua Intent) | Khuyến nghị hiện đại |
 
 > [!TIP]
-> **Quy tắc vàng:** Đừng dùng Broadcast Intent để giao tiếp giữa các thành phần *trong cùng một app và cùng một process*. `LocalBroadcastManager` đã deprecated; thay bằng `SharedFlow` như ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "5. LocalBroadcastManager — Deprecated và thay thế". Broadcast chỉ nên dùng cho **sự kiện hệ thống** hoặc **giao tiếp cross-app**.
+> **Quy tắc vàng:** Đừng dùng Broadcast Intent để giao tiếp giữa các thành phần *trong cùng một app và cùng một process*. `LocalBroadcastManager` đã deprecated; thay bằng `SharedFlow` như ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "LocalBroadcastManager — Deprecated và thay thế". Broadcast chỉ nên dùng cho **sự kiện hệ thống** hoặc **giao tiếp cross-app**.
 
 Hãy nhớ sự khác biệt cốt lõi:
 
@@ -318,7 +318,7 @@ context.sendBroadcast(Intent(ACTION_UPDATE).apply {
 
 ### 3. Quên `unregisterReceiver` ở phía nhận
 
-Receiver đăng ký động mà không huỷ ở lifecycle đối ứng sẽ giữ Context và gây memory leak. Cách đăng ký/huỷ đúng cặp lifecycle ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "Lỗi 1: Memory Leak — Quên unregister Dynamic Receiver".
+Receiver đăng ký động mà không huỷ ở lifecycle đối ứng sẽ giữ Context và gây memory leak. Cách đăng ký/huỷ đúng cặp lifecycle ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "Ví dụ: Đăng ký và hủy đăng ký đúng cách".
 
 ### 4. Đọc extras sai giao thức
 

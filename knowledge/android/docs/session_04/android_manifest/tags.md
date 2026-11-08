@@ -444,11 +444,11 @@ Broadcast Receiver lắng nghe và phản ứng với **broadcast intent** từ 
 | Thuộc tính | Ý nghĩa |
 |---|---|
 | `android:name` | Tên class Receiver. |
-| `android:exported` | App khác/hệ thống gửi broadcast vào receiver này được không. Broadcast do chính hệ thống gửi (như `BOOT_COMPLETED`) vẫn tới receiver `false`; receiver nghe broadcast của app khác hoặc của app hệ thống đặc quyền (Bluetooth, telephony) thì phải `true`, chi tiết ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "8.1 `android:exported` — Quan trọng từ Android 12+". |
+| `android:exported` | App khác/hệ thống gửi broadcast vào receiver này được không. Broadcast do chính hệ thống gửi (như `BOOT_COMPLETED`) vẫn tới receiver `false`; receiver nghe broadcast của app khác hoặc của app hệ thống đặc quyền (Bluetooth, telephony) thì phải `true`, chi tiết ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "`android:exported` — Quan trọng từ Android 12+". |
 | `android:enabled` | Receiver có được hệ thống instantiate không. |
 | `android:permission` | Broadcast phải kèm permission mới được nhận. |
 
-Khai báo `<receiver>` trong manifest là cách đăng ký **static**; receiver cũng có thể được đăng ký **động** trong code bằng `ContextCompat.registerReceiver()`. Từ Android 8 (API 26), receiver static không còn nhận được hầu hết implicit broadcast (trừ một danh sách được miễn như `BOOT_COMPLETED`). Hai cách đăng ký, danh sách miễn trừ và cờ `RECEIVER_EXPORTED`/`RECEIVER_NOT_EXPORTED` của Android 14 được giải thích ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "3. Static Receiver vs Dynamic Receiver" và "4. Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".
+Khai báo `<receiver>` trong manifest là cách đăng ký **static**; receiver cũng có thể được đăng ký **động** trong code bằng `ContextCompat.registerReceiver()`. Từ Android 8 (API 26), receiver static không còn nhận được hầu hết implicit broadcast (trừ một danh sách được miễn như `BOOT_COMPLETED`). Hai cách đăng ký, danh sách miễn trừ và cờ `RECEIVER_EXPORTED`/`RECEIVER_NOT_EXPORTED` của Android 14 được giải thích ở [Broadcast Receiver](../components/broadcast/broadcast_receiver.md), mục "Static Receiver vs Dynamic Receiver" và "4. Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".
 
 > [!NOTE]
 > Để nhận `BOOT_COMPLETED`, ngoài `<receiver>`, app cần khai báo `<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />`.
