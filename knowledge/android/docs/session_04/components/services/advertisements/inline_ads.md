@@ -2,7 +2,7 @@
 id: android.component.service.ads.inline
 title: Inline Ads
 summary: Inline ad là quảng cáo hiển thị như một View nằm trong layout của app (Banner, Native), sống cùng vòng đời với màn hình chứa nó. Bài giải thích vì sao phải gọi pause/resume/destroy theo lifecycle, cách dựng Banner trong XML và Jetpack Compose, cách bind Native Ad, và khi nào chọn loại nào.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 15 phút

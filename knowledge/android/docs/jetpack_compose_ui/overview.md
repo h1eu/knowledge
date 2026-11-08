@@ -2,7 +2,7 @@
 id: android.jetpack_compose.compose_overview
 title: Jetpack Compose Overview
 summary: Jetpack Compose là bộ công cụ UI declarative của Android — viết hàm Kotlin @Composable mô tả giao diện theo state hiện tại (UI = f(state)), Compose compiler plugin biến các hàm đó thành code có thể ghi nhớ và gọi lại, runtime chỉ chạy lại phần đọc state đã đổi rồi đi qua ba phase Composition → Layout → Drawing. Bài đặt nền cho toàn bộ Session 09.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 30 phút

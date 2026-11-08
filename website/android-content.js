@@ -24992,7 +24992,7 @@ override fun onMapReady(map: GoogleMap) {
   'ads-overview': {
     title: 'AdMob Overview',
     summary: 'Quảng cáo trên Android là việc app (Publisher) hiển thị nội dung quảng bá trả phí qua SDK của một Ad Network, phổ biến nhất là Google AdMob với Google Mobile Ads SDK. Bài giải thích các bên tham gia, cách một ad request đi qua đấu giá và mediation tới lúc hiển thị, các loại ad, và cách tích hợp SDK cùng test ads ngay từ đầu.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '25 phút',
     depth: 'deep-dive',
@@ -25009,7 +25009,7 @@ override fun onMapReady(map: GoogleMap) {
       'Biết khi nào dùng AdMob, mediation, tự xây ad server hay In-app Purchase.'
     ],
     knowledgeGap: 'Nhiều người chỉ biết dán banner lên màn hình, không hiểu luồng đấu giá ad, không biết vì sao test bằng ad unit thật làm tài khoản bị khoá.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -26670,7 +26670,7 @@ MobileAds.setRequestConfiguration(configuration)</code></pre>
   'ads-inline': {
     title: 'Inline Ads',
     summary: 'Inline ad là quảng cáo hiển thị như một View nằm trong layout của app (Banner, Native), sống cùng vòng đời với màn hình chứa nó. Bài giải thích vì sao phải gọi pause/resume/destroy theo lifecycle, cách dựng Banner trong XML và Jetpack Compose, cách bind Native Ad, và khi nào chọn loại nào.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '15 phút',
     depth: 'standard',
@@ -26687,7 +26687,7 @@ MobileAds.setRequestConfiguration(configuration)</code></pre>
       'Xử lý được memory leak và âm thanh chạy nền do banner hoặc native ad không được giải phóng.'
     ],
     knowledgeGap: 'Nhiều người thả AdView vào layout rồi quên pause/destroy, hoặc bọc AdView bằng AndroidView mà tưởng Compose tự lo lifecycle.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -27306,7 +27306,7 @@ fun AdBannerViewWithLifecycle(
   'ads-fullscreen': {
     title: 'Full-screen Ads',
     summary: 'Full-screen ad là quảng cáo được SDK hiển thị trong một Activity riêng phủ lên app (Interstitial, Rewarded, Rewarded Interstitial, App Open); app chỉ giữ một instance đã load và gọi show() đúng thời điểm. Bài giải thích vòng load trước, show sau, mỗi instance dùng một lần, cách trao thưởng, các quy tắc lifecycle khi show và App Open Ad.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '25 phút',
     depth: 'deep-dive',
@@ -27323,7 +27323,7 @@ fun AdBannerViewWithLifecycle(
       'Biết khi nào nên và không nên show từng loại full-screen ad.'
     ],
     knowledgeGap: 'Nhiều người show ad ngay khi vừa load, quên load lại sau khi show, hoặc show khi Activity đã vào background gây crash và vi phạm policy.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -28202,7 +28202,7 @@ class MyApplication : Application() {
   'ads-architecture': {
     title: 'Ads trong kiến trúc app',
     summary: 'Đặt quảng cáo vào kiến trúc app là chia trách nhiệm theo tầng, SDK bọc sau một interface ở Data Layer, ViewModel chỉ giữ state và phát event, còn UI là nơi duy nhất cầm Activity để show. Bài giải thích luồng một lần xem rewarded ad qua các tầng, mẫu AdManager, và cách load ít, load sớm, giải phóng đúng lúc.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '15 phút',
     depth: 'standard',
@@ -28218,7 +28218,7 @@ class MyApplication : Application() {
       'Nhận diện được các cách đặt ad sai tầng (SDK trong ViewModel, ad trong Domain, ViewModel giữ Activity).'
     ],
     knowledgeGap: 'Nhiều người gọi SDK quảng cáo thẳng trong Activity hoặc ViewModel, khiến không test được, không đổi được ad network và dễ leak Activity.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -28609,7 +28609,7 @@ fun onLevelComplete() {
   'ads-privacy': {
     title: 'Ads Privacy & Policy',
     summary: 'Ads Privacy & Policy là các quy định mà app có quảng cáo phải tuân thủ, xin consent trước khi dùng dữ liệu cho quảng cáo (GDPR, qua UMP SDK), cấu hình riêng cho trẻ em (COPPA) và policy quảng cáo của Google Play. Bài giải thích luồng consent với UMP, cấu hình AgeRestrictedTreatment và các hành vi bị cấm.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '10 phút',
     depth: 'standard',
@@ -28625,7 +28625,7 @@ fun onLevelComplete() {
       'Nhận diện được các hành vi quảng cáo bị Google Play cấm và hậu quả.'
     ],
     knowledgeGap: 'Nhiều người load ad ngay khi mở app mà chưa xét consent, hoặc vẫn dùng API trẻ em đã deprecated.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '10 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -44264,7 +44264,7 @@ Object.assign(ANDROID_CONTENT, {
   'compose-overview': {
     title: 'Jetpack Compose Overview',
     summary: 'Jetpack Compose là bộ công cụ UI declarative của Android — viết hàm Kotlin @Composable mô tả giao diện theo state hiện tại (UI = f(state)), Compose compiler plugin biến các hàm đó thành code có thể ghi nhớ và gọi lại, runtime chỉ chạy lại phần đọc state đã đổi rồi đi qua ba phase Composition → Layout → Drawing. Bài đặt nền cho toàn bộ Session 09.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '30 phút',
     depth: 'standard',

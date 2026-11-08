@@ -2,7 +2,7 @@
 id: android.component.service.ads.privacy
 title: Ads Privacy & Policy
 summary: Ads Privacy & Policy là các quy định mà app có quảng cáo phải tuân thủ, xin consent trước khi dùng dữ liệu cho quảng cáo (GDPR, qua UMP SDK), cấu hình riêng cho trẻ em (COPPA) và policy quảng cáo của Google Play. Bài giải thích luồng consent với UMP, cấu hình AgeRestrictedTreatment và các hành vi bị cấm.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 10 phút

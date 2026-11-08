@@ -2,7 +2,7 @@
 id: android.component.service.ads.fullscreen
 title: Full-screen Ads
 summary: Full-screen ad là quảng cáo được SDK hiển thị trong một Activity riêng phủ lên app (Interstitial, Rewarded, Rewarded Interstitial, App Open); app chỉ giữ một instance đã load và gọi show() đúng thời điểm. Bài giải thích vòng load trước, show sau, mỗi instance dùng một lần, cách trao thưởng, các quy tắc lifecycle khi show và App Open Ad.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 25 phút

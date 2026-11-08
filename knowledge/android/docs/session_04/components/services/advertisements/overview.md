@@ -2,7 +2,7 @@
 id: android.component.service.ads.overview
 title: AdMob Overview
 summary: Quảng cáo trên Android là việc app (Publisher) hiển thị nội dung quảng bá trả phí qua SDK của một Ad Network, phổ biến nhất là Google AdMob với Google Mobile Ads SDK. Bài giải thích các bên tham gia, cách một ad request đi qua đấu giá và mediation tới lúc hiển thị, các loại ad, và cách tích hợp SDK cùng test ads ngay từ đầu.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 25 phút

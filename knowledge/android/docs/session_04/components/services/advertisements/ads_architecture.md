@@ -2,7 +2,7 @@
 id: android.component.service.ads.architecture
 title: Ads trong kiến trúc app
 summary: Đặt quảng cáo vào kiến trúc app là chia trách nhiệm theo tầng, SDK bọc sau một interface ở Data Layer, ViewModel chỉ giữ state và phát event, còn UI là nơi duy nhất cầm Activity để show. Bài giải thích luồng một lần xem rewarded ad qua các tầng, mẫu AdManager, và cách load ít, load sớm, giải phóng đúng lúc.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 15 phút
