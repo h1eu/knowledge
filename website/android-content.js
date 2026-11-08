@@ -31753,7 +31753,7 @@ viewLifecycleOwner.lifecycleScope.launch {
   },
   'intent-implicit': {
     title: 'Implicit Intents',
-    summary: 'Hiểu cách Implicit Intent hoạt động, cơ chế phân giải (Resolution) của hệ điều hành Android và cách ứng dụng vào các bài toán thực tế như mở web, chia sẻ text hay gửi email.',
+    summary: 'Implicit Intent là Intent không chỉ định component đích, chỉ mô tả hành động (Action) cùng dữ liệu (Data/MIME type) và Category, để hệ điều hành phân giải (Intent Resolution) ra app có intent-filter phù hợp. Bài giải thích cơ chế phân giải, cách ứng dụng vào các bài toán thực tế như mở web, chia sẻ text hay gửi email, và cách xử lý ActivityNotFoundException, Package Visibility (Android 11+) và giới hạn component exported (Android 14+).',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '15 phút',
@@ -31770,7 +31770,7 @@ viewLifecycleOwner.lifecycleScope.launch {
       'Xử lý được trường hợp không có app nào nhận Intent (ActivityNotFoundException) và giới hạn Package Visibility từ Android 11.'
     ],
     knowledgeGap: 'Không hiểu cơ chế phân giải Implicit Intent khiến app crash với ActivityNotFoundException khi máy không có app phù hợp, hoặc lặng lẽ bỏ qua hành động trên Android 11+ vì resolveActivity() trả về null do thiếu khai báo queries; không biết implicit intent chỉ tới được component exported cũng khiến luồng nội bộ hỏng khi target Android 14.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -31786,15 +31786,26 @@ viewLifecycleOwner.lifecycleScope.launch {
 
 <p><strong>Implicit Intent (Intent không tường minh)</strong> ra đời để giải quyết vấn đề: <strong>"Tôi cần một ai đó thực hiện việc này (chụp ảnh), tôi không quan tâm ai làm, miễn là làm được."</strong></p>
 
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được Implicit Intent là gì và cách hệ điều hành phân giải (resolve) nó qua Action, Data, Category.</li>
+  <li>Phân biệt được Implicit Intent với Explicit Intent và biết khi nào dùng loại nào.</li>
+  <li>Triển khai được Implicit Intent cho các bài toán mở web, chia sẻ text, gửi email.</li>
+  <li>Xử lý được trường hợp không có app nào nhận Intent (ActivityNotFoundException) và giới hạn Package Visibility từ Android 11.</li>
+</ul>
+
 <h2>Implicit Intent là gì?</h2>
 
 <p><strong>Implicit Intent</strong> là loại Intent mà bạn không truyền tên Component (Class) cụ thể, thay vào đó, bạn khai báo một <strong>Hành động (Action)</strong> và loại <strong>Dữ liệu (Data)</strong> mà hành động đó cần thực thi.</p>
 
+<p>Mental model: Implicit Intent là một <strong>yêu cầu đăng lên cho cả hệ thống</strong>, "tôi cần ai đó làm việc này, ai làm cũng được". Hệ điều hành là người nhận yêu cầu và tìm người làm: app nào đã khai báo (bằng intent-filter) rằng mình làm được đúng việc đó với đúng loại dữ liệu đó thì được chọn.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Intent Resolution: hệ điều hành tìm app nhận Intent</h3>
+
 <p>Hệ điều hành Android (cụ thể là <code>PackageManager</code> và <code>ActivityManagerService</code>) sẽ đứng ra làm trung gian: tra danh sách intent-filter mà <code>PackageManager</code> đã parse từ manifest của các app lúc cài đặt, xem app nào có khả năng xử lý hành động này, và đưa ra danh sách cho người dùng chọn (hoặc mở ngay nếu chỉ có 1 app xử lý được).</p>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Từ Android 14 (app target API 34+), implicit intent <strong>chỉ được giao tới component <code>exported="true"</code></strong>. Component nội bộ (<code>exported="false"</code>) dù có <code>&lt;intent-filter&gt;</code> khớp cũng không nhận được implicit intent (với <code>startActivity</code> sẽ ném <code>ActivityNotFoundException</code>); muốn mở nó phải dùng Explicit Intent hoặc <code>setPackage(context.packageName)</code>.</div></div>
-
-<h2>Cơ chế OS Resolve Implicit Intent</h2>
 
 <p>Khi bạn gọi <code>startActivity(implicitIntent)</code>, quá trình sau sẽ diễn ra dưới hệ thống:</p>
 
@@ -32040,26 +32051,51 @@ viewLifecycleOwner.lifecycleScope.launch {
   <li><strong>Category:</strong> (Thường mặc định là <code>CATEGORY_DEFAULT</code>).</li>
 </ol>
 
-<h2>Hướng dẫn triển khai thực tế</h2>
+<p>Sơ đồ ghi "Quét toàn bộ AndroidManifest.xml" cho dễ hình dung; thực tế hệ thống tra danh sách intent-filter mà <code>PackageManager</code> đã parse sẵn lúc cài đặt, như đoạn đầu mục này. Quy tắc khớp chi tiết của từng thành phần (test Action, Category, Data) ở <a href="intent_filters.md" target="_blank" rel="noopener">Intent Filters</a>.</p>
 
-<h3>1. Mở một trang Web (Browser)</h3>
+<h3>Chỉ component exported mới nhận implicit intent (Android 14+)</h3>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Từ Android 14 (app target API 34+), implicit intent <strong>chỉ được giao tới component <code>exported="true"</code></strong>. Component nội bộ (<code>exported="false"</code>) dù có <code>&lt;intent-filter&gt;</code> khớp cũng không nhận được implicit intent (với <code>startActivity</code> sẽ ném <code>ActivityNotFoundException</code>); muốn mở nó phải dùng Explicit Intent hoặc <code>setPackage(context.packageName)</code>.</div></div>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>Mở trang điều khoản sử dụng trên trình duyệt</h3>
 
 <p><strong>Vấn đề:</strong> Ứng dụng muốn mở link điều khoản sử dụng.</p>
 
+<p>Luồng chạy:</p>
+
+<ol>
+  <li>Tạo Intent với <code>ACTION_VIEW</code> và Data là URL <code>https://...</code>; không chỉ định app nào.</li>
+  <li>Gọi <code>resolveActivity()</code> để hỏi <code>PackageManager</code> có Activity nào khớp Intent không. Trên app target Android 11 (API 30) trở lên, kết quả chỉ tính các app mà app của bạn được phép nhìn thấy, nên cần khai báo <code>&lt;queries&gt;</code> (mục "Sai lầm thường gặp").</li>
+  <li>Có app khớp: gọi <code>startActivity()</code>, hệ thống mở trình duyệt (hoặc hiện hộp thoại chọn app nếu có nhiều app khớp).</li>
+  <li>Không có app khớp: không gọi <code>startActivity()</code>, báo người dùng cài trình duyệt.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) Intent(ACTION_VIEW, https://...)"] --&gt; B{"(2) resolveActivity() != null?"}
+    B --&gt;|Có| C["(3) startActivity(intent) → trình duyệt mở link"]
+    B --&gt;|Không| D["(4) Toast: cài trình duyệt"]
+</div>
+
 <pre data-lang="kotlin"><code>fun openWebPage(url: String, context: Context) {
+    // (1) Implicit Intent: chỉ có Action + Data
     val webpage: Uri = Uri.parse(url)
     val intent = Intent(Intent.ACTION_VIEW, webpage)
     
     // RẤT QUAN TRỌNG: Luôn kiểm tra xem có app nào xử lý được không trước khi start
     // Từ Android 11 (API 30), cần khai báo &lt;queries&gt; trong Manifest để check resolveActivity
-    if (intent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(intent)
+    if (intent.resolveActivity(context.packageManager) != null) { // (2)
+        context.startActivity(intent) // (3)
     } else {
-        // Hiển thị Toast thông báo người dùng cài trình duyệt
+        // (4) Hiển thị Toast thông báo người dùng cài trình duyệt
     }
 }</code></pre>
 
-<h3>2. Chia sẻ Text (Share Action)</h3>
+<p><strong>Kết quả:</strong> trên máy có trình duyệt (và manifest có <code>&lt;queries&gt;</code> cho <code>https</code>), link mở trong trình duyệt; trên máy không có app nào mở được link, app hiện Toast thay vì crash.</p>
+
+<h3>Chia sẻ mã giới thiệu (Share Action)</h3>
 
 <p><strong>Vấn đề:</strong> Muốn người dùng chia sẻ một đoạn văn bản (mã giới thiệu) qua Zalo, Messenger, Email...</p>
 
@@ -32078,7 +32114,7 @@ viewLifecycleOwner.lifecycleScope.launch {
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><code>createChooser()</code> khác hộp thoại chọn app mặc định của hệ thống. Khi nhiều app khớp mà người dùng chưa đặt app mặc định, hệ thống hiện <strong>disambiguation dialog</strong> có nút "Luôn dùng"/"Chỉ một lần"; nếu người dùng đã chọn "Luôn dùng" thì lần sau mở thẳng app đó, không hỏi nữa. <code>createChooser()</code> thì <strong>luôn</strong> hiện Sharesheet và không cho đặt mặc định, nên hợp với hành động chia sẻ, nơi mỗi lần người dùng có thể muốn chọn app khác.</div></div>
 
-<h3>3. Gửi Email</h3>
+<h3>Gửi Email</h3>
 
 <pre data-lang="kotlin"><code>fun composeEmail(addresses: Array&lt;String&gt;, subject: String, context: Context) {
     val intent = Intent(Intent.ACTION_SENDTO).apply {
@@ -32096,11 +32132,28 @@ viewLifecycleOwner.lifecycleScope.launch {
     }
 }</code></pre>
 
-<h2>Các lưu ý / Lỗi thường gặp (Pitfalls)</h2>
+<h2>Khi nào nên và không nên dùng</h2>
 
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><strong>Crash <code>ActivityNotFoundException</code></strong> Lỗi phổ biến nhất khi dùng Implicit Intent là app bị văng khi không có ứng dụng nào trên thiết bị xử lý được Intent đó (Ví dụ: gọi <code>ACTION_DIAL</code> trên máy tính bảng không có tính năng nghe gọi). <strong>Luôn bọc trong try-catch hoặc dùng <code>resolveActivity</code> trước khi gọi <code>startActivity</code>.</strong></div></div>
+<ul>
+  <li><strong>Nên dùng</strong> khi cần nhờ một app khác làm việc (mở web, chia sẻ, gửi email, chụp ảnh) mà bạn không biết, hoặc không cần biết, app nào trên máy sẽ làm: chỉ mô tả việc cần làm bằng Action và Data.</li>
+  <li><strong>Không nên dùng</strong> để mở component nội bộ của chính app: dùng <a href="explicit_intents.md" target="_blank" rel="noopener">Explicit Intent</a> (hoặc <code>setPackage(context.packageName)</code>), vì từ Android 14 implicit intent không tới được component <code>exported="false"</code> (mục "Chỉ component exported mới nhận implicit intent (Android 14+)").</li>
+</ul>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Package Visibility (Android 11+)</strong> Từ Android 11 (API level 30), Google siết chặt quyền riêng tư. Hàm <code>resolveActivity()</code> sẽ luôn trả về <code>null</code> trừ khi bạn khai báo những package hoặc intent mà bạn muốn "nhìn thấy" trong file <code>AndroidManifest.xml</code> qua thẻ <code>&lt;queries&gt;</code>.</div></div>
+<p>Implicit Intent giúp hệ sinh thái Android trở nên linh hoạt và liên kết mạnh mẽ giữa các ứng dụng với nhau. Khi sử dụng, hãy chú ý cung cấp đúng Action và Data/MIME Type, đồng thời luôn có phương án fallback (xử lý lỗi) trong trường hợp thiết bị người dùng không có ứng dụng phù hợp.</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Crash <code>ActivityNotFoundException</code></h3>
+
+<p>Lỗi phổ biến nhất khi dùng Implicit Intent là app bị văng khi không có ứng dụng nào trên thiết bị xử lý được Intent đó (Ví dụ: gọi <code>ACTION_DIAL</code> trên máy tính bảng không có tính năng nghe gọi).</p>
+
+<p><strong>Cách sửa:</strong> <strong>Luôn bọc trong try-catch hoặc dùng <code>resolveActivity</code> trước khi gọi <code>startActivity</code>.</strong></p>
+
+<h3>2. <code>resolveActivity()</code> trả về <code>null</code> vì thiếu <code>&lt;queries&gt;</code> (Package Visibility, Android 11+)</h3>
+
+<p>Từ Android 11 (API level 30), Google siết chặt quyền riêng tư. Với app target API 30 trở lên, hàm <code>resolveActivity()</code> sẽ trả về <code>null</code> khi app đích không hiển thị với app của bạn, trừ khi bạn khai báo những package hoặc intent mà bạn muốn "nhìn thấy" trong file <code>AndroidManifest.xml</code> qua thẻ <code>&lt;queries&gt;</code>. Hậu quả: hành động bị bỏ qua mà không báo gì, dù máy có app phù hợp.</p>
+
+<p><strong>Cách sửa:</strong> khai báo <code>&lt;queries&gt;</code> cho đúng intent cần kiểm tra. <code>startActivity()</code> thì không cần package visibility, nên cách gọi thẳng <code>startActivity()</code> trong <code>try-catch</code> (ví dụ Gửi Email) không cần khối này.</p>
 
 <p><strong>Ví dụ sửa lỗi Package Visibility:</strong> Trong <code>AndroidManifest.xml</code>:</p>
 
@@ -32117,14 +32170,48 @@ viewLifecycleOwner.lifecycleScope.launch {
     &lt;/intent&gt;
 &lt;/queries&gt;</code></pre>
 
-<h2>Tổng kết</h2>
+<h3>3. Dùng implicit intent để mở component nội bộ không exported</h3>
 
-<p>Implicit Intent giúp hệ sinh thái Android trở nên linh hoạt và liên kết mạnh mẽ giữa các ứng dụng với nhau. Khi sử dụng, hãy chú ý cung cấp đúng Action và Data/MIME Type, đồng thời luôn có phương án fallback (xử lý lỗi) trong trường hợp thiết bị người dùng không có ứng dụng phù hợp.</p>
+<p>Khi app target Android 14 (API 34) trở lên, implicit intent tới Activity <code>exported="false"</code> của chính app ném <code>ActivityNotFoundException</code>, dù <code>&lt;intent-filter&gt;</code> khớp.</p>
+
+<p><strong>Cách sửa:</strong> dùng Explicit Intent hoặc <code>setPackage(context.packageName)</code> (mục "Chỉ component exported mới nhận implicit intent (Android 14+)").</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>API 1:</strong> <code>Intent</code> cùng <code>ACTION_VIEW</code>, <code>ACTION_SEND</code>, <code>ACTION_SENDTO</code>, <code>resolveActivity()</code>, <code>createChooser(Intent, CharSequence)</code> và <code>ActivityNotFoundException</code> có từ API level đầu tiên.</li>
+  <li><strong>API 4 (Android 1.6):</strong> thêm <code>Intent.setPackage()</code>, giới hạn Intent chỉ phân giải vào component của một package.</li>
+  <li><strong>Android 11 (API 30):</strong> Package Visibility: với app target API 30+, thông tin về app khác (<code>resolveActivity()</code>, <code>queryIntentActivities()</code>...) bị lọc mặc định; app khai báo app/intent cần thấy bằng <code>&lt;queries&gt;</code>. <code>startActivity()</code> không bị ảnh hưởng.</li>
+  <li><strong>Android 14 (API 34):</strong> với app target API 34+, implicit intent chỉ được giao tới component exported; component không exported phải mở bằng Explicit Intent.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="explicit_intents.md" target="_blank" rel="noopener">Explicit Intents</a>: Intent chỉ định thẳng component đích, đối lập với Implicit Intent.</li>
+  <li><strong>Học tiếp:</strong> <a href="intent_filters.md" target="_blank" rel="noopener">Intent Filters</a>: phía nhận khai báo <code>&lt;intent-filter&gt;</code> và quy tắc khớp Action, Category, Data mà Intent Resolution dùng.</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>: nơi khai báo <code>&lt;intent-filter&gt;</code> và quy tắc <code>android:exported</code>.</li>
+  <li><a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a>: nhận kết quả trả về từ app khác bằng Activity Result API (ví dụ chọn ảnh).</li>
+</ul></li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
+
+<ul>
+  <li>Android Developers — <a href="https://developer.android.com/guide/components/intents-filters" target="_blank" rel="noopener">Intents and intent filters</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/reference/android/content/Intent" target="_blank" rel="noopener">Intent reference (<code>ACTION_VIEW</code>, <code>ACTION_SEND</code>, <code>ACTION_SENDTO</code>, <code>resolveActivity</code>, <code>createChooser</code>: API 1; <code>setPackage</code>: API 4)</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/reference/android/content/ActivityNotFoundException" target="_blank" rel="noopener">ActivityNotFoundException reference</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/training/package-visibility" target="_blank" rel="noopener">Package visibility filtering on Android</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/training/package-visibility/use-cases" target="_blank" rel="noopener">Fulfill common use cases while having limited package visibility</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/about/versions/14/behavior-changes-14" target="_blank" rel="noopener">Android 14 behavior changes: Restrictions to implicit and pending intents</a></li>
+</ul>
     `
   },
   'intent-filters': {
     title: 'Intent Filters',
-    summary: 'Đi sâu vào Intent Filter — bộ lọc khai báo trong AndroidManifest để đón nhận Implicit Intent. Giải thích chính xác luật khớp Action, Category, Data kèm edge cases, cơ chế Resolution & Priority, Deep Link so với App Links, và tích hợp Share Target + Deep Link vào project MVVM thực tế.',
+    summary: 'Intent Filter là thẻ `<intent-filter>` khai báo bên trong Component (activity, service, receiver) trong AndroidManifest, quy định tập hợp Implicit Intent mà Component đó chấp nhận qua 3 bài test Action, Category, Data. Bài giải thích chính xác luật khớp kèm edge cases, cơ chế Resolution & Priority, Deep Link so với App Links, và tích hợp Share Target + Deep Link vào project MVVM thực tế.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '25 phút',
@@ -32142,7 +32229,7 @@ viewLifecycleOwner.lifecycleScope.launch {
       'Debug được intent filter bằng adb và tránh được các lỗi thường gặp.'
     ],
     knowledgeGap: 'Khai báo intent-filter sai khiến app không bao giờ xuất hiện trong hộp thoại chia sẻ hay mở link, bị ActivityNotFoundException, hoặc hiện sai app gây rác trải nghiệm người dùng; không hiểu luật khớp sẽ tạo filter quá rộng hoặc quá hẹp và không biết cách debug.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -32159,48 +32246,29 @@ viewLifecycleOwner.lifecycleScope.launch {
 
 <p><strong>Intent Filter (Bộ lọc Intent)</strong> chính là "tấm biển quảng cáo" bạn treo trước mỗi Component để nói với OS: <em>"Tôi có thể xử lý dạng việc này!"</em> Hiểu sâu cơ chế khớp (matching) của nó quyết định app của bạn có <strong>được liệt kê đúng chỗ</strong> hay <strong>hiện ra lung tung gây khó chịu</strong> cho user.</p>
 
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được cấu trúc của intent-filter (action, category, data) và 3 bài test khớp Action, Data, Category cùng luật riêng của từng loại.</li>
+  <li>Phân biệt được Deep Link với App Links và cách hệ điều hành chọn app khi nhiều filter cùng khớp.</li>
+  <li>Triển khai được Share Target, Deep Link và App Links (assetlinks.json) cho Activity.</li>
+  <li>Áp dụng được luồng dữ liệu Intent vào ViewModel theo mô hình MVVM (onCreate và onNewIntent).</li>
+  <li>Debug được intent filter bằng adb và tránh được các lỗi thường gặp.</li>
+</ul>
+
 <h2>Intent Filter là gì?</h2>
 
 <p><strong>Intent Filter</strong> là thẻ <code>&lt;intent-filter&gt;</code> khai báo <strong>bên trong</strong> các Component (<code>&lt;activity&gt;</code>, <code>&lt;service&gt;</code>, <code>&lt;receiver&gt;</code>) trong file <code>AndroidManifest.xml</code>. Nó quy định tập hợp các <strong>Implicit Intent</strong> mà Component đó chấp nhận.</p>
 
+<p>Mental model: filter là <strong>tấm biển quảng cáo</strong> treo trước Component. Biển ghi ba dòng: <strong>Action</strong> (làm gì), <strong>Category</strong> (trong ngữ cảnh nào), <strong>Data</strong> (trên dữ liệu gì). Khi có Implicit Intent, hệ thống đọc biển của mọi Component trong máy và chỉ chọn những Component có biển khớp cả ba dòng.</p>
+
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Component <strong>không</strong> khai báo Intent Filter (chỉ có tên class) thì <strong>chỉ có thể</strong> được gọi bằng Explicit Intent (gọi đích danh class).</div></div>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Intent Filter <strong>KHÔNG phải tường lửa bảo mật</strong>. Nó chỉ giới hạn Implicit Intent. App khác vẫn có thể dùng Explicit Intent để khởi chạy Component <strong>exported</strong> của bạn nếu biết tên package + class.</div></div>
+<h2>Cách hoạt động</h2>
 
-<h2>Khi nào nên / không nên dùng</h2>
+<p>Nắm vững 3 bài test — đặc biệt 4 luật Data test và việc so khớp case-sensitive — giúp bạn khai báo filter <strong>đủ hẹp để đúng chỗ, đủ rộng để không sót</strong>, và biết khi nào dùng Deep Link hay nâng cấp lên App Links để trải nghiệm mượt mà hơn.</p>
 
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Tình huống</th>
-      <th style="padding:8px 12px;text-align:left;">Dùng Intent Filter?</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">App nhận dữ liệu từ app khác/hệ thống (Share, View file/link, Scan QR, Dial...)</td>
-      <td style="padding:8px 12px;">✅ Nên</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">App đăng ký thành handler mặc định cho một loại link (Deep Link / App Links)</td>
-      <td style="padding:8px 12px;">✅ Nên</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Điều hướng nội bộ trong app (màn hình A → màn hình B)</td>
-      <td style="padding:8px 12px;">❌ Không — dùng Explicit Intent hoặc Navigation Component</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Nhận dữ liệu nhạy cảm / riêng tư</td>
-      <td style="padding:8px 12px;">❌ Không — dùng Explicit Intent + Signature Permission</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">"Tôi muốn app hiện ra mọi lúc"</td>
-      <td style="padding:8px 12px;">❌ Không — filter càng rộng càng gây rác UX và rủi ro bảo mật</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2>Cấu trúc Intent Filter</h2>
+<h3>Cấu trúc Intent Filter</h3>
 
 <p>Một <code>&lt;intent-filter&gt;</code> chứa 3 nhóm thành phần + thuộc tính priority:</p>
 
@@ -32236,7 +32304,7 @@ viewLifecycleOwner.lifecycleScope.launch {
   </tbody>
 </table>
 
-<h2>Cơ chế khớp (Matching Rules) — Deep-dive</h2>
+<h3>Cơ chế khớp (Matching Rules)</h3>
 
 <p>Để một Implicit Intent kích hoạt được Component, nó phải vượt qua <strong>CẢ 3 bài test</strong> của filter: <strong>Action → Data → Category</strong> (đúng thứ tự kiểm tra trong <code>IntentFilter.match()</code>).</p>
 
@@ -32403,7 +32471,7 @@ viewLifecycleOwner.lifecycleScope.launch {
 </div>
 </div>
 
-<h3>1. Test Action</h3>
+<h4>1. Test Action</h4>
 
 <p>Filter khai báo <strong>0 hoặc nhiều</strong> <code>&lt;action&gt;</code>. Luật:</p>
 
@@ -32418,7 +32486,7 @@ viewLifecycleOwner.lifecycleScope.launch {
     &lt;action android:name="android.intent.action.EDIT" /&gt;
 &lt;/intent-filter&gt;</code></pre>
 
-<h3>2. Test Category</h3>
+<h4>2. Test Category</h4>
 
 <p>Luật ngược với action:</p>
 
@@ -32429,7 +32497,7 @@ viewLifecycleOwner.lifecycleScope.launch {
 
 <div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Hệ thống <strong>tự động thêm</strong> <code>android.intent.category.DEFAULT</code> vào mọi Implicit Intent gửi qua <code>startActivity()</code>/<code>startActivityForResult()</code>. Vì vậy filter muốn nhận implicit intent <strong>BẮT BUỘC</strong> phải khai báo <code>android.intent.category.DEFAULT</code>. Ngoại lệ duy nhất là Launcher Activity (màn hình chính) dùng <code>CATEGORY_LAUNCHER</code>.</div></div>
 
-<h3>3. Test Data (phức tạp nhất)</h3>
+<h4>3. Test Data (phức tạp nhất)</h4>
 
 <p><code>&lt;data&gt;</code> có thể chứa: <code>scheme</code>, <code>host</code>, <code>port</code>, <code>path</code> / <code>pathPrefix</code> / <code>pathPattern</code>, <code>mimeType</code>, <code>ssp</code> (scheme specific part). Có hai mặt: <strong>so khớp URI</strong> và <strong>so khớp MIME type</strong>.</p>
 
@@ -32460,7 +32528,7 @@ viewLifecycleOwner.lifecycleScope.launch {
 
 <p><strong>So khớp MIME type</strong> — hỗ trợ wildcard subtype: <code>text/*</code> khớp <code>text/plain</code>, <code>text/html</code>; <code>*/*</code> khớp mọi loại.</p>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Scheme, host, path và MIME type đều so khớp <strong>CASE-SENSITIVE</strong> (khác với chuẩn RFC). Luôn dùng <strong>chữ thường</strong>: <code>https</code>, <code>shop.com</code>, <code>text/plain</code>. Dùng chữ hoa là lỗi tinh vi khó debug.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Scheme, host và MIME type đều so khớp <strong>CASE-SENSITIVE</strong> (khác với chuẩn RFC); path cũng phân biệt hoa thường. Luôn dùng <strong>chữ thường</strong>: <code>https</code>, <code>shop.com</code>, <code>text/plain</code>. Dùng chữ hoa là lỗi tinh vi khó debug.</div></div>
 
 <p><strong>4 luật chính thức quyết định match/trượt</strong> (từ Official Docs):</p>
 
@@ -32483,7 +32551,7 @@ viewLifecycleOwner.lifecycleScope.launch {
   <li><strong>n filter khớp</strong> → hiện hộp thoại chọn app (hoặc mở thẳng app mặc định nếu user đã chọn "Luôn luôn"). Riêng link web <code>http</code>/<code>https</code> từ Android 12: chỉ app đã xác minh App Links (hoặc được user cho phép) mới được mở, còn lại link mở bằng trình duyệt.</li>
 </ul>
 
-<h2>Hướng dẫn triển khai thực tế</h2>
+<h2>Ví dụ thực tế</h2>
 
 <h3>Bài toán 1: Nhận "Chia sẻ Text" (Share Target)</h3>
 
@@ -32502,7 +32570,7 @@ viewLifecycleOwner.lifecycleScope.launch {
     &lt;/intent-filter&gt;
 &lt;/activity&gt;</code></pre>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Với targetSdk 31+ (Android 12), Component có <code>&lt;intent-filter&gt;</code> phải khai báo <strong><code>android:exported</code></strong> tường minh (<code>"true"</code> nếu muốn app khác gọi được); thiếu thì build lỗi ở bước manifest merger, APK dựng bằng công cụ cũ thì không cài được, chi tiết ở <a href="../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>, mục "android:exported — quy tắc quan trọng nhất từ Android 12".</div></div>
+<p><code>android:exported="true"</code> phải khai báo tường minh vì Component có <code>&lt;intent-filter&gt;</code>, xem "Sai lầm thường gặp", mục 2.</p>
 
 <p><strong>Xử lý trong Activity (theo luật Data rule 3):</strong></p>
 
@@ -32588,7 +32656,43 @@ viewLifecycleOwner.lifecycleScope.launch {
 
 <p><strong>Luồng dữ liệu:</strong> Deep Link → Activity (Presentation) → ViewModel (UI State) → Repository (Data).</p>
 
-<p><strong>Activity xử lý cả 2 đường (cold start + warm start):</strong> cold start đọc Intent trong <code>onCreate()</code>, warm start nhận Intent mới qua <code>onNewIntent()</code>. Khi nào hệ thống gọi <code>onNewIntent()</code> và vì sao cần <code>setIntent()</code> được giải thích ở <a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a>, mục "3. Bí ẩn của onNewIntent() và Launch Modes".</p>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>@AndroidEntryPoint</code>/<code>@HiltViewModel</code> là annotation của Hilt (thư viện Dependency Injection), học ở 7.1.5.3 Hilt (chưa có bài); <code>ViewModel</code> và <code>viewModelScope</code> (coroutine scope gắn với ViewModel) học ở 6.4 ViewModel (chưa có bài); <code>StateFlow</code> là luồng trạng thái quan sát được, học ở 7.1.4.2 Flow (chưa có bài).</div></div>
+
+<p><strong>Activity xử lý cả 2 đường (cold start + warm start):</strong> cold start đọc Intent trong <code>onCreate()</code>, warm start nhận Intent mới qua <code>onNewIntent()</code>. Khi nào hệ thống gọi <code>onNewIntent()</code> và vì sao cần <code>setIntent()</code> được giải thích ở <a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a>, mục "onNewIntent() và Launch Modes".</p>
+
+<p>Luồng khi user bấm link khuyến mãi:</p>
+
+<ol>
+  <li>User bấm <code>https://shop.com/promo/2026</code>; hệ thống chạy 3 bài test và đưa intent tới <code>PromoActivity</code> nhờ filter ở Bài toán 2 (từ Android 12, link <code>https</code> cần domain đã xác minh như Bài toán 3 hoặc được user cho phép).</li>
+  <li>Cold start: chưa có <code>PromoActivity</code> đang sống → <code>onCreate()</code> đọc <code>intent</code> và gọi <code>handleDeepLink()</code>.</li>
+  <li>Warm start: <code>PromoActivity</code> đang sống được tái sử dụng (vd <code>launchMode="singleTop"</code>) → <code>onNewIntent()</code> gọi <code>setIntent()</code> rồi <code>handleDeepLink()</code> với intent mới.</li>
+  <li><code>handleDeepLink()</code> lấy <code>promoId</code> từ query <code>promoId</code>, không có thì lấy <code>lastPathSegment</code>, rồi gọi <code>viewModel.loadPromo(promoId)</code>.</li>
+  <li>ViewModel đặt <code>uiState</code> về <code>Loading</code> và gọi <code>repository.getPromo(promoId)</code>.</li>
+  <li>Kết quả (<code>Result</code>) được <code>fold</code> thành <code>PromoUiState.Success</code> hoặc <code>PromoUiState.Error</code>.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant OS as Hệ thống
+    participant A as PromoActivity
+    participant VM as PromoViewModel
+    participant R as PromoRepository
+
+    User-&gt;&gt;OS: (1) Bấm https://shop.com/promo/2026
+    OS-&gt;&gt;OS: (1) Khớp filter VIEW + BROWSABLE + https://shop.com/promo
+    alt Chưa có PromoActivity đang sống (cold start)
+        OS-&gt;&gt;A: (2) onCreate() → handleDeepLink(intent)
+    else PromoActivity được tái sử dụng (singleTop)
+        OS-&gt;&gt;A: (3) onNewIntent() → setIntent() → handleDeepLink(intent)
+    end
+    A-&gt;&gt;A: (4) promoId = query "promoId" hoặc lastPathSegment
+    A-&gt;&gt;VM: (4) loadPromo(promoId)
+    VM-&gt;&gt;VM: (5) uiState = Loading
+    VM-&gt;&gt;R: (5) getPromo(promoId)
+    R--&gt;&gt;VM: (6) Result
+    VM-&gt;&gt;VM: (6) fold → Success / Error
+</div>
 
 <pre data-lang="kotlin"><code>@AndroidEntryPoint // Hilt cung cấp PromoViewModel (có tham số repository) cho by viewModels()
 class PromoActivity : AppCompatActivity() {
@@ -32597,11 +32701,11 @@ class PromoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Lần đầu tạo: đọc từ onCreate
+        // (2) Lần đầu tạo: đọc từ onCreate
         handleDeepLink(intent)
     }
 
-    // Chỉ được gọi khi PromoActivity đang sống được tái sử dụng (vd launchMode="singleTop"
+    // (3) Chỉ được gọi khi PromoActivity đang sống được tái sử dụng (vd launchMode="singleTop"
     // hoặc FLAG_ACTIVITY_SINGLE_TOP); với launchMode standard mỗi link tạo instance mới qua onCreate
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -32611,6 +32715,7 @@ class PromoActivity : AppCompatActivity() {
     }
 
     private fun handleDeepLink(intent: Intent?) {
+        // (4) Ưu tiên query "promoId", không có thì lấy đoạn cuối của path
         val promoId = intent?.data?.getQueryParameter("promoId")
             ?: intent?.data?.lastPathSegment
         if (promoId != null) viewModel.loadPromo(promoId)
@@ -32627,9 +32732,9 @@ class PromoViewModel @Inject constructor(
 
     fun loadPromo(promoId: String) {
         viewModelScope.launch {
-            _uiState.value = PromoUiState.Loading
-            _uiState.value = repository.getPromo(promoId)
-                .fold(
+            _uiState.value = PromoUiState.Loading // (5)
+            _uiState.value = repository.getPromo(promoId) // (5)
+                .fold( // (6)
                     onSuccess = { PromoUiState.Success(it) },
                     onFailure = { PromoUiState.Error(it.message) }
                 )
@@ -32637,19 +32742,9 @@ class PromoViewModel @Inject constructor(
     }
 }</code></pre>
 
-<h2>Các lỗi thường gặp (Pitfalls)</h2>
+<p><strong>Kết quả:</strong> dù link mở app lần đầu (<code>onCreate</code>) hay tới lúc <code>PromoActivity</code> đang được tái sử dụng (<code>onNewIntent</code>), dữ liệu đều đi qua một đường duy nhất <code>handleDeepLink()</code> → <code>loadPromo()</code>, và màn hình hiển thị theo <code>uiState</code>. Kiểm chứng bằng lệnh <code>adb shell am start</code> ở mục "Testing Intent Filter" ngay dưới.</p>
 
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><strong>Quên <code>CATEGORY_DEFAULT</code></strong> — Filter có đủ action + data chuẩn nhưng <code>startActivity()</code> vẫn ném <code>ActivityNotFoundException</code>. Hệ thống luôn nhét ngầm <code>CATEGORY_DEFAULT</code> vào implicit intent, filter thiếu nó là trượt test category.</div></div>
-
-<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body"><strong>Khai báo <code>mimeType="*/*"</code></strong> — App hiện ra ở <strong>mọi</strong> hộp thoại Share của máy, gây rác trải nghiệm. Càng tệ hơn, app nhận cả video/ảnh mà bạn không code xử lý → crash lúc runtime.</div></div>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Filter quá rộng</strong> — Khai <code>scheme="http"</code> trần (không host) nghĩa là app bạn xuất hiện khi mở <strong>mọi</strong> link http trên máy. Luôn kèm <code>host</code> (và lý tưởng là <code>pathPrefix</code>).</div></div>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Nhầm Deep Link với App Links</strong> — Không có <code>autoVerify</code> + <code>assetlinks.json</code> thì từ Android 12 link web mở bằng trình duyệt (Android 11 trở xuống thì hiện hộp thoại chọn app); user phải tự bật "Mở link được hỗ trợ" trong cài đặt app.</div></div>
-
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>MIME chỉ <code>text/plain</code> thì đừng mong mở file cục bộ</strong> — Theo rule 4, filter chỉ có MIME mới ngầm hỗ trợ <code>content:</code>/<code>file:</code>. Nếu muốn nhận link https + file PDF, tách <strong>2 filter riêng</strong>.</div></div>
-
-<h2>Testing Intent Filter</h2>
+<h3>Testing Intent Filter</h3>
 
 <pre data-lang="bash"><code># 1. Test Deep Link: giả lập user bấm link
 adb shell am start -a android.intent.action.VIEW \\
@@ -32689,9 +32784,105 @@ class ShareFilterTest {
     }
 }</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Từ <strong>Android 11 (API 30)</strong>, để <code>resolveActivity()</code>/<code>queryIntentActivities()</code> nhìn thấy filter của app khác, phải khai báo <code>&lt;queries&gt;</code> trong manifest của app gọi. Đây là cơ chế Package Visibility.</div></div>
+<p>Cách viết unit test nói chung ở <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>.</p>
 
-<h2>Tư duy hệ thống</h2>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Với app gọi target <strong>Android 11 (API 30)</strong> trở lên, để <code>resolveActivity()</code>/<code>queryIntentActivities()</code> nhìn thấy filter của app khác, phải khai báo <code>&lt;queries&gt;</code> trong manifest của app gọi. Đây là cơ chế Package Visibility.</div></div>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Tình huống</th>
+      <th style="padding:8px 12px;text-align:left;">Dùng Intent Filter?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">App nhận dữ liệu từ app khác/hệ thống (Share, View file/link, Scan QR, Dial...)</td>
+      <td style="padding:8px 12px;">✅ Nên</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">App đăng ký thành handler mặc định cho một loại link (Deep Link / App Links)</td>
+      <td style="padding:8px 12px;">✅ Nên</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Điều hướng nội bộ trong app (màn hình A → màn hình B)</td>
+      <td style="padding:8px 12px;">❌ Không — dùng Explicit Intent hoặc Navigation Component</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Nhận dữ liệu nhạy cảm / riêng tư</td>
+      <td style="padding:8px 12px;">❌ Không — dùng Explicit Intent + Signature Permission</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">"Tôi muốn app hiện ra mọi lúc"</td>
+      <td style="padding:8px 12px;">❌ Không — filter càng rộng càng gây rác UX và rủi ro bảo mật</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Quên <code>CATEGORY_DEFAULT</code></h3>
+
+<p><strong>Quên <code>CATEGORY_DEFAULT</code></strong> — Filter có đủ action + data chuẩn nhưng <code>startActivity()</code> vẫn ném <code>ActivityNotFoundException</code>. Hệ thống luôn nhét ngầm <code>CATEGORY_DEFAULT</code> vào implicit intent, filter thiếu nó là trượt test category.</p>
+
+<p><strong>Cách sửa:</strong> thêm <code>&lt;category android:name="android.intent.category.DEFAULT" /&gt;</code> vào mọi filter của Activity muốn nhận implicit intent (xem mục "2. Test Category").</p>
+
+<h3>2. Thiếu <code>android:exported</code> khi targetSdk 31+</h3>
+
+<p>Với targetSdk 31+ (Android 12), Component có <code>&lt;intent-filter&gt;</code> phải khai báo <strong><code>android:exported</code></strong> tường minh (<code>"true"</code> nếu muốn app khác gọi được); thiếu thì build lỗi ở bước manifest merger, APK dựng bằng công cụ cũ thì không cài được, chi tiết ở <a href="../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>, mục "android:exported — quy tắc quan trọng nhất từ Android 12".</p>
+
+<p><strong>Cách sửa:</strong> khai báo <code>android:exported</code> trên mọi <code>&lt;activity&gt;</code>, <code>&lt;service&gt;</code>, <code>&lt;receiver&gt;</code> có <code>&lt;intent-filter&gt;</code>, như manifest ở Bài toán 1.</p>
+
+<h3>3. Khai báo <code>mimeType="*/*"</code></h3>
+
+<p><strong>Khai báo <code>mimeType="*/*"</code></strong> — App hiện ra ở <strong>mọi</strong> hộp thoại Share của máy, gây rác trải nghiệm. Càng tệ hơn, app nhận cả video/ảnh mà bạn không code xử lý → crash lúc runtime.</p>
+
+<p><strong>Cách sửa:</strong> chỉ khai báo MIME type mà Component thực sự xử lý được, như <code>text/plain</code> ở Bài toán 1.</p>
+
+<h3>4. Filter quá rộng</h3>
+
+<p><strong>Filter quá rộng</strong> — Khai <code>scheme="http"</code> trần (không host) nghĩa là app bạn xuất hiện khi mở <strong>mọi</strong> link http trên máy. Luôn kèm <code>host</code> (và lý tưởng là <code>pathPrefix</code>).</p>
+
+<p><strong>Cách sửa:</strong> khai báo đủ scheme + host + pathPrefix như filter ở Bài toán 2.</p>
+
+<h3>5. Nhầm Deep Link với App Links</h3>
+
+<p><strong>Nhầm Deep Link với App Links</strong> — Không có <code>autoVerify</code> + <code>assetlinks.json</code> thì từ Android 12 link web mở bằng trình duyệt (Android 11 trở xuống thì hiện hộp thoại chọn app); user phải tự bật "Mở link được hỗ trợ" trong cài đặt app.</p>
+
+<p><strong>Cách sửa:</strong> làm đủ hai bước của Bài toán 3 và kiểm tra bằng <code>adb shell pm get-app-links</code>.</p>
+
+<h3>6. Dồn link web và file cục bộ vào một filter</h3>
+
+<p><strong>MIME chỉ <code>text/plain</code> thì đừng mong mở file cục bộ</strong> — Theo rule 4, filter chỉ có MIME mới ngầm hỗ trợ <code>content:</code>/<code>file:</code>. Nếu muốn nhận link https + file PDF, tách <strong>2 filter riêng</strong>.</p>
+
+<p><strong>Cách sửa:</strong> mỗi loại dữ liệu một <code>&lt;intent-filter&gt;</code> riêng (xem TIP "Hệ quả thực tế" ở mục "3. Test Data").</p>
+
+<h3>7. Coi Intent Filter là tường lửa bảo mật</h3>
+
+<p>Intent Filter <strong>KHÔNG phải tường lửa bảo mật</strong>. Nó chỉ giới hạn Implicit Intent. App khác vẫn có thể dùng Explicit Intent để khởi chạy Component <strong>exported</strong> của bạn nếu biết tên package + class.</p>
+
+<p><strong>Cách sửa:</strong> Component không cần cho app khác gọi thì để <code>android:exported="false"</code> (xem <a href="../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>); dữ liệu nhạy cảm thì dùng Explicit Intent + Signature Permission thay vì Intent Filter (bảng ở mục "Khi nào nên và không nên dùng"). Từ Android 13, app target 33+ chỉ nhận intent từ app ngoài khi intent khớp action và category của một filter (xem Lịch sử phát triển), nhưng app khác vẫn tự tạo được intent khớp filter đó.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>API level 1:</strong> <code>&lt;intent-filter&gt;</code>, <code>&lt;data&gt;</code> và class <code>IntentFilter</code> có từ phiên bản đầu tiên; luật khớp Action, Category, Data là nền móng của Implicit Intent.</li>
+  <li><strong>Android 6.0 (API 23):</strong> Android App Links. Khi một filter có <code>android:autoVerify="true"</code>, hệ thống tự xác minh các host qua <code>https://&lt;host&gt;/.well-known/assetlinks.json</code> lúc cài app.</li>
+  <li><strong>Android 11 (API 30):</strong> Package Visibility. App target 30+ chỉ thấy app khác qua <code>queryIntentActivities()</code>/<code>resolveActivity()</code> khi khai báo <code>&lt;queries&gt;</code>.</li>
+  <li><strong>Android 12 (API 31):</strong>
+<ul>
+  <li>Web intent resolution (áp dụng cho mọi app chạy trên Android 12): link web chung chỉ mở vào app đã được duyệt cho domain đó (xác minh App Links hoặc user cho phép), còn lại mở bằng trình duyệt mặc định.</li>
+  <li>App target 31+ phải khai báo <code>android:exported</code> cho Component có <code>&lt;intent-filter&gt;</code>.</li>
+  <li>Có lệnh <code>adb shell pm verify-app-links</code> / <code>pm get-app-links</code> để xác minh và xem trạng thái App Links thủ công.</li>
+</ul></li>
+  <li><strong>Android 13 (API 33):</strong> app target 33+ chỉ nhận intent từ app ngoài vào Component exported khi intent khớp action và category của một <code>&lt;intent-filter&gt;</code> (Component không khai báo filter thì không áp dụng); app gửi tới app target 33+ mà không khớp thì bị <code>ActivityNotFoundException</code>.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<h3>Vị trí trong kiến trúc MVVM</h3>
 
 <p>Intent Filter nằm ở <strong>tầng Manifest / Presentation</strong> của kiến trúc — nó chỉ là "cửa ngõ" nhận Intent, <strong>không</strong> chứa logic nghiệp vụ. Pattern chuẩn trong project MVVM / Single-Activity:</p>
 
@@ -32704,25 +32895,42 @@ class ShareFilterTest {
 
 <p>Giữ filter hẹp, Activity mỏng, logic nghiệp vụ ở ViewModel/Repository — đây là điểm khác biệt giữa code "chạy được" và code "dễ bảo trì".</p>
 
-<h2>Tổng kết</h2>
+<h3>Topic liên quan</h3>
 
-<p>Intent Filter là cơ chế phân loại implicit intent của Android: <strong>Action</strong> (làm gì), <strong>Category</strong> (trong ngữ cảnh nào), <strong>Data</strong> (trên dữ liệu gì). Nắm vững 3 bài test — đặc biệt 4 luật Data test và việc so khớp case-sensitive — giúp bạn khai báo filter <strong>đủ hẹp để đúng chỗ, đủ rộng để không sót</strong>, và biết khi nào dùng Deep Link hay nâng cấp lên App Links để trải nghiệm mượt mà hơn.</p>
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="implicit_intents.md" target="_blank" rel="noopener">Implicit Intents</a> (Intent ngầm mà filter đón nhận) và <a href="../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a> (nơi khai báo <code>&lt;intent-filter&gt;</code> và quy tắc <code>android:exported</code>).</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="explicit_intents.md" target="_blank" rel="noopener">Explicit Intents</a>: gọi đích danh class, không đi qua Intent Filter.</li>
+  <li><a href="../components/activity/task_and_backstack.md" target="_blank" rel="noopener">Task and Backstack</a>: <code>launchMode="singleTop"</code> và <code>FLAG_ACTIVITY_SINGLE_TOP</code> quyết định khi nào Deep Link đi vào <code>onNewIntent()</code>.</li>
+  <li><a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>: nơi <code>android:priority</code> của filter có ý nghĩa (ordered broadcast).</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a>: đọc dữ liệu từ Intent, <code>onNewIntent()</code> và Launch Modes.</li>
+  <li><a href="push_data_event.md" target="_blank" rel="noopener">Push data and send event via Intent</a>: truyền dữ liệu và sự kiện qua Intent.</li>
+  <li>7.2.3 MVVM (chưa có bài), 6.4 ViewModel (chưa có bài), 7.1.5.3 Hilt (chưa có bài): kiến trúc và công cụ mà Bài toán 4 dựa vào.</li>
+</ul></li>
+</ul>
 
 <h2>Nguồn tham khảo</h2>
 
 <ul>
   <li>Android Developers — <a href="https://developer.android.com/guide/components/intents-filters" target="_blank" rel="noopener">Intents and intent filters</a></li>
   <li>Android Developers — <a href="https://developer.android.com/reference/android/content/IntentFilter" target="_blank" rel="noopener">IntentFilter API reference</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/guide/topics/manifest/data-element" target="_blank" rel="noopener">data element (case-sensitive scheme/host/MIME)</a></li>
   <li>Android Developers — <a href="https://developer.android.com/training/app-links" target="_blank" rel="noopener">Handle Android app links</a></li>
   <li>Android Developers — <a href="https://developer.android.com/training/app-links/verify-android-applinks" target="_blank" rel="noopener">Verify Android App Links</a></li>
   <li>Android Developers — <a href="https://developer.android.com/guide/topics/manifest/intent-filter-element" target="_blank" rel="noopener">intent-filter element (android:priority)</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/training/package-visibility" target="_blank" rel="noopener">Package visibility filtering (Android 11)</a></li>
   <li>Android Developers — <a href="https://developer.android.com/about/versions/12/behavior-changes-12" target="_blank" rel="noopener">Behavior changes: Android 12 (exported, web intent resolution)</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/about/versions/12/behavior-changes-all" target="_blank" rel="noopener">Behavior changes: all apps on Android 12 (web intent resolution)</a></li>
 </ul>
     `
   },
   'intent-push-data': {
     title: 'Truyền dữ liệu và gửi sự kiện qua Intent',
-    summary: 'Truyền dữ liệu (Data) và gửi sự kiện (Event) qua Intent giữa các Component. Push data là đặt và lấy extras (primitive, object Parcelable) trong Bundle của Intent; send event là phát Broadcast Intent (sendBroadcast, explicit broadcast bằng setPackage, broadcast có permission, ordered broadcast). Kèm ranh giới với Activity Result API, giới hạn kích thước extras và Common Mistakes phía gửi.',
+    summary: 'Truyền dữ liệu (Push Data) và gửi sự kiện (Send Event) qua Intent là hai cách dùng Intent để giao tiếp giữa các Component, nhìn từ phía gửi. Push Data đặt extras (primitive, object Parcelable) vào Bundle của một Intent gửi điểm-điểm tới component xác định (startActivity, startService); Send Event phát Broadcast Intent mang action báo sự kiện tới mọi receiver đang lắng nghe (sendBroadcast, explicit broadcast bằng setPackage, broadcast có permission, ordered broadcast). Kèm ranh giới với Activity Result API, giới hạn kích thước extras và Common Mistakes phía gửi.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '15 phút',
@@ -32740,7 +32948,7 @@ class ShareFilterTest {
       'Biết khi nào dùng Flow/SharedFlow thay cho broadcast để giao tiếp trong cùng app.'
     ],
     knowledgeGap: 'Nhầm lẫn giữa chở dữ liệu và phát sự kiện khiến developer dùng broadcast để chở object lớn hoặc dùng startActivity để báo sự kiện cho cả hệ thống; nhét object lớn vào extras gây TransactionTooLargeException; gửi broadcast implicit không setPackage hay permission khiến app khác đọc được sự kiện và dữ liệu đi kèm.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -32761,11 +32969,27 @@ class ShareFilterTest {
 
 <p>Nếu bạn nhầm lẫn hai mục đích này, bạn sẽ viết code đúng cú pháp nhưng sai về thiết kế: dùng <code>startActivity</code> để "gửi sự kiện" cho cả hệ thống, hoặc dùng broadcast để "chở một object lớn" từ màn hình này sang màn hình kia.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Vị trí trong Knowledge Graph:</strong> Topic này nằm giữa <strong>4.2.6.4 Handle Intent</strong> (đọc dữ liệu + nhận kết quả) và <strong>4.2.6.6 Pending Intent</strong> (ủy quyền kích hoạt). Phần Send Event liên quan trực tiếp đến <strong>Broadcast Receiver</strong> (4.2.4.1).</div></div>
+<h2>Sau khi học xong</h2>
 
-<h2>1. Push Data — Truyền dữ liệu qua Bundle</h2>
+<ul>
+  <li>Phân biệt được Push Data (điểm-điểm qua Bundle) với Send Event (một-nhiều qua Broadcast Intent).</li>
+  <li>Triển khai được việc truyền primitive và object @Parcelize qua Intent extras.</li>
+  <li>Biết khi nào chỉ truyền ID qua extras thay vì cả object, để tránh TransactionTooLargeException.</li>
+  <li>Triển khai được sendBroadcast an toàn (explicit broadcast bằng setPackage, broadcast có permission, không chở dữ liệu nhạy cảm).</li>
+  <li>Biết khi nào dùng Flow/SharedFlow thay cho broadcast để giao tiếp trong cùng app.</li>
+</ul>
 
-<h3>1.1 Bản chất: Intent + Bundle</h3>
+<h2>Truyền dữ liệu và gửi sự kiện qua Intent là gì?</h2>
+
+<p><strong>Truyền dữ liệu (Push Data)</strong> và <strong>gửi sự kiện (Send Event)</strong> qua Intent là hai cách dùng Intent làm phương tiện giao tiếp giữa các Component: Push Data đặt dữ liệu vào Bundle extras của một Intent gửi <strong>điểm-điểm</strong> tới một component xác định (<code>startActivity</code>, <code>startService</code>); Send Event phát một <strong>Broadcast Intent</strong> mang action báo "sự kiện X đã xảy ra" tới <strong>mọi</strong> receiver đang lắng nghe action đó (một-nhiều).</p>
+
+<p>Mental model: Push Data là <strong>gửi bưu kiện ghi rõ người nhận</strong>: dữ liệu nằm trong kiện hàng (Bundle), chỉ đúng một địa chỉ nhận. Send Event là <strong>phát loa trên một kênh</strong>: người phát không biết ai nghe, ai đang dò đúng kênh (IntentFilter khớp action) thì nhận được thông báo. Loa không dùng để chở hàng nặng, và nội dung phát loa thì ai trên kênh cũng nghe được.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>1. Push Data — Truyền dữ liệu qua Bundle</h3>
+
+<h4>1.1 Bản chất: Intent + Bundle</h4>
 
 <p>Dữ liệu gửi qua Intent không nằm trực tiếp trên Intent. Nó được chứa trong một đối tượng <strong>Bundle</strong>, một container key-value mà Intent mang theo. Bundle là bản sao được serialize để đi qua Binder IPC sang component đích; bản chất này được giải thích ở <a href="../components/activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Bundle và Parcelable là gì?".</p>
 
@@ -32778,7 +33002,7 @@ startActivity(intent)</code></pre>
 
 <p>Ở phía nhận, màn hình B lấy dữ liệu ra bằng <code>getIntExtra(key, defaultValue)</code>, <code>getStringExtra(key)</code>, v.v.</p>
 
-<h3>1.2 Truyền Primitive Types</h3>
+<h4>1.2 Truyền Primitive Types</h4>
 
 <p>Int, Long, Float, Boolean, String, Char, Double... được hệ thống hỗ trợ mặc định, không cần bất kỳ khai báo nào:</p>
 
@@ -32799,9 +33023,9 @@ val isDiscounted = intent.getBooleanExtra("IS_DISCOUNTED", false)</code></pre>
 
 <p><strong>Best Practice:</strong> Khi truyền giá trị cần giá trị mặc định an toàn (ví dụ <code>-1</code>, <code>null</code>, <code>0</code>) để tránh crash khi key không tồn tại hoặc Intent rỗng.</p>
 
-<h3>1.3 Truyền Object qua extras</h3>
+<h4>1.3 Truyền Object qua extras</h4>
 
-<p>Object muốn đặt vào extras phải serialize được: implement <code>Parcelable</code> (chuẩn trên Android, viết gọn bằng <code>@Parcelize</code> của plugin <code>kotlin-parcelize</code>) hoặc <code>Serializable</code> (chậm hơn, không khuyên dùng để truyền giữa component). Vì sao phải serialize, so sánh Parcelable với Serializable và cách viết <code>@Parcelize</code> ở <a href="../components/activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Parcelable là gì?" và "Parcelable vs Serializable".</p>
+<p>Object muốn đặt vào extras phải serialize được: implement <code>Parcelable</code> (chuẩn trên Android, viết gọn bằng <code>@Parcelize</code> của plugin <code>kotlin-parcelize</code>) hoặc <code>Serializable</code> (chậm hơn, không khuyên dùng để truyền giữa component). Vì sao phải serialize, so sánh Parcelable với Serializable và cách viết <code>@Parcelize</code> ở <a href="../components/activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Parcelable: object tự đóng gói vào Parcel" và "Parcelable vs Serializable".</p>
 
 <p>Ở góc độ Intent, việc đặt và lấy object chỉ gồm hai bước:</p>
 
@@ -32815,13 +33039,13 @@ startActivity(intent)</code></pre>
 // IntentCompat tự chọn API đúng theo phiên bản (API 33+ cần truyền Class)
 val product = IntentCompat.getParcelableExtra(intent, "EXTRA_PRODUCT", Product::class.java)</code></pre>
 
-<h3>1.4 Chỉ đặt dữ liệu nhỏ vào extras</h3>
+<h4>1.4 Chỉ đặt dữ liệu nhỏ vào extras</h4>
 
 <p>Extras đi qua Binder transaction buffer, vùng đệm khoảng 1MB dùng chung cho mọi transaction đang chạy của process; vượt ngưỡng thì hệ thống ném <code>TransactionTooLargeException</code>. Vì vậy chỉ truyền ID, flag hoặc object nhỏ (docs khuyến nghị vài KB), còn màn hình đích tự load dữ liệu đầy đủ từ Repository/Room. Ba con số giới hạn và bảng cách fix ở <a href="../components/activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Giới hạn kích thước — Binder Transaction Buffer".</p>
 
-<h2>2. Send Event — Gửi sự kiện qua Broadcast Intent</h2>
+<h3>2. Send Event — Gửi sự kiện qua Broadcast Intent</h3>
 
-<h3>2.1 Bản chất: Mô hình Pub/Sub</h3>
+<h4>2.1 Bản chất: Mô hình Pub/Sub</h4>
 
 <p><strong>Send Event via Intent</strong> nghĩa là gửi một <strong>Broadcast Intent</strong> — tín hiệu báo "sự kiện X đã xảy ra" — để tất cả các Component đang lắng nghe hành động đó (action) được thông báo và phản ứng.</p>
 
@@ -32967,7 +33191,7 @@ val product = IntentCompat.getParcelableExtra(intent, "EXTRA_PRODUCT", Product::
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Phân biệt với Push Data:</strong> Push Data dùng <code>startActivity</code>/<code>startService</code> (điểm-điểm, một receiver duy nhất). Send Event dùng <code>sendBroadcast</code> (một-nhiều, mọi receiver đăng ký đều nhận).</div></div>
 
-<h3>2.2 Triển khai: sendBroadcast + BroadcastReceiver</h3>
+<h4>2.2 Triển khai: sendBroadcast + BroadcastReceiver</h4>
 
 <p><em>Sender — phát sự kiện:</em></p>
 
@@ -32993,7 +33217,7 @@ context.sendBroadcast(intent)</code></pre>
 
 <p>Receiver chỉ nhận được sự kiện khi đã được đăng ký: động trong code bằng <code>ContextCompat.registerReceiver()</code> (action tự định nghĩa thì truyền <code>RECEIVER_NOT_EXPORTED</code>, và <code>unregisterReceiver()</code> ở lifecycle đối ứng) hoặc tĩnh trong Manifest. Cách đăng ký, cờ export của Android 14 và giới hạn của receiver tĩnh ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "3. Static Receiver vs Dynamic Receiver".</p>
 
-<h3>2.3 Explicit Broadcast vs Implicit Broadcast</h3>
+<h4>2.3 Explicit Broadcast vs Implicit Broadcast</h4>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -33032,9 +33256,9 @@ context.sendBroadcast(intent)</code></pre>
   </tbody>
 </table>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Từ Android 8.0 (API 26), receiver khai báo trong Manifest không nhận được hầu hết implicit broadcast. Vì vậy sự kiện gửi cho receiver tĩnh phải là <strong>explicit broadcast</strong> (<code>setPackage()</code> hoặc ComponentName). Danh sách broadcast được miễn và các lựa chọn phía nhận ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "4. Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Từ Android 8.0 (API 26), receiver khai báo trong Manifest của app target API 26+ không nhận được hầu hết implicit broadcast. Vì vậy sự kiện gửi cho receiver tĩnh phải là <strong>explicit broadcast</strong> (<code>setPackage()</code> hoặc ComponentName). Danh sách broadcast được miễn và các lựa chọn phía nhận ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "4. Giới hạn của Android 8+ (API 26) — Implicit Broadcast Restrictions".</div></div>
 
-<h3>2.4 Ordered Broadcast — Gửi sự kiện theo thứ tự</h3>
+<h4>2.4 Ordered Broadcast — Gửi sự kiện theo thứ tự</h4>
 
 <p>Khi bạn cần các receiver xử lý lần lượt (receiver trước có thể truyền kết quả cho receiver sau hoặc chặn sự kiện), gửi bằng <code>sendOrderedBroadcast()</code> thay cho <code>sendBroadcast()</code>:</p>
 
@@ -33042,17 +33266,43 @@ context.sendBroadcast(intent)</code></pre>
 
 <p>Thứ tự nhận theo <code>android:priority</code>, cách receiver đọc/ghi kết quả và <code>abortBroadcast()</code> ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "Normal broadcast và Ordered broadcast".</p>
 
-<h3>2.5 Gửi broadcast có permission</h3>
+<h4>2.5 Gửi broadcast có permission</h4>
 
 <p><code>setPackage()</code> giới hạn broadcast theo <strong>package</strong>. Khi sự kiện cần tới nhiều app nhưng chỉ những app được tin cậy, bên gửi truyền thêm một permission: <code>sendBroadcast(intent, receiverPermission)</code>. Chỉ receiver thuộc app đã khai báo <code>&lt;uses-permission&gt;</code> cho permission đó mới nhận được; nếu là dangerous permission thì app nhận còn phải được người dùng cấp.</p>
 
-<h4>Ví dụ: app ví báo "thanh toán xong" cho app đối tác cùng công ty</h4>
+<p>Ví dụ đầy đủ (permission mức <code>signature</code> giữa hai app cùng công ty) ở mục "Ví dụ thực tế" bên dưới.</p>
+
+<h4>2.6 Khi cần nhận lại kết quả: Activity Result API</h4>
+
+<p>Nếu "gửi sự kiện" thực chất là mở một màn hình rồi chờ kết quả (chọn ảnh, nhập địa chỉ), đó không phải broadcast mà là <strong>Activity Result API</strong>: đăng ký launcher bằng <code>registerForActivityResult()</code> với một contract, gọi <code>launch()</code>, kết quả về qua callback. Chi tiết ở <a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a>, mục "Nhận kết quả trả về (Activity Result API)".</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>App ví báo "thanh toán xong" cho app đối tác cùng công ty</h3>
+
+<p>App ví cần báo sự kiện thanh toán thành công cho app bán hàng của cùng công ty, nhưng không app nào khác được nghe sự kiện này. Đây là Send Event cross-app có giới hạn người nhận bằng permission (mục 2.5). Luồng chạy:</p>
 
 <ol>
   <li>App ví định nghĩa một permission mức <code>signature</code>: chỉ app ký cùng chứng chỉ mới được cấp.</li>
   <li>App ví gửi broadcast kèm permission đó, và <code>setPackage()</code> tới app đối tác để broadcast là explicit (receiver tĩnh của app đối tác vẫn nhận được trên Android 8+).</li>
   <li>App đối tác khai báo <code>&lt;uses-permission&gt;</code>; hệ thống chỉ giao broadcast cho receiver của app đã được cấp permission.</li>
 </ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant Wallet as App ví (com.example.wallet)
+    participant OS as Android OS
+    participant Shop as App đối tác (com.example.shop)
+    participant Other as App khác
+
+    Wallet-&gt;&gt;OS: (1) Cài app ví: đăng ký permission RECEIVE_PAYMENT_EVENTS (signature)
+    Shop-&gt;&gt;OS: Cài app đối tác: uses-permission RECEIVE_PAYMENT_EVENTS (khai báo ở bước 3)
+    Note over OS: Cấp permission vì cùng chứng chỉ ký (bước 1)
+    Wallet-&gt;&gt;OS: (2) sendBroadcast(PAYMENT_COMPLETED + ORDER_ID, permission), setPackage("com.example.shop")
+    OS-&gt;&gt;OS: (3) Kiểm tra package đích và permission của app nhận
+    OS-&gt;&gt;Shop: (3) onReceive(): đọc ORDER_ID
+    Note over Other: Không nhận: sai package, không có permission
+</div>
 
 <pre data-lang="xml"><code>&lt;!-- (1) Manifest của app ví --&gt;
 &lt;permission
@@ -33071,13 +33321,18 @@ context.sendBroadcast(intent, "com.example.wallet.permission.RECEIVE_PAYMENT_EVE
 <pre data-lang="xml"><code>&lt;!-- (3) Manifest của app đối tác --&gt;
 &lt;uses-permission android:name="com.example.wallet.permission.RECEIVE_PAYMENT_EVENTS" /&gt;</code></pre>
 
+<p><strong>Kết quả:</strong> chỉ receiver của app đối tác (cùng chứng chỉ ký, đã khai báo <code>&lt;uses-permission&gt;</code>) nhận được <code>ORDER_ID</code>; app khác đăng ký cùng action không nhận được sự kiện.</p>
+
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Permission tự định nghĩa được đăng ký lúc cài app định nghĩa nó, nên app định nghĩa (app ví) phải được cài <strong>trước</strong> app dùng permission đó. Cách khai báo <code>&lt;permission&gt;</code> và các <code>protectionLevel</code> ở <a href="../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>, mục "&lt;permission&gt; — tự định nghĩa quyền". Chiều ngược lại, receiver giới hạn <strong>ai được gửi</strong> vào nó bằng <code>android:permission</code> trên <code>&lt;receiver&gt;</code> (xem <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "8.2 Permission — Hạn chế ai được gửi broadcast đến receiver của bạn").</div></div>
 
-<h3>2.6 Khi cần nhận lại kết quả: Activity Result API</h3>
+<h3>Các bài toán khác</h3>
 
-<p>Nếu "gửi sự kiện" thực chất là mở một màn hình rồi chờ kết quả (chọn ảnh, nhập địa chỉ), đó không phải broadcast mà là <strong>Activity Result API</strong>: đăng ký launcher bằng <code>registerForActivityResult()</code> với một contract, gọi <code>launch()</code>, kết quả về qua callback. Chi tiết ở <a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a>, mục "2. Nhận kết quả trả về (Activity Result API)".</p>
+<ul>
+  <li><strong>Mở màn hình chi tiết sản phẩm từ danh sách (Push Data):</strong> chỉ đặt <code>PRODUCT_ID</code> vào extras (mục 1.2), màn hình đích tự load dữ liệu đầy đủ từ Repository/Room (mục 1.4). Code đầy đủ ở <a href="../components/activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "Mở màn hình chi tiết sản phẩm từ danh sách".</li>
+  <li><strong>Báo các màn hình trong cùng app tải lại dữ liệu:</strong> đây là giao tiếp trong cùng process, nên dùng <code>SharedFlow</code> thay cho broadcast (xem mục "Khi nào nên và không nên dùng").</li>
+</ul>
 
-<h2>3. Trade-offs &amp; Khi nào dùng gì</h2>
+<h2>Khi nào nên và không nên dùng</h2>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -33123,9 +33378,19 @@ context.sendBroadcast(intent, "com.example.wallet.permission.RECEIVE_PAYMENT_EVE
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Quy tắc vàng:</strong> Đừng dùng Broadcast Intent để giao tiếp giữa các thành phần <em>trong cùng một app và cùng một process</em>. <code>LocalBroadcastManager</code> đã deprecated; thay bằng <code>SharedFlow</code> như ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "5. LocalBroadcastManager — Deprecated và thay thế". Broadcast chỉ nên dùng cho <strong>sự kiện hệ thống</strong> hoặc <strong>giao tiếp cross-app</strong>.</div></div>
 
-<h2>4. Sai lầm thường gặp</h2>
+<p>Hãy nhớ sự khác biệt cốt lõi:</p>
 
-<h3>Lỗi 1: Quên <code>setPackage()</code> khi gửi broadcast nội bộ</h3>
+<ul>
+  <li><strong>Push Data:</strong> <code>startActivity</code> + <code>putExtra</code> (Bundle). Dữ liệu nhỏ, primitive hoặc <code>@Parcelize</code>. Không chở quá 1MB.</li>
+  <li><strong>Send Event:</strong> <code>sendBroadcast</code> + <code>BroadcastReceiver</code>. Tín hiệu một-nhiều. Giới hạn người nhận bằng <code>setPackage</code> hoặc permission, không nhét dữ liệu nhạy cảm.</li>
+  <li>Nếu giao tiếp trong cùng process và cần type-safe → <strong>Flow/SharedFlow</strong> thay vì broadcast.</li>
+</ul>
+
+<p>Luôn ưu tiên giải pháp đơn giản nhất: primitive types hoặc ID qua Intent, Parcelable khi buộc phải truyền object, và không bao giờ dùng Intent để chở dữ liệu lớn.</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Quên <code>setPackage()</code> khi gửi broadcast nội bộ</h3>
 
 <pre data-lang="kotlin"><code>// ❌ App khác cũng có thể lắng nghe action này
 context.sendBroadcast(Intent(ACTION_REFRESH_DATA))
@@ -33133,22 +33398,26 @@ context.sendBroadcast(Intent(ACTION_REFRESH_DATA))
 // ✅ Chỉ app của mình nhận
 context.sendBroadcast(Intent(ACTION_REFRESH_DATA).apply { setPackage(packageName) })</code></pre>
 
-<h3>Lỗi 2: Dùng broadcast để chở object/dữ liệu lớn</h3>
+<p><strong>Cách sửa:</strong> broadcast nội bộ luôn <code>setPackage(packageName)</code> để thành explicit broadcast (mục 2.3).</p>
+
+<h3>2. Dùng broadcast để chở object/dữ liệu lớn</h3>
 
 <pre data-lang="kotlin"><code>// ❌ Tốn kém + không type-safe + có thể crash
 context.sendBroadcast(Intent(ACTION_UPDATE).apply {
     putExtra("BIG_LIST", hugeList)   // Vượt 1MB → TransactionTooLargeException
 })</code></pre>
 
-<h3>Lỗi 3: Quên <code>unregisterReceiver</code> ở phía nhận</h3>
+<p><strong>Cách sửa:</strong> broadcast chỉ báo hiệu sự kiện, kèm ID nếu cần; bên nhận tự load dữ liệu đầy đủ từ Repository/Room (mục 1.4).</p>
+
+<h3>3. Quên <code>unregisterReceiver</code> ở phía nhận</h3>
 
 <p>Receiver đăng ký động mà không huỷ ở lifecycle đối ứng sẽ giữ Context và gây memory leak. Cách đăng ký/huỷ đúng cặp lifecycle ở <a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>, mục "Lỗi 1: Memory Leak — Quên unregister Dynamic Receiver".</p>
 
-<h3>Lỗi 4: Đọc extras sai giao thức</h3>
+<h3>4. Đọc extras sai giao thức</h3>
 
 <p>Sender đặt <code>Parcelable</code> nhưng receiver đọc bằng <code>getSerializableExtra</code> (hoặc ngược lại) thì nhận về <code>null</code> kèm cảnh báo trong logcat, không crash. Hai bên phải dùng cùng giao thức, xem <a href="../components/activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>, mục "7. Đọc extra bằng sai giao thức".</p>
 
-<h3>Lỗi 5: Đặt dữ liệu nhạy cảm trong broadcast</h3>
+<h3>5. Đặt dữ liệu nhạy cảm trong broadcast</h3>
 
 <pre data-lang="kotlin"><code>// ❌ Token/SECRET bị app khác intercept (nếu implicit)
 context.sendBroadcast(Intent(ACTION_LOGIN).apply {
@@ -33157,7 +33426,20 @@ context.sendBroadcast(Intent(ACTION_LOGIN).apply {
 // ✅ Chỉ báo hiệu sự kiện; giới hạn người nhận bằng setPackage hoặc permission (mục 2.5),
 // dữ liệu nhạy cảm lấy qua kênh an toàn</code></pre>
 
-<h2>5. Kết nối hệ thống</h2>
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>API 1 (Android 1.0):</strong> Intent extras (<code>putExtra</code>, kể cả <code>Parcelable</code>), <code>sendBroadcast(Intent)</code>, <code>sendBroadcast(Intent, receiverPermission)</code> và <code>sendOrderedBroadcast(Intent, receiverPermission)</code> có từ API level đầu tiên.</li>
+  <li><strong>API 4 (Android 1.6):</strong> thêm <code>Intent.setPackage()</code>, cách giới hạn Intent về một package dùng cho explicit broadcast trong bài.</li>
+  <li><strong>Android 8.0 (API 26):</strong> app target API 26+ không đăng ký được receiver trong Manifest cho implicit broadcast (trừ danh sách được miễn); explicit broadcast và broadcast yêu cầu signature permission vẫn tới được receiver tĩnh.</li>
+  <li><strong>12/2018 (LocalBroadcastManager 1.1.0-alpha01):</strong> <code>LocalBroadcastManager</code> bắt đầu bị deprecated; bản 1.1.0 (01/2022) deprecated hoàn toàn, docs khuyên thay bằng LiveData hoặc reactive stream.</li>
+  <li><strong>Android 13 (API 33):</strong> thêm overload type-safe <code>getParcelableExtra(String, Class)</code> / <code>getSerializableExtra(String, Class)</code> ở phía nhận, và cờ <code>RECEIVER_NOT_EXPORTED</code> cho receiver đăng ký động.</li>
+  <li><strong>Android 14 (API 34):</strong> app target API 34+ đăng ký receiver động phải chỉ định <code>RECEIVER_EXPORTED</code> hoặc <code>RECEIVER_NOT_EXPORTED</code> (trừ receiver chỉ nhận system broadcast).</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Vị trí trong Knowledge Graph:</strong> Topic này nằm giữa <strong>4.2.6.4 Handle Intent</strong> (đọc dữ liệu + nhận kết quả) và <strong>4.2.6.6 Pending Intent</strong> (ủy quyền kích hoạt). Phần Send Event liên quan trực tiếp đến <strong>Broadcast Receiver</strong> (4.2.4.1).</div></div>
 
 <div class="dd-diagram" data-dd="intent-taxonomy">
 <div class="dd-svg dd-svg-dark">
@@ -33304,19 +33586,20 @@ context.sendBroadcast(Intent(ACTION_LOGIN).apply {
   <li>Khi cần bên thứ ba (OS, System UI, Launcher) thay bạn kích hoạt Intent trong tương lai → <strong>PendingIntent</strong>.</li>
 </ul>
 
-<h2>Tổng kết</h2>
-
-<p>Hãy nhớ sự khác biệt cốt lõi:</p>
+<p>Các Topic:</p>
 
 <ul>
-  <li><strong>Push Data:</strong> <code>startActivity</code> + <code>putExtra</code> (Bundle). Dữ liệu nhỏ, primitive hoặc <code>@Parcelize</code>. Không chở quá 1MB.</li>
-  <li><strong>Send Event:</strong> <code>sendBroadcast</code> + <code>BroadcastReceiver</code>. Tín hiệu một-nhiều. Giới hạn người nhận bằng <code>setPackage</code> hoặc permission, không nhét dữ liệu nhạy cảm.</li>
-  <li>Nếu giao tiếp trong cùng process và cần type-safe → <strong>Flow/SharedFlow</strong> thay vì broadcast.</li>
+  <li><strong>Tiên quyết:</strong> <a href="explicit_intents.md" target="_blank" rel="noopener">Explicit Intents</a> (Intent điểm-điểm mà Push Data dùng) và <a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a> (phía nhận đọc extras và nhận kết quả).</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../components/activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables and Bundle</a>: Bundle, Parcelable và giới hạn kích thước extras.</li>
+  <li><a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>: phía nhận broadcast (đăng ký, export, giới hạn Android 8+, ordered broadcast).</li>
+  <li><a href="../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>: khai báo <code>&lt;permission&gt;</code> và <code>&lt;uses-permission&gt;</code> cho broadcast có permission.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong> <a href="pending_intent.md" target="_blank" rel="noopener">Pending Intent</a>: khi Intent không do app gửi ngay mà được ủy quyền cho OS/System UI kích hoạt về sau. Thay broadcast nội bộ bằng <code>SharedFlow</code> ở 7.1.4.2 Flow (chưa có bài).</li>
 </ul>
 
-<p>Luôn ưu tiên giải pháp đơn giản nhất: primitive types hoặc ID qua Intent, Parcelable khi buộc phải truyền object, và không bao giờ dùng Intent để chở dữ liệu lớn.</p>
-
-<h2>Tham khảo</h2>
+<h2>Nguồn tham khảo</h2>
 
 <ul>
   <li>Android Developers — <a href="https://developer.android.com/guide/components/intents-filters" target="_blank" rel="noopener">Intent</a></li>
@@ -33329,12 +33612,16 @@ context.sendBroadcast(Intent(ACTION_LOGIN).apply {
   <li>Android Developers — <a href="https://developer.android.com/reference/android/os/TransactionTooLargeException" target="_blank" rel="noopener">TransactionTooLargeException</a></li>
   <li>Android Developers — <a href="https://developer.android.com/about/versions/14/behavior-changes-14" target="_blank" rel="noopener">Behavior changes: Android 14 (runtime-registered receivers)</a></li>
   <li>Android Developers — <a href="https://developer.android.com/develop/background-work/background-tasks/broadcasts#restrict-broadcasts-permissions" target="_blank" rel="noopener">Broadcasts: send broadcasts with permissions</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/reference/android/content/Intent" target="_blank" rel="noopener">Intent reference (putExtra API 1, setPackage API 4, getParcelableExtra(String, Class) API 33)</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/reference/android/content/Context" target="_blank" rel="noopener">Context reference (sendBroadcast, sendOrderedBroadcast API 1; RECEIVER_NOT_EXPORTED API 33)</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/about/versions/oreo/background#broadcasts" target="_blank" rel="noopener">Background Execution Limits: Broadcast Limitations (Android 8.0)</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/jetpack/androidx/releases/localbroadcastmanager" target="_blank" rel="noopener">LocalBroadcastManager release notes (1.1.0-alpha01, 1.1.0)</a></li>
 </ul>
     `
   },
   'intent-handle': {
     title: 'Xử lý Intent và onNewIntent',
-    summary: 'Hướng dẫn cách trích xuất dữ liệu từ Intent, nhận kết quả trả về với Activity Result API (cả XML và Compose), và nhận Intent mới qua onNewIntent() khi Activity đang sống được tái sử dụng thay vì tạo mới.',
+    summary: 'Xử lý Intent là phần việc của component đích với Intent gửi tới nó, gồm đọc dữ liệu (extras primitive, Parcelable) từ Intent đã khởi chạy nó, trả kết quả về người gọi bằng Activity Result API (cả XML và Compose), và nhận Intent mới qua onNewIntent() khi Activity đang sống được tái sử dụng thay vì tạo mới (kèm setIntent() để getIntent() trả về Intent mới).',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '15 phút',
@@ -33351,7 +33638,7 @@ context.sendBroadcast(Intent(ACTION_LOGIN).apply {
       'Xử lý được Intent mới trong onNewIntent() và cập nhật getIntent() bằng setIntent() khi cần.'
     ],
     knowledgeGap: 'Không hiểu onNewIntent() khiến Activity dùng singleTop/singleTask hiển thị dữ liệu cũ khi người dùng bấm thông báo mới; vẫn dùng startActivityForResult/onActivityResult đã deprecated hoặc ACTION_PICK thay vì Photo Picker; và đọc Parcelable sai cách giữa các phiên bản API.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -33365,9 +33652,28 @@ context.sendBroadcast(Intent(ACTION_LOGIN).apply {
 
 <p>Đặc biệt, nếu Activity <strong>đang chạy sẵn</strong> và bất ngờ nhận thêm một Intent mới (thay vì bị tạo mới hoàn toàn), chuyện gì sẽ xảy ra? Đó là lúc <code>onNewIntent()</code> xuất hiện và thường gây ra rất nhiều lỗi khó hiểu (bug logic) cho các lập trình viên.</p>
 
-<h2>1. Đọc dữ liệu từ Intent</h2>
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Triển khai được việc đọc extras (primitive, Parcelable) từ Intent theo cách tương thích mọi phiên bản Android.</li>
+  <li>Áp dụng được Activity Result API (registerForActivityResult, rememberLauncherForActivityResult) để nhận kết quả trả về trong View và Compose.</li>
+  <li>Giải thích được khi nào hệ thống gọi onNewIntent() thay vì onCreate() (Activity được tái sử dụng do launch mode hoặc Intent flag).</li>
+  <li>Xử lý được Intent mới trong onNewIntent() và cập nhật getIntent() bằng setIntent() khi cần.</li>
+</ul>
+
+<h2>Xử lý Intent là gì?</h2>
+
+<p><strong>Xử lý Intent</strong> là phần việc của component đích với Intent gửi tới nó: đọc dữ liệu mà Intent khởi chạy mang tới, trả kết quả về cho người gọi khi cần (Activity Result API), và nhận Intent mới qua <code>onNewIntent()</code> khi chính instance đang sống được tái sử dụng thay vì tạo mới.</p>
+
+<p>Mental model: luồng dữ liệu có <strong>hai cửa vào và một cửa ra</strong>. Cửa vào thứ nhất là <code>onCreate()</code> (Intent khởi chạy, đọc bằng <code>getIntent()</code>); cửa vào thứ hai là <code>onNewIntent()</code> (Intent đến sau, khi instance đã sống sẵn); cửa ra là Activity Result API. Hiểu luồng dữ liệu đi qua ba cửa này là cốt lõi để làm chủ ứng dụng Android.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Đọc dữ liệu từ Intent</h3>
 
 <p>Trong <code>onCreate()</code> của Activity, bạn dùng biến <code>intent</code> (tương đương <code>getIntent()</code>) để lấy dữ liệu.</p>
+
+<h4>Ví dụ: màn hình chi tiết đọc sản phẩm được gửi tới</h4>
 
 <pre data-lang="kotlin"><code>override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -33381,13 +33687,15 @@ context.sendBroadcast(Intent(ACTION_LOGIN).apply {
     val product = IntentCompat.getParcelableExtra(intent, "EXTRA_PRODUCT", Product::class.java)
 }</code></pre>
 
-<h2>2. Nhận kết quả trả về (Activity Result API)</h2>
+<p><code>Product</code> phải là Parcelable; cách viết Parcelable và vì sao extras phải được serialize ở <a href="../components/activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables &amp; Bundle</a>.</p>
+
+<h3>Nhận kết quả trả về (Activity Result API)</h3>
 
 <p>Ngày xưa, chúng ta dùng <code>startActivityForResult()</code> và <code>onActivityResult()</code>. Cách này hiện đã bị <strong>Deprecated</strong> vì nó khiến code lộn xộn và dễ gây crash khi Activity bị recreate (System kill).</p>
 
 <p>Chuẩn mới hiện nay là <strong>Activity Result API</strong>.</p>
 
-<h3>Trong môi trường View (XML / Fragment)</h3>
+<h4>Ví dụ: đổi ảnh đại diện trong môi trường View (XML / Fragment)</h4>
 
 <p>Quy trình chuẩn: Đăng ký một "hợp đồng" (Contract) <strong>trước khi</strong> Activity được STARTED.</p>
 
@@ -33418,7 +33726,9 @@ context.sendBroadcast(Intent(ACTION_LOGIN).apply {
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Chọn ảnh dùng contract <code>PickVisualMedia</code> (Photo Picker): không cần quyền đọc bộ nhớ và kết quả trả thẳng <code>Uri?</code>. Cách cũ <code>ACTION_PICK</code> + <code>StartActivityForResult</code> vẫn chạy nhưng phải tự đọc <code>result.data?.data</code>. <code>StartActivityForResult</code> dành cho trường hợp mở một Activity (thường của chính app) rồi nhận <code>resultCode</code> + <code>Intent</code> mà Activity đó trả về bằng <code>setResult(RESULT_OK, data)</code> trước khi <code>finish()</code>.</div></div>
 
-<h3>Trong môi trường Jetpack Compose</h3>
+<h4>Ví dụ: đổi ảnh đại diện trong môi trường Jetpack Compose</h4>
+
+<p>Composable và state của Compose (<code>remember</code>, <code>mutableStateOf</code>) là kiến thức dùng trước, học ở <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và 9.2 State and State Hoisting (chưa có bài); ở đây chỉ cần biết <code>avatarUri</code> là state giữ ảnh vừa chọn.</p>
 
 <p>Compose cung cấp hàm <code>rememberLauncherForActivityResult</code> vô cùng tiện lợi:</p>
 
@@ -33444,15 +33754,9 @@ fun AvatarPicker() {
     }
 }</code></pre>
 
-<h2>3. Bí ẩn của onNewIntent() và Launch Modes</h2>
+<h3>onNewIntent() và Launch Modes</h3>
 
-<h3>Sự cố thường gặp</h3>
-
-<p>Giả sử bạn có màn hình <code>NotificationActivity</code>. Khi người dùng đang mở app và đứng sẵn ở màn hình này, có một thông báo Push Notification bắn tới. Họ bấm vào thông báo (chứa Intent đẩy data id=100) -&gt; OS điều hướng họ đến <code>NotificationActivity</code>.</p>
-
-<p><strong>Lỗi:</strong> Bạn debug và thấy màn hình không cập nhật nội dung của id=100. Nó vẫn hiển thị nội dung cũ. Khi bạn gọi <code>intent.getIntExtra("id", -1)</code>, nó vẫn trả về ID của thông báo cũ từ hôm qua!</p>
-
-<h3>Tại sao lại như vậy?</h3>
+<h4>Khi nào hệ thống gọi onNewIntent() thay vì onCreate()</h4>
 
 <p>Khi Activity đích <strong>được tái sử dụng</strong> thay vì tạo mới, hệ điều hành <strong>KHÔNG tạo ra instance mới</strong> (không gọi <code>onCreate()</code>). Thay vào đó, nó chuyển Intent mới vào hàm <code>onNewIntent(intent)</code> của instance đang sống. Activity được tái sử dụng khi launch mode trong Manifest (<code>singleTop</code>, <code>singleTask</code>, <code>singleInstance</code>, <code>singleInstancePerTask</code>) hoặc Intent flag lúc gọi (<code>FLAG_ACTIVITY_SINGLE_TOP</code>, <code>FLAG_ACTIVITY_CLEAR_TOP</code> kết hợp <code>SINGLE_TOP</code>) cho phép, và instance phù hợp đã tồn tại. Mỗi launch mode và flag quyết định "khi nào tái sử dụng" ra sao được giải thích ở <a href="../components/activity/task_and_backstack.md" target="_blank" rel="noopener">Task and Back Stack</a>, mục "Cách hoạt động — 5 Launch Modes" và "Cách hoạt động — Intent Flags".</p>
 
@@ -33557,17 +33861,56 @@ fun AvatarPicker() {
 </div>
 </div>
 
-<h3>Cái bẫy của getIntent()</h3>
+<p>Sơ đồ vẽ trường hợp Activity đang ở foreground (<code>RESUMED</code>): Activity không bao giờ nhận Intent mới khi đang <code>RESUMED</code>, nên nó bị pause trước, nhận <code>onNewIntent()</code>, rồi <code>onResume()</code>. Nếu Activity không ở trạng thái <code>RESUMED</code>, Intent mới có thể được giao ngay, còn <code>onResume()</code> được gọi sau, khi Activity active trở lại.</p>
+
+<h4>Launch mode nào dẫn tới onNewIntent?</h4>
+
+<p>Với <code>standard</code> (mặc định) và không có flag tái sử dụng, mỗi Intent tạo instance mới và đi qua <code>onCreate()</code>, nên không cần <code>onNewIntent()</code>. Các launch mode và flag còn lại có thể tái sử dụng instance cũ; bảng "onNewIntent?" cho từng mode ở <a href="../components/activity/task_and_backstack.md" target="_blank" rel="noopener">Task and Back Stack</a>, mục "Cách hoạt động — 5 Launch Modes". Activity nào có thể được tái sử dụng thì phải override <code>onNewIntent()</code> như ví dụ ở mục "Ví dụ thực tế".</p>
+
+<h4>Cái bẫy của getIntent()</h4>
 
 <p>Khi <code>onNewIntent(intent)</code> được gọi, biến <code>intent</code> gốc của Activity (được trả về bởi hàm <code>getIntent()</code>) <strong>KHÔNG tự động cập nhật</strong>. Nó vẫn trỏ vào cái Intent khai sinh ra Activity từ lúc <code>onCreate()</code>.</p>
 
 <p><strong>Cách xử lý ĐÚNG CHUẨN:</strong> Xử lý trực tiếp tham số <code>intent</code> của <code>onNewIntent</code>. Nếu về sau code còn đọc <code>getIntent()</code> (ví dụ trong <code>onResume()</code>, hoặc ViewModel lấy lại intent), hãy gọi <code>setIntent(intent)</code> để <code>getIntent()</code> trả về Intent mới nhất.</p>
 
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Luôn nhớ nguyên tắc vàng: <strong>Nếu dùng Launch Mode để tái sử dụng Activity, bạn phải override <code>onNewIntent()</code> để xử lý Intent mới, và gọi <code>setIntent(intent)</code> nếu về sau còn đọc <code>getIntent()</code>.</strong></div></div>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>Mở màn hình thông báo khi màn hình đó đang hiển thị</h3>
+
+<p>Giả sử bạn có màn hình <code>NotificationActivity</code>. Khi người dùng đang mở app và đứng sẵn ở màn hình này, có một thông báo Push Notification bắn tới. Họ bấm vào thông báo (chứa Intent đẩy data id=100) -&gt; OS điều hướng họ đến <code>NotificationActivity</code>.</p>
+
+<p><code>NotificationActivity</code> được khai báo launch mode (hoặc được mở bằng Intent flag) cho phép tái sử dụng instance, ví dụ <code>singleTop</code>. Luồng chạy:</p>
+
+<ol>
+  <li>Lần đầu mở màn hình: hệ thống tạo instance mới, <code>onCreate()</code> đọc Intent gốc (<code>getIntent()</code>) và hiển thị thông báo tương ứng.</li>
+  <li>Người dùng bấm thông báo mới (<code>NOTIF_ID</code> = 100) khi <code>NotificationActivity</code> đang ở foreground: hệ thống tái sử dụng instance đang sống, không gọi <code>onCreate()</code>, và pause Activity trước.</li>
+  <li>Hệ thống gọi <code>onNewIntent(intent)</code> với Intent mới; Activity gọi <code>setIntent(intent)</code> để <code>getIntent()</code> về sau trả về Intent này.</li>
+  <li>Activity xử lý dữ liệu của Intent mới (đọc <code>NOTIF_ID</code> = 100, load nội dung).</li>
+  <li>Hệ thống gọi <code>onResume()</code>, màn hình hiện nội dung của thông báo mới.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant OS as Android OS
+    participant Act as NotificationActivity
+
+    User-&gt;&gt;OS: Mở màn hình thông báo
+    OS-&gt;&gt;Act: (1) onCreate() → handleIntentData(getIntent())
+    User-&gt;&gt;OS: Bấm thông báo mới (NOTIF_ID = 100)
+    OS-&gt;&gt;Act: (2) tái sử dụng instance, onPause()
+    OS-&gt;&gt;Act: (3) onNewIntent(intent) → setIntent(intent)
+    Act-&gt;&gt;Act: (4) handleIntentData(intent) đọc NOTIF_ID = 100
+    OS-&gt;&gt;Act: (5) onResume()
+</div>
+
 <pre data-lang="kotlin"><code>class NotificationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Lần đầu tạo Activity, đọc Intent gốc
+        // (1) Lần đầu tạo Activity, đọc Intent gốc
         handleIntentData(intent)
     }
 
@@ -33579,10 +33922,10 @@ fun AvatarPicker() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
-        // 1. Cập nhật Intent gốc để getIntent() về sau trả về Intent mới
+        // (3) Cập nhật Intent gốc để getIntent() về sau trả về Intent mới
         setIntent(intent)
 
-        // 2. Xử lý dữ liệu mới
+        // (4) Xử lý dữ liệu mới
         handleIntentData(intent)
     }
 
@@ -33592,13 +33935,66 @@ fun AvatarPicker() {
     }
 }</code></pre>
 
-<h3>Launch mode nào dẫn tới onNewIntent?</h3>
+<p><strong>Kết quả:</strong> bấm thông báo mới khi đang đứng ở <code>NotificationActivity</code>, màn hình hiện nội dung của id=100 thay vì nội dung cũ; kiểm tra bằng cách log <code>notifId</code> trong <code>handleIntentData()</code> và log <code>getIntent().getIntExtra("NOTIF_ID", -1)</code> trong <code>onResume()</code>: cả hai đều ra 100.</p>
 
-<p>Với <code>standard</code> (mặc định) và không có flag tái sử dụng, mỗi Intent tạo instance mới và đi qua <code>onCreate()</code>, nên không cần <code>onNewIntent()</code>. Các launch mode và flag còn lại có thể tái sử dụng instance cũ; bảng "onNewIntent?" cho từng mode ở <a href="../components/activity/task_and_backstack.md" target="_blank" rel="noopener">Task and Back Stack</a>, mục "Cách hoạt động — 5 Launch Modes". Activity nào có thể được tái sử dụng thì phải override <code>onNewIntent()</code> như ví dụ trên.</p>
+<h3>Nhận kết quả từ màn hình khác</h3>
 
-<h2>Tổng kết</h2>
+<p>Hai ví dụ chọn ảnh đại diện ở mục "Nhận kết quả trả về (Activity Result API)" là bài toán nhận kết quả từ app khác (Photo Picker). Khi màn hình trả kết quả là Activity của chính app (ví dụ màn hình chọn địa chỉ), dùng contract <code>StartActivityForResult</code>: màn hình đích gọi <code>setResult(RESULT_OK, data)</code> trước khi <code>finish()</code>, như ghi chú ở mục đó.</p>
 
-<p>Việc hiểu luồng dữ liệu (vào qua <code>onCreate</code> hoặc <code>onNewIntent</code>, ra qua <code>Activity Result API</code>) là cốt lõi để làm chủ ứng dụng Android. Luôn nhớ nguyên tắc vàng: <strong>Nếu dùng Launch Mode để tái sử dụng Activity, bạn phải override <code>onNewIntent()</code> để xử lý Intent mới, và gọi <code>setIntent(intent)</code> nếu về sau còn đọc <code>getIntent()</code>.</strong></p>
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Không override onNewIntent(): màn hình hiển thị dữ liệu cũ</h3>
+
+<p><strong>Lỗi:</strong> Bạn debug và thấy màn hình không cập nhật nội dung của id=100. Nó vẫn hiển thị nội dung cũ. Khi bạn gọi <code>intent.getIntExtra("id", -1)</code>, nó vẫn trả về ID của thông báo cũ từ hôm qua!</p>
+
+<p>Nguyên nhân: Activity được tái sử dụng nên không đi qua <code>onCreate()</code>, và <code>getIntent()</code> vẫn trả về Intent khai sinh ra Activity.</p>
+
+<p><strong>Cách sửa:</strong> override <code>onNewIntent()</code>, xử lý tham số <code>intent</code> của nó, và gọi <code>setIntent(intent)</code> nếu về sau còn đọc <code>getIntent()</code> (code ở mục "Ví dụ thực tế").</p>
+
+<h3>2. Khai báo tham số onNewIntent() là <code>Intent?</code></h3>
+
+<p>Code cũ viết <code>override fun onNewIntent(intent: Intent?)</code> báo lỗi "'onNewIntent' overrides nothing" khi nâng androidx.activity lên 1.9.0+, vì <code>ComponentActivity</code> khai báo <code>onNewIntent(@NonNull Intent intent)</code>.</p>
+
+<p><strong>Cách sửa:</strong> khai báo <code>override fun onNewIntent(intent: Intent)</code> (non-null).</p>
+
+<h3>3. Vẫn dùng startActivityForResult()/onActivityResult() hoặc ACTION_PICK để chọn ảnh</h3>
+
+<p>Hai API này đã bị deprecated trên <code>ComponentActivity</code>. Chọn ảnh bằng <code>ACTION_PICK</code> vẫn chạy nhưng phải tự đọc <code>result.data?.data</code>.</p>
+
+<p><strong>Cách sửa:</strong> đăng ký launcher bằng <code>registerForActivityResult()</code> (View) hoặc <code>rememberLauncherForActivityResult()</code> (Compose); chọn ảnh dùng contract <code>PickVisualMedia</code>.</p>
+
+<h3>4. Đọc Parcelable sai cách giữa các phiên bản API</h3>
+
+<p>Từ API 33, <code>getParcelableExtra()</code> cần truyền Class type; tự viết <code>if/else</code> theo <code>Build.VERSION.SDK_INT</code> dễ sót nhánh.</p>
+
+<p><strong>Cách sửa:</strong> dùng <code>IntentCompat.getParcelableExtra(intent, key, Product::class.java)</code> của androidx.core, như ví dụ ở mục "Đọc dữ liệu từ Intent".</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>API 1:</strong> <code>Activity.getIntent()</code>, <code>setIntent()</code>, <code>onNewIntent(Intent)</code> và cặp <code>startActivityForResult()</code>/<code>onActivityResult()</code> có từ API level đầu tiên.</li>
+  <li><strong>AndroidX Activity 1.2.0-alpha04 (04/2020):</strong> <code>startActivityForResult()</code>/<code>onActivityResult()</code> trên <code>ComponentActivity</code> bị deprecated, chuyển sang Activity Result API.</li>
+  <li><strong>AndroidX Activity 1.2.0 (02/2021):</strong> Activity Result API stable: <code>ComponentActivity</code> cung cấp <code>ActivityResultRegistry</code>, xử lý các luồng <code>startActivityForResult()</code> + <code>onActivityResult()</code> qua <code>ActivityResultContract</code> thay vì override method.</li>
+  <li><strong>Activity Compose 1.3.0 (07/2021):</strong> artifact <code>activity-compose</code> stable, có <code>rememberLauncherForActivityResult()</code> (đổi tên từ <code>registerForActivityResult()</code> dạng Composable ở 1.3.0-alpha06).</li>
+  <li><strong>AndroidX Activity 1.6.0 (09/2022):</strong> thêm contract <code>PickVisualMedia</code>, dùng Photo Picker khi máy có sẵn và chuyển sang <code>ACTION_OPEN_DOCUMENT</code> khi không có.</li>
+  <li><strong>Android 13 (API 33):</strong> thêm overload <code>getParcelableExtra(String, Class)</code>; overload không có <code>Class</code> bị deprecated.</li>
+  <li><strong>AndroidX Core 1.10.0 (04/2023):</strong> thêm <code>IntentCompat.getParcelableExtra(Intent, String, Class)</code> cho mọi API level.</li>
+  <li><strong>AndroidX Activity 1.9.0 (04/2024):</strong> <code>ComponentActivity</code> được viết lại bằng Kotlin (từ 1.9.0-alpha01); <code>onNewIntent()</code> nhận <code>Intent</code> non-null nên override bằng <code>Intent?</code> không còn biên dịch được.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="explicit_intents.md" target="_blank" rel="noopener">Explicit Intents</a> (cách gửi Intent tới một Activity cụ thể) và <a href="../components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a> (<code>onCreate</code>, <code>onPause</code>, <code>onResume</code> quanh <code>onNewIntent()</code>).</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../components/activity/task_and_backstack.md" target="_blank" rel="noopener">Task and Back Stack</a>: launch mode và Intent flag quyết định khi nào Activity được tái sử dụng.</li>
+  <li><a href="../components/activity/parcelables_and_bundle.md" target="_blank" rel="noopener">Parcelables &amp; Bundle</a>: vì sao extras phải serialize và cách viết Parcelable.</li>
+  <li><a href="intent_filters.md" target="_blank" rel="noopener">Intent Filters</a>: Activity nhận deep link xử lý cả cold start (<code>onCreate()</code>) và warm start (<code>onNewIntent()</code>).</li>
+  <li><a href="push_data_event.md" target="_blank" rel="noopener">Push data and send event via Intent</a>: phía gửi đưa dữ liệu vào Intent.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong> <a href="pending_intent.md" target="_blank" rel="noopener">Pending Intent</a>: tạo Intent cho thông báo, nguồn của tình huống <code>onNewIntent()</code> trong bài.</li>
+</ul>
 
 <h2>Nguồn tham khảo</h2>
 
@@ -33606,14 +34002,17 @@ fun AvatarPicker() {
   <li>Android Developers — <a href="https://developer.android.com/training/basics/intents/result" target="_blank" rel="noopener">Get a result from an activity (Activity Result API)</a></li>
   <li>Android Developers — <a href="https://developer.android.com/training/data-storage/shared/photopicker" target="_blank" rel="noopener">Photo picker</a></li>
   <li>Android Developers — <a href="https://developer.android.com/reference/androidx/activity/ComponentActivity" target="_blank" rel="noopener">ComponentActivity reference (<code>onNewIntent(@NonNull Intent)</code>)</a></li>
-  <li>Android Developers — <a href="https://developer.android.com/jetpack/androidx/releases/activity" target="_blank" rel="noopener">Activity release notes (1.9.0: ComponentActivity viết lại bằng Kotlin)</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/jetpack/androidx/releases/activity" target="_blank" rel="noopener">Activity release notes (1.2.0 Activity Result API, 1.3.0 activity-compose, 1.6.0 PickVisualMedia, 1.9.0: ComponentActivity viết lại bằng Kotlin)</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/reference/android/app/Activity" target="_blank" rel="noopener">Activity reference (<code>onNewIntent</code>, <code>getIntent</code>, <code>setIntent</code>: API 1)</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/reference/android/content/Intent" target="_blank" rel="noopener">Intent reference (<code>getParcelableExtra</code> kèm <code>Class</code> từ API 33)</a></li>
+  <li>Android Developers — <a href="https://developer.android.com/jetpack/androidx/releases/core" target="_blank" rel="noopener">Core release notes (1.10.0: IntentCompat)</a></li>
   <li>Android Developers — <a href="https://developer.android.com/guide/components/activities/launch-mode" target="_blank" rel="noopener">Activity launch modes</a></li>
 </ul>
     `
   },
   'intent-pending': {
     title: 'Pending Intent',
-    summary: 'Giải mã PendingIntent - cơ chế ủy quyền quyền lực trong Android. Hiểu sâu tại sao Notification và AlarmManager phải dùng PendingIntent, và cách cấu hình Flags (Immutable/Mutable) an toàn.',
+    summary: 'PendingIntent là token do hệ thống giữ, bọc một Intent cùng hành động cần làm (mở Activity, gửi broadcast, start Service) để app khác, thường là tiến trình hệ thống như System UI hay AlarmManager, kích hoạt về sau dưới danh tính và quyền của app tạo ra nó, kể cả khi process của app đã bị kill. Bài giải thích vì sao Notification, AlarmManager, AppWidget phải dùng PendingIntent, danh tính PendingIntent (requestCode + Intent.filterEquals) và cách chọn cờ an toàn (Immutable/Mutable).',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '15 phút',
@@ -33630,7 +34029,7 @@ fun AvatarPicker() {
       'Triển khai được PendingIntent mở màn hình chi tiết từ Notification với requestCode riêng cho từng thông báo.'
     ],
     knowledgeGap: 'Không hiểu PendingIntent khiến app crash khi target Android 12+ vì thiếu cờ mutability, nhiều thông báo cùng mở một nội dung vì dùng chung requestCode và chỉ khác extras, hoặc tạo mutable PendingIntent bọc implicit intent gây lỗ hổng bảo mật (bị chặn bằng exception từ Android 14).',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -33645,13 +34044,30 @@ fun AvatarPicker() {
 
 <p>Đó là lý do <strong>PendingIntent</strong> ra đời.</p>
 
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được PendingIntent là gì và vì sao Notification, AlarmManager, AppWidget phải dùng nó.</li>
+  <li>Phân biệt được FLAG_IMMUTABLE và FLAG_MUTABLE cùng rủi ro bảo mật của mutable PendingIntent bọc implicit intent.</li>
+  <li>Xử lý được việc nhiều PendingIntent ghi đè nhau bằng cách hiểu danh tính PendingIntent (requestCode + Intent.filterEquals).</li>
+  <li>Triển khai được PendingIntent mở màn hình chi tiết từ Notification với requestCode riêng cho từng thông báo.</li>
+</ul>
+
 <h2>PendingIntent là gì?</h2>
 
-<p><strong>PendingIntent</strong> thực chất là một "tờ giấy ủy quyền".</p>
+<p><strong>PendingIntent</strong> là một token do hệ thống giữ, bọc một Intent cùng hành động cần làm với nó (mở Activity, gửi broadcast, start Service), để app khác (thường là tiến trình hệ thống) kích hoạt Intent đó về sau <strong>dưới danh tính và quyền của app tạo ra nó</strong>, kể cả khi process của app đã bị kill.</p>
+
+<p>Mental model: <strong>PendingIntent</strong> thực chất là một "tờ giấy ủy quyền".</p>
 
 <p>Bạn đóng gói một Intent bình thường vào trong PendingIntent, sau đó đưa nó cho một ứng dụng khác (thường là System OS). Bạn bảo hệ thống rằng: <em>"Hãy cầm tờ giấy ủy quyền này. Khi nào sự kiện X xảy ra (user bấm thông báo, hoặc đến đúng 7h sáng), hãy thực thi cái Intent bên trong tờ giấy này. Và quan trọng nhất: Hãy thực thi nó bằng <strong>chính danh tính và quyền (permissions)</strong> của tôi, chứ không phải của anh."</em></p>
 
-<h2>Cơ chế hoạt động</h2>
+<p>Nhắc đến PendingIntent, hãy nhớ ngay từ khóa <strong>"Ủy quyền"</strong>. Nó là cầu nối an toàn giúp các tiến trình hệ thống (OS, Launcher) có thể thực thi các hành động giùm ứng dụng của bạn ngay cả khi ứng dụng không còn tồn tại trên RAM.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Tạo, trao và kích hoạt tờ ủy quyền</h3>
+
+<p>App tạo PendingIntent qua hệ thống (<code>ActivityManagerService</code>) và nhận về một token; token này được trao cho bên giữ hộ (System UI, AlarmManager). Process của app có thể bị kill sau đó mà token vẫn dùng được, vì nó do hệ thống giữ. Khi sự kiện xảy ra, bên giữ hộ gửi token lại cho hệ thống, và hệ thống phân giải Intent bên trong dưới quyền của app để khởi chạy component đích.</p>
 
 <div class="dd-diagram" data-dd="intent-pending">
 <div class="dd-svg dd-svg-dark">
@@ -33804,78 +34220,45 @@ fun AvatarPicker() {
 </div>
 </div>
 
+<h3>Các loại PendingIntent</h3>
+
+<p>Hành động bọc trong tờ ủy quyền được chọn bằng hàm tạo:</p>
+
+<ul>
+  <li><code>PendingIntent.getActivity()</code>: mở Activity (Notification, Widget).</li>
+  <li><code>PendingIntent.getBroadcast()</code>: gửi broadcast tới <code>BroadcastReceiver</code> (AlarmManager, nút action trên Notification).</li>
+  <li><code>PendingIntent.getService()</code> / <code>getForegroundService()</code>: start Service.</li>
+</ul>
+
 <h3>PendingIntent nào là "cùng một" PendingIntent?</h3>
 
 <p>Hệ thống không tạo token mới mỗi lần bạn gọi <code>getActivity()</code>. Nó coi hai PendingIntent là <strong>một</strong> nếu cùng loại (activity/broadcast/service), cùng <strong><code>requestCode</code></strong> và hai Intent bên trong bằng nhau theo <strong><code>Intent.filterEquals()</code></strong> (so action, data, type, identifier, component/class, package, categories). <strong>Extras không được tính.</strong> Vì vậy nhiều thông báo chỉ khác <code>putExtra("NOTIF_ID", ...)</code> mà dùng chung <code>requestCode</code> sẽ trỏ về <strong>cùng một</strong> PendingIntent; muốn chúng tồn tại song song, hãy cho mỗi cái một <code>requestCode</code> riêng (hoặc một <code>data</code> URI riêng).</p>
 
-<h2>Khi nào phải dùng PendingIntent?</h2>
-
-<ol>
-  <li><strong>Notification:</strong> Khi người dùng click vào thông báo (System UI process).</li>
-  <li><strong>AlarmManager:</strong> Hẹn giờ chạy một tác vụ trong tương lai (ví dụ báo thức). OS sẽ giữ PendingIntent và kích hoạt nó khi đồng hồ điểm.</li>
-  <li><strong>AppWidget (Home Screen Widget):</strong> Khi người dùng tương tác với widget trên màn hình chính (Launcher process).</li>
-</ol>
-
-<h2>Hướng dẫn triển khai (Ví dụ Notification)</h2>
-
-<pre data-lang="kotlin"><code>// 1. Tạo Intent bình thường muốn kích hoạt
-val notifId = 100 // id riêng của từng thông báo (ví dụ id tin nhắn: 100, 101...)
-val intent = Intent(context, NotificationDetailActivity::class.java).apply {
-    putExtra("NOTIF_ID", notifId)
-    // NEW_TASK | CLEAR_TASK: xoá task hiện có của app rồi mở màn hình này làm gốc task mới
-    // (bấm Back sẽ thoát app). Muốn giữ màn hình cha trong back stack thì dùng TaskStackBuilder.
-    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-}
-
-// 2. Đóng gói vào PendingIntent
-// requestCode RIÊNG cho từng thông báo: nếu mọi thông báo dùng chung requestCode = 0
-// thì chúng là CÙNG một PendingIntent (extras không được tính), và FLAG_UPDATE_CURRENT
-// ghi đè extras → bấm thông báo cũ cũng mở nội dung của thông báo mới nhất.
-val pendingIntent: PendingIntent = PendingIntent.getActivity(
-    context,
-    notifId, // requestCode
-    intent,
-    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-)
-
-// 3. Đưa PendingIntent cho System UI qua NotificationCompat
-val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-    .setSmallIcon(R.drawable.ic_notification)
-    .setContentTitle("Tin nhắn mới")
-    .setContentText("Bạn có 1 tin nhắn chưa đọc.")
-    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-    // Ủy quyền cho System UI kích hoạt pendingIntent khi click
-    .setContentIntent(pendingIntent) 
-    .setAutoCancel(true)
-
-// 4. Hiện thông báo (Android 13+ cần quyền POST_NOTIFICATIONS đã được cấp, và CHANNEL_ID đã được tạo)
-NotificationManagerCompat.from(context).notify(notifId, builder.build())</code></pre>
-
-<h2>Bảo mật và Flags (Cực kỳ quan trọng từ Android 12)</h2>
+<h3>Mutability: FLAG_IMMUTABLE và FLAG_MUTABLE (Cực kỳ quan trọng từ Android 12)</h3>
 
 <p>Với app <strong>target Android 12 (API 31) trở lên</strong>, Google <strong>BẮT BUỘC</strong> bạn phải khai báo rõ ràng một PendingIntent là <strong>MUTABLE</strong> (có thể bị sửa đổi) hay <strong>IMMUTABLE</strong> (bất biến). Nếu quên, lời gọi tạo PendingIntent ném <code>IllegalArgumentException</code> và app crash.</p>
 
-<h3>Tại sao lại quan trọng? (Vấn đề bảo mật)</h3>
+<h4>Tại sao lại quan trọng? (Vấn đề bảo mật)</h4>
 
 <p>App nhận PendingIntent <strong>không</strong> lấy được Intent bên trong ra để sửa. Với PendingIntent <strong>mutable</strong>, nó chỉ có thể truyền một Intent bổ sung khi gọi <code>send()</code>, và hệ thống gộp vào theo luật <code>Intent.fillIn()</code>: chỉ <strong>điền các trường còn trống</strong> (action, data, component, package... chưa được set), còn extras được gộp thêm; trường đã set thì không bị ghi đè, trừ khi chính bạn cho phép bằng cờ <code>FILL_IN_*</code> lúc tạo.</p>
 
 <p>Rủi ro thật nằm ở <strong>mutable PendingIntent bọc implicit intent</strong> (chưa set component/package): app nhận có thể điền component/package để chuyển hướng Intent tới component tuỳ ý, chạy dưới danh tính và quyền của app bạn. Vì vậy với app target <strong>Android 14 (API 34)+</strong>, tạo mutable PendingIntent bọc Intent không chỉ định component hoặc package sẽ <strong>ném exception</strong> (trừ khi dùng cờ <code>FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT</code>). Cách an toàn: dùng <code>FLAG_IMMUTABLE</code>, hoặc nếu bắt buộc mutable thì dùng explicit intent.</p>
 
-<h3>1. <code>PendingIntent.FLAG_IMMUTABLE</code> (Nên dùng 99% các trường hợp)</h3>
+<h4><code>PendingIntent.FLAG_IMMUTABLE</code> (Nên dùng 99% các trường hợp)</h4>
 
 <ul>
-  <li><strong>Ý nghĩa:</strong> Intent bên trong bị "đóng băng". Không ai có quyền thêm, bớt, sửa đổi data (<code>extras</code>) của nó trước khi nó được kích hoạt.</li>
+  <li><strong>Ý nghĩa:</strong> Intent bên trong bị "đóng băng". App giữ PendingIntent (bên gọi <code>send()</code>) không thể thêm, bớt, sửa đổi data (<code>extras</code>) của nó trước khi nó được kích hoạt; chỉ app tạo ra nó vẫn cập nhật được bằng <code>FLAG_UPDATE_CURRENT</code>.</li>
   <li><strong>Sử dụng:</strong> Cho Notification mở màn hình bình thường, AlarmManager chạy Service.</li>
 </ul>
 
-<h3>2. <code>PendingIntent.FLAG_MUTABLE</code> (Chỉ dùng khi bắt buộc)</h3>
+<h4><code>PendingIntent.FLAG_MUTABLE</code> (Chỉ dùng khi bắt buộc)</h4>
 
 <ul>
   <li><strong>Ý nghĩa:</strong> Cho phép app nhận PendingIntent có quyền "nhét thêm" dữ liệu vào trước khi kích hoạt.</li>
   <li><strong>Ví dụ bắt buộc dùng:</strong> Chức năng <strong>Direct Reply Notification</strong> (Trả lời tin nhắn trực tiếp ngay trên thanh thông báo). System UI cần nhét cái đoạn text người dùng vừa gõ vào Intent của bạn trước khi bắn về app của bạn. Nếu bạn đặt <code>IMMUTABLE</code>, System UI không thể nhét text vào được.</li>
 </ul>
 
-<h3>3. Cờ cập nhật</h3>
+<h3>Cờ cập nhật</h3>
 
 <p>Thường dùng kèm với IMMUTABLE/MUTABLE:</p>
 
@@ -33886,17 +34269,154 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
   <li><code>FLAG_NO_CREATE</code>: Không tạo mới; chỉ trả về PendingIntent đang tồn tại, hoặc <code>null</code> nếu chưa có. Hay dùng để kiểm tra một alarm đã được đặt chưa.</li>
 </ul>
 
-<h3>4. Các loại PendingIntent</h3>
+<h2>Ví dụ thực tế</h2>
+
+<h3>Mở màn hình chi tiết từ thông báo tin nhắn</h3>
+
+<p>Mỗi tin nhắn mới hiện một thông báo riêng; bấm vào thông báo nào thì mở đúng nội dung của thông báo đó, kể cả khi app đã bị kill. Luồng chạy:</p>
+
+<ol>
+  <li>Tạo Intent explicit tới <code>NotificationDetailActivity</code>, mang <code>NOTIF_ID</code> trong extras; cờ <code>NEW_TASK | CLEAR_TASK</code> cho màn hình này làm gốc task mới.</li>
+  <li>Đóng gói Intent vào PendingIntent bằng <code>getActivity()</code>, với <code>requestCode</code> riêng cho từng thông báo và <code>FLAG_IMMUTABLE | FLAG_UPDATE_CURRENT</code>; hệ thống trả về token.</li>
+  <li>Đưa PendingIntent cho System UI qua <code>setContentIntent()</code> của <code>NotificationCompat.Builder</code>.</li>
+  <li>Hiện thông báo bằng <code>NotificationManagerCompat.notify()</code>.</li>
+  <li>User bấm thông báo: System UI gửi token lại cho hệ thống, hệ thống khởi chạy <code>NotificationDetailActivity</code> dưới danh tính app; Activity đọc <code>NOTIF_ID</code> từ extras (cách đọc ở <a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a>).</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant App as App (nơi nhận tin nhắn)
+    participant AMS as Hệ thống (ActivityManagerService)
+    participant SysUI as System UI
+    participant Detail as NotificationDetailActivity
+
+    App-&gt;&gt;App: (1) Intent(NotificationDetailActivity) + NOTIF_ID
+    App-&gt;&gt;AMS: (2) getActivity(requestCode = notifId, FLAG_IMMUTABLE | FLAG_UPDATE_CURRENT)
+    AMS--&gt;&gt;App: (2) Token (PendingIntent)
+    App-&gt;&gt;SysUI: (3) setContentIntent(pendingIntent)
+    App-&gt;&gt;SysUI: (4) notify(notifId, notification)
+    Note over App: Process của app có thể bị kill
+    SysUI-&gt;&gt;AMS: (5) User bấm thông báo → gửi lại token
+    AMS-&gt;&gt;Detail: (5) Khởi chạy dưới danh tính app, extras NOTIF_ID
+</div>
+
+<pre data-lang="kotlin"><code>// (1) Tạo Intent bình thường muốn kích hoạt
+val notifId = 100 // id riêng của từng thông báo (ví dụ id tin nhắn: 100, 101...)
+val intent = Intent(context, NotificationDetailActivity::class.java).apply {
+    putExtra("NOTIF_ID", notifId)
+    // NEW_TASK | CLEAR_TASK: xoá task hiện có của app rồi mở màn hình này làm gốc task mới
+    // (bấm Back sẽ thoát app). Muốn giữ màn hình cha trong back stack thì dùng TaskStackBuilder.
+    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+}
+
+// (2) Đóng gói vào PendingIntent
+// requestCode RIÊNG cho từng thông báo: nếu mọi thông báo dùng chung requestCode = 0
+// thì chúng là CÙNG một PendingIntent (extras không được tính), và FLAG_UPDATE_CURRENT
+// ghi đè extras → bấm thông báo cũ cũng mở nội dung của thông báo mới nhất.
+val pendingIntent: PendingIntent = PendingIntent.getActivity(
+    context,
+    notifId, // requestCode
+    intent,
+    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+)
+
+// (3) Đưa PendingIntent cho System UI qua NotificationCompat
+val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+    .setSmallIcon(R.drawable.ic_notification)
+    .setContentTitle("Tin nhắn mới")
+    .setContentText("Bạn có 1 tin nhắn chưa đọc.")
+    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+    // Ủy quyền cho System UI kích hoạt pendingIntent khi click
+    .setContentIntent(pendingIntent) 
+    .setAutoCancel(true)
+
+// (4) Hiện thông báo (Android 13+ cần quyền POST_NOTIFICATIONS đã được cấp, và CHANNEL_ID đã được tạo)
+NotificationManagerCompat.from(context).notify(notifId, builder.build())</code></pre>
+
+<p><strong>Kết quả:</strong> với hai tin nhắn 100 và 101, bấm thông báo nào cũng mở đúng <code>NOTIF_ID</code> của thông báo đó; nếu đổi <code>requestCode</code> về chung một giá trị, bấm thông báo cũ sẽ mở nội dung của thông báo mới nhất.</p>
+
+<h3>Các bài toán khác</h3>
 
 <ul>
-  <li><code>PendingIntent.getActivity()</code>: mở Activity (Notification, Widget).</li>
-  <li><code>PendingIntent.getBroadcast()</code>: gửi broadcast tới <code>BroadcastReceiver</code> (AlarmManager, nút action trên Notification).</li>
-  <li><code>PendingIntent.getService()</code> / <code>getForegroundService()</code>: start Service.</li>
+  <li><strong>Hẹn giờ bằng AlarmManager:</strong> OS giữ PendingIntent (thường tạo bằng <code>getBroadcast()</code>, cờ <code>FLAG_IMMUTABLE</code>) và kích hoạt nó khi đồng hồ điểm; muốn biết alarm đã được đặt chưa thì gọi lại hàm tạo với <code>FLAG_NO_CREATE</code> và kiểm tra <code>null</code>.</li>
+  <li><strong>Direct Reply trên thông báo:</strong> PendingIntent phải là <code>FLAG_MUTABLE</code> để System UI nhét text người dùng gõ vào Intent, và Intent bên trong phải là explicit intent (xem mục "Mutability: FLAG_IMMUTABLE và FLAG_MUTABLE").</li>
 </ul>
 
-<h2>Tổng kết</h2>
+<h2>Khi nào nên và không nên dùng</h2>
 
-<p>Nhắc đến PendingIntent, hãy nhớ ngay từ khóa <strong>"Ủy quyền"</strong>. Nó là cầu nối an toàn giúp các tiến trình hệ thống (OS, Launcher) có thể thực thi các hành động giùm ứng dụng của bạn ngay cả khi ứng dụng không còn tồn tại trên RAM. Hãy luôn tuân thủ nguyên tắc bảo mật: Mặc định luôn sử dụng <code>FLAG_IMMUTABLE</code> trừ khi có lý do thực sự chính đáng, và cho mỗi PendingIntent cần tồn tại song song một <code>requestCode</code> riêng.</p>
+<p>Phải dùng PendingIntent khi một process khác thay app kích hoạt Intent:</p>
+
+<ol>
+  <li><strong>Notification:</strong> Khi người dùng click vào thông báo (System UI process).</li>
+  <li><strong>AlarmManager:</strong> Hẹn giờ chạy một tác vụ trong tương lai (ví dụ báo thức). OS sẽ giữ PendingIntent và kích hoạt nó khi đồng hồ điểm.</li>
+  <li><strong>AppWidget (Home Screen Widget):</strong> Khi người dùng tương tác với widget trên màn hình chính (Launcher process).</li>
+</ol>
+
+<p>Không cần PendingIntent khi chính app đang chạy và tự kích hoạt Intent ngay (<code>startActivity</code>, <code>sendBroadcast</code>): khi đó không có bên nào cần được ủy quyền.</p>
+
+<p>Hãy luôn tuân thủ nguyên tắc bảo mật: Mặc định luôn sử dụng <code>FLAG_IMMUTABLE</code> trừ khi có lý do thực sự chính đáng, và cho mỗi PendingIntent cần tồn tại song song một <code>requestCode</code> riêng.</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Không khai báo mutability khi target Android 12+</h3>
+
+<p>Tạo PendingIntent chỉ với <code>FLAG_UPDATE_CURRENT</code> (không có <code>FLAG_IMMUTABLE</code> hay <code>FLAG_MUTABLE</code>) trong app target API 31+ thì lời gọi tạo ném <code>IllegalArgumentException</code> và app crash.</p>
+
+<p><strong>Cách sửa:</strong> luôn kết hợp một cờ mutability, mặc định <code>FLAG_IMMUTABLE</code> (xem mục "Mutability: FLAG_IMMUTABLE và FLAG_MUTABLE").</p>
+
+<h3>2. Nhiều thông báo dùng chung <code>requestCode</code>, chỉ khác extras</h3>
+
+<p>Extras không thuộc danh tính PendingIntent, nên các thông báo này trỏ về cùng một PendingIntent; với <code>FLAG_UPDATE_CURRENT</code>, extras bị ghi đè và bấm thông báo cũ cũng mở nội dung của thông báo mới nhất.</p>
+
+<p><strong>Cách sửa:</strong> cho mỗi thông báo một <code>requestCode</code> riêng (hoặc một <code>data</code> URI riêng), như ví dụ ở mục "Ví dụ thực tế".</p>
+
+<h3>3. Mutable PendingIntent bọc implicit intent</h3>
+
+<p>App nhận có thể điền component/package để chuyển hướng Intent tới component tuỳ ý, chạy dưới danh tính và quyền của app bạn. Với app target Android 14+, lời gọi tạo ném exception.</p>
+
+<p><strong>Cách sửa:</strong> dùng <code>FLAG_IMMUTABLE</code>; nếu bắt buộc mutable thì dùng explicit intent. Không dùng <code>FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT</code> để lách kiểm tra.</p>
+
+<h3>4. Đặt <code>FLAG_IMMUTABLE</code> cho Direct Reply</h3>
+
+<p>System UI không thể nhét text người dùng vừa gõ vào Intent, nên app không nhận được câu trả lời.</p>
+
+<p><strong>Cách sửa:</strong> chỉ trường hợp cần bên giữ hộ điền dữ liệu như Direct Reply mới dùng <code>FLAG_MUTABLE</code>, kèm explicit intent.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>API 1 (Android 1.0):</strong> <code>PendingIntent</code> cùng <code>getActivity()</code>, <code>getBroadcast()</code>, <code>getService()</code> và các cờ <code>FLAG_ONE_SHOT</code>, <code>FLAG_NO_CREATE</code>, <code>FLAG_CANCEL_CURRENT</code> có từ API level đầu tiên.</li>
+  <li><strong>API 3 (Android 1.5):</strong> thêm <code>FLAG_UPDATE_CURRENT</code>.</li>
+  <li><strong>Android 6.0 (API 23):</strong> thêm <code>FLAG_IMMUTABLE</code>.</li>
+  <li><strong>Android 8.0 (API 26):</strong> thêm <code>getForegroundService()</code>.</li>
+  <li><strong>Android 12 (API 31):</strong> thêm <code>FLAG_MUTABLE</code>. Trước đó PendingIntent mặc định là mutable nếu không set <code>FLAG_IMMUTABLE</code>; app target API 31+ phải chỉ định rõ một trong hai cờ, thiếu thì ném <code>IllegalArgumentException</code>.</li>
+  <li><strong>Android 14 (API 34):</strong> app target API 34+ tạo mutable PendingIntent bọc implicit intent sẽ ném <code>IllegalArgumentException</code>; thêm <code>FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT</code> để bỏ qua kiểm tra này (docs khuyên không dùng).</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="explicit_intents.md" target="_blank" rel="noopener">Explicit Intents</a> và <a href="implicit_intents.md" target="_blank" rel="noopener">Implicit Intents</a>: rủi ro bảo mật của PendingIntent phụ thuộc Intent bên trong là explicit hay implicit.</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a>: Activity đích đọc extras của Intent được PendingIntent kích hoạt.</li>
+  <li><a href="push_data_event.md" target="_blank" rel="noopener">Push data and send event via Intent</a>: đặt dữ liệu vào extras của Intent trước khi bọc vào PendingIntent.</li>
+  <li><a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>: nơi nhận PendingIntent tạo bằng <code>getBroadcast()</code> (AlarmManager, nút action trên Notification).</li>
+  <li><a href="../components/services/android_service.md" target="_blank" rel="noopener">Android Service</a>: PendingIntent tạo bằng <code>getService()</code> cho nút điều khiển trên thông báo của foreground service.</li>
+  <li><a href="../components/activity/task_and_backstack.md" target="_blank" rel="noopener">Task and Backstack</a>, mục "Bước 1: Notification mở Activity với đúng Back Stack": dùng <code>TaskStackBuilder</code> để thông báo mở màn hình mà vẫn giữ màn hình cha trong back stack.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong> 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài).</li>
+</ul>
+
+<h2>Nguồn tham khảo</h2>
+
+<ul>
+  <li><a href="https://developer.android.com/reference/android/app/PendingIntent" target="_blank" rel="noopener">PendingIntent (API level của các hàm và cờ, danh tính PendingIntent) — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/guide/components/intents-filters" target="_blank" rel="noopener">Intents and intent filters: Using a pending intent, Specify mutability — Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/android/content/Intent" target="_blank" rel="noopener">Intent (filterEquals, fillIn) — Android Developers Reference</a></li>
+  <li><a href="https://developer.android.com/about/versions/12/behavior-changes-12" target="_blank" rel="noopener">Behavior changes: Android 12 (Pending intents mutability) — Android Developers</a></li>
+  <li><a href="https://developer.android.com/about/versions/14/behavior-changes-14" target="_blank" rel="noopener">Behavior changes: Android 14 (Restrictions to implicit and pending intents) — Android Developers</a></li>
+</ul>
     `
   },
   'data-store-key-value': {

@@ -1,7 +1,7 @@
 ---
 id: android.intent.filters
 title: Intent Filters
-summary: Đi sâu vào Intent Filter — bộ lọc khai báo trong AndroidManifest để đón nhận Implicit Intent. Giải thích chính xác luật khớp Action, Category, Data kèm edge cases, cơ chế Resolution & Priority, Deep Link so với App Links, và tích hợp Share Target + Deep Link vào project MVVM thực tế.
+summary: Intent Filter là thẻ `<intent-filter>` khai báo bên trong Component (activity, service, receiver) trong AndroidManifest, quy định tập hợp Implicit Intent mà Component đó chấp nhận qua 3 bài test Action, Category, Data. Bài giải thích chính xác luật khớp kèm edge cases, cơ chế Resolution & Priority, Deep Link so với App Links, và tích hợp Share Target + Deep Link vào project MVVM thực tế.
 status: published
 difficulty: intermediate
 depth: deep-dive
@@ -33,27 +33,28 @@ Giả sử bạn làm app thương mại điện tử, user bấm vào link `htt
 
 **Intent Filter (Bộ lọc Intent)** chính là "tấm biển quảng cáo" bạn treo trước mỗi Component để nói với OS: *"Tôi có thể xử lý dạng việc này!"* Hiểu sâu cơ chế khớp (matching) của nó quyết định app của bạn có **được liệt kê đúng chỗ** hay **hiện ra lung tung gây khó chịu** cho user.
 
+## Sau khi học xong
+
+- Giải thích được cấu trúc của intent-filter (action, category, data) và 3 bài test khớp Action, Data, Category cùng luật riêng của từng loại.
+- Phân biệt được Deep Link với App Links và cách hệ điều hành chọn app khi nhiều filter cùng khớp.
+- Triển khai được Share Target, Deep Link và App Links (assetlinks.json) cho Activity.
+- Áp dụng được luồng dữ liệu Intent vào ViewModel theo mô hình MVVM (onCreate và onNewIntent).
+- Debug được intent filter bằng adb và tránh được các lỗi thường gặp.
+
 ## Intent Filter là gì?
 
 **Intent Filter** là thẻ `<intent-filter>` khai báo **bên trong** các Component (`<activity>`, `<service>`, `<receiver>`) trong file `AndroidManifest.xml`. Nó quy định tập hợp các **Implicit Intent** mà Component đó chấp nhận.
 
+Mental model: filter là **tấm biển quảng cáo** treo trước Component. Biển ghi ba dòng: **Action** (làm gì), **Category** (trong ngữ cảnh nào), **Data** (trên dữ liệu gì). Khi có Implicit Intent, hệ thống đọc biển của mọi Component trong máy và chỉ chọn những Component có biển khớp cả ba dòng.
+
 > [!NOTE]
 > Component **không** khai báo Intent Filter (chỉ có tên class) thì **chỉ có thể** được gọi bằng Explicit Intent (gọi đích danh class).
 
-> [!WARNING]
-> Intent Filter **KHÔNG phải tường lửa bảo mật**. Nó chỉ giới hạn Implicit Intent. App khác vẫn có thể dùng Explicit Intent để khởi chạy Component **exported** của bạn nếu biết tên package + class.
+## Cách hoạt động
 
-## Khi nào nên / không nên dùng
+Nắm vững 3 bài test — đặc biệt 4 luật Data test và việc so khớp case-sensitive — giúp bạn khai báo filter **đủ hẹp để đúng chỗ, đủ rộng để không sót**, và biết khi nào dùng Deep Link hay nâng cấp lên App Links để trải nghiệm mượt mà hơn.
 
-| Tình huống | Dùng Intent Filter? |
-| --- | --- |
-| App nhận dữ liệu từ app khác/hệ thống (Share, View file/link, Scan QR, Dial...) | ✅ Nên |
-| App đăng ký thành handler mặc định cho một loại link (Deep Link / App Links) | ✅ Nên |
-| Điều hướng nội bộ trong app (màn hình A → màn hình B) | ❌ Không — dùng Explicit Intent hoặc Navigation Component |
-| Nhận dữ liệu nhạy cảm / riêng tư | ❌ Không — dùng Explicit Intent + Signature Permission |
-| "Tôi muốn app hiện ra mọi lúc" | ❌ Không — filter càng rộng càng gây rác UX và rủi ro bảo mật |
-
-## Cấu trúc Intent Filter
+### Cấu trúc Intent Filter
 
 Một `<intent-filter>` chứa 3 nhóm thành phần + thuộc tính priority:
 
@@ -64,7 +65,7 @@ Một `<intent-filter>` chứa 3 nhóm thành phần + thuộc tính priority:
 | `<data>` | Định dạng dữ liệu chấp nhận | scheme `https`, host `shop.com`, mimeType `text/plain` |
 | `android:priority` | Thứ tự gọi receiver của ordered broadcast; với activity, giá trị > 0 của app thường (không phải privileged app) bị hệ thống hạ về `0` | Số nguyên, mặc định `0` |
 
-## Cơ chế khớp (Matching Rules) — Deep-dive
+### Cơ chế khớp (Matching Rules)
 
 Để một Implicit Intent kích hoạt được Component, nó phải vượt qua **CẢ 3 bài test** của filter: **Action → Data → Category** (đúng thứ tự kiểm tra trong `IntentFilter.match()`).
 
@@ -92,7 +93,7 @@ sequenceDiagram
 ```
 <!-- dd: intent-match -->
 
-### 1. Test Action
+#### 1. Test Action
 
 Filter khai báo **0 hoặc nhiều** `<action>`. Luật:
 
@@ -107,7 +108,7 @@ Filter khai báo **0 hoặc nhiều** `<action>`. Luật:
 </intent-filter>
 ```
 
-### 2. Test Category
+#### 2. Test Category
 
 Luật ngược với action:
 
@@ -117,7 +118,7 @@ Luật ngược với action:
 > [!IMPORTANT]
 > Hệ thống **tự động thêm** `android.intent.category.DEFAULT` vào mọi Implicit Intent gửi qua `startActivity()`/`startActivityForResult()`. Vì vậy filter muốn nhận implicit intent **BẮT BUỘC** phải khai báo `android.intent.category.DEFAULT`. Ngoại lệ duy nhất là Launcher Activity (màn hình chính) dùng `CATEGORY_LAUNCHER`.
 
-### 3. Test Data (phức tạp nhất)
+#### 3. Test Data (phức tạp nhất)
 
 `<data>` có thể chứa: `scheme`, `host`, `port`, `path` / `pathPrefix` / `pathPattern`, `mimeType`, `ssp` (scheme specific part). Có hai mặt: **so khớp URI** và **so khớp MIME type**.
 
@@ -132,7 +133,7 @@ Luật ngược với action:
 **So khớp MIME type** — hỗ trợ wildcard subtype: `text/*` khớp `text/plain`, `text/html`; `*/*` khớp mọi loại.
 
 > [!WARNING]
-> Scheme, host, path và MIME type đều so khớp **CASE-SENSITIVE** (khác với chuẩn RFC). Luôn dùng **chữ thường**: `https`, `shop.com`, `text/plain`. Dùng chữ hoa là lỗi tinh vi khó debug.
+> Scheme, host và MIME type đều so khớp **CASE-SENSITIVE** (khác với chuẩn RFC); path cũng phân biệt hoa thường. Luôn dùng **chữ thường**: `https`, `shop.com`, `text/plain`. Dùng chữ hoa là lỗi tinh vi khó debug.
 
 **4 luật chính thức quyết định match/trượt** (từ Official Docs):
 
@@ -152,7 +153,7 @@ Khi **nhiều filter** cùng khớp, kết quả như sau. `android:priority` **
 - **1 filter khớp** → mở thẳng Component.
 - **n filter khớp** → hiện hộp thoại chọn app (hoặc mở thẳng app mặc định nếu user đã chọn "Luôn luôn"). Riêng link web `http`/`https` từ Android 12: chỉ app đã xác minh App Links (hoặc được user cho phép) mới được mở, còn lại link mở bằng trình duyệt.
 
-## Hướng dẫn triển khai thực tế
+## Ví dụ thực tế
 
 ### Bài toán 1: Nhận "Chia sẻ Text" (Share Target)
 
@@ -173,8 +174,7 @@ App ghi chú muốn hiện ra khi user Share văn bản từ Chrome/Zalo.
 </activity>
 ```
 
-> [!WARNING]
-> Với targetSdk 31+ (Android 12), Component có `<intent-filter>` phải khai báo **`android:exported`** tường minh (`"true"` nếu muốn app khác gọi được); thiếu thì build lỗi ở bước manifest merger, APK dựng bằng công cụ cũ thì không cài được, chi tiết ở [Manifest Tags](../android_manifest/tags.md), mục "android:exported — quy tắc quan trọng nhất từ Android 12".
+`android:exported="true"` phải khai báo tường minh vì Component có `<intent-filter>`, xem "Sai lầm thường gặp", mục 2.
 
 **Xử lý trong Activity (theo luật Data rule 3):**
 
@@ -271,7 +271,42 @@ Sau khi cài app, kiểm tra trạng thái xác minh bằng `adb shell pm get-ap
 
 **Luồng dữ liệu:** Deep Link → Activity (Presentation) → ViewModel (UI State) → Repository (Data).
 
-**Activity xử lý cả 2 đường (cold start + warm start):** cold start đọc Intent trong `onCreate()`, warm start nhận Intent mới qua `onNewIntent()`. Khi nào hệ thống gọi `onNewIntent()` và vì sao cần `setIntent()` được giải thích ở [Handle Intent](handle_intent.md), mục "3. Bí ẩn của onNewIntent() và Launch Modes".
+> [!NOTE]
+> Kiến thức dùng trước: `@AndroidEntryPoint`/`@HiltViewModel` là annotation của Hilt (thư viện Dependency Injection), học ở 7.1.5.3 Hilt (chưa có bài); `ViewModel` và `viewModelScope` (coroutine scope gắn với ViewModel) học ở 6.4 ViewModel (chưa có bài); `StateFlow` là luồng trạng thái quan sát được, học ở 7.1.4.2 Flow (chưa có bài).
+
+**Activity xử lý cả 2 đường (cold start + warm start):** cold start đọc Intent trong `onCreate()`, warm start nhận Intent mới qua `onNewIntent()`. Khi nào hệ thống gọi `onNewIntent()` và vì sao cần `setIntent()` được giải thích ở [Handle Intent](handle_intent.md), mục "onNewIntent() và Launch Modes".
+
+Luồng khi user bấm link khuyến mãi:
+
+1. User bấm `https://shop.com/promo/2026`; hệ thống chạy 3 bài test và đưa intent tới `PromoActivity` nhờ filter ở Bài toán 2 (từ Android 12, link `https` cần domain đã xác minh như Bài toán 3 hoặc được user cho phép).
+2. Cold start: chưa có `PromoActivity` đang sống → `onCreate()` đọc `intent` và gọi `handleDeepLink()`.
+3. Warm start: `PromoActivity` đang sống được tái sử dụng (vd `launchMode="singleTop"`) → `onNewIntent()` gọi `setIntent()` rồi `handleDeepLink()` với intent mới.
+4. `handleDeepLink()` lấy `promoId` từ query `promoId`, không có thì lấy `lastPathSegment`, rồi gọi `viewModel.loadPromo(promoId)`.
+5. ViewModel đặt `uiState` về `Loading` và gọi `repository.getPromo(promoId)`.
+6. Kết quả (`Result`) được `fold` thành `PromoUiState.Success` hoặc `PromoUiState.Error`.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant OS as Hệ thống
+    participant A as PromoActivity
+    participant VM as PromoViewModel
+    participant R as PromoRepository
+
+    User->>OS: (1) Bấm https://shop.com/promo/2026
+    OS->>OS: (1) Khớp filter VIEW + BROWSABLE + https://shop.com/promo
+    alt Chưa có PromoActivity đang sống (cold start)
+        OS->>A: (2) onCreate() → handleDeepLink(intent)
+    else PromoActivity được tái sử dụng (singleTop)
+        OS->>A: (3) onNewIntent() → setIntent() → handleDeepLink(intent)
+    end
+    A->>A: (4) promoId = query "promoId" hoặc lastPathSegment
+    A->>VM: (4) loadPromo(promoId)
+    VM->>VM: (5) uiState = Loading
+    VM->>R: (5) getPromo(promoId)
+    R-->>VM: (6) Result
+    VM->>VM: (6) fold → Success / Error
+```
 
 ```kotlin
 @AndroidEntryPoint // Hilt cung cấp PromoViewModel (có tham số repository) cho by viewModels()
@@ -281,11 +316,11 @@ class PromoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Lần đầu tạo: đọc từ onCreate
+        // (2) Lần đầu tạo: đọc từ onCreate
         handleDeepLink(intent)
     }
 
-    // Chỉ được gọi khi PromoActivity đang sống được tái sử dụng (vd launchMode="singleTop"
+    // (3) Chỉ được gọi khi PromoActivity đang sống được tái sử dụng (vd launchMode="singleTop"
     // hoặc FLAG_ACTIVITY_SINGLE_TOP); với launchMode standard mỗi link tạo instance mới qua onCreate
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -295,6 +330,7 @@ class PromoActivity : AppCompatActivity() {
     }
 
     private fun handleDeepLink(intent: Intent?) {
+        // (4) Ưu tiên query "promoId", không có thì lấy đoạn cuối của path
         val promoId = intent?.data?.getQueryParameter("promoId")
             ?: intent?.data?.lastPathSegment
         if (promoId != null) viewModel.loadPromo(promoId)
@@ -313,9 +349,9 @@ class PromoViewModel @Inject constructor(
 
     fun loadPromo(promoId: String) {
         viewModelScope.launch {
-            _uiState.value = PromoUiState.Loading
-            _uiState.value = repository.getPromo(promoId)
-                .fold(
+            _uiState.value = PromoUiState.Loading // (5)
+            _uiState.value = repository.getPromo(promoId) // (5)
+                .fold( // (6)
                     onSuccess = { PromoUiState.Success(it) },
                     onFailure = { PromoUiState.Error(it.message) }
                 )
@@ -324,24 +360,9 @@ class PromoViewModel @Inject constructor(
 }
 ```
 
-## Các lỗi thường gặp (Pitfalls)
+**Kết quả:** dù link mở app lần đầu (`onCreate`) hay tới lúc `PromoActivity` đang được tái sử dụng (`onNewIntent`), dữ liệu đều đi qua một đường duy nhất `handleDeepLink()` → `loadPromo()`, và màn hình hiển thị theo `uiState`. Kiểm chứng bằng lệnh `adb shell am start` ở mục "Testing Intent Filter" ngay dưới.
 
-> [!DANGER]
-> **Quên `CATEGORY_DEFAULT`** — Filter có đủ action + data chuẩn nhưng `startActivity()` vẫn ném `ActivityNotFoundException`. Hệ thống luôn nhét ngầm `CATEGORY_DEFAULT` vào implicit intent, filter thiếu nó là trượt test category.
-
-> [!DANGER]
-> **Khai báo `mimeType="*/*"`** — App hiện ra ở **mọi** hộp thoại Share của máy, gây rác trải nghiệm. Càng tệ hơn, app nhận cả video/ảnh mà bạn không code xử lý → crash lúc runtime.
-
-> [!WARNING]
-> **Filter quá rộng** — Khai `scheme="http"` trần (không host) nghĩa là app bạn xuất hiện khi mở **mọi** link http trên máy. Luôn kèm `host` (và lý tưởng là `pathPrefix`).
-
-> [!WARNING]
-> **Nhầm Deep Link với App Links** — Không có `autoVerify` + `assetlinks.json` thì từ Android 12 link web mở bằng trình duyệt (Android 11 trở xuống thì hiện hộp thoại chọn app); user phải tự bật "Mở link được hỗ trợ" trong cài đặt app.
-
-> [!TIP]
-> **MIME chỉ `text/plain` thì đừng mong mở file cục bộ** — Theo rule 4, filter chỉ có MIME mới ngầm hỗ trợ `content:`/`file:`. Nếu muốn nhận link https + file PDF, tách **2 filter riêng**.
-
-## Testing Intent Filter
+### Testing Intent Filter
 
 ```bash
 # 1. Test Deep Link: giả lập user bấm link
@@ -385,10 +406,79 @@ class ShareFilterTest {
 }
 ```
 
-> [!NOTE]
-> Từ **Android 11 (API 30)**, để `resolveActivity()`/`queryIntentActivities()` nhìn thấy filter của app khác, phải khai báo `<queries>` trong manifest của app gọi. Đây là cơ chế Package Visibility.
+Cách viết unit test nói chung ở [Unit Testing](../../coding_analyst_and_testing/unit_testing.md).
 
-## Tư duy hệ thống
+> [!NOTE]
+> Với app gọi target **Android 11 (API 30)** trở lên, để `resolveActivity()`/`queryIntentActivities()` nhìn thấy filter của app khác, phải khai báo `<queries>` trong manifest của app gọi. Đây là cơ chế Package Visibility.
+
+## Khi nào nên và không nên dùng
+
+| Tình huống | Dùng Intent Filter? |
+| --- | --- |
+| App nhận dữ liệu từ app khác/hệ thống (Share, View file/link, Scan QR, Dial...) | ✅ Nên |
+| App đăng ký thành handler mặc định cho một loại link (Deep Link / App Links) | ✅ Nên |
+| Điều hướng nội bộ trong app (màn hình A → màn hình B) | ❌ Không — dùng Explicit Intent hoặc Navigation Component |
+| Nhận dữ liệu nhạy cảm / riêng tư | ❌ Không — dùng Explicit Intent + Signature Permission |
+| "Tôi muốn app hiện ra mọi lúc" | ❌ Không — filter càng rộng càng gây rác UX và rủi ro bảo mật |
+
+## Sai lầm thường gặp
+
+### 1. Quên `CATEGORY_DEFAULT`
+
+**Quên `CATEGORY_DEFAULT`** — Filter có đủ action + data chuẩn nhưng `startActivity()` vẫn ném `ActivityNotFoundException`. Hệ thống luôn nhét ngầm `CATEGORY_DEFAULT` vào implicit intent, filter thiếu nó là trượt test category.
+
+**Cách sửa:** thêm `<category android:name="android.intent.category.DEFAULT" />` vào mọi filter của Activity muốn nhận implicit intent (xem mục "2. Test Category").
+
+### 2. Thiếu `android:exported` khi targetSdk 31+
+
+Với targetSdk 31+ (Android 12), Component có `<intent-filter>` phải khai báo **`android:exported`** tường minh (`"true"` nếu muốn app khác gọi được); thiếu thì build lỗi ở bước manifest merger, APK dựng bằng công cụ cũ thì không cài được, chi tiết ở [Manifest Tags](../android_manifest/tags.md), mục "android:exported — quy tắc quan trọng nhất từ Android 12".
+
+**Cách sửa:** khai báo `android:exported` trên mọi `<activity>`, `<service>`, `<receiver>` có `<intent-filter>`, như manifest ở Bài toán 1.
+
+### 3. Khai báo `mimeType="*/*"`
+
+**Khai báo `mimeType="*/*"`** — App hiện ra ở **mọi** hộp thoại Share của máy, gây rác trải nghiệm. Càng tệ hơn, app nhận cả video/ảnh mà bạn không code xử lý → crash lúc runtime.
+
+**Cách sửa:** chỉ khai báo MIME type mà Component thực sự xử lý được, như `text/plain` ở Bài toán 1.
+
+### 4. Filter quá rộng
+
+**Filter quá rộng** — Khai `scheme="http"` trần (không host) nghĩa là app bạn xuất hiện khi mở **mọi** link http trên máy. Luôn kèm `host` (và lý tưởng là `pathPrefix`).
+
+**Cách sửa:** khai báo đủ scheme + host + pathPrefix như filter ở Bài toán 2.
+
+### 5. Nhầm Deep Link với App Links
+
+**Nhầm Deep Link với App Links** — Không có `autoVerify` + `assetlinks.json` thì từ Android 12 link web mở bằng trình duyệt (Android 11 trở xuống thì hiện hộp thoại chọn app); user phải tự bật "Mở link được hỗ trợ" trong cài đặt app.
+
+**Cách sửa:** làm đủ hai bước của Bài toán 3 và kiểm tra bằng `adb shell pm get-app-links`.
+
+### 6. Dồn link web và file cục bộ vào một filter
+
+**MIME chỉ `text/plain` thì đừng mong mở file cục bộ** — Theo rule 4, filter chỉ có MIME mới ngầm hỗ trợ `content:`/`file:`. Nếu muốn nhận link https + file PDF, tách **2 filter riêng**.
+
+**Cách sửa:** mỗi loại dữ liệu một `<intent-filter>` riêng (xem TIP "Hệ quả thực tế" ở mục "3. Test Data").
+
+### 7. Coi Intent Filter là tường lửa bảo mật
+
+Intent Filter **KHÔNG phải tường lửa bảo mật**. Nó chỉ giới hạn Implicit Intent. App khác vẫn có thể dùng Explicit Intent để khởi chạy Component **exported** của bạn nếu biết tên package + class.
+
+**Cách sửa:** Component không cần cho app khác gọi thì để `android:exported="false"` (xem [Manifest Tags](../android_manifest/tags.md)); dữ liệu nhạy cảm thì dùng Explicit Intent + Signature Permission thay vì Intent Filter (bảng ở mục "Khi nào nên và không nên dùng"). Từ Android 13, app target 33+ chỉ nhận intent từ app ngoài khi intent khớp action và category của một filter (xem Lịch sử phát triển), nhưng app khác vẫn tự tạo được intent khớp filter đó.
+
+## Lịch sử phát triển
+
+- **API level 1:** `<intent-filter>`, `<data>` và class `IntentFilter` có từ phiên bản đầu tiên; luật khớp Action, Category, Data là nền móng của Implicit Intent.
+- **Android 6.0 (API 23):** Android App Links. Khi một filter có `android:autoVerify="true"`, hệ thống tự xác minh các host qua `https://<host>/.well-known/assetlinks.json` lúc cài app.
+- **Android 11 (API 30):** Package Visibility. App target 30+ chỉ thấy app khác qua `queryIntentActivities()`/`resolveActivity()` khi khai báo `<queries>`.
+- **Android 12 (API 31):**
+  - Web intent resolution (áp dụng cho mọi app chạy trên Android 12): link web chung chỉ mở vào app đã được duyệt cho domain đó (xác minh App Links hoặc user cho phép), còn lại mở bằng trình duyệt mặc định.
+  - App target 31+ phải khai báo `android:exported` cho Component có `<intent-filter>`.
+  - Có lệnh `adb shell pm verify-app-links` / `pm get-app-links` để xác minh và xem trạng thái App Links thủ công.
+- **Android 13 (API 33):** app target 33+ chỉ nhận intent từ app ngoài vào Component exported khi intent khớp action và category của một `<intent-filter>` (Component không khai báo filter thì không áp dụng); app gửi tới app target 33+ mà không khớp thì bị `ActivityNotFoundException`.
+
+## Kết nối hệ thống
+
+### Vị trí trong kiến trúc MVVM
 
 Intent Filter nằm ở **tầng Manifest / Presentation** của kiến trúc — nó chỉ là "cửa ngõ" nhận Intent, **không** chứa logic nghiệp vụ. Pattern chuẩn trong project MVVM / Single-Activity:
 
@@ -399,15 +489,26 @@ Intent Filter nằm ở **tầng Manifest / Presentation** của kiến trúc �
 
 Giữ filter hẹp, Activity mỏng, logic nghiệp vụ ở ViewModel/Repository — đây là điểm khác biệt giữa code "chạy được" và code "dễ bảo trì".
 
-## Tổng kết
+### Topic liên quan
 
-Intent Filter là cơ chế phân loại implicit intent của Android: **Action** (làm gì), **Category** (trong ngữ cảnh nào), **Data** (trên dữ liệu gì). Nắm vững 3 bài test — đặc biệt 4 luật Data test và việc so khớp case-sensitive — giúp bạn khai báo filter **đủ hẹp để đúng chỗ, đủ rộng để không sót**, và biết khi nào dùng Deep Link hay nâng cấp lên App Links để trải nghiệm mượt mà hơn.
+- **Tiên quyết:** [Implicit Intents](implicit_intents.md) (Intent ngầm mà filter đón nhận) và [Manifest Tags](../android_manifest/tags.md) (nơi khai báo `<intent-filter>` và quy tắc `android:exported`).
+- **Liên quan:**
+  - [Explicit Intents](explicit_intents.md): gọi đích danh class, không đi qua Intent Filter.
+  - [Task and Backstack](../components/activity/task_and_backstack.md): `launchMode="singleTop"` và `FLAG_ACTIVITY_SINGLE_TOP` quyết định khi nào Deep Link đi vào `onNewIntent()`.
+  - [Broadcast Receiver](../components/broadcast/broadcast_receiver.md): nơi `android:priority` của filter có ý nghĩa (ordered broadcast).
+- **Học tiếp:**
+  - [Handle Intent](handle_intent.md): đọc dữ liệu từ Intent, `onNewIntent()` và Launch Modes.
+  - [Push data and send event via Intent](push_data_event.md): truyền dữ liệu và sự kiện qua Intent.
+  - 7.2.3 MVVM (chưa có bài), 6.4 ViewModel (chưa có bài), 7.1.5.3 Hilt (chưa có bài): kiến trúc và công cụ mà Bài toán 4 dựa vào.
 
 ## Nguồn tham khảo
 
 - Android Developers — [Intents and intent filters](https://developer.android.com/guide/components/intents-filters)
 - Android Developers — [IntentFilter API reference](https://developer.android.com/reference/android/content/IntentFilter)
+- Android Developers — [data element (case-sensitive scheme/host/MIME)](https://developer.android.com/guide/topics/manifest/data-element)
 - Android Developers — [Handle Android app links](https://developer.android.com/training/app-links)
 - Android Developers — [Verify Android App Links](https://developer.android.com/training/app-links/verify-android-applinks)
 - Android Developers — [intent-filter element (android:priority)](https://developer.android.com/guide/topics/manifest/intent-filter-element)
+- Android Developers — [Package visibility filtering (Android 11)](https://developer.android.com/training/package-visibility)
 - Android Developers — [Behavior changes: Android 12 (exported, web intent resolution)](https://developer.android.com/about/versions/12/behavior-changes-12)
+- Android Developers — [Behavior changes: all apps on Android 12 (web intent resolution)](https://developer.android.com/about/versions/12/behavior-changes-all)
