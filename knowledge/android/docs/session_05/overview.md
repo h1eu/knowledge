@@ -5,7 +5,7 @@ summary: Tổng quan Session 05 — ba trụ cột làm nên ứng dụng Androi
 status: published
 difficulty: intermediate
 depth: overview
-estimated_reading_time: 20 phút
+estimated_reading_time: 10 phút
 tags: [android, session05, overview, data-store, room, datastore, shared-preferences, threading, networking]
 prerequisites:
   - android.languages.java_android
@@ -83,198 +83,37 @@ Vai trò của Session 05 trong lộ trình:
 
 ## Session 05 học những gì?
 
+Mỗi Topic dưới đây chỉ được tóm tắt: vấn đề nó giải quyết và khi nào dùng. Cơ chế, code và sai lầm thường gặp nằm trong bài của từng Topic.
+
 | Phần | Topic | Câu hỏi trả lời |
 |---|---|---|
-| 5.1 Data Store | Key-Value Storage | Lưu dữ liệu nhỏ dạng cặp key-value bằng gì? |
-| 5.1 Data Store | Relational Database (Room) | Lưu dữ liệu có cấu trúc, quan hệ, truy vấn phức tạp bằng gì? |
-| 5.1 Data Store | Advanced Room | App đã phát hành mà thay đổi database thì sao? Truy vấn nhanh hơn thế nào? |
-| 5.1 Data Store | Async Transactions & Flow | Đọc ghi database trong thread nào cho đúng, và theo dõi dữ liệu tự động như thế nào? |
-| 5.2 Working with Thread | Thread | Việc nặng (IO, tính toán) chạy ở đâu để UI không đóng băng? |
-| 5.3 Networking | Networking | Gọi API như thế nào, xử lý mất mạng, và theo dõi trạng thái kết nối ra sao? |
+| 5.1 Data Store | [Key-Value Storage](data_store/key_value.md) | Lưu dữ liệu nhỏ dạng cặp key-value bằng gì? |
+| 5.1 Data Store | [Relational Database (Room)](data_store/room_architecture.md) | Lưu dữ liệu có cấu trúc, quan hệ, truy vấn phức tạp bằng gì? |
+| 5.1 Data Store | [Advanced Room](data_store/room_advanced.md) | App đã phát hành mà thay đổi database thì sao? Truy vấn nhanh hơn thế nào? |
+| 5.1 Data Store | [Async Transactions & Flow](data_store/room_transactions.md) | Đọc ghi database trong thread nào cho đúng, và theo dõi dữ liệu tự động như thế nào? |
+| 5.2 Working with Thread | [Working with Thread](working_with_thread.md) | Việc nặng (IO, tính toán) chạy ở đâu để UI không đóng băng? |
+| 5.3 Networking | [Networking](networking.md) | Gọi API như thế nào, xử lý mất mạng, và theo dõi trạng thái kết nối ra sao? |
 
 ### 5.1 Data Store — Dữ liệu ở đâu?
 
-Đây là phần lớn nhất và quan trọng nhất của Session 05, gồm 4 topic đi từ đơn giản đến phức tạp.
+Đây là phần lớn nhất và quan trọng nhất của Session 05, gồm 4 topic đi từ đơn giản đến phức tạp:
 
-#### 5.1.1 Key-Value Storage (SharedPreferences & DataStore)
-
-**Vấn đề cần giải quyết**: lưu một lượng nhỏ dữ liệu đơn giản dạng khóa → giá trị: token đăng nhập, cờ "đã xem hướng dẫn lần đầu", theme đã chọn, số lần mở app. Không cần truy vấn phức tạp.
-
-**Bản chất**: một file XML (SharedPreferences) hoặc file protobuf/Preferences DataStore chứa toàn bộ các cặp key-value. Đọc toàn bộ vào bộ nhớ khi cần.
-
-**Khi nào dùng**:
-
-- Nên: token, session, cài đặt UI, cache nhỏ, dữ liệu không cần truy vấn.
-- Không nên: dữ liệu lớn, dữ liệu cần tìm kiếm/sắp xếp, dữ liệu quan hệ.
-
-**Điểm mấu chốt khi code** (DataStore — bản thay thế hiện đại của SharedPreferences):
-
-```kotlin
-// DataStore: an toàn với coroutine, tự theo dõi thay đổi qua Flow
-val Context.dataStore by preferencesDataStore(name = "user_prefs")
-
-val USER_TOKEN = stringPreferencesKey("user_token")
-
-// Ghi
-suspend fun saveToken(token: String) {
-    context.dataStore.edit { prefs ->
-        prefs[USER_TOKEN] = token
-    }
-}
-
-// Đọc — trả về Flow, UI tự cập nhật khi dữ liệu đổi
-val tokenFlow: Flow<String?> = context.dataStore.data
-    .map { prefs -> prefs[USER_TOKEN] }
-```
-
-#### 5.1.2 Relational Database (Room)
-
-**Vấn đề cần giải quyết**: lưu dữ liệu có cấu trúc, số lượng lớn, cần truy vấn theo nhiều điều kiện: danh sách sản phẩm, lịch sử đơn hàng, hồ sơ người dùng. SharedPreferences không làm được.
-
-**Bản chất**: Room là **lớp trừu tượng (abstraction layer)** bọc trên SQLite, làm vai trò gần giống ORM — bạn khai báo Entity, DAO, Database, Room tự sinh code SQLite. Kiểm tra lỗi truy vấn ngay lúc **biên dịch** (compile-time) thay vì lúc chạy.
-
-**Khi nào dùng**: dữ liệu có cấu trúc, cần truy vấn (WHERE, JOIN, ORDER BY), dữ liệu offline-first (app chính là database).
-
-**Điểm mấu chốt khi code**:
-
-```kotlin
-@Entity(tableName = "products")
-data class Product(
-    @PrimaryKey val id: Int,
-    val name: String,
-    val price: Double
-)
-
-@Dao
-interface ProductDao {
-    @Query("SELECT * FROM products WHERE price > :minPrice ORDER BY price DESC")
-    suspend fun getExpensiveProducts(minPrice: Double): List<Product>
-}
-
-@Database(entities = [Product::class], version = 1)
-abstract class AppDatabase : RoomDatabase() {
-    abstract fun productDao(): ProductDao
-}
-```
-
-#### 5.1.3 Advanced Room (Migration & Indexing)
-
-**Vấn đề cần giải quyết**: app đã phát hành, user đã có database cũ (version 1). Bạn thêm cột, thêm bảng cho bản update (version 2). Nếu không xử lý, app của user sẽ **crash** vì schema không khớp. Đồng thời truy vấn chậm dần khi dữ liệu lớn.
-
-**Bản chất**: hai kỹ thuật:
-
-- **Migration**: dạy Room cách chuyển database từ version cũ sang mới, giữ nguyên dữ liệu user.
-- **Indexing**: đánh index cho cột hay dùng trong WHERE/JOIN để truy vấn không quét toàn bộ bảng.
-
-**Điểm mấu chốt khi code**:
-
-```kotlin
-val MIGRATION_1_2 = object : Migration(1, 2) {
-    override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE products ADD COLUMN stock_count INTEGER NOT NULL DEFAULT 0")
-    }
-}
-
-// Đăng ký khi build database
-Room.databaseBuilder(context, AppDatabase::class.java, "app.db")
-    .addMigrations(MIGRATION_1_2)
-    .build()
-
-// Index cho cột truy vấn thường xuyên
-@Entity(
-    tableName = "products",
-    indices = [Index(value = ["category_id"])]
-)
-data class Product(...)
-```
-
-#### 5.1.4 Async Transactions & Flow
-
-**Vấn đề cần giải quyết**: database là tài nguyên dùng chung và là điểm chậm. Ghi trên UI thread → app đơ. Ghi cùng lúc từ nhiều nơi → dữ liệu hỏng. Ngoài ra, UI cần **tự cập nhật** khi database thay đổi thay vì phải tự hỏi lại.
-
-**Bản chất**: Room tích hợp sẵn coroutine (suspend, Flow) — hàm DAO `suspend` và DAO trả `Flow` tự chạy truy vấn trên background thread (hàm DAO thường, không suspend, vẫn chặn thread gọi nó), và DAO có thể trả về `Flow` để UI nhận dữ liệu mới mỗi khi bảng thay đổi.
-
-**Điểm mấu chốt khi code**:
-
-```kotlin
-// Đọc theo dõi tự động — mỗi lần bảng products đổi, Flow emit lại
-@Query("SELECT * FROM products")
-fun observeAllProducts(): Flow<List<Product>>
-
-// Ghi trong transaction — đảm bảo toàn vẹn khi ghi nhiều bảng
-@Transaction
-suspend fun checkout(cartItems: List<CartItem>, total: Double) {
-    // Các thao tác trong đây chạy trong một transaction
-    // Nếu một bước fail, toàn bộ rollback
-}
-```
+- **[5.1.1 Key-Value Storage](data_store/key_value.md)** (SharedPreferences & DataStore): lưu một lượng nhỏ dữ liệu đơn giản dạng key-value như token đăng nhập, cờ "đã xem hướng dẫn lần đầu", theme đã chọn. Toàn bộ các cặp key-value nằm trong một file được đọc vào bộ nhớ, nên không dùng cho dữ liệu lớn, cần tìm kiếm/sắp xếp hay có quan hệ.
+- **[5.1.2 Relational Database (Room)](data_store/room_architecture.md)**: Room là lớp trừu tượng bọc trên SQLite (Entity, DAO, Database), kiểm tra lỗi truy vấn ngay lúc biên dịch. Dùng cho dữ liệu có cấu trúc, số lượng lớn, cần truy vấn (WHERE, JOIN, ORDER BY) và app offline-first.
+- **[5.1.3 Advanced Room](data_store/room_advanced.md)** (Migration & Indexing): migration dạy Room chuyển database của user từ version cũ sang mới mà giữ nguyên dữ liệu, thiếu nó thì app crash khi schema đổi; index cho cột hay dùng trong WHERE/JOIN để truy vấn không quét toàn bộ bảng.
+- **[5.1.4 Async Transactions & Flow](data_store/room_transactions.md)**: hàm DAO `suspend` và DAO trả `Flow` tự chạy truy vấn ngoài main thread (hàm DAO thường thì chặn thread gọi nó); `Flow` phát lại dữ liệu mỗi khi bảng thay đổi để UI tự cập nhật; transaction gom nhiều bước ghi thành một, một bước lỗi thì rollback toàn bộ.
 
 ### 5.2 Working with Thread — Việc nặng chạy ở đâu?
 
-**Vấn đề cần giải quyết**: UI thread (main thread) chịu trách nhiệm vẽ màn hình. Nếu nó bận xử lý việc khác quá lâu (> 16ms mỗi frame), app đóng băng (jank) và nếu lâu hơn 5 giây thì **ANR (Application Not Responding)** — hệ thống hỏi user "đóng hay chờ?".
-
-**Bản chất**: thread là đơn vị thực thi trong process. App có UI thread (chỉ được cập nhật UI ở đây) và cần các background thread cho việc IO/tính toán nặng.
-
-**Khi nào dùng**:
-
-- Phải dùng background thread: đọc ghi database, gọi API, đọc file, parse JSON, nén ảnh.
-- Không dùng background thread: cập nhật View, thao tác nhanh trong bộ nhớ.
-
-**Điểm mấu chốt khi code** (cách truyền thống bằng thread pool — Session 08 sẽ thay thế bằng Coroutines):
-
-```kotlin
-// Sai: gọi API trên UI thread → crash
-fun loadDataBad() {
-    val result = api.fetchData()   // Crash: NetworkOnMainThreadException
-    textView.text = result
-}
-
-// Đúng: giao việc cho một thread pool dùng chung, trả kết quả về UI thread
-// (pool tạo một lần cho cả app, không tạo Thread mới cho mỗi việc)
-private val ioExecutor: ExecutorService = Executors.newFixedThreadPool(4)
-
-fun loadDataGood() {
-    ioExecutor.execute {
-        val result = api.fetchData()
-        runOnUiThread {
-            textView.text = result
-        }
-    }
-}
-```
-
-Tạo `Thread { ... }.start()` thủ công vẫn chạy đúng, nhưng có hạn chế: mỗi thread tốn chi phí tạo, không giới hạn được số lượng khi có nhiều việc, và khó hủy theo lifecycle. Vì vậy với việc nền thông thường nên ưu tiên thread pool dùng chung như trên, hoặc coroutine (`Dispatchers.IO`) trong app hiện đại. Chi tiết ở [Working with Thread](working_with_thread.md), mục "1.3 Chi phí thực sự khi tạo một Thread" và mục "5. Quản lý luồng công nghiệp: ThreadPoolExecutor & ExecutorService".
+UI thread vẽ màn hình; bận quá lâu trong một frame (khoảng 16ms ở 60Hz) thì app giật, bị chặn khoảng 5 giây thì gặp ANR. Việc IO và tính toán nặng (database, gọi API, đọc file, parse JSON, nén ảnh) phải chạy trên background thread, còn cập nhật View thì luôn ở UI thread. Bài [Working with Thread](working_with_thread.md) dạy cách chuyển việc sang thread pool dùng chung và trả kết quả về UI thread; Session 08 thay cách này bằng Coroutines.
 
 ### 5.3 Networking — Dữ liệu lấy từ đâu?
 
-**Vấn đề cần giải quyết**: app cần dữ liệu từ server: danh sách sản phẩm, giá mới, tin tức. Đồng thời mạng không phải lúc nào cũng có — phải xử lý request thất bại, timeout, mất kết nối và biết khi nào mạng khôi phục để gọi lại.
+App cần dữ liệu từ server, trong khi mạng không phải lúc nào cũng có. Bài [Networking](networking.md) gồm đúng 3 mảng của tiêu đề nav:
 
-**Bản chất**: Networking trong Session 05 gồm 3 mảng:
-
-1. **Request API** — gửi HTTP request, nhận response (dùng thư viện như Retrofit/OkHttp, được học sâu ở Session 08; ở đây học nguyên lý request-response).
-2. **Handle event network** — xử lý thành công/thất bại: retry, timeout, hiển thị lỗi thân thiện.
-3. **Handle connection state** — theo dõi trạng thái mạng (Wifi/4G/offline) qua ConnectivityManager, phản hồi UI tương ứng (ví dụ: offline banner).
-
-**Khi nào dùng**: app nào hiển thị dữ liệu không nằm sẵn trong app — gần như mọi app thương mại.
-
-**Điểm mấu chốt khi code** (theo dõi trạng thái mạng):
-
-```kotlin
-val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-// Đăng ký lắng nghe thay đổi kết nối
-val networkCallback = object : ConnectivityManager.NetworkCallback() {
-    override fun onAvailable(network: Network) {
-        // Mạng có — gọi lại API bị fail trước đó
-    }
-
-    override fun onLost(network: Network) {
-        // Mất mạng — hiển thị offline banner, dừng retry
-    }
-}
-
-connectivityManager.registerDefaultNetworkCallback(networkCallback)
-```
+1. **Request API**: gửi HTTP request, nhận response, theo nguyên lý request-response (thư viện Retrofit/OkHttp được học sâu ở Session 08).
+2. **Handle event network**: xử lý thành công/thất bại, retry, timeout, hiển thị lỗi thân thiện.
+3. **Handle connection state**: theo dõi trạng thái mạng qua `ConnectivityManager` và phản hồi UI tương ứng (ví dụ: báo đang offline).
 
 ## Mối liên hệ giữa ba phần
 
@@ -307,7 +146,7 @@ Trước khi bắt đầu Session 05, bạn cần nắm:
 - **Manifest & Activity** (Session 04): hiểu được Activity/Fragment là gì — vì bạn sẽ đọc ghi database ngay trong các thành phần này. Đặc biệt nắm lifecycle (onCreate/onDestroy) để biết thời điểm khởi tạo/hủy tài nguyên.
 - **Process & app chạy thế nào** (Session 02): hữu ích để hiểu vì sao app bị giết khi ở background — liên quan trực tiếp đến việc dữ liệu có bị mất hay không.
 
-Nếu chưa vững Kotlin, hãy ôn lại `android.languages.kotlin` trước — toàn bộ session này là Kotlin.
+Nếu chưa vững Kotlin, hãy ôn lại [Kotlin](../session_01/languages/kotlin.md) trước — toàn bộ session này là Kotlin.
 
 ## Sau khi học xong Session 05, bạn làm được gì?
 

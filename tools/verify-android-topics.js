@@ -246,6 +246,16 @@ function hasCodeBlock(md) {
 // ==================================================================
 // Find all topic .md files
 // ==================================================================
+// Trang tổng quan của session không phải Topic nên không audit theo lesson template:
+// index.md ở mọi cấp, và overview.md ở gốc thư mục session khi thư mục đó không có index.md
+// (vd session_05/overview.md = 5.0 Session 05 Overview). Cùng quy tắc với tools/sync_android_session.js.
+function isSessionOverview(dir, name, rel) {
+  if (name === 'index.md') return true;
+  const parent = path.dirname(rel);
+  const atSessionRoot = parent !== '.' && !parent.includes(path.sep);
+  return name === 'overview.md' && atSessionRoot && !fs.existsSync(path.join(dir, 'index.md'));
+}
+
 function findTopicFiles(docsDir) {
   const files = [];
 
@@ -255,7 +265,7 @@ function findTopicFiles(docsDir) {
       const entryRel = path.join(rel, entry.name);
       if (entry.isDirectory()) {
         walk(path.join(dir, entry.name), entryRel);
-      } else if (entry.name.endsWith('.md') && entry.name !== 'index.md') {
+      } else if (entry.name.endsWith('.md') && !isSessionOverview(dir, entry.name, entryRel)) {
         files.push({ abs: path.join(dir, entry.name), rel: entryRel });
       }
     }
@@ -585,7 +595,7 @@ function main() {
   const topicFiles = findTopicFiles(ANDROID_DOCS);
   const jsContent = loadAndroidContent();
 
-  console.log(`Tìm thấy ${topicFiles.length} file topic (.md, không tính index.md)`);
+  console.log(`Tìm thấy ${topicFiles.length} file topic (.md, không tính trang tổng quan: index.md, overview.md gốc session)`);
   console.log(`JS content entries: ${Object.keys(jsContent).length}`);
   console.log('');
 
@@ -605,12 +615,12 @@ function main() {
     }
   }
 
-  // index.md không được audit nhưng id của nó vẫn là đích hợp lệ cho prerequisites/related
+  // Trang tổng quan (index.md, overview.md gốc session) không được audit nhưng id của nó vẫn là đích hợp lệ cho prerequisites/related
   (function addIndexIds(dir) {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const p = path.join(dir, entry.name);
       if (entry.isDirectory()) addIndexIds(p);
-      else if (entry.name === 'index.md') {
+      else if (entry.name.endsWith('.md') && isSessionOverview(dir, entry.name, path.relative(ANDROID_DOCS, p))) {
         const { data: fm } = parseFrontmatter(fs.readFileSync(p, 'utf8'));
         if (fm.id) allTopicIds.add(fm.id);
       }

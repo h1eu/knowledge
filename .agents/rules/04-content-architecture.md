@@ -147,6 +147,8 @@ Mục lục (`nav` trong `map/<domain>_mkdocs.yml`) là bản đồ Topic của 
 - Tiêu đề của mục, kể cả phần trong ngoặc, là phạm vi của Topic. Ví dụ "Push data and send event via Intent" bao gồm cả phần gửi event; "Networking (Request API, Handle event network, Handle connection state)" phải trả lời đủ ba ý đó.
 - Kiến thức có mục riêng trong `nav` thì thuộc về mục đó, kể cả khi mục đó nằm ở Session sau hoặc chưa có bài.
 - File `index.md` của Session/Module là trang tổng quan, không bắt buộc có trong `nav`. Trang tổng quan muốn hiện trong mục lục thì đặt số `<session>.0` (ví dụ `5.0 Session 05 Overview`).
+- Thư mục Session không có `index.md` thì `overview.md` ở gốc thư mục đó là trang tổng quan (ví dụ `session_05/overview.md`). `overview.md` nằm cạnh `index.md` hoặc trong thư mục con là Topic thường (ví dụ `jetpack_compose_ui/overview.md` = 9.0 Jetpack Compose Overview, `advertisements/overview.md`). Quy tắc này dùng chung cho `tools/sync_android_session.js` và `tools/verify-android-topics.js`.
+- Trang tổng quan không theo lesson template: nó nêu vị trí của Session trong lộ trình, mỗi Topic một đoạn tóm tắt ngắn kèm link, mối liên hệ giữa các Topic, tiên quyết và thứ tự học. Không chép code hay giải thích cơ chế của Topic con vào đây (Single Source of Truth).
 
 ## Khi nào Topic quá lớn
 

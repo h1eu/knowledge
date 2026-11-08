@@ -2128,7 +2128,7 @@ dependencies {
     summary: 'Tổng quan Session 05 — ba trụ cột làm nên ứng dụng Android thực tế: Data Store (SharedPreferences, DataStore, Room), Working with Thread và Networking. Hiểu vị trí của session trong lộ trình, mối liên hệ giữa các topic, điều kiện tiên quyết từ Session 01-04 và nền tảng nó tạo ra cho các session sau.',
     status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '20 phút',
+    estimatedReadingTime: '10 phút',
     depth: 'overview',
     tags: ['android', 'session05', 'overview', 'data-store', 'room', 'datastore', 'shared-preferences', 'threading', 'networking'],
     domain: 'Android',
@@ -2143,8 +2143,8 @@ dependencies {
       'Áp dụng được thứ tự học 5.1 Data Store → 5.2 Thread → 5.3 Networking dựa trên mối liên hệ giữa ba phần.'
     ],
     knowledgeGap: 'Bỏ qua phần tổng quan khiến người học mất cái nhìn toàn cục về luồng dữ liệu của một app thực tế, dẫn đến chọn sai công cụ lưu trữ, dính ANR vì không hiểu thread, và mù mờ về xử lý lỗi mạng.',
-    updatedAt: '2026-11-07',
-    readTime: '20 phút',
+    updatedAt: '2026-11-08',
+    readTime: '10 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -2325,6 +2325,8 @@ dependencies {
 
 <h2>Session 05 học những gì?</h2>
 
+<p>Mỗi Topic dưới đây chỉ được tóm tắt: vấn đề nó giải quyết và khi nào dùng. Cơ chế, code và sai lầm thường gặp nằm trong bài của từng Topic.</p>
+
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
     <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
@@ -2336,32 +2338,32 @@ dependencies {
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">5.1 Data Store</td>
-      <td style="padding:8px 12px;">Key-Value Storage</td>
+      <td style="padding:8px 12px;"><a href="data_store/key_value.md" target="_blank" rel="noopener">Key-Value Storage</a></td>
       <td style="padding:8px 12px;">Lưu dữ liệu nhỏ dạng cặp key-value bằng gì?</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">5.1 Data Store</td>
-      <td style="padding:8px 12px;">Relational Database (Room)</td>
+      <td style="padding:8px 12px;"><a href="data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room)</a></td>
       <td style="padding:8px 12px;">Lưu dữ liệu có cấu trúc, quan hệ, truy vấn phức tạp bằng gì?</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">5.1 Data Store</td>
-      <td style="padding:8px 12px;">Advanced Room</td>
+      <td style="padding:8px 12px;"><a href="data_store/room_advanced.md" target="_blank" rel="noopener">Advanced Room</a></td>
       <td style="padding:8px 12px;">App đã phát hành mà thay đổi database thì sao? Truy vấn nhanh hơn thế nào?</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">5.1 Data Store</td>
-      <td style="padding:8px 12px;">Async Transactions &amp; Flow</td>
+      <td style="padding:8px 12px;"><a href="data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a></td>
       <td style="padding:8px 12px;">Đọc ghi database trong thread nào cho đúng, và theo dõi dữ liệu tự động như thế nào?</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">5.2 Working with Thread</td>
-      <td style="padding:8px 12px;">Thread</td>
+      <td style="padding:8px 12px;"><a href="working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a></td>
       <td style="padding:8px 12px;">Việc nặng (IO, tính toán) chạy ở đâu để UI không đóng băng?</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">5.3 Networking</td>
-      <td style="padding:8px 12px;">Networking</td>
+      <td style="padding:8px 12px;"><a href="networking.md" target="_blank" rel="noopener">Networking</a></td>
       <td style="padding:8px 12px;">Gọi API như thế nào, xử lý mất mạng, và theo dõi trạng thái kết nối ra sao?</td>
     </tr>
   </tbody>
@@ -2369,183 +2371,28 @@ dependencies {
 
 <h3>5.1 Data Store — Dữ liệu ở đâu?</h3>
 
-<p>Đây là phần lớn nhất và quan trọng nhất của Session 05, gồm 4 topic đi từ đơn giản đến phức tạp.</p>
-
-<h4>5.1.1 Key-Value Storage (SharedPreferences &amp; DataStore)</h4>
-
-<p><strong>Vấn đề cần giải quyết</strong>: lưu một lượng nhỏ dữ liệu đơn giản dạng khóa → giá trị: token đăng nhập, cờ "đã xem hướng dẫn lần đầu", theme đã chọn, số lần mở app. Không cần truy vấn phức tạp.</p>
-
-<p><strong>Bản chất</strong>: một file XML (SharedPreferences) hoặc file protobuf/Preferences DataStore chứa toàn bộ các cặp key-value. Đọc toàn bộ vào bộ nhớ khi cần.</p>
-
-<p><strong>Khi nào dùng</strong>:</p>
+<p>Đây là phần lớn nhất và quan trọng nhất của Session 05, gồm 4 topic đi từ đơn giản đến phức tạp:</p>
 
 <ul>
-  <li>Nên: token, session, cài đặt UI, cache nhỏ, dữ liệu không cần truy vấn.</li>
-  <li>Không nên: dữ liệu lớn, dữ liệu cần tìm kiếm/sắp xếp, dữ liệu quan hệ.</li>
+  <li><strong><a href="data_store/key_value.md" target="_blank" rel="noopener">5.1.1 Key-Value Storage</a></strong> (SharedPreferences &amp; DataStore): lưu một lượng nhỏ dữ liệu đơn giản dạng key-value như token đăng nhập, cờ "đã xem hướng dẫn lần đầu", theme đã chọn. Toàn bộ các cặp key-value nằm trong một file được đọc vào bộ nhớ, nên không dùng cho dữ liệu lớn, cần tìm kiếm/sắp xếp hay có quan hệ.</li>
+  <li><strong><a href="data_store/room_architecture.md" target="_blank" rel="noopener">5.1.2 Relational Database (Room)</a></strong>: Room là lớp trừu tượng bọc trên SQLite (Entity, DAO, Database), kiểm tra lỗi truy vấn ngay lúc biên dịch. Dùng cho dữ liệu có cấu trúc, số lượng lớn, cần truy vấn (WHERE, JOIN, ORDER BY) và app offline-first.</li>
+  <li><strong><a href="data_store/room_advanced.md" target="_blank" rel="noopener">5.1.3 Advanced Room</a></strong> (Migration &amp; Indexing): migration dạy Room chuyển database của user từ version cũ sang mới mà giữ nguyên dữ liệu, thiếu nó thì app crash khi schema đổi; index cho cột hay dùng trong WHERE/JOIN để truy vấn không quét toàn bộ bảng.</li>
+  <li><strong><a href="data_store/room_transactions.md" target="_blank" rel="noopener">5.1.4 Async Transactions &amp; Flow</a></strong>: hàm DAO <code>suspend</code> và DAO trả <code>Flow</code> tự chạy truy vấn ngoài main thread (hàm DAO thường thì chặn thread gọi nó); <code>Flow</code> phát lại dữ liệu mỗi khi bảng thay đổi để UI tự cập nhật; transaction gom nhiều bước ghi thành một, một bước lỗi thì rollback toàn bộ.</li>
 </ul>
-
-<p><strong>Điểm mấu chốt khi code</strong> (DataStore — bản thay thế hiện đại của SharedPreferences):</p>
-
-<pre data-lang="kotlin"><code>// DataStore: an toàn với coroutine, tự theo dõi thay đổi qua Flow
-val Context.dataStore by preferencesDataStore(name = "user_prefs")
-
-val USER_TOKEN = stringPreferencesKey("user_token")
-
-// Ghi
-suspend fun saveToken(token: String) {
-    context.dataStore.edit { prefs -&gt;
-        prefs[USER_TOKEN] = token
-    }
-}
-
-// Đọc — trả về Flow, UI tự cập nhật khi dữ liệu đổi
-val tokenFlow: Flow&lt;String?&gt; = context.dataStore.data
-    .map { prefs -&gt; prefs[USER_TOKEN] }</code></pre>
-
-<h4>5.1.2 Relational Database (Room)</h4>
-
-<p><strong>Vấn đề cần giải quyết</strong>: lưu dữ liệu có cấu trúc, số lượng lớn, cần truy vấn theo nhiều điều kiện: danh sách sản phẩm, lịch sử đơn hàng, hồ sơ người dùng. SharedPreferences không làm được.</p>
-
-<p><strong>Bản chất</strong>: Room là <strong>lớp trừu tượng (abstraction layer)</strong> bọc trên SQLite, làm vai trò gần giống ORM — bạn khai báo Entity, DAO, Database, Room tự sinh code SQLite. Kiểm tra lỗi truy vấn ngay lúc <strong>biên dịch</strong> (compile-time) thay vì lúc chạy.</p>
-
-<p><strong>Khi nào dùng</strong>: dữ liệu có cấu trúc, cần truy vấn (WHERE, JOIN, ORDER BY), dữ liệu offline-first (app chính là database).</p>
-
-<p><strong>Điểm mấu chốt khi code</strong>:</p>
-
-<pre data-lang="kotlin"><code>@Entity(tableName = "products")
-data class Product(
-    @PrimaryKey val id: Int,
-    val name: String,
-    val price: Double
-)
-
-@Dao
-interface ProductDao {
-    @Query("SELECT * FROM products WHERE price &gt; :minPrice ORDER BY price DESC")
-    suspend fun getExpensiveProducts(minPrice: Double): List&lt;Product&gt;
-}
-
-@Database(entities = [Product::class], version = 1)
-abstract class AppDatabase : RoomDatabase() {
-    abstract fun productDao(): ProductDao
-}</code></pre>
-
-<h4>5.1.3 Advanced Room (Migration &amp; Indexing)</h4>
-
-<p><strong>Vấn đề cần giải quyết</strong>: app đã phát hành, user đã có database cũ (version 1). Bạn thêm cột, thêm bảng cho bản update (version 2). Nếu không xử lý, app của user sẽ <strong>crash</strong> vì schema không khớp. Đồng thời truy vấn chậm dần khi dữ liệu lớn.</p>
-
-<p><strong>Bản chất</strong>: hai kỹ thuật:</p>
-
-<ul>
-  <li><strong>Migration</strong>: dạy Room cách chuyển database từ version cũ sang mới, giữ nguyên dữ liệu user.</li>
-  <li><strong>Indexing</strong>: đánh index cho cột hay dùng trong WHERE/JOIN để truy vấn không quét toàn bộ bảng.</li>
-</ul>
-
-<p><strong>Điểm mấu chốt khi code</strong>:</p>
-
-<pre data-lang="kotlin"><code>val MIGRATION_1_2 = object : Migration(1, 2) {
-    override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE products ADD COLUMN stock_count INTEGER NOT NULL DEFAULT 0")
-    }
-}
-
-// Đăng ký khi build database
-Room.databaseBuilder(context, AppDatabase::class.java, "app.db")
-    .addMigrations(MIGRATION_1_2)
-    .build()
-
-// Index cho cột truy vấn thường xuyên
-@Entity(
-    tableName = "products",
-    indices = [Index(value = ["category_id"])]
-)
-data class Product(...)</code></pre>
-
-<h4>5.1.4 Async Transactions &amp; Flow</h4>
-
-<p><strong>Vấn đề cần giải quyết</strong>: database là tài nguyên dùng chung và là điểm chậm. Ghi trên UI thread → app đơ. Ghi cùng lúc từ nhiều nơi → dữ liệu hỏng. Ngoài ra, UI cần <strong>tự cập nhật</strong> khi database thay đổi thay vì phải tự hỏi lại.</p>
-
-<p><strong>Bản chất</strong>: Room tích hợp sẵn coroutine (suspend, Flow) — hàm DAO <code>suspend</code> và DAO trả <code>Flow</code> tự chạy truy vấn trên background thread (hàm DAO thường, không suspend, vẫn chặn thread gọi nó), và DAO có thể trả về <code>Flow</code> để UI nhận dữ liệu mới mỗi khi bảng thay đổi.</p>
-
-<p><strong>Điểm mấu chốt khi code</strong>:</p>
-
-<pre data-lang="kotlin"><code>// Đọc theo dõi tự động — mỗi lần bảng products đổi, Flow emit lại
-@Query("SELECT * FROM products")
-fun observeAllProducts(): Flow&lt;List&lt;Product&gt;&gt;
-
-// Ghi trong transaction — đảm bảo toàn vẹn khi ghi nhiều bảng
-@Transaction
-suspend fun checkout(cartItems: List&lt;CartItem&gt;, total: Double) {
-    // Các thao tác trong đây chạy trong một transaction
-    // Nếu một bước fail, toàn bộ rollback
-}</code></pre>
 
 <h3>5.2 Working with Thread — Việc nặng chạy ở đâu?</h3>
 
-<p><strong>Vấn đề cần giải quyết</strong>: UI thread (main thread) chịu trách nhiệm vẽ màn hình. Nếu nó bận xử lý việc khác quá lâu (&gt; 16ms mỗi frame), app đóng băng (jank) và nếu lâu hơn 5 giây thì <strong>ANR (Application Not Responding)</strong> — hệ thống hỏi user "đóng hay chờ?".</p>
-
-<p><strong>Bản chất</strong>: thread là đơn vị thực thi trong process. App có UI thread (chỉ được cập nhật UI ở đây) và cần các background thread cho việc IO/tính toán nặng.</p>
-
-<p><strong>Khi nào dùng</strong>:</p>
-
-<ul>
-  <li>Phải dùng background thread: đọc ghi database, gọi API, đọc file, parse JSON, nén ảnh.</li>
-  <li>Không dùng background thread: cập nhật View, thao tác nhanh trong bộ nhớ.</li>
-</ul>
-
-<p><strong>Điểm mấu chốt khi code</strong> (cách truyền thống bằng thread pool — Session 08 sẽ thay thế bằng Coroutines):</p>
-
-<pre data-lang="kotlin"><code>// Sai: gọi API trên UI thread → crash
-fun loadDataBad() {
-    val result = api.fetchData()   // Crash: NetworkOnMainThreadException
-    textView.text = result
-}
-
-// Đúng: giao việc cho một thread pool dùng chung, trả kết quả về UI thread
-// (pool tạo một lần cho cả app, không tạo Thread mới cho mỗi việc)
-private val ioExecutor: ExecutorService = Executors.newFixedThreadPool(4)
-
-fun loadDataGood() {
-    ioExecutor.execute {
-        val result = api.fetchData()
-        runOnUiThread {
-            textView.text = result
-        }
-    }
-}</code></pre>
-
-<p>Tạo <code>Thread { ... }.start()</code> thủ công vẫn chạy đúng, nhưng có hạn chế: mỗi thread tốn chi phí tạo, không giới hạn được số lượng khi có nhiều việc, và khó hủy theo lifecycle. Vì vậy với việc nền thông thường nên ưu tiên thread pool dùng chung như trên, hoặc coroutine (<code>Dispatchers.IO</code>) trong app hiện đại. Chi tiết ở <a href="working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>, mục "1.3 Chi phí thực sự khi tạo một Thread" và mục "5. Quản lý luồng công nghiệp: ThreadPoolExecutor &amp; ExecutorService".</p>
+<p>UI thread vẽ màn hình; bận quá lâu trong một frame (khoảng 16ms ở 60Hz) thì app giật, bị chặn khoảng 5 giây thì gặp ANR. Việc IO và tính toán nặng (database, gọi API, đọc file, parse JSON, nén ảnh) phải chạy trên background thread, còn cập nhật View thì luôn ở UI thread. Bài <a href="working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a> dạy cách chuyển việc sang thread pool dùng chung và trả kết quả về UI thread; Session 08 thay cách này bằng Coroutines.</p>
 
 <h3>5.3 Networking — Dữ liệu lấy từ đâu?</h3>
 
-<p><strong>Vấn đề cần giải quyết</strong>: app cần dữ liệu từ server: danh sách sản phẩm, giá mới, tin tức. Đồng thời mạng không phải lúc nào cũng có — phải xử lý request thất bại, timeout, mất kết nối và biết khi nào mạng khôi phục để gọi lại.</p>
-
-<p><strong>Bản chất</strong>: Networking trong Session 05 gồm 3 mảng:</p>
+<p>App cần dữ liệu từ server, trong khi mạng không phải lúc nào cũng có. Bài <a href="networking.md" target="_blank" rel="noopener">Networking</a> gồm đúng 3 mảng của tiêu đề nav:</p>
 
 <ol>
-  <li><strong>Request API</strong> — gửi HTTP request, nhận response (dùng thư viện như Retrofit/OkHttp, được học sâu ở Session 08; ở đây học nguyên lý request-response).</li>
-  <li><strong>Handle event network</strong> — xử lý thành công/thất bại: retry, timeout, hiển thị lỗi thân thiện.</li>
-  <li><strong>Handle connection state</strong> — theo dõi trạng thái mạng (Wifi/4G/offline) qua ConnectivityManager, phản hồi UI tương ứng (ví dụ: offline banner).</li>
+  <li><strong>Request API</strong>: gửi HTTP request, nhận response, theo nguyên lý request-response (thư viện Retrofit/OkHttp được học sâu ở Session 08).</li>
+  <li><strong>Handle event network</strong>: xử lý thành công/thất bại, retry, timeout, hiển thị lỗi thân thiện.</li>
+  <li><strong>Handle connection state</strong>: theo dõi trạng thái mạng qua <code>ConnectivityManager</code> và phản hồi UI tương ứng (ví dụ: báo đang offline).</li>
 </ol>
-
-<p><strong>Khi nào dùng</strong>: app nào hiển thị dữ liệu không nằm sẵn trong app — gần như mọi app thương mại.</p>
-
-<p><strong>Điểm mấu chốt khi code</strong> (theo dõi trạng thái mạng):</p>
-
-<pre data-lang="kotlin"><code>val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-// Đăng ký lắng nghe thay đổi kết nối
-val networkCallback = object : ConnectivityManager.NetworkCallback() {
-    override fun onAvailable(network: Network) {
-        // Mạng có — gọi lại API bị fail trước đó
-    }
-
-    override fun onLost(network: Network) {
-        // Mất mạng — hiển thị offline banner, dừng retry
-    }
-}
-
-connectivityManager.registerDefaultNetworkCallback(networkCallback)</code></pre>
 
 <h2>Mối liên hệ giữa ba phần</h2>
 
@@ -2709,7 +2556,7 @@ connectivityManager.registerDefaultNetworkCallback(networkCallback)</code></pre>
   <li><strong>Process &amp; app chạy thế nào</strong> (Session 02): hữu ích để hiểu vì sao app bị giết khi ở background — liên quan trực tiếp đến việc dữ liệu có bị mất hay không.</li>
 </ul>
 
-<p>Nếu chưa vững Kotlin, hãy ôn lại <code>android.languages.kotlin</code> trước — toàn bộ session này là Kotlin.</p>
+<p>Nếu chưa vững Kotlin, hãy ôn lại <a href="../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a> trước — toàn bộ session này là Kotlin.</p>
 
 <h2>Sau khi học xong Session 05, bạn làm được gì?</h2>
 
