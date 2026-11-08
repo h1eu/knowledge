@@ -470,7 +470,7 @@ context.startActivity(Intent.createChooser(intent, "Chia sẻ avatar"))
 Security:
 
 - File riêng luôn để `MODE_PRIVATE`. Không bao giờ lưu token, password ra external.
-- External app-specific vẫn app khác có root đọc được, không coi là an toàn.
+- External app-specific không dành cho dữ liệu nhạy cảm. Trên Android 9 (API 28) trở xuống, app khác có quyền storage đọc được thư mục app-specific của app bạn; khi scoped storage bật thì app khác không truy cập được. Docs chỉ nói thư mục app-specific trên **internal** storage được mã hoá (từ Android 10), và khuyên dữ liệu nhạy cảm để ở internal storage, preferences hoặc database.
 - Khi share qua FileProvider chỉ grant `FLAG_GRANT_READ_URI_PERMISSION` cho intent đó, không mở public cả thư mục.
 
 Performance:

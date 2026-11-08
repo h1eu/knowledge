@@ -7062,12 +7062,20 @@ src/paid/res/values/strings.xml   → app_name = "MyApp Pro"</code></pre>
 
 <pre data-lang="kotlin"><code>Log.d("Flavor", "Đang chạy bản: \${BuildConfig.FLAVOR}")</code></pre>
 
-<p>Khi bạn có nhiều dimension, mỗi dimension được sinh một hằng số riêng theo tên dimension:</p>
+<p>Khi bạn có nhiều dimension, mỗi dimension được sinh một hằng số riêng theo tên dimension, còn <code>FLAVOR</code> chứa tên ghép của cả variant:</p>
 
 <pre data-lang="kotlin"><code>// flavorDimensions = ["environment", "store"]
 // flavor dev + gplay
+BuildConfig.FLAVOR              // "devGplay" (tên ghép của các flavor)
 BuildConfig.FLAVOR_environment  // "dev"
 BuildConfig.FLAVOR_store        // "gplay"</code></pre>
+
+<p>Quy tắc sinh (đọc từ class <code>GenerateBuildConfig</code> của AGP 8.11.2; docs không mô tả các field này):</p>
+
+<ul>
+  <li>Chỉ một dimension: chỉ có <code>FLAVOR</code>, không có <code>FLAVOR_&lt;dimension&gt;</code>.</li>
+  <li>Từ hai dimension trở lên: thêm <code>FLAVOR_&lt;dimension&gt;</code> cho từng dimension. Ký tự không hợp lệ trong tên Java (ngoài <code>a-z</code>, <code>A-Z</code>, <code>0-9</code>, <code>_</code>, <code>$</code>) của tên dimension được thay bằng <code>_</code>, ví dụ dimension <code>api-level</code> thành <code>FLAVOR_api_level</code>.</li>
+</ul>
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Ưu tiên dùng <code>buildConfigField</code> hoặc source set riêng thay vì rải rác <code>if (BuildConfig.FLAVOR == ...)</code> trong code chính. Kiểm tra <code>FLAVOR</code> chỉ phù hợp cho các tình huống nhỏ, tạm thời, không nằm trong luồng nghiệp vụ chính.</div></div>
 
@@ -40663,7 +40671,7 @@ context.startActivity(Intent.createChooser(intent, "Chia sẻ avatar"))</code></
 
 <ul>
   <li>File riêng luôn để <code>MODE_PRIVATE</code>. Không bao giờ lưu token, password ra external.</li>
-  <li>External app-specific vẫn app khác có root đọc được, không coi là an toàn.</li>
+  <li>External app-specific không dành cho dữ liệu nhạy cảm. Trên Android 9 (API 28) trở xuống, app khác có quyền storage đọc được thư mục app-specific của app bạn; khi scoped storage bật thì app khác không truy cập được. Docs chỉ nói thư mục app-specific trên <strong>internal</strong> storage được mã hoá (từ Android 10), và khuyên dữ liệu nhạy cảm để ở internal storage, preferences hoặc database.</li>
   <li>Khi share qua FileProvider chỉ grant <code>FLAG_GRANT_READ_URI_PERMISSION</code> cho intent đó, không mở public cả thư mục.</li>
 </ul>
 

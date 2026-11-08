@@ -366,14 +366,20 @@ AGP tự sinh hằng số `BuildConfig.FLAVOR` chứa tên flavor hiện tại:
 Log.d("Flavor", "Đang chạy bản: ${BuildConfig.FLAVOR}")
 ```
 
-Khi bạn có nhiều dimension, mỗi dimension được sinh một hằng số riêng theo tên dimension:
+Khi bạn có nhiều dimension, mỗi dimension được sinh một hằng số riêng theo tên dimension, còn `FLAVOR` chứa tên ghép của cả variant:
 
 ```kotlin
 // flavorDimensions = ["environment", "store"]
 // flavor dev + gplay
+BuildConfig.FLAVOR              // "devGplay" (tên ghép của các flavor)
 BuildConfig.FLAVOR_environment  // "dev"
 BuildConfig.FLAVOR_store        // "gplay"
 ```
+
+Quy tắc sinh (đọc từ class `GenerateBuildConfig` của AGP 8.11.2; docs không mô tả các field này):
+
+- Chỉ một dimension: chỉ có `FLAVOR`, không có `FLAVOR_<dimension>`.
+- Từ hai dimension trở lên: thêm `FLAVOR_<dimension>` cho từng dimension. Ký tự không hợp lệ trong tên Java (ngoài `a-z`, `A-Z`, `0-9`, `_`, `$`) của tên dimension được thay bằng `_`, ví dụ dimension `api-level` thành `FLAVOR_api_level`.
 
 > [!TIP]
 > Ưu tiên dùng `buildConfigField` hoặc source set riêng thay vì rải rác `if (BuildConfig.FLAVOR == ...)` trong code chính. Kiểm tra `FLAVOR` chỉ phù hợp cho các tình huống nhỏ, tạm thời, không nằm trong luồng nghiệp vụ chính.
