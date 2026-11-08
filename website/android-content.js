@@ -12835,7 +12835,7 @@ override fun onNewIntent(intent: Intent) {
       'Xử lý được TransactionTooLargeException dựa trên giới hạn Binder transaction buffer.'
     ],
     knowledgeGap: 'Không hiểu bản chất Bundle sẽ khiến developer truyền dữ liệu sai cách: dùng Serializable gây chậm, truyền object quá lớn gây TransactionTooLargeException crash ở production, hoặc dùng Bundle cho những thứ lẽ ra phải nằm trong SharedViewModel — vừa lãng phí vừa khó bảo trì. Cảm giác "truyền thế nào cũng được" sẽ phá vỡ kiến trúc khi app lớn lên.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -13335,219 +13335,20 @@ private fun logBundleSize(bundle: Bundle) {
   <li>Màn hình đích chỉ dùng <code>id</code> để ViewModel load dữ liệu chi tiết.</li>
 </ol>
 
-<p>Sơ đồ dưới vẽ đúng các bước trên theo tên node: (1) là nhánh <code>Product là Parcelable?</code>, (2) là <code>serialize thành Parcel</code>, (3) là <code>Binder Transaction Buffer</code> và hai nhánh của nó, (4) là <code>getParcelableExtra</code> → <code>deserialize</code>, (5) là node cuối.</p>
-
-<div class="dd-diagram" data-dd="parcel-split-a">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 420" role="img" aria-labelledby="parcel-split-a-dark-title parcel-split-a-dark-desc" font-family="'Geist', sans-serif">
-<title id="parcel-split-a-dark-title">Parcelable mới đi được, object thường thì không</title>
-<desc id="parcel-split-a-dark-desc">Activity gửi product, nếu là Parcelable thì serialize vào Binder buffer, nếu không thì lỗi biên dịch.</desc>
-<defs>
-<marker id="parcel-split-a-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="460" fill="#060913"/>
-<!-- arrows -->
-<path d="M 400,92 V 120" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#parcel-split-a-dark-arrow)"/>
-<rect x="412" y="96" width="72" height="12" rx="2" fill="#060913"/>
-<text x="448" y="105" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PUTEXTRA</text>
-<path d="M 325,164 V 260 H 248 Q 240,260 240,268 V 312" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#parcel-split-a-dark-arrow)"/>
-<rect x="252" y="240" width="48" height="12" rx="2" fill="#060913"/>
-<text x="276" y="249" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">YES</text>
-<path d="M 475,164 V 260 H 552 Q 560,260 560,268 V 312" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#parcel-split-a-dark-arrow)"/>
-<rect x="492" y="240" width="40" height="12" rx="2" fill="#060913"/>
-<text x="512" y="249" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NO</text>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ProductListActivity</text>
-<text x="400" y="84" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình danh sách</text>
-<polygon points="400,120 475,164 400,208 325,164" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<text x="400" y="168" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">PARCELABLE?</text>
-<rect x="120" y="312" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="120" y="312" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="240" y="346" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">serialize Parcel</text>
-<rect x="440" y="312" width="240" height="60" rx="20" fill="#060913"/>
-<rect x="440" y="312" width="240" height="60" rx="20" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="560" y="342" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Compiler error</text>
-<text x="560" y="360" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">badparcelable</text>
-<!-- legend -->
-<line x1="32" y1="396" x2="768" y2="396" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="412" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="408" r="4" fill="#38BDF8"/>
-<text x="162" y="412" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CỬA KIỂM QUYẾT ĐỊNH</text>
-<line x1="400" y1="408" x2="432" y2="408" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#parcel-split-a-dark-arrow)"/>
-<text x="440" y="412" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">RỚT THÌ DỪNG · TIẾP PHẦN 2</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 420" role="img" aria-labelledby="parcel-split-a-title parcel-split-a-desc" font-family="'Geist', sans-serif">
-<title id="parcel-split-a-title">Parcelable mới đi được, object thường thì không</title>
-<desc id="parcel-split-a-desc">Activity gửi product, nếu là Parcelable thì serialize vào Binder buffer, nếu không thì lỗi biên dịch.</desc>
-<defs>
-<marker id="parcel-split-a-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="460" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 400,92 V 120" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-split-a-arrow)"/>
-<rect x="412" y="96" width="72" height="12" rx="2" fill="#F8FAFC"/>
-<text x="448" y="105" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PUTEXTRA</text>
-<path d="M 325,164 V 260 H 248 Q 240,260 240,268 V 312" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-split-a-arrow)"/>
-<rect x="252" y="240" width="48" height="12" rx="2" fill="#F8FAFC"/>
-<text x="276" y="249" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">YES</text>
-<path d="M 475,164 V 260 H 552 Q 560,260 560,268 V 312" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-split-a-arrow)"/>
-<rect x="492" y="240" width="40" height="12" rx="2" fill="#F8FAFC"/>
-<text x="512" y="249" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NO</text>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ProductListActivity</text>
-<text x="400" y="84" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình danh sách</text>
-<polygon points="400,120 475,164 400,208 325,164" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<text x="400" y="168" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">PARCELABLE?</text>
-<rect x="120" y="312" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="120" y="312" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="240" y="346" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">serialize Parcel</text>
-<rect x="440" y="312" width="240" height="60" rx="20" fill="#F8FAFC"/>
-<rect x="440" y="312" width="240" height="60" rx="20" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="560" y="342" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Compiler error</text>
-<text x="560" y="360" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">badparcelable</text>
-<!-- legend -->
-<line x1="32" y1="396" x2="768" y2="396" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="412" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="408" r="4" fill="#0284C7"/>
-<text x="162" y="412" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CỬA KIỂM QUYẾT ĐỊNH</text>
-<line x1="400" y1="408" x2="432" y2="408" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-split-a-arrow)"/>
-<text x="440" y="412" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">RỚT THÌ DỪNG · TIẾP PHẦN 2</text>
-</svg>
-</div>
+<div class="mermaid">
+flowchart TD
+    A[ProductListActivity] --&gt;|"(2) putExtra(EXTRA_PRODUCT, product)"| B{"(1) Product là Parcelable?"}
+    B --&gt;|Có| C["(2) serialize Bundle thành Parcel"]
+    B --&gt;|Không| D[Compiler error / BadParcelableException]
+    C --&gt; E["(3) Binder transaction buffer&lt;br/&gt;1MB dùng chung cho cả process"]
+    E --&gt;|buffer chung còn chỗ| F[system_server xử lý launch]
+    E --&gt;|buffer chung bị vượt| G[TransactionTooLargeException]
+    F --&gt; H["(4) ProductDetailActivity: getParcelableExtra(Product::class)"]
+    H --&gt; J["(4) deserialize thành object Product mới"]
+    J --&gt; K["(5) ViewModel nhận id, load dữ liệu chi tiết"]
 </div>
 
-<div class="dd-diagram" data-dd="parcel-split-b">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 716" role="img" aria-labelledby="parcel-split-b-dark-title parcel-split-b-dark-desc" font-family="'Geist', sans-serif">
-<title id="parcel-split-b-dark-title">Quá 1MB là crash: đường đi của Parcel</title>
-<desc id="parcel-split-b-dark-desc">Parcel vào Binder buffer, dưới 1MB thì system xử lý tới màn hình chi tiết đọc extras, quá 1MB thì crash TransactionTooLarge.</desc>
-<defs>
-<marker id="parcel-split-b-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="668" fill="#060913"/>
-<!-- arrows -->
-<path d="M 280,92 V 140 H 208 Q 200,140 200,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#parcel-split-b-dark-arrow)"/>
-<rect x="224" y="120" width="56" height="12" rx="2" fill="#060913"/>
-<text x="252" y="129" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DƯỚI 1MB</text>
-<path d="M 520,92 V 140 H 592 Q 600,140 600,148 V 192" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#parcel-split-b-dark-arrow)"/>
-<rect x="504" y="120" width="56" height="12" rx="2" fill="#060913"/>
-<text x="532" y="129" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">QUÁ 1MB</text>
-<path d="M 200,252 V 296" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#parcel-split-b-dark-arrow)"/>
-<path d="M 400,356 V 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#parcel-split-b-dark-arrow)"/>
-<path d="M 400,460 V 504" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#parcel-split-b-dark-arrow)"/>
-<path d="M 400,564 V 608" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#parcel-split-b-dark-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Binder Buffer</text>
-<text x="400" y="84" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">transaction</text>
-<rect x="80" y="192" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="80" y="192" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="200" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">system_server</text>
-<text x="200" y="244" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">xử lý launch</text>
-<rect x="480" y="192" width="240" height="60" rx="20" fill="#060913"/>
-<rect x="480" y="192" width="240" height="60" rx="20" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<text x="600" y="226" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">TransactionTooLarge</text>
-<text x="600" y="244" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">crash</text>
-<rect x="280" y="296" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="296" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="330" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ProductDetail</text>
-<text x="400" y="348" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhận intent</text>
-<rect x="280" y="400" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="400" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="434" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">getParcelableExtra</text>
-<text x="400" y="452" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Product::class</text>
-<rect x="280" y="504" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="504" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="538" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">deserialize</text>
-<text x="400" y="556" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">về object</text>
-<rect x="280" y="608" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="608" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="642" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel nhận id</text>
-<text x="400" y="660" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">load chi tiết</text>
-<!-- legend -->
-<line x1="32" y1="692" x2="768" y2="692" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="708" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="704" r="4" fill="#38BDF8"/>
-<text x="162" y="708" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH LỖI · CRASH</text>
-<line x1="380" y1="704" x2="412" y2="704" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#parcel-split-b-dark-arrow)"/>
-<text x="420" y="708" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH THÀNH CÔNG ĐI TRÁI</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 716" role="img" aria-labelledby="parcel-split-b-title parcel-split-b-desc" font-family="'Geist', sans-serif">
-<title id="parcel-split-b-title">Quá 1MB là crash: đường đi của Parcel</title>
-<desc id="parcel-split-b-desc">Parcel vào Binder buffer, dưới 1MB thì system xử lý tới màn hình chi tiết đọc extras, quá 1MB thì crash TransactionTooLarge.</desc>
-<defs>
-<marker id="parcel-split-b-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="668" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 280,92 V 140 H 208 Q 200,140 200,148 V 192" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-split-b-arrow)"/>
-<rect x="224" y="120" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="252" y="129" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DƯỚI 1MB</text>
-<path d="M 520,92 V 140 H 592 Q 600,140 600,148 V 192" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-split-b-arrow)"/>
-<rect x="504" y="120" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="532" y="129" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">QUÁ 1MB</text>
-<path d="M 200,252 V 296" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-split-b-arrow)"/>
-<path d="M 400,356 V 400" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-split-b-arrow)"/>
-<path d="M 400,460 V 504" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-split-b-arrow)"/>
-<path d="M 400,564 V 608" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-split-b-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Binder Buffer</text>
-<text x="400" y="84" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">transaction</text>
-<rect x="80" y="192" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="80" y="192" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="200" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">system_server</text>
-<text x="200" y="244" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">xử lý launch</text>
-<rect x="480" y="192" width="240" height="60" rx="20" fill="#F8FAFC"/>
-<rect x="480" y="192" width="240" height="60" rx="20" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<text x="600" y="226" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">TransactionTooLarge</text>
-<text x="600" y="244" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">crash</text>
-<rect x="280" y="296" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="296" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="330" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ProductDetail</text>
-<text x="400" y="348" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhận intent</text>
-<rect x="280" y="400" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="400" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="434" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">getParcelableExtra</text>
-<text x="400" y="452" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">Product::class</text>
-<rect x="280" y="504" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="504" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="538" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">deserialize</text>
-<text x="400" y="556" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">về object</text>
-<rect x="280" y="608" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="608" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="642" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewModel nhận id</text>
-<text x="400" y="660" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">load chi tiết</text>
-<!-- legend -->
-<line x1="32" y1="692" x2="768" y2="692" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="708" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="704" r="4" fill="#0284C7"/>
-<text x="162" y="708" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH LỖI · CRASH</text>
-<line x1="380" y1="704" x2="412" y2="704" stroke="#64748B" stroke-width="1.2" marker-end="url(#parcel-split-b-arrow)"/>
-<text x="420" y="708" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NHÁNH THÀNH CÔNG ĐI TRÁI</text>
-</svg>
-</div>
-</div>
-
-<p>Sơ đồ đơn giản hoá nhánh "dưới/quá 1MB": 1MB là sức chứa của cả buffer dùng chung, nên transaction này có thể crash dù nhỏ hơn 1MB nếu các transaction khác đang chiếm buffer (mục "Ba con số cần phân biệt").</p>
+<p>Nhánh ở bước (3): 1MB là sức chứa của cả buffer dùng chung, nên transaction này có thể crash dù nhỏ hơn 1MB nếu các transaction khác đang chiếm buffer (mục "Ba con số cần phân biệt").</p>
 
 <p>Model là @Parcelize:</p>
 
@@ -18215,7 +18016,7 @@ sequenceDiagram
       'Nhận diện được các lỗi phổ biến khi làm việc với FragmentManager và cách tránh.'
     ],
     knowledgeGap: 'Không hiểu FragmentManager dẫn đến crash IllegalStateException khi commit sau onSaveInstanceState, Fragment overlapping khi dùng sai add/replace, memory leak do communication sai pattern, và không kiểm soát được Back Stack trong các trường hợp phức tạp.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '35 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -18495,275 +18296,32 @@ val parentFragmentManager = parentFragmentManager</code></pre>
 
 <p>FragmentManager đảm bảo vòng đời của Fragment luôn đồng bộ với Activity:</p>
 
-<div class="dd-diagram" data-dd="fmg-up">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 368" role="img" aria-labelledby="fmg-up-dark-title fmg-up-dark-desc" font-family="'Geist', sans-serif">
-<title id="fmg-up-dark-title">Đi lên: bảy bước dựng Fragment</title>
-<desc id="fmg-up-dark-desc">Activity gọi onCreate, FragmentManager lần lượt gọi attach create createView created start resume cho Fragment.</desc>
-<defs>
-<marker id="fmg-up-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-<marker id="fmg-up-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
-</marker>
-</defs>
-<rect width="800" height="368" fill="#060913"/>
-<!-- lifelines -->
-<line x1="150" y1="84" x2="150" y2="320" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="400" y1="84" x2="400" y2="320" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="650" y1="84" x2="650" y2="320" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="396" y="112" width="8" height="24" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="646" y="144" width="8" height="148" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
-<!-- messages -->
-<path d="M 150,120 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-up-dark-arrow)"/>
-<rect x="235" y="100" width="80" height="12" rx="2" fill="#060913"/>
-<text x="275" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONCREATE</text>
-<path d="M 400,152 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-up-dark-arrow)"/>
-<rect x="485" y="132" width="80" height="12" rx="2" fill="#060913"/>
-<text x="525" y="141" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONATTACH</text>
-<path d="M 400,176 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-up-dark-arrow)"/>
-<rect x="485" y="156" width="80" height="12" rx="2" fill="#060913"/>
-<text x="525" y="165" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONCREATE</text>
-<path d="M 400,200 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-up-dark-arrow)"/>
-<rect x="477" y="180" width="96" height="12" rx="2" fill="#060913"/>
-<text x="525" y="189" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONCREATEVIEW</text>
-<path d="M 400,224 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-up-dark-arrow)"/>
-<rect x="477" y="204" width="96" height="12" rx="2" fill="#060913"/>
-<text x="525" y="213" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONVIEWCREATED</text>
-<path d="M 400,248 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-up-dark-arrow)"/>
-<rect x="485" y="228" width="80" height="12" rx="2" fill="#060913"/>
-<text x="525" y="237" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONSTART</text>
-<path d="M 400,272 H 650" fill="none" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#fmg-up-dark-accent)"/>
-<rect x="485" y="252" width="80" height="12" rx="2" fill="#060913"/>
-<text x="525" y="261" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONRESUME</text>
-<!-- actors -->
-<rect x="65" y="32" width="170" height="52" rx="6" fill="#060913"/>
-<rect x="65" y="32" width="170" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
-<text x="150" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity</text>
-<text x="150" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình</text>
-<rect x="315" y="32" width="170" height="52" rx="6" fill="#060913"/>
-<rect x="315" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FragmentManager</text>
-<text x="400" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">điều phối</text>
-<rect x="565" y="32" width="170" height="52" rx="6" fill="#060913"/>
-<rect x="565" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="650" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Fragment</text>
-<text x="650" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình con</text>
-<!-- legend -->
-<line x1="32" y1="344" x2="768" y2="344" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="356" r="4" fill="#38BDF8"/>
-<text x="162" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐÍCH · RESUME · TIẾP PHẦN 2</text>
-<line x1="430" y1="356" x2="462" y2="356" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-up-dark-arrow)"/>
-<text x="470" y="360" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỌI XUỐNG TỪNG NẤC</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 368" role="img" aria-labelledby="fmg-up-title fmg-up-desc" font-family="'Geist', sans-serif">
-<title id="fmg-up-title">Đi lên: bảy bước dựng Fragment</title>
-<desc id="fmg-up-desc">Activity gọi onCreate, FragmentManager lần lượt gọi attach create createView created start resume cho Fragment.</desc>
-<defs>
-<marker id="fmg-up-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-<marker id="fmg-up-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
-</marker>
-</defs>
-<rect width="800" height="368" fill="#F8FAFC"/>
-<!-- lifelines -->
-<line x1="150" y1="84" x2="150" y2="320" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="400" y1="84" x2="400" y2="320" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="650" y1="84" x2="650" y2="320" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="396" y="112" width="8" height="24" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="646" y="144" width="8" height="148" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
-<!-- messages -->
-<path d="M 150,120 H 400" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-up-arrow)"/>
-<rect x="235" y="100" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="275" y="109" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONCREATE</text>
-<path d="M 400,152 H 650" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-up-arrow)"/>
-<rect x="485" y="132" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="525" y="141" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONATTACH</text>
-<path d="M 400,176 H 650" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-up-arrow)"/>
-<rect x="485" y="156" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="525" y="165" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONCREATE</text>
-<path d="M 400,200 H 650" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-up-arrow)"/>
-<rect x="477" y="180" width="96" height="12" rx="2" fill="#F8FAFC"/>
-<text x="525" y="189" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONCREATEVIEW</text>
-<path d="M 400,224 H 650" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-up-arrow)"/>
-<rect x="477" y="204" width="96" height="12" rx="2" fill="#F8FAFC"/>
-<text x="525" y="213" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONVIEWCREATED</text>
-<path d="M 400,248 H 650" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-up-arrow)"/>
-<rect x="485" y="228" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="525" y="237" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONSTART</text>
-<path d="M 400,272 H 650" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#fmg-up-accent)"/>
-<rect x="485" y="252" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="525" y="261" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONRESUME</text>
-<!-- actors -->
-<rect x="65" y="32" width="170" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="65" y="32" width="170" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
-<text x="150" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity</text>
-<text x="150" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình</text>
-<rect x="315" y="32" width="170" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="315" y="32" width="170" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FragmentManager</text>
-<text x="400" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">điều phối</text>
-<rect x="565" y="32" width="170" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="565" y="32" width="170" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="650" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Fragment</text>
-<text x="650" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình con</text>
-<!-- legend -->
-<line x1="32" y1="344" x2="768" y2="344" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="356" r="4" fill="#0284C7"/>
-<text x="162" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐÍCH · RESUME · TIẾP PHẦN 2</text>
-<line x1="430" y1="356" x2="462" y2="356" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-up-arrow)"/>
-<text x="470" y="360" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GỌI XUỐNG TỪNG NẤC</text>
-</svg>
-</div>
+<div class="mermaid">
+sequenceDiagram
+    participant A as Activity
+    participant FM as FragmentManager
+    participant F as Fragment
+    
+    A-&gt;&gt;FM: onCreate() (Activity CREATED)
+    FM-&gt;&gt;F: onAttach() → onCreate()
+    FM-&gt;&gt;F: onCreateView() → onViewCreated()
+    Note over F: Tối đa CREATED, chưa vượt Activity
+    A-&gt;&gt;FM: onStart() (Activity STARTED)
+    FM-&gt;&gt;F: onStart()
+    A-&gt;&gt;FM: onResume() (Activity RESUMED)
+    FM-&gt;&gt;F: onResume()
+
+    Note over A,F: Activity running
+
+    A-&gt;&gt;FM: onPause()
+    FM-&gt;&gt;F: onPause()
+    A-&gt;&gt;FM: onStop()
+    FM-&gt;&gt;F: onStop()
+    A-&gt;&gt;FM: onDestroy()
+    FM-&gt;&gt;F: onDestroyView() → onDestroy() → onDetach()
 </div>
 
-<div class="dd-diagram" data-dd="fmg-down">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 392" role="img" aria-labelledby="fmg-down-dark-title fmg-down-dark-desc" font-family="'Geist', sans-serif">
-<title id="fmg-down-dark-title">Đi xuống: tám bước dỡ Fragment</title>
-<desc id="fmg-down-dark-desc">Activity pause stop destroy, FragmentManager gọi pause stop destroyView destroy detach cho Fragment.</desc>
-<defs>
-<marker id="fmg-down-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-<marker id="fmg-down-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
-</marker>
-</defs>
-<rect width="800" height="392" fill="#060913"/>
-<!-- lifelines -->
-<line x1="150" y1="84" x2="150" y2="344" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="400" y1="84" x2="400" y2="344" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="650" y1="84" x2="650" y2="344" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="396" y="112" width="8" height="216" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="646" y="144" width="8" height="184" fill="rgba(148,163,184,0.08)" stroke="#94A3B8" stroke-width="0.8"/>
-<!-- messages -->
-<path d="M 150,120 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-down-dark-arrow)"/>
-<rect x="235" y="100" width="80" height="12" rx="2" fill="#060913"/>
-<text x="275" y="109" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONPAUSE</text>
-<path d="M 400,144 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-down-dark-arrow)"/>
-<rect x="485" y="124" width="80" height="12" rx="2" fill="#060913"/>
-<text x="525" y="133" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONPAUSE</text>
-<path d="M 150,168 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-down-dark-arrow)"/>
-<rect x="235" y="148" width="80" height="12" rx="2" fill="#060913"/>
-<text x="275" y="157" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONSTOP</text>
-<path d="M 400,192 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-down-dark-arrow)"/>
-<rect x="485" y="172" width="80" height="12" rx="2" fill="#060913"/>
-<text x="525" y="181" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONSTOP</text>
-<path d="M 150,216 H 400" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-down-dark-arrow)"/>
-<rect x="231" y="196" width="88" height="12" rx="2" fill="#060913"/>
-<text x="275" y="205" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONDESTROY</text>
-<path d="M 400,240 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-down-dark-arrow)"/>
-<rect x="477" y="220" width="96" height="12" rx="2" fill="#060913"/>
-<text x="525" y="229" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONDESTROYVIEW</text>
-<path d="M 400,264 H 650" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-down-dark-arrow)"/>
-<rect x="485" y="244" width="80" height="12" rx="2" fill="#060913"/>
-<text x="525" y="253" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONDESTROY</text>
-<path d="M 400,288 H 650" fill="none" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#fmg-down-dark-accent)"/>
-<rect x="485" y="268" width="80" height="12" rx="2" fill="#060913"/>
-<text x="525" y="277" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONDETACH</text>
-<!-- actors -->
-<rect x="65" y="32" width="170" height="52" rx="6" fill="#060913"/>
-<rect x="65" y="32" width="170" height="52" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
-<text x="150" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity</text>
-<text x="150" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình</text>
-<rect x="315" y="32" width="170" height="52" rx="6" fill="#060913"/>
-<rect x="315" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FragmentManager</text>
-<text x="400" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">điều phối</text>
-<rect x="565" y="32" width="170" height="52" rx="6" fill="#060913"/>
-<rect x="565" y="32" width="170" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="650" y="60" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Fragment</text>
-<text x="650" y="76" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình con</text>
-<!-- legend -->
-<line x1="32" y1="368" x2="768" y2="368" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="380" r="4" fill="#38BDF8"/>
-<text x="162" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">BƯỚC CUỐI · DETACH</text>
-<line x1="400" y1="380" x2="432" y2="380" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-down-dark-arrow)"/>
-<text x="440" y="384" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">XUỐNG THEO CẶP</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 392" role="img" aria-labelledby="fmg-down-title fmg-down-desc" font-family="'Geist', sans-serif">
-<title id="fmg-down-title">Đi xuống: tám bước dỡ Fragment</title>
-<desc id="fmg-down-desc">Activity pause stop destroy, FragmentManager gọi pause stop destroyView destroy detach cho Fragment.</desc>
-<defs>
-<marker id="fmg-down-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-<marker id="fmg-down-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
-</marker>
-</defs>
-<rect width="800" height="392" fill="#F8FAFC"/>
-<!-- lifelines -->
-<line x1="150" y1="84" x2="150" y2="344" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="400" y1="84" x2="400" y2="344" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="650" y1="84" x2="650" y2="344" stroke="rgba(148,163,184,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="396" y="112" width="8" height="216" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="646" y="144" width="8" height="184" fill="rgba(148,163,184,0.08)" stroke="#64748B" stroke-width="0.8"/>
-<!-- messages -->
-<path d="M 150,120 H 400" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-down-arrow)"/>
-<rect x="235" y="100" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="275" y="109" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONPAUSE</text>
-<path d="M 400,144 H 650" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-down-arrow)"/>
-<rect x="485" y="124" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="525" y="133" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONPAUSE</text>
-<path d="M 150,168 H 400" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-down-arrow)"/>
-<rect x="235" y="148" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="275" y="157" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONSTOP</text>
-<path d="M 400,192 H 650" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-down-arrow)"/>
-<rect x="485" y="172" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="525" y="181" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONSTOP</text>
-<path d="M 150,216 H 400" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-down-arrow)"/>
-<rect x="231" y="196" width="88" height="12" rx="2" fill="#F8FAFC"/>
-<text x="275" y="205" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONDESTROY</text>
-<path d="M 400,240 H 650" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-down-arrow)"/>
-<rect x="477" y="220" width="96" height="12" rx="2" fill="#F8FAFC"/>
-<text x="525" y="229" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONDESTROYVIEW</text>
-<path d="M 400,264 H 650" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-down-arrow)"/>
-<rect x="485" y="244" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="525" y="253" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONDESTROY</text>
-<path d="M 400,288 H 650" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#fmg-down-accent)"/>
-<rect x="485" y="268" width="80" height="12" rx="2" fill="#F8FAFC"/>
-<text x="525" y="277" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ONDETACH</text>
-<!-- actors -->
-<rect x="65" y="32" width="170" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="65" y="32" width="170" height="52" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
-<text x="150" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity</text>
-<text x="150" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình</text>
-<rect x="315" y="32" width="170" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="315" y="32" width="170" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FragmentManager</text>
-<text x="400" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">điều phối</text>
-<rect x="565" y="32" width="170" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="565" y="32" width="170" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="650" y="60" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Fragment</text>
-<text x="650" y="76" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">màn hình con</text>
-<!-- legend -->
-<line x1="32" y1="368" x2="768" y2="368" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="380" r="4" fill="#0284C7"/>
-<text x="162" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">BƯỚC CUỐI · DETACH</text>
-<line x1="400" y1="380" x2="432" y2="380" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-down-arrow)"/>
-<text x="440" y="384" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">XUỐNG THEO CẶP</text>
-</svg>
-</div>
-</div>
-
-<p>FragmentManager gọi các callback vòng đời của Fragment <strong>theo đúng thứ tự</strong> và <strong>đồng bộ với Activity</strong>. Nếu Activity ở trạng thái <code>RESUMED</code>, Fragment cũng sẽ ở <code>RESUMED</code>.</p>
+<p>FragmentManager gọi các callback vòng đời của Fragment <strong>theo đúng thứ tự</strong> và <strong>đồng bộ với Activity</strong>: Fragment không bao giờ ở trạng thái cao hơn Activity chứa nó, nên chỉ lên <code>STARTED</code>/<code>RESUMED</code> sau khi chính Activity đã <code>onStart()</code>/<code>onResume()</code>. Nếu Activity ở trạng thái <code>RESUMED</code>, Fragment cũng sẽ ở <code>RESUMED</code>.</p>
 
 <h3>FragmentTransaction: thao tác với Fragment</h3>
 

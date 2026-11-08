@@ -197,7 +197,7 @@ Mục tiêu: mọi nội dung website được sinh từ Markdown. Hiện trạn
 | Sửa tay entry JS song song với Markdown | iOS, Flutter, DSA, phần Android chưa chuẩn hoá |
 
 - Sidebar (`KNOWLEDGE_DATA` trong `website/app.js`) đang viết tay, phải khớp `nav`.
-- Sơ đồ SVG vẽ tay nằm ở `website/diagrams/`, sơ đồ Archify ở `website/archify/`. Markdown giữ Mermaid làm nguồn và đánh dấu bằng marker (rule 05).
+- Website render Mermaid bằng JS làm mặc định. Sơ đồ SVG vẽ tay (chỉ cho sơ đồ tổng quan) nằm ở `website/diagrams/`, sơ đồ Archify ở `website/archify/`. Markdown giữ Mermaid làm nguồn và đánh dấu bằng marker (rule 05).
 - Với domain sửa tay, Markdown và entry JS phải được sửa trong cùng một thay đổi.
 - Khi phát hiện entry web lệch Markdown: đưa phần chỉ có trên web về Markdown trước, rồi mới đồng bộ Markdown → web. Không đồng bộ đè khi chưa làm bước này, vì sẽ mất nội dung.
 

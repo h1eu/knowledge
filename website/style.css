@@ -7002,3 +7002,161 @@ body.zen-mode::after {
   .toc::after,
   .content-nav-btn { transition: none; }
 }
+
+/* ── Mermaid: phong cách tiết chế, khớp sơ đồ SVG vẽ tay (diagram-design) ──────────
+   Tông trung tính: nền thẻ, viền mảnh, đường nối xám; màu nhấn chỉ khi hover.
+   Hình thoi (quyết định) và tròn (điểm đầu/cuối) giữ màu ngữ nghĩa nhưng nhạt.
+   Đặt cuối file để thắng các luật .mermaid phía trên; class ngữ nghĩa (git-*, main-commit…)
+   có selector cụ thể hơn nên vẫn giữ màu riêng. */
+.mermaid-wrapper {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+.mermaid {
+  background-image: none;
+  padding: 48px 20px 24px;
+}
+.mermaid .node rect,
+.mermaid rect.actor {
+  fill: var(--bg-card) !important;
+  stroke: var(--border-strong) !important;
+  stroke-opacity: 1 !important;
+  stroke-width: 1px !important;
+  rx: 8px !important;
+  ry: 8px !important;
+  filter: none !important;
+}
+.mermaid .node polygon {
+  fill: var(--bg-card) !important;
+  stroke: var(--accent-amber) !important;
+  stroke-opacity: 0.55 !important;
+  stroke-width: 1px !important;
+  filter: none !important;
+}
+.mermaid .node circle,
+.mermaid .node ellipse {
+  fill: var(--accent-emerald-lt) !important;
+  stroke: var(--accent-emerald) !important;
+  stroke-opacity: 0.5 !important;
+  stroke-width: 1px !important;
+  filter: none !important;
+}
+.mermaid .node:hover rect,
+.mermaid .node:hover polygon,
+.mermaid .node:hover circle,
+.mermaid .node:hover ellipse {
+  stroke: var(--accent-sky) !important;
+  stroke-opacity: 1 !important;
+  filter: none !important;
+}
+.mermaid .node .label,
+.mermaid .node foreignObject div,
+.mermaid .node text {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+.mermaid .edgePath path.path,
+.mermaid .edge-path-main,
+.mermaid path.flowchart-link {
+  stroke: var(--text-muted) !important;
+  stroke-width: 1.25px !important;
+  opacity: 1;
+}
+.mermaid marker path,
+.mermaid .arrowheadPath {
+  fill: var(--text-secondary) !important;
+  stroke: var(--text-secondary) !important;
+  opacity: 1;
+}
+.mermaid .edgeLabel {
+  background-color: var(--bg-surface) !important;
+  padding: 1px 6px !important;
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--text-secondary) !important;
+  fill: var(--text-secondary) !important;
+}
+.mermaid .edgeLabel rect {
+  fill: var(--bg-surface) !important;
+  stroke: none !important;
+  filter: none !important;
+}
+.mermaid .cluster rect,
+.theme-light .mermaid .cluster rect,
+.theme-editorial .mermaid .cluster rect {
+  fill: transparent !important;
+  stroke: var(--border-strong) !important;
+  stroke-opacity: 1 !important;
+  stroke-width: 1px !important;
+  stroke-dasharray: 4 4;
+  rx: 10px !important;
+  ry: 10px !important;
+}
+.mermaid .cluster text,
+.mermaid .cluster span {
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  fill: var(--text-muted) !important;
+  color: var(--text-muted) !important;
+}
+/* Sequence diagram */
+.mermaid text.actor,
+.mermaid text.actor > tspan {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+.mermaid line.actor-line,
+.mermaid .actor-line {
+  stroke: var(--border-strong) !important;
+  stroke-opacity: 1 !important;
+  stroke-width: 1px !important;
+  stroke-dasharray: 3 4 !important;
+}
+.mermaid .messageLine0,
+.mermaid .messageLine1 {
+  stroke: var(--text-secondary) !important;
+  stroke-width: 1.25px !important;
+}
+.mermaid .messageText {
+  font-family: var(--font-body) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  fill: var(--prose-text) !important;
+}
+.mermaid .labelBox {
+  fill: var(--bg-card) !important;
+  stroke: var(--border-strong) !important;
+}
+.mermaid .labelText,
+.mermaid .loopText,
+.mermaid .loopText > tspan {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  fill: var(--text-secondary) !important;
+}
+.mermaid .loopLine {
+  stroke: var(--border-strong) !important;
+  stroke-opacity: 1 !important;
+  stroke-width: 1px !important;
+}
+.mermaid .note {
+  fill: var(--accent-amber-lt) !important;
+  stroke: var(--accent-amber) !important;
+  stroke-opacity: 0.45 !important;
+  stroke-width: 1px !important;
+}
+.mermaid .noteText,
+.mermaid .noteText > tspan {
+  font-size: 12px !important;
+  fill: var(--prose-text) !important;
+}
+.mermaid .activation0,
+.mermaid .activation1,
+.mermaid .activation2 {
+  fill: var(--bg-card-inner) !important;
+  stroke: var(--border-strong) !important;
+  stroke-width: 1px !important;
+}

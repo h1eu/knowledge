@@ -19854,57 +19854,70 @@ function getMermaidConfig() {
     theme: 'base',
     fontFamily: 'Geist, "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     fontSize: 14,
-    themeVariables: {
-      darkMode: !isLight,
-      fontFamily: 'Geist, "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      fontSize: '14px',
-      primaryColor: isLight ? '#ffffff' : '#13224C',
-      primaryTextColor: isLight ? '#0f172a' : '#f8fafc',
-      primaryBorderColor: isLight ? '#0284C7' : '#38BDF8',
-      lineColor: isLight ? '#0284C7' : '#38BDF8',
-      secondaryColor: isLight ? '#f1f5f9' : '#1e293b',
-      tertiaryColor: isLight ? '#ffffff' : '#090d16',
-      mainBkg: isLight ? '#ffffff' : '#13224C',
-      nodeBorder: isLight ? '#0284C7' : '#38BDF8',
-      nodeTextColor: isLight ? '#0f172a' : '#f8fafc',
-      edgeLabelBackground: isLight ? '#ffffff' : '#0B132B',
-      clusterBkg: isLight ? 'rgba(2, 132, 199, 0.05)' : 'rgba(56, 189, 248, 0.05)',
-      clusterBorder: isLight ? 'rgba(2, 132, 199, 0.28)' : 'rgba(56, 189, 248, 0.28)',
-      titleColor: isLight ? '#0f172a' : '#f8fafc',
-      // Sequence diagram — previously missing, rendered with clashing defaults
-      actorBkg: isLight ? '#ffffff' : '#13224C',
-      actorBorder: isLight ? '#0284C7' : '#38BDF8',
-      actorTextColor: isLight ? '#0f172a' : '#f8fafc',
-      actorLineColor: isLight ? 'rgba(2, 132, 199, 0.45)' : 'rgba(56, 189, 248, 0.45)',
-      signalColor: isLight ? '#0f172a' : '#E2E8F0',
-      signalTextColor: isLight ? '#0f172a' : '#E2E8F0',
-      labelBoxBkgColor: isLight ? '#0284C7' : '#38BDF8',
-      labelBoxBorderColor: isLight ? '#0284C7' : '#38BDF8',
-      labelTextColor: '#ffffff',
-      loopTextColor: isLight ? '#0f172a' : '#f8fafc',
-      noteBkgColor: isLight ? '#FEF9C3' : 'rgba(251, 191, 36, 0.14)',
-      noteBorderColor: isLight ? '#D97706' : '#FBBF24',
-      noteTextColor: isLight ? '#78350F' : '#FDE68A',
-      activationBkgColor: isLight ? 'rgba(2, 132, 199, 0.12)' : 'rgba(56, 189, 248, 0.18)',
-      activationBorderColor: isLight ? '#0284C7' : '#38BDF8',
-      sequenceNumberColor: '#ffffff',
-      // Class / state / er
-      classText: isLight ? '#0f172a' : '#f8fafc',
-      labelColor: isLight ? '#0f172a' : '#f8fafc'
-    },
+    // Bảng màu trung tính, khớp sơ đồ SVG vẽ tay: nền thẻ, viền và đường nối xám, chữ dịu.
+    // CSS .mermaid trong style.css tinh chỉnh thêm; các phần tử CSS không chọn tới (vd lifeline) lấy màu ở đây.
+    themeVariables: (() => {
+      const c = isLight
+        ? { bg: '#ffffff', bg2: '#f8fafc', border: '#cbd5e1', line: '#94a3b8', text: '#0f172a', text2: '#334155', muted: '#64748b',
+            noteBg: '#fef9c3', noteBorder: '#e7c873', noteText: '#713f12' }
+        : { bg: '#0f1a3a', bg2: '#13224c', border: '#2a3655', line: '#64748b', text: '#f8fafc', text2: '#cbd5e1', muted: '#94a3b8',
+            noteBg: '#2a2a1e', noteBorder: '#7c6a2a', noteText: '#fde68a' };
+      return {
+        darkMode: !isLight,
+        fontFamily: 'Geist, "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontSize: '14px',
+        primaryColor: c.bg,
+        primaryTextColor: c.text,
+        primaryBorderColor: c.border,
+        lineColor: c.line,
+        secondaryColor: c.bg2,
+        tertiaryColor: c.bg,
+        mainBkg: c.bg,
+        nodeBorder: c.border,
+        nodeTextColor: c.text,
+        edgeLabelBackground: isLight ? '#ffffff' : '#0B132B',
+        clusterBkg: 'transparent',
+        clusterBorder: c.border,
+        titleColor: c.text,
+        // Sequence diagram
+        actorBkg: c.bg,
+        actorBorder: c.border,
+        actorTextColor: c.text,
+        actorLineColor: c.border,
+        signalColor: c.muted,
+        signalTextColor: c.text2,
+        labelBoxBkgColor: c.bg,
+        labelBoxBorderColor: c.border,
+        labelTextColor: c.muted,
+        loopTextColor: c.text2,
+        noteBkgColor: c.noteBg,
+        noteBorderColor: c.noteBorder,
+        noteTextColor: c.noteText,
+        activationBkgColor: c.bg2,
+        activationBorderColor: c.border,
+        sequenceNumberColor: '#ffffff',
+        // Class / state / er
+        classText: c.text,
+        labelColor: c.text
+      };
+    })(),
+    // Layout gọn để sơ đồ hẹp lại, ít phải co: đường thẳng/gấp khúc giống sơ đồ SVG vẽ tay
     flowchart: {
       htmlLabels: true,
-      curve: 'basis',
-      nodeSpacing: 50,
-      rankSpacing: 65,
-      padding: 20
+      curve: 'linear',
+      nodeSpacing: 36,
+      rankSpacing: 48,
+      padding: 14
     },
     sequence: {
-      diagramMarginX: 24,
-      diagramMarginY: 16,
-      actorMargin: 60,
-      boxMargin: 12,
-      messageMargin: 40,
+      diagramMarginX: 12,
+      diagramMarginY: 12,
+      actorMargin: 18,
+      width: 170,
+      height: 52,
+      boxMargin: 8,
+      messageMargin: 32,
+      wrap: true,
       mirrorActors: false,
       rightAngles: false,
       showSequenceNumbers: false
@@ -19972,10 +19985,27 @@ new MutationObserver(() => {
 }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
 // ── Mermaid UX Enhancement: scroll hint, zoom, pan, fullscreen ────────
+// Mermaid mặc định co SVG vừa khung (width 100%): sơ đồ rộng bị thu tới ~55%, chữ còn ~7px.
+// Giữ kích thước gốc khi vừa khung; khi rộng hơn thì chỉ co tới 85% rồi cho kéo ngang.
+const MERMAID_MIN_SCALE = 0.85;
+function sizeMermaidSvg(el) {
+  const svg = el.querySelector('svg');
+  if (!svg) return;
+  const vb = (svg.getAttribute('viewBox') || '').split(/\s+/).map(Number);
+  const natural = vb[2];
+  if (!natural) return;
+  const box = el.clientWidth - 40; // trừ padding ngang của .mermaid
+  const width = natural <= box ? natural : Math.max(box, natural * MERMAID_MIN_SCALE);
+  svg.style.width = `${Math.round(width)}px`;
+  svg.style.maxWidth = 'none';
+  svg.style.minWidth = '0'; // CSS cũ đặt min-width:100% làm sơ đồ nhỏ bị phóng to
+}
+
 function enhanceMermaidDiagrams() {
   const diagrams = document.querySelectorAll('#prose-content .mermaid');
   if (!diagrams.length) return;
   diagrams.forEach(el => {
+    sizeMermaidSvg(el);
     // Avoid double-wrapping
     if (el.parentElement && el.parentElement.classList.contains('mermaid-wrapper')) {
       ensureMermaidHead(el.parentElement, el);

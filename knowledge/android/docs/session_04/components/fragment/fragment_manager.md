@@ -126,29 +126,26 @@ sequenceDiagram
     participant FM as FragmentManager
     participant F as Fragment
     
-    A->>FM: onCreate()
-    FM->>F: onAttach()
-    FM->>F: onCreate()
-    FM->>F: onCreateView()
-    FM->>F: onViewCreated()
+    A->>FM: onCreate() (Activity CREATED)
+    FM->>F: onAttach() → onCreate()
+    FM->>F: onCreateView() → onViewCreated()
+    Note over F: Tối đa CREATED, chưa vượt Activity
+    A->>FM: onStart() (Activity STARTED)
     FM->>F: onStart()
+    A->>FM: onResume() (Activity RESUMED)
     FM->>F: onResume()
-    
+
     Note over A,F: Activity running
-    
+
     A->>FM: onPause()
     FM->>F: onPause()
     A->>FM: onStop()
     FM->>F: onStop()
     A->>FM: onDestroy()
-    FM->>F: onDestroyView()
-    FM->>F: onDestroy()
-    FM->>F: onDetach()
+    FM->>F: onDestroyView() → onDestroy() → onDetach()
 ```
-<!-- dd: fmg-up -->
-<!-- dd: fmg-down -->
 
-FragmentManager gọi các callback vòng đời của Fragment **theo đúng thứ tự** và **đồng bộ với Activity**. Nếu Activity ở trạng thái `RESUMED`, Fragment cũng sẽ ở `RESUMED`.
+FragmentManager gọi các callback vòng đời của Fragment **theo đúng thứ tự** và **đồng bộ với Activity**: Fragment không bao giờ ở trạng thái cao hơn Activity chứa nó, nên chỉ lên `STARTED`/`RESUMED` sau khi chính Activity đã `onStart()`/`onResume()`. Nếu Activity ở trạng thái `RESUMED`, Fragment cũng sẽ ở `RESUMED`.
 
 ### FragmentTransaction: thao tác với Fragment
 

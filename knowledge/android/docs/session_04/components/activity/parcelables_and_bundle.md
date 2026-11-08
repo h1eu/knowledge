@@ -296,25 +296,20 @@ Tình huống chuẩn: app mua sắm, màn hình `ProductListScreen` mở `Produ
 4. `ProductDetailActivity` đọc extra bằng `getParcelableExtra()` (overload kèm `Class` từ API 33): Parcel được deserialize thành một object `Product` mới, độc lập với object bên gửi.
 5. Màn hình đích chỉ dùng `id` để ViewModel load dữ liệu chi tiết.
 
-Sơ đồ dưới vẽ đúng các bước trên theo tên node: (1) là nhánh `Product là Parcelable?`, (2) là `serialize thành Parcel`, (3) là `Binder Transaction Buffer` và hai nhánh của nó, (4) là `getParcelableExtra` → `deserialize`, (5) là node cuối.
-
 ```mermaid
 flowchart TD
-    A[ProductListActivity] -->|putExtra product Parcelable| B{Product là Parcelable?}
-    B -->|Yes| C[serialize thành Parcel]
-    B -->|No| D[Compiler error / BadParcelableException]
-    C --> E[Binder Transaction Buffer]
-    E -->|dưới 1MB| F[system_server xử lý launch]
-    E -->|quá 1MB| G[TransactionTooLargeException - crash]
-    F --> H[ProductDetailActivity]
-    H --> I[getParcelableExtra Product::class]
-    I --> J[deserialize Parcel về object]
-    J --> K[ViewModel nhận id, load dữ liệu chi tiết]
+    A[ProductListActivity] -->|"(2) putExtra(EXTRA_PRODUCT, product)"| B{"(1) Product là Parcelable?"}
+    B -->|Có| C["(2) serialize Bundle thành Parcel"]
+    B -->|Không| D[Compiler error / BadParcelableException]
+    C --> E["(3) Binder transaction buffer<br/>1MB dùng chung cho cả process"]
+    E -->|buffer chung còn chỗ| F[system_server xử lý launch]
+    E -->|buffer chung bị vượt| G[TransactionTooLargeException]
+    F --> H["(4) ProductDetailActivity: getParcelableExtra(Product::class)"]
+    H --> J["(4) deserialize thành object Product mới"]
+    J --> K["(5) ViewModel nhận id, load dữ liệu chi tiết"]
 ```
-<!-- dd: parcel-split-a -->
-<!-- dd: parcel-split-b -->
 
-Sơ đồ đơn giản hoá nhánh "dưới/quá 1MB": 1MB là sức chứa của cả buffer dùng chung, nên transaction này có thể crash dù nhỏ hơn 1MB nếu các transaction khác đang chiếm buffer (mục "Ba con số cần phân biệt").
+Nhánh ở bước (3): 1MB là sức chứa của cả buffer dùng chung, nên transaction này có thể crash dù nhỏ hơn 1MB nếu các transaction khác đang chiếm buffer (mục "Ba con số cần phân biệt").
 
 Model là @Parcelize:
 

@@ -151,7 +151,11 @@ Không để Code Block không có ngôn ngữ.
 
 Không sử dụng hình ảnh nếu Mermaid có thể biểu diễn.
 
-Ngoại lệ ở Presentation Layer: website có thể dùng SVG vẽ tay trong `website/diagrams/` (kèm bản `-dark`) để hiển thị đẹp hơn. Khi đó Markdown vẫn giữ Mermaid (hoặc sơ đồ ASCII trong khối ```` ```text ````) làm nguồn gốc, và đặt ngay sau khối đó comment `<!-- dd: <slug> -->`; trên website khối `dd-diagram` (SVG dark + light) thay cho khối đó. Marker đứng một mình (không có khối ngay trước) thì website chỉ chèn SVG. Vẽ bằng skill `.agents/skills/diagram-design`, sinh bản light bằng `python3 tools/gen-dd-light.py website/diagrams/<slug>-dark.html`.
+Trên website, Mermaid được render bằng JS (`mermaid.run` trong `website/app.js`) với theme trung tính khớp style của site (`getMermaidConfig` và khối CSS `.mermaid` cuối `website/style.css`); sơ đồ rộng chỉ co tới 85% rồi cho kéo ngang để chữ không quá nhỏ. Đây là **mặc định**: sơ đồ luôn khớp Markdown mà không phải bảo trì bản vẽ riêng.
+
+SVG vẽ tay chỉ dùng cho sơ đồ tổng quan đáng đầu tư và ít thay đổi (kiến trúc, lộ trình session, toàn cảnh một cơ chế). Sơ đồ luồng chạy có đánh số bước (1)…(n) của ví dụ thì để Mermaid, vì nó đổi theo bài. Khi sửa một khối Mermaid đã có marker `dd`, phải vẽ lại SVG trong cùng thay đổi hoặc bỏ marker; không để SVG lệch nội dung.
+
+Khi dùng SVG vẽ tay: file nằm trong `website/diagrams/` (kèm bản `-dark`). Khi đó Markdown vẫn giữ Mermaid (hoặc sơ đồ ASCII trong khối ```` ```text ````) làm nguồn gốc, và đặt ngay sau khối đó comment `<!-- dd: <slug> -->`; trên website khối `dd-diagram` (SVG dark + light) thay cho khối đó. Marker đứng một mình (không có khối ngay trước) thì website chỉ chèn SVG. Vẽ bằng skill `.agents/skills/diagram-design`, sinh bản light bằng `python3 tools/gen-dd-light.py website/diagrams/<slug>-dark.html`.
 
 Sơ đồ tương tác (Archify): dùng cho sơ đồ nhiều bước hoặc nhiều thành phần mà người đọc cần bấm vào để lần theo (kiến trúc, chuỗi lời gọi, luồng dữ liệu). Không thay thế Mermaid:
 

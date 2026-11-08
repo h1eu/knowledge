@@ -173,7 +173,7 @@ Khi một đoạn code demo hoặc hướng dẫn mô tả **logic** (luồng x�
 
 Người đọc phải hiểu được luồng chạy chỉ từ phần giải thích và sơ đồ; code là bước cuối để xác nhận.
 
-Không cần sơ đồ cho code không có luồng (khai báo dependency, cấu hình Gradle, một hàm thuần một bước). Sơ đồ viết bằng Mermaid trong Markdown; trên website vẽ lại bằng diagram-design theo rule 05.
+Không cần sơ đồ cho code không có luồng (khai báo dependency, cấu hình Gradle, một hàm thuần một bước). Sơ đồ viết bằng Mermaid trong Markdown; website render trực tiếp bằng JS, chỉ sơ đồ tổng quan mới vẽ lại bằng diagram-design (rule 05).
 
 ---
 
