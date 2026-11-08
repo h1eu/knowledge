@@ -5186,7 +5186,7 @@ Object.assign(ANDROID_CONTENT, {
 
   'build-types': {
     title: 'Build Types',
-    summary: 'Hiểu sâu về Build Types trong Gradle/AGP để quản lý các môi trường build (dev, staging, prod), cơ chế hoạt động, buildConfigField, initWith và ứng dụng vào CI/CD cùng Firebase App Distribution.',
+    summary: 'Build Type là cấu hình quyết định ứng dụng được build và đóng gói ra sao ở một giai đoạn trong vòng đời phát triển (debug, staging, release) — có debug được không, ký bằng khóa nào, có minify bằng R8 không, có hậu tố application ID không — trên cùng một mã nguồn. Bài giải thích Build Flow, buildConfigField, manifestPlaceholders, initWith, R8 rule và mapping.txt theo từng Build Type, rồi áp dụng vào cấu hình 3 môi trường, CI/CD và Firebase App Distribution.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '30 phút',
@@ -5204,7 +5204,7 @@ Object.assign(ANDROID_CONTENT, {
       'Áp dụng được Build Type vào CI/CD và Firebase App Distribution để phân phối bản build cho QA.'
     ],
     knowledgeGap: 'Nhầm lẫn Build Types với Product Flavors dẫn đến cấu hình sai signing hoặc minify cho bản release, gây lỗi khi phát hành hoặc lọt log debug ra production. Không hiểu cách Gradle/AGP hoạt động khiến khó gỡ lỗi khi build fail và không biết cách tách biến môi trường theo từng Build Type.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -5221,9 +5221,29 @@ Object.assign(ANDROID_CONTENT, {
 
 <p>Android cung cấp <strong>Build Types</strong> để giải quyết bài toán này.</p>
 
-<h2>Nền tảng cần biết trước: Gradle, AGP và build.gradle.kts</h2>
+<h2>Sau khi học xong</h2>
 
-<p><strong>Gradle</strong> là hệ thống build tổng quát, chạy các Task theo Task Graph; <strong>AGP</strong> (Android Gradle Plugin) là plugin chính thức của Google giúp Gradle hiểu và build được dự án Android, và đăng ký khối <code>android { }</code> trong <code>build.gradle.kts</code> (build script viết bằng Kotlin DSL) nơi bạn khai báo <code>buildTypes</code>. Hai khái niệm này được học ở <code>4.1.1.3</code> <a href="plugin.md" target="_blank" rel="noopener">Plugin</a>, mục "Nền tảng cần biết trước" và "AGP là gì?".</p>
+<ul>
+  <li>Giải thích được Build Flow của một Build Type: merge source sets, sinh BuildConfig, minify R8/ProGuard, signing.</li>
+  <li>Triển khai được R8/ProGuard rule riêng cho từng Build Type và lưu mapping.txt để đọc crash bản release.</li>
+  <li>Triển khai được các Build Type dev, staging, release với signing, minify, applicationIdSuffix và initWith.</li>
+  <li>Áp dụng được buildConfigField và manifestPlaceholders để tách biến môi trường khỏi source code.</li>
+  <li>Áp dụng được Build Type vào CI/CD và Firebase App Distribution để phân phối bản build cho QA.</li>
+</ul>
+
+<h2>Build Type là gì?</h2>
+
+<p><strong>Build Type</strong> (Loại bản dựng) là các cấu hình xây dựng ứng dụng ở các <strong>giai đoạn khác nhau trong vòng đời phát triển</strong> (development lifecycle) của ứng dụng.</p>
+
+<p>Build Type định nghĩa <strong>cách thức</strong> mà ứng dụng được build và đóng gói: có cho phép debug không, sử dụng khóa ký (signing key) nào, có tối ưu hóa mã nguồn (minify) không, hay có gắn thêm hậu tố vào tên gói (application ID suffix) hay không.</p>
+
+<p>Mental model: cùng một mã nguồn đi qua nhiều <strong>dây chuyền đóng gói</strong>, mỗi Build Type là bản thiết lập của một dây chuyền (gắn debugger được không, có qua R8 không, ký bằng khóa nào, dán hậu tố gì). Đổi Build Type là đổi dây chuyền, không phải sửa code.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Vị trí của Build Type trong chuỗi build</h3>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> <strong>Gradle</strong> là hệ thống build tổng quát, chạy các Task theo Task Graph; <strong>AGP</strong> (Android Gradle Plugin) là plugin chính thức của Google giúp Gradle hiểu và build được dự án Android, và đăng ký khối <code>android { }</code> trong <code>build.gradle.kts</code> (build script viết bằng Kotlin DSL) nơi bạn khai báo <code>buildTypes</code>. Hai khái niệm này được học ở <code>4.1.1.3</code> <a href="plugin.md" target="_blank" rel="noopener">Plugin</a>, mục "Nền tảng cần biết trước" và "AGP là gì?".</div></div>
 
 <p>Vị trí của <code>buildTypes</code> trong chuỗi build:</p>
 
@@ -5354,20 +5374,16 @@ Object.assign(ANDROID_CONTENT, {
 </div>
 </div>
 
-<h2>Build Type là gì?</h2>
+<h3>Hai Build Type mặc định: debug và release</h3>
 
-<p><strong>Build Type</strong> (Loại bản dựng) là các cấu hình xây dựng ứng dụng ở các <strong>giai đoạn khác nhau trong vòng đời phát triển</strong> (development lifecycle) của ứng dụng.</p>
-
-<p>Build Type định nghĩa <strong>cách thức</strong> mà ứng dụng được build và đóng gói: có cho phép debug không, sử dụng khóa ký (signing key) nào, có tối ưu hóa mã nguồn (minify) không, hay có gắn thêm hậu tố vào tên gói (application ID suffix) hay không.</p>
-
-<p>Theo mặc định, khi tạo một project Android mới, Gradle sẽ tự động cấu hình sẵn hai Build Type:</p>
+<p>Theo mặc định, khi tạo một project Android mới, AGP sẽ tự động cấu hình sẵn hai Build Type:</p>
 
 <ol>
   <li><code>debug</code>: Dành cho lúc lập trình. Không minify code, được ký bằng debug key mặc định, hỗ trợ debug đầy đủ.</li>
   <li><code>release</code>: Dành cho lúc phát hành. Thường được minify (ProGuard/R8), ký bằng release key của riêng bạn, không cho phép debug.</li>
 </ol>
 
-<h2>Build Type hoạt động như thế nào (Build Flow)?</h2>
+<h3>Build Flow: một Build Type đi qua các bước build thế nào</h3>
 
 <p>Khi bạn nhấn nút "Run" hoặc thực thi một lệnh Gradle (ví dụ: <code>./gradlew assembleDebug</code>), Gradle và Android Gradle Plugin (AGP) sẽ thực hiện một luồng công việc (Build Flow):</p>
 
@@ -5580,11 +5596,7 @@ Object.assign(ANDROID_CONTENT, {
 </div>
 </div>
 
-<h2>Phân biệt Build Types và Product Flavors</h2>
-
-<p>Build Type quyết định một <strong>giai đoạn</strong> trong vòng đời phát triển được build và đóng gói ra sao (debug, khóa ký, minify), còn Product Flavor quyết định <strong>phiên bản sản phẩm</strong> nào được build (free/paid, white-label, cửa hàng); ghép một flavor với một build type ra một <strong>Build Variant</strong>. Bảng so sánh, quy tắc đặt môi trường dev/staging/prod ở đâu và khi nào không nên tạo Build Type mới ở <a href="flavor.md" target="_blank" rel="noopener">Flavor</a>, mục "Phân biệt Build Types và Product Flavors".</p>
-
-<h2>Các thuộc tính quan trọng của một Build Type</h2>
+<h3>Các thuộc tính quan trọng của một Build Type</h3>
 
 <p>Trước khi cấu hình, cần nắm các thuộc tính hay dùng nhất:</p>
 
@@ -5639,11 +5651,11 @@ Object.assign(ANDROID_CONTENT, {
   </tbody>
 </table>
 
-<h2>buildConfigField: Vì sao nên khai báo biến môi trường ở đây?</h2>
+<h3>buildConfigField: Vì sao nên khai báo biến môi trường ở đây?</h3>
 
 <p><strong>buildConfigField</strong> là cách để bạn khai báo một biến tĩnh trong file <code>BuildConfig.java</code> được sinh tự động bởi AGP. Sau khi build, bạn có thể đọc biến này trong code như <code>BuildConfig.BASE_URL</code>.</p>
 
-<h3>Vì sao nên dùng buildConfigField thay vì hardcode?</h3>
+<h4>Vì sao nên dùng buildConfigField thay vì hardcode?</h4>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -5677,11 +5689,13 @@ Object.assign(ANDROID_CONTENT, {
   </tbody>
 </table>
 
-<h3>Lưu ý quan trọng về bảo mật</h3>
+<h4>Lưu ý quan trọng về bảo mật</h4>
 
 <div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Mọi giá trị trong <code>BuildConfig</code> đều nằm trong APK và đọc được khi decompile, nên <code>buildConfigField</code> chỉ dành cho cấu hình không nhạy cảm (BASE_URL, endpoint, feature flag). Chi tiết và chỗ đặt secret ở <a href="flavor.md" target="_blank" rel="noopener">Flavor</a>, mục "buildConfigField theo Flavor".</div></div>
 
-<h3>Cách khai báo và sử dụng</h3>
+<h4>Ví dụ: đổi BASE_URL và cờ log theo Build Type</h4>
+
+<p>Bản debug gọi server dev và bật log, bản release gọi server thật và tắt log, mà code Kotlin không có dòng <code>if</code> nào theo môi trường.</p>
 
 <p>Trong <code>build.gradle.kts</code>:</p>
 
@@ -5705,9 +5719,13 @@ Object.assign(ANDROID_CONTENT, {
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Từ AGP 8.0 trở đi, <code>BuildConfig</code> <strong>mặc định bị tắt</strong> để tăng tốc build. Bạn phải bật lại bằng cách thêm vào <code>android { }</code> block: \`\`<code>kotlin buildFeatures {     buildConfig = true } </code>\`\`</div></div>
 
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><code>buildConfigField</code> trong <code>buildTypes</code>/<code>defaultConfig</code> như các ví dụ trên là DSL chính thức (<code>VariantDimension.buildConfigField</code>), <strong>không</strong> bị deprecated ở AGP 9. Khi giá trị cần tính lúc build (ví dụ đọc từ một <code>Provider</code>, git hash), dùng bản lazy <code>variant.buildConfigFields.put(...)</code> trong <code>androidComponents { onVariants { ... } }</code>.</div></div>
+
 <h3>manifestPlaceholders: đưa biến vào AndroidManifest</h3>
 
-<p>Cùng pattern như <code>BASE_URL</code> ở trên, nhưng biến được chèn vào <code>AndroidManifest.xml</code> thay vì <code>BuildConfig</code>:</p>
+<p>Cùng pattern như <code>BASE_URL</code> ở trên, nhưng biến được chèn vào <code>AndroidManifest.xml</code> thay vì <code>BuildConfig</code>.</p>
+
+<h4>Ví dụ: deep link host theo Build Type</h4>
 
 <pre data-lang="kotlin"><code>buildTypes {
     getByName("debug") {
@@ -5720,13 +5738,13 @@ Object.assign(ANDROID_CONTENT, {
 
 <pre data-lang="xml"><code>&lt;data android:host="\${deepLinkHost}" android:scheme="https" /&gt;</code></pre>
 
-<p>Chi tiết tách <code>manifestPlaceholders</code> theo từng Flavor (free/paid, dev/prod) xem thêm ở topic Product Flavors.</p>
+<p>Mỗi Flavor cũng khai báo được <code>manifestPlaceholders</code> riêng (free/paid, dev/prod), xem <a href="flavor.md" target="_blank" rel="noopener">Flavor</a>.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><code>buildConfigField</code> trong <code>buildTypes</code>/<code>defaultConfig</code> như các ví dụ trên là DSL chính thức (<code>VariantDimension.buildConfigField</code>), <strong>không</strong> bị deprecated ở AGP 9. Khi giá trị cần tính lúc build (ví dụ đọc từ một <code>Provider</code>, git hash), dùng bản lazy <code>variant.buildConfigFields.put(...)</code> trong <code>androidComponents { onVariants { ... } }</code>.</div></div>
-
-<h2>initWith: Kế thừa cấu hình giữa các Build Type</h2>
+<h3>initWith: Kế thừa cấu hình giữa các Build Type</h3>
 
 <p><strong>initWith</strong> cho phép một Build Type kế thừa toàn bộ cấu hình từ một Build Type khác, sau đó ghi đè các thuộc tính cần thiết.</p>
+
+<h4>Ví dụ: staging giống release nhưng khác server</h4>
 
 <p>Ví dụ điển hình: Build Type <code>staging</code> cần giống hệt <code>release</code> (bật R8, dùng proguard, ký release) nhưng khác URL server.</p>
 
@@ -5750,192 +5768,13 @@ Object.assign(ANDROID_CONTENT, {
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><code>initWith</code> giúp tránh lặp lại code. Nhưng lưu ý: thứ tự khai báo quan trọng — <code>initWith</code> phải gọi <strong>trước</strong> khi ghi đè các thuộc tính khác, vì mỗi dòng sau sẽ thay thế giá trị đã kế thừa.</div></div>
 
-<h2>Ứng dụng thực tế: Cấu hình 3 môi trường Dev / Staging / Production</h2>
-
-<p>Trong thực tế dự án lớn, <code>debug</code> và <code>release</code> là không đủ. Đội ngũ QA cần một môi trường giống <code>release</code> nhất có thể để test (tức là có Minify/ProGuard) nhưng ứng dụng vẫn trỏ về máy chủ Staging/Dev, và có thể cài song song với app Production trên cùng một điện thoại.</p>
-
-<p>Đây là cách khai báo các môi trường bằng Build Type trong <code>build.gradle.kts</code>:</p>
-
-<pre data-lang="kotlin"><code>android {
-    // 1. Cấu hình Signing (Bảo mật)
-    // Không hardcode password. Đọc từ biến môi trường hoặc local.properties (đã gitignore).
-    signingConfigs {
-        create("staging") {
-            storeFile = file("staging-keystore.jks")
-            storePassword = System.getenv("STAGING_STORE_PASSWORD")
-            keyAlias = System.getenv("STAGING_KEY_ALIAS")
-            keyPassword = System.getenv("STAGING_KEY_PASSWORD")
-        }
-        create("release") {
-            storeFile = file("release-keystore.jks")
-            storePassword = System.getenv("RELEASE_STORE_PASSWORD")
-            keyAlias = System.getenv("RELEASE_KEY_ALIAS")
-            keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
-        }
-    }
-
-    // 2. Bật BuildConfig để dùng buildConfigField
-    buildFeatures {
-        buildConfig = true
-    }
-
-    buildTypes {
-        // Build Type mặc định cho Dev
-        getByName("debug") {
-            applicationIdSuffix = ".dev"
-            versionNameSuffix = "-DEV"
-            buildConfigField("String", "BASE_URL", "\\"https://dev.api.example.com/\\"")
-            isDebuggable = true
-        }
-
-        // Build Type cho Production — khai báo TRƯỚC để staging kế thừa đúng minify/proguard/signing
-        getByName("release") {
-            buildConfigField("String", "BASE_URL", "\\"https://api.example.com/\\"")
-            isMinifyEnabled = true // Bật R8/ProGuard
-            isShrinkResources = true // Loại bỏ resource thừa
-
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            signingConfig = signingConfigs.getByName("release")
-        }
-
-        // Build Type cho môi trường Staging/QA
-        create("staging") {
-            // QUAN TRỌNG: initWith phải gọi TRƯỚC khi ghi đè.
-            // Mọi dòng sau initWith sẽ thay thế giá trị đã kế thừa.
-            // Kế thừa thuộc tính từ release để test giống thật nhất (minify/proguard/signing)
-            initWith(getByName("release"))
-
-            // Giúp cài song song bản Staging và Prod trên cùng 1 máy
-            applicationIdSuffix = ".staging"
-            versionNameSuffix = "-STG"
-
-            buildConfigField("String", "BASE_URL", "\\"https://staging.api.example.com/\\"")
-
-            // Gán signing config riêng để nhận diện
-            signingConfig = signingConfigs.getByName("staging")
-
-            // Có thể muốn vẫn cho phép debug trên staging đôi chút (tuỳ team)
-            isDebuggable = true
-
-            // Library module không có build type "staging" → cho Gradle dùng bản "release" của library
-            matchingFallbacks += listOf("release")
-        }
-    }
-}</code></pre>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Build Type tự tạo (<code>staging</code>) không tồn tại trong các library module (<code>:core:network</code>, <code>:feature:cart</code>...). Thiếu <code>matchingFallbacks</code>, Gradle không chọn được variant của library và build <code>assembleStaging</code> báo lỗi resolve dependency. <code>matchingFallbacks += listOf("release")</code> bảo Gradle: library nào không có <code>staging</code> thì lấy <code>release</code>.</div></div>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Bằng cách cấu hình <code>applicationIdSuffix</code>, bạn có thể cài cả 3 app: <code>com.example.app.dev</code>, <code>com.example.app.staging</code>, và <code>com.example.app</code> lên cùng một thiết bị!</div></div>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Staging bật đồng thời <code>isMinifyEnabled = true</code> và <code>isDebuggable = true</code> chỉ dùng nội bộ cho QA. Bản <code>debuggable</code> bị Google Play từ chối khi upload, và R8 + debuggable làm stacktrace khó đọc hơn bản release thật.</div></div>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">File <code>*-keystore.jks</code> thật không commit lên Git. Tên file trong ví dụ chỉ minh họa; password đọc từ biến môi trường hoặc CI secrets như đoạn code trên.</div></div>
-
-<p>Ngoài <code>buildConfigField</code>, AGP còn merge Source Set theo Build Type (bước 2 của Build Flow): resource trong <code>src/staging/res/</code> ghi đè resource cùng tên trong <code>src/main/res/</code>, còn class trùng tên giữa <code>src/main/</code> và <code>src/staging/</code> báo lỗi duplicate class. Quy tắc merge đầy đủ ở <a href="flavor.md" target="_blank" rel="noopener">Flavor</a>, mục "Thứ tự merge Source Set". Ví dụ đổi tên app của bản staging mà không đụng bản release:</p>
-
-<pre data-lang="xml"><code>&lt;!-- app/src/staging/res/values/strings.xml --&gt;
-&lt;resources&gt;
-    &lt;string name="app_name"&gt;App STG&lt;/string&gt;
-&lt;/resources&gt;</code></pre>
-
-<h3>Đặt tên file output theo môi trường</h3>
-
-<p>Mặc định, file APK/AAB sẽ có tên kiểu <code>app-debug.apk</code>, <code>app-staging.apk</code>... Muốn đặt tên rõ ràng hơn theo môi trường, ưu tiên đổi tên gốc (Cách 1). Chỉ khi cần tùy biến hoàn toàn tên file theo từng variant mới dùng Variant API (Cách 2 mới). Cách dùng <code>applicationVariants</code> (Cách cũ) là Legacy Variant API: AGP 9 mặc định <code>android.newDsl=true</code> nên không còn truy cập được API này (opt-out <code>android.newDsl=false</code> sẽ bị bỏ ở AGP 10).</p>
-
-<p>Cách 1 — Đổi tên gốc (chỉ đổi phần base name, AGP vẫn ghép thêm <code>-debug</code> / <code>-staging</code> / <code>-release</code> phía sau):</p>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Gradle</th>
-      <th style="padding:8px 12px;text-align:left;">Cú pháp</th>
-      <th style="padding:8px 12px;text-align:left;">Ghi chú</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Gradle 8 trở xuống</td>
-      <td style="padding:8px 12px;"><code>setProperty("archivesBaseName", ...)</code> trong <code>defaultConfig</code></td>
-      <td style="padding:8px 12px;">Vẫn chạy nhưng đã deprecated</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Gradle 9+ (AGP 9)</td>
-      <td style="padding:8px 12px;"><code>base { archivesName = ... }</code> ngoài <code>android { }</code></td>
-      <td style="padding:8px 12px;">Bắt buộc, <code>archivesBaseName</code> đã bị xóa</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Gradle 9+ (AGP 9, khuyến nghị):</p>
-
-<pre data-lang="kotlin"><code>// app/build.gradle.kts — nằm NGOÀI và NGANG CẤP với android { }
-base {
-    // Tên file output sẽ là: MyApp-debug.apk, MyApp-staging.apk, MyApp-release.apk
-    archivesName = "MyApp"
-}</code></pre>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Từ Gradle 9, <code>archivesBaseName</code> đã bị xóa. Viết <code>setProperty("archivesBaseName", ...)</code> sẽ lỗi: <code>Could not set unknown property 'archivesBaseName' for project ':app'</code>. Lỗi này nghĩa là bạn đang set property lên <code>Project</code> nhưng property đó không còn tồn tại — hãy chuyển sang <code>base { archivesName = ... }</code> như trên. Check version trong <code>gradle/wrapper/gradle-wrapper.properties</code>.</div></div>
-
-<p>&lt;details&gt; &lt;summary&gt;Gradle 8 trở xuống — <code>archivesBaseName</code> (Legacy, chỉ để bảo trì project cũ)&lt;/summary&gt;</p>
-
-<pre data-lang="kotlin"><code>android {
-    defaultConfig {
-        // Tên file output sẽ là: MyApp-debug.apk, MyApp-staging.apk, MyApp-release.apk
-        setProperty("archivesBaseName", "MyApp")
-    }
-}</code></pre>
-
-<p>&lt;/details&gt;</p>
-
-<p>Cách 2 mới — Tùy biến hoàn toàn tên file với Variant API (AGP 8/9, khuyến nghị khi cần custom). Variant API công khai <strong>không</strong> cho đổi tên file output trực tiếp; cách chuẩn là lấy artifact APK của variant rồi copy ra tên mới:</p>
-
-<pre data-lang="kotlin"><code>// app/build.gradle.kts
-import com.android.build.api.artifact.SingleArtifact
-
-// Lưu ý: androidComponents nằm NGOÀI và NGANG CẤP với android { }, không nằm trong đó.
-androidComponents {
-    onVariants(selector().all()) { variant -&gt;
-        val name = variant.name
-        // versionName nằm trên VariantOutput, không nằm trên Variant
-        val versionName = variant.outputs.first().versionName
-        tasks.register&lt;Copy&gt;("copy\${name.replaceFirstChar { it.uppercase() }}Apk") {
-            from(variant.artifacts.get(SingleArtifact.APK)) { include("*.apk") }
-            into(layout.buildDirectory.dir("renamed-apk/$name"))
-            rename { "MyApp-$name-\${versionName.getOrElse("1.0")}.apk" }
-        }
-    }
-}</code></pre>
-
-<p>Chỉ đổi tên một Build Type cụ thể: thay <code>selector().all()</code> bằng <code>selector().withBuildType("staging")</code>, phần thân giữ nguyên.</p>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">- <code>VariantOutput</code> công khai chỉ có <code>versionCode</code>, <code>versionName</code>, <code>enabled</code>; <strong>không có</strong> <code>outputFileName</code> (thuộc implementation nội bộ của API cũ), nên code kiểu <code>output.outputFileName.set(...)</code> không compile với AGP 9. - Chạy <code>./gradlew copyStagingApk</code>: Gradle build APK staging trước (vì task phụ thuộc artifact <code>SingleArtifact.APK</code>), rồi copy ra <code>app/build/renamed-apk/staging/MyApp-staging-1.0.0-STG.apk</code>. - <code>variant.name</code> sẽ là <code>debug</code>, <code>staging</code> hoặc <code>release</code> (hoặc <code>freeStaging</code>, <code>paidRelease</code>... khi kết hợp Flavor + Build Type). Dùng <code>getOrElse</code> để không crash khi variant chưa set versionName. - Cách này tương thích Configuration Cache và Gradle 9. Nó chỉ áp dụng cho APK: <code>VariantOutput</code> không áp dụng cho AAB (bundle không có nhiều output).</div></div>
-
-<p>&lt;details&gt; &lt;summary&gt;Cách cũ — <code>applicationVariants</code> (Legacy, chỉ AGP 8 trở xuống, không nên dùng mới)&lt;/summary&gt;</p>
-
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><code>applicationVariants</code> là Legacy Variant API, đã được thay bằng <code>androidComponents</code>. AGP 9 mặc định <code>android.newDsl=true</code> nên không còn truy cập được (<code>android.newDsl=false</code> chỉ là opt-out tạm thời, bị bỏ ở AGP 10). Đó là lý do Android Studio mới không gợi ý <code>applicationVariants</code>. Đoạn code dưới chỉ để tham khảo khi bảo trì project cũ, và dùng internal API <code>BaseVariantOutputImpl</code> vốn đã bị Google cấm.</div></div>
-
-<pre data-lang="kotlin"><code>android {
-    applicationVariants.all {
-        val variant = this
-        outputs.all {
-            val output = this as com.android.build.gradle.api.ApkVariantOutput
-            output.outputFileName = "MyApp-\${variant.name}-\${variant.versionName}.apk"
-        }
-    }
-}</code></pre>
-
-<p>&lt;/details&gt;</p>
-
-<h2>Quản lý ProGuard và R8 Rule cho từng môi trường</h2>
+<h3>Quản lý ProGuard và R8 Rule cho từng môi trường</h3>
 
 <p>Khi bật <code>isMinifyEnabled = true</code>, R8 (công cụ biên dịch thế hệ mới của Android thay thế ProGuard) sẽ tiến hành làm rối mã (obfuscate) và loại bỏ các class/method không dùng tới.</p>
 
 <p>Vấn đề R8 giải quyết: APK release không xử lý vừa <strong>to</strong> (dead code, thư viện thừa làm tăng dung lượng tải) vừa <strong>dễ bị decompile đọc gần như nguyên code</strong> (lộ logic nghiệp vụ, endpoint, cách xử lý dữ liệu). R8 xử cả hai trong một lần chạy: gói nhỏ lại + khó đọc ngược.</p>
 
-<h3>R8 làm gì trong bản build của bạn</h3>
+<h4>R8 làm gì trong bản build của bạn</h4>
 
 <p>R8 chạy đúng bước minify trong Build Flow ở trên: <strong>sau biên dịch, trước đóng gói</strong>. Một lần chạy làm 3 việc:</p>
 
@@ -5947,7 +5786,7 @@ androidComponents {
 
 <p>Điểm gãy duy nhất: R8 chỉ nhìn thấy lời gọi <strong>trực tiếp</strong>. Code gọi qua <strong>Reflection</strong> — Gson/Moshi parse JSON, Retrofit tạo implementation, Hilt/Navigation sinh code lúc chạy — R8 tưởng không ai dùng nên xóa nhầm. Kết quả: app <strong>chỉ crash ở bản release/staging</strong> (<code>ClassNotFoundException</code>, <code>NoSuchMethodError</code>) trong khi bản debug chạy ngon. Đó chính là lý do đội QA phải test trên bản staging bật R8 thay vì bản debug.</p>
 
-<h3>Đọc crash bản release: mapping.txt</h3>
+<h4>Đọc crash bản release: mapping.txt</h4>
 
 <p>Mỗi lần build có minify, AGP sinh file <code>app/build/outputs/mapping/&lt;variant&gt;/mapping.txt</code> — bảng tra cứu tên thật ↔ tên rối. Không có file này, stacktrace crash toàn <code>a.b.c</code> và vô dụng. Quy tắc:</p>
 
@@ -5957,7 +5796,7 @@ androidComponents {
   <li>Hoặc giải tay trong Android Studio bằng Analyze Stack Trace với đúng file mapping đó.</li>
 </ul>
 
-<h3>Cú pháp rule tối thiểu</h3>
+<h4>Cú pháp rule tối thiểu</h4>
 
 <p>Rule là file <code>.pro</code> nói cho R8 biết "đừng đụng vào chỗ này". Chỉ cần 4 câu lệnh là đủ dùng hàng ngày:</p>
 
@@ -5995,10 +5834,10 @@ androidComponents {
 
 <p>Mặc định AGP đã kèm <code>proguard-android-optimize.txt</code> (rule chuẩn của Google), nên file của bạn chỉ chứa rule cho <strong>code của mình</strong>.</p>
 
-<h3>Quy trình dùng R8 cho bản release/staging</h3>
+<h4>Quy trình dùng R8 cho bản release/staging</h4>
 
 <ol>
-  <li><strong>Bật R8:</strong> <code>isMinifyEnabled = true</code> (+ <code>isShrinkResources = true</code>) trong <code>release</code>, <code>staging</code> kế thừa qua <code>initWith</code> — như ví dụ 3 môi trường ở trên.</li>
+  <li><strong>Bật R8:</strong> <code>isMinifyEnabled = true</code> (+ <code>isShrinkResources = true</code>) trong <code>release</code>, <code>staging</code> kế thừa qua <code>initWith</code> — như ví dụ 3 môi trường ở mục "Ví dụ thực tế".</li>
   <li><strong>Viết rule:</strong> thêm rule cho chỗ dùng Reflection của mình (model Gson, message Proto — xem mục rule mẫu ở dưới). Thư viện Jetpack hiện đại tự kèm rule nên không viết thừa.</li>
   <li><strong>Kiểm chứng mỗi bản build:</strong>
 <ul>
@@ -6007,11 +5846,11 @@ androidComponents {
 </ul></li>
 </ol>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">3 sai lầm phổ biến: viết <code>-keep ** { *; }</code> giữ hết cho "chắc ăn" (R8 thành vô dụng, APK không nhỏ đi — giữ hẹp từng package); copy rule Stack Overflow cũ có <code>-dontoptimize</code> / <code>-dontobfuscate</code> vào bản release (tắt luôn tác dụng R8); test R8 bằng bản debug (vô nghĩa vì R8 chỉ chạy khi <code>isMinifyEnabled = true</code>).</div></div>
+<p>Các lỗi hay gặp khi viết rule (giữ hết, copy rule cũ tắt R8, test bằng bản debug) ở mục "Sai lầm thường gặp".</p>
 
 <p>Đôi khi, bạn muốn sử dụng các rules riêng biệt cho <code>staging</code> (để giữ lại một số log crash nội bộ hoặc SDK tracking ẩn) và <code>release</code>.</p>
 
-<h3>Cách 1: Sử dụng thư mục Source Sets</h3>
+<h4>Cách 1: Sử dụng thư mục Source Sets</h4>
 
 <p>Android tự động liên kết các file có trong thư mục mang tên Build Type. Bạn có thể tổ chức thư mục như sau:</p>
 
@@ -6044,7 +5883,7 @@ androidComponents {
     }
 }</code></pre>
 
-<h3>Cách 2: Quản lý R8 Rules theo Library</h3>
+<h4>Cách 2: Quản lý R8 Rules theo Library</h4>
 
 <p>Nếu bạn viết thư viện (Android Library Module), thay vì bắt app module phải định nghĩa proguard rule, bạn nên gói kèm <code>consumerProguardFiles</code> vào trong thư viện. Rule này sẽ tự động được truyền lên (propagate) mọi Build Type đang sử dụng thư viện đó.</p>
 
@@ -6054,7 +5893,7 @@ androidComponents {
     }
 }</code></pre>
 
-<h3>Rule mẫu cho stack Lifecycle + Room + Retrofit + Hilt + DataStore</h3>
+<h4>Ví dụ: rule mẫu cho stack Lifecycle + Room + Retrofit + Hilt + DataStore</h4>
 
 <p>Nguyên tắc: thư viện Jetpack hiện đại (2024+) tự kèm rule qua <code>consumerProguardFiles</code>, nên <strong>chỉ viết rule cho code của mình</strong>. Bảng tra nhanh:</p>
 
@@ -6119,17 +5958,222 @@ androidComponents {
 #     public static *** i(...);
 # }</code></pre>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><code>-assumenosideeffects</code> chỉ dùng cho hàm không có side effect. Đừng strip <code>Log.e/wtf</code> (cần khi đọc crash), và đừng viết <code>Log.d(TAG, expensiveCall())</code> — R8 xóa cả lời gọi hàm lẫn đối số, hành vi sẽ khác nhau giữa các variant.</div></div>
+<p>Giới hạn của <code>-assumenosideeffects</code> (không strip <code>Log.e/wtf</code>, không truyền lời gọi hàm làm đối số) ở mục "Sai lầm thường gặp".</p>
 
-<h2>Kết hợp Build Type với CI/CD</h2>
+<h2>Ví dụ thực tế</h2>
+
+<h3>Cấu hình 3 môi trường Dev / Staging / Production</h3>
+
+<p>Trong thực tế dự án lớn, <code>debug</code> và <code>release</code> là không đủ. Đội ngũ QA cần một môi trường giống <code>release</code> nhất có thể để test (tức là có Minify/ProGuard) nhưng ứng dụng vẫn trỏ về máy chủ Staging/Dev, và có thể cài song song với app Production trên cùng một điện thoại.</p>
+
+<p>Luồng chạy khi build bản cho QA bằng <code>./gradlew assembleStaging</code>:</p>
+
+<ol>
+  <li>AGP đọc <code>buildTypes</code>; <code>staging</code> gọi <code>initWith(getByName("release"))</code> nên nhận lại minify, shrink resources, <code>proguardFiles</code> và signing của <code>release</code> (vì vậy <code>release</code> được khai báo trước).</li>
+  <li>Các dòng sau <code>initWith</code> ghi đè phần khác của staging: <code>applicationIdSuffix = ".staging"</code>, <code>versionNameSuffix = "-STG"</code>, <code>BASE_URL</code> của server staging, signing config <code>staging</code>, <code>isDebuggable = true</code>.</li>
+  <li>Khi resolve dependency, library module không có build type <code>staging</code>, nên <code>matchingFallbacks</code> cho Gradle lấy bản <code>release</code> của library.</li>
+  <li>AGP merge Source Set <code>src/main</code> với <code>src/staging</code>: resource cùng tên trong <code>src/staging/res/</code> (ví dụ <code>app_name</code>) ghi đè bản trong <code>src/main/res/</code>.</li>
+  <li>AGP sinh <code>BuildConfig</code> với <code>BASE_URL</code> của staging (cần <code>buildFeatures { buildConfig = true }</code>).</li>
+  <li>R8 chạy theo <code>proguardFiles</code> kế thừa từ release và sinh <code>mapping.txt</code> cho variant staging.</li>
+  <li>AGP đóng gói và ký APK bằng signing config <code>staging</code>, ra app có application ID <code>com.example.app.staging</code>.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["./gradlew assembleStaging"] --&gt; B["(1) staging: initWith(release)&lt;br/&gt;nhận minify, shrink, proguardFiles, signing"]
+    B --&gt; C["(2) Ghi đè: .staging, -STG, BASE_URL staging,&lt;br/&gt;signing staging, isDebuggable"]
+    C --&gt; D{"(3) Library module có build type staging?"}
+    D -- Không --&gt; E["matchingFallbacks: dùng bản release của library"]
+    D -- Có --&gt; F["Dùng bản staging của library"]
+    E --&gt; G["(4) Merge src/main + src/staging&lt;br/&gt;app_name = App STG"]
+    F --&gt; G
+    G --&gt; H["(5) Sinh BuildConfig.BASE_URL = staging"]
+    H --&gt; I["(6) R8 minify + mapping.txt của staging"]
+    I --&gt; J["(7) Đóng gói, ký bằng key staging&lt;br/&gt;com.example.app.staging"]
+</div>
+
+<p>Đây là cách khai báo các môi trường bằng Build Type trong <code>build.gradle.kts</code>:</p>
+
+<pre data-lang="kotlin"><code>android {
+    // (7) Cấu hình Signing (Bảo mật)
+    // Không hardcode password. Đọc từ biến môi trường hoặc local.properties (đã gitignore).
+    signingConfigs {
+        create("staging") {
+            storeFile = file("staging-keystore.jks")
+            storePassword = System.getenv("STAGING_STORE_PASSWORD")
+            keyAlias = System.getenv("STAGING_KEY_ALIAS")
+            keyPassword = System.getenv("STAGING_KEY_PASSWORD")
+        }
+        create("release") {
+            storeFile = file("release-keystore.jks")
+            storePassword = System.getenv("RELEASE_STORE_PASSWORD")
+            keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+            keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+        }
+    }
+
+    // (5) Bật BuildConfig để dùng buildConfigField
+    buildFeatures {
+        buildConfig = true
+    }
+
+    buildTypes {
+        // Build Type mặc định cho Dev
+        getByName("debug") {
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-DEV"
+            buildConfigField("String", "BASE_URL", "\\"https://dev.api.example.com/\\"")
+            isDebuggable = true
+        }
+
+        // Build Type cho Production — khai báo TRƯỚC để staging kế thừa đúng minify/proguard/signing
+        getByName("release") {
+            buildConfigField("String", "BASE_URL", "\\"https://api.example.com/\\"")
+            isMinifyEnabled = true // (6) Bật R8/ProGuard
+            isShrinkResources = true // Loại bỏ resource thừa
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("release")
+        }
+
+        // Build Type cho môi trường Staging/QA
+        create("staging") {
+            // QUAN TRỌNG: initWith phải gọi TRƯỚC khi ghi đè.
+            // Mọi dòng sau initWith sẽ thay thế giá trị đã kế thừa.
+            // (1) Kế thừa thuộc tính từ release để test giống thật nhất (minify/proguard/signing)
+            initWith(getByName("release"))
+
+            // (2) Giúp cài song song bản Staging và Prod trên cùng 1 máy
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-STG"
+
+            buildConfigField("String", "BASE_URL", "\\"https://staging.api.example.com/\\"")
+
+            // Gán signing config riêng để nhận diện
+            signingConfig = signingConfigs.getByName("staging")
+
+            // Có thể muốn vẫn cho phép debug trên staging đôi chút (tuỳ team)
+            isDebuggable = true
+
+            // (3) Library module không có build type "staging" → cho Gradle dùng bản "release" của library
+            matchingFallbacks += listOf("release")
+        }
+    }
+}</code></pre>
+
+<p>Ngoài <code>buildConfigField</code>, AGP còn merge Source Set theo Build Type (bước 2 của Build Flow): resource trong <code>src/staging/res/</code> ghi đè resource cùng tên trong <code>src/main/res/</code>, còn class trùng tên giữa <code>src/main/</code> và <code>src/staging/</code> báo lỗi duplicate class. Quy tắc merge đầy đủ ở <a href="flavor.md" target="_blank" rel="noopener">Flavor</a>, mục "Thứ tự merge Source Set". Ví dụ đổi tên app của bản staging mà không đụng bản release:</p>
+
+<pre data-lang="xml"><code>&lt;!-- (4) app/src/staging/res/values/strings.xml --&gt;
+&lt;resources&gt;
+    &lt;string name="app_name"&gt;App STG&lt;/string&gt;
+&lt;/resources&gt;</code></pre>
+
+<p><strong>Kết quả:</strong> <code>./gradlew assembleStaging</code> ra APK trỏ server staging (<code>BuildConfig.BASE_URL</code>), tên app "App STG", đã qua R8 và có <code>app/build/outputs/mapping/staging/mapping.txt</code>; cài được cạnh bản dev và bản production.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Bằng cách cấu hình <code>applicationIdSuffix</code>, bạn có thể cài cả 3 app: <code>com.example.app.dev</code>, <code>com.example.app.staging</code>, và <code>com.example.app</code> lên cùng một thiết bị!</div></div>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Staging bật đồng thời <code>isMinifyEnabled = true</code> và <code>isDebuggable = true</code> chỉ dùng nội bộ cho QA. Bản <code>debuggable</code> bị Google Play từ chối khi upload, và R8 + debuggable làm stacktrace khó đọc hơn bản release thật.</div></div>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">File <code>*-keystore.jks</code> thật không commit lên Git. Tên file trong ví dụ chỉ minh họa; password đọc từ biến môi trường hoặc CI secrets như đoạn code trên.</div></div>
+
+<h3>Đặt tên file output theo môi trường</h3>
+
+<p>Mặc định, file APK/AAB sẽ có tên kiểu <code>app-debug.apk</code>, <code>app-staging.apk</code>... Muốn đặt tên rõ ràng hơn theo môi trường, ưu tiên đổi tên gốc (Cách 1). Chỉ khi cần tùy biến hoàn toàn tên file theo từng variant mới dùng Variant API (Cách 2 mới). Cách dùng <code>applicationVariants</code> (Cách cũ) là Legacy Variant API: AGP 9 mặc định <code>android.newDsl=true</code> nên không còn truy cập được API này (opt-out <code>android.newDsl=false</code> sẽ bị bỏ ở AGP 10).</p>
+
+<p>Cách 1 — Đổi tên gốc (chỉ đổi phần base name, AGP vẫn ghép thêm <code>-debug</code> / <code>-staging</code> / <code>-release</code> phía sau):</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Gradle</th>
+      <th style="padding:8px 12px;text-align:left;">Cú pháp</th>
+      <th style="padding:8px 12px;text-align:left;">Ghi chú</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Gradle 8 trở xuống</td>
+      <td style="padding:8px 12px;"><code>setProperty("archivesBaseName", ...)</code> trong <code>defaultConfig</code></td>
+      <td style="padding:8px 12px;">Vẫn chạy nhưng đã deprecated</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Gradle 9+ (AGP 9)</td>
+      <td style="padding:8px 12px;"><code>base { archivesName = ... }</code> ngoài <code>android { }</code></td>
+      <td style="padding:8px 12px;">Bắt buộc, <code>archivesBaseName</code> đã bị xóa</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Gradle 9+ (AGP 9, khuyến nghị):</p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts — nằm NGOÀI và NGANG CẤP với android { }
+base {
+    // Tên file output sẽ là: MyApp-debug.apk, MyApp-staging.apk, MyApp-release.apk
+    archivesName = "MyApp"
+}</code></pre>
+
+<p>&lt;details&gt; &lt;summary&gt;Gradle 8 trở xuống — <code>archivesBaseName</code> (Legacy, chỉ để bảo trì project cũ)&lt;/summary&gt;</p>
+
+<pre data-lang="kotlin"><code>android {
+    defaultConfig {
+        // Tên file output sẽ là: MyApp-debug.apk, MyApp-staging.apk, MyApp-release.apk
+        setProperty("archivesBaseName", "MyApp")
+    }
+}</code></pre>
+
+<p>&lt;/details&gt;</p>
+
+<p>Cách 2 mới — Tùy biến hoàn toàn tên file với Variant API (AGP 8/9, khuyến nghị khi cần custom). Variant API công khai <strong>không</strong> cho đổi tên file output trực tiếp; cách chuẩn là lấy artifact APK của variant rồi copy ra tên mới:</p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts
+import com.android.build.api.artifact.SingleArtifact
+
+// Lưu ý: androidComponents nằm NGOÀI và NGANG CẤP với android { }, không nằm trong đó.
+androidComponents {
+    onVariants(selector().all()) { variant -&gt;
+        val name = variant.name
+        // versionName nằm trên VariantOutput, không nằm trên Variant
+        val versionName = variant.outputs.first().versionName
+        tasks.register&lt;Copy&gt;("copy\${name.replaceFirstChar { it.uppercase() }}Apk") {
+            from(variant.artifacts.get(SingleArtifact.APK)) { include("*.apk") }
+            into(layout.buildDirectory.dir("renamed-apk/$name"))
+            rename { "MyApp-$name-\${versionName.getOrElse("1.0")}.apk" }
+        }
+    }
+}</code></pre>
+
+<p>Chỉ đổi tên một Build Type cụ thể: thay <code>selector().all()</code> bằng <code>selector().withBuildType("staging")</code>, phần thân giữ nguyên.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">- <code>VariantOutput</code> công khai chỉ có <code>versionCode</code>, <code>versionName</code>, <code>enabled</code>; <strong>không có</strong> <code>outputFileName</code> (thuộc implementation nội bộ của API cũ), nên code kiểu <code>output.outputFileName.set(...)</code> không compile với AGP 9. - Chạy <code>./gradlew copyStagingApk</code>: Gradle build APK staging trước (vì task phụ thuộc artifact <code>SingleArtifact.APK</code>), rồi copy ra <code>app/build/renamed-apk/staging/MyApp-staging-1.0.0-STG.apk</code>. - <code>variant.name</code> sẽ là <code>debug</code>, <code>staging</code> hoặc <code>release</code> (hoặc <code>freeStaging</code>, <code>paidRelease</code>... khi kết hợp Flavor + Build Type). Dùng <code>getOrElse</code> để không crash khi variant chưa set versionName. - Cách này tương thích Configuration Cache và Gradle 9. Nó chỉ áp dụng cho APK: <code>VariantOutput</code> không áp dụng cho AAB (bundle không có nhiều output).</div></div>
+
+<p>&lt;details&gt; &lt;summary&gt;Cách cũ — <code>applicationVariants</code> (Legacy, chỉ AGP 8 trở xuống, không nên dùng mới)&lt;/summary&gt;</p>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><code>applicationVariants</code> là Legacy Variant API, đã được thay bằng <code>androidComponents</code>. AGP 9 mặc định <code>android.newDsl=true</code> nên không còn truy cập được (<code>android.newDsl=false</code> chỉ là opt-out tạm thời, bị bỏ ở AGP 10). Đó là lý do Android Studio mới không gợi ý <code>applicationVariants</code>. Đoạn code dưới chỉ để tham khảo khi bảo trì project cũ, và dùng internal API <code>BaseVariantOutputImpl</code> vốn đã bị Google cấm.</div></div>
+
+<pre data-lang="kotlin"><code>android {
+    applicationVariants.all {
+        val variant = this
+        outputs.all {
+            val output = this as com.android.build.gradle.api.ApkVariantOutput
+            output.outputFileName = "MyApp-\${variant.name}-\${variant.versionName}.apk"
+        }
+    }
+}</code></pre>
+
+<p>&lt;/details&gt;</p>
+
+<h3>Kết hợp Build Type với CI/CD</h3>
 
 <p>CI đọc cùng một <code>build.gradle.kts</code> và chạy task Gradle của đúng build type: <code>./gradlew assembleDebug</code>, <code>./gradlew assembleStaging</code>, <code>./gradlew assembleRelease</code> (thay <code>assemble</code> bằng <code>bundle</code> để ra AAB). Quy tắc đặt tên task khi có thêm flavor và workflow GitHub Actions mẫu ở <a href="flavor.md" target="_blank" rel="noopener">Flavor</a>, mục "Kết hợp Flavor với CI/CD". Mục tiếp theo đi vào một việc riêng của build type <code>staging</code>: giao bản build cho QA.</p>
 
-<h2>Phân phối bản build cho QA bằng Firebase App Distribution</h2>
+<h3>Phân phối bản build cho QA bằng Firebase App Distribution</h3>
 
 <p><strong>Firebase App Distribution</strong> (trước đây là Firebase App Tester) cho phép bạn đẩy file APK/AAB lên Firebase để tester tải về trực tiếp trên điện thoại — rất hợp khi cần giao bản staging cho QA.</p>
 
-<h3>Bước 1: Thêm plugin Firebase App Distribution</h3>
+<h4>Bước 1: Thêm plugin Firebase App Distribution</h4>
 
 <p>Trong <code>build.gradle.kts</code> (project root — block <code>plugins</code>):</p>
 
@@ -6145,7 +6189,7 @@ androidComponents {
     id("com.google.firebase.appdistribution")
 }</code></pre>
 
-<h3>Bước 2: Cấu hình nhóm tester cho từng Build Type</h3>
+<h4>Bước 2: Cấu hình nhóm tester cho từng Build Type</h4>
 
 <p>Bắt buộc import extension từ plugin 5.x, nếu không Gradle dùng nhầm receiver và nhận sai credentials theo build type:</p>
 
@@ -6173,7 +6217,7 @@ buildTypes {
     }
 }</code></pre>
 
-<h3>Bước 3: Đẩy bản build lên Firebase</h3>
+<h4>Bước 3: Đẩy bản build lên Firebase</h4>
 
 <p>Chạy lệnh:</p>
 
@@ -6186,29 +6230,123 @@ buildTypes {
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Kết hợp CI/CD + Firebase App Distribution: thay vì chạy tay, bạn có thể để pipeline CI (GitHub Actions, GitLab CI, Jenkins...) tự động chạy <code>appDistributionUploadStaging</code> mỗi khi có commit mới trên nhánh <code>staging</code>. Đây là pattern phổ biến để QA luôn có bản mới nhất mà không cần developer build thủ công.</div></div>
 
-<h2>Trade-offs và Common Mistakes (Những sai lầm thường gặp)</h2>
+<h2>Khi nào nên và không nên dùng</h2>
 
-<ol>
-  <li><strong>Test QA trên bản <code>debug</code>:</strong> Đội QA test trên bản <code>debug</code>, nhưng khi release người dùng lại chạy bản <code>release</code> có chạy R8 làm rối mã. Kết quả: App crash ngay trên Production vì lỗi Not Found Method do R8 xóa nhầm (thường xảy ra với Reflection hoặc Gson/Moshi). <strong>Giải pháp:</strong> Phải có một môi trường (ví dụ <code>staging</code>) bật R8 <code>isMinifyEnabled = true</code> để QA test.</li>
-  <li><strong>Hardcode cấu hình bảo mật vào file Gradle:</strong> Chèn cứng password keystore trực tiếp vào <code>build.gradle.kts</code>. <strong>Giải pháp:</strong> Sử dụng Biến môi trường (Environment Variables) hoặc file <code>local.properties</code> (được đưa vào <code>.gitignore</code>) để đọc key, giống như ví dụ ở phần Staging bên trên.</li>
-  <li><strong>Quá nhiều Build Types dư thừa:</strong> Sử dụng Build Type để định nghĩa giao diện (ví dụ <code>redTheme</code>, <code>blueTheme</code>). Việc này làm chậm quá trình Gradle Sync và sai mục đích. <strong>Giải pháp:</strong> Dùng Product Flavors cho các biến thể về mặt nội dung/giao diện sản phẩm.</li>
-  <li><strong>Quên bật <code>buildConfig = true</code>:</strong> Với AGP 8+, dùng <code>BuildConfig.BASE_URL</code> mà quên khai báo <code>buildFeatures { buildConfig = true }</code> sẽ báo lỗi không tìm thấy field. <strong>Giải pháp:</strong> Bật <code>buildConfig</code> khi dùng <code>buildConfigField</code>.</li>
-  <li><strong>Đặt secret thật sự vào <code>buildConfigField</code>:</strong> Dù không hiển thị trên UI, mọi giá trị BuildConfig vẫn nằm trong APK và có thể bị decompile. <strong>Giải pháp:</strong> Chỉ đặt config không nhạy cảm; secret phải nằm ở server.</li>
-  <li><strong>Quên <code>applicationIdSuffix</code>:</strong> Bản staging đè mất bản production trên máy QA vì cùng application ID. <strong>Giải pháp:</strong> Luôn set <code>applicationIdSuffix</code> (<code>.staging</code>, <code>.dev</code>) như ví dụ ở trên để cài song song.</li>
-  <li><strong>Trùng <code>versionCode</code> giữa các variant:</strong> Khi staging và release dùng chung applicationId (không có suffix), cài bản staging đè bản release nhưng versionCode bằng nhau gây lỗi update hoặc nhầm bản khi đối chiếu crash. <strong>Giải pháp:</strong> Kết hợp <code>versionNameSuffix</code> và quản <code>versionCode</code> riêng theo variant khi cần phân biệt.</li>
-  <li><strong>Quên upload <code>mapping.txt</code>:</strong> Bật R8 mà không lưu/upload file mapping thì crash bản release không giải được stacktrace. <strong>Giải pháp:</strong> Lưu <code>app/build/outputs/mapping/&lt;variant&gt;/mapping.txt</code> mỗi bản release và upload lên Play Console / Crashlytics.</li>
-</ol>
+<h3>Phân biệt Build Types và Product Flavors</h3>
 
-<h2>Tổng kết</h2>
-
-<p>Build Type giúp hệ thống hóa quy trình từ lúc viết code đến lúc ra mắt sản phẩm. Việc thiết lập đúng đắn các biến môi trường, khóa ký, cấu hình minification không chỉ giúp tự động hóa qua hệ thống CI/CD, mà còn cứu lập trình viên khỏi vô số lỗi ngớ ngẩn do "quên đổi URL" hay "quên tắt Log" trước khi tung app lên store.</p>
-
-<h3>Lộ trình học tiếp</h3>
+<p>Build Type quyết định một <strong>giai đoạn</strong> trong vòng đời phát triển được build và đóng gói ra sao (debug, khóa ký, minify), còn Product Flavor quyết định <strong>phiên bản sản phẩm</strong> nào được build (free/paid, white-label, cửa hàng); ghép một flavor với một build type ra một <strong>Build Variant</strong>. Bảng so sánh, quy tắc đặt môi trường dev/staging/prod ở đâu và khi nào không nên tạo Build Type mới ở <a href="flavor.md" target="_blank" rel="noopener">Flavor</a>, mục "Phân biệt Build Types và Product Flavors".</p>
 
 <ul>
-  <li><strong>Product Flavors</strong> — để quản lý các phiên bản sản phẩm (Free/Paid/Enterprise) kết hợp cùng Build Type.</li>
-  <li><strong>Gradle Plugin</strong> — hiểu cách AGP và các plugin khác được khai báo và nạp.</li>
-  <li><strong>APK / AAB</strong> — hiểu định dạng output mà Build Type tạo ra.</li>
+  <li><strong>Nên dùng Build Type</strong> khi khác biệt nằm ở cách build theo giai đoạn: có debug được không, khóa ký nào, có R8 không, hậu tố application ID, server dev/staging/prod mặc định theo giai đoạn (như ví dụ 3 môi trường ở trên).</li>
+  <li><strong>Không nên dùng Build Type</strong> cho biến thể về nội dung hoặc giao diện sản phẩm (theme, tính năng, khách hàng): dùng Product Flavors (xem Sai lầm 3 ở dưới).</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Test QA trên bản <code>debug</code></h3>
+
+<p>Đội QA test trên bản <code>debug</code>, nhưng khi release người dùng lại chạy bản <code>release</code> có chạy R8 làm rối mã. Kết quả: App crash ngay trên Production vì lỗi Not Found Method do R8 xóa nhầm (thường xảy ra với Reflection hoặc Gson/Moshi). Dùng bản debug để kiểm tra rule R8 cũng vô nghĩa, vì R8 chỉ chạy khi <code>isMinifyEnabled = true</code>.</p>
+
+<p><strong>Cách sửa:</strong> Phải có một môi trường (ví dụ <code>staging</code>) bật R8 <code>isMinifyEnabled = true</code> để QA test.</p>
+
+<h3>2. Hardcode cấu hình bảo mật vào file Gradle</h3>
+
+<p>Chèn cứng password keystore trực tiếp vào <code>build.gradle.kts</code>.</p>
+
+<p><strong>Cách sửa:</strong> Sử dụng Biến môi trường (Environment Variables) hoặc file <code>local.properties</code> (được đưa vào <code>.gitignore</code>) để đọc key, giống như ví dụ ở phần Staging bên trên.</p>
+
+<h3>3. Quá nhiều Build Types dư thừa</h3>
+
+<p>Sử dụng Build Type để định nghĩa giao diện (ví dụ <code>redTheme</code>, <code>blueTheme</code>). Việc này làm chậm quá trình Gradle Sync và sai mục đích.</p>
+
+<p><strong>Cách sửa:</strong> Dùng Product Flavors cho các biến thể về mặt nội dung/giao diện sản phẩm.</p>
+
+<h3>4. Quên bật <code>buildConfig = true</code></h3>
+
+<p>Với AGP 8+, dùng <code>BuildConfig.BASE_URL</code> mà quên khai báo <code>buildFeatures { buildConfig = true }</code> sẽ báo lỗi không tìm thấy field.</p>
+
+<p><strong>Cách sửa:</strong> Bật <code>buildConfig</code> khi dùng <code>buildConfigField</code>.</p>
+
+<h3>5. Đặt secret thật sự vào <code>buildConfigField</code></h3>
+
+<p>Dù không hiển thị trên UI, mọi giá trị BuildConfig vẫn nằm trong APK và có thể bị decompile.</p>
+
+<p><strong>Cách sửa:</strong> Chỉ đặt config không nhạy cảm; secret phải nằm ở server. Chi tiết ở <a href="flavor.md" target="_blank" rel="noopener">Flavor</a>, mục "buildConfigField theo Flavor".</p>
+
+<h3>6. Quên <code>applicationIdSuffix</code></h3>
+
+<p>Bản staging đè mất bản production trên máy QA vì cùng application ID.</p>
+
+<p><strong>Cách sửa:</strong> Luôn set <code>applicationIdSuffix</code> (<code>.staging</code>, <code>.dev</code>) như ví dụ ở trên để cài song song.</p>
+
+<h3>7. Trùng <code>versionCode</code> giữa các variant</h3>
+
+<p>Khi staging và release dùng chung applicationId (không có suffix), cài bản staging đè bản release nhưng versionCode bằng nhau gây lỗi update hoặc nhầm bản khi đối chiếu crash.</p>
+
+<p><strong>Cách sửa:</strong> Kết hợp <code>versionNameSuffix</code> và quản <code>versionCode</code> riêng theo variant khi cần phân biệt.</p>
+
+<h3>8. Thiếu <code>matchingFallbacks</code> cho Build Type tự tạo</h3>
+
+<p>Build Type tự tạo (<code>staging</code>) không tồn tại trong các library module (<code>:core:network</code>, <code>:feature:cart</code>...). Thiếu <code>matchingFallbacks</code>, Gradle không chọn được variant của library và build <code>assembleStaging</code> báo lỗi resolve dependency.</p>
+
+<p><strong>Cách sửa:</strong> <code>matchingFallbacks += listOf("release")</code> bảo Gradle: library nào không có <code>staging</code> thì lấy <code>release</code>.</p>
+
+<h3>9. Quên upload <code>mapping.txt</code></h3>
+
+<p>Bật R8 mà không lưu/upload file mapping thì crash bản release không giải được stacktrace.</p>
+
+<p><strong>Cách sửa:</strong> Lưu <code>app/build/outputs/mapping/&lt;variant&gt;/mapping.txt</code> mỗi bản release và upload lên Play Console / Crashlytics.</p>
+
+<h3>10. Giữ hết bằng <code>-keep ** { *; }</code> cho "chắc ăn"</h3>
+
+<p>R8 thành vô dụng, APK không nhỏ đi.</p>
+
+<p><strong>Cách sửa:</strong> Giữ hẹp từng package, chỉ cho chỗ dùng Reflection (xem bảng "Cú pháp rule tối thiểu").</p>
+
+<h3>11. Copy rule Stack Overflow cũ có <code>-dontoptimize</code> / <code>-dontobfuscate</code> vào bản release</h3>
+
+<p>Hai dòng này tắt luôn tác dụng R8.</p>
+
+<p><strong>Cách sửa:</strong> Bỏ hai dòng đó khỏi rule của bản release; chỉ thêm rule <code>-keep</code> hẹp cho đúng chỗ bị crash.</p>
+
+<h3>12. Strip log sai cách bằng <code>-assumenosideeffects</code></h3>
+
+<p><code>-assumenosideeffects</code> chỉ dùng cho hàm không có side effect. Đừng strip <code>Log.e/wtf</code> (cần khi đọc crash), và đừng viết <code>Log.d(TAG, expensiveCall())</code> — R8 xóa cả lời gọi hàm lẫn đối số, hành vi sẽ khác nhau giữa các variant.</p>
+
+<p><strong>Cách sửa:</strong> Chỉ strip <code>Log.d/v/i</code> như rule mẫu ở trên, và không đặt lời gọi có side effect trong đối số của log.</p>
+
+<h3>13. Dùng <code>archivesBaseName</code> trên Gradle 9</h3>
+
+<p>Từ Gradle 9, <code>archivesBaseName</code> đã bị xóa. Viết <code>setProperty("archivesBaseName", ...)</code> sẽ lỗi: <code>Could not set unknown property 'archivesBaseName' for project ':app'</code>.</p>
+
+<p><strong>Cách sửa:</strong> Lỗi này nghĩa là bạn đang set property lên <code>Project</code> nhưng property đó không còn tồn tại — hãy chuyển sang <code>base { archivesName = ... }</code> như trên. Check version trong <code>gradle/wrapper/gradle-wrapper.properties</code>.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>AGP 3.0.0 (10/2017):</strong> thêm variant-aware dependency management: khi build một variant, AGP tự khớp variant tương ứng của library module. <code>matchingFallbacks</code> là cách khai báo bản thay thế khi library thiếu build type đó.</li>
+  <li><strong>AGP 3.4.0 (04/2019):</strong> R8 bật mặc định cho cả app và library module (R8 có từ AGP 3.3.0), gộp desugar, shrink, obfuscate, optimize và dex vào một bước; vẫn đọc được ProGuard rule cũ.</li>
+  <li><strong>AGP 7.0.0 (07/2021):</strong> Variant API mới (<code>androidComponents</code>, package <code>com.android.build.api.variant</code>) stable, kèm <code>Artifacts</code> để lấy artifact trung gian như APK của variant.</li>
+  <li><strong>AGP 8.0 (2023):</strong> <code>android.defaults.buildfeatures.buildconfig</code> đổi mặc định từ <code>true</code> sang <code>false</code>: AGP không sinh <code>BuildConfig</code> nữa, module nào cần thì bật <code>buildFeatures { buildConfig = true }</code>. Cùng bản này R8 full mode bật mặc định.</li>
+  <li><strong>Gradle 9.0:</strong> xóa hẳn cơ chế convention (đã deprecated từ Gradle 8.2), trong đó có <code>project.archivesBaseName</code>; thay bằng extension <code>base</code> (<code>BasePluginExtension</code>).</li>
+  <li><strong>AGP 9.0:</strong> yêu cầu Gradle 9.1.0+; <code>android.newDsl</code> đổi mặc định sang <code>true</code>, nên Legacy Variant API như <code>applicationVariants</code> không còn truy cập được. Opt-out <code>android.newDsl=false</code> sẽ bị bỏ ở AGP 10.0.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="../../../session_01/output_packages/apk_files.md" target="_blank" rel="noopener">APK</a> và <a href="../../../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB</a>: định dạng output mà mỗi Build Type tạo ra.</li>
+  <li><strong>Kiến thức dùng trước:</strong> <a href="plugin.md" target="_blank" rel="noopener">Plugin</a> (<code>4.1.1.3</code>): định nghĩa Gradle, AGP và khối <code>android { }</code> nơi khai báo <code>buildTypes</code>.</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../tags.md" target="_blank" rel="noopener">Manifest Tags</a>: dùng <code>manifestPlaceholders</code> để tránh trùng <code>authorities</code> của Provider giữa các variant.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="flavor.md" target="_blank" rel="noopener">Flavor</a> (<code>4.1.1.2</code>): Product Flavor nhân với Build Type thành Build Variant; thứ tự merge Source Set, <code>buildConfigField</code> theo Flavor và chỗ đặt secret, workflow CI/CD mẫu.</li>
+  <li><a href="plugin.md" target="_blank" rel="noopener">Plugin</a> (<code>4.1.1.3</code>): ngoài định nghĩa Gradle/AGP, bài học cách AGP và các plugin khác được khai báo và nạp.</li>
+  <li>Session 11 (CI/CD): 11.1 Jenkins, 11.2 Bitrise, 11.3 Travis CI, 11.4 Github CI (chưa có bài): chạy các task <code>assemble&lt;BuildType&gt;</code> trong pipeline.</li>
+</ul></li>
 </ul>
 
 <h2>Nguồn tham khảo</h2>
@@ -6219,6 +6357,11 @@ buildTypes {
   <li><a href="https://developer.android.com/build/releases/gradle-plugin-roadmap" target="_blank" rel="noopener">Android Developers — AGP DSL/API migration timeline (applicationVariants → androidComponents)</a></li>
   <li><a href="https://github.com/android/gradle-recipes" target="_blank" rel="noopener">Android Gradle recipes (GitHub, dùng Artifacts API thay cho API cũ)</a></li>
   <li><a href="https://developer.android.com/build/releases/agp-9-0-0-release-notes" target="_blank" rel="noopener">Android Developers — AGP 9.0 release notes</a></li>
+  <li><a href="https://developer.android.com/build/releases/past-releases/agp-8-0-0-release-notes" target="_blank" rel="noopener">Android Developers — AGP 8.0.0 release notes (buildConfig mặc định false, R8 full mode)</a></li>
+  <li><a href="https://developer.android.com/build/releases/past-releases/agp-7-0-0-release-notes" target="_blank" rel="noopener">Android Developers — AGP 7.0.0 release notes (Variant API stable)</a></li>
+  <li><a href="https://developer.android.com/build/releases/past-releases/agp-3-4-0-release-notes" target="_blank" rel="noopener">Android Developers — AGP 3.4.0 release notes (R8 bật mặc định)</a></li>
+  <li><a href="https://developer.android.com/build/releases/past-releases/agp-3-0-0-release-notes" target="_blank" rel="noopener">Android Developers — AGP 3.0.0 release notes (variant-aware dependency management)</a></li>
+  <li><a href="https://docs.gradle.org/current/userguide/upgrading_major_version_9.html" target="_blank" rel="noopener">Gradle Documentation — Upgrading to Gradle 9.0 (xóa convention, archivesBaseName)</a></li>
   <li><a href="https://developer.android.com/reference/tools/gradle-api/9.0/com/android/build/api/variant/VariantOutput" target="_blank" rel="noopener">Android Developers — VariantOutput (gradle-api 9.0)</a></li>
   <li><a href="https://developer.android.com/reference/tools/gradle-api/9.0/com/android/build/api/dsl/VariantDimension" target="_blank" rel="noopener">Android Developers — VariantDimension.buildConfigField (gradle-api 9.0)</a></li>
   <li><a href="https://developer.android.com/build/releases/gradle-plugin#build-config" target="_blank" rel="noopener">Android Developers — BuildConfig</a></li>
@@ -6231,7 +6374,7 @@ buildTypes {
 
   'flavor': {
     title: 'Flavor',
-    summary: 'Hiểu sâu về Product Flavor trong Gradle/AGP để tạo nhiều bản build khác nhau từ một mã nguồn duy nhất, kết hợp Build Type thành Build Variant, tách code/resources theo flavor, flavorDimensions, matchingFallbacks và ứng dụng vào CI/CD cùng multi-store.',
+    summary: 'Product Flavor là một phiên bản sản phẩm của ứng dụng khai báo trong khối productFlavors của build.gradle.kts, dùng chung mã nguồn gốc và chỉ ghi đè phần cấu hình, source set khác biệt; AGP ghép mỗi flavor với một Build Type thành một Build Variant. Bài phân biệt Build Type với Product Flavor, giải thích flavorDimensions, thứ tự merge Source Set, cách tách code/resources/buildConfigField theo flavor, matchingFallbacks khi kết hợp library module, và ứng dụng vào CI/CD cùng multi-store.',
     status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '35 phút',
@@ -6249,7 +6392,7 @@ buildTypes {
       'Áp dụng được Flavor vào CI/CD và phân phối đa cửa hàng (multi-store).'
     ],
     knowledgeGap: 'Nhầm lẫn giữa Build Types và Product Flavors dẫn đến việc cấu hình sai mô hình build variant, không tách được code/resource theo flavor, hoặc sinh ra quá nhiều variant không kiểm soát. Không hiểu cơ chế flavorDimensions và merge source set khiến dễ gây lỗi trùng resource, sai applicationId và build fail khi kết hợp library module.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '35 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -6262,7 +6405,7 @@ buildTypes {
   <li><strong>Theo kênh phân phối:</strong> bản Google Play, bản Samsung Store, bản dành cho thị trường Trung Quốc.</li>
 </ul>
 
-<p>Nếu chỉ dùng <strong>Build Types</strong> (đã học ở topic <code>4.1.1.1</code>), bạn mới giải quyết được phần giai đoạn phát triển: mỗi giai đoạn (debug/staging/release) được build ra sao, có minify hay không, ký khóa nào. Nhưng bạn <strong>không thể</strong> tách nội dung như: bản free không có màn hình nâng cấp, bản trả phí có tất cả tính năng, mỗi khách hàng một màu sắc riêng.</p>
+<p>Nếu chỉ dùng <strong>Build Types</strong> (đã học ở 4.1.1.1 <a href="build_types.md" target="_blank" rel="noopener">Build Types</a>), bạn mới giải quyết được phần giai đoạn phát triển: mỗi giai đoạn (debug/staging/release) được build ra sao, có minify hay không, ký khóa nào. Nhưng bạn <strong>không thể</strong> tách nội dung như: bản free không có màn hình nâng cấp, bản trả phí có tất cả tính năng, mỗi khách hàng một màu sắc riêng.</p>
 
 <p>Nếu bạn cứ copy nguyên một project để làm phiên bản thứ hai, bạn sẽ gặp thảm họa bảo trì:</p>
 
@@ -6284,7 +6427,15 @@ buildTypes {
   <li>Áp dụng được Flavor vào CI/CD và phân phối đa cửa hàng (multi-store).</li>
 </ul>
 
-<h2>Nền tảng cần biết trước: Gradle, AGP và Build Types</h2>
+<h2>Product Flavor là gì?</h2>
+
+<p><strong>Product Flavor</strong> (Loại sản phẩm) là một <strong>phiên bản sản phẩm</strong> của ứng dụng mà bạn khai báo trong khối <code>productFlavors</code> của <code>build.gradle.kts</code>: mọi flavor dùng chung mã nguồn gốc, mỗi flavor chỉ ghi đè phần cấu hình và source set khác biệt của mình. AGP ghép mỗi flavor với một Build Type thành một <strong>Build Variant</strong>, và mỗi variant là một bản build hoàn chỉnh có task build riêng.</p>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Mental model đơn giản:</strong> Build Type trả lời câu hỏi <em>"Ứng dụng được build ở giai đoạn nào?"</em> (debug/staging/release). Product Flavor trả lời câu hỏi <em>"Phiên bản sản phẩm này dành cho ai, chứa những gì?"</em> (free/paid/enterprise, từng cửa hàng).</div></div>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Product Flavor trong chuỗi build: Gradle, AGP và Build Types</h3>
 
 <ul>
   <li><strong>Gradle</strong> là hệ thống build tổng quát, chạy các Task theo Task Graph; <strong>AGP</strong> (Android Gradle Plugin) là plugin chính thức của Google giúp Gradle hiểu và build được dự án Android, và đăng ký khối <code>android { }</code> trong <code>build.gradle.kts</code> nơi bạn khai báo <code>productFlavors</code>. Hai khái niệm này được học ở <code>4.1.1.3</code> <a href="plugin.md" target="_blank" rel="noopener">Plugin</a>, mục "Nền tảng cần biết trước" và "AGP là gì?".</li>
@@ -6420,34 +6571,7 @@ buildTypes {
 </div>
 </div>
 
-<h2>Product Flavor là gì?</h2>
-
-<p><strong>Product Flavor</strong> (Loại sản phẩm) là một <strong>biến thể của ứng dụng</strong> mà bạn định nghĩa trong <code>productFlavors</code> block của <code>build.gradle.kts</code>. Mỗi flavor đại diện cho một "phiên bản sản phẩm" riêng biệt với cùng mã nguồn gốc.</p>
-
-<p>Mỗi flavor có thể định nghĩa lại:</p>
-
-<ul>
-  <li><code>applicationId</code> (tên gói) — giúp cài song song hai phiên bản trên cùng một máy.</li>
-  <li><code>versionName</code> / <code>versionCode</code>.</li>
-  <li><code>buildConfigField</code> — biến môi trường, cờ bật/tắt tính năng.</li>
-  <li><code>manifestPlaceholders</code> — biến chèn vào <code>AndroidManifest.xml</code>.</li>
-  <li>Source Set riêng: code, resources, assets, manifest riêng.</li>
-</ul>
-
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Mental model đơn giản:</strong> Build Type trả lời câu hỏi <em>"Ứng dụng được build ở giai đoạn nào?"</em> (debug/staging/release). Product Flavor trả lời câu hỏi <em>"Phiên bản sản phẩm này dành cho ai, chứa những gì?"</em> (free/paid/enterprise, từng cửa hàng).</div></div>
-
-<h2>Vì sao cần Product Flavor?</h2>
-
-<p>Product Flavor tồn tại vì một lý do duy nhất: <strong>tạo nhiều phiên bản sản phẩm từ một mã nguồn duy nhất</strong>, giúp:</p>
-
-<ul>
-  <li><strong>Giảm chi phí bảo trì:</strong> sửa một chỗ, tất cả flavor đều có thay đổi.</li>
-  <li><strong>Tách nội dung hợp lý:</strong> code chung đặt ở <code>src/main</code>, code riêng đặt ở <code>src/&lt;flavor&gt;</code>.</li>
-  <li><strong>Phát hành độc lập:</strong> mỗi flavor có applicationId riêng nên có thể lên store độc lập hoặc cài song song để QA.</li>
-  <li><strong>Tự động hóa:</strong> CI/CD có thể build hàng loạt flavor bằng lệnh <code>assemble</code> tương ứng.</li>
-</ul>
-
-<h2>Phân biệt Build Types và Product Flavors</h2>
+<h3>Phân biệt Build Types và Product Flavors</h3>
 
 <p>Đây là chỗ nhầm lẫn phổ biến nhất khi cấu hình build Android. Tài liệu Android ("Configure your build") phân vai như sau: build type định nghĩa các thiết lập build và đóng gói, thường cấu hình theo <strong>giai đoạn của vòng đời phát triển</strong>; product flavor đại diện cho các <strong>phiên bản ứng dụng phát hành tới người dùng</strong>, như bản free và bản paid.</p>
 
@@ -6493,11 +6617,46 @@ buildTypes {
   </tbody>
 </table>
 
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Quy tắc ngón tay cái:</strong> thay đổi gắn với <strong>giai đoạn phát triển</strong> và người dùng cuối không nên quan tâm (có debug không, ký khóa nào, có R8 không) → <strong>Build Type</strong>. Thay đổi tạo ra <strong>một phiên bản sản phẩm</strong> mà người dùng sẽ thấy và so sánh (tên app, icon, tính năng, cửa hàng, server riêng cho từng khách hàng) → <strong>Flavor</strong>.  Môi trường server dev/staging/prod gắn với giai đoạn, nên mặc định đặt ở <strong>build type</strong> (<code>debug</code> trỏ dev, <code>staging</code> trỏ staging, <code>release</code> trỏ prod), như ví dụ ở <a href="build_types.md" target="_blank" rel="noopener">Build Types</a>, mục "Ứng dụng thực tế: Cấu hình 3 môi trường Dev / Staging / Production". Chỉ đưa môi trường thành một <strong>flavor dimension</strong> khi nó phải độc lập với cách build, tức là cần cả bản debug lẫn bản release cho từng môi trường (xem "Ứng dụng thực tế 1" bên dưới). Cần thêm trục sản phẩm (free/paid) thì build type vẫn nhân được với flavor sản phẩm như thường (<code>freeStaging</code>, <code>paidRelease</code>), không bắt buộc phải chuyển môi trường sang flavor.</div></div>
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><strong>Quy tắc ngón tay cái:</strong> thay đổi gắn với <strong>giai đoạn phát triển</strong> và người dùng cuối không nên quan tâm (có debug không, ký khóa nào, có R8 không) → <strong>Build Type</strong>. Thay đổi tạo ra <strong>một phiên bản sản phẩm</strong> mà người dùng sẽ thấy và so sánh (tên app, icon, tính năng, cửa hàng, server riêng cho từng khách hàng) → <strong>Flavor</strong>.  Môi trường server dev/staging/prod gắn với giai đoạn, nên mặc định đặt ở <strong>build type</strong> (<code>debug</code> trỏ dev, <code>staging</code> trỏ staging, <code>release</code> trỏ prod), như ví dụ ở <a href="build_types.md" target="_blank" rel="noopener">Build Types</a>, mục "Ví dụ thực tế", phần "Cấu hình 3 môi trường Dev / Staging / Production". Chỉ đưa môi trường thành một <strong>flavor dimension</strong> khi nó phải độc lập với cách build, tức là cần cả bản debug lẫn bản release cho từng môi trường (xem "Tách môi trường setup bằng Flavor" ở phần Ví dụ thực tế). Cần thêm trục sản phẩm (free/paid) thì build type vẫn nhân được với flavor sản phẩm như thường (<code>freeStaging</code>, <code>paidRelease</code>), không bắt buộc phải chuyển môi trường sang flavor.</div></div>
 
 <div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Khi nào KHÔNG tạo Build Type mới:</strong> cần biến thể về nội dung, khách hàng hoặc giao diện (free/paid, màu sắc, icon, server theo từng khách hàng) thì dùng <strong>Product Flavors</strong>, đừng tạo thêm Build Type. Build Type chỉ dành cho debug/signing/minify theo giai đoạn. Mỗi Build Type mới làm tăng thời gian Gradle Sync và số variant phải kiểm thử, vì nó nhân với mọi flavor.</div></div>
 
-<h2>Cơ chế hoạt động: Build Variant</h2>
+<h3>Khai báo Product Flavor cơ bản trong build.gradle.kts</h3>
+
+<p>Mỗi flavor có thể định nghĩa lại:</p>
+
+<ul>
+  <li><code>applicationId</code> (tên gói) — giúp cài song song hai phiên bản trên cùng một máy.</li>
+  <li><code>versionName</code> / <code>versionCode</code>.</li>
+  <li><code>buildConfigField</code> — biến môi trường, cờ bật/tắt tính năng.</li>
+  <li><code>manifestPlaceholders</code> — biến chèn vào <code>AndroidManifest.xml</code>.</li>
+  <li>Source Set riêng: code, resources, assets, manifest riêng.</li>
+</ul>
+
+<p>Đây là cấu hình tối thiểu — tách 2 phiên bản sản phẩm <code>free</code> và <code>paid</code>:</p>
+
+<pre data-lang="kotlin"><code>android {
+    // Bắt buộc: mọi flavor phải thuộc một dimension.
+    // Chỉ có một dimension nên AGP tự gán free/paid vào "version".
+    flavorDimensions += "version"
+
+    productFlavors {
+        create("free") {
+            applicationId = "com.example.myapp.free"
+            versionName = "1.0.0-free"
+            buildConfigField("String", "PRODUCT", "\\"free\\"")
+        }
+        create("paid") {
+            applicationId = "com.example.myapp.paid"
+            versionName = "1.0.0-paid"
+            buildConfigField("String", "PRODUCT", "\\"paid\\"")
+        }
+    }
+}</code></pre>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><code>applicationId</code> của từng flavor thường kế thừa <code>applicationId</code> trong <code>defaultConfig</code>, sau đó ghi đè bằng hậu tố <code>.free</code>, <code>.paid</code>. Nhờ đó hai bản có thể cài song song trên cùng một máy để QA so sánh.</div></div>
+
+<h3>Build Variant: Product Flavor × Build Type</h3>
 
 <p><strong>Build Variant</strong> là kết quả kết hợp của <strong>một Product Flavor</strong> với <strong>một Build Type</strong>.</p>
 
@@ -6649,11 +6808,13 @@ paidRelease   → bản trả phí, phát hành</code></pre>
 </div>
 </div>
 
-<h2>flavorDimensions: Vì sao cần khai báo dimension?</h2>
+<h3>flavorDimensions: Vì sao cần khai báo dimension?</h3>
 
 <p><strong>Mọi flavor đều phải thuộc một flavor dimension</strong>; flavor không có dimension sẽ làm build fail với lỗi <em>"All flavors must now belong to a named flavor dimension"</em>. Khi module chỉ khai báo <strong>một</strong> dimension (ví dụ <code>flavorDimensions += "version"</code> cho free/paid), AGP tự gán mọi flavor vào dimension đó nên bạn không cần ghi <code>dimension = ...</code> trong từng flavor. Khi có <strong>nhiều chiều phân loại cùng lúc</strong>, mỗi flavor phải ghi rõ <code>dimension</code> của mình.</p>
 
-<p>Ví dụ: app vừa phân loại theo <strong>môi trường</strong> (dev/prod), vừa phân loại theo <strong>kênh phân phối</strong> (gplay/samsung). Mỗi chiều là một <code>flavorDimension</code>:</p>
+<h4>Ví dụ: phân loại theo môi trường và kênh phân phối</h4>
+
+<p>App vừa phân loại theo <strong>môi trường</strong> (dev/prod), vừa phân loại theo <strong>kênh phân phối</strong> (gplay/samsung). Mỗi chiều là một <code>flavorDimension</code>:</p>
 
 <pre data-lang="kotlin"><code>android {
     flavorDimensions += listOf("environment", "store")
@@ -6672,32 +6833,7 @@ paidRelease   → bản trả phí, phát hành</code></pre>
 
 <div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>Cảnh báo:</strong> số lượng variant tăng theo cấp số nhân (<code>n_dim1 × n_dim2 × n_buildtype</code>). Càng nhiều dimension, Gradle Sync càng lâu và thời gian build toàn bộ càng tăng. Chỉ thêm dimension khi thật sự cần tách độc lập hai trục phân loại.</div></div>
 
-<h2>Khai báo Product Flavor cơ bản trong build.gradle.kts</h2>
-
-<p>Đây là cấu hình tối thiểu — tách 2 phiên bản sản phẩm <code>free</code> và <code>paid</code>:</p>
-
-<pre data-lang="kotlin"><code>android {
-    // Bắt buộc: mọi flavor phải thuộc một dimension.
-    // Chỉ có một dimension nên AGP tự gán free/paid vào "version".
-    flavorDimensions += "version"
-
-    productFlavors {
-        create("free") {
-            applicationId = "com.example.myapp.free"
-            versionName = "1.0.0-free"
-            buildConfigField("String", "PRODUCT", "\\"free\\"")
-        }
-        create("paid") {
-            applicationId = "com.example.myapp.paid"
-            versionName = "1.0.0-paid"
-            buildConfigField("String", "PRODUCT", "\\"paid\\"")
-        }
-    }
-}</code></pre>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><code>applicationId</code> của từng flavor thường kế thừa <code>applicationId</code> trong <code>defaultConfig</code>, sau đó ghi đè bằng hậu tố <code>.free</code>, <code>.paid</code>. Nhờ đó hai bản có thể cài song song trên cùng một máy để QA so sánh.</div></div>
-
-<h2>Source Sets theo Flavor</h2>
+<h3>Source Sets theo Flavor</h3>
 
 <p>Một trong những sức mạnh lớn nhất của Flavor là <strong>Source Set riêng</strong>.</p>
 
@@ -6717,7 +6853,7 @@ paidRelease   → bản trả phí, phát hành</code></pre>
  │   ├── debug/           ← source set theo build type (đã học ở Build Types)
  │   └── release/</code></pre>
 
-<h3>Thứ tự merge Source Set (quan trọng!)</h3>
+<h4>Thứ tự merge Source Set (quan trọng!)</h4>
 
 <p>Khi build một variant, AGP gộp nhiều source set lại. <strong>Nguồn sau ghi đè nguồn trước.</strong> Thứ tự ưu tiên từ cao đến thấp:</p>
 
@@ -6843,9 +6979,11 @@ library dependencies         (thấp nhất — resource, manifest của thư vi
 
 <div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Trong cùng một variant, một class (cùng package, cùng tên, ví dụ <code>MainActivity.kt</code>) chỉ được nằm ở <strong>một</strong> source set. Có class đó ở cả <code>src/main</code> và <code>src/free</code> (hoặc <code>src/main</code> và <code>src/debug</code>), Gradle báo lỗi duplicate class khi build. Muốn mỗi flavor hoặc mỗi build type có một phiên bản riêng của class, đặt bản riêng vào <strong>từng</strong> source set (<code>src/free/</code>, <code>src/paid/</code>) và <strong>không</strong> đặt nó trong <code>src/main/</code>, như ví dụ ở mục sau.</div></div>
 
-<h2>Tách Code theo Flavor</h2>
+<h3>Tách Code theo Flavor</h3>
 
 <p>Khi bạn muốn mỗi flavor có logic riêng, đặt file code vào source set của flavor đó.</p>
+
+<h4>Ví dụ: quảng cáo chỉ có ở bản free</h4>
 
 <p>Ví dụ: flavor <code>free</code> hiển thị quảng cáo, flavor <code>paid</code> thì không. Tạo interface chung trong <code>main</code>, rồi mỗi flavor có một class <strong>cùng tên, cùng package</strong> <code>FlavorAdsProvider</code> để code trong <code>main</code> gọi được mà không cần biết đang build flavor nào:</p>
 
@@ -6874,9 +7012,9 @@ val adsProvider: AdsProvider = FlavorAdsProvider()</code></pre>
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Class nằm trong source set của flavor nào chỉ được biên dịch khi build flavor đó. Đây là cách sạch nhất để "có/không có" tính năng theo từng phiên bản sản phẩm, thay vì rải rác câu <code>if (BuildConfig.FLAVOR == "free")</code>.</div></div>
 
-<h2>Tách Resources theo Flavor</h2>
+<h3>Tách Resources theo Flavor</h3>
 
-<h3>strings.xml theo từng flavor</h3>
+<h4>strings.xml theo từng flavor</h4>
 
 <p>Đặt file <code>strings.xml</code> cùng tên ở cả <code>src/main</code> và <code>src/free</code>, <code>src/paid</code>:</p>
 
@@ -6886,11 +7024,11 @@ src/paid/res/values/strings.xml   → app_name = "MyApp Pro"</code></pre>
 
 <p>Khi build flavor <code>free</code>, tên app hiển thị là <strong>MyApp Free</strong>. Resource này không cần viết thêm code — AGP tự chọn theo quy tắc merge ở trên.</p>
 
-<h3>Icon, màu sắc, logo riêng</h3>
+<h4>Icon, màu sắc, logo riêng</h4>
 
 <p>Cũng tương tự: đặt <code>mipmap</code>, <code>drawable</code>, <code>values/colors.xml</code> vào thư mục resource của từng flavor để mỗi phiên bản sản phẩm có giao diện riêng (white-label).</p>
 
-<h2>buildConfigField theo Flavor</h2>
+<h3>buildConfigField theo Flavor</h3>
 
 <p>Bên cạnh build type, bạn có thể khai báo <code>buildConfigField</code> theo flavor. Đây là nơi đặt cấu hình khác nhau <strong>theo từng phiên bản sản phẩm</strong>, hoặc theo môi trường khi môi trường đã là một flavor dimension (xem "Phân biệt Build Types và Product Flavors"):</p>
 
@@ -6918,7 +7056,7 @@ src/paid/res/values/strings.xml   → app_name = "MyApp Pro"</code></pre>
 
 <div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><code>buildConfigField</code> <strong>không phải</strong> nơi an toàn để chứa secret, dù khai báo theo build type hay theo flavor. Mọi giá trị trong <code>BuildConfig</code> được biên dịch thành hằng số nằm trong APK/AAB và đọc được khi decompile; R8 làm rối tên class, không giấu giá trị chuỗi. Chỉ đặt ở đây config không nhạy cảm (BASE_URL, endpoint, feature flag). Mật khẩu, API key nhạy cảm phải nằm ở phía server hoặc qua kiến trúc bảo mật riêng (ví dụ Backend proxy, Play Integrity). Password keystore cũng không ghi thẳng vào <code>build.gradle.kts</code>: đọc từ biến môi trường hoặc CI secrets, như ví dụ signing ở <a href="build_types.md" target="_blank" rel="noopener">Build Types</a>.</div></div>
 
-<h2>BuildConfig.FLAVOR: Đọc tên flavor trong code</h2>
+<h3>BuildConfig.FLAVOR: Đọc tên flavor trong code</h3>
 
 <p>AGP tự sinh hằng số <code>BuildConfig.FLAVOR</code> chứa tên flavor hiện tại:</p>
 
@@ -6933,7 +7071,41 @@ BuildConfig.FLAVOR_store        // "gplay"</code></pre>
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Ưu tiên dùng <code>buildConfigField</code> hoặc source set riêng thay vì rải rác <code>if (BuildConfig.FLAVOR == ...)</code> trong code chính. Kiểm tra <code>FLAVOR</code> chỉ phù hợp cho các tình huống nhỏ, tạm thời, không nằm trong luồng nghiệp vụ chính.</div></div>
 
-<h2>Ứng dụng thực tế 1: Tách môi trường setup bằng Flavor</h2>
+<h3>matchingFallbacks: Khi app module kết hợp với library module</h3>
+
+<p>Khi project của bạn có <strong>library module</strong> (Android Library) và library đó cũng định nghĩa flavor riêng, Gradle tự khớp variant theo <strong>tên dimension và tên flavor</strong>. Có hai tình huống cần khai báo thêm:</p>
+
+<ul>
+  <li><strong>Cùng dimension, khác tên flavor</strong> → dùng <strong><code>matchingFallbacks</code></strong> trong flavor của app. Ví dụ app và library đều có dimension <code>tier</code>; app có <code>free</code>/<code>paid</code>, library chỉ có <code>demo</code>/<code>paid</code>. Flavor <code>free</code> của app không có bản tương ứng nên phải chỉ định flavor thay thế.</li>
+  <li><strong>Library có dimension mà app không có</strong> → dùng <strong><code>missingDimensionStrategy</code></strong> để chọn flavor mặc định của dimension đó. Ví dụ library có dimension <code>content</code> gồm <code>minimal</code>/<code>full</code>, app không có dimension này.</li>
+</ul>
+
+<pre data-lang="kotlin"><code>android {
+    flavorDimensions += "tier"
+
+    defaultConfig {
+        // Library có dimension "content" mà app không có: chọn "minimal" (dự phòng "full")
+        missingDimensionStrategy("content", "minimal", "full")
+    }
+
+    productFlavors {
+        create("free") {
+            dimension = "tier"
+            // Library không có "free" trong dimension "tier": dùng "demo" thay thế
+            matchingFallbacks += listOf("demo")
+        }
+        create("paid") {
+            dimension = "tier"
+            // Library cũng có "paid" → tự khớp, không cần fallback
+        }
+    }
+}</code></pre>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Thiếu <code>matchingFallbacks</code>/<code>missingDimensionStrategy</code> ở các tình huống trên, Gradle không chọn được variant của library và build báo lỗi resolve dependency (không tìm thấy variant khớp). <code>matchingFallbacks</code> cũng dùng được cho <strong>build type</strong> (ví dụ build type <code>staging</code> của app dùng bản <code>release</code> của library).</div></div>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>Tách môi trường setup bằng Flavor</h3>
 
 <p>Bài toán: <strong>tạo nhiều bản build dựa trên môi trường setup</strong>.</p>
 
@@ -6950,7 +7122,7 @@ BuildConfig.FLAVOR_store        // "gplay"</code></pre>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Dùng Build Type cho môi trường (mặc định)</td>
-      <td style="padding:8px 12px;"><code>debug</code>/<code>staging</code>/<code>release</code> là môi trường, cài song song nhờ <code>applicationIdSuffix</code>; ví dụ đầy đủ ở <a href="build_types.md" target="_blank" rel="noopener">Build Types</a>, mục "Ứng dụng thực tế: Cấu hình 3 môi trường Dev / Staging / Production"</td>
+      <td style="padding:8px 12px;"><code>debug</code>/<code>staging</code>/<code>release</code> là môi trường, cài song song nhờ <code>applicationIdSuffix</code>; ví dụ đầy đủ ở <a href="build_types.md" target="_blank" rel="noopener">Build Types</a>, mục "Ví dụ thực tế", phần "Cấu hình 3 môi trường Dev / Staging / Production"</td>
       <td style="padding:8px 12px;">Mỗi môi trường chỉ cần một cách build: dev luôn debug, staging và prod luôn minify</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
@@ -6997,9 +7169,9 @@ BuildConfig.FLAVOR_store        // "gplay"</code></pre>
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Các <code>API_KEY</code> ở trên chỉ là config không nhạy cảm; key thật không bao giờ đặt trong <code>buildConfigField</code> (xem cảnh báo ở mục "buildConfigField theo Flavor").</div></div>
 
-<h2>Ứng dụng thực tế 2: Kết hợp Flavor môi trường + Flavor sản phẩm + Build Type</h2>
+<h3>Kết hợp Flavor môi trường + Flavor sản phẩm + Build Type</h3>
 
-<p>Khi môi trường đã là flavor (lý do ở "Ứng dụng thực tế 1") và dự án còn cần tách sản phẩm (free/paid), ta dùng <strong>2 dimension + build types</strong>:</p>
+<p>Khi môi trường đã là flavor (lý do ở "Tách môi trường setup bằng Flavor") và dự án còn cần tách sản phẩm (free/paid), ta dùng <strong>2 dimension + build types</strong>:</p>
 
 <pre data-lang="kotlin"><code>android {
     flavorDimensions += listOf("environment", "version")
@@ -7034,39 +7206,7 @@ prod × paid × release = prodPaidRelease</code></pre>
 
 <p>Tên task build tương ứng: <code>./gradlew assembleProdPaidRelease</code>, <code>./gradlew assembleDevFreeDebug</code>...</p>
 
-<h2>matchingFallbacks: Khi app module kết hợp với library module</h2>
-
-<p>Khi project của bạn có <strong>library module</strong> (Android Library) và library đó cũng định nghĩa flavor riêng, Gradle tự khớp variant theo <strong>tên dimension và tên flavor</strong>. Có hai tình huống cần khai báo thêm:</p>
-
-<ul>
-  <li><strong>Cùng dimension, khác tên flavor</strong> → dùng <strong><code>matchingFallbacks</code></strong> trong flavor của app. Ví dụ app và library đều có dimension <code>tier</code>; app có <code>free</code>/<code>paid</code>, library chỉ có <code>demo</code>/<code>paid</code>. Flavor <code>free</code> của app không có bản tương ứng nên phải chỉ định flavor thay thế.</li>
-  <li><strong>Library có dimension mà app không có</strong> → dùng <strong><code>missingDimensionStrategy</code></strong> để chọn flavor mặc định của dimension đó. Ví dụ library có dimension <code>content</code> gồm <code>minimal</code>/<code>full</code>, app không có dimension này.</li>
-</ul>
-
-<pre data-lang="kotlin"><code>android {
-    flavorDimensions += "tier"
-
-    defaultConfig {
-        // Library có dimension "content" mà app không có: chọn "minimal" (dự phòng "full")
-        missingDimensionStrategy("content", "minimal", "full")
-    }
-
-    productFlavors {
-        create("free") {
-            dimension = "tier"
-            // Library không có "free" trong dimension "tier": dùng "demo" thay thế
-            matchingFallbacks += listOf("demo")
-        }
-        create("paid") {
-            dimension = "tier"
-            // Library cũng có "paid" → tự khớp, không cần fallback
-        }
-    }
-}</code></pre>
-
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Thiếu <code>matchingFallbacks</code>/<code>missingDimensionStrategy</code> ở các tình huống trên, Gradle không chọn được variant của library và build báo lỗi resolve dependency (không tìm thấy variant khớp). <code>matchingFallbacks</code> cũng dùng được cho <strong>build type</strong> (ví dụ build type <code>staging</code> của app dùng bản <code>release</code> của library).</div></div>
-
-<h2>Kết hợp Flavor với CI/CD</h2>
+<h3>Kết hợp Flavor với CI/CD</h3>
 
 <p>Build Type và Flavor là nền tảng để CI tự động build nhiều phiên bản. CI đọc cùng một <code>build.gradle.kts</code> và chạy task Gradle của đúng variant, nên chỉ cần nắm cách AGP đặt tên task:</p>
 
@@ -7077,10 +7217,35 @@ prod × paid × release = prodPaidRelease</code></pre>
   <li>Thay <code>assemble</code> bằng <code>bundle</code> để ra AAB, ví dụ <code>./gradlew bundleProdPaidRelease</code>.</li>
 </ul>
 
-<p>Mỗi tên flavor và build type viết hoa chữ cái đầu khi ghép vào tên task. Với <strong>GitHub Actions</strong>, dùng matrix build để chạy song song các flavor (ở đây là flavor môi trường của "Ứng dụng thực tế 1"). Giá trị matrix viết hoa sẵn để ghép thẳng vào tên task:</p>
+<p>Mỗi tên flavor và build type viết hoa chữ cái đầu khi ghép vào tên task. Với <strong>GitHub Actions</strong>, dùng matrix build để chạy song song các flavor (ở đây là flavor môi trường của "Tách môi trường setup bằng Flavor"). Giá trị matrix viết hoa sẵn để ghép thẳng vào tên task.</p>
+
+<p>Luồng chạy của workflow:</p>
+
+<ol>
+  <li>Push lên nhánh <code>main</code> kích hoạt workflow.</li>
+  <li><code>strategy.matrix</code> tách thành ba job chạy song song, mỗi job nhận một giá trị <code>flavor</code> (<code>Dev</code>, <code>Staging</code>, <code>Prod</code>).</li>
+  <li>Mỗi job checkout code, cài JDK 17 và cấp quyền chạy cho <code>gradlew</code>.</li>
+  <li>Job ghép giá trị matrix vào tên task: <code>assemble\${{ matrix.flavor }}Release</code> thành <code>assembleDevRelease</code>, <code>assembleStagingRelease</code>, <code>assembleProdRelease</code>.</li>
+  <li>Job upload APK trong thư mục output của variant thành artifact <code>apk-&lt;flavor&gt;</code>.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    P["(1) Push lên main"] --&gt; M{"(2) matrix.flavor"}
+    M --&gt;|Dev| D3["(3) checkout, JDK 17, chmod gradlew"]
+    M --&gt;|Staging| S3["(3) checkout, JDK 17, chmod gradlew"]
+    M --&gt;|Prod| R3["(3) checkout, JDK 17, chmod gradlew"]
+    D3 --&gt; D4["(4) assembleDevRelease"]
+    S3 --&gt; S4["(4) assembleStagingRelease"]
+    R3 --&gt; R4["(4) assembleProdRelease"]
+    D4 --&gt; D5["(5) artifact apk-Dev"]
+    S4 --&gt; S5["(5) artifact apk-Staging"]
+    R4 --&gt; R5["(5) artifact apk-Prod"]
+</div>
 
 <pre data-lang="yaml"><code>name: Android Build Flavors
 
+# (1) Push lên main kích hoạt workflow
 on:
   push:
     branches: [main]
@@ -7088,10 +7253,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # (2) Mỗi giá trị flavor là một job chạy song song
     strategy:
       matrix:
         flavor: [Dev, Staging, Prod]
     steps:
+      # (3) Chuẩn bị môi trường build
       - uses: actions/checkout@v4
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -7100,8 +7267,10 @@ jobs:
           java-version: '17'
       - name: Grant execute permission
         run: chmod +x gradlew
+      # (4) Ghép giá trị matrix vào tên task
       - name: Build APK
         run: ./gradlew assemble\${{ matrix.flavor }}Release
+      # (5) Upload APK của variant
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -7109,9 +7278,11 @@ jobs:
           # Thư mục output dùng tên flavor viết thường (apk/dev/release/), nên dùng wildcard
           path: app/build/outputs/apk/*/release/*.apk</code></pre>
 
+<p><strong>Kết quả:</strong> mỗi lần push lên <code>main</code>, trang của lần chạy workflow trên GitHub Actions có ba job <code>Dev</code>, <code>Staging</code>, <code>Prod</code> và ba artifact <code>apk-Dev</code>, <code>apk-Staging</code>, <code>apk-Prod</code>, mỗi artifact chứa APK release của đúng flavor đó.</p>
+
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Project chỉ dùng build type cho môi trường thì workflow giống hệt, chỉ đổi bước build thành <code>./gradlew assembleStaging</code> và đường dẫn thành <code>app/build/outputs/apk/staging/*.apk</code>. Đẩy bản staging cho QA qua Firebase App Distribution ở <a href="build_types.md" target="_blank" rel="noopener">Build Types</a>, mục "Phân phối bản build cho QA bằng Firebase App Distribution".</div></div>
 
-<h2>Kết hợp Flavor với đa cửa hàng (Multi-store)</h2>
+<h3>Kết hợp Flavor với đa cửa hàng (Multi-store)</h3>
 
 <p>Khi phát hành app trên nhiều cửa hàng (Google Play, Samsung Store, Huawei AppGallery), mỗi nơi có thể yêu cầu applicationId hoặc SDK riêng. Dùng dimension <code>store</code>:</p>
 
@@ -7140,33 +7311,96 @@ jobs:
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Mỗi store thường yêu cầu một keystore / signing config riêng. Có thể gán <code>signingConfig</code> khác nhau trong từng flavor, hoặc trong từng build type release.</div></div>
 
-<h2>Trade-offs và Common Mistakes (Những sai lầm thường gặp)</h2>
+<h2>Khi nào nên và không nên dùng</h2>
 
-<ol>
-  <li><strong>Dùng Build Type để tách nội dung sản phẩm:</strong> Định nghĩa <code>buildTypes { create("free")... }</code>, <code>create("paid")...</code> để đổi icon/màu. Đây là dùng sai mục đích — Build Type quyết định <em>cách build</em>, Flavor mới quyết định <em>nội dung</em>. Hậu quả: không tách được source set theo sản phẩm, variant lộn xộn.</li>
-  <li><strong>Quên khai báo <code>flavorDimensions</code>:</strong> Gradle báo lỗi <em>"All flavors must now belong to a named flavor dimension"</em> ngay khi sync, kể cả khi chỉ có một nhóm flavor. Luôn khai báo dimension; có từ 2 dimension trở lên thì ghi rõ <code>dimension</code> trong từng flavor.</li>
-  <li><strong>Tạo quá nhiều dimension:</strong> Mỗi dimension nhân số variant lên. 3 dimension × 3 flavor mỗi cái × 2 build type = 54 variant → build toàn bộ rất lâu. Chỉ thêm dimension khi thật sự cần.</li>
-  <li><strong>Đặt cùng một class vào nhiều source set của một variant:</strong> Ví dụ đặt <code>MainActivity.kt</code> cả ở <code>main</code> và <code>free</code> → lỗi duplicate class khi build. Muốn mỗi flavor một bản thì đặt ở từng <code>src/&lt;flavor&gt;/</code> và bỏ khỏi <code>main</code>.</li>
-  <li><strong>Quên <code>matchingFallbacks</code>/<code>missingDimensionStrategy</code> khi dùng library có flavor:</strong> Build fail vì Gradle không resolve được variant của library. Dùng <code>matchingFallbacks</code> khi cùng dimension nhưng khác tên flavor, <code>missingDimensionStrategy</code> khi library có dimension mà app không có.</li>
-  <li><strong>Đặt secret vào <code>buildConfigField</code>:</strong> API key, mật khẩu bị decompile từ APK. Chỉ đặt config không nhạy cảm.</li>
-  <li><strong>Quên bật <code>buildConfig = true</code>:</strong> Với AGP 8+, dùng <code>BuildConfig.API_BASE_URL</code> mà chưa bật <code>buildFeatures { buildConfig = true }</code> sẽ báo lỗi không tìm thấy field.</li>
-  <li><strong>Nhầm tên task build:</strong> Tên task là <code>assemble&lt;Flavor&gt;&lt;BuildType&gt;</code> (ghi hoa chữ cái đầu, không có dấu phân cách). <code>assemblefreeRelease</code> sai → phải <code>assembleFreeRelease</code>.</li>
-</ol>
-
-<h2>Tổng kết</h2>
-
-<p>Product Flavor cho phép bạn tạo <strong>nhiều phiên bản sản phẩm từ một mã nguồn duy nhất</strong>: tách code, resources, applicationId, biến môi trường theo từng flavor. Kết hợp với Build Type, bạn có <strong>Build Variant</strong> — mỗi variant là một sản phẩm build hoàn chỉnh, có task build riêng, dễ tự động hóa trong CI/CD và đa cửa hàng.</p>
-
-<p>Nắm được <code>flavorDimensions</code>, thứ tự merge source set và <code>matchingFallbacks</code> là đủ để bạn xử lý mọi tình huống thực tế: từ tách môi trường dev/staging/prod đến tách sản phẩm free/paid và phân phối đa store.</p>
-
-<h3>Lộ trình học tiếp</h3>
+<p>Product Flavor tồn tại vì một lý do duy nhất: <strong>tạo nhiều phiên bản sản phẩm từ một mã nguồn duy nhất</strong>, giúp:</p>
 
 <ul>
-  <li><strong>Gradle Plugin</strong> — hiểu cách AGP và các plugin được khai báo, nạp và ảnh hưởng tới build.</li>
-  <li><strong>APK / AAB</strong> — hiểu định dạng output mà mỗi build variant tạo ra và cách đóng gói.</li>
+  <li><strong>Giảm chi phí bảo trì:</strong> sửa một chỗ, tất cả flavor đều có thay đổi.</li>
+  <li><strong>Tách nội dung hợp lý:</strong> code chung đặt ở <code>src/main</code>, code riêng đặt ở <code>src/&lt;flavor&gt;</code>.</li>
+  <li><strong>Phát hành độc lập:</strong> mỗi flavor có applicationId riêng nên có thể lên store độc lập hoặc cài song song để QA.</li>
+  <li><strong>Tự động hóa:</strong> CI/CD có thể build hàng loạt flavor bằng lệnh <code>assemble</code> tương ứng.</li>
+</ul>
+
+<p>Không dùng Product Flavor khi:</p>
+
+<ul>
+  <li>Thay đổi chỉ gắn với giai đoạn phát triển (debug, khóa ký, minify, hoặc môi trường mà mỗi môi trường chỉ cần một cách build): dùng Build Type, theo quy tắc ở mục "Phân biệt Build Types và Product Flavors".</li>
+  <li>Hai trục phân loại không cần độc lập với nhau: đừng thêm dimension, vì mỗi dimension nhân số variant lên (xem mục "flavorDimensions: Vì sao cần khai báo dimension?").</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Dùng Build Type để tách nội dung sản phẩm</h3>
+
+<p>Định nghĩa <code>buildTypes { create("free")... }</code>, <code>create("paid")...</code> để đổi icon/màu. Đây là dùng sai mục đích — Build Type quyết định <em>cách build</em>, Flavor mới quyết định <em>nội dung</em>. Hậu quả: không tách được source set theo sản phẩm, variant lộn xộn.</p>
+
+<p><strong>Cách sửa:</strong> khai báo <code>free</code>/<code>paid</code> trong <code>productFlavors</code> (mục "Khai báo Product Flavor cơ bản trong build.gradle.kts") và đặt icon/màu vào source set của từng flavor (mục "Tách Resources theo Flavor").</p>
+
+<h3>2. Quên khai báo <code>flavorDimensions</code></h3>
+
+<p>Gradle báo lỗi <em>"All flavors must now belong to a named flavor dimension"</em> ngay khi sync, kể cả khi chỉ có một nhóm flavor.</p>
+
+<p><strong>Cách sửa:</strong> Luôn khai báo dimension; có từ 2 dimension trở lên thì ghi rõ <code>dimension</code> trong từng flavor.</p>
+
+<h3>3. Tạo quá nhiều dimension</h3>
+
+<p>Mỗi dimension nhân số variant lên. 3 dimension × 3 flavor mỗi cái × 2 build type = 54 variant → build toàn bộ rất lâu.</p>
+
+<p><strong>Cách sửa:</strong> Chỉ thêm dimension khi thật sự cần.</p>
+
+<h3>4. Đặt cùng một class vào nhiều source set của một variant</h3>
+
+<p>Ví dụ đặt <code>MainActivity.kt</code> cả ở <code>main</code> và <code>free</code> → lỗi duplicate class khi build.</p>
+
+<p><strong>Cách sửa:</strong> Muốn mỗi flavor một bản thì đặt ở từng <code>src/&lt;flavor&gt;/</code> và bỏ khỏi <code>main</code>, như ví dụ ở mục "Tách Code theo Flavor".</p>
+
+<h3>5. Quên <code>matchingFallbacks</code>/<code>missingDimensionStrategy</code> khi dùng library có flavor</h3>
+
+<p>Build fail vì Gradle không resolve được variant của library.</p>
+
+<p><strong>Cách sửa:</strong> Dùng <code>matchingFallbacks</code> khi cùng dimension nhưng khác tên flavor, <code>missingDimensionStrategy</code> khi library có dimension mà app không có.</p>
+
+<h3>6. Đặt secret vào <code>buildConfigField</code></h3>
+
+<p>API key, mật khẩu bị decompile từ APK.</p>
+
+<p><strong>Cách sửa:</strong> Chỉ đặt config không nhạy cảm; secret thật nằm ở phía server (xem cảnh báo ở mục "buildConfigField theo Flavor").</p>
+
+<h3>7. Quên bật <code>buildConfig = true</code></h3>
+
+<p>Với AGP 8+, dùng <code>BuildConfig.API_BASE_URL</code> mà chưa bật <code>buildFeatures { buildConfig = true }</code> sẽ báo lỗi không tìm thấy field.</p>
+
+<p><strong>Cách sửa:</strong> Bật <code>buildFeatures { buildConfig = true }</code> trong module dùng <code>BuildConfig</code>, như ví dụ ở mục "Tách môi trường setup bằng Flavor".</p>
+
+<h3>8. Nhầm tên task build</h3>
+
+<p>Tên task là <code>assemble&lt;Flavor&gt;&lt;BuildType&gt;</code> (ghi hoa chữ cái đầu, không có dấu phân cách). <code>assemblefreeRelease</code> sai → phải <code>assembleFreeRelease</code>.</p>
+
+<p><strong>Cách sửa:</strong> Ghép tên task theo quy tắc ở mục "Kết hợp Flavor với CI/CD".</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>AGP 3.0.0 (10/2017):</strong> thêm variant-aware dependency management: khi build một variant của module, plugin tự khớp variant tương ứng của library module local. Để khớp được, plugin yêu cầu mọi flavor thuộc một flavor dimension có tên (kể cả khi chỉ dùng một dimension), và migration guide của bản này hướng dẫn dùng <code>matchingFallbacks</code> (cho build type và flavor không khớp trực tiếp) và <code>missingDimensionStrategy</code> (cho dimension chỉ library có).</li>
+  <li><strong>AGP 8.0.0 (04/2023):</strong> không còn sinh <code>BuildConfig</code> mặc định (<code>android.defaults.buildfeatures.buildconfig</code> đổi mặc định từ <code>true</code> sang <code>false</code>); module cần <code>BuildConfig</code> phải bật bằng DSL <code>buildFeatures { buildConfig = true }</code>.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="build_types.md" target="_blank" rel="noopener">Build Types</a> (4.1.1.1): flavor luôn được ghép với build type thành Build Variant.</li>
+  <li><a href="../../../session_01/output_packages/apk_files.md" target="_blank" rel="noopener">APK</a> và <a href="../../../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB</a> (1.2.1, 1.2.2): hiểu định dạng output mà mỗi build variant tạo ra và cách đóng gói.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="plugin.md" target="_blank" rel="noopener">Plugin</a> (4.1.1.3): hiểu cách AGP và các plugin được khai báo, nạp và ảnh hưởng tới build.</li>
+  <li><a href="../tags.md" target="_blank" rel="noopener">Manifest Tags</a> (4.1.2): các thẻ trong <code>AndroidManifest.xml</code>, nơi <code>manifestPlaceholders</code> của flavor chèn giá trị vào.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong> <a href="../../../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a> (1.1.2): ngôn ngữ của <code>build.gradle.kts</code> và các ví dụ trong bài.</li>
+</ul>
 
 <p>Trong kiến trúc dự án Android thực tế (MVVM/Clean Architecture), Flavor nằm ở tầng <strong>build configuration</strong> — ngoài mã nguồn nghiệp vụ:</p>
 
@@ -7183,11 +7417,12 @@ jobs:
 <ul>
   <li><a href="https://developer.android.com/build" target="_blank" rel="noopener">Android Developers — Configure your build (Build types, Product flavors, Build variants)</a></li>
   <li><a href="https://developer.android.com/build/build-variants" target="_blank" rel="noopener">Android Developers — Configure build variants</a></li>
-  <li><a href="https://developer.android.com/build/gradle-configure" target="_blank" rel="noopener">Android Developers — Configure product flavors</a></li>
-  <li><a href="https://developer.android.com/build/build-types" target="_blank" rel="noopener">Android Developers — Build types</a></li>
-  <li><a href="https://developer.android.com/build/releases/gradle-plugin#build-config" target="_blank" rel="noopener">Android Developers — BuildConfig</a></li>
-  <li><a href="https://developer.android.com/build/dependencies" target="_blank" rel="noopener">Android Developers — Dependency configuration (matchingFallbacks)</a></li>
-  <li><a href="https://docs.gradle.org/current/userguide/working_with_flavors.html" target="_blank" rel="noopener">Gradle Documentation — Product flavors</a></li>
+  <li><a href="https://developer.android.com/build/build-variants#product-flavors" target="_blank" rel="noopener">Android Developers — Configure product flavors</a></li>
+  <li><a href="https://developer.android.com/build/build-variants#build-types" target="_blank" rel="noopener">Android Developers — Build types</a></li>
+  <li><a href="https://developer.android.com/build/build-variants#resolve_matching_errors" target="_blank" rel="noopener">Android Developers — Resolve matching errors (matchingFallbacks, missingDimensionStrategy)</a></li>
+  <li><a href="https://developer.android.com/build/releases/agp-8-0-0-release-notes" target="_blank" rel="noopener">Android Developers — Android Gradle Plugin 8.0.0 release notes (BuildConfig tắt mặc định)</a></li>
+  <li><a href="https://developer.android.com/build/releases/agp-3-0-0-release-notes" target="_blank" rel="noopener">Android Developers — Android Gradle Plugin 3.0.0 release notes (variant-aware dependency management)</a></li>
+  <li><a href="https://web.archive.org/web/20171127044902/https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html" target="_blank" rel="noopener">Android Developers — Migrate to Android Plugin for Gradle 3.0.0 (bản lưu web.archive.org 11/2017: flavor dimension bắt buộc, matchingFallbacks, missingDimensionStrategy)</a></li>
   <li><a href="https://developer.android.com/build/shrink-code" target="_blank" rel="noopener">Android Developers — Shrink your code and resources</a></li>
 </ul>
     `
@@ -39496,8 +39731,8 @@ Object.assign(ANDROID_CONTENT, {
   },
 
   'file-permissions': {
-    title: '2.1 File Permissions',
-    summary: 'File Permissions là cơ chế quyết định app nào được đọc, ghi file nào trên Android: từ quyền Linux và sandbox UID, các loại Storage, Manifest vs Runtime permission qua các mốc Android 6-14 (gồm Scoped Storage), tới ví dụ Kotlin với ActivityResult, Photo Picker, SAF và FileProvider.',
+    title: 'File Permissions',
+    summary: 'File Permissions là cơ chế quyết định ai được đọc, ghi, thực thi file nào; trên Android quyết định đó đi qua hai lớp kiểm soát, quyền Linux theo UID (mỗi app một sandbox) và Android permission do user cấp. Bài đi qua các loại Storage, Manifest vs Runtime permission, Scoped Storage và quyền đọc media qua các mốc Android 6-14, tới ví dụ Kotlin với ActivityResult, Photo Picker, SAF và FileProvider.',
     status: 'published',
     difficulty: 'beginner',
     estimatedReadingTime: '30 phút',
@@ -39515,32 +39750,42 @@ Object.assign(ANDROID_CONTENT, {
       'Áp dụng được Photo Picker, SAF và FileProvider để tránh Permission denied khi đi làm.'
     ],
     knowledgeGap: 'Chọn sai chỗ lưu dẫn tới xin quyền thừa bị Play Store từ chối, crash Permission denied chỉ trên Android 13/14, dùng file:// gây FileUriExposedException, và quên handle Deny khiến app trắng màn hình khi review đi làm.',
-    updatedAt: '2026-09-04',
+    updatedAt: '2026-11-08',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
+
+<p>App nào cũng phải đọc, ghi file: ảnh đại diện, cache ảnh, file export. Nhưng Android không cho app chạm tùy ý vào mọi file, và luật chơi thay đổi qua từng version.</p>
 
 <p>Bạn làm app profile cho phép user đổi avatar. Trên máy test Android 9 chạy ngon. Lên Android 13 thì crash với <code>SecurityException: Permission denied</code>. App khác thì bị Play Store từ chối vì xin <code>MANAGE_EXTERNAL_STORAGE</code> trong khi chỉ cần lưu avatar.</p>
 
 <p>Cùng một thao tác "lưu file", nhưng:</p>
 
 <ul>
-
-<li>Lưu ở đâu thì không cần xin quyền, lưu ở đâu thì bắt buộc xin?</li>
-
-<li>Vì sao Android 6 xin lúc chạy, Android 10 lại đổi toàn bộ cách lưu?</li>
-
-<li>Khi nào dùng Photo Picker thì khỏi xin quyền luôn?</li>
-
+  <li>Lưu ở đâu thì không cần xin quyền, lưu ở đâu thì bắt buộc xin?</li>
+  <li>Vì sao Android 6 xin lúc chạy, Android 10 lại đổi toàn bộ cách lưu?</li>
+  <li>Khi nào dùng Photo Picker thì khỏi xin quyền luôn?</li>
 </ul>
 
-<div class="callout-note">
-  File Permissions trả lời đúng 3 việc này: app được chạm vào file nào, phải xin phép ra sao, và lưu ở đâu cho đúng khi đi làm.
-</div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">File Permissions trả lời đúng 3 việc này: app được chạm vào file nào, phải xin phép ra sao, và lưu ở đâu cho đúng khi đi làm.</div></div>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được sandbox UID và vì sao mỗi app là một user Linux riêng.</li>
+  <li>Phân biệt được các loại Storage và chọn đúng chỗ lưu để khỏi xin quyền thừa.</li>
+  <li>Phân biệt được Manifest permission và Runtime permission cùng các thay đổi từ Android 6 tới 14.</li>
+  <li>Triển khai được luồng xin quyền chuẩn MVVM với ActivityResult API.</li>
+  <li>Áp dụng được Photo Picker, SAF và FileProvider để tránh Permission denied khi đi làm.</li>
+</ul>
 
 <h2>File Permissions là gì?</h2>
 
-<p>File Permissions là cơ chế quyết định <strong>ai được đọc, ghi, thực thi file nào</strong>.</p>
+<p>File Permissions là cơ chế quyết định <strong>ai được đọc, ghi, thực thi file nào</strong>. Trên Android, quyết định đó đi qua hai lớp kiểm soát: lớp Linux (kernel so UID của process với owner của file, mỗi app một UID riêng) và lớp Android permission (user cho phép app chạm vào file chung như ảnh, nhạc, download).</p>
+
+<p>Mental model: trước mỗi file có <strong>hai cánh cửa</strong>. Cửa thứ nhất là kernel, hỏi "bạn là ai". Cửa thứ hai là Android permission, hỏi thêm "user đã đồng ý cho bạn chưa". File riêng của app chỉ cần qua cửa thứ nhất; file chung của user phải qua cả hai. Photo Picker và SAF là cách để user tự chọn đúng file rồi trao cho app, nên app không phải xin mở cửa thứ hai cho cả kho.</p>
+
+<h2>Cách hoạt động</h2>
 
 <p>Android dựa trên cơ chế quyền file của Linux (kiểm tra theo UID/GID), rồi thêm một lớp sandbox riêng: mỗi app một UID. Từ Android 5.0, Android còn bật <strong>SELinux</strong> ở chế độ enforcing (Mandatory Access Control): kể cả process chạy root cũng chỉ được làm những gì policy cho phép.</p>
 
@@ -39548,18 +39793,13 @@ Object.assign(ANDROID_CONTENT, {
 
 <p>Mỗi file Linux có 3 nhóm quyền:</p>
 
-<pre><code class="language-text" data-lang="text">-rwxr-x---  owner group others
- rwx        r-x        ---
-</code></pre>
+<pre data-lang="text"><code>-rwxr-x---  owner group others
+ rwx        r-x        ---</code></pre>
 
 <ul>
-
-<li><code>rwx</code>: read, write, execute.</li>
-
-<li><code>owner</code>: người sở hữu file, <code>group</code>: nhóm, <code>others</code>: còn lại.</li>
-
-<li><code>UID/GID</code>: định danh user và group sở hữu process đang chạy.</li>
-
+  <li><code>rwx</code>: read, write, execute.</li>
+  <li><code>owner</code>: người sở hữu file, <code>group</code>: nhóm, <code>others</code>: còn lại.</li>
+  <li><code>UID/GID</code>: định danh user và group sở hữu process đang chạy.</li>
 </ul>
 
 <p>Khi process muốn mở file, kernel so UID của process với owner của file để cho phép hay từ chối.</p>
@@ -39681,104 +39921,91 @@ Object.assign(ANDROID_CONTENT, {
 </div>
 </div>
 
-
 <p>Bản chất:</p>
 
 <ul>
-
-<li>Lúc cài app, hệ thống cấp một UID riêng. App A không bao giờ có UID của app B.</li>
-
-<li>Thư mục <code>/data/data/&lt;package_name&gt;</code> chỉ owner mới đọc được. Đây là lý do mặc định các app không đọc trộm nhau.</li>
-
-<li>Muốn chạm vào file chung của user (ảnh, nhạc, download), app phải đi qua cửa kiểm soát thứ hai: Android permission.</li>
-
+  <li>Lúc cài app, hệ thống cấp một UID riêng. App A không bao giờ có UID của app B.</li>
+  <li>Thư mục <code>/data/data/&lt;package_name&gt;</code> chỉ owner mới đọc được. Đây là lý do mặc định các app không đọc trộm nhau.</li>
+  <li>Muốn chạm vào file chung của user (ảnh, nhạc, download), app phải đi qua cửa kiểm soát thứ hai: Android permission.</li>
 </ul>
 
 <p>Đây là điểm khác Linux thuần: Linux hỏi "bạn là ai", Android hỏi thêm "user đã đồng ý cho bạn chưa".</p>
 
-<h2>Các loại Storage trong Android</h2>
+<h3>Các loại Storage trong Android</h3>
 
 <p>Đây là phần gây nhiều bug nhất khi đi làm. Chọn sai chỗ lưu là phải xin quyền thừa hoặc bị từ chối.</p>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-<thead>
-<tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-<th style="padding:8px 12px;text-align:left;">Loại</th>
-<th style="padding:8px 12px;text-align:left;">Đường dẫn ví dụ</th>
-<th style="padding:8px 12px;text-align:left;">Cần xin quyền?</th>
-<th style="padding:8px 12px;text-align:left;">Bị xóa khi gỡ app?</th>
-<th style="padding:8px 12px;text-align:left;">Dùng cho</th>
-</tr>
-</thead>
-<tbody>
-<tr style="border-bottom:1px solid #21262d;">
-<td style="padding:8px 12px;font-weight:600;">Internal app-specific</td>
-<td style="padding:8px 12px;"><code>/data/data/&lt;pkg&gt;/files/avatar.jpg</code></td>
-<td style="padding:8px 12px;">Không</td>
-<td style="padding:8px 12px;">Có</td>
-<td style="padding:8px 12px;">Token file, dữ liệu riêng, nhạy cảm</td>
-</tr>
-<tr style="border-bottom:1px solid #21262d;">
-<td style="padding:8px 12px;font-weight:600;">Cache internal</td>
-<td style="padding:8px 12px;"><code>/data/data/&lt;pkg&gt;/cache/</code></td>
-<td style="padding:8px 12px;">Không</td>
-<td style="padding:8px 12px;">Có, hệ thống có thể xóa khi thiếu bộ nhớ</td>
-<td style="padding:8px 12px;">Ảnh thumb tạm, response cache</td>
-</tr>
-<tr style="border-bottom:1px solid #21262d;">
-<td style="padding:8px 12px;font-weight:600;">External app-specific</td>
-<td style="padding:8px 12px;"><code>/sdcard/Android/data/&lt;pkg&gt;/files/</code></td>
-<td style="padding:8px 12px;">Không</td>
-<td style="padding:8px 12px;">Có</td>
-<td style="padding:8px 12px;">File lớn riêng của app: video edit dở, offline map</td>
-</tr>
-<tr style="border-bottom:1px solid #21262d;">
-<td style="padding:8px 12px;font-weight:600;">Shared Media</td>
-<td style="padding:8px 12px;"><code>MediaStore.Images / Video / Audio</code></td>
-<td style="padding:8px 12px;">Tùy version, xem dưới</td>
-<td style="padding:8px 12px;">Không</td>
-<td style="padding:8px 12px;">Ảnh chụp, video, nhạc muốn hiện trong Gallery</td>
-</tr>
-<tr style="border-bottom:1px solid #21262d;">
-<td style="padding:8px 12px;font-weight:600;">Download / Document</td>
-<td style="padding:8px 12px;"><code>MediaStore.Downloads</code> hoặc SAF</td>
-<td style="padding:8px 12px;">Tùy cách dùng</td>
-<td style="padding:8px 12px;">Không</td>
-<td style="padding:8px 12px;">PDF export, backup, file user cần giữ</td>
-</tr>
-<tr style="">
-<td style="padding:8px 12px;font-weight:600;">Thích bất kỳ chỗ nào</td>
-<td style="padding:8px 12px;">Storage Access Framework</td>
-<td style="padding:8px 12px;">Không cần permission, user chọn tay</td>
-<td style="padding:8px 12px;">Không</td>
-<td style="padding:8px 12px;">Mở / tạo tài liệu ở chỗ user chỉ định</td>
-</tr>
-</tbody>
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Loại</th>
+      <th style="padding:8px 12px;text-align:left;">Đường dẫn ví dụ</th>
+      <th style="padding:8px 12px;text-align:left;">Cần xin quyền?</th>
+      <th style="padding:8px 12px;text-align:left;">Bị xóa khi gỡ app?</th>
+      <th style="padding:8px 12px;text-align:left;">Dùng cho</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Internal app-specific</td>
+      <td style="padding:8px 12px;"><code>/data/data/&lt;pkg&gt;/files/avatar.jpg</code></td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Có</td>
+      <td style="padding:8px 12px;">Token file, dữ liệu riêng, nhạy cảm</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Cache internal</td>
+      <td style="padding:8px 12px;"><code>/data/data/&lt;pkg&gt;/cache/</code></td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Có, hệ thống có thể xóa khi thiếu bộ nhớ</td>
+      <td style="padding:8px 12px;">Ảnh thumb tạm, response cache</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">External app-specific</td>
+      <td style="padding:8px 12px;"><code>/sdcard/Android/data/&lt;pkg&gt;/files/</code></td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Có</td>
+      <td style="padding:8px 12px;">File lớn riêng của app: video edit dở, offline map</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Shared Media</td>
+      <td style="padding:8px 12px;"><code>MediaStore.Images / Video / Audio</code></td>
+      <td style="padding:8px 12px;">Tùy version, xem dưới</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Ảnh chụp, video, nhạc muốn hiện trong Gallery</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Download / Document</td>
+      <td style="padding:8px 12px;"><code>MediaStore.Downloads</code> hoặc SAF</td>
+      <td style="padding:8px 12px;">Tùy cách dùng</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">PDF export, backup, file user cần giữ</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Thích bất kỳ chỗ nào</td>
+      <td style="padding:8px 12px;">Storage Access Framework</td>
+      <td style="padding:8px 12px;">Không cần permission, user chọn tay</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Mở / tạo tài liệu ở chỗ user chỉ định</td>
+    </tr>
+  </tbody>
 </table>
 
 <p>Nguyên tắc chọn khi đi làm:</p>
 
 <ul>
-
-<li>Nên dùng app-specific nếu file chỉ app mình cần. Không xin quyền, không bị Play Store hỏi, không lo Scoped Storage.</li>
-
-<li>Chỉ dùng Shared khi user cần thấy file ngoài app (ảnh trong Gallery, PDF trong Download).</li>
-
-<li>Chỉ dùng SAF khi muốn user tự chọn nơi lưu / mở, ví dụ "Export báo cáo ra Download".</li>
-
+  <li>Nên dùng app-specific nếu file chỉ app mình cần. Không xin quyền, không bị Play Store hỏi, không lo Scoped Storage.</li>
+  <li>Chỉ dùng Shared khi user cần thấy file ngoài app (ảnh trong Gallery, PDF trong Download).</li>
+  <li>Chỉ dùng SAF khi muốn user tự chọn nơi lưu / mở, ví dụ "Export báo cáo ra Download".</li>
 </ul>
 
-<div class="callout-note">
-  Sai lầm phổ biến nhất của người mới: lưu avatar vào Download rồi đi xin full quyền storage, trong khi lưu vào app-specific thì khỏi xin gì.
-</div>
-
-<h2>Manifest Permission vs Runtime Permission</h2>
+<h3>Manifest Permission vs Runtime Permission</h3>
 
 <p>Hai lớp khác nhau, phải làm đủ cả hai.</p>
 
-<h3>Manifest: khai báo trước</h3>
+<h4>Manifest: khai báo trước</h4>
 
-<pre><code class="language-xml" data-lang="xml">&lt;!-- app/src/main/AndroidManifest.xml --&gt;
+<pre data-lang="xml"><code>&lt;!-- app/src/main/AndroidManifest.xml --&gt;
 &lt;manifest&gt;
     &lt;!-- Android 13+: chỉ khi cần đọc ảnh/video do app KHÁC tạo (gallery, backup).
          Google Play hạn chế hai quyền này; chọn ảnh thì dùng Photo Picker. --&gt;
@@ -39792,12 +40019,11 @@ Object.assign(ANDROID_CONTENT, {
     &lt;uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" /&gt;
-&lt;/manifest&gt;
-</code></pre>
+&lt;/manifest&gt;</code></pre>
 
 <p>Khai báo trong Manifest chỉ là "thông báo ý định". Từ Android 6, với quyền thuộc nhóm <strong>dangerous</strong> (vd <code>READ_MEDIA_IMAGES</code>), user còn phải bấm Allow lúc chạy; quyền <strong>normal</strong> (vd <code>INTERNET</code>) được cấp ngay khi cài.</p>
 
-<h3>Runtime: xin lúc chạy</h3>
+<h4>Runtime: xin lúc chạy</h4>
 
 <div class="dd-diagram" data-dd="perm-ask">
 <div class="dd-svg dd-svg-dark">
@@ -39914,8 +40140,688 @@ Object.assign(ANDROID_CONTENT, {
 </div>
 </div>
 
+<p>Code của luồng này (ActivityResult API) ở mục "Xin quyền đọc toàn bộ ảnh bằng ActivityResult API" trong phần Ví dụ thực tế.</p>
 
-<h3>Timeline version bắt buộc nhớ khi đi làm</h3>
+<h3>Scoped Storage và quyền đọc media theo version</h3>
+
+<p>Luật đọc ghi file chung thay đổi mạnh qua các version (timeline đầy đủ ở phần Lịch sử phát triển). Những gì phải nhớ khi đi làm:</p>
+
+<ul>
+  <li><strong>Scoped Storage</strong> (Android 10, mặc định cho app target 29 trở lên và tạm opt-out được bằng <code>requestLegacyExternalStorage</code>; bắt buộc khi <code>targetSdk</code> từ 30 chạy trên Android 11+): trên external storage, app chỉ tự do đọc ghi thư mục app-specific của mình và file media do chính nó tạo. Muốn đọc media của app khác phải qua MediaStore kèm quyền; file khác (PDF, tài liệu) phải qua SAF.</li>
+  <li>Đừng xin <code>READ_EXTERNAL_STORAGE</code> trên Android 13+, nó không còn tác dụng cho media.</li>
+  <li>Android 14: khi app xin quyền đọc ảnh/video, user có thể chọn "Select photos and videos" (bật khi app target 34 trở lên, hoặc target 33 có khai báo <code>READ_MEDIA_VISUAL_USER_SELECTED</code>). Kết quả phụ thuộc app có xin <code>READ_MEDIA_VISUAL_USER_SELECTED</code> hay không:
+<ul>
+  <li>App xin <code>READ_MEDIA_VISUAL_USER_SELECTED</code> cùng lúc với <code>READ_MEDIA_IMAGES</code>: khi user chọn một phần, <code>READ_MEDIA_IMAGES</code> bị từ chối nhưng <code>READ_MEDIA_VISUAL_USER_SELECTED</code> được cấp, nghĩa là app chỉ thấy các ảnh user chọn. <code>granted = false</code> chưa chắc là bị từ chối hẳn: kiểm tra thêm quyền này bằng <code>ContextCompat.checkSelfPermission</code>.</li>
+  <li>App chỉ xin <code>READ_MEDIA_IMAGES</code> (như ví dụ ở phần Ví dụ thực tế): hệ thống chạy chế độ tương thích, trả <code>granted = true</code> nhưng app chỉ thấy các ảnh user chọn, và quyền tạm này bị thu lại sau khi app vào background.</li>
+</ul></li>
+  <li>Đừng xin <code>MANAGE_EXTERNAL_STORAGE</code> nếu chỉ lưu avatar hay export PDF, Play Store sẽ từ chối.</li>
+  <li>Ưu tiên Photo Picker và SAF vì không cần xin quyền gì cả.</li>
+</ul>
+
+<h2>Ví dụ thực tế</h2>
+
+<p>Mục tiêu: code đủ để làm task trong 15 phút, tách đúng tầng UI - ViewModel - Repository.</p>
+
+<div class="dd-diagram" data-dd="perm-arch">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 460" role="img" aria-labelledby="perm-arch-dark-title perm-arch-dark-desc" font-family="'Geist', sans-serif">
+<title id="perm-arch-dark-title">Lưu file: repo quyết, ba cửa nghe theo</title>
+<desc id="perm-arch-dark-desc">Activity qua ViewModel tới FileRepository rồi rẽ internal MediaStore hoặc SAF.</desc>
+<defs>
+<marker id="perm-arch-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+</defs>
+<rect width="800" height="460" fill="#060913"/>
+<!-- arrows -->
+<path d="M 400,92 V 132" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
+<path d="M 400,192 V 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
+<path d="M 340,292 V 312 H 188 Q 180,312 180,320 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
+<path d="M 400,292 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
+<path d="M 460,292 V 312 H 612 Q 620,312 620,320 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity · Composable</text>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="166" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ProfileViewModel</text>
+<text x="400" y="184" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">permissionuistate</text>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#060913"/>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
+<rect x="288" y="238" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
+<text x="314" y="247" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">QUYẾT</text>
+<text x="400" y="270" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FileRepository</text>
+<rect x="80" y="352" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="80" y="352" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="180" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Internal</text>
+<text x="180" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">không cần quyền</text>
+<rect x="300" y="352" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="300" y="352" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="400" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">MediaStore</text>
+<text x="400" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">tùy version</text>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="#060913"/>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="620" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">SAF</text>
+<text x="620" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">user chọn tay</text>
+<!-- legend -->
+<line x1="32" y1="436" x2="768" y2="436" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="448" r="4" fill="#38BDF8"/>
+<text x="162" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">QUYẾT Ở REPO · MỘT CỬA</text>
+<line x1="440" y1="448" x2="472" y2="448" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
+<text x="480" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">RẼ BA CỬA ĐỘC LẬP</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 460" role="img" aria-labelledby="perm-arch-title perm-arch-desc" font-family="'Geist', sans-serif">
+<title id="perm-arch-title">Lưu file: repo quyết, ba cửa nghe theo</title>
+<desc id="perm-arch-desc">Activity qua ViewModel tới FileRepository rồi rẽ internal MediaStore hoặc SAF.</desc>
+<defs>
+<marker id="perm-arch-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+</defs>
+<rect width="800" height="460" fill="#F8FAFC"/>
+<!-- arrows -->
+<path d="M 400,92 V 132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
+<path d="M 400,192 V 232" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
+<path d="M 340,292 V 312 H 188 Q 180,312 180,320 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
+<path d="M 400,292 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
+<path d="M 460,292 V 312 H 612 Q 620,312 620,320 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
+<!-- nodes -->
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity · Composable</text>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="132" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="166" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ProfileViewModel</text>
+<text x="400" y="184" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">permissionuistate</text>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="280" y="232" width="240" height="60" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
+<rect x="288" y="238" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
+<text x="314" y="247" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">QUYẾT</text>
+<text x="400" y="270" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FileRepository</text>
+<rect x="80" y="352" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="80" y="352" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="180" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Internal</text>
+<text x="180" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">không cần quyền</text>
+<rect x="300" y="352" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="300" y="352" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="400" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">MediaStore</text>
+<text x="400" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">tùy version</text>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="#F8FAFC"/>
+<rect x="520" y="352" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="620" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">SAF</text>
+<text x="620" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">user chọn tay</text>
+<!-- legend -->
+<line x1="32" y1="436" x2="768" y2="436" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<circle cx="150" cy="448" r="4" fill="#0284C7"/>
+<text x="162" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">QUYẾT Ở REPO · MỘT CỬA</text>
+<line x1="440" y1="448" x2="472" y2="448" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
+<text x="480" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">RẼ BA CỬA ĐỘC LẬP</text>
+</svg>
+</div>
+</div>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ví dụ dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>suspend</code>, <code>withContext(Dispatchers.IO)</code>, <code>viewModelScope.launch</code>): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài). - <code>StateFlow</code>: luồng giữ trạng thái mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài). - <code>ViewModel</code>: giữ trạng thái của màn hình, học ở 6.4 ViewModel (chưa có bài); cách tách UI - ViewModel - Repository học ở 7.2.3 MVVM (chưa có bài). - Hilt (<code>@Inject</code>, <code>@HiltViewModel</code>, <code>hiltViewModel()</code>): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài). - Jetpack Compose (<code>@Composable</code>, <code>rememberLauncherForActivityResult</code>): viết UI bằng Kotlin, xem <a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</div></div>
+
+<h3>Khung chung: Repository và ViewModel</h3>
+
+<p>Các bài toán bên dưới dùng chung hai lớp này.</p>
+
+<h4>Repository: nơi duy nhất biết lưu ở đâu</h4>
+
+<pre data-lang="kotlin"><code>package com.example.profile.data
+
+import android.content.Context
+import android.net.Uri
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.IOException
+import javax.inject.Inject
+
+// open để test có thể thay bằng FakeFileRepository (xem phần Testing)
+open class FileRepository @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
+
+    // Avatar chỉ app mình dùng -&gt; internal, khỏi xin quyền.
+    // Ghi file là IO: chạy trên Dispatchers.IO, không chặn main thread.
+    open suspend fun saveAvatar(bytes: ByteArray): File = withContext(Dispatchers.IO) {
+        val file = File(context.filesDir, "avatar.jpg")
+        file.writeBytes(bytes)
+        file
+    }
+
+    // Ảnh user chọn qua Photo Picker là một content:// Uri -&gt; copy vào filesDir
+    open suspend fun saveAvatarFromUri(uri: Uri): File = withContext(Dispatchers.IO) {
+        val file = File(context.filesDir, "avatar.jpg")
+        val input = context.contentResolver.openInputStream(uri)
+            ?: throw IOException("Không mở được $uri")
+        input.use { source -&gt; file.outputStream().use { target -&gt; source.copyTo(target) } }
+        file
+    }
+
+    // SAF: ghi PDF vào Uri do user chọn, app không cần quyền storage nào
+    open suspend fun exportReport(uri: Uri, pdfBytes: ByteArray) = withContext(Dispatchers.IO) {
+        val output = context.contentResolver.openOutputStream(uri)
+            ?: throw IOException("Không mở được $uri")
+        output.use { it.write(pdfBytes) }
+    }
+
+    fun readAvatar(): File? {
+        val file = File(context.filesDir, "avatar.jpg")
+        return file.takeIf { it.exists() }
+    }
+}</code></pre>
+
+<p>Vì sao qua Repository mà không gọi <code>File</code> trực tiếp trong ViewModel:</p>
+
+<ul>
+  <li>ViewModel không nên biết file nằm ở <code>filesDir</code> hay MediaStore. Đổi chỗ lưu chỉ sửa Repository.</li>
+  <li>Dễ test: test ViewModel chỉ cần fake Repository.</li>
+</ul>
+
+<h4>ViewModel: giữ trạng thái quyền</h4>
+
+<pre data-lang="kotlin"><code>package com.example.profile.ui
+
+import android.net.Uri
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.profile.data.FileRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.io.IOException
+import javax.inject.Inject
+
+data class PermissionUiState(
+    val hasImagePermission: Boolean = false,
+    val showRationale: Boolean = false,
+    val avatarPath: String? = null
+)
+
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
+    private val repository: FileRepository
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(PermissionUiState())
+    val uiState: StateFlow&lt;PermissionUiState&gt; = _uiState.asStateFlow()
+
+    // Bước (4) của ví dụ xin quyền đọc ảnh: lưu kết quả vào PermissionUiState
+    fun onPermissionResult(granted: Boolean, shouldShowRationale: Boolean) {
+        _uiState.value = _uiState.value.copy(
+            hasImagePermission = granted,
+            showRationale = !granted &amp;&amp; shouldShowRationale
+        )
+    }
+
+    fun saveAvatar(bytes: ByteArray) {
+        viewModelScope.launch {
+            val file = repository.saveAvatar(bytes) // suspend, chạy trên Dispatchers.IO
+            _uiState.update { it.copy(avatarPath = file.absolutePath) }
+        }
+    }
+
+    fun saveAvatarFromUri(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val file = repository.saveAvatarFromUri(uri)
+                _uiState.update { it.copy(avatarPath = file.absolutePath) }
+            } catch (e: IOException) {
+                // Uri hết hạn hoặc không đọc được: báo lỗi cho UI thay vì crash
+            }
+        }
+    }
+
+    fun exportReport(uri: Uri, pdfBytes: ByteArray) {
+        viewModelScope.launch {
+            try {
+                repository.exportReport(uri, pdfBytes)
+            } catch (e: IOException) {
+                // Không ghi được vào nơi user chọn: báo lỗi cho UI
+            }
+        }
+    }
+}</code></pre>
+
+<h3>Xin quyền đọc toàn bộ ảnh bằng ActivityResult API</h3>
+
+<p>Cách chuẩn hiện nay, không dùng <code>requestPermissions</code> cũ.</p>
+
+<p>Lưu ý phạm vi: <strong>đổi avatar không cần quyền nào</strong> (chọn ảnh bằng Photo Picker ở mục kế tiếp, lưu vào <code>filesDir</code>). Chỉ xin <code>READ_MEDIA_IMAGES</code> khi tính năng thật sự phải đọc <strong>toàn bộ</strong> ảnh trong máy, ví dụ màn hình "Thư viện ảnh" để sao lưu. Đoạn dưới minh hoạ trường hợp đó.</p>
+
+<p>Luồng chạy khi user bấm nút "Xem toàn bộ ảnh trong máy":</p>
+
+<ol>
+  <li>UI hỏi hệ thống bằng <code>ContextCompat.checkSelfPermission</code> (Android 13+ là <code>READ_MEDIA_IMAGES</code>, Android 12 trở xuống là <code>READ_EXTERNAL_STORAGE</code>). Không tin trạng thái đã lưu, vì user có thể thu hồi quyền trong Settings.</li>
+  <li>Hệ thống trả <code>PERMISSION_DENIED</code>: UI gọi <code>launcher.launch(permission)</code>, hệ thống hiện dialog xin quyền.</li>
+  <li>User bấm Allow: callback của launcher nhận <code>granted = true</code> (bấm Deny thì <code>false</code>, đi nhánh Deny ở sơ đồ của mục "Runtime: xin lúc chạy").</li>
+  <li>UI báo kết quả cho ViewModel qua <code>onPermissionResult(granted, shouldShowRationale)</code>; ViewModel cập nhật <code>PermissionUiState</code> (<code>showRationale</code> chỉ bật khi bị từ chối và hệ thống còn cho hiện giải thích).</li>
+  <li>Có quyền: <code>onOpenGallery()</code> mở màn hình đọc MediaStore. Nếu bước 1 đã thấy <code>PERMISSION_GRANTED</code> thì đi thẳng tới bước này, không hiện dialog.</li>
+</ol>
+
+<p>Mô phỏng luồng khi user bấm Allow (các mũi tên đi đúng thứ tự 5 bước trên, từ trên xuống):</p>
+
+<div class="dd-diagram" data-dd="perm-seq">
+<div class="dd-svg dd-svg-dark">
+<svg viewBox="0 0 800 424" role="img" aria-labelledby="perm-seq-dark-title perm-seq-dark-desc" font-family="'Geist', sans-serif">
+<title id="perm-seq-dark-title">Xin quyền ảnh lúc chạy tới mở gallery</title>
+<desc id="perm-seq-dark-desc">DeviceGalleryButton gọi checkSelfPermission và nhận PERMISSION_DENIED, gọi launcher.launch và nhận granted = true khi user bấm Allow, báo ProfileViewModel qua onPermissionResult, nhận lại uiState.hasImagePermission = true rồi gọi onOpenGallery để đọc MediaStore.</desc>
+<defs>
+<marker id="perm-seq-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+</marker>
+<marker id="perm-seq-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
+</marker>
+</defs>
+<rect width="800" height="424" fill="#060913"/>
+<!-- lifelines: ViewModel 140 · UI 400 · System 660 -->
+<line x1="140" y1="72" x2="140" y2="376" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="400" y1="72" x2="400" y2="376" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="660" y1="72" x2="660" y2="376" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="396" y="100" width="8" height="268" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="656" y="112" width="8" height="40" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="656" y="192" width="8" height="40" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<rect x="136" y="272" width="8" height="40" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 404,112 H 655" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-seq-dark-arrow)"/>
+<rect x="428" y="92" width="204" height="12" rx="2" fill="#060913"/>
+<text x="530" y="101" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">checkSelfPermission(READ_MEDIA_IMAGES)</text>
+<path d="M 656,152 H 405" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-dark-arrow)"/>
+<rect x="480" y="132" width="100" height="12" rx="2" fill="#060913"/>
+<text x="530" y="141" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">PERMISSION_DENIED</text>
+<path d="M 404,192 H 655" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-seq-dark-arrow)"/>
+<rect x="440" y="172" width="180" height="12" rx="2" fill="#060913"/>
+<text x="530" y="181" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">launcher.launch(READ_MEDIA_IMAGES)</text>
+<path d="M 656,232 H 405" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-dark-arrow)"/>
+<rect x="444" y="212" width="172" height="12" rx="2" fill="#060913"/>
+<text x="530" y="221" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">granted = true (user bấm Allow)</text>
+<path d="M 396,272 H 145" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-seq-dark-arrow)"/>
+<rect x="164" y="252" width="212" height="12" rx="2" fill="#060913"/>
+<text x="270" y="261" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">onPermissionResult(granted = true, ...)</text>
+<path d="M 144,312 H 395" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-dark-arrow)"/>
+<rect x="180" y="292" width="180" height="12" rx="2" fill="#060913"/>
+<text x="270" y="301" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">uiState.hasImagePermission = true</text>
+<!-- self message: onOpenGallery (focal) -->
+<path d="M 404,336 H 432 A 8 8 0 0 1 440,344 V 352 A 8 8 0 0 1 432,360 H 405" fill="none" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#perm-seq-dark-accent)"/>
+<rect x="448" y="336" width="88" height="24" rx="2" fill="#060913"/>
+<text x="452" y="345" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace">onOpenGallery()</text>
+<text x="452" y="357" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">đọc MediaStore</text>
+<!-- actors -->
+<rect x="52" y="24" width="176" height="48" rx="6" fill="#060913"/>
+<rect x="52" y="24" width="176" height="48" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
+<text x="140" y="46" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ProfileViewModel</text>
+<text x="140" y="62" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">PermissionUiState</text>
+<rect x="312" y="24" width="176" height="48" rx="6" fill="#060913"/>
+<rect x="312" y="24" width="176" height="48" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
+<text x="400" y="46" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">DeviceGalleryButton</text>
+<text x="400" y="62" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">@Composable · UI</text>
+<rect x="572" y="24" width="176" height="48" rx="6" fill="#060913"/>
+<rect x="572" y="24" width="176" height="48" rx="6" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.40)" stroke-width="1"/>
+<text x="660" y="46" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Android System</text>
+<text x="660" y="62" fill="#94A3B8" font-size="9" text-anchor="middle">cấp quyền, hiện hộp thoại</text>
+<!-- legend -->
+<line x1="32" y1="392" x2="768" y2="392" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
+<text x="32" y="408" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<line x1="140" y1="404" x2="172" y2="404" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-seq-dark-arrow)"/>
+<text x="184" y="408" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT LIỀN · GỌI</text>
+<line x1="340" y1="404" x2="372" y2="404" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-dark-arrow)"/>
+<text x="384" y="408" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · TRẢ VỀ</text>
+<circle cx="560" cy="404" r="4" fill="#38BDF8"/>
+<text x="572" y="408" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐƯỢC CẤP · MỞ GALLERY</text>
+</svg>
+</div>
+<div class="dd-svg dd-svg-light">
+<svg viewBox="0 0 800 424" role="img" aria-labelledby="perm-seq-title perm-seq-desc" font-family="'Geist', sans-serif">
+<title id="perm-seq-title">Xin quyền ảnh lúc chạy tới mở gallery</title>
+<desc id="perm-seq-desc">DeviceGalleryButton gọi checkSelfPermission và nhận PERMISSION_DENIED, gọi launcher.launch và nhận granted = true khi user bấm Allow, báo ProfileViewModel qua onPermissionResult, nhận lại uiState.hasImagePermission = true rồi gọi onOpenGallery để đọc MediaStore.</desc>
+<defs>
+<marker id="perm-seq-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
+</marker>
+<marker id="perm-seq-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
+</marker>
+</defs>
+<rect width="800" height="424" fill="#F8FAFC"/>
+<!-- lifelines: ViewModel 140 · UI 400 · System 660 -->
+<line x1="140" y1="72" x2="140" y2="376" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="400" y1="72" x2="400" y2="376" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<line x1="660" y1="72" x2="660" y2="376" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
+<!-- activations -->
+<rect x="396" y="100" width="8" height="268" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="656" y="112" width="8" height="40" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="656" y="192" width="8" height="40" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<rect x="136" y="272" width="8" height="40" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
+<!-- messages -->
+<path d="M 404,112 H 655" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-seq-arrow)"/>
+<rect x="428" y="92" width="204" height="12" rx="2" fill="#F8FAFC"/>
+<text x="530" y="101" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">checkSelfPermission(READ_MEDIA_IMAGES)</text>
+<path d="M 656,152 H 405" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-arrow)"/>
+<rect x="480" y="132" width="100" height="12" rx="2" fill="#F8FAFC"/>
+<text x="530" y="141" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">PERMISSION_DENIED</text>
+<path d="M 404,192 H 655" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-seq-arrow)"/>
+<rect x="440" y="172" width="180" height="12" rx="2" fill="#F8FAFC"/>
+<text x="530" y="181" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">launcher.launch(READ_MEDIA_IMAGES)</text>
+<path d="M 656,232 H 405" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-arrow)"/>
+<rect x="444" y="212" width="172" height="12" rx="2" fill="#F8FAFC"/>
+<text x="530" y="221" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">granted = true (user bấm Allow)</text>
+<path d="M 396,272 H 145" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-seq-arrow)"/>
+<rect x="164" y="252" width="212" height="12" rx="2" fill="#F8FAFC"/>
+<text x="270" y="261" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">onPermissionResult(granted = true, ...)</text>
+<path d="M 144,312 H 395" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-arrow)"/>
+<rect x="180" y="292" width="180" height="12" rx="2" fill="#F8FAFC"/>
+<text x="270" y="301" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">uiState.hasImagePermission = true</text>
+<!-- self message: onOpenGallery (focal) -->
+<path d="M 404,336 H 432 A 8 8 0 0 1 440,344 V 352 A 8 8 0 0 1 432,360 H 405" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#perm-seq-accent)"/>
+<rect x="448" y="336" width="88" height="24" rx="2" fill="#F8FAFC"/>
+<text x="452" y="345" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace">onOpenGallery()</text>
+<text x="452" y="357" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">đọc MediaStore</text>
+<!-- actors -->
+<rect x="52" y="24" width="176" height="48" rx="6" fill="#F8FAFC"/>
+<rect x="52" y="24" width="176" height="48" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
+<text x="140" y="46" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ProfileViewModel</text>
+<text x="140" y="62" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">PermissionUiState</text>
+<rect x="312" y="24" width="176" height="48" rx="6" fill="#F8FAFC"/>
+<rect x="312" y="24" width="176" height="48" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
+<text x="400" y="46" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">DeviceGalleryButton</text>
+<text x="400" y="62" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">@Composable · UI</text>
+<rect x="572" y="24" width="176" height="48" rx="6" fill="#F8FAFC"/>
+<rect x="572" y="24" width="176" height="48" rx="6" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.40)" stroke-width="1"/>
+<text x="660" y="46" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Android System</text>
+<text x="660" y="62" fill="#64748B" font-size="9" text-anchor="middle">cấp quyền, hiện hộp thoại</text>
+<!-- legend -->
+<line x1="32" y1="392" x2="768" y2="392" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
+<text x="32" y="408" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<line x1="140" y1="404" x2="172" y2="404" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-seq-arrow)"/>
+<text x="184" y="408" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT LIỀN · GỌI</text>
+<line x1="340" y1="404" x2="372" y2="404" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-arrow)"/>
+<text x="384" y="408" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · TRẢ VỀ</text>
+<circle cx="560" cy="404" r="4" fill="#0284C7"/>
+<text x="572" y="408" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐƯỢC CẤP · MỞ GALLERY</text>
+</svg>
+</div>
+</div>
+
+<pre data-lang="kotlin"><code>// DeviceGalleryButton.kt (Compose)
+@Composable
+fun DeviceGalleryButton(
+    onOpenGallery: () -&gt; Unit,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val activity = LocalActivity.current // androidx.activity:activity-compose 1.10+
+    val permission = if (Build.VERSION.SDK_INT &gt;= 33) {
+        Manifest.permission.READ_MEDIA_IMAGES
+    } else {
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -&gt;
+        // (3) granted = true khi user bấm Allow, false khi Deny
+        // (4) báo kết quả cho ViewModel
+        viewModel.onPermissionResult(
+            granted = granted,
+            shouldShowRationale = activity != null &amp;&amp;
+                ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
+        )
+        if (granted) onOpenGallery() // (5)
+    }
+
+    Button(onClick = {
+        // (1) Luôn hỏi hệ thống, không tin trạng thái đã lưu: user có thể thu hồi quyền trong Settings
+        val granted = ContextCompat.checkSelfPermission(context, permission) ==
+            PackageManager.PERMISSION_GRANTED
+        // (2) chưa có quyền thì mở dialog hệ thống; (5) có rồi thì mở thẳng
+        if (granted) onOpenGallery() else launcher.launch(permission)
+    }) {
+        Text("Xem toàn bộ ảnh trong máy")
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> lần đầu bấm nút, dialog hệ thống hiện; bấm Allow thì <code>uiState.hasImagePermission = true</code> và màn hình thư viện mở. Lần bấm sau, <code>checkSelfPermission</code> trả <code>PERMISSION_GRANTED</code> nên mở thẳng, không hỏi lại. Thu hồi quyền trong Settings rồi bấm lại thì dialog hiện lại. Trên Android 14, nếu user chọn "Select photos and videos", ví dụ này chỉ xin <code>READ_MEDIA_IMAGES</code> nên rơi vào chế độ tương thích ở mục "Scoped Storage và quyền đọc media theo version": <code>granted = true</code> nhưng app chỉ thấy các ảnh đã chọn.</p>
+
+<h3>Chọn avatar và export PDF không cần xin quyền: Photo Picker và SAF</h3>
+
+<p>Khi đi làm, ưu tiên hai cách này vì không cần khai báo quyền gì.</p>
+
+<pre data-lang="kotlin"><code>// Photo Picker: có sẵn từ Android 13, Android 11-12 nhận qua Google System Updates.
+// Android 4.4-10 cần bản backport do Google Play services cài (khai báo service
+// com.google.android.gms.metadata.ModuleDependencies trong manifest).
+// Máy không có Photo Picker: AndroidX tự chuyển sang ACTION_OPEN_DOCUMENT.
+// Không cần READ_MEDIA_IMAGES. Cần androidx.activity 1.7.0+.
+val pickImage = rememberLauncherForActivityResult(
+    ActivityResultContracts.PickVisualMedia()
+) { uri: Uri? -&gt;
+    uri?.let { viewModel.saveAvatarFromUri(it) }
+}
+
+Button(onClick = {
+    pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+}) {
+    Text("Chọn ảnh không cần xin quyền")
+}</code></pre>
+
+<pre data-lang="kotlin"><code>// SAF: user tự chọn nơi tạo PDF export
+// reportPdfBytes: nội dung PDF đã tạo sẵn (vd bằng android.graphics.pdf.PdfDocument)
+val createPdf = rememberLauncherForActivityResult(
+    ActivityResultContracts.CreateDocument("application/pdf")
+) { uri: Uri? -&gt;
+    uri?.let { viewModel.exportReport(it, reportPdfBytes) }
+}</code></pre>
+
+<h3>Share file: bắt buộc dùng FileProvider</h3>
+
+<p>Từ Android 7 (app target API 24 trở lên), đưa <code>file://</code> ra ngoài app (vd gắn vào Intent share) sẽ crash <code>FileUriExposedException</code>.</p>
+
+<pre data-lang="xml"><code>&lt;!-- AndroidManifest.xml --&gt;
+&lt;provider
+    android:name="androidx.core.content.FileProvider"
+    android:authorities="\${applicationId}.provider"
+    android:exported="false"
+    android:grantUriPermissions="true"&gt;
+    &lt;meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/file_paths" /&gt;
+&lt;/provider&gt;</code></pre>
+
+<pre data-lang="xml"><code>&lt;!-- res/xml/file_paths.xml --&gt;
+&lt;paths&gt;
+    &lt;files-path name="avatar" path="." /&gt;
+    &lt;cache-path name="cache" path="." /&gt;
+&lt;/paths&gt;</code></pre>
+
+<pre data-lang="kotlin"><code>val file = File(context.filesDir, "avatar.jpg")
+val uri: Uri = FileProvider.getUriForFile(
+    context, "\${context.packageName}.provider", file
+)
+
+val intent = Intent(Intent.ACTION_SEND).apply {
+    type = "image/jpeg"
+    putExtra(Intent.EXTRA_STREAM, uri)
+    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+}
+context.startActivity(Intent.createChooser(intent, "Chia sẻ avatar"))</code></pre>
+
+<h3>Security và Performance ở mức đi làm</h3>
+
+<p>Security:</p>
+
+<ul>
+  <li>File riêng luôn để <code>MODE_PRIVATE</code>. Không bao giờ lưu token, password ra external.</li>
+  <li>External app-specific vẫn app khác có root đọc được, không coi là an toàn.</li>
+  <li>Khi share qua FileProvider chỉ grant <code>FLAG_GRANT_READ_URI_PERMISSION</code> cho intent đó, không mở public cả thư mục.</li>
+</ul>
+
+<p>Performance:</p>
+
+<ul>
+  <li>Đừng đọc file lớn trên UI thread. Repository nên expose <code>suspend</code> hoặc <code>Flow</code>.</li>
+  <li>Cache ảnh resize trước khi lưu, đừng lưu nguyên ảnh 12MP làm avatar.</li>
+  <li><code>cacheDir</code> hệ thống có thể xóa, đừng lưu dữ liệu quan trọng ở đó.</li>
+</ul>
+
+<h3>Debug và Testing</h3>
+
+<p>Debug trên máy thật:</p>
+
+<pre data-lang="text"><code>Device File Explorer trong Android Studio:
+data/data/com.example.profile/files/avatar.jpg
+data/data/com.example.profile/cache/
+sdcard/Android/data/com.example.profile/files/</code></pre>
+
+<pre data-lang="bash"><code>adb shell dumpsys package com.example.profile | grep permission
+adb shell run-as com.example.profile ls -l files</code></pre>
+
+<p>Máy chưa root không <code>ls</code> được <code>/data/data/&lt;pkg&gt;</code> từ <code>adb shell</code>; với bản build debuggable, <code>run-as &lt;pkg&gt;</code> chạy lệnh dưới UID của app nên đọc được thư mục riêng của nó.</p>
+
+<p>Không log đường dẫn tuyệt đối và nội dung file nhạy cảm ra Logcat production.</p>
+
+<p>Testing:</p>
+
+<pre data-lang="kotlin"><code>// testImplementation: kotlinx-coroutines-test, mockk
+// Fake override mọi hàm được gọi nên Context giả không bao giờ bị dùng tới
+class FakeFileRepository : FileRepository(mockk(relaxed = true)) {
+    var savedBytes: ByteArray? = null
+    override suspend fun saveAvatar(bytes: ByteArray): File {
+        savedBytes = bytes
+        return File("fake/avatar.jpg")
+    }
+}
+
+// Test ViewModel không cần thiết bị thật
+@OptIn(ExperimentalCoroutinesApi::class)
+class ProfileViewModelTest {
+    private val testDispatcher = StandardTestDispatcher()
+
+    // viewModelScope chạy trên Dispatchers.Main, unit test JVM không có Main -&gt; phải thay
+    @Before fun setUp() = Dispatchers.setMain(testDispatcher)
+    @After fun tearDown() = Dispatchers.resetMain()
+
+    @Test
+    fun saveAvatar_updatesUiState() = runTest(testDispatcher) {
+        val repo = FakeFileRepository()
+        val vm = ProfileViewModel(repo)
+        vm.saveAvatar(byteArrayOf(1, 2, 3))
+        advanceUntilIdle() // chạy hết coroutine đã launch
+        assertNotNull(vm.uiState.value.avatarPath)
+        assertArrayEquals(byteArrayOf(1, 2, 3), repo.savedBytes)
+    }
+}</code></pre>
+
+<h2>So sánh với các cách tiếp cận khác</h2>
+
+<h3>MediaStore vs SAF vs Photo Picker</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
+      <th style="padding:8px 12px;text-align:left;">MediaStore</th>
+      <th style="padding:8px 12px;text-align:left;">SAF</th>
+      <th style="padding:8px 12px;text-align:left;">Photo Picker</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Cần permission?</td>
+      <td style="padding:8px 12px;">Có, tùy version</td>
+      <td style="padding:8px 12px;">Không, user chọn tay</td>
+      <td style="padding:8px 12px;">Không</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Trải nghiệm</td>
+      <td style="padding:8px 12px;">Tự động, code đọc trực tiếp</td>
+      <td style="padding:8px 12px;">User phải chọn file / thư mục</td>
+      <td style="padding:8px 12px;">Picker hệ thống đẹp, quen thuộc</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Phù hợp</td>
+      <td style="padding:8px 12px;">App gallery, camera, nhạc</td>
+      <td style="padding:8px 12px;">Export / import tài liệu</td>
+      <td style="padding:8px 12px;">Chọn avatar, đính kèm ảnh</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Duyệt Play Store</td>
+      <td style="padding:8px 12px;">Bình thường nếu đúng quyền</td>
+      <td style="padding:8px 12px;">Dễ duyệt</td>
+      <td style="padding:8px 12px;">Dễ duyệt nhất</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Khuyên dùng khi đi làm</td>
+      <td style="padding:8px 12px;">Khi cần quét toàn bộ media</td>
+      <td style="padding:8px 12px;">Khi cần quyền lâu dài một file cụ thể</td>
+      <td style="padding:8px 12px;">Mặc định cho chọn ảnh / video</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Trade-off: càng tiện cho dev (đọc thẳng MediaStore) thì càng phải xin quyền và giải trình. Càng nhường quyền chọn cho user (Picker, SAF) thì càng ít permission, càng dễ qua review.</div></div>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Lưu app-specific nhưng vẫn xin full quyền</h3>
+
+<p>Sai lầm phổ biến nhất của người mới: lưu avatar vào Download rồi đi xin full quyền storage, trong khi lưu vào app-specific thì khỏi xin gì.</p>
+
+<p><strong>Cách sửa:</strong> Lưu avatar vào <code>filesDir</code> thì khỏi xin. Xin thừa khiến user sợ và Play Store hỏi.</p>
+
+<h3>2. Quên <code>maxSdkVersion</code> khiến xin quyền chết trên máy mới</h3>
+
+<p>Từ Android 13, <code>READ_EXTERNAL_STORAGE</code> không còn tác dụng (mục "Scoped Storage và quyền đọc media theo version"), nên khai báo không giới hạn version chỉ là quyền thừa trên máy mới.</p>
+
+<p><strong>Cách sửa:</strong> giới hạn quyền cũ bằng <code>maxSdkVersion</code>.</p>
+
+<pre data-lang="xml"><code>&lt;!-- Đúng: quyền cũ chỉ cần tới Android 12 --&gt;
+&lt;uses-permission
+    android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32" /&gt;</code></pre>
+
+<h3>3. Dùng đường dẫn cứng <code>/sdcard/</code></h3>
+
+<p><strong>Cách sửa:</strong> lấy thư mục qua <code>Context</code> thay vì tự ghép đường dẫn.</p>
+
+<pre data-lang="kotlin"><code>// Sai: máy khác nhau mount khác nhau
+val file = File("/sdcard/myapp/avatar.jpg")
+
+// Đúng
+val file = File(context.filesDir, "avatar.jpg")</code></pre>
+
+<h3>4. Quên handle Deny và Don't ask again</h3>
+
+<p>App chỉ hiện màn hình trắng khi bị deny là lỗi UX phổ biến khi review đi làm.</p>
+
+<p><strong>Cách sửa:</strong> Luôn có nhánh disable tính năng và nút mở Settings (nhánh Deny ở sơ đồ của mục "Runtime: xin lúc chạy").</p>
+
+<h3>5. Test chỉ trên một version</h3>
+
+<p>Bug File Permissions thường chỉ lộ ra trên version khác.</p>
+
+<p><strong>Cách sửa:</strong> Khi đi làm phải test tối thiểu: Android 9, Android 11, Android 13/14.</p>
+
+<h3>6. Share file bằng <code>file://</code></h3>
+
+<p>App target API 24 trở lên gắn <code>file://</code> vào Intent gửi ra ngoài sẽ crash <code>FileUriExposedException</code>.</p>
+
+<p><strong>Cách sửa:</strong> tạo <code>content://</code> URI bằng FileProvider và chỉ grant quyền đọc cho Intent đó, như mục "Share file: bắt buộc dùng FileProvider".</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<p>Các mốc version đã định hình cách xin quyền file hiện nay:</p>
 
 <div class="dd-diagram" data-dd="perm-versions">
 <div class="dd-svg dd-svg-dark">
@@ -40076,669 +40982,24 @@ Object.assign(ANDROID_CONTENT, {
 </div>
 </div>
 
-
-<p>Ý nghĩa thực tế:</p>
-
 <ul>
-
-<li><strong>Scoped Storage</strong> (Android 10, bắt buộc khi <code>targetSdk</code> từ 30): trên external storage, app chỉ tự do đọc ghi thư mục app-specific của mình và file media do chính nó tạo. Muốn đọc media của app khác phải qua MediaStore kèm quyền; file khác (PDF, tài liệu) phải qua SAF.</li>
-
-<li>Đừng xin <code>READ_EXTERNAL_STORAGE</code> trên Android 13+, nó không còn tác dụng cho media.</li>
-
-<li>Android 14 (<code>targetSdk</code> 34): user có thể chọn "Select photos and videos". Khi đó <code>READ_MEDIA_IMAGES</code> bị từ chối nhưng <code>READ_MEDIA_VISUAL_USER_SELECTED</code> được cấp, nghĩa là app chỉ thấy các ảnh user chọn. <code>granted = false</code> chưa chắc là bị từ chối hẳn: kiểm tra thêm quyền này bằng <code>ContextCompat.checkSelfPermission</code>.</li>
-
-<li>Đừng xin <code>MANAGE_EXTERNAL_STORAGE</code> nếu chỉ lưu avatar hay export PDF, Play Store sẽ từ chối.</li>
-
-<li>Ưu tiên Photo Picker và SAF vì không cần xin quyền gì cả.</li>
-
+  <li><strong>Android 4.1 (API 16):</strong> thêm <code>READ_EXTERNAL_STORAGE</code>; hệ thống chỉ bắt buộc quyền này từ API 19, trước đó mọi app vẫn đọc được external storage.</li>
+  <li><strong>Android 4.3 → 5.0:</strong> SELinux được đưa vào sandbox: Android 4.3 ở chế độ permissive, 4.4 enforcing một phần, từ 5.0 enforcing hoàn toàn.</li>
+  <li><strong>Android 4.4 (API 19):</strong> app không cần quyền storage để đọc ghi thư mục app-specific trên external storage (<code>getExternalFilesDir()</code>, <code>getExternalCacheDir()</code>). Storage Access Framework ra đời (<code>ACTION_OPEN_DOCUMENT</code>, <code>ACTION_CREATE_DOCUMENT</code>).</li>
+  <li><strong>Android 6.0 (API 23):</strong> runtime permission. App target 23 trở lên phải kiểm tra (<code>checkSelfPermission()</code>) và xin quyền dangerous lúc chạy (<code>requestPermissions()</code>); user cấp hoặc thu hồi từng quyền.</li>
+  <li><strong>Android 7.0 (API 24):</strong> với app target 24 trở lên, thư mục riêng của app bị siết về <code>0700</code>, nới quyền bằng <code>MODE_WORLD_READABLE</code> / <code>MODE_WORLD_WRITEABLE</code> gây <code>SecurityException</code>; đưa <code>file://</code> ra ngoài app gây <code>FileUriExposedException</code>, cách chia sẻ được khuyên là <code>content://</code> qua FileProvider.</li>
+  <li><strong>Android 10 (API 29):</strong> Scoped Storage mặc định cho app target 29 trở lên, tạm opt-out được bằng <code>requestLegacyExternalStorage</code>. App không cần quyền storage để thêm file của chính mình vào shared storage.</li>
+  <li><strong>Android 11 (API 30):</strong> app target 30 trở lên chạy trên Android 11 thì <code>requestLegacyExternalStorage</code> bị bỏ qua và <code>WRITE_EXTERNAL_STORAGE</code> không còn tác dụng. Thêm <code>MANAGE_EXTERNAL_STORAGE</code> (special permission, mức bảo vệ <code>appop</code>) cho số ít app quản lý file thay user.</li>
+  <li><strong>Android 13 (API 33):</strong> <code>READ_MEDIA_IMAGES</code>, <code>READ_MEDIA_VIDEO</code>, <code>READ_MEDIA_AUDIO</code> thay <code>READ_EXTERNAL_STORAGE</code> cho app target 33 trở lên; từ API 33, <code>READ_EXTERNAL_STORAGE</code> không còn tác dụng. Docs khuyên chỉ cần ảnh/video thì dùng Photo Picker thay vì khai báo hai quyền này.</li>
+  <li><strong>Android 14 (API 34):</strong> thêm <code>READ_MEDIA_VISUAL_USER_SELECTED</code> cho trường hợp user chỉ cho phép một số ảnh/video.</li>
+  <li><strong>AndroidX Activity:</strong> 1.6.0 (09/2022) thêm <code>PickVisualMedia</code> / <code>PickMultipleVisualMedia</code>, dùng Photo Picker khi có và <code>ACTION_OPEN_DOCUMENT</code> khi không; 1.7.0 (03/2023) thêm fallback qua Photo Picker do Google Play services cung cấp trước khi về <code>ACTION_OPEN_DOCUMENT</code>; activity-compose 1.10.0 (01/2025) thêm <code>LocalActivity</code> dùng trong ví dụ.</li>
 </ul>
 
-<h2>Triển khai thực tế: Kotlin MVVM</h2>
+<p>Vì sao thiết kế đổi như vậy: các version mới quyết định quyền truy cập dựa trên <strong>mục đích</strong> của file (media, tài liệu, file riêng) nhiều hơn là <strong>vị trí</strong> của nó, để app chỉ được chạm vào đúng phần file nó thật sự dùng.</p>
 
-<p>Mục tiêu: code đủ để làm task trong 15 phút, tách đúng tầng UI - ViewModel - Repository.</p>
+<h2>Kết nối hệ thống</h2>
 
-<div class="dd-diagram" data-dd="perm-arch">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 460" role="img" aria-labelledby="perm-arch-dark-title perm-arch-dark-desc" font-family="'Geist', sans-serif">
-<title id="perm-arch-dark-title">Lưu file: repo quyết, ba cửa nghe theo</title>
-<desc id="perm-arch-dark-desc">Activity qua ViewModel tới FileRepository rồi rẽ internal MediaStore hoặc SAF.</desc>
-<defs>
-<marker id="perm-arch-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="460" fill="#060913"/>
-<!-- arrows -->
-<path d="M 400,92 V 132" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
-<path d="M 400,192 V 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
-<path d="M 340,292 V 312 H 188 Q 180,312 180,320 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
-<path d="M 400,292 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
-<path d="M 460,292 V 312 H 612 Q 620,312 620,320 V 352" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity · Composable</text>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="166" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ProfileViewModel</text>
-<text x="400" y="184" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">permissionuistate</text>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="288" y="238" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="314" y="247" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">QUYẾT</text>
-<text x="400" y="270" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FileRepository</text>
-<rect x="80" y="352" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="80" y="352" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="180" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Internal</text>
-<text x="180" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">không cần quyền</text>
-<rect x="300" y="352" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="300" y="352" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">MediaStore</text>
-<text x="400" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">tùy version</text>
-<rect x="520" y="352" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="520" y="352" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="620" y="386" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">SAF</text>
-<text x="620" y="404" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">user chọn tay</text>
-<!-- legend -->
-<line x1="32" y1="436" x2="768" y2="436" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="448" r="4" fill="#38BDF8"/>
-<text x="162" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">QUYẾT Ở REPO · MỘT CỬA</text>
-<line x1="440" y1="448" x2="472" y2="448" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-arch-dark-arrow)"/>
-<text x="480" y="452" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">RẼ BA CỬA ĐỘC LẬP</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 460" role="img" aria-labelledby="perm-arch-title perm-arch-desc" font-family="'Geist', sans-serif">
-<title id="perm-arch-title">Lưu file: repo quyết, ba cửa nghe theo</title>
-<desc id="perm-arch-desc">Activity qua ViewModel tới FileRepository rồi rẽ internal MediaStore hoặc SAF.</desc>
-<defs>
-<marker id="perm-arch-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="460" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 400,92 V 132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
-<path d="M 400,192 V 232" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
-<path d="M 340,292 V 312 H 188 Q 180,312 180,320 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
-<path d="M 400,292 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
-<path d="M 460,292 V 312 H 612 Q 620,312 620,320 V 352" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity · Composable</text>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="166" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ProfileViewModel</text>
-<text x="400" y="184" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">permissionuistate</text>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="288" y="238" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="314" y="247" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">QUYẾT</text>
-<text x="400" y="270" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FileRepository</text>
-<rect x="80" y="352" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="80" y="352" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="180" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Internal</text>
-<text x="180" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">không cần quyền</text>
-<rect x="300" y="352" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="300" y="352" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">MediaStore</text>
-<text x="400" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">tùy version</text>
-<rect x="520" y="352" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="520" y="352" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="620" y="386" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">SAF</text>
-<text x="620" y="404" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">user chọn tay</text>
-<!-- legend -->
-<line x1="32" y1="436" x2="768" y2="436" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="448" r="4" fill="#0284C7"/>
-<text x="162" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">QUYẾT Ở REPO · MỘT CỬA</text>
-<line x1="440" y1="448" x2="472" y2="448" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-arch-arrow)"/>
-<text x="480" y="452" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">RẼ BA CỬA ĐỘC LẬP</text>
-</svg>
-</div>
-</div>
-
-
-<h3>1. Repository: nơi duy nhất biết lưu ở đâu</h3>
-
-<pre><code class="language-kotlin" data-lang="kotlin">package com.example.profile.data
-
-import android.content.Context
-import android.net.Uri
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.IOException
-import javax.inject.Inject
-
-// open để test có thể thay bằng FakeFileRepository (xem phần Testing)
-open class FileRepository @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
-
-    // Avatar chỉ app mình dùng -&gt; internal, khỏi xin quyền.
-    // Ghi file là IO: chạy trên Dispatchers.IO, không chặn main thread.
-    open suspend fun saveAvatar(bytes: ByteArray): File = withContext(Dispatchers.IO) {
-        val file = File(context.filesDir, "avatar.jpg")
-        file.writeBytes(bytes)
-        file
-    }
-
-    // Ảnh user chọn qua Photo Picker là một content:// Uri -&gt; copy vào filesDir
-    open suspend fun saveAvatarFromUri(uri: Uri): File = withContext(Dispatchers.IO) {
-        val file = File(context.filesDir, "avatar.jpg")
-        val input = context.contentResolver.openInputStream(uri)
-            ?: throw IOException("Không mở được $uri")
-        input.use { source -&gt; file.outputStream().use { target -&gt; source.copyTo(target) } }
-        file
-    }
-
-    // SAF: ghi PDF vào Uri do user chọn, app không cần quyền storage nào
-    open suspend fun exportReport(uri: Uri, pdfBytes: ByteArray) = withContext(Dispatchers.IO) {
-        val output = context.contentResolver.openOutputStream(uri)
-            ?: throw IOException("Không mở được $uri")
-        output.use { it.write(pdfBytes) }
-    }
-
-    fun readAvatar(): File? {
-        val file = File(context.filesDir, "avatar.jpg")
-        return file.takeIf { it.exists() }
-    }
-}
-</code></pre>
-
-<p>Vì sao qua Repository mà không gọi <code>File</code> trực tiếp trong ViewModel:</p>
-
-<ul>
-
-<li>ViewModel không nên biết file nằm ở <code>filesDir</code> hay MediaStore. Đổi chỗ lưu chỉ sửa Repository.</li>
-
-<li>Dễ test: test ViewModel chỉ cần fake Repository.</li>
-
-</ul>
-
-<h3>2. ViewModel: giữ trạng thái quyền</h3>
-
-<pre><code class="language-kotlin" data-lang="kotlin">package com.example.profile.ui
-
-import android.net.Uri
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.profile.data.FileRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import java.io.IOException
-import javax.inject.Inject
-
-data class PermissionUiState(
-    val hasImagePermission: Boolean = false,
-    val showRationale: Boolean = false,
-    val avatarPath: String? = null
-)
-
-@HiltViewModel
-class ProfileViewModel @Inject constructor(
-    private val repository: FileRepository
-) : ViewModel() {
-
-    private val _uiState = MutableStateFlow(PermissionUiState())
-    val uiState: StateFlow&lt;PermissionUiState&gt; = _uiState.asStateFlow()
-
-    fun onPermissionResult(granted: Boolean, shouldShowRationale: Boolean) {
-        _uiState.value = _uiState.value.copy(
-            hasImagePermission = granted,
-            showRationale = !granted &amp;&amp; shouldShowRationale
-        )
-    }
-
-    fun saveAvatar(bytes: ByteArray) {
-        viewModelScope.launch {
-            val file = repository.saveAvatar(bytes) // suspend, chạy trên Dispatchers.IO
-            _uiState.update { it.copy(avatarPath = file.absolutePath) }
-        }
-    }
-
-    fun saveAvatarFromUri(uri: Uri) {
-        viewModelScope.launch {
-            try {
-                val file = repository.saveAvatarFromUri(uri)
-                _uiState.update { it.copy(avatarPath = file.absolutePath) }
-            } catch (e: IOException) {
-                // Uri hết hạn hoặc không đọc được: báo lỗi cho UI thay vì crash
-            }
-        }
-    }
-
-    fun exportReport(uri: Uri, pdfBytes: ByteArray) {
-        viewModelScope.launch {
-            try {
-                repository.exportReport(uri, pdfBytes)
-            } catch (e: IOException) {
-                // Không ghi được vào nơi user chọn: báo lỗi cho UI
-            }
-        }
-    }
-}
-</code></pre>
-
-<h3>3. UI: xin quyền bằng ActivityResult API</h3>
-
-<p>Cách chuẩn hiện nay, không dùng <code>requestPermissions</code> cũ.</p>
-
-<p>Lưu ý phạm vi: <strong>đổi avatar không cần quyền nào</strong> (chọn ảnh bằng Photo Picker ở mục 4, lưu vào <code>filesDir</code>). Chỉ xin <code>READ_MEDIA_IMAGES</code> khi tính năng thật sự phải đọc <strong>toàn bộ</strong> ảnh trong máy, ví dụ màn hình "Thư viện ảnh" để sao lưu. Đoạn dưới minh hoạ trường hợp đó.</p>
-
-<pre><code class="language-kotlin" data-lang="kotlin">// DeviceGalleryButton.kt (Compose)
-@Composable
-fun DeviceGalleryButton(
-    onOpenGallery: () -&gt; Unit,
-    viewModel: ProfileViewModel = hiltViewModel()
-) {
-    val context = LocalContext.current
-    val activity = LocalActivity.current // androidx.activity:activity-compose 1.10+
-    val permission = if (Build.VERSION.SDK_INT &gt;= 33) {
-        Manifest.permission.READ_MEDIA_IMAGES
-    } else {
-        Manifest.permission.READ_EXTERNAL_STORAGE
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted -&gt;
-        viewModel.onPermissionResult(
-            granted = granted,
-            shouldShowRationale = activity != null &amp;&amp;
-                ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
-        )
-        if (granted) onOpenGallery()
-    }
-
-    Button(onClick = {
-        // Luôn hỏi hệ thống, không tin trạng thái đã lưu: user có thể thu hồi quyền trong Settings
-        val granted = ContextCompat.checkSelfPermission(context, permission) ==
-            PackageManager.PERMISSION_GRANTED
-        if (granted) onOpenGallery() else launcher.launch(permission)
-    }) {
-        Text("Xem toàn bộ ảnh trong máy")
-    }
-}
-</code></pre>
-
-<p>Mô phỏng luồng khi user bấm Allow:</p>
-
-<div class="dd-diagram" data-dd="perm-seq">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 424" role="img" aria-labelledby="perm-seq-dark-title perm-seq-dark-desc" font-family="'Geist', sans-serif">
-<title id="perm-seq-dark-title">Xin quyền ảnh lúc chạy tới mở gallery</title>
-<desc id="perm-seq-dark-desc">DeviceGalleryButton gọi checkSelfPermission và nhận PERMISSION_DENIED, gọi launcher.launch và nhận granted = true khi user bấm Allow, báo ProfileViewModel qua onPermissionResult, nhận lại uiState.hasImagePermission = true rồi gọi onOpenGallery để đọc MediaStore.</desc>
-<defs>
-<marker id="perm-seq-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-<marker id="perm-seq-dark-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#38BDF8"/>
-</marker>
-</defs>
-<rect width="800" height="424" fill="#060913"/>
-<!-- lifelines: ViewModel 140 · UI 400 · System 660 -->
-<line x1="140" y1="72" x2="140" y2="376" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="400" y1="72" x2="400" y2="376" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="660" y1="72" x2="660" y2="376" stroke="rgba(148,163,184,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="396" y="100" width="8" height="268" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="656" y="112" width="8" height="40" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="656" y="192" width="8" height="40" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
-<rect x="136" y="272" width="8" height="40" fill="rgba(148,163,184,0.10)" stroke="#94A3B8" stroke-width="0.8"/>
-<!-- messages -->
-<path d="M 404,112 H 655" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-seq-dark-arrow)"/>
-<rect x="428" y="92" width="204" height="12" rx="2" fill="#060913"/>
-<text x="530" y="101" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">checkSelfPermission(READ_MEDIA_IMAGES)</text>
-<path d="M 656,152 H 405" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-dark-arrow)"/>
-<rect x="480" y="132" width="100" height="12" rx="2" fill="#060913"/>
-<text x="530" y="141" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">PERMISSION_DENIED</text>
-<path d="M 404,192 H 655" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-seq-dark-arrow)"/>
-<rect x="440" y="172" width="180" height="12" rx="2" fill="#060913"/>
-<text x="530" y="181" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">launcher.launch(READ_MEDIA_IMAGES)</text>
-<path d="M 656,232 H 405" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-dark-arrow)"/>
-<rect x="444" y="212" width="172" height="12" rx="2" fill="#060913"/>
-<text x="530" y="221" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">granted = true (user bấm Allow)</text>
-<path d="M 396,272 H 145" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-seq-dark-arrow)"/>
-<rect x="164" y="252" width="212" height="12" rx="2" fill="#060913"/>
-<text x="270" y="261" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">onPermissionResult(granted = true, ...)</text>
-<path d="M 144,312 H 395" fill="none" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-dark-arrow)"/>
-<rect x="180" y="292" width="180" height="12" rx="2" fill="#060913"/>
-<text x="270" y="301" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">uiState.hasImagePermission = true</text>
-<!-- self message: onOpenGallery (focal) -->
-<path d="M 404,336 H 432 A 8 8 0 0 1 440,344 V 352 A 8 8 0 0 1 432,360 H 405" fill="none" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#perm-seq-dark-accent)"/>
-<rect x="448" y="336" width="88" height="24" rx="2" fill="#060913"/>
-<text x="452" y="345" fill="#38BDF8" font-size="8" font-family="'JetBrains Mono', monospace">onOpenGallery()</text>
-<text x="452" y="357" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">đọc MediaStore</text>
-<!-- actors -->
-<rect x="52" y="24" width="176" height="48" rx="6" fill="#060913"/>
-<rect x="52" y="24" width="176" height="48" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="140" y="46" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ProfileViewModel</text>
-<text x="140" y="62" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">PermissionUiState</text>
-<rect x="312" y="24" width="176" height="48" rx="6" fill="#060913"/>
-<rect x="312" y="24" width="176" height="48" rx="6" fill="rgba(148,163,184,0.10)" stroke="#64748B" stroke-width="1"/>
-<text x="400" y="46" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">DeviceGalleryButton</text>
-<text x="400" y="62" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">@Composable · UI</text>
-<rect x="572" y="24" width="176" height="48" rx="6" fill="#060913"/>
-<rect x="572" y="24" width="176" height="48" rx="6" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.40)" stroke-width="1"/>
-<text x="660" y="46" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Android System</text>
-<text x="660" y="62" fill="#94A3B8" font-size="9" text-anchor="middle">cấp quyền, hiện hộp thoại</text>
-<!-- legend -->
-<line x1="32" y1="392" x2="768" y2="392" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="408" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<line x1="140" y1="404" x2="172" y2="404" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#perm-seq-dark-arrow)"/>
-<text x="184" y="408" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT LIỀN · GỌI</text>
-<line x1="340" y1="404" x2="372" y2="404" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-dark-arrow)"/>
-<text x="384" y="408" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · TRẢ VỀ</text>
-<circle cx="560" cy="404" r="4" fill="#38BDF8"/>
-<text x="572" y="408" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐƯỢC CẤP · MỞ GALLERY</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 424" role="img" aria-labelledby="perm-seq-title perm-seq-desc" font-family="'Geist', sans-serif">
-<title id="perm-seq-title">Xin quyền ảnh lúc chạy tới mở gallery</title>
-<desc id="perm-seq-desc">DeviceGalleryButton gọi checkSelfPermission và nhận PERMISSION_DENIED, gọi launcher.launch và nhận granted = true khi user bấm Allow, báo ProfileViewModel qua onPermissionResult, nhận lại uiState.hasImagePermission = true rồi gọi onOpenGallery để đọc MediaStore.</desc>
-<defs>
-<marker id="perm-seq-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-<marker id="perm-seq-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#0284C7"/>
-</marker>
-</defs>
-<rect width="800" height="424" fill="#F8FAFC"/>
-<!-- lifelines: ViewModel 140 · UI 400 · System 660 -->
-<line x1="140" y1="72" x2="140" y2="376" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="400" y1="72" x2="400" y2="376" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<line x1="660" y1="72" x2="660" y2="376" stroke="rgba(100,116,139,0.40)" stroke-width="1" stroke-dasharray="3,3"/>
-<!-- activations -->
-<rect x="396" y="100" width="8" height="268" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="656" y="112" width="8" height="40" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="656" y="192" width="8" height="40" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
-<rect x="136" y="272" width="8" height="40" fill="rgba(100,116,139,0.10)" stroke="#64748B" stroke-width="0.8"/>
-<!-- messages -->
-<path d="M 404,112 H 655" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-seq-arrow)"/>
-<rect x="428" y="92" width="204" height="12" rx="2" fill="#F8FAFC"/>
-<text x="530" y="101" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">checkSelfPermission(READ_MEDIA_IMAGES)</text>
-<path d="M 656,152 H 405" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-arrow)"/>
-<rect x="480" y="132" width="100" height="12" rx="2" fill="#F8FAFC"/>
-<text x="530" y="141" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">PERMISSION_DENIED</text>
-<path d="M 404,192 H 655" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-seq-arrow)"/>
-<rect x="440" y="172" width="180" height="12" rx="2" fill="#F8FAFC"/>
-<text x="530" y="181" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">launcher.launch(READ_MEDIA_IMAGES)</text>
-<path d="M 656,232 H 405" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-arrow)"/>
-<rect x="444" y="212" width="172" height="12" rx="2" fill="#F8FAFC"/>
-<text x="530" y="221" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">granted = true (user bấm Allow)</text>
-<path d="M 396,272 H 145" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-seq-arrow)"/>
-<rect x="164" y="252" width="212" height="12" rx="2" fill="#F8FAFC"/>
-<text x="270" y="261" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">onPermissionResult(granted = true, ...)</text>
-<path d="M 144,312 H 395" fill="none" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-arrow)"/>
-<rect x="180" y="292" width="180" height="12" rx="2" fill="#F8FAFC"/>
-<text x="270" y="301" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle">uiState.hasImagePermission = true</text>
-<!-- self message: onOpenGallery (focal) -->
-<path d="M 404,336 H 432 A 8 8 0 0 1 440,344 V 352 A 8 8 0 0 1 432,360 H 405" fill="none" stroke="#0284C7" stroke-width="1.5" marker-end="url(#perm-seq-accent)"/>
-<rect x="448" y="336" width="88" height="24" rx="2" fill="#F8FAFC"/>
-<text x="452" y="345" fill="#0284C7" font-size="8" font-family="'JetBrains Mono', monospace">onOpenGallery()</text>
-<text x="452" y="357" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">đọc MediaStore</text>
-<!-- actors -->
-<rect x="52" y="24" width="176" height="48" rx="6" fill="#F8FAFC"/>
-<rect x="52" y="24" width="176" height="48" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="140" y="46" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ProfileViewModel</text>
-<text x="140" y="62" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">PermissionUiState</text>
-<rect x="312" y="24" width="176" height="48" rx="6" fill="#F8FAFC"/>
-<rect x="312" y="24" width="176" height="48" rx="6" fill="rgba(100,116,139,0.10)" stroke="#94A3B8" stroke-width="1"/>
-<text x="400" y="46" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">DeviceGalleryButton</text>
-<text x="400" y="62" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">@Composable · UI</text>
-<rect x="572" y="24" width="176" height="48" rx="6" fill="#F8FAFC"/>
-<rect x="572" y="24" width="176" height="48" rx="6" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.40)" stroke-width="1"/>
-<text x="660" y="46" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Android System</text>
-<text x="660" y="62" fill="#64748B" font-size="9" text-anchor="middle">cấp quyền, hiện hộp thoại</text>
-<!-- legend -->
-<line x1="32" y1="392" x2="768" y2="392" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="408" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<line x1="140" y1="404" x2="172" y2="404" stroke="#64748B" stroke-width="1.2" marker-end="url(#perm-seq-arrow)"/>
-<text x="184" y="408" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT LIỀN · GỌI</text>
-<line x1="340" y1="404" x2="372" y2="404" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#perm-seq-arrow)"/>
-<text x="384" y="408" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">NÉT ĐỨT · TRẢ VỀ</text>
-<circle cx="560" cy="404" r="4" fill="#0284C7"/>
-<text x="572" y="408" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐƯỢC CẤP · MỞ GALLERY</text>
-</svg>
-</div>
-</div>
-
-
-<h3>4. Không cần xin quyền: Photo Picker và SAF</h3>
-
-<p>Khi đi làm, ưu tiên hai cách này vì không cần khai báo quyền gì.</p>
-
-<pre><code class="language-kotlin" data-lang="kotlin">// Photo Picker: có sẵn từ Android 13, Android 11-12 nhận qua Google System Updates.
-// Android 4.4-10 cần bản backport do Google Play services cài (khai báo service
-// com.google.android.gms.metadata.ModuleDependencies trong manifest).
-// Máy không có Photo Picker: AndroidX tự chuyển sang ACTION_OPEN_DOCUMENT.
-// Không cần READ_MEDIA_IMAGES. Cần androidx.activity 1.7.0+.
-val pickImage = rememberLauncherForActivityResult(
-    ActivityResultContracts.PickVisualMedia()
-) { uri: Uri? -&gt;
-    uri?.let { viewModel.saveAvatarFromUri(it) }
-}
-
-Button(onClick = {
-    pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-}) {
-    Text("Chọn ảnh không cần xin quyền")
-}
-</code></pre>
-
-<pre><code class="language-kotlin" data-lang="kotlin">// SAF: user tự chọn nơi tạo PDF export
-// reportPdfBytes: nội dung PDF đã tạo sẵn (vd bằng android.graphics.pdf.PdfDocument)
-val createPdf = rememberLauncherForActivityResult(
-    ActivityResultContracts.CreateDocument("application/pdf")
-) { uri: Uri? -&gt;
-    uri?.let { viewModel.exportReport(it, reportPdfBytes) }
-}
-</code></pre>
-
-<h3>5. Share file: bắt buộc dùng FileProvider</h3>
-
-<p>Từ Android 7, share <code>file://</code> sẽ crash <code>FileUriExposedException</code>.</p>
-
-<pre><code class="language-xml" data-lang="xml">&lt;!-- AndroidManifest.xml --&gt;
-&lt;provider
-    android:name="androidx.core.content.FileProvider"
-    android:authorities="\${applicationId}.provider"
-    android:exported="false"
-    android:grantUriPermissions="true"&gt;
-    &lt;meta-data
-        android:name="android.support.FILE_PROVIDER_PATHS"
-        android:resource="@xml/file_paths" /&gt;
-&lt;/provider&gt;
-</code></pre>
-
-<pre><code class="language-xml" data-lang="xml">&lt;!-- res/xml/file_paths.xml --&gt;
-&lt;paths&gt;
-    &lt;files-path name="avatar" path="." /&gt;
-    &lt;cache-path name="cache" path="." /&gt;
-&lt;/paths&gt;
-</code></pre>
-
-<pre><code class="language-kotlin" data-lang="kotlin">val file = File(context.filesDir, "avatar.jpg")
-val uri: Uri = FileProvider.getUriForFile(
-    context, "\${context.packageName}.provider", file
-)
-
-val intent = Intent(Intent.ACTION_SEND).apply {
-    type = "image/jpeg"
-    putExtra(Intent.EXTRA_STREAM, uri)
-    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-}
-context.startActivity(Intent.createChooser(intent, "Chia sẻ avatar"))
-</code></pre>
-
-<h2>So sánh: MediaStore vs SAF vs Photo Picker</h2>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-<thead>
-<tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-<th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
-<th style="padding:8px 12px;text-align:left;">MediaStore</th>
-<th style="padding:8px 12px;text-align:left;">SAF</th>
-<th style="padding:8px 12px;text-align:left;">Photo Picker</th>
-</tr>
-</thead>
-<tbody>
-<tr style="border-bottom:1px solid #21262d;">
-<td style="padding:8px 12px;font-weight:600;">Cần permission?</td>
-<td style="padding:8px 12px;">Có, tùy version</td>
-<td style="padding:8px 12px;">Không, user chọn tay</td>
-<td style="padding:8px 12px;">Không</td>
-</tr>
-<tr style="border-bottom:1px solid #21262d;">
-<td style="padding:8px 12px;font-weight:600;">Trải nghiệm</td>
-<td style="padding:8px 12px;">Tự động, code đọc trực tiếp</td>
-<td style="padding:8px 12px;">User phải chọn file / thư mục</td>
-<td style="padding:8px 12px;">Picker hệ thống đẹp, quen thuộc</td>
-</tr>
-<tr style="border-bottom:1px solid #21262d;">
-<td style="padding:8px 12px;font-weight:600;">Phù hợp</td>
-<td style="padding:8px 12px;">App gallery, camera, nhạc</td>
-<td style="padding:8px 12px;">Export / import tài liệu</td>
-<td style="padding:8px 12px;">Chọn avatar, đính kèm ảnh</td>
-</tr>
-<tr style="border-bottom:1px solid #21262d;">
-<td style="padding:8px 12px;font-weight:600;">Duyệt Play Store</td>
-<td style="padding:8px 12px;">Bình thường nếu đúng quyền</td>
-<td style="padding:8px 12px;">Dễ duyệt</td>
-<td style="padding:8px 12px;">Dễ duyệt nhất</td>
-</tr>
-<tr style="">
-<td style="padding:8px 12px;font-weight:600;">Khuyên dùng khi đi làm</td>
-<td style="padding:8px 12px;">Khi cần quét toàn bộ media</td>
-<td style="padding:8px 12px;">Khi cần quyền lâu dài một file cụ thể</td>
-<td style="padding:8px 12px;">Mặc định cho chọn ảnh / video</td>
-</tr>
-</tbody>
-</table>
-
-<div class="callout-tip">
-  Trade-off: càng tiện cho dev (đọc thẳng MediaStore) thì càng phải xin quyền và giải trình. Càng nhường quyền chọn cho user (Picker, SAF) thì càng ít permission, càng dễ qua review.
-</div>
-
-<h2>Security và Performance ở mức đi làm</h2>
-
-<p>Security:</p>
-
-<ul>
-
-<li>File riêng luôn để <code>MODE_PRIVATE</code>. Không bao giờ lưu token, password ra external.</li>
-
-<li>External app-specific vẫn app khác có root đọc được, không coi là an toàn.</li>
-
-<li>Khi share qua FileProvider chỉ grant <code>FLAG_GRANT_READ_URI_PERMISSION</code> cho intent đó, không mở public cả thư mục.</li>
-
-</ul>
-
-<p>Performance:</p>
-
-<ul>
-
-<li>Đừng đọc file lớn trên UI thread. Repository nên expose <code>suspend</code> hoặc <code>Flow</code>.</li>
-
-<li>Cache ảnh resize trước khi lưu, đừng lưu nguyên ảnh 12MP làm avatar.</li>
-
-<li><code>cacheDir</code> hệ thống có thể xóa, đừng lưu dữ liệu quan trọng ở đó.</li>
-
-</ul>
-
-<h2>Sai lầm thường gặp</h2>
-
-<h3>1. Lưu app-specific nhưng vẫn xin full quyền</h3>
-
-<p>Lưu avatar vào <code>filesDir</code> thì khỏi xin. Xin thừa khiến user sợ và Play Store hỏi.</p>
-
-<h3>2. Quên <code>maxSdkVersion</code> khiến xin quyền chết trên máy mới</h3>
-
-<pre><code class="language-xml" data-lang="xml">&lt;!-- Đúng: quyền cũ chỉ cần tới Android 12 --&gt;
-&lt;uses-permission
-    android:name="android.permission.READ_EXTERNAL_STORAGE"
-    android:maxSdkVersion="32" /&gt;
-</code></pre>
-
-<h3>3. Dùng đường dẫn cứng <code>/sdcard/</code></h3>
-
-<pre><code class="language-kotlin" data-lang="kotlin">// Sai: máy khác nhau mount khác nhau
-val file = File("/sdcard/myapp/avatar.jpg")
-
-// Đúng
-val file = File(context.filesDir, "avatar.jpg")
-</code></pre>
-
-<h3>4. Quên handle Deny và Don't ask again</h3>
-
-<p>Luôn có nhánh disable tính năng và nút mở Settings. App chỉ hiện màn hình trắng khi bị deny là lỗi UX phổ biến khi review đi làm.</p>
-
-<h3>5. Test chỉ trên một version</h3>
-
-<p>Bug File Permissions thường chỉ lộ ra trên version khác. Khi đi làm phải test tối thiểu: Android 9, Android 11, Android 13/14.</p>
-
-<h2>Debug và Testing</h2>
-
-<p>Debug trên máy thật:</p>
-
-<pre><code class="language-text" data-lang="text">Device File Explorer trong Android Studio:
-data/data/com.example.profile/files/avatar.jpg
-data/data/com.example.profile/cache/
-sdcard/Android/data/com.example.profile/files/
-</code></pre>
-
-<pre><code class="language-bash" data-lang="bash">adb shell dumpsys package com.example.profile | grep permission
-adb shell run-as com.example.profile ls -l files
-</code></pre>
-
-<p>Không log đường dẫn tuyệt đối và nội dung file nhạy cảm ra Logcat production.</p>
-
-<p>Testing:</p>
-
-<pre><code class="language-kotlin" data-lang="kotlin">// testImplementation: kotlinx-coroutines-test, mockk
-// Fake override mọi hàm được gọi nên Context giả không bao giờ bị dùng tới
-class FakeFileRepository : FileRepository(mockk(relaxed = true)) {
-    var savedBytes: ByteArray? = null
-    override suspend fun saveAvatar(bytes: ByteArray): File {
-        savedBytes = bytes
-        return File("fake/avatar.jpg")
-    }
-}
-
-// Test ViewModel không cần thiết bị thật
-@OptIn(ExperimentalCoroutinesApi::class)
-class ProfileViewModelTest {
-    private val testDispatcher = StandardTestDispatcher()
-
-    // viewModelScope chạy trên Dispatchers.Main, unit test JVM không có Main -&gt; phải thay
-    @Before fun setUp() = Dispatchers.setMain(testDispatcher)
-    @After fun tearDown() = Dispatchers.resetMain()
-
-    @Test
-    fun saveAvatar_updatesUiState() = runTest(testDispatcher) {
-        val repo = FakeFileRepository()
-        val vm = ProfileViewModel(repo)
-        vm.saveAvatar(byteArrayOf(1, 2, 3))
-        advanceUntilIdle() // chạy hết coroutine đã launch
-        assertNotNull(vm.uiState.value.avatarPath)
-        assertArrayEquals(byteArrayOf(1, 2, 3), repo.savedBytes)
-    }
-}
-</code></pre>
-
-<h2>Vị trí trong hệ thống</h2>
+<h3>Vị trí trong hệ thống</h3>
 
 <p>File Permissions nằm ở Data Layer, dưới ViewModel.</p>
 
@@ -40877,65 +41138,51 @@ class ProfileViewModelTest {
 </div>
 </div>
 
-
-<p>Liên hệ:</p>
-
-<ul>
-
-<li><code>2.2 Process Management</code>: mỗi process mang UID, bị giết thì file cache có thể mất.</li>
-
-<li><code>2.4 Multi User OS</code>: mỗi user máy có sandbox riêng, app user A không thấy file user B.</li>
-
-<li><code>4.1 Manifest</code>: mọi quyền file đều phải khai báo ở Manifest trước.</li>
-
-</ul>
-
-<h2>Học tiếp gì?</h2>
+<h3>Topic liên quan</h3>
 
 <ul>
-
-<li><code>2.2 Process Management</code>: app sống ở process nào, vì sao bị giết thì mất file tạm.</li>
-
-<li><code>2.4 Multi User OS</code>: máy nhiều user thì storage tách ra sao.</li>
-
-<li><code>4.1 Manifest Permission tag</code>: khai báo <code>provider</code>, <code>uses-permission</code> đầy đủ.</li>
-
-<li><code>Session 05 Data Store + Room</code>: khi nào lưu file, khi nào lưu database có cấu trúc.</li>
-
-<li><code>Session 08 Local Storage</code>: cache ảnh, download nền bằng WorkManager.</li>
-
+  <li><strong>Tiên quyết:</strong> <a href="../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a>: ngôn ngữ của mọi ví dụ trong bài.</li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../session_01/output_packages/apk_files.md" target="_blank" rel="noopener">APK</a>: lúc cài APK, hệ thống cấp cho app UID riêng và thư mục dữ liệu riêng, tức sandbox ở mục "Android sandbox: mỗi app là một user Linux".</li>
+  <li><a href="../session_04/android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>, mục "Thẻ &lt;uses-permission&gt; và &lt;permission&gt;" và "Thẻ &lt;provider&gt;": mọi quyền file đều phải khai báo ở Manifest trước; khai báo <code>provider</code>, <code>uses-permission</code> đầy đủ.</li>
+  <li><a href="../session_04/components/content_provider.md" target="_blank" rel="noopener">Content Provider</a>: MediaStore là một System Provider, FileProvider là Content Provider dùng để chia sẻ file.</li>
+  <li><a href="../session_04/intent/implicit_intents.md" target="_blank" rel="noopener">Implicit Intents</a>: <code>ACTION_SEND</code> và chooser dùng khi share avatar qua FileProvider.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li>2.2 Process Management (chưa có bài): app sống ở process nào; mỗi process mang UID, bị giết thì file cache có thể mất.</li>
+  <li>2.4 Multi User OS (chưa có bài): mỗi user máy có sandbox riêng, app user A không thấy file user B; máy nhiều user thì storage tách ra sao.</li>
+  <li><a href="../session_05/data_store/key_value.md" target="_blank" rel="noopener">Key-Value Storage</a> và <a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>: khi nào lưu file, khi nào lưu database có cấu trúc.</li>
+  <li>8.3 Local Storage (chưa có bài): cache ảnh, download nền bằng WorkManager.</li>
+  <li><a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: viết test cho ViewModel như phần Debug và Testing.</li>
+  <li>Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 6.4 ViewModel, 7.1.5.3 Hilt, 7.2.3 MVVM (đều chưa có bài).</li>
+</ul></li>
 </ul>
 
 <h2>Nguồn tham khảo</h2>
 
 <ul>
-
-<li><a href="https://developer.android.com/training/data-storage">Data and file storage overview — Android Developers</a></li>
-
-<li><a href="https://developer.android.com/training/data-storage/app-specific">App-specific storage — Android Developers</a></li>
-
-<li><a href="https://developer.android.com/training/data-storage/shared/media">Shared media — Android Developers</a></li>
-
-<li><a href="https://developer.android.com/guide/topics/providers/document-provider">Storage Access Framework — Android Developers</a></li>
-
-<li><a href="https://developer.android.com/training/permissions/requesting">Request runtime permissions — Android Developers</a></li>
-
-<li><a href="https://developer.android.com/about/versions/10/privacy/changes#scoped-storage">Behavior changes Scoped Storage Android 10 — Android Developers</a></li>
-
-<li><a href="https://developer.android.com/training/data-storage/shared/photopicker">Photo Picker — Android Developers</a></li>
-
-<li><a href="https://developer.android.com/reference/androidx/core/content/FileProvider">FileProvider — Android Developers</a></li>
-
-<li><a href="https://developer.android.com/about/versions/13/behavior-changes-13#granular-media-permissions">Permissions behavior Android 13 — Android Developers</a></li>
-
-<li><a href="https://developer.android.com/about/versions/14/changes/partial-photo-video-access">Partial photo access Android 14 — Android Developers</a></li>
-
-<li><a href="https://source.android.com/docs/security/features/selinux">Security-Enhanced Linux in Android — Android Open Source Project</a></li>
-
-<li><a href="https://developer.android.com/kotlin/coroutines/test">Test your code on Android: Coroutines — Android Developers</a></li>
-
+  <li><a href="https://developer.android.com/training/data-storage" target="_blank" rel="noopener">Data and file storage overview — Android Developers</a></li>
+  <li><a href="https://developer.android.com/training/data-storage/app-specific" target="_blank" rel="noopener">App-specific storage — Android Developers</a></li>
+  <li><a href="https://developer.android.com/training/data-storage/shared/media" target="_blank" rel="noopener">Shared media — Android Developers</a></li>
+  <li><a href="https://developer.android.com/training/data-storage/use-cases" target="_blank" rel="noopener">Storage use cases and best practices (opt-out Scoped Storage, requestLegacyExternalStorage) — Android Developers</a></li>
+  <li><a href="https://developer.android.com/guide/topics/providers/document-provider" target="_blank" rel="noopener">Storage Access Framework — Android Developers</a></li>
+  <li><a href="https://developer.android.com/guide/topics/permissions/overview" target="_blank" rel="noopener">Permissions on Android (install-time, runtime, special permission) — Android Developers</a></li>
+  <li><a href="https://developer.android.com/training/permissions/requesting" target="_blank" rel="noopener">Request runtime permissions — Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/android/Manifest.permission" target="_blank" rel="noopener">Manifest.permission (READ_EXTERNAL_STORAGE API 16, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE API 30, READ_MEDIA_* API 33, READ_MEDIA_VISUAL_USER_SELECTED API 34) — Android Developers</a></li>
+  <li><a href="https://developer.android.com/about/versions/marshmallow/android-6.0-changes" target="_blank" rel="noopener">Android 6.0 changes: Runtime Permissions — Android Developers</a></li>
+  <li><a href="https://developer.android.com/about/versions/nougat/android-7.0-changes" target="_blank" rel="noopener">Android 7.0 behavior changes: file system permission, FileUriExposedException — Android Developers</a></li>
+  <li><a href="https://developer.android.com/about/versions/10/privacy/changes#scoped-storage" target="_blank" rel="noopener">Behavior changes Scoped Storage Android 10 — Android Developers</a></li>
+  <li><a href="https://developer.android.com/training/data-storage/shared/photopicker" target="_blank" rel="noopener">Photo Picker — Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/androidx/core/content/FileProvider" target="_blank" rel="noopener">FileProvider — Android Developers</a></li>
+  <li><a href="https://developer.android.com/about/versions/13/behavior-changes-13#granular-media-permissions" target="_blank" rel="noopener">Permissions behavior Android 13 — Android Developers</a></li>
+  <li><a href="https://developer.android.com/about/versions/14/changes/partial-photo-video-access" target="_blank" rel="noopener">Partial photo access Android 14 — Android Developers</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/activity" target="_blank" rel="noopener">Activity release notes (1.6.0 PickVisualMedia, 1.7.0, 1.10.0 LocalActivity) — Android Developers</a></li>
+  <li><a href="https://source.android.com/docs/security/features/selinux" target="_blank" rel="noopener">Security-Enhanced Linux in Android — Android Open Source Project</a></li>
+  <li><a href="https://developer.android.com/kotlin/coroutines/test" target="_blank" rel="noopener">Test your code on Android: Coroutines — Android Developers</a></li>
 </ul>
-`
+    `
   },
 
   'working-with-thread': {

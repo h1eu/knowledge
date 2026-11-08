@@ -1,7 +1,7 @@
 ---
 id: android.session02.file_permissions
 title: File Permissions
-summary: File Permissions là cơ chế quyết định app nào được đọc, ghi file nào trên Android - từ quyền Linux và sandbox UID, các loại Storage, Manifest vs Runtime permission qua các mốc Android 6-14 (gồm Scoped Storage), tới ví dụ Kotlin với ActivityResult, Photo Picker, SAF và FileProvider.
+summary: File Permissions là cơ chế quyết định ai được đọc, ghi, thực thi file nào; trên Android quyết định đó đi qua hai lớp kiểm soát, quyền Linux theo UID (mỗi app một sandbox) và Android permission do user cấp. Bài đi qua các loại Storage, Manifest vs Runtime permission, Scoped Storage và quyền đọc media qua các mốc Android 6-14, tới ví dụ Kotlin với ActivityResult, Photo Picker, SAF và FileProvider.
 status: published
 difficulty: beginner
 depth: standard
@@ -25,6 +25,8 @@ knowledge_gap: >
 
 ## Vấn đề cần giải quyết
 
+App nào cũng phải đọc, ghi file: ảnh đại diện, cache ảnh, file export. Nhưng Android không cho app chạm tùy ý vào mọi file, và luật chơi thay đổi qua từng version.
+
 Bạn làm app profile cho phép user đổi avatar. Trên máy test Android 9 chạy ngon. Lên Android 13 thì crash với `SecurityException: Permission denied`. App khác thì bị Play Store từ chối vì xin `MANAGE_EXTERNAL_STORAGE` trong khi chỉ cần lưu avatar.
 
 Cùng một thao tác "lưu file", nhưng:
@@ -35,9 +37,21 @@ Cùng một thao tác "lưu file", nhưng:
 
 > File Permissions trả lời đúng 3 việc này: app được chạm vào file nào, phải xin phép ra sao, và lưu ở đâu cho đúng khi đi làm.
 
+## Sau khi học xong
+
+- Giải thích được sandbox UID và vì sao mỗi app là một user Linux riêng.
+- Phân biệt được các loại Storage và chọn đúng chỗ lưu để khỏi xin quyền thừa.
+- Phân biệt được Manifest permission và Runtime permission cùng các thay đổi từ Android 6 tới 14.
+- Triển khai được luồng xin quyền chuẩn MVVM với ActivityResult API.
+- Áp dụng được Photo Picker, SAF và FileProvider để tránh Permission denied khi đi làm.
+
 ## File Permissions là gì?
 
-File Permissions là cơ chế quyết định **ai được đọc, ghi, thực thi file nào**.
+File Permissions là cơ chế quyết định **ai được đọc, ghi, thực thi file nào**. Trên Android, quyết định đó đi qua hai lớp kiểm soát: lớp Linux (kernel so UID của process với owner của file, mỗi app một UID riêng) và lớp Android permission (user cho phép app chạm vào file chung như ảnh, nhạc, download).
+
+Mental model: trước mỗi file có **hai cánh cửa**. Cửa thứ nhất là kernel, hỏi "bạn là ai". Cửa thứ hai là Android permission, hỏi thêm "user đã đồng ý cho bạn chưa". File riêng của app chỉ cần qua cửa thứ nhất; file chung của user phải qua cả hai. Photo Picker và SAF là cách để user tự chọn đúng file rồi trao cho app, nên app không phải xin mở cửa thứ hai cho cả kho.
+
+## Cách hoạt động
 
 Android dựa trên cơ chế quyền file của Linux (kiểm tra theo UID/GID), rồi thêm một lớp sandbox riêng: mỗi app một UID. Từ Android 5.0, Android còn bật **SELinux** ở chế độ enforcing (Mandatory Access Control): kể cả process chạy root cũng chỉ được làm những gì policy cho phép.
 
@@ -79,7 +93,7 @@ Bản chất:
 
 Đây là điểm khác Linux thuần: Linux hỏi "bạn là ai", Android hỏi thêm "user đã đồng ý cho bạn chưa".
 
-## Các loại Storage trong Android
+### Các loại Storage trong Android
 
 Đây là phần gây nhiều bug nhất khi đi làm. Chọn sai chỗ lưu là phải xin quyền thừa hoặc bị từ chối.
 
@@ -98,13 +112,11 @@ Nguyên tắc chọn khi đi làm:
 - Chỉ dùng Shared khi user cần thấy file ngoài app (ảnh trong Gallery, PDF trong Download).
 - Chỉ dùng SAF khi muốn user tự chọn nơi lưu / mở, ví dụ "Export báo cáo ra Download".
 
-> Sai lầm phổ biến nhất của người mới: lưu avatar vào Download rồi đi xin full quyền storage, trong khi lưu vào app-specific thì khỏi xin gì.
-
-## Manifest Permission vs Runtime Permission
+### Manifest Permission vs Runtime Permission
 
 Hai lớp khác nhau, phải làm đủ cả hai.
 
-### Manifest: khai báo trước
+#### Manifest: khai báo trước
 
 ```xml
 <!-- app/src/main/AndroidManifest.xml -->
@@ -126,7 +138,7 @@ Hai lớp khác nhau, phải làm đủ cả hai.
 
 Khai báo trong Manifest chỉ là "thông báo ý định". Từ Android 6, với quyền thuộc nhóm **dangerous** (vd `READ_MEDIA_IMAGES`), user còn phải bấm Allow lúc chạy; quyền **normal** (vd `INTERNET`) được cấp ngay khi cài.
 
-### Runtime: xin lúc chạy
+#### Runtime: xin lúc chạy
 
 ```mermaid
 flowchart LR
@@ -141,28 +153,21 @@ flowchart LR
 
 <!-- dd: perm-ask -->
 
-### Timeline version bắt buộc nhớ khi đi làm
+Code của luồng này (ActivityResult API) ở mục "Xin quyền đọc toàn bộ ảnh bằng ActivityResult API" trong phần Ví dụ thực tế.
 
-```mermaid
-flowchart LR
-    V6[Android 6<br/>Runtime permission] --> V7[Android 7<br/>Cấm file://<br/>dùng FileProvider]
-    V7 --> V10[Android 10<br/>Scoped Storage]
-    V10 --> V11[Android 11<br/>MANAGE_EXTERNAL_STORAGE<br/>siêu khó duyệt]
-    V11 --> V13[Android 13<br/>READ_MEDIA_IMAGES/VIDEO/AUDIO<br/>+ Photo Picker]
-    V13 --> V14[Android 14<br/>Partial access<br/>READ_MEDIA_VISUAL_USER_SELECTED]
-```
+### Scoped Storage và quyền đọc media theo version
 
-<!-- dd: perm-versions -->
+Luật đọc ghi file chung thay đổi mạnh qua các version (timeline đầy đủ ở phần Lịch sử phát triển). Những gì phải nhớ khi đi làm:
 
-Ý nghĩa thực tế:
-
-- **Scoped Storage** (Android 10, bắt buộc khi `targetSdk` từ 30): trên external storage, app chỉ tự do đọc ghi thư mục app-specific của mình và file media do chính nó tạo. Muốn đọc media của app khác phải qua MediaStore kèm quyền; file khác (PDF, tài liệu) phải qua SAF.
+- **Scoped Storage** (Android 10, mặc định cho app target 29 trở lên và tạm opt-out được bằng `requestLegacyExternalStorage`; bắt buộc khi `targetSdk` từ 30 chạy trên Android 11+): trên external storage, app chỉ tự do đọc ghi thư mục app-specific của mình và file media do chính nó tạo. Muốn đọc media của app khác phải qua MediaStore kèm quyền; file khác (PDF, tài liệu) phải qua SAF.
 - Đừng xin `READ_EXTERNAL_STORAGE` trên Android 13+, nó không còn tác dụng cho media.
-- Android 14 (`targetSdk` 34): user có thể chọn "Select photos and videos". Khi đó `READ_MEDIA_IMAGES` bị từ chối nhưng `READ_MEDIA_VISUAL_USER_SELECTED` được cấp, nghĩa là app chỉ thấy các ảnh user chọn. `granted = false` chưa chắc là bị từ chối hẳn: kiểm tra thêm quyền này bằng `ContextCompat.checkSelfPermission`.
+- Android 14: khi app xin quyền đọc ảnh/video, user có thể chọn "Select photos and videos" (bật khi app target 34 trở lên, hoặc target 33 có khai báo `READ_MEDIA_VISUAL_USER_SELECTED`). Kết quả phụ thuộc app có xin `READ_MEDIA_VISUAL_USER_SELECTED` hay không:
+  - App xin `READ_MEDIA_VISUAL_USER_SELECTED` cùng lúc với `READ_MEDIA_IMAGES`: khi user chọn một phần, `READ_MEDIA_IMAGES` bị từ chối nhưng `READ_MEDIA_VISUAL_USER_SELECTED` được cấp, nghĩa là app chỉ thấy các ảnh user chọn. `granted = false` chưa chắc là bị từ chối hẳn: kiểm tra thêm quyền này bằng `ContextCompat.checkSelfPermission`.
+  - App chỉ xin `READ_MEDIA_IMAGES` (như ví dụ ở phần Ví dụ thực tế): hệ thống chạy chế độ tương thích, trả `granted = true` nhưng app chỉ thấy các ảnh user chọn, và quyền tạm này bị thu lại sau khi app vào background.
 - Đừng xin `MANAGE_EXTERNAL_STORAGE` nếu chỉ lưu avatar hay export PDF, Play Store sẽ từ chối.
 - Ưu tiên Photo Picker và SAF vì không cần xin quyền gì cả.
 
-## Triển khai thực tế: Kotlin MVVM
+## Ví dụ thực tế
 
 Mục tiêu: code đủ để làm task trong 15 phút, tách đúng tầng UI - ViewModel - Repository.
 
@@ -177,7 +182,19 @@ flowchart TB
 
 <!-- dd: perm-arch -->
 
-### 1. Repository: nơi duy nhất biết lưu ở đâu
+> [!NOTE]
+> **Kiến thức dùng trước.** Ví dụ dùng tối thiểu vài kiến thức của Session sau:
+> - Coroutine (`suspend`, `withContext(Dispatchers.IO)`, `viewModelScope.launch`): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài).
+> - `StateFlow`: luồng giữ trạng thái mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài).
+> - `ViewModel`: giữ trạng thái của màn hình, học ở 6.4 ViewModel (chưa có bài); cách tách UI - ViewModel - Repository học ở 7.2.3 MVVM (chưa có bài).
+> - Hilt (`@Inject`, `@HiltViewModel`, `hiltViewModel()`): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài).
+> - Jetpack Compose (`@Composable`, `rememberLauncherForActivityResult`): viết UI bằng Kotlin, xem [Jetpack Compose Overview](../jetpack_compose_ui/overview.md).
+
+### Khung chung: Repository và ViewModel
+
+Các bài toán bên dưới dùng chung hai lớp này.
+
+#### Repository: nơi duy nhất biết lưu ở đâu
 
 ```kotlin
 package com.example.profile.data
@@ -232,7 +249,7 @@ Vì sao qua Repository mà không gọi `File` trực tiếp trong ViewModel:
 - ViewModel không nên biết file nằm ở `filesDir` hay MediaStore. Đổi chỗ lưu chỉ sửa Repository.
 - Dễ test: test ViewModel chỉ cần fake Repository.
 
-### 2. ViewModel: giữ trạng thái quyền
+#### ViewModel: giữ trạng thái quyền
 
 ```kotlin
 package com.example.profile.ui
@@ -264,6 +281,7 @@ class ProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(PermissionUiState())
     val uiState: StateFlow<PermissionUiState> = _uiState.asStateFlow()
 
+    // Bước (4) của ví dụ xin quyền đọc ảnh: lưu kết quả vào PermissionUiState
     fun onPermissionResult(granted: Boolean, shouldShowRationale: Boolean) {
         _uiState.value = _uiState.value.copy(
             hasImagePermission = granted,
@@ -301,11 +319,37 @@ class ProfileViewModel @Inject constructor(
 }
 ```
 
-### 3. UI: xin quyền bằng ActivityResult API
+### Xin quyền đọc toàn bộ ảnh bằng ActivityResult API
 
 Cách chuẩn hiện nay, không dùng `requestPermissions` cũ.
 
-Lưu ý phạm vi: **đổi avatar không cần quyền nào** (chọn ảnh bằng Photo Picker ở mục 4, lưu vào `filesDir`). Chỉ xin `READ_MEDIA_IMAGES` khi tính năng thật sự phải đọc **toàn bộ** ảnh trong máy, ví dụ màn hình "Thư viện ảnh" để sao lưu. Đoạn dưới minh hoạ trường hợp đó.
+Lưu ý phạm vi: **đổi avatar không cần quyền nào** (chọn ảnh bằng Photo Picker ở mục kế tiếp, lưu vào `filesDir`). Chỉ xin `READ_MEDIA_IMAGES` khi tính năng thật sự phải đọc **toàn bộ** ảnh trong máy, ví dụ màn hình "Thư viện ảnh" để sao lưu. Đoạn dưới minh hoạ trường hợp đó.
+
+Luồng chạy khi user bấm nút "Xem toàn bộ ảnh trong máy":
+
+1. UI hỏi hệ thống bằng `ContextCompat.checkSelfPermission` (Android 13+ là `READ_MEDIA_IMAGES`, Android 12 trở xuống là `READ_EXTERNAL_STORAGE`). Không tin trạng thái đã lưu, vì user có thể thu hồi quyền trong Settings.
+2. Hệ thống trả `PERMISSION_DENIED`: UI gọi `launcher.launch(permission)`, hệ thống hiện dialog xin quyền.
+3. User bấm Allow: callback của launcher nhận `granted = true` (bấm Deny thì `false`, đi nhánh Deny ở sơ đồ của mục "Runtime: xin lúc chạy").
+4. UI báo kết quả cho ViewModel qua `onPermissionResult(granted, shouldShowRationale)`; ViewModel cập nhật `PermissionUiState` (`showRationale` chỉ bật khi bị từ chối và hệ thống còn cho hiện giải thích).
+5. Có quyền: `onOpenGallery()` mở màn hình đọc MediaStore. Nếu bước 1 đã thấy `PERMISSION_GRANTED` thì đi thẳng tới bước này, không hiện dialog.
+
+Mô phỏng luồng khi user bấm Allow (các mũi tên đi đúng thứ tự 5 bước trên, từ trên xuống):
+
+```mermaid
+sequenceDiagram
+    participant UI as DeviceGalleryButton
+    participant VM as ProfileViewModel
+    participant Sys as Android System
+    UI->>Sys: checkSelfPermission(READ_MEDIA_IMAGES)
+    Sys-->>UI: PERMISSION_DENIED
+    UI->>Sys: launcher.launch(READ_MEDIA_IMAGES)
+    Sys-->>UI: granted = true (user bấm Allow)
+    UI->>VM: onPermissionResult(granted = true, ...)
+    VM-->>UI: uiState.hasImagePermission = true
+    UI->>UI: onOpenGallery() đọc MediaStore
+```
+
+<!-- dd: perm-seq -->
 
 ```kotlin
 // DeviceGalleryButton.kt (Compose)
@@ -325,18 +369,21 @@ fun DeviceGalleryButton(
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
+        // (3) granted = true khi user bấm Allow, false khi Deny
+        // (4) báo kết quả cho ViewModel
         viewModel.onPermissionResult(
             granted = granted,
             shouldShowRationale = activity != null &&
                 ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
         )
-        if (granted) onOpenGallery()
+        if (granted) onOpenGallery() // (5)
     }
 
     Button(onClick = {
-        // Luôn hỏi hệ thống, không tin trạng thái đã lưu: user có thể thu hồi quyền trong Settings
+        // (1) Luôn hỏi hệ thống, không tin trạng thái đã lưu: user có thể thu hồi quyền trong Settings
         val granted = ContextCompat.checkSelfPermission(context, permission) ==
             PackageManager.PERMISSION_GRANTED
+        // (2) chưa có quyền thì mở dialog hệ thống; (5) có rồi thì mở thẳng
         if (granted) onOpenGallery() else launcher.launch(permission)
     }) {
         Text("Xem toàn bộ ảnh trong máy")
@@ -344,25 +391,9 @@ fun DeviceGalleryButton(
 }
 ```
 
-Mô phỏng luồng khi user bấm Allow:
+**Kết quả:** lần đầu bấm nút, dialog hệ thống hiện; bấm Allow thì `uiState.hasImagePermission = true` và màn hình thư viện mở. Lần bấm sau, `checkSelfPermission` trả `PERMISSION_GRANTED` nên mở thẳng, không hỏi lại. Thu hồi quyền trong Settings rồi bấm lại thì dialog hiện lại. Trên Android 14, nếu user chọn "Select photos and videos", ví dụ này chỉ xin `READ_MEDIA_IMAGES` nên rơi vào chế độ tương thích ở mục "Scoped Storage và quyền đọc media theo version": `granted = true` nhưng app chỉ thấy các ảnh đã chọn.
 
-```mermaid
-sequenceDiagram
-    participant UI as DeviceGalleryButton
-    participant VM as ProfileViewModel
-    participant Sys as Android System
-    UI->>Sys: checkSelfPermission(READ_MEDIA_IMAGES)
-    Sys-->>UI: PERMISSION_DENIED
-    UI->>Sys: launcher.launch(READ_MEDIA_IMAGES)
-    Sys-->>UI: granted = true (user bấm Allow)
-    UI->>VM: onPermissionResult(granted = true, ...)
-    VM-->>UI: uiState.hasImagePermission = true
-    UI->>UI: onOpenGallery() đọc MediaStore
-```
-
-<!-- dd: perm-seq -->
-
-### 4. Không cần xin quyền: Photo Picker và SAF
+### Chọn avatar và export PDF không cần xin quyền: Photo Picker và SAF
 
 Khi đi làm, ưu tiên hai cách này vì không cần khai báo quyền gì.
 
@@ -395,9 +426,9 @@ val createPdf = rememberLauncherForActivityResult(
 }
 ```
 
-### 5. Share file: bắt buộc dùng FileProvider
+### Share file: bắt buộc dùng FileProvider
 
-Từ Android 7, share `file://` sẽ crash `FileUriExposedException`.
+Từ Android 7 (app target API 24 trở lên), đưa `file://` ra ngoài app (vd gắn vào Intent share) sẽ crash `FileUriExposedException`.
 
 ```xml
 <!-- AndroidManifest.xml -->
@@ -434,19 +465,7 @@ val intent = Intent(Intent.ACTION_SEND).apply {
 context.startActivity(Intent.createChooser(intent, "Chia sẻ avatar"))
 ```
 
-## So sánh: MediaStore vs SAF vs Photo Picker
-
-| Tiêu chí | MediaStore | SAF | Photo Picker |
-|---|---|---|---|
-| Cần permission? | Có, tùy version | Không, user chọn tay | Không |
-| Trải nghiệm | Tự động, code đọc trực tiếp | User phải chọn file / thư mục | Picker hệ thống đẹp, quen thuộc |
-| Phù hợp | App gallery, camera, nhạc | Export / import tài liệu | Chọn avatar, đính kèm ảnh |
-| Duyệt Play Store | Bình thường nếu đúng quyền | Dễ duyệt | Dễ duyệt nhất |
-| Khuyên dùng khi đi làm | Khi cần quét toàn bộ media | Khi cần quyền lâu dài một file cụ thể | Mặc định cho chọn ảnh / video |
-
-> Trade-off: càng tiện cho dev (đọc thẳng MediaStore) thì càng phải xin quyền và giải trình. Càng nhường quyền chọn cho user (Picker, SAF) thì càng ít permission, càng dễ qua review.
-
-## Security và Performance ở mức đi làm
+### Security và Performance ở mức đi làm
 
 Security:
 
@@ -460,40 +479,7 @@ Performance:
 - Cache ảnh resize trước khi lưu, đừng lưu nguyên ảnh 12MP làm avatar.
 - `cacheDir` hệ thống có thể xóa, đừng lưu dữ liệu quan trọng ở đó.
 
-## Sai lầm thường gặp
-
-### 1. Lưu app-specific nhưng vẫn xin full quyền
-
-Lưu avatar vào `filesDir` thì khỏi xin. Xin thừa khiến user sợ và Play Store hỏi.
-
-### 2. Quên `maxSdkVersion` khiến xin quyền chết trên máy mới
-
-```xml
-<!-- Đúng: quyền cũ chỉ cần tới Android 12 -->
-<uses-permission
-    android:name="android.permission.READ_EXTERNAL_STORAGE"
-    android:maxSdkVersion="32" />
-```
-
-### 3. Dùng đường dẫn cứng `/sdcard/`
-
-```kotlin
-// Sai: máy khác nhau mount khác nhau
-val file = File("/sdcard/myapp/avatar.jpg")
-
-// Đúng
-val file = File(context.filesDir, "avatar.jpg")
-```
-
-### 4. Quên handle Deny và Don't ask again
-
-Luôn có nhánh disable tính năng và nút mở Settings. App chỉ hiện màn hình trắng khi bị deny là lỗi UX phổ biến khi review đi làm.
-
-### 5. Test chỉ trên một version
-
-Bug File Permissions thường chỉ lộ ra trên version khác. Khi đi làm phải test tối thiểu: Android 9, Android 11, Android 13/14.
-
-## Debug và Testing
+### Debug và Testing
 
 Debug trên máy thật:
 
@@ -547,7 +533,103 @@ class ProfileViewModelTest {
 }
 ```
 
-## Vị trí trong hệ thống
+## So sánh với các cách tiếp cận khác
+
+### MediaStore vs SAF vs Photo Picker
+
+| Tiêu chí | MediaStore | SAF | Photo Picker |
+|---|---|---|---|
+| Cần permission? | Có, tùy version | Không, user chọn tay | Không |
+| Trải nghiệm | Tự động, code đọc trực tiếp | User phải chọn file / thư mục | Picker hệ thống đẹp, quen thuộc |
+| Phù hợp | App gallery, camera, nhạc | Export / import tài liệu | Chọn avatar, đính kèm ảnh |
+| Duyệt Play Store | Bình thường nếu đúng quyền | Dễ duyệt | Dễ duyệt nhất |
+| Khuyên dùng khi đi làm | Khi cần quét toàn bộ media | Khi cần quyền lâu dài một file cụ thể | Mặc định cho chọn ảnh / video |
+
+> [!NOTE]
+> Trade-off: càng tiện cho dev (đọc thẳng MediaStore) thì càng phải xin quyền và giải trình. Càng nhường quyền chọn cho user (Picker, SAF) thì càng ít permission, càng dễ qua review.
+
+## Sai lầm thường gặp
+
+### 1. Lưu app-specific nhưng vẫn xin full quyền
+
+Sai lầm phổ biến nhất của người mới: lưu avatar vào Download rồi đi xin full quyền storage, trong khi lưu vào app-specific thì khỏi xin gì.
+
+**Cách sửa:** Lưu avatar vào `filesDir` thì khỏi xin. Xin thừa khiến user sợ và Play Store hỏi.
+
+### 2. Quên `maxSdkVersion` khiến xin quyền chết trên máy mới
+
+Từ Android 13, `READ_EXTERNAL_STORAGE` không còn tác dụng (mục "Scoped Storage và quyền đọc media theo version"), nên khai báo không giới hạn version chỉ là quyền thừa trên máy mới.
+
+**Cách sửa:** giới hạn quyền cũ bằng `maxSdkVersion`.
+
+```xml
+<!-- Đúng: quyền cũ chỉ cần tới Android 12 -->
+<uses-permission
+    android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32" />
+```
+
+### 3. Dùng đường dẫn cứng `/sdcard/`
+
+**Cách sửa:** lấy thư mục qua `Context` thay vì tự ghép đường dẫn.
+
+```kotlin
+// Sai: máy khác nhau mount khác nhau
+val file = File("/sdcard/myapp/avatar.jpg")
+
+// Đúng
+val file = File(context.filesDir, "avatar.jpg")
+```
+
+### 4. Quên handle Deny và Don't ask again
+
+App chỉ hiện màn hình trắng khi bị deny là lỗi UX phổ biến khi review đi làm.
+
+**Cách sửa:** Luôn có nhánh disable tính năng và nút mở Settings (nhánh Deny ở sơ đồ của mục "Runtime: xin lúc chạy").
+
+### 5. Test chỉ trên một version
+
+Bug File Permissions thường chỉ lộ ra trên version khác.
+
+**Cách sửa:** Khi đi làm phải test tối thiểu: Android 9, Android 11, Android 13/14.
+
+### 6. Share file bằng `file://`
+
+App target API 24 trở lên gắn `file://` vào Intent gửi ra ngoài sẽ crash `FileUriExposedException`.
+
+**Cách sửa:** tạo `content://` URI bằng FileProvider và chỉ grant quyền đọc cho Intent đó, như mục "Share file: bắt buộc dùng FileProvider".
+
+## Lịch sử phát triển
+
+Các mốc version đã định hình cách xin quyền file hiện nay:
+
+```mermaid
+flowchart LR
+    V6[Android 6<br/>Runtime permission] --> V7[Android 7<br/>Cấm file://<br/>dùng FileProvider]
+    V7 --> V10[Android 10<br/>Scoped Storage]
+    V10 --> V11[Android 11<br/>MANAGE_EXTERNAL_STORAGE<br/>siêu khó duyệt]
+    V11 --> V13[Android 13<br/>READ_MEDIA_IMAGES/VIDEO/AUDIO<br/>+ Photo Picker]
+    V13 --> V14[Android 14<br/>Partial access<br/>READ_MEDIA_VISUAL_USER_SELECTED]
+```
+
+<!-- dd: perm-versions -->
+
+- **Android 4.1 (API 16):** thêm `READ_EXTERNAL_STORAGE`; hệ thống chỉ bắt buộc quyền này từ API 19, trước đó mọi app vẫn đọc được external storage.
+- **Android 4.3 → 5.0:** SELinux được đưa vào sandbox: Android 4.3 ở chế độ permissive, 4.4 enforcing một phần, từ 5.0 enforcing hoàn toàn.
+- **Android 4.4 (API 19):** app không cần quyền storage để đọc ghi thư mục app-specific trên external storage (`getExternalFilesDir()`, `getExternalCacheDir()`). Storage Access Framework ra đời (`ACTION_OPEN_DOCUMENT`, `ACTION_CREATE_DOCUMENT`).
+- **Android 6.0 (API 23):** runtime permission. App target 23 trở lên phải kiểm tra (`checkSelfPermission()`) và xin quyền dangerous lúc chạy (`requestPermissions()`); user cấp hoặc thu hồi từng quyền.
+- **Android 7.0 (API 24):** với app target 24 trở lên, thư mục riêng của app bị siết về `0700`, nới quyền bằng `MODE_WORLD_READABLE` / `MODE_WORLD_WRITEABLE` gây `SecurityException`; đưa `file://` ra ngoài app gây `FileUriExposedException`, cách chia sẻ được khuyên là `content://` qua FileProvider.
+- **Android 10 (API 29):** Scoped Storage mặc định cho app target 29 trở lên, tạm opt-out được bằng `requestLegacyExternalStorage`. App không cần quyền storage để thêm file của chính mình vào shared storage.
+- **Android 11 (API 30):** app target 30 trở lên chạy trên Android 11 thì `requestLegacyExternalStorage` bị bỏ qua và `WRITE_EXTERNAL_STORAGE` không còn tác dụng. Thêm `MANAGE_EXTERNAL_STORAGE` (special permission, mức bảo vệ `appop`) cho số ít app quản lý file thay user.
+- **Android 13 (API 33):** `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`, `READ_MEDIA_AUDIO` thay `READ_EXTERNAL_STORAGE` cho app target 33 trở lên; từ API 33, `READ_EXTERNAL_STORAGE` không còn tác dụng. Docs khuyên chỉ cần ảnh/video thì dùng Photo Picker thay vì khai báo hai quyền này.
+- **Android 14 (API 34):** thêm `READ_MEDIA_VISUAL_USER_SELECTED` cho trường hợp user chỉ cho phép một số ảnh/video.
+- **AndroidX Activity:** 1.6.0 (09/2022) thêm `PickVisualMedia` / `PickMultipleVisualMedia`, dùng Photo Picker khi có và `ACTION_OPEN_DOCUMENT` khi không; 1.7.0 (03/2023) thêm fallback qua Photo Picker do Google Play services cung cấp trước khi về `ACTION_OPEN_DOCUMENT`; activity-compose 1.10.0 (01/2025) thêm `LocalActivity` dùng trong ví dụ.
+
+Vì sao thiết kế đổi như vậy: các version mới quyết định quyền truy cập dựa trên **mục đích** của file (media, tài liệu, file riêng) nhiều hơn là **vị trí** của nó, để app chỉ được chạm vào đúng phần file nó thật sự dùng.
+
+## Kết nối hệ thống
+
+### Vị trí trong hệ thống
 
 File Permissions nằm ở Data Layer, dưới ViewModel.
 
@@ -575,31 +657,39 @@ flowchart TB
 
 <!-- dd: perm-sum -->
 
-Liên hệ:
+### Topic liên quan
 
-- `2.2 Process Management`: mỗi process mang UID, bị giết thì file cache có thể mất.
-- `2.4 Multi User OS`: mỗi user máy có sandbox riêng, app user A không thấy file user B.
-- `4.1 Manifest`: mọi quyền file đều phải khai báo ở Manifest trước.
-
-## Học tiếp gì?
-
-- `2.2 Process Management`: app sống ở process nào, vì sao bị giết thì mất file tạm.
-- `2.4 Multi User OS`: máy nhiều user thì storage tách ra sao.
-- `4.1 Manifest Permission tag`: khai báo `provider`, `uses-permission` đầy đủ.
-- `Session 05 Data Store + Room`: khi nào lưu file, khi nào lưu database có cấu trúc.
-- `Session 08 Local Storage`: cache ảnh, download nền bằng WorkManager.
+- **Tiên quyết:** [Kotlin](../session_01/languages/kotlin.md): ngôn ngữ của mọi ví dụ trong bài.
+- **Liên quan:**
+  - [APK](../session_01/output_packages/apk_files.md): lúc cài APK, hệ thống cấp cho app UID riêng và thư mục dữ liệu riêng, tức sandbox ở mục "Android sandbox: mỗi app là một user Linux".
+  - [Manifest Tags](../session_04/android_manifest/tags.md), mục "Thẻ <uses-permission> và <permission>" và "Thẻ <provider>": mọi quyền file đều phải khai báo ở Manifest trước; khai báo `provider`, `uses-permission` đầy đủ.
+  - [Content Provider](../session_04/components/content_provider.md): MediaStore là một System Provider, FileProvider là Content Provider dùng để chia sẻ file.
+  - [Implicit Intents](../session_04/intent/implicit_intents.md): `ACTION_SEND` và chooser dùng khi share avatar qua FileProvider.
+- **Học tiếp:**
+  - 2.2 Process Management (chưa có bài): app sống ở process nào; mỗi process mang UID, bị giết thì file cache có thể mất.
+  - 2.4 Multi User OS (chưa có bài): mỗi user máy có sandbox riêng, app user A không thấy file user B; máy nhiều user thì storage tách ra sao.
+  - [Key-Value Storage](../session_05/data_store/key_value.md) và [Relational Database (Room Architecture)](../session_05/data_store/room_architecture.md): khi nào lưu file, khi nào lưu database có cấu trúc.
+  - 8.3 Local Storage (chưa có bài): cache ảnh, download nền bằng WorkManager.
+  - [Unit Testing](../coding_analyst_and_testing/unit_testing.md): viết test cho ViewModel như phần Debug và Testing.
+  - Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 6.4 ViewModel, 7.1.5.3 Hilt, 7.2.3 MVVM (đều chưa có bài).
 
 ## Nguồn tham khảo
 
 - [Data and file storage overview — Android Developers](https://developer.android.com/training/data-storage)
 - [App-specific storage — Android Developers](https://developer.android.com/training/data-storage/app-specific)
 - [Shared media — Android Developers](https://developer.android.com/training/data-storage/shared/media)
+- [Storage use cases and best practices (opt-out Scoped Storage, requestLegacyExternalStorage) — Android Developers](https://developer.android.com/training/data-storage/use-cases)
 - [Storage Access Framework — Android Developers](https://developer.android.com/guide/topics/providers/document-provider)
+- [Permissions on Android (install-time, runtime, special permission) — Android Developers](https://developer.android.com/guide/topics/permissions/overview)
 - [Request runtime permissions — Android Developers](https://developer.android.com/training/permissions/requesting)
+- [Manifest.permission (READ_EXTERNAL_STORAGE API 16, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE API 30, READ_MEDIA_* API 33, READ_MEDIA_VISUAL_USER_SELECTED API 34) — Android Developers](https://developer.android.com/reference/android/Manifest.permission)
+- [Android 6.0 changes: Runtime Permissions — Android Developers](https://developer.android.com/about/versions/marshmallow/android-6.0-changes)
+- [Android 7.0 behavior changes: file system permission, FileUriExposedException — Android Developers](https://developer.android.com/about/versions/nougat/android-7.0-changes)
 - [Behavior changes Scoped Storage Android 10 — Android Developers](https://developer.android.com/about/versions/10/privacy/changes#scoped-storage)
 - [Photo Picker — Android Developers](https://developer.android.com/training/data-storage/shared/photopicker)
 - [FileProvider — Android Developers](https://developer.android.com/reference/androidx/core/content/FileProvider)
 - [Permissions behavior Android 13 — Android Developers](https://developer.android.com/about/versions/13/behavior-changes-13#granular-media-permissions)
 - [Partial photo access Android 14 — Android Developers](https://developer.android.com/about/versions/14/changes/partial-photo-video-access)
+- [Activity release notes (1.6.0 PickVisualMedia, 1.7.0, 1.10.0 LocalActivity) — Android Developers](https://developer.android.com/jetpack/androidx/releases/activity)
 - [Security-Enhanced Linux in Android — Android Open Source Project](https://source.android.com/docs/security/features/selinux)
 - [Test your code on Android: Coroutines — Android Developers](https://developer.android.com/kotlin/coroutines/test)
