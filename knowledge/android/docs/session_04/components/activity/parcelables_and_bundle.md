@@ -529,7 +529,7 @@ Lỗi này khó thấy vì app vẫn chạy: chỉ có màn hình hiện trống
   - [Push data and send event via Intent](../../intent/push_data_event.md) — các cách đưa dữ liệu vào Intent.
   - [Handle Intent](../../intent/handle_intent.md) — trích xuất extras và nhận kết quả bằng Activity Result API.
 - **Học tiếp:**
-  - 6.4 ViewModel (chưa có bài) — SavedStateHandle và cách dữ liệu Bundle đi vào ViewModel.
+  - [ViewModel](../../../session_06/viewmodel.md) — SavedStateHandle và cách dữ liệu Bundle đi vào ViewModel.
   - [FragmentManager](../fragment/fragment_manager.md) — Fragment arguments.
 
 ## Nguồn tham khảo

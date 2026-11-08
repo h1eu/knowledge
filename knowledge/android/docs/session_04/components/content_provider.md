@@ -379,7 +379,7 @@ sequenceDiagram
 > **Kiến thức dùng trước.** Ví dụ dùng tối thiểu vài kiến thức của Session sau:
 > - Coroutine (`suspend`, `withContext(Dispatchers.IO)`, `launch`): chạy code bất đồng bộ không chặn thread gọi, học ở 8.4.3 Coroutines (chưa có bài).
 > - `Flow`, `callbackFlow`, `StateFlow`, `stateIn`: luồng dữ liệu quan sát được, học ở 7.1.4.2 Flow (chưa có bài).
-> - `@HiltViewModel`, `@Inject`: Hilt tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài); ViewModel và `viewModelScope` học ở 6.4 ViewModel (chưa có bài).
+> - `@HiltViewModel`, `@Inject`: Hilt tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài); ViewModel và `viewModelScope` học ở [ViewModel](../../session_06/viewmodel.md).
 
 Permission `READ_MEDIA_IMAGES` (hoặc `READ_EXTERNAL_STORAGE` trên API ≤ 32) đã được khai báo và cấp như mục "Đọc dữ liệu từ System Provider (Client Side)".
 

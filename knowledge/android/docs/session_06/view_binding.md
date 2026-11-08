@@ -569,7 +569,7 @@ binding.quantityStepper.onQuantityChanged = { newQuantity ->
 | Data Binding | Như View Binding + biểu thức và biến trong XML | Có | Có | Cao hơn (annotation processing) | Vẫn hỗ trợ, dùng khi cần binding trong XML |
 | Jetpack Compose | UI là hàm Kotlin, không có XML để tra View | Không áp dụng | Không áp dụng | Compose compiler | Hướng chính cho UI mới |
 
-View Binding và Data Binding không loại trừ nhau: cùng một module có thể bật cả hai, dùng Data Binding cho layout cần biểu thức hay two-way binding và View Binding cho phần còn lại. Data Binding được học ở 6.2 Data Binding (chưa có bài); Compose ở [Jetpack Compose Overview](../jetpack_compose_ui/overview.md).
+View Binding và Data Binding không loại trừ nhau: cùng một module có thể bật cả hai, dùng Data Binding cho layout cần biểu thức hay two-way binding và View Binding cho phần còn lại. Data Binding được học ở [Data Binding](data_binding.md); Compose ở [Jetpack Compose Overview](../jetpack_compose_ui/overview.md).
 
 ## Khi nào nên và không nên dùng
 
@@ -657,7 +657,7 @@ return binding.root
   - [Dialog and DialogFragment](../session_04/components/fragment/dialog_and_dialogfragment.md): dialog có custom layout dùng binding theo cùng quy tắc với Fragment.
   - [Jetpack Compose Overview](../jetpack_compose_ui/overview.md): hướng UI không cần View Binding.
 - **Học tiếp:**
-  - 6.2 Data Binding (chưa có bài): binding có biểu thức và biến trong XML, mở rộng từ chính class binding ở bài này.
+  - [Data Binding](data_binding.md): binding có biểu thức và biến trong XML, mở rộng từ chính class binding ở bài này.
   - 7.1.2 ViewHolder Pattern (chưa có bài): binding trong item của danh sách.
   - 8.5.1 Layouts (chưa có bài): `<include>`, `<merge>` và các layout dùng trong ví dụ.
 

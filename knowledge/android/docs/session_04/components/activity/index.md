@@ -14,7 +14,7 @@ learning_outcomes:
   - Giải thích được bản chất Activity là gì và vì sao nó không chỉ là một "màn hình".
   - Giải thích được vị trí của Activity trong kiến trúc MVVM và Clean Architecture.
   - Phân biệt được cách Activity tương tác với từng component Android khác.
-  - Áp dụng được Activity cùng ViewModel, ViewBinding, DataBinding theo chuẩn thực chiến.
+  - Nhận diện được vai trò của ViewModel, View Binding và Data Binding khi đi cùng Activity.
   - Biết khi nào nên dùng Activity, khi nào nên dùng Single-Activity Architecture.
 knowledge_gap: >
   Xem Activity như một "Màn hình" đơn thuần khiến người học nhồi nhét mọi logic vào Activity (God Object), không hiểu được vai trò trung tâm của nó trong hệ sinh thái component và cách hệ điều hành điều phối. Khi nội dung phát triển, họ không biết component nào đảm nhận nhiệm vụ nào và kiến trúc dễ sụp đổ.
@@ -42,7 +42,7 @@ Nếu chỉ trả lời bằng câu "Activity là một màn hình", bạn sẽ 
 - Giải thích được bản chất Activity là gì và vì sao nó không chỉ là một "màn hình".
 - Giải thích được vị trí của Activity trong kiến trúc MVVM và Clean Architecture.
 - Phân biệt được cách Activity tương tác với từng component Android khác.
-- Áp dụng được Activity cùng ViewModel, ViewBinding, DataBinding theo chuẩn thực chiến.
+- Nhận diện được vai trò của ViewModel, View Binding và Data Binding khi đi cùng Activity.
 - Biết khi nào nên dùng Activity, khi nào nên dùng Single-Activity Architecture.
 
 ## Activity là gì?
@@ -216,13 +216,13 @@ Trong kiến trúc MVVM, Activity không gọi ContentResolver trực tiếp —
 
 ### 6. Activity và Jetpack (ViewModel, ViewBinding, DataBinding)
 
-Đây là cách phối hợp chuẩn trong project thực tế hiện nay:
+Trong project thực tế, Activity hiếm khi tự giữ dữ liệu hay tự gọi `findViewById`. Ba thành phần Jetpack thường đi cùng nó, mỗi thứ có bài riêng ở Session 06:
 
-- **ViewModel** giữ dữ liệu và logic UI. Nó **sống sót qua xoay màn hình** (configuration change), trong khi Activity bị destroy và tạo lại.
-- **ViewBinding** sinh class binding từ XML layout, giúp truy cập View an toàn, không cần `findViewById`.
-- **DataBinding** nâng cấp ViewBinding bằng khả năng binding dữ liệu trực tiếp vào layout XML.
+- [ViewModel](../../../session_06/viewmodel.md): giữ state và logic của màn hình, sống qua configuration change khi Activity bị tạo lại.
+- [View Binding](../../../session_06/view_binding.md): class sinh từ layout XML giữ sẵn tham chiếu có kiểu tới các View, thay cho `findViewById`.
+- [Data Binding](../../../session_06/data_binding.md): khai báo biến và biểu thức ngay trong layout để View tự cập nhật theo dữ liệu.
 
-Cách giữ state qua ViewModel được trình bày chi tiết ở [State Changes](state_changes.md), mục "Chọn công cụ nào? — Bản đồ quyết định".
+Chọn công cụ giữ state theo từng loại dữ liệu ở [State Changes](state_changes.md), mục "Chọn công cụ nào? — Bản đồ quyết định".
 
 ## Khi nào nên dùng, khi nào không?
 

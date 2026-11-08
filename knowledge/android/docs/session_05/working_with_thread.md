@@ -1052,7 +1052,7 @@ class SafeActivity : AppCompatActivity() {
   - 8.4.1 What Sync / Async (chưa có bài), 8.4.2 Thread and Multi-Thread (chưa có bài): đồng bộ, bất đồng bộ và đa luồng ở mức ngôn ngữ.
   - 8.4.3 Coroutines (chưa có bài): Dispatchers, `withContext`, structured concurrency thay cho Handler và thread pool tự quản lý.
   - 8.4.4 RxJava, RxAndroid, RxKotlin (chưa có bài): Schedulers, một cách khác để đổi thread.
-  - 7.2.5 Clean Architecture (chưa có bài) và 6.4 ViewModel (chưa có bài): đặt việc đổi thread ở Data Layer theo nguyên tắc Main-Safety.
+  - 7.2.5 Clean Architecture (chưa có bài) và [ViewModel](../session_06/viewmodel.md): đặt việc đổi thread ở Data Layer theo nguyên tắc Main-Safety.
 
 ## Nguồn tham khảo
 

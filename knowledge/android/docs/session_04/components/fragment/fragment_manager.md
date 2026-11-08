@@ -1172,7 +1172,7 @@ Nested Fragment quá sâu gây:
   - [Task and Backstack](../activity/task_and_backstack.md): back stack của các Activity trong một task, khác với back stack transaction mà FragmentManager giữ bên trong một Activity.
 - **Học tiếp:**
   - [Dialog and DialogFragment](dialog_and_dialogfragment.md): DialogFragment được `show()` qua FragmentManager, hoặc khai báo thành `<dialog>` destination của Navigation Component.
-  - 6.4 ViewModel (chưa có bài): ViewModel dùng cho Shared ViewModel giữa các Fragment.
+  - [ViewModel](../../../session_06/viewmodel.md): ViewModel dùng cho Shared ViewModel giữa các Fragment.
   - 7.2.3 MVVM (chưa có bài) và 7.2.5 Clean Architecture (chưa có bài): vị trí của FragmentManager trong Presentation Layer.
   - 7.1.5.3 Hilt (chưa có bài): inject `FragmentManager` qua `ActivityComponent`.
   - [9.0 Jetpack Compose Overview](../../../jetpack_compose_ui/overview.md): Compose và Navigation Compose, nơi điều hướng không còn đi qua FragmentManager.

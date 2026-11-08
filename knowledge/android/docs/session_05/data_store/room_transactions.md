@@ -857,7 +857,7 @@ fun getProductsByCategory(category: String): Flow<List<ProductSummary>>
 - **Kiến thức dùng trước:** 8.4.3 Coroutines (chưa có bài) cho `suspend`, `launch`, cancellation; 7.1.4.2 Flow (chưa có bài) cho `collect`, `stateIn`, `distinctUntilChanged`.
 - **Liên quan:**
   - [Working with Thread](../working_with_thread.md): main thread, ANR và thread pool, nền của việc Room chặn query trên main thread và dùng executor riêng.
-  - 6.4 ViewModel (chưa có bài): `viewModelScope` mà các ví dụ dùng và việc nó bị cancel khi màn hình đóng.
+  - [ViewModel](../../session_06/viewmodel.md): `viewModelScope` mà các ví dụ dùng và việc nó bị cancel khi màn hình đóng.
 - **Học tiếp:** [Networking](../networking.md): lấy dữ liệu từ server rồi ghi vào Room, nơi pattern Data Sync trong bài được dùng.
 
 ## Nguồn tham khảo

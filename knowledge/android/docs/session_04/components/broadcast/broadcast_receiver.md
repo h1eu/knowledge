@@ -59,7 +59,7 @@ Hãy nghĩ về nó như một **radio receiver**: hệ thống (hoặc app khá
 > - WorkManager (thư viện Jetpack lên lịch việc nền, lưu work lại và tự lên lịch lại sau reboot): [Android Service](../services/android_service.md), mục "WorkManager — Lựa chọn hiện đại cho background task".
 > - Room (database của app) chỉ xuất hiện sau `ReminderRepository`: [Relational Database (Room Architecture)](../../../session_05/data_store/room_architecture.md).
 > - Flow (`callbackFlow`, `StateFlow`, `SharedFlow`): 7.1.4.2 Flow (chưa có bài).
-> - ViewModel và Hilt (`@HiltViewModel`, `@Inject`, `@Module`): 6.4 ViewModel (chưa có bài), 7.1.5.3 Hilt (chưa có bài).
+> - ViewModel và Hilt (`@HiltViewModel`, `@Inject`, `@Module`): [ViewModel](../../../session_06/viewmodel.md), 7.1.5.3 Hilt (chưa có bài).
 > - MVVM, MVI và Clean Architecture (app chia thành Presentation, Domain, Data layer): 7.2.3 MVVM, 7.2.4 MVI, 7.2.5 Clean Architecture (chưa có bài).
 
 ### Lifecycle: Cực kỳ ngắn

@@ -128,7 +128,7 @@ class ProductDetailFragment : Fragment(R.layout.fragment_product_detail) {
 
 #### 2. ViewModel (In-memory state)
 
-ViewModel tồn tại qua Configuration Change nhưng **mất khi Process Death**. Cơ chế giữ ViewModel qua xoay màn hình và cách load dữ liệu ban đầu không bị lặp ở [Activity State Changes](../activity/state_changes.md), mục "ViewModel: giữ dữ liệu business qua configuration change" và mục "Sai lầm thường gặp", phần 3 "Fetch API trong onCreate mỗi lần recreate". Phần riêng của Fragment: `by viewModels()` tự đưa `arguments` vào `SavedStateHandle`, nên ViewModel đọc được ID mà Fragment không phải chuyển tay.
+ViewModel tồn tại qua Configuration Change nhưng **mất khi Process Death**. Cơ chế giữ ViewModel qua xoay màn hình và cách load dữ liệu ban đầu không bị lặp ở [ViewModel](../../../session_06/viewmodel.md), mục "Vì sao ViewModel sống qua configuration change nhưng mất khi process chết" và mục "Tải dữ liệu: lười, không launch trong init". Phần riêng của Fragment: `by viewModels()` tự đưa `arguments` vào `SavedStateHandle`, nên ViewModel đọc được ID mà Fragment không phải chuyển tay.
 
 ```kotlin
 class ProductDetailFragment : Fragment(R.layout.fragment_product_detail) {
@@ -136,7 +136,7 @@ class ProductDetailFragment : Fragment(R.layout.fragment_product_detail) {
     // Scope theo Fragment — mỗi instance Fragment có ViewModel riêng.
     // by viewModels() đưa arguments ("product_id") vào SavedStateHandle của ViewModel.
     // Không gọi hàm load dữ liệu trong onCreate: sau xoay màn hình onCreate chạy lại → fetch lặp.
-    // (ViewModel có repository trong constructor cần factory hoặc Hilt, học ở 6.4 ViewModel, chưa có bài)
+    // (ViewModel có repository trong constructor cần factory hoặc Hilt, học ở 6.4 ViewModel)
     private val viewModel: ProductDetailViewModel by viewModels()
 }
 
@@ -184,50 +184,7 @@ Nhánh riêng của Fragment là bước đầu tiên: dữ liệu màn gọi tr
 
 ### ViewModel scoping: viewModels() vs activityViewModels()
 
-Fragment có thể chọn scope cho ViewModel:
-
-```kotlin
-class FragmentA : Fragment() {
-    // Scope theo Fragment — ViewModel riêng cho Fragment này
-    private val viewModel: MyViewModel by viewModels()
-    
-    // Scope theo Activity — chia sẻ với tất cả Fragment trong Activity
-    private val sharedViewModel: SharedViewModel by activityViewModels()
-    
-    // Scope theo Navigation Graph — chia sẻ trong cùng nav graph
-    private val navViewModel: NavViewModel by navGraphViewModels(R.id.main_nav_graph)
-}
-```
-
-```mermaid
-flowchart TD
-    subgraph Activity
-        subgraph "activityViewModels() scope"
-            SVM[SharedViewModel]
-        end
-        
-        subgraph FragA["Fragment A"]
-            VMA[viewModels<br/>ViewModel A]
-        end
-        
-        subgraph FragB["Fragment B"]
-            VMB[viewModels<br/>ViewModel B]
-        end
-        
-        FragA -.->|access| SVM
-        FragB -.->|access| SVM
-    end
-
-    style SVM fill:#FF9800,stroke:#F57C00,color:#fff
-    style VMA fill:#4CAF50,stroke:#388E3C,color:#fff
-    style VMB fill:#4CAF50,stroke:#388E3C,color:#fff
-```
-<!-- dd: fsc-scopes -->
-
-**Quy tắc chọn scope:**
-- `viewModels()` — Dữ liệu thuộc riêng Fragment (product detail, form data)
-- `activityViewModels()` — Dữ liệu chia sẻ giữa các Fragment (selected item, auth state)
-- `navGraphViewModels()` — Dữ liệu chia sẻ trong một luồng navigation cụ thể (checkout flow)
+Fragment chọn ViewModel sống theo ai bằng cách chọn owner: `by viewModels()` cho ViewModel riêng của Fragment (sống tới khi Fragment bị remove, kể cả qua lúc nằm trong backstack), `by activityViewModels()` cho ViewModel dùng chung giữa các Fragment cùng Activity, `by navGraphViewModels()` cho một luồng nhiều màn. Bảng đầy đủ các scope, cách chọn và ví dụ chia sẻ dữ liệu giữa hai Fragment ở [ViewModel](../../../session_06/viewmodel.md), mục "Scope: ViewModel thuộc về owner nào".
 
 ## Ví dụ thực tế
 
@@ -358,12 +315,6 @@ Cơ chế cốt lõi giống nhau: cả Activity lẫn Fragment đều bị dest
 
 **Cách sửa:** Dùng `arguments` Bundle hoặc SafeArgs (Jetpack Navigation).
 
-### 2. Dùng activityViewModels() cho data chỉ cần tạm thời
-
-ViewModel scope theo Activity tồn tại cho đến khi Activity bị destroy. Nếu Fragment chỉ cần data tạm thời mà dùng `activityViewModels()`, data sẽ chiếm bộ nhớ suốt vòng đời Activity.
-
-**Cách sửa:** Chỉ dùng `activityViewModels()` cho data thực sự cần chia sẻ. Dùng `viewModels()` cho data riêng.
-
 ## Lịch sử phát triển
 
 - **Android 3.0 (API 11):** `setArguments()` và `setRetainInstance()` có từ API level 11 trong `android.app.Fragment`. Bản Fragment của framework bị deprecated từ API 28, thay bằng Fragment của AndroidX.
@@ -394,7 +345,7 @@ Release notes của Fragment 1.3.0 nêu lý do: ViewModel là API riêng để g
   - [Dialog and DialogFragment](dialog_and_dialogfragment.md) — màn hình dialog có vòng đời riêng và cách lưu state khi rotate.
 - **Liên quan:**
   - [Parcelables and Bundle](../activity/parcelables_and_bundle.md): kiểu dữ liệu và giới hạn kích thước của `arguments` và saved state.
-  - 6.4 ViewModel (chưa có bài): factory, Hilt, `viewModelScope`.
+  - [ViewModel](../../../session_06/viewmodel.md): cơ chế store, scope, factory, `viewModelScope`.
 
 ## Nguồn tham khảo
 

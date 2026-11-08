@@ -272,7 +272,7 @@ Sau khi cài app, kiểm tra trạng thái xác minh bằng `adb shell pm get-ap
 **Luồng dữ liệu:** Deep Link → Activity (Presentation) → ViewModel (UI State) → Repository (Data).
 
 > [!NOTE]
-> Kiến thức dùng trước: `@AndroidEntryPoint`/`@HiltViewModel` là annotation của Hilt (thư viện Dependency Injection), học ở 7.1.5.3 Hilt (chưa có bài); `ViewModel` và `viewModelScope` (coroutine scope gắn với ViewModel) học ở 6.4 ViewModel (chưa có bài); `StateFlow` là luồng trạng thái quan sát được, học ở 7.1.4.2 Flow (chưa có bài).
+> Kiến thức dùng trước: `@AndroidEntryPoint`/`@HiltViewModel` là annotation của Hilt (thư viện Dependency Injection), học ở 7.1.5.3 Hilt (chưa có bài); `ViewModel` và `viewModelScope` (coroutine scope gắn với ViewModel) học ở [ViewModel](../../session_06/viewmodel.md); `StateFlow` là luồng trạng thái quan sát được, học ở 7.1.4.2 Flow (chưa có bài).
 
 **Activity xử lý cả 2 đường (cold start + warm start):** cold start đọc Intent trong `onCreate()`, warm start nhận Intent mới qua `onNewIntent()`. Khi nào hệ thống gọi `onNewIntent()` và vì sao cần `setIntent()` được giải thích ở [Handle Intent](handle_intent.md), mục "onNewIntent() và Launch Modes".
 
@@ -499,7 +499,7 @@ Giữ filter hẹp, Activity mỏng, logic nghiệp vụ ở ViewModel/Repositor
 - **Học tiếp:**
   - [Handle Intent](handle_intent.md): đọc dữ liệu từ Intent, `onNewIntent()` và Launch Modes.
   - [Push data and send event via Intent](push_data_event.md): truyền dữ liệu và sự kiện qua Intent.
-  - 7.2.3 MVVM (chưa có bài), 6.4 ViewModel (chưa có bài), 7.1.5.3 Hilt (chưa có bài): kiến trúc và công cụ mà Bài toán 4 dựa vào.
+  - 7.2.3 MVVM (chưa có bài), [ViewModel](../../session_06/viewmodel.md), 7.1.5.3 Hilt (chưa có bài): kiến trúc và công cụ mà Bài toán 4 dựa vào.
 
 ## Nguồn tham khảo
 

@@ -46,7 +46,7 @@ Cách tiếp cận truyền thống này bộc lộ những nhược điểm ch�
 > - Flow (`Flow<T>`, `first()`) là một luồng giá trị bất đồng bộ phát ra theo thời gian: 7.1.4.2 Flow (chưa có bài). Cách Session 05 dùng hai kiến thức này ở [Session 05 Overview](../overview.md).
 > - Hilt (`@Inject`, `@Singleton`) là thư viện Dependency Injection tạo và cấp sẵn đối tượng cho class: 7.1.5.3 Hilt (chưa có bài).
 > - Retrofit (`TaskApiService`, `response.isSuccessful`) là thư viện gọi API: 8.1.1 Retrofit (chưa có bài).
-> - ViewModel và Clean Architecture (app chia thành UI, Domain, Data layer): 6.4 ViewModel, 7.2.5 Clean Architecture (chưa có bài).
+> - ViewModel và Clean Architecture (app chia thành UI, Domain, Data layer): [ViewModel](../../session_06/viewmodel.md), 7.2.5 Clean Architecture (chưa có bài).
 
 ## Sau khi học xong
 
@@ -1041,7 +1041,7 @@ graph TD
   - [Android Service](../../session_04/components/services/android_service.md), mục "WorkManager — Lựa chọn hiện đại cho background task": chạy `syncPendingTasks()` ở nền.
   - [Unit Testing](../../coding_analyst_and_testing/unit_testing.md): nền tảng cho phần kiểm thử DAO.
   - 8.3 Local Storage (chưa có bài).
-  - Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 7.1.5.3 Hilt, 8.1.1 Retrofit, 6.4 ViewModel, 7.2.5 Clean Architecture (đều chưa có bài).
+  - Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 7.1.5.3 Hilt, 8.1.1 Retrofit, 7.2.5 Clean Architecture (đều chưa có bài) và [ViewModel](../../session_06/viewmodel.md).
 
 ## Developer Curiosity Checklist
 

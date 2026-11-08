@@ -78,7 +78,7 @@ Mental model: DialogFragment là **người quản lý**, Dialog là **cửa s�
 > [!NOTE]
 > **Kiến thức dùng trước.** Các ví dụ dùng tối thiểu vài kiến thức của Session sau:
 > - ViewBinding (class sinh ra từ layout để truy cập View an toàn): [View Binding](../../../session_06/view_binding.md).
-> - ViewModel (giữ state qua configuration change) và `activityViewModels()`: 6.4 ViewModel (chưa có bài); phạm vi `viewModels()` / `activityViewModels()` ở [Fragment State Changes](state_changes.md).
+> - ViewModel (giữ state qua configuration change) và `activityViewModels()`: [ViewModel](../../../session_06/viewmodel.md); phạm vi `viewModels()` / `activityViewModels()` ở [Fragment State Changes](state_changes.md).
 > - `StateFlow` và coroutine (`lifecycleScope`, `repeatOnLifecycle`): 7.1.4.2 Flow (chưa có bài), 8.4.3 Coroutines (chưa có bài); mẫu collect an toàn trong Fragment ở [Fragment Lifecycle](lifecycle.md).
 > - Composable và state của Compose (`remember`, `rememberSaveable`): [Jetpack Compose Overview](../../../jetpack_compose_ui/overview.md), 9.2.2 Remember and rememberSaveable (chưa có bài).
 
@@ -1204,7 +1204,7 @@ class DeleteItemUseCase(
   - [Fragment State Changes](state_changes.md): lưu state qua rotation và process death, phạm vi `viewModels()` / `activityViewModels()` dùng cho Shared ViewModel.
   - [Fragment Overview](index.md): khi nào dùng Fragment, trong đó có dialog và bottom sheet.
 - **Học tiếp:**
-  - [View Binding](../../../session_06/view_binding.md), 6.4 ViewModel (chưa có bài).
+  - [View Binding](../../../session_06/view_binding.md), [ViewModel](../../../session_06/viewmodel.md).
   - 7.2.3 MVVM (chưa có bài), 7.2.5 Clean Architecture (chưa có bài): vị trí của DialogFragment trong Presentation Layer.
   - [Jetpack Compose Overview](../../../jetpack_compose_ui/overview.md) và 9.2.2 Remember and rememberSaveable (chưa có bài): nền cho dialog trong Compose.
 

@@ -149,34 +149,11 @@ Dữ liệu cần xử lý
 
 ### ViewModel: giữ dữ liệu business qua configuration change
 
-Loại dữ liệu nguy hiểm nhất khi xoay màn hình là **kết quả API**. Nếu fetch lại trong `onCreate`, mỗi lần xoay màn hình là một lần gọi lại mạng. ViewModel giải quyết điều này: nó sống sót qua config change nên dữ liệu đã load vẫn còn, Activity mới không cần gọi lại API.
+Loại dữ liệu nguy hiểm nhất khi xoay màn hình là **kết quả API**: fetch lại trong `onCreate` thì mỗi lần xoay là một lần gọi mạng. ViewModel giải quyết điều này vì nó được cất trong `ViewModelStore`, và store được chuyển sang Activity mới khi Activity bị tạo lại do configuration change. Dữ liệu đã tải vẫn còn, Activity mới không gọi lại API. Store chỉ nằm trong bộ nhớ, nên ViewModel **mất khi process chết**.
 
-`StateFlow` và `stateIn` dùng ở đây là luồng dữ liệu quan sát được, học ở 7.1.4.2 Flow (chưa có bài); `viewModelScope` là coroutine scope gắn với ViewModel, đã giới thiệu ở [Activity Lifecycle](lifecycle.md), mục "viewModelScope", học đầy đủ ở 6.4 ViewModel (chưa có bài).
-
-**Điều cốt lõi để hiểu:** ViewModel sống sót qua config change nhờ `ViewModelStore` được lưu vào `NonConfigurationInstances` — một object mà `ActivityThread` giữ lại khi recreate Activity. Khi Activity mới tạo, nó lấy lại chính `ViewModelStore` cũ, nên `products` vẫn giữ kết quả đã load. `WhileSubscribed(5_000)` giữ pipeline chạy thêm 5 giây sau khi UI ngừng collect; Activity mới collect lại trong khoảng đó nên API **không bị gọi lại** khi xoay màn hình. Nếu UI ngừng collect lâu hơn 5 giây (app nằm ở background), pipeline dừng và chạy lại khi UI quay lại; muốn chỉ gọi một lần cho mỗi ViewModel thì dùng `SharingStarted.Lazily`. Vì sao không gọi API trong `init` của ViewModel: xem mục "Sai lầm thường gặp", mục 3.
+Cơ chế giữ store qua configuration change, vòng đời và `onCleared()`, scope, factory và cách tải dữ liệu lười (`stateIn`, không launch trong `init`) ở [ViewModel](../../../session_06/viewmodel.md). `StateFlow` và `stateIn` dùng trong bài là luồng dữ liệu quan sát được, học ở 7.1.4.2 Flow (chưa có bài).
 
 Code của `products` (pipeline `stateIn` khởi động lười) ở mục "Ví dụ thực tế", bước (1) và (3).
-
-```mermaid
-sequenceDiagram
-    participant U as Người dùng
-    participant A as Activity
-    participant VM as ViewModel
-    participant R as Repository/API
-    U->>A: Mở màn hình
-    A->>VM: ViewModel được tạo
-    VM->>R: getProducts() (lần 1)
-    R-->>VM: Kết quả
-    U->>A: Xoay màn hình
-    A--x A: Activity cũ destroy
-    Note over A,VM: ViewModelStore KHÔNG bị hủy<br/>(lưu trong NonConfigurationInstances)
-    A->>VM: Activity mới lấy lại ViewModel cũ
-    Note over VM,R: Không gọi API lại — dữ liệu vẫn còn
-    U->>A: Process bị kill (thiếu RAM)
-    A--x VM: ViewModel biến mất cùng process
-    A->>VM: ViewModel TẠO MỚI → gọi API lại (lần 2)
-```
-<!-- dd: vm-survive -->
 
 ### SavedStateHandle: lưu user input quan trọng qua process death
 
@@ -425,12 +402,6 @@ List sản phẩm vài trăm item hoặc Bitmap trong saved state vượt xa khu
 
 ### 3. Fetch API trong onCreate mỗi lần recreate
 
-`onCreate` chạy lại sau mỗi lần xoay màn hình, gọi mạng lại vô ích, làm UI flash và tốn băng thông.
-
-Lỗi kinh điển: gọi API trong `onCreate` nhưng không kiểm tra, nên mỗi lần xoay màn hình là một lần gọi lại mạng. Cách sửa hay gặp là chuyển lời gọi vào `init` của ViewModel, nhưng docs cũng khuyên **không** làm vậy: launch việc bất đồng bộ trong `init` hay constructor khiến code async có thể đọc/ghi object trước khi nó khởi tạo xong; với ViewModel giữ Compose State, việc này còn có thể gây `IllegalStateException`. Docs khuyên khởi động việc load một cách lười (khi UI bắt đầu collect), hoặc qua một hàm `initialize()` idempotent khi không dùng được Flow.
-
-**Cách sửa:** Để ViewModel khởi động việc load một cách lười (`stateIn`) hoặc qua `initialize()` idempotent, không launch trong `init`.
-
 ```kotlin
 // ❌ SAI — onCreate chạy lại sau mỗi config change → gọi lại API
 class ProductListActivity : AppCompatActivity() {
@@ -439,31 +410,11 @@ class ProductListActivity : AppCompatActivity() {
         viewModel.loadProducts() // hàm public, không kiểm tra đã load hay chưa
     }
 }
-
-// ❌ KHÔNG NÊN — launch coroutine trong init (docs cảnh báo)
-class ProductListViewModel(private val repository: ProductRepository) : ViewModel() {
-    private val _products = MutableStateFlow<List<Product>>(emptyList())
-    init {
-        viewModelScope.launch { _products.value = repository.getProducts() }
-    }
-}
-
-// ✅ ĐÚNG — pipeline lười trong ViewModel, như ở Ví dụ thực tế
-val products: StateFlow<List<Product>> =
-    flow { emit(repository.getProducts()) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
-// ✅ Khi không dùng được Flow — initialize() idempotent:
-// gọi từ onCreate cũng an toàn, vì sau xoay màn hình vẫn là ViewModel cũ, cờ đã bật
-private var initializeCalled = false
-
-@MainThread
-fun initialize() {
-    if (initializeCalled) return
-    initializeCalled = true
-    viewModelScope.launch { /* load dữ liệu ban đầu */ }
-}
 ```
+
+`onCreate` chạy lại sau mỗi lần xoay màn hình, gọi mạng lại vô ích, làm UI flash và tốn băng thông.
+
+**Cách sửa:** để ViewModel tải dữ liệu một cách lười (`stateIn`, như mục "Ví dụ thực tế") hoặc qua một hàm `initialize()` idempotent. Không chuyển lời gọi vào `init` của ViewModel: docs khuyên không launch việc bất đồng bộ trong constructor. Lý do và code của cả hai cách ở [ViewModel](../../../session_06/viewmodel.md), mục "Tải dữ liệu: lười, không launch trong init".
 
 ### 4. Dùng android:configChanges để "fix" mất state
 
@@ -523,7 +474,7 @@ State Changes không phải việc của riêng UI. Trong kiến trúc đúng:
   - [Task and Backstack](task_and_backstack.md): Back ở root launcher activity, ngữ cảnh Activity bị finish hay chỉ về background.
 - **Học tiếp:**
   - [Fragment State Changes](../fragment/state_changes.md) — cách Fragment lưu/khôi phục state riêng.
-  - 6.4 ViewModel (chưa có bài): chi tiết về `viewModelScope`, `SavedStateHandle`, factory.
+  - [ViewModel](../../../session_06/viewmodel.md): cơ chế store, vòng đời, scope, factory, `viewModelScope`.
   - 9.2 State and State Hoisting (chưa có bài), gồm 9.2.1 MutableState và 9.2.2 Remember and rememberSaveable: `remember`, `rememberSaveable`, `mutableStateOf` và Saver.
   - 7.2.3 MVVM và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.
 

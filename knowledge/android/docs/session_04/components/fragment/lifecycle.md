@@ -388,9 +388,9 @@ Nếu bạn có callback bất đồng bộ (delay, network callback) trả về
 
 ### 3. Không gỡ adapter của RecyclerView
 
-RecyclerView giữ strong reference đến Adapter, Adapter giữ reference đến ViewHolder, ViewHolder giữ reference đến View. Nếu không set `recyclerView.adapter = null` trong `onDestroyView`, toàn bộ chuỗi này sẽ không được GC thu hồi khi Fragment trong backstack.
+Khi gán adapter, RecyclerView đăng ký một observer vào adapter để nghe thay đổi dữ liệu, nên adapter giữ ngược lại RecyclerView, và qua đó cả cây View. Nếu Fragment giữ adapter làm field (để gọi `submitList` ở nơi khác), thì khi Fragment vào backstack, field đó giữ cả cây View đã bị huỷ: leak dù `_binding` đã được gán `null`.
 
-**Cách sửa:** Gán `binding.recyclerView.adapter = null` trong `onDestroyView()`, **trước** `_binding = null`.
+**Cách sửa:** hoặc tạo adapter cục bộ trong `onViewCreated()` (không lưu làm field của Fragment), hoặc gán `binding.recyclerView.adapter = null` trong `onDestroyView()`, **trước** `_binding = null`, để RecyclerView huỷ đăng ký observer.
 
 ## Lịch sử phát triển
 
