@@ -156,7 +156,7 @@ Launch B (singleTop) → [A, B, C, B]     ← B không ở top → tạo mới
 
 1. Đưa Task chứa nó về foreground.
 2. **Destroy toàn bộ Activity phía trên** nó trong stack.
-3. Gọi `onNewIntent()` trên instance đó.
+3. Gọi `onNewIntent()` trên instance đó. A đang bị che nên ở `STOPPED`: trên các bản Android hiện tại, A chạy `onRestart()` → `onStart()` → `onNewIntent()` → `onResume()`, không có `onCreate()`. Docs chỉ cam kết `onResume()` được gọi sau `onNewIntent()`, nên đừng viết code phụ thuộc thứ tự với `onStart()`.
 
 ```mermaid
 flowchart LR

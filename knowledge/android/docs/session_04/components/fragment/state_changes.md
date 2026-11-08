@@ -157,28 +157,12 @@ class ProductDetailViewModel(
 
 #### 3. SavedStateHandle (Survive Process Death)
 
-SavedStateHandle kết hợp ưu điểm của ViewModel (reactive) và savedInstanceState (survive process death). Cơ chế lưu/khôi phục ở [Activity State Changes](../activity/state_changes.md), mục "SavedStateHandle: lưu user input quan trọng qua process death"; trong Fragment cách dùng giống hệt Activity.
+SavedStateHandle là kho key-value nằm trong ViewModel, được ghi vào saved state nên sống qua process death. Cơ chế lưu/khôi phục và cách đọc/ghi (`getStateFlow`, `set`) giống hệt Activity, ở [Activity State Changes](../activity/state_changes.md), mục "SavedStateHandle: lưu user input quan trọng qua process death". Phần riêng của Fragment:
 
-```kotlin
-class ProductDetailViewModel(
-    private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
+- **`arguments` là giá trị ban đầu của SavedStateHandle.** `by viewModels()` dùng `SavedStateViewModelFactory`, factory này lấy `arguments` của Fragment làm default args, nên key `"product_id"` truyền qua `arguments` đọc được ngay bằng `savedStateHandle["product_id"]` (code ở mục "2. ViewModel" phía trên).
+- **Saved state đi theo Fragment trong backstack.** FragmentManager lưu saved state của cả Fragment đang nằm trong backstack, nên sau process death bấm Back vẫn về Fragment cũ với SavedStateHandle đầy đủ.
 
-    // Tự động restore khi process death
-    val searchQuery = savedStateHandle.getStateFlow("query", "")
-
-    fun updateQuery(query: String) {
-        savedStateHandle["query"] = query
-    }
-}
-```
-
-```kotlin
-// Trong Fragment — SavedStateHandle tự động được inject
-private val viewModel: ProductDetailViewModel by viewModels()
-```
-
-**Khi nào dùng:** Dữ liệu người dùng nhập (search query, form input, scroll position, selected tab) cần survive cả process death.
+**Khi nào dùng:** Dữ liệu người dùng nhập (search query, form input, selected tab) cần survive cả process death. Ví dụ đầy đủ ở mục "Ví dụ thực tế" (form sửa profile).
 
 > [!NOTE]
 > **`onSaveInstanceState(outState)` của Fragment** vẫn tồn tại như Activity: FragmentManager gọi nó khi host Activity lưu state, và Bundle được trả lại ở `onCreate`/`onCreateView`/`onViewCreated`/`onViewStateRestored`. View có `android:id` trong layout của Fragment tự lưu state của chính nó như ở Activity ([Activity State Changes](../activity/state_changes.md), mục "onSaveInstanceState: transient UI state (View/XML)"). Khác biệt của Fragment: khi chỉ View bị destroy (Fragment vào backstack), FragmentManager giữ state của view hierarchy và trả lại khi View được tạo lại, nên text đang gõ vẫn còn khi người dùng bấm Back quay về.
@@ -187,31 +171,16 @@ private val viewModel: ProductDetailViewModel by viewModels()
 
 ```mermaid
 flowchart TD
-    A[Cần lưu dữ liệu gì?] --> B{Data khởi tạo<br/>từ bên ngoài?}
+    A[Cần giữ dữ liệu gì?] --> B{Truyền vào từ<br/>màn gọi Fragment?}
     B -->|Có| C[Arguments Bundle]
-    
-    B -->|Không| D{Cần survive<br/>Process Death?}
-    D -->|Không| E{Data nặng?<br/>List, Object lớn}
-    E -->|Có| F[ViewModel]
-    E -->|Không| F
-    
-    D -->|Có| G{Data nhỏ và<br/>serializable?}
+    B -->|Không| D{Cần survive<br/>process death?}
+    D -->|Không| F[ViewModel]
+    D -->|Có| G{Nhỏ và lưu được<br/>vào Bundle?}
     G -->|Có| H[SavedStateHandle]
-    G -->|Không| I[ViewModel + SavedStateHandle<br/>Cache key trong SavedStateHandle<br/>Data trong ViewModel]
-
-    style C fill:#2196F3,stroke:#1565C0,color:#fff
-    style F fill:#4CAF50,stroke:#388E3C,color:#fff
-    style H fill:#FF9800,stroke:#F57C00,color:#fff
-    style I fill:#9C27B0,stroke:#7B1FA2,color:#fff
+    G -->|Không| I[Key/ID trong SavedStateHandle<br/>ViewModel tải lại data từ Repository]
 ```
-<!-- dd: fsc-decide -->
 
-| Loại dữ liệu | Công cụ | Ví dụ |
-|---|---|---|
-| ID, config, filter params | **Arguments** | `product_id`, `category`, `isEditing` |
-| Network response, processed data | **ViewModel** | Danh sách sản phẩm, user profile |
-| User input, UI state nhỏ | **SavedStateHandle** | Search query, selected tab, scroll position |
-| Large data + cần survive process death | **ViewModel + SavedStateHandle** | Cache key trong SavedStateHandle, data trong ViewModel, re-fetch khi null |
+Nhánh riêng của Fragment là bước đầu tiên: dữ liệu màn gọi truyền vào (ID, filter, cờ `isEditing`) đi qua `arguments`. Các nhánh còn lại giống Activity; dữ liệu lâu dài (giỏ hàng, settings) thuộc Room/DataStore chứ không phải state của màn hình, xem bảng so sánh ở [Activity State Changes](../activity/state_changes.md), mục "Chọn công cụ nào? — Bản đồ quyết định".
 
 ### ViewModel scoping: viewModels() vs activityViewModels()
 
@@ -394,12 +363,6 @@ Cơ chế cốt lõi giống nhau: cả Activity lẫn Fragment đều bị dest
 ViewModel scope theo Activity tồn tại cho đến khi Activity bị destroy. Nếu Fragment chỉ cần data tạm thời mà dùng `activityViewModels()`, data sẽ chiếm bộ nhớ suốt vòng đời Activity.
 
 **Cách sửa:** Chỉ dùng `activityViewModels()` cho data thực sự cần chia sẻ. Dùng `viewModels()` cho data riêng.
-
-### 3. Lưu dữ liệu lớn vào SavedStateHandle
-
-SavedStateHandle ghi vào saved state Bundle nên chịu cùng khuyến nghị kích thước (xem [Activity State Changes](../activity/state_changes.md), mục "onSaveInstanceState: transient UI state (View/XML)"). Không lưu bitmap, large list, hoặc complex object.
-
-**Cách sửa:** Lưu key/ID trong SavedStateHandle, re-fetch data khi restore.
 
 ## Lịch sử phát triển
 

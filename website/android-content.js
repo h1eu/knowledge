@@ -11326,7 +11326,7 @@ fun initialize() {
       'Nhận diện được các lỗi navigation phổ biến như duplicate Activity và Back button sai hướng.'
     ],
     knowledgeGap: 'Không hiểu Task và Back Stack sẽ khiến ứng dụng có hành vi navigation bất thường: duplicate Activity khi nhấn notification, Back button không quay về đúng nơi, Activity chồng chất trong stack gây lãng phí bộ nhớ, và deep link phá vỡ trải nghiệm điều hướng.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -11741,14 +11741,14 @@ Launch B (singleTop) → [A, B, C, B]     ← B không ở top → tạo mới</
 <ol>
   <li>Đưa Task chứa nó về foreground.</li>
   <li><strong>Destroy toàn bộ Activity phía trên</strong> nó trong stack.</li>
-  <li>Gọi <code>onNewIntent()</code> trên instance đó.</li>
+  <li>Gọi <code>onNewIntent()</code> trên instance đó. A đang bị che nên ở <code>STOPPED</code>: trên các bản Android hiện tại, A chạy <code>onRestart()</code> → <code>onStart()</code> → <code>onNewIntent()</code> → <code>onResume()</code>, không có <code>onCreate()</code>. Docs chỉ cam kết <code>onResume()</code> được gọi sau <code>onNewIntent()</code>, nên đừng viết code phụ thuộc thứ tự với <code>onStart()</code>.</li>
 </ol>
 
 <div class="dd-diagram" data-dd="tb-singletask">
 <div class="dd-svg dd-svg-dark">
 <svg viewBox="0 0 800 324" role="img" aria-labelledby="tb-singletask-dark-title tb-singletask-dark-desc" font-family="'Geist', sans-serif">
 <title id="tb-singletask-dark-title">singleTask: xoá các Activity phía trên A, gọi onNewIntent</title>
-<desc id="tb-singletask-dark-desc">Task ban đầu có A ở root với launchMode singleTask, B ở giữa, C ở top. Khi A được khởi động lại, hệ thống tìm thấy A trong task, destroy C rồi B, đưa A lên top và gọi A.onNewIntent; A không bị tạo lại. Kết quả task chỉ còn A. Instance có sẵn chỉ được tìm trong task khớp taskAffinity của A.</desc>
+<desc id="tb-singletask-dark-desc">Task ban đầu có A ở root với launchMode singleTask, B ở giữa, C ở top. Khi A được khởi động lại, hệ thống tìm thấy A trong task, finish C và B, đưa A lên top, A chạy onRestart, onStart, onNewIntent rồi onResume; A không bị tạo lại. Kết quả task chỉ còn A. Instance có sẵn chỉ được tìm trong task khớp taskAffinity của A.</desc>
 <defs>
 <marker id="tb-singletask-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
 <polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
@@ -11774,13 +11774,13 @@ Launch B (singleTop) → [A, B, C, B]     ← B không ở top → tạo mới</
 <text x="68" y="76" fill="#94A3B8" font-size="12" font-weight="600">C · top</text>
 <text x="68" y="92" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace">onDestroy()</text>
 <rect x="240" y="62" width="72" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
-<text x="276" y="71" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">1 · DESTROY</text>
+<text x="276" y="71" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DESTROY</text>
 <rect x="56" y="120" width="264" height="44" rx="6" fill="#060913"/>
 <rect x="56" y="120" width="264" height="44" rx="6" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
 <text x="68" y="140" fill="#94A3B8" font-size="12" font-weight="600">B</text>
 <text x="68" y="156" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace">onDestroy()</text>
 <rect x="240" y="126" width="72" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
-<text x="276" y="135" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">2 · DESTROY</text>
+<text x="276" y="135" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DESTROY</text>
 <rect x="56" y="184" width="264" height="44" rx="6" fill="#060913"/>
 <rect x="56" y="184" width="264" height="44" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
 <text x="68" y="204" fill="#F8FAFC" font-size="12" font-weight="600">A · root</text>
@@ -11791,9 +11791,9 @@ Launch B (singleTop) → [A, B, C, B]     ← B không ở top → tạo mới</
 <rect x="480" y="184" width="264" height="44" rx="6" fill="#060913"/>
 <rect x="480" y="184" width="264" height="44" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
 <text x="492" y="204" fill="#F8FAFC" font-size="12" font-weight="600">A · root, giờ là top</text>
-<text x="492" y="220" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">onNewIntent(intent) → onResume()</text>
+<text x="492" y="220" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">onRestart/onStart → onNewIntent → onResume</text>
 <rect x="648" y="190" width="88" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="692" y="199" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">3 · TÁI SỬ DỤNG</text>
+<text x="692" y="199" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TÁI SỬ DỤNG</text>
 <!-- note: taskAffinity -->
 <text x="32" y="268" fill="#94A3B8" font-size="12"><tspan fill="#F8FAFC" font-weight="600">Lưu ý taskAffinity:</tspan> hệ thống chỉ tìm A có sẵn trong task khớp taskAffinity của A (mặc định: package name),</text>
 <text x="32" y="284" fill="#94A3B8" font-size="12">nên “một instance duy nhất” được hiểu theo taskAffinity đó.</text>
@@ -11811,7 +11811,7 @@ Launch B (singleTop) → [A, B, C, B]     ← B không ở top → tạo mới</
 <div class="dd-svg dd-svg-light">
 <svg viewBox="0 0 800 324" role="img" aria-labelledby="tb-singletask-title tb-singletask-desc" font-family="'Geist', sans-serif">
 <title id="tb-singletask-title">singleTask: xoá các Activity phía trên A, gọi onNewIntent</title>
-<desc id="tb-singletask-desc">Task ban đầu có A ở root với launchMode singleTask, B ở giữa, C ở top. Khi A được khởi động lại, hệ thống tìm thấy A trong task, destroy C rồi B, đưa A lên top và gọi A.onNewIntent; A không bị tạo lại. Kết quả task chỉ còn A. Instance có sẵn chỉ được tìm trong task khớp taskAffinity của A.</desc>
+<desc id="tb-singletask-desc">Task ban đầu có A ở root với launchMode singleTask, B ở giữa, C ở top. Khi A được khởi động lại, hệ thống tìm thấy A trong task, finish C và B, đưa A lên top, A chạy onRestart, onStart, onNewIntent rồi onResume; A không bị tạo lại. Kết quả task chỉ còn A. Instance có sẵn chỉ được tìm trong task khớp taskAffinity của A.</desc>
 <defs>
 <marker id="tb-singletask-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
 <polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
@@ -11837,13 +11837,13 @@ Launch B (singleTop) → [A, B, C, B]     ← B không ở top → tạo mới</
 <text x="68" y="76" fill="#64748B" font-size="12" font-weight="600">C · top</text>
 <text x="68" y="92" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">onDestroy()</text>
 <rect x="240" y="62" width="72" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
-<text x="276" y="71" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">1 · DESTROY</text>
+<text x="276" y="71" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DESTROY</text>
 <rect x="56" y="120" width="264" height="44" rx="6" fill="#F8FAFC"/>
 <rect x="56" y="120" width="264" height="44" rx="6" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
 <text x="68" y="140" fill="#64748B" font-size="12" font-weight="600">B</text>
 <text x="68" y="156" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">onDestroy()</text>
 <rect x="240" y="126" width="72" height="12" rx="2" fill="transparent" stroke="rgba(15,23,42,0.40)" stroke-width="0.8"/>
-<text x="276" y="135" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">2 · DESTROY</text>
+<text x="276" y="135" fill="rgba(15,23,42,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DESTROY</text>
 <rect x="56" y="184" width="264" height="44" rx="6" fill="#F8FAFC"/>
 <rect x="56" y="184" width="264" height="44" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
 <text x="68" y="204" fill="#0F172A" font-size="12" font-weight="600">A · root</text>
@@ -11854,9 +11854,9 @@ Launch B (singleTop) → [A, B, C, B]     ← B không ở top → tạo mới</
 <rect x="480" y="184" width="264" height="44" rx="6" fill="#F8FAFC"/>
 <rect x="480" y="184" width="264" height="44" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
 <text x="492" y="204" fill="#0F172A" font-size="12" font-weight="600">A · root, giờ là top</text>
-<text x="492" y="220" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace">onNewIntent(intent) → onResume()</text>
+<text x="492" y="220" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace">onRestart/onStart → onNewIntent → onResume</text>
 <rect x="648" y="190" width="88" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="692" y="199" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">3 · TÁI SỬ DỤNG</text>
+<text x="692" y="199" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TÁI SỬ DỤNG</text>
 <!-- note: taskAffinity -->
 <text x="32" y="268" fill="#64748B" font-size="12"><tspan fill="#0F172A" font-weight="600">Lưu ý taskAffinity:</tspan> hệ thống chỉ tìm A có sẵn trong task khớp taskAffinity của A (mặc định: package name),</text>
 <text x="32" y="284" fill="#64748B" font-size="12">nên “một instance duy nhất” được hiểu theo taskAffinity đó.</text>
@@ -13499,8 +13499,8 @@ Cần sống sót khi process bị kill?
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Tốc độ</td>
-      <td style="padding:8px 12px;">Chậm (~10x so với Parcelable)</td>
-      <td style="padding:8px 12px;">Nhanh</td>
+      <td style="padding:8px 12px;">Chậm hơn: reflection và metadata tốn CPU (docs không công bố con số; mức chênh tuỳ object và thiết bị)</td>
+      <td style="padding:8px 12px;">Nhanh hơn</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Object tạm</td>
@@ -17130,7 +17130,7 @@ sequenceDiagram
       'Nhận diện được setRetainInstance đã deprecated và giải pháp thay thế.'
     ],
     knowledgeGap: 'Không hiểu cơ chế recreate của Fragment dẫn đến mất dữ liệu form khi xoay màn hình, duplicate network call khi Configuration Change, crash khi process bị kill do không lưu state đúng cách.',
-    updatedAt: '2026-11-07',
+    updatedAt: '2026-11-08',
     readTime: '20 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -17426,209 +17426,31 @@ class ProductDetailViewModel(
 
 <h4>3. SavedStateHandle (Survive Process Death)</h4>
 
-<p>SavedStateHandle kết hợp ưu điểm của ViewModel (reactive) và savedInstanceState (survive process death). Cơ chế lưu/khôi phục ở <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "SavedStateHandle: lưu user input quan trọng qua process death"; trong Fragment cách dùng giống hệt Activity.</p>
+<p>SavedStateHandle là kho key-value nằm trong ViewModel, được ghi vào saved state nên sống qua process death. Cơ chế lưu/khôi phục và cách đọc/ghi (<code>getStateFlow</code>, <code>set</code>) giống hệt Activity, ở <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "SavedStateHandle: lưu user input quan trọng qua process death". Phần riêng của Fragment:</p>
 
-<pre data-lang="kotlin"><code>class ProductDetailViewModel(
-    private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
+<ul>
+  <li><strong><code>arguments</code> là giá trị ban đầu của SavedStateHandle.</strong> <code>by viewModels()</code> dùng <code>SavedStateViewModelFactory</code>, factory này lấy <code>arguments</code> của Fragment làm default args, nên key <code>"product_id"</code> truyền qua <code>arguments</code> đọc được ngay bằng <code>savedStateHandle["product_id"]</code> (code ở mục "2. ViewModel" phía trên).</li>
+  <li><strong>Saved state đi theo Fragment trong backstack.</strong> FragmentManager lưu saved state của cả Fragment đang nằm trong backstack, nên sau process death bấm Back vẫn về Fragment cũ với SavedStateHandle đầy đủ.</li>
+</ul>
 
-    // Tự động restore khi process death
-    val searchQuery = savedStateHandle.getStateFlow("query", "")
-
-    fun updateQuery(query: String) {
-        savedStateHandle["query"] = query
-    }
-}</code></pre>
-
-<pre data-lang="kotlin"><code>// Trong Fragment — SavedStateHandle tự động được inject
-private val viewModel: ProductDetailViewModel by viewModels()</code></pre>
-
-<p><strong>Khi nào dùng:</strong> Dữ liệu người dùng nhập (search query, form input, scroll position, selected tab) cần survive cả process death.</p>
+<p><strong>Khi nào dùng:</strong> Dữ liệu người dùng nhập (search query, form input, selected tab) cần survive cả process death. Ví dụ đầy đủ ở mục "Ví dụ thực tế" (form sửa profile).</p>
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong><code>onSaveInstanceState(outState)</code> của Fragment</strong> vẫn tồn tại như Activity: FragmentManager gọi nó khi host Activity lưu state, và Bundle được trả lại ở <code>onCreate</code>/<code>onCreateView</code>/<code>onViewCreated</code>/<code>onViewStateRestored</code>. View có <code>android:id</code> trong layout của Fragment tự lưu state của chính nó như ở Activity (<a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "onSaveInstanceState: transient UI state (View/XML)"). Khác biệt của Fragment: khi chỉ View bị destroy (Fragment vào backstack), FragmentManager giữ state của view hierarchy và trả lại khi View được tạo lại, nên text đang gõ vẫn còn khi người dùng bấm Back quay về.</div></div>
 
 <h3>Ma trận quyết định: chọn đúng công cụ</h3>
 
-<div class="dd-diagram" data-dd="fsc-decide">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 700" role="img" aria-labelledby="fsc-decide-dark-title fsc-decide-dark-desc" font-family="'Geist', sans-serif">
-<title id="fsc-decide-dark-title">Dữ liệu cất ở đâu cho đúng chỗ</title>
-<desc id="fsc-decide-dark-desc">Dữ liệu từ ngoài vào thì dùng Arguments, dữ liệu nặng thì ViewModel, nhỏ và serializable thì SavedStateHandle, lớn thì kết hợp cả hai.</desc>
-<defs>
-<marker id="fsc-decide-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="700" fill="#060913"/>
-<!-- arrows -->
-<path d="M 400,92 V 120" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
-<path d="M 325,164 V 200 H 188 Q 180,200 180,208 V 248" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
-<rect x="232" y="180" width="40" height="12" rx="2" fill="#060913"/>
-<text x="252" y="189" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 400,208 V 292" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
-<rect x="412" y="242" width="56" height="12" rx="2" fill="#060913"/>
-<text x="440" y="251" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 325,336 V 390 H 188 Q 180,390 180,398 V 444" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
-<rect x="232" y="370" width="56" height="12" rx="2" fill="#060913"/>
-<text x="260" y="379" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 475,336 V 390 H 612 Q 620,390 620,398 V 444" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
-<rect x="502" y="370" width="40" height="12" rx="2" fill="#060913"/>
-<text x="522" y="379" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 105,488 V 544 H 132 Q 140,544 140,552 V 592" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
-<rect x="29" y="508" width="40" height="12" rx="2" fill="#060913"/>
-<text x="49" y="517" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 180,532 V 592" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
-<rect x="192" y="552" width="56" height="12" rx="2" fill="#060913"/>
-<text x="220" y="561" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 620,532 V 592" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
-<rect x="632" y="552" width="40" height="12" rx="2" fill="#060913"/>
-<text x="652" y="561" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 545,488 V 560 H 408 Q 400,560 400,568 V 616" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
-<rect x="452" y="540" width="56" height="12" rx="2" fill="#060913"/>
-<text x="480" y="549" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<!-- diamonds -->
-<polygon points="400,120 475,164 400,208 325,164" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<text x="400" y="168" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">TỪ NGOÀI?</text>
-<polygon points="400,292 475,336 400,380 325,336" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="340" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">SURVIVE DEATH?</text>
-<polygon points="180,444 255,488 180,532 105,488" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
-<text x="180" y="492" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">NẶNG?</text>
-<polygon points="620,444 695,488 620,532 545,488" fill="#060913" stroke="#F8FAFC" stroke-width="1"/>
-<text x="620" y="492" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">SERI ĐƯỢC?</text>
-<!-- outcomes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Cần lưu dữ liệu gì?</text>
-<rect x="80" y="248" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="80" y="248" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="180" y="282" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Arguments</text>
-<text x="180" y="300" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">từ bên ngoài</text>
-<rect x="80" y="592" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="80" y="592" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="180" y="626" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
-<text x="180" y="644" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">data nặng</text>
-<rect x="520" y="592" width="200" height="60" rx="6" fill="#060913"/>
-<rect x="520" y="592" width="200" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="620" y="622" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">SavedStateHandle</text>
-<text x="620" y="640" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhỏ · seri được</text>
-<rect x="300" y="616" width="200" height="28" rx="6" fill="#060913"/>
-<rect x="300" y="616" width="200" height="28" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="634" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">VM + Handle</text>
-<!-- legend -->
-<line x1="32" y1="676" x2="768" y2="676" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="688" r="4" fill="#38BDF8"/>
-<text x="162" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CÂU HỎI ĐẦU TIÊN</text>
-<line x1="370" y1="688" x2="402" y2="688" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fsc-decide-dark-arrow)"/>
-<text x="410" y="692" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">ĐI THEO NHÁNH ĐÚNG</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 700" role="img" aria-labelledby="fsc-decide-title fsc-decide-desc" font-family="'Geist', sans-serif">
-<title id="fsc-decide-title">Dữ liệu cất ở đâu cho đúng chỗ</title>
-<desc id="fsc-decide-desc">Dữ liệu từ ngoài vào thì dùng Arguments, dữ liệu nặng thì ViewModel, nhỏ và serializable thì SavedStateHandle, lớn thì kết hợp cả hai.</desc>
-<defs>
-<marker id="fsc-decide-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="700" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 400,92 V 120" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fsc-decide-arrow)"/>
-<path d="M 325,164 V 200 H 188 Q 180,200 180,208 V 248" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fsc-decide-arrow)"/>
-<rect x="232" y="180" width="40" height="12" rx="2" fill="#F8FAFC"/>
-<text x="252" y="189" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 400,208 V 292" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fsc-decide-arrow)"/>
-<rect x="412" y="242" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="440" y="251" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 325,336 V 390 H 188 Q 180,390 180,398 V 444" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fsc-decide-arrow)"/>
-<rect x="232" y="370" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="260" y="379" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 475,336 V 390 H 612 Q 620,390 620,398 V 444" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fsc-decide-arrow)"/>
-<rect x="502" y="370" width="40" height="12" rx="2" fill="#F8FAFC"/>
-<text x="522" y="379" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 105,488 V 544 H 132 Q 140,544 140,552 V 592" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fsc-decide-arrow)"/>
-<rect x="29" y="508" width="40" height="12" rx="2" fill="#F8FAFC"/>
-<text x="49" y="517" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 180,532 V 592" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fsc-decide-arrow)"/>
-<rect x="192" y="552" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="220" y="561" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<path d="M 620,532 V 592" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fsc-decide-arrow)"/>
-<rect x="632" y="552" width="40" height="12" rx="2" fill="#F8FAFC"/>
-<text x="652" y="561" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
-<path d="M 545,488 V 560 H 408 Q 400,560 400,568 V 616" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fsc-decide-arrow)"/>
-<rect x="452" y="540" width="56" height="12" rx="2" fill="#F8FAFC"/>
-<text x="480" y="549" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
-<!-- diamonds -->
-<polygon points="400,120 475,164 400,208 325,164" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<text x="400" y="168" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">TỪ NGOÀI?</text>
-<polygon points="400,292 475,336 400,380 325,336" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="340" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">SURVIVE DEATH?</text>
-<polygon points="180,444 255,488 180,532 105,488" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
-<text x="180" y="492" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">NẶNG?</text>
-<polygon points="620,444 695,488 620,532 545,488" fill="#F8FAFC" stroke="#0F172A" stroke-width="1"/>
-<text x="620" y="492" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">SERI ĐƯỢC?</text>
-<!-- outcomes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Cần lưu dữ liệu gì?</text>
-<rect x="80" y="248" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="80" y="248" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="180" y="282" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Arguments</text>
-<text x="180" y="300" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">từ bên ngoài</text>
-<rect x="80" y="592" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="80" y="592" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="180" y="626" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
-<text x="180" y="644" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">data nặng</text>
-<rect x="520" y="592" width="200" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="520" y="592" width="200" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="620" y="622" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">SavedStateHandle</text>
-<text x="620" y="640" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">nhỏ · seri được</text>
-<rect x="300" y="616" width="200" height="28" rx="6" fill="#F8FAFC"/>
-<rect x="300" y="616" width="200" height="28" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="634" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">VM + Handle</text>
-<!-- legend -->
-<line x1="32" y1="676" x2="768" y2="676" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="688" r="4" fill="#0284C7"/>
-<text x="162" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CÂU HỎI ĐẦU TIÊN</text>
-<line x1="370" y1="688" x2="402" y2="688" stroke="#64748B" stroke-width="1.2" marker-end="url(#fsc-decide-arrow)"/>
-<text x="410" y="692" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ĐI THEO NHÁNH ĐÚNG</text>
-</svg>
-</div>
+<div class="mermaid">
+flowchart TD
+    A[Cần giữ dữ liệu gì?] --&gt; B{Truyền vào từ&lt;br/&gt;màn gọi Fragment?}
+    B --&gt;|Có| C[Arguments Bundle]
+    B --&gt;|Không| D{Cần survive&lt;br/&gt;process death?}
+    D --&gt;|Không| F[ViewModel]
+    D --&gt;|Có| G{Nhỏ và lưu được&lt;br/&gt;vào Bundle?}
+    G --&gt;|Có| H[SavedStateHandle]
+    G --&gt;|Không| I[Key/ID trong SavedStateHandle&lt;br/&gt;ViewModel tải lại data từ Repository]
 </div>
 
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Loại dữ liệu</th>
-      <th style="padding:8px 12px;text-align:left;">Công cụ</th>
-      <th style="padding:8px 12px;text-align:left;">Ví dụ</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">ID, config, filter params</td>
-      <td style="padding:8px 12px;"><strong>Arguments</strong></td>
-      <td style="padding:8px 12px;"><code>product_id</code>, <code>category</code>, <code>isEditing</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Network response, processed data</td>
-      <td style="padding:8px 12px;"><strong>ViewModel</strong></td>
-      <td style="padding:8px 12px;">Danh sách sản phẩm, user profile</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">User input, UI state nhỏ</td>
-      <td style="padding:8px 12px;"><strong>SavedStateHandle</strong></td>
-      <td style="padding:8px 12px;">Search query, selected tab, scroll position</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Large data + cần survive process death</td>
-      <td style="padding:8px 12px;"><strong>ViewModel + SavedStateHandle</strong></td>
-      <td style="padding:8px 12px;">Cache key trong SavedStateHandle, data trong ViewModel, re-fetch khi null</td>
-    </tr>
-  </tbody>
-</table>
+<p>Nhánh riêng của Fragment là bước đầu tiên: dữ liệu màn gọi truyền vào (ID, filter, cờ <code>isEditing</code>) đi qua <code>arguments</code>. Các nhánh còn lại giống Activity; dữ liệu lâu dài (giỏ hàng, settings) thuộc Room/DataStore chứ không phải state của màn hình, xem bảng so sánh ở <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "Chọn công cụ nào? — Bản đồ quyết định".</p>
 
 <h3>ViewModel scoping: viewModels() vs activityViewModels()</h3>
 
@@ -17928,12 +17750,6 @@ sequenceDiagram
 <p>ViewModel scope theo Activity tồn tại cho đến khi Activity bị destroy. Nếu Fragment chỉ cần data tạm thời mà dùng <code>activityViewModels()</code>, data sẽ chiếm bộ nhớ suốt vòng đời Activity.</p>
 
 <p><strong>Cách sửa:</strong> Chỉ dùng <code>activityViewModels()</code> cho data thực sự cần chia sẻ. Dùng <code>viewModels()</code> cho data riêng.</p>
-
-<h3>3. Lưu dữ liệu lớn vào SavedStateHandle</h3>
-
-<p>SavedStateHandle ghi vào saved state Bundle nên chịu cùng khuyến nghị kích thước (xem <a href="../activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "onSaveInstanceState: transient UI state (View/XML)"). Không lưu bitmap, large list, hoặc complex object.</p>
-
-<p><strong>Cách sửa:</strong> Lưu key/ID trong SavedStateHandle, re-fetch data khi restore.</p>
 
 <h2>Lịch sử phát triển</h2>
 
@@ -41737,7 +41553,7 @@ fun addItem(item: String) {
   <li><strong>Màu xanh lá cây (Running/Runnable):</strong> Luồng đang thực thi lệnh trên CPU hoặc đã sẵn sàng chờ CPU.</li>
   <li><strong>Màu vàng:</strong> Luồng vẫn hoạt động nhưng đang chờ một thao tác I/O (disk hoặc network) hoàn tất.</li>
   <li><strong>Màu xám (Sleeping):</strong> Luồng đang ngủ, không tiêu tốn CPU (<code>Thread.sleep()</code>, chờ MessageQueue, hoặc bị kernel cho ngủ đến khi tài nguyên cần thiết, như một khóa, sẵn sàng).</li>
-  <li>CẢNH BÁO NGUY HIỂM! Nếu Main Thread vàng hoặc xám kéo dài trong lúc người dùng đang thao tác (đang chờ I/O, chờ khóa của <code>synchronized</code> hoặc Lock khác) -&gt; Nguy cơ ANR trực tiếp!</li>
+  <li>Main Thread xám khi app rảnh là bình thường: Looper đang ngủ chờ message mới trong MessageQueue. Dấu hiệu nguy hiểm là Main Thread <strong>vàng</strong> (chờ I/O) hoặc <strong>xám</strong> ngay trong lúc đang xử lý một thao tác của người dùng (click, vẽ frame), tức là handler bị chặn vì chờ I/O hoặc chờ khóa của <code>synchronized</code>/Lock khác. Chặn đủ lâu (khoảng 5 giây với input) là ANR. Muốn biết chính xác Main Thread đang chờ gì, ghi <strong>System Trace</strong> rồi xem các slice dài trên Main Thread.</li>
 </ul></li>
 </ol>
 

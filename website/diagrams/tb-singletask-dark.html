@@ -18,10 +18,10 @@
 <div class="page">
   <p class="eyebrow">SƠ ĐỒ KIẾN TRÚC · BACK STACK</p>
   <h1>singleTask: xoá các Activity phía trên A, gọi onNewIntent</h1>
-  <p class="sub">A đã có trong task: hệ thống destroy C rồi B, A lên top và nhận onNewIntent(), không bị tạo lại.</p>
+  <p class="sub">A đã có trong task: hệ thống finish C và B, A lên top và nhận onNewIntent(), không bị tạo lại.</p>
 <svg viewBox="0 0 800 324" role="img" aria-labelledby="tb-singletask-dark-title tb-singletask-dark-desc" font-family="'Geist', sans-serif">
 <title id="tb-singletask-dark-title">singleTask: xoá các Activity phía trên A, gọi onNewIntent</title>
-<desc id="tb-singletask-dark-desc">Task ban đầu có A ở root với launchMode singleTask, B ở giữa, C ở top. Khi A được khởi động lại, hệ thống tìm thấy A trong task, destroy C rồi B, đưa A lên top và gọi A.onNewIntent; A không bị tạo lại. Kết quả task chỉ còn A. Instance có sẵn chỉ được tìm trong task khớp taskAffinity của A.</desc>
+<desc id="tb-singletask-dark-desc">Task ban đầu có A ở root với launchMode singleTask, B ở giữa, C ở top. Khi A được khởi động lại, hệ thống tìm thấy A trong task, finish C và B, đưa A lên top, A chạy onRestart, onStart, onNewIntent rồi onResume; A không bị tạo lại. Kết quả task chỉ còn A. Instance có sẵn chỉ được tìm trong task khớp taskAffinity của A.</desc>
 <defs>
 <marker id="tb-singletask-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
 <polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
@@ -47,13 +47,13 @@
 <text x="68" y="76" fill="#94A3B8" font-size="12" font-weight="600">C · top</text>
 <text x="68" y="92" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace">onDestroy()</text>
 <rect x="240" y="62" width="72" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
-<text x="276" y="71" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">1 · DESTROY</text>
+<text x="276" y="71" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DESTROY</text>
 <rect x="56" y="120" width="264" height="44" rx="6" fill="#060913"/>
 <rect x="56" y="120" width="264" height="44" rx="6" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
 <text x="68" y="140" fill="#94A3B8" font-size="12" font-weight="600">B</text>
 <text x="68" y="156" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace">onDestroy()</text>
 <rect x="240" y="126" width="72" height="12" rx="2" fill="transparent" stroke="rgba(248,250,252,0.40)" stroke-width="0.8"/>
-<text x="276" y="135" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">2 · DESTROY</text>
+<text x="276" y="135" fill="rgba(248,250,252,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DESTROY</text>
 <rect x="56" y="184" width="264" height="44" rx="6" fill="#060913"/>
 <rect x="56" y="184" width="264" height="44" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
 <text x="68" y="204" fill="#F8FAFC" font-size="12" font-weight="600">A · root</text>
@@ -64,9 +64,9 @@
 <rect x="480" y="184" width="264" height="44" rx="6" fill="#060913"/>
 <rect x="480" y="184" width="264" height="44" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
 <text x="492" y="204" fill="#F8FAFC" font-size="12" font-weight="600">A · root, giờ là top</text>
-<text x="492" y="220" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">onNewIntent(intent) → onResume()</text>
+<text x="492" y="220" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace">onRestart/onStart → onNewIntent → onResume</text>
 <rect x="648" y="190" width="88" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="692" y="199" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">3 · TÁI SỬ DỤNG</text>
+<text x="692" y="199" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TÁI SỬ DỤNG</text>
 <!-- note: taskAffinity -->
 <text x="32" y="268" fill="#94A3B8" font-size="12"><tspan fill="#F8FAFC" font-weight="600">Lưu ý taskAffinity:</tspan> hệ thống chỉ tìm A có sẵn trong task khớp taskAffinity của A (mặc định: package name),</text>
 <text x="32" y="284" fill="#94A3B8" font-size="12">nên “một instance duy nhất” được hiểu theo taskAffinity đó.</text>

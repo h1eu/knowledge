@@ -562,7 +562,7 @@ Lập trình viên giỏi khác lập trình viên trung bình ở khả năng *
    - **Màu xanh lá cây (Running/Runnable):** Luồng đang thực thi lệnh trên CPU hoặc đã sẵn sàng chờ CPU.
    - **Màu vàng:** Luồng vẫn hoạt động nhưng đang chờ một thao tác I/O (disk hoặc network) hoàn tất.
    - **Màu xám (Sleeping):** Luồng đang ngủ, không tiêu tốn CPU (`Thread.sleep()`, chờ MessageQueue, hoặc bị kernel cho ngủ đến khi tài nguyên cần thiết, như một khóa, sẵn sàng).
-   - CẢNH BÁO NGUY HIỂM! Nếu Main Thread vàng hoặc xám kéo dài trong lúc người dùng đang thao tác (đang chờ I/O, chờ khóa của `synchronized` hoặc Lock khác) -> Nguy cơ ANR trực tiếp!
+   - Main Thread xám khi app rảnh là bình thường: Looper đang ngủ chờ message mới trong MessageQueue. Dấu hiệu nguy hiểm là Main Thread **vàng** (chờ I/O) hoặc **xám** ngay trong lúc đang xử lý một thao tác của người dùng (click, vẽ frame), tức là handler bị chặn vì chờ I/O hoặc chờ khóa của `synchronized`/Lock khác. Chặn đủ lâu (khoảng 5 giây với input) là ANR. Muốn biết chính xác Main Thread đang chờ gì, ghi **System Trace** rồi xem các slice dài trên Main Thread.
 
 #### Bật StrictMode phát hiện vi phạm luồng trong lúc Debug
 

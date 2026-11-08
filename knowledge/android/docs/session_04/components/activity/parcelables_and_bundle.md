@@ -420,7 +420,7 @@ Cần sống sót khi process bị kill?
 | Tiêu chí | Serializable (Java) | Parcelable (Android) |
 |----------|--------------------|----------------------|
 | Cơ chế | Reflection (runtime) | Manual code / sinh lúc compile |
-| Tốc độ | Chậm (~10x so với Parcelable) | Nhanh |
+| Tốc độ | Chậm hơn: reflection và metadata tốn CPU (docs không công bố con số; mức chênh tuỳ object và thiết bị) | Nhanh hơn |
 | Object tạm | Tạo nhiều object trung gian → GC pressure | Không |
 | Boilerplate | Không cần | Nhiều nếu viết tay (nhưng @Parcelize xử lý) |
 | Mục đích | Serialize để lưu trữ (disk, network) | Binder IPC giữa components |
