@@ -79,7 +79,7 @@ Mental model: DialogFragment là **người quản lý**, Dialog là **cửa s�
 > **Kiến thức dùng trước.** Các ví dụ dùng tối thiểu vài kiến thức của Session sau:
 > - ViewBinding (class sinh ra từ layout để truy cập View an toàn): [View Binding](../../../session_06/view_binding.md).
 > - ViewModel (giữ state qua configuration change) và `activityViewModels()`: [ViewModel](../../../session_06/viewmodel.md); phạm vi `viewModels()` / `activityViewModels()` ở [Fragment State Changes](state_changes.md).
-> - `StateFlow` và coroutine (`lifecycleScope`, `repeatOnLifecycle`): 7.1.4.2 Flow (chưa có bài), 8.4.3 Coroutines (chưa có bài); mẫu collect an toàn trong Fragment ở [Fragment Lifecycle](lifecycle.md).
+> - `StateFlow` và coroutine (`lifecycleScope`, `repeatOnLifecycle`): 7.1.4.2 Flow (chưa có bài), [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md); mẫu collect an toàn trong Fragment ở [Fragment Lifecycle](lifecycle.md).
 > - Composable và state của Compose (`remember`, `rememberSaveable`): [Jetpack Compose Overview](../../../jetpack_compose_ui/overview.md), 9.2.2 Remember and rememberSaveable (chưa có bài).
 
 ### Kiến trúc tổng thể

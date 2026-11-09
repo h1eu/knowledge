@@ -420,7 +420,7 @@ networkStatus.distinctUntilChanged().observe(this) { isOnline ->
 
 ### Cầu nối với coroutine và Flow
 
-Phần này dùng trước hai kiến thức: **coroutine** (hàm `suspend` chạy bất đồng bộ mà không chặn thread) được học ở 8.4.3 Coroutines (chưa có bài), và **Flow** (luồng giá trị bất đồng bộ của Kotlin) được học ở 7.1.4.2 Flow (chưa có bài); Flow trả về từ Room đã gặp ở [Async Transactions & Flow](../session_05/data_store/room_transactions.md).
+Phần này dùng trước hai kiến thức: **coroutine** (hàm `suspend` chạy bất đồng bộ mà không chặn thread) được học ở [8.4.3 Coroutines](../session_08/async_threads/coroutines.md), và **Flow** (luồng giá trị bất đồng bộ của Kotlin) được học ở 7.1.4.2 Flow (chưa có bài); Flow trả về từ Room đã gặp ở [Async Transactions & Flow](../session_05/data_store/room_transactions.md).
 
 Ba API nối LiveData với hai thế giới đó (dependency `androidx.lifecycle:lifecycle-livedata-ktx`):
 
@@ -625,7 +625,7 @@ Hai sai lầm khác đã nêu ở trên: observe bằng `this` trong Fragment, v
   - 7.1.4.3 LiveData (chưa có bài): LiveData như một hiện thực của Observer Pattern.
   - 7.1.4.2 Flow (chưa có bài): `Flow`, `StateFlow` và các toán tử LiveData không có.
   - 7.2.3 MVVM (chưa có bài): vị trí của LiveData giữa View và ViewModel.
-  - 8.4.3 Coroutines (chưa có bài): coroutine trong `liveData {}` và `viewModelScope`.
+  - [8.4.3 Coroutines](../session_08/async_threads/coroutines.md): coroutine trong `liveData {}` và `viewModelScope`.
 
 ## Tham khảo
 

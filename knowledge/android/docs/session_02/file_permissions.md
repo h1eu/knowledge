@@ -184,7 +184,7 @@ flowchart TB
 
 > [!NOTE]
 > **Kiến thức dùng trước.** Ví dụ dùng tối thiểu vài kiến thức của Session sau:
-> - Coroutine (`suspend`, `withContext(Dispatchers.IO)`, `viewModelScope.launch`): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài).
+> - Coroutine (`suspend`, `withContext(Dispatchers.IO)`, `viewModelScope.launch`): chạy code bất đồng bộ không chặn main thread, học ở [8.4.3 Coroutines](../session_08/async_threads/coroutines.md).
 > - `StateFlow`: luồng giữ trạng thái mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài).
 > - `ViewModel`: giữ trạng thái của màn hình, học ở [ViewModel](../session_06/viewmodel.md); cách tách UI - ViewModel - Repository học ở 7.2.3 MVVM (chưa có bài).
 > - Hilt (`@Inject`, `@HiltViewModel`, `hiltViewModel()`): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài).
@@ -669,9 +669,9 @@ flowchart TB
   - 2.2 Process Management (chưa có bài): app sống ở process nào; mỗi process mang UID, bị giết thì file cache có thể mất.
   - 2.4 Multi User OS (chưa có bài): mỗi user máy có sandbox riêng, app user A không thấy file user B; máy nhiều user thì storage tách ra sao.
   - [Key-Value Storage](../session_05/data_store/key_value.md) và [Relational Database (Room Architecture)](../session_05/data_store/room_architecture.md): khi nào lưu file, khi nào lưu database có cấu trúc.
-  - 8.3 Local Storage (chưa có bài): cache ảnh, download nền bằng WorkManager.
+  - [8.3 Local Storage](../session_08/local_storage.md): cache ảnh, download nền bằng WorkManager.
   - [Unit Testing](../coding_analyst_and_testing/unit_testing.md): viết test cho ViewModel như phần Debug và Testing.
-  - Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 7.1.5.3 Hilt, 7.2.3 MVVM (đều chưa có bài) và [ViewModel](../session_06/viewmodel.md).
+  - Các kiến thức dùng trước trong ví dụ: [8.4.3 Coroutines](../session_08/async_threads/coroutines.md), 7.1.4.2 Flow, 7.1.5.3 Hilt, 7.2.3 MVVM (chưa có bài) và [ViewModel](../session_06/viewmodel.md).
 
 ## Nguồn tham khảo
 

@@ -289,7 +289,7 @@ timeline
 - **Related Topics**:
   - `android.languages.jni`: hàm `external fun` trong Kotlin là điểm vào code C/C++.
   - `android.output_packages.apk_files`: nơi `classes.dex` (gồm cả code Kotlin và `kotlin-stdlib`) được đóng gói.
-- **Downstream Topics**: `android.jetpack_compose.compose_overview` (Jetpack Compose); chưa có bài: Coroutines (8.4.3), Room với KSP.
+- **Downstream Topics**: `android.jetpack_compose.compose_overview` (Jetpack Compose); [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md); chưa có bài: Room với KSP.
 
 ---
 

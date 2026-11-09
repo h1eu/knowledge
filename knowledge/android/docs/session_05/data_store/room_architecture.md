@@ -42,10 +42,10 @@ Cách tiếp cận truyền thống này bộc lộ những nhược điểm ch�
 
 > [!NOTE]
 > **Kiến thức dùng trước.** Các ví dụ trong bài dùng tối thiểu vài kiến thức của Session sau:
-> - Coroutine (hàm `suspend`, `CancellationException`) là cách viết code bất đồng bộ theo kiểu tuần tự, tạm dừng được mà không chặn thread: 8.4.3 Coroutines (chưa có bài).
+> - Coroutine (hàm `suspend`, `CancellationException`) là cách viết code bất đồng bộ theo kiểu tuần tự, tạm dừng được mà không chặn thread: [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 > - Flow (`Flow<T>`, `first()`) là một luồng giá trị bất đồng bộ phát ra theo thời gian: 7.1.4.2 Flow (chưa có bài). Cách Session 05 dùng hai kiến thức này ở [Session 05 Overview](../overview.md).
 > - Hilt (`@Inject`, `@Singleton`) là thư viện Dependency Injection tạo và cấp sẵn đối tượng cho class: 7.1.5.3 Hilt (chưa có bài).
-> - Retrofit (`TaskApiService`, `response.isSuccessful`) là thư viện gọi API: 8.1.1 Retrofit (chưa có bài).
+> - Retrofit (`TaskApiService`, `response.isSuccessful`) là thư viện gọi API: [8.1.1 Retrofit](../../session_08/networks/retrofit.md).
 > - ViewModel và Clean Architecture (app chia thành UI, Domain, Data layer): [ViewModel](../../session_06/viewmodel.md), 7.2.5 Clean Architecture (chưa có bài).
 
 ## Sau khi học xong
@@ -1040,8 +1040,8 @@ graph TD
   - [File Permissions](../../session_02/file_permissions.md): khi nào lưu file, khi nào lưu database có cấu trúc.
   - [Android Service](../../session_04/components/services/android_service.md), mục "WorkManager — Lựa chọn hiện đại cho background task": chạy `syncPendingTasks()` ở nền.
   - [Unit Testing](../../coding_analyst_and_testing/unit_testing.md): nền tảng cho phần kiểm thử DAO.
-  - 8.3 Local Storage (chưa có bài).
-  - Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 7.1.5.3 Hilt, 8.1.1 Retrofit, 7.2.5 Clean Architecture (đều chưa có bài) và [ViewModel](../../session_06/viewmodel.md).
+  - [8.3 Local Storage](../../session_08/local_storage.md).
+  - Các kiến thức dùng trước trong ví dụ: [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md), [8.1.1 Retrofit](../../session_08/networks/retrofit.md), 7.1.4.2 Flow, 7.1.5.3 Hilt, 7.2.5 Clean Architecture (chưa có bài) và [ViewModel](../../session_06/viewmodel.md).
 
 ## Developer Curiosity Checklist
 

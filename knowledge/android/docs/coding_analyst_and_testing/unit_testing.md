@@ -76,7 +76,7 @@ sequenceDiagram
 ## Ví dụ thực tế: test safeApiCall với MockWebServer
 
 > [!NOTE]
-> Kiến thức dùng trước: `safeApiCall`, `NetworkResult` và `ProductApiService` ở [5.3 Networking](../session_05/networking.md), mục "Chuẩn hóa Error Handling & Result Pattern trong Clean Architecture" và mục "Ví dụ thực tế"; Retrofit ở mục 8.1.1 Retrofit (chưa có bài).
+> Kiến thức dùng trước: `safeApiCall`, `NetworkResult` và `ProductApiService` ở [5.3 Networking](../session_05/networking.md), mục "Chuẩn hóa Error Handling & Result Pattern trong Clean Architecture" và mục "Ví dụ thực tế"; Retrofit ở mục [8.1.1 Retrofit](../session_08/networks/retrofit.md).
 
 ```kotlin
 import kotlinx.coroutines.runBlocking

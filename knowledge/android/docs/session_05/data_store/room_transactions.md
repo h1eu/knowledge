@@ -38,7 +38,7 @@ knowledge_gap: Developer biết dùng Room cơ bản nhưng không hiểu vì sa
 Khi bạn viết `dao.insertUser(user)` bên trong một `suspend fun`, trực giác bảo bạn đó là một thao tác đơn giản. Nhưng bên dưới, một chuỗi sự kiện phức tạp xảy ra: Coroutine phải nhảy sang đúng thread đang giữ transaction, Room phải giữ thread đó suốt vòng đời transaction, và Flow phải biết chính xác khi nào cần re-query mà không làm UI recompose thừa.
 
 > [!NOTE]
-> **Kiến thức dùng trước.** Bài dùng coroutine (đoạn code có thể tạm dừng bằng `suspend` rồi chạy tiếp, có thể trên thread khác) và `Flow` (luồng dữ liệu bất đồng bộ phát nhiều giá trị theo thời gian) ở mức tối thiểu: hàm `suspend`, `launch`, `collect`. Coroutine được học ở 8.4.3 Coroutines (chưa có bài); Flow được học ở 7.1.4.2 Flow (chưa có bài).
+> **Kiến thức dùng trước.** Bài dùng coroutine (đoạn code có thể tạm dừng bằng `suspend` rồi chạy tiếp, có thể trên thread khác) và `Flow` (luồng dữ liệu bất đồng bộ phát nhiều giá trị theo thời gian) ở mức tối thiểu: hàm `suspend`, `launch`, `collect`. Coroutine được học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md); Flow được học ở 7.1.4.2 Flow (chưa có bài).
 
 ### Transaction của SQLite gắn với thread
 
@@ -854,7 +854,7 @@ fun getProductsByCategory(category: String): Flow<List<ProductSummary>>
 - **Tiên quyết:**
   - [Relational Database (Room Architecture)](room_architecture.md): Entity, DAO, `@Relation`, và vai trò của `InvalidationTracker` trong kiến trúc Room mà bài này đi sâu.
   - [Advanced Room (Migration & Indexing)](room_advanced.md): index giúp các query hẹp (giải pháp cho table-level invalidation) chạy nhanh.
-- **Kiến thức dùng trước:** 8.4.3 Coroutines (chưa có bài) cho `suspend`, `launch`, cancellation; 7.1.4.2 Flow (chưa có bài) cho `collect`, `stateIn`, `distinctUntilChanged`.
+- **Kiến thức dùng trước:** [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md) cho `suspend`, `launch`, cancellation; 7.1.4.2 Flow (chưa có bài) cho `collect`, `stateIn`, `distinctUntilChanged`.
 - **Liên quan:**
   - [Working with Thread](../working_with_thread.md): main thread, ANR và thread pool, nền của việc Room chặn query trên main thread và dùng executor riêng.
   - [ViewModel](../../session_06/viewmodel.md): `viewModelScope` mà các ví dụ dùng và việc nó bị cancel khi màn hình đóng.

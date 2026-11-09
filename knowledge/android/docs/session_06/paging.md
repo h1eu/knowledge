@@ -51,7 +51,7 @@ Vấn đề cần giải quyết là: **tải dữ liệu theo từng phần đ�
 Mental model: Paging là một **cửa sổ trượt** trên một danh sách rất dài. Chỉ các trang quanh vị trí đang xem nằm trong bộ nhớ; cuộn gần mép cửa sổ thì Paging tự tải thêm trang ở mép đó, và nếu bạn đặt giới hạn thì các trang ở xa bị bỏ bớt. Bạn chỉ mô tả "lấy một trang thế nào"; việc trượt cửa sổ là của thư viện.
 
 > [!NOTE]
-> Kiến thức dùng trước: coroutine, `Flow` (8.4.3 Coroutines, 7.1.4.2 Flow, chưa có bài); `ViewModel` ([6.4 ViewModel](viewmodel.md)); `RecyclerView`, `DiffUtil` (7.1.2 ViewHolder Pattern, chưa có bài); Retrofit (8.1.1 Retrofit, chưa có bài) và lỗi mạng ([Networking](../session_05/networking.md)).
+> Kiến thức dùng trước: coroutine, `Flow` ([8.4.3 Coroutines](../session_08/async_threads/coroutines.md); 7.1.4.2 Flow, chưa có bài); `ViewModel` ([6.4 ViewModel](viewmodel.md)); `RecyclerView`, `DiffUtil` ([8.5.1 Layouts](../session_08/view_layout/layouts.md); 7.1.2 ViewHolder Pattern, chưa có bài); Retrofit ([8.1.1 Retrofit](../session_08/networks/retrofit.md)) và lỗi mạng ([Networking](../session_05/networking.md)).
 
 ## Cách hoạt động
 
@@ -634,7 +634,7 @@ viewLifecycleOwner.lifecycleScope.launch {
 }
 ```
 
-Cờ `scrollToTopAfterRefresh` cần vì `source.refresh` cũng về `NotLoading` sau mỗi lần `APPEND` ghi thêm dữ liệu; không có cờ thì đang cuộn xuống sẽ bị kéo về đầu. `Snackbar` học ở 8.5.5 Message (chưa có bài).
+Cờ `scrollToTopAfterRefresh` cần vì `source.refresh` cũng về `NotLoading` sau mỗi lần `APPEND` ghi thêm dữ liệu; không có cờ thì đang cuộn xuống sẽ bị kéo về đầu. `Snackbar` học ở [8.5.5 Message](../session_08/view_layout/message.md).
 
 **Kết quả:** bật chế độ máy bay rồi kéo: Snackbar "Đang hiển thị dữ liệu đã lưu", danh sách giữ nguyên. Có mạng, kéo lại: giao dịch mới hiện trên cùng, danh sách cuộn về đầu.
 
@@ -752,7 +752,7 @@ val response = api.getArticles(page = page, limit = params.loadSize)           /
 
 - **Tiên quyết:** [View Binding](view_binding.md), [Fragment Lifecycle](../session_04/components/fragment/lifecycle.md), [Room Architecture](../session_05/data_store/room_architecture.md), [Networking](../session_05/networking.md).
 - **Liên quan:** [6.4 ViewModel](viewmodel.md), [6.3 LiveData](livedata.md) (`Pager.liveData` cho code chưa dùng Flow), [Async Transactions & Flow](../session_05/data_store/room_transactions.md), [Unit Testing](../coding_analyst_and_testing/unit_testing.md), [Jetpack Compose Overview](../jetpack_compose_ui/overview.md).
-- **Học tiếp:** 9.5.7 Lazy Paging Items, 7.1.4.2 Flow, 8.4.3 Coroutines, 7.1.2 ViewHolder Pattern, 8.1.1 Retrofit (đều chưa có bài).
+- **Học tiếp:** [8.4.3 Coroutines](../session_08/async_threads/coroutines.md), [8.1.1 Retrofit](../session_08/networks/retrofit.md), [8.5.1 Layouts](../session_08/view_layout/layouts.md); 9.5.7 Lazy Paging Items, 7.1.4.2 Flow, 7.1.2 ViewHolder Pattern (chưa có bài).
 
 ## Tham khảo
 

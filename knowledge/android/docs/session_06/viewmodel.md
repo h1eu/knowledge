@@ -158,7 +158,7 @@ Khi đó store gọi `clear()` trên từng ViewModel, theo thứ tự:
 2. Đóng các `AutoCloseable` đã gắn bằng `addCloseable()` hoặc truyền qua constructor `ViewModel(vararg closeables)`.
 3. Gọi `onCleared()`, nơi dọn những thứ còn lại.
 
-`viewModelScope` và coroutine là kiến thức dùng trước: coroutine là cách viết code bất đồng bộ tuần tự trong Kotlin, học ở 8.4.3 Coroutines (chưa có bài); `viewModelScope` đã được so sánh với `lifecycleScope` ở [Activity Lifecycle](../session_04/components/activity/lifecycle.md), mục "viewModelScope".
+`viewModelScope` và coroutine là kiến thức dùng trước: coroutine là cách viết code bất đồng bộ tuần tự trong Kotlin, học ở [8.4.3 Coroutines](../session_08/async_threads/coroutines.md); `viewModelScope` đã được so sánh với `lifecycleScope` ở [Activity Lifecycle](../session_04/components/activity/lifecycle.md), mục "viewModelScope".
 
 ```mermaid
 stateDiagram-v2

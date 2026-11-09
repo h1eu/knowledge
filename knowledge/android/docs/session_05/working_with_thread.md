@@ -860,7 +860,7 @@ class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
 
 ### Cầu nối thế hệ: Từ Thread thuần đến Kotlin Coroutines & WorkManager
 
-Trong phát triển Android hiện đại (2024-2026), bạn sẽ chủ yếu làm việc với **Kotlin Coroutines** và **WorkManager**. Nhưng hãy nhìn cách chúng ánh xạ trực tiếp vào kiến trúc Thread bên dưới. Đây là kiến thức dùng trước: Coroutine được học ở 8.4.3 Coroutines (chưa có bài); WorkManager được giới thiệu ở [Android Service](../session_04/components/services/android_service.md), mục "WorkManager — Lựa chọn hiện đại cho background task".
+Trong phát triển Android hiện đại (2024-2026), bạn sẽ chủ yếu làm việc với **Kotlin Coroutines** và **WorkManager**. Nhưng hãy nhìn cách chúng ánh xạ trực tiếp vào kiến trúc Thread bên dưới. Đây là kiến thức dùng trước: Coroutine được học ở [8.4.3 Coroutines](../session_08/async_threads/coroutines.md); WorkManager được giới thiệu ở [Android Service](../session_04/components/services/android_service.md), mục "WorkManager — Lựa chọn hiện đại cho background task".
 
 #### Coroutine Dispatchers thực chất là gì?
 
@@ -1049,9 +1049,9 @@ class SafeActivity : AppCompatActivity() {
   - 2.2 Process Management (chưa có bài): Process, Zygote và mức ưu tiên process.
 - **Học tiếp:**
   - [Networking](networking.md): request API trên background thread, xử lý lỗi mạng và trạng thái kết nối.
-  - 8.4.1 What Sync / Async (chưa có bài), 8.4.2 Thread and Multi-Thread (chưa có bài): đồng bộ, bất đồng bộ và đa luồng ở mức ngôn ngữ.
-  - 8.4.3 Coroutines (chưa có bài): Dispatchers, `withContext`, structured concurrency thay cho Handler và thread pool tự quản lý.
-  - 8.4.4 RxJava, RxAndroid, RxKotlin (chưa có bài): Schedulers, một cách khác để đổi thread.
+  - [8.4.1 What Sync / Async](../session_08/async_threads/sync_async.md), [8.4.2 Thread and Multi-Thread](../session_08/async_threads/thread_multithread.md): đồng bộ, bất đồng bộ và đa luồng ở mức ngôn ngữ.
+  - [8.4.3 Coroutines](../session_08/async_threads/coroutines.md): Dispatchers, `withContext`, structured concurrency thay cho Handler và thread pool tự quản lý.
+  - [8.4.4 RxJava, RxAndroid, RxKotlin](../session_08/async_threads/rxjava.md): Schedulers, một cách khác để đổi thread.
   - 7.2.5 Clean Architecture (chưa có bài) và [ViewModel](../session_06/viewmodel.md): đặt việc đổi thread ở Data Layer theo nguyên tắc Main-Safety.
 
 ## Nguồn tham khảo

@@ -77,7 +77,7 @@ Bài này tập trung vào hai cái đầu — là kiến thức chuẩn của l
 
 > [!NOTE]
 > **Kiến thức dùng trước.** Phần DataStore dùng tối thiểu hai kiến thức của Session sau:
-> - Coroutine (`suspend`, `launch`): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài).
+> - Coroutine (`suspend`, `launch`): chạy code bất đồng bộ không chặn main thread, học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 > - `Flow`: luồng dữ liệu phát giá trị mới mỗi khi nguồn thay đổi, học ở 7.1.4.2 Flow (chưa có bài).
 
 ### Đặc điểm của mô hình key-value
@@ -888,7 +888,7 @@ Tương tác với các tầng khác: Data Layer cung cấp `Flow` cho ViewModel
   - [5.1.2 Relational Database (Room Architecture)](room_architecture.md) — khi dữ liệu không còn là key-value mà cần truy vấn.
   - [ViewModel](../../session_06/viewmodel.md) — cách quản lý StateFlow/Flow trong vòng đời ViewModel, `stateIn` chi tiết.
   - 7.2.3 MVVM và 7.2.5 Clean Architecture (chưa có bài) — chuẩn hóa Data Layer, Repository pattern sâu hơn.
-  - 8.4.3 Coroutines và 7.1.4.2 Flow (chưa có bài) — hiểu sâu actor, channel, cách Flow hoạt động bên trong.
+  - [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md) (scope, dispatcher, cancellation) và 7.1.4.2 Flow (chưa có bài) — cách Flow hoạt động bên trong.
   - 7.1.5.3 Hilt (chưa có bài) — cách Hilt cấp `DataStore` và Repository dạng Singleton như `DataModule`.
   - [Unit Testing](../../coding_analyst_and_testing/unit_testing.md) — viết test cho Repository và ViewModel như phần Testing.
   - **Proto DataStore** — nâng cao khi cần schema nghiêm túc.

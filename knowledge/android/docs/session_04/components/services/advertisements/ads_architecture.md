@@ -103,7 +103,7 @@ sequenceDiagram
 ## Ví dụ thực tế: xem rewarded ad để nhận xu
 
 > [!NOTE]
-> Kiến thức dùng trước: `@Inject`, `@HiltViewModel`, `@AndroidEntryPoint` là Hilt, học ở mục 7.1.5.3 Hilt (chưa có bài); `suspendCoroutine` bọc callback thành suspend function, học ở mục 8.4.3 Coroutines (chưa có bài). Ở đây chỉ cần biết Hilt tạo sẵn `AdManager` và inject vào Activity.
+> Kiến thức dùng trước: `@Inject`, `@HiltViewModel`, `@AndroidEntryPoint` là Hilt, học ở mục 7.1.5.3 Hilt (chưa có bài); `suspendCoroutine` bọc callback thành suspend function, học ở mục [8.4.3 Coroutines](../../../../session_08/async_threads/coroutines.md). Ở đây chỉ cần biết Hilt tạo sẵn `AdManager` và inject vào Activity.
 
 ### Interface
 

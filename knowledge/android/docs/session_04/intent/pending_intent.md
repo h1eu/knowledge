@@ -244,7 +244,7 @@ System UI không thể nhét text người dùng vừa gõ vào Intent, nên app
   - [Broadcast Receiver](../components/broadcast/broadcast_receiver.md): nơi nhận PendingIntent tạo bằng `getBroadcast()` (AlarmManager, nút action trên Notification).
   - [Android Service](../components/services/android_service.md): PendingIntent tạo bằng `getService()` cho nút điều khiển trên thông báo của foreground service.
   - [Task and Backstack](../components/activity/task_and_backstack.md), mục "Bước 1: Notification mở Activity với đúng Back Stack": dùng `TaskStackBuilder` để thông báo mở màn hình mà vẫn giữ màn hình cha trong back stack.
-- **Học tiếp:** 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài).
+- **Học tiếp:** [8.5.5 Message (Toast, Snackbar, Notification)](../../session_08/view_layout/message.md).
 
 ## Nguồn tham khảo
 
