@@ -55,12 +55,12 @@ Hãy nghĩ về nó như một **radio receiver**: hệ thống (hoặc app khá
 
 > [!NOTE]
 > **Kiến thức dùng trước.** Các ví dụ trong bài dùng tối thiểu vài kiến thức của Session sau:
-> - Coroutine (`CoroutineScope`, `launch`, `Dispatchers.IO`, hàm `suspend`) là cách chạy việc bất đồng bộ ngoài main thread: 8.4.3 Coroutines (chưa có bài).
+> - Coroutine (`CoroutineScope`, `launch`, `Dispatchers.IO`, hàm `suspend`) là cách chạy việc bất đồng bộ ngoài main thread: [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md).
 > - WorkManager (thư viện Jetpack lên lịch việc nền, lưu work lại và tự lên lịch lại sau reboot): [Android Service](../services/android_service.md), mục "WorkManager — Lựa chọn hiện đại cho background task".
 > - Room (database của app) chỉ xuất hiện sau `ReminderRepository`: [Relational Database (Room Architecture)](../../../session_05/data_store/room_architecture.md).
-> - Flow (`callbackFlow`, `StateFlow`, `SharedFlow`): 7.1.4.2 Flow (chưa có bài).
-> - ViewModel và Hilt (`@HiltViewModel`, `@Inject`, `@Module`): [ViewModel](../../../session_06/viewmodel.md), 7.1.5.3 Hilt (chưa có bài).
-> - MVVM, MVI và Clean Architecture (app chia thành Presentation, Domain, Data layer): [MVVM](../../../session_07/architecture/mvvm.md), 7.2.4 MVI và 7.2.5 Clean Architecture (chưa có bài).
+> - Flow (`callbackFlow`, `StateFlow`, `SharedFlow`): [Flow](../../../session_07/design_pattern/observer/flow.md).
+> - ViewModel và Hilt (`@HiltViewModel`, `@Inject`, `@Module`): [ViewModel](../../../session_06/viewmodel.md), [Hilt](../../../session_07/design_pattern/di/hilt.md).
+> - MVVM, MVI và Clean Architecture (app chia thành Presentation, Domain, Data layer): [MVVM](../../../session_07/architecture/mvvm.md), [MVI](../../../session_07/architecture/mvi.md) và [Clean Architecture](../../../session_07/architecture/clean_architecture.md).
 
 ### Lifecycle: Cực kỳ ngắn
 
@@ -614,12 +614,12 @@ class NetworkStatusViewModel @Inject constructor(
 }
 ```
 
-#### UI Layer: Fragment với MVI
+#### UI Layer: ViewModel với một UiState (MVVM)
 
-Nếu dùng MVI, bạn sẽ map network status thành một phần của **UiState**:
+ViewModel map network status thành một phần của **UiState**, theo [MVVM](../../../session_07/architecture/mvvm.md) với luồng dữ liệu một chiều. Đây chưa phải MVI: không có Intent và reducer, các hàm tự gọi `_uiState.update` (khác biệt ở [MVI](../../../session_07/architecture/mvi.md)). Code giữ `launch` trong `init` cho ngắn; app thật nên khởi động lười bằng `stateIn`, như [ViewModel](../../../session_06/viewmodel.md), mục "Tải dữ liệu: lười, không launch trong init".
 
 ```kotlin
-// MVI State
+// UI state của màn hình
 data class HomeUiState(
     val posts: List<Post> = emptyList(),
     val isLoading: Boolean = false,
@@ -627,7 +627,7 @@ data class HomeUiState(
     val errorMessage: String? = null
 )
 
-// HomeViewModel với MVI
+// HomeViewModel: một uiState (MVVM + luồng dữ liệu một chiều)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val connectivityObserver: ConnectivityObserver,
@@ -1025,8 +1025,8 @@ Với targetSdk 31+, thiếu `exported` trên component có `<intent-filter>` l�
 - **Học tiếp:**
   - [Content Provider](../content_provider.md): Application Component tiếp theo trong mục 4.2.
   - [Networking](../../../session_05/networking.md), mục "Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager & NetworkCallback": API hiện đại hơn để theo dõi mạng.
-  - 7.1.4.2 Flow (chưa có bài): `SharedFlow`/`StateFlow` thay cho broadcast nội bộ.
-  - 7.1.5.3 Hilt (chưa có bài), 7.2.4 MVI và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà phần "Ví dụ thực tế" dựa vào.
+  - [Flow](../../../session_07/design_pattern/observer/flow.md): `SharedFlow`/`StateFlow` thay cho broadcast nội bộ.
+  - [Hilt](../../../session_07/design_pattern/di/hilt.md), [MVI](../../../session_07/architecture/mvi.md) và [Clean Architecture](../../../session_07/architecture/clean_architecture.md): kiến trúc mà phần "Ví dụ thực tế" dựa vào.
   - [Unit Testing](../../../coding_analyst_and_testing/unit_testing.md): nền cho test Robolectric và test ViewModel với fake.
 
 ## Nguồn tham khảo

@@ -77,8 +77,8 @@ Bài này tập trung vào hai cái đầu — là kiến thức chuẩn của l
 
 > [!NOTE]
 > **Kiến thức dùng trước.** Phần DataStore dùng tối thiểu hai kiến thức của Session sau:
-> - Coroutine (`suspend`, `launch`): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài).
-> - `Flow`: luồng dữ liệu phát giá trị mới mỗi khi nguồn thay đổi, học ở 7.1.4.2 Flow (chưa có bài).
+> - Coroutine (`suspend`, `launch`): chạy code bất đồng bộ không chặn main thread, học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
+> - `Flow`: luồng dữ liệu phát giá trị mới mỗi khi nguồn thay đổi, học ở [Flow](../../session_07/design_pattern/observer/flow.md).
 
 ### Đặc điểm của mô hình key-value
 
@@ -248,9 +248,9 @@ Bài toán chính là lưu phiên đăng nhập bằng Preferences DataStore, t�
 
 > [!NOTE]
 > **Kiến thức dùng trước.** Ngoài coroutine và `Flow` (đã ghi ở mục "Các giải pháp Key-Value trong Android"), ví dụ dùng tối thiểu:
-> - `StateFlow` (`stateIn`, `collectAsStateWithLifecycle`): luồng giữ giá trị mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài).
+> - `StateFlow` (`stateIn`, `collectAsStateWithLifecycle`): luồng giữ giá trị mới nhất để UI đọc, học ở [Flow](../../session_07/design_pattern/observer/flow.md).
 > - `ViewModel` (`viewModelScope`): giữ trạng thái của màn hình, học ở [ViewModel](../../session_06/viewmodel.md); cách tách UI - ViewModel - Repository học ở [MVVM](../../session_07/architecture/mvvm.md).
-> - Hilt (`@Module`, `@Provides`, `@HiltViewModel`, `hiltViewModel()`): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài).
+> - Hilt (`@Module`, `@Provides`, `@HiltViewModel`, `hiltViewModel()`): tự tạo và truyền dependency, học ở [Hilt](../../session_07/design_pattern/di/hilt.md).
 > - Jetpack Compose (`@Composable`): viết UI bằng Kotlin, xem [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md).
 
 ### Lưu phiên đăng nhập: MVVM + Hilt + Coroutine/Flow
@@ -887,9 +887,9 @@ Tương tác với các tầng khác: Data Layer cung cấp `Flow` cho ViewModel
 - **Học tiếp:**
   - [5.1.2 Relational Database (Room Architecture)](room_architecture.md) — khi dữ liệu không còn là key-value mà cần truy vấn.
   - [ViewModel](../../session_06/viewmodel.md) — cách quản lý StateFlow/Flow trong vòng đời ViewModel, `stateIn` chi tiết.
-  - [MVVM](../../session_07/architecture/mvvm.md) và 7.2.5 Clean Architecture (chưa có bài) — chuẩn hóa Data Layer, Repository pattern sâu hơn.
-  - 8.4.3 Coroutines và 7.1.4.2 Flow (chưa có bài) — hiểu sâu actor, channel, cách Flow hoạt động bên trong.
-  - 7.1.5.3 Hilt (chưa có bài) — cách Hilt cấp `DataStore` và Repository dạng Singleton như `DataModule`.
+  - [MVVM](../../session_07/architecture/mvvm.md) và [Clean Architecture](../../session_07/architecture/clean_architecture.md) — chuẩn hóa Data Layer, Repository pattern sâu hơn.
+  - [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md) (scope, dispatcher, cancellation) và [Flow](../../session_07/design_pattern/observer/flow.md) — cách Flow hoạt động bên trong.
+  - [Hilt](../../session_07/design_pattern/di/hilt.md) — cách Hilt cấp `DataStore` và Repository dạng Singleton như `DataModule`.
   - [Unit Testing](../../coding_analyst_and_testing/unit_testing.md) — viết test cho Repository và ViewModel như phần Testing.
   - **Proto DataStore** — nâng cao khi cần schema nghiêm túc.
 

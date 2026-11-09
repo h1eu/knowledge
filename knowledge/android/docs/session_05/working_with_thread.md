@@ -601,11 +601,13 @@ Trong một kiến trúc phần mềm tiêu chuẩn (Clean Architecture / MVVM),
 [ Domain Layer (UseCases) ]
        | (Thực thi Business Logic - Luôn là Thread-Safe)
        v
-[ Data Layer (Repository / DataSource) ]
+[ Data Layer (RepositoryImpl / DataSource) ]   <- hiện thực interface Repository của Domain
        | (CHỦ ĐỘNG chuyển sang BACKGROUND THREAD: I/O Pool hoặc Dispatchers.IO)
        v
 [ SQLite Database / Remote Network ]
 ```
+
+Mũi tên trong sơ đồ là **chiều gọi lúc chạy**. Chiều phụ thuộc trong code thì đảo lại ở ranh giới Domain–Data: Domain chỉ khai báo interface `Repository`, tầng Data hiện thực nó, nên Domain không phụ thuộc Data ([Clean Architecture](../session_07/architecture/clean_architecture.md), mục "Dependency rule và đảo chiều phụ thuộc tại ranh giới").
 
 **Nguyên tắc "Main-Safety":** Một Repository hoặc UseCase chuẩn mực phải **Main-Safe**. Nghĩa là bất kể ai gọi nó từ Main Thread, nó phải tự chịu trách nhiệm chuyển sang Background Thread để xử lý và trả kết quả về an toàn mà không làm treo UI của người gọi.
 
@@ -860,7 +862,7 @@ class ImageProcessingActivity : AppCompatActivity(), PipelineCallback {
 
 ### Cầu nối thế hệ: Từ Thread thuần đến Kotlin Coroutines & WorkManager
 
-Trong phát triển Android hiện đại (2024-2026), bạn sẽ chủ yếu làm việc với **Kotlin Coroutines** và **WorkManager**. Nhưng hãy nhìn cách chúng ánh xạ trực tiếp vào kiến trúc Thread bên dưới. Đây là kiến thức dùng trước: Coroutine được học ở 8.4.3 Coroutines (chưa có bài); WorkManager được giới thiệu ở [Android Service](../session_04/components/services/android_service.md), mục "WorkManager — Lựa chọn hiện đại cho background task".
+Trong phát triển Android hiện đại (2024-2026), bạn sẽ chủ yếu làm việc với **Kotlin Coroutines** và **WorkManager**. Nhưng hãy nhìn cách chúng ánh xạ trực tiếp vào kiến trúc Thread bên dưới. Đây là kiến thức dùng trước: Coroutine được học ở [8.4.3 Coroutines](../session_08/async_threads/coroutines.md); WorkManager được giới thiệu ở [Android Service](../session_04/components/services/android_service.md), mục "WorkManager — Lựa chọn hiện đại cho background task".
 
 #### Coroutine Dispatchers thực chất là gì?
 
@@ -1049,10 +1051,10 @@ class SafeActivity : AppCompatActivity() {
   - 2.2 Process Management (chưa có bài): Process, Zygote và mức ưu tiên process.
 - **Học tiếp:**
   - [Networking](networking.md): request API trên background thread, xử lý lỗi mạng và trạng thái kết nối.
-  - 8.4.1 What Sync / Async (chưa có bài), 8.4.2 Thread and Multi-Thread (chưa có bài): đồng bộ, bất đồng bộ và đa luồng ở mức ngôn ngữ.
-  - 8.4.3 Coroutines (chưa có bài): Dispatchers, `withContext`, structured concurrency thay cho Handler và thread pool tự quản lý.
-  - 8.4.4 RxJava, RxAndroid, RxKotlin (chưa có bài): Schedulers, một cách khác để đổi thread.
-  - 7.2.5 Clean Architecture (chưa có bài) và [ViewModel](../session_06/viewmodel.md): đặt việc đổi thread ở Data Layer theo nguyên tắc Main-Safety.
+  - [8.4.1 What Sync / Async](../session_08/async_threads/sync_async.md), [8.4.2 Thread and Multi-Thread](../session_08/async_threads/thread_multithread.md): đồng bộ, bất đồng bộ và đa luồng ở mức ngôn ngữ.
+  - [8.4.3 Coroutines](../session_08/async_threads/coroutines.md): Dispatchers, `withContext`, structured concurrency thay cho Handler và thread pool tự quản lý.
+  - [8.4.4 RxJava, RxAndroid, RxKotlin](../session_08/async_threads/rxjava.md): Schedulers, một cách khác để đổi thread.
+  - [Clean Architecture](../session_07/architecture/clean_architecture.md) và [ViewModel](../session_06/viewmodel.md): đặt việc đổi thread ở Data Layer theo nguyên tắc Main-Safety.
 
 ## Nguồn tham khảo
 

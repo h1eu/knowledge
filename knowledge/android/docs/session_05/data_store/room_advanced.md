@@ -462,7 +462,7 @@ Tiêu chí chọn cột nên và không nên đánh index ở mục "Khi nào n�
 
 Đừng bao giờ đoán mò xem câu truy vấn có đang chạy nhanh hay không. Hãy để SQLite chỉ rõ đường đi nước bước thông qua lệnh `EXPLAIN QUERY PLAN`.
 
-Bạn có thể kiểm tra trực tiếp trong Room DAO hoặc Database Inspector của Android Studio. DAO dưới đây dùng hàm `suspend` (hàm coroutine, Room chạy nó ngoài main thread), được học ở 8.4.3 Coroutines (chưa có bài):
+Bạn có thể kiểm tra trực tiếp trong Room DAO hoặc Database Inspector của Android Studio. DAO dưới đây dùng hàm `suspend` (hàm coroutine, Room chạy nó ngoài main thread), được học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md):
 
 ```kotlin
 @Dao
@@ -899,7 +899,7 @@ graph TD
 - **Liên quan:**
   - [Async Transactions & Flow](room_transactions.md): transaction và Flow trên Room, chạy trên cùng database mà migration đã nâng cấp.
   - [Working with Thread](../working_with_thread.md): Main Thread và ANR, lý do migration nặng không được chạy trên main thread.
-- **Kiến thức dùng trước:** 8.4.3 Coroutines (chưa có bài) cho hàm `suspend` và `Dispatchers.IO`; 7.2.5 Clean Architecture (chưa có bài) cho sơ đồ các tầng ở trên.
+- **Kiến thức dùng trước:** [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md) cho hàm `suspend` và `Dispatchers.IO`; [Clean Architecture](../../session_07/architecture/clean_architecture.md) cho sơ đồ các tầng ở trên.
 
 ## Developer Curiosity Checklist
 

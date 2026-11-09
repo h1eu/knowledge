@@ -2,7 +2,7 @@
 id: android.session06.overview
 title: Session 06 Overview
 summary: Tổng quan Session 06 — các Architecture Components nối dữ liệu với giao diện XML: View Binding và Data Binding (code truy cập layout), LiveData (dữ liệu quan sát được theo lifecycle), ViewModel (giữ state màn hình qua configuration change) và Paging (tải danh sách lớn từng trang). Vị trí của session trong lộ trình, mối liên hệ giữa năm Topic, tiên quyết và thứ tự học.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: overview
 estimated_reading_time: 8 phút

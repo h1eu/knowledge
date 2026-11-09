@@ -373,7 +373,7 @@ Các Topic:
   - [Parcelables and Bundle](../components/activity/parcelables_and_bundle.md): Bundle, Parcelable và giới hạn kích thước extras.
   - [Broadcast Receiver](../components/broadcast/broadcast_receiver.md): phía nhận broadcast (đăng ký, export, giới hạn Android 8+, ordered broadcast).
   - [Manifest Tags](../android_manifest/tags.md): khai báo `<permission>` và `<uses-permission>` cho broadcast có permission.
-- **Học tiếp:** [Pending Intent](pending_intent.md): khi Intent không do app gửi ngay mà được ủy quyền cho OS/System UI kích hoạt về sau. Thay broadcast nội bộ bằng `SharedFlow` ở 7.1.4.2 Flow (chưa có bài).
+- **Học tiếp:** [Pending Intent](pending_intent.md): khi Intent không do app gửi ngay mà được ủy quyền cho OS/System UI kích hoạt về sau. Thay broadcast nội bộ bằng `SharedFlow` ở [Flow](../../session_07/design_pattern/observer/flow.md).
 
 ## Nguồn tham khảo
 

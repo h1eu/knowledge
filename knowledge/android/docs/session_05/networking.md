@@ -160,13 +160,13 @@ App Android hiếm khi tự mở socket. Phần việc dưới đây do thư vi�
 | :--- | :--- | :--- |
 | **OkHttp** | HTTP client: Interceptor Chain, Connection Pool (mặc định giữ 5 kết nối nhàn rỗi trong 5 phút), interceptor tuỳ biến, `Authenticator` xử lý nhiều request cùng nhận `401`, `CertificatePinner`, HTTP Cache. | [8.1.3 OkHttp](../session_08/networks/okhttp.md) |
 | **Okio** | I/O theo từng đoạn bên dưới OkHttp: upload file lớn không `OutOfMemoryError`, đếm byte để báo tiến độ. | [8.1.4 Okio](../session_08/networks/okio.md) |
-| **Retrofit** | Biến interface Kotlin (`@GET`, `suspend fun`) thành lời gọi HTTP chạy trên OkHttp. | 8.1.1 Retrofit (chưa có bài) |
+| **Retrofit** | Biến interface Kotlin (`@GET`, `suspend fun`) thành lời gọi HTTP chạy trên OkHttp. | [8.1.1 Retrofit](../session_08/networks/retrofit.md) |
 | **Ktor Client** | HTTP client thuần Kotlin, chạy được trên Kotlin Multiplatform; lựa chọn thay Retrofit. | [8.1.5 Ktor and Apollo Android](../session_08/networks/ktor_apollo.md) |
 
 Test tầng mạng bằng MockWebServer (server HTTP thật trên localhost) nằm ở [10.2 Unit Testing](../coding_analyst_and_testing/unit_testing.md).
 
 > [!NOTE]
-> Kiến thức dùng trước: các ví dụ trong bài dùng tối thiểu Retrofit (`retrofit2.HttpException`, interface `@GET`) và Kotlin Coroutines, Flow (`suspend`, `retryWhen`, `callbackFlow`); Retrofit học ở mục 8.1.1, Coroutines ở mục 8.4.3 (chưa có bài).
+> Kiến thức dùng trước: các ví dụ trong bài dùng tối thiểu Retrofit (`retrofit2.HttpException`, interface `@GET`) và Kotlin Coroutines, Flow (`suspend`, `retryWhen`, `callbackFlow`); Retrofit học ở [8.1.1 Retrofit](../session_08/networks/retrofit.md), Coroutines ở [8.4.3 Coroutines](../session_08/async_threads/coroutines.md).
 
 ### Chuẩn hóa Error Handling & Result Pattern trong Clean Architecture
 
@@ -435,7 +435,7 @@ Khi thiết kế ứng dụng hỗ trợ Offline, nhiều người phân vân gi
 | **Cơ chế điều khiển** | Hoàn toàn dựa vào Header server (`Cache-Control`, `max-age`, `ETag`). | Hoàn toàn do lập trình viên Android chủ động truy vấn, thêm, xóa, sửa. |
 | **Khả năng tìm kiếm** | **Không thể**: Chỉ tìm kiếm chính xác bằng URL endpoint (`Key = URL`). | **Rất mạnh**: Hỗ trợ SQL `WHERE`, `LIKE`, `JOIN`, sắp xếp `ORDER BY`. |
 | **Phản ứng thay đổi** | Thụ động. Không thể lắng nghe khi có dữ liệu mới. | **Reactive**: Hỗ trợ trả về `Flow<List<Item>>`, tự động cập nhật UI khi DB đổi. |
-| **Trường hợp sử dụng** | Ảnh tĩnh (Glide/Coil), tệp tĩnh cấu hình, API tin tức đơn giản. | Dữ liệu nghiệp vụ lõi: Giỏ hàng, Danh sách bài viết, Profile offline, Chat. |
+| **Trường hợp sử dụng** | Tệp tĩnh cấu hình, ảnh qua Picasso (Glide và Coil có disk cache riêng, xem [8.2.1 Glide](../session_08/loading_image/glide.md)), API tin tức đơn giản. | Dữ liệu nghiệp vụ lõi: Giỏ hàng, Danh sách bài viết, Profile offline, Chat. |
 
 #### HTTP Cache của OkHttp
 
@@ -578,12 +578,12 @@ class ConnectivityManagerNetworkMonitor(
 ### Tích hợp Clean Architecture: End-to-End E-Commerce Example
 
 Hãy xâu chuỗi các thành phần đã học vào một kiến trúc hoàn chỉnh theo chuẩn **Clean Architecture** (Retrofit chỉ dùng một interface `@GET`, xem mục "Thư viện tầng mạng" ở trên):
-`UI (Compose) -> ViewModel -> UseCase -> Repository (SSOT) -> RemoteDataSource (Retrofit) & LocalDataSource (Room)`.
+`UI (Compose) -> ViewModel -> UseCase -> ProductRepository (interface ở Domain) <- ProductRepositoryImpl (SSOT, ở Data) -> RemoteDataSource (Retrofit) & LocalDataSource (Room)`. Use case chỉ biết interface; phần hiện thực ở tầng Data trỏ ngược vào interface đó, đúng dependency rule ở [Clean Architecture](../session_07/architecture/clean_architecture.md).
 
 Mô hình ở đây là **Single Source of Truth (SSOT)**: UI chỉ quan sát Room Database qua `Flow`, không bao giờ đọc thẳng kết quả API. Repository đồng bộ API khi có mạng và ghi kết quả vào Room; Flow của DAO tự phát dữ liệu mới lên UI.
 
 ```mermaid
-graph LR
+graph TD
     subgraph PresentationLayer ["Tầng Giao Diện"]
         UI["Compose Screen"]
         VM["ProductViewModel"]
@@ -591,6 +591,7 @@ graph LR
 
     subgraph DomainLayer ["Tầng Nghiệp Vụ"]
         UC["GetProductsUseCase"]
+        RepoApi["ProductRepository (interface)"]
     end
 
     subgraph DataLayer ["Tầng Dữ Liệu"]
@@ -602,7 +603,8 @@ graph LR
 
     UI --> VM
     VM --> UC
-    UC --> Repo
+    UC --> RepoApi
+    Repo -.->|hiện thực| RepoApi
     Repo --> Local
     Repo --> Remote
     Repo --> NetMon
@@ -894,12 +896,12 @@ Log request và response đầy đủ làm lộ dữ liệu người dùng qua L
   - [Relational Database (Room Architecture)](data_store/room_architecture.md): Entity, DAO và database dùng làm Single Source of Truth.
   - [Broadcast Receiver](../session_04/components/broadcast/broadcast_receiver.md): cách cũ theo dõi mạng bằng `CONNECTIVITY_ACTION` và giới hạn của nó.
 - **Học tiếp:**
-  - 8.1.1 Retrofit (chưa có bài) và 8.1.2 Gson (chưa có bài): biến interface thành lời gọi HTTP và parse JSON thành DTO.
+  - [8.1.1 Retrofit](../session_08/networks/retrofit.md) và [8.1.2 Gson](../session_08/networks/gson.md): biến interface thành lời gọi HTTP và parse JSON thành DTO.
   - [8.1.3 OkHttp](../session_08/networks/okhttp.md): Connection Pool, Interceptor, `Authenticator`, `CertificatePinner`, HTTP Cache.
   - [8.1.4 Okio](../session_08/networks/okio.md): stream file lớn khi upload, báo tiến độ.
   - [8.1.5 Ktor and Apollo Android](../session_08/networks/ktor_apollo.md): HTTP client thuần Kotlin thay Retrofit.
-  - 7.1.4.2 Flow (chưa có bài) và 8.4.3 Coroutines (chưa có bài): `suspend`, `retryWhen`, `callbackFlow` dùng trong bài.
-  - 7.2.5 Clean Architecture (chưa có bài): kiến trúc tầng của ví dụ thực tế.
+  - [Flow](../session_07/design_pattern/observer/flow.md) và [8.4.3 Coroutines](../session_08/async_threads/coroutines.md): `suspend`, `retryWhen`, `callbackFlow` dùng trong bài.
+  - [Clean Architecture](../session_07/architecture/clean_architecture.md): kiến trúc tầng của ví dụ thực tế.
   - [10.2 Unit Testing](../coding_analyst_and_testing/unit_testing.md): test `safeApiCall` và tầng mạng bằng MockWebServer.
 
 ## Nguồn tham khảo

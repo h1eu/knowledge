@@ -227,7 +227,7 @@ defaultConfig {
 ### Vị trí trong Clean Architecture / MVVM
 
 > [!NOTE]
-> Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục 7.2.5 Clean Architecture (chưa có bài). Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.
+> Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục [Clean Architecture](../../../session_07/architecture/clean_architecture.md). Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.
 
 Google Play Services và Firebase là SDK bên ngoài, nên nằm ở **Data Layer**, bên trong các `*DataSource`: một DataSource cho Firebase (FCM, Auth, Firestore, Crashlytics, Analytics), một cho API của GMS (Location, Maps).
 
@@ -242,7 +242,7 @@ flowchart LR
         IF["Interface:<br/>NotificationRepository<br/>AuthRepository"]
     end
     subgraph Data["Data Layer"]
-        REPO[Repository]
+        REPO[RepositoryImpl]
         FB["FirebaseDataSource:<br/>FCM, Auth, Firestore,<br/>Crashlytics, Analytics"]
         GMS["GoogleApiDataSource:<br/>Location, Maps"]
     end
@@ -250,7 +250,7 @@ flowchart LR
     A -- observe --> VM
     VM --> UC
     UC --> IF
-    IF --> REPO
+    REPO -.->|hiện thực| IF
     REPO --> FB
     REPO --> GMS
 
@@ -258,7 +258,8 @@ flowchart LR
     style FB fill:#FFA000,stroke:#E65100,color:#fff
     style GMS fill:#2196F3,stroke:#1565C0,color:#fff
 ```
-<!-- dd: gg-arch -->
+
+UseCase chỉ gọi interface ở Domain; `RepositoryImpl` ở Data hiện thực interface đó (mũi tên nét đứt), nên Domain không phụ thuộc Firebase hay GMS.
 
 **Riêng với Google Service:**
 - `DataSource` bọc mọi API của Firebase/GMS (`Task`, `RemoteMessage`, `FirebaseUser`...) và trả về **model thuần** của app, nên tầng trên không import `com.google.*`.
@@ -276,7 +277,7 @@ Bài toán chính là push notification bằng FCM, viết đầy đủ kèm lu�
 **Tình huống:** Gửi thông báo đơn hàng mới tới người dùng, hiển thị notification cả khi app đang mở lẫn bị kill.
 
 > [!NOTE]
-> Kiến thức dùng trước: hàm `showNotification()` bên dưới dùng notification channel, quyền `POST_NOTIFICATIONS` và `NotificationCompat`, học ở mục 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài). Ở đây chỉ cần biết: khi app ở foreground, FCM giao message cho `onMessageReceived()` và app tự dựng notification.
+> Kiến thức dùng trước: hàm `showNotification()` bên dưới dùng notification channel, quyền `POST_NOTIFICATIONS` và `NotificationCompat`, học ở mục [8.5.5 Message (Toast, Snackbar, Notification)](../../../session_08/view_layout/message.md). Ở đây chỉ cần biết: khi app ở foreground, FCM giao message cho `onMessageReceived()` và app tự dựng notification.
 
 Luồng chạy:
 
@@ -475,7 +476,7 @@ sequenceDiagram
 <!-- dd: gg-auth -->
 
 > [!NOTE]
-> Kiến thức dùng trước: `suspend`, `await()` và `lifecycleScope.launch` là coroutine của Kotlin, học ở mục 8.4.3 Coroutines (chưa có bài). Ở đây chỉ cần biết `await()` chờ `Task` của Firebase/GMS hoàn thành mà không chặn main thread.
+> Kiến thức dùng trước: `suspend`, `await()` và `lifecycleScope.launch` là coroutine của Kotlin, học ở mục [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md). Ở đây chỉ cần biết `await()` chờ `Task` của Firebase/GMS hoàn thành mà không chặn main thread.
 
 **Code trong ViewModel + Activity (luồng thực chiến):**
 
@@ -831,9 +832,9 @@ Firebase SDK từ BoM 35.0.0 yêu cầu minSdk 24 trở lên, build sẽ fail (m
   - [Manifest Tags](../../android_manifest/tags.md): khai báo `<service>`, `<uses-permission>`, `<meta-data>` dùng trong bài.
 - **Học tiếp:**
   - 4.2.3.3 Advertisements, bắt đầu từ [AdMob Overview](advertisements/overview.md): Google Mobile Ads SDK; cách đặt tầng cho quảng cáo ở [Ads trong kiến trúc app](advertisements/ads_architecture.md).
-  - 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài): notification channel, `POST_NOTIFICATIONS`, `NotificationCompat` dùng trong ví dụ FCM.
-  - 8.4.3 Coroutines (chưa có bài): `suspend`, `await()`, `lifecycleScope` dùng trong các ví dụ Auth, Remote Config, Location.
-  - 7.2.5 Clean Architecture (chưa có bài) và 7.1.5.3 Hilt (chưa có bài): chia tầng và DI binding để thay DataSource GMS bằng HMS.
+  - [8.5.5 Message (Toast, Snackbar, Notification)](../../../session_08/view_layout/message.md): notification channel, `POST_NOTIFICATIONS`, `NotificationCompat` dùng trong ví dụ FCM.
+  - [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md): `suspend`, `await()`, `lifecycleScope` dùng trong các ví dụ Auth, Remote Config, Location.
+  - [Clean Architecture](../../../session_07/architecture/clean_architecture.md) và [Hilt](../../../session_07/design_pattern/di/hilt.md): chia tầng và DI binding để thay DataSource GMS bằng HMS.
 
 ## Nguồn tham khảo
 

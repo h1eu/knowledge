@@ -151,7 +151,7 @@ Dữ liệu cần xử lý
 
 Loại dữ liệu nguy hiểm nhất khi xoay màn hình là **kết quả API**: fetch lại trong `onCreate` thì mỗi lần xoay là một lần gọi mạng. ViewModel giải quyết điều này vì nó được cất trong `ViewModelStore`, và store được chuyển sang Activity mới khi Activity bị tạo lại do configuration change. Dữ liệu đã tải vẫn còn, Activity mới không gọi lại API. Store chỉ nằm trong bộ nhớ, nên ViewModel **mất khi process chết**.
 
-Cơ chế giữ store qua configuration change, vòng đời và `onCleared()`, scope, factory và cách tải dữ liệu lười (`stateIn`, không launch trong `init`) ở [ViewModel](../../../session_06/viewmodel.md). `StateFlow` và `stateIn` dùng trong bài là luồng dữ liệu quan sát được, học ở 7.1.4.2 Flow (chưa có bài).
+Cơ chế giữ store qua configuration change, vòng đời và `onCleared()`, scope, factory và cách tải dữ liệu lười (`stateIn`, không launch trong `init`) ở [ViewModel](../../../session_06/viewmodel.md). `StateFlow` và `stateIn` dùng trong bài là luồng dữ liệu quan sát được, học ở [Flow](../../../session_07/design_pattern/observer/flow.md).
 
 Code của `products` (pipeline `stateIn` khởi động lười) ở mục "Ví dụ thực tế", bước (1) và (3).
 
@@ -476,7 +476,7 @@ State Changes không phải việc của riêng UI. Trong kiến trúc đúng:
   - [Fragment State Changes](../fragment/state_changes.md) — cách Fragment lưu/khôi phục state riêng.
   - [ViewModel](../../../session_06/viewmodel.md): cơ chế store, vòng đời, scope, factory, `viewModelScope`.
   - 9.2 State and State Hoisting (chưa có bài), gồm 9.2.1 MutableState và 9.2.2 Remember and rememberSaveable: `remember`, `rememberSaveable`, `mutableStateOf` và Saver.
-  - [MVVM](../../../session_07/architecture/mvvm.md) và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.
+  - [MVVM](../../../session_07/architecture/mvvm.md) và [Clean Architecture](../../../session_07/architecture/clean_architecture.md): kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.
 
 ## Nguồn tham khảo
 
