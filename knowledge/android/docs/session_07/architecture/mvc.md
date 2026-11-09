@@ -2,7 +2,7 @@
 id: android.architecture.mvc
 title: MVC
 summary: MVC (Model–View–Controller) là pattern kiến trúc giao diện chia phần mềm có UI thành ba vai là Model (dữ liệu và quy tắc nghiệp vụ, không biết UI), View (hiển thị Model và quan sát Model để vẽ lại) và Controller (nhận input của người dùng và dịch thành lời gọi lên Model). Bài phân biệt MVC gốc của Smalltalk với "MVC kiểu Android" nơi Activity vừa là View vừa là Controller, giải thích Massive Activity và vì sao cộng đồng Android chuyển sang MVP rồi MVVM.
-status: reviewing
+status: published
 difficulty: beginner
 depth: standard
 estimated_reading_time: 16 phút

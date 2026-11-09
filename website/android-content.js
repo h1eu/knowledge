@@ -45123,7 +45123,7 @@ Object.assign(ANDROID_CONTENT, {
   'view-binding': {
     title: 'View Binding',
     summary: 'View Binding là tính năng build của Android Gradle Plugin, sinh cho mỗi layout XML một class binding giữ sẵn tham chiếu có kiểu tới mọi View có id, thay cho findViewById. Bài giải thích class binding được sinh ra thế nào, vì sao nó an toàn về null và kiểu, cách dùng trong Activity, Fragment, include và custom view, và khi nào chọn nó thay vì Data Binding hay Compose.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'beginner',
     estimatedReadingTime: '16 phút',
     depth: 'standard',
@@ -45880,7 +45880,7 @@ Object.assign(ANDROID_CONTENT, {
   'session-06-overview': {
     title: 'Session 06 Overview',
     summary: 'Tổng quan Session 06 — các Architecture Components nối dữ liệu với giao diện XML: View Binding và Data Binding (code truy cập layout), LiveData (dữ liệu quan sát được theo lifecycle), ViewModel (giữ state màn hình qua configuration change) và Paging (tải danh sách lớn từng trang). Vị trí của session trong lộ trình, mối liên hệ giữa năm Topic, tiên quyết và thứ tự học.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '8 phút',
     depth: 'overview',
@@ -45895,7 +45895,7 @@ Object.assign(ANDROID_CONTENT, {
       'Áp dụng được thứ tự học 6.1 → 6.4 → 6.3 → 6.2 → 6.5 dựa trên phụ thuộc giữa các Topic.'
     ],
     knowledgeGap: 'Học rời từng component khiến người học không thấy chúng ghép thành một luồng: ViewModel giữ state, LiveData hoặc Flow đưa state ra, binding vẽ state lên View, Paging tải dữ liệu lớn vào luồng đó. Kết quả là đặt dữ liệu sai chỗ, observe sai lifecycle và chọn binding không cần thiết.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '8 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -46040,7 +46040,7 @@ flowchart LR
   'data-binding': {
     title: 'Data Binding',
     summary: 'Data Binding là thư viện Jetpack đi kèm Android Gradle Plugin cho phép layout XML bọc trong thẻ layout khai báo biến và biểu thức @{}; lúc build, annotation processor sinh class binding chứa sẵn code gán giá trị của biểu thức vào View, và khi biến hoặc nguồn dữ liệu quan sát được thay đổi, binding tự tính lại biểu thức và cập nhật View. Bài giải thích cơ chế cập nhật, observable, BindingAdapter, two-way binding, dùng trong Fragment và khi nào chọn View Binding hay Compose.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '17 phút',
     depth: 'standard',
@@ -46762,7 +46762,7 @@ fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) { /* ... *
   'livedata': {
     title: 'LiveData',
     summary: 'LiveData là class giữ dữ liệu quan sát được và lifecycle-aware của Jetpack, giữ giá trị mới nhất và chỉ giao giá trị đó cho observer có LifecycleOwner đang active (STARTED hoặc RESUMED), tự gỡ observer khi owner bị DESTROYED. Bài đi qua setValue/postValue, observeForever, map/switchMap/MediatorLiveData, onActive/onInactive, cầu nối coroutine/Flow và event một lần dưới dạng UI state.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '17 phút',
     depth: 'deep-dive',
@@ -47448,7 +47448,7 @@ private val _navigateToOrderDetail = MutableLiveData&lt;Long&gt;()
   'viewmodel': {
     title: 'ViewModel',
     summary: 'ViewModel là object giữ state và logic của một màn hình, được cất trong ViewModelStore của một ViewModelStoreOwner (Activity, Fragment, navigation destination), nên sống qua configuration change và chỉ bị clear khi owner kết thúc thật sự. Bài giải thích ViewModelProvider lấy lại đúng instance thế nào, vì sao ViewModel sống qua xoay màn hình nhưng mất khi process chết, vòng đời và onCleared, chọn scope, viết factory với CreationExtras, và cách tải dữ liệu đúng chỗ.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '24 phút',
     depth: 'deep-dive',
@@ -48281,7 +48281,7 @@ val uiState = MutableStateFlow&lt;SearchUiState&gt;(SearchUiState.Idle)</code></
   'paging-library': {
     title: 'Paging',
     summary: 'Paging (Paging 3) là thư viện Jetpack tải và hiển thị một tập dữ liệu lớn theo từng trang, đúng lúc người dùng cuộn tới. PagingSource biết cách tải một trang theo key, Pager biến nó thành luồng Flow<PagingData> được cache trong ViewModel, còn UI chỉ hiển thị và báo vị trí đang xem.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '17 phút',
     depth: 'deep-dive',
@@ -49068,7 +49068,7 @@ Object.assign(ANDROID_CONTENT, {
   'arch-mvvm': {
     title: 'MVVM',
     summary: 'MVVM (Model–View–ViewModel) là pattern kiến trúc cho tầng UI, chia một màn hình thành ba vai là Model (dữ liệu và logic nghiệp vụ), View (vẽ state và chuyển thao tác của người dùng) và ViewModel (giữ UI state đã chuẩn bị sẵn cho View); View quan sát ViewModel, còn ViewModel không biết View tồn tại. Bài giải thích hướng phụ thuộc giữa ba vai, luồng dữ liệu một chiều với một uiState, cách xử lý thao tác và event một lần, Model trong Android là data layer, và MVVM khác class ViewModel của Jetpack ở đâu.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '17 phút',
     depth: 'standard',
@@ -49668,7 +49668,7 @@ Object.assign(ANDROID_CONTENT, {
   'session-07-overview': {
     title: 'Session 07 Overview',
     summary: 'Tổng quan Session 07 — các design pattern hay gặp trong code Android (Builder, ViewHolder, Singleton, Observer, Dependency Injection) và các kiến trúc tầng UI và toàn app (MVC, MVP, MVVM, MVI, Clean Architecture). Vị trí của session trong lộ trình, mối liên hệ giữa các Topic, tiên quyết và thứ tự học.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '8 phút',
     depth: 'overview',
@@ -49880,7 +49880,7 @@ flowchart LR
   'builder-pattern': {
     title: 'Builder Pattern',
     summary: 'Builder Pattern là creational design pattern tách việc cấu hình một object nhiều tham số khỏi việc tạo ra nó, bằng một object builder thu thập từng tham số qua các bước có tên rồi kiểm tra và tạo object cuối trong build(). Bài giải thích cấu trúc builder, các builder có sẵn trong Android, vì sao named/default arguments và DSL của Kotlin làm builder ít cần hơn, và khi nào vẫn nên tự viết builder.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'beginner',
     estimatedReadingTime: '15 phút',
     depth: 'standard',
@@ -50502,7 +50502,7 @@ val notification = NotificationCompat.Builder(context)
   'viewholder-pattern': {
     title: 'ViewHolder Pattern',
     summary: 'ViewHolder Pattern là cách tổ chức danh sách cuộn trong đó mỗi item đang hiển thị là một ViewHolder, object giữ sẵn cây View của một item cùng tham chiếu tới các View con, được tạo một lần rồi tái sử dụng cho item khác bằng cách bind lại dữ liệu khi người dùng cuộn. Bài giải thích vì sao pattern ra đời từ ListView, cách RecyclerView.Adapter tạo, bind và tái chế ViewHolder, ListAdapter với DiffUtil, view type, stable id và payload.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '17 phút',
     depth: 'standard',
@@ -51194,7 +51194,7 @@ viewModel.tasks.collect { tasks -&gt; binding.taskList.adapter = TaskAdapter(tas
   'singleton-pattern': {
     title: 'Singleton Pattern',
     summary: 'Singleton Pattern là creational design pattern bảo đảm một class chỉ có đúng một instance trong một phạm vi và cung cấp một điểm truy cập chung tới instance đó; trên Android phạm vi đó là một process. Bài giải thích cách hiện thực bằng Kotlin object, by lazy, double-checked locking và Application, rủi ro leak Context và trạng thái toàn cục khó test, và cách thay bằng scope @Singleton của Dependency Injection.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '16 phút',
     depth: 'standard',
@@ -51834,7 +51834,7 @@ object ApiClient {
   'observer-overview': {
     title: 'Observer Pattern Overview',
     summary: 'Observer Pattern là pattern hành vi trong đó một object (subject) giữ danh sách các observer đã đăng ký và tự báo cho tất cả khi trạng thái của nó đổi; subject chỉ biết observer qua một interface, nên nơi phát thay đổi không phụ thuộc nơi nhận. Bài đi qua push/pull, hot/cold, backpressure, quan sát theo lifecycle và cách chọn LiveData, Flow hay RxJava.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '12 phút',
     depth: 'standard',
@@ -52474,7 +52474,7 @@ fun observeUnreadCount(): Flow&lt;Int&gt; = flow {
   'observer-rxjava': {
     title: 'RxJava / RxAndroid',
     summary: 'RxJava là thư viện hiện thực Reactive Extensions trên JVM, mở rộng Observer Pattern thành các luồng giá trị bất đồng bộ có tín hiệu hoàn tất và lỗi (Observable, Flowable, Single, Maybe, Completable), ghép bằng toán tử và chạy trên các Scheduler; RxAndroid bổ sung Scheduler cho main thread của Android.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '17 phút',
     depth: 'standard',
@@ -53317,7 +53317,7 @@ queries.debounce(300, TimeUnit.MILLISECONDS)
   'observer-flow': {
     title: 'Flow',
     summary: 'Kotlin Flow là luồng bất đồng bộ phát lần lượt nhiều giá trị theo thời gian, dựng trên coroutine; Flow thường là lạnh (mỗi lần collect chạy lại producer cho riêng collector đó), còn StateFlow và SharedFlow là nóng (một nguồn giá trị dùng chung cho mọi collector). Bài giải thích builder, toán tử, flowOn và lỗi, StateFlow/SharedFlow, stateIn/shareIn, callbackFlow và collect theo lifecycle.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '18 phút',
     depth: 'standard',
@@ -54080,7 +54080,7 @@ fun onAddToCart(id: String) { cartStore.add(id); _message.value = "Đã thêm v�
   'observer-livedata': {
     title: 'LiveData',
     summary: 'Nhìn theo Observer Pattern, LiveData là một subject hot giữ đúng một giá trị mới nhất, đẩy giá trị cho observer (push), và dùng lifecycle của observer làm điều kiện giao; mọi lần giao chạy trên main thread. Bài đặt LiveData lên các trục của Observer Pattern, so sánh với StateFlow, SharedFlow, RxJava, các cầu nối giữa chúng và cách chuyển state của ViewModel từ LiveData sang StateFlow.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '12 phút',
     depth: 'standard',
@@ -54643,7 +54643,7 @@ val unreadCount: LiveData&lt;Int&gt; get() = repository.observeUnreadCount().asL
   'di-overview': {
     title: 'Dependency Injection Overview',
     summary: 'Dependency Injection (DI) là kỹ thuật trong đó một class nhận các object nó cần (dependency) từ bên ngoài, qua constructor, field hoặc method, thay vì tự tạo hay tự đi tìm chúng; việc tạo và nối các object được dồn về một nơi duy nhất gọi là composition root. Bài giải thích ba cách inject, DI khác Service Locator ở đâu, manual DI bằng container, scope và vòng đời object, quan hệ với DIP, và so sánh Dagger, Hilt, Koin, Kodein.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '13 phút',
     depth: 'standard',
@@ -55295,7 +55295,7 @@ override fun onCreate() {
   'di-dagger2': {
     title: 'Dagger2',
     summary: 'Dagger 2 là framework Dependency Injection dựng và kiểm tra graph dependency lúc compile; từ các binding khai báo bằng `@Inject`, `@Module` (`@Provides`, `@Binds`) và một interface `@Component`, annotation processor báo lỗi build nếu graph thiếu, trùng hoặc sai scope, rồi sinh class `DaggerXxxComponent` chứa code tạo object giống container viết tay. Bài giải thích binding, component, scope, subcomponent, qualifier, kapt/KSP và cách đọc lỗi Dagger.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'advanced',
     estimatedReadingTime: '18 phút',
     depth: 'standard',
@@ -56051,7 +56051,7 @@ class CheckoutDraft @Inject constructor() {
   'di-koin': {
     title: 'Koin',
     summary: 'Koin là framework Dependency Injection viết bằng Kotlin thuần, trong đó các definition (cách tạo một kiểu và tuổi thọ của nó) được khai báo trong module bằng DSL Kotlin hoặc annotation, nạp vào một container lúc app khởi động, và được tra cứu theo kiểu để tạo instance lúc chạy. Bài giải thích module với single, factory, viewModel, cách lấy dependency trên Android, kiểm tra cấu hình bằng verify() và Koin Compiler Plugin, ba cách khai báo, dùng chung module trong Kotlin Multiplatform, và so sánh với Hilt.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '15 phút',
     depth: 'standard',
@@ -56676,7 +56676,7 @@ class RoomNoteRepository : NoteRepository, KoinComponent {
   'di-hilt': {
     title: 'Hilt',
     summary: 'Hilt là thư viện Dependency Injection chuẩn cho Android, xây trên Dagger; nó định nghĩa sẵn một cây component gắn với vòng đời của Application, Activity, ViewModel, Fragment, Service, và sinh code Dagger lúc build để tạo và đưa dependency vào cả những class mà hệ thống Android khởi tạo thay bạn. Bài giải thích điểm vào (@HiltAndroidApp, @AndroidEntryPoint), binding bằng @Inject, @Provides, @Binds với @InstallIn, component và scope chuẩn, @HiltViewModel, assisted injection cho ViewModel và Worker, và cách thay binding trong test.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '18 phút',
     depth: 'standard',
@@ -57459,7 +57459,7 @@ class GalleryApplication : Application()                     // không hiện th
   'di-kodein': {
     title: 'Kodein',
     summary: 'Kodein-DI là thư viện Dependency Injection viết bằng Kotlin Multiplatform, trong đó binding được khai báo trong khối DI { } bằng DSL bind (provider, singleton, factory, multiton) và dependency được lấy ra lúc chạy bằng instance() từ container DI. Bài giải thích các loại binding, cách tích hợp Android (DIAware, closestDI, ViewModel), so sánh ngắn với Koin, và tình trạng hiện nay khi Kodein-DI đã vào chế độ bảo trì.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '12 phút',
     depth: 'standard',
@@ -57915,7 +57915,7 @@ class KoinConfigurationTest {
   'arch-mvc': {
     title: 'MVC',
     summary: 'MVC (Model–View–Controller) là pattern kiến trúc giao diện chia phần mềm có UI thành ba vai là Model (dữ liệu và quy tắc nghiệp vụ, không biết UI), View (hiển thị Model và quan sát Model để vẽ lại) và Controller (nhận input của người dùng và dịch thành lời gọi lên Model). Bài phân biệt MVC gốc của Smalltalk với "MVC kiểu Android" nơi Activity vừa là View vừa là Controller, giải thích Massive Activity và vì sao cộng đồng Android chuyển sang MVP rồi MVVM.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'beginner',
     estimatedReadingTime: '16 phút',
     depth: 'standard',
@@ -58568,7 +58568,7 @@ repository.setBookmarked(articleId, bookmarked)</code></pre>
   'arch-mvp': {
     title: 'MVP',
     summary: 'MVP (Model–View–Presenter) là pattern kiến trúc tầng UI trong đó View thụ động chỉ chuyển thao tác của người dùng cho Presenter và làm theo lệnh hiển thị, còn Presenter là class thường gọi Model rồi ra lệnh cho View qua một interface (contract). Bài giải thích contract, attach và detach theo vòng đời, test Presenter bằng View giả, vấn đề xoay màn hình và vì sao MVVM thay thế MVP trên Android.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '18 phút',
     depth: 'standard',
@@ -59319,7 +59319,7 @@ override fun showArticles(articles: List&lt;Article&gt;) {
   'arch-mvi': {
     title: 'MVI',
     summary: 'MVI (Model–View–Intent) là pattern kiến trúc tầng UI trong đó mọi thao tác của người dùng (Intent) và mọi kết quả của side effect được biểu diễn thành message đi qua một hàm reducer duy nhất; reducer nhận state hiện tại cùng message và trả về state mới bất biến, còn View chỉ vẽ state đó và gửi Intent. Bài giải thích vòng lặp Intent → reducer → state → View, cách tách side effect khỏi reducer, so sánh MVI với MVVM theo luồng dữ liệu một chiều và khi nào MVI đáng chi phí.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '18 phút',
     depth: 'standard',
@@ -60001,7 +60001,7 @@ val effects = _effects.receiveAsFlow()</code></pre>
   'arch-clean': {
     title: 'Clean Architecture',
     summary: 'Clean Architecture là cách tổ chức code thành các vòng đồng tâm, quy tắc nghiệp vụ ở vòng trong cùng và chi tiết kỹ thuật (UI, database, mạng, framework) ở vòng ngoài, tuân theo một luật duy nhất là dependency rule: phụ thuộc trong mã nguồn chỉ được hướng vào trong. Bài giải thích bốn vòng gốc, đảo chiều phụ thuộc bằng interface, bản Android presentation/domain/data, use case, mapping model, module hoá, và khác biệt với hướng dẫn của Google.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'advanced',
     estimatedReadingTime: '18 phút',
     depth: 'standard',

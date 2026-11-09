@@ -2,7 +2,7 @@
 id: android.architecture.mvvm
 title: MVVM
 summary: MVVM (Model–View–ViewModel) là pattern kiến trúc cho tầng UI, chia một màn hình thành ba vai là Model (dữ liệu và logic nghiệp vụ), View (vẽ state và chuyển thao tác của người dùng) và ViewModel (giữ UI state đã chuẩn bị sẵn cho View); View quan sát ViewModel, còn ViewModel không biết View tồn tại. Bài giải thích hướng phụ thuộc giữa ba vai, luồng dữ liệu một chiều với một uiState, cách xử lý thao tác và event một lần, Model trong Android là data layer, và MVVM khác class ViewModel của Jetpack ở đâu.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 17 phút

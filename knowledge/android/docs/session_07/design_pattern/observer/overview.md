@@ -2,7 +2,7 @@
 id: android.design_pattern.observer.overview
 title: Observer Pattern Overview
 summary: Observer Pattern là pattern hành vi trong đó một object (subject) giữ danh sách các observer đã đăng ký và tự báo cho tất cả khi trạng thái của nó đổi; subject chỉ biết observer qua một interface, nên nơi phát thay đổi không phụ thuộc nơi nhận. Bài đi qua push/pull, hot/cold, backpressure, quan sát theo lifecycle và cách chọn LiveData, Flow hay RxJava.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 12 phút

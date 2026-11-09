@@ -2,7 +2,7 @@
 id: android.jetpack.data_binding
 title: Data Binding
 summary: Data Binding là thư viện Jetpack đi kèm Android Gradle Plugin cho phép layout XML bọc trong thẻ layout khai báo biến và biểu thức @{}; lúc build, annotation processor sinh class binding chứa sẵn code gán giá trị của biểu thức vào View, và khi biến hoặc nguồn dữ liệu quan sát được thay đổi, binding tự tính lại biểu thức và cập nhật View. Bài giải thích cơ chế cập nhật, observable, BindingAdapter, two-way binding, dùng trong Fragment và khi nào chọn View Binding hay Compose.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 17 phút

@@ -2,7 +2,7 @@
 id: android.design_pattern.observer.flow
 title: Flow
 summary: Kotlin Flow là luồng bất đồng bộ phát lần lượt nhiều giá trị theo thời gian, dựng trên coroutine; Flow thường là lạnh (mỗi lần collect chạy lại producer cho riêng collector đó), còn StateFlow và SharedFlow là nóng (một nguồn giá trị dùng chung cho mọi collector). Bài giải thích builder, toán tử, flowOn và lỗi, StateFlow/SharedFlow, stateIn/shareIn, callbackFlow và collect theo lifecycle.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 18 phút

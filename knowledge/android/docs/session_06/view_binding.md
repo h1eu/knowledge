@@ -2,7 +2,7 @@
 id: android.jetpack.view_binding
 title: View Binding
 summary: View Binding là tính năng build của Android Gradle Plugin, sinh cho mỗi layout XML một class binding giữ sẵn tham chiếu có kiểu tới mọi View có id, thay cho findViewById. Bài giải thích class binding được sinh ra thế nào, vì sao nó an toàn về null và kiểu, cách dùng trong Activity, Fragment, include và custom view, và khi nào chọn nó thay vì Data Binding hay Compose.
-status: reviewing
+status: published
 difficulty: beginner
 depth: standard
 estimated_reading_time: 16 phút

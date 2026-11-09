@@ -2,7 +2,7 @@
 id: android.design_pattern.viewholder
 title: ViewHolder Pattern
 summary: ViewHolder Pattern là cách tổ chức danh sách cuộn trong đó mỗi item đang hiển thị là một ViewHolder, object giữ sẵn cây View của một item cùng tham chiếu tới các View con, được tạo một lần rồi tái sử dụng cho item khác bằng cách bind lại dữ liệu khi người dùng cuộn. Bài giải thích vì sao pattern ra đời từ ListView, cách RecyclerView.Adapter tạo, bind và tái chế ViewHolder, ListAdapter với DiffUtil, view type, stable id và payload.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 17 phút

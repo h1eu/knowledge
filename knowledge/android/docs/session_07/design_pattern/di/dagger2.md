@@ -2,7 +2,7 @@
 id: android.design_pattern.di.dagger2
 title: Dagger2
 summary: Dagger 2 là framework Dependency Injection dựng và kiểm tra graph dependency lúc compile; từ các binding khai báo bằng `@Inject`, `@Module` (`@Provides`, `@Binds`) và một interface `@Component`, annotation processor báo lỗi build nếu graph thiếu, trùng hoặc sai scope, rồi sinh class `DaggerXxxComponent` chứa code tạo object giống container viết tay. Bài giải thích binding, component, scope, subcomponent, qualifier, kapt/KSP và cách đọc lỗi Dagger.
-status: reviewing
+status: published
 difficulty: advanced
 depth: standard
 estimated_reading_time: 18 phút

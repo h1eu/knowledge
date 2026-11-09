@@ -2,7 +2,7 @@
 id: android.jetpack.livedata
 title: LiveData
 summary: LiveData là class giữ dữ liệu quan sát được và lifecycle-aware của Jetpack, giữ giá trị mới nhất và chỉ giao giá trị đó cho observer có LifecycleOwner đang active (STARTED hoặc RESUMED), tự gỡ observer khi owner bị DESTROYED. Bài đi qua setValue/postValue, observeForever, map/switchMap/MediatorLiveData, onActive/onInactive, cầu nối coroutine/Flow và event một lần dưới dạng UI state.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 17 phút

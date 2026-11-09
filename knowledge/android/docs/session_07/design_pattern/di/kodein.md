@@ -2,7 +2,7 @@
 id: android.design_pattern.di.kodein
 title: Kodein
 summary: Kodein-DI là thư viện Dependency Injection viết bằng Kotlin Multiplatform, trong đó binding được khai báo trong khối DI { } bằng DSL bind (provider, singleton, factory, multiton) và dependency được lấy ra lúc chạy bằng instance() từ container DI. Bài giải thích các loại binding, cách tích hợp Android (DIAware, closestDI, ViewModel), so sánh ngắn với Koin, và tình trạng hiện nay khi Kodein-DI đã vào chế độ bảo trì.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 12 phút

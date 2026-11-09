@@ -2,7 +2,7 @@
 id: android.architecture.mvi
 title: MVI
 summary: MVI (Model–View–Intent) là pattern kiến trúc tầng UI trong đó mọi thao tác của người dùng (Intent) và mọi kết quả của side effect được biểu diễn thành message đi qua một hàm reducer duy nhất; reducer nhận state hiện tại cùng message và trả về state mới bất biến, còn View chỉ vẽ state đó và gửi Intent. Bài giải thích vòng lặp Intent → reducer → state → View, cách tách side effect khỏi reducer, so sánh MVI với MVVM theo luồng dữ liệu một chiều và khi nào MVI đáng chi phí.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 18 phút

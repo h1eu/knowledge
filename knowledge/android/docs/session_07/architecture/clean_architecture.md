@@ -2,7 +2,7 @@
 id: android.architecture.clean_architecture
 title: Clean Architecture
 summary: Clean Architecture là cách tổ chức code thành các vòng đồng tâm, quy tắc nghiệp vụ ở vòng trong cùng và chi tiết kỹ thuật (UI, database, mạng, framework) ở vòng ngoài, tuân theo một luật duy nhất là dependency rule: phụ thuộc trong mã nguồn chỉ được hướng vào trong. Bài giải thích bốn vòng gốc, đảo chiều phụ thuộc bằng interface, bản Android presentation/domain/data, use case, mapping model, module hoá, và khác biệt với hướng dẫn của Google.
-status: reviewing
+status: published
 difficulty: advanced
 depth: standard
 estimated_reading_time: 18 phút

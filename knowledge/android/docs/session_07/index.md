@@ -2,7 +2,7 @@
 id: android.session07.overview
 title: Session 07 Overview
 summary: Tổng quan Session 07 — các design pattern hay gặp trong code Android (Builder, ViewHolder, Singleton, Observer, Dependency Injection) và các kiến trúc tầng UI và toàn app (MVC, MVP, MVVM, MVI, Clean Architecture). Vị trí của session trong lộ trình, mối liên hệ giữa các Topic, tiên quyết và thứ tự học.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: overview
 estimated_reading_time: 8 phút

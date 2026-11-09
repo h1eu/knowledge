@@ -2,7 +2,7 @@
 id: android.architecture.mvp
 title: MVP
 summary: MVP (Model–View–Presenter) là pattern kiến trúc tầng UI trong đó View thụ động chỉ chuyển thao tác của người dùng cho Presenter và làm theo lệnh hiển thị, còn Presenter là class thường gọi Model rồi ra lệnh cho View qua một interface (contract). Bài giải thích contract, attach và detach theo vòng đời, test Presenter bằng View giả, vấn đề xoay màn hình và vì sao MVVM thay thế MVP trên Android.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 18 phút

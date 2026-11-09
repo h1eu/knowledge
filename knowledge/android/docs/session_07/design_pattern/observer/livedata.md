@@ -2,7 +2,7 @@
 id: android.design_pattern.observer.livedata
 title: LiveData
 summary: Nhìn theo Observer Pattern, LiveData là một subject hot giữ đúng một giá trị mới nhất, đẩy giá trị cho observer (push), và dùng lifecycle của observer làm điều kiện giao; mọi lần giao chạy trên main thread. Bài đặt LiveData lên các trục của Observer Pattern, so sánh với StateFlow, SharedFlow, RxJava, các cầu nối giữa chúng và cách chuyển state của ViewModel từ LiveData sang StateFlow.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 12 phút

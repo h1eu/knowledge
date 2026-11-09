@@ -2,7 +2,7 @@
 id: android.design_pattern.observer.rxjava
 title: RxJava / RxAndroid
 summary: RxJava là thư viện hiện thực Reactive Extensions trên JVM, mở rộng Observer Pattern thành các luồng giá trị bất đồng bộ có tín hiệu hoàn tất và lỗi (Observable, Flowable, Single, Maybe, Completable), ghép bằng toán tử và chạy trên các Scheduler; RxAndroid bổ sung Scheduler cho main thread của Android.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 17 phút

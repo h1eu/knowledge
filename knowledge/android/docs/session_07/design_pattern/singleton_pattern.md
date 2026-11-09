@@ -2,7 +2,7 @@
 id: android.design_pattern.singleton
 title: Singleton Pattern
 summary: Singleton Pattern là creational design pattern bảo đảm một class chỉ có đúng một instance trong một phạm vi và cung cấp một điểm truy cập chung tới instance đó; trên Android phạm vi đó là một process. Bài giải thích cách hiện thực bằng Kotlin object, by lazy, double-checked locking và Application, rủi ro leak Context và trạng thái toàn cục khó test, và cách thay bằng scope @Singleton của Dependency Injection.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 16 phút

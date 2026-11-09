@@ -2,7 +2,7 @@
 id: android.design_pattern.builder
 title: Builder Pattern
 summary: Builder Pattern là creational design pattern tách việc cấu hình một object nhiều tham số khỏi việc tạo ra nó, bằng một object builder thu thập từng tham số qua các bước có tên rồi kiểm tra và tạo object cuối trong build(). Bài giải thích cấu trúc builder, các builder có sẵn trong Android, vì sao named/default arguments và DSL của Kotlin làm builder ít cần hơn, và khi nào vẫn nên tự viết builder.
-status: reviewing
+status: published
 difficulty: beginner
 depth: standard
 estimated_reading_time: 15 phút

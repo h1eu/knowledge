@@ -2,7 +2,7 @@
 id: android.jetpack.viewmodel
 title: ViewModel
 summary: ViewModel là object giữ state và logic của một màn hình, được cất trong ViewModelStore của một ViewModelStoreOwner (Activity, Fragment, navigation destination), nên sống qua configuration change và chỉ bị clear khi owner kết thúc thật sự. Bài giải thích ViewModelProvider lấy lại đúng instance thế nào, vì sao ViewModel sống qua xoay màn hình nhưng mất khi process chết, vòng đời và onCleared, chọn scope, viết factory với CreationExtras, và cách tải dữ liệu đúng chỗ.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 24 phút

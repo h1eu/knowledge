@@ -2,7 +2,7 @@
 id: android.jetpack.paging
 title: Paging
 summary: Paging (Paging 3) là thư viện Jetpack tải và hiển thị một tập dữ liệu lớn theo từng trang, đúng lúc người dùng cuộn tới. PagingSource biết cách tải một trang theo key, Pager biến nó thành luồng Flow<PagingData> được cache trong ViewModel, còn UI chỉ hiển thị và báo vị trí đang xem.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 17 phút

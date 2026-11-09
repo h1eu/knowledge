@@ -2,7 +2,7 @@
 id: android.design_pattern.di.koin
 title: Koin
 summary: Koin là framework Dependency Injection viết bằng Kotlin thuần, trong đó các definition (cách tạo một kiểu và tuổi thọ của nó) được khai báo trong module bằng DSL Kotlin hoặc annotation, nạp vào một container lúc app khởi động, và được tra cứu theo kiểu để tạo instance lúc chạy. Bài giải thích module với single, factory, viewModel, cách lấy dependency trên Android, kiểm tra cấu hình bằng verify() và Koin Compiler Plugin, ba cách khai báo, dùng chung module trong Kotlin Multiplatform, và so sánh với Hilt.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 15 phút

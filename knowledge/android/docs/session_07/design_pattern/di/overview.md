@@ -2,7 +2,7 @@
 id: android.design_pattern.di.overview
 title: Dependency Injection Overview
 summary: Dependency Injection (DI) là kỹ thuật trong đó một class nhận các object nó cần (dependency) từ bên ngoài, qua constructor, field hoặc method, thay vì tự tạo hay tự đi tìm chúng; việc tạo và nối các object được dồn về một nơi duy nhất gọi là composition root. Bài giải thích ba cách inject, DI khác Service Locator ở đâu, manual DI bằng container, scope và vòng đời object, quan hệ với DIP, và so sánh Dagger, Hilt, Koin, Kodein.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 13 phút

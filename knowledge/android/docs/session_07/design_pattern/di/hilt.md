@@ -2,7 +2,7 @@
 id: android.design_pattern.di.hilt
 title: Hilt
 summary: Hilt là thư viện Dependency Injection chuẩn cho Android, xây trên Dagger; nó định nghĩa sẵn một cây component gắn với vòng đời của Application, Activity, ViewModel, Fragment, Service, và sinh code Dagger lúc build để tạo và đưa dependency vào cả những class mà hệ thống Android khởi tạo thay bạn. Bài giải thích điểm vào (@HiltAndroidApp, @AndroidEntryPoint), binding bằng @Inject, @Provides, @Binds với @InstallIn, component và scope chuẩn, @HiltViewModel, assisted injection cho ViewModel và Worker, và cách thay binding trong test.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 18 phút
