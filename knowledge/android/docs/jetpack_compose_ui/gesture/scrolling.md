@@ -1,11 +1,11 @@
 ---
 id: android.jetpack_compose.gesture.scrolling
 title: Scrolling
-summary: Scrolling trong Compose là việc biến các delta của cú kéo và fling thành vị trí cuộn lưu trong một scroll state; các container cuộn lồng nhau chia nhau từng delta qua hệ thống nested scroll. Bài cũng là nơi tổng quan về gesture trong Compose (ba tầng component → gesture modifier → pointerInput, hit-testing, ba pass và consume), rồi đi qua verticalScroll/horizontalScroll, Modifier.scrollable, NestedScrollConnection và toolbar thu gọn bằng TopAppBarScrollBehavior.
-status: reviewing
+summary: Scrolling trong Compose là việc biến các delta của cú kéo và fling thành vị trí cuộn lưu trong một scroll state; khi có nhiều container cuộn lồng nhau, mỗi delta được chia giữa chúng qua hệ thống nested scroll. Bài cũng là nơi tổng quan về gesture trong Compose (ba tầng xử lý, hit-testing, ba pass và consume).
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 17 phút
+estimated_reading_time: 20 phút
 tags: [android, compose, session-09, gesture, scrolling, nested-scroll, pointer-input]
 prerequisites: [android.jetpack_compose.compose_overview, android.jetpack_compose.state.mutable_state]
 related: [android.jetpack_compose.lazy.lazy_column, android.jetpack_compose.gesture.dragging, android.jetpack_compose.gesture.swiping, android.jetpack_compose.gesture.zooming]
@@ -172,7 +172,7 @@ fun VoiceRecordButton(
 - `scrollTo(px)`, `animateScrollTo(px)`: hàm `suspend`, gọi trong `rememberCoroutineScope`/`LaunchedEffect` ([9.3.1 LaunchedEffect](../side_effects/launched_effect.md)).
 - `rememberScrollState()` lưu vị trí bằng `rememberSaveable`, xoay màn hình vẫn giữ chỗ đang đọc ([9.2.2 rememberSaveable](../state/remember_saveable.md)).
 
-Hai hệ quả về đo đạc: container có `verticalScroll` đo con với **chiều cao tối đa vô hạn**, nên không được đặt bên trong một container cuộn cùng hướng như `LazyColumn` (crash). Và nó compose **toàn bộ** con; danh sách dài thì dùng `LazyColumn` ([9.5.4 LazyColumn](../modifier/lazy_column.md)). Thứ tự `.verticalScroll().padding()` hay ngược lại quyết định padding cuộn theo nội dung hay đứng yên ([9.5.1 Thứ tự Modifier](../modifier/modifier_order.md)).
+Hai hệ quả về đo đạc: container có `verticalScroll` đo con với **chiều cao tối đa vô hạn**, nên con của nó không được là một container cuộn cùng hướng như `LazyColumn` (crash, xem Sai lầm 1); ngược lại, đặt `verticalScroll` bên trong item của `LazyColumn` cũng crash vì chính nó nhận chiều cao vô hạn. Và nó compose **toàn bộ** con; danh sách dài thì dùng `LazyColumn` ([9.5.4 LazyColumn](../modifier/lazy_column.md)). Thứ tự `.verticalScroll().padding()` hay ngược lại quyết định padding cuộn theo nội dung hay đứng yên ([9.5.1 Thứ tự Modifier](../modifier/modifier_order.md)).
 
 #### Ví dụ: chỉ bật nút "Đồng ý" khi đã đọc hết điều khoản
 
@@ -235,9 +235,9 @@ fun TermsScreen(termsText: String, onAccept: () -> Unit) {
 
 - `delta` là độ dịch của ngón tay (pixel): kéo xuống/sang phải dương, kéo lên âm.
 - Lambda phải **trả về lượng delta đã tiêu**; phần không tiêu được chuyển cho cha qua nested scroll.
-- Lambda chạy cho cả kéo, fling và cuộn bằng code (`scrollBy`, `animateScrollBy`); fling dừng khi nó trả 0.
+- Lambda chạy cho cả kéo, fling và cuộn bằng code (`scrollBy`, `animateScrollBy`). Fling mặc định dừng sớm khi cả chuỗi (lambda và các cha nhận phần dư) không tiêu hết delta của frame đó.
 
-Dùng `scrollable` khi thứ đổi theo cú kéo **không phải vị trí nội dung**: giá trị núm vặn, kích thước header. Tự dựng một container cuộn thật thì các bản Compose gần đây có `Modifier.scrollableArea`, xây trên `scrollable`, lo sẵn đảo dấu delta, cắt nội dung và overscroll.
+Dùng `scrollable` khi thứ đổi theo cú kéo **không phải vị trí nội dung**: giá trị núm vặn, kích thước header. Tự dựng một container cuộn thật thì từ Foundation 1.10 có `Modifier.scrollableArea`, lo sẵn việc cắt nội dung theo biên và tự xử lý hướng cuộn theo `Orientation`, RTL và `reverseScrolling`.
 
 #### Ví dụ: vuốt dọc trên thẻ để chỉnh nhiệt độ điều hoà
 
@@ -248,7 +248,7 @@ Dùng `scrollable` khi thứ đổi theo cú kéo **không phải vị trí nộ
 1. `scrollable` phát hiện kéo dọc và gọi lambda với `delta` theo pixel.
 2. Đổi delta sang độ (24 dp kéo = 1 °C), đảo dấu vì kéo lên (delta âm) phải tăng nhiệt, rồi giới hạn trong 16–30.
 3. Trả về **đúng phần delta đã dùng**: `(cũ − mới) × pxPerDegree`. Đã ở 30 °C mà vẫn vuốt lên thì trả 0.
-4. Phần không dùng đi lên cha qua post-scroll: màn hình chứa thẻ cuộn tiếp. Khi thả tay có vận tốc, fling tiếp tục gọi lambda cho tới khi nó trả 0.
+4. Phần không dùng đi lên cha qua post-scroll: màn hình chứa thẻ cuộn tiếp. Khi thả tay có vận tốc, mỗi frame fling đi qua đúng chu trình này: lambda tiêu trước, phần dư lên cha.
 
 ```mermaid
 flowchart TD
@@ -327,7 +327,7 @@ sequenceDiagram
 Để một composable cha tham gia chu trình, gắn `Modifier.nestedScroll(connection)` vào nó. `NestedScrollConnection` có bốn callback ứng với bốn giai đoạn, đều mặc định "không lấy gì": `onPreScroll(available, source)`, `onPostScroll(consumed, available, source)` trả `Offset`; `onPreFling(available)`, `onPostFling(consumed, available)` là hàm `suspend` trả `Velocity`.
 
 - `available` là ngân sách còn lại; `consumed` là phần các giai đoạn trước đã dùng. Giá trị trả về là phần **bạn** tiêu, cùng dấu với `available`.
-- `NestedScrollSource` là `UserInput` (ngón tay, chuột) hay `SideEffect` (fling, cuộn bằng code); hai tên này thay `Drag`/`Fling` cũ từ khoảng Compose 1.7.
+- `NestedScrollSource` là `UserInput` (ngón tay, chuột, bàn phím) hay `SideEffect` (fling, animation, cuộn bằng code); hai tên này thay `Drag`/`Fling` cũ từ Compose 1.7 (09/2024).
 - Connection chỉ nhận delta từ **con cháu** của composable mang modifier. `Box`/`Column` không tự sinh delta nếu không có modifier cuộn.
 - `NestedScrollDispatcher` dùng khi bạn tự tạo delta mới và muốn khởi động chu trình; container cuộn có sẵn đã có dispatcher bên trong.
 
@@ -451,7 +451,7 @@ sequenceDiagram
 
 ```kotlin
 // NewsListScreen.kt
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class) // cần tới Material 3 1.4; từ 1.5 các API này đã stable
 @Composable
 fun NewsListScreen(
     articles: List<Article>,
@@ -535,16 +535,18 @@ Connection chỉ nhận delta từ con cháu. Gắn `nestedScroll(scrollBehavior
 ## Lịch sử phát triển
 
 - **Compose 1.0 (07/2021)**: đã có `verticalScroll`, `scrollable`, `nestedScroll` với `NestedScrollConnection`/`Dispatcher`, và `pointerInput` với `detect*Gestures`. "Container cuộn nào cũng tham gia nested scroll" có từ đầu, khác View system nơi `NestedScrollingChild` là tuỳ chọn.
-- **Material 3 Compose 1.0 (2022)**: `TopAppBarScrollBehavior` (`pinned`, `enterAlways`, `exitUntilCollapsed`) thay tổ hợp `CoordinatorLayout` + `AppBarLayout`; API top app bar vẫn mang `@ExperimentalMaterial3Api` ở nhiều bản. `rememberNestedScrollInteropConnection()` phục vụ giai đoạn chuyển dần từ XML.
-- **Khoảng Compose 1.5–1.7**: các gesture modifier có sẵn lần lượt được viết lại trên `Modifier.Node` ([9.5.3 composed](../modifier/composed.md)); `NestedScrollSource.Drag`/`Fling` được thay bằng `UserInput`/`SideEffect` vì delta không chỉ đến từ ngón tay.
-- **Các bản gần đây**: `Modifier.scrollableArea` làm khối xây dựng cho container cuộn tuỳ chỉnh.
+- **Material 3 Compose 1.0 (10/2022)**: `TopAppBarScrollBehavior` (`pinned`, `enterAlways`, `exitUntilCollapsed`) thay tổ hợp `CoordinatorLayout` + `AppBarLayout`, nhưng mang `@ExperimentalMaterial3Api` tới hết Material 3 1.4. `rememberNestedScrollInteropConnection()` phục vụ giai đoạn chuyển dần từ XML.
+- **Compose 1.5 (08/2023)**: `clickable`, `draggable`, `scrollable` và nhiều modifier nền tảng được viết lại trên `Modifier.Node` ([9.5.3 composed](../modifier/composed.md)), giảm chi phí composition lần đầu.
+- **Compose 1.7 (09/2024)**: `NestedScrollSource.Drag`/`Fling` được thay bằng `UserInput`/`SideEffect` vì delta không chỉ đến từ ngón tay mà còn từ chuột, bàn phím và animation.
+- **Foundation 1.10 (12/2025)**: thêm `Modifier.scrollableArea` làm khối xây dựng cho container cuộn tuỳ chỉnh.
+- **Material 3 1.5 (đang ở bản rc, 11/2026)**: `TopAppBarScrollBehavior` và các API liên quan thành stable, không cần opt-in; `pinnedScrollBehavior`/`enterAlwaysScrollBehavior` có overload nhận `ScrollableState`.
 
 ## Kết nối hệ thống
 
 - **Prerequisites**: [9.0 Jetpack Compose Overview](../overview.md) (ba phase, nền của "đọc state ở layout phase"), [9.2.1 Mutable State](../state/mutable_state.md).
 - **Related**: [9.5.4 LazyColumn](../modifier/lazy_column.md) (container cuộn cho danh sách), [9.5.5 LazyRow](../modifier/lazy_row.md), [9.3.1 LaunchedEffect](../side_effects/launched_effect.md) (`rememberCoroutineScope`), [9.4.2 Custom Theme](../theming/custom_theme.md) (CompositionLocal, `LocalDensity`).
 - **Học tiếp trong 9.8**: [9.8.2 Dragging](dragging.md) (kéo theo ngón tay), [9.8.3 Swiping](swipping.md) (kéo rồi settle về vị trí cố định), [9.8.4 Zooming](zooming.md) (pinch-zoom, xung đột với pager).
-- **Session sau**: 10.2 Unit Testing (chưa có bài) cho UI test gesture bằng `performTouchInput`.
+- **Session sau**: [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md) cho nền tảng test tự động; UI test gesture của Compose bằng `performTouchInput` chưa có bài trong repo.
 
 ## Tham khảo
 

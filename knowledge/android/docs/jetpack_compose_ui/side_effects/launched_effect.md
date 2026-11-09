@@ -1,13 +1,13 @@
 ---
 id: android.jetpack_compose.side_effects.launched_effect
 title: LaunchedEffect
-summary: Side effect trong Compose là thay đổi trạng thái của app xảy ra ngoài phạm vi một composable (hiện Snackbar, cuộn danh sách, ghi log, gọi object không do Compose quản lý); effect API chạy nó vào thời điểm có kiểm soát theo vòng đời composition. LaunchedEffect(key) là effect khởi chạy một coroutine khi vị trí gọi vào composition, huỷ nó khi rời composition, huỷ rồi chạy lại khi key đổi. Bài là nơi dạy khái niệm side effect và bảng chọn effect API, cùng rememberUpdatedState, rememberCoroutineScope và SideEffect.
-status: reviewing
+summary: LaunchedEffect(key) là effect composable khởi chạy một coroutine khi vị trí gọi vào composition, huỷ nó khi rời composition, và huỷ rồi chạy lại khi key đổi; nó là cách chạy side effect (thay đổi trạng thái của app ngoài phạm vi một composable) cần hàm suspend vào thời điểm có kiểm soát. Bài cũng là nơi dạy khái niệm side effect, bảng chọn effect API, rememberUpdatedState, rememberCoroutineScope và SideEffect.
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 17 phút
+estimated_reading_time: 20 phút
 tags: [android, compose, session-09, side-effects, launched-effect, coroutines, remember-updated-state, remember-coroutine-scope]
-prerequisites: [android.jetpack_compose.compose_overview, android.jetpack_compose.remember_recomposition, android.jetpack_compose.state.mutable_state]
+prerequisites: [android.jetpack_compose.compose_overview, android.jetpack_compose.remember_recomposition, android.jetpack_compose.state.mutable_state, android.async.coroutines]
 related: [android.jetpack_compose.side_effects.disposable_effect, android.jetpack_compose.side_effects.produce_state, android.jetpack_compose.side_effects.derived_state_of, android.jetpack_compose.side_effects.snapshot_flow, android.jetpack.viewmodel, android.architecture.mvvm]
 learning_outcomes:
   - Giải thích được side effect trong Compose là gì, vì sao không được đặt trong thân composable, và effect API chạy nó vào thời điểm nào.
@@ -96,11 +96,11 @@ flowchart TD
     Q1 -->|"Sau mỗi lần composition thành công"| SE["SideEffect"]
 ```
 
-Coroutine dùng trong bài là **kiến thức dùng trước**: coroutine là cách viết code bất đồng bộ tuần tự bằng hàm `suspend`, được học ở 8.4.3 Coroutines (chưa có bài). Bài chỉ dùng `delay`, `launch` và việc coroutine có thể bị huỷ.
+Bài dùng coroutine (một phép tính có thể tạm dừng ở các điểm `suspend` mà không chặn thread) theo định nghĩa ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md); `launch`, `delay`, `withContext` và việc huỷ coroutine không giải thích lại ở đây.
 
 ### Vòng đời coroutine của LaunchedEffect
 
-LaunchedEffect có ba sự kiện, ứng với ba câu trong định nghĩa:
+LaunchedEffect có bốn trường hợp, ứng với các vế trong định nghĩa:
 
 1. **Vào composition:** lần đầu lời gọi `LaunchedEffect(key)` xuất hiện trong composition và composition đó được áp thành công, Compose `launch` một coroutine chạy khối code.
 2. **Recompose với key bằng key cũ** (so bằng `equals`): không làm gì, coroutine cũ chạy tiếp. Đây là trường hợp thường gặp nhất: màn hình recompose hàng chục lần, effect không bị đụng tới.
@@ -189,7 +189,7 @@ Key trả lời câu hỏi: **khi nào effect này coi như là một effect kh�
 - Biến tạo bằng `remember { }` không key thì không bao giờ đổi trong composition, không cần đưa vào key.
 - Có thể truyền nhiều key: `LaunchedEffect(orderId, userId) { }`; đổi bất kỳ key nào là khởi động lại.
 - Key hằng (`Unit`, `true`) nghĩa là effect **theo đúng vòng đời của vị trí gọi**: chạy một lần khi vào, huỷ khi rời. Docs cảnh báo `LaunchedEffect(true)` đáng ngờ như `while (true)`: dùng được, nhưng phải dừng lại kiểm tra đó có đúng là điều mình cần.
-- Không có overload không key: `LaunchedEffect { }` là lỗi biên dịch, chính để buộc bạn nghĩ về key.
+- `LaunchedEffect { }` không key là lỗi biên dịch: overload này chỉ tồn tại với `@Deprecated(level = DeprecationLevel.ERROR)`, chính để buộc bạn nghĩ về key.
 
 Key thiếu thì effect **chạy với dữ liệu cũ**; key thừa (đổi thường xuyên hơn cần) thì effect **khởi động lại liên tục**, có thể không bao giờ chạy xong.
 
@@ -243,7 +243,7 @@ fun ResendCodeButton(onResend: () -> Unit, modifier: Modifier = Modifier) {
 }
 ```
 
-**Kết quả:** nút đếm từ 59 về 0 rồi bật; bấm thì đếm lại từ 60. Rời màn OTP giữa chừng thì coroutine bị huỷ. Xoay màn hình thì đếm lại từ 60 vì effect chạy lại trong composition mới; muốn giữ số giây thì dùng [rememberSaveable](../state/remember_saveable.md) hoặc đưa đồng hồ vào ViewModel. Kiểm chứng bằng UI test: `composeTestRule.mainClock.advanceTimeBy(60_000)` rồi kiểm tra nút đã bật.
+**Kết quả:** nút đếm từ 60 về 0 rồi bật; bấm thì đếm lại từ 60. Rời màn OTP giữa chừng thì coroutine bị huỷ. Xoay màn hình thì đếm lại từ 60 vì effect chạy lại trong composition mới; muốn giữ số giây thì dùng [rememberSaveable](../state/remember_saveable.md) hoặc đưa đồng hồ vào ViewModel. Kiểm chứng bằng UI test: `composeTestRule.mainClock.advanceTimeBy(60_000)` rồi kiểm tra nút đã bật.
 
 ### rememberUpdatedState: giá trị mới nhất mà không khởi động lại
 
@@ -554,8 +554,8 @@ LaunchedEffect(Unit) { viewModel.loadOrders() }
 
 - **2019–2020 (dev, alpha):** API side effect đầu tiên mang tên `onCommit`, `onActive`, `onDispose`, `launchInComposition`; tên không nói rõ khi nào effect chạy lại.
 - **Cuối 2020 (alpha):** đổi sang bộ API hiện nay `SideEffect`, `DisposableEffect`, `LaunchedEffect` (một thời gian ngắn mang tên `LaunchedTask`), với quy ước key quyết định khi nào khởi động lại; `rememberUpdatedState` và `rememberCoroutineScope` ra đời cho hai trường hợp key không giải quyết được.
-- **07/2021 (Compose 1.0):** bộ API ổn định. Overload không key của LaunchedEffect và DisposableEffect là lỗi biên dịch (từ khoảng giai đoạn beta).
-- **2023–2024:** Lifecycle 2.7.0 thêm effect theo lifecycle (`LifecycleStartEffect`, `LifecycleResumeEffect`, `LifecycleEventEffect`), học ở [DisposableEffect](disposable_effect.md).
+- **07/2021 (Compose 1.0):** bộ API ổn định. Overload không key của LaunchedEffect và DisposableEffect là lỗi biên dịch.
+- **01/2024 (Lifecycle 2.7.0, alpha từ 07/2023):** thêm effect theo lifecycle (`LifecycleStartEffect`, `LifecycleResumeEffect`, `LifecycleEventEffect`), học ở [DisposableEffect](disposable_effect.md).
 
 ## Kết nối hệ thống
 
@@ -563,14 +563,14 @@ LaunchedEffect(Unit) { viewModel.loadOrders() }
   - [Jetpack Compose Overview](../overview.md): composition, recomposition và vì sao composable có thể chạy lại bất kỳ lúc nào.
   - [Remember và Recomposition](../remember_and_recomposition.md): `remember(key)` và slot table, cùng cơ chế với key của effect.
   - [MutableState và State Hoisting](../state/mutable_state.md): state mà effect đọc và ghi.
+  - [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md): `launch`, huỷ coroutine, dispatcher và `withContext`.
 - **Liên quan:**
   - [DisposableEffect](disposable_effect.md), [produceState](produce_state.md), [derivedStateOf](derived_state_of.md), [snapshotFlow](flow_with_snapshot.md): các dòng còn lại của bảng chọn.
   - [ViewModel](../../session_06/viewmodel.md) và [MVVM](../../session_07/architecture/mvvm.md): nơi đặt việc không thuộc UI, và mẫu event thành state mà ví dụ Snackbar dựa vào.
   - [rememberSaveable](../state/remember_saveable.md): giữ state mà effect dùng qua xoay màn hình.
 - **Học tiếp:**
   - [DisposableEffect](disposable_effect.md): effect có bước dọn dẹp.
-  - 8.4.3 Coroutines (chưa có bài): `launch`, huỷ coroutine, dispatcher.
-  - 10.2 Unit Testing (chưa có bài): test UI Compose với `mainClock`.
+  - [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md): test tự động (test UI Compose với `mainClock` chưa có bài riêng).
 
 ## Tham khảo
 

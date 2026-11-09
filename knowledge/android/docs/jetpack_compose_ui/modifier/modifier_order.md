@@ -2,13 +2,13 @@
 id: android.jetpack_compose.modifier.order
 title: Modifier Order
 summary: Modifier là một chuỗi bất biến, có thứ tự, gồm các Modifier.Element; mỗi phần tử bọc phần còn lại của chuỗi cùng layout node, nên chuỗi được áp từ ngoài (trái) vào trong (phải). Bài giải thích vì sao thứ tự đổi kết quả ở cả ba mặt đo, vẽ và nhận chạm: constraints truyền từ trái sang phải còn kích thước đi ngược lại, padding trước hay sau background, clickable trước hay sau padding, size với fillMaxWidth, clip trước background.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 17 phút
+estimated_reading_time: 19 phút
 tags: [android, compose, session-09, modifier, modifier-order, constraints, layout]
 prerequisites: [android.jetpack_compose.compose_overview, android.languages.kotlin]
-related: [android.jetpack_compose.modifier.chaining, android.jetpack_compose.modifier.composed, android.jetpack_compose.layout_and_view, android.jetpack_compose.graphics.surface_canvas]
+related: [android.jetpack_compose.modifier.chaining, android.jetpack_compose.modifier.composed, android.jetpack_compose.layout_and_view, android.jetpack_compose.graphics.surface_canvas, android.view_layout.layouts]
 learning_outcomes:
   - Giải thích được Modifier là chuỗi bất biến các Modifier.Element, mỗi phần tử bọc phần còn lại của chuỗi và layout node, nên được áp từ ngoài vào trong.
   - Giải thích được cách constraints truyền từ trái sang phải trong chuỗi và kích thước đi ngược lại, qua các tổ hợp size, padding, fillMaxWidth, requiredSize, wrapContentSize.
@@ -189,7 +189,7 @@ fun UserHeader(user: User, modifier: Modifier = Modifier) {
 
 `Image`, `painterResource`, `ContentScale` học ở 9.6 [Layout and View](../layout_and_view.md).
 
-**Kết quả:** mở Layout Inspector (Android Studio → Tools → Layout Inspector), chọn node `Image`: kích thước hiển thị là 56 x 56dp và vị trí lệch 4dp so với `Row`. Có thể khoá hành vi này bằng UI test Compose (học ở 10.2 Unit Testing, chưa có bài): `composeTestRule.onNodeWithTag("avatar").assertWidthIsEqualTo(56.dp)`. Đổi thứ tự hai modifier, test báo 48dp.
+**Kết quả:** mở Layout Inspector (Android Studio → Tools → Layout Inspector), chọn node `Image`: kích thước hiển thị là 56 x 56dp và vị trí lệch 4dp so với `Row`. Có thể khoá hành vi này bằng UI test Compose (`createComposeRule`; UI test Compose chưa có bài riêng, nền tảng test ở [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md)): `composeTestRule.onNodeWithTag("avatar").assertWidthIsEqualTo(56.dp)`. Đổi thứ tự hai modifier, test báo 48dp.
 
 ### Vẽ: lớp ngoài vẽ trước, mỗi lớp vẽ bằng kích thước phần bên trong nó
 
@@ -323,7 +323,7 @@ Cách tự viết một node như vậy là nội dung của [9.5.3 Composed Mod
 Ba bài toán thường gặp, đều giải bằng cách đặt đúng thứ tự:
 
 1. **Thẻ sản phẩm bấm được, bo góc, có khoảng cách với thẻ bên cạnh** (code đầy đủ bên dưới).
-2. **Ảnh đại diện tròn có viền:** `Modifier.size(48.dp).clip(CircleShape).border(2.dp, Color.White, CircleShape)`. `border` phải nhận cùng `CircleShape`; thiếu shape, nó vẽ viền chữ nhật và bị `clip` cắt còn bốn đoạn cong.
+2. **Ảnh đại diện tròn có viền:** `Modifier.size(48.dp).clip(CircleShape).border(2.dp, Color.White, CircleShape)`. `border` phải nhận cùng `CircleShape`; thiếu shape, nó vẽ viền chữ nhật và bị `clip` cắt chỉ còn bốn đoạn ngắn ở giữa bốn cạnh.
 3. **Icon nhỏ nhưng vùng chạm đủ 48dp:** icon xoá 20dp trong ô nhập liệu dùng `Modifier.clickable(onClick = onClear).padding(14.dp).size(20.dp)`: vùng bấm 48dp, icon 20dp. Đảo `padding` lên trước thì vùng bấm chỉ còn 20dp. `IconButton` của Material đã xử lý sẵn việc này.
 
 ### Thẻ sản phẩm trong lưới
@@ -442,14 +442,14 @@ Ngữ nghĩa thứ tự **không đổi** qua các mốc trên: chỉ cách hi�
 
 - **Prerequisites:**
   - [Jetpack Compose Overview](../overview.md) — composable, ba phase Composition → Layout → Drawing.
-  - `android.languages.kotlin` — extension function, infix function, object companion.
+  - [1.1.2 Kotlin](../../session_01/languages/kotlin.md) — ngôn ngữ của ví dụ; bài dùng extension function, infix function và companion object của Kotlin.
 - **Related (Session 09):**
   - [9.5.2 Chaining](chaining.md) — nối chuỗi bằng `then`, quy ước tham số `modifier`, modifier theo scope (`weight`, `align`).
   - [9.5.3 Composed Modifier](composed.md) — tự viết modifier, `Modifier.Node`.
   - 9.6 [Layout and View](../layout_and_view.md) — `Row`/`Column`/`Box`, mô hình đo một lần, `Arrangement`.
   - 9.7.1 [Surface and Canvas](../graphics_animations/surface_and_canvas.md) — `drawBehind`, `drawWithContent`, đọc state ở phase vẽ.
   - 9.8.1 [Scrolling](../gesture/scrolling.md) — tổng quan gesture; `verticalScroll` cũng là một lớp trong chuỗi và thứ tự với `padding` quyết định phần đệm cuộn theo hay đứng yên.
-- **Liên hệ View system:** 8.5.1 Layouts (chưa có bài) — box model của View mà Compose thay bằng thứ tự.
+- **Liên hệ View system:** [8.5.1 Layouts](../../session_08/view_layout/layouts.md) — box model của View (padding, margin, measure/layout) mà Compose thay bằng thứ tự.
 - **Học tiếp:** [9.5.2 Chaining](chaining.md).
 
 ## Tham khảo

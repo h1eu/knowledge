@@ -2,13 +2,13 @@
 id: android.jetpack_compose.theming.custom_theme
 title: Custom Theme (Dimens, Factories, Data)
 summary: Custom theme là lớp token riêng của app mà Material không có sẵn (màu trạng thái, khoảng cách, elevation...), được gói thành data class bất biến, đưa xuống cây composable bằng CompositionLocal và đọc qua một object như AppTheme.spacing, đặt cạnh hoặc thay cho MaterialTheme. Bài giải thích CompositionLocal (compositionLocalOf và staticCompositionLocalOf, CompositionLocalProvider, current), cách thiết kế theme data, hàm factory tạo theme theo brand, flavor, kích thước màn hình, và khi nào không nên dùng CompositionLocal.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 17 phút
+estimated_reading_time: 20 phút
 tags: [android, compose, session-09, theming, design-system, composition-local, dimens, white-label]
 prerequisites: [android.jetpack_compose.theming.material_theme, android.jetpack_compose.compose_overview]
-related: [android.jetpack_compose.remember_recomposition, android.jetpack_compose.layout_and_view, android.architecture.mvvm]
+related: [android.jetpack_compose.remember_recomposition, android.jetpack_compose.layout_and_view, android.architecture.mvvm, android.view_layout.design_guide]
 learning_outcomes:
   - Giải thích được CompositionLocal truyền giá trị ngầm theo nhánh cây composable thế nào, và vì sao current trả về giá trị của provider gần nhất phía trên.
   - Phân biệt được compositionLocalOf với staticCompositionLocalOf về phạm vi recomposition khi giá trị đổi, và chọn đúng loại cho từng token.
@@ -85,7 +85,7 @@ Ba thao tác:
 flowchart TD
     R["(1) AppTheme: LocalAppSpacing = AppSpacing chuẩn"] --> S["InboxScreen"]
     R --> C["ComposeScreen: spacing chuẩn"]
-    S --> B["(4) SearchBar: spacing chuẩn"]
+    S --> B["(4) SearchBarRow: spacing chuẩn"]
     S --> P{"(2) density == Compact?"}
     P -->|có| PC["CompositionLocalProvider(LocalAppSpacing provides CompactSpacing)"]
     P -->|không| L["danh sách dùng spacing chuẩn"]
@@ -140,7 +140,7 @@ fun EmailRow(email: Email, onClick: () -> Unit) {
 }
 ```
 
-`LazyColumn` và `items(key = ...)` học ở 9.5.4 Lazy Column; `Column`, `Text` ở [9.6 Layout and View](../layout_and_view.md).
+`LazyColumn` và `items(key = ...)` học ở [9.5.4 Lazy Column](../modifier/lazy_column.md); `Column`, `Text` ở [9.6 Layout and View](../layout_and_view.md).
 
 **Kết quả:** chuyển mật độ sang "gọn", danh sách hiện nhiều thư hơn trên một màn hình; thanh tìm kiếm và màn hình soạn thư không đổi. `EmailRow` không có tham số spacing nào: cùng một composable cho ra hai mật độ tuỳ nhánh cây mà nó nằm trong.
 
@@ -167,7 +167,7 @@ Cơ chế "chỉ chạy lại nơi đọc" chính là cơ chế recompose scope 
 
 1. `ArticleScreen` giữ `scale` (state) và cung cấp `LocalReadingScale provides scale`.
 2. Người dùng kéo thanh trượt, `scale` đổi.
-3. Với `compositionLocalOf`: Compose chỉ invalidate các composable đã đọc `LocalReadingScale.current`, tức `ArticleBody`. `ArticleCover` có tham số không đổi nên được skip.
+3. Với `compositionLocalOf`: ngoài `ArticleScreen` (tự đọc `scale`) và `Slider`, Compose chỉ invalidate các composable đã đọc `LocalReadingScale.current`, tức `ArticleBody`. `ArticleCover` có tham số không đổi nên được skip.
 4. Nếu đổi sang `staticCompositionLocalOf`: toàn bộ `content` của provider bị recompose, kể cả `ArticleCover`.
 
 ```mermaid
@@ -211,7 +211,7 @@ fun ArticleBody(paragraphs: List<String>) {
 }
 ```
 
-`mutableFloatStateOf` và `rememberSaveable` là kiến thức dùng trước, học ở 9.2.1 MutableState và 9.2.2 rememberSaveable.
+`mutableFloatStateOf` và `rememberSaveable` học ở [9.2.1 MutableState](../state/mutable_state.md) và [9.2.2 rememberSaveable](../state/remember_saveable.md).
 
 **Kết quả:** mở Layout Inspector, bật hiển thị recomposition counts rồi kéo thanh trượt: số lần recompose của `ArticleBody` tăng theo, của `ArticleCover` đứng yên. Đổi khai báo thành `staticCompositionLocalOf { 1f }` rồi kéo lại: `ArticleCover` cũng tăng. Ở đây chọn `compositionLocalOf` là đúng, vì giá trị đổi liên tục và chỉ một nhánh nhỏ đọc nó.
 
@@ -410,7 +410,7 @@ fun BankTheme(
 }
 ```
 
-`BankTypography` khai báo như `Type.kt` ở 9.4.1. `GreenBankPalette`, `BlueBankPalette` khai báo hai `ColorScheme` (sinh bằng Material Theme Builder như ở 9.4.1) và hai `AppColors`. `currentWindowAdaptiveInfo()` nằm trong artifact `androidx.compose.material3.adaptive:adaptive`; window size class được dùng ở đây vì nó dựa trên **kích thước cửa sổ** của app chứ không phải loại thiết bị, nên đúng cả khi chia đôi màn hình. `remember(keys)` giữ theme data qua recomposition và chỉ tạo lại khi điều kiện đổi (cơ chế ở 9.1).
+`BankTypography` khai báo như `Type.kt` ở 9.4.1. `GreenBankPalette`, `BlueBankPalette` khai báo hai `ColorScheme` (sinh bằng Material Theme Builder như ở 9.4.1) và hai `AppColors`. `currentWindowAdaptiveInfo()` nằm trong artifact `androidx.compose.material3.adaptive:adaptive`, còn `WindowSizeClass` và hằng số `WIDTH_DP_MEDIUM_LOWER_BOUND` (600dp) thuộc `androidx.window.core.layout`; window size class được dùng ở đây vì nó dựa trên **kích thước cửa sổ** của app chứ không phải loại thiết bị, nên đúng cả khi chia đôi màn hình. Bài này chỉ dùng nó để chọn token; dùng window size class cho quyết định bố cục cấp màn hình (một hay hai cột) thuộc [9.6 Layout and View](../layout_and_view.md). `remember(keys)` giữ theme data qua recomposition và chỉ tạo lại khi điều kiện đổi (cơ chế ở 9.1).
 
 **Kết quả:** `./gradlew assembleGreenbankDebug` và `assembleBluebankDebug` cho hai app khác màu từ cùng một code màn hình. Mở app trên emulator tablet hoặc kéo rộng cửa sổ trong chế độ chia đôi qua mốc 600dp: lề màn hình nới ra. Unit test gọi `bankThemeData(Brand.BlueBank, darkTheme = true, isWide = false)` và kiểm tra `colorScheme.primary` của brand, không cần thiết bị.
 
@@ -534,7 +534,7 @@ private fun TransactionRowSamples(brand: Brand) {
 }
 ```
 
-`Row`, `Arrangement.spacedBy`, `Surface` học ở [9.6 Layout and View](../layout_and_view.md) và 9.7.1; `Modifier.weight` ở 9.5.2.
+`Row`, `Arrangement.spacedBy`, `Surface` học ở [9.6 Layout and View](../layout_and_view.md) và [9.7.1 Surface and Canvas](../graphics_animations/surface_and_canvas.md); `Modifier.weight` ở [9.5.2 Chaining](../modifier/chaining.md).
 
 **Kết quả:** panel Preview hiện bốn tổ hợp brand × sáng/tối; mỗi chip đọc rõ trên nền của nó. Thêm Preview với `@Preview(device = Devices.TABLET)` để thấy spacing rộng. Không có một hằng số `dp` hay màu nào trong `TransactionRow`: đổi spacing chuẩn trong `AppSpacing` thì mọi màn hình đổi theo.
 
@@ -615,10 +615,10 @@ Dùng `staticCompositionLocalOf` cho giá trị đổi theo từng khung hình (
   - [9.1 Remember and Recomposition](../remember_and_recomposition.md): recompose scope, `@Immutable`/`@Stable` và skipping.
   - [9.6 Layout and View](../layout_and_view.md): `Row`, `Column`, `Text` dùng token spacing và typography.
   - [MVVM](../../session_07/architecture/mvvm.md): vì sao ViewModel đi xuống bằng state và lambda, không bằng CompositionLocal.
-  - 9.8 Gesture and Composition Local: nhóm mục này trong nav nhắc tới Composition Local; kiến thức được dạy tại bài này.
+  - 9.8 Gesture and Composition Local: nhóm mục này trong nav nhắc tới Composition Local nhưng không có bài riêng; kiến thức được dạy tại bài này, các bài 9.8.x (ví dụ [9.8.1 Scrolling](../gesture/scrolling.md)) chỉ nhắc và link về đây.
 - **Học tiếp:**
-  - 9.5.1 Modifier Order và 9.5.2 Chaining: dùng token spacing trong chuỗi modifier.
-  - 8.5.4 Design Guide (Materials, Flat) (chưa có bài): nguyên tắc thiết kế đứng sau design system.
+  - [9.5.1 Modifier Order](../modifier/modifier_order.md) và [9.5.2 Chaining](../modifier/chaining.md): dùng token spacing trong chuỗi modifier.
+  - [8.5.4 Design Guide](../../session_08/view_layout/design_guide.md): design token và nguyên tắc thiết kế đứng sau design system; bản View của white-label nhiều flavor.
 
 ## Tham khảo
 

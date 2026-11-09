@@ -2,13 +2,13 @@
 id: android.jetpack_compose.animation.transition_state
 title: MutableTransitionState
 summary: Transition là object điều phối một nhóm animation con cùng chạy theo một state đích; MutableTransitionState là TransitionState ghi được, tách currentState (trạng thái transition đã tới) khỏi targetState (đích muốn tới) và có isIdle cho biết animation đã xong. Bài giải thích updateTransition và rememberTransition, transition.animateFloat/animateDp/animateColor với transitionSpec, cách dùng MutableTransitionState để chạy animation ngay khi vào composition, biết khi nào animation kết thúc, dùng với AnimatedVisibility(visibleState) và khởi động lại transition.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 16 phút
+estimated_reading_time: 19 phút
 tags: [android, compose, session-09, animation, transition, mutable-transition-state, update-transition]
 prerequisites: [android.jetpack_compose.animation.animated_visibility, android.jetpack_compose.state.mutable_state]
-related: [android.jetpack_compose.animation.animated_content, android.jetpack_compose.side_effects.launched_effect, android.jetpack_compose.graphics.surface_canvas]
+related: [android.jetpack_compose.animation.animated_content, android.jetpack_compose.side_effects.launched_effect, android.jetpack_compose.graphics.surface_canvas, android.view_layout.animation]
 learning_outcomes:
   - Giải thích được cách Transition điều phối nhiều animation con theo một state đích, và vai trò của currentState, targetState trong đó.
   - Triển khai được nhiều thuộc tính animate đồng bộ bằng updateTransition kết hợp transition.animateFloat, animateDp, animateColor và transitionSpec theo từng cặp trạng thái.
@@ -123,7 +123,7 @@ fun PlanCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         border = BorderStroke(2.dp, borderColor),
-        tonalElevation = elevation
+        shadowElevation = elevation
     ) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -171,7 +171,7 @@ Truyền nó cho **`rememberTransition(transitionState, label)`** để có `Tra
 | Quan sát tiến trình | `transition.currentState`, `targetState`, `isRunning` | Như bên trái, cộng `isIdle` ngay trên state object |
 | Khởi động lại từ đầu | Không | Tạo `MutableTransitionState` mới |
 
-Trước Compose Animation 1.7, việc này làm bằng `updateTransition(transitionState: MutableTransitionState)`. Bản đó đã **deprecated**, tài liệu API hướng dẫn thay bằng `rememberTransition(transitionState, label)`.
+Trước Compose Animation 1.7, việc này làm bằng `updateTransition(transitionState: MutableTransitionState)`. `rememberTransition` xuất hiện ở 1.6 dưới dạng experimental (`@ExperimentalTransitionApi`) và ổn định từ 1.7; cũng từ 1.7, `updateTransition(MutableTransitionState)` bị **deprecated** với gợi ý thay bằng `rememberTransition(transitionState, label)`.
 
 #### Ví dụ: thẻ chào mừng bật lên khi mở màn hình
 
@@ -315,7 +315,7 @@ class NoticeViewModel : ViewModel() {
 }
 ```
 
-`onDismissed` được gọi trong `LaunchedEffect` chứ không gọi thẳng trong thân composable, vì gọi hàm có tác dụng phụ trong composition sẽ chạy lại mỗi lần recompose. `map`, `stateIn` là toán tử của Flow, học ở 7.1.4.2 Flow (chưa có bài).
+`onDismissed` được gọi trong `LaunchedEffect` chứ không gọi thẳng trong thân composable, vì gọi hàm có tác dụng phụ trong composition sẽ chạy lại mỗi lần recompose. `map`, `stateIn` là toán tử của Flow, học ở [7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md).
 
 **Kết quả:** gọi `show()` ba lần liên tiếp: ba thông báo lần lượt trượt xuống, đứng 3 giây, trượt lên; thông báo sau chỉ bắt đầu khi thông báo trước đã ra hết. Ghi log trong `onNoticeDismissed`: các mốc thời gian cách nhau khoảng 3 giây cộng thời lượng enter và exit, dù đổi spec cũng không cần sửa con số nào.
 
@@ -324,7 +324,7 @@ class NoticeViewModel : ViewModel() {
 Khi một component phức tạp có nhiều phần cùng phản ứng với một state, giữ **một** `Transition` và chia nó xuống:
 
 - **`transition.AnimatedVisibility(visible = { state -> … })`** và **`transition.AnimatedContent { state -> … }`**: phiên bản mở rộng của `Transition`. Enter, exit và size animation của chúng trở thành animation con của transition cha, nên `currentState == targetState` chỉ khi **mọi** phần đã xong.
-- **`transition.createChildTransition { state -> … }`**: tạo `Transition` con kiểu khác (thường `Boolean`) để truyền cho composable con, con chỉ cần biết "mình có đang hiện không", không cần biết toàn bộ enum của cha.
+- **`transition.createChildTransition { state -> … }`**: tạo `Transition` con kiểu khác (thường `Boolean`) để truyền cho composable con, con chỉ cần biết "mình có đang hiện không", không cần biết toàn bộ enum của cha. Tới bản ổn định 1.12, hàm này còn experimental (cần `@OptIn(ExperimentalTransitionApi::class)`); ghi chú phát hành 1.13 đưa nó lên stable.
 - **Gói giá trị vào một class:** tài liệu gợi ý một hàm `@Composable` tạo transition và trả về object chứa các `State` (màu, kích thước), để tách logic animation khỏi UI và dùng lại.
 
 Ví dụ, thêm dòng "Tiết kiệm 20%" chỉ hiện khi thẻ gói năm được chọn, như một phần của cùng transition `planSelection` ở mục 1:
@@ -338,10 +338,12 @@ transition.AnimatedVisibility(visible = { isSelected -> isSelected && plan.savin
 
 ## Deep Dive: rememberTransition và họ TransitionState
 
-`rememberTransition` nhận kiểu trừu tượng `TransitionState<S>`, không chỉ `MutableTransitionState`. Hiện có hai hiện thực:
+`rememberTransition` nhận kiểu trừu tượng `TransitionState<S>`, không chỉ `MutableTransitionState`. Hai hiện thực hay dùng:
 
 - **`MutableTransitionState`**: đích được gán, transition tự chạy tới đích theo `AnimationSpec`. Đây là trường hợp của bài này.
-- **`SeekableTransitionState`** (khoảng Compose Animation 1.7): tiến trình được **điều khiển từ bên ngoài** bằng `seekTo(fraction, targetState)`, hoặc chạy tiếp bằng `animateTo(targetState)`. Dùng khi transition đi theo cử chỉ, ví dụ cử chỉ predictive back kéo tới đâu thì animation chuyển màn hình tới đó. Các hàm này là `suspend`.
+- **`SeekableTransitionState`** (thêm ở Compose Animation 1.6 dạng experimental, ổn định từ 1.7): tiến trình được **điều khiển từ bên ngoài** bằng `seekTo(fraction, targetState)`, chạy tiếp bằng `animateTo(targetState)`, hoặc nhảy thẳng bằng `snapTo(targetState)`. Dùng khi transition đi theo cử chỉ, ví dụ cử chỉ predictive back kéo tới đâu thì animation chuyển màn hình tới đó. Các hàm này là `suspend`.
+
+Bản 1.12 còn có `DeferredTransitionState` (experimental) cho trường hợp giữ transition ở một pha điều khiển tay trước khi tự chạy tới đích; bài này không đi sâu.
 
 Hai điểm về vòng đời cần nhớ:
 
@@ -460,7 +462,7 @@ Bước (3) gán `targetState` ngay trong thân composable, giống mẫu `doubl
 - **Nên dùng `updateTransition`** khi nhiều thuộc tính của cùng một phần UI phụ thuộc vào cùng một state và cần bắt đầu cùng lúc, hoặc cần spec khác nhau theo chiều chuyển.
 - **Nên dùng `MutableTransitionState`** khi animation phải chạy ngay khi vào composition, khi cần biết lúc animation xong để làm bước kế tiếp, khi đổi đích từ ngoài composition, hoặc khi cần khởi động lại từ đầu.
 - **Không cần** cho một thuộc tính độc lập: `animate*AsState` đủ và ngắn hơn.
-- **Không nên** dựng logic nghiệp vụ dựa trên `isIdle` (ví dụ chỉ gửi request sau khi animation xong): animation có thể bị tắt trong cài đặt nhà phát triển hoặc bị ngắt; logic nghiệp vụ thuộc về ViewModel. Dùng `isIdle` cho việc của UI: hiện bước tiếp, gỡ phần tử.
+- **Không nên** dựng logic nghiệp vụ dựa trên `isIdle` (ví dụ chỉ gửi request sau khi animation xong): người dùng có thể rời màn hình giữa chừng, composable rời composition và `isIdle` không bao giờ được đọc; logic nghiệp vụ thuộc về ViewModel. Dùng `isIdle` cho việc của UI: hiện bước tiếp, gỡ phần tử.
 
 ## Sai lầm thường gặp
 
@@ -471,7 +473,7 @@ val appearState = MutableTransitionState(false).apply { targetState = true }   /
 val transition = rememberTransition(appearState, label = "appear")
 ```
 
-Mỗi lần recompose là một object mới, `rememberTransition` coi đó là yêu cầu khởi động lại: thẻ cứ giật về trạng thái đầu và không bao giờ tới đích. Sửa: bọc trong `remember { … }` (hoặc `remember(key)` khi cần một state cho mỗi đối tượng, như hàng đợi thông báo).
+Mỗi lần recompose là một object mới, `rememberTransition` coi đó là yêu cầu khởi động lại: animation giật về trạng thái đầu mỗi khi composable recompose vì bất kỳ lý do gì; nếu giá trị animation được đọc ngay trong composition (recompose mỗi frame), nó không bao giờ tới đích. Sửa: bọc trong `remember { … }` (hoặc `remember(key)` khi cần một state cho mỗi đối tượng, như hàng đợi thông báo).
 
 ### 2. Dùng `currentState` để biết nội dung "đang hiện"
 
@@ -483,7 +485,7 @@ Trong lúc enter đang chạy, `currentState` vẫn là `false`. Hiện nút "B�
 
 ### 4. Dùng `updateTransition(MutableTransitionState)`
 
-Code cũ hoặc bài viết cũ dùng `updateTransition(visibleState)`. Bản này deprecated từ Compose Animation 1.7 và IDE sẽ cảnh báo. Sửa: `rememberTransition(visibleState, label)`.
+Code cũ hoặc bài viết cũ dùng `updateTransition(visibleState)`. Bản này deprecated từ Compose Animation 1.7 và IDE sẽ cảnh báo kèm gợi ý thay thế. Sửa: `rememberTransition(visibleState, label)`.
 
 ### 5. Tạo object mới khi chỉ muốn đổi đích
 
@@ -495,9 +497,11 @@ Một `animateDpAsState` đặt cạnh các `transition.animate*` không thuộc
 
 ## Lịch sử phát triển
 
-- **Compose 1.0 (07/2021):** `Transition`, `updateTransition`, `MutableTransitionState` (cùng `currentState`, `targetState`, `isIdle`) và `AnimatedVisibility(visibleState)` có từ bản ổn định đầu tiên. Bản `updateTransition(MutableTransitionState)` là cách dùng state khởi đầu khác đích.
-- **Các bản 1.x:** `Transition.AnimatedVisibility`, `Transition.AnimatedContent`, `Transition.Crossfade` và `createChildTransition` cho phép gom animation của nhiều composable vào một transition; Android Studio có Animation Preview để xem và kéo thời gian của từng `Transition` theo `label`.
-- **Compose Animation 1.7 (2024):** thêm `rememberTransition(TransitionState)`; `updateTransition(MutableTransitionState)` bị deprecated và hướng dẫn chuyển sang `rememberTransition`. Khoảng cùng thời gian có `SeekableTransitionState` cho transition điều khiển theo tiến trình, phục vụ các cử chỉ như predictive back.
+- **Compose 1.0 (07/2021):** `Transition`, `updateTransition` và `MutableTransitionState` (cùng bản `updateTransition(MutableTransitionState)` cho state khởi đầu khác đích) có từ bản ổn định đầu tiên. `AnimatedVisibility` (kể cả overload `visibleState`) và `isIdle` lúc đó còn experimental.
+- **Compose Animation 1.1 (2022):** `AnimatedVisibility` và `MutableTransitionState.isIdle` ổn định. Các bản 1.x tiếp theo bổ sung `Transition.AnimatedVisibility`, `Transition.AnimatedContent`, `Transition.Crossfade` và `createChildTransition` để gom animation của nhiều composable vào một transition; Android Studio có Animation Preview để xem và kéo thời gian của từng `Transition` theo `label`.
+- **Compose Animation 1.6 (2024):** thêm `SeekableTransitionState` và `rememberTransition(TransitionState)`, cả hai còn experimental.
+- **Compose Animation 1.7 (09/2024):** `rememberTransition`, `SeekableTransitionState` và `Transition.AnimatedVisibility` ổn định; `updateTransition(MutableTransitionState)` bị deprecated, gợi ý chuyển sang `rememberTransition`.
+- **Compose Animation 1.13 (đang ở bản rc, 11/2026):** ghi chú phát hành đưa `Transition.Crossfade` và `createChildTransition` lên stable.
 
 ## Kết nối hệ thống
 
@@ -509,6 +513,7 @@ Một `animateDpAsState` đặt cạnh các `transition.animate*` không thuộc
   - [AnimatedContent](animated_content.md) — `Transition.AnimatedContent` gom chuyển nội dung vào cùng transition.
   - [Surface and Canvas](surface_and_canvas.md) — đọc giá trị animation trong `graphicsLayer` để không recompose.
   - [Dragging](../gesture/dragging.md) — `Animatable` cho animation theo cử chỉ.
+  - [8.5.6 Animation (View system)](../../session_08/view_layout/animation.md) — bài toán "biết khi animation xong" ở View system giải bằng listener kết thúc (`doOnEnd`, `withEndAction`).
 - **Học tiếp (theo nav):** [AnimatedContent](animated_content.md), [Crossfade](crossfade.md).
 
 ## Developer Curiosity Checklist
@@ -525,3 +530,4 @@ Một `animateDpAsState` đặt cạnh các `transition.animate*` không thuộc
 - [Animation modifiers and composables — Android Developers](https://developer.android.com/develop/ui/compose/animation/composables-modifiers)
 - [MutableTransitionState — API reference](https://developer.android.com/reference/kotlin/androidx/compose/animation/core/MutableTransitionState)
 - [updateTransition — API reference](https://developer.android.com/reference/kotlin/androidx/compose/animation/core/updateTransition.composable)
+- [Compose Animation release notes — AndroidX](https://developer.android.com/jetpack/androidx/releases/compose-animation)

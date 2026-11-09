@@ -2,10 +2,10 @@
 id: android.jetpack_compose.modifier.chaining
 title: Chaining
 summary: Chaining là việc ghép các modifier thành một chuỗi duy nhất bằng then, trong đó a.then(b) giữ nguyên thứ tự, a thành lớp ngoài và b thành lớp trong. Bài giải thích then và vì sao mọi modifier factory đều là this then một phần tử mới, quy ước tham số modifier: Modifier = Modifier, nối có điều kiện, tách chuỗi dùng lại thành biến hoặc extension, và modifier theo scope như weight, align, matchParentSize.
-status: reviewing
+status: published
 difficulty: beginner
 depth: standard
-estimated_reading_time: 12 phút
+estimated_reading_time: 14 phút
 tags: [android, compose, session-09, modifier, chaining, api-guidelines, reusable-component]
 prerequisites: [android.jetpack_compose.modifier.order, android.jetpack_compose.compose_overview]
 related: [android.jetpack_compose.modifier.composed, android.jetpack_compose.layout_and_view, android.jetpack_compose.lazy.lazy_column]
@@ -107,7 +107,7 @@ flowchart LR
         B1["clip"] --> B2["background"] --> B3["clickable"] --> B4["padding 16dp"]
     end
     A2 -->|"then"| B1
-    B4 --> R["Row nội dung"]
+    B4 --> R["nội dung của Row: Column + Icon"]
 ```
 
 **Code:**
@@ -135,7 +135,7 @@ fun PromoBanner(
             Text(title, style = MaterialTheme.typography.titleMedium)
             if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodySmall)
         }
-        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
+        Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null) // icon Material Symbols (9.6)
     }
 }
 

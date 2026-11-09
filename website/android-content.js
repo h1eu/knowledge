@@ -44970,14 +44970,14 @@ Object.assign(ANDROID_CONTENT, {
   'session-09-overview': {
     title: 'Session 09 Overview',
     summary: 'Tổng quan Session 09 — Jetpack Compose UI: cơ chế recomposition và remember, state và state hoisting, side-effect, theming, Modifier và lazy list, layout, đồ hoạ và animation, gesture. Vị trí của session trong lộ trình, mối liên hệ giữa các Topic, tiên quyết và thứ tự học.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '9 phút',
     depth: 'overview',
     tags: ['android', 'overview', 'session-09', 'compose', 'ui'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
-    prerequisites: ['android.jetpack.viewmodel', 'android.component.activity.state_changes', 'android.languages.kotlin'],
+    prerequisites: ['android.jetpack.viewmodel', 'android.component.activity.state_changes', 'android.languages.kotlin', 'android.design_pattern.observer.flow', 'android.async.coroutines'],
     related: ['android.jetpack_compose.compose_overview'],
     learningOutcomes: [
       'Giải thích được vị trí của Session 09 trong lộ trình và câu hỏi mà từng nhóm Topic (state, side-effect, theming, Modifier, lazy list, layout, animation, gesture) trả lời.',
@@ -44985,7 +44985,7 @@ Object.assign(ANDROID_CONTENT, {
       'Áp dụng được thứ tự học đề xuất dựa trên phụ thuộc giữa các Topic.'
     ],
     knowledgeGap: 'Học Compose theo từng API rời rạc khiến người học không thấy chúng cùng xoay quanh một vòng: state đổi → recompose → layout → draw. Kết quả là đặt state sai chỗ, gọi side-effect ngay trong thân composable, xếp Modifier sai thứ tự hoặc đọc state ở phase quá sớm, rồi kết luận "Compose chậm".',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '9 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -45200,7 +45200,7 @@ flowchart TB
   <li><a href="overview.md" target="_blank" rel="noopener">9.0 Jetpack Compose Overview</a>: đọc trước mọi bài khác trong session.</li>
   <li><a href="../session_06/viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a> và <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">7.2.3 MVVM</a>: UI state và luồng dữ liệu một chiều.</li>
   <li><a href="../session_04/components/activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>: configuration change và process death, nền của 9.2.2.</li>
-  <li>7.1.4.2 Flow (chưa có bài) và 8.4.3 Coroutines (chưa có bài): side-effect API và <code>collectAsStateWithLifecycle</code> dùng coroutine và Flow.</li>
+  <li><a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a> và <a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>: side-effect API và <code>collectAsStateWithLifecycle</code> dùng coroutine và Flow.</li>
 </ul>
 
 <h2>Sau khi học xong Session 09, bạn làm được gì?</h2>
@@ -45253,7 +45253,7 @@ flowchart LR
   'compose-recomposition': {
     title: 'Remember and Recomposition',
     summary: 'Recomposition là việc Compose chạy lại đúng những recompose scope đã đọc state vừa đổi; remember ghi nhớ một giá trị trong slot table theo vị trí gọi để giá trị đó sống qua các lần recomposition cho tới khi rời composition. Bài giải thích recompose scope và vì sao nơi đọc state quyết định phạm vi chạy lại, skipping và stability (@Stable, @Immutable, strong skipping), remember, remember(key), key {}, vì sao composable phải idempotent, và cách debug bằng Layout Inspector và compiler reports.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '20 phút',
     depth: 'deep-dive',
@@ -45384,7 +45384,7 @@ fun PlaybackProgress(positionMs: () -&gt; Long, durationMs: Long, modifier: Modi
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> phiên bản A, recomposition count của <code>PlayerScreen</code> tăng khoảng 5 lần mỗi giây; phiên bản B, nó đứng yên. Lambda <code>{ positionMs }</code> không làm <code>PlaybackProgress</code> chạy lại thừa vì với strong skipping, compiler tự <code>remember</code> lambda theo giá trị nó capture (object <code>State</code>, không đổi). Material 3 cho <code>LinearProgressIndicator</code> nhận <code>progress</code> dạng lambda cũng vì lý do này.</p>
+<p><strong>Kết quả:</strong> phiên bản A, recomposition count của <code>PlayerScreen</code> tăng 5 lần mỗi giây; phiên bản B, nó đứng yên. Lambda <code>{ positionMs }</code> không làm <code>PlaybackProgress</code> chạy lại thừa vì với strong skipping (mục 2), compiler tự <code>remember</code> lambda theo giá trị nó capture (object <code>State</code>, không đổi). <code>LinearProgressIndicator</code> của Material 3 nhận <code>progress</code> dạng lambda cũng vì lý do này.</p>
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Chỉ dùng lambda cho state <strong>đổi thường xuyên</strong> (vị trí phát, vị trí cuộn, giá trị animation) đang bị đọc ở scope quá cao. State đổi hiếm thì truyền giá trị thẳng cho dễ đọc.</div></div>
 
@@ -45423,7 +45423,7 @@ fun PlaybackProgress(positionMs: () -&gt; Long, durationMs: Long, modifier: Modi
   <li><strong><code>@Stable</code></strong>: object có thể đổi, nhưng mọi thay đổi của property public đều báo cho Compose (thường vì property là <code>MutableState</code>). <code>LazyListState</code> là ví dụ.</li>
 </ul>
 
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Annotation không làm class bất biến, nó chỉ là lời hứa, giống <code>!!</code>. Gắn <code>@Immutable</code> cho class có <code>MutableList</code> rồi sửa tại chỗ thì Compose so <code>equals</code>, thấy bằng, skip: UI <strong>không cập nhật</strong>. Docs hiện hành cũng khuyên <strong>không</strong> gắn annotation cho model chứa collection lớn, vì so <code>equals</code> từng phần tử mỗi lần recompose có thể tốn hơn chính việc recompose.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Annotation không làm class bất biến, nó chỉ là lời hứa, giống <code>!!</code>: hứa sai thì UI <strong>không cập nhật</strong> (Sai lầm 3). Docs strong skipping còn khuyên chỉ gắn annotation cho class có <code>equals()</code> rẻ, và cẩn thận với model chứa collection: so <code>equals</code> từng phần tử mỗi lần recompose có thể tốn hơn so <code>===</code> hay recompose luôn.</div></div>
 
 <p>Với strong skipping, câu hỏi thực tế là: <strong>khi dữ liệu về, object không đổi có giữ nguyên instance không?</strong> Nếu có, <code>===</code> đã đủ để skip.</p>
 
@@ -45467,7 +45467,7 @@ composeCompiler {
 
 <p><code>remember { calculation }</code> chạy <code>calculation</code> <strong>lần đầu</strong> mục đó vào composition và cất kết quả vào slot table tại vị trí của nó; <strong>các lần recompose sau</strong> trả lại giá trị đã cất, không chạy <code>calculation</code>.</p>
 
-<p>Vòng đời của một composable trong composition chỉ có ba sự kiện: <strong>vào composition → recompose 0 hoặc nhiều lần → rời composition</strong>. Giá trị <code>remember</code> sống đúng khoảng đó. Nó bị quên khi nhánh <code>if</code> chứa nó thành <code>false</code>, item chứa nó bị xoá, màn hình bị điều hướng ra khỏi composition, hoặc composition bị huỷ (Activity tạo lại khi xoay màn hình).</p>
+<p>Vòng đời của một composable chỉ có ba sự kiện: <strong>vào composition → recompose 0 hoặc nhiều lần → rời composition</strong>, và giá trị <code>remember</code> sống đúng khoảng đó. Nó bị quên khi nhánh <code>if</code> chứa nó thành <code>false</code>, item chứa nó bị xoá, màn hình rời composition, hoặc composition bị huỷ (Activity tạo lại khi xoay màn hình).</p>
 
 <p><code>remember</code> thường giữ hai loại giá trị: <strong>object tốn kém</strong> (<code>Collator</code>, <code>Brush</code>, kết quả tính toán) và <strong>state của phần tử UI</strong> (<code>remember { mutableStateOf(false) }</code> cho trạng thái mở rộng). <code>mutableStateOf</code> tạo <code>MutableState</code> mà Compose quan sát được, học ở <a href="state/mutable_state.md" target="_blank" rel="noopener">9.2.1 MutableState</a>. Vì ghi nhớ theo vị trí, mỗi lời gọi <code>ReviewCard(review)</code> có giá trị <code>remember</code> riêng.</p>
 
@@ -45515,7 +45515,7 @@ fun ReviewCard(review: Review) {
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> đúng như bước 4. Muốn giữ trạng thái mở rộng qua lần ẩn/hiện, state phải sống <strong>ngoài</strong> phần rời composition: đưa tập <code>id</code> đã mở rộng lên <code>ProductReviewsSection</code> (phía trên <code>if</code>) rồi truyền xuống <code>ReviewCard(review, expanded, onExpand)</code> — state hoisting ở <a href="state/mutable_state.md" target="_blank" rel="noopener">9.2.1 MutableState</a>. <code>rememberSaveable</code> <strong>không</strong> giải quyết được, vì nó cũng quên khi rời composition (<a href="state/remember_saveable.md" target="_blank" rel="noopener">9.2.2 Remember and rememberSaveable</a>).</p>
+<p><strong>Kết quả:</strong> đúng như bước 4. Muốn giữ trạng thái qua lần ẩn/hiện, state phải sống <strong>ngoài</strong> phần rời composition: đưa tập <code>id</code> đã mở rộng lên <code>ProductReviewsSection</code> (phía trên <code>if</code>) — state hoisting ở <a href="state/mutable_state.md" target="_blank" rel="noopener">9.2.1 MutableState</a>. <code>rememberSaveable</code> <strong>không</strong> giải quyết được, vì nó cũng quên khi rời composition (<a href="state/remember_saveable.md" target="_blank" rel="noopener">9.2.2</a>).</p>
 
 <h3>4. <code>remember(key)</code>: tính lại khi input đổi</h3>
 
@@ -45618,19 +45618,11 @@ fun DownloadRow(download: Download) {
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> bỏ <code>key</code> rồi thêm file vào đầu hàng đợi, trạng thái mở rộng "nhảy" sang file mới; có <code>key</code> thì nó đi theo đúng file. Với state khó thấy hơn (vị trí cuộn của <code>LazyRow</code> lồng bên trong, effect đang tải ảnh), lỗi này làm effect bị huỷ và chạy lại cho mọi dòng bị trượt.</p>
+<p><strong>Kết quả:</strong> bỏ <code>key</code> rồi thêm file vào đầu hàng đợi, trạng thái mở rộng "nhảy" sang file mới; có <code>key</code> thì nó đi theo đúng file. Với effect trong dòng (đang tải ảnh), lỗi này còn làm effect bị huỷ và chạy lại cho mọi dòng bị trượt.</p>
 
 <h3>6. Recomposition có thể chạy lại, bỏ dở, không theo thứ tự</h3>
 
-<p>Docs của Compose liệt kê các tính chất mà thân composable phải chịu được:</p>
-
-<ul>
-  <li><strong>Skip nhiều nhất có thể</strong>: scope con chạy được mà scope cha không chạy, và ngược lại.</li>
-  <li><strong>Lạc quan, có thể bị huỷ</strong>: tham số đổi tiếp trong lúc recomposition đang chạy thì Compose có thể bỏ lượt đó và chạy lại với giá trị mới.</li>
-  <li><strong>Chạy rất thường xuyên</strong>: tới mức mỗi frame khi có animation.</li>
-  <li><strong>Không theo thứ tự</strong>: các composable con có thể chạy khác thứ tự trong source.</li>
-  <li><strong>Có thể song song</strong>: hiện chạy trên main thread, nhưng docs yêu cầu viết như thể composition có thể chạy trên nhiều thread.</li>
-</ul>
+<p>Theo docs, thân composable phải chịu được việc recomposition: <strong>skip nhiều nhất có thể</strong> (scope con chạy mà cha không chạy, và ngược lại), <strong>lạc quan và có thể bị huỷ</strong> (tham số đổi tiếp giữa chừng thì lượt đó bị bỏ, chạy lại với giá trị mới), <strong>chạy rất thường xuyên</strong> (mỗi frame khi có animation), <strong>không theo thứ tự</strong> trong source, và <strong>có thể song song</strong> (hiện chạy trên main thread, nhưng phải viết như thể chạy trên nhiều thread).</p>
 
 <p>Hệ quả: composable phải <strong>idempotent</strong> (cùng input → cùng UI, gọi bao nhiêu lần cũng vậy) và <strong>không có side effect</strong> (không thay đổi gì nhìn thấy được bên ngoài hàm: biến dùng chung, state đã đọc, SharedPreferences, analytics). Side effect thuộc về lambda sự kiện (<code>onClick</code>), ViewModel, hoặc effect API như <a href="side_effects/launched_effect.md" target="_blank" rel="noopener">9.3.1 LaunchedEffect</a>.</p>
 
@@ -45667,7 +45659,7 @@ fun PromoCard(promo: Promo) {
     PromoContent(promo)
 }</code></pre>
 
-<p><strong>Kết quả:</strong> recomposition count của <code>PromoCard</code> tăng liên tục khi màn hình đứng yên. Cách đúng: gửi sự kiện hiển thị bằng <code>LaunchedEffect(promo.id) { analytics.logImpression(promo.id) }</code> (9.3.1); số lượt xem nếu cần hiện thì do ViewModel cung cấp. Tương tự, tổng tiền giỏ hàng tính bằng <code>items.sumOf { it.priceVnd * it.quantity }</code>, không cộng dồn vào biến ngoài trong vòng lặp vẽ từng dòng.</p>
+<p><strong>Kết quả:</strong> recomposition count của <code>PromoCard</code> tăng liên tục khi màn hình đứng yên. Cách đúng: gửi sự kiện hiển thị bằng <code>LaunchedEffect(promo.id) { analytics.logImpression(promo.id) }</code> (9.3.1); số lượt xem nếu cần hiện thì do ViewModel cung cấp.</p>
 
 <h3>7. Debug recomposition: Layout Inspector và compiler reports</h3>
 
@@ -45710,15 +45702,15 @@ composeCompiler {
 
 <p><code>restartable</code>: là một scope. <code>skippable</code> (nhờ strong skipping) nhưng <code>order</code> là <code>unstable</code>, nên chỉ skip khi cùng instance — manh mối dẫn tới cách sửa ở mục 2.</p>
 
-<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Recomposition count là chỉ báo, không phải số đo hiệu năng: skip một composable có tham số so sánh đắt có thể chậm hơn chạy lại một composable nhẹ. Chỉ kết luận sau khi đo frame time trên release build, như ở <a href="overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, mục "Kiểm tra hiệu năng đúng cách".</div></div>
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Recomposition count là chỉ báo, không phải số đo hiệu năng. Chỉ kết luận sau khi đo frame time trên release build (<a href="overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, mục "Kiểm tra hiệu năng đúng cách").</div></div>
 
 <h2>Ví dụ thực tế</h2>
 
-<p>Các bài toán thường gặp: <strong>state đổi liên tục</strong> (đồng hồ đếm ngược, vị trí phát, "đang nhập...") → đọc ở scope hẹp, truyền lambda; <strong>dữ liệu suy ra tốn kém</strong> (lọc/nhóm danh sách, <code>Brush</code> từ ảnh) → <code>remember(key)</code> hoặc ViewModel; <strong>danh sách đổi thứ tự có state trong item</strong> (hàng đợi, chat) → <code>key {}</code> / <code>items(key = ...)</code>.</p>
+<p>Ba bài toán thường gặp: <strong>state đổi liên tục</strong> (đồng hồ đếm ngược, "đang nhập...") → đọc ở scope hẹp; <strong>dữ liệu suy ra tốn kém</strong> (lọc/nhóm danh sách) → <code>remember(key)</code> hoặc ViewModel; <strong>danh sách đổi thứ tự có state trong item</strong> (hàng đợi, chat) → <code>key {}</code> / <code>items(key = ...)</code>.</p>
 
 <h3>Màn hình chat nhóm</h3>
 
-<p>Bài toán chính ghép cả ba: tin nhắn nhóm theo ngày, bấm một tin để xem giờ gửi, và dòng "Lan đang nhập..." đổi vài lần mỗi giây. Yêu cầu: chỉ báo "đang nhập" đổi thì danh sách không chạy lại; tin mới chèn vào thì tin đang mở xem giờ vẫn giữ trạng thái.</p>
+<p>Bài toán chính ghép cả ba: tin nhắn nhóm theo ngày, bấm một tin để xem giờ gửi, dòng "Lan đang nhập..." đổi vài lần mỗi giây. Yêu cầu: báo "đang nhập" đổi thì danh sách không chạy lại; tin mới chèn vào thì tin đang mở xem giờ vẫn giữ trạng thái.</p>
 
 <pre data-lang="kotlin"><code>// ui/chat/ChatScreen.kt
 @Composable
@@ -45762,25 +45754,18 @@ fun MessageBubble(message: Message) {
 }</code></pre>
 
 <ul>
-  <li><code>typingUsers</code> chỉ được đọc trong lambda <code>bottomBar</code>, còn <code>messages</code> trong lambda <code>content</code>: hai luồng state với tần suất khác nhau không kéo nhau chạy lại. Đọc cả hai ở đầu <code>ChatScreen</code> rồi truyền giá trị xuống thì mỗi lần ai đó gõ phím, thân <code>ChatScreen</code> chạy lại.</li>
-  <li><code>remember(messages)</code> nhóm lại chỉ khi ViewModel phát danh sách mới.</li>
-  <li><code>items(key = { it.id })</code> giữ <code>showTime</code> đúng tin khi có tin mới chèn vào. Key phải là kiểu lưu được vào <code>Bundle</code> (<code>Long</code>, <code>String</code>...) vì lazy list còn dùng nó để khôi phục state đã lưu (9.2.2).</li>
+  <li><code>typingUsers</code> chỉ được đọc trong lambda <code>bottomBar</code>, <code>messages</code> trong lambda <code>content</code> (mục 1): hai luồng state khác tần suất không kéo nhau chạy lại.</li>
+  <li><code>remember(messages)</code> nhóm lại chỉ khi ViewModel phát danh sách mới (mục 4).</li>
+  <li><code>items(key = { it.id })</code> giữ <code>showTime</code> đúng tin khi có tin mới chèn vào (mục 5). Key phải là kiểu lưu được vào <code>Bundle</code> (<code>Long</code>, <code>String</code>...) vì lazy list còn dùng nó để khôi phục state đã lưu (9.2.2).</li>
 </ul>
 
 <p><strong>Kết quả:</strong> bật recomposition counts, cho tài khoản khác gõ liên tục: chỉ <code>TypingIndicator</code> tăng, <code>MessageList</code> và các <code>MessageBubble</code> đứng yên. Mở giờ của một tin rồi nhận tin mới: tin đã mở vẫn hiện giờ.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
-<p><strong>Nên dùng <code>remember</code></strong> cho object tạo tốn kém (không key nếu không phụ thuộc input, có key nếu phụ thuộc); cho state phần tử UI chỉ composable đó cần và <strong>chấp nhận mất</strong> khi rời composition hoặc khi Activity tạo lại (trạng thái mở rộng, state animation); và cho object cần giữ <strong>danh tính</strong> qua recomposition (<code>MutableInteractionSource</code>, <code>FocusRequester</code>, các hàm <code>rememberXxxState()</code>).</p>
+<p><strong>Nên dùng <code>remember</code></strong> cho object tạo tốn kém (có key nếu phụ thuộc input); state phần tử UI <strong>chấp nhận mất</strong> khi rời composition hoặc Activity tạo lại (trạng thái mở rộng, state animation); object cần giữ <strong>danh tính</strong> qua recomposition (<code>MutableInteractionSource</code>, <code>FocusRequester</code>, các hàm <code>rememberXxxState()</code>).</p>
 
-<p><strong>Không nên dùng <code>remember</code>:</strong></p>
-
-<ul>
-  <li>Cho user input cần sống qua xoay màn hình và process death → <code>rememberSaveable</code> (9.2.2).</li>
-  <li>Cho dữ liệu nghiệp vụ, dữ liệu từ mạng/database → <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</li>
-  <li>Cho phép tính rẻ (<code>a + b</code>): <code>remember</code> cũng tốn một slot và một lần so key.</li>
-  <li>Như cách "chạy một lần" việc có side effect (<code>remember { api.load() }</code>): việc đó vẫn chạy trong composition, có thể bị huỷ giữa chừng, không huỷ được khi rời màn hình → effect API (9.3.1) hoặc ViewModel.</li>
-</ul>
+<p><strong>Không nên dùng <code>remember</code></strong> cho user input cần sống qua xoay màn hình → <code>rememberSaveable</code> (9.2.2); cho dữ liệu nghiệp vụ, dữ liệu mạng/database → <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; cho phép tính rẻ (<code>a + b</code>), vì <code>remember</code> cũng tốn một slot và một lần so key; và như cách "chạy một lần" việc có side effect (<code>remember { api.load() }</code>): việc đó vẫn chạy trong composition, không huỷ được khi rời màn hình → effect API (9.3.1) hoặc ViewModel.</p>
 
 <p><strong>Tối ưu stability</strong> chỉ khi Layout Inspector và đo frame time chỉ ra vấn đề; với strong skipping mặc định, phần lớn app không cần annotation nào.</p>
 
@@ -45812,7 +45797,7 @@ cart.items.add(newItem)   // cùng instance, equals vẫn bằng → CartSummary
 
 <h3>4. Ghi state, biến ngoài, hoặc phụ thuộc thứ tự trong thân composable</h3>
 
-<p>Đã minh hoạ ở mục 6: <code>viewCount++</code> gây vòng lặp recompose; cộng dồn vào biến ngoài cho số sai khi chỉ một phần chạy lại; để <code>StartScreen()</code> ghi biến toàn cục cho <code>MiddleScreen()</code> đọc thì sai khi thứ tự chạy khác. <strong>Cách sửa:</strong> mỗi composable tự đủ từ tham số; giá trị suy ra tính trực tiếp từ input; side effect ở lambda sự kiện, ViewModel hoặc effect API.</p>
+<p>Ngoài backwards write ở mục 6: cộng dồn tổng tiền vào biến ngoài trong vòng lặp vẽ từng dòng cho số sai khi chỉ một phần chạy lại; để <code>StartScreen()</code> ghi biến toàn cục cho <code>MiddleScreen()</code> đọc thì sai khi thứ tự chạy khác. <strong>Cách sửa:</strong> giá trị suy ra tính thẳng từ input (<code>items.sumOf { it.priceVnd * it.quantity }</code>); side effect ở lambda sự kiện, ViewModel hoặc effect API.</p>
 
 <h2>Lịch sử phát triển</h2>
 
@@ -45829,16 +45814,16 @@ cart.items.add(newItem)   // cùng instance, equals vẫn bằng → CartSummary
       <td style="padding:8px 12px;">Compose 1.0: positional memoization, <code>remember</code>, <code>key {}</code>, recompose scope; chỉ skip khi mọi tham số stable</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Từ khoảng 2022</td>
-      <td style="padding:8px 12px;">Compiler reports/metrics về stability được dùng rộng rãi; Layout Inspector hiển thị recomposition và skip counts</td>
+      <td style="padding:8px 12px;font-weight:600;">2022</td>
+      <td style="padding:8px 12px;">Android Studio Dolphin: Layout Inspector hiển thị recomposition và skip counts</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Cuối 2023</td>
-      <td style="padding:8px 12px;">Compose compiler 1.5.5 thêm stability configuration file</td>
+      <td style="padding:8px 12px;">Compose compiler 1.5.5 thêm stability configuration file; strong skipping có ở dạng thử nghiệm, phải bật bằng cờ</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">2024</td>
-      <td style="padding:8px 12px;">Kotlin 2.0: compiler vào repo Kotlin, cấu hình qua <code>composeCompiler { }</code>. Strong skipping (trước đó là thử nghiệm) bật mặc định từ Kotlin 2.0.20, kèm <code>@NonSkippableComposable</code> và <code>@DontMemoize</code> để opt-out</td>
+      <td style="padding:8px 12px;">Kotlin 2.0: Compose compiler vào repo Kotlin, cấu hình qua <code>composeCompiler { }</code>. Kotlin 2.0.20 bật strong skipping mặc định; opt-out bằng <code>@NonSkippableComposable</code> (hàm) và <code>@DontMemoize</code> (lambda)</td>
     </tr>
   </tbody>
 </table>
@@ -45856,7 +45841,7 @@ cart.items.add(newItem)   // cùng instance, equals vẫn bằng → CartSummary
   <li><a href="side_effects/launched_effect.md" target="_blank" rel="noopener">9.3.1 LaunchedEffect</a> và <a href="side_effects/derived_state_of.md" target="_blank" rel="noopener">9.3.4 DerivedStateOf</a>: side effect đúng chỗ, giảm recomposition khi kết quả đổi ít hơn input.</li>
   <li><a href="modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a>: <code>key</code> và <code>contentType</code> cho lazy list.</li>
 </ul></li>
-  <li><strong>Liên quan:</strong> <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> (ViewModel giữ state màn hình); 10.2 Unit Testing (chưa có bài): test UI Compose và benchmark.</li>
+  <li><strong>Liên quan:</strong> <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> (ViewModel giữ state màn hình); <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a> (<code>StateFlow</code> mà ViewModel expose, ví dụ mục 1).</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -45878,15 +45863,15 @@ cart.items.add(newItem)   // cùng instance, equals vẫn bằng → CartSummary
   'compose-mutablestate': {
     title: 'MutableState',
     summary: 'MutableState là holder giá trị quan sát được của Compose — đọc value trong lúc composition thì snapshot system ghi nhận phụ thuộc, ghi value mới (khác giá trị cũ theo mutation policy) thì mọi scope đã đọc nó được recompose; state hoisting là quyết định ai sở hữu MutableState đó. Bài giải thích State/MutableState, ba cách khai báo, snapshot system, các biến thể primitive, mutableStateListOf/mutableStateMapOf, SnapshotMutationPolicy, và state hoisting với pattern value + onValueChange, chọn nơi hoist (composable cha, state holder class, ViewModel) theo UDF.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '20 phút',
+    estimatedReadingTime: '19 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'state', 'mutablestate', 'snapshot', 'state-hoisting', 'udf', 'state-holder'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.compose_overview', 'android.jetpack_compose.remember_recomposition'],
-    related: ['android.jetpack_compose.state.remember_saveable', 'android.jetpack.viewmodel', 'android.architecture.mvvm'],
+    related: ['android.jetpack_compose.state.remember_saveable', 'android.jetpack.viewmodel', 'android.architecture.mvvm', 'android.design_pattern.observer.flow'],
     learningOutcomes: [
       'Giải thích được cách snapshot system theo dõi lần đọc và lần ghi MutableState để quyết định scope nào recompose.',
       'Áp dụng được mutableStateOf, các biến thể primitive và ba cách khai báo (value, delegate by, destructuring) đúng ngữ cảnh.',
@@ -45896,7 +45881,7 @@ cart.items.add(newItem)   // cùng instance, equals vẫn bằng → CartSummary
     ],
     knowledgeGap: 'Coi mutableStateOf như một biến bình thường khiến developer sửa list bên trong state rồi thắc mắc vì sao UI không đổi, sao chép tham số vào state cục bộ để rồi màn hình hiện giá trị cũ, đặt state sâu trong composable con nên không chia sẻ hay test được, hoặc ngược lại đẩy mọi state lên ViewModel và truyền ViewModel xuống tận composable lá.',
     updatedAt: '2026-11-09',
-    readTime: '20 phút',
+    readTime: '19 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -45911,7 +45896,7 @@ fun BookmarkButton() {
     }
 }</code></pre>
 
-<p>Cần một kiểu giá trị mà <strong>đọc thì được ghi nhận, ghi thì báo cho người đã đọc</strong>. Có kiểu đó rồi, lại có câu hỏi thứ hai: state này thuộc về <strong>ai</strong>? Đặt sâu trong <code>BookmarkButton</code> thì màn hình danh sách không biết bài nào đã lưu, không test được, không dùng lại được. Đẩy tất cả lên ViewModel thì một trạng thái "đang mở menu" cũng phải đi qua tầng nghiệp vụ. Bài này trả lời cả hai: <code>MutableState</code> hoạt động thế nào, và state hoisting quyết định nơi đặt nó.</p>
+<p>Cần một kiểu giá trị mà <strong>đọc thì được ghi nhận, ghi thì báo cho người đã đọc</strong>. Câu hỏi thứ hai: state này thuộc về <strong>ai</strong>? Đặt sâu trong <code>BookmarkButton</code> thì màn hình danh sách không biết bài nào đã lưu, không test, không dùng lại được; đẩy tất cả lên ViewModel thì trạng thái "đang mở menu" cũng phải đi qua tầng nghiệp vụ.</p>
 
 <h2>Sau khi học xong</h2>
 
@@ -46035,13 +46020,13 @@ fun PriceSummary(min: Long, max: Long) {                           // (4)
 
 <h3>3. Biến thể primitive: <code>mutableIntStateOf</code> và các anh em</h3>
 
-<p><code>mutableStateOf&lt;Int&gt;</code> lưu giá trị dạng object (<code>Integer</code>), mỗi lần ghi là một lần <strong>boxing</strong>. Với state đổi liên tục (âm lượng, tiến độ kéo, bộ đếm), Compose có biến thể lưu primitive trực tiếp: <code>mutableIntStateOf</code>, <code>mutableLongStateOf</code>, <code>mutableFloatStateOf</code>, <code>mutableDoubleStateOf</code> (trả <code>MutableIntState</code>... với property <code>intValue</code>, <code>longValue</code>...). Lint của Compose gợi ý chuyển khi thấy <code>mutableStateOf(0)</code>.</p>
+<p><code>mutableStateOf&lt;Int&gt;</code> lưu giá trị dạng object (<code>Integer</code>), mỗi lần ghi là một lần <strong>boxing</strong>. Với state đổi liên tục (âm lượng, tiến độ kéo, bộ đếm), Compose có biến thể lưu primitive trực tiếp: <code>mutableIntStateOf</code>, <code>mutableLongStateOf</code>, <code>mutableFloatStateOf</code>, <code>mutableDoubleStateOf</code> (trả <code>MutableIntState</code>... với property <code>intValue</code>, <code>longValue</code>...). Lint <code>AutoboxingStateCreation</code> của Compose gợi ý chuyển khi thấy <code>mutableStateOf(0)</code>.</p>
 
 <pre data-lang="kotlin"><code>// ui/player/VolumeControl.kt — Slider ghi liên tục khi kéo
 var volume by remember { mutableFloatStateOf(0.6f) }
 Slider(value = volume, onValueChange = { volume = it })</code></pre>
 
-<p>Delegate <code>by</code> vẫn dùng được với các kiểu này. Khác biệt chỉ là hiệu năng; hành vi quan sát giống hệt <code>mutableStateOf</code>.</p>
+<p>Delegate <code>by</code> vẫn dùng được; hành vi quan sát giống hệt <code>mutableStateOf</code>, chỉ khác hiệu năng.</p>
 
 <h3>4. Collection: <code>mutableStateListOf</code> / <code>mutableStateMapOf</code> và <code>mutableStateOf(list)</code></h3>
 
@@ -46100,7 +46085,7 @@ fun PackingList(initial: List&lt;PackingItem&gt;) {
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> tick một món chỉ dòng đó recompose (Layout Inspector); xoá một món thì danh sách cập nhật ngay. Trong app thật, checklist cần lưu lâu dài thường nằm ở ViewModel + Room; ví dụ này giữ trong composition để tập trung vào cơ chế quan sát. Lưu ý <code>packingItems</code> là <code>SnapshotStateList</code> (stable); truyền nó xuống con dưới dạng <code>List&lt;PackingItem&gt;</code> để con không sửa được.</p>
+<p><strong>Kết quả:</strong> tick một món chỉ dòng đó recompose (Layout Inspector); xoá một món thì danh sách cập nhật ngay. Trong app thật, checklist cần lưu lâu dài nằm ở ViewModel + Room; ví dụ giữ trong composition để tập trung vào cơ chế quan sát. Truyền <code>packingItems</code> xuống con dưới dạng <code>List&lt;PackingItem&gt;</code> để con không sửa được.</p>
 
 <h3>5. <code>SnapshotMutationPolicy</code>: thế nào là "giá trị mới"</h3>
 
@@ -46310,7 +46295,7 @@ flowchart TD
     Q3 --&gt;|"Không"| L["Giữ trong chính composable"]
 </div>
 
-<p>ViewModel không phải là composition: nó được cung cấp bởi framework và scope theo Activity, Fragment hoặc navigation destination. ViewModel thường expose screen UI state bằng <code>StateFlow</code> và composable chuyển sang <code>State</code> bằng <code>collectAsStateWithLifecycle()</code> (học ở <a href="../side_effects/flow_with_snapshot.md" target="_blank" rel="noopener">9.3.5 SnapShotFlow and flowWithSnapshot</a>); ViewModel cũng có thể giữ <code>var x by mutableStateOf(...)</code> với <code>private set</code>. Hai quy ước từ docs: chỉ composable cấp màn hình nhận ViewModel, <strong>không truyền ViewModel xuống</strong> composable con; và chỉ đưa state lên ViewModel khi business logic cần nó, không phải vì muốn sống qua xoay màn hình.</p>
+<p>ViewModel không thuộc composition: nó scope theo Activity, Fragment hoặc navigation destination. ViewModel thường expose screen UI state bằng <code>StateFlow</code> và composable chuyển sang <code>State</code> bằng <code>collectAsStateWithLifecycle()</code> (học ở <a href="../side_effects/flow_with_snapshot.md" target="_blank" rel="noopener">9.3.5 SnapShotFlow and flowWithSnapshot</a>); ViewModel cũng có thể giữ <code>var x by mutableStateOf(...)</code> với <code>private set</code>. Hai quy ước từ docs: chỉ composable cấp màn hình nhận ViewModel, <strong>không truyền ViewModel xuống</strong> composable con; và chỉ đưa state lên ViewModel khi business logic cần nó, không phải vì muốn sống qua xoay màn hình.</p>
 
 <h4>Ví dụ: chọn ngày nhận phòng và trả phòng</h4>
 
@@ -46424,30 +46409,21 @@ fun GuestCounter(value: Int, onValueChange: (Int) -&gt; Unit, modifier: Modifier
     }
 }</code></pre>
 
-<p>Các điểm đáng chú ý:</p>
-
 <ul>
-  <li><strong>Một nguồn sự thật cho mỗi state</strong>: <code>guests</code> chỉ có trong <code>uiState</code>; <code>GuestCounter</code> không giữ bản sao. ViewModel còn chặn giá trị (<code>coerceIn(1, 8)</code>) — tính chất interceptable ở cấp ViewModel.</li>
-  <li><strong>Chọn chủ sở hữu theo logic</strong>: ngày ở là UI logic nên không lên ViewModel; khi bấm "Tìm phòng", chúng được truyền vào <code>search()</code> như tham số của sự kiện.</li>
-  <li><code>StayDatesPicker</code>, <code>GuestCounter</code>, <code>HotelResults</code> không biết ViewModel tồn tại: preview và test với dữ liệu giả được ngay.</li>
+  <li><strong>Một nguồn sự thật cho mỗi state</strong>: <code>guests</code> chỉ có trong <code>uiState</code>, <code>GuestCounter</code> không giữ bản sao; ViewModel chặn giá trị (<code>coerceIn(1, 8)</code>) — interceptable ở cấp ViewModel.</li>
+  <li><strong>Chọn chủ sở hữu theo logic</strong>: ngày ở là UI logic nên không lên ViewModel; khi bấm "Tìm phòng", chúng đi vào <code>search()</code> như tham số của sự kiện.</li>
 </ul>
 
-<p><strong>Kết quả:</strong> <code>HotelSearchViewModel</code> unit test được với <code>FakeHotelRepository</code> như ở <a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>; <code>StayDatesState</code> test như class thường; các component stateless có <code>@Preview</code> cho từng trạng thái (đang tải, không có phòng, có kết quả).</p>
+<p><strong>Kết quả:</strong> <code>HotelSearchViewModel</code> unit test được với <code>FakeHotelRepository</code> như ở <a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>; <code>StayDatesState</code> test như class thường; <code>StayDatesPicker</code>, <code>GuestCounter</code>, <code>HotelResults</code> không biết ViewModel, có <code>@Preview</code> cho từng trạng thái (đang tải, không có phòng, có kết quả).</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
-<p><strong>Nên dùng <code>MutableState</code>:</strong></p>
-
-<ul>
-  <li>State UI trong composable hoặc plain state holder: <code>remember { mutableStateOf(...) }</code>, biến thể primitive cho giá trị đổi liên tục.</li>
-  <li><code>mutableStateListOf</code>/<code>mutableStateMapOf</code> khi sửa từng phần tử thường xuyên trong UI.</li>
-  <li>Trong ViewModel khi muốn expose state cho Compose mà không cần toán tử <code>Flow</code> (<code>var query by mutableStateOf("")</code> + <code>private set</code>).</li>
-</ul>
+<p><strong>Nên dùng <code>MutableState</code></strong> cho state UI trong composable hoặc plain state holder (biến thể primitive cho giá trị đổi liên tục, <code>mutableStateListOf</code>/<code>mutableStateMapOf</code> khi sửa từng phần tử thường xuyên), và trong ViewModel khi expose state cho Compose mà không cần toán tử <code>Flow</code> (<code>var query by mutableStateOf("")</code> + <code>private set</code>).</p>
 
 <p><strong>Cân nhắc cách khác:</strong></p>
 
 <ul>
-  <li>Screen UI state kết hợp nhiều nguồn dữ liệu (<code>combine</code>, <code>debounce</code>, <code>stateIn</code>) → <code>StateFlow</code> trong ViewModel, rồi <code>collectAsStateWithLifecycle()</code> ở UI.</li>
+  <li>Screen UI state kết hợp nhiều nguồn dữ liệu (<code>combine</code>, <code>debounce</code>, <code>stateIn</code>) → <code>StateFlow</code> trong ViewModel (<a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a>), rồi <code>collectAsStateWithLifecycle()</code> ở UI.</li>
   <li>State suy ra từ state khác → tính trực tiếp, <code>remember(key)</code> (9.1) hoặc <code>derivedStateOf</code> (<a href="../side_effects/derived_state_of.md" target="_blank" rel="noopener">9.3.4 DerivedStateOf</a>), không tạo <code>MutableState</code> thứ hai rồi tự đồng bộ.</li>
   <li>Dữ liệu phải sống lâu dài (giỏ hàng, cài đặt) → Room/DataStore qua repository; <code>MutableState</code> chỉ là bản hiển thị.</li>
 </ul>
@@ -46517,8 +46493,8 @@ fun CouponField(code: MutableState&lt;String&gt;) { /* tự ghi code.value */ }<
       <td style="padding:8px 12px;">Compose 1.0: <code>mutableStateOf</code>, <code>State</code>/<code>MutableState</code>, <code>mutableStateListOf</code>/<code>mutableStateMapOf</code>, snapshot system và <code>SnapshotMutationPolicy</code> có từ bản stable đầu tiên</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">2022</td>
-      <td style="padding:8px 12px;">Docs bổ sung hướng dẫn "Where to hoist state", phân biệt UI logic với business logic và plain state holder với ViewModel, khớp với phần UI layer của hướng dẫn kiến trúc</td>
+      <td style="padding:8px 12px;font-weight:600;">Sau 1.0</td>
+      <td style="padding:8px 12px;">Hướng dẫn kiến trúc mới (UI layer, state holder) và trang "Where to hoist state" phân biệt UI logic với business logic, plain state holder với ViewModel</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">2023</td>
@@ -46527,7 +46503,7 @@ fun CouponField(code: MutableState&lt;String&gt;) { /* tự ghi code.value */ }<
   </tbody>
 </table>
 
-<p>Thiết kế snapshot state không đổi từ 1.0. Những gì thay đổi là hướng dẫn <strong>đặt state ở đâu</strong>: từ "hoist càng cao càng tốt" sang "hoist tới cha chung thấp nhất, chọn chủ sở hữu theo loại logic".</p>
+<p>Thiết kế snapshot state không đổi từ 1.0. Phần được bổ sung là hướng dẫn <strong>đặt state ở đâu</strong>: ngoài quy tắc cha chung thấp nhất, chọn chủ sở hữu theo loại logic.</p>
 
 <h2>Kết nối hệ thống</h2>
 
@@ -46543,7 +46519,7 @@ fun CouponField(code: MutableState&lt;String&gt;) { /* tự ghi code.value */ }<
 <ul>
   <li><a href="../side_effects/flow_with_snapshot.md" target="_blank" rel="noopener">9.3.5 SnapShotFlow and flowWithSnapshot</a>: <code>collectAsStateWithLifecycle()</code> và <code>snapshotFlow</code>, hai chiều State ↔ Flow.</li>
   <li><a href="../side_effects/derived_state_of.md" target="_blank" rel="noopener">9.3.4 DerivedStateOf</a>: state suy ra từ state khác.</li>
-  <li>7.1.4.2 Flow (chưa có bài): <code>StateFlow</code> mà ViewModel expose.</li>
+  <li><a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a>: <code>StateFlow</code> mà ViewModel expose.</li>
 </ul></li>
 </ul>
 
@@ -46563,7 +46539,7 @@ fun CouponField(code: MutableState&lt;String&gt;) { /* tự ghi code.value */ }<
   'compose-remember-saveable': {
     title: 'Remember and rememberSaveable',
     summary: 'rememberSaveable là remember có thêm một bản sao rút gọn của giá trị trong saved instance state (Bundle) của host, ghi qua SaveableStateRegistry theo vị trí gọi, nên giá trị sống qua configuration change và system-initiated process death nhưng vẫn mất khi rời composition hoặc khi người dùng chủ động đóng màn hình. Bài so sánh remember, rememberSaveable, retain và ViewModel theo từng sự kiện làm mất state, giải thích cơ chế lưu/khôi phục, kiểu lưu được và Saver (listSaver, mapSaver, @Parcelize), giới hạn kích thước Bundle, rememberSaveable trong item của LazyColumn, và khi nào dùng ViewModel với SavedStateHandle.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '20 phút',
     depth: 'standard',
@@ -46571,7 +46547,7 @@ fun CouponField(code: MutableState&lt;String&gt;) { /* tự ghi code.value */ }<
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.remember_recomposition', 'android.jetpack_compose.state.mutable_state', 'android.component.activity.state_changes'],
-    related: ['android.component.activity.parcelables_and_bundle', 'android.jetpack.viewmodel', 'android.component.activity.lifecycle'],
+    related: ['android.component.activity.parcelables_and_bundle', 'android.jetpack.viewmodel', 'android.component.activity.lifecycle', 'android.design_pattern.observer.flow'],
     learningOutcomes: [
       'Phân biệt được giá trị nào sống qua recomposition, configuration change, process death và rời composition khi dùng remember, rememberSaveable, retain và ViewModel.',
       'Giải thích được cách rememberSaveable đăng ký với SaveableStateRegistry để ghi giá trị vào Bundle và khôi phục theo vị trí gọi.',
@@ -46660,7 +46636,7 @@ fun CommentComposer(onSend: (String) -&gt; Unit) {
       <td style="padding:8px 12px;font-weight:600;">Rời composition (nhánh <code>if</code> tắt, item bị xoá)</td>
       <td style="padding:8px 12px;">❌</td>
       <td style="padding:8px 12px;">❌</td>
-      <td style="padding:8px 12px;">❌ (trừ khi có <code>SaveableStateHolder</code>, mục 4)</td>
+      <td style="padding:8px 12px;">❌ (trừ khi có <code>SaveableStateHolder</code>, mục 5)</td>
       <td style="padding:8px 12px;">✅ (theo owner, không theo composition)</td>
       <td style="padding:8px 12px;">✅</td>
     </tr>
@@ -46678,24 +46654,24 @@ fun CommentComposer(onSend: (String) -&gt; Unit) {
 <p>Ba điểm cần nhớ từ bảng:</p>
 
 <ul>
-  <li><strong>Chỉ hai công cụ dùng <code>Bundle</code></strong> (<code>rememberSaveable</code>, <code>SavedStateHandle</code>) mới sống qua process death. Cái giá là giá trị phải serialize được và phải nhỏ.</li>
-  <li><strong><code>retain</code></strong> (artifact <code>androidx.compose.runtime:runtime-retain</code>, từ Compose 1.10) giữ <strong>cùng instance</strong> qua configuration change mà không serialize, nên giữ được object không lưu vào <code>Bundle</code> được (player, cache, bitmap), nhưng mất khi process chết. Không <code>retain</code> object tham chiếu Activity, View, Context (leak).</li>
-  <li><strong>Người dùng đóng hẳn</strong> thì không công cụ state nào giữ, và cũng không nên: dữ liệu phải sống lâu dài (bản nháp quan trọng, giỏ hàng) thuộc về Room/DataStore.</li>
+  <li><strong>Chỉ hai công cụ dùng <code>Bundle</code></strong> (<code>rememberSaveable</code>, <code>SavedStateHandle</code>) mới sống qua process death; cái giá là giá trị phải serialize được và phải nhỏ.</li>
+  <li><strong><code>retain</code></strong> (artifact <code>androidx.compose.runtime:runtime-retain</code>, từ Compose 1.10) giữ <strong>cùng instance</strong> qua configuration change mà không serialize, nên giữ được object không vào <code>Bundle</code> được (player, cache, bitmap). Không <code>retain</code> Activity, View, Fragment, Context, ViewModel hay object tham chiếu tới chúng (leak).</li>
+  <li><strong>Người dùng đóng hẳn</strong> thì không công cụ state nào giữ: dữ liệu phải sống lâu dài (bản nháp quan trọng, giỏ hàng) thuộc về Room/DataStore.</li>
 </ul>
 
 <h3>2. Cơ chế: <code>SaveableStateRegistry</code> ghi vào <code>Bundle</code></h3>
 
-<p>Mỗi <code>ComposeView</code> (cũng là thứ <code>setContent</code> tạo ra) cung cấp cho composition một <code>SaveableStateRegistry</code> qua <code>LocalSaveableStateRegistry</code>. Registry này được nối với <code>SavedStateRegistry</code> của owner gần nhất trong cây View (Activity, Fragment, hoặc <code>NavBackStackEntry</code> của Navigation): khi owner lưu saved instance state, registry đóng góp phần của Compose vào <code>Bundle</code> đó.</p>
+<p>Mỗi <code>ComposeView</code> (cũng là thứ <code>setContent</code> tạo ra) cung cấp cho composition một <code>SaveableStateRegistry</code> qua <code>LocalSaveableStateRegistry</code>. Registry này được nối với <code>SavedStateRegistry</code> của owner gần nhất trong cây View (Activity hoặc Fragment): khi owner lưu saved instance state, registry đóng góp phần của Compose vào <code>Bundle</code> đó. Bên trong composition, <code>SaveableStateHolder</code> (mục 5) có thể cung cấp registry con cho từng phần UI.</p>
 
 <p><code>rememberSaveable</code> làm thêm ba việc so với <code>remember</code>:</p>
 
 <ul>
-  <li><strong>Tạo key theo vị trí:</strong> từ <em>composite key hash</em> của vị trí gọi (cùng thông tin vị trí mà slot table dùng), Compose sinh một chuỗi làm key trong registry. Không cần tự đặt tên; tham số <code>key: String</code> tuỳ chỉnh đã bị <strong>deprecated</strong> vì phá vỡ việc scope theo vị trí.</li>
+  <li><strong>Tạo key theo vị trí:</strong> từ <em>composite key hash</em> của vị trí gọi (cùng thông tin vị trí mà slot table dùng), Compose sinh một chuỗi làm key trong registry. Không cần tự đặt tên; tham số <code>key: String</code> tuỳ chỉnh đã bị <strong>deprecated</strong> từ Compose 1.9 vì phá vỡ việc scope theo vị trí.</li>
   <li><strong>Khôi phục hoặc khởi tạo</strong> ở lần đầu vào composition: hỏi registry <code>consumeRestored(key)</code>. Có giá trị đã lưu → dùng <code>Saver.restore</code> để dựng lại; không có → chạy <code>init</code>.</li>
   <li><strong>Đăng ký provider:</strong> <code>registerProvider(key) { saver.save(currentValue) }</code>. Registry chỉ gọi provider <strong>khi lưu thật sự</strong> (owner đang vào <code>onSaveInstanceState</code>), nên giá trị được lưu là giá trị <strong>mới nhất</strong> tại thời điểm đó. Khi composable rời composition, provider bị huỷ đăng ký: giá trị không còn được lưu nữa.</li>
 </ul>
 
-<p><code>rememberSaveable(vararg inputs)</code> cũng nhận input như key của <code>remember</code>: input đổi thì state reset và <code>init</code> chạy lại. Lưu ý docs ghi rõ: lúc <strong>khôi phục</strong>, giá trị đã lưu <strong>không</strong> được kiểm tra lại với input cũ.</p>
+<p><code>rememberSaveable(vararg inputs)</code> nhận input như key của <code>remember</code>: input đổi thì state reset và <code>init</code> chạy lại. Docs ghi rõ: lúc <strong>khôi phục</strong>, giá trị đã lưu <strong>không</strong> được kiểm tra lại với input cũ.</p>
 
 <h4>Ví dụ: ô soạn bình luận sống qua xoay màn hình và process death</h4>
 
@@ -46745,11 +46721,11 @@ fun CommentComposer(onSend: (String) -&gt; Unit) {
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> gõ rồi xoay màn hình, chữ còn. Kiểm tra process death: gõ, bấm Home, chạy <code>adb shell am kill &lt;package&gt;</code> (hoặc Logcat → Terminate Application), mở lại từ Recents: chữ vẫn còn. Vuốt app khỏi Recents rồi mở lại: ô trống, đúng như bảng ở mục 1. API <code>TextFieldState</code> mới (<code>rememberTextFieldState()</code>) cũng lưu bằng cơ chế này.</p>
+<p><strong>Kết quả:</strong> gõ rồi xoay màn hình, chữ còn. Kiểm tra process death: gõ, bấm Home, chạy <code>adb shell am kill &lt;package&gt;</code>, mở lại từ Recents: chữ vẫn còn. Vuốt app khỏi Recents rồi mở lại: ô trống, đúng như bảng mục 1. <code>rememberTextFieldState()</code> của API <code>TextFieldState</code> cũng lưu bằng cơ chế này.</p>
 
 <h3>3. Kiểu lưu được và <code>Saver</code></h3>
 
-<p>Mặc định <code>rememberSaveable</code> dùng <code>autoSaver()</code>, không chuyển đổi gì: giá trị phải là thứ <code>Bundle</code> chứa được — primitive, <code>String</code>, mảng primitive, <code>Parcelable</code>, <code>Serializable</code>, và vài kiểu khác mà registry trên Android chấp nhận. <code>MutableState</code> bọc một giá trị lưu được cũng được xử lý tự động. Kiểu khác (một <code>data class</code> thường) thì crash khi lưu, với thông báo rằng kiểu đó không lưu được bằng <code>SaveableStateRegistry</code> hiện tại và gợi ý viết <code>Saver</code>.</p>
+<p>Mặc định <code>rememberSaveable</code> dùng <code>autoSaver()</code>, không chuyển đổi gì: giá trị phải là thứ <code>Bundle</code> chứa được — primitive, <code>String</code>, mảng primitive, <code>Parcelable</code>, <code>Serializable</code>, và vài kiểu khác mà registry trên Android chấp nhận. <code>MutableState</code> bọc một giá trị lưu được, cùng <code>List</code>/<code>Map</code>/<code>Set</code> chứa giá trị lưu được, cũng được xử lý tự động. Kiểu khác (một <code>data class</code> thường) thì crash khi lưu, với thông báo rằng kiểu đó không lưu được bằng <code>SaveableStateRegistry</code> hiện tại và gợi ý viết <code>Saver</code>.</p>
 
 <p>Bốn cách lưu kiểu tuỳ chỉnh:</p>
 
@@ -46780,7 +46756,7 @@ fun CommentComposer(onSend: (String) -&gt; Unit) {
   </tbody>
 </table>
 
-<p>Với <code>MutableState&lt;T&gt;</code>, truyền saver của <strong><code>T</code></strong> qua tham số <code>stateSaver</code>; với object không bọc state, dùng tham số <code>saver</code>. Các bản <code>runtime-saveable</code> gần đây còn có <code>rememberSerializable</code>, dùng serializer của <code>kotlinx.serialization</code> cho class <code>@Serializable</code>.</p>
+<p>Với <code>MutableState&lt;T&gt;</code>, truyền saver của <strong><code>T</code></strong> qua tham số <code>stateSaver</code>; với object không bọc state, dùng tham số <code>saver</code>. Từ Compose 1.9 còn có <code>rememberSerializable</code>: cùng cơ chế, nhưng dùng serializer của <code>kotlinx.serialization</code> cho class <code>@Serializable</code> thay cho <code>Saver</code>.</p>
 
 <h4>Ví dụ: bộ chọn số hành khách khi đặt vé máy bay</h4>
 
@@ -46834,7 +46810,7 @@ fun PassengerPicker(modifier: Modifier = Modifier) {
 data class PassengerCount(val adults: Int = 1, val children: Int = 0, val infants: Int = 0) : Parcelable
 // rememberSaveable { mutableStateOf(PassengerCount()) } — autoSaver tự lưu</code></pre>
 
-<p><strong>Kết quả:</strong> chọn 2 người lớn, 1 trẻ em, xoay màn hình hoặc kill process: số còn nguyên. Viết <code>Saver</code> thì kiểm tra thứ tự <code>save</code> và <code>restore</code> khớp nhau; một UI test với <code>StateRestorationTester</code> (phần "Ví dụ thực tế") bắt lỗi này nhanh hơn chạy tay.</p>
+<p><strong>Kết quả:</strong> chọn 2 người lớn, 1 trẻ em, xoay màn hình hoặc kill process: số còn nguyên. Thứ tự <code>save</code> và <code>restore</code> phải khớp nhau; UI test với <code>StateRestorationTester</code> (phần "Ví dụ thực tế") bắt lỗi này nhanh hơn chạy tay.</p>
 
 <h3>4. Giới hạn kích thước <code>Bundle</code></h3>
 
@@ -46923,7 +46899,7 @@ fun FaqRow(question: FaqItem) {
   <li>State mà <strong>business logic</strong> trong ViewModel cần đọc/ghi → giữ trong ViewModel; để sống qua process death, lưu nó vào <strong><code>SavedStateHandle</code></strong> (<a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>). ViewModel tự sống qua configuration change; <code>SavedStateHandle</code> cũng dùng <code>Bundle</code>, nên cùng giới hạn kích thước.</li>
 </ul>
 
-<p><code>SavedStateHandle</code> có hai API tiện cho Compose: <code>getStateFlow(key, initialValue)</code> trả <code>StateFlow</code> của giá trị đã lưu (ghi bằng <code>savedStateHandle[key] = value</code>), và <code>saveable { mutableStateOf(...) }</code> (lifecycle-viewmodel-compose) trả thẳng <code>MutableState</code>, nhận <code>stateSaver</code> như <code>rememberSaveable</code>; docs đánh dấu <code>saveable</code> là <strong>experimental</strong>.</p>
+<p><code>SavedStateHandle</code> có hai API tiện cho Compose: <code>getStateFlow(key, initialValue)</code> trả <code>StateFlow</code> của giá trị đã lưu (ghi bằng <code>savedStateHandle[key] = value</code>), và <code>saveable</code> (lifecycle-viewmodel-compose) cho ViewModel dùng <code>MutableState</code> được lưu, ví dụ <code>var query by savedStateHandle.saveable { mutableStateOf("") }</code>, nhận <code>Saver</code> như <code>rememberSaveable</code>; <code>saveable</code> còn là API <strong>experimental</strong> (<code>@SavedStateHandleSaveableApi</code>).</p>
 
 <div class="mermaid">
 flowchart TD
@@ -46983,7 +46959,7 @@ class SearchViewModel(
     private companion object { const val QUERY_KEY = "query" }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> gõ "nồi cơm", kill process ở background, mở lại: ô tìm kiếm hiện "nồi cơm" và kết quả được tải lại. Cùng mẫu này viết cho View system ở <a href="../../session_04/components/activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "Ví dụ thực tế". Toán tử <code>debounce</code>, <code>flatMapLatest</code> thuộc Flow, học ở 7.1.4.2 Flow (chưa có bài).</p>
+<p><strong>Kết quả:</strong> gõ "nồi cơm", kill process ở background, mở lại: ô tìm kiếm hiện "nồi cơm" và kết quả được tải lại. Cùng mẫu này viết cho View system ở <a href="../../session_04/components/activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>, mục "Ví dụ thực tế". Toán tử <code>debounce</code>, <code>flatMapLatest</code>, <code>stateIn</code> học ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a>.</p>
 
 <h2>Ví dụ thực tế</h2>
 
@@ -47057,56 +47033,7 @@ class PassengerPickerTest {
 
 <h2>So sánh với các cách tiếp cận khác</h2>
 
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Công cụ</th>
-      <th style="padding:8px 12px;text-align:left;">Lưu ở đâu</th>
-      <th style="padding:8px 12px;text-align:left;">Kiểu giá trị</th>
-      <th style="padding:8px 12px;text-align:left;">Hợp cho</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>remember</code></td>
-      <td style="padding:8px 12px;">Slot table (bộ nhớ)</td>
-      <td style="padding:8px 12px;">Bất kỳ</td>
-      <td style="padding:8px 12px;">Object tốn kém, state UI chấp nhận mất khi tạo lại</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>retain</code> (Compose 1.10+)</td>
-      <td style="padding:8px 12px;">Bộ nhớ, ngoài composition</td>
-      <td style="padding:8px 12px;">Bất kỳ, không tham chiếu Activity/View/Context</td>
-      <td style="padding:8px 12px;">Player, cache, object không serialize được cần sống qua xoay</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>rememberSaveable</code> / <code>rememberSerializable</code></td>
-      <td style="padding:8px 12px;">Slot table + <code>Bundle</code></td>
-      <td style="padding:8px 12px;">Lưu được vào <code>Bundle</code> hoặc có <code>Saver</code>/serializer</td>
-      <td style="padding:8px 12px;">User input, lựa chọn UI, <code>id</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">ViewModel</td>
-      <td style="padding:8px 12px;"><code>ViewModelStore</code> (bộ nhớ)</td>
-      <td style="padding:8px 12px;">Bất kỳ</td>
-      <td style="padding:8px 12px;">Screen UI state, dữ liệu đã tải, việc đang chạy</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">ViewModel + <code>SavedStateHandle</code></td>
-      <td style="padding:8px 12px;"><code>ViewModelStore</code> + <code>Bundle</code></td>
-      <td style="padding:8px 12px;">Lưu được vào <code>Bundle</code></td>
-      <td style="padding:8px 12px;">Input của business logic cần sống qua process death</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Room / DataStore</td>
-      <td style="padding:8px 12px;">Đĩa</td>
-      <td style="padding:8px 12px;">Theo schema</td>
-      <td style="padding:8px 12px;">Dữ liệu phải còn sau khi người dùng đóng app</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Trong View system, vai trò của <code>rememberSaveable</code> do <code>onSaveInstanceState()</code>/<code>onRestoreInstanceState()</code> và cơ chế tự lưu state của View có <code>android:id</code> đảm nhận (<a href="../../session_04/components/activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>). Khác biệt: Compose định danh state theo <strong>vị trí gọi</strong> thay vì theo <code>id</code> của View, nên không cần tự đặt key.</p>
+<p>Bảng so sánh các công cụ trong Compose đã có ở mục 1. Trong View system, vai trò của <code>rememberSaveable</code> do <code>onSaveInstanceState()</code>/<code>onRestoreInstanceState()</code> và cơ chế tự lưu state của View có <code>android:id</code> đảm nhận (<a href="../../session_04/components/activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>). Khác biệt: Compose định danh state theo <strong>vị trí gọi</strong> thay vì theo <code>id</code> của View, nên không cần tự đặt key.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
@@ -47126,7 +47053,7 @@ class PassengerPickerTest {
 
 <h3>1. Dùng <code>remember</code> cho user input</h3>
 
-<p><code>var draft by remember { mutableStateOf("") }</code> cho ô nhập: mất chữ khi xoay màn hình, đổi dark mode, hoặc khi hệ thống kill process. <strong>Cách sửa:</strong> <code>rememberSaveable</code>; nếu ViewModel cần giá trị, đưa vào <code>SavedStateHandle</code>.</p>
+<p>Như <code>CommentComposer</code> ở phần "Vấn đề cần giải quyết": mất chữ khi xoay màn hình, đổi dark mode, hoặc khi hệ thống kill process. <strong>Cách sửa:</strong> <code>rememberSaveable</code>; nếu ViewModel cần giá trị, đưa vào <code>SavedStateHandle</code>.</p>
 
 <h3>2. Lưu dữ liệu lớn vào <code>Bundle</code></h3>
 
@@ -47173,8 +47100,12 @@ var range by rememberSaveable { mutableStateOf(DateRange(today, today.plusDays(2
       <td style="padding:8px 12px;">Lifecycle 2.5: <code>SavedStateHandle.getStateFlow()</code> và <code>SavedStateHandle.saveable</code> (experimental) cho Compose</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Khoảng 2025</td>
-      <td style="padding:8px 12px;">Các bản <code>runtime-saveable</code> gần đây thêm <code>rememberSerializable</code> dùng <code>kotlinx.serialization</code>, và deprecate tham số <code>key</code> tuỳ chỉnh của <code>rememberSaveable</code>. Compose 1.10 thêm <code>retain</code> (artifact <code>runtime-retain</code>): giữ instance qua configuration change mà không serialize</td>
+      <td style="padding:8px 12px;font-weight:600;">2025</td>
+      <td style="padding:8px 12px;">Compose 1.9: thêm <code>rememberSerializable</code> dùng <code>kotlinx.serialization</code>, deprecate tham số <code>key</code> tuỳ chỉnh của <code>rememberSaveable</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">12/2025</td>
+      <td style="padding:8px 12px;">Compose 1.10 (BOM 2025.12.00): thêm <code>retain</code> (artifact <code>runtime-retain</code>), giữ instance qua configuration change mà không serialize</td>
     </tr>
   </tbody>
 </table>
@@ -47199,7 +47130,7 @@ var range by rememberSaveable { mutableStateOf(DateRange(today, today.plusDays(2
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="../modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a>: <code>key</code>, <code>contentType</code>, <code>LazyListState</code>.</li>
-  <li>10.2 Unit Testing (chưa có bài): UI test Compose, <code>StateRestorationTester</code>.</li>
+  <li><a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a>: <code>StateFlow</code>, <code>stateIn</code>, toán tử dùng trong ví dụ ViewModel.</li>
 </ul></li>
 </ul>
 
@@ -47220,15 +47151,15 @@ var range by rememberSaveable { mutableStateOf(DateRange(today, today.plusDays(2
   },
   'compose-launchedeffect': {
     title: 'LaunchedEffect',
-    summary: 'Side effect trong Compose là thay đổi trạng thái của app xảy ra ngoài phạm vi một composable (hiện Snackbar, cuộn danh sách, ghi log, gọi object không do Compose quản lý); effect API chạy nó vào thời điểm có kiểm soát theo vòng đời composition. LaunchedEffect(key) là effect khởi chạy một coroutine khi vị trí gọi vào composition, huỷ nó khi rời composition, huỷ rồi chạy lại khi key đổi. Bài là nơi dạy khái niệm side effect và bảng chọn effect API, cùng rememberUpdatedState, rememberCoroutineScope và SideEffect.',
-    status: 'reviewing',
+    summary: 'LaunchedEffect(key) là effect composable khởi chạy một coroutine khi vị trí gọi vào composition, huỷ nó khi rời composition, và huỷ rồi chạy lại khi key đổi; nó là cách chạy side effect (thay đổi trạng thái của app ngoài phạm vi một composable) cần hàm suspend vào thời điểm có kiểm soát. Bài cũng là nơi dạy khái niệm side effect, bảng chọn effect API, rememberUpdatedState, rememberCoroutineScope và SideEffect.',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '17 phút',
+    estimatedReadingTime: '20 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'side-effects', 'launched-effect', 'coroutines', 'remember-updated-state', 'remember-coroutine-scope'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
-    prerequisites: ['android.jetpack_compose.compose_overview', 'android.jetpack_compose.remember_recomposition', 'android.jetpack_compose.state.mutable_state'],
+    prerequisites: ['android.jetpack_compose.compose_overview', 'android.jetpack_compose.remember_recomposition', 'android.jetpack_compose.state.mutable_state', 'android.async.coroutines'],
     related: ['android.jetpack_compose.side_effects.disposable_effect', 'android.jetpack_compose.side_effects.produce_state', 'android.jetpack_compose.side_effects.derived_state_of', 'android.jetpack_compose.side_effects.snapshot_flow', 'android.jetpack.viewmodel', 'android.architecture.mvvm'],
     learningOutcomes: [
       'Giải thích được side effect trong Compose là gì, vì sao không được đặt trong thân composable, và effect API chạy nó vào thời điểm nào.',
@@ -47239,7 +47170,7 @@ var range by rememberSaveable { mutableStateOf(DateRange(today, today.plusDays(2
     ],
     knowledgeGap: 'Developer mới sang Compose thường gọi việc có tác dụng phụ ngay trong thân composable, hoặc dùng LaunchedEffect(Unit) cho mọi thứ mà không nghĩ tới key: Snackbar hiện lặp, request chạy lại sau mỗi lần xoay màn hình, effect đọc giá trị cũ vì thiếu key hay rememberUpdatedState, và coroutine lưu dữ liệu bị huỷ giữa chừng vì chạy trong scope gắn với composition.',
     updatedAt: '2026-11-09',
-    readTime: '17 phút',
+    readTime: '20 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -47367,11 +47298,11 @@ flowchart TD
     Q1 --&gt;|"Sau mỗi lần composition thành công"| SE["SideEffect"]
 </div>
 
-<p>Coroutine dùng trong bài là <strong>kiến thức dùng trước</strong>: coroutine là cách viết code bất đồng bộ tuần tự bằng hàm <code>suspend</code>, được học ở 8.4.3 Coroutines (chưa có bài). Bài chỉ dùng <code>delay</code>, <code>launch</code> và việc coroutine có thể bị huỷ.</p>
+<p>Bài dùng coroutine (một phép tính có thể tạm dừng ở các điểm <code>suspend</code> mà không chặn thread) theo định nghĩa ở <a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>; <code>launch</code>, <code>delay</code>, <code>withContext</code> và việc huỷ coroutine không giải thích lại ở đây.</p>
 
 <h3>Vòng đời coroutine của LaunchedEffect</h3>
 
-<p>LaunchedEffect có ba sự kiện, ứng với ba câu trong định nghĩa:</p>
+<p>LaunchedEffect có bốn trường hợp, ứng với các vế trong định nghĩa:</p>
 
 <ol>
   <li><strong>Vào composition:</strong> lần đầu lời gọi <code>LaunchedEffect(key)</code> xuất hiện trong composition và composition đó được áp thành công, Compose <code>launch</code> một coroutine chạy khối code.</li>
@@ -47465,7 +47396,7 @@ fun CheckoutScreen(
   <li>Biến tạo bằng <code>remember { }</code> không key thì không bao giờ đổi trong composition, không cần đưa vào key.</li>
   <li>Có thể truyền nhiều key: <code>LaunchedEffect(orderId, userId) { }</code>; đổi bất kỳ key nào là khởi động lại.</li>
   <li>Key hằng (<code>Unit</code>, <code>true</code>) nghĩa là effect <strong>theo đúng vòng đời của vị trí gọi</strong>: chạy một lần khi vào, huỷ khi rời. Docs cảnh báo <code>LaunchedEffect(true)</code> đáng ngờ như <code>while (true)</code>: dùng được, nhưng phải dừng lại kiểm tra đó có đúng là điều mình cần.</li>
-  <li>Không có overload không key: <code>LaunchedEffect { }</code> là lỗi biên dịch, chính để buộc bạn nghĩ về key.</li>
+  <li><code>LaunchedEffect { }</code> không key là lỗi biên dịch: overload này chỉ tồn tại với <code>@Deprecated(level = DeprecationLevel.ERROR)</code>, chính để buộc bạn nghĩ về key.</li>
 </ul>
 
 <p>Key thiếu thì effect <strong>chạy với dữ liệu cũ</strong>; key thừa (đổi thường xuyên hơn cần) thì effect <strong>khởi động lại liên tục</strong>, có thể không bao giờ chạy xong.</p>
@@ -47520,7 +47451,7 @@ fun ResendCodeButton(onResend: () -&gt; Unit, modifier: Modifier = Modifier) {
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> nút đếm từ 59 về 0 rồi bật; bấm thì đếm lại từ 60. Rời màn OTP giữa chừng thì coroutine bị huỷ. Xoay màn hình thì đếm lại từ 60 vì effect chạy lại trong composition mới; muốn giữ số giây thì dùng <a href="../state/remember_saveable.md" target="_blank" rel="noopener">rememberSaveable</a> hoặc đưa đồng hồ vào ViewModel. Kiểm chứng bằng UI test: <code>composeTestRule.mainClock.advanceTimeBy(60_000)</code> rồi kiểm tra nút đã bật.</p>
+<p><strong>Kết quả:</strong> nút đếm từ 60 về 0 rồi bật; bấm thì đếm lại từ 60. Rời màn OTP giữa chừng thì coroutine bị huỷ. Xoay màn hình thì đếm lại từ 60 vì effect chạy lại trong composition mới; muốn giữ số giây thì dùng <a href="../state/remember_saveable.md" target="_blank" rel="noopener">rememberSaveable</a> hoặc đưa đồng hồ vào ViewModel. Kiểm chứng bằng UI test: <code>composeTestRule.mainClock.advanceTimeBy(60_000)</code> rồi kiểm tra nút đã bật.</p>
 
 <h3>rememberUpdatedState: giá trị mới nhất mà không khởi động lại</h3>
 
@@ -47828,8 +47759,8 @@ LaunchedEffect(Unit) { viewModel.loadOrders() }</code></pre>
 <ul>
   <li><strong>2019–2020 (dev, alpha):</strong> API side effect đầu tiên mang tên <code>onCommit</code>, <code>onActive</code>, <code>onDispose</code>, <code>launchInComposition</code>; tên không nói rõ khi nào effect chạy lại.</li>
   <li><strong>Cuối 2020 (alpha):</strong> đổi sang bộ API hiện nay <code>SideEffect</code>, <code>DisposableEffect</code>, <code>LaunchedEffect</code> (một thời gian ngắn mang tên <code>LaunchedTask</code>), với quy ước key quyết định khi nào khởi động lại; <code>rememberUpdatedState</code> và <code>rememberCoroutineScope</code> ra đời cho hai trường hợp key không giải quyết được.</li>
-  <li><strong>07/2021 (Compose 1.0):</strong> bộ API ổn định. Overload không key của LaunchedEffect và DisposableEffect là lỗi biên dịch (từ khoảng giai đoạn beta).</li>
-  <li><strong>2023–2024:</strong> Lifecycle 2.7.0 thêm effect theo lifecycle (<code>LifecycleStartEffect</code>, <code>LifecycleResumeEffect</code>, <code>LifecycleEventEffect</code>), học ở <a href="disposable_effect.md" target="_blank" rel="noopener">DisposableEffect</a>.</li>
+  <li><strong>07/2021 (Compose 1.0):</strong> bộ API ổn định. Overload không key của LaunchedEffect và DisposableEffect là lỗi biên dịch.</li>
+  <li><strong>01/2024 (Lifecycle 2.7.0, alpha từ 07/2023):</strong> thêm effect theo lifecycle (<code>LifecycleStartEffect</code>, <code>LifecycleResumeEffect</code>, <code>LifecycleEventEffect</code>), học ở <a href="disposable_effect.md" target="_blank" rel="noopener">DisposableEffect</a>.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -47840,6 +47771,7 @@ LaunchedEffect(Unit) { viewModel.loadOrders() }</code></pre>
   <li><a href="../overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>: composition, recomposition và vì sao composable có thể chạy lại bất kỳ lúc nào.</li>
   <li><a href="../remember_and_recomposition.md" target="_blank" rel="noopener">Remember và Recomposition</a>: <code>remember(key)</code> và slot table, cùng cơ chế với key của effect.</li>
   <li><a href="../state/mutable_state.md" target="_blank" rel="noopener">MutableState và State Hoisting</a>: state mà effect đọc và ghi.</li>
+  <li><a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>: <code>launch</code>, huỷ coroutine, dispatcher và <code>withContext</code>.</li>
 </ul></li>
   <li><strong>Liên quan:</strong>
 <ul>
@@ -47850,8 +47782,7 @@ LaunchedEffect(Unit) { viewModel.loadOrders() }</code></pre>
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="disposable_effect.md" target="_blank" rel="noopener">DisposableEffect</a>: effect có bước dọn dẹp.</li>
-  <li>8.4.3 Coroutines (chưa có bài): <code>launch</code>, huỷ coroutine, dispatcher.</li>
-  <li>10.2 Unit Testing (chưa có bài): test UI Compose với <code>mainClock</code>.</li>
+  <li><a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>: test tự động (test UI Compose với <code>mainClock</code> chưa có bài riêng).</li>
 </ul></li>
 </ul>
 
@@ -47870,7 +47801,7 @@ LaunchedEffect(Unit) { viewModel.loadOrders() }</code></pre>
   'compose-disposableeffect': {
     title: 'DisposableEffect',
     summary: 'DisposableEffect(key) là effect chạy một khối code đồng bộ khi vị trí gọi vào composition (và mỗi lần key đổi), và bắt buộc khai báo onDispose để dọn dẹp khi rời composition hoặc ngay trước khi chạy lại với key mới. Bài giải thích thứ tự dispose rồi chạy lại khi key đổi, cách đăng ký và huỷ sensor listener, LifecycleEventObserver, BroadcastReceiver, cách giữ callback mới nhất bằng rememberUpdatedState, khác biệt với LaunchedEffect, và các effect theo lifecycle LifecycleStartEffect, LifecycleResumeEffect, LifecycleEventEffect.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '14 phút',
     depth: 'standard',
@@ -47878,7 +47809,7 @@ LaunchedEffect(Unit) { viewModel.loadOrders() }</code></pre>
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.side_effects.launched_effect', 'android.component.activity.lifecycle'],
-    related: ['android.jetpack_compose.side_effects.produce_state', 'android.jetpack_compose.side_effects.snapshot_flow', 'android.jetpack_compose.remember_recomposition', 'android.component.fragment.lifecycle', 'android.jetpack.livedata'],
+    related: ['android.jetpack_compose.side_effects.produce_state', 'android.jetpack_compose.side_effects.snapshot_flow', 'android.jetpack_compose.remember_recomposition', 'android.component.fragment.lifecycle', 'android.jetpack.livedata', 'android.design_pattern.observer.flow'],
     learningOutcomes: [
       'Giải thích được vòng đời của DisposableEffect, gồm khối effect chạy khi vào composition và onDispose chạy khi rời composition hoặc trước khi chạy lại với key mới.',
       'Triển khai được việc đăng ký và huỷ đăng ký sensor listener, LifecycleEventObserver và BroadcastReceiver bằng DisposableEffect.',
@@ -48293,7 +48224,7 @@ fun RecordingScreen() {
   </tbody>
 </table>
 
-<p>Với nguồn dữ liệu dùng ở nhiều màn hình (trạng thái mạng, vị trí), cách bền hơn là bọc listener thành <code>Flow</code> bằng <code>callbackFlow</code> trong tầng data, rồi UI đọc qua <code>collectAsStateWithLifecycle()</code> (<a href="flow_with_snapshot.md" target="_blank" rel="noopener">snapshotFlow</a>). DisposableEffect hợp nhất khi listener chỉ phục vụ <strong>một</strong> composable.</p>
+<p>Với nguồn dữ liệu dùng ở nhiều màn hình (trạng thái mạng, vị trí), cách bền hơn là bọc listener thành <code>Flow</code> bằng <code>callbackFlow</code> trong tầng data (<a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, mục "<code>callbackFlow</code>: biến listener thành Flow"), rồi UI đọc qua <code>collectAsStateWithLifecycle()</code> (<a href="flow_with_snapshot.md" target="_blank" rel="noopener">snapshotFlow</a>). DisposableEffect hợp nhất khi listener chỉ phục vụ <strong>một</strong> composable.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
@@ -48360,8 +48291,8 @@ DisposableEffect(screenName) {
   <li><strong>2019–2020 (dev, alpha):</strong> Compose có <code>onActive { }</code>, <code>onCommit { }</code> và <code>onDispose { }</code> riêng rẽ; cặp đăng ký – huỷ không bị bắt buộc đi cùng nhau.</li>
   <li><strong>Cuối 2020 (alpha):</strong> <code>DisposableEffect</code> thay cho bộ trên, với <code>onDispose</code> là câu lệnh cuối bắt buộc. Quy ước key giống LaunchedEffect.</li>
   <li><strong>07/2021 (Compose 1.0):</strong> API ổn định; overload không key là lỗi biên dịch.</li>
-  <li><strong>2023 (Lifecycle 2.7.0):</strong> thêm <code>LifecycleEventEffect</code>, <code>LifecycleStartEffect</code>, <code>LifecycleResumeEffect</code> trong <code>lifecycle-runtime-compose</code>, thay cho mẫu tự viết DisposableEffect + LifecycleEventObserver.</li>
-  <li><strong>05/2024 (Lifecycle 2.8.0):</strong> <code>LifecycleStartEffect</code> và <code>LifecycleResumeEffect</code> bắt buộc có key; <code>LocalLifecycleOwner</code> chuyển từ Compose UI sang <code>lifecycle-runtime-compose</code>.</li>
+  <li><strong>01/2024 (Lifecycle 2.7.0, alpha từ 07/2023):</strong> thêm <code>LifecycleEventEffect</code>, <code>LifecycleStartEffect</code>, <code>LifecycleResumeEffect</code> trong <code>lifecycle-runtime-compose</code>, thay cho mẫu tự viết DisposableEffect + LifecycleEventObserver.</li>
+  <li><strong>05/2024 (Lifecycle 2.8.0):</strong> gọi <code>LifecycleStartEffect</code> và <code>LifecycleResumeEffect</code> không có key thành lỗi biên dịch; <code>LocalLifecycleOwner</code> chuyển từ Compose UI sang <code>lifecycle-runtime-compose</code>.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -48379,11 +48310,12 @@ DisposableEffect(screenName) {
   <li><a href="../remember_and_recomposition.md" target="_blank" rel="noopener">Remember và Recomposition</a>: vì sao <code>remember</code> không phải chỗ để đăng ký listener.</li>
   <li><a href="../../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>: <code>LocalLifecycleOwner</code> trong Fragment là view lifecycle.</li>
   <li><a href="../../session_04/components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>: receiver đăng ký bằng context.</li>
+  <li><a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>: <code>awaitCancellation</code>, <code>try/finally</code> khi coroutine bị huỷ.</li>
+  <li><a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>: <code>callbackFlow</code> khi listener cần dùng ở nhiều màn hình.</li>
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="produce_state.md" target="_blank" rel="noopener">produceState</a>.</li>
-  <li>8.4.3 Coroutines (chưa có bài): <code>awaitCancellation</code>, <code>try/finally</code> khi coroutine bị huỷ.</li>
 </ul></li>
 </ul>
 
@@ -48401,15 +48333,15 @@ DisposableEffect(screenName) {
   'compose-producestate': {
     title: 'produceState',
     summary: 'produceState(initialValue, keys) { ... } là hàm composable trả về một State<T> bắt đầu bằng initialValue, đồng thời chạy một coroutine gắn với composition để gán value mới cho State đó; bản chất là remember { mutableStateOf(initialValue) } cộng LaunchedEffect(keys). Bài giải thích cách biến hàm suspend và nguồn callback (qua awaitDispose) thành State, điều gì xảy ra khi key đổi, và khi nào nên dùng collectAsStateWithLifecycle hay ViewModel thay cho produceState.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '11 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'side-effects', 'produce-state', 'state', 'coroutines'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
-    prerequisites: ['android.jetpack_compose.side_effects.launched_effect', 'android.jetpack_compose.state.mutable_state'],
-    related: ['android.jetpack_compose.side_effects.disposable_effect', 'android.jetpack_compose.side_effects.snapshot_flow', 'android.jetpack_compose.remember_recomposition', 'android.jetpack.viewmodel'],
+    prerequisites: ['android.jetpack_compose.side_effects.launched_effect', 'android.jetpack_compose.state.mutable_state', 'android.async.coroutines'],
+    related: ['android.jetpack_compose.side_effects.disposable_effect', 'android.jetpack_compose.side_effects.snapshot_flow', 'android.jetpack_compose.remember_recomposition', 'android.jetpack.viewmodel', 'android.design_pattern.observer.flow'],
     learningOutcomes: [
       'Giải thích được produceState là remember { mutableStateOf(initialValue) } cộng LaunchedEffect(keys), và State trả về thay đổi thế nào khi key đổi.',
       'Triển khai được produceState để biến một hàm suspend hoặc một nguồn callback (dùng awaitDispose) thành State cho composable đọc.',
@@ -48534,7 +48466,7 @@ class FileRepository(private val contentResolver: ContentResolver) {
     }
 }</code></pre>
 
-<p><code>withContext(Dispatchers.IO)</code> chuyển việc đọc sang luồng I/O, học ở 8.4.3 Coroutines (chưa có bài). Mọi biến dùng trong <code>producer</code> (<code>uri</code>, <code>fileRepository</code>) đều là key, theo đúng quy tắc key của <a href="launched_effect.md" target="_blank" rel="noopener">LaunchedEffect</a>.</p>
+<p><code>withContext(Dispatchers.IO)</code> chuyển việc đọc sang luồng I/O (<a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>, mục "CoroutineContext, Dispatchers và withContext"). Mọi biến dùng trong <code>producer</code> (<code>uri</code>, <code>fileRepository</code>) đều là key, theo đúng quy tắc key của <a href="launched_effect.md" target="_blank" rel="noopener">LaunchedEffect</a>.</p>
 
 <p><strong>Kết quả:</strong> chọn file "bao-gia.pdf" thì chip hiện "Đang đọc file…" trong chốc lát rồi "bao-gia.pdf (1,2 MB)". Kiểm chứng bằng UI test với <code>FakeFileRepository</code> có <code>delay(500)</code>: lúc đầu thấy "Đang đọc file…", sau <code>advanceTimeBy(500)</code> thấy tên file.</p>
 
@@ -48592,13 +48524,13 @@ fun OfflineBanner(connectivityManager: ConnectivityManager) {
 
 <p>Ghi <code>value</code> từ luồng khác main được phép: <code>MutableState</code> thuộc snapshot system và an toàn khi ghi từ nhiều luồng (<a href="../state/mutable_state.md" target="_blank" rel="noopener">MutableState và State Hoisting</a>). Hàm composable trả về giá trị được đặt tên bắt đầu bằng chữ thường, như hàm Kotlin thường. App cần quyền <code>ACCESS_NETWORK_STATE</code>.</p>
 
-<p><strong>Kết quả:</strong> bật chế độ máy bay, banner hiện; tắt đi, banner biến mất. Rời màn hình rồi bật tắt mạng: không còn log trong callback. Nếu nhiều màn cần trạng thái mạng, chuyển callback này xuống tầng data dưới dạng <code>Flow</code> (<code>callbackFlow</code>) và đọc bằng <code>collectAsStateWithLifecycle()</code> (<a href="flow_with_snapshot.md" target="_blank" rel="noopener">snapshotFlow</a>).</p>
+<p><strong>Kết quả:</strong> bật chế độ máy bay, banner hiện; tắt đi, banner biến mất. Rời màn hình rồi bật tắt mạng: không còn log trong callback. Nếu nhiều màn cần trạng thái mạng, chuyển callback này xuống tầng data dưới dạng <code>Flow</code> (<code>callbackFlow</code>, học ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>) và đọc bằng <code>collectAsStateWithLifecycle()</code> (<a href="flow_with_snapshot.md" target="_blank" rel="noopener">snapshotFlow</a>).</p>
 
 <h3>Bên trong produceState</h3>
 
 <p>Mã nguồn của <code>compose-runtime</code> cho thấy produceState chỉ ghép hai API đã học:</p>
 
-<pre data-lang="kotlin"><code>// androidx.compose.runtime, SnapshotState (rút gọn)
+<pre data-lang="kotlin"><code>// androidx.compose.runtime, ProduceState.kt (rút gọn)
 @Composable
 fun &lt;T&gt; produceState(initialValue: T, key1: Any?, producer: suspend ProduceStateScope&lt;T&gt;.() -&gt; Unit): State&lt;T&gt; {
     val result = remember { mutableStateOf(initialValue) }       // remember KHÔNG có key
@@ -48619,14 +48551,14 @@ fun &lt;T&gt; produceState(initialValue: T, key1: Any?, producer: suspend Produc
 <h2>Ví dụ thực tế</h2>
 
 <ol>
-  <li><strong>Thumbnail video trong lưới thư viện:</strong> mỗi ô tạo thumbnail bằng hàm <code>suspend</code>, hiện trạng thái tải, lỗi; key là <code>uri</code> vì ô được tái sử dụng. Code đầy đủ bên dưới.</li>
+  <li><strong>Thumbnail video trong lưới thư viện:</strong> mỗi ô tạo thumbnail bằng hàm <code>suspend</code>, hiện trạng thái tải, lỗi; key là <code>uri</code> vì cùng một vị trí gọi có thể nhận video khác. Code đầy đủ bên dưới.</li>
   <li><strong>Trạng thái mạng, pin, cảm biến cho một composable:</strong> như ví dụ banner mất mạng.</li>
-  <li><strong>Đọc một giá trị một lần từ API cũ dạng callback</strong> (ví dụ SDK bên thứ ba trả kết quả qua listener): <code>producer</code> dùng <code>suspendCancellableCoroutine</code> để chờ callback rồi gán <code>value</code>.</li>
+  <li><strong>Đọc một giá trị một lần từ API cũ dạng callback</strong> (ví dụ SDK bên thứ ba trả kết quả qua listener): <code>producer</code> dùng <code>suspendCancellableCoroutine</code> để chờ callback rồi gán <code>value</code> (<a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>, mục "Bọc callback thành hàm suspend").</li>
 </ol>
 
 <h3>Thumbnail video với Loading, Ready, Failed</h3>
 
-<p><strong>Bài toán:</strong> lưới video hiện thumbnail cho mỗi ô. Tạo thumbnail tốn thời gian và có thể lỗi (file bị xoá). Ô cuộn ra rồi vào lại có thể nhận <code>uri</code> khác, nên ô không được hiện thumbnail của video trước.</p>
+<p><strong>Bài toán:</strong> lưới video hiện thumbnail cho mỗi ô. Tạo thumbnail tốn thời gian và có thể lỗi (file bị xoá). Khi cùng một vị trí gọi <code>VideoCell</code> nhận <code>uri</code> khác (ví dụ lưới không khai <code>key</code> và người dùng đổi album: ô thứ ba giờ là video khác), ô không được hiện thumbnail của video trước trong lúc tải ảnh mới. Item cuộn ra khỏi màn hình thì khác: nó rời composition (hoặc được lazy layout tái sử dụng với state mới), nên quay lại sẽ bắt đầu từ <code>initialValue</code>.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
@@ -48682,9 +48614,9 @@ fun VideoCell(video: Video, contentResolver: ContentResolver, modifier: Modifier
     }
 }</code></pre>
 
-<p><code>ContentResolver.loadThumbnail</code> có từ API 29. <code>Icons.Filled.BrokenImage</code> nằm trong bộ icon mở rộng (<code>material-icons-extended</code>). Lưới video dùng <code>LazyVerticalGrid</code> (<a href="../modifier/lazy_vertical_grid.md" target="_blank" rel="noopener">LazyVerticalGrid</a>); với ảnh từ mạng, dùng thư viện ảnh như Coil (8.2.4 Coil, chưa có bài) thay vì tự viết.</p>
+<p><code>ContentResolver.loadThumbnail</code> có từ API 29. <code>Icons.Filled.BrokenImage</code> nằm trong bộ icon mở rộng (<code>material-icons-extended</code>). Lưới video dùng <code>LazyVerticalGrid</code> (<a href="../modifier/lazy_vertical_grid.md" target="_blank" rel="noopener">LazyVerticalGrid</a>); với ảnh từ mạng, dùng thư viện ảnh như <a href="../../session_08/loading_image/coil.md" target="_blank" rel="noopener">Coil</a> thay vì tự viết.</p>
 
-<p><strong>Kết quả:</strong> cuộn nhanh lưới video, mỗi ô hiện placeholder rồi đúng thumbnail của nó, không còn chớp ảnh của video trước. Xoá một video khỏi máy rồi mở lại lưới: ô đó hiện biểu tượng lỗi. Bỏ dòng (2) đi để thấy lỗi: ô được tái sử dụng hiện thumbnail cũ trong lúc tải thumbnail mới.</p>
+<p><strong>Kết quả:</strong> đổi album, mỗi ô hiện placeholder rồi đúng thumbnail của video mới, không còn chớp ảnh của video trước. Xoá một video khỏi máy rồi mở lại lưới: ô đó hiện biểu tượng lỗi. Bỏ dòng (2) đi để thấy lỗi: ô nhận video mới vẫn hiện thumbnail cũ trong lúc tải thumbnail mới.</p>
 
 <h2>So sánh với các cách tiếp cận khác</h2>
 
@@ -48742,7 +48674,7 @@ val info by produceState&lt;FileInfo?&gt;(null) { value = fileRepository.getFile
 
 <h3>2. Không đặt lại giá trị khi key đổi</h3>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> như phần "Kết quả" của ví dụ thumbnail: ô được tái sử dụng hiện ảnh của video trước cho tới khi ảnh mới xong.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> như phần "Kết quả" của ví dụ thumbnail: ô nhận video mới hiện ảnh của video trước cho tới khi ảnh mới xong.</p>
 
 <p><strong>Cách sửa:</strong> gán <code>value = Loading</code> ở đầu <code>producer</code>, vì <code>remember</code> bên trong produceState không có key.</p>
 
@@ -48778,6 +48710,7 @@ produceState(initialValue = true, connectivityManager) {
 <ul>
   <li><a href="launched_effect.md" target="_blank" rel="noopener">LaunchedEffect</a>: vòng đời coroutine và quy tắc key mà produceState dùng lại.</li>
   <li><a href="../state/mutable_state.md" target="_blank" rel="noopener">MutableState và State Hoisting</a>: <code>State</code>, <code>MutableState</code> và snapshot system.</li>
+  <li><a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>: <code>withContext</code>, <code>suspendCancellableCoroutine</code>.</li>
 </ul></li>
   <li><strong>Liên quan:</strong>
 <ul>
@@ -48785,11 +48718,11 @@ produceState(initialValue = true, connectivityManager) {
   <li><a href="flow_with_snapshot.md" target="_blank" rel="noopener">snapshotFlow</a>: <code>collectAsState</code> và <code>collectAsStateWithLifecycle</code> được xây trên produceState.</li>
   <li><a href="../remember_and_recomposition.md" target="_blank" rel="noopener">Remember và Recomposition</a>: vì sao <code>remember</code> không key giữ giá trị khi key của effect đổi.</li>
   <li><a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: nơi đặt dữ liệu của cả màn hình.</li>
+  <li><a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>: <code>callbackFlow</code> cho nguồn callback dùng ở nhiều màn hình.</li>
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="derived_state_of.md" target="_blank" rel="noopener">derivedStateOf</a>.</li>
-  <li>8.4.3 Coroutines (chưa có bài): <code>withContext</code>, <code>suspendCancellableCoroutine</code>, <code>callbackFlow</code>.</li>
 </ul></li>
 </ul>
 
@@ -48807,7 +48740,7 @@ produceState(initialValue = true, connectivityManager) {
   'compose-derivedstateof': {
     title: 'derivedStateOf',
     summary: 'derivedStateOf { ... } tạo một State có giá trị tính từ các State khác được đọc trong khối tính toán, và chỉ báo cho nơi đọc nó recompose khi kết quả khác lần trước; vì vậy nó dùng khi input đổi thường xuyên hơn output cần đổi. Bài giải thích cơ chế theo dõi lần đọc và so sánh kết quả, vì sao luôn bọc trong remember (và khi nào cần remember(key)), ví dụ nút "lên đầu trang" theo firstVisibleItemIndex, và các trường hợp không nên dùng như chỉ ghép hai state.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
     estimatedReadingTime: '9 phút',
     depth: 'standard',
@@ -48963,7 +48896,15 @@ fun ArticleListScreen(articles: List&lt;Article&gt;, modifier: Modifier = Modifi
 
 <p><strong>Kết quả:</strong> mở Layout Inspector, bật recomposition counts rồi cuộn hết danh sách. Với bản trong "Vấn đề cần giải quyết", số recompose của <code>ArticleListScreen</code> tăng theo từng item cuộn qua; với bản derivedStateOf, nó chỉ tăng khi nút hiện hoặc ẩn.</p>
 
-<h3>Khi nào không dùng derivedStateOf</h3>
+<h2>Ví dụ thực tế</h2>
+
+<ol>
+  <li><strong>Nút "Lên đầu trang"</strong> theo <code>firstVisibleItemIndex</code>: ví dụ chính ở trên.</li>
+  <li><strong>Top bar có bóng khi đã cuộn:</strong> <code>remember { derivedStateOf { listState.firstVisibleItemIndex &gt; 0 || listState.firstVisibleItemScrollOffset &gt; 0 } }</code>. <code>firstVisibleItemScrollOffset</code> đổi từng pixel, kết quả chỉ đổi hai lần.</li>
+  <li><strong>Nút "Đăng ký" bật khi mật khẩu đủ mạnh:</strong> text đổi mỗi ký tự, nhưng "đủ mạnh hay chưa" đổi rất ít. Chỉ đáng dùng khi state text được đọc ở một composable lớn; nếu chỉ nút đọc nó thì tính thẳng là đủ.</li>
+</ol>
+
+<h2>Khi nào nên và không nên dùng</h2>
 
 <p>Câu hỏi quyết định: <strong>output có đổi ít hơn input không?</strong> Nếu output đổi cùng nhịp với input, derivedStateOf không bớt được recomposition nào, chỉ thêm chi phí theo dõi.</p>
 
@@ -48973,7 +48914,7 @@ val fullNameBad by remember { derivedStateOf { "$firstName $lastName" } }
 // Đúng: tính thẳng
 val fullName = "$firstName $lastName"</code></pre>
 
-<p>Bảng chọn:</p>
+<p>Bảng chọn giữa derivedStateOf và các cách khác:</p>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -49014,14 +48955,6 @@ val fullName = "$firstName $lastName"</code></pre>
 
 <p>Khác biệt giữa <code>remember(key)</code> và derivedStateOf: <code>remember(key)</code> chỉ chạy lại khi composable <strong>đã</strong> recompose và thấy key đổi, nên không ngăn được recomposition; derivedStateOf quyết định <strong>có</strong> recompose hay không.</p>
 
-<h2>Ví dụ thực tế</h2>
-
-<ol>
-  <li><strong>Nút "Lên đầu trang"</strong> theo <code>firstVisibleItemIndex</code>: ví dụ chính ở trên.</li>
-  <li><strong>Top bar có bóng khi đã cuộn:</strong> <code>remember { derivedStateOf { listState.firstVisibleItemIndex &gt; 0 || listState.firstVisibleItemScrollOffset &gt; 0 } }</code>. <code>firstVisibleItemScrollOffset</code> đổi từng pixel, kết quả chỉ đổi hai lần.</li>
-  <li><strong>Nút "Đăng ký" bật khi mật khẩu đủ mạnh:</strong> text đổi mỗi ký tự, nhưng "đủ mạnh hay chưa" đổi rất ít. Chỉ đáng dùng khi state text được đọc ở một composable lớn; nếu chỉ nút đọc nó thì tính thẳng là đủ.</li>
-</ol>
-
 <h2>Sai lầm thường gặp</h2>
 
 <h3>1. Không bọc trong remember</h3>
@@ -49029,7 +48962,7 @@ val fullName = "$firstName $lastName"</code></pre>
 <pre data-lang="kotlin"><code>// Sai: tạo derived state mới mỗi lần recompose
 val showScrollToTop by derivedStateOf { listState.firstVisibleItemIndex &gt; 0 }</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> không còn cache để so, nên mỗi lần recompose lại tạo object và theo dõi từ đầu; Android Studio hiện cảnh báo lint về việc tạo derivedStateOf không remember.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> không còn cache để so, nên mỗi lần recompose lại tạo object và theo dõi từ đầu; Android Studio hiện cảnh báo lint <code>UnrememberedMutableState</code>, vì <code>derivedStateOf</code> được đánh dấu là hàm tạo state (<code>@StateFactoryMarker</code>), giống <code>mutableStateOf</code>.</p>
 
 <p><strong>Cách sửa:</strong> <code>remember { derivedStateOf { ... } }</code>.</p>
 
@@ -49097,16 +49030,16 @@ fun ScrollToTopHost(listState: LazyListState, threshold: Int) {
   },
   'compose-snapshotflow': {
     title: 'snapshotFlow và flowWithSnapshot (State ↔ Flow)',
-    summary: 'Compose State và Kotlin Flow là hai cách biểu diễn giá trị thay đổi theo thời gian, và chuyển đổi State ↔ Flow là hai bộ chuyển đổi đối xứng giữa chúng. snapshotFlow { } biến các State đọc trong khối thành một cold Flow phát giá trị mới (khác giá trị trước) mỗi khi State đó đổi; collectAsState và collectAsStateWithLifecycle collect một Flow và đưa giá trị mới nhất vào State cho composition đọc. Bài nói rõ "flowWithSnapshot" không phải API chính thức, giải thích Flow.flowWithLifecycle là API gần tên nhất dành cho View system, và vì sao collectAsStateWithLifecycle là cách khuyên dùng trên Android.',
-    status: 'reviewing',
+    summary: 'Chuyển đổi State ↔ Flow là hai bộ chuyển đổi đối xứng giữa Compose State và Kotlin Flow: snapshotFlow { } biến các State đọc trong khối thành một cold Flow phát giá trị mới (khác giá trị trước) mỗi khi State đó đổi, còn collectAsState và collectAsStateWithLifecycle collect một Flow và đưa giá trị mới nhất vào State cho composition đọc. Bài nói rõ "flowWithSnapshot" không phải API chính thức (API gần tên nhất là Flow.flowWithLifecycle cho View system) và vì sao collectAsStateWithLifecycle là cách khuyên dùng trên Android.',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '15 phút',
+    estimatedReadingTime: '16 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'side-effects', 'snapshot-flow', 'flow', 'collect-as-state-with-lifecycle', 'lifecycle'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
-    prerequisites: ['android.jetpack_compose.side_effects.launched_effect', 'android.jetpack_compose.state.mutable_state', 'android.jetpack.viewmodel'],
-    related: ['android.jetpack_compose.side_effects.produce_state', 'android.jetpack_compose.side_effects.derived_state_of', 'android.jetpack_compose.side_effects.disposable_effect', 'android.architecture.mvvm', 'android.jetpack.livedata', 'android.jetpack_compose.lazy.lazy_column'],
+    prerequisites: ['android.jetpack_compose.side_effects.launched_effect', 'android.jetpack_compose.state.mutable_state', 'android.jetpack.viewmodel', 'android.design_pattern.observer.flow', 'android.async.coroutines'],
+    related: ['android.jetpack_compose.side_effects.produce_state', 'android.jetpack_compose.side_effects.derived_state_of', 'android.jetpack_compose.side_effects.disposable_effect', 'android.architecture.mvvm', 'android.jetpack.livedata', 'android.jetpack_compose.lazy.lazy_column', 'android.component.activity.lifecycle'],
     learningOutcomes: [
       'Giải thích được snapshotFlow biến các State đọc trong khối thành cold Flow thế nào, và vì sao nó chỉ phát giá trị khác giá trị trước.',
       'Áp dụng được snapshotFlow trong LaunchedEffect hoặc ViewModel để dùng toán tử Flow như debounce, filter cho State, ví dụ gửi analytics khi cuộn.',
@@ -49116,7 +49049,7 @@ fun ScrollToTopHost(listState: LazyListState, threshold: Int) {
     ],
     knowledgeGap: 'Developer thường biết collectAsState nhưng không biết nó vẫn collect khi app ở background, nên vị trí GPS, socket hay truy vấn database vẫn chạy khi người dùng đã bấm Home. Chiều ngược lại ít được biết hơn: muốn debounce một State hay gửi analytics khi cuộn, nhiều người tự viết LaunchedEffect với key đổi liên tục thay vì snapshotFlow, hoặc tìm một API "flowWithSnapshot" không tồn tại.',
     updatedAt: '2026-11-09',
-    readTime: '15 phút',
+    readTime: '16 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -49162,9 +49095,9 @@ LaunchedEffect(listState.firstVisibleItemIndex) {   // key đổi mỗi item, ef
 
 <p>Mental model: hai <strong>cửa khẩu</strong> giữa hai thế giới. Đi từ Compose sang coroutine thì qua cửa <code>snapshotFlow</code>; đi từ coroutine vào Compose thì qua cửa <code>collectAsStateWithLifecycle</code>. Mỗi cửa có giờ mở riêng: cửa <code>snapshotFlow</code> mở khi có người collect, cửa <code>collectAsStateWithLifecycle</code> chỉ mở khi màn hình đang hiển thị.</p>
 
-<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Mục lục ghi "SnapShotFlow and flowWithSnapshot", nhưng <strong><code>flowWithSnapshot</code> không phải API của Compose</strong> hay của thư viện AndroidX nào. API có thật gần tên nhất là <code>Flow.flowWithLifecycle()</code> của <code>lifecycle-runtime-ktx</code>, dùng cho View system (mục "flowWithSnapshot và Flow.flowWithLifecycle" bên dưới). Bài này dạy hai chiều chuyển đổi State ↔ Flow, là kiến thức mà tên mục hướng tới.</div></div>
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Mục lục ghi "SnapShotFlow and flowWithSnapshot", nhưng <strong><code>flowWithSnapshot</code> không phải API của Compose</strong> hay của thư viện AndroidX nào. API có thật gần tên nhất là <code>Flow.flowWithLifecycle()</code> của Lifecycle (<code>androidx.lifecycle</code>), dùng cho View system (mục "flowWithSnapshot và Flow.flowWithLifecycle" bên dưới). Bài này dạy hai chiều chuyển đổi State ↔ Flow, là kiến thức mà tên mục hướng tới.</div></div>
 
-<p>Flow là <strong>kiến thức dùng trước</strong>: Flow là luồng giá trị bất đồng bộ của Kotlin coroutines, được học ở 7.1.4.2 Flow (chưa có bài). Bài chỉ dùng <code>collect</code>, vài toán tử (<code>map</code>, <code>filter</code>, <code>debounce</code>) và <code>StateFlow</code>.</p>
+<p>Bài dùng Flow theo định nghĩa ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a>: luồng bất đồng bộ phát lần lượt nhiều giá trị theo thời gian, dựng trên coroutine; Flow thường là lạnh (cold), <code>StateFlow</code> là nóng. <code>collect</code>, các toán tử (<code>debounce</code>, <code>collectLatest</code>, <code>flatMapLatest</code>), <code>stateIn</code> và <code>WhileSubscribed</code> không giải thích lại ở đây.</p>
 
 <h2>Cách hoạt động</h2>
 
@@ -49290,6 +49223,24 @@ fun ArticleFeed(articles: List&lt;Article&gt;, analytics: Analytics) {
   </tbody>
 </table>
 
+<p>Chữ ký (rút gọn, <code>androidx.lifecycle.compose</code>):</p>
+
+<pre data-lang="kotlin"><code>@Composable
+fun &lt;T&gt; StateFlow&lt;T&gt;.collectAsStateWithLifecycle(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    context: CoroutineContext = EmptyCoroutineContext,
+): State&lt;T&gt;
+
+@Composable
+fun &lt;T&gt; Flow&lt;T&gt;.collectAsStateWithLifecycle(
+    initialValue: T,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    context: CoroutineContext = EmptyCoroutineContext,
+): State&lt;T&gt;
+// Cả hai còn một overload nhận thẳng \`lifecycle: Lifecycle\` thay cho lifecycleOwner</code></pre>
+
 <p>Bên trong, <code>collectAsStateWithLifecycle</code> là produceState chạy <code>lifecycle.repeatOnLifecycle(minActiveState) { flow.collect { value = it } }</code>: mỗi lần lifecycle xuống dưới <code>STARTED</code> thì coroutine collect bị huỷ, lên lại thì collect lại. Với <code>StateFlow</code>, không cần giá trị đầu (lấy <code>StateFlow.value</code>); với <code>Flow</code> thường phải truyền <code>initialValue</code>.</p>
 
 <p>Điều làm khác biệt này quan trọng: <strong>composition không bị huỷ khi app vào background</strong>. Bấm Home thì Activity chỉ <code>onStop</code>, composition vẫn còn, nên <code>collectAsState()</code> vẫn collect, và mọi thứ phía sau (<code>stateIn</code> của ViewModel, truy vấn Room, callback vị trí) vẫn chạy.</p>
@@ -49350,18 +49301,7 @@ fun TripTrackingScreen(viewModel: TripViewModel) {
 
 <h3>3. flowWithSnapshot và Flow.flowWithLifecycle</h3>
 
-<p>Không có API nào tên <code>flowWithSnapshot</code>. Tên gần nhất là <strong><code>Flow.flowWithLifecycle(lifecycle, minActiveState)</code></strong> trong <code>lifecycle-runtime-ktx</code>: toán tử trả về một Flow chỉ phát giá trị khi <code>lifecycle</code> ít nhất ở <code>minActiveState</code>, dừng collect upstream khi xuống dưới mức đó. Bên trong nó dùng <code>repeatOnLifecycle</code>, cùng cơ chế với <code>collectAsStateWithLifecycle</code>.</p>
-
-<p>Nơi dùng <code>flowWithLifecycle</code> là <strong>View system</strong>, khi chỉ có một Flow cần collect:</p>
-
-<pre data-lang="kotlin"><code>// OrderStatusFragment.kt (View system)
-viewLifecycleOwner.lifecycleScope.launch {
-    viewModel.orderStatus
-        .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-        .collect { status -&gt; binding.statusText.text = status.label }
-}</code></pre>
-
-<p>Có nhiều Flow thì dùng <code>repeatOnLifecycle</code> với nhiều <code>launch</code> bên trong, như ví dụ ở <a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>.</p>
+<p>Không có API nào tên <code>flowWithSnapshot</code>. Tên gần nhất là <strong><code>Flow.flowWithLifecycle(lifecycle, minActiveState)</code></strong>: toán tử trả về một Flow chỉ phát giá trị khi <code>lifecycle</code> ít nhất ở <code>minActiveState</code>, dựng trên <code>repeatOnLifecycle</code>, cùng cơ chế với <code>collectAsStateWithLifecycle</code>. Nó dùng trong <strong>View system</strong> khi chỉ có một Flow cần collect; cơ chế và ví dụ ở <a href="../../session_04/components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>, mục "flowWithLifecycle". API này ra đời trong <code>lifecycle-runtime-ktx</code> (Lifecycle 2.4.0); từ Lifecycle 2.8.0 các API của <code>lifecycle-runtime-ktx</code> chuyển vào <code>lifecycle-runtime</code>, package vẫn là <code>androidx.lifecycle</code>.</p>
 
 <p>Trong Compose, <strong>không cần</strong> <code>flowWithLifecycle</code>: <code>collectAsStateWithLifecycle()</code> gộp cả "theo lifecycle" và "thành State" vào một lời gọi. Trước khi API này có (trước Lifecycle 2.6.0), cách làm được khuyên là ghép tay hai mảnh, và có thể đây là nguồn gốc của cái tên "flowWithSnapshot":</p>
 
@@ -49381,7 +49321,7 @@ val location by lifecycleAwareFlow.collectAsState(initial = null)</code></pre>
   <li>Repository → Flow → ViewModel <code>stateIn</code> → <code>collectAsStateWithLifecycle</code> → State của UI.</li>
 </ul>
 
-<p>snapshotFlow cũng dùng được <strong>trong ViewModel</strong>, khi ViewModel giữ state bằng <code>mutableStateOf</code> (cách docs khuyên cho state của <code>TextField</code>, vì cập nhật đồng bộ, con trỏ không nhảy). Khi đó ViewModel quan sát chính state của mình bằng <code>snapshotFlow</code> để debounce, kiểm tra hợp lệ hay lưu nháp. Ví dụ đầy đủ ở mục "Ví dụ thực tế".</p>
+<p>snapshotFlow cũng dùng được <strong>trong ViewModel</strong>, khi ViewModel giữ state bằng <code>mutableStateOf</code> (cách hướng dẫn chính thức khuyên cho <code>TextField</code> dạng <code>value</code>/<code>onValueChange</code>: cập nhật state đồng bộ để con trỏ không nhảy). Khi đó ViewModel quan sát chính state của mình bằng <code>snapshotFlow</code> để debounce, kiểm tra hợp lệ hay lưu nháp. Ví dụ đầy đủ ở mục "Ví dụ thực tế".</p>
 
 <h2>Ví dụ thực tế</h2>
 
@@ -49482,7 +49422,7 @@ fun NoteEditorScreen(viewModel: NoteEditorViewModel) {
     }
 }</code></pre>
 
-<p>Bài <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a> khuyên không <code>launch</code> trong <code>init</code> để <strong>tải</strong> dữ liệu; ở đây coroutine trong <code>init</code> chỉ <strong>quan sát</strong> state của chính ViewModel để ghi, và phải sống suốt đời ViewModel để không mất nháp. Tải nội dung ghi chú ban đầu vẫn nên làm lười theo cách của bài đó. <code>collectLatest</code> và <code>drop</code> là toán tử Flow, học ở 7.1.4.2 Flow (chưa có bài).</p>
+<p>Bài <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a> khuyên không <code>launch</code> trong <code>init</code> để <strong>tải</strong> dữ liệu; ở đây coroutine trong <code>init</code> chỉ <strong>quan sát</strong> state của chính ViewModel để ghi, và phải sống suốt đời ViewModel để không mất nháp. Tải nội dung ghi chú ban đầu vẫn nên làm lười theo cách của bài đó. <code>collectLatest</code> và <code>drop</code> là toán tử Flow, học ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a>.</p>
 
 <p><strong>Kết quả:</strong> gõ liên tục thì thanh trạng thái hiện "Đang gõ…"; dừng 1 giây thì "Đang lưu…" rồi "Đã lưu", và Database Inspector của Android Studio cho thấy bản ghi nháp mới. Gõ rồi xoay màn hình ngay: nháp vẫn được lưu, vì <code>viewModelScope</code> sống qua configuration change. Giới hạn: bấm Back trong lúc đang chờ debounce thì ViewModel bị xoá, <code>viewModelScope</code> bị huỷ và lần gõ cuối chưa được lưu; nháp quan trọng cần một lần lưu chạy trong scope sống lâu hơn ViewModel (application scope hoặc WorkManager). Unit test được trên JVM: gọi <code>onContentChange</code>, <code>advanceTimeBy(1_000)</code>, kiểm tra <code>FakeNoteRepository</code> đã nhận nội dung.</p>
 
@@ -49524,7 +49464,7 @@ val scrolledFlow = snapshotFlow { listState.firstVisibleItemIndex &gt; 0 }</code
 <pre data-lang="kotlin"><code>// Sai: mỗi lần recompose gọi search() trả về Flow mới, collect bị huỷ rồi bắt đầu lại
 val results by viewModel.search(query).collectAsStateWithLifecycle(initialValue = emptyList())</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> kết quả nhấp nháy về rỗng, request lặp lại sau mỗi lần recompose (log mạng cho thấy rõ).</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> Flow mới là key mới của produceState bên trong, nên collect cũ bị huỷ và request chạy lại sau mỗi lần recompose (log mạng cho thấy rõ); recompose dày hơn thời gian request thì kết quả mới không bao giờ tới, State cứ giữ giá trị cũ.</p>
 
 <p><strong>Cách sửa:</strong> ViewModel đưa ra một property <code>results: StateFlow&lt;...&gt;</code> dựng từ <code>query</code> bằng <code>flatMapLatest</code>; UI chỉ gọi <code>viewModel.onQueryChange(query)</code>. Nếu buộc phải tạo Flow trong UI, <code>remember(query) { viewModel.search(query) }</code>.</p>
 
@@ -49544,8 +49484,8 @@ val results by viewModel.search(query).collectAsStateWithLifecycle(initialValue 
 
 <ul>
   <li><strong>2020 (trước Compose 1.0):</strong> <code>snapshotFlow</code> và <code>collectAsState</code> có trong <code>compose-runtime</code>, là hai cầu nối đầu tiên giữa snapshot system và coroutines.</li>
-  <li><strong>2021 (Lifecycle 2.4.0):</strong> thêm <code>repeatOnLifecycle</code> và <code>Flow.flowWithLifecycle</code> để collect Flow an toàn trong View system. Bài hướng dẫn chính thức thời đó cho Compose là ghép <code>remember { flow.flowWithLifecycle(...) }</code> với <code>collectAsState</code>.</li>
-  <li><strong>2022–03/2023 (Lifecycle 2.6.0):</strong> <code>lifecycle-runtime-compose</code> thêm <code>collectAsStateWithLifecycle()</code> (alpha từ 2022, stable trong 2.6.0, 03/2023), trở thành cách khuyên dùng để collect Flow trong Compose trên Android.</li>
+  <li><strong>10/2021 (Lifecycle 2.4.0, alpha từ 03/2021):</strong> thêm <code>repeatOnLifecycle</code> và <code>Flow.flowWithLifecycle</code> để collect Flow an toàn trong View system. Bài hướng dẫn chính thức thời đó cho Compose là ghép <code>remember { flow.flowWithLifecycle(...) }</code> với <code>collectAsState</code>.</li>
+  <li><strong>06/2022 – 03/2023 (Lifecycle 2.6.0):</strong> <code>lifecycle-runtime-compose</code> thêm <code>collectAsStateWithLifecycle()</code> (từ 2.6.0-alpha01, 06/2022; stable trong 2.6.0, 03/2023), trở thành cách khuyên dùng để collect Flow trong Compose trên Android.</li>
   <li><strong>05/2024 (Lifecycle 2.8.0):</strong> <code>LocalLifecycleOwner</code> chuyển vào <code>lifecycle-runtime-compose</code>; <code>collectAsStateWithLifecycle</code> mặc định dùng owner này.</li>
 </ul>
 
@@ -49557,6 +49497,8 @@ val results by viewModel.search(query).collectAsStateWithLifecycle(initialValue 
   <li><a href="launched_effect.md" target="_blank" rel="noopener">LaunchedEffect</a>: nơi collect snapshotFlow trong UI, bảng chọn effect API.</li>
   <li><a href="../state/mutable_state.md" target="_blank" rel="noopener">MutableState và State Hoisting</a>: snapshot system và State mà snapshotFlow theo dõi.</li>
   <li><a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: <code>stateIn</code>, <code>WhileSubscribed</code>, <code>viewModelScope</code>.</li>
+  <li><a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a>: Flow lạnh/nóng, <code>StateFlow</code>, <code>debounce</code>, <code>flatMapLatest</code>, <code>collectLatest</code>.</li>
+  <li><a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>: scope, huỷ coroutine.</li>
 </ul></li>
   <li><strong>Liên quan:</strong>
 <ul>
@@ -49566,11 +49508,10 @@ val results by viewModel.search(query).collectAsStateWithLifecycle(initialValue 
   <li><a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>: <code>uiState</code> một chiều và <code>repeatOnLifecycle</code> trong Fragment.</li>
   <li><a href="../../session_06/livedata.md" target="_blank" rel="noopener">LiveData</a>: <code>observeAsState()</code> cho code còn dùng LiveData.</li>
   <li><a href="../modifier/lazy_column.md" target="_blank" rel="noopener">LazyColumn</a>: <code>LazyListState</code> trong các ví dụ.</li>
+  <li><a href="../../session_04/components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>: <code>repeatOnLifecycle</code> và <code>flowWithLifecycle</code> trong View system.</li>
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
-  <li>7.1.4.2 Flow (chưa có bài): <code>StateFlow</code>, <code>debounce</code>, <code>flatMapLatest</code>, <code>collectLatest</code>.</li>
-  <li>8.4.3 Coroutines (chưa có bài): huỷ coroutine, <code>repeatOnLifecycle</code> bên trong.</li>
   <li><a href="../theming/material_design_theme.md" target="_blank" rel="noopener">Material Design Theme</a>: mục tiếp theo của Session 09.</li>
 </ul></li>
 </ul>
@@ -49591,15 +49532,15 @@ val results by viewModel.search(query).collectAsStateWithLifecycle(initialValue 
   'compose-material-theme': {
     title: 'Material Design Theme (Color, Typography, Shapes)',
     summary: 'MaterialTheme là composable đặt ở gốc cây UI, cung cấp ba hệ thống token của Material 3 là ColorScheme (vai trò màu), Typography (thang chữ) và Shapes (thang bo góc) cho mọi composable con; Material component đọc giá trị mặc định từ đây, code của app đọc qua MaterialTheme.colorScheme, typography, shapes. Bài giải thích các vai trò màu và cặp on-color, dark theme với isSystemInDarkTheme, dynamic color trên Android 12+, định nghĩa type scale và shape scale, theme lồng nhau, và cách sinh theme bằng Material Theme Builder.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'beginner',
-    estimatedReadingTime: '17 phút',
+    estimatedReadingTime: '20 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'theming', 'material3', 'color-scheme', 'typography', 'dark-theme', 'dynamic-color'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.compose_overview'],
-    related: ['android.jetpack_compose.theming.custom_theme', 'android.jetpack_compose.layout_and_view', 'android.component.activity.state_changes'],
+    related: ['android.jetpack_compose.theming.custom_theme', 'android.jetpack_compose.layout_and_view', 'android.component.activity.state_changes', 'android.view_layout.design_guide'],
     learningOutcomes: [
       'Giải thích được MaterialTheme cung cấp ColorScheme, Typography và Shapes cho cây composable thế nào, và vì sao Material component tự đổi theo theme.',
       'Phân biệt được các vai trò màu của Material 3 (primary, container, surface, on-color) và chọn đúng cặp màu nền với màu nội dung.',
@@ -49609,7 +49550,7 @@ val results by viewModel.search(query).collectAsStateWithLifecycle(initialValue 
     ],
     knowledgeGap: 'Nhiều developer viết Color(0xFF...) và 16.sp thẳng trong từng composable, nên bật dark mode thì chữ đen nằm trên nền đen, đổi màu thương hiệu phải sửa hàng trăm chỗ, còn Button và TextField của Material vẫn mang màu tím mặc định vì app chưa bao giờ truyền ColorScheme vào MaterialTheme. Không hiểu cặp primary và onPrimary thì tự chọn màu chữ, mất độ tương phản khi dynamic color đổi bảng màu theo hình nền.',
     updatedAt: '2026-11-09',
-    readTime: '17 phút',
+    readTime: '20 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -49665,7 +49606,9 @@ fun OrderCard(order: Order) {
     // mọi composable ở đây đọc được theme
 }</code></pre>
 
-<p>Cả ba tham số đều có giá trị mặc định là <strong>theme đang bao quanh</strong> (<code>colorScheme: ColorScheme = MaterialTheme.colorScheme</code>). Ở gốc cây, chưa có theme nào bao quanh, nên giá trị mặc định là bảng màu, thang chữ, thang bo góc chuẩn của Material 3. Đó là lý do một app chỉ gọi <code>MaterialTheme { }</code> trống vẫn chạy được, nhưng mang màu tím mặc định của Material chứ không phải màu của app.</p>
+<p>Các bản Material 3 gần đây có thêm overload nhận cả <code>motionScheme</code> (<code>MotionScheme</code>: bộ animation spec mà component Material dùng, có sẵn <code>MotionScheme.standard()</code> và <code>MotionScheme.expressive()</code>); bài này tập trung vào ba hệ thống màu, chữ, hình khối.</p>
+
+<p>Mọi tham số đều có giá trị mặc định là <strong>theme đang bao quanh</strong> (<code>colorScheme: ColorScheme = MaterialTheme.colorScheme</code>). Ở gốc cây, chưa có theme nào bao quanh, nên giá trị mặc định là bảng màu, thang chữ, thang bo góc chuẩn của Material 3. Đó là lý do một app chỉ gọi <code>MaterialTheme { }</code> trống vẫn chạy được, nhưng mang màu tím mặc định của Material chứ không phải màu của app.</p>
 
 <p>Bên trong, <code>MaterialTheme</code> đưa các giá trị xuống cây bằng <strong>CompositionLocal</strong>: cơ chế truyền dữ liệu ngầm cho mọi composable con mà không cần tham số. Cơ chế này được dạy đầy đủ ở <a href="custom_theme.md" target="_blank" rel="noopener">9.4.2 Custom Theme</a>; ở bài này chỉ cần biết hai hệ quả:</p>
 
@@ -49738,7 +49681,7 @@ fun OrderCard(order: Order) {
 
 <p>Quy tắc quan trọng nhất là <strong>cặp on-color</strong>: màu <code>onX</code> được thiết kế để đọc rõ khi đặt trên nền <code>X</code>. Chữ trên nền <code>primary</code> dùng <code>onPrimary</code>; chữ trên <code>primaryContainer</code> dùng <code>onPrimaryContainer</code>. Docs của Android nhấn mạnh việc dùng đúng cặp này để giữ độ tương phản đạt chuẩn accessibility. Ghép <code>tertiaryContainer</code> với chữ <code>primaryContainer</code> là tự phá độ tương phản.</p>
 
-<p>Mỗi vai trò lấy từ một <strong>tonal palette</strong> (dải 13 sắc độ) sinh ra từ năm màu gốc (key colors): primary, secondary, tertiary, neutral, neutral variant. Bản tối không phải "đảo màu" bản sáng, mà là chọn sắc độ khác trong cùng dải, nên app tối vẫn giữ được bản sắc thương hiệu.</p>
+<p>Mỗi vai trò lấy từ một <strong>tonal palette</strong> (dải sắc độ, tone từ 0 là đen tới 100 là trắng; cơ chế HCT ở <a href="../../session_08/view_layout/design_guide.md" target="_blank" rel="noopener">8.5.4 Design Guide</a>) sinh ra từ năm màu gốc (key colors): primary, secondary, tertiary, neutral, neutral variant. Bản tối không phải "đảo màu" bản sáng, mà là chọn sắc độ khác trong cùng dải, nên app tối vẫn giữ được bản sắc thương hiệu.</p>
 
 <p>Hai hàm <code>lightColorScheme(...)</code> và <code>darkColorScheme(...)</code> tạo <code>ColorScheme</code> với mọi vai trò có giá trị mặc định; app chỉ truyền vai trò muốn đổi. Thực tế, ít ai tự chọn đủ hơn hai mươi vai trò bằng tay: công cụ <strong>Material Theme Builder</strong> nhận màu thương hiệu, sinh đủ các vai trò cho bản sáng và tối, và xuất ra <code>Color.kt</code>, <code>Theme.kt</code>, <code>Type.kt</code> dùng ngay trong Compose.</p>
 
@@ -49815,11 +49758,11 @@ fun OrderCard(
 <p>App quyết định dùng <code>ColorScheme</code> nào ngay trong hàm theme của nó, thường theo hai câu hỏi:</p>
 
 <ul>
-  <li><strong>Sáng hay tối?</strong> <code>isSystemInDarkTheme()</code> đọc cài đặt giao diện tối của hệ thống. Đây là composable, nên khi người dùng bật hoặc tắt chế độ tối, hàm theme được gọi lại. Nếu app có cài đặt riêng ("Sáng / Tối / Theo hệ thống"), giá trị đọc từ cài đặt đó thay cho <code>isSystemInDarkTheme()</code>.</li>
-  <li><strong>Có dùng dynamic color không?</strong> Dynamic color là tính năng của <strong>Material You</strong> trên <strong>Android 12 (API 31) trở lên</strong>: hệ thống sinh bảng màu từ hình nền của người dùng, và app có thể dùng bảng đó thay cho màu thương hiệu. Compose cung cấp <code>dynamicLightColorScheme(context)</code> và <code>dynamicDarkColorScheme(context)</code>; hai hàm này chỉ tồn tại từ API 31, nên phải kiểm tra <code>Build.VERSION.SDK_INT</code> và có <strong>fallback</strong> về bảng màu riêng của app trên máy cũ.</li>
+  <li><strong>Sáng hay tối?</strong> <code>isSystemInDarkTheme()</code> là composable đọc cờ giao diện tối trong <code>Configuration</code> hiện tại (<code>uiMode</code>). Khi người dùng bật hoặc tắt chế độ tối, mặc định Activity được tạo lại (configuration change) nên hàm theme chạy lại với giá trị mới; nếu Activity tự xử lý <code>uiMode</code> thì hàm theme recompose ngay trong composition hiện tại. Nếu app có cài đặt riêng ("Sáng / Tối / Theo hệ thống"), giá trị đọc từ cài đặt đó thay cho <code>isSystemInDarkTheme()</code>.</li>
+  <li><strong>Có dùng dynamic color không?</strong> Dynamic color là tính năng của <strong>Material You</strong> trên <strong>Android 12 (API 31) trở lên</strong>: hệ thống sinh bảng màu từ hình nền của người dùng, và app có thể dùng bảng đó thay cho màu thương hiệu. Compose cung cấp <code>dynamicLightColorScheme(context)</code> và <code>dynamicDarkColorScheme(context)</code>; hai hàm này được đánh dấu <code>@RequiresApi(31)</code> vì đọc bảng màu hệ thống chỉ có từ Android 12, nên phải kiểm tra <code>Build.VERSION.SDK_INT</code> và có <strong>fallback</strong> về bảng màu riêng của app trên máy cũ.</li>
 </ul>
 
-<p>Dynamic color là lựa chọn sản phẩm, không phải bắt buộc. App ngân hàng, app thương hiệu mạnh thường tắt nó để giữ màu nhận diện; app tiện ích (ghi chú, đồng hồ) bật nó để hoà vào hệ thống.</p>
+<p>Dynamic color là lựa chọn sản phẩm: app thương hiệu mạnh (ngân hàng) thường tắt để giữ màu nhận diện, app tiện ích (ghi chú, đồng hồ) bật để hoà vào hệ thống.</p>
 
 <h4>Ví dụ: hàm theme của app ghi chú</h4>
 
@@ -49873,7 +49816,7 @@ fun NotesTheme(
     )
 }</code></pre>
 
-<p><strong>Kết quả:</strong> trên máy Android 12+, đổi hình nền rồi mở lại app: màu nút, thanh trên cùng đổi theo hình nền. Trên emulator API 30, app dùng <code>LightColors</code>/<code>DarkColors</code>. Bật giao diện tối trong Quick Settings khi app đang mở: app chuyển ngay, không cần khởi động lại, vì <code>isSystemInDarkTheme()</code> là state của composition.</p>
+<p><strong>Kết quả:</strong> trên máy Android 12+, đổi hình nền rồi mở lại app: màu nút, thanh trên cùng đổi theo hình nền. Trên emulator API 30, app dùng <code>LightColors</code>/<code>DarkColors</code>. Bật giao diện tối trong Quick Settings khi app đang mở: app chuyển sang bảng màu tối ngay, người dùng không phải mở lại app (bên dưới, Activity được tạo lại theo configuration change, như callout dưới đây).</p>
 
 <div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">Bật/tắt chế độ tối là một configuration change (<code>uiMode</code>). Nếu Activity không khai báo tự xử lý <code>uiMode</code>, nó bị tạo lại như khi xoay màn hình; state nào cần giữ phải nằm ngoài composition, xem <a href="../../session_04/components/activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>.</div></div>
 
@@ -49956,7 +49899,7 @@ val NewsTypography = Typography(
 
 <p>Ở chỗ dùng, chọn style theo vai trò: <code>Text(article.title, style = MaterialTheme.typography.titleMedium)</code>. Cần biến thể nhỏ thì <code>copy</code> từ style của theme (<code>MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic)</code>), không tự tạo <code>TextStyle</code> từ đầu: <code>TextStyle(...)</code> mới làm mất font thương hiệu, line height và letter spacing của theme. Các tham số của <code>Text</code> (maxLines, overflow, <code>AnnotatedString</code>) học ở <a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a>.</p>
 
-<p><strong>Kết quả:</strong> mọi <code>Text</code>, kể cả chữ trong <code>Button</code> và <code>TopAppBar</code>, dùng Be Vietnam Pro. Kiểm chứng bằng Preview với chuỗi có dấu như "Thời sự hôm nay": không có ký tự nào rơi về font khác. Tăng cỡ chữ hệ thống lên mức lớn nhất: chữ phóng theo, đây là hành vi đúng.</p>
+<p><strong>Kết quả:</strong> mọi <code>Text</code> dùng style đã đặt font, kể cả chữ trong <code>Button</code> (<code>labelLarge</code>) và <code>TopAppBar</code> (<code>titleLarge</code>), hiện bằng Be Vietnam Pro; Preview với chuỗi có dấu như "Thời sự hôm nay" không có ký tự nào rơi về font khác. Tăng cỡ chữ hệ thống: chữ phóng theo, đây là hành vi đúng.</p>
 
 <h3>Shapes: thang bo góc</h3>
 
@@ -50060,7 +50003,7 @@ fun MiniPlayer(episode: Episode, isPlaying: Boolean, onTogglePlay: () -&gt; Unit
 // ui/theme/Color.kt
 val PlayerDarkColors = darkColorScheme(primary = Color(0xFFFFB4AB), surfaceContainer = Color(0xFF1E1B1B))</code></pre>
 
-<p><code>Modifier.weight(1f)</code> là modifier riêng của <code>Row</code> (học ở 9.5.2 Chaining), <code>Row</code> và <code>Icon</code> học ở <a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a>.</p>
+<p><code>Modifier.weight(1f)</code> là modifier riêng của <code>Row</code> (học ở <a href="../modifier/chaining.md" target="_blank" rel="noopener">9.5.2 Chaining</a>), <code>Row</code> và <code>Icon</code> học ở <a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a>.</p>
 
 <p><strong>Kết quả:</strong> thanh trình phát tối trên nền danh sách sáng; chữ và icon trong thanh dùng màu nội dung của bảng tối nên đọc rõ. Layout Inspector cho thấy hai <code>MaterialTheme</code> trong cây, và chỉ nhánh <code>MiniPlayer</code> dùng bảng tối.</p>
 
@@ -50071,7 +50014,7 @@ val PlayerDarkColors = darkColorScheme(primary = Color(0xFFFFB4AB), surfaceConta
 <ol>
   <li><strong>Bộ file theme của app</strong> từ Material Theme Builder, dùng trong <code>Activity</code>, có Preview sáng và tối. Đây là bài toán chính, code bên dưới.</li>
   <li><strong>Cài đặt giao diện trong app</strong> ("Sáng / Tối / Theo hệ thống"): đọc lựa chọn từ DataStore ở <code>MainActivity</code>, truyền vào <code>darkTheme</code> của hàm theme thay cho <code>isSystemInDarkTheme()</code>. Hàm theme không đổi gì, vì nó đã nhận <code>darkTheme</code> qua tham số.</li>
-  <li><strong>Một vùng có theme riêng:</strong> banner khuyến mãi, thanh trình phát, như ví dụ "Theme lồng nhau".</li>
+  <li><strong>Một vùng có theme riêng:</strong> như ví dụ "Theme lồng nhau".</li>
 </ol>
 
 <h3>Bộ file theme của app và Preview hai chế độ</h3>
@@ -50184,13 +50127,12 @@ private fun NoteListScreenPreview() {
   </tbody>
 </table>
 
-<p>Chuyển Material 2 sang Material 3 không chỉ là đổi import: tên vai trò màu, tên style chữ và cách thể hiện elevation (<strong>tonal elevation</strong>: bề mặt cao hơn có sắc màu đậm hơn) đều khác; docs có hướng dẫn chuyển đổi riêng.</p>
+<p>Chuyển Material 2 sang Material 3 không chỉ là đổi import: tên vai trò màu, tên style chữ và cách thể hiện elevation (<strong>tonal elevation</strong>) đều khác; docs có hướng dẫn chuyển đổi riêng.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
 <ul>
   <li><strong>Nên dùng</strong> <code>MaterialTheme</code> (Material 3) cho gần như mọi app Compose dùng Material component: đây là cách duy nhất để <code>Button</code>, <code>TextField</code>, <code>TopAppBar</code> mang màu, chữ, hình khối của app.</li>
-  <li><strong>Nên</strong> cân nhắc dynamic color theo sản phẩm: bật cho app tiện ích muốn hoà vào hệ thống, tắt cho app cần giữ màu nhận diện.</li>
   <li><strong>Không nên</strong> dùng <code>MaterialTheme</code> để chứa token mà Material không có (màu <code>success</code>, khoảng cách, elevation riêng): thêm chúng bằng theme mở rộng ở <a href="custom_theme.md" target="_blank" rel="noopener">9.4.2 Custom Theme</a>.</li>
   <li><strong>Không nên</strong> lồng theme cho từng component nhỏ: theme lồng dành cho một vùng có bản sắc riêng; đổi màu một nút thì truyền <code>colors</code> cho nút đó.</li>
 </ul>
@@ -50226,7 +50168,7 @@ Text("Đã giao", color = MaterialTheme.colorScheme.primary,
   <li><strong>Google I/O 2021:</strong> Material You (Material Design 3) được giới thiệu cùng Android 12, với dynamic color sinh bảng màu từ hình nền.</li>
   <li><strong>Compose Material 3 1.0 (10/2022):</strong> bản stable đầu tiên của <code>androidx.compose.material3</code>, với <code>ColorScheme</code>, type scale mới và <code>dynamicLightColorScheme</code>/<code>dynamicDarkColorScheme</code>.</li>
   <li><strong>Các bản Material 3 sau đó:</strong> bổ sung nhóm vai trò <code>surfaceContainer…</code> (thay dần cách dùng <code>surfaceColorAtElevation</code>), rồi các vai trò "fixed" (<code>primaryFixed</code>…) theo spec Material.</li>
-  <li><strong>2025:</strong> Google giới thiệu <strong>Material 3 Expressive</strong>, mở rộng Material 3 về shape, motion, typography; các bản Material 3 gần đây có thêm hệ thống <code>MotionScheme</code> trong theme và <code>MaterialExpressiveTheme</code> (đang ở dạng experimental tại thời điểm viết). Cùng giai đoạn, docs khuyên không dùng thư viện <code>material-icons</code> cũ mà tải icon Material Symbols (xem <a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a>).</li>
+  <li><strong>2025:</strong> Google giới thiệu <strong>Material 3 Expressive</strong>, mở rộng Material 3 về shape, motion, typography; các bản Material 3 gần đây có thêm hệ thống <code>MotionScheme</code> làm tham số của <code>MaterialTheme</code>, cùng hàm <code>MaterialExpressiveTheme</code> cho bộ token Expressive (đối chiếu API reference của bản đang dùng, vì nhóm API Expressive còn thay đổi). Cùng giai đoạn, docs khuyên không dùng thư viện <code>material-icons</code> cũ mà tải icon Material Symbols (xem <a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a>).</li>
 </ul>
 
 <p>Hướng thay đổi xuyên suốt: từ "vài màu chính" sang <strong>vai trò màu sinh từ tonal palette</strong>, để cùng một code UI đúng với mọi bảng màu, kể cả bảng màu developer không biết trước như dynamic color.</p>
@@ -50244,7 +50186,7 @@ Text("Đã giao", color = MaterialTheme.colorScheme.primary,
   <li><a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a>: <code>Text</code>, <code>Icon</code> đọc style và content color từ theme.</li>
   <li><a href="../graphics_animations/surface_and_canvas.md" target="_blank" rel="noopener">9.7.1 Surface and Canvas</a>: <code>Surface</code>, content color và tonal elevation.</li>
   <li><a href="../../session_04/components/activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>: chuyển sáng/tối là configuration change.</li>
-  <li>8.5.3 Styles và 8.5.4 Design Guide (Materials, Flat) (chưa có bài): theme và style trong View system.</li>
+  <li><a href="../../session_08/view_layout/styles.md" target="_blank" rel="noopener">8.5.3 Styles</a> và <a href="../../session_08/view_layout/design_guide.md" target="_blank" rel="noopener">8.5.4 Design Guide</a>: theme, style và cùng hệ token Material 3 (color role, type scale, shape, dynamic color) trong View system.</li>
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
@@ -50270,15 +50212,15 @@ Text("Đã giao", color = MaterialTheme.colorScheme.primary,
   'compose-custom-theme': {
     title: 'Custom Theme (Dimens, Factories, Data)',
     summary: 'Custom theme là lớp token riêng của app mà Material không có sẵn (màu trạng thái, khoảng cách, elevation...), được gói thành data class bất biến, đưa xuống cây composable bằng CompositionLocal và đọc qua một object như AppTheme.spacing, đặt cạnh hoặc thay cho MaterialTheme. Bài giải thích CompositionLocal (compositionLocalOf và staticCompositionLocalOf, CompositionLocalProvider, current), cách thiết kế theme data, hàm factory tạo theme theo brand, flavor, kích thước màn hình, và khi nào không nên dùng CompositionLocal.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '17 phút',
+    estimatedReadingTime: '20 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'theming', 'design-system', 'composition-local', 'dimens', 'white-label'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.theming.material_theme', 'android.jetpack_compose.compose_overview'],
-    related: ['android.jetpack_compose.remember_recomposition', 'android.jetpack_compose.layout_and_view', 'android.architecture.mvvm'],
+    related: ['android.jetpack_compose.remember_recomposition', 'android.jetpack_compose.layout_and_view', 'android.architecture.mvvm', 'android.view_layout.design_guide'],
     learningOutcomes: [
       'Giải thích được CompositionLocal truyền giá trị ngầm theo nhánh cây composable thế nào, và vì sao current trả về giá trị của provider gần nhất phía trên.',
       'Phân biệt được compositionLocalOf với staticCompositionLocalOf về phạm vi recomposition khi giá trị đổi, và chọn đúng loại cho từng token.',
@@ -50288,7 +50230,7 @@ Text("Đã giao", color = MaterialTheme.colorScheme.primary,
     ],
     knowledgeGap: 'Thiếu một chỗ đặt token riêng, developer rải 16.dp và Color(0xFF2E7D32) cho "thành công" khắp các màn hình, hoặc nhét màu success vào một vai trò Material không liên quan khiến dark mode sai. Khi đã biết CompositionLocal thì lại lạm dụng: đưa ViewModel hay repository vào CompositionLocal cho tiện, dùng staticCompositionLocalOf cho giá trị đổi liên tục làm cả màn hình recompose, hoặc để default ném lỗi khiến Preview và test crash.',
     updatedAt: '2026-11-09',
-    readTime: '17 phút',
+    readTime: '20 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -50360,7 +50302,7 @@ fun OrderScreen(order: Order, spacing: AppSpacing, statusColors: StatusColors) {
 flowchart TD
     R["(1) AppTheme: LocalAppSpacing = AppSpacing chuẩn"] --&gt; S["InboxScreen"]
     R --&gt; C["ComposeScreen: spacing chuẩn"]
-    S --&gt; B["(4) SearchBar: spacing chuẩn"]
+    S --&gt; B["(4) SearchBarRow: spacing chuẩn"]
     S --&gt; P{"(2) density == Compact?"}
     P --&gt;|có| PC["CompositionLocalProvider(LocalAppSpacing provides CompactSpacing)"]
     P --&gt;|không| L["danh sách dùng spacing chuẩn"]
@@ -50411,7 +50353,7 @@ fun EmailRow(email: Email, onClick: () -&gt; Unit) {
     }
 }</code></pre>
 
-<p><code>LazyColumn</code> và <code>items(key = ...)</code> học ở 9.5.4 Lazy Column; <code>Column</code>, <code>Text</code> ở <a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a>.</p>
+<p><code>LazyColumn</code> và <code>items(key = ...)</code> học ở <a href="../modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a>; <code>Column</code>, <code>Text</code> ở <a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a>.</p>
 
 <p><strong>Kết quả:</strong> chuyển mật độ sang "gọn", danh sách hiện nhiều thư hơn trên một màn hình; thanh tìm kiếm và màn hình soạn thư không đổi. <code>EmailRow</code> không có tham số spacing nào: cùng một composable cho ra hai mật độ tuỳ nhánh cây mà nó nằm trong.</p>
 
@@ -50464,7 +50406,7 @@ fun EmailRow(email: Email, onClick: () -&gt; Unit) {
 <ol>
   <li><code>ArticleScreen</code> giữ <code>scale</code> (state) và cung cấp <code>LocalReadingScale provides scale</code>.</li>
   <li>Người dùng kéo thanh trượt, <code>scale</code> đổi.</li>
-  <li>Với <code>compositionLocalOf</code>: Compose chỉ invalidate các composable đã đọc <code>LocalReadingScale.current</code>, tức <code>ArticleBody</code>. <code>ArticleCover</code> có tham số không đổi nên được skip.</li>
+  <li>Với <code>compositionLocalOf</code>: ngoài <code>ArticleScreen</code> (tự đọc <code>scale</code>) và <code>Slider</code>, Compose chỉ invalidate các composable đã đọc <code>LocalReadingScale.current</code>, tức <code>ArticleBody</code>. <code>ArticleCover</code> có tham số không đổi nên được skip.</li>
   <li>Nếu đổi sang <code>staticCompositionLocalOf</code>: toàn bộ <code>content</code> của provider bị recompose, kể cả <code>ArticleCover</code>.</li>
 </ol>
 
@@ -50507,7 +50449,7 @@ fun ArticleBody(paragraphs: List&lt;String&gt;) {
     paragraphs.forEach { paragraph -&gt; Text(paragraph, style = style) }
 }</code></pre>
 
-<p><code>mutableFloatStateOf</code> và <code>rememberSaveable</code> là kiến thức dùng trước, học ở 9.2.1 MutableState và 9.2.2 rememberSaveable.</p>
+<p><code>mutableFloatStateOf</code> và <code>rememberSaveable</code> học ở <a href="../state/mutable_state.md" target="_blank" rel="noopener">9.2.1 MutableState</a> và <a href="../state/remember_saveable.md" target="_blank" rel="noopener">9.2.2 rememberSaveable</a>.</p>
 
 <p><strong>Kết quả:</strong> mở Layout Inspector, bật hiển thị recomposition counts rồi kéo thanh trượt: số lần recompose của <code>ArticleBody</code> tăng theo, của <code>ArticleCover</code> đứng yên. Đổi khai báo thành <code>staticCompositionLocalOf { 1f }</code> rồi kéo lại: <code>ArticleCover</code> cũng tăng. Ở đây chọn <code>compositionLocalOf</code> là đúng, vì giá trị đổi liên tục và chỉ một nhánh nhỏ đọc nó.</p>
 
@@ -50729,7 +50671,7 @@ fun BankTheme(
     }
 }</code></pre>
 
-<p><code>BankTypography</code> khai báo như <code>Type.kt</code> ở 9.4.1. <code>GreenBankPalette</code>, <code>BlueBankPalette</code> khai báo hai <code>ColorScheme</code> (sinh bằng Material Theme Builder như ở 9.4.1) và hai <code>AppColors</code>. <code>currentWindowAdaptiveInfo()</code> nằm trong artifact <code>androidx.compose.material3.adaptive:adaptive</code>; window size class được dùng ở đây vì nó dựa trên <strong>kích thước cửa sổ</strong> của app chứ không phải loại thiết bị, nên đúng cả khi chia đôi màn hình. <code>remember(keys)</code> giữ theme data qua recomposition và chỉ tạo lại khi điều kiện đổi (cơ chế ở 9.1).</p>
+<p><code>BankTypography</code> khai báo như <code>Type.kt</code> ở 9.4.1. <code>GreenBankPalette</code>, <code>BlueBankPalette</code> khai báo hai <code>ColorScheme</code> (sinh bằng Material Theme Builder như ở 9.4.1) và hai <code>AppColors</code>. <code>currentWindowAdaptiveInfo()</code> nằm trong artifact <code>androidx.compose.material3.adaptive:adaptive</code>, còn <code>WindowSizeClass</code> và hằng số <code>WIDTH_DP_MEDIUM_LOWER_BOUND</code> (600dp) thuộc <code>androidx.window.core.layout</code>; window size class được dùng ở đây vì nó dựa trên <strong>kích thước cửa sổ</strong> của app chứ không phải loại thiết bị, nên đúng cả khi chia đôi màn hình. Bài này chỉ dùng nó để chọn token; dùng window size class cho quyết định bố cục cấp màn hình (một hay hai cột) thuộc <a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a>. <code>remember(keys)</code> giữ theme data qua recomposition và chỉ tạo lại khi điều kiện đổi (cơ chế ở 9.1).</p>
 
 <p><strong>Kết quả:</strong> <code>./gradlew assembleGreenbankDebug</code> và <code>assembleBluebankDebug</code> cho hai app khác màu từ cùng một code màn hình. Mở app trên emulator tablet hoặc kéo rộng cửa sổ trong chế độ chia đôi qua mốc 600dp: lề màn hình nới ra. Unit test gọi <code>bankThemeData(Brand.BlueBank, darkTheme = true, isWide = false)</code> và kiểm tra <code>colorScheme.primary</code> của brand, không cần thiết bị.</p>
 
@@ -50853,7 +50795,7 @@ private fun TransactionRowSamples(brand: Brand) {
     }
 }</code></pre>
 
-<p><code>Row</code>, <code>Arrangement.spacedBy</code>, <code>Surface</code> học ở <a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a> và 9.7.1; <code>Modifier.weight</code> ở 9.5.2.</p>
+<p><code>Row</code>, <code>Arrangement.spacedBy</code>, <code>Surface</code> học ở <a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a> và <a href="../graphics_animations/surface_and_canvas.md" target="_blank" rel="noopener">9.7.1 Surface and Canvas</a>; <code>Modifier.weight</code> ở <a href="../modifier/chaining.md" target="_blank" rel="noopener">9.5.2 Chaining</a>.</p>
 
 <p><strong>Kết quả:</strong> panel Preview hiện bốn tổ hợp brand × sáng/tối; mỗi chip đọc rõ trên nền của nó. Thêm Preview với <code>@Preview(device = Devices.TABLET)</code> để thấy spacing rộng. Không có một hằng số <code>dp</code> hay màu nào trong <code>TransactionRow</code>: đổi spacing chuẩn trong <code>AppSpacing</code> thì mọi màn hình đổi theo.</p>
 
@@ -50965,12 +50907,12 @@ appColors.success = Color.Red                // UI vẫn hiện màu cũ</code><
   <li><a href="../remember_and_recomposition.md" target="_blank" rel="noopener">9.1 Remember and Recomposition</a>: recompose scope, <code>@Immutable</code>/<code>@Stable</code> và skipping.</li>
   <li><a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a>: <code>Row</code>, <code>Column</code>, <code>Text</code> dùng token spacing và typography.</li>
   <li><a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>: vì sao ViewModel đi xuống bằng state và lambda, không bằng CompositionLocal.</li>
-  <li>9.8 Gesture and Composition Local: nhóm mục này trong nav nhắc tới Composition Local; kiến thức được dạy tại bài này.</li>
+  <li>9.8 Gesture and Composition Local: nhóm mục này trong nav nhắc tới Composition Local nhưng không có bài riêng; kiến thức được dạy tại bài này, các bài 9.8.x (ví dụ <a href="../gesture/scrolling.md" target="_blank" rel="noopener">9.8.1 Scrolling</a>) chỉ nhắc và link về đây.</li>
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
-  <li>9.5.1 Modifier Order và 9.5.2 Chaining: dùng token spacing trong chuỗi modifier.</li>
-  <li>8.5.4 Design Guide (Materials, Flat) (chưa có bài): nguyên tắc thiết kế đứng sau design system.</li>
+  <li><a href="../modifier/modifier_order.md" target="_blank" rel="noopener">9.5.1 Modifier Order</a> và <a href="../modifier/chaining.md" target="_blank" rel="noopener">9.5.2 Chaining</a>: dùng token spacing trong chuỗi modifier.</li>
+  <li><a href="../../session_08/view_layout/design_guide.md" target="_blank" rel="noopener">8.5.4 Design Guide</a>: design token và nguyên tắc thiết kế đứng sau design system; bản View của white-label nhiều flavor.</li>
 </ul></li>
 </ul>
 
@@ -50990,15 +50932,15 @@ appColors.success = Color.Red                // UI vẫn hiện màu cũ</code><
   'compose-modifier-order': {
     title: 'Modifier Order',
     summary: 'Modifier là một chuỗi bất biến, có thứ tự, gồm các Modifier.Element; mỗi phần tử bọc phần còn lại của chuỗi cùng layout node, nên chuỗi được áp từ ngoài (trái) vào trong (phải). Bài giải thích vì sao thứ tự đổi kết quả ở cả ba mặt đo, vẽ và nhận chạm: constraints truyền từ trái sang phải còn kích thước đi ngược lại, padding trước hay sau background, clickable trước hay sau padding, size với fillMaxWidth, clip trước background.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '17 phút',
+    estimatedReadingTime: '19 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'modifier', 'modifier-order', 'constraints', 'layout'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.compose_overview', 'android.languages.kotlin'],
-    related: ['android.jetpack_compose.modifier.chaining', 'android.jetpack_compose.modifier.composed', 'android.jetpack_compose.layout_and_view', 'android.jetpack_compose.graphics.surface_canvas'],
+    related: ['android.jetpack_compose.modifier.chaining', 'android.jetpack_compose.modifier.composed', 'android.jetpack_compose.layout_and_view', 'android.jetpack_compose.graphics.surface_canvas', 'android.view_layout.layouts'],
     learningOutcomes: [
       'Giải thích được Modifier là chuỗi bất biến các Modifier.Element, mỗi phần tử bọc phần còn lại của chuỗi và layout node, nên được áp từ ngoài vào trong.',
       'Giải thích được cách constraints truyền từ trái sang phải trong chuỗi và kích thước đi ngược lại, qua các tổ hợp size, padding, fillMaxWidth, requiredSize, wrapContentSize.',
@@ -51008,7 +50950,7 @@ appColors.success = Color.Red                // UI vẫn hiện màu cũ</code><
     ],
     knowledgeGap: 'Developer quen View system coi modifier như thuộc tính XML không có thứ tự, nên viết padding trước clickable rồi thắc mắc vì sao mép thẻ không bấm được, đặt background sau padding làm nền không phủ hết, hoặc gọi size hai lần mong giá trị sau thắng; vì không biết constraints đi qua chuỗi thế nào, họ sửa bằng cách thử đổi chỗ từng modifier cho tới khi "trông đúng".',
     updatedAt: '2026-11-09',
-    readTime: '17 phút',
+    readTime: '19 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -51245,7 +51187,7 @@ fun UserHeader(user: User, modifier: Modifier = Modifier) {
 
 <p><code>Image</code>, <code>painterResource</code>, <code>ContentScale</code> học ở 9.6 <a href="../layout_and_view.md" target="_blank" rel="noopener">Layout and View</a>.</p>
 
-<p><strong>Kết quả:</strong> mở Layout Inspector (Android Studio → Tools → Layout Inspector), chọn node <code>Image</code>: kích thước hiển thị là 56 x 56dp và vị trí lệch 4dp so với <code>Row</code>. Có thể khoá hành vi này bằng UI test Compose (học ở 10.2 Unit Testing, chưa có bài): <code>composeTestRule.onNodeWithTag("avatar").assertWidthIsEqualTo(56.dp)</code>. Đổi thứ tự hai modifier, test báo 48dp.</p>
+<p><strong>Kết quả:</strong> mở Layout Inspector (Android Studio → Tools → Layout Inspector), chọn node <code>Image</code>: kích thước hiển thị là 56 x 56dp và vị trí lệch 4dp so với <code>Row</code>. Có thể khoá hành vi này bằng UI test Compose (<code>createComposeRule</code>; UI test Compose chưa có bài riêng, nền tảng test ở <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>): <code>composeTestRule.onNodeWithTag("avatar").assertWidthIsEqualTo(56.dp)</code>. Đổi thứ tự hai modifier, test báo 48dp.</p>
 
 <h3>Vẽ: lớp ngoài vẽ trước, mỗi lớp vẽ bằng kích thước phần bên trong nó</h3>
 
@@ -51386,7 +51328,7 @@ fun SettingsRow(
 
 <ol>
   <li><strong>Thẻ sản phẩm bấm được, bo góc, có khoảng cách với thẻ bên cạnh</strong> (code đầy đủ bên dưới).</li>
-  <li><strong>Ảnh đại diện tròn có viền:</strong> <code>Modifier.size(48.dp).clip(CircleShape).border(2.dp, Color.White, CircleShape)</code>. <code>border</code> phải nhận cùng <code>CircleShape</code>; thiếu shape, nó vẽ viền chữ nhật và bị <code>clip</code> cắt còn bốn đoạn cong.</li>
+  <li><strong>Ảnh đại diện tròn có viền:</strong> <code>Modifier.size(48.dp).clip(CircleShape).border(2.dp, Color.White, CircleShape)</code>. <code>border</code> phải nhận cùng <code>CircleShape</code>; thiếu shape, nó vẽ viền chữ nhật và bị <code>clip</code> cắt chỉ còn bốn đoạn ngắn ở giữa bốn cạnh.</li>
   <li><strong>Icon nhỏ nhưng vùng chạm đủ 48dp:</strong> icon xoá 20dp trong ô nhập liệu dùng <code>Modifier.clickable(onClick = onClear).padding(14.dp).size(20.dp)</code>: vùng bấm 48dp, icon 20dp. Đảo <code>padding</code> lên trước thì vùng bấm chỉ còn 20dp. <code>IconButton</code> của Material đã xử lý sẵn việc này.</li>
 </ol>
 
@@ -51523,7 +51465,7 @@ Box(Modifier.background(Color.LightGray, RoundedCornerShape(12.dp)))</code></pre
   <li><strong>Prerequisites:</strong>
 <ul>
   <li><a href="../overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> — composable, ba phase Composition → Layout → Drawing.</li>
-  <li><code>android.languages.kotlin</code> — extension function, infix function, object companion.</li>
+  <li><a href="../../session_01/languages/kotlin.md" target="_blank" rel="noopener">1.1.2 Kotlin</a> — ngôn ngữ của ví dụ; bài dùng extension function, infix function và companion object của Kotlin.</li>
 </ul></li>
   <li><strong>Related (Session 09):</strong>
 <ul>
@@ -51533,7 +51475,7 @@ Box(Modifier.background(Color.LightGray, RoundedCornerShape(12.dp)))</code></pre
   <li>9.7.1 <a href="../graphics_animations/surface_and_canvas.md" target="_blank" rel="noopener">Surface and Canvas</a> — <code>drawBehind</code>, <code>drawWithContent</code>, đọc state ở phase vẽ.</li>
   <li>9.8.1 <a href="../gesture/scrolling.md" target="_blank" rel="noopener">Scrolling</a> — tổng quan gesture; <code>verticalScroll</code> cũng là một lớp trong chuỗi và thứ tự với <code>padding</code> quyết định phần đệm cuộn theo hay đứng yên.</li>
 </ul></li>
-  <li><strong>Liên hệ View system:</strong> 8.5.1 Layouts (chưa có bài) — box model của View mà Compose thay bằng thứ tự.</li>
+  <li><strong>Liên hệ View system:</strong> <a href="../../session_08/view_layout/layouts.md" target="_blank" rel="noopener">8.5.1 Layouts</a> — box model của View (padding, margin, measure/layout) mà Compose thay bằng thứ tự.</li>
   <li><strong>Học tiếp:</strong> <a href="chaining.md" target="_blank" rel="noopener">9.5.2 Chaining</a>.</li>
 </ul>
 
@@ -51552,9 +51494,9 @@ Box(Modifier.background(Color.LightGray, RoundedCornerShape(12.dp)))</code></pre
   'compose-modifier-chaining': {
     title: 'Chaining',
     summary: 'Chaining là việc ghép các modifier thành một chuỗi duy nhất bằng then, trong đó a.then(b) giữ nguyên thứ tự, a thành lớp ngoài và b thành lớp trong. Bài giải thích then và vì sao mọi modifier factory đều là this then một phần tử mới, quy ước tham số modifier: Modifier = Modifier, nối có điều kiện, tách chuỗi dùng lại thành biến hoặc extension, và modifier theo scope như weight, align, matchParentSize.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'beginner',
-    estimatedReadingTime: '12 phút',
+    estimatedReadingTime: '14 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'modifier', 'chaining', 'api-guidelines', 'reusable-component'],
     domain: 'Android',
@@ -51570,7 +51512,7 @@ Box(Modifier.background(Color.LightGray, RoundedCornerShape(12.dp)))</code></pre
     ],
     knowledgeGap: 'Developer viết component nhận modifier nhưng áp nó vào một phần tử con, hoặc ghép modifier của người gọi vào cuối chuỗi, khiến padding, kích thước và vùng bấm người gọi truyền vào không có tác dụng như mong đợi; hoặc viết extension modifier quên this làm mất cả chuỗi phía trước, và dùng if/else bọc cả composable chỉ để thêm một viền, làm mất state mỗi lần điều kiện đổi.',
     updatedAt: '2026-11-09',
-    readTime: '12 phút',
+    readTime: '14 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -51660,7 +51602,7 @@ flowchart LR
         B1["clip"] --&gt; B2["background"] --&gt; B3["clickable"] --&gt; B4["padding 16dp"]
     end
     A2 --&gt;|"then"| B1
-    B4 --&gt; R["Row nội dung"]
+    B4 --&gt; R["nội dung của Row: Column + Icon"]
 </div>
 
 <p><strong>Code:</strong></p>
@@ -51687,7 +51629,7 @@ fun PromoBanner(
             Text(title, style = MaterialTheme.typography.titleMedium)
             if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodySmall)
         }
-        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
+        Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null) // icon Material Symbols (9.6)
     }
 }
 
@@ -52009,14 +51951,14 @@ PlanCard(plan, modifier = Modifier.thenIf(selected) { border(2.dp, primary, shap
   'compose-modifier-composed': {
     title: 'Composed Modifier',
     summary: 'Composed modifier là modifier tuỳ chỉnh tạo bằng Modifier.composed {}, chứa một lambda @Composable được compose riêng cho từng layout node dùng nó; cách này không còn được khuyến nghị vì tốn slot table, không skip được và phá equality của chuỗi. Bài giải thích cơ chế của composed, các vấn đề hiệu năng, thang lựa chọn khi viết modifier tuỳ chỉnh (chuỗi có sẵn, factory có lambda như drawWithContent và layout {}, @Composable modifier factory, Modifier.Node) và cách hiện thực Modifier.Node với ModifierNodeElement, vòng đời node, coroutine và invalidation.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'advanced',
-    estimatedReadingTime: '17 phút',
+    estimatedReadingTime: '22 phút',
     depth: 'deep-dive',
     tags: ['android', 'compose', 'session-09', 'modifier', 'composed', 'modifier-node', 'custom-modifier', 'performance'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
-    prerequisites: ['android.jetpack_compose.modifier.order', 'android.jetpack_compose.modifier.chaining'],
+    prerequisites: ['android.jetpack_compose.modifier.order', 'android.jetpack_compose.modifier.chaining', 'android.async.coroutines'],
     related: ['android.jetpack_compose.remember_recomposition', 'android.jetpack_compose.side_effects.launched_effect', 'android.jetpack_compose.theming.custom_theme', 'android.jetpack_compose.graphics.surface_canvas'],
     learningOutcomes: [
       'Giải thích được cách Modifier.composed {} compose lambda của nó riêng cho từng layout node, và vì sao cách này không còn được khuyến nghị.',
@@ -52027,7 +51969,7 @@ PlanCard(plan, modifier = Modifier.thenIf(selected) { border(2.dp, primary, shap
     ],
     knowledgeGap: 'Nhiều tài liệu và thư viện viết trước 2023 dạy Modifier.composed như cách chuẩn để viết modifier có state, nên developer tiếp tục dùng nó cho mọi modifier tuỳ chỉnh, kể cả modifier không gọi composable nào; trong danh sách dài, mỗi item phải compose lại lambda của modifier ở mọi lần recompose, chuỗi modifier không bao giờ bằng nhau, và màn hình cuộn giật mà Layout Inspector không chỉ ra nguyên nhân rõ ràng.',
     updatedAt: '2026-11-09',
-    readTime: '17 phút',
+    readTime: '22 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -52079,23 +52021,23 @@ fun Modifier.composed(
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">07/2021</td>
-      <td style="padding:8px 12px;">Compose 1.0: <code>composed {}</code> là cách chính để viết modifier có trạng thái; nhiều modifier có sẵn (như <code>clickable</code>) cũng được viết bằng nó</td>
+      <td style="padding:8px 12px;">Compose 1.0: <code>composed {}</code> là cách chính để viết modifier có trạng thái; nhiều modifier có sẵn (như <code>clickable</code>) cũng viết bằng nó</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Khoảng 2022</td>
-      <td style="padding:8px 12px;"><code>Modifier.Node</code> được giới thiệu; bài nói "Compose Modifiers Deep Dive" ở Android Dev Summit 2022 trình bày các vấn đề hiệu năng của <code>composed</code> và thiết kế mới</td>
+      <td style="padding:8px 12px;"><code>Modifier.Node</code> ra đời; bài nói "Compose Modifiers Deep Dive" (Android Dev Summit 2022) trình bày vấn đề của <code>composed</code> và thiết kế mới</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">08/2023</td>
-      <td style="padding:8px 12px;">Compose 1.5 bắt đầu chuyển <code>clickable</code> sang <code>Modifier.Node</code>, thời gian composition giảm, có trường hợp tới 80%; thêm API cho node đọc <code>CompositionLocal</code></td>
+      <td style="padding:8px 12px;">Compose 1.5 bắt đầu chuyển <code>clickable</code> sang <code>Modifier.Node</code>, composition nhanh hơn, có trường hợp tới 80%; thêm API để node đọc <code>CompositionLocal</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">2023 về sau</td>
-      <td style="padding:8px 12px;">Các modifier có sẵn dần chuyển sang <code>Modifier.Node</code>; tài liệu chính thức ghi <code>composed {}</code> không còn được khuyến nghị và có trang hướng dẫn chuyển đổi</td>
+      <td style="padding:8px 12px;">Modifier có sẵn dần chuyển sang <code>Modifier.Node</code>; docs ghi <code>composed {}</code> không còn được khuyến nghị, có trang hướng dẫn chuyển đổi</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Khoảng Compose 1.7 (2024)</td>
-      <td style="padding:8px 12px;">Hệ thống <code>Indication</code> (ripple) chuyển sang dựa trên node; <code>rememberRipple()</code> bị deprecate, thay bằng <code>ripple()</code></td>
+      <td style="padding:8px 12px;"><code>Indication</code> (ripple) chuyển sang node; <code>rememberRipple()</code> bị deprecate, thay bằng <code>ripple()</code></td>
     </tr>
   </tbody>
 </table>
@@ -52173,7 +52115,7 @@ fun PromoCard(promo: PromoUi, onClick: () -&gt; Unit, modifier: Modifier = Modif
 
 <p><code>InteractionSource</code> là luồng các tương tác (nhấn, focus, kéo) mà <code>clickable</code> phát ra; truyền cùng một instance cho <code>clickable</code> và modifier của mình để "nghe" trạng thái nhấn. <code>animateFloatAsState</code> thuộc nhóm API animation, tổng quan ở 9.7.2 <a href="../graphics_animations/animated_visibility.md" target="_blank" rel="noopener">AnimatedVisibility</a>.</p>
 
-<p><strong>Kết quả:</strong> nhấn giữ, thẻ thu nhỏ; thả, thẻ đàn hồi về. Hành vi đúng. Nhưng thêm một dòng log tạm vào đầu lambda của <code>composed</code> sẽ thấy: khi <code>expiresText</code> đổi mỗi giây, lambda chạy lại mỗi giây cho từng thẻ trong carousel, dù trạng thái nhấn không đổi. Đó là chi phí được phân tích ở phần tiếp theo.</p>
+<p><strong>Kết quả:</strong> nhấn giữ, thẻ thu nhỏ; thả, thẻ đàn hồi về. Nhưng log tạm ở đầu lambda của <code>composed</code> cho thấy: khi <code>expiresText</code> đổi mỗi giây, lambda chạy lại mỗi giây cho từng thẻ, dù trạng thái nhấn không đổi. Đó là chi phí phân tích ở phần tiếp theo.</p>
 
 <h3>Vì sao composed không còn được khuyến nghị</h3>
 
@@ -52201,7 +52143,7 @@ fun PromoCard(promo: PromoUi, onClick: () -&gt; Unit, modifier: Modifier = Modif
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Phá equality</td>
-      <td style="padding:8px 12px;">Hàm ngoài (<code>pressScaleComposed</code>) không phải composable nên compiler không ghi nhớ được lambda bên trong; mỗi lần gọi là một lambda mới, phần tử composed so sánh lambda theo tham chiếu, nên chuỗi <strong>luôn khác</strong> chuỗi trước dù tham số y hệt</td>
+      <td style="padding:8px 12px;">Hàm ngoài (<code>pressScaleComposed</code>) không phải composable nên compiler không ghi nhớ được lambda bên trong; mỗi lần gọi là một lambda mới, phần tử composed so sánh lambda theo tham chiếu, nên chuỗi <strong>luôn khác</strong> chuỗi trước dù tham số y hệt (overload có <code>fullyQualifiedName</code> và key so theo key, nhưng vẫn chịu các chi phí còn lại)</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Không so được tham số</td>
@@ -52210,7 +52152,7 @@ fun PromoCard(promo: PromoUi, onClick: () -&gt; Unit, modifier: Modifier = Modif
   </tbody>
 </table>
 
-<p>Hệ quả cộng dồn: chuỗi có <code>composed</code> không bao giờ "bằng nhau", composable nhận chuỗi đó qua tham số khó được skip, và mỗi lần recompose là một lần chạy lại lambda. Với <code>clickable</code> cũ (viết bằng <code>composed</code>) trong mỗi item của <code>LazyColumn</code>, chi phí nhân theo số item trên màn hình; vì vậy chuyển <code>clickable</code> sang <code>Modifier.Node</code> cải thiện composition rõ rệt.</p>
+<p>Hệ quả cộng dồn: chuỗi có <code>composed</code> không bao giờ "bằng nhau", composable nhận chuỗi đó khó được skip, và chi phí nhân theo số item của <code>LazyColumn</code>; vì vậy chuyển <code>clickable</code> sang <code>Modifier.Node</code> cải thiện composition rõ rệt.</p>
 
 <p>Điểm <code>composed</code> làm <strong>đúng</strong> về ngữ nghĩa: <code>CompositionLocal</code> đọc trong lambda lấy giá trị <strong>tại nơi modifier được áp</strong>, không phải nơi tạo chuỗi. <code>Modifier.Node</code> giữ được ngữ nghĩa này (qua <code>currentValueOf</code>, ở phần sau), còn <code>@Composable</code> modifier factory thì không.</p>
 
@@ -52424,12 +52366,12 @@ private class UnreadDotNode(
 
 // TopBar.kt
 Icon(
-    imageVector = Icons.Outlined.Notifications,
+    painter = painterResource(R.drawable.ic_notifications),  // icon Material Symbols, xem 9.6
     contentDescription = "Thông báo",
     modifier = Modifier.unreadDot(visible = unreadCount &gt; 0, color = MaterialTheme.colorScheme.error)
 )</code></pre>
 
-<p>Imports đáng chú ý: <code>ModifierNodeElement</code>, <code>DrawModifierNode</code> thuộc <code>androidx.compose.ui.node</code>; <code>ContentDrawScope</code> thuộc <code>androidx.compose.ui.graphics.drawscope</code>; <code>InspectorInfo</code> thuộc <code>androidx.compose.ui.platform</code>. Với badge có số, Material 3 có sẵn <code>BadgedBox</code>; ví dụ tự vẽ chấm để thấy cấu trúc một node.</p>
+<p>Imports đáng chú ý: <code>ModifierNodeElement</code>, <code>DrawModifierNode</code> thuộc <code>androidx.compose.ui.node</code>; <code>ContentDrawScope</code> thuộc <code>androidx.compose.ui.graphics.drawscope</code>; <code>InspectorInfo</code> thuộc <code>androidx.compose.ui.platform</code>. <code>inspectableProperties()</code> không bắt buộc, nhưng lint <code>ModifierNodeInspectableProperties</code> nhắc khi element thiếu nó (<code>PressScaleElement</code> ở phần sau bỏ qua cho gọn). Với badge có số, Material 3 có sẵn <code>BadgedBox</code>; ví dụ tự vẽ chấm để thấy cấu trúc một node.</p>
 
 <p><strong>Kết quả:</strong> chấm hiện khi <code>unreadCount &gt; 0</code>, biến mất ngay khi đọc hết. Thêm log tạm vào <code>create()</code> và <code>update()</code>: <code>create</code> chỉ in một lần, <code>update</code> chỉ in khi tham số đổi, dù top bar recompose nhiều lần.</p>
 
@@ -52486,7 +52428,7 @@ Icon(
 
 <p>Đọc snapshot state (như <code>Animatable.value</code>) bên trong <code>draw()</code> hay <code>measure()</code> thì phase đó được theo dõi và tự chạy lại khi state đổi, không cần gọi <code>invalidateDraw()</code>. Trạng thái <strong>không</strong> phải snapshot state (một biến <code>Int</code> thường) thì phải tự gọi invalidate. Khi muốn kiểm soát chi tiết hơn (đổi màu chỉ vẽ lại, đổi kích thước mới đo lại), override <code>shouldAutoInvalidate = false</code> rồi tự gọi đúng hàm invalidate trong <code>update</code>.</p>
 
-<p><code>LaunchedEffect</code>, <code>DisposableEffect</code>, <code>rememberCoroutineScope</code> học ở 9.3.1 <a href="../side_effects/launched_effect.md" target="_blank" rel="noopener">LaunchedEffect</a> và 9.3.2 <a href="../side_effects/disposable_effect.md" target="_blank" rel="noopener">DisposableEffect</a>; <code>CompositionLocal</code> học ở 9.4.2 <a href="../theming/custom_theme.md" target="_blank" rel="noopener">Custom Theme</a>. <code>Animatable</code> (giá trị animation điều khiển bằng coroutine) thuộc nhóm API animation ở 9.7; coroutine học ở 8.4.3 Coroutines (chưa có bài).</p>
+<p><code>LaunchedEffect</code>, <code>DisposableEffect</code>, <code>rememberCoroutineScope</code> học ở 9.3.1 <a href="../side_effects/launched_effect.md" target="_blank" rel="noopener">LaunchedEffect</a> và 9.3.2 <a href="../side_effects/disposable_effect.md" target="_blank" rel="noopener">DisposableEffect</a>; <code>CompositionLocal</code> học ở 9.4.2 <a href="../theming/custom_theme.md" target="_blank" rel="noopener">Custom Theme</a>. <code>Animatable</code> (giá trị animation điều khiển bằng coroutine) thuộc nhóm API animation ở 9.7; coroutine học ở <a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>.</p>
 
 <h4>Ví dụ: chuyển hiệu ứng nhấn thu nhỏ sang Modifier.Node</h4>
 
@@ -52578,7 +52520,7 @@ private class PressScaleNode(
 
 <ol>
   <li><strong>Khung xương (skeleton) lúc đang tải danh sách</strong> (code đầy đủ bên dưới): animation vô hạn chạy theo vòng đời node, mỗi frame chỉ vẽ lại.</li>
-  <li><strong>Viền cùng màu nội dung, đọc <code>CompositionLocal</code> tại nơi áp:</strong> node implement <code>DrawModifierNode</code> và <code>CompositionLocalConsumerModifierNode</code>, trong <code>draw()</code> gọi <code>currentValueOf(LocalContentColor)</code>; đọc trong <code>draw()</code> nên giá trị đổi thì tự vẽ lại.</li>
+  <li><strong>Viền cùng màu nội dung tại nơi áp:</strong> node implement thêm <code>CompositionLocalConsumerModifierNode</code>, trong <code>draw()</code> gọi <code>currentValueOf(LocalContentColor)</code>, nên giá trị đổi thì tự vẽ lại.</li>
   <li><strong>Chuyển <code>composed</code> trong code cũ:</strong> <code>remember</code> → thuộc tính của node; <code>LaunchedEffect</code>/<code>DisposableEffect</code> → <code>onAttach</code>/<code>onDetach</code> + <code>coroutineScope</code>; <code>LocalX.current</code> → <code>currentValueOf</code>; <code>animate*AsState</code> → <code>Animatable</code>; <code>pointerInput</code> → delegate tới <code>SuspendingPointerInputModifierNode</code>. Chỉ cần gọi một hàm composable có giá trị trả về (<code>colorResource</code>) thì <code>@Composable</code> factory là đủ.</li>
 </ol>
 
@@ -52592,7 +52534,7 @@ private class PressScaleNode(
   <li>Mỗi khối gọi <code>Modifier.shimmer(baseColor, highlightColor)</code>; element là data class.</li>
   <li>Node được gắn: <code>onAttach()</code> khởi động animation <code>progress</code> từ 0 tới 1, lặp vô hạn, trong <code>coroutineScope</code> của node.</li>
   <li>Mỗi frame, <code>draw()</code> đọc <code>progress.value</code>, tính vị trí dải sáng và vẽ gradient. Chỉ phase vẽ chạy lại.</li>
-  <li>Theme đổi (sáng/tối): element có màu mới → <code>update</code> gán màu → node tự vẽ lại; animation không khởi động lại. Chỉ khi <code>durationMillis</code> đổi mới khởi động lại animation.</li>
+  <li>Màu truyền vào đổi (ví dụ theme đổi mà Activity không bị tạo lại): element có màu mới → <code>update</code> gán màu → node tự vẽ lại; animation không khởi động lại. Chỉ khi <code>durationMillis</code> đổi mới khởi động lại animation.</li>
   <li>Dữ liệu về, khối skeleton rời composition: node bị gỡ, <code>coroutineScope</code> huỷ animation.</li>
 </ol>
 
@@ -52615,22 +52557,7 @@ sequenceDiagram
 
 <p><strong>Code:</strong></p>
 
-<pre data-lang="kotlin"><code>// ShimmerModifier.kt
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.tween
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-import androidx.compose.ui.node.DrawModifierNode
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.platform.InspectorInfo
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-
+<pre data-lang="kotlin"><code>// ShimmerModifier.kt (import như ví dụ chấm đỏ, thêm Animatable, infiniteRepeatable, tween, LinearEasing, Brush, Job, launch)
 fun Modifier.shimmer(
     baseColor: Color,
     highlightColor: Color,
@@ -52719,7 +52646,7 @@ fun ProductCardPlaceholder(modifier: Modifier = Modifier) {
 
 <p><code>clip</code> đứng trước <code>shimmer</code> theo quy tắc vẽ của <a href="modifier_order.md" target="_blank" rel="noopener">9.5.1 Modifier Order</a>. Mỗi khối có node riêng nên dải sáng không đồng pha giữa các khối; cần chạy cùng nhịp thì cho các node đọc chung một nguồn thời gian.</p>
 
-<p><strong>Kết quả:</strong> các khối xám có dải sáng chạy liên tục. Bật recomposition counts trong Layout Inspector: <code>ProductCardPlaceholder</code> có số recompose đứng yên trong khi animation chạy, vì chỉ phase vẽ chạy lại. Chuyển máy sang dark theme: màu khối đổi ngay mà dải sáng không giật về đầu.</p>
+<p><strong>Kết quả:</strong> các khối xám có dải sáng chạy liên tục. Bật recomposition counts trong Layout Inspector: <code>ProductCardPlaceholder</code> có số recompose đứng yên trong khi animation chạy, vì chỉ phase vẽ chạy lại. Đổi màu truyền vào trong lúc khối đang hiện (ví dụ chuyển theme bằng cài đặt trong app): màu khối đổi ngay mà dải sáng không giật về đầu. Bật dark theme của hệ thống thì mặc định Activity được tạo lại, node mới được tạo nên dải sáng chạy lại từ đầu; đó là hành vi của configuration change, không phải của node.</p>
 
 <h2>So sánh với các cách tiếp cận khác</h2>
 
@@ -52770,12 +52697,6 @@ fun ProductCardPlaceholder(modifier: Modifier = Modifier) {
       <td style="padding:8px 12px;">Được</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Độ dài code</td>
-      <td style="padding:8px 12px;">Ngắn</td>
-      <td style="padding:8px 12px;">Ngắn</td>
-      <td style="padding:8px 12px;">Dài nhất</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Khuyến nghị hiện nay</td>
       <td style="padding:8px 12px;">Không</td>
       <td style="padding:8px 12px;">Khi cần gọi composable có giá trị trả về</td>
@@ -52786,25 +52707,11 @@ fun ProductCardPlaceholder(modifier: Modifier = Modifier) {
 
 <h2>Khi nào nên và không nên dùng</h2>
 
-<p><strong>Dùng <code>Modifier.Node</code> khi:</strong></p>
-
 <ul>
-  <li>Modifier giữ trạng thái riêng cho mỗi nơi dùng, cần vòng đời hoặc coroutine (animation, thu thập luồng).</li>
-  <li>Modifier nằm trong item của danh sách dài, hoặc trên composable recompose thường xuyên.</li>
-  <li>Viết thư viện/design system: modifier được dùng ở nơi bạn không kiểm soát.</li>
+  <li><strong>Nên dùng <code>Modifier.Node</code></strong> khi modifier giữ trạng thái riêng, cần vòng đời hoặc coroutine, nằm trong item của danh sách dài hoặc trên composable recompose thường xuyên, hoặc thuộc thư viện/design system dùng ở nơi bạn không kiểm soát.</li>
+  <li><strong>Không cần <code>Modifier.Node</code></strong> khi mức 1–3 của thang lựa chọn đã đủ (ghép modifier có sẵn, <code>drawWithContent</code>/<code>layout {}</code>, hay một giá trị từ hàm composable ở vài chỗ). Cái giá của node: code dài hơn, vòng đời và invalidation thủ công với trạng thái không phải snapshot state; với modifier dùng một lần trên màn hình ít recompose, cái giá này có thể lớn hơn lợi ích.</li>
+  <li><strong>Không dùng <code>composed {}</code></strong> cho code mới. Code cũ thì chuyển khi sửa tới, hoặc khi profiling chỉ ra nó nằm trên đường nóng (item của danh sách).</li>
 </ul>
-
-<p><strong>Không cần <code>Modifier.Node</code> khi:</strong></p>
-
-<ul>
-  <li>Chỉ ghép modifier có sẵn: dùng extension như <a href="chaining.md" target="_blank" rel="noopener">9.5.2</a>.</li>
-  <li>Chỉ vẽ hoặc đo theo tham số, không trạng thái: <code>drawWithContent</code>, <code>drawBehind</code>, <code>layout {}</code> đủ và ngắn hơn.</li>
-  <li>Chỉ cần một giá trị từ hàm composable (<code>colorResource</code>, <code>animate*AsState</code>) ở vài chỗ: <code>@Composable</code> modifier factory.</li>
-</ul>
-
-<p>Cái giá của <code>Modifier.Node</code>: code dài hơn (ba phần, vòng đời thủ công), tự chịu trách nhiệm invalidation với trạng thái không phải snapshot state, và một số API cấp thấp còn mới nên cần đối chiếu API reference của bản Compose đang dùng. Với modifier dùng một lần trên màn hình ít recompose, cái giá này có thể lớn hơn lợi ích.</p>
-
-<p><strong>Không dùng <code>composed {}</code></strong> cho code mới. Với code cũ, chuyển khi sửa tới hoặc khi profiling chỉ ra nó nằm trên đường nóng (item của danh sách).</p>
 
 <h2>Sai lầm thường gặp</h2>
 
@@ -52820,11 +52727,11 @@ fun Modifier.cardBorder(color: Color) = this.border(1.dp, color, RoundedCornerSh
 
 <h3>2. Element không có equals theo giá trị</h3>
 
-<p>Khai báo element là <code>class</code> thường thay vì <code>data class</code> (và không tự viết <code>equals</code>/<code>hashCode</code>) thì mỗi element mới luôn khác element cũ, <code>update</code> bị gọi ở mọi lần recompose, node bị invalidate liên tục. Dùng <code>data class</code>, hoặc tự viết <code>equals</code>/<code>hashCode</code> khi có thuộc tính không nên tham gia so sánh.</p>
+<p>Element là <code>class</code> thường không tự viết <code>equals</code>/<code>hashCode</code> thì luôn khác element cũ: <code>update</code> chạy ở mọi lần recompose, node bị invalidate liên tục. Dùng <code>data class</code>, hoặc tự viết <code>equals</code>/<code>hashCode</code> khi có thuộc tính không nên tham gia so sánh.</p>
 
 <h3>3. Tạo node mới hoặc giữ trạng thái trong element</h3>
 
-<p><code>update(node)</code> phải <strong>sửa node đang có</strong>, không tạo node mới; element chỉ là dữ liệu bất biến, không giữ <code>Animatable</code>, <code>Job</code> hay bộ đếm. Trạng thái để trong element sẽ mất ở lần recompose sau, vì element là object mới mỗi lần.</p>
+<p><code>update(node)</code> phải <strong>sửa node đang có</strong>, không tạo node mới; element là dữ liệu bất biến, tạo mới mỗi lần recompose, nên <code>Animatable</code>, <code>Job</code> hay bộ đếm để trong element sẽ mất.</p>
 
 <h3>4. Quên drawContent() trong DrawModifierNode</h3>
 
@@ -52861,7 +52768,7 @@ CompositionLocalProvider(LocalContentColor provides Color.Red) {
   <li>9.8.1 <a href="../gesture/scrolling.md" target="_blank" rel="noopener">Scrolling</a> — tổng quan gesture, <code>pointerInput</code>.</li>
   <li><a href="lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a> — nơi chi phí của modifier nhân lên theo số item.</li>
 </ul></li>
-  <li><strong>Kiến thức dùng trước:</strong> 8.4.3 Coroutines (chưa có bài) cho <code>launch</code>, <code>Job</code>; 8.5.6 Animation (chưa có bài) cho khái niệm animation trong View system.</li>
+  <li><strong>Kiến thức liên quan ở Session 08:</strong> <a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a> cho <code>launch</code>, <code>Job</code>, huỷ coroutine; <a href="../../session_08/view_layout/animation.md" target="_blank" rel="noopener">8.5.6 Animation</a> cho khái niệm animation theo frame trong View system.</li>
   <li><strong>Học tiếp:</strong> <a href="lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a>.</li>
 </ul>
 
@@ -52878,16 +52785,16 @@ CompositionLocalProvider(LocalContentColor provides Color.Red) {
   },
   'compose-lazy-column': {
     title: 'Lazy Column',
-    summary: 'LazyColumn là lazy layout cuộn dọc của Compose, nhận một mô tả danh sách bằng DSL (item, items, stickyHeader) thay vì các composable con, rồi chỉ compose, đo và đặt những item cần cho vùng đang nhìn thấy. Bài là nơi dạy chính về lazy layout, giải thích DSL, key và contentType, LazyListState, contentPadding và verticalArrangement, sticky header, Modifier.animateItem, so sánh với RecyclerView và lỗi lồng scroll cùng hướng.',
-    status: 'reviewing',
+    summary: 'LazyColumn là lazy layout cuộn dọc của Compose, nhận một mô tả danh sách bằng DSL (item, items, stickyHeader) thay vì các composable con, rồi chỉ compose, đo và đặt những item cần cho vùng đang nhìn thấy. Bài là nơi dạy chính về lazy layout: DSL, key, contentType, LazyListState, sticky header, Modifier.animateItem và lỗi lồng scroll cùng hướng.',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '17 phút',
+    estimatedReadingTime: '21 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'lazy-layout', 'lazycolumn', 'lazy-list', 'recyclerview', 'list'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.compose_overview', 'android.jetpack_compose.remember_recomposition'],
-    related: ['android.jetpack_compose.lazy.lazy_row', 'android.jetpack_compose.lazy.lazy_vertical_grid', 'android.jetpack_compose.lazy.lazy_paging_items', 'android.jetpack_compose.side_effects.derived_state_of', 'android.jetpack_compose.state.remember_saveable', 'android.jetpack.paging'],
+    related: ['android.jetpack_compose.lazy.lazy_row', 'android.jetpack_compose.lazy.lazy_vertical_grid', 'android.jetpack_compose.lazy.lazy_paging_items', 'android.jetpack_compose.side_effects.derived_state_of', 'android.jetpack_compose.state.remember_saveable', 'android.jetpack.paging', 'android.design_pattern.viewholder', 'android.view_layout.layouts'],
     learningOutcomes: [
       'Giải thích được vì sao LazyColumn chỉ compose và đo các item cần cho viewport, và khác Column cộng verticalScroll ở đâu.',
       'Triển khai được danh sách bằng DSL item, items, itemsIndexed và stickyHeader, kèm contentPadding và verticalArrangement.',
@@ -52895,9 +52802,9 @@ CompositionLocalProvider(LocalContentColor provides Color.Red) {
       'Xử lý được việc đọc và điều khiển vị trí cuộn bằng LazyListState mà không gây recompose ở mỗi frame cuộn.',
       'Nhận diện được các lỗi lồng scroll cùng hướng, item cao 0px, key trùng hoặc không lưu được vào Bundle.'
     ],
-    knowledgeGap: 'Không hiểu lazy layout thì hoặc dùng Column cộng verticalScroll cho danh sách hàng nghìn dòng (compose hết, màn hình giật, tốn RAM), hoặc dùng LazyColumn nhưng bỏ key khiến trạng thái mở rộng, ô nhập liệu nhảy sang dòng khác khi danh sách đổi, lồng LazyColumn trong Column cuộn rồi gặp IllegalStateException, hay đọc firstVisibleItemIndex ngay trong composable khiến cả màn hình recompose theo từng pixel cuộn.',
+    knowledgeGap: 'Không hiểu lazy layout thì dùng Column cộng verticalScroll cho danh sách hàng nghìn dòng (compose hết, giật, tốn RAM), bỏ key khiến state UI nhảy sang dòng khác khi danh sách đổi, lồng LazyColumn trong Column cuộn rồi gặp IllegalStateException, hay đọc thẳng vị trí cuộn trong composable khiến màn hình recompose liên tục khi cuộn.',
     updatedAt: '2026-11-09',
-    readTime: '17 phút',
+    readTime: '21 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -52913,9 +52820,9 @@ fun ContactList(contacts: List&lt;Contact&gt;) {
     }
 }</code></pre>
 
-<p><code>Column</code> không biết khái niệm "vùng đang nhìn thấy". Nó compose, đo và đặt <strong>mọi</strong> con, dù màn hình chỉ chứa khoảng mười dòng. Với vài nghìn dòng, lần hiển thị đầu chậm thấy rõ và bộ nhớ tăng theo số dòng.</p>
+<p><code>Column</code> không biết khái niệm "vùng đang nhìn thấy": nó compose, đo và đặt <strong>mọi</strong> con, dù màn hình chỉ chứa khoảng mười dòng. Với vài nghìn dòng, lần hiển thị đầu chậm thấy rõ và bộ nhớ tăng theo số dòng.</p>
 
-<p>Hệ thống View giải bài toán này bằng <code>RecyclerView</code>: chỉ tạo View cho phần nhìn thấy, tái sử dụng View khi cuộn. Cái giá là Adapter, ViewHolder, DiffUtil, LayoutManager, cả một bộ máy phải tự lắp. Compose cần cùng hiệu quả đó nhưng giữ được cách viết declarative: <strong>mô tả danh sách gồm những gì, còn việc dựng phần nào, lúc nào, để layout lo.</strong></p>
+<p>Hệ thống View giải bài toán này bằng <code>RecyclerView</code> (<a href="../../session_08/view_layout/layouts.md" target="_blank" rel="noopener">8.5.1 Layouts</a>, <a href="../../session_07/design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">7.1.2 ViewHolder Pattern</a>): chỉ tạo View cho phần nhìn thấy, tái sử dụng View khi cuộn. Cái giá là Adapter, ViewHolder, DiffUtil, LayoutManager, cả một bộ máy phải tự lắp. Compose cần cùng hiệu quả đó nhưng giữ được cách viết declarative: <strong>mô tả danh sách gồm những gì, còn việc dựng phần nào, lúc nào, để layout lo.</strong></p>
 
 <h2>Sau khi học xong</h2>
 
@@ -52931,7 +52838,7 @@ fun ContactList(contacts: List&lt;Contact&gt;) {
 
 <p><strong>Lazy layout</strong> là nhóm layout cuộn của Compose (<code>LazyColumn</code>, <code>LazyRow</code>, <code>LazyVerticalGrid</code>...) nhận một <strong>mô tả danh sách</strong> viết bằng DSL thay vì các composable con, rồi chỉ compose, đo và đặt những item cần cho <strong>viewport</strong> (vùng đang nhìn thấy). <strong><code>LazyColumn</code></strong> là lazy layout cuộn theo chiều dọc.</p>
 
-<p>Mental model: <strong>danh mục và khung cửa sổ.</strong> Khối lambda của <code>LazyColumn</code> viết ra một <em>danh mục</em>: có bao nhiêu item, mỗi item có key gì, thuộc loại gì, vẽ bằng hàm nào. <code>LazyColumn</code> là <em>khung cửa sổ</em> trượt trên danh mục đó: chỉ những dòng đang nằm trong khung (cộng một ít sắp vào khung) mới được dựng thành UI thật; dòng trượt ra khỏi khung thì được dỡ đi hoặc giữ lại để dựng dòng khác.</p>
+<p>Mental model: <strong>danh mục và khung cửa sổ.</strong> Khối lambda của <code>LazyColumn</code> viết ra một <em>danh mục</em>: bao nhiêu item, key gì, loại gì, vẽ bằng hàm nào. <code>LazyColumn</code> là <em>khung cửa sổ</em> trượt trên danh mục đó: chỉ dòng nằm trong khung (cộng một ít sắp vào khung) mới được dựng thành UI thật; dòng trượt ra thì được dỡ đi hoặc giữ lại để dựng dòng khác.</p>
 
 <p>Khác biệt cốt lõi so với <code>Column</code>: lambda của <code>Column</code> là composable và <strong>phát ra</strong> các con ngay; lambda của <code>LazyColumn</code> có kiểu <code>LazyListScope.() -&gt; Unit</code>, <strong>không phải composable</strong>, chỉ ghi danh mục. Nội dung của từng item (<code>itemContent</code>) mới là composable, và chỉ được gọi khi item đó cần hiện.</p>
 
@@ -52960,11 +52867,11 @@ flowchart TD
     F --&gt; D
 </div>
 
-<p>Vì item được compose trong lúc đo, số item thật sự tồn tại chỉ bằng số dòng nhìn thấy cộng vài dòng dự trữ, bất kể danh mục có mười hay mười nghìn phần tử. Ghi danh mục cũng rẻ: <code>items(contacts)</code> chỉ lưu "một khoảng gồm N phần tử, vẽ bằng lambda này", không duyệt từng phần tử.</p>
+<p>Vì item được compose trong lúc đo, số item thật sự tồn tại chỉ bằng số dòng nhìn thấy cộng vài dòng dự trữ, bất kể danh mục dài bao nhiêu; còn ghi danh mục thì rẻ, vì <code>items(contacts)</code> chỉ lưu "một khoảng N phần tử, vẽ bằng lambda này".</p>
 
 <p>Một hệ quả về constraints: item được đo với chiều cao tối đa <strong>vô hạn</strong> (danh sách cuộn được thì không có "chiều cao còn lại"). Vì vậy <code>Modifier.fillMaxHeight()</code> trong item không có tác dụng; muốn item cao bằng viewport thì dùng <code>Modifier.fillParentMaxHeight()</code> của <code>LazyItemScope</code>. Chuyện constraints đi từ cha xuống con được giải thích ở <a href="modifier_order.md" target="_blank" rel="noopener">9.5.1 Modifier Order</a>.</p>
 
-<p>Đổi <code>Column</code> ở phần "Vấn đề" thành <code>LazyColumn { items(contacts) { ContactRow(it) } }</code> là đủ: bước (1) chỉ ghi một khoảng 5.000 phần tử, bước (2) chỉ compose khoảng 10–12 <code>ContactRow</code> cho một màn hình điện thoại. Kiểm chứng bằng Layout Inspector: số <code>ContactRow</code> trong cây chỉ bằng số dòng nhìn thấy cộng vài dòng, trong khi bản <code>Column</code> có đủ 5.000 node. <code>items(List)</code> là extension cần <code>import androidx.compose.foundation.lazy.items</code>. Đo hiệu năng luôn trên release build (xem "Kiểm tra hiệu năng đúng cách" ở <a href="../overview.md" target="_blank" rel="noopener">9.0</a>).</p>
+<p>Đổi <code>Column</code> ở phần "Vấn đề" thành <code>LazyColumn { items(contacts) { ContactRow(it) } }</code> (extension cần <code>import androidx.compose.foundation.lazy.items</code>) là đủ: bước (1) chỉ ghi một khoảng 5.000 phần tử, bước (2) chỉ compose khoảng 10–12 <code>ContactRow</code>. Layout Inspector cho thấy số <code>ContactRow</code> trong cây chỉ bằng số dòng nhìn thấy cộng vài dòng, trong khi bản <code>Column</code> có đủ 5.000 node. Đo hiệu năng luôn trên release build có R8 (xem <a href="../overview.md" target="_blank" rel="noopener">9.0</a>).</p>
 
 <h3>2. DSL mô tả danh sách: item, items, itemsIndexed</h3>
 
@@ -53006,21 +52913,13 @@ flowchart TD
 <p>Hai tham số của chính <code>LazyColumn</code> điều khiển khoảng cách:</p>
 
 <ul>
-  <li><code>contentPadding = PaddingValues(...)</code>: padding quanh <strong>nội dung</strong>, không quanh khung cuộn. Item đầu cách mép trên, item cuối cách mép dưới, nhưng khi cuộn thì nội dung vẫn trượt qua vùng padding tới sát mép. Thường dùng để nhận <code>PaddingValues</code> của <code>Scaffold</code> (thanh trên, thanh điều hướng). <code>Modifier.padding()</code> thì thu nhỏ chính khung cuộn, nội dung bị cắt ở mép padding.</li>
+  <li><code>contentPadding = PaddingValues(...)</code>: padding quanh <strong>nội dung</strong>, không quanh khung cuộn: item đầu cách mép trên, nhưng khi cuộn thì nội dung vẫn trượt tới sát mép. Thường dùng để nhận <code>PaddingValues</code> của <code>Scaffold</code>. <code>Modifier.padding()</code> thì thu nhỏ chính khung cuộn, nội dung bị cắt ở mép padding.</li>
   <li><code>verticalArrangement = Arrangement.spacedBy(8.dp)</code>: khoảng cách <strong>giữa</strong> các item, thay cho việc tự thêm <code>Spacer</code> hay <code>ItemDecoration</code> như <code>RecyclerView</code>.</li>
 </ul>
 
 <h4>Ví dụ: giỏ hàng có header, danh sách sản phẩm và tổng tiền</h4>
 
-<p><strong>Bài toán:</strong> màn giỏ hàng gồm dòng tiêu đề ("3 sản phẩm"), danh sách sản phẩm có thể dài, và khối tổng tiền cùng nút thanh toán ở cuối nội dung. Ba phần khác nhau nhưng cùng cuộn như một danh sách.</p>
-
-<p><strong>Luồng chạy:</strong></p>
-
-<ol>
-  <li>DSL ghi danh mục theo thứ tự: một <code>item</code> header, <code>items</code> cho từng dòng sản phẩm, một <code>item</code> tổng tiền.</li>
-  <li><code>contentPadding</code> và <code>verticalArrangement</code> cho <code>LazyColumn</code> biết chừa khoảng nào quanh và giữa các item khi đo.</li>
-  <li>Khi mở màn, chỉ header và các dòng sản phẩm đầu được compose; khối tổng tiền chỉ được compose khi người dùng cuộn tới.</li>
-</ol>
+<p><strong>Bài toán:</strong> màn giỏ hàng gồm dòng tiêu đề ("3 sản phẩm"), danh sách sản phẩm có thể dài, và khối tổng tiền cùng nút thanh toán ở cuối nội dung. Ba phần khác nhau nhưng cùng cuộn như một danh sách. Đây là khai báo thuần (DSL ghi theo thứ tự viết, không rẽ nhánh), nên không cần sơ đồ.</p>
 
 <p><strong>Code:</strong></p>
 
@@ -53034,25 +52933,25 @@ fun CartScreen(
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp), // (2)
-        verticalArrangement = Arrangement.spacedBy(8.dp),                      // (2)
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp), // quanh nội dung
+        verticalArrangement = Arrangement.spacedBy(8.dp),                      // giữa các item
     ) {
-        item(key = "header") {                                                 // (1)
+        item(key = "header") {
             Text("\${uiState.lines.size} sản phẩm", style = MaterialTheme.typography.titleMedium)
         }
-        items(uiState.lines, key = { line -&gt; line.productId }) { line -&gt;       // (1)
+        items(uiState.lines, key = { line -&gt; line.productId }) { line -&gt;
             CartLineRow(
                 line = line,
                 onQuantityChange = { quantity -&gt; onQuantityChange(line.productId, quantity) },
             )
         }
-        item(key = "summary") {                                                // (1)(3) chỉ compose khi cuộn tới
+        item(key = "summary") {                                                // chỉ compose khi cuộn tới
             CartSummary(total = uiState.total, onCheckout = onCheckout)
         }
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> giỏ 40 sản phẩm thì header cuộn đi cùng danh sách, khối tổng tiền nằm cuối nội dung; item đầu cách mép trên 12dp nhưng khi cuộn thì nội dung trượt tới sát mép. Tham số <code>key</code> được giải thích ở phần sau.</p>
+<p><strong>Kết quả:</strong> giỏ 40 sản phẩm thì header cuộn đi cùng danh sách, khối tổng tiền chỉ được compose khi người dùng cuộn tới cuối. Tham số <code>key</code> được giải thích ở phần sau.</p>
 
 <h3>3. key và contentType: danh tính và loại của item</h3>
 
@@ -53123,11 +53022,11 @@ private fun TaskRow(task: Task) {
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> bỏ dòng <code>key = ...</code>, mở rộng dòng đầu rồi thêm việc mới: dòng mới hiện ghi chú, dòng cũ thu lại (bước 3). Thêm lại key: dòng cũ giữ trạng thái mở rộng ở vị trí mới (bước 4). UI test với <code>createComposeRule()</code> kiểm chứng được bằng cách assert ghi chú của "Gửi báo giá" vẫn hiển thị sau khi thêm item.</p>
+<p><strong>Kết quả:</strong> bỏ dòng <code>key = ...</code>, mở rộng dòng đầu rồi thêm việc mới: dòng mới hiện ghi chú, dòng cũ thu lại (bước 3). Thêm lại key: dòng cũ giữ trạng thái mở rộng ở vị trí mới (bước 4).</p>
 
 <h4>contentType: tái sử dụng composition đúng loại</h4>
 
-<p>Khi một item rời viewport, lazy layout không nhất thiết vứt composition của nó đi. Một số lượng nhỏ được giữ trong <strong>reuse pool</strong>; item mới đi vào sẽ <strong>tái sử dụng</strong> composition cũ: cây layout node và cấu trúc slot được giữ, chỉ tham số mới được áp vào. Ý tưởng giống <code>RecyclerView</code> tái sử dụng ViewHolder, nhưng state <code>remember</code> của item cũ không được giữ, vì item mới có key khác.</p>
+<p>Item rời viewport không nhất thiết bị vứt composition: một số ít được giữ trong <strong>reuse pool</strong>, và item mới đi vào <strong>tái sử dụng</strong> cây layout node và cấu trúc slot cũ, chỉ áp tham số mới. Ý tưởng giống <code>RecyclerView</code> tái sử dụng ViewHolder, nhưng state <code>remember</code> của item cũ không được giữ, vì item mới có key khác.</p>
 
 <p>Tái sử dụng chỉ có lợi khi hai item có <strong>cấu trúc giống nhau</strong>. <code>contentType</code> cho lazy layout biết item thuộc loại nào; composition chỉ được tái sử dụng giữa các item <strong>cùng loại</strong>. Danh sách chỉ có một loại item thì không cần khai báo (mọi item mặc định cùng loại <code>null</code>); danh sách trộn nhiều loại (bài viết, quảng cáo, header ngày) thì nên khai báo.</p>
 
@@ -53193,37 +53092,29 @@ fun NewsFeed(feed: List&lt;FeedItem&gt;, modifier: Modifier = Modifier) {
 <p>Hai điều cần nhớ khi dùng:</p>
 
 <ul>
-  <li><strong>Đọc ở đâu thì recompose ở đó.</strong> <code>firstVisibleItemIndex</code>, <code>firstVisibleItemScrollOffset</code> và <code>layoutInfo</code> là state đổi gần như mỗi frame cuộn; đọc thẳng trong thân composable thì composable đó recompose theo từng frame. Cần giá trị suy ra ("đã cuộn qua item đầu chưa") thì bọc bằng <code>derivedStateOf</code> (<a href="../side_effects/derived_state_of.md" target="_blank" rel="noopener">9.3.4 DerivedStateOf</a>); cần chạy tác vụ theo vị trí cuộn thì chuyển thành Flow bằng <code>snapshotFlow</code> (<a href="../side_effects/flow_with_snapshot.md" target="_blank" rel="noopener">9.3.5 SnapShotFlow and flowWithSnapshot</a>).</li>
-  <li><strong>Cuộn bằng code cần coroutine.</strong> <code>animateScrollToItem</code> là hàm <code>suspend</code>: gọi từ onClick thì dùng scope của <code>rememberCoroutineScope()</code>, gọi khi một giá trị đổi thì dùng <code>LaunchedEffect</code> (cả hai ở <a href="../side_effects/launched_effect.md" target="_blank" rel="noopener">9.3.1 LaunchedEffect</a>). Coroutine chỉ dùng tối thiểu ở đây; cơ chế học ở 8.4.3 Coroutines (chưa có bài).</li>
+  <li><strong>Đọc ở đâu thì recompose ở đó.</strong> <code>firstVisibleItemScrollOffset</code> và <code>layoutInfo</code> đổi ở gần như mỗi frame cuộn; <code>firstVisibleItemIndex</code> đổi mỗi khi một item trôi qua mép trên, vẫn thường xuyên hơn nhiều so với điều UI thật sự cần. Đọc thẳng chúng trong thân composable thì composable đó recompose theo nhịp đó. Cần giá trị suy ra ("đã cuộn qua item đầu chưa") thì bọc bằng <code>derivedStateOf</code> (<a href="../side_effects/derived_state_of.md" target="_blank" rel="noopener">9.3.4 DerivedStateOf</a>); cần chạy tác vụ theo vị trí cuộn thì chuyển thành Flow bằng <code>snapshotFlow</code> (<a href="../side_effects/flow_with_snapshot.md" target="_blank" rel="noopener">9.3.5 SnapShotFlow and flowWithSnapshot</a>).</li>
+  <li><strong>Cuộn bằng code cần coroutine.</strong> <code>animateScrollToItem</code> là hàm <code>suspend</code>: gọi từ onClick thì dùng scope của <code>rememberCoroutineScope()</code>, gọi khi một giá trị đổi thì dùng <code>LaunchedEffect</code> (cả hai ở <a href="../side_effects/launched_effect.md" target="_blank" rel="noopener">9.3.1 LaunchedEffect</a>). Coroutine chỉ dùng tối thiểu ở đây; cơ chế học ở <a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>.</li>
 </ul>
 
-<p>Ví dụ đầy đủ về đọc vị trí cuộn (bằng <code>derivedStateOf</code>) và điều khiển vị trí cuộn (bằng <code>animateScrollToItem</code>) nằm ở phần "Ví dụ thực tế": menu có tab danh mục đồng bộ với danh sách.</p>
+<p>Ví dụ đầy đủ cho cả hai ý nằm ở phần "Ví dụ thực tế" (menu có tab danh mục).</p>
 
 <h3>5. stickyHeader: tiêu đề dính khi cuộn</h3>
 
-<p><code>stickyHeader { }</code> ghi một item mà khi cuộn qua, nó <strong>dính</strong> ở đầu viewport cho tới khi header kế tiếp chạm tới và đẩy nó lên. Kiểu danh bạ nhóm theo chữ cái hay lịch sử giao dịch nhóm theo ngày. Từ Compose foundation 1.8, lambda nội dung nhận <code>index</code> (vị trí của header trong toàn danh sách), dùng được để biết header đang dính hay không; các bản cũ hơn dùng lambda không tham số và từng là API experimental.</p>
+<p><code>stickyHeader { }</code> ghi một item mà khi cuộn qua, nó <strong>dính</strong> ở đầu viewport cho tới khi header kế tiếp chạm tới và đẩy nó lên. Kiểu danh bạ nhóm theo chữ cái hay lịch sử giao dịch nhóm theo ngày. Từ Compose foundation 1.8, <code>stickyHeader</code> là API stable và lambda nội dung nhận <code>index</code> (vị trí của header trong toàn danh sách), dùng được để biết header đang dính hay không; trước đó nó là API experimental với lambda không tham số.</p>
 
 <p>Ba điều cần làm đúng khi dùng <code>stickyHeader</code>:</p>
 
 <ul>
-  <li><strong>Nhóm dữ liệu ở ViewModel</strong>, không trong DSL: <code>transactions.groupBy { it.date }</code> trong lambda <code>LazyColumn</code> chạy lại mỗi lần recompose.</li>
-  <li><strong>Key của header khác hẳn key của item</strong>, ví dụ <code>"header-" + date</code>, để không trùng với id giao dịch.</li>
-  <li><strong>Header có nền đặc</strong> (<code>Modifier.background(MaterialTheme.colorScheme.surface)</code>): header được vẽ đè lên các item phía dưới nó, nền trong suốt thì chữ của item lộ qua.</li>
+  <li><strong>Nhóm dữ liệu ở ViewModel</strong>, không trong DSL: <code>groupBy</code> trong lambda <code>LazyColumn</code> chạy lại mỗi lần recompose.</li>
+  <li><strong>Key của header khác hẳn key của item</strong>, ví dụ <code>"header-" + date</code>.</li>
+  <li><strong>Header có nền đặc</strong> (<code>Modifier.background(MaterialTheme.colorScheme.surface)</code>): header vẽ đè lên item bên dưới, nền trong suốt thì chữ của item lộ qua.</li>
 </ul>
 
 <p>Ví dụ đầy đủ dùng <code>stickyHeader</code> cho từng danh mục nằm ở phần "Ví dụ thực tế".</p>
 
 <h3>6. Modifier.animateItem: animation khi thêm, xoá, đổi chỗ</h3>
 
-<p><code>RecyclerView</code> có <code>ItemAnimator</code> mặc định. Lazy layout có <code>Modifier.animateItem()</code> (thuộc <code>LazyItemScope</code>, từ Compose foundation 1.7), đặt lên <strong>phần tử gốc</strong> của nội dung item:</p>
-
-<ul>
-  <li><code>fadeInSpec</code>: item mới xuất hiện bằng fade in.</li>
-  <li><code>placementSpec</code>: item đổi vị trí (sắp xếp lại, item phía trên bị xoá) trượt tới vị trí mới thay vì nhảy.</li>
-  <li><code>fadeOutSpec</code>: item bị xoá fade out trước khi biến mất.</li>
-</ul>
-
-<p>Mỗi spec truyền <code>null</code> để tắt riêng phần đó. Lazy layout so vị trí cũ và mới <strong>theo key</strong>, nên không có key thì không có animation đổi chỗ.</p>
+<p><code>RecyclerView</code> có <code>ItemAnimator</code> mặc định. Lazy layout có <code>Modifier.animateItem()</code> (thuộc <code>LazyItemScope</code>, từ Compose foundation 1.7), đặt lên <strong>phần tử gốc</strong> của nội dung item. Nó có ba tham số: <code>fadeInSpec</code> (item mới fade in), <code>placementSpec</code> (item đổi vị trí trượt tới chỗ mới thay vì nhảy) và <code>fadeOutSpec</code> (item bị xoá fade out); mỗi spec mặc định là một <code>spring</code>, truyền <code>null</code> để tắt riêng phần đó. Lazy layout so vị trí cũ và mới <strong>theo key</strong>, nên không có key thì không có animation đổi chỗ.</p>
 
 <h4>Ví dụ: việc đã xong trượt xuống cuối danh sách</h4>
 
@@ -53240,13 +53131,16 @@ fun NewsFeed(feed: List&lt;FeedItem&gt;, modifier: Modifier = Modifier) {
 <p><strong>Code:</strong></p>
 
 <pre data-lang="kotlin"><code>// TaskBoard.kt
-LazyColumn {
-    items(tasks, key = { it.id }) { task -&gt;                 // (3) key để biết ai đi đâu
-        TaskCheckRow(
-            task = task,
-            onToggle = { onToggle(task.id) },               // (1) (2) ViewModel sắp xếp lại
-            modifier = Modifier.animateItem(),              // (3) đặt trên phần tử gốc của item
-        )
+@Composable
+fun TaskBoard(tasks: List&lt;Task&gt;, onToggle: (taskId: Long) -&gt; Unit, modifier: Modifier = Modifier) {
+    LazyColumn(modifier) {
+        items(tasks, key = { it.id }) { task -&gt;             // (3) key để biết ai đi đâu
+            TaskCheckRow(
+                task = task,
+                onToggle = { onToggle(task.id) },           // (1)(2) ViewModel sắp xếp lại
+                modifier = Modifier.animateItem(),          // (3) đặt trên phần tử gốc của item
+            )
+        }
     }
 }</code></pre>
 
@@ -53258,10 +53152,8 @@ LazyColumn {
 
 <ul>
   <li><strong>Một nền chung.</strong> <code>LazyColumn</code>, <code>LazyRow</code>, các loại lưới và <code>HorizontalPager</code> đều dựng trên <code>LazyLayout</code> (package <code>androidx.compose.foundation.lazy.layout</code>), vốn dựng trên <code>SubcomposeLayout</code>: layout được phép <strong>compose con trong lúc đo</strong>, khi đã biết kích thước viewport.</li>
-  <li><strong>Danh mục là danh sách các khoảng.</strong> Mỗi lời gọi <code>item</code>/<code>items</code> thêm một khoảng (số lượng, hàm key, hàm contentType, nội dung); hỏi "item thứ 3.217 là gì" thì tìm khoảng chứa nó. Nhờ vậy <code>items(100_000)</code> vẫn ghi danh mục tức thì.</li>
-  <li><strong>State của item sống theo key.</strong> Mỗi item được bọc bởi một <code>SaveableStateHolder</code> theo key: item rời viewport thì giá trị <code>rememberSaveable</code> được cất dưới key và khôi phục khi item quay lại; <code>remember</code> thường thì mất.</li>
-  <li><strong>Reuse pool theo contentType.</strong> Composition của item rời viewport được giữ ở trạng thái vô hiệu (deactivated) trong một kho nhỏ cho từng contentType, chờ item cùng loại dùng lại.</li>
-  <li><strong>Prefetch và cache window.</strong> Sau mỗi lần cuộn, lazy layout compose và đo trước item kế tiếp trong khoảng rảnh của frame. Từ khoảng Compose foundation 1.9, <code>LazyLayoutCacheWindow</code> (experimental, được ổn định hoá trong dòng 1.13 đang alpha/rc lúc viết bài) cho chỉnh vùng giữ sẵn trước và sau viewport. Phần lớn app không cần chỉnh.</li>
+  <li><strong>State của item sống theo key.</strong> Mỗi item được bọc bởi một <code>SaveableStateHolder</code> theo key: item rời viewport thì giá trị <code>rememberSaveable</code> được cất dưới key và khôi phục khi item quay lại; <code>remember</code> thường thì mất. Composition của item rời viewport thì được giữ ở trạng thái vô hiệu (deactivated) trong reuse pool của contentType tương ứng.</li>
+  <li><strong>Prefetch và cache window.</strong> Sau mỗi lần cuộn, lazy layout compose và đo trước item kế tiếp trong khoảng rảnh của frame. Từ Compose foundation 1.9, <code>LazyLayoutCacheWindow</code> (experimental) cho chỉnh vùng giữ sẵn trước và sau viewport; nó được đánh dấu stable từ 1.13.0-alpha01 (1.13 đang ở rc lúc viết bài). Phần lớn app không cần chỉnh.</li>
 </ul>
 
 <h2>Ví dụ thực tế</h2>
@@ -53269,9 +53161,9 @@ LazyColumn {
 <p>Ba bài toán thường gặp:</p>
 
 <ol>
-  <li><strong>Menu quán ăn có tab danh mục đồng bộ với danh sách</strong> (code đầy đủ bên dưới): bấm tab thì cuộn tới danh mục, cuộn danh sách thì tab sáng theo danh mục đang xem.</li>
-  <li><strong>Trang chi tiết sản phẩm dài nhiều phần</strong> (ảnh, mô tả, đánh giá, sản phẩm tương tự): viết thành <strong>một</strong> <code>LazyColumn</code> với nhiều <code>item</code>/<code>items</code>; hàng "sản phẩm tương tự" cuộn ngang là một <code>LazyRow</code> nằm trong một <code>item</code>, xem <a href="lazy_row.md" target="_blank" rel="noopener">9.5.5 Lazy Row</a>.</li>
-  <li><strong>Danh sách lớn từ API hoặc database tải theo trang</strong>: dùng Paging với <code>collectAsLazyPagingItems()</code>, xem <a href="lazy_paging_items.md" target="_blank" rel="noopener">9.5.7 Lazy Paging Items</a>.</li>
+  <li><strong>Menu quán ăn có tab danh mục đồng bộ với danh sách</strong> (code đầy đủ bên dưới).</li>
+  <li><strong>Trang chi tiết sản phẩm dài nhiều phần</strong>: <strong>một</strong> <code>LazyColumn</code> với nhiều <code>item</code>/<code>items</code>; hàng "sản phẩm tương tự" là một <code>LazyRow</code> trong một <code>item</code> (<a href="lazy_row.md" target="_blank" rel="noopener">9.5.5 Lazy Row</a>).</li>
+  <li><strong>Danh sách lớn tải theo trang</strong>: <code>collectAsLazyPagingItems()</code> ở <a href="lazy_paging_items.md" target="_blank" rel="noopener">9.5.7 Lazy Paging Items</a>.</li>
 </ol>
 
 <h3>Menu quán ăn: tab danh mục đồng bộ với danh sách</h3>
@@ -53305,6 +53197,8 @@ sequenceDiagram
 <p><strong>Code:</strong></p>
 
 <pre data-lang="kotlin"><code>// MenuScreen.kt
+import kotlinx.coroutines.launch
+
 data class MenuCategory(val id: String, val name: String, val dishes: List&lt;Dish&gt;)
 data class Dish(val id: String, val name: String, val price: Long)
 
@@ -53366,9 +53260,9 @@ fun MenuScreen(categories: List&lt;MenuCategory&gt;, modifier: Modifier = Modifi
     }
 }</code></pre>
 
-<p><code>PrimaryScrollableTabRow</code> là API Material 3; <code>@OptIn</code> chỉ cần khi bản Material 3 trong dự án còn đánh dấu nó experimental. Bản Material 3 cũ hơn dùng <code>ScrollableTabRow</code> với cách dùng tương tự.</p>
+<p><code>@OptIn</code> chỉ cần khi bản Material 3 trong dự án còn đánh dấu <code>PrimaryScrollableTabRow</code> experimental; bản cũ hơn dùng <code>ScrollableTabRow</code> tương tự.</p>
 
-<p><strong>Kết quả:</strong> cuộn qua header "Đồ uống", tab "Đồ uống" sáng lên; bấm tab "Món phụ", danh sách cuộn mượt tới header "Món phụ" và header đó dính ở đỉnh. Layout Inspector cho thấy số lần recompose của thanh tab chỉ tăng khi danh mục đổi, còn khi cuộn trong một danh mục thì đứng yên. Vì <code>headerIndexes</code> và DSL cùng đọc từ <code>categories</code>, thêm món vào danh mục không làm lệch index.</p>
+<p><strong>Kết quả:</strong> cuộn qua header "Đồ uống", tab "Đồ uống" sáng lên; bấm tab "Món phụ", danh sách cuộn mượt tới header đó và header dính ở đỉnh. Layout Inspector cho thấy thanh tab chỉ recompose khi danh mục đổi. Vì <code>headerIndexes</code> và DSL cùng đọc từ <code>categories</code>, thêm món không làm lệch index.</p>
 
 <h2>So sánh với các cách tiếp cận khác</h2>
 
@@ -53413,12 +53307,6 @@ fun MenuScreen(categories: List&lt;MenuCategory&gt;, modifier: Modifier = Modifi
       <td style="padding:8px 12px;"><code>RecycledViewPool</code> theo <code>viewType</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Khoảng cách</td>
-      <td style="padding:8px 12px;"><code>Arrangement</code>, <code>Spacer</code></td>
-      <td style="padding:8px 12px;"><code>contentPadding</code>, <code>Arrangement.spacedBy</code></td>
-      <td style="padding:8px 12px;"><code>ItemDecoration</code>, <code>clipToPadding</code></td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Animation item</td>
       <td style="padding:8px 12px;">Không có sẵn</td>
       <td style="padding:8px 12px;"><code>Modifier.animateItem()</code></td>
@@ -53433,7 +53321,7 @@ fun MenuScreen(categories: List&lt;MenuCategory&gt;, modifier: Modifier = Modifi
   </tbody>
 </table>
 
-<p>Compose không cần DiffUtil: <code>key</code> cho biết item nào giữ, item nào mới, và smart skipping bỏ qua item có tham số không đổi (stability ở <a href="../remember_and_recomposition.md" target="_blank" rel="noopener">9.1</a>). <code>RecyclerView</code> thuộc 8.5.1 Layouts và 7.1.2 ViewHolder Pattern (chưa có bài).</p>
+<p>Compose không cần DiffUtil: <code>key</code> cho biết item nào giữ, item nào mới, và smart skipping bỏ qua item có tham số không đổi (stability ở <a href="../remember_and_recomposition.md" target="_blank" rel="noopener">9.1</a>).</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
@@ -53465,16 +53353,16 @@ Column(Modifier.verticalScroll(rememberScrollState())) {
     }
 }</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> crash <code>IllegalStateException</code> với thông báo rằng một component cuộn dọc được đo với chiều cao tối đa vô hạn. <code>Column</code> cuộn được nên đo con với chiều cao vô hạn; <code>LazyColumn</code> cần chiều cao hữu hạn để biết viewport dài bao nhiêu.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> crash <code>IllegalStateException</code> báo một component cuộn dọc được đo với chiều cao tối đa vô hạn: <code>Column</code> cuộn được đo con với chiều cao vô hạn, còn <code>LazyColumn</code> cần chiều cao hữu hạn để biết viewport dài bao nhiêu.</p>
 
-<p><strong>Cách sửa:</strong> gộp mọi thứ vào một <code>LazyColumn</code>, phần đầu là <code>item { ProductHeader(product) }</code>. Lồng khác hướng (<code>LazyRow</code> trong <code>LazyColumn</code>) thì hợp lệ. Lồng cùng hướng mà danh sách con có chiều cao cố định (<code>Modifier.height(200.dp)</code>) thì chạy được, nhưng hai vùng cuộn chồng nhau thường gây khó chịu cho người dùng.</p>
+<p><strong>Cách sửa:</strong> gộp mọi thứ vào một <code>LazyColumn</code>, phần đầu là <code>item { ProductHeader(product) }</code>. Lồng khác hướng (<code>LazyRow</code> trong <code>LazyColumn</code>) thì hợp lệ; lồng cùng hướng với danh sách con cao cố định (<code>Modifier.height(200.dp)</code>) chạy được nhưng hai vùng cuộn chồng nhau khó dùng.</p>
 
 <h3>2. Không có key, hoặc key sai</h3>
 
 <ul>
   <li><strong>Không có key:</strong> state UI nhảy sang item khác khi chèn hoặc đổi chỗ (phần 3), <code>animateItem()</code> không animate đổi chỗ.</li>
   <li><strong>Key trùng:</strong> crash <code>IllegalArgumentException</code> báo key đã được dùng; hay gặp khi header và item cùng dùng id số, hoặc API trả một phần tử hai lần. Sửa: tiền tố cho key của header (<code>"header-" + date</code>), loại trùng ở tầng dữ liệu.</li>
-  <li><strong>Key không lưu được vào Bundle:</strong> dùng nguyên một <code>data class</code> không <code>Parcelable</code> làm key có thể crash với thông báo kiểu key không được hỗ trợ. Sửa: dùng <code>id</code> kiểu String/Long.</li>
+  <li><strong>Key không lưu được vào Bundle:</strong> dùng nguyên một <code>data class</code> không <code>Parcelable</code> làm key thì crash báo kiểu key không được hỗ trợ. Sửa: dùng <code>id</code> kiểu String/Long.</li>
   <li><strong>Key không ổn định:</strong> <code>key = { UUID.randomUUID() }</code> hay <code>hashCode()</code> của object có field thay đổi biến mỗi lần recompose thành item mới, mất state.</li>
 </ul>
 
@@ -53487,13 +53375,15 @@ items(photos, key = { it.id }) { photo -&gt;
 
 <p><strong>Lỗi lộ ra thế nào:</strong> ở lần đo đầu, mọi item cao 0px nên đều "vừa" viewport; <code>LazyColumn</code> compose <strong>toàn bộ</strong> danh sách, rồi bỏ gần hết khi ảnh về. Vị trí cuộn cũng nhảy khi item đổi kích thước.</p>
 
-<p><strong>Cách sửa:</strong> cho item kích thước mặc định hoặc placeholder có kích thước thật (<code>Modifier.height(240.dp)</code>, <code>aspectRatio(...)</code>). <code>AsyncImage</code> thuộc thư viện Coil, học ở 8.2.4 Coil (chưa có bài).</p>
+<p><strong>Cách sửa:</strong> cho item kích thước mặc định hoặc placeholder có kích thước thật (<code>Modifier.height(240.dp)</code>, <code>aspectRatio(...)</code>). <code>AsyncImage</code> thuộc thư viện Coil, học ở <a href="../../session_08/loading_image/coil.md" target="_blank" rel="noopener">8.2.4 Coil</a>.</p>
 
 <h3>4. Đọc vị trí cuộn ngay trong composition</h3>
 
-<pre data-lang="kotlin"><code>// Sai: cả màn hình recompose theo từng frame cuộn
+<pre data-lang="kotlin"><code>// Sai: composable này recompose mỗi khi item đầu đổi, dù showFab chỉ đổi một lần
 val listState = rememberLazyListState()
 val showFab = listState.firstVisibleItemIndex &gt; 0</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> Layout Inspector cho thấy số lần recompose của màn hình tăng liên tục khi cuộn; đọc <code>firstVisibleItemScrollOffset</code> hay <code>layoutInfo</code> kiểu này còn tệ hơn vì chúng đổi theo từng frame.</p>
 
 <p><strong>Cách sửa:</strong> <code>val showFab by remember { derivedStateOf { listState.firstVisibleItemIndex &gt; 0 } }</code>, chi tiết ở <a href="../side_effects/derived_state_of.md" target="_blank" rel="noopener">9.3.4 DerivedStateOf</a>. Thao tác chỉ cần chạy khi vị trí đổi (log, analytics) thì dùng <code>snapshotFlow</code> trong <code>LaunchedEffect</code>.</p>
 
@@ -53510,12 +53400,12 @@ val showFab = listState.firstVisibleItemIndex &gt; 0</code></pre>
 
 <ul>
   <li><strong>Compose 1.0 (07/2021):</strong> <code>LazyColumn</code>, <code>LazyRow</code>, <code>LazyListState</code>, <code>item</code>/<code>items</code>/<code>itemsIndexed</code>, <code>key</code>; <code>stickyHeader</code> có nhưng là API experimental. Lưới lazy (<code>LazyVerticalGrid</code>) mới ở dạng experimental.</li>
-  <li><strong>Khoảng 1.1:</strong> <code>Modifier.animateItemPlacement()</code> (experimental) để animate đổi chỗ.</li>
+  <li><strong>1.1:</strong> <code>Modifier.animateItemPlacement()</code> (experimental) để animate đổi chỗ.</li>
   <li><strong>1.2 (2022):</strong> thêm tham số <code>contentType</code> và cơ chế tái sử dụng composition giữa các item cùng loại; <code>LazyVerticalGrid</code> và <code>LazyHorizontalGrid</code> ổn định với <code>GridCells</code>.</li>
-  <li><strong>1.3:</strong> thêm lưới staggered và API snapping (<code>rememberSnapFlingBehavior</code>), ban đầu dạng experimental.</li>
-  <li><strong>1.7 (2024):</strong> <code>Modifier.animateItem()</code> thay <code>animateItemPlacement()</code>, thêm fade in/fade out; <code>LazyListState.requestScrollToItem()</code>.</li>
-  <li><strong>1.8 (2025):</strong> <code>stickyHeader</code> nhận <code>index</code> của header trong lambda nội dung.</li>
-  <li><strong>Khoảng 1.9 trở đi:</strong> <code>LazyLayoutCacheWindow</code> (experimental) để chỉnh vùng prefetch; được ổn định hoá trong dòng 1.13 (đang alpha/rc tại thời điểm viết, bản stable mới nhất là 1.12.x).</li>
+  <li><strong>1.3:</strong> thêm lưới staggered và API snapping (<code>rememberSnapFlingBehavior</code>), dạng experimental; lưới staggered stable từ 1.5.</li>
+  <li><strong>1.7 (2024):</strong> <code>Modifier.animateItem()</code> thay <code>animateItemPlacement()</code> (bị deprecate rồi gỡ), thêm fade in/fade out; <code>LazyListState.requestScrollToItem()</code>; snapping và Pager thành stable.</li>
+  <li><strong>1.8 (2025):</strong> <code>stickyHeader</code> stable, nhận <code>index</code> của header trong lambda nội dung.</li>
+  <li><strong>1.9 (2025):</strong> <code>LazyLayoutCacheWindow</code> (experimental) để chỉnh vùng prefetch; được đánh dấu stable ở 1.13.0-alpha01 (08/2026). Tại thời điểm viết (11/2026), bản stable mới nhất là 1.12.1, còn 1.13.0 đang ở rc01.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -53529,7 +53419,7 @@ val showFab = listState.firstVisibleItemIndex &gt; 0</code></pre>
   <li><a href="../side_effects/derived_state_of.md" target="_blank" rel="noopener">9.3.4 DerivedStateOf</a>, <a href="../side_effects/flow_with_snapshot.md" target="_blank" rel="noopener">9.3.5 SnapShotFlow and flowWithSnapshot</a>: đọc vị trí cuộn đúng cách.</li>
   <li><a href="../gesture/scrolling.md" target="_blank" rel="noopener">9.8.1 Scrolling</a>: <code>verticalScroll</code>, nested scroll; <a href="../gesture/swipping.md" target="_blank" rel="noopener">9.8.3 Swipping</a>: vuốt để xoá item trong <code>LazyColumn</code>.</li>
   <li><a href="../../session_06/paging.md" target="_blank" rel="noopener">6.5 Paging</a>: danh sách tải theo trang ở tầng dữ liệu.</li>
-  <li>8.5.1 Layouts và 7.1.2 ViewHolder Pattern (chưa có bài): <code>RecyclerView</code> trong View system.</li>
+  <li><a href="../../session_08/view_layout/layouts.md" target="_blank" rel="noopener">8.5.1 Layouts</a> và <a href="../../session_07/design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">7.1.2 ViewHolder Pattern</a>: <code>RecyclerView</code> trong View system.</li>
 </ul></li>
   <li><strong>Học tiếp:</strong> <a href="lazy_row.md" target="_blank" rel="noopener">9.5.5 Lazy Row</a>, <a href="lazy_vertical_grid.md" target="_blank" rel="noopener">9.5.6 Lazy Vertical Grid</a>, <a href="lazy_paging_items.md" target="_blank" rel="noopener">9.5.7 Lazy Paging Items</a>.</li>
 </ul>
@@ -53550,15 +53440,15 @@ val showFab = listState.firstVisibleItemIndex &gt; 0</code></pre>
   'compose-lazy-row': {
     title: 'Lazy Row',
     summary: 'LazyRow là lazy layout cuộn ngang của Compose, cùng DSL và cùng cơ chế chỉ dựng item cần cho viewport như LazyColumn, chỉ đổi trục chính sang ngang. Bài chỉ dạy phần khác biệt, gồm horizontalArrangement và verticalAlignment, carousel LazyRow lồng trong LazyColumn và cách mỗi hàng giữ vị trí cuộn riêng nhờ key, chiều cao hàng, snapping bằng rememberSnapFlingBehavior; HorizontalPager chỉ được nhắc để so sánh.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '10 phút',
+    estimatedReadingTime: '12 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'lazy-layout', 'lazyrow', 'carousel', 'snapping'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.lazy.lazy_column'],
-    related: ['android.jetpack_compose.lazy.lazy_vertical_grid', 'android.jetpack_compose.state.remember_saveable', 'android.jetpack_compose.gesture.scrolling'],
+    related: ['android.jetpack_compose.lazy.lazy_vertical_grid', 'android.jetpack_compose.state.remember_saveable', 'android.jetpack_compose.gesture.scrolling', 'android.view_layout.design_guide'],
     learningOutcomes: [
       'Phân biệt được LazyRow với LazyColumn ở trục cuộn, horizontalArrangement, verticalAlignment và cách item được đo theo chiều ngang.',
       'Triển khai được carousel bằng LazyRow lồng trong LazyColumn, mỗi hàng giữ được vị trí cuộn riêng nhờ key của hàng.',
@@ -53567,7 +53457,7 @@ val showFab = listState.firstVisibleItemIndex &gt; 0</code></pre>
     ],
     knowledgeGap: 'Coi LazyRow chỉ là LazyColumn xoay ngang thì dễ gặp ba lỗi chỉ lộ ra khi chạy thật: trang chủ nhiều carousel bị giật vì chiều cao từng hàng đổi theo item đang thấy, hàng "Đã xem gần đây" quay về đầu hoặc nhận vị trí cuộn của hàng khác khi danh sách hàng đổi thứ tự, và carousel dừng lửng giữa hai thẻ vì thiếu snapping.',
     updatedAt: '2026-11-09',
-    readTime: '10 phút',
+    readTime: '12 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -53871,7 +53761,7 @@ fun MusicHome(
   </tbody>
 </table>
 
-<p><code>HorizontalPager</code> cũng dựng trên <code>LazyLayout</code> và có snapping sẵn; chọn nó khi khái niệm "trang hiện tại" quan trọng. Pager được nhắc thêm ở <a href="../gesture/swipping.md" target="_blank" rel="noopener">9.8.3 Swipping</a>; carousel Material 3 thuộc phạm vi 8.5.4 Design Guide (chưa có bài) và đang là API experimental ở các bản Material 3 gần đây.</p>
+<p><code>HorizontalPager</code> cũng dựng trên <code>LazyLayout</code> và có snapping sẵn; chọn nó khi khái niệm "trang hiện tại" quan trọng. Pager được nhắc thêm ở <a href="../gesture/swipping.md" target="_blank" rel="noopener">9.8.3 Swipping</a>. Carousel của Material 3 là component dựng sẵn, đánh dấu experimental ở các bản Material 3 gần đây và không được dạy trong kho này; nguyên tắc chung của Material Design ở <a href="../../session_08/view_layout/design_guide.md" target="_blank" rel="noopener">8.5.4 Design Guide</a>.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
@@ -53923,8 +53813,8 @@ LazyRow {
 <ul>
   <li><strong>Compose 1.0 (07/2021):</strong> <code>LazyRow</code> ra mắt cùng <code>LazyColumn</code>, dùng chung <code>LazyListState</code> và DSL. Snapping và pager khi đó nằm ở thư viện Accompanist (ngoài Jetpack).</li>
   <li><strong>1.3:</strong> thêm API snapping (<code>rememberSnapFlingBehavior(SnapLayoutInfoProvider)</code>, <code>SnapLayoutInfoProvider(lazyListState)</code>), ban đầu experimental.</li>
-  <li><strong>Khoảng 1.4:</strong> <code>HorizontalPager</code>/<code>VerticalPager</code> được đưa vào foundation, thay pager của Accompanist.</li>
-  <li><strong>1.7 (2024):</strong> thêm overload <code>rememberSnapFlingBehavior(lazyListState, snapPosition)</code> và <code>SnapPosition</code> (<code>Start</code>, <code>Center</code>, <code>End</code>), cách viết gọn được dùng trong bài.</li>
+  <li><strong>1.4 (2023):</strong> <code>HorizontalPager</code>/<code>VerticalPager</code> (experimental) được đưa vào foundation, thay pager của Accompanist.</li>
+  <li><strong>1.7 (2024):</strong> API snapping và Pager thành stable; thêm overload <code>rememberSnapFlingBehavior(lazyListState, snapPosition)</code> và <code>SnapPosition</code> (<code>Start</code>, <code>Center</code>, <code>End</code>), cách viết gọn được dùng trong bài.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -53932,7 +53822,7 @@ LazyRow {
 <ul>
   <li><strong>Tiên quyết:</strong> <a href="lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a>: DSL, key, contentType, <code>LazyListState</code>, cơ chế lazy layout.</li>
   <li><strong>Liên quan:</strong> <a href="../state/remember_saveable.md" target="_blank" rel="noopener">9.2.2 Remember and rememberSaveable</a> (vì sao vị trí cuộn của hàng sống qua cuộn khuất và xoay màn hình), <a href="modifier_order.md" target="_blank" rel="noopener">9.5.1 Modifier Order</a> (constraints, <code>padding</code> và kích thước), <a href="../gesture/scrolling.md" target="_blank" rel="noopener">9.8.1 Scrolling</a> (<code>horizontalScroll</code>, nested scroll), <a href="../gesture/swipping.md" target="_blank" rel="noopener">9.8.3 Swipping</a> (<code>HorizontalPager</code>).</li>
-  <li><strong>Học tiếp:</strong> <a href="lazy_vertical_grid.md" target="_blank" rel="noopener">9.5.6 Lazy Vertical Grid</a>, <a href="lazy_paging_items.md" target="_blank" rel="noopener">9.5.7 Lazy Paging Items</a>; 8.5.4 Design Guide (chưa có bài) cho carousel theo Material.</li>
+  <li><strong>Học tiếp:</strong> <a href="lazy_vertical_grid.md" target="_blank" rel="noopener">9.5.6 Lazy Vertical Grid</a>, <a href="lazy_paging_items.md" target="_blank" rel="noopener">9.5.7 Lazy Paging Items</a>; <a href="../../session_08/view_layout/design_guide.md" target="_blank" rel="noopener">8.5.4 Design Guide</a> cho nguyên tắc Material Design.</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -53950,9 +53840,9 @@ LazyRow {
   'compose-lazy-grid': {
     title: 'Lazy Vertical Grid',
     summary: 'LazyVerticalGrid là lazy layout cuộn dọc xếp item thành các cột theo mô tả GridCells, lấp từng hàng từ đầu tới cuối, mỗi hàng cao bằng item cao nhất trong hàng. Bài chỉ dạy phần riêng của lưới, gồm GridCells.Fixed, Adaptive và FixedSize, span với GridItemSpan(maxLineSpan) cho header chiếm trọn hàng, và LazyVerticalStaggeredGrid khi item cao khác nhau; phần chung của lazy layout ở 9.5.4.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '10 phút',
+    estimatedReadingTime: '11 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'lazy-layout', 'lazyverticalgrid', 'grid', 'staggered-grid'],
     domain: 'Android',
@@ -53967,7 +53857,7 @@ LazyRow {
     ],
     knowledgeGap: 'Không biết lưới lazy thì hay tự chia danh sách bằng chunked rồi đặt Row trong LazyColumn (số cột cứng, vỡ trên tablet, key và animation theo hàng thay vì theo item), hoặc dùng GridCells.Fixed(2) cho mọi màn hình khiến thẻ trên tablet to bất thường, hoặc nhét ảnh tỉ lệ khác nhau vào lưới thường rồi thắc mắc vì sao có khoảng trống lớn dưới các ảnh thấp.',
     updatedAt: '2026-11-09',
-    readTime: '10 phút',
+    readTime: '11 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -54286,8 +54176,9 @@ items(products, key = { it.id }) { product -&gt; ProductCard(product) }</code></
 <ul>
   <li><strong>Compose 1.0 (07/2021):</strong> <code>LazyVerticalGrid</code> ở dạng experimental, tham số tên <code>cells</code>.</li>
   <li><strong>1.2 (2022):</strong> lưới lazy ổn định; tham số đổi tên thành <code>columns</code> (và <code>rows</code> cho <code>LazyHorizontalGrid</code> mới thêm); <code>GridCells.Fixed</code>, <code>GridCells.Adaptive</code>; <code>span</code> với <code>LazyGridItemSpanScope</code>; thêm <code>contentType</code>.</li>
-  <li><strong>1.3:</strong> thêm <code>LazyVerticalStaggeredGrid</code> và <code>LazyHorizontalStaggeredGrid</code> dạng experimental; chúng được ổn định ở các bản sau.</li>
-  <li><strong>Các bản sau:</strong> bổ sung <code>GridCells.FixedSize</code>; từ 1.7, <code>Modifier.animateItem()</code> dùng được trong lưới như trong danh sách.</li>
+  <li><strong>1.3:</strong> thêm <code>LazyVerticalStaggeredGrid</code> và <code>LazyHorizontalStaggeredGrid</code> dạng experimental.</li>
+  <li><strong>1.5 (2023):</strong> lưới staggered thành stable; thêm <code>GridCells.FixedSize</code>.</li>
+  <li><strong>1.7 (2024):</strong> <code>Modifier.animateItem()</code> dùng được trong lưới (thường và staggered) như trong danh sách.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -54295,7 +54186,7 @@ items(products, key = { it.id }) { product -&gt; ProductCard(product) }</code></
 <ul>
   <li><strong>Tiên quyết:</strong> <a href="lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a>: DSL, <code>key</code>, <code>contentType</code>, cơ chế lazy layout, lỗi item 0px và lồng scroll cùng hướng.</li>
   <li><strong>Liên quan:</strong> <a href="lazy_row.md" target="_blank" rel="noopener">9.5.5 Lazy Row</a> (danh sách ngang trong trang chủ dạng lưới), <a href="modifier_order.md" target="_blank" rel="noopener">9.5.1 Modifier Order</a> (<code>aspectRatio</code>, <code>height</code> và constraints), <a href="../layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a> (<code>Row</code>, <code>Column</code>, layout tuỳ chỉnh).</li>
-  <li><strong>Học tiếp:</strong> <a href="lazy_paging_items.md" target="_blank" rel="noopener">9.5.7 Lazy Paging Items</a> (lưới tải theo trang); 8.5.4 Design Guide (chưa có bài) cho quy tắc lưới của Material.</li>
+  <li><strong>Học tiếp:</strong> <a href="lazy_paging_items.md" target="_blank" rel="noopener">9.5.7 Lazy Paging Items</a> (lưới tải theo trang).</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -54312,15 +54203,15 @@ items(products, key = { it.id }) { product -&gt; ProductCard(product) }</code></
   'compose-lazy-paging': {
     title: 'Lazy Paging Items',
     summary: 'LazyPagingItems là đối tượng do collectAsLazyPagingItems() tạo ra để đưa một Flow<PagingData> của Paging 3 vào lazy layout của Compose. Nó collect PagingData trong composition, phơi ra itemCount, item theo index và loadState dưới dạng state Compose đọc được, và mỗi lần item được đọc theo index thì báo cho Paging biết UI đang xem tới đâu. Bài dạy cách dùng nó trong LazyColumn với itemKey và itemContentType, placeholder null, loading, lỗi và retry theo loadState, và vì sao Flow phải cachedIn(viewModelScope); cơ chế PagingSource và Pager ở 6.5.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '15 phút',
+    estimatedReadingTime: '19 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'paging', 'lazy-layout', 'lazypagingitems', 'loadstate'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack.paging', 'android.jetpack_compose.lazy.lazy_column'],
-    related: ['android.jetpack.viewmodel', 'android.architecture.mvvm', 'android.jetpack_compose.lazy.lazy_vertical_grid', 'android.jetpack_compose.side_effects.snapshot_flow'],
+    related: ['android.jetpack.viewmodel', 'android.architecture.mvvm', 'android.jetpack_compose.lazy.lazy_vertical_grid', 'android.jetpack_compose.side_effects.snapshot_flow', 'android.design_pattern.observer.flow', 'android.async.coroutines'],
     learningOutcomes: [
       'Giải thích được LazyPagingItems nối Flow<PagingData> với lazy layout thế nào, và vì sao đọc item theo index là tín hiệu để Paging tải trang.',
       'Triển khai được danh sách phân trang trong LazyColumn bằng collectAsLazyPagingItems, items(count), itemKey và itemContentType.',
@@ -54329,7 +54220,7 @@ items(products, key = { it.id }) { product -&gt; ProductCard(product) }</code></
     ],
     knowledgeGap: 'Đã biết Paging 3 với RecyclerView nhưng chưa hiểu LazyPagingItems thì dễ tạo Pager ngay trong composable (tải lại từ đầu mỗi lần recompose hay xoay màn hình), render bằng itemSnapshotList nên không bao giờ tải trang 2, hiện spinner toàn màn hình mỗi lần kéo để làm mới khiến danh sách biến mất và mất vị trí cuộn, hoặc gặp crash key trùng khi API phân trang theo offset trả lặp item giữa các trang.',
     updatedAt: '2026-11-09',
-    readTime: '15 phút',
+    readTime: '19 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -54577,7 +54468,7 @@ flowchart TD
   <li><strong>Danh sách phụ thuộc tham số</strong> (từ khoá, bộ lọc) thì giữ tham số trong <code>StateFlow</code>, dùng <code>flatMapLatest</code> để tạo <code>Pager</code> mới cho mỗi giá trị và đặt <code>cachedIn</code> <strong>sau</strong> <code>flatMapLatest</code>, như ví dụ <code>ProductSearchViewModel</code> ở 6.5. Flow mà composable collect vẫn là một instance duy nhất.</li>
 </ul>
 
-<p>Preview và test UI không cần <code>Pager</code> thật: <code>flowOf(PagingData.from(fakeArticles))</code> cho một <code>Flow&lt;PagingData&gt;</code> dữ liệu giả, đưa vào <code>collectAsLazyPagingItems()</code> như bình thường. Kiểm thử <code>PagingSource</code> và Flow ở tầng dữ liệu (<code>asSnapshot</code>, <code>TestPager</code>) đã có ở 6.5.</p>
+<p>Preview và test UI không cần <code>Pager</code> thật: bọc dữ liệu giả thành <code>MutableStateFlow(PagingData.from(fakeArticles))</code> rồi gọi <code>collectAsLazyPagingItems()</code> như bình thường. Tài liệu Paging dùng <code>MutableStateFlow</code> vì Preview tĩnh không chạy effect: với một <code>StateFlow</code> (vốn là <code>SharedFlow</code>), <code>LazyPagingItems</code> lấy được <code>PagingData</code> ban đầu từ replay cache ngay khi tạo, còn <code>flowOf(...)</code> chỉ phát khi được collect nên Preview hiện danh sách rỗng. Kiểm thử <code>PagingSource</code> và Flow ở tầng dữ liệu (<code>asSnapshot</code>, <code>TestPager</code>) đã có ở 6.5.</p>
 
 <h2>Ví dụ thực tế</h2>
 
@@ -54641,6 +54532,7 @@ class ProductSearchViewModel(private val repository: ProductRepository) : ViewMo
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -54789,7 +54681,7 @@ private fun AppendFooter(append: LoadState, onRetry: () -&gt; Unit) {
 
 <pre data-lang="kotlin"><code>// Sai: mỗi lần recompose là một Pager và một Flow mới
 @Composable
-fun ArticleFeedScreen(repository: ArticleRepository) {
+fun ArticleFeedScreen(api: ArticleApi) {
     val articles = Pager(PagingConfig(pageSize = 20)) { ArticlePagingSource(api) }
         .flow
         .collectAsLazyPagingItems()
@@ -54832,8 +54724,8 @@ if (products.loadState.refresh is LoadState.Loading) FullScreenLoading() else Pr
 
 <ul>
   <li><strong>Cuối 2020:</strong> <code>androidx.paging:paging-compose</code> ra bản alpha đầu tiên (đánh số riêng <code>1.0.0-alphaXX</code>), có <code>collectAsLazyPagingItems()</code> cùng extension <code>items(lazyPagingItems)</code> và <code>itemsIndexed(lazyPagingItems)</code> dành riêng cho <code>LazyColumn</code>/<code>LazyRow</code>.</li>
-  <li><strong>2023, các bản alpha cuối của paging-compose:</strong> <code>items(lazyPagingItems)</code> và <code>itemsIndexed(lazyPagingItems)</code> bị deprecate rồi gỡ bỏ, thay bằng <code>items(count)</code> của lazy layout cùng <code>itemKey</code> và <code>itemContentType</code>. Lý do: một API chung dùng được cho mọi lazy layout (lưới, <code>HorizontalPager</code>) thay vì viết extension riêng cho từng loại.</li>
-  <li><strong>Paging 3.2.0 (07/2023):</strong> <code>paging-compose</code> về cùng số version với Paging và có bản stable đầu tiên; <code>LazyPagingItems</code> hỗ trợ preview bằng <code>PagingData.from(list)</code>.</li>
+  <li><strong>05/2023, paging-compose 1.0.0-alpha19:</strong> <code>items(lazyPagingItems)</code> và <code>itemsIndexed(lazyPagingItems)</code> bị deprecate (gỡ hẳn ở Paging 3.2.0-beta01, 06/2023), thay bằng <code>items(count)</code> của lazy layout cùng <code>itemKey</code> và <code>itemContentType</code>. Lý do: một API chung dùng được cho mọi lazy layout (lưới, <code>HorizontalPager</code>) thay vì viết extension riêng cho từng loại.</li>
+  <li><strong>Paging 3.2.0 (07/2023):</strong> <code>paging-compose</code> về cùng số version với Paging và có bản stable đầu tiên; <code>LazyPagingItems</code> hiện được dữ liệu giả trong Preview qua <code>MutableStateFlow(PagingData.from(list))</code>.</li>
   <li><strong>Paging 3.3.0 (05/2024):</strong> <code>CombinedLoadStates</code> có thêm <code>isIdle</code> và <code>hasError</code>; Paging, gồm <code>paging-compose</code>, hỗ trợ Kotlin Multiplatform.</li>
 </ul>
 
@@ -54846,9 +54738,9 @@ if (products.loadState.refresh is LoadState.Loading) FullScreenLoading() else Pr
   <li><a href="lazy_vertical_grid.md" target="_blank" rel="noopener">9.5.6 Lazy Vertical Grid</a>: lưới phân trang, footer trọn hàng bằng <code>GridItemSpan(maxLineSpan)</code>.</li>
   <li><a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>, <a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">7.2.3 MVVM</a>: nơi <code>Pager</code> và <code>cachedIn</code> sống.</li>
   <li><a href="../side_effects/flow_with_snapshot.md" target="_blank" rel="noopener">9.3.5 SnapShotFlow and flowWithSnapshot</a>: <code>collectAsStateWithLifecycle()</code> cho state thường, <code>snapshotFlow</code> để phản ứng khi <code>loadState</code> đổi.</li>
-  <li>7.1.4.2 Flow và 8.4.3 Coroutines (chưa có bài): <code>flatMapLatest</code>, <code>debounce</code>, <code>viewModelScope</code>.</li>
+  <li><a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a> (<code>flatMapLatest</code>, <code>debounce</code>) và <a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a> (<code>viewModelScope</code>).</li>
 </ul></li>
-  <li><strong>Học tiếp:</strong> 10.2 Unit Testing (chưa có bài) cho kiểm thử tầng dữ liệu phân trang; <a href="../gesture/swipping.md" target="_blank" rel="noopener">9.8.3 Swipping</a> cho vuốt để xoá item trong danh sách.</li>
+  <li><strong>Học tiếp:</strong> <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a> cho kiểm thử ViewModel (kiểm thử <code>PagingSource</code> bằng <code>TestPager</code>, <code>asSnapshot</code> ở 6.5); <a href="../gesture/swipping.md" target="_blank" rel="noopener">9.8.3 Swipping</a> cho vuốt để xoá item trong danh sách.</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -54866,26 +54758,26 @@ if (products.loadState.refresh is LoadState.Loading) FullScreenLoading() else Pr
   },
   'compose-layout-view': {
     title: 'Layout and View (Text, Image, Layout)',
-    summary: 'Layout trong Compose là quá trình mỗi node của cây UI nhận constraints (giới hạn kích thước nhỏ nhất và lớn nhất) từ cha, đo mỗi con đúng một lần, tự chọn kích thước rồi đặt vị trí các con; Text, Image, Icon là node lá hiển thị nội dung, Row, Column, Box, Scaffold và Layout {} là node xếp con. Bài giải thích mô hình đo một lượt, Text với AnnotatedString, Image, Icon, arrangement và alignment, Scaffold, custom layout bằng Layout {} và BoxWithConstraints.',
-    status: 'reviewing',
+    summary: 'Layout trong Compose là quá trình mỗi node của cây UI nhận constraints (giới hạn kích thước nhỏ nhất và lớn nhất) từ cha, đo mỗi con đúng một lần, tự chọn kích thước rồi đặt vị trí các con; Text, Image, Icon là node lá hiển thị nội dung, Row, Column, Box, Scaffold và Layout {} là node xếp con. Bài giải thích mô hình đo một lượt, Text với AnnotatedString, Image, Icon, arrangement và alignment, Scaffold, custom layout bằng Layout {}, và layout thích ứng bằng window size class (cấp màn hình) và BoxWithConstraints (cấp component).',
+    status: 'published',
     difficulty: 'beginner',
-    estimatedReadingTime: '18 phút',
+    estimatedReadingTime: '22 phút',
     depth: 'standard',
-    tags: ['android', 'compose', 'session-09', 'layout', 'text', 'image', 'row-column-box', 'scaffold', 'custom-layout'],
+    tags: ['android', 'compose', 'session-09', 'layout', 'text', 'image', 'row-column-box', 'scaffold', 'custom-layout', 'adaptive-layout'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.compose_overview', 'android.jetpack_compose.theming.material_theme'],
-    related: ['android.jetpack_compose.theming.custom_theme', 'android.jetpack.view_binding', 'android.jetpack_compose.remember_recomposition'],
+    related: ['android.jetpack_compose.theming.custom_theme', 'android.jetpack_compose.remember_recomposition', 'android.jetpack_compose.modifier.order', 'android.jetpack_compose.lazy.lazy_column', 'android.image.coil', 'android.view_layout.layouts', 'android.view_layout.custom_view', 'android.jetpack.view_binding'],
     learningOutcomes: [
       'Giải thích được mô hình layout của Compose: constraints đi xuống, kích thước đi lên, mỗi con chỉ được đo một lần, và vì sao lồng layout không làm chậm như View system.',
       'Triển khai được giao diện bằng Text (style, maxLines, overflow, AnnotatedString), Image (painterResource, contentScale, contentDescription) và Icon.',
       'Áp dụng được Row, Column, Box, Spacer với arrangement và alignment, và dựng khung màn hình bằng Scaffold có xử lý innerPadding.',
       'Thiết kế được custom layout cơ bản bằng Layout {} với measurables, constraints và placeRelative.',
-      'Biết khi nào dùng BoxWithConstraints cho component và khi nào dùng window size class cho quyết định cấp màn hình.'
+      'Thiết kế được layout thích ứng: dùng window size class (breakpoint theo kích thước cửa sổ) cho quyết định cấp màn hình và BoxWithConstraints cho quyết định cấp component.'
     ],
-    knowledgeGap: 'Developer chuyển từ XML hay bê nguyên thói quen cũ: né lồng Row và Column vì sợ chậm, bỏ quên innerPadding của Scaffold khiến nội dung chui dưới thanh trên cùng, để Text dài đẩy mất nhãn thời gian vì không có weight và overflow, đặt contentDescription cho ảnh trang trí làm TalkBack đọc thừa, hoặc dùng BoxWithConstraints khắp nơi mà không biết nó phải compose lại nội dung trong lúc layout.',
+    knowledgeGap: 'Developer chuyển từ XML hay bê nguyên thói quen cũ: né lồng Row và Column vì sợ chậm, bỏ quên innerPadding của Scaffold khiến nội dung chui dưới thanh trên cùng, để Text dài đẩy mất nhãn thời gian vì không có weight và overflow, đặt contentDescription cho ảnh trang trí làm TalkBack đọc thừa, viết logic "isTablet" theo kích thước thiết bị thay vì window size class, hoặc dùng BoxWithConstraints khắp nơi mà không biết nó phải compose lại nội dung trong lúc layout.',
     updatedAt: '2026-11-09',
-    readTime: '18 phút',
+    readTime: '22 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -54900,10 +54792,10 @@ fun ArtistCard() {
 <p>Dựng một màn hình thật đòi hỏi trả lời nhiều câu hỏi cùng lúc:</p>
 
 <ul>
-  <li><strong>Hiển thị nội dung:</strong> chữ dài thì cắt thế nào, một đoạn chữ có phần in đậm và phần là đường link; ảnh không đúng tỉ lệ khung thì cắt hay co; icon lấy màu từ đâu.</li>
+  <li><strong>Hiển thị nội dung:</strong> chữ dài cắt thế nào, một đoạn chữ có phần in đậm và phần là link; ảnh lệch tỉ lệ khung thì cắt hay co.</li>
   <li><strong>Xếp phần tử:</strong> ngang, dọc, chồng lớp; căn giữa, dồn hai đầu; phần tử nào được giãn ra.</li>
-  <li><strong>Khung màn hình:</strong> thanh trên cùng, nút nổi, Snackbar đặt ở đâu để không đè nội dung.</li>
-  <li><strong>Hiệu năng:</strong> trong View system, lồng <code>LinearLayout</code> có <code>weight</code> hay <code>RelativeLayout</code> làm một View bị đo nhiều lần; trong Compose có phải "làm phẳng" layout như vậy không?</li>
+  <li><strong>Khung màn hình:</strong> thanh trên cùng, nút nổi, Snackbar đặt ở đâu để không đè nội dung; cửa sổ rộng (tablet, foldable, chia đôi màn hình) thì đổi bố cục thế nào.</li>
+  <li><strong>Hiệu năng:</strong> trong View system, lồng <code>LinearLayout</code> có <code>weight</code> làm một View bị đo nhiều lần (<a href="../session_08/view_layout/layouts.md" target="_blank" rel="noopener">8.5.1 Layouts</a>); Compose có buộc "làm phẳng" layout như vậy không?</li>
 </ul>
 
 <p>Vấn đề cần giải quyết là: <strong>hiểu Compose đo và đặt phần tử thế nào</strong>, để chọn đúng composable cơ bản cho từng nhu cầu, và tự viết layout khi các composable có sẵn không đủ.</p>
@@ -54915,7 +54807,7 @@ fun ArtistCard() {
   <li>Triển khai được giao diện bằng Text (style, maxLines, overflow, AnnotatedString), Image (painterResource, contentScale, contentDescription) và Icon.</li>
   <li>Áp dụng được Row, Column, Box, Spacer với arrangement và alignment, và dựng khung màn hình bằng Scaffold có xử lý innerPadding.</li>
   <li>Thiết kế được custom layout cơ bản bằng Layout {} với measurables, constraints và placeRelative.</li>
-  <li>Biết khi nào dùng BoxWithConstraints cho component và khi nào dùng window size class cho quyết định cấp màn hình.</li>
+  <li>Thiết kế được layout thích ứng: dùng window size class (breakpoint theo kích thước cửa sổ) cho quyết định cấp màn hình và BoxWithConstraints cho quyết định cấp component.</li>
 </ul>
 
 <h2>Layout trong Compose là gì?</h2>
@@ -54942,59 +54834,9 @@ fun ArtistCard() {
 
 <p>Hệ quả: cha <strong>bắt đầu đo trước</strong> con, nhưng <strong>có kích thước sau</strong> con. Toàn bộ cây được layout trong <strong>một lượt</strong> (single pass).</p>
 
-<p>Quy tắc quan trọng nhất: <strong>Compose không cho đo một con hai lần</strong> trong cùng một lượt layout. Nếu mỗi phần tử đo con hai lần, và con lại đo con của nó hai lần, chi phí tăng theo cấp số nhân với độ sâu của cây. Vì mỗi node chỉ được đo một lần, <strong>lồng <code>Row</code>, <code>Column</code> sâu bao nhiêu cũng không làm chậm</strong>, khác kinh nghiệm "làm phẳng layout" của View system. Khi cần biết kích thước con trước khi đo (mọi nút rộng bằng nút rộng nhất), dùng <strong>intrinsic measurements</strong>: hỏi con "nếu được tự do thì cần rộng bao nhiêu" mà không tính là một lần đo. Đo và đặt tách rời, nên thay đổi chỉ ảnh hưởng vị trí có thể chạy lại riêng bước đặt.</p>
+<p>Quy tắc quan trọng nhất: <strong>Compose không cho đo một con hai lần</strong> trong cùng một lượt layout. Nếu mỗi tầng đo con hai lần, chi phí tăng theo cấp số nhân với độ sâu của cây; vì mỗi node chỉ được đo một lần, <strong>lồng <code>Row</code>, <code>Column</code> sâu bao nhiêu cũng không làm chậm</strong>, khác kinh nghiệm "làm phẳng layout" của View system. Khi cần biết kích thước con trước khi đo (mọi nút rộng bằng nút rộng nhất), dùng <strong>intrinsic measurements</strong>: hỏi con "nếu được tự do thì cần rộng bao nhiêu" mà không tính là một lần đo. Đo và đặt tách rời, nên thay đổi chỉ ảnh hưởng vị trí có thể chạy lại riêng bước đặt.</p>
 
-<h4>Ví dụ: một dòng kết quả tìm kiếm sản phẩm</h4>
-
-<p><strong>Bài toán:</strong> dòng gồm ảnh sản phẩm bên trái, tên và giá xếp dọc bên phải; cần đoán đúng kích thước của từng phần khi tên rất dài.</p>
-
-<p><strong>Luồng chạy:</strong></p>
-
-<ol>
-  <li><code>Row</code> nhận constraints từ cha (rộng tối đa bằng màn hình).</li>
-  <li><code>Row</code> đo <code>Image</code> (lá), nhận 64×64dp.</li>
-  <li><code>Row</code> đo <code>Column</code> với phần rộng còn lại.</li>
-  <li><code>Column</code> đo lần lượt hai <code>Text</code> (lá), mỗi cái báo kích thước theo nội dung.</li>
-  <li><code>Column</code> chọn kích thước (rộng bằng <code>Text</code> rộng nhất, cao bằng tổng) và đặt hai <code>Text</code>.</li>
-  <li><code>Row</code> chọn kích thước (cao bằng con cao nhất) và đặt <code>Image</code>, <code>Column</code> từ trái sang.</li>
-</ol>
-
-<div class="mermaid">
-sequenceDiagram
-    participant P as Cha
-    participant R as Row
-    participant I as Image
-    participant C as Column
-    participant T as Text x2
-    P-&gt;&gt;R: (1) measure(constraints)
-    R-&gt;&gt;I: (2) measure
-    I--&gt;&gt;R: 64x64dp
-    R-&gt;&gt;C: (3) measure(phần rộng còn lại)
-    C-&gt;&gt;T: (4) measure từng Text
-    T--&gt;&gt;C: kích thước theo nội dung
-    C--&gt;&gt;R: (5) kích thước Column, đã đặt hai Text
-    R--&gt;&gt;P: (6) kích thước Row, đã đặt Image và Column
-</div>
-
-<p><strong>Code:</strong></p>
-
-<pre data-lang="kotlin"><code>// ProductSearchRow.kt
-@Composable
-fun ProductSearchRow(product: Product, modifier: Modifier = Modifier) {
-    Row(modifier, verticalAlignment = Alignment.CenterVertically) {   // (1) (6)
-        Image(                                                           // (2)
-            painter = painterResource(product.thumbnailRes),
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-        )
-        Column(Modifier.padding(start = 12.dp)) {                        // (3) (5)
-            Text(product.name, style = MaterialTheme.typography.titleMedium)   // (4)
-            Text(product.priceText, style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-}</code></pre>
-
-<p><strong>Kết quả:</strong> Layout Inspector cho thấy <code>Row</code> cao 64dp, <code>Column</code> bắt đầu sau ảnh 12dp. Tên rất dài thì xuống dòng trong phần rộng còn lại, vì constraints mà <code>Column</code> nhận ở bước 3 không cho vượt màn hình.</p>
+<p>Mục "Ví dụ thực tế" (dòng hội thoại) đi qua đầy đủ luồng đo này trên một <code>Row</code> có avatar, cột chữ và cột giờ.</p>
 
 <h3>Text: hiển thị chữ</h3>
 
@@ -55093,9 +54935,9 @@ fun SearchResultTitle(title: String, query: String, modifier: Modifier = Modifie
     )
 }</code></pre>
 
-<p><code>highlightQuery</code> là hàm thường, không <code>@Composable</code>, nên test được bằng unit test JVM. <code>remember(keys)</code> giữ kết quả qua recomposition và chỉ tính lại khi <code>title</code> hoặc <code>query</code> đổi; cơ chế ở <a href="remember_and_recomposition.md" target="_blank" rel="noopener">9.1 Remember and Recomposition</a>.</p>
+<p><code>highlightQuery</code> là hàm thường, không <code>@Composable</code>, nên test được bằng unit test JVM; <code>remember(keys)</code> chỉ tính lại khi <code>title</code> hoặc <code>query</code> đổi (cơ chế ở <a href="remember_and_recomposition.md" target="_blank" rel="noopener">9.1 Remember and Recomposition</a>).</p>
 
-<p><strong>Kết quả:</strong> tìm "áo khoác" thì "Áo khoác gió nam" và "Set áo khoác + quần" đều được tô đậm đúng đoạn khớp. Unit test kiểm tra <code>highlightQuery("Áo khoác gió", "áo", style).spanStyles</code> có đúng một range <code>0..2</code>. Tiêu đề dài ba dòng hiện hai dòng và kết thúc bằng "…".</p>
+<p><strong>Kết quả:</strong> unit test <code>highlightQuery("Áo khoác gió", "áo", style).spanStyles</code> có đúng một range <code>0..2</code>; trên màn hình, tiêu đề dài ba dòng hiện hai dòng và kết thúc bằng "…".</p>
 
 <h3>Image và Icon: hiển thị hình</h3>
 
@@ -55103,7 +54945,7 @@ fun SearchResultTitle(title: String, query: String, modifier: Modifier = Modifie
 
 <ul>
   <li><strong>Nguồn hình:</strong> <code>painter = painterResource(R.drawable.banner)</code> cho drawable trong resource (cả bitmap lẫn vector drawable); ngoài ra có overload nhận <code>ImageBitmap</code> hoặc <code>ImageVector</code>.</li>
-  <li><strong><code>contentDescription</code>:</strong> mô tả cho trình đọc màn hình (TalkBack). Hình mang thông tin (banner khuyến mãi, ảnh sản phẩm khi không có tên đi kèm) thì mô tả nội dung; hình trang trí hoặc đã có chữ mô tả bên cạnh thì truyền <code>null</code> để TalkBack bỏ qua. Đây là tham số bắt buộc, có chủ đích, để developer phải quyết định.</li>
+  <li><strong><code>contentDescription</code>:</strong> mô tả cho trình đọc màn hình (TalkBack). Hình mang thông tin (banner khuyến mãi) thì mô tả nội dung; hình trang trí hoặc đã có chữ bên cạnh thì truyền <code>null</code> để TalkBack bỏ qua. Tham số này bắt buộc để developer phải quyết định.</li>
   <li><strong><code>contentScale</code>:</strong> cách khớp hình vào khung khi tỉ lệ khác nhau.</li>
   <li><strong><code>alignment</code>, <code>alpha</code>, <code>colorFilter</code>:</strong> vị trí hình trong khung, độ trong suốt, bộ lọc màu.</li>
 </ul>
@@ -55143,9 +54985,9 @@ fun SearchResultTitle(title: String, query: String, modifier: Modifier = Modifie
   </tbody>
 </table>
 
-<p><code>painterResource</code> chỉ dành cho hình trong app. Ảnh tải từ mạng cần thư viện tải ảnh, phổ biến là Coil với composable <code>AsyncImage(model = url, ...)</code>, có cùng các tham số <code>contentDescription</code>, <code>contentScale</code>; Coil được học ở 8.2.4 Coil (chưa có bài).</p>
+<p><code>painterResource</code> chỉ dành cho hình trong app. Ảnh tải từ mạng cần thư viện image loading, phổ biến là Coil với composable <code>AsyncImage(model = url, ...)</code> (artifact <code>coil-compose</code>), có cùng các tham số <code>contentDescription</code>, <code>contentScale</code>; cách thiết lập và chọn giữa <code>AsyncImage</code>, <code>rememberAsyncImagePainter</code>, <code>SubcomposeAsyncImage</code> học ở <a href="../session_08/loading_image/coil.md" target="_blank" rel="noopener">8.2.4 Coil</a>.</p>
 
-<p><code>Icon</code> là composable cho <strong>icon một màu cỡ nhỏ</strong>: mặc định 24dp và được tô bằng <code>LocalContentColor</code>, nên đặt trong <code>Button</code>, <code>TopAppBar</code> thì tự lấy đúng màu nội dung của component; đổi màu bằng <code>tint</code>. Về nguồn icon, docs hiện <strong>không còn khuyên dùng</strong> thư viện <code>material-icons</code> (<code>Icons.Default.Favorite</code>...) vì giao diện cũ và làm tăng đáng kể thời gian build; thay vào đó tải icon Material Symbols dạng XML vector drawable từ Google Fonts rồi dùng <code>Icon(painterResource(R.drawable.ic_favorite), contentDescription = ...)</code>.</p>
+<p><code>Icon</code> là composable cho <strong>icon một màu cỡ nhỏ</strong>: mặc định 24dp và được tô bằng <code>LocalContentColor</code>, nên đặt trong <code>Button</code>, <code>TopAppBar</code> thì tự lấy đúng màu nội dung của component; đổi màu bằng <code>tint</code>. Docs <strong>không còn duy trì và khuyên dùng</strong> thư viện <code>material-icons</code> (<code>Icons.Default.Favorite</code>...) vì giao diện cũ và làm tăng đáng kể thời gian build; thay vào đó tải icon Material Symbols dạng XML từ Google Fonts rồi dùng <code>Icon(painterResource(R.drawable.ic_favorite), contentDescription = ...)</code>.</p>
 
 <h3>Row, Column, Box và Spacer: xếp phần tử</h3>
 
@@ -55184,7 +55026,7 @@ fun SearchResultTitle(title: String, query: String, modifier: Modifier = Modifie
   <li><strong><code>Spacer</code></strong> là composable rỗng chiếm chỗ: <code>Spacer(Modifier.height(16.dp))</code> tạo khoảng cách; trong <code>Row</code>, <code>Spacer(Modifier.weight(1f))</code> chiếm hết phần còn lại, đẩy các con phía sau về cuối.</li>
 </ul>
 
-<p>Một số modifier chỉ có trong scope của layout cha: <code>Modifier.weight()</code> trong <code>Row</code>/<code>Column</code> (con được chia phần chiều rộng hoặc cao còn lại), <code>Modifier.align()</code> và <code>Modifier.matchParentSize()</code> trong <code>Box</code>. Cơ chế scope-specific modifier học ở 9.5.2 Chaining; trong bài này chỉ dùng ở mức cần thiết.</p>
+<p>Một số modifier chỉ có trong scope của layout cha: <code>Modifier.weight()</code> trong <code>Row</code>/<code>Column</code> (con được chia phần chiều rộng hoặc cao còn lại), <code>Modifier.align()</code> và <code>Modifier.matchParentSize()</code> trong <code>Box</code>. Cơ chế scope-specific modifier học ở <a href="modifier/chaining.md" target="_blank" rel="noopener">9.5.2 Chaining</a>.</p>
 
 <h4>Ví dụ: nhãn giảm giá đè lên ảnh sản phẩm</h4>
 
@@ -55216,7 +55058,7 @@ fun ProductImageWithBadge(product: Product, modifier: Modifier = Modifier) {
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> Preview với <code>discountPercent = 30</code> hiện nhãn đỏ ở góc ảnh; đặt <code>0</code> thì nhãn biến mất, ảnh giữ nguyên vị trí vì <code>Box</code> chồng lớp chứ không xếp nối tiếp. Vì sao <code>clip</code>/<code>background</code>/<code>padding</code> phải theo đúng thứ tự này học ở 9.5.1 Modifier Order.</p>
+<p><strong>Kết quả:</strong> Preview với <code>discountPercent = 30</code> hiện nhãn đỏ ở góc ảnh; đặt <code>0</code> thì nhãn biến mất, ảnh giữ nguyên vị trí vì <code>Box</code> chồng lớp chứ không xếp nối tiếp. Vì sao <code>padding</code>/<code>background</code>/<code>padding</code> phải theo đúng thứ tự này học ở <a href="modifier/modifier_order.md" target="_blank" rel="noopener">9.5.1 Modifier Order</a>.</p>
 
 <h3>Scaffold: khung màn hình Material</h3>
 
@@ -55253,7 +55095,7 @@ fun ProductImageWithBadge(product: Product, modifier: Modifier = Modifier) {
   </tbody>
 </table>
 
-<p>Điểm mấu chốt là tham số <code>PaddingValues</code> của <code>content</code> (thường tên <code>innerPadding</code>): khoảng nội dung phải chừa ra để không bị <code>topBar</code>, <code>bottomBar</code> và vùng hệ thống (window insets như thanh trạng thái khi app vẽ tràn bằng <code>enableEdgeToEdge()</code>) che mất. Nội dung <strong>phải</strong> dùng nó, qua <code>Modifier.padding(innerPadding)</code> hoặc <code>contentPadding</code> của danh sách; Lint cảnh báo khi tham số này bị bỏ quên.</p>
+<p>Điểm mấu chốt là tham số <code>PaddingValues</code> của <code>content</code> (thường tên <code>innerPadding</code>): khoảng nội dung phải chừa ra để không bị <code>topBar</code>, <code>bottomBar</code> và vùng hệ thống (window insets như thanh trạng thái khi app vẽ tràn bằng <code>enableEdgeToEdge()</code>; từ Android 15, app target SDK 35 bị buộc vẽ tràn) che mất. Nội dung <strong>phải</strong> dùng nó, qua <code>Modifier.padding(innerPadding)</code> hoặc <code>contentPadding</code> của danh sách; Lint cảnh báo khi tham số này bị bỏ quên.</p>
 
 <h4>Ví dụ: màn hình ghi chú có nút thêm và Snackbar hoàn tác</h4>
 
@@ -55326,9 +55168,9 @@ fun NoteListScreen(
     }
 }</code></pre>
 
-<p><code>rememberCoroutineScope</code> để chạy coroutine từ callback là kiến thức của 9.3.1 LaunchedEffect; <code>LazyColumn</code> và <code>items(key = ...)</code> học ở 9.5.4 Lazy Column; coroutine học ở 8.4.3 Coroutines (chưa có bài).</p>
+<p><code>rememberCoroutineScope</code> để chạy coroutine từ callback học ở <a href="side_effects/launched_effect.md" target="_blank" rel="noopener">9.3.1 LaunchedEffect</a>; <code>LazyColumn</code> và <code>items(key = ...)</code> ở <a href="modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a>; coroutine và hàm <code>suspend</code> ở <a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>.</p>
 
-<p><strong>Kết quả:</strong> mục đầu tiên của danh sách nằm ngay dưới thanh tiêu đề, không bị che; cuộn thì nội dung trượt dưới thanh trạng thái nhưng mục cuối vẫn kéo lên được trên thanh điều hướng. Xoá một ghi chú: Snackbar hiện phía trên FAB; bấm "Hoàn tác" thì ghi chú trở lại.</p>
+<p><strong>Kết quả:</strong> mục đầu tiên nằm ngay dưới thanh tiêu đề, mục cuối vẫn kéo lên được trên thanh điều hướng. Xoá một ghi chú: Snackbar hiện phía trên FAB; bấm "Hoàn tác" thì ghi chú trở lại.</p>
 
 <h3>Custom layout với <code>Layout {}</code></h3>
 
@@ -55339,7 +55181,7 @@ fun NoteListScreen(
   <li><code>constraints</code>: constraints mà cha giao cho layout này.</li>
 </ul>
 
-<p>Lambda kết thúc bằng <code>layout(width, height) { ... }</code>: khai báo kích thước của layout, và trong khối đó gọi <code>placeable.placeRelative(x, y)</code> để đặt từng con. <code>placeRelative</code> tự lật toạ độ x khi ngôn ngữ viết từ phải sang trái (RTL); <code>place</code> thì không lật. Con nào không được đặt thì không hiện. Gọi <code>measure</code> hai lần trên cùng một <code>Measurable</code> làm app ném exception lúc chạy: quy tắc đo một lần được thực thi thật, không chỉ là khuyến nghị.</p>
+<p>Lambda kết thúc bằng <code>layout(width, height) { ... }</code>: khai báo kích thước của layout, và trong khối đó gọi <code>placeable.placeRelative(x, y)</code> để đặt từng con (<code>placeRelative</code> tự lật x khi ngôn ngữ viết từ phải sang trái, <code>place</code> thì không). Con không được đặt thì không hiện. Gọi <code>measure</code> hai lần trên cùng một <code>Measurable</code> ném exception lúc chạy: quy tắc đo một lần được thực thi thật.</p>
 
 <p>Để đổi cách đo, đặt <strong>một</strong> composable (không phải nhiều con), dùng <code>Modifier.layout { measurable, constraints -&gt; ... }</code> với cùng cấu trúc.</p>
 
@@ -55417,18 +55259,87 @@ EqualWidthRow {
     ) { Text("Xoá vĩnh viễn") }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> Preview hiện hai nút cùng chiều rộng của nút "Xoá vĩnh viễn". Đặt dialog trong khung hẹp 200dp: hai nút co về mỗi nút khoảng 96dp và chữ xuống dòng, không tràn ra ngoài. Bật chế độ RTL trong Developer options: nút "Huỷ" chuyển sang bên phải nhờ <code>placeRelative</code>. Thử gọi <code>measure</code> thêm một lần cho cùng một con: app crash ngay khi hiển thị, đúng như quy tắc đo một lần.</p>
+<p><strong>Kết quả:</strong> Preview hiện hai nút cùng chiều rộng của nút "Xoá vĩnh viễn". Trong khung hẹp 200dp, mỗi nút co về 96dp và chữ xuống dòng, không tràn. Bật RTL trong Developer options: nút "Huỷ" chuyển sang bên phải nhờ <code>placeRelative</code>.</p>
 
-<h3>BoxWithConstraints: compose theo không gian được cấp</h3>
+<h3>Layout thích ứng cấp màn hình: window size class</h3>
 
-<p>Bình thường, composition chạy <strong>trước</strong> layout, nên một composable không biết mình sẽ được cấp bao nhiêu chỗ. <code>BoxWithConstraints</code> đảo thứ tự cho nội dung của nó: nội dung được compose <strong>trong lúc layout</strong>, khi đã biết constraints, và đọc được <code>maxWidth</code>, <code>maxHeight</code>, <code>minWidth</code>, <code>minHeight</code> (kiểu <code>Dp</code>) hoặc <code>constraints</code> ngay trong lambda.</p>
+<p><strong>Layout thích ứng</strong> (adaptive layout) là đổi <em>cấu trúc</em> UI theo không gian được cấp: một cột hay hai cột, thanh điều hướng dưới hay bên cạnh. Có hai cấp quyết định: window size class cho cả màn hình, <code>BoxWithConstraints</code> cho từng component (phần sau).</p>
 
-<p>Cái giá là <code>BoxWithConstraints</code> dùng <strong>subcomposition</strong> (compose một phần cây trong phase layout), đắt hơn một <code>Box</code> thường. Vì vậy:</p>
+<p>Window size class là các mốc (breakpoint) chia <strong>kích thước cửa sổ của app</strong> thành nhóm, tính riêng cho chiều rộng và chiều cao:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Chiều rộng</th>
+      <th style="padding:8px 12px;text-align:left;">Mốc</th>
+      <th style="padding:8px 12px;text-align:left;">Chiều cao</th>
+      <th style="padding:8px 12px;text-align:left;">Mốc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Compact</td>
+      <td style="padding:8px 12px;">&lt; 600dp</td>
+      <td style="padding:8px 12px;">Compact</td>
+      <td style="padding:8px 12px;">&lt; 480dp</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Medium</td>
+      <td style="padding:8px 12px;">600–840dp</td>
+      <td style="padding:8px 12px;">Medium</td>
+      <td style="padding:8px 12px;">480–900dp</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Expanded</td>
+      <td style="padding:8px 12px;">840–1200dp</td>
+      <td style="padding:8px 12px;">Expanded</td>
+      <td style="padding:8px 12px;">≥ 900dp</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Large / Extra-large</td>
+      <td style="padding:8px 12px;">1200–1600dp / ≥ 1600dp</td>
+      <td style="padding:8px 12px;"></td>
+      <td style="padding:8px 12px;"></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Lấy giá trị bằng <code>currentWindowAdaptiveInfo().windowSizeClass</code> (artifact <code>androidx.compose.material3.adaptive:adaptive</code>, kiểu <code>androidx.window.core.layout.WindowSizeClass</code>) và so bằng <code>isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)</code> hoặc <code>isHeightAtLeastBreakpoint(...)</code>. Hai mốc large, extra-large chỉ được tính khi gọi <code>currentWindowAdaptiveInfo(supportLargeAndXLargeWidth = true)</code>. Hai điều quyết định cách dùng:</p>
 
 <ul>
-  <li>Dùng <code>BoxWithConstraints</code> cho <strong>quyết định cấp component</strong> phụ thuộc chỗ thật sự được cấp: một thẻ nằm trong cột hẹp của tablet có thể hẹp hơn cả trên điện thoại.</li>
-  <li>Dùng <strong>window size class</strong> (<code>currentWindowAdaptiveInfo().windowSizeClass</code>) cho <strong>quyết định cấp màn hình</strong> (một cột hay hai cột, thanh điều hướng dưới hay bên cạnh), như ví dụ token theo cửa sổ ở <a href="theming/custom_theme.md" target="_blank" rel="noopener">9.4.2 Custom Theme</a>.</li>
+  <li><strong>Cửa sổ không phải màn hình:</strong> chia đôi màn hình, cửa sổ tự do trên ChromeOS, foldable đều làm cửa sổ khác kích thước thiết bị, nên không viết logic "isTablet".</li>
+  <li><strong>Giá trị đổi trong lúc chạy</strong> (xoay, gập/mở, đổi cỡ cửa sổ) và phần đọc nó recompose theo. Đọc một lần ở composable gốc của màn hình rồi truyền xuống như state.</li>
 </ul>
+
+<h4>Ví dụ: app email đổi thanh điều hướng theo độ rộng cửa sổ</h4>
+
+<p><strong>Bài toán:</strong> cửa sổ từ 600dp trở lên hiện thanh điều hướng bên cạnh (<code>NavigationRail</code>) và bố cục danh sách – chi tiết; hẹp hơn thì thanh điều hướng dưới và chỉ danh sách.</p>
+
+<pre data-lang="kotlin"><code>// MailApp.kt
+import androidx.window.core.layout.WindowSizeClass
+
+@Composable
+fun MailApp(
+    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+) {
+    val useRail = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+    if (useRail) {                                   // &gt;= 600dp: thanh điều hướng bên cạnh, danh sách + chi tiết
+        Row {
+            MailNavigationRail()
+            MailListDetail(Modifier.weight(1f))
+        }
+    } else {                                         // &lt; 600dp: thanh điều hướng dưới, chỉ danh sách
+        Scaffold(bottomBar = { MailNavigationBar() }) { innerPadding -&gt;
+            MailList(Modifier.padding(innerPadding))
+        }
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> mở foldable làm cửa sổ vượt 600dp thì <code>MailApp</code> recompose sang rail; chia đôi màn hình tablet làm cửa sổ hẹp lại thì quay về thanh dưới. Tham số có giá trị mặc định giúp Preview truyền thẳng một <code>WindowSizeClass</code>. Material 3 còn có scaffold dựng sẵn theo window size class (<code>NavigationSuiteScaffold</code>, <code>ListDetailPaneScaffold</code>); <a href="theming/custom_theme.md" target="_blank" rel="noopener">9.4.2 Custom Theme</a> dùng cùng API này để đổi token theo độ rộng cửa sổ.</p>
+
+<h3>Layout thích ứng cấp component: <code>BoxWithConstraints</code></h3>
+
+<p>Bình thường, composition chạy <strong>trước</strong> layout, nên một composable không biết mình sẽ được cấp bao nhiêu chỗ. <code>BoxWithConstraints</code> đảo thứ tự cho nội dung của nó: nội dung được compose <strong>trong lúc layout</strong>, khi đã biết constraints, và đọc được <code>maxWidth</code>, <code>maxHeight</code>, <code>minWidth</code>, <code>minHeight</code> (kiểu <code>Dp</code>) hoặc <code>constraints</code> ngay trong lambda. Cái giá là nó dùng <strong>subcomposition</strong> (compose một phần cây trong phase layout), đắt hơn <code>Box</code> thường. Dùng nó khi quyết định phụ thuộc chỗ <strong>thật sự được cấp cho component</strong>, không phải cửa sổ: một thẻ trong cột hẹp của tablet có thể hẹp hơn cả trên điện thoại.</p>
 
 <h4>Ví dụ: thẻ sản phẩm ngang khi đủ rộng, dọc khi hẹp</h4>
 
@@ -55454,16 +55365,16 @@ fun ProductListItem(product: Product, modifier: Modifier = Modifier) {
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> Preview trong hai khung <code>Modifier.width(400.dp)</code> và <code>Modifier.width(300.dp)</code>: khung rộng hiện bản ngang, khung hẹp hiện bản dọc. Trên tablet chia đôi màn hình, item có thể hiện bản dọc dù thiết bị lớn, vì quyết định dựa trên chỗ được cấp.</p>
+<p><strong>Kết quả:</strong> Preview trong hai khung <code>Modifier.width(400.dp)</code> và <code>Modifier.width(300.dp)</code>: khung rộng hiện bản ngang, khung hẹp hiện bản dọc. Đặt trong một cột của bố cục hai cột trên cửa sổ expanded, item vẫn có thể hiện bản dọc, vì quyết định dựa trên chỗ được cấp chứ không dựa trên cửa sổ.</p>
 
 <h2>Ví dụ thực tế</h2>
 
 <p>Ba bài toán thường gặp khi dựng UI bằng các composable cơ bản:</p>
 
 <ol>
-  <li><strong>Một dòng hội thoại trong danh sách chat:</strong> avatar, tên, tin nhắn cuối bị cắt, giờ và số tin chưa đọc luôn hiện đủ dù tên dài. Đây là bài toán chính, code bên dưới.</li>
-  <li><strong>Dòng "Tôi đồng ý với Điều khoản sử dụng"</strong> trong màn đăng ký: một <code>Text</code> với <code>buildAnnotatedString</code> và <code>withLink(LinkAnnotation.Clickable(tag = "terms", linkInteractionListener = { onTermsClick() }))</code>, để phần "Điều khoản sử dụng" mở màn hình điều khoản trong app.</li>
-  <li><strong>Màn hình chi tiết có nút "Mua ngay" cố định ở đáy:</strong> <code>Scaffold(bottomBar = { ... })</code>, nội dung cuộn dùng <code>innerPadding</code>.</li>
+  <li><strong>Dòng hội thoại trong danh sách chat:</strong> giờ và số tin chưa đọc luôn hiện đủ dù tên dài. Bài toán chính, code bên dưới.</li>
+  <li><strong>Dòng "Tôi đồng ý với Điều khoản sử dụng":</strong> <code>buildAnnotatedString</code> với <code>withLink(LinkAnnotation.Clickable(tag = "terms", linkInteractionListener = { onTermsClick() }))</code> để phần "Điều khoản sử dụng" mở màn hình trong app.</li>
+  <li><strong>Màn chi tiết có nút "Mua ngay" cố định ở đáy:</strong> <code>Scaffold(bottomBar = { ... })</code>, nội dung cuộn dùng <code>innerPadding</code>.</li>
 </ol>
 
 <h3>Dòng hội thoại trong danh sách chat</h3>
@@ -55538,29 +55449,11 @@ fun ConversationRow(
             }
         }
     }
-}
-
-@Preview(showBackground = true, widthDp = 360)
-@Composable
-private fun ConversationRowPreview() {
-    MaterialTheme {
-        Column {
-            ConversationRow(sampleConversation, onClick = {})
-            ConversationRow(
-                sampleConversation.copy(
-                    name = "Nhóm lớp 12A1 - Hội cựu học sinh khoá 2015",
-                    lastMessage = "Cuối tuần này mọi người có đi họp lớp được không, mình đặt bàn nhé",
-                    unreadCount = 120,
-                ),
-                onClick = {},
-            )
-        }
-    }
 }</code></pre>
 
-<p><code>Badge</code> là composable Material 3 cho huy hiệu số; tự dựng bằng <code>Box</code> có nền tròn cũng được, nhưng <code>Badge</code> đã đúng kích thước và màu theo spec. <code>clickable</code> làm cả dòng là một vùng bấm và gộp ngữ nghĩa các con lại, nên TalkBack đọc tên, tin nhắn, giờ thành một mục.</p>
+<p><code>Badge</code> là composable Material 3 cho huy hiệu số, đúng kích thước và màu theo spec. <code>clickable</code> gộp ngữ nghĩa các con, nên TalkBack đọc tên, tin nhắn, giờ thành một mục.</p>
 
-<p><strong>Kết quả:</strong> Preview hiện hai dòng: dòng thứ hai có tên và tin nhắn bị cắt "…", còn giờ và huy hiệu "99+" vẫn hiện đủ ở mép phải. Xoá <code>Modifier.weight(1f)</code> khỏi cột giữa rồi xem lại: cột giữa được đo trước theo chữ dài, chiếm hết chỗ và đẩy cột giờ ra khỏi màn hình. Đó là lý do phần co giãn phải là phần có <code>weight</code>.</p>
+<p><strong>Kết quả:</strong> Preview (<code>widthDp = 360</code>) với một hội thoại tên "Nhóm lớp 12A1 - Hội cựu học sinh khoá 2015" và 120 tin chưa đọc: tên và tin nhắn bị cắt "…", giờ và huy hiệu "99+" vẫn hiện đủ ở mép phải. Xoá <code>Modifier.weight(1f)</code> khỏi cột giữa rồi xem lại: cột giữa được đo trước theo chữ dài, chiếm hết chỗ và đẩy cột giờ ra khỏi màn hình. Đó là lý do phần co giãn phải là phần có <code>weight</code>.</p>
 
 <h2>So sánh với các cách tiếp cận khác</h2>
 
@@ -55576,17 +55469,12 @@ private fun ConversationRowPreview() {
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>TextView</code> (+ <code>Spannable</code>), <code>ImageView</code></td>
       <td style="padding:8px 12px;"><code>Text</code> (+ <code>AnnotatedString</code>), <code>Image</code></td>
-      <td style="padding:8px 12px;">Style lấy từ theme Compose; <code>contentDescription</code> bắt buộc</td>
+      <td style="padding:8px 12px;"><code>contentDescription</code> bắt buộc</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>LinearLayout</code> (+ <code>layout_weight</code>)</td>
-      <td style="padding:8px 12px;"><code>Row</code> / <code>Column</code> (+ <code>Modifier.weight</code>)</td>
+      <td style="padding:8px 12px;font-weight:600;"><code>LinearLayout</code> (+ <code>layout_weight</code>), <code>FrameLayout</code></td>
+      <td style="padding:8px 12px;"><code>Row</code> / <code>Column</code> (+ <code>weight</code>), <code>Box</code></td>
       <td style="padding:8px 12px;"><code>weight</code> không gây đo hai lần</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>FrameLayout</code></td>
-      <td style="padding:8px 12px;"><code>Box</code></td>
-      <td style="padding:8px 12px;">Căn từng con bằng <code>Modifier.align</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>CoordinatorLayout</code> + <code>AppBarLayout</code> + FAB</td>
@@ -55594,14 +55482,14 @@ private fun ConversationRowPreview() {
       <td style="padding:8px 12px;">Slot API; padding cho bar và inset trả qua <code>innerPadding</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>ViewGroup.onMeasure</code>/<code>onLayout</code></td>
-      <td style="padding:8px 12px;"><code>Layout {}</code> hoặc <code>Modifier.layout {}</code></td>
+      <td style="padding:8px 12px;font-weight:600;"><code>ViewGroup.onMeasure</code>/<code>onLayout</code> (<a href="../session_08/view_layout/views.md" target="_blank" rel="noopener">8.5.2 View Custom</a>)</td>
+      <td style="padding:8px 12px;"><code>Layout {}</code>, <code>Modifier.layout {}</code></td>
       <td style="padding:8px 12px;">Không cần class con; đo hai lần bị cấm</td>
     </tr>
   </tbody>
 </table>
 
-<p><code>ConstraintLayout</code> có bản cho Compose (artifact riêng), nhưng ở đây nó chỉ là công cụ <strong>diễn đạt</strong> ràng buộc phức tạp, không còn là công cụ <strong>tối ưu hiệu năng</strong> như trong View system.</p>
+<p><code>ConstraintLayout</code> có bản cho Compose (artifact riêng), nhưng ở đây nó chỉ là công cụ <strong>diễn đạt</strong> ràng buộc phức tạp, không còn là công cụ <strong>tối ưu hiệu năng</strong> như ở <a href="../session_08/view_layout/layouts.md" target="_blank" rel="noopener">8.5.1 Layouts</a>.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
@@ -55620,15 +55508,15 @@ private fun ConversationRowPreview() {
     LazyColumn { /* ... */ }        // sai: innerPadding không được dùng
 }</code></pre>
 
-<p><strong>Lỗi lộ ra:</strong> mục đầu tiên nằm dưới thanh tiêu đề; khi vẽ tràn, mục cuối nằm dưới thanh điều hướng, không bấm được. Lint báo tham số padding của <code>Scaffold</code> không được dùng. <strong>Cách sửa:</strong> <code>LazyColumn(contentPadding = innerPadding)</code> hoặc <code>Modifier.padding(innerPadding)</code> cho nội dung.</p>
+<p><strong>Lỗi lộ ra:</strong> mục đầu nằm dưới thanh tiêu đề, mục cuối nằm dưới thanh điều hướng; Lint báo <code>UnusedMaterial3ScaffoldPaddingParameter</code>. <strong>Cách sửa:</strong> <code>LazyColumn(contentPadding = innerPadding)</code> hoặc <code>Modifier.padding(innerPadding)</code>.</p>
 
 <h3>2. Chữ dài đẩy mất phần tử bên cạnh</h3>
 
-<p><code>Text</code> tên trong <code>Row</code> không có <code>weight</code> và không giới hạn dòng. <strong>Lỗi lộ ra:</strong> tên dài chiếm hết chiều rộng, nhãn giờ bên phải bị đẩy khỏi màn hình hoặc bị bóp còn 0dp. <strong>Cách sửa:</strong> phần co giãn nhận <code>Modifier.weight(1f)</code>, kèm <code>maxLines</code> và <code>TextOverflow.Ellipsis</code>, như <code>ConversationRow</code>.</p>
+<p><code>Text</code> tên trong <code>Row</code> không có <code>weight</code> và không giới hạn dòng. <strong>Lỗi lộ ra:</strong> tên dài đẩy nhãn giờ bên phải khỏi màn hình hoặc bóp còn 0dp. <strong>Cách sửa:</strong> phần co giãn nhận <code>Modifier.weight(1f)</code>, kèm <code>maxLines</code> và <code>TextOverflow.Ellipsis</code>, như <code>ConversationRow</code>.</p>
 
 <h3>3. Đặt sai <code>contentDescription</code></h3>
 
-<p>Ghi <code>contentDescription = "Ảnh"</code> cho mọi hình, hoặc mô tả avatar ngay cạnh tên. <strong>Lỗi lộ ra:</strong> TalkBack đọc "Ảnh, Ảnh" vô nghĩa hoặc đọc tên hai lần; ngược lại banner chứa thông tin mà truyền <code>null</code> thì người khiếm thị không biết có khuyến mãi. <strong>Cách sửa:</strong> hình mang thông tin thì mô tả nội dung (chuỗi resource); hình trang trí hoặc đã có chữ đi kèm thì <code>null</code>.</p>
+<p>Ghi <code>contentDescription = "Ảnh"</code> cho mọi hình, hoặc mô tả avatar ngay cạnh tên. <strong>Lỗi lộ ra:</strong> TalkBack đọc "Ảnh, Ảnh" hoặc đọc tên hai lần; banner chứa thông tin mà truyền <code>null</code> thì người khiếm thị không biết có khuyến mãi. <strong>Cách sửa:</strong> hình mang thông tin thì mô tả nội dung (chuỗi resource); hình trang trí hoặc đã có chữ đi kèm thì <code>null</code>.</p>
 
 <h3>4. Đo một con hai lần trong <code>Layout {}</code></h3>
 
@@ -55640,10 +55528,12 @@ val second = measurable.measure(Constraints.fixedWidth(first.width * 2))   // sa
 <h2>Lịch sử phát triển</h2>
 
 <ul>
-  <li><strong>Compose 1.0 (07/2021):</strong> <code>Text</code>, <code>Image</code>, <code>Icon</code>, <code>Row</code>, <code>Column</code>, <code>Box</code>, <code>Layout</code>, <code>Scaffold</code> (Material 2) đều stable. Mô hình đo một lượt và intrinsic measurements có từ đầu. <code>BoxWithConstraints</code> thay cho tên <code>WithConstraints</code> của giai đoạn trước 1.0.</li>
-  <li><strong>Compose Material 3:</strong> <code>Scaffold</code> của Material 3 có tham số <code>contentWindowInsets</code>, và <code>PaddingValues</code> nó trả về tính cả window insets, đi cùng hướng dẫn vẽ tràn (edge-to-edge) mà các bản Android mới áp dụng mặc định cho app target SDK mới.</li>
-  <li><strong>Các bản Foundation sau đó:</strong> <code>FlowRow</code>/<code>FlowColumn</code> cho bố cục tự xuống dòng; khoảng Compose 1.7 (2024), <code>LinkAnnotation</code> và <code>withLink</code> thay cho <code>ClickableText</code> (deprecated), cùng <code>AnnotatedString.fromHtml()</code> để hiển thị HTML có link.</li>
-  <li><strong>Gần đây:</strong> <code>BasicText</code> có tham số tự co cỡ chữ theo khung (<code>autoSize</code>), <code>TextOverflow</code> có thêm kiểu cắt ở đầu hoặc giữa chuỗi; docs chuyển sang khuyên dùng icon Material Symbols thay cho thư viện <code>material-icons</code>.</li>
+  <li><strong>Compose 1.0 (07/2021):</strong> <code>Text</code>, <code>Image</code>, <code>Icon</code>, <code>Row</code>, <code>Column</code>, <code>Box</code>, <code>Layout</code>, <code>BoxWithConstraints</code>, <code>Scaffold</code> (Material 2) stable; mô hình đo một lượt và intrinsic measurements có từ đầu.</li>
+  <li><strong>Compose Material 3:</strong> <code>Scaffold</code> có <code>contentWindowInsets</code>, <code>innerPadding</code> tính cả window insets. Từ Android 15, app target SDK 35 bị buộc vẽ tràn (edge-to-edge), nên bỏ quên <code>innerPadding</code> lộ lỗi ngay.</li>
+  <li><strong>Compose 1.4 (2023):</strong> <code>FlowRow</code>/<code>FlowColumn</code> (lúc đầu experimental) cho bố cục tự xuống dòng.</li>
+  <li><strong>Compose 1.7 (2024):</strong> <code>LinkAnnotation</code> và <code>withLink</code> thay cho <code>ClickableText</code> (deprecated), thêm <code>AnnotatedString.fromHtml()</code>.</li>
+  <li><strong>Compose 1.8 (2025):</strong> <code>BasicText</code> có <code>autoSize</code> (tự co cỡ chữ theo khung), <code>TextOverflow.StartEllipsis</code> và <code>MiddleEllipsis</code>.</li>
+  <li><strong>Adaptive:</strong> <code>currentWindowAdaptiveInfo()</code> của <code>material3-adaptive</code> thay cho logic "isTablet"; <code>androidx.window</code> 1.4 chuyển sang so mốc bằng <code>isWidthAtLeastBreakpoint</code> và thêm mốc large, extra-large cho desktop. Docs ngừng khuyên dùng thư viện <code>material-icons</code>, chuyển sang Material Symbols.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -55656,16 +55546,16 @@ val second = measurable.measure(Constraints.fixedWidth(first.width * 2))   // sa
 </ul></li>
   <li><strong>Liên quan:</strong>
 <ul>
-  <li><a href="theming/custom_theme.md" target="_blank" rel="noopener">9.4.2 Custom Theme</a>: token spacing dùng trong <code>Row</code>, <code>Column</code>; window size class cho quyết định cấp màn hình.</li>
+  <li><a href="theming/custom_theme.md" target="_blank" rel="noopener">9.4.2 Custom Theme</a>: token spacing dùng trong <code>Row</code>, <code>Column</code>; token đổi theo window size class.</li>
   <li><a href="remember_and_recomposition.md" target="_blank" rel="noopener">9.1 Remember and Recomposition</a>: <code>remember(keys)</code> cho <code>AnnotatedString</code> tính trước.</li>
-  <li><a href="../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>: cách làm UI bằng XML mà bài này so sánh.</li>
-  <li>9.5.1 Modifier Order và 9.5.2 Chaining: <code>padding</code>, <code>clip</code>, <code>weight</code>, <code>align</code> trong các ví dụ.</li>
-  <li>8.2.4 Coil (chưa có bài): <code>AsyncImage</code> cho ảnh mạng. 8.5.1 Layouts và 8.5.2 View Custom (chưa có bài): layout và custom view của View system.</li>
+  <li><a href="modifier/modifier_order.md" target="_blank" rel="noopener">9.5.1 Modifier Order</a> và <a href="modifier/chaining.md" target="_blank" rel="noopener">9.5.2 Chaining</a>: <code>padding</code>, <code>clip</code>, <code>weight</code>, <code>align</code> trong các ví dụ.</li>
+  <li><a href="../session_08/loading_image/coil.md" target="_blank" rel="noopener">8.2.4 Coil</a>: <code>AsyncImage</code> cho ảnh mạng.</li>
+  <li><a href="../session_08/view_layout/layouts.md" target="_blank" rel="noopener">8.5.1 Layouts</a> và <a href="../session_08/view_layout/views.md" target="_blank" rel="noopener">8.5.2 View Custom</a>: measure/layout và custom view của View system mà bài này so sánh; <a href="../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>: nối XML với code.</li>
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
-  <li>9.5.4 Lazy Column: danh sách dài thay cho <code>Column</code> khi số phần tử lớn.</li>
-  <li>9.7.1 Surface and Canvas: <code>Surface</code>, vẽ tự do bằng <code>Canvas</code>.</li>
+  <li><a href="modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a>: danh sách dài thay cho <code>Column</code> khi số phần tử lớn.</li>
+  <li><a href="graphics_animations/surface_and_canvas.md" target="_blank" rel="noopener">9.7.1 Surface and Canvas</a>: <code>Surface</code>, vẽ tự do bằng <code>Canvas</code>.</li>
 </ul></li>
 </ul>
 
@@ -55687,15 +55577,15 @@ val second = measurable.measure(Constraints.fixedWidth(first.width * 2))   // sa
   'compose-surface-canvas': {
     title: 'Surface and Canvas',
     summary: 'Surface và Canvas là hai mức vẽ của Compose. Surface là container Material, đóng gói một "tấm vật liệu" gồm nền theo theme, shape để clip, border, elevation (tonal và shadow) và màu mặc định cho nội dung con. Canvas cùng các draw modifier là chỗ tự vẽ bằng lệnh của DrawScope trong phase Drawing. Bài giải thích Surface làm những việc gì, cách vẽ hình, path và chữ trên DrawScope, khi nào dùng drawBehind, drawWithContent hay drawWithCache, và cách đọc state trong phase Drawing để animation không làm recompose.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '17 phút',
+    estimatedReadingTime: '20 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'surface', 'canvas', 'drawscope', 'custom-drawing', 'material3'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.compose_overview', 'android.jetpack_compose.theming.material_theme', 'android.jetpack_compose.modifier.order'],
-    related: ['android.jetpack_compose.layout_and_view', 'android.jetpack_compose.modifier.composed', 'android.jetpack_compose.animation.animated_visibility', 'android.jetpack_compose.gesture.zooming'],
+    related: ['android.jetpack_compose.layout_and_view', 'android.jetpack_compose.modifier.composed', 'android.jetpack_compose.animation.animated_visibility', 'android.jetpack_compose.gesture.zooming', 'android.view_layout.custom_view'],
     learningOutcomes: [
       'Giải thích được những việc Surface làm cho nội dung con (clip theo shape, nền, border, tonal và shadow elevation, content color, chặn chạm xuyên) và vì sao nó là nền của hầu hết component Material 3.',
       'Triển khai được hình vẽ tuỳ chỉnh bằng Canvas và DrawScope (hình cơ bản, cung, Path, chữ qua TextMeasurer) với toạ độ pixel đúng mật độ màn hình.',
@@ -55705,7 +55595,7 @@ val second = measurable.measure(Constraints.fixedWidth(first.width * 2))   // sa
     ],
     knowledgeGap: 'Nhiều developer tự ghép background, clip, shadow và màu chữ cho từng card nên lệch theme và vỡ dark mode, trong khi Surface đã làm sẵn. Khi cần biểu đồ hay vòng tiến độ, họ chồng nhiều Box hoặc vẽ trong Canvas nhưng truyền giá trị animation qua tham số, khiến cả cây composable recompose mỗi frame, hoặc tạo Path và đo chữ trong lambda vẽ, khiến animation giật.',
     updatedAt: '2026-11-09',
-    readTime: '17 phút',
+    readTime: '20 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -55725,11 +55615,9 @@ Column(
     Text(order.code, color = Color.Black)
 }</code></pre>
 
-<p>Đoạn này có ba vấn đề: màu cứng nên sang dark mode thì thẻ vẫn trắng, chữ vẫn đen; mỗi thẻ ghép modifier một kiểu nên các thẻ lệch nhau; và mọi <code>Text</code> bên trong phải tự nhớ đặt màu.</p>
+<p>Màu cứng nên sang dark mode thẻ vẫn trắng, chữ vẫn đen; mỗi thẻ ghép modifier một kiểu nên các thẻ lệch nhau; mọi <code>Text</code> bên trong phải tự nhớ đặt màu.</p>
 
-<p><strong>Kiểu thứ hai: hình không dựng được từ <code>Row</code>, <code>Column</code>, <code>Text</code>.</strong> Vòng tiến độ, biểu đồ cột, đường giá, chấm "chưa đọc" trên ảnh đại diện. Chồng nhiều <code>Box</code> để giả lập thì vừa nặng (mỗi <code>Box</code> là một node layout) vừa không vẽ được cung hay đường cong.</p>
-
-<p>Kiểu thứ hai còn có bẫy hiệu năng: hình vẽ thường có animation, giá trị đổi mỗi frame; nếu nó đi qua tham số composable, cả cây phía dưới recompose mỗi frame.</p>
+<p><strong>Kiểu thứ hai: hình không dựng được từ <code>Row</code>, <code>Column</code>, <code>Text</code>.</strong> Vòng tiến độ, biểu đồ cột, chấm "chưa đọc" trên ảnh đại diện. Chồng nhiều <code>Box</code> để giả lập thì vừa nặng (mỗi <code>Box</code> là một node layout) vừa không vẽ được cung hay đường cong. Kiểu này còn có bẫy hiệu năng: hình vẽ thường có animation, giá trị đổi mỗi frame; nếu nó đi qua tham số composable, cả cây phía dưới recompose mỗi frame.</p>
 
 <p>Vấn đề cần giải quyết là: <strong>có một khối nền chuẩn Material tự theo theme cho kiểu thứ nhất, một bề mặt vẽ tự do cho kiểu thứ hai, và cách vẽ lại theo animation mà không phải chạy lại composition.</strong></p>
 
@@ -55784,12 +55672,12 @@ Column(
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Tonal elevation</td>
       <td style="padding:8px 12px;"><code>tonalElevation</code> (mặc định <code>0.dp</code>)</td>
-      <td style="padding:8px 12px;">Khi <code>color</code> là <code>colorScheme.surface</code>, phủ một lớp tông màu primary; càng cao càng đậm</td>
+      <td style="padding:8px 12px;">Khi <code>color</code> là <code>colorScheme.surface</code>, phủ một lớp tông màu primary; càng cao tông càng rõ</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Shadow elevation</td>
       <td style="padding:8px 12px;"><code>shadowElevation</code> (mặc định <code>0.dp</code>)</td>
-      <td style="padding:8px 12px;">Vẽ bóng đổ theo shape</td>
+      <td style="padding:8px 12px;">Vẽ bóng đổ theo shape; không đổi thứ tự vẽ (z-index)</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">Content color</td>
@@ -55801,7 +55689,7 @@ Column(
 
 <p>Ngoài ra <code>Surface</code> <strong>chặn chạm xuyên</strong>: cú chạm vào vùng của nó không lọt xuống composable nằm phía sau.</p>
 
-<p><strong>Hai loại elevation.</strong> Material 3 thể hiện độ nổi chủ yếu bằng <strong>tông màu</strong>, bóng đổ là phụ. <code>tonalElevation</code> chỉ đổi màu nền và chỉ có tác dụng khi <code>color</code> là <code>colorScheme.surface</code>; đặt <code>color = Color.White</code> thì tonal elevation không còn gì để phủ. Surface lồng nhau cộng dồn tonal elevation qua <code>LocalAbsoluteTonalElevation</code>, nên Surface con không bao giờ trông "thấp hơn" Surface cha. <code>shadowElevation</code> vẽ bóng thật, dùng khi khối nằm đè lên nội dung khác (menu, thanh nổi).</p>
+<p><strong>Hai loại elevation.</strong> Material 3 thể hiện độ nổi chủ yếu bằng <strong>tông màu</strong>, bóng đổ là phụ. <code>tonalElevation</code> chỉ đổi màu nền và chỉ có tác dụng khi <code>color</code> là <code>colorScheme.surface</code>; đặt <code>color = Color.White</code> thì tonal elevation không còn gì để phủ. Surface lồng nhau cộng dồn tonal elevation qua <code>LocalAbsoluteTonalElevation</code>, nên Surface con không bao giờ trông "thấp hơn" Surface cha. <code>shadowElevation</code> vẽ bóng thật; tài liệu API khuyên chỉ dùng khi thật cần tách khối khỏi nền (menu, thanh nổi đè lên nội dung). Material 3 hiện còn có các role <code>surfaceContainerLowest</code> … <code>surfaceContainerHighest</code> trong <code>ColorScheme</code>: chọn thẳng một role làm <code>color</code> là cách thứ hai để phân tầng nền mà không cần tonal elevation, và <code>Card</code> mặc định dùng cách này.</p>
 
 <p><strong>Content color.</strong> <code>contentColorFor(color)</code> tra màu nền trong <code>ColorScheme</code>: nền <code>surface</code> thì nội dung <code>onSurface</code>, nền <code>primaryContainer</code> thì <code>onPrimaryContainer</code>. Màu đó được đặt vào <code>LocalContentColor</code> (một CompositionLocal, học ở <a href="../theming/custom_theme.md" target="_blank" rel="noopener">Custom Theme</a>) cho toàn bộ nội dung bên trong. Vì vậy đổi theme hoặc sang dark mode thì chữ tự đổi theo nền. Cách định nghĩa <code>ColorScheme</code> và các role màu học ở <a href="../theming/material_design_theme.md" target="_blank" rel="noopener">Material Design Theme</a>.</p>
 
@@ -55862,9 +55750,7 @@ fun OrderStatusCard(
     }
 }</code></pre>
 
-<p><code>OrderSummary</code> là data class của màn danh sách, có <code>code</code> và <code>statusLabel</code>.</p>
-
-<p><strong>Kết quả:</strong> chuyển máy sang dark mode, thẻ đổi sang nền tối và chữ sáng mà không sửa dòng nào. Bấm vào thẻ, ripple không tràn ra ngoài góc bo. Mở Layout Inspector: nội dung thẻ nằm dưới một node <code>Surface</code>, các <code>Text</code> không có <code>color</code> riêng.</p>
+<p><strong>Kết quả:</strong> chuyển máy sang dark mode, thẻ đổi sang nền tối và chữ sáng mà không sửa dòng nào. Bấm vào thẻ, ripple không tràn ra ngoài góc bo.</p>
 
 <h3>2. Canvas và DrawScope: tự vẽ bằng toạ độ pixel</h3>
 
@@ -55883,7 +55769,7 @@ fun OrderStatusCard(
   <li><strong><code>Path</code>:</strong> chuỗi lệnh <code>moveTo</code>, <code>lineTo</code>, <code>cubicTo</code>, <code>close</code> mô tả một hình bất kỳ; <code>drawPath(path, color, style)</code> vẽ nó.</li>
 </ul>
 
-<p>Khác với <code>onDraw(Canvas)</code> của View system (8.5.2 View Custom, chưa có bài), <code>DrawScope</code> không bắt bạn quản lý <code>Paint</code>: màu, nét, blend mode là tham số của từng lệnh vẽ.</p>
+<p>Khác với <code>onDraw(Canvas)</code> của View system (<a href="../../session_08/view_layout/views.md" target="_blank" rel="noopener">8.5.2 View Custom</a>), <code>DrawScope</code> không bắt bạn tạo và giữ <code>Paint</code>: màu, nét, blend mode là tham số của từng lệnh vẽ.</p>
 
 <h4>Ví dụ: vòng tiến độ mục tiêu bước chân</h4>
 
@@ -55942,7 +55828,7 @@ fun StepGoalRing(steps: Int, goal: Int, modifier: Modifier = Modifier) {
 
 <p>Màu và kiểu chữ lấy từ <code>MaterialTheme</code> <strong>bên ngoài</strong> lambda vẽ, vì <code>MaterialTheme.colorScheme</code> là lời gọi composable, không gọi được trong <code>DrawScope</code>.</p>
 
-<p><strong>Kết quả:</strong> với 6.500/10.000 bước, vòng màu chạy từ đỉnh theo chiều kim đồng hồ khoảng hai phần ba vòng, giữa vòng hiện "65%". Trên máy mật độ khác nhau, độ dày nét bằng nhau về mặt thị giác nhờ <code>toPx()</code>. TalkBack đọc "Đã đi 6500 trên 10000 bước" nhờ <code>semantics</code>, vì <code>Canvas</code> tự nó không có nội dung cho trình đọc màn hình.</p>
+<p><strong>Kết quả:</strong> với 6.500/10.000 bước, vòng màu chạy từ đỉnh theo chiều kim đồng hồ khoảng hai phần ba vòng, giữa vòng hiện "65%"; độ dày nét bằng nhau trên mọi mật độ màn hình nhờ <code>toPx()</code>. TalkBack đọc "Đã đi 6500 trên 10000 bước" nhờ <code>semantics</code>, vì <code>Canvas</code> tự nó không có nội dung cho trình đọc màn hình.</p>
 
 <p>Đoạn này đo chữ ngay trong lambda vẽ. Điều đó chấp nhận được khi hình hiếm khi vẽ lại; nếu vòng có animation, mỗi frame sẽ đo chữ một lần. Phần tiếp theo giải quyết chuyện này.</p>
 
@@ -56019,14 +55905,14 @@ fun Modifier.unreadDot(hasUnread: Boolean, dotColor: Color): Modifier =
 // ConversationRow.kt
 Image(
     painter = painterResource(R.drawable.avatar_placeholder),
-    contentDescription = conversation.title,
+    contentDescription = null,                                         // tên đã hiện bên cạnh
     modifier = Modifier
         .size(48.dp)
-        .clip(CircleShape)
-        .unreadDot(conversation.unreadCount &gt; 0, MaterialTheme.colorScheme.error)
+        .unreadDot(conversation.unreadCount &gt; 0, MaterialTheme.colorScheme.error) // trước clip
+        .clip(CircleShape)                                             // chỉ cắt ảnh, không cắt chấm
 )</code></pre>
 
-<p><strong>Kết quả:</strong> người có tin chưa đọc có chấm đỏ đè lên góc ảnh. Đặt <code>unreadDot</code> <strong>sau</strong> <code>clip(CircleShape)</code> thì chấm bị cắt theo vòng tròn ở góc; muốn chấm tràn ra ngoài viền tròn, đặt <code>unreadDot</code> trước <code>clip</code>. Đây là hệ quả trực tiếp của thứ tự modifier.</p>
+<p><strong>Kết quả:</strong> người có tin chưa đọc có chấm đỏ đè lên góc ảnh, tràn ra ngoài viền tròn. <code>drawContent()</code> vẽ phần bên trong chuỗi (ảnh đã bị <code>clip</code>), còn chấm vẽ sau nên không bị cắt. Đổi chỗ thành <code>.clip(CircleShape).unreadDot(...)</code> thì chấm nằm trong vùng clip: tâm chấm ở góc vuông, nằm ngoài vòng tròn, nên chấm bị cắt gần hết. Đây là hệ quả trực tiếp của thứ tự modifier.</p>
 
 <h3>4. Đọc state trong phase Drawing</h3>
 
@@ -56098,7 +55984,7 @@ fun UploadSection(uploadedBytes: Long, totalBytes: Long, modifier: Modifier = Mo
 <p>Ba bài toán hay gặp với Surface và Canvas:</p>
 
 <ol>
-  <li><strong>Thẻ biểu đồ doanh thu 7 ngày:</strong> <code>Surface</code> làm thẻ, bên trong là biểu đồ cột tự vẽ, cột mọc lên khi dữ liệu đến, nhãn ngày đo bằng <code>TextMeasurer</code> và cache. Đây là bài toán chính, code đầy đủ bên dưới.</li>
+  <li><strong>Thẻ biểu đồ doanh thu 7 ngày:</strong> <code>Surface</code> làm thẻ, biểu đồ cột tự vẽ, nhãn ngày đo và cache. Bài toán chính, code bên dưới.</li>
   <li><strong>Hiệu ứng skeleton khi đang tải:</strong> các khối xám có dải sáng chạy ngang. Vẽ bằng <code>drawWithContent</code> với <code>Brush.linearGradient</code> có offset lấy từ <code>rememberInfiniteTransition</code>, đọc offset trong lambda vẽ để không recompose.</li>
   <li><strong>Ô ký tên:</strong> người dùng vẽ chữ ký bằng ngón tay, mỗi nét là một <code>Path</code> được nối điểm theo sự kiện chạm. Phần vẽ dùng <code>Canvas</code> + <code>drawPath</code>; phần nhận cử chỉ học ở <a href="../gesture/dragging.md" target="_blank" rel="noopener">Dragging</a>.</li>
 </ol>
@@ -56207,45 +56093,11 @@ private fun RevenueBars(days: List&lt;DailyRevenue&gt;, growth: () -&gt; Float, 
 
 <p><strong>Kết quả:</strong> thẻ tự đổi màu theo dark mode, nhãn ngày cùng màu với tiêu đề. Khi dữ liệu mới đến, bảy cột mọc từ đáy lên cùng lúc. Trong Layout Inspector, recomposition count của <code>WeeklyRevenueCard</code> và <code>RevenueBars</code> không tăng trong 600ms animation; đặt log trong khối ngoài <code>drawWithCache</code> thì chỉ thấy một lần cho mỗi bộ dữ liệu. TalkBack đọc danh sách doanh thu theo ngày.</p>
 
-<h2>So sánh với các cách tiếp cận khác</h2>
-
-<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
-  <thead>
-    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
-      <th style="padding:8px 12px;text-align:left;">Cách</th>
-      <th style="padding:8px 12px;text-align:left;">Ưu điểm</th>
-      <th style="padding:8px 12px;text-align:left;">Hạn chế</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>Surface</code></td>
-      <td style="padding:8px 12px;">Một chỗ cho nền, shape, border, elevation, content color, click; theo theme</td>
-      <td style="padding:8px 12px;">Gắn với Material</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Chuỗi <code>shadow</code> + <code>clip</code> + <code>background</code> + <code>border</code></td>
-      <td style="padding:8px 12px;">Không phụ thuộc Material</td>
-      <td style="padding:8px 12px;">Tự đặt màu chữ, dễ sai thứ tự, các khối lệch nhau</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>Canvas</code> / draw modifier</td>
-      <td style="padding:8px 12px;">Vẽ tự do, ít node, đọc state ở phase Drawing</td>
-      <td style="padding:8px 12px;">Tự lo kích thước, semantics, RTL</td>
-    </tr>
-    <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Chồng nhiều <code>Box</code></td>
-      <td style="padding:8px 12px;">Không cần học <code>DrawScope</code></td>
-      <td style="padding:8px 12px;">Nhiều node layout, không vẽ được cung hay đường cong</td>
-    </tr>
-  </tbody>
-</table>
-
 <h2>Khi nào nên và không nên dùng</h2>
 
 <ul>
   <li><strong>Nên dùng <code>Surface</code></strong> cho mọi khối nền mang ý nghĩa vật liệu: thẻ, panel, thanh nổi, vùng chọn. Nếu đã có component Material phù hợp (<code>Card</code>, <code>ElevatedCard</code>, <code>ListItem</code>), dùng component đó vì nó đã là <code>Surface</code> với giá trị mặc định đúng spec.</li>
-  <li><strong>Không cần <code>Surface</code></strong> cho nền thuần trang trí không có nội dung chữ (một dải màu, một đường kẻ): <code>Modifier.background</code> là đủ.</li>
+  <li><strong>Không cần <code>Surface</code></strong> cho nền thuần trang trí không có nội dung chữ (một dải màu, một đường kẻ): <code>Modifier.background</code> là đủ. Chuỗi <code>shadow</code> + <code>clip</code> + <code>background</code> + <code>border</code> tự ghép chỉ hợp khi không dùng Material, và khi đó phải tự đặt màu nội dung.</li>
   <li><strong>Nên dùng <code>Canvas</code>/draw modifier</strong> cho hình không ghép được từ layout: vòng, cung, biểu đồ, đường cong, hiệu ứng phủ.</li>
   <li><strong>Không nên tự vẽ</strong> khi có composable sẵn làm đúng việc (<code>LinearProgressIndicator</code>, <code>HorizontalDivider</code>, <code>Text</code>): tự vẽ nghĩa là tự lo semantics, cỡ chữ theo cài đặt người dùng, RTL.</li>
   <li><strong>Nên dùng <code>drawWithCache</code></strong> khi khối vẽ tạo <code>Path</code>, <code>Brush</code>, <code>Shader</code> hay đo chữ; <strong>không cần</strong> khi chỉ gọi vài <code>drawRect</code>/<code>drawCircle</code> với màu có sẵn.</li>
@@ -56274,14 +56126,14 @@ private fun RevenueBars(days: List&lt;DailyRevenue&gt;, growth: () -&gt; Float, 
     drawPath(path, color)
 }</code></pre>
 
-<p>Khi hình có animation, lambda vẽ chạy mỗi frame; cấp phát object và đo chữ mỗi frame gây GC và giật. Sửa: chuyển phần tạo object vào khối ngoài của <code>drawWithCache</code> (như thẻ biểu đồ ở mục "Ví dụ thực tế"), hoặc <code>remember</code> nó ngoài composition nếu không phụ thuộc <code>size</code>.</p>
+<p>Khi hình có animation, lambda vẽ chạy mỗi frame; cấp phát object và đo chữ mỗi frame gây GC và giật. Sửa: chuyển phần tạo object vào khối ngoài của <code>drawWithCache</code> (như thẻ biểu đồ ở mục "Ví dụ thực tế"), hoặc <code>remember</code> nó trong composition, bên ngoài lambda vẽ, nếu không phụ thuộc <code>size</code>.</p>
 
 <h3>4. Đọc giá trị animation trong composition rồi truyền xuống</h3>
 
 <pre data-lang="kotlin"><code>val progress by animateFloatAsState(target, label = "progress")
 UploadProgressBar(progress = progress)   // đọc ở đây → recompose mỗi frame</code></pre>
 
-<p>Lỗi lộ ra trong Layout Inspector: recomposition count tăng liên tục khi animation chạy. Sửa: tham số dạng <code>() -&gt; Float</code>, chỉ gọi trong lambda vẽ (mục 4).</p>
+<p>Recomposition count tăng liên tục khi animation chạy. Sửa: tham số <code>() -&gt; Float</code>, chỉ gọi trong lambda vẽ (mục 4).</p>
 
 <h3>5. Quên <code>drawContent()</code> trong <code>drawWithContent</code></h3>
 
@@ -56304,8 +56156,8 @@ UploadProgressBar(progress = progress)   // đọc ở đây → recompose mỗi
 <ul>
   <li><strong>Compose 1.0 (07/2021):</strong> <code>Canvas</code>, <code>DrawScope</code>, <code>drawBehind</code>, <code>drawWithContent</code>, <code>drawWithCache</code> và <code>Modifier.graphicsLayer</code> đã có từ bản ổn định đầu tiên; <code>Surface</code> lúc đó thuộc Material 2, thể hiện độ nổi bằng bóng (<code>elevation</code>) và lớp phủ sáng trong dark theme.</li>
   <li><strong>Material 3 cho Compose ổn định (10/2022):</strong> <code>Surface</code> của <code>androidx.compose.material3</code> tách elevation làm hai, <code>tonalElevation</code> (tông màu, cách chính của Material 3) và <code>shadowElevation</code>. Lớp phủ dark theme cũ được thay bằng tông màu lấy từ primary.</li>
-  <li><strong>Khoảng Compose UI 1.3 (cuối 2022):</strong> có <code>TextMeasurer</code> và <code>DrawScope.drawText</code> (ban đầu ở dạng experimental), nên vẽ chữ trong <code>DrawScope</code> không còn phải đi qua <code>nativeCanvas</code> của nền tảng.</li>
-  <li><strong>Compose 1.4:</strong> <code>graphicsLayer</code> có <code>CompositingStrategy</code> (<code>Auto</code>, <code>Offscreen</code>, <code>ModulateAlpha</code>), cần cho các hiệu ứng <code>BlendMode</code>.</li>
+  <li><strong>Compose 1.3 (10/2022):</strong> có <code>TextMeasurer</code>, <code>rememberTextMeasurer()</code> và <code>DrawScope.drawText</code> (lúc đầu cần opt-in <code>@ExperimentalTextApi</code>, nay dùng không cần opt-in), nên vẽ chữ trong <code>DrawScope</code> không còn phải đi qua <code>nativeCanvas</code> của nền tảng.</li>
+  <li><strong>Các bản sau:</strong> <code>graphicsLayer</code> có <code>CompositingStrategy</code> (<code>Auto</code>, <code>Offscreen</code>, <code>ModulateAlpha</code>), cần cho các hiệu ứng <code>BlendMode</code>.</li>
   <li><strong>Compose 1.7:</strong> <code>rememberGraphicsLayer()</code> cho phép ghi nội dung composable vào một layer để vẽ lại hoặc xuất ra bitmap.</li>
 </ul>
 
@@ -56324,7 +56176,7 @@ UploadProgressBar(progress = progress)   // đọc ở đây → recompose mỗi
   <li><a href="../modifier/composed.md" target="_blank" rel="noopener">Modifier.composed và Modifier.Node</a> — đóng gói hiệu ứng vẽ thành modifier tái sử dụng (<code>DrawModifierNode</code>).</li>
   <li><a href="../theming/custom_theme.md" target="_blank" rel="noopener">Custom Theme</a> — CompositionLocal, cơ chế đứng sau <code>LocalContentColor</code>.</li>
   <li><a href="../gesture/zooming.md" target="_blank" rel="noopener">Zooming</a> — <code>graphicsLayer</code> cho scale, translation đọc ở phase Drawing.</li>
-  <li>8.5.2 View Custom (chưa có bài) — <code>onDraw(Canvas)</code> và <code>Paint</code> của View system.</li>
+  <li><a href="../../session_08/view_layout/views.md" target="_blank" rel="noopener">8.5.2 View Custom</a> — <code>onDraw(Canvas)</code> và <code>Paint</code> của View system.</li>
 </ul></li>
   <li><strong>Học tiếp (theo nav):</strong>
 <ul>
@@ -56357,15 +56209,15 @@ UploadProgressBar(progress = progress)   // đọc ở đây → recompose mỗi
   'compose-animated-visibility': {
     title: 'AnimatedVisibility',
     summary: 'AnimatedVisibility là composable bọc một phần nội dung, chạy enter transition khi visible chuyển sang true, chạy exit transition khi visible chuyển sang false và chỉ gỡ nội dung khỏi composition sau khi exit chạy xong. Bài mở đầu bằng bản đồ các API animation của Compose (khi nào dùng animate*AsState, AnimatedVisibility, AnimatedContent, Crossfade, Transition, InfiniteTransition, Animatable), rồi đi sâu vào vòng đời nội dung, các nhóm EnterTransition/ExitTransition, mặc định trong Row/Column, Modifier.animateEnterExit và transition của AnimatedVisibilityScope.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '16 phút',
+    estimatedReadingTime: '18 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'animation', 'animated-visibility', 'enter-exit-transition', 'animation-api'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.compose_overview', 'android.jetpack_compose.state.mutable_state'],
-    related: ['android.jetpack_compose.animation.transition_state', 'android.jetpack_compose.animation.animated_content', 'android.jetpack_compose.animation.crossfade', 'android.jetpack_compose.lazy.lazy_column', 'android.jetpack_compose.side_effects.derived_state_of'],
+    related: ['android.jetpack_compose.animation.transition_state', 'android.jetpack_compose.animation.animated_content', 'android.jetpack_compose.animation.crossfade', 'android.jetpack_compose.lazy.lazy_column', 'android.jetpack_compose.side_effects.derived_state_of', 'android.view_layout.animation'],
     learningOutcomes: [
       'Biết khi nào dùng animate*AsState, AnimatedVisibility, AnimatedContent, Crossfade, updateTransition, rememberInfiniteTransition, Animatable và animateContentSize theo bản đồ API animation của Compose.',
       'Giải thích được vòng đời nội dung bên trong AnimatedVisibility, từ lúc enter tới khi exit xong và bị gỡ khỏi composition.',
@@ -56375,7 +56227,7 @@ UploadProgressBar(progress = progress)   // đọc ở đây → recompose mỗi
     ],
     knowledgeGap: 'Nhiều developer viết `if (visible) Banner()` rồi thêm alpha animation, nên banner mờ đi nhưng vẫn chiếm chỗ và vẫn nhận chạm; hoặc bọc bằng AnimatedVisibility nhưng bên trong đọc `error!!`, app crash đúng lúc thông báo đang biến mất, vì không biết nội dung vẫn được compose trong suốt exit. Thiếu bản đồ API animation cũng khiến họ dùng Animatable với LaunchedEffect cho việc mà một dòng animate*AsState làm được, hoặc ngược lại.',
     updatedAt: '2026-11-09',
-    readTime: '16 phút',
+    readTime: '18 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -56739,7 +56591,7 @@ fun FaqItem(question: String, answer: String, modifier: Modifier = Modifier) {
     }
 }</code></pre>
 
-<p><code>rememberSaveable</code> giữ trạng thái mở qua xoay màn hình, học ở <a href="../state/remember_saveable.md" target="_blank" rel="noopener">remember và rememberSaveable</a>.</p>
+<p><code>rememberSaveable</code> giữ trạng thái mở qua xoay màn hình, học ở <a href="../state/remember_saveable.md" target="_blank" rel="noopener">remember và rememberSaveable</a>. Cùng bài toán này trong View system cần Transition framework cho layout và <code>ViewPropertyAnimator</code> cho mũi tên (<a href="../../session_08/view_layout/animation.md" target="_blank" rel="noopener">8.5.6 Animation</a>); ở đây chỉ là một <code>AnimatedVisibility</code> và một <code>animateFloatAsState</code>.</p>
 
 <p><strong>Kết quả:</strong> bấm câu hỏi, câu trả lời mở ra từ trên xuống, các câu hỏi bên dưới trượt xuống theo, mũi tên quay mượt. Bấm liên tục khi đang mở dở, phần trả lời đổi chiều ngay từ chiều cao hiện tại, không nhảy về đầu.</p>
 
@@ -56987,7 +56839,7 @@ fun ProductListScreen(products: List&lt;Product&gt;, modifier: Modifier = Modifi
 <ul>
   <li><strong>Compose 1.0 (07/2021):</strong> bộ animation đã gồm <code>animate*AsState</code>, <code>updateTransition</code>, <code>rememberInfiniteTransition</code>, <code>Animatable</code>, <code>Crossfade</code>, <code>AnimatedVisibility</code> và <code>AnimatedContent</code>. Một phần <code>AnimatedVisibility</code> và toàn bộ <code>AnimatedContent</code> khi đó cần opt-in <code>@ExperimentalAnimationApi</code>.</li>
   <li><strong>Các bản 1.x sau:</strong> các API này dần ổn định; overload theo <code>ColumnScope</code>/<code>RowScope</code> với mặc định phù hợp chiều của container, tham số <code>label</code> cho công cụ Animation Preview. <code>AnimatedContent</code> ổn định ở 1.5 (<a href="animated_content.md" target="_blank" rel="noopener">AnimatedContent</a>).</li>
-  <li><strong>Compose 1.7 (2024):</strong> <code>Modifier.animateItem()</code> thay <code>animateItemPlacement()</code> cho item của lazy list, animate cả xuất hiện, biến mất và đổi chỗ; <code>rememberTransition</code> thay <code>updateTransition(MutableTransitionState)</code>. Cùng thời gian, shared element transition (<code>SharedTransitionLayout</code>) xuất hiện ở dạng experimental cho chuyển cảnh giữa hai màn hình.</li>
+  <li><strong>Compose 1.7 (2024):</strong> <code>Modifier.animateItem()</code> thay <code>animateItemPlacement()</code> cho item của lazy list, animate cả xuất hiện, biến mất và đổi chỗ; <code>rememberTransition(TransitionState)</code> ổn định và <code>updateTransition(MutableTransitionState)</code> bị deprecated (<a href="mutable_transition_state.md" target="_blank" rel="noopener">MutableTransitionState</a>). Cùng thời gian, shared element transition (<code>SharedTransitionLayout</code>) xuất hiện ở dạng experimental cho chuyển cảnh giữa hai màn hình.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -57005,7 +56857,7 @@ fun ProductListScreen(products: List&lt;Product&gt;, modifier: Modifier = Modifi
   <li><a href="../modifier/lazy_column.md" target="_blank" rel="noopener">LazyColumn</a> — <code>animateItem()</code> cho item của danh sách.</li>
   <li><a href="../side_effects/derived_state_of.md" target="_blank" rel="noopener">derivedStateOf</a> — tính <code>visible</code> từ state đổi liên tục.</li>
   <li><a href="surface_and_canvas.md" target="_blank" rel="noopener">Surface and Canvas</a> — đọc giá trị animation ở phase Drawing.</li>
-  <li>8.5.6 Animation (chưa có bài) — animation của View system (<code>ViewPropertyAnimator</code>, <code>MotionLayout</code>).</li>
+  <li><a href="../../session_08/view_layout/animation.md" target="_blank" rel="noopener">8.5.6 Animation</a> — animation của View system (<code>ViewPropertyAnimator</code>, Transition framework, <code>MotionLayout</code>).</li>
 </ul></li>
   <li><strong>Học tiếp (theo nav):</strong> <a href="mutable_transition_state.md" target="_blank" rel="noopener">MutableTransitionState</a>.</li>
 </ul>
@@ -57033,15 +56885,15 @@ fun ProductListScreen(products: List&lt;Product&gt;, modifier: Modifier = Modifi
   'compose-transition-state': {
     title: 'MutableTransitionState',
     summary: 'Transition là object điều phối một nhóm animation con cùng chạy theo một state đích; MutableTransitionState là TransitionState ghi được, tách currentState (trạng thái transition đã tới) khỏi targetState (đích muốn tới) và có isIdle cho biết animation đã xong. Bài giải thích updateTransition và rememberTransition, transition.animateFloat/animateDp/animateColor với transitionSpec, cách dùng MutableTransitionState để chạy animation ngay khi vào composition, biết khi nào animation kết thúc, dùng với AnimatedVisibility(visibleState) và khởi động lại transition.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '16 phút',
+    estimatedReadingTime: '19 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'animation', 'transition', 'mutable-transition-state', 'update-transition'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.animation.animated_visibility', 'android.jetpack_compose.state.mutable_state'],
-    related: ['android.jetpack_compose.animation.animated_content', 'android.jetpack_compose.side_effects.launched_effect', 'android.jetpack_compose.graphics.surface_canvas'],
+    related: ['android.jetpack_compose.animation.animated_content', 'android.jetpack_compose.side_effects.launched_effect', 'android.jetpack_compose.graphics.surface_canvas', 'android.view_layout.animation'],
     learningOutcomes: [
       'Giải thích được cách Transition điều phối nhiều animation con theo một state đích, và vai trò của currentState, targetState trong đó.',
       'Triển khai được nhiều thuộc tính animate đồng bộ bằng updateTransition kết hợp transition.animateFloat, animateDp, animateColor và transitionSpec theo từng cặp trạng thái.',
@@ -57051,7 +56903,7 @@ fun ProductListScreen(products: List&lt;Product&gt;, modifier: Modifier = Modifi
     ],
     knowledgeGap: 'Nhiều developer animate một thẻ bằng bốn animate*AsState rời rạc nên các thuộc tính không chạy đồng bộ và không có chỗ nào biết "thẻ đã chuyển xong chưa"; hoặc cần animation chạy ngay khi màn hình mở và cần biết lúc nó kết thúc, nên tự dựng cờ và delay đoán thời lượng, rồi lệch ngay khi đổi AnimationSpec. Một số tạo MutableTransitionState không remember nên animation bị khởi động lại mỗi lần recompose.',
     updatedAt: '2026-11-09',
-    readTime: '16 phút',
+    readTime: '19 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -57158,7 +57010,7 @@ fun PlanCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         border = BorderStroke(2.dp, borderColor),
-        tonalElevation = elevation
+        shadowElevation = elevation
     ) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -57236,7 +57088,7 @@ plans.forEach { plan -&gt;
   </tbody>
 </table>
 
-<p>Trước Compose Animation 1.7, việc này làm bằng <code>updateTransition(transitionState: MutableTransitionState)</code>. Bản đó đã <strong>deprecated</strong>, tài liệu API hướng dẫn thay bằng <code>rememberTransition(transitionState, label)</code>.</p>
+<p>Trước Compose Animation 1.7, việc này làm bằng <code>updateTransition(transitionState: MutableTransitionState)</code>. <code>rememberTransition</code> xuất hiện ở 1.6 dưới dạng experimental (<code>@ExperimentalTransitionApi</code>) và ổn định từ 1.7; cũng từ 1.7, <code>updateTransition(MutableTransitionState)</code> bị <strong>deprecated</strong> với gợi ý thay bằng <code>rememberTransition(transitionState, label)</code>.</p>
 
 <h4>Ví dụ: thẻ chào mừng bật lên khi mở màn hình</h4>
 
@@ -57405,7 +57257,7 @@ class NoticeViewModel : ViewModel() {
     fun onNoticeDismissed(id: Long) = queue.update { list -&gt; list.filterNot { it.id == id } }
 }</code></pre>
 
-<p><code>onDismissed</code> được gọi trong <code>LaunchedEffect</code> chứ không gọi thẳng trong thân composable, vì gọi hàm có tác dụng phụ trong composition sẽ chạy lại mỗi lần recompose. <code>map</code>, <code>stateIn</code> là toán tử của Flow, học ở 7.1.4.2 Flow (chưa có bài).</p>
+<p><code>onDismissed</code> được gọi trong <code>LaunchedEffect</code> chứ không gọi thẳng trong thân composable, vì gọi hàm có tác dụng phụ trong composition sẽ chạy lại mỗi lần recompose. <code>map</code>, <code>stateIn</code> là toán tử của Flow, học ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a>.</p>
 
 <p><strong>Kết quả:</strong> gọi <code>show()</code> ba lần liên tiếp: ba thông báo lần lượt trượt xuống, đứng 3 giây, trượt lên; thông báo sau chỉ bắt đầu khi thông báo trước đã ra hết. Ghi log trong <code>onNoticeDismissed</code>: các mốc thời gian cách nhau khoảng 3 giây cộng thời lượng enter và exit, dù đổi spec cũng không cần sửa con số nào.</p>
 
@@ -57415,7 +57267,7 @@ class NoticeViewModel : ViewModel() {
 
 <ul>
   <li><strong><code>transition.AnimatedVisibility(visible = { state -&gt; … })</code></strong> và <strong><code>transition.AnimatedContent { state -&gt; … }</code></strong>: phiên bản mở rộng của <code>Transition</code>. Enter, exit và size animation của chúng trở thành animation con của transition cha, nên <code>currentState == targetState</code> chỉ khi <strong>mọi</strong> phần đã xong.</li>
-  <li><strong><code>transition.createChildTransition { state -&gt; … }</code></strong>: tạo <code>Transition</code> con kiểu khác (thường <code>Boolean</code>) để truyền cho composable con, con chỉ cần biết "mình có đang hiện không", không cần biết toàn bộ enum của cha.</li>
+  <li><strong><code>transition.createChildTransition { state -&gt; … }</code></strong>: tạo <code>Transition</code> con kiểu khác (thường <code>Boolean</code>) để truyền cho composable con, con chỉ cần biết "mình có đang hiện không", không cần biết toàn bộ enum của cha. Tới bản ổn định 1.12, hàm này còn experimental (cần <code>@OptIn(ExperimentalTransitionApi::class)</code>); ghi chú phát hành 1.13 đưa nó lên stable.</li>
   <li><strong>Gói giá trị vào một class:</strong> tài liệu gợi ý một hàm <code>@Composable</code> tạo transition và trả về object chứa các <code>State</code> (màu, kích thước), để tách logic animation khỏi UI và dùng lại.</li>
 </ul>
 
@@ -57428,12 +57280,14 @@ transition.AnimatedVisibility(visible = { isSelected -&gt; isSelected &amp;&amp;
 
 <h2>Deep Dive: rememberTransition và họ TransitionState</h2>
 
-<p><code>rememberTransition</code> nhận kiểu trừu tượng <code>TransitionState&lt;S&gt;</code>, không chỉ <code>MutableTransitionState</code>. Hiện có hai hiện thực:</p>
+<p><code>rememberTransition</code> nhận kiểu trừu tượng <code>TransitionState&lt;S&gt;</code>, không chỉ <code>MutableTransitionState</code>. Hai hiện thực hay dùng:</p>
 
 <ul>
   <li><strong><code>MutableTransitionState</code></strong>: đích được gán, transition tự chạy tới đích theo <code>AnimationSpec</code>. Đây là trường hợp của bài này.</li>
-  <li><strong><code>SeekableTransitionState</code></strong> (khoảng Compose Animation 1.7): tiến trình được <strong>điều khiển từ bên ngoài</strong> bằng <code>seekTo(fraction, targetState)</code>, hoặc chạy tiếp bằng <code>animateTo(targetState)</code>. Dùng khi transition đi theo cử chỉ, ví dụ cử chỉ predictive back kéo tới đâu thì animation chuyển màn hình tới đó. Các hàm này là <code>suspend</code>.</li>
+  <li><strong><code>SeekableTransitionState</code></strong> (thêm ở Compose Animation 1.6 dạng experimental, ổn định từ 1.7): tiến trình được <strong>điều khiển từ bên ngoài</strong> bằng <code>seekTo(fraction, targetState)</code>, chạy tiếp bằng <code>animateTo(targetState)</code>, hoặc nhảy thẳng bằng <code>snapTo(targetState)</code>. Dùng khi transition đi theo cử chỉ, ví dụ cử chỉ predictive back kéo tới đâu thì animation chuyển màn hình tới đó. Các hàm này là <code>suspend</code>.</li>
 </ul>
+
+<p>Bản 1.12 còn có <code>DeferredTransitionState</code> (experimental) cho trường hợp giữ transition ở một pha điều khiển tay trước khi tự chạy tới đích; bài này không đi sâu.</p>
 
 <p>Hai điểm về vòng đời cần nhớ:</p>
 
@@ -57592,7 +57446,7 @@ fun SaveArticleButton(onSave: () -&gt; Unit, modifier: Modifier = Modifier) {
   <li><strong>Nên dùng <code>updateTransition</code></strong> khi nhiều thuộc tính của cùng một phần UI phụ thuộc vào cùng một state và cần bắt đầu cùng lúc, hoặc cần spec khác nhau theo chiều chuyển.</li>
   <li><strong>Nên dùng <code>MutableTransitionState</code></strong> khi animation phải chạy ngay khi vào composition, khi cần biết lúc animation xong để làm bước kế tiếp, khi đổi đích từ ngoài composition, hoặc khi cần khởi động lại từ đầu.</li>
   <li><strong>Không cần</strong> cho một thuộc tính độc lập: <code>animate*AsState</code> đủ và ngắn hơn.</li>
-  <li><strong>Không nên</strong> dựng logic nghiệp vụ dựa trên <code>isIdle</code> (ví dụ chỉ gửi request sau khi animation xong): animation có thể bị tắt trong cài đặt nhà phát triển hoặc bị ngắt; logic nghiệp vụ thuộc về ViewModel. Dùng <code>isIdle</code> cho việc của UI: hiện bước tiếp, gỡ phần tử.</li>
+  <li><strong>Không nên</strong> dựng logic nghiệp vụ dựa trên <code>isIdle</code> (ví dụ chỉ gửi request sau khi animation xong): người dùng có thể rời màn hình giữa chừng, composable rời composition và <code>isIdle</code> không bao giờ được đọc; logic nghiệp vụ thuộc về ViewModel. Dùng <code>isIdle</code> cho việc của UI: hiện bước tiếp, gỡ phần tử.</li>
 </ul>
 
 <h2>Sai lầm thường gặp</h2>
@@ -57602,7 +57456,7 @@ fun SaveArticleButton(onSave: () -&gt; Unit, modifier: Modifier = Modifier) {
 <pre data-lang="kotlin"><code>val appearState = MutableTransitionState(false).apply { targetState = true }   // mới mỗi lần recompose
 val transition = rememberTransition(appearState, label = "appear")</code></pre>
 
-<p>Mỗi lần recompose là một object mới, <code>rememberTransition</code> coi đó là yêu cầu khởi động lại: thẻ cứ giật về trạng thái đầu và không bao giờ tới đích. Sửa: bọc trong <code>remember { … }</code> (hoặc <code>remember(key)</code> khi cần một state cho mỗi đối tượng, như hàng đợi thông báo).</p>
+<p>Mỗi lần recompose là một object mới, <code>rememberTransition</code> coi đó là yêu cầu khởi động lại: animation giật về trạng thái đầu mỗi khi composable recompose vì bất kỳ lý do gì; nếu giá trị animation được đọc ngay trong composition (recompose mỗi frame), nó không bao giờ tới đích. Sửa: bọc trong <code>remember { … }</code> (hoặc <code>remember(key)</code> khi cần một state cho mỗi đối tượng, như hàng đợi thông báo).</p>
 
 <h3>2. Dùng <code>currentState</code> để biết nội dung "đang hiện"</h3>
 
@@ -57614,7 +57468,7 @@ val transition = rememberTransition(appearState, label = "appear")</code></pre>
 
 <h3>4. Dùng <code>updateTransition(MutableTransitionState)</code></h3>
 
-<p>Code cũ hoặc bài viết cũ dùng <code>updateTransition(visibleState)</code>. Bản này deprecated từ Compose Animation 1.7 và IDE sẽ cảnh báo. Sửa: <code>rememberTransition(visibleState, label)</code>.</p>
+<p>Code cũ hoặc bài viết cũ dùng <code>updateTransition(visibleState)</code>. Bản này deprecated từ Compose Animation 1.7 và IDE sẽ cảnh báo kèm gợi ý thay thế. Sửa: <code>rememberTransition(visibleState, label)</code>.</p>
 
 <h3>5. Tạo object mới khi chỉ muốn đổi đích</h3>
 
@@ -57627,9 +57481,11 @@ val transition = rememberTransition(appearState, label = "appear")</code></pre>
 <h2>Lịch sử phát triển</h2>
 
 <ul>
-  <li><strong>Compose 1.0 (07/2021):</strong> <code>Transition</code>, <code>updateTransition</code>, <code>MutableTransitionState</code> (cùng <code>currentState</code>, <code>targetState</code>, <code>isIdle</code>) và <code>AnimatedVisibility(visibleState)</code> có từ bản ổn định đầu tiên. Bản <code>updateTransition(MutableTransitionState)</code> là cách dùng state khởi đầu khác đích.</li>
-  <li><strong>Các bản 1.x:</strong> <code>Transition.AnimatedVisibility</code>, <code>Transition.AnimatedContent</code>, <code>Transition.Crossfade</code> và <code>createChildTransition</code> cho phép gom animation của nhiều composable vào một transition; Android Studio có Animation Preview để xem và kéo thời gian của từng <code>Transition</code> theo <code>label</code>.</li>
-  <li><strong>Compose Animation 1.7 (2024):</strong> thêm <code>rememberTransition(TransitionState)</code>; <code>updateTransition(MutableTransitionState)</code> bị deprecated và hướng dẫn chuyển sang <code>rememberTransition</code>. Khoảng cùng thời gian có <code>SeekableTransitionState</code> cho transition điều khiển theo tiến trình, phục vụ các cử chỉ như predictive back.</li>
+  <li><strong>Compose 1.0 (07/2021):</strong> <code>Transition</code>, <code>updateTransition</code> và <code>MutableTransitionState</code> (cùng bản <code>updateTransition(MutableTransitionState)</code> cho state khởi đầu khác đích) có từ bản ổn định đầu tiên. <code>AnimatedVisibility</code> (kể cả overload <code>visibleState</code>) và <code>isIdle</code> lúc đó còn experimental.</li>
+  <li><strong>Compose Animation 1.1 (2022):</strong> <code>AnimatedVisibility</code> và <code>MutableTransitionState.isIdle</code> ổn định. Các bản 1.x tiếp theo bổ sung <code>Transition.AnimatedVisibility</code>, <code>Transition.AnimatedContent</code>, <code>Transition.Crossfade</code> và <code>createChildTransition</code> để gom animation của nhiều composable vào một transition; Android Studio có Animation Preview để xem và kéo thời gian của từng <code>Transition</code> theo <code>label</code>.</li>
+  <li><strong>Compose Animation 1.6 (2024):</strong> thêm <code>SeekableTransitionState</code> và <code>rememberTransition(TransitionState)</code>, cả hai còn experimental.</li>
+  <li><strong>Compose Animation 1.7 (09/2024):</strong> <code>rememberTransition</code>, <code>SeekableTransitionState</code> và <code>Transition.AnimatedVisibility</code> ổn định; <code>updateTransition(MutableTransitionState)</code> bị deprecated, gợi ý chuyển sang <code>rememberTransition</code>.</li>
+  <li><strong>Compose Animation 1.13 (đang ở bản rc, 11/2026):</strong> ghi chú phát hành đưa <code>Transition.Crossfade</code> và <code>createChildTransition</code> lên stable.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -57646,6 +57502,7 @@ val transition = rememberTransition(appearState, label = "appear")</code></pre>
   <li><a href="animated_content.md" target="_blank" rel="noopener">AnimatedContent</a> — <code>Transition.AnimatedContent</code> gom chuyển nội dung vào cùng transition.</li>
   <li><a href="surface_and_canvas.md" target="_blank" rel="noopener">Surface and Canvas</a> — đọc giá trị animation trong <code>graphicsLayer</code> để không recompose.</li>
   <li><a href="../gesture/dragging.md" target="_blank" rel="noopener">Dragging</a> — <code>Animatable</code> cho animation theo cử chỉ.</li>
+  <li><a href="../../session_08/view_layout/animation.md" target="_blank" rel="noopener">8.5.6 Animation (View system)</a> — bài toán "biết khi animation xong" ở View system giải bằng listener kết thúc (<code>doOnEnd</code>, <code>withEndAction</code>).</li>
 </ul></li>
   <li><strong>Học tiếp (theo nav):</strong> <a href="animated_content.md" target="_blank" rel="noopener">AnimatedContent</a>, <a href="crossfade.md" target="_blank" rel="noopener">Crossfade</a>.</li>
 </ul>
@@ -57667,15 +57524,16 @@ val transition = rememberTransition(appearState, label = "appear")</code></pre>
   <li><a href="https://developer.android.com/develop/ui/compose/animation/composables-modifiers" target="_blank" rel="noopener">Animation modifiers and composables — Android Developers</a></li>
   <li><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/core/MutableTransitionState" target="_blank" rel="noopener">MutableTransitionState — API reference</a></li>
   <li><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/core/updateTransition.composable" target="_blank" rel="noopener">updateTransition — API reference</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/compose-animation" target="_blank" rel="noopener">Compose Animation release notes — AndroidX</a></li>
 </ul>
     `
   },
   'compose-animated-content': {
     title: 'AnimatedContent',
     summary: 'AnimatedContent là container animate việc chuyển giữa các nội dung khác nhau theo targetState. Mỗi giá trị target (qua contentKey) ứng với một nội dung; khi target đổi, nội dung mới chạy enter và nội dung cũ chạy exit cùng lúc, container animate kích thước bằng SizeTransform, xong thì nội dung cũ bị dispose. Bài giải thích vì sao lambda phải dùng tham số targetState, cách viết transitionSpec bằng togetherWith, using SizeTransform và slideIntoContainer, và contentKey để không animate khi chỉ dữ liệu bên trong đổi.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '13 phút',
+    estimatedReadingTime: '15 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'animation', 'animated-content', 'content-transform', 'size-transform'],
     domain: 'Android',
@@ -57690,7 +57548,7 @@ val transition = rememberTransition(appearState, label = "appear")</code></pre>
     ],
     knowledgeGap: 'Nhiều developer viết `AnimatedContent(targetState = uiState) { when (uiState) { … } }`, tức đọc state bên ngoài thay vì tham số của lambda, nên nội dung đang rời đi lại vẽ dữ liệu mới và hiệu ứng trông như nháy. Họ cũng để mặc định contentKey với một sealed UiState, nên mỗi lần làm mới dữ liệu màn hình lại fade một lần, hoặc giữ state của form trong nội dung rồi mất sạch khi người dùng quay lại bước trước.',
     updatedAt: '2026-11-09',
-    readTime: '13 phút',
+    readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -57736,14 +57594,16 @@ val transition = rememberTransition(appearState, label = "appear")</code></pre>
 
 <h3>1. <code>targetState</code> và lambda nội dung</h3>
 
-<p>Chữ ký chính (Compose Animation 1.5 trở đi):</p>
+<p>Chữ ký chính (Compose Animation 1.5 trở đi; giá trị mặc định của <code>transitionSpec</code> lấy từ bản 1.12):</p>
 
 <pre data-lang="kotlin"><code>@Composable
 fun &lt;S&gt; AnimatedContent(
     targetState: S,
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope&lt;S&gt;.() -&gt; ContentTransform = {
-        AnimatedContentDefaults.ContentTransform
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+            scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+            .togetherWith(fadeOut(animationSpec = tween(90)))
     },
     contentAlignment: Alignment = Alignment.TopStart,
     label: String = "AnimatedContent",
@@ -57775,7 +57635,7 @@ sequenceDiagram
 
 <p>Bước 1 là lý do của quy tắc quan trọng nhất: <strong>lambda phải dùng tham số của nó</strong>, không đọc state bên ngoài. Tài liệu ghi rõ tham số đó là key để tra nội dung đang hiện; nội dung của A chỉ đúng là A nếu nó vẽ từ tham số <code>A</code>, không phải từ biến bên ngoài đã thành <code>B</code>.</p>
 
-<p>Mặc định, <code>AnimatedContent</code> dùng kiểu <strong>fade through</strong>: nội dung cũ fade out, nội dung mới fade in (kèm scale in nhẹ) sau một khoảng trễ ngắn, và kích thước container chạy bằng spring. Receiver của lambda là <code>AnimatedContentScope</code>, cũng là một <code>AnimatedVisibilityScope</code>, nên dùng được <code>Modifier.animateEnterExit</code> và <code>transition</code> cho từng con như ở <a href="animated_visibility.md" target="_blank" rel="noopener">AnimatedVisibility</a>.</p>
+<p>Mặc định, <code>AnimatedContent</code> dùng kiểu <strong>fade through</strong> như chữ ký ở trên: nội dung cũ fade out trong 90ms, nội dung mới fade in và scale từ 92% lên 100% trong 220ms sau độ trễ 90ms, và kích thước container chạy bằng spring (<code>SizeTransform</code> mặc định). Receiver của lambda là <code>AnimatedContentScope</code>, cũng là một <code>AnimatedVisibilityScope</code>, nên dùng được <code>Modifier.animateEnterExit</code> và <code>transition</code> cho từng con như ở <a href="animated_visibility.md" target="_blank" rel="noopener">AnimatedVisibility</a>.</p>
 
 <h4>Ví dụ: bộ đếm số lượng trong giỏ hàng</h4>
 
@@ -57836,7 +57696,7 @@ fun QuantityStepper(quantity: Int, onQuantityChange: (Int) -&gt; Unit, modifier:
 
 <p>Toán tử <code>+</code> ưu tiên hơn hàm infix <code>togetherWith</code>, nên <code>a + b togetherWith c + d</code> nghĩa là <code>(a + b) togetherWith (c + d)</code>. Gán kết quả của <code>if</code> vào <code>slide</code> rồi mới <code>using</code> giúp <code>SizeTransform</code> áp cho cả hai nhánh.</p>
 
-<p><strong>Kết quả:</strong> bấm cộng từ 2 lên 3, số 3 trượt lên từ dưới trong khi số 2 trượt lên và mờ đi; bấm trừ thì ngược lại. Số 9 lên 10 rộng hơn, container nới chiều rộng mượt nhờ <code>SizeTransform</code>.</p>
+<p><strong>Kết quả:</strong> bấm cộng từ 2 lên 3, số 3 trượt lên từ dưới trong khi số 2 trượt lên và mờ đi; bấm trừ thì ngược lại. Số 99 lên 100 rộng hơn mức tối thiểu 32dp, container nới chiều rộng mượt nhờ <code>SizeTransform</code>.</p>
 
 <h3>2. <code>transitionSpec</code>: ContentTransform và SizeTransform</h3>
 
@@ -57878,8 +57738,8 @@ fun QuantityStepper(quantity: Int, onQuantityChange: (Int) -&gt; Unit, modifier:
 
 <ul>
   <li><strong><code>slideIntoContainer</code> / <code>slideOutOfContainer</code></strong> nhận hướng <code>AnimatedContentTransitionScope.SlideDirection</code> (<code>Start</code>, <code>End</code>, <code>Up</code>, <code>Down</code>, <code>Left</code>, <code>Right</code>) và tự tính quãng trượt theo kích thước của container và nội dung, thay cho việc tự viết <code>slideInHorizontally { it }</code>. <code>Start</code>/<code>End</code> tự đảo theo hướng ngôn ngữ (RTL).</li>
-  <li><strong><code>SizeTransform</code></strong> mặc định <code>clip = true</code> (nội dung bị cắt theo kích thước đang animate) và dùng spring. Lambda <code>SizeTransform { initialSize, targetSize -&gt; keyframes { … } }</code> cho phép animate chiều rộng và chiều cao theo thứ tự khác nhau, ví dụ mở ngang trước, dọc sau. Truyền <code>using(null)</code> để không animate kích thước.</li>
-  <li><strong><code>targetContentZIndex</code></strong> mặc định 0; vì nội dung đích được đặt sau nên mặc định nó nằm trên. Đặt giá trị khi muốn nội dung cũ nằm đè lên trong lúc rời đi.</li>
+  <li><strong><code>SizeTransform</code></strong> mặc định <code>clip = true</code> (nội dung bị cắt theo kích thước đang animate) và dùng <code>spring(stiffness = Spring.StiffnessMediumLow)</code>. Lambda <code>SizeTransform { initialSize, targetSize -&gt; keyframes { … } }</code> cho phép animate chiều rộng và chiều cao theo thứ tự khác nhau, ví dụ mở ngang trước, dọc sau. Truyền <code>using(null)</code> để không animate kích thước.</li>
+  <li><strong><code>targetContentZIndex</code></strong> mặc định 0; vì nội dung đích được đặt sau nên mặc định nó nằm trên. Muốn nội dung cũ nằm đè lên trong lúc rời đi (ví dụ thẻ cũ trượt ra để lộ thẻ mới bên dưới), đặt giá trị âm cho nội dung đích: <code>(fadeIn() togetherWith slideOutVertically()).apply { targetContentZIndex = -1f }</code>.</li>
 </ul>
 
 <h3>3. <code>contentKey</code>: khi nào được coi là "nội dung khác"</h3>
@@ -58029,7 +57889,7 @@ fun CheckoutFlow(
 
 <p><code>BackHandler</code> thuộc thư viện <code>activity-compose</code>. <code>CheckoutForm</code> là data class chứa địa chỉ và phương thức thanh toán, thường nằm trong UI state của ViewModel.</p>
 
-<p><strong>Kết quả:</strong> bấm "Tiếp", bước Thanh toán trượt vào từ bên phải trong khi bước Địa chỉ trượt ra bên trái, vùng chứa co chiều cao mượt. Bấm Back hệ thống, bước Địa chỉ trượt về và địa chỉ đã nhập vẫn còn. Viết UI test bằng <code>composeTestRule</code>: bấm "Tiếp", chờ idle, kiểm tra node "Phương thức thanh toán" hiển thị và node của bước Địa chỉ không còn trong cây (Compose UI test học ở 10.2 Unit Testing, chưa có bài).</p>
+<p><strong>Kết quả:</strong> bấm "Tiếp", bước Thanh toán trượt vào từ bên phải trong khi bước Địa chỉ trượt ra bên trái, vùng chứa co chiều cao mượt. Bấm Back hệ thống, bước Địa chỉ trượt về và địa chỉ đã nhập vẫn còn. Viết UI test bằng <code>composeTestRule</code>: bấm "Tiếp", chờ idle, kiểm tra node "Phương thức thanh toán" hiển thị và node của bước Địa chỉ không còn trong cây. Compose UI test chạy trên thiết bị hoặc Robolectric, khác với unit test JVM ở <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>; mục lục hiện chưa có bài riêng cho nó.</p>
 
 <h2>So sánh với các cách tiếp cận khác</h2>
 
@@ -58118,13 +57978,15 @@ fun CheckoutFlow(
 
 <h3>5. Dùng hàm <code>with</code> cũ</h3>
 
-<p>Code từ trước 2023 viết <code>fadeIn() with fadeOut()</code>. Hàm infix <code>with</code> đã deprecated, thay bằng <code>togetherWith</code>; tên mới cũng tránh nhầm với hàm scope <code>with</code> của Kotlin.</p>
+<p>Code từ trước 2023 viết <code>fadeIn() with fadeOut()</code>. Hàm infix <code>with</code> bị deprecated từ Compose Animation 1.5, thay bằng <code>togetherWith</code>; tên mới cũng tránh nhầm với hàm scope <code>with</code> của Kotlin. Từ 1.13, <code>with</code> chỉ còn ở mức <code>DeprecationLevel.HIDDEN</code> để giữ tương thích nhị phân, nên code nguồn dùng nó không compile nữa.</p>
 
 <h2>Lịch sử phát triển</h2>
 
 <ul>
-  <li><strong>Compose 1.0 (07/2021):</strong> <code>AnimatedContent</code> có mặt nhưng là API experimental (<code>@ExperimentalAnimationApi</code>); enter và exit ghép bằng hàm infix <code>with</code>.</li>
-  <li><strong>Compose Animation 1.5 (2023):</strong> <code>AnimatedContent</code> ổn định. Overload hiện hành có <code>label</code> và <code>contentKey</code>; <code>togetherWith</code> thay <code>with</code> (deprecated). Cùng đợt có <code>Transition.AnimatedContent</code> để gom chuyển nội dung vào một <code>Transition</code> chung (<a href="mutable_transition_state.md" target="_blank" rel="noopener">MutableTransitionState</a>).</li>
+  <li><strong>Compose 1.0 (07/2021):</strong> <code>AnimatedContent</code> được thêm ở 1.0.0-beta09 và có mặt trong bản ổn định đầu tiên nhưng là API experimental (<code>@ExperimentalAnimationApi</code>); enter và exit ghép bằng hàm infix <code>with</code>.</li>
+  <li><strong>Compose Animation 1.4 (2023):</strong> thêm tham số <code>label</code> để nhận diện trong Animation Preview.</li>
+  <li><strong>Compose Animation 1.5 (2023):</strong> <code>AnimatedContent</code> ổn định; scope của <code>transitionSpec</code> đổi tên thành <code>AnimatedContentTransitionScope</code>, receiver của lambda nội dung là <code>AnimatedContentScope</code> mới. Thêm <code>contentKey</code>; <code>togetherWith</code> thay <code>with</code> (deprecated). <code>Transition.AnimatedContent</code>, dùng để gom chuyển nội dung vào một <code>Transition</code> chung (<a href="mutable_transition_state.md" target="_blank" rel="noopener">MutableTransitionState</a>), cũng ổn định.</li>
+  <li><strong>Compose Animation 1.13 (đang ở bản rc, 11/2026):</strong> <code>with</code> bị gỡ khỏi API nguồn, chỉ giữ dạng ẩn cho tương thích nhị phân.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -58150,21 +58012,22 @@ fun CheckoutFlow(
   <li><a href="https://developer.android.com/develop/ui/compose/animation/composables-modifiers" target="_blank" rel="noopener">Animation modifiers and composables: AnimatedContent — Android Developers</a></li>
   <li><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/AnimatedContent.composable" target="_blank" rel="noopener">AnimatedContent — API reference</a></li>
   <li><a href="https://developer.android.com/develop/ui/compose/animation/value-based" target="_blank" rel="noopener">Value-based animations: Transition.AnimatedContent — Android Developers</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/compose-animation" target="_blank" rel="noopener">Compose Animation release notes — AndroidX</a></li>
 </ul>
     `
   },
   'compose-crossfade': {
     title: 'Crossfade',
     summary: 'Crossfade là composable chuyển giữa các nội dung theo targetState bằng đúng một hiệu ứng, nội dung cũ mờ dần trong khi nội dung mới hiện dần, hai lớp chồng nhau trong cùng một Box; không slide, không scale, không animate kích thước. Bài giải thích cơ chế hai lớp alpha, animationSpec và hành vi khi bị ngắt, cách chọn targetState làm giá trị nhận diện nội dung, và khi nào chọn Crossfade thay vì AnimatedContent.',
-    status: 'reviewing',
+    status: 'published',
     difficulty: 'beginner',
-    estimatedReadingTime: '10 phút',
+    estimatedReadingTime: '11 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'animation', 'crossfade'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.animation.animated_visibility'],
-    related: ['android.jetpack_compose.animation.animated_content', 'android.jetpack_compose.animation.transition_state', 'android.jetpack_compose.lazy.lazy_column'],
+    related: ['android.jetpack_compose.animation.animated_content', 'android.jetpack_compose.animation.transition_state', 'android.jetpack_compose.lazy.lazy_column', 'android.image.coil'],
     learningOutcomes: [
       'Giải thích được cách Crossfade chồng nội dung cũ và mới trong một Box và đổi alpha của chúng cùng lúc.',
       'Phân biệt được Crossfade với AnimatedContent về kiểu hiệu ứng, kích thước container và khả năng tuỳ biến, để chọn đúng API.',
@@ -58173,7 +58036,7 @@ fun CheckoutFlow(
     ],
     knowledgeGap: 'Nhiều developer truyền cả object dữ liệu (bài hát kèm vị trí phát, sản phẩm kèm số lượng tồn) làm targetState của Crossfade nên nội dung cứ mờ đi rồi hiện lại mỗi khi một field nhỏ đổi; hoặc dùng Crossfade cho hai nội dung khác chiều cao rồi thấy layout nhảy ở cuối hiệu ứng, và mất vị trí cuộn của từng tab mà không hiểu vì sao.',
     updatedAt: '2026-11-09',
-    readTime: '10 phút',
+    readTime: '11 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -58287,7 +58150,7 @@ fun NowPlayingArtwork(track: Track, modifier: Modifier = Modifier) {
     }
 }</code></pre>
 
-<p><code>Track</code> có <code>@DrawableRes val artworkRes: Int</code>; tên bài được đọc ở <code>Text</code> bên dưới nên ảnh để <code>contentDescription = null</code>. Với ảnh tải từ mạng, <code>AsyncImage</code> của Coil có tuỳ chọn crossfade riêng (8.2.4 Coil, chưa có bài).</p>
+<p><code>Track</code> có <code>@DrawableRes val artworkRes: Int</code>; tên bài được đọc ở <code>Text</code> bên dưới nên ảnh để <code>contentDescription = null</code>. Với ảnh tải từ mạng, <code>AsyncImage</code> của Coil có tuỳ chọn crossfade riêng (<code>ImageRequest.Builder.crossfade(true)</code>, học ở <a href="../../session_08/loading_image/coil.md" target="_blank" rel="noopener">8.2.4 Coil</a>).</p>
 
 <p><strong>Kết quả:</strong> chuyển sang bài của album khác, ảnh mới hiện dần đè ảnh cũ; chuyển sang bài cùng album, ảnh đứng yên. Trong lúc phát, ảnh không nháy dù vị trí phát cập nhật mỗi giây. Layout Inspector cho thấy trong 400ms có hai node <code>Image</code> chồng nhau, sau đó chỉ còn một.</p>
 
@@ -58297,7 +58160,7 @@ fun NowPlayingArtwork(track: Track, modifier: Modifier = Modifier) {
 
 <p>Khi <code>targetState</code> đổi trong lúc đang fade (bấm "bài tiếp" ba lần liên tục), <code>Crossfade</code> thêm lớp cho state mới nhất; các lớp cũ tiếp tục mờ đi từ alpha hiện tại rồi bị gỡ. Nội dung không nhảy về đầu, nhưng trong khoảnh khắc có thể có hơn hai lớp cùng hiện.</p>
 
-<p><code>Crossfade</code> bản thường <strong>không có <code>contentKey</code></strong>: mọi giá trị <code>targetState</code> khác nhau theo <code>equals</code> đều kích hoạt fade. Vì vậy hãy truyền giá trị nhận diện nội dung (id, enum, resource id) thay vì truyền cả object. Bản mở rộng <code>Transition&lt;T&gt;.Crossfade(modifier, animationSpec, contentKey, content)</code> có <code>contentKey</code>, dùng khi fade là một phần của <code>Transition</code> lớn hơn (<a href="mutable_transition_state.md" target="_blank" rel="noopener">MutableTransitionState</a>), hoặc khi object state bị tạo lại sau save/restore mà cần một key bền hơn.</p>
+<p><code>Crossfade</code> bản thường <strong>không có <code>contentKey</code></strong>: mọi giá trị <code>targetState</code> khác nhau theo <code>equals</code> đều kích hoạt fade. Vì vậy hãy truyền giá trị nhận diện nội dung (id, enum, resource id) thay vì truyền cả object. Bản mở rộng <code>Transition&lt;T&gt;.Crossfade(modifier, animationSpec, contentKey, content)</code> có <code>contentKey</code>, dùng khi fade là một phần của <code>Transition</code> lớn hơn (<a href="mutable_transition_state.md" target="_blank" rel="noopener">MutableTransitionState</a>), hoặc khi object state bị tạo lại sau save/restore mà cần một key bền hơn để khôi phục state bên trong nội dung (theo tài liệu API). Tới bản ổn định 1.12, bản mở rộng này còn experimental (cần <code>@OptIn(ExperimentalAnimationApi::class)</code>); ghi chú phát hành 1.13 đưa nó lên stable.</p>
 
 <h3>3. Crossfade hay AnimatedContent</h3>
 
@@ -58332,7 +58195,7 @@ fun NowPlayingArtwork(track: Track, modifier: Modifier = Modifier) {
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>contentKey</code></td>
-      <td style="padding:8px 12px;">Chỉ ở <code>Transition.Crossfade</code></td>
+      <td style="padding:8px 12px;">Chỉ ở <code>Transition.Crossfade</code> (experimental tới 1.12)</td>
       <td style="padding:8px 12px;">Có</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
@@ -58479,8 +58342,9 @@ fun ProfileTabs(
 
 <ul>
   <li><strong>Compose 1.0 (07/2021):</strong> <code>Crossfade</code> có từ bản ổn định đầu tiên, là API chuyển nội dung đơn giản nhất và không cần opt-in experimental như <code>AnimatedContent</code> lúc đó.</li>
-  <li><strong>Compose Animation 1.1:</strong> thêm <code>Transition&lt;T&gt;.Crossfade</code> với <code>contentKey</code>, để fade trở thành một phần của <code>Transition</code> chung.</li>
+  <li><strong>Compose Animation 1.1:</strong> thêm <code>contentKey</code> cho <code>Crossfade</code> dạng mở rộng <code>Transition&lt;T&gt;.Crossfade</code>, để fade trở thành một phần của <code>Transition</code> chung; bản này là experimental (<code>@ExperimentalAnimationApi</code>).</li>
   <li><strong>Compose Animation 1.3:</strong> overload hiện hành có tham số <code>label</code> để nhận diện animation trong công cụ Animation Preview của Android Studio.</li>
+  <li><strong>Compose Animation 1.13 (đang ở bản rc, 11/2026):</strong> ghi chú phát hành đưa <code>Transition.Crossfade</code> lên stable.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -58496,7 +58360,7 @@ fun ProfileTabs(
   <li><a href="mutable_transition_state.md" target="_blank" rel="noopener">MutableTransitionState</a> — <code>Transition.Crossfade</code> trong một transition chung.</li>
   <li><a href="../modifier/lazy_column.md" target="_blank" rel="noopener">LazyColumn</a> — hoist <code>LazyListState</code> để giữ vị trí cuộn.</li>
   <li><a href="surface_and_canvas.md" target="_blank" rel="noopener">Surface and Canvas</a> — vì sao đổi alpha ở lúc vẽ không làm recompose.</li>
-  <li>8.2.4 Coil (chưa có bài) — crossfade cho ảnh tải từ mạng.</li>
+  <li><a href="../../session_08/loading_image/coil.md" target="_blank" rel="noopener">8.2.4 Coil</a> — crossfade cho ảnh tải từ mạng.</li>
 </ul></li>
   <li><strong>Học tiếp (theo nav):</strong> 9.8 Gesture, bắt đầu từ <a href="../gesture/scrolling.md" target="_blank" rel="noopener">Scrolling</a>.</li>
 </ul>
@@ -58507,15 +58371,16 @@ fun ProfileTabs(
   <li><a href="https://developer.android.com/develop/ui/compose/animation/composables-modifiers" target="_blank" rel="noopener">Animation modifiers and composables: Crossfade — Android Developers</a></li>
   <li><a href="https://developer.android.com/reference/kotlin/androidx/compose/animation/Crossfade.composable" target="_blank" rel="noopener">Crossfade — API reference</a></li>
   <li><a href="https://developer.android.com/develop/ui/compose/animation/choose-api" target="_blank" rel="noopener">Choose an animation API — Android Developers</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/compose-animation" target="_blank" rel="noopener">Compose Animation release notes — AndroidX</a></li>
 </ul>
     `
   },
   'compose-scrolling': {
     title: 'Scrolling',
-    summary: 'Scrolling trong Compose là việc biến các delta của cú kéo và fling thành vị trí cuộn lưu trong một scroll state; các container cuộn lồng nhau chia nhau từng delta qua hệ thống nested scroll. Bài cũng là nơi tổng quan về gesture trong Compose (ba tầng component → gesture modifier → pointerInput, hit-testing, ba pass và consume), rồi đi qua verticalScroll/horizontalScroll, Modifier.scrollable, NestedScrollConnection và toolbar thu gọn bằng TopAppBarScrollBehavior.',
-    status: 'reviewing',
+    summary: 'Scrolling trong Compose là việc biến các delta của cú kéo và fling thành vị trí cuộn lưu trong một scroll state; khi có nhiều container cuộn lồng nhau, mỗi delta được chia giữa chúng qua hệ thống nested scroll. Bài cũng là nơi tổng quan về gesture trong Compose (ba tầng xử lý, hit-testing, ba pass và consume).',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '17 phút',
+    estimatedReadingTime: '20 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'gesture', 'scrolling', 'nested-scroll', 'pointer-input'],
     domain: 'Android',
@@ -58531,7 +58396,7 @@ fun ProfileTabs(
     ],
     knowledgeGap: 'Developer chuyển từ View system thường tìm "ScrollView của Compose" rồi bọc mọi thứ trong Column.verticalScroll, kể cả LazyColumn, và gặp crash vì constraint vô hạn; tự viết toolbar thu gọn bằng cách đọc scrollState.value trong composition nên cả màn hình recompose mỗi frame; hoặc viết gesture bằng pointerInput mà không consume, khiến nút bên trong và danh sách bên ngoài cùng phản ứng với một cú chạm. Gốc của các lỗi này là không hiểu delta được chia giữa các tầng như thế nào.',
     updatedAt: '2026-11-09',
-    readTime: '17 phút',
+    readTime: '20 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -58713,7 +58578,7 @@ fun VoiceRecordButton(
   <li><code>rememberScrollState()</code> lưu vị trí bằng <code>rememberSaveable</code>, xoay màn hình vẫn giữ chỗ đang đọc (<a href="../state/remember_saveable.md" target="_blank" rel="noopener">9.2.2 rememberSaveable</a>).</li>
 </ul>
 
-<p>Hai hệ quả về đo đạc: container có <code>verticalScroll</code> đo con với <strong>chiều cao tối đa vô hạn</strong>, nên không được đặt bên trong một container cuộn cùng hướng như <code>LazyColumn</code> (crash). Và nó compose <strong>toàn bộ</strong> con; danh sách dài thì dùng <code>LazyColumn</code> (<a href="../modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 LazyColumn</a>). Thứ tự <code>.verticalScroll().padding()</code> hay ngược lại quyết định padding cuộn theo nội dung hay đứng yên (<a href="../modifier/modifier_order.md" target="_blank" rel="noopener">9.5.1 Thứ tự Modifier</a>).</p>
+<p>Hai hệ quả về đo đạc: container có <code>verticalScroll</code> đo con với <strong>chiều cao tối đa vô hạn</strong>, nên con của nó không được là một container cuộn cùng hướng như <code>LazyColumn</code> (crash, xem Sai lầm 1); ngược lại, đặt <code>verticalScroll</code> bên trong item của <code>LazyColumn</code> cũng crash vì chính nó nhận chiều cao vô hạn. Và nó compose <strong>toàn bộ</strong> con; danh sách dài thì dùng <code>LazyColumn</code> (<a href="../modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 LazyColumn</a>). Thứ tự <code>.verticalScroll().padding()</code> hay ngược lại quyết định padding cuộn theo nội dung hay đứng yên (<a href="../modifier/modifier_order.md" target="_blank" rel="noopener">9.5.1 Thứ tự Modifier</a>).</p>
 
 <h4>Ví dụ: chỉ bật nút "Đồng ý" khi đã đọc hết điều khoản</h4>
 
@@ -58777,10 +58642,10 @@ fun TermsScreen(termsText: String, onAccept: () -&gt; Unit) {
 <ul>
   <li><code>delta</code> là độ dịch của ngón tay (pixel): kéo xuống/sang phải dương, kéo lên âm.</li>
   <li>Lambda phải <strong>trả về lượng delta đã tiêu</strong>; phần không tiêu được chuyển cho cha qua nested scroll.</li>
-  <li>Lambda chạy cho cả kéo, fling và cuộn bằng code (<code>scrollBy</code>, <code>animateScrollBy</code>); fling dừng khi nó trả 0.</li>
+  <li>Lambda chạy cho cả kéo, fling và cuộn bằng code (<code>scrollBy</code>, <code>animateScrollBy</code>). Fling mặc định dừng sớm khi cả chuỗi (lambda và các cha nhận phần dư) không tiêu hết delta của frame đó.</li>
 </ul>
 
-<p>Dùng <code>scrollable</code> khi thứ đổi theo cú kéo <strong>không phải vị trí nội dung</strong>: giá trị núm vặn, kích thước header. Tự dựng một container cuộn thật thì các bản Compose gần đây có <code>Modifier.scrollableArea</code>, xây trên <code>scrollable</code>, lo sẵn đảo dấu delta, cắt nội dung và overscroll.</p>
+<p>Dùng <code>scrollable</code> khi thứ đổi theo cú kéo <strong>không phải vị trí nội dung</strong>: giá trị núm vặn, kích thước header. Tự dựng một container cuộn thật thì từ Foundation 1.10 có <code>Modifier.scrollableArea</code>, lo sẵn việc cắt nội dung theo biên và tự xử lý hướng cuộn theo <code>Orientation</code>, RTL và <code>reverseScrolling</code>.</p>
 
 <h4>Ví dụ: vuốt dọc trên thẻ để chỉnh nhiệt độ điều hoà</h4>
 
@@ -58792,7 +58657,7 @@ fun TermsScreen(termsText: String, onAccept: () -&gt; Unit) {
   <li><code>scrollable</code> phát hiện kéo dọc và gọi lambda với <code>delta</code> theo pixel.</li>
   <li>Đổi delta sang độ (24 dp kéo = 1 °C), đảo dấu vì kéo lên (delta âm) phải tăng nhiệt, rồi giới hạn trong 16–30.</li>
   <li>Trả về <strong>đúng phần delta đã dùng</strong>: <code>(cũ − mới) × pxPerDegree</code>. Đã ở 30 °C mà vẫn vuốt lên thì trả 0.</li>
-  <li>Phần không dùng đi lên cha qua post-scroll: màn hình chứa thẻ cuộn tiếp. Khi thả tay có vận tốc, fling tiếp tục gọi lambda cho tới khi nó trả 0.</li>
+  <li>Phần không dùng đi lên cha qua post-scroll: màn hình chứa thẻ cuộn tiếp. Khi thả tay có vận tốc, mỗi frame fling đi qua đúng chu trình này: lambda tiêu trước, phần dư lên cha.</li>
 </ol>
 
 <div class="mermaid">
@@ -58873,7 +58738,7 @@ sequenceDiagram
 
 <ul>
   <li><code>available</code> là ngân sách còn lại; <code>consumed</code> là phần các giai đoạn trước đã dùng. Giá trị trả về là phần <strong>bạn</strong> tiêu, cùng dấu với <code>available</code>.</li>
-  <li><code>NestedScrollSource</code> là <code>UserInput</code> (ngón tay, chuột) hay <code>SideEffect</code> (fling, cuộn bằng code); hai tên này thay <code>Drag</code>/<code>Fling</code> cũ từ khoảng Compose 1.7.</li>
+  <li><code>NestedScrollSource</code> là <code>UserInput</code> (ngón tay, chuột, bàn phím) hay <code>SideEffect</code> (fling, animation, cuộn bằng code); hai tên này thay <code>Drag</code>/<code>Fling</code> cũ từ Compose 1.7 (09/2024).</li>
   <li>Connection chỉ nhận delta từ <strong>con cháu</strong> của composable mang modifier. <code>Box</code>/<code>Column</code> không tự sinh delta nếu không có modifier cuộn.</li>
   <li><code>NestedScrollDispatcher</code> dùng khi bạn tự tạo delta mới và muốn khởi động chu trình; container cuộn có sẵn đã có dispatcher bên trong.</li>
 </ul>
@@ -59022,7 +58887,7 @@ sequenceDiagram
 </div>
 
 <pre data-lang="kotlin"><code>// NewsListScreen.kt
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class) // cần tới Material 3 1.4; từ 1.5 các API này đã stable
 @Composable
 fun NewsListScreen(
     articles: List&lt;Article&gt;,
@@ -59137,9 +59002,11 @@ rememberScrollableState { delta -&gt;
 
 <ul>
   <li><strong>Compose 1.0 (07/2021)</strong>: đã có <code>verticalScroll</code>, <code>scrollable</code>, <code>nestedScroll</code> với <code>NestedScrollConnection</code>/<code>Dispatcher</code>, và <code>pointerInput</code> với <code>detect*Gestures</code>. "Container cuộn nào cũng tham gia nested scroll" có từ đầu, khác View system nơi <code>NestedScrollingChild</code> là tuỳ chọn.</li>
-  <li><strong>Material 3 Compose 1.0 (2022)</strong>: <code>TopAppBarScrollBehavior</code> (<code>pinned</code>, <code>enterAlways</code>, <code>exitUntilCollapsed</code>) thay tổ hợp <code>CoordinatorLayout</code> + <code>AppBarLayout</code>; API top app bar vẫn mang <code>@ExperimentalMaterial3Api</code> ở nhiều bản. <code>rememberNestedScrollInteropConnection()</code> phục vụ giai đoạn chuyển dần từ XML.</li>
-  <li><strong>Khoảng Compose 1.5–1.7</strong>: các gesture modifier có sẵn lần lượt được viết lại trên <code>Modifier.Node</code> (<a href="../modifier/composed.md" target="_blank" rel="noopener">9.5.3 composed</a>); <code>NestedScrollSource.Drag</code>/<code>Fling</code> được thay bằng <code>UserInput</code>/<code>SideEffect</code> vì delta không chỉ đến từ ngón tay.</li>
-  <li><strong>Các bản gần đây</strong>: <code>Modifier.scrollableArea</code> làm khối xây dựng cho container cuộn tuỳ chỉnh.</li>
+  <li><strong>Material 3 Compose 1.0 (10/2022)</strong>: <code>TopAppBarScrollBehavior</code> (<code>pinned</code>, <code>enterAlways</code>, <code>exitUntilCollapsed</code>) thay tổ hợp <code>CoordinatorLayout</code> + <code>AppBarLayout</code>, nhưng mang <code>@ExperimentalMaterial3Api</code> tới hết Material 3 1.4. <code>rememberNestedScrollInteropConnection()</code> phục vụ giai đoạn chuyển dần từ XML.</li>
+  <li><strong>Compose 1.5 (08/2023)</strong>: <code>clickable</code>, <code>draggable</code>, <code>scrollable</code> và nhiều modifier nền tảng được viết lại trên <code>Modifier.Node</code> (<a href="../modifier/composed.md" target="_blank" rel="noopener">9.5.3 composed</a>), giảm chi phí composition lần đầu.</li>
+  <li><strong>Compose 1.7 (09/2024)</strong>: <code>NestedScrollSource.Drag</code>/<code>Fling</code> được thay bằng <code>UserInput</code>/<code>SideEffect</code> vì delta không chỉ đến từ ngón tay mà còn từ chuột, bàn phím và animation.</li>
+  <li><strong>Foundation 1.10 (12/2025)</strong>: thêm <code>Modifier.scrollableArea</code> làm khối xây dựng cho container cuộn tuỳ chỉnh.</li>
+  <li><strong>Material 3 1.5 (đang ở bản rc, 11/2026)</strong>: <code>TopAppBarScrollBehavior</code> và các API liên quan thành stable, không cần opt-in; <code>pinnedScrollBehavior</code>/<code>enterAlwaysScrollBehavior</code> có overload nhận <code>ScrollableState</code>.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -59148,7 +59015,7 @@ rememberScrollableState { delta -&gt;
   <li><strong>Prerequisites</strong>: <a href="../overview.md" target="_blank" rel="noopener">9.0 Jetpack Compose Overview</a> (ba phase, nền của "đọc state ở layout phase"), <a href="../state/mutable_state.md" target="_blank" rel="noopener">9.2.1 Mutable State</a>.</li>
   <li><strong>Related</strong>: <a href="../modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 LazyColumn</a> (container cuộn cho danh sách), <a href="../modifier/lazy_row.md" target="_blank" rel="noopener">9.5.5 LazyRow</a>, <a href="../side_effects/launched_effect.md" target="_blank" rel="noopener">9.3.1 LaunchedEffect</a> (<code>rememberCoroutineScope</code>), <a href="../theming/custom_theme.md" target="_blank" rel="noopener">9.4.2 Custom Theme</a> (CompositionLocal, <code>LocalDensity</code>).</li>
   <li><strong>Học tiếp trong 9.8</strong>: <a href="dragging.md" target="_blank" rel="noopener">9.8.2 Dragging</a> (kéo theo ngón tay), <a href="swipping.md" target="_blank" rel="noopener">9.8.3 Swiping</a> (kéo rồi settle về vị trí cố định), <a href="zooming.md" target="_blank" rel="noopener">9.8.4 Zooming</a> (pinch-zoom, xung đột với pager).</li>
-  <li><strong>Session sau</strong>: 10.2 Unit Testing (chưa có bài) cho UI test gesture bằng <code>performTouchInput</code>.</li>
+  <li><strong>Session sau</strong>: <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a> cho nền tảng test tự động; UI test gesture của Compose bằng <code>performTouchInput</code> chưa có bài trong repo.</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -59166,10 +59033,10 @@ rememberScrollableState { delta -&gt;
   },
   'compose-dragging': {
     title: 'Dragging',
-    summary: 'Dragging trong Compose là gesture đặt ngón tay xuống, vượt touch slop rồi di chuyển; Compose chỉ báo cho bạn từng delta vị trí, còn việc lưu offset trong state và dịch phần tử theo offset là của bạn. Bài đi qua Modifier.draggable với rememberDraggableState cho một trục, pointerInput với detectDragGestures cho hai trục, đặt offset ở layout phase bằng Modifier.offset { }, consume để cha không cuộn theo, và Animatable để thả tay thì phần tử hút về vị trí mới.',
-    status: 'reviewing',
+    summary: 'Dragging trong Compose là gesture đặt ngón tay xuống, vượt touch slop rồi di chuyển; Compose chỉ báo cho bạn từng delta vị trí, còn việc lưu offset trong state và dịch phần tử theo offset là việc của bạn.',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '11 phút',
+    estimatedReadingTime: '13 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'gesture', 'dragging', 'pointer-input', 'animatable'],
     domain: 'Android',
@@ -59180,11 +59047,11 @@ rememberScrollableState { delta -&gt;
       'Giải thích được vì sao draggable và detectDragGestures chỉ báo delta mà không tự di chuyển phần tử, và vai trò của touch slop.',
       'Phân biệt được Modifier.draggable (một trục, có nested scroll và fling velocity) với detectDragGestures và draggable2D (hai trục).',
       'Áp dụng được Modifier.offset { } để dịch phần tử theo state ở layout phase, không recompose mỗi frame kéo.',
-      'Triển khai được phần tử kéo tự do rồi hút về vị trí đích khi thả tay bằng Animatable, có consume để cha không phản ứng cùng.'
+      'Triển khai được phần tử kéo tự do rồi hút về vị trí đích khi thả tay bằng Animatable, và biết lúc nào detector đã consume giúp, lúc nào phải tự consume.'
     ],
-    knowledgeGap: 'Developer thường viết offset(x = offsetX.dp) nên cả composable recompose ở mỗi pixel kéo, đặt pointerInput trước offset nên vùng chạm không đi theo phần tử, quên consume khiến danh sách cha cuộn cùng lúc với phần tử đang kéo, hoặc dùng draggable cho bài toán kéo hai trục rồi tự hỏi vì sao chỉ một hướng chạy.',
+    knowledgeGap: 'Developer thường viết offset(x = offsetX.dp) nên cả composable recompose ở mỗi pixel kéo, đặt pointerInput trước offset nên vùng chạm không đi theo phần tử, tự viết vòng kéo bằng awaitPointerEventScope mà không consume khiến danh sách cha cuộn cùng lúc với phần tử đang kéo, hoặc dùng draggable cho bài toán kéo hai trục rồi tự hỏi vì sao chỉ một hướng chạy.',
     updatedAt: '2026-11-09',
-    readTime: '11 phút',
+    readTime: '13 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -59209,7 +59076,7 @@ Box(
   <li>Giải thích được vì sao draggable và detectDragGestures chỉ báo delta mà không tự di chuyển phần tử, và vai trò của touch slop.</li>
   <li>Phân biệt được Modifier.draggable (một trục, có nested scroll và fling velocity) với detectDragGestures và draggable2D (hai trục).</li>
   <li>Áp dụng được Modifier.offset { } để dịch phần tử theo state ở layout phase, không recompose mỗi frame kéo.</li>
-  <li>Triển khai được phần tử kéo tự do rồi hút về vị trí đích khi thả tay bằng Animatable, có consume để cha không phản ứng cùng.</li>
+  <li>Triển khai được phần tử kéo tự do rồi hút về vị trí đích khi thả tay bằng Animatable, và biết lúc nào detector đã consume giúp, lúc nào phải tự consume.</li>
 </ul>
 
 <h2>Dragging là gì?</h2>
@@ -59317,14 +59184,14 @@ suspend fun PointerInputScope.detectDragGestures(
 
 <ul>
   <li><code>dragAmount</code> là delta <code>Offset</code> (x, y) kể từ event trước.</li>
-  <li><code>change</code> là <code>PointerInputChange</code> của event; gọi <code>change.consume()</code> để báo các handler khác (ví dụ danh sách cha) rằng chuyển động này đã có chủ. Không consume thì cha cuộn có thể cùng phản ứng.</li>
+  <li><code>change</code> là <code>PointerInputChange</code> của event. Từ Compose 1.0, <code>detectDragGestures</code> (và hai biến thể một trục) <strong>tự consume</strong> event vượt touch slop và mọi event kéo sau đó, nên danh sách cha không cuộn theo. Nhiều sample vẫn gọi <code>change.consume()</code> trong <code>onDrag</code>: tường minh và vô hại. Bạn chỉ phải tự consume khi viết vòng kéo bằng <code>awaitPointerEventScope</code> (Sai lầm 3).</li>
   <li><code>onDragEnd</code> khi nhấc tay bình thường, <code>onDragCancel</code> khi gesture bị huỷ (ví dụ một handler khác consume trước).</li>
   <li>Biến thể: <code>detectHorizontalDragGestures</code>, <code>detectVerticalDragGestures</code>, và <code>detectDragGesturesAfterLongPress</code> (chỉ bắt đầu kéo sau khi nhấn giữ; dùng cho sắp xếp lại item trong danh sách dọc để không giành cú kéo với cuộn).</li>
 </ul>
 
 <p>Một detector chiếm trọn khối <code>pointerInput</code> (nó chạy vòng lặp tới khi bị huỷ), nên muốn vừa tap vừa kéo thì dùng hai <code>pointerInput</code> riêng.</p>
 
-<p>Các bản Compose từ khoảng foundation 1.7 có thêm <code>Modifier.draggable2D</code> + <code>rememberDraggable2DState { delta: Offset -&gt; }</code>: tầng modifier cho kéo hai trục, gọn hơn <code>pointerInput</code> khi bạn không cần <code>onDragCancel</code> hay đọc <code>change</code>. Bài dùng <code>detectDragGestures</code> vì nó có mặt ở mọi bản và cho thấy rõ consume.</p>
+<p>Từ Foundation 1.6 có thêm <code>Modifier.draggable2D</code> + <code>rememberDraggable2DState { delta: Offset -&gt; }</code>: tầng modifier cho kéo hai trục, gọn hơn <code>pointerInput</code> khi bạn không cần <code>onDragCancel</code> hay đọc <code>change</code>. Bài dùng <code>detectDragGestures</code> vì nó có mặt ở mọi bản và cho thấy rõ <code>PointerInputChange</code> của từng event.</p>
 
 <h3>3. Đặt offset ở layout phase</h3>
 
@@ -59364,7 +59231,7 @@ suspend fun PointerInputScope.detectDragGestures(
 
 <ol>
   <li><code>detectDragGestures</code> chờ ngón tay vượt touch slop rồi gọi <code>onDragStart</code>.</li>
-  <li>Mỗi event di chuyển: <code>change.consume()</code> để cha không dùng chuyển động này.</li>
+  <li>Mỗi event di chuyển: detector đã tự consume; <code>change.consume()</code> ghi tường minh rằng chuyển động này đã có chủ.</li>
   <li>Cộng <code>dragAmount</code> vào <code>offset</code> (state <code>Offset</code>).</li>
   <li><code>Modifier.offset { offset.round() }</code> đọc state ở layout phase; vì nó đứng trước <code>pointerInput</code>, vùng chạm đi cùng sticker.</li>
 </ol>
@@ -59404,7 +59271,7 @@ fun DraggableSticker(
     )
 }</code></pre>
 
-<p><strong>Kết quả:</strong> kéo sticker theo mọi hướng, sticker bám ngón tay; thả tay thì <code>onPositionCommitted</code> nhận vị trí cuối để lưu vào ViewModel. Đặt sticker trong một <code>Column(Modifier.verticalScroll(...))</code>: kéo sticker không làm màn hình cuộn. Xoá <code>change.consume()</code> thì kéo dọc trên sticker có thể khiến cả hai cùng chạy.</p>
+<p><strong>Kết quả:</strong> kéo sticker theo mọi hướng, sticker bám ngón tay; thả tay thì <code>onPositionCommitted</code> nhận vị trí cuối để lưu vào ViewModel. Đặt sticker trong một <code>Column(Modifier.verticalScroll(...))</code>: kéo sticker không làm màn hình cuộn, vì ở Main pass sticker (con) nhận và consume event vượt touch slop trước <code>verticalScroll</code> (cha). Xoá dòng <code>change.consume()</code> cũng không đổi kết quả, vì detector đã tự consume.</p>
 
 <h3>4. Thả tay: animate về vị trí đích bằng Animatable</h3>
 
@@ -59436,7 +59303,7 @@ fun DraggableSticker(
 
 <ol>
   <li>Ngón tay chạm khi bong bóng còn đang trượt: <code>onDragStart</code> gọi <code>position.stop()</code> để bắt lấy nó.</li>
-  <li>Mỗi event kéo: consume, rồi <code>snapTo</code> vị trí mới, giới hạn trong khung màn hình.</li>
+  <li>Mỗi event kéo (detector đã consume): <code>snapTo</code> vị trí mới, giới hạn trong khung màn hình.</li>
   <li><code>offset { position.value.round() }</code> đọc giá trị của <code>Animatable</code> ở layout phase.</li>
   <li>Thả tay: chọn cạnh gần hơn theo tâm bong bóng, <code>animateTo</code> với <code>spring</code> tới cạnh đó, giữ nguyên toạ độ y.</li>
   <li>Chạm (không kéo): <code>clickable</code> gọi <code>onClick</code>; vì chưa vượt touch slop nên <code>detectDragGestures</code> không bắt đầu.</li>
@@ -59565,9 +59432,17 @@ Modifier.offset { IntOffset(offsetX.roundToInt(), 0) }</code></pre>
 
 <p><code>Modifier.pointerInput { ... }.offset { ... }</code>: phần tử vẽ ở vị trí mới nhưng vùng chạm vẫn ở chỗ cũ, kéo được một lần rồi "mất" phần tử. Sửa: <code>offset</code> đứng trước gesture modifier trong chuỗi.</p>
 
-<h3>3. Quên consume trong detectDragGestures</h3>
+<h3>3. Tự viết vòng kéo mà không consume</h3>
 
-<p>Phần tử kéo nằm trong danh sách cuộn cùng hướng: không consume thì danh sách cũng nhận chuyển động, cả hai cùng chạy hoặc gesture bị huỷ giữa chừng (<code>onDragCancel</code>). Sửa: <code>change.consume()</code> ở đầu <code>onDrag</code>. <code>draggable</code> tự consume nên không gặp lỗi này.</p>
+<pre data-lang="kotlin"><code>// SAI: tự đọc chuyển động nhưng không consume
+.pointerInput(Unit) {
+    awaitEachGesture {
+        val down = awaitFirstDown()
+        drag(down.id) { change -&gt; offset += change.positionChange() } // thiếu change.consume()
+    }
+}</code></pre>
+
+<p><code>draggable</code> và <code>detect*DragGestures</code> tự consume, còn vòng tự viết bằng <code>awaitPointerEventScope</code> thì không. Phần tử nằm trong danh sách cuộn cùng hướng: chuyển động chưa bị consume nên danh sách cha vượt touch slop và cuộn cùng lúc với phần tử đang kéo. Sửa: gọi <code>change.consume()</code> cho mỗi change đã dùng, hoặc quay về <code>detectDragGestures</code> nếu không cần logic riêng.</p>
 
 <h3>4. pointerInput(Unit) bắt callback cũ</h3>
 
@@ -59579,9 +59454,10 @@ Modifier.offset { IntOffset(offsetX.roundToInt(), 0) }</code></pre>
 <h2>Lịch sử phát triển</h2>
 
 <ul>
-  <li><strong>Compose 1.0 (07/2021)</strong>: <code>Modifier.draggable</code>, <code>rememberDraggableState</code>, <code>pointerInput</code> với <code>detectDragGestures</code> và <code>detectDragGesturesAfterLongPress</code>, cùng <code>Modifier.offset { }</code> dạng lambda. Hai dạng <code>offset</code> tồn tại từ đầu chính vì bài toán kéo và animation cần đổi vị trí mà không recompose.</li>
-  <li><strong>Khoảng Compose 1.5–1.7</strong>: <code>draggable</code> được viết lại trên <code>Modifier.Node</code> để giảm chi phí cấp phát; hành vi với người dùng không đổi.</li>
-  <li><strong>Khoảng foundation 1.7</strong>: thêm <code>Modifier.draggable2D</code> cho kéo hai trục ở tầng modifier, lấp khoảng trống giữa <code>draggable</code> một trục và <code>pointerInput</code>.</li>
+  <li><strong>Compose 1.0 (07/2021)</strong>: <code>Modifier.draggable</code>, <code>rememberDraggableState</code>, <code>pointerInput</code> với <code>detectDragGestures</code> và <code>detectDragGesturesAfterLongPress</code>, cùng <code>Modifier.offset { }</code> dạng lambda. Hai dạng <code>offset</code> tồn tại từ đầu chính vì bài toán kéo và animation cần đổi vị trí mà không recompose. Từ bản beta (1.0.0-beta08), <code>detect*DragGestures</code> tự consume chuyển động, không cần gọi consume trong <code>onDrag</code>.</li>
+  <li><strong>Compose 1.5 (08/2023)</strong>: <code>draggable</code> được viết lại trên <code>Modifier.Node</code> để giảm chi phí composition; hành vi với người dùng không đổi.</li>
+  <li><strong>Foundation 1.6 (01/2024)</strong>: thêm <code>Modifier.draggable2D</code> cho kéo hai trục ở tầng modifier, lấp khoảng trống giữa <code>draggable</code> một trục và <code>pointerInput</code>.</li>
+  <li><strong>Foundation 1.8 (04/2025)</strong>: "gesture pick-up" cho <code>detectDragGestures</code>, <code>draggable</code> và <code>scrollable</code>: nếu con bỏ một gesture, cha có thể nhận lại gesture đó.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -59589,7 +59465,7 @@ Modifier.offset { IntOffset(offsetX.roundToInt(), 0) }</code></pre>
 <ul>
   <li><strong>Prerequisites</strong>: <a href="scrolling.md" target="_blank" rel="noopener">9.8.1 Scrolling</a> (ba tầng gesture, consume, <code>scrollable</code>), <a href="../state/mutable_state.md" target="_blank" rel="noopener">9.2.1 Mutable State</a> (<code>mutableFloatStateOf</code>, <code>mutableStateOf&lt;Offset&gt;</code>).</li>
   <li><strong>Related</strong>: <a href="../overview.md" target="_blank" rel="noopener">9.0 Overview</a> (ba phase, vì sao <code>offset { }</code> rẻ), <a href="../modifier/modifier_order.md" target="_blank" rel="noopener">9.5.1 Thứ tự Modifier</a>, <a href="../graphics_animations/animated_visibility.md" target="_blank" rel="noopener">9.7.2 AnimatedVisibility</a> (bảng chọn API animation, <code>Animatable</code>), <a href="../graphics_animations/surface_and_canvas.md" target="_blank" rel="noopener">9.7.1 Surface and Canvas</a> (<code>drawWithContent</code>).</li>
-  <li><strong>Học tiếp</strong>: <a href="swipping.md" target="_blank" rel="noopener">9.8.3 Swiping</a> cho kéo có điểm dừng; <a href="zooming.md" target="_blank" rel="noopener">9.8.4 Zooming</a> cho gesture nhiều ngón. Coroutine dùng trong <code>scope.launch</code> được học ở 8.4.3 Coroutines (chưa có bài).</li>
+  <li><strong>Học tiếp</strong>: <a href="swipping.md" target="_blank" rel="noopener">9.8.3 Swiping</a> cho kéo có điểm dừng; <a href="zooming.md" target="_blank" rel="noopener">9.8.4 Zooming</a> cho gesture nhiều ngón. Coroutine dùng trong <code>scope.launch</code> được học ở <a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>.</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -59605,26 +59481,26 @@ Modifier.offset { IntOffset(offsetX.roundToInt(), 0) }</code></pre>
   },
   'compose-swipping': {
     title: 'Swiping',
-    summary: 'Swipe là cú kéo mà khi thả tay, phần tử không dừng ở chỗ ngón tay mà settle về một trong vài vị trí định trước (anchor), chọn theo quãng đã kéo và vận tốc vung. Bài giải thích DraggableAnchors, AnchoredDraggableState và Modifier.anchoredDraggable của Foundation (thay cho swipeable đã deprecated, theo API hiện hành với AnchoredDraggableDefaults.flingBehavior), rồi dùng Material 3 SwipeToDismissBox để vuốt xoá item trong LazyColumn kèm hoàn tác bằng Snackbar.',
-    status: 'reviewing',
+    summary: 'Swipe là cú kéo mà khi thả tay, phần tử không dừng ở chỗ ngón tay mà settle về một trong vài vị trí định trước (anchor), chọn theo quãng đã kéo và vận tốc vung. Bài dùng API hiện hành của Foundation (AnchoredDraggableState, Modifier.anchoredDraggable, AnchoredDraggableDefaults.flingBehavior) và Material 3 SwipeToDismissBox.',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '14 phút',
+    estimatedReadingTime: '17 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'gesture', 'swipe', 'anchored-draggable', 'swipe-to-dismiss'],
     domain: 'Android',
     module: 'Session 09: Jetpack Compose UI',
     prerequisites: ['android.jetpack_compose.gesture.dragging', 'android.jetpack_compose.gesture.scrolling'],
-    related: ['android.jetpack_compose.lazy.lazy_column', 'android.jetpack_compose.state.remember_saveable', 'android.jetpack.viewmodel'],
+    related: ['android.jetpack_compose.lazy.lazy_column', 'android.jetpack_compose.state.remember_saveable', 'android.jetpack.viewmodel', 'android.design_pattern.observer.flow'],
     learningOutcomes: [
       'Giải thích được cách một swipe được settle về anchor dựa trên positional threshold và vận tốc fling.',
       'Triển khai được thành phần vuốt giữa các vị trí cố định bằng DraggableAnchors, AnchoredDraggableState và Modifier.anchoredDraggable theo API hiện hành.',
       'Triển khai được vuốt để xoá item trong LazyColumn bằng SwipeToDismissBox, kèm hoàn tác bằng Snackbar.',
       'Phân biệt được anchoredDraggable, SwipeToDismissBox, draggable và HorizontalPager để chọn đúng cho từng bài toán vuốt.',
-      'Nhận diện được các lỗi thường gặp như dùng swipeable hoặc constructor đã deprecated, quên key khiến trạng thái vuốt dính sang item khác, và gọi requireOffset trước khi có anchor.'
+      'Nhận diện được các lỗi thường gặp như dùng swipeable hoặc constructor đã deprecated, quên key khiến trạng thái vuốt dính sang item khác, khôi phục state đã vuốt khi hoàn tác, và gọi requireOffset trước khi có anchor.'
     ],
-    knowledgeGap: 'API vuốt của Compose đổi nhiều lần (swipeable của Material, AnchoredDraggable bản đầu với threshold trong constructor, rồi bản hiện hành dùng flingBehavior), nên code mẫu trên mạng thường dùng API đã deprecated. Developer copy về rồi gặp cảnh báo deprecation, xoá item trong confirmValueChange khiến callback chạy nhiều lần, hoặc không đặt key cho item nên sau khi xoá, item kế tiếp hiện ra ở trạng thái đã bị vuốt.',
+    knowledgeGap: 'API vuốt của Compose đổi nhiều lần (swipeable của Material, AnchoredDraggable bản đầu với threshold trong constructor, rồi bản hiện hành dùng flingBehavior), nên code mẫu trên mạng thường dùng API đã deprecated. Developer copy về rồi gặp cảnh báo deprecation, xoá item trong confirmValueChange khiến callback chạy nhiều lần, không đặt key cho item nên sau khi xoá, item kế tiếp hiện ra ở trạng thái đã bị vuốt, hoặc bấm "Hoàn tác" thì thư vừa quay lại đã bị xoá lần nữa vì state vuốt được khôi phục.',
     updatedAt: '2026-11-09',
-    readTime: '14 phút',
+    readTime: '17 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -59645,7 +59521,7 @@ Modifier.offset { IntOffset(offsetX.roundToInt(), 0) }</code></pre>
   <li>Triển khai được thành phần vuốt giữa các vị trí cố định bằng DraggableAnchors, AnchoredDraggableState và Modifier.anchoredDraggable theo API hiện hành.</li>
   <li>Triển khai được vuốt để xoá item trong LazyColumn bằng SwipeToDismissBox, kèm hoàn tác bằng Snackbar.</li>
   <li>Phân biệt được anchoredDraggable, SwipeToDismissBox, draggable và HorizontalPager để chọn đúng cho từng bài toán vuốt.</li>
-  <li>Nhận diện được các lỗi thường gặp như dùng swipeable hoặc constructor đã deprecated, quên key khiến trạng thái vuốt dính sang item khác, và gọi requireOffset trước khi có anchor.</li>
+  <li>Nhận diện được các lỗi thường gặp như dùng swipeable hoặc constructor đã deprecated, quên key khiến trạng thái vuốt dính sang item khác, khôi phục state đã vuốt khi hoàn tác, và gọi requireOffset trước khi có anchor.</li>
 </ul>
 
 <h2>Swiping là gì?</h2>
@@ -59703,19 +59579,19 @@ flowchart TD
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>currentValue</code></td>
-      <td style="padding:8px 12px;">Anchor gần nhất với offset hiện tại (đổi ngay khi kéo qua ngưỡng)</td>
+      <td style="padding:8px 12px;">Anchor gần nhất mà offset đã <strong>đi qua</strong> (đổi khi offset chạm một anchor, kể cả anchor trung gian)</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>settledValue</code></td>
-      <td style="padding:8px 12px;">Anchor đã thật sự dừng lại; chỉ đổi khi animation kết thúc</td>
+      <td style="padding:8px 12px;">Anchor đã thật sự dừng lại; đi qua nhiều anchor A → B → C thì giữ nguyên tới khi settle xong</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>targetValue</code></td>
-      <td style="padding:8px 12px;">Anchor gần nhất có tính positional threshold; khi không kéo hay animate thì bằng <code>currentValue</code></td>
+      <td style="padding:8px 12px;">Anchor gần nhất với offset hiện tại (đổi ở điểm giữa hai anchor); khi không kéo hay animate thì bằng <code>currentValue</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>offset</code> / <code>requireOffset()</code></td>
-      <td style="padding:8px 12px;">Offset hiện tại; <code>offset</code> là <code>NaN</code> khi chưa có anchor, <code>requireOffset()</code> thì ném lỗi</td>
+      <td style="padding:8px 12px;">Offset hiện tại; <code>offset</code> là <code>NaN</code> khi chưa có anchor, <code>requireOffset()</code> thì ném lỗi. Đổi mỗi frame, không đọc trong composition</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>progress(from, to)</code></td>
@@ -59846,7 +59722,7 @@ fun SwipeRevealTaskRow(
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> vuốt nhẹ sang trái rồi thả: hàng quay về đóng. Vuốt quá 40% bề rộng nút, hoặc vung nhanh: hàng mở hết, hai nút lộ ra. Bấm "Hoãn": callback chạy và hàng trượt về đóng. Log <code>state.settledValue</code> trong một <code>LaunchedEffect</code>/<code>snapshotFlow</code> để thấy nó chỉ đổi khi animation kết thúc, còn <code>currentValue</code> đổi ngay khi kéo qua ngưỡng. Vì anchor được tạo trong constructor nên <code>requireOffset()</code> luôn có giá trị từ frame đầu.</p>
+<p><strong>Kết quả:</strong> vuốt nhẹ sang trái rồi thả: hàng quay về đóng. Vuốt quá 40% bề rộng nút, hoặc vung nhanh: hàng mở hết, hai nút lộ ra. Bấm "Hoãn": callback chạy và hàng trượt về đóng. Log <code>state.settledValue</code> và <code>state.targetValue</code> bằng <code>snapshotFlow</code> (<a href="../side_effects/flow_with_snapshot.md" target="_blank" rel="noopener">9.3.5</a>) để thấy <code>targetValue</code> đổi ngay khi kéo qua điểm giữa, còn <code>settledValue</code> chỉ đổi khi animation kết thúc. Vì anchor được tạo trong constructor nên <code>requireOffset()</code> luôn có giá trị từ frame đầu.</p>
 
 <h3>4. SwipeToDismissBox: vuốt để xoá theo chuẩn Material 3</h3>
 
@@ -59858,7 +59734,7 @@ fun SwipeRevealTaskRow(
   <li><code>EndToStart</code>: đã vuốt từ cuối về đầu (phải → trái trong LTR).</li>
 </ul>
 
-<p>Chữ ký hiện hành:</p>
+<p>Chữ ký hiện hành (Material 3 1.4 trở đi):</p>
 
 <pre data-lang="kotlin"><code>@Composable
 fun SwipeToDismissBox(
@@ -59873,12 +59749,12 @@ fun SwipeToDismissBox(
 )</code></pre>
 
 <ul>
-  <li><code>rememberSwipeToDismissBoxState(initialValue = Settled, positionalThreshold = ...)</code> tạo state. State có <code>currentValue</code>, <code>targetValue</code>, <code>settledValue</code>, <code>dismissDirection</code>, <code>progress</code> và các hàm <code>suspend</code> <code>reset()</code>, <code>snapTo()</code>, <code>dismiss(direction)</code>.</li>
+  <li><code>rememberSwipeToDismissBoxState(initialValue = Settled, positionalThreshold = ...)</code> tạo state và lưu nó bằng <code>rememberSaveable</code> (mặc định <code>positionalThreshold</code> là 56 dp). Item có thể "hoàn tác" thì tạo bằng <code>remember { SwipeToDismissBoxState(...) }</code> (Sai lầm 4). State có <code>currentValue</code>, <code>targetValue</code>, <code>settledValue</code>, <code>dismissDirection</code>, <code>progress</code> và các hàm <code>suspend</code> <code>reset()</code>, <code>snapTo()</code>, <code>dismiss(direction)</code>.</li>
   <li><code>backgroundContent</code> là lớp lộ ra phía sau khi vuốt (nền đỏ và icon thùng rác). Đọc <code>state.dismissDirection</code> hoặc <code>targetValue</code> để đổi màu/icon theo hướng.</li>
-  <li><code>onDismiss(direction)</code> được gọi khi item đã settle ở trạng thái bị bỏ. Đây là chỗ đúng để xoá item. Muốn "không cho xoá" ở một hướng thì tắt hướng đó bằng <code>enableDismissFrom...</code>, hoặc gọi <code>state.reset()</code> trong <code>onDismiss</code>.</li>
+  <li><code>onDismiss(direction)</code> được gọi khi <code>settledValue</code> của state rời <code>Settled</code>, tức item đã settle ở trạng thái bị bỏ. Đây là chỗ đúng để xoá item. Muốn "không cho xoá" ở một hướng thì tắt hướng đó bằng <code>enableDismissFrom...</code>, hoặc trong <code>onDismiss</code> gọi <code>scope.launch { state.reset() }</code> (<code>reset()</code> là hàm <code>suspend</code>, còn <code>onDismiss</code> thì không).</li>
 </ul>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Các bản Material 3 cũ hơn không có <code>onDismiss</code>; code mẫu cũ xoá item trong <code>confirmValueChange</code> của <code>rememberSwipeToDismissBoxState</code>. Tham số đó giờ đã deprecated "không có thay thế": tài liệu khuyên bỏ anchor không được phép khỏi tập anchor thay vì phủ quyết bằng callback, và một callback "xác nhận" có thể chạy nhiều lần trong một cú vuốt.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><code>onDismiss</code> có từ Material 3 1.4 (09/2025). Code mẫu cũ hơn xoá item trong <code>confirmValueChange</code> của <code>rememberSwipeToDismissBoxState</code>; tham số đó deprecated từ 1.4 "không có thay thế": tài liệu khuyên bỏ anchor không được phép khỏi tập anchor thay vì phủ quyết bằng callback. Callback đó được thiết kế để phủ quyết một thay đổi, không phải để báo sự kiện, nên không có đảm bảo chỉ chạy một lần mỗi cú vuốt.</div></div>
 
 <h2>Ví dụ thực tế</h2>
 
@@ -59898,7 +59774,7 @@ fun SwipeToDismissBox(
 
 <ol>
   <li><code>LazyColumn</code> dùng <code>key = { it.id }</code>, nên mỗi item (và state vuốt của nó) gắn với <strong>thư</strong>, không gắn với vị trí trong danh sách.</li>
-  <li>Mỗi hàng tạo <code>rememberSwipeToDismissBoxState()</code> riêng và tắt hướng <code>StartToEnd</code>.</li>
+  <li>Mỗi hàng tạo <code>SwipeToDismissBoxState</code> riêng bằng <code>remember</code> (không dùng <code>rememberSwipeToDismissBoxState()</code>, lý do ở Sai lầm 4) và tắt hướng <code>StartToEnd</code>.</li>
   <li>Khi vuốt, <code>backgroundContent</code> đọc <code>targetValue</code> để chuyển nền sang màu lỗi và hiện icon xoá.</li>
   <li>Thả qua ngưỡng: hàng trượt hết ra ngoài, <code>onDismiss</code> gọi <code>viewModel.delete(email)</code>; <code>LazyColumn</code> bỏ item khỏi danh sách.</li>
   <li>Màn hình hiện Snackbar; nếu người dùng bấm "Hoàn tác" (<code>SnackbarResult.ActionPerformed</code>), gọi <code>viewModel.undoDelete()</code> để chèn thư lại đúng vị trí cũ. Item mới vào composition nên có state vuốt mới ở <code>Settled</code>.</li>
@@ -59972,14 +59848,17 @@ fun InboxScreen(viewModel: InboxViewModel) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeToDeleteEmailRow(
     email: Email,
     onDelete: () -&gt; Unit,
     modifier: Modifier = Modifier,
 ) {
-    val dismissState = rememberSwipeToDismissBoxState()                       // (2)
+    val positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold
+    // (2) remember thường: thư được hoàn tác luôn quay lại ở Settled (Sai lầm 4)
+    val dismissState = remember {
+        SwipeToDismissBoxState(SwipeToDismissBoxValue.Settled, positionalThreshold)
+    }
     SwipeToDismissBox(
         state = dismissState,
         modifier = modifier,
@@ -60002,9 +59881,9 @@ private fun SwipeToDeleteEmailRow(
     }
 }</code></pre>
 
-<p><code>StateFlow</code> và <code>collectAsStateWithLifecycle</code> là kiến thức dùng trước: Flow giữ danh sách và phát giá trị mới khi đổi (7.1.4.2 Flow, chưa có bài); hàm chuyển nó thành State trong Compose được học ở <a href="../side_effects/flow_with_snapshot.md" target="_blank" rel="noopener">9.3.5 Flow with Snapshot</a>. ViewModel giữ danh sách qua xoay màn hình (<a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>).</p>
+<p><code>StateFlow</code> là Flow nóng giữ một giá trị hiện tại và phát giá trị mới cho mọi collector khi giá trị đổi (<a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a>); <code>collectAsStateWithLifecycle</code> chuyển nó thành State trong Compose (<a href="../side_effects/flow_with_snapshot.md" target="_blank" rel="noopener">9.3.5 Flow with Snapshot</a>). ViewModel giữ danh sách qua xoay màn hình (<a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>).</p>
 
-<p><strong>Kết quả:</strong> vuốt thư sang trái, nền đỏ và icon thùng rác hiện ra; thả qua ngưỡng thì thư biến mất và Snackbar hiện. Bấm "Hoàn tác" thì thư quay lại đúng vị trí, ở trạng thái nằm yên. Vuốt sang phải thì hàng không di chuyển. Kiểm chứng lỗi key: bỏ <code>key = { it.id }</code> rồi xoá thư đầu tiên, thư thứ hai (giờ ở vị trí đầu) sẽ hiện ra ở trạng thái đã bị vuốt. App thật thường xoá mềm (đánh dấu) trong lúc Snackbar còn hiện, và chỉ xoá hẳn ở repository khi Snackbar hết hạn.</p>
+<p><strong>Kết quả:</strong> vuốt thư sang trái, nền đỏ và icon thùng rác hiện ra; thả qua ngưỡng thì thư biến mất và Snackbar hiện. Bấm "Hoàn tác" thì thư quay lại đúng vị trí, ở trạng thái nằm yên. Vuốt sang phải thì hàng không di chuyển. Vì state dùng <code>remember</code> thường, xoay màn hình giữa cú vuốt sẽ đưa hàng về <code>Settled</code>; với hàng chỉ có hai trạng thái "nằm yên" và "đã xoá", đó là đánh đổi chấp nhận được. Kiểm chứng lỗi key: bỏ <code>key = { it.id }</code> rồi xoá thư đầu tiên, thư thứ hai (giờ ở vị trí đầu) sẽ hiện ra ở trạng thái đã bị vuốt. App thật thường xoá mềm (đánh dấu) trong lúc Snackbar còn hiện, và chỉ xoá hẳn ở repository khi Snackbar hết hạn.</p>
 
 <h2>So sánh với các cách tiếp cận khác</h2>
 
@@ -60114,7 +59993,7 @@ AnchoredDraggableState(
 
 <h3>2. Không đặt key cho item có state vuốt</h3>
 
-<p><code>items(emails) { ... }</code> không có <code>key</code>: state của <code>rememberSwipeToDismissBoxState()</code> gắn theo <strong>vị trí</strong> trong danh sách. Xoá item ở vị trí 0 thì item kế tiếp dời lên vị trí 0 và thừa hưởng state "đã bị vuốt", hiện ra trượt mất một nửa hoặc biến mất. Sửa: <code>items(emails, key = { it.id })</code> (<a href="../modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 LazyColumn</a>).</p>
+<p><code>items(emails) { ... }</code> không có <code>key</code>: state vuốt gắn theo <strong>vị trí</strong> trong danh sách. Xoá item ở vị trí 0 thì item kế tiếp dời lên vị trí 0 và thừa hưởng state "đã bị vuốt": nó hiện ra ở vị trí đã trượt khỏi màn hình, và vì <code>onDismiss</code> chạy theo <code>settledValue</code>, nó có thể bị xoá dây chuyền. Sửa: <code>items(emails, key = { it.id })</code> (<a href="../modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 LazyColumn</a>).</p>
 
 <h3>3. Xoá item trong confirmValueChange</h3>
 
@@ -60124,13 +60003,20 @@ rememberSwipeToDismissBoxState(confirmValueChange = { value -&gt;
     true
 })</code></pre>
 
-<p>Callback "xác nhận" có thể chạy nhiều lần trong một cú vuốt, dẫn tới xoá hai lần hoặc Snackbar hiện hai lần; và nó đã deprecated. Sửa: dùng <code>onDismiss</code> của <code>SwipeToDismissBox</code>.</p>
+<p>Callback "xác nhận" dùng để phủ quyết, không có đảm bảo chỉ chạy một lần mỗi cú vuốt; đặt việc xoá vào đó có thể xoá hai lần hoặc hiện Snackbar hai lần, và nó đã deprecated. Sửa: dùng <code>onDismiss</code> của <code>SwipeToDismissBox</code>.</p>
 
-<h3>4. Gọi requireOffset khi chưa có anchor</h3>
+<h3>4. Khôi phục state đã vuốt khi hoàn tác</h3>
+
+<pre data-lang="kotlin"><code>// SAI cho item có "Hoàn tác": state được lưu bằng rememberSaveable
+val dismissState = rememberSwipeToDismissBoxState()</code></pre>
+
+<p><code>rememberSwipeToDismissBoxState()</code> lưu state bằng <code>rememberSaveable</code>, và <code>LazyColumn</code> giữ saved state của item theo <code>key</code> cả khi item đã rời danh sách (để khôi phục khi cuộn lại). Bấm "Hoàn tác" chèn lại thư <strong>cùng id</strong> thì state được khôi phục ở <code>EndToStart</code>; <code>SwipeToDismissBox</code> thấy <code>settledValue</code> đã ở trạng thái bị bỏ và gọi <code>onDismiss</code> ngay, thư bị xoá lần nữa. Sửa: tạo state bằng <code>remember { SwipeToDismissBoxState(Settled, positionalThreshold) }</code> như ví dụ chính; <code>remember</code> thường mất khi item rời composition nên thư quay lại luôn ở <code>Settled</code>.</p>
+
+<h3>5. Gọi requireOffset khi chưa có anchor</h3>
 
 <p>State tạo bằng <code>AnchoredDraggableState(initialValue)</code> mà anchor chỉ được đặt trong <code>onSizeChanged</code> của một phần tử <strong>khác</strong>: nếu <code>offset { state.requireOffset() }</code> chạy trước khi anchor được đặt, app crash với <code>IllegalStateException</code>. Sửa: tạo state cùng anchor khi anchor biết trước; hoặc gọi <code>updateAnchors</code> trong <code>Modifier.layout { }</code> của <strong>chính</strong> phần tử đọc offset (mẫu trong tài liệu chính thức); hoặc đọc <code>state.offset</code> và xử lý <code>NaN</code>.</p>
 
-<h3>5. Đọc offset trong composition</h3>
+<h3>6. Đọc offset trong composition</h3>
 
 <p><code>Text("Đã kéo: " + state.requireOffset())</code> hoặc <code>Modifier.offset(x = state.requireOffset().dp)</code> trong thân composable: recompose ở mỗi frame vuốt. Sửa: đọc offset trong lambda <code>offset { }</code>/<code>graphicsLayer { }</code>; giá trị đổi hiếm (đã qua ngưỡng chưa) thì đọc <code>targetValue</code>/<code>currentValue</code>, như <code>backgroundContent</code> ở ví dụ chính.</p>
 
@@ -60138,10 +60024,11 @@ rememberSwipeToDismissBoxState(confirmValueChange = { value -&gt;
 
 <ul>
   <li><strong>Compose 1.0 (07/2021)</strong>: Material (Material 2) có <code>Modifier.swipeable</code> với <code>SwipeableState</code>, <code>FractionalThreshold</code>, đánh dấu <code>@ExperimentalMaterialApi</code>; <code>SwipeToDismiss</code>, <code>BottomSheetScaffold</code>, <code>ModalDrawer</code> dùng nó bên trong. Mỗi thư viện (Material, Material 3, Wear) giữ một bản sao riêng của logic này.</li>
-  <li><strong>Foundation 1.6 (đầu 2024)</strong>: <code>AnchoredDraggableState</code> và <code>Modifier.anchoredDraggable</code> được đưa vào Foundation làm khối dùng chung, anchor tách thành <code>DraggableAnchors</code> cập nhật được khi kích thước đổi. <code>swipeable</code> của Material bị deprecated để chuyển sang API này.</li>
-  <li><strong>Material 3 (khoảng 1.2)</strong>: <code>SwipeToDismiss</code>/<code>DismissState</code> được đổi tên thành <code>SwipeToDismissBox</code>/<code>SwipeToDismissBoxState</code>, cùng tham số <code>backgroundContent</code>.</li>
-  <li><strong>Foundation 1.8 (2025)</strong>: constructor của <code>AnchoredDraggableState</code> được rút gọn còn <code>initialValue</code> (và <code>anchors</code>); ngưỡng, animation chuyển sang <code>AnchoredDraggableDefaults.flingBehavior</code>; thêm <code>AnchoredDraggableState.Saver()</code>; <code>confirmValueChange</code> và <code>startDragImmediately</code> bị deprecated. Lý do: tách "state ở đâu" khỏi "thả tay thì đi đâu", và bỏ callback phủ quyết dễ dùng sai.</li>
-  <li><strong>Material 3 các bản gần đây</strong>: <code>SwipeToDismissBox</code> thêm <code>onDismiss</code>, <code>confirmValueChange</code> của <code>SwipeToDismissBoxState</code> bị deprecated theo Foundation.</li>
+  <li><strong>Foundation 1.6 (01/2024)</strong>: <code>AnchoredDraggableState</code> và <code>Modifier.anchoredDraggable</code> được đưa vào Foundation làm khối dùng chung, thay thế <code>swipeable</code> của Material (sau đó <code>swipeable</code> bị deprecated); anchor tách thành <code>DraggableAnchors</code> cập nhật được khi kích thước đổi.</li>
+  <li><strong>Foundation 1.7 (09/2024)</strong>: <code>currentValue</code> đổi khi offset đi qua một anchor, thêm <code>settledValue</code> cho nghĩa cũ "chỉ đổi khi settle"; <code>progress</code> thành hàm <code>progress(from, to)</code>; <code>targetValue</code> không còn tính positional threshold (đổi ở điểm giữa hai anchor); <code>anchoredDraggable</code> tự đảo delta ngang trong layout RTL.</li>
+  <li><strong>Material 3 1.2 (2024)</strong>: <code>SwipeToDismiss</code>/<code>DismissState</code> được đổi tên thành <code>SwipeToDismissBox</code>/<code>SwipeToDismissBoxState</code>, cùng tham số <code>backgroundContent</code>. <strong>Material 3 1.3 (09/2024)</strong>: các API này thành stable, thêm <code>gesturesEnabled</code>.</li>
+  <li><strong>Foundation 1.8 (04/2025)</strong>: constructor của <code>AnchoredDraggableState</code> được rút gọn còn <code>initialValue</code> (và <code>anchors</code>); ngưỡng, animation chuyển sang <code>AnchoredDraggableDefaults.flingBehavior</code>; thêm <code>AnchoredDraggableState.Saver()</code>; <code>confirmValueChange</code> và <code>startDragImmediately</code> bị deprecated. Lý do: tách "state ở đâu" khỏi "thả tay thì đi đâu", và bỏ callback phủ quyết dễ dùng sai.</li>
+  <li><strong>Material 3 1.4 (09/2025)</strong>: <code>SwipeToDismissBox</code> thêm <code>onDismiss</code>, <code>confirmValueChange</code> của <code>SwipeToDismissBoxState</code> bị deprecated theo Foundation.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -60149,7 +60036,7 @@ rememberSwipeToDismissBoxState(confirmValueChange = { value -&gt;
 <ul>
   <li><strong>Prerequisites</strong>: <a href="dragging.md" target="_blank" rel="noopener">9.8.2 Dragging</a> (delta, <code>offset { }</code>, <code>Animatable</code>), <a href="scrolling.md" target="_blank" rel="noopener">9.8.1 Scrolling</a> (ba tầng gesture, fling).</li>
   <li><strong>Related</strong>: <a href="../modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 LazyColumn</a> (key, <code>animateItem</code>), <a href="../state/remember_saveable.md" target="_blank" rel="noopener">9.2.2 rememberSaveable</a> (<code>AnchoredDraggableState.Saver</code>), <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>, <a href="../side_effects/launched_effect.md" target="_blank" rel="noopener">9.3.1 LaunchedEffect</a> (<code>rememberCoroutineScope</code> cho <code>animateTo</code>), <a href="../graphics_animations/animated_visibility.md" target="_blank" rel="noopener">9.7.2 AnimatedVisibility</a> (chọn API animation).</li>
-  <li><strong>Học tiếp</strong>: <a href="zooming.md" target="_blank" rel="noopener">9.8.4 Zooming</a> cho gesture nhiều ngón và xung đột với <code>HorizontalPager</code>. Flow ở 7.1.4.2 Flow (chưa có bài), coroutine ở 8.4.3 Coroutines (chưa có bài).</li>
+  <li><strong>Học tiếp</strong>: <a href="zooming.md" target="_blank" rel="noopener">9.8.4 Zooming</a> cho gesture nhiều ngón và xung đột với <code>HorizontalPager</code>. Flow ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a>, coroutine (<code>scope.launch</code>, hàm <code>suspend</code>) ở <a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>.</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -60166,10 +60053,10 @@ rememberSwipeToDismissBoxState(confirmValueChange = { value -&gt;
   },
   'compose-zooming': {
     title: 'Zooming',
-    summary: 'Zooming trong Compose là việc đọc hệ số pinch, độ dịch và góc xoay từ gesture nhiều ngón, cộng dồn vào state scale/offset rồi áp lên phần tử bằng graphicsLayer ở draw phase; gesture không tự phóng to gì cả. Bài đi qua Modifier.transformable với rememberTransformableState, detectTransformGestures, giới hạn scale và pan, double-tap zoom bằng detectTapGestures, và cách tránh xung đột với HorizontalPager hoặc container cuộn bằng tham số canPan.',
-    status: 'reviewing',
+    summary: 'Zooming trong Compose là việc đọc hệ số pinch, độ dịch và góc xoay từ gesture nhiều ngón, cộng dồn vào state scale/offset rồi áp lên phần tử bằng graphicsLayer ở draw phase; bản thân gesture không phóng to gì cả.',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '11 phút',
+    estimatedReadingTime: '13 phút',
     depth: 'standard',
     tags: ['android', 'compose', 'session-09', 'gesture', 'zoom', 'pinch', 'transformable', 'graphics-layer'],
     domain: 'Android',
@@ -60184,7 +60071,7 @@ rememberSwipeToDismissBoxState(confirmValueChange = { value -&gt;
     ],
     knowledgeGap: 'Developer thường đổi Modifier.size theo scale (đẩy cả layout xung quanh và recompose mỗi frame), dùng graphicsLayer dạng tham số thay vì lambda, cộng zoomChange thay vì nhân, không giới hạn pan nên ảnh trôi mất khỏi khung, hoặc đặt detectTransformGestures trong HorizontalPager rồi không vuốt sang ảnh khác được nữa.',
     updatedAt: '2026-11-09',
-    readTime: '11 phút',
+    readTime: '13 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
@@ -60222,7 +60109,8 @@ Image(
 
 <p><code>Modifier.transformable(state)</code> nhận diện cử chỉ hai ngón (và kéo một ngón cho pan). State tạo bằng:</p>
 
-<pre data-lang="kotlin"><code>val state = rememberTransformableState { zoomChange: Float, panChange: Offset, rotationChange: Float -&gt;
+<pre data-lang="kotlin"><code>val state = rememberTransformableState {
+    centroid: Offset, zoomChange: Float, panChange: Offset, rotationChange: Float -&gt;
     // cập nhật state của bạn
 }</code></pre>
 
@@ -60230,14 +60118,14 @@ Image(
   <li><code>zoomChange</code> là <strong>hệ số</strong> so với event trước: <code>1.05f</code> nghĩa là to thêm 5%. Vì vậy scale phải <strong>nhân</strong>: <code>scale *= zoomChange</code>. Cộng (<code>scale += zoomChange</code>) là sai, vì mỗi event không pinch vẫn báo <code>1f</code>.</li>
   <li><code>panChange</code> là delta <code>Offset</code> theo pixel, <strong>cộng</strong>: <code>offset += panChange</code>.</li>
   <li><code>rotationChange</code> là góc (độ) so với event trước, cộng dồn.</li>
-  <li>Các bản Compose gần đây có thêm overload nhận <code>centroid</code> (điểm giữa các ngón) làm tham số đầu, dùng khi muốn phóng quanh chỗ ngón tay thay vì quanh tâm phần tử.</li>
+  <li><code>centroid</code> là điểm giữa các ngón, dùng khi muốn phóng quanh chỗ ngón tay thay vì quanh tâm phần tử. Overload 4 tham số này có từ Foundation 1.11 (04/2026); overload cũ 3 tham số <code>{ zoomChange, panChange, rotationChange -&gt; }</code> (vẫn thấy trong nhiều sample) bị deprecated từ bản đó. Bài dùng overload mới và bỏ qua <code>centroid</code> bằng <code>_</code> khi chỉ phóng quanh tâm.</li>
 </ul>
 
 <p>Tham số của modifier:</p>
 
 <ul>
   <li><code>lockRotationOnZoomPan = true</code>: nếu cử chỉ bắt đầu bằng zoom hoặc pan thì không xoay. Trình xem ảnh thường không cần xoay thì bỏ qua <code>rotationChange</code> luôn.</li>
-  <li><code>canPan: (Offset) -&gt; Boolean</code> (overload từ foundation 1.6): quyết định có bắt đầu pan hay không. Đây là chìa khoá để sống chung với pager và container cuộn (mục 4).</li>
+  <li><code>canPan: (Offset) -&gt; Boolean</code> (overload riêng; từ Foundation 1.6 lambda nhận delta pan để quyết định theo hướng kéo): quyết định có bắt đầu pan hay không. Đây là chìa khoá để sống chung với pager và container cuộn (mục 4).</li>
   <li><code>enabled</code>.</li>
 </ul>
 
@@ -60314,7 +60202,7 @@ fun SeatMapViewer(seatMap: Painter, modifier: Modifier = Modifier) {
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
 
-    val state = rememberTransformableState { zoomChange, panChange, _ -&gt;    // (1)
+    val state = rememberTransformableState { _, zoomChange, panChange, _ -&gt; // (1)
         val newScale = (scale * zoomChange).coerceIn(MIN_SCALE, MAX_SCALE) // (2)
         val maxX = (newScale - 1f) * size.width / 2f
         val maxY = (newScale - 1f) * size.height / 2f
@@ -60361,7 +60249,7 @@ fun SeatMapViewer(seatMap: Painter, modifier: Modifier = Modifier) {
 
 <p>Nó cho <code>centroid</code> ở mọi bản và tiện khi cần ghép với logic pointer khác trong cùng handler. Nhưng nó <strong>consume mọi chuyển động</strong> sau touch slop, kể cả kéo một ngón khi chưa phóng, và không có <code>canPan</code>. Đặt nó trong <code>HorizontalPager</code> thì pager không bao giờ nhận được cú vuốt ngang.</p>
 
-<p><strong>Xung đột với pager và container cuộn.</strong> Ở Main pass, phần tử con nhận event trước cha (<a href="scrolling.md" target="_blank" rel="noopener">9.8.1 Scrolling</a>, mục "Hit-testing, ba pass và consume"). Nếu <code>transformable</code> (con) consume cú kéo một ngón, pager hoặc <code>LazyRow</code> (cha) thấy chuyển động đã bị consume và không cuộn. Cách tài liệu chính thức khuyên: <code>transformable(state, canPan = { scale != 1f })</code>. Chưa phóng thì không pan, cú kéo đi lên cha và pager lật trang; đã phóng thì pan ảnh, pager đứng yên. Pinch hai ngón vẫn luôn hoạt động.</p>
+<p><strong>Xung đột với pager và container cuộn.</strong> Ở Main pass, phần tử con nhận event trước cha (<a href="scrolling.md" target="_blank" rel="noopener">9.8.1 Scrolling</a>, mục "Hit-testing, ba pass và consume"). Nếu <code>transformable</code> (con) consume cú kéo một ngón, pager hoặc <code>LazyRow</code> (cha) thấy chuyển động đã bị consume và không cuộn. KDoc của overload có <code>canPan</code> gợi ý cách gỡ: không cho pan bắt đầu khi scale bằng 1, ví dụ <code>transformable(state, canPan = { scale &gt; 1f })</code>. Chưa phóng thì không pan, cú kéo đi lên cha và pager lật trang; đã phóng thì pan ảnh, pager đứng yên. Pinch hai ngón vẫn luôn hoạt động.</p>
 
 <h2>Ví dụ thực tế</h2>
 
@@ -60383,7 +60271,7 @@ fun SeatMapViewer(seatMap: Painter, modifier: Modifier = Modifier) {
   <li><code>HorizontalPager</code> hiển thị mỗi ảnh trong một <code>ZoomableImage</code>; mỗi trang có state zoom riêng, rời trang thì state bị huỷ và ảnh về 1x.</li>
   <li>Pinch: lambda của <code>rememberTransformableState</code> nhân scale (giới hạn 1x–4x) và cộng pan (giới hạn theo kích thước), như mục 3.</li>
   <li><code>canPan = { scale &gt; 1f }</code>: chưa phóng thì kéo một ngón không bị <code>transformable</code> consume, đi lên <code>HorizontalPager</code> để lật trang.</li>
-  <li>Double-tap: đang phóng thì <code>animateZoomBy(1f / scale)</code> về 1x; chưa phóng thì <code>animateZoomBy(2.5f)</code>. Animation đi qua lambda ở bước 2 nên pan tự co về 0 khi thu nhỏ.</li>
+  <li>Double-tap: đang phóng thì <code>animateZoomBy(1f / scale)</code> về 1x; chưa phóng thì <code>animateZoomBy(2.5f)</code>. Animation đi qua lambda ở bước 2 nên pan co dần về 0 khi thu nhỏ. Tích các <code>zoomChange</code> qua từng frame có sai số float (kết quả có thể là <code>1.0000001f</code>), nên sau khi thu nhỏ xong thì đặt hẳn <code>scale = 1f</code>, <code>offset = Offset.Zero</code>; nếu không, <code>canPan</code> vẫn trả <code>true</code> ở "1x" và pager không lật được.</li>
   <li><code>graphicsLayer { }</code> trên ảnh con áp scale và offset ở draw phase.</li>
 </ol>
 
@@ -60420,7 +60308,7 @@ fun ZoomableImage(
     var offset by remember { mutableStateOf(Offset.Zero) }
     val scope = rememberCoroutineScope()
 
-    val state = rememberTransformableState { zoomChange, panChange, _ -&gt;     // (2)
+    val state = rememberTransformableState { _, zoomChange, panChange, _ -&gt; // (2)
         val newScale = (scale * zoomChange).coerceIn(MIN_SCALE, MAX_SCALE)
         val maxX = (newScale - 1f) * size.width / 2f
         val maxY = (newScale - 1f) * size.height / 2f
@@ -60439,8 +60327,16 @@ fun ZoomableImage(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {                                           // (4)
-                        val factor = if (scale &gt; 1f) 1f / scale else DOUBLE_TAP_SCALE
-                        scope.launch { state.animateZoomBy(factor) }
+                        scope.launch {
+                            if (scale &gt; MIN_SCALE) {
+                                state.animateZoomBy(MIN_SCALE / scale)
+                                // Khử sai số float để canPan chắc chắn là false ở 1x
+                                scale = MIN_SCALE
+                                offset = Offset.Zero
+                            } else {
+                                state.animateZoomBy(DOUBLE_TAP_SCALE)
+                            }
+                        }
                     },
                 )
             },
@@ -60474,7 +60370,7 @@ fun ProductGalleryScreen(imageResIds: List&lt;Int&gt;) {
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> chưa phóng thì vuốt ngang lật ảnh bình thường. Double-tap: ảnh phóng mượt lên 2.5x; lúc này vuốt ngang dịch ảnh tới mép rồi dừng, pager không lật. Double-tap lần nữa: ảnh về 1x và về giữa. Đổi <code>canPan</code> thành bỏ trống (dùng overload không có <code>canPan</code>) để thấy lỗi: ở 1x vuốt ngang không lật được trang nữa vì <code>transformable</code> đã consume. Double-tap phóng quanh tâm ảnh chứ không quanh điểm chạm; muốn phóng quanh điểm chạm thì cần overload <code>animateZoomBy</code> có <code>centroid</code> ở các bản mới, kèm công thức offset tương ứng.</p>
+<p><strong>Kết quả:</strong> chưa phóng thì vuốt ngang lật ảnh bình thường. Double-tap: ảnh phóng mượt lên 2.5x; lúc này vuốt ngang dịch ảnh tới mép rồi dừng, pager không lật. Double-tap lần nữa: ảnh về 1x và về giữa. Đổi <code>canPan</code> thành bỏ trống (dùng overload không có <code>canPan</code>) để thấy lỗi: ở 1x vuốt ngang không lật được trang nữa vì <code>transformable</code> đã consume. Double-tap phóng quanh tâm ảnh chứ không quanh điểm chạm; muốn phóng quanh điểm chạm thì truyền <code>centroid</code> cho <code>animateZoomBy</code> (Foundation 1.11+) và dùng <code>centroid</code> trong lambda để tính lại offset.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
@@ -60546,8 +60442,8 @@ scale = (scale * zoomChange).coerceIn(MIN_SCALE, MAX_SCALE)</code></pre>
 
 <ul>
   <li><strong>Compose 1.0 (07/2021)</strong>: <code>Modifier.transformable</code>, <code>rememberTransformableState</code>, <code>detectTransformGestures</code> và <code>Modifier.graphicsLayer</code> đã có. Từ đầu, transform được thiết kế như mọi gesture khác của Compose: chỉ báo thay đổi, state do người dùng giữ.</li>
-  <li><strong>Foundation 1.6 (đầu 2024)</strong>: thêm overload <code>transformable(state, canPan, ...)</code> để zoom sống chung với pager và container cuộn mà không phải tự viết pointer handler.</li>
-  <li><strong>Các bản gần đây</strong>: <code>rememberTransformableState</code> có overload nhận <code>centroid</code>, và <code>animateZoomBy</code>/<code>animatePanBy</code> nhận <code>centroid</code>, để phóng quanh điểm giữa các ngón (hoặc điểm double-tap) mà không cần xuống <code>detectTransformGestures</code>.</li>
+  <li><strong>Foundation 1.6 (01/2024)</strong>: <code>canPan</code> của <code>transformable(state, canPan, ...)</code> nhận delta pan, để zoom sống chung với pager và container cuộn theo đúng hướng kéo mà không phải tự viết pointer handler.</li>
+  <li><strong>Foundation 1.11 (04/2026)</strong>: <code>rememberTransformableState</code>/<code>TransformableState</code> có overload nhận <code>centroid</code>, overload 3 tham số cũ bị deprecated; <code>animateZoomBy</code>/<code>animatePanBy</code>/<code>animateRotateBy</code> nhận <code>centroid</code>. Mục đích: phóng, xoay quanh điểm giữa các ngón (hoặc điểm double-tap) mà không cần xuống <code>detectTransformGestures</code>.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
@@ -60555,7 +60451,7 @@ scale = (scale * zoomChange).coerceIn(MIN_SCALE, MAX_SCALE)</code></pre>
 <ul>
   <li><strong>Prerequisites</strong>: <a href="dragging.md" target="_blank" rel="noopener">9.8.2 Dragging</a> (đọc state ở phase muộn, consume), <a href="scrolling.md" target="_blank" rel="noopener">9.8.1 Scrolling</a> (ba pass, vì sao con consume thì cha không cuộn).</li>
   <li><strong>Related</strong>: <a href="../graphics_animations/surface_and_canvas.md" target="_blank" rel="noopener">9.7.1 Surface and Canvas</a> (draw phase, <code>graphicsLayer</code> trong bối cảnh vẽ), <a href="swipping.md" target="_blank" rel="noopener">9.8.3 Swiping</a> (<code>HorizontalPager</code> so với <code>anchoredDraggable</code>), <a href="../modifier/lazy_row.md" target="_blank" rel="noopener">9.5.5 LazyRow</a> (<code>HorizontalPager</code> được nhắc cùng <code>LazyRow</code>).</li>
-  <li><strong>Liên quan khác</strong>: ảnh mạng trong trình xem ảnh thường nạp bằng Coil, học ở 8.2.4 Coil (chưa có bài); UI test pinch bằng <code>performTouchInput { pinch(...) }</code> ở 10.2 Unit Testing (chưa có bài).</li>
+  <li><strong>Liên quan khác</strong>: ảnh mạng trong trình xem ảnh thường nạp bằng Coil (<a href="../../session_08/loading_image/coil.md" target="_blank" rel="noopener">8.2.4 Coil</a>, <code>AsyncImage</code>); test tự động ở <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>, còn UI test pinch bằng <code>performTouchInput { pinch(...) }</code> chưa có bài trong repo. Coroutine trong <code>scope.launch</code> ở <a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>.</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -61932,8 +61828,6 @@ ANDROID_CONTENT['android.jetpack_compose.compose_overview'] = ANDROID_CONTENT['c
 ANDROID_CONTENT['android.jetpack_compose.overview'] = ANDROID_CONTENT['session-09-overview'];
 ANDROID_CONTENT['android.jetpack_compose.remember_recomposition'] = ANDROID_CONTENT['compose-recomposition'];
 ANDROID_CONTENT['android.jetpack_compose.state.mutable_state'] = ANDROID_CONTENT['compose-mutablestate'];
-// Slug cũ của entry "9.2 State and State Hoisting" (đã gộp vào 9.2.1) — giữ để link cũ không gãy
-ANDROID_CONTENT['compose-state'] = ANDROID_CONTENT['compose-mutablestate'];
 ANDROID_CONTENT['android.jetpack_compose.state.remember_saveable'] = ANDROID_CONTENT['compose-remember-saveable'];
 ANDROID_CONTENT['android.jetpack_compose.side_effects.launched_effect'] = ANDROID_CONTENT['compose-launchedeffect'];
 ANDROID_CONTENT['android.jetpack_compose.side_effects.disposable_effect'] = ANDROID_CONTENT['compose-disposableeffect'];

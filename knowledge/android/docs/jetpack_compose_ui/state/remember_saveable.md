@@ -2,13 +2,13 @@
 id: android.jetpack_compose.state.remember_saveable
 title: Remember and rememberSaveable
 summary: rememberSaveable là remember có thêm một bản sao rút gọn của giá trị trong saved instance state (Bundle) của host, ghi qua SaveableStateRegistry theo vị trí gọi, nên giá trị sống qua configuration change và system-initiated process death nhưng vẫn mất khi rời composition hoặc khi người dùng chủ động đóng màn hình. Bài so sánh remember, rememberSaveable, retain và ViewModel theo từng sự kiện làm mất state, giải thích cơ chế lưu/khôi phục, kiểu lưu được và Saver (listSaver, mapSaver, @Parcelize), giới hạn kích thước Bundle, rememberSaveable trong item của LazyColumn, và khi nào dùng ViewModel với SavedStateHandle.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 20 phút
 tags: [android, compose, session-09, remembersaveable, saved-state, bundle, saver, parcelize, process-death, savedstatehandle]
 prerequisites: [android.jetpack_compose.remember_recomposition, android.jetpack_compose.state.mutable_state, android.component.activity.state_changes]
-related: [android.component.activity.parcelables_and_bundle, android.jetpack.viewmodel, android.component.activity.lifecycle]
+related: [android.component.activity.parcelables_and_bundle, android.jetpack.viewmodel, android.component.activity.lifecycle, android.design_pattern.observer.flow]
 learning_outcomes:
   - Phân biệt được giá trị nào sống qua recomposition, configuration change, process death và rời composition khi dùng remember, rememberSaveable, retain và ViewModel.
   - Giải thích được cách rememberSaveable đăng ký với SaveableStateRegistry để ghi giá trị vào Bundle và khôi phục theo vị trí gọi.
@@ -63,26 +63,26 @@ Cơ chế slot table và vị trí gọi của `remember` đã có ở 9.1; bài
 | Recomposition | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Configuration change (xoay, dark mode, đổi ngôn ngữ) | ❌ | ✅ cùng instance | ✅ bản khôi phục `==` | ✅ | ✅ |
 | System-initiated process death | ❌ | ❌ | ✅ | ❌ | ✅ |
-| Rời composition (nhánh `if` tắt, item bị xoá) | ❌ | ❌ | ❌ (trừ khi có `SaveableStateHolder`, mục 4) | ✅ (theo owner, không theo composition) | ✅ |
+| Rời composition (nhánh `if` tắt, item bị xoá) | ❌ | ❌ | ❌ (trừ khi có `SaveableStateHolder`, mục 5) | ✅ (theo owner, không theo composition) | ✅ |
 | Người dùng đóng hẳn (Back thoát, vuốt khỏi Recents) | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 Ba điểm cần nhớ từ bảng:
 
-- **Chỉ hai công cụ dùng `Bundle`** (`rememberSaveable`, `SavedStateHandle`) mới sống qua process death. Cái giá là giá trị phải serialize được và phải nhỏ.
-- **`retain`** (artifact `androidx.compose.runtime:runtime-retain`, từ Compose 1.10) giữ **cùng instance** qua configuration change mà không serialize, nên giữ được object không lưu vào `Bundle` được (player, cache, bitmap), nhưng mất khi process chết. Không `retain` object tham chiếu Activity, View, Context (leak).
-- **Người dùng đóng hẳn** thì không công cụ state nào giữ, và cũng không nên: dữ liệu phải sống lâu dài (bản nháp quan trọng, giỏ hàng) thuộc về Room/DataStore.
+- **Chỉ hai công cụ dùng `Bundle`** (`rememberSaveable`, `SavedStateHandle`) mới sống qua process death; cái giá là giá trị phải serialize được và phải nhỏ.
+- **`retain`** (artifact `androidx.compose.runtime:runtime-retain`, từ Compose 1.10) giữ **cùng instance** qua configuration change mà không serialize, nên giữ được object không vào `Bundle` được (player, cache, bitmap). Không `retain` Activity, View, Fragment, Context, ViewModel hay object tham chiếu tới chúng (leak).
+- **Người dùng đóng hẳn** thì không công cụ state nào giữ: dữ liệu phải sống lâu dài (bản nháp quan trọng, giỏ hàng) thuộc về Room/DataStore.
 
 ### 2. Cơ chế: `SaveableStateRegistry` ghi vào `Bundle`
 
-Mỗi `ComposeView` (cũng là thứ `setContent` tạo ra) cung cấp cho composition một `SaveableStateRegistry` qua `LocalSaveableStateRegistry`. Registry này được nối với `SavedStateRegistry` của owner gần nhất trong cây View (Activity, Fragment, hoặc `NavBackStackEntry` của Navigation): khi owner lưu saved instance state, registry đóng góp phần của Compose vào `Bundle` đó.
+Mỗi `ComposeView` (cũng là thứ `setContent` tạo ra) cung cấp cho composition một `SaveableStateRegistry` qua `LocalSaveableStateRegistry`. Registry này được nối với `SavedStateRegistry` của owner gần nhất trong cây View (Activity hoặc Fragment): khi owner lưu saved instance state, registry đóng góp phần của Compose vào `Bundle` đó. Bên trong composition, `SaveableStateHolder` (mục 5) có thể cung cấp registry con cho từng phần UI.
 
 `rememberSaveable` làm thêm ba việc so với `remember`:
 
-- **Tạo key theo vị trí:** từ *composite key hash* của vị trí gọi (cùng thông tin vị trí mà slot table dùng), Compose sinh một chuỗi làm key trong registry. Không cần tự đặt tên; tham số `key: String` tuỳ chỉnh đã bị **deprecated** vì phá vỡ việc scope theo vị trí.
+- **Tạo key theo vị trí:** từ *composite key hash* của vị trí gọi (cùng thông tin vị trí mà slot table dùng), Compose sinh một chuỗi làm key trong registry. Không cần tự đặt tên; tham số `key: String` tuỳ chỉnh đã bị **deprecated** từ Compose 1.9 vì phá vỡ việc scope theo vị trí.
 - **Khôi phục hoặc khởi tạo** ở lần đầu vào composition: hỏi registry `consumeRestored(key)`. Có giá trị đã lưu → dùng `Saver.restore` để dựng lại; không có → chạy `init`.
 - **Đăng ký provider:** `registerProvider(key) { saver.save(currentValue) }`. Registry chỉ gọi provider **khi lưu thật sự** (owner đang vào `onSaveInstanceState`), nên giá trị được lưu là giá trị **mới nhất** tại thời điểm đó. Khi composable rời composition, provider bị huỷ đăng ký: giá trị không còn được lưu nữa.
 
-`rememberSaveable(vararg inputs)` cũng nhận input như key của `remember`: input đổi thì state reset và `init` chạy lại. Lưu ý docs ghi rõ: lúc **khôi phục**, giá trị đã lưu **không** được kiểm tra lại với input cũ.
+`rememberSaveable(vararg inputs)` nhận input như key của `remember`: input đổi thì state reset và `init` chạy lại. Docs ghi rõ: lúc **khôi phục**, giá trị đã lưu **không** được kiểm tra lại với input cũ.
 
 #### Ví dụ: ô soạn bình luận sống qua xoay màn hình và process death
 
@@ -132,11 +132,11 @@ fun CommentComposer(onSend: (String) -> Unit) {
 }
 ```
 
-**Kết quả:** gõ rồi xoay màn hình, chữ còn. Kiểm tra process death: gõ, bấm Home, chạy `adb shell am kill <package>` (hoặc Logcat → Terminate Application), mở lại từ Recents: chữ vẫn còn. Vuốt app khỏi Recents rồi mở lại: ô trống, đúng như bảng ở mục 1. API `TextFieldState` mới (`rememberTextFieldState()`) cũng lưu bằng cơ chế này.
+**Kết quả:** gõ rồi xoay màn hình, chữ còn. Kiểm tra process death: gõ, bấm Home, chạy `adb shell am kill <package>`, mở lại từ Recents: chữ vẫn còn. Vuốt app khỏi Recents rồi mở lại: ô trống, đúng như bảng mục 1. `rememberTextFieldState()` của API `TextFieldState` cũng lưu bằng cơ chế này.
 
 ### 3. Kiểu lưu được và `Saver`
 
-Mặc định `rememberSaveable` dùng `autoSaver()`, không chuyển đổi gì: giá trị phải là thứ `Bundle` chứa được — primitive, `String`, mảng primitive, `Parcelable`, `Serializable`, và vài kiểu khác mà registry trên Android chấp nhận. `MutableState` bọc một giá trị lưu được cũng được xử lý tự động. Kiểu khác (một `data class` thường) thì crash khi lưu, với thông báo rằng kiểu đó không lưu được bằng `SaveableStateRegistry` hiện tại và gợi ý viết `Saver`.
+Mặc định `rememberSaveable` dùng `autoSaver()`, không chuyển đổi gì: giá trị phải là thứ `Bundle` chứa được — primitive, `String`, mảng primitive, `Parcelable`, `Serializable`, và vài kiểu khác mà registry trên Android chấp nhận. `MutableState` bọc một giá trị lưu được, cùng `List`/`Map`/`Set` chứa giá trị lưu được, cũng được xử lý tự động. Kiểu khác (một `data class` thường) thì crash khi lưu, với thông báo rằng kiểu đó không lưu được bằng `SaveableStateRegistry` hiện tại và gợi ý viết `Saver`.
 
 Bốn cách lưu kiểu tuỳ chỉnh:
 
@@ -147,7 +147,7 @@ Bốn cách lưu kiểu tuỳ chỉnh:
 | `mapSaver(save, restore)` | Như `listSaver` nhưng theo key tên, dễ đọc hơn khi nhiều field |
 | `Saver(save, restore)` | Toàn quyền: đổi sang một giá trị lưu được bất kỳ (ví dụ chỉ lưu `id`) |
 
-Với `MutableState<T>`, truyền saver của **`T`** qua tham số `stateSaver`; với object không bọc state, dùng tham số `saver`. Các bản `runtime-saveable` gần đây còn có `rememberSerializable`, dùng serializer của `kotlinx.serialization` cho class `@Serializable`.
+Với `MutableState<T>`, truyền saver của **`T`** qua tham số `stateSaver`; với object không bọc state, dùng tham số `saver`. Từ Compose 1.9 còn có `rememberSerializable`: cùng cơ chế, nhưng dùng serializer của `kotlinx.serialization` cho class `@Serializable` thay cho `Saver`.
 
 #### Ví dụ: bộ chọn số hành khách khi đặt vé máy bay
 
@@ -203,7 +203,7 @@ data class PassengerCount(val adults: Int = 1, val children: Int = 0, val infant
 // rememberSaveable { mutableStateOf(PassengerCount()) } — autoSaver tự lưu
 ```
 
-**Kết quả:** chọn 2 người lớn, 1 trẻ em, xoay màn hình hoặc kill process: số còn nguyên. Viết `Saver` thì kiểm tra thứ tự `save` và `restore` khớp nhau; một UI test với `StateRestorationTester` (phần "Ví dụ thực tế") bắt lỗi này nhanh hơn chạy tay.
+**Kết quả:** chọn 2 người lớn, 1 trẻ em, xoay màn hình hoặc kill process: số còn nguyên. Thứ tự `save` và `restore` phải khớp nhau; UI test với `StateRestorationTester` (phần "Ví dụ thực tế") bắt lỗi này nhanh hơn chạy tay.
 
 ### 4. Giới hạn kích thước `Bundle`
 
@@ -289,7 +289,7 @@ Câu hỏi không phải "API nào mạnh hơn" mà là **state đang nằm ở 
 - State thuộc **UI logic**, nằm trong composable hoặc plain state holder → `rememberSaveable`.
 - State mà **business logic** trong ViewModel cần đọc/ghi → giữ trong ViewModel; để sống qua process death, lưu nó vào **`SavedStateHandle`** ([ViewModel](../../session_06/viewmodel.md)). ViewModel tự sống qua configuration change; `SavedStateHandle` cũng dùng `Bundle`, nên cùng giới hạn kích thước.
 
-`SavedStateHandle` có hai API tiện cho Compose: `getStateFlow(key, initialValue)` trả `StateFlow` của giá trị đã lưu (ghi bằng `savedStateHandle[key] = value`), và `saveable { mutableStateOf(...) }` (lifecycle-viewmodel-compose) trả thẳng `MutableState`, nhận `stateSaver` như `rememberSaveable`; docs đánh dấu `saveable` là **experimental**.
+`SavedStateHandle` có hai API tiện cho Compose: `getStateFlow(key, initialValue)` trả `StateFlow` của giá trị đã lưu (ghi bằng `savedStateHandle[key] = value`), và `saveable` (lifecycle-viewmodel-compose) cho ViewModel dùng `MutableState` được lưu, ví dụ `var query by savedStateHandle.saveable { mutableStateOf("") }`, nhận `Saver` như `rememberSaveable`; `saveable` còn là API **experimental** (`@SavedStateHandleSaveableApi`).
 
 ```mermaid
 flowchart TD
@@ -349,7 +349,7 @@ class SearchViewModel(
 }
 ```
 
-**Kết quả:** gõ "nồi cơm", kill process ở background, mở lại: ô tìm kiếm hiện "nồi cơm" và kết quả được tải lại. Cùng mẫu này viết cho View system ở [Activity State Changes](../../session_04/components/activity/state_changes.md), mục "Ví dụ thực tế". Toán tử `debounce`, `flatMapLatest` thuộc Flow, học ở 7.1.4.2 Flow (chưa có bài).
+**Kết quả:** gõ "nồi cơm", kill process ở background, mở lại: ô tìm kiếm hiện "nồi cơm" và kết quả được tải lại. Cùng mẫu này viết cho View system ở [Activity State Changes](../../session_04/components/activity/state_changes.md), mục "Ví dụ thực tế". Toán tử `debounce`, `flatMapLatest`, `stateIn` học ở [7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md).
 
 ## Ví dụ thực tế
 
@@ -425,16 +425,7 @@ class PassengerPickerTest {
 
 ## So sánh với các cách tiếp cận khác
 
-| Công cụ | Lưu ở đâu | Kiểu giá trị | Hợp cho |
-|---|---|---|---|
-| `remember` | Slot table (bộ nhớ) | Bất kỳ | Object tốn kém, state UI chấp nhận mất khi tạo lại |
-| `retain` (Compose 1.10+) | Bộ nhớ, ngoài composition | Bất kỳ, không tham chiếu Activity/View/Context | Player, cache, object không serialize được cần sống qua xoay |
-| `rememberSaveable` / `rememberSerializable` | Slot table + `Bundle` | Lưu được vào `Bundle` hoặc có `Saver`/serializer | User input, lựa chọn UI, `id` |
-| ViewModel | `ViewModelStore` (bộ nhớ) | Bất kỳ | Screen UI state, dữ liệu đã tải, việc đang chạy |
-| ViewModel + `SavedStateHandle` | `ViewModelStore` + `Bundle` | Lưu được vào `Bundle` | Input của business logic cần sống qua process death |
-| Room / DataStore | Đĩa | Theo schema | Dữ liệu phải còn sau khi người dùng đóng app |
-
-Trong View system, vai trò của `rememberSaveable` do `onSaveInstanceState()`/`onRestoreInstanceState()` và cơ chế tự lưu state của View có `android:id` đảm nhận ([Activity State Changes](../../session_04/components/activity/state_changes.md)). Khác biệt: Compose định danh state theo **vị trí gọi** thay vì theo `id` của View, nên không cần tự đặt key.
+Bảng so sánh các công cụ trong Compose đã có ở mục 1. Trong View system, vai trò của `rememberSaveable` do `onSaveInstanceState()`/`onRestoreInstanceState()` và cơ chế tự lưu state của View có `android:id` đảm nhận ([Activity State Changes](../../session_04/components/activity/state_changes.md)). Khác biệt: Compose định danh state theo **vị trí gọi** thay vì theo `id` của View, nên không cần tự đặt key.
 
 ## Khi nào nên và không nên dùng
 
@@ -452,7 +443,7 @@ Trong View system, vai trò của `rememberSaveable` do `onSaveInstanceState()`/
 
 ### 1. Dùng `remember` cho user input
 
-`var draft by remember { mutableStateOf("") }` cho ô nhập: mất chữ khi xoay màn hình, đổi dark mode, hoặc khi hệ thống kill process. **Cách sửa:** `rememberSaveable`; nếu ViewModel cần giá trị, đưa vào `SavedStateHandle`.
+Như `CommentComposer` ở phần "Vấn đề cần giải quyết": mất chữ khi xoay màn hình, đổi dark mode, hoặc khi hệ thống kill process. **Cách sửa:** `rememberSaveable`; nếu ViewModel cần giá trị, đưa vào `SavedStateHandle`.
 
 ### 2. Lưu dữ liệu lớn vào `Bundle`
 
@@ -490,7 +481,8 @@ var range by rememberSaveable { mutableStateOf(DateRange(today, today.plusDays(2
 |---|---|
 | 07/2021 | Compose 1.0: `rememberSaveable`, `Saver`, `listSaver`, `mapSaver`, `SaveableStateRegistry`, `SaveableStateHolder`; lazy list tự lưu state item theo key |
 | 2022 | Lifecycle 2.5: `SavedStateHandle.getStateFlow()` và `SavedStateHandle.saveable` (experimental) cho Compose |
-| Khoảng 2025 | Các bản `runtime-saveable` gần đây thêm `rememberSerializable` dùng `kotlinx.serialization`, và deprecate tham số `key` tuỳ chỉnh của `rememberSaveable`. Compose 1.10 thêm `retain` (artifact `runtime-retain`): giữ instance qua configuration change mà không serialize |
+| 2025 | Compose 1.9: thêm `rememberSerializable` dùng `kotlinx.serialization`, deprecate tham số `key` tuỳ chỉnh của `rememberSaveable` |
+| 12/2025 | Compose 1.10 (BOM 2025.12.00): thêm `retain` (artifact `runtime-retain`), giữ instance qua configuration change mà không serialize |
 
 Hướng thay đổi nhất quán: Compose ngày càng tách rõ **ba tuổi thọ** — theo composition (`remember`), theo việc tạo lại Activity (`retain`), theo saved state (`rememberSaveable`/`rememberSerializable`) — và bỏ những lối tắt phá vỡ việc định danh theo vị trí (key tuỳ chỉnh).
 
@@ -506,7 +498,7 @@ Hướng thay đổi nhất quán: Compose ngày càng tách rõ **ba tuổi th�
   - [Activity Lifecycle](../../session_04/components/activity/lifecycle.md): thời điểm `onSaveInstanceState` được gọi.
 - **Học tiếp:**
   - [9.5.4 Lazy Column](../modifier/lazy_column.md): `key`, `contentType`, `LazyListState`.
-  - 10.2 Unit Testing (chưa có bài): UI test Compose, `StateRestorationTester`.
+  - [7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md): `StateFlow`, `stateIn`, toán tử dùng trong ví dụ ViewModel.
 
 ## Tham khảo
 

@@ -2,13 +2,13 @@
 id: android.jetpack_compose.side_effects.disposable_effect
 title: DisposableEffect
 summary: DisposableEffect(key) là effect chạy một khối code đồng bộ khi vị trí gọi vào composition (và mỗi lần key đổi), và bắt buộc khai báo onDispose để dọn dẹp khi rời composition hoặc ngay trước khi chạy lại với key mới. Bài giải thích thứ tự dispose rồi chạy lại khi key đổi, cách đăng ký và huỷ sensor listener, LifecycleEventObserver, BroadcastReceiver, cách giữ callback mới nhất bằng rememberUpdatedState, khác biệt với LaunchedEffect, và các effect theo lifecycle LifecycleStartEffect, LifecycleResumeEffect, LifecycleEventEffect.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 14 phút
 tags: [android, compose, session-09, side-effects, disposable-effect, lifecycle, lifecycle-effects, broadcast-receiver, sensor]
 prerequisites: [android.jetpack_compose.side_effects.launched_effect, android.component.activity.lifecycle]
-related: [android.jetpack_compose.side_effects.produce_state, android.jetpack_compose.side_effects.snapshot_flow, android.jetpack_compose.remember_recomposition, android.component.fragment.lifecycle, android.jetpack.livedata]
+related: [android.jetpack_compose.side_effects.produce_state, android.jetpack_compose.side_effects.snapshot_flow, android.jetpack_compose.remember_recomposition, android.component.fragment.lifecycle, android.jetpack.livedata, android.design_pattern.observer.flow]
 learning_outcomes:
   - Giải thích được vòng đời của DisposableEffect, gồm khối effect chạy khi vào composition và onDispose chạy khi rời composition hoặc trước khi chạy lại với key mới.
   - Triển khai được việc đăng ký và huỷ đăng ký sensor listener, LifecycleEventObserver và BroadcastReceiver bằng DisposableEffect.
@@ -363,7 +363,7 @@ fun RecordingScreen() {
 | Theo dõi | Có mặt trong composition | Có mặt trong composition | Có mặt trong composition **và** trạng thái lifecycle |
 | Hợp với | Listener, observer, receiver | Snackbar, cuộn, animation, đếm ngược | Tài nguyên nên tắt khi app ở background |
 
-Với nguồn dữ liệu dùng ở nhiều màn hình (trạng thái mạng, vị trí), cách bền hơn là bọc listener thành `Flow` bằng `callbackFlow` trong tầng data, rồi UI đọc qua `collectAsStateWithLifecycle()` ([snapshotFlow](flow_with_snapshot.md)). DisposableEffect hợp nhất khi listener chỉ phục vụ **một** composable.
+Với nguồn dữ liệu dùng ở nhiều màn hình (trạng thái mạng, vị trí), cách bền hơn là bọc listener thành `Flow` bằng `callbackFlow` trong tầng data ([Flow](../../session_07/design_pattern/observer/flow.md), mục "`callbackFlow`: biến listener thành Flow"), rồi UI đọc qua `collectAsStateWithLifecycle()` ([snapshotFlow](flow_with_snapshot.md)). DisposableEffect hợp nhất khi listener chỉ phục vụ **một** composable.
 
 ## Khi nào nên và không nên dùng
 
@@ -435,8 +435,8 @@ DisposableEffect(screenName) {
 - **2019–2020 (dev, alpha):** Compose có `onActive { }`, `onCommit { }` và `onDispose { }` riêng rẽ; cặp đăng ký – huỷ không bị bắt buộc đi cùng nhau.
 - **Cuối 2020 (alpha):** `DisposableEffect` thay cho bộ trên, với `onDispose` là câu lệnh cuối bắt buộc. Quy ước key giống LaunchedEffect.
 - **07/2021 (Compose 1.0):** API ổn định; overload không key là lỗi biên dịch.
-- **2023 (Lifecycle 2.7.0):** thêm `LifecycleEventEffect`, `LifecycleStartEffect`, `LifecycleResumeEffect` trong `lifecycle-runtime-compose`, thay cho mẫu tự viết DisposableEffect + LifecycleEventObserver.
-- **05/2024 (Lifecycle 2.8.0):** `LifecycleStartEffect` và `LifecycleResumeEffect` bắt buộc có key; `LocalLifecycleOwner` chuyển từ Compose UI sang `lifecycle-runtime-compose`.
+- **01/2024 (Lifecycle 2.7.0, alpha từ 07/2023):** thêm `LifecycleEventEffect`, `LifecycleStartEffect`, `LifecycleResumeEffect` trong `lifecycle-runtime-compose`, thay cho mẫu tự viết DisposableEffect + LifecycleEventObserver.
+- **05/2024 (Lifecycle 2.8.0):** gọi `LifecycleStartEffect` và `LifecycleResumeEffect` không có key thành lỗi biên dịch; `LocalLifecycleOwner` chuyển từ Compose UI sang `lifecycle-runtime-compose`.
 
 ## Kết nối hệ thống
 
@@ -449,9 +449,10 @@ DisposableEffect(screenName) {
   - [Remember và Recomposition](../remember_and_recomposition.md): vì sao `remember` không phải chỗ để đăng ký listener.
   - [Fragment Lifecycle](../../session_04/components/fragment/lifecycle.md): `LocalLifecycleOwner` trong Fragment là view lifecycle.
   - [Broadcast Receiver](../../session_04/components/broadcast/broadcast_receiver.md): receiver đăng ký bằng context.
+  - [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md): `awaitCancellation`, `try/finally` khi coroutine bị huỷ.
+  - [Flow](../../session_07/design_pattern/observer/flow.md): `callbackFlow` khi listener cần dùng ở nhiều màn hình.
 - **Học tiếp:**
   - [produceState](produce_state.md).
-  - 8.4.3 Coroutines (chưa có bài): `awaitCancellation`, `try/finally` khi coroutine bị huỷ.
 
 ## Tham khảo
 

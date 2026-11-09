@@ -2,13 +2,13 @@
 id: android.jetpack_compose.animation.animated_visibility
 title: AnimatedVisibility
 summary: AnimatedVisibility là composable bọc một phần nội dung, chạy enter transition khi visible chuyển sang true, chạy exit transition khi visible chuyển sang false và chỉ gỡ nội dung khỏi composition sau khi exit chạy xong. Bài mở đầu bằng bản đồ các API animation của Compose (khi nào dùng animate*AsState, AnimatedVisibility, AnimatedContent, Crossfade, Transition, InfiniteTransition, Animatable), rồi đi sâu vào vòng đời nội dung, các nhóm EnterTransition/ExitTransition, mặc định trong Row/Column, Modifier.animateEnterExit và transition của AnimatedVisibilityScope.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 16 phút
+estimated_reading_time: 18 phút
 tags: [android, compose, session-09, animation, animated-visibility, enter-exit-transition, animation-api]
 prerequisites: [android.jetpack_compose.compose_overview, android.jetpack_compose.state.mutable_state]
-related: [android.jetpack_compose.animation.transition_state, android.jetpack_compose.animation.animated_content, android.jetpack_compose.animation.crossfade, android.jetpack_compose.lazy.lazy_column, android.jetpack_compose.side_effects.derived_state_of]
+related: [android.jetpack_compose.animation.transition_state, android.jetpack_compose.animation.animated_content, android.jetpack_compose.animation.crossfade, android.jetpack_compose.lazy.lazy_column, android.jetpack_compose.side_effects.derived_state_of, android.view_layout.animation]
 learning_outcomes:
   - Biết khi nào dùng animate*AsState, AnimatedVisibility, AnimatedContent, Crossfade, updateTransition, rememberInfiniteTransition, Animatable và animateContentSize theo bản đồ API animation của Compose.
   - Giải thích được vòng đời nội dung bên trong AnimatedVisibility, từ lúc enter tới khi exit xong và bị gỡ khỏi composition.
@@ -273,7 +273,7 @@ fun FaqItem(question: String, answer: String, modifier: Modifier = Modifier) {
 }
 ```
 
-`rememberSaveable` giữ trạng thái mở qua xoay màn hình, học ở [remember và rememberSaveable](../state/remember_saveable.md).
+`rememberSaveable` giữ trạng thái mở qua xoay màn hình, học ở [remember và rememberSaveable](../state/remember_saveable.md). Cùng bài toán này trong View system cần Transition framework cho layout và `ViewPropertyAnimator` cho mũi tên ([8.5.6 Animation](../../session_08/view_layout/animation.md)); ở đây chỉ là một `AnimatedVisibility` và một `animateFloatAsState`.
 
 **Kết quả:** bấm câu hỏi, câu trả lời mở ra từ trên xuống, các câu hỏi bên dưới trượt xuống theo, mũi tên quay mượt. Bấm liên tục khi đang mở dở, phần trả lời đổi chiều ngay từ chiều cao hiện tại, không nhảy về đầu.
 
@@ -490,7 +490,7 @@ Gọi `AnimatedVisibility` trực tiếp trong `Column` dùng `expandVertically`
 
 - **Compose 1.0 (07/2021):** bộ animation đã gồm `animate*AsState`, `updateTransition`, `rememberInfiniteTransition`, `Animatable`, `Crossfade`, `AnimatedVisibility` và `AnimatedContent`. Một phần `AnimatedVisibility` và toàn bộ `AnimatedContent` khi đó cần opt-in `@ExperimentalAnimationApi`.
 - **Các bản 1.x sau:** các API này dần ổn định; overload theo `ColumnScope`/`RowScope` với mặc định phù hợp chiều của container, tham số `label` cho công cụ Animation Preview. `AnimatedContent` ổn định ở 1.5 ([AnimatedContent](animated_content.md)).
-- **Compose 1.7 (2024):** `Modifier.animateItem()` thay `animateItemPlacement()` cho item của lazy list, animate cả xuất hiện, biến mất và đổi chỗ; `rememberTransition` thay `updateTransition(MutableTransitionState)`. Cùng thời gian, shared element transition (`SharedTransitionLayout`) xuất hiện ở dạng experimental cho chuyển cảnh giữa hai màn hình.
+- **Compose 1.7 (2024):** `Modifier.animateItem()` thay `animateItemPlacement()` cho item của lazy list, animate cả xuất hiện, biến mất và đổi chỗ; `rememberTransition(TransitionState)` ổn định và `updateTransition(MutableTransitionState)` bị deprecated ([MutableTransitionState](mutable_transition_state.md)). Cùng thời gian, shared element transition (`SharedTransitionLayout`) xuất hiện ở dạng experimental cho chuyển cảnh giữa hai màn hình.
 
 ## Kết nối hệ thống
 
@@ -503,7 +503,7 @@ Gọi `AnimatedVisibility` trực tiếp trong `Column` dùng `expandVertically`
   - [LazyColumn](../modifier/lazy_column.md) — `animateItem()` cho item của danh sách.
   - [derivedStateOf](../side_effects/derived_state_of.md) — tính `visible` từ state đổi liên tục.
   - [Surface and Canvas](surface_and_canvas.md) — đọc giá trị animation ở phase Drawing.
-  - 8.5.6 Animation (chưa có bài) — animation của View system (`ViewPropertyAnimator`, `MotionLayout`).
+  - [8.5.6 Animation](../../session_08/view_layout/animation.md) — animation của View system (`ViewPropertyAnimator`, Transition framework, `MotionLayout`).
 - **Học tiếp (theo nav):** [MutableTransitionState](mutable_transition_state.md).
 
 ## Developer Curiosity Checklist

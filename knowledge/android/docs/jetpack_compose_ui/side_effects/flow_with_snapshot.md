@@ -1,14 +1,14 @@
 ---
 id: android.jetpack_compose.side_effects.snapshot_flow
 title: snapshotFlow và flowWithSnapshot (State ↔ Flow)
-summary: Compose State và Kotlin Flow là hai cách biểu diễn giá trị thay đổi theo thời gian, và chuyển đổi State ↔ Flow là hai bộ chuyển đổi đối xứng giữa chúng. snapshotFlow { } biến các State đọc trong khối thành một cold Flow phát giá trị mới (khác giá trị trước) mỗi khi State đó đổi; collectAsState và collectAsStateWithLifecycle collect một Flow và đưa giá trị mới nhất vào State cho composition đọc. Bài nói rõ "flowWithSnapshot" không phải API chính thức, giải thích Flow.flowWithLifecycle là API gần tên nhất dành cho View system, và vì sao collectAsStateWithLifecycle là cách khuyên dùng trên Android.
-status: reviewing
+summary: Chuyển đổi State ↔ Flow là hai bộ chuyển đổi đối xứng giữa Compose State và Kotlin Flow: snapshotFlow { } biến các State đọc trong khối thành một cold Flow phát giá trị mới (khác giá trị trước) mỗi khi State đó đổi, còn collectAsState và collectAsStateWithLifecycle collect một Flow và đưa giá trị mới nhất vào State cho composition đọc. Bài nói rõ "flowWithSnapshot" không phải API chính thức (API gần tên nhất là Flow.flowWithLifecycle cho View system) và vì sao collectAsStateWithLifecycle là cách khuyên dùng trên Android.
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 15 phút
+estimated_reading_time: 16 phút
 tags: [android, compose, session-09, side-effects, snapshot-flow, flow, collect-as-state-with-lifecycle, lifecycle]
-prerequisites: [android.jetpack_compose.side_effects.launched_effect, android.jetpack_compose.state.mutable_state, android.jetpack.viewmodel]
-related: [android.jetpack_compose.side_effects.produce_state, android.jetpack_compose.side_effects.derived_state_of, android.jetpack_compose.side_effects.disposable_effect, android.architecture.mvvm, android.jetpack.livedata, android.jetpack_compose.lazy.lazy_column]
+prerequisites: [android.jetpack_compose.side_effects.launched_effect, android.jetpack_compose.state.mutable_state, android.jetpack.viewmodel, android.design_pattern.observer.flow, android.async.coroutines]
+related: [android.jetpack_compose.side_effects.produce_state, android.jetpack_compose.side_effects.derived_state_of, android.jetpack_compose.side_effects.disposable_effect, android.architecture.mvvm, android.jetpack.livedata, android.jetpack_compose.lazy.lazy_column, android.component.activity.lifecycle]
 learning_outcomes:
   - Giải thích được snapshotFlow biến các State đọc trong khối thành cold Flow thế nào, và vì sao nó chỉ phát giá trị khác giá trị trước.
   - Áp dụng được snapshotFlow trong LaunchedEffect hoặc ViewModel để dùng toán tử Flow như debounce, filter cho State, ví dụ gửi analytics khi cuộn.
@@ -19,7 +19,7 @@ knowledge_gap: >
   Developer thường biết collectAsState nhưng không biết nó vẫn collect khi app ở background, nên vị trí GPS, socket hay truy vấn database vẫn chạy khi người dùng đã bấm Home. Chiều ngược lại ít được biết hơn: muốn debounce một State hay gửi analytics khi cuộn, nhiều người tự viết LaunchedEffect với key đổi liên tục thay vì snapshotFlow, hoặc tìm một API "flowWithSnapshot" không tồn tại.
 ---
 
-# snapshotFlow và flowWithSnapshot
+# snapshotFlow và flowWithSnapshot (State ↔ Flow)
 
 ## Vấn đề cần giải quyết
 
@@ -62,9 +62,9 @@ Vấn đề cần giải quyết là: **chuyển giá trị giữa State và Flo
 Mental model: hai **cửa khẩu** giữa hai thế giới. Đi từ Compose sang coroutine thì qua cửa `snapshotFlow`; đi từ coroutine vào Compose thì qua cửa `collectAsStateWithLifecycle`. Mỗi cửa có giờ mở riêng: cửa `snapshotFlow` mở khi có người collect, cửa `collectAsStateWithLifecycle` chỉ mở khi màn hình đang hiển thị.
 
 > [!IMPORTANT]
-> Mục lục ghi "SnapShotFlow and flowWithSnapshot", nhưng **`flowWithSnapshot` không phải API của Compose** hay của thư viện AndroidX nào. API có thật gần tên nhất là `Flow.flowWithLifecycle()` của `lifecycle-runtime-ktx`, dùng cho View system (mục "flowWithSnapshot và Flow.flowWithLifecycle" bên dưới). Bài này dạy hai chiều chuyển đổi State ↔ Flow, là kiến thức mà tên mục hướng tới.
+> Mục lục ghi "SnapShotFlow and flowWithSnapshot", nhưng **`flowWithSnapshot` không phải API của Compose** hay của thư viện AndroidX nào. API có thật gần tên nhất là `Flow.flowWithLifecycle()` của Lifecycle (`androidx.lifecycle`), dùng cho View system (mục "flowWithSnapshot và Flow.flowWithLifecycle" bên dưới). Bài này dạy hai chiều chuyển đổi State ↔ Flow, là kiến thức mà tên mục hướng tới.
 
-Flow là **kiến thức dùng trước**: Flow là luồng giá trị bất đồng bộ của Kotlin coroutines, được học ở 7.1.4.2 Flow (chưa có bài). Bài chỉ dùng `collect`, vài toán tử (`map`, `filter`, `debounce`) và `StateFlow`.
+Bài dùng Flow theo định nghĩa ở [7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md): luồng bất đồng bộ phát lần lượt nhiều giá trị theo thời gian, dựng trên coroutine; Flow thường là lạnh (cold), `StateFlow` là nóng. `collect`, các toán tử (`debounce`, `collectLatest`, `flatMapLatest`), `stateIn` và `WhileSubscribed` không giải thích lại ở đây.
 
 ## Cách hoạt động
 
@@ -163,6 +163,26 @@ Hai API cùng làm một việc: tạo State, collect Flow, gán từng giá tr�
 | Khi app vào background | Vẫn collect, upstream vẫn chạy | Ngừng collect; upstream dừng nếu dùng `WhileSubscribed` |
 | Dùng khi | Code không phụ thuộc Android (Compose Multiplatform chung) | **Khuyên dùng cho app Android** |
 
+Chữ ký (rút gọn, `androidx.lifecycle.compose`):
+
+```kotlin
+@Composable
+fun <T> StateFlow<T>.collectAsStateWithLifecycle(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    context: CoroutineContext = EmptyCoroutineContext,
+): State<T>
+
+@Composable
+fun <T> Flow<T>.collectAsStateWithLifecycle(
+    initialValue: T,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    context: CoroutineContext = EmptyCoroutineContext,
+): State<T>
+// Cả hai còn một overload nhận thẳng `lifecycle: Lifecycle` thay cho lifecycleOwner
+```
+
 Bên trong, `collectAsStateWithLifecycle` là produceState chạy `lifecycle.repeatOnLifecycle(minActiveState) { flow.collect { value = it } }`: mỗi lần lifecycle xuống dưới `STARTED` thì coroutine collect bị huỷ, lên lại thì collect lại. Với `StateFlow`, không cần giá trị đầu (lấy `StateFlow.value`); với `Flow` thường phải truyền `initialValue`.
 
 Điều làm khác biệt này quan trọng: **composition không bị huỷ khi app vào background**. Bấm Home thì Activity chỉ `onStop`, composition vẫn còn, nên `collectAsState()` vẫn collect, và mọi thứ phía sau (`stateIn` của ViewModel, truy vấn Room, callback vị trí) vẫn chạy.
@@ -223,20 +243,7 @@ fun TripTrackingScreen(viewModel: TripViewModel) {
 
 ### 3. flowWithSnapshot và Flow.flowWithLifecycle
 
-Không có API nào tên `flowWithSnapshot`. Tên gần nhất là **`Flow.flowWithLifecycle(lifecycle, minActiveState)`** trong `lifecycle-runtime-ktx`: toán tử trả về một Flow chỉ phát giá trị khi `lifecycle` ít nhất ở `minActiveState`, dừng collect upstream khi xuống dưới mức đó. Bên trong nó dùng `repeatOnLifecycle`, cùng cơ chế với `collectAsStateWithLifecycle`.
-
-Nơi dùng `flowWithLifecycle` là **View system**, khi chỉ có một Flow cần collect:
-
-```kotlin
-// OrderStatusFragment.kt (View system)
-viewLifecycleOwner.lifecycleScope.launch {
-    viewModel.orderStatus
-        .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-        .collect { status -> binding.statusText.text = status.label }
-}
-```
-
-Có nhiều Flow thì dùng `repeatOnLifecycle` với nhiều `launch` bên trong, như ví dụ ở [MVVM](../../session_07/architecture/mvvm.md).
+Không có API nào tên `flowWithSnapshot`. Tên gần nhất là **`Flow.flowWithLifecycle(lifecycle, minActiveState)`**: toán tử trả về một Flow chỉ phát giá trị khi `lifecycle` ít nhất ở `minActiveState`, dựng trên `repeatOnLifecycle`, cùng cơ chế với `collectAsStateWithLifecycle`. Nó dùng trong **View system** khi chỉ có một Flow cần collect; cơ chế và ví dụ ở [Activity Lifecycle](../../session_04/components/activity/lifecycle.md), mục "flowWithLifecycle". API này ra đời trong `lifecycle-runtime-ktx` (Lifecycle 2.4.0); từ Lifecycle 2.8.0 các API của `lifecycle-runtime-ktx` chuyển vào `lifecycle-runtime`, package vẫn là `androidx.lifecycle`.
 
 Trong Compose, **không cần** `flowWithLifecycle`: `collectAsStateWithLifecycle()` gộp cả "theo lifecycle" và "thành State" vào một lời gọi. Trước khi API này có (trước Lifecycle 2.6.0), cách làm được khuyên là ghép tay hai mảnh, và có thể đây là nguồn gốc của cái tên "flowWithSnapshot":
 
@@ -256,7 +263,7 @@ Hai cửa thường được dùng nối tiếp nhau thành một vòng:
 - State của UI (text, vị trí cuộn) → `snapshotFlow` → toán tử Flow → gọi ViewModel hoặc ghi Repository.
 - Repository → Flow → ViewModel `stateIn` → `collectAsStateWithLifecycle` → State của UI.
 
-snapshotFlow cũng dùng được **trong ViewModel**, khi ViewModel giữ state bằng `mutableStateOf` (cách docs khuyên cho state của `TextField`, vì cập nhật đồng bộ, con trỏ không nhảy). Khi đó ViewModel quan sát chính state của mình bằng `snapshotFlow` để debounce, kiểm tra hợp lệ hay lưu nháp. Ví dụ đầy đủ ở mục "Ví dụ thực tế".
+snapshotFlow cũng dùng được **trong ViewModel**, khi ViewModel giữ state bằng `mutableStateOf` (cách hướng dẫn chính thức khuyên cho `TextField` dạng `value`/`onValueChange`: cập nhật state đồng bộ để con trỏ không nhảy). Khi đó ViewModel quan sát chính state của mình bằng `snapshotFlow` để debounce, kiểm tra hợp lệ hay lưu nháp. Ví dụ đầy đủ ở mục "Ví dụ thực tế".
 
 ## Ví dụ thực tế
 
@@ -355,7 +362,7 @@ fun NoteEditorScreen(viewModel: NoteEditorViewModel) {
 }
 ```
 
-Bài [ViewModel](../../session_06/viewmodel.md) khuyên không `launch` trong `init` để **tải** dữ liệu; ở đây coroutine trong `init` chỉ **quan sát** state của chính ViewModel để ghi, và phải sống suốt đời ViewModel để không mất nháp. Tải nội dung ghi chú ban đầu vẫn nên làm lười theo cách của bài đó. `collectLatest` và `drop` là toán tử Flow, học ở 7.1.4.2 Flow (chưa có bài).
+Bài [ViewModel](../../session_06/viewmodel.md) khuyên không `launch` trong `init` để **tải** dữ liệu; ở đây coroutine trong `init` chỉ **quan sát** state của chính ViewModel để ghi, và phải sống suốt đời ViewModel để không mất nháp. Tải nội dung ghi chú ban đầu vẫn nên làm lười theo cách của bài đó. `collectLatest` và `drop` là toán tử Flow, học ở [7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md).
 
 **Kết quả:** gõ liên tục thì thanh trạng thái hiện "Đang gõ…"; dừng 1 giây thì "Đang lưu…" rồi "Đã lưu", và Database Inspector của Android Studio cho thấy bản ghi nháp mới. Gõ rồi xoay màn hình ngay: nháp vẫn được lưu, vì `viewModelScope` sống qua configuration change. Giới hạn: bấm Back trong lúc đang chờ debounce thì ViewModel bị xoá, `viewModelScope` bị huỷ và lần gõ cuối chưa được lưu; nháp quan trọng cần một lần lưu chạy trong scope sống lâu hơn ViewModel (application scope hoặc WorkManager). Unit test được trên JVM: gọi `onContentChange`, `advanceTimeBy(1_000)`, kiểm tra `FakeNoteRepository` đã nhận nội dung.
 
@@ -401,7 +408,7 @@ val scrolledFlow = snapshotFlow { listState.firstVisibleItemIndex > 0 }
 val results by viewModel.search(query).collectAsStateWithLifecycle(initialValue = emptyList())
 ```
 
-**Lỗi lộ ra thế nào:** kết quả nhấp nháy về rỗng, request lặp lại sau mỗi lần recompose (log mạng cho thấy rõ).
+**Lỗi lộ ra thế nào:** Flow mới là key mới của produceState bên trong, nên collect cũ bị huỷ và request chạy lại sau mỗi lần recompose (log mạng cho thấy rõ); recompose dày hơn thời gian request thì kết quả mới không bao giờ tới, State cứ giữ giá trị cũ.
 
 **Cách sửa:** ViewModel đưa ra một property `results: StateFlow<...>` dựng từ `query` bằng `flatMapLatest`; UI chỉ gọi `viewModel.onQueryChange(query)`. Nếu buộc phải tạo Flow trong UI, `remember(query) { viewModel.search(query) }`.
 
@@ -420,8 +427,8 @@ val results by viewModel.search(query).collectAsStateWithLifecycle(initialValue 
 ## Lịch sử phát triển
 
 - **2020 (trước Compose 1.0):** `snapshotFlow` và `collectAsState` có trong `compose-runtime`, là hai cầu nối đầu tiên giữa snapshot system và coroutines.
-- **2021 (Lifecycle 2.4.0):** thêm `repeatOnLifecycle` và `Flow.flowWithLifecycle` để collect Flow an toàn trong View system. Bài hướng dẫn chính thức thời đó cho Compose là ghép `remember { flow.flowWithLifecycle(...) }` với `collectAsState`.
-- **2022–03/2023 (Lifecycle 2.6.0):** `lifecycle-runtime-compose` thêm `collectAsStateWithLifecycle()` (alpha từ 2022, stable trong 2.6.0, 03/2023), trở thành cách khuyên dùng để collect Flow trong Compose trên Android.
+- **10/2021 (Lifecycle 2.4.0, alpha từ 03/2021):** thêm `repeatOnLifecycle` và `Flow.flowWithLifecycle` để collect Flow an toàn trong View system. Bài hướng dẫn chính thức thời đó cho Compose là ghép `remember { flow.flowWithLifecycle(...) }` với `collectAsState`.
+- **06/2022 – 03/2023 (Lifecycle 2.6.0):** `lifecycle-runtime-compose` thêm `collectAsStateWithLifecycle()` (từ 2.6.0-alpha01, 06/2022; stable trong 2.6.0, 03/2023), trở thành cách khuyên dùng để collect Flow trong Compose trên Android.
 - **05/2024 (Lifecycle 2.8.0):** `LocalLifecycleOwner` chuyển vào `lifecycle-runtime-compose`; `collectAsStateWithLifecycle` mặc định dùng owner này.
 
 ## Kết nối hệ thống
@@ -430,6 +437,8 @@ val results by viewModel.search(query).collectAsStateWithLifecycle(initialValue 
   - [LaunchedEffect](launched_effect.md): nơi collect snapshotFlow trong UI, bảng chọn effect API.
   - [MutableState và State Hoisting](../state/mutable_state.md): snapshot system và State mà snapshotFlow theo dõi.
   - [ViewModel](../../session_06/viewmodel.md): `stateIn`, `WhileSubscribed`, `viewModelScope`.
+  - [7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md): Flow lạnh/nóng, `StateFlow`, `debounce`, `flatMapLatest`, `collectLatest`.
+  - [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md): scope, huỷ coroutine.
 - **Liên quan:**
   - [produceState](produce_state.md): nền của `collectAsState` và `collectAsStateWithLifecycle`.
   - [derivedStateOf](derived_state_of.md): cùng ý "chỉ phản ứng khi khác", nhưng kết quả là State trong Compose.
@@ -437,9 +446,8 @@ val results by viewModel.search(query).collectAsStateWithLifecycle(initialValue 
   - [MVVM](../../session_07/architecture/mvvm.md): `uiState` một chiều và `repeatOnLifecycle` trong Fragment.
   - [LiveData](../../session_06/livedata.md): `observeAsState()` cho code còn dùng LiveData.
   - [LazyColumn](../modifier/lazy_column.md): `LazyListState` trong các ví dụ.
+  - [Activity Lifecycle](../../session_04/components/activity/lifecycle.md): `repeatOnLifecycle` và `flowWithLifecycle` trong View system.
 - **Học tiếp:**
-  - 7.1.4.2 Flow (chưa có bài): `StateFlow`, `debounce`, `flatMapLatest`, `collectLatest`.
-  - 8.4.3 Coroutines (chưa có bài): huỷ coroutine, `repeatOnLifecycle` bên trong.
   - [Material Design Theme](../theming/material_design_theme.md): mục tiếp theo của Session 09.
 
 ## Tham khảo

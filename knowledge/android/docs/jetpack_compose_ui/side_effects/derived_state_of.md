@@ -2,7 +2,7 @@
 id: android.jetpack_compose.side_effects.derived_state_of
 title: derivedStateOf
 summary: derivedStateOf { ... } tạo một State có giá trị tính từ các State khác được đọc trong khối tính toán, và chỉ báo cho nơi đọc nó recompose khi kết quả khác lần trước; vì vậy nó dùng khi input đổi thường xuyên hơn output cần đổi. Bài giải thích cơ chế theo dõi lần đọc và so sánh kết quả, vì sao luôn bọc trong remember (và khi nào cần remember(key)), ví dụ nút "lên đầu trang" theo firstVisibleItemIndex, và các trường hợp không nên dùng như chỉ ghép hai state.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 9 phút
@@ -159,7 +159,13 @@ fun ArticleListScreen(articles: List<Article>, modifier: Modifier = Modifier) {
 
 **Kết quả:** mở Layout Inspector, bật recomposition counts rồi cuộn hết danh sách. Với bản trong "Vấn đề cần giải quyết", số recompose của `ArticleListScreen` tăng theo từng item cuộn qua; với bản derivedStateOf, nó chỉ tăng khi nút hiện hoặc ẩn.
 
-### Khi nào không dùng derivedStateOf
+## Ví dụ thực tế
+
+1. **Nút "Lên đầu trang"** theo `firstVisibleItemIndex`: ví dụ chính ở trên.
+2. **Top bar có bóng khi đã cuộn:** `remember { derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 } }`. `firstVisibleItemScrollOffset` đổi từng pixel, kết quả chỉ đổi hai lần.
+3. **Nút "Đăng ký" bật khi mật khẩu đủ mạnh:** text đổi mỗi ký tự, nhưng "đủ mạnh hay chưa" đổi rất ít. Chỉ đáng dùng khi state text được đọc ở một composable lớn; nếu chỉ nút đọc nó thì tính thẳng là đủ.
+
+## Khi nào nên và không nên dùng
 
 Câu hỏi quyết định: **output có đổi ít hơn input không?** Nếu output đổi cùng nhịp với input, derivedStateOf không bớt được recomposition nào, chỉ thêm chi phí theo dõi.
 
@@ -171,7 +177,7 @@ val fullNameBad by remember { derivedStateOf { "$firstName $lastName" } }
 val fullName = "$firstName $lastName"
 ```
 
-Bảng chọn:
+Bảng chọn giữa derivedStateOf và các cách khác:
 
 | Tình huống | Dùng | Vì sao |
 |---|---|---|
@@ -183,12 +189,6 @@ Bảng chọn:
 
 Khác biệt giữa `remember(key)` và derivedStateOf: `remember(key)` chỉ chạy lại khi composable **đã** recompose và thấy key đổi, nên không ngăn được recomposition; derivedStateOf quyết định **có** recompose hay không.
 
-## Ví dụ thực tế
-
-1. **Nút "Lên đầu trang"** theo `firstVisibleItemIndex`: ví dụ chính ở trên.
-2. **Top bar có bóng khi đã cuộn:** `remember { derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 } }`. `firstVisibleItemScrollOffset` đổi từng pixel, kết quả chỉ đổi hai lần.
-3. **Nút "Đăng ký" bật khi mật khẩu đủ mạnh:** text đổi mỗi ký tự, nhưng "đủ mạnh hay chưa" đổi rất ít. Chỉ đáng dùng khi state text được đọc ở một composable lớn; nếu chỉ nút đọc nó thì tính thẳng là đủ.
-
 ## Sai lầm thường gặp
 
 ### 1. Không bọc trong remember
@@ -198,7 +198,7 @@ Khác biệt giữa `remember(key)` và derivedStateOf: `remember(key)` chỉ ch
 val showScrollToTop by derivedStateOf { listState.firstVisibleItemIndex > 0 }
 ```
 
-**Lỗi lộ ra thế nào:** không còn cache để so, nên mỗi lần recompose lại tạo object và theo dõi từ đầu; Android Studio hiện cảnh báo lint về việc tạo derivedStateOf không remember.
+**Lỗi lộ ra thế nào:** không còn cache để so, nên mỗi lần recompose lại tạo object và theo dõi từ đầu; Android Studio hiện cảnh báo lint `UnrememberedMutableState`, vì `derivedStateOf` được đánh dấu là hàm tạo state (`@StateFactoryMarker`), giống `mutableStateOf`.
 
 **Cách sửa:** `remember { derivedStateOf { ... } }`.
 

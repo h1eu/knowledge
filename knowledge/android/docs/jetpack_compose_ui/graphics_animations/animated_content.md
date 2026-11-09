@@ -2,10 +2,10 @@
 id: android.jetpack_compose.animation.animated_content
 title: AnimatedContent
 summary: AnimatedContent là container animate việc chuyển giữa các nội dung khác nhau theo targetState. Mỗi giá trị target (qua contentKey) ứng với một nội dung; khi target đổi, nội dung mới chạy enter và nội dung cũ chạy exit cùng lúc, container animate kích thước bằng SizeTransform, xong thì nội dung cũ bị dispose. Bài giải thích vì sao lambda phải dùng tham số targetState, cách viết transitionSpec bằng togetherWith, using SizeTransform và slideIntoContainer, và contentKey để không animate khi chỉ dữ liệu bên trong đổi.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 13 phút
+estimated_reading_time: 15 phút
 tags: [android, compose, session-09, animation, animated-content, content-transform, size-transform]
 prerequisites: [android.jetpack_compose.animation.animated_visibility]
 related: [android.jetpack_compose.animation.crossfade, android.jetpack_compose.animation.transition_state, android.architecture.mvvm]
@@ -66,7 +66,7 @@ Mental model: **sân khấu đổi cảnh**. Cảnh cũ lui vào cánh gà trong
 
 ### 1. `targetState` và lambda nội dung
 
-Chữ ký chính (Compose Animation 1.5 trở đi):
+Chữ ký chính (Compose Animation 1.5 trở đi; giá trị mặc định của `transitionSpec` lấy từ bản 1.12):
 
 ```kotlin
 @Composable
@@ -74,7 +74,9 @@ fun <S> AnimatedContent(
     targetState: S,
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
-        AnimatedContentDefaults.ContentTransform
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+            scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+            .togetherWith(fadeOut(animationSpec = tween(90)))
     },
     contentAlignment: Alignment = Alignment.TopStart,
     label: String = "AnimatedContent",
@@ -105,7 +107,7 @@ sequenceDiagram
 
 Bước 1 là lý do của quy tắc quan trọng nhất: **lambda phải dùng tham số của nó**, không đọc state bên ngoài. Tài liệu ghi rõ tham số đó là key để tra nội dung đang hiện; nội dung của A chỉ đúng là A nếu nó vẽ từ tham số `A`, không phải từ biến bên ngoài đã thành `B`.
 
-Mặc định, `AnimatedContent` dùng kiểu **fade through**: nội dung cũ fade out, nội dung mới fade in (kèm scale in nhẹ) sau một khoảng trễ ngắn, và kích thước container chạy bằng spring. Receiver của lambda là `AnimatedContentScope`, cũng là một `AnimatedVisibilityScope`, nên dùng được `Modifier.animateEnterExit` và `transition` cho từng con như ở [AnimatedVisibility](animated_visibility.md).
+Mặc định, `AnimatedContent` dùng kiểu **fade through** như chữ ký ở trên: nội dung cũ fade out trong 90ms, nội dung mới fade in và scale từ 92% lên 100% trong 220ms sau độ trễ 90ms, và kích thước container chạy bằng spring (`SizeTransform` mặc định). Receiver của lambda là `AnimatedContentScope`, cũng là một `AnimatedVisibilityScope`, nên dùng được `Modifier.animateEnterExit` và `transition` cho từng con như ở [AnimatedVisibility](animated_visibility.md).
 
 #### Ví dụ: bộ đếm số lượng trong giỏ hàng
 
@@ -166,7 +168,7 @@ fun QuantityStepper(quantity: Int, onQuantityChange: (Int) -> Unit, modifier: Mo
 
 Toán tử `+` ưu tiên hơn hàm infix `togetherWith`, nên `a + b togetherWith c + d` nghĩa là `(a + b) togetherWith (c + d)`. Gán kết quả của `if` vào `slide` rồi mới `using` giúp `SizeTransform` áp cho cả hai nhánh.
 
-**Kết quả:** bấm cộng từ 2 lên 3, số 3 trượt lên từ dưới trong khi số 2 trượt lên và mờ đi; bấm trừ thì ngược lại. Số 9 lên 10 rộng hơn, container nới chiều rộng mượt nhờ `SizeTransform`.
+**Kết quả:** bấm cộng từ 2 lên 3, số 3 trượt lên từ dưới trong khi số 2 trượt lên và mờ đi; bấm trừ thì ngược lại. Số 99 lên 100 rộng hơn mức tối thiểu 32dp, container nới chiều rộng mượt nhờ `SizeTransform`.
 
 ### 2. `transitionSpec`: ContentTransform và SizeTransform
 
@@ -182,8 +184,8 @@ Toán tử `+` ưu tiên hơn hàm infix `togetherWith`, nên `a + b togetherWit
 Ghép enter và exit bằng `enter togetherWith exit`. Một vài điểm cần nắm:
 
 - **`slideIntoContainer` / `slideOutOfContainer`** nhận hướng `AnimatedContentTransitionScope.SlideDirection` (`Start`, `End`, `Up`, `Down`, `Left`, `Right`) và tự tính quãng trượt theo kích thước của container và nội dung, thay cho việc tự viết `slideInHorizontally { it }`. `Start`/`End` tự đảo theo hướng ngôn ngữ (RTL).
-- **`SizeTransform`** mặc định `clip = true` (nội dung bị cắt theo kích thước đang animate) và dùng spring. Lambda `SizeTransform { initialSize, targetSize -> keyframes { … } }` cho phép animate chiều rộng và chiều cao theo thứ tự khác nhau, ví dụ mở ngang trước, dọc sau. Truyền `using(null)` để không animate kích thước.
-- **`targetContentZIndex`** mặc định 0; vì nội dung đích được đặt sau nên mặc định nó nằm trên. Đặt giá trị khi muốn nội dung cũ nằm đè lên trong lúc rời đi.
+- **`SizeTransform`** mặc định `clip = true` (nội dung bị cắt theo kích thước đang animate) và dùng `spring(stiffness = Spring.StiffnessMediumLow)`. Lambda `SizeTransform { initialSize, targetSize -> keyframes { … } }` cho phép animate chiều rộng và chiều cao theo thứ tự khác nhau, ví dụ mở ngang trước, dọc sau. Truyền `using(null)` để không animate kích thước.
+- **`targetContentZIndex`** mặc định 0; vì nội dung đích được đặt sau nên mặc định nó nằm trên. Muốn nội dung cũ nằm đè lên trong lúc rời đi (ví dụ thẻ cũ trượt ra để lộ thẻ mới bên dưới), đặt giá trị âm cho nội dung đích: `(fadeIn() togetherWith slideOutVertically()).apply { targetContentZIndex = -1f }`.
 
 ### 3. `contentKey`: khi nào được coi là "nội dung khác"
 
@@ -328,7 +330,7 @@ fun CheckoutFlow(
 
 `BackHandler` thuộc thư viện `activity-compose`. `CheckoutForm` là data class chứa địa chỉ và phương thức thanh toán, thường nằm trong UI state của ViewModel.
 
-**Kết quả:** bấm "Tiếp", bước Thanh toán trượt vào từ bên phải trong khi bước Địa chỉ trượt ra bên trái, vùng chứa co chiều cao mượt. Bấm Back hệ thống, bước Địa chỉ trượt về và địa chỉ đã nhập vẫn còn. Viết UI test bằng `composeTestRule`: bấm "Tiếp", chờ idle, kiểm tra node "Phương thức thanh toán" hiển thị và node của bước Địa chỉ không còn trong cây (Compose UI test học ở 10.2 Unit Testing, chưa có bài).
+**Kết quả:** bấm "Tiếp", bước Thanh toán trượt vào từ bên phải trong khi bước Địa chỉ trượt ra bên trái, vùng chứa co chiều cao mượt. Bấm Back hệ thống, bước Địa chỉ trượt về và địa chỉ đã nhập vẫn còn. Viết UI test bằng `composeTestRule`: bấm "Tiếp", chờ idle, kiểm tra node "Phương thức thanh toán" hiển thị và node của bước Địa chỉ không còn trong cây. Compose UI test chạy trên thiết bị hoặc Robolectric, khác với unit test JVM ở [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md); mục lục hiện chưa có bài riêng cho nó.
 
 ## So sánh với các cách tiếp cận khác
 
@@ -384,12 +386,14 @@ Nội dung rời đi bị dispose sau khi transform xong, mọi `remember` (kể
 
 ### 5. Dùng hàm `with` cũ
 
-Code từ trước 2023 viết `fadeIn() with fadeOut()`. Hàm infix `with` đã deprecated, thay bằng `togetherWith`; tên mới cũng tránh nhầm với hàm scope `with` của Kotlin.
+Code từ trước 2023 viết `fadeIn() with fadeOut()`. Hàm infix `with` bị deprecated từ Compose Animation 1.5, thay bằng `togetherWith`; tên mới cũng tránh nhầm với hàm scope `with` của Kotlin. Từ 1.13, `with` chỉ còn ở mức `DeprecationLevel.HIDDEN` để giữ tương thích nhị phân, nên code nguồn dùng nó không compile nữa.
 
 ## Lịch sử phát triển
 
-- **Compose 1.0 (07/2021):** `AnimatedContent` có mặt nhưng là API experimental (`@ExperimentalAnimationApi`); enter và exit ghép bằng hàm infix `with`.
-- **Compose Animation 1.5 (2023):** `AnimatedContent` ổn định. Overload hiện hành có `label` và `contentKey`; `togetherWith` thay `with` (deprecated). Cùng đợt có `Transition.AnimatedContent` để gom chuyển nội dung vào một `Transition` chung ([MutableTransitionState](mutable_transition_state.md)).
+- **Compose 1.0 (07/2021):** `AnimatedContent` được thêm ở 1.0.0-beta09 và có mặt trong bản ổn định đầu tiên nhưng là API experimental (`@ExperimentalAnimationApi`); enter và exit ghép bằng hàm infix `with`.
+- **Compose Animation 1.4 (2023):** thêm tham số `label` để nhận diện trong Animation Preview.
+- **Compose Animation 1.5 (2023):** `AnimatedContent` ổn định; scope của `transitionSpec` đổi tên thành `AnimatedContentTransitionScope`, receiver của lambda nội dung là `AnimatedContentScope` mới. Thêm `contentKey`; `togetherWith` thay `with` (deprecated). `Transition.AnimatedContent`, dùng để gom chuyển nội dung vào một `Transition` chung ([MutableTransitionState](mutable_transition_state.md)), cũng ổn định.
+- **Compose Animation 1.13 (đang ở bản rc, 11/2026):** `with` bị gỡ khỏi API nguồn, chỉ giữ dạng ẩn cho tương thích nhị phân.
 
 ## Kết nối hệ thống
 
@@ -407,3 +411,4 @@ Code từ trước 2023 viết `fadeIn() with fadeOut()`. Hàm infix `with` đã
 - [Animation modifiers and composables: AnimatedContent — Android Developers](https://developer.android.com/develop/ui/compose/animation/composables-modifiers)
 - [AnimatedContent — API reference](https://developer.android.com/reference/kotlin/androidx/compose/animation/AnimatedContent.composable)
 - [Value-based animations: Transition.AnimatedContent — Android Developers](https://developer.android.com/develop/ui/compose/animation/value-based)
+- [Compose Animation release notes — AndroidX](https://developer.android.com/jetpack/androidx/releases/compose-animation)

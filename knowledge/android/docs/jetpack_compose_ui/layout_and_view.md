@@ -1,22 +1,22 @@
 ---
 id: android.jetpack_compose.layout_and_view
 title: Layout and View (Text, Image, Layout)
-summary: Layout trong Compose là quá trình mỗi node của cây UI nhận constraints (giới hạn kích thước nhỏ nhất và lớn nhất) từ cha, đo mỗi con đúng một lần, tự chọn kích thước rồi đặt vị trí các con; Text, Image, Icon là node lá hiển thị nội dung, Row, Column, Box, Scaffold và Layout {} là node xếp con. Bài giải thích mô hình đo một lượt, Text với AnnotatedString, Image, Icon, arrangement và alignment, Scaffold, custom layout bằng Layout {} và BoxWithConstraints.
-status: reviewing
+summary: Layout trong Compose là quá trình mỗi node của cây UI nhận constraints (giới hạn kích thước nhỏ nhất và lớn nhất) từ cha, đo mỗi con đúng một lần, tự chọn kích thước rồi đặt vị trí các con; Text, Image, Icon là node lá hiển thị nội dung, Row, Column, Box, Scaffold và Layout {} là node xếp con. Bài giải thích mô hình đo một lượt, Text với AnnotatedString, Image, Icon, arrangement và alignment, Scaffold, custom layout bằng Layout {}, và layout thích ứng bằng window size class (cấp màn hình) và BoxWithConstraints (cấp component).
+status: published
 difficulty: beginner
 depth: standard
-estimated_reading_time: 18 phút
-tags: [android, compose, session-09, layout, text, image, row-column-box, scaffold, custom-layout]
+estimated_reading_time: 22 phút
+tags: [android, compose, session-09, layout, text, image, row-column-box, scaffold, custom-layout, adaptive-layout]
 prerequisites: [android.jetpack_compose.compose_overview, android.jetpack_compose.theming.material_theme]
-related: [android.jetpack_compose.theming.custom_theme, android.jetpack.view_binding, android.jetpack_compose.remember_recomposition]
+related: [android.jetpack_compose.theming.custom_theme, android.jetpack_compose.remember_recomposition, android.jetpack_compose.modifier.order, android.jetpack_compose.lazy.lazy_column, android.image.coil, android.view_layout.layouts, android.view_layout.custom_view, android.jetpack.view_binding]
 learning_outcomes:
   - Giải thích được mô hình layout của Compose: constraints đi xuống, kích thước đi lên, mỗi con chỉ được đo một lần, và vì sao lồng layout không làm chậm như View system.
   - Triển khai được giao diện bằng Text (style, maxLines, overflow, AnnotatedString), Image (painterResource, contentScale, contentDescription) và Icon.
   - Áp dụng được Row, Column, Box, Spacer với arrangement và alignment, và dựng khung màn hình bằng Scaffold có xử lý innerPadding.
   - Thiết kế được custom layout cơ bản bằng Layout {} với measurables, constraints và placeRelative.
-  - Biết khi nào dùng BoxWithConstraints cho component và khi nào dùng window size class cho quyết định cấp màn hình.
+  - Thiết kế được layout thích ứng: dùng window size class (breakpoint theo kích thước cửa sổ) cho quyết định cấp màn hình và BoxWithConstraints cho quyết định cấp component.
 knowledge_gap: >
-  Developer chuyển từ XML hay bê nguyên thói quen cũ: né lồng Row và Column vì sợ chậm, bỏ quên innerPadding của Scaffold khiến nội dung chui dưới thanh trên cùng, để Text dài đẩy mất nhãn thời gian vì không có weight và overflow, đặt contentDescription cho ảnh trang trí làm TalkBack đọc thừa, hoặc dùng BoxWithConstraints khắp nơi mà không biết nó phải compose lại nội dung trong lúc layout.
+  Developer chuyển từ XML hay bê nguyên thói quen cũ: né lồng Row và Column vì sợ chậm, bỏ quên innerPadding của Scaffold khiến nội dung chui dưới thanh trên cùng, để Text dài đẩy mất nhãn thời gian vì không có weight và overflow, đặt contentDescription cho ảnh trang trí làm TalkBack đọc thừa, viết logic "isTablet" theo kích thước thiết bị thay vì window size class, hoặc dùng BoxWithConstraints khắp nơi mà không biết nó phải compose lại nội dung trong lúc layout.
 ---
 
 # Layout and View (Text, Image, Layout)
@@ -35,10 +35,10 @@ fun ArtistCard() {
 
 Dựng một màn hình thật đòi hỏi trả lời nhiều câu hỏi cùng lúc:
 
-- **Hiển thị nội dung:** chữ dài thì cắt thế nào, một đoạn chữ có phần in đậm và phần là đường link; ảnh không đúng tỉ lệ khung thì cắt hay co; icon lấy màu từ đâu.
+- **Hiển thị nội dung:** chữ dài cắt thế nào, một đoạn chữ có phần in đậm và phần là link; ảnh lệch tỉ lệ khung thì cắt hay co.
 - **Xếp phần tử:** ngang, dọc, chồng lớp; căn giữa, dồn hai đầu; phần tử nào được giãn ra.
-- **Khung màn hình:** thanh trên cùng, nút nổi, Snackbar đặt ở đâu để không đè nội dung.
-- **Hiệu năng:** trong View system, lồng `LinearLayout` có `weight` hay `RelativeLayout` làm một View bị đo nhiều lần; trong Compose có phải "làm phẳng" layout như vậy không?
+- **Khung màn hình:** thanh trên cùng, nút nổi, Snackbar đặt ở đâu để không đè nội dung; cửa sổ rộng (tablet, foldable, chia đôi màn hình) thì đổi bố cục thế nào.
+- **Hiệu năng:** trong View system, lồng `LinearLayout` có `weight` làm một View bị đo nhiều lần ([8.5.1 Layouts](../session_08/view_layout/layouts.md)); Compose có buộc "làm phẳng" layout như vậy không?
 
 Vấn đề cần giải quyết là: **hiểu Compose đo và đặt phần tử thế nào**, để chọn đúng composable cơ bản cho từng nhu cầu, và tự viết layout khi các composable có sẵn không đủ.
 
@@ -48,7 +48,7 @@ Vấn đề cần giải quyết là: **hiểu Compose đo và đặt phần t�
 - Triển khai được giao diện bằng Text (style, maxLines, overflow, AnnotatedString), Image (painterResource, contentScale, contentDescription) và Icon.
 - Áp dụng được Row, Column, Box, Spacer với arrangement và alignment, và dựng khung màn hình bằng Scaffold có xử lý innerPadding.
 - Thiết kế được custom layout cơ bản bằng Layout {} với measurables, constraints và placeRelative.
-- Biết khi nào dùng BoxWithConstraints cho component và khi nào dùng window size class cho quyết định cấp màn hình.
+- Thiết kế được layout thích ứng: dùng window size class (breakpoint theo kích thước cửa sổ) cho quyết định cấp màn hình và BoxWithConstraints cho quyết định cấp component.
 
 ## Layout trong Compose là gì?
 
@@ -72,59 +72,9 @@ Mỗi node trong phase layout làm ba việc, theo thứ tự:
 
 Hệ quả: cha **bắt đầu đo trước** con, nhưng **có kích thước sau** con. Toàn bộ cây được layout trong **một lượt** (single pass).
 
-Quy tắc quan trọng nhất: **Compose không cho đo một con hai lần** trong cùng một lượt layout. Nếu mỗi phần tử đo con hai lần, và con lại đo con của nó hai lần, chi phí tăng theo cấp số nhân với độ sâu của cây. Vì mỗi node chỉ được đo một lần, **lồng `Row`, `Column` sâu bao nhiêu cũng không làm chậm**, khác kinh nghiệm "làm phẳng layout" của View system. Khi cần biết kích thước con trước khi đo (mọi nút rộng bằng nút rộng nhất), dùng **intrinsic measurements**: hỏi con "nếu được tự do thì cần rộng bao nhiêu" mà không tính là một lần đo. Đo và đặt tách rời, nên thay đổi chỉ ảnh hưởng vị trí có thể chạy lại riêng bước đặt.
+Quy tắc quan trọng nhất: **Compose không cho đo một con hai lần** trong cùng một lượt layout. Nếu mỗi tầng đo con hai lần, chi phí tăng theo cấp số nhân với độ sâu của cây; vì mỗi node chỉ được đo một lần, **lồng `Row`, `Column` sâu bao nhiêu cũng không làm chậm**, khác kinh nghiệm "làm phẳng layout" của View system. Khi cần biết kích thước con trước khi đo (mọi nút rộng bằng nút rộng nhất), dùng **intrinsic measurements**: hỏi con "nếu được tự do thì cần rộng bao nhiêu" mà không tính là một lần đo. Đo và đặt tách rời, nên thay đổi chỉ ảnh hưởng vị trí có thể chạy lại riêng bước đặt.
 
-#### Ví dụ: một dòng kết quả tìm kiếm sản phẩm
-
-**Bài toán:** dòng gồm ảnh sản phẩm bên trái, tên và giá xếp dọc bên phải; cần đoán đúng kích thước của từng phần khi tên rất dài.
-
-**Luồng chạy:**
-
-1. `Row` nhận constraints từ cha (rộng tối đa bằng màn hình).
-2. `Row` đo `Image` (lá), nhận 64×64dp.
-3. `Row` đo `Column` với phần rộng còn lại.
-4. `Column` đo lần lượt hai `Text` (lá), mỗi cái báo kích thước theo nội dung.
-5. `Column` chọn kích thước (rộng bằng `Text` rộng nhất, cao bằng tổng) và đặt hai `Text`.
-6. `Row` chọn kích thước (cao bằng con cao nhất) và đặt `Image`, `Column` từ trái sang.
-
-```mermaid
-sequenceDiagram
-    participant P as Cha
-    participant R as Row
-    participant I as Image
-    participant C as Column
-    participant T as Text x2
-    P->>R: (1) measure(constraints)
-    R->>I: (2) measure
-    I-->>R: 64x64dp
-    R->>C: (3) measure(phần rộng còn lại)
-    C->>T: (4) measure từng Text
-    T-->>C: kích thước theo nội dung
-    C-->>R: (5) kích thước Column, đã đặt hai Text
-    R-->>P: (6) kích thước Row, đã đặt Image và Column
-```
-
-**Code:**
-
-```kotlin
-// ProductSearchRow.kt
-@Composable
-fun ProductSearchRow(product: Product, modifier: Modifier = Modifier) {
-    Row(modifier, verticalAlignment = Alignment.CenterVertically) {   // (1) (6)
-        Image(                                                           // (2)
-            painter = painterResource(product.thumbnailRes),
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-        )
-        Column(Modifier.padding(start = 12.dp)) {                        // (3) (5)
-            Text(product.name, style = MaterialTheme.typography.titleMedium)   // (4)
-            Text(product.priceText, style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-}
-```
-
-**Kết quả:** Layout Inspector cho thấy `Row` cao 64dp, `Column` bắt đầu sau ảnh 12dp. Tên rất dài thì xuống dòng trong phần rộng còn lại, vì constraints mà `Column` nhận ở bước 3 không cho vượt màn hình.
+Mục "Ví dụ thực tế" (dòng hội thoại) đi qua đầy đủ luồng đo này trên một `Row` có avatar, cột chữ và cột giờ.
 
 ### Text: hiển thị chữ
 
@@ -201,16 +151,16 @@ fun SearchResultTitle(title: String, query: String, modifier: Modifier = Modifie
 }
 ```
 
-`highlightQuery` là hàm thường, không `@Composable`, nên test được bằng unit test JVM. `remember(keys)` giữ kết quả qua recomposition và chỉ tính lại khi `title` hoặc `query` đổi; cơ chế ở [9.1 Remember and Recomposition](remember_and_recomposition.md).
+`highlightQuery` là hàm thường, không `@Composable`, nên test được bằng unit test JVM; `remember(keys)` chỉ tính lại khi `title` hoặc `query` đổi (cơ chế ở [9.1 Remember and Recomposition](remember_and_recomposition.md)).
 
-**Kết quả:** tìm "áo khoác" thì "Áo khoác gió nam" và "Set áo khoác + quần" đều được tô đậm đúng đoạn khớp. Unit test kiểm tra `highlightQuery("Áo khoác gió", "áo", style).spanStyles` có đúng một range `0..2`. Tiêu đề dài ba dòng hiện hai dòng và kết thúc bằng "…".
+**Kết quả:** unit test `highlightQuery("Áo khoác gió", "áo", style).spanStyles` có đúng một range `0..2`; trên màn hình, tiêu đề dài ba dòng hiện hai dòng và kết thúc bằng "…".
 
 ### Image và Icon: hiển thị hình
 
 `Image` vẽ một hình vào khung của nó. Các tham số chính:
 
 - **Nguồn hình:** `painter = painterResource(R.drawable.banner)` cho drawable trong resource (cả bitmap lẫn vector drawable); ngoài ra có overload nhận `ImageBitmap` hoặc `ImageVector`.
-- **`contentDescription`:** mô tả cho trình đọc màn hình (TalkBack). Hình mang thông tin (banner khuyến mãi, ảnh sản phẩm khi không có tên đi kèm) thì mô tả nội dung; hình trang trí hoặc đã có chữ mô tả bên cạnh thì truyền `null` để TalkBack bỏ qua. Đây là tham số bắt buộc, có chủ đích, để developer phải quyết định.
+- **`contentDescription`:** mô tả cho trình đọc màn hình (TalkBack). Hình mang thông tin (banner khuyến mãi) thì mô tả nội dung; hình trang trí hoặc đã có chữ bên cạnh thì truyền `null` để TalkBack bỏ qua. Tham số này bắt buộc để developer phải quyết định.
 - **`contentScale`:** cách khớp hình vào khung khi tỉ lệ khác nhau.
 - **`alignment`, `alpha`, `colorFilter`:** vị trí hình trong khung, độ trong suốt, bộ lọc màu.
 
@@ -223,9 +173,9 @@ fun SearchResultTitle(title: String, query: String, modifier: Modifier = Modifie
 | `Inside` | Như `Fit` nhưng không phóng to hình nhỏ hơn khung |
 | `None` | Giữ nguyên kích thước gốc |
 
-`painterResource` chỉ dành cho hình trong app. Ảnh tải từ mạng cần thư viện tải ảnh, phổ biến là Coil với composable `AsyncImage(model = url, ...)`, có cùng các tham số `contentDescription`, `contentScale`; Coil được học ở 8.2.4 Coil (chưa có bài).
+`painterResource` chỉ dành cho hình trong app. Ảnh tải từ mạng cần thư viện image loading, phổ biến là Coil với composable `AsyncImage(model = url, ...)` (artifact `coil-compose`), có cùng các tham số `contentDescription`, `contentScale`; cách thiết lập và chọn giữa `AsyncImage`, `rememberAsyncImagePainter`, `SubcomposeAsyncImage` học ở [8.2.4 Coil](../session_08/loading_image/coil.md).
 
-`Icon` là composable cho **icon một màu cỡ nhỏ**: mặc định 24dp và được tô bằng `LocalContentColor`, nên đặt trong `Button`, `TopAppBar` thì tự lấy đúng màu nội dung của component; đổi màu bằng `tint`. Về nguồn icon, docs hiện **không còn khuyên dùng** thư viện `material-icons` (`Icons.Default.Favorite`...) vì giao diện cũ và làm tăng đáng kể thời gian build; thay vào đó tải icon Material Symbols dạng XML vector drawable từ Google Fonts rồi dùng `Icon(painterResource(R.drawable.ic_favorite), contentDescription = ...)`.
+`Icon` là composable cho **icon một màu cỡ nhỏ**: mặc định 24dp và được tô bằng `LocalContentColor`, nên đặt trong `Button`, `TopAppBar` thì tự lấy đúng màu nội dung của component; đổi màu bằng `tint`. Docs **không còn duy trì và khuyên dùng** thư viện `material-icons` (`Icons.Default.Favorite`...) vì giao diện cũ và làm tăng đáng kể thời gian build; thay vào đó tải icon Material Symbols dạng XML từ Google Fonts rồi dùng `Icon(painterResource(R.drawable.ic_favorite), contentDescription = ...)`.
 
 ### Row, Column, Box và Spacer: xếp phần tử
 
@@ -241,7 +191,7 @@ Ba layout chuẩn xếp con theo ba cách: `Column` theo chiều dọc, `Row` th
 - **Alignment** căn trên trục phụ: `Alignment.Top`, `CenterVertically`, `Bottom` cho `Row`; `Start`, `CenterHorizontally`, `End` cho `Column`; chín vị trí như `TopStart`, `Center`, `BottomEnd` cho `Box`.
 - **`Spacer`** là composable rỗng chiếm chỗ: `Spacer(Modifier.height(16.dp))` tạo khoảng cách; trong `Row`, `Spacer(Modifier.weight(1f))` chiếm hết phần còn lại, đẩy các con phía sau về cuối.
 
-Một số modifier chỉ có trong scope của layout cha: `Modifier.weight()` trong `Row`/`Column` (con được chia phần chiều rộng hoặc cao còn lại), `Modifier.align()` và `Modifier.matchParentSize()` trong `Box`. Cơ chế scope-specific modifier học ở 9.5.2 Chaining; trong bài này chỉ dùng ở mức cần thiết.
+Một số modifier chỉ có trong scope của layout cha: `Modifier.weight()` trong `Row`/`Column` (con được chia phần chiều rộng hoặc cao còn lại), `Modifier.align()` và `Modifier.matchParentSize()` trong `Box`. Cơ chế scope-specific modifier học ở [9.5.2 Chaining](modifier/chaining.md).
 
 #### Ví dụ: nhãn giảm giá đè lên ảnh sản phẩm
 
@@ -275,7 +225,7 @@ fun ProductImageWithBadge(product: Product, modifier: Modifier = Modifier) {
 }
 ```
 
-**Kết quả:** Preview với `discountPercent = 30` hiện nhãn đỏ ở góc ảnh; đặt `0` thì nhãn biến mất, ảnh giữ nguyên vị trí vì `Box` chồng lớp chứ không xếp nối tiếp. Vì sao `clip`/`background`/`padding` phải theo đúng thứ tự này học ở 9.5.1 Modifier Order.
+**Kết quả:** Preview với `discountPercent = 30` hiện nhãn đỏ ở góc ảnh; đặt `0` thì nhãn biến mất, ảnh giữ nguyên vị trí vì `Box` chồng lớp chứ không xếp nối tiếp. Vì sao `padding`/`background`/`padding` phải theo đúng thứ tự này học ở [9.5.1 Modifier Order](modifier/modifier_order.md).
 
 ### Scaffold: khung màn hình Material
 
@@ -289,7 +239,7 @@ fun ProductImageWithBadge(product: Product, modifier: Modifier = Modifier) {
 | `snackbarHost` | `SnackbarHost(snackbarHostState)` |
 | `content: (PaddingValues) -> Unit` | Nội dung chính |
 
-Điểm mấu chốt là tham số `PaddingValues` của `content` (thường tên `innerPadding`): khoảng nội dung phải chừa ra để không bị `topBar`, `bottomBar` và vùng hệ thống (window insets như thanh trạng thái khi app vẽ tràn bằng `enableEdgeToEdge()`) che mất. Nội dung **phải** dùng nó, qua `Modifier.padding(innerPadding)` hoặc `contentPadding` của danh sách; Lint cảnh báo khi tham số này bị bỏ quên.
+Điểm mấu chốt là tham số `PaddingValues` của `content` (thường tên `innerPadding`): khoảng nội dung phải chừa ra để không bị `topBar`, `bottomBar` và vùng hệ thống (window insets như thanh trạng thái khi app vẽ tràn bằng `enableEdgeToEdge()`; từ Android 15, app target SDK 35 bị buộc vẽ tràn) che mất. Nội dung **phải** dùng nó, qua `Modifier.padding(innerPadding)` hoặc `contentPadding` của danh sách; Lint cảnh báo khi tham số này bị bỏ quên.
 
 #### Ví dụ: màn hình ghi chú có nút thêm và Snackbar hoàn tác
 
@@ -362,9 +312,9 @@ fun NoteListScreen(
 }
 ```
 
-`rememberCoroutineScope` để chạy coroutine từ callback là kiến thức của 9.3.1 LaunchedEffect; `LazyColumn` và `items(key = ...)` học ở 9.5.4 Lazy Column; coroutine học ở 8.4.3 Coroutines (chưa có bài).
+`rememberCoroutineScope` để chạy coroutine từ callback học ở [9.3.1 LaunchedEffect](side_effects/launched_effect.md); `LazyColumn` và `items(key = ...)` ở [9.5.4 Lazy Column](modifier/lazy_column.md); coroutine và hàm `suspend` ở [8.4.3 Coroutines](../session_08/async_threads/coroutines.md).
 
-**Kết quả:** mục đầu tiên của danh sách nằm ngay dưới thanh tiêu đề, không bị che; cuộn thì nội dung trượt dưới thanh trạng thái nhưng mục cuối vẫn kéo lên được trên thanh điều hướng. Xoá một ghi chú: Snackbar hiện phía trên FAB; bấm "Hoàn tác" thì ghi chú trở lại.
+**Kết quả:** mục đầu tiên nằm ngay dưới thanh tiêu đề, mục cuối vẫn kéo lên được trên thanh điều hướng. Xoá một ghi chú: Snackbar hiện phía trên FAB; bấm "Hoàn tác" thì ghi chú trở lại.
 
 ### Custom layout với `Layout {}`
 
@@ -373,7 +323,7 @@ Khi `Row`, `Column`, `Box` không diễn đạt được cách xếp mong muốn
 - `measurables`: danh sách con **chưa đo**. Mỗi `Measurable` được gọi `measure(constraints)` **đúng một lần**, trả về `Placeable` (con đã đo, có `width`, `height`).
 - `constraints`: constraints mà cha giao cho layout này.
 
-Lambda kết thúc bằng `layout(width, height) { ... }`: khai báo kích thước của layout, và trong khối đó gọi `placeable.placeRelative(x, y)` để đặt từng con. `placeRelative` tự lật toạ độ x khi ngôn ngữ viết từ phải sang trái (RTL); `place` thì không lật. Con nào không được đặt thì không hiện. Gọi `measure` hai lần trên cùng một `Measurable` làm app ném exception lúc chạy: quy tắc đo một lần được thực thi thật, không chỉ là khuyến nghị.
+Lambda kết thúc bằng `layout(width, height) { ... }`: khai báo kích thước của layout, và trong khối đó gọi `placeable.placeRelative(x, y)` để đặt từng con (`placeRelative` tự lật x khi ngôn ngữ viết từ phải sang trái, `place` thì không). Con không được đặt thì không hiện. Gọi `measure` hai lần trên cùng một `Measurable` ném exception lúc chạy: quy tắc đo một lần được thực thi thật.
 
 Để đổi cách đo, đặt **một** composable (không phải nhiều con), dùng `Modifier.layout { measurable, constraints -> ... }` với cùng cấu trúc.
 
@@ -451,16 +401,57 @@ EqualWidthRow {
 }
 ```
 
-**Kết quả:** Preview hiện hai nút cùng chiều rộng của nút "Xoá vĩnh viễn". Đặt dialog trong khung hẹp 200dp: hai nút co về mỗi nút khoảng 96dp và chữ xuống dòng, không tràn ra ngoài. Bật chế độ RTL trong Developer options: nút "Huỷ" chuyển sang bên phải nhờ `placeRelative`. Thử gọi `measure` thêm một lần cho cùng một con: app crash ngay khi hiển thị, đúng như quy tắc đo một lần.
+**Kết quả:** Preview hiện hai nút cùng chiều rộng của nút "Xoá vĩnh viễn". Trong khung hẹp 200dp, mỗi nút co về 96dp và chữ xuống dòng, không tràn. Bật RTL trong Developer options: nút "Huỷ" chuyển sang bên phải nhờ `placeRelative`.
 
-### BoxWithConstraints: compose theo không gian được cấp
+### Layout thích ứng cấp màn hình: window size class
 
-Bình thường, composition chạy **trước** layout, nên một composable không biết mình sẽ được cấp bao nhiêu chỗ. `BoxWithConstraints` đảo thứ tự cho nội dung của nó: nội dung được compose **trong lúc layout**, khi đã biết constraints, và đọc được `maxWidth`, `maxHeight`, `minWidth`, `minHeight` (kiểu `Dp`) hoặc `constraints` ngay trong lambda.
+**Layout thích ứng** (adaptive layout) là đổi *cấu trúc* UI theo không gian được cấp: một cột hay hai cột, thanh điều hướng dưới hay bên cạnh. Có hai cấp quyết định: window size class cho cả màn hình, `BoxWithConstraints` cho từng component (phần sau).
 
-Cái giá là `BoxWithConstraints` dùng **subcomposition** (compose một phần cây trong phase layout), đắt hơn một `Box` thường. Vì vậy:
+Window size class là các mốc (breakpoint) chia **kích thước cửa sổ của app** thành nhóm, tính riêng cho chiều rộng và chiều cao:
 
-- Dùng `BoxWithConstraints` cho **quyết định cấp component** phụ thuộc chỗ thật sự được cấp: một thẻ nằm trong cột hẹp của tablet có thể hẹp hơn cả trên điện thoại.
-- Dùng **window size class** (`currentWindowAdaptiveInfo().windowSizeClass`) cho **quyết định cấp màn hình** (một cột hay hai cột, thanh điều hướng dưới hay bên cạnh), như ví dụ token theo cửa sổ ở [9.4.2 Custom Theme](theming/custom_theme.md).
+| Chiều rộng | Mốc | Chiều cao | Mốc |
+|---|---|---|---|
+| Compact | < 600dp | Compact | < 480dp |
+| Medium | 600–840dp | Medium | 480–900dp |
+| Expanded | 840–1200dp | Expanded | ≥ 900dp |
+| Large / Extra-large | 1200–1600dp / ≥ 1600dp | | |
+
+Lấy giá trị bằng `currentWindowAdaptiveInfo().windowSizeClass` (artifact `androidx.compose.material3.adaptive:adaptive`, kiểu `androidx.window.core.layout.WindowSizeClass`) và so bằng `isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)` hoặc `isHeightAtLeastBreakpoint(...)`. Hai mốc large, extra-large chỉ được tính khi gọi `currentWindowAdaptiveInfo(supportLargeAndXLargeWidth = true)`. Hai điều quyết định cách dùng:
+
+- **Cửa sổ không phải màn hình:** chia đôi màn hình, cửa sổ tự do trên ChromeOS, foldable đều làm cửa sổ khác kích thước thiết bị, nên không viết logic "isTablet".
+- **Giá trị đổi trong lúc chạy** (xoay, gập/mở, đổi cỡ cửa sổ) và phần đọc nó recompose theo. Đọc một lần ở composable gốc của màn hình rồi truyền xuống như state.
+
+#### Ví dụ: app email đổi thanh điều hướng theo độ rộng cửa sổ
+
+**Bài toán:** cửa sổ từ 600dp trở lên hiện thanh điều hướng bên cạnh (`NavigationRail`) và bố cục danh sách – chi tiết; hẹp hơn thì thanh điều hướng dưới và chỉ danh sách.
+
+```kotlin
+// MailApp.kt
+import androidx.window.core.layout.WindowSizeClass
+
+@Composable
+fun MailApp(
+    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+) {
+    val useRail = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+    if (useRail) {                                   // >= 600dp: thanh điều hướng bên cạnh, danh sách + chi tiết
+        Row {
+            MailNavigationRail()
+            MailListDetail(Modifier.weight(1f))
+        }
+    } else {                                         // < 600dp: thanh điều hướng dưới, chỉ danh sách
+        Scaffold(bottomBar = { MailNavigationBar() }) { innerPadding ->
+            MailList(Modifier.padding(innerPadding))
+        }
+    }
+}
+```
+
+**Kết quả:** mở foldable làm cửa sổ vượt 600dp thì `MailApp` recompose sang rail; chia đôi màn hình tablet làm cửa sổ hẹp lại thì quay về thanh dưới. Tham số có giá trị mặc định giúp Preview truyền thẳng một `WindowSizeClass`. Material 3 còn có scaffold dựng sẵn theo window size class (`NavigationSuiteScaffold`, `ListDetailPaneScaffold`); [9.4.2 Custom Theme](theming/custom_theme.md) dùng cùng API này để đổi token theo độ rộng cửa sổ.
+
+### Layout thích ứng cấp component: `BoxWithConstraints`
+
+Bình thường, composition chạy **trước** layout, nên một composable không biết mình sẽ được cấp bao nhiêu chỗ. `BoxWithConstraints` đảo thứ tự cho nội dung của nó: nội dung được compose **trong lúc layout**, khi đã biết constraints, và đọc được `maxWidth`, `maxHeight`, `minWidth`, `minHeight` (kiểu `Dp`) hoặc `constraints` ngay trong lambda. Cái giá là nó dùng **subcomposition** (compose một phần cây trong phase layout), đắt hơn `Box` thường. Dùng nó khi quyết định phụ thuộc chỗ **thật sự được cấp cho component**, không phải cửa sổ: một thẻ trong cột hẹp của tablet có thể hẹp hơn cả trên điện thoại.
 
 #### Ví dụ: thẻ sản phẩm ngang khi đủ rộng, dọc khi hẹp
 
@@ -488,15 +479,15 @@ fun ProductListItem(product: Product, modifier: Modifier = Modifier) {
 }
 ```
 
-**Kết quả:** Preview trong hai khung `Modifier.width(400.dp)` và `Modifier.width(300.dp)`: khung rộng hiện bản ngang, khung hẹp hiện bản dọc. Trên tablet chia đôi màn hình, item có thể hiện bản dọc dù thiết bị lớn, vì quyết định dựa trên chỗ được cấp.
+**Kết quả:** Preview trong hai khung `Modifier.width(400.dp)` và `Modifier.width(300.dp)`: khung rộng hiện bản ngang, khung hẹp hiện bản dọc. Đặt trong một cột của bố cục hai cột trên cửa sổ expanded, item vẫn có thể hiện bản dọc, vì quyết định dựa trên chỗ được cấp chứ không dựa trên cửa sổ.
 
 ## Ví dụ thực tế
 
 Ba bài toán thường gặp khi dựng UI bằng các composable cơ bản:
 
-1. **Một dòng hội thoại trong danh sách chat:** avatar, tên, tin nhắn cuối bị cắt, giờ và số tin chưa đọc luôn hiện đủ dù tên dài. Đây là bài toán chính, code bên dưới.
-2. **Dòng "Tôi đồng ý với Điều khoản sử dụng"** trong màn đăng ký: một `Text` với `buildAnnotatedString` và `withLink(LinkAnnotation.Clickable(tag = "terms", linkInteractionListener = { onTermsClick() }))`, để phần "Điều khoản sử dụng" mở màn hình điều khoản trong app.
-3. **Màn hình chi tiết có nút "Mua ngay" cố định ở đáy:** `Scaffold(bottomBar = { ... })`, nội dung cuộn dùng `innerPadding`.
+1. **Dòng hội thoại trong danh sách chat:** giờ và số tin chưa đọc luôn hiện đủ dù tên dài. Bài toán chính, code bên dưới.
+2. **Dòng "Tôi đồng ý với Điều khoản sử dụng":** `buildAnnotatedString` với `withLink(LinkAnnotation.Clickable(tag = "terms", linkInteractionListener = { onTermsClick() }))` để phần "Điều khoản sử dụng" mở màn hình trong app.
+3. **Màn chi tiết có nút "Mua ngay" cố định ở đáy:** `Scaffold(bottomBar = { ... })`, nội dung cuộn dùng `innerPadding`.
 
 ### Dòng hội thoại trong danh sách chat
 
@@ -570,41 +561,22 @@ fun ConversationRow(
         }
     }
 }
-
-@Preview(showBackground = true, widthDp = 360)
-@Composable
-private fun ConversationRowPreview() {
-    MaterialTheme {
-        Column {
-            ConversationRow(sampleConversation, onClick = {})
-            ConversationRow(
-                sampleConversation.copy(
-                    name = "Nhóm lớp 12A1 - Hội cựu học sinh khoá 2015",
-                    lastMessage = "Cuối tuần này mọi người có đi họp lớp được không, mình đặt bàn nhé",
-                    unreadCount = 120,
-                ),
-                onClick = {},
-            )
-        }
-    }
-}
 ```
 
-`Badge` là composable Material 3 cho huy hiệu số; tự dựng bằng `Box` có nền tròn cũng được, nhưng `Badge` đã đúng kích thước và màu theo spec. `clickable` làm cả dòng là một vùng bấm và gộp ngữ nghĩa các con lại, nên TalkBack đọc tên, tin nhắn, giờ thành một mục.
+`Badge` là composable Material 3 cho huy hiệu số, đúng kích thước và màu theo spec. `clickable` gộp ngữ nghĩa các con, nên TalkBack đọc tên, tin nhắn, giờ thành một mục.
 
-**Kết quả:** Preview hiện hai dòng: dòng thứ hai có tên và tin nhắn bị cắt "…", còn giờ và huy hiệu "99+" vẫn hiện đủ ở mép phải. Xoá `Modifier.weight(1f)` khỏi cột giữa rồi xem lại: cột giữa được đo trước theo chữ dài, chiếm hết chỗ và đẩy cột giờ ra khỏi màn hình. Đó là lý do phần co giãn phải là phần có `weight`.
+**Kết quả:** Preview (`widthDp = 360`) với một hội thoại tên "Nhóm lớp 12A1 - Hội cựu học sinh khoá 2015" và 120 tin chưa đọc: tên và tin nhắn bị cắt "…", giờ và huy hiệu "99+" vẫn hiện đủ ở mép phải. Xoá `Modifier.weight(1f)` khỏi cột giữa rồi xem lại: cột giữa được đo trước theo chữ dài, chiếm hết chỗ và đẩy cột giờ ra khỏi màn hình. Đó là lý do phần co giãn phải là phần có `weight`.
 
 ## So sánh với các cách tiếp cận khác
 
 | View system (XML) | Compose | Khác biệt chính |
 |---|---|---|
-| `TextView` (+ `Spannable`), `ImageView` | `Text` (+ `AnnotatedString`), `Image` | Style lấy từ theme Compose; `contentDescription` bắt buộc |
-| `LinearLayout` (+ `layout_weight`) | `Row` / `Column` (+ `Modifier.weight`) | `weight` không gây đo hai lần |
-| `FrameLayout` | `Box` | Căn từng con bằng `Modifier.align` |
+| `TextView` (+ `Spannable`), `ImageView` | `Text` (+ `AnnotatedString`), `Image` | `contentDescription` bắt buộc |
+| `LinearLayout` (+ `layout_weight`), `FrameLayout` | `Row` / `Column` (+ `weight`), `Box` | `weight` không gây đo hai lần |
 | `CoordinatorLayout` + `AppBarLayout` + FAB | `Scaffold` | Slot API; padding cho bar và inset trả qua `innerPadding` |
-| `ViewGroup.onMeasure`/`onLayout` | `Layout {}` hoặc `Modifier.layout {}` | Không cần class con; đo hai lần bị cấm |
+| `ViewGroup.onMeasure`/`onLayout` ([8.5.2 View Custom](../session_08/view_layout/views.md)) | `Layout {}`, `Modifier.layout {}` | Không cần class con; đo hai lần bị cấm |
 
-`ConstraintLayout` có bản cho Compose (artifact riêng), nhưng ở đây nó chỉ là công cụ **diễn đạt** ràng buộc phức tạp, không còn là công cụ **tối ưu hiệu năng** như trong View system.
+`ConstraintLayout` có bản cho Compose (artifact riêng), nhưng ở đây nó chỉ là công cụ **diễn đạt** ràng buộc phức tạp, không còn là công cụ **tối ưu hiệu năng** như ở [8.5.1 Layouts](../session_08/view_layout/layouts.md).
 
 ## Khi nào nên và không nên dùng
 
@@ -623,15 +595,15 @@ Scaffold(topBar = { TopAppBar(title = { Text("Ghi chú") }) }) { innerPadding ->
 }
 ```
 
-**Lỗi lộ ra:** mục đầu tiên nằm dưới thanh tiêu đề; khi vẽ tràn, mục cuối nằm dưới thanh điều hướng, không bấm được. Lint báo tham số padding của `Scaffold` không được dùng. **Cách sửa:** `LazyColumn(contentPadding = innerPadding)` hoặc `Modifier.padding(innerPadding)` cho nội dung.
+**Lỗi lộ ra:** mục đầu nằm dưới thanh tiêu đề, mục cuối nằm dưới thanh điều hướng; Lint báo `UnusedMaterial3ScaffoldPaddingParameter`. **Cách sửa:** `LazyColumn(contentPadding = innerPadding)` hoặc `Modifier.padding(innerPadding)`.
 
 ### 2. Chữ dài đẩy mất phần tử bên cạnh
 
-`Text` tên trong `Row` không có `weight` và không giới hạn dòng. **Lỗi lộ ra:** tên dài chiếm hết chiều rộng, nhãn giờ bên phải bị đẩy khỏi màn hình hoặc bị bóp còn 0dp. **Cách sửa:** phần co giãn nhận `Modifier.weight(1f)`, kèm `maxLines` và `TextOverflow.Ellipsis`, như `ConversationRow`.
+`Text` tên trong `Row` không có `weight` và không giới hạn dòng. **Lỗi lộ ra:** tên dài đẩy nhãn giờ bên phải khỏi màn hình hoặc bóp còn 0dp. **Cách sửa:** phần co giãn nhận `Modifier.weight(1f)`, kèm `maxLines` và `TextOverflow.Ellipsis`, như `ConversationRow`.
 
 ### 3. Đặt sai `contentDescription`
 
-Ghi `contentDescription = "Ảnh"` cho mọi hình, hoặc mô tả avatar ngay cạnh tên. **Lỗi lộ ra:** TalkBack đọc "Ảnh, Ảnh" vô nghĩa hoặc đọc tên hai lần; ngược lại banner chứa thông tin mà truyền `null` thì người khiếm thị không biết có khuyến mãi. **Cách sửa:** hình mang thông tin thì mô tả nội dung (chuỗi resource); hình trang trí hoặc đã có chữ đi kèm thì `null`.
+Ghi `contentDescription = "Ảnh"` cho mọi hình, hoặc mô tả avatar ngay cạnh tên. **Lỗi lộ ra:** TalkBack đọc "Ảnh, Ảnh" hoặc đọc tên hai lần; banner chứa thông tin mà truyền `null` thì người khiếm thị không biết có khuyến mãi. **Cách sửa:** hình mang thông tin thì mô tả nội dung (chuỗi resource); hình trang trí hoặc đã có chữ đi kèm thì `null`.
 
 ### 4. Đo một con hai lần trong `Layout {}`
 
@@ -644,10 +616,12 @@ val second = measurable.measure(Constraints.fixedWidth(first.width * 2))   // sa
 
 ## Lịch sử phát triển
 
-- **Compose 1.0 (07/2021):** `Text`, `Image`, `Icon`, `Row`, `Column`, `Box`, `Layout`, `Scaffold` (Material 2) đều stable. Mô hình đo một lượt và intrinsic measurements có từ đầu. `BoxWithConstraints` thay cho tên `WithConstraints` của giai đoạn trước 1.0.
-- **Compose Material 3:** `Scaffold` của Material 3 có tham số `contentWindowInsets`, và `PaddingValues` nó trả về tính cả window insets, đi cùng hướng dẫn vẽ tràn (edge-to-edge) mà các bản Android mới áp dụng mặc định cho app target SDK mới.
-- **Các bản Foundation sau đó:** `FlowRow`/`FlowColumn` cho bố cục tự xuống dòng; khoảng Compose 1.7 (2024), `LinkAnnotation` và `withLink` thay cho `ClickableText` (deprecated), cùng `AnnotatedString.fromHtml()` để hiển thị HTML có link.
-- **Gần đây:** `BasicText` có tham số tự co cỡ chữ theo khung (`autoSize`), `TextOverflow` có thêm kiểu cắt ở đầu hoặc giữa chuỗi; docs chuyển sang khuyên dùng icon Material Symbols thay cho thư viện `material-icons`.
+- **Compose 1.0 (07/2021):** `Text`, `Image`, `Icon`, `Row`, `Column`, `Box`, `Layout`, `BoxWithConstraints`, `Scaffold` (Material 2) stable; mô hình đo một lượt và intrinsic measurements có từ đầu.
+- **Compose Material 3:** `Scaffold` có `contentWindowInsets`, `innerPadding` tính cả window insets. Từ Android 15, app target SDK 35 bị buộc vẽ tràn (edge-to-edge), nên bỏ quên `innerPadding` lộ lỗi ngay.
+- **Compose 1.4 (2023):** `FlowRow`/`FlowColumn` (lúc đầu experimental) cho bố cục tự xuống dòng.
+- **Compose 1.7 (2024):** `LinkAnnotation` và `withLink` thay cho `ClickableText` (deprecated), thêm `AnnotatedString.fromHtml()`.
+- **Compose 1.8 (2025):** `BasicText` có `autoSize` (tự co cỡ chữ theo khung), `TextOverflow.StartEllipsis` và `MiddleEllipsis`.
+- **Adaptive:** `currentWindowAdaptiveInfo()` của `material3-adaptive` thay cho logic "isTablet"; `androidx.window` 1.4 chuyển sang so mốc bằng `isWidthAtLeastBreakpoint` và thêm mốc large, extra-large cho desktop. Docs ngừng khuyên dùng thư viện `material-icons`, chuyển sang Material Symbols.
 
 ## Kết nối hệ thống
 
@@ -655,14 +629,14 @@ val second = measurable.measure(Constraints.fixedWidth(first.width * 2))   // sa
   - [Jetpack Compose Overview](overview.md): ba phase Composition → Layout → Drawing; bài này đi sâu vào phase Layout.
   - [9.4.1 Material Design Theme](theming/material_design_theme.md): `Text` và `Icon` lấy style, content color từ theme.
 - **Liên quan:**
-  - [9.4.2 Custom Theme](theming/custom_theme.md): token spacing dùng trong `Row`, `Column`; window size class cho quyết định cấp màn hình.
+  - [9.4.2 Custom Theme](theming/custom_theme.md): token spacing dùng trong `Row`, `Column`; token đổi theo window size class.
   - [9.1 Remember and Recomposition](remember_and_recomposition.md): `remember(keys)` cho `AnnotatedString` tính trước.
-  - [View Binding](../session_06/view_binding.md): cách làm UI bằng XML mà bài này so sánh.
-  - 9.5.1 Modifier Order và 9.5.2 Chaining: `padding`, `clip`, `weight`, `align` trong các ví dụ.
-  - 8.2.4 Coil (chưa có bài): `AsyncImage` cho ảnh mạng. 8.5.1 Layouts và 8.5.2 View Custom (chưa có bài): layout và custom view của View system.
+  - [9.5.1 Modifier Order](modifier/modifier_order.md) và [9.5.2 Chaining](modifier/chaining.md): `padding`, `clip`, `weight`, `align` trong các ví dụ.
+  - [8.2.4 Coil](../session_08/loading_image/coil.md): `AsyncImage` cho ảnh mạng.
+  - [8.5.1 Layouts](../session_08/view_layout/layouts.md) và [8.5.2 View Custom](../session_08/view_layout/views.md): measure/layout và custom view của View system mà bài này so sánh; [View Binding](../session_06/view_binding.md): nối XML với code.
 - **Học tiếp:**
-  - 9.5.4 Lazy Column: danh sách dài thay cho `Column` khi số phần tử lớn.
-  - 9.7.1 Surface and Canvas: `Surface`, vẽ tự do bằng `Canvas`.
+  - [9.5.4 Lazy Column](modifier/lazy_column.md): danh sách dài thay cho `Column` khi số phần tử lớn.
+  - [9.7.1 Surface and Canvas](graphics_animations/surface_and_canvas.md): `Surface`, vẽ tự do bằng `Canvas`.
 
 ## Tham khảo
 

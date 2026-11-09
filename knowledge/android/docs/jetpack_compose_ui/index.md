@@ -2,7 +2,7 @@
 id: android.jetpack_compose.overview
 title: Session 09 Overview
 summary: Tổng quan Session 09 — Jetpack Compose UI: cơ chế recomposition và remember, state và state hoisting, side-effect, theming, Modifier và lazy list, layout, đồ hoạ và animation, gesture. Vị trí của session trong lộ trình, mối liên hệ giữa các Topic, tiên quyết và thứ tự học.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: overview
 estimated_reading_time: 9 phút

@@ -2,13 +2,13 @@
 id: android.jetpack_compose.side_effects.produce_state
 title: produceState
 summary: produceState(initialValue, keys) { ... } là hàm composable trả về một State<T> bắt đầu bằng initialValue, đồng thời chạy một coroutine gắn với composition để gán value mới cho State đó; bản chất là remember { mutableStateOf(initialValue) } cộng LaunchedEffect(keys). Bài giải thích cách biến hàm suspend và nguồn callback (qua awaitDispose) thành State, điều gì xảy ra khi key đổi, và khi nào nên dùng collectAsStateWithLifecycle hay ViewModel thay cho produceState.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
 estimated_reading_time: 11 phút
 tags: [android, compose, session-09, side-effects, produce-state, state, coroutines]
-prerequisites: [android.jetpack_compose.side_effects.launched_effect, android.jetpack_compose.state.mutable_state]
-related: [android.jetpack_compose.side_effects.disposable_effect, android.jetpack_compose.side_effects.snapshot_flow, android.jetpack_compose.remember_recomposition, android.jetpack.viewmodel]
+prerequisites: [android.jetpack_compose.side_effects.launched_effect, android.jetpack_compose.state.mutable_state, android.async.coroutines]
+related: [android.jetpack_compose.side_effects.disposable_effect, android.jetpack_compose.side_effects.snapshot_flow, android.jetpack_compose.remember_recomposition, android.jetpack.viewmodel, android.design_pattern.observer.flow]
 learning_outcomes:
   - Giải thích được produceState là remember { mutableStateOf(initialValue) } cộng LaunchedEffect(keys), và State trả về thay đổi thế nào khi key đổi.
   - Triển khai được produceState để biến một hàm suspend hoặc một nguồn callback (dùng awaitDispose) thành State cho composable đọc.
@@ -132,7 +132,7 @@ class FileRepository(private val contentResolver: ContentResolver) {
 }
 ```
 
-`withContext(Dispatchers.IO)` chuyển việc đọc sang luồng I/O, học ở 8.4.3 Coroutines (chưa có bài). Mọi biến dùng trong `producer` (`uri`, `fileRepository`) đều là key, theo đúng quy tắc key của [LaunchedEffect](launched_effect.md).
+`withContext(Dispatchers.IO)` chuyển việc đọc sang luồng I/O ([8.4.3 Coroutines](../../session_08/async_threads/coroutines.md), mục "CoroutineContext, Dispatchers và withContext"). Mọi biến dùng trong `producer` (`uri`, `fileRepository`) đều là key, theo đúng quy tắc key của [LaunchedEffect](launched_effect.md).
 
 **Kết quả:** chọn file "bao-gia.pdf" thì chip hiện "Đang đọc file…" trong chốc lát rồi "bao-gia.pdf (1,2 MB)". Kiểm chứng bằng UI test với `FakeFileRepository` có `delay(500)`: lúc đầu thấy "Đang đọc file…", sau `advanceTimeBy(500)` thấy tên file.
 
@@ -190,14 +190,14 @@ fun OfflineBanner(connectivityManager: ConnectivityManager) {
 
 Ghi `value` từ luồng khác main được phép: `MutableState` thuộc snapshot system và an toàn khi ghi từ nhiều luồng ([MutableState và State Hoisting](../state/mutable_state.md)). Hàm composable trả về giá trị được đặt tên bắt đầu bằng chữ thường, như hàm Kotlin thường. App cần quyền `ACCESS_NETWORK_STATE`.
 
-**Kết quả:** bật chế độ máy bay, banner hiện; tắt đi, banner biến mất. Rời màn hình rồi bật tắt mạng: không còn log trong callback. Nếu nhiều màn cần trạng thái mạng, chuyển callback này xuống tầng data dưới dạng `Flow` (`callbackFlow`) và đọc bằng `collectAsStateWithLifecycle()` ([snapshotFlow](flow_with_snapshot.md)).
+**Kết quả:** bật chế độ máy bay, banner hiện; tắt đi, banner biến mất. Rời màn hình rồi bật tắt mạng: không còn log trong callback. Nếu nhiều màn cần trạng thái mạng, chuyển callback này xuống tầng data dưới dạng `Flow` (`callbackFlow`, học ở [Flow](../../session_07/design_pattern/observer/flow.md)) và đọc bằng `collectAsStateWithLifecycle()` ([snapshotFlow](flow_with_snapshot.md)).
 
 ### Bên trong produceState
 
 Mã nguồn của `compose-runtime` cho thấy produceState chỉ ghép hai API đã học:
 
 ```kotlin
-// androidx.compose.runtime, SnapshotState (rút gọn)
+// androidx.compose.runtime, ProduceState.kt (rút gọn)
 @Composable
 fun <T> produceState(initialValue: T, key1: Any?, producer: suspend ProduceStateScope<T>.() -> Unit): State<T> {
     val result = remember { mutableStateOf(initialValue) }       // remember KHÔNG có key
@@ -216,13 +216,13 @@ fun <T> produceState(initialValue: T, key1: Any?, producer: suspend ProduceState
 
 ## Ví dụ thực tế
 
-1. **Thumbnail video trong lưới thư viện:** mỗi ô tạo thumbnail bằng hàm `suspend`, hiện trạng thái tải, lỗi; key là `uri` vì ô được tái sử dụng. Code đầy đủ bên dưới.
+1. **Thumbnail video trong lưới thư viện:** mỗi ô tạo thumbnail bằng hàm `suspend`, hiện trạng thái tải, lỗi; key là `uri` vì cùng một vị trí gọi có thể nhận video khác. Code đầy đủ bên dưới.
 2. **Trạng thái mạng, pin, cảm biến cho một composable:** như ví dụ banner mất mạng.
-3. **Đọc một giá trị một lần từ API cũ dạng callback** (ví dụ SDK bên thứ ba trả kết quả qua listener): `producer` dùng `suspendCancellableCoroutine` để chờ callback rồi gán `value`.
+3. **Đọc một giá trị một lần từ API cũ dạng callback** (ví dụ SDK bên thứ ba trả kết quả qua listener): `producer` dùng `suspendCancellableCoroutine` để chờ callback rồi gán `value` ([8.4.3 Coroutines](../../session_08/async_threads/coroutines.md), mục "Bọc callback thành hàm suspend").
 
 ### Thumbnail video với Loading, Ready, Failed
 
-**Bài toán:** lưới video hiện thumbnail cho mỗi ô. Tạo thumbnail tốn thời gian và có thể lỗi (file bị xoá). Ô cuộn ra rồi vào lại có thể nhận `uri` khác, nên ô không được hiện thumbnail của video trước.
+**Bài toán:** lưới video hiện thumbnail cho mỗi ô. Tạo thumbnail tốn thời gian và có thể lỗi (file bị xoá). Khi cùng một vị trí gọi `VideoCell` nhận `uri` khác (ví dụ lưới không khai `key` và người dùng đổi album: ô thứ ba giờ là video khác), ô không được hiện thumbnail của video trước trong lúc tải ảnh mới. Item cuộn ra khỏi màn hình thì khác: nó rời composition (hoặc được lazy layout tái sử dụng với state mới), nên quay lại sẽ bắt đầu từ `initialValue`.
 
 **Luồng chạy:**
 
@@ -278,9 +278,9 @@ fun VideoCell(video: Video, contentResolver: ContentResolver, modifier: Modifier
 }
 ```
 
-`ContentResolver.loadThumbnail` có từ API 29. `Icons.Filled.BrokenImage` nằm trong bộ icon mở rộng (`material-icons-extended`). Lưới video dùng `LazyVerticalGrid` ([LazyVerticalGrid](../modifier/lazy_vertical_grid.md)); với ảnh từ mạng, dùng thư viện ảnh như Coil (8.2.4 Coil, chưa có bài) thay vì tự viết.
+`ContentResolver.loadThumbnail` có từ API 29. `Icons.Filled.BrokenImage` nằm trong bộ icon mở rộng (`material-icons-extended`). Lưới video dùng `LazyVerticalGrid` ([LazyVerticalGrid](../modifier/lazy_vertical_grid.md)); với ảnh từ mạng, dùng thư viện ảnh như [Coil](../../session_08/loading_image/coil.md) thay vì tự viết.
 
-**Kết quả:** cuộn nhanh lưới video, mỗi ô hiện placeholder rồi đúng thumbnail của nó, không còn chớp ảnh của video trước. Xoá một video khỏi máy rồi mở lại lưới: ô đó hiện biểu tượng lỗi. Bỏ dòng (2) đi để thấy lỗi: ô được tái sử dụng hiện thumbnail cũ trong lúc tải thumbnail mới.
+**Kết quả:** đổi album, mỗi ô hiện placeholder rồi đúng thumbnail của video mới, không còn chớp ảnh của video trước. Xoá một video khỏi máy rồi mở lại lưới: ô đó hiện biểu tượng lỗi. Bỏ dòng (2) đi để thấy lỗi: ô nhận video mới vẫn hiện thumbnail cũ trong lúc tải thumbnail mới.
 
 ## So sánh với các cách tiếp cận khác
 
@@ -313,7 +313,7 @@ val info by produceState<FileInfo?>(null) { value = fileRepository.getFileInfo(u
 
 ### 2. Không đặt lại giá trị khi key đổi
 
-**Lỗi lộ ra thế nào:** như phần "Kết quả" của ví dụ thumbnail: ô được tái sử dụng hiện ảnh của video trước cho tới khi ảnh mới xong.
+**Lỗi lộ ra thế nào:** như phần "Kết quả" của ví dụ thumbnail: ô nhận video mới hiện ảnh của video trước cho tới khi ảnh mới xong.
 
 **Cách sửa:** gán `value = Loading` ở đầu `producer`, vì `remember` bên trong produceState không có key.
 
@@ -347,14 +347,15 @@ produceState(initialValue = true, connectivityManager) {
 - **Tiên quyết:**
   - [LaunchedEffect](launched_effect.md): vòng đời coroutine và quy tắc key mà produceState dùng lại.
   - [MutableState và State Hoisting](../state/mutable_state.md): `State`, `MutableState` và snapshot system.
+  - [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md): `withContext`, `suspendCancellableCoroutine`.
 - **Liên quan:**
   - [DisposableEffect](disposable_effect.md): cặp đăng ký – huỷ khi không cần trả về State.
   - [snapshotFlow](flow_with_snapshot.md): `collectAsState` và `collectAsStateWithLifecycle` được xây trên produceState.
   - [Remember và Recomposition](../remember_and_recomposition.md): vì sao `remember` không key giữ giá trị khi key của effect đổi.
   - [ViewModel](../../session_06/viewmodel.md): nơi đặt dữ liệu của cả màn hình.
+  - [Flow](../../session_07/design_pattern/observer/flow.md): `callbackFlow` cho nguồn callback dùng ở nhiều màn hình.
 - **Học tiếp:**
   - [derivedStateOf](derived_state_of.md).
-  - 8.4.3 Coroutines (chưa có bài): `withContext`, `suspendCancellableCoroutine`, `callbackFlow`.
 
 ## Tham khảo
 

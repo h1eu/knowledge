@@ -2,13 +2,13 @@
 id: android.jetpack_compose.animation.crossfade
 title: Crossfade
 summary: Crossfade là composable chuyển giữa các nội dung theo targetState bằng đúng một hiệu ứng, nội dung cũ mờ dần trong khi nội dung mới hiện dần, hai lớp chồng nhau trong cùng một Box; không slide, không scale, không animate kích thước. Bài giải thích cơ chế hai lớp alpha, animationSpec và hành vi khi bị ngắt, cách chọn targetState làm giá trị nhận diện nội dung, và khi nào chọn Crossfade thay vì AnimatedContent.
-status: reviewing
+status: published
 difficulty: beginner
 depth: standard
-estimated_reading_time: 10 phút
+estimated_reading_time: 11 phút
 tags: [android, compose, session-09, animation, crossfade]
 prerequisites: [android.jetpack_compose.animation.animated_visibility]
-related: [android.jetpack_compose.animation.animated_content, android.jetpack_compose.animation.transition_state, android.jetpack_compose.lazy.lazy_column]
+related: [android.jetpack_compose.animation.animated_content, android.jetpack_compose.animation.transition_state, android.jetpack_compose.lazy.lazy_column, android.image.coil]
 learning_outcomes:
   - Giải thích được cách Crossfade chồng nội dung cũ và mới trong một Box và đổi alpha của chúng cùng lúc.
   - Phân biệt được Crossfade với AnimatedContent về kiểu hiệu ứng, kích thước container và khả năng tuỳ biến, để chọn đúng API.
@@ -132,7 +132,7 @@ fun NowPlayingArtwork(track: Track, modifier: Modifier = Modifier) {
 }
 ```
 
-`Track` có `@DrawableRes val artworkRes: Int`; tên bài được đọc ở `Text` bên dưới nên ảnh để `contentDescription = null`. Với ảnh tải từ mạng, `AsyncImage` của Coil có tuỳ chọn crossfade riêng (8.2.4 Coil, chưa có bài).
+`Track` có `@DrawableRes val artworkRes: Int`; tên bài được đọc ở `Text` bên dưới nên ảnh để `contentDescription = null`. Với ảnh tải từ mạng, `AsyncImage` của Coil có tuỳ chọn crossfade riêng (`ImageRequest.Builder.crossfade(true)`, học ở [8.2.4 Coil](../../session_08/loading_image/coil.md)).
 
 **Kết quả:** chuyển sang bài của album khác, ảnh mới hiện dần đè ảnh cũ; chuyển sang bài cùng album, ảnh đứng yên. Trong lúc phát, ảnh không nháy dù vị trí phát cập nhật mỗi giây. Layout Inspector cho thấy trong 400ms có hai node `Image` chồng nhau, sau đó chỉ còn một.
 
@@ -142,7 +142,7 @@ fun NowPlayingArtwork(track: Track, modifier: Modifier = Modifier) {
 
 Khi `targetState` đổi trong lúc đang fade (bấm "bài tiếp" ba lần liên tục), `Crossfade` thêm lớp cho state mới nhất; các lớp cũ tiếp tục mờ đi từ alpha hiện tại rồi bị gỡ. Nội dung không nhảy về đầu, nhưng trong khoảnh khắc có thể có hơn hai lớp cùng hiện.
 
-`Crossfade` bản thường **không có `contentKey`**: mọi giá trị `targetState` khác nhau theo `equals` đều kích hoạt fade. Vì vậy hãy truyền giá trị nhận diện nội dung (id, enum, resource id) thay vì truyền cả object. Bản mở rộng `Transition<T>.Crossfade(modifier, animationSpec, contentKey, content)` có `contentKey`, dùng khi fade là một phần của `Transition` lớn hơn ([MutableTransitionState](mutable_transition_state.md)), hoặc khi object state bị tạo lại sau save/restore mà cần một key bền hơn.
+`Crossfade` bản thường **không có `contentKey`**: mọi giá trị `targetState` khác nhau theo `equals` đều kích hoạt fade. Vì vậy hãy truyền giá trị nhận diện nội dung (id, enum, resource id) thay vì truyền cả object. Bản mở rộng `Transition<T>.Crossfade(modifier, animationSpec, contentKey, content)` có `contentKey`, dùng khi fade là một phần của `Transition` lớn hơn ([MutableTransitionState](mutable_transition_state.md)), hoặc khi object state bị tạo lại sau save/restore mà cần một key bền hơn để khôi phục state bên trong nội dung (theo tài liệu API). Tới bản ổn định 1.12, bản mở rộng này còn experimental (cần `@OptIn(ExperimentalAnimationApi::class)`); ghi chú phát hành 1.13 đưa nó lên stable.
 
 ### 3. Crossfade hay AnimatedContent
 
@@ -152,7 +152,7 @@ Khi `targetState` đổi trong lúc đang fade (bấm "bài tiếp" ba lần li�
 | Thứ tự fade | Ra và vào **cùng lúc** | Mặc định fade through: ra trước, vào sau, kèm scale nhẹ |
 | Kích thước container | Không animate; bằng lớp lớn nhất đang có mặt, nhảy khi lớp cũ bị gỡ | Animate bằng `SizeTransform` |
 | Hiệu ứng theo cặp state | Không | Có (`initialState`, `targetState`) |
-| `contentKey` | Chỉ ở `Transition.Crossfade` | Có |
+| `contentKey` | Chỉ ở `Transition.Crossfade` (experimental tới 1.12) | Có |
 | Scope trong lambda | Không (`(T) -> Unit`) | `AnimatedContentScope`: dùng được `animateEnterExit`, `transition` |
 
 Quy tắc chọn: nội dung **cùng kích thước** và chỉ cần **hoà tan** thì dùng `Crossfade`; cần hướng, cần kích thước đổi mượt, hoặc cần hiệu ứng khác nhau theo cặp trạng thái thì dùng [AnimatedContent](animated_content.md).
@@ -292,8 +292,9 @@ Hai lớp cùng vẽ nội dung mới, nên mắt thấy một nội dung mờ �
 ## Lịch sử phát triển
 
 - **Compose 1.0 (07/2021):** `Crossfade` có từ bản ổn định đầu tiên, là API chuyển nội dung đơn giản nhất và không cần opt-in experimental như `AnimatedContent` lúc đó.
-- **Compose Animation 1.1:** thêm `Transition<T>.Crossfade` với `contentKey`, để fade trở thành một phần của `Transition` chung.
+- **Compose Animation 1.1:** thêm `contentKey` cho `Crossfade` dạng mở rộng `Transition<T>.Crossfade`, để fade trở thành một phần của `Transition` chung; bản này là experimental (`@ExperimentalAnimationApi`).
 - **Compose Animation 1.3:** overload hiện hành có tham số `label` để nhận diện animation trong công cụ Animation Preview của Android Studio.
+- **Compose Animation 1.13 (đang ở bản rc, 11/2026):** ghi chú phát hành đưa `Transition.Crossfade` lên stable.
 
 ## Kết nối hệ thống
 
@@ -304,7 +305,7 @@ Hai lớp cùng vẽ nội dung mới, nên mắt thấy một nội dung mờ �
   - [MutableTransitionState](mutable_transition_state.md) — `Transition.Crossfade` trong một transition chung.
   - [LazyColumn](../modifier/lazy_column.md) — hoist `LazyListState` để giữ vị trí cuộn.
   - [Surface and Canvas](surface_and_canvas.md) — vì sao đổi alpha ở lúc vẽ không làm recompose.
-  - 8.2.4 Coil (chưa có bài) — crossfade cho ảnh tải từ mạng.
+  - [8.2.4 Coil](../../session_08/loading_image/coil.md) — crossfade cho ảnh tải từ mạng.
 - **Học tiếp (theo nav):** 9.8 Gesture, bắt đầu từ [Scrolling](../gesture/scrolling.md).
 
 ## Tham khảo
@@ -312,3 +313,4 @@ Hai lớp cùng vẽ nội dung mới, nên mắt thấy một nội dung mờ �
 - [Animation modifiers and composables: Crossfade — Android Developers](https://developer.android.com/develop/ui/compose/animation/composables-modifiers)
 - [Crossfade — API reference](https://developer.android.com/reference/kotlin/androidx/compose/animation/Crossfade.composable)
 - [Choose an animation API — Android Developers](https://developer.android.com/develop/ui/compose/animation/choose-api)
+- [Compose Animation release notes — AndroidX](https://developer.android.com/jetpack/androidx/releases/compose-animation)

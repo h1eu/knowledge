@@ -1,14 +1,14 @@
 ---
 id: android.jetpack_compose.lazy.lazy_column
 title: Lazy Column
-summary: LazyColumn là lazy layout cuộn dọc của Compose, nhận một mô tả danh sách bằng DSL (item, items, stickyHeader) thay vì các composable con, rồi chỉ compose, đo và đặt những item cần cho vùng đang nhìn thấy. Bài là nơi dạy chính về lazy layout, giải thích DSL, key và contentType, LazyListState, contentPadding và verticalArrangement, sticky header, Modifier.animateItem, so sánh với RecyclerView và lỗi lồng scroll cùng hướng.
-status: reviewing
+summary: LazyColumn là lazy layout cuộn dọc của Compose, nhận một mô tả danh sách bằng DSL (item, items, stickyHeader) thay vì các composable con, rồi chỉ compose, đo và đặt những item cần cho vùng đang nhìn thấy. Bài là nơi dạy chính về lazy layout: DSL, key, contentType, LazyListState, sticky header, Modifier.animateItem và lỗi lồng scroll cùng hướng.
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 17 phút
+estimated_reading_time: 21 phút
 tags: [android, compose, session-09, lazy-layout, lazycolumn, lazy-list, recyclerview, list]
 prerequisites: [android.jetpack_compose.compose_overview, android.jetpack_compose.remember_recomposition]
-related: [android.jetpack_compose.lazy.lazy_row, android.jetpack_compose.lazy.lazy_vertical_grid, android.jetpack_compose.lazy.lazy_paging_items, android.jetpack_compose.side_effects.derived_state_of, android.jetpack_compose.state.remember_saveable, android.jetpack.paging]
+related: [android.jetpack_compose.lazy.lazy_row, android.jetpack_compose.lazy.lazy_vertical_grid, android.jetpack_compose.lazy.lazy_paging_items, android.jetpack_compose.side_effects.derived_state_of, android.jetpack_compose.state.remember_saveable, android.jetpack.paging, android.design_pattern.viewholder, android.view_layout.layouts]
 learning_outcomes:
   - Giải thích được vì sao LazyColumn chỉ compose và đo các item cần cho viewport, và khác Column cộng verticalScroll ở đâu.
   - Triển khai được danh sách bằng DSL item, items, itemsIndexed và stickyHeader, kèm contentPadding và verticalArrangement.
@@ -16,7 +16,7 @@ learning_outcomes:
   - Xử lý được việc đọc và điều khiển vị trí cuộn bằng LazyListState mà không gây recompose ở mỗi frame cuộn.
   - Nhận diện được các lỗi lồng scroll cùng hướng, item cao 0px, key trùng hoặc không lưu được vào Bundle.
 knowledge_gap: >
-  Không hiểu lazy layout thì hoặc dùng Column cộng verticalScroll cho danh sách hàng nghìn dòng (compose hết, màn hình giật, tốn RAM), hoặc dùng LazyColumn nhưng bỏ key khiến trạng thái mở rộng, ô nhập liệu nhảy sang dòng khác khi danh sách đổi, lồng LazyColumn trong Column cuộn rồi gặp IllegalStateException, hay đọc firstVisibleItemIndex ngay trong composable khiến cả màn hình recompose theo từng pixel cuộn.
+  Không hiểu lazy layout thì dùng Column cộng verticalScroll cho danh sách hàng nghìn dòng (compose hết, giật, tốn RAM), bỏ key khiến state UI nhảy sang dòng khác khi danh sách đổi, lồng LazyColumn trong Column cuộn rồi gặp IllegalStateException, hay đọc thẳng vị trí cuộn trong composable khiến màn hình recompose liên tục khi cuộn.
 ---
 
 # Lazy Column
@@ -37,9 +37,9 @@ fun ContactList(contacts: List<Contact>) {
 }
 ```
 
-`Column` không biết khái niệm "vùng đang nhìn thấy". Nó compose, đo và đặt **mọi** con, dù màn hình chỉ chứa khoảng mười dòng. Với vài nghìn dòng, lần hiển thị đầu chậm thấy rõ và bộ nhớ tăng theo số dòng.
+`Column` không biết khái niệm "vùng đang nhìn thấy": nó compose, đo và đặt **mọi** con, dù màn hình chỉ chứa khoảng mười dòng. Với vài nghìn dòng, lần hiển thị đầu chậm thấy rõ và bộ nhớ tăng theo số dòng.
 
-Hệ thống View giải bài toán này bằng `RecyclerView`: chỉ tạo View cho phần nhìn thấy, tái sử dụng View khi cuộn. Cái giá là Adapter, ViewHolder, DiffUtil, LayoutManager, cả một bộ máy phải tự lắp. Compose cần cùng hiệu quả đó nhưng giữ được cách viết declarative: **mô tả danh sách gồm những gì, còn việc dựng phần nào, lúc nào, để layout lo.**
+Hệ thống View giải bài toán này bằng `RecyclerView` ([8.5.1 Layouts](../../session_08/view_layout/layouts.md), [7.1.2 ViewHolder Pattern](../../session_07/design_pattern/viewholder_pattern.md)): chỉ tạo View cho phần nhìn thấy, tái sử dụng View khi cuộn. Cái giá là Adapter, ViewHolder, DiffUtil, LayoutManager, cả một bộ máy phải tự lắp. Compose cần cùng hiệu quả đó nhưng giữ được cách viết declarative: **mô tả danh sách gồm những gì, còn việc dựng phần nào, lúc nào, để layout lo.**
 
 ## Sau khi học xong
 
@@ -53,7 +53,7 @@ Hệ thống View giải bài toán này bằng `RecyclerView`: chỉ tạo View
 
 **Lazy layout** là nhóm layout cuộn của Compose (`LazyColumn`, `LazyRow`, `LazyVerticalGrid`...) nhận một **mô tả danh sách** viết bằng DSL thay vì các composable con, rồi chỉ compose, đo và đặt những item cần cho **viewport** (vùng đang nhìn thấy). **`LazyColumn`** là lazy layout cuộn theo chiều dọc.
 
-Mental model: **danh mục và khung cửa sổ.** Khối lambda của `LazyColumn` viết ra một *danh mục*: có bao nhiêu item, mỗi item có key gì, thuộc loại gì, vẽ bằng hàm nào. `LazyColumn` là *khung cửa sổ* trượt trên danh mục đó: chỉ những dòng đang nằm trong khung (cộng một ít sắp vào khung) mới được dựng thành UI thật; dòng trượt ra khỏi khung thì được dỡ đi hoặc giữ lại để dựng dòng khác.
+Mental model: **danh mục và khung cửa sổ.** Khối lambda của `LazyColumn` viết ra một *danh mục*: bao nhiêu item, key gì, loại gì, vẽ bằng hàm nào. `LazyColumn` là *khung cửa sổ* trượt trên danh mục đó: chỉ dòng nằm trong khung (cộng một ít sắp vào khung) mới được dựng thành UI thật; dòng trượt ra thì được dỡ đi hoặc giữ lại để dựng dòng khác.
 
 Khác biệt cốt lõi so với `Column`: lambda của `Column` là composable và **phát ra** các con ngay; lambda của `LazyColumn` có kiểu `LazyListScope.() -> Unit`, **không phải composable**, chỉ ghi danh mục. Nội dung của từng item (`itemContent`) mới là composable, và chỉ được gọi khi item đó cần hiện.
 
@@ -80,11 +80,11 @@ flowchart TD
     F --> D
 ```
 
-Vì item được compose trong lúc đo, số item thật sự tồn tại chỉ bằng số dòng nhìn thấy cộng vài dòng dự trữ, bất kể danh mục có mười hay mười nghìn phần tử. Ghi danh mục cũng rẻ: `items(contacts)` chỉ lưu "một khoảng gồm N phần tử, vẽ bằng lambda này", không duyệt từng phần tử.
+Vì item được compose trong lúc đo, số item thật sự tồn tại chỉ bằng số dòng nhìn thấy cộng vài dòng dự trữ, bất kể danh mục dài bao nhiêu; còn ghi danh mục thì rẻ, vì `items(contacts)` chỉ lưu "một khoảng N phần tử, vẽ bằng lambda này".
 
 Một hệ quả về constraints: item được đo với chiều cao tối đa **vô hạn** (danh sách cuộn được thì không có "chiều cao còn lại"). Vì vậy `Modifier.fillMaxHeight()` trong item không có tác dụng; muốn item cao bằng viewport thì dùng `Modifier.fillParentMaxHeight()` của `LazyItemScope`. Chuyện constraints đi từ cha xuống con được giải thích ở [9.5.1 Modifier Order](modifier_order.md).
 
-Đổi `Column` ở phần "Vấn đề" thành `LazyColumn { items(contacts) { ContactRow(it) } }` là đủ: bước (1) chỉ ghi một khoảng 5.000 phần tử, bước (2) chỉ compose khoảng 10–12 `ContactRow` cho một màn hình điện thoại. Kiểm chứng bằng Layout Inspector: số `ContactRow` trong cây chỉ bằng số dòng nhìn thấy cộng vài dòng, trong khi bản `Column` có đủ 5.000 node. `items(List)` là extension cần `import androidx.compose.foundation.lazy.items`. Đo hiệu năng luôn trên release build (xem "Kiểm tra hiệu năng đúng cách" ở [9.0](../overview.md)).
+Đổi `Column` ở phần "Vấn đề" thành `LazyColumn { items(contacts) { ContactRow(it) } }` (extension cần `import androidx.compose.foundation.lazy.items`) là đủ: bước (1) chỉ ghi một khoảng 5.000 phần tử, bước (2) chỉ compose khoảng 10–12 `ContactRow`. Layout Inspector cho thấy số `ContactRow` trong cây chỉ bằng số dòng nhìn thấy cộng vài dòng, trong khi bản `Column` có đủ 5.000 node. Đo hiệu năng luôn trên release build có R8 (xem [9.0](../overview.md)).
 
 ### 2. DSL mô tả danh sách: item, items, itemsIndexed
 
@@ -102,18 +102,12 @@ Các lời gọi được nối theo thứ tự viết: một `LazyColumn` có t
 
 Hai tham số của chính `LazyColumn` điều khiển khoảng cách:
 
-- `contentPadding = PaddingValues(...)`: padding quanh **nội dung**, không quanh khung cuộn. Item đầu cách mép trên, item cuối cách mép dưới, nhưng khi cuộn thì nội dung vẫn trượt qua vùng padding tới sát mép. Thường dùng để nhận `PaddingValues` của `Scaffold` (thanh trên, thanh điều hướng). `Modifier.padding()` thì thu nhỏ chính khung cuộn, nội dung bị cắt ở mép padding.
+- `contentPadding = PaddingValues(...)`: padding quanh **nội dung**, không quanh khung cuộn: item đầu cách mép trên, nhưng khi cuộn thì nội dung vẫn trượt tới sát mép. Thường dùng để nhận `PaddingValues` của `Scaffold`. `Modifier.padding()` thì thu nhỏ chính khung cuộn, nội dung bị cắt ở mép padding.
 - `verticalArrangement = Arrangement.spacedBy(8.dp)`: khoảng cách **giữa** các item, thay cho việc tự thêm `Spacer` hay `ItemDecoration` như `RecyclerView`.
 
 #### Ví dụ: giỏ hàng có header, danh sách sản phẩm và tổng tiền
 
-**Bài toán:** màn giỏ hàng gồm dòng tiêu đề ("3 sản phẩm"), danh sách sản phẩm có thể dài, và khối tổng tiền cùng nút thanh toán ở cuối nội dung. Ba phần khác nhau nhưng cùng cuộn như một danh sách.
-
-**Luồng chạy:**
-
-1. DSL ghi danh mục theo thứ tự: một `item` header, `items` cho từng dòng sản phẩm, một `item` tổng tiền.
-2. `contentPadding` và `verticalArrangement` cho `LazyColumn` biết chừa khoảng nào quanh và giữa các item khi đo.
-3. Khi mở màn, chỉ header và các dòng sản phẩm đầu được compose; khối tổng tiền chỉ được compose khi người dùng cuộn tới.
+**Bài toán:** màn giỏ hàng gồm dòng tiêu đề ("3 sản phẩm"), danh sách sản phẩm có thể dài, và khối tổng tiền cùng nút thanh toán ở cuối nội dung. Ba phần khác nhau nhưng cùng cuộn như một danh sách. Đây là khai báo thuần (DSL ghi theo thứ tự viết, không rẽ nhánh), nên không cần sơ đồ.
 
 **Code:**
 
@@ -128,26 +122,26 @@ fun CartScreen(
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp), // (2)
-        verticalArrangement = Arrangement.spacedBy(8.dp),                      // (2)
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp), // quanh nội dung
+        verticalArrangement = Arrangement.spacedBy(8.dp),                      // giữa các item
     ) {
-        item(key = "header") {                                                 // (1)
+        item(key = "header") {
             Text("${uiState.lines.size} sản phẩm", style = MaterialTheme.typography.titleMedium)
         }
-        items(uiState.lines, key = { line -> line.productId }) { line ->       // (1)
+        items(uiState.lines, key = { line -> line.productId }) { line ->
             CartLineRow(
                 line = line,
                 onQuantityChange = { quantity -> onQuantityChange(line.productId, quantity) },
             )
         }
-        item(key = "summary") {                                                // (1)(3) chỉ compose khi cuộn tới
+        item(key = "summary") {                                                // chỉ compose khi cuộn tới
             CartSummary(total = uiState.total, onCheckout = onCheckout)
         }
     }
 }
 ```
 
-**Kết quả:** giỏ 40 sản phẩm thì header cuộn đi cùng danh sách, khối tổng tiền nằm cuối nội dung; item đầu cách mép trên 12dp nhưng khi cuộn thì nội dung trượt tới sát mép. Tham số `key` được giải thích ở phần sau.
+**Kết quả:** giỏ 40 sản phẩm thì header cuộn đi cùng danh sách, khối tổng tiền chỉ được compose khi người dùng cuộn tới cuối. Tham số `key` được giải thích ở phần sau.
 
 ### 3. key và contentType: danh tính và loại của item
 
@@ -216,11 +210,11 @@ private fun TaskRow(task: Task) {
 }
 ```
 
-**Kết quả:** bỏ dòng `key = ...`, mở rộng dòng đầu rồi thêm việc mới: dòng mới hiện ghi chú, dòng cũ thu lại (bước 3). Thêm lại key: dòng cũ giữ trạng thái mở rộng ở vị trí mới (bước 4). UI test với `createComposeRule()` kiểm chứng được bằng cách assert ghi chú của "Gửi báo giá" vẫn hiển thị sau khi thêm item.
+**Kết quả:** bỏ dòng `key = ...`, mở rộng dòng đầu rồi thêm việc mới: dòng mới hiện ghi chú, dòng cũ thu lại (bước 3). Thêm lại key: dòng cũ giữ trạng thái mở rộng ở vị trí mới (bước 4).
 
 #### contentType: tái sử dụng composition đúng loại
 
-Khi một item rời viewport, lazy layout không nhất thiết vứt composition của nó đi. Một số lượng nhỏ được giữ trong **reuse pool**; item mới đi vào sẽ **tái sử dụng** composition cũ: cây layout node và cấu trúc slot được giữ, chỉ tham số mới được áp vào. Ý tưởng giống `RecyclerView` tái sử dụng ViewHolder, nhưng state `remember` của item cũ không được giữ, vì item mới có key khác.
+Item rời viewport không nhất thiết bị vứt composition: một số ít được giữ trong **reuse pool**, và item mới đi vào **tái sử dụng** cây layout node và cấu trúc slot cũ, chỉ áp tham số mới. Ý tưởng giống `RecyclerView` tái sử dụng ViewHolder, nhưng state `remember` của item cũ không được giữ, vì item mới có key khác.
 
 Tái sử dụng chỉ có lợi khi hai item có **cấu trúc giống nhau**. `contentType` cho lazy layout biết item thuộc loại nào; composition chỉ được tái sử dụng giữa các item **cùng loại**. Danh sách chỉ có một loại item thì không cần khai báo (mọi item mặc định cùng loại `null`); danh sách trộn nhiều loại (bài viết, quảng cáo, header ngày) thì nên khai báo.
 
@@ -264,32 +258,26 @@ Thiếu `contentType` thì composition của một `AdBanner` có thể bị l�
 
 Hai điều cần nhớ khi dùng:
 
-- **Đọc ở đâu thì recompose ở đó.** `firstVisibleItemIndex`, `firstVisibleItemScrollOffset` và `layoutInfo` là state đổi gần như mỗi frame cuộn; đọc thẳng trong thân composable thì composable đó recompose theo từng frame. Cần giá trị suy ra ("đã cuộn qua item đầu chưa") thì bọc bằng `derivedStateOf` ([9.3.4 DerivedStateOf](../side_effects/derived_state_of.md)); cần chạy tác vụ theo vị trí cuộn thì chuyển thành Flow bằng `snapshotFlow` ([9.3.5 SnapShotFlow and flowWithSnapshot](../side_effects/flow_with_snapshot.md)).
-- **Cuộn bằng code cần coroutine.** `animateScrollToItem` là hàm `suspend`: gọi từ onClick thì dùng scope của `rememberCoroutineScope()`, gọi khi một giá trị đổi thì dùng `LaunchedEffect` (cả hai ở [9.3.1 LaunchedEffect](../side_effects/launched_effect.md)). Coroutine chỉ dùng tối thiểu ở đây; cơ chế học ở 8.4.3 Coroutines (chưa có bài).
+- **Đọc ở đâu thì recompose ở đó.** `firstVisibleItemScrollOffset` và `layoutInfo` đổi ở gần như mỗi frame cuộn; `firstVisibleItemIndex` đổi mỗi khi một item trôi qua mép trên, vẫn thường xuyên hơn nhiều so với điều UI thật sự cần. Đọc thẳng chúng trong thân composable thì composable đó recompose theo nhịp đó. Cần giá trị suy ra ("đã cuộn qua item đầu chưa") thì bọc bằng `derivedStateOf` ([9.3.4 DerivedStateOf](../side_effects/derived_state_of.md)); cần chạy tác vụ theo vị trí cuộn thì chuyển thành Flow bằng `snapshotFlow` ([9.3.5 SnapShotFlow and flowWithSnapshot](../side_effects/flow_with_snapshot.md)).
+- **Cuộn bằng code cần coroutine.** `animateScrollToItem` là hàm `suspend`: gọi từ onClick thì dùng scope của `rememberCoroutineScope()`, gọi khi một giá trị đổi thì dùng `LaunchedEffect` (cả hai ở [9.3.1 LaunchedEffect](../side_effects/launched_effect.md)). Coroutine chỉ dùng tối thiểu ở đây; cơ chế học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 
-Ví dụ đầy đủ về đọc vị trí cuộn (bằng `derivedStateOf`) và điều khiển vị trí cuộn (bằng `animateScrollToItem`) nằm ở phần "Ví dụ thực tế": menu có tab danh mục đồng bộ với danh sách.
+Ví dụ đầy đủ cho cả hai ý nằm ở phần "Ví dụ thực tế" (menu có tab danh mục).
 
 ### 5. stickyHeader: tiêu đề dính khi cuộn
 
-`stickyHeader { }` ghi một item mà khi cuộn qua, nó **dính** ở đầu viewport cho tới khi header kế tiếp chạm tới và đẩy nó lên. Kiểu danh bạ nhóm theo chữ cái hay lịch sử giao dịch nhóm theo ngày. Từ Compose foundation 1.8, lambda nội dung nhận `index` (vị trí của header trong toàn danh sách), dùng được để biết header đang dính hay không; các bản cũ hơn dùng lambda không tham số và từng là API experimental.
+`stickyHeader { }` ghi một item mà khi cuộn qua, nó **dính** ở đầu viewport cho tới khi header kế tiếp chạm tới và đẩy nó lên. Kiểu danh bạ nhóm theo chữ cái hay lịch sử giao dịch nhóm theo ngày. Từ Compose foundation 1.8, `stickyHeader` là API stable và lambda nội dung nhận `index` (vị trí của header trong toàn danh sách), dùng được để biết header đang dính hay không; trước đó nó là API experimental với lambda không tham số.
 
 Ba điều cần làm đúng khi dùng `stickyHeader`:
 
-- **Nhóm dữ liệu ở ViewModel**, không trong DSL: `transactions.groupBy { it.date }` trong lambda `LazyColumn` chạy lại mỗi lần recompose.
-- **Key của header khác hẳn key của item**, ví dụ `"header-" + date`, để không trùng với id giao dịch.
-- **Header có nền đặc** (`Modifier.background(MaterialTheme.colorScheme.surface)`): header được vẽ đè lên các item phía dưới nó, nền trong suốt thì chữ của item lộ qua.
+- **Nhóm dữ liệu ở ViewModel**, không trong DSL: `groupBy` trong lambda `LazyColumn` chạy lại mỗi lần recompose.
+- **Key của header khác hẳn key của item**, ví dụ `"header-" + date`.
+- **Header có nền đặc** (`Modifier.background(MaterialTheme.colorScheme.surface)`): header vẽ đè lên item bên dưới, nền trong suốt thì chữ của item lộ qua.
 
 Ví dụ đầy đủ dùng `stickyHeader` cho từng danh mục nằm ở phần "Ví dụ thực tế".
 
 ### 6. Modifier.animateItem: animation khi thêm, xoá, đổi chỗ
 
-`RecyclerView` có `ItemAnimator` mặc định. Lazy layout có `Modifier.animateItem()` (thuộc `LazyItemScope`, từ Compose foundation 1.7), đặt lên **phần tử gốc** của nội dung item:
-
-- `fadeInSpec`: item mới xuất hiện bằng fade in.
-- `placementSpec`: item đổi vị trí (sắp xếp lại, item phía trên bị xoá) trượt tới vị trí mới thay vì nhảy.
-- `fadeOutSpec`: item bị xoá fade out trước khi biến mất.
-
-Mỗi spec truyền `null` để tắt riêng phần đó. Lazy layout so vị trí cũ và mới **theo key**, nên không có key thì không có animation đổi chỗ.
+`RecyclerView` có `ItemAnimator` mặc định. Lazy layout có `Modifier.animateItem()` (thuộc `LazyItemScope`, từ Compose foundation 1.7), đặt lên **phần tử gốc** của nội dung item. Nó có ba tham số: `fadeInSpec` (item mới fade in), `placementSpec` (item đổi vị trí trượt tới chỗ mới thay vì nhảy) và `fadeOutSpec` (item bị xoá fade out); mỗi spec mặc định là một `spring`, truyền `null` để tắt riêng phần đó. Lazy layout so vị trí cũ và mới **theo key**, nên không có key thì không có animation đổi chỗ.
 
 #### Ví dụ: việc đã xong trượt xuống cuối danh sách
 
@@ -305,13 +293,16 @@ Mỗi spec truyền `null` để tắt riêng phần đó. Lazy layout so vị t
 
 ```kotlin
 // TaskBoard.kt
-LazyColumn {
-    items(tasks, key = { it.id }) { task ->                 // (3) key để biết ai đi đâu
-        TaskCheckRow(
-            task = task,
-            onToggle = { onToggle(task.id) },               // (1) (2) ViewModel sắp xếp lại
-            modifier = Modifier.animateItem(),              // (3) đặt trên phần tử gốc của item
-        )
+@Composable
+fun TaskBoard(tasks: List<Task>, onToggle: (taskId: Long) -> Unit, modifier: Modifier = Modifier) {
+    LazyColumn(modifier) {
+        items(tasks, key = { it.id }) { task ->             // (3) key để biết ai đi đâu
+            TaskCheckRow(
+                task = task,
+                onToggle = { onToggle(task.id) },           // (1)(2) ViewModel sắp xếp lại
+                modifier = Modifier.animateItem(),          // (3) đặt trên phần tử gốc của item
+            )
+        }
     }
 }
 ```
@@ -323,18 +314,16 @@ LazyColumn {
 Đọc phần này để hiểu vì sao các quy tắc ở trên tồn tại; bỏ qua vẫn dùng được `LazyColumn`.
 
 - **Một nền chung.** `LazyColumn`, `LazyRow`, các loại lưới và `HorizontalPager` đều dựng trên `LazyLayout` (package `androidx.compose.foundation.lazy.layout`), vốn dựng trên `SubcomposeLayout`: layout được phép **compose con trong lúc đo**, khi đã biết kích thước viewport.
-- **Danh mục là danh sách các khoảng.** Mỗi lời gọi `item`/`items` thêm một khoảng (số lượng, hàm key, hàm contentType, nội dung); hỏi "item thứ 3.217 là gì" thì tìm khoảng chứa nó. Nhờ vậy `items(100_000)` vẫn ghi danh mục tức thì.
-- **State của item sống theo key.** Mỗi item được bọc bởi một `SaveableStateHolder` theo key: item rời viewport thì giá trị `rememberSaveable` được cất dưới key và khôi phục khi item quay lại; `remember` thường thì mất.
-- **Reuse pool theo contentType.** Composition của item rời viewport được giữ ở trạng thái vô hiệu (deactivated) trong một kho nhỏ cho từng contentType, chờ item cùng loại dùng lại.
-- **Prefetch và cache window.** Sau mỗi lần cuộn, lazy layout compose và đo trước item kế tiếp trong khoảng rảnh của frame. Từ khoảng Compose foundation 1.9, `LazyLayoutCacheWindow` (experimental, được ổn định hoá trong dòng 1.13 đang alpha/rc lúc viết bài) cho chỉnh vùng giữ sẵn trước và sau viewport. Phần lớn app không cần chỉnh.
+- **State của item sống theo key.** Mỗi item được bọc bởi một `SaveableStateHolder` theo key: item rời viewport thì giá trị `rememberSaveable` được cất dưới key và khôi phục khi item quay lại; `remember` thường thì mất. Composition của item rời viewport thì được giữ ở trạng thái vô hiệu (deactivated) trong reuse pool của contentType tương ứng.
+- **Prefetch và cache window.** Sau mỗi lần cuộn, lazy layout compose và đo trước item kế tiếp trong khoảng rảnh của frame. Từ Compose foundation 1.9, `LazyLayoutCacheWindow` (experimental) cho chỉnh vùng giữ sẵn trước và sau viewport; nó được đánh dấu stable từ 1.13.0-alpha01 (1.13 đang ở rc lúc viết bài). Phần lớn app không cần chỉnh.
 
 ## Ví dụ thực tế
 
 Ba bài toán thường gặp:
 
-1. **Menu quán ăn có tab danh mục đồng bộ với danh sách** (code đầy đủ bên dưới): bấm tab thì cuộn tới danh mục, cuộn danh sách thì tab sáng theo danh mục đang xem.
-2. **Trang chi tiết sản phẩm dài nhiều phần** (ảnh, mô tả, đánh giá, sản phẩm tương tự): viết thành **một** `LazyColumn` với nhiều `item`/`items`; hàng "sản phẩm tương tự" cuộn ngang là một `LazyRow` nằm trong một `item`, xem [9.5.5 Lazy Row](lazy_row.md).
-3. **Danh sách lớn từ API hoặc database tải theo trang**: dùng Paging với `collectAsLazyPagingItems()`, xem [9.5.7 Lazy Paging Items](lazy_paging_items.md).
+1. **Menu quán ăn có tab danh mục đồng bộ với danh sách** (code đầy đủ bên dưới).
+2. **Trang chi tiết sản phẩm dài nhiều phần**: **một** `LazyColumn` với nhiều `item`/`items`; hàng "sản phẩm tương tự" là một `LazyRow` trong một `item` ([9.5.5 Lazy Row](lazy_row.md)).
+3. **Danh sách lớn tải theo trang**: `collectAsLazyPagingItems()` ở [9.5.7 Lazy Paging Items](lazy_paging_items.md).
 
 ### Menu quán ăn: tab danh mục đồng bộ với danh sách
 
@@ -366,6 +355,8 @@ sequenceDiagram
 
 ```kotlin
 // MenuScreen.kt
+import kotlinx.coroutines.launch
+
 data class MenuCategory(val id: String, val name: String, val dishes: List<Dish>)
 data class Dish(val id: String, val name: String, val price: Long)
 
@@ -428,9 +419,9 @@ fun MenuScreen(categories: List<MenuCategory>, modifier: Modifier = Modifier) {
 }
 ```
 
-`PrimaryScrollableTabRow` là API Material 3; `@OptIn` chỉ cần khi bản Material 3 trong dự án còn đánh dấu nó experimental. Bản Material 3 cũ hơn dùng `ScrollableTabRow` với cách dùng tương tự.
+`@OptIn` chỉ cần khi bản Material 3 trong dự án còn đánh dấu `PrimaryScrollableTabRow` experimental; bản cũ hơn dùng `ScrollableTabRow` tương tự.
 
-**Kết quả:** cuộn qua header "Đồ uống", tab "Đồ uống" sáng lên; bấm tab "Món phụ", danh sách cuộn mượt tới header "Món phụ" và header đó dính ở đỉnh. Layout Inspector cho thấy số lần recompose của thanh tab chỉ tăng khi danh mục đổi, còn khi cuộn trong một danh mục thì đứng yên. Vì `headerIndexes` và DSL cùng đọc từ `categories`, thêm món vào danh mục không làm lệch index.
+**Kết quả:** cuộn qua header "Đồ uống", tab "Đồ uống" sáng lên; bấm tab "Món phụ", danh sách cuộn mượt tới header đó và header dính ở đỉnh. Layout Inspector cho thấy thanh tab chỉ recompose khi danh mục đổi. Vì `headerIndexes` và DSL cùng đọc từ `categories`, thêm món không làm lệch index.
 
 ## So sánh với các cách tiếp cận khác
 
@@ -441,11 +432,10 @@ fun MenuScreen(categories: List<MenuCategory>, modifier: Modifier = Modifier) {
 | Danh tính item | Theo vị trí gọi | `key` | `getItemId`, `DiffUtil.ItemCallback.areItemsTheSame` |
 | Cập nhật khi dữ liệu đổi | Recompose | Recompose; item có tham số không đổi được skip | `DiffUtil` tính diff, `notifyItem*` |
 | Tái sử dụng | Không | Reuse pool theo `contentType` | `RecycledViewPool` theo `viewType` |
-| Khoảng cách | `Arrangement`, `Spacer` | `contentPadding`, `Arrangement.spacedBy` | `ItemDecoration`, `clipToPadding` |
 | Animation item | Không có sẵn | `Modifier.animateItem()` | `ItemAnimator` |
 | Nên dùng khi | Nội dung ngắn, cố định | Danh sách dài hoặc không biết trước độ dài | Màn hình còn viết bằng View |
 
-Compose không cần DiffUtil: `key` cho biết item nào giữ, item nào mới, và smart skipping bỏ qua item có tham số không đổi (stability ở [9.1](../remember_and_recomposition.md)). `RecyclerView` thuộc 8.5.1 Layouts và 7.1.2 ViewHolder Pattern (chưa có bài).
+Compose không cần DiffUtil: `key` cho biết item nào giữ, item nào mới, và smart skipping bỏ qua item có tham số không đổi (stability ở [9.1](../remember_and_recomposition.md)).
 
 ## Khi nào nên và không nên dùng
 
@@ -475,15 +465,15 @@ Column(Modifier.verticalScroll(rememberScrollState())) {
 }
 ```
 
-**Lỗi lộ ra thế nào:** crash `IllegalStateException` với thông báo rằng một component cuộn dọc được đo với chiều cao tối đa vô hạn. `Column` cuộn được nên đo con với chiều cao vô hạn; `LazyColumn` cần chiều cao hữu hạn để biết viewport dài bao nhiêu.
+**Lỗi lộ ra thế nào:** crash `IllegalStateException` báo một component cuộn dọc được đo với chiều cao tối đa vô hạn: `Column` cuộn được đo con với chiều cao vô hạn, còn `LazyColumn` cần chiều cao hữu hạn để biết viewport dài bao nhiêu.
 
-**Cách sửa:** gộp mọi thứ vào một `LazyColumn`, phần đầu là `item { ProductHeader(product) }`. Lồng khác hướng (`LazyRow` trong `LazyColumn`) thì hợp lệ. Lồng cùng hướng mà danh sách con có chiều cao cố định (`Modifier.height(200.dp)`) thì chạy được, nhưng hai vùng cuộn chồng nhau thường gây khó chịu cho người dùng.
+**Cách sửa:** gộp mọi thứ vào một `LazyColumn`, phần đầu là `item { ProductHeader(product) }`. Lồng khác hướng (`LazyRow` trong `LazyColumn`) thì hợp lệ; lồng cùng hướng với danh sách con cao cố định (`Modifier.height(200.dp)`) chạy được nhưng hai vùng cuộn chồng nhau khó dùng.
 
 ### 2. Không có key, hoặc key sai
 
 - **Không có key:** state UI nhảy sang item khác khi chèn hoặc đổi chỗ (phần 3), `animateItem()` không animate đổi chỗ.
 - **Key trùng:** crash `IllegalArgumentException` báo key đã được dùng; hay gặp khi header và item cùng dùng id số, hoặc API trả một phần tử hai lần. Sửa: tiền tố cho key của header (`"header-" + date`), loại trùng ở tầng dữ liệu.
-- **Key không lưu được vào Bundle:** dùng nguyên một `data class` không `Parcelable` làm key có thể crash với thông báo kiểu key không được hỗ trợ. Sửa: dùng `id` kiểu String/Long.
+- **Key không lưu được vào Bundle:** dùng nguyên một `data class` không `Parcelable` làm key thì crash báo kiểu key không được hỗ trợ. Sửa: dùng `id` kiểu String/Long.
 - **Key không ổn định:** `key = { UUID.randomUUID() }` hay `hashCode()` của object có field thay đổi biến mỗi lần recompose thành item mới, mất state.
 
 ### 3. Item cao 0px trước khi dữ liệu tới
@@ -497,15 +487,17 @@ items(photos, key = { it.id }) { photo ->
 
 **Lỗi lộ ra thế nào:** ở lần đo đầu, mọi item cao 0px nên đều "vừa" viewport; `LazyColumn` compose **toàn bộ** danh sách, rồi bỏ gần hết khi ảnh về. Vị trí cuộn cũng nhảy khi item đổi kích thước.
 
-**Cách sửa:** cho item kích thước mặc định hoặc placeholder có kích thước thật (`Modifier.height(240.dp)`, `aspectRatio(...)`). `AsyncImage` thuộc thư viện Coil, học ở 8.2.4 Coil (chưa có bài).
+**Cách sửa:** cho item kích thước mặc định hoặc placeholder có kích thước thật (`Modifier.height(240.dp)`, `aspectRatio(...)`). `AsyncImage` thuộc thư viện Coil, học ở [8.2.4 Coil](../../session_08/loading_image/coil.md).
 
 ### 4. Đọc vị trí cuộn ngay trong composition
 
 ```kotlin
-// Sai: cả màn hình recompose theo từng frame cuộn
+// Sai: composable này recompose mỗi khi item đầu đổi, dù showFab chỉ đổi một lần
 val listState = rememberLazyListState()
 val showFab = listState.firstVisibleItemIndex > 0
 ```
+
+**Lỗi lộ ra thế nào:** Layout Inspector cho thấy số lần recompose của màn hình tăng liên tục khi cuộn; đọc `firstVisibleItemScrollOffset` hay `layoutInfo` kiểu này còn tệ hơn vì chúng đổi theo từng frame.
 
 **Cách sửa:** `val showFab by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }`, chi tiết ở [9.3.4 DerivedStateOf](../side_effects/derived_state_of.md). Thao tác chỉ cần chạy khi vị trí đổi (log, analytics) thì dùng `snapshotFlow` trong `LaunchedEffect`.
 
@@ -519,12 +511,12 @@ val showFab = listState.firstVisibleItemIndex > 0
 Mốc phiên bản dưới đây là của artifact `androidx.compose.foundation:foundation`.
 
 - **Compose 1.0 (07/2021):** `LazyColumn`, `LazyRow`, `LazyListState`, `item`/`items`/`itemsIndexed`, `key`; `stickyHeader` có nhưng là API experimental. Lưới lazy (`LazyVerticalGrid`) mới ở dạng experimental.
-- **Khoảng 1.1:** `Modifier.animateItemPlacement()` (experimental) để animate đổi chỗ.
+- **1.1:** `Modifier.animateItemPlacement()` (experimental) để animate đổi chỗ.
 - **1.2 (2022):** thêm tham số `contentType` và cơ chế tái sử dụng composition giữa các item cùng loại; `LazyVerticalGrid` và `LazyHorizontalGrid` ổn định với `GridCells`.
-- **1.3:** thêm lưới staggered và API snapping (`rememberSnapFlingBehavior`), ban đầu dạng experimental.
-- **1.7 (2024):** `Modifier.animateItem()` thay `animateItemPlacement()`, thêm fade in/fade out; `LazyListState.requestScrollToItem()`.
-- **1.8 (2025):** `stickyHeader` nhận `index` của header trong lambda nội dung.
-- **Khoảng 1.9 trở đi:** `LazyLayoutCacheWindow` (experimental) để chỉnh vùng prefetch; được ổn định hoá trong dòng 1.13 (đang alpha/rc tại thời điểm viết, bản stable mới nhất là 1.12.x).
+- **1.3:** thêm lưới staggered và API snapping (`rememberSnapFlingBehavior`), dạng experimental; lưới staggered stable từ 1.5.
+- **1.7 (2024):** `Modifier.animateItem()` thay `animateItemPlacement()` (bị deprecate rồi gỡ), thêm fade in/fade out; `LazyListState.requestScrollToItem()`; snapping và Pager thành stable.
+- **1.8 (2025):** `stickyHeader` stable, nhận `index` của header trong lambda nội dung.
+- **1.9 (2025):** `LazyLayoutCacheWindow` (experimental) để chỉnh vùng prefetch; được đánh dấu stable ở 1.13.0-alpha01 (08/2026). Tại thời điểm viết (11/2026), bản stable mới nhất là 1.12.1, còn 1.13.0 đang ở rc01.
 
 ## Kết nối hệ thống
 
@@ -535,7 +527,7 @@ Mốc phiên bản dưới đây là của artifact `androidx.compose.foundation
   - [9.3.4 DerivedStateOf](../side_effects/derived_state_of.md), [9.3.5 SnapShotFlow and flowWithSnapshot](../side_effects/flow_with_snapshot.md): đọc vị trí cuộn đúng cách.
   - [9.8.1 Scrolling](../gesture/scrolling.md): `verticalScroll`, nested scroll; [9.8.3 Swipping](../gesture/swipping.md): vuốt để xoá item trong `LazyColumn`.
   - [6.5 Paging](../../session_06/paging.md): danh sách tải theo trang ở tầng dữ liệu.
-  - 8.5.1 Layouts và 7.1.2 ViewHolder Pattern (chưa có bài): `RecyclerView` trong View system.
+  - [8.5.1 Layouts](../../session_08/view_layout/layouts.md) và [7.1.2 ViewHolder Pattern](../../session_07/design_pattern/viewholder_pattern.md): `RecyclerView` trong View system.
 - **Học tiếp:** [9.5.5 Lazy Row](lazy_row.md), [9.5.6 Lazy Vertical Grid](lazy_vertical_grid.md), [9.5.7 Lazy Paging Items](lazy_paging_items.md).
 
 ## Tham khảo

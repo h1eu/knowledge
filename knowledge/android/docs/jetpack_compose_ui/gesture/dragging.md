@@ -1,11 +1,11 @@
 ---
 id: android.jetpack_compose.gesture.dragging
 title: Dragging
-summary: Dragging trong Compose là gesture đặt ngón tay xuống, vượt touch slop rồi di chuyển; Compose chỉ báo cho bạn từng delta vị trí, còn việc lưu offset trong state và dịch phần tử theo offset là của bạn. Bài đi qua Modifier.draggable với rememberDraggableState cho một trục, pointerInput với detectDragGestures cho hai trục, đặt offset ở layout phase bằng Modifier.offset { }, consume để cha không cuộn theo, và Animatable để thả tay thì phần tử hút về vị trí mới.
-status: reviewing
+summary: Dragging trong Compose là gesture đặt ngón tay xuống, vượt touch slop rồi di chuyển; Compose chỉ báo cho bạn từng delta vị trí, còn việc lưu offset trong state và dịch phần tử theo offset là việc của bạn.
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 11 phút
+estimated_reading_time: 13 phút
 tags: [android, compose, session-09, gesture, dragging, pointer-input, animatable]
 prerequisites: [android.jetpack_compose.gesture.scrolling, android.jetpack_compose.state.mutable_state]
 related: [android.jetpack_compose.gesture.swiping, android.jetpack_compose.gesture.zooming, android.jetpack_compose.animation.animated_visibility]
@@ -13,9 +13,9 @@ learning_outcomes:
   - Giải thích được vì sao draggable và detectDragGestures chỉ báo delta mà không tự di chuyển phần tử, và vai trò của touch slop.
   - Phân biệt được Modifier.draggable (một trục, có nested scroll và fling velocity) với detectDragGestures và draggable2D (hai trục).
   - Áp dụng được Modifier.offset { } để dịch phần tử theo state ở layout phase, không recompose mỗi frame kéo.
-  - Triển khai được phần tử kéo tự do rồi hút về vị trí đích khi thả tay bằng Animatable, có consume để cha không phản ứng cùng.
+  - Triển khai được phần tử kéo tự do rồi hút về vị trí đích khi thả tay bằng Animatable, và biết lúc nào detector đã consume giúp, lúc nào phải tự consume.
 knowledge_gap: >
-  Developer thường viết offset(x = offsetX.dp) nên cả composable recompose ở mỗi pixel kéo, đặt pointerInput trước offset nên vùng chạm không đi theo phần tử, quên consume khiến danh sách cha cuộn cùng lúc với phần tử đang kéo, hoặc dùng draggable cho bài toán kéo hai trục rồi tự hỏi vì sao chỉ một hướng chạy.
+  Developer thường viết offset(x = offsetX.dp) nên cả composable recompose ở mỗi pixel kéo, đặt pointerInput trước offset nên vùng chạm không đi theo phần tử, tự viết vòng kéo bằng awaitPointerEventScope mà không consume khiến danh sách cha cuộn cùng lúc với phần tử đang kéo, hoặc dùng draggable cho bài toán kéo hai trục rồi tự hỏi vì sao chỉ một hướng chạy.
 ---
 
 # Dragging
@@ -44,7 +44,7 @@ Vấn đề cần giải quyết: nhận được quãng đường kéo một c�
 - Giải thích được vì sao draggable và detectDragGestures chỉ báo delta mà không tự di chuyển phần tử, và vai trò của touch slop.
 - Phân biệt được Modifier.draggable (một trục, có nested scroll và fling velocity) với detectDragGestures và draggable2D (hai trục).
 - Áp dụng được Modifier.offset { } để dịch phần tử theo state ở layout phase, không recompose mỗi frame kéo.
-- Triển khai được phần tử kéo tự do rồi hút về vị trí đích khi thả tay bằng Animatable, có consume để cha không phản ứng cùng.
+- Triển khai được phần tử kéo tự do rồi hút về vị trí đích khi thả tay bằng Animatable, và biết lúc nào detector đã consume giúp, lúc nào phải tự consume.
 
 ## Dragging là gì?
 
@@ -150,13 +150,13 @@ suspend fun PointerInputScope.detectDragGestures(
 ```
 
 - `dragAmount` là delta `Offset` (x, y) kể từ event trước.
-- `change` là `PointerInputChange` của event; gọi `change.consume()` để báo các handler khác (ví dụ danh sách cha) rằng chuyển động này đã có chủ. Không consume thì cha cuộn có thể cùng phản ứng.
+- `change` là `PointerInputChange` của event. Từ Compose 1.0, `detectDragGestures` (và hai biến thể một trục) **tự consume** event vượt touch slop và mọi event kéo sau đó, nên danh sách cha không cuộn theo. Nhiều sample vẫn gọi `change.consume()` trong `onDrag`: tường minh và vô hại. Bạn chỉ phải tự consume khi viết vòng kéo bằng `awaitPointerEventScope` (Sai lầm 3).
 - `onDragEnd` khi nhấc tay bình thường, `onDragCancel` khi gesture bị huỷ (ví dụ một handler khác consume trước).
 - Biến thể: `detectHorizontalDragGestures`, `detectVerticalDragGestures`, và `detectDragGesturesAfterLongPress` (chỉ bắt đầu kéo sau khi nhấn giữ; dùng cho sắp xếp lại item trong danh sách dọc để không giành cú kéo với cuộn).
 
 Một detector chiếm trọn khối `pointerInput` (nó chạy vòng lặp tới khi bị huỷ), nên muốn vừa tap vừa kéo thì dùng hai `pointerInput` riêng.
 
-Các bản Compose từ khoảng foundation 1.7 có thêm `Modifier.draggable2D` + `rememberDraggable2DState { delta: Offset -> }`: tầng modifier cho kéo hai trục, gọn hơn `pointerInput` khi bạn không cần `onDragCancel` hay đọc `change`. Bài dùng `detectDragGestures` vì nó có mặt ở mọi bản và cho thấy rõ consume.
+Từ Foundation 1.6 có thêm `Modifier.draggable2D` + `rememberDraggable2DState { delta: Offset -> }`: tầng modifier cho kéo hai trục, gọn hơn `pointerInput` khi bạn không cần `onDragCancel` hay đọc `change`. Bài dùng `detectDragGestures` vì nó có mặt ở mọi bản và cho thấy rõ `PointerInputChange` của từng event.
 
 ### 3. Đặt offset ở layout phase
 
@@ -178,7 +178,7 @@ Thứ tự modifier cũng quan trọng: đặt `offset { }` **trước** `pointe
 **Luồng chạy:**
 
 1. `detectDragGestures` chờ ngón tay vượt touch slop rồi gọi `onDragStart`.
-2. Mỗi event di chuyển: `change.consume()` để cha không dùng chuyển động này.
+2. Mỗi event di chuyển: detector đã tự consume; `change.consume()` ghi tường minh rằng chuyển động này đã có chủ.
 3. Cộng `dragAmount` vào `offset` (state `Offset`).
 4. `Modifier.offset { offset.round() }` đọc state ở layout phase; vì nó đứng trước `pointerInput`, vùng chạm đi cùng sticker.
 
@@ -219,7 +219,7 @@ fun DraggableSticker(
 }
 ```
 
-**Kết quả:** kéo sticker theo mọi hướng, sticker bám ngón tay; thả tay thì `onPositionCommitted` nhận vị trí cuối để lưu vào ViewModel. Đặt sticker trong một `Column(Modifier.verticalScroll(...))`: kéo sticker không làm màn hình cuộn. Xoá `change.consume()` thì kéo dọc trên sticker có thể khiến cả hai cùng chạy.
+**Kết quả:** kéo sticker theo mọi hướng, sticker bám ngón tay; thả tay thì `onPositionCommitted` nhận vị trí cuối để lưu vào ViewModel. Đặt sticker trong một `Column(Modifier.verticalScroll(...))`: kéo sticker không làm màn hình cuộn, vì ở Main pass sticker (con) nhận và consume event vượt touch slop trước `verticalScroll` (cha). Xoá dòng `change.consume()` cũng không đổi kết quả, vì detector đã tự consume.
 
 ### 4. Thả tay: animate về vị trí đích bằng Animatable
 
@@ -246,7 +246,7 @@ Ba bài toán kéo hay gặp:
 **Luồng chạy:**
 
 1. Ngón tay chạm khi bong bóng còn đang trượt: `onDragStart` gọi `position.stop()` để bắt lấy nó.
-2. Mỗi event kéo: consume, rồi `snapTo` vị trí mới, giới hạn trong khung màn hình.
+2. Mỗi event kéo (detector đã consume): `snapTo` vị trí mới, giới hạn trong khung màn hình.
 3. `offset { position.value.round() }` đọc giá trị của `Animatable` ở layout phase.
 4. Thả tay: chọn cạnh gần hơn theo tâm bong bóng, `animateTo` với `spring` tới cạnh đó, giữ nguyên toạ độ y.
 5. Chạm (không kéo): `clickable` gọi `onClick`; vì chưa vượt touch slop nên `detectDragGestures` không bắt đầu.
@@ -349,9 +349,19 @@ Triệu chứng: kéo giật trên máy yếu, Layout Inspector thấy số reco
 
 `Modifier.pointerInput { ... }.offset { ... }`: phần tử vẽ ở vị trí mới nhưng vùng chạm vẫn ở chỗ cũ, kéo được một lần rồi "mất" phần tử. Sửa: `offset` đứng trước gesture modifier trong chuỗi.
 
-### 3. Quên consume trong detectDragGestures
+### 3. Tự viết vòng kéo mà không consume
 
-Phần tử kéo nằm trong danh sách cuộn cùng hướng: không consume thì danh sách cũng nhận chuyển động, cả hai cùng chạy hoặc gesture bị huỷ giữa chừng (`onDragCancel`). Sửa: `change.consume()` ở đầu `onDrag`. `draggable` tự consume nên không gặp lỗi này.
+```kotlin
+// SAI: tự đọc chuyển động nhưng không consume
+.pointerInput(Unit) {
+    awaitEachGesture {
+        val down = awaitFirstDown()
+        drag(down.id) { change -> offset += change.positionChange() } // thiếu change.consume()
+    }
+}
+```
+
+`draggable` và `detect*DragGestures` tự consume, còn vòng tự viết bằng `awaitPointerEventScope` thì không. Phần tử nằm trong danh sách cuộn cùng hướng: chuyển động chưa bị consume nên danh sách cha vượt touch slop và cuộn cùng lúc với phần tử đang kéo. Sửa: gọi `change.consume()` cho mỗi change đã dùng, hoặc quay về `detectDragGestures` nếu không cần logic riêng.
 
 ### 4. pointerInput(Unit) bắt callback cũ
 
@@ -364,15 +374,16 @@ Khối `pointerInput` chỉ khởi động lại khi key đổi. Sửa: đưa ca
 
 ## Lịch sử phát triển
 
-- **Compose 1.0 (07/2021)**: `Modifier.draggable`, `rememberDraggableState`, `pointerInput` với `detectDragGestures` và `detectDragGesturesAfterLongPress`, cùng `Modifier.offset { }` dạng lambda. Hai dạng `offset` tồn tại từ đầu chính vì bài toán kéo và animation cần đổi vị trí mà không recompose.
-- **Khoảng Compose 1.5–1.7**: `draggable` được viết lại trên `Modifier.Node` để giảm chi phí cấp phát; hành vi với người dùng không đổi.
-- **Khoảng foundation 1.7**: thêm `Modifier.draggable2D` cho kéo hai trục ở tầng modifier, lấp khoảng trống giữa `draggable` một trục và `pointerInput`.
+- **Compose 1.0 (07/2021)**: `Modifier.draggable`, `rememberDraggableState`, `pointerInput` với `detectDragGestures` và `detectDragGesturesAfterLongPress`, cùng `Modifier.offset { }` dạng lambda. Hai dạng `offset` tồn tại từ đầu chính vì bài toán kéo và animation cần đổi vị trí mà không recompose. Từ bản beta (1.0.0-beta08), `detect*DragGestures` tự consume chuyển động, không cần gọi consume trong `onDrag`.
+- **Compose 1.5 (08/2023)**: `draggable` được viết lại trên `Modifier.Node` để giảm chi phí composition; hành vi với người dùng không đổi.
+- **Foundation 1.6 (01/2024)**: thêm `Modifier.draggable2D` cho kéo hai trục ở tầng modifier, lấp khoảng trống giữa `draggable` một trục và `pointerInput`.
+- **Foundation 1.8 (04/2025)**: "gesture pick-up" cho `detectDragGestures`, `draggable` và `scrollable`: nếu con bỏ một gesture, cha có thể nhận lại gesture đó.
 
 ## Kết nối hệ thống
 
 - **Prerequisites**: [9.8.1 Scrolling](scrolling.md) (ba tầng gesture, consume, `scrollable`), [9.2.1 Mutable State](../state/mutable_state.md) (`mutableFloatStateOf`, `mutableStateOf<Offset>`).
 - **Related**: [9.0 Overview](../overview.md) (ba phase, vì sao `offset { }` rẻ), [9.5.1 Thứ tự Modifier](../modifier/modifier_order.md), [9.7.2 AnimatedVisibility](../graphics_animations/animated_visibility.md) (bảng chọn API animation, `Animatable`), [9.7.1 Surface and Canvas](../graphics_animations/surface_and_canvas.md) (`drawWithContent`).
-- **Học tiếp**: [9.8.3 Swiping](swipping.md) cho kéo có điểm dừng; [9.8.4 Zooming](zooming.md) cho gesture nhiều ngón. Coroutine dùng trong `scope.launch` được học ở 8.4.3 Coroutines (chưa có bài).
+- **Học tiếp**: [9.8.3 Swiping](swipping.md) cho kéo có điểm dừng; [9.8.4 Zooming](zooming.md) cho gesture nhiều ngón. Coroutine dùng trong `scope.launch` được học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 
 ## Tham khảo
 

@@ -2,13 +2,13 @@
 id: android.jetpack_compose.lazy.lazy_row
 title: Lazy Row
 summary: LazyRow là lazy layout cuộn ngang của Compose, cùng DSL và cùng cơ chế chỉ dựng item cần cho viewport như LazyColumn, chỉ đổi trục chính sang ngang. Bài chỉ dạy phần khác biệt, gồm horizontalArrangement và verticalAlignment, carousel LazyRow lồng trong LazyColumn và cách mỗi hàng giữ vị trí cuộn riêng nhờ key, chiều cao hàng, snapping bằng rememberSnapFlingBehavior; HorizontalPager chỉ được nhắc để so sánh.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 10 phút
+estimated_reading_time: 12 phút
 tags: [android, compose, session-09, lazy-layout, lazyrow, carousel, snapping]
 prerequisites: [android.jetpack_compose.lazy.lazy_column]
-related: [android.jetpack_compose.lazy.lazy_vertical_grid, android.jetpack_compose.state.remember_saveable, android.jetpack_compose.gesture.scrolling]
+related: [android.jetpack_compose.lazy.lazy_vertical_grid, android.jetpack_compose.state.remember_saveable, android.jetpack_compose.gesture.scrolling, android.view_layout.design_guide]
 learning_outcomes:
   - Phân biệt được LazyRow với LazyColumn ở trục cuộn, horizontalArrangement, verticalAlignment và cách item được đo theo chiều ngang.
   - Triển khai được carousel bằng LazyRow lồng trong LazyColumn, mỗi hàng giữ được vị trí cuộn riêng nhờ key của hàng.
@@ -259,7 +259,7 @@ fun MusicHome(
 | `HorizontalPager` | Lazy layout theo **trang**: mỗi trang có kích thước trang (`PageSize`), có `PagerState.currentPage` | Onboarding, xem ảnh toàn màn hình, tab vuốt ngang |
 | Carousel của Material 3 (`HorizontalMultiBrowseCarousel`...) | Component Material dựng sẵn, item co giãn theo vị trí | Carousel theo đúng spec Material 3 |
 
-`HorizontalPager` cũng dựng trên `LazyLayout` và có snapping sẵn; chọn nó khi khái niệm "trang hiện tại" quan trọng. Pager được nhắc thêm ở [9.8.3 Swipping](../gesture/swipping.md); carousel Material 3 thuộc phạm vi 8.5.4 Design Guide (chưa có bài) và đang là API experimental ở các bản Material 3 gần đây.
+`HorizontalPager` cũng dựng trên `LazyLayout` và có snapping sẵn; chọn nó khi khái niệm "trang hiện tại" quan trọng. Pager được nhắc thêm ở [9.8.3 Swipping](../gesture/swipping.md). Carousel của Material 3 là component dựng sẵn, đánh dấu experimental ở các bản Material 3 gần đây và không được dạy trong kho này; nguyên tắc chung của Material Design ở [8.5.4 Design Guide](../../session_08/view_layout/design_guide.md).
 
 ## Khi nào nên và không nên dùng
 
@@ -308,14 +308,14 @@ Mốc phiên bản dưới đây là của `androidx.compose.foundation:foundati
 
 - **Compose 1.0 (07/2021):** `LazyRow` ra mắt cùng `LazyColumn`, dùng chung `LazyListState` và DSL. Snapping và pager khi đó nằm ở thư viện Accompanist (ngoài Jetpack).
 - **1.3:** thêm API snapping (`rememberSnapFlingBehavior(SnapLayoutInfoProvider)`, `SnapLayoutInfoProvider(lazyListState)`), ban đầu experimental.
-- **Khoảng 1.4:** `HorizontalPager`/`VerticalPager` được đưa vào foundation, thay pager của Accompanist.
-- **1.7 (2024):** thêm overload `rememberSnapFlingBehavior(lazyListState, snapPosition)` và `SnapPosition` (`Start`, `Center`, `End`), cách viết gọn được dùng trong bài.
+- **1.4 (2023):** `HorizontalPager`/`VerticalPager` (experimental) được đưa vào foundation, thay pager của Accompanist.
+- **1.7 (2024):** API snapping và Pager thành stable; thêm overload `rememberSnapFlingBehavior(lazyListState, snapPosition)` và `SnapPosition` (`Start`, `Center`, `End`), cách viết gọn được dùng trong bài.
 
 ## Kết nối hệ thống
 
 - **Tiên quyết:** [9.5.4 Lazy Column](lazy_column.md): DSL, key, contentType, `LazyListState`, cơ chế lazy layout.
 - **Liên quan:** [9.2.2 Remember and rememberSaveable](../state/remember_saveable.md) (vì sao vị trí cuộn của hàng sống qua cuộn khuất và xoay màn hình), [9.5.1 Modifier Order](modifier_order.md) (constraints, `padding` và kích thước), [9.8.1 Scrolling](../gesture/scrolling.md) (`horizontalScroll`, nested scroll), [9.8.3 Swipping](../gesture/swipping.md) (`HorizontalPager`).
-- **Học tiếp:** [9.5.6 Lazy Vertical Grid](lazy_vertical_grid.md), [9.5.7 Lazy Paging Items](lazy_paging_items.md); 8.5.4 Design Guide (chưa có bài) cho carousel theo Material.
+- **Học tiếp:** [9.5.6 Lazy Vertical Grid](lazy_vertical_grid.md), [9.5.7 Lazy Paging Items](lazy_paging_items.md); [8.5.4 Design Guide](../../session_08/view_layout/design_guide.md) cho nguyên tắc Material Design.
 
 ## Tham khảo
 

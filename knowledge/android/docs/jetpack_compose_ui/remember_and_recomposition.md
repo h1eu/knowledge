@@ -2,7 +2,7 @@
 id: android.jetpack_compose.remember_recomposition
 title: Remember and Recomposition
 summary: Recomposition là việc Compose chạy lại đúng những recompose scope đã đọc state vừa đổi; remember ghi nhớ một giá trị trong slot table theo vị trí gọi để giá trị đó sống qua các lần recomposition cho tới khi rời composition. Bài giải thích recompose scope và vì sao nơi đọc state quyết định phạm vi chạy lại, skipping và stability (@Stable, @Immutable, strong skipping), remember, remember(key), key {}, vì sao composable phải idempotent, và cách debug bằng Layout Inspector và compiler reports.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: deep-dive
 estimated_reading_time: 20 phút
@@ -128,7 +128,7 @@ fun PlaybackProgress(positionMs: () -> Long, durationMs: Long, modifier: Modifie
 }
 ```
 
-**Kết quả:** phiên bản A, recomposition count của `PlayerScreen` tăng khoảng 5 lần mỗi giây; phiên bản B, nó đứng yên. Lambda `{ positionMs }` không làm `PlaybackProgress` chạy lại thừa vì với strong skipping, compiler tự `remember` lambda theo giá trị nó capture (object `State`, không đổi). Material 3 cho `LinearProgressIndicator` nhận `progress` dạng lambda cũng vì lý do này.
+**Kết quả:** phiên bản A, recomposition count của `PlayerScreen` tăng 5 lần mỗi giây; phiên bản B, nó đứng yên. Lambda `{ positionMs }` không làm `PlaybackProgress` chạy lại thừa vì với strong skipping (mục 2), compiler tự `remember` lambda theo giá trị nó capture (object `State`, không đổi). `LinearProgressIndicator` của Material 3 nhận `progress` dạng lambda cũng vì lý do này.
 
 > [!TIP]
 > Chỉ dùng lambda cho state **đổi thường xuyên** (vị trí phát, vị trí cuộn, giá trị animation) đang bị đọc ở scope quá cao. State đổi hiếm thì truyền giá trị thẳng cho dễ đọc.
@@ -150,7 +150,7 @@ Hai annotation là **lời cam kết** với compiler:
 - **`@Stable`**: object có thể đổi, nhưng mọi thay đổi của property public đều báo cho Compose (thường vì property là `MutableState`). `LazyListState` là ví dụ.
 
 > [!WARNING]
-> Annotation không làm class bất biến, nó chỉ là lời hứa, giống `!!`. Gắn `@Immutable` cho class có `MutableList` rồi sửa tại chỗ thì Compose so `equals`, thấy bằng, skip: UI **không cập nhật**. Docs hiện hành cũng khuyên **không** gắn annotation cho model chứa collection lớn, vì so `equals` từng phần tử mỗi lần recompose có thể tốn hơn chính việc recompose.
+> Annotation không làm class bất biến, nó chỉ là lời hứa, giống `!!`: hứa sai thì UI **không cập nhật** (Sai lầm 3). Docs strong skipping còn khuyên chỉ gắn annotation cho class có `equals()` rẻ, và cẩn thận với model chứa collection: so `equals` từng phần tử mỗi lần recompose có thể tốn hơn so `===` hay recompose luôn.
 
 Với strong skipping, câu hỏi thực tế là: **khi dữ liệu về, object không đổi có giữ nguyên instance không?** Nếu có, `===` đã đủ để skip.
 
@@ -198,7 +198,7 @@ composeCompiler {
 
 `remember { calculation }` chạy `calculation` **lần đầu** mục đó vào composition và cất kết quả vào slot table tại vị trí của nó; **các lần recompose sau** trả lại giá trị đã cất, không chạy `calculation`.
 
-Vòng đời của một composable trong composition chỉ có ba sự kiện: **vào composition → recompose 0 hoặc nhiều lần → rời composition**. Giá trị `remember` sống đúng khoảng đó. Nó bị quên khi nhánh `if` chứa nó thành `false`, item chứa nó bị xoá, màn hình bị điều hướng ra khỏi composition, hoặc composition bị huỷ (Activity tạo lại khi xoay màn hình).
+Vòng đời của một composable chỉ có ba sự kiện: **vào composition → recompose 0 hoặc nhiều lần → rời composition**, và giá trị `remember` sống đúng khoảng đó. Nó bị quên khi nhánh `if` chứa nó thành `false`, item chứa nó bị xoá, màn hình rời composition, hoặc composition bị huỷ (Activity tạo lại khi xoay màn hình).
 
 `remember` thường giữ hai loại giá trị: **object tốn kém** (`Collator`, `Brush`, kết quả tính toán) và **state của phần tử UI** (`remember { mutableStateOf(false) }` cho trạng thái mở rộng). `mutableStateOf` tạo `MutableState` mà Compose quan sát được, học ở [9.2.1 MutableState](state/mutable_state.md). Vì ghi nhớ theo vị trí, mỗi lời gọi `ReviewCard(review)` có giá trị `remember` riêng.
 
@@ -246,7 +246,7 @@ fun ReviewCard(review: Review) {
 }
 ```
 
-**Kết quả:** đúng như bước 4. Muốn giữ trạng thái mở rộng qua lần ẩn/hiện, state phải sống **ngoài** phần rời composition: đưa tập `id` đã mở rộng lên `ProductReviewsSection` (phía trên `if`) rồi truyền xuống `ReviewCard(review, expanded, onExpand)` — state hoisting ở [9.2.1 MutableState](state/mutable_state.md). `rememberSaveable` **không** giải quyết được, vì nó cũng quên khi rời composition ([9.2.2 Remember and rememberSaveable](state/remember_saveable.md)).
+**Kết quả:** đúng như bước 4. Muốn giữ trạng thái qua lần ẩn/hiện, state phải sống **ngoài** phần rời composition: đưa tập `id` đã mở rộng lên `ProductReviewsSection` (phía trên `if`) — state hoisting ở [9.2.1 MutableState](state/mutable_state.md). `rememberSaveable` **không** giải quyết được, vì nó cũng quên khi rời composition ([9.2.2](state/remember_saveable.md)).
 
 ### 4. `remember(key)`: tính lại khi input đổi
 
@@ -350,17 +350,11 @@ fun DownloadRow(download: Download) {
 }
 ```
 
-**Kết quả:** bỏ `key` rồi thêm file vào đầu hàng đợi, trạng thái mở rộng "nhảy" sang file mới; có `key` thì nó đi theo đúng file. Với state khó thấy hơn (vị trí cuộn của `LazyRow` lồng bên trong, effect đang tải ảnh), lỗi này làm effect bị huỷ và chạy lại cho mọi dòng bị trượt.
+**Kết quả:** bỏ `key` rồi thêm file vào đầu hàng đợi, trạng thái mở rộng "nhảy" sang file mới; có `key` thì nó đi theo đúng file. Với effect trong dòng (đang tải ảnh), lỗi này còn làm effect bị huỷ và chạy lại cho mọi dòng bị trượt.
 
 ### 6. Recomposition có thể chạy lại, bỏ dở, không theo thứ tự
 
-Docs của Compose liệt kê các tính chất mà thân composable phải chịu được:
-
-- **Skip nhiều nhất có thể**: scope con chạy được mà scope cha không chạy, và ngược lại.
-- **Lạc quan, có thể bị huỷ**: tham số đổi tiếp trong lúc recomposition đang chạy thì Compose có thể bỏ lượt đó và chạy lại với giá trị mới.
-- **Chạy rất thường xuyên**: tới mức mỗi frame khi có animation.
-- **Không theo thứ tự**: các composable con có thể chạy khác thứ tự trong source.
-- **Có thể song song**: hiện chạy trên main thread, nhưng docs yêu cầu viết như thể composition có thể chạy trên nhiều thread.
+Theo docs, thân composable phải chịu được việc recomposition: **skip nhiều nhất có thể** (scope con chạy mà cha không chạy, và ngược lại), **lạc quan và có thể bị huỷ** (tham số đổi tiếp giữa chừng thì lượt đó bị bỏ, chạy lại với giá trị mới), **chạy rất thường xuyên** (mỗi frame khi có animation), **không theo thứ tự** trong source, và **có thể song song** (hiện chạy trên main thread, nhưng phải viết như thể chạy trên nhiều thread).
 
 Hệ quả: composable phải **idempotent** (cùng input → cùng UI, gọi bao nhiêu lần cũng vậy) và **không có side effect** (không thay đổi gì nhìn thấy được bên ngoài hàm: biến dùng chung, state đã đọc, SharedPreferences, analytics). Side effect thuộc về lambda sự kiện (`onClick`), ViewModel, hoặc effect API như [9.3.1 LaunchedEffect](side_effects/launched_effect.md).
 
@@ -397,7 +391,7 @@ fun PromoCard(promo: Promo) {
 }
 ```
 
-**Kết quả:** recomposition count của `PromoCard` tăng liên tục khi màn hình đứng yên. Cách đúng: gửi sự kiện hiển thị bằng `LaunchedEffect(promo.id) { analytics.logImpression(promo.id) }` (9.3.1); số lượt xem nếu cần hiện thì do ViewModel cung cấp. Tương tự, tổng tiền giỏ hàng tính bằng `items.sumOf { it.priceVnd * it.quantity }`, không cộng dồn vào biến ngoài trong vòng lặp vẽ từng dòng.
+**Kết quả:** recomposition count của `PromoCard` tăng liên tục khi màn hình đứng yên. Cách đúng: gửi sự kiện hiển thị bằng `LaunchedEffect(promo.id) { analytics.logImpression(promo.id) }` (9.3.1); số lượt xem nếu cần hiện thì do ViewModel cung cấp.
 
 ### 7. Debug recomposition: Layout Inspector và compiler reports
 
@@ -431,15 +425,15 @@ restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun OrderRow(
 `restartable`: là một scope. `skippable` (nhờ strong skipping) nhưng `order` là `unstable`, nên chỉ skip khi cùng instance — manh mối dẫn tới cách sửa ở mục 2.
 
 > [!IMPORTANT]
-> Recomposition count là chỉ báo, không phải số đo hiệu năng: skip một composable có tham số so sánh đắt có thể chậm hơn chạy lại một composable nhẹ. Chỉ kết luận sau khi đo frame time trên release build, như ở [Jetpack Compose Overview](overview.md), mục "Kiểm tra hiệu năng đúng cách".
+> Recomposition count là chỉ báo, không phải số đo hiệu năng. Chỉ kết luận sau khi đo frame time trên release build ([Jetpack Compose Overview](overview.md), mục "Kiểm tra hiệu năng đúng cách").
 
 ## Ví dụ thực tế
 
-Các bài toán thường gặp: **state đổi liên tục** (đồng hồ đếm ngược, vị trí phát, "đang nhập...") → đọc ở scope hẹp, truyền lambda; **dữ liệu suy ra tốn kém** (lọc/nhóm danh sách, `Brush` từ ảnh) → `remember(key)` hoặc ViewModel; **danh sách đổi thứ tự có state trong item** (hàng đợi, chat) → `key {}` / `items(key = ...)`.
+Ba bài toán thường gặp: **state đổi liên tục** (đồng hồ đếm ngược, "đang nhập...") → đọc ở scope hẹp; **dữ liệu suy ra tốn kém** (lọc/nhóm danh sách) → `remember(key)` hoặc ViewModel; **danh sách đổi thứ tự có state trong item** (hàng đợi, chat) → `key {}` / `items(key = ...)`.
 
 ### Màn hình chat nhóm
 
-Bài toán chính ghép cả ba: tin nhắn nhóm theo ngày, bấm một tin để xem giờ gửi, và dòng "Lan đang nhập..." đổi vài lần mỗi giây. Yêu cầu: chỉ báo "đang nhập" đổi thì danh sách không chạy lại; tin mới chèn vào thì tin đang mở xem giờ vẫn giữ trạng thái.
+Bài toán chính ghép cả ba: tin nhắn nhóm theo ngày, bấm một tin để xem giờ gửi, dòng "Lan đang nhập..." đổi vài lần mỗi giây. Yêu cầu: báo "đang nhập" đổi thì danh sách không chạy lại; tin mới chèn vào thì tin đang mở xem giờ vẫn giữ trạng thái.
 
 ```kotlin
 // ui/chat/ChatScreen.kt
@@ -484,22 +478,17 @@ fun MessageBubble(message: Message) {
 }
 ```
 
-- `typingUsers` chỉ được đọc trong lambda `bottomBar`, còn `messages` trong lambda `content`: hai luồng state với tần suất khác nhau không kéo nhau chạy lại. Đọc cả hai ở đầu `ChatScreen` rồi truyền giá trị xuống thì mỗi lần ai đó gõ phím, thân `ChatScreen` chạy lại.
-- `remember(messages)` nhóm lại chỉ khi ViewModel phát danh sách mới.
-- `items(key = { it.id })` giữ `showTime` đúng tin khi có tin mới chèn vào. Key phải là kiểu lưu được vào `Bundle` (`Long`, `String`...) vì lazy list còn dùng nó để khôi phục state đã lưu (9.2.2).
+- `typingUsers` chỉ được đọc trong lambda `bottomBar`, `messages` trong lambda `content` (mục 1): hai luồng state khác tần suất không kéo nhau chạy lại.
+- `remember(messages)` nhóm lại chỉ khi ViewModel phát danh sách mới (mục 4).
+- `items(key = { it.id })` giữ `showTime` đúng tin khi có tin mới chèn vào (mục 5). Key phải là kiểu lưu được vào `Bundle` (`Long`, `String`...) vì lazy list còn dùng nó để khôi phục state đã lưu (9.2.2).
 
 **Kết quả:** bật recomposition counts, cho tài khoản khác gõ liên tục: chỉ `TypingIndicator` tăng, `MessageList` và các `MessageBubble` đứng yên. Mở giờ của một tin rồi nhận tin mới: tin đã mở vẫn hiện giờ.
 
 ## Khi nào nên và không nên dùng
 
-**Nên dùng `remember`** cho object tạo tốn kém (không key nếu không phụ thuộc input, có key nếu phụ thuộc); cho state phần tử UI chỉ composable đó cần và **chấp nhận mất** khi rời composition hoặc khi Activity tạo lại (trạng thái mở rộng, state animation); và cho object cần giữ **danh tính** qua recomposition (`MutableInteractionSource`, `FocusRequester`, các hàm `rememberXxxState()`).
+**Nên dùng `remember`** cho object tạo tốn kém (có key nếu phụ thuộc input); state phần tử UI **chấp nhận mất** khi rời composition hoặc Activity tạo lại (trạng thái mở rộng, state animation); object cần giữ **danh tính** qua recomposition (`MutableInteractionSource`, `FocusRequester`, các hàm `rememberXxxState()`).
 
-**Không nên dùng `remember`:**
-
-- Cho user input cần sống qua xoay màn hình và process death → `rememberSaveable` (9.2.2).
-- Cho dữ liệu nghiệp vụ, dữ liệu từ mạng/database → [ViewModel](../session_06/viewmodel.md).
-- Cho phép tính rẻ (`a + b`): `remember` cũng tốn một slot và một lần so key.
-- Như cách "chạy một lần" việc có side effect (`remember { api.load() }`): việc đó vẫn chạy trong composition, có thể bị huỷ giữa chừng, không huỷ được khi rời màn hình → effect API (9.3.1) hoặc ViewModel.
+**Không nên dùng `remember`** cho user input cần sống qua xoay màn hình → `rememberSaveable` (9.2.2); cho dữ liệu nghiệp vụ, dữ liệu mạng/database → [ViewModel](../session_06/viewmodel.md); cho phép tính rẻ (`a + b`), vì `remember` cũng tốn một slot và một lần so key; và như cách "chạy một lần" việc có side effect (`remember { api.load() }`): việc đó vẫn chạy trong composition, không huỷ được khi rời màn hình → effect API (9.3.1) hoặc ViewModel.
 
 **Tối ưu stability** chỉ khi Layout Inspector và đo frame time chỉ ra vấn đề; với strong skipping mặc định, phần lớn app không cần annotation nào.
 
@@ -537,16 +526,16 @@ cart.items.add(newItem)   // cùng instance, equals vẫn bằng → CartSummary
 
 ### 4. Ghi state, biến ngoài, hoặc phụ thuộc thứ tự trong thân composable
 
-Đã minh hoạ ở mục 6: `viewCount++` gây vòng lặp recompose; cộng dồn vào biến ngoài cho số sai khi chỉ một phần chạy lại; để `StartScreen()` ghi biến toàn cục cho `MiddleScreen()` đọc thì sai khi thứ tự chạy khác. **Cách sửa:** mỗi composable tự đủ từ tham số; giá trị suy ra tính trực tiếp từ input; side effect ở lambda sự kiện, ViewModel hoặc effect API.
+Ngoài backwards write ở mục 6: cộng dồn tổng tiền vào biến ngoài trong vòng lặp vẽ từng dòng cho số sai khi chỉ một phần chạy lại; để `StartScreen()` ghi biến toàn cục cho `MiddleScreen()` đọc thì sai khi thứ tự chạy khác. **Cách sửa:** giá trị suy ra tính thẳng từ input (`items.sumOf { it.priceVnd * it.quantity }`); side effect ở lambda sự kiện, ViewModel hoặc effect API.
 
 ## Lịch sử phát triển
 
 | Thời điểm | Mốc |
 |---|---|
 | 07/2021 | Compose 1.0: positional memoization, `remember`, `key {}`, recompose scope; chỉ skip khi mọi tham số stable |
-| Từ khoảng 2022 | Compiler reports/metrics về stability được dùng rộng rãi; Layout Inspector hiển thị recomposition và skip counts |
-| Cuối 2023 | Compose compiler 1.5.5 thêm stability configuration file |
-| 2024 | Kotlin 2.0: compiler vào repo Kotlin, cấu hình qua `composeCompiler { }`. Strong skipping (trước đó là thử nghiệm) bật mặc định từ Kotlin 2.0.20, kèm `@NonSkippableComposable` và `@DontMemoize` để opt-out |
+| 2022 | Android Studio Dolphin: Layout Inspector hiển thị recomposition và skip counts |
+| Cuối 2023 | Compose compiler 1.5.5 thêm stability configuration file; strong skipping có ở dạng thử nghiệm, phải bật bằng cờ |
+| 2024 | Kotlin 2.0: Compose compiler vào repo Kotlin, cấu hình qua `composeCompiler { }`. Kotlin 2.0.20 bật strong skipping mặc định; opt-out bằng `@NonSkippableComposable` (hàm) và `@DontMemoize` (lambda) |
 
 Vì strong skipping, nhiều bài tối ưu stability viết trước 2024 (đổi mọi `List` sang `ImmutableList`, gắn `@Immutable` khắp nơi) không còn cần thiết, có khi phản tác dụng.
 
@@ -558,7 +547,7 @@ Vì strong skipping, nhiều bài tối ưu stability viết trước 2024 (đ�
   - [9.2.2 Remember and rememberSaveable](state/remember_saveable.md): giữ giá trị qua xoay màn hình và process death.
   - [9.3.1 LaunchedEffect](side_effects/launched_effect.md) và [9.3.4 DerivedStateOf](side_effects/derived_state_of.md): side effect đúng chỗ, giảm recomposition khi kết quả đổi ít hơn input.
   - [9.5.4 Lazy Column](modifier/lazy_column.md): `key` và `contentType` cho lazy list.
-- **Liên quan:** [MVVM](../session_07/architecture/mvvm.md) (ViewModel giữ state màn hình); 10.2 Unit Testing (chưa có bài): test UI Compose và benchmark.
+- **Liên quan:** [MVVM](../session_07/architecture/mvvm.md) (ViewModel giữ state màn hình); [7.1.4.2 Flow](../session_07/design_pattern/observer/flow.md) (`StateFlow` mà ViewModel expose, ví dụ mục 1).
 
 ## Tham khảo
 

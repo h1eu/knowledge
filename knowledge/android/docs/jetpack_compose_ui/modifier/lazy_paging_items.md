@@ -2,13 +2,13 @@
 id: android.jetpack_compose.lazy.lazy_paging_items
 title: Lazy Paging Items
 summary: LazyPagingItems là đối tượng do collectAsLazyPagingItems() tạo ra để đưa một Flow<PagingData> của Paging 3 vào lazy layout của Compose. Nó collect PagingData trong composition, phơi ra itemCount, item theo index và loadState dưới dạng state Compose đọc được, và mỗi lần item được đọc theo index thì báo cho Paging biết UI đang xem tới đâu. Bài dạy cách dùng nó trong LazyColumn với itemKey và itemContentType, placeholder null, loading, lỗi và retry theo loadState, và vì sao Flow phải cachedIn(viewModelScope); cơ chế PagingSource và Pager ở 6.5.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 15 phút
+estimated_reading_time: 19 phút
 tags: [android, compose, session-09, paging, lazy-layout, lazypagingitems, loadstate]
 prerequisites: [android.jetpack.paging, android.jetpack_compose.lazy.lazy_column]
-related: [android.jetpack.viewmodel, android.architecture.mvvm, android.jetpack_compose.lazy.lazy_vertical_grid, android.jetpack_compose.side_effects.snapshot_flow]
+related: [android.jetpack.viewmodel, android.architecture.mvvm, android.jetpack_compose.lazy.lazy_vertical_grid, android.jetpack_compose.side_effects.snapshot_flow, android.design_pattern.observer.flow, android.async.coroutines]
 learning_outcomes:
   - Giải thích được LazyPagingItems nối Flow<PagingData> với lazy layout thế nào, và vì sao đọc item theo index là tín hiệu để Paging tải trang.
   - Triển khai được danh sách phân trang trong LazyColumn bằng collectAsLazyPagingItems, items(count), itemKey và itemContentType.
@@ -235,7 +235,7 @@ flowchart TD
 - **`cachedIn(viewModelScope)` là bắt buộc trên thực tế.** Xoay màn hình hay quay lại từ màn khác tạo composition mới, `collectAsLazyPagingItems()` collect lại từ đầu. Không có `cachedIn`, lần collect mới bắt `Pager` tải lại từ trang đầu và người dùng mất vị trí cuộn; có `cachedIn`, các trang đã tải được phát lại ngay (cơ chế cache và multicast ở 6.5).
 - **Danh sách phụ thuộc tham số** (từ khoá, bộ lọc) thì giữ tham số trong `StateFlow`, dùng `flatMapLatest` để tạo `Pager` mới cho mỗi giá trị và đặt `cachedIn` **sau** `flatMapLatest`, như ví dụ `ProductSearchViewModel` ở 6.5. Flow mà composable collect vẫn là một instance duy nhất.
 
-Preview và test UI không cần `Pager` thật: `flowOf(PagingData.from(fakeArticles))` cho một `Flow<PagingData>` dữ liệu giả, đưa vào `collectAsLazyPagingItems()` như bình thường. Kiểm thử `PagingSource` và Flow ở tầng dữ liệu (`asSnapshot`, `TestPager`) đã có ở 6.5.
+Preview và test UI không cần `Pager` thật: bọc dữ liệu giả thành `MutableStateFlow(PagingData.from(fakeArticles))` rồi gọi `collectAsLazyPagingItems()` như bình thường. Tài liệu Paging dùng `MutableStateFlow` vì Preview tĩnh không chạy effect: với một `StateFlow` (vốn là `SharedFlow`), `LazyPagingItems` lấy được `PagingData` ban đầu từ replay cache ngay khi tạo, còn `flowOf(...)` chỉ phát khi được collect nên Preview hiện danh sách rỗng. Kiểm thử `PagingSource` và Flow ở tầng dữ liệu (`asSnapshot`, `TestPager`) đã có ở 6.5.
 
 ## Ví dụ thực tế
 
@@ -298,6 +298,7 @@ class ProductSearchViewModel(private val repository: ProductRepository) : ViewMo
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -409,7 +410,7 @@ Không dùng Paging, danh sách vài chục đến vài trăm item tải một l
 ```kotlin
 // Sai: mỗi lần recompose là một Pager và một Flow mới
 @Composable
-fun ArticleFeedScreen(repository: ArticleRepository) {
+fun ArticleFeedScreen(api: ArticleApi) {
     val articles = Pager(PagingConfig(pageSize = 20)) { ArticlePagingSource(api) }
         .flow
         .collectAsLazyPagingItems()
@@ -456,8 +457,8 @@ Bật `enablePlaceholders` nhưng nhánh `null` vẽ `Spacer(Modifier)` hoặc k
 ## Lịch sử phát triển
 
 - **Cuối 2020:** `androidx.paging:paging-compose` ra bản alpha đầu tiên (đánh số riêng `1.0.0-alphaXX`), có `collectAsLazyPagingItems()` cùng extension `items(lazyPagingItems)` và `itemsIndexed(lazyPagingItems)` dành riêng cho `LazyColumn`/`LazyRow`.
-- **2023, các bản alpha cuối của paging-compose:** `items(lazyPagingItems)` và `itemsIndexed(lazyPagingItems)` bị deprecate rồi gỡ bỏ, thay bằng `items(count)` của lazy layout cùng `itemKey` và `itemContentType`. Lý do: một API chung dùng được cho mọi lazy layout (lưới, `HorizontalPager`) thay vì viết extension riêng cho từng loại.
-- **Paging 3.2.0 (07/2023):** `paging-compose` về cùng số version với Paging và có bản stable đầu tiên; `LazyPagingItems` hỗ trợ preview bằng `PagingData.from(list)`.
+- **05/2023, paging-compose 1.0.0-alpha19:** `items(lazyPagingItems)` và `itemsIndexed(lazyPagingItems)` bị deprecate (gỡ hẳn ở Paging 3.2.0-beta01, 06/2023), thay bằng `items(count)` của lazy layout cùng `itemKey` và `itemContentType`. Lý do: một API chung dùng được cho mọi lazy layout (lưới, `HorizontalPager`) thay vì viết extension riêng cho từng loại.
+- **Paging 3.2.0 (07/2023):** `paging-compose` về cùng số version với Paging và có bản stable đầu tiên; `LazyPagingItems` hiện được dữ liệu giả trong Preview qua `MutableStateFlow(PagingData.from(list))`.
 - **Paging 3.3.0 (05/2024):** `CombinedLoadStates` có thêm `isIdle` và `hasError`; Paging, gồm `paging-compose`, hỗ trợ Kotlin Multiplatform.
 
 ## Kết nối hệ thống
@@ -467,8 +468,8 @@ Bật `enablePlaceholders` nhưng nhánh `null` vẽ `Spacer(Modifier)` hoặc k
   - [9.5.6 Lazy Vertical Grid](lazy_vertical_grid.md): lưới phân trang, footer trọn hàng bằng `GridItemSpan(maxLineSpan)`.
   - [6.4 ViewModel](../../session_06/viewmodel.md), [7.2.3 MVVM](../../session_07/architecture/mvvm.md): nơi `Pager` và `cachedIn` sống.
   - [9.3.5 SnapShotFlow and flowWithSnapshot](../side_effects/flow_with_snapshot.md): `collectAsStateWithLifecycle()` cho state thường, `snapshotFlow` để phản ứng khi `loadState` đổi.
-  - 7.1.4.2 Flow và 8.4.3 Coroutines (chưa có bài): `flatMapLatest`, `debounce`, `viewModelScope`.
-- **Học tiếp:** 10.2 Unit Testing (chưa có bài) cho kiểm thử tầng dữ liệu phân trang; [9.8.3 Swipping](../gesture/swipping.md) cho vuốt để xoá item trong danh sách.
+  - [7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md) (`flatMapLatest`, `debounce`) và [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md) (`viewModelScope`).
+- **Học tiếp:** [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md) cho kiểm thử ViewModel (kiểm thử `PagingSource` bằng `TestPager`, `asSnapshot` ở 6.5); [9.8.3 Swipping](../gesture/swipping.md) cho vuốt để xoá item trong danh sách.
 
 ## Tham khảo
 

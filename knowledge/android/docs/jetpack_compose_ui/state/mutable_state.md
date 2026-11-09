@@ -2,13 +2,13 @@
 id: android.jetpack_compose.state.mutable_state
 title: MutableState
 summary: MutableState là holder giá trị quan sát được của Compose — đọc value trong lúc composition thì snapshot system ghi nhận phụ thuộc, ghi value mới (khác giá trị cũ theo mutation policy) thì mọi scope đã đọc nó được recompose; state hoisting là quyết định ai sở hữu MutableState đó. Bài giải thích State/MutableState, ba cách khai báo, snapshot system, các biến thể primitive, mutableStateListOf/mutableStateMapOf, SnapshotMutationPolicy, và state hoisting với pattern value + onValueChange, chọn nơi hoist (composable cha, state holder class, ViewModel) theo UDF.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 20 phút
+estimated_reading_time: 19 phút
 tags: [android, compose, session-09, state, mutablestate, snapshot, state-hoisting, udf, state-holder]
 prerequisites: [android.jetpack_compose.compose_overview, android.jetpack_compose.remember_recomposition]
-related: [android.jetpack_compose.state.remember_saveable, android.jetpack.viewmodel, android.architecture.mvvm]
+related: [android.jetpack_compose.state.remember_saveable, android.jetpack.viewmodel, android.architecture.mvvm, android.design_pattern.observer.flow]
 learning_outcomes:
   - Giải thích được cách snapshot system theo dõi lần đọc và lần ghi MutableState để quyết định scope nào recompose.
   - Áp dụng được mutableStateOf, các biến thể primitive và ba cách khai báo (value, delegate by, destructuring) đúng ngữ cảnh.
@@ -36,7 +36,7 @@ fun BookmarkButton() {
 }
 ```
 
-Cần một kiểu giá trị mà **đọc thì được ghi nhận, ghi thì báo cho người đã đọc**. Có kiểu đó rồi, lại có câu hỏi thứ hai: state này thuộc về **ai**? Đặt sâu trong `BookmarkButton` thì màn hình danh sách không biết bài nào đã lưu, không test được, không dùng lại được. Đẩy tất cả lên ViewModel thì một trạng thái "đang mở menu" cũng phải đi qua tầng nghiệp vụ. Bài này trả lời cả hai: `MutableState` hoạt động thế nào, và state hoisting quyết định nơi đặt nó.
+Cần một kiểu giá trị mà **đọc thì được ghi nhận, ghi thì báo cho người đã đọc**. Câu hỏi thứ hai: state này thuộc về **ai**? Đặt sâu trong `BookmarkButton` thì màn hình danh sách không biết bài nào đã lưu, không test, không dùng lại được; đẩy tất cả lên ViewModel thì trạng thái "đang mở menu" cũng phải đi qua tầng nghiệp vụ.
 
 ## Sau khi học xong
 
@@ -143,7 +143,7 @@ fun PriceSummary(min: Long, max: Long) {                           // (4)
 
 ### 3. Biến thể primitive: `mutableIntStateOf` và các anh em
 
-`mutableStateOf<Int>` lưu giá trị dạng object (`Integer`), mỗi lần ghi là một lần **boxing**. Với state đổi liên tục (âm lượng, tiến độ kéo, bộ đếm), Compose có biến thể lưu primitive trực tiếp: `mutableIntStateOf`, `mutableLongStateOf`, `mutableFloatStateOf`, `mutableDoubleStateOf` (trả `MutableIntState`... với property `intValue`, `longValue`...). Lint của Compose gợi ý chuyển khi thấy `mutableStateOf(0)`.
+`mutableStateOf<Int>` lưu giá trị dạng object (`Integer`), mỗi lần ghi là một lần **boxing**. Với state đổi liên tục (âm lượng, tiến độ kéo, bộ đếm), Compose có biến thể lưu primitive trực tiếp: `mutableIntStateOf`, `mutableLongStateOf`, `mutableFloatStateOf`, `mutableDoubleStateOf` (trả `MutableIntState`... với property `intValue`, `longValue`...). Lint `AutoboxingStateCreation` của Compose gợi ý chuyển khi thấy `mutableStateOf(0)`.
 
 ```kotlin
 // ui/player/VolumeControl.kt — Slider ghi liên tục khi kéo
@@ -151,7 +151,7 @@ var volume by remember { mutableFloatStateOf(0.6f) }
 Slider(value = volume, onValueChange = { volume = it })
 ```
 
-Delegate `by` vẫn dùng được với các kiểu này. Khác biệt chỉ là hiệu năng; hành vi quan sát giống hệt `mutableStateOf`.
+Delegate `by` vẫn dùng được; hành vi quan sát giống hệt `mutableStateOf`, chỉ khác hiệu năng.
 
 ### 4. Collection: `mutableStateListOf` / `mutableStateMapOf` và `mutableStateOf(list)`
 
@@ -208,7 +208,7 @@ fun PackingList(initial: List<PackingItem>) {
 }
 ```
 
-**Kết quả:** tick một món chỉ dòng đó recompose (Layout Inspector); xoá một món thì danh sách cập nhật ngay. Trong app thật, checklist cần lưu lâu dài thường nằm ở ViewModel + Room; ví dụ này giữ trong composition để tập trung vào cơ chế quan sát. Lưu ý `packingItems` là `SnapshotStateList` (stable); truyền nó xuống con dưới dạng `List<PackingItem>` để con không sửa được.
+**Kết quả:** tick một món chỉ dòng đó recompose (Layout Inspector); xoá một món thì danh sách cập nhật ngay. Trong app thật, checklist cần lưu lâu dài nằm ở ViewModel + Room; ví dụ giữ trong composition để tập trung vào cơ chế quan sát. Truyền `packingItems` xuống con dưới dạng `List<PackingItem>` để con không sửa được.
 
 ### 5. `SnapshotMutationPolicy`: thế nào là "giá trị mới"
 
@@ -347,7 +347,7 @@ flowchart TD
     Q3 -->|"Không"| L["Giữ trong chính composable"]
 ```
 
-ViewModel không phải là composition: nó được cung cấp bởi framework và scope theo Activity, Fragment hoặc navigation destination. ViewModel thường expose screen UI state bằng `StateFlow` và composable chuyển sang `State` bằng `collectAsStateWithLifecycle()` (học ở [9.3.5 SnapShotFlow and flowWithSnapshot](../side_effects/flow_with_snapshot.md)); ViewModel cũng có thể giữ `var x by mutableStateOf(...)` với `private set`. Hai quy ước từ docs: chỉ composable cấp màn hình nhận ViewModel, **không truyền ViewModel xuống** composable con; và chỉ đưa state lên ViewModel khi business logic cần nó, không phải vì muốn sống qua xoay màn hình.
+ViewModel không thuộc composition: nó scope theo Activity, Fragment hoặc navigation destination. ViewModel thường expose screen UI state bằng `StateFlow` và composable chuyển sang `State` bằng `collectAsStateWithLifecycle()` (học ở [9.3.5 SnapShotFlow and flowWithSnapshot](../side_effects/flow_with_snapshot.md)); ViewModel cũng có thể giữ `var x by mutableStateOf(...)` với `private set`. Hai quy ước từ docs: chỉ composable cấp màn hình nhận ViewModel, **không truyền ViewModel xuống** composable con; và chỉ đưa state lên ViewModel khi business logic cần nó, không phải vì muốn sống qua xoay màn hình.
 
 #### Ví dụ: chọn ngày nhận phòng và trả phòng
 
@@ -463,25 +463,18 @@ fun GuestCounter(value: Int, onValueChange: (Int) -> Unit, modifier: Modifier = 
 }
 ```
 
-Các điểm đáng chú ý:
+- **Một nguồn sự thật cho mỗi state**: `guests` chỉ có trong `uiState`, `GuestCounter` không giữ bản sao; ViewModel chặn giá trị (`coerceIn(1, 8)`) — interceptable ở cấp ViewModel.
+- **Chọn chủ sở hữu theo logic**: ngày ở là UI logic nên không lên ViewModel; khi bấm "Tìm phòng", chúng đi vào `search()` như tham số của sự kiện.
 
-- **Một nguồn sự thật cho mỗi state**: `guests` chỉ có trong `uiState`; `GuestCounter` không giữ bản sao. ViewModel còn chặn giá trị (`coerceIn(1, 8)`) — tính chất interceptable ở cấp ViewModel.
-- **Chọn chủ sở hữu theo logic**: ngày ở là UI logic nên không lên ViewModel; khi bấm "Tìm phòng", chúng được truyền vào `search()` như tham số của sự kiện.
-- `StayDatesPicker`, `GuestCounter`, `HotelResults` không biết ViewModel tồn tại: preview và test với dữ liệu giả được ngay.
-
-**Kết quả:** `HotelSearchViewModel` unit test được với `FakeHotelRepository` như ở [MVVM](../../session_07/architecture/mvvm.md); `StayDatesState` test như class thường; các component stateless có `@Preview` cho từng trạng thái (đang tải, không có phòng, có kết quả).
+**Kết quả:** `HotelSearchViewModel` unit test được với `FakeHotelRepository` như ở [MVVM](../../session_07/architecture/mvvm.md); `StayDatesState` test như class thường; `StayDatesPicker`, `GuestCounter`, `HotelResults` không biết ViewModel, có `@Preview` cho từng trạng thái (đang tải, không có phòng, có kết quả).
 
 ## Khi nào nên và không nên dùng
 
-**Nên dùng `MutableState`:**
-
-- State UI trong composable hoặc plain state holder: `remember { mutableStateOf(...) }`, biến thể primitive cho giá trị đổi liên tục.
-- `mutableStateListOf`/`mutableStateMapOf` khi sửa từng phần tử thường xuyên trong UI.
-- Trong ViewModel khi muốn expose state cho Compose mà không cần toán tử `Flow` (`var query by mutableStateOf("")` + `private set`).
+**Nên dùng `MutableState`** cho state UI trong composable hoặc plain state holder (biến thể primitive cho giá trị đổi liên tục, `mutableStateListOf`/`mutableStateMapOf` khi sửa từng phần tử thường xuyên), và trong ViewModel khi expose state cho Compose mà không cần toán tử `Flow` (`var query by mutableStateOf("")` + `private set`).
 
 **Cân nhắc cách khác:**
 
-- Screen UI state kết hợp nhiều nguồn dữ liệu (`combine`, `debounce`, `stateIn`) → `StateFlow` trong ViewModel, rồi `collectAsStateWithLifecycle()` ở UI.
+- Screen UI state kết hợp nhiều nguồn dữ liệu (`combine`, `debounce`, `stateIn`) → `StateFlow` trong ViewModel ([7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md)), rồi `collectAsStateWithLifecycle()` ở UI.
 - State suy ra từ state khác → tính trực tiếp, `remember(key)` (9.1) hoặc `derivedStateOf` ([9.3.4 DerivedStateOf](../side_effects/derived_state_of.md)), không tạo `MutableState` thứ hai rồi tự đồng bộ.
 - Dữ liệu phải sống lâu dài (giỏ hàng, cài đặt) → Room/DataStore qua repository; `MutableState` chỉ là bản hiển thị.
 
@@ -548,10 +541,10 @@ fun CouponField(code: MutableState<String>) { /* tự ghi code.value */ }
 | Thời điểm | Mốc |
 |---|---|
 | 07/2021 | Compose 1.0: `mutableStateOf`, `State`/`MutableState`, `mutableStateListOf`/`mutableStateMapOf`, snapshot system và `SnapshotMutationPolicy` có từ bản stable đầu tiên |
-| 2022 | Docs bổ sung hướng dẫn "Where to hoist state", phân biệt UI logic với business logic và plain state holder với ViewModel, khớp với phần UI layer của hướng dẫn kiến trúc |
+| Sau 1.0 | Hướng dẫn kiến trúc mới (UI layer, state holder) và trang "Where to hoist state" phân biệt UI logic với business logic, plain state holder với ViewModel |
 | 2023 | Compose 1.5 thêm `mutableIntStateOf`, `mutableLongStateOf`, `mutableFloatStateOf`, `mutableDoubleStateOf` tránh boxing; `collectAsStateWithLifecycle()` (lifecycle-runtime-compose) stable, thành cách khuyến nghị để biến `Flow` thành `State` trên Android |
 
-Thiết kế snapshot state không đổi từ 1.0. Những gì thay đổi là hướng dẫn **đặt state ở đâu**: từ "hoist càng cao càng tốt" sang "hoist tới cha chung thấp nhất, chọn chủ sở hữu theo loại logic".
+Thiết kế snapshot state không đổi từ 1.0. Phần được bổ sung là hướng dẫn **đặt state ở đâu**: ngoài quy tắc cha chung thấp nhất, chọn chủ sở hữu theo loại logic.
 
 ## Kết nối hệ thống
 
@@ -563,7 +556,7 @@ Thiết kế snapshot state không đổi từ 1.0. Những gì thay đổi là 
 - **Học tiếp:**
   - [9.3.5 SnapShotFlow and flowWithSnapshot](../side_effects/flow_with_snapshot.md): `collectAsStateWithLifecycle()` và `snapshotFlow`, hai chiều State ↔ Flow.
   - [9.3.4 DerivedStateOf](../side_effects/derived_state_of.md): state suy ra từ state khác.
-  - 7.1.4.2 Flow (chưa có bài): `StateFlow` mà ViewModel expose.
+  - [7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md): `StateFlow` mà ViewModel expose.
 
 ## Tham khảo
 

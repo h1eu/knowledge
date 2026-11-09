@@ -1,22 +1,22 @@
 ---
 id: android.jetpack_compose.gesture.swiping
 title: Swiping
-summary: Swipe là cú kéo mà khi thả tay, phần tử không dừng ở chỗ ngón tay mà settle về một trong vài vị trí định trước (anchor), chọn theo quãng đã kéo và vận tốc vung. Bài giải thích DraggableAnchors, AnchoredDraggableState và Modifier.anchoredDraggable của Foundation (thay cho swipeable đã deprecated, theo API hiện hành với AnchoredDraggableDefaults.flingBehavior), rồi dùng Material 3 SwipeToDismissBox để vuốt xoá item trong LazyColumn kèm hoàn tác bằng Snackbar.
-status: reviewing
+summary: Swipe là cú kéo mà khi thả tay, phần tử không dừng ở chỗ ngón tay mà settle về một trong vài vị trí định trước (anchor), chọn theo quãng đã kéo và vận tốc vung. Bài dùng API hiện hành của Foundation (AnchoredDraggableState, Modifier.anchoredDraggable, AnchoredDraggableDefaults.flingBehavior) và Material 3 SwipeToDismissBox.
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 14 phút
+estimated_reading_time: 17 phút
 tags: [android, compose, session-09, gesture, swipe, anchored-draggable, swipe-to-dismiss]
 prerequisites: [android.jetpack_compose.gesture.dragging, android.jetpack_compose.gesture.scrolling]
-related: [android.jetpack_compose.lazy.lazy_column, android.jetpack_compose.state.remember_saveable, android.jetpack.viewmodel]
+related: [android.jetpack_compose.lazy.lazy_column, android.jetpack_compose.state.remember_saveable, android.jetpack.viewmodel, android.design_pattern.observer.flow]
 learning_outcomes:
   - Giải thích được cách một swipe được settle về anchor dựa trên positional threshold và vận tốc fling.
   - Triển khai được thành phần vuốt giữa các vị trí cố định bằng DraggableAnchors, AnchoredDraggableState và Modifier.anchoredDraggable theo API hiện hành.
   - Triển khai được vuốt để xoá item trong LazyColumn bằng SwipeToDismissBox, kèm hoàn tác bằng Snackbar.
   - Phân biệt được anchoredDraggable, SwipeToDismissBox, draggable và HorizontalPager để chọn đúng cho từng bài toán vuốt.
-  - Nhận diện được các lỗi thường gặp như dùng swipeable hoặc constructor đã deprecated, quên key khiến trạng thái vuốt dính sang item khác, và gọi requireOffset trước khi có anchor.
+  - Nhận diện được các lỗi thường gặp như dùng swipeable hoặc constructor đã deprecated, quên key khiến trạng thái vuốt dính sang item khác, khôi phục state đã vuốt khi hoàn tác, và gọi requireOffset trước khi có anchor.
 knowledge_gap: >
-  API vuốt của Compose đổi nhiều lần (swipeable của Material, AnchoredDraggable bản đầu với threshold trong constructor, rồi bản hiện hành dùng flingBehavior), nên code mẫu trên mạng thường dùng API đã deprecated. Developer copy về rồi gặp cảnh báo deprecation, xoá item trong confirmValueChange khiến callback chạy nhiều lần, hoặc không đặt key cho item nên sau khi xoá, item kế tiếp hiện ra ở trạng thái đã bị vuốt.
+  API vuốt của Compose đổi nhiều lần (swipeable của Material, AnchoredDraggable bản đầu với threshold trong constructor, rồi bản hiện hành dùng flingBehavior), nên code mẫu trên mạng thường dùng API đã deprecated. Developer copy về rồi gặp cảnh báo deprecation, xoá item trong confirmValueChange khiến callback chạy nhiều lần, không đặt key cho item nên sau khi xoá, item kế tiếp hiện ra ở trạng thái đã bị vuốt, hoặc bấm "Hoàn tác" thì thư vừa quay lại đã bị xoá lần nữa vì state vuốt được khôi phục.
 ---
 
 # Swiping
@@ -37,7 +37,7 @@ Tự làm bằng [`draggable`](dragging.md) nghĩa là tự đo vận tốc, t�
 - Triển khai được thành phần vuốt giữa các vị trí cố định bằng DraggableAnchors, AnchoredDraggableState và Modifier.anchoredDraggable theo API hiện hành.
 - Triển khai được vuốt để xoá item trong LazyColumn bằng SwipeToDismissBox, kèm hoàn tác bằng Snackbar.
 - Phân biệt được anchoredDraggable, SwipeToDismissBox, draggable và HorizontalPager để chọn đúng cho từng bài toán vuốt.
-- Nhận diện được các lỗi thường gặp như dùng swipeable hoặc constructor đã deprecated, quên key khiến trạng thái vuốt dính sang item khác, và gọi requireOffset trước khi có anchor.
+- Nhận diện được các lỗi thường gặp như dùng swipeable hoặc constructor đã deprecated, quên key khiến trạng thái vuốt dính sang item khác, khôi phục state đã vuốt khi hoàn tác, và gọi requireOffset trước khi có anchor.
 
 ## Swiping là gì?
 
@@ -82,10 +82,10 @@ Các thuộc tính và hàm chính của state:
 
 | Thành phần | Ý nghĩa |
 |---|---|
-| `currentValue` | Anchor gần nhất với offset hiện tại (đổi ngay khi kéo qua ngưỡng) |
-| `settledValue` | Anchor đã thật sự dừng lại; chỉ đổi khi animation kết thúc |
-| `targetValue` | Anchor gần nhất có tính positional threshold; khi không kéo hay animate thì bằng `currentValue` |
-| `offset` / `requireOffset()` | Offset hiện tại; `offset` là `NaN` khi chưa có anchor, `requireOffset()` thì ném lỗi |
+| `currentValue` | Anchor gần nhất mà offset đã **đi qua** (đổi khi offset chạm một anchor, kể cả anchor trung gian) |
+| `settledValue` | Anchor đã thật sự dừng lại; đi qua nhiều anchor A → B → C thì giữ nguyên tới khi settle xong |
+| `targetValue` | Anchor gần nhất với offset hiện tại (đổi ở điểm giữa hai anchor); khi không kéo hay animate thì bằng `currentValue` |
+| `offset` / `requireOffset()` | Offset hiện tại; `offset` là `NaN` khi chưa có anchor, `requireOffset()` thì ném lỗi. Đổi mỗi frame, không đọc trong composition |
 | `progress(from, to)` | Tiến độ 0..1 giữa hai anchor, dùng để làm mờ, đổi màu theo cú vuốt |
 | `isAnimationRunning` | Đang settle hay không |
 | `updateAnchors(newAnchors)` | Đổi tập anchor (khi kích thước đổi) |
@@ -200,7 +200,7 @@ fun SwipeRevealTaskRow(
 }
 ```
 
-**Kết quả:** vuốt nhẹ sang trái rồi thả: hàng quay về đóng. Vuốt quá 40% bề rộng nút, hoặc vung nhanh: hàng mở hết, hai nút lộ ra. Bấm "Hoãn": callback chạy và hàng trượt về đóng. Log `state.settledValue` trong một `LaunchedEffect`/`snapshotFlow` để thấy nó chỉ đổi khi animation kết thúc, còn `currentValue` đổi ngay khi kéo qua ngưỡng. Vì anchor được tạo trong constructor nên `requireOffset()` luôn có giá trị từ frame đầu.
+**Kết quả:** vuốt nhẹ sang trái rồi thả: hàng quay về đóng. Vuốt quá 40% bề rộng nút, hoặc vung nhanh: hàng mở hết, hai nút lộ ra. Bấm "Hoãn": callback chạy và hàng trượt về đóng. Log `state.settledValue` và `state.targetValue` bằng `snapshotFlow` ([9.3.5](../side_effects/flow_with_snapshot.md)) để thấy `targetValue` đổi ngay khi kéo qua điểm giữa, còn `settledValue` chỉ đổi khi animation kết thúc. Vì anchor được tạo trong constructor nên `requireOffset()` luôn có giá trị từ frame đầu.
 
 ### 4. SwipeToDismissBox: vuốt để xoá theo chuẩn Material 3
 
@@ -210,7 +210,7 @@ Bài toán "vuốt để xoá" phổ biến tới mức Material 3 có sẵn com
 - `StartToEnd`: đã vuốt từ đầu dòng sang cuối (trái → phải trong LTR).
 - `EndToStart`: đã vuốt từ cuối về đầu (phải → trái trong LTR).
 
-Chữ ký hiện hành:
+Chữ ký hiện hành (Material 3 1.4 trở đi):
 
 ```kotlin
 @Composable
@@ -226,12 +226,12 @@ fun SwipeToDismissBox(
 )
 ```
 
-- `rememberSwipeToDismissBoxState(initialValue = Settled, positionalThreshold = ...)` tạo state. State có `currentValue`, `targetValue`, `settledValue`, `dismissDirection`, `progress` và các hàm `suspend` `reset()`, `snapTo()`, `dismiss(direction)`.
+- `rememberSwipeToDismissBoxState(initialValue = Settled, positionalThreshold = ...)` tạo state và lưu nó bằng `rememberSaveable` (mặc định `positionalThreshold` là 56 dp). Item có thể "hoàn tác" thì tạo bằng `remember { SwipeToDismissBoxState(...) }` (Sai lầm 4). State có `currentValue`, `targetValue`, `settledValue`, `dismissDirection`, `progress` và các hàm `suspend` `reset()`, `snapTo()`, `dismiss(direction)`.
 - `backgroundContent` là lớp lộ ra phía sau khi vuốt (nền đỏ và icon thùng rác). Đọc `state.dismissDirection` hoặc `targetValue` để đổi màu/icon theo hướng.
-- `onDismiss(direction)` được gọi khi item đã settle ở trạng thái bị bỏ. Đây là chỗ đúng để xoá item. Muốn "không cho xoá" ở một hướng thì tắt hướng đó bằng `enableDismissFrom...`, hoặc gọi `state.reset()` trong `onDismiss`.
+- `onDismiss(direction)` được gọi khi `settledValue` của state rời `Settled`, tức item đã settle ở trạng thái bị bỏ. Đây là chỗ đúng để xoá item. Muốn "không cho xoá" ở một hướng thì tắt hướng đó bằng `enableDismissFrom...`, hoặc trong `onDismiss` gọi `scope.launch { state.reset() }` (`reset()` là hàm `suspend`, còn `onDismiss` thì không).
 
 > [!NOTE]
-> Các bản Material 3 cũ hơn không có `onDismiss`; code mẫu cũ xoá item trong `confirmValueChange` của `rememberSwipeToDismissBoxState`. Tham số đó giờ đã deprecated "không có thay thế": tài liệu khuyên bỏ anchor không được phép khỏi tập anchor thay vì phủ quyết bằng callback, và một callback "xác nhận" có thể chạy nhiều lần trong một cú vuốt.
+> `onDismiss` có từ Material 3 1.4 (09/2025). Code mẫu cũ hơn xoá item trong `confirmValueChange` của `rememberSwipeToDismissBoxState`; tham số đó deprecated từ 1.4 "không có thay thế": tài liệu khuyên bỏ anchor không được phép khỏi tập anchor thay vì phủ quyết bằng callback. Callback đó được thiết kế để phủ quyết một thay đổi, không phải để báo sự kiện, nên không có đảm bảo chỉ chạy một lần mỗi cú vuốt.
 
 ## Ví dụ thực tế
 
@@ -248,7 +248,7 @@ Ba bài toán vuốt hay gặp:
 **Luồng chạy:**
 
 1. `LazyColumn` dùng `key = { it.id }`, nên mỗi item (và state vuốt của nó) gắn với **thư**, không gắn với vị trí trong danh sách.
-2. Mỗi hàng tạo `rememberSwipeToDismissBoxState()` riêng và tắt hướng `StartToEnd`.
+2. Mỗi hàng tạo `SwipeToDismissBoxState` riêng bằng `remember` (không dùng `rememberSwipeToDismissBoxState()`, lý do ở Sai lầm 4) và tắt hướng `StartToEnd`.
 3. Khi vuốt, `backgroundContent` đọc `targetValue` để chuyển nền sang màu lỗi và hiện icon xoá.
 4. Thả qua ngưỡng: hàng trượt hết ra ngoài, `onDismiss` gọi `viewModel.delete(email)`; `LazyColumn` bỏ item khỏi danh sách.
 5. Màn hình hiện Snackbar; nếu người dùng bấm "Hoàn tác" (`SnackbarResult.ActionPerformed`), gọi `viewModel.undoDelete()` để chèn thư lại đúng vị trí cũ. Item mới vào composition nên có state vuốt mới ở `Settled`.
@@ -324,14 +324,17 @@ fun InboxScreen(viewModel: InboxViewModel) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeToDeleteEmailRow(
     email: Email,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val dismissState = rememberSwipeToDismissBoxState()                       // (2)
+    val positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold
+    // (2) remember thường: thư được hoàn tác luôn quay lại ở Settled (Sai lầm 4)
+    val dismissState = remember {
+        SwipeToDismissBoxState(SwipeToDismissBoxValue.Settled, positionalThreshold)
+    }
     SwipeToDismissBox(
         state = dismissState,
         modifier = modifier,
@@ -355,9 +358,9 @@ private fun SwipeToDeleteEmailRow(
 }
 ```
 
-`StateFlow` và `collectAsStateWithLifecycle` là kiến thức dùng trước: Flow giữ danh sách và phát giá trị mới khi đổi (7.1.4.2 Flow, chưa có bài); hàm chuyển nó thành State trong Compose được học ở [9.3.5 Flow with Snapshot](../side_effects/flow_with_snapshot.md). ViewModel giữ danh sách qua xoay màn hình ([6.4 ViewModel](../../session_06/viewmodel.md)).
+`StateFlow` là Flow nóng giữ một giá trị hiện tại và phát giá trị mới cho mọi collector khi giá trị đổi ([7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md)); `collectAsStateWithLifecycle` chuyển nó thành State trong Compose ([9.3.5 Flow with Snapshot](../side_effects/flow_with_snapshot.md)). ViewModel giữ danh sách qua xoay màn hình ([6.4 ViewModel](../../session_06/viewmodel.md)).
 
-**Kết quả:** vuốt thư sang trái, nền đỏ và icon thùng rác hiện ra; thả qua ngưỡng thì thư biến mất và Snackbar hiện. Bấm "Hoàn tác" thì thư quay lại đúng vị trí, ở trạng thái nằm yên. Vuốt sang phải thì hàng không di chuyển. Kiểm chứng lỗi key: bỏ `key = { it.id }` rồi xoá thư đầu tiên, thư thứ hai (giờ ở vị trí đầu) sẽ hiện ra ở trạng thái đã bị vuốt. App thật thường xoá mềm (đánh dấu) trong lúc Snackbar còn hiện, và chỉ xoá hẳn ở repository khi Snackbar hết hạn.
+**Kết quả:** vuốt thư sang trái, nền đỏ và icon thùng rác hiện ra; thả qua ngưỡng thì thư biến mất và Snackbar hiện. Bấm "Hoàn tác" thì thư quay lại đúng vị trí, ở trạng thái nằm yên. Vuốt sang phải thì hàng không di chuyển. Vì state dùng `remember` thường, xoay màn hình giữa cú vuốt sẽ đưa hàng về `Settled`; với hàng chỉ có hai trạng thái "nằm yên" và "đã xoá", đó là đánh đổi chấp nhận được. Kiểm chứng lỗi key: bỏ `key = { it.id }` rồi xoá thư đầu tiên, thư thứ hai (giờ ở vị trí đầu) sẽ hiện ra ở trạng thái đã bị vuốt. App thật thường xoá mềm (đánh dấu) trong lúc Snackbar còn hiện, và chỉ xoá hẳn ở repository khi Snackbar hết hạn.
 
 ## So sánh với các cách tiếp cận khác
 
@@ -405,7 +408,7 @@ Cả hai còn compile được nhưng báo deprecation và sẽ bị gỡ. Sửa
 
 ### 2. Không đặt key cho item có state vuốt
 
-`items(emails) { ... }` không có `key`: state của `rememberSwipeToDismissBoxState()` gắn theo **vị trí** trong danh sách. Xoá item ở vị trí 0 thì item kế tiếp dời lên vị trí 0 và thừa hưởng state "đã bị vuốt", hiện ra trượt mất một nửa hoặc biến mất. Sửa: `items(emails, key = { it.id })` ([9.5.4 LazyColumn](../modifier/lazy_column.md)).
+`items(emails) { ... }` không có `key`: state vuốt gắn theo **vị trí** trong danh sách. Xoá item ở vị trí 0 thì item kế tiếp dời lên vị trí 0 và thừa hưởng state "đã bị vuốt": nó hiện ra ở vị trí đã trượt khỏi màn hình, và vì `onDismiss` chạy theo `settledValue`, nó có thể bị xoá dây chuyền. Sửa: `items(emails, key = { it.id })` ([9.5.4 LazyColumn](../modifier/lazy_column.md)).
 
 ### 3. Xoá item trong confirmValueChange
 
@@ -417,29 +420,39 @@ rememberSwipeToDismissBoxState(confirmValueChange = { value ->
 })
 ```
 
-Callback "xác nhận" có thể chạy nhiều lần trong một cú vuốt, dẫn tới xoá hai lần hoặc Snackbar hiện hai lần; và nó đã deprecated. Sửa: dùng `onDismiss` của `SwipeToDismissBox`.
+Callback "xác nhận" dùng để phủ quyết, không có đảm bảo chỉ chạy một lần mỗi cú vuốt; đặt việc xoá vào đó có thể xoá hai lần hoặc hiện Snackbar hai lần, và nó đã deprecated. Sửa: dùng `onDismiss` của `SwipeToDismissBox`.
 
-### 4. Gọi requireOffset khi chưa có anchor
+### 4. Khôi phục state đã vuốt khi hoàn tác
+
+```kotlin
+// SAI cho item có "Hoàn tác": state được lưu bằng rememberSaveable
+val dismissState = rememberSwipeToDismissBoxState()
+```
+
+`rememberSwipeToDismissBoxState()` lưu state bằng `rememberSaveable`, và `LazyColumn` giữ saved state của item theo `key` cả khi item đã rời danh sách (để khôi phục khi cuộn lại). Bấm "Hoàn tác" chèn lại thư **cùng id** thì state được khôi phục ở `EndToStart`; `SwipeToDismissBox` thấy `settledValue` đã ở trạng thái bị bỏ và gọi `onDismiss` ngay, thư bị xoá lần nữa. Sửa: tạo state bằng `remember { SwipeToDismissBoxState(Settled, positionalThreshold) }` như ví dụ chính; `remember` thường mất khi item rời composition nên thư quay lại luôn ở `Settled`.
+
+### 5. Gọi requireOffset khi chưa có anchor
 
 State tạo bằng `AnchoredDraggableState(initialValue)` mà anchor chỉ được đặt trong `onSizeChanged` của một phần tử **khác**: nếu `offset { state.requireOffset() }` chạy trước khi anchor được đặt, app crash với `IllegalStateException`. Sửa: tạo state cùng anchor khi anchor biết trước; hoặc gọi `updateAnchors` trong `Modifier.layout { }` của **chính** phần tử đọc offset (mẫu trong tài liệu chính thức); hoặc đọc `state.offset` và xử lý `NaN`.
 
-### 5. Đọc offset trong composition
+### 6. Đọc offset trong composition
 
 `Text("Đã kéo: " + state.requireOffset())` hoặc `Modifier.offset(x = state.requireOffset().dp)` trong thân composable: recompose ở mỗi frame vuốt. Sửa: đọc offset trong lambda `offset { }`/`graphicsLayer { }`; giá trị đổi hiếm (đã qua ngưỡng chưa) thì đọc `targetValue`/`currentValue`, như `backgroundContent` ở ví dụ chính.
 
 ## Lịch sử phát triển
 
 - **Compose 1.0 (07/2021)**: Material (Material 2) có `Modifier.swipeable` với `SwipeableState`, `FractionalThreshold`, đánh dấu `@ExperimentalMaterialApi`; `SwipeToDismiss`, `BottomSheetScaffold`, `ModalDrawer` dùng nó bên trong. Mỗi thư viện (Material, Material 3, Wear) giữ một bản sao riêng của logic này.
-- **Foundation 1.6 (đầu 2024)**: `AnchoredDraggableState` và `Modifier.anchoredDraggable` được đưa vào Foundation làm khối dùng chung, anchor tách thành `DraggableAnchors` cập nhật được khi kích thước đổi. `swipeable` của Material bị deprecated để chuyển sang API này.
-- **Material 3 (khoảng 1.2)**: `SwipeToDismiss`/`DismissState` được đổi tên thành `SwipeToDismissBox`/`SwipeToDismissBoxState`, cùng tham số `backgroundContent`.
-- **Foundation 1.8 (2025)**: constructor của `AnchoredDraggableState` được rút gọn còn `initialValue` (và `anchors`); ngưỡng, animation chuyển sang `AnchoredDraggableDefaults.flingBehavior`; thêm `AnchoredDraggableState.Saver()`; `confirmValueChange` và `startDragImmediately` bị deprecated. Lý do: tách "state ở đâu" khỏi "thả tay thì đi đâu", và bỏ callback phủ quyết dễ dùng sai.
-- **Material 3 các bản gần đây**: `SwipeToDismissBox` thêm `onDismiss`, `confirmValueChange` của `SwipeToDismissBoxState` bị deprecated theo Foundation.
+- **Foundation 1.6 (01/2024)**: `AnchoredDraggableState` và `Modifier.anchoredDraggable` được đưa vào Foundation làm khối dùng chung, thay thế `swipeable` của Material (sau đó `swipeable` bị deprecated); anchor tách thành `DraggableAnchors` cập nhật được khi kích thước đổi.
+- **Foundation 1.7 (09/2024)**: `currentValue` đổi khi offset đi qua một anchor, thêm `settledValue` cho nghĩa cũ "chỉ đổi khi settle"; `progress` thành hàm `progress(from, to)`; `targetValue` không còn tính positional threshold (đổi ở điểm giữa hai anchor); `anchoredDraggable` tự đảo delta ngang trong layout RTL.
+- **Material 3 1.2 (2024)**: `SwipeToDismiss`/`DismissState` được đổi tên thành `SwipeToDismissBox`/`SwipeToDismissBoxState`, cùng tham số `backgroundContent`. **Material 3 1.3 (09/2024)**: các API này thành stable, thêm `gesturesEnabled`.
+- **Foundation 1.8 (04/2025)**: constructor của `AnchoredDraggableState` được rút gọn còn `initialValue` (và `anchors`); ngưỡng, animation chuyển sang `AnchoredDraggableDefaults.flingBehavior`; thêm `AnchoredDraggableState.Saver()`; `confirmValueChange` và `startDragImmediately` bị deprecated. Lý do: tách "state ở đâu" khỏi "thả tay thì đi đâu", và bỏ callback phủ quyết dễ dùng sai.
+- **Material 3 1.4 (09/2025)**: `SwipeToDismissBox` thêm `onDismiss`, `confirmValueChange` của `SwipeToDismissBoxState` bị deprecated theo Foundation.
 
 ## Kết nối hệ thống
 
 - **Prerequisites**: [9.8.2 Dragging](dragging.md) (delta, `offset { }`, `Animatable`), [9.8.1 Scrolling](scrolling.md) (ba tầng gesture, fling).
 - **Related**: [9.5.4 LazyColumn](../modifier/lazy_column.md) (key, `animateItem`), [9.2.2 rememberSaveable](../state/remember_saveable.md) (`AnchoredDraggableState.Saver`), [6.4 ViewModel](../../session_06/viewmodel.md), [9.3.1 LaunchedEffect](../side_effects/launched_effect.md) (`rememberCoroutineScope` cho `animateTo`), [9.7.2 AnimatedVisibility](../graphics_animations/animated_visibility.md) (chọn API animation).
-- **Học tiếp**: [9.8.4 Zooming](zooming.md) cho gesture nhiều ngón và xung đột với `HorizontalPager`. Flow ở 7.1.4.2 Flow (chưa có bài), coroutine ở 8.4.3 Coroutines (chưa có bài).
+- **Học tiếp**: [9.8.4 Zooming](zooming.md) cho gesture nhiều ngón và xung đột với `HorizontalPager`. Flow ở [7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md), coroutine (`scope.launch`, hàm `suspend`) ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 
 ## Tham khảo
 

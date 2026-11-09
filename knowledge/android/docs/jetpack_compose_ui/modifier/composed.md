@@ -2,12 +2,12 @@
 id: android.jetpack_compose.modifier.composed
 title: Composed Modifier
 summary: Composed modifier là modifier tuỳ chỉnh tạo bằng Modifier.composed {}, chứa một lambda @Composable được compose riêng cho từng layout node dùng nó; cách này không còn được khuyến nghị vì tốn slot table, không skip được và phá equality của chuỗi. Bài giải thích cơ chế của composed, các vấn đề hiệu năng, thang lựa chọn khi viết modifier tuỳ chỉnh (chuỗi có sẵn, factory có lambda như drawWithContent và layout {}, @Composable modifier factory, Modifier.Node) và cách hiện thực Modifier.Node với ModifierNodeElement, vòng đời node, coroutine và invalidation.
-status: reviewing
+status: published
 difficulty: advanced
 depth: deep-dive
-estimated_reading_time: 17 phút
+estimated_reading_time: 22 phút
 tags: [android, compose, session-09, modifier, composed, modifier-node, custom-modifier, performance]
-prerequisites: [android.jetpack_compose.modifier.order, android.jetpack_compose.modifier.chaining]
+prerequisites: [android.jetpack_compose.modifier.order, android.jetpack_compose.modifier.chaining, android.async.coroutines]
 related: [android.jetpack_compose.remember_recomposition, android.jetpack_compose.side_effects.launched_effect, android.jetpack_compose.theming.custom_theme, android.jetpack_compose.graphics.surface_canvas]
 learning_outcomes:
   - Giải thích được cách Modifier.composed {} compose lambda của nó riêng cho từng layout node, và vì sao cách này không còn được khuyến nghị.
@@ -61,11 +61,11 @@ Lịch sử đặt ở đây vì nó giải thích vì sao có hai API cho cùng
 
 | Thời điểm | Mốc |
 |---|---|
-| 07/2021 | Compose 1.0: `composed {}` là cách chính để viết modifier có trạng thái; nhiều modifier có sẵn (như `clickable`) cũng được viết bằng nó |
-| Khoảng 2022 | `Modifier.Node` được giới thiệu; bài nói "Compose Modifiers Deep Dive" ở Android Dev Summit 2022 trình bày các vấn đề hiệu năng của `composed` và thiết kế mới |
-| 08/2023 | Compose 1.5 bắt đầu chuyển `clickable` sang `Modifier.Node`, thời gian composition giảm, có trường hợp tới 80%; thêm API cho node đọc `CompositionLocal` |
-| 2023 về sau | Các modifier có sẵn dần chuyển sang `Modifier.Node`; tài liệu chính thức ghi `composed {}` không còn được khuyến nghị và có trang hướng dẫn chuyển đổi |
-| Khoảng Compose 1.7 (2024) | Hệ thống `Indication` (ripple) chuyển sang dựa trên node; `rememberRipple()` bị deprecate, thay bằng `ripple()` |
+| 07/2021 | Compose 1.0: `composed {}` là cách chính để viết modifier có trạng thái; nhiều modifier có sẵn (như `clickable`) cũng viết bằng nó |
+| Khoảng 2022 | `Modifier.Node` ra đời; bài nói "Compose Modifiers Deep Dive" (Android Dev Summit 2022) trình bày vấn đề của `composed` và thiết kế mới |
+| 08/2023 | Compose 1.5 bắt đầu chuyển `clickable` sang `Modifier.Node`, composition nhanh hơn, có trường hợp tới 80%; thêm API để node đọc `CompositionLocal` |
+| 2023 về sau | Modifier có sẵn dần chuyển sang `Modifier.Node`; docs ghi `composed {}` không còn được khuyến nghị, có trang hướng dẫn chuyển đổi |
+| Khoảng Compose 1.7 (2024) | `Indication` (ripple) chuyển sang node; `rememberRipple()` bị deprecate, thay bằng `ripple()` |
 
 > [!NOTE]
 > Tại thời điểm viết, `composed` **chưa** bị đánh dấu `@Deprecated` trong API reference: code cũ vẫn chạy. "Không còn được khuyến nghị" là khuyến nghị của tài liệu chính thức, không phải lỗi biên dịch. Đừng viết `composed` mới; chuyển dần `composed` cũ khi chạm tới.
@@ -141,7 +141,7 @@ fun PromoCard(promo: PromoUi, onClick: () -> Unit, modifier: Modifier = Modifier
 
 `InteractionSource` là luồng các tương tác (nhấn, focus, kéo) mà `clickable` phát ra; truyền cùng một instance cho `clickable` và modifier của mình để "nghe" trạng thái nhấn. `animateFloatAsState` thuộc nhóm API animation, tổng quan ở 9.7.2 [AnimatedVisibility](../graphics_animations/animated_visibility.md).
 
-**Kết quả:** nhấn giữ, thẻ thu nhỏ; thả, thẻ đàn hồi về. Hành vi đúng. Nhưng thêm một dòng log tạm vào đầu lambda của `composed` sẽ thấy: khi `expiresText` đổi mỗi giây, lambda chạy lại mỗi giây cho từng thẻ trong carousel, dù trạng thái nhấn không đổi. Đó là chi phí được phân tích ở phần tiếp theo.
+**Kết quả:** nhấn giữ, thẻ thu nhỏ; thả, thẻ đàn hồi về. Nhưng log tạm ở đầu lambda của `composed` cho thấy: khi `expiresText` đổi mỗi giây, lambda chạy lại mỗi giây cho từng thẻ, dù trạng thái nhấn không đổi. Đó là chi phí phân tích ở phần tiếp theo.
 
 ### Vì sao composed không còn được khuyến nghị
 
@@ -152,10 +152,10 @@ Tài liệu chính thức liệt kê các nút thắt hiệu năng mà `composed
 | Tốn slot table | Mỗi nơi dùng phải `remember` và tạo snapshot state, thêm group vào slot table, tăng bộ nhớ; nhân với số item của danh sách |
 | Vòng đời đắt | Muốn biết modifier được gắn/gỡ phải dùng effect (`DisposableEffect`, `LaunchedEffect`), nặng so với việc cần làm |
 | Không skip được | Lambda trả về `Modifier`, mà composable có giá trị trả về thì không skip được, nên nó chạy lại ở mọi lần materialize |
-| Phá equality | Hàm ngoài (`pressScaleComposed`) không phải composable nên compiler không ghi nhớ được lambda bên trong; mỗi lần gọi là một lambda mới, phần tử composed so sánh lambda theo tham chiếu, nên chuỗi **luôn khác** chuỗi trước dù tham số y hệt |
+| Phá equality | Hàm ngoài (`pressScaleComposed`) không phải composable nên compiler không ghi nhớ được lambda bên trong; mỗi lần gọi là một lambda mới, phần tử composed so sánh lambda theo tham chiếu, nên chuỗi **luôn khác** chuỗi trước dù tham số y hệt (overload có `fullyQualifiedName` và key so theo key, nhưng vẫn chịu các chi phí còn lại) |
 | Không so được tham số | Không có cách so tham số mới với tham số cũ để chỉ cập nhật phần thay đổi |
 
-Hệ quả cộng dồn: chuỗi có `composed` không bao giờ "bằng nhau", composable nhận chuỗi đó qua tham số khó được skip, và mỗi lần recompose là một lần chạy lại lambda. Với `clickable` cũ (viết bằng `composed`) trong mỗi item của `LazyColumn`, chi phí nhân theo số item trên màn hình; vì vậy chuyển `clickable` sang `Modifier.Node` cải thiện composition rõ rệt.
+Hệ quả cộng dồn: chuỗi có `composed` không bao giờ "bằng nhau", composable nhận chuỗi đó khó được skip, và chi phí nhân theo số item của `LazyColumn`; vì vậy chuyển `clickable` sang `Modifier.Node` cải thiện composition rõ rệt.
 
 Điểm `composed` làm **đúng** về ngữ nghĩa: `CompositionLocal` đọc trong lambda lấy giá trị **tại nơi modifier được áp**, không phải nơi tạo chuỗi. `Modifier.Node` giữ được ngữ nghĩa này (qua `currentValueOf`, ở phần sau), còn `@Composable` modifier factory thì không.
 
@@ -295,13 +295,13 @@ private class UnreadDotNode(
 
 // TopBar.kt
 Icon(
-    imageVector = Icons.Outlined.Notifications,
+    painter = painterResource(R.drawable.ic_notifications),  // icon Material Symbols, xem 9.6
     contentDescription = "Thông báo",
     modifier = Modifier.unreadDot(visible = unreadCount > 0, color = MaterialTheme.colorScheme.error)
 )
 ```
 
-Imports đáng chú ý: `ModifierNodeElement`, `DrawModifierNode` thuộc `androidx.compose.ui.node`; `ContentDrawScope` thuộc `androidx.compose.ui.graphics.drawscope`; `InspectorInfo` thuộc `androidx.compose.ui.platform`. Với badge có số, Material 3 có sẵn `BadgedBox`; ví dụ tự vẽ chấm để thấy cấu trúc một node.
+Imports đáng chú ý: `ModifierNodeElement`, `DrawModifierNode` thuộc `androidx.compose.ui.node`; `ContentDrawScope` thuộc `androidx.compose.ui.graphics.drawscope`; `InspectorInfo` thuộc `androidx.compose.ui.platform`. `inspectableProperties()` không bắt buộc, nhưng lint `ModifierNodeInspectableProperties` nhắc khi element thiếu nó (`PressScaleElement` ở phần sau bỏ qua cho gọn). Với badge có số, Material 3 có sẵn `BadgedBox`; ví dụ tự vẽ chấm để thấy cấu trúc một node.
 
 **Kết quả:** chấm hiện khi `unreadCount > 0`, biến mất ngay khi đọc hết. Thêm log tạm vào `create()` và `update()`: `create` chỉ in một lần, `update` chỉ in khi tham số đổi, dù top bar recompose nhiều lần.
 
@@ -321,7 +321,7 @@ Vì node sống lâu, nó giữ trạng thái như một class bình thường, 
 
 Đọc snapshot state (như `Animatable.value`) bên trong `draw()` hay `measure()` thì phase đó được theo dõi và tự chạy lại khi state đổi, không cần gọi `invalidateDraw()`. Trạng thái **không** phải snapshot state (một biến `Int` thường) thì phải tự gọi invalidate. Khi muốn kiểm soát chi tiết hơn (đổi màu chỉ vẽ lại, đổi kích thước mới đo lại), override `shouldAutoInvalidate = false` rồi tự gọi đúng hàm invalidate trong `update`.
 
-`LaunchedEffect`, `DisposableEffect`, `rememberCoroutineScope` học ở 9.3.1 [LaunchedEffect](../side_effects/launched_effect.md) và 9.3.2 [DisposableEffect](../side_effects/disposable_effect.md); `CompositionLocal` học ở 9.4.2 [Custom Theme](../theming/custom_theme.md). `Animatable` (giá trị animation điều khiển bằng coroutine) thuộc nhóm API animation ở 9.7; coroutine học ở 8.4.3 Coroutines (chưa có bài).
+`LaunchedEffect`, `DisposableEffect`, `rememberCoroutineScope` học ở 9.3.1 [LaunchedEffect](../side_effects/launched_effect.md) và 9.3.2 [DisposableEffect](../side_effects/disposable_effect.md); `CompositionLocal` học ở 9.4.2 [Custom Theme](../theming/custom_theme.md). `Animatable` (giá trị animation điều khiển bằng coroutine) thuộc nhóm API animation ở 9.7; coroutine học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 
 #### Ví dụ: chuyển hiệu ứng nhấn thu nhỏ sang Modifier.Node
 
@@ -412,7 +412,7 @@ private class PressScaleNode(
 ## Ví dụ thực tế
 
 1. **Khung xương (skeleton) lúc đang tải danh sách** (code đầy đủ bên dưới): animation vô hạn chạy theo vòng đời node, mỗi frame chỉ vẽ lại.
-2. **Viền cùng màu nội dung, đọc `CompositionLocal` tại nơi áp:** node implement `DrawModifierNode` và `CompositionLocalConsumerModifierNode`, trong `draw()` gọi `currentValueOf(LocalContentColor)`; đọc trong `draw()` nên giá trị đổi thì tự vẽ lại.
+2. **Viền cùng màu nội dung tại nơi áp:** node implement thêm `CompositionLocalConsumerModifierNode`, trong `draw()` gọi `currentValueOf(LocalContentColor)`, nên giá trị đổi thì tự vẽ lại.
 3. **Chuyển `composed` trong code cũ:** `remember` → thuộc tính của node; `LaunchedEffect`/`DisposableEffect` → `onAttach`/`onDetach` + `coroutineScope`; `LocalX.current` → `currentValueOf`; `animate*AsState` → `Animatable`; `pointerInput` → delegate tới `SuspendingPointerInputModifierNode`. Chỉ cần gọi một hàm composable có giá trị trả về (`colorResource`) thì `@Composable` factory là đủ.
 
 ### Khung xương lúc đang tải với hiệu ứng shimmer
@@ -424,7 +424,7 @@ private class PressScaleNode(
 1. Mỗi khối gọi `Modifier.shimmer(baseColor, highlightColor)`; element là data class.
 2. Node được gắn: `onAttach()` khởi động animation `progress` từ 0 tới 1, lặp vô hạn, trong `coroutineScope` của node.
 3. Mỗi frame, `draw()` đọc `progress.value`, tính vị trí dải sáng và vẽ gradient. Chỉ phase vẽ chạy lại.
-4. Theme đổi (sáng/tối): element có màu mới → `update` gán màu → node tự vẽ lại; animation không khởi động lại. Chỉ khi `durationMillis` đổi mới khởi động lại animation.
+4. Màu truyền vào đổi (ví dụ theme đổi mà Activity không bị tạo lại): element có màu mới → `update` gán màu → node tự vẽ lại; animation không khởi động lại. Chỉ khi `durationMillis` đổi mới khởi động lại animation.
 5. Dữ liệu về, khối skeleton rời composition: node bị gỡ, `coroutineScope` huỷ animation.
 
 ```mermaid
@@ -447,22 +447,7 @@ sequenceDiagram
 **Code:**
 
 ```kotlin
-// ShimmerModifier.kt
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.tween
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-import androidx.compose.ui.node.DrawModifierNode
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.platform.InspectorInfo
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-
+// ShimmerModifier.kt (import như ví dụ chấm đỏ, thêm Animatable, infiniteRepeatable, tween, LinearEasing, Brush, Job, launch)
 fun Modifier.shimmer(
     baseColor: Color,
     highlightColor: Color,
@@ -554,7 +539,7 @@ fun ProductCardPlaceholder(modifier: Modifier = Modifier) {
 
 `clip` đứng trước `shimmer` theo quy tắc vẽ của [9.5.1 Modifier Order](modifier_order.md). Mỗi khối có node riêng nên dải sáng không đồng pha giữa các khối; cần chạy cùng nhịp thì cho các node đọc chung một nguồn thời gian.
 
-**Kết quả:** các khối xám có dải sáng chạy liên tục. Bật recomposition counts trong Layout Inspector: `ProductCardPlaceholder` có số recompose đứng yên trong khi animation chạy, vì chỉ phase vẽ chạy lại. Chuyển máy sang dark theme: màu khối đổi ngay mà dải sáng không giật về đầu.
+**Kết quả:** các khối xám có dải sáng chạy liên tục. Bật recomposition counts trong Layout Inspector: `ProductCardPlaceholder` có số recompose đứng yên trong khi animation chạy, vì chỉ phase vẽ chạy lại. Đổi màu truyền vào trong lúc khối đang hiện (ví dụ chuyển theme bằng cài đặt trong app): màu khối đổi ngay mà dải sáng không giật về đầu. Bật dark theme của hệ thống thì mặc định Activity được tạo lại, node mới được tạo nên dải sáng chạy lại từ đầu; đó là hành vi của configuration change, không phải của node.
 
 ## So sánh với các cách tiếp cận khác
 
@@ -566,26 +551,13 @@ fun ProductCardPlaceholder(modifier: Modifier = Modifier) {
 | Equality của chuỗi | Hỏng (lambda mới mỗi lần) | Theo các modifier nó trả về | Theo `equals` của element |
 | `CompositionLocal` đọc ở | Nơi modifier được áp | Nơi gọi factory | Nơi node được áp (`currentValueOf`) |
 | Hoist ra ngoài composition | Được | Không | Được |
-| Độ dài code | Ngắn | Ngắn | Dài nhất |
 | Khuyến nghị hiện nay | Không | Khi cần gọi composable có giá trị trả về | Mặc định cho modifier có trạng thái |
 
 ## Khi nào nên và không nên dùng
 
-**Dùng `Modifier.Node` khi:**
-
-- Modifier giữ trạng thái riêng cho mỗi nơi dùng, cần vòng đời hoặc coroutine (animation, thu thập luồng).
-- Modifier nằm trong item của danh sách dài, hoặc trên composable recompose thường xuyên.
-- Viết thư viện/design system: modifier được dùng ở nơi bạn không kiểm soát.
-
-**Không cần `Modifier.Node` khi:**
-
-- Chỉ ghép modifier có sẵn: dùng extension như [9.5.2](chaining.md).
-- Chỉ vẽ hoặc đo theo tham số, không trạng thái: `drawWithContent`, `drawBehind`, `layout {}` đủ và ngắn hơn.
-- Chỉ cần một giá trị từ hàm composable (`colorResource`, `animate*AsState`) ở vài chỗ: `@Composable` modifier factory.
-
-Cái giá của `Modifier.Node`: code dài hơn (ba phần, vòng đời thủ công), tự chịu trách nhiệm invalidation với trạng thái không phải snapshot state, và một số API cấp thấp còn mới nên cần đối chiếu API reference của bản Compose đang dùng. Với modifier dùng một lần trên màn hình ít recompose, cái giá này có thể lớn hơn lợi ích.
-
-**Không dùng `composed {}`** cho code mới. Với code cũ, chuyển khi sửa tới hoặc khi profiling chỉ ra nó nằm trên đường nóng (item của danh sách).
+- **Nên dùng `Modifier.Node`** khi modifier giữ trạng thái riêng, cần vòng đời hoặc coroutine, nằm trong item của danh sách dài hoặc trên composable recompose thường xuyên, hoặc thuộc thư viện/design system dùng ở nơi bạn không kiểm soát.
+- **Không cần `Modifier.Node`** khi mức 1–3 của thang lựa chọn đã đủ (ghép modifier có sẵn, `drawWithContent`/`layout {}`, hay một giá trị từ hàm composable ở vài chỗ). Cái giá của node: code dài hơn, vòng đời và invalidation thủ công với trạng thái không phải snapshot state; với modifier dùng một lần trên màn hình ít recompose, cái giá này có thể lớn hơn lợi ích.
+- **Không dùng `composed {}`** cho code mới. Code cũ thì chuyển khi sửa tới, hoặc khi profiling chỉ ra nó nằm trên đường nóng (item của danh sách).
 
 ## Sai lầm thường gặp
 
@@ -603,11 +575,11 @@ Lint của Compose có kiểm tra `UnnecessaryComposedModifier` cho trường h�
 
 ### 2. Element không có equals theo giá trị
 
-Khai báo element là `class` thường thay vì `data class` (và không tự viết `equals`/`hashCode`) thì mỗi element mới luôn khác element cũ, `update` bị gọi ở mọi lần recompose, node bị invalidate liên tục. Dùng `data class`, hoặc tự viết `equals`/`hashCode` khi có thuộc tính không nên tham gia so sánh.
+Element là `class` thường không tự viết `equals`/`hashCode` thì luôn khác element cũ: `update` chạy ở mọi lần recompose, node bị invalidate liên tục. Dùng `data class`, hoặc tự viết `equals`/`hashCode` khi có thuộc tính không nên tham gia so sánh.
 
 ### 3. Tạo node mới hoặc giữ trạng thái trong element
 
-`update(node)` phải **sửa node đang có**, không tạo node mới; element chỉ là dữ liệu bất biến, không giữ `Animatable`, `Job` hay bộ đếm. Trạng thái để trong element sẽ mất ở lần recompose sau, vì element là object mới mỗi lần.
+`update(node)` phải **sửa node đang có**, không tạo node mới; element là dữ liệu bất biến, tạo mới mỗi lần recompose, nên `Animatable`, `Job` hay bộ đếm để trong element sẽ mất.
 
 ### 4. Quên drawContent() trong DrawModifierNode
 
@@ -641,7 +613,7 @@ Cần giá trị tại nơi áp thì viết node implement `CompositionLocalCons
   - 9.7.1 [Surface and Canvas](../graphics_animations/surface_and_canvas.md) — `DrawScope`, `drawWithContent`, `drawWithCache`.
   - 9.8.1 [Scrolling](../gesture/scrolling.md) — tổng quan gesture, `pointerInput`.
   - [9.5.4 Lazy Column](lazy_column.md) — nơi chi phí của modifier nhân lên theo số item.
-- **Kiến thức dùng trước:** 8.4.3 Coroutines (chưa có bài) cho `launch`, `Job`; 8.5.6 Animation (chưa có bài) cho khái niệm animation trong View system.
+- **Kiến thức liên quan ở Session 08:** [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md) cho `launch`, `Job`, huỷ coroutine; [8.5.6 Animation](../../session_08/view_layout/animation.md) cho khái niệm animation theo frame trong View system.
 - **Học tiếp:** [9.5.4 Lazy Column](lazy_column.md).
 
 ## Tham khảo

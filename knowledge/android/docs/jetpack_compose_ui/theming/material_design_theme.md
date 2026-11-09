@@ -2,13 +2,13 @@
 id: android.jetpack_compose.theming.material_theme
 title: Material Design Theme (Color, Typography, Shapes)
 summary: MaterialTheme là composable đặt ở gốc cây UI, cung cấp ba hệ thống token của Material 3 là ColorScheme (vai trò màu), Typography (thang chữ) và Shapes (thang bo góc) cho mọi composable con; Material component đọc giá trị mặc định từ đây, code của app đọc qua MaterialTheme.colorScheme, typography, shapes. Bài giải thích các vai trò màu và cặp on-color, dark theme với isSystemInDarkTheme, dynamic color trên Android 12+, định nghĩa type scale và shape scale, theme lồng nhau, và cách sinh theme bằng Material Theme Builder.
-status: reviewing
+status: published
 difficulty: beginner
 depth: standard
-estimated_reading_time: 17 phút
+estimated_reading_time: 20 phút
 tags: [android, compose, session-09, theming, material3, color-scheme, typography, dark-theme, dynamic-color]
 prerequisites: [android.jetpack_compose.compose_overview]
-related: [android.jetpack_compose.theming.custom_theme, android.jetpack_compose.layout_and_view, android.component.activity.state_changes]
+related: [android.jetpack_compose.theming.custom_theme, android.jetpack_compose.layout_and_view, android.component.activity.state_changes, android.view_layout.design_guide]
 learning_outcomes:
   - Giải thích được MaterialTheme cung cấp ColorScheme, Typography và Shapes cho cây composable thế nào, và vì sao Material component tự đổi theo theme.
   - Phân biệt được các vai trò màu của Material 3 (primary, container, surface, on-color) và chọn đúng cặp màu nền với màu nội dung.
@@ -75,7 +75,9 @@ MaterialTheme(
 }
 ```
 
-Cả ba tham số đều có giá trị mặc định là **theme đang bao quanh** (`colorScheme: ColorScheme = MaterialTheme.colorScheme`). Ở gốc cây, chưa có theme nào bao quanh, nên giá trị mặc định là bảng màu, thang chữ, thang bo góc chuẩn của Material 3. Đó là lý do một app chỉ gọi `MaterialTheme { }` trống vẫn chạy được, nhưng mang màu tím mặc định của Material chứ không phải màu của app.
+Các bản Material 3 gần đây có thêm overload nhận cả `motionScheme` (`MotionScheme`: bộ animation spec mà component Material dùng, có sẵn `MotionScheme.standard()` và `MotionScheme.expressive()`); bài này tập trung vào ba hệ thống màu, chữ, hình khối.
+
+Mọi tham số đều có giá trị mặc định là **theme đang bao quanh** (`colorScheme: ColorScheme = MaterialTheme.colorScheme`). Ở gốc cây, chưa có theme nào bao quanh, nên giá trị mặc định là bảng màu, thang chữ, thang bo góc chuẩn của Material 3. Đó là lý do một app chỉ gọi `MaterialTheme { }` trống vẫn chạy được, nhưng mang màu tím mặc định của Material chứ không phải màu của app.
 
 Bên trong, `MaterialTheme` đưa các giá trị xuống cây bằng **CompositionLocal**: cơ chế truyền dữ liệu ngầm cho mọi composable con mà không cần tham số. Cơ chế này được dạy đầy đủ ở [9.4.2 Custom Theme](custom_theme.md); ở bài này chỉ cần biết hai hệ quả:
 
@@ -105,7 +107,7 @@ Bài này dạy Material 3 (`androidx.compose.material3`); Material 2 chỉ đư
 
 Quy tắc quan trọng nhất là **cặp on-color**: màu `onX` được thiết kế để đọc rõ khi đặt trên nền `X`. Chữ trên nền `primary` dùng `onPrimary`; chữ trên `primaryContainer` dùng `onPrimaryContainer`. Docs của Android nhấn mạnh việc dùng đúng cặp này để giữ độ tương phản đạt chuẩn accessibility. Ghép `tertiaryContainer` với chữ `primaryContainer` là tự phá độ tương phản.
 
-Mỗi vai trò lấy từ một **tonal palette** (dải 13 sắc độ) sinh ra từ năm màu gốc (key colors): primary, secondary, tertiary, neutral, neutral variant. Bản tối không phải "đảo màu" bản sáng, mà là chọn sắc độ khác trong cùng dải, nên app tối vẫn giữ được bản sắc thương hiệu.
+Mỗi vai trò lấy từ một **tonal palette** (dải sắc độ, tone từ 0 là đen tới 100 là trắng; cơ chế HCT ở [8.5.4 Design Guide](../../session_08/view_layout/design_guide.md)) sinh ra từ năm màu gốc (key colors): primary, secondary, tertiary, neutral, neutral variant. Bản tối không phải "đảo màu" bản sáng, mà là chọn sắc độ khác trong cùng dải, nên app tối vẫn giữ được bản sắc thương hiệu.
 
 Hai hàm `lightColorScheme(...)` và `darkColorScheme(...)` tạo `ColorScheme` với mọi vai trò có giá trị mặc định; app chỉ truyền vai trò muốn đổi. Thực tế, ít ai tự chọn đủ hơn hai mươi vai trò bằng tay: công cụ **Material Theme Builder** nhận màu thương hiệu, sinh đủ các vai trò cho bản sáng và tối, và xuất ra `Color.kt`, `Theme.kt`, `Type.kt` dùng ngay trong Compose.
 
@@ -181,10 +183,10 @@ fun OrderCard(
 
 App quyết định dùng `ColorScheme` nào ngay trong hàm theme của nó, thường theo hai câu hỏi:
 
-- **Sáng hay tối?** `isSystemInDarkTheme()` đọc cài đặt giao diện tối của hệ thống. Đây là composable, nên khi người dùng bật hoặc tắt chế độ tối, hàm theme được gọi lại. Nếu app có cài đặt riêng ("Sáng / Tối / Theo hệ thống"), giá trị đọc từ cài đặt đó thay cho `isSystemInDarkTheme()`.
-- **Có dùng dynamic color không?** Dynamic color là tính năng của **Material You** trên **Android 12 (API 31) trở lên**: hệ thống sinh bảng màu từ hình nền của người dùng, và app có thể dùng bảng đó thay cho màu thương hiệu. Compose cung cấp `dynamicLightColorScheme(context)` và `dynamicDarkColorScheme(context)`; hai hàm này chỉ tồn tại từ API 31, nên phải kiểm tra `Build.VERSION.SDK_INT` và có **fallback** về bảng màu riêng của app trên máy cũ.
+- **Sáng hay tối?** `isSystemInDarkTheme()` là composable đọc cờ giao diện tối trong `Configuration` hiện tại (`uiMode`). Khi người dùng bật hoặc tắt chế độ tối, mặc định Activity được tạo lại (configuration change) nên hàm theme chạy lại với giá trị mới; nếu Activity tự xử lý `uiMode` thì hàm theme recompose ngay trong composition hiện tại. Nếu app có cài đặt riêng ("Sáng / Tối / Theo hệ thống"), giá trị đọc từ cài đặt đó thay cho `isSystemInDarkTheme()`.
+- **Có dùng dynamic color không?** Dynamic color là tính năng của **Material You** trên **Android 12 (API 31) trở lên**: hệ thống sinh bảng màu từ hình nền của người dùng, và app có thể dùng bảng đó thay cho màu thương hiệu. Compose cung cấp `dynamicLightColorScheme(context)` và `dynamicDarkColorScheme(context)`; hai hàm này được đánh dấu `@RequiresApi(31)` vì đọc bảng màu hệ thống chỉ có từ Android 12, nên phải kiểm tra `Build.VERSION.SDK_INT` và có **fallback** về bảng màu riêng của app trên máy cũ.
 
-Dynamic color là lựa chọn sản phẩm, không phải bắt buộc. App ngân hàng, app thương hiệu mạnh thường tắt nó để giữ màu nhận diện; app tiện ích (ghi chú, đồng hồ) bật nó để hoà vào hệ thống.
+Dynamic color là lựa chọn sản phẩm: app thương hiệu mạnh (ngân hàng) thường tắt để giữ màu nhận diện, app tiện ích (ghi chú, đồng hồ) bật để hoà vào hệ thống.
 
 #### Ví dụ: hàm theme của app ghi chú
 
@@ -238,7 +240,7 @@ fun NotesTheme(
 }
 ```
 
-**Kết quả:** trên máy Android 12+, đổi hình nền rồi mở lại app: màu nút, thanh trên cùng đổi theo hình nền. Trên emulator API 30, app dùng `LightColors`/`DarkColors`. Bật giao diện tối trong Quick Settings khi app đang mở: app chuyển ngay, không cần khởi động lại, vì `isSystemInDarkTheme()` là state của composition.
+**Kết quả:** trên máy Android 12+, đổi hình nền rồi mở lại app: màu nút, thanh trên cùng đổi theo hình nền. Trên emulator API 30, app dùng `LightColors`/`DarkColors`. Bật giao diện tối trong Quick Settings khi app đang mở: app chuyển sang bảng màu tối ngay, người dùng không phải mở lại app (bên dưới, Activity được tạo lại theo configuration change, như callout dưới đây).
 
 > [!TIP]
 > Bật/tắt chế độ tối là một configuration change (`uiMode`). Nếu Activity không khai báo tự xử lý `uiMode`, nó bị tạo lại như khi xoay màn hình; state nào cần giữ phải nằm ngoài composition, xem [Activity State Changes](../../session_04/components/activity/state_changes.md).
@@ -289,7 +291,7 @@ val NewsTypography = Typography(
 
 Ở chỗ dùng, chọn style theo vai trò: `Text(article.title, style = MaterialTheme.typography.titleMedium)`. Cần biến thể nhỏ thì `copy` từ style của theme (`MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic)`), không tự tạo `TextStyle` từ đầu: `TextStyle(...)` mới làm mất font thương hiệu, line height và letter spacing của theme. Các tham số của `Text` (maxLines, overflow, `AnnotatedString`) học ở [9.6 Layout and View](../layout_and_view.md).
 
-**Kết quả:** mọi `Text`, kể cả chữ trong `Button` và `TopAppBar`, dùng Be Vietnam Pro. Kiểm chứng bằng Preview với chuỗi có dấu như "Thời sự hôm nay": không có ký tự nào rơi về font khác. Tăng cỡ chữ hệ thống lên mức lớn nhất: chữ phóng theo, đây là hành vi đúng.
+**Kết quả:** mọi `Text` dùng style đã đặt font, kể cả chữ trong `Button` (`labelLarge`) và `TopAppBar` (`titleLarge`), hiện bằng Be Vietnam Pro; Preview với chuỗi có dấu như "Thời sự hôm nay" không có ký tự nào rơi về font khác. Tăng cỡ chữ hệ thống: chữ phóng theo, đây là hành vi đúng.
 
 ### Shapes: thang bo góc
 
@@ -366,7 +368,7 @@ fun MiniPlayer(episode: Episode, isPlaying: Boolean, onTogglePlay: () -> Unit) {
 val PlayerDarkColors = darkColorScheme(primary = Color(0xFFFFB4AB), surfaceContainer = Color(0xFF1E1B1B))
 ```
 
-`Modifier.weight(1f)` là modifier riêng của `Row` (học ở 9.5.2 Chaining), `Row` và `Icon` học ở [9.6 Layout and View](../layout_and_view.md).
+`Modifier.weight(1f)` là modifier riêng của `Row` (học ở [9.5.2 Chaining](../modifier/chaining.md)), `Row` và `Icon` học ở [9.6 Layout and View](../layout_and_view.md).
 
 **Kết quả:** thanh trình phát tối trên nền danh sách sáng; chữ và icon trong thanh dùng màu nội dung của bảng tối nên đọc rõ. Layout Inspector cho thấy hai `MaterialTheme` trong cây, và chỉ nhánh `MiniPlayer` dùng bảng tối.
 
@@ -376,7 +378,7 @@ Ba bài toán thường gặp khi dựng theme Material 3 cho app:
 
 1. **Bộ file theme của app** từ Material Theme Builder, dùng trong `Activity`, có Preview sáng và tối. Đây là bài toán chính, code bên dưới.
 2. **Cài đặt giao diện trong app** ("Sáng / Tối / Theo hệ thống"): đọc lựa chọn từ DataStore ở `MainActivity`, truyền vào `darkTheme` của hàm theme thay cho `isSystemInDarkTheme()`. Hàm theme không đổi gì, vì nó đã nhận `darkTheme` qua tham số.
-3. **Một vùng có theme riêng:** banner khuyến mãi, thanh trình phát, như ví dụ "Theme lồng nhau".
+3. **Một vùng có theme riêng:** như ví dụ "Theme lồng nhau".
 
 ### Bộ file theme của app và Preview hai chế độ
 
@@ -463,12 +465,11 @@ Preview với `uiMode = UI_MODE_NIGHT_YES` làm `isSystemInDarkTheme()` trả `t
 | **Material 3 trong Compose** | `MaterialTheme(colorScheme, typography, shapes)` của `androidx.compose.material3` | `MaterialTheme.colorScheme`, style `displayLarge`…`labelSmall` | Bản hiện hành; vai trò container và surface container, dynamic color, tonal elevation |
 | Theme hoàn toàn riêng | `CompositionLocal` của app | `AppTheme.xxx` | Khi design system không theo Material, xem [9.4.2 Custom Theme](custom_theme.md) |
 
-Chuyển Material 2 sang Material 3 không chỉ là đổi import: tên vai trò màu, tên style chữ và cách thể hiện elevation (**tonal elevation**: bề mặt cao hơn có sắc màu đậm hơn) đều khác; docs có hướng dẫn chuyển đổi riêng.
+Chuyển Material 2 sang Material 3 không chỉ là đổi import: tên vai trò màu, tên style chữ và cách thể hiện elevation (**tonal elevation**) đều khác; docs có hướng dẫn chuyển đổi riêng.
 
 ## Khi nào nên và không nên dùng
 
 - **Nên dùng** `MaterialTheme` (Material 3) cho gần như mọi app Compose dùng Material component: đây là cách duy nhất để `Button`, `TextField`, `TopAppBar` mang màu, chữ, hình khối của app.
-- **Nên** cân nhắc dynamic color theo sản phẩm: bật cho app tiện ích muốn hoà vào hệ thống, tắt cho app cần giữ màu nhận diện.
 - **Không nên** dùng `MaterialTheme` để chứa token mà Material không có (màu `success`, khoảng cách, elevation riêng): thêm chúng bằng theme mở rộng ở [9.4.2 Custom Theme](custom_theme.md).
 - **Không nên** lồng theme cho từng component nhỏ: theme lồng dành cho một vùng có bản sắc riêng; đổi màu một nút thì truyền `colors` cho nút đó.
 
@@ -506,7 +507,7 @@ Import nhầm `androidx.compose.material.Button` trong màn hình dùng `android
 - **Google I/O 2021:** Material You (Material Design 3) được giới thiệu cùng Android 12, với dynamic color sinh bảng màu từ hình nền.
 - **Compose Material 3 1.0 (10/2022):** bản stable đầu tiên của `androidx.compose.material3`, với `ColorScheme`, type scale mới và `dynamicLightColorScheme`/`dynamicDarkColorScheme`.
 - **Các bản Material 3 sau đó:** bổ sung nhóm vai trò `surfaceContainer…` (thay dần cách dùng `surfaceColorAtElevation`), rồi các vai trò "fixed" (`primaryFixed`…) theo spec Material.
-- **2025:** Google giới thiệu **Material 3 Expressive**, mở rộng Material 3 về shape, motion, typography; các bản Material 3 gần đây có thêm hệ thống `MotionScheme` trong theme và `MaterialExpressiveTheme` (đang ở dạng experimental tại thời điểm viết). Cùng giai đoạn, docs khuyên không dùng thư viện `material-icons` cũ mà tải icon Material Symbols (xem [9.6 Layout and View](../layout_and_view.md)).
+- **2025:** Google giới thiệu **Material 3 Expressive**, mở rộng Material 3 về shape, motion, typography; các bản Material 3 gần đây có thêm hệ thống `MotionScheme` làm tham số của `MaterialTheme`, cùng hàm `MaterialExpressiveTheme` cho bộ token Expressive (đối chiếu API reference của bản đang dùng, vì nhóm API Expressive còn thay đổi). Cùng giai đoạn, docs khuyên không dùng thư viện `material-icons` cũ mà tải icon Material Symbols (xem [9.6 Layout and View](../layout_and_view.md)).
 
 Hướng thay đổi xuyên suốt: từ "vài màu chính" sang **vai trò màu sinh từ tonal palette**, để cùng một code UI đúng với mọi bảng màu, kể cả bảng màu developer không biết trước như dynamic color.
 
@@ -519,7 +520,7 @@ Hướng thay đổi xuyên suốt: từ "vài màu chính" sang **vai trò màu
   - [9.6 Layout and View](../layout_and_view.md): `Text`, `Icon` đọc style và content color từ theme.
   - [9.7.1 Surface and Canvas](../graphics_animations/surface_and_canvas.md): `Surface`, content color và tonal elevation.
   - [Activity State Changes](../../session_04/components/activity/state_changes.md): chuyển sáng/tối là configuration change.
-  - 8.5.3 Styles và 8.5.4 Design Guide (Materials, Flat) (chưa có bài): theme và style trong View system.
+  - [8.5.3 Styles](../../session_08/view_layout/styles.md) và [8.5.4 Design Guide](../../session_08/view_layout/design_guide.md): theme, style và cùng hệ token Material 3 (color role, type scale, shape, dynamic color) trong View system.
 - **Học tiếp:**
   - [9.4.2 Custom Theme (Dimens, Factories, Data)](custom_theme.md).
 

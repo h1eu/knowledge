@@ -2,10 +2,10 @@
 id: android.jetpack_compose.lazy.lazy_vertical_grid
 title: Lazy Vertical Grid
 summary: LazyVerticalGrid là lazy layout cuộn dọc xếp item thành các cột theo mô tả GridCells, lấp từng hàng từ đầu tới cuối, mỗi hàng cao bằng item cao nhất trong hàng. Bài chỉ dạy phần riêng của lưới, gồm GridCells.Fixed, Adaptive và FixedSize, span với GridItemSpan(maxLineSpan) cho header chiếm trọn hàng, và LazyVerticalStaggeredGrid khi item cao khác nhau; phần chung của lazy layout ở 9.5.4.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 10 phút
+estimated_reading_time: 11 phút
 tags: [android, compose, session-09, lazy-layout, lazyverticalgrid, grid, staggered-grid]
 prerequisites: [android.jetpack_compose.lazy.lazy_column]
 related: [android.jetpack_compose.lazy.lazy_row, android.jetpack_compose.lazy.lazy_paging_items]
@@ -311,14 +311,15 @@ Mốc phiên bản dưới đây là của `androidx.compose.foundation:foundati
 
 - **Compose 1.0 (07/2021):** `LazyVerticalGrid` ở dạng experimental, tham số tên `cells`.
 - **1.2 (2022):** lưới lazy ổn định; tham số đổi tên thành `columns` (và `rows` cho `LazyHorizontalGrid` mới thêm); `GridCells.Fixed`, `GridCells.Adaptive`; `span` với `LazyGridItemSpanScope`; thêm `contentType`.
-- **1.3:** thêm `LazyVerticalStaggeredGrid` và `LazyHorizontalStaggeredGrid` dạng experimental; chúng được ổn định ở các bản sau.
-- **Các bản sau:** bổ sung `GridCells.FixedSize`; từ 1.7, `Modifier.animateItem()` dùng được trong lưới như trong danh sách.
+- **1.3:** thêm `LazyVerticalStaggeredGrid` và `LazyHorizontalStaggeredGrid` dạng experimental.
+- **1.5 (2023):** lưới staggered thành stable; thêm `GridCells.FixedSize`.
+- **1.7 (2024):** `Modifier.animateItem()` dùng được trong lưới (thường và staggered) như trong danh sách.
 
 ## Kết nối hệ thống
 
 - **Tiên quyết:** [9.5.4 Lazy Column](lazy_column.md): DSL, `key`, `contentType`, cơ chế lazy layout, lỗi item 0px và lồng scroll cùng hướng.
 - **Liên quan:** [9.5.5 Lazy Row](lazy_row.md) (danh sách ngang trong trang chủ dạng lưới), [9.5.1 Modifier Order](modifier_order.md) (`aspectRatio`, `height` và constraints), [9.6 Layout and View](../layout_and_view.md) (`Row`, `Column`, layout tuỳ chỉnh).
-- **Học tiếp:** [9.5.7 Lazy Paging Items](lazy_paging_items.md) (lưới tải theo trang); 8.5.4 Design Guide (chưa có bài) cho quy tắc lưới của Material.
+- **Học tiếp:** [9.5.7 Lazy Paging Items](lazy_paging_items.md) (lưới tải theo trang).
 
 ## Tham khảo
 

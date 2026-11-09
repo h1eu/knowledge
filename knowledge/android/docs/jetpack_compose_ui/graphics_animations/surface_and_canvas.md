@@ -2,13 +2,13 @@
 id: android.jetpack_compose.graphics.surface_canvas
 title: Surface and Canvas
 summary: Surface và Canvas là hai mức vẽ của Compose. Surface là container Material, đóng gói một "tấm vật liệu" gồm nền theo theme, shape để clip, border, elevation (tonal và shadow) và màu mặc định cho nội dung con. Canvas cùng các draw modifier là chỗ tự vẽ bằng lệnh của DrawScope trong phase Drawing. Bài giải thích Surface làm những việc gì, cách vẽ hình, path và chữ trên DrawScope, khi nào dùng drawBehind, drawWithContent hay drawWithCache, và cách đọc state trong phase Drawing để animation không làm recompose.
-status: reviewing
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 17 phút
+estimated_reading_time: 20 phút
 tags: [android, compose, session-09, surface, canvas, drawscope, custom-drawing, material3]
 prerequisites: [android.jetpack_compose.compose_overview, android.jetpack_compose.theming.material_theme, android.jetpack_compose.modifier.order]
-related: [android.jetpack_compose.layout_and_view, android.jetpack_compose.modifier.composed, android.jetpack_compose.animation.animated_visibility, android.jetpack_compose.gesture.zooming]
+related: [android.jetpack_compose.layout_and_view, android.jetpack_compose.modifier.composed, android.jetpack_compose.animation.animated_visibility, android.jetpack_compose.gesture.zooming, android.view_layout.custom_view]
 learning_outcomes:
   - Giải thích được những việc Surface làm cho nội dung con (clip theo shape, nền, border, tonal và shadow elevation, content color, chặn chạm xuyên) và vì sao nó là nền của hầu hết component Material 3.
   - Triển khai được hình vẽ tuỳ chỉnh bằng Canvas và DrawScope (hình cơ bản, cung, Path, chữ qua TextMeasurer) với toạ độ pixel đúng mật độ màn hình.
@@ -41,11 +41,9 @@ Column(
 }
 ```
 
-Đoạn này có ba vấn đề: màu cứng nên sang dark mode thì thẻ vẫn trắng, chữ vẫn đen; mỗi thẻ ghép modifier một kiểu nên các thẻ lệch nhau; và mọi `Text` bên trong phải tự nhớ đặt màu.
+Màu cứng nên sang dark mode thẻ vẫn trắng, chữ vẫn đen; mỗi thẻ ghép modifier một kiểu nên các thẻ lệch nhau; mọi `Text` bên trong phải tự nhớ đặt màu.
 
-**Kiểu thứ hai: hình không dựng được từ `Row`, `Column`, `Text`.** Vòng tiến độ, biểu đồ cột, đường giá, chấm "chưa đọc" trên ảnh đại diện. Chồng nhiều `Box` để giả lập thì vừa nặng (mỗi `Box` là một node layout) vừa không vẽ được cung hay đường cong.
-
-Kiểu thứ hai còn có bẫy hiệu năng: hình vẽ thường có animation, giá trị đổi mỗi frame; nếu nó đi qua tham số composable, cả cây phía dưới recompose mỗi frame.
+**Kiểu thứ hai: hình không dựng được từ `Row`, `Column`, `Text`.** Vòng tiến độ, biểu đồ cột, chấm "chưa đọc" trên ảnh đại diện. Chồng nhiều `Box` để giả lập thì vừa nặng (mỗi `Box` là một node layout) vừa không vẽ được cung hay đường cong. Kiểu này còn có bẫy hiệu năng: hình vẽ thường có animation, giá trị đổi mỗi frame; nếu nó đi qua tham số composable, cả cây phía dưới recompose mỗi frame.
 
 Vấn đề cần giải quyết là: **có một khối nền chuẩn Material tự theo theme cho kiểu thứ nhất, một bề mặt vẽ tự do cho kiểu thứ hai, và cách vẽ lại theo animation mà không phải chạy lại composition.**
 
@@ -76,13 +74,13 @@ Theo tài liệu API của Material 3, `Surface` chịu trách nhiệm cho sáu 
 | Clip | `shape` (mặc định `RectangleShape`) | Nội dung con, ripple và nền đều bị cắt theo shape |
 | Nền | `color` (mặc định `MaterialTheme.colorScheme.surface`) | Tô kín shape |
 | Border | `border: BorderStroke?` | Vẽ viền theo shape |
-| Tonal elevation | `tonalElevation` (mặc định `0.dp`) | Khi `color` là `colorScheme.surface`, phủ một lớp tông màu primary; càng cao càng đậm |
-| Shadow elevation | `shadowElevation` (mặc định `0.dp`) | Vẽ bóng đổ theo shape |
+| Tonal elevation | `tonalElevation` (mặc định `0.dp`) | Khi `color` là `colorScheme.surface`, phủ một lớp tông màu primary; càng cao tông càng rõ |
+| Shadow elevation | `shadowElevation` (mặc định `0.dp`) | Vẽ bóng đổ theo shape; không đổi thứ tự vẽ (z-index) |
 | Content color | `contentColor` (mặc định `contentColorFor(color)`) | Cung cấp qua `LocalContentColor`; `Text`, `Icon` không đặt màu sẽ dùng màu này |
 
 Ngoài ra `Surface` **chặn chạm xuyên**: cú chạm vào vùng của nó không lọt xuống composable nằm phía sau.
 
-**Hai loại elevation.** Material 3 thể hiện độ nổi chủ yếu bằng **tông màu**, bóng đổ là phụ. `tonalElevation` chỉ đổi màu nền và chỉ có tác dụng khi `color` là `colorScheme.surface`; đặt `color = Color.White` thì tonal elevation không còn gì để phủ. Surface lồng nhau cộng dồn tonal elevation qua `LocalAbsoluteTonalElevation`, nên Surface con không bao giờ trông "thấp hơn" Surface cha. `shadowElevation` vẽ bóng thật, dùng khi khối nằm đè lên nội dung khác (menu, thanh nổi).
+**Hai loại elevation.** Material 3 thể hiện độ nổi chủ yếu bằng **tông màu**, bóng đổ là phụ. `tonalElevation` chỉ đổi màu nền và chỉ có tác dụng khi `color` là `colorScheme.surface`; đặt `color = Color.White` thì tonal elevation không còn gì để phủ. Surface lồng nhau cộng dồn tonal elevation qua `LocalAbsoluteTonalElevation`, nên Surface con không bao giờ trông "thấp hơn" Surface cha. `shadowElevation` vẽ bóng thật; tài liệu API khuyên chỉ dùng khi thật cần tách khối khỏi nền (menu, thanh nổi đè lên nội dung). Material 3 hiện còn có các role `surfaceContainerLowest` … `surfaceContainerHighest` trong `ColorScheme`: chọn thẳng một role làm `color` là cách thứ hai để phân tầng nền mà không cần tonal elevation, và `Card` mặc định dùng cách này.
 
 **Content color.** `contentColorFor(color)` tra màu nền trong `ColorScheme`: nền `surface` thì nội dung `onSurface`, nền `primaryContainer` thì `onPrimaryContainer`. Màu đó được đặt vào `LocalContentColor` (một CompositionLocal, học ở [Custom Theme](../theming/custom_theme.md)) cho toàn bộ nội dung bên trong. Vì vậy đổi theme hoặc sang dark mode thì chữ tự đổi theo nền. Cách định nghĩa `ColorScheme` và các role màu học ở [Material Design Theme](../theming/material_design_theme.md).
 
@@ -143,9 +141,7 @@ fun OrderStatusCard(
 }
 ```
 
-`OrderSummary` là data class của màn danh sách, có `code` và `statusLabel`.
-
-**Kết quả:** chuyển máy sang dark mode, thẻ đổi sang nền tối và chữ sáng mà không sửa dòng nào. Bấm vào thẻ, ripple không tràn ra ngoài góc bo. Mở Layout Inspector: nội dung thẻ nằm dưới một node `Surface`, các `Text` không có `color` riêng.
+**Kết quả:** chuyển máy sang dark mode, thẻ đổi sang nền tối và chữ sáng mà không sửa dòng nào. Bấm vào thẻ, ripple không tràn ra ngoài góc bo.
 
 ### 2. Canvas và DrawScope: tự vẽ bằng toạ độ pixel
 
@@ -162,7 +158,7 @@ Lambda vẽ có receiver là `DrawScope`. Những điều cần nắm:
 - **Chữ:** `Text` composable vẫn là cách hiển thị chữ thông thường. Trong `DrawScope`, chữ cần đo trước: `rememberTextMeasurer()` tạo `TextMeasurer`, `measure(...)` trả `TextLayoutResult` (biết kích thước chữ), rồi `drawText(layoutResult, topLeft = …)` vẽ nó.
 - **`Path`:** chuỗi lệnh `moveTo`, `lineTo`, `cubicTo`, `close` mô tả một hình bất kỳ; `drawPath(path, color, style)` vẽ nó.
 
-Khác với `onDraw(Canvas)` của View system (8.5.2 View Custom, chưa có bài), `DrawScope` không bắt bạn quản lý `Paint`: màu, nét, blend mode là tham số của từng lệnh vẽ.
+Khác với `onDraw(Canvas)` của View system ([8.5.2 View Custom](../../session_08/view_layout/views.md)), `DrawScope` không bắt bạn tạo và giữ `Paint`: màu, nét, blend mode là tham số của từng lệnh vẽ.
 
 #### Ví dụ: vòng tiến độ mục tiêu bước chân
 
@@ -221,7 +217,7 @@ fun StepGoalRing(steps: Int, goal: Int, modifier: Modifier = Modifier) {
 
 Màu và kiểu chữ lấy từ `MaterialTheme` **bên ngoài** lambda vẽ, vì `MaterialTheme.colorScheme` là lời gọi composable, không gọi được trong `DrawScope`.
 
-**Kết quả:** với 6.500/10.000 bước, vòng màu chạy từ đỉnh theo chiều kim đồng hồ khoảng hai phần ba vòng, giữa vòng hiện "65%". Trên máy mật độ khác nhau, độ dày nét bằng nhau về mặt thị giác nhờ `toPx()`. TalkBack đọc "Đã đi 6500 trên 10000 bước" nhờ `semantics`, vì `Canvas` tự nó không có nội dung cho trình đọc màn hình.
+**Kết quả:** với 6.500/10.000 bước, vòng màu chạy từ đỉnh theo chiều kim đồng hồ khoảng hai phần ba vòng, giữa vòng hiện "65%"; độ dày nét bằng nhau trên mọi mật độ màn hình nhờ `toPx()`. TalkBack đọc "Đã đi 6500 trên 10000 bước" nhờ `semantics`, vì `Canvas` tự nó không có nội dung cho trình đọc màn hình.
 
 Đoạn này đo chữ ngay trong lambda vẽ. Điều đó chấp nhận được khi hình hiếm khi vẽ lại; nếu vòng có animation, mỗi frame sẽ đo chữ một lần. Phần tiếp theo giải quyết chuyện này.
 
@@ -276,15 +272,15 @@ fun Modifier.unreadDot(hasUnread: Boolean, dotColor: Color): Modifier =
 // ConversationRow.kt
 Image(
     painter = painterResource(R.drawable.avatar_placeholder),
-    contentDescription = conversation.title,
+    contentDescription = null,                                         // tên đã hiện bên cạnh
     modifier = Modifier
         .size(48.dp)
-        .clip(CircleShape)
-        .unreadDot(conversation.unreadCount > 0, MaterialTheme.colorScheme.error)
+        .unreadDot(conversation.unreadCount > 0, MaterialTheme.colorScheme.error) // trước clip
+        .clip(CircleShape)                                             // chỉ cắt ảnh, không cắt chấm
 )
 ```
 
-**Kết quả:** người có tin chưa đọc có chấm đỏ đè lên góc ảnh. Đặt `unreadDot` **sau** `clip(CircleShape)` thì chấm bị cắt theo vòng tròn ở góc; muốn chấm tràn ra ngoài viền tròn, đặt `unreadDot` trước `clip`. Đây là hệ quả trực tiếp của thứ tự modifier.
+**Kết quả:** người có tin chưa đọc có chấm đỏ đè lên góc ảnh, tràn ra ngoài viền tròn. `drawContent()` vẽ phần bên trong chuỗi (ảnh đã bị `clip`), còn chấm vẽ sau nên không bị cắt. Đổi chỗ thành `.clip(CircleShape).unreadDot(...)` thì chấm nằm trong vùng clip: tâm chấm ở góc vuông, nằm ngoài vòng tròn, nên chấm bị cắt gần hết. Đây là hệ quả trực tiếp của thứ tự modifier.
 
 ### 4. Đọc state trong phase Drawing
 
@@ -353,7 +349,7 @@ fun UploadSection(uploadedBytes: Long, totalBytes: Long, modifier: Modifier = Mo
 
 Ba bài toán hay gặp với Surface và Canvas:
 
-1. **Thẻ biểu đồ doanh thu 7 ngày:** `Surface` làm thẻ, bên trong là biểu đồ cột tự vẽ, cột mọc lên khi dữ liệu đến, nhãn ngày đo bằng `TextMeasurer` và cache. Đây là bài toán chính, code đầy đủ bên dưới.
+1. **Thẻ biểu đồ doanh thu 7 ngày:** `Surface` làm thẻ, biểu đồ cột tự vẽ, nhãn ngày đo và cache. Bài toán chính, code bên dưới.
 2. **Hiệu ứng skeleton khi đang tải:** các khối xám có dải sáng chạy ngang. Vẽ bằng `drawWithContent` với `Brush.linearGradient` có offset lấy từ `rememberInfiniteTransition`, đọc offset trong lambda vẽ để không recompose.
 3. **Ô ký tên:** người dùng vẽ chữ ký bằng ngón tay, mỗi nét là một `Path` được nối điểm theo sự kiện chạm. Phần vẽ dùng `Canvas` + `drawPath`; phần nhận cử chỉ học ở [Dragging](../gesture/dragging.md).
 
@@ -461,19 +457,10 @@ private fun RevenueBars(days: List<DailyRevenue>, growth: () -> Float, modifier:
 
 **Kết quả:** thẻ tự đổi màu theo dark mode, nhãn ngày cùng màu với tiêu đề. Khi dữ liệu mới đến, bảy cột mọc từ đáy lên cùng lúc. Trong Layout Inspector, recomposition count của `WeeklyRevenueCard` và `RevenueBars` không tăng trong 600ms animation; đặt log trong khối ngoài `drawWithCache` thì chỉ thấy một lần cho mỗi bộ dữ liệu. TalkBack đọc danh sách doanh thu theo ngày.
 
-## So sánh với các cách tiếp cận khác
-
-| Cách | Ưu điểm | Hạn chế |
-|---|---|---|
-| `Surface` | Một chỗ cho nền, shape, border, elevation, content color, click; theo theme | Gắn với Material |
-| Chuỗi `shadow` + `clip` + `background` + `border` | Không phụ thuộc Material | Tự đặt màu chữ, dễ sai thứ tự, các khối lệch nhau |
-| `Canvas` / draw modifier | Vẽ tự do, ít node, đọc state ở phase Drawing | Tự lo kích thước, semantics, RTL |
-| Chồng nhiều `Box` | Không cần học `DrawScope` | Nhiều node layout, không vẽ được cung hay đường cong |
-
 ## Khi nào nên và không nên dùng
 
 - **Nên dùng `Surface`** cho mọi khối nền mang ý nghĩa vật liệu: thẻ, panel, thanh nổi, vùng chọn. Nếu đã có component Material phù hợp (`Card`, `ElevatedCard`, `ListItem`), dùng component đó vì nó đã là `Surface` với giá trị mặc định đúng spec.
-- **Không cần `Surface`** cho nền thuần trang trí không có nội dung chữ (một dải màu, một đường kẻ): `Modifier.background` là đủ.
+- **Không cần `Surface`** cho nền thuần trang trí không có nội dung chữ (một dải màu, một đường kẻ): `Modifier.background` là đủ. Chuỗi `shadow` + `clip` + `background` + `border` tự ghép chỉ hợp khi không dùng Material, và khi đó phải tự đặt màu nội dung.
 - **Nên dùng `Canvas`/draw modifier** cho hình không ghép được từ layout: vòng, cung, biểu đồ, đường cong, hiệu ứng phủ.
 - **Không nên tự vẽ** khi có composable sẵn làm đúng việc (`LinearProgressIndicator`, `HorizontalDivider`, `Text`): tự vẽ nghĩa là tự lo semantics, cỡ chữ theo cài đặt người dùng, RTL.
 - **Nên dùng `drawWithCache`** khi khối vẽ tạo `Path`, `Brush`, `Shader` hay đo chữ; **không cần** khi chỉ gọi vài `drawRect`/`drawCircle` với màu có sẵn.
@@ -505,7 +492,7 @@ Canvas(modifier) {
 }
 ```
 
-Khi hình có animation, lambda vẽ chạy mỗi frame; cấp phát object và đo chữ mỗi frame gây GC và giật. Sửa: chuyển phần tạo object vào khối ngoài của `drawWithCache` (như thẻ biểu đồ ở mục "Ví dụ thực tế"), hoặc `remember` nó ngoài composition nếu không phụ thuộc `size`.
+Khi hình có animation, lambda vẽ chạy mỗi frame; cấp phát object và đo chữ mỗi frame gây GC và giật. Sửa: chuyển phần tạo object vào khối ngoài của `drawWithCache` (như thẻ biểu đồ ở mục "Ví dụ thực tế"), hoặc `remember` nó trong composition, bên ngoài lambda vẽ, nếu không phụ thuộc `size`.
 
 ### 4. Đọc giá trị animation trong composition rồi truyền xuống
 
@@ -514,7 +501,7 @@ val progress by animateFloatAsState(target, label = "progress")
 UploadProgressBar(progress = progress)   // đọc ở đây → recompose mỗi frame
 ```
 
-Lỗi lộ ra trong Layout Inspector: recomposition count tăng liên tục khi animation chạy. Sửa: tham số dạng `() -> Float`, chỉ gọi trong lambda vẽ (mục 4).
+Recomposition count tăng liên tục khi animation chạy. Sửa: tham số `() -> Float`, chỉ gọi trong lambda vẽ (mục 4).
 
 ### 5. Quên `drawContent()` trong `drawWithContent`
 
@@ -538,8 +525,8 @@ Modifier.drawWithContent {
 
 - **Compose 1.0 (07/2021):** `Canvas`, `DrawScope`, `drawBehind`, `drawWithContent`, `drawWithCache` và `Modifier.graphicsLayer` đã có từ bản ổn định đầu tiên; `Surface` lúc đó thuộc Material 2, thể hiện độ nổi bằng bóng (`elevation`) và lớp phủ sáng trong dark theme.
 - **Material 3 cho Compose ổn định (10/2022):** `Surface` của `androidx.compose.material3` tách elevation làm hai, `tonalElevation` (tông màu, cách chính của Material 3) và `shadowElevation`. Lớp phủ dark theme cũ được thay bằng tông màu lấy từ primary.
-- **Khoảng Compose UI 1.3 (cuối 2022):** có `TextMeasurer` và `DrawScope.drawText` (ban đầu ở dạng experimental), nên vẽ chữ trong `DrawScope` không còn phải đi qua `nativeCanvas` của nền tảng.
-- **Compose 1.4:** `graphicsLayer` có `CompositingStrategy` (`Auto`, `Offscreen`, `ModulateAlpha`), cần cho các hiệu ứng `BlendMode`.
+- **Compose 1.3 (10/2022):** có `TextMeasurer`, `rememberTextMeasurer()` và `DrawScope.drawText` (lúc đầu cần opt-in `@ExperimentalTextApi`, nay dùng không cần opt-in), nên vẽ chữ trong `DrawScope` không còn phải đi qua `nativeCanvas` của nền tảng.
+- **Các bản sau:** `graphicsLayer` có `CompositingStrategy` (`Auto`, `Offscreen`, `ModulateAlpha`), cần cho các hiệu ứng `BlendMode`.
 - **Compose 1.7:** `rememberGraphicsLayer()` cho phép ghi nội dung composable vào một layer để vẽ lại hoặc xuất ra bitmap.
 
 ## Kết nối hệ thống
@@ -553,7 +540,7 @@ Modifier.drawWithContent {
   - [Modifier.composed và Modifier.Node](../modifier/composed.md) — đóng gói hiệu ứng vẽ thành modifier tái sử dụng (`DrawModifierNode`).
   - [Custom Theme](../theming/custom_theme.md) — CompositionLocal, cơ chế đứng sau `LocalContentColor`.
   - [Zooming](../gesture/zooming.md) — `graphicsLayer` cho scale, translation đọc ở phase Drawing.
-  - 8.5.2 View Custom (chưa có bài) — `onDraw(Canvas)` và `Paint` của View system.
+  - [8.5.2 View Custom](../../session_08/view_layout/views.md) — `onDraw(Canvas)` và `Paint` của View system.
 - **Học tiếp (theo nav):**
   - [AnimatedVisibility](animated_visibility.md) — bản đồ API animation của Compose và cách cho nội dung xuất hiện, biến mất.
   - [MutableTransitionState](mutable_transition_state.md), [AnimatedContent](animated_content.md), [Crossfade](crossfade.md).

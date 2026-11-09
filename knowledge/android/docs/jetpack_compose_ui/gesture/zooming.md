@@ -1,11 +1,11 @@
 ---
 id: android.jetpack_compose.gesture.zooming
 title: Zooming
-summary: Zooming trong Compose là việc đọc hệ số pinch, độ dịch và góc xoay từ gesture nhiều ngón, cộng dồn vào state scale/offset rồi áp lên phần tử bằng graphicsLayer ở draw phase; gesture không tự phóng to gì cả. Bài đi qua Modifier.transformable với rememberTransformableState, detectTransformGestures, giới hạn scale và pan, double-tap zoom bằng detectTapGestures, và cách tránh xung đột với HorizontalPager hoặc container cuộn bằng tham số canPan.
-status: reviewing
+summary: Zooming trong Compose là việc đọc hệ số pinch, độ dịch và góc xoay từ gesture nhiều ngón, cộng dồn vào state scale/offset rồi áp lên phần tử bằng graphicsLayer ở draw phase; bản thân gesture không phóng to gì cả.
+status: published
 difficulty: intermediate
 depth: standard
-estimated_reading_time: 11 phút
+estimated_reading_time: 13 phút
 tags: [android, compose, session-09, gesture, zoom, pinch, transformable, graphics-layer]
 prerequisites: [android.jetpack_compose.gesture.dragging, android.jetpack_compose.gesture.scrolling]
 related: [android.jetpack_compose.gesture.swiping, android.jetpack_compose.graphics.surface_canvas]
@@ -57,7 +57,8 @@ Giống [Dragging](dragging.md) và [Scrolling](scrolling.md): gesture modifier 
 `Modifier.transformable(state)` nhận diện cử chỉ hai ngón (và kéo một ngón cho pan). State tạo bằng:
 
 ```kotlin
-val state = rememberTransformableState { zoomChange: Float, panChange: Offset, rotationChange: Float ->
+val state = rememberTransformableState {
+    centroid: Offset, zoomChange: Float, panChange: Offset, rotationChange: Float ->
     // cập nhật state của bạn
 }
 ```
@@ -65,12 +66,12 @@ val state = rememberTransformableState { zoomChange: Float, panChange: Offset, r
 - `zoomChange` là **hệ số** so với event trước: `1.05f` nghĩa là to thêm 5%. Vì vậy scale phải **nhân**: `scale *= zoomChange`. Cộng (`scale += zoomChange`) là sai, vì mỗi event không pinch vẫn báo `1f`.
 - `panChange` là delta `Offset` theo pixel, **cộng**: `offset += panChange`.
 - `rotationChange` là góc (độ) so với event trước, cộng dồn.
-- Các bản Compose gần đây có thêm overload nhận `centroid` (điểm giữa các ngón) làm tham số đầu, dùng khi muốn phóng quanh chỗ ngón tay thay vì quanh tâm phần tử.
+- `centroid` là điểm giữa các ngón, dùng khi muốn phóng quanh chỗ ngón tay thay vì quanh tâm phần tử. Overload 4 tham số này có từ Foundation 1.11 (04/2026); overload cũ 3 tham số `{ zoomChange, panChange, rotationChange -> }` (vẫn thấy trong nhiều sample) bị deprecated từ bản đó. Bài dùng overload mới và bỏ qua `centroid` bằng `_` khi chỉ phóng quanh tâm.
 
 Tham số của modifier:
 
 - `lockRotationOnZoomPan = true`: nếu cử chỉ bắt đầu bằng zoom hoặc pan thì không xoay. Trình xem ảnh thường không cần xoay thì bỏ qua `rotationChange` luôn.
-- `canPan: (Offset) -> Boolean` (overload từ foundation 1.6): quyết định có bắt đầu pan hay không. Đây là chìa khoá để sống chung với pager và container cuộn (mục 4).
+- `canPan: (Offset) -> Boolean` (overload riêng; từ Foundation 1.6 lambda nhận delta pan để quyết định theo hướng kéo): quyết định có bắt đầu pan hay không. Đây là chìa khoá để sống chung với pager và container cuộn (mục 4).
 - `enabled`.
 
 State còn có `isTransformInProgress` và các hàm `suspend` `animateZoomBy`, `animatePanBy`, `animateRotateBy` để biến đổi bằng code, đi qua đúng lambda của bạn nên các giới hạn vẫn được áp.
@@ -126,7 +127,7 @@ fun SeatMapViewer(seatMap: Painter, modifier: Modifier = Modifier) {
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
 
-    val state = rememberTransformableState { zoomChange, panChange, _ ->    // (1)
+    val state = rememberTransformableState { _, zoomChange, panChange, _ -> // (1)
         val newScale = (scale * zoomChange).coerceIn(MIN_SCALE, MAX_SCALE) // (2)
         val maxX = (newScale - 1f) * size.width / 2f
         val maxY = (newScale - 1f) * size.height / 2f
@@ -176,7 +177,7 @@ suspend fun PointerInputScope.detectTransformGestures(
 
 Nó cho `centroid` ở mọi bản và tiện khi cần ghép với logic pointer khác trong cùng handler. Nhưng nó **consume mọi chuyển động** sau touch slop, kể cả kéo một ngón khi chưa phóng, và không có `canPan`. Đặt nó trong `HorizontalPager` thì pager không bao giờ nhận được cú vuốt ngang.
 
-**Xung đột với pager và container cuộn.** Ở Main pass, phần tử con nhận event trước cha ([9.8.1 Scrolling](scrolling.md), mục "Hit-testing, ba pass và consume"). Nếu `transformable` (con) consume cú kéo một ngón, pager hoặc `LazyRow` (cha) thấy chuyển động đã bị consume và không cuộn. Cách tài liệu chính thức khuyên: `transformable(state, canPan = { scale != 1f })`. Chưa phóng thì không pan, cú kéo đi lên cha và pager lật trang; đã phóng thì pan ảnh, pager đứng yên. Pinch hai ngón vẫn luôn hoạt động.
+**Xung đột với pager và container cuộn.** Ở Main pass, phần tử con nhận event trước cha ([9.8.1 Scrolling](scrolling.md), mục "Hit-testing, ba pass và consume"). Nếu `transformable` (con) consume cú kéo một ngón, pager hoặc `LazyRow` (cha) thấy chuyển động đã bị consume và không cuộn. KDoc của overload có `canPan` gợi ý cách gỡ: không cho pan bắt đầu khi scale bằng 1, ví dụ `transformable(state, canPan = { scale > 1f })`. Chưa phóng thì không pan, cú kéo đi lên cha và pager lật trang; đã phóng thì pan ảnh, pager đứng yên. Pinch hai ngón vẫn luôn hoạt động.
 
 ## Ví dụ thực tế
 
@@ -195,7 +196,7 @@ Ba bài toán zoom hay gặp:
 1. `HorizontalPager` hiển thị mỗi ảnh trong một `ZoomableImage`; mỗi trang có state zoom riêng, rời trang thì state bị huỷ và ảnh về 1x.
 2. Pinch: lambda của `rememberTransformableState` nhân scale (giới hạn 1x–4x) và cộng pan (giới hạn theo kích thước), như mục 3.
 3. `canPan = { scale > 1f }`: chưa phóng thì kéo một ngón không bị `transformable` consume, đi lên `HorizontalPager` để lật trang.
-4. Double-tap: đang phóng thì `animateZoomBy(1f / scale)` về 1x; chưa phóng thì `animateZoomBy(2.5f)`. Animation đi qua lambda ở bước 2 nên pan tự co về 0 khi thu nhỏ.
+4. Double-tap: đang phóng thì `animateZoomBy(1f / scale)` về 1x; chưa phóng thì `animateZoomBy(2.5f)`. Animation đi qua lambda ở bước 2 nên pan co dần về 0 khi thu nhỏ. Tích các `zoomChange` qua từng frame có sai số float (kết quả có thể là `1.0000001f`), nên sau khi thu nhỏ xong thì đặt hẳn `scale = 1f`, `offset = Offset.Zero`; nếu không, `canPan` vẫn trả `true` ở "1x" và pager không lật được.
 5. `graphicsLayer { }` trên ảnh con áp scale và offset ở draw phase.
 
 ```mermaid
@@ -232,7 +233,7 @@ fun ZoomableImage(
     var offset by remember { mutableStateOf(Offset.Zero) }
     val scope = rememberCoroutineScope()
 
-    val state = rememberTransformableState { zoomChange, panChange, _ ->     // (2)
+    val state = rememberTransformableState { _, zoomChange, panChange, _ -> // (2)
         val newScale = (scale * zoomChange).coerceIn(MIN_SCALE, MAX_SCALE)
         val maxX = (newScale - 1f) * size.width / 2f
         val maxY = (newScale - 1f) * size.height / 2f
@@ -251,8 +252,16 @@ fun ZoomableImage(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {                                           // (4)
-                        val factor = if (scale > 1f) 1f / scale else DOUBLE_TAP_SCALE
-                        scope.launch { state.animateZoomBy(factor) }
+                        scope.launch {
+                            if (scale > MIN_SCALE) {
+                                state.animateZoomBy(MIN_SCALE / scale)
+                                // Khử sai số float để canPan chắc chắn là false ở 1x
+                                scale = MIN_SCALE
+                                offset = Offset.Zero
+                            } else {
+                                state.animateZoomBy(DOUBLE_TAP_SCALE)
+                            }
+                        }
                     },
                 )
             },
@@ -289,7 +298,7 @@ fun ProductGalleryScreen(imageResIds: List<Int>) {
 }
 ```
 
-**Kết quả:** chưa phóng thì vuốt ngang lật ảnh bình thường. Double-tap: ảnh phóng mượt lên 2.5x; lúc này vuốt ngang dịch ảnh tới mép rồi dừng, pager không lật. Double-tap lần nữa: ảnh về 1x và về giữa. Đổi `canPan` thành bỏ trống (dùng overload không có `canPan`) để thấy lỗi: ở 1x vuốt ngang không lật được trang nữa vì `transformable` đã consume. Double-tap phóng quanh tâm ảnh chứ không quanh điểm chạm; muốn phóng quanh điểm chạm thì cần overload `animateZoomBy` có `centroid` ở các bản mới, kèm công thức offset tương ứng.
+**Kết quả:** chưa phóng thì vuốt ngang lật ảnh bình thường. Double-tap: ảnh phóng mượt lên 2.5x; lúc này vuốt ngang dịch ảnh tới mép rồi dừng, pager không lật. Double-tap lần nữa: ảnh về 1x và về giữa. Đổi `canPan` thành bỏ trống (dùng overload không có `canPan`) để thấy lỗi: ở 1x vuốt ngang không lật được trang nữa vì `transformable` đã consume. Double-tap phóng quanh tâm ảnh chứ không quanh điểm chạm; muốn phóng quanh điểm chạm thì truyền `centroid` cho `animateZoomBy` (Foundation 1.11+) và dùng `centroid` trong lambda để tính lại offset.
 
 ## Khi nào nên và không nên dùng
 
@@ -333,14 +342,14 @@ Pager không lật trang được nữa, vì detector consume cả cú kéo mộ
 ## Lịch sử phát triển
 
 - **Compose 1.0 (07/2021)**: `Modifier.transformable`, `rememberTransformableState`, `detectTransformGestures` và `Modifier.graphicsLayer` đã có. Từ đầu, transform được thiết kế như mọi gesture khác của Compose: chỉ báo thay đổi, state do người dùng giữ.
-- **Foundation 1.6 (đầu 2024)**: thêm overload `transformable(state, canPan, ...)` để zoom sống chung với pager và container cuộn mà không phải tự viết pointer handler.
-- **Các bản gần đây**: `rememberTransformableState` có overload nhận `centroid`, và `animateZoomBy`/`animatePanBy` nhận `centroid`, để phóng quanh điểm giữa các ngón (hoặc điểm double-tap) mà không cần xuống `detectTransformGestures`.
+- **Foundation 1.6 (01/2024)**: `canPan` của `transformable(state, canPan, ...)` nhận delta pan, để zoom sống chung với pager và container cuộn theo đúng hướng kéo mà không phải tự viết pointer handler.
+- **Foundation 1.11 (04/2026)**: `rememberTransformableState`/`TransformableState` có overload nhận `centroid`, overload 3 tham số cũ bị deprecated; `animateZoomBy`/`animatePanBy`/`animateRotateBy` nhận `centroid`. Mục đích: phóng, xoay quanh điểm giữa các ngón (hoặc điểm double-tap) mà không cần xuống `detectTransformGestures`.
 
 ## Kết nối hệ thống
 
 - **Prerequisites**: [9.8.2 Dragging](dragging.md) (đọc state ở phase muộn, consume), [9.8.1 Scrolling](scrolling.md) (ba pass, vì sao con consume thì cha không cuộn).
 - **Related**: [9.7.1 Surface and Canvas](../graphics_animations/surface_and_canvas.md) (draw phase, `graphicsLayer` trong bối cảnh vẽ), [9.8.3 Swiping](swipping.md) (`HorizontalPager` so với `anchoredDraggable`), [9.5.5 LazyRow](../modifier/lazy_row.md) (`HorizontalPager` được nhắc cùng `LazyRow`).
-- **Liên quan khác**: ảnh mạng trong trình xem ảnh thường nạp bằng Coil, học ở 8.2.4 Coil (chưa có bài); UI test pinch bằng `performTouchInput { pinch(...) }` ở 10.2 Unit Testing (chưa có bài).
+- **Liên quan khác**: ảnh mạng trong trình xem ảnh thường nạp bằng Coil ([8.2.4 Coil](../../session_08/loading_image/coil.md), `AsyncImage`); test tự động ở [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md), còn UI test pinch bằng `performTouchInput { pinch(...) }` chưa có bài trong repo. Coroutine trong `scope.launch` ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 
 ## Tham khảo
 
