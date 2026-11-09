@@ -14,7 +14,7 @@ learning_outcomes:
   - Triển khai được Explicit Intent trong XML/View truyền thống và Jetpack Compose.
   - Thiết kế được mô hình điều hướng chuẩn MVVM sử dụng Event-driven navigation.
 knowledge_gap: >
-  Nếu không hiểu Explicit Intent, lập trình viên có thể gọi Context sai cách từ Jetpack Compose, vi phạm Clean Architecture bằng cách đưa Context vào ViewModel, hoặc nhầm lẫn giữa Explicit và Implicit Intent gây lỗi bảo mật hoặc crash khi gọi ứng dụng bên ngoài.
+  Nếu không hiểu Explicit Intent, lập trình viên có thể gọi Context sai cách từ Jetpack Compose, đưa Context vào ViewModel để gọi startActivity (trái khuyến nghị kiến trúc của Android: ViewModel không giữ Context), hoặc nhầm lẫn giữa Explicit và Implicit Intent gây lỗi bảo mật hoặc crash khi gọi ứng dụng bên ngoài.
 ---
 
 # Explicit Intents

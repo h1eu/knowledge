@@ -578,12 +578,12 @@ class ConnectivityManagerNetworkMonitor(
 ### Tích hợp Clean Architecture: End-to-End E-Commerce Example
 
 Hãy xâu chuỗi các thành phần đã học vào một kiến trúc hoàn chỉnh theo chuẩn **Clean Architecture** (Retrofit chỉ dùng một interface `@GET`, xem mục "Thư viện tầng mạng" ở trên):
-`UI (Compose) -> ViewModel -> UseCase -> Repository (SSOT) -> RemoteDataSource (Retrofit) & LocalDataSource (Room)`.
+`UI (Compose) -> ViewModel -> UseCase -> ProductRepository (interface ở Domain) <- ProductRepositoryImpl (SSOT, ở Data) -> RemoteDataSource (Retrofit) & LocalDataSource (Room)`. Use case chỉ biết interface; phần hiện thực ở tầng Data trỏ ngược vào interface đó, đúng dependency rule ở [Clean Architecture](../session_07/architecture/clean_architecture.md).
 
 Mô hình ở đây là **Single Source of Truth (SSOT)**: UI chỉ quan sát Room Database qua `Flow`, không bao giờ đọc thẳng kết quả API. Repository đồng bộ API khi có mạng và ghi kết quả vào Room; Flow của DAO tự phát dữ liệu mới lên UI.
 
 ```mermaid
-graph LR
+graph TD
     subgraph PresentationLayer ["Tầng Giao Diện"]
         UI["Compose Screen"]
         VM["ProductViewModel"]
@@ -591,6 +591,7 @@ graph LR
 
     subgraph DomainLayer ["Tầng Nghiệp Vụ"]
         UC["GetProductsUseCase"]
+        RepoApi["ProductRepository (interface)"]
     end
 
     subgraph DataLayer ["Tầng Dữ Liệu"]
@@ -602,7 +603,8 @@ graph LR
 
     UI --> VM
     VM --> UC
-    UC --> Repo
+    UC --> RepoApi
+    Repo -.->|hiện thực| RepoApi
     Repo --> Local
     Repo --> Remote
     Repo --> NetMon

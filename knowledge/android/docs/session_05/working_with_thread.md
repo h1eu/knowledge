@@ -601,11 +601,13 @@ Trong một kiến trúc phần mềm tiêu chuẩn (Clean Architecture / MVVM),
 [ Domain Layer (UseCases) ]
        | (Thực thi Business Logic - Luôn là Thread-Safe)
        v
-[ Data Layer (Repository / DataSource) ]
+[ Data Layer (RepositoryImpl / DataSource) ]   <- hiện thực interface Repository của Domain
        | (CHỦ ĐỘNG chuyển sang BACKGROUND THREAD: I/O Pool hoặc Dispatchers.IO)
        v
 [ SQLite Database / Remote Network ]
 ```
+
+Mũi tên trong sơ đồ là **chiều gọi lúc chạy**. Chiều phụ thuộc trong code thì đảo lại ở ranh giới Domain–Data: Domain chỉ khai báo interface `Repository`, tầng Data hiện thực nó, nên Domain không phụ thuộc Data ([Clean Architecture](../session_07/architecture/clean_architecture.md), mục "Dependency rule và đảo chiều phụ thuộc tại ranh giới").
 
 **Nguyên tắc "Main-Safety":** Một Repository hoặc UseCase chuẩn mực phải **Main-Safe**. Nghĩa là bất kể ai gọi nó từ Main Thread, nó phải tự chịu trách nhiệm chuyển sang Background Thread để xử lý và trả kết quả về an toàn mà không làm treo UI của người gọi.
 

@@ -989,13 +989,13 @@ Vì sao thiết kế đi theo hướng này: các mốc lớn đều đưa Room 
 
 ### Vị trí trong Clean Architecture
 
-Trong mô hình kiến trúc chuẩn của Android (Guide to App Architecture):
+Theo Clean Architecture, app chia ba tầng và mọi phụ thuộc trong code hướng vào tầng Domain ([Clean Architecture](../../session_07/architecture/clean_architecture.md), mục "Dependency rule và đảo chiều phụ thuộc tại ranh giới"). Guide to app architecture của Google cũng chia ba tầng nhưng cho phép UseCase gọi thẳng Repository của tầng data; khác biệt nằm ở mục "So sánh với các cách tiếp cận khác" của bài đó.
 - **Tầng UI (UI Layer):** Bao gồm Composable functions hoặc Activities/Fragments kết hợp với `ViewModel`. UI không bao giờ biết đến sự tồn tại của Room. UI chỉ hiển thị dữ liệu nhận được từ StateFlow.
-- **Tầng Domain (Domain Layer - UseCases):** Chứa các luật nghiệp vụ (Business Rules). Ví dụ: `GetPendingTasksUseCase`, `CreateTaskUseCase`.
+- **Tầng Domain (Domain Layer - UseCases):** Chứa các luật nghiệp vụ (Business Rules), ví dụ `GetPendingTasksUseCase`, `CreateTaskUseCase`, và **interface** `TaskRepository` mà use case cần. Domain không import Room hay Retrofit.
 - **Tầng Dữ Liệu (Data Layer):**
   - **Local Data Source:** Chính là Room Database (`TaskDao`).
   - **Remote Data Source:** Retrofit / Ktor Client.
-  - **Repository (`TaskRepositoryImpl`):** Đứng làm nhạc trưởng điều phối. Repository quyết định khi nào đọc từ Room, khi nào gọi API lên Remote và khi nào kích hoạt tiến trình đồng bộ dữ liệu.
+  - **Repository (`TaskRepositoryImpl`):** hiện thực interface `TaskRepository` của tầng Domain, và đứng làm nhạc trưởng điều phối. Repository quyết định khi nào đọc từ Room, khi nào gọi API lên Remote và khi nào kích hoạt tiến trình đồng bộ dữ liệu.
 
 ```mermaid
 graph TD
@@ -1006,6 +1006,7 @@ graph TD
 
     subgraph Domain_Layer["Tầng Nghiệp Vụ (Domain Layer)"]
         UseCase[GetTasksUseCase / SyncUseCase]
+        RepoApi["TaskRepository (interface)"]
     end
 
     subgraph Data_Layer["Tầng Dữ Liệu (Data Layer)"]
@@ -1019,7 +1020,8 @@ graph TD
 
     Screen -->|Collect State| VM
     VM -->|Gọi nghiệp vụ| UseCase
-    UseCase -->|Yêu cầu dữ liệu| Repo
+    UseCase -->|Yêu cầu dữ liệu| RepoApi
+    Repo -.->|hiện thực| RepoApi
     Repo -->|1. Quan sát Flow / Ghi Local| LocalDS
     Repo -->|2. Đồng bộ mạng| RemoteDS
     LocalDS --> Room

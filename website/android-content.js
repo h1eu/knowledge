@@ -18316,147 +18316,36 @@ class FragmentA : Fragment() {
 
 <h3>FragmentManager trong kiến trúc app</h3>
 
-<p>Phần này dùng trước MVVM (<a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>) và Clean Architecture (<a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>): app chia thành Presentation, Domain, Data layer, mỗi layer chỉ phụ thuộc layer bên trong.</p>
+<p>Phần này dùng trước MVVM (<a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>) và Clean Architecture (<a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>): app chia thành Presentation, Domain, Data layer, và mọi phụ thuộc trong code hướng vào Domain: Presentation gọi UseCase, còn Data hiện thực interface <code>Repository</code> mà Domain khai báo (mũi tên nét đứt), nên Domain không biết Data tồn tại.</p>
 
 <h4>FragmentManager trong MVVM + Clean Architecture</h4>
 
-<div class="dd-diagram" data-dd="fmg-layers">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 796" role="img" aria-labelledby="fmg-layers-dark-title fmg-layers-dark-desc" font-family="'Geist', sans-serif">
-<title id="fmg-layers-dark-title">Clean Architecture đọc từ trên xuống</title>
-<desc id="fmg-layers-dark-desc">Tầng Presentation gồm Activity FragmentManager Fragment ViewModel UI State, gọi xuống Domain gồm UseCase Domain Model, gọi xuống Data gồm Repository DataSource.</desc>
-<defs>
-<marker id="fmg-layers-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="796" fill="#060913"/>
-<!-- zones -->
-<rect x="32" y="24" width="736" height="396" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
-<rect x="48" y="28" width="128" height="12" rx="2" fill="#060913"/>
-<text x="112" y="37" fill="#38BDF8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">PRESENTATION</text>
-<rect x="32" y="404" width="736" height="172" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
-<rect x="48" y="408" width="88" height="12" rx="2" fill="#060913"/>
-<text x="92" y="417" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DOMAIN</text>
-<rect x="32" y="584" width="736" height="172" rx="8" fill="rgba(248,250,252,0.02)" stroke="rgba(248,250,252,0.10)" stroke-width="0.8"/>
-<rect x="48" y="588" width="72" height="12" rx="2" fill="#060913"/>
-<text x="84" y="597" fill="#64748B" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DATA</text>
-<!-- arrows -->
-<path d="M 400,108 V 128" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-layers-dark-arrow)"/>
-<path d="M 400,180 V 200" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-layers-dark-arrow)"/>
-<path d="M 400,252 V 272" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-layers-dark-arrow)"/>
-<path d="M 400,324 V 344" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-layers-dark-arrow)"/>
-<path d="M 400,396 V 428" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-layers-dark-arrow)"/>
-<path d="M 400,480 V 500" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-layers-dark-arrow)"/>
-<path d="M 400,552 V 608" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-layers-dark-arrow)"/>
-<path d="M 400,660 V 680" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-layers-dark-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="56" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="56" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="88" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity</text>
-<rect x="280" y="128" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="128" width="240" height="52" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="288" y="134" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="314" y="143" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
-<text x="400" y="160" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FragmentManager</text>
-<rect x="280" y="200" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="200" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="232" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Fragment</text>
-<rect x="280" y="272" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="272" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="304" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
-<rect x="280" y="344" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="344" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="376" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">UI State</text>
-<rect x="280" y="428" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="428" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="460" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">UseCase</text>
-<rect x="280" y="500" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="500" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="532" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Domain Model</text>
-<rect x="280" y="608" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="608" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="640" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
-<rect x="280" y="680" width="240" height="52" rx="6" fill="#060913"/>
-<rect x="280" y="680" width="240" height="52" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="712" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">DataSource</text>
-<!-- legend -->
-<line x1="32" y1="772" x2="768" y2="772" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="788" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="784" r="4" fill="#38BDF8"/>
-<text x="162" y="788" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">TẦNG ĐANG XEM · UI</text>
-<line x1="380" y1="784" x2="412" y2="784" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#fmg-layers-dark-arrow)"/>
-<text x="420" y="788" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỌI MỘT CHIỀU XUỐNG</text>
-</svg>
-</div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 796" role="img" aria-labelledby="fmg-layers-title fmg-layers-desc" font-family="'Geist', sans-serif">
-<title id="fmg-layers-title">Clean Architecture đọc từ trên xuống</title>
-<desc id="fmg-layers-desc">Tầng Presentation gồm Activity FragmentManager Fragment ViewModel UI State, gọi xuống Domain gồm UseCase Domain Model, gọi xuống Data gồm Repository DataSource.</desc>
-<defs>
-<marker id="fmg-layers-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="796" fill="#F8FAFC"/>
-<!-- zones -->
-<rect x="32" y="24" width="736" height="396" rx="8" fill="rgba(56,189,248,0.05)" stroke="rgba(56,189,248,0.28)" stroke-width="1.2"/>
-<rect x="48" y="28" width="128" height="12" rx="2" fill="#F8FAFC"/>
-<text x="112" y="37" fill="#0284C7" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">PRESENTATION</text>
-<rect x="32" y="404" width="736" height="172" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
-<rect x="48" y="408" width="88" height="12" rx="2" fill="#F8FAFC"/>
-<text x="92" y="417" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DOMAIN</text>
-<rect x="32" y="584" width="736" height="172" rx="8" fill="rgba(15,23,42,0.02)" stroke="rgba(15,23,42,0.10)" stroke-width="0.8"/>
-<rect x="48" y="588" width="72" height="12" rx="2" fill="#F8FAFC"/>
-<text x="84" y="597" fill="#94A3B8" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.14em">DATA</text>
-<!-- arrows -->
-<path d="M 400,108 V 128" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-layers-arrow)"/>
-<path d="M 400,180 V 200" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-layers-arrow)"/>
-<path d="M 400,252 V 272" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-layers-arrow)"/>
-<path d="M 400,324 V 344" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-layers-arrow)"/>
-<path d="M 400,396 V 428" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-layers-arrow)"/>
-<path d="M 400,480 V 500" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-layers-arrow)"/>
-<path d="M 400,552 V 608" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-layers-arrow)"/>
-<path d="M 400,660 V 680" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-layers-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="56" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="56" width="240" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="88" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity</text>
-<rect x="280" y="128" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="128" width="240" height="52" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="288" y="134" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="314" y="143" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
-<text x="400" y="160" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FragmentManager</text>
-<rect x="280" y="200" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="200" width="240" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="232" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Fragment</text>
-<rect x="280" y="272" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="272" width="240" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="304" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
-<rect x="280" y="344" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="344" width="240" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="376" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UI State</text>
-<rect x="280" y="428" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="428" width="240" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="460" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UseCase</text>
-<rect x="280" y="500" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="500" width="240" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="532" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Domain Model</text>
-<rect x="280" y="608" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="608" width="240" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="640" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
-<rect x="280" y="680" width="240" height="52" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="680" width="240" height="52" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="712" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">DataSource</text>
-<!-- legend -->
-<line x1="32" y1="772" x2="768" y2="772" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="788" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="784" r="4" fill="#0284C7"/>
-<text x="162" y="788" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">TẦNG ĐANG XEM · UI</text>
-<line x1="380" y1="784" x2="412" y2="784" stroke="#64748B" stroke-width="1.2" marker-end="url(#fmg-layers-arrow)"/>
-<text x="420" y="788" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GỌI MỘT CHIỀU XUỐNG</text>
-</svg>
-</div>
+<div class="mermaid">
+graph TB
+    subgraph Presentation["Presentation Layer"]
+        A[Activity] --&gt; B[FragmentManager]
+        B --&gt; C[Fragment]
+        C --&gt;|"quan sát UI State"| D[ViewModel]
+    end
+
+    subgraph Domain["Domain Layer"]
+        F[UseCase]
+        R["Repository (interface)"]
+        G[Domain Model]
+        F --&gt; R
+        F --&gt; G
+    end
+
+    subgraph Data["Data Layer"]
+        H[RepositoryImpl]
+        I[DataSource]
+        H --&gt; I
+    end
+
+    D --&gt; F
+    H -.-&gt;|"hiện thực"| R
+
+    style B fill:#e1f5ff
 </div>
 
 <p><strong>Vai trò của FragmentManager</strong>:</p>
@@ -31065,8 +30954,8 @@ query(uri, projection, "\${MediaStore.Images.Media.DISPLAY_NAME} = ?", arrayOf(i
       'Triển khai được Explicit Intent trong XML/View truyền thống và Jetpack Compose.',
       'Thiết kế được mô hình điều hướng chuẩn MVVM sử dụng Event-driven navigation.'
     ],
-    knowledgeGap: 'Nếu không hiểu Explicit Intent, lập trình viên có thể gọi Context sai cách từ Jetpack Compose, vi phạm Clean Architecture bằng cách đưa Context vào ViewModel, hoặc nhầm lẫn giữa Explicit và Implicit Intent gây lỗi bảo mật hoặc crash khi gọi ứng dụng bên ngoài.',
-    updatedAt: '2026-11-07',
+    knowledgeGap: 'Nếu không hiểu Explicit Intent, lập trình viên có thể gọi Context sai cách từ Jetpack Compose, đưa Context vào ViewModel để gọi startActivity (trái khuyến nghị kiến trúc của Android: ViewModel không giữ Context), hoặc nhầm lẫn giữa Explicit và Implicit Intent gây lỗi bảo mật hoặc crash khi gọi ứng dụng bên ngoài.',
+    updatedAt: '2026-11-09',
     readTime: '10 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -36752,16 +36641,16 @@ for (task in tasks) {
 
 <h3>Vị trí trong Clean Architecture</h3>
 
-<p>Trong mô hình kiến trúc chuẩn của Android (Guide to App Architecture):</p>
+<p>Theo Clean Architecture, app chia ba tầng và mọi phụ thuộc trong code hướng vào tầng Domain (<a href="../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>, mục "Dependency rule và đảo chiều phụ thuộc tại ranh giới"). Guide to app architecture của Google cũng chia ba tầng nhưng cho phép UseCase gọi thẳng Repository của tầng data; khác biệt nằm ở mục "So sánh với các cách tiếp cận khác" của bài đó.</p>
 
 <ul>
   <li><strong>Tầng UI (UI Layer):</strong> Bao gồm Composable functions hoặc Activities/Fragments kết hợp với <code>ViewModel</code>. UI không bao giờ biết đến sự tồn tại của Room. UI chỉ hiển thị dữ liệu nhận được từ StateFlow.</li>
-  <li><strong>Tầng Domain (Domain Layer - UseCases):</strong> Chứa các luật nghiệp vụ (Business Rules). Ví dụ: <code>GetPendingTasksUseCase</code>, <code>CreateTaskUseCase</code>.</li>
+  <li><strong>Tầng Domain (Domain Layer - UseCases):</strong> Chứa các luật nghiệp vụ (Business Rules), ví dụ <code>GetPendingTasksUseCase</code>, <code>CreateTaskUseCase</code>, và <strong>interface</strong> <code>TaskRepository</code> mà use case cần. Domain không import Room hay Retrofit.</li>
   <li><strong>Tầng Dữ Liệu (Data Layer):</strong>
 <ul>
   <li><strong>Local Data Source:</strong> Chính là Room Database (<code>TaskDao</code>).</li>
   <li><strong>Remote Data Source:</strong> Retrofit / Ktor Client.</li>
-  <li><strong>Repository (<code>TaskRepositoryImpl</code>):</strong> Đứng làm nhạc trưởng điều phối. Repository quyết định khi nào đọc từ Room, khi nào gọi API lên Remote và khi nào kích hoạt tiến trình đồng bộ dữ liệu.</li>
+  <li><strong>Repository (<code>TaskRepositoryImpl</code>):</strong> hiện thực interface <code>TaskRepository</code> của tầng Domain, và đứng làm nhạc trưởng điều phối. Repository quyết định khi nào đọc từ Room, khi nào gọi API lên Remote và khi nào kích hoạt tiến trình đồng bộ dữ liệu.</li>
 </ul></li>
 </ul>
 
@@ -36774,6 +36663,7 @@ graph TD
 
     subgraph Domain_Layer["Tầng Nghiệp Vụ (Domain Layer)"]
         UseCase[GetTasksUseCase / SyncUseCase]
+        RepoApi["TaskRepository (interface)"]
     end
 
     subgraph Data_Layer["Tầng Dữ Liệu (Data Layer)"]
@@ -36787,7 +36677,8 @@ graph TD
 
     Screen --&gt;|Collect State| VM
     VM --&gt;|Gọi nghiệp vụ| UseCase
-    UseCase --&gt;|Yêu cầu dữ liệu| Repo
+    UseCase --&gt;|Yêu cầu dữ liệu| RepoApi
+    Repo -.-&gt;|hiện thực| RepoApi
     Repo --&gt;|1. Quan sát Flow / Ghi Local| LocalDS
     Repo --&gt;|2. Đồng bộ mạng| RemoteDS
     LocalDS --&gt; Room
@@ -41263,10 +41154,12 @@ fun addItem(item: String) {
 [ Domain Layer (UseCases) ]
        | (Thực thi Business Logic - Luôn là Thread-Safe)
        v
-[ Data Layer (Repository / DataSource) ]
+[ Data Layer (RepositoryImpl / DataSource) ]   &lt;- hiện thực interface Repository của Domain
        | (CHỦ ĐỘNG chuyển sang BACKGROUND THREAD: I/O Pool hoặc Dispatchers.IO)
        v
 [ SQLite Database / Remote Network ]</code></pre>
+
+<p>Mũi tên trong sơ đồ là <strong>chiều gọi lúc chạy</strong>. Chiều phụ thuộc trong code thì đảo lại ở ranh giới Domain–Data: Domain chỉ khai báo interface <code>Repository</code>, tầng Data hiện thực nó, nên Domain không phụ thuộc Data (<a href="../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>, mục "Dependency rule và đảo chiều phụ thuộc tại ranh giới").</p>
 
 <p><strong>Nguyên tắc "Main-Safety":</strong> Một Repository hoặc UseCase chuẩn mực phải <strong>Main-Safe</strong>. Nghĩa là bất kể ai gọi nó từ Main Thread, nó phải tự chịu trách nhiệm chuyển sang Background Thread để xử lý và trả kết quả về an toàn mà không làm treo UI của người gọi.</p>
 
@@ -42394,12 +42287,12 @@ class ConnectivityManagerNetworkMonitor(
 
 <h3>Tích hợp Clean Architecture: End-to-End E-Commerce Example</h3>
 
-<p>Hãy xâu chuỗi các thành phần đã học vào một kiến trúc hoàn chỉnh theo chuẩn <strong>Clean Architecture</strong> (Retrofit chỉ dùng một interface <code>@GET</code>, xem mục "Thư viện tầng mạng" ở trên): <code>UI (Compose) -&gt; ViewModel -&gt; UseCase -&gt; Repository (SSOT) -&gt; RemoteDataSource (Retrofit) &amp; LocalDataSource (Room)</code>.</p>
+<p>Hãy xâu chuỗi các thành phần đã học vào một kiến trúc hoàn chỉnh theo chuẩn <strong>Clean Architecture</strong> (Retrofit chỉ dùng một interface <code>@GET</code>, xem mục "Thư viện tầng mạng" ở trên): <code>UI (Compose) -&gt; ViewModel -&gt; UseCase -&gt; ProductRepository (interface ở Domain) &lt;- ProductRepositoryImpl (SSOT, ở Data) -&gt; RemoteDataSource (Retrofit) &amp; LocalDataSource (Room)</code>. Use case chỉ biết interface; phần hiện thực ở tầng Data trỏ ngược vào interface đó, đúng dependency rule ở <a href="../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>.</p>
 
 <p>Mô hình ở đây là <strong>Single Source of Truth (SSOT)</strong>: UI chỉ quan sát Room Database qua <code>Flow</code>, không bao giờ đọc thẳng kết quả API. Repository đồng bộ API khi có mạng và ghi kết quả vào Room; Flow của DAO tự phát dữ liệu mới lên UI.</p>
 
 <div class="mermaid">
-graph LR
+graph TD
     subgraph PresentationLayer ["Tầng Giao Diện"]
         UI["Compose Screen"]
         VM["ProductViewModel"]
@@ -42407,6 +42300,7 @@ graph LR
 
     subgraph DomainLayer ["Tầng Nghiệp Vụ"]
         UC["GetProductsUseCase"]
+        RepoApi["ProductRepository (interface)"]
     end
 
     subgraph DataLayer ["Tầng Dữ Liệu"]
@@ -42418,7 +42312,8 @@ graph LR
 
     UI --&gt; VM
     VM --&gt; UC
-    UC --&gt; Repo
+    UC --&gt; RepoApi
+    Repo -.-&gt;|hiện thực| RepoApi
     Repo --&gt; Local
     Repo --&gt; Remote
     Repo --&gt; NetMon
