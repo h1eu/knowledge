@@ -7,7 +7,7 @@ difficulty: intermediate
 depth: standard
 estimated_reading_time: 12 phút
 tags: [android, dependency-injection, kodein, kotlin-multiplatform]
-prerequisites: [android.jetpack.viewmodel, android.languages.kotlin]
+prerequisites: [android.design_pattern.di.overview, android.jetpack.viewmodel, android.languages.kotlin]
 related: [android.architecture.mvvm, android.data_store.room_architecture]
 learning_outcomes:
   - Giải thích được cách Kodein-DI giữ binding trong container DI và trả instance khi được hỏi bằng instance(), và khác biệt giữa binding provider, singleton, factory, multiton.
@@ -128,9 +128,9 @@ Activity, Fragment do hệ thống tạo nên Kodein-DI không inject qua constr
 **Luồng chạy:**
 
 1. Lần đầu có nơi cần container, `PodcastApplication.di` (`DI.lazy`) được dựng với `androidXModule` và các module của app.
-2. `EpisodeListActivity` truy cập `viewModel`: `closestDI()` tìm tới container của `Application`.
-3. `by viewModel()` hỏi `ViewModelStore` của Activity: đã có thì trả luôn; chưa có thì gọi binding provider, `new(::EpisodeListViewModel)` lấy `PodcastRepository` từ container.
-4. Xoay màn hình: Activity mới, nhưng bước 3 trả lại ViewModel cũ trong store.
+2. `EpisodeListActivity.onCreate()` truy cập `viewModel` để gọi `load(podcastId)`: `closestDI()` tìm tới container của `Application`.
+3. `by viewModel()` hỏi `ViewModelStore` của Activity: đã có thì trả luôn; chưa có thì gọi binding provider, `new(::EpisodeListViewModel)` lấy `PodcastRepository` từ container. `load()` gọi API và ghi nhớ `podcastId` đã tải.
+4. Xoay màn hình: Activity mới gọi lại `load()`, nhưng bước 3 trả lại ViewModel cũ trong store, đã tải đúng `podcastId` này nên không gọi lại API.
 
 ```mermaid
 sequenceDiagram
@@ -146,6 +146,7 @@ sequenceDiagram
         DI-->>S: ViewModel(repository = instance())
     end
     S-->>A: (4) cùng instance sau xoay màn hình
+    A->>A: (4) load(podcastId): đã tải thì bỏ qua
 ```
 
 ```kotlin
@@ -163,19 +164,30 @@ class PodcastApplication : Application(), DIAware {
 class EpisodeListViewModel(private val repository: PodcastRepository) : ViewModel() {
     private val _episodes = MutableStateFlow<List<Episode>>(emptyList())
     val episodes: StateFlow<List<Episode>> = _episodes.asStateFlow()
-    fun load(podcastId: String) = viewModelScope.launch { _episodes.value = repository.episodes(podcastId) }
+    private var loadedFor: String? = null
+
+    fun load(podcastId: String) {
+        if (podcastId == loadedFor) return                                        // (4) đã tải: không gọi lại API
+        loadedFor = podcastId
+        viewModelScope.launch { _episodes.value = repository.episodes(podcastId) } // (3)
+    }
 }
 
 // EpisodeListActivity.kt
 class EpisodeListActivity : AppCompatActivity(), DIAware {
     override val di by closestDI()                                                // (2)
     private val viewModel: EpisodeListViewModel by viewModel()                    // (3)(4)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.load(checkNotNull(intent.getStringExtra("podcast_id")))         // (2) mỗi onCreate đều gọi
+    }
 }
 ```
 
 `StateFlow` học ở [Flow](../observer/flow.md); `viewModelScope` ở [ViewModel](../../../session_06/viewmodel.md).
 
-**Kết quả:** mở màn danh sách, xoay màn hình: danh sách giữ nguyên, không gọi lại API, vì ViewModel được lấy lại từ store. Unit test tạo `EpisodeListViewModel(FakePodcastRepository())` trực tiếp, không cần Kodein-DI, vì ViewModel nhận dependency qua constructor.
+**Kết quả:** mở màn danh sách, xoay màn hình: danh sách giữ nguyên, không gọi lại API, vì ViewModel được lấy lại từ store và `load()` bỏ qua `podcastId` đã tải. Unit test tạo `EpisodeListViewModel(FakePodcastRepository())` trực tiếp, không cần Kodein-DI, vì ViewModel nhận dependency qua constructor.
 
 Trên Kotlin Multiplatform, binding đặt trong `commonMain` như mọi code Kotlin khác; phần riêng từng nền tảng (driver database, vị trí) đặt trong module ở `androidMain`, `iosMain` rồi `import` vào container.
 
@@ -242,13 +254,19 @@ class PodcastApplication : Application() {
 // EpisodeListActivity.kt: không còn DIAware                                    (2)
 class EpisodeListActivity : AppCompatActivity() {
     private val viewModel: EpisodeListViewModel by viewModel()   // org.koin.androidx.viewmodel.ext.android
+    // onCreate() gọi viewModel.load(...) như cũ
 }
 
 // src/test/.../KoinConfigurationTest.kt                                        (4)
 class KoinConfigurationTest {
-    @Test fun podcastModule_isComplete() = podcastModule.verify()
+    @Test
+    fun podcastModule_isComplete() {
+        podcastModule.verify(extraTypes = listOf(HttpClientEngine::class))
+    }
 }
 ```
+
+`verify()` chỉ đọc constructor public của kiểu mà mỗi definition khai báo, không đọc thân lambda (xem [Koin](koin.md), mục "Kiểm tra cấu hình trước khi chạy"): `HttpClient` dựng bằng builder, nhưng constructor của nó cần `HttpClientEngine`, nên thiếu `extraTypes` thì test báo thiếu sai.
 
 `EpisodeListViewModel` và `RemotePodcastRepository` không đổi một dòng nào, vì chúng đã nhận dependency qua constructor; đây là lợi ích của việc dùng injection thay cho retrieval ngay từ đầu. Ở JVM, `ConcurrentHashMap` đủ cho `EpisodeDownloads`; code `commonMain` của Kotlin Multiplatform cần một map có khoá đồng bộ thay thế.
 
@@ -282,7 +300,7 @@ Hai thư viện cùng dựa trên ý tưởng container tra cứu lúc chạy v�
 bindSingleton { new(::EpisodeListViewModel) }    // Sai
 ```
 
-**Lỗi lộ ra thế nào:** mở danh sách tập của podcast A, quay lại, mở podcast B: màn mới vẫn hiện danh sách của A và không tải gì thêm. Mọi `ViewModelStore` nhận cùng một instance; khi màn A đóng, store của nó gọi `onCleared()` và huỷ `viewModelScope` của chính instance đó, nên `load()` ở màn B chạy trong một scope đã bị huỷ.
+**Lỗi lộ ra thế nào:** mở danh sách tập của podcast A, quay lại, mở podcast B: màn mới vẫn hiện danh sách của A và không tải gì thêm. Mọi `ViewModelStore` nhận cùng một instance; khi màn A đóng, store của nó gọi `onCleared()` và huỷ `viewModelScope` của chính instance đó, nên `load("B")` ở màn B khởi chạy coroutine trong một scope đã bị huỷ: coroutine không chạy, `episodes` vẫn giữ danh sách của A.
 
 **Cách sửa:** ViewModel luôn khai báo bằng `bindProvider` (hoặc `bindFactory` khi cần `SavedStateHandle`); `by viewModel()` mới là bên quyết định giữ instance trong store.
 
@@ -324,10 +342,10 @@ class PodcastApplication : Application(), DIAware {
 ## Lịch sử phát triển
 
 - **2015:** Salomon Brys tạo Kodein, một trong những thư viện DI đầu tiên viết riêng cho Kotlin, với lý do Dagger quá dài dòng cho code Kotlin.
-- **2018:** Koin ra đời như đối thủ trực tiếp, cũng dùng DSL Kotlin; theo chính tác giả Kodein, tới 2020 Koin đã chiếm ưu thế về số người dùng.
-- **Kodein-DI 7.0:** hệ thống kiểu mới dùng `typeOf()` nên phân biệt được kiểu generic trên mọi nền tảng; các class đổi tên từ `Kodein` sang `DI` (`KodeinAware` → `DIAware`, `closestKodein()` → `closestDI()`); các artifact `-erased`, `-generic-jvm` gộp thành một `kodein-di`.
+- **2017:** Koin ra đời như đối thủ trực tiếp, cũng dùng DSL Kotlin; theo chính tác giả Kodein, tới 2020 Koin đã chiếm ưu thế về số người dùng.
+- **05/2020 (Kodein-DI 7.0):** hệ thống kiểu mới dùng `typeOf()` nên phân biệt được kiểu generic trên mọi nền tảng; các class đổi tên từ `Kodein` sang `DI` (`KodeinAware` → `DIAware`, `closestKodein()` → `closestDI()`); các artifact `-erased`, `-generic-jvm` gộp thành một `kodein-di`.
 - **12/2022 (7.17):** chỉ còn hỗ trợ backend JS-IR, theo Kotlin 1.8.
-- **12/2024 (7.23):** chuyển sang Kotlin 2.0, JDK tối thiểu 17.
+- **05/2024 (7.22.0):** chuyển sang Kotlin 2.0.
 - **07/2026 (7.33.0):** bản phát hành mới nhất.
 - **11/2026:** Kodein-DI vào chế độ bảo trì; nhóm Kodein Koders chuyển sang Inara (DI sinh code lúc compile cho Kotlin Multiplatform) và khuyên chuyển sang Koin.
 
@@ -335,7 +353,7 @@ class PodcastApplication : Application(), DIAware {
 
 - **Tiên quyết:**
   - [Dependency Injection Overview](overview.md): DI, Service Locator, container, scope.
-  - [Kotlin](../../../session_01/languages/kotlin.md): lambda with receiver, delegate (`by`), nền của DSL và `by instance()`.
+  - [Kotlin](../../../session_01/languages/kotlin.md): lambda và `by lazy`. Lambda with receiver (nền của DSL) và property delegate (nền của `by instance()`): chưa có bài.
   - [ViewModel](../../../session_06/viewmodel.md): `ViewModelStore`, lý do ViewModel phải khai báo bằng provider.
 - **Liên quan:**
   - [Koin](koin.md): thư viện thay thế được khuyên dùng, cùng mô hình container lúc chạy.
@@ -347,7 +365,7 @@ class PodcastApplication : Application(), DIAware {
 ## Tham khảo
 
 - [Kodein-DI README (thông báo chế độ bảo trì) - GitHub](https://github.com/kosi-libs/Kodein)
-- [Getting started with Kodein-DI - Kodein docs](https://kosi-libs.org/kodein/7.31/getting-started.html)
+- [Getting started with Kodein-DI - Kodein docs](https://kosi-libs.org/kodein/7.31/getting-started.html) (docs bản 7.31, bản docs mới nhất đang được đăng; thư viện đã tới 7.33.0)
 - [Bindings: Declaring dependencies - Kodein docs](https://kosi-libs.org/kodein/7.31/core/bindings.html)
 - [Dependency injection & retrieval - Kodein docs](https://kosi-libs.org/kodein/7.31/core/injection-retrieval.html)
 - [Kodein-DI on Android - Kodein docs](https://kosi-libs.org/kodein/7.31/framework/android.html)

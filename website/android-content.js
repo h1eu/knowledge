@@ -23276,116 +23276,35 @@ WorkManager.getInstance(context)
 
 <p>Google Play Services và Firebase là SDK bên ngoài, nên nằm ở <strong>Data Layer</strong>, bên trong các <code>*DataSource</code>: một DataSource cho Firebase (FCM, Auth, Firestore, Crashlytics, Analytics), một cho API của GMS (Location, Maps).</p>
 
-<div class="dd-diagram" data-dd="gg-arch">
-<div class="dd-svg dd-svg-dark">
-<svg viewBox="0 0 800 644" role="img" aria-labelledby="gg-arch-dark-title gg-arch-dark-desc" font-family="'Geist', sans-serif">
-<title id="gg-arch-dark-title">Firebase trong Clean Architecture</title>
-<desc id="gg-arch-dark-desc">Activity quan sát ViewModel gọi UseCase tới interface, interface vào Repository rồi tới Firebase và GoogleApi data source.</desc>
-<defs>
-<marker id="gg-arch-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
-</marker>
-</defs>
-<rect width="800" height="644" fill="#060913"/>
-<!-- arrows -->
-<path d="M 400,92 V 132" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<rect x="412" y="102" width="64" height="12" rx="2" fill="#060913"/>
-<text x="444" y="111" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OBSERVE</text>
-<path d="M 400,192 V 232" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<path d="M 400,292 V 332" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<path d="M 400,392 V 432" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<path d="M 340,476 V 500 H 268 Q 260,500 260,508 V 532" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<path d="M 460,476 V 500 H 532 Q 540,500 540,508 V 532" fill="none" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="66" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="166" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="266" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">UseCase</text>
-<rect x="280" y="332" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="332" width="240" height="60" rx="6" fill="rgba(56,189,248,0.12)" stroke="#38BDF8" stroke-width="1.2"/>
-<rect x="288" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(56,189,248,0.40)" stroke-width="0.8"/>
-<text x="314" y="347" fill="rgba(56,189,248,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PORTS</text>
-<text x="400" y="370" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Repository Interfaces</text>
-<rect x="280" y="432" width="240" height="60" rx="6" fill="#060913"/>
-<rect x="280" y="432" width="240" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="400" y="466" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
-<rect x="160" y="532" width="220" height="60" rx="6" fill="#060913"/>
-<rect x="160" y="532" width="220" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="270" y="566" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">FirebaseDataSource</text>
-<text x="270" y="584" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fcm · auth · firestore</text>
-<rect x="420" y="532" width="220" height="60" rx="6" fill="#060913"/>
-<rect x="420" y="532" width="220" height="60" rx="6" fill="#0B132B" stroke="#F8FAFC" stroke-width="1"/>
-<text x="530" y="566" fill="#F8FAFC" font-size="12" font-weight="600" text-anchor="middle">GoogleApiDataSource</text>
-<text x="530" y="584" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">location · maps</text>
-<!-- legend -->
-<line x1="32" y1="616" x2="768" y2="616" stroke="rgba(248,250,252,0.12)" stroke-width="0.8"/>
-<text x="32" y="632" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="628" r="4" fill="#38BDF8"/>
-<text x="162" y="632" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">CỔNG ĐẢO NGƯỢC · PORTS</text>
-<line x1="430" y1="628" x2="462" y2="628" stroke="#94A3B8" stroke-width="1.2" marker-end="url(#gg-arch-dark-arrow)"/>
-<text x="470" y="632" fill="#94A3B8" font-size="8" font-family="'JetBrains Mono', monospace">GỌI XUỐNG · RẼ HAI NGẢ</text>
-</svg>
+<div class="mermaid">
+flowchart LR
+    subgraph UI["Presentation Layer"]
+        A[Activity / Compose]
+        VM[ViewModel]
+    end
+    subgraph Domain["Domain Layer"]
+        UC[UseCase]
+        IF["Interface:&lt;br/&gt;NotificationRepository&lt;br/&gt;AuthRepository"]
+    end
+    subgraph Data["Data Layer"]
+        REPO[RepositoryImpl]
+        FB["FirebaseDataSource:&lt;br/&gt;FCM, Auth, Firestore,&lt;br/&gt;Crashlytics, Analytics"]
+        GMS["GoogleApiDataSource:&lt;br/&gt;Location, Maps"]
+    end
+
+    A -- observe --&gt; VM
+    VM --&gt; UC
+    UC --&gt; IF
+    REPO -.-&gt;|hiện thực| IF
+    REPO --&gt; FB
+    REPO --&gt; GMS
+
+    style IF fill:#7E57C2,stroke:#4527A0,color:#fff
+    style FB fill:#FFA000,stroke:#E65100,color:#fff
+    style GMS fill:#2196F3,stroke:#1565C0,color:#fff
 </div>
-<div class="dd-svg dd-svg-light">
-<svg viewBox="0 0 800 644" role="img" aria-labelledby="gg-arch-title gg-arch-desc" font-family="'Geist', sans-serif">
-<title id="gg-arch-title">Firebase trong Clean Architecture</title>
-<desc id="gg-arch-desc">Activity quan sát ViewModel gọi UseCase tới interface, interface vào Repository rồi tới Firebase và GoogleApi data source.</desc>
-<defs>
-<marker id="gg-arch-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-<polygon points="0 0, 8 3, 0 6" fill="#64748B"/>
-</marker>
-</defs>
-<rect width="800" height="644" fill="#F8FAFC"/>
-<!-- arrows -->
-<path d="M 400,92 V 132" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<rect x="412" y="102" width="64" height="12" rx="2" fill="#F8FAFC"/>
-<text x="444" y="111" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OBSERVE</text>
-<path d="M 400,192 V 232" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<path d="M 400,292 V 332" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<path d="M 400,392 V 432" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<path d="M 340,476 V 500 H 268 Q 260,500 260,508 V 532" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<path d="M 460,476 V 500 H 532 Q 540,500 540,508 V 532" fill="none" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<!-- nodes -->
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="32" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="66" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Activity · Fragment</text>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="132" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="166" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">ViewModel</text>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="232" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="266" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">UseCase</text>
-<rect x="280" y="332" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="332" width="240" height="60" rx="6" fill="rgba(2,132,199,0.08)" stroke="#0284C7" stroke-width="1.2"/>
-<rect x="288" y="338" width="52" height="12" rx="2" fill="transparent" stroke="rgba(2,132,199,0.40)" stroke-width="0.8"/>
-<text x="314" y="347" fill="rgba(2,132,199,0.8)" font-size="7" font-family="'JetBrains Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PORTS</text>
-<text x="400" y="370" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Repository Interfaces</text>
-<rect x="280" y="432" width="240" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="280" y="432" width="240" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="400" y="466" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">Repository</text>
-<rect x="160" y="532" width="220" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="160" y="532" width="220" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="270" y="566" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">FirebaseDataSource</text>
-<text x="270" y="584" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">fcm · auth · firestore</text>
-<rect x="420" y="532" width="220" height="60" rx="6" fill="#F8FAFC"/>
-<rect x="420" y="532" width="220" height="60" rx="6" fill="#FFFFFF" stroke="#0F172A" stroke-width="1"/>
-<text x="530" y="566" fill="#0F172A" font-size="12" font-weight="600" text-anchor="middle">GoogleApiDataSource</text>
-<text x="530" y="584" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">location · maps</text>
-<!-- legend -->
-<line x1="32" y1="616" x2="768" y2="616" stroke="rgba(15,23,42,0.12)" stroke-width="0.8"/>
-<text x="32" y="632" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
-<circle cx="150" cy="628" r="4" fill="#0284C7"/>
-<text x="162" y="632" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">CỔNG ĐẢO NGƯỢC · PORTS</text>
-<line x1="430" y1="628" x2="462" y2="628" stroke="#64748B" stroke-width="1.2" marker-end="url(#gg-arch-arrow)"/>
-<text x="470" y="632" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">GỌI XUỐNG · RẼ HAI NGẢ</text>
-</svg>
-</div>
-</div>
+
+<p>UseCase chỉ gọi interface ở Domain; <code>RepositoryImpl</code> ở Data hiện thực interface đó (mũi tên nét đứt), nên Domain không phụ thuộc Firebase hay GMS.</p>
 
 <p><strong>Riêng với Google Service:</strong></p>
 
@@ -49384,7 +49303,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
 <p>Thao tác đi lên bằng <strong>lời gọi hàm</strong> của ViewModel. Tên hàm nói về việc người dùng làm (<code>onBookmarkClick(articleId)</code>), không nói về View (<code>onStarImageViewClicked()</code>), để cùng ViewModel dùng được cho mọi kiểu UI.</p>
 
-<p>Khó hơn là những thứ chỉ xảy ra <strong>một lần</strong>: hiện Snackbar "Đã lưu", điều hướng sang màn kế tiếp sau khi đăng nhập. Gửi chúng qua một kênh event riêng (<code>SharedFlow</code>, <code>Channel</code>, <code>SingleLiveEvent</code>) có thể làm event bị mất khi không có ai đang quan sát (ví dụ đúng lúc xoay màn hình), hoặc bị phát lại. Docs khuyên <strong>không gửi event từ ViewModel sang UI</strong>: xử lý event ngay trong ViewModel và đưa kết quả vào state. Cách làm:</p>
+<p>Khó hơn là những thứ chỉ xảy ra <strong>một lần</strong>: hiện Snackbar "Đã lưu", điều hướng sang màn kế tiếp sau khi đăng nhập. Gửi chúng qua một kênh event riêng (<code>SharedFlow</code>, <code>Channel</code>, <code>SingleLiveEvent</code>) không bảo đảm event được xử lý: <code>SharedFlow</code> không replay làm mất event phát ra lúc không có ai đang collect (ví dụ đúng lúc xoay màn hình), còn <code>Channel</code> giữ event tới khi có người nhận nhưng event vẫn mất nếu được nhận đúng lúc coroutine collect bị huỷ. Docs khuyên <strong>không gửi event từ ViewModel sang UI</strong>: xử lý event ngay trong ViewModel và đưa kết quả vào state. Cách làm:</p>
 
 <ol>
   <li>ViewModel đưa kết quả vào <code>uiState</code>, ví dụ <code>userMessage = "Đã lưu bài"</code> hoặc <code>isLoggedIn = true</code>.</li>
@@ -49400,7 +49319,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
 <ul>
   <li><strong>Data layer</strong> (bắt buộc): Repository đưa dữ liệu của app ra cho phần còn lại, giấu việc dữ liệu đến từ Room, mạng hay DataStore. Docs khuyên tạo Repository kể cả khi chỉ có một nguồn, và <strong>ViewModel không gọi thẳng data source</strong> (DAO, Retrofit service). Repository và nguồn sự thật đã gặp ở <a href="../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, mục "Single Source of Truth (SSOT) và Offline-first" và <a href="../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>.</li>
-  <li><strong>Domain layer</strong> (tuỳ chọn, khuyên dùng cho app lớn): các use case gom logic nghiệp vụ dùng lại ở nhiều ViewModel, ví dụ <code>GetVisibleArticlesUseCase</code>. Cách chia lớp này là chủ đề của <a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>.</li>
+  <li><strong>Domain layer</strong> (tuỳ chọn, khuyên dùng cho app lớn): các use case gom logic nghiệp vụ dùng lại ở nhiều ViewModel, ví dụ <code>GetVisibleArticlesUseCase</code>. Domain layer của Google phụ thuộc data layer (use case gọi class Repository ở data layer); Clean Architecture đảo chiều này, đặt interface Repository ở domain để data layer hiện thực nó, xem <a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>, mục "So sánh với các cách tiếp cận khác".</li>
 </ul>
 
 <p>ViewModel giữ <strong>logic UI</strong> (dữ liệu nào hiện, định dạng ra sao, trạng thái tải) và gọi Model cho <strong>logic nghiệp vụ</strong> (quy tắc của sản phẩm, đọc ghi dữ liệu). Ranh giới này không cứng: app nhỏ có thể để quy tắc lọc trong ViewModel như ví dụ trên, rồi chuyển xuống use case khi nhiều màn cùng cần.</p>
@@ -49592,10 +49511,16 @@ class LoginViewModelTest {
   </thead>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">MVC</td>
-      <td style="padding:8px 12px;">Controller</td>
-      <td style="padding:8px 12px;">Có; trên Android, Activity thường vừa là View vừa là Controller</td>
-      <td style="padding:8px 12px;">Controller gán thẳng vào View</td>
+      <td style="padding:8px 12px;font-weight:600;">MVC gốc</td>
+      <td style="padding:8px 12px;">Controller (chỉ xử lý input)</td>
+      <td style="padding:8px 12px;">Có, đi cặp với một View</td>
+      <td style="padding:8px 12px;">View quan sát Model và tự vẽ lại</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">MVC kiểu Android</td>
+      <td style="padding:8px 12px;">Activity / Fragment</td>
+      <td style="padding:8px 12px;">Nó <strong>chính là</strong> View</td>
+      <td style="padding:8px 12px;">Activity gán thẳng dữ liệu vào widget</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">MVP</td>
@@ -49613,7 +49538,7 @@ class LoginViewModelTest {
       <td style="padding:8px 12px;font-weight:600;">MVI</td>
       <td style="padding:8px 12px;">ViewModel / Store, reducer</td>
       <td style="padding:8px 12px;">Không</td>
-      <td style="padding:8px 12px;">Như MVVM, nhưng mọi thao tác thành <code>Intent</code> đi qua một reducer duy nhất, state bất biến</td>
+      <td style="padding:8px 12px;">Như MVVM, nhưng mọi thay đổi (Intent và kết quả side effect) đi qua một reducer duy nhất, state bất biến</td>
     </tr>
   </tbody>
 </table>
@@ -49718,7 +49643,7 @@ class ArticleListViewModel(private val api: ArticleApi, private val dao: Article
 <ul>
   <li><a href="../design_pattern/observer/overview.md" target="_blank" rel="noopener">Observer Pattern Overview</a> và <a href="../design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>: cơ chế quan sát và <code>StateFlow</code>.</li>
   <li><a href="mvc.md" target="_blank" rel="noopener">MVC</a>, <a href="mvp.md" target="_blank" rel="noopener">MVP</a>, <a href="mvi.md" target="_blank" rel="noopener">MVI</a>: các pattern đứng trước và sau MVVM.</li>
-  <li><a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: chia Model thành data layer và domain layer.</li>
+  <li><a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: đặt nghiệp vụ ở giữa, data layer phụ thuộc domain qua interface.</li>
   <li><a href="../design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>: cung cấp Repository cho ViewModel.</li>
 </ul></li>
 </ul>
@@ -49758,7 +49683,7 @@ Object.assign(ANDROID_CONTENT, {
       'Áp dụng được thứ tự học đề xuất của Session 07 dựa trên phụ thuộc giữa các Topic.'
     ],
     knowledgeGap: 'Học pattern và kiến trúc như danh sách tên gọi khiến người học dùng sai chỗ: Singleton giữ Context gây leak, chọn thư viện DI mà không hiểu DI là gì, hoặc gắn nhãn "MVVM/Clean Architecture" cho code vẫn để Fragment gọi API.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '8 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -49808,7 +49733,7 @@ flowchart LR
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><a href="design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">7.1.2 ViewHolder Pattern</a></td>
-      <td style="padding:8px 12px;">Danh sách hàng nghìn dòng cuộn mượt thế nào khi chỉ có vài chục View?</td>
+      <td style="padding:8px 12px;">Danh sách hàng nghìn dòng cuộn mượt thế nào khi chỉ tạo đủ ViewHolder cho phần đang nhìn thấy?</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><a href="design_pattern/singleton_pattern.md" target="_blank" rel="noopener">7.1.3 Singleton Pattern</a></td>
@@ -49895,7 +49820,7 @@ flowchart TB
     SGL[7.1.3 Singleton] -.-&gt;|"thường được thay bằng scope của DI"| DI
     ARCH[7.2 Architecture&lt;br/&gt;MVC → MVP → MVVM → MVI] --&gt;|"tầng UI nằm trong"| CLEAN[7.2.5 Clean Architecture]
     VH[7.1.2 ViewHolder] --&gt;|"View hiển thị danh sách"| ARCH
-    BLD[7.1.1 Builder] -.-&gt;|"cấu hình thư viện: Room, Retrofit, Notification"| CLEAN
+    BLD[7.1.1 Builder] -.-&gt;|"cấu hình object dùng chung: Room, OkHttp"| SGL
 </div>
 
 <ol>
@@ -49911,7 +49836,7 @@ flowchart TB
   <li><a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a> và <a href="../session_06/livedata.md" target="_blank" rel="noopener">LiveData</a>: MVVM, Observer và DI đều xoay quanh chúng.</li>
   <li><a href="../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>: ViewHolder và các ví dụ UI dùng binding.</li>
   <li><a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a> và <a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>: tầng data mà Clean Architecture và DI tổ chức.</li>
-  <li><a href="../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a>: <code>object</code>, <code>lazy</code>, named arguments, lambda with receiver, nền của Singleton, Builder và các DSL của Koin/Kodein.</li>
+  <li><a href="../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a>: Java gọi Kotlin (<code>companion object</code>, tham số mặc định, <code>@JvmOverloads</code>), <code>data class</code> và chi phí của <code>by lazy</code>, nền của Singleton và Builder. Object declaration, named arguments và lambda có receiver được giải thích ngắn trong bài Singleton và Builder khi cần.</li>
 </ul>
 
 <h2>Sau khi học xong Session 07, bạn làm được gì?</h2>
@@ -49933,7 +49858,7 @@ flowchart LR
 </div>
 
 <ol>
-  <li><strong>Pattern cục bộ trước:</strong> Builder, ViewHolder, Singleton đứng độc lập và quen thuộc nhất.</li>
+  <li><strong>Pattern cục bộ trước:</strong> Builder, ViewHolder, Singleton quen thuộc nhất và gần như không cần bài khác trong session; vài ví dụ của chúng dùng tối thiểu Flow và Hilt dưới dạng "kiến thức dùng trước", học đầy đủ ở các bước sau.</li>
   <li><strong>Observer trước kiến trúc:</strong> MVVM và MVI dựa vào việc View quan sát state. Trong nhóm Observer, học Flow ngay sau bài tổng quan vì code hiện nay dùng nó nhiều nhất.</li>
   <li><strong>MVC → MVP → MVVM → MVI theo thứ tự lịch sử:</strong> mỗi pattern dễ hiểu hơn khi đã thấy vấn đề của pattern trước.</li>
   <li><strong>DI trước Clean Architecture:</strong> Clean Architecture cần DI để nối các tầng mà không để tầng trong biết tầng ngoài. Trong nhóm DI, học Hilt ngay sau bài tổng quan vì đó là lựa chọn được khuyên dùng cho Android.</li>
@@ -50047,7 +49972,7 @@ val request = UploadRequest(url, file, null, 30, 3, true, false) // true, false 
 
 <div class="mermaid">
 sequenceDiagram
-    participant S as ProductDetailScreen
+    participant S as ProductDetailFragment
     participant B as ImageRequest.Builder
     participant R as ImageRequest
     S-&gt;&gt;B: (1) Builder(url)
@@ -50175,15 +50100,15 @@ val request = ImageRequest.Builder(product.imageUrl)
 
 <h4>Ví dụ: thông báo tiến độ tải bản đồ ngoại tuyến</h4>
 
-<p><strong>Bài toán:</strong> app bản đồ cho tải vùng bản đồ để dùng ngoại tuyến; thông báo hiện thanh tiến độ và cập nhật khi tải, rồi đổi thành "Đã tải xong". Các mục như icon, tiêu đề, channel không đổi, chỉ tiến độ và nội dung đổi: đúng trường hợp giữ một builder và build lại.</p>
+<p><strong>Bài toán:</strong> app bản đồ cho tải vùng bản đồ để dùng ngoại tuyến; thông báo hiện thanh tiến độ khi tải, rồi đổi thành "Đã tải xong". Icon, tiêu đề, channel không đổi, chỉ tiến độ và nội dung đổi: đúng trường hợp giữ một builder và build lại.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li>Tạo <code>NotificationCompat.Builder</code> <strong>một lần</strong> với channel, icon, tiêu đề, <code>setOnlyAlertOnce(true)</code> để mỗi lần cập nhật không rung và kêu lại.</li>
-  <li>Mỗi lần có tiến độ: sửa builder bằng <code>setProgress()</code> và <code>setContentText()</code>.</li>
+  <li>Tạo <code>NotificationCompat.Builder</code> <strong>một lần</strong> với channel, icon, tiêu đề, và <code>setOnlyAlertOnce(true)</code> để các lần cập nhật không kêu lại.</li>
+  <li>Mỗi lần có tiến độ: nếu phần trăm chưa đổi hoặc chưa đủ 1 giây từ lần gửi trước thì bỏ qua, vì Android giới hạn tần suất cập nhật một thông báo và có thể bỏ bớt bản cập nhật gửi quá dày (<a href="https://developer.android.com/develop/ui/views/notifications/build-notification#Updating" target="_blank" rel="noopener">Update a notification</a>). Ngược lại, sửa builder bằng <code>setProgress()</code> và <code>setContentText()</code>.</li>
   <li><code>build()</code> ra <code>Notification</code> mới và <code>notify()</code> với <strong>cùng</strong> id, để hệ thống thay thông báo cũ thay vì thêm thông báo mới.</li>
-  <li>Tải xong: <code>setProgress(0, 0, false)</code> để bỏ thanh tiến độ, đổi nội dung, cho phép vuốt bỏ, rồi build và notify lần cuối.</li>
+  <li>Tải xong: luôn gửi, không qua bước giãn nhịp; <code>setProgress(0, 0, false)</code> bỏ thanh tiến độ, đổi nội dung, rồi build và notify lần cuối.</li>
 </ol>
 
 <div class="mermaid">
@@ -50195,12 +50120,16 @@ sequenceDiagram
     N-&gt;&gt;B: (1) tạo một lần: channel, icon, tiêu đề
     loop mỗi lần có tiến độ
         D-&gt;&gt;N: onProgress(percent)
-        N-&gt;&gt;B: (2) setProgress(), setContentText()
-        N-&gt;&gt;M: (3) notify(NOTIFICATION_ID, builder.build())
+        alt cùng phần trăm hoặc chưa đủ 1 giây
+            N--&gt;&gt;N: (2) bỏ qua
+        else
+            N-&gt;&gt;B: (2) setProgress(), setContentText()
+            N-&gt;&gt;M: (3) notify(NOTIFICATION_ID, builder.build())
+        end
     end
     D-&gt;&gt;N: onCompleted()
     N-&gt;&gt;B: (4) setProgress(0, 0, false), setOngoing(false)
-    N-&gt;&gt;M: notify(NOTIFICATION_ID, builder.build())
+    N-&gt;&gt;M: (4) notify(NOTIFICATION_ID, builder.build()), luôn gửi
 </div>
 
 <pre data-lang="kotlin"><code>// DownloadNotifier.kt
@@ -50214,7 +50143,14 @@ class DownloadNotifier(private val context: Context) {
         .setOnlyAlertOnce(true)
         .setOngoing(true)
 
+    private var lastPercent = -1
+    private var lastPostAt = 0L
+
     fun onProgress(percent: Int) {
+        val now = SystemClock.elapsedRealtime()
+        if (percent == lastPercent || now - lastPostAt &lt; MIN_UPDATE_INTERVAL_MS) return // (2) giãn nhịp
+        lastPercent = percent
+        lastPostAt = now
         builder.setProgress(100, percent, false)                                   // (2) sửa phiếu
             .setContentText("$percent%")
         show()
@@ -50224,7 +50160,7 @@ class DownloadNotifier(private val context: Context) {
         builder.setProgress(0, 0, false)                                           // (4) bỏ thanh tiến độ
             .setContentText("Đã tải xong, dùng được khi không có mạng")
             .setOngoing(false)
-        show()
+        show()                                                                     // (4) luôn gửi
     }
 
     private fun show() {
@@ -50238,20 +50174,21 @@ class DownloadNotifier(private val context: Context) {
     companion object {
         const val CHANNEL_DOWNLOADS = "downloads"   // channel đã được tạo lúc app khởi động
         const val NOTIFICATION_ID = 2001
+        const val MIN_UPDATE_INTERVAL_MS = 1_000L
     }
 }</code></pre>
 
-<p><code>MapDownloadWorker</code> là một worker của WorkManager gọi <code>onProgress()</code> khi tải; cách tạo channel và quyền thông báo nằm ở <a href="../../session_04/intent/pending_intent.md" target="_blank" rel="noopener">PendingIntent</a> và 8.5.5 Message (chưa có bài).</p>
+<p><code>MapDownloadWorker</code> là một worker của WorkManager gọi <code>onProgress()</code> khi tải. Cách tạo channel và xin quyền thông báo thuộc 8.5.5 Message (chưa có bài); <a href="../../session_04/intent/pending_intent.md" target="_blank" rel="noopener">PendingIntent</a> chỉ dùng thông báo làm chỗ gắn <code>PendingIntent</code>.</p>
 
-<p><strong>Kết quả:</strong> khi tải chỉ có một thông báo, thanh tiến độ chạy từ 0 tới 100% và điện thoại chỉ kêu ở lần đầu. Tải xong thì thanh tiến độ biến mất và thông báo vuốt bỏ được. Đổi <code>NOTIFICATION_ID</code> thành một số mới cho mỗi lần gọi thì khay thông báo đầy hàng chục thông báo tiến độ.</p>
+<p><strong>Kết quả:</strong> khi tải chỉ có một thông báo, thanh tiến độ nhích khoảng mỗi giây một lần tới 100% và điện thoại chỉ kêu ở lần đầu; tải xong luôn hiện "Đã tải xong". Bỏ bước giãn nhịp và <code>notify()</code> ở mỗi 1% trên mạng nhanh thì hệ thống có thể bỏ bớt bản cập nhật; bản bị bỏ là bản cuối thì thông báo kẹt ở trạng thái đang tải.</p>
 
 <h3>Kotlin: named/default arguments, <code>apply</code> và DSL builder</h3>
 
 <p>Phần lớn lý do builder tồn tại trong Java đã được Kotlin giải quyết ngay trong ngôn ngữ:</p>
 
 <ul>
-  <li><strong>Named arguments</strong> (tham số có tên): gọi <code>UploadRequest(url = url, file = file, wifiOnly = true)</code>. Đổi chỗ tham số không còn nguy hiểm vì mỗi giá trị đi kèm tên.</li>
-  <li><strong>Default arguments</strong> (tham số mặc định): một constructor duy nhất thay cho cả chục overload.</li>
+  <li><strong>Named arguments</strong> (tham số có tên): <code>UploadRequest(url, file, mimeType = null, timeoutSeconds = 30, retryCount = 3, wifiOnly = true, showProgress = false)</code>. Đổi chỗ tham số không còn nguy hiểm vì mỗi giá trị đi kèm tên.</li>
+  <li><strong>Default arguments</strong> (tham số mặc định): một constructor duy nhất thay cho cả chục overload. Khai báo <code>val timeoutSeconds: Int = 30</code> và tương tự cho các tuỳ chọn khác thì chỉ cần <code>UploadRequest(url = url, file = file, wifiOnly = true)</code>.</li>
   <li><strong><code>init { require(...) }</code></strong>: kiểm tra trong constructor, nên object sai không ra đời, giống <code>build()</code>.</li>
   <li><strong><code>val</code> và <code>copy()</code> của <code>data class</code></strong>: object bất biến, muốn biến thể thì <code>copy(timeoutSeconds = 60)</code>.</li>
 </ul>
@@ -50276,7 +50213,7 @@ val request = ImageRequest(
     placeholderRes = R.drawable.product_placeholder
 )</code></pre>
 
-<p>Cùng một việc với ví dụ ở mục đầu, nhưng không cần class <code>Builder</code>, không cần copy list, và compiler bắt lỗi thiếu <code>url</code>.</p>
+<p>Cùng một việc với ví dụ ở mục đầu nhưng không cần class <code>Builder</code>. Hai điều không đổi: thiếu <code>url</code> là lỗi compile ở cả hai cách (builder đặt <code>url</code> ở constructor của nó), và nếu người gọi có thể truyền một <code>MutableList</code> rồi sửa sau, constructor vẫn nên tự sao chép (<code>transformations.toList()</code>).</p>
 
 <p>Hai công cụ khác của Kotlin hay bị gọi nhầm là "builder":</p>
 
@@ -50327,7 +50264,7 @@ flowchart TD
 
 <ol>
   <li><strong>Cấu hình SDK nội bộ dùng chung cho nhiều app, có app còn viết bằng Java.</strong> Đây là bài toán chính, code đầy đủ bên dưới.</li>
-  <li><strong>Một <code>OkHttpClient</code> cho cả app, client riêng cho upload với timeout dài:</strong> <code>baseClient.newBuilder().writeTimeout(5, TimeUnit.MINUTES).build()</code>, vẫn dùng chung connection pool. Lý do không tạo client mới nằm ở <a href="../../session_08/networks/okhttp.md" target="_blank" rel="noopener">OkHttp</a>, mục "Sai lầm thường gặp".</li>
+  <li><strong>Một <code>OkHttpClient</code> cho cả app, client riêng cho upload với timeout dài:</strong> <code>baseClient.newBuilder().writeTimeout(5, TimeUnit.MINUTES).build()</code>, vẫn dùng chung connection pool. Lý do không tạo client mới nằm ở <a href="../../session_08/networks/okhttp.md" target="_blank" rel="noopener">OkHttp</a>, mục "Sai lầm thường gặp", phần 1.</li>
   <li><strong>Cấu hình Room theo build type:</strong> cùng một <code>Room.databaseBuilder(...)</code>, bản debug thêm <code>fallbackToDestructiveMigration(dropAllTables = true)</code>, bản release chỉ <code>addMigrations(...)</code>; builder cho phép rẽ nhánh trước khi <code>build()</code> một lần duy nhất. Khi nào được xoá dữ liệu nằm ở <a href="../../session_05/data_store/room_advanced.md" target="_blank" rel="noopener">Room nâng cao</a>, mục "Cảnh báo về <code>fallbackToDestructiveMigration()</code>".</li>
 </ol>
 
@@ -50497,7 +50434,7 @@ class OrderRepository(context: Context) {
 
 <p><strong>Lỗi lộ ra thế nào:</strong> mỗi <code>AppDatabase</code> mở kết nối và cache riêng tới cùng một file, nên ghi ở instance này có thể không phát Flow ở instance kia; mỗi <code>OkHttpClient</code> có connection pool và thread pool riêng, bộ nhớ và số thread tăng theo số repository.</p>
 
-<p><strong>Cách sửa:</strong> builder dùng để cấu hình, không phải để gọi mỗi lần cần object. Build một lần cho cả app rồi dùng chung, bằng một instance duy nhất (<a href="singleton_pattern.md" target="_blank" rel="noopener">Singleton Pattern</a>) hoặc scope của DI (<a href="di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>). Client cần cấu hình khác thì <code>newBuilder()</code>.</p>
+<p><strong>Cách sửa:</strong> builder dùng để cấu hình, không phải để gọi mỗi lần cần object. Build một lần cho cả app rồi dùng chung, bằng một instance duy nhất (<a href="singleton_pattern.md" target="_blank" rel="noopener">Singleton Pattern</a>) hoặc scope của DI (<a href="di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>). Client cần cấu hình khác thì <code>newBuilder()</code> (<a href="../../session_08/networks/okhttp.md" target="_blank" rel="noopener">OkHttp</a>, mục "Sai lầm thường gặp", phần 1).</p>
 
 <h3>5. Dùng constructor <code>NotificationCompat.Builder(context)</code> không có channel</h3>
 
@@ -50671,7 +50608,7 @@ override fun getView(position: Int, convertView: View?, parent: ViewGroup): View
   </tbody>
 </table>
 
-<p>Các loại <code>LayoutManager</code> và <code>ItemDecoration</code> được học ở 8.5.1 Layouts (chưa có bài). Bài này tập trung vào Adapter và ViewHolder.</p>
+<p>Ranh giới với 8.5.1 Layouts (chưa có bài): bài này dạy Adapter, ViewHolder, <code>DiffUtil</code>, <code>ListAdapter</code>, view type, stable id và payload; 8.5.1 chỉ dạy RecyclerView ở góc độ bố cục, gồm <code>LayoutManager</code>, <code>ItemDecoration</code> và <code>ItemAnimator</code>.</p>
 
 <h3><code>RecyclerView.Adapter</code> và vòng đời ViewHolder</h3>
 
@@ -50763,7 +50700,7 @@ binding.contactList.adapter = ContactAdapter(contacts) { contact -&gt; openConta
 
 <p>ViewHolder giữ <strong>binding</strong> của item thay cho từng field <code>TextView</code>: class binding đã giữ sẵn mọi View có id, đúng việc mà ViewHolder thời <code>ListView</code> phải tự làm (<a href="../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>, mục "Ví dụ thực tế", bài toán 2). Click listener lấy vị trí bằng <code>bindingAdapterPosition</code> tại <strong>lúc bấm</strong>, vì vị trí của một holder thay đổi mỗi lần nó được tái sử dụng.</p>
 
-<p><strong>Kết quả:</strong> trên điện thoại hiện khoảng 12 dòng, Logcat có chừng 15 đến 20 dòng <code>create</code> rồi dừng hẳn; cuộn hết 1.000 liên hệ thì <code>bind</code> vượt 1.000 còn <code>create</code> không tăng.</p>
+<p><strong>Kết quả:</strong> trên điện thoại hiện khoảng 12 dòng, số dòng <code>create</code> trong Logcat chỉ nhỉnh hơn số dòng nhìn thấy (thêm vài holder cho cache và dòng đang trượt vào) rồi gần như dừng; cuộn hết 1.000 liên hệ thì <code>bind</code> lên khoảng 1.000 còn <code>create</code> hầu như không tăng.</p>
 
 <h3>Bind là ghi đè toàn bộ: trạng thái của holder tái sử dụng</h3>
 
@@ -50776,7 +50713,7 @@ fun bind(product: Product) {
     binding.outOfStockLabel.isVisible = product.stock == 0
 }</code></pre>
 
-<p>Viết <code>if (product.stock == 0) outOfStockLabel.isVisible = true</code> mà không có nhánh ngược lại là để sót "tấm nhãn của bức cũ": holder vừa hiện một sản phẩm hết hàng sẽ mang nhãn đó sang sản phẩm còn hàng. Đây chính là ví dụ mở đầu của <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, mục "Vấn đề cần giải quyết". Tài nguyên không gán lại được bằng một dòng (request tải ảnh, animation đang chạy) thì huỷ trong <code>onViewRecycled()</code>; ví dụ với Glide là <code>Glide.with(view).clear(imageView)</code>.</p>
+<p>Viết <code>if (product.stock == 0) outOfStockLabel.isVisible = true</code> mà không có nhánh ngược lại là để sót "tấm nhãn của bức cũ": holder vừa hiện một sản phẩm hết hàng sẽ mang nhãn đó sang sản phẩm còn hàng. Đây chính là ví dụ mở đầu của <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, mục "Vấn đề cần giải quyết". Tài nguyên không gán lại được bằng một dòng (request tải ảnh, animation đang chạy) thì huỷ trong <code>onViewRecycled()</code>; ví dụ với Coil là <code>imageView.dispose()</code>.</p>
 
 <p>Item dùng Data Binding thì gọi thêm <code>executePendingBindings()</code> cuối <code>onBindViewHolder()</code>, để View được gán ngay trước khi RecyclerView đo item (<a href="../../session_06/data_binding.md" target="_blank" rel="noopener">Data Binding</a>, mục "Từ layout đến class binding: build-time và thời điểm cập nhật").</p>
 
@@ -50789,7 +50726,7 @@ fun bind(product: Product) {
   <li><strong><code>notifyItemInserted/Removed/Changed/Moved(position)</code>:</strong> chính xác và có animation, nhưng tự tính đúng các vị trí là việc dễ sai; báo sai thì crash <code>IndexOutOfBoundsException: Inconsistency detected</code>.</li>
 </ul>
 
-<p><strong><code>DiffUtil</code></strong> tính hộ việc đó: so list cũ với list mới bằng thuật toán của Eugene Myers và sinh ra dãy thao tác insert/remove/change/move tối thiểu. Nó cần một <code>DiffUtil.ItemCallback&lt;T&gt;</code> trả lời hai câu hỏi:</p>
+<p><strong><code>DiffUtil</code></strong> tính hộ việc đó: so list cũ với list mới bằng thuật toán của Eugene Myers, cho ra số thao tác insert/remove ít nhất; thuật toán này không xử lý item dời chỗ, nên <code>DiffUtil</code> chạy thêm một lượt để nhận ra các move. Item cùng id nhưng khác nội dung thành thao tác change. Nó cần một <code>DiffUtil.ItemCallback&lt;T&gt;</code> trả lời hai câu hỏi:</p>
 
 <ul>
   <li><strong><code>areItemsTheSame(old, new)</code>:</strong> hai phần tử có phải <strong>cùng một item</strong> không (so id).</li>
@@ -50800,7 +50737,7 @@ fun bind(product: Product) {
 
 <h4>Ví dụ: danh sách việc cần làm, đánh dấu xong và xoá</h4>
 
-<p><strong>Bài toán:</strong> danh sách việc cần làm; bấm checkbox thì việc đó mờ đi, vuốt xoá thì dòng trượt mất. Chỉ dòng bị đổi được bind lại, và có animation, không làm cả danh sách nhấp nháy.</p>
+<p><strong>Bài toán:</strong> danh sách việc cần làm; bấm checkbox thì việc đó mờ đi, bấm nút xoá thì dòng trượt mất. Chỉ dòng bị đổi được bind lại, và có animation, không làm cả danh sách nhấp nháy.</p>
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>StateFlow</code> (dòng dữ liệu luôn có giá trị hiện tại) và <code>collect</code> theo lifecycle, học ở <a href="observer/flow.md" target="_blank" rel="noopener">Flow</a>; cách ViewModel đưa state ra cho Fragment đã có ở <a href="../architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, mục "UI state và luồng dữ liệu một chiều".</div></div>
 
@@ -50839,7 +50776,8 @@ object TaskDiffCallback : DiffUtil.ItemCallback&lt;Task&gt;() {
 
 // TaskAdapter.kt
 class TaskAdapter(
-    private val onToggle: (Task) -&gt; Unit
+    private val onToggle: (Task) -&gt; Unit,
+    private val onDelete: (Task) -&gt; Unit
 ) : ListAdapter&lt;Task, TaskAdapter.TaskViewHolder&gt;(TaskDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TaskViewHolder(
@@ -50855,6 +50793,10 @@ class TaskAdapter(
             binding.doneCheckBox.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) onToggle(getItem(position))         // (1)
+            }
+            binding.deleteButton.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) onDelete(getItem(position))
             }
         }
 
@@ -50879,7 +50821,7 @@ class TaskListViewModel : ViewModel() {
 }
 
 // TaskListFragment.kt (trong onViewCreated)
-val adapter = TaskAdapter(onToggle = viewModel::onToggle)
+val adapter = TaskAdapter(onToggle = viewModel::onToggle, onDelete = { task -&gt; viewModel.onDelete(task.id) })
 binding.taskList.adapter = adapter
 viewLifecycleOwner.lifecycleScope.launch {
     viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -50887,7 +50829,7 @@ viewLifecycleOwner.lifecycleScope.launch {
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> đặt log trong <code>onBindViewHolder</code>: bấm checkbox một việc chỉ in một dòng log với đúng vị trí đó. Xoá một việc thì dòng trượt ra và các dòng dưới dồn lên có animation.</p>
+<p><strong>Kết quả:</strong> đặt log trong <code>onBindViewHolder</code>: bấm checkbox một việc chỉ in một dòng log với đúng vị trí đó. Bấm nút xoá thì <code>DiffUtil</code> sinh một thao tác remove: dòng trượt ra và các dòng dưới dồn lên có animation.</p>
 
 <h3>Nhiều view type</h3>
 
@@ -50903,9 +50845,9 @@ viewLifecycleOwner.lifecycleScope.launch {
 init { setHasStableIds(true) }                                    // phải gọi trước khi gán adapter cho RecyclerView
 override fun getItemId(position: Int): Long = contacts[position].id</code></pre>
 
-<p>Có stable id, RecyclerView nhận ra "item này vẫn là item đó" ngay cả khi adapter chỉ gọi <code>notifyDataSetChanged()</code>, nên giữ được animation và tìm lại đúng holder. <code>setHasStableIds()</code> gọi sau khi adapter đã gắn vào RecyclerView thì ném <code>IllegalStateException</code>. Với <code>ListAdapter</code>, <code>areItemsTheSame()</code> đã làm việc nhận diện item, nên thường không cần stable id.</p>
+<p>Có stable id, RecyclerView nhận ra "item này vẫn là item đó" ngay cả khi adapter chỉ gọi <code>notifyDataSetChanged()</code>, nên tìm lại đúng holder và dựng được animation thay đổi cấu trúc. Nhưng mọi holder đang hiện vẫn bị bind và layout lại, vì <code>notifyDataSetChanged()</code> không nói nội dung nào đổi. <code>setHasStableIds()</code> gọi sau khi adapter đã gắn vào RecyclerView thì ném <code>IllegalStateException</code>. Với <code>ListAdapter</code>, <code>areItemsTheSame()</code> đã làm việc nhận diện item, nên thường không cần stable id.</p>
 
-<p><strong>Payload</strong> là cách nói "item này đổi, nhưng <strong>chỉ phần này</strong>". Mặc định một thao tác "change" bind lại cả holder và chạy animation crossfade cả dòng. Nếu <code>DiffUtil.ItemCallback.getChangePayload()</code> trả về một object khác <code>null</code>, RecyclerView gọi bản <code>onBindViewHolder(holder, position, payloads)</code> với object đó, và dùng lại chính holder đang hiện thay vì crossfade.</p>
+<p><strong>Payload</strong> là cách nói "item này đổi, nhưng <strong>chỉ phần này</strong>". RecyclerView luôn gọi bản ba tham số <code>onBindViewHolder(holder, position, payloads)</code>; bản mặc định của nó gọi sang bản hai tham số, nên mặc định một thao tác "change" bind lại cả holder và chạy animation crossfade cả dòng. Nếu <code>DiffUtil.ItemCallback.getChangePayload()</code> trả về một object khác <code>null</code>, object đó nằm trong <code>payloads</code>, và <code>DefaultItemAnimator</code> dùng lại chính holder đang hiện thay vì crossfade.</p>
 
 <h4>Ví dụ: nút thích trên feed ảnh</h4>
 
@@ -51229,7 +51171,7 @@ viewModel.tasks.collect { tasks -&gt; binding.taskList.adapter = TaskAdapter(tas
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
-  <li>8.5.1 Layouts (chưa có bài): các <code>LayoutManager</code>, <code>ItemDecoration</code>.</li>
+  <li>8.5.1 Layouts (chưa có bài): RecyclerView ở góc độ bố cục, gồm <code>LayoutManager</code>, <code>ItemDecoration</code>, <code>ItemAnimator</code>.</li>
   <li><a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và 9.5.4 Lazy Column (chưa có bài): danh sách trong Compose không cần ViewHolder.</li>
   <li>8.2.4 Coil (chưa có bài): tải ảnh trong item.</li>
 </ul></li>
@@ -51285,7 +51227,7 @@ private val database by lazy {
   <li><strong>Tốn tài nguyên:</strong> mỗi <code>AppDatabase</code> mở kết nối và cache riêng; mỗi <code>OkHttpClient</code> có connection pool và thread pool riêng.</li>
   <li><strong>Dữ liệu lệch nhau:</strong> màn giỏ hàng ghi qua instance của nó, màn danh sách đang quan sát instance khác nên không nhận được thay đổi.</li>
   <li><strong>Crash:</strong> DataStore phát hiện hai instance cùng mở một file thì ném <code>IllegalStateException</code> (<a href="../../session_05/data_store/key_value.md" target="_blank" rel="noopener">Key-Value Storage</a>, mục "Sai lầm thường gặp", phần 1).</li>
-  <li><strong>Trạng thái bộ nhớ không nhất quán:</strong> giỏ hàng giữ trong bộ nhớ của màn chi tiết sản phẩm khác giỏ hàng của màn thanh toán.</li>
+  <li><strong>Trạng thái trong bộ nhớ không nhất quán:</strong> mỗi màn tự theo dõi trạng thái mạng thì mỗi màn giữ một bản riêng, cập nhật vào lúc khác nhau.</li>
 </ul>
 
 <p>Vấn đề cần giải quyết là: <strong>bảo đảm một class chỉ có một instance, và mọi nơi cần nó đều lấy được đúng instance đó</strong>, mà không đánh đổi khả năng test và không làm rò rỉ bộ nhớ.</p>
@@ -51350,7 +51292,7 @@ private val database by lazy {
 
 <h3>Kotlin <code>object</code>: singleton không cần tham số</h3>
 
-<p>Kotlin có sẵn cú pháp cho Singleton: <strong>object declaration</strong>. Compiler sinh một class có constructor <code>private</code> và một field static <code>INSTANCE</code> được khởi tạo trong khối khởi tạo static của class. Tài liệu Kotlin cam kết: việc khởi tạo một object declaration là <strong>thread-safe</strong> và diễn ra <strong>ở lần truy cập đầu tiên</strong>. Cả hai tính chất đến từ JVM: class chỉ được khởi tạo một lần, và thread nào truy cập trong lúc class đang khởi tạo sẽ phải chờ.</p>
+<p>Kotlin có sẵn cú pháp cho Singleton: <strong>object declaration</strong>. Compiler sinh một class có constructor <code>private</code> và một field static <code>INSTANCE</code> được khởi tạo trong khối khởi tạo static của class. Tài liệu Kotlin cam kết: việc khởi tạo một object declaration là <strong>thread-safe</strong> và diễn ra <strong>ở lần truy cập đầu tiên</strong>. Cả hai tính chất đến từ ART/JVM: class chỉ được khởi tạo một lần, và thread nào truy cập trong lúc class đang khởi tạo sẽ phải chờ.</p>
 
 <p>Giới hạn duy nhất: <code>object</code> <strong>không có constructor nhận tham số</strong>, nên không nhận được <code>Context</code> hay cấu hình lúc chạy. <code>AppExecutors</code> ở <a href="../../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>, mục "Ví dụ: <code>AppExecutors</code> Singleton chuẩn kiến trúc Android" là một <code>object</code> điển hình: chỉ cần số nhân CPU, không cần gì từ bên ngoài.</p>
 
@@ -51361,8 +51303,8 @@ private val database by lazy {
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li>Màn danh sách gọi <code>ThumbnailCache.get(url)</code> lần đầu: JVM khởi tạo class <code>ThumbnailCache</code>, chạy khối <code>init</code> và tạo <code>LruCache</code>.</li>
-  <li>Một thread nền đang decode ảnh gọi <code>ThumbnailCache.put()</code> đúng lúc đó: JVM bắt nó chờ khởi tạo xong, nên không có instance thứ hai.</li>
+  <li>Màn danh sách gọi <code>ThumbnailCache.get(url)</code> lần đầu: ART/JVM khởi tạo class <code>ThumbnailCache</code>, chạy khối <code>init</code> và tạo <code>LruCache</code>.</li>
+  <li>Một thread nền đang decode ảnh gọi <code>ThumbnailCache.put()</code> đúng lúc đó: ART/JVM bắt nó chờ khởi tạo xong, nên không có instance thứ hai.</li>
   <li>Màn chi tiết gọi <code>ThumbnailCache.get(url)</code>: cùng instance, ảnh có sẵn.</li>
 </ol>
 
@@ -51370,7 +51312,7 @@ private val database by lazy {
 sequenceDiagram
     participant L as ProductListFragment (main)
     participant W as Thread decode ảnh
-    participant J as JVM
+    participant J as ART/JVM
     participant C as ThumbnailCache
     L-&gt;&gt;J: (1) truy cập ThumbnailCache lần đầu
     J-&gt;&gt;C: khởi tạo class: init, tạo LruCache
@@ -51412,7 +51354,7 @@ object ThumbnailCache {                                                         
 <ul>
   <li><strong>Kiểm tra lần 1, không khoá:</strong> đa số lần gọi thấy instance đã có và trả về ngay, không tốn chi phí khoá.</li>
   <li><strong>Kiểm tra lần 2, trong <code>synchronized</code>:</strong> chỉ một thread được tạo instance; thread khác vào sau phải thấy instance đã được tạo.</li>
-  <li><strong><code>@Volatile</code>:</strong> bảo đảm instance mà một thread ghi được thread khác nhìn thấy ngay và đầy đủ. Thiếu nó, thread khác có thể đọc giá trị cũ (<code>null</code>) hoặc, trên JVM cũ, một object chưa khởi tạo xong. Visibility và <code>@Volatile</code> đã giải thích ở <a href="../../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>, mục "Các giải pháp bảo vệ dữ liệu".</li>
+  <li><strong><code>@Volatile</code>:</strong> cấm sắp xếp lại lệnh giữa việc khởi tạo object và việc gán nó vào field, nên thread nào thấy <code>instance</code> khác <code>null</code> cũng thấy object đã khởi tạo xong. Thiếu nó, kể cả trên ART/JVM hiện đại, lệnh gán có thể lộ ra trước: thread khác ở lần kiểm tra 1 (không khoá) thấy <code>instance</code> khác <code>null</code> và dùng luôn một object chưa khởi tạo xong. Thấy <code>null</code> thì vô hại, vì thread đó sẽ vào khoá và kiểm tra lại. Visibility và <code>@Volatile</code> đã giải thích ở <a href="../../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>, mục "Các giải pháp bảo vệ dữ liệu".</li>
 </ul>
 
 <h4>Ví dụ: một <code>AppDatabase</code> cho cả app</h4>
@@ -51577,7 +51519,9 @@ class FakeFeatureFlags(override val isExpressCheckoutEnabled: Boolean = false) :
 
 <p>Dependency Injection giữ ý thứ nhất và bỏ ý thứ hai: một <strong>container</strong> tạo instance đúng một lần trong một <strong>scope</strong> (phạm vi sống), rồi truyền nó vào constructor của class cần. Class không biết instance là duy nhất; nó chỉ nhận một tham số. Khái niệm container và scope là chủ đề của <a href="di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>.</p>
 
-<p>Hilt (thư viện DI của Jetpack, học ở <a href="di/hilt.md" target="_blank" rel="noopener">Hilt</a>) có scope <code>@Singleton</code> gắn với <code>SingletonComponent</code>, component được tạo ở <code>Application#onCreate()</code> và sống tới khi <code>Application</code> bị huỷ, tức đúng phạm vi một process như singleton tự viết:</p>
+<p>Hilt (thư viện DI của Jetpack, học ở <a href="di/hilt.md" target="_blank" rel="noopener">Hilt</a>) có scope <code>@Singleton</code> gắn với <code>SingletonComponent</code>, component được tạo ở <code>Application#onCreate()</code> và sống tới khi process chết, tức đúng phạm vi một process như singleton tự viết.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>@Module</code> cùng <code>@InstallIn(SingletonComponent::class)</code> khai báo một nhóm hàm cấp object cho component suốt process, <code>@Provides</code> đánh dấu hàm tạo object, <code>@ApplicationContext</code> yêu cầu Hilt đưa <code>applicationContext</code>. Chi tiết ở <a href="di/hilt.md" target="_blank" rel="noopener">Hilt</a>, mục "Module: <code>@Provides</code>, <code>@Binds</code> và <code>@InstallIn</code>".</div></div>
 
 <pre data-lang="kotlin"><code>// DatabaseModule.kt
 @Module
@@ -51612,7 +51556,7 @@ class OrderRepository @Inject constructor(private val orderDao: OrderDao)</code>
       <td style="padding:8px 12px;font-weight:600;"><code>object</code></td>
       <td style="padding:8px 12px;">Không</td>
       <td style="padding:8px 12px;">Khó (trạng thái dùng chung giữa các test)</td>
-      <td style="padding:8px 12px;">JVM, theo class</td>
+      <td style="padding:8px 12px;">ART/JVM, theo class</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>companion object</code> + <code>getInstance()</code> (double-checked locking)</td>
@@ -51640,116 +51584,132 @@ class OrderRepository @Inject constructor(private val orderDao: OrderDao)</code>
 <p>Ba bài toán hay gặp cần "một instance" trong app Android:</p>
 
 <ol>
-  <li><strong>Giỏ hàng trong bộ nhớ dùng chung giữa nhiều màn</strong>, cấp qua <code>@Singleton</code> của Hilt, có unit test. Đây là bài toán chính, code đầy đủ bên dưới.</li>
+  <li><strong>Trạng thái mạng dùng chung giữa nhiều màn</strong>, cấp qua <code>@Singleton</code> của Hilt, có unit test. Đây là bài toán chính, code đầy đủ bên dưới.</li>
   <li><strong>Một DataStore cho mỗi file:</strong> khai báo property delegate <code>preferencesDataStore</code> ở top-level, hoặc <code>@Singleton</code> trong module Hilt, như <a href="../../session_05/data_store/key_value.md" target="_blank" rel="noopener">Key-Value Storage</a>, mục "Hilt module — cung cấp DataStore và Repository".</li>
-  <li><strong>Một <code>OkHttpClient</code> cho cả app:</strong> tạo một lần rồi dùng chung; endpoint cần cấu hình khác thì <code>newBuilder()</code> (<a href="../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "Sai lầm thường gặp", phần 2).</li>
+  <li><strong>Một <code>OkHttpClient</code> cho cả app:</strong> tạo một lần rồi dùng chung; endpoint cần cấu hình khác thì <code>newBuilder()</code> (<a href="../../session_08/networks/okhttp.md" target="_blank" rel="noopener">OkHttp</a>, mục "Sai lầm thường gặp", phần 1).</li>
 </ol>
 
-<h3>Giỏ hàng dùng chung với <code>@Singleton</code></h3>
+<h3>Trạng thái mạng dùng chung với <code>@Singleton</code></h3>
 
-<p><strong>Bài toán:</strong> người dùng thêm sản phẩm ở màn chi tiết; icon giỏ hàng trên thanh điều hướng của <code>MainActivity</code> phải cập nhật số lượng ngay; màn thanh toán đọc cùng giỏ hàng và xoá nó sau khi đặt hàng. Ba màn có ba ViewModel khác nhau, nên giỏ hàng phải là <strong>một</strong> instance nằm ngoài các ViewModel.</p>
+<p><strong>Bài toán:</strong> mọi màn phải hiện banner "Không có mạng" khi mất mạng, và màn thanh toán phải chặn nút "Đặt hàng" lúc offline. Mỗi màn tự đăng ký <code>NetworkCallback</code> thì quên gỡ là leak màn hình, và hệ thống giới hạn 100 callback mỗi app (vượt thì ném exception). Trạng thái mạng nên là <strong>một</strong> instance ngoài các ViewModel; nó đọc lại được từ hệ thống, nên hợp với phạm vi "sống bằng process".</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>@HiltViewModel</code>, <code>@Inject</code> là annotation của Hilt để tạo và cấp object, học ở <a href="di/hilt.md" target="_blank" rel="noopener">Hilt</a>. <code>StateFlow</code> là dòng dữ liệu luôn có giá trị hiện tại, <code>map</code>/<code>stateIn</code> là toán tử của nó, học ở <a href="observer/flow.md" target="_blank" rel="noopener">Flow</a>.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>@Inject constructor</code> cho Hilt biết cách tạo class, <code>@Binds</code> nối interface với class hiện thực, <code>@HiltViewModel</code> cho Hilt tạo ViewModel, học ở <a href="di/hilt.md" target="_blank" rel="noopener">Hilt</a>. <code>StateFlow</code> là dòng dữ liệu luôn có giá trị hiện tại, <code>map</code>/<code>stateIn</code> là toán tử của nó, học ở <a href="observer/flow.md" target="_blank" rel="noopener">Flow</a>.</div></div>
 
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li>Lần đầu có class cần <code>CartStore</code>, Hilt tạo nó trong <code>SingletonComponent</code>; mọi lần sau Hilt đưa lại đúng instance đó.</li>
-  <li><code>ProductDetailViewModel</code> nhận <code>CartStore</code> qua constructor; người dùng bấm "Thêm vào giỏ" thì gọi <code>add()</code>.</li>
-  <li><code>MainViewModel</code> quan sát <code>cartStore.items</code> và đưa ra số lượng cho icon giỏ hàng.</li>
-  <li><code>CheckoutViewModel</code> đọc <code>items</code>, đặt hàng xong thì <code>clear()</code>.</li>
-  <li>Unit test tạo <code>CartStore()</code> mới cho mỗi test, không cần Hilt.</li>
+  <li>Lần đầu có class cần <code>NetworkMonitor</code>, Hilt tạo <code>ConnectivityNetworkMonitor</code> trong <code>SingletonComponent</code>; mọi lần sau Hilt đưa lại đúng instance đó.</li>
+  <li>Lúc được tạo, monitor đọc trạng thái hiện tại rồi đăng ký <strong>một</strong> callback cho mạng mặc định; mỗi lần mạng đổi, callback (chạy trên thread nội bộ của <code>ConnectivityManager</code>) ghi giá trị mới vào <code>isOnline</code>.</li>
+  <li><code>MainViewModel</code> quan sát <code>isOnline</code> và đưa ra cờ hiện banner cho mọi màn.</li>
+  <li><code>CheckoutViewModel</code> đọc <code>isOnline.value</code> khi người dùng bấm "Đặt hàng".</li>
+  <li>Unit test truyền <code>FakeNetworkMonitor</code> vào <code>CheckoutViewModel</code>, không cần Hilt hay thiết bị.</li>
 </ol>
 
 <div class="mermaid">
 sequenceDiagram
     participant H as Hilt SingletonComponent
-    participant P as ProductDetailViewModel
-    participant M as MainViewModel (icon giỏ hàng)
+    participant N as ConnectivityNetworkMonitor
+    participant CM as ConnectivityManager
+    participant M as MainViewModel (banner)
     participant C as CheckoutViewModel
-    participant S as CartStore
-    H-&gt;&gt;S: (1) tạo một lần
-    H-&gt;&gt;P: inject cùng CartStore
-    H-&gt;&gt;M: inject cùng CartStore
-    H-&gt;&gt;C: inject cùng CartStore
-    P-&gt;&gt;S: (2) add(product)
-    S--&gt;&gt;M: (3) items đổi → badge = tổng số lượng
-    C-&gt;&gt;S: (4) đọc items, đặt hàng, clear()
-    S--&gt;&gt;M: badge = 0
+    H-&gt;&gt;N: (1) tạo một lần
+    N-&gt;&gt;CM: (2) registerDefaultNetworkCallback (một lần cho cả app)
+    H-&gt;&gt;M: inject cùng NetworkMonitor
+    H-&gt;&gt;C: inject cùng NetworkMonitor
+    CM--&gt;&gt;N: (2) mạng đổi → isOnline = false
+    N--&gt;&gt;M: (3) isOnline đổi → hiện banner
+    C-&gt;&gt;N: (4) đọc isOnline.value khi bấm "Đặt hàng"
 </div>
 
-<pre data-lang="kotlin"><code>// CartStore.kt
-data class Product(val id: String, val name: String, val price: Long)
-data class CartItem(val productId: String, val name: String, val unitPrice: Long, val quantity: Int)
-
-@Singleton                                                                   // (1) một instance cho process
-class CartStore @Inject constructor() {
-
-    private val _items = MutableStateFlow&lt;Map&lt;String, CartItem&gt;&gt;(emptyMap())
-    val items: StateFlow&lt;Map&lt;String, CartItem&gt;&gt; = _items.asStateFlow()
-
-    fun add(product: Product) {                                              // (2)
-        _items.update { current -&gt;                                           // update: đọc-sửa-ghi nguyên tử
-            val existing = current[product.id]
-            val item = existing?.copy(quantity = existing.quantity + 1)
-                ?: CartItem(product.id, product.name, product.price, quantity = 1)
-            current + (product.id to item)
-        }
-    }
-
-    fun clear() {                                                            // (4)
-        _items.value = emptyMap()
-    }
-}</code></pre>
-
-<pre data-lang="kotlin"><code>// ProductDetailViewModel.kt
-@HiltViewModel
-class ProductDetailViewModel @Inject constructor(
-    private val cartStore: CartStore                                         // (2) cùng instance
-) : ViewModel() {
-    fun onAddToCartClick(product: Product) = cartStore.add(product)
+<pre data-lang="kotlin"><code>// NetworkMonitor.kt
+interface NetworkMonitor {
+    val isOnline: StateFlow&lt;Boolean&gt;
 }
 
-// MainViewModel.kt
+@Singleton                                                                    // (1) một instance cho process
+class ConnectivityNetworkMonitor @Inject constructor(
+    @ApplicationContext context: Context                                      // không giữ Activity
+) : NetworkMonitor {
+
+    private val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    private val _isOnline = MutableStateFlow(isValidated(connectivityManager.activeNetwork))
+    override val isOnline: StateFlow&lt;Boolean&gt; = _isOnline.asStateFlow()
+
+    init {
+        connectivityManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
+            override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
+                _isOnline.value = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) // (2)
+            }
+
+            override fun onLost(network: Network) {
+                _isOnline.value = false                                       // (2)
+            }
+        })
+    }
+
+    private fun isValidated(network: Network?): Boolean =
+        connectivityManager.getNetworkCapabilities(network)
+            ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+}
+
+// NetworkModule.kt
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class NetworkModule {
+    @Binds                                                                    // (1) ai cần NetworkMonitor nhận bản thật
+    abstract fun bindNetworkMonitor(impl: ConnectivityNetworkMonitor): NetworkMonitor
+}</code></pre>
+
+<p>Callback không bao giờ được gỡ, và điều đó đúng ở đây: nó chỉ giữ monitor, monitor chỉ giữ <code>applicationContext</code>, cả hai sống bằng process. Đổi lại, callback chạy cả khi app ở background; muốn chỉ theo dõi lúc có màn quan sát thì dùng <code>callbackFlow</code> với <code>stateIn(..., WhileSubscribed)</code> như <a href="../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "Ví dụ: NetworkMonitor phát trạng thái mạng bằng <code>callbackFlow</code>" (bài đó giải thích cả cờ <code>VALIDATED</code>). <code>MutableStateFlow</code> cho gán <code>value</code> từ mọi thread.</p>
+
+<pre data-lang="kotlin"><code>// MainViewModel.kt
 @HiltViewModel
-class MainViewModel @Inject constructor(cartStore: CartStore) : ViewModel() {
-    val cartBadgeCount: StateFlow&lt;Int&gt; = cartStore.items                     // (3)
-        .map { items -&gt; items.values.sumOf { it.quantity } }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
+class MainViewModel @Inject constructor(networkMonitor: NetworkMonitor) : ViewModel() {
+    val showOfflineBanner: StateFlow&lt;Boolean&gt; = networkMonitor.isOnline         // (3)
+        .map { online -&gt; !online }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+}
+
+// CheckoutViewModel.kt
+@HiltViewModel
+class CheckoutViewModel @Inject constructor(
+    private val networkMonitor: NetworkMonitor                                // cùng instance với MainViewModel
+) : ViewModel() {
+    fun canPlaceOrder(): Boolean = networkMonitor.isOnline.value              // (4)
 }</code></pre>
 
-<p><code>MutableStateFlow.update</code> thực hiện đọc-sửa-ghi một cách nguyên tử, nên hai lần bấm "Thêm vào giỏ" từ hai thread không làm mất một lần cộng. <code>CheckoutViewModel</code> theo cùng mẫu: nhận <code>CartStore</code> qua constructor, đọc <code>items.value</code> khi đặt hàng rồi gọi <code>clear()</code>.</p>
+<pre data-lang="kotlin"><code>// CheckoutViewModelTest.kt (src/test): (5) bản giả qua constructor, không cần Hilt
+class FakeNetworkMonitor(online: Boolean) : NetworkMonitor {
+    override val isOnline = MutableStateFlow(online)
+}
 
-<pre data-lang="kotlin"><code>// CartStoreTest.kt (src/test): (5) mỗi test một instance mới, không cần Hilt
-class CartStoreTest {
-
-    private val milkTea = Product(id = "sku-1", name = "Trà sữa", price = 35_000)
+class CheckoutViewModelTest {
 
     @Test
-    fun addSameProductTwice_increasesQuantity() {
-        val store = CartStore()
-        store.add(milkTea)
-        store.add(milkTea)
-        assertEquals(2, store.items.value.getValue("sku-1").quantity)
+    fun offline_cannotPlaceOrder() {
+        val viewModel = CheckoutViewModel(FakeNetworkMonitor(online = false))
+        assertFalse(viewModel.canPlaceOrder())
     }
 
     @Test
-    fun clear_emptiesCart() {
-        val store = CartStore()
-        store.add(milkTea)
-        store.clear()
-        assertTrue(store.items.value.isEmpty())
+    fun backOnline_canPlaceOrder() {
+        val monitor = FakeNetworkMonitor(online = false)
+        val viewModel = CheckoutViewModel(monitor)
+        monitor.isOnline.value = true                                          // mạng có lại
+        assertTrue(viewModel.canPlaceOrder())
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> thêm một ly trà sữa ở màn chi tiết thì icon giỏ hàng hiện 1 ngay, không cần truyền dữ liệu giữa các màn; đặt hàng xong icon về 0. Hai test luôn đạt bất kể thứ tự, vì không dùng chung trạng thái. Kill process khi giỏ đang có hàng rồi mở lại app: giỏ rỗng. Nếu sản phẩm cần giữ giỏ hàng qua process death, <code>CartStore</code> phải ghi xuống Room hoặc DataStore; singleton chỉ là nơi dùng chung, không phải nơi lưu.</p>
+<p><strong>Kết quả:</strong> bật chế độ máy bay thì banner hiện ở màn đang mở và nút "Đặt hàng" bị chặn; tắt thì banner ẩn. Breakpoint ở <code>registerDefaultNetworkCallback</code> dừng đúng một lần dù mở bao nhiêu màn. Hai test luôn đạt bất kể thứ tự, vì mỗi test có bản giả riêng. Kill process rồi mở lại: monitor được tạo lại, đọc trạng thái từ hệ thống, không mất gì. Giỏ hàng thì khác: nó phải lưu bền và sống theo phiên đăng nhập, không đặt vào <code>@Singleton</code> (<a href="di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>, mục "Scope và vòng đời object").</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
 <ul>
   <li><strong>Nên có một instance</strong> cho tài nguyên tốn kém hoặc phải duy nhất: database, HTTP client, DataStore, cache trong bộ nhớ, thread pool.</li>
   <li><strong>Nên dùng <code>object</code></strong> cho tiện ích không trạng thái hoặc trạng thái tạo lại được, không cần tham số, ít khi cần thay trong test (formatter, <code>AppExecutors</code>, cache thumbnail).</li>
-  <li><strong>Nên để DI cấp</strong> (<code>@Singleton</code> hoặc container trong <code>Application</code>) cho mọi thứ mà class khác phụ thuộc và cần thay bằng bản giả khi test: Repository, <code>CartStore</code>, <code>FeatureFlags</code>.</li>
+  <li><strong>Nên để DI cấp và chọn scope theo vòng đời</strong> cho mọi thứ mà class khác phụ thuộc và cần thay bằng bản giả khi test: Repository, <code>FeatureFlags</code>, <code>NetworkMonitor</code> sống suốt process thì <code>@Singleton</code>; giỏ hàng của người đang đăng nhập thì scope theo phiên (<a href="di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>, mục "Scope và vòng đời object").</li>
   <li><strong>Không nên</strong> dùng singleton làm nơi truyền dữ liệu giữa các màn hình hoặc lưu dữ liệu người dùng: process death xoá sạch nó. Dùng argument, <code>SavedStateHandle</code> hoặc lưu trữ bền.</li>
   <li><strong>Không nên</strong> để singleton giữ Activity, Fragment, View hoặc listener của UI.</li>
 </ul>
@@ -51782,7 +51742,7 @@ fun getInstance(context: Context): AppDatabase {
     return instance!!
 }</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> hai thread cùng thấy <code>null</code> ở lần kiểm tra duy nhất, lần lượt vào khoá và <strong>cùng</strong> build: app có hai <code>AppDatabase</code>, ghi ở instance này không phát cập nhật cho Flow đang quan sát instance kia. Thiếu <code>@Volatile</code> thì lỗi hiếm hơn, chỉ lộ trên một số thiết bị, nên gần như không tái hiện được.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> hai thread cùng thấy <code>null</code> ở lần kiểm tra duy nhất, lần lượt vào khoá và <strong>cùng</strong> build: app có hai <code>AppDatabase</code>, ghi ở instance này không phát cập nhật cho Flow đang quan sát instance kia. Thiếu <code>@Volatile</code> là lỗi hiếm hơn: một thread thấy <code>instance</code> khác <code>null</code> ở lần kiểm tra không khoá nhưng nhận object chưa khởi tạo xong. Lỗi này chỉ lộ trên một số thiết bị, nên gần như không tái hiện được.</p>
 
 <p><strong>Cách sửa:</strong> kiểm tra lại bên trong <code>synchronized</code> và đánh dấu field <code>@Volatile</code> như ví dụ <code>AppDatabase</code>, hoặc dùng <code>by lazy</code> để không phải tự viết.</p>
 
@@ -51798,7 +51758,7 @@ object SelectedOrderHolder { var order: Order? = null }
 
 <h3>4. Quên rằng mỗi process có singleton riêng</h3>
 
-<pre data-lang="xml"><code>&lt;!-- AndroidManifest.xml: worker đồng bộ chạy ở process riêng --&gt;
+<pre data-lang="xml"><code>&lt;!-- AndroidManifest.xml: service đồng bộ chạy ở process riêng --&gt;
 &lt;service
     android:name=".sync.SyncService"
     android:process=":sync" /&gt;</code></pre>
@@ -51891,7 +51851,7 @@ object ApiClient {
       'Biết khi nào chọn LiveData, Flow hay RxJava cho từng tầng của app.'
     ],
     knowledgeGap: 'Không nắm Observer Pattern dẫn tới listener quên huỷ đăng ký giữ Activity cũ (leak), observer cập nhật View từ background thread (crash), mỗi màn hình tự mở một kết nối riêng tới cùng một nguồn vì nhầm hot và cold, và chọn LiveData, Flow hay RxJava theo thói quen thay vì theo tầng.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '12 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -51929,7 +51889,7 @@ class SessionManager(
 
 <p><strong>Observer Pattern</strong> là pattern hành vi trong đó một object, gọi là <strong>subject</strong> (chủ thể được quan sát), giữ danh sách các <strong>observer</strong> (người quan sát) đã đăng ký và tự báo cho tất cả khi trạng thái của nó đổi; subject chỉ biết observer qua một interface, nên nơi phát thay đổi không phụ thuộc nơi nhận.</p>
 
-<p>Mental model: <strong>đặt báo dài hạn</strong>. Toà soạn (subject) gửi mỗi số mới cho mọi người trong danh sách, không cần biết họ đọc để làm gì; người đọc (observer) tự đăng ký, tự huỷ. Các phần sau đều là câu hỏi về việc đặt báo: gửi cả tờ báo hay chỉ giấy báo "có số mới" (push/pull), báo có in khi chưa ai đặt không (hot/cold), hộp thư đầy thì sao (backpressure), đi vắng có tạm ngưng giao không (lifecycle).</p>
+<p>Mental model: <strong>đặt báo dài hạn</strong>. Toà soạn (subject) gửi mỗi số mới cho mọi người trong danh sách, không cần biết họ đọc để làm gì; người đọc (observer) tự đăng ký, tự huỷ. Các phần sau đều là câu hỏi về việc đặt báo: gửi cả tờ báo hay chỉ giấy báo "có số mới" (push/pull), in riêng một bộ cho từng người đặt hay in chung một bản cho mọi người (hot/cold), hộp thư đầy thì sao (backpressure), đi vắng có tạm ngưng giao không (lifecycle).</p>
 
 <h2>Cách hoạt động</h2>
 
@@ -52041,11 +52001,11 @@ override fun onDestroy() {
 
 <p>Push hợp với state nhỏ mà mọi observer cần như nhau; pull hợp với dữ liệu lớn hoặc mỗi observer cần một phần khác nhau. Room kết hợp cả hai: nhận tín hiệu "bảng <code>orders</code> đổi", tự query lại rồi <strong>push</strong> kết quả qua <code>Flow</code> hoặc <code>LiveData</code> (<a href="../../../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>).</p>
 
-<h3>Hot và cold: nguồn có chạy khi chưa ai quan sát?</h3>
+<h3>Hot và cold: mỗi observer một lần chạy riêng hay dùng chung?</h3>
 
 <ul>
-  <li><strong>Cold (lạnh):</strong> nguồn chỉ chạy khi có observer đăng ký, và <strong>chạy riêng cho từng observer</strong> từ đầu. Mỗi người đặt được in riêng một bộ từ số 1. Ví dụ: <code>flow { }</code> của Kotlin, <code>Single</code> của Retrofit với RxJava (mỗi lần subscribe là một request).</li>
-  <li><strong>Hot (nóng):</strong> nguồn chạy <strong>độc lập</strong> với observer, mọi observer dùng chung một lần chạy và nhận từ lúc đăng ký trở đi. Báo in theo lịch, người đặt muộn chỉ nhận từ số hiện tại. Ví dụ: broadcast của hệ thống, cảm biến, <code>StateFlow</code>, <code>SharedFlow</code>, <code>Subject</code> của RxJava, LiveData.</li>
+  <li><strong>Cold (lạnh):</strong> mỗi observer đăng ký khởi động <strong>một lần chạy riêng</strong> của nguồn, từ đầu; không ai đăng ký thì không chạy. Mỗi người đặt được in riêng một bộ từ số 1. Ví dụ: <code>flow { }</code> của Kotlin, <code>Single</code> của Retrofit với RxJava (mỗi lần subscribe là một request).</li>
+  <li><strong>Hot (nóng):</strong> mọi observer <strong>dùng chung một lần chạy</strong> của nguồn; observer mới không khởi động lần chạy riêng mà nhận giá trị từ lúc đăng ký trở đi. Báo in chung theo lịch: mọi người đặt nhận cùng một bản in, người đặt muộn nhận từ số hiện tại. Lần chạy chung có thể chạy sẵn dù chưa ai quan sát (broadcast của hệ thống, <code>MutableStateFlow</code>), hoặc bắt đầu và dừng theo số observer (<code>stateIn</code> với <code>SharingStarted.WhileSubscribed</code>, LiveData bọc cảm biến bằng <code>onActive</code>/<code>onInactive</code>); cả hai đều là hot vì không observer nào có lần chạy riêng. Ví dụ: broadcast, <code>StateFlow</code>, <code>SharedFlow</code>, <code>Subject</code> của RxJava, LiveData.</li>
 </ul>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
@@ -52077,7 +52037,7 @@ override fun onDestroy() {
 
 <p>Quy tắc chọn: <strong>state</strong> cần hot và giữ giá trị cuối, để màn hình vừa tạo lại có ngay dữ liệu; <strong>việc tốn kém dùng chung</strong> (một kết nối, một request) chuyển từ cold sang hot để không chạy lặp; <strong>việc của riêng một người gọi</strong> để cold.</p>
 
-<p>Ví dụ: màn chuyển tiền và widget ở màn chính cùng hiện tỷ giá. Với nguồn cold, mở hai màn là hai request; chuyển nguồn thành hot và giữ giá trị cuối thì observer đầu tiên khởi động request, observer thứ hai nhận ngay giá trị đang giữ. Đoạn code dùng trước Flow ở mức tối thiểu (<code>flow { }</code> tạo luồng cold, <code>stateIn</code> biến nó thành <code>StateFlow</code> hot), học ở <a href="flow.md" target="_blank" rel="noopener">Flow</a>:</p>
+<p>Ví dụ: màn chuyển tiền và widget ở màn chính cùng hiện tỷ giá. Với nguồn cold, mở hai màn là hai request; chuyển nguồn thành hot và giữ giá trị cuối thì observer đầu tiên khởi động lần chạy chung (một request), observer thứ hai nhận ngay giá trị đang giữ. <code>WhileSubscribed(5_000)</code> dừng lần chạy chung 5 giây sau khi observer cuối rời đi; nguồn vẫn là hot. Đoạn code dùng trước Flow ở mức tối thiểu (<code>flow { }</code> tạo luồng cold, <code>stateIn</code> biến nó thành <code>StateFlow</code> hot), học ở <a href="flow.md" target="_blank" rel="noopener">Flow</a>:</p>
 
 <pre data-lang="kotlin"><code>// RateRepository.kt
 val rates: Flow&lt;Rates&gt; = flow { emit(rateApi.getRates()) }            // cold: mỗi collector một request
@@ -52142,7 +52102,7 @@ flowchart TD
 
 <ol>
   <li><strong>Bắt đầu nhận</strong> khi UI hiển thị (<code>STARTED</code>).</li>
-  <li><strong>Ngừng nhận</strong> khi UI không hiển thị (<code>STOPPED</code>): không cập nhật View đang ẩn, không giữ nguồn tốn pin chạy vô ích.</li>
+  <li><strong>Ngừng nhận</strong> khi UI không hiển thị (sau <code>onStop()</code>, state <code>CREATED</code>): không cập nhật View đang ẩn, không giữ nguồn tốn pin chạy vô ích.</li>
   <li><strong>Huỷ đăng ký hẳn</strong> khi UI bị huỷ (<code>DESTROYED</code>): subject không giữ Activity cũ.</li>
 </ol>
 
@@ -52279,7 +52239,7 @@ lifecycle.addObserver(CompassSensorObserver(sensorManager) { azimuth -&gt;      
       <td style="padding:8px 12px;"><code>BroadcastReceiver</code></td>
       <td style="padding:8px 12px;">Push (<code>Intent</code>)</td>
       <td style="padding:8px 12px;">Hot</td>
-      <td style="padding:8px 12px;">Không, dynamic receiver tự huỷ</td>
+      <td style="padding:8px 12px;">Không, dynamic receiver phải tự <code>unregisterReceiver</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>Lifecycle</code></td>
@@ -52311,7 +52271,7 @@ lifecycle.addObserver(CompassSensorObserver(sensorManager) { azimuth -&gt;      
   <li><strong>ViewModel:</strong> <code>combine</code> hai luồng, rồi <code>stateIn(... WhileSubscribed(5_000))</code> biến kết quả thành hot, giữ giá trị cuối.</li>
   <li><strong>Backpressure:</strong> UI chỉ cần vị trí mới nhất, đúng cách <code>StateFlow</code> vốn giữ giá trị.</li>
   <li><strong>UI:</strong> Fragment collect trong <code>repeatOnLifecycle(STARTED)</code>.</li>
-  <li>Rời màn hình quá 5 giây: <code>stateIn</code> huỷ upstream, <code>asFlow()</code> dispose subscription của SDK.</li>
+  <li>Rời màn hình quá 5 giây: <code>stateIn</code> dừng lần chạy chung (<code>uiState</code> vẫn hot), <code>asFlow()</code> dispose subscription của SDK.</li>
 </ol>
 
 <div class="mermaid">
@@ -52346,7 +52306,7 @@ class TrackingViewModel(savedStateHandle: SavedStateHandle, repository: Tracking
         repository.observeCourierLocation(orderId)
     ) { order, location -&gt;
         TrackingUiState.Tracking(status = order.status, courierLocation = location)          // (3)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TrackingUiState.Loading) // (5)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TrackingUiState.Loading) // (2)(5)
 }
 
 // TrackingFragment.kt, trong onViewCreated()
@@ -52466,7 +52426,7 @@ fun observeUnreadCount(): Flow&lt;Int&gt; = flow {
   <li><strong>1994:</strong> cuốn <em>Design Patterns</em> của "Gang of Four" (Gamma, Helm, Johnson, Vlissides) đặt tên Observer.</li>
   <li><strong>2008 (Android 1.0, API 1):</strong> listener của View, <code>ContentObserver</code>, <code>BroadcastReceiver</code> có từ đầu.</li>
   <li><strong>2009:</strong> Microsoft công bố Reactive Extensions (Rx) cho .NET: Observer cộng với toán tử ghép luồng.</li>
-  <li><strong>11/2014:</strong> RxJava 1.0.0, bản Rx cho JVM do Netflix khởi xướng; RxJava 2 (10/2016) thêm <code>Flowable</code> có backpressure.</li>
+  <li><strong>11/2014:</strong> RxJava 1.0.0, bản Rx cho JVM do Netflix khởi xướng; RxJava 2 (10/2016) tách backpressure sang <code>Flowable</code>, <code>Observable</code> không còn backpressure.</li>
   <li><strong>04/2015:</strong> chuẩn Reactive Streams 1.0.0 cho JVM, backpressure bằng <code>request(n)</code>.</li>
   <li><strong>05/2017 (Google I/O):</strong> Architecture Components giới thiệu LiveData, observer gắn lifecycle sẵn.</li>
   <li><strong>09/2017 (Java 9):</strong> <code>java.util.Observer</code>/<code>Observable</code> (có từ Java 1.0) bị deprecated; thêm <code>java.util.concurrent.Flow</code> theo Reactive Streams.</li>
@@ -52504,7 +52464,7 @@ fun observeUnreadCount(): Flow&lt;Int&gt; = flow {
   <li><a href="https://developer.android.com/kotlin/flow" target="_blank" rel="noopener">Kotlin flows on Android - Android Developers</a></li>
   <li><a href="https://developer.android.com/kotlin/flow/stateflow-and-sharedflow" target="_blank" rel="noopener">StateFlow and SharedFlow - Android Developers</a></li>
   <li><a href="https://developer.android.com/topic/libraries/architecture/lifecycle" target="_blank" rel="noopener">Handling lifecycles with lifecycle-aware components - Android Developers</a></li>
-  <li><a href="https://github.com/ReactiveX/RxJava" target="_blank" rel="noopener">RxJava README (base classes, backpressure) - GitHub ReactiveX</a></li>
+  <li><a href="https://github.com/ReactiveX/RxJava/tree/3.x" target="_blank" rel="noopener">RxJava README (base classes, backpressure) - GitHub ReactiveX</a></li>
   <li><a href="https://docs.oracle.com/javase/9/docs/api/java/util/Observable.html" target="_blank" rel="noopener">java.util.Observable (deprecated từ Java 9) - Oracle</a></li>
   <li><a href="https://github.com/Kotlin/kotlinx.coroutines/blob/master/CHANGES_UP_TO_1.7.md" target="_blank" rel="noopener">kotlinx.coroutines changelog (Flow 1.3.0, StateFlow 1.4.0) - GitHub</a></li>
   <li><a href="https://developer.android.com/jetpack/androidx/releases/lifecycle" target="_blank" rel="noopener">Lifecycle release notes - Android Developers</a></li>
@@ -52531,7 +52491,7 @@ fun observeUnreadCount(): Flow&lt;Int&gt; = flow {
       'Áp dụng được kotlinx-coroutines-rx3 để chuyển dần code RxJava sang coroutine và Flow.'
     ],
     knowledgeGap: 'Không nắm RxJava dẫn tới subscribe thiếu onError làm app crash (OnErrorNotImplementedException), quên dispose khiến chuỗi cập nhật View đã huỷ, đặt observeOn sai chỗ làm việc nặng chạy trên main thread, dùng flatMap cho ô tìm kiếm khiến kết quả cũ ghi đè kết quả mới, và phải viết lại cả codebase Rx thay vì chuyển dần sang Flow.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '17 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -52755,7 +52715,7 @@ fun uploadAvatar(source: File) {
         )
 }</code></pre>
 
-<p><code>_isUploading</code>, <code>_avatarUrl</code>, <code>_errorMessage</code> là <code>MutableLiveData</code> (<a href="../../../session_06/livedata.md" target="_blank" rel="noopener">LiveData</a>); vì observer chạy trên main thread nên gán <code>value</code> được. <code>disposables</code> là <code>CompositeDisposable</code> (mục sau); <code>+=</code> là extension một dòng của dự án, <code>operator fun CompositeDisposable.plusAssign(d: Disposable) { add(d) }</code> (thư viện RxKotlin có sẵn hàm này). <code>asMultipartPart()</code> là hàm của dự án tạo <code>MultipartBody.Part</code>.</p>
+<p><code>_isUploading</code>, <code>_avatarUrl</code>, <code>_errorMessage</code> là <code>MutableLiveData</code> (<a href="../../../session_06/livedata.md" target="_blank" rel="noopener">LiveData</a>); vì observer chạy trên main thread nên gán <code>value</code> được. <code>disposables</code> là <code>CompositeDisposable</code> (mục sau); <code>+=</code> là extension một dòng của dự án, <code>operator fun CompositeDisposable.plusAssign(d: Disposable) { add(d) }</code> (thư viện RxKotlin có sẵn hàm này).</p>
 
 <p><strong>Kết quả:</strong> log <code>Thread.currentThread().name</code> ở từng bước: nén chạy trên <code>RxCachedThreadScheduler-1</code>, kết quả upload tới trên thread <code>OkHttp ...</code>, observer chạy trên <code>main</code>. Bỏ <code>observeOn</code> thì crash <code>Cannot invoke setValue on a background thread</code>.</p>
 
@@ -52801,7 +52761,7 @@ fun uploadAvatar(source: File) {
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li>Bấm "Gửi mã": gửi xong thì ViewModel chạy <code>Observable.interval(1, SECONDS).take(60)</code>.</li>
+  <li>Bấm "Gửi mã": đang gửi hoặc đang đếm thì bỏ qua (chống bấm đúp); gửi xong thì ViewModel phát 60 rồi chạy <code>Observable.interval(1, SECONDS).take(60)</code>.</li>
   <li>Mỗi giây, <code>map</code> đổi tick thành số giây còn lại, <code>observeOn(mainThread)</code> rồi ghi vào <code>LiveData</code>.</li>
   <li>Xoay màn hình: ViewModel và chuỗi vẫn chạy; Fragment mới observe và nhận ngay số giây hiện tại.</li>
   <li>Hết 60 giây: <code>take</code> phát <code>onComplete</code>, nút mở lại.</li>
@@ -52826,20 +52786,25 @@ sequenceDiagram
 class OtpViewModel(private val authApi: AuthApi) : ViewModel() {
 
     private val disposables = CompositeDisposable()
+    private var countdown: Disposable? = null
     private val _secondsLeft = MutableLiveData(0)
     val secondsLeft: LiveData&lt;Int&gt; = _secondsLeft
 
     fun onSendCodeClick(phone: String) {
-        disposables += authApi.sendOtp(phone)                                   // Completable
-            .andThen(Observable.interval(1, TimeUnit.SECONDS))                  // (1) bắt đầu sau khi gửi xong
-            .take(RESEND_SECONDS)
-            .map { tick -&gt; (RESEND_SECONDS - 1 - tick).toInt() }                // (2)
-            .startWithItem(RESEND_SECONDS.toInt())
+        if (countdown?.isDisposed == false) return                              // (1) đang gửi hoặc đang đếm
+        countdown = authApi.sendOtp(phone)                                      // Completable
+            .andThen(
+                Observable.interval(1, TimeUnit.SECONDS)                        // (1) bắt đầu sau khi gửi xong
+                    .take(RESEND_SECONDS)
+                    .map { tick -&gt; (RESEND_SECONDS - 1 - tick).toInt() }        // (2)
+                    .startWithItem(RESEND_SECONDS.toInt())                      // 60 cũng chỉ hiện sau khi gửi xong
+            )
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { seconds -&gt; _secondsLeft.value = seconds },                    // (2)(3)
                 { _secondsLeft.value = 0 }                                      // lỗi gửi mã: mở nút
             )                                                                    // (4) take(60) tự onComplete
+            .also { disposables += it }
     }
 
     override fun onCleared() {
@@ -52849,7 +52814,7 @@ class OtpViewModel(private val authApi: AuthApi) : ViewModel() {
     private companion object { const val RESEND_SECONDS = 60L }
 }</code></pre>
 
-<p>Fragment observe <code>secondsLeft</code> bằng <code>viewLifecycleOwner</code>: <code>0</code> thì bật nút, khác <code>0</code> thì khoá nút và hiện "Gửi lại sau 42 giây".</p>
+<p><code>Disposable</code> của <code>subscribe</code> tự thành disposed khi chuỗi xong hoặc lỗi, nên <code>isDisposed == false</code> là đang gửi hoặc đang đếm. Fragment observe <code>secondsLeft</code> bằng <code>viewLifecycleOwner</code>: <code>0</code> thì bật nút, khác <code>0</code> thì khoá nút và hiện "Gửi lại sau 42 giây".</p>
 
 <p><strong>Kết quả:</strong> bấm "Gửi mã", đếm ngược từ 60; xoay màn hình ở giây 42 thì màn mới hiện ngay 42. Thoát màn hình rồi đặt breakpoint trong <code>map</code>: không còn dừng, vì chuỗi đã bị dispose.</p>
 
@@ -52902,8 +52867,8 @@ class OtpViewModel(private val authApi: AuthApi) : ViewModel() {
 
 <ol>
   <li>Mỗi lần text đổi, ViewModel đẩy từ khoá vào <code>PublishSubject</code> (nguồn hot).</li>
-  <li><code>map { trim }</code>, <code>filter { length &gt;= 2 }</code>, <code>distinctUntilChanged()</code> làm sạch từ khoá.</li>
-  <li><code>debounce(300 ms)</code> chỉ cho từ khoá đi tiếp khi 300 ms không có từ khoá mới.</li>
+  <li><code>map { trim }</code>, <code>filter { length &gt;= 2 }</code> làm sạch từ khoá.</li>
+  <li><code>debounce(300 ms)</code> chỉ cho từ khoá đi tiếp khi 300 ms không có từ khoá mới; sau đó <code>distinctUntilChanged()</code> bỏ từ khoá trùng lần tìm trước. Đặt sau <code>debounce</code> để so các từ khoá đã dừng gõ: vừa tìm "ao", gõ thêm " k" rồi xoá về "ao" trong 300 ms thì không gọi lại API.</li>
   <li><code>switchMap</code> gọi <code>searchProducts()</code>, huỷ request của từ khoá trước nếu nó chưa xong.</li>
   <li><code>observeOn(main)</code> rồi ghi kết quả vào <code>LiveData</code>.</li>
 </ol>
@@ -52915,8 +52880,8 @@ sequenceDiagram
     participant C as Chuỗi toán tử
     participant API as ProductApi
     F-&gt;&gt;S: (1) onNext("ao"), onNext("ao k")
-    S-&gt;&gt;C: (2) trim, filter, distinctUntilChanged
-    C-&gt;&gt;C: (3) debounce 300 ms, chỉ còn "ao k"
+    S-&gt;&gt;C: (2) trim, filter
+    C-&gt;&gt;C: (3) debounce 300 ms, chỉ còn "ao k", distinctUntilChanged
     C-&gt;&gt;API: (4) switchMap: search("ao k"), huỷ request cũ
     API--&gt;&gt;C: List&lt;Product&gt;
     C--&gt;&gt;F: (5) observeOn(main), results.value = danh sách
@@ -52937,8 +52902,8 @@ class ProductSearchViewModel(
         disposables += queries
             .map { it.trim() }                                                       // (2)
             .filter { it.length &gt;= 2 }
-            .distinctUntilChanged()
             .debounce(300, TimeUnit.MILLISECONDS, schedulers.computation)           // (3)
+            .distinctUntilChanged()                                                  // (3) so từ khoá đã dừng gõ
             .switchMap { keyword -&gt;                                                  // (4)
                 productApi.searchProducts(keyword)                                   // Single&lt;List&lt;Product&gt;&gt;
                     .toObservable()
@@ -52977,7 +52942,7 @@ fun onlyLatestKeywordAfterPause_isSearched() {
 
 <p><code>TestScheduler</code> cho test tự đẩy thời gian ảo, <code>Schedulers.trampoline()</code> chạy ngay trên thread của test; <code>InstantTaskExecutorRule</code> cho phép gán <code>LiveData.value</code> trong JVM test (<a href="../../../session_06/livedata.md" target="_blank" rel="noopener">LiveData</a>, mục "<code>observe(owner)</code> và <code>observeForever</code>").</p>
 
-<p><strong>Kết quả:</strong> gõ nhanh "ao khoac" chỉ sinh một request (Network Inspector); sửa từ khoá khi request đầu chưa về thì request đầu bị huỷ. Test chạy bằng <code>./gradlew testDebugUnitTest</code>, không cần thiết bị.</p>
+<p><strong>Kết quả:</strong> gõ nhanh "ao khoac" chỉ sinh một request (Network Inspector); sửa từ khoá khi request đầu chưa về thì request đầu bị huỷ.</p>
 
 <h3>Backpressure với <code>Flowable</code></h3>
 
@@ -52992,7 +52957,7 @@ fun locationUpdates(): Flowable&lt;Location&gt; = Flowable.create({ emitter -&gt
     emitter.setCancellable { locationManager.removeUpdates(listener) }      // dispose thì gỡ listener
 }, BackpressureStrategy.LATEST)                                              // chậm thì chỉ giữ vị trí mới nhất</code></pre>
 
-<p><code>BackpressureStrategy</code> có <code>BUFFER</code> (giữ hết), <code>DROP</code> (bỏ giá trị mới khi phía sau chưa xin), <code>LATEST</code> (giữ giá trị mới nhất), <code>ERROR</code> (báo <code>MissingBackpressureException</code>), <code>MISSING</code> (để toán tử sau như <code>onBackpressureDrop()</code> quyết định); <code>Observable</code> đổi sang được bằng <code>toFlowable(strategy)</code>. Sự kiện UI và chuỗi ngắn dùng <code>Observable</code>; dữ liệu lớn, nhanh, hoặc đọc từ nguồn kéo được (file, database) dùng <code>Flowable</code>.</p>
+<p><code>BackpressureStrategy</code> có <code>BUFFER</code> (giữ hết), <code>DROP</code> (bỏ giá trị mới khi phía sau chưa xin), <code>LATEST</code> (giữ giá trị mới nhất), <code>ERROR</code> (báo <code>MissingBackpressureException</code>), <code>MISSING</code> (để toán tử sau như <code>onBackpressureDrop()</code> quyết định); <code>Observable</code> đổi sang được bằng <code>toFlowable(strategy)</code>.</p>
 
 <h3>Xử lý lỗi</h3>
 
@@ -53019,7 +52984,7 @@ RxJavaPlugins.setErrorHandler { error -&gt;
 
 <h3>Tình trạng hiện nay và chuyển sang coroutine, Flow</h3>
 
-<p>RxJava 3 vẫn được duy trì và RxJava 4 đang ở giai đoạn alpha, nhưng trên Android hướng dẫn chính thức dùng <strong>coroutine và Flow</strong> (<a href="flow.md" target="_blank" rel="noopener">Flow</a>): một <code>Flow</code> và hàm <code>suspend</code> thay cho năm kiểu nguồn, huỷ theo scope thay vì nhớ dispose, tích hợp sẵn <code>viewModelScope</code>, <code>repeatOnLifecycle</code>, chạy được trên Kotlin Multiplatform. Codebase đang dùng Rx không cần viết lại một lần: <strong><code>kotlinx-coroutines-rx3</code></strong> cho hai thế giới gọi nhau.</p>
+<p>RxJava 3 vẫn được duy trì và RxJava 4 đang ở giai đoạn alpha, nhưng trên Android hướng dẫn chính thức dùng <strong>coroutine và Flow</strong> (<a href="flow.md" target="_blank" rel="noopener">Flow</a>): một <code>Flow</code> và hàm <code>suspend</code> thay cho năm kiểu nguồn, huỷ theo scope thay vì nhớ dispose. Codebase đang dùng Rx không cần viết lại một lần: <strong><code>kotlinx-coroutines-rx3</code></strong> cho hai thế giới gọi nhau.</p>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -53104,12 +53069,12 @@ class OrderRxAdapter(private val repository: OrderRepository) {
 
 <p><code>asFlow()</code> của <code>Flowable</code> nằm ở package <code>kotlinx.coroutines.reactive</code> (<code>Flowable</code> là <code>Publisher</code> của Reactive Streams), của <code>Observable</code> ở <code>kotlinx.coroutines.rx3</code>. <code>rxSingle { }</code> không truyền context thì chạy trên <code>Dispatchers.Default</code>; màn cũ vẫn <code>observeOn(AndroidSchedulers.mainThread())</code> như trước.</p>
 
-<p><strong>Kết quả:</strong> màn cũ chạy không đổi (cùng <code>Observable</code>, cùng <code>Single</code>); màn mới không import gì của RxJava. Tìm <code>OrderRxAdapter</code> trong project (Find Usages) cho biết còn bao nhiêu chỗ phải chuyển trước khi bỏ được RxJava.</p>
+<p><strong>Kết quả:</strong> màn cũ chạy không đổi (cùng <code>Observable</code>, cùng <code>Single</code>); màn mới không import gì của RxJava. Find Usages trên <code>OrderRxAdapter</code> cho biết còn bao nhiêu chỗ phải chuyển.</p>
 
 <h2>Ví dụ thực tế</h2>
 
 <ol>
-  <li><strong>Màn chi tiết đơn hàng:</strong> gọi song song hai API, thử lại khi lỗi mạng, đưa ra một UI state, dispose khi rời màn, kèm unit test. Bài toán chính, code bên dưới.</li>
+  <li><strong>Màn chi tiết đơn hàng:</strong> bài toán chính, code bên dưới.</li>
   <li><strong>Ô tìm kiếm có debounce:</strong> như ví dụ ở mục "Toán tử chính".</li>
   <li><strong>Form đăng ký:</strong> <code>combineLatest</code> ba luồng "ô hợp lệ" để bật, tắt nút "Đăng ký"; <code>throttleFirst(1, SECONDS)</code> trên luồng click chống bấm đúp.</li>
 </ol>
@@ -53121,7 +53086,7 @@ class OrderRxAdapter(private val repository: OrderRepository) {
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li><code>load()</code> đặt <code>Loading</code> rồi subscribe chuỗi.</li>
+  <li>Fragment gọi <code>loadIfNeeded()</code>: chỉ lần đầu mới gọi <code>load()</code>, xoay màn hình không tải lại; <code>load()</code> đặt <code>Loading</code> rồi subscribe chuỗi.</li>
   <li><code>Single.zip</code> chạy cả hai request cùng lúc và chờ cả hai thành công.</li>
   <li>Một trong hai lỗi mạng: <code>retry(2)</code> subscribe lại <code>zip</code>, tức gọi lại cả hai.</li>
   <li>Thành công: gộp thành <code>Content</code>; vẫn lỗi: <code>onErrorReturn</code> thành <code>Error</code>.</li>
@@ -53134,7 +53099,7 @@ sequenceDiagram
     participant VM as OrderDetailViewModel
     participant O as OrderApi
     participant S as ShippingApi
-    F-&gt;&gt;VM: (1) load(), uiState = Loading
+    F-&gt;&gt;VM: (1) loadIfNeeded(), load(), uiState = Loading
     VM-&gt;&gt;O: (2) zip: getOrder(id)
     VM-&gt;&gt;S: (2) zip: getTracking(id)
     O--xVM: (3) IOException, retry(2): gọi lại cả hai
@@ -53163,9 +53128,15 @@ class OrderDetailViewModel(
     private val _uiState = MutableLiveData&lt;OrderDetailUiState&gt;(OrderDetailUiState.Loading)
     val uiState: LiveData&lt;OrderDetailUiState&gt; = _uiState
 
-    init { load() }
+    private var loaded = false
 
-    fun load() {
+    fun loadIfNeeded() {                                                                  // (1) Fragment gọi trong onViewCreated
+        if (loaded) return                                                                // xoay màn hình: không tải lại
+        loaded = true
+        load()
+    }
+
+    fun load() {                                                                          // nút "Thử lại" gọi thẳng
         _uiState.value = OrderDetailUiState.Loading                                       // (1)
         disposables.clear()                                                               // huỷ lần tải trước nếu có
         disposables += Single.zip(                                                        // (2)
@@ -53183,7 +53154,7 @@ class OrderDetailViewModel(
     override fun onCleared() = disposables.clear()                                        // (5)
 }</code></pre>
 
-<p>Ép kiểu <code>as OrderDetailUiState</code> để <code>Single</code> mang kiểu cha, nhờ đó <code>onErrorReturn</code> trả được <code>Error</code>; mọi lỗi đã thành state nên <code>subscribe</code> không cần nhánh lỗi. Fragment observe <code>uiState</code> bằng <code>viewLifecycleOwner</code>, nút "Thử lại" gọi <code>viewModel.load()</code>. Unit test truyền <code>Schedulers.trampoline()</code> làm <code>mainScheduler</code> và một <code>FakeOrderApi</code> trả <code>Single.fromCallable { }</code> ném <code>IOException</code> hai lần đầu: sau khi tạo ViewModel, <code>uiState.value</code> là <code>Content</code> và API bị gọi đúng 3 lần.</p>
+<p>Ép kiểu <code>as OrderDetailUiState</code> để <code>Single</code> mang kiểu cha, nhờ đó <code>onErrorReturn</code> trả được <code>Error</code>; mọi lỗi đã thành state nên <code>subscribe</code> không cần nhánh lỗi. Fragment observe <code>uiState</code> bằng <code>viewLifecycleOwner</code>, nút "Thử lại" gọi <code>viewModel.load()</code>; lý do không tải trong <code>init</code> ở <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, mục "Tải dữ liệu: lười, không launch trong init". Unit test (có <code>InstantTaskExecutorRule</code>) truyền <code>Schedulers.trampoline()</code> làm <code>mainScheduler</code> và một <code>FakeOrderApi</code> trả <code>Single.fromCallable { }</code> ném <code>IOException</code> hai lần đầu: sau khi gọi <code>loadIfNeeded()</code>, <code>uiState.value</code> là <code>Content</code> và API bị gọi đúng 3 lần.</p>
 
 <p><strong>Kết quả:</strong> tắt mạng rồi mở màn: sau ba lần thử, màn hình hiện "Thử lại"; bật mạng, bấm "Thử lại" thì nội dung hiện. Mở màn rồi bấm Back ngay: Network Inspector thấy request bị huỷ (<code>Canceled</code>), không có crash dù response về muộn.</p>
 
@@ -53236,7 +53207,7 @@ class OrderDetailViewModel(
   </tbody>
 </table>
 
-<p>Khác biệt lớn nhất là <strong>ai chịu trách nhiệm huỷ</strong>: RxJava để người viết nhớ dispose, coroutine gắn việc huỷ vào scope. LiveData thì gắn lifecycle sẵn nhưng ít toán tử và chạy trên main thread (<a href="livedata.md" target="_blank" rel="noopener">LiveData</a>).</p>
+<p>Khác biệt lớn nhất là <strong>ai chịu trách nhiệm huỷ</strong>: RxJava để người viết nhớ dispose, coroutine gắn việc huỷ vào scope.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
@@ -53353,7 +53324,7 @@ queries.debounce(300, TimeUnit.MILLISECONDS)
     tags: ['android', 'kotlin', 'flow', 'coroutines', 'stateflow', 'sharedflow', 'observer-pattern', 'reactive'],
     domain: 'Android',
     module: 'Session 07',
-    prerequisites: ['android.languages.kotlin', 'android.jetpack.viewmodel', 'android.component.activity.lifecycle'],
+    prerequisites: ['android.languages.kotlin', 'android.design_pattern.observer.overview', 'android.jetpack.viewmodel', 'android.component.activity.lifecycle'],
     related: ['android.architecture.mvvm', 'android.jetpack.livedata', 'android.data_store.room_transactions', 'android.networking.basics', 'android.component.content_provider', 'android.component.broadcast.overview'],
     learningOutcomes: [
       'Giải thích được vì sao Flow lạnh chạy lại producer cho từng collector, còn StateFlow và SharedFlow là nóng và dùng chung cho mọi collector.',
@@ -53391,11 +53362,11 @@ sensorManager.registerListener(lightListener, lightSensor, SensorManager.SENSOR_
 
 <h2>Flow là gì?</h2>
 
-<p><strong>Flow</strong> (<code>kotlinx.coroutines.flow.Flow&lt;T&gt;</code>) là luồng bất đồng bộ phát lần lượt nhiều giá trị theo thời gian, dựng trên coroutine: producer gọi <code>emit(value)</code>, consumer nhận bằng hàm <code>suspend</code> <code>collect</code>. Flow thường là <strong>lạnh</strong>: mỗi lần <code>collect</code> chạy lại producer cho riêng collector đó; <code>StateFlow</code> và <code>SharedFlow</code> là <strong>nóng</strong>: một nguồn giá trị dùng chung cho mọi collector.</p>
+<p><strong>Flow</strong> (<code>kotlinx.coroutines.flow.Flow&lt;T&gt;</code>) là luồng bất đồng bộ phát lần lượt nhiều giá trị theo thời gian, dựng trên coroutine: producer gọi <code>emit(value)</code>, consumer nhận bằng hàm <code>suspend</code> <code>collect</code>. Flow thường là <strong>lạnh</strong>: mỗi lần <code>collect</code> chạy lại producer cho riêng collector đó; <code>StateFlow</code> và <code>SharedFlow</code> là <strong>nóng</strong>: một nguồn giá trị dùng chung cho mọi collector, kể cả khi nguồn chung bắt đầu và dừng theo số collector (<a href="overview.md" target="_blank" rel="noopener">Observer Pattern Overview</a>, mục "Hot và cold").</p>
 
-<p>Mental model dùng lại từ <a href="overview.md" target="_blank" rel="noopener">Observer Pattern Overview</a>: <strong>đặt báo dài hạn</strong>. Flow lạnh là <strong>bản in theo yêu cầu</strong>: khai báo Flow chưa in gì; mỗi người đặt (<code>collect</code>) được in riêng một bộ từ số 1. Flow nóng là <strong>báo in theo lịch</strong>: tờ báo vẫn ra dù có ai đặt hay không, người đặt muộn chỉ nhận từ số hiện tại; <code>StateFlow</code> còn đưa ngay số mới nhất cho người vừa đặt.</p>
+<p>Mental model dùng lại từ <a href="overview.md" target="_blank" rel="noopener">Observer Pattern Overview</a>: <strong>đặt báo dài hạn</strong>. Flow lạnh là <strong>bản in theo yêu cầu</strong>: khai báo Flow chưa in gì; mỗi người đặt (<code>collect</code>) được in riêng một bộ từ số 1. Flow nóng là <strong>báo in chung theo lịch</strong>: mọi người đặt nhận cùng một bản in, người đặt muộn nhận từ số hiện tại; <code>StateFlow</code> còn đưa ngay số mới nhất cho người vừa đặt. Với <code>stateIn</code>/<code>shareIn</code>, <code>SharingStarted</code> quyết định máy in chạy khi nào.</p>
 
-<p>Đây là một hiện thực của Observer Pattern: collector là observer, <code>collect</code> là đăng ký, huỷ coroutine đang collect là huỷ đăng ký. Khái niệm observer, hot/cold, push/pull ở <a href="overview.md" target="_blank" rel="noopener">Observer Pattern Overview</a>.</p>
+<p>Đây là một hiện thực của Observer Pattern: collector là observer, <code>collect</code> là đăng ký, huỷ coroutine đang collect là huỷ đăng ký.</p>
 
 <div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước: coroutine.</strong> Bài dùng hàm <code>suspend</code>, <code>launch</code>, scope (<code>viewModelScope</code>, <code>lifecycleScope</code>), dispatcher và việc huỷ coroutine ở mức tối thiểu. Coroutine là code bất đồng bộ viết tuần tự, tạm dừng được mà không chặn thread; học ở 8.4.3 Coroutines (chưa có bài). Test dùng <code>runTest</code> của <code>kotlinx-coroutines-test</code>, chạy <code>delay</code> trên thời gian ảo.</div></div>
 
@@ -53525,7 +53496,7 @@ sequenceDiagram
 <pre data-lang="kotlin"><code>// Cart.kt
 data class Cart(val quantities: Map&lt;String, Int&gt; = emptyMap()) {
     val itemCount: Int get() = quantities.values.sum()
-    fun plus(productId: String) =
+    fun withItemAdded(productId: String) =
         copy(quantities = quantities + (productId to (quantities[productId] ?: 0) + 1))
 }
 
@@ -53535,13 +53506,13 @@ class CartStore {
     val cart: StateFlow&lt;Cart&gt; = _cart.asStateFlow()               // chỉ đưa ra bản read-only
 
     fun add(productId: String) {
-        _cart.update { current -&gt; current.plus(productId) }       // (2) đọc-sửa-ghi nguyên tử
+        _cart.update { current -&gt; current.withItemAdded(productId) }       // (2) đọc-sửa-ghi nguyên tử
     }
 }</code></pre>
 
 <p><strong>Kết quả:</strong> gọi <code>add()</code> hai lần rồi <code>store.cart.first().itemCount</code> trả <code>2</code> (bước 4). Cung cấp một <code>CartStore</code> cho cả app là việc của DI (<a href="../di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>).</p>
 
-<p><code>SharedFlow</code> hợp với <strong>sự kiện</strong> nhiều nơi cùng nghe và chỉ cần với ai đang nghe, ví dụ "đồng bộ xong, màn nào đang mở thì tải lại" (màn chưa mở sẽ tự tải khi mở):</p>
+<p><code>SharedFlow</code> hợp với <strong>sự kiện</strong> nhiều nơi cùng nghe và chỉ có ý nghĩa với nơi đang nghe, ví dụ "đồng bộ xong, màn nào đang mở thì tải lại" (màn chưa mở sẽ tự tải khi mở):</p>
 
 <pre data-lang="kotlin"><code>// SyncEvents.kt
 class SyncEvents {
@@ -53652,7 +53623,7 @@ class ObserveVisibleOrders(
 
 <p><strong>Giữ nguyên context (context preservation).</strong> Producer chạy trong context của collector; không được bọc <code>emit()</code> trong <code>withContext</code>. Muốn producer chạy trên thread khác thì dùng <code>flowOn(dispatcher)</code>: nó chỉ đổi context cho các khâu <strong>đứng trước</strong> nó (upstream), các khâu sau và <code>collect</code> giữ context của collector. Bên dưới, <code>flowOn</code> chạy upstream trong một coroutine riêng và chuyển giá trị qua một buffer.</p>
 
-<p><strong>Lỗi trong suốt (exception transparency).</strong> <code>catch { }</code> chỉ bắt lỗi của <strong>upstream</strong>, không bắt lỗi trong lambda của <code>collect</code>. Trong <code>catch</code> có thể <code>emit</code> giá trị thay thế hoặc ném lại lỗi. Upstream đã ném lỗi thì Flow đó <strong>đã kết thúc</strong>: <code>catch</code> chỉ phát được giá trị cuối. Muốn chạy lại nguồn thì dùng <code>retry(retries) { cause -&gt; ... }</code> hoặc <code>retryWhen { cause, attempt -&gt; ... }</code>; công thức backoff ở <a href="../../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "Retry Policy với Exponential Backoff &amp; Jitter".</p>
+<p><strong>Lỗi trong suốt (exception transparency).</strong> <code>catch { }</code> chỉ bắt lỗi của <strong>upstream</strong>, không bắt lỗi trong lambda của <code>collect</code>. Trong <code>catch</code> có thể <code>emit</code> giá trị thay thế hoặc ném lại lỗi. Upstream đã ném lỗi thì Flow đó <strong>đã kết thúc</strong>: <code>catch</code> chỉ phát thêm giá trị thay thế rồi Flow hoàn tất, không nối lại upstream. Muốn chạy lại nguồn thì dùng <code>retry(retries) { cause -&gt; ... }</code> hoặc <code>retryWhen { cause, attempt -&gt; ... }</code>; công thức backoff ở <a href="../../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "Retry Policy với Exponential Backoff &amp; Jitter".</p>
 
 <h4>Ví dụ: nhập danh bạ từ file CSV</h4>
 
@@ -53708,6 +53679,16 @@ class ContactImporter(
         .catch { e -&gt;                                                 // (5) chỉ bắt lỗi của upstream
             if (e is IOException) emit(ImportProgress.Failed) else throw e
         }
+}
+
+// ImportViewModel.kt
+private val _progress = MutableStateFlow&lt;ImportProgress?&gt;(null)
+val progress: StateFlow&lt;ImportProgress?&gt; = _progress.asStateFlow()
+
+fun startImport(file: File) {
+    viewModelScope.launch {                                           // (1) collect trên main
+        importer.import(file).collect { _progress.value = it }
+    }
 }</code></pre>
 
 <p><code>useLines</code> và <code>forEach</code> là hàm <code>inline</code> nên gọi được hàm <code>suspend</code> bên trong.</p>
@@ -53782,7 +53763,7 @@ class AmbientLightMonitor(private val sensorManager: SensorManager) {
   <li><code>shareIn(scope, started, replay)</code> trả <code>SharedFlow&lt;T&gt;</code>, khi không có giá trị ban đầu hợp lý hoặc cần replay nhiều giá trị.</li>
 </ul>
 
-<p><code>scope</code> là giới hạn sống của producer: <code>viewModelScope</code> cho UI state của một màn, scope cấp app (thường do DI cung cấp) cho dữ liệu dùng chung. <code>started</code> quyết định khi nào producer chạy:</p>
+<p><code>scope</code> là giới hạn sống của producer: <code>viewModelScope</code> cho UI state của một màn, scope cấp app (thường do DI cung cấp) cho dữ liệu dùng chung. <code>started</code> quyết định khi nào producer chung chạy và dừng; chọn kiểu nào thì kết quả vẫn nóng, vì không collector nào có producer riêng:</p>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
   <thead>
@@ -53850,7 +53831,7 @@ class ReaderViewModel(lightMonitor: AmbientLightMonitor) : ViewModel() {
         )
 }</code></pre>
 
-<p><strong>Kết quả:</strong> theo dõi bằng <code>dumpsys sensorservice</code>: xoay màn hình vài lần, listener không bị gỡ rồi đăng ký lại; ấn Home, chờ hơn 5 giây, listener biến mất. App thật nên có ngưỡng đệm để theme không nhấp nháy.</p>
+<p><strong>Kết quả:</strong> theo dõi bằng <code>dumpsys sensorservice</code>: xoay màn hình vài lần, listener không bị gỡ rồi đăng ký lại; ấn Home, chờ hơn 5 giây, listener biến mất.</p>
 
 <p>Nhiều ViewModel cùng cần một nguồn thì chia sẻ ở tầng data: <code>monitor.lux.shareIn(appScope, SharingStarted.WhileSubscribed(), replay = 1)</code> trong một object dùng chung cho cả app, để cả app chỉ có một listener.</p>
 
@@ -53862,14 +53843,14 @@ class ReaderViewModel(lightMonitor: AmbientLightMonitor) : ViewModel() {
 viewLifecycleOwner.lifecycleScope.launch {
     viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         launch { viewModel.theme.collect { applyTheme(it) } }
-        launch { viewModel.progress.collect { renderProgress(it) } }   // mỗi Flow một launch
+        launch { viewModel.readingProgress.collect { renderProgress(it) } }   // Flow thứ hai: mỗi Flow một launch
     }
 }
 
 // Compose (lifecycle-runtime-compose)
 val theme by viewModel.theme.collectAsStateWithLifecycle()</code></pre>
 
-<p>Chuỗi hệ quả: View xuống <code>STOPPED</code> → <code>repeatOnLifecycle</code> huỷ coroutine collect → số collector về 0 → 5 giây sau <code>stateIn</code> dừng upstream → <code>awaitClose</code> gỡ listener. Cơ chế <code>repeatOnLifecycle</code>, <code>flowWithLifecycle</code> và vì sao <code>launchWhenStarted</code> bị deprecated ở <a href="../../../session_04/components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>, mục "repeatOnLifecycle"; vì sao dùng <code>viewLifecycleOwner</code> ở <a href="../../../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>.</p>
+<p>Chuỗi hệ quả: View qua <code>onStop()</code> (state <code>CREATED</code>) → <code>repeatOnLifecycle</code> huỷ coroutine collect → số collector về 0 → 5 giây sau <code>stateIn</code> dừng upstream → <code>awaitClose</code> gỡ listener. Cơ chế <code>repeatOnLifecycle</code>, <code>flowWithLifecycle</code> và vì sao <code>launchWhenStarted</code> bị deprecated ở <a href="../../../session_04/components/activity/lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>, mục "repeatOnLifecycle"; vì sao dùng <code>viewLifecycleOwner</code> ở <a href="../../../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>.</p>
 
 <h2>Ví dụ thực tế</h2>
 
@@ -54008,7 +53989,7 @@ query.debounce(300)
     .flatMapLatest { keyword -&gt; flow { emit(Success(api.suggest(keyword))) } }
     .catch { emit(Error) }</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> lỗi mạng đầu tiên hiện lỗi đúng, nhưng sau đó gõ gì cũng không ra gợi ý: cả upstream đã kết thúc vì lỗi, <code>catch</code> chỉ phát được giá trị cuối.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> lỗi mạng đầu tiên hiện lỗi đúng, nhưng sau đó gõ gì cũng không ra gợi ý: cả upstream đã kết thúc vì lỗi, <code>catch</code> phát <code>Error</code> rồi Flow hoàn tất.</p>
 
 <p><strong>Cách sửa:</strong> đặt <code>catch</code> (và <code>retry</code> nếu cần) <strong>bên trong</strong> Flow con, như mục "Ví dụ thực tế".</p>
 
@@ -54027,7 +54008,7 @@ val orders: StateFlow&lt;List&lt;Order&gt;&gt;
 <pre data-lang="kotlin"><code>// Sai
 repeatOnLifecycle(Lifecycle.State.STARTED) {
     viewModel.theme.collect { applyTheme(it) }
-    viewModel.progress.collect { renderProgress(it) }    // không bao giờ chạy tới
+    viewModel.readingProgress.collect { renderProgress(it) }    // không bao giờ chạy tới
 }</code></pre>
 
 <p><strong>Lỗi lộ ra thế nào:</strong> <code>StateFlow</code> không bao giờ hoàn tất nên <code>collect</code> đầu treo mãi; phần UI của Flow thứ hai đứng yên mà Logcat không có lỗi.</p>
@@ -54115,7 +54096,7 @@ fun onAddToCart(id: String) { cartStore.add(id); _message.value = "Đã thêm v�
       'Triển khai được việc chuyển state của ViewModel từ LiveData sang StateFlow mà UI vẫn quan sát an toàn theo lifecycle.'
     ],
     knowledgeGap: 'Không đặt LiveData cạnh Flow và RxJava dẫn tới đưa LiveData xuống Repository (biến đổi chạy trên main thread, không debounce hay combine được), chuyển sang StateFlow nhưng collect không theo lifecycle nên UI vẫn cập nhật và giữ kết nối khi app ở background, hoặc dựa vào việc LiveData giao lại giá trị bằng nhau rồi bị StateFlow lặng lẽ bỏ qua.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '12 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -54257,7 +54238,7 @@ fun observeOverdueOrders(): LiveData&lt;List&lt;Order&gt;&gt; =
       <td style="padding:8px 12px;">Vẫn phát, trừ khi <code>distinctUntilChanged()</code></td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">Khi UI xuống <code>STOPPED</code></td>
+      <td style="padding:8px 12px;font-weight:600;">Khi UI qua <code>onStop()</code></td>
       <td style="padding:8px 12px;">Tự ngừng giao</td>
       <td style="padding:8px 12px;">Collector vẫn chạy, trừ khi collect trong <code>repeatOnLifecycle</code></td>
       <td style="padding:8px 12px;">Như <code>StateFlow</code></td>
@@ -54294,7 +54275,7 @@ fun observeOverdueOrders(): LiveData&lt;List&lt;Order&gt;&gt; =
   </tbody>
 </table>
 
-<p><code>StateFlow</code> là thứ thay thế trực tiếp cho LiveData: docs Android mô tả hai class "có nhiều điểm giống nhau", cùng là observable data holder, với hai khác biệt chính là giá trị khởi tạo bắt buộc và việc <code>observe()</code> của LiveData tự ngừng khi View <code>STOPPED</code> còn collect Flow thì không. <code>SharedFlow</code> không giữ state nên không thay LiveData cho state. RxJava và <code>Flow</code> cần thêm một lớp gắn lifecycle mà LiveData có sẵn. API của Flow học ở <a href="flow.md" target="_blank" rel="noopener">Flow</a>, của RxJava ở <a href="rxjava.md" target="_blank" rel="noopener">RxJava / RxAndroid</a>.</p>
+<p><code>StateFlow</code> là thứ thay thế trực tiếp cho LiveData: docs Android mô tả hai class "có nhiều điểm giống nhau", cùng là observable data holder, với hai khác biệt chính là giá trị khởi tạo bắt buộc và việc <code>observe()</code> của LiveData tự ngừng khi View qua <code>onStop()</code> còn collect Flow thì không. <code>SharedFlow</code> không giữ state nên không thay LiveData cho state. RxJava và <code>Flow</code> cần thêm một lớp gắn lifecycle mà LiveData có sẵn. API của Flow học ở <a href="flow.md" target="_blank" rel="noopener">Flow</a>, của RxJava ở <a href="rxjava.md" target="_blank" rel="noopener">RxJava / RxAndroid</a>.</p>
 
 <h4>Ví dụ: tỉ số trận đấu khi app xuống background</h4>
 
@@ -54304,7 +54285,7 @@ fun observeOverdueOrders(): LiveData&lt;List&lt;Order&gt;&gt; =
 
 <ol>
   <li>Fragment <code>STARTED</code>: ba observer cùng nhận tỉ số từ một <code>StateFlow</code> (một socket): LiveData tạo bằng <code>asLiveData()</code>, collector thẳng trong <code>lifecycleScope.launch</code>, collector trong <code>repeatOnLifecycle(STARTED)</code>.</li>
-  <li>Bấm Home, Fragment <code>STOPPED</code>: observer của LiveData thành inactive, không được gọi; collector trong <code>repeatOnLifecycle</code> bị huỷ; collector trong <code>launch</code> <strong>vẫn chạy</strong> và gán vào View đang ẩn.</li>
+  <li>Bấm Home, Fragment qua <code>onStop()</code> (state <code>CREATED</code>): observer của LiveData thành inactive, không được gọi; collector trong <code>repeatOnLifecycle</code> bị huỷ; collector trong <code>launch</code> <strong>vẫn chạy</strong> và gán vào View đang ẩn.</li>
   <li>Sau 5 giây: <code>asLiveData()</code> hết timeout nên ngừng collect; nhưng <code>StateFlow</code> vẫn còn một collector (cái trong <code>launch</code>) nên <code>WhileSubscribed</code> không dừng upstream, socket <strong>không đóng</strong>.</li>
   <li>Quay lại app: LiveData giao giá trị mới nhất; <code>repeatOnLifecycle</code> chạy lại khối collect và nhận ngay giá trị hiện tại của <code>StateFlow</code>.</li>
 </ol>
@@ -54317,7 +54298,7 @@ sequenceDiagram
     F-&gt;&gt;VM: (1) observe liveScore, collect score (launch), collect score (repeatOnLifecycle)
     R--&gt;&gt;VM: Score 1-0
     VM--&gt;&gt;F: cả ba observer nhận 1-0
-    Note over F: (2) STOPPED
+    Note over F: (2) onStop(), state CREATED
     R--&gt;&gt;VM: Score 2-0
     VM--&gt;&gt;F: chỉ collector trong launch nhận, gán vào View đang ẩn
     Note over VM,R: (3) sau 5 giây asLiveData ngừng collect, socket vẫn mở vì còn collector trong launch
@@ -54397,6 +54378,16 @@ val points: LiveData&lt;PointsUiState&gt; = loyaltyModule.observePoints()
 
 <p>Từ Lifecycle 2.6.0, <code>toLiveData()</code> và <code>toPublisher()</code> là extension Kotlin trong <code>lifecycle-reactivestreams</code>; <code>LiveDataReactiveStreams.fromPublisher()</code>/<code>toPublisher()</code> là cách gọi cũ từ Java.</p>
 
+<p>Chiều ngược lại, <code>toPublisher(owner)</code> cho code Rx cũ quan sát LiveData theo lifecycle; <code>Flowable.fromPublisher</code> bọc <code>Publisher</code> đó thành <code>Flowable</code> để dùng toán tử Rx:</p>
+
+<pre data-lang="kotlin"><code>// CartFragment.kt, trong onViewCreated(): module analytics cũ nhận Flowable
+viewDisposables.add(
+    Flowable.fromPublisher(viewModel.itemCount.toPublisher(viewLifecycleOwner))   // chỉ nhận khi View active
+        .distinctUntilChanged()
+        .subscribe { count -&gt; analytics.trackCartSize(count) }
+)
+// onDestroyView(): viewDisposables.clear()</code></pre>
+
 <h3>Chuyển state của ViewModel từ LiveData sang <code>StateFlow</code></h3>
 
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
@@ -54451,7 +54442,7 @@ val points: LiveData&lt;PointsUiState&gt; = loyaltyModule.observePoints()
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>InstantTaskExecutorRule</code></td>
       <td style="padding:8px 12px;"><code>runTest</code> + <code>MainDispatcherRule</code></td>
-      <td style="padding:8px 12px;">Đọc <code>stateFlow.value</code>, không cần observer</td>
+      <td style="padding:8px 12px;">Đọc <code>stateFlow.value</code> sau <code>advanceUntilIdle()</code>; <code>stateIn(WhileSubscribed)</code> vẫn cần một collector</td>
     </tr>
   </tbody>
 </table>
@@ -54544,13 +54535,14 @@ class OrderListViewModelTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() } // có collector để WhileSubscribed chạy
 
         viewModel.onFilterSelected(OrderFilter.DELIVERED)
+        advanceUntilIdle()                               // chạy coroutine đang chờ trên StandardTestDispatcher
 
         val state = viewModel.uiState.value as OrderListUiState.Content
         assertTrue(state.orders.all { it.status == OrderStatus.DELIVERED })
     }
 }</code></pre>
 
-<p><code>stateIn(WhileSubscribed)</code> chỉ chạy upstream khi có collector, nên test mở một collector trong <code>backgroundScope</code> (tự huỷ khi test xong), theo hướng dẫn "Testing Kotlin flows on Android"; <code>runTest</code> ở <a href="flow.md" target="_blank" rel="noopener">Flow</a>. <code>MainDispatcherRule</code> như ở <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, mục "Ví dụ thực tế".</p>
+<p><code>stateIn(WhileSubscribed)</code> chỉ chạy upstream khi có collector, nên test mở một collector trong <code>backgroundScope</code> (tự huỷ khi test xong), theo hướng dẫn "Testing Kotlin flows on Android"; <code>runTest</code> ở <a href="flow.md" target="_blank" rel="noopener">Flow</a>. <code>MainDispatcherRule</code> thay <code>Dispatchers.Main</code> bằng <code>StandardTestDispatcher</code> (<a href="../../architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, mục "Ví dụ thực tế"); dispatcher này chỉ chạy coroutine khi scheduler được đẩy, nên phải <code>advanceUntilIdle()</code> trước khi đọc <code>uiState.value</code>, không thì vẫn là <code>Loading</code>.</p>
 
 <p><strong>Kết quả:</strong> màn hình chạy như cũ: đổi chip thì danh sách đổi, xoay màn hình không query lại (nhờ <code>WhileSubscribed(5_000)</code>), bấm Home thì không còn cập nhật View. Không còn kiểm tra <code>null</code> của <code>orders.value</code>, và test không cần <code>InstantTaskExecutorRule</code>.</p>
 
@@ -54568,8 +54560,7 @@ class OrderListViewModelTest {
 
 <h3>1. LiveData trong Repository</h3>
 
-<pre data-lang="kotlin"><code>// Sai: Repository trả LiveData và biến đổi nặng bằng map
-fun observeOverdueOrders(): LiveData&lt;List&lt;Order&gt;&gt; = orderDao.observeAll().map { it.filter(::isOverdue) }</code></pre>
+<p>Repository trả <code>LiveData</code> và biến đổi nặng bằng <code>map</code>, như đoạn code ở mục "Vấn đề cần giải quyết".</p>
 
 <p><strong>Lỗi lộ ra thế nào:</strong> lọc vài nghìn dòng trên main thread làm logcat báo <code>Skipped ... frames</code>; ViewModel muốn ghép với nguồn khác phải dựng <code>MediatorLiveData</code> thủ công.</p>
 
@@ -54580,7 +54571,7 @@ fun observeOverdueOrders(): LiveData&lt;List&lt;Order&gt;&gt; = orderDao.observe
 <pre data-lang="kotlin"><code>// Sai: thay observe(viewLifecycleOwner) bằng launch + collect
 viewLifecycleOwner.lifecycleScope.launch { viewModel.uiState.collect(::render) }</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> như ví dụ tỉ số trận đấu: app ở background vẫn gán View, và <code>WhileSubscribed</code> không bao giờ dừng upstream, nên socket, GPS hay query vẫn chạy.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> như ví dụ tỉ số trận đấu: app ở background vẫn gán View, và <code>WhileSubscribed</code> không dừng upstream tới khi View bị huỷ, nên socket, GPS hay query vẫn chạy.</p>
 
 <p><strong>Cách sửa:</strong> <code>repeatOnLifecycle(Lifecycle.State.STARTED)</code> quanh <code>collect</code>, hoặc <code>collectAsStateWithLifecycle()</code> trong Compose.</p>
 
@@ -54669,7 +54660,7 @@ val unreadCount: LiveData&lt;Int&gt; get() = repository.observeUnreadCount().asL
       'Biết khi nào dùng manual DI, Dagger, Hilt, Koin hoặc Kodein dựa trên cách dựng graph, thời điểm phát hiện lỗi và nền tảng cần hỗ trợ.'
     ],
     knowledgeGap: 'Không nắm DI dẫn tới class tự tạo Retrofit, Room và Repository bên trong mình: unit test buộc phải gọi mạng thật, mỗi màn hình tạo một OkHttpClient riêng, dữ liệu của người dùng cũ còn sót lại sau khi đăng xuất, và khi dùng Hilt hay Koin thì chỉ chép annotation hoặc DSL mà không hiểu thư viện đang tự động hoá việc gì.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '13 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -55032,8 +55023,15 @@ class UserSessionContainer(val user: LoggedInUser, shopApi: ShopApi) {
     val cartRepository: CartRepository = DefaultCartRepository(user.id, shopApi)
 }
 
-// AppContainer.kt (okHttpClient và retrofit khai báo như ví dụ trước)
+// AppContainer.kt (okHttpClient khai báo như ví dụ trước)
 class AppContainer(context: Context) {
+    private val retrofit: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://api.shop.example/")
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
     private val shopApi: ShopApi by lazy { retrofit.create(ShopApi::class.java) }
 
     var session: UserSessionContainer? = null                         // (1) chưa có phiên
@@ -55101,7 +55099,7 @@ val Factory: ViewModelProvider.Factory = viewModelFactory {
       <td style="padding:8px 12px;font-weight:600;">Thiếu binding lộ ra lúc</td>
       <td style="padding:8px 12px;">Build</td>
       <td style="padding:8px 12px;">Build</td>
-      <td style="padding:8px 12px;">Runtime, hoặc build nếu dùng Koin Compiler Plugin</td>
+      <td style="padding:8px 12px;">Runtime; test <code>verify()</code>, hoặc build nếu dùng Koin Compiler Plugin</td>
       <td style="padding:8px 12px;">Runtime</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
@@ -55314,7 +55312,7 @@ override fun onCreate() {
       'Nhận diện được các sai lầm khi dùng Dagger trong Android như inject sau `super.onCreate()`, tạo component mới ở mỗi Activity và inject qua kiểu lớp cha.'
     ],
     knowledgeGap: 'Không hiểu Dagger thì gặp lỗi build dài vài chục dòng mà không biết đọc từ đâu, đánh @Singleton rồi vẫn thấy hai OkHttpClient vì mỗi Activity tạo một component, hoặc crash UninitializedPropertyAccessException vì inject sau super.onCreate(); và khi dùng Hilt thì không biết các component, scope và module mà Hilt sinh ra thực chất là gì.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '18 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -55369,7 +55367,10 @@ plugins {
 dependencies {
     implementation("com.google.dagger:dagger:2.60.1")
     ksp("com.google.dagger:dagger-compiler:2.60.1")     // dự án cũ: kapt(...) với plugin kotlin-kapt
+    kspAndroidTest("com.google.dagger:dagger-compiler:2.60.1")   // kapt: kaptAndroidTest(...)
 }</code></pre>
+
+<p><code>ksp(...)</code> chỉ chạy processor trên <code>src/main</code>. Component khai báo trong <code>src/androidTest</code> (như <code>TestAppComponent</code> ở mục "Ví dụ thực tế") cần thêm <code>kspAndroidTest</code>, component trong <code>src/test</code> cần <code>kspTest</code>; thiếu thì class <code>Dagger...</code> của nó không được sinh.</p>
 
 <p>Code sinh ra nằm trong <code>build/generated/ksp/</code>. Chỉ dùng trực tiếp class có tiền tố <code>Dagger</code> (như <code>DaggerAppComponent</code>); <code>Xxx_Factory</code>, <code>Xxx_MembersInjector</code> là chi tiết nội bộ.</p>
 
@@ -55638,8 +55639,8 @@ object NetworkModule {
 <ul>
   <li><strong>Scope gắn với instance component, không gắn với process.</strong> <code>@Singleton</code> chỉ là "một instance trong component này". Tạo hai <code>AppComponent</code> thì có hai <code>OkHttpClient</code>. Component gốc sống suốt process vì nó được giữ trong <code>Application</code>.</li>
   <li><strong>Quy tắc khớp scope:</strong> binding có scope chỉ dùng được trong component cùng scope; component có scope chỉ chứa binding cùng scope hoặc không scope; subcomponent không được dùng lại scope của component tổ tiên.</li>
-  <li><strong>Đặt tên scope theo vòng đời</strong>, không theo tính năng: <code>@ActivityScope</code>, <code>@UserScope</code> thay vì <code>@LoginScope</code>, để component anh em dùng lại được. <code>@Singleton</code> (từ <code>javax.inject</code>) là scope duy nhất có sẵn.</li>
-  <li><strong>Scope có giá:</strong> object có scope sống bằng component, và mỗi lần lấy phải qua khoá kiểm tra hai lần (<code>DoubleCheck</code>). Docs khuyên chỉ scope khi cần: object đắt để tạo hoặc có trạng thái phải dùng chung. <code>@Reusable</code> là lựa chọn ở giữa: Dagger được phép cache để đỡ tạo lại, nhưng không đảm bảo đúng một instance, chỉ dùng cho object không trạng thái.</li>
+  <li><strong>Đặt tên scope theo vòng đời</strong>, không theo tính năng: <code>@ActivityScope</code>, <code>@UserScope</code> thay vì <code>@LoginScope</code>, để component anh em dùng lại được. <code>@Singleton</code> (từ <code>javax.inject</code>) là scope có sẵn duy nhất giữ đúng một instance; <code>@Reusable</code> của Dagger cũng là scope annotation nhưng không đảm bảo điều đó (xem dưới).</li>
+  <li><strong>Scope có giá:</strong> object có scope sống bằng component, và được bọc trong <code>DoubleCheck</code>: lần lấy đầu phải qua khoá, các lần sau đọc một field <code>volatile</code>. Docs khuyên chỉ scope khi cần: object đắt để tạo hoặc có trạng thái phải dùng chung. <code>@Reusable</code> là lựa chọn ở giữa: Dagger được phép cache để đỡ tạo lại, nhưng không đảm bảo đúng một instance, chỉ dùng cho object không trạng thái.</li>
 </ul>
 
 <p>Hai kiểu yêu cầu liên quan: <strong><code>Lazy&lt;T&gt;</code></strong> (<code>dagger.Lazy</code>) hoãn việc tạo tới lần <code>get()</code> đầu và trả cùng instance cho các lần sau; <strong><code>Provider&lt;T&gt;</code></strong> chạy lại binding ở mỗi lần <code>get()</code>, như ví dụ ViewModel ở trên.</p>
@@ -55755,7 +55756,7 @@ class ImageCompressor @Inject constructor(
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher
 )</code></pre>
 
-<p><code>javax.inject</code> có sẵn qualifier <code>@Named("...")</code>, nhưng qualifier tự định nghĩa an toàn hơn: gõ sai tên là lỗi compile chứ không phải một binding khác. Dispatcher là khái niệm của coroutine, học ở 8.4.3 Coroutines (chưa có bài).</p>
+<p><code>javax.inject</code> có sẵn qualifier <code>@Named("...")</code>, nhưng nó dựa vào chuỗi: gõ sai thì Dagger báo <code>MissingBinding</code> ở nơi xa chỗ gõ, hoặc khớp nhầm một tên khác đã có. Qualifier tự định nghĩa là một kiểu: sai tên là lỗi compile ngay tại chỗ, và refactor được. Dispatcher là khái niệm của coroutine, học ở 8.4.3 Coroutines (chưa có bài).</p>
 
 <h3>Đọc lỗi build của Dagger</h3>
 
@@ -55926,7 +55927,7 @@ class WeatherScreenTest {
 
 <p>Khai báo runner trong <code>build.gradle.kts</code>: <code>defaultConfig { testInstrumentationRunner = "vn.weather.WeatherTestRunner" }</code>. <code>onView</code> là Espresso, thuộc phần test giao diện.</p>
 
-<p><strong>Kết quả:</strong> <code>./gradlew connectedDebugAndroidTest</code> chạy test khi tắt mạng vẫn đạt. Nếu một binding mà <code>WeatherActivity</code> cần chỉ có trong <code>NetworkModule</code> và quên đưa vào bản giả, build của <code>androidTest</code> trượt với <code>MissingBinding</code>, không phải test chạy rồi crash.</p>
+<p><strong>Kết quả:</strong> <code>./gradlew connectedDebugAndroidTest</code> chạy test khi tắt mạng vẫn đạt. <code>DaggerTestAppComponent</code> được sinh nhờ <code>kspAndroidTest</code> ở mục "Cài đặt"; thiếu dòng đó thì build của <code>androidTest</code> trượt vì không tìm thấy class này. Nếu một binding mà <code>WeatherActivity</code> cần chỉ có trong <code>NetworkModule</code> và quên đưa vào bản giả, build của <code>androidTest</code> trượt với <code>MissingBinding</code>, không phải test chạy rồi crash.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
@@ -55994,7 +55995,7 @@ class CheckoutDraft @Inject constructor() {
     var voucherCode: String? = null
 }</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> người dùng thanh toán xong, mở luồng thanh toán mới thì địa chỉ và mã giảm giá cũ vẫn còn; đăng xuất rồi đăng nhập tài khoản khác cũng thấy. Object scope dài cũng chiếm bộ nhớ suốt process và mỗi lần lấy phải qua <code>DoubleCheck</code>.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> người dùng thanh toán xong, mở luồng thanh toán mới thì địa chỉ và mã giảm giá cũ vẫn còn; đăng xuất rồi đăng nhập tài khoản khác cũng thấy. Object scope dài cũng chiếm bộ nhớ suốt process.</p>
 
 <p><strong>Cách sửa:</strong> chỉ scope theo đúng vòng đời dữ liệu: dữ liệu theo phiên vào subcomponent <code>@UserScope</code>; dữ liệu của một màn hình vào ViewModel; object không trạng thái thì để không scope (hoặc <code>@Reusable</code>).</p>
 
@@ -56057,7 +56058,7 @@ class CheckoutDraft @Inject constructor() {
     tags: ['android', 'dependency-injection', 'koin', 'kotlin-multiplatform', 'viewmodel', 'testing'],
     domain: 'Android',
     module: 'Session 07',
-    prerequisites: ['android.jetpack.viewmodel', 'android.languages.kotlin'],
+    prerequisites: ['android.design_pattern.di.overview', 'android.jetpack.viewmodel', 'android.languages.kotlin'],
     related: ['android.architecture.mvvm', 'android.data_store.room_architecture', 'android.networks.ktor_apollo', 'android.testing.unit_testing', 'android.component.service.overview'],
     learningOutcomes: [
       'Giải thích được cách Koin tra cứu và tạo dependency lúc chạy từ các definition trong module, và hệ quả của nó so với graph sinh lúc compile của Hilt.',
@@ -56067,7 +56068,7 @@ class CheckoutDraft @Inject constructor() {
       'Nhận diện được các sai lầm như gọi get() trong class nghiệp vụ biến DI thành Service Locator, lấy ViewModel bằng by inject(), và dùng single cho state chỉ thuộc một màn hình.'
     ],
     knowledgeGap: 'Không hiểu Koin resolve lúc chạy thì dễ tin "build qua là đúng": quên một definition hay đổi constructor quên sửa module, app vẫn build và chỉ crash khi người dùng mở đúng màn hình đó. Không phân biệt get() trong composition root với get() trong class nghiệp vụ thì code quay về Service Locator, khó test như trước khi có DI.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -56102,7 +56103,7 @@ class CheckoutDraft @Inject constructor() {
 
 <h2>Cách hoạt động</h2>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ví dụ dùng Room (<a href="../../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>), <code>StateFlow</code> (<a href="../observer/flow.md" target="_blank" rel="noopener">Flow</a>) và Ktor client (<a href="../../../session_08/networks/ktor_apollo.md" target="_blank" rel="noopener">Ktor and Apollo Android</a>) ở mức tối thiểu. Lambda with receiver, nền của DSL <code>module { }</code>, ở <a href="../../../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a>.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ví dụ dùng Room (<a href="../../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>), <code>StateFlow</code> (<a href="../observer/flow.md" target="_blank" rel="noopener">Flow</a>) và Ktor client (<a href="../../../session_08/networks/ktor_apollo.md" target="_blank" rel="noopener">Ktor and Apollo Android</a>) ở mức tối thiểu.</div></div>
 
 <h3>Container, module và definition</h3>
 
@@ -56112,6 +56113,7 @@ class CheckoutDraft @Inject constructor() {
 dependencies {
     implementation(platform("io.insert-koin:koin-bom:4.2.2"))
     implementation("io.insert-koin:koin-android")              // gồm koin-core và hỗ trợ ViewModel
+    implementation("io.insert-koin:koin-androidx-compose")     // koinViewModel() cho Compose
     testImplementation("io.insert-koin:koin-test-junit4")
 }</code></pre>
 
@@ -56171,14 +56173,14 @@ dependencies {
   <li>Một nơi yêu cầu <code>NoteRepository</code> (ViewModel ở mục sau). Koin tìm definition theo kiểu (và qualifier nếu có).</li>
   <li>Definition là <code>single</code> và chưa có instance: Koin chạy cách tạo. Constructor của <code>RoomNoteRepository</code> cần <code>NoteDao</code>, nên Koin lặp lại bước 2 cho <code>NoteDao</code>, rồi cho <code>NotesDatabase</code>.</li>
   <li>Instance <code>single</code> được cất lại; lần hỏi sau trả đúng instance đó. <code>factory</code> thì mỗi lần chạy lại cách tạo.</li>
-  <li>Không tìm thấy definition: Koin ném exception <strong>lúc chạy</strong>, đúng lúc được hỏi.</li>
+  <li>Không tìm thấy definition: Koin ném <code>NoDefinitionFoundException</code> <strong>lúc chạy</strong>, đúng lúc được hỏi. Thiếu ở tầng dưới (đang tạo <code>RoomNoteRepository</code> thì thiếu <code>NoteDao</code>) thì exception này được bọc trong <code>InstanceCreationException</code> của definition đang tạo.</li>
 </ol>
 
 <div class="mermaid">
 flowchart TD
     Start["(1) startKoin: ghi definition, chưa tạo gì"] --&gt; Req["(2) cần NoteRepository"]
     Req --&gt; Found{"Có definition?"}
-    Found --&gt;|"không"| Err["(5) NoDefinitionFoundException lúc chạy"]
+    Found --&gt;|"không"| Err["(5) NoDefinitionFoundException lúc chạy&lt;br/&gt;(thiếu ở tầng dưới: bọc trong InstanceCreationException)"]
     Found --&gt;|"single, đã có instance"| Cached["(4) trả instance đã cất"]
     Found --&gt;|"single, chưa có / factory"| Create["(3) gọi constructor&lt;br/&gt;get() từng tham số: NoteDao → NotesDatabase"]
     Create --&gt; Store["(4) single: cất lại; factory: không cất"]
@@ -56186,12 +56188,12 @@ flowchart TD
 
 <pre data-lang="kotlin"><code>// di/DataModule.kt
 val dataModule = module {
-    single {                                                                   // (3) builder: dùng lambda
+    single {                                                                   // (3) cách tạo là lambda gọi builder
         Room.databaseBuilder(androidContext(), NotesDatabase::class.java, "notes.db").build()
     }
-    single { get&lt;NotesDatabase&gt;().noteDao() }
-    singleOf(::RoomNoteRepository) bind NoteRepository::class                  // (4) một instance, gắn interface
-    factoryOf(::NoteDateFormatter)                                             // (4) mỗi lần một instance
+    single { get&lt;NotesDatabase&gt;().noteDao() }                                  // (3) NoteDao lấy từ NotesDatabase
+    singleOf(::RoomNoteRepository) bind NoteRepository::class                  // (2) tìm theo NoteRepository; (4) cất một instance
+    factoryOf(::NoteDateFormatter)                                             // (4) factory: không cất
 }
 
 // data/RoomNoteRepository.kt: không annotation, không import Koin
@@ -56214,7 +56216,7 @@ class NotesApplication : Application() {
 
 <p><code>androidContext()</code> trả <code>Application</code> đã đưa vào lúc <code>startKoin</code>, nên <code>single</code> không giữ nhầm Activity. Các hàm <code>singleOf</code>, <code>factoryOf</code>, <code>viewModelOf</code> nằm trong package <code>org.koin.core.module.dsl</code>.</p>
 
-<p><strong>Kết quả:</strong> gọi <code>getKoin().get&lt;NoteRepository&gt;()</code> hai lần trả cùng một object (<code>===</code> là <code>true</code>), còn <code>NoteDateFormatter</code> trả hai object khác nhau. Xoá dòng <code>single { get&lt;NotesDatabase&gt;().noteDao() }</code>: app <strong>vẫn build và khởi động bình thường</strong>, chỉ crash khi lần đầu có nơi cần <code>NoteRepository</code>, với <code>NoDefinitionFoundException</code> cho <code>NoteDao</code>. Đây là đánh đổi cốt lõi của việc resolve lúc chạy; mục "Kiểm tra cấu hình" xử lý nó.</p>
+<p><strong>Kết quả:</strong> gọi <code>getKoin().get&lt;NoteRepository&gt;()</code> hai lần trả cùng một object (<code>===</code> là <code>true</code>), còn <code>NoteDateFormatter</code> trả hai object khác nhau. Xoá dòng <code>single { get&lt;NotesDatabase&gt;().noteDao() }</code>: app <strong>vẫn build và khởi động bình thường</strong>, chỉ crash khi lần đầu có nơi cần <code>NoteRepository</code>, với <code>InstanceCreationException</code> cho <code>RoomNoteRepository</code> mà nguyên nhân (cause) là <code>NoDefinitionFoundException</code> cho <code>NoteDao</code>. Đây là đánh đổi cốt lõi của việc resolve lúc chạy; mục "Kiểm tra cấu hình" xử lý nó.</p>
 
 <h3>Lấy dependency trên Android: constructor, <code>by inject()</code>, ViewModel</h3>
 
@@ -56294,7 +56296,7 @@ fun NoteEditorRoute(viewModel: NoteEditorViewModel = koinViewModel()) { /* ... *
 <p>Vì Koin resolve lúc chạy, cần một bước soát danh bạ trước khi phát hành. Có hai cách:</p>
 
 <ul>
-  <li><strong><code>verify()</code></strong> (trong <code>koin-test</code>, chạy trên JVM): đọc constructor của class trong từng definition và kiểm tra mỗi tham số đều có definition trong cây module. Nó không tạo instance nào, không cần mock. Kiểu do nền tảng cung cấp (<code>Context</code>, <code>SavedStateHandle</code>) khai báo qua <code>extraTypes</code>. Giới hạn: <code>verify()</code> <strong>chỉ đọc constructor</strong>, không đọc các lời gọi <code>get()</code> viết tay trong lambda, nên định nghĩa bằng Constructor DSL được kiểm tra kỹ hơn Classic DSL.</li>
+  <li><strong><code>verify()</code></strong> (trong <code>koin-test</code>, chạy trên JVM): với mỗi definition, đọc các constructor public của kiểu chính (primary type) mà definition khai báo, dù viết bằng Classic DSL hay Constructor DSL, và kiểm tra mỗi tham số đều có definition trong cây module. Nó không chạy definition nào, không cần mock. Kiểu do nền tảng cung cấp (<code>Context</code>, <code>SavedStateHandle</code>) khai báo qua <code>extraTypes</code>. Giới hạn: <code>verify()</code> <strong>chỉ đọc constructor</strong>, không đọc thân lambda, nên kiểu dựng bằng builder vẫn bị soát theo constructor của chính nó và có thể bị báo thiếu sai: <code>single { HttpClient { ... } }</code> bị báo thiếu <code>HttpClientEngine</code> vì constructor <code>HttpClient</code> cần tham số đó, nên <code>HttpClientEngine</code> cũng phải vào <code>extraTypes</code>. Nó cũng không kiểm tra qualifier.</li>
   <li><strong>Koin Compiler Plugin</strong> (Gradle plugin <code>io.insert-koin.compiler.plugin</code>, Koin 4.2+, Kotlin 2.3.20+ với K2): kiểm tra graph <strong>lúc build</strong> tại điểm <code>startKoin</code>, kể cả lời gọi <code>get()</code>. Thiếu dependency là build thất bại với lỗi <code>KOIN-D001</code>. Module nạp thêm lúc chạy bằng <code>loadKoinModules()</code> nằm ngoài tầm nhìn của plugin.</li>
 </ul>
 
@@ -56308,7 +56310,7 @@ fun NoteEditorRoute(viewModel: NoteEditorViewModel = koinViewModel()) { /* ... *
 
 <ol>
   <li>Test gọi <code>appModule.verify(extraTypes = ...)</code>; <code>appModule</code> gom <code>dataModule</code> và <code>uiModule</code> bằng <code>includes</code>.</li>
-  <li>Với mỗi definition, <code>verify()</code> đọc constructor của class (<code>RoomNoteRepository</code>, <code>NoteEditorViewModel</code>...).</li>
+  <li>Với mỗi definition, <code>verify()</code> đọc constructor public của kiểu chính (<code>RoomNoteRepository</code>, <code>NoteEditorViewModel</code>...).</li>
   <li>Mỗi tham số được chấp nhận khi: có definition cùng kiểu, nằm trong <code>extraTypes</code>, có giá trị mặc định, hoặc là <code>Lazy&lt;T&gt;</code>/<code>List&lt;T&gt;</code> của kiểu đã khai báo.</li>
   <li>Một tham số không thoả: <code>verify()</code> ném <code>MissingKoinDefinitionException</code> kèm gợi ý sửa; test đỏ, CI chặn merge.</li>
 </ol>
@@ -56580,7 +56582,7 @@ class RoomNoteRepository : NoteRepository, KoinComponent {
     private val viewModel: NoteEditorViewModel by inject()   // Sai
 }</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> ViewModel không nằm trong <code>ViewModelStore</code>: xoay màn hình tạo instance mới, bản nháp mất; <code>viewModelScope</code> không bao giờ bị huỷ vì <code>onCleared()</code> không được gọi. Docs của Koin ghi rõ không được lấy ViewModel bằng <code>inject()</code> hay <code>get()</code>.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> ViewModel không nằm trong <code>ViewModelStore</code>: xoay màn hình tạo instance mới, bản nháp mất; <code>viewModelScope</code> không bao giờ bị huỷ vì <code>onCleared()</code> không được gọi. Vì vậy ViewModel không lấy bằng <code>inject()</code> hay <code>get()</code>.</p>
 
 <p><strong>Cách sửa:</strong> khai báo bằng <code>viewModel { }</code>/<code>viewModelOf()</code> và lấy bằng <code>by viewModel()</code>, <code>by activityViewModel()</code> hoặc <code>koinViewModel()</code>.</p>
 
@@ -56602,7 +56604,7 @@ class RoomNoteRepository : NoteRepository, KoinComponent {
     private val tagRepository: TagRepository        // mới thêm, chưa khai báo trong module
 ) : ViewModel()</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> build xanh, app khởi động bình thường; người dùng mở màn soạn ghi chú thì crash với <code>NoDefinitionFoundException</code> cho <code>TagRepository</code>.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> build xanh, app khởi động bình thường; người dùng mở màn soạn ghi chú thì crash với <code>InstanceCreationException</code> cho <code>NoteEditorViewModel</code>, nguyên nhân là <code>NoDefinitionFoundException</code> cho <code>TagRepository</code>.</p>
 
 <p><strong>Cách sửa:</strong> có test <code>appModule.verify()</code> chạy trên CI, hoặc áp Koin Compiler Plugin để lỗi lộ ra lúc build.</p>
 
@@ -56623,7 +56625,7 @@ class RoomNoteRepository : NoteRepository, KoinComponent {
   <li><strong>09/2018:</strong> Koin 1.0 stable.</li>
   <li><strong>04/2021 (Koin 3.0):</strong> Koin chuyển sang Kotlin Multiplatform; <code>koin-core</code> chạy được ngoài JVM.</li>
   <li><strong>06/2022:</strong> Koin Annotations 1.0 ra mắt, khai báo bằng annotation và xử lý bằng KSP.</li>
-  <li><strong>2023 (dòng 3.4):</strong> API <code>verify()</code> để kiểm tra module trong unit test mà không tạo instance.</li>
+  <li><strong>12/2022 (Koin 3.3):</strong> API <code>verify()</code> để kiểm tra module trong unit test mà không tạo instance; 3.4 (03/2023) thêm <code>androidVerify()</code> và phát hiện vòng phụ thuộc.</li>
   <li><strong>09/2024 (Koin 4.0):</strong> API ViewModel cho Kotlin Multiplatform; <code>checkModules()</code> bị deprecated.</li>
   <li><strong>06/2025 (Koin 4.1):</strong> scope có sẵn cho Activity, Fragment, ViewModel; cấu hình module dùng chung cho Kotlin Multiplatform.</li>
   <li><strong>03/2026 (Koin 4.2):</strong> <code>@KoinApplication</code>, <code>@Configuration</code>, hỗ trợ Navigation 3, cầu nối với Dagger cho việc chuyển dần; <code>minSdk</code> của <code>koin-android</code> lên 23. Koin Annotations dùng chung version với Koin.</li>
@@ -56637,7 +56639,7 @@ class RoomNoteRepository : NoteRepository, KoinComponent {
 <ul>
   <li><a href="overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>: DI, Service Locator, composition root, scope.</li>
   <li><a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: <code>ViewModelStore</code>, <code>SavedStateHandle</code>, thứ <code>by viewModel()</code> dựa vào.</li>
-  <li><a href="../../../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a>: lambda with receiver, nền của DSL <code>module { }</code>.</li>
+  <li><a href="../../../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a>: lambda, cú pháp của DSL <code>module { }</code> (lambda with receiver: chưa có bài).</li>
 </ul></li>
   <li><strong>Liên quan:</strong>
 <ul>
@@ -56681,7 +56683,7 @@ class RoomNoteRepository : NoteRepository, KoinComponent {
     tags: ['android', 'dependency-injection', 'hilt', 'dagger', 'ksp', 'viewmodel', 'workmanager', 'testing'],
     domain: 'Android',
     module: 'Session 07',
-    prerequisites: ['android.jetpack.viewmodel', 'android.component.activity.lifecycle', 'android.component.fragment.lifecycle'],
+    prerequisites: ['android.design_pattern.di.overview', 'android.design_pattern.di.dagger2', 'android.jetpack.viewmodel', 'android.component.activity.lifecycle', 'android.component.fragment.lifecycle'],
     related: ['android.architecture.mvvm', 'android.data_store.room_architecture', 'android.data_store.key_value', 'android.networking.basics', 'android.component.fragment.fragment_manager', 'android.component.broadcast.overview', 'android.component.service.overview', 'android.component.service.google_service', 'android.testing.unit_testing'],
     learningOutcomes: [
       'Giải thích được Hilt thêm gì lên trên Dagger, cụ thể là cây component chuẩn gắn với vòng đời class Android, và vì sao lỗi thiếu dependency hiện ra lúc build thay vì lúc chạy.',
@@ -56691,7 +56693,7 @@ class RoomNoteRepository : NoteRepository, KoinComponent {
       'Thiết kế được test thay binding thật bằng bản giả với @HiltAndroidTest và @TestInstallIn, và debug được các lỗi Hilt báo lúc build như thiếu binding hoặc scope không khớp component.'
     ],
     knowledgeGap: 'Không hiểu Hilt thì dễ dùng nó như "phép màu": gắn @Singleton cho mọi thứ làm state cũ sống mãi, cài module sai component rồi không hiểu lỗi build, quên @AndroidEntryPoint ở Activity khiến Fragment crash lúc chạy, Worker không được tạo vì thiếu HiltWorkerFactory, và test UI vẫn gọi server thật vì không biết thay binding.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '18 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -56859,7 +56861,7 @@ class InvoiceActivity : AppCompatActivity() {
   <li><strong>Class không phải của bạn hoặc phải tạo bằng builder:</strong> <code>OkHttpClient</code>, Retrofit service, Room database, <code>DataStore</code>. Dùng hàm <strong><code>@Provides</code></strong>: kiểu trả về là thứ được cung cấp, tham số là dependency, thân hàm là cách tạo. Hilt chạy thân hàm mỗi lần cần một instance (trừ khi có scope).</li>
 </ul>
 
-<p>Hai loại hàm này nằm trong một <strong>Hilt module</strong>: class có <code>@Module</code> và <strong>bắt buộc</strong> có <code>@InstallIn(XxxComponent::class)</code> để nói binding thuộc container nào. Module chứa <code>@Provides</code> thường là <code>object</code>; module chứa <code>@Binds</code> là <code>abstract class</code>. Hilt module không liên quan tới Gradle module.</p>
+<p>Hai loại hàm này nằm trong một <strong>Hilt module</strong>: class có <code>@Module</code> và <strong>bắt buộc</strong> có <code>@InstallIn(XxxComponent::class)</code> để nói binding thuộc container nào. Module chứa <code>@Provides</code> thường là <code>object</code>; module chứa <code>@Binds</code> là <code>abstract class</code> (hoặc interface). Hilt module không liên quan tới Gradle module.</p>
 
 <p>Hilt cung cấp sẵn vài binding và qualifier: <code>@ApplicationContext Context</code> có ở mọi component, <code>@ActivityContext Context</code> có ở <code>ActivityComponent</code> và các con của nó. Khi cần hai binding cùng kiểu (hai <code>OkHttpClient</code> khác interceptor), tự định nghĩa <code>@Qualifier</code>; cơ chế qualifier thuộc Dagger, xem <a href="dagger2.md" target="_blank" rel="noopener">Dagger2</a>.</p>
 
@@ -57161,7 +57163,7 @@ sequenceDiagram
     participant W as PhotoUploadWorker
     App-&gt;&gt;WM: (1) workManagerConfiguration(HiltWorkerFactory)
     UI-&gt;&gt;WM: (2) enqueue(request, photo_id, CONNECTED)
-    WM-&gt;&gt;HWF: (3) createWorker("PhotoUploadWorker", params)
+    WM-&gt;&gt;HWF: (3) createWorker(context, tên class Worker, params)
     HWF-&gt;&gt;W: (4) create(context, params) + PhotoRepository
     WM-&gt;&gt;W: (5) doWork()
     W--&gt;&gt;WM: success / retry
@@ -57232,7 +57234,7 @@ fun onPhotoSaved(photoId: String) {
 
 <ol>
   <li>Production cài <code>AuthModule</code> vào <code>SingletonComponent</code>: <code>AuthRepository</code> → <code>RemoteAuthRepository</code>.</li>
-  <li>Trong <code>androidTest</code>, <code>FakeAuthModule</code> có <code>@TestInstallIn(replaces = [AuthModule::class])</code>: mọi test trong thư mục này dùng <code>FakeAuthRepository</code>.</li>
+  <li>Trong <code>androidTest</code>, <code>FakeAuthModule</code> có <code>@TestInstallIn(replaces = [AuthModule::class])</code>: mọi test trong source set <code>androidTest</code> của module này dùng <code>FakeAuthRepository</code>.</li>
   <li><code>HiltTestRunner</code> cho test chạy trong <code>HiltTestApplication</code> (Application mà Hilt sinh cho test) thay cho <code>ShopApplication</code>.</li>
   <li>Test có <code>@HiltAndroidTest</code>; <code>HiltAndroidRule</code> dựng component; <code>hiltRule.inject()</code> gán field <code>fakeAuth</code> trong test, cũng chính là instance mà <code>LoginViewModel</code> nhận, vì nó là <code>@Singleton</code>.</li>
   <li>Test đặt <code>fakeAuth.result = failure</code>, mở <code>LoginActivity</code>, nhập và bấm "Đăng nhập", rồi kiểm tra thông báo lỗi.</li>
@@ -57252,7 +57254,7 @@ sequenceDiagram
     T-&gt;&gt;T: (5) fakeAuth.result = failure
     T-&gt;&gt;A: launch, nhập email/mật khẩu, bấm Đăng nhập
     A-&gt;&gt;VM: onLoginClick()
-    VM-&gt;&gt;SC: authRepository.login() → FakeAuthRepository
+    VM-&gt;&gt;VM: authRepository.login() trên FakeAuthRepository đã inject lúc tạo
     VM--&gt;&gt;A: errorMessage → hiện lỗi
     T-&gt;&gt;A: kiểm tra text lỗi hiển thị
 </div>
@@ -57375,7 +57377,7 @@ object ScannerModule {
     fun provideBarcodeScanner(): BarcodeScanner = BarcodeScanner()
 }</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> build thất bại với <code>[Dagger/IncompatiblyScopedBindings] SingletonComponent scoped with @Singleton may not reference bindings with different scopes</code>.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> build thất bại với <code>[Dagger/IncompatiblyScopedBindings] ..._HiltComponents.SingletonC scoped with @Singleton may not reference bindings with different scopes</code> (<code>SingletonC</code> là class Hilt sinh cho <code>SingletonComponent</code>).</p>
 
 <p><strong>Cách sửa:</strong> chọn component trước, rồi dùng đúng scope của nó: object sống theo Activity thì <code>@InstallIn(ActivityComponent::class)</code> + <code>@ActivityScoped</code>; sống cả app thì <code>@Singleton</code>.</p>
 
@@ -57395,7 +57397,7 @@ class CheckoutFormState @Inject constructor() {               // giữ địa ch
 <pre data-lang="kotlin"><code>@HiltAndroidApp
 class GalleryApplication : Application()                     // không hiện thực Configuration.Provider</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> work enqueue được nhưng không chạy; Logcat có <code>Could not instantiate ...PhotoUploadWorker</code> kèm <code>NoSuchMethodException: &lt;init&gt; [class android.content.Context, class androidx.work.WorkerParameters]</code>. Factory mặc định chỉ biết gọi constructor hai tham số.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> work enqueue được, nhưng tới lúc chạy WorkManager không tạo được Worker và đánh dấu work <code>FAILED</code>; Logcat có <code>Could not instantiate ...PhotoUploadWorker</code> kèm <code>NoSuchMethodException: &lt;init&gt; [class android.content.Context, class androidx.work.WorkerParameters]</code>. Factory mặc định chỉ biết gọi constructor hai tham số.</p>
 
 <p><strong>Cách sửa:</strong> hiện thực <code>Configuration.Provider</code> với <code>HiltWorkerFactory</code> <strong>và</strong> gỡ <code>WorkManagerInitializer</code> khỏi manifest như ví dụ WorkManager ở trên; thiếu bước gỡ thì WorkManager đã tự khởi tạo bằng cấu hình mặc định trước khi đọc cấu hình của bạn.</p>
 
@@ -57464,7 +57466,7 @@ class GalleryApplication : Application()                     // không hiện th
     tags: ['android', 'dependency-injection', 'kodein', 'kotlin-multiplatform'],
     domain: 'Android',
     module: 'Session 07',
-    prerequisites: ['android.jetpack.viewmodel', 'android.languages.kotlin'],
+    prerequisites: ['android.design_pattern.di.overview', 'android.jetpack.viewmodel', 'android.languages.kotlin'],
     related: ['android.architecture.mvvm', 'android.data_store.room_architecture'],
     learningOutcomes: [
       'Giải thích được cách Kodein-DI giữ binding trong container DI và trả instance khi được hỏi bằng instance(), và khác biệt giữa binding provider, singleton, factory, multiton.',
@@ -57473,7 +57475,7 @@ class GalleryApplication : Application()                     // không hiện th
       'Biết khi nào còn giữ Kodein-DI trong dự án và khi nào nên chuyển sang Koin hoặc Hilt, khi Kodein-DI đã vào chế độ bảo trì.'
     ],
     knowledgeGap: 'Gặp Kodein-DI trong một dự án cũ mà không hiểu nó thì khó sửa lỗi DI.NotFoundException chỉ lộ ra lúc chạy, dễ khai báo ViewModel bằng singleton làm state dính giữa các màn, và dễ chọn nó cho dự án mới mà không biết thư viện đã ngừng phát triển tính năng.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '12 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -57623,9 +57625,9 @@ class RemotePodcastRepository(private val client: HttpClient) : PodcastRepositor
 
 <ol>
   <li>Lần đầu có nơi cần container, <code>PodcastApplication.di</code> (<code>DI.lazy</code>) được dựng với <code>androidXModule</code> và các module của app.</li>
-  <li><code>EpisodeListActivity</code> truy cập <code>viewModel</code>: <code>closestDI()</code> tìm tới container của <code>Application</code>.</li>
-  <li><code>by viewModel()</code> hỏi <code>ViewModelStore</code> của Activity: đã có thì trả luôn; chưa có thì gọi binding provider, <code>new(::EpisodeListViewModel)</code> lấy <code>PodcastRepository</code> từ container.</li>
-  <li>Xoay màn hình: Activity mới, nhưng bước 3 trả lại ViewModel cũ trong store.</li>
+  <li><code>EpisodeListActivity.onCreate()</code> truy cập <code>viewModel</code> để gọi <code>load(podcastId)</code>: <code>closestDI()</code> tìm tới container của <code>Application</code>.</li>
+  <li><code>by viewModel()</code> hỏi <code>ViewModelStore</code> của Activity: đã có thì trả luôn; chưa có thì gọi binding provider, <code>new(::EpisodeListViewModel)</code> lấy <code>PodcastRepository</code> từ container. <code>load()</code> gọi API và ghi nhớ <code>podcastId</code> đã tải.</li>
+  <li>Xoay màn hình: Activity mới gọi lại <code>load()</code>, nhưng bước 3 trả lại ViewModel cũ trong store, đã tải đúng <code>podcastId</code> này nên không gọi lại API.</li>
 </ol>
 
 <div class="mermaid">
@@ -57642,6 +57644,7 @@ sequenceDiagram
         DI--&gt;&gt;S: ViewModel(repository = instance())
     end
     S--&gt;&gt;A: (4) cùng instance sau xoay màn hình
+    A-&gt;&gt;A: (4) load(podcastId): đã tải thì bỏ qua
 </div>
 
 <pre data-lang="kotlin"><code>// PodcastApplication.kt (khai báo trong AndroidManifest bằng android:name)
@@ -57658,18 +57661,29 @@ class PodcastApplication : Application(), DIAware {
 class EpisodeListViewModel(private val repository: PodcastRepository) : ViewModel() {
     private val _episodes = MutableStateFlow&lt;List&lt;Episode&gt;&gt;(emptyList())
     val episodes: StateFlow&lt;List&lt;Episode&gt;&gt; = _episodes.asStateFlow()
-    fun load(podcastId: String) = viewModelScope.launch { _episodes.value = repository.episodes(podcastId) }
+    private var loadedFor: String? = null
+
+    fun load(podcastId: String) {
+        if (podcastId == loadedFor) return                                        // (4) đã tải: không gọi lại API
+        loadedFor = podcastId
+        viewModelScope.launch { _episodes.value = repository.episodes(podcastId) } // (3)
+    }
 }
 
 // EpisodeListActivity.kt
 class EpisodeListActivity : AppCompatActivity(), DIAware {
     override val di by closestDI()                                                // (2)
     private val viewModel: EpisodeListViewModel by viewModel()                    // (3)(4)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.load(checkNotNull(intent.getStringExtra("podcast_id")))         // (2) mỗi onCreate đều gọi
+    }
 }</code></pre>
 
 <p><code>StateFlow</code> học ở <a href="../observer/flow.md" target="_blank" rel="noopener">Flow</a>; <code>viewModelScope</code> ở <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</p>
 
-<p><strong>Kết quả:</strong> mở màn danh sách, xoay màn hình: danh sách giữ nguyên, không gọi lại API, vì ViewModel được lấy lại từ store. Unit test tạo <code>EpisodeListViewModel(FakePodcastRepository())</code> trực tiếp, không cần Kodein-DI, vì ViewModel nhận dependency qua constructor.</p>
+<p><strong>Kết quả:</strong> mở màn danh sách, xoay màn hình: danh sách giữ nguyên, không gọi lại API, vì ViewModel được lấy lại từ store và <code>load()</code> bỏ qua <code>podcastId</code> đã tải. Unit test tạo <code>EpisodeListViewModel(FakePodcastRepository())</code> trực tiếp, không cần Kodein-DI, vì ViewModel nhận dependency qua constructor.</p>
 
 <p>Trên Kotlin Multiplatform, binding đặt trong <code>commonMain</code> như mọi code Kotlin khác; phần riêng từng nền tảng (driver database, vị trí) đặt trong module ở <code>androidMain</code>, <code>iosMain</code> rồi <code>import</code> vào container.</p>
 
@@ -57735,12 +57749,18 @@ class PodcastApplication : Application() {
 // EpisodeListActivity.kt: không còn DIAware                                    (2)
 class EpisodeListActivity : AppCompatActivity() {
     private val viewModel: EpisodeListViewModel by viewModel()   // org.koin.androidx.viewmodel.ext.android
+    // onCreate() gọi viewModel.load(...) như cũ
 }
 
 // src/test/.../KoinConfigurationTest.kt                                        (4)
 class KoinConfigurationTest {
-    @Test fun podcastModule_isComplete() = podcastModule.verify()
+    @Test
+    fun podcastModule_isComplete() {
+        podcastModule.verify(extraTypes = listOf(HttpClientEngine::class))
+    }
 }</code></pre>
+
+<p><code>verify()</code> chỉ đọc constructor public của kiểu mà mỗi definition khai báo, không đọc thân lambda (xem <a href="koin.md" target="_blank" rel="noopener">Koin</a>, mục "Kiểm tra cấu hình trước khi chạy"): <code>HttpClient</code> dựng bằng builder, nhưng constructor của nó cần <code>HttpClientEngine</code>, nên thiếu <code>extraTypes</code> thì test báo thiếu sai.</p>
 
 <p><code>EpisodeListViewModel</code> và <code>RemotePodcastRepository</code> không đổi một dòng nào, vì chúng đã nhận dependency qua constructor; đây là lợi ích của việc dùng injection thay cho retrieval ngay từ đầu. Ở JVM, <code>ConcurrentHashMap</code> đủ cho <code>EpisodeDownloads</code>; code <code>commonMain</code> của Kotlin Multiplatform cần một map có khoá đồng bộ thay thế.</p>
 
@@ -57811,7 +57831,7 @@ class KoinConfigurationTest {
 
 <pre data-lang="kotlin"><code>bindSingleton { new(::EpisodeListViewModel) }    // Sai</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> mở danh sách tập của podcast A, quay lại, mở podcast B: màn mới vẫn hiện danh sách của A và không tải gì thêm. Mọi <code>ViewModelStore</code> nhận cùng một instance; khi màn A đóng, store của nó gọi <code>onCleared()</code> và huỷ <code>viewModelScope</code> của chính instance đó, nên <code>load()</code> ở màn B chạy trong một scope đã bị huỷ.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> mở danh sách tập của podcast A, quay lại, mở podcast B: màn mới vẫn hiện danh sách của A và không tải gì thêm. Mọi <code>ViewModelStore</code> nhận cùng một instance; khi màn A đóng, store của nó gọi <code>onCleared()</code> và huỷ <code>viewModelScope</code> của chính instance đó, nên <code>load("B")</code> ở màn B khởi chạy coroutine trong một scope đã bị huỷ: coroutine không chạy, <code>episodes</code> vẫn giữ danh sách của A.</p>
 
 <p><strong>Cách sửa:</strong> ViewModel luôn khai báo bằng <code>bindProvider</code> (hoặc <code>bindFactory</code> khi cần <code>SavedStateHandle</code>); <code>by viewModel()</code> mới là bên quyết định giữ instance trong store.</p>
 
@@ -57848,10 +57868,10 @@ class KoinConfigurationTest {
 
 <ul>
   <li><strong>2015:</strong> Salomon Brys tạo Kodein, một trong những thư viện DI đầu tiên viết riêng cho Kotlin, với lý do Dagger quá dài dòng cho code Kotlin.</li>
-  <li><strong>2018:</strong> Koin ra đời như đối thủ trực tiếp, cũng dùng DSL Kotlin; theo chính tác giả Kodein, tới 2020 Koin đã chiếm ưu thế về số người dùng.</li>
-  <li><strong>Kodein-DI 7.0:</strong> hệ thống kiểu mới dùng <code>typeOf()</code> nên phân biệt được kiểu generic trên mọi nền tảng; các class đổi tên từ <code>Kodein</code> sang <code>DI</code> (<code>KodeinAware</code> → <code>DIAware</code>, <code>closestKodein()</code> → <code>closestDI()</code>); các artifact <code>-erased</code>, <code>-generic-jvm</code> gộp thành một <code>kodein-di</code>.</li>
+  <li><strong>2017:</strong> Koin ra đời như đối thủ trực tiếp, cũng dùng DSL Kotlin; theo chính tác giả Kodein, tới 2020 Koin đã chiếm ưu thế về số người dùng.</li>
+  <li><strong>05/2020 (Kodein-DI 7.0):</strong> hệ thống kiểu mới dùng <code>typeOf()</code> nên phân biệt được kiểu generic trên mọi nền tảng; các class đổi tên từ <code>Kodein</code> sang <code>DI</code> (<code>KodeinAware</code> → <code>DIAware</code>, <code>closestKodein()</code> → <code>closestDI()</code>); các artifact <code>-erased</code>, <code>-generic-jvm</code> gộp thành một <code>kodein-di</code>.</li>
   <li><strong>12/2022 (7.17):</strong> chỉ còn hỗ trợ backend JS-IR, theo Kotlin 1.8.</li>
-  <li><strong>12/2024 (7.23):</strong> chuyển sang Kotlin 2.0, JDK tối thiểu 17.</li>
+  <li><strong>05/2024 (7.22.0):</strong> chuyển sang Kotlin 2.0.</li>
   <li><strong>07/2026 (7.33.0):</strong> bản phát hành mới nhất.</li>
   <li><strong>11/2026:</strong> Kodein-DI vào chế độ bảo trì; nhóm Kodein Koders chuyển sang Inara (DI sinh code lúc compile cho Kotlin Multiplatform) và khuyên chuyển sang Koin.</li>
 </ul>
@@ -57862,7 +57882,7 @@ class KoinConfigurationTest {
   <li><strong>Tiên quyết:</strong>
 <ul>
   <li><a href="overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>: DI, Service Locator, container, scope.</li>
-  <li><a href="../../../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a>: lambda with receiver, delegate (<code>by</code>), nền của DSL và <code>by instance()</code>.</li>
+  <li><a href="../../../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a>: lambda và <code>by lazy</code>. Lambda with receiver (nền của DSL) và property delegate (nền của <code>by instance()</code>): chưa có bài.</li>
   <li><a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: <code>ViewModelStore</code>, lý do ViewModel phải khai báo bằng provider.</li>
 </ul></li>
   <li><strong>Liên quan:</strong>
@@ -57881,7 +57901,7 @@ class KoinConfigurationTest {
 
 <ul>
   <li><a href="https://github.com/kosi-libs/Kodein" target="_blank" rel="noopener">Kodein-DI README (thông báo chế độ bảo trì) - GitHub</a></li>
-  <li><a href="https://kosi-libs.org/kodein/7.31/getting-started.html" target="_blank" rel="noopener">Getting started with Kodein-DI - Kodein docs</a></li>
+  <li><a href="https://kosi-libs.org/kodein/7.31/getting-started.html" target="_blank" rel="noopener">Getting started with Kodein-DI - Kodein docs</a> (docs bản 7.31, bản docs mới nhất đang được đăng; thư viện đã tới 7.33.0)</li>
   <li><a href="https://kosi-libs.org/kodein/7.31/core/bindings.html" target="_blank" rel="noopener">Bindings: Declaring dependencies - Kodein docs</a></li>
   <li><a href="https://kosi-libs.org/kodein/7.31/core/injection-retrieval.html" target="_blank" rel="noopener">Dependency injection &amp; retrieval - Kodein docs</a></li>
   <li><a href="https://kosi-libs.org/kodein/7.31/framework/android.html" target="_blank" rel="noopener">Kodein-DI on Android - Kodein docs</a></li>
@@ -57912,7 +57932,7 @@ class KoinConfigurationTest {
       'Giải thích được vì sao cộng đồng Android chuyển từ MVC sang MVP rồi MVVM.'
     ],
     knowledgeGap: 'Không phân biệt MVC gốc với "MVC kiểu Android" khiến developer tin rằng có Activity, layout XML và vài data class là đã có kiến trúc, rồi để Activity gom cả gọi mạng, quy tắc tính tiền, định dạng hiển thị và điều hướng; màn hình phình thành nghìn dòng, không test được, tải lại mỗi lần xoay màn hình và leak khi callback giữ Activity đã huỷ.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '16 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -57976,7 +57996,7 @@ class KoinConfigurationTest {
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><strong>Controller</strong></td>
       <td style="padding:8px 12px;">Nhận input (chạm, phím), quyết định đổi Model ra sao</td>
-      <td style="padding:8px 12px;">Model, View đi cặp với nó</td>
+      <td style="padding:8px 12px;">Model, View đi cặp với nó (để xử lý input, ví dụ hỏi View vị trí chuột rơi vào phần tử nào; không để đẩy dữ liệu)</td>
       <td style="padding:8px 12px;">Những View khác đang hiện cùng Model</td>
     </tr>
   </tbody>
@@ -58008,7 +58028,7 @@ flowchart LR
 <p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li>Khi màn hình mở, hai View (<code>CartBadgeView</code>, <code>CartTotalView</code>) đăng ký làm listener của Model <code>Cart</code>.</li>
+  <li>Khi màn hình mở, hai View (<code>CartBadgeView</code>, <code>CartTotalView</code>) đăng ký làm listener của Model <code>Cart</code>; <code>Cart</code> báo ngay cho listener mới để nó vẽ dữ liệu hiện tại.</li>
   <li>Người dùng bấm "Thêm vào giỏ"; <code>AddToCartController</code> nhận thao tác.</li>
   <li>Controller gọi <code>cart.add()</code>. Nó không đụng vào View nào.</li>
   <li><code>Cart</code> cập nhật dữ liệu rồi báo cho <strong>mọi</strong> listener.</li>
@@ -58022,7 +58042,9 @@ sequenceDiagram
     participant C as AddToCartController
     participant M as Cart (Model)
     B-&gt;&gt;M: (1) addListener
+    M--&gt;&gt;B: (1) onCartChanged(cart): vẽ lần đầu
     T-&gt;&gt;M: (1) addListener
+    M--&gt;&gt;T: (1) onCartChanged(cart): vẽ lần đầu
     Note over C: (2) người dùng bấm "Thêm vào giỏ"
     C-&gt;&gt;M: (3) add(productId, unitPrice)
     M--&gt;&gt;B: (4) onCartChanged(cart)
@@ -58042,7 +58064,10 @@ class Cart {
     val itemCount: Int get() = quantities.values.sum()
     val total: Long get() = quantities.entries.sumOf { (id, qty) -&gt; unitPrices.getValue(id) * qty }
 
-    fun addListener(listener: Listener) { listeners += listener }           // (1)
+    fun addListener(listener: Listener) {                                     // (1)
+        listeners += listener
+        listener.onCartChanged(this)                                           // (1) vẽ ngay dữ liệu hiện tại
+    }
     fun removeListener(listener: Listener) { listeners -= listener }
 
     fun add(productId: String, unitPrice: Long) {                             // (3)
@@ -58071,12 +58096,19 @@ class AddToCartController(private val cart: Cart) {
     fun onAddClick(product: Product) = cart.add(product.id, product.price)     // (2) (3)
 }</code></pre>
 
-<pre data-lang="kotlin"><code>// ProductDetailActivity.kt (trong onCreate): chỉ lắp ráp ba vai
-val listeners = listOf(CartBadgeView(binding.cartBadge), CartTotalView(binding.totalText))
-listeners.forEach(cart::addListener)                                           // (1)
+<pre data-lang="kotlin"><code>// ProductDetailActivity.kt: chỉ lắp ráp ba vai
+private lateinit var cartViews: List&lt;Cart.Listener&gt;
+
+// trong onCreate()
+cartViews = listOf(CartBadgeView(binding.cartBadge), CartTotalView(binding.totalText))
+cartViews.forEach(cart::addListener)                                           // (1)
 val controller = AddToCartController(cart)
 binding.addToCartButton.setOnClickListener { controller.onAddClick(product) }  // (2)
-// onDestroy(): listeners.forEach(cart::removeListener), để Model không giữ View đã chết</code></pre>
+
+override fun onDestroy() {
+    cartViews.forEach(cart::removeListener)                                    // Model không giữ View đã chết
+    super.onDestroy()
+}</code></pre>
 
 <p><code>binding</code> là class sinh bởi <a href="../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>. <code>cart</code> là object dùng chung cho cả app (ví dụ giữ trong <code>Application</code>); cách cung cấp object dùng chung là chủ đề của <a href="../design_pattern/di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>.</p>
 
@@ -58411,7 +58443,7 @@ class CheckoutCalculatorTest {
       <td style="padding:8px 12px;font-weight:600;">MVI</td>
       <td style="padding:8px 12px;">ViewModel / Store, reducer</td>
       <td style="padding:8px 12px;">Không</td>
-      <td style="padding:8px 12px;">Như MVVM, nhưng mọi thay đổi đi qua một reducer</td>
+      <td style="padding:8px 12px;">Như MVVM, nhưng mọi thay đổi (Intent và kết quả side effect) đi qua một reducer duy nhất, state bất biến</td>
     </tr>
   </tbody>
 </table>
@@ -58482,7 +58514,7 @@ binding.applyCouponButton.setOnClickListener {
 val bookmarked = !binding.bookmarkButton.isSelected
 repository.setBookmarked(articleId, bookmarked)</code></pre>
 
-<p><strong>Lỗi lộ ra thế nào:</strong> bài được lưu ở nơi khác thì nút ở màn này vẫn hiện "chưa lưu"; bấm vào lại <strong>bỏ lưu</strong> một bài người dùng vừa lưu. Sau process death, widget được khôi phục từ <code>Bundle</code> theo trạng thái cũ, lệch với dữ liệu thật trong database.</p>
+<p><strong>Lỗi lộ ra thế nào:</strong> bài được lưu ở nơi khác thì nút ở màn này vẫn hiện "chưa lưu"; bấm vào lại <strong>bỏ lưu</strong> một bài người dùng vừa lưu. Bấm "Lưu" hai lần nhanh trước khi lần ghi đầu xong thì cả hai lần đều đọc cùng giá trị <code>isSelected</code> cũ (nút chỉ đổi sau khi ghi xong) và ghi cùng một giá trị: người dùng bấm lưu rồi bỏ lưu, nhưng bài vẫn ở trạng thái đã lưu.</p>
 
 <p><strong>Cách sửa:</strong> đọc trạng thái từ Model (Repository) và để Model báo khi nó đổi. Đây là điểm MVC kiểu Android đánh mất so với MVC gốc, và là lý do MVVM cho View quan sát state.</p>
 
@@ -58491,11 +58523,11 @@ repository.setBookmarked(articleId, bookmarked)</code></pre>
 <ul>
   <li><strong>1978–1979:</strong> Trygve Reenskaug, khi làm việc ở Xerox PARC, viết bản ghi chú đầu tiên cho Smalltalk. Bản ngày 12/05/1979 dùng bộ tên "Thing-Model-View-Editor"; bản ngày 10/12/1979 chốt tên "Models-Views-Controllers" sau các buổi thảo luận với Adele Goldberg.</li>
   <li><strong>Smalltalk-80 (đầu thập niên 1980):</strong> Jim Althoff và các cộng sự hiện thực MVC trong thư viện class của Smalltalk-80, với cơ chế "dependents" để View quan sát Model. Bản này dùng chữ Controller hơi khác ý ban đầu của Reenskaug.</li>
-  <li><strong>08–09/1988:</strong> Glenn Krasner và Stephen Pope công bố "A Cookbook for Using the Model-View-Controller User Interface Paradigm in Smalltalk-80", phổ biến MVC ra ngoài nhóm PARC.</li>
+  <li><strong>08–09/1988:</strong> Glenn Krasner và Stephen Pope (ParcPlace Systems) công bố "A Cookbook for Using the Model-View-Controller User Interface Paradigm in Smalltalk-80" trên Journal of Object-Oriented Programming, phổ biến MVC ra ngoài nhóm PARC.</li>
   <li><strong>Thập niên 1990:</strong> Taligent phát triển MVP từ MVC, bỏ cặp View–Controller theo từng widget (xem <a href="mvp.md" target="_blank" rel="noopener">MVP</a>). Các framework GUI sau đó (Cocoa của Apple, rồi <code>UIViewController</code> của iOS) dùng tên MVC nhưng để Controller làm trung gian đẩy dữ liệu vào View.</li>
   <li><strong>Đầu thập niên 2000:</strong> framework web (Struts, Ruby on Rails, ASP.NET MVC) dùng tên MVC cho mô hình request → Controller → template, càng làm nghĩa của chữ MVC phân tán.</li>
   <li><strong>2008 (Android 1.0):</strong> Android chỉ cung cấp Activity và layout XML, không có hướng dẫn kiến trúc; "MVC kiểu Android" và Massive Activity trở thành mặc định.</li>
-  <li><strong>2015–2016:</strong> cộng đồng chuyển sang MVP để tách logic khỏi Activity: thư viện Mosby (05/2015), Android Architecture Blueprints của Google với nhánh <code>todo-mvp</code> (2016).</li>
+  <li><strong>2015–2016:</strong> cộng đồng chuyển sang MVP để tách logic khỏi Activity: thư viện Mosby (04/2015), Android Architecture Blueprints của Google với nhánh <code>todo-mvp</code> (2016).</li>
   <li><strong>Google I/O 2017:</strong> Android Architecture Components và "Guide to app architecture" ra mắt; MVVM với <code>ViewModel</code> và <code>LiveData</code> thành hướng chính thức (<a href="mvvm.md" target="_blank" rel="noopener">MVVM</a>, mục "Lịch sử phát triển").</li>
 </ul>
 
@@ -58518,7 +58550,7 @@ repository.setBookmarked(articleId, bookmarked)</code></pre>
   <li><a href="mvp.md" target="_blank" rel="noopener">MVP</a>: tách logic khỏi Activity bằng Presenter và interface View.</li>
   <li><a href="mvvm.md" target="_blank" rel="noopener">MVVM</a>: View quan sát state, ViewModel sống qua xoay màn hình.</li>
   <li><a href="mvi.md" target="_blank" rel="noopener">MVI</a>: mọi thay đổi state đi qua một reducer.</li>
-  <li><a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: chia Model thành data layer và domain layer.</li>
+  <li><a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: đặt nghiệp vụ ở giữa, data layer phụ thuộc domain qua interface.</li>
 </ul></li>
 </ul>
 
@@ -58527,7 +58559,7 @@ repository.setBookmarked(articleId, bookmarked)</code></pre>
 <ul>
   <li><a href="https://folk.universitetetioslo.no/trygver/themes/mvc/mvc-index.html" target="_blank" rel="noopener">MVC (các ghi chú gốc 1978–1979) - Trygve Reenskaug</a></li>
   <li><a href="https://martinfowler.com/eaaDev/uiArchs.html" target="_blank" rel="noopener">GUI Architectures (MVC, MVP, Presentation Model) - Martin Fowler</a></li>
-  <li><a href="https://web.archive.org/web/20100921030808/http://www.itu.dk/courses/VOP/E2005/VOP2005E/8_mvc_krasner_and_pope.pdf" target="_blank" rel="noopener">A Description of the Model-View-Controller User Interface Paradigm in the Smalltalk-80 System - Krasner, Pope</a></li>
+  <li><a href="https://web.archive.org/web/20100921030808/http://www.itu.dk/courses/VOP/E2005/VOP2005E/8_mvc_krasner_and_pope.pdf" target="_blank" rel="noopener">A Description of the Model-View-Controller User Interface Paradigm in the Smalltalk-80 System (bản tài liệu ParcPlace của bài "A Cookbook…", 1988) - Krasner, Pope</a></li>
   <li><a href="https://developer.android.com/topic/architecture" target="_blank" rel="noopener">Guide to app architecture - Android Developers</a></li>
   <li><a href="https://github.com/android/architecture-samples" target="_blank" rel="noopener">Android Architecture Samples - GitHub</a></li>
 </ul>
@@ -58553,7 +58585,7 @@ repository.setBookmarked(articleId, bookmarked)</code></pre>
       'Giải thích được vấn đề xoay màn hình của MVP và vì sao MVVM với ViewModel của Jetpack thay thế nó.'
     ],
     knowledgeGap: 'Không nắm vòng đời của MVP khiến Presenter giữ Fragment đã huỷ (leak, crash khi gọi View sau onDestroyView), bị tạo lại và gọi API lại mỗi lần xoay màn hình, hoặc gửi chuỗi lệnh showLoading/hideLoading lệch nhau làm màn hình vừa hiện vòng tải vừa hiện lỗi; khi bảo trì code MVP cũ thì không biết giữ Presenter qua xoay màn hình hay chuyển dần sang MVVM thế nào.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '18 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -58650,7 +58682,7 @@ flowchart TD
 
 <h4>Ví dụ: danh sách bài báo có tải, lỗi và thử lại</h4>
 
-<p><strong>Bài toán:</strong> cùng bài toán với ví dụ ở <a href="mvvm.md" target="_blank" rel="noopener">MVVM</a>, mục "UI state và luồng dữ liệu một chiều": danh sách bài báo đọc từ Repository, màn hình ở đúng một trong bốn trạng thái (đang tải, có danh sách, rỗng, lỗi kèm nút "Thử lại"). Viết lại theo MVP để thấy chỗ khác.</p>
+<p><strong>Bài toán:</strong> bài toán của ví dụ ở <a href="mvvm.md" target="_blank" rel="noopener">MVVM</a>, mục "UI state và luồng dữ liệu một chiều", thêm trạng thái rỗng: danh sách bài báo đọc từ Repository, màn hình ở đúng một trong bốn trạng thái (đang tải, có danh sách, rỗng, lỗi kèm nút "Thử lại"). Viết lại theo MVP để thấy chỗ khác.</p>
 
 <p><strong>Luồng chạy:</strong></p>
 
@@ -58735,13 +58767,14 @@ class ArticleListPresenter(
 class ArticleListFragment : Fragment(R.layout.fragment_article_list), ArticleListContract.View {
 
     private var binding: FragmentArticleListBinding? = null
-    private val adapter = ArticleAdapter()
+    private var adapter: ArticleAdapter? = null                               // sống theo View, như binding
     private val presenter by lazy {
         ArticleListPresenter((requireActivity().application as NewsApplication).articleRepository)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        adapter = ArticleAdapter()
         binding = FragmentArticleListBinding.bind(view).apply {
             articleList.adapter = adapter
             retryButton.setOnClickListener { presenter.onRetryClick() }       // (4)
@@ -58752,6 +58785,7 @@ class ArticleListFragment : Fragment(R.layout.fragment_article_list), ArticleLis
     override fun onDestroyView() {
         presenter.detachView()
         binding = null
+        adapter = null
         super.onDestroyView()
     }
 
@@ -58759,7 +58793,7 @@ class ArticleListFragment : Fragment(R.layout.fragment_article_list), ArticleLis
     override fun showEmpty() = showOnly { it.emptyText }
     override fun showArticles(articles: List&lt;Article&gt;) {
         showOnly { it.articleList }
-        adapter.submitList(articles)
+        adapter?.submitList(articles)
     }
     override fun showError(message: String) {
         showOnly { it.errorGroup }
@@ -58774,7 +58808,7 @@ class ArticleListFragment : Fragment(R.layout.fragment_article_list), ArticleLis
     }
 }</code></pre>
 
-<p><code>ArticleAdapter</code> là adapter của <code>RecyclerView</code>, học ở <a href="../design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>. Binding được gán <code>null</code> trong <code>onDestroyView()</code> theo quy tắc ở <a href="../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>, mục "View Binding trong Fragment: binding sống theo View".</p>
+<p><code>ArticleAdapter</code> là adapter của <code>RecyclerView</code>, học ở <a href="../design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>. Binding được gán <code>null</code> trong <code>onDestroyView()</code> theo quy tắc ở <a href="../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>, mục "View Binding trong Fragment: binding sống theo View". Adapter cũng vậy: <code>RecyclerView</code> đăng ký observer vào adapter, nên adapter giữ ở field của Fragment sẽ giữ luôn <code>RecyclerView</code> cũ khi Fragment vào backstack.</p>
 
 <p><strong>Kết quả:</strong> Fragment không còn <code>if</code> nghiệp vụ nào; quy tắc "ẩn bài bị ẩn, mới nhất lên đầu" và thứ tự Loading → Error → Loading → Articles nằm trong Presenter và test được trên JVM (mục "Ví dụ thực tế"). So với bản MVVM: logic ở cùng chỗ, nhưng Presenter <strong>ra lệnh từng bước</strong>, nên View phải có hàm <code>showOnly</code> để mỗi lệnh tự tắt các trạng thái khác. Chỗ này sẽ quay lại ở mục "Vì sao MVVM thay thế MVP".</p>
 
@@ -58895,6 +58929,7 @@ class ArticleListPresenter(
     private var view: ArticleListContract.View? = null
     private var lastScreen: Screen? = null
     private val scope = MainScope()
+    private var loadJob: Job? = null
 
     override fun attachView(view: ArticleListContract.View) {
         this.view = view
@@ -58911,8 +58946,9 @@ class ArticleListPresenter(
     fun destroy() = scope.cancel()                                            // (5)
 
     private fun loadArticles() {
+        loadJob?.cancel()                                                     // bấm "Thử lại" khi đang tải: bỏ lần cũ
         render(Screen.Loading)
-        scope.launch {
+        loadJob = scope.launch {
             render(
                 try {
                     val visible = repository.getArticles()
@@ -58982,8 +59018,8 @@ private val presenter get() = holder.presenter</code></pre>
   </thead>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;"><code>interface View</code> với <code>showLoading()</code>, <code>showArticles()</code>, <code>showError()</code></td>
-      <td style="padding:8px 12px;"><code>sealed interface ArticleListUiState</code> (Loading, Success, Error)</td>
+      <td style="padding:8px 12px;font-weight:600;"><code>interface View</code> với <code>showLoading()</code>, <code>showArticles()</code>, <code>showEmpty()</code>, <code>showError()</code></td>
+      <td style="padding:8px 12px;"><code>sealed interface ArticleListUiState</code> (Loading, Success, Empty, Error)</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><code>presenter.onRetryClick()</code></td>
@@ -59119,10 +59155,16 @@ class ArticleListPresenterTest {
   </thead>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">MVC</td>
-      <td style="padding:8px 12px;">Controller</td>
-      <td style="padding:8px 12px;">Có; trên Android, Activity thường vừa là View vừa là Controller</td>
-      <td style="padding:8px 12px;">Controller gán thẳng vào View</td>
+      <td style="padding:8px 12px;font-weight:600;">MVC gốc</td>
+      <td style="padding:8px 12px;">Controller (chỉ xử lý input)</td>
+      <td style="padding:8px 12px;">Có, đi cặp với một View</td>
+      <td style="padding:8px 12px;">View quan sát Model và tự vẽ lại</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">MVC kiểu Android</td>
+      <td style="padding:8px 12px;">Activity / Fragment</td>
+      <td style="padding:8px 12px;">Nó <strong>chính là</strong> View</td>
+      <td style="padding:8px 12px;">Activity gán thẳng dữ liệu vào widget</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;"><strong>MVP</strong></td>
@@ -59140,7 +59182,7 @@ class ArticleListPresenterTest {
       <td style="padding:8px 12px;font-weight:600;">MVI</td>
       <td style="padding:8px 12px;">ViewModel / Store, reducer</td>
       <td style="padding:8px 12px;">Không</td>
-      <td style="padding:8px 12px;">Như MVVM, nhưng mọi thay đổi đi qua một reducer</td>
+      <td style="padding:8px 12px;">Như MVVM, nhưng mọi thay đổi (Intent và kết quả side effect) đi qua một reducer duy nhất, state bất biến</td>
     </tr>
   </tbody>
 </table>
@@ -59215,7 +59257,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 <pre data-lang="kotlin"><code>// Sai: Fragment lọc và rẽ nhánh trước khi hiện
 override fun showArticles(articles: List&lt;Article&gt;) {
     val visible = articles.filter { !it.isHidden }
-    if (visible.isEmpty()) showOnly { it.emptyText } else adapter.submitList(visible)
+    if (visible.isEmpty()) showOnly { it.emptyText } else adapter?.submitList(visible)
 }</code></pre>
 
 <p><strong>Lỗi lộ ra thế nào:</strong> test Presenter vẫn xanh vì Presenter gửi đủ danh sách, nhưng màn hình thật hiện "Không có bài" trong khi test khẳng định có bài. Logic đã trốn khỏi chỗ được test.</p>
@@ -59228,7 +59270,7 @@ override fun showArticles(articles: List&lt;Article&gt;) {
   <li><strong>Thập niên 1990:</strong> MVP xuất hiện ở IBM và Taligent (liên doanh của Apple, IBM, HP). Mike Potel, CTO của Taligent, mô tả nó trong bài "MVP: Model-View-Presenter, The Taligent Programming Model for C++ and Java" (1996).</li>
   <li><strong>Khoảng 2000:</strong> Andy Bower và Blair McGlashan dựng framework UI của Dolphin Smalltalk trên MVP ("Twisting the Triad"), phổ biến pattern ra ngoài Taligent.</li>
   <li><strong>11/07/2006:</strong> Martin Fowler "nghỉ hưu" tên MVP trong bộ pattern của mình, tách thành hai pattern Supervising Controller và Passive View.</li>
-  <li><strong>05/2015:</strong> Hannes Dorfmann phát hành Mosby 1.0, thư viện MVP phổ biến cho Android; cùng giai đoạn có Nucleus, Moxy và nhiều cách tự viết.</li>
+  <li><strong>04/2015:</strong> Hannes Dorfmann phát hành Mosby 1.0, thư viện MVP phổ biến cho Android; cùng giai đoạn có Nucleus, Moxy và nhiều cách tự viết.</li>
   <li><strong>2016:</strong> Google công bố Android Architecture Blueprints: cùng một app ghi chú viết theo nhiều nhánh <code>todo-mvp</code>, <code>todo-mvp-clean</code>, <code>todo-mvp-dagger</code>, <code>todo-mvp-rxjava</code>, <code>todo-mvp-loaders</code>, <code>todo-databinding</code>. MVP thành kiến trúc "gần chính thức" của cộng đồng.</li>
   <li><strong>Google I/O 2017:</strong> Android Architecture Components ra mắt; <code>ViewModel</code> giải quyết việc sống qua xoay màn hình mà MVP phải tự lo, và "Guide to app architecture" chọn MVVM.</li>
   <li><strong>2018 (Android 9, API 28):</strong> Loader, một cách giữ Presenter qua xoay màn hình, bị deprecated; docs khuyên dùng <code>ViewModel</code> và <code>LiveData</code>.</li>
@@ -59256,7 +59298,7 @@ override fun showArticles(articles: List&lt;Article&gt;) {
 <ul>
   <li><a href="mvvm.md" target="_blank" rel="noopener">MVVM</a>: View quan sát một <code>uiState</code>, không còn attach/detach.</li>
   <li><a href="mvi.md" target="_blank" rel="noopener">MVI</a>: mọi thay đổi state đi qua một reducer.</li>
-  <li><a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: chia Model thành data layer và domain layer.</li>
+  <li><a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: đặt nghiệp vụ ở giữa, data layer phụ thuộc domain qua interface.</li>
 </ul></li>
 </ul>
 
@@ -59294,7 +59336,7 @@ override fun showArticles(articles: List&lt;Article&gt;) {
       'Phân biệt được MVI với MVVM theo luồng dữ liệu một chiều, và biết khi nào MVI đáng chi phí.'
     ],
     knowledgeGap: 'Không nắm kỷ luật "mọi thay đổi đi qua reducer" khiến developer ghi state từ nhiều coroutine bằng bản copy cũ (mất thao tác người dùng vừa làm), gọi API ngay trong reducer (gọi lặp khi update chạy lại), sửa MutableList bên trong state (StateFlow không phát, UI không đổi), hoặc dựng đủ bộ Intent và reducer cho một màn hình chỉ có hai trạng thái.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '18 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -59312,7 +59354,7 @@ fun onApplyCoupon() {
     }
 }</code></pre>
 
-<p>Lỗi này không nằm ở một dòng sai rõ ràng, mà ở việc <strong>có nhiều chỗ được ghi state</strong> và mỗi chỗ tự quyết định cách ghi. Muốn trả lời "vì sao màn hình đang hiện số lượng 1" thì phải dò mọi hàm, mọi coroutine. Vấn đề cần giải quyết là: <strong>dồn mọi thay đổi state về một chỗ duy nhất, theo một thứ tự, bằng một quy tắc test được, kể cả thay đổi đến từ việc bất đồng bộ.</strong></p>
+<p>Riêng lỗi này sửa được ngay trong MVVM bằng <code>_uiState.update { it.copy(discountPercent = …) }</code>, áp lên state hiện tại thay vì bản chụp; nhưng không có gì bắt mọi hàm, mọi coroutine khác cũng ghi như vậy. Lỗi không nằm ở một dòng sai rõ ràng, mà ở việc <strong>có nhiều chỗ được ghi state</strong> và mỗi chỗ tự quyết định cách ghi. Muốn trả lời "vì sao màn hình đang hiện số lượng 1" thì phải dò mọi hàm, mọi coroutine. Vấn đề cần giải quyết là: <strong>dồn mọi thay đổi state về một chỗ duy nhất, theo một thứ tự, bằng một quy tắc test được, kể cả thay đổi đến từ việc bất đồng bộ.</strong></p>
 
 <h2>Sau khi học xong</h2>
 
@@ -59523,7 +59565,7 @@ class CartViewModel(
     private val _state = MutableStateFlow(CartState(items = initialItems))
     val state: StateFlow&lt;CartState&gt; = _state.asStateFlow()
 
-    fun onIntent(intent: CartIntent) {                                                    // cửa vào duy nhất
+    fun onIntent(intent: CartIntent) {                                                    // cửa vào duy nhất, gọi từ main thread
         val before = _state.value
         val after = _state.updateAndGet { CartReducer.reduce(it, intent) }                // (1) (3)
         if (!before.isApplyingCoupon &amp;&amp; after.isApplyingCoupon) {                         // (2) chuyển trạng thái
@@ -59542,7 +59584,7 @@ class CartViewModel(
     }
 }</code></pre>
 
-<p><code>CouponRepository.validate()</code> là hàm <code>suspend</code> trả <code>Result&lt;Coupon&gt;</code>. <code>initialItems</code> được truyền khi tạo ViewModel bằng factory (<a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, mục "Factory và CreationExtras: ViewModel có dependency"); giỏ hàng lưu trong Room thì danh sách món đến từ một <code>Flow</code> của Repository và mỗi lần nó phát cũng là một message <code>ItemsLoaded</code> đi qua reducer.</p>
+<p><code>onIntent()</code> được gọi từ listener của View và coroutine của <code>viewModelScope</code> cũng chạy trên main thread, nên không cập nhật nào xen giữa lúc đọc <code>before</code> và lúc <code>updateAndGet</code>; gọi <code>onIntent()</code> từ thread khác thì phép so sánh <code>before</code>/<code>after</code> không còn đáng tin. <code>CouponRepository.validate()</code> là hàm <code>suspend</code> trả <code>Result&lt;Coupon&gt;</code>. <code>initialItems</code> được truyền khi tạo ViewModel bằng factory (<a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, mục "Factory và CreationExtras: ViewModel có dependency"); giỏ hàng lưu trong Room thì danh sách món đến từ một <code>Flow</code> của Repository và mỗi lần nó phát cũng là một message <code>ItemsLoaded</code> đi qua reducer.</p>
 
 <pre data-lang="kotlin"><code>// CartFragment.kt: View gửi Intent, vẽ State
 override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -59801,10 +59843,16 @@ class PlaylistReducerTest {
   </thead>
   <tbody>
     <tr style="border-bottom:1px solid #21262d;">
-      <td style="padding:8px 12px;font-weight:600;">MVC</td>
-      <td style="padding:8px 12px;">Controller</td>
-      <td style="padding:8px 12px;">Có; trên Android, Activity thường vừa là View vừa là Controller</td>
-      <td style="padding:8px 12px;">Controller gán thẳng vào View</td>
+      <td style="padding:8px 12px;font-weight:600;">MVC gốc</td>
+      <td style="padding:8px 12px;">Controller (chỉ xử lý input)</td>
+      <td style="padding:8px 12px;">Có, đi cặp với một View</td>
+      <td style="padding:8px 12px;">View quan sát Model và tự vẽ lại</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">MVC kiểu Android</td>
+      <td style="padding:8px 12px;">Activity / Fragment</td>
+      <td style="padding:8px 12px;">Nó <strong>chính là</strong> View</td>
+      <td style="padding:8px 12px;">Activity gán thẳng dữ liệu vào widget</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">MVP</td>
@@ -59822,7 +59870,7 @@ class PlaylistReducerTest {
       <td style="padding:8px 12px;font-weight:600;"><strong>MVI</strong></td>
       <td style="padding:8px 12px;">ViewModel / Store, reducer</td>
       <td style="padding:8px 12px;">Không</td>
-      <td style="padding:8px 12px;">Như MVVM, nhưng mọi thay đổi đi qua một reducer duy nhất, state bất biến</td>
+      <td style="padding:8px 12px;">Như MVVM, nhưng mọi thay đổi (Intent và kết quả side effect) đi qua một reducer duy nhất, state bất biến</td>
     </tr>
   </tbody>
 </table>
@@ -59931,8 +59979,8 @@ val effects = _effects.receiveAsFlow()</code></pre>
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
-  <li><a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: side effect của Store gọi use case và Repository ở các tầng bên dưới.</li>
-  <li>7.1.5.3 Hilt: cung cấp Repository cho Store (<a href="../design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>).</li>
+  <li><a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: đặt nghiệp vụ ở giữa, data layer phụ thuộc domain qua interface; side effect của Store gọi use case và Repository ở các tầng bên dưới.</li>
+  <li><a href="../design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>: cung cấp Repository cho Store.</li>
 </ul></li>
 </ul>
 
@@ -59970,7 +60018,7 @@ val effects = _effects.receiveAsFlow()</code></pre>
       'Biết khi nào Clean Architecture đáng chi phí và khi nào là quá tay.'
     ],
     knowledgeGap: 'Không nắm dependency rule, developer chia thư mục domain/data/presentation nhưng vẫn để domain import Room, Retrofit, đẩy DTO và `HttpException` lên UI, hoặc bọc mọi lời gọi Repository bằng use case rỗng: chịu chi phí nhiều tầng mà đổi nguồn dữ liệu vẫn phải sửa nghiệp vụ, và nghiệp vụ vẫn không test được trên JVM.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '18 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -60160,7 +60208,7 @@ class FusedLocationProvider(private val client: FusedLocationProviderClient) : L
 
 <p>Hàm <code>suspend</code> và <code>await()</code> là coroutine, học ở 8.4.3 Coroutines (chưa có bài). Cách xin quyền vị trí và vì sao API của GMS nằm ở data layer: <a href="../../session_04/components/services/google_service.md" target="_blank" rel="noopener">Google Service</a>, mục "Vị trí trong Clean Architecture / MVVM".</p>
 
-<p><strong>Kết quả:</strong> use case không có <code>import</code> nào của Android hay GMS. Unit test truyền <code>FakeLocationProvider</code> trả điểm cách cửa hàng khoảng 5 km thì nhận <code>Paid(25_000)</code>, trả <code>null</code> thì nhận <code>LocationUnavailable</code>. Máy dùng HMS chỉ cần thêm <code>HuaweiLocationProvider : LocationProvider</code> và ráp trong DI; use case không đổi dòng nào.</p>
+<p><strong>Kết quả:</strong> use case không có <code>import</code> nào của Android hay GMS. Unit test truyền <code>FakeLocationProvider</code> trả điểm cách cửa hàng khoảng 4,5 km (vượt 1,5 km, làm tròn lên 2 km) thì nhận <code>Paid(25_000)</code>, trả <code>null</code> thì nhận <code>LocationUnavailable</code>. Máy dùng HMS chỉ cần thêm <code>HuaweiLocationProvider : LocationProvider</code> và ráp trong DI; use case không đổi dòng nào.</p>
 
 <h3>Bản Android: presentation, domain, data</h3>
 
@@ -60220,7 +60268,7 @@ flowchart LR
 
 <ul>
   <li><strong>Domain ở giữa, không phụ thuộc gì:</strong> presentation và data đều trỏ vào domain; data trỏ vào qua <code>implements</code>, ngược chiều lời gọi <code>UseCase → Repository</code>.</li>
-  <li><strong>Domain không có <code>android.*</code>:</strong> không <code>Context</code>, <code>Parcelable</code>, annotation của Room hay Gson, nên có thể là module Kotlin/JVM thuần, test bằng JUnit và dùng lại trong Kotlin Multiplatform.</li>
+  <li><strong>Domain không có <code>android.*</code>:</strong> không <code>Context</code>, <code>Parcelable</code>, annotation của Room hay Gson, nên có thể là module Kotlin/JVM thuần, test bằng JUnit. Dùng lại trong Kotlin Multiplatform thì tránh thêm API riêng của JVM (<code>java.time</code>, <code>BigDecimal</code>): dùng <code>kotlinx-datetime</code>, lưu tiền bằng <code>Long</code> theo đơn vị nhỏ nhất.</li>
 </ul>
 
 <p>Các bài trước đã đặt từng thành phần vào ba tầng này: <a href="../../session_04/components/activity/index.md" target="_blank" rel="noopener">Activity</a>, <a href="../../session_04/components/fragment/index.md" target="_blank" rel="noopener">Fragment</a> ở presentation; <a href="../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room</a>, <a href="../../session_04/components/services/advertisements/ads_architecture.md" target="_blank" rel="noopener">quảng cáo</a> ở data; <a href="../../session_04/components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a> là entry point đẩy sự kiện vào domain qua interface <code>ConnectivityObserver</code>.</p>
@@ -60243,7 +60291,25 @@ flowchart LR
 
 <h4>Ví dụ: số dư ví theo tiền tệ người dùng chọn</h4>
 
-<p><strong>Bài toán:</strong> ví lưu số dư bằng VND, người dùng chọn hiển thị bằng USD; màn ví và màn thanh toán đều cần số dư đã quy đổi. Luồng chỉ là ba lời gọi nối tiếp nên không cần sơ đồ.</p>
+<p><strong>Bài toán:</strong> ví lưu số dư bằng VND, người dùng chọn hiển thị bằng USD; màn ví và màn thanh toán đều cần số dư đã quy đổi.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Đọc số dư từ <code>WalletRepository</code>.</li>
+  <li>Đọc tiền tệ hiển thị người dùng chọn từ <code>SettingsRepository</code>.</li>
+  <li>Cùng tiền tệ thì trả số dư nguyên vẹn.</li>
+  <li>Khác tiền tệ: lấy tỉ giá từ <code>ExchangeRateRepository</code>, quy đổi rồi làm tròn theo số chữ số thập phân của tiền tệ đích.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) walletRepository.getBalance()"] --&gt; B["(2) settingsRepository.getDisplayCurrency()"]
+    B --&gt; C{"(3) cùng tiền tệ?"}
+    C --&gt;|"có"| D["trả balance"]
+    C --&gt;|"không"| E["(4) getRate(), nhân tỉ giá, làm tròn HALF_EVEN"]
+    E --&gt; F["trả Money theo tiền tệ đích"]
+</div>
 
 <pre data-lang="kotlin"><code>// :domain — wallet/GetDisplayBalanceUseCase.kt (ba interface Repository khai báo ở domain như các ví dụ khác)
 enum class CurrencyCode(val fractionDigits: Int) { VND(0), USD(2) }
@@ -60255,15 +60321,15 @@ class GetDisplayBalanceUseCase(
     private val exchangeRateRepository: ExchangeRateRepository,
 ) {
     suspend operator fun invoke(): Money {
-        val balance = walletRepository.getBalance()
-        val target = settingsRepository.getDisplayCurrency()
-        if (balance.currency == target) return balance
-        val rate = exchangeRateRepository.getRate(balance.currency, target)
+        val balance = walletRepository.getBalance()                              // (1)
+        val target = settingsRepository.getDisplayCurrency()                     // (2)
+        if (balance.currency == target) return balance                           // (3)
+        val rate = exchangeRateRepository.getRate(balance.currency, target)      // (4)
         return Money((balance.amount * rate).setScale(target.fractionDigits, RoundingMode.HALF_EVEN), target)
     }
 }</code></pre>
 
-<p><strong>Kết quả:</strong> <code>WalletViewModel</code> và <code>CheckoutViewModel</code> chỉ gọi <code>getDisplayBalance()</code>. Đổi quy tắc làm tròn chỉ sửa một chỗ; test bằng ba fake Repository kiểm tra <code>1_250_000 VND × 0.0000394 = 49.25 USD</code>. Ví dụ use case đầy đủ kèm unit test ở mục "Ví dụ thực tế".</p>
+<p><strong>Kết quả:</strong> <code>WalletViewModel</code> và <code>CheckoutViewModel</code> chỉ gọi <code>getDisplayBalance()</code>. Đổi quy tắc làm tròn chỉ sửa một chỗ; test bằng ba fake Repository kiểm tra <code>1_250_000 VND × 0.0000394 = 49.25 USD</code>.</p>
 
 <h3>Model riêng cho từng tầng và mapping</h3>
 
@@ -60380,7 +60446,11 @@ fun Product.toItemUi(formatter: NumberFormat) =                                 
 
 <pre data-lang="kotlin"><code>// domain/build.gradle.kts: Kotlin/JVM thuần, không có Android
 plugins { kotlin("jvm") }
-dependencies { implementation(libs.kotlinx.coroutines.core) }     // chỉ để có Flow, suspend
+dependencies {
+    implementation(libs.kotlinx.coroutines.core)                  // chỉ để có Flow, suspend
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)              // runTest
+}
 
 // data/build.gradle.kts
 dependencies { implementation(project(":domain")) }              // để implements interface
@@ -60403,7 +60473,7 @@ flowchart TD
     DATA --&gt; DOM
 </div>
 
-<p><code>:feature:checkout</code> không có <code>:data</code> trên classpath, nên dùng <code>OrderRepositoryImpl</code> trong ViewModel là lỗi compile. Hướng dẫn modularization của Android gọi đây là <strong>dependency inversion giữa module</strong>: module abstraction (<code>:domain</code>) chứa interface, module implementation (<code>:data</code>) phụ thuộc vào nó, DI nối hai bên. App lớn chia tiếp theo tính năng (<code>:data:order</code>, <code>:feature:cart</code>).</p>
+<p><code>:feature:checkout</code> không có <code>:data</code> trên classpath, nên dùng <code>OrderRepositoryImpl</code> trong ViewModel là lỗi compile. Hướng dẫn modularization của Android gọi đây là <strong>dependency inversion giữa module</strong>: module abstraction (<code>:domain</code>) chứa interface, module implementation (<code>:data</code>) phụ thuộc vào nó, DI nối hai bên.</p>
 
 <h2>Ví dụ thực tế</h2>
 
@@ -60439,14 +60509,18 @@ sequenceDiagram
     participant O as OrderRepository
     VM-&gt;&gt;UC: (1) invoke()
     UC-&gt;&gt;C: getCart()
-    UC-&gt;&gt;I: (2) getStock(productIds)
-    alt có món thiếu hàng
-        UC--&gt;&gt;VM: OutOfStock(ids)
-    else đủ hàng
-        UC-&gt;&gt;O: (3) submit(cart)
-        O--&gt;&gt;UC: Accepted(orderId) / Unreachable
-        UC-&gt;&gt;C: (4) clear() nếu Accepted
-        UC--&gt;&gt;VM: Success(orderId) / Offline
+    alt giỏ trống
+        UC--&gt;&gt;VM: EmptyCart
+    else có món
+        UC-&gt;&gt;I: (2) getStock(productIds)
+        alt có món thiếu hàng
+            UC--&gt;&gt;VM: OutOfStock(ids)
+        else đủ hàng
+            UC-&gt;&gt;O: (3) submit(cart)
+            O--&gt;&gt;UC: Accepted(orderId) / Unreachable
+            UC-&gt;&gt;C: (4) clear() nếu Accepted
+            UC--&gt;&gt;VM: Success(orderId) / Offline
+        end
     end
     VM-&gt;&gt;VM: (5) uiState mới
 </div>
@@ -60577,7 +60651,7 @@ class PlaceOrderUseCaseTest {
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
       <td style="padding:8px 12px;font-weight:600;">UI gọi thẳng Repository?</td>
-      <td style="padding:8px 12px;">Không, đi qua use case</td>
+      <td style="padding:8px 12px;">Bài gốc qua use case; gọi interface Repository ở domain vẫn đúng dependency rule</td>
       <td style="padding:8px 12px;">Được; chỉ thêm use case khi cần</td>
     </tr>
     <tr style="border-bottom:1px solid #21262d;">
@@ -60588,7 +60662,7 @@ class PlaceOrderUseCaseTest {
   </tbody>
 </table>
 
-<p>Clean Architecture đặt nghiệp vụ ở giữa và bắt mọi thứ trỏ vào nó; Google đặt data layer làm nền và thêm domain khi có lý do. Trong repo này, <a href="../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a> vẽ theo cách của Google (use case gọi <code>TaskRepositoryImpl</code>), còn <a href="../../session_04/components/services/google_service.md" target="_blank" rel="noopener">Google Service</a> và <a href="../../session_04/components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a> vẽ theo Clean Architecture (interface ở domain). Mẫu <a href="https://github.com/android/nowinandroid" target="_blank" rel="noopener">Now in Android</a> của Google nằm giữa: module <code>core:domain</code> chỉ chứa use case dùng chung, các feature vẫn được gọi thẳng Repository.</p>
+<p>Clean Architecture đặt nghiệp vụ ở giữa và bắt mọi thứ trỏ vào nó; Google đặt data layer làm nền và thêm domain khi có lý do, như mẫu <a href="https://github.com/android/nowinandroid" target="_blank" rel="noopener">Now in Android</a>: module <code>core:domain</code> phụ thuộc <code>core:data</code> và chỉ chứa use case dùng chung, các feature vẫn gọi thẳng Repository. Các bài ở Session 04 và 05 trong repo này (<a href="../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, <a href="../../session_04/components/services/google_service.md" target="_blank" rel="noopener">Google Service</a>, <a href="../../session_04/components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>) vẽ theo Clean Architecture: interface Repository ở domain.</p>
 
 <p>Hexagonal Architecture (Ports and Adapters) và Onion Architecture là hai kiến trúc mà Clean Architecture tổng hợp lại: nghiệp vụ ở giữa, port là interface, adapter ở ngoài. MVVM, MVP, <a href="mvi.md" target="_blank" rel="noopener">MVI</a> chỉ tổ chức <strong>tầng presentation</strong>, nên dùng được trong bất kỳ cách chia tầng nào ở trên.</p>
 

@@ -57,7 +57,7 @@ MVC ra đời ở Xerox PARC cuối thập niên 1970, cho môi trường Smallt
 |---|---|---|---|
 | **Model** | Dữ liệu và quy tắc; báo "tôi đã đổi" cho ai đăng ký | Danh sách observer (không biết cụ thể là gì) | View, Controller |
 | **View** | Vẽ Model ra màn hình; đăng ký nhận thông báo từ Model | Model | Controller xử lý input thế nào |
-| **Controller** | Nhận input (chạm, phím), quyết định đổi Model ra sao | Model, View đi cặp với nó | Những View khác đang hiện cùng Model |
+| **Controller** | Nhận input (chạm, phím), quyết định đổi Model ra sao | Model, View đi cặp với nó (để xử lý input, ví dụ hỏi View vị trí chuột rơi vào phần tử nào; không để đẩy dữ liệu) | Những View khác đang hiện cùng Model |
 
 Có hai luồng tách biệt:
 
@@ -82,7 +82,7 @@ flowchart LR
 
 **Luồng chạy:**
 
-1. Khi màn hình mở, hai View (`CartBadgeView`, `CartTotalView`) đăng ký làm listener của Model `Cart`.
+1. Khi màn hình mở, hai View (`CartBadgeView`, `CartTotalView`) đăng ký làm listener của Model `Cart`; `Cart` báo ngay cho listener mới để nó vẽ dữ liệu hiện tại.
 2. Người dùng bấm "Thêm vào giỏ"; `AddToCartController` nhận thao tác.
 3. Controller gọi `cart.add()`. Nó không đụng vào View nào.
 4. `Cart` cập nhật dữ liệu rồi báo cho **mọi** listener.
@@ -95,7 +95,9 @@ sequenceDiagram
     participant C as AddToCartController
     participant M as Cart (Model)
     B->>M: (1) addListener
+    M-->>B: (1) onCartChanged(cart): vẽ lần đầu
     T->>M: (1) addListener
+    M-->>T: (1) onCartChanged(cart): vẽ lần đầu
     Note over C: (2) người dùng bấm "Thêm vào giỏ"
     C->>M: (3) add(productId, unitPrice)
     M-->>B: (4) onCartChanged(cart)
@@ -116,7 +118,10 @@ class Cart {
     val itemCount: Int get() = quantities.values.sum()
     val total: Long get() = quantities.entries.sumOf { (id, qty) -> unitPrices.getValue(id) * qty }
 
-    fun addListener(listener: Listener) { listeners += listener }           // (1)
+    fun addListener(listener: Listener) {                                     // (1)
+        listeners += listener
+        listener.onCartChanged(this)                                           // (1) vẽ ngay dữ liệu hiện tại
+    }
     fun removeListener(listener: Listener) { listeners -= listener }
 
     fun add(productId: String, unitPrice: Long) {                             // (3)
@@ -147,12 +152,19 @@ class AddToCartController(private val cart: Cart) {
 ```
 
 ```kotlin
-// ProductDetailActivity.kt (trong onCreate): chỉ lắp ráp ba vai
-val listeners = listOf(CartBadgeView(binding.cartBadge), CartTotalView(binding.totalText))
-listeners.forEach(cart::addListener)                                           // (1)
+// ProductDetailActivity.kt: chỉ lắp ráp ba vai
+private lateinit var cartViews: List<Cart.Listener>
+
+// trong onCreate()
+cartViews = listOf(CartBadgeView(binding.cartBadge), CartTotalView(binding.totalText))
+cartViews.forEach(cart::addListener)                                           // (1)
 val controller = AddToCartController(cart)
 binding.addToCartButton.setOnClickListener { controller.onAddClick(product) }  // (2)
-// onDestroy(): listeners.forEach(cart::removeListener), để Model không giữ View đã chết
+
+override fun onDestroy() {
+    cartViews.forEach(cart::removeListener)                                    // Model không giữ View đã chết
+    super.onDestroy()
+}
 ```
 
 `binding` là class sinh bởi [View Binding](../../session_06/view_binding.md). `cart` là object dùng chung cho cả app (ví dụ giữ trong `Application`); cách cung cấp object dùng chung là chủ đề của [Dependency Injection Overview](../design_pattern/di/overview.md).
@@ -383,7 +395,7 @@ class CheckoutCalculatorTest {
 | **MVC kiểu Android** | Activity / Fragment | Nó **chính là** View | Activity gán thẳng dữ liệu vào widget |
 | MVP | Presenter | Có, qua interface `View` | Presenter gọi hàm của View |
 | MVVM | ViewModel | Không | View quan sát state của ViewModel |
-| MVI | ViewModel / Store, reducer | Không | Như MVVM, nhưng mọi thay đổi đi qua một reducer |
+| MVI | ViewModel / Store, reducer | Không | Như MVVM, nhưng mọi thay đổi (Intent và kết quả side effect) đi qua một reducer duy nhất, state bất biến |
 
 Cũng cần tách MVC của giao diện với **MVC của framework web** (Spring MVC, Ruby on Rails, ASP.NET MVC). Ở web, Controller nhận một HTTP request, gọi Model rồi chọn template (View) để sinh response; không có View nào "quan sát" Model, vì mỗi request là một lần vẽ mới. Cùng một cái tên nhưng là cách chia khác, nên không thể lấy kinh nghiệm "Controller mỏng, Model dày" của web áp nguyên vào Activity.
 
@@ -457,7 +469,7 @@ val bookmarked = !binding.bookmarkButton.isSelected
 repository.setBookmarked(articleId, bookmarked)
 ```
 
-**Lỗi lộ ra thế nào:** bài được lưu ở nơi khác thì nút ở màn này vẫn hiện "chưa lưu"; bấm vào lại **bỏ lưu** một bài người dùng vừa lưu. Sau process death, widget được khôi phục từ `Bundle` theo trạng thái cũ, lệch với dữ liệu thật trong database.
+**Lỗi lộ ra thế nào:** bài được lưu ở nơi khác thì nút ở màn này vẫn hiện "chưa lưu"; bấm vào lại **bỏ lưu** một bài người dùng vừa lưu. Bấm "Lưu" hai lần nhanh trước khi lần ghi đầu xong thì cả hai lần đều đọc cùng giá trị `isSelected` cũ (nút chỉ đổi sau khi ghi xong) và ghi cùng một giá trị: người dùng bấm lưu rồi bỏ lưu, nhưng bài vẫn ở trạng thái đã lưu.
 
 **Cách sửa:** đọc trạng thái từ Model (Repository) và để Model báo khi nó đổi. Đây là điểm MVC kiểu Android đánh mất so với MVC gốc, và là lý do MVVM cho View quan sát state.
 
@@ -465,11 +477,11 @@ repository.setBookmarked(articleId, bookmarked)
 
 - **1978–1979:** Trygve Reenskaug, khi làm việc ở Xerox PARC, viết bản ghi chú đầu tiên cho Smalltalk. Bản ngày 12/05/1979 dùng bộ tên "Thing-Model-View-Editor"; bản ngày 10/12/1979 chốt tên "Models-Views-Controllers" sau các buổi thảo luận với Adele Goldberg.
 - **Smalltalk-80 (đầu thập niên 1980):** Jim Althoff và các cộng sự hiện thực MVC trong thư viện class của Smalltalk-80, với cơ chế "dependents" để View quan sát Model. Bản này dùng chữ Controller hơi khác ý ban đầu của Reenskaug.
-- **08–09/1988:** Glenn Krasner và Stephen Pope công bố "A Cookbook for Using the Model-View-Controller User Interface Paradigm in Smalltalk-80", phổ biến MVC ra ngoài nhóm PARC.
+- **08–09/1988:** Glenn Krasner và Stephen Pope (ParcPlace Systems) công bố "A Cookbook for Using the Model-View-Controller User Interface Paradigm in Smalltalk-80" trên Journal of Object-Oriented Programming, phổ biến MVC ra ngoài nhóm PARC.
 - **Thập niên 1990:** Taligent phát triển MVP từ MVC, bỏ cặp View–Controller theo từng widget (xem [MVP](mvp.md)). Các framework GUI sau đó (Cocoa của Apple, rồi `UIViewController` của iOS) dùng tên MVC nhưng để Controller làm trung gian đẩy dữ liệu vào View.
 - **Đầu thập niên 2000:** framework web (Struts, Ruby on Rails, ASP.NET MVC) dùng tên MVC cho mô hình request → Controller → template, càng làm nghĩa của chữ MVC phân tán.
 - **2008 (Android 1.0):** Android chỉ cung cấp Activity và layout XML, không có hướng dẫn kiến trúc; "MVC kiểu Android" và Massive Activity trở thành mặc định.
-- **2015–2016:** cộng đồng chuyển sang MVP để tách logic khỏi Activity: thư viện Mosby (05/2015), Android Architecture Blueprints của Google với nhánh `todo-mvp` (2016).
+- **2015–2016:** cộng đồng chuyển sang MVP để tách logic khỏi Activity: thư viện Mosby (04/2015), Android Architecture Blueprints của Google với nhánh `todo-mvp` (2016).
 - **Google I/O 2017:** Android Architecture Components và "Guide to app architecture" ra mắt; MVVM với `ViewModel` và `LiveData` thành hướng chính thức ([MVVM](mvvm.md), mục "Lịch sử phát triển").
 
 ## Kết nối hệ thống
@@ -485,12 +497,12 @@ repository.setBookmarked(articleId, bookmarked)
   - [MVP](mvp.md): tách logic khỏi Activity bằng Presenter và interface View.
   - [MVVM](mvvm.md): View quan sát state, ViewModel sống qua xoay màn hình.
   - [MVI](mvi.md): mọi thay đổi state đi qua một reducer.
-  - [Clean Architecture](clean_architecture.md): chia Model thành data layer và domain layer.
+  - [Clean Architecture](clean_architecture.md): đặt nghiệp vụ ở giữa, data layer phụ thuộc domain qua interface.
 
 ## Tham khảo
 
 - [MVC (các ghi chú gốc 1978–1979) - Trygve Reenskaug](https://folk.universitetetioslo.no/trygver/themes/mvc/mvc-index.html)
 - [GUI Architectures (MVC, MVP, Presentation Model) - Martin Fowler](https://martinfowler.com/eaaDev/uiArchs.html)
-- [A Description of the Model-View-Controller User Interface Paradigm in the Smalltalk-80 System - Krasner, Pope](https://web.archive.org/web/20100921030808/http://www.itu.dk/courses/VOP/E2005/VOP2005E/8_mvc_krasner_and_pope.pdf)
+- [A Description of the Model-View-Controller User Interface Paradigm in the Smalltalk-80 System (bản tài liệu ParcPlace của bài "A Cookbook…", 1988) - Krasner, Pope](https://web.archive.org/web/20100921030808/http://www.itu.dk/courses/VOP/E2005/VOP2005E/8_mvc_krasner_and_pope.pdf)
 - [Guide to app architecture - Android Developers](https://developer.android.com/topic/architecture)
 - [Android Architecture Samples - GitHub](https://github.com/android/architecture-samples)

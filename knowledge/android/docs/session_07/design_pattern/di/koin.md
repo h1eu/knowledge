@@ -7,7 +7,7 @@ difficulty: intermediate
 depth: standard
 estimated_reading_time: 15 phút
 tags: [android, dependency-injection, koin, kotlin-multiplatform, viewmodel, testing]
-prerequisites: [android.jetpack.viewmodel, android.languages.kotlin]
+prerequisites: [android.design_pattern.di.overview, android.jetpack.viewmodel, android.languages.kotlin]
 related: [android.architecture.mvvm, android.data_store.room_architecture, android.networks.ktor_apollo, android.testing.unit_testing, android.component.service.overview]
 learning_outcomes:
   - Giải thích được cách Koin tra cứu và tạo dependency lúc chạy từ các definition trong module, và hệ quả của nó so với graph sinh lúc compile của Hilt.
@@ -50,7 +50,7 @@ Khác biệt với [Hilt](hilt.md) nằm ở thời điểm nối dây: Hilt n�
 ## Cách hoạt động
 
 > [!NOTE]
-> **Kiến thức dùng trước.** Ví dụ dùng Room ([Room Architecture](../../../session_05/data_store/room_architecture.md)), `StateFlow` ([Flow](../observer/flow.md)) và Ktor client ([Ktor and Apollo Android](../../../session_08/networks/ktor_apollo.md)) ở mức tối thiểu. Lambda with receiver, nền của DSL `module { }`, ở [Kotlin](../../../session_01/languages/kotlin.md).
+> **Kiến thức dùng trước.** Ví dụ dùng Room ([Room Architecture](../../../session_05/data_store/room_architecture.md)), `StateFlow` ([Flow](../observer/flow.md)) và Ktor client ([Ktor and Apollo Android](../../../session_08/networks/ktor_apollo.md)) ở mức tối thiểu.
 
 ### Container, module và definition
 
@@ -61,6 +61,7 @@ Cài Koin trên Android bằng BOM để mọi artifact cùng version:
 dependencies {
     implementation(platform("io.insert-koin:koin-bom:4.2.2"))
     implementation("io.insert-koin:koin-android")              // gồm koin-core và hỗ trợ ViewModel
+    implementation("io.insert-koin:koin-androidx-compose")     // koinViewModel() cho Compose
     testImplementation("io.insert-koin:koin-test-junit4")
 }
 ```
@@ -93,13 +94,13 @@ Consumer nên phụ thuộc vào interface. `bind` gắn definition với interf
 2. Một nơi yêu cầu `NoteRepository` (ViewModel ở mục sau). Koin tìm definition theo kiểu (và qualifier nếu có).
 3. Definition là `single` và chưa có instance: Koin chạy cách tạo. Constructor của `RoomNoteRepository` cần `NoteDao`, nên Koin lặp lại bước 2 cho `NoteDao`, rồi cho `NotesDatabase`.
 4. Instance `single` được cất lại; lần hỏi sau trả đúng instance đó. `factory` thì mỗi lần chạy lại cách tạo.
-5. Không tìm thấy definition: Koin ném exception **lúc chạy**, đúng lúc được hỏi.
+5. Không tìm thấy definition: Koin ném `NoDefinitionFoundException` **lúc chạy**, đúng lúc được hỏi. Thiếu ở tầng dưới (đang tạo `RoomNoteRepository` thì thiếu `NoteDao`) thì exception này được bọc trong `InstanceCreationException` của definition đang tạo.
 
 ```mermaid
 flowchart TD
     Start["(1) startKoin: ghi definition, chưa tạo gì"] --> Req["(2) cần NoteRepository"]
     Req --> Found{"Có definition?"}
-    Found -->|"không"| Err["(5) NoDefinitionFoundException lúc chạy"]
+    Found -->|"không"| Err["(5) NoDefinitionFoundException lúc chạy<br/>(thiếu ở tầng dưới: bọc trong InstanceCreationException)"]
     Found -->|"single, đã có instance"| Cached["(4) trả instance đã cất"]
     Found -->|"single, chưa có / factory"| Create["(3) gọi constructor<br/>get() từng tham số: NoteDao → NotesDatabase"]
     Create --> Store["(4) single: cất lại; factory: không cất"]
@@ -108,12 +109,12 @@ flowchart TD
 ```kotlin
 // di/DataModule.kt
 val dataModule = module {
-    single {                                                                   // (3) builder: dùng lambda
+    single {                                                                   // (3) cách tạo là lambda gọi builder
         Room.databaseBuilder(androidContext(), NotesDatabase::class.java, "notes.db").build()
     }
-    single { get<NotesDatabase>().noteDao() }
-    singleOf(::RoomNoteRepository) bind NoteRepository::class                  // (4) một instance, gắn interface
-    factoryOf(::NoteDateFormatter)                                             // (4) mỗi lần một instance
+    single { get<NotesDatabase>().noteDao() }                                  // (3) NoteDao lấy từ NotesDatabase
+    singleOf(::RoomNoteRepository) bind NoteRepository::class                  // (2) tìm theo NoteRepository; (4) cất một instance
+    factoryOf(::NoteDateFormatter)                                             // (4) factory: không cất
 }
 
 // data/RoomNoteRepository.kt: không annotation, không import Koin
@@ -137,7 +138,7 @@ class NotesApplication : Application() {
 
 `androidContext()` trả `Application` đã đưa vào lúc `startKoin`, nên `single` không giữ nhầm Activity. Các hàm `singleOf`, `factoryOf`, `viewModelOf` nằm trong package `org.koin.core.module.dsl`.
 
-**Kết quả:** gọi `getKoin().get<NoteRepository>()` hai lần trả cùng một object (`===` là `true`), còn `NoteDateFormatter` trả hai object khác nhau. Xoá dòng `single { get<NotesDatabase>().noteDao() }`: app **vẫn build và khởi động bình thường**, chỉ crash khi lần đầu có nơi cần `NoteRepository`, với `NoDefinitionFoundException` cho `NoteDao`. Đây là đánh đổi cốt lõi của việc resolve lúc chạy; mục "Kiểm tra cấu hình" xử lý nó.
+**Kết quả:** gọi `getKoin().get<NoteRepository>()` hai lần trả cùng một object (`===` là `true`), còn `NoteDateFormatter` trả hai object khác nhau. Xoá dòng `single { get<NotesDatabase>().noteDao() }`: app **vẫn build và khởi động bình thường**, chỉ crash khi lần đầu có nơi cần `NoteRepository`, với `InstanceCreationException` cho `RoomNoteRepository` mà nguyên nhân (cause) là `NoDefinitionFoundException` cho `NoteDao`. Đây là đánh đổi cốt lõi của việc resolve lúc chạy; mục "Kiểm tra cấu hình" xử lý nó.
 
 ### Lấy dependency trên Android: constructor, `by inject()`, ViewModel
 
@@ -214,7 +215,7 @@ fun NoteEditorRoute(viewModel: NoteEditorViewModel = koinViewModel()) { /* ... *
 
 Vì Koin resolve lúc chạy, cần một bước soát danh bạ trước khi phát hành. Có hai cách:
 
-- **`verify()`** (trong `koin-test`, chạy trên JVM): đọc constructor của class trong từng definition và kiểm tra mỗi tham số đều có definition trong cây module. Nó không tạo instance nào, không cần mock. Kiểu do nền tảng cung cấp (`Context`, `SavedStateHandle`) khai báo qua `extraTypes`. Giới hạn: `verify()` **chỉ đọc constructor**, không đọc các lời gọi `get()` viết tay trong lambda, nên định nghĩa bằng Constructor DSL được kiểm tra kỹ hơn Classic DSL.
+- **`verify()`** (trong `koin-test`, chạy trên JVM): với mỗi definition, đọc các constructor public của kiểu chính (primary type) mà definition khai báo, dù viết bằng Classic DSL hay Constructor DSL, và kiểm tra mỗi tham số đều có definition trong cây module. Nó không chạy definition nào, không cần mock. Kiểu do nền tảng cung cấp (`Context`, `SavedStateHandle`) khai báo qua `extraTypes`. Giới hạn: `verify()` **chỉ đọc constructor**, không đọc thân lambda, nên kiểu dựng bằng builder vẫn bị soát theo constructor của chính nó và có thể bị báo thiếu sai: `single { HttpClient { ... } }` bị báo thiếu `HttpClientEngine` vì constructor `HttpClient` cần tham số đó, nên `HttpClientEngine` cũng phải vào `extraTypes`. Nó cũng không kiểm tra qualifier.
 - **Koin Compiler Plugin** (Gradle plugin `io.insert-koin.compiler.plugin`, Koin 4.2+, Kotlin 2.3.20+ với K2): kiểm tra graph **lúc build** tại điểm `startKoin`, kể cả lời gọi `get()`. Thiếu dependency là build thất bại với lỗi `KOIN-D001`. Module nạp thêm lúc chạy bằng `loadKoinModules()` nằm ngoài tầm nhìn của plugin.
 
 `checkModules()` của các bản cũ tạo thật mọi definition nên phải giả lập đủ thứ; nó đã **deprecated từ Koin 4.0**, thay bằng `verify()` hoặc Compiler Plugin.
@@ -226,7 +227,7 @@ Vì Koin resolve lúc chạy, cần một bước soát danh bạ trước khi p
 **Luồng chạy:**
 
 1. Test gọi `appModule.verify(extraTypes = ...)`; `appModule` gom `dataModule` và `uiModule` bằng `includes`.
-2. Với mỗi definition, `verify()` đọc constructor của class (`RoomNoteRepository`, `NoteEditorViewModel`...).
+2. Với mỗi definition, `verify()` đọc constructor public của kiểu chính (`RoomNoteRepository`, `NoteEditorViewModel`...).
 3. Mỗi tham số được chấp nhận khi: có definition cùng kiểu, nằm trong `extraTypes`, có giá trị mặc định, hoặc là `Lazy<T>`/`List<T>` của kiểu đã khai báo.
 4. Một tham số không thoả: `verify()` ném `MissingKoinDefinitionException` kèm gợi ý sửa; test đỏ, CI chặn merge.
 
@@ -445,7 +446,7 @@ class NoteEditorFragment : Fragment() {
 }
 ```
 
-**Lỗi lộ ra thế nào:** ViewModel không nằm trong `ViewModelStore`: xoay màn hình tạo instance mới, bản nháp mất; `viewModelScope` không bao giờ bị huỷ vì `onCleared()` không được gọi. Docs của Koin ghi rõ không được lấy ViewModel bằng `inject()` hay `get()`.
+**Lỗi lộ ra thế nào:** ViewModel không nằm trong `ViewModelStore`: xoay màn hình tạo instance mới, bản nháp mất; `viewModelScope` không bao giờ bị huỷ vì `onCleared()` không được gọi. Vì vậy ViewModel không lấy bằng `inject()` hay `get()`.
 
 **Cách sửa:** khai báo bằng `viewModel { }`/`viewModelOf()` và lấy bằng `by viewModel()`, `by activityViewModel()` hoặc `koinViewModel()`.
 
@@ -471,7 +472,7 @@ class NoteEditorViewModel(
 ) : ViewModel()
 ```
 
-**Lỗi lộ ra thế nào:** build xanh, app khởi động bình thường; người dùng mở màn soạn ghi chú thì crash với `NoDefinitionFoundException` cho `TagRepository`.
+**Lỗi lộ ra thế nào:** build xanh, app khởi động bình thường; người dùng mở màn soạn ghi chú thì crash với `InstanceCreationException` cho `NoteEditorViewModel`, nguyên nhân là `NoDefinitionFoundException` cho `TagRepository`.
 
 **Cách sửa:** có test `appModule.verify()` chạy trên CI, hoặc áp Koin Compiler Plugin để lỗi lộ ra lúc build.
 
@@ -493,7 +494,7 @@ class NotesTest {
 - **09/2018:** Koin 1.0 stable.
 - **04/2021 (Koin 3.0):** Koin chuyển sang Kotlin Multiplatform; `koin-core` chạy được ngoài JVM.
 - **06/2022:** Koin Annotations 1.0 ra mắt, khai báo bằng annotation và xử lý bằng KSP.
-- **2023 (dòng 3.4):** API `verify()` để kiểm tra module trong unit test mà không tạo instance.
+- **12/2022 (Koin 3.3):** API `verify()` để kiểm tra module trong unit test mà không tạo instance; 3.4 (03/2023) thêm `androidVerify()` và phát hiện vòng phụ thuộc.
 - **09/2024 (Koin 4.0):** API ViewModel cho Kotlin Multiplatform; `checkModules()` bị deprecated.
 - **06/2025 (Koin 4.1):** scope có sẵn cho Activity, Fragment, ViewModel; cấu hình module dùng chung cho Kotlin Multiplatform.
 - **03/2026 (Koin 4.2):** `@KoinApplication`, `@Configuration`, hỗ trợ Navigation 3, cầu nối với Dagger cho việc chuyển dần; `minSdk` của `koin-android` lên 23. Koin Annotations dùng chung version với Koin.
@@ -504,7 +505,7 @@ class NotesTest {
 - **Tiên quyết:**
   - [Dependency Injection Overview](overview.md): DI, Service Locator, composition root, scope.
   - [ViewModel](../../../session_06/viewmodel.md): `ViewModelStore`, `SavedStateHandle`, thứ `by viewModel()` dựa vào.
-  - [Kotlin](../../../session_01/languages/kotlin.md): lambda with receiver, nền của DSL `module { }`.
+  - [Kotlin](../../../session_01/languages/kotlin.md): lambda, cú pháp của DSL `module { }` (lambda with receiver: chưa có bài).
 - **Liên quan:**
   - [Hilt](hilt.md): DI sinh code lúc build, lựa chọn mặc định cho app chỉ chạy Android.
   - [Kodein](kodein.md): DI DSL Kotlin khác, nay ở chế độ bảo trì.

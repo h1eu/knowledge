@@ -7,7 +7,7 @@ difficulty: intermediate
 depth: standard
 estimated_reading_time: 18 phút
 tags: [android, dependency-injection, hilt, dagger, ksp, viewmodel, workmanager, testing]
-prerequisites: [android.jetpack.viewmodel, android.component.activity.lifecycle, android.component.fragment.lifecycle]
+prerequisites: [android.design_pattern.di.overview, android.design_pattern.di.dagger2, android.jetpack.viewmodel, android.component.activity.lifecycle, android.component.fragment.lifecycle]
 related: [android.architecture.mvvm, android.data_store.room_architecture, android.data_store.key_value, android.networking.basics, android.component.fragment.fragment_manager, android.component.broadcast.overview, android.component.service.overview, android.component.service.google_service, android.testing.unit_testing]
 learning_outcomes:
   - Giải thích được Hilt thêm gì lên trên Dagger, cụ thể là cây component chuẩn gắn với vòng đời class Android, và vì sao lỗi thiếu dependency hiện ra lúc build thay vì lúc chạy.
@@ -168,7 +168,7 @@ Constructor injection không dùng được trong hai trường hợp:
 - **Interface:** `ArticleRepository` là interface, không có constructor. Dùng hàm **`@Binds`** (abstract, không có thân) để nói "khi cần `ArticleRepository` thì dùng `OfflineFirstArticleRepository`".
 - **Class không phải của bạn hoặc phải tạo bằng builder:** `OkHttpClient`, Retrofit service, Room database, `DataStore`. Dùng hàm **`@Provides`**: kiểu trả về là thứ được cung cấp, tham số là dependency, thân hàm là cách tạo. Hilt chạy thân hàm mỗi lần cần một instance (trừ khi có scope).
 
-Hai loại hàm này nằm trong một **Hilt module**: class có `@Module` và **bắt buộc** có `@InstallIn(XxxComponent::class)` để nói binding thuộc container nào. Module chứa `@Provides` thường là `object`; module chứa `@Binds` là `abstract class`. Hilt module không liên quan tới Gradle module.
+Hai loại hàm này nằm trong một **Hilt module**: class có `@Module` và **bắt buộc** có `@InstallIn(XxxComponent::class)` để nói binding thuộc container nào. Module chứa `@Provides` thường là `object`; module chứa `@Binds` là `abstract class` (hoặc interface). Hilt module không liên quan tới Gradle module.
 
 Hilt cung cấp sẵn vài binding và qualifier: `@ApplicationContext Context` có ở mọi component, `@ActivityContext Context` có ở `ActivityComponent` và các con của nó. Khi cần hai binding cùng kiểu (hai `OkHttpClient` khác interceptor), tự định nghĩa `@Qualifier`; cơ chế qualifier thuộc Dagger, xem [Dagger2](dagger2.md).
 
@@ -417,7 +417,7 @@ sequenceDiagram
     participant W as PhotoUploadWorker
     App->>WM: (1) workManagerConfiguration(HiltWorkerFactory)
     UI->>WM: (2) enqueue(request, photo_id, CONNECTED)
-    WM->>HWF: (3) createWorker("PhotoUploadWorker", params)
+    WM->>HWF: (3) createWorker(context, tên class Worker, params)
     HWF->>W: (4) create(context, params) + PhotoRepository
     WM->>W: (5) doWork()
     W-->>WM: success / retry
@@ -491,7 +491,7 @@ Unit test ViewModel **không cần Hilt**: constructor `@Inject` vẫn là const
 **Luồng chạy:**
 
 1. Production cài `AuthModule` vào `SingletonComponent`: `AuthRepository` → `RemoteAuthRepository`.
-2. Trong `androidTest`, `FakeAuthModule` có `@TestInstallIn(replaces = [AuthModule::class])`: mọi test trong thư mục này dùng `FakeAuthRepository`.
+2. Trong `androidTest`, `FakeAuthModule` có `@TestInstallIn(replaces = [AuthModule::class])`: mọi test trong source set `androidTest` của module này dùng `FakeAuthRepository`.
 3. `HiltTestRunner` cho test chạy trong `HiltTestApplication` (Application mà Hilt sinh cho test) thay cho `ShopApplication`.
 4. Test có `@HiltAndroidTest`; `HiltAndroidRule` dựng component; `hiltRule.inject()` gán field `fakeAuth` trong test, cũng chính là instance mà `LoginViewModel` nhận, vì nó là `@Singleton`.
 5. Test đặt `fakeAuth.result = failure`, mở `LoginActivity`, nhập và bấm "Đăng nhập", rồi kiểm tra thông báo lỗi.
@@ -510,7 +510,7 @@ sequenceDiagram
     T->>T: (5) fakeAuth.result = failure
     T->>A: launch, nhập email/mật khẩu, bấm Đăng nhập
     A->>VM: onLoginClick()
-    VM->>SC: authRepository.login() → FakeAuthRepository
+    VM->>VM: authRepository.login() trên FakeAuthRepository đã inject lúc tạo
     VM-->>A: errorMessage → hiện lỗi
     T->>A: kiểm tra text lỗi hiển thị
 ```
@@ -645,7 +645,7 @@ object ScannerModule {
 }
 ```
 
-**Lỗi lộ ra thế nào:** build thất bại với `[Dagger/IncompatiblyScopedBindings] SingletonComponent scoped with @Singleton may not reference bindings with different scopes`.
+**Lỗi lộ ra thế nào:** build thất bại với `[Dagger/IncompatiblyScopedBindings] ..._HiltComponents.SingletonC scoped with @Singleton may not reference bindings with different scopes` (`SingletonC` là class Hilt sinh cho `SingletonComponent`).
 
 **Cách sửa:** chọn component trước, rồi dùng đúng scope của nó: object sống theo Activity thì `@InstallIn(ActivityComponent::class)` + `@ActivityScoped`; sống cả app thì `@Singleton`.
 
@@ -669,7 +669,7 @@ class CheckoutFormState @Inject constructor() {               // giữ địa ch
 class GalleryApplication : Application()                     // không hiện thực Configuration.Provider
 ```
 
-**Lỗi lộ ra thế nào:** work enqueue được nhưng không chạy; Logcat có `Could not instantiate ...PhotoUploadWorker` kèm `NoSuchMethodException: <init> [class android.content.Context, class androidx.work.WorkerParameters]`. Factory mặc định chỉ biết gọi constructor hai tham số.
+**Lỗi lộ ra thế nào:** work enqueue được, nhưng tới lúc chạy WorkManager không tạo được Worker và đánh dấu work `FAILED`; Logcat có `Could not instantiate ...PhotoUploadWorker` kèm `NoSuchMethodException: <init> [class android.content.Context, class androidx.work.WorkerParameters]`. Factory mặc định chỉ biết gọi constructor hai tham số.
 
 **Cách sửa:** hiện thực `Configuration.Provider` với `HiltWorkerFactory` **và** gỡ `WorkManagerInitializer` khỏi manifest như ví dụ WorkManager ở trên; thiếu bước gỡ thì WorkManager đã tự khởi tạo bằng cấu hình mặc định trước khi đọc cấu hình của bạn.
 

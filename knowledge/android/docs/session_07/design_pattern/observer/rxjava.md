@@ -187,7 +187,7 @@ fun uploadAvatar(source: File) {
 }
 ```
 
-`_isUploading`, `_avatarUrl`, `_errorMessage` là `MutableLiveData` ([LiveData](../../../session_06/livedata.md)); vì observer chạy trên main thread nên gán `value` được. `disposables` là `CompositeDisposable` (mục sau); `+=` là extension một dòng của dự án, `operator fun CompositeDisposable.plusAssign(d: Disposable) { add(d) }` (thư viện RxKotlin có sẵn hàm này). `asMultipartPart()` là hàm của dự án tạo `MultipartBody.Part`.
+`_isUploading`, `_avatarUrl`, `_errorMessage` là `MutableLiveData` ([LiveData](../../../session_06/livedata.md)); vì observer chạy trên main thread nên gán `value` được. `disposables` là `CompositeDisposable` (mục sau); `+=` là extension một dòng của dự án, `operator fun CompositeDisposable.plusAssign(d: Disposable) { add(d) }` (thư viện RxKotlin có sẵn hàm này).
 
 **Kết quả:** log `Thread.currentThread().name` ở từng bước: nén chạy trên `RxCachedThreadScheduler-1`, kết quả upload tới trên thread `OkHttp ...`, observer chạy trên `main`. Bỏ `observeOn` thì crash `Cannot invoke setValue on a background thread`.
 
@@ -211,7 +211,7 @@ fun uploadAvatar(source: File) {
 
 **Luồng chạy:**
 
-1. Bấm "Gửi mã": gửi xong thì ViewModel chạy `Observable.interval(1, SECONDS).take(60)`.
+1. Bấm "Gửi mã": đang gửi hoặc đang đếm thì bỏ qua (chống bấm đúp); gửi xong thì ViewModel phát 60 rồi chạy `Observable.interval(1, SECONDS).take(60)`.
 2. Mỗi giây, `map` đổi tick thành số giây còn lại, `observeOn(mainThread)` rồi ghi vào `LiveData`.
 3. Xoay màn hình: ViewModel và chuỗi vẫn chạy; Fragment mới observe và nhận ngay số giây hiện tại.
 4. Hết 60 giây: `take` phát `onComplete`, nút mở lại.
@@ -236,20 +236,25 @@ sequenceDiagram
 class OtpViewModel(private val authApi: AuthApi) : ViewModel() {
 
     private val disposables = CompositeDisposable()
+    private var countdown: Disposable? = null
     private val _secondsLeft = MutableLiveData(0)
     val secondsLeft: LiveData<Int> = _secondsLeft
 
     fun onSendCodeClick(phone: String) {
-        disposables += authApi.sendOtp(phone)                                   // Completable
-            .andThen(Observable.interval(1, TimeUnit.SECONDS))                  // (1) bắt đầu sau khi gửi xong
-            .take(RESEND_SECONDS)
-            .map { tick -> (RESEND_SECONDS - 1 - tick).toInt() }                // (2)
-            .startWithItem(RESEND_SECONDS.toInt())
+        if (countdown?.isDisposed == false) return                              // (1) đang gửi hoặc đang đếm
+        countdown = authApi.sendOtp(phone)                                      // Completable
+            .andThen(
+                Observable.interval(1, TimeUnit.SECONDS)                        // (1) bắt đầu sau khi gửi xong
+                    .take(RESEND_SECONDS)
+                    .map { tick -> (RESEND_SECONDS - 1 - tick).toInt() }        // (2)
+                    .startWithItem(RESEND_SECONDS.toInt())                      // 60 cũng chỉ hiện sau khi gửi xong
+            )
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { seconds -> _secondsLeft.value = seconds },                    // (2)(3)
                 { _secondsLeft.value = 0 }                                      // lỗi gửi mã: mở nút
             )                                                                    // (4) take(60) tự onComplete
+            .also { disposables += it }
     }
 
     override fun onCleared() {
@@ -260,7 +265,7 @@ class OtpViewModel(private val authApi: AuthApi) : ViewModel() {
 }
 ```
 
-Fragment observe `secondsLeft` bằng `viewLifecycleOwner`: `0` thì bật nút, khác `0` thì khoá nút và hiện "Gửi lại sau 42 giây".
+`Disposable` của `subscribe` tự thành disposed khi chuỗi xong hoặc lỗi, nên `isDisposed == false` là đang gửi hoặc đang đếm. Fragment observe `secondsLeft` bằng `viewLifecycleOwner`: `0` thì bật nút, khác `0` thì khoá nút và hiện "Gửi lại sau 42 giây".
 
 **Kết quả:** bấm "Gửi mã", đếm ngược từ 60; xoay màn hình ở giây 42 thì màn mới hiện ngay 42. Thoát màn hình rồi đặt breakpoint trong `map`: không còn dừng, vì chuỗi đã bị dispose.
 
@@ -283,8 +288,8 @@ Ba toán tử làm phẳng hay bị nhầm nhất: với mỗi từ khoá gọi 
 **Luồng chạy:**
 
 1. Mỗi lần text đổi, ViewModel đẩy từ khoá vào `PublishSubject` (nguồn hot).
-2. `map { trim }`, `filter { length >= 2 }`, `distinctUntilChanged()` làm sạch từ khoá.
-3. `debounce(300 ms)` chỉ cho từ khoá đi tiếp khi 300 ms không có từ khoá mới.
+2. `map { trim }`, `filter { length >= 2 }` làm sạch từ khoá.
+3. `debounce(300 ms)` chỉ cho từ khoá đi tiếp khi 300 ms không có từ khoá mới; sau đó `distinctUntilChanged()` bỏ từ khoá trùng lần tìm trước. Đặt sau `debounce` để so các từ khoá đã dừng gõ: vừa tìm "ao", gõ thêm " k" rồi xoá về "ao" trong 300 ms thì không gọi lại API.
 4. `switchMap` gọi `searchProducts()`, huỷ request của từ khoá trước nếu nó chưa xong.
 5. `observeOn(main)` rồi ghi kết quả vào `LiveData`.
 
@@ -295,8 +300,8 @@ sequenceDiagram
     participant C as Chuỗi toán tử
     participant API as ProductApi
     F->>S: (1) onNext("ao"), onNext("ao k")
-    S->>C: (2) trim, filter, distinctUntilChanged
-    C->>C: (3) debounce 300 ms, chỉ còn "ao k"
+    S->>C: (2) trim, filter
+    C->>C: (3) debounce 300 ms, chỉ còn "ao k", distinctUntilChanged
     C->>API: (4) switchMap: search("ao k"), huỷ request cũ
     API-->>C: List<Product>
     C-->>F: (5) observeOn(main), results.value = danh sách
@@ -318,8 +323,8 @@ class ProductSearchViewModel(
         disposables += queries
             .map { it.trim() }                                                       // (2)
             .filter { it.length >= 2 }
-            .distinctUntilChanged()
             .debounce(300, TimeUnit.MILLISECONDS, schedulers.computation)           // (3)
+            .distinctUntilChanged()                                                  // (3) so từ khoá đã dừng gõ
             .switchMap { keyword ->                                                  // (4)
                 productApi.searchProducts(keyword)                                   // Single<List<Product>>
                     .toObservable()
@@ -361,7 +366,7 @@ fun onlyLatestKeywordAfterPause_isSearched() {
 
 `TestScheduler` cho test tự đẩy thời gian ảo, `Schedulers.trampoline()` chạy ngay trên thread của test; `InstantTaskExecutorRule` cho phép gán `LiveData.value` trong JVM test ([LiveData](../../../session_06/livedata.md), mục "`observe(owner)` và `observeForever`").
 
-**Kết quả:** gõ nhanh "ao khoac" chỉ sinh một request (Network Inspector); sửa từ khoá khi request đầu chưa về thì request đầu bị huỷ. Test chạy bằng `./gradlew testDebugUnitTest`, không cần thiết bị.
+**Kết quả:** gõ nhanh "ao khoac" chỉ sinh một request (Network Inspector); sửa từ khoá khi request đầu chưa về thì request đầu bị huỷ.
 
 ### Backpressure với `Flowable`
 
@@ -378,7 +383,7 @@ fun locationUpdates(): Flowable<Location> = Flowable.create({ emitter ->
 }, BackpressureStrategy.LATEST)                                              // chậm thì chỉ giữ vị trí mới nhất
 ```
 
-`BackpressureStrategy` có `BUFFER` (giữ hết), `DROP` (bỏ giá trị mới khi phía sau chưa xin), `LATEST` (giữ giá trị mới nhất), `ERROR` (báo `MissingBackpressureException`), `MISSING` (để toán tử sau như `onBackpressureDrop()` quyết định); `Observable` đổi sang được bằng `toFlowable(strategy)`. Sự kiện UI và chuỗi ngắn dùng `Observable`; dữ liệu lớn, nhanh, hoặc đọc từ nguồn kéo được (file, database) dùng `Flowable`.
+`BackpressureStrategy` có `BUFFER` (giữ hết), `DROP` (bỏ giá trị mới khi phía sau chưa xin), `LATEST` (giữ giá trị mới nhất), `ERROR` (báo `MissingBackpressureException`), `MISSING` (để toán tử sau như `onBackpressureDrop()` quyết định); `Observable` đổi sang được bằng `toFlowable(strategy)`.
 
 ### Xử lý lỗi
 
@@ -409,7 +414,7 @@ RxJavaPlugins.setErrorHandler { error ->
 
 ### Tình trạng hiện nay và chuyển sang coroutine, Flow
 
-RxJava 3 vẫn được duy trì và RxJava 4 đang ở giai đoạn alpha, nhưng trên Android hướng dẫn chính thức dùng **coroutine và Flow** ([Flow](flow.md)): một `Flow` và hàm `suspend` thay cho năm kiểu nguồn, huỷ theo scope thay vì nhớ dispose, tích hợp sẵn `viewModelScope`, `repeatOnLifecycle`, chạy được trên Kotlin Multiplatform. Codebase đang dùng Rx không cần viết lại một lần: **`kotlinx-coroutines-rx3`** cho hai thế giới gọi nhau.
+RxJava 3 vẫn được duy trì và RxJava 4 đang ở giai đoạn alpha, nhưng trên Android hướng dẫn chính thức dùng **coroutine và Flow** ([Flow](flow.md)): một `Flow` và hàm `suspend` thay cho năm kiểu nguồn, huỷ theo scope thay vì nhớ dispose. Codebase đang dùng Rx không cần viết lại một lần: **`kotlinx-coroutines-rx3`** cho hai thế giới gọi nhau.
 
 | Hướng | API | Ghi chú |
 |---|---|---|
@@ -469,11 +474,11 @@ class OrderRxAdapter(private val repository: OrderRepository) {
 
 `asFlow()` của `Flowable` nằm ở package `kotlinx.coroutines.reactive` (`Flowable` là `Publisher` của Reactive Streams), của `Observable` ở `kotlinx.coroutines.rx3`. `rxSingle { }` không truyền context thì chạy trên `Dispatchers.Default`; màn cũ vẫn `observeOn(AndroidSchedulers.mainThread())` như trước.
 
-**Kết quả:** màn cũ chạy không đổi (cùng `Observable`, cùng `Single`); màn mới không import gì của RxJava. Tìm `OrderRxAdapter` trong project (Find Usages) cho biết còn bao nhiêu chỗ phải chuyển trước khi bỏ được RxJava.
+**Kết quả:** màn cũ chạy không đổi (cùng `Observable`, cùng `Single`); màn mới không import gì của RxJava. Find Usages trên `OrderRxAdapter` cho biết còn bao nhiêu chỗ phải chuyển.
 
 ## Ví dụ thực tế
 
-1. **Màn chi tiết đơn hàng:** gọi song song hai API, thử lại khi lỗi mạng, đưa ra một UI state, dispose khi rời màn, kèm unit test. Bài toán chính, code bên dưới.
+1. **Màn chi tiết đơn hàng:** bài toán chính, code bên dưới.
 2. **Ô tìm kiếm có debounce:** như ví dụ ở mục "Toán tử chính".
 3. **Form đăng ký:** `combineLatest` ba luồng "ô hợp lệ" để bật, tắt nút "Đăng ký"; `throttleFirst(1, SECONDS)` trên luồng click chống bấm đúp.
 
@@ -483,7 +488,7 @@ class OrderRxAdapter(private val repository: OrderRepository) {
 
 **Luồng chạy:**
 
-1. `load()` đặt `Loading` rồi subscribe chuỗi.
+1. Fragment gọi `loadIfNeeded()`: chỉ lần đầu mới gọi `load()`, xoay màn hình không tải lại; `load()` đặt `Loading` rồi subscribe chuỗi.
 2. `Single.zip` chạy cả hai request cùng lúc và chờ cả hai thành công.
 3. Một trong hai lỗi mạng: `retry(2)` subscribe lại `zip`, tức gọi lại cả hai.
 4. Thành công: gộp thành `Content`; vẫn lỗi: `onErrorReturn` thành `Error`.
@@ -495,7 +500,7 @@ sequenceDiagram
     participant VM as OrderDetailViewModel
     participant O as OrderApi
     participant S as ShippingApi
-    F->>VM: (1) load(), uiState = Loading
+    F->>VM: (1) loadIfNeeded(), load(), uiState = Loading
     VM->>O: (2) zip: getOrder(id)
     VM->>S: (2) zip: getTracking(id)
     O--xVM: (3) IOException, retry(2): gọi lại cả hai
@@ -525,9 +530,15 @@ class OrderDetailViewModel(
     private val _uiState = MutableLiveData<OrderDetailUiState>(OrderDetailUiState.Loading)
     val uiState: LiveData<OrderDetailUiState> = _uiState
 
-    init { load() }
+    private var loaded = false
 
-    fun load() {
+    fun loadIfNeeded() {                                                                  // (1) Fragment gọi trong onViewCreated
+        if (loaded) return                                                                // xoay màn hình: không tải lại
+        loaded = true
+        load()
+    }
+
+    fun load() {                                                                          // nút "Thử lại" gọi thẳng
         _uiState.value = OrderDetailUiState.Loading                                       // (1)
         disposables.clear()                                                               // huỷ lần tải trước nếu có
         disposables += Single.zip(                                                        // (2)
@@ -546,7 +557,7 @@ class OrderDetailViewModel(
 }
 ```
 
-Ép kiểu `as OrderDetailUiState` để `Single` mang kiểu cha, nhờ đó `onErrorReturn` trả được `Error`; mọi lỗi đã thành state nên `subscribe` không cần nhánh lỗi. Fragment observe `uiState` bằng `viewLifecycleOwner`, nút "Thử lại" gọi `viewModel.load()`. Unit test truyền `Schedulers.trampoline()` làm `mainScheduler` và một `FakeOrderApi` trả `Single.fromCallable { }` ném `IOException` hai lần đầu: sau khi tạo ViewModel, `uiState.value` là `Content` và API bị gọi đúng 3 lần.
+Ép kiểu `as OrderDetailUiState` để `Single` mang kiểu cha, nhờ đó `onErrorReturn` trả được `Error`; mọi lỗi đã thành state nên `subscribe` không cần nhánh lỗi. Fragment observe `uiState` bằng `viewLifecycleOwner`, nút "Thử lại" gọi `viewModel.load()`; lý do không tải trong `init` ở [ViewModel](../../../session_06/viewmodel.md), mục "Tải dữ liệu: lười, không launch trong init". Unit test (có `InstantTaskExecutorRule`) truyền `Schedulers.trampoline()` làm `mainScheduler` và một `FakeOrderApi` trả `Single.fromCallable { }` ném `IOException` hai lần đầu: sau khi gọi `loadIfNeeded()`, `uiState.value` là `Content` và API bị gọi đúng 3 lần.
 
 **Kết quả:** tắt mạng rồi mở màn: sau ba lần thử, màn hình hiện "Thử lại"; bật mạng, bấm "Thử lại" thì nội dung hiện. Mở màn rồi bấm Back ngay: Network Inspector thấy request bị huỷ (`Canceled`), không có crash dù response về muộn.
 
@@ -562,7 +573,7 @@ class OrderDetailViewModel(
 | Lifecycle Android | Tự làm | `repeatOnLifecycle`, `collectAsStateWithLifecycle` |
 | Ngôn ngữ, nền tảng | Java và Kotlin trên JVM | Kotlin, cả Kotlin Multiplatform |
 
-Khác biệt lớn nhất là **ai chịu trách nhiệm huỷ**: RxJava để người viết nhớ dispose, coroutine gắn việc huỷ vào scope. LiveData thì gắn lifecycle sẵn nhưng ít toán tử và chạy trên main thread ([LiveData](livedata.md)).
+Khác biệt lớn nhất là **ai chịu trách nhiệm huỷ**: RxJava để người viết nhớ dispose, coroutine gắn việc huỷ vào scope.
 
 ## Khi nào nên và không nên dùng
 

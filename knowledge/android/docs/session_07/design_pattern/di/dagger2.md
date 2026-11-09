@@ -72,8 +72,11 @@ plugins {
 dependencies {
     implementation("com.google.dagger:dagger:2.60.1")
     ksp("com.google.dagger:dagger-compiler:2.60.1")     // dự án cũ: kapt(...) với plugin kotlin-kapt
+    kspAndroidTest("com.google.dagger:dagger-compiler:2.60.1")   // kapt: kaptAndroidTest(...)
 }
 ```
+
+`ksp(...)` chỉ chạy processor trên `src/main`. Component khai báo trong `src/androidTest` (như `TestAppComponent` ở mục "Ví dụ thực tế") cần thêm `kspAndroidTest`, component trong `src/test` cần `kspTest`; thiếu thì class `Dagger...` của nó không được sinh.
 
 Code sinh ra nằm trong `build/generated/ksp/`. Chỉ dùng trực tiếp class có tiền tố `Dagger` (như `DaggerAppComponent`); `Xxx_Factory`, `Xxx_MembersInjector` là chi tiết nội bộ.
 
@@ -339,8 +342,8 @@ Bốn điều cần nắm:
 
 - **Scope gắn với instance component, không gắn với process.** `@Singleton` chỉ là "một instance trong component này". Tạo hai `AppComponent` thì có hai `OkHttpClient`. Component gốc sống suốt process vì nó được giữ trong `Application`.
 - **Quy tắc khớp scope:** binding có scope chỉ dùng được trong component cùng scope; component có scope chỉ chứa binding cùng scope hoặc không scope; subcomponent không được dùng lại scope của component tổ tiên.
-- **Đặt tên scope theo vòng đời**, không theo tính năng: `@ActivityScope`, `@UserScope` thay vì `@LoginScope`, để component anh em dùng lại được. `@Singleton` (từ `javax.inject`) là scope duy nhất có sẵn.
-- **Scope có giá:** object có scope sống bằng component, và mỗi lần lấy phải qua khoá kiểm tra hai lần (`DoubleCheck`). Docs khuyên chỉ scope khi cần: object đắt để tạo hoặc có trạng thái phải dùng chung. `@Reusable` là lựa chọn ở giữa: Dagger được phép cache để đỡ tạo lại, nhưng không đảm bảo đúng một instance, chỉ dùng cho object không trạng thái.
+- **Đặt tên scope theo vòng đời**, không theo tính năng: `@ActivityScope`, `@UserScope` thay vì `@LoginScope`, để component anh em dùng lại được. `@Singleton` (từ `javax.inject`) là scope có sẵn duy nhất giữ đúng một instance; `@Reusable` của Dagger cũng là scope annotation nhưng không đảm bảo điều đó (xem dưới).
+- **Scope có giá:** object có scope sống bằng component, và được bọc trong `DoubleCheck`: lần lấy đầu phải qua khoá, các lần sau đọc một field `volatile`. Docs khuyên chỉ scope khi cần: object đắt để tạo hoặc có trạng thái phải dùng chung. `@Reusable` là lựa chọn ở giữa: Dagger được phép cache để đỡ tạo lại, nhưng không đảm bảo đúng một instance, chỉ dùng cho object không trạng thái.
 
 Hai kiểu yêu cầu liên quan: **`Lazy<T>`** (`dagger.Lazy`) hoãn việc tạo tới lần `get()` đầu và trả cùng instance cho các lần sau; **`Provider<T>`** chạy lại binding ở mỗi lần `get()`, như ví dụ ViewModel ở trên.
 
@@ -457,7 +460,7 @@ class ImageCompressor @Inject constructor(
 )
 ```
 
-`javax.inject` có sẵn qualifier `@Named("...")`, nhưng qualifier tự định nghĩa an toàn hơn: gõ sai tên là lỗi compile chứ không phải một binding khác. Dispatcher là khái niệm của coroutine, học ở 8.4.3 Coroutines (chưa có bài).
+`javax.inject` có sẵn qualifier `@Named("...")`, nhưng nó dựa vào chuỗi: gõ sai thì Dagger báo `MissingBinding` ở nơi xa chỗ gõ, hoặc khớp nhầm một tên khác đã có. Qualifier tự định nghĩa là một kiểu: sai tên là lỗi compile ngay tại chỗ, và refactor được. Dispatcher là khái niệm của coroutine, học ở 8.4.3 Coroutines (chưa có bài).
 
 ### Đọc lỗi build của Dagger
 
@@ -605,7 +608,7 @@ class WeatherScreenTest {
 
 Khai báo runner trong `build.gradle.kts`: `defaultConfig { testInstrumentationRunner = "vn.weather.WeatherTestRunner" }`. `onView` là Espresso, thuộc phần test giao diện.
 
-**Kết quả:** `./gradlew connectedDebugAndroidTest` chạy test khi tắt mạng vẫn đạt. Nếu một binding mà `WeatherActivity` cần chỉ có trong `NetworkModule` và quên đưa vào bản giả, build của `androidTest` trượt với `MissingBinding`, không phải test chạy rồi crash.
+**Kết quả:** `./gradlew connectedDebugAndroidTest` chạy test khi tắt mạng vẫn đạt. `DaggerTestAppComponent` được sinh nhờ `kspAndroidTest` ở mục "Cài đặt"; thiếu dòng đó thì build của `androidTest` trượt vì không tìm thấy class này. Nếu một binding mà `WeatherActivity` cần chỉ có trong `NetworkModule` và quên đưa vào bản giả, build của `androidTest` trượt với `MissingBinding`, không phải test chạy rồi crash.
 
 ## Khi nào nên và không nên dùng
 
@@ -681,7 +684,7 @@ class CheckoutDraft @Inject constructor() {
 }
 ```
 
-**Lỗi lộ ra thế nào:** người dùng thanh toán xong, mở luồng thanh toán mới thì địa chỉ và mã giảm giá cũ vẫn còn; đăng xuất rồi đăng nhập tài khoản khác cũng thấy. Object scope dài cũng chiếm bộ nhớ suốt process và mỗi lần lấy phải qua `DoubleCheck`.
+**Lỗi lộ ra thế nào:** người dùng thanh toán xong, mở luồng thanh toán mới thì địa chỉ và mã giảm giá cũ vẫn còn; đăng xuất rồi đăng nhập tài khoản khác cũng thấy. Object scope dài cũng chiếm bộ nhớ suốt process.
 
 **Cách sửa:** chỉ scope theo đúng vòng đời dữ liệu: dữ liệu theo phiên vào subcomponent `@UserScope`; dữ liệu của một màn hình vào ViewModel; object không trạng thái thì để không scope (hoặc `@Reusable`).
 

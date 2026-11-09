@@ -38,7 +38,7 @@ fun onApplyCoupon() {
 }
 ```
 
-Lỗi này không nằm ở một dòng sai rõ ràng, mà ở việc **có nhiều chỗ được ghi state** và mỗi chỗ tự quyết định cách ghi. Muốn trả lời "vì sao màn hình đang hiện số lượng 1" thì phải dò mọi hàm, mọi coroutine. Vấn đề cần giải quyết là: **dồn mọi thay đổi state về một chỗ duy nhất, theo một thứ tự, bằng một quy tắc test được, kể cả thay đổi đến từ việc bất đồng bộ.**
+Riêng lỗi này sửa được ngay trong MVVM bằng `_uiState.update { it.copy(discountPercent = …) }`, áp lên state hiện tại thay vì bản chụp; nhưng không có gì bắt mọi hàm, mọi coroutine khác cũng ghi như vậy. Lỗi không nằm ở một dòng sai rõ ràng, mà ở việc **có nhiều chỗ được ghi state** và mỗi chỗ tự quyết định cách ghi. Muốn trả lời "vì sao màn hình đang hiện số lượng 1" thì phải dò mọi hàm, mọi coroutine. Vấn đề cần giải quyết là: **dồn mọi thay đổi state về một chỗ duy nhất, theo một thứ tự, bằng một quy tắc test được, kể cả thay đổi đến từ việc bất đồng bộ.**
 
 ## Sau khi học xong
 
@@ -214,7 +214,7 @@ class CartViewModel(
     private val _state = MutableStateFlow(CartState(items = initialItems))
     val state: StateFlow<CartState> = _state.asStateFlow()
 
-    fun onIntent(intent: CartIntent) {                                                    // cửa vào duy nhất
+    fun onIntent(intent: CartIntent) {                                                    // cửa vào duy nhất, gọi từ main thread
         val before = _state.value
         val after = _state.updateAndGet { CartReducer.reduce(it, intent) }                // (1) (3)
         if (!before.isApplyingCoupon && after.isApplyingCoupon) {                         // (2) chuyển trạng thái
@@ -234,7 +234,7 @@ class CartViewModel(
 }
 ```
 
-`CouponRepository.validate()` là hàm `suspend` trả `Result<Coupon>`. `initialItems` được truyền khi tạo ViewModel bằng factory ([ViewModel](../../session_06/viewmodel.md), mục "Factory và CreationExtras: ViewModel có dependency"); giỏ hàng lưu trong Room thì danh sách món đến từ một `Flow` của Repository và mỗi lần nó phát cũng là một message `ItemsLoaded` đi qua reducer.
+`onIntent()` được gọi từ listener của View và coroutine của `viewModelScope` cũng chạy trên main thread, nên không cập nhật nào xen giữa lúc đọc `before` và lúc `updateAndGet`; gọi `onIntent()` từ thread khác thì phép so sánh `before`/`after` không còn đáng tin. `CouponRepository.validate()` là hàm `suspend` trả `Result<Coupon>`. `initialItems` được truyền khi tạo ViewModel bằng factory ([ViewModel](../../session_06/viewmodel.md), mục "Factory và CreationExtras: ViewModel có dependency"); giỏ hàng lưu trong Room thì danh sách món đến từ một `Flow` của Repository và mỗi lần nó phát cũng là một message `ItemsLoaded` đi qua reducer.
 
 ```kotlin
 // CartFragment.kt: View gửi Intent, vẽ State
@@ -457,10 +457,11 @@ class PlaylistReducerTest {
 
 | Pattern | Thành phần giữa UI và dữ liệu | Thành phần đó có biết View? | Cập nhật UI |
 |---|---|---|---|
-| MVC | Controller | Có; trên Android, Activity thường vừa là View vừa là Controller | Controller gán thẳng vào View |
+| MVC gốc | Controller (chỉ xử lý input) | Có, đi cặp với một View | View quan sát Model và tự vẽ lại |
+| MVC kiểu Android | Activity / Fragment | Nó **chính là** View | Activity gán thẳng dữ liệu vào widget |
 | MVP | Presenter | Có, qua interface `View` | Presenter gọi hàm của View |
 | MVVM | ViewModel | Không | View quan sát state của ViewModel |
-| **MVI** | ViewModel / Store, reducer | Không | Như MVVM, nhưng mọi thay đổi đi qua một reducer duy nhất, state bất biến |
+| **MVI** | ViewModel / Store, reducer | Không | Như MVVM, nhưng mọi thay đổi (Intent và kết quả side effect) đi qua một reducer duy nhất, state bất biến |
 
 MVI và [MVVM](mvvm.md) cùng giải quyết những gì [MVP](mvp.md) vướng (ViewModel không giữ View, sống qua xoay màn hình). Khác biệt giữa MVI và MVVM nằm ở bảng của mục "MVI và MVVM với luồng dữ liệu một chiều".
 
@@ -566,8 +567,8 @@ val effects = _effects.receiveAsFlow()
   - [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md): UI khai báo vẽ từ một state, rất hợp với MVI.
   - [Observer Pattern Overview](../design_pattern/observer/overview.md): View quan sát state của Store.
 - **Học tiếp:**
-  - [Clean Architecture](clean_architecture.md): side effect của Store gọi use case và Repository ở các tầng bên dưới.
-  - 7.1.5.3 Hilt: cung cấp Repository cho Store ([Hilt](../design_pattern/di/hilt.md)).
+  - [Clean Architecture](clean_architecture.md): đặt nghiệp vụ ở giữa, data layer phụ thuộc domain qua interface; side effect của Store gọi use case và Repository ở các tầng bên dưới.
+  - [Hilt](../design_pattern/di/hilt.md): cung cấp Repository cho Store.
 
 ## Tham khảo
 

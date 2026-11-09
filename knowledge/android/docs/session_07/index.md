@@ -55,7 +55,7 @@ Mỗi Topic dưới đây chỉ được tóm tắt. Cơ chế, code và sai l�
 | Topic | Câu hỏi trả lời |
 |---|---|
 | [7.1.1 Builder Pattern](design_pattern/builder_pattern.md) | Tạo object nhiều tham số tuỳ chọn thế nào cho dễ đọc, và Kotlin đã thay đổi nhu cầu này ra sao? |
-| [7.1.2 ViewHolder Pattern](design_pattern/viewholder_pattern.md) | Danh sách hàng nghìn dòng cuộn mượt thế nào khi chỉ có vài chục View? |
+| [7.1.2 ViewHolder Pattern](design_pattern/viewholder_pattern.md) | Danh sách hàng nghìn dòng cuộn mượt thế nào khi chỉ tạo đủ ViewHolder cho phần đang nhìn thấy? |
 | [7.1.3 Singleton Pattern](design_pattern/singleton_pattern.md) | Khi nào cần đúng một instance, và vì sao Singleton tự viết dễ gây leak và khó test? |
 | [7.1.4.0 Observer Pattern Overview](design_pattern/observer/overview.md) | Một nơi báo thay đổi cho nhiều nơi quan sát thế nào; hot/cold, push/pull nghĩa là gì? |
 | [7.1.4.1 RxJava / RxAndroid](design_pattern/observer/rxjava.md) | Observer Pattern kiểu Rx hoạt động thế nào, và vì sao code mới chuyển sang Flow? |
@@ -86,7 +86,7 @@ flowchart TB
     SGL[7.1.3 Singleton] -.->|"thường được thay bằng scope của DI"| DI
     ARCH[7.2 Architecture<br/>MVC → MVP → MVVM → MVI] -->|"tầng UI nằm trong"| CLEAN[7.2.5 Clean Architecture]
     VH[7.1.2 ViewHolder] -->|"View hiển thị danh sách"| ARCH
-    BLD[7.1.1 Builder] -.->|"cấu hình thư viện: Room, Retrofit, Notification"| CLEAN
+    BLD[7.1.1 Builder] -.->|"cấu hình object dùng chung: Room, OkHttp"| SGL
 ```
 
 1. **Observer** là cơ chế để View quan sát state trong MVVM/MVI và để tầng data báo dữ liệu mới.
@@ -99,7 +99,7 @@ flowchart TB
 - [ViewModel](../session_06/viewmodel.md) và [LiveData](../session_06/livedata.md): MVVM, Observer và DI đều xoay quanh chúng.
 - [View Binding](../session_06/view_binding.md): ViewHolder và các ví dụ UI dùng binding.
 - [Room Architecture](../session_05/data_store/room_architecture.md) và [Networking](../session_05/networking.md): tầng data mà Clean Architecture và DI tổ chức.
-- [Kotlin](../session_01/languages/kotlin.md): `object`, `lazy`, named arguments, lambda with receiver, nền của Singleton, Builder và các DSL của Koin/Kodein.
+- [Kotlin](../session_01/languages/kotlin.md): Java gọi Kotlin (`companion object`, tham số mặc định, `@JvmOverloads`), `data class` và chi phí của `by lazy`, nền của Singleton và Builder. Object declaration, named arguments và lambda có receiver được giải thích ngắn trong bài Singleton và Builder khi cần.
 
 ## Sau khi học xong Session 07, bạn làm được gì?
 
@@ -117,7 +117,7 @@ flowchart LR
     D --> C[7.2.5 Clean Architecture]
 ```
 
-1. **Pattern cục bộ trước:** Builder, ViewHolder, Singleton đứng độc lập và quen thuộc nhất.
+1. **Pattern cục bộ trước:** Builder, ViewHolder, Singleton quen thuộc nhất và gần như không cần bài khác trong session; vài ví dụ của chúng dùng tối thiểu Flow và Hilt dưới dạng "kiến thức dùng trước", học đầy đủ ở các bước sau.
 2. **Observer trước kiến trúc:** MVVM và MVI dựa vào việc View quan sát state. Trong nhóm Observer, học Flow ngay sau bài tổng quan vì code hiện nay dùng nó nhiều nhất.
 3. **MVC → MVP → MVVM → MVI theo thứ tự lịch sử:** mỗi pattern dễ hiểu hơn khi đã thấy vấn đề của pattern trước.
 4. **DI trước Clean Architecture:** Clean Architecture cần DI để nối các tầng mà không để tầng trong biết tầng ngoài. Trong nhóm DI, học Hilt ngay sau bài tổng quan vì đó là lựa chọn được khuyên dùng cho Android.

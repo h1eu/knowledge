@@ -35,7 +35,7 @@ private val database by lazy {
 - **Tốn tài nguyên:** mỗi `AppDatabase` mở kết nối và cache riêng; mỗi `OkHttpClient` có connection pool và thread pool riêng.
 - **Dữ liệu lệch nhau:** màn giỏ hàng ghi qua instance của nó, màn danh sách đang quan sát instance khác nên không nhận được thay đổi.
 - **Crash:** DataStore phát hiện hai instance cùng mở một file thì ném `IllegalStateException` ([Key-Value Storage](../../session_05/data_store/key_value.md), mục "Sai lầm thường gặp", phần 1).
-- **Trạng thái bộ nhớ không nhất quán:** giỏ hàng giữ trong bộ nhớ của màn chi tiết sản phẩm khác giỏ hàng của màn thanh toán.
+- **Trạng thái trong bộ nhớ không nhất quán:** mỗi màn tự theo dõi trạng thái mạng thì mỗi màn giữ một bản riêng, cập nhật vào lúc khác nhau.
 
 Vấn đề cần giải quyết là: **bảo đảm một class chỉ có một instance, và mọi nơi cần nó đều lấy được đúng instance đó**, mà không đánh đổi khả năng test và không làm rò rỉ bộ nhớ.
 
@@ -75,7 +75,7 @@ Field static thuộc về class, mà class được nạp **một lần cho mỗ
 
 ### Kotlin `object`: singleton không cần tham số
 
-Kotlin có sẵn cú pháp cho Singleton: **object declaration**. Compiler sinh một class có constructor `private` và một field static `INSTANCE` được khởi tạo trong khối khởi tạo static của class. Tài liệu Kotlin cam kết: việc khởi tạo một object declaration là **thread-safe** và diễn ra **ở lần truy cập đầu tiên**. Cả hai tính chất đến từ JVM: class chỉ được khởi tạo một lần, và thread nào truy cập trong lúc class đang khởi tạo sẽ phải chờ.
+Kotlin có sẵn cú pháp cho Singleton: **object declaration**. Compiler sinh một class có constructor `private` và một field static `INSTANCE` được khởi tạo trong khối khởi tạo static của class. Tài liệu Kotlin cam kết: việc khởi tạo một object declaration là **thread-safe** và diễn ra **ở lần truy cập đầu tiên**. Cả hai tính chất đến từ ART/JVM: class chỉ được khởi tạo một lần, và thread nào truy cập trong lúc class đang khởi tạo sẽ phải chờ.
 
 Giới hạn duy nhất: `object` **không có constructor nhận tham số**, nên không nhận được `Context` hay cấu hình lúc chạy. `AppExecutors` ở [Working with Thread](../../session_05/working_with_thread.md), mục "Ví dụ: `AppExecutors` Singleton chuẩn kiến trúc Android" là một `object` điển hình: chỉ cần số nhân CPU, không cần gì từ bên ngoài.
 
@@ -85,15 +85,15 @@ Giới hạn duy nhất: `object` **không có constructor nhận tham số**, n
 
 **Luồng chạy:**
 
-1. Màn danh sách gọi `ThumbnailCache.get(url)` lần đầu: JVM khởi tạo class `ThumbnailCache`, chạy khối `init` và tạo `LruCache`.
-2. Một thread nền đang decode ảnh gọi `ThumbnailCache.put()` đúng lúc đó: JVM bắt nó chờ khởi tạo xong, nên không có instance thứ hai.
+1. Màn danh sách gọi `ThumbnailCache.get(url)` lần đầu: ART/JVM khởi tạo class `ThumbnailCache`, chạy khối `init` và tạo `LruCache`.
+2. Một thread nền đang decode ảnh gọi `ThumbnailCache.put()` đúng lúc đó: ART/JVM bắt nó chờ khởi tạo xong, nên không có instance thứ hai.
 3. Màn chi tiết gọi `ThumbnailCache.get(url)`: cùng instance, ảnh có sẵn.
 
 ```mermaid
 sequenceDiagram
     participant L as ProductListFragment (main)
     participant W as Thread decode ảnh
-    participant J as JVM
+    participant J as ART/JVM
     participant C as ThumbnailCache
     L->>J: (1) truy cập ThumbnailCache lần đầu
     J->>C: khởi tạo class: init, tạo LruCache
@@ -136,7 +136,7 @@ Room database cần `Context` để biết thư mục lưu file, nên không vi�
 
 - **Kiểm tra lần 1, không khoá:** đa số lần gọi thấy instance đã có và trả về ngay, không tốn chi phí khoá.
 - **Kiểm tra lần 2, trong `synchronized`:** chỉ một thread được tạo instance; thread khác vào sau phải thấy instance đã được tạo.
-- **`@Volatile`:** bảo đảm instance mà một thread ghi được thread khác nhìn thấy ngay và đầy đủ. Thiếu nó, thread khác có thể đọc giá trị cũ (`null`) hoặc, trên JVM cũ, một object chưa khởi tạo xong. Visibility và `@Volatile` đã giải thích ở [Working with Thread](../../session_05/working_with_thread.md), mục "Các giải pháp bảo vệ dữ liệu".
+- **`@Volatile`:** cấm sắp xếp lại lệnh giữa việc khởi tạo object và việc gán nó vào field, nên thread nào thấy `instance` khác `null` cũng thấy object đã khởi tạo xong. Thiếu nó, kể cả trên ART/JVM hiện đại, lệnh gán có thể lộ ra trước: thread khác ở lần kiểm tra 1 (không khoá) thấy `instance` khác `null` và dùng luôn một object chưa khởi tạo xong. Thấy `null` thì vô hại, vì thread đó sẽ vào khoá và kiểm tra lại. Visibility và `@Volatile` đã giải thích ở [Working with Thread](../../session_05/working_with_thread.md), mục "Các giải pháp bảo vệ dữ liệu".
 
 #### Ví dụ: một `AppDatabase` cho cả app
 
@@ -300,7 +300,10 @@ Ví dụ trên tách Singleton thành hai ý:
 
 Dependency Injection giữ ý thứ nhất và bỏ ý thứ hai: một **container** tạo instance đúng một lần trong một **scope** (phạm vi sống), rồi truyền nó vào constructor của class cần. Class không biết instance là duy nhất; nó chỉ nhận một tham số. Khái niệm container và scope là chủ đề của [Dependency Injection Overview](di/overview.md).
 
-Hilt (thư viện DI của Jetpack, học ở [Hilt](di/hilt.md)) có scope `@Singleton` gắn với `SingletonComponent`, component được tạo ở `Application#onCreate()` và sống tới khi `Application` bị huỷ, tức đúng phạm vi một process như singleton tự viết:
+Hilt (thư viện DI của Jetpack, học ở [Hilt](di/hilt.md)) có scope `@Singleton` gắn với `SingletonComponent`, component được tạo ở `Application#onCreate()` và sống tới khi process chết, tức đúng phạm vi một process như singleton tự viết.
+
+> [!NOTE]
+> Kiến thức dùng trước: `@Module` cùng `@InstallIn(SingletonComponent::class)` khai báo một nhóm hàm cấp object cho component suốt process, `@Provides` đánh dấu hàm tạo object, `@ApplicationContext` yêu cầu Hilt đưa `applicationContext`. Chi tiết ở [Hilt](di/hilt.md), mục "Module: `@Provides`, `@Binds` và `@InstallIn`".
 
 ```kotlin
 // DatabaseModule.kt
@@ -325,7 +328,7 @@ class OrderRepository @Inject constructor(private val orderDao: OrderDao)
 
 | Cách | Nhận tham số | Thay trong test | Ai quản vòng đời |
 |---|---|---|---|
-| `object` | Không | Khó (trạng thái dùng chung giữa các test) | JVM, theo class |
+| `object` | Không | Khó (trạng thái dùng chung giữa các test) | ART/JVM, theo class |
 | `companion object` + `getInstance()` (double-checked locking) | Có | Khó, phải thêm hàm reset riêng cho test | Chính class |
 | `Application` + `by lazy` | Có (`Context` của Application) | Khó, cần Application giả | `Application` |
 | DI scope `@Singleton` | Có | Dễ: truyền bản giả qua constructor | Container (Hilt, Koin, manual) |
@@ -334,119 +337,135 @@ class OrderRepository @Inject constructor(private val orderDao: OrderDao)
 
 Ba bài toán hay gặp cần "một instance" trong app Android:
 
-1. **Giỏ hàng trong bộ nhớ dùng chung giữa nhiều màn**, cấp qua `@Singleton` của Hilt, có unit test. Đây là bài toán chính, code đầy đủ bên dưới.
+1. **Trạng thái mạng dùng chung giữa nhiều màn**, cấp qua `@Singleton` của Hilt, có unit test. Đây là bài toán chính, code đầy đủ bên dưới.
 2. **Một DataStore cho mỗi file:** khai báo property delegate `preferencesDataStore` ở top-level, hoặc `@Singleton` trong module Hilt, như [Key-Value Storage](../../session_05/data_store/key_value.md), mục "Hilt module — cung cấp DataStore và Repository".
-3. **Một `OkHttpClient` cho cả app:** tạo một lần rồi dùng chung; endpoint cần cấu hình khác thì `newBuilder()` ([Networking](../../session_05/networking.md), mục "Sai lầm thường gặp", phần 2).
+3. **Một `OkHttpClient` cho cả app:** tạo một lần rồi dùng chung; endpoint cần cấu hình khác thì `newBuilder()` ([OkHttp](../../session_08/networks/okhttp.md), mục "Sai lầm thường gặp", phần 1).
 
-### Giỏ hàng dùng chung với `@Singleton`
+### Trạng thái mạng dùng chung với `@Singleton`
 
-**Bài toán:** người dùng thêm sản phẩm ở màn chi tiết; icon giỏ hàng trên thanh điều hướng của `MainActivity` phải cập nhật số lượng ngay; màn thanh toán đọc cùng giỏ hàng và xoá nó sau khi đặt hàng. Ba màn có ba ViewModel khác nhau, nên giỏ hàng phải là **một** instance nằm ngoài các ViewModel.
+**Bài toán:** mọi màn phải hiện banner "Không có mạng" khi mất mạng, và màn thanh toán phải chặn nút "Đặt hàng" lúc offline. Mỗi màn tự đăng ký `NetworkCallback` thì quên gỡ là leak màn hình, và hệ thống giới hạn 100 callback mỗi app (vượt thì ném exception). Trạng thái mạng nên là **một** instance ngoài các ViewModel; nó đọc lại được từ hệ thống, nên hợp với phạm vi "sống bằng process".
 
 > [!NOTE]
-> Kiến thức dùng trước: `@HiltViewModel`, `@Inject` là annotation của Hilt để tạo và cấp object, học ở [Hilt](di/hilt.md). `StateFlow` là dòng dữ liệu luôn có giá trị hiện tại, `map`/`stateIn` là toán tử của nó, học ở [Flow](observer/flow.md).
+> Kiến thức dùng trước: `@Inject constructor` cho Hilt biết cách tạo class, `@Binds` nối interface với class hiện thực, `@HiltViewModel` cho Hilt tạo ViewModel, học ở [Hilt](di/hilt.md). `StateFlow` là dòng dữ liệu luôn có giá trị hiện tại, `map`/`stateIn` là toán tử của nó, học ở [Flow](observer/flow.md).
 
 **Luồng chạy:**
 
-1. Lần đầu có class cần `CartStore`, Hilt tạo nó trong `SingletonComponent`; mọi lần sau Hilt đưa lại đúng instance đó.
-2. `ProductDetailViewModel` nhận `CartStore` qua constructor; người dùng bấm "Thêm vào giỏ" thì gọi `add()`.
-3. `MainViewModel` quan sát `cartStore.items` và đưa ra số lượng cho icon giỏ hàng.
-4. `CheckoutViewModel` đọc `items`, đặt hàng xong thì `clear()`.
-5. Unit test tạo `CartStore()` mới cho mỗi test, không cần Hilt.
+1. Lần đầu có class cần `NetworkMonitor`, Hilt tạo `ConnectivityNetworkMonitor` trong `SingletonComponent`; mọi lần sau Hilt đưa lại đúng instance đó.
+2. Lúc được tạo, monitor đọc trạng thái hiện tại rồi đăng ký **một** callback cho mạng mặc định; mỗi lần mạng đổi, callback (chạy trên thread nội bộ của `ConnectivityManager`) ghi giá trị mới vào `isOnline`.
+3. `MainViewModel` quan sát `isOnline` và đưa ra cờ hiện banner cho mọi màn.
+4. `CheckoutViewModel` đọc `isOnline.value` khi người dùng bấm "Đặt hàng".
+5. Unit test truyền `FakeNetworkMonitor` vào `CheckoutViewModel`, không cần Hilt hay thiết bị.
 
 ```mermaid
 sequenceDiagram
     participant H as Hilt SingletonComponent
-    participant P as ProductDetailViewModel
-    participant M as MainViewModel (icon giỏ hàng)
+    participant N as ConnectivityNetworkMonitor
+    participant CM as ConnectivityManager
+    participant M as MainViewModel (banner)
     participant C as CheckoutViewModel
-    participant S as CartStore
-    H->>S: (1) tạo một lần
-    H->>P: inject cùng CartStore
-    H->>M: inject cùng CartStore
-    H->>C: inject cùng CartStore
-    P->>S: (2) add(product)
-    S-->>M: (3) items đổi → badge = tổng số lượng
-    C->>S: (4) đọc items, đặt hàng, clear()
-    S-->>M: badge = 0
+    H->>N: (1) tạo một lần
+    N->>CM: (2) registerDefaultNetworkCallback (một lần cho cả app)
+    H->>M: inject cùng NetworkMonitor
+    H->>C: inject cùng NetworkMonitor
+    CM-->>N: (2) mạng đổi → isOnline = false
+    N-->>M: (3) isOnline đổi → hiện banner
+    C->>N: (4) đọc isOnline.value khi bấm "Đặt hàng"
 ```
 
 ```kotlin
-// CartStore.kt
-data class Product(val id: String, val name: String, val price: Long)
-data class CartItem(val productId: String, val name: String, val unitPrice: Long, val quantity: Int)
+// NetworkMonitor.kt
+interface NetworkMonitor {
+    val isOnline: StateFlow<Boolean>
+}
 
-@Singleton                                                                   // (1) một instance cho process
-class CartStore @Inject constructor() {
+@Singleton                                                                    // (1) một instance cho process
+class ConnectivityNetworkMonitor @Inject constructor(
+    @ApplicationContext context: Context                                      // không giữ Activity
+) : NetworkMonitor {
 
-    private val _items = MutableStateFlow<Map<String, CartItem>>(emptyMap())
-    val items: StateFlow<Map<String, CartItem>> = _items.asStateFlow()
+    private val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-    fun add(product: Product) {                                              // (2)
-        _items.update { current ->                                           // update: đọc-sửa-ghi nguyên tử
-            val existing = current[product.id]
-            val item = existing?.copy(quantity = existing.quantity + 1)
-                ?: CartItem(product.id, product.name, product.price, quantity = 1)
-            current + (product.id to item)
-        }
+    private val _isOnline = MutableStateFlow(isValidated(connectivityManager.activeNetwork))
+    override val isOnline: StateFlow<Boolean> = _isOnline.asStateFlow()
+
+    init {
+        connectivityManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
+            override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
+                _isOnline.value = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) // (2)
+            }
+
+            override fun onLost(network: Network) {
+                _isOnline.value = false                                       // (2)
+            }
+        })
     }
 
-    fun clear() {                                                            // (4)
-        _items.value = emptyMap()
-    }
+    private fun isValidated(network: Network?): Boolean =
+        connectivityManager.getNetworkCapabilities(network)
+            ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+}
+
+// NetworkModule.kt
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class NetworkModule {
+    @Binds                                                                    // (1) ai cần NetworkMonitor nhận bản thật
+    abstract fun bindNetworkMonitor(impl: ConnectivityNetworkMonitor): NetworkMonitor
 }
 ```
 
-```kotlin
-// ProductDetailViewModel.kt
-@HiltViewModel
-class ProductDetailViewModel @Inject constructor(
-    private val cartStore: CartStore                                         // (2) cùng instance
-) : ViewModel() {
-    fun onAddToCartClick(product: Product) = cartStore.add(product)
-}
+Callback không bao giờ được gỡ, và điều đó đúng ở đây: nó chỉ giữ monitor, monitor chỉ giữ `applicationContext`, cả hai sống bằng process. Đổi lại, callback chạy cả khi app ở background; muốn chỉ theo dõi lúc có màn quan sát thì dùng `callbackFlow` với `stateIn(..., WhileSubscribed)` như [Networking](../../session_05/networking.md), mục "Ví dụ: NetworkMonitor phát trạng thái mạng bằng `callbackFlow`" (bài đó giải thích cả cờ `VALIDATED`). `MutableStateFlow` cho gán `value` từ mọi thread.
 
+```kotlin
 // MainViewModel.kt
 @HiltViewModel
-class MainViewModel @Inject constructor(cartStore: CartStore) : ViewModel() {
-    val cartBadgeCount: StateFlow<Int> = cartStore.items                     // (3)
-        .map { items -> items.values.sumOf { it.quantity } }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
+class MainViewModel @Inject constructor(networkMonitor: NetworkMonitor) : ViewModel() {
+    val showOfflineBanner: StateFlow<Boolean> = networkMonitor.isOnline         // (3)
+        .map { online -> !online }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+}
+
+// CheckoutViewModel.kt
+@HiltViewModel
+class CheckoutViewModel @Inject constructor(
+    private val networkMonitor: NetworkMonitor                                // cùng instance với MainViewModel
+) : ViewModel() {
+    fun canPlaceOrder(): Boolean = networkMonitor.isOnline.value              // (4)
 }
 ```
-
-`MutableStateFlow.update` thực hiện đọc-sửa-ghi một cách nguyên tử, nên hai lần bấm "Thêm vào giỏ" từ hai thread không làm mất một lần cộng. `CheckoutViewModel` theo cùng mẫu: nhận `CartStore` qua constructor, đọc `items.value` khi đặt hàng rồi gọi `clear()`.
 
 ```kotlin
-// CartStoreTest.kt (src/test): (5) mỗi test một instance mới, không cần Hilt
-class CartStoreTest {
+// CheckoutViewModelTest.kt (src/test): (5) bản giả qua constructor, không cần Hilt
+class FakeNetworkMonitor(online: Boolean) : NetworkMonitor {
+    override val isOnline = MutableStateFlow(online)
+}
 
-    private val milkTea = Product(id = "sku-1", name = "Trà sữa", price = 35_000)
+class CheckoutViewModelTest {
 
     @Test
-    fun addSameProductTwice_increasesQuantity() {
-        val store = CartStore()
-        store.add(milkTea)
-        store.add(milkTea)
-        assertEquals(2, store.items.value.getValue("sku-1").quantity)
+    fun offline_cannotPlaceOrder() {
+        val viewModel = CheckoutViewModel(FakeNetworkMonitor(online = false))
+        assertFalse(viewModel.canPlaceOrder())
     }
 
     @Test
-    fun clear_emptiesCart() {
-        val store = CartStore()
-        store.add(milkTea)
-        store.clear()
-        assertTrue(store.items.value.isEmpty())
+    fun backOnline_canPlaceOrder() {
+        val monitor = FakeNetworkMonitor(online = false)
+        val viewModel = CheckoutViewModel(monitor)
+        monitor.isOnline.value = true                                          // mạng có lại
+        assertTrue(viewModel.canPlaceOrder())
     }
 }
 ```
 
-**Kết quả:** thêm một ly trà sữa ở màn chi tiết thì icon giỏ hàng hiện 1 ngay, không cần truyền dữ liệu giữa các màn; đặt hàng xong icon về 0. Hai test luôn đạt bất kể thứ tự, vì không dùng chung trạng thái. Kill process khi giỏ đang có hàng rồi mở lại app: giỏ rỗng. Nếu sản phẩm cần giữ giỏ hàng qua process death, `CartStore` phải ghi xuống Room hoặc DataStore; singleton chỉ là nơi dùng chung, không phải nơi lưu.
+**Kết quả:** bật chế độ máy bay thì banner hiện ở màn đang mở và nút "Đặt hàng" bị chặn; tắt thì banner ẩn. Breakpoint ở `registerDefaultNetworkCallback` dừng đúng một lần dù mở bao nhiêu màn. Hai test luôn đạt bất kể thứ tự, vì mỗi test có bản giả riêng. Kill process rồi mở lại: monitor được tạo lại, đọc trạng thái từ hệ thống, không mất gì. Giỏ hàng thì khác: nó phải lưu bền và sống theo phiên đăng nhập, không đặt vào `@Singleton` ([Dependency Injection Overview](di/overview.md), mục "Scope và vòng đời object").
 
 ## Khi nào nên và không nên dùng
 
 - **Nên có một instance** cho tài nguyên tốn kém hoặc phải duy nhất: database, HTTP client, DataStore, cache trong bộ nhớ, thread pool.
 - **Nên dùng `object`** cho tiện ích không trạng thái hoặc trạng thái tạo lại được, không cần tham số, ít khi cần thay trong test (formatter, `AppExecutors`, cache thumbnail).
-- **Nên để DI cấp** (`@Singleton` hoặc container trong `Application`) cho mọi thứ mà class khác phụ thuộc và cần thay bằng bản giả khi test: Repository, `CartStore`, `FeatureFlags`.
+- **Nên để DI cấp và chọn scope theo vòng đời** cho mọi thứ mà class khác phụ thuộc và cần thay bằng bản giả khi test: Repository, `FeatureFlags`, `NetworkMonitor` sống suốt process thì `@Singleton`; giỏ hàng của người đang đăng nhập thì scope theo phiên ([Dependency Injection Overview](di/overview.md), mục "Scope và vòng đời object").
 - **Không nên** dùng singleton làm nơi truyền dữ liệu giữa các màn hình hoặc lưu dữ liệu người dùng: process death xoá sạch nó. Dùng argument, `SavedStateHandle` hoặc lưu trữ bền.
 - **Không nên** để singleton giữ Activity, Fragment, View hoặc listener của UI.
 
@@ -482,7 +501,7 @@ fun getInstance(context: Context): AppDatabase {
 }
 ```
 
-**Lỗi lộ ra thế nào:** hai thread cùng thấy `null` ở lần kiểm tra duy nhất, lần lượt vào khoá và **cùng** build: app có hai `AppDatabase`, ghi ở instance này không phát cập nhật cho Flow đang quan sát instance kia. Thiếu `@Volatile` thì lỗi hiếm hơn, chỉ lộ trên một số thiết bị, nên gần như không tái hiện được.
+**Lỗi lộ ra thế nào:** hai thread cùng thấy `null` ở lần kiểm tra duy nhất, lần lượt vào khoá và **cùng** build: app có hai `AppDatabase`, ghi ở instance này không phát cập nhật cho Flow đang quan sát instance kia. Thiếu `@Volatile` là lỗi hiếm hơn: một thread thấy `instance` khác `null` ở lần kiểm tra không khoá nhưng nhận object chưa khởi tạo xong. Lỗi này chỉ lộ trên một số thiết bị, nên gần như không tái hiện được.
 
 **Cách sửa:** kiểm tra lại bên trong `synchronized` và đánh dấu field `@Volatile` như ví dụ `AppDatabase`, hoặc dùng `by lazy` để không phải tự viết.
 
@@ -501,7 +520,7 @@ object SelectedOrderHolder { var order: Order? = null }
 ### 4. Quên rằng mỗi process có singleton riêng
 
 ```xml
-<!-- AndroidManifest.xml: worker đồng bộ chạy ở process riêng -->
+<!-- AndroidManifest.xml: service đồng bộ chạy ở process riêng -->
 <service
     android:name=".sync.SyncService"
     android:process=":sync" />

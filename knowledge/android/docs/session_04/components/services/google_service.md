@@ -242,7 +242,7 @@ flowchart LR
         IF["Interface:<br/>NotificationRepository<br/>AuthRepository"]
     end
     subgraph Data["Data Layer"]
-        REPO[Repository]
+        REPO[RepositoryImpl]
         FB["FirebaseDataSource:<br/>FCM, Auth, Firestore,<br/>Crashlytics, Analytics"]
         GMS["GoogleApiDataSource:<br/>Location, Maps"]
     end
@@ -250,7 +250,7 @@ flowchart LR
     A -- observe --> VM
     VM --> UC
     UC --> IF
-    IF --> REPO
+    REPO -.->|hiện thực| IF
     REPO --> FB
     REPO --> GMS
 
@@ -258,7 +258,8 @@ flowchart LR
     style FB fill:#FFA000,stroke:#E65100,color:#fff
     style GMS fill:#2196F3,stroke:#1565C0,color:#fff
 ```
-<!-- dd: gg-arch -->
+
+UseCase chỉ gọi interface ở Domain; `RepositoryImpl` ở Data hiện thực interface đó (mũi tên nét đứt), nên Domain không phụ thuộc Firebase hay GMS.
 
 **Riêng với Google Service:**
 - `DataSource` bọc mọi API của Firebase/GMS (`Task`, `RemoteMessage`, `FirebaseUser`...) và trả về **model thuần** của app, nên tầng trên không import `com.google.*`.

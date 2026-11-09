@@ -7,7 +7,7 @@ difficulty: intermediate
 depth: standard
 estimated_reading_time: 18 phút
 tags: [android, kotlin, flow, coroutines, stateflow, sharedflow, observer-pattern, reactive]
-prerequisites: [android.languages.kotlin, android.jetpack.viewmodel, android.component.activity.lifecycle]
+prerequisites: [android.languages.kotlin, android.design_pattern.observer.overview, android.jetpack.viewmodel, android.component.activity.lifecycle]
 related: [android.architecture.mvvm, android.jetpack.livedata, android.data_store.room_transactions, android.networking.basics, android.component.content_provider, android.component.broadcast.overview]
 learning_outcomes:
   - Giải thích được vì sao Flow lạnh chạy lại producer cho từng collector, còn StateFlow và SharedFlow là nóng và dùng chung cho mọi collector.
@@ -46,11 +46,11 @@ Vấn đề cần giải quyết là: **một kiểu dữ liệu chung cho "nhi�
 
 ## Flow là gì?
 
-**Flow** (`kotlinx.coroutines.flow.Flow<T>`) là luồng bất đồng bộ phát lần lượt nhiều giá trị theo thời gian, dựng trên coroutine: producer gọi `emit(value)`, consumer nhận bằng hàm `suspend` `collect`. Flow thường là **lạnh**: mỗi lần `collect` chạy lại producer cho riêng collector đó; `StateFlow` và `SharedFlow` là **nóng**: một nguồn giá trị dùng chung cho mọi collector.
+**Flow** (`kotlinx.coroutines.flow.Flow<T>`) là luồng bất đồng bộ phát lần lượt nhiều giá trị theo thời gian, dựng trên coroutine: producer gọi `emit(value)`, consumer nhận bằng hàm `suspend` `collect`. Flow thường là **lạnh**: mỗi lần `collect` chạy lại producer cho riêng collector đó; `StateFlow` và `SharedFlow` là **nóng**: một nguồn giá trị dùng chung cho mọi collector, kể cả khi nguồn chung bắt đầu và dừng theo số collector ([Observer Pattern Overview](overview.md), mục "Hot và cold").
 
-Mental model dùng lại từ [Observer Pattern Overview](overview.md): **đặt báo dài hạn**. Flow lạnh là **bản in theo yêu cầu**: khai báo Flow chưa in gì; mỗi người đặt (`collect`) được in riêng một bộ từ số 1. Flow nóng là **báo in theo lịch**: tờ báo vẫn ra dù có ai đặt hay không, người đặt muộn chỉ nhận từ số hiện tại; `StateFlow` còn đưa ngay số mới nhất cho người vừa đặt.
+Mental model dùng lại từ [Observer Pattern Overview](overview.md): **đặt báo dài hạn**. Flow lạnh là **bản in theo yêu cầu**: khai báo Flow chưa in gì; mỗi người đặt (`collect`) được in riêng một bộ từ số 1. Flow nóng là **báo in chung theo lịch**: mọi người đặt nhận cùng một bản in, người đặt muộn nhận từ số hiện tại; `StateFlow` còn đưa ngay số mới nhất cho người vừa đặt. Với `stateIn`/`shareIn`, `SharingStarted` quyết định máy in chạy khi nào.
 
-Đây là một hiện thực của Observer Pattern: collector là observer, `collect` là đăng ký, huỷ coroutine đang collect là huỷ đăng ký. Khái niệm observer, hot/cold, push/pull ở [Observer Pattern Overview](overview.md).
+Đây là một hiện thực của Observer Pattern: collector là observer, `collect` là đăng ký, huỷ coroutine đang collect là huỷ đăng ký.
 
 > [!NOTE]
 > **Kiến thức dùng trước: coroutine.** Bài dùng hàm `suspend`, `launch`, scope (`viewModelScope`, `lifecycleScope`), dispatcher và việc huỷ coroutine ở mức tối thiểu. Coroutine là code bất đồng bộ viết tuần tự, tạm dừng được mà không chặn thread; học ở 8.4.3 Coroutines (chưa có bài). Test dùng `runTest` của `kotlinx-coroutines-test`, chạy `delay` trên thời gian ảo.
@@ -150,7 +150,7 @@ sequenceDiagram
 // Cart.kt
 data class Cart(val quantities: Map<String, Int> = emptyMap()) {
     val itemCount: Int get() = quantities.values.sum()
-    fun plus(productId: String) =
+    fun withItemAdded(productId: String) =
         copy(quantities = quantities + (productId to (quantities[productId] ?: 0) + 1))
 }
 
@@ -160,14 +160,14 @@ class CartStore {
     val cart: StateFlow<Cart> = _cart.asStateFlow()               // chỉ đưa ra bản read-only
 
     fun add(productId: String) {
-        _cart.update { current -> current.plus(productId) }       // (2) đọc-sửa-ghi nguyên tử
+        _cart.update { current -> current.withItemAdded(productId) }       // (2) đọc-sửa-ghi nguyên tử
     }
 }
 ```
 
 **Kết quả:** gọi `add()` hai lần rồi `store.cart.first().itemCount` trả `2` (bước 4). Cung cấp một `CartStore` cho cả app là việc của DI ([Dependency Injection Overview](../di/overview.md)).
 
-`SharedFlow` hợp với **sự kiện** nhiều nơi cùng nghe và chỉ cần với ai đang nghe, ví dụ "đồng bộ xong, màn nào đang mở thì tải lại" (màn chưa mở sẽ tự tải khi mở):
+`SharedFlow` hợp với **sự kiện** nhiều nơi cùng nghe và chỉ có ý nghĩa với nơi đang nghe, ví dụ "đồng bộ xong, màn nào đang mở thì tải lại" (màn chưa mở sẽ tự tải khi mở):
 
 ```kotlin
 // SyncEvents.kt
@@ -248,7 +248,7 @@ class ObserveVisibleOrders(
 
 **Giữ nguyên context (context preservation).** Producer chạy trong context của collector; không được bọc `emit()` trong `withContext`. Muốn producer chạy trên thread khác thì dùng `flowOn(dispatcher)`: nó chỉ đổi context cho các khâu **đứng trước** nó (upstream), các khâu sau và `collect` giữ context của collector. Bên dưới, `flowOn` chạy upstream trong một coroutine riêng và chuyển giá trị qua một buffer.
 
-**Lỗi trong suốt (exception transparency).** `catch { }` chỉ bắt lỗi của **upstream**, không bắt lỗi trong lambda của `collect`. Trong `catch` có thể `emit` giá trị thay thế hoặc ném lại lỗi. Upstream đã ném lỗi thì Flow đó **đã kết thúc**: `catch` chỉ phát được giá trị cuối. Muốn chạy lại nguồn thì dùng `retry(retries) { cause -> ... }` hoặc `retryWhen { cause, attempt -> ... }`; công thức backoff ở [Networking](../../../session_05/networking.md), mục "Retry Policy với Exponential Backoff & Jitter".
+**Lỗi trong suốt (exception transparency).** `catch { }` chỉ bắt lỗi của **upstream**, không bắt lỗi trong lambda của `collect`. Trong `catch` có thể `emit` giá trị thay thế hoặc ném lại lỗi. Upstream đã ném lỗi thì Flow đó **đã kết thúc**: `catch` chỉ phát thêm giá trị thay thế rồi Flow hoàn tất, không nối lại upstream. Muốn chạy lại nguồn thì dùng `retry(retries) { cause -> ... }` hoặc `retryWhen { cause, attempt -> ... }`; công thức backoff ở [Networking](../../../session_05/networking.md), mục "Retry Policy với Exponential Backoff & Jitter".
 
 #### Ví dụ: nhập danh bạ từ file CSV
 
@@ -303,6 +303,16 @@ class ContactImporter(
         .catch { e ->                                                 // (5) chỉ bắt lỗi của upstream
             if (e is IOException) emit(ImportProgress.Failed) else throw e
         }
+}
+
+// ImportViewModel.kt
+private val _progress = MutableStateFlow<ImportProgress?>(null)
+val progress: StateFlow<ImportProgress?> = _progress.asStateFlow()
+
+fun startImport(file: File) {
+    viewModelScope.launch {                                           // (1) collect trên main
+        importer.import(file).collect { _progress.value = it }
+    }
 }
 ```
 
@@ -374,7 +384,7 @@ Flow lạnh đưa thẳng lên UI thì mỗi collector chạy một producer ri�
 - `stateIn(scope, started, initialValue)` trả `StateFlow<T>`, cho state.
 - `shareIn(scope, started, replay)` trả `SharedFlow<T>`, khi không có giá trị ban đầu hợp lý hoặc cần replay nhiều giá trị.
 
-`scope` là giới hạn sống của producer: `viewModelScope` cho UI state của một màn, scope cấp app (thường do DI cung cấp) cho dữ liệu dùng chung. `started` quyết định khi nào producer chạy:
+`scope` là giới hạn sống của producer: `viewModelScope` cho UI state của một màn, scope cấp app (thường do DI cung cấp) cho dữ liệu dùng chung. `started` quyết định khi nào producer chung chạy và dừng; chọn kiểu nào thì kết quả vẫn nóng, vì không collector nào có producer riêng:
 
 | `SharingStarted` | Bắt đầu | Dừng |
 |---|---|---|
@@ -421,7 +431,7 @@ class ReaderViewModel(lightMonitor: AmbientLightMonitor) : ViewModel() {
 }
 ```
 
-**Kết quả:** theo dõi bằng `dumpsys sensorservice`: xoay màn hình vài lần, listener không bị gỡ rồi đăng ký lại; ấn Home, chờ hơn 5 giây, listener biến mất. App thật nên có ngưỡng đệm để theme không nhấp nháy.
+**Kết quả:** theo dõi bằng `dumpsys sensorservice`: xoay màn hình vài lần, listener không bị gỡ rồi đăng ký lại; ấn Home, chờ hơn 5 giây, listener biến mất.
 
 Nhiều ViewModel cùng cần một nguồn thì chia sẻ ở tầng data: `monitor.lux.shareIn(appScope, SharingStarted.WhileSubscribed(), replay = 1)` trong một object dùng chung cho cả app, để cả app chỉ có một listener.
 
@@ -434,7 +444,7 @@ Collect trong `lifecycleScope.launch` thường thì coroutine sống tới `onD
 viewLifecycleOwner.lifecycleScope.launch {
     viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         launch { viewModel.theme.collect { applyTheme(it) } }
-        launch { viewModel.progress.collect { renderProgress(it) } }   // mỗi Flow một launch
+        launch { viewModel.readingProgress.collect { renderProgress(it) } }   // Flow thứ hai: mỗi Flow một launch
     }
 }
 
@@ -442,7 +452,7 @@ viewLifecycleOwner.lifecycleScope.launch {
 val theme by viewModel.theme.collectAsStateWithLifecycle()
 ```
 
-Chuỗi hệ quả: View xuống `STOPPED` → `repeatOnLifecycle` huỷ coroutine collect → số collector về 0 → 5 giây sau `stateIn` dừng upstream → `awaitClose` gỡ listener. Cơ chế `repeatOnLifecycle`, `flowWithLifecycle` và vì sao `launchWhenStarted` bị deprecated ở [Activity Lifecycle](../../../session_04/components/activity/lifecycle.md), mục "repeatOnLifecycle"; vì sao dùng `viewLifecycleOwner` ở [Fragment Lifecycle](../../../session_04/components/fragment/lifecycle.md).
+Chuỗi hệ quả: View qua `onStop()` (state `CREATED`) → `repeatOnLifecycle` huỷ coroutine collect → số collector về 0 → 5 giây sau `stateIn` dừng upstream → `awaitClose` gỡ listener. Cơ chế `repeatOnLifecycle`, `flowWithLifecycle` và vì sao `launchWhenStarted` bị deprecated ở [Activity Lifecycle](../../../session_04/components/activity/lifecycle.md), mục "repeatOnLifecycle"; vì sao dùng `viewLifecycleOwner` ở [Fragment Lifecycle](../../../session_04/components/fragment/lifecycle.md).
 
 ## Ví dụ thực tế
 
@@ -583,7 +593,7 @@ query.debounce(300)
     .catch { emit(Error) }
 ```
 
-**Lỗi lộ ra thế nào:** lỗi mạng đầu tiên hiện lỗi đúng, nhưng sau đó gõ gì cũng không ra gợi ý: cả upstream đã kết thúc vì lỗi, `catch` chỉ phát được giá trị cuối.
+**Lỗi lộ ra thế nào:** lỗi mạng đầu tiên hiện lỗi đúng, nhưng sau đó gõ gì cũng không ra gợi ý: cả upstream đã kết thúc vì lỗi, `catch` phát `Error` rồi Flow hoàn tất.
 
 **Cách sửa:** đặt `catch` (và `retry` nếu cần) **bên trong** Flow con, như mục "Ví dụ thực tế".
 
@@ -605,7 +615,7 @@ val orders: StateFlow<List<Order>>
 // Sai
 repeatOnLifecycle(Lifecycle.State.STARTED) {
     viewModel.theme.collect { applyTheme(it) }
-    viewModel.progress.collect { renderProgress(it) }    // không bao giờ chạy tới
+    viewModel.readingProgress.collect { renderProgress(it) }    // không bao giờ chạy tới
 }
 ```
 

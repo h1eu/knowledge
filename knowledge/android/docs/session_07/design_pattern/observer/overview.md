@@ -56,7 +56,7 @@ Vấn đề cần giải quyết là: **một nơi thay đổi báo được cho
 
 **Observer Pattern** là pattern hành vi trong đó một object, gọi là **subject** (chủ thể được quan sát), giữ danh sách các **observer** (người quan sát) đã đăng ký và tự báo cho tất cả khi trạng thái của nó đổi; subject chỉ biết observer qua một interface, nên nơi phát thay đổi không phụ thuộc nơi nhận.
 
-Mental model: **đặt báo dài hạn**. Toà soạn (subject) gửi mỗi số mới cho mọi người trong danh sách, không cần biết họ đọc để làm gì; người đọc (observer) tự đăng ký, tự huỷ. Các phần sau đều là câu hỏi về việc đặt báo: gửi cả tờ báo hay chỉ giấy báo "có số mới" (push/pull), báo có in khi chưa ai đặt không (hot/cold), hộp thư đầy thì sao (backpressure), đi vắng có tạm ngưng giao không (lifecycle).
+Mental model: **đặt báo dài hạn**. Toà soạn (subject) gửi mỗi số mới cho mọi người trong danh sách, không cần biết họ đọc để làm gì; người đọc (observer) tự đăng ký, tự huỷ. Các phần sau đều là câu hỏi về việc đặt báo: gửi cả tờ báo hay chỉ giấy báo "có số mới" (push/pull), in riêng một bộ cho từng người đặt hay in chung một bản cho mọi người (hot/cold), hộp thư đầy thì sao (backpressure), đi vắng có tạm ngưng giao không (lifecycle).
 
 ## Cách hoạt động
 
@@ -141,10 +141,10 @@ override fun onDestroy() {
 
 Push hợp với state nhỏ mà mọi observer cần như nhau; pull hợp với dữ liệu lớn hoặc mỗi observer cần một phần khác nhau. Room kết hợp cả hai: nhận tín hiệu "bảng `orders` đổi", tự query lại rồi **push** kết quả qua `Flow` hoặc `LiveData` ([Async Transactions & Flow](../../../session_05/data_store/room_transactions.md)).
 
-### Hot và cold: nguồn có chạy khi chưa ai quan sát?
+### Hot và cold: mỗi observer một lần chạy riêng hay dùng chung?
 
-- **Cold (lạnh):** nguồn chỉ chạy khi có observer đăng ký, và **chạy riêng cho từng observer** từ đầu. Mỗi người đặt được in riêng một bộ từ số 1. Ví dụ: `flow { }` của Kotlin, `Single` của Retrofit với RxJava (mỗi lần subscribe là một request).
-- **Hot (nóng):** nguồn chạy **độc lập** với observer, mọi observer dùng chung một lần chạy và nhận từ lúc đăng ký trở đi. Báo in theo lịch, người đặt muộn chỉ nhận từ số hiện tại. Ví dụ: broadcast của hệ thống, cảm biến, `StateFlow`, `SharedFlow`, `Subject` của RxJava, LiveData.
+- **Cold (lạnh):** mỗi observer đăng ký khởi động **một lần chạy riêng** của nguồn, từ đầu; không ai đăng ký thì không chạy. Mỗi người đặt được in riêng một bộ từ số 1. Ví dụ: `flow { }` của Kotlin, `Single` của Retrofit với RxJava (mỗi lần subscribe là một request).
+- **Hot (nóng):** mọi observer **dùng chung một lần chạy** của nguồn; observer mới không khởi động lần chạy riêng mà nhận giá trị từ lúc đăng ký trở đi. Báo in chung theo lịch: mọi người đặt nhận cùng một bản in, người đặt muộn nhận từ số hiện tại. Lần chạy chung có thể chạy sẵn dù chưa ai quan sát (broadcast của hệ thống, `MutableStateFlow`), hoặc bắt đầu và dừng theo số observer (`stateIn` với `SharingStarted.WhileSubscribed`, LiveData bọc cảm biến bằng `onActive`/`onInactive`); cả hai đều là hot vì không observer nào có lần chạy riêng. Ví dụ: broadcast, `StateFlow`, `SharedFlow`, `Subject` của RxJava, LiveData.
 
 | Loại | Observer mới đăng ký nhận gì | Ví dụ |
 |---|---|---|
@@ -154,7 +154,7 @@ Push hợp với state nhỏ mà mọi observer cần như nhau; pull hợp vớ
 
 Quy tắc chọn: **state** cần hot và giữ giá trị cuối, để màn hình vừa tạo lại có ngay dữ liệu; **việc tốn kém dùng chung** (một kết nối, một request) chuyển từ cold sang hot để không chạy lặp; **việc của riêng một người gọi** để cold.
 
-Ví dụ: màn chuyển tiền và widget ở màn chính cùng hiện tỷ giá. Với nguồn cold, mở hai màn là hai request; chuyển nguồn thành hot và giữ giá trị cuối thì observer đầu tiên khởi động request, observer thứ hai nhận ngay giá trị đang giữ. Đoạn code dùng trước Flow ở mức tối thiểu (`flow { }` tạo luồng cold, `stateIn` biến nó thành `StateFlow` hot), học ở [Flow](flow.md):
+Ví dụ: màn chuyển tiền và widget ở màn chính cùng hiện tỷ giá. Với nguồn cold, mở hai màn là hai request; chuyển nguồn thành hot và giữ giá trị cuối thì observer đầu tiên khởi động lần chạy chung (một request), observer thứ hai nhận ngay giá trị đang giữ. `WhileSubscribed(5_000)` dừng lần chạy chung 5 giây sau khi observer cuối rời đi; nguồn vẫn là hot. Đoạn code dùng trước Flow ở mức tối thiểu (`flow { }` tạo luồng cold, `stateIn` biến nó thành `StateFlow` hot), học ở [Flow](flow.md):
 
 ```kotlin
 // RateRepository.kt
@@ -198,7 +198,7 @@ flowchart TD
 Observer cập nhật UI sống ngắn hơn hẳn subject. Observer UI an toàn theo ba quy tắc, như tạm ngưng giao báo khi đi vắng và huỷ hẳn khi chuyển nhà:
 
 1. **Bắt đầu nhận** khi UI hiển thị (`STARTED`).
-2. **Ngừng nhận** khi UI không hiển thị (`STOPPED`): không cập nhật View đang ẩn, không giữ nguồn tốn pin chạy vô ích.
+2. **Ngừng nhận** khi UI không hiển thị (sau `onStop()`, state `CREATED`): không cập nhật View đang ẩn, không giữ nguồn tốn pin chạy vô ích.
 3. **Huỷ đăng ký hẳn** khi UI bị huỷ (`DESTROYED`): subject không giữ Activity cũ.
 
 `Lifecycle` của Android chính là một subject phát event `ON_START`, `ON_STOP`, `ON_DESTROY`; `DefaultLifecycleObserver` là observer của nó ([Activity Lifecycle](../../../session_04/components/activity/lifecycle.md), mục "Cách hoạt động — Bộ ba cốt lõi"). Gắn observer dữ liệu vào lifecycle là dùng observer của lifecycle để bật, tắt observer của dữ liệu.
@@ -284,7 +284,7 @@ lifecycle.addObserver(CompassSensorObserver(sensorManager) { azimuth ->         
 |---|---|---|---|---|---|
 | `setOnClickListener`, `addTextChangedListener` | `View`, `TextView` | `OnClickListener` (chỉ **một**, gán mới là thay cũ), `TextWatcher` (nhiều) | Push | Hot | Không, sống cùng View |
 | `ContentObserver` | URI của Content Provider | `ContentObserver` | Pull | Hot | Không |
-| `BroadcastReceiver` | Hệ thống hoặc app khác, qua OS | `BroadcastReceiver` | Push (`Intent`) | Hot | Không, dynamic receiver tự huỷ |
+| `BroadcastReceiver` | Hệ thống hoặc app khác, qua OS | `BroadcastReceiver` | Push (`Intent`) | Hot | Không, dynamic receiver phải tự `unregisterReceiver` |
 | `Lifecycle` | Activity, Fragment | `LifecycleObserver` | Push (event) | Hot, observer mới được đưa lên state hiện tại | Là chính lifecycle |
 
 `BroadcastReceiver` là biến thể **publish-subscribe**: bên phát gửi qua một trung gian (hệ điều hành), hai bên không biết nhau ([Broadcast Receiver](../../../session_04/components/broadcast/broadcast_receiver.md)). LiveData, Flow và RxJava là ba thư viện hiện thực pattern, so sánh ở mục "So sánh với các cách tiếp cận khác".
@@ -306,7 +306,7 @@ Bài toán chính bên dưới ghép nhiều cơ chế quan sát trong một mà
 2. **ViewModel:** `combine` hai luồng, rồi `stateIn(... WhileSubscribed(5_000))` biến kết quả thành hot, giữ giá trị cuối.
 3. **Backpressure:** UI chỉ cần vị trí mới nhất, đúng cách `StateFlow` vốn giữ giá trị.
 4. **UI:** Fragment collect trong `repeatOnLifecycle(STARTED)`.
-5. Rời màn hình quá 5 giây: `stateIn` huỷ upstream, `asFlow()` dispose subscription của SDK.
+5. Rời màn hình quá 5 giây: `stateIn` dừng lần chạy chung (`uiState` vẫn hot), `asFlow()` dispose subscription của SDK.
 
 ```mermaid
 sequenceDiagram
@@ -341,7 +341,7 @@ class TrackingViewModel(savedStateHandle: SavedStateHandle, repository: Tracking
         repository.observeCourierLocation(orderId)
     ) { order, location ->
         TrackingUiState.Tracking(status = order.status, courierLocation = location)          // (3)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TrackingUiState.Loading) // (5)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TrackingUiState.Loading) // (2)(5)
 }
 
 // TrackingFragment.kt, trong onViewCreated()
@@ -432,7 +432,7 @@ fun observeUnreadCount(): Flow<Int> = flow {
 - **1994:** cuốn *Design Patterns* của "Gang of Four" (Gamma, Helm, Johnson, Vlissides) đặt tên Observer.
 - **2008 (Android 1.0, API 1):** listener của View, `ContentObserver`, `BroadcastReceiver` có từ đầu.
 - **2009:** Microsoft công bố Reactive Extensions (Rx) cho .NET: Observer cộng với toán tử ghép luồng.
-- **11/2014:** RxJava 1.0.0, bản Rx cho JVM do Netflix khởi xướng; RxJava 2 (10/2016) thêm `Flowable` có backpressure.
+- **11/2014:** RxJava 1.0.0, bản Rx cho JVM do Netflix khởi xướng; RxJava 2 (10/2016) tách backpressure sang `Flowable`, `Observable` không còn backpressure.
 - **04/2015:** chuẩn Reactive Streams 1.0.0 cho JVM, backpressure bằng `request(n)`.
 - **05/2017 (Google I/O):** Architecture Components giới thiệu LiveData, observer gắn lifecycle sẵn.
 - **09/2017 (Java 9):** `java.util.Observer`/`Observable` (có từ Java 1.0) bị deprecated; thêm `java.util.concurrent.Flow` theo Reactive Streams.
@@ -460,7 +460,7 @@ fun observeUnreadCount(): Flow<Int> = flow {
 - [Kotlin flows on Android - Android Developers](https://developer.android.com/kotlin/flow)
 - [StateFlow and SharedFlow - Android Developers](https://developer.android.com/kotlin/flow/stateflow-and-sharedflow)
 - [Handling lifecycles with lifecycle-aware components - Android Developers](https://developer.android.com/topic/libraries/architecture/lifecycle)
-- [RxJava README (base classes, backpressure) - GitHub ReactiveX](https://github.com/ReactiveX/RxJava)
+- [RxJava README (base classes, backpressure) - GitHub ReactiveX](https://github.com/ReactiveX/RxJava/tree/3.x)
 - [java.util.Observable (deprecated từ Java 9) - Oracle](https://docs.oracle.com/javase/9/docs/api/java/util/Observable.html)
 - [kotlinx.coroutines changelog (Flow 1.3.0, StateFlow 1.4.0) - GitHub](https://github.com/Kotlin/kotlinx.coroutines/blob/master/CHANGES_UP_TO_1.7.md)
 - [Lifecycle release notes - Android Developers](https://developer.android.com/jetpack/androidx/releases/lifecycle)

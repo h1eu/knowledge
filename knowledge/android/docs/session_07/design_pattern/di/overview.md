@@ -310,8 +310,15 @@ class UserSessionContainer(val user: LoggedInUser, shopApi: ShopApi) {
     val cartRepository: CartRepository = DefaultCartRepository(user.id, shopApi)
 }
 
-// AppContainer.kt (okHttpClient và retrofit khai báo như ví dụ trước)
+// AppContainer.kt (okHttpClient khai báo như ví dụ trước)
 class AppContainer(context: Context) {
+    private val retrofit: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://api.shop.example/")
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
     private val shopApi: ShopApi by lazy { retrofit.create(ShopApi::class.java) }
 
     var session: UserSessionContainer? = null                         // (1) chưa có phiên
@@ -353,7 +360,7 @@ Thư viện DI làm phần việc của container viết tay: tạo object theo 
 |---|---|---|---|---|
 | Cách khai báo | Annotation (`@Inject`, `@Module`, `@Component`) | Annotation của Dagger, thêm annotation cho Android | DSL Kotlin hoặc Koin Annotations | DSL Kotlin |
 | Graph dựng lúc | Compile | Compile (là Dagger) | Runtime | Runtime |
-| Thiếu binding lộ ra lúc | Build | Build | Runtime, hoặc build nếu dùng Koin Compiler Plugin | Runtime |
+| Thiếu binding lộ ra lúc | Build | Build | Runtime; test `verify()`, hoặc build nếu dùng Koin Compiler Plugin | Runtime |
 | Tích hợp Android | Tự viết | Có sẵn component theo vòng đời Android | Có | Có |
 | Kotlin Multiplatform | Không (JVM) | Không (Android) | Có | Có |
 | Tình trạng (11/2026) | Google duy trì (2.60.1) | Jetpack khuyên dùng | Phát triển tích cực (4.2.x) | Chế độ bảo trì, tác giả khuyên chuyển sang Koin |

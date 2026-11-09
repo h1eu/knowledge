@@ -87,7 +87,7 @@ Bản Builder dùng hằng ngày trong Java và Android là biến thể Joshua 
 
 ```mermaid
 sequenceDiagram
-    participant S as ProductDetailScreen
+    participant S as ProductDetailFragment
     participant B as ImageRequest.Builder
     participant R as ImageRequest
     S->>B: (1) Builder(url)
@@ -189,14 +189,14 @@ Hai tính chất của builder hay bị bỏ qua:
 
 #### Ví dụ: thông báo tiến độ tải bản đồ ngoại tuyến
 
-**Bài toán:** app bản đồ cho tải vùng bản đồ để dùng ngoại tuyến; thông báo hiện thanh tiến độ và cập nhật khi tải, rồi đổi thành "Đã tải xong". Các mục như icon, tiêu đề, channel không đổi, chỉ tiến độ và nội dung đổi: đúng trường hợp giữ một builder và build lại.
+**Bài toán:** app bản đồ cho tải vùng bản đồ để dùng ngoại tuyến; thông báo hiện thanh tiến độ khi tải, rồi đổi thành "Đã tải xong". Icon, tiêu đề, channel không đổi, chỉ tiến độ và nội dung đổi: đúng trường hợp giữ một builder và build lại.
 
 **Luồng chạy:**
 
-1. Tạo `NotificationCompat.Builder` **một lần** với channel, icon, tiêu đề, `setOnlyAlertOnce(true)` để mỗi lần cập nhật không rung và kêu lại.
-2. Mỗi lần có tiến độ: sửa builder bằng `setProgress()` và `setContentText()`.
+1. Tạo `NotificationCompat.Builder` **một lần** với channel, icon, tiêu đề, và `setOnlyAlertOnce(true)` để các lần cập nhật không kêu lại.
+2. Mỗi lần có tiến độ: nếu phần trăm chưa đổi hoặc chưa đủ 1 giây từ lần gửi trước thì bỏ qua, vì Android giới hạn tần suất cập nhật một thông báo và có thể bỏ bớt bản cập nhật gửi quá dày ([Update a notification](https://developer.android.com/develop/ui/views/notifications/build-notification#Updating)). Ngược lại, sửa builder bằng `setProgress()` và `setContentText()`.
 3. `build()` ra `Notification` mới và `notify()` với **cùng** id, để hệ thống thay thông báo cũ thay vì thêm thông báo mới.
-4. Tải xong: `setProgress(0, 0, false)` để bỏ thanh tiến độ, đổi nội dung, cho phép vuốt bỏ, rồi build và notify lần cuối.
+4. Tải xong: luôn gửi, không qua bước giãn nhịp; `setProgress(0, 0, false)` bỏ thanh tiến độ, đổi nội dung, rồi build và notify lần cuối.
 
 ```mermaid
 sequenceDiagram
@@ -207,12 +207,16 @@ sequenceDiagram
     N->>B: (1) tạo một lần: channel, icon, tiêu đề
     loop mỗi lần có tiến độ
         D->>N: onProgress(percent)
-        N->>B: (2) setProgress(), setContentText()
-        N->>M: (3) notify(NOTIFICATION_ID, builder.build())
+        alt cùng phần trăm hoặc chưa đủ 1 giây
+            N-->>N: (2) bỏ qua
+        else
+            N->>B: (2) setProgress(), setContentText()
+            N->>M: (3) notify(NOTIFICATION_ID, builder.build())
+        end
     end
     D->>N: onCompleted()
     N->>B: (4) setProgress(0, 0, false), setOngoing(false)
-    N->>M: notify(NOTIFICATION_ID, builder.build())
+    N->>M: (4) notify(NOTIFICATION_ID, builder.build()), luôn gửi
 ```
 
 ```kotlin
@@ -227,7 +231,14 @@ class DownloadNotifier(private val context: Context) {
         .setOnlyAlertOnce(true)
         .setOngoing(true)
 
+    private var lastPercent = -1
+    private var lastPostAt = 0L
+
     fun onProgress(percent: Int) {
+        val now = SystemClock.elapsedRealtime()
+        if (percent == lastPercent || now - lastPostAt < MIN_UPDATE_INTERVAL_MS) return // (2) giãn nhịp
+        lastPercent = percent
+        lastPostAt = now
         builder.setProgress(100, percent, false)                                   // (2) sửa phiếu
             .setContentText("$percent%")
         show()
@@ -237,7 +248,7 @@ class DownloadNotifier(private val context: Context) {
         builder.setProgress(0, 0, false)                                           // (4) bỏ thanh tiến độ
             .setContentText("Đã tải xong, dùng được khi không có mạng")
             .setOngoing(false)
-        show()
+        show()                                                                     // (4) luôn gửi
     }
 
     private fun show() {
@@ -251,20 +262,21 @@ class DownloadNotifier(private val context: Context) {
     companion object {
         const val CHANNEL_DOWNLOADS = "downloads"   // channel đã được tạo lúc app khởi động
         const val NOTIFICATION_ID = 2001
+        const val MIN_UPDATE_INTERVAL_MS = 1_000L
     }
 }
 ```
 
-`MapDownloadWorker` là một worker của WorkManager gọi `onProgress()` khi tải; cách tạo channel và quyền thông báo nằm ở [PendingIntent](../../session_04/intent/pending_intent.md) và 8.5.5 Message (chưa có bài).
+`MapDownloadWorker` là một worker của WorkManager gọi `onProgress()` khi tải. Cách tạo channel và xin quyền thông báo thuộc 8.5.5 Message (chưa có bài); [PendingIntent](../../session_04/intent/pending_intent.md) chỉ dùng thông báo làm chỗ gắn `PendingIntent`.
 
-**Kết quả:** khi tải chỉ có một thông báo, thanh tiến độ chạy từ 0 tới 100% và điện thoại chỉ kêu ở lần đầu. Tải xong thì thanh tiến độ biến mất và thông báo vuốt bỏ được. Đổi `NOTIFICATION_ID` thành một số mới cho mỗi lần gọi thì khay thông báo đầy hàng chục thông báo tiến độ.
+**Kết quả:** khi tải chỉ có một thông báo, thanh tiến độ nhích khoảng mỗi giây một lần tới 100% và điện thoại chỉ kêu ở lần đầu; tải xong luôn hiện "Đã tải xong". Bỏ bước giãn nhịp và `notify()` ở mỗi 1% trên mạng nhanh thì hệ thống có thể bỏ bớt bản cập nhật; bản bị bỏ là bản cuối thì thông báo kẹt ở trạng thái đang tải.
 
 ### Kotlin: named/default arguments, `apply` và DSL builder
 
 Phần lớn lý do builder tồn tại trong Java đã được Kotlin giải quyết ngay trong ngôn ngữ:
 
-- **Named arguments** (tham số có tên): gọi `UploadRequest(url = url, file = file, wifiOnly = true)`. Đổi chỗ tham số không còn nguy hiểm vì mỗi giá trị đi kèm tên.
-- **Default arguments** (tham số mặc định): một constructor duy nhất thay cho cả chục overload.
+- **Named arguments** (tham số có tên): `UploadRequest(url, file, mimeType = null, timeoutSeconds = 30, retryCount = 3, wifiOnly = true, showProgress = false)`. Đổi chỗ tham số không còn nguy hiểm vì mỗi giá trị đi kèm tên.
+- **Default arguments** (tham số mặc định): một constructor duy nhất thay cho cả chục overload. Khai báo `val timeoutSeconds: Int = 30` và tương tự cho các tuỳ chọn khác thì chỉ cần `UploadRequest(url = url, file = file, wifiOnly = true)`.
 - **`init { require(...) }`**: kiểm tra trong constructor, nên object sai không ra đời, giống `build()`.
 - **`val` và `copy()` của `data class`**: object bất biến, muốn biến thể thì `copy(timeoutSeconds = 60)`.
 
@@ -290,7 +302,7 @@ val request = ImageRequest(
 )
 ```
 
-Cùng một việc với ví dụ ở mục đầu, nhưng không cần class `Builder`, không cần copy list, và compiler bắt lỗi thiếu `url`.
+Cùng một việc với ví dụ ở mục đầu nhưng không cần class `Builder`. Hai điều không đổi: thiếu `url` là lỗi compile ở cả hai cách (builder đặt `url` ở constructor của nó), và nếu người gọi có thể truyền một `MutableList` rồi sửa sau, constructor vẫn nên tự sao chép (`transformations.toList()`).
 
 Hai công cụ khác của Kotlin hay bị gọi nhầm là "builder":
 
@@ -338,7 +350,7 @@ flowchart TD
 Ba bài toán hay gặp với Builder trong dự án Android:
 
 1. **Cấu hình SDK nội bộ dùng chung cho nhiều app, có app còn viết bằng Java.** Đây là bài toán chính, code đầy đủ bên dưới.
-2. **Một `OkHttpClient` cho cả app, client riêng cho upload với timeout dài:** `baseClient.newBuilder().writeTimeout(5, TimeUnit.MINUTES).build()`, vẫn dùng chung connection pool. Lý do không tạo client mới nằm ở [OkHttp](../../session_08/networks/okhttp.md), mục "Sai lầm thường gặp".
+2. **Một `OkHttpClient` cho cả app, client riêng cho upload với timeout dài:** `baseClient.newBuilder().writeTimeout(5, TimeUnit.MINUTES).build()`, vẫn dùng chung connection pool. Lý do không tạo client mới nằm ở [OkHttp](../../session_08/networks/okhttp.md), mục "Sai lầm thường gặp", phần 1.
 3. **Cấu hình Room theo build type:** cùng một `Room.databaseBuilder(...)`, bản debug thêm `fallbackToDestructiveMigration(dropAllTables = true)`, bản release chỉ `addMigrations(...)`; builder cho phép rẽ nhánh trước khi `build()` một lần duy nhất. Khi nào được xoá dữ liệu nằm ở [Room nâng cao](../../session_05/data_store/room_advanced.md), mục "Cảnh báo về `fallbackToDestructiveMigration()`".
 
 ### Cấu hình SDK analytics dùng chung cho app Java và Kotlin
@@ -519,7 +531,7 @@ class OrderRepository(context: Context) {
 
 **Lỗi lộ ra thế nào:** mỗi `AppDatabase` mở kết nối và cache riêng tới cùng một file, nên ghi ở instance này có thể không phát Flow ở instance kia; mỗi `OkHttpClient` có connection pool và thread pool riêng, bộ nhớ và số thread tăng theo số repository.
 
-**Cách sửa:** builder dùng để cấu hình, không phải để gọi mỗi lần cần object. Build một lần cho cả app rồi dùng chung, bằng một instance duy nhất ([Singleton Pattern](singleton_pattern.md)) hoặc scope của DI ([Dependency Injection Overview](di/overview.md)). Client cần cấu hình khác thì `newBuilder()`.
+**Cách sửa:** builder dùng để cấu hình, không phải để gọi mỗi lần cần object. Build một lần cho cả app rồi dùng chung, bằng một instance duy nhất ([Singleton Pattern](singleton_pattern.md)) hoặc scope của DI ([Dependency Injection Overview](di/overview.md)). Client cần cấu hình khác thì `newBuilder()` ([OkHttp](../../session_08/networks/okhttp.md), mục "Sai lầm thường gặp", phần 1).
 
 ### 5. Dùng constructor `NotificationCompat.Builder(context)` không có channel
 

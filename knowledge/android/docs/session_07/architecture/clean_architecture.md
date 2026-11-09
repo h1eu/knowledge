@@ -179,7 +179,7 @@ class FusedLocationProvider(private val client: FusedLocationProviderClient) : L
 
 Hàm `suspend` và `await()` là coroutine, học ở 8.4.3 Coroutines (chưa có bài). Cách xin quyền vị trí và vì sao API của GMS nằm ở data layer: [Google Service](../../session_04/components/services/google_service.md), mục "Vị trí trong Clean Architecture / MVVM".
 
-**Kết quả:** use case không có `import` nào của Android hay GMS. Unit test truyền `FakeLocationProvider` trả điểm cách cửa hàng khoảng 5 km thì nhận `Paid(25_000)`, trả `null` thì nhận `LocationUnavailable`. Máy dùng HMS chỉ cần thêm `HuaweiLocationProvider : LocationProvider` và ráp trong DI; use case không đổi dòng nào.
+**Kết quả:** use case không có `import` nào của Android hay GMS. Unit test truyền `FakeLocationProvider` trả điểm cách cửa hàng khoảng 4,5 km (vượt 1,5 km, làm tròn lên 2 km) thì nhận `Paid(25_000)`, trả `null` thì nhận `LocationUnavailable`. Máy dùng HMS chỉ cần thêm `HuaweiLocationProvider : LocationProvider` và ráp trong DI; use case không đổi dòng nào.
 
 ### Bản Android: presentation, domain, data
 
@@ -213,7 +213,7 @@ flowchart LR
 Hai điểm làm sơ đồ trên "clean":
 
 - **Domain ở giữa, không phụ thuộc gì:** presentation và data đều trỏ vào domain; data trỏ vào qua `implements`, ngược chiều lời gọi `UseCase → Repository`.
-- **Domain không có `android.*`:** không `Context`, `Parcelable`, annotation của Room hay Gson, nên có thể là module Kotlin/JVM thuần, test bằng JUnit và dùng lại trong Kotlin Multiplatform.
+- **Domain không có `android.*`:** không `Context`, `Parcelable`, annotation của Room hay Gson, nên có thể là module Kotlin/JVM thuần, test bằng JUnit. Dùng lại trong Kotlin Multiplatform thì tránh thêm API riêng của JVM (`java.time`, `BigDecimal`): dùng `kotlinx-datetime`, lưu tiền bằng `Long` theo đơn vị nhỏ nhất.
 
 Các bài trước đã đặt từng thành phần vào ba tầng này: [Activity](../../session_04/components/activity/index.md), [Fragment](../../session_04/components/fragment/index.md) ở presentation; [Room](../../session_05/data_store/room_architecture.md), [quảng cáo](../../session_04/components/services/advertisements/ads_architecture.md) ở data; [Broadcast Receiver](../../session_04/components/broadcast/broadcast_receiver.md) là entry point đẩy sự kiện vào domain qua interface `ConnectivityObserver`.
 
@@ -233,7 +233,23 @@ Use case có giá trị khi nó **chứa logic**: ghép nhiều Repository, áp 
 
 #### Ví dụ: số dư ví theo tiền tệ người dùng chọn
 
-**Bài toán:** ví lưu số dư bằng VND, người dùng chọn hiển thị bằng USD; màn ví và màn thanh toán đều cần số dư đã quy đổi. Luồng chỉ là ba lời gọi nối tiếp nên không cần sơ đồ.
+**Bài toán:** ví lưu số dư bằng VND, người dùng chọn hiển thị bằng USD; màn ví và màn thanh toán đều cần số dư đã quy đổi.
+
+**Luồng chạy:**
+
+1. Đọc số dư từ `WalletRepository`.
+2. Đọc tiền tệ hiển thị người dùng chọn từ `SettingsRepository`.
+3. Cùng tiền tệ thì trả số dư nguyên vẹn.
+4. Khác tiền tệ: lấy tỉ giá từ `ExchangeRateRepository`, quy đổi rồi làm tròn theo số chữ số thập phân của tiền tệ đích.
+
+```mermaid
+flowchart TD
+    A["(1) walletRepository.getBalance()"] --> B["(2) settingsRepository.getDisplayCurrency()"]
+    B --> C{"(3) cùng tiền tệ?"}
+    C -->|"có"| D["trả balance"]
+    C -->|"không"| E["(4) getRate(), nhân tỉ giá, làm tròn HALF_EVEN"]
+    E --> F["trả Money theo tiền tệ đích"]
+```
 
 ```kotlin
 // :domain — wallet/GetDisplayBalanceUseCase.kt (ba interface Repository khai báo ở domain như các ví dụ khác)
@@ -246,16 +262,16 @@ class GetDisplayBalanceUseCase(
     private val exchangeRateRepository: ExchangeRateRepository,
 ) {
     suspend operator fun invoke(): Money {
-        val balance = walletRepository.getBalance()
-        val target = settingsRepository.getDisplayCurrency()
-        if (balance.currency == target) return balance
-        val rate = exchangeRateRepository.getRate(balance.currency, target)
+        val balance = walletRepository.getBalance()                              // (1)
+        val target = settingsRepository.getDisplayCurrency()                     // (2)
+        if (balance.currency == target) return balance                           // (3)
+        val rate = exchangeRateRepository.getRate(balance.currency, target)      // (4)
         return Money((balance.amount * rate).setScale(target.fractionDigits, RoundingMode.HALF_EVEN), target)
     }
 }
 ```
 
-**Kết quả:** `WalletViewModel` và `CheckoutViewModel` chỉ gọi `getDisplayBalance()`. Đổi quy tắc làm tròn chỉ sửa một chỗ; test bằng ba fake Repository kiểm tra `1_250_000 VND × 0.0000394 = 49.25 USD`. Ví dụ use case đầy đủ kèm unit test ở mục "Ví dụ thực tế".
+**Kết quả:** `WalletViewModel` và `CheckoutViewModel` chỉ gọi `getDisplayBalance()`. Đổi quy tắc làm tròn chỉ sửa một chỗ; test bằng ba fake Repository kiểm tra `1_250_000 VND × 0.0000394 = 49.25 USD`.
 
 ### Model riêng cho từng tầng và mapping
 
@@ -343,7 +359,11 @@ Chia package (`domain/`, `data/`) chỉ là quy ước. Tách thành **Gradle mo
 ```kotlin
 // domain/build.gradle.kts: Kotlin/JVM thuần, không có Android
 plugins { kotlin("jvm") }
-dependencies { implementation(libs.kotlinx.coroutines.core) }     // chỉ để có Flow, suspend
+dependencies {
+    implementation(libs.kotlinx.coroutines.core)                  // chỉ để có Flow, suspend
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)              // runTest
+}
 
 // data/build.gradle.kts
 dependencies { implementation(project(":domain")) }              // để implements interface
@@ -367,7 +387,7 @@ flowchart TD
     DATA --> DOM
 ```
 
-`:feature:checkout` không có `:data` trên classpath, nên dùng `OrderRepositoryImpl` trong ViewModel là lỗi compile. Hướng dẫn modularization của Android gọi đây là **dependency inversion giữa module**: module abstraction (`:domain`) chứa interface, module implementation (`:data`) phụ thuộc vào nó, DI nối hai bên. App lớn chia tiếp theo tính năng (`:data:order`, `:feature:cart`).
+`:feature:checkout` không có `:data` trên classpath, nên dùng `OrderRepositoryImpl` trong ViewModel là lỗi compile. Hướng dẫn modularization của Android gọi đây là **dependency inversion giữa module**: module abstraction (`:domain`) chứa interface, module implementation (`:data`) phụ thuộc vào nó, DI nối hai bên.
 
 ## Ví dụ thực tế
 
@@ -399,14 +419,18 @@ sequenceDiagram
     participant O as OrderRepository
     VM->>UC: (1) invoke()
     UC->>C: getCart()
-    UC->>I: (2) getStock(productIds)
-    alt có món thiếu hàng
-        UC-->>VM: OutOfStock(ids)
-    else đủ hàng
-        UC->>O: (3) submit(cart)
-        O-->>UC: Accepted(orderId) / Unreachable
-        UC->>C: (4) clear() nếu Accepted
-        UC-->>VM: Success(orderId) / Offline
+    alt giỏ trống
+        UC-->>VM: EmptyCart
+    else có món
+        UC->>I: (2) getStock(productIds)
+        alt có món thiếu hàng
+            UC-->>VM: OutOfStock(ids)
+        else đủ hàng
+            UC->>O: (3) submit(cart)
+            O-->>UC: Accepted(orderId) / Unreachable
+            UC->>C: (4) clear() nếu Accepted
+            UC-->>VM: Success(orderId) / Offline
+        end
     end
     VM->>VM: (5) uiState mới
 ```
@@ -518,10 +542,10 @@ class PlaceOrderUseCaseTest {
 | Hướng phụ thuộc domain ↔ data | **Data → Domain** (data implements interface của domain) | **Domain → Data** (use case gọi class Repository ở data layer) |
 | Logic nghiệp vụ chủ yếu ở | Use case và entities | Data layer; use case cho logic phức tạp hoặc dùng lại |
 | Repository interface | Ở domain | Không bắt buộc; Repository là class của data layer |
-| UI gọi thẳng Repository? | Không, đi qua use case | Được; chỉ thêm use case khi cần |
+| UI gọi thẳng Repository? | Bài gốc qua use case; gọi interface Repository ở domain vẫn đúng dependency rule | Được; chỉ thêm use case khi cần |
 | Model riêng mỗi tầng | Gần như bắt buộc | Khuyên dùng trong app phức tạp; UI state được chứa model của data layer |
 
-Clean Architecture đặt nghiệp vụ ở giữa và bắt mọi thứ trỏ vào nó; Google đặt data layer làm nền và thêm domain khi có lý do. Trong repo này, [Room Architecture](../../session_05/data_store/room_architecture.md) vẽ theo cách của Google (use case gọi `TaskRepositoryImpl`), còn [Google Service](../../session_04/components/services/google_service.md) và [Broadcast Receiver](../../session_04/components/broadcast/broadcast_receiver.md) vẽ theo Clean Architecture (interface ở domain). Mẫu [Now in Android](https://github.com/android/nowinandroid) của Google nằm giữa: module `core:domain` chỉ chứa use case dùng chung, các feature vẫn được gọi thẳng Repository.
+Clean Architecture đặt nghiệp vụ ở giữa và bắt mọi thứ trỏ vào nó; Google đặt data layer làm nền và thêm domain khi có lý do, như mẫu [Now in Android](https://github.com/android/nowinandroid): module `core:domain` phụ thuộc `core:data` và chỉ chứa use case dùng chung, các feature vẫn gọi thẳng Repository. Các bài ở Session 04 và 05 trong repo này ([Room Architecture](../../session_05/data_store/room_architecture.md), [Google Service](../../session_04/components/services/google_service.md), [Broadcast Receiver](../../session_04/components/broadcast/broadcast_receiver.md)) vẽ theo Clean Architecture: interface Repository ở domain.
 
 Hexagonal Architecture (Ports and Adapters) và Onion Architecture là hai kiến trúc mà Clean Architecture tổng hợp lại: nghiệp vụ ở giữa, port là interface, adapter ở ngoài. MVVM, MVP, [MVI](mvi.md) chỉ tổ chức **tầng presentation**, nên dùng được trong bất kỳ cách chia tầng nào ở trên.
 

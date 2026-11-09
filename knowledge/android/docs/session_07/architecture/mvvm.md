@@ -205,7 +205,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
 Thao tác đi lên bằng **lời gọi hàm** của ViewModel. Tên hàm nói về việc người dùng làm (`onBookmarkClick(articleId)`), không nói về View (`onStarImageViewClicked()`), để cùng ViewModel dùng được cho mọi kiểu UI.
 
-Khó hơn là những thứ chỉ xảy ra **một lần**: hiện Snackbar "Đã lưu", điều hướng sang màn kế tiếp sau khi đăng nhập. Gửi chúng qua một kênh event riêng (`SharedFlow`, `Channel`, `SingleLiveEvent`) có thể làm event bị mất khi không có ai đang quan sát (ví dụ đúng lúc xoay màn hình), hoặc bị phát lại. Docs khuyên **không gửi event từ ViewModel sang UI**: xử lý event ngay trong ViewModel và đưa kết quả vào state. Cách làm:
+Khó hơn là những thứ chỉ xảy ra **một lần**: hiện Snackbar "Đã lưu", điều hướng sang màn kế tiếp sau khi đăng nhập. Gửi chúng qua một kênh event riêng (`SharedFlow`, `Channel`, `SingleLiveEvent`) không bảo đảm event được xử lý: `SharedFlow` không replay làm mất event phát ra lúc không có ai đang collect (ví dụ đúng lúc xoay màn hình), còn `Channel` giữ event tới khi có người nhận nhưng event vẫn mất nếu được nhận đúng lúc coroutine collect bị huỷ. Docs khuyên **không gửi event từ ViewModel sang UI**: xử lý event ngay trong ViewModel và đưa kết quả vào state. Cách làm:
 
 1. ViewModel đưa kết quả vào `uiState`, ví dụ `userMessage = "Đã lưu bài"` hoặc `isLoggedIn = true`.
 2. View vẽ state đó: hiện Snackbar, hoặc điều hướng.
@@ -218,7 +218,7 @@ Vì thông điệp nằm trong state, nó không mất khi xoay màn hình (View
 Chữ "Model" trong MVVM không phải một class mà là **mọi thứ bên dưới tầng UI**. Theo hướng dẫn kiến trúc của Android:
 
 - **Data layer** (bắt buộc): Repository đưa dữ liệu của app ra cho phần còn lại, giấu việc dữ liệu đến từ Room, mạng hay DataStore. Docs khuyên tạo Repository kể cả khi chỉ có một nguồn, và **ViewModel không gọi thẳng data source** (DAO, Retrofit service). Repository và nguồn sự thật đã gặp ở [Room Architecture](../../session_05/data_store/room_architecture.md), mục "Single Source of Truth (SSOT) và Offline-first" và [Networking](../../session_05/networking.md).
-- **Domain layer** (tuỳ chọn, khuyên dùng cho app lớn): các use case gom logic nghiệp vụ dùng lại ở nhiều ViewModel, ví dụ `GetVisibleArticlesUseCase`. Cách chia lớp này là chủ đề của [Clean Architecture](clean_architecture.md).
+- **Domain layer** (tuỳ chọn, khuyên dùng cho app lớn): các use case gom logic nghiệp vụ dùng lại ở nhiều ViewModel, ví dụ `GetVisibleArticlesUseCase`. Domain layer của Google phụ thuộc data layer (use case gọi class Repository ở data layer); Clean Architecture đảo chiều này, đặt interface Repository ở domain để data layer hiện thực nó, xem [Clean Architecture](clean_architecture.md), mục "So sánh với các cách tiếp cận khác".
 
 ViewModel giữ **logic UI** (dữ liệu nào hiện, định dạng ra sao, trạng thái tải) và gọi Model cho **logic nghiệp vụ** (quy tắc của sản phẩm, đọc ghi dữ liệu). Ranh giới này không cứng: app nhỏ có thể để quy tắc lọc trong ViewModel như ví dụ trên, rồi chuyển xuống use case khi nhiều màn cùng cần.
 
@@ -381,10 +381,11 @@ class LoginViewModelTest {
 
 | Pattern | Thành phần giữa UI và dữ liệu | Thành phần đó có biết View? | Cập nhật UI |
 |---|---|---|---|
-| MVC | Controller | Có; trên Android, Activity thường vừa là View vừa là Controller | Controller gán thẳng vào View |
+| MVC gốc | Controller (chỉ xử lý input) | Có, đi cặp với một View | View quan sát Model và tự vẽ lại |
+| MVC kiểu Android | Activity / Fragment | Nó **chính là** View | Activity gán thẳng dữ liệu vào widget |
 | MVP | Presenter | Có, qua interface `View` (`showArticles()`, `showError()`) | Presenter gọi hàm của View |
 | **MVVM** | ViewModel | **Không** | View quan sát state của ViewModel |
-| MVI | ViewModel / Store, reducer | Không | Như MVVM, nhưng mọi thao tác thành `Intent` đi qua một reducer duy nhất, state bất biến |
+| MVI | ViewModel / Store, reducer | Không | Như MVVM, nhưng mọi thay đổi (Intent và kết quả side effect) đi qua một reducer duy nhất, state bất biến |
 
 Khác biệt cốt lõi giữa MVP và MVVM là **ai giữ tham chiếu tới ai**. Presenter giữ View nên phải tự gỡ khi View bị huỷ; ViewModel không giữ gì nên sống qua xoay màn hình một cách tự nhiên. MVVM theo UDF với một `uiState` như bài này đã rất gần MVI; MVI chặt hơn ở chỗ mọi thay đổi đều đi qua một hàm reducer. Chi tiết từng pattern ở [MVC](mvc.md), [MVP](mvp.md) và [MVI](mvi.md).
 
@@ -486,7 +487,7 @@ class ArticleListViewModel(private val api: ArticleApi, private val dao: Article
 - **Học tiếp:**
   - [Observer Pattern Overview](../design_pattern/observer/overview.md) và [Flow](../design_pattern/observer/flow.md): cơ chế quan sát và `StateFlow`.
   - [MVC](mvc.md), [MVP](mvp.md), [MVI](mvi.md): các pattern đứng trước và sau MVVM.
-  - [Clean Architecture](clean_architecture.md): chia Model thành data layer và domain layer.
+  - [Clean Architecture](clean_architecture.md): đặt nghiệp vụ ở giữa, data layer phụ thuộc domain qua interface.
   - [Hilt](../design_pattern/di/hilt.md): cung cấp Repository cho ViewModel.
 
 ## Tham khảo

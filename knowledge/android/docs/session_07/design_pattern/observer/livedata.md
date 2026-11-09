@@ -79,13 +79,13 @@ Hai dòng cuối giải thích khuyến nghị của docs: LiveData **không đ�
 | Hot / cold | Hot | Hot | Hot | Mặc định cold; `Subject` hot |
 | Giá trị khởi tạo | Không bắt buộc | **Bắt buộc** | Không có, tuỳ `replay` | `BehaviorSubject` tuỳ chọn |
 | Giá trị bằng giá trị trước | Vẫn giao lại | **Bỏ qua** (so bằng `equals`) | Vẫn phát | Vẫn phát, trừ khi `distinctUntilChanged()` |
-| Khi UI xuống `STOPPED` | Tự ngừng giao | Collector vẫn chạy, trừ khi collect trong `repeatOnLifecycle` | Như `StateFlow` | Vẫn chạy tới khi `dispose()` |
+| Khi UI qua `onStop()` | Tự ngừng giao | Collector vẫn chạy, trừ khi collect trong `repeatOnLifecycle` | Như `StateFlow` | Vẫn chạy tới khi `dispose()` |
 | Thread | Main thread | Dispatcher của collector | Dispatcher của collector | `observeOn` quyết định |
 | Toán tử | Ít | Mọi toán tử của Flow | Mọi toán tử của Flow | Rất nhiều |
 | Dùng ở | ViewModel → UI | Mọi tầng, chủ yếu UI state | Event, broadcast trong app | Codebase Java, Rx cũ |
 | Nền tảng | Android | Kotlin, cả KMP | Kotlin, cả KMP | JVM |
 
-`StateFlow` là thứ thay thế trực tiếp cho LiveData: docs Android mô tả hai class "có nhiều điểm giống nhau", cùng là observable data holder, với hai khác biệt chính là giá trị khởi tạo bắt buộc và việc `observe()` của LiveData tự ngừng khi View `STOPPED` còn collect Flow thì không. `SharedFlow` không giữ state nên không thay LiveData cho state. RxJava và `Flow` cần thêm một lớp gắn lifecycle mà LiveData có sẵn. API của Flow học ở [Flow](flow.md), của RxJava ở [RxJava / RxAndroid](rxjava.md).
+`StateFlow` là thứ thay thế trực tiếp cho LiveData: docs Android mô tả hai class "có nhiều điểm giống nhau", cùng là observable data holder, với hai khác biệt chính là giá trị khởi tạo bắt buộc và việc `observe()` của LiveData tự ngừng khi View qua `onStop()` còn collect Flow thì không. `SharedFlow` không giữ state nên không thay LiveData cho state. RxJava và `Flow` cần thêm một lớp gắn lifecycle mà LiveData có sẵn. API của Flow học ở [Flow](flow.md), của RxJava ở [RxJava / RxAndroid](rxjava.md).
 
 #### Ví dụ: tỉ số trận đấu khi app xuống background
 
@@ -94,7 +94,7 @@ Hai dòng cuối giải thích khuyến nghị của docs: LiveData **không đ�
 **Luồng chạy:**
 
 1. Fragment `STARTED`: ba observer cùng nhận tỉ số từ một `StateFlow` (một socket): LiveData tạo bằng `asLiveData()`, collector thẳng trong `lifecycleScope.launch`, collector trong `repeatOnLifecycle(STARTED)`.
-2. Bấm Home, Fragment `STOPPED`: observer của LiveData thành inactive, không được gọi; collector trong `repeatOnLifecycle` bị huỷ; collector trong `launch` **vẫn chạy** và gán vào View đang ẩn.
+2. Bấm Home, Fragment qua `onStop()` (state `CREATED`): observer của LiveData thành inactive, không được gọi; collector trong `repeatOnLifecycle` bị huỷ; collector trong `launch` **vẫn chạy** và gán vào View đang ẩn.
 3. Sau 5 giây: `asLiveData()` hết timeout nên ngừng collect; nhưng `StateFlow` vẫn còn một collector (cái trong `launch`) nên `WhileSubscribed` không dừng upstream, socket **không đóng**.
 4. Quay lại app: LiveData giao giá trị mới nhất; `repeatOnLifecycle` chạy lại khối collect và nhận ngay giá trị hiện tại của `StateFlow`.
 
@@ -106,7 +106,7 @@ sequenceDiagram
     F->>VM: (1) observe liveScore, collect score (launch), collect score (repeatOnLifecycle)
     R-->>VM: Score 1-0
     VM-->>F: cả ba observer nhận 1-0
-    Note over F: (2) STOPPED
+    Note over F: (2) onStop(), state CREATED
     R-->>VM: Score 2-0
     VM-->>F: chỉ collector trong launch nhận, gán vào View đang ẩn
     Note over VM,R: (3) sau 5 giây asLiveData ngừng collect, socket vẫn mở vì còn collector trong launch
@@ -160,6 +160,18 @@ val points: LiveData<PointsUiState> = loyaltyModule.observePoints()
 
 Từ Lifecycle 2.6.0, `toLiveData()` và `toPublisher()` là extension Kotlin trong `lifecycle-reactivestreams`; `LiveDataReactiveStreams.fromPublisher()`/`toPublisher()` là cách gọi cũ từ Java.
 
+Chiều ngược lại, `toPublisher(owner)` cho code Rx cũ quan sát LiveData theo lifecycle; `Flowable.fromPublisher` bọc `Publisher` đó thành `Flowable` để dùng toán tử Rx:
+
+```kotlin
+// CartFragment.kt, trong onViewCreated(): module analytics cũ nhận Flowable
+viewDisposables.add(
+    Flowable.fromPublisher(viewModel.itemCount.toPublisher(viewLifecycleOwner))   // chỉ nhận khi View active
+        .distinctUntilChanged()
+        .subscribe { count -> analytics.trackCartSize(count) }
+)
+// onDestroyView(): viewDisposables.clear()
+```
+
 ### Chuyển state của ViewModel từ LiveData sang `StateFlow`
 
 | LiveData | `StateFlow` | Lưu ý |
@@ -172,7 +184,7 @@ Từ Lifecycle 2.6.0, `toLiveData()` và `toPublisher()` là extension Kotlin tr
 | `liveData { }` | `flow { }` + `stateIn(...)` | |
 | `observe(viewLifecycleOwner)` | `repeatOnLifecycle(STARTED) { collect }` | Thiếu `repeatOnLifecycle` là lỗi ở ví dụ trên |
 | `observeAsState()` (Compose) | `collectAsStateWithLifecycle()` | |
-| `InstantTaskExecutorRule` | `runTest` + `MainDispatcherRule` | Đọc `stateFlow.value`, không cần observer |
+| `InstantTaskExecutorRule` | `runTest` + `MainDispatcherRule` | Đọc `stateFlow.value` sau `advanceUntilIdle()`; `stateIn(WhileSubscribed)` vẫn cần một collector |
 
 Data Binding cũng đọc được `StateFlow` trực tiếp khi binding có `lifecycleOwner` ([Data Binding](../../../session_06/data_binding.md)), nên dùng Data Binding không phải lý do bắt buộc giữ LiveData.
 
@@ -264,6 +276,7 @@ class OrderListViewModelTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() } // có collector để WhileSubscribed chạy
 
         viewModel.onFilterSelected(OrderFilter.DELIVERED)
+        advanceUntilIdle()                               // chạy coroutine đang chờ trên StandardTestDispatcher
 
         val state = viewModel.uiState.value as OrderListUiState.Content
         assertTrue(state.orders.all { it.status == OrderStatus.DELIVERED })
@@ -271,7 +284,7 @@ class OrderListViewModelTest {
 }
 ```
 
-`stateIn(WhileSubscribed)` chỉ chạy upstream khi có collector, nên test mở một collector trong `backgroundScope` (tự huỷ khi test xong), theo hướng dẫn "Testing Kotlin flows on Android"; `runTest` ở [Flow](flow.md). `MainDispatcherRule` như ở [ViewModel](../../../session_06/viewmodel.md), mục "Ví dụ thực tế".
+`stateIn(WhileSubscribed)` chỉ chạy upstream khi có collector, nên test mở một collector trong `backgroundScope` (tự huỷ khi test xong), theo hướng dẫn "Testing Kotlin flows on Android"; `runTest` ở [Flow](flow.md). `MainDispatcherRule` thay `Dispatchers.Main` bằng `StandardTestDispatcher` ([MVVM](../../architecture/mvvm.md), mục "Ví dụ thực tế"); dispatcher này chỉ chạy coroutine khi scheduler được đẩy, nên phải `advanceUntilIdle()` trước khi đọc `uiState.value`, không thì vẫn là `Loading`.
 
 **Kết quả:** màn hình chạy như cũ: đổi chip thì danh sách đổi, xoay màn hình không query lại (nhờ `WhileSubscribed(5_000)`), bấm Home thì không còn cập nhật View. Không còn kiểm tra `null` của `orders.value`, và test không cần `InstantTaskExecutorRule`.
 
@@ -287,10 +300,7 @@ class OrderListViewModelTest {
 
 ### 1. LiveData trong Repository
 
-```kotlin
-// Sai: Repository trả LiveData và biến đổi nặng bằng map
-fun observeOverdueOrders(): LiveData<List<Order>> = orderDao.observeAll().map { it.filter(::isOverdue) }
-```
+Repository trả `LiveData` và biến đổi nặng bằng `map`, như đoạn code ở mục "Vấn đề cần giải quyết".
 
 **Lỗi lộ ra thế nào:** lọc vài nghìn dòng trên main thread làm logcat báo `Skipped ... frames`; ViewModel muốn ghép với nguồn khác phải dựng `MediatorLiveData` thủ công.
 
@@ -303,7 +313,7 @@ fun observeOverdueOrders(): LiveData<List<Order>> = orderDao.observeAll().map { 
 viewLifecycleOwner.lifecycleScope.launch { viewModel.uiState.collect(::render) }
 ```
 
-**Lỗi lộ ra thế nào:** như ví dụ tỉ số trận đấu: app ở background vẫn gán View, và `WhileSubscribed` không bao giờ dừng upstream, nên socket, GPS hay query vẫn chạy.
+**Lỗi lộ ra thế nào:** như ví dụ tỉ số trận đấu: app ở background vẫn gán View, và `WhileSubscribed` không dừng upstream tới khi View bị huỷ, nên socket, GPS hay query vẫn chạy.
 
 **Cách sửa:** `repeatOnLifecycle(Lifecycle.State.STARTED)` quanh `collect`, hoặc `collectAsStateWithLifecycle()` trong Compose.
 

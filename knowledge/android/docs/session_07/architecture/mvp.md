@@ -88,7 +88,7 @@ Hàm của contract nên nói **hiện gì** (`showEmpty()`), không nói **vẽ
 
 #### Ví dụ: danh sách bài báo có tải, lỗi và thử lại
 
-**Bài toán:** cùng bài toán với ví dụ ở [MVVM](mvvm.md), mục "UI state và luồng dữ liệu một chiều": danh sách bài báo đọc từ Repository, màn hình ở đúng một trong bốn trạng thái (đang tải, có danh sách, rỗng, lỗi kèm nút "Thử lại"). Viết lại theo MVP để thấy chỗ khác.
+**Bài toán:** bài toán của ví dụ ở [MVVM](mvvm.md), mục "UI state và luồng dữ liệu một chiều", thêm trạng thái rỗng: danh sách bài báo đọc từ Repository, màn hình ở đúng một trong bốn trạng thái (đang tải, có danh sách, rỗng, lỗi kèm nút "Thử lại"). Viết lại theo MVP để thấy chỗ khác.
 
 **Luồng chạy:**
 
@@ -174,13 +174,14 @@ class ArticleListPresenter(
 class ArticleListFragment : Fragment(R.layout.fragment_article_list), ArticleListContract.View {
 
     private var binding: FragmentArticleListBinding? = null
-    private val adapter = ArticleAdapter()
+    private var adapter: ArticleAdapter? = null                               // sống theo View, như binding
     private val presenter by lazy {
         ArticleListPresenter((requireActivity().application as NewsApplication).articleRepository)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        adapter = ArticleAdapter()
         binding = FragmentArticleListBinding.bind(view).apply {
             articleList.adapter = adapter
             retryButton.setOnClickListener { presenter.onRetryClick() }       // (4)
@@ -191,6 +192,7 @@ class ArticleListFragment : Fragment(R.layout.fragment_article_list), ArticleLis
     override fun onDestroyView() {
         presenter.detachView()
         binding = null
+        adapter = null
         super.onDestroyView()
     }
 
@@ -198,7 +200,7 @@ class ArticleListFragment : Fragment(R.layout.fragment_article_list), ArticleLis
     override fun showEmpty() = showOnly { it.emptyText }
     override fun showArticles(articles: List<Article>) {
         showOnly { it.articleList }
-        adapter.submitList(articles)
+        adapter?.submitList(articles)
     }
     override fun showError(message: String) {
         showOnly { it.errorGroup }
@@ -214,7 +216,7 @@ class ArticleListFragment : Fragment(R.layout.fragment_article_list), ArticleLis
 }
 ```
 
-`ArticleAdapter` là adapter của `RecyclerView`, học ở [ViewHolder Pattern](../design_pattern/viewholder_pattern.md). Binding được gán `null` trong `onDestroyView()` theo quy tắc ở [View Binding](../../session_06/view_binding.md), mục "View Binding trong Fragment: binding sống theo View".
+`ArticleAdapter` là adapter của `RecyclerView`, học ở [ViewHolder Pattern](../design_pattern/viewholder_pattern.md). Binding được gán `null` trong `onDestroyView()` theo quy tắc ở [View Binding](../../session_06/view_binding.md), mục "View Binding trong Fragment: binding sống theo View". Adapter cũng vậy: `RecyclerView` đăng ký observer vào adapter, nên adapter giữ ở field của Fragment sẽ giữ luôn `RecyclerView` cũ khi Fragment vào backstack.
 
 **Kết quả:** Fragment không còn `if` nghiệp vụ nào; quy tắc "ẩn bài bị ẩn, mới nhất lên đầu" và thứ tự Loading → Error → Loading → Articles nằm trong Presenter và test được trên JVM (mục "Ví dụ thực tế"). So với bản MVVM: logic ở cùng chỗ, nhưng Presenter **ra lệnh từng bước**, nên View phải có hàm `showOnly` để mỗi lệnh tự tắt các trạng thái khác. Chỗ này sẽ quay lại ở mục "Vì sao MVVM thay thế MVP".
 
@@ -317,6 +319,7 @@ class ArticleListPresenter(
     private var view: ArticleListContract.View? = null
     private var lastScreen: Screen? = null
     private val scope = MainScope()
+    private var loadJob: Job? = null
 
     override fun attachView(view: ArticleListContract.View) {
         this.view = view
@@ -333,8 +336,9 @@ class ArticleListPresenter(
     fun destroy() = scope.cancel()                                            // (5)
 
     private fun loadArticles() {
+        loadJob?.cancel()                                                     // bấm "Thử lại" khi đang tải: bỏ lần cũ
         render(Screen.Loading)
-        scope.launch {
+        loadJob = scope.launch {
             render(
                 try {
                     val visible = repository.getArticles()
@@ -398,7 +402,7 @@ Khi chuyển một màn MVP sang MVVM, các phần tương ứng như sau:
 
 | MVP | MVVM |
 |---|---|
-| `interface View` với `showLoading()`, `showArticles()`, `showError()` | `sealed interface ArticleListUiState` (Loading, Success, Error) |
+| `interface View` với `showLoading()`, `showArticles()`, `showEmpty()`, `showError()` | `sealed interface ArticleListUiState` (Loading, Success, Empty, Error) |
 | `presenter.onRetryClick()` | `viewModel.onRetry()` |
 | `attachView()` / `detachView()` | `repeatOnLifecycle(STARTED) { uiState.collect { … } }` |
 | Presenter trong holder `ViewModel`, `onCleared()` gọi `destroy()` | Chính class `ViewModel`, coroutine chạy trong `viewModelScope` |
@@ -508,10 +512,11 @@ class ArticleListPresenterTest {
 
 | Pattern | Thành phần giữa UI và dữ liệu | Thành phần đó có biết View? | Cập nhật UI |
 |---|---|---|---|
-| MVC | Controller | Có; trên Android, Activity thường vừa là View vừa là Controller | Controller gán thẳng vào View |
+| MVC gốc | Controller (chỉ xử lý input) | Có, đi cặp với một View | View quan sát Model và tự vẽ lại |
+| MVC kiểu Android | Activity / Fragment | Nó **chính là** View | Activity gán thẳng dữ liệu vào widget |
 | **MVP** | Presenter | **Có, qua interface `View`** | Presenter gọi hàm của View |
 | MVVM | ViewModel | Không | View quan sát state của ViewModel |
-| MVI | ViewModel / Store, reducer | Không | Như MVVM, nhưng mọi thay đổi đi qua một reducer |
+| MVI | ViewModel / Store, reducer | Không | Như MVVM, nhưng mọi thay đổi (Intent và kết quả side effect) đi qua một reducer duy nhất, state bất biến |
 
 So với [MVC](mvc.md) kiểu Android, MVP thêm đúng một vai (Presenter) để kéo logic UI ra khỏi Activity. So với [MVVM](mvvm.md), khác biệt cốt lõi là **ai giữ tham chiếu tới ai**: Presenter giữ View nên phải attach, detach và tự sống qua vòng đời; ViewModel không giữ gì nên những việc đó biến mất.
 
@@ -590,7 +595,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 // Sai: Fragment lọc và rẽ nhánh trước khi hiện
 override fun showArticles(articles: List<Article>) {
     val visible = articles.filter { !it.isHidden }
-    if (visible.isEmpty()) showOnly { it.emptyText } else adapter.submitList(visible)
+    if (visible.isEmpty()) showOnly { it.emptyText } else adapter?.submitList(visible)
 }
 ```
 
@@ -603,7 +608,7 @@ override fun showArticles(articles: List<Article>) {
 - **Thập niên 1990:** MVP xuất hiện ở IBM và Taligent (liên doanh của Apple, IBM, HP). Mike Potel, CTO của Taligent, mô tả nó trong bài "MVP: Model-View-Presenter, The Taligent Programming Model for C++ and Java" (1996).
 - **Khoảng 2000:** Andy Bower và Blair McGlashan dựng framework UI của Dolphin Smalltalk trên MVP ("Twisting the Triad"), phổ biến pattern ra ngoài Taligent.
 - **11/07/2006:** Martin Fowler "nghỉ hưu" tên MVP trong bộ pattern của mình, tách thành hai pattern Supervising Controller và Passive View.
-- **05/2015:** Hannes Dorfmann phát hành Mosby 1.0, thư viện MVP phổ biến cho Android; cùng giai đoạn có Nucleus, Moxy và nhiều cách tự viết.
+- **04/2015:** Hannes Dorfmann phát hành Mosby 1.0, thư viện MVP phổ biến cho Android; cùng giai đoạn có Nucleus, Moxy và nhiều cách tự viết.
 - **2016:** Google công bố Android Architecture Blueprints: cùng một app ghi chú viết theo nhiều nhánh `todo-mvp`, `todo-mvp-clean`, `todo-mvp-dagger`, `todo-mvp-rxjava`, `todo-mvp-loaders`, `todo-databinding`. MVP thành kiến trúc "gần chính thức" của cộng đồng.
 - **Google I/O 2017:** Android Architecture Components ra mắt; `ViewModel` giải quyết việc sống qua xoay màn hình mà MVP phải tự lo, và "Guide to app architecture" chọn MVVM.
 - **2018 (Android 9, API 28):** Loader, một cách giữ Presenter qua xoay màn hình, bị deprecated; docs khuyên dùng `ViewModel` và `LiveData`.
@@ -624,7 +629,7 @@ override fun showArticles(articles: List<Article>) {
 - **Học tiếp:**
   - [MVVM](mvvm.md): View quan sát một `uiState`, không còn attach/detach.
   - [MVI](mvi.md): mọi thay đổi state đi qua một reducer.
-  - [Clean Architecture](clean_architecture.md): chia Model thành data layer và domain layer.
+  - [Clean Architecture](clean_architecture.md): đặt nghiệp vụ ở giữa, data layer phụ thuộc domain qua interface.
 
 ## Tham khảo
 

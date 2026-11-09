@@ -84,7 +84,7 @@ override fun getView(position: Int, convertView: View?, parent: ViewGroup): View
 | Animation thêm, xoá, đổi item | `ItemAnimator` (mặc định `DefaultItemAnimator`) |
 | Giữ và cấp lại ViewHolder | `RecyclerView.Recycler` và `RecycledViewPool` |
 
-Các loại `LayoutManager` và `ItemDecoration` được học ở 8.5.1 Layouts (chưa có bài). Bài này tập trung vào Adapter và ViewHolder.
+Ranh giới với 8.5.1 Layouts (chưa có bài): bài này dạy Adapter, ViewHolder, `DiffUtil`, `ListAdapter`, view type, stable id và payload; 8.5.1 chỉ dạy RecyclerView ở góc độ bố cục, gồm `LayoutManager`, `ItemDecoration` và `ItemAnimator`.
 
 ### `RecyclerView.Adapter` và vòng đời ViewHolder
 
@@ -176,7 +176,7 @@ binding.contactList.adapter = ContactAdapter(contacts) { contact -> openContactD
 
 ViewHolder giữ **binding** của item thay cho từng field `TextView`: class binding đã giữ sẵn mọi View có id, đúng việc mà ViewHolder thời `ListView` phải tự làm ([View Binding](../../session_06/view_binding.md), mục "Ví dụ thực tế", bài toán 2). Click listener lấy vị trí bằng `bindingAdapterPosition` tại **lúc bấm**, vì vị trí của một holder thay đổi mỗi lần nó được tái sử dụng.
 
-**Kết quả:** trên điện thoại hiện khoảng 12 dòng, Logcat có chừng 15 đến 20 dòng `create` rồi dừng hẳn; cuộn hết 1.000 liên hệ thì `bind` vượt 1.000 còn `create` không tăng.
+**Kết quả:** trên điện thoại hiện khoảng 12 dòng, số dòng `create` trong Logcat chỉ nhỉnh hơn số dòng nhìn thấy (thêm vài holder cho cache và dòng đang trượt vào) rồi gần như dừng; cuộn hết 1.000 liên hệ thì `bind` lên khoảng 1.000 còn `create` hầu như không tăng.
 
 ### Bind là ghi đè toàn bộ: trạng thái của holder tái sử dụng
 
@@ -191,7 +191,7 @@ fun bind(product: Product) {
 }
 ```
 
-Viết `if (product.stock == 0) outOfStockLabel.isVisible = true` mà không có nhánh ngược lại là để sót "tấm nhãn của bức cũ": holder vừa hiện một sản phẩm hết hàng sẽ mang nhãn đó sang sản phẩm còn hàng. Đây chính là ví dụ mở đầu của [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md), mục "Vấn đề cần giải quyết". Tài nguyên không gán lại được bằng một dòng (request tải ảnh, animation đang chạy) thì huỷ trong `onViewRecycled()`; ví dụ với Glide là `Glide.with(view).clear(imageView)`.
+Viết `if (product.stock == 0) outOfStockLabel.isVisible = true` mà không có nhánh ngược lại là để sót "tấm nhãn của bức cũ": holder vừa hiện một sản phẩm hết hàng sẽ mang nhãn đó sang sản phẩm còn hàng. Đây chính là ví dụ mở đầu của [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md), mục "Vấn đề cần giải quyết". Tài nguyên không gán lại được bằng một dòng (request tải ảnh, animation đang chạy) thì huỷ trong `onViewRecycled()`; ví dụ với Coil là `imageView.dispose()`.
 
 Item dùng Data Binding thì gọi thêm `executePendingBindings()` cuối `onBindViewHolder()`, để View được gán ngay trước khi RecyclerView đo item ([Data Binding](../../session_06/data_binding.md), mục "Từ layout đến class binding: build-time và thời điểm cập nhật").
 
@@ -202,7 +202,7 @@ Khi dữ liệu đổi, adapter phải báo cho RecyclerView **cái gì** đổi
 - **`notifyDataSetChanged()`:** "mọi thứ có thể đã đổi". RecyclerView bind lại mọi holder đang hiện và không chạy animation; lint cảnh báo hàm này.
 - **`notifyItemInserted/Removed/Changed/Moved(position)`:** chính xác và có animation, nhưng tự tính đúng các vị trí là việc dễ sai; báo sai thì crash `IndexOutOfBoundsException: Inconsistency detected`.
 
-**`DiffUtil`** tính hộ việc đó: so list cũ với list mới bằng thuật toán của Eugene Myers và sinh ra dãy thao tác insert/remove/change/move tối thiểu. Nó cần một `DiffUtil.ItemCallback<T>` trả lời hai câu hỏi:
+**`DiffUtil`** tính hộ việc đó: so list cũ với list mới bằng thuật toán của Eugene Myers, cho ra số thao tác insert/remove ít nhất; thuật toán này không xử lý item dời chỗ, nên `DiffUtil` chạy thêm một lượt để nhận ra các move. Item cùng id nhưng khác nội dung thành thao tác change. Nó cần một `DiffUtil.ItemCallback<T>` trả lời hai câu hỏi:
 
 - **`areItemsTheSame(old, new)`:** hai phần tử có phải **cùng một item** không (so id).
 - **`areContentsTheSame(old, new)`:** nếu cùng item, **nội dung** hiển thị có giống không (thường so `==` của `data class`).
@@ -211,7 +211,7 @@ Khi dữ liệu đổi, adapter phải báo cho RecyclerView **cái gì** đổi
 
 #### Ví dụ: danh sách việc cần làm, đánh dấu xong và xoá
 
-**Bài toán:** danh sách việc cần làm; bấm checkbox thì việc đó mờ đi, vuốt xoá thì dòng trượt mất. Chỉ dòng bị đổi được bind lại, và có animation, không làm cả danh sách nhấp nháy.
+**Bài toán:** danh sách việc cần làm; bấm checkbox thì việc đó mờ đi, bấm nút xoá thì dòng trượt mất. Chỉ dòng bị đổi được bind lại, và có animation, không làm cả danh sách nhấp nháy.
 
 > [!NOTE]
 > Kiến thức dùng trước: `StateFlow` (dòng dữ liệu luôn có giá trị hiện tại) và `collect` theo lifecycle, học ở [Flow](observer/flow.md); cách ViewModel đưa state ra cho Fragment đã có ở [MVVM](../architecture/mvvm.md), mục "UI state và luồng dữ liệu một chiều".
@@ -250,7 +250,8 @@ object TaskDiffCallback : DiffUtil.ItemCallback<Task>() {
 
 // TaskAdapter.kt
 class TaskAdapter(
-    private val onToggle: (Task) -> Unit
+    private val onToggle: (Task) -> Unit,
+    private val onDelete: (Task) -> Unit
 ) : ListAdapter<Task, TaskAdapter.TaskViewHolder>(TaskDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TaskViewHolder(
@@ -266,6 +267,10 @@ class TaskAdapter(
             binding.doneCheckBox.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) onToggle(getItem(position))         // (1)
+            }
+            binding.deleteButton.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) onDelete(getItem(position))
             }
         }
 
@@ -292,7 +297,7 @@ class TaskListViewModel : ViewModel() {
 }
 
 // TaskListFragment.kt (trong onViewCreated)
-val adapter = TaskAdapter(onToggle = viewModel::onToggle)
+val adapter = TaskAdapter(onToggle = viewModel::onToggle, onDelete = { task -> viewModel.onDelete(task.id) })
 binding.taskList.adapter = adapter
 viewLifecycleOwner.lifecycleScope.launch {
     viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -301,7 +306,7 @@ viewLifecycleOwner.lifecycleScope.launch {
 }
 ```
 
-**Kết quả:** đặt log trong `onBindViewHolder`: bấm checkbox một việc chỉ in một dòng log với đúng vị trí đó. Xoá một việc thì dòng trượt ra và các dòng dưới dồn lên có animation.
+**Kết quả:** đặt log trong `onBindViewHolder`: bấm checkbox một việc chỉ in một dòng log với đúng vị trí đó. Bấm nút xoá thì `DiffUtil` sinh một thao tác remove: dòng trượt ra và các dòng dưới dồn lên có animation.
 
 ### Nhiều view type
 
@@ -319,9 +324,9 @@ init { setHasStableIds(true) }                                    // phải gọ
 override fun getItemId(position: Int): Long = contacts[position].id
 ```
 
-Có stable id, RecyclerView nhận ra "item này vẫn là item đó" ngay cả khi adapter chỉ gọi `notifyDataSetChanged()`, nên giữ được animation và tìm lại đúng holder. `setHasStableIds()` gọi sau khi adapter đã gắn vào RecyclerView thì ném `IllegalStateException`. Với `ListAdapter`, `areItemsTheSame()` đã làm việc nhận diện item, nên thường không cần stable id.
+Có stable id, RecyclerView nhận ra "item này vẫn là item đó" ngay cả khi adapter chỉ gọi `notifyDataSetChanged()`, nên tìm lại đúng holder và dựng được animation thay đổi cấu trúc. Nhưng mọi holder đang hiện vẫn bị bind và layout lại, vì `notifyDataSetChanged()` không nói nội dung nào đổi. `setHasStableIds()` gọi sau khi adapter đã gắn vào RecyclerView thì ném `IllegalStateException`. Với `ListAdapter`, `areItemsTheSame()` đã làm việc nhận diện item, nên thường không cần stable id.
 
-**Payload** là cách nói "item này đổi, nhưng **chỉ phần này**". Mặc định một thao tác "change" bind lại cả holder và chạy animation crossfade cả dòng. Nếu `DiffUtil.ItemCallback.getChangePayload()` trả về một object khác `null`, RecyclerView gọi bản `onBindViewHolder(holder, position, payloads)` với object đó, và dùng lại chính holder đang hiện thay vì crossfade.
+**Payload** là cách nói "item này đổi, nhưng **chỉ phần này**". RecyclerView luôn gọi bản ba tham số `onBindViewHolder(holder, position, payloads)`; bản mặc định của nó gọi sang bản hai tham số, nên mặc định một thao tác "change" bind lại cả holder và chạy animation crossfade cả dòng. Nếu `DiffUtil.ItemCallback.getChangePayload()` trả về một object khác `null`, object đó nằm trong `payloads`, và `DefaultItemAnimator` dùng lại chính holder đang hiện thay vì crossfade.
 
 #### Ví dụ: nút thích trên feed ảnh
 
@@ -647,7 +652,7 @@ viewModel.tasks.collect { tasks -> binding.taskList.adapter = TaskAdapter(tasks)
   - [Working with Thread](../../session_05/working_with_thread.md): ngân sách frame của main thread.
   - [Builder Pattern](builder_pattern.md): `buildList` dùng để dựng danh sách item.
 - **Học tiếp:**
-  - 8.5.1 Layouts (chưa có bài): các `LayoutManager`, `ItemDecoration`.
+  - 8.5.1 Layouts (chưa có bài): RecyclerView ở góc độ bố cục, gồm `LayoutManager`, `ItemDecoration`, `ItemAnimator`.
   - [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md) và 9.5.4 Lazy Column (chưa có bài): danh sách trong Compose không cần ViewHolder.
   - 8.2.4 Coil (chưa có bài): tải ảnh trong item.
 
