@@ -2128,7 +2128,7 @@ dependencies {
       'Áp dụng được thứ tự học 5.1 Data Store → 5.2 Thread → 5.3 Networking dựa trên mối liên hệ giữa ba phần.'
     ],
     knowledgeGap: 'Bỏ qua phần tổng quan khiến người học mất cái nhìn toàn cục về luồng dữ liệu của một app thực tế, dẫn đến chọn sai công cụ lưu trữ, dính ANR vì không hiểu thread, và mù mờ về xử lý lỗi mạng.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '10 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -2306,7 +2306,7 @@ dependencies {
   <li><strong>Khởi động tư duy async</strong>: lần đầu bạn đối mặt với callback, background thread, và câu hỏi "kết quả trả về khi nào?". Ngay trong 5.1 bạn đã dùng <code>suspend</code>/<code>Flow</code> ở mức cơ bản (xem ghi chú bên dưới).</li>
 </ul>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước: coroutine và Flow.</strong> Các bài của Session 05 dùng coroutine và Flow ở mức tối thiểu để ví dụ chạy được: gọi một hàm <code>suspend</code> bên trong <code>viewModelScope.launch { }</code>, nhận dữ liệu bằng <code>Flow.collect</code>. Coroutine là cách viết code bất đồng bộ theo kiểu tuần tự, tạm dừng được mà không chặn thread; cơ chế của nó được học ở 8.4.3 Coroutines (chưa có bài). Flow là một luồng giá trị bất đồng bộ phát ra theo thời gian; cơ chế của nó được học ở 7.1.4.2 Flow (chưa có bài). Session 05 không giải thích cơ chế bên dưới của hai kiến thức này.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước: coroutine và Flow.</strong> Các bài của Session 05 dùng coroutine và Flow ở mức tối thiểu để ví dụ chạy được: gọi một hàm <code>suspend</code> bên trong <code>viewModelScope.launch { }</code>, nhận dữ liệu bằng <code>Flow.collect</code>. Coroutine là cách viết code bất đồng bộ theo kiểu tuần tự, tạm dừng được mà không chặn thread; cơ chế của nó được học ở 8.4.3 Coroutines (chưa có bài). Flow là một luồng giá trị bất đồng bộ phát ra theo thời gian; cơ chế của nó được học ở <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>. Session 05 không giải thích cơ chế bên dưới của hai kiến thức này.</div></div>
 
 <h2>Session 05 học những gì?</h2>
 
@@ -10299,7 +10299,7 @@ Object.assign(ANDROID_CONTENT, {
       'Xử lý được các lỗi phổ biến: fetch API lặp, đưa dữ liệu lớn vào saved state, lạm dụng android:configChanges.'
     ],
     knowledgeGap: 'Không hiểu State Changes sẽ khiến ứng dụng mất dữ liệu khi xoay màn hình, mất luôn cả state quan trọng khi process bị kill, fetch API lặp lại gây lãng phí băng thông, và phải dùng android:configChanges như "miếng vá" thay vì xử lý đúng bản chất.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -10655,7 +10655,7 @@ Object.assign(ANDROID_CONTENT, {
 
 <p>Loại dữ liệu nguy hiểm nhất khi xoay màn hình là <strong>kết quả API</strong>: fetch lại trong <code>onCreate</code> thì mỗi lần xoay là một lần gọi mạng. ViewModel giải quyết điều này vì nó được cất trong <code>ViewModelStore</code>, và store được chuyển sang Activity mới khi Activity bị tạo lại do configuration change. Dữ liệu đã tải vẫn còn, Activity mới không gọi lại API. Store chỉ nằm trong bộ nhớ, nên ViewModel <strong>mất khi process chết</strong>.</p>
 
-<p>Cơ chế giữ store qua configuration change, vòng đời và <code>onCleared()</code>, scope, factory và cách tải dữ liệu lười (<code>stateIn</code>, không launch trong <code>init</code>) ở <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>. <code>StateFlow</code> và <code>stateIn</code> dùng trong bài là luồng dữ liệu quan sát được, học ở 7.1.4.2 Flow (chưa có bài).</p>
+<p>Cơ chế giữ store qua configuration change, vòng đời và <code>onCleared()</code>, scope, factory và cách tải dữ liệu lười (<code>stateIn</code>, không launch trong <code>init</code>) ở <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>. <code>StateFlow</code> và <code>stateIn</code> dùng trong bài là luồng dữ liệu quan sát được, học ở <a href="../../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>.</p>
 
 <p>Code của <code>products</code> (pipeline <code>stateIn</code> khởi động lười) ở mục "Ví dụ thực tế", bước (1) và (3).</p>
 
@@ -11082,7 +11082,7 @@ class ProductListActivity : AppCompatActivity() {
   <li><a href="../fragment/state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a> — cách Fragment lưu/khôi phục state riêng.</li>
   <li><a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: cơ chế store, vòng đời, scope, factory, <code>viewModelScope</code>.</li>
   <li>9.2 State and State Hoisting (chưa có bài), gồm 9.2.1 MutableState và 9.2.2 Remember and rememberSaveable: <code>remember</code>, <code>rememberSaveable</code>, <code>mutableStateOf</code> và Saver.</li>
-  <li><a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.</li>
+  <li><a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và <a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.</li>
 </ul></li>
 </ul>
 
@@ -17504,7 +17504,7 @@ sequenceDiagram
       'Nhận diện được các lỗi phổ biến khi làm việc với FragmentManager và cách tránh.'
     ],
     knowledgeGap: 'Không hiểu FragmentManager dẫn đến crash IllegalStateException khi commit sau onSaveInstanceState, Fragment overlapping khi dùng sai add/replace, memory leak do communication sai pattern, và không kiểm soát được Back Stack trong các trường hợp phức tạp.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '35 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -18316,7 +18316,7 @@ class FragmentA : Fragment() {
 
 <h3>FragmentManager trong kiến trúc app</h3>
 
-<p>Phần này dùng trước MVVM (<a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>) và Clean Architecture (7.2.5 Clean Architecture, chưa có bài): app chia thành Presentation, Domain, Data layer, mỗi layer chỉ phụ thuộc layer bên trong.</p>
+<p>Phần này dùng trước MVVM (<a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>) và Clean Architecture (<a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>): app chia thành Presentation, Domain, Data layer, mỗi layer chỉ phụ thuộc layer bên trong.</p>
 
 <h4>FragmentManager trong MVVM + Clean Architecture</h4>
 
@@ -18507,7 +18507,7 @@ class HomeUseCase(
 
 <h4>FragmentManager và Dependency Injection</h4>
 
-<p>Hilt là thư viện Dependency Injection, được học ở 7.1.5.3 Hilt (chưa có bài).</p>
+<p>Hilt là thư viện Dependency Injection, được học ở <a href="../../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>.</p>
 
 <pre data-lang="kotlin"><code>@Module
 @InstallIn(ActivityComponent::class)
@@ -19156,8 +19156,8 @@ Activity
 <ul>
   <li><a href="dialog_and_dialogfragment.md" target="_blank" rel="noopener">Dialog and DialogFragment</a>: DialogFragment được <code>show()</code> qua FragmentManager, hoặc khai báo thành <code>&lt;dialog&gt;</code> destination của Navigation Component.</li>
   <li><a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: ViewModel dùng cho Shared ViewModel giữa các Fragment.</li>
-  <li><a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và 7.2.5 Clean Architecture (chưa có bài): vị trí của FragmentManager trong Presentation Layer.</li>
-  <li>7.1.5.3 Hilt (chưa có bài): inject <code>FragmentManager</code> qua <code>ActivityComponent</code>.</li>
+  <li><a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và <a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: vị trí của FragmentManager trong Presentation Layer.</li>
+  <li><a href="../../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>: inject <code>FragmentManager</code> qua <code>ActivityComponent</code>.</li>
   <li><a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">9.0 Jetpack Compose Overview</a>: Compose và Navigation Compose, nơi điều hướng không còn đi qua FragmentManager.</li>
 </ul></li>
 </ul>
@@ -19200,7 +19200,7 @@ Activity
       'Triển khai được dialog trong Compose (AlertDialog, Dialog, ModalBottomSheet).'
     ],
     knowledgeGap: 'Dùng AlertDialog trực tiếp trong Fragment/Activity mà không hiểu lifecycle sẽ gây window leak khi xoay màn hình, crash khi truy cập context bị destroy, và mất dialog state khi configuration change. Không biết Fragment Result API dẫn đến coupling cao giữa dialog và Activity/Fragment.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '35 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -19266,7 +19266,7 @@ AlertDialog.Builder(this)
 
 <h2>Cách hoạt động</h2>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ dùng tối thiểu vài kiến thức của Session sau: - ViewBinding (class sinh ra từ layout để truy cập View an toàn): <a href="../../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>. - ViewModel (giữ state qua configuration change) và <code>activityViewModels()</code>: <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; phạm vi <code>viewModels()</code> / <code>activityViewModels()</code> ở <a href="state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a>. - <code>StateFlow</code> và coroutine (<code>lifecycleScope</code>, <code>repeatOnLifecycle</code>): 7.1.4.2 Flow (chưa có bài), 8.4.3 Coroutines (chưa có bài); mẫu collect an toàn trong Fragment ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>. - Composable và state của Compose (<code>remember</code>, <code>rememberSaveable</code>): <a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, 9.2.2 Remember and rememberSaveable (chưa có bài).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ dùng tối thiểu vài kiến thức của Session sau: - ViewBinding (class sinh ra từ layout để truy cập View an toàn): <a href="../../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>. - ViewModel (giữ state qua configuration change) và <code>activityViewModels()</code>: <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; phạm vi <code>viewModels()</code> / <code>activityViewModels()</code> ở <a href="state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a>. - <code>StateFlow</code> và coroutine (<code>lifecycleScope</code>, <code>repeatOnLifecycle</code>): <a href="../../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, 8.4.3 Coroutines (chưa có bài); mẫu collect an toàn trong Fragment ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>. - Composable và state của Compose (<code>remember</code>, <code>rememberSaveable</code>): <a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, 9.2.2 Remember and rememberSaveable (chưa có bài).</div></div>
 
 <h3>Kiến trúc tổng thể</h3>
 
@@ -20439,7 +20439,7 @@ class ListFragment : Fragment() {
 
 <h3>Dialog xác nhận gọi ViewModel của Fragment cha (MVVM + Clean Architecture)</h3>
 
-<p>DialogFragment chỉ thuộc Presentation Layer: nó hiển thị dialog và thu thập input, rồi giao việc cho ViewModel. MVVM và Clean Architecture được học ở <a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và 7.2.5 Clean Architecture (chưa có bài).</p>
+<p>DialogFragment chỉ thuộc Presentation Layer: nó hiển thị dialog và thu thập input, rồi giao việc cho ViewModel. MVVM và Clean Architecture được học ở <a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và <a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>.</p>
 
 <div class="dd-diagram" data-dd="dlg-layers">
 <div class="dd-svg dd-svg-dark">
@@ -20981,7 +20981,7 @@ class DeleteItemUseCase(
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="../../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>, <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</li>
-  <li><a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, 7.2.5 Clean Architecture (chưa có bài): vị trí của DialogFragment trong Presentation Layer.</li>
+  <li><a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, <a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: vị trí của DialogFragment trong Presentation Layer.</li>
   <li><a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và 9.2.2 Remember and rememberSaveable (chưa có bài): nền cho dialog trong Compose.</li>
 </ul></li>
 </ul>
@@ -21025,7 +21025,7 @@ class DeleteItemUseCase(
       'Xử lý được các lỗi phổ biến như ANR, memory leak, crash do giới hạn background của Android 8, 12, 14 và 15.'
     ],
     knowledgeGap: 'Xem Service như "chạy ngầm mãi mãi" là hiểu sai bản chất. Android giới hạn chặt chẽ background execution từ Android 8+. Không hiểu các giới hạn này dẫn đến app bị kill, crash, hoặc vi phạm policy Play Store.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -22694,7 +22694,7 @@ WorkManager.getInstance(context)
 <ul>
   <li><a href="../../../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: main thread và ANR, lý do Service phải đưa việc nặng sang thread khác.</li>
   <li>8.4.3 Coroutines (chưa có bài): <code>CoroutineScope</code>, <code>Dispatchers.IO</code> dùng trong Service.</li>
-  <li>7.1.4.2 Flow (chưa có bài): Flow/SharedFlow để Service báo kết quả cho UI.</li>
+  <li><a href="../../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>: Flow/SharedFlow để Service báo kết quả cho UI.</li>
   <li>8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài): Notification bắt buộc của Foreground Service.</li>
 </ul></li>
 </ul>
@@ -22745,7 +22745,7 @@ WorkManager.getInstance(context)
       'Nhận diện được các lỗi tích hợp phổ biến như version mismatch, thiếu google-services.json, API Key sai.'
     ],
     knowledgeGap: 'Nhiều người nhầm lẫn Google Play Services với Firebase SDK, không hiểu vì sao app crash trên thiết bị không có GMS. Không nắm được cơ chế GMS tự cập nhật và sự phụ thuộc của Firebase SDK vào GMS dẫn đến lỗi tích hợp, crash runtime, và app bị từ chối trên Play Store.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -23383,7 +23383,7 @@ WorkManager.getInstance(context)
 
 <h3>Vị trí trong Clean Architecture / MVVM</h3>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục 7.2.5 Clean Architecture (chưa có bài). Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục <a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>. Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.</div></div>
 
 <p>Google Play Services và Firebase là SDK bên ngoài, nên nằm ở <strong>Data Layer</strong>, bên trong các <code>*DataSource</code>: một DataSource cho Firebase (FCM, Auth, Firestore, Crashlytics, Analytics), một cho API của GMS (Location, Maps).</p>
 
@@ -24629,7 +24629,7 @@ override fun onMapReady(map: GoogleMap) {
   <li>4.2.3.3 Advertisements, bắt đầu từ <a href="advertisements/overview.md" target="_blank" rel="noopener">AdMob Overview</a>: Google Mobile Ads SDK; cách đặt tầng cho quảng cáo ở <a href="advertisements/ads_architecture.md" target="_blank" rel="noopener">Ads trong kiến trúc app</a>.</li>
   <li>8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài): notification channel, <code>POST_NOTIFICATIONS</code>, <code>NotificationCompat</code> dùng trong ví dụ FCM.</li>
   <li>8.4.3 Coroutines (chưa có bài): <code>suspend</code>, <code>await()</code>, <code>lifecycleScope</code> dùng trong các ví dụ Auth, Remote Config, Location.</li>
-  <li>7.2.5 Clean Architecture (chưa có bài) và 7.1.5.3 Hilt (chưa có bài): chia tầng và DI binding để thay DataSource GMS bằng HMS.</li>
+  <li><a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a> và <a href="../../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>: chia tầng và DI binding để thay DataSource GMS bằng HMS.</li>
 </ul></li>
 </ul>
 
@@ -27890,7 +27890,7 @@ class MyApplication : Application() {
       'Nhận diện được các cách đặt ad sai tầng (SDK trong ViewModel, ad trong Domain, ViewModel giữ Activity).'
     ],
     knowledgeGap: 'Nhiều người gọi SDK quảng cáo thẳng trong Activity hoặc ViewModel, khiến không test được, không đổi được ad network và dễ leak Activity.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -27992,7 +27992,7 @@ sequenceDiagram
 
 <h2>Ví dụ thực tế: xem rewarded ad để nhận xu</h2>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>@Inject</code>, <code>@HiltViewModel</code>, <code>@AndroidEntryPoint</code> là Hilt, học ở mục 7.1.5.3 Hilt (chưa có bài); <code>suspendCoroutine</code> bọc callback thành suspend function, học ở mục 8.4.3 Coroutines (chưa có bài). Ở đây chỉ cần biết Hilt tạo sẵn <code>AdManager</code> và inject vào Activity.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>@Inject</code>, <code>@HiltViewModel</code>, <code>@AndroidEntryPoint</code> là Hilt, học ở mục <a href="../../../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>; <code>suspendCoroutine</code> bọc callback thành suspend function, học ở mục 8.4.3 Coroutines (chưa có bài). Ở đây chỉ cần biết Hilt tạo sẵn <code>AdManager</code> và inject vào Activity.</div></div>
 
 <h3>Interface</h3>
 
@@ -28260,8 +28260,8 @@ fun onLevelComplete() {
 <h2>Kết nối hệ thống</h2>
 
 <ul>
-  <li><strong>Clean Architecture (7.2.5):</strong> quảng cáo là ví dụ điển hình của external dependency nằm ở Data Layer, Domain không biết nó tồn tại. Mục 7.2.5 Clean Architecture (chưa có bài).</li>
-  <li><strong>Hilt (7.1.5.3):</strong> <code>AdManager</code> là singleton được inject; khi test thay bằng bản giả. Mục 7.1.5.3 Hilt (chưa có bài).</li>
+  <li><strong>Clean Architecture (7.2.5):</strong> quảng cáo là ví dụ điển hình của external dependency nằm ở Data Layer, Domain không biết nó tồn tại. Xem <a href="../../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>.</li>
+  <li><strong>Hilt (7.1.5.3):</strong> <code>AdManager</code> là singleton được inject; khi test thay bằng bản giả. Xem <a href="../../../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>.</li>
   <li><strong>Fragment Lifecycle (4.2.2.1):</strong> <code>repeatOnLifecycle(Lifecycle.State.RESUMED)</code> là cách UI chỉ show khi foreground. Xem <a href="../../fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>.</li>
   <li><strong>Full-screen Ads (4.2.3.3.3):</strong> <code>AdManager</code> bọc đúng vòng load, show, reload ở bài đó. Xem <a href="fullscreen_ads.md" target="_blank" rel="noopener">Full-screen Ads</a>.</li>
   <li><strong>Inline Ads (4.2.3.3.2):</strong> banner, native là View nên nằm ở UI; việc có hiện hay không là state từ ViewModel. Xem <a href="inline_ads.md" target="_blank" rel="noopener">Inline Ads</a>.</li>
@@ -28572,7 +28572,7 @@ privacyButton.setOnClickListener {
       'Xử lý được các lỗi phổ biến như lỗ hổng bảo mật, leak do quên unregister, ANR trên main thread.'
     ],
     knowledgeGap: 'Nhiều developer hiểu Broadcast Receiver theo kiểu "đăng ký lắng nghe sự kiện toàn hệ thống", nhưng bỏ qua việc Android 8+ đã cắt hầu hết Static Receiver cho implicit broadcast, không biết Dynamic Receiver cần unregister đúng nơi để tránh leak, và thường dùng Broadcast để giao tiếp nội bộ trong khi Flow/EventBus là lựa chọn tốt hơn nhiều.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '35 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -28607,7 +28607,7 @@ privacyButton.setOnClickListener {
 
 <h2>Cách hoạt động</h2>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ trong bài dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>CoroutineScope</code>, <code>launch</code>, <code>Dispatchers.IO</code>, hàm <code>suspend</code>) là cách chạy việc bất đồng bộ ngoài main thread: 8.4.3 Coroutines (chưa có bài). - WorkManager (thư viện Jetpack lên lịch việc nền, lưu work lại và tự lên lịch lại sau reboot): <a href="../services/android_service.md" target="_blank" rel="noopener">Android Service</a>, mục "WorkManager — Lựa chọn hiện đại cho background task". - Room (database của app) chỉ xuất hiện sau <code>ReminderRepository</code>: <a href="../../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>. - Flow (<code>callbackFlow</code>, <code>StateFlow</code>, <code>SharedFlow</code>): 7.1.4.2 Flow (chưa có bài). - ViewModel và Hilt (<code>@HiltViewModel</code>, <code>@Inject</code>, <code>@Module</code>): <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, 7.1.5.3 Hilt (chưa có bài). - MVVM, MVI và Clean Architecture (app chia thành Presentation, Domain, Data layer): <a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, 7.2.4 MVI và 7.2.5 Clean Architecture (chưa có bài).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ trong bài dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>CoroutineScope</code>, <code>launch</code>, <code>Dispatchers.IO</code>, hàm <code>suspend</code>) là cách chạy việc bất đồng bộ ngoài main thread: 8.4.3 Coroutines (chưa có bài). - WorkManager (thư viện Jetpack lên lịch việc nền, lưu work lại và tự lên lịch lại sau reboot): <a href="../services/android_service.md" target="_blank" rel="noopener">Android Service</a>, mục "WorkManager — Lựa chọn hiện đại cho background task". - Room (database của app) chỉ xuất hiện sau <code>ReminderRepository</code>: <a href="../../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>. - Flow (<code>callbackFlow</code>, <code>StateFlow</code>, <code>SharedFlow</code>): <a href="../../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>. - ViewModel và Hilt (<code>@HiltViewModel</code>, <code>@Inject</code>, <code>@Module</code>): <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, <a href="../../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>. - MVVM, MVI và Clean Architecture (app chia thành Presentation, Domain, Data layer): <a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, <a href="../../../session_07/architecture/mvi.md" target="_blank" rel="noopener">MVI</a> và <a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>.</div></div>
 
 <h3>Lifecycle: Cực kỳ ngắn</h3>
 
@@ -29310,11 +29310,11 @@ class NetworkStatusViewModel @Inject constructor(
             )
 }</code></pre>
 
-<h4>UI Layer: Fragment với MVI</h4>
+<h4>UI Layer: ViewModel với một UiState (MVVM)</h4>
 
-<p>Nếu dùng MVI, bạn sẽ map network status thành một phần của <strong>UiState</strong>:</p>
+<p>ViewModel map network status thành một phần của <strong>UiState</strong>, theo <a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> với luồng dữ liệu một chiều. Đây chưa phải MVI: không có Intent và reducer, các hàm tự gọi <code>_uiState.update</code> (khác biệt ở <a href="../../../session_07/architecture/mvi.md" target="_blank" rel="noopener">MVI</a>). Code giữ <code>launch</code> trong <code>init</code> cho ngắn; app thật nên khởi động lười bằng <code>stateIn</code>, như <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, mục "Tải dữ liệu: lười, không launch trong init".</p>
 
-<pre data-lang="kotlin"><code>// MVI State
+<pre data-lang="kotlin"><code>// UI state của màn hình
 data class HomeUiState(
     val posts: List&lt;Post&gt; = emptyList(),
     val isLoading: Boolean = false,
@@ -29322,7 +29322,7 @@ data class HomeUiState(
     val errorMessage: String? = null
 )
 
-// HomeViewModel với MVI
+// HomeViewModel: một uiState (MVVM + luồng dữ liệu một chiều)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val connectivityObserver: ConnectivityObserver,
@@ -30181,8 +30181,8 @@ connectivityManager.registerNetworkCallback(request, networkCallback)</code></pr
 <ul>
   <li><a href="../content_provider.md" target="_blank" rel="noopener">Content Provider</a>: Application Component tiếp theo trong mục 4.2.</li>
   <li><a href="../../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>, mục "Quản lý trạng thái kết nối ở tầng OS: ConnectivityManager &amp; NetworkCallback": API hiện đại hơn để theo dõi mạng.</li>
-  <li>7.1.4.2 Flow (chưa có bài): <code>SharedFlow</code>/<code>StateFlow</code> thay cho broadcast nội bộ.</li>
-  <li>7.1.5.3 Hilt (chưa có bài), 7.2.4 MVI và 7.2.5 Clean Architecture (chưa có bài): kiến trúc mà phần "Ví dụ thực tế" dựa vào.</li>
+  <li><a href="../../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>: <code>SharedFlow</code>/<code>StateFlow</code> thay cho broadcast nội bộ.</li>
+  <li><a href="../../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>, <a href="../../../session_07/architecture/mvi.md" target="_blank" rel="noopener">MVI</a> và <a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: kiến trúc mà phần "Ví dụ thực tế" dựa vào.</li>
   <li><a href="../../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: nền cho test Robolectric và test ViewModel với fake.</li>
 </ul></li>
 </ul>
@@ -30230,7 +30230,7 @@ connectivityManager.registerNetworkCallback(request, networkCallback)</code></pr
       'Xử lý được ANR do query trên Main Thread, leak do quên đóng Cursor, và biết khi nào không nên dùng Content Provider.'
     ],
     knowledgeGap: 'Nhiều developer viết code query ContentResolver trên Main Thread gây ANR, quên đóng Cursor gây resource leak, hoặc lạm dụng Content Provider cho data nội bộ trong khi Room là giải pháp đúng đắn hơn.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -30711,7 +30711,7 @@ sequenceDiagram
     Repo-&gt;&gt;MS: (8) awaitClose: unregisterContentObserver
 </div>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ví dụ dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>suspend</code>, <code>withContext(Dispatchers.IO)</code>, <code>launch</code>): chạy code bất đồng bộ không chặn thread gọi, học ở 8.4.3 Coroutines (chưa có bài). - <code>Flow</code>, <code>callbackFlow</code>, <code>StateFlow</code>, <code>stateIn</code>: luồng dữ liệu quan sát được, học ở 7.1.4.2 Flow (chưa có bài). - <code>@HiltViewModel</code>, <code>@Inject</code>: Hilt tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài); ViewModel và <code>viewModelScope</code> học ở <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ví dụ dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>suspend</code>, <code>withContext(Dispatchers.IO)</code>, <code>launch</code>): chạy code bất đồng bộ không chặn thread gọi, học ở 8.4.3 Coroutines (chưa có bài). - <code>Flow</code>, <code>callbackFlow</code>, <code>StateFlow</code>, <code>stateIn</code>: luồng dữ liệu quan sát được, học ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>. - <code>@HiltViewModel</code>, <code>@Inject</code>: Hilt tự tạo và truyền dependency, học ở <a href="../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>; ViewModel và <code>viewModelScope</code> học ở <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</div></div>
 
 <p>Permission <code>READ_MEDIA_IMAGES</code> (hoặc <code>READ_EXTERNAL_STORAGE</code> trên API ≤ 32) đã được khai báo và cấp như mục "Đọc dữ liệu từ System Provider (Client Side)".</p>
 
@@ -31023,7 +31023,7 @@ query(uri, projection, "\${MediaStore.Images.Media.DISPLAY_NAME} = ?", arrayOf(i
 <ul>
   <li><a href="../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>: lưu data nội bộ thay cho Content Provider.</li>
   <li><a href="../../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: Main Thread, ANR và vì sao query phải chạy nền.</li>
-  <li>8.4.3 Coroutines (chưa có bài), 7.1.4.2 Flow (chưa có bài), 7.1.5.3 Hilt (chưa có bài): các kiến thức dùng trước trong ví dụ.</li>
+  <li>8.4.3 Coroutines (chưa có bài), <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, <a href="../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>: các kiến thức dùng trước trong ví dụ.</li>
 </ul></li>
 </ul>
 
@@ -31827,7 +31827,7 @@ flowchart TD
       'Debug được intent filter bằng adb và tránh được các lỗi thường gặp.'
     ],
     knowledgeGap: 'Khai báo intent-filter sai khiến app không bao giờ xuất hiện trong hộp thoại chia sẻ hay mở link, bị ActivityNotFoundException, hoặc hiện sai app gây rác trải nghiệm người dùng; không hiểu luật khớp sẽ tạo filter quá rộng hoặc quá hẹp và không biết cách debug.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -32254,7 +32254,7 @@ flowchart TD
 
 <p><strong>Luồng dữ liệu:</strong> Deep Link → Activity (Presentation) → ViewModel (UI State) → Repository (Data).</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>@AndroidEntryPoint</code>/<code>@HiltViewModel</code> là annotation của Hilt (thư viện Dependency Injection), học ở 7.1.5.3 Hilt (chưa có bài); <code>ViewModel</code> và <code>viewModelScope</code> (coroutine scope gắn với ViewModel) học ở <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; <code>StateFlow</code> là luồng trạng thái quan sát được, học ở 7.1.4.2 Flow (chưa có bài).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>@AndroidEntryPoint</code>/<code>@HiltViewModel</code> là annotation của Hilt (thư viện Dependency Injection), học ở <a href="../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>; <code>ViewModel</code> và <code>viewModelScope</code> (coroutine scope gắn với ViewModel) học ở <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; <code>StateFlow</code> là luồng trạng thái quan sát được, học ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>.</div></div>
 
 <p><strong>Activity xử lý cả 2 đường (cold start + warm start):</strong> cold start đọc Intent trong <code>onCreate()</code>, warm start nhận Intent mới qua <code>onNewIntent()</code>. Khi nào hệ thống gọi <code>onNewIntent()</code> và vì sao cần <code>setIntent()</code> được giải thích ở <a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a>, mục "onNewIntent() và Launch Modes".</p>
 
@@ -32507,7 +32507,7 @@ class ShareFilterTest {
 <ul>
   <li><a href="handle_intent.md" target="_blank" rel="noopener">Handle Intent</a>: đọc dữ liệu từ Intent, <code>onNewIntent()</code> và Launch Modes.</li>
   <li><a href="push_data_event.md" target="_blank" rel="noopener">Push data and send event via Intent</a>: truyền dữ liệu và sự kiện qua Intent.</li>
-  <li><a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, 7.1.5.3 Hilt (chưa có bài): kiến trúc và công cụ mà Bài toán 4 dựa vào.</li>
+  <li><a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, <a href="../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>: kiến trúc và công cụ mà Bài toán 4 dựa vào.</li>
 </ul></li>
 </ul>
 
@@ -32546,7 +32546,7 @@ class ShareFilterTest {
       'Biết khi nào dùng Flow/SharedFlow thay cho broadcast để giao tiếp trong cùng app.'
     ],
     knowledgeGap: 'Nhầm lẫn giữa chở dữ liệu và phát sự kiện khiến developer dùng broadcast để chở object lớn hoặc dùng startActivity để báo sự kiện cho cả hệ thống; nhét object lớn vào extras gây TransactionTooLargeException; gửi broadcast implicit không setPackage hay permission khiến app khác đọc được sự kiện và dữ liệu đi kèm.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -33194,7 +33194,7 @@ context.sendBroadcast(Intent(ACTION_LOGIN).apply {
   <li><a href="../components/broadcast/broadcast_receiver.md" target="_blank" rel="noopener">Broadcast Receiver</a>: phía nhận broadcast (đăng ký, export, giới hạn Android 8+, ordered broadcast).</li>
   <li><a href="../android_manifest/tags.md" target="_blank" rel="noopener">Manifest Tags</a>: khai báo <code>&lt;permission&gt;</code> và <code>&lt;uses-permission&gt;</code> cho broadcast có permission.</li>
 </ul></li>
-  <li><strong>Học tiếp:</strong> <a href="pending_intent.md" target="_blank" rel="noopener">Pending Intent</a>: khi Intent không do app gửi ngay mà được ủy quyền cho OS/System UI kích hoạt về sau. Thay broadcast nội bộ bằng <code>SharedFlow</code> ở 7.1.4.2 Flow (chưa có bài).</li>
+  <li><strong>Học tiếp:</strong> <a href="pending_intent.md" target="_blank" rel="noopener">Pending Intent</a>: khi Intent không do app gửi ngay mà được ủy quyền cho OS/System UI kích hoạt về sau. Thay broadcast nội bộ bằng <code>SharedFlow</code> ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>.</li>
 </ul>
 
 <h2>Nguồn tham khảo</h2>
@@ -34037,7 +34037,7 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
       'Triển khai được Preferences DataStore trong MVVM + Hilt + Coroutine/Flow, kèm mã hóa dữ liệu nhạy cảm, test trên JVM và migration từ SharedPreferences.'
     ],
     knowledgeGap: 'Nắm sai bản chất SharedPreferences dẫn đến ANR khi file XML lớn, mất token khi process bị giết giữa chừng ghi apply(), lưu dữ liệu nhạy cảm dạng plaintext, khai báo nhiều DataStore trỏ cùng một file gây crash, và gọi edit không qua coroutine làm UI block.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '45 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -34092,7 +34092,7 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
 
 <p>Bài này tập trung vào hai cái đầu — là kiến thức chuẩn của lộ trình. MMKV được nhắc để bạn biết nó tồn tại khi gặp trong các dự án thực tế.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Phần DataStore dùng tối thiểu hai kiến thức của Session sau: - Coroutine (<code>suspend</code>, <code>launch</code>): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài). - <code>Flow</code>: luồng dữ liệu phát giá trị mới mỗi khi nguồn thay đổi, học ở 7.1.4.2 Flow (chưa có bài).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Phần DataStore dùng tối thiểu hai kiến thức của Session sau: - Coroutine (<code>suspend</code>, <code>launch</code>): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài). - <code>Flow</code>: luồng dữ liệu phát giá trị mới mỗi khi nguồn thay đổi, học ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>.</div></div>
 
 <h3>Đặc điểm của mô hình key-value</h3>
 
@@ -34756,7 +34756,7 @@ NotificationManagerCompat.from(context).notify(notifId, builder.build())</code><
 
 <p>Bài toán chính là lưu phiên đăng nhập bằng Preferences DataStore, tách đúng tầng UI - ViewModel - Repository. Các bài toán sau dùng lại cùng các lớp đó: chống crash khi file hỏng, bảo vệ token, chuyển dữ liệu cũ từ SharedPreferences, test và debug.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ngoài coroutine và <code>Flow</code> (đã ghi ở mục "Các giải pháp Key-Value trong Android"), ví dụ dùng tối thiểu: - <code>StateFlow</code> (<code>stateIn</code>, <code>collectAsStateWithLifecycle</code>): luồng giữ giá trị mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài). - <code>ViewModel</code> (<code>viewModelScope</code>): giữ trạng thái của màn hình, học ở <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; cách tách UI - ViewModel - Repository học ở <a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>. - Hilt (<code>@Module</code>, <code>@Provides</code>, <code>@HiltViewModel</code>, <code>hiltViewModel()</code>): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài). - Jetpack Compose (<code>@Composable</code>): viết UI bằng Kotlin, xem <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ngoài coroutine và <code>Flow</code> (đã ghi ở mục "Các giải pháp Key-Value trong Android"), ví dụ dùng tối thiểu: - <code>StateFlow</code> (<code>stateIn</code>, <code>collectAsStateWithLifecycle</code>): luồng giữ giá trị mới nhất để UI đọc, học ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>. - <code>ViewModel</code> (<code>viewModelScope</code>): giữ trạng thái của màn hình, học ở <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; cách tách UI - ViewModel - Repository học ở <a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>. - Hilt (<code>@Module</code>, <code>@Provides</code>, <code>@HiltViewModel</code>, <code>hiltViewModel()</code>): tự tạo và truyền dependency, học ở <a href="../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>. - Jetpack Compose (<code>@Composable</code>): viết UI bằng Kotlin, xem <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</div></div>
 
 <h3>Lưu phiên đăng nhập: MVVM + Hilt + Coroutine/Flow</h3>
 
@@ -35669,9 +35669,9 @@ try {
 <ul>
   <li><a href="room_architecture.md" target="_blank" rel="noopener">5.1.2 Relational Database (Room Architecture)</a> — khi dữ liệu không còn là key-value mà cần truy vấn.</li>
   <li><a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a> — cách quản lý StateFlow/Flow trong vòng đời ViewModel, <code>stateIn</code> chi tiết.</li>
-  <li><a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và 7.2.5 Clean Architecture (chưa có bài) — chuẩn hóa Data Layer, Repository pattern sâu hơn.</li>
-  <li>8.4.3 Coroutines và 7.1.4.2 Flow (chưa có bài) — hiểu sâu actor, channel, cách Flow hoạt động bên trong.</li>
-  <li>7.1.5.3 Hilt (chưa có bài) — cách Hilt cấp <code>DataStore</code> và Repository dạng Singleton như <code>DataModule</code>.</li>
+  <li><a href="../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và <a href="../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a> — chuẩn hóa Data Layer, Repository pattern sâu hơn.</li>
+  <li>8.4.3 Coroutines và <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a> — hiểu sâu actor, channel, cách Flow hoạt động bên trong.</li>
+  <li><a href="../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a> — cách Hilt cấp <code>DataStore</code> và Repository dạng Singleton như <code>DataModule</code>.</li>
   <li><a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a> — viết test cho Repository và ViewModel như phần Testing.</li>
   <li><strong>Proto DataStore</strong> — nâng cao khi cần schema nghiêm túc.</li>
 </ul></li>
@@ -35717,7 +35717,7 @@ try {
       'Triển khai được test cho DAO bằng In-Memory Database.'
     ],
     knowledgeGap: 'Nhiều lập trình viên chỉ biết dùng Room cơ bản mà không hiểu cơ chế InvalidationTracker ngầm, dẫn đến crash vì query trên main thread, vỡ dữ liệu khi thiếu @Transaction, hoặc crash production khi migrate sai schema.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -35733,7 +35733,7 @@ try {
   <li><strong>Nguy cơ Block Main Thread:</strong> Việc quản lý đa luồng thủ công khi đọc/ghi SQLite rất dễ dẫn đến lỗi ANR (Application Not Responding) hoặc xung đột tài nguyên (Database Locking).</li>
 </ol>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ trong bài dùng tối thiểu vài kiến thức của Session sau: - Coroutine (hàm <code>suspend</code>, <code>CancellationException</code>) là cách viết code bất đồng bộ theo kiểu tuần tự, tạm dừng được mà không chặn thread: 8.4.3 Coroutines (chưa có bài). - Flow (<code>Flow&lt;T&gt;</code>, <code>first()</code>) là một luồng giá trị bất đồng bộ phát ra theo thời gian: 7.1.4.2 Flow (chưa có bài). Cách Session 05 dùng hai kiến thức này ở <a href="../overview.md" target="_blank" rel="noopener">Session 05 Overview</a>. - Hilt (<code>@Inject</code>, <code>@Singleton</code>) là thư viện Dependency Injection tạo và cấp sẵn đối tượng cho class: 7.1.5.3 Hilt (chưa có bài). - Retrofit (<code>TaskApiService</code>, <code>response.isSuccessful</code>) là thư viện gọi API: 8.1.1 Retrofit (chưa có bài). - ViewModel và Clean Architecture (app chia thành UI, Domain, Data layer): <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, 7.2.5 Clean Architecture (chưa có bài).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ trong bài dùng tối thiểu vài kiến thức của Session sau: - Coroutine (hàm <code>suspend</code>, <code>CancellationException</code>) là cách viết code bất đồng bộ theo kiểu tuần tự, tạm dừng được mà không chặn thread: 8.4.3 Coroutines (chưa có bài). - Flow (<code>Flow&lt;T&gt;</code>, <code>first()</code>) là một luồng giá trị bất đồng bộ phát ra theo thời gian: <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>. Cách Session 05 dùng hai kiến thức này ở <a href="../overview.md" target="_blank" rel="noopener">Session 05 Overview</a>. - Hilt (<code>@Inject</code>, <code>@Singleton</code>) là thư viện Dependency Injection tạo và cấp sẵn đối tượng cho class: <a href="../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>. - Retrofit (<code>TaskApiService</code>, <code>response.isSuccessful</code>) là thư viện gọi API: 8.1.1 Retrofit (chưa có bài). - ViewModel và Clean Architecture (app chia thành UI, Domain, Data layer): <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, <a href="../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>.</div></div>
 
 <h2>Sau khi học xong</h2>
 
@@ -36813,7 +36813,7 @@ graph TD
   <li><a href="../../session_04/components/services/android_service.md" target="_blank" rel="noopener">Android Service</a>, mục "WorkManager — Lựa chọn hiện đại cho background task": chạy <code>syncPendingTasks()</code> ở nền.</li>
   <li><a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: nền tảng cho phần kiểm thử DAO.</li>
   <li>8.3 Local Storage (chưa có bài).</li>
-  <li>Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 7.1.5.3 Hilt, 8.1.1 Retrofit, 7.2.5 Clean Architecture (đều chưa có bài) và <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</li>
+  <li>Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 8.1.1 Retrofit (đều chưa có bài), <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, <a href="../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>, <a href="../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a> và <a href="../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</li>
 </ul></li>
 </ul>
 
@@ -36880,7 +36880,7 @@ graph TD
       'Debug được hiệu năng truy vấn bằng EXPLAIN QUERY PLAN và viết được test tự động cho Migration với MigrationTestHelper.'
     ],
     knowledgeGap: 'Nhiều lập trình viên lạm dụng fallbackToDestructiveMigration gây mất trắng dữ liệu người dùng trên production, hoặc đánh index vô tội vạ làm tê liệt hiệu năng ghi (Write Penalty) và hiểu sai thứ tự cột trong Composite Index.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -37820,7 +37820,7 @@ graph TD
   <li><a href="room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>: transaction và Flow trên Room, chạy trên cùng database mà migration đã nâng cấp.</li>
   <li><a href="../working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: Main Thread và ANR, lý do migration nặng không được chạy trên main thread.</li>
 </ul></li>
-  <li><strong>Kiến thức dùng trước:</strong> 8.4.3 Coroutines (chưa có bài) cho hàm <code>suspend</code> và <code>Dispatchers.IO</code>; 7.2.5 Clean Architecture (chưa có bài) cho sơ đồ các tầng ở trên.</li>
+  <li><strong>Kiến thức dùng trước:</strong> 8.4.3 Coroutines (chưa có bài) cho hàm <code>suspend</code> và <code>Dispatchers.IO</code>; <a href="../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a> cho sơ đồ các tầng ở trên.</li>
 </ul>
 
 <h2>Developer Curiosity Checklist</h2>
@@ -37899,14 +37899,14 @@ graph TD
       'Triển khai được Unit Test cho transaction rollback và Flow emission bằng Turbine.'
     ],
     knowledgeGap: 'Developer biết dùng Room cơ bản nhưng không hiểu vì sao transaction trong Coroutines phức tạp, vì sao Flow tự cập nhật, và hay gặp lỗi SQLiteDatabaseLockedException.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '45 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
 
 <p>Khi bạn viết <code>dao.insertUser(user)</code> bên trong một <code>suspend fun</code>, trực giác bảo bạn đó là một thao tác đơn giản. Nhưng bên dưới, một chuỗi sự kiện phức tạp xảy ra: Coroutine phải nhảy sang đúng thread đang giữ transaction, Room phải giữ thread đó suốt vòng đời transaction, và Flow phải biết chính xác khi nào cần re-query mà không làm UI recompose thừa.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Bài dùng coroutine (đoạn code có thể tạm dừng bằng <code>suspend</code> rồi chạy tiếp, có thể trên thread khác) và <code>Flow</code> (luồng dữ liệu bất đồng bộ phát nhiều giá trị theo thời gian) ở mức tối thiểu: hàm <code>suspend</code>, <code>launch</code>, <code>collect</code>. Coroutine được học ở 8.4.3 Coroutines (chưa có bài); Flow được học ở 7.1.4.2 Flow (chưa có bài).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Bài dùng coroutine (đoạn code có thể tạm dừng bằng <code>suspend</code> rồi chạy tiếp, có thể trên thread khác) và <code>Flow</code> (luồng dữ liệu bất đồng bộ phát nhiều giá trị theo thời gian) ở mức tối thiểu: hàm <code>suspend</code>, <code>launch</code>, <code>collect</code>. Coroutine được học ở 8.4.3 Coroutines (chưa có bài); Flow được học ở <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>.</div></div>
 
 <h3>Transaction của SQLite gắn với thread</h3>
 
@@ -38771,7 +38771,7 @@ fun getProductsByCategory(category: String): Flow&lt;List&lt;ProductSummary&gt;&
   <li><a href="room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>: Entity, DAO, <code>@Relation</code>, và vai trò của <code>InvalidationTracker</code> trong kiến trúc Room mà bài này đi sâu.</li>
   <li><a href="room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>: index giúp các query hẹp (giải pháp cho table-level invalidation) chạy nhanh.</li>
 </ul></li>
-  <li><strong>Kiến thức dùng trước:</strong> 8.4.3 Coroutines (chưa có bài) cho <code>suspend</code>, <code>launch</code>, cancellation; 7.1.4.2 Flow (chưa có bài) cho <code>collect</code>, <code>stateIn</code>, <code>distinctUntilChanged</code>.</li>
+  <li><strong>Kiến thức dùng trước:</strong> 8.4.3 Coroutines (chưa có bài) cho <code>suspend</code>, <code>launch</code>, cancellation; <a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a> cho <code>collect</code>, <code>stateIn</code>, <code>distinctUntilChanged</code>.</li>
   <li><strong>Liên quan:</strong>
 <ul>
   <li><a href="../working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: main thread, ANR và thread pool, nền của việc Room chặn query trên main thread và dùng executor riêng.</li>
@@ -39196,7 +39196,7 @@ Object.assign(ANDROID_CONTENT, {
       'Áp dụng được Photo Picker, SAF và FileProvider để tránh Permission denied khi đi làm.'
     ],
     knowledgeGap: 'Chọn sai chỗ lưu dẫn tới xin quyền thừa bị Play Store từ chối, crash Permission denied chỉ trên Android 13/14, dùng file:// gây FileUriExposedException, và quên handle Deny khiến app trắng màn hình khi review đi làm.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -39711,7 +39711,7 @@ Object.assign(ANDROID_CONTENT, {
 </div>
 </div>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ví dụ dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>suspend</code>, <code>withContext(Dispatchers.IO)</code>, <code>viewModelScope.launch</code>): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài). - <code>StateFlow</code>: luồng giữ trạng thái mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài). - <code>ViewModel</code>: giữ trạng thái của màn hình, học ở <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; cách tách UI - ViewModel - Repository học ở <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>. - Hilt (<code>@Inject</code>, <code>@HiltViewModel</code>, <code>hiltViewModel()</code>): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài). - Jetpack Compose (<code>@Composable</code>, <code>rememberLauncherForActivityResult</code>): viết UI bằng Kotlin, xem <a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Ví dụ dùng tối thiểu vài kiến thức của Session sau: - Coroutine (<code>suspend</code>, <code>withContext(Dispatchers.IO)</code>, <code>viewModelScope.launch</code>): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài). - <code>StateFlow</code>: luồng giữ trạng thái mới nhất để UI đọc, học ở <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>. - <code>ViewModel</code>: giữ trạng thái của màn hình, học ở <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; cách tách UI - ViewModel - Repository học ở <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>. - Hilt (<code>@Inject</code>, <code>@HiltViewModel</code>, <code>hiltViewModel()</code>): tự tạo và truyền dependency, học ở <a href="../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>. - Jetpack Compose (<code>@Composable</code>, <code>rememberLauncherForActivityResult</code>): viết UI bằng Kotlin, xem <a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</div></div>
 
 <h3>Khung chung: Repository và ViewModel</h3>
 
@@ -40602,7 +40602,7 @@ val file = File(context.filesDir, "avatar.jpg")</code></pre>
   <li><a href="../session_05/data_store/key_value.md" target="_blank" rel="noopener">Key-Value Storage</a> và <a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>: khi nào lưu file, khi nào lưu database có cấu trúc.</li>
   <li>8.3 Local Storage (chưa có bài): cache ảnh, download nền bằng WorkManager.</li>
   <li><a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: viết test cho ViewModel như phần Debug và Testing.</li>
-  <li>Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 7.1.5.3 Hilt (đều chưa có bài), <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</li>
+  <li>Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines (chưa có bài), <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, <a href="../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>, <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</li>
 </ul></li>
 </ul>
 
@@ -40651,7 +40651,7 @@ val file = File(context.filesDir, "avatar.jpg")</code></pre>
       'Nhận diện được Race Condition, Deadlock, Memory Leak khi dùng Thread và áp dụng được cách phòng tránh.'
     ],
     knowledgeGap: 'Nhiều developer chỉ dùng Coroutines mà không hiểu Thread bên dưới, dẫn đến việc dùng sai Dispatchers, rò rỉ bộ nhớ qua Handler/Thread ngầm, hoặc gặp lỗi ANR và Race Condition khó debug.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '40 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -41757,7 +41757,7 @@ thread {
   <li>8.4.1 What Sync / Async (chưa có bài), 8.4.2 Thread and Multi-Thread (chưa có bài): đồng bộ, bất đồng bộ và đa luồng ở mức ngôn ngữ.</li>
   <li>8.4.3 Coroutines (chưa có bài): Dispatchers, <code>withContext</code>, structured concurrency thay cho Handler và thread pool tự quản lý.</li>
   <li>8.4.4 RxJava, RxAndroid, RxKotlin (chưa có bài): Schedulers, một cách khác để đổi thread.</li>
-  <li>7.2.5 Clean Architecture (chưa có bài) và <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: đặt việc đổi thread ở Data Layer theo nguyên tắc Main-Safety.</li>
+  <li><a href="../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a> và <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: đặt việc đổi thread ở Data Layer theo nguyên tắc Main-Safety.</li>
 </ul></li>
 </ul>
 
@@ -41807,7 +41807,7 @@ thread {
       'Phân biệt được vai trò của OkHttp, Okio, Retrofit và Ktor Client trong tầng mạng của app.'
     ],
     knowledgeGap: 'Nhiều lập trình viên chỉ biết gọi API qua Retrofit mà không hiểu điều gì diễn ra bên dưới, để lỗi mạng cấp thấp rò lên UI, retry dồn dập làm quá tải server, hoặc chỉ check mạng sơ sài bằng INTERNET capability thay vì VALIDATED.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -42722,8 +42722,8 @@ class ProductViewModel(
   <li><a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">8.1.3 OkHttp</a>: Connection Pool, Interceptor, <code>Authenticator</code>, <code>CertificatePinner</code>, HTTP Cache.</li>
   <li><a href="../session_08/networks/okio.md" target="_blank" rel="noopener">8.1.4 Okio</a>: stream file lớn khi upload, báo tiến độ.</li>
   <li><a href="../session_08/networks/ktor_apollo.md" target="_blank" rel="noopener">8.1.5 Ktor and Apollo Android</a>: HTTP client thuần Kotlin thay Retrofit.</li>
-  <li>7.1.4.2 Flow (chưa có bài) và 8.4.3 Coroutines (chưa có bài): <code>suspend</code>, <code>retryWhen</code>, <code>callbackFlow</code> dùng trong bài.</li>
-  <li>7.2.5 Clean Architecture (chưa có bài): kiến trúc tầng của ví dụ thực tế.</li>
+  <li><a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a> và 8.4.3 Coroutines (chưa có bài): <code>suspend</code>, <code>retryWhen</code>, <code>callbackFlow</code> dùng trong bài.</li>
+  <li><a href="../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: kiến trúc tầng của ví dụ thực tế.</li>
   <li><a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>: test <code>safeApiCall</code> và tầng mạng bằng MockWebServer.</li>
 </ul></li>
 </ul>
@@ -45326,7 +45326,7 @@ Object.assign(ANDROID_CONTENT, {
       'Nhận diện được các lỗi thường gặp như inflate hai lần, attachToParent sai và field kiểu View do khác kiểu giữa các cấu hình.'
     ],
     knowledgeGap: 'Nhiều developer coi View Binding chỉ là cách viết gọn findViewById, nên giữ binding trong Fragment sau onDestroyView (giữ cả cây View cũ), inflate binding rồi lại gọi setContentView(R.layout...) khiến UI không phản hồi, hoặc không hiểu vì sao một field bỗng nullable hay có kiểu View sau khi thêm layout-land.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '16 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -45772,7 +45772,7 @@ public final class ActivityLoginBinding implements ViewBinding {
 
 <ol>
   <li><strong>Custom view ghép từ nhiều View</strong> (ô chọn số lượng có nút trừ, số, nút cộng): dùng layout gốc <code>&lt;merge&gt;</code> và <code>inflate(inflater, this)</code>. Đây là bài toán chính, code đầy đủ bên dưới.</li>
-  <li><strong>Item của danh sách:</strong> <code>ViewHolder</code> giữ binding của item, tạo bằng <code>ItemProductBinding.inflate(LayoutInflater.from(parent.context), parent, false)</code> trong <code>onCreateViewHolder</code>. Cách tổ chức ViewHolder được học ở 7.1.2 ViewHolder Pattern (chưa có bài).</li>
+  <li><strong>Item của danh sách:</strong> <code>ViewHolder</code> giữ binding của item, tạo bằng <code>ItemProductBinding.inflate(LayoutInflater.from(parent.context), parent, false)</code> trong <code>onCreateViewHolder</code>. Cách tổ chức ViewHolder được học ở <a href="../session_07/design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>.</li>
   <li><strong>Chuyển màn hình cũ từ Kotlin synthetics hoặc <code>findViewById</code>:</strong> bật <code>viewBinding</code>, xoá plugin <code>kotlin-android-extensions</code> và mọi import <code>kotlinx.android.synthetic.*</code>, tạo binding trong <code>onCreate</code>/<code>onCreateView</code>, rồi đổi <code>nameText.text = …</code> thành <code>binding.nameText.text = …</code>. Build báo lỗi ở mọi chỗ còn sót, nên chuyển từng màn và build liên tục là cách an toàn. Nếu module đang dùng <code>@Parcelize</code> qua plugin cũ thì chuyển sang plugin <code>kotlin-parcelize</code>.</li>
 </ol>
 
@@ -46042,7 +46042,7 @@ return binding.root</code></pre>
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="data_binding.md" target="_blank" rel="noopener">Data Binding</a>: binding có biểu thức và biến trong XML, mở rộng từ chính class binding ở bài này.</li>
-  <li>7.1.2 ViewHolder Pattern (chưa có bài): binding trong item của danh sách.</li>
+  <li><a href="../session_07/design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>: binding trong item của danh sách.</li>
   <li>8.5.1 Layouts (chưa có bài): <code>&lt;include&gt;</code>, <code>&lt;merge&gt;</code> và các layout dùng trong ví dụ.</li>
 </ul></li>
 </ul>
@@ -46243,7 +46243,7 @@ flowchart LR
       'Biết khi nào chọn Data Binding, View Binding hay Compose dựa trên chi phí build (kapt) và tình trạng bảo trì.'
     ],
     knowledgeGap: 'Không hiểu Data Binding chạy thế nào khiến developer quên lifecycleOwner nên UI chỉ hiện giá trị đầu tiên, dùng lifecycleOwner = this trong Fragment, viết BindingAdapter không so sánh giá trị cũ gây vòng lặp vô hạn, nhồi logic nghiệp vụ vào XML, hoặc bật Data Binding chỉ để thay findViewById và trả giá bằng thời gian build của kapt.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '17 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -46389,7 +46389,7 @@ class FlightDetailActivity : AppCompatActivity() {
 
 <p>Lúc chạy, cập nhật <strong>không</strong> diễn ra ngay khi gán biến. Docs mô tả: khi biến hoặc đối tượng quan sát được thay đổi, binding được <strong>lên lịch</strong> cập nhật trước frame tiếp theo. Setter chỉ đánh dấu phần "bẩn" (dirty flag) rồi yêu cầu rebind, nên gán nhiều biến liên tiếp chỉ dẫn tới <strong>một</strong> lần <code>executeBindings()</code>. Khi cần View đổi <strong>ngay</strong>, gọi <code>executePendingBindings()</code> để chạy phần đang chờ một cách đồng bộ.</p>
 
-<p><strong>Trường hợp điển hình: item của danh sách</strong> (<code>RecyclerView</code> học ở 7.1.2 ViewHolder Pattern (chưa có bài)). <code>RecyclerView</code> <strong>đo item ngay</strong> sau <code>onBindViewHolder()</code>; nếu binding chỉ được lên lịch cho frame sau, item (ví dụ tin nhắn dài ngắn xen kẽ) bị đo với nội dung cũ rồi đo lại, nên danh sách giật. Docs dùng mẫu:</p>
+<p><strong>Trường hợp điển hình: item của danh sách</strong> (<code>RecyclerView</code> học ở <a href="../session_07/design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>). <code>RecyclerView</code> <strong>đo item ngay</strong> sau <code>onBindViewHolder()</code>; nếu binding chỉ được lên lịch cho frame sau, item (ví dụ tin nhắn dài ngắn xen kẽ) bị đo với nội dung cũ rồi đo lại, nên danh sách giật. Docs dùng mẫu:</p>
 
 <pre data-lang="kotlin"><code>// MessageAdapter.kt (trích)
 override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
@@ -46403,7 +46403,7 @@ override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
 
 <ul>
   <li><strong>Observable của chính Data Binding</strong> (không biết vòng đời): <code>ObservableField&lt;T&gt;</code> và bản nguyên thuỷ (<code>ObservableInt</code>...), class kế thừa <code>BaseObservable</code> tự gọi <code>notifyPropertyChanged(BR.tenProperty)</code> trong setter của property <code>@Bindable</code>, và <code>ObservableArrayList</code>/<code>ObservableArrayMap</code>.</li>
-  <li><strong>Nguồn lifecycle-aware</strong>, lựa chọn thường dùng hiện nay, thường do ViewModel (lớp giữ dữ liệu UI sống qua xoay màn hình, học ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>) phơi ra: <a href="livedata.md" target="_blank" rel="noopener">LiveData</a> và <code>StateFlow</code> (dòng dữ liệu luôn có giá trị hiện tại của Kotlin coroutines, học ở 7.1.4.2 Flow (chưa có bài)). Module Kotlin dùng AndroidX được thêm hỗ trợ <code>StateFlow</code> tự động (tắt bằng <code>dataBinding { addKtx = false }</code>).</li>
+  <li><strong>Nguồn lifecycle-aware</strong>, lựa chọn thường dùng hiện nay, thường do ViewModel (lớp giữ dữ liệu UI sống qua xoay màn hình, học ở <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>) phơi ra: <a href="livedata.md" target="_blank" rel="noopener">LiveData</a> và <code>StateFlow</code> (dòng dữ liệu luôn có giá trị hiện tại của Kotlin coroutines, học ở <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>). Module Kotlin dùng AndroidX được thêm hỗ trợ <code>StateFlow</code> tự động (tắt bằng <code>dataBinding { addKtx = false }</code>).</li>
 </ul>
 
 <p>Điều kiện bắt buộc với nhóm sau: <strong>gán <code>binding.lifecycleOwner</code></strong>. Binding dùng owner này để quan sát <code>LiveData</code>/<code>StateFlow</code>; không có owner, binding chỉ đọc giá trị hiện tại lúc tính biểu thức và <strong>không đăng ký nhận thay đổi</strong>. Activity dùng chính nó; Fragment dùng <code>viewLifecycleOwner</code> (mục "Data Binding trong Fragment").</p>
@@ -46920,7 +46920,7 @@ fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) { /* ... *
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="livedata.md" target="_blank" rel="noopener">LiveData</a>, <a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: nguồn dữ liệu và nơi giữ dữ liệu mà layout đọc.</li>
-  <li>7.1.4.2 Flow, 7.1.2 ViewHolder Pattern, 8.2.4 Coil (chưa có bài): <code>StateFlow</code>, item danh sách, thư viện tải ảnh; <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>: kiến trúc Data Binding phục vụ.</li>
+  <li><a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>: <code>StateFlow</code>; <a href="../session_07/design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>: item danh sách; 8.2.4 Coil (chưa có bài): thư viện tải ảnh; <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>: kiến trúc Data Binding phục vụ.</li>
 </ul></li>
 </ul>
 
@@ -46965,7 +46965,7 @@ fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) { /* ... *
       'Xử lý được event một lần bị phát lại sau khi xoay màn hình bằng cách biểu diễn event thành UI state.'
     ],
     knowledgeGap: 'Không hiểu LiveData là state holder gắn với lifecycle dẫn tới gọi setValue từ background thread (crash), mong postValue giao đủ mọi giá trị (mất giá trị trung gian), observe bằng this trong Fragment (observer nhân đôi), quên removeObserver sau observeForever (leak), và dùng LiveData cho event một lần khiến Snackbar hay điều hướng bị lặp lại sau khi xoay màn hình.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '17 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -47405,7 +47405,7 @@ networkStatus.distinctUntilChanged().observe(this) { isOnline -&gt;
 
 <h3>Cầu nối với coroutine và Flow</h3>
 
-<p>Phần này dùng trước hai kiến thức: <strong>coroutine</strong> (hàm <code>suspend</code> chạy bất đồng bộ mà không chặn thread) được học ở 8.4.3 Coroutines (chưa có bài), và <strong>Flow</strong> (luồng giá trị bất đồng bộ của Kotlin) được học ở 7.1.4.2 Flow (chưa có bài); Flow trả về từ Room đã gặp ở <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>.</p>
+<p>Phần này dùng trước hai kiến thức: <strong>coroutine</strong> (hàm <code>suspend</code> chạy bất đồng bộ mà không chặn thread) được học ở 8.4.3 Coroutines (chưa có bài), và <strong>Flow</strong> (luồng giá trị bất đồng bộ của Kotlin) được học ở <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>; Flow trả về từ Room đã gặp ở <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>.</p>
 
 <p>Ba API nối LiveData với hai thế giới đó (dependency <code>androidx.lifecycle:lifecycle-livedata-ktx</code>):</p>
 
@@ -47609,8 +47609,8 @@ private val _navigateToOrderDetail = MutableLiveData&lt;Long&gt;()
 <ul>
   <li><a href="viewmodel.md" target="_blank" rel="noopener">ViewModel</a> (6.4): nơi giữ LiveData, <code>viewModelScope</code> và factory.</li>
   <li><a href="data_binding.md" target="_blank" rel="noopener">Data Binding</a> (6.2): gắn LiveData trực tiếp vào layout.</li>
-  <li>7.1.4.3 LiveData (chưa có bài): LiveData như một hiện thực của Observer Pattern.</li>
-  <li>7.1.4.2 Flow (chưa có bài): <code>Flow</code>, <code>StateFlow</code> và các toán tử LiveData không có.</li>
+  <li><a href="../session_07/design_pattern/observer/livedata.md" target="_blank" rel="noopener">LiveData (Observer Pattern)</a>: LiveData như một hiện thực của Observer Pattern.</li>
+  <li><a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>: <code>Flow</code>, <code>StateFlow</code> và các toán tử LiveData không có.</li>
   <li><a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>: vị trí của LiveData giữa View và ViewModel.</li>
   <li>8.4.3 Coroutines (chưa có bài): coroutine trong <code>liveData {}</code> và <code>viewModelScope</code>.</li>
 </ul></li>
@@ -47651,7 +47651,7 @@ private val _navigateToOrderDetail = MutableLiveData&lt;Long&gt;()
       'Nhận diện được các sai lầm như giữ Context hoặc View trong ViewModel, tự tạo ViewModel bằng constructor và launch coroutine trong init.'
     ],
     knowledgeGap: 'Nhiều developer biết "ViewModel sống qua xoay màn hình" nhưng không biết nó được cất ở đâu và ai giữ nó, nên tin ViewModel cũng sống qua process death, tự gọi constructor rồi thắc mắc vì sao state vẫn mất, giữ Activity trong ViewModel gây leak, hoặc chia sẻ mọi thứ bằng activityViewModels khiến dữ liệu sống lâu hơn cần thiết.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '24 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -47882,7 +47882,7 @@ class OtpViewModel : ViewModel() {
     }
 }</code></pre>
 
-<p><code>StateFlow</code> (luồng giữ một giá trị hiện tại mà UI quan sát được) là kiến thức dùng trước, học ở 7.1.4.2 Flow (chưa có bài). Tài nguyên không phải coroutine (một kết nối, một listener của SDK) thì gắn bằng <code>addCloseable(connection)</code> để ViewModel tự đóng nó lúc clear, thay vì nhớ đóng trong <code>onCleared()</code>.</p>
+<p><code>StateFlow</code> (luồng giữ một giá trị hiện tại mà UI quan sát được) là kiến thức dùng trước, học ở <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>. Tài nguyên không phải coroutine (một kết nối, một listener của SDK) thì gắn bằng <code>addCloseable(connection)</code> để ViewModel tự đóng nó lúc clear, thay vì nhớ đóng trong <code>onCleared()</code>.</p>
 
 <p><strong>Kết quả:</strong> bấm "Gửi mã", xoay màn hình ở giây 45 thì UI tiếp tục từ 45 chứ không về 60. Rời màn hình rồi đặt breakpoint trong vòng lặp: không còn chạy nữa.</p>
 
@@ -48012,7 +48012,7 @@ class ProductListFragment : Fragment(R.layout.fragment_product_list) {
 
 <p>Từ Lifecycle 2.5.0, <code>create()</code> nhận thêm <code>CreationExtras</code>: một túi giá trị mà owner đưa vào lúc tạo ViewModel, gồm <code>Application</code> (<code>APPLICATION_KEY</code>), dữ liệu để tạo <code>SavedStateHandle</code> (đã chứa sẵn <code>arguments</code> của Fragment hoặc extras của Intent). DSL <code>viewModelFactory { initializer { … } }</code> giúp viết factory gọn, và <code>createSavedStateHandle()</code> lấy <code>SavedStateHandle</code> từ extras.</p>
 
-<p>Trong project dùng Hilt, <code>@HiltViewModel</code> cùng constructor <code>@Inject</code> sinh factory tự động; Hilt được học ở 7.1.5.3 Hilt (chưa có bài). Hiểu factory viết tay giúp hiểu Hilt đang làm gì thay bạn.</p>
+<p>Trong project dùng Hilt, <code>@HiltViewModel</code> cùng constructor <code>@Inject</code> sinh factory tự động; Hilt được học ở <a href="../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>. Hiểu factory viết tay giúp hiểu Hilt đang làm gì thay bạn.</p>
 
 <h4>Ví dụ: màn chi tiết đơn hàng cần Repository và orderId</h4>
 
@@ -48239,7 +48239,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     }
 }</code></pre>
 
-<p>Binding cục bộ trong <code>onViewCreated()</code> theo cách ở <a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>, mục "View Binding trong Fragment". <code>ProductAdapter</code> là adapter danh sách, học ở 7.1.2 ViewHolder Pattern (chưa có bài).</p>
+<p>Binding cục bộ trong <code>onViewCreated()</code> theo cách ở <a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>, mục "View Binding trong Fragment". <code>ProductAdapter</code> là adapter danh sách, học ở <a href="../session_07/design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>.</p>
 
 <pre data-lang="kotlin"><code>// SearchViewModelTest.kt (src/test): (6) chạy trên JVM, không cần thiết bị
 class FakeProductRepository : ProductRepository {
@@ -48444,8 +48444,8 @@ val uiState = MutableStateFlow&lt;SearchUiState&gt;(SearchUiState.Idle)</code></
 <ul>
   <li><a href="livedata.md" target="_blank" rel="noopener">LiveData</a>: một cách khác để ViewModel đưa state ra UI, lifecycle-aware sẵn.</li>
   <li><a href="paging.md" target="_blank" rel="noopener">Paging</a>: <code>cachedIn(viewModelScope)</code> giữ dữ liệu phân trang trong ViewModel.</li>
-  <li>7.1.4.2 Flow (chưa có bài): <code>StateFlow</code>, <code>stateIn</code> dùng trong bài.</li>
-  <li>7.1.5.3 Hilt (chưa có bài): sinh factory cho ViewModel tự động.</li>
+  <li><a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>: <code>StateFlow</code>, <code>stateIn</code> dùng trong bài.</li>
+  <li><a href="../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>: sinh factory cho ViewModel tự động.</li>
   <li><a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>: vị trí của ViewModel trong kiến trúc.</li>
 </ul></li>
 </ul>
@@ -48484,7 +48484,7 @@ val uiState = MutableStateFlow&lt;SearchUiState&gt;(SearchUiState.Idle)</code></
       'Nhận diện được các lỗi quên cachedIn, dùng lại PagingSource, getRefreshKey sai và key không ổn định.'
     ],
     knowledgeGap: 'Không hiểu Paging thì hoặc tải cả danh sách vào bộ nhớ, hoặc tự viết cuộn vô tận dễ tải trùng. Dùng sai thì xoay màn hình tải lại từ đầu, refresh bị crash, hoặc danh sách nhấp nháy sau mỗi lần làm mới.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '17 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -48516,7 +48516,7 @@ adapter.submitList(transactions)</code></pre>
 
 <p>Mental model: Paging là một <strong>cửa sổ trượt</strong> trên một danh sách rất dài. Chỉ các trang quanh vị trí đang xem nằm trong bộ nhớ; cuộn gần mép cửa sổ thì Paging tự tải thêm trang ở mép đó, và nếu bạn đặt giới hạn thì các trang ở xa bị bỏ bớt. Bạn chỉ mô tả "lấy một trang thế nào"; việc trượt cửa sổ là của thư viện.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: coroutine, <code>Flow</code> (8.4.3 Coroutines, 7.1.4.2 Flow, chưa có bài); <code>ViewModel</code> (<a href="viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>); <code>RecyclerView</code>, <code>DiffUtil</code> (7.1.2 ViewHolder Pattern, chưa có bài); Retrofit (8.1.1 Retrofit, chưa có bài) và lỗi mạng (<a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: coroutine, <code>Flow</code> (8.4.3 Coroutines, chưa có bài; <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>); <code>ViewModel</code> (<a href="viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>); <code>RecyclerView</code>, <code>DiffUtil</code> (<a href="../session_07/design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>); Retrofit (8.1.1 Retrofit, chưa có bài) và lỗi mạng (<a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>).</div></div>
 
 <h2>Cách hoạt động</h2>
 
@@ -49223,7 +49223,7 @@ val response = api.getArticles(page = page, limit = params.loadSize)           /
 <ul>
   <li><strong>Tiên quyết:</strong> <a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>, <a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, <a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, <a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>.</li>
   <li><strong>Liên quan:</strong> <a href="viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>, <a href="livedata.md" target="_blank" rel="noopener">6.3 LiveData</a> (<code>Pager.liveData</code> cho code chưa dùng Flow), <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>, <a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</li>
-  <li><strong>Học tiếp:</strong> 9.5.7 Lazy Paging Items, 7.1.4.2 Flow, 8.4.3 Coroutines, 7.1.2 ViewHolder Pattern, 8.1.1 Retrofit (đều chưa có bài).</li>
+  <li><strong>Học tiếp:</strong> <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, <a href="../session_07/design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>; 9.5.7 Lazy Paging Items, 8.4.3 Coroutines, 8.1.1 Retrofit (đều chưa có bài).</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -49271,7 +49271,7 @@ Object.assign(ANDROID_CONTENT, {
       'Nhận diện được các sai lầm như ViewModel giữ View hoặc Context, View chứa logic nghiệp vụ và nhiều luồng state rời rạc gây màn hình mâu thuẫn.'
     ],
     knowledgeGap: 'Nhiều developer nghĩ "dùng class ViewModel là đã làm MVVM", nên vẫn để Fragment tự gọi API, để ViewModel giữ Fragment hoặc Context, đưa ra năm bảy LiveData rời rạc khiến màn hình rơi vào trạng thái không thể có, hoặc bắn event điều hướng qua một kênh bị mất khi xoay màn hình.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '17 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -49358,7 +49358,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
   </tbody>
 </table>
 
-<p>Mũi tên phụ thuộc chỉ đi <strong>một hướng</strong>: View → ViewModel → Model. Dữ liệu đi ngược lại không phải bằng lời gọi hàm, mà bằng <strong>quan sát</strong>: Model đưa dữ liệu ra dạng <code>Flow</code>, ViewModel đưa UI state ra dạng <code>StateFlow</code> hoặc <code>LiveData</code>, và tầng trên tự nhận giá trị mới. Đây là Observer Pattern, giải thích ở 7.1.4.0 Observer Pattern Overview (chưa có bài); <code>StateFlow</code> học ở 7.1.4.2 Flow (chưa có bài), LiveData ở <a href="../../session_06/livedata.md" target="_blank" rel="noopener">LiveData</a>.</p>
+<p>Mũi tên phụ thuộc chỉ đi <strong>một hướng</strong>: View → ViewModel → Model. Dữ liệu đi ngược lại không phải bằng lời gọi hàm, mà bằng <strong>quan sát</strong>: Model đưa dữ liệu ra dạng <code>Flow</code>, ViewModel đưa UI state ra dạng <code>StateFlow</code> hoặc <code>LiveData</code>, và tầng trên tự nhận giá trị mới. Đây là Observer Pattern, giải thích ở <a href="../design_pattern/observer/overview.md" target="_blank" rel="noopener">Observer Pattern Overview</a>; <code>StateFlow</code> học ở <a href="../design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, LiveData ở <a href="../../session_06/livedata.md" target="_blank" rel="noopener">LiveData</a>.</p>
 
 <div class="mermaid">
 flowchart TD
@@ -49481,7 +49481,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     }
 }</code></pre>
 
-<p><code>flatMapLatest</code>, <code>onStart</code>, <code>catch</code> là toán tử của Flow, học ở 7.1.4.2 Flow (chưa có bài). Fragment không có <code>if</code> nghiệp vụ nào: nó chỉ dịch state thành <code>isVisible</code> và danh sách. <code>ArticleAdapter</code> là adapter của <code>RecyclerView</code>, học ở 7.1.2 ViewHolder Pattern (chưa có bài).</p>
+<p><code>flatMapLatest</code>, <code>onStart</code>, <code>catch</code> là toán tử của Flow, học ở <a href="../design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>. Fragment không có <code>if</code> nghiệp vụ nào: nó chỉ dịch state thành <code>isVisible</code> và danh sách. <code>ArticleAdapter</code> là adapter của <code>RecyclerView</code>, học ở <a href="../design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>.</p>
 
 <p><strong>Kết quả:</strong> quy tắc "ẩn bài bị ẩn, mới nhất lên đầu" giờ nằm trong ViewModel và test được bằng một <code>FakeArticleRepository</code>. Tắt mạng thì màn hình chỉ hiện lỗi, không còn vòng tải; bấm "Thử lại" khi có mạng thì danh sách hiện. Xoay màn hình không chạy lại luồng, nhờ <code>WhileSubscribed(5_000)</code>.</p>
 
@@ -49505,7 +49505,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
 <ul>
   <li><strong>Data layer</strong> (bắt buộc): Repository đưa dữ liệu của app ra cho phần còn lại, giấu việc dữ liệu đến từ Room, mạng hay DataStore. Docs khuyên tạo Repository kể cả khi chỉ có một nguồn, và <strong>ViewModel không gọi thẳng data source</strong> (DAO, Retrofit service). Repository và nguồn sự thật đã gặp ở <a href="../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, mục "Single Source of Truth (SSOT) và Offline-first" và <a href="../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>.</li>
-  <li><strong>Domain layer</strong> (tuỳ chọn, khuyên dùng cho app lớn): các use case gom logic nghiệp vụ dùng lại ở nhiều ViewModel, ví dụ <code>GetVisibleArticlesUseCase</code>. Cách chia lớp này là chủ đề của 7.2.5 Clean Architecture (chưa có bài).</li>
+  <li><strong>Domain layer</strong> (tuỳ chọn, khuyên dùng cho app lớn): các use case gom logic nghiệp vụ dùng lại ở nhiều ViewModel, ví dụ <code>GetVisibleArticlesUseCase</code>. Cách chia lớp này là chủ đề của <a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>.</li>
 </ul>
 
 <p>ViewModel giữ <strong>logic UI</strong> (dữ liệu nào hiện, định dạng ra sao, trạng thái tải) và gọi Model cho <strong>logic nghiệp vụ</strong> (quy tắc của sản phẩm, đọc ghi dữ liệu). Ranh giới này không cứng: app nhỏ có thể để quy tắc lọc trong ViewModel như ví dụ trên, rồi chuyển xuống use case khi nhiều màn cùng cần.</p>
@@ -49723,7 +49723,7 @@ class LoginViewModelTest {
   </tbody>
 </table>
 
-<p>Khác biệt cốt lõi giữa MVP và MVVM là <strong>ai giữ tham chiếu tới ai</strong>. Presenter giữ View nên phải tự gỡ khi View bị huỷ; ViewModel không giữ gì nên sống qua xoay màn hình một cách tự nhiên. MVVM theo UDF với một <code>uiState</code> như bài này đã rất gần MVI; MVI chặt hơn ở chỗ mọi thay đổi đều đi qua một hàm reducer. Chi tiết từng pattern ở 7.2.1 MVC, 7.2.2 MVP và 7.2.4 MVI (chưa có bài).</p>
+<p>Khác biệt cốt lõi giữa MVP và MVVM là <strong>ai giữ tham chiếu tới ai</strong>. Presenter giữ View nên phải tự gỡ khi View bị huỷ; ViewModel không giữ gì nên sống qua xoay màn hình một cách tự nhiên. MVVM theo UDF với một <code>uiState</code> như bài này đã rất gần MVI; MVI chặt hơn ở chỗ mọi thay đổi đều đi qua một hàm reducer. Chi tiết từng pattern ở <a href="mvc.md" target="_blank" rel="noopener">MVC</a>, <a href="mvp.md" target="_blank" rel="noopener">MVP</a> và <a href="mvi.md" target="_blank" rel="noopener">MVI</a>.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
@@ -49821,10 +49821,10 @@ class ArticleListViewModel(private val api: ArticleApi, private val dao: Article
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
-  <li>7.1.4.0 Observer Pattern Overview và 7.1.4.2 Flow (chưa có bài): cơ chế quan sát và <code>StateFlow</code>.</li>
-  <li>7.2.1 MVC, 7.2.2 MVP, 7.2.4 MVI (chưa có bài): các pattern đứng trước và sau MVVM.</li>
-  <li>7.2.5 Clean Architecture (chưa có bài): chia Model thành data layer và domain layer.</li>
-  <li>7.1.5.3 Hilt (chưa có bài): cung cấp Repository cho ViewModel.</li>
+  <li><a href="../design_pattern/observer/overview.md" target="_blank" rel="noopener">Observer Pattern Overview</a> và <a href="../design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>: cơ chế quan sát và <code>StateFlow</code>.</li>
+  <li><a href="mvc.md" target="_blank" rel="noopener">MVC</a>, <a href="mvp.md" target="_blank" rel="noopener">MVP</a>, <a href="mvi.md" target="_blank" rel="noopener">MVI</a>: các pattern đứng trước và sau MVVM.</li>
+  <li><a href="clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: chia Model thành data layer và domain layer.</li>
+  <li><a href="../design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>: cung cấp Repository cho ViewModel.</li>
 </ul></li>
 </ul>
 
@@ -50077,7 +50077,7 @@ flowchart LR
       'Nhận diện được các sai lầm như builder thừa cho class Kotlin, build() không kiểm tra, object "bất biến" dùng chung list của builder và build lại object đắt tiền nhiều lần.'
     ],
     knowledgeGap: 'Không hiểu bản chất Builder dẫn tới hai thái cực: chép builder kiểu Java cho mọi data class Kotlin (thêm hàng chục dòng mà không được gì), hoặc đưa constructor nhiều tham số vào API của thư viện dùng chung, để rồi mỗi lần thêm một tuỳ chọn là code Java gọi vào bị vỡ; ngoài ra còn gọi Room.databaseBuilder hay OkHttpClient.Builder mỗi lần cần, tạo nhiều instance đắt tiền.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -50602,7 +50602,7 @@ class OrderRepository(context: Context) {
 
 <p><strong>Lỗi lộ ra thế nào:</strong> mỗi <code>AppDatabase</code> mở kết nối và cache riêng tới cùng một file, nên ghi ở instance này có thể không phát Flow ở instance kia; mỗi <code>OkHttpClient</code> có connection pool và thread pool riêng, bộ nhớ và số thread tăng theo số repository.</p>
 
-<p><strong>Cách sửa:</strong> builder dùng để cấu hình, không phải để gọi mỗi lần cần object. Build một lần cho cả app rồi dùng chung, bằng một instance duy nhất (<a href="singleton_pattern.md" target="_blank" rel="noopener">Singleton Pattern</a>) hoặc scope của DI (7.1.5.0 Dependency Injection Overview, chưa có bài). Client cần cấu hình khác thì <code>newBuilder()</code>.</p>
+<p><strong>Cách sửa:</strong> builder dùng để cấu hình, không phải để gọi mỗi lần cần object. Build một lần cho cả app rồi dùng chung, bằng một instance duy nhất (<a href="singleton_pattern.md" target="_blank" rel="noopener">Singleton Pattern</a>) hoặc scope của DI (<a href="di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>). Client cần cấu hình khác thì <code>newBuilder()</code>.</p>
 
 <h3>5. Dùng constructor <code>NotificationCompat.Builder(context)</code> không có channel</h3>
 
@@ -50647,7 +50647,7 @@ val notification = NotificationCompat.Builder(context)
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="singleton_pattern.md" target="_blank" rel="noopener">Singleton Pattern</a>: giữ một instance duy nhất của object mà builder tạo ra.</li>
-  <li>7.1.5.0 Dependency Injection Overview (chưa có bài): nơi build các object dùng chung và cấp cho class cần chúng.</li>
+  <li><a href="di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>: nơi build các object dùng chung và cấp cho class cần chúng.</li>
   <li>8.5.5 Message (chưa có bài): notification channel và các kiểu thông báo.</li>
 </ul></li>
 </ul>
@@ -50687,7 +50687,7 @@ val notification = NotificationCompat.Builder(context)
       'Nhận diện được các sai lầm như bind thiếu nhánh else, notifyDataSetChanged cho mọi thay đổi, submitList cùng một list đã sửa và giữ position trong listener.'
     ],
     knowledgeGap: 'Không hiểu rằng ViewHolder được tái sử dụng dẫn tới những lỗi rất khó chịu: item hiện nhãn hay ảnh của item khác khi cuộn, bấm một dòng lại mở dòng bên cạnh sau khi danh sách đổi, danh sách nhấp nháy và mất animation vì notifyDataSetChanged, hoặc submitList không cập nhật gì vì truyền lại chính list đã sửa.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '17 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -50907,7 +50907,7 @@ fun bind(product: Product) {
 
 <p><strong>Bài toán:</strong> danh sách việc cần làm; bấm checkbox thì việc đó mờ đi, vuốt xoá thì dòng trượt mất. Chỉ dòng bị đổi được bind lại, và có animation, không làm cả danh sách nhấp nháy.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>StateFlow</code> (dòng dữ liệu luôn có giá trị hiện tại) và <code>collect</code> theo lifecycle, học ở 7.1.4.2 Flow (chưa có bài); cách ViewModel đưa state ra cho Fragment đã có ở <a href="../architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, mục "UI state và luồng dữ liệu một chiều".</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>StateFlow</code> (dòng dữ liệu luôn có giá trị hiện tại) và <code>collect</code> theo lifecycle, học ở <a href="observer/flow.md" target="_blank" rel="noopener">Flow</a>; cách ViewModel đưa state ra cho Fragment đã có ở <a href="../architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, mục "UI state và luồng dữ liệu một chiều".</div></div>
 
 <p><strong>Luồng chạy:</strong></p>
 
@@ -51374,7 +51374,7 @@ viewModel.tasks.collect { tasks -&gt; binding.taskList.adapter = TaskAdapter(tas
       'Nhận diện được các sai lầm như giữ Activity Context, trạng thái toàn cục làm test phụ thuộc thứ tự, tin singleton sống qua process death và singleton trong app nhiều process.'
     ],
     knowledgeGap: 'Không hiểu Singleton chỉ "duy nhất trong một process" và "sống bằng process" dẫn tới truyền Activity vào getInstance() làm leak cả màn hình, dùng object làm nơi truyền dữ liệu giữa các màn rồi mất sạch sau process death, viết double-checked locking thiếu @Volatile, và để trạng thái toàn cục khiến unit test lúc đạt lúc trượt tuỳ thứ tự chạy.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '16 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -51682,7 +51682,7 @@ class FakeFeatureFlags(override val isExpressCheckoutEnabled: Boolean = false) :
 
 <p>Dependency Injection giữ ý thứ nhất và bỏ ý thứ hai: một <strong>container</strong> tạo instance đúng một lần trong một <strong>scope</strong> (phạm vi sống), rồi truyền nó vào constructor của class cần. Class không biết instance là duy nhất; nó chỉ nhận một tham số. Khái niệm container và scope là chủ đề của <a href="di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>.</p>
 
-<p>Hilt (thư viện DI của Jetpack, học ở 7.1.5.3 Hilt (chưa có bài)) có scope <code>@Singleton</code> gắn với <code>SingletonComponent</code>, component được tạo ở <code>Application#onCreate()</code> và sống tới khi <code>Application</code> bị huỷ, tức đúng phạm vi một process như singleton tự viết:</p>
+<p>Hilt (thư viện DI của Jetpack, học ở <a href="di/hilt.md" target="_blank" rel="noopener">Hilt</a>) có scope <code>@Singleton</code> gắn với <code>SingletonComponent</code>, component được tạo ở <code>Application#onCreate()</code> và sống tới khi <code>Application</code> bị huỷ, tức đúng phạm vi một process như singleton tự viết:</p>
 
 <pre data-lang="kotlin"><code>// DatabaseModule.kt
 @Module
@@ -51754,7 +51754,7 @@ class OrderRepository @Inject constructor(private val orderDao: OrderDao)</code>
 
 <p><strong>Bài toán:</strong> người dùng thêm sản phẩm ở màn chi tiết; icon giỏ hàng trên thanh điều hướng của <code>MainActivity</code> phải cập nhật số lượng ngay; màn thanh toán đọc cùng giỏ hàng và xoá nó sau khi đặt hàng. Ba màn có ba ViewModel khác nhau, nên giỏ hàng phải là <strong>một</strong> instance nằm ngoài các ViewModel.</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>@HiltViewModel</code>, <code>@Inject</code> là annotation của Hilt để tạo và cấp object, học ở 7.1.5.3 Hilt (chưa có bài). <code>StateFlow</code> là dòng dữ liệu luôn có giá trị hiện tại, <code>map</code>/<code>stateIn</code> là toán tử của nó, học ở 7.1.4.2 Flow (chưa có bài).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>@HiltViewModel</code>, <code>@Inject</code> là annotation của Hilt để tạo và cấp object, học ở <a href="di/hilt.md" target="_blank" rel="noopener">Hilt</a>. <code>StateFlow</code> là dòng dữ liệu luôn có giá trị hiện tại, <code>map</code>/<code>stateIn</code> là toán tử của nó, học ở <a href="observer/flow.md" target="_blank" rel="noopener">Flow</a>.</div></div>
 
 <p><strong>Luồng chạy:</strong></p>
 
@@ -51958,7 +51958,7 @@ object ApiClient {
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>: container, scope, manual DI.</li>
-  <li>7.1.5.3 Hilt (chưa có bài): <code>SingletonComponent</code>, <code>@Singleton</code>, <code>@ApplicationContext</code>.</li>
+  <li><a href="di/hilt.md" target="_blank" rel="noopener">Hilt</a>: <code>SingletonComponent</code>, <code>@Singleton</code>, <code>@ApplicationContext</code>.</li>
 </ul></li>
 </ul>
 
@@ -53468,7 +53468,7 @@ queries.debounce(300, TimeUnit.MILLISECONDS)
       'Nhận diện được các sai lầm như withContext quanh emit, catch làm chết cả pipeline, tạo StateFlow mới mỗi lần gọi và dùng StateFlow cho event lặp lại.'
     ],
     knowledgeGap: 'Không phân biệt Flow lạnh và nóng dẫn tới cảm biến hay listener vẫn chạy khi app đã xuống background, mỗi màn hình mở một kết nối riêng tới cùng nguồn dữ liệu, ô tìm kiếm ngừng hoạt động vĩnh viễn sau một lỗi mạng, hoặc crash "Flow invariant is violated" vì đổi thread sai cách.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '18 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -54046,7 +54046,7 @@ class SearchSuggestionViewModel(private val api: SuggestionApi) : ViewModel() {
     }
 }</code></pre>
 
-<p>Fragment gọi <code>onQueryChange</code> trong <code>doAfterTextChanged</code> của ô nhập và vẽ <code>uiState</code> vào <code>RecyclerView</code> (7.1.2 ViewHolder Pattern, chưa có bài).</p>
+<p>Fragment gọi <code>onQueryChange</code> trong <code>doAfterTextChanged</code> của ô nhập và vẽ <code>uiState</code> vào <code>RecyclerView</code> (<a href="../viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>).</p>
 
 <pre data-lang="kotlin"><code>// SearchSuggestionViewModelTest.kt (src/test)
 class FakeSuggestionApi : SuggestionApi {

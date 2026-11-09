@@ -103,7 +103,7 @@ sequenceDiagram
 ## Ví dụ thực tế: xem rewarded ad để nhận xu
 
 > [!NOTE]
-> Kiến thức dùng trước: `@Inject`, `@HiltViewModel`, `@AndroidEntryPoint` là Hilt, học ở mục 7.1.5.3 Hilt (chưa có bài); `suspendCoroutine` bọc callback thành suspend function, học ở mục 8.4.3 Coroutines (chưa có bài). Ở đây chỉ cần biết Hilt tạo sẵn `AdManager` và inject vào Activity.
+> Kiến thức dùng trước: `@Inject`, `@HiltViewModel`, `@AndroidEntryPoint` là Hilt, học ở mục [Hilt](../../../../session_07/design_pattern/di/hilt.md); `suspendCoroutine` bọc callback thành suspend function, học ở mục 8.4.3 Coroutines (chưa có bài). Ở đây chỉ cần biết Hilt tạo sẵn `AdManager` và inject vào Activity.
 
 ### Interface
 
@@ -335,8 +335,8 @@ override fun onDestroy() {
 
 ## Kết nối hệ thống
 
-- **Clean Architecture (7.2.5):** quảng cáo là ví dụ điển hình của external dependency nằm ở Data Layer, Domain không biết nó tồn tại. Mục 7.2.5 Clean Architecture (chưa có bài).
-- **Hilt (7.1.5.3):** `AdManager` là singleton được inject; khi test thay bằng bản giả. Mục 7.1.5.3 Hilt (chưa có bài).
+- **Clean Architecture (7.2.5):** quảng cáo là ví dụ điển hình của external dependency nằm ở Data Layer, Domain không biết nó tồn tại. Xem [Clean Architecture](../../../../session_07/architecture/clean_architecture.md).
+- **Hilt (7.1.5.3):** `AdManager` là singleton được inject; khi test thay bằng bản giả. Xem [Hilt](../../../../session_07/design_pattern/di/hilt.md).
 - **Fragment Lifecycle (4.2.2.1):** `repeatOnLifecycle(Lifecycle.State.RESUMED)` là cách UI chỉ show khi foreground. Xem [Fragment Lifecycle](../../fragment/lifecycle.md).
 - **Full-screen Ads (4.2.3.3.3):** `AdManager` bọc đúng vòng load, show, reload ở bài đó. Xem [Full-screen Ads](fullscreen_ads.md).
 - **Inline Ads (4.2.3.3.2):** banner, native là View nên nằm ở UI; việc có hiện hay không là state từ ViewModel. Xem [Inline Ads](inline_ads.md).

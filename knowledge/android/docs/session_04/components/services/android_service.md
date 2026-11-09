@@ -783,7 +783,7 @@ Service type `dataSync` hoặc `mediaProcessing` dùng hết 6 giờ mà không 
 - **Học tiếp:**
   - [Working with Thread](../../../session_05/working_with_thread.md): main thread và ANR, lý do Service phải đưa việc nặng sang thread khác.
   - 8.4.3 Coroutines (chưa có bài): `CoroutineScope`, `Dispatchers.IO` dùng trong Service.
-  - 7.1.4.2 Flow (chưa có bài): Flow/SharedFlow để Service báo kết quả cho UI.
+  - [Flow](../../../session_07/design_pattern/observer/flow.md): Flow/SharedFlow để Service báo kết quả cho UI.
   - 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài): Notification bắt buộc của Foreground Service.
 
 ## Nguồn tham khảo

@@ -898,8 +898,8 @@ Log request và response đầy đủ làm lộ dữ liệu người dùng qua L
   - [8.1.3 OkHttp](../session_08/networks/okhttp.md): Connection Pool, Interceptor, `Authenticator`, `CertificatePinner`, HTTP Cache.
   - [8.1.4 Okio](../session_08/networks/okio.md): stream file lớn khi upload, báo tiến độ.
   - [8.1.5 Ktor and Apollo Android](../session_08/networks/ktor_apollo.md): HTTP client thuần Kotlin thay Retrofit.
-  - 7.1.4.2 Flow (chưa có bài) và 8.4.3 Coroutines (chưa có bài): `suspend`, `retryWhen`, `callbackFlow` dùng trong bài.
-  - 7.2.5 Clean Architecture (chưa có bài): kiến trúc tầng của ví dụ thực tế.
+  - [Flow](../session_07/design_pattern/observer/flow.md) và 8.4.3 Coroutines (chưa có bài): `suspend`, `retryWhen`, `callbackFlow` dùng trong bài.
+  - [Clean Architecture](../session_07/architecture/clean_architecture.md): kiến trúc tầng của ví dụ thực tế.
   - [10.2 Unit Testing](../coding_analyst_and_testing/unit_testing.md): test `safeApiCall` và tầng mạng bằng MockWebServer.
 
 ## Nguồn tham khảo

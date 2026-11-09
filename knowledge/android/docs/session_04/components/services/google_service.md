@@ -227,7 +227,7 @@ defaultConfig {
 ### Vị trí trong Clean Architecture / MVVM
 
 > [!NOTE]
-> Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục 7.2.5 Clean Architecture (chưa có bài). Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.
+> Kiến thức dùng trước: nguyên tắc chia tầng (Presentation, Domain, Data; Domain chỉ biết interface) học ở mục [Clean Architecture](../../../session_07/architecture/clean_architecture.md). Ở đây chỉ cần biết Google Service nằm ở đâu trong các tầng đó.
 
 Google Play Services và Firebase là SDK bên ngoài, nên nằm ở **Data Layer**, bên trong các `*DataSource`: một DataSource cho Firebase (FCM, Auth, Firestore, Crashlytics, Analytics), một cho API của GMS (Location, Maps).
 
@@ -833,7 +833,7 @@ Firebase SDK từ BoM 35.0.0 yêu cầu minSdk 24 trở lên, build sẽ fail (m
   - 4.2.3.3 Advertisements, bắt đầu từ [AdMob Overview](advertisements/overview.md): Google Mobile Ads SDK; cách đặt tầng cho quảng cáo ở [Ads trong kiến trúc app](advertisements/ads_architecture.md).
   - 8.5.5 Message (Toast, Snackbar, Notification) (chưa có bài): notification channel, `POST_NOTIFICATIONS`, `NotificationCompat` dùng trong ví dụ FCM.
   - 8.4.3 Coroutines (chưa có bài): `suspend`, `await()`, `lifecycleScope` dùng trong các ví dụ Auth, Remote Config, Location.
-  - 7.2.5 Clean Architecture (chưa có bài) và 7.1.5.3 Hilt (chưa có bài): chia tầng và DI binding để thay DataSource GMS bằng HMS.
+  - [Clean Architecture](../../../session_07/architecture/clean_architecture.md) và [Hilt](../../../session_07/design_pattern/di/hilt.md): chia tầng và DI binding để thay DataSource GMS bằng HMS.
 
 ## Nguồn tham khảo
 

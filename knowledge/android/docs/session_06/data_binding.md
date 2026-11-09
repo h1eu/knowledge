@@ -167,7 +167,7 @@ Khi build, với mỗi layout có `<layout>`:
 
 Lúc chạy, cập nhật **không** diễn ra ngay khi gán biến. Docs mô tả: khi biến hoặc đối tượng quan sát được thay đổi, binding được **lên lịch** cập nhật trước frame tiếp theo. Setter chỉ đánh dấu phần "bẩn" (dirty flag) rồi yêu cầu rebind, nên gán nhiều biến liên tiếp chỉ dẫn tới **một** lần `executeBindings()`. Khi cần View đổi **ngay**, gọi `executePendingBindings()` để chạy phần đang chờ một cách đồng bộ.
 
-**Trường hợp điển hình: item của danh sách** (`RecyclerView` học ở 7.1.2 ViewHolder Pattern (chưa có bài)). `RecyclerView` **đo item ngay** sau `onBindViewHolder()`; nếu binding chỉ được lên lịch cho frame sau, item (ví dụ tin nhắn dài ngắn xen kẽ) bị đo với nội dung cũ rồi đo lại, nên danh sách giật. Docs dùng mẫu:
+**Trường hợp điển hình: item của danh sách** (`RecyclerView` học ở [ViewHolder Pattern](../session_07/design_pattern/viewholder_pattern.md)). `RecyclerView` **đo item ngay** sau `onBindViewHolder()`; nếu binding chỉ được lên lịch cho frame sau, item (ví dụ tin nhắn dài ngắn xen kẽ) bị đo với nội dung cũ rồi đo lại, nên danh sách giật. Docs dùng mẫu:
 
 ```kotlin
 // MessageAdapter.kt (trích)
@@ -182,7 +182,7 @@ override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
 Gán một object thường cho biến chỉ cập nhật UI **lúc gán**. Muốn ô công thức tự tính lại, dữ liệu phải **quan sát được**, tức tự báo cho binding mỗi lần đổi. Có hai nhóm:
 
 - **Observable của chính Data Binding** (không biết vòng đời): `ObservableField<T>` và bản nguyên thuỷ (`ObservableInt`...), class kế thừa `BaseObservable` tự gọi `notifyPropertyChanged(BR.tenProperty)` trong setter của property `@Bindable`, và `ObservableArrayList`/`ObservableArrayMap`.
-- **Nguồn lifecycle-aware**, lựa chọn thường dùng hiện nay, thường do ViewModel (lớp giữ dữ liệu UI sống qua xoay màn hình, học ở [ViewModel](viewmodel.md)) phơi ra: [LiveData](livedata.md) và `StateFlow` (dòng dữ liệu luôn có giá trị hiện tại của Kotlin coroutines, học ở 7.1.4.2 Flow (chưa có bài)). Module Kotlin dùng AndroidX được thêm hỗ trợ `StateFlow` tự động (tắt bằng `dataBinding { addKtx = false }`).
+- **Nguồn lifecycle-aware**, lựa chọn thường dùng hiện nay, thường do ViewModel (lớp giữ dữ liệu UI sống qua xoay màn hình, học ở [ViewModel](viewmodel.md)) phơi ra: [LiveData](livedata.md) và `StateFlow` (dòng dữ liệu luôn có giá trị hiện tại của Kotlin coroutines, học ở [Flow](../session_07/design_pattern/observer/flow.md)). Module Kotlin dùng AndroidX được thêm hỗ trợ `StateFlow` tự động (tắt bằng `dataBinding { addKtx = false }`).
 
 Điều kiện bắt buộc với nhóm sau: **gán `binding.lifecycleOwner`**. Binding dùng owner này để quan sát `LiveData`/`StateFlow`; không có owner, binding chỉ đọc giá trị hiện tại lúc tính biểu thức và **không đăng ký nhận thay đổi**. Activity dùng chính nó; Fragment dùng `viewLifecycleOwner` (mục "Data Binding trong Fragment").
 
@@ -658,7 +658,7 @@ fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) { /* ... *
   - [Jetpack Compose Overview](../jetpack_compose_ui/overview.md): hướng UI thay thế cho UI mới.
 - **Học tiếp:**
   - [LiveData](livedata.md), [ViewModel](viewmodel.md): nguồn dữ liệu và nơi giữ dữ liệu mà layout đọc.
-  - 7.1.4.2 Flow, 7.1.2 ViewHolder Pattern, 8.2.4 Coil (chưa có bài): `StateFlow`, item danh sách, thư viện tải ảnh; [MVVM](../session_07/architecture/mvvm.md): kiến trúc Data Binding phục vụ.
+  - [Flow](../session_07/design_pattern/observer/flow.md): `StateFlow`; [ViewHolder Pattern](../session_07/design_pattern/viewholder_pattern.md): item danh sách; 8.2.4 Coil (chưa có bài): thư viện tải ảnh; [MVVM](../session_07/architecture/mvvm.md): kiến trúc Data Binding phục vụ.
 
 ## Tham khảo
 

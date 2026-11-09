@@ -899,7 +899,7 @@ graph TD
 - **Liên quan:**
   - [Async Transactions & Flow](room_transactions.md): transaction và Flow trên Room, chạy trên cùng database mà migration đã nâng cấp.
   - [Working with Thread](../working_with_thread.md): Main Thread và ANR, lý do migration nặng không được chạy trên main thread.
-- **Kiến thức dùng trước:** 8.4.3 Coroutines (chưa có bài) cho hàm `suspend` và `Dispatchers.IO`; 7.2.5 Clean Architecture (chưa có bài) cho sơ đồ các tầng ở trên.
+- **Kiến thức dùng trước:** 8.4.3 Coroutines (chưa có bài) cho hàm `suspend` và `Dispatchers.IO`; [Clean Architecture](../../session_07/architecture/clean_architecture.md) cho sơ đồ các tầng ở trên.
 
 ## Developer Curiosity Checklist
 

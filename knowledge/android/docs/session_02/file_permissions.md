@@ -185,9 +185,9 @@ flowchart TB
 > [!NOTE]
 > **Kiến thức dùng trước.** Ví dụ dùng tối thiểu vài kiến thức của Session sau:
 > - Coroutine (`suspend`, `withContext(Dispatchers.IO)`, `viewModelScope.launch`): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài).
-> - `StateFlow`: luồng giữ trạng thái mới nhất để UI đọc, học ở 7.1.4.2 Flow (chưa có bài).
+> - `StateFlow`: luồng giữ trạng thái mới nhất để UI đọc, học ở [Flow](../session_07/design_pattern/observer/flow.md).
 > - `ViewModel`: giữ trạng thái của màn hình, học ở [ViewModel](../session_06/viewmodel.md); cách tách UI - ViewModel - Repository học ở [MVVM](../session_07/architecture/mvvm.md).
-> - Hilt (`@Inject`, `@HiltViewModel`, `hiltViewModel()`): tự tạo và truyền dependency, học ở 7.1.5.3 Hilt (chưa có bài).
+> - Hilt (`@Inject`, `@HiltViewModel`, `hiltViewModel()`): tự tạo và truyền dependency, học ở [Hilt](../session_07/design_pattern/di/hilt.md).
 > - Jetpack Compose (`@Composable`, `rememberLauncherForActivityResult`): viết UI bằng Kotlin, xem [Jetpack Compose Overview](../jetpack_compose_ui/overview.md).
 
 ### Khung chung: Repository và ViewModel
@@ -671,7 +671,7 @@ flowchart TB
   - [Key-Value Storage](../session_05/data_store/key_value.md) và [Relational Database (Room Architecture)](../session_05/data_store/room_architecture.md): khi nào lưu file, khi nào lưu database có cấu trúc.
   - 8.3 Local Storage (chưa có bài): cache ảnh, download nền bằng WorkManager.
   - [Unit Testing](../coding_analyst_and_testing/unit_testing.md): viết test cho ViewModel như phần Debug và Testing.
-  - Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines, 7.1.4.2 Flow, 7.1.5.3 Hilt (đều chưa có bài), [MVVM](../session_07/architecture/mvvm.md) và [ViewModel](../session_06/viewmodel.md).
+  - Các kiến thức dùng trước trong ví dụ: 8.4.3 Coroutines (chưa có bài), [Flow](../session_07/design_pattern/observer/flow.md), [Hilt](../session_07/design_pattern/di/hilt.md), [MVVM](../session_07/architecture/mvvm.md) và [ViewModel](../session_06/viewmodel.md).
 
 ## Nguồn tham khảo
 

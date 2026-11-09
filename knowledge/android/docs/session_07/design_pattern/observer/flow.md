@@ -512,7 +512,7 @@ class SearchSuggestionViewModel(private val api: SuggestionApi) : ViewModel() {
 }
 ```
 
-Fragment gọi `onQueryChange` trong `doAfterTextChanged` của ô nhập và vẽ `uiState` vào `RecyclerView` (7.1.2 ViewHolder Pattern, chưa có bài).
+Fragment gọi `onQueryChange` trong `doAfterTextChanged` của ô nhập và vẽ `uiState` vào `RecyclerView` ([ViewHolder Pattern](../viewholder_pattern.md)).
 
 ```kotlin
 // SearchSuggestionViewModelTest.kt (src/test)

@@ -218,7 +218,7 @@ class OtpViewModel : ViewModel() {
 }
 ```
 
-`StateFlow` (luồng giữ một giá trị hiện tại mà UI quan sát được) là kiến thức dùng trước, học ở 7.1.4.2 Flow (chưa có bài). Tài nguyên không phải coroutine (một kết nối, một listener của SDK) thì gắn bằng `addCloseable(connection)` để ViewModel tự đóng nó lúc clear, thay vì nhớ đóng trong `onCleared()`.
+`StateFlow` (luồng giữ một giá trị hiện tại mà UI quan sát được) là kiến thức dùng trước, học ở [Flow](../session_07/design_pattern/observer/flow.md). Tài nguyên không phải coroutine (một kết nối, một listener của SDK) thì gắn bằng `addCloseable(connection)` để ViewModel tự đóng nó lúc clear, thay vì nhớ đóng trong `onCleared()`.
 
 **Kết quả:** bấm "Gửi mã", xoay màn hình ở giây 45 thì UI tiếp tục từ 45 chứ không về 60. Rời màn hình rồi đặt breakpoint trong vòng lặp: không còn chạy nữa.
 
@@ -308,7 +308,7 @@ Factory mặc định chỉ tạo được ViewModel có constructor rỗng, ho�
 
 Từ Lifecycle 2.5.0, `create()` nhận thêm `CreationExtras`: một túi giá trị mà owner đưa vào lúc tạo ViewModel, gồm `Application` (`APPLICATION_KEY`), dữ liệu để tạo `SavedStateHandle` (đã chứa sẵn `arguments` của Fragment hoặc extras của Intent). DSL `viewModelFactory { initializer { … } }` giúp viết factory gọn, và `createSavedStateHandle()` lấy `SavedStateHandle` từ extras.
 
-Trong project dùng Hilt, `@HiltViewModel` cùng constructor `@Inject` sinh factory tự động; Hilt được học ở 7.1.5.3 Hilt (chưa có bài). Hiểu factory viết tay giúp hiểu Hilt đang làm gì thay bạn.
+Trong project dùng Hilt, `@HiltViewModel` cùng constructor `@Inject` sinh factory tự động; Hilt được học ở [Hilt](../session_07/design_pattern/di/hilt.md). Hiểu factory viết tay giúp hiểu Hilt đang làm gì thay bạn.
 
 #### Ví dụ: màn chi tiết đơn hàng cần Repository và orderId
 
@@ -531,7 +531,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 }
 ```
 
-Binding cục bộ trong `onViewCreated()` theo cách ở [View Binding](view_binding.md), mục "View Binding trong Fragment". `ProductAdapter` là adapter danh sách, học ở 7.1.2 ViewHolder Pattern (chưa có bài).
+Binding cục bộ trong `onViewCreated()` theo cách ở [View Binding](view_binding.md), mục "View Binding trong Fragment". `ProductAdapter` là adapter danh sách, học ở [ViewHolder Pattern](../session_07/design_pattern/viewholder_pattern.md).
 
 ```kotlin
 // SearchViewModelTest.kt (src/test): (6) chạy trên JVM, không cần thiết bị
@@ -689,8 +689,8 @@ val uiState = MutableStateFlow<SearchUiState>(SearchUiState.Idle)
 - **Học tiếp:**
   - [LiveData](livedata.md): một cách khác để ViewModel đưa state ra UI, lifecycle-aware sẵn.
   - [Paging](paging.md): `cachedIn(viewModelScope)` giữ dữ liệu phân trang trong ViewModel.
-  - 7.1.4.2 Flow (chưa có bài): `StateFlow`, `stateIn` dùng trong bài.
-  - 7.1.5.3 Hilt (chưa có bài): sinh factory cho ViewModel tự động.
+  - [Flow](../session_07/design_pattern/observer/flow.md): `StateFlow`, `stateIn` dùng trong bài.
+  - [Hilt](../session_07/design_pattern/di/hilt.md): sinh factory cho ViewModel tự động.
   - [MVVM](../session_07/architecture/mvvm.md): vị trí của ViewModel trong kiến trúc.
 
 ## Tham khảo

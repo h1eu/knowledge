@@ -504,7 +504,7 @@ Chỉ tạo Child Fragment khi cần, không tạo sẵn trong `onCreate()`.
 
 ### FragmentManager trong kiến trúc app
 
-Phần này dùng trước MVVM ([MVVM](../../../session_07/architecture/mvvm.md)) và Clean Architecture (7.2.5 Clean Architecture, chưa có bài): app chia thành Presentation, Domain, Data layer, mỗi layer chỉ phụ thuộc layer bên trong.
+Phần này dùng trước MVVM ([MVVM](../../../session_07/architecture/mvvm.md)) và Clean Architecture ([Clean Architecture](../../../session_07/architecture/clean_architecture.md)): app chia thành Presentation, Domain, Data layer, mỗi layer chỉ phụ thuộc layer bên trong.
 
 #### FragmentManager trong MVVM + Clean Architecture
 
@@ -578,7 +578,7 @@ class HomeUseCase(
 
 #### FragmentManager và Dependency Injection
 
-Hilt là thư viện Dependency Injection, được học ở 7.1.5.3 Hilt (chưa có bài).
+Hilt là thư viện Dependency Injection, được học ở [Hilt](../../../session_07/design_pattern/di/hilt.md).
 
 ```kotlin
 @Module
@@ -1173,8 +1173,8 @@ Nested Fragment quá sâu gây:
 - **Học tiếp:**
   - [Dialog and DialogFragment](dialog_and_dialogfragment.md): DialogFragment được `show()` qua FragmentManager, hoặc khai báo thành `<dialog>` destination của Navigation Component.
   - [ViewModel](../../../session_06/viewmodel.md): ViewModel dùng cho Shared ViewModel giữa các Fragment.
-  - [MVVM](../../../session_07/architecture/mvvm.md) và 7.2.5 Clean Architecture (chưa có bài): vị trí của FragmentManager trong Presentation Layer.
-  - 7.1.5.3 Hilt (chưa có bài): inject `FragmentManager` qua `ActivityComponent`.
+  - [MVVM](../../../session_07/architecture/mvvm.md) và [Clean Architecture](../../../session_07/architecture/clean_architecture.md): vị trí của FragmentManager trong Presentation Layer.
+  - [Hilt](../../../session_07/design_pattern/di/hilt.md): inject `FragmentManager` qua `ActivityComponent`.
   - [9.0 Jetpack Compose Overview](../../../jetpack_compose_ui/overview.md): Compose và Navigation Compose, nơi điều hướng không còn đi qua FragmentManager.
 
 ## Nguồn tham khảo

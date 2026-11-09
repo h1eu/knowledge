@@ -441,7 +441,7 @@ Ba điều rút ra từ đoạn code này:
 Ba bài toán hay gặp với View Binding:
 
 1. **Custom view ghép từ nhiều View** (ô chọn số lượng có nút trừ, số, nút cộng): dùng layout gốc `<merge>` và `inflate(inflater, this)`. Đây là bài toán chính, code đầy đủ bên dưới.
-2. **Item của danh sách:** `ViewHolder` giữ binding của item, tạo bằng `ItemProductBinding.inflate(LayoutInflater.from(parent.context), parent, false)` trong `onCreateViewHolder`. Cách tổ chức ViewHolder được học ở 7.1.2 ViewHolder Pattern (chưa có bài).
+2. **Item của danh sách:** `ViewHolder` giữ binding của item, tạo bằng `ItemProductBinding.inflate(LayoutInflater.from(parent.context), parent, false)` trong `onCreateViewHolder`. Cách tổ chức ViewHolder được học ở [ViewHolder Pattern](../session_07/design_pattern/viewholder_pattern.md).
 3. **Chuyển màn hình cũ từ Kotlin synthetics hoặc `findViewById`:** bật `viewBinding`, xoá plugin `kotlin-android-extensions` và mọi import `kotlinx.android.synthetic.*`, tạo binding trong `onCreate`/`onCreateView`, rồi đổi `nameText.text = …` thành `binding.nameText.text = …`. Build báo lỗi ở mọi chỗ còn sót, nên chuyển từng màn và build liên tục là cách an toàn. Nếu module đang dùng `@Parcelize` qua plugin cũ thì chuyển sang plugin `kotlin-parcelize`.
 
 ### Custom view chọn số lượng sản phẩm
@@ -658,7 +658,7 @@ return binding.root
   - [Jetpack Compose Overview](../jetpack_compose_ui/overview.md): hướng UI không cần View Binding.
 - **Học tiếp:**
   - [Data Binding](data_binding.md): binding có biểu thức và biến trong XML, mở rộng từ chính class binding ở bài này.
-  - 7.1.2 ViewHolder Pattern (chưa có bài): binding trong item của danh sách.
+  - [ViewHolder Pattern](../session_07/design_pattern/viewholder_pattern.md): binding trong item của danh sách.
   - 8.5.1 Layouts (chưa có bài): `<include>`, `<merge>` và các layout dùng trong ví dụ.
 
 ## Tham khảo

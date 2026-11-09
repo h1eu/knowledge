@@ -214,7 +214,7 @@ Khi dữ liệu đổi, adapter phải báo cho RecyclerView **cái gì** đổi
 **Bài toán:** danh sách việc cần làm; bấm checkbox thì việc đó mờ đi, vuốt xoá thì dòng trượt mất. Chỉ dòng bị đổi được bind lại, và có animation, không làm cả danh sách nhấp nháy.
 
 > [!NOTE]
-> Kiến thức dùng trước: `StateFlow` (dòng dữ liệu luôn có giá trị hiện tại) và `collect` theo lifecycle, học ở 7.1.4.2 Flow (chưa có bài); cách ViewModel đưa state ra cho Fragment đã có ở [MVVM](../architecture/mvvm.md), mục "UI state và luồng dữ liệu một chiều".
+> Kiến thức dùng trước: `StateFlow` (dòng dữ liệu luôn có giá trị hiện tại) và `collect` theo lifecycle, học ở [Flow](observer/flow.md); cách ViewModel đưa state ra cho Fragment đã có ở [MVVM](../architecture/mvvm.md), mục "UI state và luồng dữ liệu một chiều".
 
 **Luồng chạy:**
 

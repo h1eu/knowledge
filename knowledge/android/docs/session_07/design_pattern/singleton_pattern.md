@@ -300,7 +300,7 @@ Ví dụ trên tách Singleton thành hai ý:
 
 Dependency Injection giữ ý thứ nhất và bỏ ý thứ hai: một **container** tạo instance đúng một lần trong một **scope** (phạm vi sống), rồi truyền nó vào constructor của class cần. Class không biết instance là duy nhất; nó chỉ nhận một tham số. Khái niệm container và scope là chủ đề của [Dependency Injection Overview](di/overview.md).
 
-Hilt (thư viện DI của Jetpack, học ở 7.1.5.3 Hilt (chưa có bài)) có scope `@Singleton` gắn với `SingletonComponent`, component được tạo ở `Application#onCreate()` và sống tới khi `Application` bị huỷ, tức đúng phạm vi một process như singleton tự viết:
+Hilt (thư viện DI của Jetpack, học ở [Hilt](di/hilt.md)) có scope `@Singleton` gắn với `SingletonComponent`, component được tạo ở `Application#onCreate()` và sống tới khi `Application` bị huỷ, tức đúng phạm vi một process như singleton tự viết:
 
 ```kotlin
 // DatabaseModule.kt
@@ -343,7 +343,7 @@ Ba bài toán hay gặp cần "một instance" trong app Android:
 **Bài toán:** người dùng thêm sản phẩm ở màn chi tiết; icon giỏ hàng trên thanh điều hướng của `MainActivity` phải cập nhật số lượng ngay; màn thanh toán đọc cùng giỏ hàng và xoá nó sau khi đặt hàng. Ba màn có ba ViewModel khác nhau, nên giỏ hàng phải là **một** instance nằm ngoài các ViewModel.
 
 > [!NOTE]
-> Kiến thức dùng trước: `@HiltViewModel`, `@Inject` là annotation của Hilt để tạo và cấp object, học ở 7.1.5.3 Hilt (chưa có bài). `StateFlow` là dòng dữ liệu luôn có giá trị hiện tại, `map`/`stateIn` là toán tử của nó, học ở 7.1.4.2 Flow (chưa có bài).
+> Kiến thức dùng trước: `@HiltViewModel`, `@Inject` là annotation của Hilt để tạo và cấp object, học ở [Hilt](di/hilt.md). `StateFlow` là dòng dữ liệu luôn có giá trị hiện tại, `map`/`stateIn` là toán tử của nó, học ở [Flow](observer/flow.md).
 
 **Luồng chạy:**
 
@@ -551,7 +551,7 @@ object ApiClient {
   - [Builder Pattern](builder_pattern.md): cấu hình instance mà Singleton giữ.
 - **Học tiếp:**
   - [Dependency Injection Overview](di/overview.md): container, scope, manual DI.
-  - 7.1.5.3 Hilt (chưa có bài): `SingletonComponent`, `@Singleton`, `@ApplicationContext`.
+  - [Hilt](di/hilt.md): `SingletonComponent`, `@Singleton`, `@ApplicationContext`.
 
 ## Tham khảo
 

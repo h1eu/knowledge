@@ -519,7 +519,7 @@ class OrderRepository(context: Context) {
 
 **Lỗi lộ ra thế nào:** mỗi `AppDatabase` mở kết nối và cache riêng tới cùng một file, nên ghi ở instance này có thể không phát Flow ở instance kia; mỗi `OkHttpClient` có connection pool và thread pool riêng, bộ nhớ và số thread tăng theo số repository.
 
-**Cách sửa:** builder dùng để cấu hình, không phải để gọi mỗi lần cần object. Build một lần cho cả app rồi dùng chung, bằng một instance duy nhất ([Singleton Pattern](singleton_pattern.md)) hoặc scope của DI (7.1.5.0 Dependency Injection Overview, chưa có bài). Client cần cấu hình khác thì `newBuilder()`.
+**Cách sửa:** builder dùng để cấu hình, không phải để gọi mỗi lần cần object. Build một lần cho cả app rồi dùng chung, bằng một instance duy nhất ([Singleton Pattern](singleton_pattern.md)) hoặc scope của DI ([Dependency Injection Overview](di/overview.md)). Client cần cấu hình khác thì `newBuilder()`.
 
 ### 5. Dùng constructor `NotificationCompat.Builder(context)` không có channel
 
@@ -558,7 +558,7 @@ val notification = NotificationCompat.Builder(context)
   - [Room nâng cao](../../session_05/data_store/room_advanced.md) và [OkHttp](../../session_08/networks/okhttp.md): builder của database và HTTP client.
 - **Học tiếp:**
   - [Singleton Pattern](singleton_pattern.md): giữ một instance duy nhất của object mà builder tạo ra.
-  - 7.1.5.0 Dependency Injection Overview (chưa có bài): nơi build các object dùng chung và cấp cho class cần chúng.
+  - [Dependency Injection Overview](di/overview.md): nơi build các object dùng chung và cấp cho class cần chúng.
   - 8.5.5 Message (chưa có bài): notification channel và các kiểu thông báo.
 
 ## Tham khảo
