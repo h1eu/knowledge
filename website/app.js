@@ -422,38 +422,38 @@ const KNOWLEDGE_DATA = {
           id: 'jetpack-compose-ui',
           name: 'Session 09: Jetpack Compose UI',
           topics: [
+            { id: 'session-09-overview', title: 'Session 09 Overview', status: 'published', tags: ['android', 'overview'] },
             { id: 'compose-overview', title: '9.0 Jetpack Compose Overview', status: 'published', tags: ['android', 'compose'] },
-            { id: 'compose-recomposition', title: '9.1 Remember and Recomposition', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-state', title: '9.2 State and State Hoisting', status: 'published', tags: ['android', 'kotlin', 'compose'] },
-            { id: 'compose-mutablestate', title: '9.2.1 MutableState', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-remember-saveable', title: '9.2.2 Remember and rememberSaveable', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-launchedeffect', title: '9.3.1 LaunchedEffect', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-disposableeffect', title: '9.3.2 DisposableEffect', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-producestate', title: '9.3.3 ProduceState', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-derivedstateof', title: '9.3.4 DerivedStateOf', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-snapshotflow', title: '9.3.5 SnapShotFlow and flowWithSnapshot', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-material-theme', title: '9.4.1 Material Design Theme (Color, Typography, Shapes)', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-custom-theme', title: '9.4.2 Custom Theme (Dimens, Factories, Data)', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-modifier-order', title: '9.5.1 Modifier Order', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-modifier-chaining', title: '9.5.2 Chaining', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-modifier-composed', title: '9.5.3 Composed Modifier', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-lazy-column', title: '9.5.4 Lazy Column', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-lazy-row', title: '9.5.5 Lazy Row', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-lazy-grid', title: '9.5.6 Lazy Vertical Grid', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-lazy-paging', title: '9.5.7 Lazy Paging Items', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-layout-view', title: '9.6 Layout and View (Text, Image, Layout)', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-surface-canvas', title: '9.7.1 Surface and Canvas', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-animated-visibility', title: '9.7.2 AnimatedVisibility', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-transition-state', title: '9.7.3 MutableTransitionState', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-animated-content', title: '9.7.4 AnimatedContent', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-crossfade', title: '9.7.5 Crossfade', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-scrolling', title: '9.8.1 Scrolling', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-dragging', title: '9.8.2 Dragging', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-swipping', title: '9.8.3 Swipping', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-zooming', title: '9.8.4 Zooming', status: 'draft', tags: ['android', 'compose'] }
+            { id: 'compose-recomposition', title: '9.1 Remember and Recomposition', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-mutablestate', title: '9.2.1 MutableState', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-remember-saveable', title: '9.2.2 Remember and rememberSaveable', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-launchedeffect', title: '9.3.1 LaunchedEffect', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-disposableeffect', title: '9.3.2 DisposableEffect', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-producestate', title: '9.3.3 ProduceState', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-derivedstateof', title: '9.3.4 DerivedStateOf', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-snapshotflow', title: '9.3.5 SnapShotFlow and flowWithSnapshot', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-material-theme', title: '9.4.1 Material Design Theme (Color, Typography, Shapes)', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-custom-theme', title: '9.4.2 Custom Theme (Dimens, Factories, Data)', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-modifier-order', title: '9.5.1 Modifier Order', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-modifier-chaining', title: '9.5.2 Chaining', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-modifier-composed', title: '9.5.3 Composed Modifier', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-lazy-column', title: '9.5.4 Lazy Column', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-lazy-row', title: '9.5.5 Lazy Row', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-lazy-grid', title: '9.5.6 Lazy Vertical Grid', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-lazy-paging', title: '9.5.7 Lazy Paging Items', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-layout-view', title: '9.6 Layout and View (Text, Image, Layout)', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-surface-canvas', title: '9.7.1 Surface and Canvas', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-animated-visibility', title: '9.7.2 AnimatedVisibility', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-transition-state', title: '9.7.3 MutableTransitionState', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-animated-content', title: '9.7.4 AnimatedContent', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-crossfade', title: '9.7.5 Crossfade', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-scrolling', title: '9.8.1 Scrolling', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-dragging', title: '9.8.2 Dragging', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-swipping', title: '9.8.3 Swipping', status: 'published', tags: ['android', 'compose'] },
+            { id: 'compose-zooming', title: '9.8.4 Zooming', status: 'published', tags: ['android', 'compose'] }
           ],
           sections: [
-            { id: 's09-state', name: '9.2 State and State Hoisting', topics: ['compose-state', 'compose-mutablestate', 'compose-remember-saveable'] },
+            { id: 's09-state', name: '9.2 State and State Hoisting', topics: ['compose-mutablestate', 'compose-remember-saveable'] },
             { id: 's09-effects', name: '9.3 Side-Effects', topics: ['compose-launchedeffect', 'compose-disposableeffect', 'compose-producestate', 'compose-derivedstateof', 'compose-snapshotflow'] },
             { id: 's09-theming', name: '9.4 Theming', topics: ['compose-material-theme', 'compose-custom-theme'] },
             { id: 's09-modifier', name: '9.5 Modifier', topics: ['compose-modifier-order', 'compose-modifier-chaining', 'compose-modifier-composed', 'compose-lazy-column', 'compose-lazy-row', 'compose-lazy-grid', 'compose-lazy-paging'] },
@@ -9049,7 +9049,7 @@ const TOPIC_CONTENT = {
     tags: ['kotlin', 'android'],
     domain: 'Android', module: 'Kotlin',
     prerequisites: ['kotlin-coroutines', 'kotlin-flow'],
-    related: ['compose-state'],
+    related: ['compose-mutablestate'],
     updatedAt: '2026-07-10',
     readTime: '12 phút',
     content: `
@@ -9218,49 +9218,6 @@ class JwtFilter(private val jwtService: JwtService) : OncePerRequestFilter() {
 </ul>
 
 <div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">JWT không thể thu hồi trước khi hết hạn. Nếu cần revoke, phải dùng blacklist hoặc chuyển sang Refresh Token flow với rotation.</div></div>
-    `
-  },
-  'compose-state': {
-    title: 'Compose State Management',
-    summary: 'Hiểu cách Jetpack Compose quản lý và react với state, sự khác biệt giữa remember, rememberSaveable và ViewModel state.',
-    tags: ['android', 'kotlin'],
-    domain: 'Android', module: 'Jetpack Compose',
-    prerequisites: ['kotlin-coroutines'],
-    related: ['kotlin-stateflow', 'compose-side-effects'],
-    updatedAt: '2026-07-12',
-    readTime: '15 phút',
-    content: `
-<h2>State trong Compose</h2>
-<p>Compose là declarative UI framework — UI là <em>hàm của state</em>. Khi state thay đổi, Compose tự động <strong>recompose</strong> các Composable bị ảnh hưởng.</p>
-<pre data-lang="kotlin"><code>@Composable
-fun Counter() {
-    var count by remember { mutableStateOf(0) }
-
-    Button(onClick = { count++ }) {
-        Text("Count: $count")
-    }
-}</code></pre>
-
-<h2>remember</h2>
-<p><code>remember</code> lưu giá trị qua các lần recomposition nhưng <strong>mất khi configuration change</strong> (xoay màn hình, đổi ngôn ngữ).</p>
-
-<h2>rememberSaveable</h2>
-<p><code>rememberSaveable</code> lưu state qua cả configuration change bằng cách lưu vào <code>Bundle</code>. Chỉ hoạt động với các kiểu có thể lưu vào Bundle.</p>
-
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">State lifting — đưa state lên component cha khi nhiều component cùng cần truy cập, tránh duplicated state.</div></div>
-
-<h2>ViewModel State</h2>
-<p>Với state phức tạp hơn hoặc cần survive process death, dùng ViewModel + StateFlow:</p>
-<pre data-lang="kotlin"><code>data class UiState(
-    val isLoading: Boolean = false,
-    val users: List&lt;User&gt; = emptyList(),
-    val error: String? = null
-)
-
-class UserViewModel : ViewModel() {
-    private val _state = MutableStateFlow(UiState())
-    val state: StateFlow&lt;UiState&gt; = _state.asStateFlow()
-}</code></pre>
     `
   }
 };
@@ -20314,6 +20271,7 @@ window.toggleTheme = toggleTheme;
 // Slug cũ của Topic đã tách hoặc đổi tên → Topic hiện tại, để link và bookmark cũ vẫn mở được
 const TOPIC_REDIRECTS = {
   'advertisements': 'ads-overview', // 4.2.3.3 Advertisements tách thành 4.2.3.3.1–4.2.3.3.5
+  'compose-state': 'compose-mutablestate', // entry web cũ "9.2 State and State Hoisting" gộp vào 9.2.1 MutableState
 };
 
 function handleUrlRouting() {

@@ -80,7 +80,7 @@ Mental model: DialogFragment là **người quản lý**, Dialog là **cửa s�
 > - ViewBinding (class sinh ra từ layout để truy cập View an toàn): [View Binding](../../../session_06/view_binding.md).
 > - ViewModel (giữ state qua configuration change) và `activityViewModels()`: [ViewModel](../../../session_06/viewmodel.md); phạm vi `viewModels()` / `activityViewModels()` ở [Fragment State Changes](state_changes.md).
 > - `StateFlow` và coroutine (`lifecycleScope`, `repeatOnLifecycle`): [Flow](../../../session_07/design_pattern/observer/flow.md), [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md); mẫu collect an toàn trong Fragment ở [Fragment Lifecycle](lifecycle.md).
-> - Composable và state của Compose (`remember`, `rememberSaveable`): [Jetpack Compose Overview](../../../jetpack_compose_ui/overview.md), 9.2.2 Remember and rememberSaveable (chưa có bài).
+> - Composable và state của Compose (`remember`, `rememberSaveable`): [Jetpack Compose Overview](../../../jetpack_compose_ui/overview.md), [9.2.2 Remember and rememberSaveable](../../../jetpack_compose_ui/state/remember_saveable.md).
 
 ### Kiến trúc tổng thể
 
@@ -1206,7 +1206,7 @@ class DeleteItemUseCase(
 - **Học tiếp:**
   - [View Binding](../../../session_06/view_binding.md), [ViewModel](../../../session_06/viewmodel.md).
   - [MVVM](../../../session_07/architecture/mvvm.md), [Clean Architecture](../../../session_07/architecture/clean_architecture.md): vị trí của DialogFragment trong Presentation Layer.
-  - [Jetpack Compose Overview](../../../jetpack_compose_ui/overview.md) và 9.2.2 Remember and rememberSaveable (chưa có bài): nền cho dialog trong Compose.
+  - [Jetpack Compose Overview](../../../jetpack_compose_ui/overview.md) và [9.2.2 Remember and rememberSaveable](../../../jetpack_compose_ui/state/remember_saveable.md): nền cho dialog trong Compose.
 
 ## Nguồn tham khảo
 

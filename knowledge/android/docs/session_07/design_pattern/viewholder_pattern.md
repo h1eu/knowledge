@@ -560,7 +560,7 @@ Cuộn được đặt trong callback của `submitList()`, vì diff chạy bấ
 - **Nên dùng `ListAdapter` + `DiffUtil`** làm mặc định khi dữ liệu là một list thay đổi theo thời gian; chỉ tự gọi `notifyItem...` khi thật sự biết chính xác thay đổi (ví dụ thao tác kéo thả do chính adapter thực hiện).
 - **Dùng `PagingDataAdapter`** khi dữ liệu tải theo trang từ mạng hoặc database.
 - **Không cần** RecyclerView cho vài item cố định (màn cài đặt có năm dòng): một `LinearLayout` trong `ScrollView` đơn giản hơn.
-- **Không áp dụng** cho UI viết bằng Compose: `LazyColumn` tự quản việc tạo và tái sử dụng, và bạn khai báo item bằng `items(list, key = { it.id })` thay vì viết ViewHolder (9.5.4 Lazy Column (chưa có bài)).
+- **Không áp dụng** cho UI viết bằng Compose: `LazyColumn` tự quản việc tạo và tái sử dụng, và bạn khai báo item bằng `items(list, key = { it.id })` thay vì viết ViewHolder ([9.5.4 Lazy Column](../../jetpack_compose_ui/modifier/lazy_column.md)).
 
 ## Sai lầm thường gặp
 
@@ -653,7 +653,7 @@ viewModel.tasks.collect { tasks -> binding.taskList.adapter = TaskAdapter(tasks)
   - [Builder Pattern](builder_pattern.md): `buildList` dùng để dựng danh sách item.
 - **Học tiếp:**
   - [8.5.1 Layouts](../../session_08/view_layout/layouts.md): RecyclerView ở góc độ bố cục, gồm `LayoutManager`, `ItemDecoration`, `ItemAnimator`.
-  - [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md) và 9.5.4 Lazy Column (chưa có bài): danh sách trong Compose không cần ViewHolder.
+  - [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md) và [9.5.4 Lazy Column](../../jetpack_compose_ui/modifier/lazy_column.md): danh sách trong Compose không cần ViewHolder.
   - [8.2.4 Coil](../../session_08/loading_image/coil.md): tải ảnh trong item.
 
 ## Tham khảo

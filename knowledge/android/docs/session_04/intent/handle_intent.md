@@ -107,7 +107,7 @@ class ProfileActivity : AppCompatActivity() {
 
 #### Ví dụ: đổi ảnh đại diện trong môi trường Jetpack Compose
 
-Composable và state của Compose (`remember`, `mutableStateOf`) là kiến thức dùng trước, học ở [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md) và 9.2 State and State Hoisting (chưa có bài); ở đây chỉ cần biết `avatarUri` là state giữ ảnh vừa chọn.
+Composable và state của Compose (`remember`, `mutableStateOf`) là kiến thức dùng trước, học ở [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md) và [9.2.1 MutableState](../../jetpack_compose_ui/state/mutable_state.md); ở đây chỉ cần biết `avatarUri` là state giữ ảnh vừa chọn.
 
 Compose cung cấp hàm `rememberLauncherForActivityResult` vô cùng tiện lợi:
 

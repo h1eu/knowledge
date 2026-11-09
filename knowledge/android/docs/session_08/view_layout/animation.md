@@ -615,7 +615,7 @@ class FaqView @JvmOverloads constructor(
 | Transition, Material Motion | Bounds, visibility, cả màn | Đổi layout, chuyển màn | Ít kiểm soát từng frame |
 | MotionLayout | `ConstraintSet` | Chuyển động phức tạp trong một màn, gắn cử chỉ | Phải dùng `ConstraintLayout`, XML dài |
 
-Với UI viết bằng Compose, animation dùng API riêng (`animate*AsState`, `AnimatedVisibility`, `AnimatedContent`, `Crossfade`) theo cùng ý tưởng hàm thời gian; xem 9.7 Graphics and Animations (chưa có bài).
+Với UI viết bằng Compose, animation dùng API riêng (`animate*AsState`, `AnimatedVisibility`, `AnimatedContent`, `Crossfade`) theo cùng ý tưởng hàm thời gian; xem [9.7.2 AnimatedVisibility](../../jetpack_compose_ui/graphics_animations/animated_visibility.md), nơi có bảng chọn API animation của Compose.
 
 ## Khi nào nên và không nên dùng
 
@@ -708,7 +708,7 @@ itemView.postDelayed({ adapter.remove(position) }, 300)
   - [Fragment Lifecycle](../../session_04/components/fragment/lifecycle.md): huỷ animator theo vòng đời View.
   - [Working with Thread](../../session_05/working_with_thread.md): main thread, nơi mọi animation chạy.
 - **Học tiếp:**
-  - 9.7 Graphics and Animations (chưa có bài): animation trong Compose (`AnimatedVisibility`, `AnimatedContent`, `Crossfade`).
+  - 9.7 Graphics and Animations: animation trong Compose, gồm [9.7.2 AnimatedVisibility](../../jetpack_compose_ui/graphics_animations/animated_visibility.md), [9.7.4 AnimatedContent](../../jetpack_compose_ui/graphics_animations/animated_content.md), [9.7.5 Crossfade](../../jetpack_compose_ui/graphics_animations/crossfade.md).
 
 ## Tham khảo
 

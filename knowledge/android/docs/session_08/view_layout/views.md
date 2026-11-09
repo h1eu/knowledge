@@ -576,7 +576,7 @@ Ba bài toán hay gặp:
 
 1. **Màn đánh giá đơn hàng dùng `RatingStarsView`:** View tự giữ state giao diện, còn số sao đã chọn thuộc ViewModel để sống qua cả process death. Đây là bài toán chính, code bên dưới.
 2. **Hình dạng tĩnh không tương tác** (nền thẻ có góc cắt, viền gradient): không cần View; dùng `Drawable` (`GradientDrawable`, `MaterialShapeDrawable`) gán làm `background`, rẻ hơn và dùng lại được cho mọi View.
-3. **Biểu đồ phức tạp có zoom, chú thích, nhiều trục:** cân nhắc thư viện biểu đồ có sẵn, hoặc Compose `Canvas` (9.7.1 Surface and Canvas, chưa có bài). Tự viết chỉ đáng khi biểu đồ đơn giản và cần kiểm soát hoàn toàn.
+3. **Biểu đồ phức tạp có zoom, chú thích, nhiều trục:** cân nhắc thư viện biểu đồ có sẵn, hoặc Compose `Canvas` ([9.7.1 Surface and Canvas](../../jetpack_compose_ui/graphics_animations/surface_and_canvas.md)). Tự viết chỉ đáng khi biểu đồ đơn giản và cần kiểm soát hoàn toàn.
 
 ### Màn đánh giá đơn hàng
 
@@ -719,7 +719,7 @@ class LoadingButton @JvmOverloads constructor(
   - [Working with Thread](../../session_05/working_with_thread.md): `Handler`, `Looper` mà `post` và `postDelayed` dùng, và ngân sách frame.
 - **Học tiếp:**
   - [Animation](animation.md): animate thuộc tính của View thay vì `invalidate()` mỗi frame.
-  - 9.7.1 Surface and Canvas (chưa có bài): vẽ tự do trong Compose.
+  - [9.7.1 Surface and Canvas](../../jetpack_compose_ui/graphics_animations/surface_and_canvas.md): vẽ tự do trong Compose.
 
 ## Tham khảo
 
