@@ -1055,6 +1055,8 @@ class SafeActivity : AppCompatActivity() {
   - [8.4.3 Coroutines](../session_08/async_threads/coroutines.md): Dispatchers, `withContext`, structured concurrency thay cho Handler và thread pool tự quản lý.
   - [8.4.4 RxJava, RxAndroid, RxKotlin](../session_08/async_threads/rxjava.md): Schedulers, một cách khác để đổi thread.
   - [Clean Architecture](../session_07/architecture/clean_architecture.md) và [ViewModel](../session_06/viewmodel.md): đặt việc đổi thread ở Data Layer theo nguyên tắc Main-Safety.
+  - [10.1 Debugging](../coding_analyst_and_testing/debugging.md): debugger, Logcat và đọc stack trace khi lỗi luồng xảy ra.
+  - [10.4 Fit / Bug Optimization](../coding_analyst_and_testing/fit_bug_optimization.md): phân tích ANR trên Android vitals, Profiler, StrictMode `VmPolicy` và LeakCanary.
 
 ## Nguồn tham khảo
 

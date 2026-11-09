@@ -5012,7 +5012,7 @@ Object.assign(ANDROID_CONTENT, {
       'Áp dụng được Build Type vào CI/CD và Firebase App Distribution để phân phối bản build cho QA.'
     ],
     knowledgeGap: 'Nhầm lẫn Build Types với Product Flavors dẫn đến cấu hình sai signing hoặc minify cho bản release, gây lỗi khi phát hành hoặc lọt log debug ra production. Không hiểu cách Gradle/AGP hoạt động khiến khó gỡ lỗi khi build fail và không biết cách tách biến môi trường theo từng Build Type.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -6153,6 +6153,7 @@ buildTypes {
 <ul>
   <li><a href="flavor.md" target="_blank" rel="noopener">Flavor</a> (<code>4.1.1.2</code>): Product Flavor nhân với Build Type thành Build Variant; thứ tự merge Source Set, <code>buildConfigField</code> theo Flavor và chỗ đặt secret, workflow CI/CD mẫu.</li>
   <li><a href="plugin.md" target="_blank" rel="noopener">Plugin</a> (<code>4.1.1.3</code>): ngoài định nghĩa Gradle/AGP, bài học cách AGP và các plugin khác được khai báo và nạp.</li>
+  <li><a href="../../../coding_analyst_and_testing/debugging.md" target="_blank" rel="noopener">10.1 Debugging</a>: retrace stack trace của bản release đã bị R8 làm rối bằng <code>mapping.txt</code>.</li>
   <li>Session 11 (CI/CD): 11.1 Jenkins, 11.2 Bitrise, 11.3 Travis CI, 11.4 Github CI (chưa có bài): chạy các task <code>assemble&lt;BuildType&gt;</code> trong pipeline.</li>
 </ul></li>
 </ul>
@@ -24438,6 +24439,7 @@ override fun onMapReady(map: GoogleMap) {
   <li><a href="../../../session_08/view_layout/message.md" target="_blank" rel="noopener">8.5.5 Message (Toast, Snackbar, Notification)</a>: notification channel, <code>POST_NOTIFICATIONS</code>, <code>NotificationCompat</code> dùng trong ví dụ FCM.</li>
   <li><a href="../../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>: <code>suspend</code>, <code>await()</code>, <code>lifecycleScope</code> dùng trong các ví dụ Auth, Remote Config, Location.</li>
   <li><a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a> và <a href="../../../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>: chia tầng và DI binding để thay DataSource GMS bằng HMS.</li>
+  <li><a href="../../../coding_analyst_and_testing/fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a>: dùng Crashlytics để sửa bug ở production (custom key, log, non-fatal, upload mapping của R8).</li>
 </ul></li>
 </ul>
 
@@ -41570,6 +41572,8 @@ thread {
   <li><a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>: Dispatchers, <code>withContext</code>, structured concurrency thay cho Handler và thread pool tự quản lý.</li>
   <li><a href="../session_08/async_threads/rxjava.md" target="_blank" rel="noopener">8.4.4 RxJava, RxAndroid, RxKotlin</a>: Schedulers, một cách khác để đổi thread.</li>
   <li><a href="../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a> và <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: đặt việc đổi thread ở Data Layer theo nguyên tắc Main-Safety.</li>
+  <li><a href="../coding_analyst_and_testing/debugging.md" target="_blank" rel="noopener">10.1 Debugging</a>: debugger, Logcat và đọc stack trace khi lỗi luồng xảy ra.</li>
+  <li><a href="../coding_analyst_and_testing/fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a>: phân tích ANR trên Android vitals, Profiler, StrictMode <code>VmPolicy</code> và LeakCanary.</li>
 </ul></li>
 </ul>
 
@@ -44728,66 +44732,3083 @@ if (response.exception == null) showProduct(response.data!!.product!!)</code></p
     `
   },
 
-  'unit-testing': {
-    title: 'Unit Testing',
-    summary: 'Unit test là test tự động chạy trên JVM của máy phát triển, kiểm tra từng đơn vị code tách khỏi thiết bị. Bản nháp này mới có phần test tầng mạng bằng MockWebServer, server HTTP thật chạy trên localhost nhận request thật từ OkHttp và trả response do test quy định.',
-    status: 'drafting',
+  'session-10-overview': {
+    title: 'Session 10 Overview',
+    summary: 'Tổng quan Session 10 — Coding Analyst and Testing, xoay quanh vòng chất lượng code (viết → lint → test → debug → giám sát, tối ưu ở production), chuỗi lớp kiểm tra mà mỗi lớp bắt một loại lỗi ở thời điểm rẻ nhất có thể. Trang cho biết mỗi Topic trả lời câu hỏi gì, nơi dạy chính của kiến thức dễ chồng lấn và thứ tự học.',
+    status: 'published',
     difficulty: 'intermediate',
-    estimatedReadingTime: '10 phút',
-    depth: 'standard',
-    tags: ['android', 'testing', 'unit-test', 'mockwebserver', 'networking'],
+    estimatedReadingTime: '7 phút',
+    depth: 'overview',
+    tags: ['android', 'session-10', 'overview', 'testing', 'debugging', 'lint', 'performance', 'code-quality'],
     domain: 'Android',
     module: 'Session 10',
-    prerequisites: ['android.networking.basics'],
-    related: ['android.networks.okhttp'],
+    prerequisites: ['android.thread.working_with_thread', 'android.architecture.mvvm', 'android.design_pattern.di.overview', 'android.async.coroutines', 'android.jetpack_compose.overview'],
+    related: ['android.testing.debugging', 'android.testing.unit_testing', 'android.testing.lint', 'android.testing.fit_bug_optimization', 'android.jetpack_compose.remember_recomposition', 'android.manifest.build_types'],
     learningOutcomes: [
-      'Giải thích được vì sao mock interface Retrofit không kiểm tra được tầng mạng.',
-      'Áp dụng được MockWebServer để trả response giả lập (thành công, lỗi HTTP) cho request thật từ OkHttp.',
-      'Triển khai được test cho safeApiCall với cả trường hợp thành công và lỗi server.'
+      'Giải thích được vòng chất lượng code (viết, lint, test, debug, giám sát và tối ưu ở production) và vai trò của từng Topic trong Session 10.',
+      'Phân biệt được câu hỏi mà Debugging, Unit Testing, Lint và Fit / Bug Optimization trả lời, cùng công cụ chính của từng Topic.',
+      'Áp dụng được thứ tự học đề xuất và nơi dạy chính của các kiến thức dễ chồng lấn trong session.'
     ],
-    knowledgeGap: 'Nhiều người mock thẳng interface Retrofit nên test luôn xanh nhưng không phát hiện lỗi parse JSON, mã lỗi HTTP hay interceptor.',
+    knowledgeGap: 'Biết rời rạc từng công cụ mà không thấy chúng là các lớp của cùng một vòng thì sẽ chỉ dựa vào một lớp (test tay, hoặc chờ crash report), sửa bug không kèm test chống lặp, và tối ưu hiệu năng theo cảm giác thay vì số đo.',
     updatedAt: '2026-11-09',
-    readTime: '10 phút',
+    readTime: '7 phút',
     content: `
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Bản nháp: phần dưới đây là kiến thức chuyển từ <a href="../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, nơi nó từng được dạy trước. Phần còn thiếu của Topic (JUnit, test ViewModel và coroutine, fake và mock, test các tầng khác) sẽ viết khi làm Session 10.</div></div>
-
 <h2>Vấn đề cần giải quyết</h2>
 
-<p>Một sai lầm phổ biến khi viết Unit Test cho tầng Data là <strong>dùng Mockito để mock trực tiếp Retrofit Interface</strong>:</p>
+<p>Viết được app rồi, câu hỏi tiếp theo là <strong>làm sao biết nó đúng và giữ nó đúng</strong>:</p>
 
-<pre data-lang="kotlin"><code>// KIỂU TEST VÔ NGHĨA:
-val mockApi = mock(ProductApiService::class.java)
-\`when\`(mockApi.fetchProducts()).thenReturn(listOf(...))</code></pre>
+<ol>
+  <li>Lỗi đọc code là thấy (gọi API cao hơn <code>minSdk</code>, log token) có bị chặn trước khi merge không?</li>
+  <li>Hành vi có đúng, và vẫn đúng sau mỗi lần sửa?</li>
+  <li>Khi app chạy sai, tìm nguyên nhân thế nào thay vì đoán rồi thử?</li>
+  <li>Trên máy người dùng, app có crash, treo, rò bộ nhớ, giật không, và bản sửa có làm số đo tốt lên?</li>
+</ol>
 
-<p>Cách test trên hoàn toàn vô nghĩa vì nó <strong>bỏ qua 100% logic của tầng mạng</strong>: không test được Interceptor, không test được logic parse JSON của Moshi/Serialization, không test được mã lỗi HTTP (401, 500) và không test được lỗi Timeout!</p>
+<p>Không công cụ nào trả lời cả bốn câu; Session 10 dạy bốn nhóm công cụ và cách nối chúng thành một vòng.</p>
 
 <h2>Sau khi học xong</h2>
 
 <ul>
-  <li>Giải thích được vì sao mock interface Retrofit không kiểm tra được tầng mạng.</li>
-  <li>Áp dụng được MockWebServer để trả response giả lập (thành công, lỗi HTTP) cho request thật từ OkHttp.</li>
-  <li>Triển khai được test cho safeApiCall với cả trường hợp thành công và lỗi server.</li>
+  <li>Giải thích được vòng chất lượng code (viết, lint, test, debug, giám sát và tối ưu ở production) và vai trò của từng Topic trong Session 10.</li>
+  <li>Phân biệt được câu hỏi mà Debugging, Unit Testing, Lint và Fit / Bug Optimization trả lời, cùng công cụ chính của từng Topic.</li>
+  <li>Áp dụng được thứ tự học đề xuất và nơi dạy chính của các kiến thức dễ chồng lấn trong session.</li>
+</ul>
+
+<h2>Vòng chất lượng code là gì?</h2>
+
+<p><strong>Vòng chất lượng code</strong> là chuỗi các lớp kiểm tra nối tiếp nhau, mỗi lớp bắt một loại lỗi ở thời điểm rẻ nhất có thể; lỗi nào lọt tới lớp sau thì được đưa ngược về lớp trước dưới dạng một test hoặc một check mới.</p>
+
+<p>Mental model: <strong>lưới lọc nhiều lớp</strong> (lint đọc code chưa chạy, test chạy code trong điều kiện kiểm soát, debug quan sát app đang chạy, giám sát đo app trên máy người dùng). Không lớp nào bắt hết; lỗi lọt tới người dùng thì vá lỗ ở lớp sớm hơn, vì bắt càng sớm càng rẻ.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Vòng chất lượng code</h3>
+
+<ol>
+  <li><strong>Viết code:</strong> editor chạy lint trên file đang mở; debugger và Logcat dùng khi thử tính năng (10.1).</li>
+  <li><strong>Lint:</strong> quét toàn module, chặn lỗi có mẫu và vi phạm quy ước (10.3).</li>
+  <li><strong>Test:</strong> unit test trên JVM cho logic, instrumented và UI test cho phần cần thiết bị (10.2).</li>
+  <li><strong>Cổng trước khi merge:</strong> CI chạy lại lint và test cho mỗi Pull Request (11.4 Github CI (chưa có bài)).</li>
+  <li><strong>Production:</strong> Crashlytics và Android vitals đo crash, ANR, hiệu năng trên máy người dùng (10.4).</li>
+  <li><strong>Chẩn đoán:</strong> tái hiện, khoanh vùng bằng debugger, stack trace, Profiler, LeakCanary (10.1, 10.4).</li>
+  <li><strong>Sửa và vá lưới:</strong> sửa nguyên nhân, thêm test (10.2), lint check (10.3) hoặc đo lại (10.4); quay về bước 1.</li>
+</ol>
+
+<div class="mermaid">
+flowchart LR
+    W["(1) Viết code&lt;br/&gt;editor lint, debugger"] --&gt; L["(2) Lint&lt;br/&gt;10.3"]
+    L --&gt; T["(3) Test&lt;br/&gt;10.2"]
+    T --&gt; CI["(4) CI trước merge&lt;br/&gt;11.4 chưa có bài"]
+    CI --&gt; P["(5) Production&lt;br/&gt;Crashlytics, vitals 10.4"]
+    P --&gt;|"crash, ANR, chậm"| D["(6) Chẩn đoán&lt;br/&gt;10.1 debug, 10.4 profile"]
+    D --&gt; F["(7) Sửa, test chống lặp,&lt;br/&gt;check mới, đo lại"]
+    F --&gt; W
+</div>
+
+<p>Điểm cần nhớ là <strong>mũi tên quay lại</strong>: bug chỉ xong khi có test, check hoặc benchmark đỏ nếu nó quay lại.</p>
+
+<h3>Session 10 học những gì?</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Topic</th>
+      <th style="padding:8px 12px;text-align:left;">Câu hỏi trả lời</th>
+      <th style="padding:8px 12px;text-align:left;">Công cụ chính</th>
+      <th style="padding:8px 12px;text-align:left;">Khi nào dùng</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><a href="debugging.md" target="_blank" rel="noopener">10.1 Debugging</a></td>
+      <td style="padding:8px 12px;">App đang chạy sai ở đâu, vì sao?</td>
+      <td style="padding:8px 12px;">Logcat, debugger, stack trace và retrace R8, App Inspection, adb</td>
+      <td style="padding:8px 12px;">Đã thấy hành vi sai, cần nguyên nhân gốc</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><a href="unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a></td>
+      <td style="padding:8px 12px;">Code có làm đúng hành vi mong đợi, và vẫn đúng sau mỗi lần sửa?</td>
+      <td style="padding:8px 12px;">JUnit 4, fake, <code>runTest</code>, Turbine, MockWebServer, Robolectric, Espresso, Compose UI test</td>
+      <td style="padding:8px 12px;">Viết logic mới, sửa bug, trước khi refactor</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><a href="lint.md" target="_blank" rel="noopener">10.3 Lint</a></td>
+      <td style="padding:8px 12px;">Không cần chạy, code có khớp mẫu lỗi đã biết hoặc vi phạm quy ước không?</td>
+      <td style="padding:8px 12px;">Android Lint, baseline, custom lint rule, ktlint, detekt</td>
+      <td style="padding:8px 12px;">Mỗi PR, tự động</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><a href="fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a></td>
+      <td style="padding:8px 12px;">Trên máy người dùng, app có crash, ANR, leak, giật, chậm không; bản sửa có làm số đo tốt lên?</td>
+      <td style="padding:8px 12px;">Crashlytics, Android vitals, LeakCanary, Profiler, JankStats, Macrobenchmark, Baseline Profiles</td>
+      <td style="padding:8px 12px;">Sau khi phát hành; khi tối ưu hiệu năng</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Bốn Topic chia theo <strong>thời điểm</strong>: Lint và Unit Testing chạy <strong>trước</strong> khi code tới người dùng, Debugging dùng <strong>bất kỳ lúc nào</strong> có hành vi sai, Fit / Bug Optimization dùng dữ liệu <strong>sau</strong> khi phát hành.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Bài 10.4 "Fit / Bug Optimization" hiểu "Fit" là "Fix": sửa bug ở production và tối ưu hiệu năng.</div></div>
+
+<h3>Nơi dạy chính của các kiến thức dễ chồng lấn</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Kiến thức</th>
+      <th style="padding:8px 12px;text-align:left;">Dạy chính ở</th>
+      <th style="padding:8px 12px;text-align:left;">Bài khác chỉ nhắc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">ANR, Main Thread, StrictMode <code>ThreadPolicy</code></td>
+      <td style="padding:8px 12px;"><a href="../session_05/working_with_thread.md" target="_blank" rel="noopener">5.2 Working with Thread</a></td>
+      <td style="padding:8px 12px;">10.4: trace ANR, StrictMode <code>VmPolicy</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Layout Inspector, đếm recomposition</td>
+      <td style="padding:8px 12px;"><a href="../jetpack_compose_ui/remember_and_recomposition.md" target="_blank" rel="noopener">9.1 Remember and Recomposition</a></td>
+      <td style="padding:8px 12px;">10.1 tóm tắt; 10.4 trỏ về khi xử lý jank</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Logcat, debugger, stack trace, retrace bằng <code>mapping.txt</code></td>
+      <td style="padding:8px 12px;">10.1</td>
+      <td style="padding:8px 12px;">10.4: Crashlytics tự upload mapping</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Viết test, test double, test coroutine, UI test</td>
+      <td style="padding:8px 12px;">10.2</td>
+      <td style="padding:8px 12px;">10.1, 10.4: test chống lặp khi sửa bug</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Profiler, LeakCanary, Crashlytics, Macrobenchmark</td>
+      <td style="padding:8px 12px;">10.4</td>
+      <td style="padding:8px 12px;">10.1 chỉ trỏ sang</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Lint, baseline, custom lint rule</td>
+      <td style="padding:8px 12px;">10.3</td>
+      <td style="padding:8px 12px;">10.1, 10.4: lint là lớp bắt lỗi sớm hơn</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Thay dependency bằng fake qua DI</td>
+      <td style="padding:8px 12px;"><a href="../session_07/design_pattern/di/overview.md" target="_blank" rel="noopener">7.x Dependency Injection</a></td>
+      <td style="padding:8px 12px;">10.2 thay repository bằng fake</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Build type, R8, lưu <code>mapping.txt</code></td>
+      <td style="padding:8px 12px;"><a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a></td>
+      <td style="padding:8px 12px;">10.1 retrace; 10.4 giảm kích thước app</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Thứ tự học đề xuất</h3>
+
+<div class="mermaid">
+flowchart LR
+    O["10.0 Overview"] --&gt; D["10.1 Debugging"]
+    D --&gt; T["10.2 Unit Testing"]
+    T --&gt; L["10.3 Lint"]
+    T --&gt; F["10.4 Fit / Bug Optimization"]
+    L --&gt; F
+</div>
+
+<ol>
+  <li><strong>10.1 trước:</strong> quy trình debug là nền; bước cuối "chứng minh lỗi không quay lại" dẫn sang 10.2.</li>
+  <li><strong>10.2 tiếp theo:</strong> test chống lặp dùng ở cả 10.1 và 10.4; custom lint rule ở 10.3 cũng test bằng JUnit.</li>
+  <li><strong>10.3 rồi 10.4:</strong> 10.4 nặng nhất nên để cuối, trùng thứ tự mục lục.</li>
+</ol>
+
+<h2>Ví dụ thực tế</h2>
+
+<p>Một bug đi trọn vòng: sau một bản phát hành, <strong>app crash khi mở màn chi tiết đơn hàng, chỉ trên máy dưới Android 13 (API 33)</strong>.</p>
+
+<ol>
+  <li><strong>Production (10.4):</strong> Crashlytics báo <code>NoSuchMethodError</code> mới trên máy API 32 trở xuống.</li>
+  <li><strong>Chẩn đoán (10.1):</strong> stack trace (đã retrace) chỉ tới <code>Bundle.getParcelable(key, Order::class.java)</code>, overload chỉ có từ API 33; tái hiện ngay trên emulator API 31.</li>
+  <li><strong>Sửa và test chống lặp (10.2):</strong> đổi sang <code>BundleCompat.getParcelable(...)</code> của AndroidX; test đọc đơn hàng từ <code>Bundle</code> chạy bằng Robolectric với SDK 31, đỏ trước khi sửa, xanh sau khi sửa.</li>
+  <li><strong>Vá lưới ở lớp sớm hơn (10.3):</strong> <code>NewApi</code> vốn bắt được lỗi này nhưng bị <code>@SuppressLint("NewApi")</code> tắt trên cả class; bỏ suppress, nâng <code>NewApi</code> thành <code>fatal</code>.</li>
+  <li><strong>Cổng trước khi merge (11.4, chưa có bài):</strong> lint và test chạy trong CI cho mọi PR.</li>
+</ol>
+
+<p>Kết quả là <strong>lưới dày hơn</strong> ở hai lớp: thêm một test, và một check không còn bị tắt.</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Chỉ dựa vào một lớp kiểm tra</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> team chỉ test tay, hoặc chỉ chờ Crashlytics báo; lỗi trên máy cũ hay ở luồng ít người thử tới thẳng người dùng.</p>
+
+<p><strong>Cách sửa:</strong> tối thiểu cần lint và unit test tự động cho mỗi PR, cộng giám sát production.</p>
+
+<h3>2. Sửa bug mà không vá lưới</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> bug cũ quay lại sau một refactor, không gì báo đỏ.</p>
+
+<p><strong>Cách sửa:</strong> bản sửa luôn kèm test tái hiện bug (10.2), lint check nếu lỗi có mẫu chung (10.3), hoặc benchmark nếu là hiệu năng (10.4).</p>
+
+<h3>3. Tối ưu theo cảm giác</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> sửa vài chỗ rồi "thấy nhanh hơn" trên bản debug, nhưng startup trên Android vitals không đổi.</p>
+
+<p><strong>Cách sửa:</strong> đo trước và sau bằng công cụ của 10.4 (Macrobenchmark trên bản release, chỉ số production).</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>2011:</strong> Android Lint ra đời (ADT 16).</li>
+  <li><strong>2013–2018:</strong> Espresso và Android Testing Support Library chuẩn hoá test trên thiết bị; 2018 chuyển thành AndroidX Test.</li>
+  <li><strong>2017:</strong> Google ra mắt Android vitals trên Play Console và mua lại Crashlytics (nay là Firebase Crashlytics).</li>
+  <li><strong>2021–2022:</strong> Compose 1.0 ra mắt cùng API test UI; Macrobenchmark và Baseline Profiles đưa đo và tối ưu hiệu năng vào quy trình build.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="../session_05/working_with_thread.md" target="_blank" rel="noopener">5.2 Working with Thread</a>: Main Thread, ANR, StrictMode cơ bản.</li>
+  <li><a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">7.2.3 MVVM</a>, <a href="../session_07/design_pattern/di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>: tách tầng, inject dependency để thay bằng fake khi test.</li>
+  <li><a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>: nền của debug và test coroutine.</li>
+  <li><a href="../jetpack_compose_ui/index.md" target="_blank" rel="noopener">Session 09 Overview</a>: UI Compose, được test ở 10.2 và tối ưu ở 10.4.</li>
+</ul></li>
+  <li><strong>Trong session:</strong> <a href="debugging.md" target="_blank" rel="noopener">10.1 Debugging</a>, <a href="unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>, <a href="lint.md" target="_blank" rel="noopener">10.3 Lint</a>, <a href="fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a>.</li>
+  <li><strong>Học tiếp:</strong> Session 11, đặc biệt 11.4 Github CI (chưa có bài): tự động hoá bước 4 của vòng.</li>
+</ul>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li><a href="https://developer.android.com/training/testing" target="_blank" rel="noopener">Test apps on Android - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/debug" target="_blank" rel="noopener">Debug your app - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/write/lint" target="_blank" rel="noopener">Improve your code with lint checks - Android Developers</a></li>
+  <li><a href="https://developer.android.com/topic/performance/overview" target="_blank" rel="noopener">App performance guide - Android Developers</a></li>
+  <li><a href="https://developer.android.com/topic/performance/vitals" target="_blank" rel="noopener">Android vitals - Android Developers</a></li>
+  <li><a href="https://firebase.google.com/docs/crashlytics" target="_blank" rel="noopener">Firebase Crashlytics - Firebase</a></li>
+</ul>
+    `
+  },
+
+  'android-debugging': {
+    title: 'Debugging',
+    summary: 'Debugging là quá trình tìm nguyên nhân gốc của một hành vi sai bằng cách quan sát trạng thái thật của app và kiểm chứng từng giả thuyết, rồi sửa và chứng minh lỗi không quay lại. Công cụ: Logcat, debugger, stack trace và retrace R8, App Inspection, adb.',
+    status: 'published',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '21 phút',
+    depth: 'standard',
+    tags: ['android', 'session-10', 'debugging', 'logcat', 'debugger', 'stack-trace', 'app-inspection', 'adb'],
+    domain: 'Android',
+    module: 'Session 10',
+    prerequisites: ['android.thread.working_with_thread', 'android.async.coroutines', 'android.manifest.build_types'],
+    related: ['android.testing.unit_testing', 'android.testing.fit_bug_optimization', 'android.testing.lint', 'android.jetpack_compose.remember_recomposition', 'android.data_store.room_architecture', 'android.networks.okhttp', 'android.component.activity.state_changes'],
+    learningOutcomes: [
+      'Áp dụng được quy trình debug năm bước tái hiện, khoanh vùng, đặt giả thuyết, kiểm chứng, sửa kèm test chống lặp thay vì sửa theo phỏng đoán.',
+      'Debug được bằng Logcat và debugger của Android Studio: truy vấn log theo package, tag, level, breakpoint có điều kiện, exception breakpoint, logpoint, Evaluate Expression, attach vào process đang chạy và đặt tên coroutine.',
+      'Giải thích được cấu trúc một stack trace (exception ngoài cùng, chuỗi Caused by, frame của app và của framework) và cách khôi phục stack trace bị R8 làm rối bằng mapping.txt.',
+      'Biết khi nào dùng Database Inspector, Network Inspector, Background Task Inspector và adb (logcat, am, dumpsys, bugreport) để quan sát dữ liệu thật thay vì đoán.',
+      'Nhận diện được các sai lầm như sửa khi chưa tái hiện được lỗi, log dữ liệu nhạy cảm, nuốt exception và chỉ đọc dòng đầu của stack trace.'
+    ],
+    knowledgeGap: 'Nhiều developer debug bằng cách đoán: thêm vài dòng println, sửa thử, chạy lại xem còn lỗi không. Cách đó hay sửa nhầm triệu chứng, để lại log chứa dữ liệu người dùng trong bản release, và bỏ qua công cụ trả lời thẳng câu hỏi: breakpoint có điều kiện, logpoint, truy vấn Logcat, chuỗi Caused by, mapping.txt.',
+    updatedAt: '2026-11-09',
+    readTime: '21 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Báo cáo lỗi thường đến dưới dạng triệu chứng: "tin nhắn đôi khi bị trùng", "bấm thông báo thì app văng", "giảm giá tính sai với vài giỏ hàng". Triệu chứng nằm ở UI, còn nguyên nhân có thể ở bất kỳ tầng nào: dữ liệu server, cách ghi database, thứ tự hai coroutine, một extra thiếu trong <code>Intent</code>.</p>
+
+<p>Cách xử lý phổ biến là đoán: <code>println</code> in cả response, bọc <code>try/catch</code> rỗng cho app khỏi văng, sửa thử rồi chạy lại. Đoán không cho biết đã sửa đúng chưa (lỗi "đôi khi" không thấy vài lần chưa có nghĩa là hết), hay sửa triệu chứng (thêm <code>distinctBy</code> ở UI trong khi database vẫn đầy bản ghi trùng), làm mất stack trace khi nuốt exception, và để log chứa dữ liệu người dùng đi theo bản release.</p>
+
+<p>Vấn đề cần giải quyết là: <strong>đi từ triệu chứng tới nguyên nhân gốc bằng quan sát và kiểm chứng</strong>, rồi sửa sao cho lỗi không quay lại.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Áp dụng được quy trình debug năm bước tái hiện, khoanh vùng, đặt giả thuyết, kiểm chứng, sửa kèm test chống lặp thay vì sửa theo phỏng đoán.</li>
+  <li>Debug được bằng Logcat và debugger của Android Studio: truy vấn log theo package, tag, level, breakpoint có điều kiện, exception breakpoint, logpoint, Evaluate Expression, attach vào process đang chạy và đặt tên coroutine.</li>
+  <li>Giải thích được cấu trúc một stack trace (exception ngoài cùng, chuỗi Caused by, frame của app và của framework) và cách khôi phục stack trace bị R8 làm rối bằng mapping.txt.</li>
+  <li>Biết khi nào dùng Database Inspector, Network Inspector, Background Task Inspector và adb (logcat, am, dumpsys, bugreport) để quan sát dữ liệu thật thay vì đoán.</li>
+  <li>Nhận diện được các sai lầm như sửa khi chưa tái hiện được lỗi, log dữ liệu nhạy cảm, nuốt exception và chỉ đọc dòng đầu của stack trace.</li>
+</ul>
+
+<h2>Debugging là gì?</h2>
+
+<p><strong>Debugging</strong> là quá trình tìm nguyên nhân gốc của một hành vi sai bằng cách <strong>quan sát trạng thái thật của app</strong> và <strong>kiểm chứng từng giả thuyết</strong>, rồi sửa và chứng minh lỗi không quay lại.</p>
+
+<p>Mental model: debug là <strong>làm thí nghiệm</strong>. Mỗi lần chạy app là một thí nghiệm xác nhận hoặc loại bỏ đúng một giả thuyết; Logcat, debugger, App Inspection và adb là <strong>dụng cụ đo</strong>. Dụng cụ chỉ trả lời câu hỏi bạn đặt ra; câu hỏi càng hẹp ("<code>insertAll</code> có bị gọi hai lần không?") thì câu trả lời càng rõ.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Quy trình debug năm bước</h3>
+
+<ol>
+  <li><strong>Tái hiện:</strong> tìm chuỗi thao tác làm lỗi xảy ra, ghi lại thiết bị, phiên bản Android, build variant, dữ liệu. Lỗi "đôi khi" cần tìm điều kiện làm nó xảy ra thường xuyên: mạng chậm, bấm nhanh hai lần, xoay màn hình, app bị kill ở background.</li>
+  <li><strong>Khoanh vùng:</strong> chia đôi đường đi của dữ liệu: server trả đúng chưa, ghi database đúng chưa, ViewModel đưa ra state đúng chưa. Mỗi câu trả lời loại một nửa không gian tìm kiếm.</li>
+  <li><strong>Đặt giả thuyết:</strong> một nguyên nhân cụ thể kiểm chứng được, như "hai lần refresh chạy song song, mỗi lần chèn toàn bộ danh sách". "Chắc do Room" không dẫn tới thí nghiệm nào.</li>
+  <li><strong>Kiểm chứng:</strong> dùng công cụ để xác nhận hoặc bác bỏ. Bị bác bỏ thì quay lại bước 2 với thông tin mới.</li>
+  <li><strong>Sửa và chống lặp:</strong> sửa ở đúng tầng chứa nguyên nhân, viết test tái hiện lỗi (đỏ trước khi sửa, xanh sau khi sửa), chạy lại bước 1. Cách viết test ở <a href="unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) Tái hiện được lỗi"] --&gt; B["(2) Khoanh vùng tầng chứa lỗi"]
+    B --&gt; C["(3) Đặt một giả thuyết cụ thể"]
+    C --&gt; D{"(4) Kiểm chứng bằng công cụ"}
+    D --&gt;|"bị bác bỏ"| B
+    D --&gt;|"được xác nhận"| E["(5) Sửa ở đúng tầng + test chống lặp"]
+    E --&gt; F{"Chạy lại bước 1 còn lỗi?"}
+    F --&gt;|"còn"| B
+    F --&gt;|"hết"| G["Đóng lỗi"]
+</div>
+
+<p>Dụng cụ đo: Logcat (app đã làm gì), debugger (trạng thái tại một thời điểm), stack trace (lời khai của crash), App Inspection (dữ liệu), adb (điều khiển thiết bị).</p>
+
+<h3>Logcat: nhật ký của app và hệ thống</h3>
+
+<p><strong>Logcat</strong> là các bộ đệm log vòng (circular buffer) do <code>logd</code> quản lý; log của app (<code>android.util.Log</code>), framework và crash đều ghi vào đây (bộ đệm <code>main</code>, <code>system</code>, <code>crash</code>).</p>
+
+<p>Mỗi dòng có thời gian, PID/TID, <strong>tag</strong>, package, <strong>mức (priority)</strong> và nội dung. Sáu mức từ thấp tới cao: <code>VERBOSE</code> (<code>Log.v</code>, rất chi tiết), <code>DEBUG</code> (<code>Log.d</code>, cho developer), <code>INFO</code> (<code>Log.i</code>, mốc bình thường), <code>WARN</code> (<code>Log.w</code>, bất thường nhưng tự xử lý được), <code>ERROR</code> (<code>Log.e</code>, thao tác thất bại), <code>ASSERT</code> (<code>Log.wtf</code>, điều "không bao giờ được xảy ra", luôn kèm call stack).</p>
+
+<p>Tag nên cố định theo class hoặc tính năng (<code>private const val TAG = "MessageSync"</code>) để lọc được; trên API 25 trở xuống, <code>Log.isLoggable</code> ném exception nếu tag dài hơn 23 ký tự. Khi log lỗi, truyền <code>Throwable</code> làm tham số cuối (<code>Log.e(TAG, "sync failed", e)</code>) để có stack trace; nối <code>e.message</code> vào chuỗi sẽ làm mất nó.</p>
+
+<h4>Truy vấn trong cửa sổ Logcat</h4>
+
+<p>Từ Android Studio Electric Eel, cửa sổ Logcat lọc bằng <strong>truy vấn key-value</strong> (bấm <code>Ctrl</code> + <code>Space</code> để xem gợi ý):</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Truy vấn</th>
+      <th style="padding:8px 12px;text-align:left;">Ý nghĩa</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>package:mine</code></td>
+      <td style="padding:8px 12px;">Log của mọi package thuộc project đang mở</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>tag:MessageSync</code></td>
+      <td style="padding:8px 12px;">Tag chứa chuỗi <code>MessageSync</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>tag~:Message.*</code></td>
+      <td style="padding:8px 12px;">Tag khớp biểu thức chính quy</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>-tag:OkHttp</code></td>
+      <td style="padding:8px 12px;">Loại bỏ tag chứa <code>OkHttp</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>level:WARN</code></td>
+      <td style="padding:8px 12px;">Mức <code>WARN</code> trở lên</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>age:5m</code></td>
+      <td style="padding:8px 12px;">Log trong 5 phút gần nhất (theo đồng hồ máy tính)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>is:crash</code></td>
+      <td style="padding:8px 12px;">Crash của app (Java hoặc native)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Nhiều điều kiện <strong>cùng key, không phủ định</strong> ghép bằng OR, còn lại ghép bằng AND: <code>tag:Sync tag:Api -tag:Retry package:mine</code> nghĩa là <code>(tag:Sync | tag:Api) &amp; -tag:Retry &amp; package:mine</code>. Có thể viết tường minh bằng <code>&amp;</code>, <code>|</code> và ngoặc; <code>&amp;</code> ưu tiên hơn <code>|</code>.</p>
+
+<p><code>package:mine</code> lọc theo package chứ không theo PID, nên vẫn bắt được log sau khi process chết và khởi động lại; Logcat chèn <code>PROCESS ENDED</code> và <code>PROCESS STARTED</code> để đánh dấu.</p>
+
+<h4>Log trong bản release</h4>
+
+<p>Log nằm trong bộ đệm chung của thiết bị. Từ Android 4.1 chỉ app hệ thống có <code>READ_LOGS</code> mới đọc log của app khác, nhưng vài app cài sẵn có quyền này, và ai cắm cáp với USB debugging cũng đọc được. Hướng dẫn bảo mật của Android khuyên:</p>
+
+<ul>
+  <li><strong>Không log dữ liệu nhạy cảm:</strong> token, mật khẩu, email, số điện thoại, nội dung tin nhắn, toàn bộ response. Log id và số lượng (<code>orderId=A1029</code>, <code>count=20</code>).</li>
+  <li><strong>Bỏ log khỏi bản release bằng R8</strong>, không xoá tay, với rule <code>-assumenosideeffects</code> (cần bật minify, xem <a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>):</li>
+</ul>
+
+<pre data-lang="text"><code># proguard-rules.pro: xoá Log.v/d/i khỏi bản đã minify, giữ Log.w/e
+-assumenosideeffects class android.util.Log {
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+}</code></pre>
+
+<ul>
+  <li>Lỗi cần biết ở production thì gửi lên Crashlytics (<a href="fit_bug_optimization.md" target="_blank" rel="noopener">Fit / Bug Optimization</a>).</li>
+</ul>
+
+<p>Thư viện <strong>Timber</strong> gói <code>Log</code>, tự lấy tag theo tên class; chỉ <code>Timber.plant(Timber.DebugTree())</code> ở bản debug thì bản release không in gì.</p>
+
+<h3>Debugger của Android Studio: dừng thời gian để xem trạng thái</h3>
+
+<p>Log cho biết app <strong>đã</strong> làm gì. <strong>Debugger</strong> <strong>dừng</strong> app ở một dòng code để xem biến, call stack, thread, rồi chạy tiếp từng bước; chỉ gắn được vào build <strong>debuggable</strong> (<code>isDebuggable = true</code>, mặc định ở build type <code>debug</code>).</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Loại breakpoint</th>
+      <th style="padding:8px 12px;text-align:left;">Dừng khi</th>
+      <th style="padding:8px 12px;text-align:left;">Dùng khi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Line</td>
+      <td style="padding:8px 12px;">Chạy tới một dòng</td>
+      <td style="padding:8px 12px;">Thường gặp nhất</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Method</td>
+      <td style="padding:8px 12px;">Vào hoặc ra khỏi một hàm</td>
+      <td style="padding:8px 12px;">Biết hàm, chưa biết dòng; đặt trên composable thì debugger liệt kê tham số và state của nó</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Field</td>
+      <td style="padding:8px 12px;">Một field bị đọc hoặc ghi</td>
+      <td style="padding:8px 12px;">Tìm "ai đã đổi giá trị này"</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Exception</td>
+      <td style="padding:8px 12px;">Một exception bị ném</td>
+      <td style="padding:8px 12px;">Tìm nơi exception sinh ra, kể cả khi nó bị <code>catch</code> và nuốt ở chỗ khác</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Cấu hình thêm cho mỗi breakpoint (chuột phải vào chấm đỏ, hoặc <strong>Run &gt; View Breakpoints</strong>):</p>
+
+<ul>
+  <li><strong>Condition:</strong> chỉ dừng khi biểu thức đúng, ví dụ <code>voucher.code == "SALE15"</code>; cần khi dòng code chạy hàng trăm lần.</li>
+  <li><strong>Logpoint:</strong> bỏ chọn <strong>Suspend</strong> và bật <strong>Log</strong> ("Breakpoint hit", stack trace, hoặc <strong>Evaluate and log</strong> một biểu thức) thì breakpoint chỉ in ra console của debugger, không dừng app, không phải build lại. <code>Shift</code> + bấm vào lề để tạo nhanh.</li>
+  <li><strong>Exception breakpoint</strong> đặt ở mục <strong>Java Exception Breakpoints</strong> (dùng được cho Kotlin), chọn <strong>Caught</strong> và/hoặc <strong>Uncaught exception</strong>; thêm class filter theo package của app để không dừng trong code thư viện.</li>
+</ul>
+
+<p>Khi app đang dừng: <strong>Frames</strong> là call stack (bấm từng frame để xem biến ở đó, thread selector để đổi thread); <strong>Variables</strong> là cây object; <strong>Step Over</strong> (<code>F8</code>), <strong>Step Into</strong> (<code>F7</code>), <strong>Force Step Into</strong> (vào cả code thư viện), <strong>Step Out</strong> (<code>Shift+F8</code>), <strong>Resume Program</strong>; <strong>Evaluate Expression</strong> chạy một biểu thức Kotlin trong ngữ cảnh frame hiện tại để thử giả thuyết ngay; <strong>Watches</strong> được tính lại mỗi lần dừng hoặc step.</p>
+
+<p><strong>Attach Debugger to Android Process</strong> gắn debugger vào app <strong>đang chạy</strong>, giữ nguyên trạng thái khó tái hiện. Debug type mặc định <strong>Detect Automatically</strong> chọn Java Only, hoặc Dual (Java + LLDB) khi project có C/C++.</p>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Debugger thay đổi hành vi của app. Máy ảo giữ mọi object mà debugger biết tới cho tới khi ngắt kết nối, nên đo bộ nhớ khi đang gắn debugger cho số sai. Dừng ở breakpoint cũng đổi thứ tự các thread, có thể làm lỗi race condition biến mất; khi đó dùng logpoint.</div></div>
+
+<h4>Ví dụ: tìm vì sao một mã giảm giá tính sai</h4>
+
+<p><strong>Bài toán:</strong> mã <code>SALE15</code> giảm 15%, tối đa 30.000đ. Giỏ 300.000đ bị giảm 45.000đ; giỏ nhỏ thì đúng. Hàm tính giá chạy cho mọi giỏ, nên breakpoint thường dừng liên tục.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Tái hiện: giỏ 300.000đ, áp <code>SALE15</code>, tổng sai.</li>
+  <li>Đặt breakpoint ở dòng gọi <code>calculateDiscount</code> với Condition <code>voucher != null &amp;&amp; voucher.code == "SALE15"</code>.</li>
+  <li>Khi dừng, Step Into <code>calculateDiscount</code>; Evaluate <code>byPercent</code> ra 45.000, <code>voucher.maxDiscount</code> là 30.000.</li>
+  <li>Step Over tới <code>return</code>: hàm trả về 45.000, trần không được áp.</li>
+  <li>Dòng đó dùng <code>maxOf</code> thay vì <code>minOf</code>. Sửa, thêm test giỏ vượt trần, chạy lại bước 1.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) Giỏ 300.000đ + SALE15 cho kết quả sai"] --&gt; B["(2) Breakpoint có điều kiện code == SALE15"]
+    B --&gt; C["(3) Step Into, Evaluate: byPercent = 45.000, maxDiscount = 30.000"]
+    C --&gt; D["(4) Step Over tới return: trả về 45.000"]
+    D --&gt; E{"Trần giảm giá có được áp?"}
+    E --&gt;|"không"| F["(5) Sửa maxOf thành minOf + test vượt trần"]
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// CartPriceCalculator.kt
+class CartPriceCalculator {
+
+    fun total(items: List&lt;CartItem&gt;, voucher: Voucher?): Long {
+        val subtotal = items.sumOf { it.unitPrice * it.quantity }
+        val discount = voucher?.let { calculateDiscount(subtotal, it) } ?: 0L   // (2) breakpoint có điều kiện
+        return subtotal - discount
+    }
+
+    private fun calculateDiscount(subtotal: Long, voucher: Voucher): Long {
+        val byPercent = subtotal * voucher.percent / 100                         // (3) Step Into tới đây, Evaluate
+        return maxOf(byPercent, voucher.maxDiscount)                             // (4)(5) lỗi: phải là minOf
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> chỉ một lần dừng, đúng giỏ có lỗi; Evaluate xác nhận giả thuyết trước khi sửa. Sau khi đổi thành <code>minOf</code>, test giỏ vượt trần chuyển từ đỏ sang xanh.</p>
+
+<h3>Debug coroutine</h3>
+
+<p>Một coroutine có thể tạm dừng trên thread này, chạy tiếp trên thread khác, và nhiều coroutine chạy xen kẽ trên <code>Dispatchers.Main</code>, nên tên thread hay call stack không đủ biết "coroutine nào đang chạy". Cơ chế coroutine ở <a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">Coroutines</a>; <code>kotlinx.coroutines</code> có các công cụ quan sát:</p>
+
+<ul>
+  <li><strong>Debug mode:</strong> gán id cho mỗi coroutine, và khi coroutine chạy thì <strong>tên thread</strong> được nối thêm tên coroutine, như <code>main @search:cam#42</code>. Bật bằng system property <code>kotlinx.coroutines.debug</code> (giá trị <code>on</code>); tự bật khi JVM chạy với assertion (unit test đã có sẵn). Chi phí không đáng kể.</li>
+  <li><strong><code>CoroutineName</code>:</strong> đặt tên dễ đọc cho coroutine, hiện trong tên thread khi debug mode bật.</li>
+  <li><strong>Stack trace recovery:</strong> exception nhận qua hàm suspend (như <code>await()</code>) được sao lại kèm frame của coroutine nhận; exception gốc thành <code>Caused by</code>.</li>
+</ul>
+
+<p>Trên Android không truyền được tham số JVM, nên bật debug mode bằng <code>System.setProperty</code>. Thư viện chỉ đọc property này <strong>một lần</strong>, nên phải gán trước coroutine đầu tiên; nếu <code>ContentProvider</code> hay initializer của App Startup (chạy trước <code>Application.onCreate</code>) đã dùng coroutine thì gán trong khối <code>init</code> của <code>Application</code>.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Docs của <code>kotlinx.coroutines</code> ghi <strong>debug agent</strong> (module <code>kotlinx-coroutines-debug</code>) không hỗ trợ Android, và README của module ghi coroutine debugger không dùng được với Android emulator; vì vậy đừng trông vào tab Coroutines của debugger, còn tên coroutine, Frames và Threads vẫn dùng được. Biến hiện "was optimized out" trong hàm suspend là do compiler rút ngắn vòng đời biến; cờ <code>-Xdebug</code> tắt việc này nhưng không được dùng cho production.</div></div>
+
+<h4>Ví dụ: kết quả tìm kiếm cũ ghi đè kết quả mới</h4>
+
+<p><strong>Bài toán:</strong> ô tìm kiếm gọi API mỗi khi gõ. Gõ nhanh "ca" rồi "cam", đôi khi danh sách hiện kết quả của "ca". Coroutine nào ghi kết quả cuối?</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li><code>Application.onCreate</code> bật debug mode trong bản debug.</li>
+  <li>Mỗi lần gõ, ViewModel <code>launch</code> một coroutine tên <code>search:&lt;từ khoá&gt;</code>.</li>
+  <li>Coroutine log tên thread lúc bắt đầu và lúc có kết quả.</li>
+  <li>Coroutine ghi kết quả vào <code>StateFlow</code>.</li>
+  <li>Log cho thấy coroutine "ca" xong <strong>sau</strong> coroutine "cam" và ghi đè.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant VM as ProductSearchViewModel
+    participant C1 as coroutine search ca
+    participant C2 as coroutine search cam
+    participant S as results StateFlow
+    VM-&gt;&gt;C1: (2) launch khi gõ ca
+    VM-&gt;&gt;C2: (2) launch khi gõ cam
+    C2-&gt;&gt;S: (4) ghi 12 kết quả của cam
+    C1-&gt;&gt;S: (4) ghi 87 kết quả của ca, ghi đè
+    Note over C1,S: (5) log cho thấy C1 xong sau C2
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// ShopApp.kt
+class ShopApp : Application() {
+    override fun onCreate() {
+        if (BuildConfig.DEBUG) {
+            System.setProperty("kotlinx.coroutines.debug", "on")                 // (1) trước coroutine đầu tiên
+        }
+        super.onCreate()
+    }
+}
+
+// ProductSearchViewModel.kt
+class ProductSearchViewModel(private val repository: ProductRepository) : ViewModel() {
+
+    private val _results = MutableStateFlow&lt;List&lt;Product&gt;&gt;(emptyList())
+    val results: StateFlow&lt;List&lt;Product&gt;&gt; = _results.asStateFlow()
+
+    fun onQueryChange(query: String) {
+        viewModelScope.launch(CoroutineName("search:$query")) {                 // (2)
+            Log.d(TAG, "[\${Thread.currentThread().name}] start")                 // (3)
+            val items = repository.search(query)
+            Log.d(TAG, "[\${Thread.currentThread().name}] done \${items.size}")    // (3)
+            _results.value = items                                               // (4)
+        }
+    }
+
+    private companion object { const val TAG = "ProductSearch" }
+}</code></pre>
+
+<p><code>BuildConfig.DEBUG</code> cần <code>buildFeatures { buildConfig = true }</code> từ AGP 8.</p>
+
+<p><strong>Kết quả:</strong> lọc <code>tag:ProductSearch</code>, Logcat cho thấy thứ tự kết thúc:</p>
+
+<pre data-lang="text"><code>D  [main @search:ca#41] start
+D  [main @search:cam#42] start
+D  [main @search:cam#42] done 12
+D  [main @search:ca#41] done 87</code></pre>
+
+<p>Giả thuyết được xác nhận. Sửa: huỷ <code>Job</code> của lần tìm trước khi <code>launch</code> lần mới, hoặc dùng <code>Flow</code> với <code>debounce</code> + <code>flatMapLatest</code> (<a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>); chạy lại thì dòng <code>done 87</code> của <code>#41</code> không còn.</p>
+
+<h3>Đọc stack trace</h3>
+
+<p><strong>Stack trace</strong> là danh sách các frame (lời gọi hàm) đang mở khi exception được ném, frame trên cùng là nơi ném:</p>
+
+<pre data-lang="text"><code>FATAL EXCEPTION: main
+Process: com.example.shop, PID: 18342
+java.lang.RuntimeException: Unable to start activity ComponentInfo{com.example.shop/com.example.shop.order.OrderDetailActivity}: java.lang.IllegalArgumentException: Missing orderId
+    at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3782)
+    ...
+    at android.app.ActivityThread.main(ActivityThread.java:8705)
+    ...
+Caused by: java.lang.IllegalArgumentException: Missing orderId
+    at com.example.shop.order.OrderDetailActivity.onCreate(OrderDetailActivity.kt:27)
+    at android.app.Activity.performCreate(Activity.java:8974)
+    ... 13 more</code></pre>
+
+<ol>
+  <li><strong>Dòng tiêu đề:</strong> <code>FATAL EXCEPTION: main</code> cho biết thread bị crash.</li>
+  <li><strong>Exception ngoài cùng</strong> (<code>Unable to start activity</code>) thường là framework <strong>bọc</strong> lỗi thật.</li>
+  <li><strong><code>Caused by</code> cuối cùng</strong> là nguyên nhân gốc: <code>IllegalArgumentException: Missing orderId</code>.</li>
+  <li><strong>Frame đầu tiên của app</strong> trong khối đó (dòng đầu có package của bạn): <code>OrderDetailActivity.kt:27</code>. Frame <code>android.*</code>, <code>java.*</code>, <code>kotlinx.coroutines.*</code> cho biết <strong>ai gọi</strong> code của bạn; <code>BaseContinuationImpl.resumeWith</code>, <code>DispatchedTask.run</code> là chỗ coroutine được tiếp tục, không phải lỗi.</li>
+  <li><strong><code>... 13 more</code>:</strong> các frame giống phần cuối của exception bọc ngoài, được rút gọn.</li>
+</ol>
+
+<p>Crash trên xảy ra khi bấm thông báo đơn hàng: dòng 27 là <code>requireNotNull(intent.getStringExtra(EXTRA_ORDER_ID)) { "Missing orderId" }</code>. Breakpoint tại dòng đó cho thấy <code>intent.extras</code> chỉ có key <code>order_id</code>, khác giá trị của <code>EXTRA_ORDER_ID</code>, vì nơi tạo <code>PendingIntent</code> gõ tay key. Sửa bằng hàm <code>newIntent(context, orderId)</code> của Activity dùng chung hằng <code>EXTRA_ORDER_ID</code>, thông báo gọi hàm đó (<a href="../session_04/intent/pending_intent.md" target="_blank" rel="noopener">Pending Intent</a>).</p>
+
+<h4>Stack trace bị R8 làm rối</h4>
+
+<p>Bản release bật minify thì R8 đổi tên, gộp và inline hàm, nên stack trace từ người dùng trông như <code>at a.b.c.onCreate(SourceFile:12)</code>. AGP sinh <code>app/build/outputs/mapping/&lt;variant&gt;/mapping.txt</code> (bảng tên thật và tên rối) ở mỗi lần build có minify; file bị ghi đè mỗi lần build nên phải lưu riêng cho từng bản phát hành (<a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>, mục "Đọc crash bản release: mapping.txt"). Cách khôi phục:</p>
+
+<ul>
+  <li>Logcat của Android Studio <strong>tự retrace</strong> ở bản mới; docs ghi hai mốc khác nhau: AGP 8.12 (bảng thay đổi ở trang shrink-code) và Android Studio Otter 3 Feature Drop cùng AGP 9.0 (trang troubleshoot). Bản cũ hơn phải retrace tay.</li>
+  <li>Công cụ dòng lệnh <strong><code>retrace</code></strong> trong command-line tools của SDK, dùng được cho stack trace nhận từ người dùng:</li>
+</ul>
+
+<pre data-lang="bash"><code># trace.txt là stack trace dán từ báo cáo lỗi
+$ANDROID_HOME/cmdline-tools/latest/bin/retrace \\
+    app/build/outputs/mapping/release/mapping.txt trace.txt</code></pre>
+
+<ul>
+  <li>Play Console và Crashlytics tự retrace khi có mapping của đúng phiên bản (<a href="fit_bug_optimization.md" target="_blank" rel="noopener">Fit / Bug Optimization</a>).</li>
+</ul>
+
+<p>Crash chỉ có ở bản release thường do R8 xoá hoặc đổi tên thứ được dùng qua reflection (dấu hiệu: <code>ClassNotFoundException</code>, <code>NoSuchMethodException</code>, <code>NoSuchFieldException</code>); sửa bằng keep rule.</p>
+
+<h3>App Inspection: nhìn thẳng vào dữ liệu của app đang chạy</h3>
+
+<p>Cửa sổ <strong>App Inspection</strong> (<strong>View &gt; Tool Windows &gt; App Inspection</strong>) gắn vào process đang chạy và cho xem dữ liệu mà log khó thể hiện:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Inspector</th>
+      <th style="padding:8px 12px;text-align:left;">Cho xem</th>
+      <th style="padding:8px 12px;text-align:left;">Yêu cầu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Database Inspector</strong></td>
+      <td style="padding:8px 12px;">Bảng SQLite/Room, sửa ô, chạy SQL, chạy <code>@Query</code> của DAO từ lề editor, Live updates, xuất DB/SQL/CSV</td>
+      <td style="padding:8px 12px;">API 26+, SQLite của hệ điều hành</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Network Inspector</strong></td>
+      <td style="padding:8px 12px;">Timeline request, header và body, call stack nơi gọi, thread gửi; tab <strong>Rules</strong> sửa status code, header, body của response</td>
+      <td style="padding:8px 12px;">API 26+, <code>HttpsURLConnection</code> hoặc OkHttp (nên cả Retrofit)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Background Task Inspector</strong></td>
+      <td style="padding:8px 12px;">Worker của WorkManager (trạng thái, ràng buộc, retry, output, đồ thị chuỗi, huỷ worker; worker kẹt <code>ENQUEUED</code> hay <code>FAILED</code> vì đâu), cùng Job, Alarm, Wakelock</td>
+      <td style="padding:8px 12px;">API 26+, WorkManager 2.5.0+</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Với Database Inspector: UI quan sát Room qua <code>Flow</code>/<code>LiveData</code> thì sửa dữ liệu trong inspector là UI cập nhật ngay, tiện để thử dữ liệu khó tạo; process vừa crash thì inspector giữ bản tải về ở <strong>offline mode</strong>; app mở đóng database liên tục thì bật <strong>Keep database connections open</strong>.</p>
+
+<p><strong>Layout Inspector</strong> cho xem cây View hoặc composable đang chạy, kèm đếm recomposition; cách dùng ở <a href="../jetpack_compose_ui/remember_and_recomposition.md" target="_blank" rel="noopener">Remember and Recomposition</a>, mục "Debug recomposition: Layout Inspector và compiler reports".</p>
+
+<p>Tab <strong>Rules</strong> của Network Inspector kiểm tra nhanh nhánh lỗi server hiếm khi trả: rule với Origin là host và path của API, đổi status <code>200</code> thành <code>503</code>, thay body, bật <strong>Active</strong>, làm mới màn hình xem UI hiện đúng trạng thái lỗi không; xong thì tắt <strong>Active</strong>. Hành vi đúng nên được chốt bằng test MockWebServer (<a href="unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>).</p>
+
+<h3>adb cho debug</h3>
+
+<p><strong>adb</strong> (Android Debug Bridge) là công cụ dòng lệnh nói chuyện với thiết bị; làm được việc IDE không có nút bấm, chạy được trong script và trên máy tester.</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Lệnh</th>
+      <th style="padding:8px 12px;text-align:left;">Dùng để</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>adb logcat</code></td>
+      <td style="padding:8px 12px;">Xem log từ terminal. <code>*:W</code> chỉ mức WARN trở lên; <code>MessageSync:D *:S</code> chỉ tag <code>MessageSync</code>; <code>-b crash</code> chỉ bộ đệm crash; <code>-d</code> in rồi thoát; <code>-c</code> xoá bộ đệm</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>adb shell am start</code></td>
+      <td style="padding:8px 12px;">Mở Activity (<code>-n &lt;package&gt;/&lt;activity&gt;</code>) hoặc deep link (<code>-a android.intent.action.VIEW -d &lt;uri&gt;</code>); <code>-W</code> chờ mở xong, <code>-S</code> force-stop trước</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>adb shell am force-stop &lt;package&gt;</code></td>
+      <td style="padding:8px 12px;">Dừng hẳn app</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>adb shell am kill &lt;package&gt;</code></td>
+      <td style="padding:8px 12px;">Kill process khi app ở background, mô phỏng hệ thống thu hồi process: bấm Home, <code>am kill</code>, mở lại từ Recents để kiểm tra khôi phục state (<a href="../session_04/components/activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>adb shell am set-debug-app -w &lt;package&gt;</code></td>
+      <td style="padding:8px 12px;">Lần mở app tiếp theo chờ debugger gắn vào; <code>clear-debug-app</code> để bỏ</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>adb shell dumpsys &lt;service&gt;</code></td>
+      <td style="padding:8px 12px;">Trạng thái dịch vụ hệ thống: <code>activity activities</code> (task, back stack), <code>meminfo &lt;package&gt;</code> (bộ nhớ, số Activity đang sống), <code>jobscheduler</code>, <code>package &lt;package&gt;</code>; phân tích sâu ở <a href="fit_bug_optimization.md" target="_blank" rel="noopener">Fit / Bug Optimization</a></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>adb bugreport &lt;thư mục&gt;</code></td>
+      <td style="padding:8px 12px;">File zip gồm <code>dumpsys</code>, <code>dumpstate</code>, <code>logcat</code>, để phân tích sau hoặc đính kèm báo cáo lỗi</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Lỗi lúc khởi động lạnh (mở deep link khi app chưa chạy) xảy ra quá sớm để kịp Attach Debugger: <code>am force-stop</code>, <code>am set-debug-app -w</code>, rồi <code>am start</code> deep link; app hiện "Waiting For Debugger" tới khi bạn Attach, xong thì <code>am clear-debug-app</code>.</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<p>Bài toán dưới đi qua đủ năm bước với Logcat, Network Inspector, Database Inspector và logpoint.</p>
+
+<h3>Tin nhắn bị trùng sau khi kéo để làm mới</h3>
+
+<p><strong>Bài toán:</strong> kéo để làm mới màn chat hai lần liên tiếp, đôi khi mỗi tin nhắn hiện hai lần, vào lại vẫn trùng.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li><strong>Tái hiện:</strong> giả lập mạng chậm trên emulator, kéo làm mới hai lần trong một giây: gần như lần nào cũng trùng. "Vào lại vẫn trùng" gợi ý dữ liệu sai đã nằm trong database.</li>
+  <li><strong>Khoanh vùng tầng mạng:</strong> Logcat <code>package:mine tag:MessageSync</code> có hai <code>start</code> trước một <code>done</code>. Network Inspector có hai request <code>GET .../messages</code>, cả hai <code>200</code>, body không có tin trùng. Server đúng.</li>
+  <li><strong>Khoanh vùng tầng database:</strong> câu SQL bên dưới trong Database Inspector cho thấy mỗi <code>serverId</code> có hai dòng với <code>localId</code> khác nhau. Lỗi ở bước ghi.</li>
+  <li><strong>Giả thuyết và kiểm chứng:</strong> "hai lần refresh chạy song song, mỗi lần chèn toàn bộ danh sách, và bảng không có ràng buộc ngăn trùng". Logpoint (bỏ Suspend, Evaluate and log) ở dòng ghi in hai lần <code>insert 20</code> từ hai coroutine; khoá chính là <code>localId</code> tự tăng, <code>serverId</code> không unique. Giả thuyết đúng.</li>
+  <li><strong>Sửa và chống lặp:</strong> <code>serverId</code> thành khoá chính và ghi bằng <code>@Upsert</code>, để ghi bao nhiêu lần cũng ra cùng kết quả. Thêm test DAO: ghi cùng danh sách hai lần, số dòng không đổi.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant UI as ChatScreen
+    participant Repo as MessageRepository
+    participant API as MessageApi
+    participant DB as MessageDao
+    UI-&gt;&gt;Repo: (1) refresh lần 1
+    UI-&gt;&gt;Repo: (1) refresh lần 2
+    Repo-&gt;&gt;API: (2) GET messages, hai lần
+    API--&gt;&gt;Repo: 20 tin, 200, hai lần
+    Repo-&gt;&gt;DB: (4) insertAll 20 tin, hai lần
+    Note over DB: (3) mỗi serverId có 2 dòng vì khoá là localId tự tăng
+    Note over Repo,DB: (5) sửa bằng serverId làm khoá chính + Upsert
+</div>
+
+<p><strong>Code:</strong></p>
+
+<p>Câu SQL ở bước 3 (tab New Query của Database Inspector) và biểu thức của logpoint ở bước 4:</p>
+
+<pre data-lang="sql"><code>SELECT serverId, COUNT(*) AS copies
+FROM messages
+GROUP BY serverId
+HAVING copies &gt; 1;</code></pre>
+
+<pre data-lang="text"><code>"insert " + remote.size + " on " + Thread.currentThread().name</code></pre>
+
+<p>Entity, DAO và repository sau khi sửa:</p>
+
+<pre data-lang="kotlin"><code>// MessageEntity.kt
+@Entity(tableName = "messages")
+data class MessageEntity(
+    // (3) trước: @PrimaryKey(autoGenerate = true) val localId: Long, mỗi lần insert là một dòng mới
+    @PrimaryKey val serverId: String,                         // (5) id của server là danh tính tin nhắn
+    val conversationId: String,
+    val body: String,
+    val sentAt: Long,
+)
+
+// MessageDao.kt
+@Dao
+interface MessageDao {
+    @Upsert                                                   // (5) đã có thì cập nhật, chưa có thì chèn
+    suspend fun upsertAll(messages: List&lt;MessageEntity&gt;)
+}
+
+// MessageRepository.kt
+suspend fun refresh(conversationId: String) {
+    Log.i(TAG, "start conv=$conversationId")                  // (2) chỉ log id
+    val remote = api.getMessages(conversationId)
+    messageDao.upsertAll(remote.map { it.toEntity() })        // (4) logpoint đặt ở dòng này; (5) ghi lặp vẫn đúng
+    Log.i(TAG, "done conv=$conversationId count=\${remote.size}")
+}</code></pre>
+
+<p><code>@Upsert</code> có từ Room 2.5.0. Đổi khoá chính là đổi schema: tăng <code>version</code> và viết migration (dọn bản ghi trùng trong đó), xem <a href="../session_05/data_store/room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>. Cờ "đang làm mới" ở ViewModel chỉ là tối ưu; ghi idempotent ở database mới sửa nguyên nhân, vì refresh còn đến từ push, worker.</p>
+
+<p><strong>Kết quả:</strong></p>
+
+<ul>
+  <li>Câu SQL ở bước 3 trả về 0 dòng sau khi lặp lại bước 1.</li>
+  <li>Logpoint vẫn in hai lần <code>insert 20</code>, nhưng bảng chỉ có 20 dòng: ghi lặp giờ an toàn.</li>
+  <li>Test DAO với Room in-memory đỏ với entity cũ, xanh với entity mới (<a href="unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>).</li>
+</ul>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<ul>
+  <li><strong>Nên</strong> đi đủ năm bước với lỗi không hiển nhiên, lỗi "đôi khi", lỗi đã sửa mà quay lại; lỗi hiển nhiên (stack trace chỉ thẳng một dòng <code>!!</code>) thì sửa ngay.</li>
+  <li><strong>Nên</strong> dùng breakpoint có điều kiện và logpoint thay vì thêm <code>if</code> và <code>Log</code> tạm; <strong>không nên</strong> dùng breakpoint dừng để điều tra race condition.</li>
+  <li><strong>Nên</strong> dùng exception breakpoint (Caught) khi nghi exception bị nuốt; <strong>không nên</strong> bật "Any Exception" mà không có class filter, vì framework và thư viện ném rồi tự bắt exception liên tục.</li>
+  <li><strong>Nên</strong> dùng adb cho chỗ IDE không với tới (khởi động lạnh, process death, máy tester, script); <strong>không nên</strong> dùng debugger hay <code>dumpsys</code> để đo bộ nhớ, hiệu năng: đó là việc của Profiler.</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Sửa khi chưa tái hiện được lỗi</h3>
+
+<pre data-lang="kotlin"><code>// "Chắc danh sách chưa kịp cập nhật", thêm delay rồi coi là xong
+viewModelScope.launch {
+    delay(500)                    // che lỗi, không sửa lỗi
+    repository.refresh(conversationId)
+}</code></pre>
+
+<p><strong>Lỗi lộ ra:</strong> lỗi biến mất trên máy developer (mạng nhanh), quay lại ở máy người dùng (mạng chậm).</p>
+
+<p><strong>Cách sửa:</strong> tìm điều kiện tái hiện ổn định trước; "đã sửa" nghĩa là chuỗi thao tác đó hết lỗi và test tái hiện chuyển xanh.</p>
+
+<h3>2. Log dữ liệu nhạy cảm</h3>
+
+<pre data-lang="kotlin"><code>Log.d(TAG, "login ok token=\${session.accessToken} user=\${user.email}")</code></pre>
+
+<p><strong>Lỗi lộ ra:</strong> token và email nằm trong bộ đệm log, đọc được qua USB debugging hoặc bởi app cài sẵn có <code>READ_LOGS</code>.</p>
+
+<p><strong>Cách sửa:</strong> chỉ log id và số lượng; bỏ log mức thấp khỏi bản release bằng <code>-assumenosideeffects</code> hoặc chỉ trồng <code>Timber.DebugTree</code> ở bản debug; class chứa dữ liệu nhạy cảm override <code>toString()</code> để không vô tình bị in ra.</p>
+
+<h3>3. Nuốt exception hoặc log mất stack trace</h3>
+
+<pre data-lang="kotlin"><code>try {
+    messageDao.upsertAll(entities)
+} catch (e: Exception) {
+    Log.e(TAG, "insert failed: " + e.message)   // mất stack trace và loại exception gốc
+}</code></pre>
+
+<p><strong>Lỗi lộ ra:</strong> app không văng nhưng dữ liệu không được ghi, log chỉ có <code>insert failed: null</code>. Trong coroutine, <code>catch (e: Exception)</code> còn bắt cả <code>CancellationException</code>, phá cơ chế huỷ (<a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">Coroutines</a>, mục "Nuốt <code>CancellationException</code>").</p>
+
+<p><strong>Cách sửa:</strong> chỉ bắt exception xử lý được (như <code>SQLiteException</code>), log bằng <code>Log.e(TAG, "insert failed", e)</code>, ném lại nếu tầng trên cần biết. Điều tra chỗ đang nuốt lỗi bằng exception breakpoint <strong>Caught</strong>.</p>
+
+<h3>4. Chỉ đọc dòng đầu của stack trace</h3>
+
+<p><strong>Lỗi lộ ra:</strong> thấy <code>Unable to start activity</code> thì đi sửa manifest hay theme, trong khi nguyên nhân là <code>Caused by: IllegalArgumentException: Missing orderId</code>; thấy frame trên cùng là <code>ArrayList.get</code> thì kết luận "lỗi của Java".</p>
+
+<p><strong>Cách sửa:</strong> đọc <code>Caused by</code> cuối cùng, rồi frame <strong>đầu tiên thuộc package của app</strong> trong khối đó.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>Những năm đầu:</strong> <code>adb logcat</code> và DDMS trong Eclipse ADT, sau gom vào Android Device Monitor; 12/2014 Android Studio 1.0 thay Eclipse ADT, debugger kế thừa từ IntelliJ IDEA.</li>
+  <li><strong>2018:</strong> Android Device Monitor bị deprecate ở Android Studio 3.1, gỡ ở 3.2; thay bằng Profiler, Layout Inspector, Device File Explorer.</li>
+  <li><strong>2020:</strong> Kotlin 1.4 đưa coroutine debugger vào IntelliJ; Android Studio 4.1 có Database Inspector.</li>
+  <li><strong>2021:</strong> command-line tools 4.0 (cùng Android Studio 4.2) có <code>retrace</code>. Arctic Fox (2020.3.1) ra cửa sổ App Inspection với Database Inspector, Background Task Inspector; Layout Inspector hỗ trợ Compose.</li>
+  <li><strong>01/2022, Bumblebee (2021.1.1):</strong> Network Profiler chuyển vào App Inspection thành Network Inspector.</li>
+  <li><strong>2023, Electric Eel (2022.1.1):</strong> Logcat mới bật mặc định với truy vấn key-value.</li>
+  <li><strong>Hiện nay:</strong> AGP 8.6 retrace được tên file và số dòng với mọi <code>minSdk</code>; Logcat tự retrace (mốc ở mục "Stack trace bị R8 làm rối").</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread in Android</a>: ANR, StrictMode, Profiler đa luồng.</li>
+  <li><a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">Coroutines</a>: <code>CoroutineContext</code>, <code>CoroutineName</code>, exception trong coroutine.</li>
+  <li><a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>: build debuggable, R8 và <code>mapping.txt</code>.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../jetpack_compose_ui/remember_and_recomposition.md" target="_blank" rel="noopener">Remember and Recomposition</a>: Layout Inspector và đếm recomposition.</li>
+  <li><a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Relational Database (Room Architecture)</a>, <a href="../session_05/data_store/room_advanced.md" target="_blank" rel="noopener">Advanced Room (Migration &amp; Indexing)</a>: dữ liệu Database Inspector cho xem, migration.</li>
+  <li><a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">OkHttp</a>, <a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>: request mà Network Inspector bắt được.</li>
+  <li><a href="../session_04/components/activity/state_changes.md" target="_blank" rel="noopener">Activity State Changes</a>: kiểm tra khôi phục state sau <code>am kill</code>.</li>
+</ul></li>
+  <li><strong>Học tiếp (Session 10):</strong>
+<ul>
+  <li><a href="unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: test tái hiện lỗi ở bước 5.</li>
+  <li><a href="lint.md" target="_blank" rel="noopener">Lint</a>: bắt một số lỗi trước khi phải debug.</li>
+  <li><a href="fit_bug_optimization.md" target="_blank" rel="noopener">Fit / Bug Optimization</a>: crash, ANR ở production, memory leak, hiệu năng.</li>
+  <li>11.4 Github CI (chưa có bài): chạy test và lint tự động trên mỗi thay đổi.</li>
+</ul></li>
+</ul>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li><a href="https://developer.android.com/studio/debug" target="_blank" rel="noopener">Debug your app - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/debug/logcat" target="_blank" rel="noopener">View logs with Logcat - Android Developers</a></li>
+  <li><a href="https://developer.android.com/tools/logcat" target="_blank" rel="noopener">Logcat command-line tool - Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/android/util/Log" target="_blank" rel="noopener">Log (API reference) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/privacy-and-security/risks/log-info-disclosure" target="_blank" rel="noopener">Log info disclosure - Android Developers</a></li>
+  <li><a href="https://www.jetbrains.com/help/idea/using-breakpoints.html" target="_blank" rel="noopener">Using breakpoints - IntelliJ IDEA Help</a></li>
+  <li><a href="https://kotlinlang.org/docs/coroutines-debugging.html" target="_blank" rel="noopener">Debug coroutines - Kotlin Documentation</a></li>
+  <li><a href="https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-debug/README.md" target="_blank" rel="noopener">kotlinx-coroutines-debug README - GitHub</a></li>
+  <li><a href="https://developer.android.com/topic/performance/app-optimization/test-and-troubleshoot-the-optimization" target="_blank" rel="noopener">Test and troubleshoot the optimization - Android Developers</a></li>
+  <li><a href="https://developer.android.com/build/shrink-code" target="_blank" rel="noopener">Enable app optimization (AGP and R8 version behavior changes) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/tools/retrace" target="_blank" rel="noopener">retrace - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/inspect/database" target="_blank" rel="noopener">Database Inspector - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/debug/network-profiler" target="_blank" rel="noopener">Network Inspector - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/inspect/task" target="_blank" rel="noopener">Background Task Inspector - Android Developers</a></li>
+  <li><a href="https://developer.android.com/tools/adb" target="_blank" rel="noopener">Android Debug Bridge (adb) - Android Developers</a></li>
+  <li><a href="https://developer.android.com/tools/dumpsys" target="_blank" rel="noopener">dumpsys - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/debug/bug-report" target="_blank" rel="noopener">Capture and read bug reports - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/releases/past-releases/as-arctic-fox-release-notes" target="_blank" rel="noopener">Android Studio Arctic Fox release notes - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/releases/past-releases/as-bumblebee-release-notes" target="_blank" rel="noopener">Android Studio Bumblebee release notes - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/releases/past-releases/as-electric-eel-release-notes" target="_blank" rel="noopener">Android Studio Electric Eel release notes - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/profile/monitor" target="_blank" rel="noopener">Android Device Monitor - Android Developers</a></li>
+</ul>
+    `
+  },
+
+  'android-lint': {
+    title: 'Lint',
+    summary: 'Lint (static analysis, phân tích tĩnh) là việc đọc mã nguồn và tài nguyên của app mà không chạy nó, đối chiếu với một tập luật để báo những chỗ có thể gây crash, chậm, lộ dữ liệu hoặc sai quy ước, kèm vị trí và mức độ nghiêm trọng. Trên Android, ba công cụ chính là Android Lint (mở rộng bằng custom lint rule), ktlint và detekt.',
+    status: 'published',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '22 phút',
+    depth: 'standard',
+    tags: ['android', 'session-10', 'lint', 'static-analysis', 'custom-lint-rule', 'ktlint', 'detekt', 'code-quality'],
+    domain: 'Android',
+    module: 'Session 10',
+    prerequisites: ['android.manifest.plugin', 'android.manifest.build_types', 'android.languages.kotlin'],
+    related: ['android.coding_analyst.overview', 'android.testing.unit_testing', 'android.testing.debugging', 'android.testing.fit_bug_optimization', 'android.jetpack_compose.modifier.chaining', 'android.view_layout.message'],
+    learningOutcomes: [
+      'Phân biệt được static analysis với compiler và test, và phạm vi của Android Lint, ktlint, detekt.',
+      'Triển khai được Android Lint trong dự án, gồm chạy bằng Gradle và IDE, đọc report, cấu hình severity bằng lint {} và lint.xml.',
+      'Áp dụng được baseline và suppress đúng phạm vi để đưa lint vào codebase cũ mà không che giấu lỗi mới.',
+      'Thiết kế được một custom lint rule với Detector, Issue, IssueRegistry và kiểm thử nó bằng lint-tests.',
+      'Áp dụng được ktlint, detekt và lint check của Compose thành cổng kiểm tra chạy trước khi merge.'
+    ],
+    knowledgeGap: 'Nhiều team chỉ thấy lint qua vài dòng gạch vàng trong editor, hoặc tắt abortOnError cho build qua. Hệ quả là lỗi đọc code là thấy (gọi API cao hơn minSdk, thiếu kiểm tra quyền, log dữ liệu nhạy cảm) vẫn lọt ra production, codebase cũ có hàng trăm cảnh báo nên không ai dám bật lint thành lỗi, và quy ước của team chỉ được nhắc miệng trong code review.',
+    updatedAt: '2026-11-09',
+    readTime: '22 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Có một nhóm bug <strong>đọc code là thấy</strong>, nhưng compiler không bắt, và test thường cũng không:</p>
+
+<pre data-lang="kotlin"><code>// NearbyStoreFinder.kt (minSdk = 24): biên dịch được, unit test vẫn xanh
+fun findNearestStore(onResult: (Location?) -&gt; Unit) {
+    Log.d("NearbyStore", "user=$userEmail token=$authToken")   // ghi email và token ra Logcat
+    locationManager.getCurrentLocation(                          // API 30: crash trên Android 7–10
+        LocationManager.GPS_PROVIDER, null, mainExecutor,        // chưa kiểm tra quyền vị trí
+    ) { location -&gt; onResult(location) }
+}</code></pre>
+
+<ul>
+  <li><strong>Compiler</strong> biên dịch với <code>compileSdk</code> (bản mới nhất), nên <code>getCurrentLocation()</code> hợp lệ dù máy Android 10 không có hàm đó.</li>
+  <li><strong>Unit test</strong> chỉ kiểm tra hành vi bạn đã nghĩ tới (<a href="unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>), không ai viết test "không crash trên API 29".</li>
+  <li><strong>Code review</strong> chỉ bắt được nếu người review nhớ quy ước "không log token".</li>
+</ul>
+
+<p>Ở production, chúng thành <code>NoSuchMethodError</code> trên máy cũ, <code>SecurityException</code> khi người dùng từ chối quyền, token nằm trong bug report. Vấn đề cần giải quyết: <strong>tự động soát mọi dòng code theo các mẫu lỗi đã biết, ở mọi PR</strong>, để lỗi bị chặn trước khi tới người dùng và quy ước của team được máy kiểm tra thay vì trí nhớ.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Phân biệt được static analysis với compiler và test, và phạm vi của Android Lint, ktlint, detekt.</li>
+  <li>Triển khai được Android Lint trong dự án, gồm chạy bằng Gradle và IDE, đọc report, cấu hình severity bằng lint {} và lint.xml.</li>
+  <li>Áp dụng được baseline và suppress đúng phạm vi để đưa lint vào codebase cũ mà không che giấu lỗi mới.</li>
+  <li>Thiết kế được một custom lint rule với Detector, Issue, IssueRegistry và kiểm thử nó bằng lint-tests.</li>
+  <li>Áp dụng được ktlint, detekt và lint check của Compose thành cổng kiểm tra chạy trước khi merge.</li>
+</ul>
+
+<h2>Lint là gì?</h2>
+
+<p><strong>Lint</strong> là một dạng <strong>static analysis (phân tích tĩnh)</strong>: đọc mã nguồn và tài nguyên của app <strong>mà không chạy nó</strong>, đối chiếu với một tập luật (mỗi luật gọi là một <strong>check</strong>, phát hiện một <strong>issue</strong>) để báo những chỗ có thể gây crash, chậm, lộ dữ liệu hoặc sai quy ước, kèm vị trí và <strong>severity (mức độ nghiêm trọng)</strong>.</p>
+
+<p>Mental model: lint là <strong>một reviewer tự động đọc từng dòng code theo một checklist cố định</strong>. Mỗi check là một mục trong checklist; severity là mức reviewer gán cho mục đó (nhắc hay chặn merge); baseline là danh sách "nợ cũ đã ghi nhận" reviewer tạm bỏ qua; custom lint rule là mục riêng của team thêm vào checklist.</p>
+
+<p>Trên Android có ba "reviewer" phổ biến, mỗi người một checklist:</p>
+
+<ul>
+  <li><strong>Android Lint</strong>: đi kèm Android Gradle Plugin (AGP) và Android Studio, đọc Kotlin, Java, XML, manifest, resource; tập trung lỗi đặc thù Android.</li>
+  <li><strong>ktlint</strong>: chỉ đọc Kotlin, kiểm tra format và style.</li>
+  <li><strong>detekt</strong>: chỉ đọc Kotlin, tìm <strong>code smell</strong> (hàm quá dài, quá phức tạp).</li>
+</ul>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Static analysis đứng ở đâu so với compiler và test</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;"></th>
+      <th style="padding:8px 12px;text-align:left;">Compiler</th>
+      <th style="padding:8px 12px;text-align:left;">Static analysis (lint)</th>
+      <th style="padding:8px 12px;text-align:left;">Test</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Câu hỏi</td>
+      <td style="padding:8px 12px;">Code có hợp lệ về ngữ pháp và kiểu không?</td>
+      <td style="padding:8px 12px;">Code có khớp mẫu lỗi hoặc vi phạm quy ước đã biết không? (không chạy code)</td>
+      <td style="padding:8px 12px;">Code có làm đúng hành vi mong đợi không? (chạy code)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Bắt được</td>
+      <td style="padding:8px 12px;">Sai kiểu, thiếu import, gọi hàm không tồn tại trong <code>compileSdk</code></td>
+      <td style="padding:8px 12px;">API cao hơn <code>minSdk</code>, thiếu kiểm tra quyền, resource không dùng, chuỗi cứng, code smell, quy ước riêng</td>
+      <td style="padding:8px 12px;">Sai logic nghiệp vụ, sai luồng trạng thái</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Lint <strong>không thay test</strong> (nó không biết giá đơn hàng làm tròn thế nào), test cũng <strong>không thay lint</strong> (test không chạy trên mọi API level, mọi cấu hình quyền). Lint suy luận từ mẫu nên có <strong>false positive</strong> (báo nhầm), vì vậy cần suppress có kỷ luật.</p>
+
+<h3>Android Lint chạy thế nào</h3>
+
+<p>Android Lint quét theo <strong>module</strong> và <strong>variant</strong>, qua các bước:</p>
+
+<ol>
+  <li><strong>Thu thập nguồn của variant:</strong> Kotlin/Java, XML, resource, manifest, file Gradle; kèm <code>minSdk</code>, <code>targetSdk</code> và dependency.</li>
+  <li><strong>Dựng cây cú pháp có giải nghĩa kiểu:</strong> Kotlin và Java thành <strong>UAST (Universal Abstract Syntax Tree)</strong>, cây chung cho cả hai ngôn ngữ; XML thành DOM.</li>
+  <li><strong>Chạy các detector:</strong> mỗi detector đăng ký loại phần tử nó quan tâm (lời gọi hàm, thẻ XML, annotation); tìm thấy vấn đề thì tạo một <strong>incident</strong> gắn với một issue.</li>
+  <li><strong>Lọc theo cấu hình:</strong> bỏ incident của issue bị tắt, bị suppress tại chỗ hoặc đã có trong baseline; ghi đè severity theo <code>lint {}</code> và <code>lint.xml</code>.</li>
+  <li><strong>Ghi report và quyết định kết quả:</strong> ghi report; còn incident mức <strong>error</strong> hoặc <strong>fatal</strong> và <code>abortOnError = true</code> (mặc định) thì task thất bại.</li>
+</ol>
+
+<div class="mermaid">
+flowchart LR
+    A["(1) Nguồn của variant&lt;br/&gt;Kotlin, Java, XML, manifest"] --&gt; B["(2) UAST và DOM&lt;br/&gt;có giải nghĩa kiểu"]
+    B --&gt; C["(3) Detector&lt;br/&gt;tạo incident"]
+    C --&gt; D{"(4) Lọc&lt;br/&gt;disable, suppress, baseline"}
+    D --&gt;|"bị lọc"| X["Bỏ qua"]
+    D --&gt;|"còn lại"| E["(5) Report&lt;br/&gt;HTML, XML, SARIF"]
+    E --&gt; F{"Có error hoặc fatal&lt;br/&gt;và abortOnError?"}
+    F --&gt;|"Có"| G["Task thất bại"]
+    F --&gt;|"Không"| H["Task thành công"]
+</div>
+
+<p>Mỗi issue có <strong>id</strong> (<code>NewApi</code>, <code>HardcodedText</code>) để cấu hình và suppress; <strong>severity</strong> <code>fatal</code>, <code>error</code>, <code>warning</code>, <code>informational</code> hoặc <code>ignore</code> (tắt), trong đó <code>fatal</code> chặn cả bản release (phần sau); và <strong>category</strong> (Correctness, Security, Performance...) để nhóm trong report.</p>
+
+<p>Nhiều check dựa vào <strong>annotation</strong> của <code>androidx.annotation</code> (<code>@RequiresApi</code>, <code>@RequiresPermission</code>, <code>@WorkerThread</code>, <code>@StringRes</code>, <code>@CheckResult</code>): gắn chúng cho hàm của mình là cách rẻ nhất để lint kiểm tra cả nơi gọi. Một số check đáng biết:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Issue id</th>
+      <th style="padding:8px 12px;text-align:left;">Severity mặc định</th>
+      <th style="padding:8px 12px;text-align:left;">Bắt lỗi gì</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>NewApi</code></td>
+      <td style="padding:8px 12px;">Error</td>
+      <td style="padding:8px 12px;">Gọi API cao hơn <code>minSdk</code> mà không kiểm tra <code>Build.VERSION.SDK_INT</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>MissingPermission</code></td>
+      <td style="padding:8px 12px;">Error</td>
+      <td style="padding:8px 12px;">Gọi API có <code>@RequiresPermission</code> mà thiếu khai báo quyền hoặc thiếu kiểm tra quyền lúc chạy</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>HardcodedText</code></td>
+      <td style="padding:8px 12px;">Warning</td>
+      <td style="padding:8px 12px;">Chuỗi viết thẳng trong XML layout thay vì <code>@string/...</code> (không áp dụng cho <code>Text("...")</code> của Compose)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>UnusedResources</code></td>
+      <td style="padding:8px 12px;">Warning</td>
+      <td style="padding:8px 12px;">Resource không được tham chiếu, làm tăng kích thước APK</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>WrongThread</code></td>
+      <td style="padding:8px 12px;">Error</td>
+      <td style="padding:8px 12px;">Gọi hàm <code>@MainThread</code> từ hàm <code>@WorkerThread</code> hoặc ngược lại</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>SetJavaScriptEnabled</code></td>
+      <td style="padding:8px 12px;">Warning</td>
+      <td style="padding:8px 12px;">Bật JavaScript cho <code>WebView</code>, rủi ro XSS</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4>Ví dụ: tìm cửa hàng gần nhất bằng vị trí hiện tại</h4>
+
+<p><strong>Bài toán:</strong> màn "Cửa hàng gần bạn" lấy vị trí hiện tại. App có <code>minSdk = 24</code>; developer dùng <code>LocationManager.getCurrentLocation()</code> (từ API 30) và chỉ thử trên máy Android 14.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Developer chạy <code>./gradlew :feature:store:lintDebug</code>.</li>
+  <li>Detector <code>NewApi</code> thấy <code>getCurrentLocation()</code> có API level 30 &gt; <code>minSdk</code> 24 và không nằm trong nhánh <code>if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.R)</code> → incident <code>NewApi</code>.</li>
+  <li>Detector <code>MissingPermission</code> thấy hàm này có <code>@RequiresPermission(anyOf = [ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION])</code> nhưng hàm gọi nó không kiểm tra quyền → incident <code>MissingPermission</code>.</li>
+  <li>Có error và <code>abortOnError = true</code> → task thất bại, report chỉ đúng dòng.</li>
+  <li>Developer sửa: kiểm tra quyền trước, rẽ nhánh theo <code>SDK_INT</code>, dùng <code>getLastKnownLocation()</code> cho máy cũ; chạy lại thì hai incident biến mất.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    actor Dev as Developer
+    participant G as lintDebug
+    participant N as NewApi
+    participant P as MissingPermission
+    Dev-&gt;&gt;G: (1) chạy lint
+    G-&gt;&gt;N: (2) getCurrentLocation
+    N--&gt;&gt;G: (2) API 30 lớn hơn minSdk 24
+    G-&gt;&gt;P: (3) getCurrentLocation
+    P--&gt;&gt;G: (3) chưa kiểm tra quyền
+    G--&gt;&gt;Dev: (4) 2 errors, task thất bại
+    Dev-&gt;&gt;G: (5) sửa code, chạy lại
+    G--&gt;&gt;Dev: (5) 0 errors
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// feature/store/src/main/java/com/example/store/NearbyStoreFinder.kt
+class NearbyStoreFinder(
+    private val context: Context,
+    private val locationManager: LocationManager,
+) {
+    fun findCurrentLocation(onResult: (Location?) -&gt; Unit) {
+        val granted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_COARSE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!granted) {                                        // (5) kiểm tra quyền, MissingPermission hết báo
+            onResult(null)
+            return
+        }
+
+        if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.R) {  // (5) lint hiểu nhánh này chỉ chạy từ API 30
+            locationManager.getCurrentLocation(
+                LocationManager.NETWORK_PROVIDER,
+                null,                                          // CancellationSignal: không huỷ giữa chừng
+                ContextCompat.getMainExecutor(context),
+            ) { location -&gt; onResult(location) }
+        } else {
+            onResult(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER))
+        }
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> trước khi sửa, <code>:feature:store:lintDebug</code> thất bại; report dạng text (rút gọn):</p>
+
+<pre data-lang="text"><code>NearbyStoreFinder.kt:14: Error: Call requires API level 30 (current min is 24): android.location.LocationManager#getCurrentLocation [NewApi]
+    locationManager.getCurrentLocation(
+                    ~~~~~~~~~~~~~~~~~~
+NearbyStoreFinder.kt:14: Error: Call requires permission which may be rejected by user: code should explicitly check to see if permission is available (...) [MissingPermission]
+2 errors, 0 warnings</code></pre>
+
+<p>Sau khi sửa, task thành công; trên emulator API 29, màn hình lấy vị trí qua nhánh <code>getLastKnownLocation()</code> thay vì crash <code>NoSuchMethodError</code>.</p>
+
+<h3>Chạy lint và đọc report</h3>
+
+<p>Android Lint chạy ở hai chỗ:</p>
+
+<ul>
+  <li><strong>Trong editor:</strong> lint chạy trên file đang mở, gạch vàng (warning) hoặc đỏ (error), <code>Alt+Enter</code> để xem quick fix.</li>
+  <li><strong>Cả dự án:</strong> <strong>Code &gt; Inspect Code</strong>, hoặc Gradle. <strong>Gradle là nguồn sự thật</strong> vì CI chạy đúng lệnh đó.</li>
+</ul>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Lệnh Gradle</th>
+      <th style="padding:8px 12px;text-align:left;">Làm gì</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>./gradlew lint</code></td>
+      <td style="padding:8px 12px;">Chạy lint cho <strong>variant mặc định</strong> (thường là debug) của mọi module</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>./gradlew :app:lintDebug</code>, <code>lintRelease</code></td>
+      <td style="padding:8px 12px;">Chạy cho một variant cụ thể của một module</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>./gradlew lintFix</code></td>
+      <td style="padding:8px 12px;">Chạy lint và áp các quick fix được đánh dấu an toàn vào source</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>lintVitalRelease</code></td>
+      <td style="padding:8px 12px;">Tự chạy khi build release, chỉ kiểm issue mức <strong>fatal</strong>; tắt bằng <code>checkReleaseBuilds = false</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Lint <strong>không</strong> tự chạy khi build debug; docs khuyến nghị chạy tường minh trong CI.</p>
+
+<p>Report nằm trong thư mục build của module, ví dụ <code>app/build/reports/lint-results-debug.html</code>:</p>
+
+<ul>
+  <li><strong>HTML:</strong> mỗi issue có giải thích, vị trí, đoạn code và cách suppress.</li>
+  <li><strong>XML:</strong> cho công cụ khác đọc (plugin CI, script đếm issue).</li>
+  <li><strong>SARIF (Static Analysis Results Interchange Format):</strong> định dạng chuẩn, bật bằng <code>sarifReport = true</code>; GitHub code scanning dùng nó để hiện issue trên dòng code của PR.</li>
+</ul>
+
+<h3>Cấu hình: <code>lint {}</code> và <code>lint.xml</code></h3>
+
+<p>Cấu hình lint nằm trong block <code>lint {}</code> bên trong <code>android {}</code> của từng module (AGP 8.x, Kotlin DSL):</p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts
+android {
+    lint {
+        abortOnError = true                 // mặc định: còn error thì task thất bại
+        warningsAsErrors = false            // true: mọi warning được tính là error
+        checkDependencies = true            // lint cả các module library app phụ thuộc, gộp một report
+        checkReleaseBuilds = true           // giữ lintVitalRelease khi build release
+
+        fatal += "NewApi"                   // nâng severity: chặn cả bản release
+        error += "MissingPermission"
+        informational += "GradleDependency" // hạ severity: có bản thư viện mới chỉ là thông tin
+        disable += listOf("TypographyFractions", "TypographyQuotes")   // tắt check không hợp dự án
+        enable += "UnusedIds"               // bật check mặc định đang tắt
+
+        lintConfig = file("lint.xml")       // cấu hình chi tiết theo file
+        baseline = file("lint-baseline.xml")
+        sarifReport = true
+    }
+}</code></pre>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><code>fatal</code>, <code>error</code>, <code>disable</code>, <code>checkOnly</code>... là <code>MutableSet&lt;String&gt;</code>. Thêm nhiều id thì dùng <code>+= listOf("A", "B")</code>; viết <code>+= "A" + "B"</code> là nối chuỗi trong Kotlin, thành một id <code>"AB"</code> không tồn tại, nên cả hai check vẫn chạy.</div></div>
+
+<ul>
+  <li><code>checkDependencies = true</code> ở module app được docs khuyến nghị cho dự án một app nhiều library.</li>
+  <li><code>checkOnly += "NewApi"</code> chỉ chạy đúng các check liệt kê; hợp khi đưa lint vào dần từng check.</li>
+  <li>Module thuần Kotlin/JVM không có <code>android {}</code>: áp plugin <code>com.android.lint</code> và dùng block <code>lint {}</code> ở cấp cao nhất.</li>
+</ul>
+
+<p><code>lint.xml</code> dùng khi cần chi tiết hơn DSL, nhất là <strong>bỏ qua một issue chỉ ở một số đường dẫn</strong>:</p>
+
+<pre data-lang="xml"><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!-- app/lint.xml --&gt;
+&lt;lint&gt;
+    &lt;!-- Chuỗi cứng là lỗi chặn merge, trừ màn debug nội bộ không cần dịch --&gt;
+    &lt;issue id="HardcodedText" severity="error"&gt;
+        &lt;ignore path="src/debug/res/layout/" /&gt;
+    &lt;/issue&gt;
+
+    &lt;!-- App chỉ dùng vector drawable, check này không có ý nghĩa --&gt;
+    &lt;issue id="IconMissingDensityFolder" severity="ignore" /&gt;
+&lt;/lint&gt;</code></pre>
+
+<p>Nên đặt <strong>severity chung của team</strong> trong DSL (hoặc convention plugin, xem <a href="../session_04/android_manifest/package_build_gradle/plugin.md" target="_blank" rel="noopener">Plugin</a> mục "Convention Plugin") và <strong>ngoại lệ theo đường dẫn</strong> trong <code>lint.xml</code>.</p>
+
+<h3>Baseline: đưa lint vào codebase cũ</h3>
+
+<p>Bật lint chặt trên dự án lâu năm thường ra vài trăm issue; không ai sửa hết trong một PR, và build đỏ mãi thì team sẽ tắt lint. <strong>Baseline</strong> chụp toàn bộ issue hiện có vào một file XML; các lần chạy sau lint <strong>chỉ báo issue không có trong baseline</strong>, tức là issue mới. Theo docs:</p>
+
+<ul>
+  <li>Khai báo <code>baseline = file("lint-baseline.xml")</code>. Lần chạy đầu khi file chưa tồn tại, lint tạo file đó; docs chạy <code>./gradlew lintDebug -Dlint.baselines.continue=true</code> để lần tạo baseline không làm task thất bại.</li>
+  <li>Khi baseline có hiệu lực, report có một cảnh báo informational: có issue bị lọc vì nằm trong baseline, và issue nào trong baseline đã không còn (đã sửa).</li>
+  <li>Tạo lại baseline: docs hướng dẫn xoá file rồi chạy lint lại; từ AGP 7.3 có thêm task <code>updateLintBaseline</code> để tạo hoặc cập nhật baseline.</li>
+</ul>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Baseline chỉ áp dụng khi chạy theo batch (Gradle, Inspect Code), <strong>không</strong> áp dụng trong editor: developer vẫn thấy issue cũ trong file đang sửa, để sửa dần khi chạm vào code đó.</div></div>
+
+<h4>Ví dụ: bật warningsAsErrors cho dự án có 300 cảnh báo cũ</h4>
+
+<p><strong>Bài toán:</strong> team muốn mọi warning mới đều chặn merge, nhưng module <code>app</code> đang có khoảng 300 warning cũ, phải trả dần.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Thêm <code>warningsAsErrors = true</code> và <code>baseline = file("lint-baseline.xml")</code> vào <code>lint {}</code>.</li>
+  <li>Chạy <code>./gradlew :app:lintDebug -Dlint.baselines.continue=true</code>: lint ghi 300 issue hiện có vào <code>lint-baseline.xml</code>.</li>
+  <li>Commit file baseline cùng thay đổi cấu hình, để CI và mọi máy dùng chung.</li>
+  <li>Một PR sau thêm chuỗi cứng vào layout XML: issue mới không có trong baseline nên lint báo error, CI đỏ.</li>
+  <li>Issue cũ được sửa dần; định kỳ tạo lại baseline để file nhỏ lại và lỗi đã sửa không quay lại mà không bị bắt.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) Bật warningsAsErrors&lt;br/&gt;và khai báo baseline"] --&gt; B["(2) Chạy lintDebug lần đầu&lt;br/&gt;ghi 300 issue vào baseline"]
+    B --&gt; C["(3) Commit lint-baseline.xml"]
+    C --&gt; D{"(4) PR mới có issue&lt;br/&gt;không nằm trong baseline?"}
+    D --&gt;|"Có"| E["Lint báo error&lt;br/&gt;CI đỏ, sửa trước khi merge"]
+    D --&gt;|"Không"| F["Merge"]
+    F --&gt; G["(5) Sửa dần issue cũ&lt;br/&gt;định kỳ tạo lại baseline"]
+    G --&gt; D
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts
+android {
+    lint {
+        warningsAsErrors = true                 // (1) warning mới chặn merge
+        baseline = file("lint-baseline.xml")    // (1) tạo ở bước (2), commit ở bước (3)
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> CI của PR bật luật xanh; PR thử thêm <code>android:text="Thanh toán"</code> vào layout thì <code>:app:lintDebug</code> thất bại với <code>HardcodedText</code>. Số dòng <code>&lt;issue</code> trong baseline là thước đo nợ kỹ thuật.</p>
+
+<h3>Suppress: khi nào được phép</h3>
+
+<p>Suppress là bảo lint "chỗ này tôi biết, đừng báo". Bốn cách, từ hẹp tới rộng:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Cách</th>
+      <th style="padding:8px 12px;text-align:left;">Phạm vi</th>
+      <th style="padding:8px 12px;text-align:left;">Ví dụ</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>//noinspection IssueId</code></td>
+      <td style="padding:8px 12px;">Một câu lệnh Kotlin/Java</td>
+      <td style="padding:8px 12px;"><code>//noinspection NewApi</code> ngay trên dòng</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>@SuppressLint("IssueId")</code></td>
+      <td style="padding:8px 12px;">Một hàm, property hoặc class, kể cả composable</td>
+      <td style="padding:8px 12px;"><code>@SuppressLint("NewApi")</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>tools:ignore="IssueId"</code></td>
+      <td style="padding:8px 12px;">Một phần tử XML và mọi phần tử con</td>
+      <td style="padding:8px 12px;"><code>tools:ignore="UnusedResources"</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>lint.xml</code> <code>&lt;ignore path&gt;</code> hoặc <code>disable</code></td>
+      <td style="padding:8px 12px;">Thư mục, module, cả dự án</td>
+      <td style="padding:8px 12px;">Ví dụ ở phần cấu hình</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Suppress chỉ được phép khi <strong>lint sai</strong> (false positive: chứng minh được lỗi không thể xảy ra) hoặc <strong>lỗi được chấp nhận có chủ ý</strong> (màn debug nội bộ không cần dịch), và phải: <strong>phạm vi hẹp nhất</strong> (một hàm, không cả class, không bao giờ <code>"all"</code>), <strong>ghi lý do</strong> ngay cạnh. Tốt hơn suppress là <strong>cho lint thêm thông tin</strong>. Với <code>NewApi</code>: kiểm tra <code>SDK_INT</code>, hoặc gắn <code>@RequiresApi</code> để đẩy việc kiểm tra lên nơi gọi; helper kiểu <code>isAtLeastR()</code> thì gắn <code>@ChecksSdkIntAtLeast(api = Build.VERSION_CODES.R)</code>. Với <code>MissingPermission</code>: gắn <code>@RequiresPermission</code> lên hàm của bạn.</p>
+
+<pre data-lang="kotlin"><code>// NotificationChannels.kt
+@RequiresApi(Build.VERSION_CODES.O)   // thay cho @SuppressLint("NewApi"): nơi gọi bị nhắc kiểm tra SDK_INT
+fun createOrderChannel(manager: NotificationManager) =
+    manager.createNotificationChannel(NotificationChannel("orders", "Đơn hàng", NotificationManager.IMPORTANCE_DEFAULT))</code></pre>
+
+<h3>Custom lint rule: đưa quy ước của team vào checklist</h3>
+
+<p>Check có sẵn chỉ biết lỗi chung của Android; quy ước riêng của team cần <strong>custom lint rule</strong>. Các thành phần, theo <a href="https://googlesamples.github.io/android-custom-lint-rules/api-guide.html" target="_blank" rel="noopener">Android Lint API Guide</a>:</p>
+
+<ul>
+  <li><strong>Module <code>lint-checks</code>:</strong> module Kotlin/JVM thuần, phụ thuộc <code>com.android.tools.lint:lint-api</code> dạng <code>compileOnly</code>. Version lint = version AGP <strong>cộng 23</strong> ở số major: AGP 8.7.3 đi với lint 31.7.3.</li>
+  <li><strong><code>Detector</code>:</strong> class chứa logic kiểm tra, làm việc trên UAST. Detector cho mã nguồn implement <code>SourceCodeScanner</code> và chọn callback: <code>getApplicableMethodNames()</code> + <code>visitMethodCall()</code> cho lời gọi hàm, <code>getApplicableUastTypes()</code> + <code>createUastHandler()</code> cho loại node bất kỳ.</li>
+  <li><strong><code>Issue</code>:</strong> id, mô tả, giải thích, category, priority (1–10), severity, và <code>Implementation</code> nối issue với detector cùng <strong>scope</strong> (loại file cần đọc, ví dụ <code>Scope.JAVA_FILE_SCOPE</code> cho Kotlin/Java).</li>
+  <li><strong><code>IssueRegistry</code>:</strong> danh sách issue của module, đăng ký bằng service loader trong <code>META-INF/services/</code>.</li>
+  <li><strong>Đưa rule vào dự án:</strong> <code>lintChecks(project(":lint-checks"))</code> chạy rule khi lint module khai báo; <code>lintPublish(...)</code> ở module library đóng rule thành <code>lint.jar</code> trong AAR, để cả người dùng thư viện được kiểm tra.</li>
+  <li><strong>Test:</strong> <code>com.android.tools.lint:lint-tests</code> chạy detector trên file nguồn mẫu viết dạng chuỗi và so kết quả.</li>
+</ul>
+
+<p>Đánh đổi: lint API không cam kết ổn định; nâng AGP thì nâng <code>lint-api</code> theo và chạy lại test của rule.</p>
+
+<h4>Ví dụ: cấm gọi android.util.Log trực tiếp ở module feature</h4>
+
+<p><strong>Bài toán:</strong> module <code>:core:logging</code> bọc Logcat thành <code>AppLogger</code> (tắt log ở release, che email và token), nhưng ở các module <code>:feature:*</code> vẫn có người gọi <code>Log.d(...)</code> vì quen tay. Phải chặn lời gọi này ở mọi module feature, trừ chính <code>:core:logging</code>.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Tạo module <code>:lint-checks</code> (JVM) chứa <code>DirectLogUsageDetector</code>, issue <code>DirectLogUsage</code> và <code>AppIssueRegistry</code>.</li>
+  <li>Mỗi module feature khai báo <code>lintChecks(project(":lint-checks"))</code>; <code>:core:logging</code> không khai báo nên rule không chạy ở đó.</li>
+  <li>Khi <code>:feature:checkout:lintDebug</code> chạy, lint nạp <code>AppIssueRegistry</code> qua service loader.</li>
+  <li>Lint duyệt UAST, chuyển mỗi lời gọi hàm tên <code>v</code>, <code>d</code>, <code>i</code>, <code>w</code>, <code>e</code>, <code>wtf</code> cho <code>visitMethodCall()</code>. Lint chỉ lọc theo <strong>tên</strong>, nên detector phải tự kiểm tra hàm có thuộc <code>android.util.Log</code> không (bỏ qua <code>Timber.d</code>, <code>AppLogger.d</code>).</li>
+  <li>Đúng là <code>android.util.Log</code> thì detector báo incident <code>DirectLogUsage</code> (error) tại lời gọi; task thất bại.</li>
+  <li>Test bằng <code>lint-tests</code>: một file gọi <code>Log.d</code> phải ra 1 error.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant G as Gradle
+    participant L as Lint
+    participant Reg as AppIssueRegistry
+    participant D as DirectLogUsageDetector
+    G-&gt;&gt;L: (2) lintDebug kèm lintChecks
+    L-&gt;&gt;Reg: (3) nạp qua service loader
+    Reg--&gt;&gt;L: (3) issue DirectLogUsage
+    L-&gt;&gt;D: (4) visitMethodCall cho lời gọi tên d
+    D-&gt;&gt;D: (4) thuộc android.util.Log?
+    D--&gt;&gt;L: (5) report incident
+    L--&gt;&gt;G: (5) 1 error, task thất bại
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// lint-checks/build.gradle.kts                                  (1)
+// Version của plugin khai báo ở build.gradle.kts gốc
+plugins {
+    \`java-library\`
+    kotlin("jvm")
+    id("com.android.lint")              // tuỳ chọn: lint chính code của rule
+}
+
+val lintVersion = "31.7.3"              // = AGP + 23, ở đây AGP 8.7.3
+
+kotlin { jvmToolchain(17) }
+
+dependencies {
+    compileOnly("com.android.tools.lint:lint-api:$lintVersion")   // lint cung cấp lúc chạy, không đóng gói
+    testImplementation("com.android.tools.lint:lint-tests:$lintVersion")
+    testImplementation("junit:junit:4.13.2")
+}</code></pre>
+
+<pre data-lang="kotlin"><code>// lint-checks/src/main/java/com/example/lint/DirectLogUsageDetector.kt
+package com.example.lint
+
+import com.android.tools.lint.detector.api.Category
+import com.android.tools.lint.detector.api.Detector
+import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Issue
+import com.android.tools.lint.detector.api.JavaContext
+import com.android.tools.lint.detector.api.Scope
+import com.android.tools.lint.detector.api.Severity
+import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.intellij.psi.PsiMethod
+import org.jetbrains.uast.UCallExpression
+
+class DirectLogUsageDetector : Detector(), SourceCodeScanner {
+
+    // (4) lint chỉ gọi visitMethodCall cho lời gọi có các tên này
+    override fun getApplicableMethodNames(): List&lt;String&gt; =
+        listOf("v", "d", "i", "w", "e", "wtf")
+
+    override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
+        // (4) tên trùng chưa đủ: Timber.d, AppLogger.d cũng tên "d"
+        if (!context.evaluator.isMemberInClass(method, "android.util.Log")) return
+
+        // (5) báo đúng vị trí lời gọi
+        context.report(
+            ISSUE,
+            node,
+            context.getLocation(node),
+            "Dùng \`AppLogger\` thay vì gọi \`android.util.Log\` trực tiếp",
+        )
+    }
+
+    companion object {
+        val ISSUE: Issue = Issue.create(
+            id = "DirectLogUsage",
+            briefDescription = "Gọi android.util.Log trực tiếp trong module feature",
+            explanation = "android.util.Log vẫn chạy ở bản release và không che dữ liệu nhạy cảm; dùng AppLogger.",
+            category = Category.SECURITY,
+            priority = 6,
+            severity = Severity.ERROR,
+            implementation = Implementation(DirectLogUsageDetector::class.java, Scope.JAVA_FILE_SCOPE),
+        )
+    }
+}</code></pre>
+
+<pre data-lang="kotlin"><code>// lint-checks/src/main/java/com/example/lint/AppIssueRegistry.kt
+package com.example.lint
+
+import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.client.api.Vendor
+import com.android.tools.lint.detector.api.CURRENT_API
+
+class AppIssueRegistry : IssueRegistry() {
+    override val issues = listOf(DirectLogUsageDetector.ISSUE)   // (3) danh sách issue của module
+    override val api: Int get() = CURRENT_API                    // API lint lúc biên dịch rule
+    override val minApi: Int get() = 8                           // bản lint cũ nhất rule còn chạy được
+    override val vendor = Vendor(
+        vendorName = "Mobile Platform Team",
+        feedbackUrl = "https://example.com/mobile-platform/lint-issues",
+    )
+}</code></pre>
+
+<pre data-lang="text"><code># lint-checks/src/main/resources/META-INF/services/com.android.tools.lint.client.api.IssueRegistry
+com.example.lint.AppIssueRegistry</code></pre>
+
+<pre data-lang="kotlin"><code>// feature/checkout/build.gradle.kts                             (2)
+dependencies {
+    lintChecks(project(":lint-checks"))
+    implementation(project(":core:logging"))
+}</code></pre>
+
+<p>Test detector bằng <code>lint-tests</code>. Để test không phụ thuộc Android SDK trên máy chạy test, test khai báo một <strong>stub</strong> của <code>android.util.Log</code> (chỉ chữ ký hàm, đủ để lint giải nghĩa kiểu) và gọi <code>allowMissingSdk()</code>:</p>
+
+<pre data-lang="kotlin"><code>// lint-checks/src/test/java/com/example/lint/DirectLogUsageDetectorTest.kt
+package com.example.lint
+
+import com.android.tools.lint.checks.infrastructure.TestFiles.java
+import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
+import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Test
+
+class DirectLogUsageDetectorTest {
+
+    private val logStub = java(
+        """
+        package android.util;
+        public final class Log {
+            public static int d(String tag, String msg) { return 0; }
+        }
+        """,
+    ).indented()
+
+    @Test
+    fun directLogCallInFeatureIsError() {                        // (6) gọi Log.d phải bị báo
+        lint()
+            .files(
+                logStub,
+                kotlin(
+                    """
+                    package com.example.checkout
+                    import android.util.Log
+                    class CheckoutViewModel {
+                        fun onPay(orderId: String) {
+                            Log.d("Checkout", "Thanh toán đơn " + orderId)
+                        }
+                    }
+                    """,
+                ).indented(),
+            )
+            .issues(DirectLogUsageDetector.ISSUE)
+            .allowMissingSdk()
+            .run()
+            .expectErrorCount(1)
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> <code>./gradlew :lint-checks:test</code> xanh. Nên thêm test thứ hai: file gọi <code>AppLogger.d(...)</code> (cùng tên, khác class) phải <code>.expectClean()</code>. Chạy <code>:feature:checkout:lintDebug</code> trên code có <code>Log.d</code> thì task thất bại, report có dòng:</p>
+
+<pre data-lang="text"><code>CheckoutViewModel.kt:21: Error: Dùng AppLogger thay vì gọi android.util.Log trực tiếp [DirectLogUsage]</code></pre>
+
+<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body"><code>expectErrorCount(1)</code> chỉ đếm; docs của lint khuyên so cả nội dung: viết <code>.expect("")</code>, chạy cho test đỏ, kiểm tra rồi chép output thật vào. lint-tests còn tự chạy lại detector ở nhiều <strong>test mode</strong> (thêm ngoặc, tên đầy đủ, import alias...).</div></div>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Timber đã kèm lint check <code>LogNotTimber</code> cho đúng mục đích này; dùng Timber thì chỉ cần <code>error += "LogNotTimber"</code>.</div></div>
+
+<h3>ktlint, detekt và lint check của Compose</h3>
+
+<p>Android Lint không kiểm tra format và ít kiểm tra độ phức tạp của Kotlin. ktlint và detekt lấp khoảng trống đó; cả hai chỉ đọc <code>.kt</code>/<code>.kts</code>, nhanh hơn Android Lint nhiều nên hợp để chạy trước khi commit.</p>
+
+<p><strong>ktlint</strong> kiểm tra và <strong>tự sửa</strong> format theo một code style: <code>ktlint_official</code> (mặc định), <code>intellij_idea</code> hoặc <code>android_studio</code>, cấu hình bằng <code>.editorconfig</code> (IDE cũng đọc file này). Plugin Gradle phổ biến là <code>org.jlleitschuh.gradle.ktlint</code> (cộng đồng), có task <code>ktlintCheck</code> và <code>ktlintFormat</code>.</p>
+
+<pre data-lang="text"><code># .editorconfig (gốc dự án)
+[*.{kt,kts}]
+ktlint_code_style = android_studio
+ktlint_function_naming_ignore_when_annotated_with = Composable</code></pre>
+
+<p>Dòng thứ hai cần cho Compose: composable đặt tên PascalCase (<code>CheckoutScreen</code>).</p>
+
+<p><strong>detekt</strong> (plugin <code>io.gitlab.arturbosch.detekt</code>) tìm <strong>code smell</strong>: hàm quá dài (<code>LongMethod</code>), quá nhiều tham số (<code>LongParameterList</code>), rẽ nhánh phức tạp (<code>CyclomaticComplexMethod</code>), magic number, exception bị nuốt. Ngưỡng chỉnh trong file YAML; <code>buildUponDefaultConfig = true</code> cho phép file đó chỉ chứa phần khác mặc định (cấu hình Gradle ở phần Ví dụ thực tế). detekt có <strong>baseline</strong> riêng (<code>./gradlew detektBaseline</code>), cùng ý nghĩa như baseline của Android Lint.</p>
+
+<pre data-lang="yaml"><code># config/detekt/detekt.yml: chỉ phần khác mặc định
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+complexity:
+  LongParameterList:
+    functionThreshold: 8
+    ignoreDefaultParameters: true     # composable thường có nhiều tham số mặc định
+style:
+  MagicNumber:
+    ignorePropertyDeclaration: true</code></pre>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Tại thời điểm viết (11/2026), detekt 1.23.x là bản ổn định; detekt 2.0 vẫn ở giai đoạn alpha, đổi plugin id sang <code>dev.detekt</code> và đổi tên một số cấu hình. Xem migration guide của detekt trước khi nâng cấp.</div></div>
+
+<p><strong>Lint check của Compose</strong> không cần cài: chúng nằm sẵn trong AAR của thư viện Compose (<code>runtime</code>, <code>ui</code>, <code>foundation</code>, <code>material3</code>...) và chạy cùng <code>./gradlew lint</code>. Một số check (nhiều cái đã nhắc ở Session 09):</p>
+
+<ul>
+  <li><code>UnrememberedMutableState</code>: <code>mutableStateOf()</code> trong composable không bọc <code>remember</code>.</li>
+  <li><code>CoroutineCreationDuringComposition</code>: <code>launch</code>/<code>async</code> ngay trong thân composable thay vì trong effect (<a href="../jetpack_compose_ui/side_effects/launched_effect.md" target="_blank" rel="noopener">LaunchedEffect</a>).</li>
+  <li><code>StateFlowValueCalledInComposition</code>: đọc <code>stateFlow.value</code> trong composable, không recompose khi giá trị đổi.</li>
+  <li><code>AutoboxingStateCreation</code>: <code>mutableStateOf&lt;Int&gt;</code> thay vì <code>mutableIntStateOf</code> (<a href="../jetpack_compose_ui/state/mutable_state.md" target="_blank" rel="noopener">MutableState</a>).</li>
+  <li><code>ModifierParameter</code>: tham số <code>modifier</code> sai tên, kiểu hoặc vị trí (<a href="../jetpack_compose_ui/modifier/chaining.md" target="_blank" rel="noopener">Chaining</a>).</li>
+  <li><code>UnusedMaterial3ScaffoldPaddingParameter</code>: bỏ qua <code>innerPadding</code> của <code>Scaffold</code> (<a href="../jetpack_compose_ui/layout_and_view.md" target="_blank" rel="noopener">Layout and View</a>).</li>
+</ul>
+
+<p>Bộ rule cộng đồng (Slack <code>compose-lints</code> cho Android Lint, <code>compose-rules</code> cho ktlint và detekt) có quy ước chặt hơn, dùng nếu team muốn.</p>
+
+<p>Cuối cùng, <strong>warning của Kotlin compiler</strong> (deprecated API, biến không dùng) nâng thành lỗi bằng <code>kotlin { compilerOptions { allWarningsAsErrors = true } }</code>; cờ này khác <code>warningsAsErrors</code> của Android Lint, vốn chỉ áp dụng cho warning của lint.</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<ol>
+  <li><strong>Cổng chất lượng trước khi merge</strong> (bài toán chính, code dưới đây).</li>
+  <li><strong>Đưa lint vào codebase cũ theo đợt:</strong> bắt đầu với <code>checkOnly += listOf("NewApi", "MissingPermission")</code> kèm baseline, rồi mở dần sang mọi check và <code>warningsAsErrors</code>.</li>
+  <li><strong>Quy ước kiến trúc bằng custom rule:</strong> cấm module feature import class của feature khác, cấm <code>GlobalScope.launch</code>.</li>
+</ol>
+
+<h3>Cổng chất lượng: ktlint và detekt trước khi commit, Android Lint trước khi merge</h3>
+
+<p><strong>Bài toán:</strong> dự án nhiều module, nhiều người. Format và code smell bị bắt ngay trên máy developer (vài giây); Android Lint đầy đủ (vài phút) chạy ở CI và chặn merge khi có error.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Convention plugin áp ktlint và detekt, cấu hình lint chung cho mọi module Android.</li>
+  <li>Developer <code>git commit</code>: hook <code>pre-commit</code> chạy <code>ktlintCheck detekt</code>. Lỗi format thì chạy <code>ktlintFormat</code>; code smell thì sửa hoặc giải thích trong PR.</li>
+  <li>Commit thành công, developer push và mở Pull Request.</li>
+  <li>CI chạy <code>./gradlew ktlintCheck detekt :app:lintDebug</code> (app có <code>checkDependencies = true</code> nên lint gộp mọi module) và upload report SARIF (<code>app/build/reports/lint-results-debug.sarif</code>).</li>
+  <li>Có error ở bất kỳ bước nào thì CI đỏ, PR không merge được; xanh thì merge.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) Convention plugin&lt;br/&gt;ktlint, detekt, lint chung"] --&gt; B["(2) git commit&lt;br/&gt;pre-commit: ktlintCheck detekt"]
+    B --&gt;|"Lỗi"| B1["ktlintFormat hoặc sửa code smell"]
+    B1 --&gt; B
+    B --&gt;|"Sạch"| C["(3) push, mở Pull Request"]
+    C --&gt; D["(4) CI: ktlintCheck detekt app lintDebug&lt;br/&gt;upload SARIF"]
+    D --&gt; E{"(5) Có error?"}
+    E --&gt;|"Có"| F["CI đỏ, không merge"]
+    E --&gt;|"Không"| G["Merge"]
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// build-logic/convention/src/main/kotlin/CodeQualityConventionPlugin.kt     (1)
+import com.android.build.api.dsl.CommonExtension
+import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
+
+// Áp plugin này SAU com.android.application hoặc com.android.library,
+// nếu không findByType trả về null và phần lint bị bỏ qua
+class CodeQualityConventionPlugin : Plugin&lt;Project&gt; {
+    override fun apply(target: Project): Unit = with(target) {
+        pluginManager.apply("org.jlleitschuh.gradle.ktlint")
+        pluginManager.apply("io.gitlab.arturbosch.detekt")
+
+        extensions.configure&lt;DetektExtension&gt; {
+            buildUponDefaultConfig = true
+            config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+            baseline = file("detekt-baseline.xml")
+        }
+
+        // Cấu hình lint chung cho module app và library
+        extensions.findByType(CommonExtension::class.java)?.lint {
+            abortOnError = true
+            warningsAsErrors = true
+            fatal += "NewApi"
+            error += "MissingPermission"
+            sarifReport = true
+            baseline = file("lint-baseline.xml")
+        }
+    }
+}</code></pre>
+
+<pre data-lang="bash"><code>#!/usr/bin/env bash
+# .githooks/pre-commit                                                       (2)
+# Bật một lần cho repo: git config core.hooksPath .githooks
+if ! ./gradlew ktlintCheck detekt --quiet; then
+  echo "Có lỗi. Chạy ./gradlew ktlintFormat để tự sửa format, rồi commit lại."
+  exit 1
+fi</code></pre>
+
+<p>Cách viết workflow CI cho bước (4) (job, cache Gradle, upload SARIF) thuộc 11.4 Github CI (chưa có bài).</p>
+
+<p><strong>Kết quả:</strong> kiểm chứng bằng cách thêm một hàm 10 tham số và một <code>Log.d</code> vào module feature: hook chặn commit với detekt <code>LongParameterList</code> trong vài giây; sửa xong, CI chặn PR với lint <code>DirectLogUsage</code>.</p>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Không đưa Android Lint đầy đủ vào <code>pre-commit</code>: hook chậm thì developer sẽ <code>git commit --no-verify</code> và cổng mất tác dụng. Hook giữ việc nhanh, CI giữ việc đầy đủ.</div></div>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<p><strong>Nên:</strong></p>
+
+<ul>
+  <li>Chạy Android Lint trong CI cho <strong>mọi</strong> Pull Request, với <code>abortOnError = true</code>; ít nhất các check gây crash (<code>NewApi</code>, <code>MissingPermission</code>, <code>WrongThread</code>) ở mức error hoặc fatal.</li>
+  <li>Bật baseline ngay khi đưa lint vào dự án cũ, thay vì hạ severity hay tắt check.</li>
+  <li>Dùng ktlint và detekt khi team có từ hai người: máy quyết định format.</li>
+  <li>Viết custom rule khi một quy ước bị nhắc lại nhiều lần trong review và <strong>nhận dạng được bằng cấu trúc code</strong> (lời gọi hàm, import, annotation).</li>
+</ul>
+
+<p><strong>Không nên:</strong></p>
+
+<ul>
+  <li>Viết custom rule cho quy ước cần hiểu ý đồ ("tên biến phải có nghĩa"): báo nhầm nhiều, bị suppress tràn lan.</li>
+  <li>Bật mọi rule của detekt (<code>allRules = true</code>) ngay từ đầu: nhiễu lớn làm team bỏ qua cả cảnh báo thật.</li>
+  <li>Dùng lint thay test.</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Tắt <code>abortOnError</code> để build qua</h3>
+
+<pre data-lang="kotlin"><code>lint { abortOnError = false }    // "tạm thời" để CI xanh</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> CI luôn xanh, report không ai mở; vài tháng sau số issue tăng từ 50 lên 400, trong đó có <code>NewApi</code> gây crash trên Android 9.</p>
+
+<p><strong>Cách sửa:</strong> giữ <code>abortOnError = true</code>, tạo baseline cho issue hiện có: lỗi cũ được ghi nhận, lỗi mới bị chặn.</p>
+
+<h3>2. Suppress quá rộng hoặc không ghi lý do</h3>
+
+<pre data-lang="kotlin"><code>@SuppressLint("all")          // sai: tắt mọi check cho cả class
+class PaymentRepository(...) { ... }</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> có người thêm lời gọi API 31 vào class này; lint im lặng, crash ra production.</p>
+
+<p><strong>Cách sửa:</strong> suppress đúng id, ở phạm vi nhỏ nhất, kèm comment lý do; tốt hơn là cho lint thêm thông tin (<code>@RequiresApi</code>, kiểm tra <code>SDK_INT</code>, <code>@RequiresPermission</code>).</p>
+
+<h3>3. Tạo lại baseline mỗi khi CI đỏ</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> PR có lỗi mới, developer tạo lại baseline cho CI xanh; lỗi mới thành "nợ cũ", baseline chỉ lớn lên.</p>
+
+<p><strong>Cách sửa:</strong> chỉ tạo lại baseline trong PR riêng để <strong>thu nhỏ</strong> nó; diff của <code>lint-baseline.xml</code> khi đó chỉ được có dòng bị xoá.</p>
+
+<h3>4. Chỉ nhìn cảnh báo trong editor</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> editor không gạch gì, nhưng <code>UnusedResources</code> và các check cần nhìn nhiều file chỉ chạy khi quét cả module; <code>./gradlew lint</code> cũng bỏ qua code trong <code>src/release/</code> hay flavor khác variant mặc định.</p>
+
+<p><strong>Cách sửa:</strong> CI chạy lint bằng Gradle, thêm lint của variant có code riêng (<a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>, <a href="../session_04/android_manifest/package_build_gradle/flavor.md" target="_blank" rel="noopener">Flavor</a>).</p>
+
+<h3>5. Custom rule chỉ so tên hàm</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> detector ở ví dụ trên bỏ dòng <code>isMemberInClass(...)</code>, nên mọi lời gọi tên <code>d</code> (<code>AppLogger.d()</code>, <code>Timber.d()</code>) đều bị báo; team suppress hàng loạt và mất niềm tin vào rule.</p>
+
+<p><strong>Cách sửa:</strong> giữ kiểm tra class bằng <code>context.evaluator.isMemberInClass(...)</code>, kèm test <code>expectClean()</code> cho trường hợp cùng tên khác class.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>12/2011 (ADT 16):</strong> Android Lint ra đời trong Eclipse ADT, kèm lệnh <code>lint</code> độc lập.</li>
+  <li><strong>2013–2016:</strong> lint tích hợp vào Android Studio và Android Gradle Plugin (block <code>lintOptions {}</code>).</li>
+  <li><strong>Android Studio 3.0–3.1 (2017–2018):</strong> lint chuyển sang UAST, nên một check chạy cho cả Kotlin lẫn Java; từ 3.1 lint phân tích Kotlin cả khi chạy bằng Gradle.</li>
+  <li><strong>AGP 7.x (2021–2022):</strong> block <code>lint {}</code> thay cho <code>lintOptions {}</code>; lint phân tích từng module riêng và kết quả cache được; AGP 7.3 thêm task <code>updateLintBaseline</code>.</li>
+  <li><strong>Từ Compose 1.0 (07/2021):</strong> thư viện Compose đóng gói lint check trong AAR, các bản sau bổ sung dần.</li>
+  <li><strong>2019 và 2023:</strong> detekt 1.0 (2019) và ktlint 1.0 (2023, <code>ktlint_official</code> thành code style mặc định) ra bản ổn định.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="../session_04/android_manifest/package_build_gradle/plugin.md" target="_blank" rel="noopener">Plugin</a>: AGP, convention plugin, nơi đặt cấu hình lint chung.</li>
+  <li><a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>: variant, vì sao lint chạy theo variant.</li>
+  <li><a href="../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin trong Android</a>: annotation và cú pháp mà detector đọc qua UAST.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="index.md" target="_blank" rel="noopener">10.0 Tổng quan Session 10</a>: vị trí của lint trong vòng chất lượng code.</li>
+  <li><a href="unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>: kiểm tra hành vi, thứ lint không thay được; JUnit cho test của custom rule.</li>
+  <li><a href="debugging.md" target="_blank" rel="noopener">10.1 Debugging</a>: khi lỗi đã lọt qua lint và test.</li>
+  <li><a href="../session_08/view_layout/message.md" target="_blank" rel="noopener">Message (Toast, Snackbar, Notification)</a>: <code>MissingPermission</code> với <code>notify()</code> trên Android 13.</li>
+  <li><a href="../session_05/working_with_thread.md" target="_blank" rel="noopener">Working with Thread</a>: Main Thread, nền của check <code>WrongThread</code>.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li><a href="fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a>: lỗi không có mẫu tĩnh (memory leak, jank, crash ở production).</li>
+  <li>11.4 Github CI (chưa có bài): đưa <code>ktlintCheck</code>, <code>detekt</code>, <code>lintDebug</code> vào workflow CI.</li>
+</ul></li>
+</ul>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li><a href="https://developer.android.com/studio/write/lint" target="_blank" rel="noopener">Improve your code with lint checks - Android Developers</a></li>
+  <li><a href="https://developer.android.com/studio/write/annotations" target="_blank" rel="noopener">Improve code inspection with annotations - Android Developers</a></li>
+  <li><a href="https://developer.android.com/reference/tools/gradle-api/current/com/android/build/api/dsl/Lint" target="_blank" rel="noopener">Lint DSL reference (<code>com.android.build.api.dsl.Lint</code>) - Android Developers</a></li>
+  <li><a href="https://googlesamples.github.io/android-custom-lint-rules/api-guide.html" target="_blank" rel="noopener">Android Lint API Guide - googlesamples/android-custom-lint-rules</a></li>
+  <li><a href="https://googlesamples.github.io/android-custom-lint-rules/usage/baselines.md.html" target="_blank" rel="noopener">Lint baselines - Android Lint documentation</a></li>
+  <li><a href="https://googlesamples.github.io/android-custom-lint-rules/usage/changes.md.html" target="_blank" rel="noopener">Lint recent changes (updateLintBaseline, lint 7.3) - Android Lint documentation</a></li>
+  <li><a href="https://pinterest.github.io/ktlint/latest/rules/code-styles/" target="_blank" rel="noopener">ktlint - Code styles</a></li>
+  <li><a href="https://github.com/JLLeitschuh/ktlint-gradle" target="_blank" rel="noopener">ktlint-gradle plugin - GitHub</a></li>
+  <li><a href="https://detekt.dev/docs/gettingstarted/gradle" target="_blank" rel="noopener">detekt - Gradle setup and configuration</a></li>
+  <li><a href="https://detekt.dev/docs/introduction/compose" target="_blank" rel="noopener">detekt - Compose configuration</a></li>
+  <li><a href="https://detekt.dev/docs/introduction/migration" target="_blank" rel="noopener">detekt - Migration guide to 2.0</a></li>
+  <li><a href="https://kotlinlang.org/docs/gradle-compiler-options.html" target="_blank" rel="noopener">Kotlin Gradle compiler options - kotlinlang.org</a></li>
+</ul>
+    `
+  },
+
+  'fit-bug-optimization': {
+    title: 'Fit / Bug Optimization',
+    summary: 'Fit / Bug Optimization (trong bài hiểu là Fix bug và tối ưu hiệu năng) là vòng lặp đo, khoanh vùng, sửa, đo lại cho chất lượng app trên thiết bị người dùng thật. Crashlytics và Android vitals chỉ ra vấn đề ảnh hưởng nhiều người nhất; LeakCanary, Profiler, JankStats, Macrobenchmark và Baseline Profiles giúp tái hiện, đo và chứng minh bản sửa bằng số đo.',
+    status: 'published',
+    difficulty: 'advanced',
+    estimatedReadingTime: '25 phút',
+    depth: 'standard',
+    tags: ['android', 'session-10', 'production-monitoring', 'crashlytics', 'android-vitals', 'memory-leak', 'leakcanary', 'profiler', 'jank', 'app-startup', 'baseline-profiles', 'macrobenchmark'],
+    domain: 'Android',
+    module: 'Session 10',
+    prerequisites: ['android.testing.debugging', 'android.thread.working_with_thread', 'android.manifest.build_types'],
+    related: ['android.coding_analyst.overview', 'android.testing.unit_testing', 'android.testing.lint', 'android.component.service.google_service', 'android.jetpack_compose.remember_recomposition', 'android.design_pattern.singleton', 'android.jetpack.view_binding', 'android.output_packages.apk_files'],
+    learningOutcomes: [
+      'Giải thích được vòng lặp đo, khoanh vùng, sửa, đo lại và vai trò khác nhau của dữ liệu production (Crashlytics, Android vitals) với công cụ đo ở máy dev.',
+      'Triển khai được Firebase Crashlytics để báo crash và non-fatal kèm custom key, log, user ID không chứa PII, và stack trace đã giải mã bằng mapping của R8.',
+      'Debug được crash, ANR và memory leak từ report production bằng stack trace, trace ANR, leak trace của LeakCanary và heap dump của Profiler.',
+      'Tối ưu được app startup và jank bằng TTID/TTFD, JankStats, Baseline Profiles, và chứng minh kết quả bằng Macrobenchmark.',
+      'Nhận diện được ngưỡng bad behavior của Android vitals và ưu tiên bug theo số người dùng bị ảnh hưởng.'
+    ],
+    knowledgeGap: 'Developer thường coi "sửa bug" là mở debugger trên máy mình và "tối ưu" là sửa theo cảm giác. Ở production, bug chỉ xảy ra trên một dòng máy, stack trace bị R8 làm rối, ANR không có exception. Không đọc được Crashlytics, vitals, leak trace, trace ANR và không đo bằng Macrobenchmark thì dễ sửa nhầm chỗ và không chứng minh được bản sửa có tác dụng.',
+    updatedAt: '2026-11-09',
+    readTime: '25 phút',
+    content: `
+<p>Theo mục lục, tiêu đề là "Fit / Bug Optimization"; "Fit" được hiểu là <strong>Fix</strong>. Phạm vi gồm hai việc: <strong>sửa bug ở production</strong> (crash, ANR, memory leak) và <strong>tối ưu hiệu năng</strong> (jank, app startup, kích thước app). Logcat, debugger (<a href="debugging.md" target="_blank" rel="noopener">10.1 Debugging</a>) và cách viết test (<a href="unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>) chỉ được dùng như công cụ.</p>
+
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>App đã qua lint, qua test, chạy mượt trên máy dev. Sau khi phát hành:</p>
+
+<ul>
+  <li>Crash chỉ xảy ra trên vài dòng máy, một Android version hay một locale, máy dev không tái hiện được.</li>
+  <li>Stack trace của bản release toàn tên <code>a.b.c</code> vì R8 đã làm rối code.</li>
+  <li>App đơ vài giây rồi hiện hộp thoại ANR, không có exception nào để bắt.</li>
+  <li>Bộ nhớ tăng dần sau khi mở đi mở lại một màn hình, rồi process bị hệ thống kill.</li>
+  <li>App mở chậm, cuộn giật; developer sửa vài chỗ "có vẻ nặng" nhưng không ai biết nhanh hơn bao nhiêu.</li>
+</ul>
+
+<p>Gốc chung: <strong>không gắn được debugger vào máy người dùng</strong>, và <strong>cảm giác không phải số đo</strong>. Cần dữ liệu production để biết sửa gì trước, công cụ ở máy dev để tái hiện và đo, và cách chứng minh bản sửa có tác dụng; Google Play còn dùng các chỉ số chất lượng để quyết định mức hiển thị app.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được vòng lặp đo, khoanh vùng, sửa, đo lại và vai trò khác nhau của dữ liệu production (Crashlytics, Android vitals) với công cụ đo ở máy dev.</li>
+  <li>Triển khai được Firebase Crashlytics để báo crash và non-fatal kèm custom key, log, user ID không chứa PII, và stack trace đã giải mã bằng mapping của R8.</li>
+  <li>Debug được crash, ANR và memory leak từ report production bằng stack trace, trace ANR, leak trace của LeakCanary và heap dump của Profiler.</li>
+  <li>Tối ưu được app startup và jank bằng TTID/TTFD, JankStats, Baseline Profiles, và chứng minh kết quả bằng Macrobenchmark.</li>
+  <li>Nhận diện được ngưỡng bad behavior của Android vitals và ưu tiên bug theo số người dùng bị ảnh hưởng.</li>
+</ul>
+
+<h2>Fit / Bug Optimization là gì?</h2>
+
+<p><strong>Fit / Bug Optimization</strong> (sửa bug và tối ưu hiệu năng) là vòng lặp <strong>đo → khoanh vùng → sửa → đo lại</strong> áp dụng cho chất lượng app trên thiết bị người dùng thật: dữ liệu production cho biết vấn đề nào ảnh hưởng nhiều người nhất, công cụ ở máy dev tái hiện và đo vấn đề đó, và bản sửa chỉ được coi là xong khi số đo sau tốt hơn số đo trước.</p>
+
+<p>Mental model: <strong>khám bệnh theo chỉ số</strong>. Crashlytics và vitals là chỉ số sức khoẻ đo liên tục trên "người bệnh" thật; stack trace, trace ANR, leak trace, System Trace là xét nghiệm; bản sửa là điều trị; Macrobenchmark và số liệu của bản phát hành sau là tái khám.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>1. Vòng lặp và bản đồ công cụ</h3>
+
+<ol>
+  <li><strong>Đo ở production:</strong> vấn đề gì, bao nhiêu người, máy nào, từ phiên bản nào.</li>
+  <li><strong>Khoanh vùng ở máy dev:</strong> tái hiện đúng điều kiện report chỉ ra, chẩn đoán bằng công cụ phù hợp.</li>
+  <li><strong>Sửa và khoá lại:</strong> sửa nguyên nhân, thêm test hoặc benchmark tái hiện vấn đề.</li>
+  <li><strong>Đo lại:</strong> so trước/sau ở máy dev, rồi theo dõi production của bản mới.</li>
+</ol>
+
+<div class="mermaid">
+flowchart LR
+    A["(1) Đo ở production"] --&gt; B["(2) Tái hiện + chẩn đoán"]
+    B --&gt; C["(3) Sửa + test hoặc benchmark"]
+    C --&gt; D["(4) Đo lại trước/sau"]
+    D --&gt;|"Chưa đạt"| B
+    D --&gt;|"Đạt"| A
+</div>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Vấn đề</th>
+      <th style="padding:8px 12px;text-align:left;">Tín hiệu ở production</th>
+      <th style="padding:8px 12px;text-align:left;">Khoanh vùng bằng</th>
+      <th style="padding:8px 12px;text-align:left;">Bằng chứng đã sửa</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Crash</td>
+      <td style="padding:8px 12px;">Crashlytics, crash rate</td>
+      <td style="padding:8px 12px;">Stack trace, custom key, log</td>
+      <td style="padding:8px 12px;">Test tái hiện bug pass</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">ANR</td>
+      <td style="padding:8px 12px;">ANR rate, cụm ANR</td>
+      <td style="padding:8px 12px;">Trace ANR, System Trace</td>
+      <td style="padding:8px 12px;">Main không còn bị chặn</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Memory leak</td>
+      <td style="padding:8px 12px;">Memory vitals, <code>OutOfMemoryError</code></td>
+      <td style="padding:8px 12px;">LeakCanary, heap dump</td>
+      <td style="padding:8px 12px;">Hết leak trace</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Jank</td>
+      <td style="padding:8px 12px;">Slow/frozen frames, JankStats</td>
+      <td style="padding:8px 12px;">System Trace, Layout Inspector</td>
+      <td style="padding:8px 12px;"><code>FrameTimingMetric</code> tốt hơn</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Startup chậm</td>
+      <td style="padding:8px 12px;">Startup trong vitals</td>
+      <td style="padding:8px 12px;">TTID/TTFD, System Trace</td>
+      <td style="padding:8px 12px;"><code>StartupTimingMetric</code> tốt hơn</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">App nặng</td>
+      <td style="padding:8px 12px;">Kích thước tải về</td>
+      <td style="padding:8px 12px;">APK Analyzer</td>
+      <td style="padding:8px 12px;">So hai APK/AAB</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>2. Firebase Crashlytics: báo crash và non-fatal</h3>
+
+<p><strong>Crashlytics</strong> là SDK chạy trong process của app: bắt exception chưa được xử lý, lưu report xuống máy, gửi lên Firebase ở lần mở app sau, gom report cùng nguyên nhân thành một <strong>issue</strong> kèm số người bị ảnh hưởng, phân bố theo máy, Android version, phiên bản app. Tích hợp Firebase (project, <code>google-services.json</code>, BoM) đã học ở <a href="../session_04/components/services/google_service.md" target="_blank" rel="noopener">Google Service</a>; ở đây thêm plugin <code>com.google.firebase.crashlytics</code> 3.0.8 (cạnh <code>com.google.gms.google-services</code> 4.5.0, theo docs lúc viết) và dependency:</p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts (plugins: com.google.gms.google-services, com.google.firebase.crashlytics)
+dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics") // breadcrumb: chuỗi event trước khi crash
+}</code></pre>
+
+<p>Những gì cần biết (giới hạn theo docs):</p>
+
+<ul>
+  <li><strong>Fatal:</strong> exception không ai bắt làm app kết thúc, Crashlytics tự ghi. <strong>Non-fatal:</strong> lỗi đã bắt nhưng cần đo, ghi bằng <code>recordException(e)</code>; mỗi phiên giữ <strong>8 exception gần nhất</strong>.</li>
+  <li><strong>Custom key:</strong> trạng thái lúc lỗi (màn hình, cờ tính năng), tối đa <strong>64 cặp</strong>, mỗi cặp <strong>1 kB</strong>. <strong>Log:</strong> breadcrumb bằng <code>log(...)</code>, tối đa <strong>64 kB</strong> mỗi phiên, vượt thì xoá log cũ nhất. <strong>User ID:</strong> <code>setUserId(...)</code> để tìm report của một người.</li>
+  <li><strong>Mapping của R8:</strong> Crashlytics Gradle plugin <strong>tự upload</strong> <code>mapping.txt</code> khi build, nên stack trace trên console đã được giải mã (vì sao cần mapping từng bản: <a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>, mục "Đọc crash bản release: mapping.txt").</li>
+</ul>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Custom key, log và user ID được gửi lên server bên thứ ba: không ghi email, số điện thoại, họ tên, token hay nội dung người dùng nhập; user ID là ID nội bộ không suy ra được danh tính (xem "Sai lầm thường gặp").</div></div>
+
+<h4>Ví dụ: ghi non-fatal khi cổng thanh toán từ chối giao dịch</h4>
+
+<p><strong>Bài toán:</strong> cổng thanh toán trả HTTP lỗi, app hiện "Thanh toán thất bại", không crash. Nếu tỉ lệ thất bại tăng sau một bản phát hành, đội cần biết nó tập trung ở phương thức nào: đúng việc của non-fatal.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li><code>PaymentRepository.pay()</code> ghi breadcrumb "bắt đầu thanh toán".</li>
+  <li>Repository gọi API của cổng thanh toán.</li>
+  <li>API ném <code>HttpException</code>; repository gắn custom key rồi ghi non-fatal.</li>
+  <li>Repository trả <code>PaymentResult.Failed</code> cho UI; app không crash.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant VM as CheckoutViewModel
+    participant Repo as PaymentRepository
+    participant API as PaymentApi
+    participant CR as CrashReporter
+    VM-&gt;&gt;Repo: pay(order, method)
+    Repo-&gt;&gt;CR: (1) log bắt đầu thanh toán
+    Repo-&gt;&gt;API: (2) charge(request)
+    API--&gt;&gt;Repo: (3) HttpException
+    Repo-&gt;&gt;CR: (3) custom key + recordNonFatal
+    Repo--&gt;&gt;VM: (4) PaymentResult.Failed
+</div>
+
+<p><strong>Code:</strong> Crashlytics nằm sau interface <code>CrashReporter</code> (<code>log</code>, <code>recordNonFatal</code>) để test dùng fake (<a href="../session_07/design_pattern/di/overview.md" target="_blank" rel="noopener">Dependency Injection</a>, <a href="unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>):</p>
+
+<pre data-lang="kotlin"><code>// FirebaseCrashReporter.kt
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
+
+class FirebaseCrashReporter : CrashReporter {
+    private val crashlytics = Firebase.crashlytics
+    override fun log(message: String) = crashlytics.log(message)
+    override fun recordNonFatal(error: Throwable, keys: Map&lt;String, String&gt;) {
+        keys.forEach { (key, value) -&gt; crashlytics.setCustomKey(key, value) }
+        crashlytics.recordException(error)
+    }
+}
+
+// PaymentRepository.kt
+import retrofit2.HttpException
+
+class PaymentRepository(
+    private val paymentApi: PaymentApi,
+    private val crashReporter: CrashReporter,
+) {
+    suspend fun pay(order: Order, method: PaymentMethod): PaymentResult {
+        crashReporter.log("payment: start, method=\${method.code}")              // (1) không chứa PII
+        return try {
+            val response = paymentApi.charge(ChargeRequest(order.id, method.code)) // (2)
+            PaymentResult.Success(response.transactionId)
+        } catch (e: HttpException) {
+            crashReporter.recordNonFatal(                                       // (3)
+                error = e,
+                keys = mapOf("payment_method" to method.code, "http_code" to e.code().toString()),
+            )
+            PaymentResult.Failed(e.code())                                      // (4)
+        }
+    }
+}</code></pre>
+
+<p><code>setCustomKey</code> có hiệu lực cả phiên; key chỉ cho một lần ghi thì dùng <code>recordException(e) { key("payment_method", method.code) }</code>.</p>
+
+<p><strong>Kết quả:</strong> ở bản debug, cho fake <code>PaymentApi</code> ném lỗi rồi mở lại app: issue non-fatal trên Crashlytics console có tab <strong>Keys</strong> (<code>payment_method</code>, <code>http_code</code>) và <strong>Logs</strong> ("payment: start"). Ở production, lọc issue theo <code>payment_method</code>.</p>
+
+<h3>3. Android vitals và ngưỡng bad behavior</h3>
+
+<p><strong>Android vitals</strong> là bộ chỉ số chất lượng Google Play thu từ <strong>hệ điều hành</strong> trên thiết bị của người dùng đã đồng ý chia sẻ dữ liệu (nên có cả crash xảy ra trước khi SDK trong app khởi tạo), xem trên Play Console. <strong>Core vitals</strong> ảnh hưởng tới mức hiển thị trên Play: user-perceived crash rate, user-perceived ANR rate, excessive partial wake locks, memory usage, bitmap memory usage. <strong>User-perceived crash rate</strong> là phần trăm người dùng hoạt động trong ngày (DAU) gặp ít nhất một crash <strong>khi đang dùng app</strong> (Activity hiển thị hoặc foreground service); ANR rate tương tự. Ngưỡng <strong>bad behavior</strong> theo docs lúc viết:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Chỉ số</th>
+      <th style="padding:8px 12px;text-align:left;">Trung bình mọi thiết bị</th>
+      <th style="padding:8px 12px;text-align:left;">Từng dòng điện thoại</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">User-perceived crash rate</td>
+      <td style="padding:8px 12px;">1,09%</td>
+      <td style="padding:8px 12px;">8%</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">User-perceived ANR rate</td>
+      <td style="padding:8px 12px;">0,47%</td>
+      <td style="padding:8px 12px;">8%</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Excessive partial wake locks</td>
+      <td style="padding:8px 12px;">5%</td>
+      <td style="padding:8px 12px;">-</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Vượt ngưỡng, Play có thể giảm hiển thị của app và hiện cảnh báo trên store listing. Ngưỡng memory chia theo mức RAM và trạng thái app; docs ghi vượt ngưỡng memory, bitmap memory hay DEX code optimization có thể bị ảnh hưởng hiển thị từ 02/2027. Ngưỡng có thể đổi, hãy đối chiếu docs.</p>
+
+<p>Các chỉ số khác có ngưỡng "quá mức" để tìm việc tối ưu: cold start từ <strong>5 giây</strong>, warm start từ <strong>2 giây</strong>, hot start từ <strong>1,5 giây</strong> (đo bằng TTID); <strong>slow frame</strong> là frame lâu hơn <strong>16 ms</strong>, <strong>frozen frame</strong> lâu hơn <strong>700 ms</strong>.</p>
+
+<p>Khi đọc vitals:</p>
+
+<ul>
+  <li><strong>Play tính trung bình 28 ngày gần nhất</strong>, nên bản sửa cần thời gian mới kéo chỉ số xuống; crash, ANR kéo dài quá 7 ngày được đánh dấu "emerging issue".</li>
+  <li><strong>Đơn vị là người dùng mỗi ngày, không phải phiên:</strong> mở app ba lần trong ngày, crash một lần, vitals tính 100%, Crashlytics tính 33% (ví dụ của docs).</li>
+  <li><strong>Ưu tiên cụm lớn nhất:</strong> sửa cụm crash, ANR ảnh hưởng nhiều người nhất trước; vượt ngưỡng ở vài dòng máy thì sửa cụm lớn nhất trên các dòng đó. <strong>App Quality Insights</strong> của Android Studio hiện issue Crashlytics và vitals cạnh code.</li>
+</ul>
+
+<h3>4. Sửa crash: từ report tới test chống lặp</h3>
+
+<p>Issue crash cho biết <strong>chỗ chết</strong> nhưng chưa chắc cho biết <strong>nguyên nhân</strong>. Đọc frame đầu tiên thuộc code của app, <code>Caused by</code> cuối chuỗi, phân bố máy và phiên bản, custom key và log (đọc stack trace, retrace: <a href="debugging.md" target="_blank" rel="noopener">10.1 Debugging</a>). Rồi tái hiện đúng điều kiện, sửa nguyên nhân thay vì bọc <code>try/catch</code> quanh triệu chứng, khoá lại bằng test fail trước và pass sau khi sửa, phát hành từng phần (staged rollout). Issue quay lại ở phiên bản đã đóng được Crashlytics đánh dấu <strong>regressed</strong>.</p>
+
+<h4>Ví dụ: crash khi đọc giá tiền theo locale tiếng Việt</h4>
+
+<p><strong>Bài toán:</strong> server bắt đầu định dạng giá theo ngôn ngữ người dùng; Crashlytics báo issue fatal mới <code>NumberFormatException: For input string: "1.250.000"</code> tại <code>PriceParser.parse</code>; custom key <code>app_locale</code> của mọi report là <code>vi-VN</code>.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Đọc issue: frame đầu của app là <code>PriceParser.parse</code>, input có dấu chấm phân cách hàng nghìn.</li>
+  <li>Tái hiện bằng unit test với đúng chuỗi đó: test ném cùng exception.</li>
+  <li>Sửa: chỉ giữ chữ số; chuỗi không có số (như "Liên hệ") trả <code>null</code>.</li>
+  <li>Test pass, phát hành, theo dõi issue.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) Issue: NumberFormatException, app_locale = vi-VN"] --&gt; B["(2) Unit test với 1.250.000"]
+    B --&gt; C{"Fail giống production?"}
+    C --&gt;|"Không"| A2["Xem lại key, log, máy"]
+    C --&gt;|"Có"| D["(3) Sửa PriceParser"]
+    D --&gt; E["(4) Test pass, phát hành"]
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// PriceParser.kt (trước khi sửa)
+object PriceParser {
+    fun parse(raw: String): Long = raw.replace(",", "").toLong() // chỉ đúng với định dạng en-US
+}
+
+// PriceParserTest.kt (src/test)
+class PriceParserTest {
+    @Test
+    fun parse_viGrouping_returnsAmount() =
+        assertEquals(1_250_000L, PriceParser.parse("1.250.000"))   // (2) trước khi sửa: NumberFormatException
+
+    @Test
+    fun parse_noDigits_returnsNull() = assertNull(PriceParser.parse("Liên hệ"))
+}
+
+// PriceParser.kt (sau khi sửa)
+object PriceParser {
+    // (3) giá VND không có phần thập phân: bỏ ký tự phân cách, chuỗi không có số trả null
+    fun parse(raw: String): Long? = raw.filter(Char::isDigit).toLongOrNull()
+}</code></pre>
+
+<p><strong>Kết quả:</strong> <code>./gradlew testDebugUnitTest</code>: <code>parse_viGrouping_returnsAmount</code> fail trước khi sửa, cả hai test pass sau khi sửa; bản mới không còn report cho issue. Về lâu dài server nên trả số.</p>
+
+<h3>5. ANR: đọc trace thay vì đoán</h3>
+
+<p>Cơ chế ANR (main thread bị chặn, input không được phản hồi trong 5 giây...) đã học ở <a href="../session_05/working_with_thread.md" target="_blank" rel="noopener">5.2 Working with Thread</a>, mục "ANR (Application Not Responding)". Ở đây chỉ bàn cách <strong>phân tích</strong>: ANR không có exception, thứ có giá trị là <strong>trace các thread lúc ANR</strong>, lấy từ:</p>
+
+<ul>
+  <li><strong>Android vitals:</strong> cụm ANR kèm trace main thread.</li>
+  <li><strong>Crashlytics</strong> (chỉ thiết bị Android 11 trở lên, report gửi ở lần mở app sau): gắn tag cho thread như <code>Triggered ANR</code> (thread bị chặn, thường là main), <code>Deadlocked</code>, <code>Root blocking</code>, <code>IO Root blocking</code>, <code>Waiting for binder call</code>; docs lưu ý thread <code>Triggered ANR</code> chưa chắc là nguyên nhân.</li>
+  <li><strong>Máy test:</strong> <code>/data/anr/</code> (cần <code>adb root</code>) hoặc <code>adb bugreport</code>.</li>
+  <li><strong>Trong app, từ Android 11 (API 30):</strong> <code>ActivityManager.getHistoricalProcessExitReasons()</code> trả về <code>ApplicationExitInfo</code>; với <code>REASON_ANR</code>, <code>traceInputStream</code> chứa trace.</li>
+</ul>
+
+<p>Mẫu ANR thường gặp theo docs: I/O hoặc tính toán dài trên main thread, binder đồng bộ chờ lâu, main chờ <code>synchronized</code> mà thread khác giữ lâu, deadlock. Trace (rút gọn) của một cụm ANR ở danh sách tin tức:</p>
+
+<pre data-lang="text"><code>"main" prio=5 tid=1 Blocked
+  at com.example.news.data.ArticleCache.get(ArticleCache.kt:21)
+  - waiting to lock &lt;0x0b1c2d3e&gt; (a java.lang.Object) held by thread 23
+  at com.example.news.ui.ArticleAdapter.onBindViewHolder(ArticleAdapter.kt:58)
+
+"DefaultDispatcher-worker-3" prio=5 tid=23 Native
+  at java.io.FileOutputStream.writeBytes(Native method)
+  at com.example.news.data.ArticleCache.put(ArticleCache.kt:30)
+  - locked &lt;0x0b1c2d3e&gt; (a java.lang.Object)</code></pre>
+
+<p>Cách đọc: <code>"main"</code> ở trạng thái <code>Blocked</code>, tức đang <strong>chờ</strong> chứ không tính toán; <code>waiting to lock &lt;0x0b1c2d3e&gt; ... held by thread 23</code> cho biết chờ khoá nào, ai giữ; <code>tid=23</code> giữ đúng khoá đó trong lúc ghi file, nên suốt lúc ghi main không vẽ được frame nào. Thủ phạm: <code>get()</code> và <code>put()</code> (gồm ghi file) của <code>ArticleCache</code> dùng chung một <code>synchronized</code>. Sửa: <code>get()</code> đọc một snapshot bất biến (<code>@Volatile</code> <code>Map</code>) không cần khoá; <code>put()</code> chạy trên <code>Dispatchers.IO</code>, các lần ghi chờ nhau bằng <code>Mutex.withLock</code>, vốn treo coroutine thay vì chặn thread (<a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>). Kiểm chứng bằng System Trace lúc vừa cuộn vừa lưu bài (main không còn slice chờ khoá dài), rồi bằng vitals của bản mới.</p>
+
+<h3>6. Memory leak: LeakCanary và heap dump</h3>
+
+<p><strong>Memory leak</strong> là khi object đã hết vòng đời (Activity đã <code>onDestroy</code>, View của Fragment đã <code>onDestroyView</code>, ViewModel đã <code>onCleared</code>) vẫn được tham chiếu từ một <strong>GC root</strong> (biến static, thread đang chạy...), nên GC không thu hồi được nó và mọi thứ nó giữ, như cả cây View của một Activity. Leak tích tụ làm GC chạy nhiều (jank), rồi <code>OutOfMemoryError</code> hoặc process bị kill.</p>
+
+<p><strong>LeakCanary</strong> phát hiện leak ở bản debug, không cần code khởi tạo:</p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts
+dependencies {
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
+}</code></pre>
+
+<p>Theo docs: LeakCanary theo dõi Activity, Fragment, View của Fragment đã destroy và ViewModel đã clear bằng weak reference; sau <strong>5 giây và một lần GC</strong>, object chưa được thu hồi là <strong>retained</strong>; khi số object retained đạt <strong>5</strong> (app đang hiển thị) hoặc <strong>1</strong> (app không hiển thị) thì dump heap, tìm đường tham chiếu mạnh ngắn nhất từ GC root tới object (<strong>leak trace</strong>), rồi phân loại <strong>Application Leak</strong> (code của bạn) hay <strong>Library Leak</strong> (bug đã biết của thư viện).</p>
+
+<p>Leak trace đọc từ GC root (trên) xuống object bị leak (dưới). Mỗi node có <code>Leaking: NO</code>, <code>YES</code> hoặc <code>UNKNOWN</code>; thủ phạm nằm giữa node <code>NO</code> cuối và node <code>YES</code> đầu, tham chiếu bị nghi được gạch chân bằng <code>~~~</code>.</p>
+
+<p>Nguồn leak thường gặp: singleton giữ <code>Context</code> của Activity (<a href="../session_07/design_pattern/singleton_pattern.md" target="_blank" rel="noopener">Singleton Pattern</a>), Fragment giữ binding sau <code>onDestroyView()</code> (<a href="../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>), listener vào object sống lâu mà không gỡ (ví dụ dưới; Compose gỡ trong <code>onDispose</code> của <a href="../jetpack_compose_ui/side_effects/disposable_effect.md" target="_blank" rel="noopener">DisposableEffect</a>), coroutine hoặc <code>Handler</code> chạy lâu giữ Activity.</p>
+
+<p><strong>Heap dump</strong> của Profiler (task <strong>Analyze Memory Usage (Heap Dump)</strong>, cần bản debuggable): <strong>Shallow Size</strong> là bộ nhớ của chính object, <strong>Retained Size</strong> là bộ nhớ được giải phóng nếu object bị thu hồi, bộ lọc <strong>Show activity/fragment leaks</strong> liệt kê Activity, Fragment bị nghi leak, tab <strong>References</strong> cho biết ai giữ nó. Android Studio Quail 2 thêm task phân tích leak bằng LeakCanary ngay trong Profiler.</p>
+
+<h4>Ví dụ: listener của giỏ hàng giữ Fragment đã đóng</h4>
+
+<p><strong>Bài toán:</strong> badge giỏ hàng của màn hình sản phẩm đăng ký listener vào <code>CartRepository</code> (sống bằng process); mở, đóng màn hình vài lần thì LeakCanary báo leak.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li><code>ProductFragment</code> đăng ký một anonymous listener vào <code>CartRepository</code>.</li>
+  <li>Anonymous object giữ tham chiếu ngầm <code>this$0</code> tới Fragment.</li>
+  <li>Màn hình đóng, listener không được gỡ.</li>
+  <li>LeakCanary thấy Fragment retained, dump heap, in leak trace.</li>
+  <li>Sửa: thay listener bằng <code>StateFlow</code>, thu thập theo vòng đời View.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant F as ProductFragment
+    participant R as CartRepository
+    participant LC as LeakCanary
+    F-&gt;&gt;R: (1) addListener(object : CartListener)
+    Note over F,R: (2) listener giữ this$0 của Fragment
+    F-&gt;&gt;F: (3) onDestroyView, onDestroy, không removeListener
+    LC-&gt;&gt;LC: (4) retained sau 5 giây + GC, dump heap
+</div>
+
+<pre data-lang="text"><code>├─ com.example.shop.data.CartRepository instance
+│    Leaking: NO (CartRepository↑ is not leaking)
+│    ↓ CartRepository.listeners
+│                     ~~~~~~~~~
+├─ java.util.ArrayList instance
+│    Leaking: UNKNOWN
+│    ↓ ArrayList[0]
+├─ com.example.shop.ui.ProductFragment$onViewCreated$1 instance
+│    Leaking: UNKNOWN
+│    ↓ ProductFragment$onViewCreated$1.this$0
+│                                      ~~~~~~
+╰→ com.example.shop.ui.ProductFragment instance
+     Leaking: YES (Fragment#onDestroy() was called)</code></pre>
+
+<p>Leak trace (rút gọn): <code>listeners</code> → phần tử 0 → <code>this$0</code>, thủ phạm là listener chưa gỡ.</p>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// ProductFragment.kt (trước khi sửa)
+CartRepository.addListener(object : CartListener {               // (1)(2) giữ this$0
+    override fun onCartChanged(count: Int) { binding.cartBadge.text = count.toString() }
+})                                                               // (3) không gỡ ở onDestroyView
+
+// CartRepository.kt (sau khi sửa)
+object CartRepository {
+    private val _itemCount = MutableStateFlow(0)
+    val itemCount: StateFlow&lt;Int&gt; = _itemCount.asStateFlow()     // (5) không giữ người quan sát
+}
+
+// ProductFragment.kt (sau khi sửa)
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            CartRepository.itemCount.collect { binding.cartBadge.text = it.toString() } // (5) tự huỷ theo View
+        }
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> mở và đóng màn hình khoảng mười lần, LeakCanary không còn báo, heap dump không còn <code>ProductFragment</code> trong <strong>Show activity/fragment leaks</strong>. Buộc dùng listener thì gỡ ở <code>onDestroyView()</code>, đối xứng với chỗ đăng ký.</p>
+
+<h3>7. Jank: đo bằng System Trace và JankStats</h3>
+
+<p>Ở 60 fps mỗi frame có khoảng <strong>16 ms</strong>, 120 fps khoảng 8 ms; frame không kịp mốc thì màn hình giữ frame cũ thêm một chu kỳ: đó là <strong>jank</strong>. Slow frame, frozen frame và ANR là các mức của cùng hiện tượng. Frame budget đã học ở <a href="../session_05/working_with_thread.md" target="_blank" rel="noopener">5.2 Working with Thread</a>, nguyên nhân riêng của Compose và Layout Inspector ở <a href="../jetpack_compose_ui/remember_and_recomposition.md" target="_blank" rel="noopener">Remember và Recomposition</a>; phần này nói về <strong>đo</strong>.</p>
+
+<p><strong>Ở máy dev:</strong> đo trên bản non-debuggable (ART tắt nhiều tối ưu khi app debuggable), ưu tiên máy yếu. Trong Profiler, chạy <strong>Profile 'app' with low overhead</strong> và ghi <strong>System Trace</strong>: tìm frame đỏ, mở slice <code>Choreographer#doFrame</code> của main thread, với Compose xem <code>Compose:recompose</code>, <code>Compose:layout</code>, <code>Compose:draw</code>. <strong>Find CPU Hotspots</strong> chỉ ra hàm tốn CPU nhất nhưng overhead lớn, không dùng để kết luận về jank; trace nhiều process thì mở bằng Perfetto.</p>
+
+<p><strong>Ở production:</strong> <strong>JankStats</strong> (<code>androidx.metrics:metrics-performance:1.0.0</code>) nhận dữ liệu từng frame của một <code>Window</code>, tự đánh dấu jank (mặc định: lâu gấp đôi chu kỳ làm tươi màn hình, chỉnh bằng <code>jankHeuristicMultiplier</code>), và gắn <strong>UI state</strong> do app khai báo qua <code>PerformanceMetricsState</code> để biết jank xảy ra lúc đang làm gì.</p>
+
+<p>Code tối thiểu: listener đếm frame theo màn hình, màn hình tự khai báo state.</p>
+
+<pre data-lang="kotlin"><code>// MainActivity.kt (trong onCreate; onResume/onPause bật tắt jankStats.isTrackingEnabled)
+jankStats = JankStats.createAndTrack(window) { frame -&gt;     // chạy trên thread FrameMetrics: chỉ đọc, trả về nhanh
+    val screen = frame.states.firstOrNull { it.key == "screen" }?.value ?: "unknown"
+    jankCounter.record(screen, isJank = frame.isJank)        // đếm theo màn hình, gửi định kỳ về analytics
+}
+
+// ProductListScreen.kt: mọi frame khi màn hình này hiển thị mang state "screen"
+val view = LocalView.current
+DisposableEffect(view) {
+    val holder = PerformanceMetricsState.getHolderForHierarchy(view)
+    holder.state?.putState("screen", "ProductList")
+    onDispose { holder.state?.removeState("screen") }
+}</code></pre>
+
+<p><code>FrameData</code> được dùng lại cho mọi frame: chỉ đọc giá trị trong listener, không giữ object. Hạ <code>jankHeuristicMultiplier</code> trên máy test để ép có jank khi kiểm tra; ở production, tỉ lệ jank theo màn hình và dòng máy cho biết chọn máy nào để ghi System Trace.</p>
+
+<h3>8. App startup: cold, warm, hot và TTID, TTFD</h3>
+
+<ul>
+  <li><strong>Cold start:</strong> process chưa tồn tại; hệ thống tạo process, app tạo <code>Application</code>, Activity rồi vẽ frame đầu. Tốn nhất, nên tối ưu theo giả định cold start.</li>
+  <li><strong>Warm start:</strong> process còn nhưng Activity phải tạo lại.</li>
+  <li><strong>Hot start:</strong> Activity còn trong bộ nhớ, chỉ đưa lên foreground.</li>
+</ul>
+
+<p><strong>TTID</strong> (Time to initial display) là thời gian tới frame đầu tiên; hệ thống tự đo, Logcat (bỏ bộ lọc app, dòng này do system server in) có <code>Displayed com.example.news/.MainActivity: +1s380ms</code>. <strong>TTFD</strong> (Time to full display) là thời gian tới khi nội dung chính dùng được; app phải tự báo bằng <code>reportFullyDrawn()</code>, Logcat in <code>Fully drawn ...</code>. Với Compose, <code>activity-compose</code> có <code>ReportDrawn()</code>, <code>ReportDrawnWhen { }</code>, <code>ReportDrawnAfter { }</code>.</p>
+
+<pre data-lang="kotlin"><code>// NewsFeedScreen.kt
+@Composable
+fun NewsFeedScreen(viewModel: NewsFeedViewModel = hiltViewModel()) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    ReportDrawnWhen { uiState is FeedUiState.Success }   // chỉ báo fully drawn khi đã có bài để đọc
+    // ... skeleton khi Loading, danh sách khi Success
+}</code></pre>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Gọi <code>ReportDrawn()</code> ngay khi vào màn hình làm TTFD gần bằng TTID trong khi người dùng vẫn thấy khung xương; Baseline Profile cũng bỏ sót đường code tải dữ liệu, vì code chạy sau thời điểm fully drawn không vào profile.</div></div>
+
+<p>Đo nhanh cold start (<code>-S</code> dừng app trước, <code>-W</code> chờ tới khi xong):</p>
+
+<pre data-lang="bash"><code>adb shell am start -S -W com.example.news/.MainActivity</code></pre>
+
+<p>Nguyên nhân chậm thường gặp theo docs: <code>Application.onCreate()</code> khởi tạo thứ chưa cần, I/O hay giải mã ảnh trên main thread, cây UI quá sâu, composition đầu nặng, splash screen là Activity riêng (từ Android 12 dùng <code>SplashScreen</code> API). Hướng sửa: <strong>khởi tạo lười</strong> (DI như <a href="../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a> chỉ tạo object khi được inject), dời việc không cần cho frame đầu sang nền, hiện placeholder trước; ví dụ đầy đủ ở "Ví dụ thực tế". Thư viện <strong>App Startup</strong> (<code>androidx.startup</code>) gom việc khởi tạo của các thư viện vào một ContentProvider chung; bài không đi sâu.</p>
+
+<h3>9. Baseline Profiles và Macrobenchmark</h3>
+
+<p>Sau khi cài hoặc cập nhật, code chạy bằng interpreter rồi mới được JIT dần, nên những lần mở đầu chậm nhất. <strong>Baseline Profile</strong> là danh sách class và method trên các hành trình quan trọng, đóng gói cùng app (<code>assets/dexopt/baseline.prof</code>), để <strong>ART biên dịch trước (AOT) đúng phần code đó khi cài đặt</strong>; docs ghi nó giúp code được liệt kê chạy nhanh hơn khoảng 30% từ lần mở đầu. Play gửi profile kèm APK; ngoài Play hoặc trên Android 7–8.1, <code>profileinstaller</code> cài nó ở lần chạy đầu. Profile <strong>không có tác dụng với app debuggable</strong>. <strong>Startup Profile</strong> là tập con dùng lúc build để R8 xếp code khởi động vào DEX chính.</p>
+
+<p><strong>Macrobenchmark</strong> (<code>androidx.benchmark:benchmark-macro-junit4</code>) đo hành trình lớn bằng cách chạy app thật nhiều lần từ một module <code>com.android.test</code>, ghi System Trace mỗi lần và rút metric (<code>StartupTimingMetric</code>, <code>FrameTimingMetric</code>, <code>TraceSectionMetric</code>). App được đo phải profileable, không debuggable, đo trên <strong>máy thật</strong>. <code>compilationMode</code> mô phỏng trạng thái biên dịch: <code>None()</code> (không AOT), <code>Partial(baselineProfileMode = BaselineProfileMode.Require)</code> (bắt buộc có Baseline Profile), <code>Full()</code>.</p>
+
+<p>Cách tạo khuyến nghị: template <strong>File &gt; New &gt; New Module &gt; Baseline Profile Generator</strong> (Android Studio Iguana, AGP 8.2+) tạo module test, áp plugin <code>androidx.baselineprofile</code> cho module đó và module app, sinh sẵn generator và benchmark startup.</p>
+
+<h4>Ví dụ: chứng minh Baseline Profile làm app tin tức mở nhanh hơn</h4>
+
+<p><strong>Bài toán:</strong> cold start gần ngưỡng quá mức trên máy yếu; cần Baseline Profile cho khởi động và cuộn bảng tin, chứng minh bằng số.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Module app phụ thuộc module <code>:baselineprofile</code> qua cấu hình <code>baselineProfile(...)</code>.</li>
+  <li>Generator gồm test khởi động (đưa vào Startup Profile) và test cuộn bảng tin.</li>
+  <li>Task Gradle build bản release không làm rối code, chạy generator (máy root, emulator, hoặc Android 13+ không cần root), chép profile vào <code>app/src/release/generated/baselineProfiles/</code>.</li>
+  <li>Benchmark <code>None</code> và <code>Partial(Require)</code> trên máy thật, so median <code>timeToInitialDisplayMs</code>.</li>
+  <li>Build release: R8 tự viết lại tên trong profile cho khớp code đã làm rối.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) app phụ thuộc :baselineprofile"] --&gt; B["(2) Generator: startup + cuộn bảng tin"]
+    B --&gt; C["(3) ./gradlew :app:generateBaselineProfile"]
+    C --&gt; E["(4) StartupBenchmarks: None vs Partial(Require)"]
+    E --&gt; F{"Median TTID giảm?"}
+    F --&gt;|"Có"| G["(5) Build release kèm profile"]
+    F --&gt;|"Không"| B
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts
+plugins {
+    id("com.android.application")
+    id("androidx.baselineprofile")              // cùng version với androidx.benchmark
+}
+dependencies {
+    implementation("androidx.profileinstaller:profileinstaller:1.4.1")
+    baselineProfile(project(":baselineprofile"))  // (1)
+}
+
+// baselineprofile/.../BaselineProfileGenerator.kt
+@RunWith(AndroidJUnit4::class)
+@LargeTest
+class BaselineProfileGenerator {
+    @get:Rule val rule = BaselineProfileRule()
+
+    @Test
+    fun startup() = rule.collect(packageName = "com.example.news", includeInStartupProfile = true) { // (2)
+        pressHome()
+        startActivityAndWait()
+    }
+
+    // (2) hành trình cuộn bảng tin: thêm @Test thứ hai, không bật includeInStartupProfile
+}
+
+// baselineprofile/.../StartupBenchmarks.kt
+@RunWith(AndroidJUnit4::class)
+@LargeTest
+class StartupBenchmarks {
+    @get:Rule val rule = MacrobenchmarkRule()
+
+    @Test fun startupCompilationNone() = startup(CompilationMode.None())                       // (4) trước
+    @Test fun startupCompilationBaselineProfiles() =
+        startup(CompilationMode.Partial(baselineProfileMode = BaselineProfileMode.Require))    // (4) sau
+
+    private fun startup(mode: CompilationMode) = rule.measureRepeated(
+        packageName = "com.example.news",
+        metrics = listOf(StartupTimingMetric()),
+        compilationMode = mode,
+        startupMode = StartupMode.COLD,
+        iterations = 10,
+        setupBlock = { pressHome() },
+    ) {
+        startActivityAndWait()
+    }
+}</code></pre>
+
+<pre data-lang="bash"><code>./gradlew :app:generateBaselineProfile   # (3)</code></pre>
+
+<p>Trong hành trình cuộn, UI Automator tìm <code>LazyColumn</code> qua <code>By.res("feed_list")</code> chỉ khi composable gốc bật <code>Modifier.semantics { testTagsAsResourceId = true }</code>. Từ Macrobenchmark 1.5, docs viết hành trình bằng DSL <code>uiAutomator { startApp(packageName) }</code>; <code>startActivityAndWait()</code> vẫn dùng được.</p>
+
+<p><strong>Kết quả:</strong> chạy <code>StartupBenchmarks</code> từ gutter trên máy thật, output có dạng (số của output mẫu trong docs):</p>
+
+<pre data-lang="text"><code>StartupBenchmarks_startupCompilationBaselineProfiles
+timeToInitialDisplayMs   min 161.8,   median 178.9,   max 194.6
+StartupBenchmarks_startupCompilationNone
+timeToInitialDisplayMs   min 184.7,   median 196.9,   max 202.9</code></pre>
+
+<p>So <strong>median</strong>, không so một lần chạy (docs có số đo app mẫu Now in Android trên Pixel 7: 324,8 ms không biên dịch, 229,0 ms có Baseline Profile). Commit <code>baseline-prof.txt</code>, sinh lại khi hành trình chính đổi. Kết quả còn được xuất JSON trong <code>build/outputs/connected_android_test_additional_output/</code> để CI so với bản trước (11.4 Github CI, chưa có bài).</p>
+
+<h3>10. StrictMode VmPolicy: cảnh báo sớm ở bản debug</h3>
+
+<p><code>StrictMode.ThreadPolicy</code> (I/O, network trên main thread) đã học ở <a href="../session_05/working_with_thread.md" target="_blank" rel="noopener">5.2 Working with Thread</a>, mục "Bật StrictMode phát hiện vi phạm luồng trong lúc Debug". <strong><code>VmPolicy</code></strong> áp cho cả process, bắt lỗi tài nguyên dẫn tới leak: <code>Closeable</code>, <code>Cursor</code> bị GC mà chưa đóng, receiver hay service connection còn đăng ký khi <code>Context</code> đã huỷ, số instance Activity bất thường, và (API 31) mở Intent lấy từ dữ liệu ngoài mà không kiểm tra.</p>
+
+<pre data-lang="kotlin"><code>// NewsApplication.kt
+if (BuildConfig.DEBUG) {
+    StrictMode.setVmPolicy(
+        StrictMode.VmPolicy.Builder()
+            .detectLeakedClosableObjects()
+            .detectLeakedRegistrationObjects()
+            .detectActivityLeaks()
+            .apply { if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.S) detectUnsafeIntentLaunch() }
+            .penaltyLog()            // hoặc penaltyDeath(), penaltyListener() (API 28)
+            .build()
+    )
+}</code></pre>
+
+<p>Ví dụ: quên đóng <code>Cursor</code> ở một nhánh <code>return</code> sớm; sau vài lần GC, Logcat (tag <code>StrictMode</code>) in "A resource was acquired at attached stack trace but never released" kèm nơi cursor được tạo; sửa bằng <code>cursor.use { ... }</code>.</p>
+
+<h3>11. Kích thước app: R8, shrink resources, APK Analyzer</h3>
+
+<ul>
+  <li><strong>R8</strong> (<code>isMinifyEnabled = true</code>) bỏ code không dùng, làm rối tên, tối ưu bytecode; <code>isShrinkResources = true</code> bỏ resource không ai tham chiếu. Cấu hình và keep rule ở <a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>. Vitals còn cảnh báo <strong>DEX code optimization</strong>: app có hơn 10 MB DEX cần bật tối ưu, làm rối, rút gọn đạt tối thiểu 25%.</li>
+  <li><strong>APK Analyzer</strong> (<strong>Build &gt; Analyze APK</strong>) cho thấy dung lượng <code>classes*.dex</code>, <code>res/</code>, <code>lib/</code> theo ABI, <code>assets/</code>; <strong>Compare with previous APK</strong> chỉ ra bản mới nặng thêm vì đâu. Cấu trúc APK: <a href="../session_01/output_packages/apk_files.md" target="_blank" rel="noopener">APK</a>.</li>
+  <li><strong>Android App Bundle</strong> giúp Play chỉ gửi resource và ABI hợp với từng máy (<a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB</a>).</li>
+</ul>
+
+<p>So hai bản, tìm phần tăng nhiều nhất (thư viện mới, ảnh lớn, native lib thừa ABI), sửa rồi so tiếp.</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>Bản phát hành làm cold start chậm và tăng ANR</h3>
+
+<p><strong>Bài toán:</strong> bản 3.2 thêm SDK chat hỗ trợ và SDK quảng cáo; vitals báo cold start quá mức trên máy yếu, cụm ANR mới trong <code>Application.onCreate</code>.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Bọc từng bước khởi tạo trong <code>Application.onCreate()</code> bằng trace section.</li>
+  <li>Đo bằng Macrobenchmark với <code>StartupTimingMetric</code> và <code>TraceSectionMetric</code> từng section: số "trước".</li>
+  <li>Phân loại: SDK chat chỉ cần khi mở màn hỗ trợ; quảng cáo và đọc cấu hình không cần cho frame đầu.</li>
+  <li>Sửa: SDK chat khởi tạo lười; quảng cáo và cấu hình chuyển sang coroutine nền.</li>
+  <li>Đo lại cùng benchmark, so median TTID và từng section.</li>
+  <li>Phát hành từng phần, theo dõi startup và ANR rate trong vitals.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant Main as main thread
+    participant App as NewsApplication
+    participant BG as applicationScope
+    participant Chat as SupportChat
+    Note over Main,App: (1)(2)(3) trước khi sửa, mọi init tuần tự trên main
+    Main-&gt;&gt;App: onCreate
+    App-&gt;&gt;BG: (4) launch init quảng cáo, cấu hình
+    App--&gt;&gt;Main: (4) trả về ngay, vẽ frame đầu
+    Note over Chat: (4) khởi tạo khi mở màn hỗ trợ
+    Main-&gt;&gt;Main: (5)(6) đo lại, theo dõi vitals
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// NewsApplication.kt (sau khi sửa; bản trước chạy cả ba trace("init_...") tuần tự trên main)
+@HiltAndroidApp
+class NewsApplication : Application() {
+    @Inject lateinit var applicationScope: CoroutineScope    // SupervisorJob() + Dispatchers.Default, từ module Hilt
+
+    override fun onCreate() {
+        super.onCreate()
+        applicationScope.launch {                              // (4) không chặn frame đầu
+            trace("init_remote_config") { RemoteConfigLoader.loadFromDisk(this@NewsApplication) }
+            trace("init_ads") { AdsSdk.initialize(this@NewsApplication) }
+        }
+    }
+}
+
+// SupportChat.kt
+@Singleton
+class SupportChat @Inject constructor(@ApplicationContext private val context: Context) {
+    private val sdk by lazy { SupportChatSdk.initialize(context, CHAT_KEY) } // (4) khởi tạo khi dùng lần đầu
+    fun open(activity: Activity) = sdk.openConversation(activity)
+}
+
+// AppInitBenchmark.kt: giống StartupBenchmarks ở mục 9, chỉ thêm metric cho từng section
+@OptIn(ExperimentalMetricApi::class)
+val metrics = listOf(                                         // (2) trước, (5) sau: cùng một benchmark
+    StartupTimingMetric(),
+    TraceSectionMetric("init_remote_config"),
+    TraceSectionMetric("init_ads"),
+    TraceSectionMetric("init_support_chat"),
+)</code></pre>
+
+<p><code>trace(name) { }</code> (import <code>androidx.tracing.trace</code>) thuộc <code>androidx.tracing:tracing</code> (trước 1.3.0 ở <code>tracing-ktx</code>); section hiện trong System Trace và được <code>TraceSectionMetric</code> đo. Code hiện quảng cáo giờ phải chịu được lúc SDK chưa sẵn sàng.</p>
+
+<p><strong>Kết quả:</strong> trước khi sửa, ba section chiếm phần lớn TTID; sau khi sửa, <code>init_support_chat</code> không còn lúc khởi động, hai section kia chạy nền, median <code>timeToInitialDisplayMs</code> giảm. Ghi số trước/sau vào pull request.</p>
+
+<h3>Process bị kill trên máy RAM thấp vì bitmap quá lớn</h3>
+
+<p>Vitals báo bitmap memory vượt ngưỡng, Crashlytics có <code>OutOfMemoryError</code> ở màn thư viện ảnh. Heap dump cho thấy <code>Bitmap</code> chiếm phần lớn <strong>Native Size</strong>; Android Studio (từ Narwhal 4) còn đánh dấu bitmap trùng lặp. Nguyên nhân thường là giải mã ảnh gốc 4000 px cho ô 200 dp; sửa bằng thư viện tải ảnh với kích thước đích đúng ô hiển thị (<a href="../session_08/loading_image/coil.md" target="_blank" rel="noopener">Coil</a>), rồi chụp heap dump lại để so.</p>
+
+<h2>So sánh với các cách tiếp cận khác</h2>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Tiêu chí</th>
+      <th style="padding:8px 12px;text-align:left;">Firebase Crashlytics</th>
+      <th style="padding:8px 12px;text-align:left;">Android vitals</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Nguồn dữ liệu</td>
+      <td style="padding:8px 12px;">SDK trong app</td>
+      <td style="padding:8px 12px;">Hệ điều hành, qua Google Play</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Crash trước khi SDK khởi tạo</td>
+      <td style="padding:8px 12px;">Không thấy</td>
+      <td style="padding:8px 12px;">Thấy</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">ANR</td>
+      <td style="padding:8px 12px;">Chỉ Android 11 trở lên, gửi ở lần mở sau</td>
+      <td style="padding:8px 12px;">Có, gửi ngay</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Đơn vị tỉ lệ</td>
+      <td style="padding:8px 12px;">Theo phiên</td>
+      <td style="padding:8px 12px;">Theo người dùng mỗi ngày</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Custom key, log, user ID</td>
+      <td style="padding:8px 12px;">Có</td>
+      <td style="padding:8px 12px;">Không</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Ảnh hưởng hiển thị trên Play, chỉ số startup/frame/memory</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Có</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Vitals cho biết app có vượt ngưỡng không và cụm nào lớn nhất; Crashlytics cho ngữ cảnh để sửa.</p>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<p><strong>Nên:</strong></p>
+
+<ul>
+  <li>Tích hợp Crashlytics từ bản phát hành đầu (kiểm tra mapping được upload), bật email cảnh báo của vitals; bật LeakCanary và StrictMode ở bản debug.</li>
+  <li>Tạo Baseline Profile khi khởi động hoặc cuộn là trải nghiệm chính, đo bằng Macrobenchmark; dùng JankStats khi jank chỉ xảy ra trên máy người dùng.</li>
+</ul>
+
+<p><strong>Không nên:</strong></p>
+
+<ul>
+  <li>Tối ưu khi chưa có số đo cho thấy đó là vấn đề.</li>
+  <li>Dùng <code>recordException</code> cho mọi lỗi mạng thông thường (mất mạng, timeout): nó làm loãng dashboard.</li>
+  <li>Đưa LeakCanary (<code>implementation</code> thay vì <code>debugImplementation</code>) hay <code>penaltyDeath()</code> vào bản release: app đơ khi dump heap hoặc crash vì vi phạm StrictMode.</li>
+  <li>Kết luận từ benchmark trên emulator, bản debuggable, một lần chạy, hay một ngày vitals.</li>
+</ul>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Đo hiệu năng trên bản debug</h3>
+
+<pre data-lang="kotlin"><code>// Sai: app được benchmark là bản debug
+create("benchmark") { initWith(getByName("debug")) }</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> Macrobenchmark báo lỗi vì app debuggable; đo tay bằng Profiler cho số chậm hơn người dùng thật, Baseline Profile không thấy tác dụng.</p>
+
+<p><strong>Cách sửa:</strong> <code>initWith(getByName("release"))</code>, ký bằng debug key, giữ R8 (template Baseline Profile tự tạo variant phù hợp). Với Profiler, dùng <strong>Profile 'app' with low overhead</strong>; bản debuggable chỉ cho task cần nó như heap dump.</p>
+
+<h3>2. Đưa PII hoặc giá trị duy nhất vào report</h3>
+
+<pre data-lang="kotlin"><code>// Sai
+crashlytics.setUserId(user.email)
+crashlytics.recordException(IllegalStateException("Order \${order.id} failed at \${System.currentTimeMillis()}"))</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> email người dùng nằm trên server bên thứ ba, vi phạm chính sách quyền riêng tư; message khác nhau mỗi lần làm report không gom được thành issue, dashboard đầy issue một report.</p>
+
+<p><strong>Cách sửa:</strong> <code>setUserId(user.internalId)</code>; message cố định ("Order payment failed"), giá trị thay đổi đưa vào custom key.</p>
+
+<h3>3. Dời việc chậm sang thread khác nhưng main vẫn chờ</h3>
+
+<pre data-lang="kotlin"><code>// Sai: đọc file đã ở Dispatchers.IO nhưng main thread vẫn chặn chờ kết quả
+val config = runBlocking { withContext(Dispatchers.IO) { configRepository.load() } }</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> StrictMode không còn báo disk read trên main, nhưng trace ANR cho thấy main đang chờ trong <code>runBlocking</code>; ANR rate không giảm.</p>
+
+<p><strong>Cách sửa:</strong> main thread không chờ việc chậm theo bất kỳ cách nào (<code>runBlocking</code>, <code>Future.get()</code>, <code>synchronized</code> chờ thread I/O); hiện loading, nhận kết quả qua <code>uiState</code> của ViewModel.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>2015:</strong> Square phát hành LeakCanary; bản 2.0 (2019) viết lại bằng Kotlin với bộ phân tích heap Shark.</li>
+  <li><strong>2017:</strong> Google mua Fabric, Crashlytics thành Firebase Crashlytics (Fabric SDK ngừng cuối 2020); Android vitals ra mắt.</li>
+  <li><strong>Android 11 (2020):</strong> <code>ApplicationExitInfo</code> cho biết lý do process kết thúc lần trước, kèm trace ANR (Crashlytics dùng để báo ANR).</li>
+  <li><strong>2020–2023:</strong> Macrobenchmark (alpha 06/2020, stable 06/2022 kèm <code>BaselineProfileRule</code>), JankStats (alpha 02/2022); Baseline Profile Gradle plugin có từ Benchmark 1.2.0 (10/2023, cần AGP 8.0), AGP 8.2 thêm Startup Profile.</li>
+  <li><strong>10/2022:</strong> Play chuyển sang user-perceived crash rate và ANR rate, giữ ngưỡng 1,09% và 0,47%, thêm ngưỡng 8% theo dòng điện thoại; cảnh báo trên store listing từ 30/11/2022.</li>
+  <li><strong>Gần đây:</strong> Profiler tổ chức theo task; JankStats 1.0.0 (10/2025); core vitals thêm memory, bitmap memory; Macrobenchmark 1.5 dùng DSL UI Automator mới; Android Studio Quail 2 đưa LeakCanary vào Profiler.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="debugging.md" target="_blank" rel="noopener">10.1 Debugging</a>: stack trace, retrace, Logcat, debugger, adb.</li>
+  <li><a href="../session_05/working_with_thread.md" target="_blank" rel="noopener">5.2 Working with Thread</a>: main thread, frame budget, ANR, StrictMode ThreadPolicy.</li>
+  <li><a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>: R8, <code>isShrinkResources</code>, <code>mapping.txt</code>, <code>initWith</code>.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong> <a href="unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a> (test chống lặp, fake), <a href="lint.md" target="_blank" rel="noopener">10.3 Lint</a> (bắt lỗi trước khi thành crash), <a href="../session_04/components/services/google_service.md" target="_blank" rel="noopener">Google Service</a> (tích hợp Firebase), <a href="../jetpack_compose_ui/remember_and_recomposition.md" target="_blank" rel="noopener">Remember và Recomposition</a> (jank của Compose), <a href="../session_07/design_pattern/singleton_pattern.md" target="_blank" rel="noopener">Singleton Pattern</a> và <a href="../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a> (nguồn leak), <a href="../session_01/output_packages/apk_files.md" target="_blank" rel="noopener">APK</a> và <a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB</a> (kích thước gói), <a href="index.md" target="_blank" rel="noopener">Session 10 Overview</a>.</li>
+  <li><strong>Học tiếp:</strong>
+<ul>
+  <li>11.4 Github CI (chưa có bài): chạy lint, test, benchmark trước khi merge.</li>
+</ul></li>
+</ul>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li><a href="https://developer.android.com/topic/performance/vitals" target="_blank" rel="noopener">Android vitals</a></li>
+  <li><a href="https://developer.android.com/google/play/vitals/launch-time" target="_blank" rel="noopener">App startup time in Android vitals</a></li>
+  <li><a href="https://developer.android.com/google/play/vitals/render" target="_blank" rel="noopener">Slow rendering in Android vitals</a></li>
+  <li><a href="https://developer.android.com/topic/performance/vitals/anr" target="_blank" rel="noopener">ANRs</a></li>
+  <li><a href="https://developer.android.com/topic/performance/vitals/launch-time" target="_blank" rel="noopener">App startup time</a></li>
+  <li><a href="https://developer.android.com/topic/performance/jankstats" target="_blank" rel="noopener">JankStats library</a></li>
+  <li><a href="https://developer.android.com/topic/performance/baselineprofiles/overview" target="_blank" rel="noopener">Baseline Profiles overview</a></li>
+  <li><a href="https://developer.android.com/topic/performance/baselineprofiles/create-baselineprofile" target="_blank" rel="noopener">Create Baseline Profiles</a></li>
+  <li><a href="https://developer.android.com/topic/performance/baselineprofiles/measure-baselineprofile" target="_blank" rel="noopener">Benchmark Baseline Profiles</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/benchmark" target="_blank" rel="noopener">Benchmark release notes</a></li>
+  <li><a href="https://developer.android.com/studio/profile/capture-heap-dump" target="_blank" rel="noopener">Capture a heap dump</a></li>
+  <li><a href="https://developer.android.com/studio/releases/past-releases/as-quail-2-release-notes" target="_blank" rel="noopener">Android Studio Quail 2 release notes</a></li>
+  <li><a href="https://developer.android.com/reference/android/os/StrictMode.VmPolicy.Builder" target="_blank" rel="noopener">StrictMode.VmPolicy.Builder</a></li>
+  <li><a href="https://firebase.google.com/docs/crashlytics/android/get-started" target="_blank" rel="noopener">Get started with Firebase Crashlytics</a></li>
+  <li><a href="https://firebase.google.com/docs/crashlytics/android/customize-crash-reports" target="_blank" rel="noopener">Customize your Crashlytics crash reports</a></li>
+  <li><a href="https://firebase.google.com/docs/crashlytics/debug-anr-errors" target="_blank" rel="noopener">Debug ANR errors - Firebase Crashlytics</a></li>
+  <li><a href="https://firebase.google.com/docs/crashlytics/troubleshooting" target="_blank" rel="noopener">Crashlytics troubleshooting</a></li>
+  <li><a href="https://square.github.io/leakcanary/fundamentals-how-leakcanary-works/" target="_blank" rel="noopener">How LeakCanary works</a></li>
+  <li><a href="https://android-developers.googleblog.com/2022/10/raising-bar-on-technical-quality-on-google-play.html" target="_blank" rel="noopener">Raising the bar on technical quality on Google Play</a></li>
+</ul>
+    `
+  },
+
+  'unit-testing': {
+    title: 'Unit Testing',
+    summary: 'Unit test là test tự động kiểm tra một đơn vị code (hàm, class) trong cô lập, thay dependency chậm hoặc không kiểm soát được bằng test double, nên chạy nhanh trên JVM và cho cùng kết quả mỗi lần chạy. Bài đi từ đáy lên đỉnh kim tự tháp test: JUnit 4, fake/mock, coroutine và StateFlow, MockWebServer, DAO Room, Robolectric, Espresso, Compose UI test.',
+    status: 'published',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '26 phút',
+    depth: 'standard',
+    tags: ['android', 'session-10', 'testing', 'unit-test', 'coroutines-test', 'mockwebserver', 'robolectric', 'compose-ui-test'],
+    domain: 'Android',
+    module: 'Session 10',
+    prerequisites: ['android.jetpack.viewmodel', 'android.async.coroutines', 'android.design_pattern.observer.flow', 'android.design_pattern.di.overview'],
+    related: ['android.networking.basics', 'android.networks.retrofit', 'android.networks.okhttp', 'android.data_store.room_architecture', 'android.data_store.room_transactions', 'android.architecture.mvvm', 'android.design_pattern.di.hilt', 'android.jetpack_compose.side_effects.launched_effect', 'android.jetpack_compose.state.remember_saveable', 'android.testing.debugging', 'android.testing.lint', 'android.testing.fit_bug_optimization', 'android.coding_analyst.overview'],
+    learningOutcomes: [
+      'Phân biệt được local test với instrumented test và chọn được tầng test thấp nhất đủ thông tin.',
+      'Triển khai được unit test JUnit 4 theo Arrange-Act-Assert, ưu tiên fake và chỉ dùng mock để kiểm tra tương tác.',
+      'Áp dụng được runTest, TestDispatcher, MainDispatcherRule, backgroundScope và Turbine để test coroutine và StateFlow của ViewModel một cách tất định.',
+      'Triển khai được test tầng mạng bằng MockWebServer cho response thành công, lỗi HTTP và timeout.',
+      'Triển khai được Compose UI test bằng finder, action, assertion, mainClock và Espresso test cơ bản cho View.'
+    ],
+    knowledgeGap: 'Nhiều developer có test nhưng test không bắt được bug: mock thẳng interface Retrofit nên không chạm tới parse JSON hay mã lỗi HTTP, chờ bằng Thread.sleep với Dispatchers thật nên test lúc xanh lúc đỏ, quên collector khiến StateFlow của stateIn không đổi giá trị, hoặc dồn mọi thứ lên UI test trên emulator nên không ai chạy trước khi merge.',
+    updatedAt: '2026-11-09',
+    readTime: '26 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Mỗi lần sửa code là một lần có thể làm hỏng thứ đang chạy đúng. Một tính năng có hàng chục tình huống (mất mạng, server trả 500, bấm hai lần, xoay màn hình), không ai bấm tay lại đủ mỗi lần merge. Test tự động chỉ giải quyết được việc này khi nó <strong>bắt được bug thật</strong> và <strong>đủ nhanh để được chạy thường xuyên</strong>. Hai kiểu test hay gặp không đạt điều đó. Kiểu thứ nhất xanh mãi nhưng vô nghĩa:</p>
+
+<pre data-lang="kotlin"><code>// ProductRepositoryTest.kt (cách làm có vấn đề): mock thẳng interface Retrofit
+val api = mockk&lt;ProductApiService&gt;()
+coEvery { api.fetchProducts() } returns listOf(ProductDto(101, "Bàn phím cơ", 150.0))
+// Test chỉ kiểm tra mock trả đúng thứ vừa dặn.</code></pre>
+
+<p>Đoạn này bỏ qua toàn bộ tầng mạng (interceptor, parse JSON, mã lỗi HTTP, timeout): server đổi tên một trường JSON thì app crash, test vẫn xanh. Kiểu thứ hai chạm code thật nhưng phụ thuộc thứ test không kiểm soát:</p>
+
+<pre data-lang="kotlin"><code>// OrderViewModelTest.kt (cách làm có vấn đề): chờ bằng thời gian thật
+viewModel.loadOrders()          // viewModelScope + Dispatchers.IO + server thật
+Thread.sleep(3_000)             // hy vọng 3 giây là đủ
+assertEquals(5, viewModel.uiState.value.orders.size)</code></pre>
+
+<p>Test này chậm, cần mạng và đúng 5 đơn trên server, đỏ ngẫu nhiên (flaky) khi server chậm; team dần quen bỏ qua.</p>
+
+<p>Vấn đề cần giải quyết: <strong>kiểm chứng tự động rằng code làm đúng việc của nó, bằng test nhanh, tất định (cùng input luôn cho cùng kết quả) và chạm đúng phần code có thể sai</strong>.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Phân biệt được local test với instrumented test và chọn được tầng test thấp nhất đủ thông tin.</li>
+  <li>Triển khai được unit test JUnit 4 theo Arrange-Act-Assert, ưu tiên fake và chỉ dùng mock để kiểm tra tương tác.</li>
+  <li>Áp dụng được runTest, TestDispatcher, MainDispatcherRule, backgroundScope và Turbine để test coroutine và StateFlow của ViewModel một cách tất định.</li>
+  <li>Triển khai được test tầng mạng bằng MockWebServer cho response thành công, lỗi HTTP và timeout.</li>
+  <li>Triển khai được Compose UI test bằng finder, action, assertion, mainClock và Espresso test cơ bản cho View.</li>
 </ul>
 
 <h2>Unit Testing là gì?</h2>
 
-<p><strong>Unit test</strong> là test tự động chạy trên JVM của máy phát triển, kiểm tra một đơn vị code (hàm, class) tách khỏi thiết bị và các phụ thuộc chậm hoặc không ổn định như network thật.</p>
+<p><strong>Unit test</strong> là test tự động kiểm tra một đơn vị code (hàm, class) trong cô lập: dependency chậm hoặc không kiểm soát được (mạng, database, thời gian, thread) được thay bằng <strong>test double</strong>, nên test chạy nhanh trên JVM của máy dev và cho cùng kết quả mỗi lần chạy.</p>
 
-<p>Mental model cho tầng mạng: thay vì giả lập code gọi API, test <strong>giả lập server</strong>. Code của app vẫn chạy thật từ đầu tới cuối, chỉ có đầu bên kia là server do test điều khiển.</p>
+<p>Mental model: mỗi test là <strong>một thí nghiệm có kiểm soát</strong>: cố định mọi biến số (dependency bằng fake, thời gian bằng đồng hồ ảo, server bằng MockWebServer, khung hình UI bằng <code>mainClock</code>), chỉ để lại đúng thứ đang xét. Càng ít biến số, test càng nhanh và chỉ rõ chỗ sai; càng giống môi trường thật, test càng bắt được lỗi tích hợp nhưng càng chậm. Test trên thiết bị và UI test dùng cùng ý tưởng, nên bài dạy cả chúng.</p>
 
 <h2>Cách hoạt động</h2>
 
-<h3>MockWebServer</h3>
+<h3>Local test và instrumented test: test chạy ở đâu</h3>
 
-<p><code>MockWebServer</code> khởi tạo một HTTP Server thật sự chạy trên cổng cục bộ (localhost) trong JVM test. Nó nhận HTTP request thật từ OkHttp và trả về response thật.</p>
+<p>Cách phân loại quan trọng nhất là <strong>test chạy ở đâu</strong>:</p>
 
-<p>Một test đi qua 4 bước:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;"></th>
+      <th style="padding:8px 12px;text-align:left;">Local test</th>
+      <th style="padding:8px 12px;text-align:left;">Instrumented test</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Thư mục</td>
+      <td style="padding:8px 12px;"><code>src/test/</code></td>
+      <td style="padding:8px 12px;"><code>src/androidTest/</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Chạy trên</td>
+      <td style="padding:8px 12px;">JVM của máy dev hoặc CI</td>
+      <td style="padding:8px 12px;">Thiết bị thật hoặc emulator</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Android framework</td>
+      <td style="padding:8px 12px;">Bản stub của <code>android.jar</code>, trừ khi dùng Robolectric</td>
+      <td style="padding:8px 12px;">Đầy đủ</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Tốc độ</td>
+      <td style="padding:8px 12px;">Mili giây mỗi test</td>
+      <td style="padding:8px 12px;">Phải build, cài APK test, khởi động process</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Dùng cho</td>
+      <td style="padding:8px 12px;">Logic, ViewModel, Repository, tầng mạng, UI test bằng Robolectric</td>
+      <td style="padding:8px 12px;">DAO Room, UI test, tích hợp hệ thống</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Cách phân loại thứ hai là <strong>kích thước</strong> (phạm vi): <strong>small test</strong> (unit test) kiểm tra một hàm hoặc class, <strong>medium test</strong> kiểm tra tích hợp vài unit, <strong>big test</strong> (end-to-end) kiểm tra cả luồng người dùng. Hai cách độc lập nhau: test DAO nhỏ nhưng chạy trên thiết bị; UI test cả màn hình có thể chạy local bằng Robolectric.</p>
+
+<p>Docs Android khuyên phân bố theo hình <strong>kim tự tháp</strong>: nhiều small test ở đáy, ít big test ở đỉnh, vì bug do unit test bắt thường sửa trong vài phút, còn để test end-to-end phát hiện có khi mất vài ngày. Quy tắc chọn: <strong>dùng tầng thấp nhất cho đủ thông tin</strong>.</p>
+
+<div class="mermaid">
+flowchart TD
+    Q["Code cần kiểm chứng"] --&gt; A{"Phụ thuộc Android framework?"}
+    A --&gt;|"Không"| U["Local unit test (src/test): nhiều, nhanh"]
+    A --&gt;|"Có, Robolectric giả lập đủ"| R["Local test bằng Robolectric"]
+    A --&gt;|"Cần thiết bị thật"| I["Instrumented test (src/androidTest): ít, chậm"]
+</div>
+
+<p>Dependency khai báo theo source set (<code>testImplementation</code>, <code>androidTestImplementation</code>). Thư viện dùng trong bài (stable mới nhất lúc viết, 11/2026; dự án thật gom vào version catalog):</p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts
+android {
+    defaultConfig { testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+    testOptions { unitTests.isIncludeAndroidResources = true }   // Robolectric cần resource của app
+}
+dependencies {
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("com.google.truth:truth:1.4.5")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
+    testImplementation("app.cash.turbine:turbine:1.2.1")
+    testImplementation("io.mockk:mockk:1.14.12")
+    testImplementation("com.squareup.okhttp3:mockwebserver3:5.5.1")
+    testImplementation("org.robolectric:robolectric:4.17")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2026.09.00"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")   // Activity rỗng cho createComposeRule()
+}</code></pre>
+
+<p>Chạy Compose UI test bằng Robolectric (<code>src/test</code>) thì khai báo BOM và <code>ui-test-junit4</code> cho cả <code>testImplementation</code>; dùng <code>runTest</code> trong <code>src/androidTest</code> thì thêm <code>kotlinx-coroutines-test</code> cho <code>androidTestImplementation</code>.</p>
+
+<h3>JUnit 4: cấu trúc một test</h3>
+
+<p>JUnit 4 là test framework mặc định của AndroidX Test và Robolectric. Mỗi hàm <code>@Test</code> là một thí nghiệm độc lập: <strong>JUnit tạo instance mới của class test cho mỗi hàm <code>@Test</code></strong>, nên property của class không bị chia sẻ giữa các test.</p>
+
+<ul>
+  <li><code>@Before</code> chạy trước mỗi test (dựng object cần test), <code>@After</code> chạy sau mỗi test kể cả khi test đỏ (đóng database, tắt server).</li>
+  <li><strong>Rule</strong> (<code>@get:Rule</code>; Kotlin cần <code>get:</code> để annotation gắn vào getter) gói logic <code>@Before</code>/<code>@After</code> thành object dùng lại được: <code>MainDispatcherRule</code>, <code>ActivityScenarioRule</code>, <code>createComposeRule()</code>.</li>
+  <li>Tên test nói <strong>tình huống và kết quả mong đợi</strong>, thứ hiện ra khi test đỏ: <code>orderBelowMinimum_isRejected</code>. Tên có dấu cách trong backtick chạy được trong <code>src/test</code>, nhưng Android runtime chỉ hỗ trợ từ API 30, nên <code>src/androidTest</code> dùng gạch dưới.</li>
+  <li>Thân test chia ba phần <strong>Arrange-Act-Assert</strong> (Given-When-Then): dựng điều kiện, thực hiện <strong>một</strong> hành động, kiểm tra kết quả.</li>
+</ul>
+
+<p>Assertion: <code>org.junit.Assert</code> (<code>assertEquals(expected, actual)</code>) dễ đảo nhầm thứ tự tham số và thông báo lỗi nghèo. <strong>Truth</strong> (của Google, docs AndroidX Test dùng) viết <code>assertThat(actual).isEqualTo(expected)</code>, có assertion theo kiểu dữ liệu (<code>containsExactly(...).inOrder()</code>, <code>contains("...")</code>, <code>isInstanceOf(...)</code>) và khi đỏ in <code>expected: ...</code> / <code>but was: ...</code>. Bài dùng Truth.</p>
+
+<h3>Test double: fake, stub, mock</h3>
+
+<p>ViewModel cần Repository, Repository cần API và DAO. Muốn test trong cô lập thì đưa vào một <strong>test double</strong>: object hành xử như dependency thật nhưng do test tạo, với hành vi biết trước. Điều kiện là dependency được truyền từ ngoài vào (constructor), tức là <a href="../session_07/design_pattern/di/overview.md" target="_blank" rel="noopener">Dependency Injection</a>; hàm test đóng vai composition root.</p>
+
+<p>Docs Android phân biệt:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Loại</th>
+      <th style="padding:8px 12px;text-align:left;">Là gì</th>
+      <th style="padding:8px 12px;text-align:left;">Ví dụ</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Fake</strong></td>
+      <td style="padding:8px 12px;">Bản cài đặt "chạy được" của interface, đơn giản hơn bản thật, không dùng cho production</td>
+      <td style="padding:8px 12px;">Repository giữ dữ liệu trong <code>MutableList</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Stub</strong></td>
+      <td style="padding:8px 12px;">Trả giá trị lập trình sẵn, không kiểm tra tương tác</td>
+      <td style="padding:8px 12px;"><code>every { api.getUser() } returns user</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Mock</strong></td>
+      <td style="padding:8px 12px;">Như stub, kèm kỳ vọng về tương tác; không khớp thì test đỏ</td>
+      <td style="padding:8px 12px;"><code>logEvent</code> được gọi đúng một lần</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Ngoài ra có dummy (cho đủ tham số), spy (bọc object thật, nên tránh) và shadow (fake class Android của Robolectric). Docs khuyên <strong>ưu tiên fake</strong>: không cần mocking framework, test kiểm tra <strong>kết quả</strong> (state) thay vì <strong>cách làm</strong> (thứ tự lời gọi), nên vẫn xanh khi refactor bên trong. Fake đặt trong <code>src/test</code> (hoặc module <code>testing</code> dùng chung), không vào APK. Mock (Kotlin thường dùng MockK) chỉ đáng dùng khi điều cần kiểm chứng <strong>chính là tương tác</strong> không để lại state quan sát được: gửi analytics, gọi SDK bên thứ ba.</p>
+
+<h4>Ví dụ: áp mã giảm giá và ghi analytics</h4>
+
+<p><strong>Bài toán:</strong> <code>CheckoutCalculator</code> tra mã giảm giá trong <code>CouponRepository</code>, kiểm tra đơn tối thiểu, tính tổng mới và ghi sự kiện <code>coupon_applied</code>. Tiền tính ra kiểm tra được qua giá trị trả về, nên Repository dùng fake; sự kiện analytics không trả gì về, nên dùng mock để <code>verify</code>.</p>
+
+<p><strong>Luồng chạy:</strong></p>
 
 <ol>
-  <li>Khởi động <code>MockWebServer</code> và trỏ <code>baseUrl</code> của Retrofit vào <code>mockWebServer.url("/")</code>.</li>
-  <li><code>enqueue()</code> response mà server sẽ trả cho request tiếp theo (mã trạng thái, body).</li>
-  <li>Gọi code thật của app; request đi qua OkHttp, interceptor, converter như khi chạy trên máy thật.</li>
-  <li>Kiểm tra kết quả (<code>NetworkResult.Success</code>, <code>NetworkResult.Error.Http</code>...), rồi <code>shutdown()</code> server.</li>
+  <li>Test dựng <code>FakeCouponRepository</code> chứa mã <code>TET2026</code> (giảm 10%, đơn tối thiểu 200.000 đ) và mock <code>AnalyticsTracker</code>.</li>
+  <li><code>applyCoupon</code> chuẩn hoá mã, tra trong fake; không thấy trả <code>Invalid</code>, chưa đủ tối thiểu trả <code>BelowMinimum</code>.</li>
+  <li>Mã hợp lệ: tính giảm giá, gọi <code>analytics.logEvent(...)</code>, trả <code>Applied</code>.</li>
+  <li>Test assert kết quả (state) và <code>verify</code> lời gọi analytics (tương tác).</li>
+</ol>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// CheckoutCalculator.kt (src/main)
+data class Coupon(val code: String, val percentOff: Int, val minOrderTotal: Long)
+interface CouponRepository { fun findCoupon(code: String): Coupon? }
+interface AnalyticsTracker { fun logEvent(name: String, params: Map&lt;String, String&gt;) }
+
+sealed interface CouponResult {
+    data object Invalid : CouponResult
+    data class BelowMinimum(val minOrderTotal: Long) : CouponResult
+    data class Applied(val total: Long, val discount: Long) : CouponResult
+}
+
+class CheckoutCalculator(private val coupons: CouponRepository, private val analytics: AnalyticsTracker) {
+    fun applyCoupon(subtotal: Long, rawCode: String): CouponResult {
+        val coupon = coupons.findCoupon(rawCode.trim().uppercase())      // (2)
+            ?: return CouponResult.Invalid
+        if (subtotal &lt; coupon.minOrderTotal) return CouponResult.BelowMinimum(coupon.minOrderTotal)
+        val discount = subtotal * coupon.percentOff / 100                // (3)
+        analytics.logEvent("coupon_applied", mapOf("code" to coupon.code))
+        return CouponResult.Applied(total = subtotal - discount, discount = discount)
+    }
+}</code></pre>
+
+<pre data-lang="kotlin"><code>// CheckoutCalculatorTest.kt (src/test)
+import com.google.common.truth.Truth.assertThat
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.Test
+
+class FakeCouponRepository(vararg coupons: Coupon) : CouponRepository {
+    private val byCode = coupons.associateBy { it.code }
+    override fun findCoupon(code: String) = byCode[code]
+}
+
+class CheckoutCalculatorTest {
+    private val analytics = mockk&lt;AnalyticsTracker&gt;(relaxed = true)       // (1) relaxed: hàm Unit không cần khai báo
+    private val calculator = CheckoutCalculator(
+        FakeCouponRepository(Coupon("TET2026", percentOff = 10, minOrderTotal = 200_000)),
+        analytics,
+    )
+
+    @Test
+    fun validCoupon_appliesDiscount_andLogsEventOnce() {
+        val result = calculator.applyCoupon(subtotal = 300_000, rawCode = " tet2026 ")
+
+        assertThat(result).isEqualTo(CouponResult.Applied(total = 270_000, discount = 30_000)) // (4) state
+        verify(exactly = 1) { analytics.logEvent("coupon_applied", mapOf("code" to "TET2026")) } // (4) tương tác
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> <code>./gradlew testDebugUnitTest</code> chạy test trong vài mili giây. Quên <code>trim()</code> thì kết quả là <code>Invalid</code> và Truth báo <code>expected: Applied(...)</code> / <code>but was: Invalid</code>. Test cho đơn dưới tối thiểu kết thúc bằng <code>verify(exactly = 0) { analytics.logEvent(any(), any()) }</code>. Fake chỉ vài dòng, không có <code>every { ... }</code> nào phải giữ cho khớp cài đặt.</p>
+
+<h3>Test coroutine: <code>runTest</code> và TestDispatcher</h3>
+
+<p>Hàm <code>@Test</code> không phải hàm <code>suspend</code>, nên cần coroutine builder dành cho test là <code>runTest</code> (<code>kotlinx-coroutines-test</code>). Nó chạy thân test trong một <code>TestScope</code> với <strong><code>TestDispatcher</code></strong>; mọi <code>TestDispatcher</code> của một test dùng chung một <strong><code>TestCoroutineScheduler</code></strong> giữ <strong>thời gian ảo</strong>: <code>delay(2_000)</code> không chờ 2 giây thật, scheduler nhảy đồng hồ khi không còn việc nào chạy trước được. Cơ chế dispatcher và <code>delay</code> ở <a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">Coroutines</a>.</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;"></th>
+      <th style="padding:8px 12px;text-align:left;"><code>StandardTestDispatcher</code></th>
+      <th style="padding:8px 12px;text-align:left;"><code>UnconfinedTestDispatcher</code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Coroutine mới</td>
+      <td style="padding:8px 12px;">Xếp hàng, chỉ chạy khi test nhường thread</td>
+      <td style="padding:8px 12px;">Chạy ngay tới điểm suspend đầu tiên</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Giống production</td>
+      <td style="padding:8px 12px;">Có</td>
+      <td style="padding:8px 12px;">Không: có thể che lỗi thứ tự, race condition</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Dùng khi</td>
+      <td style="padding:8px 12px;">Mặc định của <code>runTest</code>; test có đồng thời, thời gian</td>
+      <td style="padding:8px 12px;">Collector cần đăng ký ngay, test đơn giản</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Với <code>StandardTestDispatcher</code>, test nhường thread bằng hàm của scheduler, gọi trực tiếp trong <code>runTest</code>:</p>
+
+<ul>
+  <li><code>advanceUntilIdle()</code>: chạy mọi việc đang chờ, nhảy thời gian ảo tới khi hàng đợi rỗng.</li>
+  <li><code>advanceTimeBy(ms)</code>: tiến đồng hồ thêm <code>ms</code>, chạy việc lên lịch <strong>trước</strong> thời điểm đó (việc đúng thời điểm đó chưa chạy).</li>
+  <li><code>runCurrent()</code>: chạy việc lên lịch tại thời điểm hiện tại, không tiến đồng hồ.</li>
+</ul>
+
+<p>Để thời gian ảo áp dụng cho code thật:</p>
+
+<ol>
+  <li><strong>Thay <code>Dispatchers.Main</code>.</strong> Local test không có main looper, nên <code>viewModelScope</code> ném <code>IllegalStateException: Module with the Main dispatcher had failed to initialize</code>. <code>Dispatchers.setMain(testDispatcher)</code> thay nó; <code>runTest</code> và mọi <code>TestDispatcher</code> tạo <strong>sau</strong> lời gọi này tự dùng chung scheduler của Main. Instrumented test có main thread thật, không cần thay.</li>
+  <li><strong>Inject dispatcher khác.</strong> <code>withContext(Dispatchers.IO)</code> chạy trên thread pool thật, <code>delay</code> không còn được bỏ qua. Nhận <code>CoroutineDispatcher</code> qua constructor, trong test truyền <code>StandardTestDispatcher(testScheduler)</code>.</li>
+</ol>
+
+<pre data-lang="kotlin"><code>// MainDispatcherRule.kt (src/test, dùng chung cho mọi test ViewModel)
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class MainDispatcherRule(
+    val testDispatcher: TestDispatcher = StandardTestDispatcher(),
+) : TestWatcher() {
+    override fun starting(description: Description) = Dispatchers.setMain(testDispatcher)
+    override fun finished(description: Description) = Dispatchers.resetMain()
+}</code></pre>
+
+<p>Bản mẫu trong docs Android mặc định <code>UnconfinedTestDispatcher()</code>. Bản dùng chung của repo (test ở <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và Session 07 dựa vào nó) mặc định <code>StandardTestDispatcher()</code>: <code>launch</code> trong <code>viewModelScope</code> không chạy ngay, giống production, nên test phải chủ động <code>advanceUntilIdle()</code>/<code>runCurrent()</code>; cần chạy ngay thì truyền <code>MainDispatcherRule(UnconfinedTestDispatcher())</code>.</p>
+
+<h4>Ví dụ: đổi danh mục nhanh, kết quả cũ ghi đè kết quả mới</h4>
+
+<p><strong>Bài toán:</strong> bấm chip "Điện thoại" rồi bấm ngay "Phụ kiện", màn hình hiện chip "Phụ kiện" nhưng danh sách là điện thoại. Bug chỉ xảy ra khi request đầu chậm hơn request sau, nên trên máy thật lúc có lúc không; fake có độ trễ ảo theo danh mục tái hiện nó ở <strong>mọi lần chạy</strong>.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Fake trả "phone" sau 2.000 ms, "accessory" sau 500 ms. Test chọn "phone" ở t = 0.</li>
+  <li>Ở t = 100 ms, test chọn "accessory"; bản đúng huỷ job "phone" trước khi <code>launch</code> job mới.</li>
+  <li><code>advanceUntilIdle()</code>: "accessory" xong ở t = 600 ms; job "phone" nếu còn sống sẽ xong ở t = 2.000 ms và ghi đè.</li>
+  <li>Test kiểm tra state cuối là "accessory".</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant T as Test (runTest)
+    participant VM as ProductListViewModel
+    participant R as FakeCatalogRepository
+    T-&gt;&gt;VM: (1) onCategorySelected("phone") t=0
+    VM-&gt;&gt;R: getProducts("phone"), trễ 2_000
+    T-&gt;&gt;VM: (2) onCategorySelected("accessory") t=100
+    Note over VM: huỷ job "phone"
+    VM-&gt;&gt;R: getProducts("accessory"), trễ 500
+    T-&gt;&gt;T: (3) advanceUntilIdle()
+    R--&gt;&gt;VM: accessory xong ở t=600
+    T-&gt;&gt;VM: (4) assert Content("accessory")
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// ProductListViewModel.kt (src/main)
+sealed interface ProductListUiState {
+    data object Loading : ProductListUiState
+    data class Content(val category: String, val products: List&lt;Product&gt;) : ProductListUiState
+}
+
+class ProductListViewModel(private val repository: CatalogRepository) : ViewModel() {
+    private val _uiState = MutableStateFlow&lt;ProductListUiState&gt;(ProductListUiState.Loading)
+    val uiState: StateFlow&lt;ProductListUiState&gt; = _uiState.asStateFlow()
+    private var loadJob: Job? = null
+
+    fun onCategorySelected(category: String) {
+        loadJob?.cancel()                                  // (2) bỏ request của chip cũ
+        loadJob = viewModelScope.launch {
+            _uiState.value = ProductListUiState.Loading
+            _uiState.value = ProductListUiState.Content(category, repository.getProducts(category))
+        }
+    }
+}</code></pre>
+
+<pre data-lang="kotlin"><code>// ProductListViewModelTest.kt (src/test)
+class FakeCatalogRepository(
+    private val catalog: Map&lt;String, List&lt;Product&gt;&gt;,
+    private val latencyMs: Map&lt;String, Long&gt;,
+) : CatalogRepository {
+    override suspend fun getProducts(category: String): List&lt;Product&gt; {
+        delay(latencyMs.getValue(category))                // thời gian ảo
+        return catalog.getValue(category)
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class ProductListViewModelTest {
+    @get:Rule val mainDispatcherRule = MainDispatcherRule()
+    private val phones = listOf(Product(1, "Điện thoại A", 7_990_000.0))
+    private val accessories = listOf(Product(2, "Ốp lưng", 150_000.0))
+
+    @Test
+    fun switchingCategoryBeforeFirstLoadFinishes_showsLatestCategory() = runTest {
+        val repository = FakeCatalogRepository(
+            catalog = mapOf("phone" to phones, "accessory" to accessories),
+            latencyMs = mapOf("phone" to 2_000L, "accessory" to 500L),
+        )
+        val viewModel = ProductListViewModel(repository)
+
+        viewModel.onCategorySelected("phone")                                   // (1)
+        advanceTimeBy(100)
+        viewModel.onCategorySelected("accessory")                               // (2)
+        advanceUntilIdle()                                                      // (3)
+
+        assertThat(viewModel.uiState.value)                                     // (4)
+            .isEqualTo(ProductListUiState.Content("accessory", accessories))
+        assertThat(currentTime).isEqualTo(600)
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> xoá <code>loadJob?.cancel()</code> thì Truth báo <code>expected: Content(category=accessory, ...)</code> / <code>but was: Content(category=phone, ...)</code> ở mọi lần chạy. Đây là <strong>test chống lặp</strong> (regression test): đỏ khi có bug, xanh sau khi sửa. Đổi sang <code>flatMapLatest</code> thì test không đổi, vì nó kiểm tra hành vi chứ không kiểm tra cách cài đặt.</p>
+
+<h3>Test Flow và StateFlow trong ViewModel</h3>
+
+<p>Khi class cần test <strong>nhận</strong> Flow (ViewModel quan sát Repository), fake Repository giữ một <code>MutableStateFlow</code> để test đẩy giá trị vào (<a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>). Flow hữu hạn thì lấy giá trị bằng <code>first()</code> hoặc <code>toList()</code>. Flow không kết thúc (StateFlow, Flow của Room) thì <code>toList()</code> treo mãi: thu thập trong <strong><code>backgroundScope</code></strong> của <code>TestScope</code>, scope tự huỷ khi test xong; collect trong scope thường thì <code>runTest</code> chờ coroutine đó và test treo tới timeout.</p>
+
+<p>Với <code>StateFlow</code>, docs khuyên assert trên <code>.value</code> tại từng thời điểm, vì StateFlow là conflated: giá trị đổi nhanh thì collector có thể chỉ thấy giá trị cuối. Bẫy hay gặp: <code>stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initial)</code> <strong>chỉ chạy upstream khi có ít nhất một collector</strong>, nên test chỉ đọc <code>.value</code> thì mãi thấy giá trị khởi tạo; cần mở collector rỗng trong <code>backgroundScope</code> với <code>UnconfinedTestDispatcher(testScheduler)</code> để nó đăng ký ngay.</p>
+
+<p>Muốn kiểm tra <strong>chuỗi</strong> giá trị (Loading rồi Content), <strong>Turbine</strong> gói việc collect thành <code>flow.test { ... }</code>: <code>awaitItem()</code> treo tới giá trị tiếp theo, <code>awaitComplete()</code>/<code>awaitError()</code> chờ Flow kết thúc, <code>cancelAndIgnoreRemainingEvents()</code> bỏ phần còn lại; còn sự kiện chưa đọc khi hết khối thì test đỏ. Timeout mặc định của Turbine là 3 giây <strong>thời gian thật</strong>.</p>
+
+<h4>Ví dụ: hộp thư thông báo với số chưa đọc</h4>
+
+<p><strong>Bài toán:</strong> màn thông báo hiện danh sách và số chưa đọc; ViewModel biến Flow của Repository thành <code>uiState</code> bằng <code>stateIn(WhileSubscribed)</code>. Test đẩy thông báo mới và phải thấy số chưa đọc tăng.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Test mở collector rỗng trong <code>backgroundScope</code> (Unconfined nên đăng ký ngay). Coroutine chia sẻ của <code>stateIn</code> nằm trong hàng đợi của Main (<code>StandardTestDispatcher</code>), nên <code>uiState</code> vẫn là <code>Loading</code>.</li>
+  <li><code>runCurrent()</code> chạy coroutine đó: thấy có subscriber, <code>WhileSubscribed</code> bắt đầu collect upstream; fake phát danh sách rỗng, <code>uiState</code> thành <code>Content(rỗng, 0)</code>.</li>
+  <li>Test <code>send(...)</code> hai thông báo, một chưa đọc, rồi <code>runCurrent()</code>: số chưa đọc là 1.</li>
+  <li>Hết test, <code>backgroundScope</code> tự huỷ collector.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant T as Test (runTest)
+    participant BG as backgroundScope collector
+    participant VM as InboxViewModel (stateIn)
+    participant F as FakeNotificationRepository
+    T-&gt;&gt;BG: (1) launch collect (Unconfined)
+    BG-&gt;&gt;VM: đăng ký ngay, uiState vẫn Loading
+    T-&gt;&gt;VM: (2) runCurrent(), WhileSubscribed bắt đầu
+    VM-&gt;&gt;F: collect observeNotifications()
+    F--&gt;&gt;VM: emptyList, Content(rỗng, 0)
+    T-&gt;&gt;F: (3) send(2 thông báo), runCurrent()
+    F--&gt;&gt;VM: Content(2, unread 1)
+    Note over T,BG: (4) test xong, collector bị huỷ
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// InboxViewModel.kt (src/main)
+data class AppNotification(val id: String, val title: String, val isRead: Boolean)
+
+sealed interface InboxUiState {
+    data object Loading : InboxUiState
+    data class Content(val notifications: List&lt;AppNotification&gt;, val unreadCount: Int) : InboxUiState
+}
+
+class InboxViewModel(repository: NotificationRepository) : ViewModel() {
+    val uiState: StateFlow&lt;InboxUiState&gt; = repository.observeNotifications()
+        .map { list -&gt; InboxUiState.Content(list, unreadCount = list.count { !it.isRead }) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InboxUiState.Loading)
+}</code></pre>
+
+<pre data-lang="kotlin"><code>// InboxViewModelTest.kt (src/test)
+class FakeNotificationRepository : NotificationRepository {
+    private val notifications = MutableStateFlow&lt;List&lt;AppNotification&gt;&gt;(emptyList())
+    fun send(list: List&lt;AppNotification&gt;) { notifications.value = list }
+    override fun observeNotifications(): Flow&lt;List&lt;AppNotification&gt;&gt; = notifications
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class InboxViewModelTest {
+    @get:Rule val mainDispatcherRule = MainDispatcherRule()
+    private val shipped = AppNotification("n1", "Đơn DH-1001 đã giao", isRead = true)
+    private val promo = AppNotification("n2", "Giảm 20% cuối tuần", isRead = false)
+
+    @Test
+    fun newUnreadNotification_increasesUnreadCount() = runTest {
+        val repository = FakeNotificationRepository()
+        val viewModel = InboxViewModel(repository)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() } // (1)
+        assertThat(viewModel.uiState.value).isEqualTo(InboxUiState.Loading)
+
+        runCurrent()                                                                 // (2)
+        assertThat(viewModel.uiState.value).isEqualTo(InboxUiState.Content(emptyList(), 0))
+
+        repository.send(listOf(shipped, promo))                                      // (3)
+        runCurrent()
+        assertThat((viewModel.uiState.value as InboxUiState.Content).unreadCount).isEqualTo(1)
+    }                                                                                // (4)
+
+    @Test
+    fun uiState_emitsLoadingThenContent() = runTest {
+        val repository = FakeNotificationRepository()
+        val viewModel = InboxViewModel(repository)
+
+        viewModel.uiState.test {                                                     // Turbine
+            assertThat(awaitItem()).isEqualTo(InboxUiState.Loading)
+            assertThat(awaitItem()).isEqualTo(InboxUiState.Content(emptyList(), 0))
+            repository.send(listOf(promo))
+            assertThat((awaitItem() as InboxUiState.Content).unreadCount).isEqualTo(1)
+        }
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> hai test xanh. Bỏ collector ở test đầu thì bước (2) đỏ vì <code>uiState</code> mãi là <code>Loading</code>; bỏ <code>runCurrent()</code> cũng đỏ, vì upstream còn trong hàng đợi. Ở test Turbine, <code>awaitItem()</code> treo test coroutine nên scheduler tự chạy upstream.</p>
+
+<h3>Test tầng mạng với MockWebServer</h3>
+
+<p>Phần dễ sai của tầng mạng nằm giữa interface Retrofit và server: đường dẫn và query, header do interceptor gắn, converter parse JSON, cách Retrofit biến 4xx/5xx thành <code>HttpException</code>, timeout của OkHttp. Muốn kiểm tra phần đó thì không giả lập <strong>code gọi API</strong> mà giả lập <strong>server</strong>: <code>MockWebServer</code> (module của OkHttp) mở một <strong>HTTP server thật trên localhost</strong> trong JVM của test. Code app chạy thật từ đầu tới cuối, chỉ server do test điều khiển; vẫn là local test, không cần thiết bị hay mạng ngoài.</p>
+
+<p>Một test đi qua năm bước:</p>
+
+<ol>
+  <li>Khởi động server, trỏ <code>baseUrl</code> của Retrofit vào <code>server.url("/")</code>.</li>
+  <li><code>enqueue()</code> response (mã trạng thái, header, body, độ trễ), trả theo thứ tự enqueue.</li>
+  <li>Gọi code thật của app; request đi qua OkHttp như trên máy người dùng.</li>
+  <li>Kiểm tra kết quả, và nếu cần, <strong>request app đã gửi</strong> (<code>takeRequest()</code>).</li>
+  <li>Đóng server trong <code>@After</code>; mỗi test một server mới.</li>
 </ol>
 
 <div class="mermaid">
@@ -44795,169 +47816,436 @@ sequenceDiagram
     participant Test as Test (JUnit)
     participant App as safeApiCall + Retrofit + OkHttp
     participant MWS as MockWebServer (localhost)
-
-    Test-&gt;&gt;MWS: (1) start(), baseUrl = mockWebServer.url("/")
-    Test-&gt;&gt;MWS: (2) enqueue(MockResponse 200 / 500)
-    Test-&gt;&gt;App: (3) safeApiCall { apiService.fetchProducts() }
+    Test-&gt;&gt;MWS: (1) start(), baseUrl = server.url("/")
+    Test-&gt;&gt;MWS: (2) enqueue(MockResponse 200 / 500 / chậm)
+    Test-&gt;&gt;App: (3) safeApiCall { api.fetchProducts() }
     App-&gt;&gt;MWS: HTTP request thật
     MWS--&gt;&gt;App: response đã enqueue
     App--&gt;&gt;Test: NetworkResult
-    Test-&gt;&gt;Test: (4) assert kết quả
-    Test-&gt;&gt;MWS: (4) shutdown()
+    Test-&gt;&gt;MWS: (4) assert kết quả, takeRequest()
+    Test-&gt;&gt;MWS: (5) close()
 </div>
 
-<h2>Ví dụ thực tế: test safeApiCall với MockWebServer</h2>
+<p>Hai artifact, chọn theo dòng OkHttp của app (MockWebServer kéo OkHttp vào classpath test, nên dùng cùng version):</p>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>safeApiCall</code>, <code>NetworkResult</code> và <code>ProductApiService</code> ở <a href="../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục "Chuẩn hóa Error Handling &amp; Result Pattern trong Clean Architecture" và mục "Ví dụ thực tế"; Retrofit ở mục <a href="../session_08/networks/retrofit.md" target="_blank" rel="noopener">8.1.1 Retrofit</a>.</div></div>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;"></th>
+      <th style="padding:8px 12px;text-align:left;"><code>com.squareup.okhttp3:mockwebserver3</code></th>
+      <th style="padding:8px 12px;text-align:left;"><code>com.squareup.okhttp3:mockwebserver</code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Package</td>
+      <td style="padding:8px 12px;"><code>mockwebserver3</code></td>
+      <td style="padding:8px 12px;"><code>okhttp3.mockwebserver</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Dòng OkHttp</td>
+      <td style="padding:8px 12px;">5.x</td>
+      <td style="padding:8px 12px;">4.x (vẫn phát hành ở 5.x, là API cũ)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Tạo response</td>
+      <td style="padding:8px 12px;"><code>MockResponse(code = 200, body = "...")</code>, <code>MockResponse.Builder().code(500).body("...").build()</code></td>
+      <td style="padding:8px 12px;"><code>MockResponse().setResponseCode(500).setBody("...")</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Đóng server</td>
+      <td style="padding:8px 12px;"><code>close()</code></td>
+      <td style="padding:8px 12px;"><code>shutdown()</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Phụ thuộc JUnit 4</td>
+      <td style="padding:8px 12px;">Không</td>
+      <td style="padding:8px 12px;">Có</td>
+    </tr>
+  </tbody>
+</table>
 
-<pre data-lang="kotlin"><code>import kotlinx.coroutines.runBlocking
+<p>Code đầy đủ cho <code>safeApiCall</code> ở mục "Ví dụ thực tế".</p>
+
+<h3>Test DAO Room với database in-memory</h3>
+
+<p>DAO là chỗ <strong>không nên fake</strong>: thứ cần kiểm chứng chính là câu SQL, và chỉ SQLite thật chạy được nó. <code>Room.inMemoryDatabaseBuilder</code> tạo database chỉ nằm trong RAM, nên mỗi test bắt đầu sạch. Docs Room khuyên test DAO trên thiết bị (<code>src/androidTest</code>); muốn chạy trên JVM thì dùng Room KMP với <code>BundledSQLiteDriver</code> (SQLite biên dịch kèm thư viện, cùng version trên máy dev và thiết bị), và <strong>không khuyên</strong> dùng Robolectric. Test DAO đầy đủ ở <a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, mục "Kiểm thử DAO với In-Memory Database"; mẫu ngắn:</p>
+
+<pre data-lang="kotlin"><code>// CartDaoTest.kt (src/androidTest)
+@RunWith(AndroidJUnit4::class)
+class CartDaoTest {
+    private lateinit var db: ShopDatabase
+    private lateinit var cartDao: CartDao
+
+    @Before
+    fun createDb() {
+        val context = ApplicationProvider.getApplicationContext&lt;Context&gt;()
+        db = Room.inMemoryDatabaseBuilder&lt;ShopDatabase&gt;(context).build()
+        cartDao = db.cartDao()
+    }
+
+    @After
+    fun closeDb() = db.close()
+
+    @Test
+    fun itemCount_sumsQuantityOfAllRows() = runTest {
+        cartDao.upsert(CartItemEntity(productId = 101, quantity = 2))
+        cartDao.upsert(CartItemEntity(productId = 102, quantity = 1))
+
+        // @Query("SELECT COALESCE(SUM(quantity), 0) FROM cart_items") fun observeItemCount(): Flow&lt;Int&gt;
+        assertThat(cartDao.observeItemCount().first()).isEqualTo(3)
+    }
+}</code></pre>
+
+<h3>Robolectric: khi nào cần</h3>
+
+<p>Local test chạy với bản <code>android.jar</code> chỉ có chữ ký hàm: gọi <code>Intent.putExtra</code> trong <code>src/test</code> ném <code>RuntimeException: Method ... not mocked</code>. <strong>Robolectric</strong> (do Google duy trì) giả lập framework Android trong JVM, với fake cho class hệ thống gọi là <strong>shadow</strong>. Test viết bằng API AndroidX Test (<code>@RunWith(AndroidJUnit4::class)</code>, <code>ApplicationProvider</code>, <code>ActivityScenario</code>) chạy được cả trên Robolectric lẫn thiết bị.</p>
+
+<ul>
+  <li><strong>Với unit test, Robolectric là phương án cuối</strong>: code legacy, hoặc class buộc phải dùng API Android (như hàm dựng <code>Intent</code> chia sẻ sản phẩm). Kiến trúc tốt đưa logic ra khỏi framework nên không cần nó.</li>
+  <li><strong>Với UI behavior test, Robolectric rất hợp</strong>: Espresso và Compose test đặt trong <code>src/test</code> chạy bằng Robolectric, nhanh và ổn định hơn emulator; phần lớn app của Google dựa nhiều vào nó.</li>
+  <li><strong>Không thay được thiết bị</strong> với system UI (edge-to-edge, picture-in-picture), <code>WebView</code>, hay khi cần pixel chính xác.</li>
+</ul>
+
+<h3>Instrumented test và Espresso cho View</h3>
+
+<p>Instrumented test chạy trên thiết bị qua <code>AndroidJUnitRunner</code> (<code>testInstrumentationRunner</code>); class test gắn <code>@RunWith(AndroidJUnit4::class)</code>, Activity mở bằng <code>ActivityScenarioRule</code> (khởi động trước mỗi test, đóng sau test). <strong>Espresso</strong> là API test UI cho View theo mẫu <code>onView(matcher).perform(action).check(assertion)</code>:</p>
+
+<ul>
+  <li>Matcher: <code>withId(R.id.x)</code>, <code>withText("...")</code>, <code>isDisplayed()</code>, kết hợp bằng <code>allOf(...)</code>.</li>
+  <li>Action: <code>click()</code>, <code>typeText("...")</code>, <code>replaceText("...")</code>, <code>closeSoftKeyboard()</code>, <code>scrollTo()</code>.</li>
+  <li>Assertion: <code>matches(...)</code> với một matcher (<code>isDisplayed()</code>, <code>withText("...")</code>, <code>hasErrorText("...")</code>), <code>doesNotExist()</code>.</li>
+</ul>
+
+<p>Espresso tự <strong>đồng bộ</strong> với main thread: trước mỗi action và assertion, nó chờ hàng đợi message của main looper rỗng. Việc ở thread khác (coroutine trên <code>Dispatchers.IO</code>, thread của OkHttp) thì Espresso không biết: đăng ký bằng <code>IdlingResource</code>, hoặc tốt hơn, thay bằng fake trả kết quả ngay. Tắt animation trên máy test (<code>testOptions { animationsDisabled = true }</code>) để tránh đỏ ngẫu nhiên.</p>
+
+<h4>Ví dụ: form đổi mật khẩu báo lỗi khi hai ô không khớp</h4>
+
+<p><strong>Bài toán:</strong> màn đổi mật khẩu (View/XML) phải hiện lỗi "Mật khẩu không khớp" ở ô xác nhận khi bấm "Lưu" với hai ô khác nhau. Lỗi hiện qua <code>EditText.error</code>, phụ thuộc View thật, nên đây là việc của UI test.</p>
+
+<p><strong>Luồng chạy:</strong> (1) <code>ActivityScenarioRule</code> mở <code>ChangePasswordActivity</code>; (2) Espresso gõ hai mật khẩu khác nhau, đóng bàn phím; (3) bấm "Lưu", Activity gán <code>error</code> cho ô xác nhận; (4) Espresso chờ main thread rảnh rồi kiểm tra lỗi.</p>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// ChangePasswordActivityTest.kt (src/androidTest)
+// import androidx.test.espresso.Espresso.onView, androidx.test.espresso.action.ViewActions.*,
+//        androidx.test.espresso.assertion.ViewAssertions.matches, androidx.test.espresso.matcher.ViewMatchers.*,
+//        androidx.test.ext.junit.rules.ActivityScenarioRule, androidx.test.ext.junit.runners.AndroidJUnit4
+@RunWith(AndroidJUnit4::class)
+class ChangePasswordActivityTest {
+
+    @get:Rule val activityRule = ActivityScenarioRule(ChangePasswordActivity::class.java)   // (1)
+
+    @Test
+    fun mismatchedPasswords_showErrorOnConfirmField() {
+        onView(withId(R.id.new_password)).perform(typeText("Matkhau@2026"))                  // (2)
+        onView(withId(R.id.confirm_password)).perform(typeText("Matkhau@2025"), closeSoftKeyboard())
+
+        onView(withId(R.id.save_button)).perform(click())                                     // (3)
+
+        onView(withId(R.id.confirm_password)).check(matches(hasErrorText("Mật khẩu không khớp"))) // (4)
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> <code>./gradlew connectedDebugAndroidTest</code> cài app và APK test lên emulator, test xanh; chuyển sang <code>src/test</code> thì chạy bằng Robolectric. Màn hình có dependency do Hilt tạo thì thay binding theo <a href="../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a>, mục "Test UI đăng nhập với <code>AuthRepository</code> giả".</p>
+
+<h3>Compose UI test</h3>
+
+<p>Compose không có cây View cho <code>onView</code> tìm. Test làm việc với <strong>semantics tree</strong>: cây song song với UI, mô tả ý nghĩa từng phần (text, vai trò button, trạng thái enabled, action như click). TalkBack cũng đọc cây này.</p>
+
+<p><strong>Rule.</strong> <code>createComposeRule()</code> cho <code>setContent { ... }</code> với một composable bất kỳ và state giả; <code>createAndroidComposeRule&lt;MainActivity&gt;()</code> mở Activity thật khi cần cả màn hình. Từ Compose UI 1.11 có bản <strong>v2</strong> trong package <code>androidx.compose.ui.test.junit4.v2</code>, bản v1 cùng tên trong <code>androidx.compose.ui.test.junit4</code> bị deprecated: v2 chạy composition trên <code>StandardTestDispatcher</code> (coroutine trong effect xếp hàng, giống <code>runTest</code>), v1 dùng <code>UnconfinedTestDispatcher</code>. Assertion và <code>waitForIdle()</code> đã chạy việc đang chờ, nên đa số test không phải sửa; test đọc state ngay sau hành động thì thêm <code>waitForIdle()</code> hoặc <code>runOnIdle { ... }</code>.</p>
+
+<ul>
+  <li><strong>Finder</strong>: <code>onNodeWithText</code>, <code>onNodeWithContentDescription</code>, <code>onNodeWithTag</code>, <code>onNode(matcher)</code>, <code>onAllNodes...</code>. Tag gắn bằng <code>Modifier.testTag("...")</code> (hằng số dùng chung giữa UI và test) cho node không có text ổn định như ô nhập, item danh sách; dùng text cho thứ người dùng thật sự thấy.</li>
+  <li><strong>Action</strong>: <code>performClick()</code>, <code>performTextInput("...")</code>, <code>performScrollTo()</code> (trong <code>Column</code> có <code>verticalScroll</code>), <code>performScrollToNode(matcher)</code> (gọi trên <code>LazyColumn</code>), <code>performTouchInput { swipeLeft() }</code>.</li>
+  <li><strong>Assertion</strong>: <code>assertIsDisplayed()</code>, <code>assertExists()</code>, <code>assertDoesNotExist()</code>, <code>assertTextEquals(...)</code>, <code>assertTextContains(...)</code>, <code>assertIsEnabled()</code>, <code>assertIsNotEnabled()</code>, <code>assertCountEquals(n)</code>.</li>
+</ul>
+
+<p><strong>Merged và unmerged tree.</strong> <code>Button</code>, hoặc <code>Row</code> có <code>Modifier.clickable</code>, gộp semantics của các <code>Text</code> con thành một node; finder mặc định tìm trên cây đã gộp, nên không thấy <code>Text</code> con có <code>testTag</code> riêng. Truyền <code>useUnmergedTree = true</code>; xem cây bằng <code>composeTestRule.onRoot().printToLog("CartTest")</code>:</p>
+
+<pre data-lang="kotlin"><code>// Row(Modifier.clickable { onOpen(item) }) { Text(item.name); Text(price, Modifier.testTag("cart_item_price")) }
+composeTestRule.onNodeWithTag("cart_item_price", useUnmergedTree = true).assertTextEquals("250.000 đ")</code></pre>
+
+<p><strong>Đồng bộ và thời gian.</strong> Mỗi action và assertion chờ UI <strong>idle</strong> trước (hết recomposition, layout, animation). Compose test chạy theo <strong><code>mainClock</code></strong> ảo, cùng ý tưởng với scheduler của <code>runTest</code>:</p>
+
+<ul>
+  <li>Mặc định <code>mainClock.autoAdvance = true</code>: khi chờ idle, đồng hồ tự tiến từng frame tới khi hết animation và recomposition, nhưng <strong>không</strong> tự nhảy qua <code>delay</code> đang chờ trong effect.</li>
+  <li><code>mainClock.advanceTimeBy(ms)</code> tiến đồng hồ, chạy các <code>delay</code> và frame trong khoảng đó; <code>advanceTimeByFrame()</code> tiến một frame. Đặt <code>autoAdvance = false</code> để assert trạng thái giữa chừng của animation.</li>
+  <li>Việc ngoài Compose (dữ liệu tải ở thread khác) thì chờ bằng <code>waitUntil(timeoutMillis) { điều kiện }</code> (mặc định 1.000 ms) hoặc họ hàm <code>waitUntilExactlyOneExists(matcher)</code>; <code>Thread.sleep</code> không tiến <code>mainClock</code>.</li>
+</ul>
+
+<h4>Ví dụ: đếm ngược "Gửi lại mã" bằng <code>mainClock</code></h4>
+
+<p><strong>Bài toán:</strong> <code>ResendCodeButton</code> ở <a href="../jetpack_compose_ui/side_effects/launched_effect.md" target="_blank" rel="noopener">LaunchedEffect</a>, mục "Ví dụ: đếm ngược Gửi lại mã OTP", dùng <code>LaunchedEffect(attempt)</code> với vòng lặp <code>delay(1_000)</code> để khoá nút 60 giây; bấm gửi lại thì đếm lại. Test không chờ 60 giây thật mà tiến <code>mainClock</code> ảo.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li><code>setContent</code> dựng nút; <code>LaunchedEffect</code> bắt đầu đếm từ 60.</li>
+  <li>Nút hiện "Gửi lại mã sau 60 giây" và tắt.</li>
+  <li><code>advanceTimeBy(30_000)</code>: 30 vòng <code>delay</code> xong, nút vẫn tắt.</li>
+  <li><code>advanceTimeBy(30_100)</code>: đủ 60 giây (dư 100 ms vì effect bắt đầu sau frame đầu, và cần một frame để recompose), nút hiện "Gửi lại mã" và bật; bấm thì <code>onResend</code> được gọi.</li>
+  <li>Key <code>attempt</code> đổi nên effect chạy lại: nút lại hiện "sau 60 giây" và tắt.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant T as ResendCodeButtonTest
+    participant C as mainClock
+    participant UI as ResendCodeButton
+    T-&gt;&gt;UI: (1) setContent, đếm từ 60
+    T-&gt;&gt;UI: (2) assertIsNotEnabled
+    T-&gt;&gt;C: (3) advanceTimeBy(30_000)
+    C-&gt;&gt;UI: 30 lần delay xong, vẫn tắt
+    T-&gt;&gt;C: (4) advanceTimeBy(30_100)
+    T-&gt;&gt;UI: assertIsEnabled, performClick
+    UI-&gt;&gt;UI: (5) attempt tăng, effect chạy lại
+    T-&gt;&gt;UI: assertIsNotEnabled
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// ResendCodeButtonTest.kt (src/androidTest, hoặc src/test để chạy bằng Robolectric)
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.junit4.v2.createComposeRule   // v2, không phải androidx.compose.ui.test.junit4
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
+import org.junit.Test
+
+class ResendCodeButtonTest {
+    @get:Rule val composeTestRule = createComposeRule()
+
+    @Test
+    fun button_unlocksAfterSixtySeconds_andRestartsAfterResend() {
+        var resendCount = 0
+        composeTestRule.setContent { ResendCodeButton(onResend = { resendCount++ }) }        // (1)
+
+        composeTestRule.onNodeWithText("Gửi lại mã sau 60 giây").assertIsNotEnabled()       // (2)
+
+        composeTestRule.mainClock.advanceTimeBy(30_000)                                      // (3)
+        composeTestRule.onNodeWithText("Gửi lại mã sau", substring = true).assertIsNotEnabled()
+
+        composeTestRule.mainClock.advanceTimeBy(30_100)                                      // (4)
+        composeTestRule.onNodeWithText("Gửi lại mã").assertIsEnabled().performClick()
+        assertThat(resendCount).isEqualTo(1)
+
+        composeTestRule.onNodeWithText("Gửi lại mã sau 60 giây").assertIsNotEnabled()       // (5)
+    }
+}</code></pre>
+
+<p><strong>Kết quả:</strong> test mô phỏng hơn một phút nhưng chạy khoảng một giây. <code>onNodeWithText</code> mặc định so khớp <strong>cả chuỗi</strong>, nên <code>"Gửi lại mã"</code> không khớp nhầm <code>"Gửi lại mã sau 1 giây"</code>. Đổi key của <code>LaunchedEffect</code> thành <code>Unit</code> thì bước (5) đỏ vì đếm ngược không chạy lại.</p>
+
+<h3>Chạy test bằng Gradle và đo coverage</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Lệnh</th>
+      <th style="padding:8px 12px;text-align:left;">Chạy gì</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>./gradlew testDebugUnitTest</code></td>
+      <td style="padding:8px 12px;">Mọi local test của variant debug, gồm test Robolectric</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>./gradlew :app:testDebugUnitTest --tests "*.InboxViewModelTest"</code></td>
+      <td style="padding:8px 12px;">Một class hoặc nhóm test</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>./gradlew connectedDebugAndroidTest</code></td>
+      <td style="padding:8px 12px;">Instrumented test trên mọi thiết bị/emulator đang kết nối</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Report HTML ở <code>app/build/reports/tests/testDebugUnitTest/</code> (local) và <code>app/build/reports/androidTests/connected/</code> (instrumented). Coverage bật bằng <code>enableUnitTestCoverage = true</code> / <code>enableAndroidTestCoverage = true</code> trong <code>buildTypes { debug { ... } }</code>; report JaCoCo sinh bằng <code>createDebugUnitTestCoverageReport</code> / <code>createDebugAndroidTestCoverageReport</code>. Coverage chỉ cho biết <strong>đoạn nào chưa được test chạm tới</strong>: test không có assertion vẫn tăng coverage.</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<p>Áp vào một tính năng mới như đăng nhập, bộ test xếp theo kim tự tháp: validator là unit test thuần; <code>LoginViewModel</code> dùng fake và <code>MainDispatcherRule</code> (<a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, mục "Ví dụ thực tế"); <code>AuthApi</code> là test MockWebServer cho 200, 401, timeout; hành vi form là Compose UI test chạy bằng Robolectric; chỉ luồng trọn vẹn với server staging chạy end-to-end trên thiết bị. Mỗi bug sửa xong (tìm ra bằng <a href="debugging.md" target="_blank" rel="noopener">10.1 Debugging</a> hoặc từ crash report ở <a href="fit_bug_optimization.md" target="_blank" rel="noopener">10.4</a>) thêm một test chống lặp. Phần dưới là bài toán MockWebServer đầy đủ.</p>
+
+<h3>Test <code>safeApiCall</code> với MockWebServer</h3>
+
+<p><strong>Bài toán:</strong> <code>safeApiCall</code> của <a href="../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a> không ném exception mà trả <code>NetworkResult</code>: <code>Success</code> khi 2xx, <code>Error.Http</code> khi 4xx/5xx, <code>Error.NetworkTimeout</code> khi quá thời gian chờ. Test chứng minh điều đó với request thật đi qua OkHttp, và kiểm tra luôn request app đã gửi.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>safeApiCall</code>, <code>NetworkResult</code>, <code>ProductApiService</code> (<code>@GET("/api/v1/products")</code>) ở <a href="../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, mục "Chuẩn hóa Error Handling &amp; Result Pattern trong Clean Architecture"; Retrofit ở <a href="../session_08/networks/retrofit.md" target="_blank" rel="noopener">8.1.1</a>; timeout của OkHttp ở <a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">8.1.3</a>.</div></div>
+
+<p><strong>Luồng chạy:</strong> đúng năm bước ở mục "Test tầng mạng với MockWebServer". Test timeout đặt <code>readTimeout</code> 1 giây và enqueue response có <code>headersDelay</code> 2 giây: OkHttp chờ header quá hạn, ném <code>SocketTimeoutException</code>, <code>safeApiCall</code> đổi thành <code>Error.NetworkTimeout</code>.</p>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="kotlin"><code>// ProductApiTest.kt (src/test)
+import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.runTest
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
 import okhttp3.OkHttpClient
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
 
-class NetworkIntegrationTest {
+class ProductApiTest {
 
-    private lateinit var mockWebServer: MockWebServer
-    private lateinit var apiService: ProductApiService
+    private val server = MockWebServer()
+    private lateinit var api: ProductApiService
 
     @Before
-    fun setup() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start()
-
-        val okHttpClient = OkHttpClient.Builder()
-            .connectTimeout(1, TimeUnit.SECONDS)
-            .readTimeout(1, TimeUnit.SECONDS)
+    fun setUp() {
+        server.start()                                                         // (1)
+        val client = OkHttpClient.Builder()
+            .readTimeout(1, TimeUnit.SECONDS)                                  // ngắn để test timeout nhanh
             .build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(mockWebServer.url("/")) // Trỏ tới localhost của mock server
-            .client(okHttpClient)
+        api = Retrofit.Builder()
+            .baseUrl(server.url("/"))                                          // (1) trỏ vào localhost
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-
-        apiService = retrofit.create(ProductApiService::class.java)
+            .create(ProductApiService::class.java)
     }
 
     @After
-    fun tearDown() {
-        mockWebServer.shutdown()
+    fun tearDown() = server.close()                                            // (5)
+
+    @Test
+    fun status200_returnsParsedList_andSendsExpectedRequest() = runTest {
+        server.enqueue(                                                        // (2)
+            MockResponse(code = 200, body = """[{"id":101,"name":"Bàn phím cơ","price":150.0}]""")
+        )
+
+        val result = safeApiCall { api.fetchProducts() }                       // (3)
+
+        assertThat(result).isEqualTo(                                          // (4)
+            NetworkResult.Success(listOf(ProductDto(101, "Bàn phím cơ", 150.0)))
+        )
+        val request = server.takeRequest()                                     // (4) request app đã gửi
+        assertThat(request.method).isEqualTo("GET")
+        assertThat(request.url.encodedPath).isEqualTo("/api/v1/products")
     }
 
     @Test
-    fun fetchProducts_success_returns_parsed_list() = runBlocking {
-        // 1. Giả lập Server trả về JSON hợp lệ với mã 200 OK
-        val mockJson = """
-            [
-                {"id": 101, "name": "Bàn phím cơ", "price": 150.0},
-                {"id": 102, "name": "Chuột Gaming", "price": 75.0}
-            ]
-        """.trimIndent()
-        
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody(mockJson)
-        )
+    fun status500_returnsHttpError() = runTest {
+        server.enqueue(MockResponse.Builder().code(500).body("""{"error":"Database down"}""").build())
 
-        // 2. Thực thi hàm gọi API
-        val result = safeApiCall { apiService.fetchProducts() }
+        val result = safeApiCall { api.fetchProducts() }
 
-        // 3. Kiểm chứng
-        assertTrue(result is NetworkResult.Success)
-        val data = (result as NetworkResult.Success).data
-        assertEquals(2, data.size)
-        assertEquals("Bàn phím cơ", data[0].name)
+        assertThat(result).isInstanceOf(NetworkResult.Error.Http::class.java)
+        val error = result as NetworkResult.Error.Http
+        assertThat(error.code).isEqualTo(500)
+        assertThat(error.errorBody).contains("Database down")
     }
 
     @Test
-    fun fetchProducts_serverError_returns_httpError() = runBlocking {
-        // Giả lập Server trả về lỗi 500 Internal Server Error
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(500)
-                .setBody("""{"error": "Database down"}""")
-        )
+    fun slowServer_returnsNetworkTimeout() = runTest {
+        server.enqueue(MockResponse.Builder().body("[]").headersDelay(2, TimeUnit.SECONDS).build())
 
-        val result = safeApiCall { apiService.fetchProducts() }
+        val result = safeApiCall { api.fetchProducts() }
 
-        assertTrue(result is NetworkResult.Error.Http)
-        val httpError = result as NetworkResult.Error.Http
-        assertEquals(500, httpError.code)
+        assertThat(result).isInstanceOf(NetworkResult.Error.NetworkTimeout::class.java)
     }
 }</code></pre>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Ví dụ dùng package <code>okhttp3.mockwebserver</code> (artifact <code>com.squareup.okhttp3:mockwebserver</code>). Từ OkHttp 5.0.0, module chính là <code>mockwebserver3</code> (<code>com.squareup.okhttp3:mockwebserver3</code>, không phụ thuộc JUnit); artifact cũ bị ghi là "Obsolete" nhưng vẫn được phát hành, nên chưa cần chuyển gấp.</div></div>
+<p><strong>Kết quả:</strong> ba test xanh; test timeout mất khoảng 1 giây <strong>thật</strong>, vì socket timeout của OkHttp không theo đồng hồ ảo của <code>runTest</code>. Đổi <code>@GET</code> thành <code>"/api/v1/product"</code> thì test đầu đỏ ở assert đường dẫn; đổi tên trường <code>name</code> trong JSON thì đỏ ở assert kết quả. Cả hai lỗi đều lọt qua test mock interface. Với OkHttp 4.x, đổi sang package <code>okhttp3.mockwebserver</code> và cú pháp cũ trong bảng.</p>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<ul>
+  <li><strong>Unit test local</strong> cho mọi logic có nhánh (tính tiền, kiểm tra input, reducer, ViewModel, Repository với fake): phần lớn bộ test.</li>
+  <li><strong>MockWebServer</strong> cho tầng mạng (Retrofit service, interceptor, <code>Authenticator</code>, phân loại lỗi); test ViewModel thì fake Repository là đủ.</li>
+  <li><strong>Database in-memory</strong> cho DAO; không dùng Room thật trong test ViewModel.</li>
+  <li><strong>Robolectric</strong> cho UI behavior test và code legacy buộc chạm class Android; không dùng để né việc tách logic khỏi framework.</li>
+  <li><strong>Instrumented test</strong> cho thứ cần thiết bị thật: SQLite của máy, quyền, system UI, <code>WebView</code>, luồng end-to-end quan trọng.</li>
+  <li><strong>Mock</strong> chỉ cho tương tác không để lại state quan sát được; không mock <code>data class</code> hay <code>List</code>.</li>
+  <li><strong>Không cần test</strong> code chỉ chuyển tiếp lời gọi, getter/setter, code sinh tự động.</li>
+</ul>
 
 <h2>Sai lầm thường gặp</h2>
 
 <h3>1. Mock thẳng interface Retrofit</h3>
 
-<p><strong>Triệu chứng:</strong></p>
+<p><strong>Lỗi lộ ra thế nào:</strong> test xanh nhưng app crash khi server đổi JSON, trả 401 hay chậm; sửa sai đường dẫn API mà không test nào đỏ.</p>
 
-<ul>
-  <li>Test luôn xanh nhưng app vẫn crash khi server trả JSON khác hoặc trả lỗi.</li>
-</ul>
+<p><strong>Cách sửa:</strong> MockWebServer cho request đi qua code thật, <code>takeRequest()</code> kiểm tra request đã gửi.</p>
 
-<p><strong>Nguyên nhân:</strong></p>
+<h3>2. Dùng chung MockWebServer giữa các test</h3>
 
-<ul>
-  <li>Mock bỏ qua toàn bộ tầng mạng: interceptor, parse JSON, mã lỗi HTTP, timeout.</li>
-</ul>
+<p><strong>Lỗi lộ ra thế nào:</strong> test sau nhận response enqueue của test trước, kết quả đổi theo thứ tự chạy; <code>mockwebserver3.MockWebServer</code> đã <code>close()</code> thì không <code>start()</code> lại được.</p>
 
-<p><strong>Giải pháp:</strong></p>
+<p><strong>Cách sửa:</strong> mỗi test một server (property của class), <code>start()</code> trong <code>@Before</code>, <code>close()</code> (API cũ: <code>shutdown()</code>) trong <code>@After</code>.</p>
 
-<ul>
-  <li>Dùng MockWebServer để request đi qua đúng code thật.</li>
-</ul>
+<h3>3. Chờ bằng <code>Thread.sleep</code> và dispatcher thật</h3>
 
-<h3>2. Không shutdown server sau mỗi test</h3>
+<p><strong>Lỗi lộ ra thế nào:</strong> code cố định <code>withContext(Dispatchers.IO)</code>, test chờ bằng <code>Thread.sleep</code>: chậm, lúc xanh lúc đỏ tuỳ máy CI bận hay rảnh.</p>
 
-<p><strong>Triệu chứng:</strong></p>
+<p><strong>Cách sửa:</strong> inject <code>CoroutineDispatcher</code>, trong test truyền <code>StandardTestDispatcher(testScheduler)</code> và dùng <code>advanceUntilIdle()</code>. Mọi <code>TestDispatcher</code> của một test phải chung scheduler: tạo sau khi <code>MainDispatcherRule</code> đặt Main, hoặc truyền <code>testScheduler</code>.</p>
 
-<ul>
-  <li>Test sau nhận response của test trước, hoặc lỗi cổng đang bị dùng.</li>
-</ul>
+<h3>4. Đọc <code>.value</code> của <code>stateIn(WhileSubscribed)</code> mà không có collector</h3>
 
-<p><strong>Nguyên nhân:</strong></p>
+<p><strong>Lỗi lộ ra thế nào:</strong> <code>uiState.value</code> mãi là <code>Loading</code> dù fake đã phát dữ liệu; developer tưởng ViewModel lỗi.</p>
 
-<ul>
-  <li>Server và hàng đợi response còn sống giữa các test.</li>
-</ul>
+<p><strong>Cách sửa:</strong> mở collector rỗng trong <code>backgroundScope</code>, hoặc test bằng Turbine; với <code>StandardTestDispatcher</code> ở Main thì <code>runCurrent()</code> để upstream chạy (ví dụ hộp thư thông báo).</p>
 
-<p><strong>Giải pháp:</strong></p>
+<h3>5. Test kiểm tra cách làm thay vì kết quả</h3>
 
-<ul>
-  <li>Tạo server mới trong <code>@Before</code>, gọi <code>shutdown()</code> trong <code>@After</code>, như ví dụ ở trên.</li>
-</ul>
+<p><strong>Lỗi lộ ra thế nào:</strong> test mock Repository rồi <code>verifyOrder { getCart(); getCoupons() }</code>; gộp hai lời gọi thành một, hành vi không đổi, mà hàng loạt test đỏ, team quen sửa test cho khớp code.</p>
+
+<p><strong>Cách sửa:</strong> dùng fake và assert trên kết quả quan sát được (<code>uiState</code>, giá trị trả về, dữ liệu trong fake); chỉ <code>verify</code> tương tác không có kết quả quan sát được.</p>
+
+<h3>6. Tìm node trên cây đã gộp, hoặc dồn mọi thứ lên UI test</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> <code>onNodeWithTag("cart_item_price")</code> báo <code>Expected exactly '1' node but could not find any</code> dù tag có trong code; hoặc quy tắc giảm giá được kiểm tra bằng cách bấm UI trên emulator, bộ test chậm hàng chục phút và đỏ ngẫu nhiên.</p>
+
+<p><strong>Cách sửa:</strong> <code>useUnmergedTree = true</code> (xem cây bằng <code>printToLog</code>); logic thì test ở tầng thấp nhất đủ thông tin, UI behavior test chuyển sang Robolectric.</p>
 
 <h2>Lịch sử phát triển</h2>
 
 <ul>
-  <li>MockWebServer là một module của OkHttp do Square phát triển.</li>
-  <li><strong>02/07/2025:</strong> OkHttp 5.0.0 tách <code>mockwebserver3</code> thành module chính không phụ thuộc JUnit; <code>okhttp3.mockwebserver</code> cũ vẫn được phát hành.</li>
+  <li><strong>2006, JUnit 4:</strong> chuyển từ kế thừa <code>TestCase</code> sang annotation (<code>@Test</code>, <code>@Before</code>, <code>@After</code>).</li>
+  <li><strong>2013, Espresso:</strong> test UI tự đồng bộ với main thread, thay cho chờ bằng <code>sleep</code>.</li>
+  <li><strong>2018, AndroidX Test:</strong> Testing Support Library thành <code>androidx.test</code>; Robolectric 4.0 hỗ trợ cùng API, một test chạy được cả trên JVM lẫn thiết bị.</li>
+  <li><strong>07/2021, Compose 1.0:</strong> ra mắt cùng <code>ui-test-junit4</code> (<code>createComposeRule</code>, semantics tree, <code>mainClock</code>).</li>
+  <li><strong>12/2021, kotlinx-coroutines-test 1.6.0:</strong> <code>runTest</code>, <code>StandardTestDispatcher</code>, <code>UnconfinedTestDispatcher</code> thay <code>runBlockingTest</code> và <code>TestCoroutineDispatcher</code>.</li>
+  <li><strong>02/07/2025, OkHttp 5.0.0 stable:</strong> <code>mockwebserver3</code> (package mới, không phụ thuộc JUnit 4, có từ các bản alpha 5.x) thành lựa chọn chính; <code>okhttp3.mockwebserver</code> vẫn phát hành.</li>
+  <li><strong>14/01/2026, Compose UI 1.11.0-alpha03:</strong> thêm API test v2 dùng <code>StandardTestDispatcher</code>; v1 bị deprecated nhưng giữ <code>UnconfinedTestDispatcher</code> để không vỡ test cũ. Stable 1.11.0 ra 22/04/2026.</li>
 </ul>
 
 <h2>Kết nối hệ thống</h2>
 
 <ul>
-  <li><strong>5.3 Networking:</strong> test ở đây kiểm tra <code>safeApiCall</code> và phân loại lỗi của bài đó. Xem <a href="../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>.</li>
-  <li><strong>8.1.3 OkHttp:</strong> MockWebServer nhận request thật từ OkHttp, nên interceptor và <code>Authenticator</code> cũng được kiểm tra. Xem <a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">OkHttp</a>.</li>
+  <li><strong>Tiên quyết:</strong> <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, <a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">Coroutines</a>, <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, <a href="../session_07/design_pattern/di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>.</li>
+  <li><strong>Liên quan:</strong> <a href="../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, <a href="../session_08/networks/retrofit.md" target="_blank" rel="noopener">8.1.1 Retrofit</a>, <a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">8.1.3 OkHttp</a>; <a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a> (test DAO, Flow của Room); <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, <a href="../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a> (thay binding trong instrumented test); <a href="../jetpack_compose_ui/side_effects/launched_effect.md" target="_blank" rel="noopener">LaunchedEffect</a>, <a href="../jetpack_compose_ui/state/remember_saveable.md" target="_blank" rel="noopener">Remember and rememberSaveable</a>.</li>
+  <li><strong>Trong Session 10:</strong> <a href="index.md" target="_blank" rel="noopener">Tổng quan</a>; <a href="debugging.md" target="_blank" rel="noopener">10.1 Debugging</a> tìm ra bug, bài này khoá nó bằng test chống lặp; <a href="lint.md" target="_blank" rel="noopener">10.3 Lint</a> bắt lỗi không cần chạy code; <a href="fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a> đưa bug từ production về và đo hiệu năng.</li>
+  <li><strong>Học tiếp:</strong> 11.4 Github CI (chưa có bài): chạy <code>testDebugUnitTest</code> và instrumented test tự động trước mỗi lần merge.</li>
 </ul>
 
-<h2>Nguồn tham khảo</h2>
+<h2>Tham khảo</h2>
 
 <ul>
+  <li><a href="https://developer.android.com/training/testing/fundamentals" target="_blank" rel="noopener">Fundamentals of testing Android apps</a></li>
+  <li><a href="https://developer.android.com/training/testing/fundamentals/strategies" target="_blank" rel="noopener">Testing strategies</a></li>
+  <li><a href="https://developer.android.com/training/testing/fundamentals/test-doubles" target="_blank" rel="noopener">Use test doubles in Android</a></li>
+  <li><a href="https://developer.android.com/kotlin/coroutines/test" target="_blank" rel="noopener">Testing Kotlin coroutines on Android</a></li>
+  <li><a href="https://developer.android.com/kotlin/flow/test" target="_blank" rel="noopener">Testing Kotlin flows on Android</a></li>
+  <li><a href="https://github.com/cashapp/turbine" target="_blank" rel="noopener">Turbine README</a></li>
   <li><a href="https://github.com/square/okhttp/blob/master/mockwebserver/README.md" target="_blank" rel="noopener">MockWebServer README</a></li>
   <li><a href="https://github.com/square/okhttp/blob/master/CHANGELOG.md" target="_blank" rel="noopener">OkHttp CHANGELOG (5.0.0, mockwebserver3)</a></li>
+  <li><a href="https://developer.android.com/training/data-storage/room/testing-db" target="_blank" rel="noopener">Test and debug your Room database</a></li>
+  <li><a href="https://developer.android.com/training/testing/local-tests/robolectric" target="_blank" rel="noopener">Robolectric strategies</a></li>
+  <li><a href="https://developer.android.com/training/testing/espresso" target="_blank" rel="noopener">Espresso</a></li>
+  <li><a href="https://developer.android.com/develop/ui/compose/testing" target="_blank" rel="noopener">Test your Compose layout</a></li>
+  <li><a href="https://developer.android.com/develop/ui/compose/testing/apis" target="_blank" rel="noopener">Compose testing APIs</a></li>
+  <li><a href="https://developer.android.com/develop/ui/compose/testing/synchronization" target="_blank" rel="noopener">Compose testing synchronization</a></li>
+  <li><a href="https://developer.android.com/develop/ui/compose/testing/migrate-v2" target="_blank" rel="noopener">Migrate to v2 testing APIs (Compose)</a></li>
+  <li><a href="https://developer.android.com/jetpack/androidx/releases/compose-ui" target="_blank" rel="noopener">Compose UI release notes</a></li>
+  <li><a href="https://developer.android.com/studio/test/coverage-report" target="_blank" rel="noopener">View code coverage reports</a></li>
+  <li><a href="https://kotlinlang.org/docs/coding-conventions.html#names-for-test-methods" target="_blank" rel="noopener">Kotlin coding conventions: tên hàm test</a></li>
 </ul>
     `
   },
@@ -47782,7 +51070,7 @@ LaunchedEffect(Unit) { viewModel.loadOrders() }</code></pre>
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="disposable_effect.md" target="_blank" rel="noopener">DisposableEffect</a>: effect có bước dọn dẹp.</li>
-  <li><a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>: test tự động (test UI Compose với <code>mainClock</code> chưa có bài riêng).</li>
+  <li><a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>: test tự động, gồm Compose UI test với <code>mainClock</code> (ví dụ đếm ngược "Gửi lại mã" test lại chính <code>ResendCodeButton</code> của bài này).</li>
 </ul></li>
 </ul>
 
@@ -51187,7 +54475,7 @@ fun UserHeader(user: User, modifier: Modifier = Modifier) {
 
 <p><code>Image</code>, <code>painterResource</code>, <code>ContentScale</code> học ở 9.6 <a href="../layout_and_view.md" target="_blank" rel="noopener">Layout and View</a>.</p>
 
-<p><strong>Kết quả:</strong> mở Layout Inspector (Android Studio → Tools → Layout Inspector), chọn node <code>Image</code>: kích thước hiển thị là 56 x 56dp và vị trí lệch 4dp so với <code>Row</code>. Có thể khoá hành vi này bằng UI test Compose (<code>createComposeRule</code>; UI test Compose chưa có bài riêng, nền tảng test ở <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>): <code>composeTestRule.onNodeWithTag("avatar").assertWidthIsEqualTo(56.dp)</code>. Đổi thứ tự hai modifier, test báo 48dp.</p>
+<p><strong>Kết quả:</strong> mở Layout Inspector (Android Studio → Tools → Layout Inspector), chọn node <code>Image</code>: kích thước hiển thị là 56 x 56dp và vị trí lệch 4dp so với <code>Row</code>. Có thể khoá hành vi này bằng UI test Compose (<code>createComposeRule</code>, xem mục Compose UI test của <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>): <code>composeTestRule.onNodeWithTag("avatar").assertWidthIsEqualTo(56.dp)</code>. Đổi thứ tự hai modifier, test báo 48dp.</p>
 
 <h3>Vẽ: lớp ngoài vẽ trước, mỗi lớp vẽ bằng kích thước phần bên trong nó</h3>
 
@@ -57889,7 +61177,7 @@ fun CheckoutFlow(
 
 <p><code>BackHandler</code> thuộc thư viện <code>activity-compose</code>. <code>CheckoutForm</code> là data class chứa địa chỉ và phương thức thanh toán, thường nằm trong UI state của ViewModel.</p>
 
-<p><strong>Kết quả:</strong> bấm "Tiếp", bước Thanh toán trượt vào từ bên phải trong khi bước Địa chỉ trượt ra bên trái, vùng chứa co chiều cao mượt. Bấm Back hệ thống, bước Địa chỉ trượt về và địa chỉ đã nhập vẫn còn. Viết UI test bằng <code>composeTestRule</code>: bấm "Tiếp", chờ idle, kiểm tra node "Phương thức thanh toán" hiển thị và node của bước Địa chỉ không còn trong cây. Compose UI test chạy trên thiết bị hoặc Robolectric, khác với unit test JVM ở <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>; mục lục hiện chưa có bài riêng cho nó.</p>
+<p><strong>Kết quả:</strong> bấm "Tiếp", bước Thanh toán trượt vào từ bên phải trong khi bước Địa chỉ trượt ra bên trái, vùng chứa co chiều cao mượt. Bấm Back hệ thống, bước Địa chỉ trượt về và địa chỉ đã nhập vẫn còn. Viết UI test bằng <code>composeTestRule</code>: bấm "Tiếp", chờ idle, kiểm tra node "Phương thức thanh toán" hiển thị và node của bước Địa chỉ không còn trong cây. Compose UI test chạy trên thiết bị hoặc Robolectric, xem mục Compose UI test của <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>.</p>
 
 <h2>So sánh với các cách tiếp cận khác</h2>
 
@@ -59015,7 +62303,7 @@ rememberScrollableState { delta -&gt;
   <li><strong>Prerequisites</strong>: <a href="../overview.md" target="_blank" rel="noopener">9.0 Jetpack Compose Overview</a> (ba phase, nền của "đọc state ở layout phase"), <a href="../state/mutable_state.md" target="_blank" rel="noopener">9.2.1 Mutable State</a>.</li>
   <li><strong>Related</strong>: <a href="../modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 LazyColumn</a> (container cuộn cho danh sách), <a href="../modifier/lazy_row.md" target="_blank" rel="noopener">9.5.5 LazyRow</a>, <a href="../side_effects/launched_effect.md" target="_blank" rel="noopener">9.3.1 LaunchedEffect</a> (<code>rememberCoroutineScope</code>), <a href="../theming/custom_theme.md" target="_blank" rel="noopener">9.4.2 Custom Theme</a> (CompositionLocal, <code>LocalDensity</code>).</li>
   <li><strong>Học tiếp trong 9.8</strong>: <a href="dragging.md" target="_blank" rel="noopener">9.8.2 Dragging</a> (kéo theo ngón tay), <a href="swipping.md" target="_blank" rel="noopener">9.8.3 Swiping</a> (kéo rồi settle về vị trí cố định), <a href="zooming.md" target="_blank" rel="noopener">9.8.4 Zooming</a> (pinch-zoom, xung đột với pager).</li>
-  <li><strong>Session sau</strong>: <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a> cho nền tảng test tự động; UI test gesture của Compose bằng <code>performTouchInput</code> chưa có bài trong repo.</li>
+  <li><strong>Session sau</strong>: <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a> cho test tự động, gồm Compose UI test với action gesture như <code>performTouchInput { swipeUp() }</code> và <code>performScrollToNode</code>.</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -60451,7 +63739,7 @@ scale = (scale * zoomChange).coerceIn(MIN_SCALE, MAX_SCALE)</code></pre>
 <ul>
   <li><strong>Prerequisites</strong>: <a href="dragging.md" target="_blank" rel="noopener">9.8.2 Dragging</a> (đọc state ở phase muộn, consume), <a href="scrolling.md" target="_blank" rel="noopener">9.8.1 Scrolling</a> (ba pass, vì sao con consume thì cha không cuộn).</li>
   <li><strong>Related</strong>: <a href="../graphics_animations/surface_and_canvas.md" target="_blank" rel="noopener">9.7.1 Surface and Canvas</a> (draw phase, <code>graphicsLayer</code> trong bối cảnh vẽ), <a href="swipping.md" target="_blank" rel="noopener">9.8.3 Swiping</a> (<code>HorizontalPager</code> so với <code>anchoredDraggable</code>), <a href="../modifier/lazy_row.md" target="_blank" rel="noopener">9.5.5 LazyRow</a> (<code>HorizontalPager</code> được nhắc cùng <code>LazyRow</code>).</li>
-  <li><strong>Liên quan khác</strong>: ảnh mạng trong trình xem ảnh thường nạp bằng Coil (<a href="../../session_08/loading_image/coil.md" target="_blank" rel="noopener">8.2.4 Coil</a>, <code>AsyncImage</code>); test tự động ở <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>, còn UI test pinch bằng <code>performTouchInput { pinch(...) }</code> chưa có bài trong repo. Coroutine trong <code>scope.launch</code> ở <a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>.</li>
+  <li><strong>Liên quan khác</strong>: ảnh mạng trong trình xem ảnh thường nạp bằng Coil (<a href="../../session_08/loading_image/coil.md" target="_blank" rel="noopener">8.2.4 Coil</a>, <code>AsyncImage</code>); test tự động ở <a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>, gồm Compose UI test; gesture pinch trong test dùng <code>performTouchInput { pinch(...) }</code>. Coroutine trong <code>scope.launch</code> ở <a href="../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>.</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -61863,6 +65151,10 @@ ANDROID_CONTENT['android.networks.okhttp'] = ANDROID_CONTENT['okhttp'];
 ANDROID_CONTENT['android.networks.okio'] = ANDROID_CONTENT['okio'];
 ANDROID_CONTENT['android.networks.ktor_apollo'] = ANDROID_CONTENT['ktor-apollo'];
 ANDROID_CONTENT['android.testing.unit_testing'] = ANDROID_CONTENT['unit-testing'];
+ANDROID_CONTENT['android.coding_analyst.overview'] = ANDROID_CONTENT['session-10-overview'];
+ANDROID_CONTENT['android.testing.debugging'] = ANDROID_CONTENT['android-debugging'];
+ANDROID_CONTENT['android.testing.lint'] = ANDROID_CONTENT['android-lint'];
+ANDROID_CONTENT['android.testing.fit_bug_optimization'] = ANDROID_CONTENT['fit-bug-optimization'];
 
 // ── Session 06: Architecture Components ──────────────────────────
 Object.assign(ANDROID_CONTENT, {
@@ -68554,6 +71846,7 @@ object ApiClient {
   <li><a href="../../session_04/android_manifest/tags.md" target="_blank" rel="noopener">Manifest tags</a>: class <code>Application</code> và thuộc tính <code>android:process</code>.</li>
   <li><a href="../../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, <a href="../../session_05/data_store/key_value.md" target="_blank" rel="noopener">Key-Value Storage</a>, <a href="../../session_05/networking.md" target="_blank" rel="noopener">Networking</a>: database, DataStore, HTTP client dùng một instance.</li>
   <li><a href="../../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: vì sao trạng thái toàn cục làm test không độc lập.</li>
+  <li><a href="../../coding_analyst_and_testing/fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a>: tìm leak do singleton giữ Context bằng LeakCanary.</li>
   <li><a href="builder_pattern.md" target="_blank" rel="noopener">Builder Pattern</a>: cấu hình instance mà Singleton giữ.</li>
 </ul></li>
   <li><strong>Học tiếp:</strong>

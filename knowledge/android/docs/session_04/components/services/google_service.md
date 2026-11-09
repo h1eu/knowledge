@@ -835,6 +835,7 @@ Firebase SDK từ BoM 35.0.0 yêu cầu minSdk 24 trở lên, build sẽ fail (m
   - [8.5.5 Message (Toast, Snackbar, Notification)](../../../session_08/view_layout/message.md): notification channel, `POST_NOTIFICATIONS`, `NotificationCompat` dùng trong ví dụ FCM.
   - [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md): `suspend`, `await()`, `lifecycleScope` dùng trong các ví dụ Auth, Remote Config, Location.
   - [Clean Architecture](../../../session_07/architecture/clean_architecture.md) và [Hilt](../../../session_07/design_pattern/di/hilt.md): chia tầng và DI binding để thay DataSource GMS bằng HMS.
+  - [10.4 Fit / Bug Optimization](../../../coding_analyst_and_testing/fit_bug_optimization.md): dùng Crashlytics để sửa bug ở production (custom key, log, non-fatal, upload mapping của R8).
 
 ## Nguồn tham khảo
 

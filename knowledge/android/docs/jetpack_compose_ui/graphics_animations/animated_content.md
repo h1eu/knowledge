@@ -330,7 +330,7 @@ fun CheckoutFlow(
 
 `BackHandler` thuộc thư viện `activity-compose`. `CheckoutForm` là data class chứa địa chỉ và phương thức thanh toán, thường nằm trong UI state của ViewModel.
 
-**Kết quả:** bấm "Tiếp", bước Thanh toán trượt vào từ bên phải trong khi bước Địa chỉ trượt ra bên trái, vùng chứa co chiều cao mượt. Bấm Back hệ thống, bước Địa chỉ trượt về và địa chỉ đã nhập vẫn còn. Viết UI test bằng `composeTestRule`: bấm "Tiếp", chờ idle, kiểm tra node "Phương thức thanh toán" hiển thị và node của bước Địa chỉ không còn trong cây. Compose UI test chạy trên thiết bị hoặc Robolectric, khác với unit test JVM ở [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md); mục lục hiện chưa có bài riêng cho nó.
+**Kết quả:** bấm "Tiếp", bước Thanh toán trượt vào từ bên phải trong khi bước Địa chỉ trượt ra bên trái, vùng chứa co chiều cao mượt. Bấm Back hệ thống, bước Địa chỉ trượt về và địa chỉ đã nhập vẫn còn. Viết UI test bằng `composeTestRule`: bấm "Tiếp", chờ idle, kiểm tra node "Phương thức thanh toán" hiển thị và node của bước Địa chỉ không còn trong cây. Compose UI test chạy trên thiết bị hoặc Robolectric, xem mục Compose UI test của [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md).
 
 ## So sánh với các cách tiếp cận khác
 

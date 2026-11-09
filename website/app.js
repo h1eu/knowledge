@@ -465,11 +465,11 @@ const KNOWLEDGE_DATA = {
           id: 'coding-analyst-testing',
           name: 'Session 10: Coding Analyst and Testing',
           topics: [
-            { id: 'testing-overview', title: 'Session 10 Overview', status: 'draft', tags: ['android', 'testing'] },
-            { id: 'android-debugging', title: '10.1 Debugging', status: 'draft', tags: ['android', 'debug'] },
-            { id: 'unit-testing', title: '10.2 Unit Testing', status: 'draft', tags: ['android', 'testing'] },
-            { id: 'android-lint', title: '10.3 Lint', status: 'draft', tags: ['android', 'quality'] },
-            { id: 'fit-bug-optimization', title: '10.4 Fit / Bug Optimization', status: 'draft', tags: ['android', 'quality'] }
+            { id: 'session-10-overview', title: 'Session 10 Overview', status: 'published', tags: ['android', 'testing'] },
+            { id: 'android-debugging', title: '10.1 Debugging', status: 'published', tags: ['android', 'debug'] },
+            { id: 'unit-testing', title: '10.2 Unit Testing', status: 'published', tags: ['android', 'testing'] },
+            { id: 'android-lint', title: '10.3 Lint', status: 'published', tags: ['android', 'quality'] },
+            { id: 'fit-bug-optimization', title: '10.4 Fit / Bug Optimization', status: 'published', tags: ['android', 'quality'] }
           ]
         },
         {
@@ -20272,6 +20272,7 @@ window.toggleTheme = toggleTheme;
 const TOPIC_REDIRECTS = {
   'advertisements': 'ads-overview', // 4.2.3.3 Advertisements tách thành 4.2.3.3.1–4.2.3.3.5
   'compose-state': 'compose-mutablestate', // entry web cũ "9.2 State and State Hoisting" gộp vào 9.2.1 MutableState
+  'testing-overview': 'session-10-overview', // id nav cũ của Session 10 Overview
 };
 
 function handleUrlRouting() {

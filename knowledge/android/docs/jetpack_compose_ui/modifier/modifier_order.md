@@ -189,7 +189,7 @@ fun UserHeader(user: User, modifier: Modifier = Modifier) {
 
 `Image`, `painterResource`, `ContentScale` học ở 9.6 [Layout and View](../layout_and_view.md).
 
-**Kết quả:** mở Layout Inspector (Android Studio → Tools → Layout Inspector), chọn node `Image`: kích thước hiển thị là 56 x 56dp và vị trí lệch 4dp so với `Row`. Có thể khoá hành vi này bằng UI test Compose (`createComposeRule`; UI test Compose chưa có bài riêng, nền tảng test ở [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md)): `composeTestRule.onNodeWithTag("avatar").assertWidthIsEqualTo(56.dp)`. Đổi thứ tự hai modifier, test báo 48dp.
+**Kết quả:** mở Layout Inspector (Android Studio → Tools → Layout Inspector), chọn node `Image`: kích thước hiển thị là 56 x 56dp và vị trí lệch 4dp so với `Row`. Có thể khoá hành vi này bằng UI test Compose (`createComposeRule`, xem mục Compose UI test của [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md)): `composeTestRule.onNodeWithTag("avatar").assertWidthIsEqualTo(56.dp)`. Đổi thứ tự hai modifier, test báo 48dp.
 
 ### Vẽ: lớp ngoài vẽ trước, mỗi lớp vẽ bằng kích thước phần bên trong nó
 
