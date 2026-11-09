@@ -546,7 +546,7 @@ Connection chỉ nhận delta từ con cháu. Gắn `nestedScroll(scrollBehavior
 - **Prerequisites**: [9.0 Jetpack Compose Overview](../overview.md) (ba phase, nền của "đọc state ở layout phase"), [9.2.1 Mutable State](../state/mutable_state.md).
 - **Related**: [9.5.4 LazyColumn](../modifier/lazy_column.md) (container cuộn cho danh sách), [9.5.5 LazyRow](../modifier/lazy_row.md), [9.3.1 LaunchedEffect](../side_effects/launched_effect.md) (`rememberCoroutineScope`), [9.4.2 Custom Theme](../theming/custom_theme.md) (CompositionLocal, `LocalDensity`).
 - **Học tiếp trong 9.8**: [9.8.2 Dragging](dragging.md) (kéo theo ngón tay), [9.8.3 Swiping](swipping.md) (kéo rồi settle về vị trí cố định), [9.8.4 Zooming](zooming.md) (pinch-zoom, xung đột với pager).
-- **Session sau**: [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md) cho nền tảng test tự động; UI test gesture của Compose bằng `performTouchInput` chưa có bài trong repo.
+- **Session sau**: [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md) cho test tự động, gồm Compose UI test với action gesture như `performTouchInput { swipeUp() }` và `performScrollToNode`.
 
 ## Tham khảo
 

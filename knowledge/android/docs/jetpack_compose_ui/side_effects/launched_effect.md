@@ -570,7 +570,7 @@ LaunchedEffect(Unit) { viewModel.loadOrders() }
   - [rememberSaveable](../state/remember_saveable.md): giữ state mà effect dùng qua xoay màn hình.
 - **Học tiếp:**
   - [DisposableEffect](disposable_effect.md): effect có bước dọn dẹp.
-  - [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md): test tự động (test UI Compose với `mainClock` chưa có bài riêng).
+  - [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md): test tự động, gồm Compose UI test với `mainClock` (ví dụ đếm ngược "Gửi lại mã" test lại chính `ResendCodeButton` của bài này).
 
 ## Tham khảo
 

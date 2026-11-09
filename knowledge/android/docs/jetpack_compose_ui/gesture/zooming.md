@@ -349,7 +349,7 @@ Pager không lật trang được nữa, vì detector consume cả cú kéo mộ
 
 - **Prerequisites**: [9.8.2 Dragging](dragging.md) (đọc state ở phase muộn, consume), [9.8.1 Scrolling](scrolling.md) (ba pass, vì sao con consume thì cha không cuộn).
 - **Related**: [9.7.1 Surface and Canvas](../graphics_animations/surface_and_canvas.md) (draw phase, `graphicsLayer` trong bối cảnh vẽ), [9.8.3 Swiping](swipping.md) (`HorizontalPager` so với `anchoredDraggable`), [9.5.5 LazyRow](../modifier/lazy_row.md) (`HorizontalPager` được nhắc cùng `LazyRow`).
-- **Liên quan khác**: ảnh mạng trong trình xem ảnh thường nạp bằng Coil ([8.2.4 Coil](../../session_08/loading_image/coil.md), `AsyncImage`); test tự động ở [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md), còn UI test pinch bằng `performTouchInput { pinch(...) }` chưa có bài trong repo. Coroutine trong `scope.launch` ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
+- **Liên quan khác**: ảnh mạng trong trình xem ảnh thường nạp bằng Coil ([8.2.4 Coil](../../session_08/loading_image/coil.md), `AsyncImage`); test tự động ở [10.2 Unit Testing](../../coding_analyst_and_testing/unit_testing.md), gồm Compose UI test; gesture pinch trong test dùng `performTouchInput { pinch(...) }`. Coroutine trong `scope.launch` ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 
 ## Tham khảo
 

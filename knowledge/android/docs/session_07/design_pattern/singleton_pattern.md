@@ -567,6 +567,7 @@ object ApiClient {
   - [Manifest tags](../../session_04/android_manifest/tags.md): class `Application` và thuộc tính `android:process`.
   - [Room Architecture](../../session_05/data_store/room_architecture.md), [Key-Value Storage](../../session_05/data_store/key_value.md), [Networking](../../session_05/networking.md): database, DataStore, HTTP client dùng một instance.
   - [Unit Testing](../../coding_analyst_and_testing/unit_testing.md): vì sao trạng thái toàn cục làm test không độc lập.
+  - [10.4 Fit / Bug Optimization](../../coding_analyst_and_testing/fit_bug_optimization.md): tìm leak do singleton giữ Context bằng LeakCanary.
   - [Builder Pattern](builder_pattern.md): cấu hình instance mà Singleton giữ.
 - **Học tiếp:**
   - [Dependency Injection Overview](di/overview.md): container, scope, manual DI.
