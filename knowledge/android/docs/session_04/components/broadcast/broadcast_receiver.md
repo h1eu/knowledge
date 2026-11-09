@@ -55,7 +55,7 @@ Hãy nghĩ về nó như một **radio receiver**: hệ thống (hoặc app khá
 
 > [!NOTE]
 > **Kiến thức dùng trước.** Các ví dụ trong bài dùng tối thiểu vài kiến thức của Session sau:
-> - Coroutine (`CoroutineScope`, `launch`, `Dispatchers.IO`, hàm `suspend`) là cách chạy việc bất đồng bộ ngoài main thread: 8.4.3 Coroutines (chưa có bài).
+> - Coroutine (`CoroutineScope`, `launch`, `Dispatchers.IO`, hàm `suspend`) là cách chạy việc bất đồng bộ ngoài main thread: [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md).
 > - WorkManager (thư viện Jetpack lên lịch việc nền, lưu work lại và tự lên lịch lại sau reboot): [Android Service](../services/android_service.md), mục "WorkManager — Lựa chọn hiện đại cho background task".
 > - Room (database của app) chỉ xuất hiện sau `ReminderRepository`: [Relational Database (Room Architecture)](../../../session_05/data_store/room_architecture.md).
 > - Flow (`callbackFlow`, `StateFlow`, `SharedFlow`): [Flow](../../../session_07/design_pattern/observer/flow.md).

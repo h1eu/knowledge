@@ -79,7 +79,7 @@ Vai trò của Session 05 trong lộ trình:
 - **Khởi động tư duy async**: lần đầu bạn đối mặt với callback, background thread, và câu hỏi "kết quả trả về khi nào?". Ngay trong 5.1 bạn đã dùng `suspend`/`Flow` ở mức cơ bản (xem ghi chú bên dưới).
 
 > [!NOTE]
-> **Kiến thức dùng trước: coroutine và Flow.** Các bài của Session 05 dùng coroutine và Flow ở mức tối thiểu để ví dụ chạy được: gọi một hàm `suspend` bên trong `viewModelScope.launch { }`, nhận dữ liệu bằng `Flow.collect`. Coroutine là cách viết code bất đồng bộ theo kiểu tuần tự, tạm dừng được mà không chặn thread; cơ chế của nó được học ở 8.4.3 Coroutines (chưa có bài). Flow là một luồng giá trị bất đồng bộ phát ra theo thời gian; cơ chế của nó được học ở [Flow](../session_07/design_pattern/observer/flow.md). Session 05 không giải thích cơ chế bên dưới của hai kiến thức này.
+> **Kiến thức dùng trước: coroutine và Flow.** Các bài của Session 05 dùng coroutine và Flow ở mức tối thiểu để ví dụ chạy được: gọi một hàm `suspend` bên trong `viewModelScope.launch { }`, nhận dữ liệu bằng `Flow.collect`. Coroutine là cách viết code bất đồng bộ theo kiểu tuần tự, tạm dừng được mà không chặn thread; cơ chế của nó được học ở [8.4.3 Coroutines](../session_08/async_threads/coroutines.md). Flow là một luồng giá trị bất đồng bộ phát ra theo thời gian; cơ chế của nó được học ở [Flow](../session_07/design_pattern/observer/flow.md). Session 05 không giải thích cơ chế bên dưới của hai kiến thức này.
 
 ## Session 05 học những gì?
 

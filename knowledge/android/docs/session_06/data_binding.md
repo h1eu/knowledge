@@ -344,7 +344,7 @@ fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) {        /
     app:avatarPlaceholder="@{@drawable/avatar_placeholder}" />
 ```
 
-Coil học ở 8.2.4 Coil (chưa có bài); ở đây chỉ cần biết `view.load(url) { … }` tải ảnh vào `ImageView`.
+Coil học ở [8.2.4 Coil](../session_08/loading_image/coil.md); ở đây chỉ cần biết `view.load(url) { … }` tải ảnh vào `ImageView`.
 
 **Kết quả:** mọi layout dùng `app:avatarUrl` hiện ảnh tròn hoặc placeholder. Gõ nhầm `app:avatarUrI` thì build lỗi "Cannot find a setter".
 
@@ -658,7 +658,7 @@ fun loadAvatar(view: ImageView, url: String?, placeholder: Drawable?) { /* ... *
   - [Jetpack Compose Overview](../jetpack_compose_ui/overview.md): hướng UI thay thế cho UI mới.
 - **Học tiếp:**
   - [LiveData](livedata.md), [ViewModel](viewmodel.md): nguồn dữ liệu và nơi giữ dữ liệu mà layout đọc.
-  - [Flow](../session_07/design_pattern/observer/flow.md): `StateFlow`; [ViewHolder Pattern](../session_07/design_pattern/viewholder_pattern.md): item danh sách; 8.2.4 Coil (chưa có bài): thư viện tải ảnh; [MVVM](../session_07/architecture/mvvm.md): kiến trúc Data Binding phục vụ.
+  - [Flow](../session_07/design_pattern/observer/flow.md): `StateFlow`; [ViewHolder Pattern](../session_07/design_pattern/viewholder_pattern.md): item danh sách; [8.2.4 Coil](../session_08/loading_image/coil.md): thư viện tải ảnh; [MVVM](../session_07/architecture/mvvm.md): kiến trúc Data Binding phục vụ.
 
 ## Tham khảo
 

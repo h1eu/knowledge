@@ -53,7 +53,7 @@ Mental model dùng lại từ [Observer Pattern Overview](overview.md): **đặt
 Đây là một hiện thực của Observer Pattern: collector là observer, `collect` là đăng ký, huỷ coroutine đang collect là huỷ đăng ký.
 
 > [!NOTE]
-> **Kiến thức dùng trước: coroutine.** Bài dùng hàm `suspend`, `launch`, scope (`viewModelScope`, `lifecycleScope`), dispatcher và việc huỷ coroutine ở mức tối thiểu. Coroutine là code bất đồng bộ viết tuần tự, tạm dừng được mà không chặn thread; học ở 8.4.3 Coroutines (chưa có bài). Test dùng `runTest` của `kotlinx-coroutines-test`, chạy `delay` trên thời gian ảo.
+> **Kiến thức dùng trước: coroutine.** Bài dùng hàm `suspend`, `launch`, scope (`viewModelScope`, `lifecycleScope`), dispatcher và việc huỷ coroutine ở mức tối thiểu. Coroutine là code bất đồng bộ viết tuần tự, tạm dừng được mà không chặn thread; học ở [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md). Test dùng `runTest` của `kotlinx-coroutines-test`, chạy `delay` trên thời gian ảo.
 
 ## Cách hoạt động
 
@@ -659,7 +659,7 @@ fun onAddToCart(id: String) { cartStore.add(id); _message.value = "Đã thêm v�
   - [Networking](../../../session_05/networking.md), [Content Provider](../../../session_04/components/content_provider.md), [Broadcast Receiver](../../../session_04/components/broadcast/broadcast_receiver.md): áp dụng `callbackFlow`, `retryWhen`, `SharedFlow`.
 - **Học tiếp:**
   - [LiveData](livedata.md) và [RxJava / RxAndroid](rxjava.md): so sánh với Flow và cách chuyển sang Flow.
-  - 8.4.3 Coroutines (chưa có bài): scope, dispatcher, Job, cancellation bên dưới Flow.
+  - [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md): scope, dispatcher, Job, cancellation bên dưới Flow.
   - [Unit Testing](../../../coding_analyst_and_testing/unit_testing.md): test ViewModel và Flow.
 
 ## Tham khảo

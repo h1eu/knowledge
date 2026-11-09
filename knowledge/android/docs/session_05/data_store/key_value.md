@@ -77,7 +77,7 @@ Bài này tập trung vào hai cái đầu — là kiến thức chuẩn của l
 
 > [!NOTE]
 > **Kiến thức dùng trước.** Phần DataStore dùng tối thiểu hai kiến thức của Session sau:
-> - Coroutine (`suspend`, `launch`): chạy code bất đồng bộ không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài).
+> - Coroutine (`suspend`, `launch`): chạy code bất đồng bộ không chặn main thread, học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 > - `Flow`: luồng dữ liệu phát giá trị mới mỗi khi nguồn thay đổi, học ở [Flow](../../session_07/design_pattern/observer/flow.md).
 
 ### Đặc điểm của mô hình key-value
@@ -888,7 +888,7 @@ Tương tác với các tầng khác: Data Layer cung cấp `Flow` cho ViewModel
   - [5.1.2 Relational Database (Room Architecture)](room_architecture.md) — khi dữ liệu không còn là key-value mà cần truy vấn.
   - [ViewModel](../../session_06/viewmodel.md) — cách quản lý StateFlow/Flow trong vòng đời ViewModel, `stateIn` chi tiết.
   - [MVVM](../../session_07/architecture/mvvm.md) và [Clean Architecture](../../session_07/architecture/clean_architecture.md) — chuẩn hóa Data Layer, Repository pattern sâu hơn.
-  - 8.4.3 Coroutines và [Flow](../../session_07/design_pattern/observer/flow.md) — hiểu sâu actor, channel, cách Flow hoạt động bên trong.
+  - [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md) (scope, dispatcher, cancellation) và [Flow](../../session_07/design_pattern/observer/flow.md) — cách Flow hoạt động bên trong.
   - [Hilt](../../session_07/design_pattern/di/hilt.md) — cách Hilt cấp `DataStore` và Repository dạng Singleton như `DataModule`.
   - [Unit Testing](../../coding_analyst_and_testing/unit_testing.md) — viết test cho Repository và ViewModel như phần Testing.
   - **Proto DataStore** — nâng cao khi cần schema nghiêm túc.

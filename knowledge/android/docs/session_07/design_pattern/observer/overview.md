@@ -298,7 +298,7 @@ Bài toán chính bên dưới ghép nhiều cơ chế quan sát trong một mà
 **Bài toán:** màn theo dõi đơn hiện trạng thái đơn (lưu trong Room, đổi khi server đẩy cập nhật) và vị trí shipper (SDK của đối tác vận chuyển trả `Observable<LatLng>` của RxJava, phát mỗi giây). Rời màn hình thì SDK phải ngừng gửi vị trí.
 
 > [!NOTE]
-> Kiến thức dùng trước: `combine`, `stateIn`, `repeatOnLifecycle` học ở [Flow](flow.md); `asFlow()` nối RxJava sang Flow học ở [RxJava / RxAndroid](rxjava.md); `viewModelScope`, `lifecycleScope` là coroutine scope, học ở 8.4.3 Coroutines (chưa có bài).
+> Kiến thức dùng trước: `combine`, `stateIn`, `repeatOnLifecycle` học ở [Flow](flow.md); `asFlow()` nối RxJava sang Flow học ở [RxJava / RxAndroid](rxjava.md); `viewModelScope`, `lifecycleScope` là coroutine scope, học ở [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md).
 
 **Luồng chạy:**
 
@@ -453,7 +453,7 @@ fun observeUnreadCount(): Flow<Int> = flow {
 - **Học tiếp:**
   - [Flow](flow.md) (7.1.4.2): nên học ngay sau bài này.
   - [RxJava / RxAndroid](rxjava.md) (7.1.4.1) và [LiveData](livedata.md) (7.1.4.3): hai hiện thực còn lại, so với Flow.
-  - 8.4.3 Coroutines (chưa có bài): nền của Flow.
+  - [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md): nền của Flow.
 
 ## Tham khảo
 

@@ -92,7 +92,7 @@ Field injection có hai cái giá: field có thể bị dùng trước khi đư�
 **Bài toán:** khi đặt hàng, app trừ tiền qua cổng thanh toán rồi mới lưu đơn. Quy tắc "bị từ chối thì không lưu đơn" phải test được mà không gọi cổng thật.
 
 > [!NOTE]
-> Kiến thức dùng trước: hàm `suspend` chạy trong coroutine mà không chặn thread, học ở 8.4.3 Coroutines (chưa có bài). Use case là class gói một nghiệp vụ, thuộc domain layer trong [Clean Architecture](../../architecture/clean_architecture.md).
+> Kiến thức dùng trước: hàm `suspend` chạy trong coroutine mà không chặn thread, học ở [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md). Use case là class gói một nghiệp vụ, thuộc domain layer trong [Clean Architecture](../../architecture/clean_architecture.md).
 
 **Luồng chạy:**
 
@@ -264,7 +264,7 @@ class ArticleListViewModel(private val repository: ArticleRepository) : ViewMode
 }
 ```
 
-Cách factory lấy `Application` qua `CreationExtras` đã giải thích ở [ViewModel](../../../session_06/viewmodel.md), mục "Factory và CreationExtras" (bài đó dùng cùng mẫu với `ShopApplication.container`). `OkHttpClient` ở [OkHttp](../../../session_08/networks/okhttp.md); Retrofit học ở 8.1.1 Retrofit (chưa có bài).
+Cách factory lấy `Application` qua `CreationExtras` đã giải thích ở [ViewModel](../../../session_06/viewmodel.md), mục "Factory và CreationExtras" (bài đó dùng cùng mẫu với `ShopApplication.container`). `OkHttpClient` ở [OkHttp](../../../session_08/networks/okhttp.md); Retrofit học ở [8.1.1 Retrofit](../../../session_08/networks/retrofit.md).
 
 **Kết quả:** đặt log trong lambda `by lazy` của `okHttpClient`: mở danh sách, vào chi tiết, quay lại nhiều lần, log chỉ in một lần. ViewModel vẫn test được bằng `ArticleListViewModel(FakeArticleRepository())`.
 

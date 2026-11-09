@@ -377,7 +377,7 @@ sequenceDiagram
 
 > [!NOTE]
 > **Kiến thức dùng trước.** Ví dụ dùng tối thiểu vài kiến thức của Session sau:
-> - Coroutine (`suspend`, `withContext(Dispatchers.IO)`, `launch`): chạy code bất đồng bộ không chặn thread gọi, học ở 8.4.3 Coroutines (chưa có bài).
+> - Coroutine (`suspend`, `withContext(Dispatchers.IO)`, `launch`): chạy code bất đồng bộ không chặn thread gọi, học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 > - `Flow`, `callbackFlow`, `StateFlow`, `stateIn`: luồng dữ liệu quan sát được, học ở [Flow](../../session_07/design_pattern/observer/flow.md).
 > - `@HiltViewModel`, `@Inject`: Hilt tự tạo và truyền dependency, học ở [Hilt](../../session_07/design_pattern/di/hilt.md); ViewModel và `viewModelScope` học ở [ViewModel](../../session_06/viewmodel.md).
 
@@ -641,7 +641,7 @@ Client đăng ký `ContentObserver` trên URI của Provider tự viết nhưng 
 - **Học tiếp:**
   - [Relational Database (Room Architecture)](../../session_05/data_store/room_architecture.md): lưu data nội bộ thay cho Content Provider.
   - [Working with Thread](../../session_05/working_with_thread.md): Main Thread, ANR và vì sao query phải chạy nền.
-  - 8.4.3 Coroutines (chưa có bài), [Flow](../../session_07/design_pattern/observer/flow.md), [Hilt](../../session_07/design_pattern/di/hilt.md): các kiến thức dùng trước trong ví dụ.
+  - [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md), [Flow](../../session_07/design_pattern/observer/flow.md), [Hilt](../../session_07/design_pattern/di/hilt.md): các kiến thức dùng trước trong ví dụ.
 
 ## Nguồn tham khảo
 

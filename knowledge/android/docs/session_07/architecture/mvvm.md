@@ -345,7 +345,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 }
 ```
 
-Ô nhập không được gán ngược từ state, vì `EditText` tự giữ text người dùng đang gõ; gán lại mỗi lần state đổi sẽ làm con trỏ nhảy. `findNavController()` thuộc Navigation, chỉ dùng tối thiểu ở đây. `Snackbar` học ở 8.5.5 Message (chưa có bài).
+Ô nhập không được gán ngược từ state, vì `EditText` tự giữ text người dùng đang gõ; gán lại mỗi lần state đổi sẽ làm con trỏ nhảy. `findNavController()` thuộc Navigation, chỉ dùng tối thiểu ở đây. `Snackbar` học ở [8.5.5 Message](../../session_08/view_layout/message.md).
 
 ```kotlin
 // LoginViewModelTest.kt (src/test): (5) kiểm tra state, không cần View

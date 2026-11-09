@@ -84,7 +84,7 @@ override fun getView(position: Int, convertView: View?, parent: ViewGroup): View
 | Animation thêm, xoá, đổi item | `ItemAnimator` (mặc định `DefaultItemAnimator`) |
 | Giữ và cấp lại ViewHolder | `RecyclerView.Recycler` và `RecycledViewPool` |
 
-Ranh giới với 8.5.1 Layouts (chưa có bài): bài này dạy Adapter, ViewHolder, `DiffUtil`, `ListAdapter`, view type, stable id và payload; 8.5.1 chỉ dạy RecyclerView ở góc độ bố cục, gồm `LayoutManager`, `ItemDecoration` và `ItemAnimator`.
+Ranh giới với [8.5.1 Layouts](../../session_08/view_layout/layouts.md): bài này dạy Adapter, ViewHolder, `DiffUtil`, `ListAdapter`, view type, stable id và payload; 8.5.1 chỉ dạy RecyclerView ở góc độ bố cục, gồm `LayoutManager`, `ItemDecoration` và `ItemAnimator`.
 
 ### `RecyclerView.Adapter` và vòng đời ViewHolder
 
@@ -414,7 +414,7 @@ class PhotoAdapter(private val onLikeClick: (Photo) -> Unit) :
 }
 ```
 
-`payloads` là một list vì nhiều thay đổi liên tiếp trước khi kịp bind có thể được gộp lại; chỉ cập nhật một phần khi **mọi** payload đều là loại đã biết. `load()` là hàm tải ảnh của Coil, học ở 8.2.4 Coil (chưa có bài).
+`payloads` là một list vì nhiều thay đổi liên tiếp trước khi kịp bind có thể được gộp lại; chỉ cập nhật một phần khi **mọi** payload đều là loại đã biết. `load()` là hàm tải ảnh của Coil, học ở [8.2.4 Coil](../../session_08/loading_image/coil.md).
 
 **Kết quả:** bấm tim thì chỉ icon và số đổi, ảnh đứng yên, không chớp. Đặt log trong `bind()`: bấm tim không in log của `bind()`, chỉ của `bindLike()`. Sửa caption thì `getChangePayload()` trả `null` và dòng được bind đầy đủ.
 
@@ -550,7 +550,7 @@ viewLifecycleOwner.lifecycleScope.launch {
 }
 ```
 
-Cuộn được đặt trong callback của `submitList()`, vì diff chạy bất đồng bộ: gọi `scrollToPosition()` ngay sau `submitList()` có thể cuộn theo list **cũ**. `stackFromEnd = true` của `LinearLayoutManager` xếp item từ đáy lên như các app chat; chi tiết về `LayoutManager` ở 8.5.1 Layouts (chưa có bài).
+Cuộn được đặt trong callback của `submitList()`, vì diff chạy bất đồng bộ: gọi `scrollToPosition()` ngay sau `submitList()` có thể cuộn theo list **cũ**. `stackFromEnd = true` của `LinearLayoutManager` xếp item từ đáy lên như các app chat; chi tiết về `LayoutManager` ở [8.5.1 Layouts](../../session_08/view_layout/layouts.md).
 
 **Kết quả:** tin của mình hiện bên phải, tin của người khác bên trái, tiêu đề ngày xuất hiện đúng chỗ chuyển ngày. Gửi tin mới: chỉ một dòng được thêm với animation và danh sách cuộn xuống tin đó. Đặt log ở `onCreateViewHolder` thì thấy mỗi loại có số holder riêng, và holder của tiêu đề ngày không bao giờ được dùng cho tin nhắn.
 
@@ -652,9 +652,9 @@ viewModel.tasks.collect { tasks -> binding.taskList.adapter = TaskAdapter(tasks)
   - [Working with Thread](../../session_05/working_with_thread.md): ngân sách frame của main thread.
   - [Builder Pattern](builder_pattern.md): `buildList` dùng để dựng danh sách item.
 - **Học tiếp:**
-  - 8.5.1 Layouts (chưa có bài): RecyclerView ở góc độ bố cục, gồm `LayoutManager`, `ItemDecoration`, `ItemAnimator`.
+  - [8.5.1 Layouts](../../session_08/view_layout/layouts.md): RecyclerView ở góc độ bố cục, gồm `LayoutManager`, `ItemDecoration`, `ItemAnimator`.
   - [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md) và 9.5.4 Lazy Column (chưa có bài): danh sách trong Compose không cần ViewHolder.
-  - 8.2.4 Coil (chưa có bài): tải ảnh trong item.
+  - [8.2.4 Coil](../../session_08/loading_image/coil.md): tải ảnh trong item.
 
 ## Tham khảo
 

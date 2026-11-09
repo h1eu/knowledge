@@ -167,7 +167,7 @@ class ArticleListPresenter(
 }
 ```
 
-`ArticleRepository.getArticles()` là hàm `suspend` trả `List<Article>`. `MainScope()` tạo một coroutine scope chạy trên main thread mà Presenter tự quản lý; coroutine học ở 8.4.3 Coroutines (chưa có bài).
+`ArticleRepository.getArticles()` là hàm `suspend` trả `List<Article>`. `MainScope()` tạo một coroutine scope chạy trên main thread mà Presenter tự quản lý; coroutine học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 
 ```kotlin
 // ArticleListFragment.kt: View thụ động, chỉ làm theo lệnh

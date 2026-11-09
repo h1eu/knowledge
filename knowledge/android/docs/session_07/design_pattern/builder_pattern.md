@@ -267,7 +267,7 @@ class DownloadNotifier(private val context: Context) {
 }
 ```
 
-`MapDownloadWorker` là một worker của WorkManager gọi `onProgress()` khi tải. Cách tạo channel và xin quyền thông báo thuộc 8.5.5 Message (chưa có bài); [PendingIntent](../../session_04/intent/pending_intent.md) chỉ dùng thông báo làm chỗ gắn `PendingIntent`.
+`MapDownloadWorker` là một worker của WorkManager gọi `onProgress()` khi tải. Cách tạo channel và xin quyền thông báo thuộc [8.5.5 Message](../../session_08/view_layout/message.md); [PendingIntent](../../session_04/intent/pending_intent.md) chỉ dùng thông báo làm chỗ gắn `PendingIntent`.
 
 **Kết quả:** khi tải chỉ có một thông báo, thanh tiến độ nhích khoảng mỗi giây một lần tới 100% và điện thoại chỉ kêu ở lần đầu; tải xong luôn hiện "Đã tải xong". Bỏ bước giãn nhịp và `notify()` ở mỗi 1% trên mạng nhanh thì hệ thống có thể bỏ bớt bản cập nhật; bản bị bỏ là bản cuối thì thông báo kẹt ở trạng thái đang tải.
 
@@ -571,7 +571,7 @@ val notification = NotificationCompat.Builder(context)
 - **Học tiếp:**
   - [Singleton Pattern](singleton_pattern.md): giữ một instance duy nhất của object mà builder tạo ra.
   - [Dependency Injection Overview](di/overview.md): nơi build các object dùng chung và cấp cho class cần chúng.
-  - 8.5.5 Message (chưa có bài): notification channel và các kiểu thông báo.
+  - [8.5.5 Message](../../session_08/view_layout/message.md): notification channel và các kiểu thông báo.
 
 ## Tham khảo
 

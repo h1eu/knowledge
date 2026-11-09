@@ -229,7 +229,7 @@ interface WeatherComponent {
 }
 ```
 
-`WeatherApi` là interface Retrofit có `@GET("forecast") suspend fun forecast(@Query("city") city: String): ForecastDto`; Retrofit học ở 8.1.1 Retrofit (chưa có bài), `OkHttpClient` ở [OkHttp](../../../session_08/networks/okhttp.md).
+`WeatherApi` là interface Retrofit có `@GET("forecast") suspend fun forecast(@Query("city") city: String): ForecastDto`; Retrofit học ở [8.1.1 Retrofit](../../../session_08/networks/retrofit.md), `OkHttpClient` ở [OkHttp](../../../session_08/networks/okhttp.md).
 
 **Kết quả:** `DaggerWeatherComponent.create().weatherRepository()` trả một `DefaultWeatherRepository` đã nối đủ. Gọi hàm này hai lần rồi so sánh: hai Repository khác nhau, **và hai `OkHttpClient` khác nhau**. Binding mặc định không có scope, nên mỗi lần được yêu cầu là một instance mới. Mục "Scope" sửa điều này.
 
@@ -460,7 +460,7 @@ class ImageCompressor @Inject constructor(
 )
 ```
 
-`javax.inject` có sẵn qualifier `@Named("...")`, nhưng nó dựa vào chuỗi: gõ sai thì Dagger báo `MissingBinding` ở nơi xa chỗ gõ, hoặc khớp nhầm một tên khác đã có. Qualifier tự định nghĩa là một kiểu: sai tên là lỗi compile ngay tại chỗ, và refactor được. Dispatcher là khái niệm của coroutine, học ở 8.4.3 Coroutines (chưa có bài).
+`javax.inject` có sẵn qualifier `@Named("...")`, nhưng nó dựa vào chuỗi: gõ sai thì Dagger báo `MissingBinding` ở nơi xa chỗ gõ, hoặc khớp nhầm một tên khác đã có. Qualifier tự định nghĩa là một kiểu: sai tên là lỗi compile ngay tại chỗ, và refactor được. Dispatcher là khái niệm của coroutine, học ở [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md).
 
 ### Đọc lỗi build của Dagger
 

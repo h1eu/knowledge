@@ -223,7 +223,7 @@ class ArticleActivity : AppCompatActivity() {
 }
 ```
 
-`RecyclerView` và adapter ở đây chỉ là View cần hiển thị danh sách, được học ở 8.5.1 Layouts (chưa có bài); điểm cần chú ý là kiểu `RecyclerView?` do View Binding sinh ra.
+`RecyclerView` và adapter ở đây chỉ là View cần hiển thị danh sách, được học ở [8.5.1 Layouts](../session_08/view_layout/layouts.md); điểm cần chú ý là kiểu `RecyclerView?` do View Binding sinh ra.
 
 **Kết quả:** chạy màn dọc thì không có mục lục và không crash; xoay ngang thì mục lục hiện. Xoá `table_of_contents` khỏi `layout-land/` thì field biến mất khỏi binding và đoạn `?.let` báo lỗi compile, nhắc bạn dọn code theo.
 
@@ -307,7 +307,7 @@ Khi chỉ cần binding trong `onViewCreated()` (không dùng ở hàm khác), c
 
 ### Layout dùng lại: `<include>` và `<merge>`
 
-Layout dùng lại (toolbar, thanh trạng thái tải) được nhúng bằng `<include>`. Thẻ này được học cùng các layout khác ở 8.5.1 Layouts (chưa có bài). View Binding xử lý nó như sau:
+Layout dùng lại (toolbar, thanh trạng thái tải) được nhúng bằng `<include>`. Thẻ này được học cùng các layout khác ở [8.5.1 Layouts](../session_08/view_layout/layouts.md). View Binding xử lý nó như sau:
 
 - `<include>` **có id** → binding ngoài có một field mang kiểu binding của layout con. Ví dụ `<include android:id="@+id/toolbar" layout="@layout/view_toolbar"/>` sinh field `toolbar: ViewToolbarBinding`, truy cập `binding.toolbar.titleText`.
 - Layout con có gốc `<merge>` thì không có View gốc riêng để mang id, nên binding ngoài không có field cho nó. Gọi `ViewToolbarBinding.bind(binding.root)` để lấy binding của phần đã merge.
@@ -659,7 +659,7 @@ return binding.root
 - **Học tiếp:**
   - [Data Binding](data_binding.md): binding có biểu thức và biến trong XML, mở rộng từ chính class binding ở bài này.
   - [ViewHolder Pattern](../session_07/design_pattern/viewholder_pattern.md): binding trong item của danh sách.
-  - 8.5.1 Layouts (chưa có bài): `<include>`, `<merge>` và các layout dùng trong ví dụ.
+  - [8.5.1 Layouts](../session_08/view_layout/layouts.md): `<include>`, `<merge>` và các layout dùng trong ví dụ.
 
 ## Tham khảo
 

@@ -110,7 +110,7 @@ Hầu hết nguồn của RxJava là **cold** ([Observer Pattern Overview](overv
 Chọn kiểu theo câu hỏi "nguồn phát bao nhiêu giá trị?"; kiểu đúng làm chữ ký hàm tự mô tả (`fun logout(): Completable`). Retrofit (adapter `com.squareup.retrofit2:adapter-rxjava3`) và Room (artifact `androidx.room:room-rxjava3`) đều trả thẳng các kiểu này:
 
 ```kotlin
-// OrderApi.kt (Retrofit, học ở 8.1.1 Retrofit, chưa có bài)
+// OrderApi.kt (Retrofit, học ở 8.1.1 Retrofit)
 interface OrderApi {
     @GET("orders/{id}") fun getOrder(@Path("id") id: Long): Single<OrderDto>
 }
@@ -660,7 +660,7 @@ queries.debounce(300, TimeUnit.MILLISECONDS)
   - [LiveData](livedata.md) (7.1.4.3): so sánh LiveData với Flow và RxJava, `toLiveData()` cho `Flowable`.
   - [LiveData](../../../session_06/livedata.md), [Async Transactions & Flow](../../../session_05/data_store/room_transactions.md), [Networking](../../../session_05/networking.md), [MVVM](../../architecture/mvvm.md): LiveData, Room, tầng mạng và UI state trong các ví dụ.
 - **Học tiếp:**
-  - 8.4.4 RxJava, RxAndroid, RxKotlin, 8.4.3 Coroutines, 8.1.1 Retrofit (đều chưa có bài).
+  - [8.4.4 RxJava, RxAndroid, RxKotlin](../../../session_08/async_threads/rxjava.md), [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md), [8.1.1 Retrofit](../../../session_08/networks/retrofit.md).
 
 ## Tham khảo
 

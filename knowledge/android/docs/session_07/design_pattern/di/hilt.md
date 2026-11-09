@@ -63,9 +63,9 @@ Các khái niệm của Dagger mà Hilt dùng lại (component, module, binding,
 
 > [!NOTE]
 > **Kiến thức dùng trước.** Các ví dụ dùng tối thiểu:
-> - Coroutine (`suspend`, `CoroutineWorker`): học ở 8.4.3 Coroutines (chưa có bài).
+> - Coroutine (`suspend`, `CoroutineWorker`): học ở [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md).
 > - `Flow`/`StateFlow`: học ở [Flow](../observer/flow.md).
-> - Retrofit: client HTTP sinh từ interface, học ở 8.1.1 Retrofit (chưa có bài); Room ở [Room Architecture](../../../session_05/data_store/room_architecture.md).
+> - Retrofit: client HTTP sinh từ interface, học ở [8.1.1 Retrofit](../../../session_08/networks/retrofit.md); Room ở [Room Architecture](../../../session_05/data_store/room_architecture.md).
 > - WorkManager: chạy tác vụ nền cần đảm bảo hoàn thành, giới thiệu ở [Android Service](../../../session_04/components/services/android_service.md), mục "WorkManager — Lựa chọn hiện đại cho background task".
 
 ### Điểm vào và constructor injection

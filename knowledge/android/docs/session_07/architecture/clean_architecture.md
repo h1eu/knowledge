@@ -177,7 +177,7 @@ class FusedLocationProvider(private val client: FusedLocationProviderClient) : L
 }
 ```
 
-Hàm `suspend` và `await()` là coroutine, học ở 8.4.3 Coroutines (chưa có bài). Cách xin quyền vị trí và vì sao API của GMS nằm ở data layer: [Google Service](../../session_04/components/services/google_service.md), mục "Vị trí trong Clean Architecture / MVVM".
+Hàm `suspend` và `await()` là coroutine, học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md). Cách xin quyền vị trí và vì sao API của GMS nằm ở data layer: [Google Service](../../session_04/components/services/google_service.md), mục "Vị trí trong Clean Architecture / MVVM".
 
 **Kết quả:** use case không có `import` nào của Android hay GMS. Unit test truyền `FakeLocationProvider` trả điểm cách cửa hàng khoảng 4,5 km (vượt 1,5 km, làm tròn lên 2 km) thì nhận `Paid(25_000)`, trả `null` thì nhận `LocationUnavailable`. Máy dùng HMS chỉ cần thêm `HuaweiLocationProvider : LocationProvider` và ráp trong DI; use case không đổi dòng nào.
 
@@ -348,7 +348,7 @@ fun Product.toItemUi(formatter: NumberFormat) =                                 
 // ViewModel: formatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"))
 ```
 
-Room DAO, `@Upsert` và mô hình offline-first: [Room Architecture](../../session_05/data_store/room_architecture.md). Gson học ở 8.1.2 Gson (chưa có bài).
+Room DAO, `@Upsert` và mô hình offline-first: [Room Architecture](../../session_05/data_store/room_architecture.md). Gson học ở [8.1.2 Gson](../../session_08/networks/gson.md).
 
 **Kết quả:** server đổi `title` thành `name` chỉ sửa `ProductDto`; đổi màn hình hiện giá kiểu "129K" chỉ sửa `toItemUi`. Domain và các use case dùng `Product` không đổi. Mapper là hàm thuần nên test riêng được: DTO có `stockQty = null` cho ra `Product.inStock == false`.
 
@@ -642,7 +642,7 @@ class CheckoutViewModel(private val orders: OrderRepositoryImpl) : ViewModel()
 - **Học tiếp:**
   - [Dependency Injection Overview](../design_pattern/di/overview.md) và [Hilt](../design_pattern/di/hilt.md): ráp hiện thực của data vào interface của domain (`@Binds`).
   - [MVI](mvi.md): một cách khác tổ chức tầng presentation trên cùng domain.
-  - 8.4.3 Coroutines (chưa có bài): `suspend`, dispatcher dùng trong use case và Repository.
+  - [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md): `suspend`, dispatcher dùng trong use case và Repository.
 
 ## Tham khảo
 

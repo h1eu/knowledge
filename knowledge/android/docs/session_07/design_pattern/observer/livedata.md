@@ -199,7 +199,7 @@ Data Binding cũng đọc được `StateFlow` trực tiếp khi binding có `li
 **Bài toán:** màn danh sách đơn có chip lọc theo trạng thái (Tất cả, Đang giao, Đã giao). Bản cũ dùng `MutableLiveData` + `switchMap`; cần chuyển sang `StateFlow` mà màn hình vẫn đúng một trong hai trạng thái (đang tải, có danh sách) và vẫn dừng nhận khi app ở background.
 
 > [!NOTE]
-> Kiến thức dùng trước: `flatMapLatest`, `stateIn`, `SharingStarted.WhileSubscribed` học ở [Flow](flow.md); `viewModelScope` và `lifecycleScope` là coroutine scope, học ở 8.4.3 Coroutines (chưa có bài).
+> Kiến thức dùng trước: `flatMapLatest`, `stateIn`, `SharingStarted.WhileSubscribed` học ở [Flow](flow.md); `viewModelScope` và `lifecycleScope` là coroutine scope, học ở [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md).
 
 **Luồng chạy:**
 
@@ -361,7 +361,7 @@ val unreadCount: LiveData<Int> get() = repository.observeUnreadCount().asLiveDat
   - [MVVM](../../architecture/mvvm.md): một `uiState` đi xuống View.
   - [Data Binding](../../../session_06/data_binding.md) và [Fragment Lifecycle](../../../session_04/components/fragment/lifecycle.md): binding đọc `StateFlow`, quan sát trên `viewLifecycleOwner`.
 - **Học tiếp:**
-  - 8.4.3 Coroutines (chưa có bài): scope và dispatcher dùng trong bài.
+  - [8.4.3 Coroutines](../../../session_08/async_threads/coroutines.md): scope và dispatcher dùng trong bài.
 
 ## Tham khảo
 

@@ -255,7 +255,7 @@ class ArticleDetailActivity : AppCompatActivity() {
 }
 ```
 
-`getArticle()` và `setBookmarked()` là hàm `suspend` của Repository. Coroutine (`lifecycleScope.launch`, hàm `suspend`) là cách chạy việc bất đồng bộ mà không chặn main thread, học ở 8.4.3 Coroutines (chưa có bài).
+`getArticle()` và `setBookmarked()` là hàm `suspend` của Repository. Coroutine (`lifecycleScope.launch`, hàm `suspend`) là cách chạy việc bất đồng bộ mà không chặn main thread, học ở [8.4.3 Coroutines](../../session_08/async_threads/coroutines.md).
 
 **Kết quả:** màn hình chạy đúng và với màn nhỏ thế này code vẫn dễ đọc. Nhưng đã thấy ba điểm yếu:
 
