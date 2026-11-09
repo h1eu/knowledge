@@ -713,7 +713,7 @@ class TransactionAdapter :
 
 `ListView`, `GridView` là tiền thân của RecyclerView (không tách LayoutManager, ViewHolder chỉ là tuỳ chọn); dự án mới không chọn chúng. `CoordinatorLayout`, `GridLayout` cũng là ViewGroup nhưng ngoài phạm vi tiêu đề của bài.
 
-Từ 05/2026 (hướng **Compose-first**), bộ View và các thư viện View như ConstraintLayout, RecyclerView ở **maintenance mode**: chỉ nhận bản sửa lỗi nghiêm trọng, không có tính năng mới, nhưng không bị deprecate. Kiến thức của bài vẫn cần cho mọi màn hình XML đang có, và các ý tưởng (đo rồi đặt, ràng buộc, chỉ tạo phần nhìn thấy) xuất hiện lại trong Compose: [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md), 9.6 Layout and View và 9.5.4 Lazy Column (chưa có bài).
+Từ 05/2026 (hướng **Compose-first**), bộ View và các thư viện View như ConstraintLayout, RecyclerView ở **maintenance mode**: chỉ nhận bản sửa lỗi nghiêm trọng, không có tính năng mới, nhưng không bị deprecate. Kiến thức của bài vẫn cần cho mọi màn hình XML đang có, và các ý tưởng (đo rồi đặt, ràng buộc, chỉ tạo phần nhìn thấy) xuất hiện lại trong Compose: [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md), [9.6 Layout and View](../../jetpack_compose_ui/layout_and_view.md) và [9.5.4 Lazy Column](../../jetpack_compose_ui/modifier/lazy_column.md).
 
 ## Khi nào nên và không nên dùng
 

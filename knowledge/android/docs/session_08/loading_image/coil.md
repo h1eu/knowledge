@@ -379,7 +379,7 @@ fun UserAvatar(user: UserProfile, tokenProvider: TokenProvider, modifier: Modifi
 }
 ```
 
-`remember(user.id, user.avatarVersion)` giữ request qua các lần recompose và chỉ tạo lại khi id hoặc version đổi; `remember` được học ở Session 09 (chưa có bài). Nếu mọi ảnh của API đều cần token, cách gọn hơn là thêm interceptor vào `OkHttpClient` truyền cho `OkHttpNetworkFetcherFactory` (mục cấu hình ImageLoader), chỉ gắn header cho host của API ([OkHttp](../networks/okhttp.md)).
+`remember(user.id, user.avatarVersion)` giữ request qua các lần recompose và chỉ tạo lại khi id hoặc version đổi; `remember` được học ở [9.1 Remember and Recomposition](../../jetpack_compose_ui/remember_and_recomposition.md). Nếu mọi ảnh của API đều cần token, cách gọn hơn là thêm interceptor vào `OkHttpClient` truyền cho `OkHttpNetworkFetcherFactory` (mục cấu hình ImageLoader), chỉ gắn header cho host của API ([OkHttp](../networks/okhttp.md)).
 
 **Kết quả:** đổi avatar, quay lại màn hồ sơ: ảnh mới hiện ngay, các avatar khác vẫn lấy từ cache. Đợi token được refresh rồi mở lại: avatar hiện từ cache, Network Inspector không có request mới. Nếu bỏ `memoryCacheKey`/`diskCacheKey` thì sau khi đổi avatar vẫn thấy ảnh cũ cho tới khi cache bị xoá.
 
@@ -469,7 +469,7 @@ val imageLoader = ImageLoader.Builder(requireContext()).crossfade(true).build()
 - **Học tiếp:**
   - [8.4.3 Coroutines](../async_threads/coroutines.md): `suspend`, scope và cancellation mà Coil dựa vào.
   - [7.1.4.2 Flow](../../session_07/design_pattern/observer/flow.md): `StateFlow` trong ví dụ ViewModel.
-  - 9.6 Layout and View (Text, Image, Layout) (chưa có bài): `Image`, `Painter` và layout trong Compose.
+  - [9.6 Layout and View (Text, Image, Layout)](../../jetpack_compose_ui/layout_and_view.md): `Image`, `Painter` và layout trong Compose.
 
 ## Tham khảo
 

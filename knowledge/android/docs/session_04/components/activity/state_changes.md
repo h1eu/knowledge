@@ -218,7 +218,7 @@ class ProductListActivity : AppCompatActivity() {
 
 Trong Jetpack Compose, `rememberSaveable` tương đương `onSaveInstanceState` — dữ liệu sống qua cả config change lẫn process death, còn `remember` chỉ sống qua recomposition.
 
-`remember`/`rememberSaveable` và `mutableStateOf` là API state của Compose, học ở 9.2.2 Remember and rememberSaveable (chưa có bài); `collectAsStateWithLifecycle()` biến Flow thành Compose State theo lifecycle, giới thiệu ở [Activity Lifecycle](lifecycle.md), mục "Cách hoạt động — Compose với Lifecycle".
+`remember`/`rememberSaveable` và `mutableStateOf` là API state của Compose, học ở [9.2.2 Remember and rememberSaveable](../../../jetpack_compose_ui/state/remember_saveable.md); `collectAsStateWithLifecycle()` biến Flow thành Compose State theo lifecycle, giới thiệu ở [Activity Lifecycle](lifecycle.md), mục "Cách hoạt động — Compose với Lifecycle".
 
 #### Ví dụ: ô tìm kiếm sản phẩm trong Compose
 
@@ -475,7 +475,7 @@ State Changes không phải việc của riêng UI. Trong kiến trúc đúng:
 - **Học tiếp:**
   - [Fragment State Changes](../fragment/state_changes.md) — cách Fragment lưu/khôi phục state riêng.
   - [ViewModel](../../../session_06/viewmodel.md): cơ chế store, vòng đời, scope, factory, `viewModelScope`.
-  - 9.2 State and State Hoisting (chưa có bài), gồm 9.2.1 MutableState và 9.2.2 Remember and rememberSaveable: `remember`, `rememberSaveable`, `mutableStateOf` và Saver.
+  - 9.2 State and State Hoisting, gồm [9.2.1 MutableState](../../../jetpack_compose_ui/state/mutable_state.md) và [9.2.2 Remember and rememberSaveable](../../../jetpack_compose_ui/state/remember_saveable.md): `remember`, `rememberSaveable`, `mutableStateOf` và Saver.
   - [MVVM](../../../session_07/architecture/mvvm.md) và [Clean Architecture](../../../session_07/architecture/clean_architecture.md): kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.
 
 ## Nguồn tham khảo

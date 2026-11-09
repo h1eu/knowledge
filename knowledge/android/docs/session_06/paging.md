@@ -292,7 +292,7 @@ Lý do collect bằng `viewLifecycleOwner` ở [Fragment Lifecycle](../session_0
 
 #### Với Jetpack Compose
 
-`collectAsLazyPagingItems()` (`paging-compose`) thay adapter; `itemKey` thay `areItemsTheSame`, `articles[index]` cũng là tín hiệu cuộn. Chi tiết ở 9.5.7 Lazy Paging Items (chưa có bài).
+`collectAsLazyPagingItems()` (`paging-compose`) thay adapter; `itemKey` thay `areItemsTheSame`, `articles[index]` cũng là tín hiệu cuộn. Chi tiết ở [9.5.7 Lazy Paging Items](../jetpack_compose_ui/modifier/lazy_paging_items.md).
 
 ```kotlin
 val articles = viewModel.articles.collectAsLazyPagingItems()
@@ -752,7 +752,7 @@ val response = api.getArticles(page = page, limit = params.loadSize)           /
 
 - **Tiên quyết:** [View Binding](view_binding.md), [Fragment Lifecycle](../session_04/components/fragment/lifecycle.md), [Room Architecture](../session_05/data_store/room_architecture.md), [Networking](../session_05/networking.md).
 - **Liên quan:** [6.4 ViewModel](viewmodel.md), [6.3 LiveData](livedata.md) (`Pager.liveData` cho code chưa dùng Flow), [Async Transactions & Flow](../session_05/data_store/room_transactions.md), [Unit Testing](../coding_analyst_and_testing/unit_testing.md), [Jetpack Compose Overview](../jetpack_compose_ui/overview.md).
-- **Học tiếp:** [Flow](../session_07/design_pattern/observer/flow.md), [ViewHolder Pattern](../session_07/design_pattern/viewholder_pattern.md), [8.4.3 Coroutines](../session_08/async_threads/coroutines.md), [8.1.1 Retrofit](../session_08/networks/retrofit.md), [8.5.1 Layouts](../session_08/view_layout/layouts.md); 9.5.7 Lazy Paging Items (chưa có bài).
+- **Học tiếp:** [Flow](../session_07/design_pattern/observer/flow.md), [ViewHolder Pattern](../session_07/design_pattern/viewholder_pattern.md), [8.4.3 Coroutines](../session_08/async_threads/coroutines.md), [8.1.1 Retrofit](../session_08/networks/retrofit.md), [8.5.1 Layouts](../session_08/view_layout/layouts.md); [9.5.7 Lazy Paging Items](../jetpack_compose_ui/modifier/lazy_paging_items.md).
 
 ## Tham khảo
 

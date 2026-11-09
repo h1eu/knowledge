@@ -11,6 +11,8 @@ prerequisites:
   - android.jetpack.viewmodel
   - android.component.activity.state_changes
   - android.languages.kotlin
+  - android.design_pattern.observer.flow
+  - android.async.coroutines
 related:
   - android.jetpack_compose.compose_overview
 learning_outcomes:
@@ -108,7 +110,7 @@ flowchart TB
 - [9.0 Jetpack Compose Overview](overview.md): đọc trước mọi bài khác trong session.
 - [6.4 ViewModel](../session_06/viewmodel.md) và [7.2.3 MVVM](../session_07/architecture/mvvm.md): UI state và luồng dữ liệu một chiều.
 - [Activity State Changes](../session_04/components/activity/state_changes.md): configuration change và process death, nền của 9.2.2.
-- 7.1.4.2 Flow (chưa có bài) và 8.4.3 Coroutines (chưa có bài): side-effect API và `collectAsStateWithLifecycle` dùng coroutine và Flow.
+- [7.1.4.2 Flow](../session_07/design_pattern/observer/flow.md) và [8.4.3 Coroutines](../session_08/async_threads/coroutines.md): side-effect API và `collectAsStateWithLifecycle` dùng coroutine và Flow.
 
 ## Sau khi học xong Session 09, bạn làm được gì?
 

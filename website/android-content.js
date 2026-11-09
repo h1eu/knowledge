@@ -10721,7 +10721,7 @@ Object.assign(ANDROID_CONTENT, {
 
 <p>Trong Jetpack Compose, <code>rememberSaveable</code> tương đương <code>onSaveInstanceState</code> — dữ liệu sống qua cả config change lẫn process death, còn <code>remember</code> chỉ sống qua recomposition.</p>
 
-<p><code>remember</code>/<code>rememberSaveable</code> và <code>mutableStateOf</code> là API state của Compose, học ở 9.2.2 Remember and rememberSaveable (chưa có bài); <code>collectAsStateWithLifecycle()</code> biến Flow thành Compose State theo lifecycle, giới thiệu ở <a href="lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>, mục "Cách hoạt động — Compose với Lifecycle".</p>
+<p><code>remember</code>/<code>rememberSaveable</code> và <code>mutableStateOf</code> là API state của Compose, học ở <a href="../../../jetpack_compose_ui/state/remember_saveable.md" target="_blank" rel="noopener">9.2.2 Remember and rememberSaveable</a>; <code>collectAsStateWithLifecycle()</code> biến Flow thành Compose State theo lifecycle, giới thiệu ở <a href="lifecycle.md" target="_blank" rel="noopener">Activity Lifecycle</a>, mục "Cách hoạt động — Compose với Lifecycle".</p>
 
 <h4>Ví dụ: ô tìm kiếm sản phẩm trong Compose</h4>
 
@@ -11081,7 +11081,7 @@ class ProductListActivity : AppCompatActivity() {
 <ul>
   <li><a href="../fragment/state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a> — cách Fragment lưu/khôi phục state riêng.</li>
   <li><a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>: cơ chế store, vòng đời, scope, factory, <code>viewModelScope</code>.</li>
-  <li>9.2 State and State Hoisting (chưa có bài), gồm 9.2.1 MutableState và 9.2.2 Remember and rememberSaveable: <code>remember</code>, <code>rememberSaveable</code>, <code>mutableStateOf</code> và Saver.</li>
+  <li>9.2 State and State Hoisting, gồm <a href="../../../jetpack_compose_ui/state/mutable_state.md" target="_blank" rel="noopener">9.2.1 MutableState</a> và <a href="../../../jetpack_compose_ui/state/remember_saveable.md" target="_blank" rel="noopener">9.2.2 Remember and rememberSaveable</a>: <code>remember</code>, <code>rememberSaveable</code>, <code>mutableStateOf</code> và Saver.</li>
   <li><a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a> và <a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: kiến trúc mà mục "Vị trí trong MVVM/Clean Architecture" dựa vào.</li>
 </ul></li>
 </ul>
@@ -19155,7 +19155,7 @@ AlertDialog.Builder(this)
 
 <h2>Cách hoạt động</h2>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ dùng tối thiểu vài kiến thức của Session sau: - ViewBinding (class sinh ra từ layout để truy cập View an toàn): <a href="../../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>. - ViewModel (giữ state qua configuration change) và <code>activityViewModels()</code>: <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; phạm vi <code>viewModels()</code> / <code>activityViewModels()</code> ở <a href="state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a>. - <code>StateFlow</code> và coroutine (<code>lifecycleScope</code>, <code>repeatOnLifecycle</code>): <a href="../../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, <a href="../../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>; mẫu collect an toàn trong Fragment ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>. - Composable và state của Compose (<code>remember</code>, <code>rememberSaveable</code>): <a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, 9.2.2 Remember and rememberSaveable (chưa có bài).</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body"><strong>Kiến thức dùng trước.</strong> Các ví dụ dùng tối thiểu vài kiến thức của Session sau: - ViewBinding (class sinh ra từ layout để truy cập View an toàn): <a href="../../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>. - ViewModel (giữ state qua configuration change) và <code>activityViewModels()</code>: <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>; phạm vi <code>viewModels()</code> / <code>activityViewModels()</code> ở <a href="state_changes.md" target="_blank" rel="noopener">Fragment State Changes</a>. - <code>StateFlow</code> và coroutine (<code>lifecycleScope</code>, <code>repeatOnLifecycle</code>): <a href="../../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, <a href="../../../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>; mẫu collect an toàn trong Fragment ở <a href="lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>. - Composable và state của Compose (<code>remember</code>, <code>rememberSaveable</code>): <a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, <a href="../../../jetpack_compose_ui/state/remember_saveable.md" target="_blank" rel="noopener">9.2.2 Remember and rememberSaveable</a>.</div></div>
 
 <h3>Kiến trúc tổng thể</h3>
 
@@ -20871,7 +20871,7 @@ class DeleteItemUseCase(
 <ul>
   <li><a href="../../../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a>, <a href="../../../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>.</li>
   <li><a href="../../../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, <a href="../../../session_07/architecture/clean_architecture.md" target="_blank" rel="noopener">Clean Architecture</a>: vị trí của DialogFragment trong Presentation Layer.</li>
-  <li><a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và 9.2.2 Remember and rememberSaveable (chưa có bài): nền cho dialog trong Compose.</li>
+  <li><a href="../../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và <a href="../../../jetpack_compose_ui/state/remember_saveable.md" target="_blank" rel="noopener">9.2.2 Remember and rememberSaveable</a>: nền cho dialog trong Compose.</li>
 </ul></li>
 </ul>
 
@@ -26167,7 +26167,7 @@ MobileAds.setRequestConfiguration(configuration)</code></pre>
       'Xử lý được memory leak và âm thanh chạy nền do banner hoặc native ad không được giải phóng.'
     ],
     knowledgeGap: 'Nhiều người thả AdView vào layout rồi quên pause/destroy, hoặc bọc AdView bằng AndroidView mà tưởng Compose tự lo lifecycle.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -26347,7 +26347,7 @@ sequenceDiagram
 
 <h3>Banner trong Jetpack Compose</h3>
 
-<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>AndroidView</code> (nhúng View vào Compose) và <code>DisposableEffect</code> thuộc Session 09: Jetpack Compose UI, mục 9.3.2 DisposableEffect (chưa có bài). Ở đây chỉ cần biết <code>DisposableEffect</code> chạy <code>onDispose</code> khi Composable rời composition.</div></div>
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Kiến thức dùng trước: <code>AndroidView</code> (nhúng View vào Compose) và <code>DisposableEffect</code> thuộc Session 09: Jetpack Compose UI, mục <a href="../../../../jetpack_compose_ui/side_effects/disposable_effect.md" target="_blank" rel="noopener">9.3.2 DisposableEffect</a>. Ở đây chỉ cần biết <code>DisposableEffect</code> chạy <code>onDispose</code> khi Composable rời composition.</div></div>
 
 <pre data-lang="kotlin"><code>@Composable
 fun AdBannerView(
@@ -33044,7 +33044,7 @@ context.sendBroadcast(Intent(ACTION_LOGIN).apply {
       'Xử lý được Intent mới trong onNewIntent() và cập nhật getIntent() bằng setIntent() khi cần.'
     ],
     knowledgeGap: 'Không hiểu onNewIntent() khiến Activity dùng singleTop/singleTask hiển thị dữ liệu cũ khi người dùng bấm thông báo mới; vẫn dùng startActivityForResult/onActivityResult đã deprecated hoặc ACTION_PICK thay vì Photo Picker; và đọc Parcelable sai cách giữa các phiên bản API.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-09',
     readTime: '15 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -33134,7 +33134,7 @@ context.sendBroadcast(Intent(ACTION_LOGIN).apply {
 
 <h4>Ví dụ: đổi ảnh đại diện trong môi trường Jetpack Compose</h4>
 
-<p>Composable và state của Compose (<code>remember</code>, <code>mutableStateOf</code>) là kiến thức dùng trước, học ở <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và 9.2 State and State Hoisting (chưa có bài); ở đây chỉ cần biết <code>avatarUri</code> là state giữ ảnh vừa chọn.</p>
+<p>Composable và state của Compose (<code>remember</code>, <code>mutableStateOf</code>) là kiến thức dùng trước, học ở <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và <a href="../../jetpack_compose_ui/state/mutable_state.md" target="_blank" rel="noopener">9.2.1 MutableState</a>; ở đây chỉ cần biết <code>avatarUri</code> là state giữ ảnh vừa chọn.</p>
 
 <p>Compose cung cấp hàm <code>rememberLauncherForActivityResult</code> vô cùng tiện lợi:</p>
 
@@ -61932,6 +61932,8 @@ ANDROID_CONTENT['android.jetpack_compose.compose_overview'] = ANDROID_CONTENT['c
 ANDROID_CONTENT['android.jetpack_compose.overview'] = ANDROID_CONTENT['session-09-overview'];
 ANDROID_CONTENT['android.jetpack_compose.remember_recomposition'] = ANDROID_CONTENT['compose-recomposition'];
 ANDROID_CONTENT['android.jetpack_compose.state.mutable_state'] = ANDROID_CONTENT['compose-mutablestate'];
+// Slug cũ của entry "9.2 State and State Hoisting" (đã gộp vào 9.2.1) — giữ để link cũ không gãy
+ANDROID_CONTENT['compose-state'] = ANDROID_CONTENT['compose-mutablestate'];
 ANDROID_CONTENT['android.jetpack_compose.state.remember_saveable'] = ANDROID_CONTENT['compose-remember-saveable'];
 ANDROID_CONTENT['android.jetpack_compose.side_effects.launched_effect'] = ANDROID_CONTENT['compose-launchedeffect'];
 ANDROID_CONTENT['android.jetpack_compose.side_effects.disposable_effect'] = ANDROID_CONTENT['compose-disposableeffect'];
@@ -65444,7 +65446,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
 <h4>Với Jetpack Compose</h4>
 
-<p><code>collectAsLazyPagingItems()</code> (<code>paging-compose</code>) thay adapter; <code>itemKey</code> thay <code>areItemsTheSame</code>, <code>articles[index]</code> cũng là tín hiệu cuộn. Chi tiết ở 9.5.7 Lazy Paging Items (chưa có bài).</p>
+<p><code>collectAsLazyPagingItems()</code> (<code>paging-compose</code>) thay adapter; <code>itemKey</code> thay <code>areItemsTheSame</code>, <code>articles[index]</code> cũng là tín hiệu cuộn. Chi tiết ở <a href="../jetpack_compose_ui/modifier/lazy_paging_items.md" target="_blank" rel="noopener">9.5.7 Lazy Paging Items</a>.</p>
 
 <pre data-lang="kotlin"><code>val articles = viewModel.articles.collectAsLazyPagingItems()
 LazyColumn {
@@ -65887,7 +65889,7 @@ val response = api.getArticles(page = page, limit = params.loadSize)           /
 <ul>
   <li><strong>Tiên quyết:</strong> <a href="view_binding.md" target="_blank" rel="noopener">View Binding</a>, <a href="../session_04/components/fragment/lifecycle.md" target="_blank" rel="noopener">Fragment Lifecycle</a>, <a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, <a href="../session_05/networking.md" target="_blank" rel="noopener">Networking</a>.</li>
   <li><strong>Liên quan:</strong> <a href="viewmodel.md" target="_blank" rel="noopener">6.4 ViewModel</a>, <a href="livedata.md" target="_blank" rel="noopener">6.3 LiveData</a> (<code>Pager.liveData</code> cho code chưa dùng Flow), <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a>, <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>, <a href="../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>.</li>
-  <li><strong>Học tiếp:</strong> <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, <a href="../session_07/design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>, <a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>, <a href="../session_08/networks/retrofit.md" target="_blank" rel="noopener">8.1.1 Retrofit</a>, <a href="../session_08/view_layout/layouts.md" target="_blank" rel="noopener">8.5.1 Layouts</a>; 9.5.7 Lazy Paging Items (chưa có bài).</li>
+  <li><strong>Học tiếp:</strong> <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, <a href="../session_07/design_pattern/viewholder_pattern.md" target="_blank" rel="noopener">ViewHolder Pattern</a>, <a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>, <a href="../session_08/networks/retrofit.md" target="_blank" rel="noopener">8.1.1 Retrofit</a>, <a href="../session_08/view_layout/layouts.md" target="_blank" rel="noopener">8.5.1 Layouts</a>; <a href="../jetpack_compose_ui/modifier/lazy_paging_items.md" target="_blank" rel="noopener">9.5.7 Lazy Paging Items</a>.</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -67930,7 +67932,7 @@ viewLifecycleOwner.lifecycleScope.launch {
   <li><strong>Nên dùng <code>ListAdapter</code> + <code>DiffUtil</code></strong> làm mặc định khi dữ liệu là một list thay đổi theo thời gian; chỉ tự gọi <code>notifyItem...</code> khi thật sự biết chính xác thay đổi (ví dụ thao tác kéo thả do chính adapter thực hiện).</li>
   <li><strong>Dùng <code>PagingDataAdapter</code></strong> khi dữ liệu tải theo trang từ mạng hoặc database.</li>
   <li><strong>Không cần</strong> RecyclerView cho vài item cố định (màn cài đặt có năm dòng): một <code>LinearLayout</code> trong <code>ScrollView</code> đơn giản hơn.</li>
-  <li><strong>Không áp dụng</strong> cho UI viết bằng Compose: <code>LazyColumn</code> tự quản việc tạo và tái sử dụng, và bạn khai báo item bằng <code>items(list, key = { it.id })</code> thay vì viết ViewHolder (9.5.4 Lazy Column (chưa có bài)).</li>
+  <li><strong>Không áp dụng</strong> cho UI viết bằng Compose: <code>LazyColumn</code> tự quản việc tạo và tái sử dụng, và bạn khai báo item bằng <code>items(list, key = { it.id })</code> thay vì viết ViewHolder (<a href="../../jetpack_compose_ui/modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a>).</li>
 </ul>
 
 <h2>Sai lầm thường gặp</h2>
@@ -68022,7 +68024,7 @@ viewModel.tasks.collect { tasks -&gt; binding.taskList.adapter = TaskAdapter(tas
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="../../session_08/view_layout/layouts.md" target="_blank" rel="noopener">8.5.1 Layouts</a>: RecyclerView ở góc độ bố cục, gồm <code>LayoutManager</code>, <code>ItemDecoration</code>, <code>ItemAnimator</code>.</li>
-  <li><a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và 9.5.4 Lazy Column (chưa có bài): danh sách trong Compose không cần ViewHolder.</li>
+  <li><a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a> và <a href="../../jetpack_compose_ui/modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a>: danh sách trong Compose không cần ViewHolder.</li>
   <li><a href="../../session_08/loading_image/coil.md" target="_blank" rel="noopener">8.2.4 Coil</a>: tải ảnh trong item.</li>
 </ul></li>
 </ul>
@@ -81632,7 +81634,7 @@ fun UserAvatar(user: UserProfile, tokenProvider: TokenProvider, modifier: Modifi
     )
 }</code></pre>
 
-<p><code>remember(user.id, user.avatarVersion)</code> giữ request qua các lần recompose và chỉ tạo lại khi id hoặc version đổi; <code>remember</code> được học ở Session 09 (chưa có bài). Nếu mọi ảnh của API đều cần token, cách gọn hơn là thêm interceptor vào <code>OkHttpClient</code> truyền cho <code>OkHttpNetworkFetcherFactory</code> (mục cấu hình ImageLoader), chỉ gắn header cho host của API (<a href="../networks/okhttp.md" target="_blank" rel="noopener">OkHttp</a>).</p>
+<p><code>remember(user.id, user.avatarVersion)</code> giữ request qua các lần recompose và chỉ tạo lại khi id hoặc version đổi; <code>remember</code> được học ở <a href="../../jetpack_compose_ui/remember_and_recomposition.md" target="_blank" rel="noopener">9.1 Remember and Recomposition</a>. Nếu mọi ảnh của API đều cần token, cách gọn hơn là thêm interceptor vào <code>OkHttpClient</code> truyền cho <code>OkHttpNetworkFetcherFactory</code> (mục cấu hình ImageLoader), chỉ gắn header cho host của API (<a href="../networks/okhttp.md" target="_blank" rel="noopener">OkHttp</a>).</p>
 
 <p><strong>Kết quả:</strong> đổi avatar, quay lại màn hồ sơ: ảnh mới hiện ngay, các avatar khác vẫn lấy từ cache. Đợi token được refresh rồi mở lại: avatar hiện từ cache, Network Inspector không có request mới. Nếu bỏ <code>memoryCacheKey</code>/<code>diskCacheKey</code> thì sau khi đổi avatar vẫn thấy ảnh cũ cho tới khi cache bị xoá.</p>
 
@@ -81775,7 +81777,7 @@ val imageLoader = ImageLoader.Builder(requireContext()).crossfade(true).build()<
 <ul>
   <li><a href="../async_threads/coroutines.md" target="_blank" rel="noopener">8.4.3 Coroutines</a>: <code>suspend</code>, scope và cancellation mà Coil dựa vào.</li>
   <li><a href="../../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">7.1.4.2 Flow</a>: <code>StateFlow</code> trong ví dụ ViewModel.</li>
-  <li>9.6 Layout and View (Text, Image, Layout) (chưa có bài): <code>Image</code>, <code>Painter</code> và layout trong Compose.</li>
+  <li><a href="../../jetpack_compose_ui/layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View (Text, Image, Layout)</a>: <code>Image</code>, <code>Painter</code> và layout trong Compose.</li>
 </ul></li>
 </ul>
 
@@ -86422,7 +86424,7 @@ class TransactionAdapter :
 
 <p><code>ListView</code>, <code>GridView</code> là tiền thân của RecyclerView (không tách LayoutManager, ViewHolder chỉ là tuỳ chọn); dự án mới không chọn chúng. <code>CoordinatorLayout</code>, <code>GridLayout</code> cũng là ViewGroup nhưng ngoài phạm vi tiêu đề của bài.</p>
 
-<p>Từ 05/2026 (hướng <strong>Compose-first</strong>), bộ View và các thư viện View như ConstraintLayout, RecyclerView ở <strong>maintenance mode</strong>: chỉ nhận bản sửa lỗi nghiêm trọng, không có tính năng mới, nhưng không bị deprecate. Kiến thức của bài vẫn cần cho mọi màn hình XML đang có, và các ý tưởng (đo rồi đặt, ràng buộc, chỉ tạo phần nhìn thấy) xuất hiện lại trong Compose: <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, 9.6 Layout and View và 9.5.4 Lazy Column (chưa có bài).</p>
+<p>Từ 05/2026 (hướng <strong>Compose-first</strong>), bộ View và các thư viện View như ConstraintLayout, RecyclerView ở <strong>maintenance mode</strong>: chỉ nhận bản sửa lỗi nghiêm trọng, không có tính năng mới, nhưng không bị deprecate. Kiến thức của bài vẫn cần cho mọi màn hình XML đang có, và các ý tưởng (đo rồi đặt, ràng buộc, chỉ tạo phần nhìn thấy) xuất hiện lại trong Compose: <a href="../../jetpack_compose_ui/overview.md" target="_blank" rel="noopener">Jetpack Compose Overview</a>, <a href="../../jetpack_compose_ui/layout_and_view.md" target="_blank" rel="noopener">9.6 Layout and View</a> và <a href="../../jetpack_compose_ui/modifier/lazy_column.md" target="_blank" rel="noopener">9.5.4 Lazy Column</a>.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
@@ -87241,7 +87243,7 @@ class OtpCountdownView @JvmOverloads constructor(
 <ol>
   <li><strong>Màn đánh giá đơn hàng dùng <code>RatingStarsView</code>:</strong> View tự giữ state giao diện, còn số sao đã chọn thuộc ViewModel để sống qua cả process death. Đây là bài toán chính, code bên dưới.</li>
   <li><strong>Hình dạng tĩnh không tương tác</strong> (nền thẻ có góc cắt, viền gradient): không cần View; dùng <code>Drawable</code> (<code>GradientDrawable</code>, <code>MaterialShapeDrawable</code>) gán làm <code>background</code>, rẻ hơn và dùng lại được cho mọi View.</li>
-  <li><strong>Biểu đồ phức tạp có zoom, chú thích, nhiều trục:</strong> cân nhắc thư viện biểu đồ có sẵn, hoặc Compose <code>Canvas</code> (9.7.1 Surface and Canvas, chưa có bài). Tự viết chỉ đáng khi biểu đồ đơn giản và cần kiểm soát hoàn toàn.</li>
+  <li><strong>Biểu đồ phức tạp có zoom, chú thích, nhiều trục:</strong> cân nhắc thư viện biểu đồ có sẵn, hoặc Compose <code>Canvas</code> (<a href="../../jetpack_compose_ui/graphics_animations/surface_and_canvas.md" target="_blank" rel="noopener">9.7.1 Surface and Canvas</a>). Tự viết chỉ đáng khi biểu đồ đơn giản và cần kiểm soát hoàn toàn.</li>
 </ol>
 
 <h3>Màn đánh giá đơn hàng</h3>
@@ -87424,7 +87426,7 @@ class LoadingButton @JvmOverloads constructor(
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="animation.md" target="_blank" rel="noopener">Animation</a>: animate thuộc tính của View thay vì <code>invalidate()</code> mỗi frame.</li>
-  <li>9.7.1 Surface and Canvas (chưa có bài): vẽ tự do trong Compose.</li>
+  <li><a href="../../jetpack_compose_ui/graphics_animations/surface_and_canvas.md" target="_blank" rel="noopener">9.7.1 Surface and Canvas</a>: vẽ tự do trong Compose.</li>
 </ul></li>
 </ul>
 
@@ -88108,7 +88110,7 @@ flowchart TD
       <td style="padding:8px 12px;font-weight:600;">Compose <code>MaterialTheme</code></td>
       <td style="padding:8px 12px;">Cây composable</td>
       <td style="padding:8px 12px;">Theo <code>CompositionLocal</code></td>
-      <td style="padding:8px 12px;">Màn viết bằng Compose (9.4.1 Material Design Theme, chưa có bài)</td>
+      <td style="padding:8px 12px;">Màn viết bằng Compose (<a href="../../jetpack_compose_ui/theming/material_design_theme.md" target="_blank" rel="noopener">9.4.1 Material Design Theme</a>)</td>
     </tr>
   </tbody>
 </table>
@@ -88203,7 +88205,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="design_guide.md" target="_blank" rel="noopener">Design Guide</a>: áp Material 3 và dynamic color lên cơ chế của bài này.</li>
-  <li>9.4.1 Material Design Theme (chưa có bài): theme trong Compose.</li>
+  <li><a href="../../jetpack_compose_ui/theming/material_design_theme.md" target="_blank" rel="noopener">9.4.1 Material Design Theme</a>: theme trong Compose.</li>
 </ul></li>
 </ul>
 
@@ -88790,7 +88792,7 @@ android {
   <li><strong>Nên bật dynamic color</strong> cho app tiện ích cá nhân (ghi chú, lịch, đồng hồ), nơi hoà vào máy của người dùng có giá trị hơn nhận diện thương hiệu.</li>
   <li><strong>Không nên bật dynamic color</strong> khi màu thương hiệu là nhận diện chính (ngân hàng, thương hiệu bán lẻ, white-label), hoặc khi màu mang nghĩa nghiệp vụ.</li>
   <li><strong>Không cần chuyển gấp</strong> app đang dùng Material 2 ổn định sang Material 3 chỉ vì "mới hơn": chuyển theme kéo theo đổi hàng loạt kích thước, góc bo, màu; nên làm có kế hoạch, theo từng màn.</li>
-  <li><strong>Với Compose</strong>, token Material nằm trong <code>MaterialTheme</code> (<code>colorScheme</code>, <code>typography</code>, <code>shapes</code>), cùng khái niệm nhưng khác API; xem 9.4.1 Material Design Theme (chưa có bài).</li>
+  <li><strong>Với Compose</strong>, token Material nằm trong <code>MaterialTheme</code> (<code>colorScheme</code>, <code>typography</code>, <code>shapes</code>), cùng khái niệm nhưng khác API; xem <a href="../../jetpack_compose_ui/theming/material_design_theme.md" target="_blank" rel="noopener">9.4.1 Material Design Theme</a>.</li>
 </ul>
 
 <h2>Sai lầm thường gặp</h2>
@@ -88872,7 +88874,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="animation.md" target="_blank" rel="noopener">8.5.6 Animation</a>: motion, token cuối cùng của Material, và các transition pattern.</li>
-  <li>9.4.1 Material Design Theme (Color, Typography, Shapes) (chưa có bài): cùng hệ token trong Compose.</li>
+  <li><a href="../../jetpack_compose_ui/theming/material_design_theme.md" target="_blank" rel="noopener">9.4.1 Material Design Theme (Color, Typography, Shapes)</a>: cùng hệ token trong Compose.</li>
 </ul></li>
 </ul>
 
@@ -90230,7 +90232,7 @@ class FaqView @JvmOverloads constructor(
   </tbody>
 </table>
 
-<p>Với UI viết bằng Compose, animation dùng API riêng (<code>animate*AsState</code>, <code>AnimatedVisibility</code>, <code>AnimatedContent</code>, <code>Crossfade</code>) theo cùng ý tưởng hàm thời gian; xem 9.7 Graphics and Animations (chưa có bài).</p>
+<p>Với UI viết bằng Compose, animation dùng API riêng (<code>animate*AsState</code>, <code>AnimatedVisibility</code>, <code>AnimatedContent</code>, <code>Crossfade</code>) theo cùng ý tưởng hàm thời gian; xem <a href="../../jetpack_compose_ui/graphics_animations/animated_visibility.md" target="_blank" rel="noopener">9.7.2 AnimatedVisibility</a>, nơi có bảng chọn API animation của Compose.</p>
 
 <h2>Khi nào nên và không nên dùng</h2>
 
@@ -90325,7 +90327,7 @@ itemView.postDelayed({ adapter.remove(position) }, 300)</code></pre>
 </ul></li>
   <li><strong>Học tiếp:</strong>
 <ul>
-  <li>9.7 Graphics and Animations (chưa có bài): animation trong Compose (<code>AnimatedVisibility</code>, <code>AnimatedContent</code>, <code>Crossfade</code>).</li>
+  <li>9.7 Graphics and Animations: animation trong Compose, gồm <a href="../../jetpack_compose_ui/graphics_animations/animated_visibility.md" target="_blank" rel="noopener">9.7.2 AnimatedVisibility</a>, <a href="../../jetpack_compose_ui/graphics_animations/animated_content.md" target="_blank" rel="noopener">9.7.4 AnimatedContent</a>, <a href="../../jetpack_compose_ui/graphics_animations/crossfade.md" target="_blank" rel="noopener">9.7.5 Crossfade</a>.</li>
 </ul></li>
 </ul>
 

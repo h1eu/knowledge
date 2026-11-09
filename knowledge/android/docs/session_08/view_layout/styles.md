@@ -572,7 +572,7 @@ flowchart TD
 | Theme (manifest) | App hoặc Activity, mọi View con | Dưới style | Biến ngữ nghĩa, thuộc tính cửa sổ |
 | ThemeOverlay qua `android:theme` | Một nhánh View | Đè lên theme bên dưới, cho nhánh đó | Một vùng màn hình khác tông |
 | `android:textAppearance` | Chữ của một `TextView` | Thấp nhất | Kiểu chữ theo vai trò, để style chính cho việc khác |
-| Compose `MaterialTheme` | Cây composable | Theo `CompositionLocal` | Màn viết bằng Compose (9.4.1 Material Design Theme, chưa có bài) |
+| Compose `MaterialTheme` | Cây composable | Theo `CompositionLocal` | Màn viết bằng Compose ([9.4.1 Material Design Theme](../../jetpack_compose_ui/theming/material_design_theme.md)) |
 
 Từ 05/2026, Material Components cho View nằm trong nhóm thư viện maintenance mode của hướng Compose-first; cơ chế style và theme của framework không đổi. Tại thời điểm viết, trang releases của Material Components ghi 1.14.0 là bản stable mới nhất.
 
@@ -662,7 +662,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
   - 2.3 Resource Solutions (chưa có bài): resource qualifier như `values-night`, `values-v31`.
 - **Học tiếp:**
   - [Design Guide](design_guide.md): áp Material 3 và dynamic color lên cơ chế của bài này.
-  - 9.4.1 Material Design Theme (chưa có bài): theme trong Compose.
+  - [9.4.1 Material Design Theme](../../jetpack_compose_ui/theming/material_design_theme.md): theme trong Compose.
 
 ## Tham khảo
 

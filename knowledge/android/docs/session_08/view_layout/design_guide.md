@@ -451,7 +451,7 @@ Ngoài Material, nhiều công ty xây design system riêng (thường vẫn d�
 - **Nên bật dynamic color** cho app tiện ích cá nhân (ghi chú, lịch, đồng hồ), nơi hoà vào máy của người dùng có giá trị hơn nhận diện thương hiệu.
 - **Không nên bật dynamic color** khi màu thương hiệu là nhận diện chính (ngân hàng, thương hiệu bán lẻ, white-label), hoặc khi màu mang nghĩa nghiệp vụ.
 - **Không cần chuyển gấp** app đang dùng Material 2 ổn định sang Material 3 chỉ vì "mới hơn": chuyển theme kéo theo đổi hàng loạt kích thước, góc bo, màu; nên làm có kế hoạch, theo từng màn.
-- **Với Compose**, token Material nằm trong `MaterialTheme` (`colorScheme`, `typography`, `shapes`), cùng khái niệm nhưng khác API; xem 9.4.1 Material Design Theme (chưa có bài).
+- **Với Compose**, token Material nằm trong `MaterialTheme` (`colorScheme`, `typography`, `shapes`), cùng khái niệm nhưng khác API; xem [9.4.1 Material Design Theme](../../jetpack_compose_ui/theming/material_design_theme.md).
 
 ## Sai lầm thường gặp
 
@@ -532,7 +532,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
   - [Jetpack Compose Overview](../../jetpack_compose_ui/overview.md): hướng UI mới, dùng cùng design guide qua `MaterialTheme`.
 - **Học tiếp:**
   - [8.5.6 Animation](animation.md): motion, token cuối cùng của Material, và các transition pattern.
-  - 9.4.1 Material Design Theme (Color, Typography, Shapes) (chưa có bài): cùng hệ token trong Compose.
+  - [9.4.1 Material Design Theme (Color, Typography, Shapes)](../../jetpack_compose_ui/theming/material_design_theme.md): cùng hệ token trong Compose.
 
 ## Tham khảo
 

@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity() {
 ### Banner trong Jetpack Compose
 
 > [!NOTE]
-> Kiến thức dùng trước: `AndroidView` (nhúng View vào Compose) và `DisposableEffect` thuộc Session 09: Jetpack Compose UI, mục 9.3.2 DisposableEffect (chưa có bài). Ở đây chỉ cần biết `DisposableEffect` chạy `onDispose` khi Composable rời composition.
+> Kiến thức dùng trước: `AndroidView` (nhúng View vào Compose) và `DisposableEffect` thuộc Session 09: Jetpack Compose UI, mục [9.3.2 DisposableEffect](../../../../jetpack_compose_ui/side_effects/disposable_effect.md). Ở đây chỉ cần biết `DisposableEffect` chạy `onDispose` khi Composable rời composition.
 
 ```kotlin
 @Composable

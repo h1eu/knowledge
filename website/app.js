@@ -425,7 +425,6 @@ const KNOWLEDGE_DATA = {
             { id: 'session-09-overview', title: 'Session 09 Overview', status: 'draft', tags: ['android', 'overview'] },
             { id: 'compose-overview', title: '9.0 Jetpack Compose Overview', status: 'published', tags: ['android', 'compose'] },
             { id: 'compose-recomposition', title: '9.1 Remember and Recomposition', status: 'draft', tags: ['android', 'compose'] },
-            { id: 'compose-state', title: '9.2 State and State Hoisting', status: 'published', tags: ['android', 'kotlin', 'compose'] },
             { id: 'compose-mutablestate', title: '9.2.1 MutableState', status: 'draft', tags: ['android', 'compose'] },
             { id: 'compose-remember-saveable', title: '9.2.2 Remember and rememberSaveable', status: 'draft', tags: ['android', 'compose'] },
             { id: 'compose-launchedeffect', title: '9.3.1 LaunchedEffect', status: 'draft', tags: ['android', 'compose'] },
@@ -454,7 +453,7 @@ const KNOWLEDGE_DATA = {
             { id: 'compose-zooming', title: '9.8.4 Zooming', status: 'draft', tags: ['android', 'compose'] }
           ],
           sections: [
-            { id: 's09-state', name: '9.2 State and State Hoisting', topics: ['compose-state', 'compose-mutablestate', 'compose-remember-saveable'] },
+            { id: 's09-state', name: '9.2 State and State Hoisting', topics: ['compose-mutablestate', 'compose-remember-saveable'] },
             { id: 's09-effects', name: '9.3 Side-Effects', topics: ['compose-launchedeffect', 'compose-disposableeffect', 'compose-producestate', 'compose-derivedstateof', 'compose-snapshotflow'] },
             { id: 's09-theming', name: '9.4 Theming', topics: ['compose-material-theme', 'compose-custom-theme'] },
             { id: 's09-modifier', name: '9.5 Modifier', topics: ['compose-modifier-order', 'compose-modifier-chaining', 'compose-modifier-composed', 'compose-lazy-column', 'compose-lazy-row', 'compose-lazy-grid', 'compose-lazy-paging'] },
@@ -9050,7 +9049,7 @@ const TOPIC_CONTENT = {
     tags: ['kotlin', 'android'],
     domain: 'Android', module: 'Kotlin',
     prerequisites: ['kotlin-coroutines', 'kotlin-flow'],
-    related: ['compose-state'],
+    related: ['compose-mutablestate'],
     updatedAt: '2026-07-10',
     readTime: '12 phút',
     content: `
@@ -9219,49 +9218,6 @@ class JwtFilter(private val jwtService: JwtService) : OncePerRequestFilter() {
 </ul>
 
 <div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">JWT không thể thu hồi trước khi hết hạn. Nếu cần revoke, phải dùng blacklist hoặc chuyển sang Refresh Token flow với rotation.</div></div>
-    `
-  },
-  'compose-state': {
-    title: 'Compose State Management',
-    summary: 'Hiểu cách Jetpack Compose quản lý và react với state, sự khác biệt giữa remember, rememberSaveable và ViewModel state.',
-    tags: ['android', 'kotlin'],
-    domain: 'Android', module: 'Jetpack Compose',
-    prerequisites: ['kotlin-coroutines'],
-    related: ['kotlin-stateflow', 'compose-side-effects'],
-    updatedAt: '2026-07-12',
-    readTime: '15 phút',
-    content: `
-<h2>State trong Compose</h2>
-<p>Compose là declarative UI framework — UI là <em>hàm của state</em>. Khi state thay đổi, Compose tự động <strong>recompose</strong> các Composable bị ảnh hưởng.</p>
-<pre data-lang="kotlin"><code>@Composable
-fun Counter() {
-    var count by remember { mutableStateOf(0) }
-
-    Button(onClick = { count++ }) {
-        Text("Count: $count")
-    }
-}</code></pre>
-
-<h2>remember</h2>
-<p><code>remember</code> lưu giá trị qua các lần recomposition nhưng <strong>mất khi configuration change</strong> (xoay màn hình, đổi ngôn ngữ).</p>
-
-<h2>rememberSaveable</h2>
-<p><code>rememberSaveable</code> lưu state qua cả configuration change bằng cách lưu vào <code>Bundle</code>. Chỉ hoạt động với các kiểu có thể lưu vào Bundle.</p>
-
-<div class="callout callout-tip"><span class="callout-icon">💡</span><div class="callout-body">State lifting — đưa state lên component cha khi nhiều component cùng cần truy cập, tránh duplicated state.</div></div>
-
-<h2>ViewModel State</h2>
-<p>Với state phức tạp hơn hoặc cần survive process death, dùng ViewModel + StateFlow:</p>
-<pre data-lang="kotlin"><code>data class UiState(
-    val isLoading: Boolean = false,
-    val users: List&lt;User&gt; = emptyList(),
-    val error: String? = null
-)
-
-class UserViewModel : ViewModel() {
-    private val _state = MutableStateFlow(UiState())
-    val state: StateFlow&lt;UiState&gt; = _state.asStateFlow()
-}</code></pre>
     `
   }
 };
