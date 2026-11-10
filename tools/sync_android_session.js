@@ -25,11 +25,12 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '..');
-const JS = path.join(ROOT, 'website', 'android-content.js');
+// Domain (mặc định android; flutter qua tools/sync_flutter_session.js) — cấu hình ở tools/domains.js
+const { ROOT, DOMAINS, currentDomain } = require('./domains.js');
+const DOMAIN = currentDomain();
+const JS = DOMAIN.js;
 const DIAGRAMS = path.join(ROOT, 'website', 'diagrams');
-// Session có thư mục docs không theo mẫu session_NN (đúng đường dẫn trong map/android_mkdocs.yml)
-const SESSION_DIRS = { '09': 'jetpack_compose_ui', '10': 'coding_analyst_and_testing', '11': 'cicd_and_publish_store' };
+const SESSION_DIRS = DOMAIN.sessionDirs;
 
 // ── Frontmatter (scalar, [a, b], list "  - x", folded ">") ──────
 function unquote(s) {
@@ -193,7 +194,7 @@ function toHtml(body) {
     const archify = line.match(/^<!--\s*archify:\s*([a-z0-9-]+)\s*\|\s*(.+?)\s*-->\s*$/);
     if (archify) {
       const [, slug, title] = archify;
-      const src = `archify/android/${slug}.html`;
+      const src = `archify/${DOMAIN.archifyDir}/${slug}.html`;
       replacePrecedingMermaid(out, `<div class="archify-embed" data-src="${src}" data-title="${esc(title)}">
   <a class="archify-full" href="${src}" target="_blank" rel="noopener">Mở toàn màn hình ↗</a>
 </div>`);
@@ -325,10 +326,10 @@ function findEntry(src, key) {
 }
 
 // Key website của một bài: chính `id`, hoặc slug cũ trỏ tới qua alias.
-function resolveKey(js, id, fallback) {
+function resolveKey(js, id, fallback, varName = DOMAIN.varName) {
   for (const key of [id, fallback].filter(Boolean)) {
     if (findEntry(js, key)) return key;
-    const alias = js.match(new RegExp(`^ANDROID_CONTENT\\['${key.replace(/\./g, '\\.')}'\\]\\s*=\\s*ANDROID_CONTENT\\['([^']+)'\\]`, 'm'));
+    const alias = js.match(new RegExp(`^${varName}\\['${key.replace(/\./g, '\\.')}'\\]\\s*=\\s*${varName}\\['([^']+)'\\]`, 'm'));
     if (alias && findEntry(js, alias[1])) return alias[1];
   }
   return null;
@@ -368,11 +369,11 @@ function main() {
   const force = args.includes('--force');
   const only = (args.find((a) => a.startsWith('--only=')) || '').slice('--only='.length);
   if (!/^\d{2}$/.test(session)) {
-    console.error('Dùng: node tools/sync_android_session.js <session, vd 01> [--check] [--only=<id>]');
+    console.error(`Dùng: node tools/${DOMAIN.syncCmd} <session, vd 01> [--check] [--only=<id>]`);
     process.exit(2);
   }
 
-  const docs = path.join(ROOT, 'knowledge', 'android', 'docs', SESSION_DIRS[session] || `session_${session}`);
+  const docs = path.join(DOMAIN.docs, SESSION_DIRS[session] || `session_${session}`);
   if (!fs.existsSync(docs)) {
     console.error(`Không có thư mục ${path.relative(ROOT, docs)}`);
     process.exit(2);
@@ -397,7 +398,7 @@ function main() {
   for (const t of topics) {
     if (only && t.fm.id !== only) continue;
     const rel = path.relative(ROOT, t.file);
-    const key = resolveKey(js, t.fm.id, t.isIndex ? `session-${session}-overview` : null);
+    const key = resolveKey(js, t.fm.id, t.isIndex ? DOMAIN.overviewKey(session) : null);
     if (!key) { skipped.push(`${rel} (${t.fm.id})`); continue; }
 
     // Overview không khai báo related thì liên kết tới các bài trong session
@@ -408,7 +409,7 @@ function main() {
     const [s, e] = findEntry(js, key);
     const old = js.slice(s, e);
     const keep = {
-      domain: field(old, 'domain') || "'Android'",
+      domain: field(old, 'domain') || q(DOMAIN.defaultDomain),
       module: field(old, 'module') || q(`Session ${session}`),
       updatedAt: field(old, 'updatedAt') || q(today()),
     };
@@ -436,6 +437,6 @@ function main() {
 }
 
 // Dùng lại parse frontmatter / tra key website ở script khác (vd gen_doc_paths.js)
-module.exports = { ROOT, JS, SESSION_DIRS, parseFrontmatter, resolveKey, walk };
+module.exports = { ROOT, JS, SESSION_DIRS, DOMAINS, parseFrontmatter, resolveKey, walk, main };
 
 if (require.main === module) main();

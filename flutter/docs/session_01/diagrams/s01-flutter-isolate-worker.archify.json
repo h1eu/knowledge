@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Worker isolate sống lâu: trao đổi hai chiều qua port",
+    "output": "website/archify/flutter/s01-flutter-isolate-worker.html",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "emphasis": {
+          "label": "gửi sang isolate kia (message được copy)"
+        },
+        "default": {
+          "label": "gọi hàm / port giao message trong cùng isolate"
+        },
+        "dashed": {
+          "label": "tạo hoặc đóng port"
+        },
+        "return": {
+          "label": "trả kết quả cho code gọi"
+        }
+      }
+    }
+  },
+  "participants": [
+    {
+      "id": "caller",
+      "type": "frontend",
+      "label": "Code gọi search",
+      "sublabel": "màn hình tìm kiếm"
+    },
+    {
+      "id": "main",
+      "type": "backend",
+      "label": "Main isolate",
+      "sublabel": "SearchIndexWorker"
+    },
+    {
+      "id": "responses",
+      "type": "messagebus",
+      "label": "initPort → responses",
+      "sublabel": "ReceivePort của main"
+    },
+    {
+      "id": "inbox",
+      "type": "messagebus",
+      "label": "inbox",
+      "sublabel": "ReceivePort của worker"
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Worker isolate",
+      "sublabel": "giữ index sản phẩm"
+    }
+  ],
+  "segments": [
+    {
+      "from": 160,
+      "to": 420,
+      "label": "(1)–(3) Bắt tay: trao SendPort cho nhau"
+    },
+    {
+      "from": 432,
+      "to": 810,
+      "label": "(4)–(6) Mỗi request mang một id"
+    },
+    {
+      "from": 820,
+      "to": 1065,
+      "label": "(7)–(8) Đóng đúng cách"
+    }
+  ],
+  "messages": [
+    {
+      "id": "s1-create-init-port",
+      "from": "main",
+      "to": "responses",
+      "y": 180,
+      "label": "(1) tạo RawReceivePort initPort",
+      "variant": "dashed"
+    },
+    {
+      "id": "s1-spawn",
+      "from": "main",
+      "to": "worker",
+      "y": 215,
+      "label": "(1) Isolate.spawn((initPort.sendPort, names))",
+      "variant": "emphasis",
+      "note": "names được copy sang worker đúng một lần"
+    },
+    {
+      "id": "s2-create-inbox",
+      "from": "worker",
+      "to": "inbox",
+      "y": 270,
+      "label": "(2) tạo ReceivePort inbox",
+      "variant": "dashed",
+      "note": "Trước đó worker dựng index trong bộ nhớ của nó"
+    },
+    {
+      "id": "s2-send-inbox-port",
+      "from": "worker",
+      "to": "responses",
+      "y": 330,
+      "label": "(2) mainPort.send(inbox.sendPort)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "s3-handshake",
+      "from": "responses",
+      "to": "main",
+      "y": 365,
+      "label": "(3) handler nhận SendPort của worker",
+      "note": "Bọc initPort thành ReceivePort responses; kênh hai chiều sẵn sàng"
+    },
+    {
+      "id": "call-search",
+      "from": "caller",
+      "to": "main",
+      "y": 450,
+      "label": "search('trắng'), search('áo')"
+    },
+    {
+      "id": "s4-send-q0",
+      "from": "main",
+      "to": "inbox",
+      "y": 485,
+      "label": "(4) send((0, 'trắng'))",
+      "variant": "emphasis",
+      "note": "Mỗi request: id mới, Completer lưu vào _pending"
+    },
+    {
+      "id": "s4-send-q1",
+      "from": "main",
+      "to": "inbox",
+      "y": 550,
+      "label": "(4) send((1, 'áo'))",
+      "variant": "emphasis"
+    },
+    {
+      "id": "s5-receive-query",
+      "from": "inbox",
+      "to": "worker",
+      "y": 585,
+      "label": "(5) listen nhận (id, query)",
+      "note": "Worker tra index cho từng request"
+    },
+    {
+      "id": "s5-send-r0",
+      "from": "worker",
+      "to": "responses",
+      "y": 640,
+      "label": "(5) send((0, kết quả))",
+      "variant": "emphasis"
+    },
+    {
+      "id": "s5-send-r1",
+      "from": "worker",
+      "to": "responses",
+      "y": 675,
+      "label": "(5) send((1, kết quả))",
+      "variant": "emphasis",
+      "note": "Request lỗi: gửi (id, RemoteError), worker vẫn sống"
+    },
+    {
+      "id": "s6-handle",
+      "from": "responses",
+      "to": "main",
+      "y": 735,
+      "label": "(6) _handleResponse((id, kết quả))",
+      "note": "Lấy đúng Completer theo id trong _pending"
+    },
+    {
+      "id": "s6-complete",
+      "from": "main",
+      "to": "caller",
+      "y": 790,
+      "label": "(6) complete đúng Future theo id",
+      "variant": "return"
+    },
+    {
+      "id": "call-close",
+      "from": "caller",
+      "to": "main",
+      "y": 840,
+      "label": "close()"
+    },
+    {
+      "id": "s7-shutdown",
+      "from": "main",
+      "to": "inbox",
+      "y": 875,
+      "label": "(7) send('shutdown')",
+      "variant": "emphasis",
+      "note": "_closed = true: không nhận search mới"
+    },
+    {
+      "id": "s8a-receive-shutdown",
+      "from": "inbox",
+      "to": "worker",
+      "y": 930,
+      "label": "(8a) listen nhận 'shutdown'"
+    },
+    {
+      "id": "s8a-close-inbox",
+      "from": "worker",
+      "to": "inbox",
+      "y": 965,
+      "label": "(8a) inbox.close()",
+      "variant": "dashed",
+      "note": "Không còn port nào mở: worker tự kết thúc"
+    },
+    {
+      "id": "s8b-close-responses",
+      "from": "main",
+      "to": "responses",
+      "y": 1020,
+      "label": "(8b) responses.close() khi _pending rỗng",
+      "variant": "dashed",
+      "note": "8a và 8b độc lập, 8b có thể chạy trước 8a"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "main",
+      "from": 175,
+      "to": 380,
+      "type": "backend"
+    },
+    {
+      "participant": "worker",
+      "from": 210,
+      "to": 336,
+      "type": "backend"
+    },
+    {
+      "participant": "main",
+      "from": 445,
+      "to": 797,
+      "type": "backend"
+    },
+    {
+      "participant": "worker",
+      "from": 580,
+      "to": 682,
+      "type": "backend"
+    },
+    {
+      "participant": "caller",
+      "from": 445,
+      "to": 797,
+      "type": "frontend"
+    },
+    {
+      "participant": "main",
+      "from": 835,
+      "to": 1027,
+      "type": "backend"
+    },
+    {
+      "participant": "worker",
+      "from": 925,
+      "to": 971,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Bốn việc Isolate.run làm hộ",
+      "items": [
+        "Bắt tay: trao SendPort cho nhau",
+        "Ghép kết quả với request bằng id và Map<int, Completer>",
+        "Báo lỗi từng request bằng RemoteError, không để lỗi giết worker",
+        "Đóng port ở cả hai phía"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Dữ liệu lớn ở lại trong worker",
+      "items": [
+        "names copy một lần lúc spawn, index dựng một lần",
+        "Mỗi lần tìm chỉ copy (id, query) sang và (id, kết quả) về"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Port còn mở, isolate còn sống",
+      "items": [
+        "Worker chỉ tự kết thúc khi inbox đã đóng",
+        "Main chỉ đóng responses khi _pending rỗng, tránh Future treo mãi"
+      ]
+    }
+  ]
+}

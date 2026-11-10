@@ -3,6 +3,17 @@
    FILE SINH TỰ ĐỘNG bởi tools/gen_doc_paths.js — không sửa tay.
    ============================================================ */
 const DOC_PATHS = {
+  "flutter/docs/index.md": [],
+  "flutter/docs/session_01/async/futures_async_await.md": ["flutter-language-async-futures","flutter.async.futures_async_await"],
+  "flutter/docs/session_01/async/isolates.md": ["flutter-language-async-isolates","flutter.async.isolates"],
+  "flutter/docs/session_01/async/streams.md": ["flutter-language-async-streams","flutter.async.streams"],
+  "flutter/docs/session_01/dart/classes_mixins_sealed.md": ["flutter-dart-classes-mixins-sealed","flutter.dart.classes_mixins_sealed"],
+  "flutter/docs/session_01/dart/collections_functional.md": ["flutter-dart-collections-functional","flutter.dart.collections_functional"],
+  "flutter/docs/session_01/dart/control_flow_patterns.md": ["flutter-dart-control-flow-patterns","flutter.dart.control_flow_patterns"],
+  "flutter/docs/session_01/dart/dart_for_kotlin_devs.md": ["flutter-dart-for-kotlin-devs","flutter.dart.dart_for_kotlin_devs"],
+  "flutter/docs/session_01/dart/functions_operators.md": ["flutter-dart-functions-operators","flutter.dart.functions_operators"],
+  "flutter/docs/session_01/dart/variables_and_types.md": ["flutter-dart-variables-types","flutter.dart.variables_types"],
+  "flutter/docs/session_01/index.md": ["flutter-session-01-overview","flutter.session01.overview"],
   "knowledge/android/docs/cicd_and_publish_store/bitrise.md": ["bitrise","android.cicd.bitrise"],
   "knowledge/android/docs/cicd_and_publish_store/github_ci.md": ["github-ci","android.cicd.github_ci"],
   "knowledge/android/docs/cicd_and_publish_store/index.md": ["session-11-overview","android.cicd.overview"],

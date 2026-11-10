@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Thứ tự chạy: code đồng bộ, microtask, event",
+    "output": "website/archify/flutter/s01-flutter-event-loop-order.html",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "dashed": { "label": "xếp việc vào hàng đợi (chưa chạy)" },
+        "emphasis": { "label": "event loop lấy việc ra chạy" },
+        "default": { "label": "print ra console" }
+      }
+    }
+  },
+  "participants": [
+    { "id": "console", "type": "external", "label": "Console", "sublabel": "dòng print theo thứ tự" },
+    { "id": "stack", "type": "backend", "label": "Call stack", "sublabel": "code đang chạy" },
+    { "id": "mq", "type": "messagebus", "label": "Microtask queue", "sublabel": "ưu tiên, chạy hết" },
+    { "id": "eq", "type": "messagebus", "label": "Event queue", "sublabel": "timer, I/O, gesture" }
+  ],
+  "segments": [
+    { "from": 160, "to": 505, "label": "(1)–(7) Code đồng bộ của main" },
+    { "from": 515, "to": 680, "label": "(8) Call stack rỗng: chạy hết microtask" },
+    { "from": 690, "to": 950, "label": "(9)–(11) Từng event một, xen microtask" }
+  ],
+  "messages": [
+    { "id": "s1-main-start", "from": "stack", "to": "console", "y": 180, "label": "(1) main bắt đầu", "note": "Code đồng bộ, không gì chen ngang được" },
+    { "id": "s2-timer-run", "from": "stack", "to": "eq", "y": 230, "label": "(2) Timer.run xếp event 1: analytics", "variant": "dashed" },
+    { "id": "s3-future-ctor", "from": "stack", "to": "eq", "y": 265, "label": "(3) Future() xếp event 2: ảnh đại diện", "variant": "dashed", "note": "Future() dùng timer nên vào event queue" },
+    { "id": "s4-schedule-badge", "from": "stack", "to": "mq", "y": 315, "label": "(4) scheduleMicrotask xếp badge", "variant": "dashed" },
+    { "id": "s5-open-profile", "from": "stack", "to": "console", "y": 350, "label": "(5) openProfile chạy tới await đầu tiên", "note": "Hàm async chạy đồng bộ cho tới await đầu tiên" },
+    { "id": "s6-future-value", "from": "stack", "to": "mq", "y": 405, "label": "(6) Future.value('Lan') xếp microtask", "variant": "dashed", "note": "await treo openProfile, trả Future chưa hoàn thành về main" },
+    { "id": "s7-main-end", "from": "stack", "to": "console", "y": 465, "label": "(7) main kết thúc", "note": "Call stack rỗng, event loop bắt đầu xử lý hàng đợi" },
+    { "id": "s8-run-badge", "from": "mq", "to": "stack", "y": 535, "label": "(8) chạy microtask badge", "variant": "emphasis" },
+    { "id": "s8-print-badge", "from": "stack", "to": "console", "y": 570, "label": "(8) scheduleMicrotask: cập nhật badge" },
+    { "id": "s8-resume-profile", "from": "mq", "to": "stack", "y": 605, "label": "(8) Future.value xong, openProfile chạy tiếp", "variant": "emphasis" },
+    { "id": "s8-print-profile", "from": "stack", "to": "console", "y": 640, "label": "(8) openProfile tiếp tục sau await: Lan", "note": "Microtask queue đã rỗng" },
+    { "id": "s9-take-event1", "from": "eq", "to": "stack", "y": 710, "label": "(9) lấy event 1: Timer.run", "variant": "emphasis" },
+    { "id": "s9-print-analytics", "from": "stack", "to": "console", "y": 745, "label": "(9) Timer.run: gửi analytics mở màn hình" },
+    { "id": "s9-schedule-more", "from": "stack", "to": "mq", "y": 780, "label": "(9) event 1 xếp thêm một microtask", "variant": "dashed" },
+    { "id": "s10-run-new-micro", "from": "mq", "to": "stack", "y": 815, "label": "(10) microtask mới chạy trước event 2", "variant": "emphasis" },
+    { "id": "s10-print-micro", "from": "stack", "to": "console", "y": 850, "label": "(10) sinh ra trong event 1, chạy trước event 2" },
+    { "id": "s11-take-event2", "from": "eq", "to": "stack", "y": 885, "label": "(11) lấy event 2: Future()", "variant": "emphasis" },
+    { "id": "s11-print-avatar", "from": "stack", "to": "console", "y": 920, "label": "(11) Future(): tải ảnh đại diện", "note": "Hai hàng đợi rỗng, chương trình kết thúc" }
+  ],
+  "activations": [
+    { "participant": "stack", "from": 175, "to": 475, "type": "backend" },
+    { "participant": "stack", "from": 530, "to": 650, "type": "backend" },
+    { "participant": "mq", "from": 310, "to": 612, "type": "messagebus" },
+    { "participant": "eq", "from": 225, "to": 892, "type": "messagebus" },
+    { "participant": "stack", "from": 705, "to": 858, "type": "backend" },
+    { "participant": "mq", "from": 775, "to": 822, "type": "messagebus" },
+    { "participant": "stack", "from": 880, "to": 930, "type": "backend" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Bốn quy tắc của event loop",
+      "items": [
+        "Chạy hết code đồng bộ trên call stack",
+        "Call stack rỗng: chạy hết microtask queue, kể cả microtask mới xếp",
+        "Lấy một event, chạy nó, rồi quay lại bước trên",
+        "Hai hàng đợi rỗng, không còn việc chờ: isolate kết thúc"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Thứ tự xếp khác thứ tự chạy",
+      "items": [
+        "Event 1 và event 2 được xếp trước badge nhưng chạy sau",
+        "Phần sau await chạy như một microtask",
+        "Microtask sinh ra trong event 1 chen trước event 2"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Async không phải đa luồng",
+      "items": [
+        "Cả 11 bước chạy trên cùng một thread của isolate",
+        "Code đồng bộ dài chặn cả microtask lẫn event, kể cả frame mới"
+      ]
+    }
+  ]
+}
