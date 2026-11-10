@@ -48,8 +48,10 @@ const vm = require('vm');
 // ==================================================================
 // Configuration
 // ==================================================================
+// Domain (mặc định android; flutter qua tools/verify-flutter-topics.js) — cấu hình ở tools/domains.js
+const DOMAIN = require('./domains.js').currentDomain();
 const WORKSPACE_ROOT = path.resolve(__dirname, '..');
-const ANDROID_DOCS = path.join(WORKSPACE_ROOT, 'knowledge', 'android', 'docs');
+const ANDROID_DOCS = DOMAIN.docs;
 const WEBSITE_DIR = path.join(WORKSPACE_ROOT, 'website');
 
 const VALID_STATUSES = ['planned', 'drafting', 'reviewing', 'published', 'deprecated', 'archived'];
@@ -104,6 +106,8 @@ function parseArgs(argv) {
       sessionFilter = arg.slice('--session='.length);
     } else if (arg.startsWith('--id=')) {
       idFilter = arg.slice('--id='.length);
+    } else if (arg.startsWith('--domain=')) {
+      // xử lý trong tools/domains.js
     } else if (arg === '--help' || arg === '-h') {
       printHelp();
       process.exit(0);
@@ -279,7 +283,7 @@ function findTopicFiles(docsDir) {
 // Load android-content.js topics
 // ==================================================================
 function loadAndroidContent() {
-  const contentFile = path.join(WEBSITE_DIR, 'android-content.js');
+  const contentFile = DOMAIN.js;
   if (!fs.existsSync(contentFile)) return {};
 
   const sandbox = { console };
@@ -288,7 +292,7 @@ function loadAndroidContent() {
   vm.runInContext(code, sandbox, { filename: contentFile });
 
   try {
-    return vm.runInContext('ANDROID_CONTENT', sandbox) || {};
+    return vm.runInContext(DOMAIN.varName, sandbox) || {};
   } catch {
     return {};
   }
@@ -339,10 +343,10 @@ function auditTopic(filePath, relPath, allIdsMap, allTopicIds, jsContent) {
   } else {
     // Format: android.<module>.<topic> — at least 3 segments
     const segments = fm.id.split('.');
-    if (segments[0] !== 'android') {
-      issues.push(`[ID] "${fm.id}" phải bắt đầu bằng "android.".`);
+    if (segments[0] !== DOMAIN.idPrefix) {
+      issues.push(`[ID] "${fm.id}" phải bắt đầu bằng "${DOMAIN.idPrefix}.".`);
     } else if (segments.length < 3) {
-      issues.push(`[ID] "${fm.id}" cần ít nhất 3 cấp (android.<module>.<topic>).`);
+      issues.push(`[ID] "${fm.id}" cần ít nhất 3 cấp (${DOMAIN.idPrefix}.<module>.<topic>).`);
     }
     if (/[A-Z\s]/.test(fm.id)) {
       issues.push(`[ID] "${fm.id}" không được chứa chữ hoa hoặc khoảng trắng.`);
@@ -529,7 +533,7 @@ function auditTopic(filePath, relPath, allIdsMap, allTopicIds, jsContent) {
   if (fm.id && Object.keys(jsContent).length > 0) {
     if (!jsContent[fm.id]) {
       if (fm.status === 'published') {
-        warnings.push(`[JS Sync] Topic "${fm.id}" có status=published nhưng CHƯA có entry trong android-content.js.`);
+        warnings.push(`[JS Sync] Topic "${fm.id}" có status=published nhưng CHƯA có entry trong ${path.basename(DOMAIN.js)}.`);
       }
     }
   }
@@ -554,7 +558,9 @@ function matchesFilter(result, filePath, { filter, sessionFilter, idFilter }) {
     return result.id && result.id.includes(idFilter);
   }
   if (sessionFilter) {
-    return filePath.includes(`session_${sessionFilter}`) || filePath.includes(`session${sessionFilter}`);
+    const named = DOMAIN.sessionDirs[sessionFilter.padStart(2, '0')]; // vd 11 → cicd_and_publish_store
+    return filePath.includes(`session_${sessionFilter}`) || filePath.includes(`session${sessionFilter}`) ||
+      Boolean(named && filePath.split(path.sep)[0] === named);
   }
   if (filter && filter !== 'all') {
     const f = filter.toLowerCase();
@@ -580,12 +586,12 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
 
   if (!fs.existsSync(ANDROID_DOCS)) {
-    console.error(`✖ Không tìm thấy thư mục knowledge/android/docs tại: ${ANDROID_DOCS}`);
+    console.error(`✖ Không tìm thấy thư mục docs ${DOMAIN.label} tại: ${ANDROID_DOCS}`);
     process.exit(1);
   }
 
   console.log('='.repeat(78));
-  console.log(' KIỂM TRA CẤU TRÚC TOPIC ANDROID');
+  console.log(` KIỂM TRA CẤU TRÚC TOPIC ${DOMAIN.label.toUpperCase()}`);
   console.log('='.repeat(78));
   console.log(`Thư mục docs  : ${ANDROID_DOCS}`);
   console.log(`Bộ lọc        : ${args.idFilter || args.sessionFilter || args.filter}`);
@@ -743,4 +749,7 @@ function main() {
   process.exit(issueFileCount > 0 ? 1 : 0);
 }
 
-main();
+// Dùng lại cho domain khác (tools/verify-flutter-topics.js)
+module.exports = { main };
+
+if (require.main === module) main();

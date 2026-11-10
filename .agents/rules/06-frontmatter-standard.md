@@ -185,9 +185,10 @@ Các domain có generator hoặc script đọc frontmatter theo bộ field riên
 | Domain | Field | Định danh | Công cụ đọc |
 |---|---|---|---|
 | Android | Như bảng trên | `id` | `tools/verify-android-topics.js`, `tools/sync_android_session.js` |
+| Flutter | Như bảng trên (`id` dạng `flutter.<module>.<topic>`) | `id` | `tools/verify-flutter-topics.js`, `tools/sync_flutter_session.js` (cấu hình chung ở `tools/domains.js`) |
 | Git | `title, slug, summary, tags, difficulty, read_time, prerequisites, related, next, previous, learning_outcomes, knowledge_gap` | `slug` | `tools/gen_git_content.js` |
 | Design Principles | `title, slug, summary, domain, module, tags, difficulty, depth, prerequisites, related` | `slug` | `tools/gen_oodp_content.js` |
-| iOS, Flutter | `title, slug, summary, domain, module, topic, status, difficulty, estimated_reading_time, tags, prerequisites, related, learning_outcomes` | `slug` | Sửa tay |
+| iOS | `title, slug, summary, domain, module, topic, status, difficulty, estimated_reading_time, tags, prerequisites, related, learning_outcomes` | `slug` | Sửa tay |
 | LeetCode | `title, slug, summary, leetcode_id, url, difficulty, level, pattern, tags, topic_tags` | `slug` | `tools/sync_leetcode.py` |
 
 Domain mới dùng profile Android (đầy đủ và có script kiểm tra). Chuyển một domain cũ sang profile Android là thay đổi cấu trúc dữ liệu, cần đánh giá theo rule 03 và được duyệt.

@@ -1,856 +1,608 @@
 ---
-title: Dart for Kotlin Developers - Cú pháp & Thực chiến Flutter
-slug: dart-for-kotlin-devs
-summary: Cẩm nang chuyển đổi từ Kotlin sang Dart dành cho Android Developer - Nắm vững bản chất runtime Dart VM (JIT/AOT), cú pháp nền tảng (final/const, named parameters, null safety, constructors, records, patterns), mô hình bất đồng bộ Event Loop + Isolates thay cho Coroutines, và toàn bộ công cụ pub/build_runner để code Flutter ngay mà không mang theo thói quen Kotlin gây bug.
-tags: [flutter, dart, kotlin, migration, syntax, practical, android-to-flutter, null-safety, isolates, streams]
-domain: Flutter
-module: Language
-topic: Dart for Kotlin Developers
+id: flutter.dart.dart_for_kotlin_devs
+title: Dart for Kotlin Developers
+summary: Bản đồ chuyển đổi từ Kotlin sang Dart, xếp mỗi khái niệm Kotlin vào một trong ba nhóm (tương đương, false friend giống tên nhưng khác nghĩa, không có tương đương) và chỉ tới Topic dạy chi tiết. Bài giải thích đầy đủ runtime và biên dịch (JIT trên Dart VM khi dev, AOT ra mã máy khi release) cùng hệ sinh thái pub và dart CLI, và nêu tư duy concurrency phải đổi (mỗi isolate một event loop, không chia sẻ memory).
 status: published
-difficulty: intermediate
-estimated_reading_time: 40 phút
+difficulty: beginner
+depth: standard
+estimated_reading_time: 24 phút
+tags: [flutter, dart, session-01, kotlin, migration, runtime, jit-aot, pub]
 prerequisites: []
-related:
-  - flutter.language.dart.variables_types
-  - flutter.language.dart.classes_mixins_sealed
-  - flutter.language.async.futures_streams
-  - flutter.state.value_notifier
+related: [flutter.dart.variables_types, flutter.dart.functions_operators, flutter.dart.classes_mixins_sealed, flutter.async.futures_async_await, flutter.async.isolates]
 learning_outcomes:
-  - Giải thích được bản chất runtime Dart VM (JIT khi dev, AOT khi release) khác JVM/ART như thế nào và vì sao Flutter không có reflection.
-  - Dịch chính xác cú pháp val/var, const val, lateinit, by lazy, data class sang final/var, const, late, record/Freezed.
-  - Sử dụng đúng named parameters với `required`, positional optional `[ ]` và tránh bẫy tham số bị bỏ qua khi gọi.
-  - Chuyển đổi Coroutines (suspend, Flow, StateFlow, Dispatchers) sang mô hình Future, Stream, ValueNotifier, Isolate của Dart.
-  - Nhận diện và né được các bẫy phổ biến của Kotlin Dev khi viết Dart (immutability nông, == so identity, Stream nghe hai lần).
+  - Giải thích được code Dart chạy thế nào trong app Flutter (JIT trên Dart VM kèm hot reload khi dev, AOT ra mã máy native khi release) và khác chuỗi Kotlin → bytecode → dex → ART ở đâu.
+  - Phân biệt được cặp khái niệm Kotlin–Dart tương đương thật với cặp false friend giống tên nhưng khác nghĩa, như `val` và `final`, named argument và named parameter, smart cast và type promotion.
+  - Giải thích được vì sao phải đổi tư duy concurrency khi sang Dart, gồm event loop của mỗi isolate, không chia sẻ memory, IO chỉ cần `await` còn việc nặng CPU phải chuyển sang isolate khác.
+  - Nhận diện được các bẫy Kotlin developer hay mắc khi viết Dart và Topic nào trong Session 01 giải thích từng bẫy.
+  - Áp dụng được bảng ánh xạ và bộ công cụ `dart`/pub để dịch một đoạn code Kotlin quen thuộc sang Dart và chạy được nó.
+knowledge_gap: >
+  Kotlin developer dịch Dart từng dòng theo thói quen sẽ tin `final` khoá luôn nội dung list, quên `required` nên tham số bị bỏ qua mà không lỗi, so sánh model bằng `==` khi không có data class, chạy tính toán nặng trên main isolate làm UI giật, đo hiệu năng trên bản debug rồi kết luận sai, và đi tìm reflection vốn không có trong Flutter.
 ---
 
-# Dart for Kotlin Developers: Cú pháp & Thực chiến Flutter
+# Dart for Kotlin Developers
 
 ## Vấn đề cần giải quyết
 
-Bạn đã thành thạo Kotlin: `val`/`var`, Null Safety `T?`, `data class`, `when`, `suspend fun`. Khi mở Flutter và viết file `.dart` đầu tiên, Dart cho cảm giác "quen thuộc hơn cả Swift" nhưng nếu bạn **dịch 1-1 theo thói quen Kotlin, app sẽ chạy sai hoặc jank ngay**:
+Kotlin developer mở file `.dart` đầu tiên thường thấy quen: có `T?`, có `?.`, có lambda, có `sealed class`, có string template `$name`. Phần lớn cú pháp dịch được gần như từng dòng, nhưng có ba loại khác biệt gây bug mà compiler không báo:
 
-1. **Bẫy `final` nông:** `val list = listOf(1)` trong Kotlin là danh sách read-only. `final list = [1]` trong Dart **vẫn `.add()` được** - `final` chỉ khóa reference, không khóa nội dung.
-2. **Bẫy Named Parameters ngược chiều:** Kotlin khai báo positional, gọi kèm tên tùy ý. Dart khai báo trong `{}` thì **gọi bắt buộc kèm tên**, và tham số không có `required` có thể **bỏ qua hoàn toàn** khi gọi mà không lỗi.
-3. **Bẫy Concurrency:** Kotlin có Dispatchers chia thread. Dart là **single-threaded event loop + Isolates** - chạy code CPU-heavy trên main isolate là app đơ.
-4. **Bẫy data class:** Dart không có `data class`. Hai object cùng giá trị nhưng `==` trả về **false** nếu bạn quên override hoặc dùng codegen.
-5. **Bẫy Reflection:** Không có `dart:mirrors` trong Flutter - mọi thứ từng dựa vào reflection (JSON parsing, DI như Hilt/Koin) đều phải chuyển sang **codegen** hoặc thủ công.
-6. **Bẫy Type Promotion:** `if (user.name != null)` **không promote** field của class như smart cast Kotlin - compiler vẫn coi `user.name` nullable.
-7. **Bẫy Stream:** `Stream` mặc định single-subscription - `listen()` lần thứ hai là crash `StateError`.
+- **Giống tên nhưng khác nghĩa.** `final` giống `val` ở chỗ chỉ gán một lần, nhưng list literal của Dart luôn sửa được:
 
-Bài học này trả lời theo đúng tư duy thực chiến: **Nó là gì -> Vì sao tồn tại -> Khi nào dùng -> Code chuẩn như thế nào**, đối chiếu song song Kotlin <-> Dart.
+  ```dart
+  final tags = ['flutter'];
+  tags.add('kotlin'); // hợp lệ: final chỉ khoá biến, không khoá list
+  ```
 
----
+  Trong Kotlin, `val tags = listOf("flutter")` không có `add`. Người quen Kotlin đọc `final` thành "không đổi" và để lọt bug state.
+- **Không có tương đương.** Dart không có `data class`, không có `it`, không có `Dispatchers`; Flutter không có reflection. Đi tìm "bản Dart của X" thì mất thời gian, hoặc dùng nhầm một thứ trông giống nhưng sai.
+- **Phải đổi tư duy.** Code Dart không chạy trên ART, và concurrency của Dart không dựa trên thread chia sẻ memory. Hai khác biệt này giải thích vì sao Flutter có hot reload, vì sao bản debug chạy chậm, và vì sao một vòng lặp tính toán làm cả UI đứng hình.
 
-## Mental Model: Bản đồ chuyển đổi tư duy
+Học lại Dart từ đầu thì phí phần Kotlin đã biết, dịch từng dòng thì dính bẫy. Cần một bản đồ cho biết chỗ nào dịch thẳng, chỗ nào phải dừng lại học kỹ.
 
-```mermaid
-graph TD
-    subgraph "Kotlin (Android / JVM / ART)"
-        K1["val / var / const val"]
-        K2["Null: T? + Smart Cast"]
-        K3["Data: data class"]
-        K4["Async: suspend + Flow + Dispatchers"]
-        K5["OOP: class final mặc định"]
-        K6["when + sealed class"]
-        K7["Công cụ: Gradle, Maven, KSP"]
-    end
-    subgraph "Dart (Flutter / Dart VM)"
-        D1["final / var / const (compile-time)"]
-        D2["Null: T? + Promotion (locals only)"]
-        D3["Data: Record / Freezed codegen"]
-        D4["Async: Future + Stream + Isolate"]
-        D5["OOP: class mở mặc định + modifiers"]
-        D6["switch expression + Patterns (Dart 3)"]
-        D7["Công cụ: pub, pub.dev, build_runner"]
-    end
-    K1 -.-> D1
-    K2 -.-> D2
-    K3 -.-> D3
-    K4 -.-> D4
-    K5 -.-> D5
-    K6 -.-> D6
-    K7 -.-> D7
-```
+## Sau khi học xong
 
----
+- Giải thích được code Dart chạy thế nào trong app Flutter (JIT trên Dart VM kèm hot reload khi dev, AOT ra mã máy native khi release) và khác chuỗi Kotlin → bytecode → dex → ART ở đâu.
+- Phân biệt được cặp khái niệm Kotlin–Dart tương đương thật với cặp false friend giống tên nhưng khác nghĩa, như `val` và `final`, named argument và named parameter, smart cast và type promotion.
+- Giải thích được vì sao phải đổi tư duy concurrency khi sang Dart, gồm event loop của mỗi isolate, không chia sẻ memory, IO chỉ cần `await` còn việc nặng CPU phải chuyển sang isolate khác.
+- Nhận diện được các bẫy Kotlin developer hay mắc khi viết Dart và Topic nào trong Session 01 giải thích từng bẫy.
+- Áp dụng được bảng ánh xạ và bộ công cụ `dart`/pub để dịch một đoạn code Kotlin quen thuộc sang Dart và chạy được nó.
 
-## 1. Bản chất Runtime: ART/JVM vs Dart VM
+## Dart for Kotlin Developers là gì?
 
-Khác biệt lớn nhất nằm ở **nền tảng thực thi**, quyết định mọi thứ phía sau: vì sao có Hot Reload, vì sao không có reflection, vì sao phải codegen.
+**Dart for Kotlin Developers** là bản đồ chuyển đổi từ Kotlin sang Dart: mỗi khái niệm Kotlin được đặt cạnh khái niệm Dart tương ứng và xếp vào một trong ba nhóm (**tương đương**, **false friend** tức giống tên nhưng khác nghĩa, **không có tương đương**), kèm Topic dạy chi tiết.
+
+Mental model: một **từ điển song ngữ có đánh dấu false friend**. Từ điển không dạy lại ngữ pháp; nó cho biết từ nào dịch thẳng, từ nào trông giống nhưng nghĩa khác, và mở trang nào để học kỹ.
+
+Vì vậy mỗi mục của bảng chỉ nói đủ để nhận ra khác biệt rồi link sang Topic sở hữu. Riêng **runtime và biên dịch** và **hệ sinh thái công cụ** được giải thích đầy đủ ở đây, vì không Topic nào khác trong Session 01 sở hữu chúng.
+
+## Cách hoạt động
+
+### Bảy cặp khái niệm cốt lõi
+
+Bảy cặp dưới đây bao phủ phần lớn code Kotlin hằng ngày, đọc từ khái niệm Kotlin sang thứ gần nhất trong Dart.
 
 ```mermaid
-graph TD
-    subgraph "Kotlin trên Android"
-        A[Source .kt] -->|kotlinc| B[JVM Bytecode .class]
-        B -->|D8 / R8| C[Dalvik Bytecode .dex]
-        C --> D[ART Runtime trên thiết bị]
-    end
-    subgraph "Dart trên Flutter"
-        E[Source .dart] -->|"JIT (khi dev)"| F[Dart VM + Hot Reload]
-        E -->|"AOT (khi release)"| G[Native ARM Machine Code]
-        G --> H[Chạy trực tiếp - không máy ảo]
-    end
+flowchart LR
+    K1["val / var / const val"] --> D1["final / var / const"]
+    K2["T? + smart cast"] --> D2["T? + promotion (local, private final)"]
+    K3["data class"] --> D3["Record / Freezed codegen"]
+    K4["suspend + Flow + Dispatchers"] --> D4["Future + Stream + Isolate"]
+    K5["class final mặc định"] --> D5["class mở mặc định + modifiers"]
+    K6["when + sealed class"] --> D6["switch expression + patterns"]
+    K7["Gradle · Maven · KSP"] --> D7["pub · pub.dev · build_runner"]
 ```
 
-- **Khi dev:** Dart chạy JIT trên Dart VM - đây là lý do Flutter có **Hot Reload** (thay code là UI cập nhật dưới một giây) mà không cần rebuild như Kotlin.
-- **Khi release:** Dart compile AOT ra machine code native - hiệu năng gần C++, không phụ thuộc ART/JVM.
-- **Hệ quả quan trọng nhất:** AOT loại bỏ reflection (`dart:mirrors` không khả dụng trong Flutter). Mọi việc Kotlin làm bằng reflection - parse JSON, DI runtime như Hilt/Koin - ở Flutter đều chuyển sang **code generation** bằng `build_runner`.
+<!-- dd: flutter-kotlin-dart-map -->
 
-> **Tư duy:** Kotlin sinh ra cho JVM đa năng; Dart sinh ra cho UI. Toàn bộ thiết kế (event loop, const canonicalization, hot reload) đều tối ưu cho trải nghiệm dựng giao diện mượt.
+Cặp thứ tư (async) là bước nhảy lớn nhất vì nó đổi mô hình chạy, nên có mục riêng bên dưới. Các bảng sau mở rộng bảy cặp theo từng Topic; cột "Nhóm": **=** tương đương, **≈** false friend, **✗** không có tương đương.
 
----
+#### Biến, kiểu, null safety → 1.2.1
 
-## 2. Biến, Hằng, Kiểu & String Interpolation
-
-=== "Kotlin"
-
-```kotlin
-val appName = "Knowledge OS"      // read-only reference
-const val VERSION = "1.0.0"       // compile-time constant (chỉ top-level/object)
-var counter = 0
-counter += 1
-
-val anyValue: Any = "text"
-val raw = """
-    Dòng 1
-""".trimIndent()
-```
-
-=== "Dart"
-
-```dart
-final appName = 'Knowledge OS';   // single assignment (như val)
-const version = '1.0.0';          // compile-time constant - mạnh hơn const val
-var counter = 0;
-counter += 1;
-
-final dynamicValue = 'text';
-Object safeAny = 'text';          // ≈ Any - vẫn có static check
-dynamic unsafe = 'text';          // TẮT kiểm tra kiểu - hạn chế tối đa!
-
-final raw = '''
-    Dòng 1
-''';                              // không cần trimIndent
-```
-
-### Điểm cần nắm
-
-| | Kotlin | Dart | Lưu ý |
+| Kotlin | Dart | Nhóm | Ghi chú |
 |---|---|---|---|
-| Single assignment | `val` | `final` | Khóa reference, **không khóa nội dung** |
-| Compile-time constant | `const val` | `const` | Dart sâu hơn: dùng được với constructor |
-| Kiểu gốc số | Int, Long, Float... | chỉ `int`, `double`, `num` (= int\|double) | Không có Long/Byte/Short |
-| Kiểu động | `Any` | `Object` an toàn, `dynamic` nguy hiểm | Tránh `dynamic` |
+| `val x = 1` | `final x = 1;` | ≈ | Chỉ khoá biến; object bên trong vẫn sửa được nếu nó mutable |
+| `const val MAX = 3` | `const max = 3;` | ≈ | `const` của Dart rộng hơn: dùng được cho constructor và collection literal, giá trị giống nhau dùng chung một instance |
+| `lateinit var x: T` | `late T x;` | = | Đọc trước khi gán thì lỗi runtime |
+| `val x by lazy { … }` | `late final x = compute();` | ≈ | Không có property delegation; `late` có initializer thì chạy ở lần đọc đầu tiên |
+| `Int`, `Long`, `Double` | `int`, `double`, `num` | ≈ | Không có `Long`/`Short`/`Float`; `int` 64-bit trên native nhưng trên web là số JavaScript |
+| `Any` / `Any?` / `Nothing` / `Unit` | `Object` / `Object?` / `Never` / `void` | = | Dart có thêm `dynamic`: tắt kiểm tra kiểu tĩnh, Kotlin không có |
+| Smart cast sau `!= null` | Type promotion | ≈ | Áp dụng cho biến local và (từ Dart 3.2) private final field; field public không được promote |
+| `as?` | `x is T ? x : null`, hoặc pattern | ✗ | Không có toán tử safe cast |
+| `Pair`, `Triple` | Record `(a, b)` | = | Record so sánh `==` theo giá trị, có field đặt tên `(id: 1, name: 'A')` |
+| Generic bị erase, `reified` | Generic reified | ≈ | `List<int>` biết kiểu phần tử lúc runtime, không cần `inline reified` |
 
-**Sức mạnh thật của `const`:** Dart cho phép đánh dấu cả **constructor** là `const`. Các instance const giống nhau được **canonicalize** - chỉ tồn tại một bản duy nhất trong bộ nhớ, và đây là nền tảng tối ưu hiệu năng của Flutter:
+Chi tiết ở [1.2.1 Variables and Types](variables_and_types.md).
 
-```dart
-class Point {
-  const Point(this.x, this.y);
-  final int x, y;
-}
+#### Hàm và toán tử → 1.2.2
 
-const a = Point(1, 2);
-const b = Point(1, 2);
-print(identical(a, b)); // true - cùng một instance trong memory!
-print(a == b);          // true - so sánh giá trị field
-```
+| Kotlin | Dart | Nhóm | Ghi chú |
+|---|---|---|---|
+| `fun f(a: Int = 0)` | `void f([int a = 0])` hoặc `void f({int a = 0})` | ≈ | Dart chia hai kiểu tham số tuỳ chọn: positional `[]` và named `{}` |
+| Gọi `f(a = 1)` tuỳ ý | `{}` thì **bắt buộc** gọi kèm tên | ≈ | Ngược chiều Kotlin: tên là thuộc tính của khai báo, không phải của lời gọi |
+| Tham số không default là bắt buộc | Named không `required`, không default thì được bỏ qua và nhận `null` | ≈ | Quên `required` là bỏ sót tham số mà không lỗi |
+| `(Int) -> Unit` | `void Function(int)` | = | `typedef` thay cho `typealias` |
+| `{ x -> … }`, `it` | `(x) => …`, `(x) { … }` | ✗ | Không có `it`, không có trailing lambda |
+| `::format` | Tear-off `format`, `Text.new` | = | |
+| `.apply { … }` | Cascade `..` | ≈ | Cascade trả lại receiver, không có scope `this` mới |
+| `?.let { … }` | Biến local + `if`, hoặc `if (x case final v?)` | ✗ | |
+| `===` | `identical(a, b)` | = | |
 
-**String interpolation giống hệt Kotlin:** `'Xin chào $name, năm sau ${age + 1}'`. Raw string dùng tiền tố `r'...'`.
+Chi tiết ở [1.2.2 Functions and Operators](functions_operators.md).
 
----
+#### Điều khiển luồng, pattern, exception → 1.2.3
 
-## 3. Hàm & Named Parameters - Ngược chiều Kotlin
+| Kotlin | Dart | Nhóm | Ghi chú |
+|---|---|---|---|
+| `when (x) { is A -> … }` | `switch (x) { A() => … }` | = | `switch` expression có từ Dart 3.0 |
+| `when` không subject | Chuỗi `if`/`else if` | ✗ | |
+| `val (a, b) = pair` | `final (a, b) = record;` | = | Dart destructure được cả list, map và object bằng pattern |
+| `for (i in 0 until n)` | `for (var i = 0; i < n; i++)` | ✗ | Không có range |
+| `try`/`catch (e: T)` | `try`/`on T catch (e, st)` | ≈ | Dart throw được mọi object khác null; phân biệt `Exception` (lỗi dự kiến) và `Error` (bug) |
 
-Cú pháp khai báo gần như Kotlin (bỏ chữ `fun`), triết lý gọi hàm thì **ngược lại**.
+Chi tiết ở [1.2.3 Control Flow and Patterns](control_flow_patterns.md).
 
-=== "Kotlin"
+#### Collections → 1.2.4
 
-```kotlin
-fun sendNotification(userId: String, message: String, isUrgent: Boolean = false) {}
+| Kotlin | Dart | Nhóm | Ghi chú |
+|---|---|---|---|
+| `listOf(…)` (read-only) | `[…]` | ≈ | List literal luôn mutable; bản không sửa được là `const […]` hoặc `List.unmodifiable` |
+| `mapOf("a" to 1)`, `setOf(…)` | `{'a': 1}`, `{…}` | ≈ | `{}` rỗng là `Map`, không phải `Set` |
+| `filter`, `flatMap`, `sumOf` | `where`, `expand`, `fold` | = | `map`/`where` trả `Iterable` lazy, cần `.toList()` |
+| `asSequence()`, `sequence { }` | `Iterable` sẵn lazy, `sync*` | ≈ | |
+| `sortedBy { }` (list mới) | `list.sort(…)` (sửa tại chỗ) | ≈ | |
+| `groupBy` | `groupBy` của `package:collection` | ✗ | Không có trong `dart:core` |
+| Không có | Collection `if`/`for`, spread `...` | ✗ | Dart có, Kotlin không |
 
-// Gọi: tên tham số tùy ý dùng hay không
-sendNotification("user_123", "Họp 9h")
-sendNotification(userId = "user_123", message = "Họp 9h", isUrgent = true)
-```
+Chi tiết ở [1.2.4 Collections and Functional APIs](collections_functional.md).
 
-=== "Dart"
+#### Class → 1.2.5
 
-```dart
-void sendNotification({
-  required String userId,
-  required String message,
-  bool isUrgent = false,
-}) {}
+| Kotlin | Dart | Nhóm | Ghi chú |
+|---|---|---|---|
+| `class User(val name: String)` | Constructor `this.name`, hoặc primary constructor (Dart 3.13) | ≈ | Primary constructor chỉ bớt boilerplate, không sinh `==` |
+| `data class` | Record, `==`/`hashCode` tự viết, hoặc Freezed | ✗ | Class thường so `==` theo identity |
+| Class `final` mặc định, `open` | Class mở mặc định, `final class` để khoá | ≈ | Mặc định ngược nhau |
+| `interface` | Implicit interface, `abstract interface class` | ≈ | Mọi class đều `implements` được |
+| `sealed class` / `sealed interface` | `sealed class` | = | Subclass phải cùng library |
+| Default method trong interface, `by` | `mixin` + `with` | ≈ | |
+| `enum class` có property | Enhanced enum | = | |
+| `companion object`, `object` | `static`, private constructor `._()` | ≈ | |
+| Extension function/property | `extension … on T` | = | |
+| `value class` | Extension type (Dart 3.3) | ≈ | Chỉ tồn tại lúc compile; runtime chỉ thấy kiểu bên dưới |
+| Hilt/Moshi dùng reflection, KSP | Codegen bằng `build_runner` | ≈ | Flutter không có `dart:mirrors` |
 
-// Tham số {} BẮT BUỘC gọi kèm tên
-sendNotification(userId: 'user_123', message: 'Họp 9h');
-sendNotification(
-  userId: 'user_123',
-  message: 'Báo động',
-  isUrgent: true,
-);
+Chi tiết ở [1.2.5 Classes, Mixins and Sealed Types](classes_mixins_sealed.md).
 
-// Optional positional [ ] - cách duy nhất để gọi không cần tên
-void sum(int a, [int b = 0]) {}
-sum(10);     // OK - b bị bỏ qua
-sum(10, 20); // OK
+#### Bất đồng bộ → 1.3.x
 
-// Arrow function - giống Kotlin
-int square(int x) => x * x;
-```
+| Kotlin | Dart | Nhóm | Ghi chú |
+|---|---|---|---|
+| `suspend fun load(): User` | `Future<User> load() async` | ≈ | Không có từ khoá `suspend`; hàm async trả `Future` ([1.3.1](../async/futures_async_await.md)) |
+| `scope.launch { }` | Gọi không `await`, đánh dấu `unawaited(…)` | ≈ | Lỗi của `Future` không ai `await` dễ bị bỏ sót ([1.3.1](../async/futures_async_await.md)) |
+| `withContext(Dispatchers.IO)` | Không cần | ✗ | IO của Dart vốn không chặn event loop |
+| `withContext(Dispatchers.Default)` | `Isolate.run(…)`, `compute(…)` | ≈ | Dữ liệu được copy sang isolate khác ([1.3.3](../async/isolates.md)) |
+| `delay`, `withTimeout` | `Future.delayed`, `.timeout(…)` | = | ([1.3.1](../async/futures_async_await.md)) |
+| `job.cancel()` | `StreamSubscription.cancel()` | ≈ | `Future` không hủy được ([1.3.2](../async/streams.md)) |
+| `Flow`, `flow { emit(x) }` | `Stream`, `async* { yield x; }` | ≈ | Stream mặc định chỉ listen được một lần ([1.3.2](../async/streams.md)) |
+| `StateFlow` | `ValueNotifier` | ≈ | Học ở 4.1.1 ChangeNotifier and ValueNotifier (chưa có bài) |
+| `Mutex`, `synchronized` | Hiếm khi cần | ✗ | Isolate không chia sẻ memory |
+| `runBlocking` | Không có | ✗ | Không có cách chặn thread để chờ `Future` |
 
-### Quy tắc vàng
+### Runtime và biên dịch: code Dart không chạy trên ART
 
-1. Tham số trong `{}` (named): **luôn luôn gọi kèm tên**. Không có `required` và không có default => kiểu phải nullable và **có thể bỏ qua khi gọi** - nguồn bug im lặng kinh điển.
-2. Muốn bắt buộc phải truyền: thêm `required` (tương đương việc Kotlin bắt buộc đủ tham số).
-3. Function là first-class, kiểu hàm viết dạng `void Function(int)` thay vì `(Int) -> Unit`.
-4. Không có chữ `suspend` - hàm bất đồng bộ chỉ đơn giản là hàm trả `Future<T>` (xem mục 11).
+**Kotlin trên Android** đi qua một chuỗi biến đổi: `kotlinc` biên dịch `.kt` thành Java bytecode `.class`, D8/R8 chuyển thành `.dex`, và ART trên thiết bị chạy `.dex` (bản thân ART còn JIT và AOT `.dex` sang mã máy theo profile sử dụng). Kotlin không có runtime riêng; ART không biết class ban đầu viết bằng Java hay Kotlin. Chuỗi này được giải thích ở [Android 1.1.1 Java Android](../../../../knowledge/android/docs/session_01/languages/java_android.md) và [Android 1.1.2 Kotlin](../../../../knowledge/android/docs/session_01/languages/kotlin.md).
 
----
+**Dart trong Flutter** không đi qua JVM bytecode, D8 hay ART. Dart có runtime riêng (garbage collector, kiểm tra kiểu lúc chạy, quản lý isolate), và cách biên dịch phụ thuộc build mode:
 
-## 4. Null Safety: Gần giống nhau, vài chỗ khác biệt tinh vi
-
-Bảng đối chiếu thao tác:
-
-| Nhu cầu | Kotlin | Dart |
-|---|---|---|
-| Nullable type | `String?` | `String?` |
-| Safe call | `email?.length` | `email?.length` |
-| Nil-coalescing | `?:` | `??` |
-| Assign nếu null | không có | `name ??= 'guest'` |
-| Force unwrap | `!!` | `!` |
-| Throw trong elvis | `id ?: throw Err()` | `id ?? (throw Exception())` |
-| Deferred init | `lateinit var x: String` | `late String x;` |
-| Lazy init | `by lazy { ... }` | `late final x = expensive();` |
-| Ép kiểu an toàn | `as? String` | không có - dùng `is` rồi cast |
+1. **Debug (khi dev): JIT trên Dart VM.** Compiler trên máy dev dịch source thành kernel file (dạng trung gian của Dart). Dart VM trên thiết bị nạp kernel và biên dịch JIT. Khi bạn sửa code và hot reload, chỉ các library bị ảnh hưởng được dịch lại thành kernel và gửi sang VM đang chạy; VM nạp lại library, Flutter build lại cây widget, **state hiện tại được giữ**.
+2. **Profile và release: AOT ra mã máy native.** Compiler AOT dịch toàn bộ code Dart thành mã máy ARM hoặc x64 trước khi đóng gói. Trên Android, mã này nằm trong `libapp.so`, chạy cùng Flutter engine (`libflutter.so`). Không JIT lúc chạy nên app khởi động nhanh và hiệu năng ổn định.
+3. **Web**: Dart được dịch sang JavaScript hoặc WebAssembly (`dartdevc` khi dev, `dart2js`/`dart2wasm` khi release).
 
 ```mermaid
-flowchart TD
-    Start["if user.name != null"] --> Q{"user.name là local variable?"}
-    Q -- "Có (local var)" --> P1["Type promotion hoạt động<br/>dùng thẳng được"]
-    Q -- "Không (field của class)" --> P2["KHÔNG promotion<br/>compiler vẫn thấy nullable"]
-    P2 --> Fix["Copy ra local trước:<br/>final name = user.name;<br/>if name != null ..."]
+flowchart LR
+    subgraph KA["Kotlin trên Android"]
+        KT[".kt source"] -->|kotlinc| BC["JVM bytecode"]
+        BC -->|"D8 / R8"| DEX[".dex"]
+        DEX --> ART["ART runtime"]
+    end
+    subgraph DF["Dart trên Flutter"]
+        DS[".dart source"] -->|"JIT (dev)"| VM["Dart VM + hot reload"]
+        DS -.->|"AOT (release)"| NAT["Native ARM code"]
+    end
 ```
 
-=== "Kotlin (smart cast)"
+<!-- dd: flutter-build-pipeline -->
 
-```kotlin
-fun greet(user: User?) {
-    if (user?.name != null) {
-        println(user.name.length) // Smart cast hoạt động
-    }
-}
+> [!NOTE]
+> App Flutter trên Android vẫn có một `Activity` (thường là `FlutterActivity`) chạy trên ART, vì đó là cửa vào bắt buộc của mọi app Android. Phần chạy trên ART chỉ là lớp embedder và plugin viết bằng Kotlin/Java; code Dart của bạn chạy trong Dart runtime của Flutter engine.
+
+Hệ quả thực tế của mô hình này:
+
+| Hệ quả | Vì sao | Việc cần làm |
+|---|---|---|
+| Hot reload chỉ có ở debug | Cần Dart VM JIT để nạp lại kernel lúc chạy | Không mong hot reload trên bản profile/release |
+| Bản debug chậm, có thể giật | JIT, bật `assert`, bật service extension để debug | Đo hiệu năng bằng `flutter run --profile` trên máy thật |
+| Hot reload không chạy lại `main()`, `initState()`, initializer của biến global/static | Hot reload giữ state; các đoạn đó coi như đã chạy xong | Dùng hot restart khi sửa chúng |
+| Sửa code Kotlin/Swift cần full restart | Hot reload chỉ thay code Dart | Build lại app |
+| Không có reflection | `dart:mirrors` chỉ có trên native JIT, Flutter không hỗ trợ | Parse JSON, DI bằng codegen (`build_runner`) hoặc viết tay |
+
+#### Ví dụ: cùng một file chạy bằng JIT và AOT
+
+**Bài toán:** kiểm chứng rằng cùng một source Dart có thể chạy bằng JIT hoặc biên dịch AOT, và AOT từ chối code dùng reflection. Dart SDK cho làm việc này ngay trên máy dev, không cần Flutter: `dart run` chạy JIT trên Dart VM, `dart compile exe` biên dịch AOT ra file thực thi native.
+
+**Luồng chạy:**
+
+1. `dart run` chạy file trên Dart VM bằng JIT, `assert` tắt mặc định.
+2. `dart run --enable-asserts` vẫn JIT nhưng bật `assert`, giống cách Flutter debug mode bật assert.
+3. `dart compile exe` biên dịch AOT ra file native; chạy file đó thì hằng `dart.vm.product` là `true` (hằng `kReleaseMode` của Flutter được định nghĩa từ chính hằng này).
+4. Biên dịch AOT một file import `dart:mirrors` thì thất bại ngay lúc biên dịch.
+
+```mermaid
+flowchart LR
+    SRC["runtime_mode.dart"] -->|"(1) dart run"| JIT["Dart VM JIT, assert tắt"]
+    SRC -->|"(2) dart run --enable-asserts"| JITA["Dart VM JIT, assert bật"]
+    SRC -->|"(3) dart compile exe"| AOT["File native: AOT"]
+    MIR["mirrors_check.dart"] -->|"(4) dart compile exe"| ERR["Lỗi: dart:mirrors không có"]
 ```
 
-=== "Dart (promotion chỉ với local)"
+**Code:**
 
 ```dart
-void greet(User? user) {
-  // ❌ user.name là field - KHÔNG được promote
-  // print(user!.name!.length);
+// runtime_mode.dart
+void main() {
+  // (3) true chỉ khi chạy bản AOT product (dart compile exe)
+  const isProduct = bool.fromEnvironment('dart.vm.product');
+  print(isProduct ? 'Chạy AOT: mã máy native' : 'Chạy JIT trên Dart VM');
 
-  // ✅ Copy ra local variable trước
-  final name = user?.name;
-  if (name != null) {
-    print(name.length); // name là String non-null từ đây
-  }
+  // (1)(2) Phép gán trong assert chỉ chạy khi assert được bật
+  var assertsOn = false;
+  assert(assertsOn = true);
+  print('assert: ${assertsOn ? 'bật' : 'tắt'}');
 }
 ```
-
-> Từ Dart 3.2, **private final field** (`_name`) được promotion. Field public thì chưa - giữ thói quen copy ra local là an toàn nhất.
-
----
-
-## 5. Class & Constructors: Không còn Primary Constructor
-
-Dart gộp khai báo property và khởi tạo qua **constructor shorthand `this.x`**, hỗ trợ **named constructors** và **factory constructors** - thứ Kotlin phải xoay xở bằng `companion object`.
-
-=== "Kotlin"
-
-```kotlin
-class User(val name: String, var age: Int = 18) {
-    var email: String? = null
-    init {
-        require(age >= 0)
-    }
-    constructor(name: String) : this(name, 18)
-
-    companion object {
-        fun fromJson(json: Map<String, Any?>): User { /* ... */ }
-        val guest = User("guest")
-    }
-}
-```
-
-=== "Dart"
 
 ```dart
-class User {
+// mirrors_check.dart — (4) dùng reflection để đọc tên class lúc runtime
+import 'dart:mirrors';
+
+class Product {
+  Product(this.name);
   final String name;
-  final int age;
-  String? email;
+}
 
-  // "Primary constructor": shorthand this.x gán thẳng field
-  User({required this.name, this.age = 18}) : assert(age >= 0);
-
-  // Named constructor - thay secondary constructor
-  User.guest() : name = 'guest', age = 18;
-
-  // Factory constructor - thay companion object factory
-  factory User.fromJson(Map<String, dynamic> json) =>
-      User(name: json['name'], age: json['age'] ?? 0);
-
-  // Singleton chuẩn Dart
-  static final User guest = User.guest();
+void main() {
+  final mirror = reflect(Product('Bàn phím'));
+  print(mirror.type.simpleName);
 }
 ```
 
-### Trong code Flutter thật, bạn sẽ gặp liên tục
-
-```dart
-class CounterScreen extends StatelessWidget {
-  const CounterScreen({super.key}); // super.key thay Key? key : super(key: key)
-
-  @override
-  Widget build(BuildContext context) => const Text('Hello');
-}
+```bash
+dart run runtime_mode.dart                     # (1)
+dart run --enable-asserts runtime_mode.dart    # (2)
+dart compile exe runtime_mode.dart -o runtime_mode && ./runtime_mode   # (3)
+dart run mirrors_check.dart                    # chạy được vì đây là JIT
+dart compile exe mirrors_check.dart -o mirrors_check                   # (4)
 ```
 
-**Cascade operator `..`** - đặc sản Dart thay thế chuỗi `apply`:
+**Kết quả** (Dart 3.12, macOS; lược dòng "Generated: …" của `dart compile` và hai dòng trích source trong thông báo lỗi):
 
-```dart
-// Kotlin: builder.apply { width = 100; height = 50 }
-final config = Config()
-  ..width = 100
-  ..height = 50; // mỗi lần trả về chính receiver, nối tiếp được
+```text
+Chạy JIT trên Dart VM
+assert: tắt
+Chạy JIT trên Dart VM
+assert: bật
+Chạy AOT: mã máy native
+assert: tắt
+Symbol("Product")
+mirrors_check.dart:2:8: Error: Dart library 'dart:mirrors' is not available on this platform.
+Error: AOT compilation failed
+Bad state: Generating AOT kernel dill failed!
 ```
 
----
+Sáu dòng đầu cho thấy cùng một source, khác cách chạy. Các dòng lỗi cuối là lý do mọi thư viện Flutter phải dùng codegen thay cho reflection: bản release luôn là AOT.
 
-## 6. data class -> Records & Codegen
+### Concurrency: từ thread chia sẻ memory sang event loop và isolate
 
-Đây là khoảng trống lớn nhất so với Kotlin. Dart **không có data class** - không tự sinh `equals`/`hashCode`/`toString`/`copy`.
+Trong Kotlin, coroutine chạy trên dispatcher (`Dispatchers.Main` là main thread, `IO` và `Default` là thread pool), mọi thread dùng chung một heap nên cần `Mutex` hoặc `synchronized` khi hai coroutine cùng sửa một object.
 
-=== "Kotlin"
+Dart không cho code của bạn chạy song song trên cùng một vùng nhớ. Mọi code Dart chạy trong một **isolate**: heap riêng và **một thread chạy event loop** (vòng lặp lấy từng việc trong hàng đợi ra chạy cho tới hết). Code Flutter của bạn chạy trong main isolate; từ Flutter 3.29, trên Android và iOS main isolate chạy ngay trên main thread của app. Ba tư duy phải đổi:
+
+1. **IO chỉ cần `await`.** Request mạng, đọc file được thực hiện bên ngoài event loop; `await` nhường event loop cho việc khác. Không cần tương đương `withContext(Dispatchers.IO)`. Cơ chế ở [1.3.1 Futures and Async/Await](../async/futures_async_await.md).
+2. **Việc nặng CPU phải ra isolate khác.** Một vòng lặp đồng bộ chiếm event loop tới khi xong, trong lúc đó không frame nào được vẽ; đánh dấu hàm là `async` không thay đổi điều này. `Isolate.run` (hoặc `compute` của Flutter) chạy việc đó ở isolate khác ([1.3.3 Isolates](../async/isolates.md)).
+3. **Không chia sẻ memory.** Dữ liệu gửi giữa các isolate được copy (một số trường hợp được chuyển giao không copy), kết quả gửi về bằng message. Không có biến chung nên hầu như không cần lock, đổi lại phải trả chi phí copy.
+
+```mermaid
+flowchart TB
+    subgraph K["Kotlin · multi-threaded"]
+        K1["suspend fun"] --> K2["CoroutineScope"]
+        K2 --> K3["Dispatchers.Main / IO / Default"]
+        K3 --> K4["Nhiều thread chia sẻ memory"]
+    end
+    subgraph D["Dart · event loop + isolates"]
+        D1["async fun"] --> D2["Event loop của main isolate"]
+        D2 --> D3["CPU-heavy → Isolate.run()"]
+        D3 --> D4["Isolate riêng · message passing"]
+    end
+```
+
+<!-- dd: flutter-threads-isolates -->
+
+Thêm một khác biệt ít được nhắc: Dart không có structured concurrency. Không có scope nào tự hủy các `Future` con khi màn hình đóng; `Future` không hủy được, còn `Stream` thì dừng nghe bằng `StreamSubscription.cancel()` ([1.3.2 Streams](../async/streams.md)).
+
+### Hệ sinh thái: pubspec, pub và dart CLI
+
+Phần này ở mức nhận biết, đủ để đọc một project Dart/Flutter; chi tiết ở 2.1.1 Flutter CLI and FVM (chưa có bài) và 2.2.1 pub.dev and Package Management (chưa có bài).
+
+| Vai trò | Kotlin/Android | Dart/Flutter |
+|---|---|---|
+| File khai báo project và dependency | `build.gradle.kts`, `libs.versions.toml` | `pubspec.yaml` |
+| Kho package | Maven Central, Google Maven | pub.dev |
+| Khoá version đã resolve | Gradle lockfile (tuỳ chọn) | `pubspec.lock` (sinh tự động) |
+| Cấu hình lint | detekt, Android Lint config | `analysis_options.yaml` |
+
+Khác Gradle, pub không phải hệ thống build có task và plugin; nó chỉ resolve và tải package. `dart pub get` ghi version chính xác vào `pubspec.lock`, lưu package vào pub cache dùng chung trên máy, và tạo `.dart_tool/package_config.json` chỉ cho compiler biết mỗi package nằm ở đâu. Project là ứng dụng thì nên commit `pubspec.lock`.
+
+`pubspec.yaml` do `dart create -t console price_tool` sinh ra, sau khi chạy `dart pub add collection` (đã bỏ comment mẫu, thêm chú thích):
+
+```yaml
+# pubspec.yaml
+name: price_tool
+description: A sample command-line application.
+version: 1.0.0
+
+environment:
+  sdk: ^3.12.0 # Dart tối thiểu 3.12, dưới 4.0; cũng quyết định tính năng ngôn ngữ được bật
+
+dependencies:
+  collection: ^1.19.1 # ^ cho phép bản minor/patch mới hơn, giữ nguyên major
+  path: ^1.9.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6
+```
+
+Lệnh tương đương cần nhớ:
+
+| Việc | Kotlin/Android | Dart | Flutter |
+|---|---|---|---|
+| Tạo project | Android Studio wizard | `dart create` | `flutter create` |
+| Thêm dependency | sửa `build.gradle.kts` | `dart pub add <package>` | `flutter pub add <package>` |
+| Tải dependency | Gradle sync | `dart pub get` | `flutter pub get` |
+| Chạy | `./gradlew installDebug` | `dart run` | `flutter run` |
+| Test | `./gradlew test` | `dart test` | `flutter test` |
+| Phân tích tĩnh, format | `./gradlew lint`, ktlint | `dart analyze`, `dart format` | `flutter analyze`, `dart format` |
+| Sinh code | KSP chạy cùng build | `dart run build_runner build` | như Dart |
+
+Trong project Flutter, dùng lệnh `flutter` để chắc chắn dùng đúng Dart SDK đi kèm Flutter SDK.
+
+## Ví dụ thực tế
+
+### Dịch một đoạn checkout từ Kotlin sang Dart
+
+**Bài toán:** một đoạn Kotlin quen thuộc (giỏ hàng, tổng tiền có giảm giá, kết quả đặt hàng dạng sealed) cần chuyển sang Dart. Đây là việc Kotlin developer làm nhiều nhất trong tuần đầu, và nó chạm vào gần đủ bảy cặp khái niệm.
+
+Bản Kotlin:
 
 ```kotlin
-data class Product(val id: String, val price: double)
-val p1 = Product("1", 999.0)
-val p2 = p1.copy(price = 899.0)
-p1 == p2.copy(id = "1") // true - equals tự sinh
+// Checkout.kt
+data class CartItem(val sku: String, val price: Long, val quantity: Int = 1)
+
+sealed interface CheckoutResult {
+    data class Success(val orderId: String) : CheckoutResult
+    data class Failed(val reason: String) : CheckoutResult
+}
+
+fun totalOf(items: List<CartItem>, discount: Long = 0): Long =
+    items.sumOf { it.price * it.quantity } - discount
+
+fun checkout(items: List<CartItem>): CheckoutResult =
+    if (items.isEmpty()) CheckoutResult.Failed("Giỏ hàng trống")
+    else CheckoutResult.Success("ORD-${items.size}-${totalOf(items)}")
+
+fun messageOf(result: CheckoutResult): String = when (result) {
+    is CheckoutResult.Success -> "Đặt hàng thành công: ${result.orderId}"
+    is CheckoutResult.Failed -> "Không đặt được: ${result.reason}"
+}
 ```
 
-=== "Dart - 3 lựa chọn"
+**Luồng dịch:** mỗi construct Kotlin được tra trong bảng ánh xạ, rồi xử lý theo nhóm của nó.
+
+1. `data class CartItem` thuộc nhóm ✗: viết class với field `final`, named parameter, tự viết `==` và `hashCode`.
+2. `sealed interface` + `data class` con: dùng `sealed class` và subclass trong cùng file (cùng library).
+3. Tham số mặc định `discount` thành named parameter có default; `sumOf { it… }` thành `fold` với tham số lambda đặt tên.
+4. `when` với `is` thành `switch` expression với object pattern; compiler vẫn kiểm tra đủ nhánh.
+5. Kiểm tra false friend: list literal của Dart sửa được dù biến là `final`.
+6. Kiểm tra `==`: so theo giá trị nhờ bước (1); `identical` thay cho `===`.
+
+```mermaid
+flowchart LR
+    A["data class CartItem"] -->|"(1)"| A2["class + == / hashCode"]
+    B["sealed interface"] -->|"(2)"| B2["sealed class, cùng library"]
+    C["discount: Long = 0, sumOf"] -->|"(3)"| C2["named param, fold"]
+    D["when + is"] -->|"(4)"| D2["switch expression + pattern"]
+    E["listOf (read-only)"] -->|"(5)"| E2["list literal mutable"]
+    F["== và ==="] -->|"(6)"| F2["== và identical"]
+```
+
+**Code:**
 
 ```dart
-// 1. Records (Dart 3) - nhóm giá trị nhẹ, có equals sẵn
-(String, double) product = ('1', 999.0);
-var discounted = ('1', 899.0);
-print(product == discounted);            // true - structural equality
-({String id, double price}) named = (id: '1', price: 999.0); // record có tên field
+// checkout.dart — bản Dart của đoạn Kotlin CartItem / CheckoutResult
+// (1) data class CartItem -> class có ==/hashCode tự viết (Dart không có data class)
+class CartItem {
+  const CartItem({required this.sku, required this.price, this.quantity = 1});
 
-// 2. Thủ công - khi muốn class thật sự
-class ManualProduct {
-  const ManualProduct(this.id, this.price);
-  final String id;
-  final double price;
+  final String sku;
+  final int price; // Kotlin Long -> Dart int (64-bit trên native)
+  final int quantity;
 
   @override
   bool operator ==(Object other) =>
-      other is ManualProduct && other.id == id && other.price == price;
+      other is CartItem &&
+      other.sku == sku &&
+      other.price == price &&
+      other.quantity == quantity;
 
   @override
-  int get hashCode => Object.hash(id, price);
+  int get hashCode => Object.hash(sku, price, quantity);
 }
 
-// 3. Codegen Freezed/json_serializable - chuẩn production
-// pubspec.yaml: freezed_annotation + build_runner
-@freezed
-sealed class Product with _$Product {
-  const factory Product({
-    required String id,
-    required double price,
-  }) = _Product;
+// (2) sealed interface + data class con -> sealed class + subclass cùng library
+sealed class CheckoutResult {}
+
+class CheckoutSuccess extends CheckoutResult {
+  CheckoutSuccess(this.orderId);
+  final String orderId;
 }
-// chạy: dart run build_runner build
-// được miễn phí: ==, hashCode, toString, copyWith, JSON
+
+class CheckoutFailed extends CheckoutResult {
+  CheckoutFailed(this.reason);
+  final String reason;
+}
+
+// (3) Tham số mặc định Kotlin -> named parameter có default; sumOf -> fold
+int totalOf(List<CartItem> items, {int discount = 0}) =>
+    items.fold(0, (sum, item) => sum + item.price * item.quantity) - discount;
+
+CheckoutResult checkout(List<CartItem> items) => items.isEmpty
+    ? CheckoutFailed('Giỏ hàng trống')
+    : CheckoutSuccess('ORD-${items.length}-${totalOf(items)}');
+
+// (4) when (r) { is ... } -> switch expression, compiler kiểm tra đủ nhánh
+String messageOf(CheckoutResult result) => switch (result) {
+      CheckoutSuccess(:final orderId) => 'Đặt hàng thành công: $orderId',
+      CheckoutFailed(:final reason) => 'Không đặt được: $reason',
+    };
+
+void main() {
+  final cart = [
+    const CartItem(sku: 'KB-01', price: 890_000),
+    const CartItem(sku: 'MS-02', price: 350_000, quantity: 2),
+  ];
+
+  // (5) Bẫy false friend: final chỉ khoá biến, list vẫn thêm được phần tử
+  cart.add(const CartItem(sku: 'PAD-03', price: 120_000));
+
+  print(totalOf(cart, discount: 100_000));
+  print(messageOf(checkout(cart)));
+  print(messageOf(checkout([])));
+
+  // (6) == so theo giá trị nhờ operator == ở bước (1); identical so reference như ===
+  final sameItem = CartItem(sku: 'KB-01', price: 890_000);
+  print('${sameItem == cart.first} ${identical(sameItem, cart.first)}');
+}
 ```
 
-| Tiêu chí | Kotlin `data class` | Dart |
-|---|---|---|
-| `==` theo giá trị | Tự sinh | Tự làm / Record / Freezed |
-| `copy()` | Có sẵn | Freezed sinh / tự viết |
-| So sánh reference | `===` | `identical()` |
-| Destructuring | `val (a, b) = pair` | `final (a, b) = record;` |
+**Kết quả** (`dart run checkout.dart`, Dart 3.12, `dart analyze` không báo lỗi):
 
-> **Quy tắc thực chiến:** Model nhỏ tạm thời dùng record; model domain dùng Freezed; đừng bao giờ tin `==` mặc định của class thường.
+```text
+1610000
+Đặt hàng thành công: ORD-3-1710000
+Không đặt được: Giỏ hàng trống
+true false
+```
 
----
+Dòng 4 xác nhận `==` tự viết hoạt động; bỏ `operator ==` và `hashCode` ở bước (1) thì dòng này thành `false false`. Thêm một subclass thứ ba cho `CheckoutResult` mà không sửa `messageOf` thì `dart analyze` báo `non_exhaustive_switch_expression`, giống `when` của Kotlin báo thiếu nhánh. Dấu `_` trong `890_000` là digit separator (Dart 3.6), giống Kotlin. Trong project thật, model nhiều field thường dùng Freezed để sinh `==`, `hashCode`, `copyWith` ([1.2.5](classes_mixins_sealed.md)).
 
-## 7. OOP: extends, implements, with & Class Modifiers
+### Dịch ViewModel và parse JSON
 
-Dart đảo ngược một triết lý lớn của Kotlin: **Kotlin khóa thừa kế mặc định (final), Dart mở thừa kế mặc định.**
+Hai việc dịch hay gặp tiếp theo không dịch từng dòng được, chỉ cần biết hướng:
 
-| Ý định | Kotlin | Dart |
-|---|---|---|
-| Class mặc định | `final` (không ai kế thừa được) | **Mở** - ai cũng extend/implement được |
-| Cho phép kế thừa | `open class` | mặc định, hoặc `base class` |
-| Khóa kế thừa | bỏ `open` | `final class` (Dart 3) |
-| Sealed | `sealed class` | `sealed class` (giống hệt) |
-| Interface | `interface` | không có keyword - **mọi class là implicit interface** |
-| Đa kế thừa hành vi | `interface` + default methods, delegation `by` | `mixin` + `with` |
+- **ViewModel dùng `MutableStateFlow` + `viewModelScope.launch`** thường thành class kế thừa `ChangeNotifier` (hoặc giữ `ValueNotifier`) với `Future<void> load() async` gọi `notifyListeners()`. Không có `viewModelScope` tự hủy việc đang chạy, nên phải kiểm tra object còn được dùng trước khi cập nhật state. Học ở 4.1.1 ChangeNotifier and ValueNotifier (chưa có bài).
+- **Parse JSON bằng Gson/Moshi reflection** thành `factory Product.fromJson(Map<String, dynamic> json)` viết tay hoặc `json_serializable` sinh bằng `build_runner`; JSON lớn thì parse trong `Isolate.run` ([1.3.3](../async/isolates.md)). Học ở 5.1.2 JSON Serialization and Codegen (chưa có bài).
+
+## Khi nào nên và không nên dùng
+
+Nên dùng bản đồ này khi:
+
+- **Đọc hoặc review code Dart lần đầu**: gặp construct lạ thì tra nhóm của nó trước khi đoán nghĩa theo Kotlin.
+- **Port logic thuần** (model, tính toán, validate): phần lớn construct thuộc nhóm "=" và dịch thẳng.
+- **Lên kế hoạch học**: các dòng "≈" và "✗" là danh sách mục phải đọc kỹ trong 1.2.x và 1.3.x.
+
+Không nên dùng khi:
+
+- **Port kiến trúc**: ViewModel, Hilt, Room, `Dispatchers` không dịch từng dòng được; kiến trúc Flutter đi theo cây widget và state management riêng (Session 04, Session 08).
+- **Thay cho việc học Topic**: bảng chỉ cho biết có khác biệt, không giải thích cơ chế.
+- **Tìm bản Dart cho mọi idiom Kotlin**: scope function (`let`, `also`, `run`), property delegation hay `it` không có tương đương. Viết theo cách Dart (biến local, cascade, tham số lambda đặt tên) thay vì dựng lại idiom Kotlin bằng extension.
+
+## Sai lầm thường gặp
+
+Mỗi mục là một false friend hoặc một chỗ không có tương đương; cơ chế nằm ở Topic được link.
+
+### 1. Tin `final` là bất biến
+
+`final cart = [...]` vẫn `add`, `remove`, `sort` được. Muốn không sửa được thì dùng `const [...]` hoặc `List.unmodifiable(...)`. Xem [1.2.4](collections_functional.md).
+
+### 2. Quên `required` ở named parameter
 
 ```dart
-abstract class Repository {
-  Future<User> findUser(String id);
-}
+void sendInvoice({String? email, bool includePdf = false}) {}
 
-// implements: hiện thực hóa interface (không kế thừa code)
-class ApiRepository implements Repository {
-  @override
-  Future<User> findUser(String id) async => User(name: id, age: 1);
-}
-
-// mixin: tái sử dụng hành vi - thay default methods của Kotlin
-mixin LoggingMixin {
-  void log(String msg) => print('[LOG] $msg');
-}
-
-class UserService with LoggingMixin {
-  void run() => log('running'); // dùng trực tiếp
-}
+void main() => sendInvoice(includePdf: true); // biên dịch được: email bị bỏ qua, nhận null
 ```
 
-**Sealed class + switch - cặp bài trương giống Kotlin:**
+Kotlin buộc truyền tham số không có default; Dart coi named parameter là tuỳ chọn trừ khi có `required`. Xem [1.2.2](functions_operators.md).
+
+### 3. So sánh model bằng `==` khi không có data class
+
+Class Dart không tự sinh `==`, nên `Set` chứa phần tử trùng và phép so state để tránh cập nhật thừa không hoạt động. Dùng record, tự viết `==`/`hashCode`, hoặc Freezed. Xem [1.2.5](classes_mixins_sealed.md).
+
+### 4. Mong smart cast trên field
+
+`if (order.note != null) print(order.note.length);` không biên dịch được khi `note` là field public, vì getter có thể trả giá trị khác ở lần đọc thứ hai. Gán ra biến local trước. Xem [1.2.1](variables_and_types.md).
+
+### 5. Chạy tính toán nặng trên main isolate
+
+Hàm `async` vẫn chạy trên event loop; vòng lặp đồng bộ trong đó vẫn chặn mọi frame. Dùng `Isolate.run`/`compute`. Xem [1.3.1](../async/futures_async_await.md), [1.3.3](../async/isolates.md).
+
+### 6. Listen một `Stream` hai lần
+
+`Stream` từ `StreamController()` hoặc `async*` là single-subscription: lần `listen` thứ hai ném `StateError`, khác `Flow` collect bao nhiêu lần cũng được. Xem [1.3.2](../async/streams.md).
+
+### 7. Gọi `Future` mà không `await` rồi mất lỗi
+
+Giống `launch` không có `CoroutineExceptionHandler`: lỗi của `Future` không ai `await` không về khối `try` của bạn. Xem [1.3.1](../async/futures_async_await.md).
+
+### 8. Đo hiệu năng trên bản debug
+
+Bản debug chạy JIT, bật assert và công cụ debug nên giật hơn release nhiều. Đo bằng `flutter run --profile` trên thiết bị thật (emulator và simulator không chạy profile mode).
+
+### 9. Sửa initializer của biến global rồi hot reload
 
 ```dart
-sealed class ViewState {}
-
-class Loading extends ViewState {}
-class Success extends ViewState {
-  Success(this.items);
-  final List<String> items;
-}
-class Error extends ViewState {
-  Error(this.code);
-  final int code;
-}
+// Sửa chuỗi này rồi hot reload: app vẫn dùng giá trị cũ
+final apiBaseUrl = 'https://staging.example.com';
 ```
 
-**Enhanced Enum** tương đương `enum class` Kotlin, nhưng enum Dart không chứa dữ liệu riêng từng case kiểu `data class` - muốn vậy hãy dùng sealed class:
-
-```dart
-enum Status {
-  idle(0),
-  loading(1),
-  done(2);
-
-  const Status(this.code);
-  final int code;
-}
-```
-
----
-
-## 8. Extension Functions: Có, nhưng không có Property Delegation
-
-Tin tốt: Dart có extension gần như y hệt Kotlin, kể cả extension getter và generic extension.
-
-=== "Kotlin"
-
-```kotlin
-fun String.isValidEmail() = contains("@") && contains(".")
-val String.stripped: String get() = trim()
-
-// Property delegation - đặc sản Kotlin
-val config: Config by lazy { loadConfig() }
-var observed: Int by Delegates.observable(0) { _, old, new -> log("$old -> $new") }
-```
-
-=== "Dart"
-
-```dart
-extension EmailX on String {
-  bool get isValidEmail => contains('@') && contains('.');
-  String get stripped => trim();
-}
-
-// Generic extension
-extension FirstOrNullX<T> on List<T> {
-  T? firstOrNull() => isEmpty ? null : first;
-}
-
-' hazu@mail.com '.stripped.isValidEmail; // true
-```
-
-**Không có trong Dart:** `by lazy`, `Delegates.observable`, `by map`... Property delegation là concept gắn với Kotlin compiler. Thay thế:
-
-| Kotlin | Dart thay thế |
-|---|---|
-| `val x by lazy { ... }` | `late final x = computeOnce();` |
-| `Delegates.observable` | setter thủ công / `ValueNotifier` |
-| `by viewModels()` | package (`flutter_riverpod`, `provider`) |
-
----
-
-## 9. Collections: Literal mạnh hơn Kotlin, Mutability yếu hơn Kotlin
-
-```dart
-final list = <String>['flutter', 'kotlin'];
-final set = {'a', 'b'};
-final map = {'alice': 25, 'bob': 30};
-
-// Collection-if / collection-for / spread - Dart có, Kotlin KHÔNG
-final menu = [
-  'Home',
-  if (isLoggedIn) 'Profile',
-  for (final item in categories) item.label,
-  ...extraItems, // spread list khác
-];
-```
-
-### Bẫy mutability lớn nhất
-
-```dart
-final a = [1, 2];
-a.add(3);        // ✅ VẪN ĐƯỢC - final chỉ khóa reference!
-                 // (Kotlin listOf(1,2).add(3) sẽ throw)
-
-const b = [1, 2];         // compile-time immutable thật sự
-final c = List.unmodifiable([1, 2]); // immutable runtime copy
-```
-
-Các operation quen thuộc:
-
-| Nhu cầu | Kotlin | Dart |
-|---|---|---|
-| Transform | `map { }` | `map((x) => ...)` (trả Iterable - nhớ `.toList()`) |
-| Filter | `filter { }` | `where((x) => ...)` |
-| FlatMap | `flatMap { }` | `expand(...)` |
-| First or null | `firstOrNull { }` | `firstWhere(test, orElse: () => null)` |
-| Group by | `groupBy { }` (stdlib) | cần `package:collection` |
-| Sort mới | `sortedBy { }` (trả list mới) | `list.sort(...)` **mutate tại chỗ!** |
-| Lazy sequence | `asSequence().{}` | generator `Iterable<T> f() sync* { yield ... }` |
-
----
-
-## 10. when -> switch Expression & Patterns (Dart 3)
-
-Từ Dart 3, switch đã trở thành **expression** với full pattern matching - gần như dịch 1-1 được `when`:
-
-=== "Kotlin"
-
-```kotlin
-when (state) {
-    is Loading -> showLoading()
-    is Success -> display(state.items)
-    is Error -> if (state.code == 401) login() else showError(state.code)
-}
-```
-
-=== "Dart 3"
-
-```dart
-// Switch expression - trả về giá trị, exhaustive với sealed class
-final screen = switch (state) {
-  Loading() => const LoadingView(),
-  Success(:final items) => ListView(children: items.map(Text.new).toList()),
-  Error(code: 401) => const LoginView(),
-  Error(:final code) => TextView('Lỗi $code'),
-};
-
-// Pattern matching trong statement + destructuring
-switch (point) {
-  case (0, 0):                       // record pattern
-    print('gốc tọa độ');
-  case (var x, 0):
-    print('trên trục hoành: $x');
-}
-
-// Logical-or pattern + guard
-switch (value) {
-  case int n when n > 100:
-  case String s when s.isEmpty:
-    print('đặc biệt');
-}
-
-// if-case - thay when rút gọn
-if (state case Success(:final items)) render(items);
-```
-
-**Không có tương đương:** `when` không chủ ngữ (`when { cond1 -> ... cond2 -> ... }`) - dùng chuỗi `if / else if`.
-
----
-
-## 11. Concurrency: Coroutines -> Event Loop + Isolates
-
-Đây là phần **phải học lại từ đầu**, không thể dịch 1-1.
-
-```mermaid
-graph TD
-    subgraph "Kotlin - Multi-threaded"
-        T1[suspend fun] --> T2[CoroutineScope]
-        T2 --> T3[Dispatchers.Main / IO / Default]
-        T3 --> T4[Nhiều thread chia sẻ memory]
-    end
-    subgraph "Dart - Single event loop + Isolates"
-        D1[async fun] --> D2[Event Loop main isolate]
-        D2 --> D3["CPU-heavy → Isolate.run()"]
-        D3 --> D4[Isolate riêng - KHÔNG chia sẻ memory<br/>giao tiếp bằng message]
-    end
-    T4 -.->|tư duy khác hoàn toàn| D4
-```
-
-### Bảng ánh xạ Coroutines -> Dart
-
-| Khái niệm | Kotlin | Dart |
-|---|---|---|
-| Hàm bất đồng bộ | `suspend fun fetch(): User` | `Future<User> fetch() async` |
-| Chờ kết quả | `val u = fetch()` | `final u = await fetch();` |
-| Fire-and-forget | `scope.launch { }` | `unawaited(doWork());` |
-| Chạy nền CPU-bound | `withContext(Dispatchers.Default)` | `await Isolate.run(() => parse(big))` (Flutter: `compute`) |
-| Luồng dữ liệu | `Flow<T>` | `Stream<T>` |
-| Builder | `flow { emit(x) }` | `Stream<T> f() async* { yield x; }` |
-| State stream | `StateFlow<T>` | `ValueNotifier<T>` / rxdart `BehaviorSubject<T>` |
-| Delay | `delay(ms)` | `Future.delayed(Duration(seconds: s))` |
-| Timeout | `withTimeout(ms)` | `future.timeout(Duration(...))` |
-| Hủy job | `job.cancel()` (cooperative) | `subscription.cancel()` / `CancelToken` (dio) |
-| RunBlocking | chặn thread chờ kết quả | **không tồn tại** - sẽ treo UI vĩnh viễn |
-
-=== "Kotlin ViewModel"
-
-```kotlin
-class ProfileViewModel : ViewModel() {
-    private val _user = MutableStateFlow<User?>(null)
-    val user: StateFlow<User?> = _user
-
-    fun load() {
-        viewModelScope.launch {
-            try {
-                _user.value = api.getUser("123")
-            } catch (e: Exception) {
-                showError(e)
-            }
-        }
-    }
-}
-```
-
-=== "Dart ViewModel"
-
-```dart
-class ProfileViewModel extends ChangeNotifier {
-  User? _user;
-  User? get user => _user;
-
-  Future<void> load() async {
-    try {
-      _user = await api.getUser('123'); // await trên main isolate - OK vì IO non-blocking
-      notifyListeners();
-    } catch (e) {
-      showError(e);
-    }
-  }
-
-  // Parse file JSON lớn - BẮT BUỘC tách isolate nếu CPU-bound
-  Future<Report> analyze(String raw) => Isolate.run(() => parseReport(raw));
-}
-```
-
-### Ba tư duy phải đổi
-
-1. **IO không cần dispatcher:** mọi IO trong Dart vốn là non-blocking qua event loop. `await dio.get(...)` không bao giờ block UI. Chỉ khi gặp **CPU-bound** (parse JSON khổng lồ, mã hóa ảnh) mới nhảy isolate.
-2. **Không có structured concurrency:** không có scope tự hủy con khi cha chết. Cancellation phải tự quản lý thủ công qua `CancelToken`/`subscription.cancel()`.
-3. **Isolate không chia sẻ memory:** truyền dữ liệu giữa isolates bằng message copy (hoặc `TransferableTypedData`). Không có biến shared nên cũng hầu như không cần Mutex/synchronized.
-
----
-
-## 12. Error Handling
-
-```dart
-enum AppError implements Exception {
-  network,
-  unauthorized;
-
-  @override
-  String toString() => switch (this) {
-    AppError.network => 'Lỗi mạng',
-    AppError.unauthorized => 'Phiên hết hạn',
-  };
-}
-
-Future<void> login(String email) async {
-  try {
-    await api.login(email);
-  } on AppError catch (e, stackTrace) { // on + catch + stackTrace
-    log(e.toString(), stackTrace);
-    rethrow;                             // giống throw lại, giữ stack trace gốc
-  } catch (e) {                          // catch-all
-    log('unknown: $e');
-  } finally {
-    hideLoading();
-  }
-}
-```
-
-- Dart **throw được mọi object** (quy ước: `Error` = bug lập trình, không bắt; `Exception` = lỗi nghiệp vụ dự kiến).
-- Không checked exception ở cả hai ngôn ngữ.
-- Pattern `Result`/`Either` của Kotlin (Arrow) -> `fpdart` / `result_dart` hoặc tự viết sealed class.
-
----
-
-## 13. Công cụ & Hệ sinh thái
-
-| Vai trò | Kotlin/Android | Flutter/Dart |
-|---|---|---|
-| Build system | Gradle | Flutter CLI (`flutter build`) |
-| Dependency | `build.gradle.kts` + Maven Central | `pubspec.yaml` + pub.dev |
-| Annotation processing | kapt / KSP | `build_runner` codegen |
-| Lint/Format | ktlint, detekt | `flutter analyze` + `flutter_lints`, `dart format` |
-| Unit test | JUnit, MockK, Turbine | `package:test`, `mocktail`, `fake_async` |
-| DI framework | Hilt, Koin (reflection/runtime) | `get_it` + injectable, Riverpod (không reflection) |
-| HTTP | Retrofit, OkHttp, Ktor | dio, http, chopper |
-| Local DB | Room, SQLDelight, DataStore | drift/sqflite, shared_preferences, hive |
-| Reactive | coroutines Flow | Stream + rxdart |
-
-Lệnh tương đương cần thuộc:
-
-| Kotlin world | Dart world |
-|---|---|
-| `./gradlew assembleDebug` | `flutter run --debug` |
-| `./gradlew test` | `flutter test` |
-| `./gradlew lintKotlin` | `flutter analyze` |
-| Clean/Rebuild | `flutter clean && flutter pub get` |
-| Generate code (KSP) | `dart run build_runner build --delete-conflicting-outputs` |
-
----
-
-## 14. Bảng tra cứu nhanh Kotlin -> Dart
-
-| Nhu cầu | Kotlin | Dart |
-|---|---|---|
-| Hằng compile-time | `const val X = 1` | `const X = 1;` |
-| Read-only biến | `val x = 1` | `final x = 1;` |
-| Deferred non-null init | `lateinit var x: String` | `late String x;` |
-| Lazy | `by lazy { }` | `late final x = compute();` |
-| Default value | `fun f(a: Int = 0)` | `f([int a = 0])` / `f({int a = 0})` |
-| Named arg bắt buộc | mặc định đủ tham số | `{required int a}` |
-| Null coalescing | `?:` | `??` |
-| Assign-if-null | không có | `x ??= value;` |
-| Force unwrap | `!!` | `!` |
-| Safe cast | `as? Type` | `x is Type ? x as Type : null` |
-| Not-type check | `!is` | `is!` |
-| Reference equal | `===` | `identical(a, b)` |
-| Data holder | `data class` | record / Freezed |
-| Pair/Triple | `Pair(a,b)` | `(a, b)` record |
-| Singleton | `object Foo` | `static final i = Foo._();` + `Foo._()` |
-| Companion | `companion object` | `static` members |
-| Scope fn apply | `.apply { }` | cascade `..` |
-| Scope fn let | `.let { }` | `..` hoặc biến tạm / `if (x case ...)` |
-| When expression | `when(x) { is A -> }` | `switch (x) { case A(): }` |
-| String in log | `println()` | `print()` / `log()` |
-| Range loop | `for (i in 0 until 5)` | `for (var i = 0; i < 5; i++)` / `for (final e in list)` |
-| Lambda param | `it` | đặt tên `(x) =>` (Dart không có `it`) |
-| Top-level constant | `const val TAG = ""` | `const tag = '';` |
-| Checked-style Result | Arrow Either | fpdart / result_dart / sealed class |
-
----
-
-## 15. 7 Bẫy Kotlin Dev hay mắc phải
-
-1. **Tin `final` là immutable:** `final list = [1]; list.add(2);` hợp lệ. Immutable thật sự chỉ có `const [...]` hoặc `List.unmodifiable`.
-2. **Quên `required` ở named param:** thiếu nó, caller có thể bỏ qua tham số mà không báo lỗi - bug phát hiện lúc runtime.
-3. **Chạy CPU-heavy trên main isolate:** parse JSON lớn, xử lý ảnh trực tiếp -> app đứng hình. Phải `Isolate.run`/`compute`.
-4. **Tin `==` so giá trị:** class thường so identity. Model cần `==` thì dùng record, Freezed, hoặc override tay.
-5. **`listen()` Stream hai lần:** Stream mặc định single-subscription - lần hai ném `StateError`. Cần nhiều listener thì `.asBroadcastStream()`.
-6. **Mong type promotion trên field:** `if (user.name != null) user.name.length` không biên dịch được - copy ra local variable trước.
-7. **Nhập `it`:** Dart không có implicit lambda parameter - phải đặt tên `(item) => ...`, hoặc dùng tear-off `Text.new`.
-
----
-
-## 16. Tư duy hệ thống (System Thinking)
-
-Topic này nằm ở **Session 01 - Dart Language** - tầng nền tảng duy nhất của module Flutter.
-
-```mermaid
-graph TD
-    S["1.1.1 Dart for Kotlin Devs"] --> F["1.2 Fundamentals:<br/>Variables, Functions, OOP"]
-    S --> A["1.3 Async: Futures, Streams, Isolates"]
-    A --> SM["Session 04: State Management<br/>ValueNotifier ↔ StateFlow"]
-    F --> W["Session 03: Widgets & UI"]
-    SM --> NET["Session 05: Networking"]
-    NET --> INT["Session 10: Internals - vì sao không có reflection"]
-```
-
-- **Vị trí:** Đây là cửa ngõ cho Android Developer. Không hiểu event loop/isolates thì Session Async và mọi bug jank sau này không giải thích nổi.
-- **Tương tác:** `ValueNotifier`/`ChangeNotifier` chính là cây cầu `StateFlow` -> Flutter state management; hiểu `const` ở đây giúp đọc được mọi tối ưu widget ở Session 03 và 10.
-- **Mở rộng:** Sau bài này, học tiếp Fundamentals để phủ cú pháp còn lại, rồi đi thẳng vào Async vì đó là điểm khác biệt triết lý sâu nhất.
-
----
-
-## 17. Bài tập thực hành
-
-> Mục tiêu: Tự code kiểm chứng 4 bẫy lớn nhất của Kotlin Dev khi sang Dart. Mỗi bài có `Yêu cầu` -> `Gợi ý` -> `Tiêu chí pass`. Chạy trên [DartPad](https://dartpad.dev) hoặc project Flutter mới.
-
-### Bài 1 - Immutability: `final` vs `const` (§2, §9)
-
-**Yêu cầu:**
-1. Tạo `final list = [1, 2];` rồi gọi `list.add(3);` - chứng minh vẫn chạy được.
-2. Tạo `const fixed = [1, 2];` thử `fixed.add(3);` - ghi lại lỗi compile.
-3. Dùng `List.unmodifiable` tạo bản immutable runtime từ list mutable.
-4. Kiểm chứng `identical(constA, constB)` với hai instance const cùng giá trị.
-
-**Tiêu chí pass:** Giải thích được `final` khóa reference, `const` khóa cả nội dung và canonicalize instance.
-
-### Bài 2 - Named Parameters & `required` (§3)
-
-**Yêu cầu:**
-Viết `void createUser({required String username, int age = 18, String? bio})`:
-1. Gọi đúng với đủ tham số named.
-2. Chứng minh có thể gọi mà **bỏ qua `bio`** không lỗi.
-3. Xóa `required` khỏi `username` - ghi lại lỗi compile, suy ra vì sao `required` là bắt buộc với API public.
-
-**Tiêu chí pass:** Nêu được quy tắc: tham số `{}` không required/default phải nullable và được phép bỏ qua khi gọi.
-
-### Bài 3 - Value Equality (§6)
-
-**Yêu cầu:**
-1. Viết `class Point { final int x, y; }` - tạo `p1`, `p2` cùng giá trị, in `p1 == p2` (false!), giải thích.
-2. Override `==` + `hashCode` cho đúng.
-3. Lặp lại với record `(x, y)` - chứng minh `==` structural ngay lập tức.
-4. Dùng `identical()` phân biệt identity vs equality.
-
-**Tiêu chí pass:** Chỉ ra đúng dòng nào so identity, dòng nào so giá trị, và khi nào chọn record thay vì class.
-
-### Bài 4 - Coroutines -> Dart Concurrency (§11)
-
-**Yêu cầu:**
-Chuyển đoạn Kotlin sau sang Dart:
-
-```kotlin
-class CartViewModel : ViewModel() {
-    val items = MutableStateFlow<List<String>>(emptyList())
-    fun add(item: String) {
-        viewModelScope.launch { items.emit(items.value + item) }
-    }
-}
-```
-
-1. Viết `CartViewModel extends ChangeNotifier` với `Future<void> add(String item)`.
-2. Thêm phương thức `Future<Summary> summarize()` chạy parse CPU-heavy bằng `Isolate.run`.
-3. Chứng minh UI không block khi gọi `summarize()` với dữ liệu lớn (đo bằng Stopwatch).
-
-**Tiêu chí pass:** Giải thích được vì sao `await api.call()` không cần dispatcher, còn `parse(json)` thì cần isolate.
-
----
-
-## Nguồn tham khảo
-
-- [Dart Language Documentation](https://dart.dev/language) - language tour chính thức
-- [Effective Dart](https://dart.dev/effective-dart) - style guide chuẩn
-- [Dart Patterns & Records](https://dart.dev/language/patterns) - Dart 3 pattern matching
-- [Asynchronous Programming: Streams](https://dart.dev/libraries/async/using-streams)
-- [Isolates](https://dart.dev/language/isolates) - concurrency model
-- [Flutter codelab: Dart basics](https://codelabs.developers.google.com/codelabs/dart-codelab-first)
-- [Kotlin vs Dart Cheatsheet](https://nilhcem.github.io/kotlin-is-like-dart/) - so sánh trực quan
+Biến global và static được coi là state nên hot reload không khởi tạo lại; `main()` và `initState()` cũng không chạy lại. Dùng hot restart, hoặc đổi thành `const`/getter.
+
+### 10. Dùng `it` và trailing lambda theo thói quen
+
+`items.map { it.price }` không phải cú pháp Dart; viết `items.map((item) => item.price)` hoặc tear-off. Xem [1.2.2](functions_operators.md).
+
+## Lịch sử phát triển
+
+Dart tiến dần về phía Kotlin qua từng bản lớn, nên các bài "Dart cho Kotlin developer" cũ có thể đã lỗi thời:
+
+- **2011–2013, Dart 1.x**: Google giới thiệu Dart năm 2011 cho web; Dart 1.0 ra tháng 11/2013. Kiểu dữ liệu khi đó là tuỳ chọn và không sound.
+- **2018, Dart 2.0**: bắt buộc **sound type system**. Kiểu được đảm bảo đúng nên compiler AOT tối ưu được; đây là nền cho Flutter 1.0 (12/2018) biên dịch AOT ra mã máy.
+- **2019, Dart 2.3 và 2.7**: collection `if`/`for` và spread (2.3) để viết cây widget gọn hơn, nên Dart có mà Kotlin không; extension methods (2.7).
+- **2021, Dart 2.12**: **sound null safety**, kiểu non-null mặc định như Kotlin.
+- **2022, Dart 2.17**: enhanced enum, super parameters, named argument đặt xen kẽ positional.
+- **2023, Dart 2.19 và 3.0**: `Isolate.run` (2.19). Dart 3.0 thêm records, patterns, `switch` expression, class modifiers và bắt buộc 100% null safety, đưa `when` + `sealed class` + destructuring kiểu Kotlin sang Dart.
+- **2023–2024, Dart 3.2 và 3.3**: promotion cho private final field (3.2); extension types (3.3), gần với `value class`.
+- **2025**: ngày 29/1, nhóm Dart dừng dự án macros, nên codegen bằng `build_runner` vẫn là cách chính thay cho reflection. Flutter 3.29 chạy code Dart trên main thread của app trên Android và iOS. Dart 3.8 thêm null-aware element, Dart 3.10 thêm dot shorthands.
+- **2026, Dart 3.12 và 3.13**: private named parameter (3.12); **primary constructor** stable ở Dart 3.13 (8/2026), ví dụ `class Point(final int x, final int y);`. Nó gần primary constructor của Kotlin nhưng không sinh `==`. Ví dụ trong bài chạy trên Dart 3.12 nên dùng constructor truyền thống.
+
+## Kết nối hệ thống
+
+- **Kiến thức nền**: Kotlin trên Android. Chuỗi `kotlinc` → `.class` → D8/R8 → `.dex` → ART được giải thích ở [Android 1.1.2 Kotlin](../../../../knowledge/android/docs/session_01/languages/kotlin.md).
+- **Vị trí trong Session**: bài mở đầu của [Session 01: Dart Foundations](../index.md). Bảng ánh xạ là mục lục ngược cho các Topic:
+  - [1.2.1 Variables and Types](variables_and_types.md), [1.2.2 Functions and Operators](functions_operators.md), [1.2.3 Control Flow and Patterns](control_flow_patterns.md), [1.2.4 Collections and Functional APIs](collections_functional.md), [1.2.5 Classes, Mixins and Sealed Types](classes_mixins_sealed.md).
+  - [1.3.1 Futures and Async/Await](../async/futures_async_await.md), [1.3.2 Streams](../async/streams.md), [1.3.3 Isolates](../async/isolates.md).
+- **Học tiếp**: 1.2.1 theo thứ tự mục lục. Hệ sinh thái mở rộng ở 2.1.1 Flutter CLI and FVM (chưa có bài) và 2.2.1 pub.dev and Package Management (chưa có bài); đo hiệu năng đúng ở 2.2.2 DevTools and Debugging (chưa có bài) và 10.2.1 Memory Management and Profiling (chưa có bài).
+
+## Developer Curiosity Checklist
+
+Bài 1 chạy được bằng `dart run` (hoặc DartPad); bài 2–3 là câu hỏi dịch và giải thích. Đáp án ngắn ngay dưới; cơ chế đầy đủ ở Topic được link.
+
+1. **`final` và `const`.** Tạo `final tags = ['a'];` rồi `tags.add('b')`; tạo `const fixed = ['a'];` rồi `fixed.add('b')`. Lệnh nào lỗi, lúc compile hay lúc chạy?
+   - *Đáp án:* `tags.add` chạy bình thường. `fixed.add` biên dịch được nhưng ném `UnsupportedError` lúc chạy, vì kiểu tĩnh vẫn là `List<String>`. Xem [1.2.1](variables_and_types.md), [1.2.4](collections_functional.md).
+2. **Coroutine → Dart.** Dịch `viewModelScope.launch { items = repo.load() }` và `withContext(Dispatchers.Default) { parse(raw) }` sang Dart.
+   - *Đáp án:* `Future<void> refresh() async { items = await repo.load(); }`, không cần dispatcher vì IO không chặn event loop; `await Isolate.run(() => parse(raw))` vì parse là việc CPU. Xem [1.3.1](../async/futures_async_await.md), [1.3.3](../async/isolates.md).
+3. **Build mode.** Vì sao bản release không có hot reload và không dùng được thư viện dựa trên `dart:mirrors`?
+   - *Đáp án:* release là AOT, không có JIT để nạp lại code lúc chạy, và `dart:mirrors` chỉ có trên Dart VM JIT (xem `mirrors_check.dart` ở mục "Runtime và biên dịch").
+
+## Tham khảo
+
+- [Dart overview: platform, JIT và AOT, runtime](https://dart.dev/overview)
+- [Dart libraries: nền tảng hỗ trợ `dart:mirrors`](https://dart.dev/libraries)
+- [Concurrency in Dart](https://dart.dev/language/concurrency)
+- [`Isolate.run` API](https://api.dart.dev/stable/dart-isolate/Isolate/run.html)
+- [Language evolution: tính năng theo từng version Dart](https://dart.dev/resources/language/evolution)
+- [Primary constructors](https://dart.dev/language/primary-constructors) và [Announcing Dart 3.13](https://dart.dev/blog/announcing-dart-3-13)
+- [An update on Dart macros & data serialization (29/1/2025)](https://dart.dev/blog/an-update-on-dart-macros-data-serialization)
+- [How to use packages: pubspec, `pubspec.lock`, pub cache](https://dart.dev/tools/pub/packages)
+- [Flutter build modes](https://docs.flutter.dev/testing/build-modes)
+- [Flutter hot reload](https://docs.flutter.dev/tools/hot-reload)
+- [What's new in Flutter 3.29: Dart threading changes on Android/iOS](https://flutter.dev/blog/whats-new-in-flutter-3-29)
