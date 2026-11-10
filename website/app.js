@@ -476,11 +476,11 @@ const KNOWLEDGE_DATA = {
           id: 'cicd-publish-store',
           name: 'Session 11: CI/CD and Publish Store',
           topics: [
-            { id: 'cicd-overview', title: 'Session 11 Overview', status: 'draft', tags: ['android', 'cicd'] },
-            { id: 'jenkins', title: '11.1 Jenkins', status: 'draft', tags: ['android', 'cicd'] },
-            { id: 'bitrise', title: '11.2 Bitrise', status: 'draft', tags: ['android', 'cicd'] },
-            { id: 'travis-ci', title: '11.3 Travis CI', status: 'draft', tags: ['android', 'cicd'] },
-            { id: 'github-ci', title: '11.4 Github CI', status: 'draft', tags: ['android', 'cicd'] }
+            { id: 'session-11-overview', title: 'Session 11 Overview', status: 'published', tags: ['android', 'cicd'] },
+            { id: 'jenkins', title: '11.1 Jenkins', status: 'published', tags: ['android', 'cicd'] },
+            { id: 'bitrise', title: '11.2 Bitrise', status: 'published', tags: ['android', 'cicd'] },
+            { id: 'travis-ci', title: '11.3 Travis CI', status: 'published', tags: ['android', 'cicd'] },
+            { id: 'github-ci', title: '11.4 Github CI', status: 'published', tags: ['android', 'cicd'] }
           ]
         }
       ]
@@ -20273,6 +20273,7 @@ const TOPIC_REDIRECTS = {
   'advertisements': 'ads-overview', // 4.2.3.3 Advertisements tách thành 4.2.3.3.1–4.2.3.3.5
   'compose-state': 'compose-mutablestate', // entry web cũ "9.2 State and State Hoisting" gộp vào 9.2.1 MutableState
   'testing-overview': 'session-10-overview', // id nav cũ của Session 10 Overview
+  'cicd-overview': 'session-11-overview', // id nav cũ của Session 11 Overview
 };
 
 function handleUrlRouting() {

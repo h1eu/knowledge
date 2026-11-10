@@ -643,7 +643,7 @@ if ! ./gradlew ktlintCheck detekt --quiet; then
 fi
 ```
 
-Cách viết workflow CI cho bước (4) (job, cache Gradle, upload SARIF) thuộc 11.4 Github CI (chưa có bài).
+Cách viết workflow CI cho bước (4) (job, cache Gradle, lưu report làm artifact, chặn merge khi đỏ) thuộc [11.4 Github CI](../cicd_and_publish_store/github_ci.md).
 
 **Kết quả:** kiểm chứng bằng cách thêm một hàm 10 tham số và một `Log.d` vào module feature: hook chặn commit với detekt `LongParameterList` trong vài giây; sửa xong, CI chặn PR với lint `DirectLogUsage`.
 
@@ -729,7 +729,7 @@ class PaymentRepository(...) { ... }
   - [Working with Thread](../session_05/working_with_thread.md): Main Thread, nền của check `WrongThread`.
 - **Học tiếp:**
   - [10.4 Fit / Bug Optimization](fit_bug_optimization.md): lỗi không có mẫu tĩnh (memory leak, jank, crash ở production).
-  - 11.4 Github CI (chưa có bài): đưa `ktlintCheck`, `detekt`, `lintDebug` vào workflow CI.
+  - [11.4 Github CI](../cicd_and_publish_store/github_ci.md): đưa `ktlintCheck`, `detekt`, `lintDebug` vào workflow CI.
 
 ## Tham khảo
 

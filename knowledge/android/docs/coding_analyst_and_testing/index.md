@@ -49,7 +49,7 @@ Mental model: **lưới lọc nhiều lớp** (lint đọc code chưa chạy, te
 1. **Viết code:** editor chạy lint trên file đang mở; debugger và Logcat dùng khi thử tính năng (10.1).
 2. **Lint:** quét toàn module, chặn lỗi có mẫu và vi phạm quy ước (10.3).
 3. **Test:** unit test trên JVM cho logic, instrumented và UI test cho phần cần thiết bị (10.2).
-4. **Cổng trước khi merge:** CI chạy lại lint và test cho mỗi Pull Request (11.4 Github CI (chưa có bài)).
+4. **Cổng trước khi merge:** CI chạy lại lint và test cho mỗi Pull Request ([11.4 Github CI](../cicd_and_publish_store/github_ci.md)).
 5. **Production:** Crashlytics và Android vitals đo crash, ANR, hiệu năng trên máy người dùng (10.4).
 6. **Chẩn đoán:** tái hiện, khoanh vùng bằng debugger, stack trace, Profiler, LeakCanary (10.1, 10.4).
 7. **Sửa và vá lưới:** sửa nguyên nhân, thêm test (10.2), lint check (10.3) hoặc đo lại (10.4); quay về bước 1.
@@ -58,7 +58,7 @@ Mental model: **lưới lọc nhiều lớp** (lint đọc code chưa chạy, te
 flowchart LR
     W["(1) Viết code<br/>editor lint, debugger"] --> L["(2) Lint<br/>10.3"]
     L --> T["(3) Test<br/>10.2"]
-    T --> CI["(4) CI trước merge<br/>11.4 chưa có bài"]
+    T --> CI["(4) CI trước merge<br/>11.4 Github CI"]
     CI --> P["(5) Production<br/>Crashlytics, vitals 10.4"]
     P -->|"crash, ANR, chậm"| D["(6) Chẩn đoán<br/>10.1 debug, 10.4 profile"]
     D --> F["(7) Sửa, test chống lặp,<br/>check mới, đo lại"]
@@ -117,7 +117,7 @@ Một bug đi trọn vòng: sau một bản phát hành, **app crash khi mở m�
 2. **Chẩn đoán (10.1):** stack trace (đã retrace) chỉ tới `Bundle.getParcelable(key, Order::class.java)`, overload chỉ có từ API 33; tái hiện ngay trên emulator API 31.
 3. **Sửa và test chống lặp (10.2):** đổi sang `BundleCompat.getParcelable(...)` của AndroidX; test đọc đơn hàng từ `Bundle` chạy bằng Robolectric với SDK 31, đỏ trước khi sửa, xanh sau khi sửa.
 4. **Vá lưới ở lớp sớm hơn (10.3):** `NewApi` vốn bắt được lỗi này nhưng bị `@SuppressLint("NewApi")` tắt trên cả class; bỏ suppress, nâng `NewApi` thành `fatal`.
-5. **Cổng trước khi merge (11.4, chưa có bài):** lint và test chạy trong CI cho mọi PR.
+5. **Cổng trước khi merge ([11.4 Github CI](../cicd_and_publish_store/github_ci.md)):** lint và test chạy trong CI cho mọi PR.
 
 Kết quả là **lưới dày hơn** ở hai lớp: thêm một test, và một check không còn bị tắt.
 
@@ -156,7 +156,7 @@ Kết quả là **lưới dày hơn** ở hai lớp: thêm một test, và một
   - [8.4.3 Coroutines](../session_08/async_threads/coroutines.md): nền của debug và test coroutine.
   - [Session 09 Overview](../jetpack_compose_ui/index.md): UI Compose, được test ở 10.2 và tối ưu ở 10.4.
 - **Trong session:** [10.1 Debugging](debugging.md), [10.2 Unit Testing](unit_testing.md), [10.3 Lint](lint.md), [10.4 Fit / Bug Optimization](fit_bug_optimization.md).
-- **Học tiếp:** Session 11, đặc biệt 11.4 Github CI (chưa có bài): tự động hoá bước 4 của vòng.
+- **Học tiếp:** [Session 11](../cicd_and_publish_store/index.md), đặc biệt [11.4 Github CI](../cicd_and_publish_store/github_ci.md): tự động hoá bước 4 của vòng.
 
 ## Tham khảo
 

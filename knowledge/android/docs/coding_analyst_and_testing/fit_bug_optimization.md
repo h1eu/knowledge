@@ -503,7 +503,7 @@ StartupBenchmarks_startupCompilationNone
 timeToInitialDisplayMs   min 184.7,   median 196.9,   max 202.9
 ```
 
-So **median**, không so một lần chạy (docs có số đo app mẫu Now in Android trên Pixel 7: 324,8 ms không biên dịch, 229,0 ms có Baseline Profile). Commit `baseline-prof.txt`, sinh lại khi hành trình chính đổi. Kết quả còn được xuất JSON trong `build/outputs/connected_android_test_additional_output/` để CI so với bản trước (11.4 Github CI, chưa có bài).
+So **median**, không so một lần chạy (docs có số đo app mẫu Now in Android trên Pixel 7: 324,8 ms không biên dịch, 229,0 ms có Baseline Profile). Commit `baseline-prof.txt`, sinh lại khi hành trình chính đổi. Kết quả còn được xuất JSON trong `build/outputs/connected_android_test_additional_output/` để CI so với bản trước; cách đưa task Gradle vào CI ở [11.4 Github CI](../cicd_and_publish_store/github_ci.md).
 
 ### 10. StrictMode VmPolicy: cảnh báo sớm ở bản debug
 
@@ -685,7 +685,7 @@ val config = runBlocking { withContext(Dispatchers.IO) { configRepository.load()
   - [Build Types](../session_04/android_manifest/package_build_gradle/build_types.md): R8, `isShrinkResources`, `mapping.txt`, `initWith`.
 - **Liên quan:** [10.2 Unit Testing](unit_testing.md) (test chống lặp, fake), [10.3 Lint](lint.md) (bắt lỗi trước khi thành crash), [Google Service](../session_04/components/services/google_service.md) (tích hợp Firebase), [Remember và Recomposition](../jetpack_compose_ui/remember_and_recomposition.md) (jank của Compose), [Singleton Pattern](../session_07/design_pattern/singleton_pattern.md) và [View Binding](../session_06/view_binding.md) (nguồn leak), [APK](../session_01/output_packages/apk_files.md) và [AAB](../session_01/output_packages/aab_files.md) (kích thước gói), [Session 10 Overview](index.md).
 - **Học tiếp:**
-  - 11.4 Github CI (chưa có bài): chạy lint, test, benchmark trước khi merge.
+  - [11.4 Github CI](../cicd_and_publish_store/github_ci.md): chạy lint, test trước khi merge và đẩy bản release lên Google Play.
 
 ## Tham khảo
 

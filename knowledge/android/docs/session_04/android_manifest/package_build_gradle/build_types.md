@@ -769,7 +769,7 @@ Từ Gradle 9, `archivesBaseName` đã bị xóa. Viết `setProperty("archivesB
   - [Flavor](flavor.md) (`4.1.1.2`): Product Flavor nhân với Build Type thành Build Variant; thứ tự merge Source Set, `buildConfigField` theo Flavor và chỗ đặt secret, workflow CI/CD mẫu.
   - [Plugin](plugin.md) (`4.1.1.3`): ngoài định nghĩa Gradle/AGP, bài học cách AGP và các plugin khác được khai báo và nạp.
   - [10.1 Debugging](../../../coding_analyst_and_testing/debugging.md): retrace stack trace của bản release đã bị R8 làm rối bằng `mapping.txt`.
-  - Session 11 (CI/CD): 11.1 Jenkins, 11.2 Bitrise, 11.3 Travis CI, 11.4 Github CI (chưa có bài): chạy các task `assemble<BuildType>` trong pipeline.
+  - [Session 11 (CI/CD)](../../../cicd_and_publish_store/index.md): [11.1 Jenkins](../../../cicd_and_publish_store/jenkins.md), [11.2 Bitrise](../../../cicd_and_publish_store/bitrise.md), [11.3 Travis CI](../../../cicd_and_publish_store/travis_ci.md), [11.4 Github CI](../../../cicd_and_publish_store/github_ci.md): chạy các task `assemble<BuildType>`/`bundle<BuildType>` trong pipeline, ký release bằng secret và đẩy AAB lên Google Play.
 
 ## Nguồn tham khảo
 
