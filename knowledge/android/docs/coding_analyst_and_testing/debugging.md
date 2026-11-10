@@ -498,7 +498,7 @@ try {
   - [Unit Testing](unit_testing.md): test tái hiện lỗi ở bước 5.
   - [Lint](lint.md): bắt một số lỗi trước khi phải debug.
   - [Fit / Bug Optimization](fit_bug_optimization.md): crash, ANR ở production, memory leak, hiệu năng.
-  - 11.4 Github CI (chưa có bài): chạy test và lint tự động trên mỗi thay đổi.
+  - [11.4 Github CI](../cicd_and_publish_store/github_ci.md): chạy test và lint tự động trên mỗi thay đổi.
 
 ## Tham khảo
 

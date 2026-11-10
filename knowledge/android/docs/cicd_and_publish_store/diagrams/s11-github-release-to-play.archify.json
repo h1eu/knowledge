@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Pipeline Release: từ tag tới Play internal track",
+    "output": "website/archify/android/s11-github-release-to-play.html",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "emphasis": { "label": "luồng chính: tag → internal track" },
+        "security": { "label": "cổng duyệt environment" },
+        "default": { "label": "lệnh build" },
+        "return": { "label": "kết quả trả về" }
+      }
+    }
+  },
+  "participants": [
+    { "id": "lead", "type": "external", "label": "Trưởng nhóm", "sublabel": "tạo tag phát hành", "icon": "person" },
+    { "id": "rev", "type": "external", "label": "Reviewer", "sublabel": "người duyệt thứ hai", "icon": "person" },
+    { "id": "ga", "type": "backend", "label": "GitHub Actions", "sublabel": "workflow release.yml" },
+    { "id": "gradle", "type": "backend", "label": "Gradle", "sublabel": "AGP + Play Publisher" },
+    { "id": "play", "type": "cloud", "label": "Play Developer API", "sublabel": "service account" }
+  ],
+  "segments": [
+    { "from": 160, "to": 400, "label": "(1)–(2) Kích hoạt và duyệt" },
+    { "from": 410, "to": 590, "label": "(3)–(5) Giải mã keystore, build, lưu artifact" },
+    { "from": 600, "to": 790, "label": "(6)–(7) Upload và xoá keystore" }
+  ],
+  "messages": [
+    {
+      "id": "s1-push-tag",
+      "from": "lead",
+      "to": "ga",
+      "y": 180,
+      "label": "(1) git push origin v1.4.0",
+      "variant": "emphasis",
+      "note": "Tag v* kích hoạt workflow Release; concurrency chặn hai lần phát hành chạy chồng"
+    },
+    {
+      "id": "s2-wait-review",
+      "from": "ga",
+      "to": "rev",
+      "y": 260,
+      "label": "(2) chờ duyệt environment production",
+      "variant": "security",
+      "note": "Job environment: production dừng ở trạng thái Waiting"
+    },
+    {
+      "id": "s2-approve",
+      "from": "rev",
+      "to": "ga",
+      "y": 330,
+      "label": "(2) Approve, mở secret",
+      "variant": "return",
+      "note": "Duyệt xong job mới đọc được environment secret"
+    },
+    {
+      "id": "s4-bundle",
+      "from": "ga",
+      "to": "gradle",
+      "y": 440,
+      "label": "(4) bundleRelease, versionCode 1000 cộng run number",
+      "variant": "emphasis",
+      "note": "(3) Trước đó GitHub Actions giải mã RELEASE_KEYSTORE_BASE64 ra app/release.jks; versionName = tag bỏ chữ v"
+    },
+    {
+      "id": "s5-artifact",
+      "from": "gradle",
+      "to": "ga",
+      "y": 530,
+      "label": "(5) AAB và mapping.txt thành artifact",
+      "variant": "return",
+      "note": "Lưu 90 ngày để đối chiếu crash"
+    },
+    {
+      "id": "s6-publish",
+      "from": "ga",
+      "to": "play",
+      "y": 630,
+      "label": "(6) publishReleaseBundle lên internal",
+      "variant": "emphasis",
+      "note": "GPP upload AAB vừa build bằng khoá service account"
+    },
+    {
+      "id": "s6-completed",
+      "from": "play",
+      "to": "ga",
+      "y": 710,
+      "label": "(6) release internal completed",
+      "variant": "return",
+      "note": "(7) Sau đó GitHub Actions xoá app/release.jks, kể cả khi bước trước lỗi"
+    }
+  ],
+  "activations": [
+    { "participant": "ga", "from": 175, "to": 780, "type": "backend" },
+    { "participant": "rev", "from": 255, "to": 336, "type": "external" },
+    { "participant": "gradle", "from": 435, "to": 536, "type": "backend" },
+    { "participant": "play", "from": 625, "to": 716, "type": "cloud" }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Hai người cho một lần phát hành",
+      "items": [
+        "Environment production có Required reviewers",
+        "Bật Prevent self-review để người push tag không tự duyệt",
+        "Deployment branches and tags chỉ cho tag v*"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Keystore chỉ sống trong job",
+      "items": [
+        "(3) Giải mã từ secret RELEASE_KEYSTORE_BASE64",
+        "(7) Step if: always() xoá app/release.jks"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Truy vết bản phát hành",
+      "items": [
+        "versionCode = 1000 + GITHUB_RUN_NUMBER",
+        "Artifact release-v1.4.0 chứa AAB và mapping.txt"
+      ]
+    }
+  ]
+}

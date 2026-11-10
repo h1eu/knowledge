@@ -809,7 +809,7 @@ class ProductApiTest {
 - **Tiên quyết:** [ViewModel](../session_06/viewmodel.md), [Coroutines](../session_08/async_threads/coroutines.md), [Flow](../session_07/design_pattern/observer/flow.md), [Dependency Injection Overview](../session_07/design_pattern/di/overview.md).
 - **Liên quan:** [5.3 Networking](../session_05/networking.md), [8.1.1 Retrofit](../session_08/networks/retrofit.md), [8.1.3 OkHttp](../session_08/networks/okhttp.md); [Room Architecture](../session_05/data_store/room_architecture.md), [Async Transactions & Flow](../session_05/data_store/room_transactions.md) (test DAO, Flow của Room); [MVVM](../session_07/architecture/mvvm.md), [Hilt](../session_07/design_pattern/di/hilt.md) (thay binding trong instrumented test); [LaunchedEffect](../jetpack_compose_ui/side_effects/launched_effect.md), [Remember and rememberSaveable](../jetpack_compose_ui/state/remember_saveable.md).
 - **Trong Session 10:** [Tổng quan](index.md); [10.1 Debugging](debugging.md) tìm ra bug, bài này khoá nó bằng test chống lặp; [10.3 Lint](lint.md) bắt lỗi không cần chạy code; [10.4 Fit / Bug Optimization](fit_bug_optimization.md) đưa bug từ production về và đo hiệu năng.
-- **Học tiếp:** 11.4 Github CI (chưa có bài): chạy `testDebugUnitTest` và instrumented test tự động trước mỗi lần merge.
+- **Học tiếp:** [11.4 Github CI](../cicd_and_publish_store/github_ci.md): chạy `testDebugUnitTest` và instrumented test tự động trước mỗi lần merge.
 
 ## Tham khảo
 

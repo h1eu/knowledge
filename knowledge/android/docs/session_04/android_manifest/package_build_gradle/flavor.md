@@ -696,6 +696,7 @@ Tên task là `assemble<Flavor><BuildType>` (ghi hoa chữ cái đầu, không c
 - **Học tiếp:**
   - [Plugin](plugin.md) (4.1.1.3): hiểu cách AGP và các plugin được khai báo, nạp và ảnh hưởng tới build.
   - [Manifest Tags](../tags.md) (4.1.2): các thẻ trong `AndroidManifest.xml`, nơi `manifestPlaceholders` của flavor chèn giá trị vào.
+  - [11.4 Github CI](../../../cicd_and_publish_store/github_ci.md) (11.4): pipeline PR check và Release đầy đủ, ký AAB bằng secret và đẩy lên Google Play.
 - **Liên quan:** [Kotlin](../../../session_01/languages/kotlin.md) (1.1.2): ngôn ngữ của `build.gradle.kts` và các ví dụ trong bài.
 
 Trong kiến trúc dự án Android thực tế (MVVM/Clean Architecture), Flavor nằm ở tầng **build configuration** — ngoài mã nguồn nghiệp vụ:

@@ -1,0 +1,246 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Pipeline CI/CD của một app Android",
+    "output": "website/archify/android/s11-android-cicd-pipeline.html",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "external": {
+          "label": "sự kiện kích hoạt"
+        },
+        "backend": {
+          "label": "bước chạy trên máy build"
+        },
+        "security": {
+          "label": "cổng chặn: đỏ thì dừng"
+        },
+        "database": {
+          "label": "lưu để tải về, truy vết"
+        },
+        "cloud": {
+          "label": "dịch vụ phân phối, giám sát"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "stop",
+      "label": "Cổng đỏ",
+      "variant": "exception"
+    },
+    {
+      "id": "build",
+      "label": "Kiểm tra và build"
+    },
+    {
+      "id": "release",
+      "label": "Ký, phát hành, giám sát"
+    }
+  ],
+  "mainPath": [
+    "trigger",
+    "env",
+    "static",
+    "test",
+    "build",
+    "sign"
+  ],
+  "nodes": [
+    {
+      "id": "halt",
+      "lane": "stop",
+      "col": 2,
+      "type": "security",
+      "label": "Dừng, báo đỏ",
+      "sublabel": "không chạy stage sau",
+      "icon": "stop"
+    },
+    {
+      "id": "trigger",
+      "lane": "build",
+      "col": 0,
+      "type": "external",
+      "label": "(1) Trigger",
+      "sublabel": "PR, push, tag",
+      "icon": "start"
+    },
+    {
+      "id": "env",
+      "lane": "build",
+      "col": 1,
+      "type": "backend",
+      "label": "(2) Môi trường",
+      "sublabel": "JDK, SDK, cache"
+    },
+    {
+      "id": "static",
+      "lane": "build",
+      "col": 2,
+      "type": "security",
+      "label": "(3) Kiểm tra tĩnh",
+      "sublabel": "lint, ktlint, detekt"
+    },
+    {
+      "id": "test",
+      "lane": "build",
+      "col": 3,
+      "type": "security",
+      "label": "(4) Test",
+      "sublabel": "unit, instrumented"
+    },
+    {
+      "id": "build",
+      "lane": "build",
+      "col": 4,
+      "type": "backend",
+      "label": "(5) Build",
+      "sublabel": "assemble, bundle"
+    },
+    {
+      "id": "sign",
+      "lane": "release",
+      "col": 4,
+      "type": "backend",
+      "label": "(6) Ký",
+      "sublabel": "upload key từ secret"
+    },
+    {
+      "id": "artifact",
+      "lane": "release",
+      "col": 3,
+      "type": "database",
+      "label": "(7) Artifact",
+      "sublabel": "report, AAB, mapping"
+    },
+    {
+      "id": "distribute",
+      "lane": "release",
+      "col": 2,
+      "type": "cloud",
+      "label": "(8) Phân phối",
+      "sublabel": "App Distribution, Play tracks"
+    },
+    {
+      "id": "monitor",
+      "lane": "release",
+      "col": 1,
+      "type": "cloud",
+      "label": "(9) Giám sát",
+      "sublabel": "Crashlytics, vitals"
+    }
+  ],
+  "edges": [
+    {
+      "id": "trigger-env",
+      "from": "trigger",
+      "to": "env",
+      "variant": "emphasis"
+    },
+    {
+      "id": "env-static",
+      "from": "env",
+      "to": "static",
+      "variant": "emphasis"
+    },
+    {
+      "id": "static-test",
+      "from": "static",
+      "to": "test",
+      "label": "xanh",
+      "variant": "emphasis"
+    },
+    {
+      "id": "test-build",
+      "from": "test",
+      "to": "build",
+      "label": "xanh",
+      "variant": "emphasis"
+    },
+    {
+      "id": "build-sign",
+      "from": "build",
+      "to": "sign",
+      "variant": "emphasis"
+    },
+    {
+      "id": "sign-artifact",
+      "from": "sign",
+      "to": "artifact",
+      "variant": "emphasis"
+    },
+    {
+      "id": "artifact-distribute",
+      "from": "artifact",
+      "to": "distribute",
+      "variant": "emphasis"
+    },
+    {
+      "id": "distribute-monitor",
+      "from": "distribute",
+      "to": "monitor",
+      "variant": "emphasis"
+    },
+    {
+      "id": "static-halt",
+      "from": "static",
+      "to": "halt",
+      "label": "lint lỗi: không build",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "test-halt",
+      "from": "test",
+      "to": "halt",
+      "label": "test đỏ: không ký",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "monitor-trigger",
+      "from": "monitor",
+      "to": "trigger",
+      "label": "lỗi: dừng rollout, sửa",
+      "variant": "dashed",
+      "role": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Cổng nối tiếp",
+      "items": [
+        "Mỗi cổng hoặc cho đi tiếp, hoặc dừng cả dây chuyền và báo đỏ",
+        "Lint lỗi thì không build, test đỏ thì không ký"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Continuous Delivery trên Android",
+      "items": [
+        "Tự động tới internal track hoặc Firebase App Distribution",
+        "Lên production có người duyệt và đi qua staged rollout",
+        "Bản đã cài không rollback được: sửa bằng bản mới có versionCode cao hơn"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Vòng phản hồi",
+      "items": [
+        "Crashlytics và Android vitals quyết định tăng tỉ lệ rollout hay dừng lại",
+        "Mũi tên quay lại là vòng chất lượng của Session 10, giờ chạy tự động"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Tool chỉ là nơi chạy",
+      "items": [
+        "Jenkins, Bitrise, Travis CI, GitHub Actions chạy cùng các stage này",
+        "Các cổng thì giống nhau ở mọi tool"
+      ]
+    }
+  ]
+}

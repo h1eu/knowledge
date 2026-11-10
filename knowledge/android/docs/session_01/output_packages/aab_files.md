@@ -309,7 +309,7 @@ java -jar bundletool.jar install-apks --apks=app.apks
 - **Related Topics**:
   - `android.languages.jni`: thư viện `.so` được tách thành ABI split.
 - **Downstream Topics**:
-  - `android.cicd.overview`: tự động build và đẩy AAB lên Play Console trong pipeline CI/CD.
+  - [Session 11: CI/CD and Publish Store](../../cicd_and_publish_store/index.md) và [11.4 Github CI](../../cicd_and_publish_store/github_ci.md): tự động build, ký và đẩy AAB lên Google Play trong pipeline CI/CD.
 
 ---
 
