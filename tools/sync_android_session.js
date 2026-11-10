@@ -435,4 +435,7 @@ function main() {
   if (changed.length) fs.writeFileSync(JS, js);
 }
 
-main();
+// Dùng lại parse frontmatter / tra key website ở script khác (vd gen_doc_paths.js)
+module.exports = { ROOT, JS, SESSION_DIRS, parseFrontmatter, resolveKey, walk };
+
+if (require.main === module) main();
