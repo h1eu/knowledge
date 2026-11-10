@@ -10053,7 +10053,7 @@ function getReaderPageUrl(topicId, domainId) {
 // tĩnh như cũ. Mọi đường vào bài học (sidebar, search, KG, deep-link) đều đi
 // qua openTopic nên chỉ cần chặn ở một điểm.
 const DOMAIN_CONTENT_FILES = {
-  'android': ['android-content.js'],
+  'android': ['android-content.js', 'doc-paths.js'],
   'ios': ['ios-content.js'],
   'flutter': ['flutter-content.js'],
   'git-beginner': ['git-content.js'],
@@ -10470,6 +10470,7 @@ function openTopic(topicId, updateHash = true, triedLoad = false) {
   enhanceProseCodeBlocks();
   applyPreferredDsaLang();
   enhanceArchifyEmbeds();
+  resolveDocLinks(topicId);
   initReadingEnhancers();
   initReadingExtras();
 
@@ -19897,6 +19898,72 @@ function reRenderMermaid() {
       .then(() => setTimeout(enhanceMermaidDiagrams, 80))
       .catch(e => console.error('Mermaid error:', e));
   }
+}
+
+// ── Link .md trong bài → Topic trên site ──────
+// Markdown link sang bài khác bằng đường dẫn .md tương đối (rule 03/05), website không có file .md.
+// DOC_PATHS (tools/gen_doc_paths.js) map file Markdown (từ gốc repo) → topic id. Link không ra được
+// Topic thì mở file trên GitHub (file có trong repo nhưng chưa có entry web) hoặc thành chữ thường
+// (file không tồn tại), để không còn link chết.
+const REPO_BLOB_URL = 'https://github.com/h1eu/knowledge/blob/main/';
+
+// Ghép đường dẫn tương đối kiểu POSIX theo file nguồn; null nếu đi ra ngoài gốc repo
+function joinDocPath(baseFile, href) {
+  const parts = baseFile.split('/').slice(0, -1);
+  for (const seg of href.split('/')) {
+    if (seg === '' || seg === '.') continue;
+    if (seg === '..') {
+      if (!parts.length) return null;
+      parts.pop();
+    } else {
+      parts.push(seg);
+    }
+  }
+  return parts.join('/');
+}
+
+// File nguồn của Topic đang mở; topicId có thể là key entry hoặc alias id trỏ cùng entry
+function docPathOfTopic(topicId) {
+  const content = TOPIC_CONTENT[topicId];
+  for (const [file, ids] of Object.entries(DOC_PATHS)) {
+    if (ids.some(id => id === topicId || (content && TOPIC_CONTENT[id] === content))) return file;
+  }
+  return null;
+}
+
+function resolveDocLinks(topicId) {
+  const prose = document.getElementById('prose-content');
+  if (typeof DOC_PATHS === 'undefined' || !prose) return;
+  const sourceFile = docPathOfTopic(topicId);
+  prose.querySelectorAll('a[href]').forEach(a => {
+    // Chỉ link tương đối tới file .md (bỏ qua http:, #anchor, /tuyệt-đối)
+    const match = a.getAttribute('href').match(/^([^:#?/][^:#?]*\.md)(#.*)?$/);
+    if (!match) return;
+    let file = null;
+    try { file = sourceFile && joinDocPath(sourceFile, decodeURI(match[1])); } catch (_) { /* URI lỗi: coi như không resolve được */ }
+    // Topic domain khác (vd Design Principles) chưa nạp content: openTopic tự lazy-load
+    const target = file && (DOC_PATHS[file] || []).find(id => findTopic(id));
+    if (target) {
+      a.setAttribute('href', `#${target}`);
+      a.removeAttribute('target');
+      a.removeAttribute('rel');
+      a.addEventListener('click', e => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // mở tab mới: để trình duyệt xử lý
+        e.preventDefault();
+        openTopic(target);
+      });
+    } else if (file && file in DOC_PATHS) {
+      a.setAttribute('href', REPO_BLOB_URL + file);
+      a.setAttribute('target', '_blank');
+      a.setAttribute('rel', 'noopener');
+      a.title = 'Bài chưa có trên website: mở bản Markdown trên GitHub';
+    } else {
+      console.warn(`[doc-links] Không resolve được "${a.getAttribute('href')}" trong ${sourceFile || topicId}`);
+      const text = document.createElement('span');
+      text.append(...a.childNodes);
+      a.replaceWith(text);
+    }
+  });
 }
 
 // ── Archify: sơ đồ tương tác hiển thị ngay trong bài (iframe lazy) ──────
